@@ -1,0 +1,365 @@
+.parentContainer {
+	width: 100vw;
+	height: 100vh;
+	background-color: #111;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	.childContainer {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		height: 700px;
+		// border: 2px solid green;
+		min-height: 700px;
+		margin-left: 150px;
+		margin-right: 150px;
+		gap: 48px;
+	}
+	.topbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		align-self: stretch;
+		height: 56px;
+	}
+	.filterContainer {
+		display: flex;
+		padding: 8px 20px 8px 8px;
+		align-items: center;
+		gap: 20px;
+		border-radius: 100px;
+		border: 1px solid rgba(36, 36, 36, 0.64);
+		background: rgba(42, 42, 42, 0.16);
+	}
+	.filterButton {
+		display: flex;
+		padding: 9px 12px;
+		justify-content: center;
+		align-items: center;
+		gap: 4.2px;
+		border-radius: 100px;
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 22px; /* 157.143% */
+		letter-spacing: 0.28px;
+		text-transform: capitalize;
+		cursor: pointer;
+		transition: all 1s;
+		span {
+			color: rgba(228, 229, 230, 0.48);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 22px; /* 157.143% */
+			letter-spacing: 0.28px;
+			text-transform: capitalize;
+		}
+	}
+	.filterButton.active {
+		background: rgba(176, 176, 176, 0.1);
+	}
+	.searchContainer {
+		display: flex;
+		padding: 16px 24px;
+		align-items: center;
+		gap: 16px;
+		border-radius: 100px;
+		border: 1px solid rgba(36, 36, 36, 0.64);
+		background: rgba(42, 42, 42, 0.16);
+		min-width: 320px;
+
+		input {
+			color: rgba(224, 224, 224, 0.32);
+			font-family: Inter;
+			font-size: 15px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 16px; /* 106.667% */
+			background: transparent;
+			outline: none;
+			border: none;
+			flex: 1;
+		}
+	}
+	.chatContainer {
+		display: flex;
+		flex: 1;
+		gap: 64px;
+	}
+	.channelsList {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+		width: 320px;
+		overflow-y: auto;
+		height: calc(700px - 56px - 48px);
+	}
+	.channelListLoader {
+		display: flex;
+		flex: 1;
+		align-self: stretch;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		color: #fff;
+		gap: 12px;
+	}
+	.channelCard {
+		display: flex;
+		padding: 12px 16px;
+		align-items: center;
+		gap: 13px;
+		border-radius: 12px;
+		display: flex;
+		align-self: stretch;
+		cursor: pointer;
+		transition: all 0.5s ease-in;
+
+		.imageContainer {
+			width: 32px;
+			height: 32px;
+			border-radius: 32px;
+			background-size: cover;
+			background-position: center;
+			// background: url('https://s3-alpha-sig.figma.com/img/4238/f09b/014d0324fec8ef01c81b8b79303c6e40?Expires=1718582400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=bqANFeXiqfX1hbtYYgJJV798Zh4oaitdQQNKoB~2nvIaTKNeFfR19hJgI2E5cQ8uENmM-x~tKobQxnZArv8T0LCMHz~yFVXHPqcDQ9IVhVRpTszCy4Dwhh2zw6uP0PF0~M7TELrFt2WO3R554mV42ZvGQLwNtvPBghIYFXn9mO41WATUPgp04nt5UtNtUpWVo64ucqtdHv3occux9JcxrtBm-P4rMu2POmWbe1vFcv~N2Cmrib5cmSHIsDqKu6gchDsD8lAC7klurQQK2TQpG-AOs1Ip91IH1-diNI-roJyt3wKrtDF83EfvsWBTPqt9-SwaaV1VnKb6NL-vQh8rUQ__');
+		}
+		.channelContent {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 3px;
+			flex: 1 0 0;
+
+			.channelName {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 21px; /* 161.538% */
+			}
+			.newMessageCountContainer {
+				display: flex;
+				align-self: stretch;
+
+				.channelSubMessage {
+					color: rgba(228, 229, 230, 0.48);
+					font-family: Inter;
+					font-size: 11px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 19px; /* 172.727% */
+					letter-spacing: 0.22px;
+					display: flex;
+					align-self: stretch;
+					flex: 1;
+					display: inline-block;
+					overflow: hidden;
+					white-space: nowrap;
+					text-overflow: ellipsis;
+				}
+				.countContainer {
+					display: flex;
+					padding: 0px 4px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					display: flex;
+					padding: 0px 4px;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 10px;
+					border-radius: 100px;
+					background: #3f8ae2;
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 11px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 19px; /* 172.727% */
+					letter-spacing: 0.22px;
+				}
+			}
+		}
+	}
+	.channelCard:hover {
+		background-color: rgb(255, 255, 255, 0.04);
+	}
+	.channelCard.active {
+		background-color: rgb(255, 255, 255, 0.04);
+	}
+	.selectedChannel {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+
+		.noChannelSelectedEmptyContainer {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			color: #fff;
+			flex: 1;
+		}
+
+		.header {
+			display: flex;
+			gap: 10px;
+			align-self: stretch;
+			padding-bottom: 24px;
+			border-bottom: 1px solid rgba(36, 36, 36, 0.64);
+
+			.imageContainer {
+				width: 32px;
+				height: 32px;
+				border-radius: 32px;
+				// background-image: url('https://s3-alpha-sig.figma.com/img/4238/f09b/014d0324fec8ef01c81b8b79303c6e40?Expires=1718582400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=bqANFeXiqfX1hbtYYgJJV798Zh4oaitdQQNKoB~2nvIaTKNeFfR19hJgI2E5cQ8uENmM-x~tKobQxnZArv8T0LCMHz~yFVXHPqcDQ9IVhVRpTszCy4Dwhh2zw6uP0PF0~M7TELrFt2WO3R554mV42ZvGQLwNtvPBghIYFXn9mO41WATUPgp04nt5UtNtUpWVo64ucqtdHv3occux9JcxrtBm-P4rMu2POmWbe1vFcv~N2Cmrib5cmSHIsDqKu6gchDsD8lAC7klurQQK2TQpG-AOs1Ip91IH1-diNI-roJyt3wKrtDF83EfvsWBTPqt9-SwaaV1VnKb6NL-vQh8rUQ__');
+				background-size: cover;
+				background-position: center;
+				// background: url('https://s3-alpha-sig.figma.com/img/4238/f09b/014d0324fec8ef01c81b8b79303c6e40?Expires=1718582400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=bqANFeXiqfX1hbtYYgJJV798Zh4oaitdQQNKoB~2nvIaTKNeFfR19hJgI2E5cQ8uENmM-x~tKobQxnZArv8T0LCMHz~yFVXHPqcDQ9IVhVRpTszCy4Dwhh2zw6uP0PF0~M7TELrFt2WO3R554mV42ZvGQLwNtvPBghIYFXn9mO41WATUPgp04nt5UtNtUpWVo64ucqtdHv3occux9JcxrtBm-P4rMu2POmWbe1vFcv~N2Cmrib5cmSHIsDqKu6gchDsD8lAC7klurQQK2TQpG-AOs1Ip91IH1-diNI-roJyt3wKrtDF83EfvsWBTPqt9-SwaaV1VnKb6NL-vQh8rUQ__');
+			}
+			.heading {
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+
+				.channelName {
+					overflow: hidden;
+					color: #e4e5e6;
+					text-overflow: ellipsis;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 22px; /* 157.143% */
+					letter-spacing: -0.28px;
+				}
+				.channelSubMessage {
+					color: rgba(228, 229, 230, 0.48);
+					font-family: Inter;
+					font-size: 11px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 19px; /* 172.727% */
+					letter-spacing: 0.22px;
+				}
+			}
+		}
+		.messageList {
+			display: flex;
+			flex-direction: column-reverse;
+			overflow-y: auto;
+			height: calc(596px - 66px - 58px);
+			padding: 24px 0px;
+			gap: 20px;
+		}
+
+		.messageInput {
+			display: flex;
+			padding: 16px 24px;
+			align-items: center;
+			gap: 16px;
+			border-radius: 100px;
+			border: 1px solid rgba(36, 36, 36, 0.64);
+			background: rgba(42, 42, 42, 0.16);
+			.inputElement {
+				flex: 1;
+				height: 20px;
+				// padding: 10px;
+				border: none;
+				border-radius: 5px;
+				resize: none;
+				outline: none;
+				background-color: transparent;
+				color: rgba(224, 224, 224, 0.32);
+				font-family: Inter;
+				font-size: 15px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 16px; /* 106.667% */
+			}
+		}
+	}
+	.messageCardContainer {
+		display: flex;
+		flex-direction: row;
+		width: 100%;
+		gap: 13px;
+		.imageContainer {
+			width: 32px;
+			height: 32px;
+			border-radius: 32px;
+			background-image: url('https://s3-alpha-sig.figma.com/img/4238/f09b/014d0324fec8ef01c81b8b79303c6e40?Expires=1718582400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=bqANFeXiqfX1hbtYYgJJV798Zh4oaitdQQNKoB~2nvIaTKNeFfR19hJgI2E5cQ8uENmM-x~tKobQxnZArv8T0LCMHz~yFVXHPqcDQ9IVhVRpTszCy4Dwhh2zw6uP0PF0~M7TELrFt2WO3R554mV42ZvGQLwNtvPBghIYFXn9mO41WATUPgp04nt5UtNtUpWVo64ucqtdHv3occux9JcxrtBm-P4rMu2POmWbe1vFcv~N2Cmrib5cmSHIsDqKu6gchDsD8lAC7klurQQK2TQpG-AOs1Ip91IH1-diNI-roJyt3wKrtDF83EfvsWBTPqt9-SwaaV1VnKb6NL-vQh8rUQ__');
+			background-size: cover;
+			background-position: center;
+			align-self: flex-end;
+		}
+		.messageDetailsContainer {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+
+			.userDetails {
+				display: flex;
+				gap: 6px;
+
+				.userName {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 11px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 19px; /* 172.727% */
+					letter-spacing: 0.22px;
+					width: auto;
+					max-width: 80%;
+					white-space: nowrap; /* Prevents text from wrapping */
+					overflow: hidden; /* Ensures content that overflows is hidden */
+					text-overflow: ellipsis; /* Adds the ellipsis effect */
+				}
+				.timing {
+					color: rgba(228, 229, 230, 0.48);
+					font-family: Inter;
+					font-size: 11px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 19px; /* 172.727% */
+					letter-spacing: 0.22px;
+				}
+			}
+			.messageCard {
+				padding: 6px 12px;
+				width: fit-content;
+				max-width: 80%;
+				border-radius: 13px;
+				color: #fff;
+			}
+		}
+	}
+}
+.pageList {
+	display: flex;
+	width: 320px;
+	padding: 12px 16px;
+	align-items: center;
+	gap: 13px;
+	border-radius: 12px;
+	background: rgba(255, 255, 255, 0.04);
+
+	.imageContainer {
+		width: 32px;
+		height: 32px;
+		border-radius: 32px;
+		background-image: url('https://s3-alpha-sig.figma.com/img/4238/f09b/014d0324fec8ef01c81b8b79303c6e40?Expires=1718582400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=bqANFeXiqfX1hbtYYgJJV798Zh4oaitdQQNKoB~2nvIaTKNeFfR19hJgI2E5cQ8uENmM-x~tKobQxnZArv8T0LCMHz~yFVXHPqcDQ9IVhVRpTszCy4Dwhh2zw6uP0PF0~M7TELrFt2WO3R554mV42ZvGQLwNtvPBghIYFXn9mO41WATUPgp04nt5UtNtUpWVo64ucqtdHv3occux9JcxrtBm-P4rMu2POmWbe1vFcv~N2Cmrib5cmSHIsDqKu6gchDsD8lAC7klurQQK2TQpG-AOs1Ip91IH1-diNI-roJyt3wKrtDF83EfvsWBTPqt9-SwaaV1VnKb6NL-vQh8rUQ__');
+		background-size: cover;
+		background-position: center;
+		align-self: flex-end;
+	}
+}
