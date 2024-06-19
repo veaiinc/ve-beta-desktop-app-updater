@@ -8,6 +8,5 @@ module.exports = {
 	form_api_server: 'https://api.huemn.com/forms/2.0',
 	projects_api_server: 'https://api.huemn.com/projects/dev',
 	forms_graphql_server: `https://api.huemn.com/forms/dev`,
-	vendors_api_server: 'https://api.huemn.com/projects/1.0/vendors',
 	ve_conversations: 'https://api.huemn.com/ve-conversations/1.0',
 };

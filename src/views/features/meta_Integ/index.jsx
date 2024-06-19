@@ -12,6 +12,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
 import { useLocation } from 'react-router-dom';
 import { useNavigate, useParams } from 'react-router-dom';
+import DropDown from '../../components/dropDown/DropDown';
+import { ReactComponent as Instagram } from '../../../assets/svg/chat/instagram.svg';
 const ChatScreen = (props) => {
 	let {
 		chatInfo: {
@@ -23,16 +25,18 @@ const ChatScreen = (props) => {
 			moreMessages,
 			markUnreadMessages,
 			getPageInfo,
+			pageInfoData,
 		},
 	} = useContext(Context);
 	const location = useLocation();
-	const { pageInfoData } = location.state || {};
+	// const { pageInfoData } = location.state || {};
 	const { workspaceId } = useParams();
+	// const workspaceId = localStorage.getItem('workspaceId');
 
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
-		activeFilter: 'inbox',
+		activeFilter: 'instagram',
 		seletedChannel: null,
 		selectedChannelIndex: null,
 		messageInputValue: '',
@@ -48,55 +52,78 @@ const ChatScreen = (props) => {
 		pageId: pageInfoData?.pageId,
 		channelMapper: {},
 		pageInfo: pageInfoData || {},
+		pageInfo: null,
+		allPageInfoData: null,
 	});
 	const socketRef = useRef(null);
-	//websocket connection
 
+	//fetching pageinfo data
 	useEffect(() => {
-		getAllChannelsList(1, false);
-		const usertoken = localStorage.getItem('usertoken');
-		const url = `wss://yoxagmjgr1.execute-api.ap-south-1.amazonaws.com/production/?workspaceId=${workspaceId}&pageId=${info?.pageId}&token=${usertoken}`;
-		socketRef.current = new WebSocket(url);
-		socketRef.current.onopen = () => {
-			console.log('Connected to WebSocket server');
+		const payload = {
+			filters: {
+				limit: 100,
+				page: 1,
+			},
 		};
 
-		socketRef.current.onclose = () => {
-			console.log('Disconnected from WebSocket server');
-		};
-
+		getPageInfo(workspaceId, payload);
 		return () => {
 			socketRef.current.close();
 		};
 	}, []);
 
 	useEffect(() => {
-		socketRef.current.onmessage = (event) => {
-			if (event.data === 'Message sent') {
-				return;
-			}
-			const message = JSON.parse(event.data);
-			if (message?.senderId === info?.seletedChannel?.userId) {
-				let updatedMessageList = info?.messagesList?.length ? [...info?.messagesList] : [];
-				updatedMessageList?.unshift(message);
-				setInfo((prev) => ({ ...prev, messagesList: updatedMessageList }));
-			} else {
-				let channelMapper = { ...info?.channelMapper };
-				if (channelMapper?.[message?.senderId]) {
-					let channelList = [...info?.channelList];
-					let targetChannelIndex = channelMapper?.[message?.senderId];
-					let targetChannelData = channelList?.[targetChannelIndex];
-					targetChannelData.unreadCount = (targetChannelData.unreadCount || 0) + 1;
-					channelList?.splice(targetChannelIndex, 1);
-					channelList.unshift(targetChannelData);
-					setInfo((prev) => ({ ...prev, channelList }));
-				} else {
-					//call the get channel list api
-					getAllChannelsList(1, false);
+		if (pageInfoData) {
+			const { data } = pageInfoData;
+			setInfo((prev) => ({
+				...prev,
+				allPageInfoData: data,
+				pageInfo: data?.[0],
+				pageId: data?.[0]?.pageId,
+			}));
+		}
+	}, [pageInfoData]);
+
+	//websocket connection after fetching pageInfo data
+	useEffect(() => {
+		if (info?.pageInfo) {
+			createWebSocketConnection();
+		}
+	}, [info?.pageInfo]);
+
+	useEffect(() => {
+		if (info?.pageInfo) {
+			socketRef.current.onmessage = (event) => {
+				if (event.data === 'Message sent') {
+					return;
 				}
-			}
-		};
-	}, [info?.seletedChannel, info?.messagesList, info?.channelMapper, socketRef]);
+
+				const message = JSON.parse(event.data);
+
+				if (message?.senderId === info?.seletedChannel?.userId) {
+					let updatedMessageList = info?.messagesList?.length
+						? [...info?.messagesList]
+						: [];
+					updatedMessageList?.unshift({ ...message, createdAt: message?.timestamp });
+					setInfo((prev) => ({ ...prev, messagesList: updatedMessageList }));
+				} else {
+					let channelMapper = { ...info?.channelMapper };
+					if (channelMapper?.[message?.senderId]) {
+						let channelList = [...info?.channelList];
+						let targetChannelIndex = channelMapper?.[message?.senderId];
+						let targetChannelData = channelList?.[targetChannelIndex];
+						targetChannelData.unreadCount = (targetChannelData.unreadCount || 0) + 1;
+						channelList?.splice(targetChannelIndex, 1);
+						channelList.unshift(targetChannelData);
+						setInfo((prev) => ({ ...prev, channelList }));
+					} else {
+						//call the get channel list api
+						getAllChannelsList(1, false);
+					}
+				}
+			};
+		}
+	}, [info?.seletedChannel, info?.messagesList, info?.channelMapper, socketRef, info?.pageInfo]);
 
 	//useEffects
 
@@ -166,21 +193,38 @@ const ChatScreen = (props) => {
 	}, [moreMessages]);
 
 	//function definations
+	const createWebSocketConnection = useCallback(() => {
+		getAllChannelsList(1, false);
+		const usertoken = localStorage.getItem('usertoken');
+		const url = `wss://yoxagmjgr1.execute-api.ap-south-1.amazonaws.com/production/?workspaceId=${workspaceId}&pageId=${info?.pageInfo?.pageId}&token=${usertoken}`;
+		if (socketRef.current) {
+			socketRef.current.close();
+		}
+		socketRef.current = new WebSocket(url);
+		socketRef.current.onopen = () => {
+			console.log('Connected to WebSocket server');
+		};
+
+		socketRef.current.onclose = () => {
+			console.log('Disconnected from WebSocket server');
+		};
+	}, [info?.pageInfo]);
 
 	const getAllChannelsList = useCallback(
 		async (page, fetchMore = false) => {
+			console.log(info?.pageInfo?.pageId);
 			const payload = {
 				filters: {
 					limit: 10,
 					page: page,
-					pageId: info?.pageId,
+					pageId: info?.pageInfo?.pageId,
 					sortBy: 'lastMessageAt',
 					sortType: -1,
 				},
 			};
 			getAllUsersFromMeta(info?.workspaceId, payload, fetchMore);
 		},
-		[info?.workspaceId, info?.pageId],
+		[info?.workspaceId, info?.pageInfo],
 	);
 
 	const getAllChannelConversation = useCallback(
@@ -189,7 +233,7 @@ const ChatScreen = (props) => {
 				filters: {
 					limit: 10,
 					page: page,
-					pageId: info?.pageId,
+					pageId: info?.pageInfo?.pageId,
 					userId: item?.userId,
 					sortBy: 'createdAt',
 					sortType: -1,
@@ -197,7 +241,7 @@ const ChatScreen = (props) => {
 			};
 			getAllUsersConversation(info?.workspaceId, payload, fetchMore);
 		},
-		[info?.workspaceId, info?.pageId],
+		[info?.workspaceId, info?.pageInfo],
 	);
 
 	const handleKeyDown = useCallback(
@@ -220,7 +264,7 @@ const ChatScreen = (props) => {
 					socketRef.current.send(JSON.stringify(data));
 
 					const newMessage = {
-						pageId: info?.pageId,
+						pageId: info?.pageInfo?.pageId,
 						senderId: info?.pageInfo?.userId,
 						messageText: info?.messageInputValue,
 						readAt: moment().unix(),
@@ -241,13 +285,7 @@ const ChatScreen = (props) => {
 				}
 			}
 		},
-		[
-			info?.messageInputValue,
-			info?.seletedChannel,
-			info?.messagesList,
-			info?.pageId,
-			info?.pageInfo,
-		],
+		[info?.messageInputValue, info?.seletedChannel, info?.messagesList, info?.pageInfo],
 	);
 
 	const onFilterClick = useCallback(
@@ -275,7 +313,7 @@ const ChatScreen = (props) => {
 			}));
 			getAllChannelConversation(1, item, false);
 			const payload = {
-				pageId: info?.pageId,
+				pageId: info?.pageInfo?.pageId,
 				userId: item?.userId,
 			};
 
@@ -288,12 +326,12 @@ const ChatScreen = (props) => {
 				setInfo((prev) => ({ ...prev, channelList: updatedChannelList }));
 			}
 		},
-		[info?.seletedChannel, info?.workspaceId, info?.channelList],
+		[info?.seletedChannel, info?.workspaceId, info?.channelList, info?.pageInfo],
 	);
 
 	const fetchMoreChannels = useCallback(async () => {
 		getAllChannelsList(info?.channelListCurrentPage + 1, true);
-	}, [info?.channelListCurrentPage]);
+	}, [info?.channelListCurrentPage, info?.pageInfo]);
 
 	const fetchMoreChannelsMessages = useCallback(async () => {
 		getAllChannelConversation(
@@ -303,12 +341,32 @@ const ChatScreen = (props) => {
 		);
 	}, [info?.messageListCurrentPage, info?.seletedChannel]);
 
+	const onPageChange = useCallback(
+		(item) => {
+			if (info?.pageInfo?.pageId === item.pageId) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, pageInfo: item }));
+		},
+		[info?.pageInfo],
+	);
+
 	return (
 		<div className="parentContainer">
 			<div className="childContainer">
 				<div className="topbar">
+					<DropDown
+						selectedValue={info?.pageInfo?.pageName}
+						options={[...(info?.allPageInfoData || [])]}
+						selectedPageId={info?.pageInfo?.pageId}
+						onChange={onPageChange}
+						iconComponent={<Instagram />}
+						valueSelector="pageName"
+						uniqueIdKey={'pageId'}
+					/>
+
 					<div className="filterContainer">
-						<div
+						{/* <div
 							onClick={() => onFilterClick('inbox')}
 							className={`filterButton ${
 								info?.activeFilter === 'inbox' ? 'active' : ''
@@ -316,15 +374,15 @@ const ChatScreen = (props) => {
 						>
 							Inbox
 							<span>1000</span>
-						</div>
-						<div
+						</div> */}
+						{/* <div
 							onClick={() => onFilterClick('watsapp')}
 							className={`filterButton ${
 								info?.activeFilter === 'watsapp' ? 'active' : ''
 							}`}
 						>
 							WhatsApp <span>1000</span>
-						</div>
+						</div> */}
 						<div
 							onClick={() => onFilterClick('instagram')}
 							className={`filterButton ${
@@ -350,63 +408,69 @@ const ChatScreen = (props) => {
 							Email <span>1000</span>
 						</div>
 					</div>
-					<div className="searchContainer">
-						<SearchSvg />
-						<input type="text" placeholder="Search" />
-						<FilterSvg />
-					</div>
 				</div>
 				<div className="chatContainer">
-					<div className="channelsList" id="scrollableDiv">
-						{info?.channelListLoader ? (
-							<div className="channelListLoader">
-								<Spinner />
-								<span>Fetching Channels...</span>
-							</div>
-						) : (
-							<div style={{ width: '100%' }}>
-								<InfiniteScroll
-									dataLength={info?.channelList?.length}
-									next={fetchMoreChannels}
-									style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
-									hasMore={info?.channelListHasNextPage}
-									loader={
-										<div
-											style={{
-												display: 'flex',
-												padding: '12px 16px',
-												gap: '12px',
-												alignItems: 'center',
-												color: '#fff',
-											}}
-										>
-											<Spinner
-												color={'#fff'}
-												width={'12px'}
-												height={'12px'}
+					<div className="channelsList">
+						<div className="searchContainer">
+							<SearchSvg />
+							<input type="text" placeholder="Search" />
+						</div>
+						<div style={{ overflowY: 'auto', width: '100%' }} id="scrollableDiv">
+							{info?.channelListLoader ? (
+								<div className="channelListLoader">
+									<Spinner />
+									<span>Fetching Channels...</span>
+								</div>
+							) : (
+								<div style={{ width: '100%' }}>
+									<InfiniteScroll
+										dataLength={info?.channelList?.length}
+										next={fetchMoreChannels}
+										style={{
+											display: 'flex',
+											flexDirection: 'column',
+											gap: '8px',
+										}}
+										hasMore={info?.channelListHasNextPage}
+										loader={
+											<div
+												style={{
+													display: 'flex',
+													padding: '12px 16px',
+													gap: '12px',
+													alignItems: 'center',
+													color: '#fff',
+												}}
+											>
+												<Spinner
+													color={'#fff'}
+													width={'12px'}
+													height={'12px'}
+												/>
+												<span>Loading...</span>
+											</div>
+										}
+										scrollableTarget="scrollableDiv"
+									>
+										{info?.channelList?.map((ele, index) => (
+											<ChannelCard
+												active={
+													info?.seletedChannel?._id === ele?._id
+														? true
+														: false
+												}
+												onChannelPress={onChannelPress}
+												item={ele}
+												index={index}
+												key={index}
 											/>
-											<span>Loading...</span>
-										</div>
-									}
-									scrollableTarget="scrollableDiv"
-								>
-									{info?.channelList?.map((ele, index) => (
-										<ChannelCard
-											active={
-												info?.seletedChannel?._id === ele?._id
-													? true
-													: false
-											}
-											onChannelPress={onChannelPress}
-											item={ele}
-											index={index}
-											key={index}
-										/>
-									))}
-								</InfiniteScroll>
-							</div>
-						)}
+										))}
+									</InfiniteScroll>
+								</div>
+							)}
+						</div>
 					</div>
+					<div className="divider"></div>
 					<div className="selectedChannel">
 						{!info?.seletedChannel ? (
 							<div className="noChannelSelectedEmptyContainer">
