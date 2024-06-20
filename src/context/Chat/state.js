@@ -6,6 +6,7 @@ import {
 	getAllUsersConversationApi,
 	markUnreadMessagesApi,
 	getPageInfoApi,
+	getChatFiltersCountApi,
 } from './graphQlFunctions';
 import Service from '../../services/graphQlServices';
 
@@ -16,6 +17,7 @@ export const ChatState = (props) => {
 		messages: null,
 		moreMessages: null,
 		pageInfoData: null,
+		chatFiltersCount: null,
 	};
 
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -125,11 +127,44 @@ export const ChatState = (props) => {
 		}
 	};
 
+	const getChatFiltersCount = async (workspaceId, payload) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await Service.query(
+				getChatFiltersCountApi,
+				payload,
+				workspaceId,
+				usertoken,
+				'veChat',
+			);
+			if (response?.[0]) {
+				const data = response?.[1]?.data?.conversationsDefaultFilters;
+				const obj = {};
+				for (let i = 0; i < data.length; i++) {
+					if (data?.[i]?.platform !== null) {
+						obj[data?.[i]?.platform] = data?.[i]?.count;
+					}
+				}
+
+				dispatch({
+					type: Actions.GET_PAGEINFO_CHAT_FILTERS_COUNT_SUCCESS,
+					payload: obj,
+				});
+			} else {
+				console.log('api failed getChatFiltersCount', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>getChatFiltersCount', error);
+		}
+	};
+
 	return {
 		...state,
 		getAllUsersFromMeta,
 		getAllUsersConversation,
 		markUnreadMessages,
 		getPageInfo,
+		getChatFiltersCount,
 	};
 };

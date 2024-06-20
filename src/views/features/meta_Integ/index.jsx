@@ -31,6 +31,8 @@ const ChatScreen = (props) => {
 			markUnreadMessages,
 			getPageInfo,
 			pageInfoData,
+			getChatFiltersCount,
+			chatFiltersCount,
 		},
 	} = useContext(Context);
 	// const location = useLocation();
@@ -154,7 +156,7 @@ const ChatScreen = (props) => {
 				channelListCurrentPage: currentPage,
 				channelList: data,
 				channelListLoader: false,
-				// restrictedView: data?.length ? false : 'emptyChannelList',
+				restrictedView: data?.length ? false : 'emptyChannelList',
 			}));
 			let obj = {};
 			for (let i = 0; i < data?.length; i++) {
@@ -232,6 +234,7 @@ const ChatScreen = (props) => {
 	//function definations
 	const createWebSocketConnection = useCallback(() => {
 		getAllChannelsList(1, false);
+		getFilterCount();
 		const usertoken = localStorage.getItem('usertoken');
 
 		const url = `wss://ywpufbslue.execute-api.us-east-1.amazonaws.com/production/?workspaceId=${workspaceId}&pageId=${info?.pageInfo?.pageId}&token=${usertoken}`;
@@ -414,6 +417,13 @@ const ChatScreen = (props) => {
 		[info?.timeout],
 	);
 
+	const getFilterCount = useCallback(async () => {
+		const payload = {
+			pageId: info?.pageInfo?.pageId,
+		};
+		getChatFiltersCount(info?.workspaceId, payload);
+	}, [info?.workspaceId, info?.pageInfo]);
+
 	return (
 		<div className="parentContainer">
 			<div className="childContainer">
@@ -435,7 +445,7 @@ const ChatScreen = (props) => {
 								info?.activeFilter === 'instagram' ? 'active' : ''
 							}`}
 						>
-							Instagram <span>1000</span>
+							Instagram <span>{chatFiltersCount?.['instagram']}</span>
 						</div>
 						<div
 							onClick={() => onFilterClick('facebook')}
@@ -443,7 +453,7 @@ const ChatScreen = (props) => {
 								info?.activeFilter === 'facebook' ? 'active' : ''
 							}`}
 						>
-							FaceBook <span>1000</span>
+							FaceBook <span>{chatFiltersCount?.['page']}</span>
 						</div>
 						{/* <div
 							onClick={() => onFilterClick('email')}
@@ -458,7 +468,17 @@ const ChatScreen = (props) => {
 				<div className="chatContainer">
 					{info?.restrictedView ? (
 						<>
-							<EmptyState type={info?.restrictedView} />
+							<EmptyState
+								type={info?.restrictedView}
+								input={info?.channelSearch}
+								onChangeFunc={(value) =>
+									setInfo((prev) => ({
+										...prev,
+										channelSearch: value,
+										channelSearchChanged: true,
+									}))
+								}
+							/>
 						</>
 					) : (
 						<>
@@ -476,6 +496,7 @@ const ChatScreen = (props) => {
 												channelSearchChanged: true,
 											}))
 										}
+										autoFocus={true}
 									/>
 								</div>
 								<div

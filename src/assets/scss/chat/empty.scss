@@ -11,6 +11,31 @@
 		gap: 8px;
 		width: 320px;
 
+		.searchContainer {
+			display: flex;
+			padding: 16px 24px;
+			align-items: center;
+			gap: 16px;
+			border-radius: 100px;
+			border: 1px solid rgba(36, 36, 36, 0.64);
+			background: rgba(42, 42, 42, 0.16);
+			min-width: 320px;
+			margin-bottom: 16px;
+
+			input {
+				color: rgba(224, 224, 224, 0.32);
+				font-family: Inter;
+				font-size: 15px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 16px; /* 106.667% */
+				background: transparent;
+				outline: none;
+				border: none;
+				flex: 1;
+			}
+		}
+
 		.emptyStateCard {
 			display: flex;
 			width: 320px;

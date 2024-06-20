@@ -4,6 +4,8 @@ import { ReactComponent as Instagram } from '../../../assets/svg/chat/emptyState
 import { ReactComponent as EmptySvg } from '../../../assets/svg/chat/EmptyState.svg';
 import { ReactComponent as StarSvg } from '../../../assets/svg/chat/star.svg';
 import { ReactComponent as SubmitSvg } from '../../../assets/svg/chat/submitBtn.svg';
+import { ReactComponent as SearchSvg } from '../../../assets/svg/chat/search.svg';
+
 const NotIntegratedComponent = ({ type }) => {
 	return (
 		<>
@@ -38,7 +40,7 @@ const EmptyChannelList = () => {
 	);
 };
 
-const EmptyState = ({ type }) => {
+const EmptyState = ({ type, input, onChangeFunc }) => {
 	const channels = [{}, {}, {}, {}, {}, {}];
 
 	const typeMapper = {
@@ -50,8 +52,22 @@ const EmptyState = ({ type }) => {
 	return (
 		<div className="emptyStateContainer">
 			<div className="channelList">
+				{type === 'emptyChannelList' ? (
+					<div className="searchContainer">
+						<SearchSvg />
+						<input
+							type="text"
+							placeholder="Search"
+							value={input}
+							onChange={(e) => onChangeFunc(e.target.value)}
+							autoFocus={true}
+						/>
+					</div>
+				) : (
+					''
+				)}
 				{channels?.map((ele, index) => (
-					<div className="emptyStateCard">
+					<div className="emptyStateCard" key={index}>
 						<div className="iconContainer">
 							<div className="circularFrame"></div>
 							<span className="platformIcon">

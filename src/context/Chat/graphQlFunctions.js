@@ -64,3 +64,12 @@ export const getPageInfoApi = gql`
 		}
 	}
 `;
+
+export const getChatFiltersCountApi = gql`
+	query ConversationsDefaultFilters($pageId: String) {
+		conversationsDefaultFilters(pageId: $pageId) {
+			count
+			platform
+		}
+	}
+`;

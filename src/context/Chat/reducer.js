@@ -11,6 +11,10 @@ const actionHandlers = {
 		...state,
 		pageInfoData: action.payload,
 	}),
+	GET_PAGEINFO_CHAT_FILTERS_COUNT_SUCCESS: (state, action) => ({
+		...state,
+		chatFiltersCount: action.payload,
+	}),
 };
 
 const Reducer = (state, action) => {
