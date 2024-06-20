@@ -4,17 +4,20 @@ import { ReactComponent as SearchSvg } from '../../../assets/svg/chat/search.svg
 import { ReactComponent as FilterSvg } from '../../../assets/svg/chat/filter.svg';
 import { ReactComponent as StarSvg } from '../../../assets/svg/chat/star.svg';
 import { ReactComponent as SubmitSvg } from '../../../assets/svg/chat/submitBtn.svg';
+import { ReactComponent as NoSelectedChannel } from '../../../assets/svg/chat/noSelectedChannelState.svg';
+
 import ChannelCard from './ChannelCard';
 import MessageCard from './MessageCard';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
-import { useLocation } from 'react-router-dom';
+// import { useLocation } from 'react-router-dom';
 import { useNavigate, useParams } from 'react-router-dom';
 import DropDown from '../../components/dropDown/DropDown';
 import { ReactComponent as Instagram } from '../../../assets/svg/chat/instagram.svg';
 import EmptyState from './EmptyState';
+import { set } from 'lodash';
 
 const ChatScreen = (props) => {
 	let {
@@ -30,7 +33,7 @@ const ChatScreen = (props) => {
 			pageInfoData,
 		},
 	} = useContext(Context);
-	const location = useLocation();
+	// const location = useLocation();
 	// const { pageInfoData } = location.state || {};
 	const { workspaceId } = useParams();
 	// const workspaceId = localStorage.getItem('workspaceId');
@@ -56,7 +59,11 @@ const ChatScreen = (props) => {
 		pageInfo: pageInfoData || {},
 		pageInfo: null,
 		allPageInfoData: null,
-		facebookNotIntegrated: false,
+		restrictedView: false,
+		filterChanged: false,
+		channelSearch: '',
+		channelSearchChanged: false,
+		timeout: null,
 	});
 	const socketRef = useRef(null);
 
@@ -84,6 +91,11 @@ const ChatScreen = (props) => {
 					allPageInfoData: data,
 					pageInfo: data?.[0],
 					pageId: data?.[0]?.pageId,
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					restrictedView: true,
 				}));
 			}
 		}
@@ -135,12 +147,14 @@ const ChatScreen = (props) => {
 	useEffect(() => {
 		if (usersList) {
 			const { currentPage, hasNextPage, data } = usersList;
+
 			setInfo((prev) => ({
 				...prev,
 				channelListHasNextPage: hasNextPage,
 				channelListCurrentPage: currentPage,
 				channelList: data,
 				channelListLoader: false,
+				// restrictedView: data?.length ? false : 'emptyChannelList',
 			}));
 			let obj = {};
 			for (let i = 0; i < data?.length; i++) {
@@ -197,11 +211,30 @@ const ChatScreen = (props) => {
 		}
 	}, [moreMessages]);
 
+	useEffect(() => {
+		if (info?.filterChanged) {
+			getAllChannelsList(1, false);
+			setInfo((prev) => ({
+				...prev,
+				channelListLoader: true,
+				seletedChannel: null,
+				selectedChannelIndex: null,
+			}));
+		}
+	}, [info?.activeFilter, info?.filterChanged]);
+
+	useEffect(() => {
+		if (info?.channelSearchChanged) {
+			handleDebounceSearch(info?.channelSearch);
+		}
+	}, [info?.channelSearch, info?.channelSearchChanged]);
+
 	//function definations
 	const createWebSocketConnection = useCallback(() => {
 		getAllChannelsList(1, false);
 		const usertoken = localStorage.getItem('usertoken');
-		const url = `wss://yoxagmjgr1.execute-api.ap-south-1.amazonaws.com/production/?workspaceId=${workspaceId}&pageId=${info?.pageInfo?.pageId}&token=${usertoken}`;
+
+		const url = `wss://ywpufbslue.execute-api.us-east-1.amazonaws.com/production/?workspaceId=${workspaceId}&pageId=${info?.pageInfo?.pageId}&token=${usertoken}`;
 		if (socketRef.current) {
 			socketRef.current.close();
 		}
@@ -216,8 +249,7 @@ const ChatScreen = (props) => {
 	}, [info?.pageInfo]);
 
 	const getAllChannelsList = useCallback(
-		async (page, fetchMore = false) => {
-			console.log(info?.pageInfo?.pageId);
+		async (page, fetchMore = false, search = null) => {
 			const payload = {
 				filters: {
 					limit: 10,
@@ -225,11 +257,13 @@ const ChatScreen = (props) => {
 					pageId: info?.pageInfo?.pageId,
 					sortBy: 'lastMessageAt',
 					sortType: -1,
+					platform: info?.activeFilter === 'facebook' ? 'page' : info?.activeFilter,
+					search: search,
 				},
 			};
 			getAllUsersFromMeta(info?.workspaceId, payload, fetchMore);
 		},
-		[info?.workspaceId, info?.pageInfo],
+		[info?.workspaceId, info?.pageInfo, info?.activeFilter],
 	);
 
 	const getAllChannelConversation = useCallback(
@@ -242,11 +276,12 @@ const ChatScreen = (props) => {
 					userId: item?.userId,
 					sortBy: 'createdAt',
 					sortType: -1,
+					platform: info?.activeFilter === 'facebook' ? 'page' : info?.activeFilter,
 				},
 			};
 			getAllUsersConversation(info?.workspaceId, payload, fetchMore);
 		},
-		[info?.workspaceId, info?.pageInfo],
+		[info?.workspaceId, info?.pageInfo, info?.activeFilter],
 	);
 
 	const handleKeyDown = useCallback(
@@ -298,7 +333,13 @@ const ChatScreen = (props) => {
 			if (info?.activeFilter === item) {
 				return;
 			}
-			setInfo((prev) => ({ ...prev, activeFilter: item }));
+			setInfo((prev) => ({
+				...prev,
+				activeFilter: item,
+				filterChanged: true,
+				channelSearch: '',
+				channelSearchChanged: false,
+			}));
 		},
 		[info?.activeFilter],
 	);
@@ -356,6 +397,23 @@ const ChatScreen = (props) => {
 		[info?.pageInfo],
 	);
 
+	const handleDebounceSearch = useCallback(
+		(search) => {
+			clearInterval(info?.timeout);
+			const timeout = setTimeout(() => {
+				getAllChannelsList(1, false, search);
+				setInfo((prev) => ({
+					...prev,
+					channelListLoader: true,
+
+					timeout: null,
+				}));
+			}, 800);
+			setInfo((prev) => ({ ...prev, timeout }));
+		},
+		[info?.timeout],
+	);
+
 	return (
 		<div className="parentContainer">
 			<div className="childContainer">
@@ -387,27 +445,38 @@ const ChatScreen = (props) => {
 						>
 							FaceBook <span>1000</span>
 						</div>
-						<div
+						{/* <div
 							onClick={() => onFilterClick('email')}
 							className={`filterButton ${
 								info?.activeFilter === 'email' ? 'active' : ''
 							}`}
 						>
 							Email <span>1000</span>
-						</div>
+						</div> */}
 					</div>
 				</div>
 				<div className="chatContainer">
-					{info?.facebookNotIntegrated ? (
+					{info?.restrictedView ? (
 						<>
-							<EmptyState />
+							<EmptyState type={info?.restrictedView} />
 						</>
 					) : (
 						<>
 							<div className="channelsList">
 								<div className="searchContainer">
 									<SearchSvg />
-									<input type="text" placeholder="Search" />
+									<input
+										type="text"
+										placeholder="Search"
+										value={info?.channelSearch}
+										onChange={(e) =>
+											setInfo((prev) => ({
+												...prev,
+												channelSearch: e.target.value,
+												channelSearchChanged: true,
+											}))
+										}
+									/>
 								</div>
 								<div
 									style={{ overflowY: 'auto', width: '100%' }}
@@ -460,6 +529,7 @@ const ChatScreen = (props) => {
 														item={ele}
 														index={index}
 														key={index}
+														activeFilter={info?.activeFilter}
 													/>
 												))}
 											</InfiniteScroll>
@@ -471,7 +541,16 @@ const ChatScreen = (props) => {
 							<div className="selectedChannel">
 								{!info?.seletedChannel ? (
 									<div className="noChannelSelectedEmptyContainer">
-										Please Select a channell
+										<NoSelectedChannel />
+										<div className="labelContainer">
+											<span className="label">Start a Conversation</span>
+											<span className="subLabel">
+												Your inbox is empty, but don’t worry! Your messages
+												would show up here soon
+											</span>
+										</div>
+
+										{/* Please Select a channell */}
 									</div>
 								) : (
 									<>

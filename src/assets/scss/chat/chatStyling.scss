@@ -214,10 +214,39 @@
 
 		.noChannelSelectedEmptyContainer {
 			display: flex;
+			flex-direction: column;
 			justify-content: center;
 			align-items: center;
+			gap: 40px;
 			color: #fff;
 			flex: 1;
+
+			.labelContainer {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				gap: 8px;
+				align-self: stretch;
+				.label {
+					color: #e4e5e6;
+					text-align: center;
+					font-family: Inter;
+					font-size: 18px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 20px; /* 111.111% */
+				}
+				.subLabel {
+					color: #b0b0b0;
+					text-align: center;
+					font-family: Inter;
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px; /* 123.077% */
+				}
+			}
 		}
 
 		.header {

@@ -11,6 +11,7 @@ export const getAllUsersFromMetaDataApi = gql`
 				lastMessage
 				lastMessageAt
 				unreadCount
+				platform
 			}
 			hasNextPage
 			currentPage
