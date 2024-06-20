@@ -1,0 +1,38 @@
+.headerContainer {
+	display: flex;
+	align-self: stretch;
+	height: auto;
+	display: flex;
+	padding: 24px 36px 24px 42px;
+	justify-content: space-between;
+	align-items: center;
+
+	.headerModulesContainer {
+		display: flex;
+		padding: 8px 20px 8px 8px;
+		align-items: center;
+		gap: 20px;
+		border-radius: 100px;
+		border: 1px solid rgba(36, 36, 36, 0.64);
+		background: rgba(42, 42, 42, 0.16);
+
+		.filterButton {
+			display: flex;
+			padding: 9px 12px;
+			justify-content: center;
+			align-items: center;
+			gap: 4.2px;
+			border-radius: 100px;
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 22px; /* 157.143% */
+			letter-spacing: 0.28px;
+			text-transform: capitalize;
+			cursor: pointer;
+			transition: all 1s;
+		}
+	}
+}
