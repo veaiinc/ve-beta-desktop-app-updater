@@ -14,6 +14,8 @@ import { useLocation } from 'react-router-dom';
 import { useNavigate, useParams } from 'react-router-dom';
 import DropDown from '../../components/dropDown/DropDown';
 import { ReactComponent as Instagram } from '../../../assets/svg/chat/instagram.svg';
+import EmptyState from './EmptyState';
+
 const ChatScreen = (props) => {
 	let {
 		chatInfo: {
@@ -54,6 +56,7 @@ const ChatScreen = (props) => {
 		pageInfo: pageInfoData || {},
 		pageInfo: null,
 		allPageInfoData: null,
+		facebookNotIntegrated: false,
 	});
 	const socketRef = useRef(null);
 
@@ -75,12 +78,14 @@ const ChatScreen = (props) => {
 	useEffect(() => {
 		if (pageInfoData) {
 			const { data } = pageInfoData;
-			setInfo((prev) => ({
-				...prev,
-				allPageInfoData: data,
-				pageInfo: data?.[0],
-				pageId: data?.[0]?.pageId,
-			}));
+			if (data?.length) {
+				setInfo((prev) => ({
+					...prev,
+					allPageInfoData: data,
+					pageInfo: data?.[0],
+					pageId: data?.[0]?.pageId,
+				}));
+			}
 		}
 	}, [pageInfoData]);
 
@@ -366,23 +371,6 @@ const ChatScreen = (props) => {
 					/>
 
 					<div className="filterContainer">
-						{/* <div
-							onClick={() => onFilterClick('inbox')}
-							className={`filterButton ${
-								info?.activeFilter === 'inbox' ? 'active' : ''
-							}`}
-						>
-							Inbox
-							<span>1000</span>
-						</div> */}
-						{/* <div
-							onClick={() => onFilterClick('watsapp')}
-							className={`filterButton ${
-								info?.activeFilter === 'watsapp' ? 'active' : ''
-							}`}
-						>
-							WhatsApp <span>1000</span>
-						</div> */}
 						<div
 							onClick={() => onFilterClick('instagram')}
 							className={`filterButton ${
@@ -410,161 +398,177 @@ const ChatScreen = (props) => {
 					</div>
 				</div>
 				<div className="chatContainer">
-					<div className="channelsList">
-						<div className="searchContainer">
-							<SearchSvg />
-							<input type="text" placeholder="Search" />
-						</div>
-						<div style={{ overflowY: 'auto', width: '100%' }} id="scrollableDiv">
-							{info?.channelListLoader ? (
-								<div className="channelListLoader">
-									<Spinner />
-									<span>Fetching Channels...</span>
+					{info?.facebookNotIntegrated ? (
+						<>
+							<EmptyState />
+						</>
+					) : (
+						<>
+							<div className="channelsList">
+								<div className="searchContainer">
+									<SearchSvg />
+									<input type="text" placeholder="Search" />
 								</div>
-							) : (
-								<div style={{ width: '100%' }}>
-									<InfiniteScroll
-										dataLength={info?.channelList?.length}
-										next={fetchMoreChannels}
-										style={{
-											display: 'flex',
-											flexDirection: 'column',
-											gap: '8px',
-										}}
-										hasMore={info?.channelListHasNextPage}
-										loader={
-											<div
-												style={{
-													display: 'flex',
-													padding: '12px 16px',
-													gap: '12px',
-													alignItems: 'center',
-													color: '#fff',
-												}}
-											>
-												<Spinner
-													color={'#fff'}
-													width={'12px'}
-													height={'12px'}
-												/>
-												<span>Loading...</span>
-											</div>
-										}
-										scrollableTarget="scrollableDiv"
-									>
-										{info?.channelList?.map((ele, index) => (
-											<ChannelCard
-												active={
-													info?.seletedChannel?._id === ele?._id
-														? true
-														: false
-												}
-												onChannelPress={onChannelPress}
-												item={ele}
-												index={index}
-												key={index}
-											/>
-										))}
-									</InfiniteScroll>
-								</div>
-							)}
-						</div>
-					</div>
-					<div className="divider"></div>
-					<div className="selectedChannel">
-						{!info?.seletedChannel ? (
-							<div className="noChannelSelectedEmptyContainer">
-								Please Select a channell
-							</div>
-						) : (
-							<>
-								<div className="header">
-									<div
-										className="imageContainer"
-										style={{
-											backgroundImage: `url(${info?.seletedChannel?.displayPicture})`,
-										}}
-									></div>
-									<div className="heading">
-										<span className="channelName">
-											{info?.seletedChannel?.userName}
-										</span>
-										<span className="channelSubMessage">
-											What are your charges??
-										</span>
-									</div>
-								</div>
-								<div className="messageList" id="scrollablereverese">
-									{info?.messageListLoader ? (
+								<div
+									style={{ overflowY: 'auto', width: '100%' }}
+									id="scrollableDiv"
+								>
+									{info?.channelListLoader ? (
 										<div className="channelListLoader">
 											<Spinner />
-											<span>Fetching Messages...</span>
+											<span>Fetching Channels...</span>
 										</div>
 									) : (
-										<InfiniteScroll
-											dataLength={info?.messagesList?.length}
-											next={fetchMoreChannelsMessages}
-											hasMore={info?.messageListHasNextPage}
-											loader={
-												<div
-													style={{
-														display: 'flex',
-														justifyContent: 'center',
-														alignItems: 'center',
-														color: '#fff',
-														gap: '12px',
-													}}
-												>
-													<Spinner width={'12px'} height={'12px'} />
-													<span>Fetching More Messages...</span>
-												</div>
-											}
-											style={{
-												display: 'flex',
-												flex: 1,
-												flexDirection: 'column-reverse',
-												padding: '24px 0px',
-												gap: '20px',
-												overflowY: 'auto',
-											}}
-											inverse={true}
-											scrollableTarget={'scrollablereverese'}
-										>
-											{info?.messagesList?.map((item, index) => (
-												<MessageCard
-													key={index}
-													messageItem={item}
-													activeChannel={{ ...info?.seletedChannel }}
-													pageInfo={{ ...info?.pageInfo }}
-												/>
-											))}
-										</InfiniteScroll>
+										<div style={{ width: '100%' }}>
+											<InfiniteScroll
+												dataLength={info?.channelList?.length}
+												next={fetchMoreChannels}
+												style={{
+													display: 'flex',
+													flexDirection: 'column',
+													gap: '8px',
+												}}
+												hasMore={info?.channelListHasNextPage}
+												loader={
+													<div
+														style={{
+															display: 'flex',
+															padding: '12px 16px',
+															gap: '12px',
+															alignItems: 'center',
+															color: '#fff',
+														}}
+													>
+														<Spinner
+															color={'#fff'}
+															width={'12px'}
+															height={'12px'}
+														/>
+														<span>Loading...</span>
+													</div>
+												}
+												scrollableTarget="scrollableDiv"
+											>
+												{info?.channelList?.map((ele, index) => (
+													<ChannelCard
+														active={
+															info?.seletedChannel?._id === ele?._id
+																? true
+																: false
+														}
+														onChannelPress={onChannelPress}
+														item={ele}
+														index={index}
+														key={index}
+													/>
+												))}
+											</InfiniteScroll>
+										</div>
 									)}
 								</div>
-								<div className="messageInput">
-									<StarSvg />
-									<textarea
-										className="inputElement"
-										value={info?.messageInputValue}
-										onChange={(e) =>
-											setInfo((prev) => ({
-												...prev,
-												messageInputValue: e.target.value,
-											}))
-										}
-										onKeyDown={handleKeyDown}
-									/>
-									<div
-										className="submitbtn"
-										style={{ cursor: 'pointer' }}
-										onClick={() => handleKeyDown(null, 'click')}
-									>
-										<SubmitSvg />
+							</div>
+							<div className="divider"></div>
+							<div className="selectedChannel">
+								{!info?.seletedChannel ? (
+									<div className="noChannelSelectedEmptyContainer">
+										Please Select a channell
 									</div>
-								</div>
-							</>
-						)}
-					</div>
+								) : (
+									<>
+										<div className="header">
+											<div
+												className="imageContainer"
+												style={{
+													backgroundImage: `url(${info?.seletedChannel?.displayPicture})`,
+												}}
+											></div>
+											<div className="heading">
+												<span className="channelName">
+													{info?.seletedChannel?.userName}
+												</span>
+												<span className="channelSubMessage">
+													What are your charges??
+												</span>
+											</div>
+										</div>
+										<div className="messageList" id="scrollablereverese">
+											{info?.messageListLoader ? (
+												<div className="channelListLoader">
+													<Spinner />
+													<span>Fetching Messages...</span>
+												</div>
+											) : (
+												<InfiniteScroll
+													dataLength={info?.messagesList?.length}
+													next={fetchMoreChannelsMessages}
+													hasMore={info?.messageListHasNextPage}
+													loader={
+														<div
+															style={{
+																display: 'flex',
+																justifyContent: 'center',
+																alignItems: 'center',
+																color: '#fff',
+																gap: '12px',
+															}}
+														>
+															<Spinner
+																width={'12px'}
+																height={'12px'}
+															/>
+															<span>Fetching More Messages...</span>
+														</div>
+													}
+													style={{
+														display: 'flex',
+														flex: 1,
+														flexDirection: 'column-reverse',
+														padding: '24px 0px',
+														gap: '20px',
+														overflowY: 'auto',
+													}}
+													inverse={true}
+													scrollableTarget={'scrollablereverese'}
+												>
+													{info?.messagesList?.map((item, index) => (
+														<MessageCard
+															key={index}
+															messageItem={item}
+															activeChannel={{
+																...info?.seletedChannel,
+															}}
+															pageInfo={{ ...info?.pageInfo }}
+														/>
+													))}
+												</InfiniteScroll>
+											)}
+										</div>
+										<div className="messageInput">
+											<StarSvg />
+											<textarea
+												className="inputElement"
+												value={info?.messageInputValue}
+												onChange={(e) =>
+													setInfo((prev) => ({
+														...prev,
+														messageInputValue: e.target.value,
+													}))
+												}
+												onKeyDown={handleKeyDown}
+											/>
+											<div
+												className="submitbtn"
+												style={{ cursor: 'pointer' }}
+												onClick={() => handleKeyDown(null, 'click')}
+											>
+												<SubmitSvg />
+											</div>
+										</div>
+									</>
+								)}
+							</div>
+						</>
+					)}
 				</div>
 			</div>
 		</div>
