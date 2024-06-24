@@ -5,20 +5,30 @@ import { ReactComponent as EyeOpen } from '../../../assets/svg/password-eye-open
 import GoogleLogo from '../../../assets/images/googleLogo.png';
 import Marquee from 'react-fast-marquee';
 
+import Restaurateur from '../../../assets/images/login/restaurateur.png';
+import Photographer from '../../../assets/images/login/photographer.png';
+import Architecture from '../../../assets/images/login/architecture.png';
+import SalonAndSpa from '../../../assets/images/login/salon-and-spa.png';
+import InteriorDesigner from '../../../assets/images/login/interior-designer.png';
+import BusinessCoach from '../../../assets/images/login/business-coach.png';
+import Consultant from '../../../assets/images/login/consultant.png';
+import EventManagement from '../../../assets/images/login/event-management.png';
+import FashionDesigner from '../../../assets/images/login/fashion-designer.png';
+
 import { verifyAccountExistsUsingEmail } from '../../../controllers/login';
 var validator = require('validator');
 const SignIn = () => {
 	const creatorCards = [
-		{ url: '', profession: 'artist', name: 'bhogesh' },
-		{ url: '', profession: 'artist', name: 'bhogesh2' },
-		{ url: '', profession: 'artist', name: 'bhogesh3' },
-		{ url: '', profession: 'artist', name: 'bhogesh4' },
-		{ url: '', profession: 'artist', name: 'bhogesh5' },
-		{ url: '', profession: 'artist', name: 'bhogesh6' },
-		{ url: '', profession: 'artist', name: 'bhogesh7' },
-		{ url: '', profession: 'artist', name: 'bhogesh8' },
-		{ url: '', profession: 'artist', name: 'bhogesh9' },
-		{ url: '', profession: 'artist', name: 'bhogesh10' },
+		{ image: '', profession: 'Make up Artist', name: 'Simmy' },
+		{ image: Consultant, profession: 'Consultant', name: 'Alexa' },
+		{ image: SalonAndSpa, profession: 'Salon & Spa', name: 'Suzane' },
+		{ image: Architecture, profession: 'Architecture', name: 'Jack' },
+		{ image: Photographer, profession: 'Photographer', name: 'Danny' },
+		{ image: FashionDesigner, profession: 'Fashion Designer', name: 'Suzi' },
+		{ image: EventManagement, profession: 'Event Management', name: 'Katrina' },
+		{ image: InteriorDesigner, profession: 'Interior Designer', name: 'Melissa' },
+		{ image: BusinessCoach, profession: 'Business Coach', name: 'Adam' },
+		{ image: Restaurateur, profession: 'Restaurateur', name: 'Ahaan' },
 	];
 	const [stage, setStage] = useState('verifyUser');
 	const [usersData, setUsersData] = useState({
@@ -51,9 +61,13 @@ const SignIn = () => {
 		}
 	};
 
-	const handleUserExists = () => {
+	const handleUserExists = async () => {
 		if (usersData['emailId'] && validator.isEmail(usersData['emailId'])) {
-			verifyAccountExistsUsingEmail(usersData['emailId']);
+			let response = await verifyAccountExistsUsingEmail(usersData['emailId']);
+
+			if (response[0]) {
+				setStage('signIn');
+			}
 		} else {
 			setErrorState((prevState) => ({
 				...prevState,
@@ -217,22 +231,24 @@ const SignIn = () => {
 				</div>
 			</div>
 
-			<Marquee pauseOnHover={true} delay={3}>
-				{creatorCards.map((item, index) => (
-					<div
-						key={index}
-						style={{
-							minWidth: 200,
-							height: 400,
-							margin: 10,
-							background: 'red',
-							color: '#fff',
-						}}
-					>
-						{item.name}
-					</div>
-				))}
-			</Marquee>
+			<div className="marqueeContainer">
+				<Marquee pauseOnHover={true} delay={1}>
+					{creatorCards.map((item, index) => (
+						<div
+							key={index}
+							style={{
+								backgroundImage: `url(${item.image})`,
+							}}
+							className="creatorsCard"
+						>
+							<p>{item.profession}</p>
+							<div className="creatorName">
+								<span>{item.name}</span>
+							</div>
+						</div>
+					))}
+				</Marquee>
+			</div>
 		</div>
 	);
 };

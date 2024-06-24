@@ -1,4 +1,6 @@
 .container {
+	display: flex;
+	flex-direction: column;
 	.topContainer {
 		display: flex;
 		flex-direction: row;
@@ -218,12 +220,123 @@
 	}
 }
 
-.transition-container {
-	overflow: hidden;
-	transition: max-height 0.1s ease-out;
-	max-height: 0; // Start collapsed
-}
+.creatorsCard {
+	min-width: 284px;
+	height: 418px;
+	margin: 10px;
+	background-size: cover;
+	background-repeat: no-repeat;
+	text-align: center;
+	justify-content: center;
+	align-items: center;
+	background-position: center;
+	position: relative;
+	p {
+		position: absolute;
+		top: 10%;
+		font-family: Inter;
+		font-size: 32px;
+		font-weight: 700;
+		line-height: 32px;
+		width: 100%;
+		color: #ffffff;
+		text-align: left;
+		padding: 0 10%;
+	}
 
-.expanded {
-	max-height: 1000px; // Sufficiently large to accommodate content
+	.creatorName {
+		width: 100%;
+		text-align: center;
+		align-items: center;
+		gap: 0px;
+		position: absolute;
+		bottom: 10%;
+		span {
+			text-align: center;
+			font-family: Inter;
+			font-size: 18px;
+			font-weight: 500;
+			line-height: 40px;
+			text-align: left;
+			color: #ffffff;
+
+			padding: 10px 30px;
+			background: #d4d4d424;
+			border-radius: 41px;
+		}
+	}
+}
+@media (max-width: 768px) {
+	.container {
+		flex-direction: column-reverse;
+		.topContainer {
+			flex-direction: column;
+			padding: 2% 5%;
+			.topLeftContainer {
+				max-width: 100%;
+				width: 100%;
+				.heading {
+					font-family: Inter;
+					font-size: 24px;
+					font-weight: 500;
+					line-height: 40px;
+					text-align: left;
+				}
+
+				.description {
+					font-family: Inter;
+					font-size: 24px;
+					font-weight: 500;
+					line-height: 40px;
+					text-align: left;
+				}
+			}
+			.topRightContainer {
+				width: 100%;
+				margin-top: 10%;
+				p {
+					font-family: Inter;
+					font-size: 24px;
+					font-weight: 500;
+					line-height: 28.8px;
+					text-align: left;
+					span {
+						font-family: Inter;
+						font-size: 24px;
+						font-weight: 500;
+						line-height: 28.8px;
+						text-align: left;
+					}
+				}
+			}
+		}
+	}
+
+	.marqueeContainer {
+		padding-top: 5%;
+		.creatorsCard {
+			min-width: 77px;
+			height: 114px;
+			margin: 2px;
+
+			p {
+				font-family: Inter;
+				font-size: 8.73px;
+				font-weight: 700;
+				line-height: 8.73px;
+				text-align: left;
+			}
+
+			.creatorName {
+				span {
+					font-family: Inter;
+					font-size: 4.91px;
+					font-weight: 500;
+					line-height: 7.1px;
+					text-align: left;
+					padding: 5px 10px;
+				}
+			}
+		}
+	}
 }
