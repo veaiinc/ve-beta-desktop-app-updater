@@ -30,7 +30,7 @@ export const ChatState = (props) => {
 				payload,
 				workspaceID,
 				usertoken,
-				'veChat',
+				've_conversations_api',
 			);
 			const variableSelection = fetchMore ? 'moreUsersList' : 'usersList';
 
@@ -60,7 +60,7 @@ export const ChatState = (props) => {
 				payload,
 				workspaceID,
 				usertoken,
-				'veChat',
+				've_conversations_api',
 			);
 			const variableSelection = fetchMore ? 'moreMessages' : 'messages';
 
@@ -91,7 +91,7 @@ export const ChatState = (props) => {
 				payload,
 				workspaceID,
 				usertoken,
-				'veChat',
+				've_conversations_api',
 			);
 
 			if (response?.[0]) {
@@ -113,7 +113,7 @@ export const ChatState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'veChat',
+				've_conversations_api',
 			);
 			if (response?.[0]) {
 				localStorage.setItem('pageUser', JSON.stringify(response?.[1]?.data?.getPages));
@@ -135,7 +135,7 @@ export const ChatState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'veChat',
+				've_conversations_api',
 			);
 			if (response?.[0]) {
 				const data = response?.[1]?.data?.conversationsDefaultFilters;

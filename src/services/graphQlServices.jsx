@@ -1,11 +1,9 @@
-import { ApolloClient, HttpLink, InMemoryCache, ApolloProvider, from } from '@apollo/client';
+import { ApolloClient, ApolloLink, HttpLink, from, InMemoryCache } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
-import Cookies from 'universal-cookie';
 
-const ProjectsAPI = require('./config').projects_api_server;
-const FormsAPI = require('./config').forms_graphql_server;
-const VendorsAPI = require('./config').vendors_api_server;
-const ve_conversations = require('./config').ve_conversations;
+const { ve_conversations_api } = require('./config');
+
+const graphQLAPICall = { ve_conversations_api };
 
 const defaultOptions = {
 	watchQuery: {
@@ -15,28 +13,33 @@ const defaultOptions = {
 		fetchPolicy: 'no-cache',
 	},
 };
-const cookies = new Cookies();
-const errorLink = onError(({ graphQLErrors, networkError }) => {
-	if (graphQLErrors) {
-		if (graphQLErrors[0].code === 401) {
-			onUserKickedOut();
+const errorLink = onError(({ graphQLErrors, networkError, forward, operation }) => {
+	try {
+		if (graphQLErrors) {
+			graphQLErrors.forEach(({ message, locations, path }) => {
+				console.log(
+					`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+				);
+			});
+			return forward(operation);
 		}
+
+		if (networkError) {
+			console.log(`[Network error]: ${networkError}`);
+		}
+
+		return forward(operation);
+	} catch (error) {
+		throw error;
 	}
 });
 
 const Service = {
 	query: async (query, variables, workspaceID, usertoken, type = null) => {
 		const httpLink = new HttpLink({
-			uri: `${
-				type && type == true
-					? FormsAPI
-					: type == 'vendors'
-					? VendorsAPI
-					: type === 'veChat'
-					? ve_conversations
-					: ProjectsAPI
-			}/${workspaceID}/graphql`,
+			uri: `${graphQLAPICall[type]}/${workspaceID}/graphql`,
 		});
+
 		const apolloClient = new ApolloClient({
 			cache: new InMemoryCache({
 				resultCaching: true,
@@ -46,8 +49,8 @@ const Service = {
 			link: from([errorLink, httpLink]),
 		});
 
-		return await apolloClient
-			.query({
+		try {
+			const response = await apolloClient.query({
 				query,
 				variables,
 				context: {
@@ -55,30 +58,35 @@ const Service = {
 						authorization: usertoken ? `Bearer ${usertoken}` : '',
 					},
 				},
-			})
-			.then((res) => {
-				return [true, res];
-			})
-			.catch((err) => {
-				return [false, err];
+				errorPolicy: 'all', // This will include errors in the response, allowing partial data
 			});
+
+			if (response.errors && response.errors.length > 0) {
+				return [false, response.errors];
+			}
+
+			return [true, response];
+		} catch (err) {
+			console.error('Network or other error:', err);
+			return [false, err];
+		}
 	},
+
 	mutation: async (mutation, variables, workspaceID, usertoken, type = null) => {
 		const httpLink = new HttpLink({
-			uri: `${
-				type && type == true ? FormsAPI : type == 'vendors' ? VendorsAPI : ProjectsAPI
-			}/${workspaceID}/graphql`,
+			uri: `${graphQLAPICall[type]}/${workspaceID}/graphql`,
 		});
+
+		const link = ApolloLink.from([errorLink, httpLink]);
 		const apolloClient = new ApolloClient({
-			//uri: `${type && type == true ? FormsAPI : ProjectsAPI}/${workspaceID}/graphql`,
 			cache: new InMemoryCache(),
 			defaultOptions,
 			connectToDevTools: true,
-			link: from([errorLink, httpLink]),
+			link: link,
 		});
 
-		return await apolloClient
-			.mutate({
+		try {
+			const response = await apolloClient.mutate({
 				mutation,
 				variables,
 				context: {
@@ -86,27 +94,18 @@ const Service = {
 						authorization: usertoken ? `Bearer ${usertoken}` : '',
 					},
 				},
-			})
-			.then((res) => {
-				return [true, res];
-			})
-			.catch((err) => {
-				return [false, err];
+				errorPolicy: 'all', // Include this line to get partial data along with errors
 			});
+
+			if (response.errors && response.errors.length > 0) {
+				return [false, response.errors];
+			}
+
+			return [true, response];
+		} catch (err) {
+			return [false, err];
+		}
 	},
-};
-
-const onUserKickedOut = async (res, url) => {
-	localStorage.removeItem('usertoken');
-	cookies.remove('usertoken', {
-		domain:
-			window.location.host.split('.')[1] === 'huemn'
-				? '.huemn.com'
-				: window.location.hostname,
-		path: '/',
-	});
-
-	window.location.reload();
 };
 
 export default Service;

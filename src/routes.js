@@ -1,15 +1,16 @@
 import ChatScreen from './views/features/meta_Integ/index';
 import AuthWrapper from './views/layouts/authWrapper';
+import LoginScreen from './views/features/signin';
 
 const routes = [
-	//public routes
-
-	//private routes
-
 	{
-		path: '/:workspaceId/chats',
+		path: '/',
+		component: <LoginScreen />,
+	},
+	{
+		path: '/:workspaceId/inbox',
 		component: (
-			<AuthWrapper>
+			<AuthWrapper title={'Inbox'}>
 				<ChatScreen />
 			</AuthWrapper>
 		),
