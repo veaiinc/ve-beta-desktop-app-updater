@@ -10,15 +10,12 @@ const handleHeaders = (token, body, type) => {
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 	}
-	if (body) {
-		return { ...headers, body: JSON.stringify(body) };
-	}
 	return headers;
 };
 
 const processResponse = async (response) => {
 	const jsonData = await response.json();
-	if (response.ok) {
+	if (response.status >= 200 && response.status < 300) {
 		return [true, jsonData];
 	} else if (response.status === 401) {
 		onUserKickedOut();
@@ -30,10 +27,12 @@ const processResponse = async (response) => {
 
 const apiFetch = async (url, method, body, token, type) => {
 	const endpoint = apiEndpoints[type] + url;
-	console.log(endpoint);
 	const headers = handleHeaders(token, body, type);
+	if (body) {
+		body = JSON.stringify(body);
+	}
 	try {
-		const response = await fetch(endpoint, { method, headers });
+		const response = await fetch(endpoint, { method, headers, body });
 		return processResponse(response);
 	} catch (error) {
 		onFailure('network', url);

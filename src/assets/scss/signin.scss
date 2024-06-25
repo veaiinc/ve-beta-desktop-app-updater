@@ -201,6 +201,28 @@
 					}
 				}
 			}
+
+			.privacyPolicyContainerFlexRow {
+				display: flex;
+				flex-direction: row;
+
+				p {
+					width: 50%;
+					span {
+						cursor: pointer;
+					}
+				}
+
+				.errorMessage {
+					text-align: right;
+					font-family: Inter;
+					font-size: 12px;
+					font-weight: 400;
+					line-height: 19px;
+					text-align: right;
+					color: #cc5756;
+				}
+			}
 		}
 		.topRightContainer {
 			padding-top: 10%;
@@ -339,4 +361,12 @@
 			}
 		}
 	}
+}
+.errorMessage {
+	font-family: Inter;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 19px;
+	text-align: right;
+	color: #cc5756;
 }

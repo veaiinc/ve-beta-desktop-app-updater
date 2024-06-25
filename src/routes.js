@@ -5,8 +5,37 @@ import LoginScreen from './views/features/signin';
 const routes = [
 	{
 		path: '/',
-		component: <LoginScreen />,
+		component: <LoginScreen stage={'verify-user'} />,
 	},
+	{
+		path: '/verify-user',
+		component: <LoginScreen stage={'verify-user'} />,
+	},
+	{
+		path: '/login-with-password',
+		component: <LoginScreen stage={'login-with-password'} />,
+	},
+	{
+		path: '/signup-user',
+		component: <LoginScreen stage={'signup-user'} />,
+	},
+	{
+		path: '/verify-email-code',
+		component: <LoginScreen stage={'verify-email-code'} />,
+	},
+	{
+		path: '/create-workspace',
+		component: <LoginScreen stage={'create-workspace'} />,
+	},
+	{
+		path: '/forgot-password',
+		component: <LoginScreen stage={'forgot-password'} />,
+	},
+	{
+		path: '/reset-password',
+		component: <LoginScreen stage={'reset-password'} />,
+	},
+
 	{
 		path: '/:workspaceId/inbox',
 		component: (
