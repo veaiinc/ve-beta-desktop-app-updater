@@ -1,6 +1,7 @@
-import ChatScreen from './views/features/meta_Integ/index';
 import AuthWrapper from './views/layouts/authWrapper';
 import LoginScreen from './views/features/signin';
+import ChatScreen from './views/features/meta_Integ/index';
+import SalesScreen from './views/features/sales/index';
 
 const routes = [
 	{
@@ -41,6 +42,42 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Inbox'}>
 				<ChatScreen />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/inbox',
+		component: (
+			<AuthWrapper title={'Inbox'}>
+				<ChatScreen />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/sales',
+		component: (
+			<AuthWrapper title={'Sales'}>
+				<SalesScreen />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/sales/:salesId',
+		component: (
+			<AuthWrapper title={'Sales'}>
+				<SalesScreen />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/sales/workflows',
+		component: (
+			<AuthWrapper title={'Sales'}>
+				<SalesScreen type={'workflows'} />
 			</AuthWrapper>
 		),
 		exact: true,

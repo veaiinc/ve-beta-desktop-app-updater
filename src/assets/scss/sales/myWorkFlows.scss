@@ -1,0 +1,46 @@
+.myworkflowsContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+
+	.header {
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-end;
+		align-items: center;
+
+		.title {
+			width: 87%;
+			color: #e4e5e6;
+			font-family: 'Inter';
+			font-size: 1.125rem;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 1.625rem;
+
+			justify-content: center;
+			align-items: center;
+		}
+		.button {
+			display: flex;
+			padding: 1rem 1.5rem;
+			justify-content: center;
+			align-items: center;
+			gap: 0.625rem;
+
+			border-radius: 6.25rem;
+			border: 1px solid rgba(36, 36, 36, 0.64);
+			background: rgba(42, 42, 42, 0.16);
+
+			color: #e4e5e6;
+			font-family: 'Inter';
+			font-size: 0.8125rem;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 1rem;
+			letter-spacing: 0.01625rem;
+
+			cursor: pointer;
+		}
+	}
+}

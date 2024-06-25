@@ -2,6 +2,7 @@ import React from 'react';
 import '../../assets/scss/header.scss';
 import { ReactComponent as VE } from '../../assets/svg/ve.svg';
 import DropDown from './dropDown/DropDown';
+import { useNavigate } from 'react-router-dom';
 
 const modules = ['inbox', 'sales'];
 const accessibleWorkspaces = JSON.parse(localStorage.getItem('accessibleWorkspaces'));
@@ -32,14 +33,25 @@ const iconComponent = (
 	></div>
 );
 
-const Header = () => {
+const Header = ({ title }) => {
+	const navigate = useNavigate();
 	return (
 		<div className="headerContainer">
 			<VE />
 			{/* {header modules} */}
 			<div className="headerModulesContainer">
-				<div className={`filterButton `}>Inbox</div>
-				<div className={`filterButton`}>Sales</div>
+				<div
+					className={`filterButton ${title === 'Inbox' ? 'filterButtonActive' : ''}`}
+					onClick={() => navigate('/inbox')}
+				>
+					Inbox
+				</div>
+				<div
+					className={`filterButton ${title === 'Sales' ? 'filterButtonActive' : ''}`}
+					onClick={() => navigate('/sales')}
+				>
+					Sales
+				</div>
 			</div>
 			<DropDown
 				selectedValue={activeWorkspaceId}

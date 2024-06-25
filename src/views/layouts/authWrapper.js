@@ -19,7 +19,7 @@ const AuthWrapper = ({ title, children }) => {
 				<meta charSet="utf-8" />
 				<title>{title} | VE</title>
 			</Helmet>
-			<Header />
+			<Header title={title} />
 			<div className="childrenContainer">{children}</div>
 		</div>
 	);

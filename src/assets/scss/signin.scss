@@ -16,7 +16,7 @@
 
 			.heading {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: 'Inter';
 				font-size: 32px;
 				font-style: normal;
 				font-weight: 500;
@@ -34,7 +34,7 @@
 			}
 			.description {
 				color: rgba(228, 229, 230, 0.32);
-				font-family: Inter;
+				font-family: 'Inter';
 				font-size: 32px;
 				font-style: normal;
 				font-weight: 500;
@@ -62,7 +62,7 @@
 					width: 100%;
 					color: #e4e5e6;
 					text-align: center;
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -74,7 +74,7 @@
 
 			.or {
 				color: #555;
-				font-family: Inter;
+				font-family: 'Inter';
 				font-size: 11px;
 				font-style: normal;
 				font-weight: 500;
@@ -96,7 +96,7 @@
 					background: #111;
 
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -150,7 +150,7 @@
 				cursor: pointer;
 				p {
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
@@ -172,7 +172,7 @@
 				cursor: pointer;
 				p {
 					color: #555;
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -191,7 +191,7 @@
 			.privacyPolicyContainer {
 				p {
 					color: #555;
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -215,7 +215,7 @@
 
 				.errorMessage {
 					text-align: right;
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 12px;
 					font-weight: 400;
 					line-height: 19px;
@@ -227,7 +227,7 @@
 		.topRightContainer {
 			padding-top: 10%;
 			p {
-				font-family: Inter;
+				font-family: 'Inter';
 				font-size: 40px;
 				font-weight: 500;
 				line-height: 48px;
@@ -256,7 +256,7 @@
 	p {
 		position: absolute;
 		top: 10%;
-		font-family: Inter;
+		font-family: 'Inter';
 		font-size: 32px;
 		font-weight: 700;
 		line-height: 32px;
@@ -275,7 +275,7 @@
 		bottom: 10%;
 		span {
 			text-align: center;
-			font-family: Inter;
+			font-family: 'Inter';
 			font-size: 18px;
 			font-weight: 500;
 			line-height: 40px;
@@ -298,7 +298,7 @@
 				max-width: 100%;
 				width: 100%;
 				.heading {
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 24px;
 					font-weight: 500;
 					line-height: 40px;
@@ -306,7 +306,7 @@
 				}
 
 				.description {
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 24px;
 					font-weight: 500;
 					line-height: 40px;
@@ -317,13 +317,13 @@
 				width: 100%;
 				margin-top: 10%;
 				p {
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 24px;
 					font-weight: 500;
 					line-height: 28.8px;
 					text-align: left;
 					span {
-						font-family: Inter;
+						font-family: 'Inter';
 						font-size: 24px;
 						font-weight: 500;
 						line-height: 28.8px;
@@ -342,7 +342,7 @@
 			margin: 2px;
 
 			p {
-				font-family: Inter;
+				font-family: 'Inter';
 				font-size: 8.73px;
 				font-weight: 700;
 				line-height: 8.73px;
@@ -351,7 +351,7 @@
 
 			.creatorName {
 				span {
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 4.91px;
 					font-weight: 500;
 					line-height: 7.1px;
@@ -363,7 +363,7 @@
 	}
 }
 .errorMessage {
-	font-family: Inter;
+	font-family: 'Inter';
 	font-size: 12px;
 	font-weight: 400;
 	line-height: 19px;
