@@ -42,6 +42,7 @@ const SignIn = (props) => {
 	const [secondStageButtonActive, setSecondStageButtonActive] = useState(false);
 	const [thirdStageButtonActive, setThirdStageButtonActive] = useState(false);
 	const [loginPasswordStageActive, setLoginPasswordStageActive] = useState(false);
+	const [passwordView, setPasswordView] = useState(true);
 
 	const [usersData, setUsersData] = useState({
 		emailId: '',
@@ -200,7 +201,9 @@ const SignIn = (props) => {
 			};
 			let response = await userLogin(json);
 
-			if (response[0]) {
+			if (response?.[0]) {
+				navigate('/sales');
+				setLoading(false);
 			} else {
 				setLoading(false);
 				setErrorState((prevState) => ({
@@ -409,16 +412,19 @@ const SignIn = (props) => {
 							readOnly={true}
 						/>
 					</div>
-					<div className="inputContainer inputContainerPassword">
+					<div className="inputContainer2 inputContainerPassword">
 						<input
-							type="password"
+							type={passwordView ? 'password' : 'text'}
 							placeholder="Add a Password here.."
 							onChange={handleInput}
 							name="password"
 							value={usersData['password']}
 							className={errorStates['password'] ? 'error' : ''}
+							style={{ borderRadius: 0, border: 'none', height: 'auto' }}
 						/>
-						<EyeOpen />
+						<span onClick={() => setPasswordView((prev) => !prev)}>
+							<EyeOpen />
+						</span>
 					</div>
 					<div className="continueButtonSplit">
 						<div className="backButton " onClick={() => goBack('verify-user')}>
