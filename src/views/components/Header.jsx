@@ -33,26 +33,30 @@ const iconComponent = (
 	></div>
 );
 
-const Header = ({ title }) => {
+const Header = ({ title, hideQuickNav = false }) => {
 	const navigate = useNavigate();
 	return (
 		<div className="headerContainer">
 			<VE />
 			{/* {header modules} */}
-			<div className="headerModulesContainer">
-				<div
-					className={`filterButton ${title === 'Inbox' ? 'filterButtonActive' : ''}`}
-					onClick={() => navigate('/inbox')}
-				>
-					Inbox
+			{hideQuickNav ? (
+				''
+			) : (
+				<div className="headerModulesContainer">
+					<div
+						className={`filterButton ${title === 'Inbox' ? 'filterButtonActive' : ''}`}
+						onClick={() => navigate('/inbox')}
+					>
+						Inbox
+					</div>
+					<div
+						className={`filterButton ${title === 'Sales' ? 'filterButtonActive' : ''}`}
+						onClick={() => navigate('/sales')}
+					>
+						Sales
+					</div>
 				</div>
-				<div
-					className={`filterButton ${title === 'Sales' ? 'filterButtonActive' : ''}`}
-					onClick={() => navigate('/sales')}
-				>
-					Sales
-				</div>
-			</div>
+			)}
 			<DropDown
 				selectedValue={activeWorkspaceId}
 				options={accessibleWorkspaces}

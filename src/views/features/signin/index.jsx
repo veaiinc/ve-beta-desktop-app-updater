@@ -14,6 +14,8 @@ import BusinessCoach from '../../../assets/images/login/business-coach.png';
 import Consultant from '../../../assets/images/login/consultant.png';
 import EventManagement from '../../../assets/images/login/event-management.png';
 import FashionDesigner from '../../../assets/images/login/fashion-designer.png';
+import MakeUpArtist from '../../../assets/images/login/makeup-artist.png';
+
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,7 +23,7 @@ var validator = require('validator');
 
 const SignIn = (props) => {
 	const creatorCards = [
-		{ image: '', profession: 'Make up Artist', name: 'Simmy' },
+		{ image: MakeUpArtist, profession: 'Make up Artist', name: 'Simmy' },
 		{ image: Consultant, profession: 'Consultant', name: 'Alexa' },
 		{ image: SalonAndSpa, profession: 'Salon & Spa', name: 'Suzane' },
 		{ image: Architecture, profession: 'Architecture', name: 'Jack' },
@@ -145,12 +147,12 @@ const SignIn = (props) => {
 			let json = {
 				firstName: usersData['name'],
 				email: usersData['emailId'],
-				phoneNumber: '+919941933191', // remove this
+				//phoneNumber: '+919941933191', // remove this
 				password: usersData['password'],
 				country: 'India', // remove this
 				timezone: 'Asia/Kolkata', // remove this
 				currency: 'INR', // remove this
-				region: 'ap-south-1', // remove this
+				//region: 'ap-south-1', // remove this
 			};
 			let response = await createUsersAccount(json);
 

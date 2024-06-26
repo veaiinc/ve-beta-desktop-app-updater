@@ -20,18 +20,39 @@ function SalesLeadCard(props) {
 		setIsOpen(false);
 	};
 
+	// const customModalStyles = {
+	// 	content: {
+	// 		top: '50%',
+	// 		left: '50%',
+	// 		right: 'auto',
+	// 		bottom: 'auto',
+	// 		marginRight: '-50%',
+	// 		transform: 'translate(-50%, -50%)',
+	// 		padding: '20px',
+	// 		borderRadius: '8px',
+	// 		boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+	// 		transition: 'transform 0.3s ease-in-out',
+	// 	},
+	// 	overlay: {
+	// 		backgroundColor: 'rgba(0, 0, 0, 0.5)',
+	// 		transition: 'opacity 0.3s ease-in-out',
+	// 	},
+	// };
+
 	const customModalStyles = {
 		content: {
 			top: '50%',
-			left: '50%',
-			right: 'auto',
-			bottom: 'auto',
-			marginRight: '-50%',
-			transform: 'translate(-50%, -50%)',
+			right: 0,
+			left: 'auto',
+			transform: 'translate(100%, -50%)', // Initially off-screen to the right
+			transition: 'transform 0.3s ease-in-out',
 			padding: '20px',
 			borderRadius: '8px',
 			boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-			transition: 'transform 0.3s ease-in-out',
+			border: 'none',
+			backgroundColor: 'white',
+			width: '300px', // Adjust as needed
+			zIndex: 9999,
 		},
 		overlay: {
 			backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -113,6 +134,7 @@ function SalesLeadCard(props) {
 				onRequestClose={closeModal}
 				style={customModalStyles}
 				contentLabel="Example Modal"
+				shouldCloseOnOverlayClick={true}
 				ariaHideApp={false} // Required to prevent a11y warning
 			>
 				<h2>Modal Content</h2>

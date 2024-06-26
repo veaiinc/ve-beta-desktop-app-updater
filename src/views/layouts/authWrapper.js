@@ -4,7 +4,7 @@ import '../../assets/scss/authWrapper.scss';
 import Header from '../components/Header';
 import { Helmet } from 'react-helmet';
 
-const AuthWrapper = ({ title, children }) => {
+const AuthWrapper = ({ title, children, hideQuickNav = false }) => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -19,7 +19,8 @@ const AuthWrapper = ({ title, children }) => {
 				<meta charSet="utf-8" />
 				<title>{title} | VE</title>
 			</Helmet>
-			<Header title={title} />
+
+			<Header title={title} hideQuickNav={hideQuickNav} />
 			<div className="childrenContainer">{children}</div>
 		</div>
 	);

@@ -1,0 +1,98 @@
+.proposalsContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+		.titleAndBackButton {
+			display: flex;
+			width: 37.125rem;
+			align-items: center;
+			gap: 1rem;
+
+			p {
+				color: #e4e5e6;
+				font-family: 'Inter';
+				font-size: 0.875rem;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 1rem; /* 114.286% */
+				text-transform: uppercase;
+			}
+		}
+		.sendProposalButton {
+			display: flex;
+			padding: 1rem 1.5rem;
+			align-items: center;
+			gap: 1rem;
+
+			border-radius: 6.25rem;
+			border: 1px solid rgba(36, 36, 36, 0.64);
+			background: rgba(42, 42, 42, 0.16);
+			cursor: pointer;
+			p {
+				color: #e4e5e6;
+				font-family: 'Inter';
+				font-size: 0.8125rem;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 1rem; /* 123.077% */
+				letter-spacing: 0.01625rem;
+			}
+		}
+	}
+	.divider {
+		height: 1px;
+		width: 100%;
+		background-color: rgba(36, 36, 36, 0.64);
+	}
+
+	.propsosEditContainer {
+		display: flex;
+		align-items: flex-start;
+		gap: 1.5rem;
+		flex: 1 0 0;
+		align-self: stretch;
+
+		.previewContainer {
+			width: 40%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 1.5rem;
+			align-self: stretch;
+			.heading {
+				color: #e4e5e6;
+				font-family: 'Inter';
+				font-size: 0.875rem;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 1rem; /* 114.286% */
+				text-transform: uppercase;
+			}
+		}
+		.editContainer {
+			width: 55%;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 1.5rem;
+			flex: 1 0 0;
+			align-self: stretch;
+
+			.heading {
+				color: #e4e5e6;
+				font-family: 'Inter';
+				font-size: 0.875rem;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 1rem; /* 114.286% */
+				text-transform: uppercase;
+			}
+		}
+	}
+}

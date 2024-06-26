@@ -2,7 +2,7 @@ import AuthWrapper from './views/layouts/authWrapper';
 import LoginScreen from './views/features/signin';
 import ChatScreen from './views/features/meta_Integ/index';
 import SalesScreen from './views/features/sales/index';
-
+import ProposalCRUD from './views/features/modules/proposalCRUD';
 const routes = [
 	{
 		path: '/',
@@ -78,6 +78,16 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Sales'}>
 				<SalesScreen type={'workflows'} />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+
+	{
+		path: '/create-proposal',
+		component: (
+			<AuthWrapper title={'Sales'} hideQuickNav={true}>
+				<ProposalCRUD type={'workflows'} />
 			</AuthWrapper>
 		),
 		exact: true,
