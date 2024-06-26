@@ -86,6 +86,7 @@
 
 			.inputContainer {
 				margin-bottom: 16px;
+
 				input {
 					display: flex;
 					height: 48px;
@@ -119,15 +120,32 @@
 					width: 75%;
 				}
 			}
+			.inputContainer2 {
+				display: flex;
+				height: 48px;
+				padding: 12px 24px;
+				align-items: center;
+				gap: 10px;
+				align-self: stretch;
+				border-radius: 20px;
+				border: 1px solid #222;
+				margin-bottom: 16px;
+
+				input {
+					display: flex;
+					width: 100%;
+					background: #111;
+					color: #e4e5e6;
+					font-family: 'Inter';
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 24px; /* 200% */
+				}
+			}
 
 			.inputContainerPassword {
-				position: relative;
 				svg {
-					position: absolute;
-					top: 25%;
-					z-index: 10;
-					background: #111;
-					right: 7%;
 					cursor: pointer;
 				}
 			}

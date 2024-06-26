@@ -1,7 +1,12 @@
 import * as API from './actionTypes';
 import Service from '../../services/index';
+import { useReducer } from 'react';
+import Reducer from './reducer';
 
 export const UserLoginState = (props) => {
+	const intialState = {};
+	const [state, dispatch] = useReducer(Reducer, intialState);
+
 	const verifyAccountExistsUsingEmail = async (email) => {
 		let response = await Service.fetchGet(
 			`${API.USERS_LOGIN.VERIFY_EMAIL_EXISTS}${email}`,
@@ -54,10 +59,16 @@ export const UserLoginState = (props) => {
 			'tenant_users_api',
 		);
 
+		const { accessToken, accessibleWorkspaces } = response?.[1] || {};
+
+		localStorage.setItem('usertoken', accessToken);
+		localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
+		localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
+
 		if (response[0] === true) {
-			return [true, response[1]];
+			return [true];
 		} else {
-			return [false, response[1]];
+			return [false];
 		}
 	};
 
