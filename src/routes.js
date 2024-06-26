@@ -2,6 +2,7 @@ import AuthWrapper from './views/layouts/authWrapper';
 import LoginScreen from './views/features/signin';
 import ChatScreen from './views/features/meta_Integ/index';
 import SalesScreen from './views/features/sales/index';
+import MainContentWrapper from './views/features/workspace_settings/MainContentWrapper';
 
 const routes = [
 	{
@@ -38,15 +39,6 @@ const routes = [
 	},
 
 	{
-		path: '/:workspaceId/inbox',
-		component: (
-			<AuthWrapper title={'Inbox'}>
-				<ChatScreen />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
-	{
 		path: '/inbox',
 		component: (
 			<AuthWrapper title={'Inbox'}>
@@ -79,6 +71,15 @@ const routes = [
 			<AuthWrapper title={'Sales'}>
 				<SalesScreen type={'workflows'} />
 			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/workspace-settings/:type',
+		component: (
+			// <AuthWrapper title={'Workspace Settings'}>
+			<MainContentWrapper />
+			// </AuthWrapper>
 		),
 		exact: true,
 	},

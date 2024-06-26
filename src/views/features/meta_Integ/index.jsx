@@ -17,7 +17,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import DropDown from '../../components/dropDown/DropDown';
 import { ReactComponent as Instagram } from '../../../assets/svg/chat/instagram.svg';
 import EmptyState from './EmptyState';
-import { set } from 'lodash';
+// import { set } from 'lodash';
 
 const ChatScreen = (props) => {
 	let {
@@ -37,8 +37,8 @@ const ChatScreen = (props) => {
 	} = useContext(Context);
 	// const location = useLocation();
 	// const { pageInfoData } = location.state || {};
-	const { workspaceId } = useParams();
-	// const workspaceId = localStorage.getItem('workspaceId');
+	// const { workspaceId } = useParams();
+	const workspaceId = localStorage.getItem('workspaceId');
 
 	const navigate = useNavigate();
 
@@ -80,7 +80,7 @@ const ChatScreen = (props) => {
 
 		getPageInfo(workspaceId, payload);
 		return () => {
-			socketRef.current.close();
+			socketRef?.current?.close();
 		};
 	}, []);
 

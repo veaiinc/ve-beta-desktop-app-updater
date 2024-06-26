@@ -1,0 +1,45 @@
+import React from 'react';
+import { ReactComponent as DownArrow } from '../../../assets/svg/chat/downArrow.svg';
+
+const ReusableButtonSettings = ({
+	text,
+	func,
+	active = false,
+	icon,
+	downArrow = false,
+	onClickFunc = null,
+	href = null,
+}) => {
+	return (
+		<div
+			style={{
+				border: active ? '1px solid #6055EC' : '1px solid #1C1C1C',
+				color: active ? '#6055EC' : '#666666',
+				backgroundColor: '#1c1c1c',
+				cursor: 'pointer',
+				borderRadius: '20px',
+				padding: '9px 16px',
+				height: '40px',
+				// marginTop: '1rem',
+				width: 'auto',
+				display: 'inline-block',
+				transition: 'color 0.3s ease-in, border 0.3s ease-in',
+			}}
+			onClick={func}
+		>
+			<div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+				{icon && <span style={{ display: 'flex', alignItems: 'center' }}>{icon}</span>}
+				<span>{text}</span>
+				{downArrow && (
+					<span
+						style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+					>
+						<DownArrow />
+					</span>
+				)}
+			</div>
+		</div>
+	);
+};
+
+export default ReusableButtonSettings;
