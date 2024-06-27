@@ -29,7 +29,7 @@
 .mainContainer2 {
 	height: 100%;
 	width: 100%;
-	background-color: #111111;
+	// background-color: #111111;
 	display: flex;
 	justify-content: center;
 	gap: 40px;
@@ -81,7 +81,7 @@
 		overflow-x: clip;
 		height: 100vh;
 		position: relative;
-		background-color: #111111;
+		// background-color: #111111;
 		.settings-left-bar-container {
 			width: 50%;
 			// left: 216px;
@@ -94,9 +94,9 @@
 			overflow-y: auto;
 			position: fixed;
 			top: 0px;
-			background-color: #111111;
+			// background-color: #111111;
 			@include theme-aware(box-shadow, financesLeftBarBoxShadow, null);
-			padding: 40px 0 24px 0;
+			padding: 0px 0 24px 0;
 			display: flex;
 			flex-direction: column;
 			gap: 12px;

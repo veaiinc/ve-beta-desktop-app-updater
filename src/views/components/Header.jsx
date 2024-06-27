@@ -1,40 +1,56 @@
-import React from 'react';
+import React, { memo, useState, useCallback } from 'react';
 import '../../assets/scss/header.scss';
 import { ReactComponent as VE } from '../../assets/svg/ve.svg';
-import DropDown from './dropDown/DropDown';
-import { useNavigate } from 'react-router-dom';
-
-const modules = ['inbox', 'sales'];
-const accessibleWorkspaces = JSON.parse(localStorage.getItem('accessibleWorkspaces'));
-const activeWorkspaceId = localStorage.getItem('workspaceId');
-
-const changeWorkspaceId = (item) => {
-	if (item === activeWorkspaceId) {
-		return;
-	}
-	localStorage.setItem('workspaceId', item);
-};
-
-const iconComponent = (
-	<div
-		style={{
-			display: 'flex',
-			width: '18px',
-			height: '18px',
-			justifyContent: 'center',
-			alignItems: 'center',
-			gap: '5.625px',
-			borderRadius: '56.25px',
-			background:
-				'url(https://s3-alpha-sig.figma.com/img/1785/4816/6b242fa46aaac2dc8b45609480a257a7?Expires=1719792000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=iiGtkJltYhmFpJEjLTL3da5weMk3RS~kz41rEB5FRlBc7f5Z6QrYajx4l9J6rFkjM7PJRErDB-hUwGrIvRwQqxiIFy9OiPSnkxmCNj1KJoPjLg8BT5jb3GoxoTz2tZmxic1R5iAUYRX-f~y8FTCqERjIVkZhGEd60SyrfgLPpS97Ruxuq6zCvwAPOorZM8qOS0nlM4~Drp0pqddZRxNtxLDTY4VuIPlXw2O~oz-dbBB5I6-SEyLHx~xKPFeD8ph5DARXtHktw3bpU0VCmDNecA2UZfpP5hgDsXeM9bINAGidL-2zyfO~8QNFGleIJThiCaIrxgQ-ZcdhDygd7BWvBQ__)',
-			backgroundSize: 'cover',
-			backgroundPosition: 'center',
-		}}
-	></div>
-);
+import { useNavigate, useParams } from 'react-router-dom';
+import HeadersDropDownComp from './dropDown/HeadersDropDownComp';
+import SwitchWorkspaceModal from './modals/workspace/switchWorkspaceModal';
 
 const Header = ({ title, hideQuickNav = false }) => {
 	const navigate = useNavigate();
+	const params = useParams();
+	const accessibleWorkspaces = JSON.parse(localStorage.getItem('accessibleWorkspaces'));
+	const activeWorkspaceId = localStorage.getItem('workspaceId');
+	const [info, setInfo] = useState({
+		switchWorkspaceModal: true,
+		items: [
+			{
+				label: 'Company Profile',
+				onClickFunc: async () => {
+					const result = await validateUrlBeforeNavigation('Company Profile');
+					return !result
+						? navigate('/workspace-settings/company-overview-settings')
+						: null;
+				},
+			},
+			{
+				label: 'My Profile',
+				onClickFunc: () => {},
+			},
+			{
+				label: 'Create Workspace',
+				onClickFunc: () => {},
+			},
+			{
+				label: `Switch Workspace (${accessibleWorkspaces?.length})`,
+				onClickFunc: () => {},
+			},
+		],
+	});
+
+	const validateUrlBeforeNavigation = useCallback(
+		async (validateType) => {
+			if (validateType === 'Company Profile') {
+				const { type } = params;
+				return type ? true : false;
+			}
+		},
+		[params],
+	);
+
+	const closeSwitchModal = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, switchWorkspaceModal: false }));
+	}, [info?.switchWorkspaceModal]);
+
 	return (
 		<div className="headerContainer">
 			<VE />
@@ -57,22 +73,29 @@ const Header = ({ title, hideQuickNav = false }) => {
 					</div>
 				</div>
 			)}
-			<DropDown
+
+			<HeadersDropDownComp
 				selectedValue={activeWorkspaceId}
-				options={accessibleWorkspaces}
+				options={info?.items}
 				containerStyle={{
 					padding: '10px 12px 10px 10px',
 					gap: '6px',
 					width: 'auto',
 				}}
-				valueSelector={'itself'}
-				dropDownStyle={{ right: 0, top: '50px', left: 'unset', width: 'auto' }}
-				iconComponent={iconComponent}
-				uniqueIdKey={activeWorkspaceId}
-				onChange={changeWorkspaceId}
+				dropDownStyle={{
+					right: 0,
+					top: '50px',
+					left: 'unset',
+					width: 'auto',
+					height: 'auto',
+					minWidth: '200px',
+					minHeight: '200px',
+				}}
+				logoutOptions={true}
 			/>
+			{/* <SwitchWorkspaceModal open={info?.switchWorkspaceModal} closeModal={closeSwitchModal} /> */}
 		</div>
 	);
 };
 
-export default Header;
+export default memo(Header);

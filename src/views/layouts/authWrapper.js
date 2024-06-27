@@ -9,7 +9,7 @@ const AuthWrapper = ({ title, children, hideQuickNav = false }) => {
 
 	useEffect(() => {
 		if (!localStorage.getItem('usertoken')) {
-			return navigate('/user/login');
+			return navigate('/');
 		}
 	}, [navigate]);
 
