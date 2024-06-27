@@ -93,7 +93,7 @@
 			overflow-x: clip;
 			overflow-y: auto;
 			position: fixed;
-			top: 0px;
+			// top: 0px;
 			// background-color: #111111;
 			@include theme-aware(box-shadow, financesLeftBarBoxShadow, null);
 			padding: 0px 0 24px 0;

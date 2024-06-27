@@ -24,7 +24,10 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 			},
 			{
 				label: 'My Profile',
-				onClickFunc: () => {},
+				onClickFunc: async () => {
+					const result = await validateUrlBeforeNavigation('My Profile');
+					return !result ? navigate('/my-profile') : null;
+				},
 			},
 			{
 				label: 'Create Workspace',
@@ -44,6 +47,10 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 			if (validateType === 'Company Profile') {
 				const { type } = params;
 				return type ? true : false;
+			}
+			if (validateType === 'My Profile') {
+				const splitUrl = window.location.href?.split('/');
+				return splitUrl?.[splitUrl?.length - 1] === 'my-profile' ? true : false;
 			}
 		},
 		[params],
