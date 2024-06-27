@@ -2,11 +2,13 @@ import * as API from './actionTypes';
 import Service from '../../services/index';
 
 export const TemplatesState = (props) => {
-	const getTemplates = async () => {
+	const getTemplates = async (templateId = null) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		let response = await Service.fetchGet(
-			`/${workspaceId}${API.TEMPLATES.TEMPLATES}`,
+			`/${workspaceId}${API.TEMPLATES.TEMPLATES}${
+				templateId ? `?templateId=${templateId}` : ''
+			}`,
 			usertoken,
 			'proposals_api',
 		);
@@ -36,11 +38,15 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getProposals = async (page) => {
+	const getProposals = async (salesId, page, search) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		let response = await Service.fetchGet(
-			`/${workspaceId}${API.TEMPLATES.PROPOSALS}?page=${page}&limit=10&sortBy=createdAt&sortType=-1`,
+			`/${workspaceId}${
+				API.TEMPLATES.PROPOSALS
+			}?templateId=${salesId}&page=${page}&limit=10&sortBy=createdAt&sortType=-1${
+				search != '' ? `&title=${search}` : ''
+			}`,
 			usertoken,
 			'proposals_api',
 		);

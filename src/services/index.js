@@ -1,9 +1,15 @@
-const { tenant_users_api, tenant_api_server, tenant_user_api_server } = require('./config');
+const {
+	tenant_users_api,
+	tenant_api_server,
+	tenant_user_api_server,
+	proposals_api,
+} = require('./config');
 
 const apiEndpoints = {
 	tenant_users_api,
 	tenant: tenant_api_server,
 	'tenant-users': tenant_user_api_server,
+	proposals_api,
 };
 
 const handleHeaders = (token, body, type) => {
@@ -31,6 +37,7 @@ const processResponse = async (response) => {
 
 const apiFetch = async (url, method, body, token, type) => {
 	const endpoint = apiEndpoints[type] + url;
+	console.log(endpoint);
 	const headers = handleHeaders(token, body, type);
 	if (body) {
 		body = JSON.stringify(body);
