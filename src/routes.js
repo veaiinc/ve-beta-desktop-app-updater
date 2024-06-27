@@ -2,6 +2,8 @@ import AuthWrapper from './views/layouts/authWrapper';
 import LoginScreen from './views/features/signin';
 import ChatScreen from './views/features/meta_Integ/index';
 import SalesScreen from './views/features/sales/index';
+import MyWorkFlowDetails from './views/features/sales/myWorkFlowDetails';
+import ProposalCRUD from './views/features/modules/proposalCRUD';
 import MainContentWrapper from './views/features/workspace_settings/MainContentWrapper';
 
 const routes = [
@@ -60,7 +62,7 @@ const routes = [
 		path: '/sales/:salesId',
 		component: (
 			<AuthWrapper title={'Sales'}>
-				<SalesScreen />
+				<MyWorkFlowDetails />
 			</AuthWrapper>
 		),
 		exact: true,
@@ -74,6 +76,16 @@ const routes = [
 		),
 		exact: true,
 	},
+	{
+		path: '/create-proposal',
+		component: (
+			<AuthWrapper title={'Sales'} hideQuickNav={true}>
+				<ProposalCRUD type={'workflows'} />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+
 	{
 		path: '/workspace-settings/:type',
 		component: (
