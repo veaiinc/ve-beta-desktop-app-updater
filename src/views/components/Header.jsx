@@ -31,7 +31,9 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 			},
 			{
 				label: 'Create Workspace',
-				onClickFunc: () => {},
+				onClickFunc: async () => {
+					navigate('/create-workspace');
+				},
 			},
 			{
 				label: `Switch Workspace (${accessibleWorkspaces?.length})`,

@@ -1,8 +1,6 @@
 import jwt_decode from 'jwt-decode';
 import _ from 'lodash';
 import React from 'react';
-// import { withRouter } from 'react-router-dom';
-// import { ReactComponent as GlobeSettings } from '../../../../../assets/svg/v4/globe-settings.svg';
 import Workspace from '../../../controllers/workspace';
 import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
 import Input from '../../components/input/inputwithHeader';
