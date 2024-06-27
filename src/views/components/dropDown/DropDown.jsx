@@ -55,10 +55,6 @@ const DropDown = ({
 									</span>
 								</div>
 
-								{console.log(
-									uniqueIdKey,
-									option?.[uniqueIdKey] === option?.[uniqueIdKey],
-								)}
 								{
 									<span style={{ display: 'flex', alignItems: 'center' }}>
 										<Tick />

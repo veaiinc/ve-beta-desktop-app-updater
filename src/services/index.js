@@ -1,5 +1,5 @@
 const { tenant_users_api, tenant_api_server, tenant_user_api_server } = require('./config');
-
+// import { useNavigate } from 'react-router-dom';
 const apiEndpoints = {
 	tenant_users_api,
 	tenant: tenant_api_server,
@@ -57,7 +57,7 @@ const onFailure = async (res, url) => {
 };
 
 const onUserKickedOut = async (res, url) => {
-	localStorage.removeItem('usertoken');
+	localStorage.clear();
 	window.location.reload();
 };
 

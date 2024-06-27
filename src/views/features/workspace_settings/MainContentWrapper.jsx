@@ -20,6 +20,7 @@ let mapper = {
 };
 
 const MainContentWrapper = (props) => {
+	console.log('I am getting called');
 	const { type } = useParams();
 	const navigate = useNavigate();
 	const [urlType, setUrlype] = useState('');
