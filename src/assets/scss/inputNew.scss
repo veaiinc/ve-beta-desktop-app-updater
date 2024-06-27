@@ -1,0 +1,152 @@
+@import '../scss/variables.scss';
+@import '../scss/mixins.scss';
+.sl-input-container {
+	display: flex;
+	width: 100%;
+	flex-direction: column;
+	gap: 12px;
+	label.sl-label {
+		display: block;
+		@include os-aware-font('Inter SemiBold');
+		font-style: normal;
+		font-weight: 600;
+		font-size: 13px;
+		line-height: 20px;
+		color: #e4e5e6;
+	}
+	.sl-input {
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding: 8px;
+		gap: 10px;
+		width: 100%;
+		background-color: rgba(68, 68, 68, 1);
+		border: 1px solid rgba(68, 68, 68, 1);
+		border-radius: 2px;
+		transition: all 0.3s ease;
+		input {
+			@include os-aware-font('Inter');
+			font-style: normal;
+			font-weight: 400;
+			font-size: 16px;
+			line-height: 24px;
+			color: #e4e5e6;
+			width: 100%;
+			border: none;
+			background: transparent;
+			padding: 0px;
+		}
+		input::placeholder {
+			@include os-aware-font('Inter');
+			font-style: normal;
+			font-weight: 300;
+			font-size: 13px;
+			line-height: 24px;
+			color: #707070;
+		}
+		input:-webkit-autofill,
+		input:-webkit-autofill:hover,
+		input:-webkit-autofill:focus,
+		input:-webkit-autofill:active,
+		input:-internal-autofill-selected {
+			caret-color: #fff !important;
+			-webkit-box-shadow: none !important;
+			background-color: transparent !important;
+
+			color: #e4e5e6 !important;
+			-webkit-text-fill-color: #e4e5e6 !important;
+			-webkit-background-clip: text !important;
+			background-clip: text !important;
+		}
+		.sl-input-prefix {
+			@include os-aware-font('Inter');
+			font-style: normal;
+			font-weight: 300;
+			font-size: 14px;
+			line-height: 24px;
+			color: #ffffff;
+		}
+		.sl-input-icn {
+			width: 24px;
+			height: 24px;
+			display: flex;
+			align-items: center;
+			cursor: pointer;
+			svg {
+				max-width: 24px;
+				max-height: 24px;
+			}
+		}
+	}
+	.sl-input.with-image {
+		input {
+			width: calc(100% - 34px);
+		}
+	}
+	.sl-input.icn-last {
+		flex-direction: row-reverse;
+		.sl-input-icn {
+			justify-content: flex-end;
+			svg {
+				path {
+					fill: #ababab;
+					stroke: #ababab;
+				}
+			}
+		}
+	}
+	.sl-error-input-text {
+		@include os-aware-font('Inter');
+		font-style: normal;
+		font-weight: 300;
+		font-size: 14px;
+		line-height: 24px;
+		color: #ec4740;
+		display: none;
+		text-align: center;
+	}
+}
+
+.sl-input-container.sl-error-input {
+	.sl-input {
+		border-color: #ec4740;
+	}
+	.sl-error-input-text {
+		display: block;
+	}
+}
+.sl-input-container.with-label {
+	.sl-input {
+		padding: 9px 16px;
+	}
+}
+.sl-input-container.px8-gap {
+	gap: 8px;
+}
+.sl-input-container.eror-left-align {
+	.sl-error-input-text {
+		text-align: left;
+	}
+}
+.sl-input-container.without-border {
+	.sl-input {
+		border: none;
+	}
+}
+.sl-input-container.input-pad-right-zero {
+	.sl-input {
+		padding-right: 0px;
+	}
+}
+
+.sl-input-container.input-w-zero {
+	width: auto;
+	.sl-input {
+		width: auto;
+		input {
+			width: 0px;
+		}
+	}
+}

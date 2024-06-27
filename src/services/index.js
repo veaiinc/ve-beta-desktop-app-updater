@@ -1,6 +1,10 @@
-const { tenant_users_api, proposals_api } = require('./config');
+const { tenant_users_api, tenant_api_server, tenant_user_api_server } = require('./config');
 
-const apiEndpoints = { tenant_users_api, proposals_api };
+const apiEndpoints = {
+	tenant_users_api,
+	tenant: tenant_api_server,
+	'tenant-users': tenant_user_api_server,
+};
 
 const handleHeaders = (token, body, type) => {
 	const headers = { 'Content-Type': 'application/json' };

@@ -10,12 +10,12 @@
 		{
 			"src": "ve.png",
 			"type": "image/png",
-			"sizes": "192x192"
+			"sizes": "100x50"
 		},
 		{
 			"src": "ve.png",
 			"type": "image/png",
-			"sizes": "512x512"
+			"sizes": "100x50"
 		}
 	],
 	"start_url": ".",

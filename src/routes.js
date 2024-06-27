@@ -4,6 +4,7 @@ import ChatScreen from './views/features/meta_Integ/index';
 import SalesScreen from './views/features/sales/index';
 import MyWorkFlowDetails from './views/features/sales/myWorkFlowDetails';
 import ProposalCRUD from './views/features/modules/proposalCRUD';
+import MainContentWrapper from './views/features/workspace_settings/MainContentWrapper';
 
 const routes = [
 	{
@@ -40,15 +41,6 @@ const routes = [
 	},
 
 	{
-		path: '/:workspaceId/inbox',
-		component: (
-			<AuthWrapper title={'Inbox'}>
-				<ChatScreen />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
-	{
 		path: '/inbox',
 		component: (
 			<AuthWrapper title={'Inbox'}>
@@ -84,12 +76,21 @@ const routes = [
 		),
 		exact: true,
 	},
-
 	{
 		path: '/create-proposal',
 		component: (
 			<AuthWrapper title={'Sales'} hideQuickNav={true}>
 				<ProposalCRUD type={'workflows'} />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+
+	{
+		path: '/workspace-settings/:type',
+		component: (
+			<AuthWrapper title={'Workspace Settings'}>
+				<MainContentWrapper />
 			</AuthWrapper>
 		),
 		exact: true,
