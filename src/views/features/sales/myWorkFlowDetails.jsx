@@ -7,11 +7,13 @@ import { ReactComponent as LeftArrow } from '../../../assets/svg/left-arrow.svg'
 import { ReactComponent as Search } from '../../../assets/svg/seach-magnifier.svg';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
+const _ = require('lodash');
 
 function MyWorkFlowDetails(props) {
 	const { salesId } = useParams();
 	const [workspaceId, setWorkspaceId] = useState('');
 	const [proposalData, setProposalData] = useState([]);
+	const [inSights, setInsights] = useState([]);
 	const [isLoading, setLoading] = useState(true);
 	const [metaData, setMetaData] = useState({
 		page: 1,
@@ -19,7 +21,7 @@ function MyWorkFlowDetails(props) {
 	});
 
 	let {
-		templates: { getProposals },
+		templates: { getProposals, getTemplatesStatus },
 	} = useContext(Context);
 
 	useEffect(() => {
@@ -34,8 +36,17 @@ function MyWorkFlowDetails(props) {
 	useEffect(() => {
 		if (workspaceId) {
 			fetchTemplates();
+			fetchTemplateStatus();
 		}
 	}, [workspaceId]);
+
+	const fetchTemplateStatus = async () => {
+		let response = await getTemplatesStatus(salesId);
+		if (response[0]) {
+			setLoading(false);
+			setInsights(_.filter(response[1]));
+		}
+	};
 
 	const fetchTemplates = async (page = null) => {
 		let response = await getProposals(page ? page : metaData['page']);
@@ -71,7 +82,10 @@ function MyWorkFlowDetails(props) {
 					<input type="text" placeholder="Search" />
 				</div>
 			</div>
-			<MyWorkFlowStatsCard workflow={{ _id: '', title: '', displayImageURL: '' }} />
+			<MyWorkFlowStatsCard
+				workflow={{ _id: '', title: '', displayImageURL: '' }}
+				inSights={inSights[0]}
+			/>
 			{isLoading ? (
 				''
 			) : (

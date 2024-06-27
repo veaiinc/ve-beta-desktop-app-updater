@@ -7,9 +7,10 @@ const _ = require('lodash');
 
 function Sales({ type }) {
 	const [workspaceId, setWorkspaceId] = useState('');
+	const [tenantId, setTenantId] = useState('');
 	const [isLoading, setLoading] = useState(true);
-	const [myWorkflows, setMyWorkflows] = useState('');
-	const [globalWorkflows, setGlobalWorkflows] = useState('');
+	const [myWorkflows, setMyWorkflows] = useState([]);
+	const [globalWorkflows, setGlobalWorkflows] = useState([]);
 	const [inSights, setInsights] = useState([]);
 
 	let {
@@ -19,18 +20,20 @@ function Sales({ type }) {
 	useEffect(() => {
 		const fetchWorkspaceId = async () => {
 			const id = localStorage.getItem('workspaceId');
+			const _tenantId = localStorage.getItem('tenantId');
 			setWorkspaceId(id);
+			setTenantId(_tenantId);
 		};
 
 		fetchWorkspaceId();
-	}, [workspaceId]);
+	}, [workspaceId, tenantId]);
 
 	useEffect(() => {
 		if (workspaceId) {
 			fetchTemplates();
 			fetchTemplateStatus();
 		}
-	}, [workspaceId]);
+	}, [workspaceId, tenantId]);
 
 	const fetchTemplateStatus = async () => {
 		let response = await getTemplatesStatus();
@@ -45,7 +48,7 @@ function Sales({ type }) {
 		if (response[0]) {
 			setLoading(false);
 			setGlobalWorkflows(_.filter(response[1], { workspaceId: '*' }));
-			setMyWorkflows(_.filter(response[1], { workspaceId }));
+			setMyWorkflows(_.filter(response[1], { tenantId }));
 		}
 	};
 

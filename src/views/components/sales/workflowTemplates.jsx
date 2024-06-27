@@ -57,45 +57,6 @@ function WorkflowTemplates({ workflows }) {
 							</div>
 						);
 					})}
-					<div className="workflowCard">
-						<div className="textContainer">
-							<p className="heading">Wedding Photography Proposal</p>
-							<div className="subtext">
-								<VE />
-								<p>| Saved 10158 times</p>
-							</div>
-							<p className="description">
-								Send this custom proposal to your potential client post-consult with
-								their recommended package and optional add-ons.
-							</p>
-							<p className="modulesInWorkflowHeader">Actions</p>
-							<div className="modulesInWorkflow">
-								<div>
-									<Circle /> <p>Proposals</p>
-								</div>
-								<div className="connector"></div>
-								<div>
-									<Circle /> <p>Thankyou</p>
-								</div>
-							</div>
-
-							<div className="tagContainer">
-								<p className="heading">Tags</p>
-								<div className="tags">
-									<p>Photography</p>
-									<p>Wedding</p>
-									<p>Add-Ons</p>
-									<p>Proposal</p>
-									<p>Event</p>
-									<p>Romantic</p>
-								</div>
-							</div>
-						</div>
-						<div
-							className="imageContainer"
-							style={{ backgroundImage: `url(${SampleWorkflowImage})` }}
-						></div>
-					</div>
 				</div>
 			</div>
 			<div className="categoryContainer">

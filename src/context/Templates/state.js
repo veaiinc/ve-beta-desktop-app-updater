@@ -18,11 +18,13 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getTemplatesStatus = async () => {
+	const getTemplatesStatus = async (templateId = null) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		let response = await Service.fetchGet(
-			`/${workspaceId}${API.TEMPLATES.PROPOSALS}${API.TEMPLATES.TEMPLATE_INSIGHTS}`,
+			`/${workspaceId}${API.TEMPLATES.PROPOSALS}${API.TEMPLATES.TEMPLATE_INSIGHTS}${
+				templateId ? `?templateId=${templateId}` : ''
+			}`,
 			usertoken,
 			'proposals_api',
 		);

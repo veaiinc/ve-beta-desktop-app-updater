@@ -5,6 +5,7 @@ import { ReactComponent as RightArrow } from '../../../assets/svg/right-arrow.sv
 const _ = require('lodash');
 
 function MyWorkFlowStatsCard({ workflow, index, inSights }) {
+	console.log(inSights);
 	return (
 		<a href={`/sales/${workflow._id}`}>
 			<div className="workflowContainer" index={index}>
@@ -33,23 +34,37 @@ function MyWorkFlowStatsCard({ workflow, index, inSights }) {
 					<div className="statsContainer">
 						<div className="statBox">
 							<p className="statsTitle">DRAFT</p>
-							<p className="statsValue">10</p>
+							<p className="statsValue">
+								{inSights && inSights.status.draft ? inSights.status.draft : 0}
+							</p>
 						</div>
 						<div className="statBox">
 							<p className="statsTitle">SENT</p>
-							<p className="statsValue">12</p>
+							<p className="statsValue">
+								{inSights && inSights.status.sent ? inSights.status.sent : 0}
+							</p>
 						</div>
 						<div className="statBox">
 							<p className="statsTitle">ACCEPTED</p>
-							<p className="statsValue">12</p>
+							<p className="statsValue">
+								{inSights && inSights.status.accepted
+									? inSights.status.accepted
+									: 0}
+							</p>
 						</div>
 						<div className="statBox">
 							<p className="statsTitle">REJECTED</p>
-							<p className="statsValue">12</p>
+							<p className="statsValue">
+								{inSights && inSights.status.rejected
+									? inSights.status.rejected
+									: 0}
+							</p>
 						</div>
 						<div className="statBox">
 							<p className="statsTitle">EXPIRED</p>
-							<p className="statsValue">12</p>
+							<p className="statsValue">
+								{inSights && inSights.status.expired ? inSights.status.expired : 0}
+							</p>
 						</div>
 					</div>
 				</div>

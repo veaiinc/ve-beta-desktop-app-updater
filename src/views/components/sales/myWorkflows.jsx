@@ -16,7 +16,7 @@ function MyWorkflows({ workflows, inSights }) {
 				<MyWorkFlowStatsCard
 					workflow={workflow}
 					index={index}
-					inSights={_.filter(inSights, { templateId: workflow._id })}
+					inSights={_.find(inSights, { templateId: workflow._id })}
 				/>
 			))}
 		</div>

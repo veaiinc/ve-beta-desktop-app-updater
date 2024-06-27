@@ -53,8 +53,8 @@ const onFailure = async (res, url) => {
 };
 
 const onUserKickedOut = async (res, url) => {
-	localStorage.removeItem('usertoken');
-	window.location.reload();
+	//localStorage.removeItem('usertoken');
+	//window.location.reload();
 };
 
 export default Service;
