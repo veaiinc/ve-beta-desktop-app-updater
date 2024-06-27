@@ -5,13 +5,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import HeadersDropDownComp from './dropDown/HeadersDropDownComp';
 import SwitchWorkspaceModal from './modals/workspace/switchWorkspaceModal';
 
-const Header = ({ title, hideQuickNav = false }) => {
+const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorkspaceId }) => {
 	const navigate = useNavigate();
 	const params = useParams();
 	const accessibleWorkspaces = JSON.parse(localStorage.getItem('accessibleWorkspaces'));
-	const activeWorkspaceId = localStorage.getItem('workspaceId');
+	// const activeWorkspaceId = activeWorkspaceId;
 	const [info, setInfo] = useState({
-		switchWorkspaceModal: true,
+		switchWorkspaceModal: false,
 		items: [
 			{
 				label: 'Company Profile',
@@ -32,7 +32,9 @@ const Header = ({ title, hideQuickNav = false }) => {
 			},
 			{
 				label: `Switch Workspace (${accessibleWorkspaces?.length})`,
-				onClickFunc: () => {},
+				onClickFunc: () => {
+					setInfo((prev) => ({ ...prev, switchWorkspaceModal: true }));
+				},
 			},
 		],
 	});
@@ -93,7 +95,12 @@ const Header = ({ title, hideQuickNav = false }) => {
 				}}
 				logoutOptions={true}
 			/>
-			{/* <SwitchWorkspaceModal open={info?.switchWorkspaceModal} closeModal={closeSwitchModal} /> */}
+			<SwitchWorkspaceModal
+				open={info?.switchWorkspaceModal}
+				closeModal={closeSwitchModal}
+				accessibleWorkspaces={accessibleWorkspaces}
+				activeWorkspaceId={activeWorkspaceId}
+			/>
 		</div>
 	);
 };
