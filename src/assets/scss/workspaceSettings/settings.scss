@@ -96,7 +96,7 @@
 			top: 0px;
 			// background-color: #111111;
 			@include theme-aware(box-shadow, financesLeftBarBoxShadow, null);
-			padding: 40px 0 24px 0;
+			padding: 0px 0 24px 0;
 			display: flex;
 			flex-direction: column;
 			gap: 12px;

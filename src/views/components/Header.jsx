@@ -5,13 +5,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import HeadersDropDownComp from './dropDown/HeadersDropDownComp';
 import SwitchWorkspaceModal from './modals/workspace/switchWorkspaceModal';
 
-const Header = ({ title }) => {
+const Header = ({ title, hideQuickNav = false }) => {
 	const navigate = useNavigate();
 	const params = useParams();
 	const accessibleWorkspaces = JSON.parse(localStorage.getItem('accessibleWorkspaces'));
 	const activeWorkspaceId = localStorage.getItem('workspaceId');
 	const [info, setInfo] = useState({
-		switchWorkspaceModal: false,
+		switchWorkspaceModal: true,
 		items: [
 			{
 				label: 'Company Profile',
@@ -55,20 +55,24 @@ const Header = ({ title }) => {
 		<div className="headerContainer">
 			<VE />
 			{/* {header modules} */}
-			<div className="headerModulesContainer">
-				<div
-					className={`filterButton ${title === 'Inbox' ? 'filterButtonActive' : ''}`}
-					onClick={() => navigate('/inbox')}
-				>
-					Inbox
+			{hideQuickNav ? (
+				''
+			) : (
+				<div className="headerModulesContainer">
+					<div
+						className={`filterButton ${title === 'Inbox' ? 'filterButtonActive' : ''}`}
+						onClick={() => navigate('/inbox')}
+					>
+						Inbox
+					</div>
+					<div
+						className={`filterButton ${title === 'Sales' ? 'filterButtonActive' : ''}`}
+						onClick={() => navigate('/sales')}
+					>
+						Sales
+					</div>
 				</div>
-				<div
-					className={`filterButton ${title === 'Sales' ? 'filterButtonActive' : ''}`}
-					onClick={() => navigate('/sales')}
-				>
-					Sales
-				</div>
-			</div>
+			)}
 
 			<HeadersDropDownComp
 				selectedValue={activeWorkspaceId}
@@ -89,7 +93,7 @@ const Header = ({ title }) => {
 				}}
 				logoutOptions={true}
 			/>
-			<SwitchWorkspaceModal open={info?.switchWorkspaceModal} closeModal={closeSwitchModal} />
+			{/* <SwitchWorkspaceModal open={info?.switchWorkspaceModal} closeModal={closeSwitchModal} /> */}
 		</div>
 	);
 };
