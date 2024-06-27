@@ -714,7 +714,9 @@ class PricingModal extends WorkspaceController {
 									>
 										<Back />
 									</a>
-									<span style={{ flex: 1 }}>huemn subscription plans</span>
+									<span style={{ flex: 1, color: '#B0B0B0' }}>
+										huemn subscription plans
+									</span>
 								</div>
 								{this.state.currency === 'INR' ? (
 									<>

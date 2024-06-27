@@ -509,12 +509,7 @@ export const updateTenantWebsite = async (workspaceId, payload, usertoken) => {
 };
 
 export const uploadTenantLogo = async (workspaceId, payload, token) => {
-	return await service.fetchPostFiles(
-		`/${workspaceId}${API.TENANTS.logos}`,
-		payload,
-		token,
-		'tenant',
-	);
+	return await service.fetchPost(`/${workspaceId}${API.TENANTS.logos}`, payload, token, 'tenant');
 };
 
 export const uploadShareLogo = async (workspaceId, payload, token) => {

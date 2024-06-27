@@ -140,9 +140,9 @@ class CompanyTeamSettings extends ProjectController {
 	showAddTenantUserModal = (e) => {
 		if (this.state.showAddTenantUserModal) {
 			//while closing mkodal ,deleting search query coming from kbar
-			let queryParams = new URLSearchParams(this.props.location.search);
+			let queryParams = new URLSearchParams(this.props?.location?.search);
 			queryParams.delete('addTeamMember');
-			this.props.history.replace({
+			this?.props?.history?.replace({
 				search: queryParams.toString(),
 			});
 		}
@@ -1192,7 +1192,7 @@ class CompanyTeamSettings extends ProjectController {
 					<div
 						style={{
 							position: 'relative',
-							marginTop: '5rem',
+							//marginTop: '5rem',
 							marginBottom: '2rem',
 							width: '100%',
 						}}
@@ -1203,7 +1203,7 @@ class CompanyTeamSettings extends ProjectController {
 								border: '1px solid #242424A3',
 								padding: '40px',
 								backgroundColor: '#151515',
-								maxWidth: '753px',
+								// maxWidth: '753px',
 								maxHeight: '783px',
 								height: '80vh',
 								overflow: 'auto',

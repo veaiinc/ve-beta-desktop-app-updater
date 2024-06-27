@@ -741,7 +741,7 @@ class Workspace extends TenantUserController {
 			isRequestStripeOrder: true,
 		});
 		let response = await WorkspaceAction.postAICreditsPlan(
-			workspaceId ? workspaceId : this.props.match.params.workspaceID,
+			workspaceId ? workspaceId : localStorage.getItem('workspaceId'),
 			subscriptionId,
 			usertoken,
 		);

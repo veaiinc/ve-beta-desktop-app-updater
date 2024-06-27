@@ -482,7 +482,7 @@ class CompanyBrandingSettings extends Workspace {
 					<div
 						style={{
 							position: 'relative',
-							marginTop: '5rem',
+							// marginTop: '5rem',
 							marginBottom: '2rem',
 							width: '100%',
 						}}
@@ -494,7 +494,7 @@ class CompanyBrandingSettings extends Workspace {
 									border: '1px solid #242424A3',
 									padding: '40px',
 									backgroundColor: '#151515',
-									maxWidth: '753px',
+									// maxWidth: '753px',
 								}}
 							>
 								<div
@@ -651,7 +651,7 @@ class CompanyBrandingSettings extends Workspace {
 									border: '1px solid #242424A3',
 									padding: '40px',
 									backgroundColor: '#151515',
-									maxWidth: '753px',
+									// maxWidth: '753px',
 								}}
 							>
 								<div
@@ -728,7 +728,7 @@ class CompanyBrandingSettings extends Workspace {
 									border: '1px solid #242424A3',
 									padding: '40px',
 									backgroundColor: '#151515',
-									maxWidth: '753px',
+									// maxWidth: '753px',
 								}}
 							>
 								<div
@@ -768,7 +768,7 @@ class CompanyBrandingSettings extends Workspace {
 									border: '1px solid #242424A3',
 									padding: '40px',
 									backgroundColor: '#151515',
-									maxWidth: '753px',
+									// maxWidth: '753px',
 								}}
 							>
 								<div
@@ -832,7 +832,7 @@ class CompanyBrandingSettings extends Workspace {
 									border: '1px solid #242424A3',
 									padding: '40px',
 									backgroundColor: '#151515',
-									maxWidth: '753px',
+									// maxWidth: '753px',
 								}}
 							>
 								<div

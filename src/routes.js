@@ -77,9 +77,9 @@ const routes = [
 	{
 		path: '/workspace-settings/:type',
 		component: (
-			// <AuthWrapper title={'Workspace Settings'}>
-			<MainContentWrapper />
-			// </AuthWrapper>
+			<AuthWrapper title={'Workspace Settings'}>
+				<MainContentWrapper />
+			</AuthWrapper>
 		),
 		exact: true,
 	},

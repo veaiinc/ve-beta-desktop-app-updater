@@ -683,7 +683,6 @@ class Tenant extends Component {
 	};
 
 	updateTenantUserRole = async (userID, role, details = true) => {
-		console.log('hello');
 		let usertoken = await localStorage.getItem('usertoken');
 		let json = {
 			role: role,
@@ -692,7 +691,7 @@ class Tenant extends Component {
 		toast.promise(
 			new Promise(async (resolve, reject) => {
 				let response = await TenantsAction.updateTenantUserRole(
-					this.props.match.params.workspaceID,
+					localStorage.getItem('workspaceId'),
 					userID,
 					json,
 					usertoken,
@@ -1253,7 +1252,7 @@ class Tenant extends Component {
 		toast.promise(
 			new Promise(async (resolve, reject) => {
 				let response = await TenantsAction.uploadTenantLogo(
-					this.props.match.params.workspaceID,
+					localStorage.getItem('workspaceId'),
 					{},
 					usertoken,
 				);

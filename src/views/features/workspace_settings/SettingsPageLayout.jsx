@@ -4,6 +4,7 @@ import _ from 'lodash';
 import Workspace from '../../../controllers/workspace';
 import Skeleton from 'react-loading-skeleton';
 import '../../../assets/scss/workspaceSettings/settings.scss';
+import '../../../assets/scss/workspaceSettings/workspace.scss';
 import jwt_decode from 'jwt-decode';
 class SettingsPageLayout extends Workspace {
 	constructor() {
@@ -107,7 +108,10 @@ class SettingsPageLayout extends Workspace {
 							this.state.isSidebarVisible ? 'visible' : ''
 						}`}
 					>
-						<div className="settings-left-bar-container" style={{ marginTop: '40px' }}>
+						<div
+							className="settings-left-bar-container"
+							style={{ position: 'relative' }}
+						>
 							{/* <div className="settings-left-bar-title-container">
 								<div className="settings-left-bar-title"></div>
 							</div> */}

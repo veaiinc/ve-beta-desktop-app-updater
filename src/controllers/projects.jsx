@@ -396,7 +396,7 @@ class Projects extends TenantUser {
 		var decoded = jwt_decode(usertoken);
 
 		let tenantTeam = await ProjectsAction.getInvitedTenantUsers(
-			this.props.match.params.workspaceID,
+			localStorage.getItem('workspaceId'),
 			usertoken,
 			body,
 		);

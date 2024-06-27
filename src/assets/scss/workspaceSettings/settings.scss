@@ -19,7 +19,9 @@
 	width: 60%;
 	overflow: scroll;
 	height: 100vh;
-	padding-right: 125px;
+	display: flex;
+	// flex: 1;
+	// padding-right: 125px;
 }
 *::-webkit-scrollbar {
 	display: none;
@@ -29,8 +31,10 @@
 	width: 100%;
 	background-color: #111111;
 	display: flex;
-	// overflow: hidden;
 	justify-content: center;
+	gap: 40px;
+	// overflow: hidden;
+	// justify-content: center;
 }
 @media (max-width: 1200px) {
 	.settings-embed-left-bar-container {
@@ -72,7 +76,7 @@
 	// 	}
 	// }
 	.settings-embed-left-bar-container {
-		width: 216px;
+		width: 400px;
 		// max-width: 250px;
 		overflow-x: clip;
 		height: 100vh;
@@ -1043,5 +1047,625 @@
 			justify-content: center;
 			width: 100%;
 		}
+	}
+}
+.subscription-wrapper {
+	.renew-upgrade {
+		display: flex;
+		flex-direction: row;
+		gap: 100px;
+		border-radius: 8px;
+		background: #333;
+		margin-top: 24px;
+		padding: 24px;
+		.lru {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+			gap: 12px;
+			span {
+				color: #e4e5e6;
+				font-family: 'Inter Medium';
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 24px; /* 184.615% */
+				text-transform: uppercase;
+			}
+			p {
+				color: #e4e5e6;
+				font-family: 'Inter';
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 300;
+				line-height: 20px; /* 153.846% */
+			}
+		}
+		.rru {
+			margin-left: auto;
+			a {
+				cursor: pointer;
+				padding: 9px 24px;
+				border-radius: 8px;
+				background: #3f8ae2;
+				color: #f5f5f5;
+				text-align: center;
+				font-family: 'Inter';
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 16px; /* 123.077% */
+			}
+		}
+	}
+	.sbpln-info-wrapper {
+		display: flex;
+		padding: 0px 12px;
+		width: 100%;
+	}
+	.sbpln-danger {
+		background-color: #ca5a4f !important;
+	}
+	.sbpln-info {
+		display: flex;
+		flex-direction: row;
+		height: 82px;
+		width: 100%;
+		align-items: center;
+		background-color: #333;
+		border-radius: 6px;
+		padding: 0px 24px;
+		div {
+			width: 100%;
+			display: flex;
+			color: #e4e5e6;
+			align-items: center;
+			font-family: 'Inter';
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 16px;
+			flex: 1;
+			span {
+				color: #e4e5e6;
+
+				font-family: 'Inter SemiBold';
+				font-size: 15px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: 24px;
+				margin-left: 5px;
+			}
+		}
+		a {
+			color: #121212;
+			cursor: pointer;
+			text-align: center;
+			font-family: 'Inter Medium';
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 16px;
+			height: 34px;
+			border-radius: 8px;
+			background-color: #fff;
+
+			padding: 0px 24px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-left: auto;
+		}
+	}
+	.sbpln-info-details {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		margin-top: 24px;
+		p {
+			color: #b0b0b0;
+			font-family: 'Inter Medium';
+			font-size: 11px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 24px; /* 218.182% */
+			text-transform: uppercase;
+		}
+		.details-table {
+			border-radius: 8px;
+			// border: 1px solid #333;
+
+			display: flex;
+			flex-direction: column;
+			.dt-item {
+				background-color: #333333;
+				display: flex;
+				gap: auto;
+				padding: 24px;
+				position: relative;
+				legend.crm {
+					border-radius: 8px;
+					background-color: #3f8ae2;
+					color: #fff;
+					width: 140px;
+					justify-content: center;
+				}
+				legend {
+					cursor: pointer;
+					position: absolute;
+					right: 24px;
+					top: 24px;
+					display: flex;
+
+					padding: 9px 0px;
+					justify-content: center;
+					align-items: center;
+					gap: 4px;
+					height: 34px;
+					color: #3f8ae2;
+					text-align: center;
+					font-family: 'Inter medium';
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 16px; /* 123.077% */
+					text-transform: uppercase;
+				}
+				.title {
+					color: #b0b0b0;
+					font-family: 'Inter Medium';
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 24px; /* 184.615% */
+					text-transform: uppercase;
+					width: 100px;
+				}
+				.desc {
+					display: flex;
+					flex-direction: column;
+					gap: 6px;
+					flex: 1;
+					p.des {
+						color: #666666;
+						font-family: 'Inter' !important;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 300;
+						line-height: 16px; /* 133.333% */
+						width: 50%;
+						text-transform: capitalize;
+					}
+
+					a {
+						color: #b0b0b0;
+						font-family: 'Inter Medium';
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 24px; /* 184.615% */
+						display: flex;
+						gap: 12px;
+						align-items: center;
+						span {
+							color: #b0b0b0;
+							font-family: 'Inter Medium';
+							font-size: 15px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 24px; /* 160% */
+							b {
+								color: #e4e5e6;
+								text-align: right;
+								font-family: 'Inter Medium';
+								font-size: 15px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: 24px; /* 160% */
+							}
+						}
+						span.sgreen {
+							color: #479a5f !important;
+						}
+						span.syellow {
+							color: #ffbf00 !important;
+						}
+						span.gt {
+							color: #b0b0b0;
+							font-family: 'Inter medium';
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+					.progressbar {
+						border-radius: 4px;
+						position: relative;
+						width: 286px;
+						height: 12px;
+						label.progress {
+							background: #479a5f;
+							z-index: 2;
+						}
+						label {
+							position: absolute;
+							left: 0;
+							height: 100%;
+							top: 0;
+							width: 100%;
+							border-radius: 4px;
+							background: #444;
+							z-index: 1;
+						}
+					}
+				}
+			}
+			.dt-item {
+				// border-top: 1px solid #333;
+				// border-bottom: 1px solid #333;
+			}
+		}
+	}
+}
+.subscription-wrapper.sbpln-subscription-wrapper {
+	.sbpln-sub-wrapper {
+		padding: 0px 52px 34px 52px !important;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		padding: 0px;
+		gap: 12px !important;
+	}
+	.storage-expiring-on-container {
+		margin-top: 0px !important;
+		padding: 24px;
+		gap: 24px;
+		background: #1e1e1e;
+		.storage-expiring-on-inner {
+			.expiring-on-text {
+				@include os-aware-font('Inter Medium');
+				font-style: normal;
+				font-weight: 500;
+				font-size: 14px;
+				line-height: 24px;
+				letter-spacing: -0.3px;
+				@include theme-aware(color, primaryColor);
+			}
+		}
+	}
+	.storage-available-container {
+		margin-bottom: 0px !important;
+		margin-top: 0px !important;
+		.storage-available-upper {
+			.storage-subscription-desc {
+				@include os-aware-font('Inter Medium');
+				font-style: normal;
+				font-weight: 500;
+				font-size: 14px;
+				line-height: 24px;
+				letter-spacing: -0.3px;
+				@include theme-aware(color, primaryColor);
+			}
+		}
+		.storage-bottom-subscription {
+			@include os-aware-font('Inter');
+			font-style: normal;
+			font-weight: 400;
+			font-size: 11px;
+			line-height: 16px;
+			letter-spacing: -0.1px;
+			color: #ffffff !important;
+		}
+	}
+}
+
+.subscription-wrapper {
+	display: flex;
+	flex-direction: column;
+	// width: calc(100vw - 96px - 320px);
+	// min-height: 100vh;
+
+	//@include theme-aware(border-left, projThemeBg, 1px solid);
+	@media screen and (max-width: 750px) {
+		margin: 30px 12px;
+		justify-content: center;
+	}
+	.storage-expiring-on-container {
+		margin-top: 24px;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		padding: 24px;
+		gap: 24px;
+		width: 100%;
+		height: 78px;
+		@include theme-aware(background-color, teamSideBarBG);
+		@include theme-aware(box-shadow, profileCardBoxShadow, null);
+		border-radius: 12px;
+		position: relative;
+
+		.storage-expiring-on-inner {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			gap: 22px;
+			.expiring-on-icn {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				justify-content: center;
+				svg {
+					width: 16px;
+					height: 20px;
+					path {
+						@include theme-aware(fill, primaryColor);
+					}
+				}
+			}
+			.expiring-on-text {
+				@include os-aware-font('Inter SemiBold');
+				font-style: normal;
+				font-weight: 600;
+				font-size: 15px;
+				line-height: 21px;
+				letter-spacing: -0.1px;
+				@include theme-aware(color, primaryColor);
+			}
+			.expiring-on-add-credits {
+				@include os-aware-font('Inter SemiBold');
+				font-style: normal;
+				font-weight: 600;
+				font-size: 15px;
+				line-height: 21px;
+				letter-spacing: -0.1px;
+				//@include theme-aware(color, primaryColor);
+
+				position: absolute;
+				right: 20px;
+				background: #e4e5e6;
+				padding: 7px 12px;
+				border-radius: 5px;
+				color: #21293e;
+				cursor: pointer;
+			}
+		}
+	}
+	.storage-available-container {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		padding: 20px;
+		width: 100%;
+		height: 126px;
+		@include theme-aware(background-color, teamSideBarBG);
+		@include theme-aware(box-shadow, profileCardBoxShadow, null);
+		border-radius: 12px;
+		margin-bottom: 24px;
+		margin-top: 24px;
+		@media screen and (max-width: 750px) {
+			width: 336px;
+			margin-right: 14px;
+		}
+		.storage-available-upper {
+			display: flex;
+			flex-direction: row;
+			align-items: flex-start;
+			.storage-icn {
+				svg {
+					path {
+						@include theme-aware(stroke, primaryColor);
+					}
+				}
+			}
+		}
+		.storage-subscription-desc {
+			margin-left: 25px;
+			@include os-aware-font('Inter SemiBold');
+			font-style: normal;
+			font-weight: 600;
+			font-size: 15px;
+			line-height: 21px;
+			letter-spacing: -0.1px;
+			@include theme-aware(color, primaryColor);
+			margin-bottom: 19.5px;
+		}
+		.storage-subscription-bar-container {
+			margin-left: 48px;
+			margin-bottom: 15px;
+			margin-top: 10px;
+			width: calc(100% - 48px);
+			height: 10px;
+			@include theme-aware(background-color, subscriptionStorageBarBg);
+			border: 0.5px solid rgba(0, 0, 0, 0.1);
+			box-sizing: border-box;
+			border-radius: 4px;
+			.blue-bar {
+				height: 10px;
+				border-radius: 4px;
+				background: $themev4Color;
+				width: 0%;
+			}
+		}
+		.storage-bottom-subscription {
+			width: 100%;
+			text-align: end;
+			font-family: Inter;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 11px;
+			line-height: 16px;
+			@include theme-aware(color, remUpcomingColor);
+		}
+	}
+	.subscription-container:last-child {
+		margin-right: 0px;
+	}
+	.subscription-container {
+		//@include theme-aware(box-shadow, profileCardBoxShadow, null);
+		width: 214px;
+		@include theme-aware(background-color, teamSideBarBG);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		margin-right: 14px;
+		margin-bottom: 25px;
+		height: fit-content;
+		border-radius: 12px;
+		.subscripted-text-container {
+			height: 33px;
+			min-height: 33px;
+			font-family: 'Inter SemiBold';
+			font-style: normal;
+			font-weight: 600;
+			font-size: 14px;
+			line-height: 33px;
+			text-align: center;
+			letter-spacing: -0.136051px;
+			color: $themev4Color;
+			margin-bottom: 13px;
+			margin-top: 25px;
+		}
+		.subscription-title {
+			font-family: 'Inter SemiBold';
+			font-style: normal;
+			font-weight: 600;
+			font-size: 18px;
+			line-height: 33px;
+			@include theme-aware(color, primaryColor);
+			margin-top: 17px;
+			margin-bottom: 12px;
+			text-transform: capitalize;
+		}
+		.price-container {
+			svg {
+				margin-right: 8px;
+				path {
+					@include theme-aware(fill, primaryColor);
+				}
+			}
+			.title {
+				font-family: 'Inter SemiBold';
+				font-weight: 600;
+				font-size: 28px;
+				line-height: 62px;
+				@include theme-aware(color, primaryColor);
+			}
+			.sub-title {
+				font-family: 'Inter SemiBold';
+				font-style: normal;
+				font-weight: 600;
+				font-size: 11px;
+				line-height: 16px;
+				@include theme-aware(color, primaryColor);
+			}
+		}
+		.bill-text {
+			font-family: 'Inter';
+			font-weight: normal;
+			font-size: 14px;
+			line-height: 24px;
+			@include theme-aware(color, primaryColor);
+			margin-bottom: 17px;
+		}
+		.features-container {
+			width: 100%;
+			padding: 0px 18px;
+			.subscribe-container {
+				background-color: $themev4Color !important;
+				border-radius: 12px !important;
+			}
+			.subscribed-container {
+				width: 100%;
+				margin: 25px 0px;
+				padding: 13px 0px;
+				background-color: #707070;
+
+				font-family: Inter;
+				font-style: normal;
+				font-weight: 600;
+				font-size: 18px;
+				line-height: 26px;
+				color: #fff;
+				text-align: center;
+				cursor: pointer;
+				border-radius: 12px;
+			}
+			.storage-container {
+				padding-top: 17px;
+				padding-bottom: 18px;
+				display: flex;
+				align-items: center;
+				border-top: 1px solid rgba($color: #000000, $alpha: 0.1);
+				border-bottom: 1px solid rgba($color: #000000, $alpha: 0.1);
+				svg {
+					margin-right: 40px;
+					margin-left: 20px;
+				}
+				span {
+					font-family: Inter;
+					font-weight: bold;
+					font-size: 13px;
+					line-height: 24px;
+
+					@include theme-aware(color, secondaryColor);
+				}
+			}
+			.feature-container {
+				padding-top: 17px;
+				padding-bottom: 18px;
+				display: flex;
+				align-items: center;
+				border-bottom: 1px solid rgba($color: #000000, $alpha: 0.1);
+				svg {
+					margin-right: 10px;
+					margin-left: 20px;
+					width: 12px;
+					path {
+						stroke: $themev4Color;
+					}
+				}
+				span {
+					font-family: Inter;
+
+					font-weight: normal;
+					font-size: 13px;
+					line-height: 24px;
+					@include theme-aware(color, secondaryColor);
+				}
+			}
+		}
+	}
+}
+.spl-sub-container {
+	border: 1px solid $themev4Color;
+}
+.spl-container {
+	display: flex;
+	flex-direction: column;
+	span {
+		font-family: 'Inter';
+		font-style: normal;
+		font-weight: 700;
+		font-size: 18px;
+		line-height: 20px;
+		/* identical to box height, or 111% */
+
+		text-align: center;
+		letter-spacing: -0.164261px;
+
+		@include theme-aware(color, primaryColor, null, !important);
+	}
+	b {
+		font-family: 'Inter';
+		font-style: normal;
+		font-weight: 400;
+		font-size: 11px;
+		line-height: 24px;
+		/* identical to box height, or 217% */
+
+		text-align: center;
+
+		@include theme-aware(color, secondaryColor);
 	}
 }
