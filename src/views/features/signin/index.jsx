@@ -148,12 +148,12 @@ const SignIn = (props) => {
 			let json = {
 				firstName: usersData['name'],
 				email: usersData['emailId'],
-				//phoneNumber: '+919941933191', // remove this
+				phoneNumber: '+919941931191', // remove this
 				password: usersData['password'],
 				country: 'India', // remove this
 				timezone: 'Asia/Kolkata', // remove this
 				currency: 'INR', // remove this
-				//region: 'ap-south-1', // remove this
+				region: 'ap-south-1', // remove this
 			};
 			let response = await createUsersAccount(json);
 
@@ -290,16 +290,19 @@ const SignIn = (props) => {
 							className={errorStates['name'] ? 'error' : ''}
 						/>
 					</div>
-					<div className="inputContainer inputContainerPassword">
+					<div className="inputContainer2 inputContainerPassword">
 						<input
-							type="password"
+							type={passwordView ? 'password' : 'text'}
 							placeholder="Add a Password here.."
 							onChange={handleInput}
 							name="password"
 							value={usersData['password']}
 							className={errorStates['password'] ? 'error' : ''}
+							style={{ borderRadius: 0, border: 'none', height: 'auto' }}
 						/>
-						<EyeOpen />
+						<span onClick={() => setPasswordView((prev) => !prev)}>
+							<EyeOpen />
+						</span>
 					</div>
 					<div className="continueButtonSplit">
 						<div className="backButton " onClick={() => goBack('verify-user')}>
@@ -456,16 +459,19 @@ const SignIn = (props) => {
 				<p className="heading">Reset Password</p>
 
 				<div className="userSignUp">
-					<div className="inputContainer inputContainerPassword">
+					<div className="inputContainer2 inputContainerPassword">
 						<input
-							type="password"
+							type={passwordView ? 'password' : 'text'}
 							placeholder="Add a Password here.."
 							onChange={handleInput}
 							name="password"
 							value={usersData['password']}
 							className={errorStates['password'] ? 'error' : ''}
+							style={{ borderRadius: 0, border: 'none', height: 'auto' }}
 						/>
-						<EyeOpen />
+						<span onClick={() => setPasswordView((prev) => !prev)}>
+							<EyeOpen />
+						</span>
 					</div>
 					<div className="continueButtonSplit">
 						<div className="backButton " onClick={() => goBack('verify-user')}>
