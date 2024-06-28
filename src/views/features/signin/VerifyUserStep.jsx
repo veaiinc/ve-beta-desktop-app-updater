@@ -45,7 +45,12 @@ const VerifyUserStep = ({
 			</p>
 			<p className="description">Your AI assistant for work</p>
 
-			<div className="signinWithGoogle">
+			<div
+				className="signinWithGoogle"
+				onClick={() =>
+					(window.location.href = 'https://api.ve.co/tenant-users/1.0/auth/google')
+				}
+			>
 				<img src={GoogleLogo} alt={'G'} />
 				<p>Continue with Google</p>
 			</div>

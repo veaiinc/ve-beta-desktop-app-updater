@@ -1,8 +1,9 @@
 import '../../../assets/scss/signin.scss';
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import Context from '../../../context/context';
 import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { ReactComponent as EyeOpen } from '../../../assets/svg/password-eye-open.svg';
+import axios from 'axios';
 const UserSignUp = ({
 	handleInput,
 	usersData,
@@ -19,18 +20,28 @@ const UserSignUp = ({
 	let {
 		userLogin: { createUsersAccount },
 	} = useContext(Context);
+
+	const [geoGraphicData, setGeoGraphData] = useState(null);
+
+	useEffect(() => {
+		getGeoGraphicData();
+	}, []);
+
+	const getGeoGraphicData = useCallback(async () => {
+		const response = await axios.get('https://ipapi.co/json/');
+		setGeoGraphData(response?.data);
+	}, []);
+
 	const handleUserSignUp = async () => {
 		if (secondStageButtonActive) {
 			setLoading(true);
 			let json = {
 				firstName: usersData['name'],
 				email: usersData['emailId'],
-				phoneNumber: '+919941931191', // remove this
 				password: usersData['password'],
-				country: 'India', // remove this
-				timezone: 'Asia/Kolkata', // remove this
-				currency: 'INR', // remove this
-				region: 'ap-south-1', // remove this
+				country: geoGraphicData?.country_name || 'India', // remove this
+				timezone: geoGraphicData?.timezone || 'Asia/Kolkata', // remove this
+				currency: geoGraphicData?.currency || 'INR', // remove this
 			};
 			let response = await createUsersAccount(json);
 
