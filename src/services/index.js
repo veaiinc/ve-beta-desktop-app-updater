@@ -64,8 +64,8 @@ const onFailure = async (res, url) => {
 };
 
 const onUserKickedOut = async (res, url) => {
-	localStorage.clear();
-	window.location.reload();
+	//localStorage.clear();
+	//window.location.reload();
 };
 
 export default Service;

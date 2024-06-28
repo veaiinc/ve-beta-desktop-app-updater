@@ -38,15 +38,66 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getProposals = async (salesId, page, search) => {
+	const getProposals = async (salesId, page, search, status) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		let response = await Service.fetchGet(
 			`/${workspaceId}${
 				API.TEMPLATES.PROPOSALS
-			}?templateId=${salesId}&page=${page}&limit=10&sortBy=createdAt&sortType=-1${
+			}?templateId=${salesId}&page=${page}&limit=10&sortBy=createdAt&sortType=-1&status=${status}${
 				search != '' ? `&title=${search}` : ''
 			}`,
+			usertoken,
+			'proposals_api',
+		);
+
+		if (response[0]) {
+			return [true, response[1]];
+		} else {
+			return [false, response?.[1]?.message];
+		}
+	};
+
+	const createProposals = async (templateId, payload) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		let response = await Service.fetchPost(
+			`/${workspaceId}${API.TEMPLATES.TEMPLATES}/${templateId}${API.TEMPLATES.CREATE_PROPOSALS}`,
+			payload,
+			usertoken,
+			'proposals_api',
+		);
+
+		if (response[0]) {
+			return [true, response[1]];
+		} else {
+			return [false, response?.[1]?.message];
+		}
+	};
+
+	const deleteProposal = async (proposalId, payload) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		let response = await Service.fetchDelete(
+			`/${workspaceId}${API.TEMPLATES.PROPOSALS}/${proposalId}`,
+			usertoken,
+			payload,
+			'proposals_api',
+		);
+
+		if (response[0]) {
+			return [true, response[1]];
+		} else {
+			return [false, response?.[1]?.message];
+		}
+	};
+
+	const moveProposalStage = async (proposalId, versionId, status) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		let response = await Service.fetchPost(
+			`/${workspaceId}${API.TEMPLATES.PROPOSALS}/${proposalId}/versions/${versionId}/${status}`,
+			{},
 			usertoken,
 			'proposals_api',
 		);
@@ -62,5 +113,8 @@ export const TemplatesState = (props) => {
 		getProposals,
 		getTemplates,
 		getTemplatesStatus,
+		createProposals,
+		deleteProposal,
+		moveProposalStage,
 	};
 };

@@ -5,6 +5,7 @@ import SalesLeadCard from '../../components/sales/salesLeadCard';
 import '../../../assets/scss/sales/myWorkFlowDetails.scss';
 import { ReactComponent as LeftArrow } from '../../../assets/svg/left-arrow.svg';
 import { ReactComponent as Search } from '../../../assets/svg/seach-magnifier.svg';
+import { ReactComponent as EmptyState } from '../../../assets/svg/emptyStates/leads-empty-state.svg';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 const _ = require('lodash');
@@ -21,6 +22,7 @@ function MyWorkFlowDetails(props) {
 
 	const [metaData, setMetaData] = useState({
 		page: 1,
+		status: 'draft',
 		hasMore: true,
 	});
 
@@ -69,10 +71,20 @@ function MyWorkFlowDetails(props) {
 	};
 
 	const fetchProposals = async (page = null) => {
-		let response = await getProposals(salesId, page ? page : metaData['page'], searchInput);
+		let response = await getProposals(
+			salesId,
+			page ? page : metaData['page'],
+			searchInput,
+			metaData['status'],
+		);
 		if (response[0]) {
 			setLoading(false);
-			setProposalData([...proposalData, ...response[1].data]);
+
+			setProposalData(
+				page == null || page === 1
+					? [...response[1].data]
+					: [...proposalData, ...response[1].data],
+			);
 			if (response[1].totalPages > metaData['page']) {
 				setMetaData((prevState) => ({
 					...prevState,
@@ -106,6 +118,11 @@ function MyWorkFlowDetails(props) {
 		}
 	};
 
+	const updateProposalsList = async () => {
+		fetchProposals(1);
+		fetchProposalstatus();
+	};
+
 	return (
 		<div className="myWorkFlowDetailsContainer">
 			<div className="header">
@@ -126,9 +143,20 @@ function MyWorkFlowDetails(props) {
 				hideImage={true}
 				workflow={templateDetails}
 				inSights={inSights[0]}
+				singleCard={true}
 			/>
 			{isLoading ? (
 				''
+			) : proposalData.length === 0 ? (
+				<div className="emptyStateContainer">
+					<EmptyState />
+					<div className="textContainer">
+						<p className="mainText">No Lead Yet</p>
+						<p className="subText">
+							We have no leads available at this stage, you will see them soon
+						</p>
+					</div>
+				</div>
 			) : (
 				<InfiniteScroll
 					dataLength={proposalData.length}
@@ -142,18 +170,16 @@ function MyWorkFlowDetails(props) {
 				>
 					<div className="salesCardContainer">
 						{proposalData.map((proposal, index) => {
-							return <SalesLeadCard key={index} />;
+							return (
+								<SalesLeadCard
+									key={index}
+									data={proposal}
+									fetchProposals={() => updateProposalsList()}
+								/>
+							);
 						})}
 					</div>
 				</InfiniteScroll>
-
-				// 	<div className="salesCardContainer">
-
-				// 		<SalesLeadCard />
-				// 		<SalesLeadCard />
-				// 		<SalesLeadCard />
-				// 		<SalesLeadCard />
-				// 	</div>
 			)}
 		</div>
 	);
