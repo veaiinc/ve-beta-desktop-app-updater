@@ -3,6 +3,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import GoogleLogo from '../../../assets/images/googleLogo.png';
 import Context from '../../../context/context';
 import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
+import { useParams, useNavigate } from 'react-router-dom';
 var validator = require('validator');
 
 const VerifyUserStep = ({
@@ -14,6 +15,8 @@ const VerifyUserStep = ({
 	setStage,
 	setErrorState,
 }) => {
+	const params = useParams();
+	const navigate = useNavigate();
 	let {
 		userLogin: { verifyAccountExistsUsingEmail },
 	} = useContext(Context);
@@ -45,15 +48,10 @@ const VerifyUserStep = ({
 			</p>
 			<p className="description">Your AI assistant for work</p>
 
-			<div
-				className="signinWithGoogle"
-				onClick={() =>
-					(window.location.href = 'https://api.ve.co/tenant-users/1.0/auth/google')
-				}
-			>
+			<a className="signinWithGoogle" href="https://api.ve.co/tenant-users/1.0/auth/google">
 				<img src={GoogleLogo} alt={'G'} />
 				<p>Continue with Google</p>
-			</div>
+			</a>
 
 			<p className="or">or</p>
 
