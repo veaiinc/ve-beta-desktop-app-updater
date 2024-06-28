@@ -1,14 +1,9 @@
-const {
-	tenant_users_api,
-	tenant_api_server,
-	tenant_user_api_server,
-	proposals_api,
-} = require('./config');
+const { tenant_users_api, tenant_api, proposals_api } = require('./config');
 
 const apiEndpoints = {
 	tenant_users_api,
-	tenant: tenant_api_server,
-	'tenant-users': tenant_user_api_server,
+	tenant: tenant_api,
+	'tenant-users': tenant_users_api,
 	proposals_api,
 };
 
@@ -28,7 +23,7 @@ const processResponse = async (response) => {
 	if (response.status >= 200 && response.status < 300) {
 		return [true, jsonData];
 	} else if (response.status === 401) {
-		onUserKickedOut();
+		// onUserKickedOut();
 		return [false, jsonData];
 	} else {
 		return [response.status, jsonData];

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 
 import { Modal } from 'react-bootstrap';
+import '../../../assets/scss/modal.scss';
 
 class modal extends Component {
 	constructor() {

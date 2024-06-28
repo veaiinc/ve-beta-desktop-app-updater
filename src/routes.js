@@ -6,6 +6,7 @@ import MyWorkFlowDetails from './views/features/sales/myWorkFlowDetails';
 import ProposalCRUD from './views/features/modules/proposalCRUD';
 import MainContentWrapper from './views/features/workspace_settings/MainContentWrapper';
 import MySettingsWrapper from './views/features/profile_settings/MySettingsWrapper';
+import OauthVerify from './views/features/auth/oauth';
 
 const routes = [
 	{
@@ -37,8 +38,8 @@ const routes = [
 		component: <LoginScreen stage={'forgot-password'} />,
 	},
 	{
-		path: '/reset-password',
-		component: <LoginScreen stage={'reset-password'} />,
+		path: '/user/verify-oauth-user',
+		component: <OauthVerify />,
 	},
 
 	{

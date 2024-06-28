@@ -82,7 +82,10 @@ const SwitchWorkspaceModal = ({
 				</div>
 			</div>
 			<div className="seperator"></div>
-			<div className="switchWorkspaceModalFooter">
+			<div
+				className="switchWorkspaceModalFooter"
+				onClick={() => navigate('/create-workspace')}
+			>
 				<span className="newWorkspace">New Workspace</span>
 				<span onClick={handleLogout} className="logoutContainer">
 					Logout

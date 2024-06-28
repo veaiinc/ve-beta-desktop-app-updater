@@ -78,6 +78,11 @@
 					font-style: normal;
 					font-weight: 500;
 					line-height: 16px; /* 114.286% */
+					display: inline-block;
+					overflow: hidden;
+					white-space: nowrap;
+					text-overflow: ellipsis;
+					width: 248px;
 				}
 				.workspaceDetailsSubLabel {
 					color: rgba(224, 224, 224, 0.64);
