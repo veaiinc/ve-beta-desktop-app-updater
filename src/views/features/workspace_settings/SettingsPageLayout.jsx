@@ -33,7 +33,7 @@ class SettingsPageLayout extends Workspace {
 		const workspaceID = localStorage.getItem('workspaceId');
 		await this.getTenantUserDetails(decoded.user_id, workspaceID);
 
-		let activeLink = this.props.type;
+		// let activeLink = this.props.type;
 		// if (_.has(this.props.location.state, 'isExpanded')) {
 		// 	this.setState({ isExpanded: this.props.location.state.isExpanded });
 		// }

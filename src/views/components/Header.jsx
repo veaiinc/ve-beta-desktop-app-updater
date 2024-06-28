@@ -55,7 +55,7 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 				return splitUrl?.[splitUrl?.length - 1] === 'my-profile' ? true : false;
 			}
 		},
-		[params],
+		[navigate, params],
 	);
 
 	const closeSwitchModal = useCallback(async () => {
