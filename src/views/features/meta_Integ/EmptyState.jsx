@@ -5,8 +5,9 @@ import { ReactComponent as EmptySvg } from '../../../assets/svg/chat/EmptyState.
 import { ReactComponent as StarSvg } from '../../../assets/svg/chat/star.svg';
 import { ReactComponent as SubmitSvg } from '../../../assets/svg/chat/submitBtn.svg';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/chat/search.svg';
-
+import { useNavigate } from 'react-router-dom';
 const NotIntegratedComponent = ({ type }) => {
+	const navigate = useNavigate();
 	return (
 		<>
 			<EmptySvg />
@@ -16,7 +17,12 @@ const NotIntegratedComponent = ({ type }) => {
 					You need to connect your Meta Account to use this feature
 				</span>
 			</div>
-			<div className="integrateBtn">Integrate Meta Account</div>
+			<div
+				className="integrateBtn"
+				onClick={() => navigate('/workspace-settings/company-integration-settings')}
+			>
+				Integrate Meta Account
+			</div>
 
 			<span className="labeData">
 				If you need assistance, contact our support team at support@ve.co Here’s to doing
@@ -102,7 +108,7 @@ const EmptyState = ({ type, input, onChangeFunc }) => {
 				<div className="emptyStateData">
 					{typeMapper?.[type] || <NotIntegratedComponent type="Meta" />}
 				</div>
-				<div className="inputContainer">
+				<div className="emptyinputContainer">
 					<StarSvg />
 					<span className="placeHolder">Type your message here</span>
 					<SubmitSvg />

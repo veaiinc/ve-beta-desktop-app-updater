@@ -25,7 +25,7 @@ const HeadersDropDownComp = ({
 	dropDownStyle,
 	selectedValue,
 	options,
-	// iconComponent,
+	showIcon = true,
 	logoutOptions,
 }) => {
 	const navigate = useNavigate();
@@ -45,7 +45,7 @@ const HeadersDropDownComp = ({
 	return (
 		<div className="dropdown">
 			<div className="dropdown-header" style={containerStyle || {}} onClick={toggleDropdown}>
-				{iconComponent}
+				{!showIcon ? '' : iconComponent}
 				<span className="selectedPage">{selectedValue}</span>
 				<DownArrow />
 			</div>
