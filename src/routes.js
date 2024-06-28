@@ -6,7 +6,6 @@ import MyWorkFlowDetails from './views/features/sales/myWorkFlowDetails';
 import ProposalCRUD from './views/features/modules/proposalCRUD';
 import MainContentWrapper from './views/features/workspace_settings/MainContentWrapper';
 import MySettingsWrapper from './views/features/profile_settings/MySettingsWrapper';
-import VEBuilder from '@sandeepkollabathula.ve/ve-builder';
 
 const routes = [
 	{
@@ -102,15 +101,6 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Profile Settings'}>
 				<MySettingsWrapper />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
-	{
-		path: '/builder',
-		component: (
-			<AuthWrapper title={'Profile Settings'}>
-				<VEBuilder />
 			</AuthWrapper>
 		),
 		exact: true,
