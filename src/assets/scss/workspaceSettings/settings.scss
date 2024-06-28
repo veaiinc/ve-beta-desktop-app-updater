@@ -65,7 +65,7 @@
     overflow-y: auto; */
 	display: flex;
 	flex-direction: row;
-	@include theme-aware(background-color, bg);
+	// @include theme-aware(background-color, bg);
 	// @media (max-width: 1260px) {
 	// 	.settings-embed-left-bar-container {
 	// 		overflow-x: hidden !important;

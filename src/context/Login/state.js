@@ -158,7 +158,7 @@ export const UserLoginState = (props) => {
 				usertoken,
 				'tenant_users_api',
 			);
-			console.log(response);
+
 			if (response?.[0] === true) {
 				const { accessToken, accessibleWorkspaces } = response?.[1] || {};
 				if (accessToken?.length) {
@@ -186,7 +186,7 @@ export const UserLoginState = (props) => {
 				'/create-workspace',
 				payload,
 				usertoken,
-				'tenant_users_api',
+				'tenant',
 			);
 			if (response?.[0] === true) {
 				let { tenantId, workspaceId } = response?.[1];

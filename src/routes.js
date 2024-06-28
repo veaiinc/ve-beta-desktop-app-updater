@@ -36,10 +36,6 @@ const routes = [
 		path: '/forgot-password',
 		component: <LoginScreen stage={'forgot-password'} />,
 	},
-	// {
-	// 	path: '/reset-password',
-	// 	component: <LoginScreen stage={'reset-password'} />,
-	// },
 
 	{
 		path: '/inbox',
