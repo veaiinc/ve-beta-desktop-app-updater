@@ -32,6 +32,7 @@ class CompanyIntegrationSettings extends Workspace {
 			isAdmin: false,
 			openMoreFacebook: false,
 			loader: false,
+			metaInteg: null,
 		};
 	}
 	componentDidMount = async () => {
@@ -48,6 +49,7 @@ class CompanyIntegrationSettings extends Workspace {
 				});
 			}
 		}
+		this.getMetaPageUsersList();
 	};
 
 	handlethemeChange = async (theme) => {
@@ -74,6 +76,9 @@ class CompanyIntegrationSettings extends Workspace {
 
 	handleFaceBookConnection = async () => {
 		if (this.state.loader) {
+			return;
+		}
+		if (this.state.metaInteg) {
 			return;
 		}
 		this.setState({ loader: true });
@@ -196,12 +201,22 @@ class CompanyIntegrationSettings extends Workspace {
 									}}
 								>
 									<ReusableButtonSettings
-										text={'Facebook'}
+										text={`Facebook (${
+											!this.state.metaInteg ? 'Pending' : 'Connected'
+										})`}
 										func={this.handleFaceBookConnection}
 										loader={this.state.loader}
 									/>
-									<ReusableButtonSettings text={'Whatsapp (Pending)'} />
-									<ReusableButtonSettings text={'Instagram (Pending)'} />
+									<ReusableButtonSettings
+										text={`Whatsapp (${
+											!this.state.metaInteg ? 'Pending' : 'Connected'
+										})`}
+									/>
+									<ReusableButtonSettings
+										text={`Instagram (${
+											!this.state.metaInteg ? 'Pending' : 'Connected'
+										})`}
+									/>
 								</div>
 							)}
 							<div
