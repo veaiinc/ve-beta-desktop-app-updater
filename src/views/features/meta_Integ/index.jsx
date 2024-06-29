@@ -253,6 +253,9 @@ const ChatScreen = (props) => {
 
 	const getAllChannelsList = useCallback(
 		async (page, fetchMore = false, search = null) => {
+			if (!info?.pageInfo) {
+				return;
+			}
 			const payload = {
 				filters: {
 					limit: 10,
