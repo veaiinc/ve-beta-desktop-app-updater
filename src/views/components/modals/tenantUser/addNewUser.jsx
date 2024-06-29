@@ -221,6 +221,40 @@ class AddNewUserModal extends ProjectController {
 		this.setState({ accessControls, errorMessage: '' });
 	};
 
+	InviteNewUser = async () => {
+		this.props.close();
+		const payload = {
+			email: this.state.emailID,
+			role: 'admin',
+			accessControls: [
+				{
+					app: 'form',
+					isEnabled: true,
+					hasFullAccess: true,
+				},
+				{
+					app: 'project',
+					isEnabled: true,
+					hasFullAccess: true,
+					hasFinanceAccess: false,
+				},
+				{
+					app: 'proposal',
+					isEnabled: true,
+					hasFullAccess: true,
+				},
+				{
+					app: 'gallery',
+					isEnabled: true,
+					hasFullAccess: true,
+				},
+			],
+		};
+
+		await this.inviteNewUser(payload);
+		this.getTeamMembers('users');
+	};
+
 	renderAccessControls = () => {
 		return (
 			<div style={{ height: '85vh', overflow: 'auto', maxHeight: '1169px' }}>
@@ -310,7 +344,7 @@ class AddNewUserModal extends ProjectController {
 									>
 										ADMIN
 									</span>
-									<span
+									{/* <span
 										className={
 											this.state.tenantTempUserRole !== 'admin'
 												? 'role-text active'
@@ -321,7 +355,7 @@ class AddNewUserModal extends ProjectController {
 										}}
 									>
 										MEMBER
-									</span>
+									</span> */}
 								</div>
 								<div
 									className={
@@ -707,10 +741,7 @@ class AddNewUserModal extends ProjectController {
 								fontFamily: 'Inter Medium',
 								textAlign: 'center',
 							}}
-							onClick={async () => {
-								this.props.close();
-								await this.getTeamMembers('users');
-							}}
+							onClick={this.InviteNewUser}
 						>
 							<div>
 								<span>Save Changes</span>
@@ -792,7 +823,15 @@ class AddNewUserModal extends ProjectController {
 	};
 	renderSendInivteEmail = () => {
 		return (
-			<div style={{ display: 'flex', flexDirection: 'column' }}>
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					backgroundColor: '#383838',
+					padding: '24px',
+					borderRadius: '12px',
+				}}
+			>
 				<div className="send-invite-msg">
 					<p>Invite Member to Workspace</p>
 					<span>
@@ -834,20 +873,28 @@ class AddNewUserModal extends ProjectController {
 		);
 	};
 
-	goToTeamDetails = () => {
-		this.props.history.push(
-			`/${this.props.match.params.workspaceID}/users/${this.state.activeUserId}/basic-details`,
-		);
-	};
+	// goToTeamDetails = () => {
+	// 	this.props.history.push(
+	// 		`/${this.props.match.params.workspaceID}/users/${this.state.activeUserId}/basic-details`,
+	// 	);
+	// };
 
 	renderActiveUser = () => {
 		return (
-			<div style={{ marginTop: '0px' }} className="userDetailsContainer">
+			<div
+				style={{
+					marginTop: '0px',
+					backgroundColor: '#383838',
+					padding: '24px',
+					borderRadius: '12px',
+				}}
+				className="userDetailsContainer"
+			>
 				<div
 					style={{ width: '100%', marginBottom: '45px' }}
 					className="accessControlsContainer"
 				>
-					<div className="active-invited-user-container">
+					<div className="active-invited-user-container" style={{ color: '#fff' }}>
 						<b>{this.state.emailID + ' '}</b> is already added to your workspace as a
 						Member.
 					</div>
@@ -862,7 +909,7 @@ class AddNewUserModal extends ProjectController {
 						</span>
 						<span>Back</span>
 					</div>
-					<div
+					{/* <div
 						className={'next_button send_invite_button'}
 						onClick={this.goToTeamDetails}
 					>
@@ -876,7 +923,7 @@ class AddNewUserModal extends ProjectController {
 						>
 							View Member
 						</span>
-					</div>
+					</div> */}
 				</div>
 			</div>
 		);

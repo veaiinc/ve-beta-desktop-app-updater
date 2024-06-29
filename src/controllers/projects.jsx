@@ -626,5 +626,17 @@ class Projects extends TenantUser {
 			});
 		}
 	};
+
+	inviteNewUser = async (paylaod) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const response = await ProjectsAction.addTenantUsers(workspaceId, paylaod, usertoken);
+
+		if (response[0] === true) {
+			return [true];
+		} else {
+			return [false];
+		}
+	};
 }
 export default Projects;

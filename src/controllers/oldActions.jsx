@@ -1025,6 +1025,14 @@ export const getTenantUsers = async (tenantID, usertoken, body) => {
 		'tenant',
 	);
 };
+export const addTenantUsers = async (workspaceId, json, usertoken) => {
+	return await service.fetchPost(
+		'/' + workspaceId + API.TENANT_USER_LOGIN_SIGNUP_API.tenantUsers,
+		json,
+		usertoken,
+		'tenant',
+	);
+};
 export const getInvitedTenantUsers = async (tenantID, usertoken, body) => {
 	return await service.fetchPost(
 		'/' + tenantID + '/tenant-invitations-list',
