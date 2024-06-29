@@ -31,6 +31,7 @@ class CompanyIntegrationSettings extends Workspace {
 			clicked: '',
 			isAdmin: false,
 			openMoreFacebook: false,
+			loader: false,
 		};
 	}
 	componentDidMount = async () => {
@@ -72,6 +73,10 @@ class CompanyIntegrationSettings extends Workspace {
 	}
 
 	handleFaceBookConnection = async () => {
+		if (this.state.loader) {
+			return;
+		}
+		this.setState({ loader: true });
 		const usertoken = await localStorage.getItem('usertoken');
 		const workspaceID = localStorage.getItem('workspaceId');
 		const link = `${ve_conversations_api}/oauth/${workspaceID}/login`;
@@ -83,8 +88,11 @@ class CompanyIntegrationSettings extends Workspace {
 		});
 
 		if (response.status === 200) {
+			this.setState({ loader: false });
 			const url = response?.data;
 			window.location.href = url;
+		} else {
+			this.setState({ loader: false });
 		}
 	};
 
@@ -190,6 +198,7 @@ class CompanyIntegrationSettings extends Workspace {
 									<ReusableButtonSettings
 										text={'Facebook'}
 										func={this.handleFaceBookConnection}
+										loader={this.state.loader}
 									/>
 									<ReusableButtonSettings text={'Whatsapp (Pending)'} />
 									<ReusableButtonSettings text={'Instagram (Pending)'} />

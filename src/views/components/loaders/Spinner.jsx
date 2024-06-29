@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Spinner = ({ width, height, color }) => {
+const Spinner = ({ width, height, color, cssstyle = {} }) => {
 	const style = {
 		width: width || '30px',
 		height: height || '30px',
@@ -8,6 +8,7 @@ const Spinner = ({ width, height, color }) => {
 		borderTop: `4px solid transparent`,
 		borderRadius: '50%',
 		animation: 'spin 1s linear infinite',
+		...cssstyle,
 	};
 	return <div style={style}></div>;
 };
