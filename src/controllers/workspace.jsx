@@ -17,7 +17,9 @@ class Workspace extends TenantUserController {
 			this.setState({
 				isWorkSpaceListLoading: false,
 				workspaceList: response[1],
+				defaultWorkspace: response?.[1]?.[0],
 			});
+
 			if (redirect === true) {
 				if (_.size(response[1]) === 0) this.props.history.push(`/user/create-workspace`);
 				else this.props.history.push(`/${response[1][0]['workspaceId']}/projects`);
@@ -756,6 +758,12 @@ class Workspace extends TenantUserController {
 				isRequestStripeOrder: false,
 			});
 		}
+	};
+
+	chooseDefaultWorkspace = async (json) => {
+		let usertoken = localStorage.getItem('usertoken');
+		let workspaceId = localStorage.getItem('workspaceId');
+		WorkspaceAction.updateDefaultWorkspace(workspaceId, json, usertoken);
 	};
 }
 

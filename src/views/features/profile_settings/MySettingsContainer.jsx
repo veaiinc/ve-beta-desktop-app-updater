@@ -986,6 +986,18 @@ class MySettingsContainer extends Workspace {
 			clearTimeout(this.closeUpdateAllowed);
 		}
 	}
+
+	handleChooseDefaultWorkspace = async (data) => {
+		if (this.state.defaultWorkspace?.tenant_id === data?.tenant_id) {
+			return;
+		}
+		this.setState({ defaultWorkspace: data });
+		const payload = {
+			tenantId: data?.tenant_id,
+			order: 1,
+		};
+		this.chooseDefaultWorkspace(payload);
+	};
 	render() {
 		const inputStyle = (enabled) => ({
 			borderRadius: '10px',
@@ -1698,6 +1710,7 @@ class MySettingsContainer extends Workspace {
 												rowGap: '13px',
 											}}
 										>
+											{console.log('hello', this.state.workspaceList)}
 											{this.state.workspaceList?.map((value, index) => (
 												<ReusableButtonSettings
 													text={value?.businessName}
@@ -1708,7 +1721,7 @@ class MySettingsContainer extends Workspace {
 															: false
 													}
 													func={() =>
-														this.setState({ defaultWorkspace: value })
+														this.handleChooseDefaultWorkspace(value)
 													}
 												/>
 											))}

@@ -1286,6 +1286,10 @@ export const getProjectLayoutSettings = async (projectID, usertoken) => {
 	);
 };
 
+export const updateDefaultWorkspace = async (workspaceID, payload, usertoken) => {
+	return await service.fetchPost(`/update-tenants-order`, payload, usertoken, 'tenant-users');
+};
+
 /*
 ------------------------------------------
 FORMS Action					
