@@ -77,7 +77,7 @@ class CompanySocialMediaPopup extends TenantController {
 					>
 						<span
 							style={{
-								fontFamily: 'Inter Medium',
+								fontFamily: 'Inter',
 								fontSize: '16px',
 								color: '#e4e5e6',
 								lineHeight: '24px',
@@ -162,7 +162,7 @@ class CompanySocialMediaPopup extends TenantController {
 									padding: '16px 24px',
 									height: '48px',
 									fontSize: '13px',
-									fontFamily: 'Inter Medium',
+									fontFamily: 'Inter',
 									textAlign: 'center',
 								}}
 								onClick={handleSaveLinkChanges}

@@ -593,7 +593,7 @@ class CompanyTeamSettings extends ProjectController {
 							<div
 								style={{
 									fontSize: '16px',
-									fontStyle: 'Inter SemiBold',
+									fontStyle: 'Inter',
 									color: '#e4e5e6',
 								}}
 							>
@@ -984,7 +984,7 @@ class CompanyTeamSettings extends ProjectController {
 								padding: '16px 24px',
 								height: '48px',
 								fontSize: '13px',
-								fontFamily: 'Inter Medium',
+								fontFamily: 'Inter',
 								textAlign: 'center',
 							}}
 							onClick={async () => {
@@ -1029,7 +1029,7 @@ class CompanyTeamSettings extends ProjectController {
 						>
 							<div
 								style={{
-									fontFamily: 'Inter Medium',
+									fontFamily: 'Inter',
 									fontSize: '16px',
 									color: '#e4e5e6',
 									lineHeight: '24px',
@@ -1048,7 +1048,7 @@ class CompanyTeamSettings extends ProjectController {
 							<div style={{ display: 'flex', gap: '10px' }}>
 								<div
 									style={{
-										fontFamily: 'Inter Medium',
+										fontFamily: 'Inter',
 										fontSize: '16px',
 										color: '#e4e5e6',
 										marginBottom: '1rem',
@@ -1168,7 +1168,7 @@ class CompanyTeamSettings extends ProjectController {
 							>
 								<div
 									style={{
-										fontFamily: 'Inter Medium',
+										fontFamily: 'Inter',
 										fontSize: '16px',
 										color: '#e4e5e6',
 										marginBottom: '1rem',
@@ -1256,7 +1256,7 @@ class CompanyTeamSettings extends ProjectController {
 												<div
 													style={{
 														fontSize: '16px',
-														fontStyle: 'Inter SemiBold',
+														fontStyle: 'Inter',
 														color: '#e4e5e6',
 														whiteSpace: 'nowrap',
 														overflow: 'hidden',
@@ -1405,7 +1405,7 @@ class CompanyTeamSettings extends ProjectController {
 															<div
 																style={{
 																	fontSize: '16px',
-																	fontStyle: 'Inter SemiBold',
+																	fontStyle: 'Inter',
 																	color: '#e4e5e6',
 																	whiteSpace: 'nowrap',
 																	overflow: 'hidden',
@@ -1447,8 +1447,7 @@ class CompanyTeamSettings extends ProjectController {
 																		paddding:
 																			'14px 12px 14px 12px',
 																		width: '103px',
-																		fontFamily:
-																			'Inter SemiBold',
+																		fontFamily: 'Inter',
 																		height: '30px',
 																		display: 'flex',
 																		justifyContent: 'center',

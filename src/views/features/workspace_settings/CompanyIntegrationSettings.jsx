@@ -124,7 +124,7 @@ class CompanyIntegrationSettings extends Workspace {
 						>
 							<div
 								style={{
-									fontFamily: 'Inter Medium',
+									fontFamily: 'Inter',
 									fontSize: '16px',
 									color: '#e4e5e6',
 									lineHeight: '24px',
@@ -157,7 +157,7 @@ class CompanyIntegrationSettings extends Workspace {
 									>
 										<div
 											style={{
-												fontFamily: 'Inter Medium',
+												fontFamily: 'Inter',
 												fontSize: '13px',
 												color: '#e4e5e6',
 												lineHeight: '21px',
@@ -250,7 +250,7 @@ class CompanyIntegrationSettings extends Workspace {
 									>
 										<div
 											style={{
-												fontFamily: 'Inter Medium',
+												fontFamily: 'Inter',
 												fontSize: '13px',
 												color: '#e4e5e6',
 												lineHeight: '21px',
@@ -303,7 +303,7 @@ class CompanyIntegrationSettings extends Workspace {
 									>
 										<div
 											style={{
-												fontFamily: 'Inter Medium',
+												fontFamily: 'Inter',
 												fontSize: '13px',
 												color: '#e4e5e6',
 												lineHeight: '21px',

@@ -34,7 +34,7 @@
 				padding: 6px;
 				gap: 10px;
 				border-radius: 4px;
-				@include os-aware-font('Inter Bold');
+				@include os-aware-font('Inter');
 				font-style: normal;
 				font-weight: 700;
 				font-size: 14px;
@@ -51,7 +51,7 @@
 				background: #707070;
 			}
 			.sbpln-item-top-sub-text {
-				@include os-aware-font('Inter Medium');
+				@include os-aware-font('Inter');
 				font-style: normal;
 				font-weight: 500;
 				font-size: 20px;
@@ -110,7 +110,7 @@
 			gap: 10px;
 			width: 100%;
 			.sbpln-item-bottom-rupee {
-				@include os-aware-font('Inter Medium');
+				@include os-aware-font('Inter');
 				font-style: normal;
 				font-weight: 500;
 				font-size: 24px;
@@ -127,7 +127,7 @@
 			}
 		}
 		.sbpln-item-bottom-btn {
-			@include os-aware-font('Inter SemiBold');
+			@include os-aware-font('Inter');
 			font-style: normal;
 			font-weight: 600;
 			font-size: 13px;

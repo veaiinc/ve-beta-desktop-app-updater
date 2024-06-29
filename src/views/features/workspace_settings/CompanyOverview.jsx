@@ -463,7 +463,7 @@ class CompanyOverview extends Workspace {
 								>
 									<span
 										style={{
-											fontFamily: 'Inter Medium',
+											fontFamily: 'Inter',
 											fontSize: '16px',
 											color: '#e4e5e6',
 											lineHeight: '24px',
@@ -618,7 +618,7 @@ class CompanyOverview extends Workspace {
 								>
 									<span
 										style={{
-											fontFamily: 'Inter Medium',
+											fontFamily: 'Inter',
 											fontSize: '16px',
 											color: '#e4e5e6',
 										}}
@@ -629,7 +629,7 @@ class CompanyOverview extends Workspace {
 										<span
 											style={{
 												color: '#6055EC',
-												fontFamily: 'Inter Medium',
+												fontFamily: 'Inter',
 												fontSize: '14px',
 												cursor: 'pointer',
 												transition: 'color 0.5s ease',
@@ -642,7 +642,7 @@ class CompanyOverview extends Workspace {
 										<span
 											style={{
 												color: '#E4E5E652',
-												fontFamily: 'Inter Medium',
+												fontFamily: 'Inter',
 												fontSize: '14px',
 												cursor: 'pointer',
 												transition: 'color 0.5s ease',
@@ -897,7 +897,7 @@ class CompanyOverview extends Workspace {
 								>
 									<span
 										style={{
-											fontFamily: 'Inter Medium',
+											fontFamily: 'Inter',
 											fontSize: '16px',
 											color: '#e4e5e6',
 											lineHeight: '24px',
@@ -943,7 +943,7 @@ class CompanyOverview extends Workspace {
 								>
 									<span
 										style={{
-											fontFamily: 'Inter Medium',
+											fontFamily: 'Inter',
 											fontSize: '16px',
 											color: '#e4e5e6',
 											lineHeight: '24px',
@@ -992,7 +992,7 @@ class CompanyOverview extends Workspace {
 								>
 									<span
 										style={{
-											fontFamily: 'Inter Medium',
+											fontFamily: 'Inter',
 											fontSize: '16px',
 											color: '#e4e5e6',
 										}}
@@ -1008,7 +1008,7 @@ class CompanyOverview extends Workspace {
 								>
 									<span
 										style={{
-											fontFamily: 'Inter Medium',
+											fontFamily: 'Inter',
 											fontSize: '16px',
 											color: '#e4e5e6',
 											lineHeight: '24px',
@@ -1067,7 +1067,7 @@ class CompanyOverview extends Workspace {
 										>
 											<div
 												style={{
-													fontFamily: 'Inter Medium',
+													fontFamily: 'Inter',
 													fontSize: '13px',
 													color: '#e4e5e6',
 													lineHeight: '21px',

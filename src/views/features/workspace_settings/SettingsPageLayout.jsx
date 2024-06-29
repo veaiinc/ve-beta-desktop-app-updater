@@ -158,7 +158,7 @@ class SettingsPageLayout extends Workspace {
 												borderRadius: '100%',
 												display: 'flex',
 												alignItems: 'center',
-												fontFamily: 'Inter Medium',
+												fontFamily: 'Inter',
 												fontSize: '12px',
 												fontWeight: '500',
 												lineHeight: '16px',

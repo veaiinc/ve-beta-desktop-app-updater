@@ -224,7 +224,7 @@ class CompanyBrandingSettings extends Workspace {
 							>
 								<div
 									style={{
-										fontFamily: 'Inter Medium',
+										fontFamily: 'Inter',
 										fontSize: '16px',
 										color: '#e4e5e6',
 										lineHeight: '24px',
@@ -381,7 +381,7 @@ class CompanyBrandingSettings extends Workspace {
 							>
 								<div
 									style={{
-										fontFamily: 'Inter Medium',
+										fontFamily: 'Inter',
 										fontSize: '16px',
 										color: '#e4e5e6',
 										lineHeight: '24px',
@@ -458,7 +458,7 @@ class CompanyBrandingSettings extends Workspace {
 							>
 								<div
 									style={{
-										fontFamily: 'Inter Medium',
+										fontFamily: 'Inter',
 										fontSize: '16px',
 										color: '#e4e5e6',
 										lineHeight: '24px',
@@ -498,7 +498,7 @@ class CompanyBrandingSettings extends Workspace {
 							>
 								<div
 									style={{
-										fontFamily: 'Inter Medium',
+										fontFamily: 'Inter',
 										fontSize: '16px',
 										color: '#e4e5e6',
 										lineHeight: '24px',
@@ -562,7 +562,7 @@ class CompanyBrandingSettings extends Workspace {
 							>
 								<div
 									style={{
-										fontFamily: 'Inter Medium',
+										fontFamily: 'Inter',
 										fontSize: '16px',
 										color: '#e4e5e6',
 										lineHeight: '24px',

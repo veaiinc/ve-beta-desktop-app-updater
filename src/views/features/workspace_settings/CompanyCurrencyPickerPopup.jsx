@@ -73,7 +73,7 @@ class CompanyCurrencyPickerPopup extends TenantController {
 					>
 						<span
 							style={{
-								fontFamily: 'Inter Medium',
+								fontFamily: 'Inter',
 								fontSize: '16px',
 								color: '#e4e5e6',
 								lineHeight: '24px',
@@ -144,7 +144,7 @@ class CompanyCurrencyPickerPopup extends TenantController {
 										style={{
 											color: value.active ? '#E4E5E6' : '#E4E5E67A',
 											fontSize: '12px',
-											fontFamily: 'Inter Medium',
+											fontFamily: 'Inter',
 											transition: 'color 0.3s ease-in',
 										}}
 									>
@@ -155,7 +155,7 @@ class CompanyCurrencyPickerPopup extends TenantController {
 									style={{
 										color: value.active ? '#E4E5E6' : '#E4E5E67A',
 										fontSize: '12px',
-										fontFamily: 'Inter Medium',
+										fontFamily: 'Inter',
 										transition: 'color 0.3s ease-in',
 									}}
 								>

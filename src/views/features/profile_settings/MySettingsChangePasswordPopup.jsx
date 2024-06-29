@@ -163,7 +163,7 @@ class MySettingsChangePasswordPopup extends TenantController {
 						>
 							<span
 								style={{
-									fontFamily: 'Inter Medium',
+									fontFamily: 'Inter',
 									fontSize: '16px',
 									color: '#e4e5e6',
 									lineHeight: '24px',
@@ -177,7 +177,7 @@ class MySettingsChangePasswordPopup extends TenantController {
 						</div>
 						<span
 							style={{
-								fontFamily: 'Inter Medium',
+								fontFamily: 'Inter',
 								fontSize: '12px',
 								color: '#E4E5E67A',
 								lineHeight: '20px',
@@ -313,7 +313,7 @@ class MySettingsChangePasswordPopup extends TenantController {
 									padding: '16px 24px',
 									height: '48px',
 									fontSize: '13px',
-									fontFamily: 'Inter Medium',
+									fontFamily: 'Inter',
 									textAlign: 'center',
 								}}
 								onClick={() => {

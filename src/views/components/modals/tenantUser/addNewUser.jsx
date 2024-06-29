@@ -283,7 +283,7 @@ class AddNewUserModal extends ProjectController {
 							<div
 								style={{
 									fontSize: '16px',
-									fontStyle: 'Inter SemiBold',
+									fontStyle: 'Inter',
 									color: '#e4e5e6',
 								}}
 							>
@@ -738,7 +738,7 @@ class AddNewUserModal extends ProjectController {
 								// marginTop: '1rem',
 								// display: 'inline-block',
 								fontSize: '13px',
-								fontFamily: 'Inter Medium',
+								fontFamily: 'Inter',
 								textAlign: 'center',
 							}}
 							onClick={this.InviteNewUser}
