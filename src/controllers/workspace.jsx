@@ -765,6 +765,24 @@ class Workspace extends TenantUserController {
 		let workspaceId = localStorage.getItem('workspaceId');
 		WorkspaceAction.updateDefaultWorkspace(workspaceId, json, usertoken);
 	};
+
+	getMetaPageUsersList = async () => {
+		const payload = {
+			filters: {
+				limit: 100,
+				page: 1,
+			},
+		};
+		const response = await WorkspaceAction.getMetaIntegInfo(payload);
+		if (response?.[0]) {
+			const data = response?.[1]?.data?.getPages?.data;
+			if (data?.length) {
+				this.setState({ metaInteg: true });
+			} else {
+				this.setState({ metaInteg: false });
+			}
+		}
+	};
 }
 
 export default Workspace;

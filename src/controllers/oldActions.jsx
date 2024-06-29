@@ -1,6 +1,8 @@
 import * as API from './oldActionTypes';
 import service from '../services/index';
 import _, { sortBy } from 'lodash';
+import Service from '../services/graphQlServices';
+import { getPageInfoApi } from '../context/Chat/graphQlFunctions';
 
 /*
 		----------------------------------------------------------------
@@ -1469,5 +1471,18 @@ export const getNotifications = async (payload, workspaceId, token) => {
 		payload,
 		token,
 		'tenant',
+	);
+};
+
+//VE conversations
+export const getMetaIntegInfo = async (json) => {
+	const workspaceId = localStorage.getItem('workspaceId');
+	const usertoken = localStorage.getItem('usertoken');
+	return await Service.query(
+		getPageInfoApi,
+		json,
+		workspaceId,
+		usertoken,
+		've_conversations_api',
 	);
 };
