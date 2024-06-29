@@ -32,13 +32,13 @@ function ReactModal(props) {
 			right: props.isOpen ? '0%' : '-50%', // Slide in from right
 			transform: props.isOpen ? 'translate(0%) scale(1)' : 'translate(0%) scale(0)', // Scale for fade-in effect
 			transition: 'right 3s ease-in-out',
-			padding: '20px',
 			borderRadius: '8px',
 			boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
 			border: 'none',
 			zIndex: 9999,
 			height: '100vh',
 			opacity: props.isOpen ? 1 : 0,
+			backgroundColor: 'transparent',
 		},
 		overlay: {
 			position: 'fixed',
