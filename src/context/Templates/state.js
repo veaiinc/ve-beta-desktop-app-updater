@@ -97,7 +97,24 @@ export const TemplatesState = (props) => {
 		let usertoken = localStorage.getItem('usertoken');
 		let response = await Service.fetchPost(
 			`/${workspaceId}${API.TEMPLATES.PROPOSALS}/${proposalId}/versions/${versionId}/${status}`,
-			{},
+			status == 'reject' ? { notes: 'test' } : {},
+			usertoken,
+			'proposals_api',
+		);
+
+		if (response[0]) {
+			return [true, response[1]];
+		} else {
+			return [false, response?.[1]?.message];
+		}
+	};
+
+	const duplicateTemplate = async (templateId, payload) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		let response = await Service.fetchPost(
+			`/${workspaceId}${API.TEMPLATES.TEMPLATES}/${templateId}/${API.TEMPLATES.DUPLICATE}`,
+			payload,
 			usertoken,
 			'proposals_api',
 		);
@@ -116,5 +133,6 @@ export const TemplatesState = (props) => {
 		createProposals,
 		deleteProposal,
 		moveProposalStage,
+		duplicateTemplate,
 	};
 };

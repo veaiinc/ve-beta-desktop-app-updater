@@ -1,21 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import '../../../assets/scss/sales/workflowTemplates.scss';
 import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { ReactComponent as Circle } from '../../../assets/svg/circle-outline.svg';
 import SampleWorkflowImage from '../../../assets/images/workflow-sample-image.png';
 import ReactModal from '../modalsV2';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
+import Context from '../../../context/context';
+import { useNavigate } from 'react-router-dom';
 
 function WorkflowTemplates({ workflows }) {
 	const [modalIsOpen, setIsOpen] = useState(false);
+	const [workflow, setWorkFlow] = useState({ workflowId: '', workflowTitle: '' });
+	const [isLoading, setLoading] = useState(false);
 
-	const openModal = (event) => {
+	let {
+		templates: { duplicateTemplate },
+	} = useContext(Context);
+
+	const openModal = (event, workflow) => {
 		event.preventDefault();
+
+		setWorkFlow((prevState) => ({
+			...prevState,
+			id: workflow._id,
+			title: workflow.title,
+		}));
 		setIsOpen(true);
 	};
 
 	const closeModal = (event) => {
 		setIsOpen(false);
+		setWorkFlow((prevState) => ({
+			id: '',
+			title: '',
+		}));
+	};
+
+	const navigate = useNavigate();
+
+	const handleUseTemplate = async () => {
+		setLoading(true);
+
+		let payload = {
+			title: workflow['title'],
+		};
+
+		let response = await duplicateTemplate(workflow['id'], payload);
+		if (response[0]) {
+			setLoading(false);
+			closeModal();
+			navigate(`/sales/${response[1]['_id']}`);
+		}
 	};
 
 	const previewModal = () => {
@@ -56,6 +91,15 @@ function WorkflowTemplates({ workflows }) {
 					<div className="previewContainer">
 						<p>Proposal Template</p>
 						<div className="previewDiv"></div>
+
+						<div className="buttonContainer">
+							<div className="customizeContainer">
+								<p>Customize</p>
+							</div>
+							<div className="customizeContainer" onClick={() => handleUseTemplate()}>
+								<p>Use Template</p>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -73,7 +117,10 @@ function WorkflowTemplates({ workflows }) {
 
 						{workflows.map((workflow, index) => {
 							return (
-								<div className="workflowCard" onClick={openModal}>
+								<div
+									className="workflowCard"
+									onClick={(e) => openModal(e, workflow)}
+								>
 									<div className="textContainer">
 										<p className="heading">{workflow.title}</p>
 										<div className="subtext">

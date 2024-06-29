@@ -35,6 +35,7 @@ function ReactModal(props) {
 			borderRadius: '8px',
 			boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
 			border: 'none',
+			padding: '0px',
 			zIndex: 9999,
 			height: '100vh',
 			opacity: props.isOpen ? 1 : 0,

@@ -32,7 +32,9 @@
 			line-height: 1rem; /* 145.455% */
 		}
 	}
-	textarea {
+
+	textarea,
+	select {
 		width: 100%;
 
 		display: flex;
@@ -57,6 +59,10 @@
 		min-height: 40px;
 
 		resize: vertical;
+
+		.placeholder {
+			color: #aaa;
+		}
 	}
 
 	.inputBox {
@@ -66,6 +72,7 @@
 		align-items: center;
 		gap: 0.625rem;
 		align-self: stretch;
+		padding: 0 0.875rem;
 
 		border-radius: 0.625rem;
 		border: 1px solid rgba(36, 36, 36, 0.64);
@@ -91,7 +98,7 @@
 			font-weight: 400;
 			line-height: 1.625rem;
 
-			padding: 0.6875rem 0.875rem;
+			padding: 0.6875rem 0;
 			background-color: transparent;
 			height: 100%;
 			border: 0;

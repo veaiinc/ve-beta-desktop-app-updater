@@ -17,7 +17,9 @@ function SalesLeadCard({ data, fetchProposals }) {
 	const [modalIsOpen, setIsOpen] = useState(false);
 	const [isLoading, setisLoading] = useState(false);
 	const [modalType, setModalType] = useState('');
-	const [proposalMoveStage, setProposalMoveStage] = useState('accept');
+
+	const [leadDetails, setLeadDetails] = useState({ status: '' });
+	const [errorState, setErrorState] = useState({ isError: false, errorMessage: '' });
 
 	let {
 		templates: { deleteProposal, moveProposalStage },
@@ -70,18 +72,45 @@ function SalesLeadCard({ data, fetchProposals }) {
 		setModalType('');
 	};
 
+	const handleInputChange = (e) => {
+		let { name, value } = e.target;
+
+		let error = `is${name}Error`;
+		let message = `${name}ErrorMessage`;
+
+		setLeadDetails((prevState) => ({
+			...prevState,
+			[name]: value,
+		}));
+		setErrorState((prevState) => ({
+			...prevState,
+			[error]: false,
+			[message]: '',
+		}));
+	};
+
 	const handleMoveProposal = async () => {
-		setMoreOptions(false);
-		setisLoading(true);
-
-		let response = await moveProposalStage(data._id, data.activeVersion, proposalMoveStage);
-
-		if (response[0]) {
-			fetchProposals();
-			closeModal();
-			setisLoading(false);
+		if (leadDetails.status != '') {
+			setMoreOptions(false);
+			setisLoading(true);
+			let response = await moveProposalStage(
+				data._id,
+				data.activeVersion,
+				leadDetails.status,
+			);
+			if (response[0]) {
+				fetchProposals();
+				closeModal();
+				setisLoading(false);
+			} else {
+				setisLoading(false);
+			}
 		} else {
-			setisLoading(false);
+			setErrorState((prevState) => ({
+				...prevState,
+				isstatusError: true,
+				isstatusErrorMessage: 'Required Field',
+			}));
 		}
 	};
 
@@ -127,13 +156,18 @@ function SalesLeadCard({ data, fetchProposals }) {
 
 				<InputForModules
 					label={'Select Workflow Stage'}
-					type={'text'}
+					type={'dropdown'}
 					placeholder={'Enter lead name'}
-					name={'name'}
-					value={proposalMoveStage}
-					// onChange={handleInputChange}
-					// isError={errorState['isnameError']}
-					// errorMessage={errorState['nameErrorMessage']}
+					name={'status'}
+					value={leadDetails['status']}
+					options={[
+						{ label: 'Accepted', value: 'accept' },
+						{ label: 'Rejected', value: 'reject' },
+						//{ label: 'Expired', value: 'mark-as-expire' },
+					]}
+					onChange={handleInputChange}
+					isError={errorState['isstatusError']}
+					errorMessage={errorState['statusErrorMessage']}
 				/>
 
 				<div className="buttonsContainer">

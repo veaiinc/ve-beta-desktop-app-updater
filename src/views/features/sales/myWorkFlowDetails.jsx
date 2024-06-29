@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import MyWorkFlowStatsCard from '../../components/sales/myWorkFlowStatsCard';
 import SalesLeadCard from '../../components/sales/salesLeadCard';
 import '../../../assets/scss/sales/myWorkFlowDetails.scss';
@@ -20,9 +20,13 @@ function MyWorkFlowDetails(props) {
 	const [searchInput, setSearchInput] = useState('');
 	const [timeoutId, setTimeoutId] = useState(null);
 
+	const location = useLocation();
+	const searchParams = new URLSearchParams(location.search);
+	const status = searchParams.get('status');
+
 	const [metaData, setMetaData] = useState({
 		page: 1,
-		status: 'draft',
+		status: status,
 		hasMore: true,
 	});
 

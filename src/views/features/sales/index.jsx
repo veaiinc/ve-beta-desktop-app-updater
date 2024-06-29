@@ -48,7 +48,7 @@ function Sales({ type }) {
 		if (response[0]) {
 			setLoading(false);
 			setGlobalWorkflows(_.filter(response[1], { tenantId: '*' }));
-			setMyWorkflows(_.filter(response[1], { tenantId }));
+			setMyWorkflows(_.filter(response[1], (item) => item.tenantId !== '*'));
 		}
 	};
 

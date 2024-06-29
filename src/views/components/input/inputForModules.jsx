@@ -19,6 +19,7 @@ const InputForModules = ({
 	prefixText,
 	suffixText,
 	defaultCountry,
+	options,
 }) => {
 	const handleInputNumber = (e) => {
 		if (/^[0-9]*$/.test(e.target.value)) {
@@ -32,7 +33,16 @@ const InputForModules = ({
 				{label && <p className="label">{label}</p>}
 				{isError && <p className="errorMessage">{errorMessage}</p>}
 			</div>
-			{type == 'textArea' ? (
+			{type == 'dropdown' ? (
+				<select name={name} placeholder={placeholder} onChange={onChange}>
+					<option value="" disabled selected class="placeholder">
+						{placeholder}
+					</option>
+					{options.map((item, index) => {
+						return <option value={item.value}>{item.label}</option>;
+					})}
+				</select>
+			) : type == 'textArea' ? (
 				<textArea
 					type={type}
 					placeholder={placeholder}
@@ -141,6 +151,7 @@ InputForModules.defaultProps = {
 	prefixText: '',
 	suffixText: '',
 	defaultCountry: 'US',
+	options: [],
 };
 
 export default InputForModules;

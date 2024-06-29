@@ -32,8 +32,13 @@
 				background: rgba(42, 42, 42, 0.16);
 				padding: 1.5rem;
 
+				cursor: pointer;
+
 				display: flex;
 				flex-direction: row;
+			}
+			.workflowCard:hover {
+				background: rgba(176, 176, 176, 0.16);
 			}
 			.textContainer {
 				width: 50%;
@@ -214,8 +219,8 @@
 	display: inline-flex;
 	padding: 0.625rem;
 	align-items: center;
-	gap: 0.625rem;
 	flex-shrink: 0;
+	height: 100%;
 
 	.container {
 		display: flex;
@@ -305,10 +310,9 @@
 
 		.previewContainer {
 			display: flex;
-			padding: 1.5rem var(--cartCount, 0rem);
+			padding: 1.5rem 1rem 1rem;
 			flex-direction: column;
-			align-items: center;
-			gap: 0.5rem;
+			gap: 1rem;
 			flex: 1 0 0;
 			align-self: stretch;
 
@@ -322,9 +326,40 @@
 				text-transform: uppercase;
 			}
 
-			.container {
+			.previewDiv {
 				background: #fcfaf7;
 				border-radius: 5px;
+				height: 500px;
+				overflow: scroll;
+			}
+			.buttonContainer {
+				display: flex;
+				flex-direction: row;
+				gap: 2rem;
+				.customizeContainer {
+					display: flex;
+					padding: 1rem 1.5rem;
+					justify-content: center;
+					align-items: center;
+					gap: 1rem;
+					align-self: stretch;
+					width: 45%;
+					cursor: pointer;
+
+					border-radius: 6.25rem;
+					border: 1px solid rgba(36, 36, 36, 0.64);
+					background: #1e1e1f;
+
+					p {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 0.8125rem;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 1rem; /* 123.077% */
+						letter-spacing: 0.01625rem;
+					}
+				}
 			}
 		}
 	}

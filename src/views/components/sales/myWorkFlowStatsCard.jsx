@@ -158,10 +158,17 @@ function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard 
 
 				<InputForModules
 					label={'Lead Source'}
-					type={'text'}
+					type={'dropdown'}
 					placeholder={'Select Lead Source'}
 					name={'source'}
 					value={leadDetails['source']}
+					options={[
+						{ label: 'Instagram', value: 'instagram' },
+						{ label: 'Website', value: 'website' },
+						{ label: 'Facebook', value: 'facebook' },
+						{ label: 'Reference', value: 'reference' },
+						{ label: 'None', value: 'null' },
+					]}
 					onChange={handleInputChange}
 					isError={errorState['issourceError']}
 					errorMessage={errorState['sourceErrorMessage']}
@@ -180,6 +187,15 @@ function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard 
 				</div>
 
 				<p className="errorMessage">{errorState['errorMessage']}</p>
+			</div>
+		);
+	};
+
+	const statsBox = (label, value) => {
+		return (
+			<div className="statBox">
+				<p className="statsTitle">{label}</p>
+				<p className="statsValue">{value}</p>
 			</div>
 		);
 	};
@@ -214,40 +230,78 @@ function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard 
 					</div>
 
 					<div className="statsContainer">
-						<div className="statBox">
-							<p className="statsTitle">DRAFT</p>
-							<p className="statsValue">
-								{inSights && inSights.status.draft ? inSights.status.draft : 0}
-							</p>
-						</div>
-						<div className="statBox">
-							<p className="statsTitle">SENT</p>
-							<p className="statsValue">
-								{inSights && inSights.status.sent ? inSights.status.sent : 0}
-							</p>
-						</div>
-						<div className="statBox">
-							<p className="statsTitle">ACCEPTED</p>
-							<p className="statsValue">
-								{inSights && inSights.status.accepted
-									? inSights.status.accepted
-									: 0}
-							</p>
-						</div>
-						<div className="statBox">
-							<p className="statsTitle">REJECTED</p>
-							<p className="statsValue">
-								{inSights && inSights.status.rejected
-									? inSights.status.rejected
-									: 0}
-							</p>
-						</div>
-						<div className="statBox">
-							<p className="statsTitle">EXPIRED</p>
-							<p className="statsValue">
-								{inSights && inSights.status.expired ? inSights.status.expired : 0}
-							</p>
-						</div>
+						{singleCard ? (
+							<a href={`/sales/${workflow._id}?status=draft`}>
+								{statsBox(
+									'DRAFT',
+									inSights && inSights.status.draft ? inSights.status.draft : 0,
+								)}
+							</a>
+						) : (
+							statsBox(
+								'DRAFT',
+								inSights && inSights.status.draft ? inSights.status.draft : 0,
+							)
+						)}
+						{singleCard ? (
+							<a href={`/sales/${workflow._id}?status=sent`}>
+								{statsBox(
+									'SENT',
+									inSights && inSights.status.draft ? inSights.status.draft : 0,
+								)}
+							</a>
+						) : (
+							statsBox(
+								'SENT',
+								inSights && inSights.status.draft ? inSights.status.draft : 0,
+							)
+						)}
+						{singleCard ? (
+							<a href={`/sales/${workflow._id}?status=accepted`}>
+								{statsBox(
+									'ACCEPTED',
+									inSights && inSights.status.accepted
+										? inSights.status.accepted
+										: 0,
+								)}
+							</a>
+						) : (
+							statsBox(
+								'ACCEPTED',
+								inSights && inSights.status.accepted ? inSights.status.accepted : 0,
+							)
+						)}
+						{singleCard ? (
+							<a href={`/sales/${workflow._id}?status=rejected`}>
+								{statsBox(
+									'REJECTED',
+									inSights && inSights.status.rejected
+										? inSights.status.rejected
+										: 0,
+								)}
+							</a>
+						) : (
+							statsBox(
+								'REJECTED',
+								inSights && inSights.status.rejected ? inSights.status.rejected : 0,
+							)
+						)}
+
+						{singleCard ? (
+							<a href={`/sales/${workflow._id}?status=expired`}>
+								{statsBox(
+									'EXPIRED',
+									inSights && inSights.status.expired
+										? inSights.status.expired
+										: 0,
+								)}
+							</a>
+						) : (
+							statsBox(
+								'EXPIRED',
+								inSights && inSights.status.expired ? inSights.status.expired : 0,
+							)
+						)}
 					</div>
 				</div>
 			</div>
