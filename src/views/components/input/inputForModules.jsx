@@ -41,7 +41,7 @@ const InputForModules = ({
 					//value={value}
 				/>
 			) : type == 'phoneNumber' ? (
-				<div className="inputBox">
+				<div className={`inputBox ${isError ? 'inputBoxError' : ''}`}>
 					<PhoneInput
 						defaultCountry={defaultCountry}
 						placeholder={placeholder}
@@ -50,7 +50,7 @@ const InputForModules = ({
 					/>
 				</div>
 			) : type == 'datePicker' ? (
-				<div className="inputBox">
+				<div className={`inputBox ${isError ? 'inputBoxError' : ''}`}>
 					{prefixText && (
 						<p className="symbol">
 							<Calendar />
@@ -63,7 +63,7 @@ const InputForModules = ({
 					{prefixText && <p className="symbol">{suffixText}</p>}
 				</div>
 			) : type == 'numbers-with-increment-large' ? (
-				<div className="inputBox">
+				<div className={`inputBox ${isError ? 'inputBoxError' : ''}`}>
 					<input
 						type="text"
 						placeholder={placeholder}
@@ -86,7 +86,7 @@ const InputForModules = ({
 					</p>
 				</div>
 			) : type == 'numbers-with-increment-small' ? (
-				<div className="inputBox">
+				<div className={`inputBox ${isError ? 'inputBoxError' : ''}`}>
 					<p className="symbol increments">-</p>
 					<input
 						type={type}
@@ -98,7 +98,7 @@ const InputForModules = ({
 					<p className="symbol increments">+</p>
 				</div>
 			) : (
-				<div className="inputBox">
+				<div className={`inputBox ${isError ? 'inputBoxError' : ''}`}>
 					{prefixText && <p className="symbol">{prefixText}</p>}
 
 					<input

@@ -5,6 +5,7 @@ import SalesLeadCard from '../../components/sales/salesLeadCard';
 import '../../../assets/scss/sales/myWorkFlowDetails.scss';
 import { ReactComponent as LeftArrow } from '../../../assets/svg/left-arrow.svg';
 import { ReactComponent as Search } from '../../../assets/svg/seach-magnifier.svg';
+import { ReactComponent as EmptyState } from '../../../assets/svg/emptyStates/leads-empty-state.svg';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 const _ = require('lodash');
@@ -13,15 +14,20 @@ function MyWorkFlowDetails(props) {
 	const { salesId } = useParams();
 	const [workspaceId, setWorkspaceId] = useState('');
 	const [proposalData, setProposalData] = useState([]);
+	const [templateDetails, setTemplateDetails] = useState([]);
 	const [inSights, setInsights] = useState([]);
 	const [isLoading, setLoading] = useState(true);
+	const [searchInput, setSearchInput] = useState('');
+	const [timeoutId, setTimeoutId] = useState(null);
+
 	const [metaData, setMetaData] = useState({
 		page: 1,
+		status: 'draft',
 		hasMore: true,
 	});
 
 	let {
-		templates: { getProposals, getTemplatesStatus },
+		templates: { getProposals, getTemplatesStatus, getTemplates },
 	} = useContext(Context);
 
 	useEffect(() => {
@@ -35,12 +41,28 @@ function MyWorkFlowDetails(props) {
 
 	useEffect(() => {
 		if (workspaceId) {
-			fetchTemplates();
-			fetchTemplateStatus();
+			fetchProposals();
+			fetchProposalstatus();
+			fetchTemplatesDetails();
 		}
 	}, [workspaceId]);
 
-	const fetchTemplateStatus = async () => {
+	useEffect(() => {
+		return () => {
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+			}
+		};
+	}, [timeoutId]);
+
+	const fetchTemplatesDetails = async () => {
+		let response = await getTemplates(salesId);
+		if (response[0]) {
+			setLoading(false);
+			setTemplateDetails(response[1][0]);
+		}
+	};
+	const fetchProposalstatus = async () => {
 		let response = await getTemplatesStatus(salesId);
 		if (response[0]) {
 			setLoading(false);
@@ -48,11 +70,21 @@ function MyWorkFlowDetails(props) {
 		}
 	};
 
-	const fetchTemplates = async (page = null) => {
-		let response = await getProposals(page ? page : metaData['page']);
+	const fetchProposals = async (page = null) => {
+		let response = await getProposals(
+			salesId,
+			page ? page : metaData['page'],
+			searchInput,
+			metaData['status'],
+		);
 		if (response[0]) {
 			setLoading(false);
-			setProposalData([...proposalData, ...response[1].data]);
+
+			setProposalData(
+				page == null || page === 1
+					? [...response[1].data]
+					: [...proposalData, ...response[1].data],
+			);
 			if (response[1].totalPages > metaData['page']) {
 				setMetaData((prevState) => ({
 					...prevState,
@@ -68,61 +100,86 @@ function MyWorkFlowDetails(props) {
 		}
 	};
 
+	const handleSearchInput = (e) => {
+		const { value } = e.target;
+
+		setSearchInput(value);
+
+		if (timeoutId) {
+			clearTimeout(timeoutId);
+		}
+
+		if (value.length > 3) {
+			const id = setTimeout(() => {
+				fetchProposals(1);
+			}, 500);
+
+			setTimeoutId(id);
+		}
+	};
+
+	const updateProposalsList = async () => {
+		fetchProposals(1);
+		fetchProposalstatus();
+	};
+
 	return (
 		<div className="myWorkFlowDetailsContainer">
 			<div className="header">
 				<div className="leftSideContent">
-					<LeftArrow />
+					<a href="/sales">
+						<LeftArrow />
+					</a>
 					<p>
-						Workflow Name <span>(EDIT)</span>
+						{templateDetails.title} <span>(EDIT)</span>
 					</p>
 				</div>
 				<div className="inputContainer">
 					<Search />
-					<input type="text" placeholder="Search" />
+					<input type="text" placeholder="Search Lead" onChange={handleSearchInput} />
 				</div>
 			</div>
 			<MyWorkFlowStatsCard
-				workflow={{ _id: '', title: '', displayImageURL: '' }}
+				hideImage={true}
+				workflow={templateDetails}
 				inSights={inSights[0]}
+				singleCard={true}
 			/>
 			{isLoading ? (
 				''
+			) : proposalData.length === 0 ? (
+				<div className="emptyStateContainer">
+					<EmptyState />
+					<div className="textContainer">
+						<p className="mainText">No Lead Yet</p>
+						<p className="subText">
+							We have no leads available at this stage, you will see them soon
+						</p>
+					</div>
+				</div>
 			) : (
 				<InfiniteScroll
 					dataLength={proposalData.length}
-					next={fetchTemplates}
+					next={fetchProposals}
 					hasMore={metaData['hasMore']}
-					loader={<h4 style={{ color: 'red' }}>Loading...</h4>}
-					endMessage={
-						<p style={{ textAlign: 'center' }}>
-							<b>Yay! You have seen it all</b>
-						</p>
-					}
-					refreshFunction={() => fetchTemplates(1)}
+					loader={<h4>Loading...</h4>}
+					endMessage={''}
+					refreshFunction={() => fetchProposals(1)}
 					pullDownToRefresh
 					pullDownToRefreshThreshold={50}
-					pullDownToRefreshContent={
-						<h3 style={{ textAlign: 'center' }}>&#8595; Pull down to refresh</h3>
-					}
-					releaseToRefreshContent={
-						<h3 style={{ textAlign: 'center' }}>&#8593; Release to refresh</h3>
-					}
 				>
 					<div className="salesCardContainer">
 						{proposalData.map((proposal, index) => {
-							return <SalesLeadCard key={index} />;
+							return (
+								<SalesLeadCard
+									key={index}
+									data={proposal}
+									fetchProposals={() => updateProposalsList()}
+								/>
+							);
 						})}
 					</div>
 				</InfiniteScroll>
-
-				// 	<div className="salesCardContainer">
-
-				// 		<SalesLeadCard />
-				// 		<SalesLeadCard />
-				// 		<SalesLeadCard />
-				// 		<SalesLeadCard />
-				// 	</div>
 			)}
 		</div>
 	);

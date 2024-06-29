@@ -63,7 +63,6 @@
 		width: 100%;
 
 		display: flex;
-		padding: 0.6875rem 0.875rem;
 		align-items: center;
 		gap: 0.625rem;
 		align-self: stretch;
@@ -92,8 +91,9 @@
 			font-weight: 400;
 			line-height: 1.625rem;
 
+			padding: 0.6875rem 0.875rem;
 			background-color: transparent;
-			height: 184%;
+			height: 100%;
 			border: 0;
 			width: 100%;
 		}
@@ -101,6 +101,10 @@
 		.PhoneInput {
 			width: 100%;
 		}
+	}
+
+	.inputBoxError {
+		border: 1px solid rgba(204, 87, 86, 0.48);
 	}
 }
 

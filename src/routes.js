@@ -79,7 +79,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/create-proposal',
+		path: '/sales/:salesId/:proposalId',
 		component: (
 			<AuthWrapper title={'Sales'} hideQuickNav={true}>
 				<ProposalCRUD type={'workflows'} />

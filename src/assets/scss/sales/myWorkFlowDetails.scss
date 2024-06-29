@@ -15,7 +15,7 @@
 
 			p {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: 'Inter';
 				font-size: 0.875rem;
 				font-style: normal;
 				font-weight: 500;
@@ -25,7 +25,7 @@
 				span {
 					color: #6055ec;
 					text-align: right;
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 0.875rem;
 					font-style: normal;
 					font-weight: 500;
@@ -76,6 +76,46 @@
 		flex-wrap: wrap;
 		justify-content: center;
 	}
+
+	.emptyStateContainer {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 2.5rem;
+		flex: 1 0 0;
+		align-self: stretch;
+		padding: 7%;
+
+		.textContainer {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			gap: 1rem;
+			align-self: stretch;
+
+			.mainText {
+				color: #e4e5e6;
+				text-align: center;
+				font-family: 'Inter';
+				font-size: 1.125rem;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 1.25rem; /* 111.111% */
+			}
+
+			.subText {
+				color: #b0b0b0;
+				text-align: center;
+				font-family: 'Inter';
+				font-size: 0.8125rem;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 1rem; /* 123.077% */
+			}
+		}
+	}
 }
 
 .SalesLeadCardContainer {
@@ -114,7 +154,7 @@
 					align-items: center;
 					justify-items: center;
 					color: rgba(228, 229, 230, 0.64);
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 0.8125rem;
 					font-style: normal;
 					font-weight: 500;
@@ -167,7 +207,7 @@
 				p {
 					color: #e4e5e6;
 					text-align: center;
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 0.8125rem;
 					font-style: normal;
 					font-weight: 500;
@@ -184,7 +224,7 @@
 
 				.fullName {
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 0.8125rem;
 					font-style: normal;
 					font-weight: 500;
@@ -192,7 +232,7 @@
 				}
 				.username {
 					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 0.6875rem;
 					font-style: normal;
 					font-weight: 500;
@@ -203,7 +243,7 @@
 			.cost {
 				p {
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: 'Inter';
 					font-size: 0.9375rem;
 					font-style: normal;
 					font-weight: 500;
@@ -237,7 +277,7 @@
 
 				color: #e4e5e6;
 				text-align: center;
-				font-family: Inter;
+				font-family: 'Inter';
 				font-size: 0.5rem;
 				font-style: normal;
 				font-weight: 500;
@@ -246,7 +286,7 @@
 
 			.fullName {
 				color: rgba(228, 229, 230, 0.64);
-				font-family: Inter;
+				font-family: 'Inter';
 				font-size: 0.75rem;
 				font-style: normal;
 				font-weight: 400;
@@ -263,7 +303,7 @@
 			p {
 				color: #6055ec;
 				text-align: right;
-				font-family: Inter;
+				font-family: 'Inter';
 				font-size: 0.75rem;
 				font-style: normal;
 				font-weight: 500;
@@ -315,6 +355,185 @@
 
 		.delete {
 			color: rgba(204, 87, 86, 0.8);
+		}
+	}
+}
+
+.deleteModalProposal {
+	display: flex;
+	width: 30rem;
+	padding: 2rem 1.5rem;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 1.5rem;
+
+	border-radius: 2.5rem;
+	background: #151515;
+	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+
+	.modalHeading {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		align-self: stretch;
+
+		.title {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 1.125rem;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 1.625rem; /* 144.444% */
+			width: 95%;
+		}
+
+		.closeContainer {
+			width: 15%;
+			display: flex;
+			align-items: center;
+			flex-direction: row-reverse;
+			cursor: pointer;
+		}
+	}
+
+	.modalDescription {
+		color: rgba(228, 229, 230, 0.48);
+		font-family: 'Inter';
+		font-size: 0.75rem;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 1.25rem; /* 166.667% */
+		letter-spacing: 0.015rem;
+		text-transform: capitalize;
+
+		width: 95%;
+	}
+
+	.buttonContainer {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.75rem;
+		align-self: stretch;
+
+		.cancelContainer {
+			display: flex;
+			height: 3rem;
+			padding: 0.75rem 1.5rem;
+			justify-content: center;
+			align-items: center;
+			gap: 0.625rem;
+
+			border-radius: 1.25rem;
+			background: #1c1c1c;
+
+			p {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 0.6875rem;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 1.5rem; /* 218.182% */
+			}
+		}
+
+		.deleteProposalContainer {
+			display: flex;
+			padding: 0.75rem 1.5rem;
+			justify-content: center;
+			align-items: center;
+			gap: 0.625rem;
+			flex: 1 0 0;
+
+			border-radius: 1.25rem;
+			background: #6055ec;
+
+			cursor: pointer;
+
+			p {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 0.75rem;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 1.5rem; /* 200% */
+			}
+		}
+	}
+}
+
+.moveProposalContainer {
+	display: inline-flex;
+	padding: 2.5rem;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2rem;
+
+	border-radius: 2rem;
+	background: #151515;
+	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+
+	.header {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.25rem;
+		align-self: stretch;
+
+		align-items: center;
+
+		.headingText {
+			width: 95%;
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 1.125rem;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 1.625rem; /* 144.444% */
+		}
+
+		.closeContainer {
+			text-align: right;
+		}
+	}
+
+	.buttonsContainer {
+		display: flex;
+		align-items: center;
+		gap: 1.5rem;
+
+		.moveButton {
+			display: flex;
+			padding: 1rem 1.5rem;
+			justify-content: center;
+			align-items: center;
+			gap: 1rem;
+
+			border-radius: 6.25rem;
+			border: 1px solid rgba(36, 36, 36, 0.64);
+			background: rgba(42, 42, 42, 0.16);
+
+			cursor: pointer;
+
+			p {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 0.8125rem;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 1rem; /* 123.077% */
+				letter-spacing: 0.01625rem;
+			}
+		}
+
+		.cancelText {
+			color: rgba(228, 229, 230, 0.64);
+			font-family: Inter;
+			font-size: 0.8125rem;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 1rem; /* 123.077% */
+			letter-spacing: 0.01625rem;
+
+			cursor: pointer;
 		}
 	}
 }
