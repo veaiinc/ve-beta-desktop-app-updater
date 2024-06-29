@@ -217,7 +217,7 @@ class MySettingsPageLayout extends Workspace {
 									>
 										Two Factor Authentication
 									</div>
-									<div
+									{/* <div
 										className={
 											'settings-nav-link' +
 											(this.state.activeLink === 'theme-preference'
@@ -246,7 +246,7 @@ class MySettingsPageLayout extends Workspace {
 										}}
 									>
 										Notifications
-									</div>
+									</div> */}
 									<div
 										className={
 											'settings-nav-link' +

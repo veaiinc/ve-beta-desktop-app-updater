@@ -1303,8 +1303,8 @@ class MySettingsContainer extends Workspace {
 													}
 												/>
 												<p>
-													<legend>STEP 4</legend> Enter your loveco
-													account password
+													<legend>STEP 4</legend> Enter your ve account
+													password
 												</p>
 												<Input
 													type={'text'}
@@ -1338,7 +1338,7 @@ class MySettingsContainer extends Workspace {
 									''
 								)}
 							</div>
-							<div
+							{/* <div
 								style={{
 									borderRadius: '40px',
 									border: '1px solid #242424A3',
@@ -1434,8 +1434,8 @@ class MySettingsContainer extends Workspace {
 										<span>Dark</span>
 									</div>
 								</div>
-							</div>
-							<div
+							</div> */}
+							{/* <div
 								style={{
 									borderRadius: '40px',
 									border: '1px solid #242424A3',
@@ -1593,7 +1593,7 @@ class MySettingsContainer extends Workspace {
 										)}
 									</div>
 								))}
-							</div>
+							</div> */}
 							<div
 								style={{
 									borderRadius: '40px',

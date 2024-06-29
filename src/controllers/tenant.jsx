@@ -1041,7 +1041,7 @@ class Tenant extends Component {
 		toast.promise(
 			new Promise(async (resolve, reject) => {
 				let response = await TenantsAction.updateTenantWebsite(
-					this.props.match.params.workspaceID,
+					localStorage.getItem('workspaceId'),
 					{ websiteUrl: json.website },
 					usertoken,
 				);
@@ -1071,13 +1071,13 @@ class Tenant extends Component {
 		);
 	};
 	updateTenantSocialMediaProfile = async (json) => {
-		let usertoken = await localStorage.getItem('usertoken');
+		let usertoken = localStorage.getItem('usertoken');
 		this.setState({ isLoading: true });
 
 		await toast.promise(
 			new Promise(async (resolve, reject) => {
 				let response = await TenantsAction.updateTenantSocialMediaProfile(
-					this.props.match.params.workspaceID,
+					localStorage.getItem('workspaceId'),
 					json,
 					usertoken,
 				);
@@ -1111,7 +1111,7 @@ class Tenant extends Component {
 		await toast.promise(
 			new Promise(async (resolve, reject) => {
 				let response = await TenantsAction.updateTenantContactDetails(
-					this.props.match.params.workspaceID,
+					localStorage.getItem('workspaceId'),
 					json,
 					usertoken,
 				);
@@ -1145,7 +1145,7 @@ class Tenant extends Component {
 		await toast.promise(
 			new Promise(async (resolve, reject) => {
 				let response = await TenantsAction.updateTenantAddress(
-					this.props.match.params.workspaceID,
+					localStorage.getItem('workspaceId'),
 					json,
 					usertoken,
 				);

@@ -1594,7 +1594,13 @@ class CompanyTeamSettings extends ProjectController {
 													}}
 													key={user._id}
 												>
-													<div style={{ display: 'flex', gap: '20px' }}>
+													<div
+														style={{
+															display: 'flex',
+															gap: '20px',
+															flex: 1,
+														}}
+													>
 														<div>
 															<div
 																style={{
@@ -1620,7 +1626,8 @@ class CompanyTeamSettings extends ProjectController {
 																flexDirection: 'column',
 																gap: '10px',
 																justifyContent: 'center',
-																width: '150px',
+																flex: 1,
+																// width: '150px',
 															}}
 														>
 															<div

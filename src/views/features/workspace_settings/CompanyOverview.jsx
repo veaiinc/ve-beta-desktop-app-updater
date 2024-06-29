@@ -10,6 +10,7 @@ import { ReactComponent as GlobeSettings } from '../../../assets/svg/workspaceSe
 import CompanyDeleteWorkspacePopup from './CompanyDeleteWorkspacePopup';
 import CompanyTimeZonePickerPopup from './CompanyTimeZonePickerPopup';
 import CompanyCurrencyPickerPopup from './CompanyCurrencyPickerPopup';
+import { BusinessTypesOptions } from './Constant';
 var validator = require('validator');
 
 class CompanyOverview extends Workspace {
@@ -157,6 +158,7 @@ class CompanyOverview extends Workspace {
 		}
 		if (e.target.name === 'email') {
 			var isEmailValid = validator.isEmail(e.target.value.trim());
+
 			if (
 				this.state[`${e.target.name}O`].split('/').at(-1).length > 0 &&
 				e.target.value.split('/').at(-1).length === 0
@@ -196,7 +198,7 @@ class CompanyOverview extends Workspace {
 		this.setState({
 			[e.target.name]: e.target.value,
 		});
-		this.debouncedValidateForm();
+		// this.debouncedValidateForm();
 	};
 
 	saveInputValue = (e) => {
@@ -259,7 +261,7 @@ class CompanyOverview extends Workspace {
 		this.setState({
 			[e.target.name]: e.target.value,
 		});
-		this.debouncedValidateForm();
+		// this.debouncedValidateForm();
 	};
 
 	debouncedValidateForm = _.debounce(() => {
@@ -268,131 +270,95 @@ class CompanyOverview extends Workspace {
 
 	validateForm = async (isAdmin) => {
 		if (isAdmin === true) {
+			//business Name
 			var regexbusinessName = /^[a-zA-Z0-9 ]+$/;
-
 			var isValidbusinessName = regexbusinessName.test(this.state.businessName);
-
-			if (this.state.businessName === '' || this.state.businessName === null) {
-				this.setState({
+			if (!this.state.businessName?.length || this.state.businessName === null) {
+				return this.setState({
 					errorbusinessName: true,
 					errorbusinessNameMessage: 'Required Field',
 				});
-			} else if (!isValidbusinessName) {
-				this.setState({
+			}
+			if (!isValidbusinessName) {
+				return this.setState({
 					errorbusinessName: true,
 					errorbusinessNameMessage: 'Business Name can only have alphabets',
 				});
-			} else {
-				this.setState({
-					errorbusinessName: false,
-					errorbusinessNameMessage: '',
-				});
 			}
 
-			if (this.state.website === '' || this.state.website === null) {
-				this.setState({
-					errorwebsite: true,
-					errorwebsiteMessage: 'Required Field!',
-				});
-			} else if (
-				!validator.isURL(
+			if (this.state.businessName !== this.state.businessNameO) {
+				let json = { businessName: this.state.businessName };
+				this.updateTenantDetails(json);
+			}
+			//company Email
+			let contactJson = {};
+			if (this.state.email?.length) {
+				var isEmailValid = validator.isEmail(this.state.email.trim());
+				if (!isEmailValid) {
+					return this.setState({
+						erroremail: true,
+						erroremailMessage: 'Invalid email! Example Format: username@gmail.com',
+					});
+				}
+				if (this.state.email !== this.state.emailO) {
+					contactJson.email = this.state.emai;
+				}
+			}
+			//phone Number
+			if (this.state.phoneNumber?.length) {
+				var isPhoneNumberValid = validator.isMobilePhone(
+					this.state.phoneNumber.trim(),
+					'any',
+					{
+						strictMode: true,
+					},
+				);
+				if (!isPhoneNumberValid) {
+					return this.setState({
+						errorphoneNumber: true,
+						errorphoneNumberMessage:
+							'Invalid Phone Number! Example Format: +911234567890',
+					});
+				}
+				if (this.state.phoneNumber !== this.state.phoneNumberO) {
+					contactJson.phoneNumber = this.state.phoneNumber;
+				}
+				// await this.updateTenantContactDetails(json);
+			}
+			if (Object.keys(contactJson)?.length) {
+				this.updateTenantContactDetails(contactJson);
+			}
+			//address
+			if (this.state.address?.length) {
+				if (this.state.address !== this.state.addressO) {
+					let json = { address: this.state.address };
+					this.updateTenantAddress(json);
+				}
+			}
+			//website
+			if (this.state.website?.length) {
+				var isWebsiteValid = validator.isURL(
 					this.state.website.includes('www')
 						? this.state.website.split('.').slice(0, 3).join('.')
 						: this.state.website.split('.').slice(0, 2).join('.'),
 					{ require_protocol: true },
-				)
-			) {
-				this.setState({
-					errorwebsite: true,
-					errorwebsiteMessage: 'Invalid Website URL. example: https://www.website.com',
-				});
-			} else {
-				this.setState({
-					errorwebsite: false,
-					errorwebsiteMessage: '',
-				});
-			}
-
-			if (
-				this.state.businessName !== '' &&
-				isValidbusinessName &&
-				!this.state.errorbusinessName &&
-				!this.state.errorwebsite &&
-				!this.state.errorphoneNumber &&
-				!this.state.erroremail &&
-				!this.state.erroraddress
-			) {
-				// if (
-				// 	this.state.facebookProfile !== this.state.facebookProfileO ||
-				// 	this.state.instagramProfile !== this.state.instagramProfileO ||
-				// 	this.state.pinterestProfile !== this.state.pinterestProfileO ||
-				// 	this.state.linkedInProfile !== this.state.linkedInProfileO
-				// ) {
-				// 	let json = {};
-				// 	if (this.state.facebookProfile !== this.state.facebookProfileO) {
-				// 		json = { facebookProfile: this.state.facebookProfile };
-				// 	}
-				// 	if (this.state.instagramProfile !== this.state.instagramProfileO) {
-				// 		json = {
-				// 			...json,
-				// 			instagramProfile: this.state.instagramProfile,
-				// 		};
-				// 	}
-				// 	if (this.state.pinterestProfile !== this.state.pinterestProfileO) {
-				// 		json = {
-				// 			...json,
-				// 			pinterestProfile: this.state.pinterestProfile,
-				// 		};
-				// 	}
-				// 	if (this.state.linkedInProfile !== this.state.linkedInProfileO) {
-				// 		json = {
-				// 			...json,
-				// 			linkedInProfile: this.state.linkedInProfile,
-				// 		};
-				// 	}
-				// 	await this.updateTenantSocialMediaProfile(json);
-				// }
-
-				if (
-					this.state.phoneNumber !== this.state.phoneNumberO ||
-					this.state.email !== this.state.emailO
-				) {
-					let json = {};
-					if (this.state.phoneNumber !== this.state.phoneNumberO) {
-						json = { ...json, phoneNumber: this.state.phoneNumber };
-					}
-					if (this.state.email !== this.state.emailO) {
-						json = { ...json, email: this.state.email };
-					}
-					await this.updateTenantContactDetails(json);
+				);
+				if (!isWebsiteValid) {
+					return this.setState({
+						errorwebsite: true,
+						errorwebsiteMessage: 'Invalid Website! Example Format: https://example.com',
+					});
 				}
-
-				if (this.state.address !== this.state.addressO) {
-					let json = { address: this.state.address };
-					await this.updateTenantAddress(json);
-				}
-				if (this.state.businessName !== this.state.businessNameO) {
-					let json = { businessName: this.state.businessName };
-					await this.updateTenantDetails(json);
-				}
-
-				if (
-					this.state.website != '' &&
-					this.state.website !== this.state.websiteO &&
-					validator.isURL(
-						this.state.website.includes('www')
-							? this.state.website.split('.').slice(0, 3).join('.')
-							: this.state.website.split('.').slice(0, 2).join('.'),
-					)
-				) {
+				if (this.state.website !== this.state.websiteO) {
 					let json = {
 						website: this.state.website,
 					};
-					await this.updateTenantDetailsWebsite(json);
+					this.updateTenantDetailsWebsite(json);
 				}
 			}
+
+			this.setState({ changesAllowed: false });
 			this.setState({ isLoading: false });
-			// this.props.handleClose();
 		}
 	};
 	componentDidMount = async () => {
@@ -563,7 +529,7 @@ class CompanyOverview extends Workspace {
 												marginTop: '5px',
 											}}
 											name="workspaceAddress"
-											value={this.state.tenantId + '.ve.ai'}
+											value={localStorage.getItem('workspaceId') + '.ve.ai'}
 											onChange={this.handleInputChange}
 											readOnly
 											disabled
@@ -590,13 +556,14 @@ class CompanyOverview extends Workspace {
 										style={inputStyle(false)}
 										// name={'email'}
 										// onChange={(e) => this.saveOptionalInput(e)}
-										// value={this.state.email}
+										// value={this.state}
 										// isInputError={this.state.erroremail}
 										// errorMessage={this.state.erroremailMessage}
 										// disabled={!this.state.changesAllowed}
 									>
-										<option value="light">Real Estate</option>
-										<option value="dark">Namaste</option>
+										{BusinessTypesOptions.map((ele, index) => (
+											<option value={ele?.value}>{ele.label}</option>
+										))}
 									</select>
 								</div>
 								<div
@@ -615,13 +582,14 @@ class CompanyOverview extends Workspace {
 									>
 										Company Email
 									</div>
+
 									<input
 										style={inputStyle(false)}
 										name={'email'}
 										onChange={(e) => this.saveOptionalInput(e)}
 										value={this.state.email}
-										isInputError={this.state.erroremail}
-										errorMessage={this.state.erroremailMessage}
+										isInputError={true}
+										errorMessage={'hello'}
 										disabled={!this.state.changesAllowed}
 									/>
 								</div>
@@ -666,7 +634,7 @@ class CompanyOverview extends Workspace {
 												cursor: 'pointer',
 												transition: 'color 0.5s ease',
 											}}
-											onClick={() => this.setState({ changesAllowed: false })}
+											onClick={() => this.validateForm(this.state.isAdmin)}
 										>
 											SAVE CHANGES
 										</span>
@@ -720,6 +688,7 @@ class CompanyOverview extends Workspace {
 										>
 											Business Name
 										</div>
+
 										<input
 											style={inputStyle(this.state.changesAllowed)}
 											onChange={(e) => this.saveInputValue(e)}
@@ -746,15 +715,30 @@ class CompanyOverview extends Workspace {
 									>
 										Company Email
 									</div>
-									<input
-										style={inputStyle(this.state.changesAllowed)}
-										name={'email'}
-										onChange={(e) => this.saveOptionalInput(e)}
-										value={this.state.email}
-										isInputError={this.state.erroremail}
-										errorMessage={this.state.erroremailMessage}
-										disabled={!this.state.changesAllowed}
-									/>
+									<div>
+										<input
+											style={inputStyle(this.state.changesAllowed)}
+											name={'email'}
+											onChange={(e) => this.saveOptionalInput(e)}
+											value={this.state.email}
+											disabled={!this.state.changesAllowed}
+										/>
+										{this.state.erroremail ? (
+											<span
+												style={{
+													fontSize: '12px',
+													fontWeight: '400',
+													lineHeight: '19px',
+													textAlign: 'right',
+													color: '#cc5756',
+												}}
+											>
+												{this.state.erroremailMessage}
+											</span>
+										) : (
+											''
+										)}
+									</div>
 								</div>
 								<div style={{ padding: '1rem 0 0 0' }}>
 									<div
@@ -769,16 +753,33 @@ class CompanyOverview extends Workspace {
 									>
 										Phone number
 									</div>
-									<input
-										style={inputStyle(this.state.changesAllowed)}
-										name={'phoneNumber'}
-										onChange={(e) => this.saveOptionalInput(e)}
-										value={this.state.phoneNumber}
-										isInputError={this.state.errorphoneNumber}
-										errorMessage={this.state.errorphoneNumberMessage}
-										label={'Phone Number'}
-										disabled={!this.state.changesAllowed}
-									/>
+									<div>
+										<input
+											style={inputStyle(this.state.changesAllowed)}
+											name={'phoneNumber'}
+											onChange={(e) => this.saveOptionalInput(e)}
+											value={this.state.phoneNumber}
+											isInputError={this.state.errorphoneNumber}
+											errorMessage={this.state.errorphoneNumberMessage}
+											label={'Phone Number'}
+											disabled={!this.state.changesAllowed}
+										/>
+										{this.state.errorphoneNumber ? (
+											<span
+												style={{
+													fontSize: '12px',
+													fontWeight: '400',
+													lineHeight: '19px',
+													textAlign: 'right',
+													color: '#cc5756',
+												}}
+											>
+												{this.state.errorphoneNumberMessage}
+											</span>
+										) : (
+											''
+										)}
+									</div>
 								</div>
 								<div
 									style={{
@@ -796,16 +797,30 @@ class CompanyOverview extends Workspace {
 									>
 										Addresss
 									</div>
-									<input
-										style={inputStyle(this.state.changesAllowed)}
-										name={'address'}
-										// onChange={(e) => this.saveOptionalInput(e)}
-										// value={this.state.email}
-										// isInputError={this.state.erroremail}
-										// errorMessage={this.state.erroremailMessage}
-										disabled={!this.state.changesAllowed}
-										value="15th Floor, Dallas Center, Gachibowli"
-									/>
+									<div>
+										<input
+											style={inputStyle(this.state.changesAllowed)}
+											name={'address'}
+											onChange={(e) => this.saveOptionalInput(e)}
+											value={this.state.address}
+											disabled={!this.state.changesAllowed}
+										/>
+										{this.state.erroraddress ? (
+											<span
+												style={{
+													fontSize: '12px',
+													fontWeight: '400',
+													lineHeight: '19px',
+													textAlign: 'right',
+													color: '#cc5756',
+												}}
+											>
+												{this.state.erroraddressMessage}
+											</span>
+										) : (
+											''
+										)}
+									</div>
 								</div>
 								<div
 									style={{
@@ -823,16 +838,30 @@ class CompanyOverview extends Workspace {
 									>
 										Website
 									</div>
-									<input
-										style={inputStyle(this.state.changesAllowed)}
-										name={'website'}
-										// onChange={(e) => this.saveOptionalInput(e)}
-										// value={this.state.email}
-										// isInputError={this.state.erroremail}
-										// errorMessage={this.state.erroremailMessage}
-										disabled={!this.state.changesAllowed}
-										value="https://www.studio.com"
-									/>
+									<div>
+										<input
+											style={inputStyle(this.state.changesAllowed)}
+											name={'website'}
+											onChange={(e) => this.saveInputValue(e)}
+											value={this.state.website}
+											disabled={!this.state.changesAllowed}
+										/>
+										{this.state.errorwebsite ? (
+											<span
+												style={{
+													fontSize: '12px',
+													fontWeight: '400',
+													lineHeight: '19px',
+													textAlign: 'right',
+													color: '#cc5756',
+												}}
+											>
+												{this.state.errorwebsiteMessage}
+											</span>
+										) : (
+											''
+										)}
+									</div>
 								</div>
 								{/* {this.state.changesAllowed !== undefined && (
 									<div
@@ -945,7 +974,7 @@ class CompanyOverview extends Workspace {
 									func={() => this.setState({ currencyPickerPopup: true })}
 								/>
 							</div>
-							<div
+							{/* <div
 								style={{
 									borderRadius: '40px',
 									border: '1px solid #242424A3',
@@ -1063,7 +1092,7 @@ class CompanyOverview extends Workspace {
 										func={() => this.setState({ deleteWorkspacePopup: true })}
 									/>
 								</div>
-							</div>
+							</div> */}
 						</div>
 					</div>
 				</div>
