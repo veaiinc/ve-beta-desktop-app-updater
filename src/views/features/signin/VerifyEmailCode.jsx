@@ -116,7 +116,7 @@ const VerifyEmailCode = ({
 		}
 	};
 	return (
-		<div className="stepOne" style={{ paddingTop: '40%' }}>
+		<div className="stepOne">
 			<p className="heading">We sent you a code</p>
 			<p className="description">ve simplify your sales</p>
 
