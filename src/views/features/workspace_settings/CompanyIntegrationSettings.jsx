@@ -7,6 +7,7 @@ import { ReactComponent as MetaIcon } from '../../../assets/svg/workspaceSetting
 import { ReactComponent as StripeIcon } from '../../../assets/svg/workspaceSettings/stripeIcon.svg';
 import Workspace from '../../../controllers/workspace';
 import ReusableButtonSettings from './ReusableButtonSettings';
+const { ve_conversations_api } = require('../../../services/config');
 
 class CompanyIntegrationSettings extends Workspace {
 	constructor() {
@@ -73,7 +74,7 @@ class CompanyIntegrationSettings extends Workspace {
 	handleFaceBookConnection = async () => {
 		const usertoken = await localStorage.getItem('usertoken');
 		const workspaceID = localStorage.getItem('workspaceId');
-		const link = `https://api.huemn.com/ve-conversations/1.0/oauth/${workspaceID}/login`;
+		const link = `${ve_conversations_api}/oauth/${workspaceID}/login`;
 
 		const response = await axios.get(link, {
 			headers: {
@@ -88,7 +89,6 @@ class CompanyIntegrationSettings extends Workspace {
 	};
 
 	render() {
-		// let renderedWorkspaceID = this.props.location.pathname.split('/')[1];
 		return (
 			<>
 				<div className="mainContainer1">
