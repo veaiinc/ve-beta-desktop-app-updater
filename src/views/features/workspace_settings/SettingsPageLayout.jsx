@@ -339,7 +339,7 @@ class SettingsPageLayout extends Workspace {
 										>
 											Branding
 										</div>
-										<div
+										{/* <div
 											className={
 												'settings-nav-link' +
 												(type === 'company-domain-verification-settings'
@@ -380,7 +380,7 @@ class SettingsPageLayout extends Workspace {
 											}}
 										>
 											Gallery
-										</div>
+										</div> */}
 										<div
 											className={
 												'settings-nav-link' +

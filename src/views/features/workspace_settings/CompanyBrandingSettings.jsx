@@ -80,8 +80,21 @@ class CompanyBrandingSettings extends Workspace {
 			],
 			brandingPopup: false,
 			socialMediaType: '',
+			valuesMapper: {
+				instagram: 'instagramProfile',
+				facebook: 'facebookProfile',
+				pinterest: 'pinterestProfile',
+				youtube: 'youtubeProfile',
+				linkedin: 'linkedInProfile',
+				tiktok: 'tiktokProfile',
+				spotify: 'spotifyProfile',
+				behance: 'behanceProfile',
+				telegram: 'telegramProfile',
+				steam: 'steamProfile',
+			},
 		};
 	}
+
 	validateSocialInput = (e, type) => {
 		const inputValue = e.trim(); // Remove leading and trailing spaces
 
@@ -109,312 +122,25 @@ class CompanyBrandingSettings extends Workspace {
 		}
 	};
 	saveSocialInput = async (e) => {
-		let inputError = 'error' + e.target.name;
-		let inputErrorMessage = 'error' + e.target.name + 'Message';
-		let name =
-			e.target.name === 'facebookProfile'
-				? 'facebook'
-				: e.target.name === 'instagramProfile'
-				? 'instagram'
-				: e.target.name === 'pinterestProfile'
-				? 'pinterest'
-				: 'linkedin';
-		if (
-			e.target.name === 'facebookProfile' ||
-			e.target.name === 'instagramProfile' ||
-			e.target.name === 'pinterestProfile' ||
-			e.target.name === 'linkedInProfile'
-		) {
-			if (e.target.value.length === 0) {
-				this.setState({
-					[inputError]: true,
-					[inputErrorMessage]: 'This field cannot be empty!',
-				});
-			} else if (!this.validateSocialInput(e.target.value, name)) {
-				this.setState({
-					[inputError]: true,
-					[inputErrorMessage]: `Please enter a valid ${name} URL!`,
-				});
-			} else {
-				this.setState({
-					[inputError]: false,
-					[inputErrorMessage]: '',
-				});
-			}
-			this.setState({
-				[e.target.name]: e.target.value,
-			});
+		this.setState({ [e.target.name]: e.target.value });
+		const url = e.target.value;
+		const baseUrl = url.includes('www')
+			? url.split('.').slice(0, 3).join('.')
+			: url.split('.').slice(0, 2).join('.');
+		const urlWithProtocol =
+			baseUrl.startsWith('http://') || baseUrl.startsWith('https://')
+				? baseUrl
+				: `http://${baseUrl}`;
+
+		// Validate the URL
+		const isWebsiteValid = validator.isURL(urlWithProtocol, { require_protocol: true });
+
+		if (!isWebsiteValid) {
+			return [false, 'Invalid Website! Example Format: https://example.com'];
 		}
+		return [true];
 	};
 
-	saveOptionalInput = async (e) => {
-		let inputError = 'error' + e.target.name;
-		let inputErrorMessage = 'error' + e.target.name + 'Message';
-
-		if (e.target.name === 'phoneNumber') {
-			var isPhoneNumberValid = validator.isMobilePhone(e.target.value.trim(), 'any', {
-				strictMode: true,
-			});
-			if (
-				this.state[`${e.target.name}O`].split('/').at(-1).length > 0 &&
-				e.target.value.split('/').at(-1).length === 0
-			) {
-				this.setState({
-					[inputError]: true,
-					[inputErrorMessage]: 'This field cannot be empty',
-				});
-			} else if (!isPhoneNumberValid) {
-				this.setState({
-					[inputError]: true,
-					[inputErrorMessage]: 'Invalid Phone Number! Example Format: +911234567890',
-				});
-			} else {
-				this.setState({
-					[inputError]: false,
-					[inputErrorMessage]: '',
-				});
-			}
-		}
-		if (e.target.name === 'email') {
-			var isEmailValid = validator.isEmail(e.target.value.trim());
-			if (
-				this.state[`${e.target.name}O`].split('/').at(-1).length > 0 &&
-				e.target.value.split('/').at(-1).length === 0
-			) {
-				this.setState({
-					[inputError]: true,
-					[inputErrorMessage]: 'This field cannot be empty',
-				});
-			} else if (!isEmailValid) {
-				this.setState({
-					[inputError]: true,
-					[inputErrorMessage]: 'Invalid email! Example Format: username@gmail.com',
-				});
-			} else {
-				this.setState({
-					[inputError]: false,
-					[inputErrorMessage]: '',
-				});
-			}
-		}
-		if (e.target.name === 'address') {
-			if (
-				this.state[`${e.target.name}O`].split('/').at(-1).length > 0 &&
-				e.target.value.split('/').at(-1).length === 0
-			) {
-				this.setState({
-					[inputError]: true,
-					[inputErrorMessage]: 'This field cannot be empty',
-				});
-			} else {
-				this.setState({
-					[inputError]: false,
-					[inputErrorMessage]: '',
-				});
-			}
-		}
-		this.setState({
-			[e.target.name]: e.target.value,
-		});
-		this.debouncedValidateForm();
-	};
-
-	saveInputValue = (e) => {
-		let inputError = 'error' + e.target.name;
-		let inputErrorMessage = 'error' + e.target.name + 'Message';
-
-		if (e.target.name === 'businessName') {
-			var regexbusinessName = /^[a-zA-Z0-9 ]+$/;
-			var isValidbusinessName = regexbusinessName.test(e.target.value);
-
-			if (e.target.value === '') {
-				this.setState({
-					[inputError]: true,
-					[inputErrorMessage]: 'Required Field!',
-				});
-			} else if (!isValidbusinessName) {
-				this.setState({
-					[inputError]: true,
-					[inputErrorMessage]: 'Business Name can only have alphabets',
-				});
-			} else {
-				this.setState({
-					[inputError]: false,
-					[inputErrorMessage]: '',
-				});
-			}
-		}
-
-		if (e.target.name === 'website') {
-			if (e.target.value === '') {
-				this.setState({
-					[inputError]: true,
-					[inputErrorMessage]: 'Required Field!',
-				});
-			} else if (
-				!validator.isURL(
-					this.state.website.includes('www')
-						? this.state.website.split('.').slice(0, 3).join('.')
-						: this.state.website.split('.').slice(0, 2).join('.'),
-					{ require_protocol: true },
-				)
-			) {
-				this.setState({
-					[inputError]: true,
-					[inputErrorMessage]: 'Invalid Website URL. example: https://www.website.com',
-				});
-			} else {
-				this.setState({
-					[inputError]: false,
-					[inputErrorMessage]: '',
-				});
-			}
-		}
-		if (e.target.value === '') {
-			this.setState({
-				[inputError]: true,
-				[inputErrorMessage]: 'Required Field!',
-			});
-		}
-		this.setState({
-			[e.target.name]: e.target.value,
-		});
-		this.debouncedValidateForm();
-	};
-
-	debouncedValidateForm = _.debounce(() => {
-		this.validateForm(this.state.isAdmin);
-	}, 1000);
-
-	validateForm = async (isAdmin) => {
-		if (isAdmin === true) {
-			var regexbusinessName = /^[a-zA-Z0-9 ]+$/;
-
-			var isValidbusinessName = regexbusinessName.test(this.state.businessName);
-
-			if (this.state.businessName === '' || this.state.businessName === null) {
-				this.setState({
-					errorbusinessName: true,
-					errorbusinessNameMessage: 'Required Field',
-				});
-			} else if (!isValidbusinessName) {
-				this.setState({
-					errorbusinessName: true,
-					errorbusinessNameMessage: 'Business Name can only have alphabets',
-				});
-			} else {
-				this.setState({
-					errorbusinessName: false,
-					errorbusinessNameMessage: '',
-				});
-			}
-
-			if (this.state.website === '' || this.state.website === null) {
-				this.setState({
-					errorwebsite: true,
-					errorwebsiteMessage: 'Required Field!',
-				});
-			} else if (
-				!validator.isURL(
-					this.state.website.includes('www')
-						? this.state.website.split('.').slice(0, 3).join('.')
-						: this.state.website.split('.').slice(0, 2).join('.'),
-					{ require_protocol: true },
-				)
-			) {
-				this.setState({
-					errorwebsite: true,
-					errorwebsiteMessage: 'Invalid Website URL. example: https://www.website.com',
-				});
-			} else {
-				this.setState({
-					errorwebsite: false,
-					errorwebsiteMessage: '',
-				});
-			}
-
-			if (
-				this.state.businessName !== '' &&
-				isValidbusinessName &&
-				!this.state.errorbusinessName &&
-				!this.state.errorwebsite &&
-				!this.state.errorphoneNumber &&
-				!this.state.erroremail &&
-				!this.state.erroraddress
-			) {
-				// if (
-				// 	this.state.facebookProfile !== this.state.facebookProfileO ||
-				// 	this.state.instagramProfile !== this.state.instagramProfileO ||
-				// 	this.state.pinterestProfile !== this.state.pinterestProfileO ||
-				// 	this.state.linkedInProfile !== this.state.linkedInProfileO
-				// ) {
-				// 	let json = {};
-				// 	if (this.state.facebookProfile !== this.state.facebookProfileO) {
-				// 		json = { facebookProfile: this.state.facebookProfile };
-				// 	}
-				// 	if (this.state.instagramProfile !== this.state.instagramProfileO) {
-				// 		json = {
-				// 			...json,
-				// 			instagramProfile: this.state.instagramProfile,
-				// 		};
-				// 	}
-				// 	if (this.state.pinterestProfile !== this.state.pinterestProfileO) {
-				// 		json = {
-				// 			...json,
-				// 			pinterestProfile: this.state.pinterestProfile,
-				// 		};
-				// 	}
-				// 	if (this.state.linkedInProfile !== this.state.linkedInProfileO) {
-				// 		json = {
-				// 			...json,
-				// 			linkedInProfile: this.state.linkedInProfile,
-				// 		};
-				// 	}
-				// 	await this.updateTenantSocialMediaProfile(json);
-				// }
-
-				if (
-					this.state.phoneNumber !== this.state.phoneNumberO ||
-					this.state.email !== this.state.emailO
-				) {
-					let json = {};
-					if (this.state.phoneNumber !== this.state.phoneNumberO) {
-						json = { ...json, phoneNumber: this.state.phoneNumber };
-					}
-					if (this.state.email !== this.state.emailO) {
-						json = { ...json, email: this.state.email };
-					}
-					await this.updateTenantContactDetails(json);
-				}
-
-				if (this.state.address !== this.state.addressO) {
-					let json = { address: this.state.address };
-					await this.updateTenantAddress(json);
-				}
-				if (this.state.businessName !== this.state.businessNameO) {
-					let json = { businessName: this.state.businessName };
-					await this.updateTenantDetails(json);
-				}
-
-				if (
-					this.state.website != '' &&
-					this.state.website !== this.state.websiteO &&
-					validator.isURL(
-						this.state.website.includes('www')
-							? this.state.website.split('.').slice(0, 3).join('.')
-							: this.state.website.split('.').slice(0, 2).join('.'),
-					)
-				) {
-					let json = {
-						website: this.state.website,
-					};
-					await this.updateTenantDetailsWebsite(json);
-				}
-			}
-			this.setState({ isLoading: false });
-			// this.props.handleClose();
-		}
-	};
 	componentDidMount = async () => {
 		let usertoken = localStorage.getItem('usertoken');
 		let decoded = jwt_decode(usertoken);
@@ -475,7 +201,6 @@ class CompanyBrandingSettings extends Workspace {
 	};
 
 	render() {
-		let renderedWorkspaceID = localStorage.getItem('workspaceId');
 		return (
 			<>
 				<div className="mainContainer1">
@@ -902,17 +627,26 @@ class CompanyBrandingSettings extends Workspace {
 				</div>
 				{this.state.brandingPopup && (
 					<CompanyBrandingPopup
-						handleClose={() => this.setState({ brandingPopup: false })}
+						handleClose={() =>
+							this.setState({ brandingPopup: false, socialMediaType: '' })
+						}
 						show={this.state.brandingPopup}
 						modalType={'center'}
 					/>
 				)}
+
 				{this.state.socialMediaPopup && (
 					<CompanySocialMediaPopup
 						handleClose={() => this.setState({ socialMediaPopup: false })}
 						show={this.state.socialMediaPopup}
 						modalType={'center'}
 						logo={this.state.socialMediaType}
+						value={
+							this.state?.[this.state.valuesMapper?.[this.state.socialMediaType]] ||
+							''
+						}
+						onChangeFunc={this.saveSocialInput}
+						name={this?.state?.valuesMapper?.[this.state.socialMediaType]}
 					/>
 				)}
 				{this.state.fontPopup && (

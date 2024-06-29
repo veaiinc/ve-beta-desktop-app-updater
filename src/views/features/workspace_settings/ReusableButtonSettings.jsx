@@ -1,5 +1,6 @@
 import React from 'react';
 import { ReactComponent as DownArrow } from '../../../assets/svg/chat/downArrow.svg';
+import Spinner from '../../components/loaders/Spinner';
 
 const ReusableButtonSettings = ({
 	text,
@@ -9,6 +10,7 @@ const ReusableButtonSettings = ({
 	downArrow = false,
 	onClickFunc = null,
 	href = null,
+	loader = false,
 }) => {
 	return (
 		<div
@@ -30,6 +32,12 @@ const ReusableButtonSettings = ({
 			<div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 				{icon && <span style={{ display: 'flex', alignItems: 'center' }}>{icon}</span>}
 				<span>{text}</span>
+
+				{loader ? (
+					<Spinner width="10px" height={'10px'} cssstyle={{ border: '1px solid #fff' }} />
+				) : (
+					''
+				)}
 				{downArrow && (
 					<span
 						style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}

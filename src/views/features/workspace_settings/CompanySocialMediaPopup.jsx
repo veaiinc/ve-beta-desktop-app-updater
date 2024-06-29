@@ -7,12 +7,52 @@ import { ReactComponent as CrossIcon } from '../../../assets/svg/workspaceSettin
 class CompanySocialMediaPopup extends TenantController {
 	constructor(props) {
 		super(props);
-		this.state = {};
+		this.state = {
+			error: false,
+			errorMessage: '',
+			changes: false,
+		};
 	}
 
 	componentDidMount = async () => {};
+	componentWillUnmount = async () => {
+		this.setState({ error: false, errorMessage: '' });
+	};
 
 	render() {
+		const { name, onChangeFunc, value } = this.props;
+
+		const handleInputChange = async (e) => {
+			this.setState({
+				error: false,
+				errorMessage: '',
+				changes: true,
+			});
+			const response = await onChangeFunc(e);
+			if (!response?.[0]) {
+				this.setState({
+					error: true,
+					errorMessage: response?.[1],
+				});
+			}
+		};
+
+		const handleSaveLinkChanges = async () => {
+			if (this.state.changes) {
+				if (!value?.length) {
+					return this.setState({
+						error: true,
+						errorMessage: 'Invalid Url',
+					});
+				}
+
+				const json = {
+					[name]: value,
+				};
+				this.updateTenantSocialMediaProfile(json);
+			}
+			this.props.handleClose();
+		};
 		return (
 			<Modal
 				handleClose={this.props.handleClose}
@@ -77,12 +117,25 @@ class CompanySocialMediaPopup extends TenantController {
 									fontFamily: 'Inter',
 								}}
 								placeholder="Type here.."
-								// onChange={(e) => this.saveInputValue(e)}
-								// value={this.state.businessName}
-								// isInputError={this.state.errorbusinessName}
-								// errorMessage={this.state.errorbusinessNameMessage}
-								// disabled={!this.state.changesAllowed}
+								onChange={(e) => handleInputChange(e)}
+								value={value}
+								name={name}
 							/>
+							{this.state.error ? (
+								<span
+									style={{
+										fontSize: '12px',
+										fontWeight: '400',
+										lineHeight: '19px',
+										textAlign: 'right',
+										color: '#cc5756',
+									}}
+								>
+									{this.state.errorMessage}
+								</span>
+							) : (
+								''
+							)}
 						</div>
 					</div>
 					<div
@@ -112,7 +165,7 @@ class CompanySocialMediaPopup extends TenantController {
 									fontFamily: 'Inter Medium',
 									textAlign: 'center',
 								}}
-								onClick={() => this.props.handleClose()}
+								onClick={handleSaveLinkChanges}
 							>
 								<div>
 									<span>

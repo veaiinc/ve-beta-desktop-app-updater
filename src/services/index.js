@@ -32,7 +32,6 @@ const processResponse = async (response) => {
 
 const apiFetch = async (url, method, body, token, type) => {
 	const endpoint = apiEndpoints[type] + url;
-	console.log(endpoint);
 	const headers = handleHeaders(token, body, type);
 	if (body) {
 		body = JSON.stringify(body);

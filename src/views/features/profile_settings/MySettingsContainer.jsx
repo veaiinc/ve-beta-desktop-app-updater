@@ -986,6 +986,18 @@ class MySettingsContainer extends Workspace {
 			clearTimeout(this.closeUpdateAllowed);
 		}
 	}
+
+	handleChooseDefaultWorkspace = async (data) => {
+		if (this.state.defaultWorkspace?.tenant_id === data?.tenant_id) {
+			return;
+		}
+		this.setState({ defaultWorkspace: data });
+		const payload = {
+			tenantId: data?.tenant_id,
+			order: 1,
+		};
+		this.chooseDefaultWorkspace(payload);
+	};
 	render() {
 		const inputStyle = (enabled) => ({
 			borderRadius: '10px',
@@ -1303,8 +1315,8 @@ class MySettingsContainer extends Workspace {
 													}
 												/>
 												<p>
-													<legend>STEP 4</legend> Enter your loveco
-													account password
+													<legend>STEP 4</legend> Enter your ve account
+													password
 												</p>
 												<Input
 													type={'text'}
@@ -1338,7 +1350,7 @@ class MySettingsContainer extends Workspace {
 									''
 								)}
 							</div>
-							<div
+							{/* <div
 								style={{
 									borderRadius: '40px',
 									border: '1px solid #242424A3',
@@ -1434,8 +1446,8 @@ class MySettingsContainer extends Workspace {
 										<span>Dark</span>
 									</div>
 								</div>
-							</div>
-							<div
+							</div> */}
+							{/* <div
 								style={{
 									borderRadius: '40px',
 									border: '1px solid #242424A3',
@@ -1593,7 +1605,7 @@ class MySettingsContainer extends Workspace {
 										)}
 									</div>
 								))}
-							</div>
+							</div> */}
 							<div
 								style={{
 									borderRadius: '40px',
@@ -1698,6 +1710,7 @@ class MySettingsContainer extends Workspace {
 												rowGap: '13px',
 											}}
 										>
+											{console.log('hello', this.state.workspaceList)}
 											{this.state.workspaceList?.map((value, index) => (
 												<ReusableButtonSettings
 													text={value?.businessName}
@@ -1708,7 +1721,7 @@ class MySettingsContainer extends Workspace {
 															: false
 													}
 													func={() =>
-														this.setState({ defaultWorkspace: value })
+														this.handleChooseDefaultWorkspace(value)
 													}
 												/>
 											))}
