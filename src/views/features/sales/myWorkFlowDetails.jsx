@@ -86,10 +86,10 @@ function MyWorkFlowDetails(props) {
 
 			setProposalData(
 				page == null || page === 1
-					? [...response[1].data]
-					: [...proposalData, ...response[1].data],
+					? [...(response[1]?.data || [])]
+					: [...proposalData, ...(response[1]?.data || [])],
 			);
-			if (response[1].totalPages > metaData['page']) {
+			if (response[1]?.totalPages > metaData['page']) {
 				setMetaData((prevState) => ({
 					...prevState,
 					page: metaData['page'] + 1,
@@ -135,8 +135,8 @@ function MyWorkFlowDetails(props) {
 						<LeftArrow />
 					</a>
 					<p>
-						{templateDetails.title}{' '}
-						<a href={`https://builder.ve.co/${templateDetails._id}`}>
+						{templateDetails?.title}{' '}
+						<a href={`https://builder.ve.co/${templateDetails?._id}`}>
 							<span>(EDIT)</span>
 						</a>
 					</p>
