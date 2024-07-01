@@ -15,48 +15,22 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 		items: [
 			{
 				label: 'Company Profile',
-				onClickFunc: async () => {
-					const result = await validateUrlBeforeNavigation('Company Profile');
-					return !result
-						? navigate('/workspace-settings/company-overview-settings')
-						: null;
-				},
+				onClickFunc: async () => navigate('/workspace-settings/company-overview-settings'),
 			},
 			{
 				label: 'My Profile',
-				onClickFunc: async () => {
-					const result = await validateUrlBeforeNavigation('My Profile');
-					return !result ? navigate('/my-profile') : null;
-				},
+				onClickFunc: async () => navigate('/my-profile'),
 			},
 			{
 				label: 'Create Workspace',
-				onClickFunc: async () => {
-					navigate('/create-workspace');
-				},
+				onClickFunc: async () => navigate('/create-workspace'),
 			},
 			{
 				label: `Switch Workspace (${accessibleWorkspaces?.length})`,
-				onClickFunc: () => {
-					setInfo((prev) => ({ ...prev, switchWorkspaceModal: true }));
-				},
+				onClickFunc: () => setInfo((prev) => ({ ...prev, switchWorkspaceModal: true })),
 			},
 		],
 	});
-
-	const validateUrlBeforeNavigation = useCallback(
-		async (validateType) => {
-			if (validateType === 'Company Profile') {
-				const { type } = params;
-				return type ? true : false;
-			}
-			if (validateType === 'My Profile') {
-				const splitUrl = window.location.href?.split('/');
-				return splitUrl?.[splitUrl?.length - 1] === 'my-profile' ? true : false;
-			}
-		},
-		[params],
-	);
 
 	const closeSwitchModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, switchWorkspaceModal: false }));

@@ -7,6 +7,7 @@ import { ReactComponent as MetaIcon } from '../../../assets/svg/workspaceSetting
 import { ReactComponent as StripeIcon } from '../../../assets/svg/workspaceSettings/stripeIcon.svg';
 import Workspace from '../../../controllers/workspace';
 import ReusableButtonSettings from './ReusableButtonSettings';
+const { ve_conversations_api } = require('../../../services/config');
 
 class CompanyIntegrationSettings extends Workspace {
 	constructor() {
@@ -30,6 +31,8 @@ class CompanyIntegrationSettings extends Workspace {
 			clicked: '',
 			isAdmin: false,
 			openMoreFacebook: false,
+			loader: false,
+			metaInteg: null,
 		};
 	}
 	componentDidMount = async () => {
@@ -46,6 +49,7 @@ class CompanyIntegrationSettings extends Workspace {
 				});
 			}
 		}
+		this.getMetaPageUsersList();
 	};
 
 	handlethemeChange = async (theme) => {
@@ -71,9 +75,16 @@ class CompanyIntegrationSettings extends Workspace {
 	}
 
 	handleFaceBookConnection = async () => {
+		if (this.state.loader) {
+			return;
+		}
+		if (this.state.metaInteg) {
+			return;
+		}
+		this.setState({ loader: true });
 		const usertoken = await localStorage.getItem('usertoken');
 		const workspaceID = localStorage.getItem('workspaceId');
-		const link = `https://api.huemn.com/ve-conversations/1.0/oauth/${workspaceID}/login`;
+		const link = `${ve_conversations_api}/oauth/${workspaceID}/login`;
 
 		const response = await axios.get(link, {
 			headers: {
@@ -82,13 +93,15 @@ class CompanyIntegrationSettings extends Workspace {
 		});
 
 		if (response.status === 200) {
+			this.setState({ loader: false });
 			const url = response?.data;
 			window.location.href = url;
+		} else {
+			this.setState({ loader: false });
 		}
 	};
 
 	render() {
-		// let renderedWorkspaceID = this.props.location.pathname.split('/')[1];
 		return (
 			<>
 				<div className="mainContainer1">
@@ -111,7 +124,7 @@ class CompanyIntegrationSettings extends Workspace {
 						>
 							<div
 								style={{
-									fontFamily: 'Inter Medium',
+									fontFamily: 'Inter',
 									fontSize: '16px',
 									color: '#e4e5e6',
 									lineHeight: '24px',
@@ -144,7 +157,7 @@ class CompanyIntegrationSettings extends Workspace {
 									>
 										<div
 											style={{
-												fontFamily: 'Inter Medium',
+												fontFamily: 'Inter',
 												fontSize: '13px',
 												color: '#e4e5e6',
 												lineHeight: '21px',
@@ -188,11 +201,22 @@ class CompanyIntegrationSettings extends Workspace {
 									}}
 								>
 									<ReusableButtonSettings
-										text={'Facebook'}
+										text={`Facebook (${
+											!this.state.metaInteg ? 'Pending' : 'Connected'
+										})`}
 										func={this.handleFaceBookConnection}
+										loader={this.state.loader}
 									/>
-									<ReusableButtonSettings text={'Whatsapp (Pending)'} />
-									<ReusableButtonSettings text={'Instagram (Pending)'} />
+									<ReusableButtonSettings
+										text={`Whatsapp (${
+											!this.state.metaInteg ? 'Pending' : 'Connected'
+										})`}
+									/>
+									<ReusableButtonSettings
+										text={`Instagram (${
+											!this.state.metaInteg ? 'Pending' : 'Connected'
+										})`}
+									/>
 								</div>
 							)}
 							<div
@@ -226,7 +250,7 @@ class CompanyIntegrationSettings extends Workspace {
 									>
 										<div
 											style={{
-												fontFamily: 'Inter Medium',
+												fontFamily: 'Inter',
 												fontSize: '13px',
 												color: '#e4e5e6',
 												lineHeight: '21px',
@@ -279,7 +303,7 @@ class CompanyIntegrationSettings extends Workspace {
 									>
 										<div
 											style={{
-												fontFamily: 'Inter Medium',
+												fontFamily: 'Inter',
 												fontSize: '13px',
 												color: '#e4e5e6',
 												lineHeight: '21px',

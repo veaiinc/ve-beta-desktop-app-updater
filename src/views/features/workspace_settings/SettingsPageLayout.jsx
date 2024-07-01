@@ -33,7 +33,7 @@ class SettingsPageLayout extends Workspace {
 		const workspaceID = localStorage.getItem('workspaceId');
 		await this.getTenantUserDetails(decoded.user_id, workspaceID);
 
-		let activeLink = this.props.type;
+		// let activeLink = this.props.type;
 		// if (_.has(this.props.location.state, 'isExpanded')) {
 		// 	this.setState({ isExpanded: this.props.location.state.isExpanded });
 		// }
@@ -158,7 +158,7 @@ class SettingsPageLayout extends Workspace {
 												borderRadius: '100%',
 												display: 'flex',
 												alignItems: 'center',
-												fontFamily: 'Inter Medium',
+												fontFamily: 'Inter',
 												fontSize: '12px',
 												fontWeight: '500',
 												lineHeight: '16px',
@@ -339,7 +339,7 @@ class SettingsPageLayout extends Workspace {
 										>
 											Branding
 										</div>
-										<div
+										{/* <div
 											className={
 												'settings-nav-link' +
 												(type === 'company-domain-verification-settings'
@@ -380,7 +380,7 @@ class SettingsPageLayout extends Workspace {
 											}}
 										>
 											Gallery
-										</div>
+										</div> */}
 										<div
 											className={
 												'settings-nav-link' +

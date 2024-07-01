@@ -32,7 +32,9 @@
 			line-height: 1rem; /* 145.455% */
 		}
 	}
-	textarea {
+
+	textarea,
+	select {
 		width: 100%;
 
 		display: flex;
@@ -57,16 +59,20 @@
 		min-height: 40px;
 
 		resize: vertical;
+
+		.placeholder {
+			color: #aaa;
+		}
 	}
 
 	.inputBox {
 		width: 100%;
 
 		display: flex;
-		padding: 0.6875rem 0.875rem;
 		align-items: center;
 		gap: 0.625rem;
 		align-self: stretch;
+		padding: 0 0.875rem;
 
 		border-radius: 0.625rem;
 		border: 1px solid rgba(36, 36, 36, 0.64);
@@ -92,8 +98,9 @@
 			font-weight: 400;
 			line-height: 1.625rem;
 
+			padding: 0.6875rem 0;
 			background-color: transparent;
-			height: 184%;
+			height: 100%;
 			border: 0;
 			width: 100%;
 		}
@@ -101,6 +108,10 @@
 		.PhoneInput {
 			width: 100%;
 		}
+	}
+
+	.inputBoxError {
+		border: 1px solid rgba(204, 87, 86, 0.48);
 	}
 }
 

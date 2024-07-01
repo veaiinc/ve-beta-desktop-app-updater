@@ -471,7 +471,7 @@ class GallerySettingsPopup extends ProjectController {
 																		// marginTop: '1rem',
 																		// display: 'inline-block',
 																		fontSize: '13px',
-																		fontFamily: 'Inter Medium',
+																		fontFamily: 'Inter',
 																		textAlign: 'center',
 																	}}
 																>
@@ -594,7 +594,7 @@ class GallerySettingsPopup extends ProjectController {
 						>
 							<span
 								style={{
-									fontFamily: 'Inter Medium',
+									fontFamily: 'Inter',
 									fontSize: '16px',
 									color: '#e4e5e6',
 									lineHeight: '24px',
@@ -720,7 +720,7 @@ class GallerySettingsPopup extends ProjectController {
 										// marginTop: '1rem',
 										// display: 'inline-block',
 										fontSize: '13px',
-										fontFamily: 'Inter Medium',
+										fontFamily: 'Inter',
 										textAlign: 'center',
 									}}
 									onClick={this.props.handleClose}

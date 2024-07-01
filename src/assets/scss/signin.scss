@@ -259,6 +259,37 @@
 		}
 	}
 }
+.businessTypeDropDown {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-bottom: 12px;
+
+	label {
+		color: #e4e5e6;
+		font-family: 'Inter';
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 24px;
+	}
+	// select {
+	// 	height: 48px;
+	// 	padding: 12px 24px;
+	// 	border-radius: 20px;
+	// 	border: 1px solid #222;
+	// 	background: #111;
+	// 	color: #e4e5e6;
+	// }
+
+	//
+	//
+	// font-family: "Inter";
+	// font-size: 12px;
+	// font-style: normal;
+	// font-weight: 500;
+	// line-height: 24px;
+}
 
 .creatorsCard {
 	min-width: 284px;

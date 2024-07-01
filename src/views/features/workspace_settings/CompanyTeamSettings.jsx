@@ -142,9 +142,9 @@ class CompanyTeamSettings extends ProjectController {
 			//while closing mkodal ,deleting search query coming from kbar
 			let queryParams = new URLSearchParams(this.props?.location?.search);
 			queryParams.delete('addTeamMember');
-			this?.props?.history?.replace({
-				search: queryParams.toString(),
-			});
+			// this.props.history.replace({
+			// 	search: queryParams.toString(),
+			// });
 		}
 		this.setState({
 			showAddTenantUserModal: !this.state.showAddTenantUserModal,
@@ -173,14 +173,8 @@ class CompanyTeamSettings extends ProjectController {
 			page: 1,
 			limit: 15 * this.state.currentViewPage,
 		};
-
-		// if (this.state.mainFilter !== 'all') {
-		// 	shootsVariables.role = this.state.mainFilter === 'admins' ? 'admin' : 'default';
-		// }
 		if (this.state.searchQuery.trim().length !== 0) {
 			shootsVariables.search = this.state.searchQuery.trim();
-			// shootsVariables.deliverableDefaultFiltersFilters2.search =
-			// 	this.state.searchQuery.trim();
 		}
 		if (this.state.mainFilter !== 'invitations pending') {
 			await this.getTeamMembersList(shootsVariables, null);
@@ -193,81 +187,24 @@ class CompanyTeamSettings extends ProjectController {
 		}
 	};
 	fetchMoreProjects = async () => {
-		// let advFilters = _.filter(this.state.filtersList, { isActive: true });
-
 		if (this.state.currentViewPage == 1) {
 			this.setState({
 				isLoading: true,
 			});
 		}
-
 		let shootsVariables;
 		shootsVariables = {
 			page: this.state.currentViewPage,
 			limit: 15,
 		};
-		// if (_.size(advFilters) > 0) {
-		// 	shootsVariables.appAccess = {};
-
-		// 	if (_.size(_.filter(advFilters, { filterKey: 'projects' })) > 0) {
-		// 		let projectsFilter = _.filter(advFilters, { filterKey: 'projects' })[0];
-		// 		let option = _.filter(projectsFilter.options, { isActive: true })[0];
-		// 		shootsVariables.appAccess.project = [option.value];
-		// 		shootsVariables.role = 'default';
-		// 	}
-		// 	if (_.size(_.filter(advFilters, { filterKey: 'galleries' })) > 0) {
-		// 		let galleriesFilter = _.filter(advFilters, { filterKey: 'galleries' })[0];
-		// 		let option = _.filter(galleriesFilter.options, { isActive: true })[0];
-		// 		shootsVariables.appAccess.gallery = [option.value];
-		// 		shootsVariables.role = 'default';
-		// 	}
-		// 	if (_.size(_.filter(advFilters, { filterKey: 'proposals' })) > 0) {
-		// 		let proposalsFilter = _.filter(advFilters, { filterKey: 'proposals' })[0];
-		// 		let option = _.filter(proposalsFilter.options, { isActive: true })[0];
-		// 		shootsVariables.appAccess.proposal = [option.value];
-		// 		shootsVariables.role = 'default';
-		// 	}
-		// 	if (_.size(_.filter(advFilters, { filterKey: 'forms' })) > 0) {
-		// 		let formsFilter = _.filter(advFilters, { filterKey: 'forms' })[0];
-		// 		let option = _.filter(formsFilter.options, { isActive: true })[0];
-		// 		shootsVariables.appAccess.form = [option.value];
-		// 		shootsVariables.role = 'default';
-		// 	}
-		// }
-
-		// if (this.state.mainFilter !== 'all') {
-		// 	shootsVariables.role = this.state.mainFilter === 'admins' ? 'admin' : 'default';
-		// }
 		if (this.state.searchQuery.trim().length !== 0) {
 			shootsVariables.search = this.state.searchQuery.trim();
-			// shootsVariables.deliverableDefaultFiltersFilters2.search =
-			// 	this.state.searchQuery.trim();
 		}
-		// if (this.state.mainFilter !== 'invitations pending') {
 		await this.getTeamMembersList(
 			shootsVariables,
 			this.state.currentViewPage == 1 ? null : 'add',
 		);
-		// } else {
-		// 	delete shootsVariables.role;
-		// 	await this.getInvitedTeamMembersList(
-		// 		shootsVariables,
-		// 		this.state.currentViewPage == 1 ? null : 'add',
-		// 	);
-		// }
 	};
-	// onClickNextPage = async () => {
-	// 	if (this.state.currentViewPage < this.state.totalPages) {
-	// 		this.setState(
-	// 			{
-	// 				currentViewPage: this.state.currentViewPage + 1,
-	// 			},
-	// 			async () => {
-	// 				await this.fetchMoreProjects();
-	// 			},
-	// 		);
-	// 	}
-	// };
 	componentDidMount = async () => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const paramValue = urlParams.get('addTeamMember');
@@ -280,7 +217,6 @@ class CompanyTeamSettings extends ProjectController {
 		let usertoken = localStorage.getItem('usertoken');
 		let decoded = jwt_decode(usertoken);
 		let workspaceId = localStorage.getItem('workspaceId');
-
 		if (localStorage.getItem(`userThemePref::${workspaceId}::${decoded.user_id}`)) {
 			let currentTheme = localStorage.getItem(
 				`userThemePref::${workspaceId}::${decoded.user_id}`,
@@ -323,10 +259,7 @@ class CompanyTeamSettings extends ProjectController {
 		let queryParams = new URLSearchParams(this.props?.location?.search);
 		let mainFilter = this.state.mainFilter;
 		let currentViewPage = this.state.currentViewPage;
-		let getUsersFilters = {
-			// page: currentViewPage,
-			// limit: 15,
-		};
+		let getUsersFilters = {};
 		if (queryParams.has('filter') && queryParams.get('filter') !== 'all') {
 			getUsersFilters.role = queryParams.get('filter') === 'admins' ? 'admin' : 'default';
 			mainFilter = queryParams.get('filter');
@@ -346,31 +279,8 @@ class CompanyTeamSettings extends ProjectController {
 		this.setState({
 			isLoading: false,
 		});
-		// if (this.state.mainFilter !== 'invitations pending') {
-		// 	await this.getTeamMembersList(
-		// 		getUsersFilters,
-		// 		this.state.currentViewPage == 1 ? null : 'add',
-		// 	);
-		// } else {
-		// 	delete getUsersFilters.role;
-		// 	await this.getInvitedTeamMembersList(
-		// 		getUsersFilters,
-		// 		this.state.currentViewPage == 1 ? null : 'add',
-		// 	);
-		// }
-
 		this.setState({ isLoading: false });
-
 		await this.getTeamMembers('users');
-		// if (this.props.invitation === true) {
-		// 	await this.getTenantInviteDetails(this.state.selectedUserId);
-		// } else if (this.props.invitation === false) {
-		// 	await this.getTenantUserDetails(
-		// 		this.state.selectedUserId,
-		// 		this.props.match.params.workspaceID,
-		// 	);
-		// }
-
 		await this.getTenantSubscriptionDetails(workspaceId);
 	};
 
@@ -426,10 +336,7 @@ class CompanyTeamSettings extends ProjectController {
 		let json = {
 			accessControls: updatedAccessControls,
 		};
-
-		// if (this.props.invitation === false)
 		this.updateTenantUserAccessControls(this.state.selectedUserId, json);
-		// else this.updateTenantInviteAccessControls(this.state.selectedUserId, json);
 	};
 
 	handleChangeAccess = (type, val) => {
@@ -447,23 +354,16 @@ class CompanyTeamSettings extends ProjectController {
 
 	handleChangeProjectFinanceAccess = (type, isEnabled, hasFullAccess, hasFinanceAccess) => {
 		let policy = [{ app: type, isEnabled, hasFullAccess, hasFinanceAccess }];
-
 		let accessControls = _.remove(this.state.accessControls, function (access) {
 			return access.app != type;
 		});
-
 		let updatedAccessControls;
-
 		updatedAccessControls = [...accessControls, ...policy];
-
 		this.setState({ accessControls: updatedAccessControls });
 		let json = {
 			accessControls: updatedAccessControls,
 		};
-
-		// if (this.props.invitation === false)
 		this.updateTenantUserAccessControls(this.state.selectedUserId, json);
-		// else this.updateTenantInviteAccessControls(this.state.selectedUserId, json);
 	};
 	handleCancel = () => {
 		this.setState({
@@ -483,7 +383,6 @@ class CompanyTeamSettings extends ProjectController {
 	};
 
 	handleSaveChanges1 = async (type) => {
-		// if (this.props.invitation === false) {
 		if (this.state.tenantTempUserRole !== this.state.tenantUserRole) {
 			const response = await this.updateTenantUserRole(
 				this.state.selectedUserId,
@@ -503,13 +402,6 @@ class CompanyTeamSettings extends ProjectController {
 				}
 			}
 		}
-		// } else if (this.props.invitation === true) {
-		// 	let json = {
-		// 		role: this.state.tenantTempUserRole,
-		// 		accessControls: this.state.accessControls,
-		// 	};
-		// 	this.updateTenantInviteAccessControls(this.state.selectedUserId, json);
-		// }
 	};
 
 	handleResendInvite = () => {
@@ -531,7 +423,6 @@ class CompanyTeamSettings extends ProjectController {
 	};
 
 	handleSaveChanges = async (type) => {
-		// if (this.props.invitation === false) {
 		if (this.state.tenantTempUserRole !== this.state.tenantUserRole) {
 			await this.updateTenantUserRole(
 				this.state.selectedUserId,
@@ -543,7 +434,6 @@ class CompanyTeamSettings extends ProjectController {
 			}, 0);
 			// }
 		} else {
-			// if (this.props.invitation === true) {
 			let json = {
 				role: this.state.tenantTempUserRole,
 				accessControls: this.state.accessControls,
@@ -703,7 +593,7 @@ class CompanyTeamSettings extends ProjectController {
 							<div
 								style={{
 									fontSize: '16px',
-									fontStyle: 'Inter SemiBold',
+									fontStyle: 'Inter',
 									color: '#e4e5e6',
 								}}
 							>
@@ -840,63 +730,11 @@ class CompanyTeamSettings extends ProjectController {
 						}}
 					>
 						<div className="access-permissions-wrapper">
-							<div className="upper-title-desc-container">
-								{/* <div className="access-desc-details">
-									{this.state.tenantTempUserRole === 'default' ? 'Cannot' : 'Can'}{' '}
-									invite new members to this workspace <br />
-									{this.state.tenantTempUserRole === 'default'
-										? 'Cannot'
-										: 'Can'}{' '}
-									change roles and permissions of other members in this workspace
-									<br />
-									{_.map(
-										_.uniq(this.state.subscriptionDetails.apps),
-										(appName, key) => {
-											let filterData = _.filter(this.state.accessControls, {
-												app: appName,
-											});
-											let userAppAccess =
-												_.size(filterData) > 0
-													? filterData[0]
-													: {
-															app: appName,
-															isEnabled: false,
-															hasFullAccess: false,
-													  };
-											return userAppAccess['hasFullAccess'] === true &&
-												userAppAccess['isEnabled'] === true ? (
-												<>
-													Has complete access to all {appName}
-													<br />
-												</>
-											) : userAppAccess['isEnabled'] === true &&
-											  userAppAccess['hasFullAccess'] === false ? (
-												<>
-													Has complete access to all {appName} Can create
-													new
-													{appName} in this workspace <br />
-													Can see, edit, send and delete all {appName} in
-													this work space
-												</>
-											) : (
-												`Doesn’t have access to ${appName}`
-											);
-										},
-									)}
-								</div> */}
-							</div>
+							<div className="upper-title-desc-container"></div>
 							<div
 								className="lower-access-permission-container"
 								style={{ height: 'fit-content' }}
 							>
-								{/* <div className="permission-header-container">
-									<div className="permission-header-wrapper">
-										<span className="permission-header-title">FEATURE</span>
-										<span className="permission-header-title">
-											ACCESS LEVEL
-										</span>
-									</div>
-								</div> */}
 								{_.map(
 									_.uniq(this.state.subscriptionDetails.apps),
 									(appName, key) => {
@@ -1109,23 +947,6 @@ class CompanyTeamSettings extends ProjectController {
 																	{'Show Finances'}
 																</span>
 															</div>
-															{/* {appName === 'proposal' ? (
-																<div
-																	className={
-																		userAppAccess[
-																			'isEnabled'
-																		] === true &&
-																		appName === 'proposal'
-																			? 'extra-edit-toggle-container'
-																			: 'extra-edit-toggle-container active'
-																	}
-																	style={{
-																		cursor: 'not-allowed',
-																	}}
-																>
-																	<span className="extra-edit-toggle-head"></span>
-																</div>
-															) : ( */}
 														</div>
 													) : (
 														''
@@ -1148,7 +969,6 @@ class CompanyTeamSettings extends ProjectController {
 						backgroundColor: '#111111',
 						borderBottomRightRadius: '40px',
 						borderBottomLeftRadius: '40px',
-						// padding: '0 2rem 2rem 2rem',
 						maxWidth: '720px',
 						width: '100%',
 					}}
@@ -1163,10 +983,8 @@ class CompanyTeamSettings extends ProjectController {
 								borderRadius: '100px',
 								padding: '16px 24px',
 								height: '48px',
-								// marginTop: '1rem',
-								// display: 'inline-block',
 								fontSize: '13px',
-								fontFamily: 'Inter Medium',
+								fontFamily: 'Inter',
 								textAlign: 'center',
 							}}
 							onClick={async () => {
@@ -1192,7 +1010,7 @@ class CompanyTeamSettings extends ProjectController {
 					<div
 						style={{
 							position: 'relative',
-							//marginTop: '5rem',
+							// marginTop: '5rem',
 							marginBottom: '2rem',
 							width: '100%',
 						}}
@@ -1211,7 +1029,7 @@ class CompanyTeamSettings extends ProjectController {
 						>
 							<div
 								style={{
-									fontFamily: 'Inter Medium',
+									fontFamily: 'Inter',
 									fontSize: '16px',
 									color: '#e4e5e6',
 									lineHeight: '24px',
@@ -1230,7 +1048,7 @@ class CompanyTeamSettings extends ProjectController {
 							<div style={{ display: 'flex', gap: '10px' }}>
 								<div
 									style={{
-										fontFamily: 'Inter Medium',
+										fontFamily: 'Inter',
 										fontSize: '16px',
 										color: '#e4e5e6',
 										marginBottom: '1rem',
@@ -1317,28 +1135,8 @@ class CompanyTeamSettings extends ProjectController {
 										marginLeft: '0.5rem',
 									}}
 								>
-									{/* <div
-										style={{
-											borderRadius: '4px',
-											backgroundColor: '#3F8AE2',
-											paddding: '14px 12px 14px 12px',
-											width: '103px',
-											fontFamily: 'Inter SemiBold',
-											height: '30px',
-											display: 'flex',
-											justifyContent: 'center',
-											alignItems: 'center',
-											color: '#e4e5e6',
-											fontSize: '10px',
-											cursor: 'pointer',
-										}}
-										onClick={(e) => this.showAddTenantUserModal(e)}
-									>
-										Send Request
-									</div> */}
 									<ReusableButtonSettings
 										text="Send Request"
-										// func={(e) => this.showAddTenantUserModal(e)}
 										func={this.onChangeEmail}
 									/>
 								</div>
@@ -1370,7 +1168,7 @@ class CompanyTeamSettings extends ProjectController {
 							>
 								<div
 									style={{
-										fontFamily: 'Inter Medium',
+										fontFamily: 'Inter',
 										fontSize: '16px',
 										color: '#e4e5e6',
 										marginBottom: '1rem',
@@ -1458,7 +1256,7 @@ class CompanyTeamSettings extends ProjectController {
 												<div
 													style={{
 														fontSize: '16px',
-														fontStyle: 'Inter SemiBold',
+														fontStyle: 'Inter',
 														color: '#e4e5e6',
 														whiteSpace: 'nowrap',
 														overflow: 'hidden',
@@ -1503,7 +1301,6 @@ class CompanyTeamSettings extends ProjectController {
 															borderRadius: '20px',
 															padding: '9px 12px',
 															height: '40px',
-															// marginTop: '1rem',
 															width: 'auto',
 															display: 'inline-block',
 														}}
@@ -1544,42 +1341,18 @@ class CompanyTeamSettings extends ProjectController {
 								))
 							) : (
 								<div id="scrollableDiv" style={{ height: 450, overflow: 'auto' }}>
-									{/* <InfiniteScroll
-									className="infinite-scroll-auto"
-									dataLength={this.state.tenantUser.length} //This is important field to render the next data
-									next={this.onClickNextPage}
-									hasMore={this.state.hasNextPage}
-									loader={
-										<div
-											style={{
-												color: '#e4e5e6',
-											}}
-										>
-											Loading...
-										</div>
-									}
-									endMessage={
-										<p style={{ textAlign: 'left' }} className="data-end">
-											<b>
-												That's it! You have explored all the available
-												information
-											</b>
-										</p>
-									}
-									scrollableTarget="scrollableDiv"
-								> */}
 									<div>
 										{[...this.state.tenantUser]
 											.sort((a, b) => {
 												if (a.role === 'admin' && b.role !== 'admin') {
-													return -1; // 'a' (admin) should come before 'b' (default)
+													return -1;
 												} else if (
 													a.role !== 'admin' &&
 													b.role === 'admin'
 												) {
-													return 1; // 'b' (admin) should come before 'a' (default)
+													return 1;
 												} else {
-													return 0; // 'a' and 'b' are either both admins or both defaults, maintain their order
+													return 0;
 												}
 											})
 											.map((user, index) => (
@@ -1594,7 +1367,13 @@ class CompanyTeamSettings extends ProjectController {
 													}}
 													key={user._id}
 												>
-													<div style={{ display: 'flex', gap: '20px' }}>
+													<div
+														style={{
+															display: 'flex',
+															gap: '20px',
+															flex: 1,
+														}}
+													>
 														<div>
 															<div
 																style={{
@@ -1620,13 +1399,13 @@ class CompanyTeamSettings extends ProjectController {
 																flexDirection: 'column',
 																gap: '10px',
 																justifyContent: 'center',
-																width: '150px',
+																flex: 1,
 															}}
 														>
 															<div
 																style={{
 																	fontSize: '16px',
-																	fontStyle: 'Inter SemiBold',
+																	fontStyle: 'Inter',
 																	color: '#e4e5e6',
 																	whiteSpace: 'nowrap',
 																	overflow: 'hidden',
@@ -1668,8 +1447,7 @@ class CompanyTeamSettings extends ProjectController {
 																		paddding:
 																			'14px 12px 14px 12px',
 																		width: '103px',
-																		fontFamily:
-																			'Inter SemiBold',
+																		fontFamily: 'Inter',
 																		height: '30px',
 																		display: 'flex',
 																		justifyContent: 'center',
@@ -1781,7 +1559,6 @@ class CompanyTeamSettings extends ProjectController {
 												</div>
 											))}
 									</div>
-									{/* </InfiniteScroll> */}
 								</div>
 							)}
 						</div>

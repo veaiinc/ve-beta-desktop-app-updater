@@ -44,7 +44,7 @@
 				.profile-title-up-container {
 					display: flex;
 					.profile-title {
-						@include os-aware-font('Inter SemiBold');
+						@include os-aware-font('Inter');
 						font-style: normal;
 						font-weight: 600;
 						font-size: 16px;
@@ -133,7 +133,7 @@
 		padding: 24px 52px;
 		.user-settings-title {
 			padding: 10px 0px;
-			@include os-aware-font('Inter Bold');
+			@include os-aware-font('Inter');
 			font-style: normal;
 			font-weight: 600;
 			font-size: 20px;
@@ -154,13 +154,13 @@
 				flex-direction: column;
 				span {
 					font-size: 14px;
-					font-family: 'Inter SemiBold';
+					font-family: 'Inter';
 					@include theme-aware(color, secondaryColor);
 				}
 				b {
 					margin-top: 4px;
 					font-size: 24px;
-					font-family: 'Inter Bold';
+					font-family: 'Inter';
 					@include theme-aware(color, primaryColor);
 				}
 			}
@@ -171,7 +171,7 @@
 				gap: 4px;
 				font-size: 14px;
 				color: #fff;
-				font-family: 'Inter Medium';
+				font-family: 'Inter';
 				background: #3f8ae2;
 				border-radius: 4px;
 			}
@@ -214,7 +214,7 @@
 				padding-right: 52px;
 				padding-top: 44px;
 				.projects-table-outer-container-header {
-					@include os-aware-font('Inter SemiBold');
+					@include os-aware-font('Inter');
 					font-style: normal;
 					font-weight: 600;
 					font-size: 14px;
@@ -450,7 +450,7 @@
 					.status-title {
 						@include theme-aware(color, secondaryColor);
 						font-weight: 500;
-						@include os-aware-font('Inter Medium');
+						@include os-aware-font('Inter');
 						font-size: 14px;
 						line-height: 16px;
 						font-style: normal;
@@ -538,7 +538,7 @@
 							@include theme-aware(border, infoIcn, 0.5px solid);
 							border-radius: 40px;
 							.title {
-								@include os-aware-font('Inter Medium');
+								@include os-aware-font('Inter');
 								font-style: normal;
 								font-weight: 500;
 								font-size: 13px;
@@ -549,7 +549,7 @@
 							}
 							.title.count {
 								font-weight: 700;
-								@include os-aware-font('Inter Bold');
+								@include os-aware-font('Inter');
 							}
 						}
 						.filter-item.active {
@@ -601,7 +601,7 @@
 								transition: width 0.5s ease-in-out;
 								-webkit-transition: width 0.5s ease-in-out;
 								height: 100%;
-								@include os-aware-font('Inter Medium');
+								@include os-aware-font('Inter');
 								font-style: normal;
 								font-weight: 500;
 								font-size: 13px;
@@ -613,7 +613,7 @@
 								margin-left: 12px;
 							}
 							input::placeholder {
-								@include os-aware-font('Inter Medium');
+								@include os-aware-font('Inter');
 								font-style: normal;
 								font-weight: 400;
 								font-size: 13px;
@@ -622,7 +622,7 @@
 								@include theme-aware(color, secondaryColor);
 							}
 							input::-webkit-input-placeholder {
-								@include os-aware-font('Inter Medium');
+								@include os-aware-font('Inter');
 								font-style: normal;
 								font-weight: 400;
 								font-size: 13px;
@@ -689,7 +689,7 @@
 								padding-right: 12px;
 							}
 							th {
-								@include os-aware-font('Inter SemiBold');
+								@include os-aware-font('Inter');
 								font-style: normal;
 								font-weight: 600;
 								font-size: 12px;
@@ -813,7 +813,7 @@
 									//justify-content: center;
 									gap: 8px;
 									.proposal-status-text {
-										@include os-aware-font('Inter Medium');
+										@include os-aware-font('Inter');
 										font-style: normal;
 										font-weight: 500;
 										font-size: 12px;
@@ -884,7 +884,7 @@
 									justify-content: center;
 									gap: 2px;
 									.td-upper {
-										@include os-aware-font('Inter Medium');
+										@include os-aware-font('Inter');
 										font-style: normal;
 										font-weight: 500;
 										font-size: 12px;
@@ -894,7 +894,7 @@
 										@include theme-aware(color, primaryColor);
 									}
 									.td-lower {
-										@include os-aware-font('Inter Medium');
+										@include os-aware-font('Inter');
 										font-style: normal;
 										font-weight: 500;
 										font-size: 11px;
@@ -1122,7 +1122,7 @@
 							}
 							.title.count {
 								font-weight: 700;
-								@include os-aware-font('Inter Bold');
+								@include os-aware-font('Inter');
 							}
 						}
 						.filter-item.active {
@@ -1188,7 +1188,7 @@
 		@include theme-aware(background-color, fg);
 		border-radius: 0px 0px 12px 12px;
 		.deliverable-proposal-empty-head-title {
-			@include os-aware-font('Inter Bold');
+			@include os-aware-font('Inter');
 			font-style: normal;
 			font-weight: 700;
 			font-size: 14px;
@@ -1233,7 +1233,7 @@
 		height: 36px;
 		@include theme-aware(background-color, proposalPopUpGrayBtnBg);
 		border-radius: 4px;
-		@include os-aware-font('Inter Medium');
+		@include os-aware-font('Inter');
 		font-style: normal;
 		font-weight: 500;
 		font-size: 14px;
@@ -1250,6 +1250,8 @@
 	flex-direction: column;
 	align-items: flex-start;
 	justify-content: flex-start;
+	// padding: 24px;
+
 	.profile-role-wrapper.invite-wrapper {
 		border-bottom: 1px solid #444 !important;
 	}
@@ -1277,7 +1279,7 @@
 					border-right: none;
 					//border-bottom: 1px solid #f8532b;
 
-					font-family: 'Inter Medium';
+					font-family: 'Inter';
 					font-size: 10px;
 					font-weight: 500;
 					line-height: 14px;
@@ -1297,7 +1299,7 @@
 					border-left: none;
 					border-right: none;
 
-					@include os-aware-font('Inter Medium');
+					@include os-aware-font('Inter');
 					font-style: normal;
 					font-weight: 500;
 					font-size: 14px;
@@ -1331,7 +1333,7 @@
 				}
 				.profile-role-header-title {
 					min-width: 128.44px;
-					font-family: 'Inter SemiBold';
+					font-family: 'Inter';
 					font-size: 20px;
 					font-weight: 600;
 					line-height: 32px;
@@ -1351,7 +1353,7 @@
 				border-radius: 12px;
 				padding: 6px 24px;
 				color: #f5f5f5;
-				@include os-aware-font('Inter SemiBold');
+				@include os-aware-font('Inter');
 				font-style: normal;
 				font-weight: 500;
 				font-size: 14px;
@@ -1400,7 +1402,7 @@
 						flex: 1;
 						text-align: center;
 						//padding: 0px 16px;
-						@include os-aware-font('Inter SemiBold');
+						@include os-aware-font('Inter');
 						text-transform: uppercase;
 						font-style: normal;
 						font-weight: 500;
@@ -1474,7 +1476,7 @@
 						}
 					}
 					.profile-title-text {
-						@include os-aware-font('Inter SemiBold');
+						@include os-aware-font('Inter');
 						font-style: normal;
 						font-weight: 600;
 						font-size: 12px;
@@ -1514,7 +1516,7 @@
 						gap: 165px;
 						margin-left: 27px;
 						.permission-header-title {
-							@include os-aware-font('Inter SemiBold');
+							@include os-aware-font('Inter');
 							font-style: normal;
 							font-weight: 600;
 							font-size: 12px;
@@ -1557,7 +1559,7 @@
 							text-transform: capitalize;
 							min-width: 100px;
 							margin-top: 5px;
-							font-family: 'Inter SemiBold';
+							font-family: 'Inter';
 							font-size: 20px;
 							font-weight: 600;
 							line-height: 32px;
@@ -1629,7 +1631,7 @@
 									align-items: center;
 									justify-content: center;
 									border-radius: 40px;
-									@include os-aware-font('Inter Medium');
+									@include os-aware-font('Inter');
 									font-style: normal;
 									font-weight: 500;
 									font-size: 10px;
@@ -1667,7 +1669,7 @@
 
 								gap: 4px;
 								.extra-edit-text {
-									@include os-aware-font('Inter SemiBold');
+									@include os-aware-font('Inter');
 									font-style: normal;
 									font-weight: 600;
 									font-size: 16px;
@@ -1677,7 +1679,7 @@
 									@include theme-aware(color, primaryColor);
 								}
 								.extra-edit-info-icn {
-									@include os-aware-font('Inter Medium');
+									@include os-aware-font('Inter');
 									font-style: normal;
 									font-weight: 400;
 									font-size: 14px;
@@ -1768,7 +1770,7 @@
 						}
 					}
 					.deactive-title-text {
-						@include os-aware-font('Inter SemiBold');
+						@include os-aware-font('Inter');
 						font-style: normal;
 						font-weight: 600;
 						font-size: 14px;

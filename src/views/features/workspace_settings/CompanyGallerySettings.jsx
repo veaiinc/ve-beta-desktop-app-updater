@@ -77,7 +77,7 @@ class CompanyGallerySettings extends Workspace {
 							>
 								<span
 									style={{
-										fontFamily: 'Inter Medium',
+										fontFamily: 'Inter',
 										fontSize: '16px',
 										color: '#e4e5e6',
 										lineHeight: '24px',
@@ -101,7 +101,7 @@ class CompanyGallerySettings extends Workspace {
 											<div>
 												<div
 													style={{
-														fontFamily: 'Inter Medium',
+														fontFamily: 'Inter',
 														fontSize: '16px',
 														color: '#e4e5e6',
 														lineHeight: '24px',

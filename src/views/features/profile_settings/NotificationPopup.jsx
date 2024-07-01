@@ -72,7 +72,7 @@ const NotificationPopup = ({ handleClose, show, modalType, type }) => {
 						>
 							<span
 								style={{
-									fontFamily: 'Inter Medium',
+									fontFamily: 'Inter',
 									fontSize: '16px',
 									color: '#e4e5e6',
 									lineHeight: '24px',
@@ -86,7 +86,7 @@ const NotificationPopup = ({ handleClose, show, modalType, type }) => {
 						</div>
 						<span
 							style={{
-								fontFamily: 'Inter Medium',
+								fontFamily: 'Inter',
 								fontSize: '12px',
 								color: '#E4E5E67A',
 								lineHeight: '20px',
@@ -123,7 +123,7 @@ const NotificationPopup = ({ handleClose, show, modalType, type }) => {
 											style={{
 												fontSize: '13px',
 												color: '#e4e5e6',
-												fontFamily: 'Inter Medium',
+												fontFamily: 'Inter',
 											}}
 										>
 											{text}
@@ -162,7 +162,7 @@ const NotificationPopup = ({ handleClose, show, modalType, type }) => {
 											style={{
 												fontSize: '13px',
 												color: '#e4e5e6',
-												fontFamily: 'Inter Medium',
+												fontFamily: 'Inter',
 											}}
 										>
 											{text}
@@ -190,7 +190,7 @@ const NotificationPopup = ({ handleClose, show, modalType, type }) => {
 									padding: '16px 24px',
 									height: '48px',
 									fontSize: '13px',
-									fontFamily: 'Inter Medium',
+									fontFamily: 'Inter',
 									textAlign: 'center',
 								}}
 								onClick={() => handleClose()}
@@ -226,7 +226,7 @@ const NotificationPopup = ({ handleClose, show, modalType, type }) => {
 						>
 							<span
 								style={{
-									fontFamily: 'Inter Medium',
+									fontFamily: 'Inter',
 									fontSize: '16px',
 									color: '#e4e5e6',
 									lineHeight: '24px',
@@ -240,7 +240,7 @@ const NotificationPopup = ({ handleClose, show, modalType, type }) => {
 						</div>
 						<span
 							style={{
-								fontFamily: 'Inter Medium',
+								fontFamily: 'Inter',
 								fontSize: '12px',
 								color: '#E4E5E67A',
 								lineHeight: '20px',
@@ -349,7 +349,7 @@ const NotificationPopup = ({ handleClose, show, modalType, type }) => {
 							style={{
 								fontSize: '13px',
 								color: '#e4e5e6',
-								fontFamily: 'Inter Medium',
+								fontFamily: 'Inter',
 							}}
 						>
 							Unsubscribe me from all ve Marketing & Promotional Emails
@@ -373,7 +373,7 @@ const NotificationPopup = ({ handleClose, show, modalType, type }) => {
 									padding: '16px 24px',
 									height: '48px',
 									fontSize: '13px',
-									fontFamily: 'Inter Medium',
+									fontFamily: 'Inter',
 									textAlign: 'center',
 								}}
 								onClick={() => handleClose()}

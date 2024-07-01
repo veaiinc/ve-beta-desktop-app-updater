@@ -1,12 +1,13 @@
 .myProfileSettings{
     display:flex;
+    gap: 150px;
     .settingsContainer {
         overflow-y: scroll;
         display: flex;
         flex-direction: column;
         gap: 56px;
         max-height: 90vh;
-        padding-right: 125px;
+        width: 70%;
         scroll-behavior: smooth;
     
 
@@ -19,6 +20,7 @@
         border-radius: 40px;
         border: 1px solid rgba(36, 36, 36, 0.64);
         background: rgba(42, 42, 42, 0.16);
+       
 
         .formsMain {
 
@@ -44,7 +46,7 @@
                 }
 
                 .saveButton {
-                    color: white;
+                    color: #6055EC;
                 }
             }
 
@@ -71,6 +73,8 @@
                     // border: 1px solid rgba(36, 36, 36, 0.64);
                     background-color: transparent;
                     width: 100%;
+                   
+                   
 
                 }
 
@@ -134,7 +138,7 @@
 
         .formsEdit {
             input {
-                color: white;
+                color: rgb(255, 255, 255);
 
                 &:focus {
                     background-color: transparent;
@@ -206,6 +210,7 @@
                 .step {
                     display: flex;
                     gap: 12px;
+                  
 
                     h4 {
                         color: #E4E5E6;
@@ -218,6 +223,7 @@
                         padding: 4px;
                         height: 24px;
                         width: 50px;
+                        margin: 0px;
                     }
 
                     p {
@@ -227,7 +233,8 @@
                         font-style: normal;
                         font-weight: 400;
                         line-height: 21px;
-                        margin-bottom: 8px;
+                        margin-bottom: 10px;
+                        
                     }
 
                     input {
@@ -277,6 +284,10 @@
                 border: 1px solid #1C1C1C;
                 background: #1C1C1C;
                 margin-right: 13px;
+            }
+            .activeButton{
+                border: 1px solid #6055EC;
+                color: #6055EC;
             }
 
         }
@@ -448,6 +459,7 @@
     }
 }
 .linksContainer{
+    width: 30%;
  .sidebarList {
      display: flex;
      flex-direction: column;
@@ -458,7 +470,9 @@
          list-style: none;
          color: rgba(228, 229, 230, 0.32);
          line-height: 22px;
-
+     }
+     &:hover{
+        cursor: pointer;
      }
 
      .active {

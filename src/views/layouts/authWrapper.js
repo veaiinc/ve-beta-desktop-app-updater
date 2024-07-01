@@ -4,6 +4,8 @@ import '../../assets/scss/authWrapper.scss';
 import Header from '../components/Header';
 import { Helmet } from 'react-helmet';
 import useActiveWorkspace from '../hooks/useActiveWorkspace';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const AuthWrapper = ({ title, children, hideQuickNav = false }) => {
 	const navigate = useNavigate();
@@ -28,7 +30,9 @@ const AuthWrapper = ({ title, children, hideQuickNav = false }) => {
 				setActiveWorkspaceId={setActiveWorkspaceId}
 				activeWorkspaceId={workspaceId}
 			/>
-			<div className="childrenContainer">{children}</div>
+			<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>
+				<div className="childrenContainer">{children}</div>
+			</SkeletonTheme>
 		</div>
 	);
 };

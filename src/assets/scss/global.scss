@@ -355,7 +355,7 @@ html {
 	}
 	b {
 		margin-left: 4px;
-		@include os-aware-font('Inter Medium');
+		@include os-aware-font('Inter');
 		font-style: normal;
 		font-weight: 500;
 		font-size: 13px;
@@ -406,7 +406,7 @@ html {
 	.accept-proposal-top-desc {
 		margin-left: 24px;
 		margin-top: 24px;
-		@include os-aware-font('Inter SemiBold');
+		@include os-aware-font('Inter');
 		font-style: normal;
 		font-weight: 600;
 		font-size: 12px;
@@ -434,7 +434,7 @@ html {
 			width: 100%;
 			@include theme-aware(border, proposalListTableListRowBorder, 1px solid);
 			border-radius: 4px;
-			@include os-aware-font('Inter Medium');
+			@include os-aware-font('Inter');
 			font-style: normal;
 			font-weight: 500;
 			font-size: 14px;
@@ -455,7 +455,7 @@ html {
 		width: 100%;
 		margin-top: 24px;
 		.never-expire {
-			@include os-aware-font('Inter Medium');
+			@include os-aware-font('Inter');
 			font-style: normal;
 			font-weight: 500;
 			font-size: 14px;
@@ -475,7 +475,7 @@ html {
 			min-height: 32px;
 			border-radius: 12px;
 			@include theme-aware(background-color, proposalPopUpGrayBtnBg);
-			@include os-aware-font('Inter Medium');
+			@include os-aware-font('Inter');
 			font-style: normal;
 			font-weight: 500;
 			font-size: 14px;
@@ -549,7 +549,7 @@ html {
 		padding-bottom: 0px !important;
 		height: 41px !important;
 		margin: 0px;
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		font-style: normal;
 		font-weight: 500;
 		font-size: 12px;
@@ -562,7 +562,7 @@ html {
 	input[type='tel'] {
 		outline: none !important;
 		box-shadow: none !important;
-		@include os-aware-font('Inter Medium');
+		@include os-aware-font('Inter');
 		@include theme-aware(color, primaryColor);
 		font-style: normal;
 		font-weight: 500;
@@ -586,7 +586,7 @@ html {
 		opacity: 0;
 	}
 	label {
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		font-style: normal;
 		font-weight: 500;
 		font-size: 12px;
@@ -839,7 +839,7 @@ html {
 		}
 	}
 	.bride-groom-warning-text {
-		@include os-aware-font('Inter Medium');
+		@include os-aware-font('Inter');
 		font-style: normal;
 		font-weight: 500;
 		font-size: 16px;
@@ -1127,7 +1127,7 @@ b.new-tag {
 			letter-spacing: -0.3px;
 			font-weight: 600;
 			@include theme-aware(color, primaryColor);
-			font-family: 'Inter SemiBold';
+			font-family: 'Inter';
 		}
 	}
 	span {
@@ -1222,7 +1222,7 @@ $time: 3000ms;
 }
 .floating-input,
 .floating-select {
-	@include os-aware-font('Inter Medium');
+	@include os-aware-font('Inter');
 	@include theme-aware(color, primaryColor);
 	font-style: normal;
 	font-weight: 500;
@@ -1788,7 +1788,7 @@ $duration: 15s;
 	border-radius: 12px;
 	span {
 		padding: 8px 12px;
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		font-size: 14px;
 		line-height: 16px;
 		letter-spacing: -0.3px;
@@ -1876,7 +1876,7 @@ $duration: 15s;
 		letter-spacing: -0.3px;
 
 		@include theme-aware(color, secondaryColor);
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		@include theme-aware(background-color, tableHeaderBG);
 		padding: 6px 12px;
 		display: flex;
@@ -1895,7 +1895,7 @@ $duration: 15s;
 		position: absolute;
 		right: 0;
 		cursor: pointer;
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		font-size: 14px;
 		line-height: 16px;
 		/* identical to box height, or 114% */
@@ -1946,7 +1946,7 @@ $duration: 15s;
 		padding: 9px 12px;
 		background: #3f8ae2;
 		border-radius: 4px;
-		@include os-aware-font('Inter Medium');
+		@include os-aware-font('Inter');
 		font-style: normal;
 		font-weight: 500;
 		font-size: 14px;
@@ -1957,7 +1957,7 @@ $duration: 15s;
 		cursor: pointer;
 	}
 	.empty-title {
-		@include os-aware-font('Inter Medium');
+		@include os-aware-font('Inter');
 		font-style: normal;
 		font-weight: 500;
 		font-size: 18px;
@@ -1978,7 +1978,7 @@ $duration: 15s;
 	gap: 13px;
 	.form-header-title {
 		display: block;
-		@include os-aware-font('Inter Bold');
+		@include os-aware-font('Inter');
 		font-style: normal;
 		font-weight: 700;
 		font-size: 24px;
@@ -2013,7 +2013,7 @@ $duration: 15s;
 			width: 298px;
 			.desc-title {
 				white-space: nowrap;
-				@include os-aware-font('Inter SemiBold');
+				@include os-aware-font('Inter');
 				font-style: normal;
 				font-weight: 600;
 				font-size: 18px;
@@ -2115,7 +2115,7 @@ $duration: 15s;
 			gap: 8px;
 			width: 100%;
 			.no-access-title {
-				@include os-aware-font('Inter Bold');
+				@include os-aware-font('Inter');
 				font-style: normal;
 				font-weight: 700;
 				font-size: 24px;
@@ -2159,7 +2159,7 @@ $duration: 15s;
 				}
 			}
 			.okay-text {
-				@include os-aware-font('Inter Medium');
+				@include os-aware-font('Inter');
 				font-style: normal;
 				font-weight: 500;
 				font-size: 14px;
@@ -2196,7 +2196,7 @@ $duration: 15s;
 		border-radius: 40px;
 		cursor: pointer;
 		.title {
-			@include os-aware-font('Inter Medium');
+			@include os-aware-font('Inter');
 			font-style: normal;
 			font-weight: 500;
 			font-size: 13px;
@@ -2205,7 +2205,7 @@ $duration: 15s;
 			color: #b0b0b0;
 		}
 		.count {
-			@include os-aware-font('Inter Medium');
+			@include os-aware-font('Inter');
 			font-style: normal;
 			font-weight: 500;
 			font-size: 13px;
@@ -2244,7 +2244,7 @@ $duration: 15s;
 			color: #e4e5e6;
 			font-size: 14px;
 			line-height: 16px;
-			font-family: 'Inter SemiBold';
+			font-family: 'Inter';
 			letter-spacing: -0.3px;
 			text-transform: uppercase;
 		}
@@ -2569,7 +2569,7 @@ $duration: 15s;
 					padding: 0px 16px;
 					color: #b0b0b0;
 					text-align: center;
-					font-family: 'Inter Medium';
+					font-family: 'Inter';
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;
@@ -2613,7 +2613,7 @@ $duration: 15s;
 				width: 430px;
 				h3 {
 					color: #b0b0b0;
-					font-family: 'Inter SemiBold';
+					font-family: 'Inter';
 					font-size: 15px;
 					font-style: normal;
 					font-weight: 600;
@@ -2622,13 +2622,13 @@ $duration: 15s;
 				}
 				p {
 					color: #b0b0b0;
-					font-family: 'Inter Medium';
+					font-family: 'Inter';
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: 16px; /* 123.077% */
 					b {
-						font-family: 'Inter Medium';
+						font-family: 'Inter';
 						font-size: 20px;
 						font-style: normal;
 						font-weight: 500;
@@ -2683,7 +2683,7 @@ $duration: 15s;
 							font-size: 12px;
 							line-height: 16px;
 							/* or 133% */
-							font-family: 'Inter Medium';
+							font-family: 'Inter';
 							@include theme-aware(color, secondaryColor);
 						}
 					}
@@ -2741,7 +2741,7 @@ $duration: 15s;
 
 							b {
 								color: #e4e5e6;
-								font-family: 'Inter medium';
+								font-family: 'Inter';
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 500;
@@ -2775,19 +2775,19 @@ $duration: 15s;
 								margin-top: 4px;
 							}
 							.cost-bold {
-								font-family: 'Inter SemiBold';
+								font-family: 'Inter';
 							}
 							.bottom-abs {
 								position: absolute;
 								bottom: 12px;
 								font-size: 14px;
 								@include theme-aware(color, primaryColor);
-								font-family: 'Inter SemiBold';
+								font-family: 'Inter';
 							}
 							.bold {
 								font-size: 14px;
 								@include theme-aware(color, primaryColor);
-								font-family: 'Inter SemiBold';
+								font-family: 'Inter';
 							}
 							&:hover {
 								border-color: #9256d9;
@@ -2808,7 +2808,7 @@ $duration: 15s;
 				display: flex;
 				flex-direction: row;
 				color: #e4e5e6;
-				font-family: 'Inter Medium';
+				font-family: 'Inter';
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -2865,7 +2865,7 @@ $duration: 15s;
 				a {
 					margin-left: auto;
 					color: #e4e5e6;
-					font-family: 'Inter Medium';
+					font-family: 'Inter';
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;
@@ -2885,7 +2885,7 @@ $duration: 15s;
 					flex-direction: column;
 					.pmbil-top {
 						color: #e4e5e6;
-						font-family: 'Inter Medium';
+						font-family: 'Inter';
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 500;
@@ -2922,7 +2922,7 @@ $duration: 15s;
 		}
 
 		.pmb-button {
-			font-family: 'Inter Medium';
+			font-family: 'Inter';
 			font-size: 14px;
 			line-height: 16px;
 			/* identical to box height, or 114% */
@@ -2991,7 +2991,7 @@ $duration: 15s;
 	font-size: 12px;
 	line-height: 28px;
 	@include theme-aware(color, secondaryColor);
-	font-family: 'Inter Medium';
+	font-family: 'Inter';
 }
 .event-grouping-row {
 	td {
@@ -3094,7 +3094,7 @@ $duration: 15s;
 			@include theme-aware(background-color, shootAddPopupHeaderBg);
 			padding: 6px !important;
 			font-size: 18px !important;
-			font-family: 'Inter Medium' !important;
+			font-family: 'Inter' !important;
 			border-radius: 12px;
 			border: none;
 			outline: none;
@@ -3307,7 +3307,7 @@ $duration: 15s;
 	.no-items {
 		@include theme-aware(color, primaryColor);
 		font-size: 14px;
-		font-family: 'Inter Bold';
+		font-family: 'Inter';
 		width: 100%;
 		justify-content: center;
 		padding: 0px 30px;
@@ -3338,7 +3338,7 @@ $duration: 15s;
 		font-size: 14px;
 		line-height: 16px;
 		/* identical to box height, or 114% */
-		font-family: 'Inter SemiBold';
+		font-family: 'Inter';
 		letter-spacing: -0.3px;
 		text-transform: uppercase;
 		//position: relative;
@@ -3392,7 +3392,7 @@ $duration: 15s;
 						width: 45%;
 						@include theme-aware(color, secondaryColor);
 						font-size: 11px;
-						font-family: 'Inter SemiBold';
+						font-family: 'Inter';
 						text-transform: uppercase;
 						border: 1px solid #707070;
 					}
@@ -3440,7 +3440,7 @@ $duration: 15s;
 						width: 25%;
 						@include theme-aware(color, secondaryColor);
 						font-size: 11px;
-						font-family: 'Inter SemiBold';
+						font-family: 'Inter';
 						text-transform: uppercase;
 						border: 1px solid #707070;
 					}
@@ -3528,7 +3528,7 @@ $duration: 15s;
 								text-align: left;
 								overflow: hidden;
 								@include ellipsis;
-								@include os-aware-font('Inter SemiBold');
+								@include os-aware-font('Inter');
 								font-style: normal;
 								font-weight: 600;
 								font-size: 11px;
@@ -3698,7 +3698,7 @@ $duration: 15s;
 						width: 28%;
 						@include theme-aware(color, secondaryColor);
 						font-size: 11px;
-						font-family: 'Inter SemiBold';
+						font-family: 'Inter';
 						text-transform: uppercase;
 						border: 1px solid #707070;
 					}
@@ -3720,7 +3720,7 @@ $duration: 15s;
 						display: flex;
 						justify-content: center;
 
-						font-family: 'Inter SemiBold';
+						font-family: 'Inter';
 						font-size: 11px;
 						line-height: 16px;
 						/* identical to box height, or 145% */
@@ -3760,7 +3760,7 @@ $duration: 15s;
 			text-transform: uppercase;
 			@include theme-aware(color, secondaryColor);
 			font-size: 11px;
-			font-family: 'Inter SemiBold';
+			font-family: 'Inter';
 			border-right: 1px solid #b0b0b0;
 		}
 
@@ -3827,7 +3827,7 @@ $duration: 15s;
 }
 .equipment-assign-popup {
 	h4 {
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		margin: 0;
 		@include theme-aware(color, primaryColor);
 
@@ -3851,7 +3851,7 @@ $duration: 15s;
 					width: 40%;
 					@include theme-aware(color, secondaryColor);
 					font-size: 11px;
-					font-family: 'Inter SemiBold';
+					font-family: 'Inter';
 					text-transform: uppercase;
 					border: 1px solid #707070;
 				}
@@ -3935,7 +3935,7 @@ $duration: 15s;
 	p {
 		@include theme-aware(color, secondaryColor);
 		font-size: 16px;
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		text-align: center;
 		width: 100%;
 		line-height: 150%;
@@ -3947,7 +3947,7 @@ $duration: 15s;
 		padding: 16px 9px;
 		color: #fff;
 		font-size: 14px;
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		background: #3f8ae2;
 	}
 }
@@ -3969,7 +3969,7 @@ $duration: 15s;
 		border-bottom: 1px solid #707070;
 		font-size: 14px;
 		@include theme-aware(color, primaryColor);
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 	}
 }
 .table-row-two-rows-expense-tu {
@@ -3985,22 +3985,22 @@ $duration: 15s;
 		width: 100%;
 		text-align: left;
 		font-size: 12px;
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		@include theme-aware(color, secondaryColor);
 	}
 	font-size: 14px;
-	font-family: 'Inter Medium';
+	font-family: 'Inter';
 	@include theme-aware(color, primary);
 }
 .no-access {
 	@include theme-aware(color, secondaryColor);
 	font-size: 14px;
-	font-family: 'Inter Medium';
+	font-family: 'Inter';
 }
 .access-denied-finances {
 	@include theme-aware(color, primaryColor);
 	font-size: 16px;
-	font-family: 'Inter Medium';
+	font-family: 'Inter';
 	height: 100%;
 	display: flex;
 	align-items: center;
@@ -4075,7 +4075,7 @@ button.sl-button-new {
 	line-height: 24px;
 	color: #ffffff;
 	.sl-button-highlighted-text {
-		@include os-aware-font('Inter SemiBold');
+		@include os-aware-font('Inter');
 		font-style: normal;
 		font-weight: 600;
 		font-size: 16px;
@@ -4123,7 +4123,7 @@ button.sl-button-new.disabled {
 			// width: 501px;
 			// max-width: 501px;
 			.renew-sbpln-bottom-top-text {
-				@include os-aware-font('Inter Bold');
+				@include os-aware-font('Inter');
 				font-style: normal;
 				font-weight: 700;
 				font-size: 36px;
@@ -4162,7 +4162,7 @@ button.sl-button-new.disabled {
 				height: 24px;
 			}
 			.renew-sbpln-btn-text {
-				@include os-aware-font('Inter Medium');
+				@include os-aware-font('Inter');
 				font-style: normal;
 				font-weight: 500;
 				font-size: 14px;
@@ -4221,7 +4221,7 @@ button.sl-button-new.disabled {
 		text-align: center;
 
 		color: #e4e5e6;
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		border-top-right-radius: 12px;
 		border-top-left-radius: 12px;
 	}
@@ -4238,7 +4238,7 @@ button.sl-button-new.disabled {
 		text-align: center;
 
 		color: #e4e5e6;
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		border-top-right-radius: 12px;
 		border-top-left-radius: 12px;
 		padding: 0 24px;
@@ -4257,7 +4257,7 @@ button.sl-button-new.disabled {
 		text-align: center;
 
 		color: #e4e5e6;
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		border-top-right-radius: 12px;
 		border-top-left-radius: 12px;
 	}
@@ -4327,7 +4327,7 @@ button.sl-button-new.disabled {
 			letter-spacing: -0.3px;
 
 			color: #b0b0b0;
-			font-family: 'Inter Medium';
+			font-family: 'Inter';
 			padding: 10px 12px;
 			background: #272727;
 			border-radius: 4px;
@@ -4348,7 +4348,7 @@ button.sl-button-new.disabled {
 			letter-spacing: -0.3px;
 
 			color: #b0b0b0;
-			font-family: 'Inter Medium';
+			font-family: 'Inter';
 			padding: 10px 12px;
 			background: #272727;
 			border-radius: 4px;
@@ -4427,7 +4427,7 @@ button.sl-button-new.disabled {
 	box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
 	border-radius: 12px;
 	overflow: clip;
-	font-family: 'Inter Medium';
+	font-family: 'Inter';
 	font-style: normal;
 	font-weight: 500;
 	font-size: 16px;
@@ -4460,7 +4460,7 @@ button.sl-button-new.disabled {
 				}
 			}
 			.header-text {
-				font-family: 'Inter Medium';
+				font-family: 'Inter';
 				font-style: normal;
 				font-weight: 500;
 				font-size: 13px;
@@ -4527,7 +4527,7 @@ button.sl-button-new.disabled {
 			background: #232323;
 			border-radius: 4px;
 			cursor: pointer;
-			font-family: 'Inter Medium';
+			font-family: 'Inter';
 			font-style: normal;
 			font-weight: 500;
 			font-size: 14px;
@@ -4546,7 +4546,7 @@ button.sl-button-new.disabled {
 			height: 36px;
 			background: #3f8ae2;
 			border-radius: 4px;
-			font-family: 'Inter Medium';
+			font-family: 'Inter';
 			font-style: normal;
 			font-weight: 500;
 			font-size: 14px;
@@ -4568,7 +4568,7 @@ button.sl-button-new.disabled {
 	gap: 4px;
 	background: #3f8ae2;
 	border-radius: 4px;
-	@include os-aware-font('Inter Medium');
+	@include os-aware-font('Inter');
 	font-style: normal;
 	font-weight: 500;
 	font-size: 14px;
@@ -4600,7 +4600,7 @@ button.sl-button-new.disabled {
 		position: absolute;
 		right: 16px;
 		font-size: 12px;
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		color: #f8532b;
 		text-decoration: underline;
 		display: flex;
@@ -4624,7 +4624,7 @@ button.sl-button-new.disabled {
 	width: 80%;
 	position: relative;
 	.total-unique-responses-count {
-		@include os-aware-font('Inter SemiBold');
+		@include os-aware-font('Inter');
 		font-style: normal;
 		font-weight: 600;
 		font-size: 18px;
@@ -4673,7 +4673,7 @@ button.sl-button-new.disabled {
 	width: 100%;
 
 	font-size: 12px;
-	font-family: 'Inter Medium';
+	font-family: 'Inter';
 	color: #f8532b;
 
 	display: flex;
@@ -4703,7 +4703,7 @@ button.sl-button-new.disabled {
 		flex-direction: column;
 		.title {
 			color: #fff;
-			font-family: 'Inter SemiBold';
+			font-family: 'Inter';
 			font-size: 17px;
 			font-weight: 600;
 			line-height: 20px;
@@ -4729,7 +4729,7 @@ button.sl-button-new.disabled {
 				margin-right: 12px;
 				color: #e4e5e6;
 				cursor: pointer;
-				font-family: 'Inter SemiBold';
+				font-family: 'Inter';
 				font-size: 13px;
 				font-weight: 600;
 				line-height: 32px;
@@ -4770,7 +4770,7 @@ button.sl-button-new.disabled {
 }
 .pgraph-title {
 	@include theme-aware(color, primaryColor);
-	font-family: 'Inter SemiBold';
+	font-family: 'Inter';
 	font-size: 18px;
 	font-style: normal;
 	font-weight: 600;
@@ -4816,7 +4816,7 @@ button.sl-button-new.disabled {
 		align-items: center;
 		margin-left: 24px;
 		@include theme-aware(color, primaryColor);
-		font-family: 'Inter SemiBold';
+		font-family: 'Inter';
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 600;
@@ -4972,7 +4972,7 @@ button.sl-button-new.disabled {
 	@include theme-aware(color, fg);
 	margin-left: 7px;
 	text-align: center;
-	font-family: 'Inter Medium';
+	font-family: 'Inter';
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
@@ -5179,7 +5179,7 @@ button.sl-button-new.disabled {
 		@include theme-aware(background-color, advanced-filter-bg);
 		border-radius: 36px;
 		height: 36px;
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		font-size: 13px;
 		font-weight: 500;
 		line-height: 16px;
@@ -5210,7 +5210,7 @@ button.sl-button-new.disabled {
 				border-radius: 50%;
 				background-color: #c8c8c8;
 				color: #121212;
-				font-family: 'Inter Medium';
+				font-family: 'Inter';
 				font-size: 12px;
 
 				line-height: 16px;
@@ -5345,7 +5345,7 @@ button.sl-button-new.disabled {
 		padding: 0;
 		div {
 			font-size: 13px;
-			font-family: 'Inter Medium';
+			font-family: 'Inter';
 			color: #e4e5e6;
 			padding-left: 10px !important;
 		}
@@ -5365,7 +5365,7 @@ button.sl-button-new.disabled {
 	align-items: center;
 	justify-content: center;
 	.title {
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		font-size: 16px;
 		font-weight: 500;
 		line-height: 19px;
@@ -5414,7 +5414,7 @@ button.sl-button-new.disabled {
 
 	i {
 		font-size: 12px;
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		color: #fff;
 	}
 	.item {
@@ -5504,7 +5504,7 @@ button.sl-button-new.disabled {
 	width: 24px;
 	height: 24px;
 	background-color: #b0b0b0;
-	font-family: 'Inter Medium';
+	font-family: 'Inter';
 	font-size: 12px;
 	font-weight: 500;
 	line-height: 24px;
@@ -5528,7 +5528,7 @@ button.sl-button-new.disabled {
 }
 .menu {
 	span {
-		font-family: 'Inter Medium' !important;
+		font-family: 'Inter' !important;
 		font-size: 11px !important;
 		font-weight: 500 !important;
 		line-height: 16px !important;
@@ -5559,7 +5559,7 @@ button.sl-button-new.disabled {
 		flex-direction: column;
 	}
 	.title {
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		font-size: 18px;
 		font-weight: 500;
 		line-height: 20px;
@@ -5588,7 +5588,7 @@ button.sl-button-new.disabled {
 		padding: 16px;
 		width: 100%;
 		h2 {
-			font-family: 'Inter Medium';
+			font-family: 'Inter';
 			font-size: 18px;
 			font-weight: 500;
 			line-height: 20px;
@@ -5610,7 +5610,7 @@ button.sl-button-new.disabled {
 			flex-direction: row;
 			gap: 20px;
 			a {
-				font-family: 'Inter Medium';
+				font-family: 'Inter';
 				font-size: 13px;
 				font-weight: 500;
 				line-height: 16px;
@@ -5666,7 +5666,7 @@ button.sl-button-new.disabled {
 	flex-direction: column;
 	background: none !important;
 	.title {
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		font-size: 18px;
 		font-weight: 500;
 		line-height: 20px;
@@ -5763,7 +5763,7 @@ button.sl-button-new.disabled {
 	flex-direction: column;
 	margin-bottom: 24px;
 	p {
-		font-family: 'Inter SemiBold';
+		font-family: 'Inter';
 		font-size: 20px;
 		font-weight: 600;
 		line-height: 32px;
@@ -5809,7 +5809,7 @@ button.sl-button-new.disabled {
 		height: 60px;
 		width: 600px;
 		p {
-			font-family: 'Inter SemiBold';
+			font-family: 'Inter';
 			font-size: 14px;
 			font-weight: 600;
 			line-height: 24px;
@@ -5889,7 +5889,7 @@ button.sl-button-new.disabled {
 					flex-direction: column;
 					gap: 8px;
 					h3 {
-						font-family: 'Inter Medium';
+						font-family: 'Inter';
 						font-size: 14px;
 						font-weight: 500;
 						line-height: 16px;
@@ -5965,7 +5965,7 @@ button.sl-button-new.disabled {
 .coupon-code-applied {
 	b {
 		color: #e4e5e6;
-		font-family: 'Inter Medium';
+		font-family: 'Inter';
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -6013,7 +6013,7 @@ input[type='number'] {
 	align-items: center;
 	height: 48px;
 	font-size: 14px;
-	font-family: 'Inter SemiBold';
+	font-family: 'Inter';
 	cursor: pointer;
 	color: #333;
 	&:hover {

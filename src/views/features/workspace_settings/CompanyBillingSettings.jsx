@@ -303,7 +303,7 @@ class CompanyBillingSettings extends WorkspaceController {
 									>
 										<span
 											style={{
-												fontFamily: 'Inter Medium',
+												fontFamily: 'Inter',
 												fontSize: '16px',
 												color: '#e4e5e6',
 											}}
@@ -929,7 +929,7 @@ class CompanyBillingSettings extends WorkspaceController {
 									>
 										<span
 											style={{
-												fontFamily: 'Inter Medium',
+												fontFamily: 'Inter',
 												fontSize: '16px',
 												color: '#e4e5e6',
 											}}
@@ -1042,7 +1042,7 @@ class CompanyBillingSettings extends WorkspaceController {
 																				className="title"
 																				style={{
 																					fontFamily:
-																						'Inter Medium',
+																						'Inter',
 																					fontSize:
 																						'14px',
 																					color: '#b0b0b0',
@@ -1158,7 +1158,7 @@ class CompanyBillingSettings extends WorkspaceController {
 																						className="des"
 																						style={{
 																							fontFamily:
-																								'Inter Medium',
+																								'Inter',
 																							fontSize:
 																								'15px',
 																							color: '#e4e5e6',

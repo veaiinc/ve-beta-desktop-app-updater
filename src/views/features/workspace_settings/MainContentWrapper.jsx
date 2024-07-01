@@ -20,22 +20,12 @@ let mapper = {
 };
 
 const MainContentWrapper = (props) => {
-	console.log('I am getting called');
 	const { type } = useParams();
 	const navigate = useNavigate();
 	const [urlType, setUrlype] = useState('');
 	const setType = (type) => {
 		navigate(`/workspace-settings/${type}`);
 		setUrlype(type);
-	};
-	const styles = {
-		container: {
-			height: '100%',
-			width: '100%',
-			backgroundColor: '#2d2d2d',
-			display: 'flex',
-			overflow: 'scroll',
-		},
 	};
 
 	return (

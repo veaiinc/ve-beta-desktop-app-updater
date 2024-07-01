@@ -47,8 +47,8 @@ function Sales({ type }) {
 		let response = await getTemplates();
 		if (response[0]) {
 			setLoading(false);
-			setGlobalWorkflows(_.filter(response[1], { workspaceId: '*' }));
-			setMyWorkflows(_.filter(response[1], { tenantId }));
+			setGlobalWorkflows(_.filter(response[1], { tenantId: '*' }));
+			setMyWorkflows(_.filter(response[1], (item) => item.tenantId !== '*'));
 		}
 	};
 

@@ -27,7 +27,7 @@
 	font-weight: 600;
 	padding: 0px 24px;
 	z-index: 2;
-	@include os-aware-font('Inter Medium');
+	@include os-aware-font('Inter');
 	font-style: normal;
 	font-weight: 500;
 	font-size: 13px;

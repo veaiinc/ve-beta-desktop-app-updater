@@ -25,9 +25,7 @@ const ViewDetailsBillingInfoModal = ({ handleClose, billingDetails }) => {
 			<div className="overlay-container" onClick={() => handleClose()} />
 			<div className="overlap-modal-container">
 				<div className="overlap-modal-container-header">
-					<div
-						style={{ fontFamily: 'Inter SemiBold', fontSize: '16px', color: '#e4e5e6' }}
-					>
+					<div style={{ fontFamily: 'Inter', fontSize: '16px', color: '#e4e5e6' }}>
 						Billing Details
 					</div>
 				</div>
@@ -142,7 +140,7 @@ const ViewDetailsBillingInfoModal = ({ handleClose, billingDetails }) => {
 						<div
 							style={{
 								color: '#b0b0b0',
-								fontFamily: 'Inter Medium',
+								fontFamily: 'Inter',
 								fontSize: '13px',
 							}}
 						>
@@ -151,7 +149,7 @@ const ViewDetailsBillingInfoModal = ({ handleClose, billingDetails }) => {
 						<div
 							style={{
 								color: '#b0b0b0',
-								fontFamily: 'Inter Medium',
+								fontFamily: 'Inter',
 								fontSize: '13px',
 							}}
 						>

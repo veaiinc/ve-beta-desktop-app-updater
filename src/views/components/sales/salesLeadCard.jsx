@@ -1,64 +1,29 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import '../../../assets/scss/sales/myWorkFlowDetails.scss';
 import { ReactComponent as Timer } from '../../../assets/svg/timer.svg';
 import { ReactComponent as Link } from '../../../assets/svg/link.svg';
 import { ReactComponent as MoreOptions } from '../../../assets/svg/more-options-dots.svg';
 import { ReactComponent as RightArrow } from '../../../assets/svg/right-arrow.svg';
-import Modal from 'react-modal';
+import { ReactComponent as Close } from '../../../assets/svg/close.svg';
+import InputForModules from '../../components/input/inputForModules';
+import Context from '../../../context/context';
+import ReactModal from '../modalsV2';
 
-function SalesLeadCard(props) {
+const moment = require('moment');
+
+function SalesLeadCard({ data, fetchProposals }) {
 	const [showMoreOptions, setMoreOptions] = useState(false);
 	const moreOptionsRef = useRef(null);
-
 	const [modalIsOpen, setIsOpen] = useState(false);
+	const [isLoading, setisLoading] = useState(false);
+	const [modalType, setModalType] = useState('');
 
-	const openModal = () => {
-		setIsOpen(true);
-	};
+	const [leadDetails, setLeadDetails] = useState({ status: '' });
+	const [errorState, setErrorState] = useState({ isError: false, errorMessage: '' });
 
-	const closeModal = () => {
-		setIsOpen(false);
-	};
-
-	// const customModalStyles = {
-	// 	content: {
-	// 		top: '50%',
-	// 		left: '50%',
-	// 		right: 'auto',
-	// 		bottom: 'auto',
-	// 		marginRight: '-50%',
-	// 		transform: 'translate(-50%, -50%)',
-	// 		padding: '20px',
-	// 		borderRadius: '8px',
-	// 		boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-	// 		transition: 'transform 0.3s ease-in-out',
-	// 	},
-	// 	overlay: {
-	// 		backgroundColor: 'rgba(0, 0, 0, 0.5)',
-	// 		transition: 'opacity 0.3s ease-in-out',
-	// 	},
-	// };
-
-	const customModalStyles = {
-		content: {
-			top: '50%',
-			right: 0,
-			left: 'auto',
-			transform: 'translate(100%, -50%)', // Initially off-screen to the right
-			transition: 'transform 0.3s ease-in-out',
-			padding: '20px',
-			borderRadius: '8px',
-			boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-			border: 'none',
-			backgroundColor: 'white',
-			width: '300px', // Adjust as needed
-			zIndex: 9999,
-		},
-		overlay: {
-			backgroundColor: 'rgba(0, 0, 0, 0.5)',
-			transition: 'opacity 0.3s ease-in-out',
-		},
-	};
+	let {
+		templates: { deleteProposal, moveProposalStage },
+	} = useContext(Context);
 
 	useEffect(() => {
 		function handleClickOutside(event) {
@@ -74,74 +39,236 @@ function SalesLeadCard(props) {
 		};
 	}, [moreOptionsRef]);
 
+	const findAbsFromTitle = (title) => {
+		const words = title.toUpperCase().split(' ');
+		let abs =
+			words.length > 1 ? words[0][0] + words[words.length - 1][0] : words[0][0] + words[0][1];
+		return abs;
+	};
+
+	const handleDeleteProposal = async () => {
+		setMoreOptions(false);
+		setisLoading(true);
+
+		let response = await deleteProposal(data._id);
+
+		if (response[0]) {
+			fetchProposals();
+			closeModal();
+			setisLoading(false);
+		} else {
+			setisLoading(false);
+		}
+	};
+
+	const openModal = (event, type) => {
+		event.preventDefault();
+		setIsOpen(true);
+		setModalType(type);
+	};
+
+	const closeModal = (event) => {
+		setIsOpen(false);
+		setModalType('');
+	};
+
+	const handleInputChange = (e) => {
+		let { name, value } = e.target;
+
+		let error = `is${name}Error`;
+		let message = `${name}ErrorMessage`;
+
+		setLeadDetails((prevState) => ({
+			...prevState,
+			[name]: value,
+		}));
+		setErrorState((prevState) => ({
+			...prevState,
+			[error]: false,
+			[message]: '',
+		}));
+	};
+
+	const handleMoveProposal = async () => {
+		if (leadDetails.status != '') {
+			setMoreOptions(false);
+			setisLoading(true);
+			let response = await moveProposalStage(
+				data._id,
+				data.activeVersion,
+				leadDetails.status,
+			);
+			if (response[0]) {
+				fetchProposals();
+				closeModal();
+				setisLoading(false);
+			} else {
+				setisLoading(false);
+			}
+		} else {
+			setErrorState((prevState) => ({
+				...prevState,
+				isstatusError: true,
+				isstatusErrorMessage: 'Required Field',
+			}));
+		}
+	};
+
+	const deleteProposalModal = () => {
+		return (
+			<div className="deleteModalProposal">
+				<div>
+					<div className="modalHeading">
+						<p className="title">What lead is this proposal for?</p>
+						<div className="closeContainer" onClick={closeModal}>
+							<Close />
+						</div>
+					</div>
+
+					<p className="modalDescription">
+						Once deleted, this proposal cannot be recovered. Are you sure you want to go
+						ahead?
+					</p>
+				</div>
+
+				<div className="buttonContainer">
+					<div className="cancelContainer" onClick={closeModal}>
+						<p>Cancel </p>
+					</div>
+
+					<div className="deleteProposalContainer" onClick={handleDeleteProposal}>
+						{isLoading ? <p>Loading...</p> : <p>Delete</p>}
+					</div>
+				</div>
+			</div>
+		);
+	};
+
+	const moveProposalStatus = () => {
+		return (
+			<div className="moveProposalContainer">
+				<div className="header">
+					<p className="headingText">Move {data.title} down the pipeline</p>
+					<div className="closeContainer" onClick={closeModal}>
+						<Close />
+					</div>
+				</div>
+
+				<InputForModules
+					label={'Select Workflow Stage'}
+					type={'dropdown'}
+					placeholder={'Enter lead name'}
+					name={'status'}
+					value={leadDetails['status']}
+					options={[
+						{ label: 'Accepted', value: 'accept' },
+						{ label: 'Rejected', value: 'reject' },
+						//{ label: 'Expired', value: 'mark-as-expire' },
+					]}
+					onChange={handleInputChange}
+					isError={errorState['isstatusError']}
+					errorMessage={errorState['statusErrorMessage']}
+				/>
+
+				<div className="buttonsContainer">
+					<div className="moveButton" onClick={handleMoveProposal}>
+						{isLoading ? <p>Loading...</p> : <p>Move</p>}
+					</div>
+					<p className="cancelText" onClick={closeModal}>
+						Cancel
+					</p>
+				</div>
+			</div>
+		);
+	};
+
+	const handleMoreOptions = async (event) => {
+		event.preventDefault();
+		setMoreOptions(true);
+	};
+
+	const handleDeleteOption = async (event) => {
+		event.preventDefault();
+		setMoreOptions(false);
+		openModal(event, 'deleteProposal');
+	};
+
 	return (
-		<div className="SalesLeadCardContainer">
-			<div className="topLayer">
-				<div className="status">
-					<div className="timerInfoContainer">
-						<Timer />
-						<p>Since 16 days</p>
-					</div>
-					<div className="quickActionContainer">
-						<div>
-							<Link />
+		<>
+			<a href={`/sales/${data.tenantId}/${data._id}`}>
+				<div className="SalesLeadCardContainer">
+					<div className="topLayer">
+						<div className="status">
+							<div className="timerInfoContainer">
+								<Timer />
+								<p>Since {moment(data.createdAt * 1000).fromNow()}</p>
+							</div>
+							<div className="quickActionContainer">
+								<div>
+									<Link />
+								</div>
+								<div onClick={handleMoreOptions}>
+									<MoreOptions />
+								</div>
+							</div>
 						</div>
-						<div onClick={() => setMoreOptions(true)}>
-							<MoreOptions />
+
+						<div className="clientsContainer">
+							<div className="userProfileContainer">
+								<p>{findAbsFromTitle(data.title)}</p>
+							</div>
+
+							<div className="usersDetails">
+								<p className="fullName">{data.title}</p>
+								<p className="username">{''}</p>
+							</div>
+							<div className="cost">
+								<p>
+									{data.paymentDetails.currency === 'INR' ? '₹' : '$'}{' '}
+									{data.paymentDetails.grandTotal
+										? data.paymentDetails.grandTotal
+										: 0}
+								</p>
+							</div>
 						</div>
 					</div>
-				</div>
-
-				<div className="clientsContainer">
-					<div className="userProfileContainer">
-						<p>JA</p>
+					<div className="bottomLayer">
+						<div className="createdUserDetails">
+							<p className="usersShortCut">
+								{findAbsFromTitle(data.createdBy.firstName)}
+							</p>
+							<p className="fullName">{data.createdBy.firstName}</p>
+						</div>
+						<div
+							className="moveToContainer"
+							onClick={(e) => openModal(e, 'moveProposal')}
+						>
+							<p>Move to</p>
+							<RightArrow />
+						</div>
 					</div>
 
-					<div className="usersDetails">
-						<p className="fullName">Aaron Lemke</p>
-						<p className="username">@johnatig</p>
+					<div
+						className="moreOptionsPreviewContainer"
+						style={{ display: showMoreOptions ? 'flex' : 'none' }}
+						ref={moreOptionsRef}
+					>
+						<p onClick={() => setMoreOptions(false)}>Preview</p>
+						<p onClick={() => setMoreOptions(false)}>Resend Proposal</p>
+						<p onClick={handleDeleteOption} className="delete">
+							Delete Proposal
+						</p>
 					</div>
-					<div className="cost">
-						<p>$ 304</p>
-					</div>
 				</div>
-			</div>
-			<div className="bottomLayer">
-				<div className="createdUserDetails">
-					<p className="usersShortCut">JA</p>
-					<p className="fullName">Surbhi Reddy</p>
-				</div>
-				<div className="moveToContainer" onClick={openModal}>
-					<p>Move to</p>
-					<RightArrow />
-				</div>
-			</div>
-
-			<div
-				className="moreOptionsPreviewContainer"
-				style={{ display: showMoreOptions ? 'flex' : 'none' }}
-				ref={moreOptionsRef}
-			>
-				<p onClick={() => setMoreOptions(false)}>Preview</p>
-				<p onClick={() => setMoreOptions(false)}>Resend Proposal</p>
-				<p onClick={() => setMoreOptions(false)} className="delete">
-					Delete Proposal
-				</p>
-			</div>
-
-			<Modal
-				isOpen={modalIsOpen}
-				onRequestClose={closeModal}
-				style={customModalStyles}
-				contentLabel="Example Modal"
-				shouldCloseOnOverlayClick={true}
-				ariaHideApp={false} // Required to prevent a11y warning
-			>
-				<h2>Modal Content</h2>
-				<p>This is the content of the modal.</p>
-				<button onClick={closeModal}>Close Modal</button>
-			</Modal>
-		</div>
+			</a>
+			<ReactModal isOpen={modalIsOpen} closeModal={closeModal}>
+				{modalType === 'deleteProposal'
+					? deleteProposalModal()
+					: modalType === 'moveProposal'
+					? moveProposalStatus()
+					: ''}
+			</ReactModal>
+		</>
 	);
 }
 

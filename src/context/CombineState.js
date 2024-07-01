@@ -4,12 +4,12 @@ import { TemplatesState } from './Templates/state';
 import { ProfileState } from './profileSettings/state';
 
 const CombineState = () => {
-    return {
-        chatInfo: ChatState(),
-        userLogin: UserLoginState(),
-        templates: TemplatesState(),
-        profileInfo: ProfileState(),
-    };
+	return {
+		chatInfo: ChatState(),
+		userLogin: UserLoginState(),
+		templates: TemplatesState(),
+		profileInfo: ProfileState(),
+	};
 };
 
 export default CombineState;

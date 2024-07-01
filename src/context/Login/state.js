@@ -4,78 +4,220 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 
 export const UserLoginState = (props) => {
-    const intialState = {};
-    const [state, dispatch] = useReducer(Reducer, intialState);
+	const intialState = {};
+	const [state, dispatch] = useReducer(Reducer, intialState);
 
-    const verifyAccountExistsUsingEmail = async (email) => {
-        let response = await Service.fetchGet(
-            `${API.USERS_LOGIN.VERIFY_EMAIL_EXISTS}${email}`,
-            null,
-            'tenant_users_api',
-        );
+	const verifyAccountExistsUsingEmail = async (email) => {
+		let response = await Service.fetchGet(
+			`${API.USERS_LOGIN.VERIFY_EMAIL_EXISTS}${email}`,
+			null,
+			'tenant_users_api',
+		);
 
-        if (response[0]) {
-            return [true, response[1]];
-        } else {
-            return [false, response?.[1]?.message];
-        }
-    };
+		if (response[0]) {
+			return [true, response[1]];
+		} else {
+			return [false, response?.[1]?.message];
+		}
+	};
 
-    const createUsersAccount = async (payload) => {
-        let response = await Service.fetchPost(
-            `${API.USERS_LOGIN.SIGNUP}`,
-            payload,
-            null,
-            'tenant_users_api',
-        );
+	const createUsersAccount = async (payload) => {
+		let response = await Service.fetchPost(
+			`${API.USERS_LOGIN.SIGNUP}`,
+			payload,
+			null,
+			'tenant_users_api',
+		);
 
-        if (response[0] === true) {
-            return [true, response[1]];
-        } else {
-            return [false, response[1]];
-        }
-    };
+		if (response[0] === true) {
+			return [true, response[1]];
+		} else {
+			return [false, response[1]];
+		}
+	};
 
-    const verifyUserEmailCode = async (payload) => {
-        let response = await Service.fetchPost(
-            `${API.USERS_LOGIN.VERIFY_SIGNUP_CODE}`,
-            payload,
-            null,
-            'tenant_users_api',
-        );
+	const verifyUserEmailCode = async (payload) => {
+		let response = await Service.fetchPost(
+			API.USERS_LOGIN.VERIFY_SIGNUP_CODE,
+			payload,
+			null,
+			'tenant_users_api',
+		);
 
-        if (response[0] === true) {
-            return [true, response[1]];
-        } else {
-            return [false, response[1]];
-        }
-    };
+		if (response[0] === true) {
+			const { accessToken } = response?.[1];
+			if (accessToken?.length) {
+				localStorage.setItem('usertoken', accessToken);
+			}
+			return [true, response?.[1]];
+		} else {
+			return [false, response?.[1]];
+		}
+	};
 
-    const userLogin = async (payload) => {
-        let response = await Service.fetchPost(
-            `${API.USERS_LOGIN.LOGIN}`,
-            payload,
-            null,
-            'tenant_users_api',
-        );
+	const userLogin = async (payload) => {
+		let response = await Service.fetchPost(
+			`${API.USERS_LOGIN.LOGIN}`,
+			payload,
+			null,
+			'tenant_users_api',
+		);
 
-        const { accessToken, accessibleWorkspaces } = response?.[1] || {};
+		if (response[0] === true) {
+			const { accessToken, accessibleWorkspaces } = response?.[1] || {};
 
-        localStorage.setItem('usertoken', accessToken);
-        localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
-        localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
+			if (accessToken?.length) {
+				localStorage.setItem('usertoken', accessToken);
+			}
+			if (!accessibleWorkspaces?.length) {
+				return [true, 'createWorkspace'];
+			}
 
-        if (response[0] === true) {
-            return [true];
-        } else {
-            return [false];
-        }
-    };
+			localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
+			localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
+			return [true];
+		} else {
+			if (response?.[1]?.messageCode === 'EMAIL_NOT_VERIFIED') {
+				return [true, 'redirect'];
+			}
+			return [false, response?.[1]?.message || 'Something went wrong'];
+		}
+	};
 
-    return {
-        verifyAccountExistsUsingEmail,
-        createUsersAccount,
-        verifyUserEmailCode,
-        userLogin,
-    };
+	const sendEmailOtpRequest = async (payload) => {
+		try {
+			const response = await Service.fetchPost(
+				'/email-verification-code',
+				payload,
+				null,
+				'tenant_users_api',
+			);
+
+			if (response?.[0] === true) {
+				return [true];
+			} else {
+				console.log('api failed sendEmailOtpRequest', response);
+				return [false];
+			}
+		} catch (error) {
+			console.error('Error==>sendEmailOtpRequest', error);
+		}
+	};
+
+	const verifyResetPasswordCode = async (payload) => {
+		try {
+			const response = await Service.fetchPost(
+				'/verify-password-reset-code',
+				payload,
+				null,
+				'tenant_users_api',
+			);
+
+			if (response?.[0] === true) {
+				const { accessToken } = response?.[1];
+				if (accessToken?.length) {
+					localStorage.setItem('usertoken', accessToken);
+					return [true];
+				}
+				return [true];
+			} else {
+				console.log('api failed sendEmailOtpRequest', response);
+				return [false, 'Invalid Code'];
+			}
+		} catch (error) {
+			console.error('Error==>verifyResetPasswordCode', error);
+		}
+	};
+
+	const restePasswordEmailOtpRequest = async (payload) => {
+		try {
+			const response = await Service.fetchPost(
+				'/request-password-reset-code',
+				payload,
+				null,
+				'tenant_users_api',
+			);
+
+			if (response?.[0] === true) {
+				return [true];
+			} else {
+				console.log('api failed restePasswordEmailOtpRequest', response);
+				return [false];
+			}
+		} catch (error) {
+			console.error('Error==>restePasswordEmailOtpRequest', error);
+		}
+	};
+
+	const updatePassword = async (payload) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchPost(
+				'/update-password',
+				payload,
+				usertoken,
+				'tenant_users_api',
+			);
+
+			if (response?.[0] === true) {
+				const { accessToken, accessibleWorkspaces } = response?.[1] || {};
+				if (accessToken?.length) {
+					localStorage.setItem('usertoken', accessToken);
+				}
+				if (!accessibleWorkspaces?.length) {
+					return [true, 'createWorkspace'];
+				}
+
+				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
+				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
+				return [true];
+			} else {
+				return [false, response?.[1]?.message || 'Something went wrong'];
+			}
+		} catch (error) {
+			console.error('Error==>updatePassword', error);
+		}
+	};
+
+	const createWorkspace = async (payload) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchPost(
+				'/create-workspace',
+				payload,
+				usertoken,
+				'tenant',
+			);
+			if (response?.[0] === true) {
+				let { tenantId, workspaceId } = response?.[1];
+				let accessibleWorkspaces = localStorage.getItem('accessibleWorkspaces');
+				if (accessibleWorkspaces?.length) {
+					accessibleWorkspaces = JSON.parse(accessibleWorkspaces);
+					accessibleWorkspaces.push(workspaceId);
+				} else {
+					accessibleWorkspaces = [workspaceId];
+				}
+				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
+				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
+
+				return [true];
+			} else {
+				return [false, response?.[1]?.message || 'Something went wrong'];
+			}
+		} catch (error) {
+			console.error('Error==>createWorkspace', error);
+		}
+	};
+
+	return {
+		verifyAccountExistsUsingEmail,
+		createUsersAccount,
+		verifyUserEmailCode,
+		userLogin,
+		sendEmailOtpRequest,
+		verifyResetPasswordCode,
+		restePasswordEmailOtpRequest,
+		updatePassword,
+		createWorkspace,
+	};
 };
