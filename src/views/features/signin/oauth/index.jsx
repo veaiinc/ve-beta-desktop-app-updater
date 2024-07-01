@@ -13,7 +13,7 @@ const OauthVerify = () => {
 			if (accessibleWorkspaces && accessibleWorkspaces?.length) {
 				accessibleWorkspaces = accessibleWorkspaces?.split(',');
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
-				localStorage.setItem('workspaceId', accessibleWorkspaces[0]);
+				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
 				localStorage.setItem('usertoken', accessToken);
 				return navigate('/sales');
 			}
