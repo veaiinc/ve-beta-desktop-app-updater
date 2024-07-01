@@ -119,3 +119,22 @@ const EmptyState = ({ type, input, onChangeFunc }) => {
 };
 
 export default memo(EmptyState);
+
+const ResponseWindowExpiredState = () => {
+	return (
+		<div className="resposenWindowStateContainer">
+			<EmptySvg />
+			<div className="platformMainLabel">
+				<span className="platformIntegrationMessage">Response Window Expired</span>
+				<span className="platformSuppportingText">
+					It looks like the 24-hour response window for this message has expired. To
+					respond to this message, please use your phone to access the Facebook or
+					Instagram app directly.<br></br>
+					<br></br>We apologize for any inconvenience this may cause. Learn More
+				</span>
+			</div>
+		</div>
+	);
+};
+
+export const ExpiredState = memo(ResponseWindowExpiredState);
