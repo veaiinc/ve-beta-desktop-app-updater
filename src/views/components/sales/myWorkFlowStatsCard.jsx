@@ -247,13 +247,13 @@ function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard 
 							<a href={`/sales/${workflow._id}?status=sent`}>
 								{statsBox(
 									'SENT',
-									inSights && inSights.status.draft ? inSights.status.draft : 0,
+									inSights && inSights.status.sent ? inSights.status.sent : 0,
 								)}
 							</a>
 						) : (
 							statsBox(
 								'SENT',
-								inSights && inSights.status.draft ? inSights.status.draft : 0,
+								inSights && inSights.status.sent ? inSights.status.sent : 0,
 							)
 						)}
 						{singleCard ? (
