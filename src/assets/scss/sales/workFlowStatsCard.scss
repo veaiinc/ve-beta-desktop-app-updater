@@ -134,6 +134,12 @@
 					line-height: 1.625rem; /* 144.444% */
 				}
 			}
+
+			.statBox-active {
+				border-radius: 1.5rem;
+				border: 1px solid #242424;
+				background: rgba(176, 176, 176, 0.1);
+			}
 		}
 	}
 }

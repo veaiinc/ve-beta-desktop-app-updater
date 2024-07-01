@@ -26,7 +26,7 @@ function MyWorkFlowDetails(props) {
 
 	const [metaData, setMetaData] = useState({
 		page: 1,
-		status: status,
+		status: status ? status : 'draft',
 		hasMore: true,
 	});
 
@@ -148,6 +148,7 @@ function MyWorkFlowDetails(props) {
 				workflow={templateDetails}
 				inSights={inSights[0]}
 				singleCard={true}
+				activeTab={metaData['status']}
 			/>
 			{isLoading ? (
 				''

@@ -10,7 +10,14 @@ import { useNavigate } from 'react-router-dom';
 const _ = require('lodash');
 var validator = require('validator');
 
-function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard = false }) {
+function MyWorkFlowStatsCard({
+	hideImage,
+	workflow,
+	index,
+	inSights,
+	singleCard = false,
+	activeTab = 'draft',
+}) {
 	const [modalIsOpen, setIsOpen] = useState(false);
 	const [leadDetails, setLeadDetails] = useState({ name: '', emailId: '', source: 'instagram' });
 	const [createButtonActiveState, setCreateButtonActiveState] = useState(false);
@@ -191,9 +198,9 @@ function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard 
 		);
 	};
 
-	const statsBox = (label, value) => {
+	const statsBox = (label, value, active = false) => {
 		return (
-			<div className="statBox">
+			<div className={`statBox ${active ? 'statBox-active' : ''}`}>
 				<p className="statsTitle">{label}</p>
 				<p className="statsValue">{value}</p>
 			</div>
@@ -235,6 +242,7 @@ function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard 
 								{statsBox(
 									'DRAFT',
 									inSights && inSights.status.draft ? inSights.status.draft : 0,
+									activeTab === 'draft' ? true : false,
 								)}
 							</a>
 						) : (
@@ -248,6 +256,7 @@ function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard 
 								{statsBox(
 									'SENT',
 									inSights && inSights.status.sent ? inSights.status.sent : 0,
+									activeTab === 'sent' ? true : false,
 								)}
 							</a>
 						) : (
@@ -263,6 +272,7 @@ function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard 
 									inSights && inSights.status.accepted
 										? inSights.status.accepted
 										: 0,
+									activeTab === 'accepted' ? true : false,
 								)}
 							</a>
 						) : (
@@ -278,6 +288,7 @@ function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard 
 									inSights && inSights.status.rejected
 										? inSights.status.rejected
 										: 0,
+									activeTab === 'rejected' ? true : false,
 								)}
 							</a>
 						) : (
@@ -294,6 +305,7 @@ function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard 
 									inSights && inSights.status.expired
 										? inSights.status.expired
 										: 0,
+									activeTab === 'expired' ? true : false,
 								)}
 							</a>
 						) : (
