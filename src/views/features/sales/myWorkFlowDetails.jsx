@@ -135,7 +135,10 @@ function MyWorkFlowDetails(props) {
 						<LeftArrow />
 					</a>
 					<p>
-						{templateDetails.title} <span>(EDIT)</span>
+						{templateDetails.title}{' '}
+						<a href={`https://builder.ve.co/${templateDetails._id}`}>
+							<span>(EDIT)</span>
+						</a>
 					</p>
 				</div>
 				<div className="inputContainer">
