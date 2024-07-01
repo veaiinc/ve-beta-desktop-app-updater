@@ -15,8 +15,6 @@ const VerifyUserStep = ({
 	setStage,
 	setErrorState,
 }) => {
-	const params = useParams();
-	const navigate = useNavigate();
 	let {
 		userLogin: { verifyAccountExistsUsingEmail },
 	} = useContext(Context);
