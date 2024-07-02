@@ -2,20 +2,20 @@ import React, { useState } from 'react';
 import '../../../assets/scss/inputComponent.scss';
 
 const ToggleSlider = ({ onChange }) => {
-    const [checked, setChecked] = useState(false);
+	const [checked, setChecked] = useState(false);
 
-    const handleToggle = () => {
-        const newValue = !checked;
-        setChecked(newValue);
-        onChange(newValue);
-    };
+	const handleToggle = () => {
+		const newValue = !checked;
+		setChecked(newValue);
+		onChange(newValue);
+	};
 
-    return (
-        <label className="toggleSwitch">
-            <input type="checkbox" checked={checked} onChange={handleToggle} />
-            <span className="slider round"></span>
-        </label>
-    );
+	return (
+		<label className="toggleSwitch">
+			<input type="checkbox" checked={checked} onChange={handleToggle} />
+			<span className="slider round"></span>
+		</label>
+	);
 };
 
 export default ToggleSlider;

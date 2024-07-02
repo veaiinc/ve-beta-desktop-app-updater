@@ -1,4 +1,4 @@
-import { useReducer, useState } from 'react';
+import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './actions';
 import * as API from '../../controllers/oldActionTypes';
@@ -11,6 +11,7 @@ export const ProfileState = () => {
 		userDetailsData: null,
 		tenantUserDetails: null,
 		qrcode: null,
+		set2FASetting: null,
 	};
 
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -91,16 +92,35 @@ export const ProfileState = () => {
 		}
 	};
 	const set2FASettings = async (is2FAEnabled) => {
-		let json = {
-			is2FAEnabled: is2FAEnabled,
-		};
+		try {
+			let json = {
+				is2FAEnabled: is2FAEnabled,
+			};
+			let response = await service.fetchPut(
+				API.TENANT_USER_LOGIN_SIGNUP_API.set2FASettings,
+				json,
+				usertoken,
+				'tenant-users',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.SET_2FA_SETTINGS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>set2fASettings', error);
+		}
+		// console.log(response, 'this is the response data from the settings');
+	};
+
+	const updateUserDetails = async (payload) => {
 		let response = await service.fetchPut(
-			API.TENANT_USER_LOGIN_SIGNUP_API.set2FASettings,
-			json,
+			API.TENANTS.myProfile,
+			payload,
 			usertoken,
 			'tenant-users',
 		);
-		// console.log(response, 'this is the response data from the settings');
 	};
 
 	return {
@@ -110,5 +130,6 @@ export const ProfileState = () => {
 		getTenantUserDetails,
 		get2FAQrCode,
 		set2FASettings,
+		updateUserDetails,
 	};
 };

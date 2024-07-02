@@ -12,6 +12,10 @@ const actionHandlers = {
 		...state,
 		qrcode: action.payload,
 	}),
+	SET_2FA_SETTINGS: (state, action) => ({
+		...state,
+		set2FASetting: action.payload,
+	}),
 };
 
 const Reducer = (state, action) => {

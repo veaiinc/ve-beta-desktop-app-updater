@@ -7,6 +7,7 @@ import ToggleSlider from '../../components/input/slider';
 // import { collapseToast, useToast } from 'react-toastify';
 import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
 import validator from 'validator';
+import MySettingsChangePasword from './MySettingsChangePasword';
 
 const MySettings = () => {
 	const {
@@ -19,7 +20,9 @@ const MySettings = () => {
 			tennantSettingsData,
 			userDetailsData,
 			tenantUserDetails,
+			updateUserDetails,
 			qrcode,
+			// set2FASetting,
 		},
 	} = useContext(Context);
 
@@ -31,7 +34,7 @@ const MySettings = () => {
 		{ id: '4', name: 'Day One Stories' },
 		{ id: '5', name: 'Photographies' },
 	];
-
+	const [showForm, setShowForm] = useState(false);
 	const [isToggleOn, setIsToggleOn] = useState(false);
 	const [isEditMode, setIsEditMode] = useState(false);
 	const [errors, setErrors] = useState({});
@@ -53,11 +56,6 @@ const MySettings = () => {
 	};
 
 	useEffect(() => {
-		console.log('tennantSettingsData:', tennantSettingsData);
-		console.log('userDetailsData:', userDetailsData);
-		console.log('tenantUserDetails:', tenantUserDetails);
-		console.log('qrcode:', qrcode);
-
 		if (userDetailsData) {
 			setUserDetails({
 				fullName: userDetailsData.firstName || '',
@@ -65,7 +63,15 @@ const MySettings = () => {
 				phoneNumber: userDetailsData.phoneNumber || '',
 			});
 		}
-	}, [tennantSettingsData, userDetailsData, tenantUserDetails, qrcode]);
+		if (isToggleOn) {
+			get2FAQrCode();
+		}
+	}, [userDetailsData, isToggleOn]);
+
+	console.log('tennantSettingsData:', tennantSettingsData);
+	console.log('userDetailsData:', userDetailsData);
+	console.log('tenantUserDetails:', tenantUserDetails);
+	console.log('qrcode:', qrcode);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -81,29 +87,27 @@ const MySettings = () => {
 			getTenantSettings();
 			getUserDetails();
 			getTenantUserDetails();
-			if (isToggleOn) {
-				get2FAQrCode();
-			}
 		};
 
 		fetchData();
-	}, [isToggleOn]);
+	}, []);
 
+	const getInitials = () => {
+		const names = userDetailsData?.firstName + ' ' + userDetailsData?.lastName;
+		const nameParts = names.split(' ');
+		const initials = nameParts.map((part) => part[0].toUpperCase()).join('');
+		return initials;
+	};
+	const handleFormPopUp = () => {
+		setShowForm(true);
+	};
+	const handlePopupFormClose = () => {
+		setShowForm(false);
+	};
 	const toggleEnable = async (e) => {
+		setIsToggleOn((prev) => !prev);
 		await set2FASettings(e);
 	};
-
-	toggleEnable(isToggleOn);
-	const handleToggleClick = () => {
-		setIsToggleOn((prevState) => !prevState);
-	};
-	// useEffect(() => {
-	// 	const fetchData = async () => {
-	// 		const qrCode = await get2FAQrCode();
-	// 		// setQrCode(qrCode);
-	// 	};
-	// 	fetchData();
-	// }, [isToggleOn]);
 
 	const handleTheme = (activeName) => {
 		setActiveTheme(activeName);
@@ -182,8 +186,12 @@ const MySettings = () => {
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		if (validate()) {
-			// console.log(formData);
 			setIsEditMode(false);
+			let json = {
+				firstName: userDetails.fullName,
+				lastName: userDetails.fullName,
+			};
+			updateUserDetails(json);
 		}
 	};
 
@@ -225,13 +233,7 @@ const MySettings = () => {
 										onChange={handleImageChange}
 										style={{ display: 'none' }}
 									/>
-									<label htmlFor="profilePicture">
-										{/* <img
-                                    src={formData.profilePicture || defaultPic}
-                                    alt="Profile"
-                                    style={{ cursor: isEditMode ? 'pointer' : 'default' }}
-                                /> */}
-									</label>
+									<label htmlFor="profilePicture">{getInitials()}</label>
 								</div>
 								<div className={'fullName'}>
 									<InputForModules
@@ -243,6 +245,7 @@ const MySettings = () => {
 										onChange={handleChange}
 										isError={false}
 										errorMessage={''}
+										disabled={!isEditMode}
 									/>
 								</div>
 							</div>
@@ -259,6 +262,7 @@ const MySettings = () => {
 									onChange={handleChange}
 									isError={false}
 									errorMessage={''}
+									disabled={!isEditMode}
 								/>
 
 								{errors.phoneNumber && (
@@ -276,6 +280,7 @@ const MySettings = () => {
 									onChange={(e) => handleChange(e)}
 									isError={false}
 									errorMessage={''}
+									disabled={!isEditMode}
 								/>
 								{errors.email && <p className={'error'}>{errors.email}</p>}
 								<label>Email Address cannot be changed once set</label>
@@ -300,7 +305,7 @@ const MySettings = () => {
 						<div className={'switchStep'}>
 							<div className={'switchToggle'}>
 								<p>Enable Two Factor Authentication</p>
-								<ToggleSlider onChange={handleToggleClick} />
+								<ToggleSlider onChange={toggleEnable} />
 							</div>
 
 							{isToggleOn ? (
@@ -315,7 +320,7 @@ const MySettings = () => {
 											<p>
 												Scan the following QR code in your authenticator app
 											</p>
-											<img src={qrcode?.qrCode} />
+											<img src={qrcode?.qrCode} alt="" />
 										</div>
 									</div>
 									<div className={`${'step'} `}>
@@ -392,7 +397,10 @@ const MySettings = () => {
 								extra security.
 							</p>
 							{/* <button>Update my password</button> */}
-							<ReusableButtonSettings text={'Update'} />
+							<ReusableButtonSettings
+								text={'Update my password'}
+								func={() => handleFormPopUp()}
+							/>
 						</div>
 						<div className={'chooseWorkspaces'}>
 							<h4>Choose your default workspace</h4>
@@ -431,6 +439,13 @@ const MySettings = () => {
 				</div>
 			</div>
 			<div className="linksContainer">
+				<div className="linksContainerProfile">
+					<div className="profile-img">{getInitials()}</div>
+					<div className="linkContainerProfileDetails">
+						<h3>{userDetails?.fullName}</h3>
+						<p>{isAdmin ? 'Admin' : ''}</p>
+					</div>
+				</div>
 				<ul className={'sidebarList'}>
 					<li
 						className={activeItem === 'profile' ? 'active' : ''}
@@ -462,9 +477,10 @@ const MySettings = () => {
 					>
 						Access Settings
 					</li>
-					<li style={{ color: '#6055EC' }}> + Create Workspace</li>
+					<li style={{ color: '#6055EC', cursor: 'not-allowed' }}> + Create Workspace</li>
 				</ul>
 			</div>
+			{showForm && <MySettingsChangePasword onClose={handlePopupFormClose} />}
 		</div>
 	);
 };
