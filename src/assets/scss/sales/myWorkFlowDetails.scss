@@ -121,9 +121,6 @@
 .SalesLeadCardContainer {
 	display: flex;
 	flex-direction: column;
-	border-radius: 1rem;
-	border: 1px solid rgba(36, 36, 36, 0.64);
-	background: rgba(42, 42, 42, 0.16);
 	width: 22.4rem;
 	min-width: 22.4rem;
 	cursor: pointer;
@@ -136,6 +133,11 @@
 		align-items: flex-start;
 		gap: 1.25rem;
 		align-self: stretch;
+		border-top-left-radius: 1rem;
+		border-top-right-radius: 1rem;
+
+		border: 1px solid rgba(36, 36, 36, 0.64);
+		background: #1e1f20;
 
 		.status {
 			display: flex;
@@ -261,6 +263,9 @@
 		align-self: stretch;
 
 		background: rgba(42, 42, 42, 0.24);
+		border-bottom-left-radius: 1rem;
+		border-bottom-right-radius: 1rem;
+		border: 1px solid rgba(36, 36, 36, 0.64);
 
 		.createdUserDetails {
 			display: flex;

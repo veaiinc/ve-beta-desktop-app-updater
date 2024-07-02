@@ -34,17 +34,22 @@ const customStyles = {
 	},
 };
 
-const SwitchWorkspaceModal = ({
-	open,
-	closeModal,
-	accessibleWorkspaces,
-	activeWorkspaceId,
-	// changeWorkspace,
-}) => {
+const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWorkspaceId }) => {
 	const navigate = useNavigate();
 	const handleLogout = useCallback(() => {
 		localStorage.clear();
 		navigate('/');
+	}, []);
+
+	const handleSwitchWorkSpaceLogic = useCallback((data) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		if (workspaceId === data) {
+			closeModal();
+			return;
+		}
+		closeModal();
+		localStorage.setItem('workspaceId', data);
+		window.location.reload();
 	}, []);
 
 	return (
@@ -67,9 +72,7 @@ const SwitchWorkspaceModal = ({
 							className="workspaceCard"
 							key={index}
 							onClick={() => {
-								closeModal();
-								localStorage.setItem('workspaceId', ele);
-								window.location.reload();
+								handleSwitchWorkSpaceLogic(ele);
 							}}
 						>
 							<div className="workspaceDetailsContainer">

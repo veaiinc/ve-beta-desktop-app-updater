@@ -6,7 +6,7 @@ import MyWorkFlowDetails from './views/features/sales/myWorkFlowDetails';
 import ProposalCRUD from './views/features/modules/proposalCRUD';
 import MainContentWrapper from './views/features/workspace_settings/MainContentWrapper';
 import MySettingsWrapper from './views/features/profile_settings/MySettingsWrapper';
-import OauthVerify from './views/features/auth/oauth';
+import OauthVerify from './views/features/signin/oauth';
 import MySettings from './views/features/profile_settings_update/MySettings';
 import CompanyOverview from './views/features/workspace_settings_update/CompanyOverview';
 

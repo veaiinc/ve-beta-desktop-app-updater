@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const OauthVerify = () => {
 	const navigate = useNavigate();
@@ -13,8 +14,14 @@ const OauthVerify = () => {
 			if (accessibleWorkspaces && accessibleWorkspaces?.length) {
 				accessibleWorkspaces = accessibleWorkspaces?.split(',');
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
-				localStorage.setItem('workspaceId', accessibleWorkspaces[0]);
+				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
 				localStorage.setItem('usertoken', accessToken);
+
+				Cookies.set('usertoken', accessToken, {
+					sameSite: 'lax',
+					domain: '.ve.co',
+				});
+
 				return navigate('/sales');
 			}
 			if (

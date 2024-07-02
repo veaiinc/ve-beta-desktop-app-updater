@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 
 function WorkflowTemplates({ workflows }) {
 	const [modalIsOpen, setIsOpen] = useState(false);
-	const [workflow, setWorkFlow] = useState({ workflowId: '', workflowTitle: '' });
+	const [workflow, setWorkFlow] = useState({ id: '', title: '' });
 	const [isLoading, setLoading] = useState(false);
 
 	let {
@@ -53,6 +53,8 @@ function WorkflowTemplates({ workflows }) {
 		}
 	};
 
+	console.log(workflow);
+
 	const previewModal = () => {
 		return (
 			<div className="previewContainerModal">
@@ -94,7 +96,9 @@ function WorkflowTemplates({ workflows }) {
 
 						<div className="buttonContainer">
 							<div className="customizeContainer">
-								<p>Customize</p>
+								<a href={`https://builder.ve.co/${workflow.id}`}>
+									<p>Customize</p>
+								</a>
 							</div>
 							<div className="customizeContainer" onClick={() => handleUseTemplate()}>
 								<p>Use Template</p>

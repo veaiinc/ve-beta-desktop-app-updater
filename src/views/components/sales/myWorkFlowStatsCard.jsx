@@ -10,7 +10,14 @@ import { useNavigate } from 'react-router-dom';
 const _ = require('lodash');
 var validator = require('validator');
 
-function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard = false }) {
+function MyWorkFlowStatsCard({
+	hideImage,
+	workflow,
+	index,
+	inSights,
+	singleCard = false,
+	activeTab = 'draft',
+}) {
 	const [modalIsOpen, setIsOpen] = useState(false);
 	const [leadDetails, setLeadDetails] = useState({ name: '', emailId: '', source: 'instagram' });
 	const [createButtonActiveState, setCreateButtonActiveState] = useState(false);
@@ -107,12 +114,12 @@ function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard 
 					email: leadDetails['emailId'],
 				},
 			};
-			let response = await createProposals(workflow._id, json);
+			let response = await createProposals(workflow?._id, json);
 
 			if (response[1]) {
 				setLoading(true);
 				closeModal();
-				navigate(`/sales/${workflow._id}/${response[1]._id}`);
+				navigate(`/sales/${workflow?._id}/${response[1]._id}`);
 			} else {
 				setLoading(true);
 				setLeadDetails((prevState) => ({
@@ -191,9 +198,9 @@ function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard 
 		);
 	};
 
-	const statsBox = (label, value) => {
+	const statsBox = (label, value, active = false) => {
 		return (
-			<div className="statBox">
+			<div className={`statBox ${active ? 'statBox-active' : ''}`}>
 				<p className="statsTitle">{label}</p>
 				<p className="statsValue">{value}</p>
 			</div>
@@ -209,10 +216,10 @@ function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard 
 					<div className="imageContainer">
 						<div
 							className="coverImage"
-							style={{ backgroundImage: `url(${workflow.displayImageURL})` }}
+							style={{ backgroundImage: `url(${workflow?.displayImageURL})` }}
 						></div>
 						<div className="description">
-							<p>{workflow.title}</p>
+							<p>{workflow?.title}</p>
 							<span>Edit</span>
 						</div>
 					</div>
@@ -231,75 +238,88 @@ function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard 
 
 					<div className="statsContainer">
 						{singleCard ? (
-							<a href={`/sales/${workflow._id}?status=draft`}>
+							<a href={`/sales/${workflow?._id}?status=draft`}>
 								{statsBox(
 									'DRAFT',
-									inSights && inSights.status.draft ? inSights.status.draft : 0,
+									inSights && inSights?.status?.draft
+										? inSights?.status?.draft
+										: 0,
+									activeTab === 'draft' ? true : false,
 								)}
 							</a>
 						) : (
 							statsBox(
 								'DRAFT',
-								inSights && inSights.status.draft ? inSights.status.draft : 0,
+								inSights && inSights?.status?.draft ? inSights?.status?.draft : 0,
 							)
 						)}
 						{singleCard ? (
-							<a href={`/sales/${workflow._id}?status=sent`}>
+							<a href={`/sales/${workflow?._id}?status=sent`}>
 								{statsBox(
 									'SENT',
-									inSights && inSights.status.draft ? inSights.status.draft : 0,
+									inSights && inSights?.status?.sent ? inSights?.status?.sent : 0,
+									activeTab === 'sent' ? true : false,
 								)}
 							</a>
 						) : (
 							statsBox(
 								'SENT',
-								inSights && inSights.status.draft ? inSights.status.draft : 0,
+								inSights && inSights?.status?.sent ? inSights?.status?.sent : 0,
 							)
 						)}
 						{singleCard ? (
-							<a href={`/sales/${workflow._id}?status=accepted`}>
+							<a href={`/sales/${workflow?._id}?status=accepted`}>
 								{statsBox(
 									'ACCEPTED',
-									inSights && inSights.status.accepted
-										? inSights.status.accepted
+									inSights && inSights?.status?.accepted
+										? inSights?.status?.accepted
 										: 0,
+									activeTab === 'accepted' ? true : false,
 								)}
 							</a>
 						) : (
 							statsBox(
 								'ACCEPTED',
-								inSights && inSights.status.accepted ? inSights.status.accepted : 0,
+								inSights && inSights?.status?.accepted
+									? inSights?.status?.accepted
+									: 0,
 							)
 						)}
 						{singleCard ? (
-							<a href={`/sales/${workflow._id}?status=rejected`}>
+							<a href={`/sales/${workflow?._id}?status=rejected`}>
 								{statsBox(
 									'REJECTED',
-									inSights && inSights.status.rejected
-										? inSights.status.rejected
+									inSights && inSights?.status?.rejected
+										? inSights?.status?.rejected
 										: 0,
+									activeTab === 'rejected' ? true : false,
 								)}
 							</a>
 						) : (
 							statsBox(
 								'REJECTED',
-								inSights && inSights.status.rejected ? inSights.status.rejected : 0,
+								inSights && inSights?.status?.rejected
+									? inSights?.status?.rejected
+									: 0,
 							)
 						)}
 
 						{singleCard ? (
-							<a href={`/sales/${workflow._id}?status=expired`}>
+							<a href={`/sales/${workflow?._id}?status=expired`}>
 								{statsBox(
 									'EXPIRED',
-									inSights && inSights.status.expired
-										? inSights.status.expired
+									inSights && inSights?.status?.expired
+										? inSights?.status?.expired
 										: 0,
+									activeTab === 'expired' ? true : false,
 								)}
 							</a>
 						) : (
 							statsBox(
 								'EXPIRED',
-								inSights && inSights.status.expired ? inSights.status.expired : 0,
+								inSights && inSights?.status?.expired
+									? inSights?.status?.expired
+									: 0,
 							)
 						)}
 					</div>
@@ -310,7 +330,7 @@ function MyWorkFlowStatsCard({ hideImage, workflow, index, inSights, singleCard 
 
 	return (
 		<>
-			{singleCard ? statsCard() : <a href={`/sales/${workflow._id}`}>{statsCard()}</a>}
+			{singleCard ? statsCard() : <a href={`/sales/${workflow?._id}`}>{statsCard()}</a>}
 			<ReactModal isOpen={modalIsOpen} closeModal={closeModal}>
 				{createLead()}
 			</ReactModal>

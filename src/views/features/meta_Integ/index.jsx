@@ -12,12 +12,10 @@ import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
-// import { useLocation } from 'react-router-dom';
 import { useNavigate, useParams } from 'react-router-dom';
 import DropDown from '../../components/dropDown/DropDown';
 import { ReactComponent as Instagram } from '../../../assets/svg/chat/instagram.svg';
-import EmptyState from './EmptyState';
-// import { set } from 'lodash';
+import EmptyState, { ExpiredState } from './EmptyState';
 
 const ChatScreen = (props) => {
 	let {
@@ -35,9 +33,7 @@ const ChatScreen = (props) => {
 			chatFiltersCount,
 		},
 	} = useContext(Context);
-	// const location = useLocation();
-	// const { pageInfoData } = location.state || {};
-	// const { workspaceId } = useParams();
+
 	const workspaceId = localStorage.getItem('workspaceId');
 
 	const navigate = useNavigate();
@@ -66,6 +62,7 @@ const ChatScreen = (props) => {
 		channelSearch: '',
 		channelSearchChanged: false,
 		timeout: null,
+		responseWindowExpired: false,
 	});
 	const socketRef = useRef(null);
 
@@ -190,12 +187,27 @@ const ChatScreen = (props) => {
 	useEffect(() => {
 		if (messages) {
 			const { currentPage, data, hasNextPage } = messages;
+
+			if (data?.length) {
+				const lastMessageObject = data?.[0];
+				const givenMoment = moment.unix(lastMessageObject?.createdAt);
+				const currentMoment = moment();
+				const differenceInHours = currentMoment.diff(givenMoment, 'hours');
+				if (differenceInHours > 24) {
+					return setInfo((prev) => ({
+						...prev,
+						messageListLoader: false,
+						responseWindowExpired: true,
+					}));
+				}
+			}
 			setInfo((prev) => ({
 				...prev,
 				messageListHasNextPage: hasNextPage,
 				messageListCurrentPage: currentPage,
 				messagesList: data,
 				messageListLoader: false,
+				responseWindowExpired: false,
 			}));
 		}
 	}, [messages]);
@@ -292,6 +304,10 @@ const ChatScreen = (props) => {
 
 	const handleKeyDown = useCallback(
 		async (event, type) => {
+			if (info?.responseWindowExpired) {
+				return;
+			}
+
 			if (event?.key === 'Enter' || type === 'click') {
 				if (!info?.messageInputValue) {
 					return;
@@ -331,7 +347,13 @@ const ChatScreen = (props) => {
 				}
 			}
 		},
-		[info?.messageInputValue, info?.seletedChannel, info?.messagesList, info?.pageInfo],
+		[
+			info?.messageInputValue,
+			info?.seletedChannel,
+			info?.messagesList,
+			info?.pageInfo,
+			info?.responseWindowExpired,
+		],
 	);
 
 	const onFilterClick = useCallback(
@@ -439,6 +461,7 @@ const ChatScreen = (props) => {
 						iconComponent={<Instagram />}
 						valueSelector="pageName"
 						uniqueIdKey={'pageId'}
+						containerStyle={{ border: '1px solid #2F2F2F' }}
 					/>
 
 					<div className="filterContainer">
@@ -600,6 +623,8 @@ const ChatScreen = (props) => {
 													<Spinner />
 													<span>Fetching Messages...</span>
 												</div>
+											) : info?.responseWindowExpired ? (
+												<ExpiredState />
 											) : (
 												<InfiniteScroll
 													dataLength={info?.messagesList?.length}
@@ -646,6 +671,7 @@ const ChatScreen = (props) => {
 												</InfiniteScroll>
 											)}
 										</div>
+
 										<div className="messageInput">
 											<StarSvg />
 											<textarea
@@ -658,6 +684,7 @@ const ChatScreen = (props) => {
 													}))
 												}
 												onKeyDown={handleKeyDown}
+												disabled={info?.responseWindowExpired}
 											/>
 											<div
 												className="submitbtn"

@@ -24,6 +24,9 @@ const UserSignUp = ({
 	const [geoGraphicData, setGeoGraphData] = useState(null);
 
 	useEffect(() => {
+		if (!usersData['emailId']?.length) {
+			goBack('verify-user');
+		}
 		getGeoGraphicData();
 	}, []);
 
@@ -39,9 +42,9 @@ const UserSignUp = ({
 				firstName: usersData['name'],
 				email: usersData['emailId'],
 				password: usersData['password'],
-				country: geoGraphicData?.country_name || 'India', // remove this
-				timezone: geoGraphicData?.timezone || 'Asia/Kolkata', // remove this
-				currency: geoGraphicData?.currency || 'INR', // remove this
+				country: geoGraphicData?.country_name || 'India',
+				timezone: geoGraphicData?.timezone || 'Asia/Kolkata',
+				currency: geoGraphicData?.currency || 'INR',
 			};
 			let response = await createUsersAccount(json);
 

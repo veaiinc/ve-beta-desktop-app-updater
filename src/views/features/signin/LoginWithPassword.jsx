@@ -28,40 +28,42 @@ const LoginWithPassword = ({
 		}
 	}, []);
 
-	const handleUserLogin = async () => {
-		if (loginPasswordStageActive) {
-			if (isLoading) {
-				return;
-			}
-			setLoading(true);
-
-			let json = {
-				email: usersData['emailId'],
-				password: usersData['password'],
-			};
-			let response = await userLogin(json);
-
-			if (response?.[0]) {
-				if (response?.[1] === 'redirect') {
-					const payload = { email: usersData['emailId'] };
-					setLoading(false);
-					setStage('verify-email-code');
-					sendEmailOtpRequest(payload);
+	const handleUserLogin = async (event, type) => {
+		if (event?.key === 'Enter' || type === 'click') {
+			if (loginPasswordStageActive) {
+				if (isLoading) {
 					return;
 				}
-				if (response?.[1] === 'createWorkspace') {
+				setLoading(true);
+
+				let json = {
+					email: usersData['emailId'],
+					password: usersData['password'],
+				};
+				let response = await userLogin(json);
+
+				if (response?.[0]) {
+					if (response?.[1] === 'redirect') {
+						const payload = { email: usersData['emailId'] };
+						setLoading(false);
+						setStage('verify-email-code');
+						sendEmailOtpRequest(payload);
+						return;
+					}
+					if (response?.[1] === 'createWorkspace') {
+						setLoading(false);
+						setStage('create-workspace');
+						return;
+					}
+					navigate('/sales');
 					setLoading(false);
-					setStage('create-workspace');
-					return;
+				} else {
+					setLoading(false);
+					setErrorState((prevState) => ({
+						...prevState,
+						message: response[1],
+					}));
 				}
-				navigate('/sales');
-				setLoading(false);
-			} else {
-				setLoading(false);
-				setErrorState((prevState) => ({
-					...prevState,
-					message: response[1],
-				}));
 			}
 		}
 	};
@@ -105,6 +107,7 @@ const LoginWithPassword = ({
 						value={usersData['password']}
 						className={errorStates['password'] ? 'error' : ''}
 						style={{ borderRadius: 0, border: 'none', height: 'auto' }}
+						onKeyDown={handleUserLogin}
 					/>
 					<span onClick={() => setPasswordView((prev) => !prev)}>
 						<EyeOpen />
@@ -116,7 +119,9 @@ const LoginWithPassword = ({
 					</div>
 					<div
 						className={`continueContainer ${loginPasswordStageActive ? 'active' : ''}`}
-						onClick={() => (loginPasswordStageActive ? handleUserLogin() : '')}
+						onClick={() =>
+							loginPasswordStageActive ? handleUserLogin(null, 'click') : ''
+						}
 					>
 						{isLoading ? <p>Loading...</p> : <p>Continue</p>}
 					</div>

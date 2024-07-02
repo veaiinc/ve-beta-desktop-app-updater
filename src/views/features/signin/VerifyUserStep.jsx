@@ -15,30 +15,33 @@ const VerifyUserStep = ({
 	setStage,
 	setErrorState,
 }) => {
-	const params = useParams();
-	const navigate = useNavigate();
 	let {
 		userLogin: { verifyAccountExistsUsingEmail },
 	} = useContext(Context);
 
-	const handleUserExists = async () => {
-		if (usersData['emailId'] && validator.isEmail(usersData['emailId'])) {
-			setLoading(true);
-			let response = await verifyAccountExistsUsingEmail(usersData['emailId']);
-
-			if (response[0] && response[1]?.isAccountExist) {
-				setStage('login-with-password');
-				setLoading(false);
-			} else if (response[0] && response[1]?.isAccountExist == false) {
-				setStage('signup-user');
-				setLoading(false);
+	const handleUserExists = async (event, type) => {
+		if (event?.key === 'Enter' || type === 'click') {
+			if (isLoading) {
+				return;
 			}
-		} else {
-			setLoading(false);
-			setErrorState((prevState) => ({
-				...prevState,
-				emailId: true,
-			}));
+			if (usersData['emailId'] && validator.isEmail(usersData['emailId'])) {
+				setLoading(true);
+				let response = await verifyAccountExistsUsingEmail(usersData['emailId']);
+
+				if (response[0] && response[1]?.isAccountExist) {
+					setStage('login-with-password');
+					setLoading(false);
+				} else if (response[0] && response[1]?.isAccountExist == false) {
+					setStage('signup-user');
+					setLoading(false);
+				}
+			} else {
+				setLoading(false);
+				setErrorState((prevState) => ({
+					...prevState,
+					emailId: true,
+				}));
+			}
 		}
 	};
 	return (
@@ -63,13 +66,14 @@ const VerifyUserStep = ({
 					name="emailId"
 					value={usersData['emailId']}
 					className={errorStates['emailId'] ? 'error' : ''}
+					onKeyDown={handleUserExists}
 				/>
 			</div>
 			<div
 				className={`continueContainer ${
 					validator.isEmail(usersData['emailId']) && isLoading == false ? 'active' : ''
 				}`}
-				onClick={() => (isLoading ? '' : handleUserExists())}
+				onClick={() => (isLoading ? '' : handleUserExists(null, 'click'))}
 			>
 				{isLoading ? <p>Loading...</p> : <p>Continue</p>}
 			</div>
