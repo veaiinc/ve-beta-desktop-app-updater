@@ -23,14 +23,6 @@ const MySettings = () => {
 		},
 	} = useContext(Context);
 
-	useEffect(() => {
-		console.log('tennantSettingsData:', tennantSettingsData);
-		console.log('userDetailsData:', userDetailsData);
-		console.log('tenantUserDetails:', tenantUserDetails);
-		console.log('qrcode:', qrcode);
-		console.log('qrcode:', qrcode);
-	}, [tennantSettingsData, userDetailsData, tenantUserDetails]);
-
 	// sample data
 	const defaultWorkspace = [
 		{ id: '1', name: 'Made in heaven' },
@@ -44,23 +36,14 @@ const MySettings = () => {
 	const [isEditMode, setIsEditMode] = useState(false);
 	const [errors, setErrors] = useState({});
 	const [activeTheme, setActiveTheme] = useState('light');
-	const [tenantSettings, setTenantSettings] = useState('');
 	const [userDetails, setUserDetails] = useState({
-		firstName: '',
-		lastName: '',
+		fullName: '',
 		email: '',
 		phoneNumber: '',
 	});
-	const [getTenantDetails, setGetTenantDetails] = useState('');
-	// const [qrCode, setQrCode] = useState('');
 
-	const [formData, setFormData] = useState({
-		profilePicture: '',
-		fullName: 'karthik',
-		phoneNumber: '9999999999',
-		countryCode: '+91',
-		email: 'johnappleseed@email.com',
-	});
+	console.log(userDetails.fullName, 'this is full name');
+
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [activeItem, setActiveItem] = useState('profile');
 
@@ -68,6 +51,21 @@ const MySettings = () => {
 		setActiveItem(id);
 		document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
 	};
+
+	useEffect(() => {
+		console.log('tennantSettingsData:', tennantSettingsData);
+		console.log('userDetailsData:', userDetailsData);
+		console.log('tenantUserDetails:', tenantUserDetails);
+		console.log('qrcode:', qrcode);
+
+		if (userDetailsData) {
+			setUserDetails({
+				fullName: userDetailsData.firstName || '',
+				email: userDetailsData.email || '',
+				phoneNumber: userDetailsData.phoneNumber || '',
+			});
+		}
+	}, [tennantSettingsData, userDetailsData, tenantUserDetails, qrcode]);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -83,12 +81,13 @@ const MySettings = () => {
 			getTenantSettings();
 			getUserDetails();
 			getTenantUserDetails();
-
-			// console.log(getTenantDetails, 'this are the tenant details from the componet');
+			if (isToggleOn) {
+				get2FAQrCode();
+			}
 		};
 
 		fetchData();
-	}, []);
+	}, [isToggleOn]);
 
 	const toggleEnable = async (e) => {
 		await set2FASettings(e);
@@ -98,13 +97,13 @@ const MySettings = () => {
 	const handleToggleClick = () => {
 		setIsToggleOn((prevState) => !prevState);
 	};
-	useEffect(() => {
-		const fetchData = async () => {
-			const qrCode = await get2FAQrCode();
-			// setQrCode(qrCode);
-		};
-		fetchData();
-	}, [isToggleOn]);
+	// useEffect(() => {
+	// 	const fetchData = async () => {
+	// 		const qrCode = await get2FAQrCode();
+	// 		// setQrCode(qrCode);
+	// 	};
+	// 	fetchData();
+	// }, [isToggleOn]);
 
 	const handleTheme = (activeName) => {
 		setActiveTheme(activeName);
@@ -142,10 +141,10 @@ const MySettings = () => {
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
-		setFormData({
-			...formData,
+		setUserDetails((prevDetails) => ({
+			...prevDetails,
 			[name]: value,
-		});
+		}));
 
 		const error = validateField(name, value);
 		setErrors({
@@ -159,8 +158,8 @@ const MySettings = () => {
 		if (file) {
 			const reader = new FileReader();
 			reader.onloadend = () => {
-				setFormData({
-					...formData,
+				setUserDetails({
+					...userDetails,
 					profilePicture: reader.result,
 				});
 			};
@@ -170,8 +169,8 @@ const MySettings = () => {
 
 	const validate = () => {
 		const newErrors = {};
-		Object.keys(formData).forEach((key) => {
-			const error = validateField(key, formData[key]);
+		Object.keys(userDetails).forEach((key) => {
+			const error = validateField(key, userDetails[key]);
 			if (error) {
 				newErrors[key] = error;
 			}
@@ -238,13 +237,12 @@ const MySettings = () => {
 									<InputForModules
 										label={'Full Name'}
 										type={'text'}
-										placeholder={'First Name'}
+										placeholder={'Enter your Full Name'}
 										name={'fullName'}
-										value={userDetails?.firstName}
+										value={userDetails?.fullName}
 										onChange={handleChange}
 										isError={false}
 										errorMessage={''}
-										disabled={true}
 									/>
 								</div>
 							</div>
@@ -257,7 +255,7 @@ const MySettings = () => {
 									type={'phoneNumber'}
 									placeholder={'Enter your Phone Number'}
 									name={'phoneNumber'}
-									value={userDetails?.phoneNumber}
+									value={userDetailsData?.phoneNumber}
 									onChange={handleChange}
 									isError={false}
 									errorMessage={''}
@@ -275,7 +273,7 @@ const MySettings = () => {
 									placeholder={'Enter your Email'}
 									name={'email'}
 									value={userDetails?.email}
-									onChange={handleChange}
+									onChange={(e) => handleChange(e)}
 									isError={false}
 									errorMessage={''}
 								/>
@@ -317,7 +315,7 @@ const MySettings = () => {
 											<p>
 												Scan the following QR code in your authenticator app
 											</p>
-											{/* <img src={qrCode?.qrCode} /> */}
+											<img src={qrcode?.qrCode} />
 										</div>
 									</div>
 									<div className={`${'step'} `}>

@@ -1,0 +1,249 @@
+.overviewContainer {
+    display: flex;
+    // width: 1028px;
+    gap: 56px;
+    height: 1024px;
+    padding: 64px 125px 40px 150px;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-shrink: 0;
+
+    .workspaceHandle {
+        display: flex;
+        padding: 40px;
+        flex-direction: column;
+        align-items: flex-start;
+        align-self: stretch;
+        gap: 40px;
+        border-radius: 40px;
+        border: 1px solid rgba(36, 36, 36, 0.64);
+        background: rgba(42, 42, 42, 0.16);
+
+        h1 {
+            color: #E4E5E6;
+            font-family: Inter;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 24px;
+            /* 150% */
+        }
+
+        p {
+            color: rgba(228, 229, 230, 0.48);
+            font-family: Inter;
+            font-size: 13px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 21px;
+            /* 161.538% */
+            margin: 0px;
+        }
+
+        .workspaceInputContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            width: 100%;
+            button{
+                    padding: 9px 16px;
+                    align-items: center;
+                    border-radius: 20px;
+                    border: 1px solid #1C1C1C;
+                    background: #1C1C1C;
+                    width: fit-content;
+                    color: #666;
+                    font-family: Inter;
+                   font-size: 14px;
+                    font-style: normal;
+                    font-weight: 400;
+                    line-height: 22px;
+                    letter-spacing: -0.28px;
+                   
+            }
+        }
+    }
+    .business{
+            display: flex;
+            padding: 40px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 40px;
+            align-self: stretch;
+            border-radius: 40px;
+            border: 1px solid rgba(36, 36, 36, 0.64);
+            background: rgba(42, 42, 42, 0.16);
+
+            .businessHeadding{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+                .HeaddingContainer{
+                    h1{
+                        color: #E4E5E6;
+                        font-family: Inter;
+                        font-size: 18px;
+                        font-style: normal;
+                        font-weight: 500;
+                        line-height: 26px;
+                            /* 144.444% */
+                    }
+                    h3{
+                        color: rgba(228, 229, 230, 0.48);
+                        font-family: Inter;
+                        font-size: 12px;
+                        font-style: normal;
+                            font-weight: 500;
+                            line-height: 20px;
+                            /* 166.667% */
+                            letter-spacing: 0.24px;
+                            text-transform: capitalize;
+                    }
+                }
+                .editButton{
+                    color: rgba(228, 229, 230, 0.32);
+                        font-family: Inter;
+                        font-size: 14px;
+                        font-style: normal;
+                        font-weight: 500;
+                        line-height: 16px;
+                        /* 114.286% */
+                        text-transform: uppercase;
+                }
+            }
+            .businessDetailsForm{
+                display: flex;
+                flex-direction: column;
+                gap:24px;
+                width: 100%;
+                .businessImgName{
+                    display: flex;
+                    gap:24px;
+                    justify-content: flex-start;
+                    align-items: center;
+                    padding-left: 0px;
+                    input {
+                            width: 100%;
+                        }
+                    .businessImgContainerMain{
+                        width: 63px;
+                        height: 63px;
+                        
+                            label {
+                                padding-left: 0px;
+                        
+                                img {
+                                    width: 100%;
+                                    height: 100%;
+                                }
+                            }
+                    }
+                    .businessName{
+                            width: 100%;
+                    }
+                                        
+                }
+            }
+    }
+
+    .timeZone {
+        display: flex;
+        padding: 40px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 40px;
+        align-self: stretch;
+        border-radius: 40px;
+        border: 1px solid rgba(36, 36, 36, 0.64);
+        background: rgba(42, 42, 42, 0.16);
+
+        h1 {
+            color: #E4E5E6;
+            font-family: Inter;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 24px;
+            /* 150% */
+        }
+
+        p {
+            color: rgba(228, 229, 230, 0.48);
+            font-family: Inter;
+            font-size: 13px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 21px;
+            /* 161.538% */
+
+        }
+    }
+
+    .currency {
+        display: flex;
+        padding: 40px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 40px;
+        align-self: stretch;
+        border-radius: 40px;
+        border: 1px solid rgba(36, 36, 36, 0.64);
+        background: rgba(42, 42, 42, 0.16);
+
+        h1 {
+            color: #E4E5E6;
+            font-family: Inter;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 24px;
+            /* 150% */
+        }
+
+        p {
+            color: rgba(228, 229, 230, 0.48);
+            font-family: Inter;
+            font-size: 13px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 21px;
+            /* 161.538% */
+
+        }
+    }
+
+    .deleteWorkspace {
+        display: flex;
+        padding: 40px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 40px;
+        align-self: stretch;
+        border-radius: 40px;
+        border: 1px solid rgba(36, 36, 36, 0.64);
+        background: rgba(42, 42, 42, 0.16);
+
+        h1 {
+            color: #E4E5E6;
+            font-family: Inter;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 24px;
+            /* 150% */
+        }
+
+        p {
+            color: rgba(228, 229, 230, 0.48);
+            font-family: Inter;
+            font-size: 13px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 21px;
+            /* 161.538% */
+
+        }
+
+    }
+}

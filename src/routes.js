@@ -8,6 +8,7 @@ import MainContentWrapper from './views/features/workspace_settings/MainContentW
 import MySettingsWrapper from './views/features/profile_settings/MySettingsWrapper';
 import OauthVerify from './views/features/auth/oauth';
 import MySettings from './views/features/profile_settings_update/MySettings';
+import CompanyOverview from './views/features/workspace_settings_update/CompanyOverview';
 
 const routes = [
 	{
@@ -112,6 +113,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Profile Setting'}>
 				<MySettings />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/company-overview',
+		component: (
+			<AuthWrapper title={'Profile Setting'}>
+				<CompanyOverview />
 			</AuthWrapper>
 		),
 		exact: true,
