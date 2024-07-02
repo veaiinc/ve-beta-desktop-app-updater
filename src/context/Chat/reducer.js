@@ -1,3 +1,4 @@
+import { intialState } from './state';
 const actionHandlers = {
 	GET_USERS_FROM_META_SUCCESS: (state, action) => ({
 		...state,
@@ -15,6 +16,7 @@ const actionHandlers = {
 		...state,
 		chatFiltersCount: action.payload,
 	}),
+	RESET_STATE: () => () => ({ ...intialState }),
 };
 
 const Reducer = (state, action) => {
