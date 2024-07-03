@@ -1,0 +1,168 @@
+.brandingMainContainer{
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+    .logoMainContainer{
+        display: flex;
+            padding: 40px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 24px;
+            align-self: stretch;
+            border-radius: 40px;
+            border: 1px solid rgba(36, 36, 36, 0.64);
+            background: rgba(42, 42, 42, 0.16);
+        .logoTextContainer{
+            h1{
+                color: #E4E5E6;
+                font-family: Inter;
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: 24px;
+                    /* 150% */
+            }
+            p{
+                color: rgba(228, 229, 230, 0.48);
+                    font-family: Inter;
+                    font-size: 13px;
+                    font-style: normal;
+                    font-weight: 400;
+                    line-height: 21px;
+                    /* 161.538% */
+            }
+        }
+    }
+    .brandingContainer{
+        display: flex;
+        padding: 40px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+        align-self: stretch;
+        border-radius: 40px;
+        border: 1px solid rgba(36, 36, 36, 0.64);
+        background: rgba(42, 42, 42, 0.16);
+        .brandingTextContainer{
+            h1 {
+                    color: #E4E5E6;
+                    font-family: Inter;
+                    font-size: 16px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: 24px;
+                  
+                }
+            
+                p {
+                    color: rgba(228, 229, 230, 0.48);
+                    font-family: Inter;
+                    font-size: 13px;
+                    font-style: normal;
+                    font-weight: 400;
+                    line-height: 21px;
+                    
+                }
+        }
+    }
+    .brandFontContainer{
+                display: flex;
+                    padding: 40px;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 24px;
+                    align-self: stretch;
+                    border-radius: 40px;
+                    border: 1px solid rgba(36, 36, 36, 0.64);
+                    background: rgba(42, 42, 42, 0.16);
+        .brandTextContainer{
+            h1 {
+                    color: #E4E5E6;
+                    font-family: Inter;
+                    font-size: 16px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: 24px;
+            
+                }
+            
+                p {
+                    color: rgba(228, 229, 230, 0.48);
+                    font-family: Inter;
+                    font-size: 13px;
+                    font-style: normal;
+                    font-weight: 400;
+                    line-height: 21px;
+            
+                }
+
+        }
+        
+    }
+        .socialLinkContainer {
+            display: flex;
+            padding: 40px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 24px;
+            align-self: stretch;
+            border-radius: 40px;
+            border: 1px solid rgba(36, 36, 36, 0.64);
+            background: rgba(42, 42, 42, 0.16);
+    
+            .socialLinkTextContainer {
+                h1 {
+                    color: #E4E5E6;
+                    font-family: Inter;
+                    font-size: 16px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: 24px;
+    
+                }
+    
+                p {
+                    color: rgba(228, 229, 230, 0.48);
+                    font-family: Inter;
+                    font-size: 13px;
+                    font-style: normal;
+                    font-weight: 400;
+                    line-height: 21px;
+    
+                }
+            }
+        }
+        .footerContainer{
+            display: flex;
+                padding: 40px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 24px;
+                align-self: stretch;
+                border-radius: 40px;
+                border: 1px solid rgba(36, 36, 36, 0.64);
+                background: rgba(42, 42, 42, 0.16);
+            .footerTextContainer{
+                h1 {
+                        color: #E4E5E6;
+                        font-family: Inter;
+                        font-size: 16px;
+                        font-style: normal;
+                        font-weight: 500;
+                        line-height: 24px;
+                
+                    }
+                
+                    p {
+                        color: rgba(228, 229, 230, 0.48);
+                        font-family: Inter;
+                        font-size: 13px;
+                        font-style: normal;
+                        font-weight: 400;
+                        line-height: 21px;
+                
+                    }
+            }
+        }
+
+}

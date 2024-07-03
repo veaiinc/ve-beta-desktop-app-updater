@@ -28,7 +28,6 @@ const MySettings = () => {
 	} = useContext(Context);
 
 	const [showForm, setShowForm] = useState(false);
-	const [isToggleOn, setIsToggleOn] = useState(false);
 	const [isEditMode, setIsEditMode] = useState(false);
 	const [errors, setErrors] = useState({});
 	const [activeTheme, setActiveTheme] = useState('light');
@@ -37,6 +36,7 @@ const MySettings = () => {
 		fullName: '',
 		email: '',
 		phoneNumber: '',
+		is2FAEnabled: '',
 	});
 
 	const [isAdmin, setIsAdmin] = useState(false);
@@ -55,31 +55,33 @@ const MySettings = () => {
 	useEffect(() => {
 		if (userDetailsData) {
 			setUserDetails({
-				fullName: userDetailsData.firstName || '',
-				email: userDetailsData.email || '',
-				phoneNumber: userDetailsData.phoneNumber || '+918121201610',
+				fullName: userDetailsData?.firstName || '',
+				email: userDetailsData?.email || '',
+				phoneNumber: userDetailsData?.phoneNumber || '+918121201610',
+				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
 			});
 		}
-		if (isToggleOn) {
+	}, [userDetailsData]);
+	useEffect(() => {
+		if (userDetails.is2FAEnabled) {
 			get2FAQrCode();
 		}
-	}, [userDetailsData, isToggleOn]);
+	}, [userDetails.is2FAEnabled]);
 
 	useEffect(() => {
-		const fetchData = async () => {
-			let usertoken = localStorage.getItem('usertoken');
-			let decoded = jwt_decode(usertoken);
-			let workspaceID = localStorage.getItem('workspaceId');
-			let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded.user_id}`));
-			setIsAdmin(role === 'admin');
-			getTenantSettings();
-			getUserDetails();
-			getTenantUserDetails();
-			getUserWorkSpaceList();
-		};
-
 		fetchData();
 	}, []);
+	const fetchData = async () => {
+		let usertoken = localStorage.getItem('usertoken');
+		let decoded = jwt_decode(usertoken);
+		let workspaceID = localStorage.getItem('workspaceId');
+		let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded.user_id}`));
+		setIsAdmin(role === 'admin');
+		getTenantSettings();
+		getUserDetails();
+		getTenantUserDetails();
+		getUserWorkSpaceList();
+	};
 
 	const getInitials = () => {
 		const names = userDetailsData?.firstName + ' ' + userDetailsData?.lastName;
@@ -94,7 +96,10 @@ const MySettings = () => {
 		setShowForm(false);
 	};
 	const toggleEnable = async (e) => {
-		setIsToggleOn((prev) => !prev);
+		setUserDetails((prevState) => ({
+			...prevState,
+			is2FAEnabled: !prevState.is2FAEnabled,
+		}));
 		await set2FASettings(e);
 	};
 
@@ -296,10 +301,13 @@ const MySettings = () => {
 						<div className={'switchStep'}>
 							<div className={'switchToggle'}>
 								<p>Enable Two Factor Authentication</p>
-								<ToggleSlider onChange={toggleEnable} />
+								<ToggleSlider
+									onChange={toggleEnable}
+									value={userDetails?.is2FAEnabled}
+								/>
 							</div>
 
-							{isToggleOn ? (
+							{userDetails?.is2FAEnabled ? (
 								<div className={'toggleOptions'}>
 									<div className={`${'step'} ${'stepOne'}`}>
 										<h4>STEP 1</h4>
@@ -311,6 +319,7 @@ const MySettings = () => {
 											<p>
 												Scan the following QR code in your authenticator app
 											</p>
+
 											<img src={qrcode?.qrCode} alt="" />
 										</div>
 									</div>

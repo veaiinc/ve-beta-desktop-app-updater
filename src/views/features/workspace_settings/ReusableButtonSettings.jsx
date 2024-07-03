@@ -23,7 +23,7 @@ const ReusableButtonSettings = ({
 				padding: '9px 16px',
 				height: '40px',
 				// marginTop: '1rem',
-				width: 'auto',
+				width: 'fit-content',
 				display: 'inline-block',
 				transition: 'color 0.3s ease-in, border 0.3s ease-in',
 			}}
@@ -31,7 +31,16 @@ const ReusableButtonSettings = ({
 		>
 			<div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 				{icon && <span style={{ display: 'flex', alignItems: 'center' }}>{icon}</span>}
-				<span>{text}</span>
+				<span
+					style={{
+						fontSize: '14px',
+						fontStyle: 'normal',
+						fontWeight: '400',
+						lineHeight: '22px',
+					}}
+				>
+					{text}
+				</span>
 
 				{loader ? (
 					<Spinner width="10px" height={'10px'} cssstyle={{ border: '1px solid #fff' }} />
