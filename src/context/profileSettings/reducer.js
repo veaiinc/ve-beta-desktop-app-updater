@@ -17,7 +17,11 @@ const actionHandlers = {
 	}),
 	SET_2FA_SETTINGS: (state, action) => ({
 		...state,
-		set2FASetting: action.payload,
+		set2factorSettings: action.payload,
+	}),
+	GET_USER_WORKSPACE_LIST: (state, action) => ({
+		...state,
+		userWorkSpaceList: action.payload,
 	}),
 };
 

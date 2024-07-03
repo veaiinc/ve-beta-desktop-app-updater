@@ -1,12 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import ReactModal from '../../components/modalsV2/index';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import InputForModules from '../../components/input/inputForModules';
 import '../../../assets/scss/profileSettings/changePasswordPopup/changePassword.scss';
+import Context from '../../../context/context';
 
 const MySettingsChangePasword = ({ onClose }) => {
+	const {
+		profileInfo: { updatePassword, userDetailsData },
+	} = useContext(Context);
+
 	const [toggleform, setToggleForm] = useState(true);
 	const [password, setPassword] = useState({
+		currentPassword: '',
+		newPassword: '',
+		confirmNewPassword: '',
+	});
+	const [errors, setErrors] = useState({
 		currentPassword: '',
 		newPassword: '',
 		confirmNewPassword: '',
@@ -24,6 +34,56 @@ const MySettingsChangePasword = ({ onClose }) => {
 			...prev,
 			[name]: value,
 		}));
+		setErrors((prev) => ({
+			...prev,
+			[name]: '',
+		}));
+	};
+
+	const validateForm = () => {
+		let valid = true;
+		const newErrors = {
+			currentPassword: '',
+			newPassword: '',
+			confirmNewPassword: '',
+		};
+
+		if (!password.currentPassword) {
+			newErrors.currentPassword = 'Current password is required';
+			valid = false;
+		}
+		if (password.currentPassword === password.newPassword) {
+			newErrors.newPassword = 'New password should not match the current password';
+			valid = false;
+		}
+		if (!password.newPassword || password.newPassword.length < 8) {
+			newErrors.newPassword = 'New password must be at least 8 characters long';
+			valid = false;
+		}
+		if (!password.confirmNewPassword || password.confirmNewPassword !== password.newPassword) {
+			newErrors.confirmNewPassword = 'Passwords do not match';
+			valid = false;
+		}
+
+		setErrors(newErrors);
+		return valid;
+	};
+
+	const handleSubmit = (e) => {
+		e.preventDefault();
+		if (!validateForm()) {
+			return;
+		}
+
+		let currentPassword = {
+			email: userDetailsData?.email,
+			password: password.currentPassword,
+		};
+		let payload = {
+			password: password.newPassword,
+		};
+		updatePassword(currentPassword, payload);
+		onClose();
 	};
 	return (
 		<div>
@@ -36,33 +96,40 @@ const MySettingsChangePasword = ({ onClose }) => {
 						</div>
 						<Close onClick={onClose} style={{ cursor: 'pointer' }} />
 					</div>
-					<div className="updatePasswordInputs">
-						<InputForModules
-							label={'Current Password'}
-							type={'password'}
-							placeholder={'Type Here..'}
-							name={'currentPassword'}
-							value={password?.currentPassword}
-							onChange={(e) => handleChange(e)}
-						/>
-						<InputForModules
-							label={'New Password'}
-							type={'password'}
-							placeholder={'Type Here..'}
-							name={'newPassword'}
-							value={password?.newPassword}
-							onChange={(e) => handleChange(e)}
-						/>
-						<InputForModules
-							label={'Confirm New Password'}
-							type={'password'}
-							placeholder={'Type Here..'}
-							name={'confirmNewPassword'}
-							value={password?.confirmNewPassword}
-							onChange={(e) => handleChange(e)}
-						/>
-					</div>
-					<button>Save Changes</button>
+					<form onSubmit={handleSubmit} style={{ width: '100%' }}>
+						<div className="updatePasswordInputs">
+							<InputForModules
+								label={'Current Password'}
+								type={'password'}
+								placeholder={'Type Here..'}
+								name={'currentPassword'}
+								value={password?.currentPassword}
+								onChange={(e) => handleChange(e)}
+							/>
+							{errors.currentPassword && (
+								<p className="error">{errors.currentPassword}</p>
+							)}
+							<InputForModules
+								label={'New Password'}
+								type={'password'}
+								placeholder={'Type Here..'}
+								name={'newPassword'}
+								value={password?.newPassword}
+								onChange={(e) => handleChange(e)}
+							/>
+							{errors.newPassword && <p className="error">{errors.newPassword}</p>}
+							<InputForModules
+								label={'Confirm New Password'}
+								type={'password'}
+								placeholder={'Type Here..'}
+								name={'confirmNewPassword'}
+								value={password?.confirmNewPassword}
+								onChange={(e) => handleChange(e)}
+							/>
+							{errors.newPassword && <p className="error">{errors.newPassword}</p>}
+						</div>
+						<button type="submit">Save Changes</button>
+					</form>
 				</div>
 			</ReactModal>
 		</div>

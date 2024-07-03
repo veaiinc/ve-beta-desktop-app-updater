@@ -17,36 +17,32 @@ const MySettings = () => {
 			getTenantUserDetails,
 			get2FAQrCode,
 			set2FASettings,
-			tennantSettingsData,
+			// tennantSettingsData,
 			userDetailsData,
-			tenantUserDetails,
+			// tenantUserDetails,
 			updateUserDetails,
 			qrcode,
-			// set2FASetting,
+			getUserWorkSpaceList,
+			userWorkSpaceList,
+			// set2factorSettings,
+			chooseDefaultWorkspace,
 		},
 	} = useContext(Context);
 
-	// sample data
-	const defaultWorkspace = [
-		{ id: '1', name: 'Made in heaven' },
-		{ id: '2', name: 'Ballads of Love' },
-		{ id: '3', name: 'Alphavisual Studioes' },
-		{ id: '4', name: 'Day One Stories' },
-		{ id: '5', name: 'Photographies' },
-	];
 	const [showForm, setShowForm] = useState(false);
 	const [isToggleOn, setIsToggleOn] = useState(false);
 	const [isEditMode, setIsEditMode] = useState(false);
 	const [errors, setErrors] = useState({});
 	const [activeTheme, setActiveTheme] = useState('light');
+	const [activeWorkspace, setActiveWorkspace] = useState(null);
 	const [userDetails, setUserDetails] = useState({
 		fullName: '',
 		email: '',
 		phoneNumber: '',
 	});
-
-	console.log(userDetails.fullName, 'this is full name');
-
+	console.log(userWorkSpaceList, 'this are the workspace list');
+	// console.log(userDetails.fullName, 'this is full name');
+	// console.log(set2factorSettings?.is2FAEnabled, 'two factor');s
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [activeItem, setActiveItem] = useState('profile');
 
@@ -54,6 +50,11 @@ const MySettings = () => {
 		setActiveItem(id);
 		document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
 	};
+	useEffect(() => {
+		if (userWorkSpaceList && userWorkSpaceList.length > 0) {
+			setActiveWorkspace(userWorkSpaceList[0].tenant_id);
+		}
+	}, [userWorkSpaceList]);
 
 	useEffect(() => {
 		if (userDetailsData) {
@@ -68,25 +69,21 @@ const MySettings = () => {
 		}
 	}, [userDetailsData, isToggleOn]);
 
-	console.log('tennantSettingsData:', tennantSettingsData);
-	console.log('userDetailsData:', userDetailsData);
-	console.log('tenantUserDetails:', tenantUserDetails);
-	console.log('qrcode:', qrcode);
-
 	useEffect(() => {
 		const fetchData = async () => {
 			let usertoken = localStorage.getItem('usertoken');
 			let decoded = jwt_decode(usertoken);
 			let workspaceID = localStorage.getItem('workspaceId');
 			let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded.user_id}`));
-			console.log(role, 'this is the role'); // admin
+			// console.log(role, 'this is the role'); // admin
 			setIsAdmin(role === 'admin');
 
-			console.log('this is decoded:', decoded, 'workspaceid', workspaceID);
+			// console.log('this is decoded:', decoded, 'workspaceid', workspaceID);
 
 			getTenantSettings();
 			getUserDetails();
 			getTenantUserDetails();
+			getUserWorkSpaceList();
 		};
 
 		fetchData();
@@ -141,6 +138,11 @@ const MySettings = () => {
 				break;
 		}
 		return error;
+	};
+
+	const handlehandleDefaultWorkspace = (data) => {
+		setActiveWorkspace(data?.tenant_id);
+		chooseDefaultWorkspace(data);
 	};
 
 	const handleChange = (e) => {
@@ -405,13 +407,22 @@ const MySettings = () => {
 								We see you're part of multiple workspaces. Please select a default
 								workspace to log in to automatically.
 							</p>
-							<div className={'gridContainer'}>
+							<div className={'workSpaceContainer'}>
 								{/* sample data access */}
-								{defaultWorkspace.map((item) => (
-									<button key={item.id} className={'gridItem'}>
-										{item.name}
-									</button>
-								))}
+								{userWorkSpaceList &&
+									userWorkSpaceList.map((item) => (
+										<button
+											key={item.id}
+											onClick={() => handlehandleDefaultWorkspace(item)}
+											className={
+												activeWorkspace === item?.tenant_id
+													? 'activeWorkspace'
+													: 'workspaces'
+											}
+										>
+											{item.businessName}
+										</button>
+									))}
 							</div>
 						</div>
 						<div className={'leaveComponent'}>

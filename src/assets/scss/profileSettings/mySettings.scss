@@ -403,23 +403,27 @@
                     color: #666;
                 }
 
-                .gridContainer {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                .workSpaceContainer {
+                    display: flex;
+                    flex-wrap: wrap;
                     gap: 13px;
                     padding: 20px 0;
                     width: 90%;
-
-                    .gridItem {
-                        padding: 9px 16px;
-                        border-radius: 20px;
-                        border: 1px solid #1C1C1C;
-                        background: #1C1C1C;
-                        color: #666;
-                        cursor: pointer;
-
-                        transition: background-color 0.3s;
-                    }
+                }
+                
+                .workspaces {
+                    padding: 9px 16px;
+                    border-radius: 20px;
+                    border: 1px solid #1C1C1C;
+                    background: #1C1C1C;
+                    color: #666;
+                    width: fit-content;
+                    cursor: pointer;
+                    transition: background-color 0.3s;
+                }
+                .activeWorkspace{
+                    border: 1px solid #6055EC;
+                    color: #6055EC;
                 }
             }
 
@@ -523,10 +527,14 @@
          list-style: none;
          color: rgba(228, 229, 230, 0.32);
          line-height: 22px;
+            &:hover {
+                    color: white;
+                    cursor: pointer;
+                    transform: translate();
+            
+                }
      }
-     &:hover{
-        cursor: pointer;
-     }
+
 
      .active {
          color: white;
