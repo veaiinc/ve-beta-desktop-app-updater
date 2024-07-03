@@ -60,7 +60,7 @@ const MySettings = () => {
 			setUserDetails({
 				fullName: userDetailsData.firstName || '',
 				email: userDetailsData.email || '',
-				phoneNumber: userDetailsData.phoneNumber || '',
+				phoneNumber: userDetailsData.phoneNumber || '+918121201610',
 			});
 		}
 		if (isToggleOn) {
@@ -209,10 +209,7 @@ const MySettings = () => {
 				{/* Settings Profile details  */}
 
 				<div className="settingProfileDetails" id="profile">
-					<form
-						onSubmit={handleSubmit}
-						className={`${'formsMain'} ${isEditMode ? 'formsEdit' : ''}`}
-					>
+					<form onSubmit={handleSubmit} className={`${'formsMain'} `}>
 						<div className={'profileMain'}>
 							<h1>My Profile</h1>
 							<p
@@ -223,7 +220,7 @@ const MySettings = () => {
 								{isEditMode ? 'Save Changes' : 'Edit'}
 							</p>
 						</div>
-						<div className={'formContainerMain'}>
+						<div className={`${'formContainerMain'} ${isEditMode ? 'formsEdit' : ''}`}>
 							<div className={'profileImgName'}>
 								<div className={'profileImgContainerMain'}>
 									<input
@@ -258,11 +255,11 @@ const MySettings = () => {
 									type={'phoneNumber'}
 									placeholder={'Enter your Phone Number'}
 									name={'phoneNumber'}
-									value={userDetailsData?.phoneNumber}
+									value={userDetails?.phoneNumber}
 									onChange={handleChange}
 									isError={false}
 									errorMessage={''}
-									disabled={!isEditMode}
+									disabled={true}
 								/>
 
 								{errors.phoneNumber && (
@@ -280,7 +277,7 @@ const MySettings = () => {
 									onChange={(e) => handleChange(e)}
 									isError={false}
 									errorMessage={''}
-									disabled={!isEditMode}
+									disabled={true}
 								/>
 								{errors.email && <p className={'error'}>{errors.email}</p>}
 								<label>Email Address cannot be changed once set</label>

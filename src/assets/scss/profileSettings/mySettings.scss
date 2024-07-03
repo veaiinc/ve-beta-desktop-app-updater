@@ -63,8 +63,8 @@
                     margin-bottom: 6px;
 
                 }
-
-                input {
+                
+                input{
                     display: flex;
                     // padding: 11px 14px;
                     justify-content: center;
@@ -73,10 +73,12 @@
                     // border: 1px solid rgba(36, 36, 36, 0.64);
                     background-color: transparent;
                     width: 100%;
+                    color: #E4E5E67A;
                    
                    
 
                 }
+
 
                 .profileImgName {
                     display: flex;
@@ -141,20 +143,18 @@
 
 
             }
+                .formsEdit {
+                 input {
+                 color: rgb(255, 255, 255);
+                       &:focus {
+                        background-color: transparent;
+                         outline: none;
+                          }
+                       }
+                    }
         }
 
-        .formsEdit {
-            input {
-                color: rgb(255, 255, 255);
-
-                &:focus {
-                    background-color: transparent;
-
-                    outline: none;
-                }
-            }
-
-        }
+       
 
         .error {
             color: #9f0808;

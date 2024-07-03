@@ -1,5 +1,8 @@
 const actionHandlers = {
-	GET_TENANT_SETTINGS: (state, action) => ({ ...state, tennantSettingsData: action.payload }),
+	GET_TENANT_SETTINGS: (state, action) => ({
+		...state,
+		tennantSettingsData: action.payload,
+	}),
 	GET_USER_DETAILS: (state, action) => ({
 		...state,
 		userDetailsData: action.payload,

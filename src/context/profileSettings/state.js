@@ -1,7 +1,7 @@
 import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './actions';
-import * as API from '../../controllers/oldActionTypes';
+import * as API from './actionTypes';
 import jwt_decode from 'jwt-decode';
 import service from '../../services/index';
 
