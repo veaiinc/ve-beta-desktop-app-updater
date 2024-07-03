@@ -10,16 +10,16 @@ import {
 } from './graphQlFunctions';
 import Service from '../../services/graphQlServices';
 
-export const ChatState = () => {
-	const intialState = {
-		usersList: null,
-		moreUsersList: null,
-		messages: null,
-		moreMessages: null,
-		pageInfoData: null,
-		chatFiltersCount: null,
-	};
+export const intialState = {
+	usersList: null,
+	moreUsersList: null,
+	messages: null,
+	moreMessages: null,
+	pageInfoData: null,
+	chatFiltersCount: null,
+};
 
+export const ChatState = (props) => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
 	const getAllUsersFromMeta = async (workspaceID, payload, fetchMore = false) => {
@@ -159,6 +159,13 @@ export const ChatState = () => {
 		}
 	};
 
+	const resetChatState = async () => {
+		try {
+			dispatch({ type: Actions.RESET_STATE });
+		} catch (error) {
+			console.log('error==>resetChatState', error);
+		}
+	};
 	return {
 		...state,
 		getAllUsersFromMeta,
@@ -166,5 +173,6 @@ export const ChatState = () => {
 		markUnreadMessages,
 		getPageInfo,
 		getChatFiltersCount,
+		resetChatState,
 	};
 };

@@ -1,9 +1,10 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useContext } from 'react';
 import Modal from 'react-modal';
 import '../../../../assets/scss/workspaceSettings/switchWorkspaceModal.scss';
 import { ReactComponent as Close } from '../../../../assets/svg/workspaceSettings/modalclose.svg';
 import { ReactComponent as Selected } from '../../../../assets/svg/workspaceSettings/Selected.svg';
 import { ReactComponent as Unselected } from '../../../../assets/svg/workspaceSettings/Unselected.svg';
+import Context from '../../../../context/context';
 import { useNavigate } from 'react-router-dom';
 const customStyles = {
 	content: {
@@ -35,8 +36,12 @@ const customStyles = {
 };
 
 const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWorkspaceId }) => {
+	let {
+		chatInfo: { resetChatState },
+	} = useContext(Context);
 	const navigate = useNavigate();
-	const handleLogout = useCallback(() => {
+	const handleLogout = useCallback(async () => {
+		resetChatState();
 		localStorage.clear();
 		navigate('/');
 	}, []);
@@ -85,11 +90,10 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 				</div>
 			</div>
 			<div className="seperator"></div>
-			<div
-				className="switchWorkspaceModalFooter"
-				onClick={() => navigate('/create-workspace')}
-			>
-				<span className="newWorkspace">New Workspace</span>
+			<div className="switchWorkspaceModalFooter">
+				<span onClick={() => navigate('/create-workspace')} className="newWorkspace">
+					New Workspace
+				</span>
 				<span onClick={handleLogout} className="logoutContainer">
 					Logout
 				</span>

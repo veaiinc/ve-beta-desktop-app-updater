@@ -1110,22 +1110,7 @@ class CompanyTeamSettings extends ProjectController {
 											right: '10px',
 										}}
 									>
-										<select
-											style={{
-												fontFamily: 'Inter',
-												fontSize: '13px',
-												color: '#ffffff',
-												backgroundColor: 'transparent',
-												border: 'none',
-												cursor: 'pointer',
-											}}
-											onChange={(e) =>
-												this.setState({ userRoleType: e.target.value })
-											}
-										>
-											<option value="admin">Admin</option>
-											<option value="default">Member</option>
-										</select>
+										<span style={{ color: '#fff' }}>Admin</span>
 									</div>
 								</div>
 
