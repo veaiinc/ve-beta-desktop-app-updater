@@ -2,6 +2,8 @@
 	display: flex;
 	flex-direction: column;
 	gap: 1.5rem;
+	flex: 1;
+	height: 100%;
 
 	.header {
 		display: flex;
@@ -32,7 +34,7 @@
 
 			border-radius: 6.25rem;
 			border: 1px solid rgba(36, 36, 36, 0.64);
-			background: rgba(42, 42, 42, 0.16);
+			background: #1e1e1f;
 			cursor: pointer;
 			p {
 				color: #e4e5e6;
@@ -54,9 +56,10 @@
 	.propsosEditContainer {
 		display: flex;
 		align-items: flex-start;
-		gap: 1.5rem;
+		gap: 24px;
 		flex: 1 0 0;
 		align-self: stretch;
+		max-height: 40rem;
 
 		.previewContainer {
 			width: 40%;
@@ -75,6 +78,11 @@
 				text-transform: uppercase;
 			}
 		}
+		.verticalDivider {
+			height: 100%;
+			width: 1px;
+			background-color: rgba(36, 36, 36, 0.64);
+		}
 		.editContainer {
 			width: 55%;
 			display: flex;
@@ -83,10 +91,11 @@
 			gap: 1.5rem;
 			flex: 1 0 0;
 			align-self: stretch;
+			overflow-y: auto;
 
 			.heading {
 				color: #e4e5e6;
-				font-family: 'Inter';
+				font-family: Inter;
 				font-size: 0.875rem;
 				font-style: normal;
 				font-weight: 500;
