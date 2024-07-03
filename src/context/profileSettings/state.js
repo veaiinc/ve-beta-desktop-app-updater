@@ -4,7 +4,6 @@ import { Actions } from './actions';
 import * as API from './actionTypes';
 import jwt_decode from 'jwt-decode';
 import service from '../../services/index';
-import { tenant_api } from '../../services/config';
 
 export const ProfileState = () => {
 	const intialState = {
@@ -17,13 +16,11 @@ export const ProfileState = () => {
 	};
 
 	const [state, dispatch] = useReducer(Reducer, intialState);
-	// const [state, setState] = useState(intialState);
-
-	let usertoken = localStorage.getItem('usertoken');
-	let workspaceId = localStorage.getItem('workspaceId');
 
 	const getTenantSettings = async () => {
 		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(`/${workspaceId}`, usertoken, 'tenant');
 			if (response?.[0]) {
 				dispatch({
@@ -39,12 +36,13 @@ export const ProfileState = () => {
 	};
 	const getUserDetails = async () => {
 		try {
+			let usertoken = localStorage.getItem('usertoken');
 			const userDetails = await service.fetchGet(
 				API.TENANTS.myProfile,
 				usertoken,
 				'tenant-users',
 			);
-			// console.log(userDetails, 'these tensts are from the functions');
+
 			if (userDetails?.[0]) {
 				dispatch({
 					type: Actions.GET_USER_DETAILS,
@@ -56,15 +54,16 @@ export const ProfileState = () => {
 		}
 	};
 	const getTenantUserDetails = async () => {
-		let decoded = jwt_decode(usertoken);
-
 		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			let decoded = jwt_decode(usertoken);
 			const responseData = await service.fetchGet(
 				'/' + workspaceId + API.TENANTS.tenantUsers + '/' + decoded.user_id,
 				usertoken,
 				'tenant',
 			);
-			// console.log(responseData, 'this is the data');
+
 			if (responseData?.[0]) {
 				dispatch({
 					type: Actions.GET_TENANT_USER_DETAILS,
@@ -76,6 +75,7 @@ export const ProfileState = () => {
 		}
 	};
 	const get2FAQrCode = async () => {
+		let usertoken = localStorage.getItem('usertoken');
 		const qrCode = await service.fetchGet(
 			API.TENANT_USER_LOGIN_SIGNUP_API.set2FASettings +
 				API.TENANT_USER_LOGIN_SIGNUP_API.googleAuthenticator +
@@ -83,7 +83,7 @@ export const ProfileState = () => {
 			usertoken,
 			'tenant-users',
 		);
-		// console.log(qrCode, 'this is qr code');
+
 		if (qrCode?.[0]) {
 			dispatch({
 				type: Actions.GET_2FA_QR_CODE,
@@ -95,6 +95,7 @@ export const ProfileState = () => {
 	};
 	const set2FASettings = async (is2FAEnabled) => {
 		try {
+			let usertoken = localStorage.getItem('usertoken');
 			let json = {
 				is2FAEnabled: is2FAEnabled,
 			};
@@ -104,6 +105,7 @@ export const ProfileState = () => {
 				usertoken,
 				'tenant-users',
 			);
+
 			if (response[0]) {
 				dispatch({
 					type: Actions.SET_2FA_SETTINGS,
@@ -113,10 +115,10 @@ export const ProfileState = () => {
 		} catch (error) {
 			console.log('error==>set2fASettings', error);
 		}
-		// console.log(response, 'this is the response data from the settings');
 	};
 
 	const updateUserDetails = async (payload) => {
+		let usertoken = localStorage.getItem('usertoken');
 		let response = await service.fetchPut(
 			API.TENANTS.myProfile,
 			payload,
@@ -126,6 +128,7 @@ export const ProfileState = () => {
 	};
 	const getUserWorkSpaceList = async () => {
 		try {
+			let usertoken = localStorage.getItem('usertoken');
 			let workSpaceList = await service.fetchGet(
 				API.TENANTS.accessibleTenants,
 				usertoken,
@@ -152,15 +155,8 @@ export const ProfileState = () => {
 		);
 	};
 	const updatePassword = async (currentpassword, payload) => {
-		// let currentpassword = {
-		// 	email: 'email',
-		// 	password: 'current password',
-		// };
-		// let payload = {
-		// 	password: 'new passowrd',
-		// };
-
 		try {
+			let usertoken = localStorage.getItem('usertoken');
 			let passwordResponse = await verifyLoginWithPassword(currentpassword);
 			if (passwordResponse?.[0]) {
 				let response = await service.fetchPost(
@@ -182,6 +178,7 @@ export const ProfileState = () => {
 		}
 	};
 	const chooseDefaultWorkspace = async (data) => {
+		let usertoken = localStorage.getItem('usertoken');
 		const payload = {
 			tenantId: data?.tenant_id,
 			order: 1,
@@ -192,7 +189,6 @@ export const ProfileState = () => {
 			usertoken,
 			'tenant-users',
 		);
-		console.log(response, 'this is the default workspace response');
 	};
 
 	return {

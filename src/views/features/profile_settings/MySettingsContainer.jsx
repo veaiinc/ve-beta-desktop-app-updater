@@ -459,7 +459,8 @@ class MySettingsContainer extends Workspace {
 		this.setState({
 			workspaceID,
 		});
-
+		await this.getUserDetails();
+		this.getUserWorkSpaceList(false);
 		this.setState({ FirstName: this.state.firstName, LastName: this.state.lastName });
 	};
 

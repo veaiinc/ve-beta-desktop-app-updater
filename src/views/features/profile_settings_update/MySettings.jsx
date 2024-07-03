@@ -17,15 +17,13 @@ const MySettings = () => {
 			getTenantUserDetails,
 			get2FAQrCode,
 			set2FASettings,
-			// tennantSettingsData,
 			userDetailsData,
-			// tenantUserDetails,
 			updateUserDetails,
 			qrcode,
 			getUserWorkSpaceList,
 			userWorkSpaceList,
-			// set2factorSettings,
 			chooseDefaultWorkspace,
+			set2factorSettings,
 		},
 	} = useContext(Context);
 
@@ -40,9 +38,7 @@ const MySettings = () => {
 		email: '',
 		phoneNumber: '',
 	});
-	console.log(userWorkSpaceList, 'this are the workspace list');
-	// console.log(userDetails.fullName, 'this is full name');
-	// console.log(set2factorSettings?.is2FAEnabled, 'two factor');s
+
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [activeItem, setActiveItem] = useState('profile');
 
@@ -75,11 +71,7 @@ const MySettings = () => {
 			let decoded = jwt_decode(usertoken);
 			let workspaceID = localStorage.getItem('workspaceId');
 			let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded.user_id}`));
-			// console.log(role, 'this is the role'); // admin
 			setIsAdmin(role === 'admin');
-
-			// console.log('this is decoded:', decoded, 'workspaceid', workspaceID);
-
 			getTenantSettings();
 			getUserDetails();
 			getTenantUserDetails();
@@ -347,7 +339,8 @@ const MySettings = () => {
 				</div>
 
 				{/* Theme Preference */}
-				<div className="settingsTheme" id="theme">
+
+				{/* <div className="settingsTheme" id="theme">
 					<div className={'themeMain'}>
 						<h4>Theme performance</h4>
 						<div>
@@ -371,9 +364,9 @@ const MySettings = () => {
 							</button>
 						</div>
 					</div>
-				</div>
+				</div> */}
 				{/* Notifications */}
-				<div className={'notificationContainer'} id="notifications">
+				{/* <div className={'notificationContainer'} id="notifications">
 					<div className={'notificationMain'}>
 						<div className={'notificationText'}>
 							<h4>Notifications</h4>
@@ -383,7 +376,7 @@ const MySettings = () => {
 							</p>
 						</div>
 					</div>
-				</div>
+				</div> */}
 
 				{/* Access Settings */}
 				<div className={'accessSettingsContainer'} id="access">
@@ -431,17 +424,6 @@ const MySettings = () => {
 								When you leave your workspace, your work will be lost, and your team
 								will be notified. Select a workspace you would like to leave
 							</p>
-							{/* {defaultWorkspace.map((item) => (
-						<div key={item.id} className={styles.notificationWorkspace}>
-							<img src={workspaces} alt='workspace'/>
-							<div className={styles.workspaceContainer}>
-							<h4>{item.name}</h4>
-							<p>Current Members: {item.members || 0}</p> 
-							</div>
-							<button>Leave</button>
-						</div>
-						
-						))} */}
 						</div>
 					</div>
 				</div>
@@ -467,18 +449,18 @@ const MySettings = () => {
 					>
 						Two Factor Authentication
 					</li>
-					<li
+					{/* <li
 						className={activeItem === 'theme' ? 'active' : ''}
 						onClick={() => handleNavigation('theme')}
 					>
 						Theme Preference
-					</li>
-					<li
+					</li> */}
+					{/* <li
 						className={activeItem === 'notifications' ? 'active' : ''}
 						onClick={() => handleNavigation('notifications')}
 					>
 						Notifications
-					</li>
+					</li> */}
 					<li
 						className={activeItem === 'access' ? 'active' : ''}
 						onClick={() => handleNavigation('access')}
