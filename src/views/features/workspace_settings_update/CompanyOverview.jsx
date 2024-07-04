@@ -1,8 +1,161 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/CompanySettings/overview.scss';
+import jwt_decode from 'jwt-decode';
 import InputForModules from '../../components/input/inputForModules';
+import { BusinessTypesOptions } from './BusinessTypes';
+import Context from '../../../context/context';
+import validator from 'validator';
 
 const CompanyOverview = () => {
+	const {
+		profileInfo: { getTenantSettings, tennantSettingsData },
+		companyInfo: { updateTenantContactDetails, updateTenantAddress, updateTenantWebsite },
+	} = useContext(Context);
+
+	const [error, setErrors] = useState({});
+	const [isEditMode, setIsEditMode] = useState(false);
+
+	const [overviewState, setOverviewState] = useState({
+		phoneNumber: '',
+		email: '',
+		address: '',
+		website: '',
+		businessName: '',
+		isAdmin: '',
+	});
+	const [initialState, setInitialState] = useState({ ...overviewState });
+
+	useEffect(() => {
+		getTenantSettings();
+		checkIsAdmin();
+	}, []);
+	const checkIsAdmin = () => {
+		let usertoken = localStorage.getItem('usertoken');
+		let decoded = jwt_decode(usertoken);
+		let workspaceID = localStorage.getItem('workspaceId');
+		let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded.user_id}`));
+
+		setOverviewState((prev) => ({
+			...prev,
+			isAdmin: role === 'admin',
+		}));
+	};
+	useEffect(() => {
+		setOverviewState({
+			email: tennantSettingsData?.email || '',
+			phoneNumber: tennantSettingsData?.phoneNumber || '',
+			address: tennantSettingsData?.address || '',
+			website: tennantSettingsData?.website || '',
+			businessName: tennantSettingsData?.businessName || '',
+		});
+		setInitialState({
+			email: tennantSettingsData?.email || '',
+			phoneNumber: tennantSettingsData?.phoneNumber || '',
+			address: tennantSettingsData?.address || '',
+			website: tennantSettingsData?.website || '',
+			businessName: tennantSettingsData?.businessName || '',
+		});
+	}, [tennantSettingsData]);
+
+	const validateField = (fieldName, value) => {
+		switch (fieldName) {
+			case 'email':
+				if (!validator.isEmail(value)) {
+					return { error: true, message: 'Invalid Email' };
+				}
+				break;
+			case 'phoneNumber':
+				if (!validator.isMobilePhone(value, 'any', { strictMode: true })) {
+					return { error: true, message: 'Phone Number is invalid' };
+				}
+				break;
+			case 'website':
+				if (
+					!validator.isURL(value, {
+						protocols: ['http', 'https'],
+						require_protocol: true,
+					})
+				) {
+					return {
+						error: true,
+						message: 'Invalid Website URL. example: https://www.website.com',
+					};
+				}
+				break;
+			default:
+				if (validator.isEmpty(value)) {
+					return { error: true, message: 'This field is required' };
+				}
+				break;
+		}
+		return '';
+	};
+	const validate = () => {
+		const newErrors = {};
+		Object.keys(overviewState).forEach((key) => {
+			const error = validateField(key, overviewState[key]);
+
+			if (error) {
+				newErrors['error' + key] = error;
+			}
+		});
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
+	};
+
+	const updateDetails = () => {
+		let contactJson = {};
+		if (initialState.email !== overviewState.email) {
+			contactJson.email = overviewState.email;
+		}
+		if (initialState.phoneNumber !== overviewState.phoneNumber) {
+			contactJson.phoneNumber = overviewState.phoneNumber;
+		}
+
+		if (Object.keys(contactJson).length) {
+			// pass the contantjson
+			updateTenantContactDetails(contactJson);
+		}
+		if (initialState.address !== overviewState.address && overviewState.address.length) {
+			let json = { address: overviewState.address };
+			updateTenantAddress(json);
+		}
+		if (initialState.website !== overviewState.website && overviewState.website.length) {
+			let json = { websiteUrl: overviewState.website };
+			updateTenantWebsite(json);
+		}
+	};
+	const handleSubmit = (e) => {
+		e.preventDefault();
+		if (validate()) {
+			updateDetails();
+			setIsEditMode(false);
+		}
+	};
+
+	const handleChange = (e) => {
+		const { name, value } = e.target;
+
+		const error = validateField(name, value);
+		setErrors({
+			...error,
+			['error' + name]: error,
+		});
+		setOverviewState((prev) => ({
+			...prev,
+			[name]: value,
+		}));
+	};
+	const handleEdit = () => {
+		if (isEditMode) {
+			handleSubmit(new Event('submit'));
+		} else {
+			setIsEditMode(true);
+		}
+		// setIsEditMode(!isEditMode);
+	};
+	const workspaceId = localStorage.getItem('workspaceId');
+	const companyHandle = 'https://' + workspaceId + '.ve.ai';
 	return (
 		<div className="overviewContainer">
 			<div className="workspaceHandle">
@@ -14,17 +167,19 @@ const CompanyOverview = () => {
 					<InputForModules
 						label={'Company Handle'}
 						type={'text'}
-						placeholder={'Enter your URL'}
+						placeholder={companyHandle}
 						name={'companyHandle'}
 						value={''}
 						// onChange={handleChange}
 						isError={false}
 						errorMessage={''}
+						disabled={true}
 					/>
 					<InputForModules
 						label={'Company Type'}
-						type={'text'}
-						placeholder={'Enter your Company Type'}
+						type={'dropdown'}
+						options={BusinessTypesOptions}
+						placeholder={'Choose your Company Type'}
 						name={'CompanyType'}
 						value={''}
 						// onChange={handleChange}
@@ -34,12 +189,13 @@ const CompanyOverview = () => {
 					<InputForModules
 						label={'Company Email'}
 						type={'email'}
-						placeholder={'business@email.com'}
-						name={'CompanyEmail'}
+						placeholder={overviewState.companyEmail}
+						name={'companyEmail'}
 						value={''}
 						// onChange={handleChange}
 						isError={false}
 						errorMessage={''}
+						disabled={true}
 					/>
 
 					<button>Add your own Domain</button>
@@ -52,69 +208,92 @@ const CompanyOverview = () => {
 						<h1>Business Communications</h1>
 						<h3>This will be your client facing address for all your Documents</h3>
 					</div>
-					<p className="editButton">Edit</p>
+					<p
+						className={`${'editButton'} ${isEditMode ? 'activeEdit' : ''}`}
+						onClick={handleEdit}
+					>
+						{isEditMode ? 'Save Changes' : 'Edit'}
+					</p>
 				</div>
-				<div className="businessDetailsForm">
-					<div className="businessImgName">
-						<div className="businessImgContainerMain">
-							<input
-								type="file"
-								id="businessPicture"
-								name="businessPicture"
-								style={{ display: 'none' }}
-							/>
-							<label htmlFor="businessPicture">
-								{/* <img
+				<form onSubmit={handleSubmit}>
+					<div className={`${'businessDetailsForm'} ${isEditMode ? 'activeInput' : ''}`}>
+						<div className="businessImgName">
+							<div className="businessImgContainerMain">
+								<input
+									type="file"
+									id="businessPicture"
+									name="businessPicture"
+									style={{ display: 'none' }}
+								/>
+								<label htmlFor="businessPicture">
+									{/* <img
                                     src={formData.profilePicture || defaultPic}
                                     alt="Profile"
                                     style={{ cursor: isEditMode ? 'pointer' : 'default' }}
                                 /> */}
-							</label>
+								</label>
+							</div>
+							<div className={'businessName'}>
+								<InputForModules
+									label={'Business Name'}
+									type={'text'}
+									placeholder={'Enter your Business Name'}
+									name={'businessName'}
+									onChange={handleChange}
+									value={overviewState.businessName}
+									isError={false}
+									errorMessage={''}
+									disabled={!isEditMode}
+								/>
+							</div>
 						</div>
-						<div className={'businessName'}>
-							<InputForModules
-								label={'Business Name'}
-								type={'text'}
-								placeholder={'Enter your Business Name'}
-								name={'businessName'}
-								isError={false}
-								errorMessage={''}
-							/>
-						</div>
+						<InputForModules
+							label={'Company Email'}
+							type={'email'}
+							value={overviewState.email}
+							onChange={handleChange}
+							placeholder={'business@email.com'}
+							name={'email'}
+							isError={error?.erroremail?.error || ''}
+							errorMessage={error?.erroremail?.message || ''}
+							disabled={!isEditMode}
+						/>
+						<InputForModules
+							label={'Phone Number'}
+							type={'phoneNumber'}
+							onChange={handleChange}
+							value={overviewState.phoneNumber}
+							placeholder={'Enter your Phone Number'}
+							name={'phoneNumber'}
+							isError={error?.errorphoneNumber?.error || false}
+							errorMessage={error?.errorphoneNumber?.message || ''}
+							disabled={!isEditMode}
+						/>
+
+						<InputForModules
+							label={'Address'}
+							type={'text'}
+							onChange={handleChange}
+							value={overviewState.address}
+							placeholder={'Enter your Company Address'}
+							name={'address'}
+							isError={false}
+							errorMessage={''}
+							disabled={!isEditMode}
+						/>
+						<InputForModules
+							label={'Website'}
+							type={'text'}
+							value={overviewState.website}
+							onChange={handleChange}
+							placeholder={'https://www.studio.com'}
+							name={'website'}
+							isError={error?.errorwebsite?.error || false}
+							errorMessage={error?.errorwebsite?.message || ''}
+							disabled={!isEditMode}
+						/>
 					</div>
-					<InputForModules
-						label={'Company Email'}
-						type={'email'}
-						placeholder={'business@email.com'}
-						name={'companyEmail'}
-						isError={false}
-						errorMessage={''}
-					/>
-					<InputForModules
-						label={'Phone Number'}
-						type={'phoneNumber'}
-						placeholder={'Enter your Phone Number'}
-						name={'phoneNumber'}
-						isError={false}
-						errorMessage={''}
-					/>
-					<InputForModules
-						label={'Address'}
-						type={'text'}
-						placeholder={'Enter your Company Address'}
-						name={'CompanyAddress'}
-						isError={false}
-						errorMessage={''}
-					/>
-					<InputForModules
-						label={'Website'}
-						type={'text'}
-						placeholder={'https://www.studio.com'}
-						name={'website'}
-						isError={false}
-						errorMessage={''}
-					/>
-				</div>
+				</form>
 			</div>
 			<div className="timeZone">
 				<div className="timeZoneHeadding">

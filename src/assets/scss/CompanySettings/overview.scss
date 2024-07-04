@@ -45,6 +45,8 @@
             flex-direction: column;
             gap: 24px;
             width: 100%;
+            
+            
             button{
                     padding: 9px 16px;
                     align-items: center;
@@ -111,12 +113,23 @@
                         /* 114.286% */
                         text-transform: uppercase;
                 }
+                .activeEdit{
+                    color: #6055EC;
+                }
+            }
+            form{
+                width: 100%;
             }
             .businessDetailsForm{
                 display: flex;
                 flex-direction: column;
                 gap:24px;
                 width: 100%;
+                input{
+                    color: #E4E5E67A;
+                    transition: color 0.2s ease;
+                }
+                
                 .businessImgName{
                     display: flex;
                     gap:24px;
@@ -125,6 +138,7 @@
                     padding-left: 0px;
                     input {
                             width: 100%;
+                            
                         }
                     .businessImgContainerMain{
                         width: 63px;
@@ -144,6 +158,14 @@
                     }
                                         
                 }
+                
+            }
+            .activeInput {
+                input {
+                    color: #E4E5E6;
+                   
+                 }
+            
             }
     }
 
