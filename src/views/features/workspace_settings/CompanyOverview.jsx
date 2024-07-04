@@ -301,7 +301,7 @@ class CompanyOverview extends Workspace {
 					});
 				}
 				if (this.state.email !== this.state.emailO) {
-					contactJson.email = this.state.emai;
+					contactJson.email = this.state.email;
 				}
 			}
 			//phone Number
@@ -325,6 +325,7 @@ class CompanyOverview extends Workspace {
 				}
 				// await this.updateTenantContactDetails(json);
 			}
+
 			if (Object.keys(contactJson)?.length) {
 				this.updateTenantContactDetails(contactJson);
 			}
