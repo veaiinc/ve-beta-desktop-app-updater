@@ -40,6 +40,7 @@ function Sales({ type }) {
 		if (response[0]) {
 			setLoading(false);
 			setInsights(_.filter(response[1]));
+		} else {
 		}
 	};
 
@@ -47,8 +48,8 @@ function Sales({ type }) {
 		let response = await getTemplates();
 		if (response[0]) {
 			setLoading(false);
-			setGlobalWorkflows(_.filter(response[1], { tenantId: '*' }));
-			setMyWorkflows(_.filter(response[1], (item) => item.tenantId !== '*'));
+			setGlobalWorkflows(_.filter(response[1], { tenantId: null }));
+			setMyWorkflows(_.filter(response[1], (item) => item.tenantId !== null));
 		}
 	};
 
