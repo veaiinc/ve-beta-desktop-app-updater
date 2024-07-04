@@ -1710,7 +1710,6 @@ class MySettingsContainer extends Workspace {
 												rowGap: '13px',
 											}}
 										>
-											{console.log('hello', this.state.workspaceList)}
 											{this.state.workspaceList?.map((value, index) => (
 												<ReusableButtonSettings
 													text={value?.businessName}
