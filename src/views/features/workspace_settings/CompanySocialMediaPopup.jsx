@@ -38,6 +38,9 @@ class CompanySocialMediaPopup extends TenantController {
 		};
 
 		const handleSaveLinkChanges = async () => {
+			if (this?.state?.error) {
+				return;
+			}
 			if (this.state.changes) {
 				if (!value?.length) {
 					return this.setState({
