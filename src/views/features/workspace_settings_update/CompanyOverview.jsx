@@ -5,6 +5,8 @@ import InputForModules from '../../components/input/inputForModules';
 import { BusinessTypesOptions } from './BusinessTypes';
 import Context from '../../../context/context';
 import validator from 'validator';
+import { ReactComponent as GlobeSettings } from '../../../assets/svg/workspaceSettings/globeSettings.svg';
+import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
 
 const CompanyOverview = () => {
 	const {
@@ -304,7 +306,14 @@ const CompanyOverview = () => {
 					</p>
 				</div>
 				{/* Options container for the time zone */}
-				<div></div>
+				<div>
+					<ReusableButtonSettings
+						text={'India, Sri Lanka time'}
+						icon={<GlobeSettings />}
+						downArrow={true}
+						// func={() => this.setState({ timeZonePickerPopup: true })}
+					/>
+				</div>
 			</div>
 			<div className="currency">
 				<div className="currencyheadding">
@@ -315,7 +324,14 @@ const CompanyOverview = () => {
 						symbol but not the actual value displayed.
 					</p>
 				</div>
-				<div>{/* Keep drop down */}</div>
+				<div>
+					<ReusableButtonSettings
+						text={'INR'}
+						icon={'₹'}
+						downArrow={true}
+						// func={() => this.setState({ currencyPickerPopup: true })}
+					/>
+				</div>
 			</div>
 			<div className="deleteWorkspace">
 				<div>

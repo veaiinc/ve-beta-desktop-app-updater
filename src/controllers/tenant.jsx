@@ -417,6 +417,7 @@ class Tenant extends Component {
 
 	submitAddTenantUser = async (json, isPage = null) => {
 		let usertoken = localStorage.getItem('usertoken');
+		console.log('hello');
 		toast.promise(
 			new Promise(async (resolve, reject) => {
 				let response = await TenantsAction.addTenantUser(

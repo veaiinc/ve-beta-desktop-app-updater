@@ -32,6 +32,44 @@
                     /* 161.538% */
             }
         }
+                                .upload-brand-embeded-btn {
+                                    width: 100%;
+                                    .upload-brand-container-new {
+                                        .upload-brand-logo {
+                                            display: flex;
+                                            justify-content: center;
+                                            align-items: center;
+                                            width: 100%;
+                                            height: 100px;
+                                            border: 1px dashed #242424a3;
+                                            border-radius: 10px;
+                                            background-color: #151515;
+                                            color: #ccc;
+                                            cursor: pointer;
+                                            position: relative;
+                
+                                            img {
+                                                width: 64px;
+                                                max-height: 64px;
+                                                object-fit: contain;
+                                            }
+                                        }
+                                    }
+                
+                                    .upload-brand-placeholder {
+                                        display: flex;
+                                        justify-content: center;
+                                        align-items: center;
+                                        width: 100%;
+                                        height: 100px;
+                                        border: 2px dashed #333;
+                                        border-radius: 10px;
+                                        background-color: #1c1c1c;
+                                        color: #ccc;
+                                        cursor: pointer;
+                                        position: relative;
+                                    }
+                                }
     }
     .brandingContainer{
         display: flex;
@@ -63,6 +101,27 @@
                     line-height: 21px;
                     
                 }
+        }
+        .brandColorContainer{
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+           .chooseBrandColor{
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            .hashColor{
+                color: rgba(228, 229, 230, 0.48);
+                font-size: 16px;
+                line-height: 26px;
+            }
+            .circleColor{
+                width: 40px;
+                height: 40px;
+                border-radius: 100%;
+                background-color: #6055EC;
+            }
+           }
         }
     }
     .brandFontContainer{
@@ -131,6 +190,24 @@
     
                 }
             }
+            .logosWrapper{
+                display: flex;
+                gap: 75px;
+                flex-wrap: wrap;
+                row-gap: 32px;
+                .logoContainer {
+                        width: 72px;
+                        height: 72px;
+                        border: 1px solid #555555;
+                        border-radius: 100%;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        cursor: pointer;
+                    }
+
+            }
+          
         }
         .footerContainer{
             display: flex;
@@ -142,6 +219,17 @@
                 border-radius: 40px;
                 border: 1px solid rgba(36, 36, 36, 0.64);
                 background: rgba(42, 42, 42, 0.16);
+                .footerToggle{
+                    width: 100%;
+                    display: flex;
+                    gap: 16px;
+                    p{
+                        color: #E4E5E6;
+                         font-size: 13px;
+                        font-weight: 400;
+                        line-height: 24px;
+                    }
+                }
             .footerTextContainer{
                 h1 {
                         color: #E4E5E6;

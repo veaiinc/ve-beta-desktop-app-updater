@@ -48,6 +48,7 @@
                         background: none;
                         border:none;
                         color: #E4E5E6;
+                     
                     }
                     .dropdownContainer{
                         background-color: none;
@@ -96,6 +97,78 @@
                     line-height: 16px;
                 }
             }
+        }
+        .tenantDetailsContainer{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            .tenantProfileContainer{
+                display: flex;
+                gap: 16px;
+                .tenantLogo{
+                    display: flex;
+                     justify-content: center;
+                     align-items: center;
+                    border: 1px solid #c49e59;
+                    border-radius: 500px;
+                    font-size: 24px;
+                    width: 64px;
+                    height: 64px;
+                    color: #e4e5e6;
+                }
+                .tenantProfileName{
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    h1{
+                        margin: 0px;
+                    }
+                }
+            }
+            .AccessControl{
+                .owner{
+                    border-radius: 4px;
+                    background-color: #3F8AE2;
+                    padding:14px 12px 14px 12px ;
+                    width: 103px;
+                    height: 30px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    color: #e4e5e6;
+                    font-size: 10px;
+                }
+                .editAccessControl{
+                    display: flex;
+                    gap: 24px;
+                    align-items: center;
+                    justify-content: center;
+                    .Edit{
+                        display: flex;
+                        padding: 9px 12px;
+                        align-items: center;
+                        gap: 12px;
+                        border-radius: 20px;
+                        border: 1px solid #6055EC;
+                        color: #6055EC;
+                        font-size: 14px;
+                        font-weight: 400;
+                        line-height: 16px;
+                        letter-spacing: -0.3px;
+                    }
+                    .role{
+                        color: #E4E5E6;
+                    
+                        font-size: 14px;
+        
+                        font-weight: 400;
+                        line-height: 16px;
+                        letter-spacing: -0.3px;
+                    }
+                }
+            }
+
+
         }
     }
 }

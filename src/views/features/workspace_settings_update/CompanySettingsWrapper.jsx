@@ -7,6 +7,7 @@ import CompanyTeamMembers from './CompanyTeamMembers';
 import CompanyPlanBilling from './CompanyPlanBilling';
 import CompanyGallery from './CompanyGallery';
 import CompanyDomainVerification from './CompanyDomainVerification';
+import SettingsPageSideBar from './SettingsPageSideBar';
 
 let mapper = {
 	'company-overview-settings': <CompanyOverview />,
@@ -17,7 +18,7 @@ let mapper = {
 	'company-domain-verification-settings': <CompanyDomainVerification />,
 	'company-branding-settings': <CompanyBranding />,
 };
-const CompanySettingsWrapper = () => {
+const CompanySettingsWrapper = (props) => {
 	const { type } = useParams();
 	const navigate = useNavigate();
 	const [urlType, setUrlype] = useState('');
@@ -25,7 +26,12 @@ const CompanySettingsWrapper = () => {
 		navigate(`/workspace-settings/${type}`);
 		setUrlype(type);
 	};
-	return <div>{mapper?.[type]}</div>;
+	return (
+		<div>
+			{mapper?.[type]}
+			<SettingsPageSideBar {...props} type={type} setType1={setType} />
+		</div>
+	);
 };
 
 export default CompanySettingsWrapper;

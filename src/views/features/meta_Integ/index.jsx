@@ -75,7 +75,7 @@ const ChatScreen = (props) => {
 			},
 		};
 
-		getPageInfo(workspaceId, payload);
+		getPageInfo(payload);
 		return () => {
 			socketRef?.current?.close();
 		};

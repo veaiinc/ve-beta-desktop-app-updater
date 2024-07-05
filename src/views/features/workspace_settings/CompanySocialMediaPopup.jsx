@@ -40,15 +40,20 @@ class CompanySocialMediaPopup extends TenantController {
 		const handleSaveLinkChanges = async () => {
 			if (this.state.changes) {
 				if (!value?.length) {
+					console.log(value, 'this is the value');
 					return this.setState({
 						error: true,
 						errorMessage: 'Invalid Url',
 					});
 				}
+				if (this?.state?.error) {
+					return;
+				}
 
 				const json = {
 					[name]: value,
 				};
+
 				this.updateTenantSocialMediaProfile(json);
 			}
 			this.props.handleClose();

@@ -23,7 +23,7 @@ const ReusableButtonSettings = ({
 				padding: '9px 16px',
 				height: '40px',
 				// marginTop: '1rem',
-				width: 'fit-content',
+				width: 'auto',
 				display: 'inline-block',
 				transition: 'color 0.3s ease-in, border 0.3s ease-in',
 			}}

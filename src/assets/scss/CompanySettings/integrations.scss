@@ -43,6 +43,16 @@
                 }
                 
             }
+            .facbookOptions{
+                display: flex;
+                gap: 13px;
+                opacity: 1;
+                transition: opacity 0.3s ease-in-out;
+                
+                    &.closed {
+                        opacity: 0;
+                    }
+            }
             button{
               
                 padding: 16px 24px;

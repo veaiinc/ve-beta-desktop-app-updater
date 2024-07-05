@@ -109,6 +109,7 @@ class CompanyTeamSettings extends ProjectController {
 			emailID: null,
 			userRoleType: 'admin',
 		};
+
 		this.options = [
 			{ value: 'admin', label: 'Admin' },
 			{ value: 'default', label: 'Member' },
@@ -137,6 +138,7 @@ class CompanyTeamSettings extends ProjectController {
 			singleValue: (defaultStyles) => ({ ...defaultStyles, color: '#fff' }),
 		};
 	}
+
 	showAddTenantUserModal = (e) => {
 		if (this.state.showAddTenantUserModal) {
 			//while closing mkodal ,deleting search query coming from kbar
@@ -205,6 +207,7 @@ class CompanyTeamSettings extends ProjectController {
 			this.state.currentViewPage == 1 ? null : 'add',
 		);
 	};
+
 	componentDidMount = async () => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const paramValue = urlParams.get('addTeamMember');
@@ -487,7 +490,7 @@ class CompanyTeamSettings extends ProjectController {
 		let userType = '';
 		let userId = '';
 		let emailID = this.state.emailID;
-		console.log(this.state.tenantUser);
+
 		let isUserExisting = _.find(this.state.tenantUser, function (o) {
 			return (
 				(o.email && o.email === emailID) || (o.inviteeEmail && o.inviteeEmail === emailID)
@@ -1424,7 +1427,7 @@ class CompanyTeamSettings extends ProjectController {
 															class="custom-select"
 															style={{ marginTop: '10px' }}
 														>
-															{user?.isOwner ? (
+															{false ? (
 																<div
 																	style={{
 																		borderRadius: '4px',

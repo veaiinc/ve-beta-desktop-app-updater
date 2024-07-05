@@ -105,9 +105,10 @@ export const ChatState = (props) => {
 		}
 	};
 
-	const getPageInfo = async (workspaceId, payload) => {
+	const getPageInfo = async (payload) => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
 			const response = await Service.query(
 				getPageInfoApi,
 				payload,
