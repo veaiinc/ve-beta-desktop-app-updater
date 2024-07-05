@@ -23,7 +23,7 @@ const DropDown = ({
 		setIsOpen(false);
 	};
 	return (
-		<div className="dropdown">
+		<div className="dropdown-comp">
 			<div className="dropdown-header" style={containerStyle || {}} onClick={toggleDropdown}>
 				{iconComponent}
 				<span className="selectedPage">{selectedValue}</span>

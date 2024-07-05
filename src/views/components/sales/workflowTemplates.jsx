@@ -24,6 +24,7 @@ function WorkflowTemplates({ workflows }) {
 			...prevState,
 			id: workflow._id,
 			title: workflow.title,
+			parsedHtmlContent: workflow.parsedHtmlContent,
 		}));
 		setIsOpen(true);
 	};
@@ -33,6 +34,7 @@ function WorkflowTemplates({ workflows }) {
 		setWorkFlow((prevState) => ({
 			id: '',
 			title: '',
+			parsedHtmlContent: '',
 		}));
 	};
 
@@ -52,8 +54,6 @@ function WorkflowTemplates({ workflows }) {
 			navigate(`/sales/${response[1]['_id']}`);
 		}
 	};
-
-	console.log(workflow);
 
 	const previewModal = () => {
 		return (
@@ -91,8 +91,13 @@ function WorkflowTemplates({ workflows }) {
 					</div>
 
 					<div className="previewContainer">
-						<p>Proposal Template</p>
-						<div className="previewDiv"></div>
+						<p className="heading">Proposal Template</p>
+						<div className="previewDiv">
+							<div
+								dangerouslySetInnerHTML={{ __html: workflow.parsedHtmlContent }}
+								style={{ width: '100%' }}
+							/>
+						</div>
 
 						<div className="buttonContainer">
 							<div className="customizeContainer">
@@ -161,8 +166,8 @@ function WorkflowTemplates({ workflows }) {
 									</div>
 									<div
 										className="imageContainer"
-										style={{
-											backgroundImage: `url(${workflow.displayImageURL})`,
+										dangerouslySetInnerHTML={{
+											__html: workflow.parsedHtmlContent,
 										}}
 									></div>
 								</div>
