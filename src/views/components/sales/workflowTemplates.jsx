@@ -101,7 +101,7 @@ function WorkflowTemplates({ workflows }) {
 
 						<div className="buttonContainer">
 							<div className="customizeContainer">
-								<a href={`https://builder.ve.co/${workflow.id}`}>
+								<a href={`https://builder.ve.co/${workflow.id}/customize`}>
 									<p>Customize</p>
 								</a>
 							</div>
