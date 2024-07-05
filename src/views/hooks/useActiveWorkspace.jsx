@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
 
 const useActiveWorkspace = () => {
 	const [workspaceId, setActiveWorkspaceId] = useState(() => {
@@ -7,6 +8,10 @@ const useActiveWorkspace = () => {
 
 	useEffect(() => {
 		localStorage.setItem('workspaceId', workspaceId);
+		Cookies.set('workspaceID', workspaceId, {
+			sameSite: 'lax',
+			domain: '.ve.co',
+		});
 	}, [workspaceId]);
 
 	useEffect(() => {
