@@ -184,6 +184,15 @@
 				background-size: cover;
 				background-repeat: no-repeat;
 				height: 19.5rem;
+				overflow: scroll;
+
+				.builder {
+					zoom: 0.34;
+
+					div {
+						width: 100%;
+					}
+				}
 			}
 		}
 	}
@@ -331,6 +340,14 @@
 				border-radius: 5px;
 				height: 500px;
 				overflow: scroll;
+
+				.builder {
+					zoom: 0.34;
+
+					div {
+						width: 100%;
+					}
+				}
 			}
 			.buttonContainer {
 				display: flex;
