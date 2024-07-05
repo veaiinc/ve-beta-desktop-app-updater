@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import '../../../assets/scss/inputComponent.scss';
 
-const ToggleSlider = ({ onChange }) => {
-	const [checked, setChecked] = useState(false);
+const ToggleSlider = ({ onChange, value }) => {
+	const [checked, setChecked] = useState(value || false);
 
 	const handleToggle = () => {
 		const newValue = !checked;

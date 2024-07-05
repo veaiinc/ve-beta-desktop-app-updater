@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../assets/scss/modules/proposal/eventsBlock.scss';
 const EventsBlock = () => {
 	return (
@@ -122,21 +122,4 @@ const EventsBlock = () => {
 	);
 };
 
-export default EventsBlock;
-
-{
-	/* <div className="inputHolder">
-<span className="serviceTitle">Number of Guests</span>
-<div className="inputWrapper">
-	<input
-		type="number"
-		className="propsalinputContainer"
-		style={{ border: 'none' }}
-	/>
-	<div className="incrementDecrementBtnHolder">
-		<span className="decrementBtn">-</span>
-		<span className="incrementBtn">+</span>
-	</div>
-</div>
-</div> */
-}
+export default memo(EventsBlock);
