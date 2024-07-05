@@ -12,6 +12,10 @@
 
 a {
 	text-decoration: none;
+	p,
+	span {
+		color: initial;
+	}
 }
 .modal-content {
 	border-radius: 12px;

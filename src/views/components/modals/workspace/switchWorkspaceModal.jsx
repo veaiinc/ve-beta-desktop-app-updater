@@ -6,6 +6,8 @@ import { ReactComponent as Selected } from '../../../../assets/svg/workspaceSett
 import { ReactComponent as Unselected } from '../../../../assets/svg/workspaceSettings/Unselected.svg';
 import Context from '../../../../context/context';
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
+
 const customStyles = {
 	content: {
 		top: '50%',
@@ -54,6 +56,10 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 		}
 		closeModal();
 		localStorage.setItem('workspaceId', data);
+		Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
+			sameSite: 'lax',
+			domain: '.ve.co',
+		});
 		window.location.reload();
 	}, []);
 

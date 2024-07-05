@@ -21,6 +21,10 @@ const OauthVerify = () => {
 					sameSite: 'lax',
 					domain: '.ve.co',
 				});
+				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
+					sameSite: 'lax',
+					domain: '.ve.co',
+				});
 
 				return navigate('/sales');
 			}
