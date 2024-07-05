@@ -3,7 +3,13 @@ import '../../../assets/scss/modules/proposal/eventsBlock.scss';
 const EventsBlock = () => {
 	return (
 		<div className="eventsBlockContainer">
-			<span className="eventsBlockHeader">Select Events</span>
+			<span className="serviceBlockHeader">
+				<span className="serviceHeaderTitle">Event Table</span>
+				<span className="serviceSubheadertitle">
+					This table outlines the different events that will be covered by the business,
+					including dates, locations, and descriptions.
+				</span>
+			</span>
 			{/* //use Map here */}
 
 			<div className="eventCardContainer">

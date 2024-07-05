@@ -47,21 +47,21 @@ function ProposalCRUD(props) {
 		<div className="proposalsContainer">
 			<div className="header">
 				<div className="titleAndBackButton">
-					<LeftArrow /> <p>Create New Proposals</p>
+					<LeftArrow /> <p>create new File for *client name here*</p>
 				</div>
 				<div className="sendProposalButton">
 					<p>Send Proposal</p>
 				</div>
 			</div>
-			<div className="divider"></div>
+
 			<div className="propsosEditContainer">
 				<div className="previewContainer">
-					<p className="heading">Proposal Preview</p>
+					{/* <p className="heading">Proposal Preview</p> */}
 					<div></div>
 				</div>
-				<div className="verticalDivider"></div>
+
 				<div className="editContainer">
-					<div className="heading">necessary fields</div>
+					{/* <div className="heading">necessary fields</div> */}
 					{info?.proposalData?.tables
 						?.filter((ele) => ele?.type === 'services')
 						?.map((item, index) => (
