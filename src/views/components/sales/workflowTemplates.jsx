@@ -176,9 +176,8 @@ function WorkflowTemplates({ workflows }) {
 					</div>
 				</div>
 				<div className="categoryContainer">
-					<p className="active">Wedding</p>
-					<p>Events</p>
-					<p>Parties</p>
+					<p className="active">Sell s Service</p>
+					<p>Sell s Session</p>
 				</div>
 			</div>
 			<ReactModal isOpen={modalIsOpen} closeModal={closeModal} modalType="right">

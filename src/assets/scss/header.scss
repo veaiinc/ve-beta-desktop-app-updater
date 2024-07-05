@@ -7,29 +7,43 @@
 	justify-content: space-between;
 	align-items: center;
 
-	.headerModulesContainer {
-		display: flex;
-		height: 3rem;
-		padding: 1rem 1.5rem;
+	position: fixed;
+	width: 100%;
+	background: #131314;
+	z-index: 9;
+
+	.headerPlaceCenter {
+		position: absolute;
+		left: 0;
+		right: 0;
+		text-align: center;
 		align-items: center;
-		gap: 1.75rem;
-		border-radius: 6.25rem;
-		border: 1px solid rgba(36, 36, 36, 0.64);
-		background: rgba(42, 42, 42, 0.16);
+		justify-content: center;
+		display: flex;
+		.headerModulesContainer {
+			display: flex;
+			height: 3rem;
+			padding: 1rem 1.5rem;
+			align-items: center;
+			gap: 1.75rem;
+			border-radius: 6.25rem;
+			border: 1px solid rgba(36, 36, 36, 0.64);
+			background: rgba(42, 42, 42, 0.16);
 
-		.filterButton {
-			color: rgba(224, 224, 224, 0.48);
-			font-family: Inter;
-			font-size: 0.9375rem;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 1rem; /* 106.667% */
+			.filterButton {
+				color: rgba(224, 224, 224, 0.48);
+				font-family: Inter;
+				font-size: 0.9375rem;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 1rem; /* 106.667% */
 
-			cursor: pointer;
-			transition: all 1s;
-		}
-		.filterButtonActive {
-			color: #e0e0e0;
+				cursor: pointer;
+				transition: all 1s;
+			}
+			.filterButtonActive {
+				color: #e0e0e0;
+			}
 		}
 	}
 
