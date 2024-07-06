@@ -43,6 +43,15 @@ function ProposalCRUD(props) {
 		[info?.proposalData],
 	);
 
+	const handleVariableDataChange = useCallback(
+		async (newData, index) => {
+			const updatedVariables = [...(info?.proposalData?.variables || [])];
+			updatedVariables?.splice(index, 1, newData);
+			setInfo((prev) => ({ ...prev, variables: updatedVariables }));
+		},
+		[info?.proposalData],
+	);
+
 	return (
 		<div className="proposalsContainer">
 			<div className="header">
@@ -56,12 +65,10 @@ function ProposalCRUD(props) {
 
 			<div className="propsosEditContainer">
 				<div className="previewContainer">
-					{/* <p className="heading">Proposal Preview</p> */}
 					<div></div>
 				</div>
 
 				<div className="editContainer">
-					{/* <div className="heading">necessary fields</div> */}
 					{info?.proposalData?.tables
 						?.filter((ele) => ele?.type === 'services')
 						?.map((item, index) => (
@@ -69,10 +76,29 @@ function ProposalCRUD(props) {
 								serviceData={item || {}}
 								selectedIndex={index}
 								onChangeFunc={handleTableDataChange}
+								key={index}
 							/>
 						))}
-					<VariablesBlock />
-					<EventsBlock />
+
+					{info?.proposalData?.tables
+						?.filter((item) => item?.type === 'events')
+						?.map((ele, index) => (
+							<EventsBlock
+								eventData={ele || {}}
+								selectedIndex={index}
+								onChangeFunc={handleTableDataChange}
+								key={index}
+							/>
+						))}
+					{info?.proposalData?.variables?.map((item, index) => (
+						<VariablesBlock
+							key={index}
+							variableData={item || {}}
+							selectedIndex={index}
+							onChangeFunc={handleVariableDataChange}
+						/>
+					))}
+
 					<PaymentSchedule />
 					<ProposalExpiry />
 				</div>

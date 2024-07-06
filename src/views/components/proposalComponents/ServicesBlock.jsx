@@ -4,43 +4,42 @@ import ToggleSlider from '../input/slider';
 const ServicesBlock = ({ serviceData, selectedIndex, onChangeFunc }) => {
 	const [info, setInfo] = useState({
 		service: serviceData,
-		selectedServicedata: { index: null, _id: null },
 	});
 
 	const onChangeValue = useCallback(
 		(index, changeType, value) => {
 			let updatedServiceData = { ...info?.service };
-			const defaultValues = updatedServiceData?.defaultValues;
+			const values = updatedServiceData?.values;
 			let updatedValue;
 			if (changeType === 'title') {
-				updatedValue = { ...defaultValues?.[index], title: value };
+				updatedValue = { ...values?.[index], title: value };
 			}
 			if (changeType === 'description') {
-				updatedValue = { ...defaultValues?.[index], description: value };
+				updatedValue = { ...values?.[index], description: value };
 			}
 			if (changeType === 'quantity') {
-				updatedValue = { ...defaultValues?.[index], quantity: +value };
+				updatedValue = { ...values?.[index], quantity: +value };
 			}
 			if (changeType === 'amount') {
-				updatedValue = { ...defaultValues?.[index], amount: +value };
+				updatedValue = { ...values?.[index], amount: +value };
 			}
 			if (changeType === 'show') {
-				updatedValue = { ...defaultValues?.[index], show: value };
+				updatedValue = { ...values?.[index], show: value };
 			}
 			if (changeType === 'incrementDecrement') {
-				let updatedQuantity = (+defaultValues?.[index]?.quantity || 0) + value;
+				let updatedQuantity = (+values?.[index]?.quantity || 0) + value;
 				updatedValue = {
-					...defaultValues?.[index],
+					...values?.[index],
 					quantity: updatedQuantity > 0 ? updatedQuantity : 0,
 				};
 			}
-			defaultValues?.splice(index, 1, updatedValue);
-			updatedServiceData.defaultValues = defaultValues;
+			values?.splice(index, 1, updatedValue);
+			updatedServiceData.values = values;
 			setInfo((prev) => ({ ...prev, service: updatedServiceData }));
 
 			onChangeFunc(updatedServiceData, selectedIndex);
 		},
-		[info?.service],
+		[info?.service, selectedIndex, onChangeFunc],
 	);
 
 	return (
@@ -52,7 +51,7 @@ const ServicesBlock = ({ serviceData, selectedIndex, onChangeFunc }) => {
 					client, including details and pricing.
 				</span>
 			</span>
-			{info?.service?.defaultValues?.map((ele, index) => (
+			{info?.service?.values?.map((ele, index) => (
 				<div className="serviceCard" key={index}>
 					<ToggleSlider
 						value={ele?.show}
