@@ -38,7 +38,6 @@ function Sales({ type }) {
 	const fetchTemplateStatus = async () => {
 		let response = await getTemplatesStatus();
 		if (response[0]) {
-			setLoading(false);
 			setInsights(_.filter(response[1]));
 		} else {
 		}
@@ -60,7 +59,9 @@ function Sales({ type }) {
 	return (
 		<div>
 			{isLoading === true ? (
-				''
+				<div>
+					<p>Loading....</p>
+				</div>
 			) : type === 'workflows' || myWorkflows.length === 0 ? (
 				<WorkflowTemplates workflows={globalWorkflows} />
 			) : myWorkflows.length > 0 ? (
