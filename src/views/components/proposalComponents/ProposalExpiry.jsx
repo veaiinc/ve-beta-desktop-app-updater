@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../assets/scss/modules/proposal/variablesBlock.scss';
 const ProposalExpiry = () => {
 	return (
@@ -19,4 +19,4 @@ const ProposalExpiry = () => {
 	);
 };
 
-export default ProposalExpiry;
+export default memo(ProposalExpiry);

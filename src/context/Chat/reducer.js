@@ -16,7 +16,7 @@ const actionHandlers = {
 		...state,
 		chatFiltersCount: action.payload,
 	}),
-	RESET_STATE: () => () => ({ ...intialState }),
+	RESET_STATE: () => ({ ...intialState }),
 };
 
 const Reducer = (state, action) => {

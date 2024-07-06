@@ -1,29 +1,44 @@
 .servicesBlockContainer {
 	display: flex;
+	padding: 24px;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 16px;
 	align-self: stretch;
+	gap: 32px;
+	border-radius: 16px;
+	border: 1px solid #242424;
+	background: #1e1e1f;
 
 	.serviceBlockHeader {
-		color: rgba(228, 229, 230, 0.48);
-		font-family: Inter;
-		font-size: 0.625rem;
-		font-style: normal;
-		font-weight: 500;
-		line-height: 0.875rem; /* 140% */
-		letter-spacing: 0.0125rem;
-		text-transform: capitalize;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 6px;
+		align-self: stretch;
+
+		.serviceHeaderTitle {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 15px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 23px; /* 153.333% */
+		}
+		.serviceSubheadertitle {
+			color: rgba(228, 229, 230, 0.48);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px; /* 166.667% */
+			letter-spacing: 0.24px;
+		}
 	}
 	.serviceCard {
 		display: flex;
-		padding: 1.5rem;
 		align-items: flex-start;
 		gap: 1rem;
 		align-self: stretch;
-		border-radius: 1rem;
-		border: 1px solid #242424;
-		background: #1e1e1f;
 
 		.seriveContentContainer {
 			display: flex;
@@ -52,7 +67,7 @@
 				.propsalinputContainer {
 					background: transparent;
 					border-radius: 10px;
-					border: 1px solid #2f2f2f;
+					border: 1px solid rgba(36, 36, 36, 0.64);
 					width: 100%;
 					color: #e4e5e6;
 					font-family: Inter;
@@ -74,7 +89,7 @@
 					width: 100%;
 					background: transparent;
 					border-radius: 10px;
-					border: 1px solid #2f2f2f;
+					border: 1px solid rgba(36, 36, 36, 0.64);
 					align-items: center;
 					padding-left: 14px;
 
