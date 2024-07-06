@@ -11,7 +11,12 @@ import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings
 const CompanyOverview = () => {
 	const {
 		profileInfo: { getTenantSettings, tennantSettingsData },
-		companyInfo: { updateTenantContactDetails, updateTenantAddress, updateTenantWebsite },
+		companyInfo: {
+			updateTenantContactDetails,
+			updateTenantAddress,
+			updateTenantWebsite,
+			updateTenantBusinessName,
+		},
 	} = useContext(Context);
 
 	const [error, setErrors] = useState({});
@@ -24,13 +29,17 @@ const CompanyOverview = () => {
 		website: '',
 		businessName: '',
 		isAdmin: '',
+		businessLogo: '',
 	});
 	const [initialState, setInitialState] = useState({ ...overviewState });
 
 	useEffect(() => {
-		getTenantSettings();
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
 		checkIsAdmin();
 	}, []);
+
 	const checkIsAdmin = () => {
 		let usertoken = localStorage.getItem('usertoken');
 		let decoded = jwt_decode(usertoken);
@@ -62,12 +71,15 @@ const CompanyOverview = () => {
 	const validateField = (fieldName, value) => {
 		switch (fieldName) {
 			case 'email':
-				if (!validator.isEmail(value)) {
+				if (!validator.isEmail(value) && initialState.email !== overviewState.email) {
 					return { error: true, message: 'Invalid Email' };
 				}
 				break;
 			case 'phoneNumber':
-				if (!validator.isMobilePhone(value, 'any', { strictMode: true })) {
+				if (
+					!validator.isMobilePhone(value, 'any', { strictMode: true }) &&
+					initialState.phoneNumber !== overviewState.phoneNumber
+				) {
 					return { error: true, message: 'Phone Number is invalid' };
 				}
 				break;
@@ -76,7 +88,8 @@ const CompanyOverview = () => {
 					!validator.isURL(value, {
 						protocols: ['http', 'https'],
 						require_protocol: true,
-					})
+					}) &&
+					initialState.website !== overviewState.website
 				) {
 					return {
 						error: true,
@@ -86,7 +99,8 @@ const CompanyOverview = () => {
 				break;
 			default:
 				if (validator.isEmpty(value)) {
-					return { error: true, message: 'This field is required' };
+					// return { error: true, message: 'This field is required' };
+					return '';
 				}
 				break;
 		}
@@ -126,6 +140,13 @@ const CompanyOverview = () => {
 			let json = { websiteUrl: overviewState.website };
 			updateTenantWebsite(json);
 		}
+		if (
+			initialState.businessName !== overviewState.businessName &&
+			overviewState.businessName.length
+		) {
+			let json = { businessName: overviewState.businessName };
+			updateTenantBusinessName(json);
+		}
 	};
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -136,7 +157,7 @@ const CompanyOverview = () => {
 	};
 
 	const handleChange = (e) => {
-		const { name, value } = e.target;
+		const { name, value = '' } = e.target;
 
 		const error = validateField(name, value);
 		setErrors({
@@ -193,7 +214,7 @@ const CompanyOverview = () => {
 						type={'email'}
 						placeholder={overviewState.companyEmail}
 						name={'companyEmail'}
-						value={''}
+						value={overviewState.email}
 						// onChange={handleChange}
 						isError={false}
 						errorMessage={''}
@@ -220,21 +241,25 @@ const CompanyOverview = () => {
 				<form onSubmit={handleSubmit}>
 					<div className={`${'businessDetailsForm'} ${isEditMode ? 'activeInput' : ''}`}>
 						<div className="businessImgName">
-							<div className="businessImgContainerMain">
-								<input
-									type="file"
-									id="businessPicture"
-									name="businessPicture"
-									style={{ display: 'none' }}
-								/>
-								<label htmlFor="businessPicture">
-									{/* <img
+							{overviewState.businessLogo ? (
+								<div className="businessImgContainerMain">
+									<input
+										type="file"
+										id="businessPicture"
+										name="businessPicture"
+										style={{ display: 'none' }}
+									/>
+									<label htmlFor="businessPicture">
+										{/* <img
                                     src={formData.profilePicture || defaultPic}
                                     alt="Profile"
                                     style={{ cursor: isEditMode ? 'pointer' : 'default' }}
                                 /> */}
-								</label>
-							</div>
+									</label>
+								</div>
+							) : (
+								''
+							)}
 							<div className={'businessName'}>
 								<InputForModules
 									label={'Business Name'}

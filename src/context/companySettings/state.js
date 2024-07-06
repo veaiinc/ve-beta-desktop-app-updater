@@ -72,11 +72,24 @@ export const CompanySettingsState = () => {
 			console.log('error => getTeamMembers ', error);
 		}
 	};
+	const updateTenantBusinessName = async (json) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			let response = await service.fetchPut(
+				'/' + workspaceId + API.TENANTS.businessName,
+				json,
+				usertoken,
+				'tenant',
+			);
+		} catch (error) {}
+	};
 	return {
 		...state,
 		updateTenantContactDetails,
 		updateTenantAddress,
 		updateTenantWebsite,
 		getTeamMembers,
+		updateTenantBusinessName,
 	};
 };

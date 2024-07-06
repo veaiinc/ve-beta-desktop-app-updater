@@ -3,4 +3,5 @@ export const TENANTS = {
 	address: '/address',
 	websiteUrl: '/website-url',
 	tenantUsers: '/tenant-users',
+	businessName: '/business-name',
 };

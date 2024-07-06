@@ -8,24 +8,27 @@ const CompanyPlanBilling = () => {
 	const period = 'On Trial Plan';
 	const AiCredits = '300';
 	let progressBar = 50;
+	const GB = 1;
+	const usedGB = 3;
+
 	return (
 		<div className="companyPlanBillingContianer">
 			<div className="companyPlanBilling">
 				<div className="companyPlan">
 					<h1>Your Plan</h1>
 					<div className="expireDetailsContainer ">
-						<div>
+						<div className="expireDetails">
 							<p>
 								Trial Plan expires in {noOfDay} days on : {expiresDate}
 							</p>
 							<button>Subscribe Now</button>
 						</div>
-						<div>
+						<div className="subscriptionDetailsContainer">
 							<h2>your subscription details:</h2>
-							<div>
-								<div>
+							<div className="subscriptionDetails">
+								<div className="CRMcontainer">
 									<p>CRM</p>
-									<div>
+									<div className="CRMstatusContainer">
 										<h3>
 											Unlimited number of Lead Forms, Proposals & Templates
 											and Projects. Manage Payments and Expenses and invite
@@ -37,9 +40,9 @@ const CompanyPlanBilling = () => {
 										</p>
 									</div>
 								</div>
-								<div>
+								<div className="GALLERIEScontainer">
 									<p>GALLERIES</p>
-									<div>
+									<div className="storageContainer">
 										<h3>
 											Unlimited number of Galleries, Face scans & Guest
 											registrations (with AI). No limit on number of Photos
@@ -48,14 +51,15 @@ const CompanyPlanBilling = () => {
 											number of downloads.
 										</h3>
 										<p>
-											Storage : <span></span> of <span></span>
+											Storage : <span>{GB}</span> GB of <span>{usedGB}</span>{' '}
+											GB
 										</p>
 										<ProgressBar progress={progressBar} />
 									</div>
 								</div>
-								<div>
+								<div className="AIcontainer">
 									<p>AI CREDITS</p>
-									<div>
+									<div className="AiCredits">
 										<h3>
 											AI Credits enable you to use feature of face scans &
 											Guest registrations for quick photo delivery to your
@@ -70,7 +74,10 @@ const CompanyPlanBilling = () => {
 						</div>
 					</div>
 				</div>
-				<div></div>
+				<div className="billingHistoryContainer">
+					<h1>Billing History</h1>
+					<div></div>
+				</div>
 			</div>
 		</div>
 	);

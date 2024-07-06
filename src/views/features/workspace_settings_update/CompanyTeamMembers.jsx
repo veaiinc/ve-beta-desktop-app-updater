@@ -9,6 +9,7 @@ import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings
 import validator from 'validator';
 import Context from '../../../context/context';
 import { getInitials } from '../profile_settings_update/getInitials';
+import Skeleton from 'react-loading-skeleton';
 
 const CompanyTeamMembers = () => {
 	const {
@@ -28,13 +29,28 @@ const CompanyTeamMembers = () => {
 		isOwner: '',
 		isAdmin: '',
 		searchQuery: '',
+		isloading: false,
 	});
 
 	useEffect(() => {
-		getTenantSettings();
-		getTenantUserDetails();
-		getTeamMembers();
+		fetchData();
 	}, []);
+	const fetchData = async () => {
+		setInfo((prev) => ({
+			...prev,
+			isloading: true,
+		}));
+		if (!tenantUserDetails) {
+			await getTenantUserDetails();
+		}
+		if (!tenantsUserList) {
+			await getTeamMembers();
+		}
+		setInfo((prev) => ({
+			...prev,
+			isloading: false,
+		}));
+	};
 	useEffect(() => {
 		if (tenantsUserList) {
 			setInfo((prev) => ({
@@ -260,6 +276,18 @@ const CompanyTeamMembers = () => {
 								</div>
 							</div>
 						))}
+					</div>
+					<div>
+						{info.isloading ? (
+							<div>
+								<Skeleton height={100} />
+								<Skeleton height={100} />
+								<Skeleton height={100} />
+								<Skeleton height={100} />
+							</div>
+						) : (
+							' '
+						)}
 					</div>
 				</div>
 			</div>

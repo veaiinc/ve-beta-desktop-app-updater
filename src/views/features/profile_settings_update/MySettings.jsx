@@ -24,10 +24,9 @@ const MySettings = () => {
 			getUserWorkSpaceList,
 			userWorkSpaceList,
 			chooseDefaultWorkspace,
-			set2factorSettings,
+			tennantSettingsData,
 		},
 	} = useContext(Context);
-
 	const [showForm, setShowForm] = useState(false);
 	const [isEditMode, setIsEditMode] = useState(false);
 	const [errors, setErrors] = useState({});
@@ -38,6 +37,7 @@ const MySettings = () => {
 		email: '',
 		phoneNumber: '',
 		is2FAEnabled: '',
+		logoURL: '',
 	});
 
 	const [isAdmin, setIsAdmin] = useState(false);
@@ -55,14 +55,21 @@ const MySettings = () => {
 
 	useEffect(() => {
 		if (userDetailsData) {
-			setUserDetails({
+			setUserDetails((prev) => ({
+				...prev,
 				fullName: userDetailsData?.firstName || '',
 				email: userDetailsData?.email || '',
-				phoneNumber: userDetailsData?.phoneNumber || '+918121201610',
+				phoneNumber: userDetailsData?.phoneNumber || '',
 				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
-			});
+			}));
 		}
-	}, [userDetailsData]);
+		if (tennantSettingsData) {
+			setUserDetails((prev) => ({
+				...prev,
+				logoURL: tennantSettingsData?.logoUrl,
+			}));
+		}
+	}, [userDetailsData, tennantSettingsData]);
 	useEffect(() => {
 		if (userDetails.is2FAEnabled) {
 			get2FAQrCode();
@@ -78,10 +85,16 @@ const MySettings = () => {
 		let workspaceID = localStorage.getItem('workspaceId');
 		let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded.user_id}`));
 		setIsAdmin(role === 'admin');
-		getTenantSettings();
-		getUserDetails();
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+		if (!userDetailsData) {
+			getUserDetails();
+		}
+		if (!userWorkSpaceList) {
+			getUserWorkSpaceList();
+		}
 		getTenantUserDetails();
-		getUserWorkSpaceList();
 	};
 
 	// const getInitials = () => {
@@ -447,10 +460,14 @@ const MySettings = () => {
 			<div className="linksContainer">
 				<div className="linksContainerProfile">
 					<div className="profile-img">
-						{getInitials(
-							userDetailsData?.firstName,
+						{userDetails.logoURL ? (
+							<img src={userDetails.logoURL} alt="logo" />
+						) : (
+							getInitials(
+								userDetailsData?.firstName,
 
-							userDetailsData?.lastName,
+								userDetailsData?.lastName,
+							)
 						)}
 					</div>
 					<div className="linkContainerProfileDetails">

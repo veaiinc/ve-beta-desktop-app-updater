@@ -6,7 +6,7 @@ const ProgressBar = ({ progress }) => {
 		backgroundColor: '#444',
 		borderRadius: '50px',
 		overflow: 'hidden',
-		margin: '20px 0',
+		margin: '0px',
 	};
 
 	const barStyle = {

@@ -11,22 +11,27 @@ const CompanyGallery = () => {
 						<h1>Gallery Watermark</h1>
 						<p>Update your watermark for your gallery pictures</p>
 					</div>
-
-					<ReusableButtonSettings text={'Update Preference'} />
+					<div>
+						<ReusableButtonSettings text={'Update Preference'} />
+					</div>
 				</div>
 				<div className="gallerySubContainer">
 					<div>
 						<h1>Client Settings</h1>
 						<p>Decide how your clients access your galleries</p>
 					</div>
-					<ReusableButtonSettings text={'Update Preference'} />
+					<div>
+						<ReusableButtonSettings text={'Update Preference'} />
+					</div>
 				</div>
 				<div className="gallerySubContainer">
 					<div>
 						<h1>Gallery Form</h1>
 						<p>Collect data from visitors who access your galleries</p>
 					</div>
-					<ReusableButtonSettings text={'Update Preference'} />
+					<div>
+						<ReusableButtonSettings text={'Update Preference'} />
+					</div>
 				</div>
 				<div className="gallerySubContainer">
 					<h1>Gallery Theme</h1>

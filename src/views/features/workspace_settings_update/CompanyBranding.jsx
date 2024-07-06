@@ -55,21 +55,27 @@ const CompanyBranding = () => {
 		{ name: 'telegram', component: <TelegramLogoColorless /> },
 		{ name: 'steam', component: <DribbbleLogoColorless /> },
 	];
+
 	useEffect(() => {
-		getTenantSettings();
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
 	}, []);
 	useEffect(() => {
 		if (tennantSettingsData) {
 			setbrandState((prev) => ({
 				...prev,
-				instagramProfile: tennantSettingsData?.instagramProfile || '',
-				facebookProfile: tennantSettingsData?.facebookProfile || '',
-				pinterestProfile: tennantSettingsData?.pinterestProfile || '',
-				linkedinProfile: tennantSettingsData?.linkedinProfile || '',
-				tiktonProfile: tennantSettingsData?.tiktonProfile || '',
-				spotifyProfile: tennantSettingsData?.spotifyProfile || '',
+				instagramProfile:
+					tennantSettingsData?.instagramProfile || 'https://www.instagram.com/p/',
+				facebookProfile:
+					tennantSettingsData?.facebookProfile || 'https://www.facebook.com/',
+				pinterestProfile:
+					tennantSettingsData?.pinterestProfile || 'https://in.pinterest.com/',
+				linkedinProfile: tennantSettingsData?.linkedinProfile || 'https://in.linkedin.com/',
+				tiktonProfile: tennantSettingsData?.tiktonProfile || 'https://www.tiktok.com/',
+				spotifyProfile: tennantSettingsData?.spotifyProfile || 'https://www.spotify.com/',
 				behanceProfile: tennantSettingsData?.behanceProfile || '',
-				telegramProfile: tennantSettingsData?.telegramProfile || '',
+				telegramProfile: tennantSettingsData?.telegramProfile || 'https://telegram.org/',
 				steamProfile: tennantSettingsData?.steamProfile || '',
 			}));
 		}
@@ -259,7 +265,7 @@ const CompanyBranding = () => {
 					logo={brandState.socialMediaType}
 					name={brandState.socialMediaType + 'Profile'}
 					onChangeFunc={handleChange}
-					value={brandState[brandState.socialMediaType + 'Profile']}
+					value={brandState?.[brandState.socialMediaType + 'Profile']}
 				/>
 			)}
 			{brandState.brandingPopup && (

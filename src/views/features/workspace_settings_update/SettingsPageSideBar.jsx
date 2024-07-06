@@ -2,10 +2,12 @@ import React, { useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/CompanySettings/settingsPageSidebar.scss';
 import Context from '../../../context/context';
 import { getInitials } from '../profile_settings_update/getInitials';
+import { useNavigate } from 'react-router-dom';
 
 const SettingsPageSideBar = ({ type, setType1 }) => {
+	const navigate = useNavigate();
 	const {
-		profileInfo: { getUserDetails, userDetailsData },
+		profileInfo: { getTenantUserDetails, tenantUserDetails },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		firstName: '',
@@ -13,18 +15,20 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 		isAdmin: '',
 	});
 	useEffect(() => {
-		getUserDetails();
+		if (!tenantUserDetails) {
+			getTenantUserDetails();
+		}
 	}, []);
 	useEffect(() => {
-		if (userDetailsData) {
+		if (tenantUserDetails) {
 			setInfo((prev) => ({
 				...prev,
-				firstName: userDetailsData?.firstName,
-				lastName: userDetailsData?.lastName,
-				isAdmi: userDetailsData?.role === 'admin' || false,
+				firstName: tenantUserDetails?.firstName,
+				lastName: tenantUserDetails?.lastName,
+				isAdmin: tenantUserDetails?.role === 'admin' || false,
 			}));
 		}
-	}, [userDetailsData]);
+	}, [tenantUserDetails]);
 
 	const menuItems = [
 		{ id: 'company-overview-settings', label: 'Overview' },
@@ -55,6 +59,10 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 						{item.label}
 					</li>
 				))}
+				<li style={{ color: '#6055EC' }} onClick={() => navigate(`/create-workspace`)}>
+					{' '}
+					+ Create Workspace
+				</li>
 			</ul>
 		</div>
 	);

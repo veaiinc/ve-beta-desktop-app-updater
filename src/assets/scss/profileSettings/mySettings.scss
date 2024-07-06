@@ -1,5 +1,8 @@
 .myProfileSettings{
-    display:flex;
+    display: flex;
+    height: 100%;
+    width: 100%;
+    padding: 1.5rem 6rem 3rem 6rem;
     gap: 150px;
     .settingsContainer {
         overflow-y: scroll;
