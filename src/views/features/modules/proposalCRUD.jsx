@@ -8,6 +8,9 @@ import PaymentSchedule from '../../components/proposalComponents/PaymentSchedule
 import EventsBlock from '../../components/proposalComponents/EventsBlock';
 import { useParams, useSearchParams } from 'react-router-dom';
 import Context from '../../../context/context';
+import InvoiceBlock from '../../components/proposalComponents/InvoiceBlock';
+import FileVariablesBlock from '../../components/proposalComponents/FileVariablesBlock';
+import ClientVariablesBlock from '../../components/proposalComponents/ClientVariablesBlock';
 
 function ProposalCRUD(props) {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -65,7 +68,10 @@ function ProposalCRUD(props) {
 
 			<div className="propsosEditContainer">
 				<div className="previewContainer">
-					<div></div>
+					<FileVariablesBlock />
+					<ClientVariablesBlock />
+					<ProposalExpiry />
+					<InvoiceBlock />
 				</div>
 
 				<div className="editContainer">
@@ -100,7 +106,6 @@ function ProposalCRUD(props) {
 					))}
 
 					<PaymentSchedule />
-					<ProposalExpiry />
 				</div>
 			</div>
 		</div>
