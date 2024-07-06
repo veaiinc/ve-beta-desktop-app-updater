@@ -2,9 +2,12 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 import * as API from './actionTypes';
 import service from '../../services';
+import { Actions } from './actions';
 
 export const CompanySettingsState = () => {
-	const intialState = {};
+	const intialState = {
+		tenantsUserList: null,
+	};
 	const [state, dispatch] = useReducer(Reducer, intialState);
 	const updateTenantContactDetails = async (contactJosn) => {
 		try {
@@ -49,10 +52,31 @@ export const CompanySettingsState = () => {
 			console.log('erroe => Update Tenant Website', error);
 		}
 	};
+	const getTeamMembers = async () => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+
+			let tenantTeam = await service.fetchGet(
+				'/' + workspaceId + API.TENANTS.tenantUsers,
+				usertoken,
+				'tenant',
+			);
+			if (tenantTeam?.[0]) {
+				dispatch({
+					type: Actions.GET_TENANTS_LIST,
+					payload: tenantTeam?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error => getTeamMembers ', error);
+		}
+	};
 	return {
 		...state,
 		updateTenantContactDetails,
 		updateTenantAddress,
 		updateTenantWebsite,
+		getTeamMembers,
 	};
 };

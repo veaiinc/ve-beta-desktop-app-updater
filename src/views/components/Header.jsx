@@ -18,6 +18,10 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 				onClickFunc: async () => navigate('/workspace-settings/company-overview-settings'),
 			},
 			{
+				label: 'Company-Update-Profile',
+				onClickFunc: async () => navigate('/company-update/company-overview-settings'),
+			},
+			{
 				label: 'My Profile',
 				onClickFunc: async () => navigate('/my-profile'),
 			},

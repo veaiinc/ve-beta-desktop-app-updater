@@ -1,7 +1,79 @@
 import React from 'react';
+import '../../../assets/scss/CompanySettings/planBilling.scss';
+import ProgressBar from './ProgressBar';
 
 const CompanyPlanBilling = () => {
-	return <div>CompanyPlan&Billing</div>;
+	const noOfDay = 7;
+	const expiresDate = '12 December 2024';
+	const period = 'On Trial Plan';
+	const AiCredits = '300';
+	let progressBar = 50;
+	return (
+		<div className="companyPlanBillingContianer">
+			<div className="companyPlanBilling">
+				<div className="companyPlan">
+					<h1>Your Plan</h1>
+					<div className="expireDetailsContainer ">
+						<div>
+							<p>
+								Trial Plan expires in {noOfDay} days on : {expiresDate}
+							</p>
+							<button>Subscribe Now</button>
+						</div>
+						<div>
+							<h2>your subscription details:</h2>
+							<div>
+								<div>
+									<p>CRM</p>
+									<div>
+										<h3>
+											Unlimited number of Lead Forms, Proposals & Templates
+											and Projects. Manage Payments and Expenses and invite
+											Unlimited team members with access controls for each
+											team member.
+										</h3>
+										<p>
+											Status : <span>{period}</span>
+										</p>
+									</div>
+								</div>
+								<div>
+									<p>GALLERIES</p>
+									<div>
+										<h3>
+											Unlimited number of Galleries, Face scans & Guest
+											registrations (with AI). No limit on number of Photos
+											uploaded or Albums created. Clients & photographer, both
+											can download original size photos, with no limit on
+											number of downloads.
+										</h3>
+										<p>
+											Storage : <span></span> of <span></span>
+										</p>
+										<ProgressBar progress={progressBar} />
+									</div>
+								</div>
+								<div>
+									<p>AI CREDITS</p>
+									<div>
+										<h3>
+											AI Credits enable you to use feature of face scans &
+											Guest registrations for quick photo delivery to your
+											event guests. AI Credits do not have a expiry date.
+										</h3>
+										<p>
+											AI Credits remaining : <span>{AiCredits}</span>
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div></div>
+			</div>
+		</div>
+	);
 };
 
 export default CompanyPlanBilling;

@@ -8,6 +8,7 @@ import CompanyPlanBilling from './CompanyPlanBilling';
 import CompanyGallery from './CompanyGallery';
 import CompanyDomainVerification from './CompanyDomainVerification';
 import SettingsPageSideBar from './SettingsPageSideBar';
+import '../../../assets/scss/CompanySettings/companySettingsWrapper.scss';
 
 let mapper = {
 	'company-overview-settings': <CompanyOverview />,
@@ -23,13 +24,15 @@ const CompanySettingsWrapper = (props) => {
 	const navigate = useNavigate();
 	const [urlType, setUrlype] = useState('');
 	const setType = (type) => {
-		navigate(`/workspace-settings/${type}`);
+		navigate(`/company-update/${type}`);
 		setUrlype(type);
 	};
 	return (
-		<div>
-			{mapper?.[type]}
-			<SettingsPageSideBar {...props} type={type} setType1={setType} />
+		<div className="companySettingsWrapper">
+			<div className="companySettingsMapper">{mapper?.[type]}</div>
+			<div className="companySettingsSidebar">
+				<SettingsPageSideBar {...props} type={type} setType1={setType} />
+			</div>
 		</div>
 	);
 };

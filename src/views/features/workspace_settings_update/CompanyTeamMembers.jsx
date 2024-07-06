@@ -8,16 +8,14 @@ import search from '../../../assets/svg/workspaceSettings/searchSettings.svg';
 import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
 import validator from 'validator';
 import Context from '../../../context/context';
+import { getInitials } from '../profile_settings_update/getInitials';
 
 const CompanyTeamMembers = () => {
 	const {
-		profileInfo: {
-			getTenantSettings,
-			getTenantUserDetails,
-			tennantSettingsData,
-			tenantUserDetails,
-		},
+		profileInfo: { getTenantSettings, getTenantUserDetails, tenantUserDetails },
+		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		emailID: '',
 		emailIDError: '',
@@ -27,21 +25,32 @@ const CompanyTeamMembers = () => {
 		showAddTenantUserModal: false,
 		tenantUser: [],
 		activeUserId: '',
+		isOwner: '',
+		isAdmin: '',
+		searchQuery: '',
 	});
-	console.log(tenantUserDetails, 'these are the details ');
+
 	useEffect(() => {
 		getTenantSettings();
 		getTenantUserDetails();
+		getTeamMembers();
 	}, []);
 	useEffect(() => {
+		if (tenantsUserList) {
+			setInfo((prev) => ({
+				...prev,
+				tenantUser: tenantsUserList,
+			}));
+		}
 		if (tenantUserDetails) {
 			setInfo((prev) => ({
 				...prev,
-				tenantUser: tenantUserDetails,
+				isOwner: tenantUserDetails?.isOwner,
+				isAdmin: tenantUserDetails?.role === 'admin',
 			}));
 		}
-	}, [tenantUserDetails]);
-	console.log(info.tenantUser, 'this is the tentent user ');
+	}, [tenantsUserList, tenantUserDetails]);
+
 	const handleChnage = (e) => {
 		const { name, value } = e.target;
 		setInfo((prev) => ({
@@ -49,6 +58,29 @@ const CompanyTeamMembers = () => {
 			[name]: value,
 		}));
 	};
+
+	const handleInputChange = (event) => {
+		setInfo((prev) => ({
+			...prev,
+			searchQuery: event.target.value,
+		}));
+	};
+
+	const filteredUsers = info.tenantUser
+		?.filter((user) => {
+			const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.toLowerCase();
+			return fullName.includes(info.searchQuery.toLowerCase());
+		})
+		.sort((a, b) => {
+			if (a.role === 'admin' && b.role !== 'admin') {
+				return -1;
+			} else if (a.role !== 'admin' && b.role === 'admin') {
+				return 1;
+			} else {
+				return 0;
+			}
+		});
+
 	const showAddTenantUserModal = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -130,12 +162,6 @@ const CompanyTeamMembers = () => {
 		}
 	};
 
-	const getInitials = (first, last) => {
-		const firstNameInitial = first ? first.charAt(0) : '-';
-		const lastNameInitial = last ? last.charAt(0) : '';
-		const initials = `${firstNameInitial.toUpperCase()}${lastNameInitial.toUpperCase()}`;
-		return initials;
-	};
 	return (
 		<div className="companyTeamMemberContainer">
 			<h1>Team Members</h1>
@@ -167,7 +193,7 @@ const CompanyTeamMembers = () => {
 								</select>
 							</div>
 						</div>
-						<div style={{ width: '150px' }}>
+						<div style={{ minWidth: '150px' }}>
 							<ReusableButtonSettings text="Send Request" func={handleSubmit} />
 						</div>
 					</div>
@@ -191,54 +217,49 @@ const CompanyTeamMembers = () => {
 					<h1>Your Team</h1>
 					<div className="yourTeamFilter">
 						<img src={search} alt="searchh" />
-						<input type="text" placeholder="search" />
+						<input
+							type="text"
+							placeholder="search"
+							onChange={handleInputChange}
+							value={info.searchQuery}
+						/>
 					</div>
 				</div>
 				<div>
 					<div>
-						{[info.tenantUser]
-							.sort((a, b) => {
-								if (a.role === 'admin' && b.role !== 'admin') {
-									return -1;
-								} else if (a.role !== 'admin' && b.role === 'admin') {
-									return 1;
-								} else {
-									return 0;
-								}
-							})
-							.map((user, index) => (
-								<div className="tenantDetailsContainer">
-									<div className="tenantProfileContainer">
-										<div className="tenantLogo">
-											{getInitials(user?.firstName, user?.lastName)}
-										</div>
-										<div className="tenantProfileName">
-											<h1>
-												{!user?.firstName && !user?.lastName
-													? 'No Name'
-													: user?.firstName
-													? user.firstName
-													: ' ' + ' ' + user?.lastName
-													? user.lastName
-													: ''}
-											</h1>
-											<p>{user?.email ? user?.email : ''}</p>
-										</div>
+						{filteredUsers.map((user, index) => (
+							<div className="tenantDetailsContainer">
+								<div className="tenantProfileContainer">
+									<div className="tenantLogo">
+										{getInitials(user?.firstName, user?.lastName)}
 									</div>
-									<div>
-										<div className="AccessControl">
-											{user?.isOwner ? (
-												<p className="owner">Owner</p>
-											) : (
-												<div className="editAccessControl">
-													<p className="Edit">Edit Access</p>
-													<p className="role">Admin</p>
-												</div>
-											)}
-										</div>
+									<div className="tenantProfileName">
+										<h1>
+											{!user?.firstName && !user?.lastName
+												? 'No Name'
+												: user?.firstName
+												? user.firstName
+												: ' ' + ' ' + user?.lastName
+												? user.lastName
+												: ''}
+										</h1>
+										<p>{user?.email ? user?.email : ''}</p>
 									</div>
 								</div>
-							))}
+								<div>
+									<div className="AccessControl">
+										{user?.isOwner ? (
+											<p className="owner">Owner</p>
+										) : (
+											<div className="editAccessControl">
+												<p className="Edit">Edit Access</p>
+												<p className="role">Admin</p>
+											</div>
+										)}
+									</div>
+								</div>
+							</div>
+						))}
 					</div>
 				</div>
 			</div>

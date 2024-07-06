@@ -1,0 +1,71 @@
+.settingsPageLayout{
+    display: flex;
+    flex-direction:column;
+    gap: 26px;
+    .tenantDetailsContainer{
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        
+        .profileImg{
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color:rgba(228, 229, 230, 0.32);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #E4E5E6;
+            font-weight: bold;
+            font-family: Inter;
+        }
+        .tenantDetails{
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            h1{
+                color: #E4E5E6;
+                    font-family: Inter;
+                    font-size: 14px;
+                    font-style: normal;
+                    font-weight: 400;
+                    line-height: 16px;
+                    /* 114.286% */
+                    letter-spacing: -0.3px;
+                    margin: 0px;
+            }
+            p{
+                color: #707070;
+                    font-family: Inter;
+                    font-size: 14px;
+                    font-style: normal;
+                    font-weight: 400;
+                    line-height: 16px;
+                    /* 114.286% */
+                    letter-spacing: -0.3px;
+            }
+        }
+    }
+    ul {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+    
+            li {
+             
+                cursor: pointer;
+                color: rgba(228, 229, 230, 0.32);
+              
+    
+                &.active,
+                &:hover {
+                    color: #fff; 
+                   
+                }
+            }
+        }
+}

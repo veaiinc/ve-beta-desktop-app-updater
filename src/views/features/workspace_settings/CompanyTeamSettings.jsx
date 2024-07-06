@@ -1427,7 +1427,7 @@ class CompanyTeamSettings extends ProjectController {
 															class="custom-select"
 															style={{ marginTop: '10px' }}
 														>
-															{false ? (
+															{user?.role ? (
 																<div
 																	style={{
 																		borderRadius: '4px',

@@ -8,6 +8,7 @@ import ToggleSlider from '../../components/input/slider';
 import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
 import validator from 'validator';
 import MySettingsChangePasword from './MySettingsChangePasword';
+import { getInitials } from './getInitials';
 
 const MySettings = () => {
 	const {
@@ -83,12 +84,12 @@ const MySettings = () => {
 		getUserWorkSpaceList();
 	};
 
-	const getInitials = () => {
-		const names = userDetailsData?.firstName + ' ' + userDetailsData?.lastName;
-		const nameParts = names.split(' ');
-		const initials = nameParts.map((part) => part[0].toUpperCase()).join('');
-		return initials;
-	};
+	// const getInitials = () => {
+	// 	const names = userDetailsData?.firstName + ' ' + userDetailsData?.lastName;
+	// 	const nameParts = names.split(' ');
+	// 	const initials = nameParts.map((part) => part[0].toUpperCase()).join('');
+	// 	return initials;
+	// };
 	const handleFormPopUp = () => {
 		setShowForm(true);
 	};
@@ -229,7 +230,13 @@ const MySettings = () => {
 										onChange={handleImageChange}
 										style={{ display: 'none' }}
 									/>
-									<label htmlFor="profilePicture">{getInitials()}</label>
+									<label htmlFor="profilePicture">
+										{getInitials(
+											userDetailsData?.firstName,
+
+											userDetailsData?.lastName,
+										)}
+									</label>
 								</div>
 								<div className={'fullName'}>
 									<InputForModules
@@ -439,10 +446,16 @@ const MySettings = () => {
 			</div>
 			<div className="linksContainer">
 				<div className="linksContainerProfile">
-					<div className="profile-img">{getInitials()}</div>
+					<div className="profile-img">
+						{getInitials(
+							userDetailsData?.firstName,
+
+							userDetailsData?.lastName,
+						)}
+					</div>
 					<div className="linkContainerProfileDetails">
 						<h3>{userDetails?.fullName}</h3>
-						<p>{isAdmin ? 'Admin' : ''}</p>
+						<p>{isAdmin ? 'Admin' : 'Member'}</p>
 					</div>
 				</div>
 				<ul className={'sidebarList'}>
