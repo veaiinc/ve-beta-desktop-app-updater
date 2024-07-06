@@ -58,7 +58,7 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 		localStorage.setItem('workspaceId', data);
 		Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
 			sameSite: 'lax',
-			domain: '.ve.co',
+			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 		});
 		window.location.reload();
 	}, []);
