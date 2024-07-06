@@ -1,6 +1,7 @@
 import React from 'react';
-
-const FileVariablesBlock = () => {
+import '../../../assets/scss/modules/proposal/fileClientVariables.scss';
+import VariablesBlock from './VariablesBlock';
+const FileVariablesBlock = ({ variablesData, onVariableDatChnage }) => {
 	return (
 		<div className="filevaribalesContainer">
 			<div className="clientHeader">
@@ -11,62 +12,14 @@ const FileVariablesBlock = () => {
 				</span>
 			</div>
 			<div className="clientVariablesHolder">
-				<div className="multipleInputContainer">
-					<div className="inputHolder">
-						<span className="serviceTitle">Project Name</span>
-						<input
-							type="text"
-							className="propsalinputContainer"
-							placeholder="Type Here ..."
-						/>
-					</div>
-					<div className="inputHolder">
-						<div
-							className="errorState"
-							style={{
-								display: 'flex',
-								flex: 1,
-								alignSelf: 'stretch',
-							}}
-						>
-							<span className="serviceTitle">Client First Name</span>
-						</div>
-
-						<input
-							type="text"
-							className="propsalinputContainer"
-							placeholder="Type Here ..."
-						/>
-					</div>
-				</div>
-				<div className="multipleInputContainer">
-					<div className="inputHolder">
-						<span className="serviceTitle">Client Email Address</span>
-						<input
-							type="text"
-							className="propsalinputContainer"
-							placeholder="Type Here ..."
-						/>
-					</div>
-					<div className="inputHolder">
-						<div
-							className="errorState"
-							style={{
-								display: 'flex',
-								flex: 1,
-								alignSelf: 'stretch',
-							}}
-						>
-							<span className="serviceTitle">Project Budget</span>
-						</div>
-
-						<input
-							type="text"
-							className="propsalinputContainer"
-							placeholder="Type Here ..."
-						/>
-					</div>
-				</div>
+				{variablesData?.map((item, index) => (
+					<VariablesBlock
+						key={index}
+						variableData={item || {}}
+						selectedIndex={index}
+						onChangeFunc={onVariableDatChnage}
+					/>
+				))}
 			</div>
 		</div>
 	);

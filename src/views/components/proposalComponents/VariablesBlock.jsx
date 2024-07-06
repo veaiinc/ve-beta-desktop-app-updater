@@ -33,53 +33,40 @@ const VariablesBlock = ({ variableData, selectedIndex, onChangeFunc }) => {
 				}));
 				return;
 			}
-			if (updatedVariableData?.code === 'website' && !validator.is)
-				onChangeFunc(updatedVariableData, selectedIndex);
+			if (updatedVariableData?.code === 'email' && !validator.isEmail(value)) {
+				setInfo((prev) => ({
+					...prev,
+					error: true,
+					errorMessage: 'Invalid email ',
+				}));
+				return;
+			}
+			onChangeFunc(updatedVariableData, selectedIndex);
 		},
 		[info?.variable, selectedIndex, onChangeFunc],
 	);
 
 	return (
-		<div className="variablesBlockContainer">
-			<span className="variablesBlockHeader">Add Variables</span>
-			<div className="variableCardContainer">
-				<div className="multipleInputContainer">
-					<div className="inputHolder">
-						<span className="serviceTitle">Variable Title</span>
-						<input
-							type="text"
-							className="propsalinputContainer"
-							placeholder="Type Here ..."
-							value={info?.variable?.code}
-						/>
-					</div>
-					<div className="inputHolder">
-						<div
-							className="errorState"
-							style={{
-								display: 'flex',
-								flex: 1,
-								alignSelf: 'stretch',
-							}}
-						>
-							<span className="serviceTitle">Variable Value</span>
-							{info?.error ? (
-								<span className="errormessage">{info?.errorMessage}</span>
-							) : (
-								''
-							)}
-						</div>
-
-						<input
-							type="text"
-							className="propsalinputContainer"
-							placeholder="Type Here ..."
-							value={info?.variable?.value}
-							onChange={(event) => handleonChangeValue(event.target.value)}
-						/>
-					</div>
-				</div>
+		<div className="inputHolder">
+			<div
+				className="errorState"
+				style={{
+					display: 'flex',
+					flex: 1,
+					alignSelf: 'stretch',
+				}}
+			>
+				<span className="serviceTitle">{info?.variable?.code}</span>
+				{info?.error ? <span className="errormessage">{info?.errorMessage}</span> : ''}
 			</div>
+
+			<input
+				type="text"
+				className="propsalinputContainer"
+				placeholder="Type Here ..."
+				value={info?.variable?.value}
+				onChange={(event) => handleonChangeValue(event.target.value)}
+			/>
 		</div>
 	);
 };
