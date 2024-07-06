@@ -68,7 +68,10 @@ function ProposalCRUD(props) {
 
 			<div className="propsosEditContainer">
 				<div className="previewContainer">
-					<FileVariablesBlock />
+					<FileVariablesBlock
+						variablesData={info?.proposalData?.variables}
+						onVariableDatChnage={handleVariableDataChange}
+					/>
 					<ClientVariablesBlock />
 					<ProposalExpiry />
 					<InvoiceBlock />
@@ -96,14 +99,14 @@ function ProposalCRUD(props) {
 								key={index}
 							/>
 						))}
-					{info?.proposalData?.variables?.map((item, index) => (
+					{/* {info?.proposalData?.variables?.map((item, index) => (
 						<VariablesBlock
 							key={index}
 							variableData={item || {}}
 							selectedIndex={index}
 							onChangeFunc={handleVariableDataChange}
 						/>
-					))}
+					))} */}
 
 					<PaymentSchedule />
 				</div>

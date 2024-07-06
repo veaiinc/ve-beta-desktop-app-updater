@@ -120,7 +120,9 @@ function MyWorkFlowStatsCard({
 			if (response[1]) {
 				setLoading(true);
 				closeModal();
-				navigate(`/sales/${workflow?._id}/${response[1]._id}`);
+				navigate(
+					`/sales/${workflow?._id}/${response[1]._id}?verison=${response[1]?.activeVersion}`,
+				);
 			} else {
 				setLoading(true);
 				setLeadDetails((prevState) => ({
