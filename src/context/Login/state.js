@@ -51,7 +51,7 @@ export const UserLoginState = (props) => {
 				localStorage.setItem('usertoken', accessToken);
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
-					domain: '.ve.co',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 				});
 			}
 			return [true, response?.[1]];
@@ -75,7 +75,7 @@ export const UserLoginState = (props) => {
 				localStorage.setItem('usertoken', accessToken);
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
-					domain: '.ve.co',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 				});
 			}
 			if (!accessibleWorkspaces?.length) {
@@ -86,7 +86,7 @@ export const UserLoginState = (props) => {
 			localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
 			Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
 				sameSite: 'lax',
-				domain: '.ve.co',
+				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 			});
 
 			return [true];
@@ -133,7 +133,7 @@ export const UserLoginState = (props) => {
 					localStorage.setItem('usertoken', accessToken);
 					Cookies.set('usertoken', accessToken, {
 						sameSite: 'lax',
-						domain: '.ve.co',
+						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 					});
 					return [true];
 				}
@@ -183,7 +183,7 @@ export const UserLoginState = (props) => {
 					localStorage.setItem('usertoken', accessToken);
 					Cookies.set('usertoken', accessToken, {
 						sameSite: 'lax',
-						domain: '.ve.co',
+						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 					});
 				}
 				if (!accessibleWorkspaces?.length) {
@@ -194,7 +194,7 @@ export const UserLoginState = (props) => {
 				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
 				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
 					sameSite: 'lax',
-					domain: '.ve.co',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 				});
 				return [true];
 			} else {
@@ -227,7 +227,7 @@ export const UserLoginState = (props) => {
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
 				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
 					sameSite: 'lax',
-					domain: '.ve.co',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 				});
 
 				return [true];
