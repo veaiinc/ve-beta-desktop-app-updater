@@ -1,40 +1,67 @@
 import React, { useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/CompanySettings/settingsPageSidebar.scss';
 import Context from '../../../context/context';
-import { getInitials } from '../profile_settings_update/getInitials';
+import { getBuisnessName } from '../profile_settings_update/getInitials';
 import { useNavigate } from 'react-router-dom';
+import Skeleton from 'react-loading-skeleton';
 
 const SettingsPageSideBar = ({ type, setType1 }) => {
 	const navigate = useNavigate();
 	const {
-		profileInfo: { getTenantUserDetails, tenantUserDetails },
+		profileInfo: {
+			getTenantUserDetails,
+			tenantUserDetails,
+			getTenantSettings,
+			tennantSettingsData,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		firstName: '',
-		lastName: '',
+		businessName: '',
 		isAdmin: '',
+		isloader: false,
 	});
+
 	useEffect(() => {
-		if (!tenantUserDetails) {
-			getTenantUserDetails();
-		}
+		const fetchData = async () => {
+			if (!tennantSettingsData) {
+				setInfo((prev) => ({
+					...prev,
+					isloader: true,
+				}));
+				await getTenantSettings();
+				setInfo((prev) => ({
+					...prev,
+					isloader: false,
+				}));
+			}
+			if (!tenantUserDetails) {
+				await getTenantUserDetails();
+			}
+		};
+
+		fetchData();
 	}, []);
+
 	useEffect(() => {
+		if (tennantSettingsData) {
+			setInfo((prev) => ({
+				...prev,
+				businessName: tennantSettingsData?.businessName || '',
+			}));
+		}
 		if (tenantUserDetails) {
 			setInfo((prev) => ({
 				...prev,
-				firstName: tenantUserDetails?.firstName,
-				lastName: tenantUserDetails?.lastName,
 				isAdmin: tenantUserDetails?.role === 'admin' || false,
 			}));
 		}
-	}, [tenantUserDetails]);
+	}, [tenantUserDetails, tennantSettingsData]);
 
 	const menuItems = [
 		{ id: 'company-overview-settings', label: 'Overview' },
 		{ id: 'company-branding-settings', label: 'Branding' },
-		{ id: 'company-domain-verification-settings', label: 'Domain Verification' },
-		{ id: 'company-gallery-settings', label: 'Gallery' },
+		// { id: 'company-domain-verification-settings', label: 'Domain Verification' },
+		// { id: 'company-gallery-settings', label: 'Gallery' },
 		{ id: 'company-integration-settings', label: 'Integrations' },
 		{ id: 'company-team-settings', label: 'Team' },
 		{ id: 'company-billing-settings', label: 'Billing' },
@@ -43,9 +70,10 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 	return (
 		<div className="settingsPageLayout">
 			<div className="tenantDetailsContainer">
-				<div className="profileImg">{getInitials(info?.firstName, info?.lastName)}</div>
+				<div className="profileImg">{getBuisnessName(info?.businessName)}</div>
 				<div className="tenantDetails">
-					<h1>{info.firstName}</h1>
+					{info?.isloader ? <Skeleton height={20} width={90} /> : ''}
+					<h1>{info?.businessName}</h1>
 					<p>{info?.isAdmin ? 'Admin' : 'Member'}</p>
 				</div>
 			</div>

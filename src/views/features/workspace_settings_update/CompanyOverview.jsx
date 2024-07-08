@@ -30,6 +30,8 @@ const CompanyOverview = () => {
 		businessName: '',
 		isAdmin: '',
 		businessLogo: '',
+		timeZone: '',
+		currency: '',
 	});
 	const [initialState, setInitialState] = useState({ ...overviewState });
 
@@ -58,6 +60,8 @@ const CompanyOverview = () => {
 			address: tennantSettingsData?.address || '',
 			website: tennantSettingsData?.website || '',
 			businessName: tennantSettingsData?.businessName || '',
+			timeZone: tennantSettingsData?.locationDetails?.timezone,
+			currency: tennantSettingsData?.locationDetails?.currency,
 		});
 		setInitialState({
 			email: tennantSettingsData?.email || '',
@@ -208,6 +212,7 @@ const CompanyOverview = () => {
 						// onChange={handleChange}
 						isError={false}
 						errorMessage={''}
+						disabled={true}
 					/>
 					<InputForModules
 						label={'Company Email'}
@@ -295,6 +300,7 @@ const CompanyOverview = () => {
 							isError={error?.errorphoneNumber?.error || false}
 							errorMessage={error?.errorphoneNumber?.message || ''}
 							disabled={!isEditMode}
+							defaultCountry={'IN'}
 						/>
 
 						<InputForModules
@@ -333,9 +339,9 @@ const CompanyOverview = () => {
 				{/* Options container for the time zone */}
 				<div>
 					<ReusableButtonSettings
-						text={'India, Sri Lanka time'}
+						text={overviewState?.timeZone}
 						icon={<GlobeSettings />}
-						downArrow={true}
+						downArrow={false}
 						// func={() => this.setState({ timeZonePickerPopup: true })}
 					/>
 				</div>
@@ -351,9 +357,9 @@ const CompanyOverview = () => {
 				</div>
 				<div>
 					<ReusableButtonSettings
-						text={'INR'}
+						text={overviewState?.currency}
 						icon={'₹'}
-						downArrow={true}
+						downArrow={false}
 						// func={() => this.setState({ currencyPickerPopup: true })}
 					/>
 				</div>

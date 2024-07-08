@@ -3,6 +3,10 @@ const actionHandlers = {
 		...state,
 		tenantsUserList: action.payload,
 	}),
+	GET_TENANTS_PREFERENCES: (state, action) => ({
+		...state,
+		tenantPreferenceData: action.payload,
+	}),
 };
 const Reducer = (state, action) => {
 	const handler = actionHandlers[action.type];

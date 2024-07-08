@@ -7,6 +7,7 @@ import { Actions } from './actions';
 export const CompanySettingsState = () => {
 	const intialState = {
 		tenantsUserList: null,
+		tenantPreferenceData: null,
 	};
 	const [state, dispatch] = useReducer(Reducer, intialState);
 	const updateTenantContactDetails = async (contactJosn) => {
@@ -82,7 +83,59 @@ export const CompanySettingsState = () => {
 				usertoken,
 				'tenant',
 			);
-		} catch (error) {}
+		} catch (error) {
+			console.log('error => updateTenantBusinessName ', error);
+		}
+	};
+	const updateTenantSocialMediaProfile = async (json) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				'/' + workspaceId + API.TENANTS.socialMediaProfile,
+				json,
+				usertoken,
+				'tenant',
+			);
+			console.log(response, 'this is the responce');
+		} catch (error) {
+			console.log('error => updateTenantSocialMediaProfile ', error);
+		}
+	};
+	const updatePrefernces = async (json) => {
+		try {
+			// brandAccentColor: '#ffffff',
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				'/' + workspaceId + API.TENANTS.preferences,
+				json,
+				usertoken,
+				'tenant',
+			);
+			console.log(response, 'this the response ');
+		} catch (error) {
+			console.log('error => updatePrefernces ', error);
+		}
+	};
+	const getTenantPreferences = async () => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const responce = await service.fetchGet(
+				'/' + workspaceId + API.TENANTS.preferences,
+				usertoken,
+				'tenant',
+			);
+			if (responce?.[0]) {
+				dispatch({
+					type: Actions.GET_TENANTS_PREFERENCES,
+					payload: responce?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error => getTenantPreferences ', error);
+		}
 	};
 	return {
 		...state,
@@ -91,5 +144,8 @@ export const CompanySettingsState = () => {
 		updateTenantWebsite,
 		getTeamMembers,
 		updateTenantBusinessName,
+		updateTenantSocialMediaProfile,
+		updatePrefernces,
+		getTenantPreferences,
 	};
 };

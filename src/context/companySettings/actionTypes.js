@@ -4,4 +4,6 @@ export const TENANTS = {
 	websiteUrl: '/website-url',
 	tenantUsers: '/tenant-users',
 	businessName: '/business-name',
+	socialMediaProfile: '/social-media-profile',
+	preferences: '/preferences',
 };

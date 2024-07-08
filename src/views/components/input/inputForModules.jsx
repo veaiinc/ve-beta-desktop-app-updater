@@ -35,7 +35,12 @@ const InputForModules = ({
 				{isError && <p className="errorMessage">{errorMessage}</p>}
 			</div>
 			{type == 'dropdown' ? (
-				<select name={name} placeholder={placeholder} onChange={onChange}>
+				<select
+					name={name}
+					placeholder={placeholder}
+					onChange={onChange}
+					disabled={disabled}
+				>
 					<option value="" disabled selected class="placeholder">
 						{placeholder}
 					</option>

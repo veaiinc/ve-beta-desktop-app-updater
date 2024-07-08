@@ -3,25 +3,39 @@ import Dropzone from 'react-dropzone';
 import ToggleSlider from '../../components/input/slider';
 import '../../../assets/scss/CompanySettings/branding.scss';
 import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
-import { ReactComponent as InstagramLogoColorless } from '../../../assets/svg/workspaceSettings/InstagramLogoColorless.svg';
-import { ReactComponent as FacebookLogoColorless } from '../../../assets/svg/workspaceSettings/FacebookLogoColorless.svg';
-import { ReactComponent as PinterestLogoColorless } from '../../../assets/svg/workspaceSettings/PinterestLogoColorless.svg';
-import { ReactComponent as YouTubeLogoColorless } from '../../../assets/svg/workspaceSettings/YouTubeLogoColorless.svg';
-import { ReactComponent as LinkedinLogoColorless } from '../../../assets/svg/workspaceSettings/LinkedinLogoColorless.svg';
-import { ReactComponent as TiktokLogoColorless } from '../../../assets/svg/workspaceSettings/TiktokLogoColorless.svg';
-import { ReactComponent as SpotifyLogoColorless } from '../../../assets/svg/workspaceSettings/SpotifyLogoColorless.svg';
-import { ReactComponent as BehanceLogoColorless } from '../../../assets/svg/workspaceSettings/BehanceLogoColorless.svg';
-import { ReactComponent as TelegramLogoColorless } from '../../../assets/svg/workspaceSettings/TelegramLogoColorless.svg';
-import { ReactComponent as DribbbleLogoColorless } from '../../../assets/svg/workspaceSettings/DribbbleLogoColorless.svg';
-import CompanySocialMediaPopup from '../workspace_settings/CompanySocialMediaPopup';
-import CompanyBrandingPopup from '../workspace_settings/CompanyBrandingPopup';
-import CompanyFontPopup from '../workspace_settings/CompanyFontPopup';
+import InstagramLogoColorless from '../../../assets/svg/workspaceSettings/InstagramLogoColorless.svg';
+import FacebookLogoColorless from '../../../assets/svg/workspaceSettings/FacebookLogoColorless.svg';
+import PinterestLogoColorless from '../../../assets/svg/workspaceSettings/PinterestLogoColorless.svg';
+import YouTubeLogoColorless from '../../../assets/svg/workspaceSettings/YouTubeLogoColorless.svg';
+import LinkedinLogoColorless from '../../../assets/svg/workspaceSettings/LinkedinLogoColorless.svg';
+import TiktokLogoColorless from '../../../assets/svg/workspaceSettings/TiktokLogoColorless.svg';
+import SpotifyLogoColorless from '../../../assets/svg/workspaceSettings/SpotifyLogoColorless.svg';
+import BehanceLogoColorless from '../../../assets/svg/workspaceSettings/BehanceLogoColorless.svg';
+import TelegramLogoColorless from '../../../assets/svg/workspaceSettings/TelegramLogoColorless.svg';
+import DribbbleLogoColorless from '../../../assets/svg/workspaceSettings/DribbbleLogoColorless.svg';
+// import CompanySocialMediaPopup from '../workspace_settings/CompanySocialMediaPopup';
+import SocialMediaPopup from './SocialMediaPopup';
+// import CompanyBrandingPopup from '../workspace_settings/CompanyBrandingPopup';
+import BrandingColorPopUp from './BrandingColorPopup';
+// import CompanyFontPopup from '../workspace_settings/CompanyFontPopup';
+import ChangeFontPopup from './ChangeFontPopup';
+import ActiveYoutube from '../../../assets/images/companySettings/activeYoutube.png';
+import BehanceActive from '../../../assets/images/companySettings/behanceActive.png';
+import DribbbleLogoactive from '../../../assets/images/companySettings/dribbbleLogoactive.png';
+import FacebookActive from '../../../assets/images/companySettings/facebookActive.png';
+import InstagramActive from '../../../assets/images/companySettings/instagramActive.png';
+import LinkedInActive from '../../../assets/images/companySettings/linkedInActive.png';
+import PinterestActive from '../../../assets/images/companySettings/pinterestActive.png';
+import TelegramActive from '../../../assets/images/companySettings/telegramActive.png';
+import TiktokActive from '../../../assets/svg/workspaceSettings/activeTiktok.svg';
+import ActiveSpotify from '../../../assets/svg/workspaceSettings/activeSpotify.svg';
 import validator from 'validator';
 import Context from '../../../context/context';
 
 const CompanyBranding = () => {
 	const {
 		profileInfo: { getTenantSettings, tennantSettingsData },
+		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
 	} = useContext(Context);
 	const [file, setFile] = useState(null);
 	const [isAdmin, setIsAdmin] = useState(true); // Set this based on your logic
@@ -38,27 +52,45 @@ const CompanyBranding = () => {
 		behanceProfile: '',
 		telegramProfile: '',
 		steamProfile: '',
+		youtubeProfile: '',
 		isEnabled: false,
 		brandingPopup: false,
 		fontPopup: false,
+		brandColor: '#6055EC',
 	});
 
 	const logos = [
-		{ name: 'instagram', component: <InstagramLogoColorless /> },
-		{ name: 'facebook', component: <FacebookLogoColorless /> },
-		{ name: 'pinterest', component: <PinterestLogoColorless /> },
-		{ name: 'youtube', component: <YouTubeLogoColorless /> },
-		{ name: 'linkedin', component: <LinkedinLogoColorless /> },
-		{ name: 'tikton', component: <TiktokLogoColorless /> },
-		{ name: 'spotify', component: <SpotifyLogoColorless /> },
-		{ name: 'behance', component: <BehanceLogoColorless /> },
-		{ name: 'telegram', component: <TelegramLogoColorless /> },
-		{ name: 'steam', component: <DribbbleLogoColorless /> },
+		{ name: 'instagram', component: InstagramLogoColorless },
+		{ name: 'facebook', component: FacebookLogoColorless },
+		{ name: 'pinterest', component: PinterestLogoColorless },
+		{ name: 'youtube', component: YouTubeLogoColorless },
+		{ name: 'linkedIn', component: LinkedinLogoColorless },
+		{ name: 'tiktok', component: TiktokLogoColorless },
+		{ name: 'spotify', component: SpotifyLogoColorless },
+		{ name: 'behance', component: BehanceLogoColorless },
+		{ name: 'telegram', component: TelegramLogoColorless },
+		{ name: 'steam', component: DribbbleLogoColorless },
+	];
+
+	const activeLogo = [
+		{ name: 'instagramProfile', component: InstagramActive },
+		{ name: 'facebookProfile', component: FacebookActive },
+		{ name: 'pinterestProfile', component: PinterestActive },
+		{ name: 'youtubeProfile', component: ActiveYoutube },
+		{ name: 'linkedInProfile', component: LinkedInActive },
+		{ name: 'tiktokProfile', component: TiktokActive },
+		{ name: 'spotifyProfile', component: ActiveSpotify },
+		{ name: 'behanceProfile', component: BehanceActive },
+		{ name: 'telegramProfile', component: TelegramActive },
+		{ name: 'steamProfile', component: DribbbleLogoactive },
 	];
 
 	useEffect(() => {
 		if (!tennantSettingsData) {
 			getTenantSettings();
+		}
+		if (!tenantPreferenceData) {
+			getTenantPreferences();
 		}
 	}, []);
 	useEffect(() => {
@@ -66,20 +98,28 @@ const CompanyBranding = () => {
 			setbrandState((prev) => ({
 				...prev,
 				instagramProfile:
-					tennantSettingsData?.instagramProfile || 'https://www.instagram.com/p/',
+					tennantSettingsData?.instagramProfile || 'https://www.instagram.com/',
 				facebookProfile:
 					tennantSettingsData?.facebookProfile || 'https://www.facebook.com/',
 				pinterestProfile:
 					tennantSettingsData?.pinterestProfile || 'https://in.pinterest.com/',
-				linkedinProfile: tennantSettingsData?.linkedinProfile || 'https://in.linkedin.com/',
-				tiktonProfile: tennantSettingsData?.tiktonProfile || 'https://www.tiktok.com/',
+				linkedInProfile: tennantSettingsData?.linkedInProfile || 'https://in.linkedin.com/',
+				tiktokProfile: tennantSettingsData?.tiktokProfile || 'https://www.tiktok.com/',
 				spotifyProfile: tennantSettingsData?.spotifyProfile || 'https://www.spotify.com/',
 				behanceProfile: tennantSettingsData?.behanceProfile || '',
 				telegramProfile: tennantSettingsData?.telegramProfile || 'https://telegram.org/',
 				steamProfile: tennantSettingsData?.steamProfile || '',
+				youtubeProfile: tennantSettingsData?.youtubeProfile || 'https://www.youtube.com/',
 			}));
 		}
-	}, [tennantSettingsData]);
+		if (tenantPreferenceData) {
+			setbrandState((prev) => ({
+				...prev,
+				isEnabled: tenantPreferenceData?.showFooter,
+				brandColor: tenantPreferenceData?.brandAccentColor,
+			}));
+		}
+	}, [tennantSettingsData, tenantPreferenceData]);
 	const checkUploadLogo = (acceptedFiles) => {
 		// Your upload logic here
 		const file = acceptedFiles[0];
@@ -92,6 +132,23 @@ const CompanyBranding = () => {
 
 	const handleDrop = (acceptedFiles) => {
 		setFile(acceptedFiles[0]);
+	};
+	const handleSelectedColor = (selectedColor) => {
+		setbrandState((prev) => ({
+			...prev,
+			brandColor: selectedColor,
+		}));
+	};
+
+	const handleToggleChange = (e) => {
+		setbrandState((prev) => ({
+			...prev,
+			isEnabled: !prev.isEnabled,
+		}));
+		let json = {
+			showFooter: e,
+		};
+		updatePrefernces(json);
 	};
 	const handleChange = async (e) => {
 		const { name, value } = e.target;
@@ -182,8 +239,11 @@ const CompanyBranding = () => {
 				</div>
 				<div className="brandColorContainer">
 					<div className="chooseBrandColor">
-						<div className="circleColor"></div>
-						<p className="hashColor">#111111</p>
+						<div
+							className="circleColor"
+							style={{ background: `${brandState?.brandColor}` }}
+						></div>
+						<p className="hashColor">{brandState?.brandColor}</p>
 					</div>
 					<ReusableButtonSettings
 						text={'Change'}
@@ -211,7 +271,7 @@ const CompanyBranding = () => {
 					<h1>Social Links</h1>
 					<p>Icons in your emails will automatically link to these URLs</p>
 				</div>
-				<div className="logosWrapper">
+				{/* <div className="logosWrapper">
 					{logos &&
 						logos.map((logo, index) => (
 							<div
@@ -225,9 +285,40 @@ const CompanyBranding = () => {
 									}));
 								}}
 							>
-								{logo.component}
+								<img src={logo.component} alt="logo" />
 							</div>
 						))}
+				</div> */}
+				<div className="logosWrapper">
+					{logos.map((logo, index) => {
+						const isActive =
+							tennantSettingsData?.[`${logo.name}Profile`] &&
+							tennantSettingsData[`${logo.name}Profile`].length > 0
+								? true
+								: false;
+
+						const activeLogoComponent = activeLogo.find(
+							(activeLogoItem) => activeLogoItem.name === `${logo.name}Profile`,
+						)?.component;
+
+						const logoToDisplay = isActive ? activeLogoComponent : logo.component;
+
+						return (
+							<div
+								className="logoContainer"
+								key={index}
+								onClick={() => {
+									setbrandState((prev) => ({
+										...prev,
+										brandingMediaPopup: true,
+										socialMediaType: logo.name,
+									}));
+								}}
+							>
+								<img src={logoToDisplay} alt="logo" />
+							</div>
+						);
+					})}
 				</div>
 			</div>
 			{/* Made with love in VE footer */}
@@ -241,19 +332,12 @@ const CompanyBranding = () => {
 					</p>
 				</div>
 				<div className="footerToggle ">
-					<ToggleSlider
-						onChange={() =>
-							setbrandState((prev) => ({
-								...prev,
-								isEnabled: !prev.isEnabled,
-							}))
-						}
-					/>
+					<ToggleSlider onChange={handleToggleChange} value={brandState?.isEnabled} />
 					<p>Enabled</p>
 				</div>
 			</div>
 			{brandState.brandingMediaPopup && (
-				<CompanySocialMediaPopup
+				<SocialMediaPopup
 					handleClose={() =>
 						setbrandState((prev) => ({
 							...prev,
@@ -261,7 +345,6 @@ const CompanyBranding = () => {
 						}))
 					}
 					show={brandState.brandingMediaPopup}
-					modalType={'center'}
 					logo={brandState.socialMediaType}
 					name={brandState.socialMediaType + 'Profile'}
 					onChangeFunc={handleChange}
@@ -269,17 +352,17 @@ const CompanyBranding = () => {
 				/>
 			)}
 			{brandState.brandingPopup && (
-				<CompanyBrandingPopup
+				<BrandingColorPopUp
 					handleClose={() => setbrandState((prev) => ({ ...prev, brandingPopup: false }))}
 					show={brandState.brandingPopup}
-					modalType={'center'}
+					value={brandState.brandColor}
+					selectedColor={handleSelectedColor}
 				/>
 			)}
 			{brandState.fontPopup && (
-				<CompanyFontPopup
+				<ChangeFontPopup
 					handleClose={() => setbrandState((prev) => ({ ...prev, fontPopup: false }))}
 					show={brandState.fontPopup}
-					modalType={'center'}
 				/>
 			)}
 		</div>

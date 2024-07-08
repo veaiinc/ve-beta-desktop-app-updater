@@ -112,12 +112,13 @@ const ComapanyIntegrations = () => {
 						</div>
 						{!info.openMoreFacebook && (
 							<ReusableButtonSettings
-								text={'Connect'}
-								func={handleOpenMoreFacebook}
+								text={!info.metaInteg ? 'Connect' : 'Connected'}
+								func={!info.metaInteg ? handleFaceBookConnection : null}
+								loader={info.loader}
 							/>
 						)}
 					</div>
-					{info.openMoreFacebook && (
+					{/* {info.openMoreFacebook && (
 						<div className={`facbookOptions ${info.openMoreFacebook ? '' : 'closed'}`}>
 							<ReusableButtonSettings
 								text={`Facebook (${!info.metaInteg ? 'Pending' : 'Connected'})`}
@@ -131,7 +132,7 @@ const ComapanyIntegrations = () => {
 								text={`Instagram (${!info.metaInteg ? 'Pending' : 'Connected'})`}
 							/>
 						</div>
-					)}
+					)} */}
 					<Line />
 					<div className="integrationContainer">
 						<div className="imageContainer">
