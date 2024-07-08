@@ -4,9 +4,9 @@ import '../../../../assets/scss/workspaceSettings/switchWorkspaceModal.scss';
 import { ReactComponent as Close } from '../../../../assets/svg/workspaceSettings/modalclose.svg';
 import { ReactComponent as Selected } from '../../../../assets/svg/workspaceSettings/Selected.svg';
 import { ReactComponent as Unselected } from '../../../../assets/svg/workspaceSettings/Unselected.svg';
-import Context from '../../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import useLogout from '../../../hooks/useLogout';
 
 const customStyles = {
 	content: {
@@ -38,15 +38,11 @@ const customStyles = {
 };
 
 const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWorkspaceId }) => {
-	let {
-		chatInfo: { resetChatState },
-	} = useContext(Context);
+	const logoutFunc = useLogout();
 	const navigate = useNavigate();
 	const handleLogout = useCallback(async () => {
-		resetChatState();
-		localStorage.clear();
-		navigate('/');
-	}, []);
+		logoutFunc();
+	}, [logoutFunc]);
 
 	const handleSwitchWorkSpaceLogic = useCallback((data) => {
 		const workspaceId = localStorage.getItem('workspaceId');
