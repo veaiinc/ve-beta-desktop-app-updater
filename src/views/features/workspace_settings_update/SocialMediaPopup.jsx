@@ -8,15 +8,21 @@ const SocialMediaPopup = (props) => {
 		companyInfo: { updateTenantSocialMediaProfile },
 		profileInfo: { getTenantSettings },
 	} = useContext(Context);
+
 	const [error, setError] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 	const [changes, setChanges] = useState(false);
+
+	const [copyvalue, setCopyValue] = useState('');
 
 	useEffect(() => {
 		return () => {
 			setError(false);
 			setErrorMessage('');
 		};
+	}, []);
+	useEffect(() => {
+		setCopyValue(props.value);
 	}, []);
 
 	const handleInputChange = async (e) => {
@@ -47,15 +53,19 @@ const SocialMediaPopup = (props) => {
 			};
 
 			updateTenantSocialMediaProfile(json);
-			getTenantSettings();
 
 			props.handleClose();
 		}
 	};
+	const handleRequestClose = () => {
+		setChanges(false);
+
+		props.value(copyvalue);
+		props.handleClose();
+	};
 
 	return (
-		<Modal onRequestClose={props.handleClose} isOpen={props.show}>
-			{console.log('this is called')}
+		<Modal onRequestClose={handleRequestClose} isOpen={props.show}>
 			<div
 				style={{
 					backgroundColor: '#151515',
@@ -114,7 +124,7 @@ const SocialMediaPopup = (props) => {
 							}}
 							placeholder="Type here.."
 							onChange={(e) => handleInputChange(e)}
-							value={props.value}
+							value={changes ? props.value : copyvalue}
 							name={props.name}
 						/>
 						{error ? (

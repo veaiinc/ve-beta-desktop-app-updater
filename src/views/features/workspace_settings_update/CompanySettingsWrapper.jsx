@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CompanyOverview from './CompanyOverview';
 import CompanyBranding from './CompanyBranding';
@@ -9,6 +9,7 @@ import CompanyGallery from './CompanyGallery';
 import CompanyDomainVerification from './CompanyDomainVerification';
 import SettingsPageSideBar from './SettingsPageSideBar';
 import '../../../assets/scss/CompanySettings/companySettingsWrapper.scss';
+import Context from '../../../context/context';
 
 let mapper = {
 	'company-overview-settings': <CompanyOverview />,
@@ -27,6 +28,13 @@ const CompanySettingsWrapper = (props) => {
 		navigate(`/workspace-settings/${type}`);
 		setUrlype(type);
 	};
+	const {
+		profileInfo: { getTenantSettings },
+	} = useContext(Context);
+	useEffect(() => {
+		getTenantSettings();
+	}, []);
+
 	return (
 		<div className="companySettingsWrapper">
 			<div className="companySettingsMapper">{mapper?.[type]}</div>

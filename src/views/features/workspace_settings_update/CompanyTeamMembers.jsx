@@ -134,8 +134,9 @@ const CompanyTeamMembers = () => {
 				(o.email && o.email === emailID) || (o.inviteeEmail && o.inviteeEmail === emailID)
 			);
 		});
+		console.log(isUserExisting, 'this is the data');
 		if (_.size(isUserExisting) > 0) {
-			userId = isExisting._id;
+			userId = isUserExisting._id;
 			userType = isUserExisting.email ? 'active' : 'invited';
 			isExisting = true;
 		} else {
@@ -268,7 +269,7 @@ const CompanyTeamMembers = () => {
 											<p className="owner">Owner</p>
 										) : (
 											<div className="editAccessControl">
-												<p className="Edit">Edit Access</p>
+												{/* <p className="Edit">Edit Access</p> */}
 												<p className="role">Admin</p>
 											</div>
 										)}

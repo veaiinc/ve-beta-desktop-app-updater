@@ -64,36 +64,48 @@ const CompanyBranding = () => {
 		brandColor: '',
 	});
 
-	const logos = [
-		{ name: 'instagram', component: InstagramLogoColorless },
-		{ name: 'facebook', component: FacebookLogoColorless },
-		{ name: 'pinterest', component: PinterestLogoColorless },
-		{ name: 'youtube', component: YouTubeLogoColorless },
-		{ name: 'linkedIn', component: LinkedinLogoColorless },
-		{ name: 'tiktok', component: TiktokLogoColorless },
-		{ name: 'spotify', component: SpotifyLogoColorless },
-		{ name: 'behance', component: BehanceLogoColorless },
-		{ name: 'telegram', component: TelegramLogoColorless },
-		{ name: 'steam', component: DribbbleLogoColorless },
-	];
+	// const logos = [
+	// 	{ name: 'instagram', component: InstagramLogoColorless },
+	// 	{ name: 'facebook', component: FacebookLogoColorless },
+	// 	{ name: 'pinterest', component: PinterestLogoColorless },
+	// 	{ name: 'youtube', component: YouTubeLogoColorless },
+	// 	{ name: 'linkedIn', component: LinkedinLogoColorless },
+	// 	{ name: 'tiktok', component: TiktokLogoColorless },
+	// 	{ name: 'spotify', component: SpotifyLogoColorless },
+	// 	{ name: 'behance', component: BehanceLogoColorless },
+	// 	{ name: 'telegram', component: TelegramLogoColorless },
+	// 	{ name: 'steam', component: DribbbleLogoColorless },
+	// ];
 
-	const activeLogo = [
-		{ name: 'instagramProfile', component: InstagramActive },
-		{ name: 'facebookProfile', component: FacebookActive },
-		{ name: 'pinterestProfile', component: PinterestActive },
-		{ name: 'youtubeProfile', component: ActiveYoutube },
-		{ name: 'linkedInProfile', component: LinkedInActive },
-		{ name: 'tiktokProfile', component: TiktokActive },
-		{ name: 'spotifyProfile', component: ActiveSpotify },
-		{ name: 'behanceProfile', component: BehanceActive },
-		{ name: 'telegramProfile', component: TelegramActive },
-		{ name: 'steamProfile', component: DribbbleLogoactive },
-	];
+	// const activeLogo = [
+	// 	{ name: 'instagramProfile', component: InstagramActive },
+	// 	{ name: 'facebookProfile', component: FacebookActive },
+	// 	{ name: 'pinterestProfile', component: PinterestActive },
+	// 	{ name: 'youtubeProfile', component: ActiveYoutube },
+	// 	{ name: 'linkedInProfile', component: LinkedInActive },
+	// 	{ name: 'tiktokProfile', component: TiktokActive },
+	// 	{ name: 'spotifyProfile', component: ActiveSpotify },
+	// 	{ name: 'behanceProfile', component: BehanceActive },
+	// 	{ name: 'telegramProfile', component: TelegramActive },
+	// 	{ name: 'steamProfile', component: DribbbleLogoactive },
+	// ];
+	const logoComponents = {
+		instagram: { inactive: InstagramLogoColorless, active: InstagramActive },
+		facebook: { inactive: FacebookLogoColorless, active: FacebookActive },
+		pinterest: { inactive: PinterestLogoColorless, active: PinterestActive },
+		youtube: { inactive: YouTubeLogoColorless, active: ActiveYoutube },
+		linkedIn: { inactive: LinkedinLogoColorless, active: LinkedInActive },
+		tiktok: { inactive: TiktokLogoColorless, active: TiktokActive },
+		spotify: { inactive: SpotifyLogoColorless, active: ActiveSpotify },
+		behance: { inactive: BehanceLogoColorless, active: BehanceActive },
+		telegram: { inactive: TelegramLogoColorless, active: TelegramActive },
+		steam: { inactive: DribbbleLogoColorless, active: DribbbleLogoactive },
+	};
 
 	useEffect(() => {
-		if (!tennantSettingsData) {
-			getTenantSettings();
-		}
+		// if (!tennantSettingsData) {
+		// 	getTenantSettings();
+		// }
 		if (!tenantPreferenceData) {
 			getTenantPreferences();
 		}
@@ -116,6 +128,7 @@ const CompanyBranding = () => {
 				steamProfile: tennantSettingsData?.steamProfile || '',
 				youtubeProfile: tennantSettingsData?.youtubeProfile || 'https://www.youtube.com/',
 			}));
+			setLogoUrl(tennantSettingsData?.logo_s3_500w_key || '');
 		}
 		if (tenantPreferenceData) {
 			setbrandState((prev) => ({
@@ -292,7 +305,7 @@ const CompanyBranding = () => {
 							</div>
 						))}
 				</div> */}
-				<div className="logosWrapper">
+				{/* <div className="logosWrapper">
 					{logos.map((logo, index) => {
 						const isActive =
 							tennantSettingsData?.[`${logo.name}Profile`] &&
@@ -319,6 +332,30 @@ const CompanyBranding = () => {
 								}}
 							>
 								<img src={logoToDisplay} alt="logo" />
+							</div>
+						);
+					})}
+				</div> */}
+				<div className="logosWrapper">
+					{Object.entries(logoComponents).map(([logoName, logoData], index) => {
+						const isActive =
+							tennantSettingsData?.[`${logoName}Profile`] &&
+							tennantSettingsData[`${logoName}Profile`].length > 0;
+						const logoToDisplay = isActive ? logoData.active : logoData.inactive;
+
+						return (
+							<div
+								className="logoContainer"
+								key={index}
+								onClick={() => {
+									setbrandState((prev) => ({
+										...prev,
+										brandingMediaPopup: true,
+										socialMediaType: logoName,
+									}));
+								}}
+							>
+								<img src={logoToDisplay} alt={`${logoName} logo`} />
 							</div>
 						);
 					})}

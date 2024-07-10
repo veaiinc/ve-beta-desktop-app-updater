@@ -432,7 +432,7 @@ const MySettings = () => {
 							</p>
 							<div className={'workSpaceContainer'}>
 								{/* sample data access */}
-								{userWorkSpaceList?.id &&
+								{userWorkSpaceList &&
 									userWorkSpaceList.map((item) => (
 										<button
 											key={item.id}

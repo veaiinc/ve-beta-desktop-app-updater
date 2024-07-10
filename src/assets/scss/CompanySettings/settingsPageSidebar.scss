@@ -5,14 +5,14 @@
     .tenantDetailsContainer{
         display: flex;
         gap: 10px;
-        align-items: center;
+        
         
         .profileImg{
             width: 24px;
             height: 24px;
             border-radius: 50%;
             // background-color:rgba(228, 229, 230, 0.32);
-            background-color: #151515;
+            background-color: #1E1E1F;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -20,6 +20,10 @@
             color: #E4E5E6;
             font-weight: bold;
             font-family: Inter;
+            img{
+                width: 24px;
+                height: 24px;
+            }
         }
         .tenantDetails{
             display: flex;

@@ -115,6 +115,8 @@ const ComapanyIntegrations = () => {
 								text={!info.metaInteg ? 'Connect' : 'Connected'}
 								func={!info.metaInteg ? handleFaceBookConnection : null}
 								loader={info.loader}
+								active={info.metaInteg}
+								disableHover={!info.metaInteg}
 							/>
 						)}
 					</div>

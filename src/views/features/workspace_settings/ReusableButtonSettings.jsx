@@ -93,8 +93,8 @@ const ReusableButtonSettings = ({
 	const styles = {
 		base: {
 			border: active ? '1px solid #6055EC' : '1px solid #262626',
-			color: active ? '#6055EC' : '#666',
-			backgroundColor: '#262626',
+			color: '#E4E5E6',
+			backgroundColor: active ? '#6055EC' : '#262626',
 			cursor: 'pointer',
 			borderRadius: '20px',
 			padding: '9px 16px',

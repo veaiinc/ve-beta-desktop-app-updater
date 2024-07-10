@@ -37,9 +37,9 @@ const CompanyOverview = () => {
 	const [initialState, setInitialState] = useState({ ...overviewState });
 
 	useEffect(() => {
-		if (!tennantSettingsData) {
-			getTenantSettings();
-		}
+		// if (!tennantSettingsData) {
+		// 	getTenantSettings();
+		// }
 		checkIsAdmin();
 	}, []);
 

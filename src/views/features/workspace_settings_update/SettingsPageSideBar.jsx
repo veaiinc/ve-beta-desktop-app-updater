@@ -8,32 +8,17 @@ import Skeleton from 'react-loading-skeleton';
 const SettingsPageSideBar = ({ type, setType1 }) => {
 	const navigate = useNavigate();
 	const {
-		profileInfo: {
-			getTenantUserDetails,
-			tenantUserDetails,
-			getTenantSettings,
-			tennantSettingsData,
-		},
+		profileInfo: { getTenantUserDetails, tenantUserDetails, tennantSettingsData },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		businessName: '',
 		isAdmin: '',
 		isloader: false,
+		businessLogo: '',
 	});
 
 	useEffect(() => {
 		const fetchData = async () => {
-			if (!tennantSettingsData) {
-				setInfo((prev) => ({
-					...prev,
-					isloader: true,
-				}));
-				await getTenantSettings();
-				setInfo((prev) => ({
-					...prev,
-					isloader: false,
-				}));
-			}
 			if (!tenantUserDetails) {
 				await getTenantUserDetails();
 			}
@@ -47,15 +32,33 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 			setInfo((prev) => ({
 				...prev,
 				businessName: tennantSettingsData?.businessName || '',
+				businessLogo: tennantSettingsData?.logo_s3_500w_key || '',
 			}));
 		}
+	}, [tennantSettingsData]);
+
+	useEffect(() => {
 		if (tenantUserDetails) {
 			setInfo((prev) => ({
 				...prev,
 				isAdmin: tenantUserDetails?.role === 'admin' || false,
 			}));
 		}
-	}, [tenantUserDetails, tennantSettingsData]);
+	}, [tenantUserDetails]);
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			setInfo((prev) => ({
+				...prev,
+				isloader: true,
+			}));
+		}
+		if (tennantSettingsData) {
+			setInfo((prev) => ({
+				...prev,
+				isloader: false,
+			}));
+		}
+	}, [tennantSettingsData]);
 
 	const menuItems = [
 		{ id: 'company-overview-settings', label: 'Overview' },
@@ -70,7 +73,13 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 	return (
 		<div className="settingsPageLayout">
 			<div className="tenantDetailsContainer">
-				<div className="profileImg">{getBuisnessName(info?.businessName)}</div>
+				<div className="profileImg">
+					{info?.businessLogo ? (
+						<img src={info?.businessLogo} alt="logo" />
+					) : (
+						getBuisnessName(info?.businessName)
+					)}
+				</div>
 				<div className="tenantDetails">
 					{info?.isloader ? <Skeleton height={20} width={90} /> : ''}
 					<h1>{info?.businessName}</h1>

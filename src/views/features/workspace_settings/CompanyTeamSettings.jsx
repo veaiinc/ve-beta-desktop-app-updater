@@ -496,7 +496,7 @@ class CompanyTeamSettings extends ProjectController {
 				(o.email && o.email === emailID) || (o.inviteeEmail && o.inviteeEmail === emailID)
 			);
 		});
-		console.log(isUserExisting);
+		console.log(isUserExisting, 'this is the data ');
 		if (_.size(isUserExisting) > 0) {
 			console.log(isUserExisting);
 			userId = isUserExisting._id;
