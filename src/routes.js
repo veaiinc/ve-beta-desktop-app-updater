@@ -94,7 +94,8 @@ const routes = [
 		path: '/workspace-settings/:type',
 		component: (
 			<AuthWrapper title={'Workspace Settings'}>
-				<MainContentWrapper />
+				{/* <MainContentWrapper /> */}
+				<CompanySettingsWrapper />
 			</AuthWrapper>
 		),
 		exact: true,
@@ -103,29 +104,30 @@ const routes = [
 		path: '/my-profile',
 		component: (
 			<AuthWrapper title={'Profile Settings'}>
-				<MySettingsWrapper />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
-	{
-		path: '/my-profile-update',
-		component: (
-			<AuthWrapper title={'Profile Setting'}>
+				{/* <MySettingsWrapper /> */}
 				<MySettings />
 			</AuthWrapper>
 		),
 		exact: true,
 	},
-	{
-		path: '/company-update/:type',
-		component: (
-			<AuthWrapper title={'Profile Setting'}>
-				<CompanySettingsWrapper />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
+	// {
+	// 	path: '/my-profile-update',
+	// 	component: (
+	// 		<AuthWrapper title={'Profile Setting'}>
+	// 			<MySettings />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
+	// {
+	// 	path: '/company-update/:type',
+	// 	component: (
+	// 		<AuthWrapper title={'Profile Setting'}>
+	// 			<CompanySettingsWrapper />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 ];
 
 export default routes;

@@ -24,7 +24,7 @@ const CompanySettingsWrapper = (props) => {
 	const navigate = useNavigate();
 	const [urlType, setUrlype] = useState('');
 	const setType = (type) => {
-		navigate(`/company-update/${type}`);
+		navigate(`/workspace-settings/${type}`);
 		setUrlype(type);
 	};
 	return (
