@@ -66,17 +66,9 @@
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			gap: 1.5rem;
+			gap: 24px;
 			align-self: stretch;
-			.heading {
-				color: #e4e5e6;
-				font-family: 'Inter';
-				font-size: 0.875rem;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 1rem; /* 114.286% */
-				text-transform: uppercase;
-			}
+			overflow-y: auto;
 		}
 		.verticalDivider {
 			height: 100%;

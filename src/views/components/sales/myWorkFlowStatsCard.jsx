@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import '../../../assets/scss/sales/workFlowStatsCard.scss';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
+import { ReactComponent as MoreOptions } from '../../../assets/svg/more-options-dots.svg';
 import { ReactComponent as RightArrow } from '../../../assets/svg/right-arrow.svg';
 import ReactModal from '../modalsV2';
 import InputForModules from '../../components/input/inputForModules';
@@ -119,7 +120,9 @@ function MyWorkFlowStatsCard({
 			if (response[1]) {
 				setLoading(true);
 				closeModal();
-				navigate(`/sales/${workflow?._id}/${response[1]._id}`);
+				navigate(
+					`/sales/${workflow?._id}/${response[1]._id}?verison=${response[1]?.activeVersion}`,
+				);
 			} else {
 				setLoading(true);
 				setLeadDetails((prevState) => ({
@@ -201,8 +204,8 @@ function MyWorkFlowStatsCard({
 	const statsBox = (label, value, active = false) => {
 		return (
 			<div className={`statBox ${active ? 'statBox-active' : ''}`}>
-				<p className="statsTitle">{label}</p>
 				<p className="statsValue">{value}</p>
+				<p className="statsTitle">{label}</p>
 			</div>
 		);
 	};
@@ -214,13 +217,11 @@ function MyWorkFlowStatsCard({
 					''
 				) : (
 					<div className="imageContainer">
-						<div
-							className="coverImage"
-							style={{ backgroundImage: `url(${workflow?.displayImageURL})` }}
-						></div>
-						<div className="description">
-							<p>{workflow?.title}</p>
-							<span>Edit</span>
+						<div className="coverImage">
+							<div
+								dangerouslySetInnerHTML={{ __html: workflow.parsedHtmlContent }}
+								style={{ width: '100%' }}
+							/>
 						</div>
 					</div>
 				)}
@@ -232,7 +233,10 @@ function MyWorkFlowStatsCard({
 							<p>Summary</p>
 						</div>
 						<div className="actionButton" onClick={openModal}>
-							<p>+ Send</p>
+							<p>+ Add Lead</p>
+						</div>
+						<div className="moreOptionsContainer">
+							<MoreOptions />
 						</div>
 					</div>
 
@@ -323,6 +327,20 @@ function MyWorkFlowStatsCard({
 							)
 						)}
 					</div>
+					{singleCard ? (
+						''
+					) : (
+						<>
+							<div className="statsheader">
+								<div className="modules">
+									<p>Workflow Stats</p>
+								</div>
+							</div>
+							<div className="workflowStatsValues">
+								<div style={{ padding: '0rem 10rem' }}></div>
+							</div>
+						</>
+					)}
 				</div>
 			</div>
 		);
@@ -330,7 +348,14 @@ function MyWorkFlowStatsCard({
 
 	return (
 		<>
-			{singleCard ? statsCard() : <a href={`/sales/${workflow?._id}`}>{statsCard()}</a>}
+			{singleCard ? (
+				statsCard()
+			) : (
+				<a href={`/sales/${workflow?._id}`}>
+					<p></p>
+					{statsCard()}
+				</a>
+			)}
 			<ReactModal isOpen={modalIsOpen} closeModal={closeModal}>
 				{createLead()}
 			</ReactModal>

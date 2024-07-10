@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../assets/scss/modules/proposal/paymentSchedule.scss';
 import { ReactComponent as Close } from '../../../assets/svg/workspaceSettings/modalclose.svg';
 const PaymentSchedule = () => {
@@ -52,4 +52,4 @@ const PaymentSchedule = () => {
 	);
 };
 
-export default PaymentSchedule;
+export default memo(PaymentSchedule);

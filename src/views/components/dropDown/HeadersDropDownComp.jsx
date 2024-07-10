@@ -1,8 +1,7 @@
-import React, { useState, memo, use, useContext } from 'react';
+import React, { useState, memo, useCallback } from 'react';
 import '../../../assets/scss/dropdown/headerDropdown.scss';
 import { ReactComponent as DownArrow } from '../../../assets/svg/chat/downArrow.svg';
-import { useNavigate } from 'react-router-dom';
-import Context from '../../../context/context';
+import useLogout from '../../hooks/useLogout';
 
 const iconComponent = (
 	<div
@@ -29,10 +28,7 @@ const HeadersDropDownComp = ({
 	showIcon = true,
 	logoutOptions,
 }) => {
-	const navigate = useNavigate();
-	let {
-		chatInfo: { resetChatState },
-	} = useContext(Context);
+	const logoutFunc = useLogout();
 	const [isOpen, setIsOpen] = useState(false);
 	const toggleDropdown = () => setIsOpen(!isOpen);
 	const handleOptionClick = (option) => {
@@ -42,11 +38,10 @@ const HeadersDropDownComp = ({
 	const handleClose = () => {
 		setIsOpen(false);
 	};
-	const handleLogout = async () => {
-		resetChatState();
-		localStorage.clear();
-		navigate('/');
-	};
+	const handleLogout = useCallback(async () => {
+		logoutFunc();
+	}, [logoutFunc]);
+
 	return (
 		<div className="dropdown">
 			<div className="dropdown-header" style={containerStyle || {}} onClick={toggleDropdown}>

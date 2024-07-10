@@ -2,6 +2,7 @@ import * as API from './actionTypes';
 import Service from '../../services/index';
 import { useReducer } from 'react';
 import Reducer from './reducer';
+import Cookies from 'js-cookie';
 
 export const UserLoginState = (props) => {
 	const intialState = {};
@@ -48,6 +49,10 @@ export const UserLoginState = (props) => {
 			const { accessToken } = response?.[1];
 			if (accessToken?.length) {
 				localStorage.setItem('usertoken', accessToken);
+				Cookies.set('usertoken', accessToken, {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+				});
 			}
 			return [true, response?.[1]];
 		} else {
@@ -68,6 +73,10 @@ export const UserLoginState = (props) => {
 
 			if (accessToken?.length) {
 				localStorage.setItem('usertoken', accessToken);
+				Cookies.set('usertoken', accessToken, {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+				});
 			}
 			if (!accessibleWorkspaces?.length) {
 				return [true, 'createWorkspace'];
@@ -75,6 +84,11 @@ export const UserLoginState = (props) => {
 
 			localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
 			localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
+			Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
+				sameSite: 'lax',
+				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+			});
+
 			return [true];
 		} else {
 			if (response?.[1]?.messageCode === 'EMAIL_NOT_VERIFIED') {
@@ -117,6 +131,10 @@ export const UserLoginState = (props) => {
 				const { accessToken } = response?.[1];
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
+					Cookies.set('usertoken', accessToken, {
+						sameSite: 'lax',
+						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+					});
 					return [true];
 				}
 				return [true];
@@ -163,6 +181,10 @@ export const UserLoginState = (props) => {
 				const { accessToken, accessibleWorkspaces } = response?.[1] || {};
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
+					Cookies.set('usertoken', accessToken, {
+						sameSite: 'lax',
+						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+					});
 				}
 				if (!accessibleWorkspaces?.length) {
 					return [true, 'createWorkspace'];
@@ -170,6 +192,10 @@ export const UserLoginState = (props) => {
 
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
 				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
+				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+				});
 				return [true];
 			} else {
 				return [false, response?.[1]?.message || 'Something went wrong'];
@@ -199,6 +225,10 @@ export const UserLoginState = (props) => {
 				}
 				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
+				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+				});
 
 				return [true];
 			} else {

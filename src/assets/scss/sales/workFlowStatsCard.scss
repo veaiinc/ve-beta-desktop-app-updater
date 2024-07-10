@@ -1,7 +1,7 @@
 .workflowContainer {
 	display: flex;
-	padding: 1.5rem;
-	gap: 1.75rem;
+	padding: 2rem 1.5rem;
+	gap: 1rem;
 	border-radius: 2.5rem;
 	background: #1e1e1f;
 	flex-direction: row;
@@ -19,8 +19,16 @@
 			background-size: cover;
 			background-position: center;
 			background-repeat: no-repeat;
-			height: 7.3rem;
+			height: 17.8rem;
 			width: 12.5rem;
+			overflow: scroll;
+
+			.builder {
+				zoom: 0.1;
+				div {
+					width: 100%;
+				}
+			}
 		}
 
 		.description {
@@ -57,7 +65,7 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: flex-start;
-		gap: 1.5rem;
+		gap: 1rem;
 		flex: 1 0 0;
 		align-self: stretch;
 		width: 100%;
@@ -66,15 +74,17 @@
 		.statsheader {
 			display: flex;
 			flex-direction: row;
-
+			position: relative;
 			align-items: center;
 			width: 100%;
+			gap: 1rem;
+
 			.modules {
 				display: flex;
 				flex-direction: row;
-				width: 85%;
 				gap: 0.5rem;
 				align-items: center;
+				padding: 0.75rem 0;
 				p {
 					overflow: hidden;
 					color: rgba(228, 229, 230, 0.32);
@@ -88,33 +98,76 @@
 				}
 			}
 			.actionButton {
-				width: 15%;
+				display: flex;
+				padding: 0.75rem 1rem;
+				align-items: center;
+				gap: 1rem;
+
+				border-radius: 6.25rem;
+				background: #262626;
+
+				position: absolute;
+				right: 3rem;
+
 				cursor: pointer;
 				p {
-					color: #6055ec;
-					text-align: right;
+					color: #e4e5e6;
 					font-family: Inter;
-					font-size: 0.875rem;
+					font-size: 0.8125rem;
 					font-style: normal;
 					font-weight: 500;
-					line-height: 1rem; /* 114.286% */
-					text-transform: uppercase;
+					line-height: 1rem; /* 123.077% */
+					letter-spacing: 0.01625rem;
 				}
+			}
+
+			.moreOptionsContainer {
+				display: flex;
+				width: 1.5rem;
+				height: 1.5rem;
+				padding: 0.25rem;
+				justify-content: center;
+				align-items: center;
+				gap: 0.625rem;
+
+				border-radius: 6.25rem;
+				background: #262626;
+
+				position: absolute;
+				right: 1rem;
 			}
 		}
 
 		.statsContainer {
 			display: flex;
-			flex-direction: row;
-			gap: 0.9375rem;
+			align-items: center;
+			gap: 0.6rem;
+			align-self: stretch;
 			overflow: scroll;
 			width: 100%;
-
+			a {
+				width: 100%;
+			}
 			.statBox {
-				border-radius: 1rem;
-				background: rgba(42, 42, 42, 0.16);
-				padding: 1.5rem 1.5rem;
+				display: flex;
+				padding: 2rem 1.5rem;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 0.25rem;
+				flex: 1 0 0;
+				border-radius: 1.5rem;
+				background: #262626;
 				min-width: 10rem;
+
+				.statsValue {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 1.125rem;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 1.625rem; /* 144.444% */
+				}
+
 				.statsTitle {
 					color: rgba(228, 229, 230, 0.48);
 					font-family: Inter;
@@ -125,22 +178,54 @@
 					letter-spacing: 0.0125rem;
 					text-transform: uppercase;
 				}
-				.statsValue {
-					color: #e4e5e6;
-					font-family: Inter;
-					font-size: 1.125rem;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 1.625rem; /* 144.444% */
-				}
-			}
-
-			.statBox-active {
-				border-radius: 1.5rem;
-				border: 1px solid #242424;
-				background: rgba(176, 176, 176, 0.1);
 			}
 		}
+
+		.workflowStatsValues {
+			display: flex;
+			padding: 0.5rem 1rem;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		// .statsContainer {
+		// 	display: flex;
+		// 	flex-direction: row;
+		// 	gap: 0.9375rem;
+		// 	overflow: scroll;
+		// 	width: 100%;
+
+		// 	.statBox {
+		// 		border-radius: 1rem;
+		// 		background: rgba(42, 42, 42, 0.16);
+		// 		padding: 1.5rem 1.5rem;
+		// 		min-width: 10rem;
+		// 		.statsTitle {
+		// 			color: rgba(228, 229, 230, 0.48);
+		// 			font-family: Inter;
+		// 			font-size: 0.625rem;
+		// 			font-style: normal;
+		// 			font-weight: 500;
+		// 			line-height: 0.875rem; /* 140% */
+		// 			letter-spacing: 0.0125rem;
+		// 			text-transform: uppercase;
+		// 		}
+		// 		.statsValue {
+		// 			color: #e4e5e6;
+		// 			font-family: Inter;
+		// 			font-size: 1.125rem;
+		// 			font-style: normal;
+		// 			font-weight: 500;
+		// 			line-height: 1.625rem; /* 144.444% */
+		// 		}
+		// 	}
+
+		// 	.statBox-active {
+		// 		border-radius: 1.5rem;
+		// 		border: 1px solid #242424;
+		// 		background: rgba(176, 176, 176, 0.1);
+		// 	}
+		// }
 	}
 }
 

@@ -3,9 +3,7 @@ import '../../../assets/scss/inputComponent.scss';
 
 const ToggleSlider = ({ onChange, value }) => {
 	const [checked, setChecked] = useState(value || false);
-	useEffect(() => {
-		setChecked(value);
-	}, [value]);
+
 	const handleToggle = () => {
 		const newValue = !checked;
 		setChecked(newValue);

@@ -19,7 +19,11 @@ const OauthVerify = () => {
 
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
-					domain: '.ve.co',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+				});
+				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 				});
 
 				return navigate('/sales');

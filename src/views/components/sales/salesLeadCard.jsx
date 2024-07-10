@@ -195,7 +195,7 @@ function SalesLeadCard({ data, fetchProposals }) {
 
 	return (
 		<>
-			<a href={`/sales/${data.tenantId}/${data._id}`}>
+			<a href={`/sales/${data.tenantId}/${data._id}?verison=${data?.activeVersion}`}>
 				<div className="SalesLeadCardContainer">
 					<div className="topLayer">
 						<div className="status">

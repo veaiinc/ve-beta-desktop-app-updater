@@ -38,8 +38,8 @@ function Sales({ type }) {
 	const fetchTemplateStatus = async () => {
 		let response = await getTemplatesStatus();
 		if (response[0]) {
-			setLoading(false);
 			setInsights(_.filter(response[1]));
+		} else {
 		}
 	};
 
@@ -50,24 +50,18 @@ function Sales({ type }) {
 			setGlobalWorkflows(
 				_.filter(response[1], {
 					tenantId: null,
-					//  '*'
 				}),
 			);
-			setMyWorkflows(
-				_.filter(
-					response[1],
-					(item) => item.tenantId !== null,
-
-					// '*'
-				),
-			);
+			setMyWorkflows(_.filter(response[1], (item) => item.tenantId !== null));
 		}
 	};
 
 	return (
 		<div>
 			{isLoading === true ? (
-				''
+				<div>
+					<p>Loading....</p>
+				</div>
 			) : type === 'workflows' || myWorkflows.length === 0 ? (
 				<WorkflowTemplates workflows={globalWorkflows} />
 			) : myWorkflows.length > 0 ? (

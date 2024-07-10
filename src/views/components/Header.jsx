@@ -47,18 +47,24 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 			{hideQuickNav ? (
 				''
 			) : (
-				<div className="headerModulesContainer">
-					<div
-						className={`filterButton ${title === 'Inbox' ? 'filterButtonActive' : ''}`}
-						onClick={() => navigate('/inbox')}
-					>
-						Inbox
-					</div>
-					<div
-						className={`filterButton ${title === 'Sales' ? 'filterButtonActive' : ''}`}
-						onClick={() => navigate('/sales')}
-					>
-						Sales
+				<div className="headerPlaceCenter">
+					<div className="headerModulesContainer">
+						<div
+							className={`filterButton ${
+								title === 'Inbox' ? 'filterButtonActive' : ''
+							}`}
+							onClick={() => navigate('/inbox')}
+						>
+							Inbox
+						</div>
+						<div
+							className={`filterButton ${
+								title === 'Sales' ? 'filterButtonActive' : ''
+							}`}
+							onClick={() => navigate('/sales')}
+						>
+							Sales
+						</div>
 					</div>
 				</div>
 			)}
