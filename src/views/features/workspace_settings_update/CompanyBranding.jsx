@@ -42,7 +42,7 @@ const CompanyBranding = () => {
 			uploadTenantLogo,
 		},
 	} = useContext(Context);
-	const [file, setFile] = useState(null);
+
 	const [isAdmin, setIsAdmin] = useState(true); // Set this based on your logic
 	const [logoUrl, setLogoUrl] = useState('');
 	const [brandState, setbrandState] = useState({
@@ -126,7 +126,6 @@ const CompanyBranding = () => {
 		}
 	}, [tennantSettingsData, tenantPreferenceData]);
 	const checkUploadLogo = (acceptedFiles) => {
-		// Your upload logic here
 		const file = acceptedFiles[0];
 		const reader = new FileReader();
 		reader.onloadend = () => {
@@ -136,9 +135,6 @@ const CompanyBranding = () => {
 		uploadTenantLogo(file);
 	};
 
-	const handleDrop = (acceptedFiles) => {
-		setFile(acceptedFiles[0]);
-	};
 	const handleSelectedColor = (selectedColor) => {
 		setbrandState((prev) => ({
 			...prev,

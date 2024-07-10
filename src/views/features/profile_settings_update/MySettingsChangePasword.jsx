@@ -128,8 +128,8 @@ const MySettingsChangePasword = ({ onClose }) => {
 							/>
 							{errors.newPassword && <p className="error">{errors.newPassword}</p>}
 						</div>
+						<button type="submit">Save Changes</button>
 					</form>
-					<button type="submit">Save Changes</button>
 				</div>
 			</ReactModal>
 		</div>
