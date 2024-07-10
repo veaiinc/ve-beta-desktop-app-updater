@@ -131,9 +131,9 @@ const CompanyBranding = () => {
 		const reader = new FileReader();
 		reader.onloadend = () => {
 			setLogoUrl(reader.result);
-			uploadTenantLogo(file[0]);
 		};
 		reader.readAsDataURL(file);
+		uploadTenantLogo(file);
 	};
 
 	const handleDrop = (acceptedFiles) => {

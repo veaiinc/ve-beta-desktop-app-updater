@@ -54,8 +54,10 @@ const CompanyOverview = () => {
 			isAdmin: role === 'admin',
 		}));
 	};
+
 	useEffect(() => {
-		setOverviewState({
+		setOverviewState((prev) => ({
+			...prev,
 			email: tennantSettingsData?.email || '',
 			phoneNumber: tennantSettingsData?.phoneNumber || '',
 			address: tennantSettingsData?.address || '',
@@ -63,14 +65,16 @@ const CompanyOverview = () => {
 			businessName: tennantSettingsData?.businessName || '',
 			timeZone: tennantSettingsData?.locationDetails?.timezone,
 			currency: tennantSettingsData?.locationDetails?.currency,
-		});
-		setInitialState({
+			businessLogo: tennantSettingsData?.logo_s3_500w_key || '',
+		}));
+		setInitialState((prev) => ({
+			...prev,
 			email: tennantSettingsData?.email || '',
 			phoneNumber: tennantSettingsData?.phoneNumber || '',
 			address: tennantSettingsData?.address || '',
 			website: tennantSettingsData?.website || '',
 			businessName: tennantSettingsData?.businessName || '',
-		});
+		}));
 	}, [tennantSettingsData]);
 
 	const validateField = (fieldName, value) => {
@@ -257,7 +261,7 @@ const CompanyOverview = () => {
 									/>
 									<label htmlFor="businessPicture">
 										<img
-											src={overviewState?.logoURL}
+											src={overviewState?.businessLogo}
 											alt="Profile"
 											style={{
 												cursor: isEditMode ? 'pointer' : 'default',

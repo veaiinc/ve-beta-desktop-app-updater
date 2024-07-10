@@ -152,8 +152,9 @@ export const CompanySettingsState = () => {
 				type: Actions.GET_TENANTS_SUBSCRIPTION_DETAILS,
 				payload: response?.[1],
 			});
-			console.log(response, 'these are the subscriptionDetails');
-		} catch (error) {}
+		} catch (error) {
+			console.log('error => getTenantSubscriptionDetails ', error);
+		}
 	};
 	const uploadTenantLogo = async (file) => {
 		try {
@@ -167,21 +168,23 @@ export const CompanySettingsState = () => {
 			);
 
 			if (response?.[0] === true) {
-				console.log('this is called');
 				let options = {
 					headers: {
 						'Content-Type': file.type,
 					},
 				};
+
 				const resp = await axios.put(response[1].signedUrl, file, options);
-				console.log(resp, 'hello'); // if (resp.status === 200) {
-				// 	console.log('yes ');
-				// } else {
-				// 	console.log('no');
-				// }
+
+				if (resp.status === 200) {
+					console.log('yes ');
+				} else {
+					console.log('no');
+				}
 			}
-			console.log(response);
-		} catch (error) {}
+		} catch (error) {
+			console.log('error => uploadTenantLogo ', error);
+		}
 	};
 	return {
 		...state,
