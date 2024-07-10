@@ -7,6 +7,10 @@ const actionHandlers = {
 		...state,
 		tenantPreferenceData: action.payload,
 	}),
+	GET_TENANTS_SUBSCRIPTION_DETAILS: (state, action) => ({
+		...state,
+		tenantSubscriptionDetails: action.payload,
+	}),
 };
 const Reducer = (state, action) => {
 	const handler = actionHandlers[action.type];

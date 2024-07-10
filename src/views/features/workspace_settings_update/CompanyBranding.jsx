@@ -35,7 +35,12 @@ import Context from '../../../context/context';
 const CompanyBranding = () => {
 	const {
 		profileInfo: { getTenantSettings, tennantSettingsData },
-		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
+		companyInfo: {
+			updatePrefernces,
+			getTenantPreferences,
+			tenantPreferenceData,
+			uploadTenantLogo,
+		},
 	} = useContext(Context);
 	const [file, setFile] = useState(null);
 	const [isAdmin, setIsAdmin] = useState(true); // Set this based on your logic
@@ -56,7 +61,7 @@ const CompanyBranding = () => {
 		isEnabled: false,
 		brandingPopup: false,
 		fontPopup: false,
-		brandColor: '#6055EC',
+		brandColor: '',
 	});
 
 	const logos = [
@@ -116,7 +121,7 @@ const CompanyBranding = () => {
 			setbrandState((prev) => ({
 				...prev,
 				isEnabled: tenantPreferenceData?.showFooter,
-				brandColor: tenantPreferenceData?.brandAccentColor,
+				brandColor: tenantPreferenceData?.brandAccentColor || '#6055EC',
 			}));
 		}
 	}, [tennantSettingsData, tenantPreferenceData]);
@@ -126,6 +131,7 @@ const CompanyBranding = () => {
 		const reader = new FileReader();
 		reader.onloadend = () => {
 			setLogoUrl(reader.result);
+			uploadTenantLogo(file[0]);
 		};
 		reader.readAsDataURL(file);
 	};
@@ -246,6 +252,7 @@ const CompanyBranding = () => {
 						<p className="hashColor">{brandState?.brandColor}</p>
 					</div>
 					<ReusableButtonSettings
+						className="reuseableButton"
 						text={'Change'}
 						func={() => setbrandState((prev) => ({ ...prev, brandingPopup: true }))}
 					/>

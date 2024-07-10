@@ -7,6 +7,7 @@ import Context from '../../../context/context';
 import validator from 'validator';
 import { ReactComponent as GlobeSettings } from '../../../assets/svg/workspaceSettings/globeSettings.svg';
 import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
+import { getBuisnessName } from '../profile_settings_update/getInitials';
 
 const CompanyOverview = () => {
 	const {
@@ -255,15 +256,19 @@ const CompanyOverview = () => {
 										style={{ display: 'none' }}
 									/>
 									<label htmlFor="businessPicture">
-										{/* <img
-                                    src={formData.profilePicture || defaultPic}
-                                    alt="Profile"
-                                    style={{ cursor: isEditMode ? 'pointer' : 'default' }}
-                                /> */}
+										<img
+											src={overviewState?.logoURL}
+											alt="Profile"
+											style={{
+												cursor: isEditMode ? 'pointer' : 'default',
+											}}
+										/>
 									</label>
 								</div>
 							) : (
-								''
+								<div className="defaultLogo">
+									{getBuisnessName(overviewState?.businessName)}
+								</div>
 							)}
 							<div className={'businessName'}>
 								<InputForModules
@@ -342,6 +347,7 @@ const CompanyOverview = () => {
 						text={overviewState?.timeZone}
 						icon={<GlobeSettings />}
 						downArrow={false}
+						disableHover={true}
 						// func={() => this.setState({ timeZonePickerPopup: true })}
 					/>
 				</div>
@@ -360,6 +366,7 @@ const CompanyOverview = () => {
 						text={overviewState?.currency}
 						icon={'₹'}
 						downArrow={false}
+						disableHover={true}
 						// func={() => this.setState({ currencyPickerPopup: true })}
 					/>
 				</div>

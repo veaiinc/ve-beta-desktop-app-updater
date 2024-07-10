@@ -1,15 +1,36 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/CompanySettings/planBilling.scss';
 import ProgressBar from './ProgressBar';
+import moment from 'moment';
+import Context from '../../../context/context';
 
 const CompanyPlanBilling = () => {
+	const [info, setInfo] = useState({
+		expiresDate: '',
+	});
 	const noOfDay = 7;
-	const expiresDate = '12 December 2024';
 	const period = 'On Trial Plan';
 	const AiCredits = '300';
-	let progressBar = 50;
+	let progressBar = 30;
 	const GB = 1;
 	const usedGB = 3;
+	const {
+		companyInfo: { getTenantSubscriptionDetails, tenantSubscriptionDetails },
+	} = useContext(Context);
+	useEffect(() => {
+		if (!tenantSubscriptionDetails) {
+			getTenantSubscriptionDetails();
+		}
+	}, []);
+
+	useEffect(() => {
+		if (tenantSubscriptionDetails) {
+			setInfo((prev) => ({
+				...prev,
+				expiresDate: tenantSubscriptionDetails?.expiresAt || '',
+			}));
+		}
+	}, [tenantSubscriptionDetails]);
 
 	return (
 		<div className="companyPlanBillingContianer">
@@ -19,7 +40,8 @@ const CompanyPlanBilling = () => {
 					<div className="expireDetailsContainer ">
 						<div className="expireDetails">
 							<p>
-								Trial Plan expires in {noOfDay} days on : {expiresDate}
+								Trial Plan expires in {noOfDay} days on :
+								{moment.unix(info.expiresDate).format('Do MMMM YYYY')}
 							</p>
 							<button>Subscribe Now</button>
 						</div>

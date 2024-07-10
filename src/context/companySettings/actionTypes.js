@@ -6,4 +6,6 @@ export const TENANTS = {
 	businessName: '/business-name',
 	socialMediaProfile: '/social-media-profile',
 	preferences: '/preferences',
+	subscriptionDetails: '/subscription-details',
+	logos: '/logos',
 };

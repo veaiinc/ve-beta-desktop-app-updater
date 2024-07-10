@@ -49,7 +49,7 @@ const MySettings = () => {
 	};
 	useEffect(() => {
 		if (userWorkSpaceList && userWorkSpaceList.length > 0) {
-			setActiveWorkspace(userWorkSpaceList[0].tenant_id);
+			setActiveWorkspace(userWorkSpaceList?.[0].tenant_id);
 		}
 	}, [userWorkSpaceList]);
 
@@ -279,6 +279,7 @@ const MySettings = () => {
 									isError={false}
 									errorMessage={''}
 									disabled={true}
+									defaultCountry={'IN'}
 								/>
 
 								{errors.phoneNumber && (
@@ -431,7 +432,7 @@ const MySettings = () => {
 							</p>
 							<div className={'workSpaceContainer'}>
 								{/* sample data access */}
-								{userWorkSpaceList &&
+								{userWorkSpaceList?.id &&
 									userWorkSpaceList.map((item) => (
 										<button
 											key={item.id}
@@ -442,7 +443,7 @@ const MySettings = () => {
 													: 'workspaces'
 											}
 										>
-											{item.businessName}
+											{item.activeWorkspaceId}
 										</button>
 									))}
 							</div>

@@ -3,11 +3,13 @@ import Reducer from './reducer';
 import * as API from './actionTypes';
 import service from '../../services';
 import { Actions } from './actions';
+import axios from 'axios';
 
 export const CompanySettingsState = () => {
 	const intialState = {
 		tenantsUserList: null,
 		tenantPreferenceData: null,
+		tenantSubscriptionDetails: null,
 	};
 	const [state, dispatch] = useReducer(Reducer, intialState);
 	const updateTenantContactDetails = async (contactJosn) => {
@@ -137,6 +139,50 @@ export const CompanySettingsState = () => {
 			console.log('error => getTenantPreferences ', error);
 		}
 	};
+	const getTenantSubscriptionDetails = async () => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				'/' + workspaceId + API.TENANTS.subscriptionDetails,
+				usertoken,
+				'tenant',
+			);
+			dispatch({
+				type: Actions.GET_TENANTS_SUBSCRIPTION_DETAILS,
+				payload: response?.[1],
+			});
+			console.log(response, 'these are the subscriptionDetails');
+		} catch (error) {}
+	};
+	const uploadTenantLogo = async (file) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				'/' + workspaceId + API.TENANTS.logos,
+				{},
+				usertoken,
+				'tenant',
+			);
+
+			if (response?.[0] === true) {
+				console.log('this is called');
+				let options = {
+					headers: {
+						'Content-Type': file.type,
+					},
+				};
+				const resp = await axios.put(response[1].signedUrl, file, options);
+				console.log(resp, 'hello'); // if (resp.status === 200) {
+				// 	console.log('yes ');
+				// } else {
+				// 	console.log('no');
+				// }
+			}
+			console.log(response);
+		} catch (error) {}
+	};
 	return {
 		...state,
 		updateTenantContactDetails,
@@ -147,5 +193,7 @@ export const CompanySettingsState = () => {
 		updateTenantSocialMediaProfile,
 		updatePrefernces,
 		getTenantPreferences,
+		getTenantSubscriptionDetails,
+		uploadTenantLogo,
 	};
 };
