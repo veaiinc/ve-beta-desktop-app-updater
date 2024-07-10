@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, memo } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import MyWorkFlowStatsCard from '../../components/sales/myWorkFlowStatsCard';
 import SalesLeadCard from '../../components/sales/salesLeadCard';
@@ -12,17 +12,23 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 const _ = require('lodash');
 
 function MyWorkFlowDetails(props) {
+	const navigate = useNavigate();
+	const location = useLocation();
 	const { salesId } = useParams();
+	let {
+		templates: { workflowslist, getProposals, getTemplatesStatus, getTemplates },
+	} = useContext(Context);
 	const [workspaceId, setWorkspaceId] = useState(localStorage.getItem('workspaceId'));
-	const [proposalData, setProposalData] = useState([]);
 	const [templateDetails, setTemplateDetails] = useState([]);
 	const [inSights, setInsights] = useState([]);
-	const [isLoading, setLoading] = useState(true);
+	const [isLoading, setLoading] = useState(false);
 	const [searchInput, setSearchInput] = useState('');
 	const [timeoutId, setTimeoutId] = useState(null);
+	const [info, setInfo] = useState({
+		data: location?.state?.data,
+		proposalData: null,
+	});
 
-	const location = useLocation();
-	const navigate = useNavigate();
 	const searchParams = new URLSearchParams(location.search);
 	const status = searchParams.get('status');
 
@@ -30,19 +36,14 @@ function MyWorkFlowDetails(props) {
 		page: 1,
 		status: status ? status : 'draft',
 		hasMore: true,
+		hasNextPage: false,
+		currentPage: 1,
 	});
 
-	let {
-		templates: { getProposals, getTemplatesStatus, getTemplates },
-	} = useContext(Context);
-
 	useEffect(() => {
-		if (workspaceId) {
-			fetchProposals();
-			fetchProposalstatus();
-			fetchTemplatesDetails();
-		}
-	}, [workspaceId]);
+		fetchProposals(1);
+		// fetchProposalstatus();
+	}, []);
 
 	useEffect(() => {
 		return () => {
@@ -52,13 +53,41 @@ function MyWorkFlowDetails(props) {
 		};
 	}, [timeoutId]);
 
-	const fetchTemplatesDetails = async () => {
-		let response = await getTemplates(salesId);
-		if (response[0]) {
-			setLoading(false);
-			setTemplateDetails(response[1][0]);
+	useEffect(() => {
+		if (workflowslist) {
+			const { data, currentPage, hasNextPage } = workflowslist;
+			let updatedData = [];
+			for (let i = 0; i < data.length; i++) {
+				const proposalIdfromModuleArray = data?.[i]?.modules?.filter(
+					(ele) => ele?.type === 'proposal',
+				);
+
+				if (proposalIdfromModuleArray?.length > 0) {
+					const proposalFilterArray = data?.[i]?.proposals?.filter(
+						(ele) => ele?._id === proposalIdfromModuleArray?.[0]?._id,
+					);
+					if (proposalFilterArray?.length) {
+						let dataObj = {
+							...(data?.[i] || {}),
+							...(proposalFilterArray?.[0] || {}),
+							createdBy: data?.[i]?.createdBy,
+						};
+						updatedData.push(dataObj);
+					}
+				}
+			}
+			console.log(updatedData);
+
+			setInfo((prev) => ({
+				...prev,
+				currentPage,
+				hasNextPage,
+				proposalData: updatedData,
+				isLoading: false,
+			}));
 		}
-	};
+	}, [workflowslist]);
+
 	const fetchProposalstatus = async () => {
 		let response = await getTemplatesStatus(salesId);
 		if (response[0]) {
@@ -67,34 +96,14 @@ function MyWorkFlowDetails(props) {
 		}
 	};
 
-	const fetchProposals = async (page = null) => {
-		let response = await getProposals(
-			salesId,
-			page ? page : metaData['page'],
-			searchInput,
-			metaData['status'],
-		);
-		if (response[0]) {
-			setLoading(false);
-
-			setProposalData(
-				page == null || page === 1
-					? [...(response[1]?.data || [])]
-					: [...proposalData, ...(response[1]?.data || [])],
-			);
-			if (response[1]?.totalPages > metaData['page']) {
-				setMetaData((prevState) => ({
-					...prevState,
-					page: metaData['page'] + 1,
-					hasMore: true,
-				}));
-			} else {
-				setMetaData((prevState) => ({
-					...prevState,
-					hasMore: false,
-				}));
-			}
-		}
+	const fetchProposals = async (page = 1, fetchMore = false, search = null) => {
+		const payload = {
+			filters: {
+				limit: 100,
+				page: page,
+			},
+		};
+		getProposals(payload);
 	};
 
 	const handleSearchInput = (e) => {
@@ -124,12 +133,12 @@ function MyWorkFlowDetails(props) {
 		<div className="myWorkFlowDetailsContainer">
 			<div className="header">
 				<div className="leftSideContent">
-					<div onClick={() => navigate(-1)}>
+					<div onClick={() => navigate(-1)} style={{ cursor: 'pointer' }}>
 						<LeftArrow />
 					</div>
 					<p>
-						{templateDetails?.title}{' '}
-						<a href={`https://builder.ve.co/${templateDetails?._id}`}>
+						{info?.data?.title}{' '}
+						<a href={`https://builder.ve.co/${info?.data?._id}`}>
 							<span>(EDIT)</span>
 						</a>
 					</p>
@@ -141,14 +150,14 @@ function MyWorkFlowDetails(props) {
 			</div>
 			<MyWorkFlowStatsCard
 				hideImage={true}
-				workflow={templateDetails}
+				workflow={info?.data}
 				inSights={inSights[0]}
 				singleCard={true}
 				activeTab={metaData['status']}
 			/>
 			{isLoading ? (
 				''
-			) : proposalData.length === 0 ? (
+			) : info?.proposalData?.length === 0 ? (
 				<div className="emptyStateContainer">
 					<EmptyState />
 					<div className="textContainer">
@@ -160,9 +169,9 @@ function MyWorkFlowDetails(props) {
 				</div>
 			) : (
 				<InfiniteScroll
-					dataLength={proposalData.length}
+					dataLength={info?.proposalData?.length || 0}
 					next={fetchProposals}
-					hasMore={metaData['hasMore']}
+					hasMore={info?.hasNextPage}
 					loader={<h4>Loading...</h4>}
 					endMessage={''}
 					refreshFunction={() => fetchProposals(1)}
@@ -170,7 +179,7 @@ function MyWorkFlowDetails(props) {
 					pullDownToRefreshThreshold={50}
 				>
 					<div className="salesCardContainer">
-						{proposalData.map((proposal, index) => {
+						{info?.proposalData?.map((proposal, index) => {
 							return (
 								<SalesLeadCard
 									key={index}
@@ -186,4 +195,4 @@ function MyWorkFlowDetails(props) {
 	);
 }
 
-export default MyWorkFlowDetails;
+export default memo(MyWorkFlowDetails);

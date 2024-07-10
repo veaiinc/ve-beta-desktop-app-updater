@@ -22,3 +22,42 @@ export const getTemmplatesQuery = gql`
 		}
 	}
 `;
+
+export const createProposalQuery = gql`
+	mutation CreateProposalUsingWorkflowTemplate(
+		$proposalTemplateId: ID!
+		$workflowTemplateId: ID!
+		$proposalInput: ProposalInput!
+	) {
+		createProposalUsingWorkflowTemplate(
+			proposalTemplateId: $proposalTemplateId
+			workflowTemplateId: $workflowTemplateId
+			proposalInput: $proposalInput
+		)
+	}
+`;
+
+export const getWorkflowDetailsListQuery = gql`
+	query Workflows($filters: WorkflowsListFiltersInput) {
+		workflows(filters: $filters) {
+			currentPage
+			hasNextPage
+			data {
+				_id
+				createdBy
+				createdAt
+				modules
+				proposalsCreated
+				tenantId
+				updatedAt
+				updatedBy
+				proposals
+				clientDetails {
+					_id
+					email
+					name
+				}
+			}
+		}
+	}
+`;

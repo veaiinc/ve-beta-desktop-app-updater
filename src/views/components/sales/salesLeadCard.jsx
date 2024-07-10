@@ -8,6 +8,7 @@ import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import InputForModules from '../../components/input/inputForModules';
 import Context from '../../../context/context';
 import ReactModal from '../modalsV2';
+import { nameShortner } from '../../../helpers';
 
 const moment = require('moment');
 
@@ -40,10 +41,13 @@ function SalesLeadCard({ data, fetchProposals }) {
 	}, [moreOptionsRef]);
 
 	const findAbsFromTitle = (title) => {
-		const words = title.toUpperCase().split(' ');
-		let abs =
-			words.length > 1 ? words[0][0] + words[words.length - 1][0] : words[0][0] + words[0][1];
-		return abs;
+		console.log(title);
+		const words = title?.toUpperCase()?.split(' ');
+		// let abs =
+		// 	words?.length > 1
+		// 		? words[0][0] + words[words?.length - 1][0]
+		// 		: words[0][0] + words[0][1];
+		return title;
 	};
 
 	const handleDeleteProposal = async () => {
@@ -215,7 +219,7 @@ function SalesLeadCard({ data, fetchProposals }) {
 
 						<div className="clientsContainer">
 							<div className="userProfileContainer">
-								<p>{findAbsFromTitle(data.title)}</p>
+								<p>{nameShortner(data.title)}</p>
 							</div>
 
 							<div className="usersDetails">
@@ -224,9 +228,9 @@ function SalesLeadCard({ data, fetchProposals }) {
 							</div>
 							<div className="cost">
 								<p>
-									{data.paymentDetails.currency === 'INR' ? '₹' : '$'}{' '}
-									{data.paymentDetails.grandTotal
-										? data.paymentDetails.grandTotal
+									{data.paymentDetails?.currency === 'INR' ? '₹' : '$'}{' '}
+									{data.paymentDetails?.grandTotal
+										? data.paymentDetails?.grandTotal
 										: 0}
 								</p>
 							</div>
@@ -235,7 +239,7 @@ function SalesLeadCard({ data, fetchProposals }) {
 					<div className="bottomLayer">
 						<div className="createdUserDetails">
 							<p className="usersShortCut">
-								{findAbsFromTitle(data.createdBy.firstName)}
+								{nameShortner(data.createdBy.firstName)}
 							</p>
 							<p className="fullName">{data.createdBy.firstName}</p>
 						</div>

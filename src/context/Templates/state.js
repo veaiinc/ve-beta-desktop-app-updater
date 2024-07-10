@@ -1,9 +1,22 @@
 import * as API from './actionTypes';
 import Service from '../../services/index';
 import service from '../../services/graphQlServices';
-import { getTemmplatesQuery } from './graphQlFunctions';
+import {
+	getTemmplatesQuery,
+	createProposalQuery,
+	getWorkflowDetailsListQuery,
+} from './graphQlFunctions';
+import { useReducer } from 'react';
+import Reducer from './reducer';
+import { Actions } from './Actions';
+
+export const intialState = {
+	workflowslist: null,
+};
 
 export const TemplatesState = (props) => {
+	const [state, dispatch] = useReducer(Reducer, intialState);
+
 	const getTemplates = async (templateId = null) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -46,38 +59,41 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getProposals = async (salesId, page, search, status) => {
+	const getProposals = async (payload) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.fetchGet(
-			`/${workspaceId}${
-				API.TEMPLATES.PROPOSALS
-			}?templateId=${salesId}&page=${page}&limit=10&sortBy=createdAt&sortType=-1&status=${status}${
-				search != '' ? `&title=${search}` : ''
-			}`,
+
+		const response = await service.query(
+			getWorkflowDetailsListQuery,
+			payload,
+			workspaceId,
 			usertoken,
-			'proposals_api',
+			'workflows_Api',
 		);
 
 		if (response[0]) {
-			return [true, response[1]];
+			dispatch({
+				type: Actions?.GET_WORKFLOW_DETAILS_SUCCESS,
+				payload: response?.[1]?.data?.workflows,
+			});
 		} else {
-			return [false, response?.[1]?.message];
+			console.log('api failed getProposals', response);
 		}
 	};
 
-	const createProposals = async (templateId, payload) => {
+	const createProposals = async (payload) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.fetchPost(
-			`/${workspaceId}${API.TEMPLATES.TEMPLATES}/${templateId}${API.TEMPLATES.CREATE_PROPOSALS}`,
+		const response = await service.query(
+			createProposalQuery,
 			payload,
+			workspaceId,
 			usertoken,
-			'proposals_api',
+			'workflows_Api',
 		);
 
 		if (response[0]) {
-			return [true, response[1]];
+			return [true, response?.[1]?.data?.createProposalUsingWorkflowTemplate];
 		} else {
 			return [false, response?.[1]?.message];
 		}
@@ -135,6 +151,7 @@ export const TemplatesState = (props) => {
 	};
 
 	return {
+		...state,
 		getProposals,
 		getTemplates,
 		getTemplatesStatus,

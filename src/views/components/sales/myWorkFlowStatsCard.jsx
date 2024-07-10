@@ -25,6 +25,7 @@ function MyWorkFlowStatsCard({
 	const [isLoading, setLoading] = useState(false);
 	const [errorState, setErrorState] = useState({ isError: false, errorMessage: '' });
 	const [parsedHtmlContent, setParsedHtmlContent] = useState();
+	// const [proposalId, setProposalId] = useState('');
 
 	const navigate = useNavigate();
 	let {
@@ -40,6 +41,7 @@ function MyWorkFlowStatsCard({
 
 	const openModal = (event) => {
 		event.preventDefault();
+		event.stopPropagation();
 		setIsOpen(true);
 	};
 
@@ -113,30 +115,38 @@ function MyWorkFlowStatsCard({
 
 	const handleCreateLead = async () => {
 		if (createButtonActiveState) {
+			if (isLoading) {
+				return;
+			}
 			setLoading(true);
 
-			let json = {
-				title: leadDetails['name'],
-				source: leadDetails['source'],
-				clientDetails: {
-					name: leadDetails['name'],
-					email: leadDetails['emailId'],
+			const json = {
+				proposalTemplateId: workflow?.moduleTemplates?.[0]?._id,
+				workflowTemplateId: workflow?._id,
+				proposalInput: {
+					clientInput: {
+						email: leadDetails['emailId'],
+						name: leadDetails['name'],
+					},
+					title: leadDetails['name'],
+					source: leadDetails['source'],
 				},
 			};
-			let response = await createProposals(workflow?._id, json);
 
-			if (response[1]) {
-				setLoading(true);
+			let response = await createProposals(json);
+
+			if (response?.[1]) {
+				setLoading(false);
 				closeModal();
 				navigate(
 					`/sales/${workflow?._id}/${response[1]._id}?verison=${response[1]?.activeVersion}`,
 				);
 			} else {
-				setLoading(true);
+				setLoading(false);
 				setLeadDetails((prevState) => ({
 					...prevState,
 					isError: true,
-					errorMessage: response[1].message,
+					errorMessage: response[1]?.message,
 				}));
 			}
 		} else {
@@ -223,8 +233,7 @@ function MyWorkFlowStatsCard({
 			<div
 				className="workflowContainer"
 				index={index}
-				onClick={() => navigate(`/sales/${workflow?._id}`)}
-				style={{ zIndex: 0 }}
+				onClick={() => navigate(`/sales/${workflow?._id}`, { state: { data: workflow } })}
 			>
 				{hideImage ? (
 					''
@@ -245,7 +254,7 @@ function MyWorkFlowStatsCard({
 							<RightArrow />
 							<p>Summary</p>
 						</div>
-						<div className="actionButton" onClick={openModal} style={{ zIndex: 2 }}>
+						<div className="actionButton" onClick={openModal}>
 							<p>+ Add Lead</p>
 						</div>
 						<div className="moreOptionsContainer">
@@ -253,9 +262,11 @@ function MyWorkFlowStatsCard({
 						</div>
 					</div>
 
-					{/* <div className="statsContainer">
+					<div className="statsContainer">
 						{singleCard ? (
-							<div href={`/sales/${workflow?._id}?status=draft`}>
+							<div
+							// href={`/sales/${workflow?._id}?status=draft`}
+							>
 								{statsBox(
 									'DRAFT',
 									inSights && inSights?.status?.draft
@@ -271,7 +282,9 @@ function MyWorkFlowStatsCard({
 							)
 						)}
 						{singleCard ? (
-							<a href={`/sales/${workflow?._id}?status=sent`}>
+							<a
+							// href={`/sales/${workflow?._id}?status=sent`}
+							>
 								{statsBox(
 									'SENT',
 									inSights && inSights?.status?.sent ? inSights?.status?.sent : 0,
@@ -285,7 +298,9 @@ function MyWorkFlowStatsCard({
 							)
 						)}
 						{singleCard ? (
-							<a href={`/sales/${workflow?._id}?status=accepted`}>
+							<a
+							// href={`/sales/${workflow?._id}?status=accepted`}
+							>
 								{statsBox(
 									'ACCEPTED',
 									inSights && inSights?.status?.accepted
@@ -303,7 +318,9 @@ function MyWorkFlowStatsCard({
 							)
 						)}
 						{singleCard ? (
-							<a href={`/sales/${workflow?._id}?status=rejected`}>
+							<a
+							// href={`/sales/${workflow?._id}?status=rejected`}
+							>
 								{statsBox(
 									'REJECTED',
 									inSights && inSights?.status?.rejected
@@ -322,7 +339,9 @@ function MyWorkFlowStatsCard({
 						)}
 
 						{singleCard ? (
-							<a href={`/sales/${workflow?._id}?status=expired`}>
+							<a
+							// href={`/sales/${workflow?._id}?status=expired`}
+							>
 								{statsBox(
 									'EXPIRED',
 									inSights && inSights?.status?.expired
@@ -339,7 +358,7 @@ function MyWorkFlowStatsCard({
 									: 0,
 							)
 						)}
-					</div> */}
+					</div>
 					{singleCard ? (
 						''
 					) : (
