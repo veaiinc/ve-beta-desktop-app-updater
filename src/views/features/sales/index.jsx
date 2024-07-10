@@ -52,7 +52,9 @@ function Sales({ type }) {
 					tenantId: null,
 				}),
 			);
-			setMyWorkflows(_.filter(response[1], (item) => item.tenantId !== null));
+			let { data } = response?.[1];
+			// data = data?.filter((ele) => ele?.tenantId !== null);
+			setMyWorkflows(data);
 		}
 	};
 

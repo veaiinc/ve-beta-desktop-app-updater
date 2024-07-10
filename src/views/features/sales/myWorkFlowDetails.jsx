@@ -6,13 +6,14 @@ import '../../../assets/scss/sales/myWorkFlowDetails.scss';
 import { ReactComponent as LeftArrow } from '../../../assets/svg/left-arrow.svg';
 import { ReactComponent as Search } from '../../../assets/svg/seach-magnifier.svg';
 import { ReactComponent as EmptyState } from '../../../assets/svg/emptyStates/leads-empty-state.svg';
+import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 const _ = require('lodash');
 
 function MyWorkFlowDetails(props) {
 	const { salesId } = useParams();
-	const [workspaceId, setWorkspaceId] = useState('');
+	const [workspaceId, setWorkspaceId] = useState(localStorage.getItem('workspaceId'));
 	const [proposalData, setProposalData] = useState([]);
 	const [templateDetails, setTemplateDetails] = useState([]);
 	const [inSights, setInsights] = useState([]);
@@ -21,6 +22,7 @@ function MyWorkFlowDetails(props) {
 	const [timeoutId, setTimeoutId] = useState(null);
 
 	const location = useLocation();
+	const navigate = useNavigate();
 	const searchParams = new URLSearchParams(location.search);
 	const status = searchParams.get('status');
 
@@ -33,15 +35,6 @@ function MyWorkFlowDetails(props) {
 	let {
 		templates: { getProposals, getTemplatesStatus, getTemplates },
 	} = useContext(Context);
-
-	useEffect(() => {
-		const fetchWorkspaceId = async () => {
-			const id = localStorage.getItem('workspaceId');
-			setWorkspaceId(id);
-		};
-
-		fetchWorkspaceId();
-	}, [workspaceId]);
 
 	useEffect(() => {
 		if (workspaceId) {
@@ -131,9 +124,9 @@ function MyWorkFlowDetails(props) {
 		<div className="myWorkFlowDetailsContainer">
 			<div className="header">
 				<div className="leftSideContent">
-					<a href="/sales">
+					<div onClick={() => navigate(-1)}>
 						<LeftArrow />
-					</a>
+					</div>
 					<p>
 						{templateDetails?.title}{' '}
 						<a href={`https://builder.ve.co/${templateDetails?._id}`}>

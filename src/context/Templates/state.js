@@ -1,20 +1,28 @@
 import * as API from './actionTypes';
 import Service from '../../services/index';
+import service from '../../services/graphQlServices';
+import { getTemmplatesQuery } from './graphQlFunctions';
 
 export const TemplatesState = (props) => {
 	const getTemplates = async (templateId = null) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.fetchGet(
-			`/${workspaceId}${API.TEMPLATES.TEMPLATES}${
-				templateId ? `?templateId=${templateId}` : ''
-			}`,
+		const json = {
+			filters: {
+				limit: 50,
+				page: 1,
+			},
+		};
+		const response = await service.query(
+			getTemmplatesQuery,
+			json,
+			workspaceId,
 			usertoken,
-			'proposals_api',
+			'workflows_Api',
 		);
 
 		if (response[0]) {
-			return [true, response[1]];
+			return [true, response?.[1]?.data?.templates];
 		} else {
 			return [false, response?.[1]?.message];
 		}

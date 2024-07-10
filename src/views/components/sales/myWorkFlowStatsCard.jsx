@@ -24,11 +24,19 @@ function MyWorkFlowStatsCard({
 	const [createButtonActiveState, setCreateButtonActiveState] = useState(false);
 	const [isLoading, setLoading] = useState(false);
 	const [errorState, setErrorState] = useState({ isError: false, errorMessage: '' });
+	const [parsedHtmlContent, setParsedHtmlContent] = useState();
 
 	const navigate = useNavigate();
 	let {
 		templates: { createProposals },
 	} = useContext(Context);
+
+	useEffect(() => {
+		const { moduleTemplates, templates } = workflow || {};
+		const templateId = moduleTemplates?.filter((ele) => ele?.module === 'proposal');
+		const parsedHtmlContentObj = templates?.filter((ele) => ele?._id === templateId?.[0]?._id);
+		setParsedHtmlContent(parsedHtmlContentObj?.[0]?.parsedHtmlContent);
+	}, [workflow]);
 
 	const openModal = (event) => {
 		event.preventDefault();
@@ -212,14 +220,19 @@ function MyWorkFlowStatsCard({
 
 	const statsCard = () => {
 		return (
-			<div className="workflowContainer" index={index}>
+			<div
+				className="workflowContainer"
+				index={index}
+				onClick={() => navigate(`/sales/${workflow?._id}`)}
+				style={{ zIndex: 0 }}
+			>
 				{hideImage ? (
 					''
 				) : (
 					<div className="imageContainer">
 						<div className="coverImage">
 							<div
-								dangerouslySetInnerHTML={{ __html: workflow.parsedHtmlContent }}
+								dangerouslySetInnerHTML={{ __html: parsedHtmlContent }}
 								style={{ width: '100%' }}
 							/>
 						</div>
@@ -232,7 +245,7 @@ function MyWorkFlowStatsCard({
 							<RightArrow />
 							<p>Summary</p>
 						</div>
-						<div className="actionButton" onClick={openModal}>
+						<div className="actionButton" onClick={openModal} style={{ zIndex: 2 }}>
 							<p>+ Add Lead</p>
 						</div>
 						<div className="moreOptionsContainer">
@@ -240,9 +253,9 @@ function MyWorkFlowStatsCard({
 						</div>
 					</div>
 
-					<div className="statsContainer">
+					{/* <div className="statsContainer">
 						{singleCard ? (
-							<a href={`/sales/${workflow?._id}?status=draft`}>
+							<div href={`/sales/${workflow?._id}?status=draft`}>
 								{statsBox(
 									'DRAFT',
 									inSights && inSights?.status?.draft
@@ -250,7 +263,7 @@ function MyWorkFlowStatsCard({
 										: 0,
 									activeTab === 'draft' ? true : false,
 								)}
-							</a>
+							</div>
 						) : (
 							statsBox(
 								'DRAFT',
@@ -326,15 +339,15 @@ function MyWorkFlowStatsCard({
 									: 0,
 							)
 						)}
-					</div>
+					</div> */}
 					{singleCard ? (
 						''
 					) : (
 						<>
 							<div className="statsheader">
-								<div className="modules">
+								{/* <div className="modules">
 									<p>Workflow Stats</p>
-								</div>
+								</div> */}
 							</div>
 							<div className="workflowStatsValues">
 								<div style={{ padding: '0rem 10rem' }}></div>
