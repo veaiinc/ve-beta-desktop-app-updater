@@ -24,6 +24,7 @@ function ProposalCRUD(props) {
 	const [info, setInfo] = useState({
 		proposalData: null,
 		sendProposalModal: false,
+		dataChanged: false,
 	});
 
 	useEffect(() => {
@@ -34,7 +35,6 @@ function ProposalCRUD(props) {
 
 	useEffect(() => {
 		if (proposalInfo) {
-			console.log('proposalData', proposalInfo);
 			setInfo((prev) => ({ ...prev, proposalData: proposalInfo }));
 		}
 	}, [proposalInfo]);
@@ -46,7 +46,7 @@ function ProposalCRUD(props) {
 		async (newData, tableDataIndex) => {
 			const updatedTableData = [...(info?.proposalData?.tables || [])];
 			updatedTableData?.splice(tableDataIndex, 1, newData);
-			setInfo((prev) => ({ ...prev, tables: updatedTableData }));
+			setInfo((prev) => ({ ...prev, tables: updatedTableData, dataChanged: true }));
 		},
 		[info?.proposalData],
 	);
@@ -55,7 +55,7 @@ function ProposalCRUD(props) {
 		async (newData, index) => {
 			const updatedVariables = [...(info?.proposalData?.variables || [])];
 			updatedVariables?.splice(index, 1, newData);
-			setInfo((prev) => ({ ...prev, variables: updatedVariables }));
+			setInfo((prev) => ({ ...prev, variables: updatedVariables, dataChanged: true }));
 		},
 		[info?.proposalData],
 	);
@@ -70,12 +70,18 @@ function ProposalCRUD(props) {
 				>
 					<LeftArrow /> <p>create new File for *client name here*</p>
 				</div>
-				<div
-					className="sendProposalButton"
-					onClick={() => setInfo((prev) => ({ ...prev, sendProposalModal: true }))}
-				>
-					<p>Send Proposal</p>
-				</div>
+				{info?.dataChanged ? (
+					<div className="sendProposalButton" style={{ backgroundColor: '#6055EC' }}>
+						<p>Save</p>
+					</div>
+				) : (
+					<div
+						className="sendProposalButton"
+						onClick={() => setInfo((prev) => ({ ...prev, sendProposalModal: true }))}
+					>
+						<p>Send Proposal</p>
+					</div>
+				)}
 			</div>
 
 			<div className="propsosEditContainer">
