@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import Dropzone from 'react-dropzone';
 import ToggleSlider from '../../components/input/slider';
 import '../../../assets/scss/CompanySettings/branding.scss';
-import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
+import ReusableButtonSettings from './ReusableButtonSettings';
 import InstagramLogoColorless from '../../../assets/svg/workspaceSettings/InstagramLogoColorless.svg';
 import FacebookLogoColorless from '../../../assets/svg/workspaceSettings/FacebookLogoColorless.svg';
 import PinterestLogoColorless from '../../../assets/svg/workspaceSettings/PinterestLogoColorless.svg';

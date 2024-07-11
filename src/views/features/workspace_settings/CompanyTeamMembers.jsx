@@ -8,7 +8,7 @@ import search from '../../../assets/svg/workspaceSettings/searchSettings.svg';
 import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
 import validator from 'validator';
 import Context from '../../../context/context';
-import { getInitials } from '../profile_settings_update/getInitials';
+import { getInitials } from '../profile_settings/getInitials';
 import Skeleton from 'react-loading-skeleton';
 
 const CompanyTeamMembers = () => {

@@ -5,8 +5,8 @@ import SalesScreen from './views/features/sales/index';
 import MyWorkFlowDetails from './views/features/sales/myWorkFlowDetails';
 import ProposalCRUD from './views/features/modules/proposalCRUD';
 import OauthVerify from './views/features/signin/oauth';
-import MySettings from './views/features/profile_settings_update/MySettings';
-import CompanySettingsWrapper from './views/features/workspace_settings_update/CompanySettingsWrapper';
+import MySettings from './views/features/profile_settings/MySettings';
+import CompanySettingsWrapper from './views/features/workspace_settings/CompanySettingsWrapper';
 
 const routes = [
 	{
