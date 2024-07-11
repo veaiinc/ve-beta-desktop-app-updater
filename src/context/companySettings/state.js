@@ -177,7 +177,7 @@ export const CompanySettingsState = () => {
 				const resp = await axios.put(response[1].signedUrl, file, options);
 
 				if (resp.status === 200) {
-					console.log('yes ');
+					console.log('yes');
 				} else {
 					console.log('no');
 				}
@@ -186,6 +186,7 @@ export const CompanySettingsState = () => {
 			console.log('error => uploadTenantLogo ', error);
 		}
 	};
+
 	return {
 		...state,
 		updateTenantContactDetails,

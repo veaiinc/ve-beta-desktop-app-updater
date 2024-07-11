@@ -190,6 +190,18 @@ export const ProfileState = () => {
 			'tenant-users',
 		);
 	};
+	const changelogo = (file) => {
+		dispatch({
+			type: Actions.UPDATE_LOGO,
+			payload: file,
+		});
+	};
+	const updateBusniessName = (name) => {
+		dispatch({
+			type: Actions.UPDATE_BUSNIESSNAME,
+			payload: name,
+		});
+	};
 
 	return {
 		...state,
@@ -202,5 +214,7 @@ export const ProfileState = () => {
 		getUserWorkSpaceList,
 		updatePassword,
 		chooseDefaultWorkspace,
+		changelogo,
+		updateBusniessName,
 	};
 };

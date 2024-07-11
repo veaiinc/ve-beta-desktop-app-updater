@@ -34,7 +34,7 @@ import Context from '../../../context/context';
 
 const CompanyBranding = () => {
 	const {
-		profileInfo: { getTenantSettings, tennantSettingsData },
+		profileInfo: { getTenantSettings, tennantSettingsData, changelogo },
 		companyInfo: {
 			updatePrefernces,
 			getTenantPreferences,
@@ -63,32 +63,6 @@ const CompanyBranding = () => {
 		fontPopup: false,
 		brandColor: '',
 	});
-
-	// const logos = [
-	// 	{ name: 'instagram', component: InstagramLogoColorless },
-	// 	{ name: 'facebook', component: FacebookLogoColorless },
-	// 	{ name: 'pinterest', component: PinterestLogoColorless },
-	// 	{ name: 'youtube', component: YouTubeLogoColorless },
-	// 	{ name: 'linkedIn', component: LinkedinLogoColorless },
-	// 	{ name: 'tiktok', component: TiktokLogoColorless },
-	// 	{ name: 'spotify', component: SpotifyLogoColorless },
-	// 	{ name: 'behance', component: BehanceLogoColorless },
-	// 	{ name: 'telegram', component: TelegramLogoColorless },
-	// 	{ name: 'steam', component: DribbbleLogoColorless },
-	// ];
-
-	// const activeLogo = [
-	// 	{ name: 'instagramProfile', component: InstagramActive },
-	// 	{ name: 'facebookProfile', component: FacebookActive },
-	// 	{ name: 'pinterestProfile', component: PinterestActive },
-	// 	{ name: 'youtubeProfile', component: ActiveYoutube },
-	// 	{ name: 'linkedInProfile', component: LinkedInActive },
-	// 	{ name: 'tiktokProfile', component: TiktokActive },
-	// 	{ name: 'spotifyProfile', component: ActiveSpotify },
-	// 	{ name: 'behanceProfile', component: BehanceActive },
-	// 	{ name: 'telegramProfile', component: TelegramActive },
-	// 	{ name: 'steamProfile', component: DribbbleLogoactive },
-	// ];
 	const logoComponents = {
 		instagram: { inactive: InstagramLogoColorless, active: InstagramActive },
 		facebook: { inactive: FacebookLogoColorless, active: FacebookActive },
@@ -130,6 +104,9 @@ const CompanyBranding = () => {
 			}));
 			setLogoUrl(tennantSettingsData?.logo_s3_500w_key || '');
 		}
+	}, [tennantSettingsData]);
+
+	useEffect(() => {
 		if (tenantPreferenceData) {
 			setbrandState((prev) => ({
 				...prev,
@@ -137,13 +114,16 @@ const CompanyBranding = () => {
 				brandColor: tenantPreferenceData?.brandAccentColor || '#6055EC',
 			}));
 		}
-	}, [tennantSettingsData, tenantPreferenceData]);
+	}, [tenantPreferenceData]);
 	const checkUploadLogo = (acceptedFiles) => {
 		const file = acceptedFiles[0];
 		const reader = new FileReader();
+
 		reader.onloadend = () => {
 			setLogoUrl(reader.result);
+			changelogo(reader?.result);
 		};
+
 		reader.readAsDataURL(file);
 		uploadTenantLogo(file);
 	};
@@ -178,6 +158,15 @@ const CompanyBranding = () => {
 		}
 		return [true];
 	};
+	const handleActivateLogo = () => {
+		if (brandState.socialMediaType) {
+			setbrandState((prev) => ({
+				...prev,
+				[`${brandState.socialMediaType}Profile`]: 'active', // Mark the logo as active
+			}));
+		}
+	};
+
 	return (
 		<div className="brandingMainContainer">
 			{/* logo */}
@@ -287,37 +276,15 @@ const CompanyBranding = () => {
 					<h1>Social Links</h1>
 					<p>Icons in your emails will automatically link to these URLs</p>
 				</div>
+
 				{/* <div className="logosWrapper">
-					{logos &&
-						logos.map((logo, index) => (
-							<div
-								className="logoContainer"
-								key={index}
-								onClick={() => {
-									setbrandState((prev) => ({
-										...prev,
-										brandingMediaPopup: true,
-										socialMediaType: logo.name,
-									}));
-								}}
-							>
-								<img src={logo.component} alt="logo" />
-							</div>
-						))}
-				</div> */}
-				{/* <div className="logosWrapper">
-					{logos.map((logo, index) => {
+					{Object.entries(logoComponents).map(([logoName, logoData], index) => {
 						const isActive =
-							tennantSettingsData?.[`${logo.name}Profile`] &&
-							tennantSettingsData[`${logo.name}Profile`].length > 0
-								? true
-								: false;
+							(tennantSettingsData?.[`${logoName}Profile`] &&
+								tennantSettingsData[`${logoName}Profile`].length > 0) ||
+							false;
 
-						const activeLogoComponent = activeLogo.find(
-							(activeLogoItem) => activeLogoItem.name === `${logo.name}Profile`,
-						)?.component;
-
-						const logoToDisplay = isActive ? activeLogoComponent : logo.component;
+						const logoToDisplay = isActive ? logoData.active : logoData.inactive;
 
 						return (
 							<div
@@ -327,11 +294,11 @@ const CompanyBranding = () => {
 									setbrandState((prev) => ({
 										...prev,
 										brandingMediaPopup: true,
-										socialMediaType: logo.name,
+										socialMediaType: logoName,
 									}));
 								}}
 							>
-								<img src={logoToDisplay} alt="logo" />
+								<img src={logoToDisplay} alt={`${logoName} logo`} />
 							</div>
 						);
 					})}
@@ -339,8 +306,11 @@ const CompanyBranding = () => {
 				<div className="logosWrapper">
 					{Object.entries(logoComponents).map(([logoName, logoData], index) => {
 						const isActive =
-							tennantSettingsData?.[`${logoName}Profile`] &&
-							tennantSettingsData[`${logoName}Profile`].length > 0;
+							(tennantSettingsData?.[`${logoName}Profile`] &&
+								tennantSettingsData[`${logoName}Profile`].length > 0) ||
+							brandState?.[`${logoName}Profile`] === 'active' ||
+							false;
+
 						const logoToDisplay = isActive ? logoData.active : logoData.inactive;
 
 						return (
@@ -389,6 +359,7 @@ const CompanyBranding = () => {
 					name={brandState.socialMediaType + 'Profile'}
 					onChangeFunc={handleChange}
 					value={brandState?.[brandState.socialMediaType + 'Profile']}
+					handleActivate={handleActivateLogo}
 				/>
 			)}
 			{brandState.brandingPopup && (

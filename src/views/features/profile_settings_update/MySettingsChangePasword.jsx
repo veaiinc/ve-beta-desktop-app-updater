@@ -17,6 +17,9 @@ const MySettingsChangePasword = ({ onClose }) => {
 		confirmNewPassword: '',
 	});
 	const [errors, setErrors] = useState({
+		currentPasswordError: false,
+		newPasswordError: false,
+		confirmNewPasswordError: false,
 		currentPassword: '',
 		newPassword: '',
 		confirmNewPassword: '',
@@ -43,24 +46,31 @@ const MySettingsChangePasword = ({ onClose }) => {
 	const validateForm = () => {
 		let valid = true;
 		const newErrors = {
+			currentPasswordError: false,
+			newPasswordError: false,
+			confirmNewPasswordError: false,
 			currentPassword: '',
 			newPassword: '',
 			confirmNewPassword: '',
 		};
 
 		if (!password.currentPassword) {
+			newErrors.currentPasswordError = true;
 			newErrors.currentPassword = 'Current password is required';
 			valid = false;
 		}
 		if (password.currentPassword === password.newPassword) {
+			newErrors.newPasswordError = true;
 			newErrors.newPassword = 'New password should not match the current password';
 			valid = false;
 		}
 		if (!password.newPassword || password.newPassword.length < 8) {
+			newErrors.newPasswordError = true;
 			newErrors.newPassword = 'New password must be at least 8 characters long';
 			valid = false;
 		}
 		if (!password.confirmNewPassword || password.confirmNewPassword !== password.newPassword) {
+			newErrors.confirmNewPasswordError = true;
 			newErrors.confirmNewPassword = 'Passwords do not match';
 			valid = false;
 		}
@@ -105,10 +115,10 @@ const MySettingsChangePasword = ({ onClose }) => {
 								name={'currentPassword'}
 								value={password?.currentPassword}
 								onChange={(e) => handleChange(e)}
+								isError={errors.currentPasswordError}
+								errorMessage={errors.currentPassword}
 							/>
-							{errors.currentPassword && (
-								<p className="error">{errors.currentPassword}</p>
-							)}
+
 							<InputForModules
 								label={'New Password'}
 								type={'password'}
@@ -116,8 +126,10 @@ const MySettingsChangePasword = ({ onClose }) => {
 								name={'newPassword'}
 								value={password?.newPassword}
 								onChange={(e) => handleChange(e)}
+								isError={errors.newPasswordError}
+								errorMessage={errors.newPassword}
 							/>
-							{errors.newPassword && <p className="error">{errors.newPassword}</p>}
+
 							<InputForModules
 								label={'Confirm New Password'}
 								type={'password'}
@@ -125,8 +137,9 @@ const MySettingsChangePasword = ({ onClose }) => {
 								name={'confirmNewPassword'}
 								value={password?.confirmNewPassword}
 								onChange={(e) => handleChange(e)}
+								isError={errors.confirmNewPasswordError}
+								errorMessage={errors.confirmNewPassword}
 							/>
-							{errors.newPassword && <p className="error">{errors.newPassword}</p>}
 						</div>
 						<button type="submit">Save Changes</button>
 					</form>

@@ -6,6 +6,15 @@ export const getInitials = (firstName, lastName) => {
 };
 export const getBuisnessName = (name) => {
 	const words = name.split(' ');
-	const initials = words.map((word) => word.charAt(0).toUpperCase()).join('');
-	return initials;
+
+	if (words.length === 1) {
+		return words[0].substring(0, 2).toUpperCase();
+	} else {
+		// If there are multiple words, return the initials of the first two words
+		const initials = words
+			.slice(0, 2)
+			.map((word) => word.charAt(0).toUpperCase())
+			.join('');
+		return initials;
+	}
 };

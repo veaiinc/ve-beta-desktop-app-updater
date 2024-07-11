@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/CompanySettings/teamMembers.scss';
 import Line from './Line';
 import _ from 'lodash';
-import Modal from '../../components/modals';
+import Modal from '../../components/modalsV2/index';
 import AddNewUserModal from '../../components/modals/tenantUser/addNewUser';
 import search from '../../../assets/svg/workspaceSettings/searchSettings.svg';
 import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
@@ -13,7 +13,7 @@ import Skeleton from 'react-loading-skeleton';
 
 const CompanyTeamMembers = () => {
 	const {
-		profileInfo: { getTenantSettings, getTenantUserDetails, tenantUserDetails },
+		profileInfo: { getTenantUserDetails, tenantUserDetails },
 		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 
@@ -30,6 +30,10 @@ const CompanyTeamMembers = () => {
 		isAdmin: '',
 		searchQuery: '',
 		isloading: false,
+		showDelete: false,
+		selectedUserRole: '',
+		showDeactivate: '',
+		showDeleteInvite: '',
 	});
 
 	useEffect(() => {
@@ -58,6 +62,8 @@ const CompanyTeamMembers = () => {
 				tenantUser: tenantsUserList,
 			}));
 		}
+	}, [tenantsUserList]);
+	useEffect(() => {
 		if (tenantUserDetails) {
 			setInfo((prev) => ({
 				...prev,
@@ -65,7 +71,7 @@ const CompanyTeamMembers = () => {
 				isAdmin: tenantUserDetails?.role === 'admin',
 			}));
 		}
-	}, [tenantsUserList, tenantUserDetails]);
+	}, [tenantUserDetails]);
 
 	const handleChnage = (e) => {
 		const { name, value } = e.target;
@@ -293,9 +299,8 @@ const CompanyTeamMembers = () => {
 				</div>
 			</div>
 			<Modal
-				handleClose={() => showAddTenantUserModal()}
-				show={info.showAddTenantUserModal}
-				modalType={'center'}
+				onRequestClose={() => showAddTenantUserModal()}
+				isOpen={info.showAddTenantUserModal}
 			>
 				<AddNewUserModal
 					isAdmin={info.isAdmin}

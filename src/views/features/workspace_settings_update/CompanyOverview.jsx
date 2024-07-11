@@ -11,7 +11,7 @@ import { getBuisnessName } from '../profile_settings_update/getInitials';
 
 const CompanyOverview = () => {
 	const {
-		profileInfo: { getTenantSettings, tennantSettingsData },
+		profileInfo: { getTenantSettings, tennantSettingsData, updateBusniessName },
 		companyInfo: {
 			updateTenantContactDetails,
 			updateTenantAddress,
@@ -78,15 +78,16 @@ const CompanyOverview = () => {
 	}, [tennantSettingsData]);
 
 	const validateField = (fieldName, value) => {
+		let Value = value || '';
 		switch (fieldName) {
 			case 'email':
-				if (!validator.isEmail(value) && initialState.email !== overviewState.email) {
+				if (!validator.isEmail(Value) && initialState.email !== overviewState.email) {
 					return { error: true, message: 'Invalid Email' };
 				}
 				break;
 			case 'phoneNumber':
 				if (
-					!validator.isMobilePhone(value, 'any', { strictMode: true }) &&
+					!validator.isMobilePhone(Value, 'any', { strictMode: true }) &&
 					initialState.phoneNumber !== overviewState.phoneNumber
 				) {
 					return { error: true, message: 'Phone Number is invalid' };
@@ -94,7 +95,7 @@ const CompanyOverview = () => {
 				break;
 			case 'website':
 				if (
-					!validator.isURL(value, {
+					!validator.isURL(Value, {
 						protocols: ['http', 'https'],
 						require_protocol: true,
 					}) &&
@@ -107,7 +108,7 @@ const CompanyOverview = () => {
 				}
 				break;
 			default:
-				if (validator.isEmpty(value)) {
+				if (validator.isEmpty(Value)) {
 					// return { error: true, message: 'This field is required' };
 					return '';
 				}
@@ -154,6 +155,7 @@ const CompanyOverview = () => {
 			overviewState.businessName.length
 		) {
 			let json = { businessName: overviewState.businessName };
+			updateBusniessName(overviewState.businessName);
 			updateTenantBusinessName(json);
 		}
 	};
@@ -161,6 +163,7 @@ const CompanyOverview = () => {
 		e.preventDefault();
 		if (validate()) {
 			updateDetails();
+
 			setIsEditMode(false);
 		}
 	};

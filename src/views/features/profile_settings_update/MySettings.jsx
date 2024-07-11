@@ -42,6 +42,7 @@ const MySettings = () => {
 
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [activeItem, setActiveItem] = useState('profile');
+	console.log(tennantSettingsData);
 
 	const handleNavigation = (id) => {
 		setActiveItem(id);
@@ -97,12 +98,6 @@ const MySettings = () => {
 		getTenantUserDetails();
 	};
 
-	// const getInitials = () => {
-	// 	const names = userDetailsData?.firstName + ' ' + userDetailsData?.lastName;
-	// 	const nameParts = names.split(' ');
-	// 	const initials = nameParts.map((part) => part[0].toUpperCase()).join('');
-	// 	return initials;
-	// };
 	const handleFormPopUp = () => {
 		setShowForm(true);
 	};
@@ -443,7 +438,7 @@ const MySettings = () => {
 													: 'workspaces'
 											}
 										>
-											{item.activeWorkspaceId}
+											{item.businessName}
 										</button>
 									))}
 							</div>

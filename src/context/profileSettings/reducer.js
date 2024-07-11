@@ -23,6 +23,23 @@ const actionHandlers = {
 		...state,
 		userWorkSpaceList: action.payload,
 	}),
+	UPDATE_LOGO: (state, action) => {
+		const updatedTennantSettingsData = {
+			...(state?.tennantSettingsData || {}),
+			logo_s3_500w_key: action?.payload,
+		};
+		return {
+			...state,
+			tennantSettingsData: updatedTennantSettingsData,
+		};
+	},
+	UPDATE_BUSNIESSNAME: (state, action) => ({
+		...state,
+		tennantSettingsData: {
+			...state?.tennantSettingsData,
+			businessName: action.payload,
+		},
+	}),
 };
 
 const Reducer = (state, action) => {
