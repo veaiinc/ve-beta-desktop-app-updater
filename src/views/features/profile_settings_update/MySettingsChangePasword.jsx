@@ -5,12 +5,11 @@ import InputForModules from '../../components/input/inputForModules';
 import '../../../assets/scss/profileSettings/changePasswordPopup/changePassword.scss';
 import Context from '../../../context/context';
 
-const MySettingsChangePasword = ({ onClose }) => {
+const MySettingsChangePasword = ({ onClose, showForm }) => {
 	const {
 		profileInfo: { updatePassword, userDetailsData },
 	} = useContext(Context);
 
-	const [toggleform, setToggleForm] = useState(true);
 	const [password, setPassword] = useState({
 		currentPassword: '',
 		newPassword: '',
@@ -25,12 +24,6 @@ const MySettingsChangePasword = ({ onClose }) => {
 		confirmNewPassword: '',
 	});
 
-	const handleOpenForm = () => {
-		setToggleForm(true);
-	};
-	const handleCloseForm = () => {
-		setToggleForm(false);
-	};
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setPassword((prev) => ({
@@ -97,7 +90,7 @@ const MySettingsChangePasword = ({ onClose }) => {
 	};
 	return (
 		<div>
-			<ReactModal isOpen={handleOpenForm} closeModal={handleCloseForm}>
+			<ReactModal isOpen={showForm} closeModal={onClose}>
 				<div className="updatePasswordPopUp">
 					<div className="updatePasswordTitleContainer">
 						<div className="updatePasswordTitle">

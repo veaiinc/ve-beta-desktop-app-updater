@@ -162,7 +162,7 @@ const CompanyBranding = () => {
 		if (brandState.socialMediaType) {
 			setbrandState((prev) => ({
 				...prev,
-				[`${brandState.socialMediaType}Profile`]: 'active', // Mark the logo as active
+				[`${brandState.socialMediaType}Profile`]: 'active',
 			}));
 		}
 	};

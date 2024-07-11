@@ -53,7 +53,7 @@ const SocialMediaPopup = (props) => {
 			};
 
 			updateTenantSocialMediaProfile(json);
-
+			props.handleActivate();
 			props.handleClose();
 		}
 	};

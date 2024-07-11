@@ -508,7 +508,9 @@ const MySettings = () => {
 					<li style={{ color: '#6055EC', cursor: 'not-allowed' }}> + Create Workspace</li>
 				</ul>
 			</div>
-			{showForm && <MySettingsChangePasword onClose={handlePopupFormClose} />}
+			{showForm && (
+				<MySettingsChangePasword showForm={showForm} onClose={handlePopupFormClose} />
+			)}
 		</div>
 	);
 };
