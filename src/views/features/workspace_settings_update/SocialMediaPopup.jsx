@@ -157,7 +157,7 @@ const SocialMediaPopup = (props) => {
 								color: '#e4e5e6',
 								backgroundColor: '#181818',
 								cursor:
-									changes && !error && props.value && props.value.length > 0
+									!error && props.value && props.value.length > 0
 										? 'pointer'
 										: 'not-allowed',
 								borderRadius: '100px',
