@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/modules/proposal/variablesBlock.scss';
-const ProposalExpiry = () => {
+const ProposalExpiry = ({ expiryData, onChangeFunc }) => {
 	return (
 		<div className="proposalExpiryContainer">
 			<span className="proposalExpiryBlockHeader">Proposal Expiry in</span>
@@ -11,6 +11,8 @@ const ProposalExpiry = () => {
 						className="propsalinputContainer"
 						placeholder="Type Here ..."
 						style={{ border: 'none', paddingLeft: '0px' }}
+						value={expiryData}
+						onChange={(e) => onChangeFunc(e.target.value)}
 					/>
 					<span className="dayText">Days</span>
 				</div>

@@ -14,12 +14,17 @@ import ClientVariablesBlock from '../../components/proposalComponents/ClientVari
 import SendProposalModal from '../../components/modalsV2/proposalModals/SendProposalModal';
 
 function ProposalCRUD(props) {
-	const [searchParams, setSearchParams] = useSearchParams();
+	// const [searchParams, setSearchParams] = useSearchParams();
 	const navigate = useNavigate();
 	const { proposalId } = useParams();
-	const versionId = Object.fromEntries(searchParams)?.verison;
+	// const versionId = Object.fromEntries(searchParams)?.verison;
 	const {
-		proposals: { proposalInfo, updateProposalContent },
+		proposals: {
+			proposalInfo,
+			getAllProposalContentInfo,
+			updateProposalContent,
+			updateProposal,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		proposalData: null,
@@ -28,6 +33,7 @@ function ProposalCRUD(props) {
 	});
 
 	useEffect(() => {
+		getPropsalData();
 		return () => {
 			updateProposalContent(null);
 		};
@@ -40,25 +46,84 @@ function ProposalCRUD(props) {
 	}, [proposalInfo]);
 
 	//functions definations
+	const getPropsalData = useCallback(async () => {
+		const payload = { id: proposalId };
+		getAllProposalContentInfo(payload);
+	}, [proposalId]);
 
 	//tableData changes
 	const handleTableDataChange = useCallback(
 		async (newData, tableDataIndex) => {
 			const updatedTableData = [...(info?.proposalData?.tables || [])];
 			updatedTableData?.splice(tableDataIndex, 1, newData);
-			setInfo((prev) => ({ ...prev, tables: updatedTableData, dataChanged: true }));
+			setInfo((prev) => ({
+				...prev,
+				proposalData: { ...prev?.proposalData, tables: updatedTableData },
+				dataChanged: true,
+			}));
 		},
 		[info?.proposalData],
 	);
 
+	//variable Data changes
 	const handleVariableDataChange = useCallback(
 		async (newData, index) => {
 			const updatedVariables = [...(info?.proposalData?.variables || [])];
 			updatedVariables?.splice(index, 1, newData);
-			setInfo((prev) => ({ ...prev, variables: updatedVariables, dataChanged: true }));
+			setInfo((prev) => ({
+				...prev,
+				proposalData: { ...prev?.proposalData, variables: updatedVariables },
+				dataChanged: true,
+			}));
 		},
 		[info?.proposalData],
 	);
+	//expiryInDays Changes
+	const handleExpiryInDaysChange = useCallback(async (newData) => {
+		setInfo((prev) => ({
+			...prev,
+			proposalData: { ...prev?.proposalData, expiryInDays: +newData },
+			dataChanged: true,
+		}));
+	}, []);
+
+	//saveProposal
+
+	const saveProposalData = useCallback(async () => {
+		if (!info?.dataChanged) {
+			return;
+		}
+		const {
+			variables,
+			tables,
+			paymentSchedule,
+			paymentDetails,
+			financeSummary,
+			expiryInDays,
+			deliverables,
+			conditionals,
+		} = info?.proposalData || {};
+		const paylaod = {
+			proposalId: proposalId,
+			proposalInput: {
+				versions: {
+					variables,
+					tables,
+					paymentSchedule,
+					paymentDetails,
+					financeSummary,
+					expiryInDays,
+					deliverables,
+					conditionals,
+				},
+			},
+			versionId: info?.proposalData?.activeVersion,
+		};
+		const response = await updateProposal(paylaod);
+		if (response?.[0]) {
+			getPropsalData();
+		}
+	}, [info?.proposalData, info?.dataChanged]);
 
 	return (
 		<div className="proposalsContainer">
@@ -71,7 +136,11 @@ function ProposalCRUD(props) {
 					<LeftArrow /> <p>create new File for *client name here*</p>
 				</div>
 				{info?.dataChanged ? (
-					<div className="sendProposalButton" style={{ backgroundColor: '#6055EC' }}>
+					<div
+						className="sendProposalButton"
+						style={{ backgroundColor: '#6055EC' }}
+						onClick={saveProposalData}
+					>
 						<p>Save</p>
 					</div>
 				) : (
@@ -91,7 +160,10 @@ function ProposalCRUD(props) {
 						onVariableDatChnage={handleVariableDataChange}
 					/>
 					<ClientVariablesBlock />
-					<ProposalExpiry />
+					<ProposalExpiry
+						expiryData={info?.proposalData?.expiryInDays}
+						onChangeFunc={(data) => handleExpiryInDaysChange(data)}
+					/>
 					<InvoiceBlock />
 				</div>
 

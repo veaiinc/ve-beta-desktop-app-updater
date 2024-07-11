@@ -192,15 +192,6 @@ function SalesLeadCard({ data, fetchProposals }) {
 
 	const handleCardClicks = useCallback(() => {
 		navigate(`/sales/${data.tenantId}/${data._id}?version=${data?.activeVersion}`);
-		const { activeVersion, versions = [] } = data?.proposals?.[0] || {};
-		let proposalInfodata;
-		for (let i = 0; i < versions?.length; i++) {
-			if (versions?.[i]?._id === activeVersion) {
-				proposalInfodata = versions?.[i];
-				break;
-			}
-		}
-		updateProposalContent(proposalInfodata);
 	}, [data]);
 
 	return (
