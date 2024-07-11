@@ -242,7 +242,7 @@ const CompanySocialMediaPopup = (props) => {
 	};
 
 	return (
-		<Modal onRequestClose={props.handleClose} isOpen={props.show}>
+		<Modal closeModal={props.handleClose} isOpen={props.show}>
 			<div
 				style={{
 					backgroundColor: '#151515',

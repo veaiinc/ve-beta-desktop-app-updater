@@ -1,3 +1,4 @@
+import { intialState } from './state';
 const actionHandlers = {
 	GET_TENANTS_LIST: (state, action) => ({
 		...state,
@@ -11,6 +12,7 @@ const actionHandlers = {
 		...state,
 		tenantSubscriptionDetails: action.payload,
 	}),
+	RESET_COMPANY_SETTINGS_STATE: () => ({ ...intialState }),
 };
 const Reducer = (state, action) => {
 	const handler = actionHandlers[action.type];

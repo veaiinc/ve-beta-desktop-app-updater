@@ -1,3 +1,4 @@
+import { intialState } from './state';
 const actionHandlers = {
 	GET_TENANT_SETTINGS: (state, action) => ({
 		...state,
@@ -40,6 +41,7 @@ const actionHandlers = {
 			businessName: action.payload,
 		},
 	}),
+	RESET_PROFILE_SETTINGS_STATE: () => ({ ...intialState }),
 };
 
 const Reducer = (state, action) => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import 'react-phone-input-2/lib/style.css';
-import Modal from '../../components/modalsV2/index';
+import ReactModal from '../../components/modalsV2/index';
 import { ReactComponent as CrossIcon } from '../../../assets/svg/workspaceSettings/cross.svg';
 import Context from '../../../context/context';
 const SocialMediaPopup = (props) => {
@@ -60,12 +60,11 @@ const SocialMediaPopup = (props) => {
 	const handleRequestClose = () => {
 		setChanges(false);
 
-		props.value(copyvalue);
 		props.handleClose();
 	};
 
 	return (
-		<Modal onRequestClose={handleRequestClose} isOpen={props.show}>
+		<ReactModal closeModal={handleRequestClose} isOpen={props.show}>
 			<div
 				style={{
 					backgroundColor: '#151515',
@@ -180,7 +179,7 @@ const SocialMediaPopup = (props) => {
 					</div>
 				</div>
 			</div>
-		</Modal>
+		</ReactModal>
 	);
 };
 

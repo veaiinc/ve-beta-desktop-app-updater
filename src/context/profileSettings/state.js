@@ -5,17 +5,15 @@ import * as API from './actionTypes';
 import jwt_decode from 'jwt-decode';
 import service from '../../services/index';
 import axios from 'axios';
-
+export const intialState = {
+	tennantSettingsData: null,
+	userDetailsData: null,
+	tenantUserDetails: null,
+	qrcode: null,
+	set2factorSettings: null,
+	userWorkSpaceList: null,
+};
 export const ProfileState = () => {
-	const intialState = {
-		tennantSettingsData: null,
-		userDetailsData: null,
-		tenantUserDetails: null,
-		qrcode: null,
-		set2factorSettings: null,
-		userWorkSpaceList: null,
-	};
-
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
 	const getTenantSettings = async () => {
@@ -220,6 +218,9 @@ export const ProfileState = () => {
 			const resp = await axios.put(response[1]?.signedUrl, file, options);
 		}
 	};
+	const resetProfileSettingsState = async () => {
+		dispatch({ type: Actions.RESET_PROFILE_SETTINGS_STATE });
+	};
 	return {
 		...state,
 		getTenantSettings,
@@ -234,5 +235,6 @@ export const ProfileState = () => {
 		changelogo,
 		updateBusniessName,
 		updateUserLogo,
+		resetProfileSettingsState,
 	};
 };

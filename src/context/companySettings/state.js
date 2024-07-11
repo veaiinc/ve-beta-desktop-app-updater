@@ -4,13 +4,12 @@ import * as API from './actionTypes';
 import service from '../../services';
 import { Actions } from './actions';
 import axios from 'axios';
-
+export const intialState = {
+	tenantsUserList: null,
+	tenantPreferenceData: null,
+	tenantSubscriptionDetails: null,
+};
 export const CompanySettingsState = () => {
-	const intialState = {
-		tenantsUserList: null,
-		tenantPreferenceData: null,
-		tenantSubscriptionDetails: null,
-	};
 	const [state, dispatch] = useReducer(Reducer, intialState);
 	const updateTenantContactDetails = async (contactJosn) => {
 		try {
@@ -186,6 +185,13 @@ export const CompanySettingsState = () => {
 			console.log('error => uploadTenantLogo ', error);
 		}
 	};
+	const resetCompanySettings = async () => {
+		try {
+			dispatch({ type: Actions.RESET_COMPANY_SETTINGS_STATE });
+		} catch (error) {
+			console.log('error => resetCompanySettings ', error);
+		}
+	};
 
 	return {
 		...state,
@@ -199,5 +205,6 @@ export const CompanySettingsState = () => {
 		getTenantPreferences,
 		getTenantSubscriptionDetails,
 		uploadTenantLogo,
+		resetCompanySettings,
 	};
 };
