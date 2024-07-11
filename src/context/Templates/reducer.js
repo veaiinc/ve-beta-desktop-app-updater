@@ -1,6 +1,9 @@
 import { intialState } from './state';
 const actionHandlers = {
-	GET_WORKFLOW_DETAILS_SUCCESS: (state, action) => ({ ...state, workflowslist: action.payload }),
+	GET_WORKFLOW_DETAILS_SUCCESS: (state, action) => ({
+		...state,
+		[action?.selectedvariable]: action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

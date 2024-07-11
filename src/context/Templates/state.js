@@ -12,6 +12,7 @@ import { Actions } from './Actions';
 
 export const intialState = {
 	workflowslist: null,
+	moreWorkList: null,
 };
 
 export const TemplatesState = (props) => {
@@ -59,7 +60,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getProposals = async (payload) => {
+	const getProposals = async (payload, fetchMore = false) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 
@@ -71,10 +72,12 @@ export const TemplatesState = (props) => {
 			'workflows_Api',
 		);
 
-		if (response[0]) {
+		if (response?.[0]) {
+			const selectedvariable = fetchMore ? 'moreWorkList' : 'workflowslist';
 			dispatch({
 				type: Actions?.GET_WORKFLOW_DETAILS_SUCCESS,
 				payload: response?.[1]?.data?.workflows,
+				selectedvariable,
 			});
 		} else {
 			console.log('api failed getProposals', response);
@@ -149,6 +152,13 @@ export const TemplatesState = (props) => {
 			return [false, response?.[1]?.message];
 		}
 	};
+	const resetTemplateState = async () => {
+		try {
+			dispatch({ type: Actions.RESET_STATE });
+		} catch (error) {
+			console.log('error==>resetPropsalState', error);
+		}
+	};
 
 	return {
 		...state,
@@ -159,5 +169,6 @@ export const TemplatesState = (props) => {
 		deleteProposal,
 		moveProposalStage,
 		duplicateTemplate,
+		resetTemplateState,
 	};
 };

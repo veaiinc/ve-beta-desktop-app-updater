@@ -25,19 +25,11 @@ function MyWorkFlowStatsCard({
 	const [isLoading, setLoading] = useState(false);
 	const [errorState, setErrorState] = useState({ isError: false, errorMessage: '' });
 	const [parsedHtmlContent, setParsedHtmlContent] = useState();
-	// const [proposalId, setProposalId] = useState('');
 
 	const navigate = useNavigate();
 	let {
 		templates: { createProposals },
 	} = useContext(Context);
-
-	useEffect(() => {
-		const { moduleTemplates, templates } = workflow || {};
-		const templateId = moduleTemplates?.filter((ele) => ele?.module === 'proposal');
-		const parsedHtmlContentObj = templates?.filter((ele) => ele?._id === templateId?.[0]?._id);
-		setParsedHtmlContent(parsedHtmlContentObj?.[0]?.parsedHtmlContent);
-	}, [workflow]);
 
 	const openModal = (event) => {
 		event.preventDefault();
@@ -241,7 +233,9 @@ function MyWorkFlowStatsCard({
 					<div className="imageContainer">
 						<div className="coverImage">
 							<div
-								dangerouslySetInnerHTML={{ __html: parsedHtmlContent }}
+								dangerouslySetInnerHTML={{
+									__html: workflow?.templates?.[0]?.parsedHtmlContent,
+								}}
 								style={{ width: '100%' }}
 							/>
 						</div>

@@ -6,7 +6,7 @@ import VariablesBlock from '../../components/proposalComponents/VariablesBlock';
 import ProposalExpiry from '../../components/proposalComponents/ProposalExpiry';
 import PaymentSchedule from '../../components/proposalComponents/PaymentSchedule';
 import EventsBlock from '../../components/proposalComponents/EventsBlock';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import InvoiceBlock from '../../components/proposalComponents/InvoiceBlock';
 import FileVariablesBlock from '../../components/proposalComponents/FileVariablesBlock';
@@ -14,6 +14,7 @@ import ClientVariablesBlock from '../../components/proposalComponents/ClientVari
 
 function ProposalCRUD(props) {
 	const [searchParams, setSearchParams] = useSearchParams();
+	const navigate = useNavigate();
 	const { proposalId } = useParams();
 	const versionId = Object.fromEntries(searchParams)?.verison;
 	const {
@@ -58,7 +59,11 @@ function ProposalCRUD(props) {
 	return (
 		<div className="proposalsContainer">
 			<div className="header">
-				<div className="titleAndBackButton">
+				<div
+					className="titleAndBackButton"
+					style={{ cursor: 'pointer' }}
+					onClick={() => navigate(-1)}
+				>
 					<LeftArrow /> <p>create new File for *client name here*</p>
 				</div>
 				<div className="sendProposalButton">

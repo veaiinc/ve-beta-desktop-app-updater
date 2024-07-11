@@ -6,6 +6,7 @@ const useLogout = () => {
 	const navigate = useNavigate();
 	let {
 		chatInfo: { resetChatState },
+		templates: { resetTemplateState },
 	} = useContext(Context);
 
 	const resetApplications = useCallback(async () => {
@@ -14,6 +15,7 @@ const useLogout = () => {
 
 		//add here all reset context state func
 		resetChatState();
+		resetTemplateState();
 	}, []);
 
 	return resetApplications;
