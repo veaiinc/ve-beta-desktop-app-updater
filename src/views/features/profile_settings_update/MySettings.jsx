@@ -25,6 +25,7 @@ const MySettings = () => {
 			userWorkSpaceList,
 			chooseDefaultWorkspace,
 			tennantSettingsData,
+			updateUserLogo,
 		},
 	} = useContext(Context);
 	const [showForm, setShowForm] = useState(false);
@@ -61,6 +62,7 @@ const MySettings = () => {
 				email: userDetailsData?.email || '',
 				phoneNumber: userDetailsData?.phoneNumber || '',
 				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
+				logoURL: userDetailsData?.dp_s3_500w_key || '',
 			}));
 		}
 	}, [userDetailsData]);
@@ -169,6 +171,7 @@ const MySettings = () => {
 				});
 			};
 			reader.readAsDataURL(file);
+			updateUserLogo(file);
 		}
 	};
 
@@ -233,10 +236,16 @@ const MySettings = () => {
 									/>
 
 									<label htmlFor="profilePicture">
-										{getInitials(
-											userDetailsData?.firstName,
+										{userDetails?.logoURL ? (
+											<img src={userDetails?.logoURL} alt="logo" />
+										) : (
+											<div>
+												{getInitials(
+													userDetailsData?.firstName,
 
-											userDetailsData?.lastName,
+													userDetailsData?.lastName,
+												)}
+											</div>
 										)}
 									</label>
 								</div>

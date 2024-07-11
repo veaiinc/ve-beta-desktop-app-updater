@@ -4,6 +4,7 @@ import { Actions } from './actions';
 import * as API from './actionTypes';
 import jwt_decode from 'jwt-decode';
 import service from '../../services/index';
+import axios from 'axios';
 
 export const ProfileState = () => {
 	const intialState = {
@@ -202,7 +203,23 @@ export const ProfileState = () => {
 			payload: name,
 		});
 	};
-
+	const updateUserLogo = async (file) => {
+		let usertoken = localStorage.getItem('usertoken');
+		const response = await service.fetchPost(
+			API.TENANTS.displayPicture,
+			{},
+			usertoken,
+			'tenant-users',
+		);
+		if (response[0]) {
+			let options = {
+				headers: {
+					'Content-Type': file.type,
+				},
+			};
+			const resp = await axios.put(response[1]?.signedUrl, file, options);
+		}
+	};
 	return {
 		...state,
 		getTenantSettings,
@@ -216,5 +233,6 @@ export const ProfileState = () => {
 		chooseDefaultWorkspace,
 		changelogo,
 		updateBusniessName,
+		updateUserLogo,
 	};
 };
