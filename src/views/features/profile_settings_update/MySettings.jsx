@@ -42,7 +42,6 @@ const MySettings = () => {
 
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [activeItem, setActiveItem] = useState('profile');
-	console.log(tennantSettingsData);
 
 	const handleNavigation = (id) => {
 		setActiveItem(id);
@@ -64,13 +63,7 @@ const MySettings = () => {
 				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
 			}));
 		}
-		if (tennantSettingsData) {
-			setUserDetails((prev) => ({
-				...prev,
-				logoURL: tennantSettingsData?.logoUrl,
-			}));
-		}
-	}, [userDetailsData, tennantSettingsData]);
+	}, [userDetailsData]);
 	useEffect(() => {
 		if (userDetails.is2FAEnabled) {
 			get2FAQrCode();
@@ -172,7 +165,7 @@ const MySettings = () => {
 			reader.onloadend = () => {
 				setUserDetails({
 					...userDetails,
-					profilePicture: reader.result,
+					logoURL: reader.result,
 				});
 			};
 			reader.readAsDataURL(file);
@@ -238,6 +231,7 @@ const MySettings = () => {
 										onChange={handleImageChange}
 										style={{ display: 'none' }}
 									/>
+
 									<label htmlFor="profilePicture">
 										{getInitials(
 											userDetailsData?.firstName,
