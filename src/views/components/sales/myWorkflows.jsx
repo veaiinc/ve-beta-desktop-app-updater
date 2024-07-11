@@ -12,7 +12,7 @@ function MyWorkflows({ workflows, inSights }) {
 					<p className="button">New Workflow</p>
 				</a>
 			</div>
-			{workflows.map((workflow, index) => (
+			{workflows?.map((workflow, index) => (
 				<MyWorkFlowStatsCard
 					workflow={workflow}
 					index={index}

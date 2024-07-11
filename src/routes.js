@@ -4,9 +4,9 @@ import ChatScreen from './views/features/meta_Integ/index';
 import SalesScreen from './views/features/sales/index';
 import MyWorkFlowDetails from './views/features/sales/myWorkFlowDetails';
 import ProposalCRUD from './views/features/modules/proposalCRUD';
-import MainContentWrapper from './views/features/workspace_settings/MainContentWrapper';
-import MySettingsWrapper from './views/features/profile_settings/MySettingsWrapper';
 import OauthVerify from './views/features/signin/oauth';
+import MySettings from './views/features/profile_settings/MySettings';
+import CompanySettingsWrapper from './views/features/workspace_settings/CompanySettingsWrapper';
 
 const routes = [
 	{
@@ -92,7 +92,7 @@ const routes = [
 		path: '/workspace-settings/:type',
 		component: (
 			<AuthWrapper title={'Workspace Settings'}>
-				<MainContentWrapper />
+				<CompanySettingsWrapper />
 			</AuthWrapper>
 		),
 		exact: true,
@@ -101,7 +101,7 @@ const routes = [
 		path: '/my-profile',
 		component: (
 			<AuthWrapper title={'Profile Settings'}>
-				<MySettingsWrapper />
+				<MySettings />
 			</AuthWrapper>
 		),
 		exact: true,

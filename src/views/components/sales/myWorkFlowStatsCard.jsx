@@ -24,6 +24,7 @@ function MyWorkFlowStatsCard({
 	const [createButtonActiveState, setCreateButtonActiveState] = useState(false);
 	const [isLoading, setLoading] = useState(false);
 	const [errorState, setErrorState] = useState({ isError: false, errorMessage: '' });
+	const [parsedHtmlContent, setParsedHtmlContent] = useState();
 
 	const navigate = useNavigate();
 	let {
@@ -32,6 +33,7 @@ function MyWorkFlowStatsCard({
 
 	const openModal = (event) => {
 		event.preventDefault();
+		event.stopPropagation();
 		setIsOpen(true);
 	};
 
@@ -105,30 +107,38 @@ function MyWorkFlowStatsCard({
 
 	const handleCreateLead = async () => {
 		if (createButtonActiveState) {
+			if (isLoading) {
+				return;
+			}
 			setLoading(true);
 
-			let json = {
-				title: leadDetails['name'],
-				source: leadDetails['source'],
-				clientDetails: {
-					name: leadDetails['name'],
-					email: leadDetails['emailId'],
+			const json = {
+				proposalTemplateId: workflow?.moduleTemplates?.[0]?._id,
+				workflowTemplateId: workflow?._id,
+				proposalInput: {
+					clientInput: {
+						email: leadDetails['emailId'],
+						name: leadDetails['name'],
+					},
+					title: leadDetails['name'],
+					source: leadDetails['source'],
 				},
 			};
-			let response = await createProposals(workflow?._id, json);
 
-			if (response[1]) {
-				setLoading(true);
+			let response = await createProposals(json);
+
+			if (response?.[1]) {
+				setLoading(false);
 				closeModal();
 				navigate(
 					`/sales/${workflow?._id}/${response[1]._id}?verison=${response[1]?.activeVersion}`,
 				);
 			} else {
-				setLoading(true);
+				setLoading(false);
 				setLeadDetails((prevState) => ({
 					...prevState,
 					isError: true,
-					errorMessage: response[1].message,
+					errorMessage: response[1]?.message,
 				}));
 			}
 		} else {
@@ -212,14 +222,20 @@ function MyWorkFlowStatsCard({
 
 	const statsCard = () => {
 		return (
-			<div className="workflowContainer" index={index}>
+			<div
+				className="workflowContainer"
+				index={index}
+				onClick={() => navigate(`/sales/${workflow?._id}`, { state: { data: workflow } })}
+			>
 				{hideImage ? (
 					''
 				) : (
 					<div className="imageContainer">
 						<div className="coverImage">
 							<div
-								dangerouslySetInnerHTML={{ __html: workflow.parsedHtmlContent }}
+								dangerouslySetInnerHTML={{
+									__html: workflow?.templates?.[0]?.parsedHtmlContent,
+								}}
 								style={{ width: '100%' }}
 							/>
 						</div>
@@ -242,7 +258,9 @@ function MyWorkFlowStatsCard({
 
 					<div className="statsContainer">
 						{singleCard ? (
-							<a href={`/sales/${workflow?._id}?status=draft`}>
+							<div
+							// href={`/sales/${workflow?._id}?status=draft`}
+							>
 								{statsBox(
 									'DRAFT',
 									inSights && inSights?.status?.draft
@@ -250,7 +268,7 @@ function MyWorkFlowStatsCard({
 										: 0,
 									activeTab === 'draft' ? true : false,
 								)}
-							</a>
+							</div>
 						) : (
 							statsBox(
 								'DRAFT',
@@ -258,7 +276,9 @@ function MyWorkFlowStatsCard({
 							)
 						)}
 						{singleCard ? (
-							<a href={`/sales/${workflow?._id}?status=sent`}>
+							<a
+							// href={`/sales/${workflow?._id}?status=sent`}
+							>
 								{statsBox(
 									'SENT',
 									inSights && inSights?.status?.sent ? inSights?.status?.sent : 0,
@@ -272,7 +292,9 @@ function MyWorkFlowStatsCard({
 							)
 						)}
 						{singleCard ? (
-							<a href={`/sales/${workflow?._id}?status=accepted`}>
+							<a
+							// href={`/sales/${workflow?._id}?status=accepted`}
+							>
 								{statsBox(
 									'ACCEPTED',
 									inSights && inSights?.status?.accepted
@@ -290,7 +312,9 @@ function MyWorkFlowStatsCard({
 							)
 						)}
 						{singleCard ? (
-							<a href={`/sales/${workflow?._id}?status=rejected`}>
+							<a
+							// href={`/sales/${workflow?._id}?status=rejected`}
+							>
 								{statsBox(
 									'REJECTED',
 									inSights && inSights?.status?.rejected
@@ -309,7 +333,9 @@ function MyWorkFlowStatsCard({
 						)}
 
 						{singleCard ? (
-							<a href={`/sales/${workflow?._id}?status=expired`}>
+							<a
+							// href={`/sales/${workflow?._id}?status=expired`}
+							>
 								{statsBox(
 									'EXPIRED',
 									inSights && inSights?.status?.expired
@@ -332,9 +358,9 @@ function MyWorkFlowStatsCard({
 					) : (
 						<>
 							<div className="statsheader">
-								<div className="modules">
+								{/* <div className="modules">
 									<p>Workflow Stats</p>
-								</div>
+								</div> */}
 							</div>
 							<div className="workflowStatsValues">
 								<div style={{ padding: '0rem 10rem' }}></div>

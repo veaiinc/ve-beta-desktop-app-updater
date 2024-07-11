@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import '../../../assets/scss/inputComponent.scss';
 
 const ToggleSlider = ({ onChange, value }) => {
 	const [checked, setChecked] = useState(value || false);
+	useEffect(() => {
+		setChecked(value);
+	}, [value]);
 
 	const handleToggle = () => {
 		const newValue = !checked;
@@ -18,4 +21,4 @@ const ToggleSlider = ({ onChange, value }) => {
 	);
 };
 
-export default ToggleSlider;
+export default memo(ToggleSlider);

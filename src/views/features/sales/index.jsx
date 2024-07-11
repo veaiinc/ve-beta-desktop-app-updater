@@ -6,8 +6,8 @@ import Context from '../../../context/context';
 const _ = require('lodash');
 
 function Sales({ type }) {
-	const [workspaceId, setWorkspaceId] = useState('');
-	const [tenantId, setTenantId] = useState('');
+	const [workspaceId, setWorkspaceId] = useState(localStorage.getItem('workspaceId'));
+	const [tenantId, setTenantId] = useState(localStorage.getItem('tenantId'));
 	const [isLoading, setLoading] = useState(true);
 	const [myWorkflows, setMyWorkflows] = useState([]);
 	const [globalWorkflows, setGlobalWorkflows] = useState([]);
@@ -18,22 +18,9 @@ function Sales({ type }) {
 	} = useContext(Context);
 
 	useEffect(() => {
-		const fetchWorkspaceId = async () => {
-			const id = localStorage.getItem('workspaceId');
-			const _tenantId = localStorage.getItem('tenantId');
-			setWorkspaceId(id);
-			setTenantId(_tenantId);
-		};
-
-		fetchWorkspaceId();
-	}, [workspaceId, tenantId]);
-
-	useEffect(() => {
-		if (workspaceId) {
-			fetchTemplates();
-			fetchTemplateStatus();
-		}
-	}, [workspaceId, tenantId]);
+		fetchTemplates();
+		fetchTemplateStatus();
+	}, []);
 
 	const fetchTemplateStatus = async () => {
 		let response = await getTemplatesStatus();
@@ -47,12 +34,10 @@ function Sales({ type }) {
 		let response = await getTemplates();
 		if (response[0]) {
 			setLoading(false);
-			setGlobalWorkflows(
-				_.filter(response[1], {
-					tenantId: null,
-				}),
-			);
-			setMyWorkflows(_.filter(response[1], (item) => item.tenantId !== null));
+			let { data } = response?.[1];
+			// data = data?.filter((ele) => ele?.tenantId !== null);
+			setGlobalWorkflows(data);
+			setMyWorkflows(data);
 		}
 	};
 

@@ -20,6 +20,7 @@ const InputForModules = ({
 	suffixText,
 	defaultCountry,
 	options,
+	disabled,
 }) => {
 	const handleInputNumber = (e) => {
 		if (/^[0-9]*$/.test(e.target.value)) {
@@ -34,7 +35,12 @@ const InputForModules = ({
 				{isError && <p className="errorMessage">{errorMessage}</p>}
 			</div>
 			{type == 'dropdown' ? (
-				<select name={name} placeholder={placeholder} onChange={onChange}>
+				<select
+					name={name}
+					placeholder={placeholder}
+					onChange={onChange}
+					disabled={disabled}
+				>
 					<option value="" disabled selected class="placeholder">
 						{placeholder}
 					</option>
@@ -48,7 +54,8 @@ const InputForModules = ({
 					placeholder={placeholder}
 					name={name}
 					onChange={onChange}
-					//value={value}
+					value={value}
+					disabled={disabled}
 				/>
 			) : type == 'phoneNumber' ? (
 				<div className={`inputBox ${isError ? 'inputBoxError' : ''}`}>
@@ -57,6 +64,7 @@ const InputForModules = ({
 						placeholder={placeholder}
 						value={value}
 						onChange={(e) => onChange({ target: { name: name, value: e } })}
+						disabled={disabled}
 					/>
 				</div>
 			) : type == 'datePicker' ? (
@@ -80,7 +88,8 @@ const InputForModules = ({
 						name={name}
 						pattern="[0-9]*"
 						onChange={handleInputNumber}
-						//value={value}
+						value={value}
+						disabled={disabled}
 					/>
 					<p
 						className="symbol increments"
@@ -103,7 +112,8 @@ const InputForModules = ({
 						placeholder={placeholder}
 						name={name}
 						onChange={onChange}
-						//value={value}
+						value={value}
+						disabled={disabled}
 					/>
 					<p className="symbol increments">+</p>
 				</div>
@@ -116,7 +126,8 @@ const InputForModules = ({
 						placeholder={placeholder}
 						name={name}
 						onChange={type === 'number' ? handleInputNumber : onChange}
-						//value={value}
+						value={value}
+						disabled={disabled}
 					/>
 					{prefixText && <p className="symbol">{suffixText}</p>}
 				</div>
@@ -152,6 +163,7 @@ InputForModules.defaultProps = {
 	suffixText: '',
 	defaultCountry: 'US',
 	options: [],
+	disabled: false,
 };
 
 export default InputForModules;

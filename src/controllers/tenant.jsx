@@ -417,6 +417,7 @@ class Tenant extends Component {
 
 	submitAddTenantUser = async (json, isPage = null) => {
 		let usertoken = localStorage.getItem('usertoken');
+		console.log('hello');
 		toast.promise(
 			new Promise(async (resolve, reject) => {
 				let response = await TenantsAction.addTenantUser(
@@ -798,8 +799,8 @@ class Tenant extends Component {
 	};
 
 	getTenantSettings = async (screenName = null) => {
-		let usertoken = await localStorage.getItem('usertoken');
-		let workspaceId = await localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		let workspaceId = localStorage.getItem('workspaceId');
 
 		let tenantInfo = await TenantsAction.getTenantSettings(
 			screenName === 'signup-subdomain' ? this.state.workspaceId : workspaceId,

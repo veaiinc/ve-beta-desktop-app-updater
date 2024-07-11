@@ -1,9 +1,9 @@
 import { ApolloClient, ApolloLink, HttpLink, from, InMemoryCache } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
 
-const { ve_conversations_api } = require('./config');
+const { ve_conversations_api, workflows_Api } = require('./config');
 
-const graphQLAPICall = { ve_conversations_api };
+const graphQLAPICall = { ve_conversations_api, workflows_Api };
 
 const defaultOptions = {
 	watchQuery: {

@@ -4,6 +4,10 @@ const actionHandlers = {
 		...state,
 		proposalInfo: action.payload,
 	}),
+	UPDATE_PROPOSAL_INFO_DATA_SUCESS: (state, action) => ({
+		...state,
+		proposalInfo: action.payload,
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 
