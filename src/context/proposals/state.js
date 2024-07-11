@@ -45,6 +45,14 @@ export const ProposalState = (props) => {
 		}
 	};
 
+	const updateProposalContent = async (data) => {
+		try {
+			dispatch({ type: Actions.UPDATE_PROPOSAL_INFO_DATA_SUCESS, payload: data });
+		} catch (error) {
+			console.log('error==>updateProposalContent', error);
+		}
+	};
+
 	const resetPropsalState = async () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
@@ -56,5 +64,6 @@ export const ProposalState = (props) => {
 		...state,
 		resetPropsalState,
 		getAllProposalContentInfo,
+		updateProposalContent,
 	};
 };

@@ -11,6 +11,7 @@ import Context from '../../../context/context';
 import InvoiceBlock from '../../components/proposalComponents/InvoiceBlock';
 import FileVariablesBlock from '../../components/proposalComponents/FileVariablesBlock';
 import ClientVariablesBlock from '../../components/proposalComponents/ClientVariablesBlock';
+import SendProposalModal from '../../components/modalsV2/proposalModals/SendProposalModal';
 
 function ProposalCRUD(props) {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -18,19 +19,22 @@ function ProposalCRUD(props) {
 	const { proposalId } = useParams();
 	const versionId = Object.fromEntries(searchParams)?.verison;
 	const {
-		proposals: { getAllProposalContentInfo, proposalInfo },
+		proposals: { proposalInfo, updateProposalContent },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		proposalData: null,
+		sendProposalModal: false,
 	});
 
-	//useEffects
 	useEffect(() => {
-		getAllProposalContentInfo(proposalId, versionId);
+		return () => {
+			updateProposalContent(null);
+		};
 	}, []);
 
 	useEffect(() => {
 		if (proposalInfo) {
+			console.log('proposalData', proposalInfo);
 			setInfo((prev) => ({ ...prev, proposalData: proposalInfo }));
 		}
 	}, [proposalInfo]);
@@ -66,7 +70,10 @@ function ProposalCRUD(props) {
 				>
 					<LeftArrow /> <p>create new File for *client name here*</p>
 				</div>
-				<div className="sendProposalButton">
+				<div
+					className="sendProposalButton"
+					onClick={() => setInfo((prev) => ({ ...prev, sendProposalModal: true }))}
+				>
 					<p>Send Proposal</p>
 				</div>
 			</div>
@@ -104,18 +111,14 @@ function ProposalCRUD(props) {
 								key={index}
 							/>
 						))}
-					{/* {info?.proposalData?.variables?.map((item, index) => (
-						<VariablesBlock
-							key={index}
-							variableData={item || {}}
-							selectedIndex={index}
-							onChangeFunc={handleVariableDataChange}
-						/>
-					))} */}
 
 					<PaymentSchedule />
 				</div>
 			</div>
+			<SendProposalModal
+				open={info?.sendProposalModal}
+				closeModal={() => setInfo((prev) => ({ ...prev, sendProposalModal: false }))}
+			/>
 		</div>
 	);
 }

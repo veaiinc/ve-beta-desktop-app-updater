@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
+import React, { useState, useRef, useEffect, useContext, useCallback } from 'react';
 import '../../../assets/scss/sales/myWorkFlowDetails.scss';
 import { ReactComponent as Timer } from '../../../assets/svg/timer.svg';
 import { ReactComponent as Link } from '../../../assets/svg/link.svg';
@@ -9,10 +9,17 @@ import InputForModules from '../../components/input/inputForModules';
 import Context from '../../../context/context';
 import ReactModal from '../modalsV2';
 import { nameShortner } from '../../../helpers';
+import { useNavigate } from 'react-router-dom';
 
 const moment = require('moment');
 
 function SalesLeadCard({ data, fetchProposals }) {
+	let {
+		templates: { deleteProposal, moveProposalStage },
+		proposals: { updateProposalContent },
+	} = useContext(Context);
+	const navigate = useNavigate();
+
 	const [showMoreOptions, setMoreOptions] = useState(false);
 	const moreOptionsRef = useRef(null);
 	const [modalIsOpen, setIsOpen] = useState(false);
@@ -21,10 +28,6 @@ function SalesLeadCard({ data, fetchProposals }) {
 
 	const [leadDetails, setLeadDetails] = useState({ status: '' });
 	const [errorState, setErrorState] = useState({ isError: false, errorMessage: '' });
-
-	let {
-		templates: { deleteProposal, moveProposalStage },
-	} = useContext(Context);
 
 	useEffect(() => {
 		function handleClickOutside(event) {
@@ -39,16 +42,6 @@ function SalesLeadCard({ data, fetchProposals }) {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, [moreOptionsRef]);
-
-	const findAbsFromTitle = (title) => {
-		console.log(title);
-		const words = title?.toUpperCase()?.split(' ');
-		// let abs =
-		// 	words?.length > 1
-		// 		? words[0][0] + words[words?.length - 1][0]
-		// 		: words[0][0] + words[0][1];
-		return title;
-	};
 
 	const handleDeleteProposal = async () => {
 		setMoreOptions(false);
@@ -197,9 +190,22 @@ function SalesLeadCard({ data, fetchProposals }) {
 		openModal(event, 'deleteProposal');
 	};
 
+	const handleCardClicks = useCallback(() => {
+		navigate(`/sales/${data.tenantId}/${data._id}?version=${data?.activeVersion}`);
+		const { activeVersion, versions = [] } = data?.proposals?.[0] || {};
+		let proposalInfodata;
+		for (let i = 0; i < versions?.length; i++) {
+			if (versions?.[i]?._id === activeVersion) {
+				proposalInfodata = versions?.[i];
+				break;
+			}
+		}
+		updateProposalContent(proposalInfodata);
+	}, [data]);
+
 	return (
 		<>
-			<a href={`/sales/${data.tenantId}/${data._id}?verison=${data?.activeVersion}`}>
+			<div onClick={handleCardClicks}>
 				<div className="SalesLeadCardContainer">
 					<div className="topLayer">
 						<div className="status">
@@ -264,7 +270,7 @@ function SalesLeadCard({ data, fetchProposals }) {
 						</p>
 					</div>
 				</div>
-			</a>
+			</div>
 			<ReactModal isOpen={modalIsOpen} closeModal={closeModal}>
 				{modalType === 'deleteProposal'
 					? deleteProposalModal()

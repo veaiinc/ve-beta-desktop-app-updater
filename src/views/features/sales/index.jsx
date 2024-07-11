@@ -35,7 +35,7 @@ function Sales({ type }) {
 		if (response[0]) {
 			setLoading(false);
 			let { data } = response?.[1];
-			data = data?.filter((ele) => ele?.tenantId !== null);
+			// data = data?.filter((ele) => ele?.tenantId !== null);
 			setGlobalWorkflows(data);
 			setMyWorkflows(data);
 		}
