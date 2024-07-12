@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../assets/scss/sales/myWorkFlows.scss';
 import MyWorkFlowStatsCard from './myWorkFlowStatsCard';
 const _ = require('lodash');
 
-function MyWorkflows({ workflows, inSights }) {
+const MyWorkflows = ({ workflows, inSights, openModal }) => {
 	return (
 		<div className="myworkflowsContainer">
 			<div className="header">
@@ -13,14 +13,18 @@ function MyWorkflows({ workflows, inSights }) {
 				</a>
 			</div>
 			{workflows?.map((workflow, index) => (
-				<MyWorkFlowStatsCard
-					workflow={workflow}
-					index={index}
-					inSights={_.find(inSights, { templateId: workflow._id })}
-				/>
+				<div key={index} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+					<span className="workFlowHeader">{workflow?.title}</span>
+					<MyWorkFlowStatsCard
+						workflow={workflow}
+						index={index}
+						inSights={_.find(inSights, { templateId: workflow._id })}
+						openModal={openModal}
+					/>
+				</div>
 			))}
 		</div>
 	);
-}
+};
 
-export default MyWorkflows;
+export default memo(MyWorkflows);

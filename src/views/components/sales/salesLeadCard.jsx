@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useContext, useCallback, memo } from 'react';
 import '../../../assets/scss/sales/myWorkFlowDetails.scss';
 import { ReactComponent as Timer } from '../../../assets/svg/timer.svg';
 import { ReactComponent as Link } from '../../../assets/svg/link.svg';
@@ -13,10 +13,9 @@ import { useNavigate } from 'react-router-dom';
 
 const moment = require('moment');
 
-function SalesLeadCard({ data, fetchProposals }) {
+const SalesLeadCard = ({ data, fetchProposals }) => {
 	let {
 		templates: { deleteProposal, moveProposalStage },
-		proposals: { updateProposalContent },
 	} = useContext(Context);
 	const navigate = useNavigate();
 
@@ -60,6 +59,7 @@ function SalesLeadCard({ data, fetchProposals }) {
 
 	const openModal = (event, type) => {
 		event.preventDefault();
+		event.stopPropagation();
 		setIsOpen(true);
 		setModalType(type);
 	};
@@ -256,8 +256,22 @@ function SalesLeadCard({ data, fetchProposals }) {
 						style={{ display: showMoreOptions ? 'flex' : 'none' }}
 						ref={moreOptionsRef}
 					>
-						<p onClick={() => setMoreOptions(false)}>Preview</p>
-						<p onClick={() => setMoreOptions(false)}>Resend Proposal</p>
+						<p
+							onClick={(e) => {
+								e.stopPropagation();
+								setMoreOptions(false);
+							}}
+						>
+							Preview
+						</p>
+						<p
+							onClick={(e) => {
+								e.stopPropagation();
+								setMoreOptions(false);
+							}}
+						>
+							Resend Proposal
+						</p>
 						<p onClick={handleDeleteOption} className="delete">
 							Delete Proposal
 						</p>
@@ -273,6 +287,6 @@ function SalesLeadCard({ data, fetchProposals }) {
 			</ReactModal>
 		</>
 	);
-}
+};
 
-export default SalesLeadCard;
+export default memo(SalesLeadCard);

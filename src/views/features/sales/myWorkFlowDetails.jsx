@@ -9,6 +9,7 @@ import { ReactComponent as EmptyState } from '../../../assets/svg/emptyStates/le
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import CreateLeadModal from '../../components/modalsV2/proposalModals/CreateLeadModal';
 const _ = require('lodash');
 
 function MyWorkFlowDetails(props) {
@@ -26,6 +27,8 @@ function MyWorkFlowDetails(props) {
 		proposalData: null,
 		loading: true,
 		timeout: null,
+		modalIsOpen: false,
+		createLeadData: null,
 	});
 
 	const searchParams = new URLSearchParams(location.search);
@@ -161,6 +164,14 @@ function MyWorkFlowDetails(props) {
 		[info?.timeout],
 	);
 
+	const closeModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, modalIsOpen: false }));
+	}, []);
+
+	const openModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, modalIsOpen: true }));
+	}, []);
+
 	return (
 		<div className="myWorkFlowDetailsContainer">
 			<div className="header">
@@ -197,6 +208,7 @@ function MyWorkFlowDetails(props) {
 				inSights={inSights[0]}
 				singleCard={true}
 				activeTab={metaData['status']}
+				openModal={openModal}
 			/>
 			{info?.loading ? (
 				''
@@ -234,6 +246,11 @@ function MyWorkFlowDetails(props) {
 					</div>
 				</InfiniteScroll>
 			)}
+			<CreateLeadModal
+				workflow={info?.data}
+				modalIsOpen={info?.modalIsOpen}
+				closeModal={closeModal}
+			/>
 		</div>
 	);
 }
