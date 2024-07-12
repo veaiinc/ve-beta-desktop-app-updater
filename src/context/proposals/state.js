@@ -3,7 +3,11 @@ import Reducer from './reducer';
 import { Actions } from './action';
 import Service from '../../services/graphQlServices';
 import service from '../../services/index';
-import { getProposalDataQuery, updateProposalContentQuery } from './graphQlFunctions';
+import {
+	getProposalDataQuery,
+	sendProposalQuery,
+	updateProposalContentQuery,
+} from './graphQlFunctions';
 export const intialState = {
 	proposalInfo: null,
 };
@@ -129,6 +133,27 @@ export const ProposalState = (props) => {
 		}
 	};
 
+	const sendProposal = async (payload) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const response = await Service.query(
+				sendProposalQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>sendProposal', error);
+		}
+	};
+
 	const resetProposalState = async () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
@@ -143,5 +168,6 @@ export const ProposalState = (props) => {
 		updateProposalContent,
 		updateProposal,
 		resetProposalState,
+		sendProposal,
 	};
 };

@@ -2,34 +2,33 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/modules/workflow/sendProposal.scss';
 
-const SendProposalModal = ({ open, closeModal }) => {
+const SendProposalModal = ({ open, closeModal, sendProposal, clientDetails }) => {
 	const options = {
 		invoice: {
 			value: 'invoice',
 			label: 'Send Invoice',
-			subject: 'Hello there [Recipient name}, here’s a Invoice for you',
+			subject: `Hello there ${clientDetails?.name}, here’s a Invoice for you`,
 		},
 		contract: {
 			value: 'contract',
 			label: 'Send Contract',
-			subject: 'Hello there [Recipient name}, here’s a contract for you',
+			subject: `Hello there ${clientDetails?.name}, here’s a contract for you`,
 		},
 		proposal: {
 			value: 'proposal',
 			label: 'Send Proposal',
-			subject: 'Hello there [Recipient name}, here’s a proposal for you',
+			subject: `Hello there ${clientDetails?.name}, here’s a proposal for you`,
 		},
 		forms: {
 			value: 'forms',
 			label: 'Send Forms',
-			subject: 'Hello there [Recipient name}, here’s a forms for you',
+			subject: `Hello there ${clientDetails?.name}, here’s a forms for you`,
 		},
 	};
 
 	const [info, setInfo] = useState({
-		subject: 'Hello there [Recipient name}, here’s a Invoice for you',
-		emailBody:
-			'Hi [Recipient Name],Attached is the file for your review. Please let me know if you have any questions or need any further information. {Invoice Link} Best regards,[Your Name]',
+		subject: `Hello there ${clientDetails?.name}, here’s a Invoice for you`,
+		emailBody: `Hi ${clientDetails?.name},Attached is the file for your review. Please let me know if you have any questions or need any further information. {Invoice Link} Best regards,[Your Name]`,
 		selectedtemplate: 'invoice',
 		templateChange: false,
 	});
@@ -95,7 +94,9 @@ const SendProposalModal = ({ open, closeModal }) => {
 							}
 						/>
 					</div>
-					<div className="sendEmailBtn">Send Email</div>
+					<div className="sendEmailBtn" onClick={sendProposal}>
+						Send Email
+					</div>
 				</div>
 				<div className="modalFooter">
 					<div className="footerLabel">

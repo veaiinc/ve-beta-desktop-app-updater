@@ -14,3 +14,9 @@ export const updateProposalContentQuery = gql`
 		)
 	}
 `;
+
+export const sendProposalQuery = gql`
+	query Query($clientEmail: String!, $workflowId: ID!) {
+		workflowLink(clientEmail: $clientEmail, workflowId: $workflowId)
+	}
+`;
