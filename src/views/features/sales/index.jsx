@@ -1,34 +1,39 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useState, useCallback } from 'react';
 import WorkflowTemplates from '../../components/sales/workflowTemplates';
 import MyWorkflows from '../../components/sales/myWorkflows';
 import Context from '../../../context/context';
+import CreateLeadModal from '../../components/modalsV2/proposalModals/CreateLeadModal';
 
 const _ = require('lodash');
 
-function Sales({ type }) {
+const Sales = ({ type }) => {
+	let {
+		templates: { getTemplates, getTemplatesStatus },
+	} = useContext(Context);
 	const [workspaceId, setWorkspaceId] = useState(localStorage.getItem('workspaceId'));
 	const [tenantId, setTenantId] = useState(localStorage.getItem('tenantId'));
 	const [isLoading, setLoading] = useState(true);
 	const [myWorkflows, setMyWorkflows] = useState([]);
 	const [globalWorkflows, setGlobalWorkflows] = useState([]);
 	const [inSights, setInsights] = useState([]);
+	const [modalIsOpen, setIsOpen] = useState(false);
 
-	let {
-		templates: { getTemplates, getTemplatesStatus },
-	} = useContext(Context);
+	const [createLeadData, setCreateLeadData] = useState(null);
 
 	useEffect(() => {
 		fetchTemplates();
-		// fetchTemplateStatus();
 	}, []);
 
-	// const fetchTemplateStatus = async () => {
-	// 	let response = await getTemplatesStatus();
-	// 	if (response[0]) {
-	// 		setInsights(_.filter(response[1]));
-	// 	} else {
-	// 	}
-	// };
+	const openModal = useCallback(async (event, data) => {
+		event.preventDefault();
+		event.stopPropagation();
+		setIsOpen(true);
+		setCreateLeadData(data);
+	}, []);
+	const closeModal = useCallback(() => {
+		setIsOpen(false);
+		setCreateLeadData(null);
+	}, []);
 
 	const fetchTemplates = async () => {
 		let response = await getTemplates();
@@ -59,12 +64,22 @@ function Sales({ type }) {
 			) : type === 'workflows' || myWorkflows.length === 0 ? (
 				<WorkflowTemplates workflows={globalWorkflows} />
 			) : myWorkflows.length > 0 ? (
-				<MyWorkflows workflows={myWorkflows} inSights={inSights} />
+				<MyWorkflows
+					workflows={myWorkflows}
+					inSights={inSights}
+					openModal={openModal}
+					source={'sales'}
+				/>
 			) : (
 				''
 			)}
+			<CreateLeadModal
+				workflow={createLeadData}
+				modalIsOpen={modalIsOpen}
+				closeModal={closeModal}
+			/>
 		</div>
 	);
-}
+};
 
-export default Sales;
+export default memo(Sales);

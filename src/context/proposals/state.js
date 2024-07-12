@@ -3,7 +3,11 @@ import Reducer from './reducer';
 import { Actions } from './action';
 import Service from '../../services/graphQlServices';
 import service from '../../services/index';
-import { getProposalDataQuery, updateProposalContentQuery } from './graphQlFunctions';
+import {
+	getProposalDataQuery,
+	sendProposalQuery,
+	updateProposalContentQuery,
+} from './graphQlFunctions';
 export const intialState = {
 	proposalInfo: null,
 };
@@ -24,7 +28,7 @@ export const ProposalState = (props) => {
 			);
 
 			if (response?.[0] === true) {
-				let proposalData = await proposalDataHandler(response);
+				let proposalData = await proposalDataHandler(response, 'get');
 
 				dispatch({
 					type: Actions.GET_PROPOSAL_INFO_SUCCESS,
@@ -79,7 +83,13 @@ export const ProposalState = (props) => {
 
 	const proposalDataHandler = async (response, type) => {
 		try {
-			let proposalData = response?.[1]?.data?.getProposal;
+			let proposalData;
+			if (type === 'get') {
+				proposalData = response?.[1]?.data?.getProposal?.[0];
+			} else {
+				proposalData = response?.[1]?.data?.updateProposal;
+			}
+
 			let { activeVersion, versions } = proposalData;
 			for (let i = 0; i < versions?.length; i++) {
 				if (versions?.[i]?._id === activeVersion) {
@@ -93,6 +103,7 @@ export const ProposalState = (props) => {
 						tables,
 						variables,
 						conditionals,
+						expiryInDays,
 					} = versions?.[i] || {};
 					proposalData = {
 						...proposalData,
@@ -105,6 +116,7 @@ export const ProposalState = (props) => {
 						tables,
 						variables,
 						conditionals,
+						expiryInDays,
 					};
 					break;
 				}
@@ -112,6 +124,27 @@ export const ProposalState = (props) => {
 			return proposalData;
 		} catch (error) {
 			console.log('error==>proposalDataHandler', error);
+		}
+	};
+
+	const sendProposal = async (payload) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const response = await Service.query(
+				sendProposalQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>sendProposal', error);
 		}
 	};
 
@@ -129,5 +162,6 @@ export const ProposalState = (props) => {
 		updateProposalContent,
 		updateProposal,
 		resetProposalState,
+		sendProposal,
 	};
 };

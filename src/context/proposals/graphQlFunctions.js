@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 export const getProposalDataQuery = gql`
-	query Query($id: ID!) {
-		getProposal(_id: $id)
+	query Query($id: ID!, $workflowId: ID!) {
+		getProposal(_id: $id, workflowId: $workflowId)
 	}
 `;
 
@@ -12,5 +12,11 @@ export const updateProposalContentQuery = gql`
 			proposalInput: $proposalInput
 			versionId: $versionId
 		)
+	}
+`;
+
+export const sendProposalQuery = gql`
+	query Query($clientEmail: String!, $workflowId: ID!) {
+		workflowLink(clientEmail: $clientEmail, workflowId: $workflowId)
 	}
 `;

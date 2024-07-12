@@ -87,6 +87,7 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 					minHeight: '200px',
 				}}
 				logoutOptions={true}
+				onMouseHoverFunc={true}
 			/>
 			<SwitchWorkspaceModal
 				open={info?.switchWorkspaceModal}
