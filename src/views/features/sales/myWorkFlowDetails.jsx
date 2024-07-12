@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, memo, useCallback } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import MyWorkFlowStatsCard from '../../components/sales/myWorkFlowStatsCard';
 import SalesLeadCard from '../../components/sales/salesLeadCard';
@@ -6,21 +6,28 @@ import '../../../assets/scss/sales/myWorkFlowDetails.scss';
 import { ReactComponent as LeftArrow } from '../../../assets/svg/left-arrow.svg';
 import { ReactComponent as Search } from '../../../assets/svg/seach-magnifier.svg';
 import { ReactComponent as EmptyState } from '../../../assets/svg/emptyStates/leads-empty-state.svg';
+import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 const _ = require('lodash');
 
 function MyWorkFlowDetails(props) {
-	const { salesId } = useParams();
-	const [workspaceId, setWorkspaceId] = useState('');
-	const [proposalData, setProposalData] = useState([]);
-	const [templateDetails, setTemplateDetails] = useState([]);
-	const [inSights, setInsights] = useState([]);
-	const [isLoading, setLoading] = useState(true);
-	const [searchInput, setSearchInput] = useState('');
-	const [timeoutId, setTimeoutId] = useState(null);
-
+	const navigate = useNavigate();
 	const location = useLocation();
+	const { salesId } = useParams();
+	let {
+		templates: { workflowslist, getProposals, getTemplatesStatus, getTemplates, moreWorkList },
+	} = useContext(Context);
+
+	const [inSights, setInsights] = useState([]);
+	const [timeoutId, setTimeoutId] = useState(null);
+	const [info, setInfo] = useState({
+		data: location?.state?.data,
+		proposalData: null,
+		loading: true,
+		timeout: null,
+	});
+
 	const searchParams = new URLSearchParams(location.search);
 	const status = searchParams.get('status');
 
@@ -28,28 +35,16 @@ function MyWorkFlowDetails(props) {
 		page: 1,
 		status: status ? status : 'draft',
 		hasMore: true,
+		hasNextPage: false,
+		currentPage: 1,
+		search: '',
+		searchChanged: false,
 	});
 
-	let {
-		templates: { getProposals, getTemplatesStatus, getTemplates },
-	} = useContext(Context);
-
 	useEffect(() => {
-		const fetchWorkspaceId = async () => {
-			const id = localStorage.getItem('workspaceId');
-			setWorkspaceId(id);
-		};
-
-		fetchWorkspaceId();
-	}, [workspaceId]);
-
-	useEffect(() => {
-		if (workspaceId) {
-			fetchProposals();
-			fetchProposalstatus();
-			fetchTemplatesDetails();
-		}
-	}, [workspaceId]);
+		fetchProposals(1);
+		// fetchProposalstatus();
+	}, []);
 
 	useEffect(() => {
 		return () => {
@@ -59,67 +54,46 @@ function MyWorkFlowDetails(props) {
 		};
 	}, [timeoutId]);
 
-	const fetchTemplatesDetails = async () => {
-		let response = await getTemplates(salesId);
-		if (response[0]) {
-			setLoading(false);
-			setTemplateDetails(response[1][0]);
+	useEffect(() => {
+		if (workflowslist) {
+			workflowListDataHandling(workflowslist);
 		}
-	};
+	}, [workflowslist]);
+
+	useEffect(() => {
+		if (moreWorkList) {
+			workflowListDataHandling(workflowslist, true);
+		}
+	}, [moreWorkList]);
+
+	useEffect(() => {
+		if (info?.searchChanged) {
+			handleDebounceSearch(info?.search);
+		}
+	}, [info?.search, info?.searchChanged]);
+
 	const fetchProposalstatus = async () => {
 		let response = await getTemplatesStatus(salesId);
 		if (response[0]) {
-			setLoading(false);
+			// setLoading(false);
 			setInsights(_.filter(response[1]));
 		}
 	};
 
-	const fetchProposals = async (page = null) => {
-		let response = await getProposals(
-			salesId,
-			page ? page : metaData['page'],
-			searchInput,
-			metaData['status'],
-		);
-		if (response[0]) {
-			setLoading(false);
+	const fetchProposals = async (page = 1, fetchMore = false, search = null) => {
+		const payload = {
+			filters: {
+				limit: 10,
+				page: page,
+				templateId: info?.data?._id,
+			},
+		};
 
-			setProposalData(
-				page == null || page === 1
-					? [...(response[1]?.data || [])]
-					: [...proposalData, ...(response[1]?.data || [])],
-			);
-			if (response[1]?.totalPages > metaData['page']) {
-				setMetaData((prevState) => ({
-					...prevState,
-					page: metaData['page'] + 1,
-					hasMore: true,
-				}));
-			} else {
-				setMetaData((prevState) => ({
-					...prevState,
-					hasMore: false,
-				}));
-			}
-		}
-	};
-
-	const handleSearchInput = (e) => {
-		const { value } = e.target;
-
-		setSearchInput(value);
-
-		if (timeoutId) {
-			clearTimeout(timeoutId);
+		if (search && search?.length) {
+			payload.filters.title = search;
 		}
 
-		if (value.length > 3) {
-			const id = setTimeout(() => {
-				fetchProposals(1);
-			}, 500);
-
-			setTimeoutId(id);
-		}
+		getProposals(payload, fetchMore);
 	};
 
 	const updateProposalsList = async () => {
@@ -127,35 +101,106 @@ function MyWorkFlowDetails(props) {
 		fetchProposalstatus();
 	};
 
+	const refreshFunction = useCallback(async () => {
+		fetchProposals(1, false, null);
+		setInfo((prev) => ({ ...prev, loading: true, searchChanged: false }));
+	}, [fetchProposals]);
+
+	const fetchMoreProposal = useCallback(async () => {
+		fetchProposals(info?.currentPage + 1, true);
+	}, [fetchProposals, info?.currentPage]);
+
+	const workflowListDataHandling = useCallback(
+		async (datavariable, more = false) => {
+			const { data, currentPage, hasNextPage } = datavariable;
+			let updatedData = [];
+			for (let i = 0; i < data.length; i++) {
+				const proposalIdfromModuleArray = data?.[i]?.modules?.filter(
+					(ele) => ele?.type === 'proposal',
+				);
+
+				if (proposalIdfromModuleArray?.length > 0) {
+					const proposalFilterArray = data?.[i]?.proposals?.filter(
+						(ele) => ele?._id === proposalIdfromModuleArray?.[0]?._id,
+					);
+					if (proposalFilterArray?.length) {
+						let dataObj = {
+							...(data?.[i] || {}),
+							...(proposalFilterArray?.[0] || {}),
+							createdBy: data?.[i]?.createdBy,
+						};
+						updatedData.push(dataObj);
+					}
+				}
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				currentPage,
+				hasNextPage,
+				proposalData: more ? prev.proposalData?.concat(updatedData) : updatedData,
+				loading: false,
+			}));
+		},
+		[info?.proposalData],
+	);
+
+	const handleDebounceSearch = useCallback(
+		(search) => {
+			clearInterval(info?.timeout);
+			const timeout = setTimeout(() => {
+				fetchProposals(1, false, search);
+				setInfo((prev) => ({
+					...prev,
+					loading: true,
+					timeout: null,
+				}));
+			}, 500);
+			setInfo((prev) => ({ ...prev, timeout }));
+		},
+		[info?.timeout],
+	);
+
 	return (
 		<div className="myWorkFlowDetailsContainer">
 			<div className="header">
 				<div className="leftSideContent">
-					<a href="/sales">
+					<div onClick={() => navigate(-1)} style={{ cursor: 'pointer' }}>
 						<LeftArrow />
-					</a>
+					</div>
 					<p>
-						{templateDetails?.title}{' '}
-						<a href={`https://builder.ve.co/${templateDetails?._id}`}>
+						{info?.data?.title}{' '}
+						<a href={`https://builder.ve.co/${info?.data?._id}`}>
 							<span>(EDIT)</span>
 						</a>
 					</p>
 				</div>
 				<div className="inputContainer">
 					<Search />
-					<input type="text" placeholder="Search Lead" onChange={handleSearchInput} />
+					<input
+						type="text"
+						placeholder="Search Lead"
+						value={info?.search}
+						onChange={(e) =>
+							setInfo((prev) => ({
+								...prev,
+								search: e.target.value,
+								searchChanged: true,
+							}))
+						}
+					/>
 				</div>
 			</div>
 			<MyWorkFlowStatsCard
 				hideImage={true}
-				workflow={templateDetails}
+				workflow={info?.data}
 				inSights={inSights[0]}
 				singleCard={true}
 				activeTab={metaData['status']}
 			/>
-			{isLoading ? (
+			{info?.loading ? (
 				''
-			) : proposalData.length === 0 ? (
+			) : info?.proposalData?.length === 0 ? (
 				<div className="emptyStateContainer">
 					<EmptyState />
 					<div className="textContainer">
@@ -167,17 +212,17 @@ function MyWorkFlowDetails(props) {
 				</div>
 			) : (
 				<InfiniteScroll
-					dataLength={proposalData.length}
-					next={fetchProposals}
-					hasMore={metaData['hasMore']}
+					dataLength={info?.proposalData?.length || 0}
+					next={fetchMoreProposal}
+					hasMore={info?.hasNextPage}
 					loader={<h4>Loading...</h4>}
 					endMessage={''}
-					refreshFunction={() => fetchProposals(1)}
+					refreshFunction={refreshFunction}
 					pullDownToRefresh
 					pullDownToRefreshThreshold={50}
 				>
 					<div className="salesCardContainer">
-						{proposalData.map((proposal, index) => {
+						{info?.proposalData?.map((proposal, index) => {
 							return (
 								<SalesLeadCard
 									key={index}
@@ -193,4 +238,4 @@ function MyWorkFlowDetails(props) {
 	);
 }
 
-export default MyWorkFlowDetails;
+export default memo(MyWorkFlowDetails);

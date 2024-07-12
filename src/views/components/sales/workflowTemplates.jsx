@@ -24,7 +24,7 @@ function WorkflowTemplates({ workflows }) {
 			...prevState,
 			id: workflow._id,
 			title: workflow.title,
-			parsedHtmlContent: workflow.parsedHtmlContent,
+			parsedHtmlContent: workflow?.templates?.[0]?.parsedHtmlContent,
 		}));
 		setIsOpen(true);
 	};
@@ -167,7 +167,7 @@ function WorkflowTemplates({ workflows }) {
 									<div
 										className="imageContainer"
 										dangerouslySetInnerHTML={{
-											__html: workflow.parsedHtmlContent,
+											__html: workflow?.templates?.[0]?.parsedHtmlContent,
 										}}
 									></div>
 								</div>

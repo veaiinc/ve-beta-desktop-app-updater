@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import Modal from 'react-modal';
 
-function ReactModal(props) {
+const ReactModal = ({ isOpen, closeModal, modalType, children }) => {
 	const customModalStylesForCenter = {
 		content: {
 			top: '50%',
@@ -29,8 +29,8 @@ function ReactModal(props) {
 			top: '0%',
 			left: 'auto',
 			bottom: 'auto',
-			right: props.isOpen ? '0%' : '-50%', // Slide in from right
-			transform: props.isOpen ? 'translate(0%) scale(1)' : 'translate(0%) scale(0)', // Scale for fade-in effect
+			right: isOpen ? '0%' : '-50%', // Slide in from right
+			transform: isOpen ? 'translate(0%) scale(1)' : 'translate(0%) scale(0)', // Scale for fade-in effect
 			transition: 'right 3s ease-in-out',
 			borderRadius: '8px',
 			boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
@@ -38,7 +38,7 @@ function ReactModal(props) {
 			padding: '0px',
 			zIndex: 9999,
 			height: '100vh',
-			opacity: props.isOpen ? 1 : 0,
+			opacity: isOpen ? 1 : 0,
 			backgroundColor: 'transparent',
 		},
 		overlay: {
@@ -50,27 +50,25 @@ function ReactModal(props) {
 			backgroundColor: 'rgba(0, 0, 0, 0.5)',
 			transition: 'opacity 0.3s ease-in-out',
 			zIndex: 9998,
-			opacity: props.isOpen ? 1 : 0, // Fade-in effect
+			opacity: isOpen ? 1 : 0, // Fade-in effect
 		},
 	};
 
 	return (
 		<>
 			<Modal
-				isOpen={props.isOpen}
-				onRequestClose={props.closeModal}
+				isOpen={isOpen}
+				onRequestClose={closeModal}
 				style={
-					props.modalType == 'right'
-						? customModalStylesForRight
-						: customModalStylesForCenter
+					modalType == 'right' ? customModalStylesForRight : customModalStylesForCenter
 				}
 				shouldCloseOnOverlayClick={true}
 				ariaHideApp={false}
 			>
-				{props.children}
+				{children}
 			</Modal>
 		</>
 	);
-}
+};
 
 export default ReactModal;

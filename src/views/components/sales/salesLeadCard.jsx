@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
+import React, { useState, useRef, useEffect, useContext, useCallback } from 'react';
 import '../../../assets/scss/sales/myWorkFlowDetails.scss';
 import { ReactComponent as Timer } from '../../../assets/svg/timer.svg';
 import { ReactComponent as Link } from '../../../assets/svg/link.svg';
@@ -8,10 +8,18 @@ import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import InputForModules from '../../components/input/inputForModules';
 import Context from '../../../context/context';
 import ReactModal from '../modalsV2';
+import { nameShortner } from '../../../helpers';
+import { useNavigate } from 'react-router-dom';
 
 const moment = require('moment');
 
 function SalesLeadCard({ data, fetchProposals }) {
+	let {
+		templates: { deleteProposal, moveProposalStage },
+		proposals: { updateProposalContent },
+	} = useContext(Context);
+	const navigate = useNavigate();
+
 	const [showMoreOptions, setMoreOptions] = useState(false);
 	const moreOptionsRef = useRef(null);
 	const [modalIsOpen, setIsOpen] = useState(false);
@@ -20,10 +28,6 @@ function SalesLeadCard({ data, fetchProposals }) {
 
 	const [leadDetails, setLeadDetails] = useState({ status: '' });
 	const [errorState, setErrorState] = useState({ isError: false, errorMessage: '' });
-
-	let {
-		templates: { deleteProposal, moveProposalStage },
-	} = useContext(Context);
 
 	useEffect(() => {
 		function handleClickOutside(event) {
@@ -38,13 +42,6 @@ function SalesLeadCard({ data, fetchProposals }) {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, [moreOptionsRef]);
-
-	const findAbsFromTitle = (title) => {
-		const words = title.toUpperCase().split(' ');
-		let abs =
-			words.length > 1 ? words[0][0] + words[words.length - 1][0] : words[0][0] + words[0][1];
-		return abs;
-	};
 
 	const handleDeleteProposal = async () => {
 		setMoreOptions(false);
@@ -193,9 +190,13 @@ function SalesLeadCard({ data, fetchProposals }) {
 		openModal(event, 'deleteProposal');
 	};
 
+	const handleCardClicks = useCallback(() => {
+		navigate(`/sales/${data.tenantId}/${data._id}?version=${data?.activeVersion}`);
+	}, [data]);
+
 	return (
 		<>
-			<a href={`/sales/${data.tenantId}/${data._id}?verison=${data?.activeVersion}`}>
+			<div onClick={handleCardClicks}>
 				<div className="SalesLeadCardContainer">
 					<div className="topLayer">
 						<div className="status">
@@ -215,7 +216,7 @@ function SalesLeadCard({ data, fetchProposals }) {
 
 						<div className="clientsContainer">
 							<div className="userProfileContainer">
-								<p>{findAbsFromTitle(data.title)}</p>
+								<p>{nameShortner(data.title)}</p>
 							</div>
 
 							<div className="usersDetails">
@@ -224,9 +225,9 @@ function SalesLeadCard({ data, fetchProposals }) {
 							</div>
 							<div className="cost">
 								<p>
-									{data.paymentDetails.currency === 'INR' ? '₹' : '$'}{' '}
-									{data.paymentDetails.grandTotal
-										? data.paymentDetails.grandTotal
+									{data.paymentDetails?.currency === 'INR' ? '₹' : '$'}{' '}
+									{data.paymentDetails?.grandTotal
+										? data.paymentDetails?.grandTotal
 										: 0}
 								</p>
 							</div>
@@ -235,7 +236,7 @@ function SalesLeadCard({ data, fetchProposals }) {
 					<div className="bottomLayer">
 						<div className="createdUserDetails">
 							<p className="usersShortCut">
-								{findAbsFromTitle(data.createdBy.firstName)}
+								{nameShortner(data.createdBy.firstName)}
 							</p>
 							<p className="fullName">{data.createdBy.firstName}</p>
 						</div>
@@ -260,7 +261,7 @@ function SalesLeadCard({ data, fetchProposals }) {
 						</p>
 					</div>
 				</div>
-			</a>
+			</div>
 			<ReactModal isOpen={modalIsOpen} closeModal={closeModal}>
 				{modalType === 'deleteProposal'
 					? deleteProposalModal()

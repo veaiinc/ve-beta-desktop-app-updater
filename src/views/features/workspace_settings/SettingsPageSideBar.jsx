@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/CompanySettings/settingsPageSidebar.scss';
 import Context from '../../../context/context';
-import { getBuisnessName } from '../profile_settings_update/getInitials';
+import { getBuisnessName } from '../profile_settings/getInitials';
 import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 const menuItems = [

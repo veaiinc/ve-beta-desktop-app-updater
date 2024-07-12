@@ -1,14 +1,10 @@
 import { intialState } from './state';
 const actionHandlers = {
-	GET_PROPOSAL_INFO_SUCCESS: (state, action) => ({
+	GET_WORKFLOW_DETAILS_SUCCESS: (state, action) => ({
 		...state,
-		proposalInfo: action.payload,
+		[action?.selectedvariable]: action.payload,
 	}),
-	UPDATE_PROPOSAL_INFO_DATA_SUCESS: (state, action) => ({
-		...state,
-		proposalInfo: action.payload,
-	}),
-	RESET_STATE: () => ({ ...intialState }),
+	RESET_STATE: () => intialState,
 };
 
 const Reducer = (state, action) => {

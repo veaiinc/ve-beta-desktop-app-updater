@@ -7,7 +7,7 @@ import { ReactComponent as Unselected } from '../../../../assets/svg/workspaceSe
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import useLogout from '../../../hooks/useLogout';
-import { getBuisnessName } from '../../../features/profile_settings_update/getInitials';
+import { getBuisnessName } from '../../../features/profile_settings/getInitials';
 const customStyles = {
 	content: {
 		top: '50%',

@@ -2,7 +2,7 @@ import React, { useState, memo, useCallback } from 'react';
 import '../../../assets/scss/dropdown/headerDropdown.scss';
 import { ReactComponent as DownArrow } from '../../../assets/svg/chat/downArrow.svg';
 import useLogout from '../../hooks/useLogout';
-import { getBuisnessName } from '../../features/profile_settings_update/getInitials';
+import { getBuisnessName } from '../../features/profile_settings/getInitials';
 
 const iconComponent = (
 	<div

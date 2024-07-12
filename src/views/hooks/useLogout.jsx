@@ -8,6 +8,7 @@ const useLogout = () => {
 		chatInfo: { resetChatState },
 		companyInfo: { resetCompanySettings },
 		profileInfo: { resetProfileSettingsState },
+		templates: { resetTemplateState },
 	} = useContext(Context);
 
 	const resetApplications = useCallback(async () => {
@@ -18,6 +19,7 @@ const useLogout = () => {
 		resetChatState();
 		resetCompanySettings();
 		resetProfileSettingsState();
+		resetTemplateState();
 	}, []);
 
 	return resetApplications;
