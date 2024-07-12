@@ -177,9 +177,10 @@ function MyWorkFlowDetails(props) {
 					<div onClick={() => navigate(-1)} style={{ cursor: 'pointer' }}>
 						<LeftArrow />
 					</div>
+
 					<p>
 						{info?.data?.title}{' '}
-						<a href={`https://builder.ve.co/${info?.data?._id}`}>
+						<a href={`https://builder.ve.co/${info?.data?.templates?.[0]?._id}`}>
 							<span>(EDIT)</span>
 						</a>
 					</p>
@@ -244,6 +245,7 @@ function MyWorkFlowDetails(props) {
 					</div>
 				</InfiniteScroll>
 			)}
+
 			<CreateLeadModal
 				workflow={info?.data}
 				modalIsOpen={info?.modalIsOpen}

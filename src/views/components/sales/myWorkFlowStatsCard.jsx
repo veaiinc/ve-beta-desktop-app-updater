@@ -14,6 +14,7 @@ const MyWorkFlowStatsCard = ({
 	singleCard = false,
 	activeTab = 'draft',
 	openModal,
+	source = null,
 }) => {
 	const navigate = useNavigate();
 
@@ -58,7 +59,10 @@ const MyWorkFlowStatsCard = ({
 							))}
 							<p>Summary</p>
 						</div>
-						<div className="actionButton" onClick={openModal}>
+						<div
+							className="actionButton"
+							onClick={!source ? openModal : (e) => openModal(e, workflow)}
+						>
 							<p>+ Add Lead</p>
 						</div>
 						<div className="moreOptionsContainer">

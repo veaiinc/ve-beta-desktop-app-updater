@@ -88,6 +88,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 				closeModalFunc();
 				navigate(
 					`/sales/${workflow?._id}/${response[1]._id}?verison=${response[1]?.activeVersion}`,
+					{ state: { workflowId: response?.[1]?.workflowId } },
 				);
 			} else {
 				setLoading(false);

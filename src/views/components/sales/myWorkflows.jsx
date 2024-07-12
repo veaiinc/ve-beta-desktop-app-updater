@@ -3,7 +3,7 @@ import '../../../assets/scss/sales/myWorkFlows.scss';
 import MyWorkFlowStatsCard from './myWorkFlowStatsCard';
 const _ = require('lodash');
 
-const MyWorkflows = ({ workflows, inSights, openModal }) => {
+const MyWorkflows = ({ workflows, inSights, openModal, source }) => {
 	return (
 		<div className="myworkflowsContainer">
 			<div className="header">
@@ -20,6 +20,7 @@ const MyWorkflows = ({ workflows, inSights, openModal }) => {
 						index={index}
 						inSights={_.find(inSights, { templateId: workflow._id })}
 						openModal={openModal}
+						source={source}
 					/>
 				</div>
 			))}

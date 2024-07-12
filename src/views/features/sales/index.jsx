@@ -64,7 +64,12 @@ const Sales = ({ type }) => {
 			) : type === 'workflows' || myWorkflows.length === 0 ? (
 				<WorkflowTemplates workflows={globalWorkflows} />
 			) : myWorkflows.length > 0 ? (
-				<MyWorkflows workflows={myWorkflows} inSights={inSights} openModal={openModal} />
+				<MyWorkflows
+					workflows={myWorkflows}
+					inSights={inSights}
+					openModal={openModal}
+					source={'sales'}
+				/>
 			) : (
 				''
 			)}
