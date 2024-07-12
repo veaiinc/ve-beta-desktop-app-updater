@@ -33,13 +33,13 @@ const CreateLead = ({ workflow, setIsOpen, modalIsOpen }) => {
 		getClientListData();
 	}, []);
 
-	// useEffect(() => {
-	// 	const isValidEmail = leadDetails['emailId'] && validator.isEmail(leadDetails['emailId']);
-	// 	const isValidName = leadDetails['name'].trim().length > 0;
-	// 	const isValidSource = leadDetails['source'].trim().length > 0;
+	useEffect(() => {
+		const isValidEmail = leadDetails['emailId'] && validator.isEmail(leadDetails['emailId']);
+		const isValidName = leadDetails['name'].trim().length > 0;
+		const isValidSource = leadDetails['source'].trim().length > 0;
 
-	// 	setCreateButtonActiveState(isValidEmail && isValidName && isValidSource);
-	// }, [leadDetails.emailId, leadDetails.name, leadDetails.password]);
+		setCreateButtonActiveState(isValidEmail && isValidName && isValidSource);
+	}, [leadDetails]);
 
 	useEffect(() => {
 		if (clientList) {
@@ -266,7 +266,7 @@ const CreateLead = ({ workflow, setIsOpen, modalIsOpen }) => {
 					<InputForModules
 						label={'Search from Leads'}
 						type={'dropdown'}
-						placeholder={'Select Lead Source'}
+						placeholder={'Select Leads'}
 						name={'source'}
 						value={leadDetails['source']}
 						options={info?.clientData || []}
