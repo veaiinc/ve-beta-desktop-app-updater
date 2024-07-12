@@ -5,6 +5,8 @@ import {
 	getTemmplatesQuery,
 	createProposalQuery,
 	getWorkflowDetailsListQuery,
+	duplicateTemplateQuery,
+	getClientListQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -13,6 +15,7 @@ import { Actions } from './Actions';
 export const intialState = {
 	workflowslist: null,
 	moreWorkList: null,
+	clientList: null,
 };
 
 export const TemplatesState = (props) => {
@@ -119,6 +122,29 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getClientList = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getClientListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_ALL_CLIENT_LIST_SUCCESS,
+					payload: response?.[1]?.data?.clientsList,
+				});
+			}
+		} catch (error) {
+			console.error('Error==>getClientList', error);
+		}
+	};
+
 	const moveProposalStage = async (proposalId, versionId, status) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -136,18 +162,21 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const duplicateTemplate = async (templateId, payload) => {
+	const duplicateTemplate = async (payload) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.fetchPost(
-			`/${workspaceId}${API.TEMPLATES.TEMPLATES}/${templateId}/${API.TEMPLATES.DUPLICATE}`,
+
+		const response = await service.query(
+			duplicateTemplateQuery,
 			payload,
+			workspaceId,
 			usertoken,
-			'proposals_api',
+			'workflows_Api',
 		);
 
-		if (response[0]) {
-			return [true, response[1]];
+		if (response?.[0]) {
+			const parsedResponse = response?.[1]?.data?.duplicateWorkflowTemplate;
+			return [true, parsedResponse];
 		} else {
 			return [false, response?.[1]?.message];
 		}
@@ -170,5 +199,6 @@ export const TemplatesState = (props) => {
 		moveProposalStage,
 		duplicateTemplate,
 		resetTemplateState,
+		getClientList,
 	};
 };

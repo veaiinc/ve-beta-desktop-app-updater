@@ -44,14 +44,16 @@ function WorkflowTemplates({ workflows }) {
 		setLoading(true);
 
 		let payload = {
+			templateId: workflow?.['id'],
 			title: workflow['title'],
 		};
 
-		let response = await duplicateTemplate(workflow['id'], payload);
-		if (response[0]) {
+		let response = await duplicateTemplate(payload);
+
+		if (response?.[0]) {
 			setLoading(false);
 			closeModal();
-			navigate(`/sales/${response[1]['_id']}`);
+			navigate(`/sales/${response?.[1]?.['_id']}`, { state: { data: response?.[1] } });
 		}
 	};
 
