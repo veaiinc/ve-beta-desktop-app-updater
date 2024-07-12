@@ -8,6 +8,7 @@ import InputNew from '../../components/input/inputNew';
 import validator from 'validator';
 import { ReactComponent as PreviousIcon } from '../../../assets/svg/workspaceSettings/back3.svg';
 import Context from '../../../context/context';
+import '../../../assets/scss/workspaceSettings/userDetailsLayout.scss';
 
 const AddNewUserModal = (props) => {
 	const {
