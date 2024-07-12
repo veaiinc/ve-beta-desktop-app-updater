@@ -24,7 +24,7 @@ export const ProposalState = (props) => {
 			);
 
 			if (response?.[0] === true) {
-				let proposalData = await proposalDataHandler(response);
+				let proposalData = await proposalDataHandler(response, 'get');
 
 				dispatch({
 					type: Actions.GET_PROPOSAL_INFO_SUCCESS,
@@ -67,6 +67,12 @@ export const ProposalState = (props) => {
 			);
 
 			if (response?.[0]) {
+				let proposalData = await proposalDataHandler(response, 'update');
+
+				dispatch({
+					type: Actions.GET_PROPOSAL_INFO_SUCCESS,
+					payload: proposalData,
+				});
 				return [true];
 			} else {
 				console.log('api failed==>updateProposal', response);
@@ -79,7 +85,13 @@ export const ProposalState = (props) => {
 
 	const proposalDataHandler = async (response, type) => {
 		try {
-			let proposalData = response?.[1]?.data?.getProposal;
+			let proposalData;
+			if (type === 'get') {
+				proposalData = response?.[1]?.data?.getProposal;
+			} else {
+				proposalData = response?.[1]?.data?.updateProposal;
+			}
+
 			let { activeVersion, versions } = proposalData;
 			for (let i = 0; i < versions?.length; i++) {
 				if (versions?.[i]?._id === activeVersion) {
@@ -93,6 +105,7 @@ export const ProposalState = (props) => {
 						tables,
 						variables,
 						conditionals,
+						expiryInDays,
 					} = versions?.[i] || {};
 					proposalData = {
 						...proposalData,
@@ -105,6 +118,7 @@ export const ProposalState = (props) => {
 						tables,
 						variables,
 						conditionals,
+						expiryInDays,
 					};
 					break;
 				}

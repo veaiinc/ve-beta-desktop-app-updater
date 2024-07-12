@@ -118,13 +118,11 @@ function MyWorkFlowDetails(props) {
 			const { data, currentPage, hasNextPage } = datavariable;
 			let updatedData = [];
 			for (let i = 0; i < data.length; i++) {
-				const proposalIdfromModuleArray = data?.[i]?.modules?.filter(
-					(ele) => ele?.type === 'proposal',
-				);
+				const proposalIdfromModuleArray = data?.[i]?.modules?.[0]?._id;
 
 				if (proposalIdfromModuleArray?.length > 0) {
 					const proposalFilterArray = data?.[i]?.proposals?.filter(
-						(ele) => ele?._id === proposalIdfromModuleArray?.[0]?._id,
+						(ele) => ele?._id === proposalIdfromModuleArray,
 					);
 					if (proposalFilterArray?.length) {
 						let dataObj = {

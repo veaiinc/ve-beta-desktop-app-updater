@@ -14,10 +14,8 @@ import ClientVariablesBlock from '../../components/proposalComponents/ClientVari
 import SendProposalModal from '../../components/modalsV2/proposalModals/SendProposalModal';
 
 function ProposalCRUD(props) {
-	// const [searchParams, setSearchParams] = useSearchParams();
 	const navigate = useNavigate();
 	const { proposalId } = useParams();
-	// const versionId = Object.fromEntries(searchParams)?.verison;
 	const {
 		proposals: {
 			proposalInfo,
@@ -30,6 +28,7 @@ function ProposalCRUD(props) {
 		proposalData: null,
 		sendProposalModal: false,
 		dataChanged: false,
+		saveLoader: false,
 	});
 
 	useEffect(() => {
@@ -67,8 +66,15 @@ function ProposalCRUD(props) {
 
 	//variable Data changes
 	const handleVariableDataChange = useCallback(
-		async (newData, index) => {
+		async (newData) => {
 			const updatedVariables = [...(info?.proposalData?.variables || [])];
+			let index;
+			for (let i = 0; i < updatedVariables?.length; i++) {
+				if (updatedVariables?.[i]?._id === newData?._id) {
+					index = i;
+					break;
+				}
+			}
 			updatedVariables?.splice(index, 1, newData);
 			setInfo((prev) => ({
 				...prev,
@@ -90,9 +96,13 @@ function ProposalCRUD(props) {
 	//saveProposal
 
 	const saveProposalData = useCallback(async () => {
+		if (info?.saveLoader) {
+			return;
+		}
 		if (!info?.dataChanged) {
 			return;
 		}
+		setInfo((prev) => ({ ...prev, saveLoader: true }));
 		const {
 			variables,
 			tables,
@@ -119,11 +129,9 @@ function ProposalCRUD(props) {
 			},
 			versionId: info?.proposalData?.activeVersion,
 		};
-		const response = await updateProposal(paylaod);
-		if (response?.[0]) {
-			getPropsalData();
-		}
-	}, [info?.proposalData, info?.dataChanged]);
+		await updateProposal(paylaod);
+		setInfo((prev) => ({ ...prev, saveLoader: false }));
+	}, [info?.proposalData, info?.dataChanged, info?.saveLoader]);
 
 	return (
 		<div className="proposalsContainer">
@@ -133,7 +141,8 @@ function ProposalCRUD(props) {
 					style={{ cursor: 'pointer' }}
 					onClick={() => navigate(-1)}
 				>
-					<LeftArrow /> <p>create new File for *client name here*</p>
+					<LeftArrow />{' '}
+					<p>{`create new File for ${info?.proposalData?.clientDetails?.name || ''}`}</p>
 				</div>
 				{info?.dataChanged ? (
 					<div
@@ -141,7 +150,7 @@ function ProposalCRUD(props) {
 						style={{ backgroundColor: '#6055EC' }}
 						onClick={saveProposalData}
 					>
-						<p>Save</p>
+						<p>{info?.saveLoader ? 'Saving...' : 'Save'}</p>
 					</div>
 				) : (
 					<div
@@ -159,12 +168,15 @@ function ProposalCRUD(props) {
 						variablesData={info?.proposalData?.variables}
 						onVariableDatChnage={handleVariableDataChange}
 					/>
-					<ClientVariablesBlock />
+					<ClientVariablesBlock
+						variablesData={info?.proposalData?.variables}
+						onVariableDatChnage={handleVariableDataChange}
+					/>
 					<ProposalExpiry
 						expiryData={info?.proposalData?.expiryInDays}
 						onChangeFunc={(data) => handleExpiryInDaysChange(data)}
 					/>
-					<InvoiceBlock />
+					{/* <InvoiceBlock /> */}
 				</div>
 
 				<div className="editContainer">
@@ -190,7 +202,7 @@ function ProposalCRUD(props) {
 							/>
 						))}
 
-					<PaymentSchedule />
+					{/* <PaymentSchedule /> */}
 				</div>
 			</div>
 			<SendProposalModal

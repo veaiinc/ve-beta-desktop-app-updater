@@ -1,7 +1,7 @@
 import React, { memo, useState, useCallback } from 'react';
 import '../../../assets/scss/modules/proposal/variablesBlock.scss';
 import validator from 'validator';
-const VariablesBlock = ({ variableData, selectedIndex, onChangeFunc }) => {
+const VariablesBlock = ({ variableData, onChangeFunc }) => {
 	const [info, setInfo] = useState({
 		variable: variableData,
 		error: false,
@@ -41,9 +41,9 @@ const VariablesBlock = ({ variableData, selectedIndex, onChangeFunc }) => {
 				}));
 				return;
 			}
-			onChangeFunc(updatedVariableData, selectedIndex);
+			onChangeFunc(updatedVariableData);
 		},
-		[info?.variable, selectedIndex, onChangeFunc],
+		[info?.variable, onChangeFunc],
 	);
 
 	return (
