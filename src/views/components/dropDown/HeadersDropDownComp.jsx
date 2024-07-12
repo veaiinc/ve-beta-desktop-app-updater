@@ -27,6 +27,7 @@ const HeadersDropDownComp = ({
 	options,
 	showIcon = true,
 	logoutOptions,
+	onMouseHoverFunc = false,
 }) => {
 	const logoutFunc = useLogout();
 	const [isOpen, setIsOpen] = useState(false);
@@ -44,7 +45,12 @@ const HeadersDropDownComp = ({
 
 	return (
 		<div className="dropdown">
-			<div className="dropdown-header" style={containerStyle || {}} onClick={toggleDropdown}>
+			<div
+				className="dropdown-header"
+				style={containerStyle || {}}
+				onClick={toggleDropdown}
+				onMouseOver={onMouseHoverFunc ? toggleDropdown : ''}
+			>
 				{!showIcon ? '' : iconComponent}
 				<span className="selectedPage">{selectedValue}</span>
 				<DownArrow />
