@@ -81,3 +81,16 @@ export const duplicateTemplateQuery = gql`
 		}
 	}
 `;
+
+export const getClientListQuery = gql`
+	query ClientsList($filters: ClientListFiltersInput!) {
+		clientsList(filters: $filters) {
+			currentPage
+			hasNextPage
+			data {
+				email
+				name
+			}
+		}
+	}
+`;

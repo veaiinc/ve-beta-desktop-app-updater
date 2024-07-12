@@ -181,17 +181,19 @@ function SalesLeadCard({ data, fetchProposals }) {
 
 	const handleMoreOptions = async (event) => {
 		event.preventDefault();
+		event.stopPropagation();
 		setMoreOptions(true);
 	};
 
 	const handleDeleteOption = async (event) => {
 		event.preventDefault();
+		event.stopPropagation();
 		setMoreOptions(false);
 		openModal(event, 'deleteProposal');
 	};
 
 	const handleCardClicks = useCallback(() => {
-		navigate(`/sales/${data.tenantId}/${data._id}?version=${data?.activeVersion}`);
+		navigate(`/sales/${data?.tenantId}/${data?._id}?version=${data?.activeVersion}`);
 	}, [data]);
 
 	return (

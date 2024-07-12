@@ -265,6 +265,27 @@
 			cursor: pointer;
 		}
 	}
+	.radioBtnContainer {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+
+		.radioBtnWrapper {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			cursor: pointer;
+
+			.radioBtnLabel {
+				color: rgba(228, 229, 230, 0.64);
+				font-family: Inter;
+				font-size: 11px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 16px; /* 145.455% */
+			}
+		}
+	}
 
 	.continueContainer {
 		display: flex;

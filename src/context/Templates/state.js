@@ -6,6 +6,7 @@ import {
 	createProposalQuery,
 	getWorkflowDetailsListQuery,
 	duplicateTemplateQuery,
+	getClientListQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -14,6 +15,7 @@ import { Actions } from './Actions';
 export const intialState = {
 	workflowslist: null,
 	moreWorkList: null,
+	clientList: null,
 };
 
 export const TemplatesState = (props) => {
@@ -120,6 +122,29 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getClientList = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getClientListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_ALL_CLIENT_LIST_SUCCESS,
+					payload: response?.[1]?.data?.clientsList,
+				});
+			}
+		} catch (error) {
+			console.error('Error==>getClientList', error);
+		}
+	};
+
 	const moveProposalStage = async (proposalId, versionId, status) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -174,5 +199,6 @@ export const TemplatesState = (props) => {
 		moveProposalStage,
 		duplicateTemplate,
 		resetTemplateState,
+		getClientList,
 	};
 };
