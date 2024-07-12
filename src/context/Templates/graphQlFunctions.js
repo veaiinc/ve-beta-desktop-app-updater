@@ -18,6 +18,7 @@ export const getTemmplatesQuery = gql`
 				updatedAt
 				workflows
 				templates
+				proposalsCreated
 			}
 		}
 	}
@@ -47,7 +48,7 @@ export const getWorkflowDetailsListQuery = gql`
 				createdBy
 				createdAt
 				modules
-				proposalsCreated
+				# proposalsCreated
 				tenantId
 				updatedAt
 				updatedBy
@@ -58,6 +59,25 @@ export const getWorkflowDetailsListQuery = gql`
 					name
 				}
 			}
+		}
+	}
+`;
+
+export const duplicateTemplateQuery = gql`
+	mutation Mutation($templateId: ID!, $title: String!) {
+		duplicateWorkflowTemplate(templateId: $templateId, title: $title) {
+			_id
+			moduleTemplates {
+				module
+				order
+				_id
+			}
+			proposalsCreated
+			status
+			templates
+			tenantId
+			title
+			workflows
 		}
 	}
 `;

@@ -19,25 +19,34 @@ function Sales({ type }) {
 
 	useEffect(() => {
 		fetchTemplates();
-		fetchTemplateStatus();
+		// fetchTemplateStatus();
 	}, []);
 
-	const fetchTemplateStatus = async () => {
-		let response = await getTemplatesStatus();
-		if (response[0]) {
-			setInsights(_.filter(response[1]));
-		} else {
-		}
-	};
+	// const fetchTemplateStatus = async () => {
+	// 	let response = await getTemplatesStatus();
+	// 	if (response[0]) {
+	// 		setInsights(_.filter(response[1]));
+	// 	} else {
+	// 	}
+	// };
 
 	const fetchTemplates = async () => {
 		let response = await getTemplates();
 		if (response[0]) {
 			setLoading(false);
 			let { data } = response?.[1];
-			// data = data?.filter((ele) => ele?.tenantId !== null);
-			setGlobalWorkflows(data);
-			setMyWorkflows(data);
+			let myWorkflowData = [],
+				globalWorkflowData = [];
+			for (let i = 0; i < data?.length; i++) {
+				if (data?.[i]?.tenantId && data?.[i]?.tenantId !== null) {
+					myWorkflowData?.push(data?.[i]);
+				} else {
+					globalWorkflowData?.push(data?.[i]);
+				}
+			}
+
+			setMyWorkflows(myWorkflowData);
+			setGlobalWorkflows(globalWorkflowData);
 		}
 	};
 

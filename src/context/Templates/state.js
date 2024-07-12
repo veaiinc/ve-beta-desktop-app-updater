@@ -5,6 +5,7 @@ import {
 	getTemmplatesQuery,
 	createProposalQuery,
 	getWorkflowDetailsListQuery,
+	duplicateTemplateQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -136,18 +137,21 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const duplicateTemplate = async (templateId, payload) => {
+	const duplicateTemplate = async (payload) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.fetchPost(
-			`/${workspaceId}${API.TEMPLATES.TEMPLATES}/${templateId}/${API.TEMPLATES.DUPLICATE}`,
+
+		const response = await service.query(
+			duplicateTemplateQuery,
 			payload,
+			workspaceId,
 			usertoken,
-			'proposals_api',
+			'workflows_Api',
 		);
 
-		if (response[0]) {
-			return [true, response[1]];
+		if (response?.[0]) {
+			const parsedResponse = response?.[1]?.data?.duplicateWorkflowTemplate;
+			return [true, parsedResponse];
 		} else {
 			return [false, response?.[1]?.message];
 		}
