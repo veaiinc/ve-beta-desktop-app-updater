@@ -7,7 +7,7 @@ import { ReactComponent as Unselected } from '../../../../assets/svg/workspaceSe
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import useLogout from '../../../hooks/useLogout';
-
+import { getBuisnessName } from '../../../features/profile_settings_update/getInitials';
 const customStyles = {
 	content: {
 		top: '50%',
@@ -79,14 +79,29 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 							className="workspaceCard"
 							key={index}
 							onClick={() => {
-								handleSwitchWorkSpaceLogic(ele);
+								handleSwitchWorkSpaceLogic(ele?.activeWorkspaceId);
 							}}
 						>
+							{ele?.logo_s3_500w_key ? (
+								<img
+									src={ele?.logo_s3_500w_key}
+									alt="businessLogo"
+									className="displayLogo"
+								/>
+							) : (
+								<div className="businessInitial">
+									{getBuisnessName(ele?.businessName)}
+								</div>
+							)}
 							<div className="workspaceDetailsContainer">
-								<span className="workspaceDetailsLabel">{ele}</span>
+								<span className="workspaceDetailsLabel">{ele?.businessName}</span>
 								<span className="workspaceDetailsSubLabel">Admin</span>
 							</div>
-							{ele === activeWorkspaceId ? <Selected /> : <Unselected />}
+							{ele?.businessName === activeWorkspaceId ? (
+								<Selected />
+							) : (
+								<Unselected />
+							)}
 						</div>
 					))}
 				</div>

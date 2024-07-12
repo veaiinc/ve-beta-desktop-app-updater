@@ -4,6 +4,15 @@ import Context from '../../../context/context';
 import { getBuisnessName } from '../profile_settings_update/getInitials';
 import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
+const menuItems = [
+	{ id: 'company-overview-settings', label: 'Overview' },
+	{ id: 'company-branding-settings', label: 'Branding' },
+	// { id: 'company-domain-verification-settings', label: 'Domain Verification' },
+	// { id: 'company-gallery-settings', label: 'Gallery' },
+	{ id: 'company-integration-settings', label: 'Integrations' },
+	{ id: 'company-team-settings', label: 'Team' },
+	{ id: 'company-billing-settings', label: 'Billing' },
+];
 
 const SettingsPageSideBar = ({ type, setType1 }) => {
 	const navigate = useNavigate();
@@ -13,18 +22,14 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 	const [info, setInfo] = useState({
 		businessName: '',
 		isAdmin: '',
-		isloader: false,
+		isloader: true,
 		businessLogo: '',
 	});
 
 	useEffect(() => {
-		const fetchData = async () => {
-			if (!tenantUserDetails) {
-				await getTenantUserDetails();
-			}
-		};
-
-		fetchData();
+		if (!tenantUserDetails) {
+			getTenantUserDetails();
+		}
 	}, []);
 
 	useEffect(() => {
@@ -33,6 +38,7 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 				...prev,
 				businessName: tennantSettingsData?.businessName || '',
 				businessLogo: tennantSettingsData?.logo_s3_500w_key || '',
+				isloader: false,
 			}));
 		}
 	}, [tennantSettingsData]);
@@ -45,30 +51,6 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 			}));
 		}
 	}, [tenantUserDetails]);
-	useEffect(() => {
-		if (!tennantSettingsData) {
-			setInfo((prev) => ({
-				...prev,
-				isloader: true,
-			}));
-		}
-		if (tennantSettingsData) {
-			setInfo((prev) => ({
-				...prev,
-				isloader: false,
-			}));
-		}
-	}, [tennantSettingsData]);
-
-	const menuItems = [
-		{ id: 'company-overview-settings', label: 'Overview' },
-		{ id: 'company-branding-settings', label: 'Branding' },
-		// { id: 'company-domain-verification-settings', label: 'Domain Verification' },
-		// { id: 'company-gallery-settings', label: 'Gallery' },
-		{ id: 'company-integration-settings', label: 'Integrations' },
-		{ id: 'company-team-settings', label: 'Team' },
-		{ id: 'company-billing-settings', label: 'Billing' },
-	];
 
 	return (
 		<div className="settingsPageLayout">

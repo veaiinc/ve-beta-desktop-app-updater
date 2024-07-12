@@ -41,7 +41,7 @@ const actionHandlers = {
 			businessName: action.payload,
 		},
 	}),
-	RESET_PROFILE_SETTINGS_STATE: () => ({ ...intialState }),
+	RESET_STATE: () => ({ ...intialState }),
 };
 
 const Reducer = (state, action) => {

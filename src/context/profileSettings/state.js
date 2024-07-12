@@ -26,8 +26,6 @@ export const ProfileState = () => {
 					type: Actions.GET_TENANT_SETTINGS,
 					payload: response?.[1],
 				});
-			} else {
-				console.log('api failed getTenantSettings', response);
 			}
 		} catch (error) {
 			console.log('error==>getTenantSettings', error);
@@ -49,7 +47,7 @@ export const ProfileState = () => {
 				});
 			}
 		} catch (error) {
-			console.log('error==>getAllUsersFromMeta', error);
+			console.log('error==>getUserDetails', error);
 		}
 	};
 	const getTenantUserDetails = async () => {
@@ -70,26 +68,30 @@ export const ProfileState = () => {
 				});
 			}
 		} catch (error) {
-			console.log('error==>getAllUsersFromMeta', error);
+			console.log('error==>getTenantUserDetails', error);
 		}
 	};
 	const get2FAQrCode = async () => {
-		let usertoken = localStorage.getItem('usertoken');
-		const qrCode = await service.fetchGet(
-			API.TENANT_USER_LOGIN_SIGNUP_API.set2FASettings +
-				API.TENANT_USER_LOGIN_SIGNUP_API.googleAuthenticator +
-				API.TENANT_USER_LOGIN_SIGNUP_API.qrCode,
-			usertoken,
-			'tenant-users',
-		);
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			const qrCode = await service.fetchGet(
+				API.TENANT_USER_LOGIN_SIGNUP_API.set2FASettings +
+					API.TENANT_USER_LOGIN_SIGNUP_API.googleAuthenticator +
+					API.TENANT_USER_LOGIN_SIGNUP_API.qrCode,
+				usertoken,
+				'tenant-users',
+			);
 
-		if (qrCode?.[0]) {
-			dispatch({
-				type: Actions.GET_2FA_QR_CODE,
-				payload: qrCode?.[1],
-			});
-		} else {
-			console.log('api failed qrcode');
+			if (qrCode?.[0]) {
+				dispatch({
+					type: Actions.GET_2FA_QR_CODE,
+					payload: qrCode?.[1],
+				});
+			} else {
+				console.log('api failed qrcode');
+			}
+		} catch (error) {
+			console.log('error==>get2FAQrCode', error);
 		}
 	};
 	const set2FASettings = async (is2FAEnabled) => {
@@ -117,13 +119,17 @@ export const ProfileState = () => {
 	};
 
 	const updateUserDetails = async (payload) => {
-		let usertoken = localStorage.getItem('usertoken');
-		let response = await service.fetchPut(
-			API.TENANTS.myProfile,
-			payload,
-			usertoken,
-			'tenant-users',
-		);
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let response = service.fetchPut(
+				API.TENANTS.myProfile,
+				payload,
+				usertoken,
+				'tenant-users',
+			);
+		} catch (error) {
+			console.log('error==>updateUserDetails', error);
+		}
 	};
 	const getUserWorkSpaceList = async () => {
 		try {
@@ -146,12 +152,16 @@ export const ProfileState = () => {
 	};
 
 	const verifyLoginWithPassword = async (checkPassword) => {
-		return await service.fetchPost(
-			API.TENANT_USER_LOGIN_SIGNUP_API.loginWithPassword,
-			checkPassword,
-			null,
-			'tenant-users',
-		);
+		try {
+			return await service.fetchPost(
+				API.TENANT_USER_LOGIN_SIGNUP_API.loginWithPassword,
+				checkPassword,
+				null,
+				'tenant-users',
+			);
+		} catch (error) {
+			console.log('error==>verifyLoginWithPassword', error);
+		}
 	};
 	const updatePassword = async (currentpassword, payload) => {
 		try {
@@ -164,62 +174,71 @@ export const ProfileState = () => {
 					usertoken,
 					'tenant-users',
 				);
-				if (response?.[0]) {
-					console.log('password Updated Successfully');
-				} else {
-					console.log(response?.message);
-				}
-			} else {
-				console.log('incorrect password');
 			}
 		} catch (error) {
 			console.log('error==>updatePassword', error);
 		}
 	};
 	const chooseDefaultWorkspace = async (data) => {
-		let usertoken = localStorage.getItem('usertoken');
-		const payload = {
-			tenantId: data?.tenant_id,
-			order: 1,
-		};
-		let response = await service.fetchPost(
-			`/update-tenants-order`,
-			payload,
-			usertoken,
-			'tenant-users',
-		);
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			const payload = {
+				tenantId: data?.tenant_id,
+				order: 1,
+			};
+			let response = service.fetchPost(
+				`/update-tenants-order`,
+				payload,
+				usertoken,
+				'tenant-users',
+			);
+		} catch (error) {
+			console.log('error==>chooseDefaultWorkspace', error);
+		}
 	};
 	const changelogo = (file) => {
-		dispatch({
-			type: Actions.UPDATE_LOGO,
-			payload: file,
-		});
+		try {
+			dispatch({
+				type: Actions.UPDATE_LOGO,
+				payload: file,
+			});
+		} catch (error) {
+			console.log('error==>changelogo', error);
+		}
 	};
 	const updateBusniessName = (name) => {
-		dispatch({
-			type: Actions.UPDATE_BUSNIESSNAME,
-			payload: name,
-		});
+		try {
+			dispatch({
+				type: Actions.UPDATE_BUSNIESSNAME,
+				payload: name,
+			});
+		} catch (error) {
+			console.log('error==>updateBusniessName', error);
+		}
 	};
 	const updateUserLogo = async (file) => {
-		let usertoken = localStorage.getItem('usertoken');
-		const response = await service.fetchPost(
-			API.TENANTS.displayPicture,
-			{},
-			usertoken,
-			'tenant-users',
-		);
-		if (response[0]) {
-			let options = {
-				headers: {
-					'Content-Type': file.type,
-				},
-			};
-			const resp = await axios.put(response[1]?.signedUrl, file, options);
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.fetchPost(
+				API.TENANTS.displayPicture,
+				{},
+				usertoken,
+				'tenant-users',
+			);
+			if (response[0]) {
+				let options = {
+					headers: {
+						'Content-Type': file.type,
+					},
+				};
+				const resp = axios.put(response[1]?.signedUrl, file, options);
+			}
+		} catch (error) {
+			console.log('error==>updateUserLogo', error);
 		}
 	};
 	const resetProfileSettingsState = async () => {
-		dispatch({ type: Actions.RESET_PROFILE_SETTINGS_STATE });
+		dispatch({ type: Actions.RESET_STATE });
 	};
 	return {
 		...state,

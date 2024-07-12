@@ -1,15 +1,20 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useState, useCallback, useContext, useEffect } from 'react';
 import '../../assets/scss/header.scss';
 import { ReactComponent as VE } from '../../assets/svg/ve.svg';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeadersDropDownComp from './dropDown/HeadersDropDownComp';
 import SwitchWorkspaceModal from './modals/workspace/switchWorkspaceModal';
+import Context from '../../context/context';
 
 const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorkspaceId }) => {
+	const {
+		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
+	} = useContext(Context);
 	const navigate = useNavigate();
 	const params = useParams();
 	const accessibleWorkspaces = JSON.parse(localStorage.getItem('accessibleWorkspaces'));
 	// const activeWorkspaceId = activeWorkspaceId;
+
 	const [info, setInfo] = useState({
 		switchWorkspaceModal: false,
 		items: [
@@ -35,10 +40,19 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 			},
 		],
 	});
+	useEffect(() => {
+		if (!userWorkSpaceList) {
+			getUserWorkSpaceList();
+		}
+	}, []);
 
 	const closeSwitchModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, switchWorkspaceModal: false }));
 	}, [info?.switchWorkspaceModal]);
+
+	const activeBusniessName = userWorkSpaceList?.find(
+		(item) => item.activeWorkspaceId === activeWorkspaceId,
+	);
 
 	return (
 		<div className="headerContainer">
@@ -70,7 +84,8 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 			)}
 
 			<HeadersDropDownComp
-				selectedValue={activeWorkspaceId}
+				selectedValue={activeBusniessName?.businessName}
+				activeImage={activeBusniessName?.logo_s3_500w_key}
 				options={info?.items}
 				containerStyle={{
 					padding: '10px 12px 10px 10px',
@@ -91,8 +106,8 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 			<SwitchWorkspaceModal
 				open={info?.switchWorkspaceModal}
 				closeModal={closeSwitchModal}
-				accessibleWorkspaces={accessibleWorkspaces}
-				activeWorkspaceId={activeWorkspaceId}
+				accessibleWorkspaces={userWorkSpaceList}
+				activeWorkspaceId={activeBusniessName?.businessName}
 			/>
 		</div>
 	);
