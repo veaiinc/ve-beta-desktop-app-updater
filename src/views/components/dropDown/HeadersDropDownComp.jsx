@@ -51,7 +51,9 @@ const HeadersDropDownComp = ({
 				{activeImage ? (
 					<img src={activeImage} alt="ActiveLogo" className="activelogo" />
 				) : (
-					<div>{selectedValue && getBuisnessName(selectedValue)}</div>
+					<div className="activeLogoName">
+						{selectedValue && getBuisnessName(selectedValue)}
+					</div>
 				)}
 				<span className="selectedPage">{selectedValue}</span>
 				<DownArrow />

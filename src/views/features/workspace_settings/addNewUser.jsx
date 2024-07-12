@@ -49,9 +49,6 @@ const AddNewUserModal = (props) => {
 		},
 	});
 
-	useEffect(() => {
-		console.log('this is called ');
-	}, []);
 	const validateInput = (e) => {
 		const { name, value } = e.target;
 		const errorName = name + 'Error';
