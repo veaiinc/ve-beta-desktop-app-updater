@@ -50,8 +50,12 @@ const MyWorkFlowStatsCard = ({
 				<div className="workflowStats">
 					<div className="statsheader">
 						<div className="modules">
-							<p>Proposals</p>
-							<RightArrow />
+							{workflow?.moduleTemplates?.map((ele) => (
+								<>
+									<p style={{ textTransform: 'capitalize' }}>{ele?.module}</p>
+									<RightArrow />
+								</>
+							))}
 							<p>Summary</p>
 						</div>
 						<div className="actionButton" onClick={openModal}>
