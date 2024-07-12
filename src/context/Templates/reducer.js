@@ -4,6 +4,7 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action.payload,
 	}),
+	GET_ALL_CLIENT_LIST_SUCCESS: (state, action) => ({ ...state, clientList: action.payload }),
 	RESET_STATE: () => intialState,
 };
 

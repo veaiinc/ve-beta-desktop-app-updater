@@ -3,7 +3,6 @@ import '../../../assets/scss/CompanySettings/teamMembers.scss';
 import Line from './Line';
 import _ from 'lodash';
 import Modal from '../../components/modalsV2/index';
-// import AddNewUserModal from '../../components/modals/tenantUser/addNewUser';
 import search from '../../../assets/svg/workspaceSettings/searchSettings.svg';
 import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
 import validator from 'validator';

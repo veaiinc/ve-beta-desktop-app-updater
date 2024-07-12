@@ -114,11 +114,20 @@ export const ProposalState = (props) => {
 			console.log('error==>proposalDataHandler', error);
 		}
 	};
+
+	const resetProposalState = async () => {
+		try {
+			dispatch({ type: Actions.RESET_STATE });
+		} catch (error) {
+			console.log('error==>resetPropsalState', error);
+		}
+	};
 	return {
 		...state,
 		resetPropsalState,
 		getAllProposalContentInfo,
 		updateProposalContent,
 		updateProposal,
+		resetProposalState,
 	};
 };
