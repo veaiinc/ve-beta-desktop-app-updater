@@ -6,7 +6,7 @@ import VariablesBlock from '../../components/proposalComponents/VariablesBlock';
 import ProposalExpiry from '../../components/proposalComponents/ProposalExpiry';
 import PaymentSchedule from '../../components/proposalComponents/PaymentSchedule';
 import EventsBlock from '../../components/proposalComponents/EventsBlock';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import InvoiceBlock from '../../components/proposalComponents/InvoiceBlock';
 import FileVariablesBlock from '../../components/proposalComponents/FileVariablesBlock';
@@ -15,6 +15,7 @@ import SendProposalModal from '../../components/modalsV2/proposalModals/SendProp
 
 function ProposalCRUD(props) {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { proposalId } = useParams();
 	const {
 		proposals: {
@@ -30,6 +31,7 @@ function ProposalCRUD(props) {
 		sendProposalModal: false,
 		dataChanged: false,
 		saveLoader: false,
+		workflowId: location?.state?.workflowId,
 	});
 
 	useEffect(() => {
@@ -47,9 +49,9 @@ function ProposalCRUD(props) {
 
 	//functions definations
 	const getPropsalData = useCallback(async () => {
-		const payload = { id: proposalId };
+		const payload = { id: proposalId, workflowId: info?.workflowId };
 		getAllProposalContentInfo(payload);
-	}, [proposalId]);
+	}, [proposalId, info?.workflowId]);
 
 	//tableData changes
 	const handleTableDataChange = useCallback(
@@ -130,7 +132,10 @@ function ProposalCRUD(props) {
 			},
 			versionId: info?.proposalData?.activeVersion,
 		};
-		await updateProposal(paylaod);
+		const response = await updateProposal(paylaod);
+		if (response?.[0]) {
+			getPropsalData();
+		}
 		setInfo((prev) => ({ ...prev, saveLoader: false }));
 	}, [info?.proposalData, info?.dataChanged, info?.saveLoader]);
 
@@ -173,7 +178,6 @@ function ProposalCRUD(props) {
 					</div>
 				)}
 			</div>
-
 			<div className="propsosEditContainer">
 				<div className="previewContainer">
 					<FileVariablesBlock
@@ -217,11 +221,13 @@ function ProposalCRUD(props) {
 					{/* <PaymentSchedule /> */}
 				</div>
 			</div>
+
 			<SendProposalModal
 				open={info?.sendProposalModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, sendProposalModal: false }))}
 				sendProposal={sendProposalFunc}
 				clientDetails={info?.proposalData?.clientDetails}
+				workflowSlug={info?.proposalData?.workflow?.slug}
 			/>
 		</div>
 	);

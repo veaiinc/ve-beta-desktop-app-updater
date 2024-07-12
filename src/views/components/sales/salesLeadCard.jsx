@@ -193,7 +193,9 @@ const SalesLeadCard = ({ data, fetchProposals }) => {
 	};
 
 	const handleCardClicks = useCallback(() => {
-		navigate(`/sales/${data?.tenantId}/${data?._id}?version=${data?.activeVersion}`);
+		navigate(`/sales/${data?.tenantId}/${data?._id}?version=${data?.activeVersion}`, {
+			state: { workflowId: data?.workflowId },
+		});
 	}, [data]);
 
 	return (

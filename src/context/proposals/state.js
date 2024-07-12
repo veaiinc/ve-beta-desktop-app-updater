@@ -71,12 +71,6 @@ export const ProposalState = (props) => {
 			);
 
 			if (response?.[0]) {
-				let proposalData = await proposalDataHandler(response, 'update');
-
-				dispatch({
-					type: Actions.GET_PROPOSAL_INFO_SUCCESS,
-					payload: proposalData,
-				});
 				return [true];
 			} else {
 				console.log('api failed==>updateProposal', response);
@@ -91,7 +85,7 @@ export const ProposalState = (props) => {
 		try {
 			let proposalData;
 			if (type === 'get') {
-				proposalData = response?.[1]?.data?.getProposal;
+				proposalData = response?.[1]?.data?.getProposal?.[0];
 			} else {
 				proposalData = response?.[1]?.data?.updateProposal;
 			}

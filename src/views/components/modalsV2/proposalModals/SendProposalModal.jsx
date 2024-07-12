@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/modules/workflow/sendProposal.scss';
 
-const SendProposalModal = ({ open, closeModal, sendProposal, clientDetails }) => {
+const SendProposalModal = ({ open, closeModal, sendProposal, clientDetails, workflowSlug }) => {
 	const options = {
 		invoice: {
 			value: 'invoice',
@@ -41,11 +41,13 @@ const SendProposalModal = ({ open, closeModal, sendProposal, clientDetails }) =>
 
 	const handleCopy = useCallback(async () => {
 		try {
-			await navigator.clipboard.writeText('Hello');
+			const workspaceId = localStorage.getItem('workspaceId');
+
+			await navigator.clipboard.writeText(`https://${workspaceId}.ve.co/${workflowSlug}`);
 		} catch (err) {
 			console.log('Failed to copy text');
 		}
-	}, []);
+	}, [workflowSlug]);
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
 			<div className="sendProposalContainer">
