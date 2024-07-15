@@ -278,7 +278,7 @@ const AddNewUserModal = (props) => {
 
 	const renderAccessControls = () => {
 		return (
-			<div style={{ height: '85vh', overflow: 'auto', maxHeight: '1169px' }}>
+			<div style={{ overflow: 'auto', maxHeight: '1169px' }}>
 				<div
 					style={{
 						display: 'flex',

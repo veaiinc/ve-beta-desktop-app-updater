@@ -3,6 +3,8 @@ import '../../../assets/scss/CompanySettings/planBilling.scss';
 import ProgressBar from './ProgressBar';
 import moment from 'moment';
 import Context from '../../../context/context';
+
+//constants
 const noOfDay = 7;
 const period = 'On Trial Plan';
 const AiCredits = '300';

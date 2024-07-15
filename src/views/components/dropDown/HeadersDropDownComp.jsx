@@ -27,7 +27,7 @@ const HeadersDropDownComp = ({
 	selectedValue,
 	activeImage,
 	options,
-	showIcon = true,
+	showIcon = false,
 	logoutOptions,
 }) => {
 	const logoutFunc = useLogout();
@@ -48,12 +48,16 @@ const HeadersDropDownComp = ({
 	return (
 		<div className="dropdown">
 			<div className="dropdown-header" style={containerStyle || {}} onClick={toggleDropdown}>
-				{activeImage ? (
-					<img src={activeImage} alt="ActiveLogo" className="activelogo" />
+				{showIcon ? (
+					activeImage ? (
+						<img src={activeImage} alt="ActiveLogo" className="activelogo" />
+					) : (
+						<div className="activeLogoName">
+							{selectedValue && getBuisnessName(selectedValue)}
+						</div>
+					)
 				) : (
-					<div className="activeLogoName">
-						{selectedValue && getBuisnessName(selectedValue)}
-					</div>
+					''
 				)}
 				<span className="selectedPage">{selectedValue}</span>
 				<DownArrow />

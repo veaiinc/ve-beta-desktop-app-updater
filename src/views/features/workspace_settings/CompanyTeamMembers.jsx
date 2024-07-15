@@ -296,11 +296,11 @@ const CompanyTeamMembers = () => {
 					</div>
 				</div>
 			</div>
-			<Modal closeModal={() => showAddTenantUserModal()} isOpen={info.showAddTenantUserModal}>
+			<Modal closeModal={showAddTenantUserModal} isOpen={info.showAddTenantUserModal}>
 				<AddNewUserModal
 					isAdmin={info.isAdmin}
 					isOwner={info.isOwner}
-					close={() => showAddTenantUserModal()}
+					close={showAddTenantUserModal}
 					tenantUser={info?.tenantUser}
 					step={info.sentInvitationSteps}
 					role={info.userRoleType}

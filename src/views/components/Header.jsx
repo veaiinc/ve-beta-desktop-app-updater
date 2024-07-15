@@ -1,19 +1,17 @@
 import React, { memo, useState, useCallback, useContext, useEffect } from 'react';
 import '../../assets/scss/header.scss';
 import { ReactComponent as VE } from '../../assets/svg/ve.svg';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import HeadersDropDownComp from './dropDown/HeadersDropDownComp';
-import SwitchWorkspaceModal from './modals/workspace/switchWorkspaceModal';
+import SwitchWorkspaceModal from './modalsV2/switchWorkspaceModal';
 import Context from '../../context/context';
 
-const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorkspaceId }) => {
+const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
 	} = useContext(Context);
 	const navigate = useNavigate();
-	const params = useParams();
 	const accessibleWorkspaces = JSON.parse(localStorage.getItem('accessibleWorkspaces'));
-	// const activeWorkspaceId = activeWorkspaceId;
 
 	const [info, setInfo] = useState({
 		switchWorkspaceModal: false,
@@ -22,10 +20,7 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 				label: 'Company Profile',
 				onClickFunc: async () => navigate('/workspace-settings/company-overview-settings'),
 			},
-			// {
-			// 	label: 'Company-Update-Profile',
-			// 	onClickFunc: async () => navigate('/company-update/company-overview-settings'),
-			// },
+
 			{
 				label: 'My Profile',
 				onClickFunc: async () => navigate('/my-profile'),
@@ -39,6 +34,7 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 				onClickFunc: () => setInfo((prev) => ({ ...prev, switchWorkspaceModal: true })),
 			},
 		],
+		activeBusniessName: '',
 	});
 	useEffect(() => {
 		if (!userWorkSpaceList) {
@@ -46,13 +42,18 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 		}
 	}, []);
 
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			const activeBusniessName = userWorkSpaceList?.find(
+				(item) => item.activeWorkspaceId === activeWorkspaceId,
+			);
+			setInfo((prev) => ({ ...prev, activeBusniessName }));
+		}
+	}, [userWorkSpaceList]);
+
 	const closeSwitchModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, switchWorkspaceModal: false }));
 	}, [info?.switchWorkspaceModal]);
-
-	const activeBusniessName = userWorkSpaceList?.find(
-		(item) => item.activeWorkspaceId === activeWorkspaceId,
-	);
 
 	return (
 		<div className="headerContainer">
@@ -84,8 +85,8 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 			)}
 
 			<HeadersDropDownComp
-				selectedValue={activeBusniessName?.businessName}
-				activeImage={activeBusniessName?.logo_s3_500w_key}
+				selectedValue={info?.activeBusniessName?.businessName}
+				activeImage={info?.activeBusniessName?.logo_s3_500w_key}
 				options={info?.items}
 				containerStyle={{
 					padding: '10px 12px 10px 10px',
@@ -102,12 +103,13 @@ const Header = ({ title, hideQuickNav = false, setActiveWorkspaceId, activeWorks
 					minHeight: '200px',
 				}}
 				logoutOptions={true}
+				showIcon={true}
 			/>
 			<SwitchWorkspaceModal
 				open={info?.switchWorkspaceModal}
 				closeModal={closeSwitchModal}
 				accessibleWorkspaces={userWorkSpaceList}
-				activeWorkspaceId={activeBusniessName?.businessName}
+				activeWorkspaceId={info?.activeBusniessName?.businessName}
 			/>
 		</div>
 	);
