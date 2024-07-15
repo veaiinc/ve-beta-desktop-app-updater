@@ -212,7 +212,7 @@ const CompanyOverview = () => {
 					/>
 					<InputForModules
 						label={'Company Type'}
-						type={'dropdown'}
+						type={'text'}
 						options={BusinessTypesOptions}
 						placeholder={'Choose your Company Type'}
 						name={'CompanyType'}
@@ -234,7 +234,7 @@ const CompanyOverview = () => {
 						disabled={true}
 					/>
 
-					<button>Add your own Domain</button>
+					{/* <button>Add your own Domain</button> */}
 				</div>
 			</div>
 
