@@ -40,9 +40,6 @@ const CompanyTeamMembers = () => {
 		fetchData();
 	}, []);
 	const fetchData = async () => {
-		if (!tenantUserDetails) {
-			await getTenantUserDetails();
-		}
 		if (!tenantsUserList) {
 			await getTeamMembers();
 		}
