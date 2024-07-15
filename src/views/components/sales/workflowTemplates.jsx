@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, memo } from 'react';
 import '../../../assets/scss/sales/workflowTemplates.scss';
 import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { ReactComponent as Circle } from '../../../assets/svg/circle-outline.svg';
@@ -8,7 +8,7 @@ import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 
-function WorkflowTemplates({ workflows }) {
+const WorkflowTemplates = ({ workflows }) => {
 	const [modalIsOpen, setIsOpen] = useState(false);
 	const [workflow, setWorkFlow] = useState({ id: '', title: '' });
 	const [isLoading, setLoading] = useState(false);
@@ -187,6 +187,6 @@ function WorkflowTemplates({ workflows }) {
 			</ReactModal>
 		</>
 	);
-}
+};
 
-export default WorkflowTemplates;
+export default memo(WorkflowTemplates);

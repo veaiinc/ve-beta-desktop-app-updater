@@ -29,10 +29,11 @@ const HeadersDropDownComp = ({
 	options,
 	showIcon = false,
 	logoutOptions,
+	onMouseHoverFunc = false,
 }) => {
 	const logoutFunc = useLogout();
 	const [isOpen, setIsOpen] = useState(false);
-	const toggleDropdown = () => setIsOpen(!isOpen);
+	const toggleDropdown = () => setIsOpen((prev) => !prev);
 
 	const handleOptionClick = (option) => {
 		option?.onClickFunc();
@@ -47,7 +48,12 @@ const HeadersDropDownComp = ({
 
 	return (
 		<div className="dropdown">
-			<div className="dropdown-header" style={containerStyle || {}} onClick={toggleDropdown}>
+			<div
+				className="dropdown-header"
+				style={containerStyle || {}}
+				onClick={toggleDropdown}
+				onMouseOver={onMouseHoverFunc ? toggleDropdown : null}
+			>
 				{showIcon ? (
 					activeImage ? (
 						<img src={activeImage} alt="ActiveLogo" className="activelogo" />

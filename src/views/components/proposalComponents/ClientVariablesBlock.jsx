@@ -1,9 +1,22 @@
-import React from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import '../../../assets/scss/modules/proposal/fileClientVariables.scss';
+import VariablesBlock from './VariablesBlock';
 
-const ClientVariablesBlock = () => {
-	return (
-		<div className="clientvaribalesContainer">
+const ClientVariablesBlock = ({ variablesData, onVariableDatChnage }) => {
+	const [info, setInfo] = useState({
+		localvariableData: null,
+	});
+
+	useEffect(() => {
+		if (variablesData) {
+			let updateData = variablesData?.filter(
+				(ele) => ele?.clientAction === 1 || ele?.clientAction === 2,
+			);
+			setInfo((prev) => ({ ...prev, localvariableData: updateData }));
+		}
+	}, [variablesData]);
+	return info?.localvariableData?.length ? (
+		<div className="filevaribalesContainer">
 			<div className="clientHeader">
 				<span className="header">Client Variables (To be filled by client)</span>
 				<span className="subHeader">
@@ -13,65 +26,18 @@ const ClientVariablesBlock = () => {
 			</div>
 
 			<div className="clientVariablesHolder">
-				<div className="multipleInputContainer">
-					<div className="inputHolder">
-						<span className="serviceTitle">Project Name</span>
-						<input
-							type="text"
-							className="propsalinputContainer"
-							placeholder="Type Here ..."
-						/>
-					</div>
-					<div className="inputHolder">
-						<div
-							className="errorState"
-							style={{
-								display: 'flex',
-								flex: 1,
-								alignSelf: 'stretch',
-							}}
-						>
-							<span className="serviceTitle">Client First Name</span>
-						</div>
-
-						<input
-							type="text"
-							className="propsalinputContainer"
-							placeholder="Type Here ..."
-						/>
-					</div>
-				</div>
-				<div className="multipleInputContainer">
-					<div className="inputHolder">
-						<span className="serviceTitle">Client Email Address</span>
-						<input
-							type="text"
-							className="propsalinputContainer"
-							placeholder="Type Here ..."
-						/>
-					</div>
-					<div className="inputHolder">
-						<div
-							className="errorState"
-							style={{
-								display: 'flex',
-								flex: 1,
-								alignSelf: 'stretch',
-							}}
-						>
-							<span className="serviceTitle">Project Budget</span>
-						</div>
-
-						<input
-							type="text"
-							className="propsalinputContainer"
-							placeholder="Type Here ..."
-						/>
-					</div>
-				</div>
+				{info?.localvariableData?.map((item, index) => (
+					<VariablesBlock
+						key={index}
+						variableData={item || {}}
+						onChangeFunc={onVariableDatChnage}
+					/>
+				))}
 			</div>
 		</div>
+	) : (
+		''
 	);
 };
 
-export default ClientVariablesBlock;
+export default memo(ClientVariablesBlock);

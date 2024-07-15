@@ -6,7 +6,7 @@ import VariablesBlock from '../../components/proposalComponents/VariablesBlock';
 import ProposalExpiry from '../../components/proposalComponents/ProposalExpiry';
 import PaymentSchedule from '../../components/proposalComponents/PaymentSchedule';
 import EventsBlock from '../../components/proposalComponents/EventsBlock';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import InvoiceBlock from '../../components/proposalComponents/InvoiceBlock';
 import FileVariablesBlock from '../../components/proposalComponents/FileVariablesBlock';
@@ -14,22 +14,24 @@ import ClientVariablesBlock from '../../components/proposalComponents/ClientVari
 import SendProposalModal from '../../components/modalsV2/proposalModals/SendProposalModal';
 
 function ProposalCRUD(props) {
-	// const [searchParams, setSearchParams] = useSearchParams();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { proposalId } = useParams();
-	// const versionId = Object.fromEntries(searchParams)?.verison;
 	const {
 		proposals: {
 			proposalInfo,
 			getAllProposalContentInfo,
 			updateProposalContent,
 			updateProposal,
+			sendProposal,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		proposalData: null,
 		sendProposalModal: false,
 		dataChanged: false,
+		saveLoader: false,
+		workflowId: location?.state?.workflowId,
 	});
 
 	useEffect(() => {
@@ -47,9 +49,9 @@ function ProposalCRUD(props) {
 
 	//functions definations
 	const getPropsalData = useCallback(async () => {
-		const payload = { id: proposalId };
+		const payload = { id: proposalId, workflowId: info?.workflowId };
 		getAllProposalContentInfo(payload);
-	}, [proposalId]);
+	}, [proposalId, info?.workflowId]);
 
 	//tableData changes
 	const handleTableDataChange = useCallback(
@@ -67,8 +69,15 @@ function ProposalCRUD(props) {
 
 	//variable Data changes
 	const handleVariableDataChange = useCallback(
-		async (newData, index) => {
+		async (newData) => {
 			const updatedVariables = [...(info?.proposalData?.variables || [])];
+			let index;
+			for (let i = 0; i < updatedVariables?.length; i++) {
+				if (updatedVariables?.[i]?._id === newData?._id) {
+					index = i;
+					break;
+				}
+			}
 			updatedVariables?.splice(index, 1, newData);
 			setInfo((prev) => ({
 				...prev,
@@ -90,9 +99,13 @@ function ProposalCRUD(props) {
 	//saveProposal
 
 	const saveProposalData = useCallback(async () => {
+		if (info?.saveLoader) {
+			return;
+		}
 		if (!info?.dataChanged) {
 			return;
 		}
+		setInfo((prev) => ({ ...prev, saveLoader: true }));
 		const {
 			variables,
 			tables,
@@ -123,7 +136,19 @@ function ProposalCRUD(props) {
 		if (response?.[0]) {
 			getPropsalData();
 		}
-	}, [info?.proposalData, info?.dataChanged]);
+		setInfo((prev) => ({ ...prev, saveLoader: false }));
+	}, [info?.proposalData, info?.dataChanged, info?.saveLoader]);
+
+	const sendProposalFunc = useCallback(async () => {
+		const payload = {
+			clientEmail: info?.proposalData?.clientDetails?.email,
+			workflowId: info?.proposalData?.workflowId,
+		};
+		const response = await sendProposal(payload);
+		if (response?.[0]) {
+		} else {
+		}
+	}, [info?.proposalData?.clientDetails, info?.proposalData?.workflowId]);
 
 	return (
 		<div className="proposalsContainer">
@@ -133,7 +158,8 @@ function ProposalCRUD(props) {
 					style={{ cursor: 'pointer' }}
 					onClick={() => navigate(-1)}
 				>
-					<LeftArrow /> <p>create new File for *client name here*</p>
+					<LeftArrow />{' '}
+					<p>{`create new File for ${info?.proposalData?.clientDetails?.name || ''}`}</p>
 				</div>
 				{info?.dataChanged ? (
 					<div
@@ -141,7 +167,7 @@ function ProposalCRUD(props) {
 						style={{ backgroundColor: '#6055EC' }}
 						onClick={saveProposalData}
 					>
-						<p>Save</p>
+						<p>{info?.saveLoader ? 'Saving...' : 'Save'}</p>
 					</div>
 				) : (
 					<div
@@ -152,19 +178,21 @@ function ProposalCRUD(props) {
 					</div>
 				)}
 			</div>
-
 			<div className="propsosEditContainer">
 				<div className="previewContainer">
 					<FileVariablesBlock
 						variablesData={info?.proposalData?.variables}
 						onVariableDatChnage={handleVariableDataChange}
 					/>
-					<ClientVariablesBlock />
+					<ClientVariablesBlock
+						variablesData={info?.proposalData?.variables}
+						onVariableDatChnage={handleVariableDataChange}
+					/>
 					<ProposalExpiry
 						expiryData={info?.proposalData?.expiryInDays}
 						onChangeFunc={(data) => handleExpiryInDaysChange(data)}
 					/>
-					<InvoiceBlock />
+					{/* <InvoiceBlock /> */}
 				</div>
 
 				<div className="editContainer">
@@ -190,12 +218,16 @@ function ProposalCRUD(props) {
 							/>
 						))}
 
-					<PaymentSchedule />
+					{/* <PaymentSchedule /> */}
 				</div>
 			</div>
+
 			<SendProposalModal
 				open={info?.sendProposalModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, sendProposalModal: false }))}
+				sendProposal={sendProposalFunc}
+				clientDetails={info?.proposalData?.clientDetails}
+				workflowSlug={info?.proposalData?.workflow?.slug}
 			/>
 		</div>
 	);
