@@ -4,19 +4,22 @@ import ProgressBar from './ProgressBar';
 import moment from 'moment';
 import Context from '../../../context/context';
 
+//constants
+const noOfDay = 7;
+const period = 'On Trial Plan';
+const AiCredits = '300';
+let progressBar = 30;
+const GB = 1;
+const usedGB = 3;
+
 const CompanyPlanBilling = () => {
-	const [info, setInfo] = useState({
-		expiresDate: '',
-	});
-	const noOfDay = 7;
-	const period = 'On Trial Plan';
-	const AiCredits = '300';
-	let progressBar = 30;
-	const GB = 1;
-	const usedGB = 3;
 	const {
 		companyInfo: { getTenantSubscriptionDetails, tenantSubscriptionDetails },
 	} = useContext(Context);
+	const [info, setInfo] = useState({
+		expiresDate: '',
+	});
+
 	useEffect(() => {
 		if (!tenantSubscriptionDetails) {
 			getTenantSubscriptionDetails();

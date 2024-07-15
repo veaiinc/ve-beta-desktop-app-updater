@@ -24,6 +24,7 @@ const Sales = ({ type }) => {
 		fetchTemplates();
 	}, []);
 
+	console.log('hello');
 	const openModal = useCallback(async (event, data) => {
 		event.preventDefault();
 		event.stopPropagation();
@@ -61,9 +62,9 @@ const Sales = ({ type }) => {
 				<div>
 					<p>Loading....</p>
 				</div>
-			) : type === 'workflows' || myWorkflows.length === 0 ? (
+			) : type === 'workflows' || myWorkflows?.length === 0 ? (
 				<WorkflowTemplates workflows={globalWorkflows} />
-			) : myWorkflows.length > 0 ? (
+			) : myWorkflows?.length > 0 ? (
 				<MyWorkflows
 					workflows={myWorkflows}
 					inSights={inSights}

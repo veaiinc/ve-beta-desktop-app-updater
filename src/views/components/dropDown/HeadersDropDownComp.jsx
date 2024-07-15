@@ -2,6 +2,7 @@ import React, { useState, memo, useCallback } from 'react';
 import '../../../assets/scss/dropdown/headerDropdown.scss';
 import { ReactComponent as DownArrow } from '../../../assets/svg/chat/downArrow.svg';
 import useLogout from '../../hooks/useLogout';
+import { getBuisnessName } from '../../features/profile_settings/getInitials';
 
 const iconComponent = (
 	<div
@@ -24,14 +25,16 @@ const HeadersDropDownComp = ({
 	containerStyle,
 	dropDownStyle,
 	selectedValue,
+	activeImage,
 	options,
-	showIcon = true,
+	showIcon = false,
 	logoutOptions,
 	onMouseHoverFunc = false,
 }) => {
 	const logoutFunc = useLogout();
 	const [isOpen, setIsOpen] = useState(false);
-	const toggleDropdown = () => setIsOpen(!isOpen);
+	const toggleDropdown = () => setIsOpen((prev) => !prev);
+
 	const handleOptionClick = (option) => {
 		option?.onClickFunc();
 		setIsOpen(false);
@@ -49,9 +52,19 @@ const HeadersDropDownComp = ({
 				className="dropdown-header"
 				style={containerStyle || {}}
 				onClick={toggleDropdown}
-				onMouseOver={onMouseHoverFunc ? toggleDropdown : ''}
+				onMouseOver={onMouseHoverFunc ? toggleDropdown : null}
 			>
-				{!showIcon ? '' : iconComponent}
+				{showIcon ? (
+					activeImage ? (
+						<img src={activeImage} alt="ActiveLogo" className="activelogo" />
+					) : (
+						<div className="activeLogoName">
+							{selectedValue && getBuisnessName(selectedValue)}
+						</div>
+					)
+				) : (
+					''
+				)}
 				<span className="selectedPage">{selectedValue}</span>
 				<DownArrow />
 			</div>

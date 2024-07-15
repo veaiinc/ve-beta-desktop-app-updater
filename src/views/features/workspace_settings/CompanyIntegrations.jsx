@@ -45,23 +45,7 @@ const ComapanyIntegrations = () => {
 		};
 		getPageInfo(payload);
 	}, []);
-	const handleOpenMoreFacebook = () => {
-		setInfo((prev) => ({
-			...prev,
-			openMoreFacebook: true,
-		}));
-		setTimeout(() => {
-			setInfo((prev) => ({
-				...prev,
-				openMoreFacebook: false,
-			}));
-		}, 10000);
-	};
-	useEffect(() => {
-		return () => {
-			clearTimeout();
-		};
-	}, []);
+
 	const handleFaceBookConnection = async () => {
 		if (info.loader) {
 			return;

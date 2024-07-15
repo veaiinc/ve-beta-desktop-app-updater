@@ -13,7 +13,6 @@ export const CompanySettingsState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 	const updateTenantContactDetails = async (contactJosn) => {
 		try {
-			console.log(contactJosn, 'this is the dat afrom the json');
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchPut(
@@ -98,7 +97,6 @@ export const CompanySettingsState = () => {
 				usertoken,
 				'tenant',
 			);
-			console.log(response, 'this is the responce');
 		} catch (error) {
 			console.log('error => updateTenantSocialMediaProfile ', error);
 		}
@@ -114,7 +112,6 @@ export const CompanySettingsState = () => {
 				usertoken,
 				'tenant',
 			);
-			console.log(response, 'this the response ');
 		} catch (error) {
 			console.log('error => updatePrefernces ', error);
 		}
@@ -173,21 +170,29 @@ export const CompanySettingsState = () => {
 					},
 				};
 
-				const resp = await axios.put(response[1].signedUrl, file, options);
-
-				if (resp.status === 200) {
-					console.log('yes');
-				} else {
-					console.log('no');
-				}
+				const resp = axios.put(response[1].signedUrl, file, options);
 			}
 		} catch (error) {
 			console.log('error => uploadTenantLogo ', error);
 		}
 	};
+	const inviteNewuser = async (payload) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = service.fetchPost(
+				'/' + workspaceId + API.TENANTS.tenantUsers,
+				payload,
+				usertoken,
+				'tenant',
+			);
+		} catch (error) {
+			console.log('error => inviteNewuser ', error);
+		}
+	};
 	const resetCompanySettings = async () => {
 		try {
-			dispatch({ type: Actions.RESET_COMPANY_SETTINGS_STATE });
+			dispatch({ type: Actions.RESET_STATE });
 		} catch (error) {
 			console.log('error => resetCompanySettings ', error);
 		}
@@ -206,5 +211,6 @@ export const CompanySettingsState = () => {
 		getTenantSubscriptionDetails,
 		uploadTenantLogo,
 		resetCompanySettings,
+		inviteNewuser,
 	};
 };

@@ -29,10 +29,12 @@ const CompanySettingsWrapper = (props) => {
 		setUrlype(type);
 	};
 	const {
-		profileInfo: { getTenantSettings },
+		profileInfo: { getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
 	useEffect(() => {
-		getTenantSettings();
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
 	}, []);
 
 	return (

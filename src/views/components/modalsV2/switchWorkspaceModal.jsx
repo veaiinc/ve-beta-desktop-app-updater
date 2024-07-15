@@ -1,13 +1,13 @@
 import React, { memo, useCallback, useContext } from 'react';
 import Modal from 'react-modal';
-import '../../../../assets/scss/workspaceSettings/switchWorkspaceModal.scss';
-import { ReactComponent as Close } from '../../../../assets/svg/workspaceSettings/modalclose.svg';
-import { ReactComponent as Selected } from '../../../../assets/svg/workspaceSettings/Selected.svg';
-import { ReactComponent as Unselected } from '../../../../assets/svg/workspaceSettings/Unselected.svg';
+import '../../../assets/scss/workspaceSettings/switchWorkspaceModal.scss';
+import { ReactComponent as Close } from '../../../assets/svg/workspaceSettings/modalclose.svg';
+import { ReactComponent as Selected } from '../../../assets/svg/workspaceSettings/Selected.svg';
+import { ReactComponent as Unselected } from '../../../assets/svg/workspaceSettings/Unselected.svg';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import useLogout from '../../../hooks/useLogout';
-
+import useLogout from '../../hooks/useLogout';
+import { getBuisnessName } from '../../features/profile_settings/getInitials';
 const customStyles = {
 	content: {
 		top: '50%',
@@ -79,14 +79,29 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 							className="workspaceCard"
 							key={index}
 							onClick={() => {
-								handleSwitchWorkSpaceLogic(ele);
+								handleSwitchWorkSpaceLogic(ele?.activeWorkspaceId);
 							}}
 						>
+							{ele?.logo_s3_500w_key ? (
+								<img
+									src={ele?.logo_s3_500w_key}
+									alt="businessLogo"
+									className="displayLogo"
+								/>
+							) : (
+								<div className="businessInitial">
+									{getBuisnessName(ele?.businessName)}
+								</div>
+							)}
 							<div className="workspaceDetailsContainer">
-								<span className="workspaceDetailsLabel">{ele}</span>
+								<span className="workspaceDetailsLabel">{ele?.businessName}</span>
 								<span className="workspaceDetailsSubLabel">Admin</span>
 							</div>
-							{ele === activeWorkspaceId ? <Selected /> : <Unselected />}
+							{ele?.businessName === activeWorkspaceId ? (
+								<Selected />
+							) : (
+								<Unselected />
+							)}
 						</div>
 					))}
 				</div>

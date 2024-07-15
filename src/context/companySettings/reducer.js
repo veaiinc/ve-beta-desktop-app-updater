@@ -12,7 +12,7 @@ const actionHandlers = {
 		...state,
 		tenantSubscriptionDetails: action.payload,
 	}),
-	RESET_COMPANY_SETTINGS_STATE: () => ({ ...intialState }),
+	RESET_STATE: () => ({ ...intialState }),
 };
 const Reducer = (state, action) => {
 	const handler = actionHandlers[action.type];

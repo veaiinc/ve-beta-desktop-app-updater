@@ -3,13 +3,13 @@ import '../../../assets/scss/CompanySettings/teamMembers.scss';
 import Line from './Line';
 import _ from 'lodash';
 import Modal from '../../components/modalsV2/index';
-import AddNewUserModal from '../../components/modals/tenantUser/addNewUser';
 import search from '../../../assets/svg/workspaceSettings/searchSettings.svg';
 import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
 import validator from 'validator';
 import Context from '../../../context/context';
 import { getInitials } from '../profile_settings/getInitials';
 import Skeleton from 'react-loading-skeleton';
+import AddNewUserModal from './addNewUser';
 
 const CompanyTeamMembers = () => {
 	const {
@@ -29,7 +29,7 @@ const CompanyTeamMembers = () => {
 		isOwner: '',
 		isAdmin: '',
 		searchQuery: '',
-		isloading: false,
+		isloading: true,
 		showDelete: false,
 		selectedUserRole: '',
 		showDeactivate: '',
@@ -40,13 +40,6 @@ const CompanyTeamMembers = () => {
 		fetchData();
 	}, []);
 	const fetchData = async () => {
-		setInfo((prev) => ({
-			...prev,
-			isloading: true,
-		}));
-		if (!tenantUserDetails) {
-			await getTenantUserDetails();
-		}
 		if (!tenantsUserList) {
 			await getTeamMembers();
 		}
@@ -116,12 +109,14 @@ const CompanyTeamMembers = () => {
 				emailIDError: true,
 				emailIDMessage: 'Required Field!',
 			}));
+			return;
 		} else if (!validator.isEmail(info.emailID)) {
 			setInfo((prev) => ({
 				...prev,
 				emailIDError: true,
 				emailIDMessage: 'Please enter correct email',
 			}));
+			return;
 		} else {
 			setInfo((prev) => ({
 				...prev,
@@ -140,7 +135,7 @@ const CompanyTeamMembers = () => {
 				(o.email && o.email === emailID) || (o.inviteeEmail && o.inviteeEmail === emailID)
 			);
 		});
-		console.log(isUserExisting, 'this is the data');
+
 		if (_.size(isUserExisting) > 0) {
 			userId = isUserExisting._id;
 			userType = isUserExisting.email ? 'active' : 'invited';
@@ -298,14 +293,11 @@ const CompanyTeamMembers = () => {
 					</div>
 				</div>
 			</div>
-			<Modal
-				onRequestClose={() => showAddTenantUserModal()}
-				isOpen={info.showAddTenantUserModal}
-			>
+			<Modal closeModal={showAddTenantUserModal} isOpen={info.showAddTenantUserModal}>
 				<AddNewUserModal
 					isAdmin={info.isAdmin}
 					isOwner={info.isOwner}
-					close={() => showAddTenantUserModal()}
+					close={showAddTenantUserModal}
 					tenantUser={info?.tenantUser}
 					step={info.sentInvitationSteps}
 					role={info.userRoleType}
