@@ -55,9 +55,17 @@ function ProposalCRUD(props) {
 
 	//tableData changes
 	const handleTableDataChange = useCallback(
-		async (newData, tableDataIndex) => {
+		async (newData) => {
+			let index;
+
 			const updatedTableData = [...(info?.proposalData?.tables || [])];
-			updatedTableData?.splice(tableDataIndex, 1, newData);
+			for (let i = 0; i < updatedTableData?.length; i++) {
+				if (updatedTableData?.[i]?._id === newData?._id) {
+					index = i;
+					break;
+				}
+			}
+			updatedTableData?.splice(index, 1, newData);
 			setInfo((prev) => ({
 				...prev,
 				proposalData: { ...prev?.proposalData, tables: updatedTableData },
@@ -135,8 +143,9 @@ function ProposalCRUD(props) {
 		const response = await updateProposal(paylaod);
 		if (response?.[0]) {
 			getPropsalData();
+			setInfo((prev) => ({ ...prev, dataChanged: false }));
 		}
-		setInfo((prev) => ({ ...prev, saveLoader: false }));
+		setInfo((prev) => ({ ...prev, saveLoader: false, saveLoader: false }));
 	}, [info?.proposalData, info?.dataChanged, info?.saveLoader]);
 
 	const sendProposalFunc = useCallback(async () => {
@@ -201,7 +210,6 @@ function ProposalCRUD(props) {
 						?.map((item, index) => (
 							<ServicesBlock
 								serviceData={item || {}}
-								selectedIndex={index}
 								onChangeFunc={handleTableDataChange}
 								key={index}
 							/>
@@ -212,7 +220,6 @@ function ProposalCRUD(props) {
 						?.map((ele, index) => (
 							<EventsBlock
 								eventData={ele || {}}
-								selectedIndex={index}
 								onChangeFunc={handleTableDataChange}
 								key={index}
 							/>

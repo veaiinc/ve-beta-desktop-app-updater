@@ -42,8 +42,8 @@ const SendProposalModal = ({ open, closeModal, sendProposal, clientDetails, work
 	const handleCopy = useCallback(async () => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
-
 			await navigator.clipboard.writeText(`https://${workspaceId}.ve.co/${workflowSlug}`);
+			closeModal();
 		} catch (err) {
 			console.log('Failed to copy text');
 		}

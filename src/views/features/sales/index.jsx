@@ -24,7 +24,6 @@ const Sales = ({ type }) => {
 		fetchTemplates();
 	}, []);
 
-	console.log('hello');
 	const openModal = useCallback(async (event, data) => {
 		event.preventDefault();
 		event.stopPropagation();
