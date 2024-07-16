@@ -16,12 +16,13 @@ export const intialState = {
 	workflowslist: null,
 	moreWorkList: null,
 	clientList: null,
+	templatesInfo: null,
 };
 
 export const TemplatesState = (props) => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
-	const getTemplates = async (templateId = null) => {
+	const getTemplates = async () => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		const json = {
@@ -39,9 +40,12 @@ export const TemplatesState = (props) => {
 		);
 
 		if (response[0]) {
-			return [true, response?.[1]?.data?.templates];
+			dispatch({
+				type: Actions.GET_ALL_TEMPLATES_INFO_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+			});
 		} else {
-			return [false, response?.[1]?.message];
+			console.log('api failed ==>getTemplates', response);
 		}
 	};
 
@@ -189,6 +193,14 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const updateStateValues = async (updatedVaribaleValuesObj) => {
+		dispatch({ type: Actions.UPDATE_STATE_VALUES_SUCCESS, payload: updatedVaribaleValuesObj });
+		try {
+		} catch (error) {
+			console.log('error==>updateStateValues', error);
+		}
+	};
+
 	return {
 		...state,
 		getProposals,
@@ -200,5 +212,6 @@ export const TemplatesState = (props) => {
 		duplicateTemplate,
 		resetTemplateState,
 		getClientList,
+		updateStateValues,
 	};
 };

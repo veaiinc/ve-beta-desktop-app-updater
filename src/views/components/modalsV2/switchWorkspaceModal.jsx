@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import useLogout from '../../hooks/useLogout';
 import { getBuisnessName } from '../../features/profile_settings/getInitials';
+import { useParams } from 'react-router-dom';
 const customStyles = {
 	content: {
 		top: '50%',
@@ -40,6 +41,8 @@ const customStyles = {
 const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWorkspaceId }) => {
 	const logoutFunc = useLogout();
 	const navigate = useNavigate();
+	const { salesId } = useParams();
+
 	const handleLogout = useCallback(async () => {
 		logoutFunc();
 	}, [logoutFunc]);
@@ -56,6 +59,9 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 			sameSite: 'lax',
 			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 		});
+		if (salesId) {
+			navigate('/sales');
+		}
 		window.location.reload();
 	}, []);
 

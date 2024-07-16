@@ -12,6 +12,8 @@ import InvoiceBlock from '../../components/proposalComponents/InvoiceBlock';
 import FileVariablesBlock from '../../components/proposalComponents/FileVariablesBlock';
 import ClientVariablesBlock from '../../components/proposalComponents/ClientVariablesBlock';
 import SendProposalModal from '../../components/modalsV2/proposalModals/SendProposalModal';
+import Skeleton from 'react-loading-skeleton';
+import ProposalLoader from './ProposalLoader';
 
 function ProposalCRUD(props) {
 	const navigate = useNavigate();
@@ -32,6 +34,7 @@ function ProposalCRUD(props) {
 		dataChanged: false,
 		saveLoader: false,
 		workflowId: location?.state?.workflowId,
+		loading: true,
 	});
 
 	useEffect(() => {
@@ -43,7 +46,7 @@ function ProposalCRUD(props) {
 
 	useEffect(() => {
 		if (proposalInfo) {
-			setInfo((prev) => ({ ...prev, proposalData: proposalInfo }));
+			setInfo((prev) => ({ ...prev, proposalData: proposalInfo, loading: false }));
 		}
 	}, [proposalInfo]);
 
@@ -55,14 +58,24 @@ function ProposalCRUD(props) {
 
 	//tableData changes
 	const handleTableDataChange = useCallback(
-		async (newData, tableDataIndex) => {
+		async (newData) => {
+			let index = -1;
+
 			const updatedTableData = [...(info?.proposalData?.tables || [])];
-			updatedTableData?.splice(tableDataIndex, 1, newData);
-			setInfo((prev) => ({
-				...prev,
-				proposalData: { ...prev?.proposalData, tables: updatedTableData },
-				dataChanged: true,
-			}));
+			for (let i = 0; i < updatedTableData?.length; i++) {
+				if (updatedTableData?.[i]?._id === newData?._id) {
+					index = i;
+					break;
+				}
+			}
+			if (index !== -1) {
+				updatedTableData?.splice(index, 1, newData);
+				setInfo((prev) => ({
+					...prev,
+					proposalData: { ...prev?.proposalData, tables: updatedTableData },
+					dataChanged: true,
+				}));
+			}
 		},
 		[info?.proposalData],
 	);
@@ -71,19 +84,21 @@ function ProposalCRUD(props) {
 	const handleVariableDataChange = useCallback(
 		async (newData) => {
 			const updatedVariables = [...(info?.proposalData?.variables || [])];
-			let index;
+			let index = -1;
 			for (let i = 0; i < updatedVariables?.length; i++) {
 				if (updatedVariables?.[i]?._id === newData?._id) {
 					index = i;
 					break;
 				}
 			}
-			updatedVariables?.splice(index, 1, newData);
-			setInfo((prev) => ({
-				...prev,
-				proposalData: { ...prev?.proposalData, variables: updatedVariables },
-				dataChanged: true,
-			}));
+			if (index !== -1) {
+				updatedVariables?.splice(index, 1, newData);
+				setInfo((prev) => ({
+					...prev,
+					proposalData: { ...prev?.proposalData, variables: updatedVariables },
+					dataChanged: true,
+				}));
+			}
 		},
 		[info?.proposalData],
 	);
@@ -135,8 +150,9 @@ function ProposalCRUD(props) {
 		const response = await updateProposal(paylaod);
 		if (response?.[0]) {
 			getPropsalData();
+			setInfo((prev) => ({ ...prev, dataChanged: false }));
 		}
-		setInfo((prev) => ({ ...prev, saveLoader: false }));
+		setInfo((prev) => ({ ...prev, saveLoader: false, saveLoader: false }));
 	}, [info?.proposalData, info?.dataChanged, info?.saveLoader]);
 
 	const sendProposalFunc = useCallback(async () => {
@@ -180,45 +196,59 @@ function ProposalCRUD(props) {
 			</div>
 			<div className="propsosEditContainer">
 				<div className="previewContainer">
-					<FileVariablesBlock
-						variablesData={info?.proposalData?.variables}
-						onVariableDatChnage={handleVariableDataChange}
-					/>
-					<ClientVariablesBlock
-						variablesData={info?.proposalData?.variables}
-						onVariableDatChnage={handleVariableDataChange}
-					/>
-					<ProposalExpiry
-						expiryData={info?.proposalData?.expiryInDays}
-						onChangeFunc={(data) => handleExpiryInDaysChange(data)}
-					/>
-					{/* <InvoiceBlock /> */}
+					{info?.loading ? (
+						<>
+							<ProposalLoader alignment="left" />
+						</>
+					) : (
+						<>
+							<FileVariablesBlock
+								variablesData={info?.proposalData?.variables}
+								onVariableDatChnage={handleVariableDataChange}
+							/>
+							<ClientVariablesBlock
+								variablesData={info?.proposalData?.variables}
+								onVariableDatChnage={handleVariableDataChange}
+							/>
+							<ProposalExpiry
+								expiryData={info?.proposalData?.expiryInDays}
+								onChangeFunc={(data) => handleExpiryInDaysChange(data)}
+							/>
+							{/* <InvoiceBlock /> */}
+						</>
+					)}
 				</div>
 
 				<div className="editContainer">
-					{info?.proposalData?.tables
-						?.filter((ele) => ele?.type === 'services')
-						?.map((item, index) => (
-							<ServicesBlock
-								serviceData={item || {}}
-								selectedIndex={index}
-								onChangeFunc={handleTableDataChange}
-								key={index}
-							/>
-						))}
+					{info?.loading ? (
+						<>
+							<ProposalLoader alignment="right" />
+						</>
+					) : (
+						<>
+							{info?.proposalData?.tables
+								?.filter((ele) => ele?.type === 'services')
+								?.map((item, index) => (
+									<ServicesBlock
+										serviceData={item || {}}
+										onChangeFunc={handleTableDataChange}
+										key={index}
+									/>
+								))}
 
-					{info?.proposalData?.tables
-						?.filter((item) => item?.type === 'events')
-						?.map((ele, index) => (
-							<EventsBlock
-								eventData={ele || {}}
-								selectedIndex={index}
-								onChangeFunc={handleTableDataChange}
-								key={index}
-							/>
-						))}
+							{info?.proposalData?.tables
+								?.filter((item) => item?.type === 'events')
+								?.map((ele, index) => (
+									<EventsBlock
+										eventData={ele || {}}
+										onChangeFunc={handleTableDataChange}
+										key={index}
+									/>
+								))}
 
-					{/* <PaymentSchedule /> */}
+							{/* <PaymentSchedule /> */}
+						</>
+					)}
 				</div>
 			</div>
 

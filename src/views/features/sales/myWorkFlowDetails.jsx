@@ -10,14 +10,13 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import CreateLeadModal from '../../components/modalsV2/proposalModals/CreateLeadModal';
-const _ = require('lodash');
-
+import MyWorkflowPageLoader from './MyWorkflowPageLoader';
 function MyWorkFlowDetails(props) {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { salesId } = useParams();
 	let {
-		templates: { workflowslist, getProposals, getTemplatesStatus, getTemplates, moreWorkList },
+		templates: { workflowslist, getProposals, moreWorkList, updateStateValues },
 	} = useContext(Context);
 
 	const [inSights, setInsights] = useState([]);
@@ -46,7 +45,9 @@ function MyWorkFlowDetails(props) {
 
 	useEffect(() => {
 		fetchProposals(1);
-		// fetchProposalstatus();
+		return () => {
+			updateStateValues({ workflowslist: null, moreWorkList: null });
+		};
 	}, []);
 
 	useEffect(() => {
@@ -75,14 +76,6 @@ function MyWorkFlowDetails(props) {
 		}
 	}, [info?.search, info?.searchChanged]);
 
-	const fetchProposalstatus = async () => {
-		let response = await getTemplatesStatus(salesId);
-		if (response[0]) {
-			// setLoading(false);
-			setInsights(_.filter(response[1]));
-		}
-	};
-
 	const fetchProposals = async (page = 1, fetchMore = false, search = null) => {
 		const payload = {
 			filters: {
@@ -99,10 +92,9 @@ function MyWorkFlowDetails(props) {
 		getProposals(payload, fetchMore);
 	};
 
-	const updateProposalsList = async () => {
+	const updateProposalsList = useCallback(async () => {
 		fetchProposals(1);
-		fetchProposalstatus();
-	};
+	}, []);
 
 	const refreshFunction = useCallback(async () => {
 		fetchProposals(1, false, null);
@@ -210,7 +202,7 @@ function MyWorkFlowDetails(props) {
 				openModal={openModal}
 			/>
 			{info?.loading ? (
-				''
+				<MyWorkflowPageLoader />
 			) : info?.proposalData?.length === 0 ? (
 				<div className="emptyStateContainer">
 					<EmptyState />

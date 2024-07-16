@@ -41,6 +41,9 @@
 				cursor: pointer;
 				transition: all 1s;
 			}
+			.filterButton:hover {
+				color: #e0e0e0;
+			}
 			.filterButtonActive {
 				color: #e0e0e0;
 			}

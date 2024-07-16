@@ -102,6 +102,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 					minWidth: '200px',
 					minHeight: '200px',
 				}}
+				outerContainerStyle={{ width: 'auto' }}
 				logoutOptions={true}
 				showIcon={true}
 				onMouseHoverFunc={true}

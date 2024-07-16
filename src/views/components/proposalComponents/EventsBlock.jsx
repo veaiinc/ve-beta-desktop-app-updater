@@ -1,6 +1,6 @@
 import React, { useState, memo, useCallback } from 'react';
 import '../../../assets/scss/modules/proposal/eventsBlock.scss';
-const EventsBlock = ({ onChangeFunc, selectedIndex, eventData }) => {
+const EventsBlock = ({ onChangeFunc, eventData }) => {
 	const [info, setInfo] = useState({
 		event: eventData,
 	});
@@ -72,9 +72,9 @@ const EventsBlock = ({ onChangeFunc, selectedIndex, eventData }) => {
 			values?.splice(index, 1, updatedValue);
 			updatedEventData.values = values;
 			setInfo((prev) => ({ ...prev, event: updatedEventData }));
-			onChangeFunc(updatedEventData, selectedIndex);
+			onChangeFunc(updatedEventData);
 		},
-		[info?.event, selectedIndex, onChangeFunc],
+		[info?.event, onChangeFunc],
 	);
 
 	const addNewEvent = useCallback(() => {
@@ -129,8 +129,8 @@ const EventsBlock = ({ onChangeFunc, selectedIndex, eventData }) => {
 		let updatedEventData = { ...info?.event };
 		updatedEventData?.values?.push(newDummyObj);
 		setInfo((prev) => ({ ...prev, event: updatedEventData }));
-		onChangeFunc(updatedEventData, selectedIndex);
-	}, [info?.event, selectedIndex, onChangeFunc]);
+		onChangeFunc(updatedEventData);
+	}, [info?.event, onChangeFunc]);
 
 	return (
 		<div className="eventsBlockContainer">

@@ -1,7 +1,7 @@
 import React, { memo, useState, useEffect, useCallback } from 'react';
 import '../../../assets/scss/modules/proposal/servicesBlock.scss';
 import ToggleSlider from '../input/slider';
-const ServicesBlock = ({ serviceData, selectedIndex, onChangeFunc }) => {
+const ServicesBlock = ({ serviceData, onChangeFunc }) => {
 	const [info, setInfo] = useState({
 		service: serviceData,
 	});
@@ -37,9 +37,9 @@ const ServicesBlock = ({ serviceData, selectedIndex, onChangeFunc }) => {
 			updatedServiceData.values = values;
 			setInfo((prev) => ({ ...prev, service: updatedServiceData }));
 
-			onChangeFunc(updatedServiceData, selectedIndex);
+			onChangeFunc(updatedServiceData);
 		},
-		[info?.service, selectedIndex, onChangeFunc],
+		[info?.service, onChangeFunc],
 	);
 
 	return (

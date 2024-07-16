@@ -5,6 +5,11 @@ const actionHandlers = {
 		[action?.selectedvariable]: action.payload,
 	}),
 	GET_ALL_CLIENT_LIST_SUCCESS: (state, action) => ({ ...state, clientList: action.payload }),
+	GET_ALL_TEMPLATES_INFO_SUCCESS: (state, action) => ({
+		...state,
+		templatesInfo: action.payload,
+	}),
+	UPDATE_STATE_VALUES_SUCCESS: (state, action) => ({ ...state, ...action.payload }),
 	RESET_STATE: () => intialState,
 };
 

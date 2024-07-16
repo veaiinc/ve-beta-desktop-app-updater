@@ -9,10 +9,10 @@ const ProposalExpiry = ({ expiryData, onChangeFunc }) => {
 					<input
 						type="number"
 						className="propsalinputContainer"
-						placeholder="Type Here ..."
+						placeholder="Enter Here ..."
 						style={{ border: 'none', paddingLeft: '0px' }}
 						value={expiryData}
-						onChange={(e) => onChangeFunc(e.target.value)}
+						onChange={(e) => onChangeFunc(+e.target.value > 0 ? +e.target.value : 0)}
 					/>
 					<span className="dayText">Days</span>
 				</div>

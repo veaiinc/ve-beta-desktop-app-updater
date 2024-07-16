@@ -3,12 +3,13 @@ import WorkflowTemplates from '../../components/sales/workflowTemplates';
 import MyWorkflows from '../../components/sales/myWorkflows';
 import Context from '../../../context/context';
 import CreateLeadModal from '../../components/modalsV2/proposalModals/CreateLeadModal';
+import SalesModuleLoader from './SalesModuleLoader';
 
 const _ = require('lodash');
 
 const Sales = ({ type }) => {
 	let {
-		templates: { getTemplates, getTemplatesStatus },
+		templates: { getTemplates, templatesInfo, getTemplatesStatus },
 	} = useContext(Context);
 	const [workspaceId, setWorkspaceId] = useState(localStorage.getItem('workspaceId'));
 	const [tenantId, setTenantId] = useState(localStorage.getItem('tenantId'));
@@ -21,10 +22,9 @@ const Sales = ({ type }) => {
 	const [createLeadData, setCreateLeadData] = useState(null);
 
 	useEffect(() => {
-		fetchTemplates();
+		getTemplates();
 	}, []);
 
-	console.log('hello');
 	const openModal = useCallback(async (event, data) => {
 		event.preventDefault();
 		event.stopPropagation();
@@ -36,11 +36,10 @@ const Sales = ({ type }) => {
 		setCreateLeadData(null);
 	}, []);
 
-	const fetchTemplates = async () => {
-		let response = await getTemplates();
-		if (response[0]) {
+	useEffect(() => {
+		if (templatesInfo) {
 			setLoading(false);
-			let { data } = response?.[1];
+			let { data } = templatesInfo;
 			let myWorkflowData = [],
 				globalWorkflowData = [];
 			for (let i = 0; i < data?.length; i++) {
@@ -54,14 +53,12 @@ const Sales = ({ type }) => {
 			setMyWorkflows(myWorkflowData);
 			setGlobalWorkflows(globalWorkflowData);
 		}
-	};
+	}, [templatesInfo]);
 
 	return (
 		<div>
 			{isLoading === true ? (
-				<div>
-					<p>Loading....</p>
-				</div>
+				<SalesModuleLoader />
 			) : type === 'workflows' || myWorkflows?.length === 0 ? (
 				<WorkflowTemplates workflows={globalWorkflows} />
 			) : myWorkflows?.length > 0 ? (
