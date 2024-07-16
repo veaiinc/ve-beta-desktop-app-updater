@@ -48,6 +48,12 @@ const SendProposalModal = ({ open, closeModal, sendProposal, clientDetails, work
 			console.log('Failed to copy text');
 		}
 	}, [workflowSlug]);
+
+	const handleSendProposalViaEmail = useCallback(async () => {
+		closeModal();
+		sendProposal();
+	}, []);
+
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
 			<div className="sendProposalContainer">
@@ -96,7 +102,7 @@ const SendProposalModal = ({ open, closeModal, sendProposal, clientDetails, work
 							}
 						/>
 					</div>
-					<div className="sendEmailBtn" onClick={sendProposal}>
+					<div className="sendEmailBtn" onClick={handleSendProposalViaEmail}>
 						Send Email
 					</div>
 				</div>

@@ -51,11 +51,19 @@ const MyWorkFlowStatsCard = ({
 				<div className="workflowStats">
 					<div className="statsheader">
 						<div className="modules">
-							{workflow?.moduleTemplates?.map((ele) => (
-								<>
-									<p style={{ textTransform: 'capitalize' }}>{ele?.module}</p>
+							{workflow?.moduleTemplates?.map((ele, index) => (
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										width: 'auto',
+										gap: '4px',
+									}}
+									key={index}
+								>
+									<p style={{ textTransform: 'capitalize' }}>{ele?.module} </p>
 									<RightArrow />
-								</>
+								</div>
 							))}
 							<p>Summary</p>
 						</div>
@@ -72,7 +80,7 @@ const MyWorkFlowStatsCard = ({
 
 					<div className="statsContainer">
 						{singleCard ? (
-							<div
+							<a
 							// href={`/sales/${workflow?._id}?status=draft`}
 							>
 								{statsBox(
@@ -82,7 +90,7 @@ const MyWorkFlowStatsCard = ({
 										: 0,
 									activeTab === 'draft' ? true : false,
 								)}
-							</div>
+							</a>
 						) : (
 							statsBox(
 								'DRAFT',
