@@ -14,7 +14,7 @@ import AddNewUserModal from './addNewUser';
 const CompanyTeamMembers = () => {
 	const {
 		profileInfo: { getTenantUserDetails, tenantUserDetails },
-		companyInfo: { getTeamMembers, tenantsUserList },
+		companyInfo: { getTeamMembers, tenantsUserList, inviteUserRes },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -66,6 +66,13 @@ const CompanyTeamMembers = () => {
 		}
 	}, [tenantUserDetails]);
 
+	useEffect(() => {
+		console.log(inviteUserRes, 'this is called');
+		if (inviteUserRes === 'success') {
+			getTeamMembers();
+		}
+	}, [inviteUserRes]);
+
 	const handleChnage = (e) => {
 		const { name, value } = e.target;
 		setInfo((prev) => ({
@@ -78,6 +85,12 @@ const CompanyTeamMembers = () => {
 		setInfo((prev) => ({
 			...prev,
 			searchQuery: event.target.value,
+		}));
+	};
+	const handleClearInput = () => {
+		setInfo((prev) => ({
+			...prev,
+			emailID: '',
 		}));
 	};
 
@@ -302,6 +315,7 @@ const CompanyTeamMembers = () => {
 					step={info.sentInvitationSteps}
 					role={info.userRoleType}
 					email={info.emailID}
+					clearForm={handleClearInput}
 				/>
 			</Modal>
 		</div>
