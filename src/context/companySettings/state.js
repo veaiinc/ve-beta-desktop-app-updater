@@ -180,12 +180,15 @@ export const CompanySettingsState = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			const response = service.fetchPost(
+			const response = await service.fetchPost(
 				'/' + workspaceId + API.TENANTS.tenantUsers,
 				payload,
 				usertoken,
 				'tenant',
 			);
+			if (response?.[0] === true) {
+				getTeamMembers();
+			}
 		} catch (error) {
 			console.log('error => inviteNewuser ', error);
 		}

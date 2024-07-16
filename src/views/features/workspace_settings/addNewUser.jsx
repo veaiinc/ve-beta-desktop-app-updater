@@ -25,6 +25,7 @@ const AddNewUserModal = (props) => {
 		tenantUser: props.tenantUser,
 		tenantUserIsOwner: false,
 		tenantTempUserRole: props.role === 'admin' ? 'admin' : 'default',
+		newUserRole: 'admin',
 
 		accessInfoDesc: {
 			project: [
@@ -138,7 +139,7 @@ const AddNewUserModal = (props) => {
 		props.close();
 		const payload = {
 			email: state.emailID,
-			role: 'admin',
+			role: state.newUserRole,
 			accessControls: [
 				{
 					app: 'form',
@@ -164,7 +165,7 @@ const AddNewUserModal = (props) => {
 			],
 		};
 		inviteNewuser(payload);
-		getTeamMembers();
+		props.clearForm();
 	};
 
 	const handleOnBlurEmail = (e) => {
@@ -183,6 +184,12 @@ const AddNewUserModal = (props) => {
 				errorMessage: '',
 			}));
 		}
+	};
+	const handleChangeUserRole = (role) => {
+		setState((prev) => ({
+			...prev,
+			newUserRole: role,
+		}));
 	};
 
 	const renderSendInviteEmail = () => {
@@ -354,15 +361,27 @@ const AddNewUserModal = (props) => {
 								<div className="forground-text-container">
 									<span
 										className={
-											state.tenantTempUserRole === 'admin'
+											state.newUserRole === 'admin'
 												? 'role-text active'
 												: 'role-text'
 										}
-										// onClick={() => {
-										// 	this.handleChangeUserRole('admin');
-										// }}
+										onClick={() => {
+											handleChangeUserRole('admin');
+										}}
 									>
 										ADMIN
+									</span>
+									<span
+										className={
+											state.newUserRole !== 'admin'
+												? 'role-text active'
+												: 'role-text'
+										}
+										onClick={() => {
+											handleChangeUserRole('default');
+										}}
+									>
+										Member
 									</span>
 								</div>
 								<div
