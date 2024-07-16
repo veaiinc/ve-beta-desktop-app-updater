@@ -3,8 +3,13 @@ import Skeleton from 'react-loading-skeleton';
 const MyWorkflowPageLoader = () => {
 	return (
 		<div className="salesCardContainer">
-			{[{}, {}, {}, {}, {}, {}, {}]?.map((ele, index) => (
-				<Skeleton width={'22.4rem'} height={'177px'} key={index} />
+			{[{}, {}, {}, {}, {}, {}]?.map((ele, index) => (
+				<Skeleton
+					width={'22.4rem'}
+					height={'177px'}
+					key={index}
+					style={{ borderRadius: '1rem' }}
+				/>
 			))}
 		</div>
 	);

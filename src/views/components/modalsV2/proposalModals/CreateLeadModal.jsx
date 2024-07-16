@@ -6,6 +6,7 @@ import { ReactComponent as Unchecked } from '../../../../assets/svg/workflow/unc
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import ReactModal from '../../modalsV2/index';
 import InputForModules from '../../input/inputForModules';
+import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 const validator = require('validator');
 const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	let {
@@ -43,6 +44,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 				let obj = {
 					label: data?.[i]?.name,
 					value: JSON.stringify(data?.[i]),
+					onClickFunc: () => handleSelectedLead(data?.[i]),
 				};
 
 				clientData.push(obj);
@@ -83,7 +85,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 
 			let response = await createProposals(json);
 
-			if (response?.[1]) {
+			if (response?.[0]) {
 				setLoading(false);
 				closeModalFunc();
 				navigate(
@@ -94,6 +96,9 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 				setLoading(false);
 				setLeadDetails((prevState) => ({
 					...prevState,
+				}));
+				setErrorState((prev) => ({
+					...prev,
 					isError: true,
 					errorMessage: response[1]?.message,
 				}));
@@ -163,20 +168,18 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 		setCreateButtonActiveState(isValidEmail && isValidName && isValidSource);
 	};
 
-	const handleSelectedLead = async (e) => {
-		let { value } = e.target;
-		const updatedValue = JSON.parse(value);
+	const handleSelectedLead = async (val) => {
 		setLeadDetails((prev) => ({
 			...prev,
-			emailId: updatedValue?.email,
-			name: updatedValue?.name,
+			emailId: val?.email,
+			name: val?.name,
 		}));
 		setCreateButtonActiveState(true);
 	};
 
 	return (
 		<ReactModal isOpen={modalIsOpen} closeModal={closeModalFunc}>
-			<div className="createLeadModal">
+			<div className="createLeadModal" style={{ minHeight: '400px' }}>
 				<div className="modalHeading">
 					<p className="title">What lead is this proposal for?</p>
 					<div className="closeContainer" onClick={closeModalFunc}>
@@ -257,17 +260,49 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 						/>
 					</>
 				) : (
-					<InputForModules
-						label={'Search from Leads'}
-						type={'dropdown'}
-						placeholder={'Select Leads'}
-						name={'source'}
-						value={leadDetails['source']}
-						options={info?.clientData || []}
-						onChange={handleSelectedLead}
-						isError={errorState['issourceError']}
-						errorMessage={errorState['sourceErrorMessage']}
-					/>
+					<div
+						style={{
+							width: '100%',
+							display: 'flex',
+							flexDirection: 'column',
+							gap: '6px',
+						}}
+					>
+						<span
+							style={{
+								color: '#B0B0B0',
+								fontFamily: 'Inter',
+								fontSize: '11px',
+								fontStyle: 'normal',
+								fontWeight: '400',
+								lineHeight: '16px' /* 145.455% */,
+							}}
+						>
+							Search from Leads
+						</span>
+						<HeadersDropDownComp
+							showIcon={false}
+							options={info?.clientData || []}
+							selectedValue={leadDetails?.name || 'Select Lead'}
+							containerStyle={{
+								padding: '12px 24px',
+								height: '48px',
+								padding: '12px 24px',
+								color: '#e4e5e6',
+								width: 'inherit',
+								flex: 1,
+								alignSelf: 'stretch',
+								borderRadius: '0.625rem',
+								border: '1px solid rgba(36, 36, 36, 0.64)',
+								backgroundColor: '#151515',
+							}}
+							dropDownStyle={{
+								right: 0,
+								top: '60px',
+								maxHeight: '300px',
+							}}
+						/>
+					</div>
 				)}
 
 				<div className="continueContainer">

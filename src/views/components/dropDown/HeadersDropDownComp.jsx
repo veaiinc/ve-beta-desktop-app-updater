@@ -30,6 +30,7 @@ const HeadersDropDownComp = ({
 	showIcon = false,
 	logoutOptions,
 	onMouseHoverFunc = false,
+	outerContainerStyle,
 }) => {
 	const logoutFunc = useLogout();
 	const [isOpen, setIsOpen] = useState(false);
@@ -47,7 +48,7 @@ const HeadersDropDownComp = ({
 	}, [logoutFunc]);
 
 	return (
-		<div className="dropdown">
+		<div className="dropdown" style={outerContainerStyle || {}}>
 			<div
 				className="dropdown-header"
 				style={containerStyle || {}}
@@ -68,7 +69,7 @@ const HeadersDropDownComp = ({
 				<span className="selectedPage">{selectedValue}</span>
 				<DownArrow />
 			</div>
-			{isOpen && (
+			{isOpen ? (
 				<>
 					<div className="dropdown-overlay" onClick={handleClose}></div>
 					<div className="dropdown-menu" style={dropDownStyle || {}}>
@@ -114,6 +115,8 @@ const HeadersDropDownComp = ({
 						)}
 					</div>
 				</>
+			) : (
+				''
 			)}
 		</div>
 	);

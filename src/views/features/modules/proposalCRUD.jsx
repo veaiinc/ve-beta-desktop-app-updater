@@ -59,7 +59,7 @@ function ProposalCRUD(props) {
 	//tableData changes
 	const handleTableDataChange = useCallback(
 		async (newData) => {
-			let index;
+			let index = -1;
 
 			const updatedTableData = [...(info?.proposalData?.tables || [])];
 			for (let i = 0; i < updatedTableData?.length; i++) {
@@ -68,12 +68,14 @@ function ProposalCRUD(props) {
 					break;
 				}
 			}
-			updatedTableData?.splice(index, 1, newData);
-			setInfo((prev) => ({
-				...prev,
-				proposalData: { ...prev?.proposalData, tables: updatedTableData },
-				dataChanged: true,
-			}));
+			if (index !== -1) {
+				updatedTableData?.splice(index, 1, newData);
+				setInfo((prev) => ({
+					...prev,
+					proposalData: { ...prev?.proposalData, tables: updatedTableData },
+					dataChanged: true,
+				}));
+			}
 		},
 		[info?.proposalData],
 	);
@@ -82,19 +84,21 @@ function ProposalCRUD(props) {
 	const handleVariableDataChange = useCallback(
 		async (newData) => {
 			const updatedVariables = [...(info?.proposalData?.variables || [])];
-			let index;
+			let index = -1;
 			for (let i = 0; i < updatedVariables?.length; i++) {
 				if (updatedVariables?.[i]?._id === newData?._id) {
 					index = i;
 					break;
 				}
 			}
-			updatedVariables?.splice(index, 1, newData);
-			setInfo((prev) => ({
-				...prev,
-				proposalData: { ...prev?.proposalData, variables: updatedVariables },
-				dataChanged: true,
-			}));
+			if (index !== -1) {
+				updatedVariables?.splice(index, 1, newData);
+				setInfo((prev) => ({
+					...prev,
+					proposalData: { ...prev?.proposalData, variables: updatedVariables },
+					dataChanged: true,
+				}));
+			}
 		},
 		[info?.proposalData],
 	);
