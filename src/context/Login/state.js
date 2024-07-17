@@ -239,6 +239,44 @@ export const UserLoginState = (props) => {
 		}
 	};
 
+	const signUpInvitedUser = async (payload) => {
+		try {
+			const response = await Service.fetchPost(
+				'/signup-invited-user',
+				payload,
+				null,
+				'tenant_users_api',
+			);
+			console.log('response: ', response);
+
+			if (response?.[0] === true) {
+				let { accessToken, accessibleWorkspaces } = response?.[1] || {};
+				if (accessToken?.length) {
+					localStorage.setItem('usertoken', accessToken);
+					Cookies.set('usertoken', accessToken, {
+						sameSite: 'lax',
+						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+					});
+				}
+				if (!accessibleWorkspaces?.length) {
+					return [true, 'createWorkspace'];
+				}
+				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
+				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
+				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+				});
+				return [true];
+			} else {
+				console.log('api failed==>signUpInvitedUser', JSON.stringify(response));
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('Error==>signUpInvitedUser', error);
+		}
+	};
+
 	return {
 		verifyAccountExistsUsingEmail,
 		createUsersAccount,
@@ -249,5 +287,6 @@ export const UserLoginState = (props) => {
 		restePasswordEmailOtpRequest,
 		updatePassword,
 		createWorkspace,
+		signUpInvitedUser,
 	};
 };

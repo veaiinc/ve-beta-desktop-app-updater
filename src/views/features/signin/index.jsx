@@ -19,24 +19,21 @@ import GetBusinessDetails from './GetBusinessDetails';
 import LoginWithPassword from './LoginWithPassword';
 
 var validator = require('validator');
-
+const creatorCards = [
+	{ image: MakeUpArtist, profession: 'Make up Artist', name: 'Simmy' },
+	{ image: Consultant, profession: 'Consultant', name: 'Alexa' },
+	{ image: SalonAndSpa, profession: 'Salon & Spa', name: 'Suzane' },
+	{ image: Architecture, profession: 'Architecture', name: 'Jack' },
+	{ image: Photographer, profession: 'Photographer', name: 'Danny' },
+	{ image: FashionDesigner, profession: 'Fashion Designer', name: 'Suzi' },
+	{ image: EventManagement, profession: 'Event Management', name: 'Katrina' },
+	{ image: InteriorDesigner, profession: 'Interior Designer', name: 'Melissa' },
+	{ image: BusinessCoach, profession: 'Business Coach', name: 'Adam' },
+	{ image: Restaurateur, profession: 'Restaurateur', name: 'Ahaan' },
+];
 const SignIn = (props) => {
-	const creatorCards = [
-		{ image: MakeUpArtist, profession: 'Make up Artist', name: 'Simmy' },
-		{ image: Consultant, profession: 'Consultant', name: 'Alexa' },
-		{ image: SalonAndSpa, profession: 'Salon & Spa', name: 'Suzane' },
-		{ image: Architecture, profession: 'Architecture', name: 'Jack' },
-		{ image: Photographer, profession: 'Photographer', name: 'Danny' },
-		{ image: FashionDesigner, profession: 'Fashion Designer', name: 'Suzi' },
-		{ image: EventManagement, profession: 'Event Management', name: 'Katrina' },
-		{ image: InteriorDesigner, profession: 'Interior Designer', name: 'Melissa' },
-		{ image: BusinessCoach, profession: 'Business Coach', name: 'Adam' },
-		{ image: Restaurateur, profession: 'Restaurateur', name: 'Ahaan' },
-	];
-
 	const navigate = useNavigate();
 	const firstRender = useRef(true);
-
 	const [stage, setStage] = useState(props.stage);
 	const [isLoading, setLoading] = useState(false);
 	const [secondStageButtonActive, setSecondStageButtonActive] = useState(false);
@@ -139,6 +136,7 @@ const SignIn = (props) => {
 				goBack={goBack}
 				setPasswordView={setPasswordView}
 				passwordView={passwordView}
+				setUsersData={setUsersData}
 			/>
 		),
 		'verify-email-code': (

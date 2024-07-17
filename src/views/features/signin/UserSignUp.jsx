@@ -4,6 +4,7 @@ import Context from '../../../context/context';
 import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { ReactComponent as EyeOpen } from '../../../assets/svg/password-eye-open.svg';
 import axios from 'axios';
+import { useLocation, useNavigate } from 'react-router-dom';
 const UserSignUp = ({
 	handleInput,
 	usersData,
@@ -16,17 +17,30 @@ const UserSignUp = ({
 	setPasswordView,
 	goBack,
 	secondStageButtonActive,
+	setUsersData,
 }) => {
 	let {
-		userLogin: { createUsersAccount },
+		userLogin: { createUsersAccount, signUpInvitedUser },
 	} = useContext(Context);
-
+	const location = useLocation();
+	const navigate = useNavigate();
+	const params = new URLSearchParams(location.search);
 	const [geoGraphicData, setGeoGraphData] = useState(null);
+	const [info, setInfo] = useState({
+		invitedWorkspaceId: params.get('invitedWorkspaceId') || '',
+		invitedEmail: params.get('inviteeEmail') || '',
+		invitedUser: params.get('invitedWorkspaceId')?.length ? true : false,
+	});
 
 	useEffect(() => {
-		if (!usersData['emailId']?.length) {
-			goBack('verify-user');
+		if (!info?.invitedUser) {
+			if (!usersData['emailId']?.length) {
+				goBack('verify-user');
+			}
+		} else {
+			setUsersData((prev) => ({ ...prev, emailId: info?.invitedEmail }));
 		}
+
 		getGeoGraphicData();
 	}, []);
 
@@ -36,7 +50,7 @@ const UserSignUp = ({
 	}, []);
 
 	const handleUserSignUp = async () => {
-		if (secondStageButtonActive) {
+		if (secondStageButtonActive && !info?.invitedUser) {
 			setLoading(true);
 			let json = {
 				firstName: usersData['name'],
@@ -56,6 +70,26 @@ const UserSignUp = ({
 				setErrorState((prevState) => ({
 					...prevState,
 					message: response[1]?.message,
+				}));
+			}
+		}
+		if (secondStageButtonActive && info?.invitedUser) {
+			setLoading(true);
+			let json = {
+				firstName: usersData['name'],
+				email: usersData['emailId'],
+				password: usersData['password'],
+				workspaceId: info?.invitedWorkspaceId,
+			};
+			const response = await signUpInvitedUser(json);
+			if (response?.[0]) {
+				navigate('/sales');
+				setLoading(false);
+			} else {
+				setLoading(false);
+				setErrorState((prevState) => ({
+					...prevState,
+					message: response?.[1]?.message || 'Something went wrong',
 				}));
 			}
 		}
