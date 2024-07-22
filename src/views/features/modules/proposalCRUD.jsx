@@ -25,7 +25,6 @@ function ProposalCRUD(props) {
 			getAllProposalContentInfo,
 			updateProposalContent,
 			updateProposal,
-			sendProposal,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -155,17 +154,6 @@ function ProposalCRUD(props) {
 		setInfo((prev) => ({ ...prev, saveLoader: false, saveLoader: false }));
 	}, [info?.proposalData, info?.dataChanged, info?.saveLoader]);
 
-	const sendProposalFunc = useCallback(async () => {
-		const payload = {
-			clientEmail: info?.proposalData?.clientDetails?.email,
-			workflowId: info?.proposalData?.workflowId,
-		};
-		const response = await sendProposal(payload);
-		if (response?.[0]) {
-		} else {
-		}
-	}, [info?.proposalData?.clientDetails, info?.proposalData?.workflowId]);
-
 	return (
 		<div className="proposalsContainer">
 			<div className="header">
@@ -255,9 +243,9 @@ function ProposalCRUD(props) {
 			<SendProposalModal
 				open={info?.sendProposalModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, sendProposalModal: false }))}
-				sendProposal={sendProposalFunc}
 				clientDetails={info?.proposalData?.clientDetails}
 				workflowSlug={info?.proposalData?.workflow?.slug}
+				workflowId={info?.proposalData?.workflowId}
 			/>
 		</div>
 	);

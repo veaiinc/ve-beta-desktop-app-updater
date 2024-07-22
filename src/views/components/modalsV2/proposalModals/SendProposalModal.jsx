@@ -1,8 +1,21 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/modules/workflow/sendProposal.scss';
+import Context from '../../../../context/context';
 
-const SendProposalModal = ({ open, closeModal, sendProposal, clientDetails, workflowSlug }) => {
+const SendProposalModal = ({ open, closeModal, clientDetails, workflowSlug, workflowId }) => {
+	const {
+		proposals: { sendProposal },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		subject: `Hello there ${clientDetails?.name}, here’s a Invoice for you`,
+		emailBody: `Hi ${clientDetails?.name},Attached is the file for your review. Please let me know if you have any questions or need any further information. {Invoice Link} Best regards,[Your Name]`,
+		selectedtemplate: 'invoice',
+		templateChange: false,
+		name: clientDetails?.name,
+	});
+
 	const options = {
 		invoice: {
 			value: 'invoice',
@@ -26,18 +39,25 @@ const SendProposalModal = ({ open, closeModal, sendProposal, clientDetails, work
 		},
 	};
 
-	const [info, setInfo] = useState({
-		subject: `Hello there ${clientDetails?.name}, here’s a Invoice for you`,
-		emailBody: `Hi ${clientDetails?.name},Attached is the file for your review. Please let me know if you have any questions or need any further information. {Invoice Link} Best regards,[Your Name]`,
-		selectedtemplate: 'invoice',
-		templateChange: false,
-	});
-
 	useEffect(() => {
 		if (info?.templateChange) {
-			setInfo((prev) => ({ ...prev, subject: options?.[info?.selectedtemplate]?.subject }));
+			setInfo((prev) => ({
+				...prev,
+				subject: options?.[info?.selectedtemplate]?.subject,
+			}));
 		}
 	}, [info?.selectedtemplate, info?.templateChange]);
+
+	useEffect(() => {
+		if (clientDetails) {
+			setInfo((prev) => ({
+				...prev,
+				subject: `Hello there ${clientDetails?.name}, here’s a Invoice for you`,
+				emailBody: `Hi ${clientDetails?.name},Attached is the file for your review. Please let me know if you have any questions or need any further information. {Invoice Link} Best regards,[Your Name]`,
+				name: clientDetails?.name,
+			}));
+		}
+	}, [clientDetails]);
 
 	const handleCopy = useCallback(async () => {
 		try {
@@ -51,8 +71,12 @@ const SendProposalModal = ({ open, closeModal, sendProposal, clientDetails, work
 
 	const handleSendProposalViaEmail = useCallback(async () => {
 		closeModal();
-		sendProposal();
-	}, []);
+		const payload = {
+			clientEmail: clientDetails?.email,
+			workflowId: workflowId,
+		};
+		sendProposal(payload);
+	}, [clientDetails, workflowId]);
 
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
