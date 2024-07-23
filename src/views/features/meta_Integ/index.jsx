@@ -16,6 +16,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import DropDown from '../../components/dropDown/DropDown';
 import { ReactComponent as Instagram } from '../../../assets/svg/chat/instagram.svg';
 import EmptyState, { ExpiredState } from './EmptyState';
+import { nameShortner } from '../../../helpers';
 
 const ChatScreen = (props) => {
 	let {
@@ -544,6 +545,7 @@ const ChatScreen = (props) => {
 										autoFocus={true}
 									/>
 								</div>
+
 								<div
 									style={{ overflowY: 'auto', width: '100%' }}
 									id="scrollableDiv"
@@ -625,14 +627,25 @@ const ChatScreen = (props) => {
 												className="imageContainer"
 												style={{
 													backgroundImage: `url(${info?.seletedChannel?.displayPicture})`,
+													backgroundColor: info?.seletedChannel
+														?.displayPicture?.length
+														? 'transparent'
+														: 'rgb(255, 255, 255)',
+													display: 'flex',
+													justifyContent: 'center',
+													alignItems: 'center',
 												}}
-											></div>
+											>
+												{!info?.seletedChannel?.displayPicture
+													? nameShortner(info?.seletedChannel?.userName)
+													: ''}
+											</div>
 											<div className="heading">
 												<span className="channelName">
 													{info?.seletedChannel?.userName}
 												</span>
 												<span className="channelSubMessage">
-													What are your charges??
+													{info?.seletedChannel?.lastMessage}
 												</span>
 											</div>
 										</div>
