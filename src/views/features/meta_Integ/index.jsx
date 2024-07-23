@@ -383,7 +383,7 @@ const ChatScreen = (props) => {
 				channelSearchChanged: false,
 			}));
 		},
-		[info?.activeFilter],
+		[info?.activeFilter, info?.pageInfo],
 	);
 	const onChannelPress = useCallback(
 		async (item, index) => {
