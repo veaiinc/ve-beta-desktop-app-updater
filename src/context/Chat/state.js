@@ -117,7 +117,6 @@ export const ChatState = (props) => {
 				've_conversations_api',
 			);
 			if (response?.[0]) {
-				localStorage.setItem('pageUser', JSON.stringify(response?.[1]?.data?.getPages));
 				dispatch({
 					type: Actions.GET_PAGEINFO_DATA_SUCCESS,
 					payload: response?.[1]?.data?.getPages,

@@ -272,7 +272,10 @@ const ChatScreen = (props) => {
 				filters: {
 					limit: 10,
 					page: page,
-					pageId: info?.pageInfo?.pageId,
+					pageId:
+						info?.activeFilter === 'facebook'
+							? info?.pageInfo?.pageId
+							: info?.pageInfo?.instagramBusinessAccount?.id,
 					sortBy: 'lastMessageAt',
 					sortType: -1,
 					platform: info?.activeFilter === 'facebook' ? 'page' : info?.activeFilter,
@@ -290,7 +293,10 @@ const ChatScreen = (props) => {
 				filters: {
 					limit: 10,
 					page: page,
-					pageId: info?.pageInfo?.pageId,
+					pageId:
+						info?.activeFilter === 'facebook'
+							? info?.pageInfo?.pageId
+							: info?.pageInfo?.instagramBusinessAccount?.id,
 					userId: item?.userId,
 					sortBy: 'createdAt',
 					sortType: -1,
@@ -326,7 +332,10 @@ const ChatScreen = (props) => {
 					socketRef.current.send(JSON.stringify(data));
 
 					const newMessage = {
-						pageId: info?.pageInfo?.pageId,
+						pageId:
+							info?.activeFilter === 'facebook'
+								? info?.pageInfo?.pageId
+								: info?.pageInfo?.instagramBusinessAccount?.id,
 						senderId: info?.pageInfo?.userId,
 						messageText: info?.messageInputValue,
 						readAt: moment().unix(),
@@ -353,6 +362,7 @@ const ChatScreen = (props) => {
 			info?.messagesList,
 			info?.pageInfo,
 			info?.responseWindowExpired,
+			info?.activeFilter,
 		],
 	);
 
@@ -387,7 +397,10 @@ const ChatScreen = (props) => {
 			}));
 			getAllChannelConversation(1, item, false);
 			const payload = {
-				pageId: info?.pageInfo?.pageId,
+				pageId:
+					info?.activeFilter === 'facebook'
+						? info?.pageInfo?.pageId
+						: info?.pageInfo?.instagramBusinessAccount?.id,
 				userId: item?.userId,
 			};
 
@@ -400,7 +413,13 @@ const ChatScreen = (props) => {
 				setInfo((prev) => ({ ...prev, channelList: updatedChannelList }));
 			}
 		},
-		[info?.seletedChannel, info?.workspaceId, info?.channelList, info?.pageInfo],
+		[
+			info?.seletedChannel,
+			info?.workspaceId,
+			info?.channelList,
+			info?.pageInfo,
+			info?.activeFilter,
+		],
 	);
 
 	const fetchMoreChannels = useCallback(async () => {
@@ -666,6 +685,7 @@ const ChatScreen = (props) => {
 																...info?.seletedChannel,
 															}}
 															pageInfo={{ ...info?.pageInfo }}
+															activeFilter={info?.activeFilter}
 														/>
 													))}
 												</InfiniteScroll>

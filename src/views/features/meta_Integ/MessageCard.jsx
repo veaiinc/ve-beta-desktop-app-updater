@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/chat/chatStyling.scss';
 import moment from 'moment';
-const MessageCard = ({ messageItem, activeChannel, pageInfo }) => {
+import { nameShortner } from '../../../helpers';
+const MessageCard = ({ messageItem, activeChannel, pageInfo, activeFilter }) => {
 	return (
 		<div
 			className="messageCardContainer"
@@ -14,8 +15,24 @@ const MessageCard = ({ messageItem, activeChannel, pageInfo }) => {
 					className="imageContainer"
 					style={{
 						backgroundImage: `url(${activeChannel?.displayPicture})`,
+						backgroundColor: activeChannel?.displayPicture?.length
+							? 'transparent'
+							: 'rgb(255, 255, 255)',
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
 					}}
-				></div>
+				>
+					{!activeChannel?.displayPicture?.length
+						? nameShortner(
+								messageItem?.userType === 'user'
+									? activeChannel?.userName
+									: activeFilter === 'facebook'
+									? pageInfo?.pageName
+									: pageInfo?.instagramBusinessAccount?.username,
+						  )
+						: ''}
+				</div>
 			) : (
 				''
 			)}
@@ -36,7 +53,9 @@ const MessageCard = ({ messageItem, activeChannel, pageInfo }) => {
 					>
 						{messageItem?.userType === 'user'
 							? activeChannel?.userName
-							: pageInfo?.pageName}
+							: activeFilter === 'facebook'
+							? pageInfo?.pageName
+							: pageInfo?.instagramBusinessAccount?.username}
 					</span>
 					<span className="timing">
 						{moment.unix(`${messageItem?.createdAt}`).format('DD MMM hh:mm A')}
@@ -59,9 +78,29 @@ const MessageCard = ({ messageItem, activeChannel, pageInfo }) => {
 				<div
 					className="imageContainer"
 					style={{
-						backgroundImage: `url(${pageInfo?.displayPicture})`,
+						backgroundImage: `url(${
+							activeFilter === 'facebook'
+								? pageInfo?.displayPicture
+								: pageInfo?.instagramBusinessAccount?.displayPicture
+						})`,
+						backgroundColor: activeChannel?.displayPicture?.length
+							? 'transparent'
+							: 'rgb(255, 255, 255)',
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
 					}}
-				></div>
+				>
+					{!activeChannel?.displayPicture?.length
+						? nameShortner(
+								messageItem?.userType === 'user'
+									? activeChannel?.userName
+									: activeFilter === 'facebook'
+									? pageInfo?.pageName
+									: pageInfo?.instagramBusinessAccount?.username,
+						  )
+						: ''}
+				</div>
 			) : (
 				''
 			)}

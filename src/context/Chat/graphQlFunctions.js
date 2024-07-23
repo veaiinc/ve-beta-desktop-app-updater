@@ -57,6 +57,7 @@ export const getPageInfoApi = gql`
 				displayPicture
 				fanCount
 				workspaceId
+				instagramBusinessAccount
 			}
 
 			currentPage
