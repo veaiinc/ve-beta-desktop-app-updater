@@ -67,6 +67,7 @@ const VerifyUserStep = ({
 					value={usersData['emailId']}
 					className={errorStates['emailId'] ? 'error' : ''}
 					onKeyDown={handleUserExists}
+					autoFocus={true}
 				/>
 			</div>
 			<div

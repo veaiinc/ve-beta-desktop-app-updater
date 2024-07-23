@@ -122,6 +122,7 @@ const UserSignUp = ({
 						name="name"
 						value={usersData['name']}
 						className={errorStates['name'] ? 'error' : ''}
+						autoFocus={true}
 					/>
 				</div>
 				<div className="inputContainer2 inputContainerPassword">

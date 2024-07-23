@@ -7,6 +7,7 @@ import ProposalCRUD from './views/features/modules/proposalCRUD';
 import OauthVerify from './views/features/signin/oauth';
 import MySettings from './views/features/profile_settings/MySettings';
 import CompanySettingsWrapper from './views/features/workspace_settings/CompanySettingsWrapper';
+import Workflow_builder from './views/features/workflow_builder';
 
 const routes = [
 	{
@@ -102,6 +103,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Profile Settings'}>
 				<MySettings />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/workflow_builder',
+		component: (
+			<AuthWrapper title={'Workflow Builder'}>
+				<Workflow_builder />
 			</AuthWrapper>
 		),
 		exact: true,

@@ -108,6 +108,7 @@ const LoginWithPassword = ({
 						className={errorStates['password'] ? 'error' : ''}
 						style={{ borderRadius: 0, border: 'none', height: 'auto' }}
 						onKeyDown={handleUserLogin}
+						autoFocus={true}
 					/>
 					<span onClick={() => setPasswordView((prev) => !prev)}>
 						<EyeOpen />
