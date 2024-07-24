@@ -30,6 +30,7 @@ export const getAllUsersConversationApi = gql`
 				readAt
 				createdAt
 				userType
+				mid
 			}
 			hasNextPage
 			currentPage
