@@ -97,7 +97,7 @@ const MessageCard = ({ messageItem, activeChannel, pageInfo, activeFilter }) => 
 									? activeChannel?.userName
 									: activeFilter === 'facebook'
 									? pageInfo?.pageName
-									: pageInfo?.instagramBusinessAccount?.username,
+									: pageInfo?.instagramBusinessAccount?.name,
 						  )
 						: ''}
 				</div>

@@ -117,10 +117,32 @@ const ChatScreen = (props) => {
 
 				const message = JSON.parse(event.data);
 
+				//delete the message that got deleted from the user only if there is a selected channel
+				if (message?.isDeleted && info?.seletedChannel) {
+					let updatedMessageList = info?.messagesList?.length
+						? [...info?.messagesList]
+						: [];
+					let index = undefined;
+
+					for (let i = 0; i < updatedMessageList?.length; i++) {
+						if (message?.mid === updatedMessageList?.[i]?.mid) {
+							index = i;
+							break;
+						}
+					}
+
+					if (index !== undefined) {
+						updatedMessageList?.splice(index, 1);
+						setInfo((prev) => ({ ...prev, messagesList: [...updatedMessageList] }));
+						return;
+					}
+				}
+
 				if (message?.senderId === info?.seletedChannel?.userId) {
 					let updatedMessageList = info?.messagesList?.length
 						? [...info?.messagesList]
 						: [];
+
 					updatedMessageList?.unshift({ ...message, createdAt: message?.timestamp });
 					setInfo((prev) => ({ ...prev, messagesList: updatedMessageList }));
 				} else {
