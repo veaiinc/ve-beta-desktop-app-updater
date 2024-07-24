@@ -1,0 +1,80 @@
+.WorkflowBuilderCardsParentContainer {
+	width: 480px;
+	display: flex;
+	justify-content: center;
+	border: 2px solid red;
+}
+.cardContentContainer {
+	display: flex;
+	padding: 32px 24px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+	border-radius: 40px;
+	border: 1px solid rgba(36, 36, 36, 0.48);
+	background: rgba(42, 42, 42, 0.16);
+	width: 300px;
+
+	.cardContentContainerheader {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+		align-self: stretch;
+	}
+
+	.cardContentContainerheaderSubTitle {
+		overflow: hidden;
+		color: rgba(228, 229, 230, 0.48);
+		text-overflow: ellipsis;
+		font-family: Inter;
+		font-size: 10px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 14px; /* 140% */
+		letter-spacing: 0.2px;
+		text-transform: capitalize;
+	}
+	.cardContentContainerheaderTitle {
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 18px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 26px; /* 144.444% */
+	}
+	.actionContainer {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+
+		.viewBtn {
+			display: flex;
+			padding: 8px 16px;
+			justify-content: center;
+			align-items: center;
+			gap: 16px;
+			border-radius: 8px;
+			border: 1px solid rgba(36, 36, 36, 0.64);
+			background: rgba(42, 42, 42, 0.16);
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 16px; /* 123.077% */
+			letter-spacing: 0.26px;
+			cursor: pointer;
+		}
+		.editBtn {
+			color: rgba(228, 229, 230, 0.64);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 16px; /* 133.333% */
+			letter-spacing: 0.24px;
+			cursor: pointer;
+		}
+	}
+}

@@ -1,6 +1,8 @@
 import React, { memo, useState } from 'react';
 import '../../../assets/scss/workflowBuilder/workflowbuilder.scss';
 import { ReactComponent as BackArrow } from '../../../assets/svg/worflow_builder/BackArrow.svg';
+import WorkflowBuilderCards from '../../components/workflowBuilderComponents/WorkflowBuilderCards';
+import WorkflowConnector from '../../components/workflowBuilderComponents/WorkflowConnector';
 const WorkflowBuilder = () => {
 	const [info, setInfo] = useState({
 		data: [
@@ -45,7 +47,18 @@ const WorkflowBuilder = () => {
 			</div>
 			<div className="workflowBuilderContentContainer">
 				{info?.data?.map((ele, index) => (
-					<span>{ele?.title}</span>
+					<div
+						key={index}
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'center',
+							gap: '10px',
+						}}
+					>
+						<WorkflowBuilderCards />
+						{info?.data?.[index + 1] ? <WorkflowConnector /> : ''}
+					</div>
 				))}
 			</div>
 		</div>
