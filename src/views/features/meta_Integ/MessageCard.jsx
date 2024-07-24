@@ -55,7 +55,7 @@ const MessageCard = ({ messageItem, activeChannel, pageInfo, activeFilter }) => 
 							? activeChannel?.userName
 							: activeFilter === 'facebook'
 							? pageInfo?.pageName
-							: pageInfo?.instagramBusinessAccount?.username}
+							: pageInfo?.instagramBusinessAccount?.name}
 					</span>
 					<span className="timing">
 						{moment.unix(`${messageItem?.createdAt}`).format('DD MMM hh:mm A')}
