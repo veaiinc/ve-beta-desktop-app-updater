@@ -40,7 +40,7 @@ const ChatScreen = (props) => {
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
-		activeFilter: 'instagram',
+		activeFilter: 'facebook',
 		seletedChannel: null,
 		selectedChannelIndex: null,
 		messageInputValue: '',
@@ -372,6 +372,9 @@ const ChatScreen = (props) => {
 			if (info?.activeFilter === item) {
 				return;
 			}
+			if (item === 'instagram' && !info?.pageInfo?.instagramBusinessAccount) {
+				return;
+			}
 			setInfo((prev) => ({
 				...prev,
 				activeFilter: item,
@@ -380,7 +383,7 @@ const ChatScreen = (props) => {
 				channelSearchChanged: false,
 			}));
 		},
-		[info?.activeFilter],
+		[info?.activeFilter, info?.pageInfo],
 	);
 	const onChannelPress = useCallback(
 		async (item, index) => {
@@ -486,14 +489,6 @@ const ChatScreen = (props) => {
 
 					<div className="filterContainer">
 						<div
-							onClick={() => onFilterClick('instagram')}
-							className={`filterButton ${
-								info?.activeFilter === 'instagram' ? 'active' : ''
-							}`}
-						>
-							Instagram <span>{chatFiltersCount?.['instagram']}</span>
-						</div>
-						<div
 							onClick={() => onFilterClick('facebook')}
 							className={`filterButton ${
 								info?.activeFilter === 'facebook' ? 'active' : ''
@@ -501,6 +496,21 @@ const ChatScreen = (props) => {
 						>
 							FaceBook <span>{chatFiltersCount?.['page']}</span>
 						</div>
+
+						<div
+							onClick={() => onFilterClick('instagram')}
+							className={`filterButton ${
+								info?.activeFilter === 'instagram' ? 'active' : ''
+							}`}
+							style={{
+								cursor: info?.pageInfo?.instagramBusinessAccount
+									? 'pointer'
+									: 'not-allowed',
+							}}
+						>
+							Instagram <span>{chatFiltersCount?.['instagram']}</span>
+						</div>
+
 						{/* <div
 							onClick={() => onFilterClick('email')}
 							className={`filterButton ${
