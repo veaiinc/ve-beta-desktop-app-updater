@@ -1,9 +1,9 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/workflowBuilder/workflowBuilderCard.scss';
 
-const FirstWorkflowCard = () => {
+const FirstWorkflowCard = ({ openModal }) => {
 	return (
-		<div className="FirstWorkflowCard cardContentContainer">
+		<div className="FirstWorkflowCard cardContentContainer" onClick={openModal}>
 			<div className="cardContentContainerheader">
 				<span className="cardContentContainerheaderSubTitle">Workflow Start Point</span>
 				<span className="cardContentContainerheaderTitle">
@@ -17,10 +17,33 @@ const FirstWorkflowCard = () => {
 		</div>
 	);
 };
-const WorkflowBuilderCards = () => {
+
+const ImageCards = ({ openModal }) => {
+	return (
+		<div className="cardContentContainer" onClick={openModal}>
+			<div className="imageContainer"></div>
+			<div className="footer">
+				<span className="cardContentContainerheaderSubTitle">Wedding Invoice template</span>
+				<span className="cardContentContainerheaderTitle">Invoice</span>
+				<span className="cardContentContainerheaderSubTitle">
+					Immediately after Payment is made
+				</span>
+			</div>
+		</div>
+	);
+};
+
+const WorkflowBuilderCards = ({ workflowdata, openModal }) => {
+	const mapper = {
+		image: <ImageCards openModal={openModal} />,
+	};
 	return (
 		<div className="WorkflowBuilderCardsParentContainer">
-			<FirstWorkflowCard />
+			{mapper?.[workflowdata?.type] ? (
+				mapper?.[workflowdata?.type]
+			) : (
+				<FirstWorkflowCard openModal={openModal} />
+			)}
 		</div>
 	);
 };
