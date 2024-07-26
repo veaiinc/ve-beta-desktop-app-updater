@@ -469,6 +469,7 @@ const ChatScreen = (props) => {
 				pageInfo: item,
 				seletedChannel: null,
 				activeFilter: 'facebook',
+				channelListLoader: true,
 			}));
 			getFilterCount();
 		},
