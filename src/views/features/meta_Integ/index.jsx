@@ -56,7 +56,6 @@ const ChatScreen = (props) => {
 		pageId: pageInfoData?.pageId,
 		channelMapper: {},
 		pageInfo: pageInfoData || {},
-		pageInfo: null,
 		allPageInfoData: null,
 		restrictedView: false,
 		filterChanged: false,
@@ -465,7 +464,12 @@ const ChatScreen = (props) => {
 			if (info?.pageInfo?.pageId === item.pageId) {
 				return;
 			}
-			setInfo((prev) => ({ ...prev, pageInfo: item }));
+			setInfo((prev) => ({
+				...prev,
+				pageInfo: item,
+				seletedChannel: null,
+				activeFilter: 'facebook',
+			}));
 		},
 		[info?.pageInfo],
 	);

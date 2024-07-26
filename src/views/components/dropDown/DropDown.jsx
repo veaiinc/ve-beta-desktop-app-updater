@@ -12,6 +12,7 @@ const DropDown = ({
 	options,
 	iconComponent,
 	valueSelector,
+	selectedPageId,
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const toggleDropdown = () => setIsOpen(!isOpen);
@@ -55,11 +56,13 @@ const DropDown = ({
 									</span>
 								</div>
 
-								{
+								{selectedPageId === option?.pageId ? (
 									<span style={{ display: 'flex', alignItems: 'center' }}>
 										<Tick />
 									</span>
-								}
+								) : (
+									''
+								)}
 							</div>
 						))}
 					</div>
