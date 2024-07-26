@@ -29,7 +29,8 @@ const MessageCard = ({ messageItem, activeChannel, pageInfo, activeFilter }) => 
 									? activeChannel?.userName
 									: activeFilter === 'facebook'
 									? pageInfo?.pageName
-									: pageInfo?.instagramBusinessAccount?.username,
+									: pageInfo?.instagramBusinessAccount?.name ||
+									  pageInfo?.instagramBusinessAccount?.username,
 						  )
 						: ''}
 				</div>
@@ -55,7 +56,8 @@ const MessageCard = ({ messageItem, activeChannel, pageInfo, activeFilter }) => 
 							? activeChannel?.userName
 							: activeFilter === 'facebook'
 							? pageInfo?.pageName
-							: pageInfo?.instagramBusinessAccount?.name}
+							: pageInfo?.instagramBusinessAccount?.name ||
+							  pageInfo?.instagramBusinessAccount?.username}
 					</span>
 					<span className="timing">
 						{moment.unix(`${messageItem?.createdAt}`).format('DD MMM hh:mm A')}
@@ -81,7 +83,7 @@ const MessageCard = ({ messageItem, activeChannel, pageInfo, activeFilter }) => 
 						backgroundImage: `url(${
 							activeFilter === 'facebook'
 								? pageInfo?.displayPicture
-								: pageInfo?.instagramBusinessAccount?.displayPicture
+								: pageInfo?.instagramBusinessAccount?.profile_picture_url
 						})`,
 						backgroundColor: activeChannel?.displayPicture?.length
 							? 'transparent'
@@ -91,13 +93,13 @@ const MessageCard = ({ messageItem, activeChannel, pageInfo, activeFilter }) => 
 						alignItems: 'center',
 					}}
 				>
-					{!activeChannel?.displayPicture?.length
+					{!pageInfo?.instagramBusinessAccount?.profile_picture_url?.length &&
+					!pageInfo?.displayPicture?.length
 						? nameShortner(
-								messageItem?.userType === 'user'
-									? activeChannel?.userName
-									: activeFilter === 'facebook'
+								activeFilter === 'facebook'
 									? pageInfo?.pageName
-									: pageInfo?.instagramBusinessAccount?.name,
+									: pageInfo?.instagramBusinessAccount?.name ||
+											pageInfo?.instagramBusinessAccount?.username,
 						  )
 						: ''}
 				</div>
