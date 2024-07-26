@@ -17,6 +17,7 @@ import DropDown from '../../components/dropDown/DropDown';
 import { ReactComponent as Instagram } from '../../../assets/svg/chat/instagram.svg';
 import EmptyState, { ExpiredState } from './EmptyState';
 import { nameShortner } from '../../../helpers';
+import UnsendMessageModal from '../../components/modalsV2/inbox/unsendMessage';
 
 const ChatScreen = (props) => {
 	let {
@@ -63,6 +64,8 @@ const ChatScreen = (props) => {
 		channelSearchChanged: false,
 		timeout: null,
 		responseWindowExpired: false,
+		unsendModal: false,
+		unsendMessageData: null,
 	});
 	const socketRef = useRef(null);
 
@@ -504,6 +507,49 @@ const ChatScreen = (props) => {
 		getChatFiltersCount(info?.workspaceId, payload);
 	}, [info?.workspaceId, info?.pageInfo]);
 
+	const handleUnsendMessage = useCallback(async () => {
+		if (!info?.unsendMessageData) {
+			return;
+		}
+
+		const { messagedata, index } = info?.unsendMessageData;
+		const data = {
+			action: 'unsendMessage',
+			data: {
+				messageId: messagedata?.mid,
+				pageAccessToken: info?.pageInfo?.accessToken,
+			},
+		};
+
+		console.log('data', data);
+		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+			socketRef.current.send(JSON.stringify(data));
+			const updatedMessagesList = info?.messagesList?.length ? [...info?.messagesList] : [];
+			updatedMessagesList?.splice(index, 1);
+			setInfo((prev) => ({
+				...prev,
+				messagesList: updatedMessagesList,
+				unsendMessageData: null,
+				unsendModal: false,
+			}));
+		}
+	}, [info?.messagesList, info?.pageInfo, info?.unsendMessageData]);
+
+	const closeUnsendModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, unsendModal: false, unsendMessageData: null }));
+	}, [info?.unsendModal]);
+
+	const openUnsendModal = useCallback(
+		(messagedata, index) => {
+			setInfo((prev) => ({
+				...prev,
+				unsendModal: true,
+				unsendMessageData: { messagedata, index },
+			}));
+		},
+		[info?.unsendModal],
+	);
+
 	return (
 		<div className="parentContainer">
 			<div className="childContainer">
@@ -741,6 +787,8 @@ const ChatScreen = (props) => {
 															}}
 															pageInfo={{ ...info?.pageInfo }}
 															activeFilter={info?.activeFilter}
+															openUnsendModal={openUnsendModal}
+															index={index}
 														/>
 													))}
 												</InfiniteScroll>
@@ -776,6 +824,11 @@ const ChatScreen = (props) => {
 					)}
 				</div>
 			</div>
+			<UnsendMessageModal
+				modalIsOpen={info?.unsendModal}
+				closeModalFunc={closeUnsendModal}
+				handleUnsendMessage={handleUnsendMessage}
+			/>
 		</div>
 	);
 };

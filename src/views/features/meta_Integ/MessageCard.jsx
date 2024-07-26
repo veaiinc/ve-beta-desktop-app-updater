@@ -1,10 +1,26 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import '../../../assets/scss/chat/chatStyling.scss';
 import moment from 'moment';
 import { nameShortner } from '../../../helpers';
-const MessageCard = ({ messageItem, activeChannel, pageInfo, activeFilter }) => {
+
+const MessageCard = ({
+	messageItem,
+	activeChannel,
+	pageInfo,
+	activeFilter,
+	openUnsendModal,
+	index,
+}) => {
+	const handleDoubleClick = useCallback(() => {
+		if (messageItem?.userType === 'user') {
+			return;
+		}
+		openUnsendModal(messageItem, index);
+	}, [messageItem, index]);
+
 	return (
 		<div
+			onDoubleClick={handleDoubleClick}
 			className="messageCardContainer"
 			style={{
 				justifyContent: messageItem?.userType === 'user' ? 'flex-start' : 'flex-end',
@@ -70,6 +86,7 @@ const MessageCard = ({ messageItem, activeChannel, pageInfo, activeFilter }) => 
 						alignSelf: messageItem?.userType === 'user' ? 'flex-start' : 'flex-end',
 						borderBottomLeftRadius: messageItem?.userType === 'user' ? 0 : 13,
 						borderBottomRightRadius: messageItem?.userType === 'user' ? 13 : 0,
+						cursor: 'pointer',
 					}}
 				>
 					{messageItem?.messageText}
@@ -93,15 +110,22 @@ const MessageCard = ({ messageItem, activeChannel, pageInfo, activeFilter }) => 
 						alignItems: 'center',
 					}}
 				>
-					{!pageInfo?.instagramBusinessAccount?.profile_picture_url?.length &&
-					!pageInfo?.displayPicture?.length
-						? nameShortner(
-								activeFilter === 'facebook'
-									? pageInfo?.pageName
-									: pageInfo?.instagramBusinessAccount?.name ||
-											pageInfo?.instagramBusinessAccount?.username,
-						  )
-						: ''}
+					{/* {!pageInfo?.instagramBusinessAccount?.profile_picture_url?.length &&
+						!pageInfo?.displayPicture?.length
+							? nameShortner(
+									activeFilter === 'facebook'
+										? pageInfo?.pageName
+										: pageInfo?.instagramBusinessAccount?.name ||
+												pageInfo?.instagramBusinessAccount?.username,
+							  )
+							: ''} */}
+
+					{activeFilter === 'facebook' && !pageInfo?.displayPicture?.length
+						? nameShortner(pageInfo?.pageName)
+						: nameShortner(
+								pageInfo?.instagramBusinessAccount?.name ||
+									pageInfo?.instagramBusinessAccount?.username,
+						  )}
 				</div>
 			) : (
 				''
