@@ -15,6 +15,7 @@ function MyWorkFlowDetails(props) {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { salesId } = useParams();
+
 	let {
 		templates: { workflowslist, getProposals, moreWorkList, updateStateValues },
 	} = useContext(Context);
@@ -172,7 +173,7 @@ function MyWorkFlowDetails(props) {
 
 					<p>
 						{info?.data?.title}{' '}
-						<a href={`https://builder.ve.co/${info?.data?.templates?.[0]?._id}`}>
+						<a href={`https://builder.ve.co/${salesId}`}>
 							<span>(EDIT)</span>
 						</a>
 					</p>
