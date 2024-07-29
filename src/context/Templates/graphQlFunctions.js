@@ -94,3 +94,21 @@ export const getClientListQuery = gql`
 		}
 	}
 `;
+
+export const getTemplateInfoQuery = gql`
+	query TemplateInfo($templateInfoId: ID!) {
+		templateInfo(id: $templateInfoId) {
+			steps {
+				_id
+				criteria
+				module
+				nextStepId
+				nextStepType
+				order
+				type
+				emailTemplateTitle
+			}
+			status
+		}
+	}
+`;

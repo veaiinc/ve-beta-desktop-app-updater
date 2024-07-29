@@ -1,34 +1,43 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/workflowBuilder/workflowbuilder.scss';
 import { ReactComponent as BackArrow } from '../../../assets/svg/worflow_builder/BackArrow.svg';
 import WorkflowBuilderCards from '../../components/workflowBuilderComponents/WorkflowBuilderCards';
 import WorkflowConnector from '../../components/workflowBuilderComponents/WorkflowConnector';
 import WorkflowCardEditModal from '../../components/modalsV2/workflowBuilderModals/WorkflowCardEditModal';
+import Context from '../../../context/context';
 const WorkflowBuilder = () => {
+	const {
+		templates: { getTemplateInfo, specificTemplatesInfo },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
-		data: [
-			{
-				label: 'Workflow Start Point',
-				title: 'Enquiry form for Running your studio Like Made in Heaven',
-				actions: [{ name: 'View' }, { name: 'Edit Form' }],
-				type: 'Entry',
-			},
-			{
-				label: 'Wedding Proposal template',
-				title: 'Proposal',
-				actions: [],
-				subLabel: 'Immediately after Form is submitted, wait for my approval',
-				type: 'image',
-			},
-			{
-				label: 'Reminder Email template',
-				title: 'Send Reminder Email',
-				actions: [{ name: 'Edit Email' }],
-				subLabel: 'Wait for 2 hours after Proposal is sent and then wait for my approval',
-			},
-		],
+		data: null,
 		modalIsOpen: false,
 	});
+
+	useEffect(() => {
+		getTemplateInfoSteps();
+	}, []);
+
+	useEffect(() => {
+		if (specificTemplatesInfo && specificTemplatesInfo?.steps?.length) {
+			setInfo((prev) => ({ ...prev, data: specificTemplatesInfo?.steps }));
+		}
+	}, [specificTemplatesInfo]);
+
+	const getTemplateInfoSteps = useCallback(async () => {
+		const payload = {
+			templateInfoId: '66a7847c1a2699da2140c180',
+		};
+		getTemplateInfo(payload);
+	}, [getTemplateInfo]);
+
+	const closeModalFunc = useCallback(() => {
+		setInfo((prev) => ({ ...prev, modalIsOpen: false }));
+	}, []);
+
+	const openModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, modalIsOpen: true }));
+	}, []);
 
 	const alterData = useCallback(
 		(index, newData) => {
@@ -38,14 +47,6 @@ const WorkflowBuilder = () => {
 		},
 		[info?.data],
 	);
-
-	const closeModalFunc = useCallback(() => {
-		setInfo((prev) => ({ ...prev, modalIsOpen: false }));
-	}, []);
-
-	const openModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, modalIsOpen: true }));
-	}, []);
 
 	return (
 		<div className="workflowBuilderContainer">

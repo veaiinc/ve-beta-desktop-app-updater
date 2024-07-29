@@ -7,6 +7,7 @@ import {
 	getWorkflowDetailsListQuery,
 	duplicateTemplateQuery,
 	getClientListQuery,
+	getTemplateInfoQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -17,6 +18,7 @@ export const intialState = {
 	moreWorkList: null,
 	clientList: null,
 	templatesInfo: null,
+	specificTemplatesInfo: null,
 };
 
 export const TemplatesState = (props) => {
@@ -194,8 +196,33 @@ export const TemplatesState = (props) => {
 	};
 
 	const updateStateValues = async (updatedVaribaleValuesObj) => {
-		dispatch({ type: Actions.UPDATE_STATE_VALUES_SUCCESS, payload: updatedVaribaleValuesObj });
 		try {
+			dispatch({
+				type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+				payload: updatedVaribaleValuesObj,
+			});
+		} catch (error) {
+			console.log('error==>updateStateValues', error);
+		}
+	};
+
+	const getTemplateInfo = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getTemplateInfoQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				const data = response?.[1]?.data?.templateInfo;
+				dispatch({ type: Actions.GET_SPECIFIC_TEMPLATE_INFO_SUCCESS, payload: data });
+			} else {
+				return [false, response?.[1]?.message];
+			}
 		} catch (error) {
 			console.log('error==>updateStateValues', error);
 		}
@@ -213,5 +240,6 @@ export const TemplatesState = (props) => {
 		resetTemplateState,
 		getClientList,
 		updateStateValues,
+		getTemplateInfo,
 	};
 };

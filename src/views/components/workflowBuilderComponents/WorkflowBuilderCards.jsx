@@ -1,14 +1,13 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/workflowBuilder/workflowBuilderCard.scss';
+import { ReactComponent as EmailSvg } from '../../../assets/svg/worflow_builder/email.svg';
 
-const FirstWorkflowCard = ({ openModal }) => {
+const FirstWorkflowCard = ({ openModal, workflowdata }) => {
 	return (
 		<div className="FirstWorkflowCard cardContentContainer" onClick={openModal}>
 			<div className="cardContentContainerheader">
 				<span className="cardContentContainerheaderSubTitle">Workflow Start Point</span>
-				<span className="cardContentContainerheaderTitle">
-					Enquiry form for Running your studio Like Made in Heaven
-				</span>
+				<span className="cardContentContainerheaderTitle">{workflowdata?.module}</span>
 			</div>
 			<div className="actionContainer">
 				<div className="viewBtn">View</div>
@@ -18,13 +17,15 @@ const FirstWorkflowCard = ({ openModal }) => {
 	);
 };
 
-const ImageCards = ({ openModal }) => {
+const EmailCards = ({ openModal, workflowdata }) => {
 	return (
 		<div className="cardContentContainer" onClick={openModal}>
-			<div className="imageContainer"></div>
 			<div className="footer">
-				<span className="cardContentContainerheaderSubTitle">Wedding Invoice template</span>
-				<span className="cardContentContainerheaderTitle">Invoice</span>
+				<EmailSvg />
+				<span className="cardContentContainerheaderSubTitle">Email template</span>
+				<span className="cardContentContainerheaderTitle">
+					{workflowdata?.emailTemplateTitle}
+				</span>
 				<span className="cardContentContainerheaderSubTitle">
 					Immediately after Payment is made
 				</span>
@@ -35,14 +36,14 @@ const ImageCards = ({ openModal }) => {
 
 const WorkflowBuilderCards = ({ workflowdata, openModal }) => {
 	const mapper = {
-		image: <ImageCards openModal={openModal} />,
+		email: <EmailCards openModal={openModal} workflowdata={workflowdata} />,
 	};
 	return (
 		<div className="WorkflowBuilderCardsParentContainer">
-			{mapper?.[workflowdata?.type] ? (
-				mapper?.[workflowdata?.type]
+			{mapper?.[workflowdata?.module] ? (
+				mapper?.[workflowdata?.module]
 			) : (
-				<FirstWorkflowCard openModal={openModal} />
+				<FirstWorkflowCard openModal={openModal} workflowdata={workflowdata} />
 			)}
 		</div>
 	);

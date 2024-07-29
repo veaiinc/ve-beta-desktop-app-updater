@@ -10,6 +10,10 @@ const actionHandlers = {
 		templatesInfo: action.payload,
 	}),
 	UPDATE_STATE_VALUES_SUCCESS: (state, action) => ({ ...state, ...action.payload }),
+	GET_SPECIFIC_TEMPLATE_INFO_SUCCESS: (state, action) => ({
+		...state,
+		specificTemplatesInfo: action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 
