@@ -120,7 +120,11 @@ const MessageCard = ({
 							  )
 							: ''} */}
 
-					{activeFilter === 'facebook' && !pageInfo?.displayPicture?.length
+					{(activeFilter === 'facebook' && pageInfo?.displayPicture?.length) ||
+					(activeFilter === 'instagram' &&
+						pageInfo?.instagramBusinessAccount?.profile_picture_url)
+						? ''
+						: activeFilter === 'facebook' && !pageInfo?.displayPicture?.length
 						? nameShortner(pageInfo?.pageName)
 						: nameShortner(
 								pageInfo?.instagramBusinessAccount?.name ||
