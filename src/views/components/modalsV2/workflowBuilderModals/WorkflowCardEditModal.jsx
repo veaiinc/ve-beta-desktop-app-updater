@@ -67,10 +67,37 @@ const smartFileActions = [
 	},
 ];
 
-const WorkflowCardEditModal = ({ modalIsOpen, closeModalFunc, previousStepId }) => {
+const initialState = {
+	editState: false,
+	emailTemplates: null,
+	selectedEmailTemplate: null,
+	subject: '',
+	emailBody: '',
+	noOfDays: 1,
+	selectedDuration: {
+		label: 'Days',
+		value: 'days',
+	},
+	requiredApproval: false,
+	saveLoader: false,
+	pageLoader: true,
+};
+
+const WorkflowCardEditModal = ({
+	modalIsOpen,
+	closeModalFunc,
+	previousStepId,
+	addorUpdateSteps,
+	mode,
+}) => {
 	const editor = useRef(null);
 	const {
-		templates: { getAllEmailTemplates, allEmailTemplates, addEmailTriggersInWorkflow },
+		templates: {
+			getAllEmailTemplates,
+			allEmailTemplates,
+			addEmailTriggersInWorkflow,
+			getSpecificWorkflowTemplateDetails,
+		},
 	} = useContext(Context);
 
 	//states
@@ -86,7 +113,8 @@ const WorkflowCardEditModal = ({ modalIsOpen, closeModalFunc, previousStepId }) 
 			value: 'days',
 		},
 		requiredApproval: false,
-		saveLoader: true,
+		saveLoader: false,
+		pageLoader: true,
 	});
 
 	//useEFfects
@@ -116,6 +144,18 @@ const WorkflowCardEditModal = ({ modalIsOpen, closeModalFunc, previousStepId }) 
 			}));
 		}
 	}, [allEmailTemplates]);
+
+	useEffect(() => {
+		if (modalIsOpen && mode === 'edit') {
+			const payload = {
+				getEmailTemplateId: '66a8eab3b8d1a50b5aeea08b',
+			};
+			getSpecificWorkflowTemplateDetails(payload);
+		}
+		if (modalIsOpen && mode === 'create') {
+			setInfo((prev) => ({ ...prev, pageLoader: false }));
+		}
+	}, [modalIsOpen, mode]);
 
 	//function definations
 
@@ -150,8 +190,16 @@ const WorkflowCardEditModal = ({ modalIsOpen, closeModalFunc, previousStepId }) 
 
 	const closeModal = useCallback(() => {
 		closeModalFunc();
-		setInfo((prev) => ({ ...prev, editState: false }));
-	}, [closeModalFunc]);
+		let updatedData = { ...initialState };
+		if (info?.emailTemplates) {
+			updatedData.emailTemplates = [...(info?.emailTemplates || [])];
+			updatedData.selectedEmailTemplate = info?.emailTemplates?.[0]?.ele;
+			updatedData.subject = info?.emailTemplates?.[0]?.ele?.subject;
+			updatedData.emailBody = info?.emailTemplates?.[0]?.ele?.htmlBody;
+		}
+
+		setInfo(updatedData);
+	}, [closeModalFunc, info?.emailTemplates]);
 
 	const saveChangesFunc = useCallback(async () => {
 		if (info?.editState) {
@@ -171,11 +219,18 @@ const WorkflowCardEditModal = ({ modalIsOpen, closeModalFunc, previousStepId }) 
 					emailTemplateId: info?.selectedEmailTemplate?._id,
 					previousStepId: previousStepId,
 					sendAt: timeStamp,
+					htmlBody: info?.emailBody,
+					subject: info?.subject,
 				},
 			},
 		};
 		const response = await addEmailTriggersInWorkflow(payload);
 		setInfo((prev) => ({ ...prev, saveLoader: false }));
+		if (response?.[0]) {
+			const stepsData = response?.[1];
+			addorUpdateSteps(stepsData);
+			closeModal();
+		}
 	}, [
 		info.editState,
 		info.saveLoader,
@@ -183,6 +238,8 @@ const WorkflowCardEditModal = ({ modalIsOpen, closeModalFunc, previousStepId }) 
 		info?.selectedEmailTemplate,
 		info?.noOfDays,
 		info?.selectedDuration,
+		info?.subject,
+		info?.emailBody,
 	]);
 
 	const calculateTimeStamp = useCallback(async (selectedDuration, duration) => {
@@ -255,7 +312,23 @@ const WorkflowCardEditModal = ({ modalIsOpen, closeModalFunc, previousStepId }) 
 							</div>
 						</div>
 					</div>
-					{!info?.editState ? (
+					{info?.pageLoader ? (
+						<div
+							className="loadingScreen"
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								justifyContent: 'center',
+								alignItems: 'center',
+								flex: 1,
+								gap: '24px',
+								color: '#fff',
+							}}
+						>
+							<Spinner />
+							<span>Fetching details ....</span>
+						</div>
+					) : !info?.editState ? (
 						<div className="WorkFlowEditorBody">
 							{/* action typ */}
 							<div className="actionType">

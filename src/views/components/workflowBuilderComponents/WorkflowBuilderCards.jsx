@@ -24,7 +24,7 @@ const EmailCards = ({ openModal, workflowdata }) => {
 				<EmailSvg />
 				<span className="cardContentContainerheaderSubTitle">Email template</span>
 				<span className="cardContentContainerheaderTitle">
-					{workflowdata?.emailTemplateTitle}
+					{workflowdata?.emailTemplateSubject}
 				</span>
 				<span className="cardContentContainerheaderSubTitle">
 					Immediately after Payment is made

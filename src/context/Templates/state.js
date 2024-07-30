@@ -10,6 +10,7 @@ import {
 	getTemplateInfoQuery,
 	getAllEmailTemplatesQuery,
 	addEmailTriggersInWorkflowQuery,
+	getSpecificWorkflowTemplateDetailsQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -265,9 +266,33 @@ export const TemplatesState = (props) => {
 				usertoken,
 				'workflows_Api',
 			);
-			console.log('resposne', response);
+
+			if (response?.[0]) {
+				const stepsData = response?.[1]?.data?.updateWorkflowTemplate?.steps;
+				return [true, stepsData];
+			} else {
+				console.log('Api failed ==>addEmailTriggersInWorkflow', response);
+				return [false];
+			}
 		} catch (error) {
 			console.log('error==>addEmailTriggersInWorkflow', error);
+		}
+	};
+
+	const getSpecificWorkflowTemplateDetails = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getSpecificWorkflowTemplateDetailsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			console.log('response: ', response);
+		} catch (error) {
+			console.log('error==>getSpecificWorkflowTemplateDetails', error);
 		}
 	};
 
@@ -286,5 +311,6 @@ export const TemplatesState = (props) => {
 		getTemplateInfo,
 		getAllEmailTemplates,
 		addEmailTriggersInWorkflow,
+		getSpecificWorkflowTemplateDetails,
 	};
 };

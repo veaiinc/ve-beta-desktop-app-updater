@@ -13,6 +13,7 @@ const WorkflowBuilder = () => {
 		data: null,
 		modalIsOpen: false,
 		previousStepId: null,
+		mode: 'create',
 	});
 
 	//useEffects
@@ -22,7 +23,6 @@ const WorkflowBuilder = () => {
 
 	useEffect(() => {
 		if (specificTemplatesInfo && specificTemplatesInfo?.steps?.length) {
-			console.log('hgello', specificTemplatesInfo);
 			setInfo((prev) => ({ ...prev, data: specificTemplatesInfo?.steps }));
 		}
 	}, [specificTemplatesInfo]);
@@ -37,24 +37,35 @@ const WorkflowBuilder = () => {
 	}, [getTemplateInfo]);
 
 	const closeModalFunc = useCallback(() => {
-		setInfo((prev) => ({ ...prev, modalIsOpen: false }));
+		setInfo((prev) => ({
+			...prev,
+			modalIsOpen: false,
+			previousStepId: null,
+			mode: 'create',
+		}));
 	}, []);
 
 	const openModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, modalIsOpen: true }));
+		setInfo((prev) => ({ ...prev, modalIsOpen: true, mode: 'edit' }));
 	}, []);
 
 	const alterData = useCallback(
 		(index, newData) => {
-			// const updatedata = [...info?.data];
-			// updatedata?.splice(index, 0, newData);
 			setInfo((prev) => ({
 				...prev,
 				modalIsOpen: true,
 				previousStepId: info?.data?.[index - 1]?._id,
+				mode: 'create',
 			}));
 		},
 		[info?.data],
+	);
+
+	const addorUpdateSteps = useCallback(
+		async (updatedData) => {
+			setInfo((prev) => ({ ...prev, data: updatedData }));
+		},
+		[info],
 	);
 
 	return (
@@ -90,6 +101,8 @@ const WorkflowBuilder = () => {
 					closeModalFunc={closeModalFunc}
 					modalIsOpen={info?.modalIsOpen}
 					previousStepId={info?.previousStepId}
+					mode={info?.mode}
+					addorUpdateSteps={addorUpdateSteps}
 				/>
 			</div>
 		</div>

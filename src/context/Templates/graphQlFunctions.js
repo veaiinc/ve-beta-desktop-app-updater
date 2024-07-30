@@ -151,3 +151,15 @@ export const addEmailTriggersInWorkflowQuery = gql`
 		}
 	}
 `;
+
+export const getSpecificWorkflowTemplateDetailsQuery = gql`
+	query GetEmailTemplate($getEmailTemplateId: ID!) {
+		getEmailTemplate(id: $getEmailTemplateId) {
+			htmlBody
+			subject
+			title
+			sendAt
+			approvalRequired
+		}
+	}
+`;
