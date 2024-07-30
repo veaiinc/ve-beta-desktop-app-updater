@@ -18,20 +18,16 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 		items: [
 			{
 				label: 'Company Profile',
-				onClickFunc: async () => navigate('/workspace-settings/company-overview-settings'),
 			},
 
 			{
 				label: 'My Profile',
-				onClickFunc: async () => navigate('/my-profile'),
 			},
 			{
 				label: 'Create Workspace',
-				onClickFunc: async () => navigate('/create-workspace'),
 			},
 			{
 				label: `Switch Workspace (${accessibleWorkspaces?.length})`,
-				onClickFunc: () => setInfo((prev) => ({ ...prev, switchWorkspaceModal: true })),
 			},
 		],
 		activeBusniessName: '',
@@ -54,6 +50,25 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 	const closeSwitchModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, switchWorkspaceModal: false }));
 	}, [info?.switchWorkspaceModal]);
+
+	const onOptionChangeFunc = useCallback(
+		async (data) => {
+			const { label } = data;
+
+			if (label === 'Company Profile') {
+				return navigate('/workspace-settings/company-overview-settings');
+			}
+			if (label === 'My Profile') {
+				return navigate('/my-profile');
+			}
+			if (label === 'Create Workspace') {
+				return navigate('/create-workspace');
+			} else {
+				setInfo((prev) => ({ ...prev, switchWorkspaceModal: true }));
+			}
+		},
+		[accessibleWorkspaces, info],
+	);
 
 	return (
 		<div className="headerContainer">
@@ -106,6 +121,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 				logoutOptions={true}
 				showIcon={true}
 				onMouseHoverFunc={true}
+				onChangeFunc={(e) => onOptionChangeFunc(e)}
 			/>
 			<SwitchWorkspaceModal
 				open={info?.switchWorkspaceModal}

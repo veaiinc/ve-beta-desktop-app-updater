@@ -1,5 +1,5 @@
 import '../../../assets/scss/signin.scss';
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import HeadersDropDownComp from '../../components/dropDown/HeadersDropDownComp';
@@ -72,53 +72,64 @@ const GetBusinessDetails = ({ errorStates, setLoading, setErrorState, isLoading 
 	const options = [
 		{
 			label: 'Make up Artist',
-			onClickFunc: () =>
-				onBusinessTypeChange({ value: 'makeUpArtist', label: 'Make up Artist' }),
+			value: 'makeUpArtist',
+			// onClickFunc: () =>
+			// 	onBusinessTypeChange({ value: 'makeUpArtist', label: 'Make up Artist' }),
 		},
 		{
 			label: 'Consultant',
-			onClickFunc: () => onBusinessTypeChange({ value: 'consultant', label: 'Consultant' }),
+			value: 'consultant',
+			// onClickFunc: () => onBusinessTypeChange({ value: 'consultant', label: 'Consultant' }),
 		},
 		{
 			label: 'Salon & Spa',
-			onClickFunc: () => onBusinessTypeChange({ value: 'salonAndSpa', label: 'Salon & Spa' }),
+			value: 'salonAndSpa',
+			// onClickFunc: () => onBusinessTypeChange({ value: 'salonAndSpa', label: 'Salon & Spa' }),
 		},
 		{
 			label: 'Architecture',
-			onClickFunc: () =>
-				onBusinessTypeChange({ value: 'architecture', label: 'Architecture' }),
+			value: 'architecture',
+			// onClickFunc: () =>
+			// 	onBusinessTypeChange({ value: 'architecture', label: 'Architecture' }),
 		},
 		{
 			label: 'Photographer',
-			onClickFunc: () =>
-				onBusinessTypeChange({ value: 'photographer', label: 'Photographer' }),
+			value: 'photographer',
+			// onClickFunc: () =>
+			// 	onBusinessTypeChange({ value: 'photographer', label: 'Photographer' }),
 		},
 		{
 			label: 'Fashion Designer',
-			onClickFunc: () =>
-				onBusinessTypeChange({ value: 'fashionDesigner', label: 'Fashion Designer' }),
+			value: 'fashionDesigner',
+			// onClickFunc: () =>
+			// 	onBusinessTypeChange({ value: 'fashionDesigner', label: 'Fashion Designer' }),
 		},
 		{
 			label: 'Event Management',
-			onClickFunc: () =>
-				onBusinessTypeChange({ value: 'eventManagement', label: 'Event Management' }),
+			value: 'eventManagement',
+			// onClickFunc: () =>
+			// 	onBusinessTypeChange({ value: 'eventManagement', label: 'Event Management' }),
 		},
 		{
 			label: 'Interior Designer',
-			onClickFunc: () =>
-				onBusinessTypeChange({ value: 'interiorDesigner', label: 'Interior Designer' }),
+			value: 'interiorDesigner',
+			// onClickFunc: () =>
+			// 	onBusinessTypeChange({ value: 'interiorDesigner', label: 'Interior Designer' }),
 		},
 		{
 			label: 'Business Coach',
-			onClickFunc: () =>
-				onBusinessTypeChange({ value: 'businessCoach', label: 'Business Coach' }),
+			value: 'businessCoach',
+			// onClickFunc: () =>
+			// 	onBusinessTypeChange({ value: 'businessCoach', label: 'Business Coach' }),
 		},
 		{
 			label: 'Restaurateur',
-			onClickFunc: () =>
-				onBusinessTypeChange({ value: 'restaurateur', label: 'Restaurateur' }),
+			value: 'restaurateur',
+			// onClickFunc: () =>
+			// 	onBusinessTypeChange({ value: 'restaurateur', label: 'Restaurateur' }),
 		},
 	];
+
 	return (
 		<div className="stepOne">
 			<p className="heading">Let’s get Started</p>
@@ -155,6 +166,7 @@ const GetBusinessDetails = ({ errorStates, setLoading, setErrorState, isLoading 
 						right: 0,
 						top: '60px',
 					}}
+					onChangeFunc={(ele) => onBusinessTypeChange(ele)}
 				/>
 			</div>
 

@@ -12,17 +12,22 @@ const WorkflowBuilder = () => {
 	const [info, setInfo] = useState({
 		data: null,
 		modalIsOpen: false,
+		previousStepId: null,
 	});
 
+	//useEffects
 	useEffect(() => {
 		getTemplateInfoSteps();
 	}, []);
 
 	useEffect(() => {
 		if (specificTemplatesInfo && specificTemplatesInfo?.steps?.length) {
+			console.log('hgello', specificTemplatesInfo);
 			setInfo((prev) => ({ ...prev, data: specificTemplatesInfo?.steps }));
 		}
 	}, [specificTemplatesInfo]);
+
+	//function definations
 
 	const getTemplateInfoSteps = useCallback(async () => {
 		const payload = {
@@ -41,9 +46,13 @@ const WorkflowBuilder = () => {
 
 	const alterData = useCallback(
 		(index, newData) => {
-			const updatedata = [...info?.data];
-			updatedata?.splice(index, 0, newData);
-			setInfo((prev) => ({ ...prev, data: updatedata }));
+			// const updatedata = [...info?.data];
+			// updatedata?.splice(index, 0, newData);
+			setInfo((prev) => ({
+				...prev,
+				modalIsOpen: true,
+				previousStepId: info?.data?.[index - 1]?._id,
+			}));
 		},
 		[info?.data],
 	);
@@ -80,6 +89,7 @@ const WorkflowBuilder = () => {
 				<WorkflowCardEditModal
 					closeModalFunc={closeModalFunc}
 					modalIsOpen={info?.modalIsOpen}
+					previousStepId={info?.previousStepId}
 				/>
 			</div>
 		</div>

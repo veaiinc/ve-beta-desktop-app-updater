@@ -14,6 +14,10 @@ const actionHandlers = {
 		...state,
 		specificTemplatesInfo: action.payload,
 	}),
+	GET_ALL_EMAIL_TEMPLATES_SUCCESS: (state, action) => ({
+		...state,
+		allEmailTemplates: action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

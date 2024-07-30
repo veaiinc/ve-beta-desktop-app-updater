@@ -31,13 +31,17 @@ const HeadersDropDownComp = ({
 	logoutOptions,
 	onMouseHoverFunc = false,
 	outerContainerStyle,
+	onChangeFunc,
 }) => {
 	const logoutFunc = useLogout();
 	const [isOpen, setIsOpen] = useState(false);
 	const toggleDropdown = () => setIsOpen((prev) => !prev);
 
 	const handleOptionClick = (option) => {
-		option?.onClickFunc();
+		if (onChangeFunc) {
+			onChangeFunc(option);
+		}
+
 		setIsOpen(false);
 	};
 	const handleClose = () => {
@@ -66,7 +70,12 @@ const HeadersDropDownComp = ({
 				) : (
 					''
 				)}
-				<span className="selectedPage">{selectedValue}</span>
+				<span
+					className="selectedPage"
+					style={{ color: containerStyle?.color || 'rgba(224, 224, 224, 0.32)' }}
+				>
+					{selectedValue}
+				</span>
 				<DownArrow />
 			</div>
 			{isOpen ? (

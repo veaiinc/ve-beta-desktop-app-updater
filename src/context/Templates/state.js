@@ -8,6 +8,8 @@ import {
 	duplicateTemplateQuery,
 	getClientListQuery,
 	getTemplateInfoQuery,
+	getAllEmailTemplatesQuery,
+	addEmailTriggersInWorkflowQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -19,6 +21,7 @@ export const intialState = {
 	clientList: null,
 	templatesInfo: null,
 	specificTemplatesInfo: null,
+	allEmailTemplates: null,
 };
 
 export const TemplatesState = (props) => {
@@ -228,6 +231,46 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getAllEmailTemplates = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getAllEmailTemplatesQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const data = response?.[1]?.data?.emailTemplatesList;
+				dispatch({ type: Actions.GET_ALL_EMAIL_TEMPLATES_SUCCESS, payload: data });
+			} else {
+				console.log('api failed==>getAllEmailTemplates', response);
+			}
+		} catch (error) {
+			console.log('error==>getAllEmailTemplates', error);
+		}
+	};
+
+	const addEmailTriggersInWorkflow = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				addEmailTriggersInWorkflowQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			console.log('resposne', response);
+		} catch (error) {
+			console.log('error==>addEmailTriggersInWorkflow', error);
+		}
+	};
+
 	return {
 		...state,
 		getProposals,
@@ -241,5 +284,7 @@ export const TemplatesState = (props) => {
 		getClientList,
 		updateStateValues,
 		getTemplateInfo,
+		getAllEmailTemplates,
+		addEmailTriggersInWorkflow,
 	};
 };

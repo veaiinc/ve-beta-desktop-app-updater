@@ -107,8 +107,47 @@ export const getTemplateInfoQuery = gql`
 				order
 				type
 				emailTemplateTitle
+				emailTemplateId
+				sendAt
+				emailTemplateSubject
 			}
 			status
+		}
+	}
+`;
+
+export const getAllEmailTemplatesQuery = gql`
+	query EmailTemplatesList($filters: EmailTemplateListFiltersInput!) {
+		emailTemplatesList(filters: $filters) {
+			currentPage
+			data {
+				subject
+				htmlBody
+				_id
+				title
+			}
+			hasNextPage
+		}
+	}
+`;
+
+export const addEmailTriggersInWorkflowQuery = gql`
+	mutation UpdateWorkflowTemplate($templateId: ID!, $updateObj: TemplateUpdateObj!) {
+		updateWorkflowTemplate(templateId: $templateId, updateObj: $updateObj) {
+			_id
+			steps {
+				_id
+				criteria
+				module
+				nextStepId
+				nextStepType
+				emailTemplateTitle
+				emailTemplateSubject
+				emailTemplateId
+				sendAt
+				order
+				type
+			}
 		}
 	}
 `;

@@ -44,7 +44,6 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 				let obj = {
 					label: data?.[i]?.name,
 					value: JSON.stringify(data?.[i]),
-					onClickFunc: () => handleSelectedLead(data?.[i]),
 				};
 
 				clientData.push(obj);
@@ -177,6 +176,15 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 		setCreateButtonActiveState(true);
 	};
 
+	const onChangeClientLists = useCallback(
+		async (data) => {
+			let { value } = data;
+			value = JSON.parse(value);
+			handleSelectedLead(value);
+		},
+		[handleSelectedLead],
+	);
+
 	return (
 		<ReactModal isOpen={modalIsOpen} closeModal={closeModalFunc}>
 			<div className="createLeadModal" style={{ minHeight: '400px' }}>
@@ -301,6 +309,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								top: '60px',
 								maxHeight: '300px',
 							}}
+							onChangeFunc={(e) => onChangeClientLists(e)}
 						/>
 					</div>
 				)}
