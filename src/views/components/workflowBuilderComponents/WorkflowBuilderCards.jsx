@@ -2,9 +2,12 @@ import React, { memo } from 'react';
 import '../../../assets/scss/workflowBuilder/workflowBuilderCard.scss';
 import { ReactComponent as EmailSvg } from '../../../assets/svg/worflow_builder/email.svg';
 
-const FirstWorkflowCard = ({ openModal, workflowdata }) => {
+const FirstWorkflowCard = ({ openModal, workflowdata, index }) => {
 	return (
-		<div className="FirstWorkflowCard cardContentContainer" onClick={openModal}>
+		<div
+			className="FirstWorkflowCard cardContentContainer"
+			onClick={() => openModal(workflowdata, index)}
+		>
 			<div className="cardContentContainerheader">
 				<span className="cardContentContainerheaderSubTitle">Workflow Start Point</span>
 				<span className="cardContentContainerheaderTitle">{workflowdata?.module}</span>
@@ -17,9 +20,9 @@ const FirstWorkflowCard = ({ openModal, workflowdata }) => {
 	);
 };
 
-const EmailCards = ({ openModal, workflowdata }) => {
+const EmailCards = ({ openModal, workflowdata, index }) => {
 	return (
-		<div className="cardContentContainer" onClick={openModal}>
+		<div className="cardContentContainer" onClick={() => openModal(workflowdata, index)}>
 			<div className="footer">
 				<EmailSvg />
 				<span className="cardContentContainerheaderSubTitle">Email template</span>
@@ -34,16 +37,20 @@ const EmailCards = ({ openModal, workflowdata }) => {
 	);
 };
 
-const WorkflowBuilderCards = ({ workflowdata, openModal }) => {
+const WorkflowBuilderCards = ({ workflowdata, openModal, index }) => {
 	const mapper = {
-		email: <EmailCards openModal={openModal} workflowdata={workflowdata} />,
+		email: <EmailCards openModal={openModal} workflowdata={workflowdata} index={index} />,
 	};
 	return (
 		<div className="WorkflowBuilderCardsParentContainer">
 			{mapper?.[workflowdata?.module] ? (
 				mapper?.[workflowdata?.module]
 			) : (
-				<FirstWorkflowCard openModal={openModal} workflowdata={workflowdata} />
+				<FirstWorkflowCard
+					openModal={openModal}
+					workflowdata={workflowdata}
+					index={index}
+				/>
 			)}
 		</div>
 	);

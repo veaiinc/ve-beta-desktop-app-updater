@@ -10,6 +10,7 @@ import Context from '../../../../context/context';
 import ToggleSlider from '../../input/slider';
 import moment from 'moment';
 import Spinner from '../../loaders/Spinner';
+import DeleteWorkflowStep from './DeleteWorkflowStep';
 const options = [
 	{
 		label: 'Minutes',
@@ -81,6 +82,7 @@ const initialState = {
 	requiredApproval: false,
 	saveLoader: false,
 	pageLoader: true,
+	deleteStepModal: false,
 };
 
 const WorkflowCardEditModal = ({
@@ -89,6 +91,7 @@ const WorkflowCardEditModal = ({
 	previousStepId,
 	addorUpdateSteps,
 	mode,
+	deleteWorkFlowStep,
 }) => {
 	const editor = useRef(null);
 	const {
@@ -115,6 +118,7 @@ const WorkflowCardEditModal = ({
 		requiredApproval: false,
 		saveLoader: false,
 		pageLoader: true,
+		deleteStepModal: false,
 	});
 
 	//useEFfects
@@ -287,6 +291,18 @@ const WorkflowCardEditModal = ({
 		setInfo((prev) => ({ ...prev, requiredApproval: data }));
 	}, []);
 
+	const closeDeleteStepModal = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, deleteStepModal: false }));
+	}, []);
+
+	const modifiedDeleteWorkflowStep = useCallback(async () => {
+		const response = await deleteWorkFlowStep();
+		if (response) {
+			closeDeleteStepModal();
+			closeModal();
+		}
+	}, [deleteWorkFlowStep]);
+
 	return (
 		<ReactModal isOpen={modalIsOpen} closeModal={closeModal} modalType="right">
 			<div className="WorkflowCardEditModalParentContainer">
@@ -298,12 +314,17 @@ const WorkflowCardEditModal = ({
 						</span>
 						<div className="closeDeleteContainer">
 							{!info?.editState ? (
-								<>
+								<div
+									style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+									onClick={() =>
+										setInfo((prev) => ({ ...prev, deleteStepModal: true }))
+									}
+								>
 									<span className="closeBtn">
 										<Dustbin />
 									</span>
 									<div className="deleteBtn">Delete</div>
-								</>
+								</div>
 							) : (
 								''
 							)}
@@ -505,6 +526,12 @@ const WorkflowCardEditModal = ({
 					</div>
 				</div>
 			</div>
+
+			<DeleteWorkflowStep
+				modalIsOpen={info?.deleteStepModal}
+				closeModal={closeDeleteStepModal}
+				deleteWorkFlowStep={modifiedDeleteWorkflowStep}
+			/>
 		</ReactModal>
 	);
 };

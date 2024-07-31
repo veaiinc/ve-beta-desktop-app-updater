@@ -163,3 +163,11 @@ export const getSpecificWorkflowTemplateDetailsQuery = gql`
 		}
 	}
 `;
+
+export const deleteWorkflowStepQuery = gql`
+	mutation DeleteStep($templateId: ID!, $stepId: ID!) {
+		deleteStep(templateId: $templateId, stepId: $stepId) {
+			message
+		}
+	}
+`;

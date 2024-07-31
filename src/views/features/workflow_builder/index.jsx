@@ -7,13 +7,15 @@ import WorkflowCardEditModal from '../../components/modalsV2/workflowBuilderModa
 import Context from '../../../context/context';
 const WorkflowBuilder = () => {
 	const {
-		templates: { getTemplateInfo, specificTemplatesInfo },
+		templates: { getTemplateInfo, specificTemplatesInfo, deleteWorkflowStep },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		data: null,
 		modalIsOpen: false,
 		previousStepId: null,
 		mode: 'create',
+		currentStepInfo: null,
+		currentStepIndex: null,
 	});
 
 	//useEffects
@@ -42,11 +44,19 @@ const WorkflowBuilder = () => {
 			modalIsOpen: false,
 			previousStepId: null,
 			mode: 'create',
+			currentStepInfo: null,
+			currentStepIndex: null,
 		}));
 	}, []);
 
-	const openModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, modalIsOpen: true, mode: 'edit' }));
+	const openModal = useCallback((data, index) => {
+		setInfo((prev) => ({
+			...prev,
+			modalIsOpen: true,
+			mode: 'edit',
+			currentStepInfo: data,
+			currentStepIndex: index,
+		}));
 	}, []);
 
 	const alterData = useCallback(
@@ -67,6 +77,20 @@ const WorkflowBuilder = () => {
 		},
 		[info],
 	);
+
+	const deleteWorkFlowStepFunc = useCallback(async () => {
+		const payload = {
+			templateId: '66a7847c1a2699da2140c180',
+			stepId: info?.currentStepInfo?._id,
+		};
+		const response = await deleteWorkflowStep(payload);
+		if (response?.[0]) {
+			const updatedData = [...(info?.data || [])];
+			updatedData.splice(info?.currentStepIndex, 1);
+			setInfo((prev) => ({ ...prev, data: updatedData }));
+			return true;
+		}
+	}, [deleteWorkflowStep, info?.currentStepInfo, info?.currentStepIndex, info?.data]);
 
 	return (
 		<div className="workflowBuilderContainer">
@@ -93,7 +117,11 @@ const WorkflowBuilder = () => {
 							gap: '10px',
 						}}
 					>
-						<WorkflowBuilderCards workflowdata={ele} openModal={openModal} />
+						<WorkflowBuilderCards
+							workflowdata={ele}
+							openModal={openModal}
+							index={index}
+						/>
 						<WorkflowConnector alterData={alterData} index={index} />
 					</div>
 				))}
@@ -103,6 +131,7 @@ const WorkflowBuilder = () => {
 					previousStepId={info?.previousStepId}
 					mode={info?.mode}
 					addorUpdateSteps={addorUpdateSteps}
+					deleteWorkFlowStep={deleteWorkFlowStepFunc}
 				/>
 			</div>
 		</div>

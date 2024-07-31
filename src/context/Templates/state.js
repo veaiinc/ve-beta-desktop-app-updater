@@ -11,6 +11,7 @@ import {
 	getAllEmailTemplatesQuery,
 	addEmailTriggersInWorkflowQuery,
 	getSpecificWorkflowTemplateDetailsQuery,
+	deleteWorkflowStepQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -296,6 +297,28 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const deleteWorkflowStep = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				deleteWorkflowStepQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				console.log('Api failed==>deleteWorkflowStep', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>deleteWorkflowStep', error);
+		}
+	};
+
 	return {
 		...state,
 		getProposals,
@@ -312,5 +335,6 @@ export const TemplatesState = (props) => {
 		getAllEmailTemplates,
 		addEmailTriggersInWorkflow,
 		getSpecificWorkflowTemplateDetails,
+		deleteWorkflowStep,
 	};
 };
