@@ -1,14 +1,14 @@
 .authParentContainer {
 	width: 100vw;
 	height: 100vh;
-	background: #131314;
+	background: #111;
 	display: flex;
 	flex-direction: column;
 
 	.childrenContainer {
 		flex: 1;
 		padding: 1.5rem 6rem 3rem 6rem;
-		background: #131314;
+		background: #111;
 		margin-top: 5rem;
 	}
 }
