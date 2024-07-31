@@ -5,6 +5,7 @@ import WorkflowBuilderCards from '../../components/workflowBuilderComponents/Wor
 import WorkflowConnector from '../../components/workflowBuilderComponents/WorkflowConnector';
 import WorkflowCardEditModal from '../../components/modalsV2/workflowBuilderModals/WorkflowCardEditModal';
 import Context from '../../../context/context';
+import moment from 'moment';
 const WorkflowBuilder = () => {
 	const {
 		templates: { getTemplateInfo, specificTemplatesInfo, deleteWorkflowStep },
@@ -92,6 +93,17 @@ const WorkflowBuilder = () => {
 		}
 	}, [deleteWorkflowStep, info?.currentStepInfo, info?.currentStepIndex, info?.data]);
 
+	const editWorkflowStep = useCallback(
+		async (newData, index) => {
+			const updatedData = [...(info?.data || [])];
+			updatedData.splice(index, 1, newData);
+			setInfo((prev) => ({ ...prev, data: updatedData }));
+		},
+		[info?.data],
+	);
+
+	// console.log(calculateTimeDifference(1722430759));
+
 	return (
 		<div className="workflowBuilderContainer">
 			{/* header */}
@@ -132,6 +144,9 @@ const WorkflowBuilder = () => {
 					mode={info?.mode}
 					addorUpdateSteps={addorUpdateSteps}
 					deleteWorkFlowStep={deleteWorkFlowStepFunc}
+					currentStepInfo={info?.currentStepInfo}
+					currentStepIndex={info?.currentStepIndex}
+					editWorkflowStep={editWorkflowStep}
 				/>
 			</div>
 		</div>

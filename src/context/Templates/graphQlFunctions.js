@@ -171,3 +171,14 @@ export const deleteWorkflowStepQuery = gql`
 		}
 	}
 `;
+
+export const updateWorkflowStepsQuery = gql`
+	mutation UpdateEmailTemplate(
+		$updateEmailTemplateId: ID!
+		$updateTemplateInput: UpdateTemplateInput!
+	) {
+		updateEmailTemplate(id: $updateEmailTemplateId, updateTemplateInput: $updateTemplateInput) {
+			_id
+		}
+	}
+`;

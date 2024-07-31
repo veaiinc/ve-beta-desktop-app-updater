@@ -76,6 +76,9 @@
 			line-height: 16px; /* 123.077% */
 			letter-spacing: 0.26px;
 			cursor: pointer;
+			display: flex;
+			gap: 12px;
+			align-items: center;
 		}
 	}
 }

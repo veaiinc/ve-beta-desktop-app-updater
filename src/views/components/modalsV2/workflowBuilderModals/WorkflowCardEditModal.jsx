@@ -8,65 +8,15 @@ import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import JoditEditor from 'jodit-react';
 import Context from '../../../../context/context';
 import ToggleSlider from '../../input/slider';
-import moment from 'moment';
 import Spinner from '../../loaders/Spinner';
 import DeleteWorkflowStep from './DeleteWorkflowStep';
-const options = [
-	{
-		label: 'Minutes',
-		value: 'minutes',
-	},
-
-	{
-		label: 'Hours',
-		value: 'hours',
-	},
-	{
-		label: 'Days',
-		value: 'days',
-	},
-	{
-		label: 'Weeks',
-		value: 'week',
-	},
-];
-
-const smartFileActions = [
-	{
-		label: 'After Form response is submitted',
-		value: 'After Form response is submitted',
-	},
-
-	{
-		label: 'After Smart file is sent for un Accepted Proposals',
-		value: 'After Smart file is sent for un Accepted Proposals',
-	},
-	{
-		label: 'After Proposal accepted',
-		value: 'After Proposal accepted',
-	},
-	{
-		label: 'After Proposal accepted, Unsigned Contract',
-		value: 'After Proposal accepted, Unsigned Contract',
-	},
-	{
-		label: 'After Form response is submitted',
-		value: 'After Form response is submitted',
-	},
-
-	{
-		label: 'After Smart file is sent for un Accepted Proposals',
-		value: 'After Smart file is sent for un Accepted Proposals',
-	},
-	{
-		label: 'After Proposal accepted',
-		value: 'After Proposal accepted',
-	},
-	{
-		label: 'After Proposal accepted, Unsigned Contract',
-		value: 'After Proposal accepted, Unsigned Contract',
-	},
-];
+import {
+	calculateTimeDifference,
+	smartFileActions,
+	options,
+	returnDurationOption,
+	calculateTimeStamp,
+} from '../../../features/workflow_builder/workflowContantsHelpers';
 
 const initialState = {
 	editState: false,
@@ -83,6 +33,8 @@ const initialState = {
 	saveLoader: false,
 	pageLoader: true,
 	deleteStepModal: false,
+	title: null,
+	deleteLoader: false,
 };
 
 const WorkflowCardEditModal = ({
@@ -92,6 +44,9 @@ const WorkflowCardEditModal = ({
 	addorUpdateSteps,
 	mode,
 	deleteWorkFlowStep,
+	currentStepInfo,
+	currentStepIndex,
+	editWorkflowStep,
 }) => {
 	const editor = useRef(null);
 	const {
@@ -100,6 +55,7 @@ const WorkflowCardEditModal = ({
 			allEmailTemplates,
 			addEmailTriggersInWorkflow,
 			getSpecificWorkflowTemplateDetails,
+			updateWorkflowSteps,
 		},
 	} = useContext(Context);
 
@@ -119,6 +75,8 @@ const WorkflowCardEditModal = ({
 		saveLoader: false,
 		pageLoader: true,
 		deleteStepModal: false,
+		title: null,
+		deleteLoader: false,
 	});
 
 	//useEFfects
@@ -150,16 +108,8 @@ const WorkflowCardEditModal = ({
 	}, [allEmailTemplates]);
 
 	useEffect(() => {
-		if (modalIsOpen && mode === 'edit') {
-			const payload = {
-				getEmailTemplateId: '66a8eab3b8d1a50b5aeea08b',
-			};
-			getSpecificWorkflowTemplateDetails(payload);
-		}
-		if (modalIsOpen && mode === 'create') {
-			setInfo((prev) => ({ ...prev, pageLoader: false }));
-		}
-	}, [modalIsOpen, mode]);
+		getSpecifiTemplateDetails();
+	}, [modalIsOpen, mode, currentStepInfo]);
 
 	//function definations
 
@@ -173,6 +123,41 @@ const WorkflowCardEditModal = ({
 		};
 		getAllEmailTemplates(payload);
 	}, [getAllEmailTemplates]);
+
+	const getSpecifiTemplateDetails = useCallback(async () => {
+		if (modalIsOpen && mode === 'edit') {
+			const payload = {
+				getEmailTemplateId: currentStepInfo?.emailTemplateId,
+			};
+			const response = await getSpecificWorkflowTemplateDetails(payload);
+			const { approvalRequired, htmlBody, sendAt, subject, title } = response?.[1] || {};
+			let timeStampData,
+				noOfDays = 1,
+				selectedDuration = {
+					label: 'Days',
+					value: 'days',
+				};
+			if (sendAt) {
+				timeStampData = calculateTimeDifference(sendAt);
+				noOfDays = +timeStampData?.[0];
+				selectedDuration = returnDurationOption(timeStampData?.[1]);
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				subject,
+				emailBody: htmlBody,
+				requiredApproval: approvalRequired,
+				title,
+				pageLoader: false,
+				noOfDays,
+				selectedDuration,
+			}));
+		}
+		if (modalIsOpen && mode === 'create') {
+			setInfo((prev) => ({ ...prev, pageLoader: false }));
+		}
+	}, [modalIsOpen, mode, currentStepInfo]);
 
 	const onChangeEmailTemplates = useCallback(
 		async (data) => {
@@ -214,26 +199,59 @@ const WorkflowCardEditModal = ({
 		}
 		setInfo((prev) => ({ ...prev, saveLoader: true }));
 
-		const timeStamp = await calculateTimeStamp(info?.selectedDuration?.value, info?.noOfDays);
-		const payload = {
-			templateId: '66a7847c1a2699da2140c180',
-			updateObj: {
-				addEmailTrigger: {
+		let response;
+		//save edit stage
+		if (mode === 'edit') {
+			const timeStamp = await calculateTimeStamp(
+				info?.selectedDuration?.value,
+				info?.noOfDays,
+			);
+			const payload = {
+				updateEmailTemplateId: currentStepInfo?.emailTemplateId,
+				updateTemplateInput: {
 					approvalRequired: info?.requiredApproval,
-					emailTemplateId: info?.selectedEmailTemplate?._id,
-					previousStepId: previousStepId,
-					sendAt: timeStamp,
 					htmlBody: info?.emailBody,
+					sendAt: timeStamp,
 					subject: info?.subject,
 				},
-			},
-		};
-		const response = await addEmailTriggersInWorkflow(payload);
-		setInfo((prev) => ({ ...prev, saveLoader: false }));
-		if (response?.[0]) {
-			const stepsData = response?.[1];
-			addorUpdateSteps(stepsData);
-			closeModal();
+			};
+
+			response = await updateWorkflowSteps(payload);
+			setInfo((prev) => ({ ...prev, saveLoader: false }));
+			if (response?.[0]) {
+				const selectedIndex = currentStepIndex;
+				closeModal();
+				const newData = { ...currentStepInfo, emailTemplateSubject: info?.subject };
+				editWorkflowStep(newData, selectedIndex);
+			}
+		}
+
+		//save create stage
+		if (mode === 'create') {
+			const timeStamp = await calculateTimeStamp(
+				info?.selectedDuration?.value,
+				info?.noOfDays,
+			);
+			const payload = {
+				templateId: '66a7847c1a2699da2140c180',
+				updateObj: {
+					addEmailTrigger: {
+						approvalRequired: info?.requiredApproval,
+						emailTemplateId: info?.selectedEmailTemplate?._id,
+						previousStepId: previousStepId,
+						sendAt: timeStamp,
+						htmlBody: info?.emailBody,
+						subject: info?.subject,
+					},
+				},
+			};
+			response = await addEmailTriggersInWorkflow(payload);
+			setInfo((prev) => ({ ...prev, saveLoader: false }));
+			if (response?.[0]) {
+				const stepsData = response?.[1];
+				addorUpdateSteps(stepsData);
+				closeModal();
+			}
 		}
 	}, [
 		info.editState,
@@ -244,24 +262,11 @@ const WorkflowCardEditModal = ({
 		info?.selectedDuration,
 		info?.subject,
 		info?.emailBody,
+		info?.requiredApproval,
+		mode,
+		currentStepInfo,
+		currentStepIndex,
 	]);
-
-	const calculateTimeStamp = useCallback(async (selectedDuration, duration) => {
-		const now = moment();
-		if (selectedDuration === 'minutes') {
-			now.add(duration, 'minutes');
-		}
-		if (selectedDuration === 'hours') {
-			now.add(duration, 'hours');
-		}
-		if (selectedDuration === 'days') {
-			now.add(duration, 'days');
-		}
-		if (selectedDuration === 'week') {
-			now.add(duration, 'weeks');
-		}
-		return now.unix();
-	}, []);
 
 	const incrementorDecrementorFunc = useCallback(
 		async (type) => {
@@ -296,12 +301,17 @@ const WorkflowCardEditModal = ({
 	}, []);
 
 	const modifiedDeleteWorkflowStep = useCallback(async () => {
+		if (info?.deleteLoader) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, deleteLoader: true }));
 		const response = await deleteWorkFlowStep();
+		setInfo((prev) => ({ ...prev, deleteLoader: false }));
 		if (response) {
 			closeDeleteStepModal();
 			closeModal();
 		}
-	}, [deleteWorkFlowStep]);
+	}, [deleteWorkFlowStep, info?.deleteLoader]);
 
 	return (
 		<ReactModal isOpen={modalIsOpen} closeModal={closeModal} modalType="right">
@@ -355,29 +365,33 @@ const WorkflowCardEditModal = ({
 							<div className="actionType">
 								<span className="actionTypeTitle">Action Type</span>
 
-								<HeadersDropDownComp
-									showIcon={false}
-									options={info?.emailTemplates}
-									containerStyle={{
-										padding: '12px 24px',
-										height: '48px',
-										padding: '12px 24px',
-										color: '#e4e5e6',
-										width: 'inherit',
-										flex: 1,
-										alignSelf: 'stretch',
-										borderRadius: '0.625rem',
-										border: '1px solid rgba(36, 36, 36, 0.64)',
-										backgroundColor: '#151515',
-									}}
-									dropDownStyle={{
-										right: 0,
-										top: '60px',
-										maxHeight: '300px',
-									}}
-									selectedValue={info?.selectedEmailTemplate?.title}
-									onChangeFunc={(e) => onChangeEmailTemplates(e)}
-								/>
+								{mode === 'create' ? (
+									<HeadersDropDownComp
+										showIcon={false}
+										options={info?.emailTemplates}
+										containerStyle={{
+											padding: '12px 24px',
+											height: '48px',
+											padding: '12px 24px',
+											color: '#e4e5e6',
+											width: 'inherit',
+											flex: 1,
+											alignSelf: 'stretch',
+											borderRadius: '0.625rem',
+											border: '1px solid rgba(36, 36, 36, 0.64)',
+											backgroundColor: '#151515',
+										}}
+										dropDownStyle={{
+											right: 0,
+											top: '60px',
+											maxHeight: '300px',
+										}}
+										selectedValue={info?.selectedEmailTemplate?.title}
+										onChangeFunc={(e) => onChangeEmailTemplates(e)}
+									/>
+								) : (
+									<div className="staticActionTitle">{info?.title}</div>
+								)}
 							</div>
 							{/* email template */}
 							<div className="emailTemplate">
@@ -531,6 +545,7 @@ const WorkflowCardEditModal = ({
 				modalIsOpen={info?.deleteStepModal}
 				closeModal={closeDeleteStepModal}
 				deleteWorkFlowStep={modifiedDeleteWorkflowStep}
+				deleteLoader={info?.deleteLoader}
 			/>
 		</ReactModal>
 	);

@@ -2,8 +2,9 @@ import React, { memo } from 'react';
 import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/workflowBuilder/deleteWorkflowStep.scss';
 import { ReactComponent as Warning } from '../../../../assets/svg/worflow_builder/warnings.svg';
+import Spinner from '../../loaders/Spinner';
 
-const DeleteWorkflowStep = ({ modalIsOpen, closeModal, deleteWorkFlowStep }) => {
+const DeleteWorkflowStep = ({ modalIsOpen, closeModal, deleteWorkFlowStep, deleteLoader }) => {
 	const customStyles = {
 		content: { zIndex: 99999 },
 		overlay: { zIndex: 99998 },
@@ -26,7 +27,8 @@ const DeleteWorkflowStep = ({ modalIsOpen, closeModal, deleteWorkFlowStep }) => 
 						Cancel
 					</div>
 					<div className="deleteWorkflowStepBtn" onClick={deleteWorkFlowStep}>
-						Delete Workflow
+						{deleteLoader ? <Spinner width={'16px'} height={'16px'} /> : ''}
+						{deleteLoader ? 'Deleting ..' : 'Delete Workflow'}
 					</div>
 				</div>
 			</div>
