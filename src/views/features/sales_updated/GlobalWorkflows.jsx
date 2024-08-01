@@ -6,6 +6,7 @@ import GlobalWorkflowCard from '../../components/sales-updated/globalWorkflowCar
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Spinner from '../../components/loaders/Spinner';
+import GlobalWorkflowModal from '../../components/modalsV2/workflowsModals/GlobalWorkflowModal';
 
 const FetchMoreLoaderComp = () => {
 	return (
@@ -43,6 +44,8 @@ const GlobalWorkflows = () => {
 		globalWorkflowData: null,
 		hasNextPage: false,
 		currentPage: 1,
+		modalIsOpen: false,
+		activeTemplateData: null,
 	});
 
 	//useEffects
@@ -108,6 +111,14 @@ const GlobalWorkflows = () => {
 		getGlobalWorkflowTemplatesData(info?.currentPage + 1, true);
 	}, [info?.hasNextPage, info?.currentPage]);
 
+	const openModal = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, modalIsOpen: true, activeTemplateData: data }));
+	}, []);
+
+	const closeModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, modalIsOpen: false, activeTemplateData: null }));
+	}, []);
+
 	return (
 		<div className="globalWorkflowContainer">
 			<div className="mainContentContainer">
@@ -125,7 +136,7 @@ const GlobalWorkflows = () => {
 				>
 					<div className="globalWorkflowParentCardContainer">
 						{info?.globalWorkflowData?.map((ele, index) => (
-							<GlobalWorkflowCard key={index} data={ele} />
+							<GlobalWorkflowCard key={index} data={ele} onClickFunc={openModal} />
 						))}
 					</div>
 				</InfiniteScroll>
@@ -141,6 +152,11 @@ const GlobalWorkflows = () => {
 					</span>
 				))}
 			</div>
+			<GlobalWorkflowModal
+				modalIsOpen={info?.modalIsOpen}
+				closeModal={closeModal}
+				activeTemplateData={info?.activeTemplateData}
+			/>
 		</div>
 	);
 };

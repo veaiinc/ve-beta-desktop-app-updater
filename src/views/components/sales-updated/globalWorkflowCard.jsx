@@ -3,9 +3,9 @@ import '../../../assets/scss/sales/globalWorkflowCard.scss';
 import { ReactComponent as Circled } from '../../../assets/svg/workflow/circled.svg';
 import { ReactComponent as RightArrow } from '../../../assets/svg/workflow/rightArrow.svg';
 
-const GlobalWorkflowCard = ({ data }) => {
+const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 	return (
-		<div className="globalWorkflowCardContainer">
+		<div className="globalWorkflowCardContainer" onClick={() => onClickFunc(data)}>
 			<div className="labelContentWrapper">
 				<span className="globalWorkflowTitle">{data?.title}</span>
 				<span className="globalWorkflowSubTitle">
@@ -29,13 +29,6 @@ const GlobalWorkflowCard = ({ data }) => {
 					</div>
 				</div>
 			</div>
-			{/* <div
-				className="globalWorkFlowPreview"
-				dangerouslySetInnerHTML={{
-					__html: data?.templates?.[0]?.parsedHtmlContent,
-				}}
-				style={{ width: '100%' }}
-			></div> */}
 
 			<div className="imageContainer">
 				<div className="coverImage">

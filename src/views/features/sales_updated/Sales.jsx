@@ -105,7 +105,7 @@ const Sales = () => {
 		>
 			<div className="salesParentContainer">
 				{info?.myWorkflowData?.map((e, index) => (
-					<MyWorkflowsCard />
+					<MyWorkflowsCard key={index} data={e} />
 				))}
 			</div>
 		</InfiniteScroll>

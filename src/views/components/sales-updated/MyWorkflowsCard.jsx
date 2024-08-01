@@ -3,30 +3,37 @@ import '../../../assets/scss/sales/MyWorkflowsCard.scss';
 import ActionCards from './ActionCards';
 import StatsCard from './StatsCard';
 import { ReactComponent as ArrowSvg } from '../../../assets/svg/worflow_builder/smallArrow.svg';
-const MyWorkflowsCard = () => {
-	const actionCardds = [
-		{ headerText: 'All Enquires', subText: '290' },
-		{ headerText: 'Smart File sent', subText: '290' },
-		{ headerText: 'Expired', subText: '290' },
-		{ headerText: 'All Enquires', subText: '290' },
-		{ headerText: 'All Enquires', subText: '290' },
-	];
-	const statstCatsd = [
-		{ headerText: 'All Enquires', subText: '290' },
-		{ headerText: 'Smart File sent', subText: '290' },
-		{ headerText: 'Expired', subText: '290' },
-		{ headerText: 'All Enquires', subText: '290' },
-		{ headerText: 'All Enquires', subText: '290' },
-		{ headerText: 'All Enquires', subText: '290' },
-	];
+const actionCardds = [
+	{ headerText: 'All Enquires', subText: '290' },
+	{ headerText: 'Smart File sent', subText: '290' },
+	{ headerText: 'Expired', subText: '290' },
+	{ headerText: 'All Enquires', subText: '290' },
+	{ headerText: 'All Enquires', subText: '290' },
+];
+const statstCatsd = [
+	{ headerText: 'All Enquires', subText: '290' },
+	{ headerText: 'Smart File sent', subText: '290' },
+	{ headerText: 'Expired', subText: '290' },
+	{ headerText: 'All Enquires', subText: '290' },
+	{ headerText: 'All Enquires', subText: '290' },
+	{ headerText: 'All Enquires', subText: '290' },
+];
+const MyWorkflowsCard = ({ data }) => {
 	return (
 		<div className="myWorkflowCard">
-			<div className="workflowView"></div>
+			<div className="imageContainer">
+				<div className="coverImage">
+					<div
+						dangerouslySetInnerHTML={{
+							__html: data?.templates?.[0]?.parsedHtmlContent,
+						}}
+						style={{ width: '100%' }}
+					/>
+				</div>
+			</div>
 			{/* content container */}
 			<div className="workflowContentContainer">
-				<span className="myworkflowHeader">
-					Comprehensive Wedding Photography Business Solution
-				</span>
+				<span className="myworkflowHeader">{data?.title}</span>
 				<div className="actionBtnContainer">
 					{actionCardds?.map((ele, index) => (
 						<ActionCards index={index} />

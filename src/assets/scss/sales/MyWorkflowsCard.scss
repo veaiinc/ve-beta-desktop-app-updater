@@ -8,13 +8,31 @@
 	background: #111;
 	transition: all 0.24s ease-out;
 	cursor: pointer;
-	.workflowView {
-		width: 200px;
-		height: 284px;
-		flex-shrink: 0;
-		border-radius: 16px;
-		background-color: #fff;
+
+	.imageContainer {
+		display: flex;
+		flex-direction: column;
+
+		.coverImage {
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			width: 200px;
+			height: 284px;
+			flex-shrink: 0;
+			border-radius: 16px;
+			overflow: scroll;
+			opacity: 0.9;
+
+			.builder {
+				zoom: 0.1;
+				div {
+					width: 100%;
+				}
+			}
+		}
 	}
+
 	.workflowContentContainer {
 		display: flex;
 		flex-direction: column;
