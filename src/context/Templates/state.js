@@ -22,14 +22,19 @@ export const intialState = {
 	workflowslist: null,
 	moreWorkList: null,
 	clientList: null,
-	templatesInfo: null,
+	templatesInfo: null, //delete this later
 	specificTemplatesInfo: null,
 	allEmailTemplates: null,
+	myWorkflows: null,
+	myMoreWorkflows: null,
+	globalWorkflows: null,
+	globalMoreWorkflows: null,
 };
 
 export const TemplatesState = (props) => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
+	//delete this function later
 	const getTemplates = async () => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -51,6 +56,54 @@ export const TemplatesState = (props) => {
 			dispatch({
 				type: Actions.GET_ALL_TEMPLATES_INFO_SUCCESS,
 				payload: response?.[1]?.data?.templates,
+			});
+		} else {
+			console.log('api failed ==>getTemplates', response);
+		}
+	};
+
+	const getMyWorkflows = async (payload, fetchMore = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const response = await service.query(
+			getTemmplatesQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			const selectedvariable = fetchMore ? 'myMoreWorkflows' : 'myWorkflows';
+			dispatch({
+				type: Actions.GET_MY_WORKFLOWS_TEMPLATES_INFO_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+				selectedvariable,
+			});
+		} else {
+			console.log('api failed ==>getTemplates', response);
+		}
+	};
+
+	const getGlobalWorkflows = async (payload, fetchMore = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const response = await service.query(
+			getTemmplatesQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response[0]) {
+			const selectedvariable = fetchMore ? 'globalMoreWorkflows' : 'globalWorkflows';
+			dispatch({
+				type: Actions.GET_GLOBAL_WORKFLOWS_TEMPLATES_INFO_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+				selectedvariable,
 			});
 		} else {
 			console.log('api failed ==>getTemplates', response);
@@ -350,7 +403,7 @@ export const TemplatesState = (props) => {
 	return {
 		...state,
 		getProposals,
-		getTemplates,
+		getMyWorkflows,
 		getTemplatesStatus,
 		createProposals,
 		deleteProposal,
@@ -365,5 +418,7 @@ export const TemplatesState = (props) => {
 		getSpecificWorkflowTemplateDetails,
 		deleteWorkflowStep,
 		updateWorkflowSteps,
+		getGlobalWorkflows,
+		getTemplates,
 	};
 };

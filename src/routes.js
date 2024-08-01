@@ -9,6 +9,7 @@ import MySettings from './views/features/profile_settings/MySettings';
 import CompanySettingsWrapper from './views/features/workspace_settings/CompanySettingsWrapper';
 import Workflow_builder from './views/features/workflow_builder';
 import Sales from './views/features/sales_updated/Sales';
+import GlobalWorkflows from './views/features/sales_updated/GlobalWorkflows';
 
 const routes = [
 	{
@@ -85,6 +86,16 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Sales'}>
 				<SalesScreen type={'workflows'} />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+
+	{
+		path: '/sales/workflows-updated',
+		component: (
+			<AuthWrapper title={'Sales'}>
+				<GlobalWorkflows />
 			</AuthWrapper>
 		),
 		exact: true,

@@ -1,0 +1,118 @@
+.globalWorkflowCardContainer {
+	display: flex;
+	flex: 1;
+	padding: 24px;
+	flex-direction: column;
+	gap: 24px;
+	border-radius: 24px;
+	border: 1px solid rgba(215, 215, 216, 0);
+	background: #111;
+	color: #fff;
+	transition: all 0.3s ease-out;
+	cursor: pointer;
+
+	.labelContentWrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		align-self: stretch;
+
+		.globalWorkflowTitle {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 18px; /* 100% */
+		}
+		.globalWorkflowSubTitle {
+			color: rgba(228, 229, 230, 0.48);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 20px; /* 142.857% */
+			letter-spacing: -0.004px;
+		}
+		.actionContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+			.actionsTitle {
+				color: #e4e5e6;
+				text-align: justify;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 12px; /* 100% */
+				letter-spacing: 0.24px;
+				text-transform: capitalize;
+			}
+
+			.actionBTnContainer {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 8px;
+
+				.actionBtnWrapper {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					gap: 8px;
+					.actionBtn {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						gap: 4px;
+
+						.actionBtnTitlestyling {
+							color: rgba(228, 229, 230, 0.7);
+							text-align: justify;
+							font-family: Inter;
+							font-size: 11px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+							letter-spacing: 0.22px;
+							text-transform: capitalize;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.imageContainer {
+		display: flex;
+		flex-direction: column;
+
+		.coverImage {
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			width: 240px;
+			height: 291px;
+			overflow: scroll;
+			border-radius: 20px;
+			border: 1px solid rgba(224, 224, 224, 0.3);
+			opacity: 0.9;
+
+			.builder {
+				zoom: 0.1;
+				div {
+					width: 100%;
+				}
+			}
+		}
+	}
+}
+
+.globalWorkflowCardContainer:hover {
+	border: 1px rgba(224, 224, 224, 0.1);
+	box-shadow: 0px 4px 30px 0px rgba(224, 224, 224, 0.06);
+}

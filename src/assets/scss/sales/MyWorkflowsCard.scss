@@ -4,8 +4,10 @@
 	align-items: flex-start;
 	gap: 28px;
 	align-self: stretch;
-	border: 2px solid red;
-
+	border-radius: 24px;
+	background: #111;
+	transition: all 0.24s ease-out;
+	cursor: pointer;
 	.workflowView {
 		width: 200px;
 		height: 284px;
@@ -20,7 +22,6 @@
 		align-items: flex-start;
 		flex: 1 0 0;
 		align-self: stretch;
-		border: 2px solid blue;
 
 		.myworkflowHeader {
 			overflow: hidden;
@@ -40,13 +41,36 @@
 			align-items: flex-start;
 			gap: 7px;
 			flex-shrink: 0;
-			border: 2px solid blue;
 		}
 		.statsCardSuperContainer {
 			display: flex;
-			gap: 4px;
+
+			.statsInnerContainer {
+				display: flex;
+				align-items: center;
+
+				.innerSeperator {
+					display: flex;
+					padding: 0px 16px;
+					align-items: center;
+					gap: 10px;
+
+					.verticalSeperator {
+						width: 1px;
+						height: 89px;
+						background: #2b2b2b;
+					}
+				}
+			}
 		}
 	}
+}
+
+.myWorkflowCard:hover {
+	border-radius: 24px;
+	border: 1px solid rgba(224, 224, 224, 0.1);
+	background: #111;
+	box-shadow: 0px 4px 40px 0px rgba(224, 224, 224, 0.07);
 }
 
 .actionCardContainer {
@@ -90,4 +114,52 @@
 	flex-shrink: 0;
 	border-radius: 16px;
 	background: #1d1d1d;
+
+	.dotContainer {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		.dot {
+			width: 4px;
+			height: 4px;
+			background-color: #368748;
+			border-radius: 100px;
+		}
+
+		.dotText {
+			color: rgba(228, 229, 230, 0.48);
+			font-family: Inter;
+			font-size: 10px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 14px; /* 140% */
+			text-transform: uppercase;
+		}
+	}
+	.contentContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		align-self: stretch;
+
+		.titletextStyling {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 32px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: 26px; /* 81.25% */
+		}
+		.enquiryText {
+			color: rgba(228, 229, 230, 0.6);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 16px; /* 133.333% */
+			letter-spacing: 0.24px;
+			text-transform: capitalize;
+		}
+	}
 }

@@ -5,6 +5,16 @@ const actionHandlers = {
 		[action?.selectedvariable]: action.payload,
 	}),
 	GET_ALL_CLIENT_LIST_SUCCESS: (state, action) => ({ ...state, clientList: action.payload }),
+	GET_MY_WORKFLOWS_TEMPLATES_INFO_SUCCESS: (state, action) => ({
+		...state,
+		[action.selectedvariable]: action.payload,
+	}),
+	GET_GLOBAL_WORKFLOWS_TEMPLATES_INFO_SUCCESS: (state, action) => ({
+		...state,
+		[action.selectedvariable]: action.payload,
+	}),
+
+	//delete this functions later
 	GET_ALL_TEMPLATES_INFO_SUCCESS: (state, action) => ({
 		...state,
 		templatesInfo: action.payload,
