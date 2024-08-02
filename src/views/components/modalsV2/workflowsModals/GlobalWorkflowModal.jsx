@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import ReactModal from '../../modalsV2/index';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import '../../../../assets/scss/sales/globalWorkflowModal.scss';
@@ -6,8 +6,11 @@ import { ReactComponent as EditSvg } from '../../../../assets/svg/worflow_builde
 import { useNavigate } from 'react-router-dom';
 import ConnectorSvg from '../../../../assets/svg/worflow_builder/connector';
 import { ReactComponent as EmailSvg } from '../../../../assets/svg/worflow_builder/email.svg';
+import Context from '../../../../context/context';
+import Spinner from '../../../components/loaders/Spinner';
 const initialState = {
 	activeTab: 'design', //design,automation
+	duplicateApiLoading: false,
 };
 
 const EntryPointCard = () => {
@@ -116,6 +119,9 @@ const AutomationComponent = ({ activeTemplateData }) => {
 
 const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) => {
 	const navigate = useNavigate();
+	let {
+		templates: { duplicateGlobalWorkflowTemplate },
+	} = useContext(Context);
 	const [info, setInfo] = useState(initialState);
 
 	const changeActiveTab = useCallback(
@@ -132,6 +138,29 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 		setInfo(initialState);
 		closeModal();
 	}, [closeModal]);
+
+	const onCustomiseFunc = useCallback(async () => {
+		if (info?.duplicateApiLoading) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, duplicateApiLoading: true }));
+		const payload = {
+			templateId: activeTemplateData?._id,
+			title: activeTemplateData?.title,
+		};
+		const response = await duplicateGlobalWorkflowTemplate(payload);
+		setInfo((prev) => ({ ...prev, duplicateApiLoading: false }));
+		if (response?.[0]) {
+			if (info?.activeTab !== 'design') {
+				return navigate('/workflow_builder', {
+					state: { data: response?.[1] },
+				});
+			} else {
+				window.location.href = `https://builder.ve.co/${response?.[1]?._id}`;
+				return;
+			}
+		}
+	}, [activeTemplateData, info?.activeTab, info?.duplicateApiLoading]);
 
 	return (
 		<ReactModal isOpen={modalIsOpen} closeModal={modifiedCloseModal} modalType="right">
@@ -159,25 +188,22 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 										Automation
 									</span>
 								</div>
-								{info?.activeTab === 'design' ? (
-									<a
-										href={`https://builder.ve.co/${activeTemplateData?._id}`}
-										className="svgContainer"
-									>
-										<EditSvg /> Customise
-									</a>
-								) : (
-									<div
-										onClick={() =>
-											navigate('/workflow_builder', {
-												state: { data: activeTemplateData },
-											})
-										}
-										className="svgContainer"
-									>
-										<EditSvg /> Customise
-									</div>
-								)}
+
+								<div onClick={onCustomiseFunc} className="svgContainer">
+									<EditSvg />
+									Customise
+									{info?.duplicateApiLoading ? (
+										<Spinner
+											width={'16px'}
+											height="16px"
+											color={'#6055ec'}
+											borderTopColor="#111"
+										/>
+									) : (
+										''
+									)}
+								</div>
+								{/* )} */}
 							</div>
 							<span className="svgContainer" onClick={modifiedCloseModal}>
 								<Close />

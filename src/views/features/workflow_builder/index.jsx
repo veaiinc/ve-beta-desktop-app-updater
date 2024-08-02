@@ -13,6 +13,7 @@ const WorkflowBuilder = () => {
 	} = useContext(Context);
 
 	const location = useLocation();
+	console.log('loca', location?.state?.data);
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
@@ -88,10 +89,18 @@ const WorkflowBuilder = () => {
 	);
 
 	const addorUpdateSteps = useCallback(
-		async (updatedData) => {
+		async (incoming) => {
+			// const incomingData = location?.state?.data;
+			const updatedData = [...(incoming || [])];
+			updatedData?.splice(1, 0, {
+				module: 'preview',
+				_id: updatedData?.[0]?._id,
+				parsedHtmlContent: info?.incomingTemplateData?.templates?.[0]?.parsedHtmlContent,
+			});
+			updatedData?.push({ module: 'theEnd' });
 			setInfo((prev) => ({ ...prev, data: updatedData }));
 		},
-		[info],
+		[info?.data, info?.incomingTemplateData],
 	);
 
 	const deleteWorkFlowStepFunc = useCallback(async () => {

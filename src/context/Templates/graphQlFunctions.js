@@ -77,20 +77,45 @@ export const getWorkflowDetailsListQuery = gql`
 `;
 
 export const duplicateTemplateQuery = gql`
-	mutation Mutation($templateId: ID!, $title: String!) {
+	mutation DuplicateWorkflowTemplate($templateId: ID!, $title: String!) {
 		duplicateWorkflowTemplate(templateId: $templateId, title: $title) {
 			_id
+			tenantId
+			slug
 			moduleTemplates {
 				module
 				order
 				_id
+				isPublic
 			}
-			proposalsCreated
-			status
 			templates
-			tenantId
+			steps {
+				_id
+				criteria
+				module
+				nextStepId
+				nextStepType
+				emailTemplateTitle
+				emailTemplateSubject
+				emailTemplateId
+				sendAt
+				order
+				type
+			}
+			status
 			title
 			workflows
+			proposalsCreated
+			invoicesCreated
+			contractsCreated
+			formsCreated
+			proposalsAccepted
+			proposalsSent
+			proposalsViewed
+			createdBy
+			createdAt
+			updatedBy
+			updatedAt
 		}
 	}
 `;

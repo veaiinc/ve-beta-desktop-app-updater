@@ -227,6 +227,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	//delete this function
 	const duplicateTemplate = async (payload) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -246,6 +247,26 @@ export const TemplatesState = (props) => {
 			return [false, response?.[1]?.message];
 		}
 	};
+
+	const duplicateGlobalWorkflowTemplate = async (payload) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const response = await service.query(
+			duplicateTemplateQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			return [true, response?.[1]?.data?.duplicateWorkflowTemplate];
+		} else {
+			return [false, response?.[1]?.message];
+		}
+	};
+
 	const resetTemplateState = async () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
@@ -420,5 +441,6 @@ export const TemplatesState = (props) => {
 		updateWorkflowSteps,
 		getGlobalWorkflows,
 		getTemplates,
+		duplicateGlobalWorkflowTemplate,
 	};
 };

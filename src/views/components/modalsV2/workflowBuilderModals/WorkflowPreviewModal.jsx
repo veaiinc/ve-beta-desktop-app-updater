@@ -47,7 +47,7 @@ const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData })
 									<div className="coverImage">
 										<div
 											dangerouslySetInnerHTML={{
-												__html: incomingTemplateData?.templates?.[0]
+												__html: incomingTemplateData?.templates?.[index]
 													?.parsedHtmlContent,
 											}}
 											style={{ width: '100%' }}
