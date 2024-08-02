@@ -10,6 +10,7 @@ import CompanySettingsWrapper from './views/features/workspace_settings/CompanyS
 import Workflow_builder from './views/features/workflow_builder';
 import Sales from './views/features/sales_updated/Sales';
 import GlobalWorkflows from './views/features/sales_updated/GlobalWorkflows';
+import SmartFile from './views/features/sales_updated/smartFiles/SmartFile';
 
 const routes = [
 	{
@@ -133,6 +134,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Workflow Builder'}>
 				<Workflow_builder />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/smart-file',
+		component: (
+			<AuthWrapper title={'Smart File'}>
+				<SmartFile />
 			</AuthWrapper>
 		),
 		exact: true,
