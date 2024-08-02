@@ -16,7 +16,7 @@ const ToggleSlider = ({ onChange, value }) => {
 	return (
 		<label className="toggleSwitch">
 			<input type="checkbox" checked={checked} onChange={handleToggle} />
-			<span className="slider round"></span>
+			<span className="slider round" style={{ padding: '0px' }}></span>
 		</label>
 	);
 };

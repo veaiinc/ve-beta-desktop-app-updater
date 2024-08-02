@@ -47,6 +47,7 @@ const WorkflowCardEditModal = ({
 	currentStepInfo,
 	currentStepIndex,
 	editWorkflowStep,
+	templateId,
 }) => {
 	const editor = useRef(null);
 	const {
@@ -233,7 +234,7 @@ const WorkflowCardEditModal = ({
 				info?.noOfDays,
 			);
 			const payload = {
-				templateId: '66a7847c1a2699da2140c180',
+				templateId: templateId,
 				updateObj: {
 					addEmailTrigger: {
 						approvalRequired: info?.requiredApproval,
@@ -393,6 +394,7 @@ const WorkflowCardEditModal = ({
 									<div className="staticActionTitle">{info?.title}</div>
 								)}
 							</div>
+
 							{/* email template */}
 							<div className="emailTemplate">
 								<div className="emailTemplateHeader">

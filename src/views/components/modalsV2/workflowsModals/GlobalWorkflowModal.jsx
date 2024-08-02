@@ -68,7 +68,6 @@ const AutomationComponent = ({ activeTemplateData }) => {
 		componentmapper: {
 			theEnd: <EndPointViewCard />,
 			preview: <PreviewCard activeTemplateData={activeTemplateData} />,
-			// parsedHtmlContent: activeTemplateData?.templates?.[0]?.parsedHtmlContent,
 		},
 	});
 
@@ -169,7 +168,11 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 									</a>
 								) : (
 									<div
-										onClick={() => navigate('/workflow_builder')}
+										onClick={() =>
+											navigate('/workflow_builder', {
+												state: { data: activeTemplateData },
+											})
+										}
 										className="svgContainer"
 									>
 										<EditSvg /> Customise

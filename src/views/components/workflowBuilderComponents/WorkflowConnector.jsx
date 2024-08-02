@@ -10,9 +10,9 @@ const WorkflowConnector = ({ alterData, index }) => {
 	});
 
 	const containerMouseHover = useCallback(() => {
-		// if (index === 0) {
-		// 	return;
-		// }
+		if (index === 0) {
+			return;
+		}
 		setInfo((prev) => ({ ...prev, connectorHeight: 116, buttonDisplay: true }));
 	}, [index]);
 

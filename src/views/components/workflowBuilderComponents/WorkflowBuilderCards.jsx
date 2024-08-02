@@ -36,10 +36,49 @@ const EmailCards = ({ openModal, workflowdata, index }) => {
 		</div>
 	);
 };
+const EndPointViewCard = () => {
+	return (
+		<div className="endViewCard">
+			<span className="subalabel">WorkFlow Ends Here </span>
+		</div>
+	);
+};
 
-const WorkflowBuilderCards = ({ workflowdata, openModal, index }) => {
+const PreviewCard = ({ templateData, openPreviewModal }) => {
+	return (
+		<div className="previewCard" onClick={openPreviewModal}>
+			<div className="htmlContentViewer">
+				<div className="coverImage">
+					<div
+						dangerouslySetInnerHTML={{
+							__html: templateData?.templates?.[0]?.parsedHtmlContent,
+						}}
+						style={{ width: '100%' }}
+					/>
+				</div>
+			</div>
+			<div className="previewLabelContent">
+				<span className="topLabelStyle">Timeless Touch of Beige</span>
+				<span className="labelTitle">All Files</span>
+				<span className="labelSubtitle">
+					Immediately after Form is submitted, wait for my approval
+				</span>
+			</div>
+		</div>
+	);
+};
+
+const WorkflowBuilderCards = ({
+	workflowdata,
+	templateData,
+	openModal,
+	openPreviewModal,
+	index,
+}) => {
 	const mapper = {
 		email: <EmailCards openModal={openModal} workflowdata={workflowdata} index={index} />,
+		theEnd: <EndPointViewCard />,
+		preview: <PreviewCard templateData={templateData} openPreviewModal={openPreviewModal} />,
 	};
 	return (
 		<div className="WorkflowBuilderCardsParentContainer">

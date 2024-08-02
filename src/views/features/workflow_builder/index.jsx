@@ -5,11 +5,16 @@ import WorkflowBuilderCards from '../../components/workflowBuilderComponents/Wor
 import WorkflowConnector from '../../components/workflowBuilderComponents/WorkflowConnector';
 import WorkflowCardEditModal from '../../components/modalsV2/workflowBuilderModals/WorkflowCardEditModal';
 import Context from '../../../context/context';
-import moment from 'moment';
+import { useLocation, useNavigate } from 'react-router-dom';
+import WorkflowPreviewModal from '../../components/modalsV2/workflowBuilderModals/WorkflowPreviewModal';
 const WorkflowBuilder = () => {
 	const {
 		templates: { getTemplateInfo, specificTemplatesInfo, deleteWorkflowStep },
 	} = useContext(Context);
+
+	const location = useLocation();
+	const navigate = useNavigate();
+
 	const [info, setInfo] = useState({
 		data: null,
 		modalIsOpen: false,
@@ -17,27 +22,27 @@ const WorkflowBuilder = () => {
 		mode: 'create',
 		currentStepInfo: null,
 		currentStepIndex: null,
+		incomingTemplateData: location?.state?.data,
+		previewModal: false,
 	});
 
-	//useEffects
 	useEffect(() => {
-		getTemplateInfoSteps();
-	}, []);
-
-	useEffect(() => {
-		if (specificTemplatesInfo && specificTemplatesInfo?.steps?.length) {
-			setInfo((prev) => ({ ...prev, data: specificTemplatesInfo?.steps }));
+		if (location?.state?.data?.steps?.length) {
+			const incomingData = location?.state?.data;
+			const steps = [...(incomingData?.steps || [])];
+			const stepsData = [];
+			stepsData?.push(steps?.[0]);
+			stepsData?.push({
+				module: 'preview',
+				_id: steps?.[0]?._id,
+				parsedHtmlContent: incomingData?.templates?.[0]?.parsedHtmlContent,
+			});
+			steps.shift();
+			stepsData?.concat(steps);
+			stepsData?.push({ module: 'theEnd' });
+			setInfo((prev) => ({ ...prev, data: stepsData }));
 		}
-	}, [specificTemplatesInfo]);
-
-	//function definations
-
-	const getTemplateInfoSteps = useCallback(async () => {
-		const payload = {
-			templateInfoId: '66a7847c1a2699da2140c180',
-		};
-		getTemplateInfo(payload);
-	}, [getTemplateInfo]);
+	}, [location?.state?.data]);
 
 	const closeModalFunc = useCallback(() => {
 		setInfo((prev) => ({
@@ -51,6 +56,9 @@ const WorkflowBuilder = () => {
 	}, []);
 
 	const openModal = useCallback((data, index) => {
+		if (index === 0) {
+			return;
+		}
 		setInfo((prev) => ({
 			...prev,
 			modalIsOpen: true,
@@ -58,6 +66,13 @@ const WorkflowBuilder = () => {
 			currentStepInfo: data,
 			currentStepIndex: index,
 		}));
+	}, []);
+
+	const openPreviewModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, previewModal: true }));
+	}, []);
+	const closePreviewModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, previewModal: false }));
 	}, []);
 
 	const alterData = useCallback(
@@ -81,7 +96,7 @@ const WorkflowBuilder = () => {
 
 	const deleteWorkFlowStepFunc = useCallback(async () => {
 		const payload = {
-			templateId: '66a7847c1a2699da2140c180',
+			templateId: info?.incomingTemplateData?._id,
 			stepId: info?.currentStepInfo?._id,
 		};
 		const response = await deleteWorkflowStep(payload);
@@ -91,7 +106,13 @@ const WorkflowBuilder = () => {
 			setInfo((prev) => ({ ...prev, data: updatedData }));
 			return true;
 		}
-	}, [deleteWorkflowStep, info?.currentStepInfo, info?.currentStepIndex, info?.data]);
+	}, [
+		deleteWorkflowStep,
+		info?.currentStepInfo,
+		info?.currentStepIndex,
+		info?.data,
+		info?.incomingTemplateData,
+	]);
 
 	const editWorkflowStep = useCallback(
 		async (newData, index) => {
@@ -102,14 +123,23 @@ const WorkflowBuilder = () => {
 		[info?.data],
 	);
 
-	// console.log(calculateTimeDifference(1722430759));
-
 	return (
 		<div className="workflowBuilderContainer">
 			{/* header */}
 			<div className="workflowBuilderHeader">
 				<div className="workflowBuilderNavigationContainer">
-					<BackArrow />
+					<span
+						style={{
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+							cursor: 'pointer',
+						}}
+						onClick={() => navigate(-1)}
+					>
+						<BackArrow />
+					</span>
+
 					<span className="builderHeaderText">Run your Studio Like Made in Heaven</span>
 					<div className="draftBtn">Draft</div>
 				</div>
@@ -133,8 +163,14 @@ const WorkflowBuilder = () => {
 							workflowdata={ele}
 							openModal={openModal}
 							index={index}
+							templateData={info?.incomingTemplateData}
+							openPreviewModal={openPreviewModal}
 						/>
-						<WorkflowConnector alterData={alterData} index={index} />
+						{index < info?.data?.length - 1 ? (
+							<WorkflowConnector alterData={alterData} index={index} />
+						) : (
+							''
+						)}
 					</div>
 				))}
 				<WorkflowCardEditModal
@@ -147,6 +183,12 @@ const WorkflowBuilder = () => {
 					currentStepInfo={info?.currentStepInfo}
 					currentStepIndex={info?.currentStepIndex}
 					editWorkflowStep={editWorkflowStep}
+					templateId={info?.incomingTemplateData?._id}
+				/>
+				<WorkflowPreviewModal
+					modalIsOpen={info?.previewModal}
+					closeModal={closePreviewModal}
+					incomingTemplateData={info?.incomingTemplateData}
 				/>
 			</div>
 		</div>
