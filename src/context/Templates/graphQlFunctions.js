@@ -19,6 +19,19 @@ export const getTemmplatesQuery = gql`
 				workflows
 				templates
 				proposalsCreated
+				steps {
+					_id
+					criteria
+					module
+					nextStepId
+					nextStepType
+					emailTemplateTitle
+					emailTemplateSubject
+					emailTemplateId
+					sendAt
+					order
+					type
+				}
 			}
 		}
 	}

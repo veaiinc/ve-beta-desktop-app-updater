@@ -1,12 +1,118 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import ReactModal from '../../modalsV2/index';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import '../../../../assets/scss/sales/globalWorkflowModal.scss';
 import { ReactComponent as EditSvg } from '../../../../assets/svg/worflow_builder/edit.svg';
 import { useNavigate } from 'react-router-dom';
-
+import ConnectorSvg from '../../../../assets/svg/worflow_builder/connector';
+import { ReactComponent as EmailSvg } from '../../../../assets/svg/worflow_builder/email.svg';
 const initialState = {
-	activeTab: 'design', //design,workflow
+	activeTab: 'design', //design,automation
+};
+
+const EntryPointCard = () => {
+	return (
+		<div className="startingPoint">
+			<span className="titleStyling">Workflow Start Point</span>
+			<span className="startingPointTitle">Enquiry form</span>
+		</div>
+	);
+};
+const EndPointViewCard = () => {
+	return (
+		<div className="endViewCard">
+			<span className="subalabel">WorkFlow Ends Here </span>
+		</div>
+	);
+};
+const OtherViewCard = () => {
+	return (
+		<div className="otherViewCard">
+			<div className="sendEmailHeader">
+				<EmailSvg />
+				<span className="sendEmailText">Send Email</span>
+			</div>
+			<span className="emailSubjectText">Thank You for Your Enquiry</span>
+			<span className="subalabel">Immediately after enquiry form is submitted </span>
+		</div>
+	);
+};
+
+const PreviewCard = ({ activeTemplateData }) => {
+	return (
+		<div className="previewCard">
+			<div className="htmlContentViewer">
+				<div className="coverImage">
+					<div
+						dangerouslySetInnerHTML={{
+							__html: activeTemplateData?.templates?.[0]?.parsedHtmlContent,
+						}}
+						style={{ width: '100%' }}
+					/>
+				</div>
+			</div>
+			<div className="previewLabelContent">
+				<span className="topLabelStyle">Timeless Touch of Beige</span>
+				<span className="labelTitle">All Files</span>
+				<span className="labelSubtitle">
+					Immediately after Form is submitted, wait for my approval
+				</span>
+			</div>
+		</div>
+	);
+};
+
+const AutomationComponent = ({ activeTemplateData }) => {
+	const [data, setData] = useState({
+		stepsData: null,
+		componentmapper: {
+			theEnd: <EndPointViewCard />,
+			preview: <PreviewCard activeTemplateData={activeTemplateData} />,
+			// parsedHtmlContent: activeTemplateData?.templates?.[0]?.parsedHtmlContent,
+		},
+	});
+
+	useEffect(() => {
+		if (activeTemplateData?.steps?.length) {
+			const steps = [...(activeTemplateData?.steps || [])];
+			const stepsData = [];
+			stepsData?.push(steps?.[0]);
+			stepsData?.push({
+				module: 'preview',
+				_id: steps?.[0]?._id,
+				parsedHtmlContent: activeTemplateData?.templates?.[0]?.parsedHtmlContent,
+			});
+			steps.shift();
+			stepsData?.concat(steps);
+			stepsData?.push({ module: 'theEnd' });
+			setData((prev) => ({ ...prev, stepsData }));
+		}
+	}, [activeTemplateData]);
+
+	return (
+		<div className="autoMationDiv">
+			{data?.stepsData?.map((ele, index) => (
+				<div
+					key={index}
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						justifyContent: 'center',
+					}}
+				>
+					{index === 0 ? (
+						<EntryPointCard />
+					) : data?.componentmapper?.[ele?.module] ? (
+						data?.componentmapper?.[ele?.module]
+					) : (
+						<OtherViewCard />
+					)}
+					{index < data?.stepsData?.length - 1 ? <ConnectorSvg /> : ''}
+				</div>
+			))}
+		</div>
+	);
 };
 
 const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) => {
@@ -45,12 +151,13 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 										Design
 									</span>
 									<span
-										onClick={() => changeActiveTab('workflow')}
+										onClick={() => changeActiveTab('automation')}
 										style={{
-											color: info?.activeTab === 'workflow' ? ' #e0e0e0' : '',
+											color:
+												info?.activeTab === 'automation' ? ' #e0e0e0' : '',
 										}}
 									>
-										Worklfow
+										Automation
 									</span>
 								</div>
 								{info?.activeTab === 'design' ? (
@@ -58,14 +165,14 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 										href={`https://builder.ve.co/${activeTemplateData?._id}`}
 										className="svgContainer"
 									>
-										<EditSvg /> Edit
+										<EditSvg /> Customise
 									</a>
 								) : (
 									<div
 										onClick={() => navigate('/workflow_builder')}
 										className="svgContainer"
 									>
-										<EditSvg /> Edit
+										<EditSvg /> Customise
 									</div>
 								)}
 							</div>
@@ -97,7 +204,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 							))}
 						</div>
 					) : (
-						''
+						<AutomationComponent activeTemplateData={activeTemplateData} />
 					)}
 				</div>
 			</div>
