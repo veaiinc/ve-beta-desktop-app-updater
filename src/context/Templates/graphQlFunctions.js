@@ -15,10 +15,8 @@ export const getTemmplatesQuery = gql`
 
 				tenantId
 				title
-				updatedAt
 				workflows
 				templates
-				proposalsCreated
 				steps {
 					_id
 					criteria
@@ -61,7 +59,6 @@ export const getWorkflowDetailsListQuery = gql`
 				createdBy
 				createdAt
 				modules
-				# proposalsCreated
 				tenantId
 				updatedAt
 				updatedBy
@@ -105,17 +102,6 @@ export const duplicateTemplateQuery = gql`
 			status
 			title
 			workflows
-			proposalsCreated
-			invoicesCreated
-			contractsCreated
-			formsCreated
-			proposalsAccepted
-			proposalsSent
-			proposalsViewed
-			createdBy
-			createdAt
-			updatedBy
-			updatedAt
 		}
 	}
 `;

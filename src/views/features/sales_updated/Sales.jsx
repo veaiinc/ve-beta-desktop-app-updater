@@ -4,6 +4,7 @@ import MyWorkflowsCard from '../../components/sales-updated/MyWorkflowsCard';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Spinner from '../../components/loaders/Spinner';
+import MyWorkflowsModals from '../../components/modalsV2/workflowsModals/MyWorkflowsModals';
 
 const FetchMoreLoaderComp = () => {
 	return (
@@ -32,6 +33,7 @@ const Sales = () => {
 		myWorkflowData: null,
 		hasNextPage: false,
 		currentPage: 1,
+		myWorkflowModal: false,
 	});
 
 	//useEffects
@@ -78,6 +80,15 @@ const Sales = () => {
 				}
 			}
 
+			myWorkflowData?.push({});
+			myWorkflowData?.push({});
+
+			myWorkflowData?.push({});
+
+			myWorkflowData?.push({});
+
+			myWorkflowData?.push({});
+
 			if (fetchMore) {
 				myWorkflowData = [...(info?.myWorkflowData || [])]?.concat(myWorkflowData);
 			}
@@ -96,19 +107,33 @@ const Sales = () => {
 		getMyWorkflowTemplatesData(info?.currentPage + 1, true);
 	}, [info?.hasNextPage, info?.currentPage]);
 
+	const openMyWorkflowModal = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, myWorkflowModal: true }));
+	}, []);
+
+	const closeWorkflowModal = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, myWorkflowModal: false }));
+	}, []);
+
 	return (
-		<InfiniteScroll
-			dataLength={info?.myWorkflowData?.length || 0}
-			next={fetchMoreMyWorkflows}
-			hasMore={info?.hasNextPage}
-			loader={<FetchMoreLoaderComp />}
-		>
-			<div className="salesParentContainer">
-				{info?.myWorkflowData?.map((e, index) => (
-					<MyWorkflowsCard key={index} data={e} />
-				))}
-			</div>
-		</InfiniteScroll>
+		<>
+			<InfiniteScroll
+				dataLength={info?.myWorkflowData?.length || 0}
+				next={fetchMoreMyWorkflows}
+				hasMore={info?.hasNextPage}
+				loader={<FetchMoreLoaderComp />}
+			>
+				<div className="salesParentContainer">
+					{info?.myWorkflowData?.map((e, index) => (
+						<MyWorkflowsCard key={index} data={e} openModal={openMyWorkflowModal} />
+					))}
+				</div>
+			</InfiniteScroll>
+			<MyWorkflowsModals
+				modalIsOpen={info?.myWorkflowModal}
+				closeModal={closeWorkflowModal}
+			/>
+		</>
 	);
 };
 

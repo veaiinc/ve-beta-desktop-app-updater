@@ -73,60 +73,41 @@ const GetBusinessDetails = ({ errorStates, setLoading, setErrorState, isLoading 
 		{
 			label: 'Make up Artist',
 			value: 'makeUpArtist',
-			// onClickFunc: () =>
-			// 	onBusinessTypeChange({ value: 'makeUpArtist', label: 'Make up Artist' }),
 		},
 		{
 			label: 'Consultant',
 			value: 'consultant',
-			// onClickFunc: () => onBusinessTypeChange({ value: 'consultant', label: 'Consultant' }),
 		},
 		{
 			label: 'Salon & Spa',
 			value: 'salonAndSpa',
-			// onClickFunc: () => onBusinessTypeChange({ value: 'salonAndSpa', label: 'Salon & Spa' }),
 		},
 		{
 			label: 'Architecture',
 			value: 'architecture',
-			// onClickFunc: () =>
-			// 	onBusinessTypeChange({ value: 'architecture', label: 'Architecture' }),
 		},
 		{
 			label: 'Photographer',
-			value: 'photographer',
-			// onClickFunc: () =>
-			// 	onBusinessTypeChange({ value: 'photographer', label: 'Photographer' }),
 		},
 		{
 			label: 'Fashion Designer',
 			value: 'fashionDesigner',
-			// onClickFunc: () =>
-			// 	onBusinessTypeChange({ value: 'fashionDesigner', label: 'Fashion Designer' }),
 		},
 		{
 			label: 'Event Management',
 			value: 'eventManagement',
-			// onClickFunc: () =>
-			// 	onBusinessTypeChange({ value: 'eventManagement', label: 'Event Management' }),
 		},
 		{
 			label: 'Interior Designer',
 			value: 'interiorDesigner',
-			// onClickFunc: () =>
-			// 	onBusinessTypeChange({ value: 'interiorDesigner', label: 'Interior Designer' }),
 		},
 		{
 			label: 'Business Coach',
 			value: 'businessCoach',
-			// onClickFunc: () =>
-			// 	onBusinessTypeChange({ value: 'businessCoach', label: 'Business Coach' }),
 		},
 		{
 			label: 'Restaurateur',
 			value: 'restaurateur',
-			// onClickFunc: () =>
-			// 	onBusinessTypeChange({ value: 'restaurateur', label: 'Restaurateur' }),
 		},
 	];
 

@@ -32,6 +32,7 @@ const HeadersDropDownComp = ({
 	onMouseHoverFunc = false,
 	outerContainerStyle,
 	onChangeFunc,
+	selectedValueStyle,
 }) => {
 	const logoutFunc = useLogout();
 	const [isOpen, setIsOpen] = useState(false);
@@ -72,7 +73,10 @@ const HeadersDropDownComp = ({
 				)}
 				<span
 					className="selectedPage"
-					style={{ color: containerStyle?.color || 'rgba(224, 224, 224, 0.32)' }}
+					style={{
+						color: containerStyle?.color || 'rgba(224, 224, 224, 0.32)',
+						...(selectedValueStyle || {}),
+					}}
 				>
 					{selectedValue}
 				</span>
