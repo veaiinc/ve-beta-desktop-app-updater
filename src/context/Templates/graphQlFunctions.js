@@ -206,3 +206,9 @@ export const updateWorkflowStepsQuery = gql`
 		}
 	}
 `;
+
+export const getSmartFileDataQuery = gql`
+	query Query($getWorkflowWithModulesId: ID!) {
+		getWorkflowWithModules(id: $getWorkflowWithModulesId)
+	}
+`;

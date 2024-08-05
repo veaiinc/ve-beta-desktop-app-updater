@@ -13,6 +13,7 @@ import {
 	getSpecificWorkflowTemplateDetailsQuery,
 	deleteWorkflowStepQuery,
 	updateWorkflowStepsQuery,
+	getSmartFileDataQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -29,6 +30,7 @@ export const intialState = {
 	myMoreWorkflows: null,
 	globalWorkflows: null,
 	globalMoreWorkflows: null,
+	smartFileInfo: null,
 };
 
 export const TemplatesState = (props) => {
@@ -421,6 +423,31 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getSmartFileData = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getSmartFileDataQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				const payload = response?.[1]?.data?.getWorkflowWithModules;
+				dispatch({
+					type: Actions.SMART_FILE_INFO_SUCCESS,
+					payload,
+				});
+			} else {
+				console.log('Api failed==>getSmartFileData', response);
+			}
+		} catch (error) {
+			console.log('error==>getSmartFileData', error);
+		}
+	};
+
 	return {
 		...state,
 		getProposals,
@@ -442,5 +469,6 @@ export const TemplatesState = (props) => {
 		getGlobalWorkflows,
 		getTemplates,
 		duplicateGlobalWorkflowTemplate,
+		getSmartFileData,
 	};
 };

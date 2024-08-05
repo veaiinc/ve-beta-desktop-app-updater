@@ -28,6 +28,10 @@ const actionHandlers = {
 		...state,
 		allEmailTemplates: action.payload,
 	}),
+	SMART_FILE_INFO_SUCCESS: (state, action) => ({
+		...state,
+		smartFileInfo: action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

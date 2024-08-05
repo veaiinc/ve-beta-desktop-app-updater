@@ -61,21 +61,27 @@
 			}
 		}
 
-		.sendSmartFileBtn {
+		.flexEndButtonContainer {
 			display: flex;
-			padding: 16px 24px;
+			justify-content: flex-end;
 			align-items: center;
-			gap: 16px;
-			border-radius: 100px;
-			background: #6055ec;
-			color: #e4e5e6;
-			font-family: Inter;
-			font-size: 13px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 16px; /* 123.077% */
-			letter-spacing: 0.26px;
-			cursor: pointer;
+			gap: 14px;
+			.sendSmartFileBtn {
+				display: flex;
+				padding: 16px 24px;
+				align-items: center;
+				gap: 16px;
+				border-radius: 100px;
+				background: #6055ec;
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 16px; /* 123.077% */
+				letter-spacing: 0.26px;
+				cursor: pointer;
+			}
 		}
 	}
 	.mainContentContainer {
