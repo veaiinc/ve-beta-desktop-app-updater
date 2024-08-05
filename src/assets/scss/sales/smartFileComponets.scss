@@ -1,0 +1,375 @@
+.eventsParentContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--Spacing-space-8, 16px);
+	.eventsTitle {
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 23px; /* 143.75% */
+	}
+	.addEventBtn {
+		display: flex;
+		padding: 8px var(--cartCount, 0px);
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 8px;
+		border: 1px dashed rgba(36, 36, 36, 0.64);
+		background: rgba(42, 42, 42, 0.2);
+		color: rgba(228, 229, 230, 0.48);
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 24px; /* 171.429% */
+		cursor: pointer;
+	}
+
+	.eventsCard {
+		display: flex;
+		padding: 24px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		align-self: stretch;
+		border-radius: 16px;
+		border: 1px solid #242424;
+		background: rgba(42, 42, 42, 0.16);
+
+		.deleteEventsContainer {
+			display: flex;
+			width: 85px;
+			height: 22px;
+			padding: 0px 8px 0px 9px;
+			justify-content: center;
+			align-items: center;
+			align-self: flex-end;
+			gap: 9px;
+			border-radius: 8px;
+			opacity: 0.5;
+			background: rgba(204, 87, 86, 0);
+			cursor: pointer;
+			color: #cc5756;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 22px; /* 157.143% */
+			letter-spacing: 0.28px;
+			text-transform: capitalize;
+		}
+
+		.eventsDetailsContainer {
+			display: flex;
+			flex: 1;
+			align-items: flex-start;
+			align-self: stretch;
+			gap: 16px;
+		}
+		.servicesContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			flex: 1 0 0;
+			align-self: stretch;
+
+			.serviceContainerTitle {
+				color: rgba(228, 229, 230, 0.48);
+				font-family: Inter;
+				font-size: 10px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 14px; /* 140% */
+				letter-spacing: 0.2px;
+				text-transform: capitalize;
+			}
+			.serviceRoleContainer {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 16px;
+				align-self: stretch;
+
+				.customInputWithoutLabel {
+					padding: 11px 14px;
+					align-items: center;
+					gap: 10px;
+					flex: 1 0 0;
+					align-self: stretch;
+					border-radius: 10px;
+					border: 1px solid rgba(36, 36, 36, 0.64);
+					background-color: transparent;
+					color: #b0b0b0;
+					font-family: Inter;
+					font-size: 11px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px; /* 145.455% */
+				}
+				.incrementDecrementContainer {
+					display: flex;
+					width: 100px;
+					padding: 11px 14px;
+					gap: 4px;
+					align-items: center;
+					border-radius: 10px;
+					border: 1px solid rgba(36, 36, 36, 0.64);
+
+					.incrementDecrementinput {
+						flex: 1;
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 26px; /* 185.714% */
+						width: 100%;
+						background-color: transparent;
+						border: none;
+					}
+					.incrementorBtns {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						color: #6055ec;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 26px; /* 185.714% */
+						cursor: pointer;
+					}
+				}
+			}
+			.addMoreRoleBtn {
+				color: #6055ec;
+				font-family: Inter;
+				font-size: 11px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				cursor: pointer;
+			}
+		}
+	}
+}
+
+.servicesParentContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	align-self: stretch;
+
+	.servicesHeader {
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 15px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 23px; /* 153.333% */
+	}
+	.serviceCardWrapper {
+		display: flex;
+		padding: 24px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 32px;
+		align-self: stretch;
+		border-radius: 16px;
+		border: 1px solid #242424;
+		background: rgba(42, 42, 42, 0.16);
+		.serviceCard {
+			display: flex;
+			align-items: center;
+			gap: 24px;
+			align-self: stretch;
+
+			.serviceTitleContainer {
+				display: flex;
+				align-items: center;
+				gap: 16px;
+				align-self: stretch;
+				flex: 1;
+
+				.serviceCardTitle {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 26px; /* 185.714% */
+				}
+			}
+			.serviceQuantityContainer {
+				display: flex;
+				flex: 1;
+				justify-content: flex-end;
+				align-items: center;
+				gap: 16px;
+
+				.quantityTitle {
+					color: #b0b0b0;
+					font-family: Inter;
+					font-size: 11px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px; /* 145.455% */
+				}
+				.incrementDecrementContainer {
+					display: flex;
+					width: 100px;
+					padding: 11px 14px;
+					gap: 4px;
+					align-items: center;
+					border-radius: 10px;
+					border: 1px solid rgba(36, 36, 36, 0.64);
+
+					.incrementDecrementinput {
+						flex: 1;
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 26px; /* 185.714% */
+						width: 100%;
+						background-color: transparent;
+						border: none;
+					}
+					.incrementorBtns {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						color: #6055ec;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 26px; /* 185.714% */
+						cursor: pointer;
+					}
+				}
+			}
+		}
+	}
+}
+
+.paymentScheduleParentContaianer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+	align-self: stretch;
+
+	.payemntScheduleHeader {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-end;
+		align-self: stretch;
+		.paymentScheduleTitle {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 15px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 23px; /* 153.333% */
+		}
+	}
+	.paymentScheduleCard {
+		display: flex;
+		padding: 24px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		align-self: stretch;
+		border-radius: 16px;
+		border: 1px solid #242424;
+		background: rgba(42, 42, 42, 0.16);
+
+		.paymentScheduleContentWrapper {
+			display: flex;
+			flex: 1;
+			align-items: flex-start;
+			align-self: stretch;
+			gap: 16px;
+		}
+	}
+}
+
+.variablesParentContainer {
+	display: flex;
+	padding: 24px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+	align-self: stretch;
+	border-radius: 16px;
+	border: 1px solid #242424;
+	background: rgba(42, 42, 42, 0.16);
+
+	.variableListHolder {
+		align-self: stretch;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(calc(50% - 12px), 1fr));
+		gap: 24px;
+	}
+	.proposalContainer {
+		align-self: stretch;
+	}
+}
+
+.inputWithLabelContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+	flex: 1 0 0;
+	.labelName {
+		color: #b0b0b0;
+		font-family: Inter;
+		font-size: 11px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 16px; /* 145.455% */
+		margin-left: 14px;
+	}
+	.custominputContainer {
+		padding: 11px 14px;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 10px;
+		border: 1px solid rgba(36, 36, 36, 0.64);
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 26px; /* 185.714% */
+		background-color: transparent;
+	}
+	.inputwithSumbols {
+		display: flex;
+		flex: 1;
+		align-items: center;
+		border-radius: 10px;
+		border: 1px solid rgba(36, 36, 36, 0.64);
+		padding-left: 11px;
+		color: rgba(228, 229, 230, 0.48);
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 26px; /* 185.714% */
+
+		.custominputContainer {
+			border: none;
+		}
+	}
+}

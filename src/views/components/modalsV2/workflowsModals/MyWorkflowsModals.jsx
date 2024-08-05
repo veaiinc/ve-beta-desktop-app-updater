@@ -68,7 +68,7 @@ const stageOptions = [
 ];
 
 const demoCard = [{}, {}, {}, {}, {}, {}, {}, {}];
-const MyWorkflowsModals = ({ modalIsOpen, closeModal }) => {
+const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData }) => {
 	const navigate = useNavigate();
 	return (
 		<ReactModal isOpen={modalIsOpen} closeModal={closeModal} modalType="right">
@@ -196,7 +196,9 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal }) => {
 							<div
 								className="modalSubCard"
 								key={index}
-								onClick={() => navigate('/smart-file')}
+								onClick={() =>
+									navigate('/smart-file', { state: { data: activeTemplateData } })
+								}
 							>
 								<span className="modalSubCardTitle">Aaron Lemke</span>
 								<div className="modalSubLabelContainer">

@@ -34,6 +34,7 @@ const Sales = () => {
 		hasNextPage: false,
 		currentPage: 1,
 		myWorkflowModal: false,
+		activeTemplateData: null,
 	});
 
 	//useEffects
@@ -107,12 +108,12 @@ const Sales = () => {
 		getMyWorkflowTemplatesData(info?.currentPage + 1, true);
 	}, [info?.hasNextPage, info?.currentPage]);
 
-	const openMyWorkflowModal = useCallback(async () => {
-		setInfo((prev) => ({ ...prev, myWorkflowModal: true }));
+	const openMyWorkflowModal = useCallback(async (data, index) => {
+		setInfo((prev) => ({ ...prev, myWorkflowModal: true, activeTemplateData: data }));
 	}, []);
 
 	const closeWorkflowModal = useCallback(async () => {
-		setInfo((prev) => ({ ...prev, myWorkflowModal: false }));
+		setInfo((prev) => ({ ...prev, myWorkflowModal: false, activeTemplateData: null }));
 	}, []);
 
 	return (
@@ -125,13 +126,18 @@ const Sales = () => {
 			>
 				<div className="salesParentContainer">
 					{info?.myWorkflowData?.map((e, index) => (
-						<MyWorkflowsCard key={index} data={e} openModal={openMyWorkflowModal} />
+						<MyWorkflowsCard
+							key={index}
+							data={e}
+							openModal={() => openMyWorkflowModal(e, index)}
+						/>
 					))}
 				</div>
 			</InfiniteScroll>
 			<MyWorkflowsModals
 				modalIsOpen={info?.myWorkflowModal}
 				closeModal={closeWorkflowModal}
+				activeTemplateData={info?.activeTemplateData}
 			/>
 		</>
 	);
