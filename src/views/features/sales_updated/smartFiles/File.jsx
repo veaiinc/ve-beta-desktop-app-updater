@@ -159,6 +159,46 @@ const File = ({ templateData }) => {
 		[info?.variablesData],
 	);
 
+	//servicesTableChnages
+	const serviceTableOnChnageFunc = useCallback(
+		async (updatedData) => {
+			console.log(updatedData);
+			const moduleType = updatedData?.moduleType;
+			let updatedServiceData = { ...info?.servicesTableData };
+			let serviceModuleArraytoBeUpdated = [...(updatedServiceData?.[moduleType] || [])];
+			let index = -1;
+			for (let i = 0; i < serviceModuleArraytoBeUpdated?.length; i++) {
+				if (serviceModuleArraytoBeUpdated?.[i]?._id === updatedData?._id) {
+					index = i;
+					break;
+				}
+			}
+
+			if (index !== -1) {
+				serviceModuleArraytoBeUpdated?.splice(index, 1, updatedData);
+				updatedServiceData[moduleType] = [...serviceModuleArraytoBeUpdated];
+				setInfo((prev) => ({ ...prev, servicesTableData: updatedServiceData }));
+			}
+
+			let moduleIndex = -1;
+			const moduleData = { ...(info?.[moduleType] || {}) };
+			const moduleTable = [...(moduleData?.tables || [])];
+			for (let i = 0; i < moduleTable?.length; i++) {
+				if (moduleTable?.[i]?._id === updatedData?._id) {
+					moduleIndex = i;
+					break;
+				}
+			}
+			if (moduleIndex !== -1) {
+				moduleTable?.splice(moduleIndex, 1, updatedData);
+				moduleData.tables = [...moduleTable];
+				setInfo((prev) => ({ ...prev, [moduleType]: moduleData }));
+			}
+			handleDebounceUpdate(moduleType, moduleData);
+		},
+		[info?.servicesTableData],
+	);
+
 	//proposalUpdate
 	const updateProposalFunc = useCallback(async (moduleData) => {
 		const { activeVersion, _id, variables, tables, paymentSchedule, workflowId, expiryInDays } =
@@ -233,7 +273,7 @@ const File = ({ templateData }) => {
 			},
 			versionId: activeVersion,
 		};
-		const response = await updateInvoice(payload);
+		updateThankyou(payload);
 	}, []);
 	//contractsUpdate
 	const updateContractFunc = useCallback(async (moduleData) => {
@@ -310,7 +350,10 @@ const File = ({ templateData }) => {
 					variableOnChangeFunc={variableOnChangeFunc}
 				/>
 				<Events />
-				<Services />
+				<Services
+					serviceData={info?.servicesTableData}
+					serviceOnChangeFunc={serviceTableOnChnageFunc}
+				/>
 				<PaymentSchedule />
 			</div>
 		</div>
