@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
 const PaymentSchedule = () => {
 	return (
@@ -41,4 +41,4 @@ const PaymentSchedule = () => {
 	);
 };
 
-export default PaymentSchedule;
+export default memo(PaymentSchedule);

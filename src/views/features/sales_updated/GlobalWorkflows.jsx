@@ -72,6 +72,7 @@ const GlobalWorkflows = () => {
 			filters: {
 				limit: 10,
 				page: page,
+				type: 'global',
 			},
 		};
 		getGlobalWorkflows(payload, fetchMore);

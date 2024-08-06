@@ -1,25 +1,43 @@
-import React from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
-const Variables = () => {
+
+const Variables = ({ variablesData, variableOnChangeFunc }) => {
+	const [info, setInfo] = useState({
+		data: [],
+	});
+
+	useEffect(() => {
+		if (variablesData) {
+			setInfo((prev) => ({ ...prev, data: [].concat(...Object.values(variablesData)) }));
+		}
+	}, [variablesData]);
+
+	const onLocalVariableDataChange = useCallback(
+		async (e, index) => {
+			let updatedData = [...(info?.data || [])];
+			let variableElementToBeUpdated = updatedData?.[index];
+			variableElementToBeUpdated = { ...variableElementToBeUpdated, value: e.target.value };
+			updatedData?.splice(index, 1, variableElementToBeUpdated);
+			setInfo((prev) => ({ ...prev, data: updatedData }));
+			variableOnChangeFunc(variableElementToBeUpdated);
+			return;
+		},
+		[info?.data],
+	);
+
 	return (
 		<div className="variablesParentContainer">
 			<div className="variableListHolder">
-				<div className="inputWithLabelContainer">
-					<span className="labelName">Event Name</span>
-					<input className="custominputContainer" />
-				</div>
-				<div className="inputWithLabelContainer">
-					<span className="labelName">Event Name</span>
-					<input className="custominputContainer" />
-				</div>
-				<div className="inputWithLabelContainer">
-					<span className="labelName">Event Name</span>
-					<input className="custominputContainer" />
-				</div>
-				<div className="inputWithLabelContainer">
-					<span className="labelName">Event Name</span>
-					<input className="custominputContainer" />
-				</div>
+				{info?.data?.map((ele, index) => (
+					<div className="inputWithLabelContainer" key={index}>
+						<span className="labelName">{ele?.code}</span>
+						<input
+							className="custominputContainer"
+							value={ele?.value || ''}
+							onChange={(e) => onLocalVariableDataChange(e, index)}
+						/>
+					</div>
+				))}
 			</div>
 
 			<div className="proposalContainer">
@@ -32,4 +50,4 @@ const Variables = () => {
 	);
 };
 
-export default Variables;
+export default memo(Variables);

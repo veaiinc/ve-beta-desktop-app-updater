@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
 
@@ -56,4 +56,4 @@ const Events = () => {
 	);
 };
 
-export default Events;
+export default memo(Events);

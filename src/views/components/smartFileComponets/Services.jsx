@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
 import ToggleSlider from '../../components/input/slider';
 const Services = () => {
@@ -41,4 +41,4 @@ const Services = () => {
 	);
 };
 
-export default Services;
+export default memo(Services);

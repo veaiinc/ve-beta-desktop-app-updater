@@ -61,6 +61,7 @@ const Sales = () => {
 			filters: {
 				limit: 10,
 				page: page,
+				type: 'workspace',
 			},
 		};
 		getMyWorkflows(payload, fetchMore);
@@ -80,15 +81,6 @@ const Sales = () => {
 					myWorkflowData?.push(data?.[i]);
 				}
 			}
-
-			myWorkflowData?.push({});
-			myWorkflowData?.push({});
-
-			myWorkflowData?.push({});
-
-			myWorkflowData?.push({});
-
-			myWorkflowData?.push({});
 
 			if (fetchMore) {
 				myWorkflowData = [...(info?.myWorkflowData || [])]?.concat(myWorkflowData);

@@ -212,3 +212,74 @@ export const getSmartFileDataQuery = gql`
 		getWorkflowWithModules(id: $getWorkflowWithModulesId)
 	}
 `;
+
+export const updateProposalQuery = gql`
+	mutation UpdateProposal(
+		$workflowId: ID!
+		$proposalId: ID!
+		$proposalInput: UpdateProposal!
+		$versionId: ID
+	) {
+		updateProposal(
+			workflowId: $workflowId
+			proposalId: $proposalId
+			proposalInput: $proposalInput
+			versionId: $versionId
+		)
+	}
+`;
+export const updateFormQuery = gql`
+	mutation UpdateForm($formId: ID!, $formInput: UpdateForm!, $versionId: ID, $workflowId: ID!) {
+		updateForm(
+			formId: $formId
+			formInput: $formInput
+			versionId: $versionId
+			workflowId: $workflowId
+		)
+	}
+`;
+export const updateContractQuery = gql`
+	mutation UpdateContract(
+		$contractId: ID!
+		$contractInput: UpdateContract!
+		$versionId: ID
+		$workflowId: ID!
+	) {
+		updateContract(
+			contractId: $contractId
+			contractInput: $contractInput
+			versionId: $versionId
+			workflowId: $workflowId
+		)
+	}
+`;
+export const updateInvoiceQuery = gql`
+	mutation UpdateInvoice(
+		$invoiceId: ID!
+		$invoiceInput: UpdateInvoice!
+		$versionId: ID
+		$workflowId: ID!
+	) {
+		updateInvoice(
+			invoiceId: $invoiceId
+			invoiceInput: $invoiceInput
+			versionId: $versionId
+			workflowId: $workflowId
+		)
+	}
+`;
+export const updateThankYouQuery = gql`
+	mutation UpdateThankyou(
+		$thankyouId: ID!
+		$thankyouInput: UpdateThankyou!
+		$versionId: ID
+		$workflowId: ID!
+	) {
+		updateThankyou(
+			thankyouId: $thankyouId
+			thankyouInput: $thankyouInput
+			versionId: $versionId
+			workflowId: $workflowId
+		)
+	}
+`;

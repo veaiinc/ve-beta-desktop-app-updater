@@ -14,6 +14,11 @@ import {
 	deleteWorkflowStepQuery,
 	updateWorkflowStepsQuery,
 	getSmartFileDataQuery,
+	updateThankYouQuery,
+	updateFormQuery,
+	updateInvoiceQuery,
+	updateContractQuery,
+	updateProposalQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -448,6 +453,116 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const updateProposal = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateProposalQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+				// console.log('response: ', response);
+			} else {
+				console.log('Api failed==>updateProposal', response);
+			}
+		} catch (error) {
+			console.log('error==>updateProposal', error);
+		}
+	};
+
+	const updateContracts = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateContractQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+				// console.log('response: ', response);
+			} else {
+				console.log('Api failed==>updateContracts', response);
+			}
+		} catch (error) {
+			console.log('error==>updateContracts', error);
+		}
+	};
+
+	const updateInvoice = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateInvoiceQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+				// console.log('response: ', response);
+			} else {
+				console.log('Api failed==>updateInvoice', response);
+			}
+		} catch (error) {
+			console.log('error==>updateInvoice', error);
+		}
+	};
+
+	const updateForm = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateFormQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+				// console.log('response: ', response);
+			} else {
+				console.log('Api failed==>updateForm', response);
+			}
+		} catch (error) {
+			console.log('error==>updateForm', error);
+		}
+	};
+
+	const updateThankyou = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateThankYouQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+				// console.log('response: ', response);
+			} else {
+				console.log('Api failed==>updateThankyou', response);
+			}
+		} catch (error) {
+			console.log('error==>updateThankyou', error);
+		}
+	};
+
 	return {
 		...state,
 		getProposals,
@@ -470,5 +585,10 @@ export const TemplatesState = (props) => {
 		getTemplates,
 		duplicateGlobalWorkflowTemplate,
 		getSmartFileData,
+		updateProposal,
+		updateContracts,
+		updateInvoice,
+		updateForm,
+		updateThankyou,
 	};
 };
