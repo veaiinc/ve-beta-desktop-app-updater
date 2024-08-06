@@ -214,7 +214,7 @@ const File = ({ templateData }) => {
 			if (index !== -1) {
 				eventsModuleArrayToBeUpdated?.splice(index, 1, updatedData);
 				updatedEventsData[moduleType] = [...eventsModuleArrayToBeUpdated];
-				setInfo((prev) => ({ ...prev, servicesTableData: updatedEventsData }));
+				setInfo((prev) => ({ ...prev, eventsTableData: updatedEventsData }));
 			}
 
 			let moduleIndex = -1;
