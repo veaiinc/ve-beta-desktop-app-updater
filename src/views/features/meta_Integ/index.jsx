@@ -699,11 +699,12 @@ const ChatScreen = (props) => {
 									<div className="noChannelSelectedEmptyContainer">
 										<NoSelectedChannel />
 										<div className="labelContainer">
-											<span className="label">Start a Conversation</span>
+											<span className="label">Welcome to Your Inbox!</span>
 											<span className="subLabel">
-												Your inbox is empty, but don’t worry! Your messages
-												would show up here soon
+												No messages yet. All your incoming messages will be
+												appearing here as soon as they arrive.
 											</span>
+											<span className="subLabel">Stay tuned!</span>
 										</div>
 
 										{/* Please Select a channell */}
