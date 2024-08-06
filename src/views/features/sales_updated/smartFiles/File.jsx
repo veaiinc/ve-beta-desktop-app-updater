@@ -162,7 +162,6 @@ const File = ({ templateData }) => {
 	//servicesTableChnages
 	const serviceTableOnChnageFunc = useCallback(
 		async (updatedData) => {
-			console.log(updatedData);
 			const moduleType = updatedData?.moduleType;
 			let updatedServiceData = { ...info?.servicesTableData };
 			let serviceModuleArraytoBeUpdated = [...(updatedServiceData?.[moduleType] || [])];
@@ -197,6 +196,45 @@ const File = ({ templateData }) => {
 			handleDebounceUpdate(moduleType, moduleData);
 		},
 		[info?.servicesTableData],
+	);
+
+	//events table onChange
+	const eventsTableOnChangeFunc = useCallback(
+		async (updatedData) => {
+			const moduleType = updatedData?.moduleType;
+			let updatedEventsData = { ...info?.eventsTableData };
+			let eventsModuleArrayToBeUpdated = [...(updatedEventsData?.[moduleType] || [])];
+			let index = -1;
+			for (let i = 0; i < eventsModuleArrayToBeUpdated?.length; i++) {
+				if (eventsModuleArrayToBeUpdated?.[i]?._id === updatedData?._id) {
+					index = i;
+					break;
+				}
+			}
+			if (index !== -1) {
+				eventsModuleArrayToBeUpdated?.splice(index, 1, updatedData);
+				updatedEventsData[moduleType] = [...eventsModuleArrayToBeUpdated];
+				setInfo((prev) => ({ ...prev, servicesTableData: updatedEventsData }));
+			}
+
+			let moduleIndex = -1;
+			const moduleData = { ...(info?.[moduleType] || {}) };
+			const moduleTable = [...(moduleData?.tables || [])];
+			for (let i = 0; i < moduleTable?.length; i++) {
+				if (moduleTable?.[i]?._id === updatedData?._id) {
+					moduleIndex = i;
+					break;
+				}
+			}
+			if (moduleIndex !== -1) {
+				moduleTable?.splice(moduleIndex, 1, updatedData);
+				moduleData.tables = [...moduleTable];
+				setInfo((prev) => ({ ...prev, [moduleType]: moduleData }));
+			}
+
+			handleDebounceUpdate(moduleType, moduleData);
+		},
+		[info?.eventsTableData],
 	);
 
 	//proposalUpdate
@@ -349,7 +387,10 @@ const File = ({ templateData }) => {
 					variablesData={info?.variablesData}
 					variableOnChangeFunc={variableOnChangeFunc}
 				/>
-				<Events />
+				<Events
+					eventsData={info?.eventsTableData}
+					eventsDataChange={eventsTableOnChangeFunc}
+				/>
 				<Services
 					serviceData={info?.servicesTableData}
 					serviceOnChangeFunc={serviceTableOnChnageFunc}
