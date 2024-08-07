@@ -30,6 +30,9 @@ export const getTemmplatesQuery = gql`
 					order
 					type
 				}
+				workflowStats
+				formResponses
+				filesSent
 			}
 		}
 	}
@@ -118,6 +121,8 @@ export const getClientListQuery = gql`
 		}
 	}
 `;
+
+//new Queries
 
 export const getTemplateInfoQuery = gql`
 	query TemplateInfo($templateInfoId: ID!) {
@@ -281,5 +286,23 @@ export const updateThankYouQuery = gql`
 			versionId: $versionId
 			workflowId: $workflowId
 		)
+	}
+`;
+
+export const getWorkflowListQuery = gql`
+	query Workflows($filters: WorkflowsListFiltersInput) {
+		workflows(filters: $filters) {
+			currentPage
+			hasNextPage
+			data {
+				_id
+				clientDetails {
+					_id
+					email
+					name
+				}
+				status
+			}
+		}
 	}
 `;

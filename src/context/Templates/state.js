@@ -19,6 +19,7 @@ import {
 	updateInvoiceQuery,
 	updateContractQuery,
 	updateProposalQuery,
+	getWorkflowListQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -466,7 +467,6 @@ export const TemplatesState = (props) => {
 			);
 			if (response?.[0]) {
 				return [true];
-				// console.log('response: ', response);
 			} else {
 				console.log('Api failed==>updateProposal', response);
 			}
@@ -488,7 +488,6 @@ export const TemplatesState = (props) => {
 			);
 			if (response?.[0]) {
 				return [true];
-				// console.log('response: ', response);
 			} else {
 				console.log('Api failed==>updateContracts', response);
 			}
@@ -510,7 +509,6 @@ export const TemplatesState = (props) => {
 			);
 			if (response?.[0]) {
 				return [true];
-				// console.log('response: ', response);
 			} else {
 				console.log('Api failed==>updateInvoice', response);
 			}
@@ -532,7 +530,6 @@ export const TemplatesState = (props) => {
 			);
 			if (response?.[0]) {
 				return [true];
-				// console.log('response: ', response);
 			} else {
 				console.log('Api failed==>updateForm', response);
 			}
@@ -554,12 +551,38 @@ export const TemplatesState = (props) => {
 			);
 			if (response?.[0]) {
 				return [true];
-				// console.log('response: ', response);
 			} else {
 				console.log('Api failed==>updateThankyou', response);
 			}
 		} catch (error) {
 			console.log('error==>updateThankyou', error);
+		}
+	};
+
+	const getWorkflowsList = async (payload, fetchMore = false) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getWorkflowListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const selectedvariable = fetchMore ? 'moreWorkList' : 'workflowslist';
+				dispatch({
+					type: Actions?.GET_WORKFLOW_DETAILS_SUCCESS,
+					payload: response?.[1]?.data?.workflows,
+					selectedvariable,
+				});
+			} else {
+				console.log('Api failed==>getWorkflowsList', response);
+			}
+		} catch (error) {
+			console.log('error==>getWorkflowsList', error);
 		}
 	};
 
@@ -590,5 +613,6 @@ export const TemplatesState = (props) => {
 		updateInvoice,
 		updateForm,
 		updateThankyou,
+		getWorkflowsList,
 	};
 };

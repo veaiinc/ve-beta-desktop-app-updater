@@ -1,24 +1,62 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import '../../../assets/scss/sales/MyWorkflowsCard.scss';
 import ActionCards from './ActionCards';
 import StatsCard from './StatsCard';
 import { ReactComponent as ArrowSvg } from '../../../assets/svg/worflow_builder/smallArrow.svg';
-const actionCardds = [
-	{ headerText: 'Actions Required', subText: '15' },
-	{ headerText: 'All Enquires', subText: '290' },
-	{ headerText: 'Smart File sent', subText: '290' },
-	{ headerText: 'Expired', subText: '290' },
-	{ headerText: 'Success Rate', subText: '290' },
-];
-const statstCatsd = [
-	{ headerText: 'Enquiry', subText: '11' },
-	{ headerText: 'Smart File sent', subText: '290' },
-	{ headerText: 'Smart Files Viewed', subText: '290' },
-	{ headerText: 'Contract	Signed', subText: '290' },
-	{ headerText: 'Booking Confirmed', subText: '290' },
-	{ headerText: 'Proposal Expired', subText: '290' },
-];
+
 const MyWorkflowsCard = ({ data, openModal }) => {
+	const [info, setInfo] = useState({
+		statstCards: [
+			{
+				headerText: 'Enquiry',
+				subText: data?.workflowStats?.enquiry || 0,
+				status: 'enquiry',
+			},
+			{
+				headerText: 'Smart File sent',
+				subText: data?.workflowStats?.filesSent || 0,
+				status: 'fileSent',
+			},
+			{
+				headerText: 'Smart Files Viewed',
+				subText: data?.workflowStats?.filesViewed || 0,
+				status: 'fileViewed',
+			},
+			{
+				headerText: 'Contract	Signed',
+				subText: data?.workflowStats?.contractSigned || 0,
+				status: 'contractSigned',
+			},
+			{
+				headerText: 'Booking Confirmed',
+				subText: data?.workflowStats?.confirmed || 0,
+				status: 'confirmed',
+			},
+			// { headerText: 'Proposal Expired', subText: '290', status: '' },
+		],
+		actionCards: [
+			// { headerText: 'Actions Required', subText: '15', status: 'enquiry' },
+			{
+				headerText: 'All Enquires',
+				subText: data?.formResponses || 0,
+				status: 'allenquiries',
+			},
+			{
+				headerText: 'Smart File sent',
+				subText: data?.filesSent || 0,
+				status: 'allfilessent',
+			},
+			// { headerText: 'Expired', subText: '290', status: 'enquiry' },
+			{
+				headerText: 'Success Rate',
+				subText:
+					data?.filesSent && data?.filesSent > 0
+						? ((data?.workflowStats?.confirmed || 0) * 100) / data?.filesSent + '%'
+						: '0 %',
+				status: 'successRate',
+			},
+		],
+	});
 	return (
 		<div className="myWorkflowCard">
 			<div className="imageContainer">
@@ -35,18 +73,23 @@ const MyWorkflowsCard = ({ data, openModal }) => {
 			<div className="workflowContentContainer">
 				<span className="myworkflowHeader">{data?.title}</span>
 				<div className="actionBtnContainer">
-					{actionCardds?.map((ele, index) => (
-						<ActionCards index={index} cardData={ele} onClickfunc={openModal} />
+					{info?.actionCards?.map((ele, index) => (
+						<ActionCards
+							key={index}
+							index={index}
+							cardData={ele}
+							onClickfunc={() => openModal(data, ele)}
+						/>
 					))}
 				</div>
 
 				<div className="statsCardSuperContainer">
-					{statstCatsd?.map((ele, index) => (
+					{info?.statstCards?.map((ele, index) => (
 						<div className="statsInnerContainer" key={index}>
-							<StatsCard cardsData={ele} onClickfunc={openModal} />
-							{statstCatsd?.length - 2 > index ? (
+							<StatsCard cardsData={ele} onClickfunc={() => openModal(data, ele)} />
+							{info?.statstCards?.length - 2 > index ? (
 								<ArrowSvg />
-							) : index < statstCatsd?.length - 1 ? (
+							) : index < info?.statstCards?.length - 1 ? (
 								<div className="innerSeperator">
 									<div className="verticalSeperator"></div>
 								</div>

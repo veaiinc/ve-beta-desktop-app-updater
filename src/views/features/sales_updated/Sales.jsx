@@ -5,23 +5,7 @@ import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Spinner from '../../components/loaders/Spinner';
 import MyWorkflowsModals from '../../components/modalsV2/workflowsModals/MyWorkflowsModals';
-
-const FetchMoreLoaderComp = () => {
-	return (
-		<h4
-			style={{
-				display: 'flex',
-				gap: '12px',
-				color: '#fff',
-				justifyContent: 'center',
-				alignItems: 'center',
-			}}
-		>
-			<Spinner width={'12px'} height={'12px'} />
-			Fetching More...
-		</h4>
-	);
-};
+import { FetchMoreLoaderComp } from '../../../helpers';
 
 const Sales = () => {
 	let {
@@ -35,6 +19,7 @@ const Sales = () => {
 		currentPage: 1,
 		myWorkflowModal: false,
 		activeTemplateData: null,
+		activeCardsData: null,
 	});
 
 	//useEffects
@@ -100,12 +85,29 @@ const Sales = () => {
 		getMyWorkflowTemplatesData(info?.currentPage + 1, true);
 	}, [info?.hasNextPage, info?.currentPage]);
 
-	const openMyWorkflowModal = useCallback(async (data, index) => {
-		setInfo((prev) => ({ ...prev, myWorkflowModal: true, activeTemplateData: data }));
+	const openMyWorkflowModal = useCallback(async (data, cardsData) => {
+		if (cardsData?.status === 'successRate') {
+			return;
+		}
+		// if (!+cardsData?.subText) {
+		// 	return;
+		// }
+
+		setInfo((prev) => ({
+			...prev,
+			myWorkflowModal: true,
+			activeTemplateData: data,
+			activeCardsData: cardsData,
+		}));
 	}, []);
 
 	const closeWorkflowModal = useCallback(async () => {
-		setInfo((prev) => ({ ...prev, myWorkflowModal: false, activeTemplateData: null }));
+		setInfo((prev) => ({
+			...prev,
+			myWorkflowModal: false,
+			activeTemplateData: null,
+			activeCardsData: null,
+		}));
 	}, []);
 
 	return (
@@ -118,11 +120,7 @@ const Sales = () => {
 			>
 				<div className="salesParentContainer">
 					{info?.myWorkflowData?.map((e, index) => (
-						<MyWorkflowsCard
-							key={index}
-							data={e}
-							openModal={() => openMyWorkflowModal(e, index)}
-						/>
+						<MyWorkflowsCard key={index} data={e} openModal={openMyWorkflowModal} />
 					))}
 				</div>
 			</InfiniteScroll>
@@ -130,6 +128,7 @@ const Sales = () => {
 				modalIsOpen={info?.myWorkflowModal}
 				closeModal={closeWorkflowModal}
 				activeTemplateData={info?.activeTemplateData}
+				activeCardsData={info?.activeCardsData}
 			/>
 		</>
 	);
