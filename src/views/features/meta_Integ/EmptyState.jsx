@@ -37,10 +37,12 @@ const EmptyChannelList = () => {
 		<>
 			<EmptySvg />
 			<div className="platformMainLabel">
-				<span className="platformIntegrationMessage">Start a Conversation</span>
+				<span className="platformIntegrationMessage">Welcome to Your Inbox!</span>
 				<span className="platformSuppportingText">
-					Your inbox is empty, but don’t worry! Your messages would show up here soon
+					No messages yet. All your incoming messages will be appearing here as soon as
+					they arrive.
 				</span>
+				<span className="platformSuppportingText">Stay tuned!</span>
 			</div>
 		</>
 	);

@@ -1,0 +1,66 @@
+.unsendModalParentContainer {
+	width: 420px;
+	background: rgb(21, 21, 21);
+	overflow: auto;
+	border-radius: 40px;
+	outline: none;
+	padding: 40px;
+	box-shadow: rgba(0, 0, 0, 0.09) 0px 53px 53px 0px, rgba(0, 0, 0, 0.1) 0px 13px 29px 0px;
+	display: flex;
+	width: 450px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 36px;
+
+	.headerWrapper {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		align-self: stretch;
+		gap: 24px;
+		.headerQuestion {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 26px;
+		}
+	}
+	.buttonWrapper {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		align-self: stretch;
+		gap: 24px;
+
+		.cancelBtn {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			border-radius: 20px;
+			background: #1c1c1c;
+			color: #fff;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 24px; /* 200% */
+			padding: 12px 24px;
+		}
+		.deleteBtn {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			border-radius: 20px;
+			background: #6055ec;
+			color: #fff;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 24px; /* 200% */
+			padding: 12px 24px;
+		}
+	}
+}
