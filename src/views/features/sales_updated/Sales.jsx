@@ -61,7 +61,7 @@ const Sales = () => {
 				limit: 10,
 				page: page,
 				type: 'workspace',
-				status: 'published',
+				// status: 'published',
 			},
 		};
 		getMyWorkflows(payload, fetchMore);
@@ -78,8 +78,9 @@ const Sales = () => {
 			for (let i = 0; i < data?.length; i++) {
 				if (
 					data?.[i]?.tenantId &&
-					data?.[i]?.tenantId !== null &&
-					data?.[i]?.status === 'published'
+					data?.[i]?.tenantId !== null
+					// &&
+					// data?.[i]?.status === 'published'
 				) {
 					myWorkflowData?.push(data?.[i]);
 				}
