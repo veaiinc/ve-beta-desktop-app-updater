@@ -33,6 +33,9 @@ const HeadersDropDownComp = ({
 	outerContainerStyle,
 	onChangeFunc,
 	selectedValueStyle,
+	showArrow = true,
+	containerClassName = '',
+	activeHeaderStyling = {},
 }) => {
 	const logoutFunc = useLogout();
 	const [isOpen, setIsOpen] = useState(false);
@@ -55,8 +58,8 @@ const HeadersDropDownComp = ({
 	return (
 		<div className="dropdown" style={outerContainerStyle || {}}>
 			<div
-				className="dropdown-header"
-				style={containerStyle || {}}
+				className={`dropdown-header ${containerClassName}`}
+				style={{ ...(containerStyle || {}) }}
 				onClick={toggleDropdown}
 				onMouseOver={onMouseHoverFunc ? toggleDropdown : null}
 			>
@@ -80,7 +83,7 @@ const HeadersDropDownComp = ({
 				>
 					{selectedValue}
 				</span>
-				<DownArrow />
+				{showArrow ? <DownArrow /> : ''}
 			</div>
 			{isOpen ? (
 				<>

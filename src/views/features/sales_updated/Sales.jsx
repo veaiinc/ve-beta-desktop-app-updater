@@ -9,7 +9,13 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 
 const Sales = () => {
 	let {
-		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows },
+		templates: {
+			getMyWorkflows,
+			myWorkflows,
+			myMoreWorkflows,
+			salePageRefresh,
+			updateStateValues,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -26,6 +32,12 @@ const Sales = () => {
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
 	}, []);
+
+	useEffect(() => {
+		if (salePageRefresh) {
+			updateStateValues({ salePageRefresh: true });
+		}
+	}, [salePageRefresh]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -47,6 +59,7 @@ const Sales = () => {
 				limit: 10,
 				page: page,
 				type: 'workspace',
+				status: 'published',
 			},
 		};
 		getMyWorkflows(payload, fetchMore);

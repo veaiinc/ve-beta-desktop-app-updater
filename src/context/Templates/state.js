@@ -20,6 +20,9 @@ import {
 	updateContractQuery,
 	updateProposalQuery,
 	getWorkflowListQuery,
+	getTemplatesListForCreateLeadQuery,
+	createLeadfromTemplatesQuery,
+	workflowsLinkQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -37,6 +40,8 @@ export const intialState = {
 	globalWorkflows: null,
 	globalMoreWorkflows: null,
 	smartFileInfo: null,
+	templatesListForCreateLead: null,
+	salePageRefresh: null,
 };
 
 export const TemplatesState = (props) => {
@@ -586,6 +591,77 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getTemplatesListForCreateLead = async () => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const payload = {
+			filters: {
+				limit: 30,
+				page: 1,
+				type: 'workspace',
+				status: 'published',
+			},
+		};
+		const response = await service.query(
+			getTemplatesListForCreateLeadQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			dispatch({
+				type: Actions.GET_TEMPLATES_LIST_FOR_CREATE_LEAD_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+			});
+		} else {
+			console.log('api failed ==>getTemplatesListForCreateLead', response);
+		}
+	};
+
+	const createLeadfromTemplates = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				createLeadfromTemplatesQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false, response?.[1]?.message || 'Something went Worng'];
+			}
+		} catch (error) {
+			console.log('api failed ==>createLeadfromTemplates', error);
+		}
+	};
+
+	const sendSmartFile = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				workflowsLinkQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false, response?.[1]?.message || 'Something went Worng'];
+			}
+		} catch (error) {
+			console.log('api failed ==>sendSmartFile', error);
+		}
+	};
 	return {
 		...state,
 		getProposals,
@@ -614,5 +690,8 @@ export const TemplatesState = (props) => {
 		updateForm,
 		updateThankyou,
 		getWorkflowsList,
+		getTemplatesListForCreateLead,
+		createLeadfromTemplates,
+		sendSmartFile,
 	};
 };

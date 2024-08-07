@@ -302,7 +302,42 @@ export const getWorkflowListQuery = gql`
 					name
 				}
 				status
+				slug
+				modules
 			}
 		}
+	}
+`;
+
+export const getTemplatesListForCreateLeadQuery = gql`
+	query Templates($filters: TemplateListFiltersInput) {
+		templates(filters: $filters) {
+			currentPage
+			hasNextPage
+			data {
+				_id
+				title
+			}
+		}
+	}
+`;
+
+export const createLeadfromTemplatesQuery = gql`
+	mutation CreateWorkflowFromTemplate($workflowInput: WorkflowInput) {
+		createWorkflowFromTemplate(workflowInput: $workflowInput) {
+			_id
+			status
+			clientDetails {
+				_id
+				name
+				email
+			}
+		}
+	}
+`;
+
+export const workflowsLinkQuery = gql`
+	mutation WorkflowLink($clientEmail: String!, $workflowId: ID!) {
+		workflowLink(clientEmail: $clientEmail, workflowId: $workflowId)
 	}
 `;

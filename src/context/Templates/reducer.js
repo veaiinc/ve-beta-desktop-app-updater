@@ -32,6 +32,10 @@ const actionHandlers = {
 		...state,
 		smartFileInfo: action.payload,
 	}),
+	GET_TEMPLATES_LIST_FOR_CREATE_LEAD_SUCCESS: (state, action) => ({
+		...state,
+		templatesListForCreateLead: action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

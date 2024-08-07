@@ -7,17 +7,30 @@ import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import ReactModal from '../../modalsV2/index';
 import InputForModules from '../../input/inputForModules';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
+import '../../../../assets/scss/sales/createLeadModal.scss';
 const validator = require('validator');
 const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	let {
-		templates: { getClientList, clientList, createProposals },
+		templates: {
+			getClientList,
+			clientList,
+			createProposals,
+			getTemplatesListForCreateLead,
+			templatesListForCreateLead,
+			createLeadfromTemplates,
+			updateStateValues,
+		},
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		existingLeadSource: true,
 		currentPage: 1,
+		templateCurrentPage: 1,
 		hasNextPage: false,
+		templateHasNextPage: false,
 		clientData: null,
+		templateData: null,
+		selectedTemplate: null,
 	});
 	const [isLoading, setLoading] = useState(false);
 	const [errorState, setErrorState] = useState({ isError: false, errorMessage: '' });
@@ -25,6 +38,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	const [createButtonActiveState, setCreateButtonActiveState] = useState(false);
 
 	useEffect(() => {
+		getTemplatesListForCreateLead();
 		getClientListData();
 	}, []);
 
@@ -52,6 +66,27 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 		}
 	}, [clientList]);
 
+	useEffect(() => {
+		if (templatesListForCreateLead) {
+			const { currentPage, hasNextPage, data } = templatesListForCreateLead;
+			let templateData = [];
+			for (let i = 0; i < data?.length; i++) {
+				let obj = {
+					label: data?.[i]?.title,
+					value: JSON.stringify(data?.[i]),
+				};
+				templateData.push(obj);
+			}
+			setInfo((prev) => ({
+				...prev,
+				templateCurrentPage: currentPage,
+				templateHasNextPage: hasNextPage,
+				templateData,
+				selectedTemplate: JSON.parse(templateData?.[0]?.value),
+			}));
+		}
+	}, [templatesListForCreateLead]);
+
 	const getClientListData = useCallback(() => {
 		const payload = {
 			filters: {
@@ -61,51 +96,6 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 		};
 		getClientList(payload);
 	}, []);
-
-	const handleCreateLead = async () => {
-		if (createButtonActiveState) {
-			if (isLoading) {
-				return;
-			}
-			setLoading(true);
-
-			const json = {
-				proposalTemplateId: workflow?.moduleTemplates?.[0]?._id,
-				workflowTemplateId: workflow?._id,
-				proposalInput: {
-					clientInput: {
-						email: leadDetails['emailId'],
-						name: leadDetails['name'],
-					},
-					title: leadDetails['name'],
-					source: leadDetails['source'],
-				},
-			};
-
-			let response = await createProposals(json);
-
-			if (response?.[0]) {
-				setLoading(false);
-				closeModalFunc();
-				navigate(
-					`/sales/${workflow?._id}/${response[1]._id}?verison=${response[1]?.activeVersion}`,
-					{ state: { workflowId: response?.[1]?.workflowId } },
-				);
-			} else {
-				setLoading(false);
-				setLeadDetails((prevState) => ({
-					...prevState,
-				}));
-				setErrorState((prev) => ({
-					...prev,
-					isError: true,
-					errorMessage: response[1]?.message,
-				}));
-			}
-		} else {
-			validateCreateProposalPayload();
-		}
-	};
 
 	const closeModalFunc = (event) => {
 		setLoading(false);
@@ -185,9 +175,63 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 		[handleSelectedLead],
 	);
 
+	const onChangeSelectedTemplate = useCallback(
+		async (data) => {
+			const selectedTemplate = JSON.parse(data?.value);
+			if (info?.selectedTemplate?._id === selectedTemplate?._id) {
+				return;
+			}
+			setInfo((prev) => ({
+				...prev,
+				selectedTemplate,
+			}));
+		},
+		[info?.selectedTemplate],
+	);
+
+	const onChangeSelectedSource = useCallback(async (data) => {
+		setLeadDetails((prevState) => ({
+			...prevState,
+			source: data?.value,
+		}));
+	}, []);
+
+	const createLeadFunc = useCallback(async () => {
+		if (createButtonActiveState) {
+			if (isLoading) {
+				return;
+			}
+			setLoading(true);
+			const payload = {
+				workflowInput: {
+					clientDetails: {
+						email: leadDetails['emailId'],
+						name: leadDetails['name'],
+					},
+					templateId: info?.selectedTemplate?._id,
+					title: leadDetails['name'],
+				},
+			};
+
+			const response = await createLeadfromTemplates(payload);
+			if (response?.[0]) {
+				setLoading(false);
+				updateStateValues({ salePageRefresh: true });
+				closeModalFunc();
+			} else {
+				setLoading(false);
+				setErrorState((prev) => ({
+					...prev,
+					isError: true,
+					errorMessage: response[1],
+				}));
+			}
+		}
+	}, [info?.selectedTemplate, leadDetails, createButtonActiveState, isLoading]);
+
 	return (
 		<ReactModal isOpen={modalIsOpen} closeModal={closeModalFunc}>
-			<div className="createLeadModal" style={{ minHeight: '400px' }}>
+			<div className="modifiedCreateLeadModal" style={{ minHeight: '400px' }}>
 				<div className="modalHeading">
 					<p className="title">What lead is this proposal for?</p>
 					<div className="closeContainer" onClick={closeModalFunc}>
@@ -227,7 +271,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 					</div>
 				</div>
 				{!info?.existingLeadSource ? (
-					<>
+					<div className="inputBoxHolder">
 						<InputForModules
 							label={'Lead Name'}
 							type={'text'}
@@ -249,24 +293,69 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 							errorMessage={errorState['emailErrorMessage']}
 						/>
 
-						<InputForModules
-							label={'Lead Source'}
-							type={'dropdown'}
-							placeholder={'Select Lead Source'}
-							name={'source'}
-							value={leadDetails['source']}
-							options={[
-								{ label: 'Instagram', value: 'instagram' },
-								{ label: 'Website', value: 'website' },
-								{ label: 'Facebook', value: 'facebook' },
-								{ label: 'Reference', value: 'reference' },
-								{ label: 'None', value: 'null' },
-							]}
-							onChange={handleInputChange}
-							isError={errorState['issourceError']}
-							errorMessage={errorState['sourceErrorMessage']}
-						/>
-					</>
+						{/* {source} */}
+						<div className="leadSourceContainer">
+							<span className="leadSorcelabel">Lead Source</span>
+							<HeadersDropDownComp
+								showIcon={false}
+								options={[
+									{ label: 'Instagram', value: 'instagram' },
+									{ label: 'Website', value: 'website' },
+									{ label: 'Facebook', value: 'facebook' },
+									{ label: 'Reference', value: 'reference' },
+									{ label: 'None', value: 'null' },
+								]}
+								selectedValue={leadDetails['source'] || 'Select Source'}
+								containerStyle={{
+									padding: '12px 24px',
+									height: '48px',
+									padding: '12px 14px',
+									color: '#e4e5e6',
+									width: 'inherit',
+									flex: 1,
+									alignSelf: 'stretch',
+									borderRadius: '0.625rem',
+									border: '1px solid rgba(36, 36, 36, 0.64)',
+									backgroundColor: '#151515',
+								}}
+								dropDownStyle={{
+									right: 0,
+									top: '55px',
+									maxHeight: '300px',
+								}}
+								onChangeFunc={(e) => onChangeSelectedSource(e)}
+							/>
+						</div>
+						{/* {workflow} */}
+						<div className="leadSourceContainer">
+							<span className="leadSorcelabel">Select Workflow</span>
+							<HeadersDropDownComp
+								showIcon={false}
+								options={info?.templateData || []}
+								selectedValue={info?.selectedTemplate?.title || 'Select Workflow'}
+								containerStyle={{
+									padding: '12px 24px',
+									height: '48px',
+									padding: '12px 14px',
+									color: '#e4e5e6',
+									width: 'inherit',
+									flex: 1,
+									alignSelf: 'stretch',
+									borderRadius: '0.625rem',
+									border: '1px solid rgba(36, 36, 36, 0.64)',
+									backgroundColor: '#151515',
+								}}
+								dropDownStyle={{
+									right: 0,
+									top: '-205px',
+									maxHeight: '200px',
+									minHeight: '200px',
+									overflowY: 'auto',
+								}}
+								onChangeFunc={(e) => onChangeSelectedTemplate(e)}
+							/>
+						</div>
+					</div>
 				) : (
 					<div
 						style={{
@@ -314,19 +403,21 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 					</div>
 				)}
 
-				<div className="continueContainer">
-					<div
-						className={`createButton ${createButtonActiveState ? 'active' : ''}`}
-						onClick={handleCreateLead}
-					>
-						{isLoading ? <p>Loading...</p> : <p>Add Lead</p>}
+				<div className="createLeadFooter">
+					<div className="continueContainer">
+						<div
+							className={`createButton ${createButtonActiveState ? 'active' : ''}`}
+							onClick={createLeadFunc}
+						>
+							{isLoading ? <p>Loading...</p> : <p>Add Lead</p>}
+						</div>
+						<p className="cancelText" onClick={closeModalFunc}>
+							Cancel
+						</p>
 					</div>
-					<p className="cancelText" onClick={closeModalFunc}>
-						Cancel
-					</p>
-				</div>
 
-				<p className="errorMessage">{errorState['errorMessage']}</p>
+					<p className="errorMessage">{errorState['errorMessage']}</p>
+				</div>
 			</div>
 		</ReactModal>
 	);

@@ -5,6 +5,8 @@ import FormResponses from './FormResponses';
 import File from './File';
 import { useLocation } from 'react-router-dom';
 import Context from '../../../../context/context';
+import SendProposalModal from '../../../components/modalsV2/proposalModals/SendProposalModal';
+import CopiedModal from '../../../components/modalsV2/workflowsModals/CopiedModal';
 const SmartFile = () => {
 	const location = useLocation();
 
@@ -15,6 +17,10 @@ const SmartFile = () => {
 	const [info, setInfo] = useState({
 		activeTab: 'form', //form,file
 		incomingData: location?.state?.data,
+		workflowId: location?.state?.workflowId,
+		sendSmartFileModal: false,
+		workflowData: location?.state?.workflow,
+		copyModal: false,
 	});
 
 	//useEffect
@@ -26,10 +32,10 @@ const SmartFile = () => {
 
 	const getSmartFileInfo = useCallback(async () => {
 		const payload = {
-			getWorkflowWithModulesId: '66ac8b1aa4f00dcc0ae30eda',
+			getWorkflowWithModulesId: info?.workflowId,
 		};
 		getSmartFileData(payload);
-	}, []);
+	}, [info?.workflowId]);
 
 	const chnageActiveTab = useCallback(
 		(data) => {
@@ -41,9 +47,21 @@ const SmartFile = () => {
 		[info?.activeTab],
 	);
 
+	const openSendSmartFileModal = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, sendSmartFileModal: true }));
+	}, [info?.sendSmartFileModal]);
+
+	const openCopyModal = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, copyModal: true }));
+	}, [info?.sendSmartFileModal]);
+
 	return (
 		<div className="smartFileParentContainer">
-			<SmartFileHeader activeTab={info?.activeTab} chnageActiveTab={chnageActiveTab} />
+			<SmartFileHeader
+				activeTab={info?.activeTab}
+				chnageActiveTab={chnageActiveTab}
+				openSendSmartFileModal={openSendSmartFileModal}
+			/>
 			<div className="mainContentContainer">
 				{info?.activeTab === 'form' ? (
 					<FormResponses />
@@ -51,6 +69,21 @@ const SmartFile = () => {
 					<File templateData={info?.incomingData} />
 				)}
 			</div>
+
+			<SendProposalModal
+				open={info?.sendSmartFileModal}
+				closeModal={() => setInfo((prev) => ({ ...prev, sendSmartFileModal: false }))}
+				clientDetails={info?.workflowData?.clientDetails}
+				workflowSlug={info?.workflowData?.slug}
+				workflowId={info?.workflowId}
+				openCopyModal={openCopyModal}
+			/>
+			<CopiedModal
+				open={info?.copyModal}
+				closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
+				workflowSlug={info?.workflowData?.slug}
+				workflowData={info?.workflowData}
+			/>
 		</div>
 	);
 };

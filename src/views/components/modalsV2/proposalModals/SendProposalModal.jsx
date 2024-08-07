@@ -3,14 +3,22 @@ import ReactModal from '../index';
 import '../../../../assets/scss/modules/workflow/sendProposal.scss';
 import Context from '../../../../context/context';
 
-const SendProposalModal = ({ open, closeModal, clientDetails, workflowSlug, workflowId }) => {
+const SendProposalModal = ({
+	open,
+	closeModal,
+	clientDetails,
+	workflowSlug,
+	workflowId,
+	openCopyModal,
+}) => {
 	const {
-		proposals: { sendProposal },
+		proposals: { sendProposal, getAllEmailTemplates, allEmailTemplates },
+		templates: { sendSmartFile },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		subject: `Hello there ${clientDetails?.name}, here’s a Invoice for you`,
-		emailBody: `Hi ${clientDetails?.name},Attached is the file for your review. Please let me know if you have any questions or need any further information. {Invoice Link} Best regards,[Your Name]`,
+		subject: '',
+		emailBody: '',
 		selectedtemplate: 'invoice',
 		templateChange: false,
 		name: clientDetails?.name,
@@ -62,8 +70,11 @@ const SendProposalModal = ({ open, closeModal, clientDetails, workflowSlug, work
 	const handleCopy = useCallback(async () => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
-			await navigator.clipboard.writeText(`https://${workspaceId}.ve.co/${workflowSlug}`);
+			await navigator.clipboard.writeText(
+				`https://${workspaceId}.ve.co/portal/${workflowSlug}`,
+			);
 			closeModal();
+			openCopyModal();
 		} catch (err) {
 			console.log('Failed to copy text');
 		}
@@ -75,7 +86,7 @@ const SendProposalModal = ({ open, closeModal, clientDetails, workflowSlug, work
 			clientEmail: clientDetails?.email,
 			workflowId: workflowId,
 		};
-		sendProposal(payload);
+		sendSmartFile(payload);
 	}, [clientDetails, workflowId]);
 
 	return (
