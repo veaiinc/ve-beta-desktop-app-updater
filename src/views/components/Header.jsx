@@ -80,7 +80,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 		}
 		if (data?.label === 'Smart File') {
 		} else {
-			navigate('/sales/workflows-updated');
+			navigate('/sales/workflows');
 		}
 		return;
 	}, []);

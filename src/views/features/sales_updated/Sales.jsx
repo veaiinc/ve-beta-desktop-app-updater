@@ -6,6 +6,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Spinner from '../../components/loaders/Spinner';
 import MyWorkflowsModals from '../../components/modalsV2/workflowsModals/MyWorkflowsModals';
 import { FetchMoreLoaderComp } from '../../../helpers';
+import { useNavigate, useNavigation } from 'react-router-dom';
 
 const Sales = () => {
 	let {
@@ -17,6 +18,7 @@ const Sales = () => {
 			updateStateValues,
 		},
 	} = useContext(Context);
+	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		loading: false,
@@ -69,6 +71,9 @@ const Sales = () => {
 		(dataToBeUsed, fetchMore = false) => {
 			let { data, currentPage, hasNextPage } = dataToBeUsed;
 			let myWorkflowData = [];
+			if (currentPage === 1 && !data?.length) {
+				return navigate('/sales/workflows');
+			}
 
 			for (let i = 0; i < data?.length; i++) {
 				if (

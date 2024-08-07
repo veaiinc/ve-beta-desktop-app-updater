@@ -55,17 +55,17 @@ const routes = [
 		),
 		exact: true,
 	},
+	// {
+	// 	path: '/sales',
+	// 	component: (
+	// 		<AuthWrapper title={'Sales'}>
+	// 			<SalesScreen />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 	{
 		path: '/sales',
-		component: (
-			<AuthWrapper title={'Sales'}>
-				<SalesScreen />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
-	{
-		path: '/sales-updated',
 		component: (
 			<AuthWrapper title={'Sales'}>
 				<Sales />
@@ -82,18 +82,18 @@ const routes = [
 		),
 		exact: true,
 	},
-	{
-		path: '/sales/workflows',
-		component: (
-			<AuthWrapper title={'Sales'}>
-				<SalesScreen type={'workflows'} />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
+	// {
+	// 	path: '/sales/workflows',
+	// 	component: (
+	// 		<AuthWrapper title={'Sales'}>
+	// 			<SalesScreen type={'workflows'} />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 
 	{
-		path: '/sales/workflows-updated',
+		path: '/sales/workflows',
 		component: (
 			<AuthWrapper title={'Sales'}>
 				<GlobalWorkflows />
