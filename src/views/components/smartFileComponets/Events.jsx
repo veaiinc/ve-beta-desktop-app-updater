@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
+import Services from './Services';
 
 const Events = ({ eventsData, eventsDataChange }) => {
 	const [info, setInfo] = useState({
@@ -14,7 +15,7 @@ const Events = ({ eventsData, eventsDataChange }) => {
 	}, [eventsData]);
 
 	const localEventsOnchange = useCallback(
-		async (innerIndex, outerIndex, type, val) => {
+		async (innerIndex, outerIndex, type, val, roleIndex) => {
 			let updatedData = [...(info?.data || [])];
 			let selectedEventsTable = updatedData?.[outerIndex];
 			let valueTobeChanged = selectedEventsTable?.values?.[innerIndex];
@@ -28,7 +29,58 @@ const Events = ({ eventsData, eventsDataChange }) => {
 			if (type === 'date') {
 				valueTobeChanged = { ...valueTobeChanged, date: val };
 			}
+			if (type === 'serviecType') {
+				let roleArray = [...(valueTobeChanged?.roles || [])];
+				let roleTobeChanged = roleArray?.[roleIndex];
+				roleTobeChanged = { ...roleTobeChanged, type: val };
+				roleArray?.splice(roleIndex, 1, roleTobeChanged);
+				valueTobeChanged = { ...valueTobeChanged, roles: roleArray };
+			}
+			if (type === 'serviceTypeQuantity') {
+				let roleArray = [...(valueTobeChanged?.roles || [])];
+				let roleTobeChanged = roleArray?.[roleIndex];
+				let categoriesArray = [...roleTobeChanged?.categories];
+				let categoryTobeChanged = { ...categoriesArray?.[0], quantity: val };
+				categoriesArray[0] = categoryTobeChanged;
+				roleTobeChanged = { ...roleTobeChanged, categories: categoriesArray };
+				roleArray?.splice(roleIndex, 1, roleTobeChanged);
+				valueTobeChanged = { ...valueTobeChanged, roles: roleArray };
+			}
+			if (type === 'decrementQuantity') {
+				let roleArray = [...(valueTobeChanged?.roles || [])];
+				let roleTobeChanged = roleArray?.[roleIndex];
+				let categoriesArray = [...roleTobeChanged?.categories];
+				let categoryTobeChanged = {
+					...categoriesArray?.[0],
+					quantity:
+						categoriesArray?.[0]?.quantity - 1 > 0
+							? categoriesArray?.[0]?.quantity - 1
+							: 0,
+				};
+				categoriesArray[0] = categoryTobeChanged;
+				roleTobeChanged = { ...roleTobeChanged, categories: categoriesArray };
+				roleArray?.splice(roleIndex, 1, roleTobeChanged);
+				valueTobeChanged = { ...valueTobeChanged, roles: roleArray };
+			}
+			if (type === 'incrementQuantity') {
+				let roleArray = [...(valueTobeChanged?.roles || [])];
+				let roleTobeChanged = roleArray?.[roleIndex];
+				let categoriesArray = [...roleTobeChanged?.categories];
+				let categoryTobeChanged = {
+					...categoriesArray?.[0],
+					quantity: categoriesArray?.[0]?.quantity + 1,
+				};
+				categoriesArray[0] = categoryTobeChanged;
+				roleTobeChanged = { ...roleTobeChanged, categories: categoriesArray };
+				roleArray?.splice(roleIndex, 1, roleTobeChanged);
+				valueTobeChanged = { ...valueTobeChanged, roles: roleArray };
+			}
 
+			if (type === 'addRole') {
+				let roleArray = [...(valueTobeChanged?.roles || [])];
+				roleArray?.push({ type: '', categories: [{ category: '', quantity: 0 }] });
+				valueTobeChanged = { ...valueTobeChanged, roles: roleArray };
+			}
 			selectedEventsTable?.values?.splice(innerIndex, 1, valueTobeChanged);
 			updatedData?.splice(outerIndex, 1, selectedEventsTable);
 			setInfo((prev) => ({ ...prev, data: updatedData }));
@@ -158,26 +210,75 @@ const Events = ({ eventsData, eventsDataChange }) => {
 					<div className="servicesContainer">
 						<span className="serviceContainerTitle">Services Provided</span>
 
-						{/* //use map here */}
-						<div className="serviceRoleContainer">
-							<input className="customInputWithoutLabel" />
-							<div className="incrementDecrementContainer">
-								<span className="incrementorBtns">-</span>
-								<input type="number" className="incrementDecrementinput" />
-								<span className="incrementorBtns">+</span>
+						{item?.roles?.map((x, lt) => (
+							<div className="serviceRoleContainer" key={lt}>
+								<input
+									className="customInputWithoutLabel"
+									value={x?.type}
+									onChange={(e) =>
+										localEventsOnchange(
+											ind,
+											index,
+											'serviecType',
+											e.target.value,
+											lt,
+										)
+									}
+								/>
+								<div className="incrementDecrementContainer">
+									<span
+										className="incrementorBtns"
+										onClick={() =>
+											localEventsOnchange(
+												ind,
+												index,
+												'decrementQuantity',
+												1,
+												lt,
+											)
+										}
+									>
+										-
+									</span>
+									<input
+										type="number"
+										className="incrementDecrementinput"
+										value={x?.categories?.[0]?.quantity}
+										onChange={(e) =>
+											localEventsOnchange(
+												ind,
+												index,
+												'serviceTypeQuantity',
+												e.target.value,
+												lt,
+											)
+										}
+									/>
+									<span
+										className="incrementorBtns"
+										onClick={() =>
+											localEventsOnchange(
+												ind,
+												index,
+												'incrementQuantity',
+												1,
+												lt,
+											)
+										}
+									>
+										+
+									</span>
+								</div>
 							</div>
-						</div>
-						<div className="serviceRoleContainer">
-							<input className="customInputWithoutLabel" />
-							<div className="incrementDecrementContainer">
-								<span className="incrementorBtns">-</span>
-								<input type="number" className="incrementDecrementinput" />
-								<span className="incrementorBtns">+</span>
-							</div>
-						</div>
+						))}
 
 						{/* //add role btn */}
-						<div className="addMoreRoleBtn">+ Add Role</div>
+						<div
+							className="addMoreRoleBtn"
+							onClick={() => localEventsOnchange(ind, index, 'addRole')}
+						>
+							+ Add Role
+						</div>
 					</div>
 				</div>
 			))}
