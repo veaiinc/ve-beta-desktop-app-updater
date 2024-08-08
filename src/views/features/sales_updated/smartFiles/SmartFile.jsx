@@ -11,7 +11,13 @@ const SmartFile = () => {
 	const location = useLocation();
 
 	let {
-		templates: { getSmartFileData, getformResponses, smartFileInfo },
+		templates: {
+			getSmartFileData,
+			getformResponses,
+			smartFileInfo,
+			updateProposal,
+			chnageWorkflowStats,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -20,8 +26,11 @@ const SmartFile = () => {
 		workflowId: location?.state?.workflowId,
 		sendSmartFileModal: false,
 		workflowData: location?.state?.workflow,
+		workflowStatus: location?.state?.workflow?.status,
 		copyModal: false,
 	});
+
+	console.log(info?.workflowData, info?.workflowStatus);
 
 	//useEffect
 	useEffect(() => {
@@ -44,6 +53,7 @@ const SmartFile = () => {
 
 	const getFormResponseData = useCallback(async () => {
 		if (!info?.workflowData?.formResponse) {
+			setInfo((prev) => ({ ...prev, activeTab: 'file' }));
 			return;
 		}
 		const { modules } = info?.workflowData;
@@ -84,6 +94,23 @@ const SmartFile = () => {
 		setInfo((prev) => ({ ...prev, copyModal: true }));
 	}, [info?.sendSmartFileModal]);
 
+	const acceptProposalFunc = useCallback(async () => {
+		const proposalId = info?.workflowData?.modules?.filter((item) => item?.type === 'proposal');
+		const payload = {
+			workflowId: info?.workflowData?._id,
+			proposalId: proposalId?.[0]?._id,
+			proposalInput: {
+				status: 'accepted',
+			},
+		};
+		const response = await updateProposal(payload);
+		if (response?.[0]) {
+			setInfo((prev) => ({ ...prev, workflowStatus: 'accepted' }));
+			return [true];
+		}
+		return [false];
+	}, [info?.workflowData]);
+
 	return (
 		<div className="smartFileParentContainer">
 			<SmartFileHeader
@@ -91,6 +118,8 @@ const SmartFile = () => {
 				chnageActiveTab={chnageActiveTab}
 				openSendSmartFileModal={openSendSmartFileModal}
 				clientDetails={info?.workflowData?.clientDetails}
+				acceptProposalFunc={acceptProposalFunc}
+				workflowStatus={info?.workflowData?.status}
 			/>
 			<div className="mainContentContainer">
 				{info?.activeTab === 'form' ? (

@@ -13,7 +13,7 @@ const SendProposalModal = ({
 }) => {
 	const {
 		proposals: { sendProposal, getAllEmailTemplates, allEmailTemplates },
-		templates: { sendSmartFile },
+		templates: { sendSmartFile, chnageWorkflowStats },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -87,6 +87,9 @@ const SendProposalModal = ({
 			workflowId: workflowId,
 		};
 		sendSmartFile(payload);
+		chnageWorkflowStats({
+			fileSentStatusId: workflowId,
+		});
 	}, [clientDetails, workflowId]);
 
 	return (

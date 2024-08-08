@@ -355,3 +355,11 @@ export const formResponsesQuery = gql`
 		formResponse(formId: $formId)
 	}
 `;
+
+export const changeWorkflowStatusQuery = gql`
+	mutation FileSentStatus($fileSentStatusId: ID!) {
+		fileSentStatus(id: $fileSentStatusId) {
+			message
+		}
+	}
+`;

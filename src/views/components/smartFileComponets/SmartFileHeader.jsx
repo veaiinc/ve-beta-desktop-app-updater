@@ -1,9 +1,30 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { useNavigate } from 'react-router-dom';
 
-const SmartFileHeader = ({ activeTab, chnageActiveTab, openSendSmartFileModal, clientDetails }) => {
+const SmartFileHeader = ({
+	activeTab,
+	chnageActiveTab,
+	openSendSmartFileModal,
+	clientDetails,
+	workflowStatus,
+	acceptProposalFunc,
+}) => {
 	const navigate = useNavigate();
+	const [info, setInfo] = useState({
+		loading: false,
+	});
+
+	const modifiedAccetFunc = useCallback(async () => {
+		if (info?.loading) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, loading: true }));
+		const response = acceptProposalFunc();
+		if (response?.[0]) {
+			setInfo((prev) => ({ ...prev, loading: false }));
+		}
+	}, []);
 
 	return (
 		<div className="smarFileHeader">
@@ -32,8 +53,22 @@ const SmartFileHeader = ({ activeTab, chnageActiveTab, openSendSmartFileModal, c
 					</span>
 				</div>
 			</div>
-			<div className="flexEndButtonContainer" onClick={openSendSmartFileModal}>
-				<div className="sendSmartFileBtn">Send Smart File</div>
+			<div className="flexEndButtonContainer">
+				{workflowStatus === 'enquiry' ? (
+					<div className="sendSmartFileBtn" onClick={openSendSmartFileModal}>
+						Send Smart File
+					</div>
+				) : (
+					''
+				)}
+
+				{workflowStatus === 'fileSent' ? (
+					<div className="sendSmartFileBtn" onClick={modifiedAccetFunc}>
+						{info?.loading ? 'Accepting ....' : 'Accept'}
+					</div>
+				) : (
+					''
+				)}
 			</div>
 		</div>
 	);

@@ -24,6 +24,7 @@ import {
 	createLeadfromTemplatesQuery,
 	workflowsLinkQuery,
 	formResponsesQuery,
+	changeWorkflowStatusQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -690,6 +691,28 @@ export const TemplatesState = (props) => {
 			console.log('api failed ==>getformResponses', error);
 		}
 	};
+
+	const chnageWorkflowStats = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				changeWorkflowStatusQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				console.log('handle the error getformResponses', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>chnageWorkflowStatsu', error);
+		}
+	};
 	return {
 		...state,
 		getProposals,
@@ -722,5 +745,6 @@ export const TemplatesState = (props) => {
 		createLeadfromTemplates,
 		sendSmartFile,
 		getformResponses,
+		chnageWorkflowStats,
 	};
 };
