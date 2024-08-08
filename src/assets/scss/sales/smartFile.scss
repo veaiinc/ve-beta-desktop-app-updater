@@ -30,6 +30,7 @@
 				font-weight: 500;
 				line-height: 26px; /* 162.5% */
 				cursor: pointer;
+				text-transform: capitalize;
 
 				.svgWrapper {
 					display: flex;
@@ -153,6 +154,9 @@
 					border-radius: 8px;
 					border: 1px solid #242424;
 					background: #171717;
+					min-width: 300px;
+					width: auto;
+					max-width: 500px;
 					.eventTitle {
 						color: rgba(228, 229, 230, 0.48);
 						font-family: Inter;
@@ -174,6 +178,22 @@
 						font-weight: 400;
 						line-height: 16px; /* 114.286% */
 						letter-spacing: -0.3px;
+					}
+					.questionAndAnswerContainer {
+						display: flex;
+						flex-direction: column;
+						gap: 4px;
+						align-self: stretch;
+						.questionBlock {
+							color: rgba(228, 229, 230, 0.48);
+						}
+
+						.eventsAnswersContainer {
+							display: flex;
+							flex-direction: column;
+							gap: 4px;
+							align-self: stretch;
+						}
 					}
 				}
 			}

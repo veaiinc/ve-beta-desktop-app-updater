@@ -90,6 +90,7 @@ const SmartFile = () => {
 				activeTab={info?.activeTab}
 				chnageActiveTab={chnageActiveTab}
 				openSendSmartFileModal={openSendSmartFileModal}
+				clientDetails={info?.workflowData?.clientDetails}
 			/>
 			<div className="mainContentContainer">
 				{info?.activeTab === 'form' ? (

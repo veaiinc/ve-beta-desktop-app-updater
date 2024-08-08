@@ -2,8 +2,9 @@ import React, { memo } from 'react';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { useNavigate } from 'react-router-dom';
 
-const SmartFileHeader = ({ activeTab, chnageActiveTab, openSendSmartFileModal }) => {
+const SmartFileHeader = ({ activeTab, chnageActiveTab, openSendSmartFileModal, clientDetails }) => {
 	const navigate = useNavigate();
+
 	return (
 		<div className="smarFileHeader">
 			<div className="HeaderContentContainer">
@@ -12,7 +13,7 @@ const SmartFileHeader = ({ activeTab, chnageActiveTab, openSendSmartFileModal })
 					<span className="svgWrapper">
 						<BackArrowSvg />
 					</span>
-					Martin Dolkidis
+					{clientDetails?.name}
 				</div>
 				<div className="tabBtnContainer">
 					<span
