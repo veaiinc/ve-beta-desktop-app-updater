@@ -249,7 +249,7 @@ const WorkflowCardEditModal = ({
 			response = await addEmailTriggersInWorkflow(payload);
 			setInfo((prev) => ({ ...prev, saveLoader: false }));
 			if (response?.[0]) {
-				const stepsData = response?.[1];
+				const stepsData = response?.[1]?.steps;
 				addorUpdateSteps(stepsData);
 				closeModal();
 			}

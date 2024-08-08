@@ -73,6 +73,8 @@ const GlobalWorkflows = () => {
 				limit: 10,
 				page: page,
 				type: 'global',
+				sortBy: 'createdAt',
+				sortType: -1,
 			},
 		};
 		getGlobalWorkflows(payload, fetchMore);

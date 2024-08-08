@@ -357,8 +357,8 @@ export const TemplatesState = (props) => {
 			);
 
 			if (response?.[0]) {
-				const stepsData = response?.[1]?.data?.updateWorkflowTemplate?.steps;
-				return [true, stepsData];
+				const dataResponse = response?.[1]?.data?.updateWorkflowTemplate;
+				return [true, dataResponse];
 			} else {
 				console.log('Api failed ==>addEmailTriggersInWorkflow', response);
 				return [false];

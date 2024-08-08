@@ -7,13 +7,18 @@ import WorkflowCardEditModal from '../../components/modalsV2/workflowBuilderModa
 import Context from '../../../context/context';
 import { useLocation, useNavigate } from 'react-router-dom';
 import WorkflowPreviewModal from '../../components/modalsV2/workflowBuilderModals/WorkflowPreviewModal';
+import Spinner from '../../components/loaders/Spinner';
 const WorkflowBuilder = () => {
 	const {
-		templates: { getTemplateInfo, specificTemplatesInfo, deleteWorkflowStep },
+		templates: {
+			// getTemplateInfo,
+			// specificTemplatesInfo,
+			deleteWorkflowStep,
+			addEmailTriggersInWorkflow,
+		},
 	} = useContext(Context);
 
 	const location = useLocation();
-	console.log('loca', location?.state?.data);
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
@@ -25,6 +30,7 @@ const WorkflowBuilder = () => {
 		currentStepIndex: null,
 		incomingTemplateData: location?.state?.data,
 		previewModal: false,
+		publishLoading: false,
 	});
 
 	useEffect(() => {
@@ -132,6 +138,37 @@ const WorkflowBuilder = () => {
 		[info?.data],
 	);
 
+	const publishWorkflow = useCallback(async () => {
+		if (info?.publishLoading) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, publishLoading: true }));
+		const payload = {
+			templateId: info?.incomingTemplateData?._id,
+			updateObj: {
+				status: 'published',
+			},
+		};
+		const response = await addEmailTriggersInWorkflow(payload);
+		setInfo((prev) => ({ ...prev, publishLoading: false }));
+
+		if (response?.[0]) {
+			const { moduleTemplates } = response?.[1];
+			let isPublic = false;
+			for (let i = 0; i < moduleTemplates.length; i++) {
+				if (moduleTemplates?.[i]?.isPublic) {
+					isPublic = true;
+					break;
+				}
+			}
+
+			if (isPublic) {
+				return navigate('/sales', { state: { data: response?.[1] } });
+			}
+			return navigate('/sales');
+		}
+	}, [info?.publishLoading, info?.incomingTemplateData]);
+
 	return (
 		<div className="workflowBuilderContainer">
 			{/* header */}
@@ -153,8 +190,10 @@ const WorkflowBuilder = () => {
 					<div className="draftBtn">Draft</div>
 				</div>
 				<div className="discardSaveBtnGrp">
-					<div className="discardBtn">Discard</div>
-					<div className="saveChangesbtn">Save Changes</div>
+					<div className="saveChangesbtn" onClick={publishWorkflow}>
+						{info?.publishLoading ? <Spinner width={'16px'} height={'16px'} /> : ''}
+						{info?.publishLoading ? 'Publishing...' : 'Publish'}
+					</div>
 				</div>
 			</div>
 			<div className="workflowBuilderContentContainer">

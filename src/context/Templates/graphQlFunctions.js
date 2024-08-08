@@ -33,6 +33,7 @@ export const getTemmplatesQuery = gql`
 				workflowStats
 				formResponses
 				filesSent
+				slug
 			}
 		}
 	}
@@ -176,6 +177,12 @@ export const addEmailTriggersInWorkflowQuery = gql`
 				sendAt
 				order
 				type
+			}
+			slug
+			status
+			moduleTemplates {
+				module
+				isPublic
 			}
 		}
 	}

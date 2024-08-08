@@ -77,12 +77,15 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 				};
 				templateData.push(obj);
 			}
+
 			setInfo((prev) => ({
 				...prev,
 				templateCurrentPage: currentPage,
 				templateHasNextPage: hasNextPage,
 				templateData,
-				selectedTemplate: JSON.parse(templateData?.[0]?.value),
+				selectedTemplate: templateData?.length
+					? JSON.parse(templateData?.[0]?.value)
+					: null,
 			}));
 		}
 	}, [templatesListForCreateLead]);

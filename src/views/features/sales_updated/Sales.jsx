@@ -6,7 +6,9 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Spinner from '../../components/loaders/Spinner';
 import MyWorkflowsModals from '../../components/modalsV2/workflowsModals/MyWorkflowsModals';
 import { FetchMoreLoaderComp } from '../../../helpers';
-import { useNavigate, useNavigation } from 'react-router-dom';
+import { useLocation, useNavigate, useNavigation } from 'react-router-dom';
+import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
+import PublicLinkGeneratedModal from '../../components/modalsV2/workflowsModals/PublicLinkGeneratedModal';
 
 const Sales = () => {
 	let {
@@ -19,6 +21,7 @@ const Sales = () => {
 		},
 	} = useContext(Context);
 	const navigate = useNavigate();
+	const location = useLocation();
 
 	const [info, setInfo] = useState({
 		loading: false,
@@ -28,6 +31,8 @@ const Sales = () => {
 		myWorkflowModal: false,
 		activeTemplateData: null,
 		activeCardsData: null,
+		copyModal: false,
+		showGeneratedLinkModalData: location?.state?.data || null,
 	});
 
 	//useEffects
@@ -61,7 +66,9 @@ const Sales = () => {
 				limit: 10,
 				page: page,
 				type: 'workspace',
-				// status: 'published',
+				status: 'published',
+				sortBy: 'createdAt',
+				sortType: -1,
 			},
 		};
 		getMyWorkflows(payload, fetchMore);
@@ -78,9 +85,8 @@ const Sales = () => {
 			for (let i = 0; i < data?.length; i++) {
 				if (
 					data?.[i]?.tenantId &&
-					data?.[i]?.tenantId !== null
-					// &&
-					// data?.[i]?.status === 'published'
+					data?.[i]?.tenantId !== null &&
+					data?.[i]?.status === 'published'
 				) {
 					myWorkflowData?.push(data?.[i]);
 				}
@@ -129,6 +135,13 @@ const Sales = () => {
 		}));
 	}, []);
 
+	const closeGeneratedLinkModal = useCallback(async () => {
+		setInfo((prev) => ({
+			...prev,
+			showGeneratedLinkModalData: null,
+		}));
+	}, []);
+
 	return (
 		<>
 			<InfiniteScroll
@@ -148,6 +161,27 @@ const Sales = () => {
 				closeModal={closeWorkflowModal}
 				activeTemplateData={info?.activeTemplateData}
 				activeCardsData={info?.activeCardsData}
+			/>
+			<CopiedModal
+				open={info?.copyModal}
+				closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
+				slug={info?.activeTemplateData?.slug}
+				modules={info?.activeTemplateData?.moduleTemplates}
+				copyLink={`https://${localStorage.getItem('workspaceId')}.ve.co/${
+					info?.activeTemplateData?.slug
+				}`}
+			/>
+			<PublicLinkGeneratedModal
+				open={info?.showGeneratedLinkModalData ? true : false}
+				closeModal={closeGeneratedLinkModal}
+				copyLink={
+					info?.showGeneratedLinkModalData
+						? `https://${localStorage.getItem('workspaceId')}.ve.co/${
+								info?.showGeneratedLinkModalData?.slug
+						  }`
+						: ''
+				}
+				modules={info?.showGeneratedLinkModalData?.moduleTemplates}
 			/>
 		</>
 	);

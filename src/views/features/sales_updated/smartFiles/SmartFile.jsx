@@ -81,8 +81,10 @@ const SmartFile = () => {
 			<CopiedModal
 				open={info?.copyModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
-				workflowSlug={info?.workflowData?.slug}
-				workflowData={info?.workflowData}
+				modules={info?.workflowData?.modules}
+				copyLink={`https://${localStorage.getItem('workspaceId')}.ve.co/portal/${
+					info?.workflowData?.slug
+				}`}
 			/>
 		</div>
 	);
