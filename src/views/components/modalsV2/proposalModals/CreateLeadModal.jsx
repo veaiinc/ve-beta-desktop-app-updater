@@ -368,41 +368,61 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 							gap: '6px',
 						}}
 					>
-						<span
-							style={{
-								color: '#B0B0B0',
-								fontFamily: 'Inter',
-								fontSize: '11px',
-								fontStyle: 'normal',
-								fontWeight: '400',
-								lineHeight: '16px' /* 145.455% */,
-							}}
-						>
-							Search from Leads
-						</span>
-						<HeadersDropDownComp
-							showIcon={false}
-							options={info?.clientData || []}
-							selectedValue={leadDetails?.name || 'Select Lead'}
-							containerStyle={{
-								padding: '12px 24px',
-								height: '48px',
-								padding: '12px 24px',
-								color: '#e4e5e6',
-								width: 'inherit',
-								flex: 1,
-								alignSelf: 'stretch',
-								borderRadius: '0.625rem',
-								border: '1px solid rgba(36, 36, 36, 0.64)',
-								backgroundColor: '#151515',
-							}}
-							dropDownStyle={{
-								right: 0,
-								top: '60px',
-								maxHeight: '300px',
-							}}
-							onChangeFunc={(e) => onChangeClientLists(e)}
-						/>
+						<div className="leadSourceContainer">
+							<span className="leadSorcelabel">Search from Leads</span>
+							<HeadersDropDownComp
+								showIcon={false}
+								options={info?.clientData || []}
+								selectedValue={leadDetails?.name || 'Select Lead'}
+								containerStyle={{
+									height: '48px',
+									padding: '12px 14px',
+									color: '#e4e5e6',
+									width: 'inherit',
+									flex: 1,
+									alignSelf: 'stretch',
+									borderRadius: '0.625rem',
+									border: '1px solid rgba(36, 36, 36, 0.64)',
+									backgroundColor: '#151515',
+								}}
+								dropDownStyle={{
+									right: 0,
+									top: '55px',
+									maxHeight: '150px',
+									minHeight: '150px',
+								}}
+								onChangeFunc={(e) => onChangeClientLists(e)}
+							/>
+						</div>
+
+						{/* {workflow} */}
+						<div className="leadSourceContainer">
+							<span className="leadSorcelabel">Select Workflow</span>
+							<HeadersDropDownComp
+								showIcon={false}
+								options={info?.templateData || []}
+								selectedValue={info?.selectedTemplate?.title || 'Select Workflow'}
+								containerStyle={{
+									height: '48px',
+									padding: '12px 14px',
+									color: '#e4e5e6',
+									width: 'inherit',
+									flex: 1,
+									alignSelf: 'stretch',
+									borderRadius: '0.625rem',
+									border: '1px solid rgba(36, 36, 36, 0.64)',
+									backgroundColor: '#151515',
+								}}
+								dropDownStyle={{
+									right: 0,
+									top: '-205px',
+									maxHeight: '200px',
+									minHeight: '200px',
+									overflowY: 'auto',
+								}}
+								onChangeFunc={(e) => onChangeSelectedTemplate(e)}
+							/>
+						</div>
 					</div>
 				)}
 
