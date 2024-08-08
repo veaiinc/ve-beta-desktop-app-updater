@@ -11,7 +11,7 @@ const SmartFile = () => {
 	const location = useLocation();
 
 	let {
-		templates: { getSmartFileData, smartFileInfo },
+		templates: { getSmartFileData, getformResponses },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -27,6 +27,11 @@ const SmartFile = () => {
 	useEffect(() => {
 		getSmartFileInfo();
 	}, []);
+	useEffect(() => {
+		if (info?.workflowData) {
+			getFormResponseData();
+		}
+	}, [info?.workflowData]);
 
 	//function defination
 
@@ -36,6 +41,27 @@ const SmartFile = () => {
 		};
 		getSmartFileData(payload);
 	}, [info?.workflowId]);
+
+	const getFormResponseData = useCallback(async () => {
+		if (!info?.workflowData?.formResponse) {
+			return;
+		}
+		const { modules } = info?.workflowData;
+		let formId;
+		for (let i = 0; i < modules?.length; i++) {
+			if (modules?.[i]?.type === 'form') {
+				formId = modules?.[i]?._id;
+				break;
+			}
+		}
+		if (!formId) {
+			return;
+		}
+		const payload = {
+			formId,
+		};
+		getformResponses(payload);
+	}, [info?.workflowData]);
 
 	const chnageActiveTab = useCallback(
 		(data) => {
@@ -48,8 +74,11 @@ const SmartFile = () => {
 	);
 
 	const openSendSmartFileModal = useCallback(async () => {
+		if (info?.activeTab === 'form') {
+			return setInfo((prev) => ({ ...prev, activeTab: 'file' }));
+		}
 		setInfo((prev) => ({ ...prev, sendSmartFileModal: true }));
-	}, [info?.sendSmartFileModal]);
+	}, [info?.sendSmartFileModal, info?.activeTab]);
 
 	const openCopyModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, copyModal: true }));
@@ -64,7 +93,7 @@ const SmartFile = () => {
 			/>
 			<div className="mainContentContainer">
 				{info?.activeTab === 'form' ? (
-					<FormResponses />
+					<FormResponses workflowData={info?.workflowData} />
 				) : (
 					<File templateData={info?.incomingData} />
 				)}

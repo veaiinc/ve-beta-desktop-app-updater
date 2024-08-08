@@ -23,6 +23,7 @@ import {
 	getTemplatesListForCreateLeadQuery,
 	createLeadfromTemplatesQuery,
 	workflowsLinkQuery,
+	formResponsesQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -42,6 +43,7 @@ export const intialState = {
 	smartFileInfo: null,
 	templatesListForCreateLead: null,
 	salePageRefresh: null,
+	formResponseData: null,
 };
 
 export const TemplatesState = (props) => {
@@ -662,6 +664,31 @@ export const TemplatesState = (props) => {
 			console.log('api failed ==>sendSmartFile', error);
 		}
 	};
+
+	const getformResponses = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				formResponsesQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				console.log('response: ', response);
+				dispatch({
+					type: Actions.GET_FORM_RESPONSES_SUCCESS,
+					payload: response?.[1]?.data?.formResponse,
+				});
+			} else {
+				console.log('handle the error getformResponses', response);
+			}
+		} catch (error) {
+			console.log('api failed ==>getformResponses', error);
+		}
+	};
 	return {
 		...state,
 		getProposals,
@@ -693,5 +720,6 @@ export const TemplatesState = (props) => {
 		getTemplatesListForCreateLead,
 		createLeadfromTemplates,
 		sendSmartFile,
+		getformResponses,
 	};
 };

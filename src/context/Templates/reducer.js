@@ -36,6 +36,10 @@ const actionHandlers = {
 		...state,
 		templatesListForCreateLead: action.payload,
 	}),
+	GET_FORM_RESPONSES_SUCCESS: (state, action) => ({
+		...state,
+		formResponseData: action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

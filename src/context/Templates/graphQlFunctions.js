@@ -311,6 +311,7 @@ export const getWorkflowListQuery = gql`
 				status
 				slug
 				modules
+				formResponse
 			}
 		}
 	}
@@ -346,5 +347,11 @@ export const createLeadfromTemplatesQuery = gql`
 export const workflowsLinkQuery = gql`
 	mutation WorkflowLink($clientEmail: String!, $workflowId: ID!) {
 		workflowLink(clientEmail: $clientEmail, workflowId: $workflowId)
+	}
+`;
+
+export const formResponsesQuery = gql`
+	query Query($formId: ID!) {
+		formResponse(formId: $formId)
 	}
 `;
