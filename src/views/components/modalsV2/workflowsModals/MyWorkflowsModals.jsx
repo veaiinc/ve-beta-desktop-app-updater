@@ -107,7 +107,7 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 			if (activeTemplateData && activeCardsData) {
 				const payload = {
 					filters: {
-						limit: 10,
+						limit: 30,
 						page: page,
 						status: activeCardsData?.status,
 						templateId: activeTemplateData?._id,

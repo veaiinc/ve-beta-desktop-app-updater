@@ -521,7 +521,6 @@ const ChatScreen = (props) => {
 			},
 		};
 
-		console.log('data', data);
 		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
 			socketRef.current.send(JSON.stringify(data));
 			const updatedMessagesList = info?.messagesList?.length ? [...info?.messagesList] : [];
