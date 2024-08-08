@@ -11,7 +11,7 @@ const SmartFile = () => {
 	const location = useLocation();
 
 	let {
-		templates: { getSmartFileData, getformResponses },
+		templates: { getSmartFileData, getformResponses, smartFileInfo },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -115,6 +115,7 @@ const SmartFile = () => {
 				copyLink={`https://${localStorage.getItem('workspaceId')}.ve.co/portal/${
 					info?.workflowData?.slug
 				}`}
+				pin={smartFileInfo?.access?.pin}
 			/>
 		</div>
 	);

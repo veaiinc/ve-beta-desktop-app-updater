@@ -4,12 +4,14 @@ import ReactModal from '../../modalsV2/index';
 import { ReactComponent as Circled } from '../../../../assets/svg/workflow/circled.svg';
 import { ReactComponent as RightArrow } from '../../../../assets/svg/workflow/rightArrow.svg';
 
-const CopiedModal = ({ open, closeModal, modules, copyLink }) => {
+const CopiedModal = ({ open, closeModal, modules, copyLink, pin }) => {
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
 			<div className="copyParentModal">
 				<span className="copyText">Copied !</span>
 				<span className="copylink">{copyLink}</span>
+				{pin ? <span className="copylink">Use this pin to unlock {pin}</span> : ''}
+
 				<div className="workflowData">
 					<span className="linkData">This link contains of </span>
 					<div className="actionBTnContainer">
