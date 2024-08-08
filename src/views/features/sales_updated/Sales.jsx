@@ -18,10 +18,10 @@ const Sales = () => {
 			myMoreWorkflows,
 			salePageRefresh,
 			updateStateValues,
+			generatePublicLinkData,
 		},
 	} = useContext(Context);
 	const navigate = useNavigate();
-	const location = useLocation();
 
 	const [info, setInfo] = useState({
 		loading: false,
@@ -32,7 +32,7 @@ const Sales = () => {
 		activeTemplateData: null,
 		activeCardsData: null,
 		copyModal: false,
-		showGeneratedLinkModalData: location?.state?.data || null,
+		showGeneratedLinkModalData: null,
 	});
 
 	//useEffects
@@ -57,6 +57,13 @@ const Sales = () => {
 			myWorkflowsDataParser(myMoreWorkflows, true);
 		}
 	}, [myMoreWorkflows]);
+
+	useEffect(() => {
+		if (generatePublicLinkData) {
+			setInfo((prev) => ({ ...prev, showGeneratedLinkModalData: generatePublicLinkData }));
+			updateStateValues({ generatePublicLinkData: null });
+		}
+	}, [generatePublicLinkData]);
 
 	//function definations
 

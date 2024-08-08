@@ -44,6 +44,7 @@ export const intialState = {
 	templatesListForCreateLead: null,
 	salePageRefresh: null,
 	formResponseData: null,
+	generatePublicLinkData: null,
 };
 
 export const TemplatesState = (props) => {

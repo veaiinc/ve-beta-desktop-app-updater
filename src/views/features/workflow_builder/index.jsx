@@ -15,6 +15,7 @@ const WorkflowBuilder = () => {
 			// specificTemplatesInfo,
 			deleteWorkflowStep,
 			addEmailTriggersInWorkflow,
+			updateStateValues,
 		},
 	} = useContext(Context);
 
@@ -163,7 +164,7 @@ const WorkflowBuilder = () => {
 			}
 
 			if (isPublic) {
-				return navigate('/sales', { state: { data: response?.[1] } });
+				updateStateValues({ generatePublicLinkData: response?.[1] });
 			}
 			return navigate('/sales');
 		}
