@@ -1,6 +1,17 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
+import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
 import { useNavigate } from 'react-router-dom';
+import HeadersDropDownComp from '../dropDown/HeadersDropDownComp';
+
+const options = [
+	{ label: 'Edit' },
+	{ label: 'Resend File' },
+	{ label: 'Send Email' },
+	{ label: 'Move Stage' },
+	{ label: 'Delete File' },
+	{ label: 'Delete Lead' },
+];
 
 const SmartFileHeader = ({
 	activeTab,
@@ -10,6 +21,8 @@ const SmartFileHeader = ({
 	workflowStatus,
 	acceptProposalFunc,
 	openSignatureModal,
+	editable,
+	changeEditStatus,
 }) => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -26,6 +39,19 @@ const SmartFileHeader = ({
 			setInfo((prev) => ({ ...prev, loading: false }));
 		}
 	}, []);
+
+	const onOptionChangeFunc = useCallback(
+		async (data) => {
+			if (data?.label === 'Edit') {
+				if (editable) {
+					return;
+				} else {
+					changeEditStatus(true);
+				}
+			}
+		},
+		[editable],
+	);
 
 	return (
 		<div className="smarFileHeader">
@@ -102,6 +128,31 @@ const SmartFileHeader = ({
 					<div className="sendSmartFileBtn" onClick={openSignatureModal}>
 						Counter Sign
 					</div>
+				) : (
+					''
+				)}
+				{workflowStatus !== 'enquiry' ? (
+					<HeadersDropDownComp
+						showIcon={false}
+						options={options}
+						containerStyle={{
+							padding: '4px 8px',
+							borderRadius: '100px',
+							border: '1px solid rgba(36, 36, 36, 0.64)',
+							background: 'rgba(42, 42, 42, 0.32)',
+							width: 'auto',
+						}}
+						dropDownStyle={{
+							right: 0,
+							left: 'unset',
+							top: '55px',
+							maxHeight: '300px',
+							width: '200px',
+						}}
+						showArrow={false}
+						selectedValue={<ThreeDots />}
+						onChangeFunc={(e) => onOptionChangeFunc(e)}
+					/>
 				) : (
 					''
 				)}

@@ -7,7 +7,7 @@ import Variables from '../../../components/smartFileComponets/Variables';
 import Context from '../../../../context/context';
 import AcceptedStageSmartFileBlocks from '../../../components/smartFileComponets/AcceptedStageSmartFileBlocks';
 
-const File = ({ templateData, workflowData, userSigned }) => {
+const File = ({ templateData, workflowData, userSigned, edit }) => {
 	let {
 		templates: {
 			getSmartFileData,
@@ -33,7 +33,7 @@ const File = ({ templateData, workflowData, userSigned }) => {
 		loading: true,
 		timeout: null,
 		smartFileStatus: '',
-		edit: true,
+		// edit: true,
 	});
 
 	//useEffects
@@ -402,17 +402,17 @@ const File = ({ templateData, workflowData, userSigned }) => {
 				<Variables
 					variablesData={info?.variablesData}
 					variableOnChangeFunc={variableOnChangeFunc}
-					editable={info?.edit}
+					editable={edit}
 				/>
 				<Events
 					eventsData={info?.eventsTableData}
 					eventsDataChange={eventsTableOnChangeFunc}
-					editable={info?.edit}
+					editable={edit}
 				/>
 				<Services
 					serviceData={info?.servicesTableData}
 					serviceOnChangeFunc={serviceTableOnChnageFunc}
-					editable={info?.edit}
+					editable={edit}
 				/>
 				<PaymentSchedule />
 			</div>

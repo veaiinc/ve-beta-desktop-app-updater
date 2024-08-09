@@ -31,6 +31,7 @@ const SmartFile = () => {
 		workflowStatus: '',
 		copyModal: false,
 		signatureModal: false,
+		edit: false,
 	});
 
 	//useEffect
@@ -45,7 +46,9 @@ const SmartFile = () => {
 
 	useEffect(() => {
 		if (smartFileInfo) {
-			setInfo((prev) => ({ ...prev, workflowStatus: smartFileInfo?.status }));
+			const status = smartFileInfo?.status;
+			const edit = status === 'enquiry' ? true : false;
+			setInfo((prev) => ({ ...prev, workflowStatus: smartFileInfo?.status, edit }));
 		}
 	}, [smartFileInfo]);
 
@@ -164,6 +167,13 @@ const SmartFile = () => {
 		[info?.workflowData],
 	);
 
+	const changeEditStatus = useCallback(
+		(data) => {
+			setInfo((prev) => ({ ...prev, edit: data }));
+		},
+		[info?.edit],
+	);
+
 	return (
 		<div className="smartFileParentContainer">
 			<SmartFileHeader
@@ -174,6 +184,8 @@ const SmartFile = () => {
 				acceptProposalFunc={acceptProposalFunc}
 				workflowStatus={info?.workflowStatus}
 				openSignatureModal={openSignatureModal}
+				editable={info?.edit}
+				changeEditStatus={changeEditStatus}
 			/>
 			<div className="mainContentContainer">
 				{info?.activeTab === 'form' ? (
@@ -182,6 +194,7 @@ const SmartFile = () => {
 					<File
 						templateData={info?.incomingData}
 						workflowData={info?.workflowData?.clientDetails}
+						edit={info?.edit}
 					/>
 				)}
 			</div>
