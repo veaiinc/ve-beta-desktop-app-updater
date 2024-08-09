@@ -45,13 +45,40 @@ const SmartFileHeader = ({
 					>
 						Form Response
 					</span>
-					<span
-						className="tabBtns "
-						style={{ color: activeTab === 'file' ? '#e4e5e6' : '' }}
-						onClick={() => chnageActiveTab('file')}
-					>
-						Smart File
-					</span>
+					<div style={{ display: 'flex', flexDirection: 'column' }}>
+						{workflowStatus !== 'fileSent' && workflowStatus !== 'enquiry' ? (
+							<span
+								style={{
+									display: 'flex',
+									height: '11px',
+									padding: '5px var(--Spacing-space-3, 4px)',
+									justifyContent: 'flex-end',
+									alignItems: 'center',
+									gap: 'var(--Spacing-space-3, 4px)',
+									color: '#3D7E4B',
+									fontFamily: 'Inter',
+									fontSize: '8px',
+									fontStyle: 'normal',
+									fontWeight: '600',
+									lineHeight: '14px' /* 175% */,
+									letterSpacing: '0.16px',
+									textTransform: 'uppercase',
+									marginBottom: '2px',
+								}}
+							>
+								Accepted
+							</span>
+						) : (
+							''
+						)}
+						<span
+							className="tabBtns "
+							style={{ color: activeTab === 'file' ? '#e4e5e6' : '' }}
+							onClick={() => chnageActiveTab('file')}
+						>
+							Smart File
+						</span>
+					</div>
 				</div>
 			</div>
 			<div className="flexEndButtonContainer">
