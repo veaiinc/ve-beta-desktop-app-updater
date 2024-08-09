@@ -5,8 +5,9 @@ import Services from '../../../components/smartFileComponets/Services';
 import PaymentSchedule from '../../../components/smartFileComponets/PaymentSchedule';
 import Variables from '../../../components/smartFileComponets/Variables';
 import Context from '../../../../context/context';
+import AcceptedStageSmartFileBlocks from '../../../components/smartFileComponets/AcceptedStageSmartFileBlocks';
 
-const File = ({ templateData }) => {
+const File = ({ templateData, workflowData, userSigned }) => {
 	let {
 		templates: {
 			getSmartFileData,
@@ -31,6 +32,7 @@ const File = ({ templateData }) => {
 		servicesTableData: null,
 		loading: true,
 		timeout: null,
+		smartFileStatus: '',
 	});
 
 	//useEffects
@@ -51,7 +53,14 @@ const File = ({ templateData }) => {
 				};
 			for (let i = 0; i < updatedModules?.length; i++) {
 				const currentModule = smartFileInfo?.[updatedModules?.[i]];
-				const { activeVersion, versions, _id, workflowId, expiryInDays } = currentModule;
+				const {
+					activeVersion,
+					versions,
+					_id,
+					workflowId,
+					expiryInDays,
+					signatures = [],
+				} = currentModule;
 				let activeVersionData;
 				for (let j = 0; j < versions?.length; j++) {
 					if (versions?.[j]?._id === activeVersion) {
@@ -61,6 +70,7 @@ const File = ({ templateData }) => {
 							_id,
 							workflowId,
 							expiryInDays,
+							signatures,
 						};
 						break;
 					}
@@ -107,19 +117,13 @@ const File = ({ templateData }) => {
 				eventsTableData,
 				servicesTableData,
 				loading: true,
+				smartFileStatus: smartFileInfo?.status,
 				...moduleData,
 			}));
 		}
 	}, [smartFileInfo]);
 
 	//function defination
-
-	const getSmartFileInfo = useCallback(async () => {
-		const payload = {
-			getWorkflowWithModulesId: '66ac8b1aa4f00dcc0ae30eda',
-		};
-		getSmartFileData(payload);
-	}, []);
 
 	//variableOnChangeFunc
 	const variableOnChangeFunc = useCallback(
@@ -383,6 +387,17 @@ const File = ({ templateData }) => {
 				))}
 			</div>
 			<div className="editParentContainer">
+				<AcceptedStageSmartFileBlocks
+					smartFileStatus={info?.smartFileStatus}
+					clientDetails={workflowData}
+					propsalData={info?.servicesTableData?.['proposal']}
+					contractData={info?.contract}
+					userSigned={userSigned}
+				/>
+				<span className="editContainerHeader">
+					Please enter the following custom data to send this proposal{' '}
+				</span>
+
 				<Variables
 					variablesData={info?.variablesData}
 					variableOnChangeFunc={variableOnChangeFunc}

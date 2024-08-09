@@ -27,6 +27,7 @@
 		"react-phone-number-input": "^3.4.3",
 		"react-router-dom": "^6.23.1",
 		"react-scripts": "5.0.1",
+		"react-signature-canvas": "^1.0.6",
 		"react-toastify": "^10.0.5",
 		"sass": "^1.77.5",
 		"universal-cookie": "^7.1.4",

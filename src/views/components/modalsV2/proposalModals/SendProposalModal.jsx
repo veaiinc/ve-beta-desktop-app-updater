@@ -10,6 +10,7 @@ const SendProposalModal = ({
 	workflowSlug,
 	workflowId,
 	openCopyModal,
+	changelocalWorflowStatus,
 }) => {
 	const {
 		proposals: { sendProposal, getAllEmailTemplates, allEmailTemplates },
@@ -75,6 +76,10 @@ const SendProposalModal = ({
 			);
 			closeModal();
 			openCopyModal();
+			chnageWorkflowStats({
+				fileSentStatusId: workflowId,
+			});
+			changelocalWorflowStatus('fileSent');
 		} catch (err) {
 			console.log('Failed to copy text');
 		}
@@ -90,6 +95,7 @@ const SendProposalModal = ({
 		chnageWorkflowStats({
 			fileSentStatusId: workflowId,
 		});
+		changelocalWorflowStatus('fileSent');
 	}, [clientDetails, workflowId]);
 
 	return (

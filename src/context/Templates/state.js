@@ -25,6 +25,7 @@ import {
 	workflowsLinkQuery,
 	formResponsesQuery,
 	changeWorkflowStatusQuery,
+	getSignedUrlForContractsQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -46,6 +47,7 @@ export const intialState = {
 	salePageRefresh: null,
 	formResponseData: null,
 	generatePublicLinkData: null,
+	contractSignedLocalState: null,
 };
 
 export const TemplatesState = (props) => {
@@ -713,6 +715,66 @@ export const TemplatesState = (props) => {
 			console.log('api failed ==>chnageWorkflowStatsu', error);
 		}
 	};
+
+	const getSignedUrlForContracts = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getSignedUrlForContractsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.uploadContractSignedUrl];
+			} else {
+				console.log('handle the error getSignedUrlForContracts', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>getSignedUrlForContracts', error);
+		}
+	};
+
+	const dataURLToBlob = async (dataURL) => {
+		const byteString = atob(dataURL.split(',')[1]);
+		const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+
+		const buffer = new ArrayBuffer(byteString.length);
+		const dataView = new Uint8Array(buffer);
+
+		for (let i = 0; i < byteString.length; i++) {
+			dataView[i] = byteString.charCodeAt(i);
+		}
+
+		return new Blob([buffer], { type: mimeString });
+	};
+
+	const uploadContractSignature = async (payload) => {
+		try {
+			const { dataURL, signedUrl } = payload;
+			const blob = await dataURLToBlob(dataURL);
+			const response = await fetch(signedUrl, {
+				method: 'PUT',
+				body: blob,
+				headers: {
+					'Content-Type': 'image/png', // Ensure the content type matches the image format
+				},
+			});
+
+			if (response.ok) {
+				console.log('Image uploaded successfully');
+				return [true];
+			} else {
+				console.error('Upload failed', response.status, response.statusText);
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>uploadContractSignature', error);
+		}
+	};
 	return {
 		...state,
 		getProposals,
@@ -746,5 +808,7 @@ export const TemplatesState = (props) => {
 		sendSmartFile,
 		getformResponses,
 		chnageWorkflowStats,
+		getSignedUrlForContracts,
+		uploadContractSignature,
 	};
 };

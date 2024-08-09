@@ -7,6 +7,7 @@ import { useLocation } from 'react-router-dom';
 import Context from '../../../../context/context';
 import SendProposalModal from '../../../components/modalsV2/proposalModals/SendProposalModal';
 import CopiedModal from '../../../components/modalsV2/workflowsModals/CopiedModal';
+import UploadSignature from '../../../components/modalsV2/workflowsModals/UploadSignature';
 const SmartFile = () => {
 	const location = useLocation();
 
@@ -16,7 +17,8 @@ const SmartFile = () => {
 			getformResponses,
 			smartFileInfo,
 			updateProposal,
-			chnageWorkflowStats,
+			updateContracts,
+			getSignedUrlForContracts,
 		},
 	} = useContext(Context);
 
@@ -26,11 +28,10 @@ const SmartFile = () => {
 		workflowId: location?.state?.workflowId,
 		sendSmartFileModal: false,
 		workflowData: location?.state?.workflow,
-		workflowStatus: location?.state?.workflow?.status,
+		workflowStatus: '',
 		copyModal: false,
+		signatureModal: false,
 	});
-
-	console.log(info?.workflowData, info?.workflowStatus);
 
 	//useEffect
 	useEffect(() => {
@@ -41,6 +42,12 @@ const SmartFile = () => {
 			getFormResponseData();
 		}
 	}, [info?.workflowData]);
+
+	useEffect(() => {
+		if (smartFileInfo) {
+			setInfo((prev) => ({ ...prev, workflowStatus: smartFileInfo?.status }));
+		}
+	}, [smartFileInfo]);
 
 	//function defination
 
@@ -94,6 +101,10 @@ const SmartFile = () => {
 		setInfo((prev) => ({ ...prev, copyModal: true }));
 	}, [info?.sendSmartFileModal]);
 
+	const openSignatureModal = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, signatureModal: true }));
+	}, [info?.sendSmartFileModal]);
+
 	const acceptProposalFunc = useCallback(async () => {
 		const proposalId = info?.workflowData?.modules?.filter((item) => item?.type === 'proposal');
 		const payload = {
@@ -105,11 +116,53 @@ const SmartFile = () => {
 		};
 		const response = await updateProposal(payload);
 		if (response?.[0]) {
-			setInfo((prev) => ({ ...prev, workflowStatus: 'accepted' }));
+			setInfo((prev) => ({ ...prev, workflowStatus: 'proposalAccepted' }));
 			return [true];
 		}
 		return [false];
 	}, [info?.workflowData]);
+
+	const changelocalWorflowStatus = useCallback(async (data) => {
+		setInfo((prev) => ({ ...prev, workflowStatus: data }));
+	}, []);
+
+	const uploadSignatureFunc = useCallback(
+		async (data) => {
+			if (!info?.workflowData) {
+				return;
+			}
+			const contract = info?.workflowData?.modules?.filter(
+				(item) => item?.type === 'contract',
+			);
+			let response;
+			if (data?.type === 'text') {
+				const payload = {
+					workflowId: info?.workflowData?._id,
+					contractId: contract?.[0]?._id,
+					contractInput: {
+						signature: {
+							type: 'text',
+							value: data?.signatureText,
+						},
+					},
+				};
+
+				response = await updateContracts(payload);
+			} else {
+				const payload = {
+					uploadContractSignedUrlId: contract?.[0]?._id,
+				};
+				response = await getSignedUrlForContracts(payload);
+			}
+
+			if (response?.[0]) {
+				return [true, response?.[1]];
+			} else {
+				return [false];
+			}
+		},
+		[info?.workflowData],
+	);
 
 	return (
 		<div className="smartFileParentContainer">
@@ -119,13 +172,17 @@ const SmartFile = () => {
 				openSendSmartFileModal={openSendSmartFileModal}
 				clientDetails={info?.workflowData?.clientDetails}
 				acceptProposalFunc={acceptProposalFunc}
-				workflowStatus={info?.workflowData?.status}
+				workflowStatus={info?.workflowStatus}
+				openSignatureModal={openSignatureModal}
 			/>
 			<div className="mainContentContainer">
 				{info?.activeTab === 'form' ? (
 					<FormResponses workflowData={info?.workflowData} />
 				) : (
-					<File templateData={info?.incomingData} />
+					<File
+						templateData={info?.incomingData}
+						workflowData={info?.workflowData?.clientDetails}
+					/>
 				)}
 			</div>
 
@@ -136,6 +193,7 @@ const SmartFile = () => {
 				workflowSlug={info?.workflowData?.slug}
 				workflowId={info?.workflowId}
 				openCopyModal={openCopyModal}
+				changelocalWorflowStatus={changelocalWorflowStatus}
 			/>
 			<CopiedModal
 				open={info?.copyModal}
@@ -145,6 +203,12 @@ const SmartFile = () => {
 					info?.workflowData?.slug
 				}`}
 				pin={smartFileInfo?.access?.pin}
+			/>
+			<UploadSignature
+				open={info?.signatureModal}
+				closeModal={() => setInfo((prev) => ({ ...prev, signatureModal: false }))}
+				uploadSignatureFunc={uploadSignatureFunc}
+				changelocalWorflowStatus={changelocalWorflowStatus}
 			/>
 		</div>
 	);

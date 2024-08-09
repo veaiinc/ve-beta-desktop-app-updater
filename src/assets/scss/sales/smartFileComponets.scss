@@ -374,3 +374,250 @@
 		}
 	}
 }
+
+.acceptedSmartFileBlocks {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	align-self: stretch;
+
+	.acceptedSmartFileBlocksRowContainer {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		align-self: stretch;
+
+		.acceptedBlocks {
+			display: flex;
+			padding: 24px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			flex: 1 0 0;
+			align-self: stretch;
+			border-radius: 16px;
+			border: 1px solid #242424;
+			background: rgba(42, 42, 42, 0.16);
+			max-width: 50%;
+			.acceptedBlockHeader {
+				display: flex;
+				justify-content: space-between;
+				.acceptedBlockHeaderTextStyling {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: normal;
+				}
+			}
+
+			.proposalSummary {
+				display: flex;
+				align-self: stretch;
+				flex-direction: column;
+				gap: 8px;
+				.seperator {
+					width: 100%;
+					height: 1px;
+					background: #242424;
+				}
+				.propsalServices {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 4px;
+					align-self: stretch;
+					.servicesValues {
+						display: flex;
+						padding-left: 24px;
+						align-items: center;
+						gap: 10px;
+						flex: 1;
+						align-self: stretch;
+						.keyValuepairs {
+							color: #b0b0b0;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+				}
+			}
+			.signatureHolderContainer {
+				display: flex;
+				height: 141px;
+				flex-direction: column;
+				justify-content: space-between;
+				align-items: flex-start;
+				align-self: stretch;
+
+				.clientDetailsContainer {
+					display: flex;
+					align-items: flex-start;
+					gap: 13px;
+					align-self: stretch;
+
+					.shortNameContainer {
+						display: flex;
+						width: 32px;
+						height: 32px;
+						padding: 3px var(--Spacing-space-3, 4px);
+						flex-direction: column;
+						justify-content: center;
+						align-items: center;
+						gap: 10px;
+						border-radius: 100px;
+						background: rgba(42, 42, 42, 0.64);
+						color: #e4e5e6;
+						text-align: center;
+						font-family: Inter;
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 21px; /* 161.538% */
+					}
+					.clientInfo {
+						display: flex;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: 1px;
+						align-self: stretch;
+						flex: 1;
+
+						.clientNameStyling {
+							color: #e4e5e6;
+							font-family: Inter;
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 21px; /* 161.538% */
+						}
+						.clientEmailStyling {
+							color: rgba(228, 229, 230, 0.48);
+							font-family: Inter;
+							font-size: 11px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 19px; /* 172.727% */
+							letter-spacing: 0.22px;
+						}
+					}
+				}
+
+				.signatureWithDate {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 4px;
+					align-self: stretch;
+
+					.signatureContainer {
+						display: flex;
+						height: 65px;
+						padding: 11px 14px;
+						// justify-content: center;
+						// align-items: center;
+						gap: 10px;
+						align-self: stretch;
+						border-radius: 10px;
+						border: 1px solid rgba(36, 36, 36, 0.64);
+						color: #fff;
+					}
+					.dateData {
+						color: #b0b0b0;
+						font-family: Inter;
+						font-size: 11px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 16px; /* 145.455% */
+						margin-left: 14px;
+					}
+				}
+			}
+
+			.contactInfoContainer {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+
+				.nameContainer {
+					display: flex;
+					align-items: flex-start;
+					gap: 24px;
+					align-self: stretch;
+
+					.contactInfoBlocks {
+						display: flex;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: 4px;
+						flex: 1 0 0;
+						.infoBlocksHeader {
+							color: #b0b0b0;
+							font-family: Inter;
+							font-size: 11px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 16px; /* 145.455% */
+						}
+						.infoBlocksvalueContainer {
+							display: flex;
+							padding: 11px 14px;
+							// justify-content: center;
+							align-items: center;
+							gap: 10px;
+							align-self: stretch;
+							border-radius: 10px;
+							border: 1px solid rgba(36, 36, 36, 0.64);
+							color: rgba(228, 229, 230, 0.5);
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 26px; /* 185.714% */
+						}
+					}
+				}
+				.contactInfoBlocks {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 4px;
+					flex: 1 0 0;
+					align-self: stretch;
+					.infoBlocksHeader {
+						color: #b0b0b0;
+						font-family: Inter;
+						font-size: 11px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 16px; /* 145.455% */
+					}
+					.infoBlocksvalueContainer {
+						display: flex;
+						padding: 11px 14px;
+						// justify-content: center;
+						align-items: center;
+						gap: 10px;
+						align-self: stretch;
+						border-radius: 10px;
+						border: 1px solid rgba(36, 36, 36, 0.64);
+						color: rgba(228, 229, 230, 0.5);
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 26px; /* 185.714% */
+						min-height: 50px;
+					}
+				}
+			}
+		}
+	}
+}

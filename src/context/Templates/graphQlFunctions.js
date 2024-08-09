@@ -363,3 +363,11 @@ export const changeWorkflowStatusQuery = gql`
 		}
 	}
 `;
+
+export const getSignedUrlForContractsQuery = gql`
+	mutation UploadContractSignedUrl($uploadContractSignedUrlId: ID!) {
+		uploadContractSignedUrl(id: $uploadContractSignedUrlId) {
+			signedUrl
+		}
+	}
+`;
