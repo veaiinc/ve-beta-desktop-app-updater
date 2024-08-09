@@ -3,7 +3,7 @@ import '../../../assets/scss/sales/smartFileComponets.scss';
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
 import Services from './Services';
 
-const Events = ({ eventsData, eventsDataChange }) => {
+const Events = ({ eventsData, eventsDataChange, editable }) => {
 	const [info, setInfo] = useState({
 		data: [],
 	});
@@ -16,6 +16,9 @@ const Events = ({ eventsData, eventsDataChange }) => {
 
 	const localEventsOnchange = useCallback(
 		async (innerIndex, outerIndex, type, val, roleIndex) => {
+			if (!editable) {
+				return;
+			}
 			let updatedData = [...(info?.data || [])];
 			let selectedEventsTable = updatedData?.[outerIndex];
 			let valueTobeChanged = selectedEventsTable?.values?.[innerIndex];
@@ -86,11 +89,14 @@ const Events = ({ eventsData, eventsDataChange }) => {
 			setInfo((prev) => ({ ...prev, data: updatedData }));
 			eventsDataChange(selectedEventsTable);
 		},
-		[info?.data],
+		[info?.data, editable],
 	);
 
 	const addMoreEventsValues = useCallback(
 		async (outerIndex) => {
+			if (!editable) {
+				return;
+			}
 			const newDummyObj = {
 				name: '',
 				description: '',
@@ -146,11 +152,14 @@ const Events = ({ eventsData, eventsDataChange }) => {
 			setInfo((prev) => ({ ...prev, data: updatedData }));
 			eventsDataChange(selectedEventsArray);
 		},
-		[info?.data],
+		[info?.data, editable],
 	);
 
 	const deletEventsValues = useCallback(
 		async (innerIndex, outerIndex) => {
+			if (!editable) {
+				return;
+			}
 			let updatedData = [...(info?.data || [])];
 			let selectedEventsArray = updatedData?.[outerIndex];
 			selectedEventsArray?.values?.splice(innerIndex, 1);
@@ -158,7 +167,7 @@ const Events = ({ eventsData, eventsDataChange }) => {
 			setInfo((prev) => ({ ...prev, data: updatedData }));
 			eventsDataChange(selectedEventsArray);
 		},
-		[info?.data],
+		[info?.data, editable],
 	);
 
 	return info?.data?.map((ele, index) => (
@@ -183,6 +192,7 @@ const Events = ({ eventsData, eventsDataChange }) => {
 								onChange={(e) =>
 									localEventsOnchange(ind, index, 'name', e.target.value)
 								}
+								readOnly={!editable}
 							/>
 						</div>
 						<div className="inputWithLabelContainer">
@@ -194,6 +204,7 @@ const Events = ({ eventsData, eventsDataChange }) => {
 								onChange={(e) =>
 									localEventsOnchange(ind, index, 'date', e.target.value)
 								}
+								readOnly={!editable}
 							/>
 						</div>
 						<div className="inputWithLabelContainer">
@@ -204,6 +215,7 @@ const Events = ({ eventsData, eventsDataChange }) => {
 								onChange={(e) =>
 									localEventsOnchange(ind, index, 'location', e.target.value)
 								}
+								readOnly={!editable}
 							/>
 						</div>
 					</div>
@@ -224,6 +236,7 @@ const Events = ({ eventsData, eventsDataChange }) => {
 											lt,
 										)
 									}
+									readOnly={!editable}
 								/>
 								<div className="incrementDecrementContainer">
 									<span
@@ -253,6 +266,7 @@ const Events = ({ eventsData, eventsDataChange }) => {
 												lt,
 											)
 										}
+										readOnly={!editable}
 									/>
 									<span
 										className="incrementorBtns"

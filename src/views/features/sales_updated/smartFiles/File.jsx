@@ -33,6 +33,7 @@ const File = ({ templateData, workflowData, userSigned }) => {
 		loading: true,
 		timeout: null,
 		smartFileStatus: '',
+		edit: true,
 	});
 
 	//useEffects
@@ -401,14 +402,17 @@ const File = ({ templateData, workflowData, userSigned }) => {
 				<Variables
 					variablesData={info?.variablesData}
 					variableOnChangeFunc={variableOnChangeFunc}
+					editable={info?.edit}
 				/>
 				<Events
 					eventsData={info?.eventsTableData}
 					eventsDataChange={eventsTableOnChangeFunc}
+					editable={info?.edit}
 				/>
 				<Services
 					serviceData={info?.servicesTableData}
 					serviceOnChangeFunc={serviceTableOnChnageFunc}
+					editable={info?.edit}
 				/>
 				<PaymentSchedule />
 			</div>

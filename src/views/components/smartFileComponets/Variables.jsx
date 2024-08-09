@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
 
-const Variables = ({ variablesData, variableOnChangeFunc }) => {
+const Variables = ({ variablesData, variableOnChangeFunc, editable }) => {
 	const [info, setInfo] = useState({
 		data: [],
 	});
@@ -35,6 +35,7 @@ const Variables = ({ variablesData, variableOnChangeFunc }) => {
 							className="custominputContainer"
 							value={ele?.value || ''}
 							onChange={(e) => onLocalVariableDataChange(e, index)}
+							readOnly={!editable}
 						/>
 					</div>
 				))}

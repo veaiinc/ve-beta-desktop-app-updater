@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
 import ToggleSlider from '../../components/input/slider';
-const Services = ({ serviceData, serviceOnChangeFunc }) => {
+const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 	const [info, setInfo] = useState({
 		data: [],
 	});
@@ -14,6 +14,10 @@ const Services = ({ serviceData, serviceOnChangeFunc }) => {
 
 	const onLocalServiceDataChange = useCallback(
 		async (innerIndex, outerIndex, type, val) => {
+			if (!editable) {
+				return;
+			}
+
 			let updatedData = [...(info?.data || [])];
 			let selectedServiceTable = updatedData?.[outerIndex];
 			let valueTobeChanged = selectedServiceTable?.values?.[innerIndex];
@@ -40,7 +44,7 @@ const Services = ({ serviceData, serviceOnChangeFunc }) => {
 			setInfo((prev) => ({ ...prev, data: updatedData }));
 			serviceOnChangeFunc(selectedServiceTable);
 		},
-		[info?.data],
+		[info?.data, editable],
 	);
 
 	return info?.data?.length ? (
@@ -76,6 +80,7 @@ const Services = ({ serviceData, serviceOnChangeFunc }) => {
 										type="number"
 										className="incrementDecrementinput"
 										value={val?.quantity}
+										readOnly={!editable}
 									/>
 									<span
 										className="incrementorBtns"

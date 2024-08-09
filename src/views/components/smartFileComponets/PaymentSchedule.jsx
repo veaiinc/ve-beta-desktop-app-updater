@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
-const PaymentSchedule = () => {
+const PaymentSchedule = ({ editable }) => {
 	return (
 		<div className="paymentScheduleParentContaianer">
 			<div className="payemntScheduleHeader">
@@ -16,7 +16,7 @@ const PaymentSchedule = () => {
 						<span className="labelName">Instalment 1</span>
 						<div className="inputwithSumbols">
 							%
-							<input className="custominputContainer" />
+							<input className="custominputContainer" readOnly={!editable} />
 						</div>
 					</div>
 					<div className="inputWithLabelContainer">
@@ -25,7 +25,7 @@ const PaymentSchedule = () => {
 						</span>
 						<div className="inputwithSumbols">
 							₹
-							<input className="custominputContainer" />
+							<input className="custominputContainer" readOnly={!editable} />
 						</div>
 					</div>
 					<div className="inputWithLabelContainer">
@@ -33,7 +33,7 @@ const PaymentSchedule = () => {
 							date
 						</span>
 
-						<input className="custominputContainer" type="date" />
+						<input className="custominputContainer" type="date" readOnly={!editable} />
 					</div>
 				</div>
 			</div>
