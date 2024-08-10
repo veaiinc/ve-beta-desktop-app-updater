@@ -15,7 +15,7 @@ const MyWorkflowsCard = ({ data, openModal }) => {
 			{
 				headerText: 'Smart File sent',
 				subText: data?.workflowStats?.filesSent || 0,
-				status: 'fileSent',
+				status: 'filesSent',
 			},
 			{
 				headerText: 'Smart Files Viewed',

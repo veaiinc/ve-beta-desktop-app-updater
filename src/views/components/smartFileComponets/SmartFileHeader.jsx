@@ -146,7 +146,7 @@ const SmartFileHeader = ({
 					''
 				)}
 
-				{workflowStatus === 'filesSent' ? (
+				{workflowStatus === 'filesSent' && !editable ? (
 					<div className="sendSmartFileBtn" onClick={modifiedAccetFunc}>
 						{info?.loading ? 'Accepting ....' : 'Accept'}
 					</div>
@@ -154,7 +154,7 @@ const SmartFileHeader = ({
 					''
 				)}
 
-				{workflowStatus === 'contractSigned' ? (
+				{workflowStatus === 'contractSigned' && !editable ? (
 					<div className="sendSmartFileBtn" onClick={openSignatureModal}>
 						Counter Sign
 					</div>
@@ -162,27 +162,39 @@ const SmartFileHeader = ({
 					''
 				)}
 				{workflowStatus !== 'enquiry' ? (
-					<HeadersDropDownComp
-						showIcon={false}
-						options={info?.threeDotOptions}
-						containerStyle={{
-							padding: '4px 8px',
-							borderRadius: '100px',
-							border: '1px solid rgba(36, 36, 36, 0.64)',
-							background: 'rgba(42, 42, 42, 0.32)',
-							width: '8px',
-						}}
-						dropDownStyle={{
-							right: 0,
-							left: 'unset',
-							top: '55px',
-							maxHeight: '300px',
-							width: '200px',
-						}}
-						showArrow={false}
-						selectedValue={<ThreeDots />}
-						onChangeFunc={(e) => onOptionChangeFunc(e)}
-					/>
+					<>
+						{editable ? (
+							<div
+								className="sendSmartFileBtn"
+								onClick={() => changeEditStatus(false)}
+							>
+								Update
+							</div>
+						) : (
+							''
+						)}
+						<HeadersDropDownComp
+							showIcon={false}
+							options={info?.threeDotOptions}
+							containerStyle={{
+								padding: '4px 8px',
+								borderRadius: '100px',
+								border: '1px solid rgba(36, 36, 36, 0.64)',
+								background: 'rgba(42, 42, 42, 0.32)',
+								width: '8px',
+							}}
+							dropDownStyle={{
+								right: 0,
+								left: 'unset',
+								top: '55px',
+								maxHeight: '300px',
+								width: '200px',
+							}}
+							showArrow={false}
+							selectedValue={<ThreeDots />}
+							onChangeFunc={(e) => onOptionChangeFunc(e)}
+						/>
+					</>
 				) : (
 					''
 				)}
