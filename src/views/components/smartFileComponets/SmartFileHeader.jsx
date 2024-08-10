@@ -170,7 +170,7 @@ const SmartFileHeader = ({
 							borderRadius: '100px',
 							border: '1px solid rgba(36, 36, 36, 0.64)',
 							background: 'rgba(42, 42, 42, 0.32)',
-							width: 'auto',
+							width: '8px',
 						}}
 						dropDownStyle={{
 							right: 0,
