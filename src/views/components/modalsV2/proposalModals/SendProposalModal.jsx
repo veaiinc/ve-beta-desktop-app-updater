@@ -11,6 +11,7 @@ const SendProposalModal = ({
 	workflowId,
 	openCopyModal,
 	changelocalWorflowStatus,
+	workflowStatus,
 }) => {
 	const {
 		proposals: { sendProposal, getAllEmailTemplates, allEmailTemplates },
@@ -76,14 +77,17 @@ const SendProposalModal = ({
 			);
 			closeModal();
 			openCopyModal();
-			chnageWorkflowStats({
-				fileSentStatusId: workflowId,
-			});
-			changelocalWorflowStatus('filesSent');
+
+			if (workflowStatus === 'enquiry') {
+				chnageWorkflowStats({
+					fileSentStatusId: workflowId,
+				});
+				changelocalWorflowStatus('filesSent');
+			}
 		} catch (err) {
 			console.log('Failed to copy text');
 		}
-	}, [workflowSlug]);
+	}, [workflowSlug, workflowStatus]);
 
 	const handleSendProposalViaEmail = useCallback(async () => {
 		closeModal();
@@ -92,11 +96,14 @@ const SendProposalModal = ({
 			workflowId: workflowId,
 		};
 		sendSmartFile(payload);
-		chnageWorkflowStats({
-			fileSentStatusId: workflowId,
-		});
-		changelocalWorflowStatus('filesSent');
-	}, [clientDetails, workflowId]);
+
+		if (workflowStatus === 'enquiry') {
+			chnageWorkflowStats({
+				fileSentStatusId: workflowId,
+			});
+			changelocalWorflowStatus('filesSent');
+		}
+	}, [clientDetails, workflowId, workflowStatus]);
 
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>

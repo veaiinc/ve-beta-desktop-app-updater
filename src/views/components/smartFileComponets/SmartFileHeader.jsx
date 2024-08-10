@@ -54,6 +54,12 @@ const SmartFileHeader = ({
 			if (data?.label === 'Move Stage') {
 				openMoveToStageModal();
 			}
+			if (data?.label === 'Send Email') {
+				openSendSmartFileModal();
+			}
+			if (data?.label === 'Resend File') {
+				openSendSmartFileModal();
+			}
 		},
 		[editable],
 	);

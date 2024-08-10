@@ -40,6 +40,7 @@ const MoveStageModal = ({ open, closeModal, moveStageFunc, changelocalWorflowSta
 			if (data === 'contractSigned') {
 				changelocalWorflowStatus('contractSigned');
 			}
+			closeModal();
 			// if (data === 'confirmed') {
 			// 	changelocalWorflowStatus('confirmed');
 			// } else {

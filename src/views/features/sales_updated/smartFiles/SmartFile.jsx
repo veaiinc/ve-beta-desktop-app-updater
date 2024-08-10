@@ -232,6 +232,7 @@ const SmartFile = () => {
 				workflowId={info?.workflowId}
 				openCopyModal={openCopyModal}
 				changelocalWorflowStatus={changelocalWorflowStatus}
+				workflowStatus={smartFileInfo?.status}
 			/>
 			<CopiedModal
 				open={info?.copyModal}
