@@ -7,6 +7,7 @@ import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Spinner from '../../components/loaders/Spinner';
 import GlobalWorkflowModal from '../../components/modalsV2/workflowsModals/GlobalWorkflowModal';
+import GlobalWorkflowLoader from './GlobalWorkflowLoader';
 
 const FetchMoreLoaderComp = () => {
 	return (
@@ -40,7 +41,7 @@ const GlobalWorkflows = () => {
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		loading: false,
+		loading: true,
 		globalWorkflowData: null,
 		hasNextPage: false,
 		currentPage: 1,
@@ -138,9 +139,17 @@ const GlobalWorkflows = () => {
 					loader={<FetchMoreLoaderComp />}
 				>
 					<div className="globalWorkflowParentCardContainer">
-						{info?.globalWorkflowData?.map((ele, index) => (
-							<GlobalWorkflowCard key={index} data={ele} onClickFunc={openModal} />
-						))}
+						{info?.loading ? (
+							<GlobalWorkflowLoader />
+						) : (
+							info?.globalWorkflowData?.map((ele, index) => (
+								<GlobalWorkflowCard
+									key={index}
+									data={ele}
+									onClickFunc={openModal}
+								/>
+							))
+						)}
 					</div>
 				</InfiniteScroll>
 			</div>

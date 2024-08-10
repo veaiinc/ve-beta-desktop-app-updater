@@ -51,7 +51,9 @@ const MyWorkflowsCard = ({ data, openModal }) => {
 				headerText: 'Success Rate',
 				subText:
 					data?.filesSent && data?.filesSent > 0
-						? ((data?.workflowStats?.confirmed || 0) * 100) / data?.filesSent + '%'
+						? Math.floor(
+								((data?.workflowStats?.confirmed || 0) * 100) / data?.filesSent,
+						  ) + '%'
 						: '0 %',
 				status: 'successRate',
 			},

@@ -6,9 +6,10 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Spinner from '../../components/loaders/Spinner';
 import MyWorkflowsModals from '../../components/modalsV2/workflowsModals/MyWorkflowsModals';
 import { FetchMoreLoaderComp } from '../../../helpers';
-import { useLocation, useNavigate, useNavigation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
 import PublicLinkGeneratedModal from '../../components/modalsV2/workflowsModals/PublicLinkGeneratedModal';
+import MyWorkflowLoader from './MyWorkflowLoader';
 
 const Sales = () => {
 	let {
@@ -24,7 +25,7 @@ const Sales = () => {
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
-		loading: false,
+		loading: true,
 		myWorkflowData: null,
 		hasNextPage: false,
 		currentPage: 1,
@@ -157,11 +158,17 @@ const Sales = () => {
 				hasMore={info?.hasNextPage}
 				loader={<FetchMoreLoaderComp />}
 			>
-				<div className="salesParentContainer">
-					{info?.myWorkflowData?.map((e, index) => (
-						<MyWorkflowsCard key={index} data={e} openModal={openMyWorkflowModal} />
-					))}
-				</div>
+				{info?.loading ? (
+					<div className="salesParentContainer">
+						<MyWorkflowLoader />
+					</div>
+				) : (
+					<div className="salesParentContainer">
+						{info?.myWorkflowData?.map((e, index) => (
+							<MyWorkflowsCard key={index} data={e} openModal={openMyWorkflowModal} />
+						))}
+					</div>
+				)}
 			</InfiniteScroll>
 			<MyWorkflowsModals
 				modalIsOpen={info?.myWorkflowModal}

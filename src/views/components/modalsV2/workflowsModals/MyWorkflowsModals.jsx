@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
+import MyWorkflowModalsLoader from './MyWorkflowModalsLoader';
 
 const timeOptions = [
 	{
@@ -273,34 +274,40 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 								gap: '8px',
 							}}
 						>
-							{info?.workflowsDetailslist?.map((item, index) => (
-								<div
-									className="modalSubCard"
-									key={index}
-									onClick={() =>
-										navigate('/smart-file', {
-											state: {
-												data: activeTemplateData,
-												workflowId: item?._id,
-												workflow: item,
-											},
-										})
-									}
-								>
-									<span className="modalSubCardTitle">
-										{item?.clientDetails?.name || ''}
-									</span>
-									<div className="modalSubLabelContainer">
-										<span className="subLabelStyling">
-											{item?.clientDetails?.email || ''}
+							{info?.loading ? (
+								<MyWorkflowModalsLoader />
+							) : (
+								info?.workflowsDetailslist?.map((item, index) => (
+									<div
+										className="modalSubCard"
+										key={index}
+										onClick={() =>
+											navigate('/smart-file', {
+												state: {
+													data: activeTemplateData,
+													workflowId: item?._id,
+													workflow: item,
+												},
+											})
+										}
+									>
+										<span className="modalSubCardTitle">
+											{item?.clientDetails?.name || ''}
 										</span>
-										<div className="symbolContainer">
-											<span className="subLabelStyling">{item?.status}</span>
-											<Tick />
+										<div className="modalSubLabelContainer">
+											<span className="subLabelStyling">
+												{item?.clientDetails?.email || ''}
+											</span>
+											<div className="symbolContainer">
+												<span className="subLabelStyling">
+													{item?.status}
+												</span>
+												<Tick />
+											</div>
 										</div>
 									</div>
-								</div>
-							))}
+								))
+							)}
 						</InfiniteScroll>
 					</div>
 				</div>
