@@ -9,6 +9,7 @@ import SendProposalModal from '../../../components/modalsV2/proposalModals/SendP
 import CopiedModal from '../../../components/modalsV2/workflowsModals/CopiedModal';
 import UploadSignature from '../../../components/modalsV2/workflowsModals/UploadSignature';
 import MoveStageModal from '../../../components/modalsV2/workflowsModals/moveStageModal';
+import SmartFileLoader from './SmartFileLoader';
 const SmartFile = () => {
 	const location = useLocation();
 
@@ -35,6 +36,7 @@ const SmartFile = () => {
 		signatureModal: false,
 		moveToStageModal: false,
 		edit: false,
+		loading: true,
 	});
 
 	//useEffect
@@ -51,7 +53,12 @@ const SmartFile = () => {
 		if (smartFileInfo) {
 			const status = smartFileInfo?.status;
 			const edit = status === 'enquiry' ? true : false;
-			setInfo((prev) => ({ ...prev, workflowStatus: smartFileInfo?.status, edit }));
+			setInfo((prev) => ({
+				...prev,
+				workflowStatus: smartFileInfo?.status,
+				edit,
+				loading: false,
+			}));
 		}
 	}, [smartFileInfo]);
 
@@ -198,7 +205,9 @@ const SmartFile = () => {
 		[info?.workflowData],
 	);
 
-	return (
+	return info?.loading ? (
+		<SmartFileLoader />
+	) : (
 		<div className="smartFileParentContainer">
 			<SmartFileHeader
 				activeTab={info?.activeTab}
