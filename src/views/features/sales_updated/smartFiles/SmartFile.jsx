@@ -8,6 +8,7 @@ import Context from '../../../../context/context';
 import SendProposalModal from '../../../components/modalsV2/proposalModals/SendProposalModal';
 import CopiedModal from '../../../components/modalsV2/workflowsModals/CopiedModal';
 import UploadSignature from '../../../components/modalsV2/workflowsModals/UploadSignature';
+import MoveStageModal from '../../../components/modalsV2/workflowsModals/moveStageModal';
 const SmartFile = () => {
 	const location = useLocation();
 
@@ -19,6 +20,7 @@ const SmartFile = () => {
 			updateProposal,
 			updateContracts,
 			getSignedUrlForContracts,
+			moveWorkflowStatus,
 		},
 	} = useContext(Context);
 
@@ -31,6 +33,7 @@ const SmartFile = () => {
 		workflowStatus: '',
 		copyModal: false,
 		signatureModal: false,
+		moveToStageModal: false,
 		edit: false,
 	});
 
@@ -174,6 +177,27 @@ const SmartFile = () => {
 		[info?.edit],
 	);
 
+	const openMoveToStageModal = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, moveToStageModal: true }));
+	}, []);
+
+	const moveStageFunc = useCallback(
+		async (data) => {
+			if (!info?.workflowData) {
+				return;
+			}
+			const payload = {
+				updateWorkflowStatusId: info?.workflowData?._id,
+				workflowInput: {
+					status: data,
+				},
+			};
+			const response = await moveWorkflowStatus(payload);
+			return response;
+		},
+		[info?.workflowData],
+	);
+
 	return (
 		<div className="smartFileParentContainer">
 			<SmartFileHeader
@@ -186,6 +210,7 @@ const SmartFile = () => {
 				openSignatureModal={openSignatureModal}
 				editable={info?.edit}
 				changeEditStatus={changeEditStatus}
+				openMoveToStageModal={openMoveToStageModal}
 			/>
 			<div className="mainContentContainer">
 				{info?.activeTab === 'form' ? (
@@ -222,6 +247,13 @@ const SmartFile = () => {
 				closeModal={() => setInfo((prev) => ({ ...prev, signatureModal: false }))}
 				uploadSignatureFunc={uploadSignatureFunc}
 				changelocalWorflowStatus={changelocalWorflowStatus}
+			/>
+			<MoveStageModal
+				open={info?.moveToStageModal}
+				closeModal={() => setInfo((prev) => ({ ...prev, moveToStageModal: false }))}
+				moveStageFunc={moveStageFunc}
+				changelocalWorflowStatus={changelocalWorflowStatus}
+				// workflowStatus={smartFileInfo?.status}
 			/>
 		</div>
 	);

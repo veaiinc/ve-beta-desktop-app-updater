@@ -371,3 +371,14 @@ export const getSignedUrlForContractsQuery = gql`
 		}
 	}
 `;
+
+export const moveWorkflowStatusQuery = gql`
+	mutation UpdateWorkflowStatus(
+		$updateWorkflowStatusId: ID!
+		$workflowInput: WorkflowStatusInput!
+	) {
+		updateWorkflowStatus(id: $updateWorkflowStatusId, workflowInput: $workflowInput) {
+			message
+		}
+	}
+`;

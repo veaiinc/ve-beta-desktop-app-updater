@@ -79,7 +79,7 @@ const SendProposalModal = ({
 			chnageWorkflowStats({
 				fileSentStatusId: workflowId,
 			});
-			changelocalWorflowStatus('fileSent');
+			changelocalWorflowStatus('filesSent');
 		} catch (err) {
 			console.log('Failed to copy text');
 		}
@@ -95,7 +95,7 @@ const SendProposalModal = ({
 		chnageWorkflowStats({
 			fileSentStatusId: workflowId,
 		});
-		changelocalWorflowStatus('fileSent');
+		changelocalWorflowStatus('filesSent');
 	}, [clientDetails, workflowId]);
 
 	return (

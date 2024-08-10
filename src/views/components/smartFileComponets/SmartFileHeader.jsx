@@ -23,10 +23,12 @@ const SmartFileHeader = ({
 	openSignatureModal,
 	editable,
 	changeEditStatus,
+	openMoveToStageModal,
 }) => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		loading: false,
+		threeDotOptions: options,
 	});
 
 	const modifiedAccetFunc = useCallback(async () => {
@@ -49,9 +51,37 @@ const SmartFileHeader = ({
 					changeEditStatus(true);
 				}
 			}
+			if (data?.label === 'Move Stage') {
+				openMoveToStageModal();
+			}
 		},
 		[editable],
 	);
+
+	useEffect(() => {
+		if (workflowStatus) {
+			let modifiedOptions = [...options];
+			if (workflowStatus === 'filesSent') {
+				modifiedOptions = [
+					{ label: 'Edit' },
+					{ label: 'Resend File' },
+					{ label: 'Send Email' },
+					{ label: 'Delete File' },
+					{ label: 'Delete Lead' },
+				];
+			} else {
+				modifiedOptions = [
+					{ label: 'Resend File' },
+					{ label: 'Send Email' },
+					{ label: 'Move Stage' },
+					{ label: 'Delete File' },
+					{ label: 'Delete Lead' },
+				];
+			}
+
+			setInfo((prev) => ({ ...prev, threeDotOptions: modifiedOptions }));
+		}
+	}, [workflowStatus]);
 
 	return (
 		<div className="smarFileHeader">
@@ -72,7 +102,7 @@ const SmartFileHeader = ({
 						Form Response
 					</span>
 					<div style={{ display: 'flex', flexDirection: 'column' }}>
-						{workflowStatus !== 'fileSent' && workflowStatus !== 'enquiry' ? (
+						{workflowStatus !== 'filesSent' && workflowStatus !== 'enquiry' ? (
 							<span
 								style={{
 									display: 'flex',
@@ -116,7 +146,7 @@ const SmartFileHeader = ({
 					''
 				)}
 
-				{workflowStatus === 'fileSent' ? (
+				{workflowStatus === 'filesSent' ? (
 					<div className="sendSmartFileBtn" onClick={modifiedAccetFunc}>
 						{info?.loading ? 'Accepting ....' : 'Accept'}
 					</div>
@@ -134,7 +164,7 @@ const SmartFileHeader = ({
 				{workflowStatus !== 'enquiry' ? (
 					<HeadersDropDownComp
 						showIcon={false}
-						options={options}
+						options={info?.threeDotOptions}
 						containerStyle={{
 							padding: '4px 8px',
 							borderRadius: '100px',

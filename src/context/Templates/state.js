@@ -26,6 +26,7 @@ import {
 	formResponsesQuery,
 	changeWorkflowStatusQuery,
 	getSignedUrlForContractsQuery,
+	moveWorkflowStatusQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -775,6 +776,28 @@ export const TemplatesState = (props) => {
 			console.log('api failed ==>uploadContractSignature', error);
 		}
 	};
+
+	const moveWorkflowStatus = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				moveWorkflowStatusQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				console.log('handle the error moveWorkflowStatus', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>moveWorkflowStatus', error);
+		}
+	};
 	return {
 		...state,
 		getProposals,
@@ -810,5 +833,6 @@ export const TemplatesState = (props) => {
 		chnageWorkflowStats,
 		getSignedUrlForContracts,
 		uploadContractSignature,
+		moveWorkflowStatus,
 	};
 };
