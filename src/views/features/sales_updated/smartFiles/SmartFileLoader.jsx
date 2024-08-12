@@ -92,7 +92,9 @@ const SmartFileLoader = () => {
 				}}
 			>
 				<Skeleton width={'386px'} height={'700px'} style={{ borderRadius: '20px' }} />
-				<Skeleton width={'650px'} height={'690px'} style={{ borderRadius: '16px' }} />
+				<div style={{ flex: 1 }}>
+					<Skeleton height={'690px'} style={{ borderRadius: '16px' }} />
+				</div>
 			</div>
 		</div>
 	);
