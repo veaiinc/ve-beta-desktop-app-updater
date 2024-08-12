@@ -14,7 +14,6 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 		templates: {
 			getClientList,
 			clientList,
-			createProposals,
 			getTemplatesListForCreateLead,
 			templatesListForCreateLead,
 			createLeadfromTemplates,

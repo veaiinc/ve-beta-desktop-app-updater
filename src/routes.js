@@ -1,16 +1,13 @@
 import AuthWrapper from './views/layouts/authWrapper';
 import LoginScreen from './views/features/signin';
 import ChatScreen from './views/features/meta_Integ/index';
-import SalesScreen from './views/features/sales/index';
-import MyWorkFlowDetails from './views/features/sales/myWorkFlowDetails';
-import ProposalCRUD from './views/features/modules/proposalCRUD';
 import OauthVerify from './views/features/signin/oauth';
 import MySettings from './views/features/profile_settings/MySettings';
 import CompanySettingsWrapper from './views/features/workspace_settings/CompanySettingsWrapper';
 import Workflow_builder from './views/features/workflow_builder';
-import Sales from './views/features/sales_updated/Sales';
-import GlobalWorkflows from './views/features/sales_updated/GlobalWorkflows';
-import SmartFile from './views/features/sales_updated/smartFiles/SmartFile';
+import Sales from './views/features/sales/Sales';
+import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
+import SmartFile from './views/features/sales/smartFiles/SmartFile';
 
 const routes = [
 	{
@@ -55,15 +52,7 @@ const routes = [
 		),
 		exact: true,
 	},
-	// {
-	// 	path: '/sales',
-	// 	component: (
-	// 		<AuthWrapper title={'Sales'}>
-	// 			<SalesScreen />
-	// 		</AuthWrapper>
-	// 	),
-	// 	exact: true,
-	// },
+
 	{
 		path: '/sales',
 		component: (
@@ -73,39 +62,12 @@ const routes = [
 		),
 		exact: true,
 	},
-	{
-		path: '/sales/:salesId',
-		component: (
-			<AuthWrapper title={'Sales'}>
-				<MyWorkFlowDetails />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
-	// {
-	// 	path: '/sales/workflows',
-	// 	component: (
-	// 		<AuthWrapper title={'Sales'}>
-	// 			<SalesScreen type={'workflows'} />
-	// 		</AuthWrapper>
-	// 	),
-	// 	exact: true,
-	// },
 
 	{
 		path: '/sales/workflows',
 		component: (
 			<AuthWrapper title={'Sales'}>
 				<GlobalWorkflows />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
-	{
-		path: '/sales/:salesId/:proposalId',
-		component: (
-			<AuthWrapper title={'Sales'} hideQuickNav={true}>
-				<ProposalCRUD type={'workflows'} />
 			</AuthWrapper>
 		),
 		exact: true,

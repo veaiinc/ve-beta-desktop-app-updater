@@ -1,13 +1,8 @@
-import * as API from './actionTypes';
-import Service from '../../services/index';
 import service from '../../services/graphQlServices';
 import {
 	getTemmplatesQuery,
-	createProposalQuery,
-	getWorkflowDetailsListQuery,
 	duplicateTemplateQuery,
 	getClientListQuery,
-	getTemplateInfoQuery,
 	getAllEmailTemplatesQuery,
 	addEmailTriggersInWorkflowQuery,
 	getSpecificWorkflowTemplateDetailsQuery,
@@ -53,34 +48,6 @@ export const intialState = {
 
 export const TemplatesState = (props) => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
-
-	//delete this function later
-	const getTemplates = async () => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-		const json = {
-			filters: {
-				limit: 50,
-				page: 1,
-			},
-		};
-		const response = await service.query(
-			getTemmplatesQuery,
-			json,
-			workspaceId,
-			usertoken,
-			'workflows_Api',
-		);
-
-		if (response[0]) {
-			dispatch({
-				type: Actions.GET_ALL_TEMPLATES_INFO_SUCCESS,
-				payload: response?.[1]?.data?.templates,
-			});
-		} else {
-			console.log('api failed ==>getTemplates', response);
-		}
-	};
 
 	const getMyWorkflows = async (payload, fetchMore = false) => {
 		let workspaceId = localStorage.getItem('workspaceId');
@@ -130,83 +97,6 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getTemplatesStatus = async (templateId = null) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.fetchGet(
-			`/${workspaceId}${API.TEMPLATES.PROPOSALS}${API.TEMPLATES.TEMPLATE_INSIGHTS}${
-				templateId ? `?templateId=${templateId}` : ''
-			}`,
-			usertoken,
-			'proposals_api',
-		);
-
-		if (response[0]) {
-			return [true, response[1]];
-		} else {
-			return [false, response?.[1]?.message];
-		}
-	};
-
-	const getProposals = async (payload, fetchMore = false) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-
-		const response = await service.query(
-			getWorkflowDetailsListQuery,
-			payload,
-			workspaceId,
-			usertoken,
-			'workflows_Api',
-		);
-
-		if (response?.[0]) {
-			const selectedvariable = fetchMore ? 'moreWorkList' : 'workflowslist';
-			dispatch({
-				type: Actions?.GET_WORKFLOW_DETAILS_SUCCESS,
-				payload: response?.[1]?.data?.workflows,
-				selectedvariable,
-			});
-		} else {
-			console.log('api failed getProposals', response);
-		}
-	};
-
-	const createProposals = async (payload) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-		const response = await service.query(
-			createProposalQuery,
-			payload,
-			workspaceId,
-			usertoken,
-			'workflows_Api',
-		);
-
-		if (response[0]) {
-			return [true, response?.[1]?.data?.createProposalUsingWorkflowTemplate];
-		} else {
-			return [false, response?.[1]?.message];
-		}
-	};
-
-	const deleteProposal = async (proposalId, payload) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.fetchDelete(
-			`/${workspaceId}${API.TEMPLATES.PROPOSALS}/${proposalId}`,
-			usertoken,
-			payload,
-			'proposals_api',
-		);
-
-		if (response[0]) {
-			return [true, response[1]];
-		} else {
-			return [false, response?.[1]?.message];
-		}
-	};
-
 	const getClientList = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -227,44 +117,6 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.error('Error==>getClientList', error);
-		}
-	};
-
-	const moveProposalStage = async (proposalId, versionId, status) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-		let response = await Service.fetchPost(
-			`/${workspaceId}${API.TEMPLATES.PROPOSALS}/${proposalId}/versions/${versionId}/${status}`,
-			status == 'reject' ? { notes: 'test' } : {},
-			usertoken,
-			'proposals_api',
-		);
-
-		if (response[0]) {
-			return [true, response[1]];
-		} else {
-			return [false, response?.[1]?.message];
-		}
-	};
-
-	//delete this function
-	const duplicateTemplate = async (payload) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-
-		const response = await service.query(
-			duplicateTemplateQuery,
-			payload,
-			workspaceId,
-			usertoken,
-			'workflows_Api',
-		);
-
-		if (response?.[0]) {
-			const parsedResponse = response?.[1]?.data?.duplicateWorkflowTemplate;
-			return [true, parsedResponse];
-		} else {
-			return [false, response?.[1]?.message];
 		}
 	};
 
@@ -301,28 +153,6 @@ export const TemplatesState = (props) => {
 				type: Actions.UPDATE_STATE_VALUES_SUCCESS,
 				payload: updatedVaribaleValuesObj,
 			});
-		} catch (error) {
-			console.log('error==>updateStateValues', error);
-		}
-	};
-
-	const getTemplateInfo = async (payload) => {
-		try {
-			let workspaceId = localStorage.getItem('workspaceId');
-			let usertoken = localStorage.getItem('usertoken');
-			const response = await service.query(
-				getTemplateInfoQuery,
-				payload,
-				workspaceId,
-				usertoken,
-				'workflows_Api',
-			);
-			if (response?.[0]) {
-				const data = response?.[1]?.data?.templateInfo;
-				dispatch({ type: Actions.GET_SPECIFIC_TEMPLATE_INFO_SUCCESS, payload: data });
-			} else {
-				return [false, response?.[1]?.message];
-			}
 		} catch (error) {
 			console.log('error==>updateStateValues', error);
 		}
@@ -800,24 +630,16 @@ export const TemplatesState = (props) => {
 	};
 	return {
 		...state,
-		getProposals,
 		getMyWorkflows,
-		getTemplatesStatus,
-		createProposals,
-		deleteProposal,
-		moveProposalStage,
-		duplicateTemplate,
 		resetTemplateState,
 		getClientList,
 		updateStateValues,
-		getTemplateInfo,
 		getAllEmailTemplates,
 		addEmailTriggersInWorkflow,
 		getSpecificWorkflowTemplateDetails,
 		deleteWorkflowStep,
 		updateWorkflowSteps,
 		getGlobalWorkflows,
-		getTemplates,
 		duplicateGlobalWorkflowTemplate,
 		getSmartFileData,
 		updateProposal,

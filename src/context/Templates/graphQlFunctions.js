@@ -39,44 +39,6 @@ export const getTemmplatesQuery = gql`
 	}
 `;
 
-export const createProposalQuery = gql`
-	mutation CreateProposalUsingWorkflowTemplate(
-		$proposalTemplateId: ID!
-		$workflowTemplateId: ID!
-		$proposalInput: ProposalInput!
-	) {
-		createProposalUsingWorkflowTemplate(
-			proposalTemplateId: $proposalTemplateId
-			workflowTemplateId: $workflowTemplateId
-			proposalInput: $proposalInput
-		)
-	}
-`;
-
-export const getWorkflowDetailsListQuery = gql`
-	query Workflows($filters: WorkflowsListFiltersInput) {
-		workflows(filters: $filters) {
-			currentPage
-			hasNextPage
-			data {
-				_id
-				createdBy
-				createdAt
-				modules
-				tenantId
-				updatedAt
-				updatedBy
-				proposals
-				clientDetails {
-					_id
-					email
-					name
-				}
-			}
-		}
-	}
-`;
-
 export const duplicateTemplateQuery = gql`
 	mutation DuplicateWorkflowTemplate($templateId: ID!, $title: String!) {
 		duplicateWorkflowTemplate(templateId: $templateId, title: $title) {
@@ -124,27 +86,6 @@ export const getClientListQuery = gql`
 `;
 
 //new Queries
-
-export const getTemplateInfoQuery = gql`
-	query TemplateInfo($templateInfoId: ID!) {
-		templateInfo(id: $templateInfoId) {
-			steps {
-				_id
-				criteria
-				module
-				nextStepId
-				nextStepType
-				order
-				type
-				emailTemplateTitle
-				emailTemplateId
-				sendAt
-				emailTemplateSubject
-			}
-			status
-		}
-	}
-`;
 
 export const getAllEmailTemplatesQuery = gql`
 	query EmailTemplatesList($filters: EmailTemplateListFiltersInput!) {

@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/sales.scss';
-import MyWorkflowsCard from '../../components/sales-updated/MyWorkflowsCard';
+import MyWorkflowsCard from '../../components/sales/MyWorkflowsCard';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Spinner from '../../components/loaders/Spinner';

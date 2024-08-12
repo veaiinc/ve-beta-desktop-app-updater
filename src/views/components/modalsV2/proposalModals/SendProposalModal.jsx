@@ -14,7 +14,6 @@ const SendProposalModal = ({
 	workflowStatus,
 }) => {
 	const {
-		proposals: { sendProposal, getAllEmailTemplates, allEmailTemplates },
 		templates: { sendSmartFile, chnageWorkflowStats },
 	} = useContext(Context);
 
