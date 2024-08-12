@@ -63,6 +63,7 @@ const MyWorkflowLoader = () => {
 						>
 							{[{}, {}, {}]?.map((item, ind) => (
 								<Skeleton
+									key={ind}
 									height={'66px'}
 									width={'130px'}
 									style={{ borderRadius: '16px' }}
@@ -78,8 +79,9 @@ const MyWorkflowLoader = () => {
 								flexShrink: '0',
 							}}
 						>
-							{[{}, {}, {}, {}]?.map((item, ind) => (
+							{[{}, {}, {}, {}]?.map((item, lowerInd) => (
 								<Skeleton
+									key={lowerInd}
 									height={'160px'}
 									width={'130px'}
 									style={{ borderRadius: '16px' }}

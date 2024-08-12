@@ -10,6 +10,7 @@ export const getTemmplatesQuery = gql`
 					module
 					order
 					_id
+					isPublic
 				}
 				status
 

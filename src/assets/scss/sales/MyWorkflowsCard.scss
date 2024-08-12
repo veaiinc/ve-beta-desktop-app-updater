@@ -6,24 +6,56 @@
 	align-self: stretch;
 	border-radius: 24px;
 	background: #111;
-	transition: all 0.24s ease-out;
+	transition: all 0.5s ease-out;
+	padding-bottom: 0px;
 	cursor: pointer;
 
 	.imageContainer {
 		display: flex;
 		flex-direction: column;
+		height: 284px;
+		// border: 2px solid red;
+		justify-content: flex-end;
+		margin-bottom: 24px;
+		/* Rotate the UpArrow when .imageContainer is hovered */
+
+		.hoverDropDownContainer {
+			display: flex;
+			flex-direction: column;
+			align-self: stretch;
+			// border: 2px solid green;
+			display: none;
+
+			.arrowContainer {
+				display: flex;
+				align-self: stretch;
+				justify-content: center;
+				align-items: center;
+				padding: 4px;
+
+				svg {
+					transition: transform 0.5s ease-out;
+				}
+			}
+
+			.hoverDropDownValues {
+				display: none;
+			}
+		}
 
 		.coverImage {
 			background-size: cover;
 			background-position: center;
 			background-repeat: no-repeat;
 			width: 200px;
+			// flex: 1;
 			height: 284px;
 			flex-shrink: 0;
 			border-radius: 16px;
 			overflow: scroll;
 			opacity: 0.9;
-
+			align-self: baseline;
+			transition: all 0.24s ease-out;
 			.builder {
 				zoom: 0.1;
 				div {
@@ -31,6 +63,22 @@
 				}
 			}
 		}
+	}
+	.imageContainer:hover .coverImage {
+		height: 214px !important	;
+	}
+
+	.imageContainer:hover .hoverDropDownContainer .hoverDropDownValues {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		align-self: stretch;
+		justify-content: center;
+		// border: 2px solid blue;
+		color: #fff;
+	}
+	.imageContainer:hover .hoverDropDownContainer .arrowContainer svg {
+		transform: rotate(180deg);
 	}
 
 	.workflowContentContainer {
@@ -40,6 +88,7 @@
 		align-items: flex-start;
 		flex: 1 0 0;
 		align-self: stretch;
+		max-height: 284px;
 
 		.myworkflowHeader {
 			overflow: hidden;
@@ -82,6 +131,11 @@
 			}
 		}
 	}
+	.percentageSeperator {
+		display: none;
+		margin-top: 11px;
+		transition: all 0.5s;
+	}
 }
 
 .myWorkflowCard:hover {
@@ -89,6 +143,27 @@
 	border: 1px solid rgba(224, 224, 224, 0.1);
 	background: #111;
 	box-shadow: 0px 4px 40px 0px rgba(224, 224, 224, 0.07);
+	.percentageSeperator {
+		display: flex;
+		align-self: stretch;
+		height: 2px;
+		border-radius: 100px;
+		margin-top: 11px;
+		background: rgba(36, 36, 36, 0.48);
+
+		.percentageCovered {
+			width: 30%;
+			height: 2px;
+			border-radius: 100px;
+			background: rgba(224, 224, 224, 0.8);
+		}
+	}
+}
+.myWorkflowCard:hover .imageContainer .coverImage {
+	height: 264px; /* Reduce height on hover */
+}
+.myWorkflowCard:hover .imageContainer .hoverDropDownContainer {
+	display: block;
 }
 
 .actionCardContainer {
@@ -102,6 +177,7 @@
 	flex-shrink: 0;
 	border-radius: 16px;
 	background: #2a2a2a;
+	transition: all 0.24s ease-in-out;
 	.headerStyling {
 		color: rgba(228, 229, 230, 0.48);
 		font-family: Inter;
@@ -121,6 +197,11 @@
 		line-height: 26px; /* 162.5% */
 	}
 }
+
+.actionCardContainer:hover {
+	border: 1px rgba(63, 63, 63, 0.64);
+	background: #333;
+}
 .statsCardParentCotnainer {
 	display: flex;
 	width: 130px;
@@ -132,6 +213,7 @@
 	flex-shrink: 0;
 	border-radius: 16px;
 	background: #1d1d1d;
+	transition: all 0.24s ease-in-out;
 
 	.dotContainer {
 		display: flex;
@@ -180,4 +262,8 @@
 			text-transform: capitalize;
 		}
 	}
+}
+.statsCardParentCotnainer:hover {
+	border: 1px rgba(224, 224, 224, 0.1);
+	background: #2a2a2a;
 }

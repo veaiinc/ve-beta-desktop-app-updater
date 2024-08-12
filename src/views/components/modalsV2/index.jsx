@@ -31,7 +31,7 @@ const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {}
 			bottom: 'auto',
 			right: isOpen ? '0%' : '-50%', // Slide in from right
 			transform: isOpen ? 'translate(0%) scale(1)' : 'translate(0%) scale(0)', // Scale for fade-in effect
-			transition: 'right 3s ease-in-out',
+			transition: 'all 3s ease-in-out',
 			borderRadius: '8px',
 			boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
 			border: 'none',

@@ -41,7 +41,7 @@ const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData })
 
 					<div className="innerMainContent">
 						{incomingTemplateData?.moduleTemplates?.map((e, index) => (
-							<div className="modulesViewer">
+							<div className="modulesViewer" key={index}>
 								<span>{e?.module}</span>
 								<div className="imageContainer">
 									<div className="coverImage">

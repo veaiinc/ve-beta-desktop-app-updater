@@ -11,11 +11,11 @@ import Spinner from '../../components/loaders/Spinner';
 const WorkflowBuilder = () => {
 	const {
 		templates: {
-			// getTemplateInfo,
-			// specificTemplatesInfo,
 			deleteWorkflowStep,
 			addEmailTriggersInWorkflow,
 			updateStateValues,
+			getMyWorkflows,
+			getTemplatesListForCreateLead,
 		},
 	} = useContext(Context);
 
@@ -38,7 +38,7 @@ const WorkflowBuilder = () => {
 		if (location?.state?.data?.steps?.length) {
 			const incomingData = location?.state?.data;
 			const steps = [...(incomingData?.steps || [])];
-			const stepsData = [];
+			let stepsData = [];
 			stepsData?.push(steps?.[0]);
 			stepsData?.push({
 				module: 'preview',
@@ -46,7 +46,7 @@ const WorkflowBuilder = () => {
 				parsedHtmlContent: incomingData?.templates?.[0]?.parsedHtmlContent,
 			});
 			steps.shift();
-			stepsData?.concat(steps);
+			stepsData = [...stepsData, ...steps];
 			stepsData?.push({ module: 'theEnd' });
 			setInfo((prev) => ({ ...prev, data: stepsData }));
 		}
@@ -97,7 +97,6 @@ const WorkflowBuilder = () => {
 
 	const addorUpdateSteps = useCallback(
 		async (incoming) => {
-			// const incomingData = location?.state?.data;
 			const updatedData = [...(incoming || [])];
 			updatedData?.splice(1, 0, {
 				module: 'preview',
@@ -166,9 +165,25 @@ const WorkflowBuilder = () => {
 			if (isPublic) {
 				updateStateValues({ generatePublicLinkData: response?.[1] });
 			}
+			refreshSalesModuleData();
 			return navigate('/sales');
 		}
 	}, [info?.publishLoading, info?.incomingTemplateData]);
+
+	const refreshSalesModuleData = useCallback(async () => {
+		const payload = {
+			filters: {
+				limit: 10,
+				page: 1,
+				type: 'workspace',
+				status: 'published',
+				sortBy: 'createdAt',
+				sortType: -1,
+			},
+		};
+		getMyWorkflows(payload, false);
+		getTemplatesListForCreateLead();
+	}, []);
 
 	return (
 		<div className="workflowBuilderContainer">

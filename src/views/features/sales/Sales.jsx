@@ -86,7 +86,7 @@ const Sales = () => {
 		(dataToBeUsed, fetchMore = false) => {
 			let { data, currentPage, hasNextPage } = dataToBeUsed;
 			let myWorkflowData = [];
-			if (currentPage === 1 && !data?.length) {
+			if (currentPage === 1 && !data?.length && !generatePublicLinkData) {
 				return navigate('/sales/workflows');
 			}
 
@@ -111,7 +111,7 @@ const Sales = () => {
 				hasNextPage,
 			}));
 		},
-		[info?.myWorkflowData],
+		[info?.myWorkflowData, generatePublicLinkData],
 	);
 
 	const fetchMoreMyWorkflows = useCallback(() => {
@@ -150,6 +150,23 @@ const Sales = () => {
 		}));
 	}, []);
 
+	const openCopyLinkModal = useCallback(async (data) => {
+		setInfo((prev) => ({ ...prev, copyModal: true, activeTemplateData: data }));
+	}, []);
+
+	const closeCopyLinkModal = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, copyModal: false, activeTemplateData: null }));
+	}, []);
+
+	const navigateToWorkflowBuilder = useCallback(
+		async (data) => {
+			return navigate('/workflow_builder', {
+				state: { data },
+			});
+		},
+		[info?.activeTemplateData],
+	);
+
 	return (
 		<>
 			<InfiniteScroll
@@ -165,7 +182,13 @@ const Sales = () => {
 				) : (
 					<div className="salesParentContainer">
 						{info?.myWorkflowData?.map((e, index) => (
-							<MyWorkflowsCard key={index} data={e} openModal={openMyWorkflowModal} />
+							<MyWorkflowsCard
+								key={index}
+								data={e}
+								openModal={openMyWorkflowModal}
+								openCopyLinkModal={openCopyLinkModal}
+								navigateToWorkflowBuilder={navigateToWorkflowBuilder}
+							/>
 						))}
 					</div>
 				)}
@@ -178,7 +201,7 @@ const Sales = () => {
 			/>
 			<CopiedModal
 				open={info?.copyModal}
-				closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
+				closeModal={closeCopyLinkModal}
 				slug={info?.activeTemplateData?.slug}
 				modules={info?.activeTemplateData?.moduleTemplates}
 				copyLink={`https://${localStorage.getItem('workspaceId')}.ve.co/${

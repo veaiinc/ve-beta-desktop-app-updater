@@ -40,7 +40,7 @@ const UserSignUp = ({
 		} else {
 			setUsersData((prev) => ({ ...prev, emailId: info?.invitedEmail }));
 		}
-
+		localStorage.clear();
 		getGeoGraphicData();
 	}, []);
 
