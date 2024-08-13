@@ -92,6 +92,7 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 						<span onClick={() => navigateToWorkflowBuilder(data)}>Edit Workflow</span>
 					</div>
 				</div>
+
 				<div className="coverImage">
 					<div
 						dangerouslySetInnerHTML={{

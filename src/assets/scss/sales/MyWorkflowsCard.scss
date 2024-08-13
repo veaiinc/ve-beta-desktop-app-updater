@@ -14,10 +14,10 @@
 		display: flex;
 		flex-direction: column;
 		height: 284px;
-		// border: 2px solid red;
 		justify-content: flex-end;
 		margin-bottom: 24px;
-		/* Rotate the UpArrow when .imageContainer is hovered */
+		border-radius: 16px;
+		background-color: #1d1d1d;
 
 		.hoverDropDownContainer {
 			display: flex;
@@ -25,13 +25,15 @@
 			align-self: stretch;
 			// border: 2px solid green;
 			display: none;
-
+			align-items: flex-start;
+			flex: 1;
+			transition: transform 1s ease-in-out;
 			.arrowContainer {
 				display: flex;
 				align-self: stretch;
 				justify-content: center;
 				align-items: center;
-				padding: 4px;
+				padding: 8px;
 
 				svg {
 					transition: transform 0.5s ease-out;
@@ -40,6 +42,15 @@
 
 			.hoverDropDownValues {
 				display: none;
+				transition: transform 1s ease-out;
+				color: #fff;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 14px; /* 116.667% */
+				letter-spacing: 0.24px;
+				text-transform: capitalize;
 			}
 		}
 
@@ -54,7 +65,7 @@
 			border-radius: 16px;
 			overflow: scroll;
 			opacity: 0.9;
-			align-self: baseline;
+			align-self: flex-end;
 			transition: all 0.24s ease-out;
 			.builder {
 				zoom: 0.1;
@@ -65,17 +76,21 @@
 		}
 	}
 	.imageContainer:hover .coverImage {
-		height: 214px !important	;
+		height: 114px !important	;
 	}
 
 	.imageContainer:hover .hoverDropDownContainer .hoverDropDownValues {
 		display: flex;
 		flex-direction: column;
+		flex: 1;
 		gap: 12px;
 		align-self: stretch;
-		justify-content: center;
+		padding-left: 24px;
+		// align-items: flex-start;
 		// border: 2px solid blue;
 		color: #fff;
+		align-items: flex-start;
+		margin-top: 24px;
 	}
 	.imageContainer:hover .hoverDropDownContainer .arrowContainer svg {
 		transform: rotate(180deg);

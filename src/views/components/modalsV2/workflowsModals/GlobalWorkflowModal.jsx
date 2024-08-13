@@ -216,13 +216,13 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 					{info?.activeTab === 'design' ? (
 						<div className="innerMainContent">
 							{activeTemplateData?.moduleTemplates?.map((e, index) => (
-								<div className="modulesViewer">
+								<div className="modulesViewer" key={index}>
 									<span>{e?.module}</span>
 									<div className="imageContainer">
 										<div className="coverImage">
 											<div
 												dangerouslySetInnerHTML={{
-													__html: activeTemplateData?.templates?.[0]
+													__html: activeTemplateData?.templates?.[index]
 														?.parsedHtmlContent,
 												}}
 												style={{ width: '100%' }}
