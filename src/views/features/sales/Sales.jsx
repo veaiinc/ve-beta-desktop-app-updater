@@ -3,7 +3,6 @@ import '../../../assets/scss/sales/sales.scss';
 import MyWorkflowsCard from '../../components/sales/MyWorkflowsCard';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import Spinner from '../../components/loaders/Spinner';
 import MyWorkflowsModals from '../../components/modalsV2/workflowsModals/MyWorkflowsModals';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { useNavigate } from 'react-router-dom';
@@ -34,6 +33,7 @@ const Sales = () => {
 		activeCardsData: null,
 		copyModal: false,
 		showGeneratedLinkModalData: null,
+		testingDrawerModal: false,
 	});
 
 	//useEffects
@@ -129,6 +129,7 @@ const Sales = () => {
 		setInfo((prev) => ({
 			...prev,
 			myWorkflowModal: true,
+			// testingDrawerModal: true,
 			activeTemplateData: data,
 			activeCardsData: cardsData,
 		}));

@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
-import ReactModal from '../../modalsV2/index';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import '../../../../assets/scss/sales/globalWorkflowModal.scss';
 import { ReactComponent as EditSvg } from '../../../../assets/svg/worflow_builder/edit.svg';
@@ -8,6 +7,7 @@ import ConnectorSvg from '../../../../assets/svg/worflow_builder/connector';
 import { ReactComponent as EmailSvg } from '../../../../assets/svg/worflow_builder/email.svg';
 import Context from '../../../../context/context';
 import Spinner from '../../../components/loaders/Spinner';
+import { Drawer } from 'antd';
 const initialState = {
 	activeTab: 'design', //design,automation
 	duplicateApiLoading: false,
@@ -163,7 +163,14 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 	}, [activeTemplateData, info?.activeTab, info?.duplicateApiLoading]);
 
 	return (
-		<ReactModal isOpen={modalIsOpen} closeModal={modifiedCloseModal} modalType="right">
+		<Drawer
+			onClose={modifiedCloseModal}
+			width={420}
+			open={modalIsOpen}
+			style={{ padding: '0px', backgroundColor: 'transparent' }}
+			headerStyle={{ display: 'none' }}
+			bodyStyle={{ padding: '0px' }}
+		>
 			<div className="GlobalWorkflowModalParentContainer">
 				<div className="innerContainer">
 					<div className="innerContainerHeader">
@@ -238,7 +245,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 				</div>
 			</div>
 			;
-		</ReactModal>
+		</Drawer>
 	);
 };
 

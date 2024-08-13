@@ -1,11 +1,18 @@
 import React from 'react';
-import ReactModal from '../../modalsV2/index';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import '../../../../assets/scss/sales/globalWorkflowModal.scss';
 import { ReactComponent as EditSvg } from '../../../../assets/svg/worflow_builder/edit.svg';
+import { Drawer } from 'antd';
 const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData }) => {
 	return (
-		<ReactModal isOpen={modalIsOpen} closeModal={closeModal} modalType="right">
+		<Drawer
+			onClose={closeModal}
+			width={420}
+			open={modalIsOpen}
+			style={{ padding: '0px', backgroundColor: 'transparent' }}
+			headerStyle={{ display: 'none' }}
+			bodyStyle={{ padding: '0px' }}
+		>
 			<div className="GlobalWorkflowModalParentContainer">
 				<div className="innerContainer">
 					<div className="innerContainerHeader">
@@ -59,7 +66,7 @@ const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData })
 					</div>
 				</div>
 			</div>
-		</ReactModal>
+		</Drawer>
 	);
 };
 

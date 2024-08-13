@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import '../../../../assets/scss/sales/myWorkflowModals.scss';
-import ReactModal from '../../modalsV2/index';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import { ReactComponent as Search } from '../../../../assets/svg/workflow/search.svg';
 import { ReactComponent as Tick } from '../../../../assets/svg/workflow/Tick.svg';
@@ -10,6 +9,7 @@ import Context from '../../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import MyWorkflowModalsLoader from './MyWorkflowModalsLoader';
+import { Drawer } from 'antd';
 
 const timeOptions = [
 	{
@@ -142,7 +142,14 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 	}, []);
 
 	return (
-		<ReactModal isOpen={modalIsOpen} closeModal={modifiedCloseModal} modalType="right">
+		<Drawer
+			onClose={modifiedCloseModal}
+			width={420}
+			open={modalIsOpen}
+			style={{ padding: '0px', backgroundColor: 'transparent' }}
+			headerStyle={{ display: 'none' }}
+			bodyStyle={{ padding: '0px' }}
+		>
 			<div className="myWorkflowModalParentContainer">
 				<div className="innerContainer">
 					<div className="headerContianer">
@@ -312,7 +319,7 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 					</div>
 				</div>
 			</div>
-		</ReactModal>
+		</Drawer>
 	);
 };
 

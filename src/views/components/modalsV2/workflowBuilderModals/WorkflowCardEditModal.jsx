@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import { ReactComponent as Dustbin } from '../../../../assets/svg/worflow_builder/dustbin.svg';
@@ -17,6 +16,7 @@ import {
 	returnDurationOption,
 	calculateTimeStamp,
 } from '../../../features/workflow_builder/workflowContantsHelpers';
+import { Drawer } from 'antd';
 
 const initialState = {
 	editState: false,
@@ -315,7 +315,14 @@ const WorkflowCardEditModal = ({
 	}, [deleteWorkFlowStep, info?.deleteLoader]);
 
 	return (
-		<ReactModal isOpen={modalIsOpen} closeModal={closeModal} modalType="right">
+		<Drawer
+			onClose={closeModal}
+			width={420}
+			open={modalIsOpen}
+			style={{ padding: '0px', backgroundColor: 'transparent' }}
+			headerStyle={{ display: 'none' }}
+			bodyStyle={{ padding: '0px' }}
+		>
 			<div className="WorkflowCardEditModalParentContainer">
 				<div className="innerContainer">
 					{/* header */}
@@ -375,12 +382,13 @@ const WorkflowCardEditModal = ({
 											height: '48px',
 											padding: '12px 24px',
 											color: '#e4e5e6',
-											width: 'inherit',
+											// width: 'inherit',
 											flex: 1,
 											alignSelf: 'stretch',
 											borderRadius: '0.625rem',
 											border: '1px solid rgba(36, 36, 36, 0.64)',
 											backgroundColor: '#151515',
+											width: '100%',
 										}}
 										dropDownStyle={{
 											right: 0,
@@ -389,6 +397,7 @@ const WorkflowCardEditModal = ({
 										}}
 										selectedValue={info?.selectedEmailTemplate?.title}
 										onChangeFunc={(e) => onChangeEmailTemplates(e)}
+										outerContainerStyle={{ width: '100%' }}
 									/>
 								) : (
 									<div className="staticActionTitle">{info?.title}</div>
@@ -473,6 +482,7 @@ const WorkflowCardEditModal = ({
 										}}
 										selectedValue={info?.selectedDuration?.label}
 										onChangeFunc={(e) => onChangeDuration(e)}
+										outerContainerStyle={{ width: '100%' }}
 									/>
 								</div>
 								<HeadersDropDownComp
@@ -495,6 +505,7 @@ const WorkflowCardEditModal = ({
 										top: '-295px',
 										maxHeight: '300px',
 									}}
+									outerContainerStyle={{ width: '100%' }}
 								/>
 							</div>
 							<div className="approvalContainer">
@@ -549,7 +560,7 @@ const WorkflowCardEditModal = ({
 				deleteWorkFlowStep={modifiedDeleteWorkflowStep}
 				deleteLoader={info?.deleteLoader}
 			/>
-		</ReactModal>
+		</Drawer>
 	);
 };
 
