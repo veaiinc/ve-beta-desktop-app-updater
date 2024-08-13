@@ -77,6 +77,8 @@ const initialState = {
 	workflowsDetailslist: null,
 	currentPage: 1,
 	hasNextPage: false,
+	selectedDuration: timeOptions?.[0],
+	selectedSortOptions: sortOptions?.[0],
 };
 const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, activeCardsData }) => {
 	const navigate = useNavigate();
