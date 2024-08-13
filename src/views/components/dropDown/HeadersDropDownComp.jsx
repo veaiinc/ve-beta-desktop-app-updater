@@ -54,13 +54,18 @@ const HeadersDropDownComp = ({
 		logoutFunc();
 	}, [logoutFunc]);
 
+	const handleOpen = useCallback(async () => {
+		setIsOpen(true);
+	}, []);
+
 	return (
 		<div className="dropdown" style={outerContainerStyle || {}}>
 			<div
 				className={`dropdown-header ${containerClassName}`}
 				style={{ ...(containerStyle || {}) }}
 				onClick={toggleDropdown}
-				onMouseOver={onMouseHoverFunc ? toggleDropdown : null}
+				onMouseOver={onMouseHoverFunc ? handleOpen : null}
+				onMouseLeave={onMouseHoverFunc ? handleClose : null}
 			>
 				{showIcon ? (
 					activeImage ? (
@@ -86,8 +91,17 @@ const HeadersDropDownComp = ({
 			</div>
 			{isOpen ? (
 				<>
-					<div className="dropdown-overlay" onClick={handleClose}></div>
-					<div className="dropdown-menu" style={dropDownStyle || {}}>
+					{!onMouseHoverFunc ? (
+						<div className="dropdown-overlay" onClick={handleClose}></div>
+					) : (
+						''
+					)}
+					<div
+						className="dropdown-menu"
+						style={dropDownStyle || {}}
+						onMouseOver={onMouseHoverFunc ? handleOpen : null}
+						onMouseLeave={onMouseHoverFunc ? handleClose : null}
+					>
 						{options.map((option, index) => (
 							<div
 								key={index}

@@ -160,7 +160,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 					}}
 					dropDownStyle={{
 						right: 0,
-						top: '50px',
+						top: '40px',
 						left: 'unset',
 						width: 'auto',
 						height: 'auto',
