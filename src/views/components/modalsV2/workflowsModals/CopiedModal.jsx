@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo } from 'react';
 import '../../../../assets/scss/sales/copyModal.scss';
 import ReactModal from '../../modalsV2/index';
 import { ReactComponent as Circled } from '../../../../assets/svg/workflow/circled.svg';

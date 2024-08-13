@@ -35,6 +35,7 @@ export const getTemmplatesQuery = gql`
 				formResponses
 				filesSent
 				slug
+				actionRequired
 			}
 		}
 	}
@@ -254,6 +255,7 @@ export const getWorkflowListQuery = gql`
 				slug
 				modules
 				formResponse
+				requiredAction
 			}
 		}
 	}

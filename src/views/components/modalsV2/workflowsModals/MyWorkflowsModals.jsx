@@ -3,6 +3,7 @@ import '../../../../assets/scss/sales/myWorkflowModals.scss';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import { ReactComponent as Search } from '../../../../assets/svg/workflow/search.svg';
 import { ReactComponent as Tick } from '../../../../assets/svg/workflow/Tick.svg';
+import { ReactComponent as RightArrow } from '../../../../assets/svg/worflow_builder/rightColoredArrow.svg';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
@@ -195,40 +196,44 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 								}}
 								// onChangeFunc={(e) => onChangeEmailTemplates(e)}
 							/>
-							<HeadersDropDownComp
-								showIcon={false}
-								options={stageOptions}
-								containerStyle={{
-									padding: '12px 24px',
-									height: ' 26px',
-									padding: '4px 8px',
-									color: '#E4E5E6',
-									width: 'inherit',
-									flex: 1,
-									alignSelf: 'stretch',
-									borderRadius: '100px',
-									background: 'rgba(36, 36, 36, 0.64)',
-								}}
-								dropDownStyle={{
-									right: 0,
-									top: '35px',
-									maxHeight: '300px',
-									width: '190px',
-								}}
-								selectedValue={'Stage'}
-								selectedValueStyle={{
-									overflow: 'hidden',
-									color: '#E4E5E6',
-									textOverflow: 'ellipsis',
-									fontFamily: 'Inter',
-									fontSize: '12px',
-									fontStyle: 'normal',
-									fontWeight: '400',
-									lineHeight: '14px' /* 116.667% */,
-									letterSpacing: '-0.24px',
-								}}
-								// onChangeFunc={(e) => onChangeEmailTemplates(e)}
-							/>
+							{activeCardsData?.type !== 'statstCards' ? (
+								<HeadersDropDownComp
+									showIcon={false}
+									options={stageOptions}
+									containerStyle={{
+										padding: '12px 24px',
+										height: ' 26px',
+										padding: '4px 8px',
+										color: '#E4E5E6',
+										width: 'inherit',
+										flex: 1,
+										alignSelf: 'stretch',
+										borderRadius: '100px',
+										background: 'rgba(36, 36, 36, 0.64)',
+									}}
+									dropDownStyle={{
+										right: 0,
+										top: '35px',
+										maxHeight: '300px',
+										width: '190px',
+									}}
+									selectedValue={'Stage'}
+									selectedValueStyle={{
+										overflow: 'hidden',
+										color: '#E4E5E6',
+										textOverflow: 'ellipsis',
+										fontFamily: 'Inter',
+										fontSize: '12px',
+										fontStyle: 'normal',
+										fontWeight: '400',
+										lineHeight: '14px' /* 116.667% */,
+										letterSpacing: '-0.24px',
+									}}
+									// onChangeFunc={(e) => onChangeEmailTemplates(e)}
+								/>
+							) : (
+								''
+							)}
 							<HeadersDropDownComp
 								showIcon={false}
 								options={sortOptions}
@@ -305,12 +310,21 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 											<span className="subLabelStyling">
 												{item?.clientDetails?.email || ''}
 											</span>
-											<div className="symbolContainer">
-												<span className="subLabelStyling">
-													{item?.status}
-												</span>
-												<Tick />
-											</div>
+											{activeCardsData?.status === 'actionRequired' ? (
+												<div className="actionRequiredCard">
+													<span className="requiredActionStatus">
+														{item?.requiredAction?.action}
+													</span>
+													<RightArrow />
+												</div>
+											) : (
+												<div className="symbolContainer">
+													<span className="subLabelStyling">
+														{item?.status}
+													</span>
+													<Tick />
+												</div>
+											)}
 										</div>
 									</div>
 								))

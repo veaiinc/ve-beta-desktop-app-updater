@@ -8,6 +8,7 @@ import Context from '../../../context/context';
 import { useLocation, useNavigate } from 'react-router-dom';
 import WorkflowPreviewModal from '../../components/modalsV2/workflowBuilderModals/WorkflowPreviewModal';
 import Spinner from '../../components/loaders/Spinner';
+import RenameWorkflow from '../../components/modalsV2/workflowBuilderModals/RenameWorkflow';
 const WorkflowBuilder = () => {
 	const {
 		templates: {
@@ -32,6 +33,7 @@ const WorkflowBuilder = () => {
 		incomingTemplateData: location?.state?.data,
 		previewModal: false,
 		publishLoading: false,
+		renameModal: false,
 	});
 
 	useEffect(() => {
@@ -185,6 +187,17 @@ const WorkflowBuilder = () => {
 		getTemplatesListForCreateLead();
 	}, []);
 
+	//incomplete
+	const openRenameModal = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, renameModal: true }));
+	}, []);
+
+	const closeRenameModal = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, renameModal: false }));
+	}, []);
+
+	const renameWorkflowNameFunc = useCallback(async () => {}, []);
+
 	return (
 		<div className="workflowBuilderContainer">
 			{/* header */}
@@ -254,6 +267,7 @@ const WorkflowBuilder = () => {
 					closeModal={closePreviewModal}
 					incomingTemplateData={info?.incomingTemplateData}
 				/>
+				<RenameWorkflow open={info?.renameModal} closeModal={closeRenameModal} />
 			</div>
 		</div>
 	);

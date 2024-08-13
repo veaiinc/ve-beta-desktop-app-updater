@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import '../../../../assets/scss/sales/globalWorkflowModal.scss';
 import { ReactComponent as EditSvg } from '../../../../assets/svg/worflow_builder/edit.svg';
 import { Drawer } from 'antd';
 const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData }) => {
+	const [info, setInfo] = useState({
+		templatesMapper: null,
+	});
+
+	useEffect(() => {
+		if (incomingTemplateData) {
+			const { templates } = incomingTemplateData || {};
+			let obj = {};
+			for (let i = 0; i < templates?.length; i++) {
+				obj[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
+			}
+			setInfo((prev) => ({ ...prev, templatesMapper: obj }));
+		}
+	}, [incomingTemplateData]);
+
 	return (
 		<Drawer
 			onClose={closeModal}
@@ -54,8 +69,7 @@ const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData })
 									<div className="coverImage">
 										<div
 											dangerouslySetInnerHTML={{
-												__html: incomingTemplateData?.templates?.[index]
-													?.parsedHtmlContent,
+												__html: info?.templatesMapper?.[e?._id],
 											}}
 											style={{ width: '100%' }}
 										/>

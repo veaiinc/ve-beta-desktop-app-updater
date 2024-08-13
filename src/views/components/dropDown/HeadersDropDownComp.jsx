@@ -35,7 +35,6 @@ const HeadersDropDownComp = ({
 	selectedValueStyle,
 	showArrow = true,
 	containerClassName = '',
-	activeHeaderStyling = {},
 }) => {
 	const logoutFunc = useLogout();
 	const [isOpen, setIsOpen] = useState(false);

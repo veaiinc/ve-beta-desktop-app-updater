@@ -12,40 +12,52 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 				headerText: 'Enquiry',
 				subText: data?.workflowStats?.enquiry || 0,
 				status: 'enquiry',
+				type: 'statstCards',
 			},
 			{
 				headerText: 'Smart File sent',
 				subText: data?.workflowStats?.filesSent || 0,
 				status: 'filesSent',
+				type: 'statstCards',
 			},
 			{
 				headerText: 'Smart Files Viewed',
 				subText: data?.workflowStats?.filesViewed || 0,
 				status: 'fileViewed',
+				type: 'statstCards',
 			},
 			{
 				headerText: 'Contract	Signed',
 				subText: data?.workflowStats?.contractSigned || 0,
 				status: 'contractSigned',
+				type: 'statstCards',
 			},
 			{
 				headerText: 'Booking Confirmed',
 				subText: data?.workflowStats?.confirmed || 0,
 				status: 'confirmed',
+				type: 'statstCards',
 			},
 			// { headerText: 'Proposal Expired', subText: '290', status: '' },
 		],
 		actionCards: [
-			// { headerText: 'Actions Required', subText: '15', status: 'enquiry' },
+			{
+				headerText: 'Actions Required',
+				subText: data?.actionRequired || 0,
+				status: 'actionRequired',
+				type: 'actionCards',
+			},
 			{
 				headerText: 'All Enquires',
 				subText: data?.formResponses || 0,
 				status: 'allenquiries',
+				type: 'actionCards',
 			},
 			{
 				headerText: 'Smart File sent',
 				subText: data?.filesSent || 0,
 				status: 'allfilessent',
+				type: 'actionCards',
 			},
 			// { headerText: 'Expired', subText: '290', status: 'enquiry' },
 			{
@@ -57,6 +69,7 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 						  ) + '%'
 						: '0 %',
 				status: 'successRate',
+				type: 'actionCards',
 			},
 		],
 		showCopyModalButton: false,

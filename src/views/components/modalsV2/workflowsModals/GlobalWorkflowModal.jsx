@@ -11,6 +11,7 @@ import { Drawer } from 'antd';
 const initialState = {
 	activeTab: 'design', //design,automation
 	duplicateApiLoading: false,
+	templatesMapper: null,
 };
 
 const EntryPointCard = () => {
@@ -124,6 +125,18 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 	} = useContext(Context);
 	const [info, setInfo] = useState(initialState);
 
+	useEffect(() => {
+		if (activeTemplateData) {
+			const { templates } = activeTemplateData || {};
+			let obj = {};
+			for (let i = 0; i < templates?.length; i++) {
+				obj[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
+			}
+			setInfo((prev) => ({ ...prev, templatesMapper: obj }));
+		}
+	}, [activeTemplateData]);
+
+	//function defination
 	const changeActiveTab = useCallback(
 		(item) => {
 			if (item === info?.activeTab) {
@@ -229,8 +242,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 										<div className="coverImage">
 											<div
 												dangerouslySetInnerHTML={{
-													__html: activeTemplateData?.templates?.[index]
-														?.parsedHtmlContent,
+													__html: info?.templatesMapper?.[e?._id],
 												}}
 												style={{ width: '100%' }}
 											/>

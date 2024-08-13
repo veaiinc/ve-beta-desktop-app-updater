@@ -217,6 +217,39 @@
 	border: 1px rgba(63, 63, 63, 0.64);
 	background: #333;
 }
+
+.actionRequiredCardContainer {
+	display: flex;
+	width: 130px;
+	height: 66px;
+	padding: 8px var(--Spacing-space-8, 16px);
+	justify-content: space-between;
+	align-items: center;
+	flex-shrink: 0;
+	border-radius: 16px;
+	background: rgba(174, 160, 82, 0.14);
+	cursor: pointer;
+
+	.headerStyling {
+		color: rgba(174, 160, 82, 0.8);
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 14px;
+		letter-spacing: 0.24px;
+		text-transform: capitalize;
+	}
+
+	.textStyling {
+		color: rgba(174, 160, 82, 0.8);
+		font-family: Inter;
+		font-size: 24px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 26px; /* 108.333% */
+	}
+}
 .statsCardParentCotnainer {
 	display: flex;
 	width: 130px;
