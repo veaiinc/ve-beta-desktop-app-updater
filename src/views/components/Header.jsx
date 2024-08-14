@@ -7,7 +7,11 @@ import SwitchWorkspaceModal from './modalsV2/switchWorkspaceModal';
 import Context from '../../context/context';
 import CreateLeadModal from './modalsV2/proposalModals/CreateLeadModal';
 
-const newBtnActions = [{ label: 'Lead' }, { label: 'Smart File' }, { label: 'Workflow' }];
+const newBtnActions = [
+	{ label: 'Lead' },
+	// { label: 'Smart File' },
+	{ label: 'Workflow' },
+];
 
 const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 	const {
@@ -145,8 +149,9 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 					outerContainerStyle={{ width: 'auto' }}
 					showArrow={false}
 					containerClassName="newHeaderBtn"
-					activeHeaderStyling={{ backgroundColor: '#6055EC' }}
 					onChangeFunc={(e) => optionChangeForNewBtn(e)}
+					hoverHeaderContainerStyling={{ backgroundColor: '#6055EC', color: '#fff' }}
+					hoverSelectedTextStyling={{ color: '#fff' }}
 				/>
 
 				<HeadersDropDownComp

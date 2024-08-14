@@ -12,6 +12,7 @@ import Spinner from '../../components/loaders/Spinner';
 import RenameWorkflow from '../../components/modalsV2/workflowBuilderModals/RenameWorkflow';
 import HeadersDropDownComp from '../../components/dropDown/HeadersDropDownComp';
 import DuplicateIndicatorModal from '../../components/modalsV2/workflowBuilderModals/DuplicateIndicatorModal';
+import ExitWithoutPublishingModal from '../../components/modalsV2/workflowBuilderModals/ExitWithoutPublishingModal';
 
 const options = [
 	{ label: 'Rename Workflow' },
@@ -46,6 +47,7 @@ const WorkflowBuilder = () => {
 		publishLoading: false,
 		renameModal: false,
 		duplicateWorkflowModal: false,
+		exitModal: false,
 	});
 
 	useEffect(() => {
@@ -266,7 +268,7 @@ const WorkflowBuilder = () => {
 							alignItems: 'center',
 							cursor: 'pointer',
 						}}
-						onClick={() => navigate(-1)}
+						onClick={() => setInfo((prev) => ({ ...prev, exitModal: true }))}
 					>
 						<BackArrow />
 					</span>
@@ -350,10 +352,14 @@ const WorkflowBuilder = () => {
 					title={info?.incomingTemplateData?.title}
 					renameWorkflowNameFunc={renameWorkflowNameFunc}
 				/>
-				<DuplicateIndicatorModal
+				<ExitWithoutPublishingModal
+					closeModal={() => setInfo((prev) => ({ ...prev, exitModal: false }))}
+					open={info?.exitModal}
+				/>
+				{/* <DuplicateIndicatorModal
 					open={info?.duplicateWorkflowModal}
 					closeModal={closeDuplicateWorkflowModal}
-				/>
+				/> */}
 			</div>
 		</div>
 	);

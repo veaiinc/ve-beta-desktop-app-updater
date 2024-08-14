@@ -9,8 +9,8 @@ const options = [
 	{ label: 'Resend File' },
 	{ label: 'Send Email' },
 	{ label: 'Move Stage' },
-	{ label: 'Delete File' },
-	{ label: 'Delete Lead' },
+	// { label: 'Delete File' },
+	// { label: 'Delete Lead' },
 ];
 
 const SmartFileHeader = ({
