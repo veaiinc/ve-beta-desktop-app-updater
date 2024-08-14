@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/workflowBuilder/workflowbuilder.scss';
 import { ReactComponent as BackArrow } from '../../../assets/svg/worflow_builder/BackArrow.svg';
+import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
 import WorkflowBuilderCards from '../../components/workflowBuilderComponents/WorkflowBuilderCards';
 import WorkflowConnector from '../../components/workflowBuilderComponents/WorkflowConnector';
 import WorkflowCardEditModal from '../../components/modalsV2/workflowBuilderModals/WorkflowCardEditModal';
@@ -9,6 +10,15 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import WorkflowPreviewModal from '../../components/modalsV2/workflowBuilderModals/WorkflowPreviewModal';
 import Spinner from '../../components/loaders/Spinner';
 import RenameWorkflow from '../../components/modalsV2/workflowBuilderModals/RenameWorkflow';
+import HeadersDropDownComp from '../../components/dropDown/HeadersDropDownComp';
+import DuplicateIndicatorModal from '../../components/modalsV2/workflowBuilderModals/DuplicateIndicatorModal';
+
+const options = [
+	{ label: 'Rename Workflow' },
+	{ label: 'Duplicate Workflow' },
+	// { label: 'Delete Worklfow' },
+];
+
 const WorkflowBuilder = () => {
 	const {
 		templates: {
@@ -17,6 +27,7 @@ const WorkflowBuilder = () => {
 			updateStateValues,
 			getMyWorkflows,
 			getTemplatesListForCreateLead,
+			duplicateGlobalWorkflowTemplate,
 		},
 	} = useContext(Context);
 
@@ -34,6 +45,7 @@ const WorkflowBuilder = () => {
 		previewModal: false,
 		publishLoading: false,
 		renameModal: false,
+		duplicateWorkflowModal: false,
 	});
 
 	useEffect(() => {
@@ -187,16 +199,60 @@ const WorkflowBuilder = () => {
 		getTemplatesListForCreateLead();
 	}, []);
 
-	//incomplete
-	const openRenameModal = useCallback(async () => {
-		setInfo((prev) => ({ ...prev, renameModal: true }));
-	}, []);
-
 	const closeRenameModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, renameModal: false }));
 	}, []);
 
-	const renameWorkflowNameFunc = useCallback(async () => {}, []);
+	const renameWorkflowNameFunc = useCallback(
+		async (data) => {
+			if (!info?.incomingTemplateData) {
+				return;
+			}
+			const updatedIncomingTemplateData = { ...info?.incomingTemplateData };
+			updatedIncomingTemplateData.title = data;
+			setInfo((prev) => ({ ...prev, incomingTemplateData: updatedIncomingTemplateData }));
+
+			const payload = {
+				templateId: info?.incomingTemplateData?._id,
+				updateObj: {
+					title: data,
+				},
+			};
+			addEmailTriggersInWorkflow(payload);
+		},
+		[info?.incomingTemplateData],
+	);
+
+	const onOptionChangeFunc = useCallback(async (data) => {
+		if (data?.label === 'Rename Workflow') {
+			setInfo((prev) => ({ ...prev, renameModal: true }));
+			return;
+		}
+		if (data?.label === 'Duplicate Workflow') {
+			setInfo((prev) => ({ ...prev, duplicateWorkflowModal: true }));
+			return;
+		}
+		// if (data?.label === 'Delete Worklfow') {
+		// 	return;
+		// }
+	}, []);
+
+	const closeDuplicateWorkflowModal = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, duplicateWorkflowModal: false }));
+	}, []);
+
+	//keep it on hold
+
+	// const duplicateWorkflowFunc = useCallback(async () => {
+	// 	if (!info?.incomingTemplateData) {
+	// 		return;
+	// 	}
+	// 	const payload = {
+	// 		templateId: info?.incomingTemplateData?._id,
+	// 		title: info?.incomingTemplateData?.title,
+	// 	};
+	// 	const response = await duplicateGlobalWorkflowTemplate(payload);
+	// }, [info?.incomingTemplateData]);
 
 	return (
 		<div className="workflowBuilderContainer">
@@ -215,14 +271,35 @@ const WorkflowBuilder = () => {
 						<BackArrow />
 					</span>
 
-					<span className="builderHeaderText">Run your Studio Like Made in Heaven</span>
-					<div className="draftBtn">Draft</div>
+					<span className="builderHeaderText">{info?.incomingTemplateData?.title}</span>
+					<div className="draftBtn">{info?.incomingTemplateData?.status}</div>
 				</div>
 				<div className="discardSaveBtnGrp">
 					<div className="saveChangesbtn" onClick={publishWorkflow}>
 						{info?.publishLoading ? <Spinner width={'16px'} height={'16px'} /> : ''}
 						{info?.publishLoading ? 'Publishing...' : 'Publish'}
 					</div>
+					<HeadersDropDownComp
+						showIcon={false}
+						options={options}
+						containerStyle={{
+							padding: '4px 8px',
+							borderRadius: '100px',
+							border: '1px solid rgba(36, 36, 36, 0.64)',
+							background: 'rgba(42, 42, 42, 0.32)',
+							width: '8px',
+						}}
+						dropDownStyle={{
+							right: 0,
+							left: 'unset',
+							top: '45px',
+							maxHeight: '300px',
+							width: '200px',
+						}}
+						showArrow={false}
+						selectedValue={<ThreeDots />}
+						onChangeFunc={(e) => onOptionChangeFunc(e)}
+					/>
 				</div>
 			</div>
 			<div className="workflowBuilderContentContainer">
@@ -267,7 +344,16 @@ const WorkflowBuilder = () => {
 					closeModal={closePreviewModal}
 					incomingTemplateData={info?.incomingTemplateData}
 				/>
-				<RenameWorkflow open={info?.renameModal} closeModal={closeRenameModal} />
+				<RenameWorkflow
+					open={info?.renameModal}
+					closeModal={closeRenameModal}
+					title={info?.incomingTemplateData?.title}
+					renameWorkflowNameFunc={renameWorkflowNameFunc}
+				/>
+				<DuplicateIndicatorModal
+					open={info?.duplicateWorkflowModal}
+					closeModal={closeDuplicateWorkflowModal}
+				/>
 			</div>
 		</div>
 	);

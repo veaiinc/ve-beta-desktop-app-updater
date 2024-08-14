@@ -1,7 +1,7 @@
 .renameWorkflowModalParentContainer {
 	display: flex;
 	width: 480px;
-	height: 274px;
+	height: 284px;
 	padding: 40px;
 	flex-direction: column;
 	align-items: flex-start;
@@ -61,6 +61,23 @@
 			border-radius: 10px;
 			border: 1px solid rgba(36, 36, 36, 0.64);
 			background-color: transparent;
+			color: rgba(228, 229, 230, 0.8);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 26px; /* 185.714% */
+		}
+		.errorMessage {
+			overflow: hidden;
+			color: rgba(204, 87, 86, 0.8);
+			text-overflow: ellipsis;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 16px; /* 114.286% */
+			letter-spacing: -0.3px;
 		}
 	}
 	.actionBtnContainer {
@@ -75,8 +92,7 @@
 			align-items: center;
 			gap: 16px;
 			border-radius: 100px;
-			border: 1px solid rgba(36, 36, 36, 0.64);
-			background: rgba(42, 42, 42, 0.16);
+			background-color: #6055ec;
 			color: #e4e5e6;
 			font-family: Inter;
 			font-size: 13px;
@@ -84,6 +100,7 @@
 			font-weight: 500;
 			line-height: 16px; /* 123.077% */
 			letter-spacing: 0.26px;
+			cursor: pointer;
 		}
 
 		.cancelBtn {
@@ -95,7 +112,6 @@
 			line-height: 16px; /* 123.077% */
 			letter-spacing: 0.26px;
 			padding: 24px;
-
 			cursor: pointer;
 		}
 	}

@@ -10,7 +10,6 @@ import AcceptedStageSmartFileBlocks from '../../../components/smartFileComponets
 const File = ({ templateData, workflowData, userSigned, edit }) => {
 	let {
 		templates: {
-			getSmartFileData,
 			smartFileInfo,
 			updateProposal,
 			updateContracts,
@@ -33,14 +32,16 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		loading: true,
 		timeout: null,
 		smartFileStatus: '',
-		// edit: true,
+		templatesMapper: null,
 	});
 
 	//useEffects
 	useEffect(() => {
 		if (smartFileInfo) {
 			const { modules } = smartFileInfo;
+
 			let updatedModules = modules?.map((ele, index) => ele?.type) || [];
+
 			let variablesData = {},
 				paymentScheduleData = {},
 				eventsTableData = {},
@@ -77,10 +78,12 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					}
 				}
 
-				let variables = activeVersionData?.variables?.map((ele) => ({
-					...ele,
-					moduleType: updatedModules?.[i],
-				}));
+				let variables = activeVersionData?.variables?.filter((ele) => {
+					if (ele?.type !== 'workspace') {
+						ele['moduleType'] = updatedModules?.[i];
+						return ele;
+					}
+				});
 
 				let eventsTable = [];
 				let servicesTable = [];
@@ -123,6 +126,17 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			}));
 		}
 	}, [smartFileInfo]);
+
+	useEffect(() => {
+		if (templateData) {
+			let templatesMapper = {};
+			const { templates } = templateData || {};
+			for (let i = 0; i < templates?.length; i++) {
+				templatesMapper[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
+			}
+			setInfo((prev) => ({ ...prev, templatesMapper }));
+		}
+	}, [templateData]);
 
 	//function defination
 
@@ -374,12 +388,12 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 	return (
 		<div className="fileParentContainer">
 			<div className="previewContainer">
-				{templateData?.templates?.map((ele, index) => (
+				{templateData?.moduleTemplates?.map((ele, index) => (
 					<div className="imageContainer" key={index}>
 						<div className="coverImage">
 							<div
 								dangerouslySetInnerHTML={{
-									__html: ele?.parsedHtmlContent,
+									__html: info?.templatesMapper?.[ele?._id],
 								}}
 								style={{ width: '100%' }}
 							/>

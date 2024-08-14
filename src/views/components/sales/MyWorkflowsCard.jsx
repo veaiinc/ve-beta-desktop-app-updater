@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/MyWorkflowsCard.scss';
 import ActionCards from './ActionCards';
 import StatsCard from './StatsCard';
@@ -72,21 +72,128 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 				type: 'actionCards',
 			},
 		],
+		statstCards: [
+			{
+				headerText: 'Enquiry',
+				subText: data?.workflowStats?.enquiry || 0,
+				status: 'enquiry',
+				type: 'statstCards',
+			},
+			{
+				headerText: 'Smart File sent',
+				subText: data?.workflowStats?.filesSent || 0,
+				status: 'filesSent',
+				type: 'statstCards',
+			},
+			{
+				headerText: 'Smart Files Viewed',
+				subText: data?.workflowStats?.filesViewed || 0,
+				status: 'filesViewed',
+				type: 'statstCards',
+			},
+			{
+				headerText: 'Contract Signed',
+				subText: data?.workflowStats?.contractSigned || 0,
+				status: 'contractSigned',
+				type: 'statstCards',
+			},
+			{
+				headerText: 'Booking Confirmed',
+				subText: data?.workflowStats?.confirmed || 0,
+				status: 'confirmed',
+				type: 'statstCards',
+			},
+			// { headerText: 'Proposal Expired', subText: '290', status: '' },
+		],
 		showCopyModalButton: false,
 	});
 
+	//useEFFects
 	useEffect(() => {
 		if (data) {
-			const { moduleTemplates } = data;
-			let isPublic = false;
-			for (let i = 0; i < moduleTemplates.length; i++) {
-				if (moduleTemplates?.[i]?.isPublic) {
-					isPublic = true;
-					break;
-				}
-			}
-			setInfo((prev) => ({ ...prev, showCopyModalButton: isPublic }));
+			handleIncomingData();
 		}
+	}, [data]);
+
+	//functions definations
+	const handleIncomingData = useCallback(async () => {
+		const { moduleTemplates } = data;
+		let isPublic = false;
+		for (let i = 0; i < moduleTemplates.length; i++) {
+			if (moduleTemplates?.[i]?.isPublic) {
+				isPublic = true;
+				break;
+			}
+		}
+		setInfo((prev) => ({
+			...prev,
+			showCopyModalButton: isPublic,
+			actionCards: [
+				{
+					headerText: 'Actions Required',
+					subText: data?.actionRequired || 0,
+					status: 'actionRequired',
+					type: 'actionCards',
+				},
+				{
+					headerText: 'All Enquires',
+					subText: data?.formResponses || 0,
+					status: 'allenquiries',
+					type: 'actionCards',
+				},
+				{
+					headerText: 'Smart File sent',
+					subText: data?.filesSent || 0,
+					status: 'allfilessent',
+					type: 'actionCards',
+				},
+				// { headerText: 'Expired', subText: '290', status: 'enquiry' },
+				{
+					headerText: 'Success Rate',
+					subText:
+						data?.filesSent && data?.filesSent > 0
+							? Math.floor(
+									((data?.workflowStats?.confirmed || 0) * 100) / data?.filesSent,
+							  ) + '%'
+							: '0 %',
+					status: 'successRate',
+					type: 'actionCards',
+				},
+			],
+			statstCards: [
+				{
+					headerText: 'Enquiry',
+					subText: data?.workflowStats?.enquiry || 0,
+					status: 'enquiry',
+					type: 'statstCards',
+				},
+				{
+					headerText: 'Smart File sent',
+					subText: data?.workflowStats?.filesSent || 0,
+					status: 'filesSent',
+					type: 'statstCards',
+				},
+				{
+					headerText: 'Smart Files Viewed',
+					subText: data?.workflowStats?.filesViewed || 0,
+					status: 'filesViewed',
+					type: 'statstCards',
+				},
+				{
+					headerText: 'Contract Signed',
+					subText: data?.workflowStats?.contractSigned || 0,
+					status: 'contractSigned',
+					type: 'statstCards',
+				},
+				{
+					headerText: 'Booking Confirmed',
+					subText: data?.workflowStats?.confirmed || 0,
+					status: 'confirmed',
+					type: 'statstCards',
+				},
+				// { headerText: 'Proposal Expired', subText: '290', status: '' },
+			],
+		}));
 	}, [data]);
 
 	return (

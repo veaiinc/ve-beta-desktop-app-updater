@@ -152,7 +152,13 @@ const Sales = () => {
 	}, []);
 
 	const openCopyLinkModal = useCallback(async (data) => {
-		setInfo((prev) => ({ ...prev, copyModal: true, activeTemplateData: data }));
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			await navigator.clipboard.writeText(`https://${workspaceId}.ve.co/${data?.slug}`);
+			setInfo((prev) => ({ ...prev, copyModal: true, activeTemplateData: data }));
+		} catch (err) {
+			console.log('Failed to copy text');
+		}
 	}, []);
 
 	const closeCopyLinkModal = useCallback(async () => {

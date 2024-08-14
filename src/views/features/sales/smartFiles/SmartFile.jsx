@@ -119,6 +119,8 @@ const SmartFile = () => {
 	}, [info?.sendSmartFileModal]);
 
 	const acceptProposalFunc = useCallback(async () => {
+		//accept the proposal and also update workflow status
+
 		const proposalId = info?.workflowData?.modules?.filter((item) => item?.type === 'proposal');
 		const payload = {
 			workflowId: info?.workflowData?._id,
@@ -128,6 +130,14 @@ const SmartFile = () => {
 			},
 		};
 		const response = await updateProposal(payload);
+		const payloadForConfirming = {
+			updateWorkflowStatusId: info?.workflowData?._id,
+			workflowInput: {
+				status: 'confirmed',
+			},
+		};
+		moveWorkflowStatus(payloadForConfirming);
+
 		if (response?.[0]) {
 			setInfo((prev) => ({ ...prev, workflowStatus: 'proposalAccepted' }));
 			return [true];
@@ -242,6 +252,7 @@ const SmartFile = () => {
 				openCopyModal={openCopyModal}
 				changelocalWorflowStatus={changelocalWorflowStatus}
 				workflowStatus={smartFileInfo?.status}
+				changeEditStatus={changeEditStatus}
 			/>
 			<CopiedModal
 				open={info?.copyModal}

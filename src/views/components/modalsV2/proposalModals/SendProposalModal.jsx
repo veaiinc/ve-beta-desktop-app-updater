@@ -12,6 +12,7 @@ const SendProposalModal = ({
 	openCopyModal,
 	changelocalWorflowStatus,
 	workflowStatus,
+	changeEditStatus,
 }) => {
 	const {
 		templates: { sendSmartFile, chnageWorkflowStats },
@@ -82,6 +83,7 @@ const SendProposalModal = ({
 					fileSentStatusId: workflowId,
 				});
 				changelocalWorflowStatus('filesSent');
+				changeEditStatus(false);
 			}
 		} catch (err) {
 			console.log('Failed to copy text');
@@ -101,6 +103,7 @@ const SendProposalModal = ({
 				fileSentStatusId: workflowId,
 			});
 			changelocalWorflowStatus('filesSent');
+			changeEditStatus(false);
 		}
 	}, [clientDetails, workflowId, workflowStatus]);
 
