@@ -22,11 +22,12 @@ const SmartFile = () => {
 			updateContracts,
 			getSignedUrlForContracts,
 			moveWorkflowStatus,
+			updateStateValues,
 		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		activeTab: 'form', //form,file
+		activeTab: 'file', //form,file
 		incomingData: location?.state?.data,
 		workflowId: location?.state?.workflowId,
 		sendSmartFileModal: false,
@@ -42,7 +43,11 @@ const SmartFile = () => {
 	//useEffect
 	useEffect(() => {
 		getSmartFileInfo();
+		return () => {
+			updateStateValues({ smartFileInfo: null });
+		};
 	}, []);
+
 	useEffect(() => {
 		if (info?.workflowData) {
 			getFormResponseData();

@@ -83,10 +83,16 @@ const initialState = {
 const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, activeCardsData }) => {
 	const navigate = useNavigate();
 	let {
-		templates: { getWorkflowsList, workflowslist, moreWorkList },
+		templates: { getWorkflowsList, workflowslist, moreWorkList, updateStateValues },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState(initialState);
+
+	useEffect(() => {
+		return () => {
+			updateStateValues({ workflowslist: null });
+		};
+	}, []);
 
 	useEffect(() => {
 		if (activeTemplateData && activeCardsData) {
