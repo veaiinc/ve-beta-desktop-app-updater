@@ -90,7 +90,7 @@
 	.imageContainer {
 		display: flex;
 		flex-direction: column;
-
+		border-radius: 20px;
 		.coverImage {
 			background-size: cover;
 			background-position: center;
@@ -104,6 +104,7 @@
 
 			.builder {
 				zoom: 0.1;
+				overflow-y: hidden;
 				div {
 					width: 100%;
 				}

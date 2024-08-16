@@ -8,6 +8,8 @@ import Workflow_builder from './views/features/workflow_builder';
 import Sales from './views/features/sales/Sales';
 import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
 import SmartFile from './views/features/sales/smartFiles/SmartFile';
+import WorkflowBuilderLayout from './views/layouts/workflowBuilderLayout';
+import SmartFileLayout from './views/layouts/smartFileLayout';
 
 const routes = [
 	{
@@ -94,18 +96,18 @@ const routes = [
 	{
 		path: '/workflow_builder',
 		component: (
-			<AuthWrapper title={'Workflow Builder'}>
+			<WorkflowBuilderLayout title={'Workflow Builder'}>
 				<Workflow_builder />
-			</AuthWrapper>
+			</WorkflowBuilderLayout>
 		),
 		exact: true,
 	},
 	{
 		path: '/smart-file',
 		component: (
-			<AuthWrapper title={'Smart File'}>
+			<SmartFileLayout title={'Smart File'}>
 				<SmartFile />
-			</AuthWrapper>
+			</SmartFileLayout>
 		),
 		exact: true,
 	},

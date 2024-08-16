@@ -13,7 +13,7 @@ import RenameWorkflow from '../../components/modalsV2/workflowBuilderModals/Rena
 import HeadersDropDownComp from '../../components/dropDown/HeadersDropDownComp';
 import DuplicateIndicatorModal from '../../components/modalsV2/workflowBuilderModals/DuplicateIndicatorModal';
 import ExitWithoutPublishingModal from '../../components/modalsV2/workflowBuilderModals/ExitWithoutPublishingModal';
-
+import { ReactComponent as VE } from '../../../assets/svg/smallVe.svg';
 const options = [
 	{ label: 'Rename Workflow' },
 	{ label: 'Duplicate Workflow' },
@@ -261,20 +261,28 @@ const WorkflowBuilder = () => {
 			{/* header */}
 			<div className="workflowBuilderHeader">
 				<div className="workflowBuilderNavigationContainer">
-					<span
-						style={{
-							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center',
-							cursor: 'pointer',
-						}}
-						onClick={() => setInfo((prev) => ({ ...prev, exitModal: true }))}
-					>
-						<BackArrow />
-					</span>
-
-					<span className="builderHeaderText">{info?.incomingTemplateData?.title}</span>
-					<div className="draftBtn">{info?.incomingTemplateData?.status}</div>
+					<div className="veIconHolder">
+						<VE />
+						<span
+							style={{
+								display: 'flex',
+								justifyContent: 'center',
+								alignItems: 'center',
+								cursor: 'pointer',
+							}}
+							onClick={() => setInfo((prev) => ({ ...prev, exitModal: true }))}
+						>
+							<BackArrow />
+						</span>
+					</div>
+					<div className="headerTextContainer">
+						<span className="builderHeaderText">
+							{info?.incomingTemplateData?.title}
+						</span>
+						<span className="headerSubText">
+							Customise your workflow as per your business process
+						</span>
+					</div>
 				</div>
 				<div className="discardSaveBtnGrp">
 					<div className="saveChangesbtn" onClick={publishWorkflow}>
@@ -304,6 +312,7 @@ const WorkflowBuilder = () => {
 					/>
 				</div>
 			</div>
+			<div className="workflowBuilderSeperator"></div>
 			<div className="workflowBuilderContentContainer">
 				{info?.data?.map((ele, index) => (
 					<div

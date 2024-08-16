@@ -88,6 +88,7 @@ const GetBusinessDetails = ({ errorStates, setLoading, setErrorState, isLoading 
 		},
 		{
 			label: 'Photographer',
+			value: 'photographer',
 		},
 		{
 			label: 'Fashion Designer',

@@ -10,22 +10,44 @@
 		flex: 1;
 		align-self: stretch;
 		justify-content: space-between;
-		padding: 8px 36px 24px 42px;
+		padding: 24px 36px 24px 42px;
 		max-height: 90px;
 		flex-shrink: 0;
+
 		.workflowBuilderNavigationContainer {
 			display: flex;
 			align-items: center;
-			gap: 13px;
+			gap: 24px;
 
-			.builderHeaderText {
-				color: #e4e5e6;
-				font-family: Inter;
-				font-size: 16px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 24px; /* 150% */
+			.veIconHolder {
+				display: flex;
+				align-items: center;
+				gap: 16px;
 			}
+
+			.headerTextContainer {
+				display: flex;
+				flex-direction: column;
+				align-self: stretch;
+				flex: 1;
+				.builderHeaderText {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 24px; /* 150% */
+				}
+				.headerSubText {
+					color: rgba(228, 229, 230, 0.48);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 18px; /* 150% */
+				}
+			}
+
 			.draftBtn {
 				display: flex;
 				padding: 5px 7px;
@@ -87,13 +109,23 @@
 			}
 		}
 	}
+	.workflowBuilderSeperator {
+		align-self: stretch;
+		height: var(--cartCount, 0.5px);
+		background: linear-gradient(
+			270deg,
+			rgba(255, 255, 255, 0) 0%,
+			rgba(255, 255, 255, 0.2) 51.5%,
+			rgba(255, 255, 255, 0) 100%
+		);
+	}
 	.workflowBuilderContentContainer {
-		flex: 1;
+		// flex: 1;
 		align-self: stretch;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		max-height: calc(100vh - 89px - 90px - 32px - 120px);
+		max-height: calc(100vh - 82px - 0.6px);
 		overflow-y: auto;
 		padding-top: 24px;
 		padding-bottom: 24px;
