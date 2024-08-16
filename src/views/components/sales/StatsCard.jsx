@@ -9,9 +9,12 @@ const StatsCard = ({ cardsData, onClickfunc }) => {
 					<span className="dotText">LIVE</span>
 				</div>
 			) : (
-				''
+				<span>{'  '}</span>
 			)}
-			<div className="contentContainer">
+			<div
+				className="contentContainer"
+				style={{ marginTop: cardsData?.status !== 'enquiry' ? '14px' : '' }}
+			>
 				<span className="titletextStyling">{cardsData?.subText}</span>
 				<span className="enquiryText">{cardsData?.headerText}</span>
 			</div>

@@ -70,6 +70,7 @@
 			transition: all 0.24s ease-out;
 			.builder {
 				zoom: 0.1;
+				overflow: hidden;
 				div {
 					width: 100%;
 				}

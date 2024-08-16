@@ -1,9 +1,33 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/globalWorkflowCard.scss';
 import { ReactComponent as Circled } from '../../../assets/svg/workflow/circled.svg';
 import { ReactComponent as RightArrow } from '../../../assets/svg/workflow/rightArrow.svg';
 
 const GlobalWorkflowCard = ({ data, onClickFunc }) => {
+	const [info, setInfo] = useState({
+		formParsedContentHtml: '',
+	});
+
+	useEffect(() => {
+		if (data) {
+			const { moduleTemplates, templates } = data;
+			let formData, formParsedContentHtml;
+			for (let i = 0; i < moduleTemplates.length; i++) {
+				if (moduleTemplates?.[i]?.module === 'form') {
+					formData = moduleTemplates?.[i];
+					break;
+				}
+			}
+			for (let i = 0; i < templates?.length; i++) {
+				if (templates?.[i]?._id === formData?._id) {
+					formParsedContentHtml = templates?.[i]?.parsedHtmlContent;
+					break;
+				}
+			}
+			setInfo((prev) => ({ ...prev, formParsedContentHtml }));
+		}
+	}, [data]);
+
 	return (
 		<div className="globalWorkflowCardContainer" onClick={() => onClickFunc(data)}>
 			<div className="labelContentWrapper">
@@ -34,7 +58,7 @@ const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 				<div className="coverImage">
 					<div
 						dangerouslySetInnerHTML={{
-							__html: data?.templates?.[0]?.parsedHtmlContent,
+							__html: info?.formParsedContentHtml,
 						}}
 						style={{ width: '100%', height: '100%' }}
 					/>

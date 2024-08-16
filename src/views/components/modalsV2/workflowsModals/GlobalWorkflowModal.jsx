@@ -12,13 +12,27 @@ const initialState = {
 	activeTab: 'design', //design,automation
 	duplicateApiLoading: false,
 	templatesMapper: null,
+	publicData: null,
+	privateData: null,
 };
 
-const EntryPointCard = () => {
+const EntryPointCard = ({ publicData }) => {
 	return (
-		<div className="startingPoint">
-			<span className="titleStyling">Workflow Start Point</span>
-			<span className="startingPointTitle">Enquiry form</span>
+		<div className="previewCard">
+			<div className="htmlContentViewer">
+				<div className="coverImage">
+					<div
+						dangerouslySetInnerHTML={{
+							__html: Object.values(publicData)?.[0]?.parsedHtmlContent,
+						}}
+						style={{ width: '100%' }}
+					/>
+				</div>
+			</div>
+			<div className="previewLabelContent">
+				<span className="titleStyling">Workflow Start Point</span>
+				<span className="startingPointTitle">Enquiry form</span>
+			</div>
 		</div>
 	);
 };
@@ -42,14 +56,14 @@ const OtherViewCard = () => {
 	);
 };
 
-const PreviewCard = ({ activeTemplateData }) => {
+const PreviewCard = ({ privateData }) => {
 	return (
 		<div className="previewCard">
 			<div className="htmlContentViewer">
 				<div className="coverImage">
 					<div
 						dangerouslySetInnerHTML={{
-							__html: activeTemplateData?.templates?.[0]?.parsedHtmlContent,
+							__html: Object.values(privateData)?.[0]?.parsedHtmlContent,
 						}}
 						style={{ width: '100%' }}
 					/>
@@ -66,12 +80,12 @@ const PreviewCard = ({ activeTemplateData }) => {
 	);
 };
 
-const AutomationComponent = ({ activeTemplateData }) => {
+const AutomationComponent = ({ activeTemplateData, publicData, privateData }) => {
 	const [data, setData] = useState({
 		stepsData: null,
 		componentmapper: {
 			theEnd: <EndPointViewCard />,
-			preview: <PreviewCard activeTemplateData={activeTemplateData} />,
+			preview: <PreviewCard privateData={privateData} />,
 		},
 	});
 
@@ -105,7 +119,7 @@ const AutomationComponent = ({ activeTemplateData }) => {
 					}}
 				>
 					{index === 0 ? (
-						<EntryPointCard />
+						<EntryPointCard publicData={publicData} />
 					) : data?.componentmapper?.[ele?.module] ? (
 						data?.componentmapper?.[ele?.module]
 					) : (
@@ -133,6 +147,36 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 				obj[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
 			}
 			setInfo((prev) => ({ ...prev, templatesMapper: obj }));
+		}
+	}, [activeTemplateData]);
+
+	useEffect(() => {
+		if (activeTemplateData) {
+			const { moduleTemplates, templates } = activeTemplateData;
+			let publicData = {};
+			let privateData = {};
+
+			for (let i = 0; i < moduleTemplates?.length; i++) {
+				if (moduleTemplates?.[i]?.isPublic) {
+					publicData[moduleTemplates?.[i]?._id] = {};
+				} else {
+					privateData[moduleTemplates?.[i]?._id] = {};
+				}
+			}
+
+			for (let i = 0; i < templates?.length; i++) {
+				if (publicData?.[templates?.[i]?._id]) {
+					publicData[templates?.[i]?._id] = {
+						parsedHtmlContent: templates?.[i]?.parsedHtmlContent,
+					};
+				}
+				if (privateData?.[templates?.[i]?._id]) {
+					privateData[templates?.[i]?._id] = {
+						parsedHtmlContent: templates?.[i]?.parsedHtmlContent,
+					};
+				}
+			}
+			setInfo((prev) => ({ ...prev, publicData, privateData }));
 		}
 	}, [activeTemplateData]);
 
@@ -256,7 +300,11 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 							))}
 						</div>
 					) : (
-						<AutomationComponent activeTemplateData={activeTemplateData} />
+						<AutomationComponent
+							activeTemplateData={activeTemplateData}
+							publicData={info?.publicData}
+							privateData={info?.privateData}
+						/>
 					)}
 				</div>
 			</div>

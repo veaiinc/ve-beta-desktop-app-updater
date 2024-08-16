@@ -82,6 +82,7 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 			// { headerText: 'Proposal Expired', subText: '290', status: '' },
 		],
 		showCopyModalButton: false,
+		formParsedContentHtml: '',
 	});
 
 	//useEFFects
@@ -93,14 +94,26 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 
 	//functions definations
 	const handleIncomingData = useCallback(async () => {
-		const { moduleTemplates } = data;
+		const { moduleTemplates, templates } = data;
 		let isPublic = false;
+		let formData;
+		let formParsedContentHtml = '';
+
 		for (let i = 0; i < moduleTemplates.length; i++) {
 			if (moduleTemplates?.[i]?.isPublic) {
 				isPublic = true;
-				break;
+			}
+			if (moduleTemplates?.[i]?.module === 'form') {
+				formData = moduleTemplates?.[i];
 			}
 		}
+
+		for (let i = 0; i < templates?.length; i++) {
+			if (templates?.[i]?._id === formData?._id) {
+				formParsedContentHtml = templates?.[i]?.parsedHtmlContent;
+			}
+		}
+
 		setInfo((prev) => ({
 			...prev,
 			showCopyModalButton: isPublic,
@@ -178,6 +191,7 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 				},
 				// { headerText: 'Proposal Expired', subText: '290', status: '' },
 			],
+			formParsedContentHtml,
 		}));
 	}, [data]);
 
@@ -201,7 +215,7 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 				<div className="coverImage">
 					<div
 						dangerouslySetInnerHTML={{
-							__html: data?.templates?.[0]?.parsedHtmlContent,
+							__html: info?.formParsedContentHtml,
 						}}
 						style={{ width: '100%', height: '100%' }}
 					/>

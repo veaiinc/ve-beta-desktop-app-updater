@@ -48,6 +48,8 @@ const WorkflowBuilder = () => {
 		renameModal: false,
 		duplicateWorkflowModal: false,
 		exitModal: false,
+		publicData: null,
+		privateData: null,
 	});
 
 	useEffect(() => {
@@ -65,6 +67,36 @@ const WorkflowBuilder = () => {
 			stepsData = [...stepsData, ...steps];
 			stepsData?.push({ module: 'theEnd' });
 			setInfo((prev) => ({ ...prev, data: stepsData }));
+		}
+	}, [location?.state?.data]);
+
+	useEffect(() => {
+		if (location?.state?.data) {
+			const { moduleTemplates, templates } = location?.state?.data;
+			let publicData = {};
+			let privateData = {};
+
+			for (let i = 0; i < moduleTemplates?.length; i++) {
+				if (moduleTemplates?.[i]?.isPublic) {
+					publicData[moduleTemplates?.[i]?._id] = {};
+				} else {
+					privateData[moduleTemplates?.[i]?._id] = {};
+				}
+			}
+
+			for (let i = 0; i < templates?.length; i++) {
+				if (publicData?.[templates?.[i]?._id]) {
+					publicData[templates?.[i]?._id] = {
+						parsedHtmlContent: templates?.[i]?.parsedHtmlContent,
+					};
+				}
+				if (privateData?.[templates?.[i]?._id]) {
+					privateData[templates?.[i]?._id] = {
+						parsedHtmlContent: templates?.[i]?.parsedHtmlContent,
+					};
+				}
+			}
+			setInfo((prev) => ({ ...prev, publicData, privateData }));
 		}
 	}, [location?.state?.data]);
 
@@ -230,10 +262,10 @@ const WorkflowBuilder = () => {
 			setInfo((prev) => ({ ...prev, renameModal: true }));
 			return;
 		}
-		if (data?.label === 'Duplicate Workflow') {
-			setInfo((prev) => ({ ...prev, duplicateWorkflowModal: true }));
-			return;
-		}
+		// if (data?.label === 'Duplicate Workflow') {
+		// 	setInfo((prev) => ({ ...prev, duplicateWorkflowModal: true }));
+		// 	return;
+		// }
 		// if (data?.label === 'Delete Worklfow') {
 		// 	return;
 		// }
@@ -330,6 +362,8 @@ const WorkflowBuilder = () => {
 							index={index}
 							templateData={info?.incomingTemplateData}
 							openPreviewModal={openPreviewModal}
+							publicData={info?.publicData}
+							privateData={info?.privateData}
 						/>
 						{index < info?.data?.length - 1 ? (
 							<WorkflowConnector alterData={alterData} index={index} />

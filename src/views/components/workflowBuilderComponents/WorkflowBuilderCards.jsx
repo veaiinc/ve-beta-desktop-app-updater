@@ -2,19 +2,27 @@ import React, { memo } from 'react';
 import '../../../assets/scss/workflowBuilder/workflowBuilderCard.scss';
 import { ReactComponent as EmailSvg } from '../../../assets/svg/worflow_builder/email.svg';
 
-const FirstWorkflowCard = ({ openModal, workflowdata, index }) => {
+const FirstWorkflowCard = ({ openModal, workflowdata, index, publicData }) => {
+	console.log(publicData);
 	return (
-		<div
-			className="FirstWorkflowCard cardContentContainer"
-			onClick={() => openModal(workflowdata, index)}
-		>
-			<div className="cardContentContainerheader">
-				<span className="cardContentContainerheaderSubTitle">Workflow Start Point</span>
-				<span className="cardContentContainerheaderTitle">{workflowdata?.module}</span>
+		<div className="previewCard">
+			<div className="htmlContentViewer">
+				<div className="coverImage">
+					<div
+						dangerouslySetInnerHTML={{
+							__html: Object.values(publicData)?.[0]?.parsedHtmlContent,
+						}}
+						style={{ width: '100%' }}
+					/>
+				</div>
 			</div>
-			<div className="actionContainer">
-				<div className="viewBtn">View</div>
-				<div className="editBtn">Edit Form</div>
+			<div className="previewLabelContent">
+				<span className="topLabelStyle">Workflow Start Point</span>
+				<span className="labelTitle">Enquiry Form</span>
+				<div className="actionContainer">
+					<div className="viewBtn">View</div>
+					<div className="editBtn">Edit Form</div>
+				</div>
 			</div>
 		</div>
 	);
@@ -44,14 +52,14 @@ const EndPointViewCard = () => {
 	);
 };
 
-const PreviewCard = ({ templateData, openPreviewModal }) => {
+const PreviewCard = ({ templateData, openPreviewModal, privateData }) => {
 	return (
 		<div className="previewCard" onClick={openPreviewModal}>
 			<div className="htmlContentViewer">
 				<div className="coverImage">
 					<div
 						dangerouslySetInnerHTML={{
-							__html: templateData?.templates?.[0]?.parsedHtmlContent,
+							__html: Object.values(privateData)?.[0]?.parsedHtmlContent,
 						}}
 						style={{ width: '100%' }}
 					/>
@@ -74,11 +82,19 @@ const WorkflowBuilderCards = ({
 	openModal,
 	openPreviewModal,
 	index,
+	publicData,
+	privateData,
 }) => {
 	const mapper = {
 		email: <EmailCards openModal={openModal} workflowdata={workflowdata} index={index} />,
 		theEnd: <EndPointViewCard />,
-		preview: <PreviewCard templateData={templateData} openPreviewModal={openPreviewModal} />,
+		preview: (
+			<PreviewCard
+				templateData={templateData}
+				openPreviewModal={openPreviewModal}
+				privateData={privateData}
+			/>
+		),
 	};
 	return (
 		<div className="WorkflowBuilderCardsParentContainer">
@@ -89,6 +105,7 @@ const WorkflowBuilderCards = ({
 					openModal={openModal}
 					workflowdata={workflowdata}
 					index={index}
+					publicData={publicData}
 				/>
 			)}
 		</div>
