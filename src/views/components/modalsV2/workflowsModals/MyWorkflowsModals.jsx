@@ -11,6 +11,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import MyWorkflowModalsLoader from './MyWorkflowModalsLoader';
 import { Drawer } from 'antd';
+import moment from 'moment';
 
 const timeOptions = [
 	{
@@ -79,7 +80,52 @@ const initialState = {
 	hasNextPage: false,
 	selectedDuration: timeOptions?.[0],
 	selectedSortOptions: sortOptions?.[0],
+	sortOptionsChanged: false,
+	durationOptionChanged: false,
 };
+
+const decideSelectedSortOptionValue = (data) => {
+	let result;
+	if (data === 'newestFirst') {
+		result = [-1, 'createdAt'];
+	}
+	if (data === 'oldestFirst') {
+		result = [1, 'createdAt'];
+	}
+	if (data === 'az') {
+		result = [1, 'clientName'];
+	}
+	if (data === 'za') {
+		result = [-1, 'clientName'];
+	}
+	return result;
+};
+
+const decideDurationValue = (value) => {
+	let startDate, endDate;
+	if (value === 'all') {
+		startDate = null;
+		endDate = null;
+	}
+	if (value === 'lastWeek') {
+		startDate = moment().subtract(1, 'weeks').startOf('week').unix();
+		endDate = moment().subtract(1, 'weeks').endOf('week').unix();
+	}
+	if (value === 'last30Days') {
+		startDate = moment().subtract(30, 'days').startOf('day').unix();
+		endDate = moment().endOf('day').unix();
+	}
+	if (value === 'last90Days') {
+		startDate = moment().subtract(90, 'days').startOf('day').unix();
+		endDate = moment().endOf('day').unix();
+	}
+	if (value === 'last12Months') {
+		startDate = moment().subtract(12, 'months').startOf('month').unix();
+		endDate = moment().endOf('month').unix();
+	}
+	return [startDate, endDate];
+};
+
 const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, activeCardsData }) => {
 	const navigate = useNavigate();
 	let {
@@ -112,8 +158,43 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 		}
 	}, [moreWorkList]);
 
+	useEffect(() => {
+		if (info?.selectedSortOptions && modalIsOpen && info?.sortOptionsChanged) {
+			let [decideSortType, sortBy] = decideSelectedSortOptionValue(
+				info?.selectedSortOptions?.value,
+			);
+			let [startDate, endDate] = decideDurationValue(info?.selectedDuration?.value);
+			getWorkflowsListFunc(1, false, decideSortType, sortBy, startDate, endDate);
+		}
+	}, [info?.selectedSortOptions, modalIsOpen, info?.sortOptionsChanged, info?.selectedDuration]);
+
+	useEffect(() => {
+		if (info?.selectedDuration && modalIsOpen && info?.durationOptionChanged) {
+			const { value } = info?.selectedDuration;
+			let [startDate, endDate] = decideDurationValue(value);
+
+			let [decideSortType, sortBy] = decideSelectedSortOptionValue(
+				info?.selectedSortOptions?.value,
+			);
+
+			getWorkflowsListFunc(1, false, decideSortType, sortBy, startDate, endDate);
+		}
+	}, [
+		info?.selectedDuration,
+		modalIsOpen,
+		info?.durationOptionChanged,
+		info?.selectedSortOptions,
+	]);
+
 	const getWorkflowsListFunc = useCallback(
-		async (page, fetchMore = false) => {
+		async (
+			page,
+			fetchMore = false,
+			sortType = -1,
+			sortBy = 'createdAt',
+			startDate = null,
+			endDate = null,
+		) => {
 			if (activeTemplateData && activeCardsData) {
 				const payload = {
 					filters: {
@@ -121,8 +202,14 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 						page: page,
 						status: activeCardsData?.status,
 						templateId: activeTemplateData?._id,
+						sortType,
+						sortBy,
 					},
 				};
+				if (startDate && endDate) {
+					payload.filters['startDate'] = startDate;
+					payload.filters['endDate'] = endDate;
+				}
 				getWorkflowsList(payload, fetchMore);
 			}
 		},
@@ -149,6 +236,28 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 		setInfo(initialState);
 		closeModal();
 	}, []);
+
+	const onFilterDurationOptionChanged = useCallback(
+		async (data) => {
+			if (data?.value === info?.selectedDuration?.value) {
+				return;
+			}
+
+			setInfo((prev) => ({ ...prev, selectedDuration: data, durationOptionChanged: true }));
+		},
+		[info?.selectedDuration],
+	);
+
+	const onFilterSortOptionsChnaged = useCallback(
+		async (data) => {
+			if (data?.value === info?.selectedSortOptions?.value) {
+				return;
+			}
+
+			setInfo((prev) => ({ ...prev, selectedSortOptions: data, sortOptionsChanged: true }));
+		},
+		[info?.selectedSortOptions],
+	);
 
 	return (
 		<Drawer
@@ -195,7 +304,7 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 									maxHeight: '300px',
 									width: '190px',
 								}}
-								selectedValue={'All Time'}
+								selectedValue={info?.selectedDuration?.label}
 								selectedValueStyle={{
 									overflow: 'hidden',
 									color: '#E4E5E6',
@@ -207,7 +316,7 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 									lineHeight: '14px' /* 116.667% */,
 									letterSpacing: '-0.24px',
 								}}
-								// onChangeFunc={(e) => onChangeEmailTemplates(e)}
+								onChangeFunc={(e) => onFilterDurationOptionChanged(e)}
 							/>
 							{activeCardsData?.type !== 'statstCards' ? (
 								<HeadersDropDownComp
@@ -268,7 +377,7 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 									width: '190px',
 									left: 'unset',
 								}}
-								selectedValue={'Sort'}
+								selectedValue={info?.selectedSortOptions?.label}
 								selectedValueStyle={{
 									overflow: 'hidden',
 									color: '#E4E5E6',
@@ -280,7 +389,7 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 									lineHeight: '14px' /* 116.667% */,
 									letterSpacing: '-0.24px',
 								}}
-								// onChangeFunc={(e) => onChangeEmailTemplates(e)}
+								onChangeFunc={(e) => onFilterSortOptionsChnaged(e)}
 							/>
 						</div>
 						<div className="searchBtn">

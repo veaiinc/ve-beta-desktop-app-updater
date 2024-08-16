@@ -18,7 +18,7 @@ const initialState = {
 
 const EntryPointCard = ({ publicData }) => {
 	return (
-		<div className="previewCard">
+		<div className="previewCard" style={{ pointerEvents: 'none' }}>
 			<div className="htmlContentViewer">
 				<div className="coverImage">
 					<div
@@ -58,7 +58,7 @@ const OtherViewCard = () => {
 
 const PreviewCard = ({ privateData }) => {
 	return (
-		<div className="previewCard">
+		<div className="previewCard" style={{ pointerEvents: 'none' }}>
 			<div className="htmlContentViewer">
 				<div className="coverImage">
 					<div
