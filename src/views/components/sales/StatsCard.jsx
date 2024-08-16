@@ -1,12 +1,16 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/sales/MyWorkflowsCard.scss';
-const StatsCard = ({ showDot, dotColor, dotText, title, subTitle, cardsData, onClickfunc }) => {
+const StatsCard = ({ cardsData, onClickfunc }) => {
 	return (
 		<div className="statsCardParentCotnainer" onClick={onClickfunc}>
-			<div className="dotContainer">
-				<div className="dot"></div>
-				<span className="dotText">LIVE</span>
-			</div>
+			{cardsData?.status === 'enquiry' ? (
+				<div className="dotContainer">
+					<div className="dot"></div>
+					<span className="dotText">LIVE</span>
+				</div>
+			) : (
+				''
+			)}
 			<div className="contentContainer">
 				<span className="titletextStyling">{cardsData?.subText}</span>
 				<span className="enquiryText">{cardsData?.headerText}</span>

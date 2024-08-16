@@ -16,7 +16,7 @@ import ExitWithoutPublishingModal from '../../components/modalsV2/workflowBuilde
 import { ReactComponent as VE } from '../../../assets/svg/smallVe.svg';
 const options = [
 	{ label: 'Rename Workflow' },
-	{ label: 'Duplicate Workflow' },
+	// { label: 'Duplicate Workflow' },
 	// { label: 'Delete Worklfow' },
 ];
 

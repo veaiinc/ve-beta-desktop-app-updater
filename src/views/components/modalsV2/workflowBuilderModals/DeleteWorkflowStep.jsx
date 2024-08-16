@@ -15,10 +15,9 @@ const DeleteWorkflowStep = ({ modalIsOpen, closeModal, deleteWorkFlowStep, delet
 				<Warning />
 
 				<div className="deleteContent">
-					<span className="deleteStepHeading">Delete this Workflow?</span>
+					<span className="deleteStepHeading">Delete Email?</span>
 					<span className="deleteStepSubText">
-						Doing this cannot be undone and all the leads in this workflow would be
-						lost.
+						Are you sure you want to delete this email?
 					</span>
 				</div>
 
@@ -28,7 +27,7 @@ const DeleteWorkflowStep = ({ modalIsOpen, closeModal, deleteWorkFlowStep, delet
 					</div>
 					<div className="deleteWorkflowStepBtn" onClick={deleteWorkFlowStep}>
 						{deleteLoader ? <Spinner width={'16px'} height={'16px'} /> : ''}
-						{deleteLoader ? 'Deleting ..' : 'Delete Workflow'}
+						{deleteLoader ? 'Deleting ..' : 'Delete '}
 					</div>
 				</div>
 			</div>

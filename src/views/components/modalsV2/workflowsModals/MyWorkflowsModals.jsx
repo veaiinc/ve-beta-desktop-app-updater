@@ -162,7 +162,12 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 			<div className="myWorkflowModalParentContainer">
 				<div className="innerContainer">
 					<div className="headerContianer">
-						<span className="headerTitle">All Enquires</span>
+						<span className="headerTitle">
+							{activeCardsData?.type !== 'actionCards'
+								? activeCardsData?.subText
+								: ''}{' '}
+							{activeCardsData?.modalHeader}
+						</span>
 						<span className="closeBtnWrapper" onClick={closeModal}>
 							<Close />
 						</span>

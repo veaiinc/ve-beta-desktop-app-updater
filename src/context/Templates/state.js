@@ -512,7 +512,6 @@ export const TemplatesState = (props) => {
 				'workflows_Api',
 			);
 			if (response?.[0]) {
-				console.log('response: ', response);
 				dispatch({
 					type: Actions.GET_FORM_RESPONSES_SUCCESS,
 					payload: response?.[1]?.data?.formResponse,

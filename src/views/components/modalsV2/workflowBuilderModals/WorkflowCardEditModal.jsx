@@ -331,7 +331,7 @@ const WorkflowCardEditModal = ({
 							{info?.editState ? 'Edit Email' : `Edit Action`}
 						</span>
 						<div className="closeDeleteContainer">
-							{!info?.editState ? (
+							{!info?.editState && mode === 'edit' ? (
 								<div
 									style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
 									onClick={() =>

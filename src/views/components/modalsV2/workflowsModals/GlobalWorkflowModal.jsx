@@ -236,7 +236,11 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 					{info?.activeTab === 'design' ? (
 						<div className="innerMainContent">
 							{activeTemplateData?.moduleTemplates?.map((e, index) => (
-								<div className="modulesViewer" key={index}>
+								<div
+									className="modulesViewer"
+									key={index}
+									style={{ pointerEvents: 'none' }}
+								>
 									<span>{e?.module}</span>
 									<div className="imageContainer">
 										<div className="coverImage">

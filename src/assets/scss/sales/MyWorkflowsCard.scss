@@ -9,6 +9,7 @@
 	transition: all 0.5s ease-out;
 	padding-bottom: 0px;
 	cursor: pointer;
+	min-width: max-content;
 
 	.imageContainer {
 		display: flex;

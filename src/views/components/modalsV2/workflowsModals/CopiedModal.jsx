@@ -8,6 +8,14 @@ const CopiedModal = ({ open, closeModal, modules, copyLink, pin }) => {
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
 			<div className="copyParentModal">
+				<iframe
+					src="https://lottie.host/embed/18c5b491-9423-49b6-ba54-42842ec7116c/nGISWGIGC1.json"
+					style={{
+						border: 'none', // Removes the border
+						width: '50px', // Set the width as desired
+						height: '50px', // Set the height as desired
+					}}
+				></iframe>
 				<span className="copyText">Copied !</span>
 				<span className="copylink">{copyLink}</span>
 				{pin ? <span className="copylink">Use this pin to unlock {pin}</span> : ''}

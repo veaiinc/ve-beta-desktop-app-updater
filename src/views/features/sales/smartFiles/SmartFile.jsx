@@ -259,10 +259,11 @@ const SmartFile = () => {
 				workflowStatus={smartFileInfo?.status}
 				changeEditStatus={changeEditStatus}
 			/>
+
 			<CopiedModal
 				open={info?.copyModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
-				modules={info?.workflowData?.modules}
+				modules={info?.workflowData?.modules?.filter((e) => e?.type !== 'form')}
 				copyLink={`https://${localStorage.getItem('workspaceId')}.ve.co/portal/${
 					info?.workflowData?.slug
 				}`}

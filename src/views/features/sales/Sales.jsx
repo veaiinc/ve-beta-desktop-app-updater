@@ -122,14 +122,13 @@ const Sales = () => {
 		if (cardsData?.status === 'successRate') {
 			return;
 		}
-		// if (!+cardsData?.subText) {
-		// 	return;
-		// }
+		if (!+cardsData?.subText) {
+			return;
+		}
 
 		setInfo((prev) => ({
 			...prev,
 			myWorkflowModal: true,
-			// testingDrawerModal: true,
 			activeTemplateData: data,
 			activeCardsData: cardsData,
 		}));
