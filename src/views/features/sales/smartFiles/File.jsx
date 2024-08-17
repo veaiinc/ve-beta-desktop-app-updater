@@ -467,7 +467,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					serviceOnChangeFunc={serviceTableOnChnageFunc}
 					editable={edit}
 				/>
-				<PaymentSchedule />
+				{/* <PaymentSchedule /> */}
 			</div>
 		</div>
 	);

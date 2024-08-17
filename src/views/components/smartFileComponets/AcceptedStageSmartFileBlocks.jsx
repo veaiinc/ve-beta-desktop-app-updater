@@ -45,13 +45,12 @@ const AcceptedStageSmartFileBlocks = ({
 
 	useEffect(() => {
 		if (contractSignedLocalState) {
-			console.log('hell');
 			setInfo((prev) => ({ ...prev, dashBoardSignature: contractSignedLocalState }));
 			updateStateValues({ contractSignedLocalState: null });
 		}
 	}, [contractSignedLocalState]);
 
-	return smartFileStatus !== 'enquiry' && smartFileStatus !== 'fileSent' ? (
+	return smartFileStatus !== 'enquiry' && smartFileStatus !== 'filesSent' ? (
 		<div className="acceptedSmartFileBlocks">
 			<div className="acceptedSmartFileBlocksRowContainer">
 				<div className="acceptedBlocks">
