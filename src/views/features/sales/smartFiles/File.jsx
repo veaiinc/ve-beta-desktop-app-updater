@@ -6,7 +6,8 @@ import PaymentSchedule from '../../../components/smartFileComponets/PaymentSched
 import Variables from '../../../components/smartFileComponets/Variables';
 import Context from '../../../../context/context';
 import AcceptedStageSmartFileBlocks from '../../../components/smartFileComponets/AcceptedStageSmartFileBlocks';
-
+import { ReactComponent as EditSvg } from '../.././../../assets/svg/worflow_builder/edit.svg';
+import Spinner from '../../../components/loaders/Spinner';
 const File = ({ templateData, workflowData, userSigned, edit }) => {
 	let {
 		templates: {
@@ -16,6 +17,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			updateInvoice,
 			updateForm,
 			updateThankyou,
+			duplicateGlobalWorkflowTemplate,
 		},
 	} = useContext(Context);
 
@@ -33,6 +35,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		timeout: null,
 		smartFileStatus: '',
 		templatesMapper: null,
+		duplicateLoader: false,
 	});
 
 	//useEffects
@@ -385,9 +388,41 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		],
 	);
 
+	const duplicateTemplateFromSmartFile = useCallback(async () => {
+		if (info?.duplicateLoader) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, duplicateLoader: true }));
+		const payload = {
+			templateId: templateData?._id,
+			title: templateData?.title,
+		};
+
+		const response = await duplicateGlobalWorkflowTemplate(payload);
+		setInfo((prev) => ({ ...prev, duplicateLoader: false }));
+		if (response?.[0]) {
+			window.location.href = `https://builder.ve.co/${response?.[1]?._id}?client=true`;
+			return;
+		}
+	}, [info?.duplicateLoader]);
+
 	return (
 		<div className="fileParentContainer">
 			<div className="previewContainer">
+				<div className="previewHeader">
+					<span className="previewHeaderText">
+						Customise your design for Martin Dokidis
+					</span>
+					{info?.duplicateLoader ? (
+						<Spinner width={'20px'} height={'20px'} />
+					) : (
+						<div className="editPreviewBtn" onClick={duplicateTemplateFromSmartFile}>
+							<EditSvg />
+							<span className="editText">Edit</span>
+						</div>
+					)}
+				</div>
+
 				{templateData?.moduleTemplates?.map((ele, index) => (
 					<div className="imageContainer" key={index}>
 						<div className="coverImage">
