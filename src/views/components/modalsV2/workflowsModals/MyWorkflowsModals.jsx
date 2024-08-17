@@ -3,6 +3,7 @@ import '../../../../assets/scss/sales/myWorkflowModals.scss';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import { ReactComponent as Search } from '../../../../assets/svg/workflow/search.svg';
 import { ReactComponent as Tick } from '../../../../assets/svg/workflow/Tick.svg';
+import { ReactComponent as CircledCross } from '../../../../assets/svg/workflow/circledCorss.svg';
 import { ReactComponent as RightArrow } from '../../../../assets/svg/worflow_builder/rightColoredArrow.svg';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import { useNavigate } from 'react-router-dom';
@@ -82,6 +83,10 @@ const initialState = {
 	selectedSortOptions: sortOptions?.[0],
 	sortOptionsChanged: false,
 	durationOptionChanged: false,
+	searchExpand: false,
+	searchValue: '',
+	searchValueChanged: false,
+	timeout: null,
 };
 
 const decideSelectedSortOptionValue = (data) => {
@@ -172,6 +177,12 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 		}
 	}, [info?.selectedDuration, modalIsOpen, info?.durationOptionChanged]);
 
+	useEffect(() => {
+		if (info?.searchValueChanged) {
+			handleDebounceSearch();
+		}
+	}, [info?.searchValue, info?.searchValueChanged]);
+
 	const getWorkflowsListFunc = useCallback(
 		async (page, fetchMore = false) => {
 			if (activeTemplateData && activeCardsData) {
@@ -187,6 +198,7 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 						templateId: activeTemplateData?._id,
 						sortType: decideSortType,
 						sortBy: sortBy,
+						clientName: info?.searchValue?.length ? info?.searchValue : '',
 					},
 				};
 
@@ -197,7 +209,13 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 				getWorkflowsList(payload, fetchMore);
 			}
 		},
-		[activeTemplateData, activeCardsData, info?.selectedDuration, info?.selectedSortOptions],
+		[
+			activeTemplateData,
+			activeCardsData,
+			info?.selectedDuration,
+			info?.selectedSortOptions,
+			info?.searchValue,
+		],
 	);
 
 	const fetcMoreWorkflowList = useCallback(async () => {
@@ -243,6 +261,19 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 		[info?.selectedSortOptions, info?.sortOptionsChanged],
 	);
 
+	const handleDebounceSearch = useCallback(() => {
+		clearInterval(info?.timeout);
+		const timeout = setTimeout(() => {
+			getWorkflowsListFunc(1, false);
+			setInfo((prev) => ({
+				...prev,
+				loading: true,
+				timeout: null,
+			}));
+		}, 800);
+		setInfo((prev) => ({ ...prev, timeout }));
+	}, [info?.timeout, info?.searchValue, info?.searchValueChanged]);
+
 	return (
 		<Drawer
 			onClose={modifiedCloseModal}
@@ -281,6 +312,8 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 									alignSelf: 'stretch',
 									borderRadius: '100px',
 									background: 'rgba(36, 36, 36, 0.64)',
+									opacity: info?.searchExpand ? 0 : 1,
+									transition: 'all 0.3s ease',
 								}}
 								dropDownStyle={{
 									right: 0,
@@ -353,6 +386,8 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 									alignSelf: 'stretch',
 									borderRadius: '100px',
 									background: 'rgba(36, 36, 36, 0.64)',
+									transition: 'all 0.3s ease',
+									opacity: info?.searchExpand ? 0 : 1,
 								}}
 								dropDownStyle={{
 									right: 0,
@@ -376,8 +411,56 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 								onChangeFunc={(e) => onFilterSortOptionsChnaged(e)}
 							/>
 						</div>
-						<div className="searchBtn">
-							<Search />
+						<div className={`searchBtn ${info?.searchExpand ? 'searchExpand' : ''}`}>
+							<span
+								style={{
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									cursor: 'pointer',
+								}}
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										searchExpand: true,
+									}))
+								}
+							>
+								<Search />
+							</span>
+
+							<div className="inputAndCloseContainer">
+								<input
+									className="searchInputTag"
+									placeholder="Search"
+									value={info?.searchValue}
+									onChange={(e) =>
+										setInfo((prev) => ({
+											...prev,
+											searchValue: e.target?.value,
+											searchValueChanged: true,
+										}))
+									}
+								/>
+								<span
+									style={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+										cursor: 'pointer',
+									}}
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											searchValue: '',
+											searchValueChanged: true,
+											searchExpand: false,
+										}))
+									}
+								>
+									<CircledCross />
+								</span>
+							</div>
 						</div>
 					</div>
 					<div className="subCardContainer">
