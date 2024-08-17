@@ -425,18 +425,20 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					)}
 				</div>
 
-				{templateData?.moduleTemplates?.map((ele, index) => (
-					<div className="imageContainer" key={index}>
-						<div className="coverImage">
-							<div
-								dangerouslySetInnerHTML={{
-									__html: info?.templatesMapper?.[ele?._id],
-								}}
-								style={{ width: '100%' }}
-							/>
+				<div className="previewHolderWrapper">
+					{templateData?.moduleTemplates?.map((ele, index) => (
+						<div className="imageContainer" key={index}>
+							<div className="coverImage">
+								<div
+									dangerouslySetInnerHTML={{
+										__html: info?.templatesMapper?.[ele?._id],
+									}}
+									style={{ width: '100%' }}
+								/>
+							</div>
 						</div>
-					</div>
-				))}
+					))}
+				</div>
 			</div>
 			<div className="editParentContainer">
 				<AcceptedStageSmartFileBlocks

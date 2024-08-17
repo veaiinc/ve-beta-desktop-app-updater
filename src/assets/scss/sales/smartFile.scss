@@ -248,7 +248,6 @@
 				flex-direction: column;
 				color: #fff;
 				max-height: 700px;
-				overflow-y: auto;
 				border-radius: 24px;
 				border-radius: 26px;
 				border: 3px solid #545454;
@@ -290,22 +289,31 @@
 					}
 				}
 
-				.imageContainer {
+				.previewHolderWrapper {
 					display: flex;
 					flex-direction: column;
-					width: 100%;
+					align-self: stretch;
+					max-height: 650px;
+					overflow-y: auto;
+					border-bottom-right-radius: 24px;
+					border-bottom-left-radius: 24px;
+					.imageContainer {
+						display: flex;
+						flex-direction: column;
+						width: 100%;
 
-					.coverImage {
-						background: #fcfaf7;
-						min-height: 700px;
-						height: auto;
-						overflow: scroll;
+						.coverImage {
+							background: #fcfaf7;
+							min-height: 700px;
+							height: auto;
+							overflow: scroll;
 
-						.builder {
-							zoom: 0.15;
+							.builder {
+								zoom: 0.15;
 
-							div {
-								width: 100%;
+								div {
+									width: 100%;
+								}
 							}
 						}
 					}
