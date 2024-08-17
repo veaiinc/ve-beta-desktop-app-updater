@@ -96,4 +96,12 @@
 			background: rgba(255, 255, 255, 0.02);
 		}
 	}
+
+	.newHeaderBtn:hover {
+		background-color: #6055ec !important;
+
+		.selectedPage {
+			color: #fff !important;
+		}
+	}
 }
