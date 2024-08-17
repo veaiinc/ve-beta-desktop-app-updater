@@ -72,16 +72,16 @@ const SmartFileHeader = ({
 					{ label: 'Edit' },
 					{ label: 'Resend File' },
 					{ label: 'Send Email' },
-					{ label: 'Delete File' },
-					{ label: 'Delete Lead' },
+					// { label: 'Delete File' },
+					// { label: 'Delete Lead' },
 				];
 			} else {
 				modifiedOptions = [
 					{ label: 'Resend File' },
 					{ label: 'Send Email' },
 					{ label: 'Move Stage' },
-					{ label: 'Delete File' },
-					{ label: 'Delete Lead' },
+					// { label: 'Delete File' },
+					// { label: 'Delete Lead' },
 				];
 			}
 
@@ -199,6 +199,17 @@ const SmartFileHeader = ({
 							showArrow={false}
 							selectedValue={<ThreeDots />}
 							onChangeFunc={(e) => onOptionChangeFunc(e)}
+							dropDownTextStyling={{
+								overflow: 'hidden',
+								color: '#E4E5E6',
+								textOverflow: 'ellipsis',
+								fontFamily: 'Inter',
+								fontSize: '14px',
+								fontStyle: 'normal',
+								fontWeight: '400',
+								lineHeight: '16px' /* 114.286% */,
+								letterSpacing: '-0.3px',
+							}}
 						/>
 					</>
 				) : (

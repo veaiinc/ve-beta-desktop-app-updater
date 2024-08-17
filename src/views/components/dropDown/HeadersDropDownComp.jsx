@@ -35,6 +35,7 @@ const HeadersDropDownComp = ({
 	selectedValueStyle,
 	showArrow = true,
 	containerClassName = '',
+	dropDownTextStyling = {},
 }) => {
 	const logoutFunc = useLogout();
 	const [isOpen, setIsOpen] = useState(false);
@@ -107,6 +108,7 @@ const HeadersDropDownComp = ({
 								key={index}
 								className="dropdown-item"
 								onClick={() => handleOptionClick(option)}
+								style={{ ...dropDownTextStyling }}
 							>
 								{option?.label}
 							</div>
