@@ -160,52 +160,36 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 
 	useEffect(() => {
 		if (info?.selectedSortOptions && modalIsOpen && info?.sortOptionsChanged) {
-			let [decideSortType, sortBy] = decideSelectedSortOptionValue(
-				info?.selectedSortOptions?.value,
-			);
-			let [startDate, endDate] = decideDurationValue(info?.selectedDuration?.value);
-			getWorkflowsListFunc(1, false, decideSortType, sortBy, startDate, endDate);
+			getWorkflowsListFunc(1, false);
+			setInfo((prev) => ({ ...prev, loading: true }));
 		}
-	}, [info?.selectedSortOptions, modalIsOpen, info?.sortOptionsChanged, info?.selectedDuration]);
+	}, [info?.selectedSortOptions, modalIsOpen, info?.sortOptionsChanged]);
 
 	useEffect(() => {
 		if (info?.selectedDuration && modalIsOpen && info?.durationOptionChanged) {
-			const { value } = info?.selectedDuration;
-			let [startDate, endDate] = decideDurationValue(value);
-
-			let [decideSortType, sortBy] = decideSelectedSortOptionValue(
-				info?.selectedSortOptions?.value,
-			);
-
-			getWorkflowsListFunc(1, false, decideSortType, sortBy, startDate, endDate);
+			getWorkflowsListFunc(1, false);
+			setInfo((prev) => ({ ...prev, loading: true }));
 		}
-	}, [
-		info?.selectedDuration,
-		modalIsOpen,
-		info?.durationOptionChanged,
-		info?.selectedSortOptions,
-	]);
+	}, [info?.selectedDuration, modalIsOpen, info?.durationOptionChanged]);
 
 	const getWorkflowsListFunc = useCallback(
-		async (
-			page,
-			fetchMore = false,
-			sortType = -1,
-			sortBy = 'createdAt',
-			startDate = null,
-			endDate = null,
-		) => {
+		async (page, fetchMore = false) => {
 			if (activeTemplateData && activeCardsData) {
+				let [startDate, endDate] = decideDurationValue(info?.selectedDuration?.value);
+				let [decideSortType, sortBy] = decideSelectedSortOptionValue(
+					info?.selectedSortOptions?.value,
+				);
 				const payload = {
 					filters: {
 						limit: 30,
 						page: page,
 						status: activeCardsData?.status,
 						templateId: activeTemplateData?._id,
-						sortType,
-						sortBy,
+						sortType: decideSortType,
+						sortBy: sortBy,
 					},
 				};
+
 				if (startDate && endDate) {
 					payload.filters['startDate'] = startDate;
 					payload.filters['endDate'] = endDate;
@@ -213,7 +197,7 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 				getWorkflowsList(payload, fetchMore);
 			}
 		},
-		[activeTemplateData, activeCardsData],
+		[activeTemplateData, activeCardsData, info?.selectedDuration, info?.selectedSortOptions],
 	);
 
 	const fetcMoreWorkflowList = useCallback(async () => {
@@ -245,7 +229,7 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 
 			setInfo((prev) => ({ ...prev, selectedDuration: data, durationOptionChanged: true }));
 		},
-		[info?.selectedDuration],
+		[info?.selectedDuration, info?.durationOptionChanged],
 	);
 
 	const onFilterSortOptionsChnaged = useCallback(
@@ -256,7 +240,7 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 
 			setInfo((prev) => ({ ...prev, selectedSortOptions: data, sortOptionsChanged: true }));
 		},
-		[info?.selectedSortOptions],
+		[info?.selectedSortOptions, info?.sortOptionsChanged],
 	);
 
 	return (
