@@ -60,7 +60,7 @@ const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 						dangerouslySetInnerHTML={{
 							__html: info?.formParsedContentHtml,
 						}}
-						style={{ width: '100%', height: '100%' }}
+						style={{ width: '100%', height: '100%', zoom: 3 }}
 					/>
 				</div>
 			</div>

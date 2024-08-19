@@ -2,10 +2,9 @@ import React, { memo } from 'react';
 import '../../../assets/scss/workflowBuilder/workflowBuilderCard.scss';
 import { ReactComponent as EmailSvg } from '../../../assets/svg/worflow_builder/email.svg';
 
-const FirstWorkflowCard = ({ openModal, workflowdata, index, publicData }) => {
-	console.log(publicData);
+const FirstWorkflowCard = ({ publicData, openPreviewModal }) => {
 	return (
-		<div className="previewCard">
+		<div className="previewCard" onClick={() => openPreviewModal('public')}>
 			<div className="htmlContentViewer">
 				<div className="coverImage">
 					<div
@@ -54,7 +53,7 @@ const EndPointViewCard = () => {
 
 const PreviewCard = ({ templateData, openPreviewModal, privateData }) => {
 	return (
-		<div className="previewCard" onClick={openPreviewModal}>
+		<div className="previewCard" onClick={() => openPreviewModal('private')}>
 			<div className="htmlContentViewer">
 				<div className="coverImage">
 					<div
@@ -106,6 +105,7 @@ const WorkflowBuilderCards = ({
 					workflowdata={workflowdata}
 					index={index}
 					publicData={publicData}
+					openPreviewModal={openPreviewModal}
 				/>
 			)}
 		</div>

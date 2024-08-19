@@ -43,7 +43,8 @@ const Sales = () => {
 
 	useEffect(() => {
 		if (salePageRefresh) {
-			updateStateValues({ salePageRefresh: true });
+			getMyWorkflowTemplatesData(1);
+			updateStateValues({ salePageRefresh: null });
 		}
 	}, [salePageRefresh]);
 

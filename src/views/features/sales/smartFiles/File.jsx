@@ -426,18 +426,20 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 				</div>
 
 				<div className="previewHolderWrapper">
-					{templateData?.moduleTemplates?.map((ele, index) => (
-						<div className="imageContainer" key={index}>
-							<div className="coverImage">
-								<div
-									dangerouslySetInnerHTML={{
-										__html: info?.templatesMapper?.[ele?._id],
-									}}
-									style={{ width: '100%' }}
-								/>
+					{templateData?.moduleTemplates
+						?.filter((comp, i) => !comp?.isPublic)
+						.map((ele, index) => (
+							<div className="imageContainer" key={index}>
+								<div className="coverImage">
+									<div
+										dangerouslySetInnerHTML={{
+											__html: info?.templatesMapper?.[ele?._id],
+										}}
+										style={{ width: '100%', zoom: 2 }}
+									/>
+								</div>
 							</div>
-						</div>
-					))}
+						))}
 				</div>
 			</div>
 			<div className="editParentContainer">

@@ -3,7 +3,7 @@ import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import '../../../../assets/scss/sales/globalWorkflowModal.scss';
 import { ReactComponent as EditSvg } from '../../../../assets/svg/worflow_builder/edit.svg';
 import { Drawer } from 'antd';
-const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData }) => {
+const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData, previewType }) => {
 	const [info, setInfo] = useState({
 		templatesMapper: null,
 	});
@@ -62,25 +62,29 @@ const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData })
 					</div>
 
 					<div className="innerMainContent">
-						{incomingTemplateData?.moduleTemplates?.map((e, index) => (
-							<div
-								className="modulesViewer"
-								key={index}
-								style={{ pointerEvents: 'none' }}
-							>
-								<span>{e?.module}</span>
-								<div className="imageContainer">
-									<div className="coverImage">
-										<div
-											dangerouslySetInnerHTML={{
-												__html: info?.templatesMapper?.[e?._id],
-											}}
-											style={{ width: '100%' }}
-										/>
+						{incomingTemplateData?.moduleTemplates
+							?.filter((ele, i) =>
+								previewType === 'public' ? ele?.isPublic : !ele?.isPublic,
+							)
+							?.map((e, index) => (
+								<div
+									className="modulesViewer"
+									key={index}
+									style={{ pointerEvents: 'none' }}
+								>
+									<span>{e?.module}</span>
+									<div className="imageContainer">
+										<div className="coverImage">
+											<div
+												dangerouslySetInnerHTML={{
+													__html: info?.templatesMapper?.[e?._id],
+												}}
+												style={{ width: '100%', zoom: 3 }}
+											/>
+										</div>
 									</div>
 								</div>
-							</div>
-						))}
+							))}
 					</div>
 				</div>
 			</div>

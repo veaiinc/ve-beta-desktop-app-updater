@@ -50,6 +50,7 @@ const WorkflowBuilder = () => {
 		exitModal: false,
 		publicData: null,
 		privateData: null,
+		previewType: null,
 	});
 
 	useEffect(() => {
@@ -124,11 +125,11 @@ const WorkflowBuilder = () => {
 		}));
 	}, []);
 
-	const openPreviewModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, previewModal: true }));
+	const openPreviewModal = useCallback((type) => {
+		setInfo((prev) => ({ ...prev, previewModal: true, previewType: type }));
 	}, []);
 	const closePreviewModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, previewModal: false }));
+		setInfo((prev) => ({ ...prev, previewModal: false, previewType: null }));
 	}, []);
 
 	const alterData = useCallback(
@@ -230,6 +231,7 @@ const WorkflowBuilder = () => {
 			},
 		};
 		getMyWorkflows(payload, false);
+
 		getTemplatesListForCreateLead();
 	}, []);
 
@@ -388,6 +390,7 @@ const WorkflowBuilder = () => {
 					modalIsOpen={info?.previewModal}
 					closeModal={closePreviewModal}
 					incomingTemplateData={info?.incomingTemplateData}
+					previewType={info?.previewType}
 				/>
 				<RenameWorkflow
 					open={info?.renameModal}

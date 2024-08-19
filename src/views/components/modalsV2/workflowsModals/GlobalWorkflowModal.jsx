@@ -292,7 +292,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 												dangerouslySetInnerHTML={{
 													__html: info?.templatesMapper?.[e?._id],
 												}}
-												style={{ width: '100%' }}
+												style={{ width: '100%', zoom: 2 }}
 											/>
 										</div>
 									</div>
