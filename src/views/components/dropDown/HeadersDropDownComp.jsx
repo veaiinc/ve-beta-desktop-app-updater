@@ -62,7 +62,9 @@ const HeadersDropDownComp = ({
 	return (
 		<div className="dropdown" style={outerContainerStyle || {}}>
 			<div
-				className={`dropdown-header ${containerClassName}`}
+				className={`dropdown-header ${containerClassName} ${
+					isOpen ? containerClassName + '-open' : 'close'
+				}`}
 				style={{ ...(containerStyle || {}) }}
 				onClick={toggleDropdown}
 				onMouseOver={onMouseHoverFunc ? handleOpen : null}
