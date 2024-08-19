@@ -152,6 +152,17 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 					onChangeFunc={(e) => optionChangeForNewBtn(e)}
 					hoverHeaderContainerStyling={{ backgroundColor: '#6055EC', color: '#fff' }}
 					hoverSelectedTextStyling={{ color: '#fff' }}
+					dropDownTextStyling={{
+						overflow: 'hidden',
+						color: '#E4E5E6',
+						textOverflow: 'ellipsis',
+						fontFamily: 'Inter',
+						fontSize: '14px',
+						fontStyle: 'normal',
+						fontWeight: '400',
+						lineHeight: '16px' /* 114.286% */,
+						letterSpacing: '-0.3px',
+					}}
 				/>
 
 				<HeadersDropDownComp

@@ -334,6 +334,9 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 									letterSpacing: '-0.24px',
 								}}
 								onChangeFunc={(e) => onFilterDurationOptionChanged(e)}
+								showSelectedValueTick={true}
+								uniqueIdentifierForTickIcon={'value'}
+								selectedValueObj={info?.selectedDuration}
 							/>
 							{activeCardsData?.type !== 'statstCards' ? (
 								<HeadersDropDownComp
@@ -393,7 +396,7 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 									right: 0,
 									top: '35px',
 									maxHeight: '300px',
-									width: '190px',
+									width: '180px',
 									left: 'unset',
 								}}
 								selectedValue={info?.selectedSortOptions?.label}
@@ -409,6 +412,9 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 									letterSpacing: '-0.24px',
 								}}
 								onChangeFunc={(e) => onFilterSortOptionsChnaged(e)}
+								showSelectedValueTick={true}
+								uniqueIdentifierForTickIcon={'value'}
+								selectedValueObj={info?.selectedSortOptions}
 							/>
 						</div>
 						<div className={`searchBtn ${info?.searchExpand ? 'searchExpand' : ''}`}>

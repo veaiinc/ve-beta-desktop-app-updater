@@ -69,10 +69,12 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 		if (templatesListForCreateLead) {
 			const { currentPage, hasNextPage, data } = templatesListForCreateLead;
 			let templateData = [];
+
 			for (let i = 0; i < data?.length; i++) {
 				let obj = {
 					label: data?.[i]?.title,
 					value: JSON.stringify(data?.[i]),
+					_id: data?.[i]?._id,
 				};
 				templateData.push(obj);
 			}
@@ -323,9 +325,20 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								dropDownStyle={{
 									right: 0,
 									top: '55px',
-									maxHeight: '300px',
+									maxHeight: '150px',
 								}}
 								onChangeFunc={(e) => onChangeSelectedSource(e)}
+								dropDownTextStyling={{
+									color: 'var(--nav-bar-button-text, #FFF)',
+									fontFamily: 'Inter',
+									fontSize: '12px',
+									fontStyle: 'normal',
+									fontWeight: '400',
+									lineHeight: '26px' /* 185.714% */,
+								}}
+								showSelectedValueTick={true}
+								uniqueIdentifierForTickIcon={'value'}
+								selectedValueObj={{ value: leadDetails?.['source'] }}
 							/>
 						</div>
 						{/* {workflow} */}
@@ -355,6 +368,17 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 									overflowY: 'auto',
 								}}
 								onChangeFunc={(e) => onChangeSelectedTemplate(e)}
+								dropDownTextStyling={{
+									color: 'var(--nav-bar-button-text, #FFF)',
+									fontFamily: 'Inter',
+									fontSize: '12px',
+									fontStyle: 'normal',
+									fontWeight: '400',
+									lineHeight: '26px' /* 185.714% */,
+								}}
+								showSelectedValueTick={true}
+								uniqueIdentifierForTickIcon={'_id'}
+								selectedValueObj={info?.selectedTemplate}
 							/>
 						</div>
 					</div>
@@ -391,6 +415,14 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 									minHeight: '150px',
 								}}
 								onChangeFunc={(e) => onChangeClientLists(e)}
+								dropDownTextStyling={{
+									color: 'var(--nav-bar-button-text, #FFF)',
+									fontFamily: 'Inter',
+									fontSize: '12px',
+									fontStyle: 'normal',
+									fontWeight: '400',
+									lineHeight: '26px' /* 185.714% */,
+								}}
 							/>
 						</div>
 
@@ -420,6 +452,17 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 									overflowY: 'auto',
 								}}
 								onChangeFunc={(e) => onChangeSelectedTemplate(e)}
+								dropDownTextStyling={{
+									color: 'var(--nav-bar-button-text, #FFF)',
+									fontFamily: 'Inter',
+									fontSize: '12px',
+									fontStyle: 'normal',
+									fontWeight: '400',
+									lineHeight: '26px' /* 185.714% */,
+								}}
+								showSelectedValueTick={true}
+								uniqueIdentifierForTickIcon={'_id'}
+								selectedValueObj={info?.selectedTemplate}
 							/>
 						</div>
 					</div>

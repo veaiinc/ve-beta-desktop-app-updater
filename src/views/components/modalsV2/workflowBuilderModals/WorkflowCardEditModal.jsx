@@ -91,10 +91,12 @@ const WorkflowCardEditModal = ({
 			const { data } = allEmailTemplates;
 
 			const options = [];
+
 			for (let i = 0; i < data?.length; i++) {
 				let obj = {
 					label: data?.[i]?.title,
 					ele: data?.[i],
+					_id: data?.[i]?._id,
 				};
 				options?.push(obj);
 			}
@@ -398,6 +400,18 @@ const WorkflowCardEditModal = ({
 										selectedValue={info?.selectedEmailTemplate?.title}
 										onChangeFunc={(e) => onChangeEmailTemplates(e)}
 										outerContainerStyle={{ width: '100%' }}
+										showSelectedValueTick={true}
+										uniqueIdentifierForTickIcon={'_id'}
+										selectedValueObj={info?.selectedEmailTemplate}
+										dropDownTextStyling={{
+											color: 'var(--nav-bar-button-text, #FFF)',
+											fontFamily: 'Inter',
+											fontSize: '14px',
+											fontStyle: 'normal',
+											fontWeight: '400',
+											lineHeight: '26px' /* 185.714% */,
+											textTransform: 'capitalize',
+										}}
 									/>
 								) : (
 									<div className="staticActionTitle">{info?.title}</div>
@@ -483,6 +497,18 @@ const WorkflowCardEditModal = ({
 										selectedValue={info?.selectedDuration?.label}
 										onChangeFunc={(e) => onChangeDuration(e)}
 										outerContainerStyle={{ width: '100%' }}
+										showSelectedValueTick={true}
+										uniqueIdentifierForTickIcon={'value'}
+										selectedValueObj={info?.selectedDuration}
+										dropDownTextStyling={{
+											color: 'var(--nav-bar-button-text, #FFF)',
+											fontFamily: 'Inter',
+											fontSize: '14px',
+											fontStyle: 'normal',
+											fontWeight: '400',
+											lineHeight: '26px' /* 185.714% */,
+											textTransform: 'capitalize',
+										}}
 									/>
 								</div>
 								<HeadersDropDownComp
