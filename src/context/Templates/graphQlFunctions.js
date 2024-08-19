@@ -82,6 +82,7 @@ export const getClientListQuery = gql`
 			data {
 				email
 				name
+				_id
 			}
 		}
 	}

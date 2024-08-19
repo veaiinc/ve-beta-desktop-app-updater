@@ -35,6 +35,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	const [errorState, setErrorState] = useState({ isError: false, errorMessage: '' });
 	const [leadDetails, setLeadDetails] = useState({ name: '', emailId: '', source: 'instagram' });
 	const [createButtonActiveState, setCreateButtonActiveState] = useState(false);
+	const [selectedLead, setSelectedLead] = useState({});
 
 	useEffect(() => {
 		getTemplatesListForCreateLead();
@@ -53,10 +54,12 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 		if (clientList) {
 			const { currentPage, hasNextPage, data } = clientList;
 			let clientData = [];
+
 			for (let i = 0; i < data?.length; i++) {
 				let obj = {
 					label: data?.[i]?.name,
 					value: JSON.stringify(data?.[i]),
+					_id: data?.[i]?._id,
 				};
 
 				clientData.push(obj);
@@ -174,6 +177,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 		async (data) => {
 			let { value } = data;
 			value = JSON.parse(value);
+			setSelectedLead(value);
 			handleSelectedLead(value);
 		},
 		[handleSelectedLead],
@@ -423,6 +427,9 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 									fontWeight: '400',
 									lineHeight: '26px' /* 185.714% */,
 								}}
+								showSelectedValueTick={true}
+								uniqueIdentifierForTickIcon={'_id'}
+								selectedValueObj={selectedLead}
 							/>
 						</div>
 
