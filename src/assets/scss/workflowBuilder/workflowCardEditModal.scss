@@ -13,6 +13,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 24px;
+		overflow-y: auto;
 		.workflowHeader {
 			display: flex;
 			align-self: stretch;
@@ -277,6 +278,7 @@
 			flex-direction: column;
 			padding: 0px 16px;
 			gap: 24px;
+			overflow-y: auto;
 
 			.editEmailSubject {
 				display: flex;

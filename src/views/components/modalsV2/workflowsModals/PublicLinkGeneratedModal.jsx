@@ -6,9 +6,23 @@ import { ReactComponent as RightArrow } from '../../../../assets/svg/workflow/ri
 
 const PublicLinkGeneratedModal = ({ open, closeModal, modules, copyLink = '' }) => {
 	const handleCopy = useCallback(async () => {
-		await navigator.clipboard.writeText(copyLink);
+		await navigator?.clipboard?.writeText(copyLink);
 		closeModal();
 	}, [copyLink]);
+
+	const [info, setInfo] = useState({
+		updatedModule: [],
+	});
+
+	useEffect(() => {
+		if (modules) {
+			let updatedModule = modules?.filter(
+				(e) =>
+					e?.module !== 'proposal' && e?.module !== 'invoice' && e?.module !== 'contract',
+			);
+			setInfo((prev) => ({ ...prev, updatedModule: updatedModule }));
+		}
+	}, [modules]);
 
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
@@ -27,7 +41,7 @@ const PublicLinkGeneratedModal = ({ open, closeModal, modules, copyLink = '' }) 
 					</span>
 					<span className="linkGeneratedTitleText">This Public link contains of </span>
 					<div className="actionBTnContainer">
-						{modules?.map((ele, index) => (
+						{info?.updatedModule?.map((ele, index) => (
 							<div className="actionBtnWrapper" key={index}>
 								<div className="actionBtn">
 									<Circled />
@@ -35,7 +49,7 @@ const PublicLinkGeneratedModal = ({ open, closeModal, modules, copyLink = '' }) 
 										{ele?.type || ele?.module}
 									</span>
 								</div>
-								{index < modules?.length - 1 ? <RightArrow /> : ''}
+								{index < info?.updatedModule?.length - 1 ? <RightArrow /> : ''}
 							</div>
 						))}
 					</div>

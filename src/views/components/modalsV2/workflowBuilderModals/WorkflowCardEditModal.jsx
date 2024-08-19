@@ -348,7 +348,7 @@ const WorkflowCardEditModal = ({
 							) : (
 								''
 							)}
-							<div className="closeBtn" onClick={closeModalFunc}>
+							<div className="closeBtn" onClick={closeModal}>
 								<Close />
 							</div>
 						</div>
@@ -449,7 +449,10 @@ const WorkflowCardEditModal = ({
 									</span>
 								</div>
 								<div className="emailBody">
-									<div dangerouslySetInnerHTML={{ __html: info?.emailBody }} />
+									<div
+										dangerouslySetInnerHTML={{ __html: info?.emailBody }}
+										style={{ pointerEvents: 'none' }}
+									/>
 								</div>
 							</div>
 							<div className="emailScheduleTimingContainer">

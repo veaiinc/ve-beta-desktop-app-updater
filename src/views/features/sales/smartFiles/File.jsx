@@ -413,7 +413,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			<div className="previewContainer">
 				<div className="previewHeader">
 					<span className="previewHeaderText">
-						Customise your design for Martin Dokidis
+						Customise your design for {workflowData?.name}
 					</span>
 					{info?.duplicateLoader ? (
 						<Spinner width={'20px'} height={'20px'} />
