@@ -210,7 +210,7 @@ const Sales = () => {
 				open={info?.copyModal}
 				closeModal={closeCopyLinkModal}
 				slug={info?.activeTemplateData?.slug}
-				modules={info?.activeTemplateData?.moduleTemplates}
+				modules={info?.activeTemplateData?.moduleTemplates?.filter((ele) => ele?.isPublic)}
 				copyLink={`https://${localStorage.getItem('workspaceId')}.ve.co/${
 					info?.activeTemplateData?.slug
 				}`}
