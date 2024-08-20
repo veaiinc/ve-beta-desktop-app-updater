@@ -36,6 +36,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		smartFileStatus: '',
 		templatesMapper: null,
 		duplicateLoader: false,
+		expiryInDays: null,
 	});
 
 	//useEffects
@@ -74,7 +75,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 							activeVersion,
 							_id,
 							workflowId,
-							expiryInDays,
+							// expiryInDays,
 							signatures,
 						};
 						break;
@@ -140,6 +141,13 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			setInfo((prev) => ({ ...prev, templatesMapper }));
 		}
 	}, [templateData]);
+
+	useEffect(() => {
+		if (info?.proposal) {
+			const { expiryInDays } = info.proposal || {};
+			setInfo((prev) => ({ ...prev, expiryInDays }));
+		}
+	}, [info?.proposal]);
 
 	//function defination
 
@@ -269,7 +277,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			workflowId,
 			proposalInput: {
 				versions: {
-					// expiryInDays,
+					expiryInDays,
 					paymentSchedule,
 					variables,
 					tables,
@@ -277,6 +285,13 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			},
 			versionId: activeVersion,
 		};
+
+		if (
+			payload?.proposalInput?.versions?.expiryInDays === null ||
+			payload?.proposalInput?.versions?.expiryInDays === undefined
+		) {
+			delete payload?.proposalInput?.versions?.expiryInDays;
+		}
 
 		updateProposal(payload);
 	}, []);
@@ -369,12 +384,21 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		updateInvoiceFunc,
 		updateThankYouFunc,
 	]);
+
+	const updateExpiryInDays = useCallback(
+		async (updatedData) => {
+			const newModuleData = { ...info?.proposal, expiryInDays: +updatedData };
+			setInfo((prev) => ({ ...prev, proposal: newModuleData }));
+			handleDebounceUpdate('proposal', newModuleData);
+		},
+		[info?.proposal],
+	);
 	const handleDebounceUpdate = useCallback(
 		(module, moduleData) => {
 			clearInterval(info?.timeout);
 			const timeout = setTimeout(() => {
 				moduleUpdateFuncWrapper?.[module](moduleData);
-			}, 800);
+			}, 1000);
 			setInfo((prev) => ({ ...prev, timeout }));
 		},
 		[
@@ -385,6 +409,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			updateInvoiceFunc,
 			updateThankYouFunc,
 			moduleUpdateFuncWrapper,
+			updateExpiryInDays,
 		],
 	);
 
@@ -458,6 +483,8 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					variablesData={info?.variablesData}
 					variableOnChangeFunc={variableOnChangeFunc}
 					editable={edit}
+					expiryInDays={info?.expiryInDays}
+					updateExpiryInDays={updateExpiryInDays}
 				/>
 				<Events
 					eventsData={info?.eventsTableData}

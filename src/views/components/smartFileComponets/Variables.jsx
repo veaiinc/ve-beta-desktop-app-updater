@@ -1,9 +1,16 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
 
-const Variables = ({ variablesData, variableOnChangeFunc, editable }) => {
+const Variables = ({
+	variablesData,
+	variableOnChangeFunc,
+	editable,
+	expiryInDays,
+	updateExpiryInDays,
+}) => {
 	const [info, setInfo] = useState({
 		data: [],
+		localExpiry: expiryInDays,
 	});
 
 	useEffect(() => {
@@ -11,6 +18,10 @@ const Variables = ({ variablesData, variableOnChangeFunc, editable }) => {
 			setInfo((prev) => ({ ...prev, data: [].concat(...Object.values(variablesData)) }));
 		}
 	}, [variablesData]);
+
+	useEffect(() => {
+		setInfo((prev) => ({ ...prev, localExpiry: expiryInDays }));
+	}, [expiryInDays]);
 
 	const onLocalVariableDataChange = useCallback(
 		async (e, index) => {
@@ -23,6 +34,19 @@ const Variables = ({ variablesData, variableOnChangeFunc, editable }) => {
 			return;
 		},
 		[info?.data],
+	);
+
+	const onChangeLocalExpiry = useCallback(
+		async (e) => {
+			const value = e.target.value.replace(/[^0-9]/g, '');
+			if (+value === +info?.localExpiry) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, localExpiry: +value }));
+			updateExpiryInDays(+value);
+			return;
+		},
+		[expiryInDays, info?.localExpiry],
 	);
 
 	return (
@@ -44,7 +68,12 @@ const Variables = ({ variablesData, variableOnChangeFunc, editable }) => {
 			<div className="proposalContainer">
 				<div className="inputWithLabelContainer">
 					<span className="labelName">Proposal Validity</span>
-					<input className="custominputContainer" />
+					<input
+						className="custominputContainer"
+						type="text"
+						value={expiryInDays}
+						onChange={onChangeLocalExpiry}
+					/>
 				</div>
 			</div>
 		</div>
