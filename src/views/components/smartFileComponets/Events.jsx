@@ -2,6 +2,7 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
 import Services from './Services';
+import moment from 'moment';
 
 const Events = ({ eventsData, eventsDataChange, editable }) => {
 	const [info, setInfo] = useState({
@@ -172,7 +173,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 
 	return info?.data?.map((ele, index) => (
 		<div className="eventsParentContainer" key={index}>
-			<span className="eventsTitle">Events {index + 1}</span>
+			<span className="eventsTitle">Events {(index || 0) + 1}</span>
 			{/* //use map here */}
 			{ele?.values?.map((item, ind) => (
 				<div className="eventsCard" key={ind}>
@@ -197,10 +198,11 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 						</div>
 						<div className="inputWithLabelContainer">
 							<span className="labelName">Date</span>
+
 							<input
 								className="custominputContainer"
 								type="date"
-								value={item?.date}
+								value={moment(`${item?.date}`).format('yyyy-MM-DD')}
 								onChange={(e) =>
 									localEventsOnchange(ind, index, 'date', e.target.value)
 								}
