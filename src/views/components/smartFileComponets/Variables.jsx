@@ -7,15 +7,29 @@ const Variables = ({
 	editable,
 	expiryInDays,
 	updateExpiryInDays,
+	handleUpdateVaraiblesArray,
 }) => {
 	const [info, setInfo] = useState({
 		data: [],
 		localExpiry: expiryInDays,
+		variableMapper: {},
+		timeout: null,
 	});
 
 	useEffect(() => {
 		if (variablesData) {
-			setInfo((prev) => ({ ...prev, data: [].concat(...Object.values(variablesData)) }));
+			let data = [].concat(...Object.values(variablesData));
+			let variableMapper = {};
+			let updatedData = [];
+			for (let i = 0; i < data?.length; i++) {
+				if (variableMapper[data?.[i]?._id]) {
+					variableMapper[data?.[i]?._id]?.push(data?.[i]);
+				} else {
+					variableMapper[data?.[i]?._id] = [data?.[i]];
+					updatedData?.push(data?.[i]);
+				}
+			}
+			setInfo((prev) => ({ ...prev, data: updatedData, variableMapper }));
 		}
 	}, [variablesData]);
 
@@ -28,6 +42,7 @@ const Variables = ({
 			let updatedData = [...(info?.data || [])];
 			let variableElementToBeUpdated = updatedData?.[index];
 			variableElementToBeUpdated = { ...variableElementToBeUpdated, value: e.target.value };
+			updateDuplicatedVaribales({ ...variableElementToBeUpdated });
 			updatedData?.splice(index, 1, variableElementToBeUpdated);
 			setInfo((prev) => ({ ...prev, data: updatedData }));
 			variableOnChangeFunc(variableElementToBeUpdated);
@@ -49,6 +64,36 @@ const Variables = ({
 		[expiryInDays, info?.localExpiry],
 	);
 
+	const updateDuplicatedVaribales = useCallback(
+		async (data) => {
+			clearInterval(info?.timeout);
+			const timeout = setTimeout(() => {
+				if (info?.variableMapper) {
+					const { _id } = data;
+					const updatedMapper = { ...(info.variableMapper || {}) };
+
+					if (updatedMapper?.[_id] && updatedMapper?.[_id]?.length > 1) {
+						let duplicatedArray = [...updatedMapper?.[_id]];
+						for (let i = 0; i < duplicatedArray?.length; i++) {
+							if (i === 0) {
+								duplicatedArray[i] = { ...data };
+							} else {
+								let updatedObj = { ...duplicatedArray?.[i], value: data?.value };
+								duplicatedArray[i] = updatedObj;
+							}
+						}
+						const arrayTobeChangedViaApiCall = duplicatedArray?.slice(1);
+						handleUpdateVaraiblesArray(arrayTobeChangedViaApiCall);
+						updatedMapper[_id] = duplicatedArray;
+						setInfo((prev) => ({ ...prev, variableMapper: updatedMapper }));
+					}
+				}
+			}, 1000);
+			setInfo((prev) => ({ ...prev, timeout }));
+		},
+		[info?.variableMapper, info?.timeout],
+	);
+
 	return (
 		<div className="variablesParentContainer">
 			<div className="variableListHolder">
@@ -63,17 +108,16 @@ const Variables = ({
 						/>
 					</div>
 				))}
-			</div>
-
-			<div className="proposalContainer">
-				<div className="inputWithLabelContainer">
-					<span className="labelName">Proposal Validity</span>
-					<input
-						className="custominputContainer"
-						type="text"
-						value={expiryInDays}
-						onChange={onChangeLocalExpiry}
-					/>
+				<div className="proposalContainer">
+					<div className="inputWithLabelContainer">
+						<span className="labelName">Proposal Validity</span>
+						<input
+							className="custominputContainer"
+							type="text"
+							value={expiryInDays}
+							onChange={onChangeLocalExpiry}
+						/>
+					</div>
 				</div>
 			</div>
 		</div>

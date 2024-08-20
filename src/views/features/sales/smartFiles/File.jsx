@@ -433,6 +433,47 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		}
 	}, [info?.duplicateLoader, workflowData]);
 
+	const handleUpdateVaraiblesArray = useCallback(
+		async (updatedDuplicateVariableArray) => {
+			for (let i = 0; i < updatedDuplicateVariableArray?.length; i++) {
+				const updatedData = updatedDuplicateVariableArray?.[i];
+
+				const moduleType = updatedData?.moduleType;
+				let updatedVariableData = { ...info?.variablesData };
+				let variableModuleArraytoBeUpdated = [...(updatedVariableData?.[moduleType] || [])];
+				let index = -1;
+				for (let i = 0; i < variableModuleArraytoBeUpdated?.length; i++) {
+					if (variableModuleArraytoBeUpdated?.[i]?._id === updatedData?._id) {
+						index = i;
+						break;
+					}
+				}
+				if (index !== -1) {
+					variableModuleArraytoBeUpdated?.splice(index, 1, updatedData);
+					updatedVariableData[moduleType] = [...variableModuleArraytoBeUpdated];
+					setInfo((prev) => ({ ...prev, variablesData: updatedVariableData }));
+				}
+
+				let moduleIndex = -1;
+				const moduleData = { ...(info?.[moduleType] || {}) };
+				const moduleVariables = [...(moduleData?.variables || [])];
+				for (let i = 0; i < moduleVariables?.length; i++) {
+					if (moduleVariables?.[i]?._id === updatedData?._id) {
+						moduleIndex = i;
+						break;
+					}
+				}
+				if (moduleIndex !== -1) {
+					moduleVariables?.splice(moduleIndex, 1, updatedData);
+					moduleData.variables = [...moduleVariables];
+					setInfo((prev) => ({ ...prev, [moduleType]: moduleData }));
+				}
+				moduleUpdateFuncWrapper?.[moduleType](moduleData);
+			}
+		},
+		[info?.variablesData, moduleUpdateFuncWrapper],
+	);
+
 	return (
 		<div className="fileParentContainer">
 			<div className="previewContainer">
@@ -485,6 +526,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					editable={edit}
 					expiryInDays={info?.expiryInDays}
 					updateExpiryInDays={updateExpiryInDays}
+					handleUpdateVaraiblesArray={handleUpdateVaraiblesArray}
 				/>
 				<Events
 					eventsData={info?.eventsTableData}
