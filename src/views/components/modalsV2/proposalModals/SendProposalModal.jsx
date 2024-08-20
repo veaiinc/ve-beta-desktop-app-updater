@@ -73,7 +73,7 @@ const SendProposalModal = ({
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			await navigator.clipboard.writeText(
-				`https://${workspaceId}.ve.co/portal/${workflowSlug}`,
+				`https://${workspaceId}.ve.ai/portal/${workflowSlug}`,
 			);
 			closeModal();
 			openCopyModal();

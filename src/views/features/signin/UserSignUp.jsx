@@ -42,6 +42,9 @@ const UserSignUp = ({
 		}
 		localStorage.clear();
 		getGeoGraphicData();
+		return () => {
+			setUsersData((prev) => ({ ...prev, name: '', password: '' }));
+		};
 	}, []);
 
 	const getGeoGraphicData = useCallback(async () => {

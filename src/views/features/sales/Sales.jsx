@@ -154,7 +154,7 @@ const Sales = () => {
 	const openCopyLinkModal = useCallback(async (data) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
-			await navigator.clipboard.writeText(`https://${workspaceId}.ve.co/${data?.slug}`);
+			await navigator.clipboard.writeText(`https://${workspaceId}.ve.ai/${data?.slug}`);
 			setInfo((prev) => ({ ...prev, copyModal: true, activeTemplateData: data }));
 		} catch (err) {
 			console.log('Failed to copy text');
@@ -211,7 +211,7 @@ const Sales = () => {
 				closeModal={closeCopyLinkModal}
 				slug={info?.activeTemplateData?.slug}
 				modules={info?.activeTemplateData?.moduleTemplates?.filter((ele) => ele?.isPublic)}
-				copyLink={`https://${localStorage.getItem('workspaceId')}.ve.co/${
+				copyLink={`https://${localStorage.getItem('workspaceId')}.ve.ai/${
 					info?.activeTemplateData?.slug
 				}`}
 			/>
@@ -220,7 +220,7 @@ const Sales = () => {
 				closeModal={closeGeneratedLinkModal}
 				copyLink={
 					info?.showGeneratedLinkModalData
-						? `https://${localStorage.getItem('workspaceId')}.ve.co/${
+						? `https://${localStorage.getItem('workspaceId')}.ve.ai/${
 								info?.showGeneratedLinkModalData?.slug
 						  }`
 						: ''

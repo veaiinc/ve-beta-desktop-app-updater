@@ -101,7 +101,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 			const newDummyObj = {
 				name: '',
 				description: '',
-				date: 0,
+				date: '',
 				location: '',
 				addlServices: [],
 				roles: [
