@@ -10,7 +10,7 @@ const useActiveWorkspace = () => {
 		localStorage.setItem('workspaceId', workspaceId);
 		Cookies.set('workspaceID', workspaceId, {
 			sameSite: 'lax',
-			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 		});
 	}, [workspaceId]);
 
