@@ -52,7 +52,7 @@ export const UserLoginState = (props) => {
 				Cookies.set('usertoken', accessToken, {
 					// sameSite: 'lax',
 					sameSite: 'none',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 				});
 			}
 			return [true, response?.[1]];
@@ -77,7 +77,7 @@ export const UserLoginState = (props) => {
 				Cookies.set('usertoken', accessToken, {
 					// sameSite: 'lax',
 					sameSite: 'none',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 				});
 			}
 			if (!accessibleWorkspaces?.length) {
@@ -89,7 +89,7 @@ export const UserLoginState = (props) => {
 			Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
 				// sameSite: 'lax',
 				sameSite: 'none',
-				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 			});
 
 			return [true];
@@ -137,7 +137,7 @@ export const UserLoginState = (props) => {
 					Cookies.set('usertoken', accessToken, {
 						// sameSite: 'lax',
 						sameSite: 'none',
-						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 					});
 					return [true];
 				}
@@ -188,7 +188,7 @@ export const UserLoginState = (props) => {
 					Cookies.set('usertoken', accessToken, {
 						// sameSite: 'lax',
 						sameSite: 'none',
-						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 					});
 				}
 				if (!accessibleWorkspaces?.length) {
@@ -200,7 +200,7 @@ export const UserLoginState = (props) => {
 				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
 					// sameSite: 'lax',
 					sameSite: 'none',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 				});
 				return [true];
 			} else {
@@ -234,7 +234,7 @@ export const UserLoginState = (props) => {
 				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
 					// sameSite: 'lax',
 					sameSite: 'none',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 				});
 
 				return [true];
@@ -263,7 +263,7 @@ export const UserLoginState = (props) => {
 					Cookies.set('usertoken', accessToken, {
 						// sameSite: 'lax',
 						sameSite: 'none',
-						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 					});
 				}
 				if (!accessibleWorkspaces?.length) {
@@ -274,7 +274,7 @@ export const UserLoginState = (props) => {
 				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
 					// sameSite: 'lax',
 					sameSite: 'none',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 				});
 				return [true];
 			} else {

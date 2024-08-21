@@ -20,12 +20,12 @@ const OauthVerify = () => {
 				Cookies.set('usertoken', accessToken, {
 					// sameSite: 'lax',
 					sameSite: 'none',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 				});
 				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
 					// sameSite: 'lax',
 					sameSite: 'none',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
 				});
 
 				return navigate('/sales');
