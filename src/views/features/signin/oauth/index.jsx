@@ -18,14 +18,12 @@ const OauthVerify = () => {
 				localStorage.setItem('usertoken', accessToken);
 
 				Cookies.set('usertoken', accessToken, {
-					// sameSite: 'lax',
-					sameSite: 'none',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
 				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
-					// sameSite: 'lax',
-					sameSite: 'none',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
 
 				return navigate('/sales');

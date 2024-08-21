@@ -9,9 +9,8 @@ const useActiveWorkspace = () => {
 	useEffect(() => {
 		localStorage.setItem('workspaceId', workspaceId);
 		Cookies.set('workspaceID', workspaceId, {
-			// sameSite: 'lax',
-			sameSite: 'none',
-			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+			sameSite: 'lax',
+			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 		});
 	}, [workspaceId]);
 

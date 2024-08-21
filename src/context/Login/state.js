@@ -50,9 +50,8 @@ export const UserLoginState = (props) => {
 			if (accessToken?.length) {
 				localStorage.setItem('usertoken', accessToken);
 				Cookies.set('usertoken', accessToken, {
-					// sameSite: 'lax',
-					sameSite: 'none',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
 			}
 			return [true, response?.[1]];
@@ -75,9 +74,8 @@ export const UserLoginState = (props) => {
 			if (accessToken?.length) {
 				localStorage.setItem('usertoken', accessToken);
 				Cookies.set('usertoken', accessToken, {
-					// sameSite: 'lax',
-					sameSite: 'none',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
 			}
 			if (!accessibleWorkspaces?.length) {
@@ -87,9 +85,8 @@ export const UserLoginState = (props) => {
 			localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
 			localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
 			Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
-				// sameSite: 'lax',
-				sameSite: 'none',
-				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+				sameSite: 'lax',
+				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 			});
 
 			return [true];
@@ -135,9 +132,8 @@ export const UserLoginState = (props) => {
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
 					Cookies.set('usertoken', accessToken, {
-						// sameSite: 'lax',
-						sameSite: 'none',
-						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+						sameSite: 'lax',
+						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 					});
 					return [true];
 				}
@@ -186,9 +182,8 @@ export const UserLoginState = (props) => {
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
 					Cookies.set('usertoken', accessToken, {
-						// sameSite: 'lax',
-						sameSite: 'none',
-						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+						sameSite: 'lax',
+						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 					});
 				}
 				if (!accessibleWorkspaces?.length) {
@@ -198,9 +193,8 @@ export const UserLoginState = (props) => {
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
 				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
 				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
-					// sameSite: 'lax',
-					sameSite: 'none',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
 				return [true];
 			} else {
@@ -232,9 +226,8 @@ export const UserLoginState = (props) => {
 				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
 				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
-					// sameSite: 'lax',
-					sameSite: 'none',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
 
 				return [true];
@@ -261,9 +254,8 @@ export const UserLoginState = (props) => {
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
 					Cookies.set('usertoken', accessToken, {
-						// sameSite: 'lax',
-						sameSite: 'none',
-						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+						sameSite: 'lax',
+						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 					});
 				}
 				if (!accessibleWorkspaces?.length) {
@@ -272,9 +264,8 @@ export const UserLoginState = (props) => {
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
 				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
 				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
-					// sameSite: 'lax',
-					sameSite: 'none',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.co',
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
 				return [true];
 			} else {
