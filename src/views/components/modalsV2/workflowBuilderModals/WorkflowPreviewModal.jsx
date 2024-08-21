@@ -49,7 +49,7 @@ const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData, p
 								</span>
 
 								<a
-									href={`https://builder.ve.co/${incomingTemplateData?._id}`}
+									href={`https://builder.ve.ai/${incomingTemplateData?._id}`}
 									className="svgContainer"
 								>
 									<EditSvg /> Customise

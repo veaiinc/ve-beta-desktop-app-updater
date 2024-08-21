@@ -213,7 +213,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 					state: { data: response?.[1] },
 				});
 			} else {
-				window.location.href = `https://builder.ve.co/${response?.[1]?._id}`;
+				window.location.href = `https://builder.ve.ai/${response?.[1]?._id}`;
 				return;
 			}
 		}

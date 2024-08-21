@@ -426,7 +426,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		const response = await duplicateGlobalWorkflowTemplate(payload);
 		setInfo((prev) => ({ ...prev, duplicateLoader: false }));
 		if (response?.[0]) {
-			window.location.href = `https://builder.ve.co/${response?.[1]?._id}?clientName=${
+			window.location.href = `https://builder.ve.ai/${response?.[1]?._id}?clientName=${
 				workflowData?.name || ''
 			}&clientEmail=${workflowData?.email || ''}`;
 			return;

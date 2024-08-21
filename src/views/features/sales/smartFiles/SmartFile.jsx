@@ -264,7 +264,7 @@ const SmartFile = () => {
 				open={info?.copyModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
 				modules={info?.workflowData?.modules?.filter((e) => e?.type !== 'form')}
-				copyLink={`https://${localStorage.getItem('workspaceId')}.ve.co/portal/${
+				copyLink={`https://${localStorage.getItem('workspaceId')}.ve.ai/portal/${
 					info?.workflowData?.slug
 				}`}
 				pin={smartFileInfo?.access?.pin}
