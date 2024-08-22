@@ -45,15 +45,15 @@ const routes = [
 		component: <OauthVerify />,
 	},
 
-	{
-		path: '/inbox',
-		component: (
-			<AuthWrapper title={'Inbox'}>
-				<ChatScreen />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
+	// {
+	// 	path: '/inbox',
+	// 	component: (
+	// 		<AuthWrapper title={'Inbox'}>
+	// 			<ChatScreen />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 
 	{
 		path: '/sales',
