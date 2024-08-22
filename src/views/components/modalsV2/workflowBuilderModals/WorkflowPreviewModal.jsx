@@ -79,7 +79,10 @@ const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData, p
 												dangerouslySetInnerHTML={{
 													__html: info?.templatesMapper?.[e?._id],
 												}}
-												style={{ width: '100%', zoom: 3 }}
+												style={{
+													width: '100%',
+													zoom: e?.module === 'thankyou' ? 5 : 3,
+												}}
 											/>
 										</div>
 									</div>

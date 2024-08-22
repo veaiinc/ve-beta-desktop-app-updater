@@ -292,7 +292,10 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 												dangerouslySetInnerHTML={{
 													__html: info?.templatesMapper?.[e?._id],
 												}}
-												style={{ width: '100%', zoom: 2 }}
+												style={{
+													width: '100%',
+													zoom: e?.module === 'thankyou' ? 5 : 3,
+												}}
 											/>
 										</div>
 									</div>

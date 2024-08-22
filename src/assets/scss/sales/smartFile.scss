@@ -313,6 +313,17 @@
 
 								div {
 									width: 100%;
+
+									p {
+										color: rgb(56, 56, 56);
+									}
+
+									p span {
+										color: rgb(56, 56, 56);
+									}
+									.PhoneInputCountrySelectArrow {
+										display: none;
+									}
 								}
 							}
 						}
