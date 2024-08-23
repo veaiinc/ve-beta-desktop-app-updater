@@ -3,7 +3,7 @@ import Context from '../../../../context/context';
 
 const EventstypeFormResponses = ({ data, index }) => {
 	const answer = JSON.parse(data?.answer || '[]');
-	console.log(answer);
+
 	return (
 		<div className="eventsListCards" key={index}>
 			<span className="eventTitle">{`Response ${index + 1}`}</span>

@@ -18,6 +18,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			updateForm,
 			updateThankyou,
 			duplicateGlobalWorkflowTemplate,
+			formResponseData,
 		},
 	} = useContext(Context);
 
@@ -37,6 +38,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		templatesMapper: null,
 		duplicateLoader: false,
 		expiryInDays: null,
+		varibalesModified: false,
 	});
 
 	//useEffects
@@ -148,6 +150,36 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			setInfo((prev) => ({ ...prev, expiryInDays }));
 		}
 	}, [info?.proposal]);
+
+	useEffect(() => {
+		if (formResponseData && info?.variablesData && !info?.varibalesModified) {
+			const { response } = formResponseData || {};
+			let formVaribalesObj = {};
+			for (let i = 0; i < response?.length; i++) {
+				if (response?.[i]?.variableId) {
+					formVaribalesObj[response?.[i]?.variableId] = response?.[i]?.answer;
+				}
+			}
+
+			const updatedVariablesData = { ...info?.variablesData };
+			const keyArray = Object.keys(updatedVariablesData);
+			for (let i = 0; i < keyArray?.length; i++) {
+				let currentKey = keyArray?.[i];
+				let currentKeyArray = [...(updatedVariablesData?.[currentKey] || [])];
+
+				for (let j = 0; j < currentKeyArray?.length; j++) {
+					if (formVaribalesObj?.[currentKeyArray?.[j]?._id]) {
+						currentKeyArray[j].value = formVaribalesObj?.[currentKeyArray?.[j]?._id];
+					}
+				}
+			}
+			setInfo((prev) => ({
+				...prev,
+				variablesData: updatedVariablesData,
+				varibalesModified: true,
+			}));
+		}
+	}, [info?.variablesData, formResponseData, info?.varibalesModified]);
 
 	//function defination
 
