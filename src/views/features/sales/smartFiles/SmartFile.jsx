@@ -3,7 +3,7 @@ import '../.././../../assets/scss/sales/smartFile.scss';
 import SmartFileHeader from '../../../components/smartFileComponets/SmartFileHeader';
 import FormResponses from './FormResponses';
 import File from './File';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import Context from '../../../../context/context';
 import SendProposalModal from '../../../components/modalsV2/proposalModals/SendProposalModal';
 import CopiedModal from '../../../components/modalsV2/workflowsModals/CopiedModal';
@@ -12,6 +12,7 @@ import MoveStageModal from '../../../components/modalsV2/workflowsModals/moveSta
 import SmartFileLoader from './SmartFileLoader';
 const SmartFile = () => {
 	const location = useLocation();
+	const { templateId } = useParams();
 
 	let {
 		templates: {
@@ -23,12 +24,14 @@ const SmartFile = () => {
 			getSignedUrlForContracts,
 			moveWorkflowStatus,
 			updateStateValues,
+			getSpecificTemplatesInfo,
+			specificTemplatesInfo,
 		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		activeTab: 'file', //form,file
-		incomingData: location?.state?.data,
+		incomingData: null,
 		workflowId: location?.state?.workflowId,
 		sendSmartFileModal: false,
 		workflowData: location?.state?.workflow,
@@ -43,10 +46,27 @@ const SmartFile = () => {
 	//useEffect
 	useEffect(() => {
 		getSmartFileInfo();
+		if (templateId) {
+			getSpecificTemplatesInfo({
+				templateInfoId: templateId,
+			});
+		}
 		return () => {
-			updateStateValues({ smartFileInfo: null });
+			updateStateValues({ smartFileInfo: null, specificTemplatesInfo: null });
 		};
 	}, []);
+
+	useEffect(() => {
+		if (specificTemplatesInfo) {
+			setInfo((prev) => ({ ...prev, incomingData: specificTemplatesInfo }));
+		}
+	}, [specificTemplatesInfo]);
+
+	useEffect(() => {
+		if (smartFileInfo && specificTemplatesInfo) {
+			setInfo((prev) => ({ ...prev, loading: false }));
+		}
+	}, [smartFileInfo, specificTemplatesInfo]);
 
 	useEffect(() => {
 		if (info?.workflowData) {
@@ -62,7 +82,6 @@ const SmartFile = () => {
 				...prev,
 				workflowStatus: smartFileInfo?.status,
 				edit,
-				loading: false,
 			}));
 		}
 	}, [smartFileInfo]);

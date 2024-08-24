@@ -489,9 +489,8 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 										className="modalSubCard"
 										key={index}
 										onClick={() =>
-											navigate('/smart-file', {
+											navigate(`/smart-file/${activeTemplateData?._id}`, {
 												state: {
-													data: activeTemplateData,
 													workflowId: item?._id,
 													workflow: item,
 												},

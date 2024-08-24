@@ -11,7 +11,12 @@ const MyWorkflowModalsLoader = () => {
 			}}
 		>
 			{[{}, {}, {}, {}, {}, {}, {}, {}, {}]?.map((item, index) => (
-				<Skeleton width={'366px'} height={'59px'} style={{ borderRadius: '16px' }} />
+				<Skeleton
+					width={'366px'}
+					height={'59px'}
+					style={{ borderRadius: '16px' }}
+					key={index}
+				/>
 			))}
 		</div>
 	);
