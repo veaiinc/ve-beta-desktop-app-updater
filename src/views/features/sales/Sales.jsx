@@ -167,9 +167,7 @@ const Sales = () => {
 
 	const navigateToWorkflowBuilder = useCallback(
 		async (data) => {
-			return navigate('/workflow_builder', {
-				state: { data },
-			});
+			return navigate(`/workflow_builder/${data?._id}`);
 		},
 		[info?.activeTemplateData],
 	);

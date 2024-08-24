@@ -45,31 +45,6 @@ export const duplicateTemplateQuery = gql`
 	mutation DuplicateWorkflowTemplate($templateId: ID!, $title: String!) {
 		duplicateWorkflowTemplate(templateId: $templateId, title: $title) {
 			_id
-			tenantId
-			slug
-			moduleTemplates {
-				module
-				order
-				_id
-				isPublic
-			}
-			templates
-			steps {
-				_id
-				criteria
-				module
-				nextStepId
-				nextStepType
-				emailTemplateTitle
-				emailTemplateSubject
-				emailTemplateId
-				sendAt
-				order
-				type
-			}
-			status
-			title
-			workflows
 		}
 	}
 `;
@@ -324,6 +299,39 @@ export const moveWorkflowStatusQuery = gql`
 	) {
 		updateWorkflowStatus(id: $updateWorkflowStatusId, workflowInput: $workflowInput) {
 			message
+		}
+	}
+`;
+
+export const getSpecifiTemplatesInfoQuery = gql`
+	query TemplateInfo($templateInfoId: ID!) {
+		templateInfo(id: $templateInfoId) {
+			_id
+			moduleTemplates {
+				module
+				order
+				_id
+				isPublic
+			}
+			status
+
+			tenantId
+			title
+			templates
+			steps {
+				_id
+				criteria
+				module
+				nextStepId
+				nextStepType
+				emailTemplateTitle
+				emailTemplateSubject
+				emailTemplateId
+				sendAt
+				order
+				type
+			}
+			slug
 		}
 	}
 `;

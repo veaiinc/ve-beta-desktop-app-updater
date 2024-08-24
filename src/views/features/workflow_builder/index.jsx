@@ -6,7 +6,7 @@ import WorkflowBuilderCards from '../../components/workflowBuilderComponents/Wor
 import WorkflowConnector from '../../components/workflowBuilderComponents/WorkflowConnector';
 import WorkflowCardEditModal from '../../components/modalsV2/workflowBuilderModals/WorkflowCardEditModal';
 import Context from '../../../context/context';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import WorkflowPreviewModal from '../../components/modalsV2/workflowBuilderModals/WorkflowPreviewModal';
 import Spinner from '../../components/loaders/Spinner';
 import RenameWorkflow from '../../components/modalsV2/workflowBuilderModals/RenameWorkflow';
@@ -14,6 +14,7 @@ import HeadersDropDownComp from '../../components/dropDown/HeadersDropDownComp';
 import DuplicateIndicatorModal from '../../components/modalsV2/workflowBuilderModals/DuplicateIndicatorModal';
 import ExitWithoutPublishingModal from '../../components/modalsV2/workflowBuilderModals/ExitWithoutPublishingModal';
 import { ReactComponent as VE } from '../../../assets/svg/smallVe.svg';
+import WorkflowBuilderLoader from './workflowBuilderLoader';
 const options = [
 	{ label: 'Rename Workflow' },
 	// { label: 'Duplicate Workflow' },
@@ -28,12 +29,14 @@ const WorkflowBuilder = () => {
 			updateStateValues,
 			getMyWorkflows,
 			getTemplatesListForCreateLead,
+			getSpecificTemplatesInfo,
+			specificTemplatesInfo,
 			duplicateGlobalWorkflowTemplate,
 		},
 	} = useContext(Context);
 
-	const location = useLocation();
 	const navigate = useNavigate();
+	const { templateId } = useParams();
 
 	const [info, setInfo] = useState({
 		data: null,
@@ -42,7 +45,7 @@ const WorkflowBuilder = () => {
 		mode: 'create',
 		currentStepInfo: null,
 		currentStepIndex: null,
-		incomingTemplateData: location?.state?.data,
+		incomingTemplateData: null,
 		previewModal: false,
 		publishLoading: false,
 		renameModal: false,
@@ -51,11 +54,23 @@ const WorkflowBuilder = () => {
 		publicData: null,
 		privateData: null,
 		previewType: null,
+		loading: true,
 	});
 
 	useEffect(() => {
-		if (location?.state?.data?.steps?.length) {
-			const incomingData = location?.state?.data;
+		if (templateId) {
+			getSpecificTemplatesInfo({
+				templateInfoId: templateId,
+			});
+		}
+		return () => {
+			updateStateValues({ specificTemplatesInfo: null });
+		};
+	}, []);
+
+	useEffect(() => {
+		if (specificTemplatesInfo?.steps?.length) {
+			const incomingData = specificTemplatesInfo;
 			const steps = [...(incomingData?.steps || [])];
 			let stepsData = [];
 			stepsData?.push(steps?.[0]);
@@ -67,13 +82,18 @@ const WorkflowBuilder = () => {
 			steps.shift();
 			stepsData = [...stepsData, ...steps];
 			stepsData?.push({ module: 'theEnd' });
-			setInfo((prev) => ({ ...prev, data: stepsData }));
+			setInfo((prev) => ({
+				...prev,
+				data: stepsData,
+				loading: false,
+				incomingTemplateData: specificTemplatesInfo,
+			}));
 		}
-	}, [location?.state?.data]);
+	}, [specificTemplatesInfo]);
 
 	useEffect(() => {
-		if (location?.state?.data) {
-			const { moduleTemplates, templates } = location?.state?.data;
+		if (specificTemplatesInfo) {
+			const { moduleTemplates, templates } = specificTemplatesInfo;
 			let publicData = {};
 			let privateData = {};
 
@@ -99,7 +119,7 @@ const WorkflowBuilder = () => {
 			}
 			setInfo((prev) => ({ ...prev, publicData, privateData }));
 		}
-	}, [location?.state?.data]);
+	}, [specificTemplatesInfo]);
 
 	const closeModalFunc = useCallback(() => {
 		setInfo((prev) => ({
@@ -348,32 +368,36 @@ const WorkflowBuilder = () => {
 			</div>
 			<div className="workflowBuilderSeperator"></div>
 			<div className="workflowBuilderContentContainer">
-				{info?.data?.map((ele, index) => (
-					<div
-						key={index}
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'center',
-							gap: '10px',
-						}}
-					>
-						<WorkflowBuilderCards
-							workflowdata={ele}
-							openModal={openModal}
-							index={index}
-							templateData={info?.incomingTemplateData}
-							openPreviewModal={openPreviewModal}
-							publicData={info?.publicData}
-							privateData={info?.privateData}
-						/>
-						{index < info?.data?.length - 1 ? (
-							<WorkflowConnector alterData={alterData} index={index} />
-						) : (
-							''
-						)}
-					</div>
-				))}
+				{info?.loading ? (
+					<WorkflowBuilderLoader />
+				) : (
+					info?.data?.map((ele, index) => (
+						<div
+							key={index}
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'center',
+								gap: '10px',
+							}}
+						>
+							<WorkflowBuilderCards
+								workflowdata={ele}
+								openModal={openModal}
+								index={index}
+								templateData={info?.incomingTemplateData}
+								openPreviewModal={openPreviewModal}
+								publicData={info?.publicData}
+								privateData={info?.privateData}
+							/>
+							{index < info?.data?.length - 1 ? (
+								<WorkflowConnector alterData={alterData} index={index} />
+							) : (
+								''
+							)}
+						</div>
+					))
+				)}
 				<WorkflowCardEditModal
 					closeModalFunc={closeModalFunc}
 					modalIsOpen={info?.modalIsOpen}

@@ -14,16 +14,8 @@ const actionHandlers = {
 		[action.selectedvariable]: action.payload,
 	}),
 
-	//delete this functions later
-	GET_ALL_TEMPLATES_INFO_SUCCESS: (state, action) => ({
-		...state,
-		templatesInfo: action.payload,
-	}),
 	UPDATE_STATE_VALUES_SUCCESS: (state, action) => ({ ...state, ...action.payload }),
-	GET_SPECIFIC_TEMPLATE_INFO_SUCCESS: (state, action) => ({
-		...state,
-		specificTemplatesInfo: action.payload,
-	}),
+
 	GET_ALL_EMAIL_TEMPLATES_SUCCESS: (state, action) => ({
 		...state,
 		allEmailTemplates: action.payload,
@@ -39,6 +31,10 @@ const actionHandlers = {
 	GET_FORM_RESPONSES_SUCCESS: (state, action) => ({
 		...state,
 		formResponseData: action.payload,
+	}),
+	GET_SPECIFIC_TEMPLATE_INFO_SUCCESS: (state, action) => ({
+		...state,
+		specificTemplatesInfo: action.payload,
 	}),
 	RESET_STATE: () => intialState,
 };

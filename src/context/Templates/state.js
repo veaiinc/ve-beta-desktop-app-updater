@@ -22,6 +22,7 @@ import {
 	changeWorkflowStatusQuery,
 	getSignedUrlForContractsQuery,
 	moveWorkflowStatusQuery,
+	getSpecifiTemplatesInfoQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -31,8 +32,6 @@ export const intialState = {
 	workflowslist: null,
 	moreWorkList: null,
 	clientList: null,
-	templatesInfo: null, //delete this later
-	specificTemplatesInfo: null,
 	allEmailTemplates: null,
 	myWorkflows: null,
 	myMoreWorkflows: null,
@@ -44,6 +43,7 @@ export const intialState = {
 	formResponseData: null,
 	generatePublicLinkData: null,
 	contractSignedLocalState: null,
+	specificTemplatesInfo: null,
 };
 
 export const TemplatesState = (props) => {
@@ -627,6 +627,30 @@ export const TemplatesState = (props) => {
 			console.log('api failed ==>moveWorkflowStatus', error);
 		}
 	};
+
+	const getSpecificTemplatesInfo = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getSpecifiTemplatesInfoQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SPECIFIC_TEMPLATE_INFO_SUCCESS,
+					payload: response?.[1]?.data?.templateInfo,
+				});
+			} else {
+				console.log('handle the error getSpecificTemplatesInfo', response);
+			}
+		} catch (error) {
+			console.log('api failed ==>getSpecificTemplatesInfo', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -655,5 +679,6 @@ export const TemplatesState = (props) => {
 		getSignedUrlForContracts,
 		uploadContractSignature,
 		moveWorkflowStatus,
+		getSpecificTemplatesInfo,
 	};
 };

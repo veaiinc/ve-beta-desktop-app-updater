@@ -209,9 +209,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 		setInfo((prev) => ({ ...prev, duplicateApiLoading: false }));
 		if (response?.[0]) {
 			if (info?.activeTab !== 'design') {
-				return navigate('/workflow_builder', {
-					state: { data: response?.[1] },
-				});
+				return navigate(`/workflow_builder/${response?.[1]?._id}`);
 			} else {
 				window.location.href = `https://builder.ve.ai/${response?.[1]?._id}`;
 				return;
