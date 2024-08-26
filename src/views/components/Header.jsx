@@ -102,14 +102,14 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 			) : (
 				<div className="headerPlaceCenter">
 					<div className="headerModulesContainer">
-						{/* <div
+						<div
 							className={`filterButton ${
 								title === 'Inbox' ? 'filterButtonActive' : ''
 							}`}
 							onClick={() => navigate('/inbox')}
 						>
 							Inbox
-						</div> */}
+						</div>
 						<div
 							className={`filterButton ${
 								title === 'Sales' ? 'filterButtonActive' : ''
