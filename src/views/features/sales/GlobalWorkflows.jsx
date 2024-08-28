@@ -167,7 +167,7 @@ const GlobalWorkflows = () => {
 			<GlobalWorkflowModal
 				modalIsOpen={info?.modalIsOpen}
 				closeModal={closeModal}
-				activeTemplateData={info?.activeTemplateData}
+				globalTemplateId={info?.activeTemplateData?._id}
 			/>
 		</div>
 	);

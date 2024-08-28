@@ -14,6 +14,7 @@ const initialState = {
 	templatesMapper: null,
 	publicData: null,
 	privateData: null,
+	activeTemplateData: null,
 };
 
 const EntryPointCard = ({ publicData }) => {
@@ -132,27 +133,53 @@ const AutomationComponent = ({ activeTemplateData, publicData, privateData }) =>
 	);
 };
 
-const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) => {
+const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 	const navigate = useNavigate();
 	let {
-		templates: { duplicateGlobalWorkflowTemplate },
+		templates: {
+			duplicateGlobalWorkflowTemplate,
+			getSpecificTemplatesInfo,
+			specificTemplatesInfo,
+			updateStateValues,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState(initialState);
 
 	useEffect(() => {
-		if (activeTemplateData) {
-			const { templates } = activeTemplateData || {};
+		if (globalTemplateId) {
+			getSpecificTemplatesInfo({
+				templateInfoId: globalTemplateId,
+			});
+		}
+		return () => {
+			updateStateValues({ specificTemplatesInfo: null });
+		};
+	}, [globalTemplateId]);
+
+	useEffect(() => {
+		if (specificTemplatesInfo) {
+			setInfo((prev) => ({
+				...prev,
+				loading: false,
+				activeTemplateData: specificTemplatesInfo,
+			}));
+		}
+	}, [specificTemplatesInfo]);
+
+	useEffect(() => {
+		if (info?.activeTemplateData) {
+			const { templates } = info?.activeTemplateData || {};
 			let obj = {};
 			for (let i = 0; i < templates?.length; i++) {
 				obj[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
 			}
 			setInfo((prev) => ({ ...prev, templatesMapper: obj }));
 		}
-	}, [activeTemplateData]);
+	}, [info?.activeTemplateData]);
 
 	useEffect(() => {
-		if (activeTemplateData) {
-			const { moduleTemplates, templates } = activeTemplateData;
+		if (info?.activeTemplateData) {
+			const { moduleTemplates, templates } = info?.activeTemplateData;
 			let publicData = {};
 			let privateData = {};
 
@@ -178,7 +205,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 			}
 			setInfo((prev) => ({ ...prev, publicData, privateData }));
 		}
-	}, [activeTemplateData]);
+	}, [info?.activeTemplateData]);
 
 	//function defination
 	const changeActiveTab = useCallback(
@@ -194,6 +221,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 	const modifiedCloseModal = useCallback(async () => {
 		setInfo(initialState);
 		closeModal();
+		updateStateValues({ specificTemplatesInfo: null });
 	}, [closeModal]);
 
 	const onCustomiseFunc = useCallback(async () => {
@@ -202,8 +230,8 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 		}
 		setInfo((prev) => ({ ...prev, duplicateApiLoading: true }));
 		const payload = {
-			templateId: activeTemplateData?._id,
-			title: activeTemplateData?.title,
+			templateId: info?.activeTemplateData?._id,
+			title: info?.activeTemplateData?.title,
 		};
 		const response = await duplicateGlobalWorkflowTemplate(payload);
 		setInfo((prev) => ({ ...prev, duplicateApiLoading: false }));
@@ -215,7 +243,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 				return;
 			}
 		}
-	}, [activeTemplateData, info?.activeTab, info?.duplicateApiLoading]);
+	}, [info?.activeTemplateData, info?.activeTab, info?.duplicateApiLoading]);
 
 	return (
 		<Drawer
@@ -277,7 +305,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 					</div>
 					{info?.activeTab === 'design' ? (
 						<div className="innerMainContent">
-							{activeTemplateData?.moduleTemplates?.map((e, index) => (
+							{info?.activeTemplateData?.moduleTemplates?.map((e, index) => (
 								<div
 									className="modulesViewer"
 									key={index}
@@ -302,7 +330,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 						</div>
 					) : (
 						<AutomationComponent
-							activeTemplateData={activeTemplateData}
+							activeTemplateData={info?.activeTemplateData}
 							publicData={info?.publicData}
 							privateData={info?.privateData}
 						/>
