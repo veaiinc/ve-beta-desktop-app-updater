@@ -47,14 +47,14 @@ const EndPointViewCard = () => {
 		</div>
 	);
 };
-const OtherViewCard = () => {
+const OtherViewCard = ({ data }) => {
 	return (
 		<div className="otherViewCard">
 			<div className="sendEmailHeader">
 				<EmailSvg />
 				<span className="sendEmailText">Send Email</span>
 			</div>
-			<span className="emailSubjectText">Thank You for Your Enquiry</span>
+			<span className="emailSubjectText">{data?.emailTemplateSubject}</span>
 			<span className="subalabel">Immediately after enquiry form is submitted </span>
 		</div>
 	);
@@ -131,7 +131,7 @@ const AutomationComponent = ({ activeTemplateData, publicData, privateData, load
 						) : data?.componentmapper?.[ele?.module] ? (
 							data?.componentmapper?.[ele?.module]
 						) : (
-							<OtherViewCard />
+							<OtherViewCard data={ele} />
 						)}
 						{index < data?.stepsData?.length - 1 ? <ConnectorSvg /> : ''}
 					</div>
