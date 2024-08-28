@@ -63,7 +63,12 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 										onLocalServiceDataChange(ind, index, 'show', val)
 									}
 								/>
-								<span className="serviceCardTitle">{val?.title || ''}</span>
+								<span className="serviceCardTitle">
+									{val?.title
+										?.replace(/&nbsp;/g, ' ')
+										.replace(/<\/?[^>]+(>|$)/g, '')
+										.replace(/"/g, '') || ''}
+								</span>
 							</div>
 							<div className="serviceQuantityContainer">
 								<span className="quantityTitle">Quantity</span>
