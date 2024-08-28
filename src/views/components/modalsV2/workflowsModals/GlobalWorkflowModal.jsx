@@ -8,6 +8,8 @@ import { ReactComponent as EmailSvg } from '../../../../assets/svg/worflow_build
 import Context from '../../../../context/context';
 import Spinner from '../../../components/loaders/Spinner';
 import { Drawer } from 'antd';
+import GlobalWorkflowDesignModalLoader from './GlobalWorkflowDesignModalLoader';
+import GlobalWorkflowAutomationLoader from './GlobalWorkflowAutomationLoader';
 const initialState = {
 	activeTab: 'design', //design,automation
 	duplicateApiLoading: false,
@@ -15,6 +17,7 @@ const initialState = {
 	publicData: null,
 	privateData: null,
 	activeTemplateData: null,
+	loading: true,
 };
 
 const EntryPointCard = ({ publicData }) => {
@@ -24,7 +27,7 @@ const EntryPointCard = ({ publicData }) => {
 				<div className="coverImage">
 					<div
 						dangerouslySetInnerHTML={{
-							__html: Object.values(publicData)?.[0]?.parsedHtmlContent,
+							__html: Object?.values(publicData || {})?.[0]?.parsedHtmlContent,
 						}}
 						style={{ width: '100%' }}
 					/>
@@ -64,7 +67,7 @@ const PreviewCard = ({ privateData }) => {
 				<div className="coverImage">
 					<div
 						dangerouslySetInnerHTML={{
-							__html: Object.values(privateData)?.[0]?.parsedHtmlContent,
+							__html: Object?.values(privateData || {})?.[0]?.parsedHtmlContent,
 						}}
 						style={{ width: '100%' }}
 					/>
@@ -81,7 +84,7 @@ const PreviewCard = ({ privateData }) => {
 	);
 };
 
-const AutomationComponent = ({ activeTemplateData, publicData, privateData }) => {
+const AutomationComponent = ({ activeTemplateData, publicData, privateData, loading }) => {
 	const [data, setData] = useState({
 		stepsData: null,
 		componentmapper: {
@@ -109,26 +112,30 @@ const AutomationComponent = ({ activeTemplateData, publicData, privateData }) =>
 
 	return (
 		<div className="autoMationDiv">
-			{data?.stepsData?.map((ele, index) => (
-				<div
-					key={index}
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'center',
-						justifyContent: 'center',
-					}}
-				>
-					{index === 0 ? (
-						<EntryPointCard publicData={publicData} />
-					) : data?.componentmapper?.[ele?.module] ? (
-						data?.componentmapper?.[ele?.module]
-					) : (
-						<OtherViewCard />
-					)}
-					{index < data?.stepsData?.length - 1 ? <ConnectorSvg /> : ''}
-				</div>
-			))}
+			{loading ? (
+				<GlobalWorkflowAutomationLoader />
+			) : (
+				data?.stepsData?.map((ele, index) => (
+					<div
+						key={index}
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'center',
+							justifyContent: 'center',
+						}}
+					>
+						{index === 0 ? (
+							<EntryPointCard publicData={publicData} />
+						) : data?.componentmapper?.[ele?.module] ? (
+							data?.componentmapper?.[ele?.module]
+						) : (
+							<OtherViewCard />
+						)}
+						{index < data?.stepsData?.length - 1 ? <ConnectorSvg /> : ''}
+					</div>
+				))
+			)}
 		</div>
 	);
 };
@@ -305,34 +312,39 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 					</div>
 					{info?.activeTab === 'design' ? (
 						<div className="innerMainContent">
-							{info?.activeTemplateData?.moduleTemplates?.map((e, index) => (
-								<div
-									className="modulesViewer"
-									key={index}
-									style={{ pointerEvents: 'none' }}
-								>
-									<span>{e?.module}</span>
-									<div className="imageContainer">
-										<div className="coverImage">
-											<div
-												dangerouslySetInnerHTML={{
-													__html: info?.templatesMapper?.[e?._id],
-												}}
-												style={{
-													width: '100%',
-													zoom: e?.module === 'thankyou' ? 5 : 3,
-												}}
-											/>
+							{info?.loading ? (
+								<GlobalWorkflowDesignModalLoader />
+							) : (
+								info?.activeTemplateData?.moduleTemplates?.map((e, index) => (
+									<div
+										className="modulesViewer"
+										key={index}
+										style={{ pointerEvents: 'none' }}
+									>
+										<span>{e?.module}</span>
+										<div className="imageContainer">
+											<div className="coverImage">
+												<div
+													dangerouslySetInnerHTML={{
+														__html: info?.templatesMapper?.[e?._id],
+													}}
+													style={{
+														width: '100%',
+														zoom: e?.module === 'thankyou' ? 5 : 3,
+													}}
+												/>
+											</div>
 										</div>
 									</div>
-								</div>
-							))}
+								))
+							)}
 						</div>
 					) : (
 						<AutomationComponent
 							activeTemplateData={info?.activeTemplateData}
 							publicData={info?.publicData}
 							privateData={info?.privateData}
+							loading={info?.loading}
 						/>
 					)}
 				</div>
