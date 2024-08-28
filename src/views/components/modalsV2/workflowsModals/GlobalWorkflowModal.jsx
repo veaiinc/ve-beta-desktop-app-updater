@@ -96,7 +96,8 @@ const AutomationComponent = ({ activeTemplateData, publicData, privateData, load
 	useEffect(() => {
 		if (activeTemplateData?.steps?.length) {
 			const steps = [...(activeTemplateData?.steps || [])];
-			const stepsData = [];
+
+			let stepsData = [];
 			stepsData?.push(steps?.[0]);
 			stepsData?.push({
 				module: 'preview',
@@ -104,7 +105,7 @@ const AutomationComponent = ({ activeTemplateData, publicData, privateData, load
 				parsedHtmlContent: activeTemplateData?.templates?.[0]?.parsedHtmlContent,
 			});
 			steps.shift();
-			stepsData?.concat(steps);
+			stepsData = stepsData?.concat(steps);
 			stepsData?.push({ module: 'theEnd' });
 			setData((prev) => ({ ...prev, stepsData }));
 		}
