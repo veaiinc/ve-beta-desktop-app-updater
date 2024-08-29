@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
 import PublicLinkGeneratedModal from '../../components/modalsV2/workflowsModals/PublicLinkGeneratedModal';
 import MyWorkflowLoader from './MyWorkflowLoader';
+import PageLoader from '../../components/loaders/PageLoader';
 
 const Sales = () => {
 	let {
@@ -181,10 +182,11 @@ const Sales = () => {
 				loader={<FetchMoreLoaderComp />}
 			>
 				{info?.loading ? (
-					<div className="salesParentContainer">
-						<MyWorkflowLoader />
-					</div>
+					<PageLoader />
 				) : (
+					// <div className="salesParentContainer">
+					// 	<MyWorkflowLoader />
+					// </div>
 					<div className="salesParentContainer">
 						{info?.myWorkflowData?.map((e, index) => (
 							<MyWorkflowsCard

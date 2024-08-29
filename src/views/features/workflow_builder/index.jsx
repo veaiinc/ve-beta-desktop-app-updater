@@ -15,6 +15,7 @@ import DuplicateIndicatorModal from '../../components/modalsV2/workflowBuilderMo
 import ExitWithoutPublishingModal from '../../components/modalsV2/workflowBuilderModals/ExitWithoutPublishingModal';
 import { ReactComponent as VE } from '../../../assets/svg/smallVe.svg';
 import WorkflowBuilderLoader from './workflowBuilderLoader';
+import PageLoader from '../../components/loaders/PageLoader';
 const options = [
 	{ label: 'Rename Workflow' },
 	// { label: 'Duplicate Workflow' },
@@ -369,8 +370,9 @@ const WorkflowBuilder = () => {
 			<div className="workflowBuilderSeperator"></div>
 			<div className="workflowBuilderContentContainer">
 				{info?.loading ? (
-					<WorkflowBuilderLoader />
+					<PageLoader />
 				) : (
+					// <WorkflowBuilderLoader />
 					info?.data?.map((ele, index) => (
 						<div
 							key={index}

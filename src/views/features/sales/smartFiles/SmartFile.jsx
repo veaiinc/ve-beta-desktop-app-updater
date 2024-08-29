@@ -10,6 +10,7 @@ import CopiedModal from '../../../components/modalsV2/workflowsModals/CopiedModa
 import UploadSignature from '../../../components/modalsV2/workflowsModals/UploadSignature';
 import MoveStageModal from '../../../components/modalsV2/workflowsModals/moveStageModal';
 import SmartFileLoader from './SmartFileLoader';
+import PageLoader from '../../../components/loaders/PageLoader';
 const SmartFile = () => {
 	const location = useLocation();
 	const { templateId } = useParams();
@@ -240,7 +241,8 @@ const SmartFile = () => {
 	);
 
 	return info?.loading ? (
-		<SmartFileLoader />
+		// <SmartFileLoader />
+		<PageLoader />
 	) : (
 		<div className="smartFileParentContainer">
 			<SmartFileHeader
