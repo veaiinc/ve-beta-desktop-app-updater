@@ -264,9 +264,17 @@ export const createLeadfromTemplatesQuery = gql`
 	}
 `;
 
-export const workflowsLinkQuery = gql`
-	mutation WorkflowLink($clientEmail: String!, $workflowId: ID!) {
-		workflowLink(clientEmail: $clientEmail, workflowId: $workflowId)
+export const sendSmartFileMutation = gql`
+	mutation ShareWorkflowLink(
+		$clientEmail: String!
+		$workflowId: ID!
+		$mailContent: mailContentInput
+	) {
+		shareWorkflowLink(
+			clientEmail: $clientEmail
+			workflowId: $workflowId
+			mailContent: $mailContent
+		)
 	}
 `;
 
@@ -333,5 +341,11 @@ export const getSpecifiTemplatesInfoQuery = gql`
 			}
 			slug
 		}
+	}
+`;
+
+export const getSendSmartFileTemplateQuery = gql`
+	query Query {
+		getWorflowEmailTemplate
 	}
 `;

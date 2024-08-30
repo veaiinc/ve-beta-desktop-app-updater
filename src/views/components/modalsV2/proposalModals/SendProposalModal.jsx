@@ -1,8 +1,11 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/modules/workflow/sendProposal.scss';
 import Context from '../../../../context/context';
-
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
+import ToggleSlider from '../../../components/input/slider';
+import JoditEditor from 'jodit-react';
+import { message } from 'antd';
 const SendProposalModal = ({
 	open,
 	closeModal,
@@ -15,59 +18,34 @@ const SendProposalModal = ({
 	changeEditStatus,
 }) => {
 	const {
-		templates: { sendSmartFile, chnageWorkflowStats },
+		templates: {
+			sendSmartFile,
+			chnageWorkflowStats,
+			getSendSmartFileEmailTemplate,
+			smartFileEmailTemplateData,
+		},
 	} = useContext(Context);
+	const editor = useRef(null);
 
 	const [info, setInfo] = useState({
 		subject: '',
 		emailBody: '',
-		selectedtemplate: 'invoice',
-		templateChange: false,
 		name: clientDetails?.name,
 	});
 
-	const options = {
-		invoice: {
-			value: 'invoice',
-			label: 'Send Invoice',
-			subject: `Hello there ${clientDetails?.name}, here’s a Invoice for you`,
-		},
-		contract: {
-			value: 'contract',
-			label: 'Send Contract',
-			subject: `Hello there ${clientDetails?.name}, here’s a contract for you`,
-		},
-		proposal: {
-			value: 'proposal',
-			label: 'Send Proposal',
-			subject: `Hello there ${clientDetails?.name}, here’s a proposal for you`,
-		},
-		forms: {
-			value: 'forms',
-			label: 'Send Forms',
-			subject: `Hello there ${clientDetails?.name}, here’s a forms for you`,
-		},
-	};
+	useEffect(() => {
+		getSendSmartFileEmailTemplate();
+	}, []);
 
 	useEffect(() => {
-		if (info?.templateChange) {
+		if (smartFileEmailTemplateData) {
 			setInfo((prev) => ({
 				...prev,
-				subject: options?.[info?.selectedtemplate]?.subject,
+				subject: smartFileEmailTemplateData?.subject || '',
+				emailBody: smartFileEmailTemplateData?.htmlBody || '',
 			}));
 		}
-	}, [info?.selectedtemplate, info?.templateChange]);
-
-	useEffect(() => {
-		if (clientDetails) {
-			setInfo((prev) => ({
-				...prev,
-				subject: `Hello there ${clientDetails?.name}, here’s a Invoice for you`,
-				emailBody: `Hi ${clientDetails?.name},Attached is the file for your review. Please let me know if you have any questions or need any further information. {Invoice Link} Best regards,[Your Name]`,
-				name: clientDetails?.name,
-			}));
-		}
-	}, [clientDetails]);
+	}, [smartFileEmailTemplateData]);
 
 	const handleCopy = useCallback(async () => {
 		try {
@@ -92,10 +70,16 @@ const SendProposalModal = ({
 
 	const handleSendProposalViaEmail = useCallback(async () => {
 		closeModal();
+		message.success('Email Sent Successfully');
 		const payload = {
 			clientEmail: clientDetails?.email,
 			workflowId: workflowId,
+			mailContent: {
+				htmlBody: info?.emailBody,
+				subject: info?.subject,
+			},
 		};
+
 		sendSmartFile(payload);
 
 		if (workflowStatus === 'enquiry') {
@@ -105,56 +89,67 @@ const SendProposalModal = ({
 			changelocalWorflowStatus('filesSent');
 			changeEditStatus(false);
 		}
-	}, [clientDetails, workflowId, workflowStatus]);
+	}, [clientDetails, workflowId, workflowStatus, info?.emailBody, info?.subject]);
 
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
 			<div className="sendProposalContainer">
 				<div className="uppercontainer">
-					<span className="modalHeader">Send File</span>
-					{/* select Template */}
-					<div className="inputWrapperForEmail">
-						<span className="labelStyling">Select Template</span>
-						<select
-							className="selectContainer"
-							onChange={(e) =>
-								setInfo((prev) => ({
-									...prev,
-									selectedtemplate: e?.target?.value,
-									templateChange: true,
-								}))
-							}
-						>
-							{Object.values(options)?.map((ele, index) => (
-								<option key={index} value={ele?.value}>
-									{ele?.label}
-								</option>
-							))}
-						</select>
+					{/* header */}
+					<div className="sendSmartFileHeaderContainer">
+						<span className="sendSmartFileHeaderTitle">Send smart file</span>
+						<span className="closeBtnWrapper" onClick={closeModal}>
+							<Close />
+						</span>
 					</div>
-					{/* subJect */}
-					<div className="inputWrapperForEmail">
-						<span className="labelStyling">Subject Line Here</span>
+					{/* clientAuthentication */}
+					{/* <div className="clientAuthenticationContainer">
+						<div className="styledLeftPart"></div>
+						<div className="clientAuthenticationContentContainer">
+							<span className="clientContentLabel">
+								Client Authentication : Require your Client to enter an access code
+								when logging into this file.
+							</span>
+							<ToggleSlider value={true} onChange={() => {}} />
+						</div>
+					</div> */}
+
+					{/* email to */}
+					<div className="inputWrapperForSendSmartFile">
+						<span className="inputlabel">Email to</span>
+						<input
+							type="email"
+							value={clientDetails?.email}
+							disabled
+							className="inputForSendSmartFile"
+						/>
+					</div>
+					{/* subject line here */}
+					<div className="inputWrapperForSendSmartFile">
+						<span className="inputlabel">Subject Line Here</span>
 						<input
 							type="text"
-							className="modalInput"
 							value={info?.subject}
-							onChange={(e) =>
-								setInfo((prev) => ({ ...prev, subject: e.target.value }))
-							}
+							disabled
+							className="inputForSendSmartFile"
 						/>
 					</div>
-					{/* email body */}
-					<div className="inputWrapperForEmail">
-						<span className="labelStyling">Email Body Here</span>
-						<textarea
-							className="modalInput"
-							value={info?.emailBody}
-							onChange={(e) =>
-								setInfo((prev) => ({ ...prev, emailBody: e.target.value }))
-							}
-						/>
+
+					{/* email body here */}
+					<div className="inputWrapperForSendSmartFile">
+						<span className="inputlabel">Email Body Here</span>
+						<div className="joditWrapper">
+							<JoditEditor
+								ref={editor}
+								value={info?.emailBody}
+								tabIndex={1} // tabIndex of textarea
+								onChange={(newContent) =>
+									setInfo((prev) => ({ ...prev, emailBody: newContent }))
+								}
+							/>
+						</div>
 					</div>
+
 					<div className="sendEmailBtn" onClick={handleSendProposalViaEmail}>
 						Send Email
 					</div>
@@ -163,8 +158,7 @@ const SendProposalModal = ({
 					<div className="footerLabel">
 						<span className="mainfooterTitle">Send a link to this file</span>
 						<span className="mainFooterSubTitle">
-							Copying the link will mark this stage as sent. Ensure all details are
-							filled in correctly before proceeding.
+							Copying the link will mark this stage as sent.
 						</span>
 					</div>
 					<div className="linkCopyBtn" onClick={handleCopy}>

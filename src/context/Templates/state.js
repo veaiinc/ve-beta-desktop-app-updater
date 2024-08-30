@@ -17,12 +17,13 @@ import {
 	getWorkflowListQuery,
 	getTemplatesListForCreateLeadQuery,
 	createLeadfromTemplatesQuery,
-	workflowsLinkQuery,
 	formResponsesQuery,
 	changeWorkflowStatusQuery,
 	getSignedUrlForContractsQuery,
 	moveWorkflowStatusQuery,
 	getSpecifiTemplatesInfoQuery,
+	getSendSmartFileTemplateQuery,
+	sendSmartFileMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -44,6 +45,7 @@ export const intialState = {
 	generatePublicLinkData: null,
 	contractSignedLocalState: null,
 	specificTemplatesInfo: null,
+	smartFileEmailTemplateData: null,
 };
 
 export const TemplatesState = (props) => {
@@ -484,7 +486,7 @@ export const TemplatesState = (props) => {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
-				workflowsLinkQuery,
+				sendSmartFileMutation,
 				payload,
 				workspaceId,
 				usertoken,
@@ -651,6 +653,30 @@ export const TemplatesState = (props) => {
 			console.log('api failed ==>getSpecificTemplatesInfo', error);
 		}
 	};
+
+	const getSendSmartFileEmailTemplate = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getSendSmartFileTemplateQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SMART_FILE_EMAIL_TEMPLATE_SUCCESS,
+					payload: response?.[1]?.data?.getWorflowEmailTemplate,
+				});
+			} else {
+				console.log('handle the error getSendSmartFileEmailTemplate', response);
+			}
+		} catch (error) {
+			console.log('api failed ==>getSendSmartFileEmailTemplate', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -680,5 +706,6 @@ export const TemplatesState = (props) => {
 		uploadContractSignature,
 		moveWorkflowStatus,
 		getSpecificTemplatesInfo,
+		getSendSmartFileEmailTemplate,
 	};
 };

@@ -36,6 +36,10 @@ const actionHandlers = {
 		...state,
 		specificTemplatesInfo: action.payload,
 	}),
+	GET_SMART_FILE_EMAIL_TEMPLATE_SUCCESS: (state, action) => ({
+		...state,
+		smartFileEmailTemplateData: action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

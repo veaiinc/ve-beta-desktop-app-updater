@@ -563,12 +563,10 @@ const WorkflowCardEditModal = ({
 								ref={editor}
 								value={info?.emailBody}
 								tabIndex={1} // tabIndex of textarea
-								onBlur={(newContent) =>
-									setInfo((prev) => ({ ...prev, emailBody: newContent }))
-								} // preferred to use only this option to update the content for performance reasons
 								onChange={(newContent) =>
 									setInfo((prev) => ({ ...prev, emailBody: newContent }))
 								}
+								className="testing jodit"
 							/>
 						</div>
 					)}
