@@ -14,8 +14,7 @@ import HeadersDropDownComp from '../../components/dropDown/HeadersDropDownComp';
 import DuplicateIndicatorModal from '../../components/modalsV2/workflowBuilderModals/DuplicateIndicatorModal';
 import ExitWithoutPublishingModal from '../../components/modalsV2/workflowBuilderModals/ExitWithoutPublishingModal';
 import { ReactComponent as VE } from '../../../assets/svg/smallVe.svg';
-import WorkflowBuilderLoader from './workflowBuilderLoader';
-import PageLoader from '../../components/loaders/PageLoader';
+import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 const options = [
 	{ label: 'Rename Workflow' },
 	// { label: 'Duplicate Workflow' },
@@ -370,9 +369,8 @@ const WorkflowBuilder = () => {
 			<div className="workflowBuilderSeperator"></div>
 			<div className="workflowBuilderContentContainer">
 				{info?.loading ? (
-					<PageLoader />
+					<UpdatedPageLoader />
 				) : (
-					// <WorkflowBuilderLoader />
 					info?.data?.map((ele, index) => (
 						<div
 							key={index}

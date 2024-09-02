@@ -9,8 +9,7 @@ import SendProposalModal from '../../../components/modalsV2/proposalModals/SendP
 import CopiedModal from '../../../components/modalsV2/workflowsModals/CopiedModal';
 import UploadSignature from '../../../components/modalsV2/workflowsModals/UploadSignature';
 import MoveStageModal from '../../../components/modalsV2/workflowsModals/moveStageModal';
-import SmartFileLoader from './SmartFileLoader';
-import PageLoader from '../../../components/loaders/PageLoader';
+import UpdatedPageLoader from '../../../components/loaders/UpdatedPageLoader';
 const SmartFile = () => {
 	const location = useLocation();
 	const { templateId } = useParams();
@@ -241,8 +240,7 @@ const SmartFile = () => {
 	);
 
 	return info?.loading ? (
-		// <SmartFileLoader />
-		<PageLoader />
+		<UpdatedPageLoader />
 	) : (
 		<div className="smartFileParentContainer">
 			<SmartFileHeader

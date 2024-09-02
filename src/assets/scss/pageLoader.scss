@@ -57,6 +57,26 @@
 	animation-name: RotateCurv;
 	animation-duration: 1s;
 	animation-timing-function: ease;
+	position: relative;
+}
+
+.stickDiv {
+	position: absolute;
+
+	top: 85%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	opacity: 0;
+	animation: stick 2s forwards 1s;
+}
+
+@keyframes stick {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 @keyframes RotateCurv {
@@ -65,8 +85,17 @@
 	}
 
 	from {
-		transform: translateY(500px);
+		transform: translate(-100px, 500px);
 	}
+}
+
+.mainBody {
+	background-color: black;
+	height: 96%;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .mainBody {

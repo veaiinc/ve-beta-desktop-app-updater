@@ -8,8 +8,8 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import { useNavigate } from 'react-router-dom';
 import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
 import PublicLinkGeneratedModal from '../../components/modalsV2/workflowsModals/PublicLinkGeneratedModal';
-import MyWorkflowLoader from './MyWorkflowLoader';
-import PageLoader from '../../components/loaders/PageLoader';
+import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
+import InitialPageLoader from '../../components/loaders/PageLoader';
 
 const Sales = () => {
 	let {
@@ -35,6 +35,7 @@ const Sales = () => {
 		copyModal: false,
 		showGeneratedLinkModalData: null,
 		testingDrawerModal: false,
+		shownInitialLoader: localStorage.getItem('showInitialLoader'),
 	});
 
 	//useEffects
@@ -89,6 +90,7 @@ const Sales = () => {
 			let { data, currentPage, hasNextPage } = dataToBeUsed;
 			let myWorkflowData = [];
 			if (currentPage === 1 && !data?.length && !generatePublicLinkData) {
+				localStorage.setItem('showInitialLoader', true);
 				return navigate('/sales/workflows');
 			}
 
@@ -105,6 +107,7 @@ const Sales = () => {
 			if (fetchMore) {
 				myWorkflowData = [...(info?.myWorkflowData || [])]?.concat(myWorkflowData);
 			}
+			localStorage.setItem('showInitialLoader', true);
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
@@ -182,11 +185,12 @@ const Sales = () => {
 				loader={<FetchMoreLoaderComp />}
 			>
 				{info?.loading ? (
-					<PageLoader />
+					info?.shownInitialLoader ? (
+						<UpdatedPageLoader />
+					) : (
+						<InitialPageLoader />
+					)
 				) : (
-					// <div className="salesParentContainer">
-					// 	<MyWorkflowLoader />
-					// </div>
 					<div className="salesParentContainer">
 						{info?.myWorkflowData?.map((e, index) => (
 							<MyWorkflowsCard
