@@ -103,7 +103,7 @@
 					flex: 1 0 0;
 					align-self: stretch;
 					border-radius: 10px;
-					border: 1px solid rgba(36, 36, 36, 0.64);
+					border: 1px solid rgba(255, 255, 255, 0.05);
 					background-color: transparent;
 					color: #b0b0b0;
 					font-family: Inter;
@@ -111,6 +111,12 @@
 					font-style: normal;
 					font-weight: 400;
 					line-height: 16px; /* 145.455% */
+				}
+				.customInputWithoutLabel.edit:focus {
+					border: 1px solid rgba(255, 255, 255, 0.4);
+				}
+				.customInputWithoutLabel.edit:hover {
+					border: 1px solid rgba(255, 255, 255, 0.2);
 				}
 				.incrementDecrementContainer {
 					display: flex;
@@ -132,6 +138,7 @@
 						width: 100%;
 						background-color: transparent;
 						border: none;
+						text-align: center;
 					}
 					.incrementorBtns {
 						display: flex;
@@ -242,6 +249,7 @@
 						width: 100%;
 						background-color: transparent;
 						border: none;
+						text-align: center;
 					}
 					.incrementorBtns {
 						display: flex;
@@ -341,12 +349,30 @@
 		margin-left: 14px;
 		text-transform: capitalize;
 	}
-	.custominputContainer {
+	.customproposalInputContainer {
+		border: 1px solid rgba(255, 255, 255, 0.05);
+		span {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 26px; /* 185.714% */
+		}
+	}
+	.customproposalInputContainer.edit:focus {
+		border: 1px solid rgba(255, 255, 255, 0.4);
+	}
+	.customproposalInputContainer.edit:hover {
+		border: 1px solid rgba(255, 255, 255, 0.2);
+	}
+	.proposalInputCustomContainer {
 		padding: 11px 14px;
 		gap: 10px;
 		align-self: stretch;
 		border-radius: 10px;
-		border: 1px solid rgba(36, 36, 36, 0.64);
+		border: none;
+		// border: 1px solid rgba(255, 255, 255, 0.05);
 		color: #e4e5e6;
 		font-family: Inter;
 		font-size: 14px;
@@ -354,6 +380,26 @@
 		font-weight: 400;
 		line-height: 26px; /* 185.714% */
 		background-color: transparent;
+	}
+	.custominputContainer {
+		padding: 11px 14px;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 10px;
+		border: 1px solid rgba(255, 255, 255, 0.05);
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 26px; /* 185.714% */
+		background-color: transparent;
+	}
+	.custominputContainer.edit:focus {
+		border: 1px solid rgba(255, 255, 255, 0.4);
+	}
+	.custominputContainer.edit:hover {
+		border: 1px solid rgba(255, 255, 255, 0.2);
 	}
 	.inputwithSumbols {
 		display: flex;

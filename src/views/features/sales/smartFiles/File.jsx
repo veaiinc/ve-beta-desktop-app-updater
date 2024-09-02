@@ -509,21 +509,28 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 	return (
 		<div className="fileParentContainer">
 			<div className="previewContainer">
-				<div className="previewHeader">
-					<span className="previewHeaderText">
-						Customise your design for {workflowData?.name}
-					</span>
-					{info?.duplicateLoader ? (
-						<Spinner width={'20px'} height={'20px'} />
-					) : (
-						<div className="editPreviewBtn" onClick={duplicateTemplateFromSmartFile}>
-							<EditSvg />
-							<span className="editText">Edit</span>
-						</div>
-					)}
-				</div>
+				{edit ? (
+					<div className="previewHeader">
+						<span className="previewHeaderText">
+							Customise your design for {workflowData?.name}
+						</span>
+						{info?.duplicateLoader ? (
+							<Spinner width={'20px'} height={'20px'} />
+						) : (
+							<div
+								className="editPreviewBtn"
+								onClick={duplicateTemplateFromSmartFile}
+							>
+								<EditSvg />
+								<span className="editText">Edit</span>
+							</div>
+						)}
+					</div>
+				) : (
+					''
+				)}
 
-				<div className="previewHolderWrapper">
+				<div className="previewHolderWrapper" style={{ borderRadius: !edit ? '26px' : '' }}>
 					{templateData?.moduleTemplates
 						?.filter((comp, i) => !comp?.isPublic)
 						.map((ele, index) => (
@@ -549,7 +556,9 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					userSigned={userSigned}
 				/>
 				<span className="editContainerHeader">
-					Please enter the following custom data to send this proposal{' '}
+					{edit
+						? `Please enter the following custom data to send this proposal`
+						: 'Smart File Details'}
 				</span>
 
 				<Variables

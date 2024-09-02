@@ -16,10 +16,7 @@ const PublicLinkGeneratedModal = ({ open, closeModal, modules, copyLink = '' }) 
 
 	useEffect(() => {
 		if (modules) {
-			let updatedModule = modules?.filter(
-				(e) =>
-					e?.module !== 'proposal' && e?.module !== 'invoice' && e?.module !== 'contract',
-			);
+			let updatedModule = modules?.filter((e) => e?.isPublic);
 			setInfo((prev) => ({ ...prev, updatedModule: updatedModule }));
 		}
 	}, [modules]);

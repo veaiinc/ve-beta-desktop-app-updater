@@ -30,6 +30,9 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 			if (type === 'location') {
 				valueTobeChanged = { ...valueTobeChanged, location: val };
 			}
+			if (type === 'description') {
+				valueTobeChanged = { ...valueTobeChanged, description: val };
+			}
 			if (type === 'date') {
 				valueTobeChanged = { ...valueTobeChanged, date: val };
 			}
@@ -177,18 +180,22 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 			{/* //use map here */}
 			{ele?.values?.map((item, ind) => (
 				<div className="eventsCard" key={ind}>
-					<div
-						className="deleteEventsContainer"
-						onClick={() => deletEventsValues(ind, index)}
-					>
-						<Dustbin />
-						Delete
-					</div>
+					{editable ? (
+						<div
+							className="deleteEventsContainer"
+							onClick={() => deletEventsValues(ind, index)}
+						>
+							<Dustbin />
+							Delete
+						</div>
+					) : (
+						''
+					)}
 					<div className="eventsDetailsContainer">
 						<div className="inputWithLabelContainer">
 							<span className="labelName">Event Name</span>
 							<input
-								className="custominputContainer"
+								className={`custominputContainer ${editable ? 'edit' : ''}`}
 								value={item?.name}
 								onChange={(e) =>
 									localEventsOnchange(ind, index, 'name', e.target.value)
@@ -200,7 +207,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 							<span className="labelName">Date</span>
 
 							<input
-								className="custominputContainer"
+								className={`custominputContainer ${editable ? 'edit' : ''}`}
 								type="date"
 								value={moment(`${item?.date}`).format('yyyy-MM-DD')}
 								onChange={(e) =>
@@ -212,7 +219,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 						<div className="inputWithLabelContainer">
 							<span className="labelName">Location</span>
 							<input
-								className="custominputContainer"
+								className={`custominputContainer ${editable ? 'edit' : ''}`}
 								value={item?.location}
 								onChange={(e) =>
 									localEventsOnchange(ind, index, 'location', e.target.value)
@@ -221,13 +228,30 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 							/>
 						</div>
 					</div>
+
+					{/* //descrioption */}
+					<div style={{ width: '100%' }}>
+						<div className="inputWithLabelContainer">
+							<span className="labelName">Description</span>
+							<textarea
+								className={`custominputContainer ${editable ? 'edit' : ''}`}
+								value={item?.description}
+								onChange={(e) =>
+									localEventsOnchange(ind, index, 'description', e.target.value)
+								}
+								readOnly={!editable}
+								style={{ resize: 'none' }}
+							/>
+						</div>
+					</div>
+
 					<div className="servicesContainer">
 						<span className="serviceContainerTitle">Services Provided</span>
 
 						{item?.roles?.map((x, lt) => (
 							<div className="serviceRoleContainer" key={lt}>
 								<input
-									className="customInputWithoutLabel"
+									className={`customInputWithoutLabel ${editable ? 'edit' : ''}`}
 									value={x?.type}
 									onChange={(e) =>
 										localEventsOnchange(
@@ -289,18 +313,26 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 						))}
 
 						{/* //add role btn */}
-						<div
-							className="addMoreRoleBtn"
-							onClick={() => localEventsOnchange(ind, index, 'addRole')}
-						>
-							+ Add Role
-						</div>
+						{editable ? (
+							<div
+								className="addMoreRoleBtn"
+								onClick={() => localEventsOnchange(ind, index, 'addRole')}
+							>
+								+ Add Role
+							</div>
+						) : (
+							''
+						)}
 					</div>
 				</div>
 			))}
-			<div className="addEventBtn" onClick={() => addMoreEventsValues(index)}>
-				+ Add Event
-			</div>
+			{editable ? (
+				<div className="addEventBtn" onClick={() => addMoreEventsValues(index)}>
+					+ Add Event
+				</div>
+			) : (
+				''
+			)}
 		</div>
 	));
 };

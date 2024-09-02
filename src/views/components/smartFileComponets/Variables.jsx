@@ -101,7 +101,7 @@ const Variables = ({
 					<div className="inputWithLabelContainer" key={index}>
 						<span className="labelName">{ele?.code}</span>
 						<input
-							className="custominputContainer"
+							className={`custominputContainer ${editable ? 'edit' : ''}`}
 							value={ele?.value || ''}
 							onChange={(e) => onLocalVariableDataChange(e, index)}
 							readOnly={!editable}
@@ -111,12 +111,28 @@ const Variables = ({
 				<div className="proposalContainer">
 					<div className="inputWithLabelContainer">
 						<span className="labelName">Proposal Validity</span>
-						<input
-							className="custominputContainer"
-							type="text"
-							value={expiryInDays}
-							onChange={onChangeLocalExpiry}
-						/>
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								alignSelf: 'stretch',
+								gap: '12px',
+
+								borderRadius: '10px',
+								paddingRight: '14px',
+							}}
+							className={`customproposalInputContainer ${editable ? 'edit' : ''}`}
+						>
+							<input
+								className="proposalInputCustomContainer"
+								type="text"
+								value={expiryInDays}
+								onChange={onChangeLocalExpiry}
+								readOnly={!editable}
+								style={{ flex: 1 }}
+							/>
+							<span>Days</span>
+						</div>
 					</div>
 				</div>
 			</div>
