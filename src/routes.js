@@ -103,7 +103,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/smart-file/:templateId',
+		path: '/smart-file/:templateId/:workflowId',
 		component: (
 			<SmartFileLayout title={'Smart File'}>
 				<SmartFile />

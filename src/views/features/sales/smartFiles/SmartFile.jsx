@@ -3,7 +3,7 @@ import '../.././../../assets/scss/sales/smartFile.scss';
 import SmartFileHeader from '../../../components/smartFileComponets/SmartFileHeader';
 import FormResponses from './FormResponses';
 import File from './File';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Context from '../../../../context/context';
 import SendProposalModal from '../../../components/modalsV2/proposalModals/SendProposalModal';
 import CopiedModal from '../../../components/modalsV2/workflowsModals/CopiedModal';
@@ -11,8 +11,7 @@ import UploadSignature from '../../../components/modalsV2/workflowsModals/Upload
 import MoveStageModal from '../../../components/modalsV2/workflowsModals/moveStageModal';
 import UpdatedPageLoader from '../../../components/loaders/UpdatedPageLoader';
 const SmartFile = () => {
-	const location = useLocation();
-	const { templateId } = useParams();
+	const { templateId, workflowId } = useParams();
 
 	let {
 		templates: {
@@ -32,9 +31,9 @@ const SmartFile = () => {
 	const [info, setInfo] = useState({
 		activeTab: 'file', //form,file
 		incomingData: null,
-		workflowId: location?.state?.workflowId,
+		workflowId: workflowId,
 		sendSmartFileModal: false,
-		workflowData: location?.state?.workflow,
+		workflowData: null,
 		workflowStatus: '',
 		copyModal: false,
 		signatureModal: false,
@@ -78,9 +77,18 @@ const SmartFile = () => {
 		if (smartFileInfo) {
 			const status = smartFileInfo?.status;
 			const edit = status === 'enquiry' ? true : false;
+			const workflowDataObj = {
+				_id: workflowId,
+				clientDetails: smartFileInfo?.clientDetails,
+				status: smartFileInfo?.status,
+				slug: smartFileInfo?.slug,
+				modules: smartFileInfo?.modules,
+				formResponse: smartFileInfo?.formResponse,
+			};
 			setInfo((prev) => ({
 				...prev,
 				workflowStatus: smartFileInfo?.status,
+				workflowData: workflowDataObj,
 				edit,
 			}));
 		}
