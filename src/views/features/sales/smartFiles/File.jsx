@@ -583,7 +583,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 						src={
 							window.location.hostname === 'localhost'
 								? `http://localhost:3000/preview/${templateData._id}`
-								: `http://builder.ve.ai/preview/${templateData._id}`
+								: `https://builder.ve.ai/preview/${templateData._id}`
 						}
 						title="Builder Preview"
 						width="100%"
