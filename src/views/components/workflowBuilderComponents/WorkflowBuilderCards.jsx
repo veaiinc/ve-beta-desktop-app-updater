@@ -30,9 +30,13 @@ const FirstWorkflowCard = ({ publicData, openPreviewModal }) => {
 const EmailCards = ({ openModal, workflowdata, index }) => {
 	return (
 		<div className="cardContentContainer" onClick={() => openModal(workflowdata, index)}>
-			<div className="footer">
-				<EmailSvg />
-				<span className="cardContentContainerheaderSubTitle">Email template</span>
+			<div className="cardContentContainerfooter">
+				<div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+					{' '}
+					<EmailSvg />
+					<span className="cardContentContainerheaderSubTitle">Send Email</span>
+				</div>
+
 				<span className="cardContentContainerheaderTitle">
 					{workflowdata?.emailTemplateSubject}
 				</span>
