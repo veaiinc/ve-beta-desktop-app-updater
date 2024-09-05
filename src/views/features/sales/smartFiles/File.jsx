@@ -185,12 +185,12 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 	//when the variable is clicked, autofocus the input
 	useEffect(() => {
 		const handleMessage = (event) => {
-			if (
-				(event.origin !== window.location.hostname) === 'localhost'
+			let origin =
+				window.location.hostname === 'localhost'
 					? 'http://localhost:3000'
-					: 'http://builder.ve.ai'
-			)
-				return;
+					: 'http://builder.ve.ai';
+
+			if (event.origin !== origin) return;
 
 			if (event.data.type === 'CONSOLE_LOG') {
 				console.log('Log from iframe:', event.data);
@@ -580,7 +580,11 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 
 				<div className="previewHolderWrapper" style={{ borderRadius: !edit ? '26px' : '' }}>
 					<iframe
-						src={'http://localhost:3000/preview/66c78f1bd1ff58dc70f5c2bb'}
+						src={
+							window.location.hostname === 'localhost'
+								? `http://localhost:3000/preview/${templateData._id}`
+								: `http://builder.ve.ai/preview/${templateData._id}`
+						}
 						title="Builder Preview"
 						width="100%"
 						height="600px"
