@@ -182,11 +182,59 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 	}, [info?.variablesData, formResponseData, info?.varibalesModified]);
 
 	//function defination
+	//when the variable is clicked, autofocus the input
+	useEffect(() => {
+		const handleMessage = (event) => {
+			let origin =
+				window.location.hostname === 'localhost'
+					? 'http://localhost:3000'
+					: 'http://builder.ve.ai';
+
+			if (event.origin !== origin) return;
+
+			if (event.data.type === 'CONSOLE_LOG') {
+				console.log('Log from iframe:', event.data);
+			} else if (event.data.type === 'SPAN_CLICKED') {
+				alert('Input is Focused ');
+			}
+		};
+
+		window.addEventListener('message', handleMessage);
+
+		return () => {
+			window.removeEventListener('message', handleMessage);
+		};
+	}, []);
+
+	const variableOnFocusFunc = (id) => {
+		const iframe = document.querySelector('iframe');
+		if (iframe && iframe.contentWindow) {
+			iframe.contentWindow.postMessage(
+				{
+					type: 'SCROLL_TO_ELEMENT',
+					id: id,
+				},
+				window.location.hostname === 'localhost'
+					? 'http://localhost:3000'
+					: 'http://builder.ve.ai',
+			);
+		}
+	};
 
 	//variableOnChangeFunc
 	const variableOnChangeFunc = useCallback(
 		async (updatedData) => {
 			const moduleType = updatedData?.moduleType;
+			const iframe = document.querySelector('iframe');
+			if (iframe && iframe.contentWindow) {
+				iframe.contentWindow.postMessage(
+					{ type: 'REPLACE_TEXT', text: updatedData.value, id: updatedData._id },
+					window.location.hostname === 'localhost'
+						? 'http://localhost:3000'
+						: 'http://builder.ve.ai',
+				);
+			}
+
 			let updatedVariableData = { ...info?.variablesData };
 			let variableModuleArraytoBeUpdated = [...(updatedVariableData?.[moduleType] || [])];
 			let index = -1;
@@ -531,20 +579,16 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 				)}
 
 				<div className="previewHolderWrapper" style={{ borderRadius: !edit ? '26px' : '' }}>
-					{templateData?.moduleTemplates
-						?.filter((comp, i) => !comp?.isPublic)
-						.map((ele, index) => (
-							<div className="imageContainer" key={index}>
-								<div className="coverImage">
-									<div
-										dangerouslySetInnerHTML={{
-											__html: info?.templatesMapper?.[ele?._id],
-										}}
-										style={{ width: '100%', zoom: 2 }}
-									/>
-								</div>
-							</div>
-						))}
+					<iframe
+						src={
+							window.location.hostname === 'localhost'
+								? `http://localhost:3000/preview/${templateData._id}`
+								: `https://builder.ve.ai/preview/${templateData._id}`
+						}
+						title="Builder Preview"
+						width="100%"
+						height="600px"
+					/>
 				</div>
 			</div>
 			<div className="editParentContainer">
@@ -564,6 +608,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 				<Variables
 					variablesData={info?.variablesData}
 					variableOnChangeFunc={variableOnChangeFunc}
+					variableOnFocusFunc={variableOnFocusFunc}
 					editable={edit}
 					expiryInDays={info?.expiryInDays}
 					updateExpiryInDays={updateExpiryInDays}
