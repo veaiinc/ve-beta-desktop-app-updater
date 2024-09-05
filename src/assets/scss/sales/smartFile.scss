@@ -88,7 +88,7 @@
 	}
 	.mainContentContainer {
 		flex: 1;
-		padding-bottom: 25px;
+		// padding-bottom: 25px;
 
 		.formResponsesParentContainer {
 			display: flex;
@@ -247,7 +247,8 @@
 				display: flex;
 				flex-direction: column;
 				color: #fff;
-				max-height: 700px;
+				// max-height: 700px;
+				max-height: calc(100vh - 58px - 54px - 24px - 60px);
 				border-radius: 24px;
 				border-radius: 27px;
 				border: 3px solid #545454;
@@ -293,7 +294,7 @@
 					display: flex;
 					flex-direction: column;
 					align-self: stretch;
-					max-height: 650px;
+					// max-height: 650px;
 					overflow-y: auto;
 					border-bottom-right-radius: 24px;
 					border-bottom-left-radius: 24px;
@@ -337,6 +338,8 @@
 				display: flex;
 				flex-direction: column;
 				gap: 24px;
+				max-height: calc(100vh - 58px - 54px - 24px - 60px);
+				overflow-y: auto;
 
 				.editContainerHeader {
 					color: #e4e5e6;
