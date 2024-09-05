@@ -4,6 +4,7 @@ import '../../../assets/scss/sales/smartFileComponets.scss';
 const Variables = ({
 	variablesData,
 	variableOnChangeFunc,
+	variableOnFocusFunc,
 	editable,
 	expiryInDays,
 	updateExpiryInDays,
@@ -46,6 +47,16 @@ const Variables = ({
 			updatedData?.splice(index, 1, variableElementToBeUpdated);
 			setInfo((prev) => ({ ...prev, data: updatedData }));
 			variableOnChangeFunc(variableElementToBeUpdated);
+			return;
+		},
+		[info?.data],
+	);
+
+	const onLocalVariableFocus = useCallback(
+		async (e, index) => {
+			let updatedData = [...(info?.data || [])];
+			let variableElementToBeUpdated = updatedData?.[index];
+			variableOnFocusFunc(variableElementToBeUpdated._id);
 			return;
 		},
 		[info?.data],
@@ -105,6 +116,7 @@ const Variables = ({
 							value={ele?.value || ''}
 							onChange={(e) => onLocalVariableDataChange(e, index)}
 							readOnly={!editable}
+							onFocus={(e) => onLocalVariableFocus(e, index)}
 						/>
 					</div>
 				))}
