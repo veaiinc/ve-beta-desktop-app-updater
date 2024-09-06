@@ -188,7 +188,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			let origin =
 				window.location.hostname === 'localhost'
 					? 'http://localhost:3000'
-					: 'http://builder.ve.ai';
+					: 'https://builder.ve.ai';
 
 			if (event.origin !== origin) return;
 
@@ -216,7 +216,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 				},
 				window.location.hostname === 'localhost'
 					? 'http://localhost:3000'
-					: 'http://builder.ve.ai',
+					: 'https://builder.ve.ai',
 			);
 		}
 	};
@@ -231,7 +231,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					{ type: 'REPLACE_TEXT', text: updatedData.value, id: updatedData._id },
 					window.location.hostname === 'localhost'
 						? 'http://localhost:3000'
-						: 'http://builder.ve.ai',
+						: 'https://builder.ve.ai',
 				);
 			}
 
