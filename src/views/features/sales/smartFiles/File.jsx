@@ -92,16 +92,10 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 				});
 
 				let eventsTable = [];
-				let servicesTable = [];
 
 				for (let k = 0; k < activeVersionData?.tables?.length; k++) {
 					const currentTableData = activeVersionData?.tables?.[k];
-					if (currentTableData?.type === 'services') {
-						servicesTable?.push({
-							...currentTableData,
-							moduleType: updatedModules?.[i],
-						});
-					}
+
 					if (currentTableData?.type === 'events') {
 						eventsTable?.push({
 							...currentTableData,
@@ -117,7 +111,6 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 				variablesData[updatedModules?.[i]] = variables;
 				paymentScheduleData[updatedModules?.[i]] = paymentSchedule;
 				eventsTableData[updatedModules?.[i]] = eventsTable;
-				servicesTableData[updatedModules?.[i]] = servicesTable;
 				moduleData[updatedModules?.[i]] = activeVersionData;
 			}
 			setInfo((prev) => ({
@@ -125,7 +118,6 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 				variablesData,
 				paymentScheduleData,
 				eventsTableData,
-				servicesTableData,
 				loading: true,
 				smartFileStatus: smartFileInfo?.status,
 				...moduleData,
@@ -148,6 +140,13 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		if (info?.proposal) {
 			const { expiryInDays } = info.proposal || {};
 			setInfo((prev) => ({ ...prev, expiryInDays }));
+			let servicesTable = [];
+			for (let i = 0; i < info?.proposal?.sections?.length; i++) {
+				if (info?.proposal?.sections?.[i]?.type === 'services') {
+					servicesTable?.push(info?.proposal?.sections?.[i]);
+				}
+			}
+			setInfo((prev) => ({ ...prev, servicesTableData: servicesTable }));
 		}
 	}, [info?.proposal]);
 
@@ -271,41 +270,31 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 
 	//servicesTableChnages
 	const serviceTableOnChnageFunc = useCallback(
-		async (updatedData) => {
-			const moduleType = updatedData?.moduleType;
-			let updatedServiceData = { ...info?.servicesTableData };
-			let serviceModuleArraytoBeUpdated = [...(updatedServiceData?.[moduleType] || [])];
-			let index = -1;
-			for (let i = 0; i < serviceModuleArraytoBeUpdated?.length; i++) {
-				if (serviceModuleArraytoBeUpdated?.[i]?._id === updatedData?._id) {
-					index = i;
+		async (updateServiceBlockInfo, index) => {
+			let updatedServiceData = [...(info?.servicesTableData || [])];
+			updatedServiceData?.splice(index, 1, updateServiceBlockInfo);
+			const serviceBlockId = updateServiceBlockInfo?._id;
+			const proposalData = { ...info.proposal };
+			const { sections } = proposalData;
+			let replaceServiceIndex = -1;
+			for (let i = 0; i < sections?.length; i++) {
+				if (sections?.[i]?.type === 'services' && sections?.[i]?._id === serviceBlockId) {
+					replaceServiceIndex = i;
 					break;
 				}
 			}
 
-			if (index !== -1) {
-				serviceModuleArraytoBeUpdated?.splice(index, 1, updatedData);
-				updatedServiceData[moduleType] = [...serviceModuleArraytoBeUpdated];
-				setInfo((prev) => ({ ...prev, servicesTableData: updatedServiceData }));
+			if (replaceServiceIndex !== -1) {
+				sections?.splice(replaceServiceIndex, 1, updateServiceBlockInfo);
 			}
-
-			let moduleIndex = -1;
-			const moduleData = { ...(info?.[moduleType] || {}) };
-			const moduleTable = [...(moduleData?.tables || [])];
-			for (let i = 0; i < moduleTable?.length; i++) {
-				if (moduleTable?.[i]?._id === updatedData?._id) {
-					moduleIndex = i;
-					break;
-				}
-			}
-			if (moduleIndex !== -1) {
-				moduleTable?.splice(moduleIndex, 1, updatedData);
-				moduleData.tables = [...moduleTable];
-				setInfo((prev) => ({ ...prev, [moduleType]: moduleData }));
-			}
-			handleDebounceUpdate(moduleType, moduleData);
+			setInfo((prev) => ({
+				...prev,
+				proposal: proposalData,
+				servicesTableData: updatedServiceData,
+			}));
+			handleDebounceUpdate('proposal', proposalData);
 		},
-		[info?.servicesTableData],
+		[info?.servicesTableData, info?.proposal],
 	);
 
 	//events table onChange
@@ -349,8 +338,16 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 
 	//proposalUpdate
 	const updateProposalFunc = useCallback(async (moduleData) => {
-		const { activeVersion, _id, variables, tables, paymentSchedule, workflowId, expiryInDays } =
-			moduleData || {};
+		const {
+			activeVersion,
+			_id,
+			variables,
+			tables,
+			paymentSchedule,
+			workflowId,
+			expiryInDays,
+			sections,
+		} = moduleData || {};
 
 		const payload = {
 			proposalId: _id,
@@ -361,6 +358,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					paymentSchedule,
 					variables,
 					tables,
+					sections,
 				},
 			},
 			versionId: activeVersion,
@@ -619,6 +617,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					eventsDataChange={eventsTableOnChangeFunc}
 					editable={edit}
 				/>
+
 				<Services
 					serviceData={info?.servicesTableData}
 					serviceOnChangeFunc={serviceTableOnChnageFunc}

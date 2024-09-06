@@ -8,7 +8,7 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 
 	useEffect(() => {
 		if (serviceData) {
-			setInfo((prev) => ({ ...prev, data: [].concat(...Object.values(serviceData)) }));
+			setInfo((prev) => ({ ...prev, data: serviceData }));
 		}
 	}, [serviceData]);
 
@@ -20,29 +20,40 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 
 			let updatedData = [...(info?.data || [])];
 			let selectedServiceTable = updatedData?.[outerIndex];
-			let valueTobeChanged = selectedServiceTable?.values?.[innerIndex];
+			let { blocks } = selectedServiceTable;
+			let selectedBlocks = blocks?.[innerIndex];
 
 			if (type === 'show') {
-				valueTobeChanged = { ...valueTobeChanged, show: val };
+				selectedBlocks = {
+					...selectedBlocks,
+					subBlocks: [{ ...selectedBlocks?.subBlocks?.[0], show: val }],
+				};
 			}
 			if (type === 'increment') {
-				let updatedQuantity = valueTobeChanged?.quantity + 1;
-				valueTobeChanged = {
-					...valueTobeChanged,
-					quantity: updatedQuantity,
+				let updatedQuantity = selectedBlocks?.subBlocks?.[0]?.quantity + 1;
+				selectedBlocks = {
+					...selectedBlocks,
+					subBlocks: [{ ...selectedBlocks?.subBlocks?.[0], quantity: updatedQuantity }],
 				};
 			}
 			if (type === 'decrement') {
-				let updatedQuantity = valueTobeChanged?.quantity - 1;
-				valueTobeChanged = {
-					...valueTobeChanged,
-					quantity: updatedQuantity >= 0 ? updatedQuantity : 0,
+				let updatedQuantity = selectedBlocks?.subBlocks?.[0]?.quantity - 1;
+
+				selectedBlocks = {
+					...selectedBlocks,
+					subBlocks: [
+						{
+							...selectedBlocks?.subBlocks?.[0],
+							quantity: updatedQuantity >= 0 ? updatedQuantity : 0,
+						},
+					],
 				};
 			}
-			selectedServiceTable?.values?.splice(innerIndex, 1, valueTobeChanged);
+			blocks?.splice(innerIndex, 1, selectedBlocks);
+			selectedServiceTable = { ...selectedServiceTable, blocks };
 			updatedData?.splice(outerIndex, 1, selectedServiceTable);
 			setInfo((prev) => ({ ...prev, data: updatedData }));
-			serviceOnChangeFunc(selectedServiceTable);
+			serviceOnChangeFunc(selectedServiceTable, outerIndex);
 		},
 		[info?.data, editable],
 	);
@@ -54,17 +65,17 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 			{info?.data?.map((ele, index) => (
 				<div className="serviceCardWrapper" key={index}>
 					{/* //USE ,MAP HERE */}
-					{ele?.values?.map((val, ind) => (
+					{ele?.blocks?.map((val, ind) => (
 						<div className="serviceCard" key={ind}>
 							<div className="serviceTitleContainer">
 								<ToggleSlider
-									value={val?.show}
+									value={val?.subBlocks?.[0]?.show}
 									onChange={(val) =>
 										onLocalServiceDataChange(ind, index, 'show', val)
 									}
 								/>
 								<span className="serviceCardTitle">
-									{val?.title
+									{val?.subBlocks?.[0]?.title
 										?.replace(/&nbsp;/g, ' ')
 										.replace(/<\/?[^>]+(>|$)/g, '')
 										.replace(/"/g, '') || ''}
@@ -84,7 +95,7 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 									<input
 										type="number"
 										className="incrementDecrementinput"
-										value={val?.quantity}
+										value={val?.subBlocks?.[0]?.quantity}
 										readOnly={!editable}
 									/>
 									<span
