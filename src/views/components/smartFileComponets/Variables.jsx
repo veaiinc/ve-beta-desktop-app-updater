@@ -117,6 +117,7 @@ const Variables = ({
 							onChange={(e) => onLocalVariableDataChange(e, index)}
 							readOnly={!editable}
 							onFocus={(e) => onLocalVariableFocus(e, index)}
+							id={ele?._id}
 						/>
 					</div>
 				))}

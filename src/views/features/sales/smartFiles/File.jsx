@@ -227,7 +227,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		if (event.data.type === 'CONSOLE_LOG') {
 			console.log('Log from iframe:', event.data);
 		} else if (event.data.type === 'SPAN_CLICKED') {
-			alert('Input is Focused ');
+			scrollToElement(event?.data?.id);
 		}
 	}, []);
 
@@ -572,6 +572,32 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			}
 		},
 		[info?.variablesData, moduleUpdateFuncWrapper],
+	);
+
+	//scroll functions
+	const scrollToElement = useCallback(
+		(id) => {
+			let element = document.getElementById(id);
+			if (!element) {
+				element = document.querySelector(`[data-id="${id}"]`);
+			}
+
+			if (!element) {
+				return;
+			}
+
+			element.scrollIntoView({
+				behavior: 'smooth',
+				block: 'center',
+				inline: 'nearest',
+			});
+
+			if (edit) {
+				// Focus the element after it scrolls
+				element.focus({ preventScroll: true });
+			}
+		},
+		[edit],
 	);
 
 	return (
