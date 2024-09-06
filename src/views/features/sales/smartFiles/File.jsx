@@ -8,6 +8,9 @@ import Context from '../../../../context/context';
 import AcceptedStageSmartFileBlocks from '../../../components/smartFileComponets/AcceptedStageSmartFileBlocks';
 import { ReactComponent as EditSvg } from '../.././../../assets/svg/worflow_builder/edit.svg';
 import Spinner from '../../../components/loaders/Spinner';
+
+let origin =
+	window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://builder.ve.ai';
 const File = ({ templateData, workflowData, userSigned, edit }) => {
 	let {
 		templates: {
@@ -39,8 +42,16 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		duplicateLoader: false,
 		expiryInDays: null,
 		varibalesModified: false,
+		iframeReady: false,
+		variableInitialised: false,
 	});
 
+	useEffect(() => {
+		window.addEventListener('message', handleMessage);
+		return () => {
+			window.removeEventListener('message', handleMessage);
+		};
+	}, []);
 	//useEffects
 	useEffect(() => {
 		if (smartFileInfo) {
@@ -51,7 +62,6 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			let variablesData = {},
 				paymentScheduleData = {},
 				eventsTableData = {},
-				servicesTableData = {},
 				moduleData = {
 					proposal: null,
 					invoice: null,
@@ -180,29 +190,45 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		}
 	}, [info?.variablesData, formResponseData, info?.varibalesModified]);
 
+	useEffect(() => {
+		if (
+			info?.varibalesModified &&
+			info?.variablesData &&
+			info?.iframeReady &&
+			!info?.variableInitialised
+		) {
+			const variableArray = [].concat(...Object.values(info?.variablesData));
+			const iframe = document.querySelector('iframe');
+			if (iframe && iframe.contentWindow) {
+				iframe.contentWindow.postMessage(
+					{ type: 'REPLACE_TEXT_ARRAY', textArray: [...variableArray] },
+					origin,
+				);
+				setInfo((prev) => ({ ...prev, variableInitialised: true }));
+			}
+		}
+	}, [
+		info?.variablesData,
+		info?.varibalesModified,
+		info?.iframeReady,
+		info?.variableInitialised,
+	]);
+
 	//function defination
 	//when the variable is clicked, autofocus the input
-	useEffect(() => {
-		const handleMessage = (event) => {
-			let origin =
-				window.location.hostname === 'localhost'
-					? 'http://localhost:3000'
-					: 'https://builder.ve.ai';
 
-			if (event.origin !== origin) return;
+	const handleMessage = useCallback((event) => {
+		if (event.origin !== origin) return;
 
-			if (event.data.type === 'CONSOLE_LOG') {
-				console.log('Log from iframe:', event.data);
-			} else if (event.data.type === 'SPAN_CLICKED') {
-				alert('Input is Focused ');
-			}
-		};
+		if (event.data.type === 'IFRAME_READY') {
+			setInfo((prev) => ({ ...prev, iframeReady: true }));
+		}
 
-		window.addEventListener('message', handleMessage);
-
-		return () => {
-			window.removeEventListener('message', handleMessage);
-		};
+		if (event.data.type === 'CONSOLE_LOG') {
+			console.log('Log from iframe:', event.data);
+		} else if (event.data.type === 'SPAN_CLICKED') {
+			alert('Input is Focused ');
+		}
 	}, []);
 
 	const variableOnFocusFunc = (id) => {
@@ -213,9 +239,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					type: 'SCROLL_TO_ELEMENT',
 					id: id,
 				},
-				window.location.hostname === 'localhost'
-					? 'http://localhost:3000'
-					: 'https://builder.ve.ai',
+				origin,
 			);
 		}
 	};
@@ -228,9 +252,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			if (iframe && iframe.contentWindow) {
 				iframe.contentWindow.postMessage(
 					{ type: 'REPLACE_TEXT', text: updatedData.value, id: updatedData._id },
-					window.location.hostname === 'localhost'
-						? 'http://localhost:3000'
-						: 'https://builder.ve.ai',
+					origin,
 				);
 			}
 
