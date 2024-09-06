@@ -372,8 +372,16 @@ const WorkflowCardEditModal = ({
 					) : !info?.editState ? (
 						<div className="WorkFlowEditorBody">
 							{/* action typ */}
+
 							<div className="actionType">
 								<span className="actionTypeTitle">Action Type</span>
+
+								<div className="staticActionTitle">Send Email</div>
+							</div>
+
+							{/* email templates */}
+							<div className="actionType">
+								<span className="actionTypeTitle">Email Templates</span>
 
 								{mode === 'create' ? (
 									<HeadersDropDownComp

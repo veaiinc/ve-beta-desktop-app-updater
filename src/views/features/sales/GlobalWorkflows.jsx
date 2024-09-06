@@ -153,17 +153,7 @@ const GlobalWorkflows = () => {
 					</div>
 				</InfiniteScroll>
 			</div>
-			<div className="globalWorkflowSidebar">
-				{servicesList?.map((ele, index) => (
-					<span
-						key={index}
-						className="sidebarLabel"
-						style={{ color: index === 0 ? '#E4E5E6' : '' }}
-					>
-						{ele}
-					</span>
-				))}
-			</div>
+
 			<GlobalWorkflowModal
 				modalIsOpen={info?.modalIsOpen}
 				closeModal={closeModal}
