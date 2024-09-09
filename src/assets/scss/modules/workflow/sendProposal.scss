@@ -1,254 +1,432 @@
-.sendProposalContainer {
+.sendSmartFileupdatedContainer {
 	display: flex;
-	width: 680px;
-	// height: 800px;
-	flex-direction: column;
-	align-items: flex-start;
-	border-radius: 40px;
+	width: 510px;
+	// height: 355px;
+	padding: 24px 20px;
+	border-radius: 15px;
+	border: 1px solid #313131;
 	background: #151515;
-	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+	flex-direction: column;
 
-	.uppercontainer {
+	.sendSmartFileSettingScreen {
+		flex: 1;
 		display: flex;
-		padding: 40px;
 		flex-direction: column;
-		align-items: flex-start;
-		gap: 16px;
-		align-self: stretch;
-
-		.sendSmartFileHeaderContainer {
+		gap: 24px;
+		.sendSmartFileHeader {
 			display: flex;
 			align-items: center;
-			gap: 4px;
 			align-self: stretch;
-			.sendSmartFileHeaderTitle {
+			padding-bottom: 4px;
+			border-bottom: 1px solid #232323;
+
+			.linkDetailText {
+				overflow: hidden;
 				color: #e4e5e6;
+				text-overflow: ellipsis;
 				font-family: Inter;
-				font-size: 16px;
+				font-size: 13px;
 				font-style: normal;
-				font-weight: 500;
-				line-height: 26px; /* 162.5% */
+				font-weight: 400;
+				line-height: normal;
+				letter-spacing: -0.26px;
 				flex: 1;
+				white-space: nowrap;
 			}
-			.closeBtnWrapper {
+			.editLinkBtn {
 				display: flex;
 				justify-content: center;
 				align-items: center;
 				cursor: pointer;
 			}
 		}
-
-		.clientAuthenticationContainer {
+		.configurationSettingsContainer {
 			display: flex;
-			align-items: center;
 			align-self: stretch;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 16px;
 
-			.styledLeftPart {
-				width: 6px;
-				height: 48px;
-				border-radius: 100px var(--cartCount, 0px) var(--cartCount, 0px) 100px;
-				background: #6055ec;
-			}
-			.clientAuthenticationContentContainer {
+			.settingsContainer {
 				display: flex;
-				padding: 14px;
-				padding-left: 8px;
-				justify-content: space-between;
+				padding: 8px;
 				align-items: center;
+				gap: 12px;
 				align-self: stretch;
+
+				.settingsIconHolder {
+					display: flex;
+					width: 30px;
+					height: 30px;
+					padding: 5px;
+					justify-content: center;
+					align-items: center;
+					gap: 12.5px;
+					border-radius: 6.25px;
+					background: #292929;
+				}
+				.settingsLabelholder {
+					display: flex;
+					align-items: center;
+					flex: 1;
+
+					.settingsLabelText {
+						color: #e8e8e8;
+						// text-align: center;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						flex: 1;
+					}
+				}
+			}
+			.settingsContainer:hover {
 				border-radius: 8px;
-				border-top-left-radius: 0px;
-				border-bottom-left-radius: 0px;
-				background: #202020;
+				background: #1b1b1b;
+			}
+		}
+		.aiSalesContainer {
+			display: flex;
+			align-self: stretch;
+			gap: 12px;
+			align-items: center;
+			padding-left: 7px;
+			.aiLabel {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
 				flex: 1;
 
-				.clientContentLabel {
+				.aiLabelText {
+					color: #e8e8e8;
+					text-align: center;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+
+		.sendSmartFileBtnContainer {
+			display: flex;
+			align-self: stretch;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			gap: 12px;
+			padding-bottom: 12px;
+			border-bottom: 1px solid rgba(36, 36, 36, 0.64);
+			.sendSmartFileBtn {
+				display: flex;
+				height: 36px;
+				padding: 9px var(--Spacing-space-7, 12px);
+				justify-content: center;
+				align-items: center;
+				gap: var(--Spacing-space-3, 4px);
+				align-self: stretch;
+				border-radius: 8px;
+				background: #6055ec;
+				color: #f5f5f5;
+				text-align: center;
+				font-family: Inter;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 16px; /* 123.077% */
+				cursor: pointer;
+			}
+			.orText {
+				color: #797979;
+				text-align: center;
+				font-family: Inter;
+				font-size: 9px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+			.copyTextDiv {
+				display: flex;
+				justify-content: center;
+				align-items: flex-start;
+				gap: 8px;
+
+				.copyLinkText {
+					color: #6055ec;
+					text-align: center;
+					font-family: Inter;
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 16px; /* 123.077% */
+				}
+			}
+		}
+	}
+
+	.sendProposalContainer {
+		display: flex;
+		margin-top: 24px;
+		// width: 680px;
+		// height: 800px;
+		flex-direction: column;
+		align-items: flex-start;
+		// border-radius: 40px;
+		// background: #151515;
+		// box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+
+		.uppercontainer {
+			display: flex;
+			// padding: 40px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 16px;
+			align-self: stretch;
+
+			.sendSmartFileHeaderContainer {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+				align-self: stretch;
+				.sendSmartFileHeaderTitle {
 					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 26px; /* 162.5% */
+					flex: 1;
+				}
+				.closeBtnWrapper {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
+				}
+			}
+
+			.clientAuthenticationContainer {
+				display: flex;
+				align-items: center;
+				align-self: stretch;
+
+				.styledLeftPart {
+					width: 6px;
+					height: 48px;
+					border-radius: 100px var(--cartCount, 0px) var(--cartCount, 0px) 100px;
+					background: #6055ec;
+				}
+				.clientAuthenticationContentContainer {
+					display: flex;
+					padding: 14px;
+					padding-left: 8px;
+					justify-content: space-between;
+					align-items: center;
+					align-self: stretch;
+					border-radius: 8px;
+					border-top-left-radius: 0px;
+					border-bottom-left-radius: 0px;
+					background: #202020;
+					flex: 1;
+
+					.clientContentLabel {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 20px;
+						flex: 1;
+					}
+				}
+			}
+			.inputWrapperForSendSmartFile {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 4px;
+				align-self: stretch;
+				.inputlabel {
+					display: flex;
+					padding-left: 14px;
+					align-items: flex-start;
+					gap: 10px;
+					align-self: stretch;
+					color: #b0b0b0;
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
-					line-height: 20px;
-					flex: 1;
+					line-height: 16px; /* 133.333% */
+				}
+				.inputForSendSmartFile {
+					display: flex;
+					padding: 11px 14px;
+					align-items: center;
+					gap: 10px;
+					align-self: stretch;
+					border-radius: 10px;
+					border: 1px solid rgba(36, 36, 36, 0.64);
+					color: rgba(228, 229, 230, 0.8);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 26px; /* 185.714% */
+					background-color: transparent;
+				}
+
+				.joditWrapper {
+					width: 100%;
+					max-height: 350px;
+					overflow-y: auto;
+				}
+			}
+
+			.modalHeader {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 18px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 26px; /* 144.444% */
+			}
+			.sendEmailBtn {
+				display: flex;
+				padding: 16px 24px;
+				justify-content: center;
+				align-items: center;
+				gap: 16px;
+				border-radius: 100px;
+				border: 1px solid rgba(36, 36, 36, 0.64);
+				background: #6055ec;
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 16px; /* 123.077% */
+				letter-spacing: 0.26px;
+				cursor: pointer;
+			}
+			.inputWrapperForEmail {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 6px;
+				flex: 1 0 0;
+				align-self: stretch;
+				.labelStyling {
+					color: #b0b0b0;
+					font-family: Inter;
+					font-size: 11px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px; /* 145.455% */
+				}
+				.modalInput {
+					width: 100%;
+					display: flex;
+					padding: 11px 14px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					align-self: stretch;
+					border-radius: 10px;
+					border: 1px solid rgba(36, 36, 36, 0.64);
+					background-color: transparent;
+					color: rgba(228, 229, 230, 0.8);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 26px; /* 185.714% */
+					resize: none;
+				}
+				.selectContainer {
+					width: 100%;
+					display: flex;
+					padding: 11px 14px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					align-self: stretch;
+					border-radius: 10px;
+					border: 1px solid rgba(36, 36, 36, 0.64);
+					background-color: transparent;
+					color: rgba(228, 229, 230, 0.8);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 26px; /* 185.714% */
 				}
 			}
 		}
-		.inputWrapperForSendSmartFile {
+		.modalFooter {
 			display: flex;
-			flex-direction: column;
+			padding: 24px 32px;
 			align-items: flex-start;
-			gap: 4px;
+			gap: 32px;
 			align-self: stretch;
-			.inputlabel {
+			background: #1e1f20;
+			border-bottom-left-radius: 40px;
+			border-bottom-right-radius: 40px;
+			.footerLabel {
 				display: flex;
-				padding-left: 14px;
+				flex: 1;
+				flex-direction: column;
 				align-items: flex-start;
-				gap: 10px;
-				align-self: stretch;
-				color: #b0b0b0;
-				font-family: Inter;
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: 16px; /* 133.333% */
-			}
-			.inputForSendSmartFile {
-				display: flex;
-				padding: 11px 14px;
-				align-items: center;
-				gap: 10px;
-				align-self: stretch;
-				border-radius: 10px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
-				color: rgba(228, 229, 230, 0.8);
-				font-family: Inter;
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: 26px; /* 185.714% */
-				background-color: transparent;
-			}
+				gap: 4px;
 
-			.joditWrapper {
-				width: 100%;
-				max-height: 350px;
-				overflow-y: auto;
+				.mainfooterTitle {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 26px; /* 185.714% */
+				}
+				.mainFooterSubTitle {
+					color: rgba(228, 229, 230, 0.48);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 20px; /* 166.667% */
+					letter-spacing: 0.24px;
+					text-transform: capitalize;
+				}
 			}
-		}
-
-		.modalHeader {
-			color: #e4e5e6;
-			font-family: Inter;
-			font-size: 18px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 26px; /* 144.444% */
-		}
-		.sendEmailBtn {
-			display: flex;
-			padding: 16px 24px;
-			justify-content: center;
-			align-items: center;
-			gap: 16px;
-			border-radius: 100px;
-			border: 1px solid rgba(36, 36, 36, 0.64);
-			background: #6055ec;
-			color: #e4e5e6;
-			font-family: Inter;
-			font-size: 13px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 16px; /* 123.077% */
-			letter-spacing: 0.26px;
-			cursor: pointer;
-		}
-		.inputWrapperForEmail {
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 6px;
-			flex: 1 0 0;
-			align-self: stretch;
-			.labelStyling {
-				color: #b0b0b0;
-				font-family: Inter;
-				font-size: 11px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: 16px; /* 145.455% */
-			}
-			.modalInput {
-				width: 100%;
+			.linkCopyBtn {
+				width: auto;
 				display: flex;
-				padding: 11px 14px;
+				padding: 16px 24px;
 				justify-content: center;
 				align-items: center;
-				gap: 10px;
-				align-self: stretch;
-				border-radius: 10px;
+				gap: 16px;
+				border-radius: 100px;
 				border: 1px solid rgba(36, 36, 36, 0.64);
-				background-color: transparent;
-				color: rgba(228, 229, 230, 0.8);
-				font-family: Inter;
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: 26px; /* 185.714% */
-				resize: none;
-			}
-			.selectContainer {
-				width: 100%;
-				display: flex;
-				padding: 11px 14px;
-				justify-content: center;
-				align-items: center;
-				gap: 10px;
-				align-self: stretch;
-				border-radius: 10px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
-				background-color: transparent;
-				color: rgba(228, 229, 230, 0.8);
-				font-family: Inter;
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: 26px; /* 185.714% */
-			}
-		}
-	}
-	.modalFooter {
-		display: flex;
-		padding: 24px 32px;
-		align-items: flex-start;
-		gap: 32px;
-		align-self: stretch;
-		background: #1e1f20;
-		border-bottom-left-radius: 40px;
-		border-bottom-right-radius: 40px;
-		.footerLabel {
-			display: flex;
-			flex: 1;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 4px;
-
-			.mainfooterTitle {
+				background: #262626;
 				color: #e4e5e6;
 				font-family: Inter;
-				font-size: 14px;
+				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: 26px; /* 185.714% */
+				line-height: 16px; /* 123.077% */
+				letter-spacing: 0.26px;
+				cursor: pointer;
 			}
-			.mainFooterSubTitle {
-				color: rgba(228, 229, 230, 0.48);
-				font-family: Inter;
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 20px; /* 166.667% */
-				letter-spacing: 0.24px;
-				text-transform: capitalize;
-			}
-		}
-		.linkCopyBtn {
-			width: auto;
-			display: flex;
-			padding: 16px 24px;
-			justify-content: center;
-			align-items: center;
-			gap: 16px;
-			border-radius: 100px;
-			border: 1px solid rgba(36, 36, 36, 0.64);
-			background: #262626;
-			color: #e4e5e6;
-			font-family: Inter;
-			font-size: 13px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 16px; /* 123.077% */
-			letter-spacing: 0.26px;
-			cursor: pointer;
 		}
 	}
+}
+
+.svgHolder {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
 }

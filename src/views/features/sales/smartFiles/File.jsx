@@ -624,7 +624,10 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					''
 				)}
 
-				<div className="previewHolderWrapper" style={{ borderRadius: !edit ? '26px' : '' }}>
+				<div
+					className="previewHolderWrapper"
+					style={{ borderRadius: !edit ? '26px' : '', height: '100%' }}
+				>
 					<iframe
 						src={
 							window.location.hostname === 'localhost'
@@ -633,7 +636,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 						}
 						title="Builder Preview"
 						width="100%"
-						height="600px"
+						height="100%"
 					/>
 				</div>
 			</div>
