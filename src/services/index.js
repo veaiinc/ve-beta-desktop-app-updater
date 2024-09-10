@@ -1,10 +1,26 @@
-const { tenant_users_api, tenant_api, proposals_api } = require('./config');
+const {
+	tenant_users_api,
+	tenant_api,
+	proposals_api,
+	auth_Api,
+	tenant_users_api_US,
+	tenant_api_US,
+	proposals_api_US,
+} = require('./config');
 
 const apiEndpoints = {
 	tenant_users_api,
 	tenant: tenant_api,
 	'tenant-users': tenant_users_api,
 	proposals_api,
+	auth: auth_Api,
+};
+const apiEndpointsUS = {
+	tenant_users_api: tenant_users_api_US,
+	tenant: tenant_api_US,
+	'tenant-users': tenant_users_api_US,
+	proposals_api: proposals_api_US,
+	auth: auth_Api,
 };
 
 const handleHeaders = (token, body, type) => {
@@ -32,7 +48,8 @@ const processResponse = async (response) => {
 };
 
 const apiFetch = async (url, method, body, token, type) => {
-	const endpoint = apiEndpoints[type] + url;
+	const region = localStorage.getItem('region') || 'ap-south-1';
+	const endpoint = (region === 'ap-south-1' ? apiEndpoints[type] : apiEndpointsUS?.[type]) + url;
 	const headers = handleHeaders(token, body, type);
 	if (body) {
 		body = JSON.stringify(body);

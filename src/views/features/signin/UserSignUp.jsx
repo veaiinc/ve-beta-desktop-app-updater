@@ -67,7 +67,14 @@ const UserSignUp = ({
 
 			if (response[0]) {
 				setLoading(false);
-				setStage('verify-email-code');
+				if (usersData['emailId'].includes('@ve.ai')) {
+					setStage('verify-email-code');
+					return;
+				} else {
+					navigate('/early-access');
+				}
+
+				// setStage('verify-email-code');
 			} else {
 				setLoading(false);
 				setErrorState((prevState) => ({
@@ -148,7 +155,7 @@ const UserSignUp = ({
 					</div>
 					<div
 						className={`continueContainer ${secondStageButtonActive ? 'active' : ''}`}
-						onClick={() => (secondStageButtonActive ? handleUserSignUp() : '')}
+						onClick={secondStageButtonActive ? handleUserSignUp : ''}
 					>
 						{isLoading ? <p>Loading...</p> : <p>Continue</p>}
 					</div>
