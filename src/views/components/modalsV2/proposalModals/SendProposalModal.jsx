@@ -37,6 +37,8 @@ const SendProposalModal = ({
 		subject: '',
 		emailBody: '',
 		name: clientDetails?.name,
+		enableLinkExpiry: false,
+		accessSettings: false,
 	});
 
 	useEffect(() => {
@@ -159,6 +161,51 @@ const SendProposalModal = ({
 						<div className="copyTextDiv">
 							<span className="copyLinkText">Copy Link</span>
 							<QuestionMark />
+						</div>
+					</div>
+				</div>
+				<div className="sendProposalContainer">
+					<div className="uppercontainer">
+						<div className="sendSmartFileHeaderContainer">
+							<span className="sendSmartFileHeaderTitle">Send smart file</span>
+						</div>
+
+						<div className="inputWrapperForSendSmartFile">
+							<span className="inputlabel">Email to</span>
+							<input
+								type="email"
+								value={clientDetails?.email}
+								disabled
+								className="inputForSendSmartFile"
+							/>
+						</div>
+
+						<div className="inputWrapperForSendSmartFile">
+							<span className="inputlabel">Subject Line Here</span>
+							<input
+								type="text"
+								value={info?.subject}
+								disabled
+								className="inputForSendSmartFile"
+							/>
+						</div>
+
+						<div className="inputWrapperForSendSmartFile">
+							<span className="inputlabel">Email Body Here</span>
+							<div className="joditWrapper">
+								<JoditEditor
+									ref={editor}
+									value={info?.emailBody}
+									tabIndex={1} // tabIndex of textarea
+									onChange={(newContent) =>
+										setInfo((prev) => ({ ...prev, emailBody: newContent }))
+									}
+								/>
+							</div>
+						</div>
+
+						<div className="sendEmailBtn" onClick={handleSendProposalViaEmail}>
+							Send Email
 						</div>
 					</div>
 				</div>
