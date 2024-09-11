@@ -1,7 +1,7 @@
 import React, { useContext, useCallback } from 'react';
 import Context from '../../context/context';
 import { useNavigate } from 'react-router-dom';
-
+import Cookies from 'js-cookie';
 const useLogout = () => {
 	const navigate = useNavigate();
 	let {
@@ -14,6 +14,7 @@ const useLogout = () => {
 	const resetApplications = useCallback(async () => {
 		navigate('/');
 		localStorage.clear();
+		// Cookies.
 
 		//add here all reset context state func
 		resetChatState();

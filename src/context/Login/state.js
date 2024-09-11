@@ -44,6 +44,10 @@ export const UserLoginState = (props) => {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
+				Cookies.set('region', region || 'ap-south-1', {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				});
 			}
 			return [true, response?.[1]];
 		} else {
@@ -61,6 +65,10 @@ export const UserLoginState = (props) => {
 				localStorage.setItem('usertoken', accessToken);
 				localStorage.setItem('region', region || 'ap-south-1');
 				Cookies.set('usertoken', accessToken, {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				});
+				Cookies.set('region', region || 'ap-south-1', {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
@@ -173,6 +181,10 @@ export const UserLoginState = (props) => {
 						sameSite: 'lax',
 						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 					});
+					Cookies.set('region', region || 'ap-south-1', {
+						sameSite: 'lax',
+						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					});
 				}
 				if (!accessibleWorkspaces?.length) {
 					return [true, 'createWorkspace'];
@@ -237,6 +249,10 @@ export const UserLoginState = (props) => {
 					localStorage.setItem('usertoken', accessToken);
 					localStorage.setItem('region', region || 'ap-south-1');
 					Cookies.set('usertoken', accessToken, {
+						sameSite: 'lax',
+						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					});
+					Cookies.set('region', region || 'ap-south-1', {
 						sameSite: 'lax',
 						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 					});
