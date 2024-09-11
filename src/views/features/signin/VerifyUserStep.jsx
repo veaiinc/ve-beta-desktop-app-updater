@@ -6,6 +6,8 @@ import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { useParams, useNavigate } from 'react-router-dom';
 var validator = require('validator');
 
+const locationDetails = encodeURIComponent(localStorage.getItem('locationDetails'));
+
 const VerifyUserStep = ({
 	handleInput,
 	usersData,
@@ -62,7 +64,10 @@ const VerifyUserStep = ({
 			</p>
 			<p className="description">Your AI assistant for work</p>
 
-			<a className="signinWithGoogle" href="https://auth.ve.ai/google/url">
+			<a
+				className="signinWithGoogle"
+				href={`https://auth.ve.ai/google/url?locationDetails=${locationDetails}`}
+			>
 				<img src={GoogleLogo} alt={'G'} />
 				<p>Continue with Google</p>
 			</a>

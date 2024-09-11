@@ -52,6 +52,7 @@ const GetBusinessDetails = ({ errorStates, setLoading, setErrorState, isLoading 
 		const response = await createWorkspace(json);
 		if (response?.[0]) {
 			setLoading(false);
+			localStorage.removeItem('locationDetails');
 			navigate('/sales');
 		} else {
 			setLoading(false);

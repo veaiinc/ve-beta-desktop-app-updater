@@ -28,7 +28,7 @@ const OauthVerify = () => {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
-
+				localStorage.removeItem('locationDetails');
 				return navigate('/sales');
 			}
 			if (

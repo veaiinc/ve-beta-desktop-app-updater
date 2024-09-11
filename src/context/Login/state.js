@@ -229,18 +229,13 @@ export const UserLoginState = (props) => {
 
 	const signUpInvitedUser = async (payload) => {
 		try {
-			const response = await Service.fetchPost(
-				'/signup-invited-user',
-				payload,
-				null,
-				'tenant_users_api',
-			);
-			console.log('response: ', response);
+			const response = await Service.fetchPost('/signup-invited-user', payload, null, 'auth');
 
 			if (response?.[0] === true) {
-				let { accessToken, accessibleWorkspaces } = response?.[1] || {};
+				let { accessToken, accessibleWorkspaces, region } = response?.[1] || {};
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
+					localStorage.setItem('region', region || 'ap-south-1');
 					Cookies.set('usertoken', accessToken, {
 						sameSite: 'lax',
 						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
