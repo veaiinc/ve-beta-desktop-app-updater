@@ -9,6 +9,18 @@
 	flex-shrink: 0;
 	background-color: #131314;
 
+	.backdropStuff {
+		width: 500px;
+		height: 500px;
+		background-color: #6055ec;
+		border-radius: 100%;
+		border-radius: var(--Radius-Sharp, 500px);
+		background: #7a71ec;
+		filter: blur(280px);
+		position: absolute;
+		top: -200px;
+	}
+
 	.earlyAccessScreenTextContainer {
 		display: flex;
 		flex-direction: column;

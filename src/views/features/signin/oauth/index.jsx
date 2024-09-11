@@ -9,6 +9,8 @@ const OauthVerify = () => {
 	useEffect(() => {
 		const accessToken = params.get('accessToken');
 		let accessibleWorkspaces = params.get('workspaceId');
+		let isEarlyAccess = params.get('isEarlyAccess');
+		let region = params.get('region');
 
 		if (accessToken) {
 			if (accessibleWorkspaces && accessibleWorkspaces?.length) {
@@ -16,6 +18,7 @@ const OauthVerify = () => {
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
 				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
 				localStorage.setItem('usertoken', accessToken);
+				localStorage.setItem('region', region || 'ap-south-1');
 
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
@@ -35,7 +38,12 @@ const OauthVerify = () => {
 			) {
 				localStorage.setItem('usertoken', accessToken);
 				navigate('/create-workspace');
+				return;
 			}
+		}
+		if (isEarlyAccess) {
+			navigate('/early-access');
+			return;
 		}
 	}, [params]);
 	return <div></div>;

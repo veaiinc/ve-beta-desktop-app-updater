@@ -8,6 +8,7 @@ const EarlyAccess = () => {
 	return (
 		<div className="earlyAccessParentContainer">
 			<VE />
+			<div className="backdropStuff"></div>
 			<div className="earlyAccessScreenTextContainer">
 				<span className="earlyAccessMainText">
 					Your request for <br></br>

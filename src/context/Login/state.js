@@ -111,7 +111,7 @@ export const UserLoginState = (props) => {
 				'/verify-password-reset-code',
 				payload,
 				null,
-				'tenant_users_api',
+				'auth',
 			);
 
 			if (response?.[0] === true) {
@@ -140,7 +140,7 @@ export const UserLoginState = (props) => {
 				'/request-password-reset-code',
 				payload,
 				null,
-				'tenant_users_api',
+				'auth',
 			);
 
 			if (response?.[0] === true) {
@@ -161,13 +161,14 @@ export const UserLoginState = (props) => {
 				'/update-password',
 				payload,
 				usertoken,
-				'tenant_users_api',
+				'auth',
 			);
 
 			if (response?.[0] === true) {
-				const { accessToken, accessibleWorkspaces } = response?.[1] || {};
+				const { accessToken, accessibleWorkspaces, region } = response?.[1] || {};
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
+					localStorage.setItem('region', region || 'ap-south-1');
 					Cookies.set('usertoken', accessToken, {
 						sameSite: 'lax',
 						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
