@@ -215,7 +215,7 @@ export const UserLoginState = (props) => {
 				'auth',
 			);
 			if (response?.[0] === true) {
-				let { tenantId, workspaceId } = response?.[1];
+				let { workspaceId } = response?.[1];
 				let accessibleWorkspaces = localStorage.getItem('accessibleWorkspaces');
 				if (accessibleWorkspaces?.length) {
 					accessibleWorkspaces = JSON.parse(accessibleWorkspaces);

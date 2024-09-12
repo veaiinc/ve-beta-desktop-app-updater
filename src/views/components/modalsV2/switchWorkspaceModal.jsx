@@ -114,7 +114,10 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 			</div>
 			<div className="seperator"></div>
 			<div className="switchWorkspaceModalFooter">
-				<span onClick={() => navigate('/create-workspace')} className="newWorkspace">
+				<span
+					onClick={() => navigate('/create-workspace?authtenticated=true')}
+					className="newWorkspace"
+				>
 					New Workspace
 				</span>
 				<span onClick={handleLogout} className="logoutContainer">

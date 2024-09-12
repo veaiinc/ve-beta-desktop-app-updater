@@ -137,7 +137,7 @@ export const ProfileState = () => {
 			let workSpaceList = await service.fetchGet(
 				API.TENANTS.accessibleTenants,
 				usertoken,
-				'tenant-users',
+				'auth',
 			);
 
 			if (workSpaceList?.[0]) {

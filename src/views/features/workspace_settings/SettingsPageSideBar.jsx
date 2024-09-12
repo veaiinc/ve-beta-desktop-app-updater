@@ -78,7 +78,10 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 						{item.label}
 					</li>
 				))}
-				<li style={{ color: '#6055EC' }} onClick={() => navigate(`/create-workspace`)}>
+				<li
+					style={{ color: '#6055EC' }}
+					onClick={() => navigate(`/create-workspace?authtenticated=true`)}
+				>
 					{' '}
 					+ Create Workspace
 				</li>
