@@ -10,7 +10,7 @@ const options = [
 	{ label: 'Send Email' },
 	{ label: 'Move Stage' },
 	// { label: 'Delete File' },
-	// { label: 'Delete Lead' },
+	{ label: 'Delete Lead' },
 ];
 
 const SmartFileHeader = ({
@@ -24,6 +24,7 @@ const SmartFileHeader = ({
 	editable,
 	changeEditStatus,
 	openMoveToStageModal,
+	openDeleteModal,
 }) => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -60,6 +61,9 @@ const SmartFileHeader = ({
 			if (data?.label === 'Resend File') {
 				openSendSmartFileModal();
 			}
+			if (data?.label === 'Delete Lead') {
+				openDeleteModal();
+			}
 		},
 		[editable],
 	);
@@ -73,7 +77,7 @@ const SmartFileHeader = ({
 					{ label: 'Resend File' },
 					{ label: 'Send Email' },
 					// { label: 'Delete File' },
-					// { label: 'Delete Lead' },
+					{ label: 'Delete Lead' },
 				];
 			} else {
 				modifiedOptions = [
@@ -81,7 +85,7 @@ const SmartFileHeader = ({
 					{ label: 'Send Email' },
 					{ label: 'Move Stage' },
 					// { label: 'Delete File' },
-					// { label: 'Delete Lead' },
+					{ label: 'Delete Lead' },
 				];
 			}
 

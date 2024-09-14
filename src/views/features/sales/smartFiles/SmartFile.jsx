@@ -3,15 +3,17 @@ import '../.././../../assets/scss/sales/smartFile.scss';
 import SmartFileHeader from '../../../components/smartFileComponets/SmartFileHeader';
 import FormResponses from './FormResponses';
 import File from './File';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Context from '../../../../context/context';
 import SendProposalModal from '../../../components/modalsV2/proposalModals/SendProposalModal';
 import CopiedModal from '../../../components/modalsV2/workflowsModals/CopiedModal';
 import UploadSignature from '../../../components/modalsV2/workflowsModals/UploadSignature';
 import MoveStageModal from '../../../components/modalsV2/workflowsModals/moveStageModal';
 import UpdatedPageLoader from '../../../components/loaders/UpdatedPageLoader';
+import DeleteLeadModal from '../../../components/modalsV2/workflowsModals/DeleteLeadModal';
 const SmartFile = () => {
 	const { templateId, workflowId } = useParams();
+	const navigate = useNavigate();
 
 	let {
 		templates: {
@@ -25,6 +27,7 @@ const SmartFile = () => {
 			updateStateValues,
 			getSpecificTemplatesInfo,
 			specificTemplatesInfo,
+			deleteLead,
 		},
 	} = useContext(Context);
 
@@ -38,6 +41,7 @@ const SmartFile = () => {
 		copyModal: false,
 		signatureModal: false,
 		moveToStageModal: false,
+		deleteLeadModal: false,
 		edit: false,
 		loading: true,
 	});
@@ -257,6 +261,19 @@ const SmartFile = () => {
 		[info?.workflowData],
 	);
 
+	const deleteLeadFunc = useCallback(async () => {
+		const payload = {
+			deleteWorkflowId: info?.workflowData?._id,
+		};
+		await deleteLead(payload);
+		updateStateValues({ salePageRefresh: true });
+		navigate(-1);
+	}, [info?.workflowData]);
+
+	const openDeleteModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, deleteLeadModal: true }));
+	}, []);
+
 	return info?.loading ? (
 		<UpdatedPageLoader />
 	) : (
@@ -272,6 +289,7 @@ const SmartFile = () => {
 				editable={info?.edit}
 				changeEditStatus={changeEditStatus}
 				openMoveToStageModal={openMoveToStageModal}
+				openDeleteModal={openDeleteModal}
 			/>
 			<div className="mainContentContainer">
 				{info?.activeTab === 'form' ? (
@@ -320,6 +338,11 @@ const SmartFile = () => {
 				moveStageFunc={moveStageFunc}
 				changelocalWorflowStatus={changelocalWorflowStatus}
 				// workflowStatus={smartFileInfo?.status}
+			/>
+			<DeleteLeadModal
+				open={info?.deleteLeadModal}
+				closeModal={() => setInfo((prev) => ({ ...prev, deleteLoadModal: false }))}
+				deleteLeadFunc={deleteLeadFunc}
 			/>
 		</div>
 	);

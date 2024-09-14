@@ -365,3 +365,9 @@ export const updateSmartFileSlugMutation = gql`
 		updateSlug(id: $updateSlugId, slug: $slug, moduleType: $moduleType)
 	}
 `;
+
+export const deleteLeadMutation = gql`
+	mutation DeleteWorkflow($deleteWorkflowId: ID!) {
+		deleteWorkflow(id: $deleteWorkflowId)
+	}
+`;
