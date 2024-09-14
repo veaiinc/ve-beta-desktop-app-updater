@@ -15,6 +15,7 @@ import { ReactComponent as DownArrow } from '../../../../assets/svg/workflow/sma
 import ToggleSlider from '../../../components/input/slider';
 import JoditEditor from 'jodit-react';
 import { message } from 'antd';
+import moment from 'moment';
 
 const initialState = {
 	subject: '',
@@ -29,6 +30,12 @@ const initialState = {
 	expiryInDays: 0,
 	nameAccess: false,
 	emailAccess: false,
+	emailIdentification: false,
+	slugErrorMessage: '',
+	slugHolder: '',
+	editSlug: false,
+	timeout: null,
+	aiAssistant: false,
 };
 
 const SendProposalModal = ({
@@ -42,6 +49,7 @@ const SendProposalModal = ({
 	workflowStatus,
 	changeEditStatus,
 	slug,
+	updateWorkflowSlug,
 }) => {
 	const {
 		templates: {
@@ -49,9 +57,12 @@ const SendProposalModal = ({
 			chnageWorkflowStats,
 			getSendSmartFileEmailTemplate,
 			smartFileEmailTemplateData,
+			checkSmartFileSlugExists,
+			updateSmartFileSlug,
 		},
 	} = useContext(Context);
 	const editor = useRef(null);
+	const inputRef = useRef(null);
 
 	const [info, setInfo] = useState({ ...initialState, name: clientDetails?.name });
 
@@ -77,6 +88,12 @@ const SendProposalModal = ({
 		}
 	}, [info?.showEmail]);
 
+	useEffect(() => {
+		if (slug) {
+			setInfo((prev) => ({ ...prev, slugHolder: slug }));
+		}
+	}, [slug]);
+
 	const handleCopy = useCallback(async () => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -99,7 +116,7 @@ const SendProposalModal = ({
 	}, [workflowSlug, workflowStatus]);
 
 	const handleSendProposalViaEmail = useCallback(async () => {
-		closeModal();
+		modifiedCloseModal();
 		message.success('Email Sent Successfully');
 		const payload = {
 			clientEmail: clientDetails?.email,
@@ -109,6 +126,15 @@ const SendProposalModal = ({
 				subject: info?.subject,
 			},
 		};
+		if (info?.expiryInDays && info?.expiryInDays > 0) {
+			payload.expiresAt = moment().add(info?.expiryInDays, 'days').unix();
+		}
+		if (info?.emailAccess) {
+			payload.isPublic = false;
+		}
+		if (!info?.emailAccess) {
+			payload.isPublic = true;
+		}
 
 		sendSmartFile(payload);
 
@@ -119,7 +145,15 @@ const SendProposalModal = ({
 			changelocalWorflowStatus('filesSent');
 			changeEditStatus(false);
 		}
-	}, [clientDetails, workflowId, workflowStatus, info?.emailBody, info?.subject]);
+	}, [
+		clientDetails,
+		workflowId,
+		workflowStatus,
+		info?.emailBody,
+		info?.subject,
+		info?.emailAccess,
+		info?.expiryInDays,
+	]);
 
 	const modifiedCloseModal = useCallback(() => {
 		closeModal();
@@ -128,8 +162,9 @@ const SendProposalModal = ({
 			name: clientDetails?.name,
 			subject: smartFileEmailTemplateData?.subject || '',
 			emailBody: smartFileEmailTemplateData?.htmlBody || '',
+			slugHolder: slug,
 		});
-	}, [smartFileEmailTemplateData]);
+	}, [smartFileEmailTemplateData, slug]);
 
 	const incrementDecrementExpiry = useCallback(
 		(type) => {
@@ -158,11 +193,84 @@ const SendProposalModal = ({
 	// Handle change for checkboxes
 	const handleCheckboxChange = useCallback((e) => {
 		const { name, checked } = e.target;
+
 		setInfo((prevState) => ({
 			...prevState,
 			[name]: checked,
 		}));
+		if (name === 'emailAccess' && checked === true) {
+			setInfo((prev) => ({ ...prev, emailIdentification: true }));
+		}
 	}, []);
+
+	const editSlugOnClick = useCallback(() => {
+		setInfo((prev) => ({ ...prev, editSlug: !prev.editSlug }));
+		inputRef.current?.focus();
+	}, [info?.editSlug, inputRef]);
+
+	const slugOnChange = useCallback(
+		(e) => {
+			const valueWithoutSpaces = e?.target?.value.replace(/\s+/g, '');
+			setInfo((prev) => ({ ...prev, slugHolder: valueWithoutSpaces, slugErrorMessage: '' }));
+			if (valueWithoutSpaces === slug) {
+				return;
+			}
+			handleDebouceFunctionCall(checkSlugAvailability);
+		},
+		[info?.slugHolder, slug],
+	);
+
+	const handleDebouceFunctionCall = useCallback(
+		(func) => {
+			clearTimeout(info?.timeout);
+			const timeout = setTimeout(() => {
+				func();
+				setInfo((prev) => ({
+					...prev,
+					loading: true,
+				}));
+			}, 800);
+			setInfo((prev) => ({ ...prev, timeout }));
+		},
+		[info?.timeout],
+	);
+
+	const checkSlugAvailability = useCallback(async () => {
+		if (info?.slugHolder?.length) {
+			const slug = info?.slugHolder;
+			const payload = {
+				slug: slug,
+				moduleType: 'workflows',
+			};
+			const response = await checkSmartFileSlugExists(payload);
+			if (response?.[0]) {
+				updateSmartFileSlugFunc(slug);
+			} else {
+				setInfo((prev) => ({ ...prev, slugErrorMessage: 'This is not available' }));
+			}
+		}
+	}, [info?.slugHolder]);
+
+	const updateSmartFileSlugFunc = useCallback(
+		async (slug) => {
+			const payload = {
+				updateSlugId: workflowId,
+				slug: slug,
+				moduleType: 'workflows',
+			};
+			const response = await updateSmartFileSlug(payload);
+			if (response?.[0]) {
+				updateWorkflowSlug(slug);
+				message.success('Url Updated Successfully');
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					slugErrorMessage: 'Unable to Save the Slug, try typing again',
+				}));
+			}
+		},
+		[info?.slugHolder, workflowId],
+	);
 
 	return (
 		<ReactModal
@@ -181,12 +289,27 @@ const SendProposalModal = ({
 				<div className="sendSmartFileSettingScreen">
 					{/* smart File Header */}
 					<div className="sendSmartFileHeader">
-						<span className="linkDetailText">
-							{`https://${localStorage.getItem('workspaceId')}.ve.ai/portal/${slug}`}
-						</span>
-						<span className="editLinkBtn">
-							<Edit />
-						</span>
+						<div className="sendSmartFileHeaderWrapper">
+							<span className="linkDetailText">
+								{`https://${localStorage.getItem('workspaceId')}.ve.ai/portal/`}
+								<input
+									type="text"
+									className="editableSlugInput"
+									value={info?.slugHolder}
+									disabled={!info?.editSlug}
+									ref={inputRef}
+									onChange={slugOnChange}
+								/>
+							</span>
+							<span className="editLinkBtn" onClick={editSlugOnClick}>
+								<Edit />
+							</span>
+						</div>
+						{info?.slugErrorMessage?.length ? (
+							<div className="slugErrorHandler">{info?.slugErrorMessage}</div>
+						) : (
+							''
+						)}
 					</div>
 					{/* smartFileSettings */}
 
@@ -356,9 +479,9 @@ const SendProposalModal = ({
 												<input
 													type="checkbox"
 													className="sendSmartFileCheckbox"
-													checked={info?.emailAccess}
+													checked={info?.emailIdentification}
 													onChange={handleCheckboxChange}
-													name="emailAccess"
+													name="emailIdentification"
 												/>
 												<span className="checkboxLabel">Email</span>
 											</div>
@@ -397,7 +520,12 @@ const SendProposalModal = ({
 						<Ai />
 						<div className="aiLabel">
 							<span className="aiLabelText">AI Sales Assistant</span>
-							<ToggleSlider />
+							<ToggleSlider
+								value={info?.aiAssistant}
+								onChange={(val) =>
+									setInfo((prev) => ({ ...prev, aiAssistant: val }))
+								}
+							/>
 						</div>
 					</div>
 

@@ -247,6 +247,16 @@ const SmartFile = () => {
 		[info?.workflowData],
 	);
 
+	const updateWorkflowSlug = useCallback(
+		(updatedSlug) => {
+			setInfo((prev) => ({
+				...prev,
+				workflowData: { ...prev?.workflowData, slug: updatedSlug },
+			}));
+		},
+		[info?.workflowData],
+	);
+
 	return info?.loading ? (
 		<UpdatedPageLoader />
 	) : (
@@ -286,6 +296,7 @@ const SmartFile = () => {
 				workflowStatus={info?.workflowStatus}
 				changeEditStatus={changeEditStatus}
 				slug={info?.workflowData?.slug}
+				updateWorkflowSlug={updateWorkflowSlug}
 			/>
 
 			<CopiedModal

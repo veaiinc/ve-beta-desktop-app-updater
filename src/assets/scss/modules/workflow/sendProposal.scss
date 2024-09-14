@@ -16,29 +16,59 @@
 		gap: 24px;
 		.sendSmartFileHeader {
 			display: flex;
-			align-items: center;
+			flex-direction: column;
+			gap: 4px;
 			align-self: stretch;
-			padding-bottom: 4px;
-			border-bottom: 1px solid #232323;
-
-			.linkDetailText {
-				overflow: hidden;
-				color: #e4e5e6;
-				text-overflow: ellipsis;
+			.sendSmartFileHeaderWrapper {
+				display: flex;
+				align-items: center;
+				align-self: stretch;
+				padding-bottom: 4px;
+				border-bottom: 1px solid #232323;
+				.linkDetailText {
+					overflow: hidden;
+					color: #e4e5e6;
+					text-overflow: ellipsis;
+					font-family: Inter;
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+					letter-spacing: -0.26px;
+					flex: 1;
+					white-space: nowrap;
+					display: flex;
+					align-items: center;
+					.editableSlugInput {
+						background-color: transparent;
+						border: none;
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+						letter-spacing: -0.26px;
+						flex: 1;
+					}
+				}
+				.editLinkBtn {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
+				}
+			}
+			.slugErrorHandler {
+				display: flex;
+				align-items: center;
+				align-self: stretch;
+				color: #cc5756;
 				font-family: Inter;
-				font-size: 13px;
+				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
-				line-height: normal;
-				letter-spacing: -0.26px;
-				flex: 1;
-				white-space: nowrap;
-			}
-			.editLinkBtn {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				cursor: pointer;
+				line-height: 16px; /* 133.333% */
 			}
 		}
 		.configurationSettingsContainer {

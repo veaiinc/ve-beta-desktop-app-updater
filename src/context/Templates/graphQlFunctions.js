@@ -269,11 +269,15 @@ export const sendSmartFileMutation = gql`
 		$clientEmail: String!
 		$workflowId: ID!
 		$mailContent: mailContentInput
+		$expiresAt: Int
+		$isPublic: Boolean
 	) {
 		shareWorkflowLink(
 			clientEmail: $clientEmail
 			workflowId: $workflowId
 			mailContent: $mailContent
+			expiresAt: $expiresAt
+			isPublic: $isPublic
 		)
 	}
 `;
@@ -347,5 +351,17 @@ export const getSpecifiTemplatesInfoQuery = gql`
 export const getSendSmartFileTemplateQuery = gql`
 	query Query {
 		getWorflowEmailTemplate
+	}
+`;
+
+export const checkSmartFileSlugExistsQuery = gql`
+	query Query($slug: String!, $moduleType: Modules!) {
+		isSlugAvailable(slug: $slug, moduleType: $moduleType)
+	}
+`;
+
+export const updateSmartFileSlugMutation = gql`
+	mutation UpdateSlug($updateSlugId: ID!, $slug: String!, $moduleType: Modules!) {
+		updateSlug(id: $updateSlugId, slug: $slug, moduleType: $moduleType)
 	}
 `;
