@@ -6,6 +6,7 @@ import HeadersDropDownComp from './dropDown/HeadersDropDownComp';
 import SwitchWorkspaceModal from './modalsV2/switchWorkspaceModal';
 import Context from '../../context/context';
 import CreateLeadModal from './modalsV2/proposalModals/CreateLeadModal';
+import Intercom from '@intercom/messenger-js-sdk';
 
 const newBtnActions = [
 	{ label: 'Lead' },
@@ -15,7 +16,7 @@ const newBtnActions = [
 
 const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 	const {
-		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
+		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const accessibleWorkspaces = JSON.parse(localStorage.getItem('accessibleWorkspaces'));
@@ -44,8 +45,26 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 		if (!userWorkSpaceList) {
 			getUserWorkSpaceList();
 		}
+
+		if (!userDetailsData) {
+			getUserDetails();
+		}
 	}, []);
 
+	useEffect(() => {
+		if (userDetailsData) {
+			Intercom({
+				app_id: 'kg2xhn57',
+				user_id: userDetailsData._id,
+				name: userDetailsData.firstName + ' ' + userDetailsData.lastName,
+				email: userDetailsData.email,
+				company: {
+					name: info.activeBusniessName,
+					id: activeWorkspaceId,
+				},
+			});
+		}
+	}, [userDetailsData, info]);
 	useEffect(() => {
 		if (userWorkSpaceList) {
 			const activeBusniessName = userWorkSpaceList?.find(
