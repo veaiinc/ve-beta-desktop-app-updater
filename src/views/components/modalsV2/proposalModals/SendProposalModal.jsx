@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/modules/workflow/sendProposal.scss';
 import Context from '../../../../context/context';
@@ -16,6 +16,19 @@ import ToggleSlider from '../../../components/input/slider';
 import JoditEditor from 'jodit-react';
 import { message } from 'antd';
 import moment from 'moment';
+import { Tooltip } from 'antd';
+
+const ToolTipContainer = () => {
+	return (
+		<div className="tooltipParentContainer">
+			<span className="tooltipHeadertext">Link Expiry</span>
+			<span className="tooltipHeaderSubtext">
+				Smart File expires after ‘X’ days when enabled. smart files that expired will go
+				into a Expired state and can’t be accessed using link.
+			</span>
+		</div>
+	);
+};
 
 const initialState = {
 	subject: '',
@@ -65,6 +78,18 @@ const SendProposalModal = ({
 	const inputRef = useRef(null);
 
 	const [info, setInfo] = useState({ ...initialState, name: clientDetails?.name });
+	const [arrow, setArrow] = useState('Show');
+	const mergedArrow = useMemo(() => {
+		if (arrow === 'Hide') {
+			return false;
+		}
+		if (arrow === 'Show') {
+			return true;
+		}
+		return {
+			pointAtCenter: true,
+		};
+	}, [arrow]);
 
 	useEffect(() => {
 		getSendSmartFileEmailTemplate();
@@ -117,7 +142,7 @@ const SendProposalModal = ({
 
 	const handleSendProposalViaEmail = useCallback(async () => {
 		modifiedCloseModal();
-		message.success('Email Sent Successfully');
+
 		const payload = {
 			clientEmail: clientDetails?.email,
 			workflowId: workflowId,
@@ -330,7 +355,14 @@ const SendProposalModal = ({
 								</div>
 
 								<span className="svgHolder">
-									<QuestionMark />
+									<Tooltip
+										placement="bottomRight"
+										title={<ToolTipContainer />}
+										arrow={mergedArrow}
+										color={'#202020'}
+									>
+										<QuestionMark />
+									</Tooltip>
 								</span>
 							</div>
 							{info?.enableLinkExpiry ? (

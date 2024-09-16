@@ -1,4 +1,5 @@
 import service from '../../services/graphQlServices';
+import { message } from 'antd';
 import {
 	getTemmplatesQuery,
 	duplicateTemplateQuery,
@@ -496,8 +497,10 @@ export const TemplatesState = (props) => {
 				'workflows_Api',
 			);
 			if (response?.[0]) {
+				message.success('Email Sent Successfully');
 				return [true];
 			} else {
+				message.error('Something Went wrong, try again');
 				return [false, response?.[1]?.message || 'Something went Worng'];
 			}
 		} catch (error) {

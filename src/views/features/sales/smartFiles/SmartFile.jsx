@@ -11,6 +11,8 @@ import UploadSignature from '../../../components/modalsV2/workflowsModals/Upload
 import MoveStageModal from '../../../components/modalsV2/workflowsModals/moveStageModal';
 import UpdatedPageLoader from '../../../components/loaders/UpdatedPageLoader';
 import DeleteLeadModal from '../../../components/modalsV2/workflowsModals/DeleteLeadModal';
+import Notification from '../../../components/notification/Notification';
+import UploadLogoNotification from '../../../components/notification/UploadLogoNotification';
 const SmartFile = () => {
 	const { templateId, workflowId } = useParams();
 	const navigate = useNavigate();
@@ -29,6 +31,7 @@ const SmartFile = () => {
 			specificTemplatesInfo,
 			deleteLead,
 		},
+		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -44,6 +47,8 @@ const SmartFile = () => {
 		deleteLeadModal: false,
 		edit: false,
 		loading: true,
+		workspaceLogo: false,
+		showUploadLogoNotification: false,
 	});
 
 	//useEffect
@@ -98,6 +103,14 @@ const SmartFile = () => {
 		}
 	}, [smartFileInfo]);
 
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			handleWorkspaceLogoExistence();
+		} else {
+			getUserWorkSpaceList();
+		}
+	}, [userWorkSpaceList]);
+
 	//function defination
 
 	const getSmartFileInfo = useCallback(async () => {
@@ -143,8 +156,12 @@ const SmartFile = () => {
 		if (info?.activeTab === 'form') {
 			return setInfo((prev) => ({ ...prev, activeTab: 'file' }));
 		}
+		if (!info?.workspaceLogo) {
+			return setInfo((prev) => ({ ...prev, showUploadLogoNotification: true }));
+		}
+
 		setInfo((prev) => ({ ...prev, sendSmartFileModal: true }));
-	}, [info?.sendSmartFileModal, info?.activeTab]);
+	}, [info?.sendSmartFileModal, info?.activeTab, info?.workspaceLogo]);
 
 	const openCopyModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, copyModal: true }));
@@ -274,6 +291,20 @@ const SmartFile = () => {
 		setInfo((prev) => ({ ...prev, deleteLeadModal: true }));
 	}, []);
 
+	const handleWorkspaceLogoExistence = useCallback(async () => {
+		if (userWorkSpaceList) {
+			const workspaceId = localStorage.getItem('workspaceId');
+			let logoExist = false;
+			for (let i = 0; i < userWorkSpaceList?.length; i++) {
+				if (userWorkSpaceList?.[i]?.activeWorkspaceId === workspaceId) {
+					logoExist = userWorkSpaceList?.[i]?.logo_s3_500w_key?.length ? true : false;
+					break;
+				}
+			}
+			setInfo((prev) => ({ ...prev, workspaceLogo: logoExist }));
+		}
+	}, [userWorkSpaceList]);
+
 	return info?.loading ? (
 		<UpdatedPageLoader />
 	) : (
@@ -343,6 +374,10 @@ const SmartFile = () => {
 				open={info?.deleteLeadModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, deleteLoadModal: false }))}
 				deleteLeadFunc={deleteLeadFunc}
+			/>
+			<UploadLogoNotification
+				open={info?.showUploadLogoNotification}
+				onClose={() => setInfo((prev) => ({ ...prev, showUploadLogoNotification: false }))}
 			/>
 		</div>
 	);
