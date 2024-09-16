@@ -39,10 +39,9 @@ const processResponse = async (response) => {
 	if (response.status >= 200 && response.status < 300) {
 		return [true, jsonData];
 	} else if (response.status === 401) {
-		// onUserKickedOut();
+		onUserKickedOut();
 		return [false, jsonData];
 	} else {
-		console.log('Hellow rold');
 		return [response.status, jsonData];
 	}
 };
