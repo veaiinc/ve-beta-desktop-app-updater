@@ -59,8 +59,9 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 				name: userDetailsData.firstName + ' ' + userDetailsData.lastName,
 				email: userDetailsData.email,
 				company: {
-					name: info.activeBusniessName,
-					id: activeWorkspaceId,
+					name: info.activeBusniessName.activeWorkspaceId,
+					id: info.activeBusniessName.businessName,
+					region: info.activeBusniessName.region,
 				},
 			});
 		}
@@ -112,6 +113,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 		setInfo((prev) => ({ ...prev, createLeadModal: false }));
 	}, []);
 
+	console.log(info);
 	return (
 		<div className="headerContainer">
 			<VE />
