@@ -52,7 +52,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 	}, []);
 
 	useEffect(() => {
-		if (userDetailsData) {
+		if (userDetailsData && info) {
 			Intercom({
 				app_id: 'vmvweabd',
 				user_id: userDetailsData._id,
