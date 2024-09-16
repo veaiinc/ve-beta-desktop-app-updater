@@ -5,6 +5,8 @@ import Context from '../../../context/context';
 import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getLocationsDetails } from '../../../helpers';
+import { LoadingOutlined } from '@ant-design/icons';
+import { Spin } from 'antd';
 var validator = require('validator');
 
 const locationDetails = encodeURIComponent(localStorage.getItem('locationDetails'));
@@ -22,6 +24,15 @@ const VerifyUserStep = ({
 		userLogin: { verifyAccountExistsUsingEmail },
 	} = useContext(Context);
 	const navigate = useNavigate();
+	const [info, setInfo] = useState({
+		googleLogin: false,
+	});
+
+	useEffect(() => {
+		return () => {
+			setInfo((prev) => ({ ...prev, googleLogin: false }));
+		};
+	}, []);
 
 	const handleUserExists = async (event, type) => {
 		if (event?.key === 'Enter' || type === 'click') {
@@ -60,6 +71,7 @@ const VerifyUserStep = ({
 	};
 
 	const handleGoogleAuthentication = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, googleLogin: true }));
 		let locationDetails = localStorage.getItem('locationDetails');
 		if (!locationDetails) {
 			const response = await getLocationsDetails();
@@ -78,7 +90,18 @@ const VerifyUserStep = ({
 
 			<div className="signinWithGoogle" onClick={handleGoogleAuthentication}>
 				<img src={GoogleLogo} alt={'G'} />
-				<p>Continue with Google</p>
+
+				<p
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '8px',
+						justifyContent: 'ceter',
+					}}
+				>
+					{info?.googleLogin ? <Spin indicator={<LoadingOutlined spin />} /> : ''}
+					Continue with Google
+				</p>
 			</div>
 
 			<p className="or">or</p>
