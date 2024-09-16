@@ -1,9 +1,10 @@
 import '../../../assets/scss/signin.scss';
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import GoogleLogo from '../../../assets/images/googleLogo.png';
 import Context from '../../../context/context';
 import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { useParams, useNavigate } from 'react-router-dom';
+import { getLocationsDetails } from '../../../helpers';
 var validator = require('validator');
 
 const locationDetails = encodeURIComponent(localStorage.getItem('locationDetails'));
@@ -57,6 +58,17 @@ const VerifyUserStep = ({
 			}
 		}
 	};
+
+	const handleGoogleAuthentication = useCallback(async () => {
+		let locationDetails = localStorage.getItem('locationDetails');
+		if (!locationDetails) {
+			const response = await getLocationsDetails();
+			locationDetails = response;
+		}
+		locationDetails = encodeURIComponent(locationDetails);
+		window.location.href = `https://auth.ve.ai/google/url?locationDetails=${locationDetails}`;
+	}, []);
+
 	return (
 		<div className={`stepOne`}>
 			<p className="heading">
@@ -64,13 +76,10 @@ const VerifyUserStep = ({
 			</p>
 			<p className="description">Your AI assistant for work</p>
 
-			<a
-				className="signinWithGoogle"
-				href={`https://auth.ve.ai/google/url?locationDetails=${locationDetails}`}
-			>
+			<div className="signinWithGoogle" onClick={handleGoogleAuthentication}>
 				<img src={GoogleLogo} alt={'G'} />
 				<p>Continue with Google</p>
-			</a>
+			</div>
 
 			<p className="or">or</p>
 
