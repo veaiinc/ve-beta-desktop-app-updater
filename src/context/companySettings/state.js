@@ -59,9 +59,9 @@ export const CompanySettingsState = () => {
 			let workspaceId = localStorage.getItem('workspaceId');
 
 			let tenantTeam = await service.fetchGet(
-				'/' + workspaceId + API.TENANTS.tenantUsers,
+				'/tenant/' + workspaceId + API.TENANTS.tenantUsers,
 				usertoken,
-				'tenant',
+				'auth',
 			);
 			if (tenantTeam?.[0]) {
 				dispatch({
@@ -181,10 +181,10 @@ export const CompanySettingsState = () => {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchPost(
-				'/' + workspaceId + API.TENANTS.tenantUsers,
+				'/tenant/' + workspaceId + API.TENANTS.tenantUsers,
 				payload,
 				usertoken,
-				'tenant',
+				'auth',
 			);
 			if (response?.[0] === true) {
 				getTeamMembers();

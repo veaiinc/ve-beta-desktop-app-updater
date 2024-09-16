@@ -10,6 +10,7 @@ import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
 import SmartFile from './views/features/sales/smartFiles/SmartFile';
 import WorkflowBuilderLayout from './views/layouts/workflowBuilderLayout';
 import SmartFileLayout from './views/layouts/smartFileLayout';
+import EarlyAccess from './views/features/early_access';
 
 const routes = [
 	{
@@ -109,6 +110,11 @@ const routes = [
 				<SmartFile />
 			</SmartFileLayout>
 		),
+		exact: true,
+	},
+	{
+		path: '/early-access',
+		component: <EarlyAccess />,
 		exact: true,
 	},
 ];

@@ -6,6 +6,8 @@ import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { useParams, useNavigate } from 'react-router-dom';
 var validator = require('validator');
 
+const locationDetails = encodeURIComponent(localStorage.getItem('locationDetails'));
+
 const VerifyUserStep = ({
 	handleInput,
 	usersData,
@@ -18,6 +20,7 @@ const VerifyUserStep = ({
 	let {
 		userLogin: { verifyAccountExistsUsingEmail },
 	} = useContext(Context);
+	const navigate = useNavigate();
 
 	const handleUserExists = async (event, type) => {
 		if (event?.key === 'Enter' || type === 'click') {
@@ -28,12 +31,22 @@ const VerifyUserStep = ({
 				setLoading(true);
 				let response = await verifyAccountExistsUsingEmail(usersData['emailId']);
 
-				if (response[0] && response[1]?.isAccountExist) {
-					setStage('login-with-password');
-					setLoading(false);
-				} else if (response[0] && response[1]?.isAccountExist == false) {
-					setStage('signup-user');
-					setLoading(false);
+				if (response?.[0]) {
+					const { isAccountExist, isAccountVerified } = response?.[1] || {};
+					if (!isAccountExist) {
+						setStage('signup-user');
+						setLoading(false);
+						return;
+					}
+					if (isAccountExist && isAccountVerified) {
+						setStage('login-with-password');
+						setLoading(false);
+						return;
+					} else {
+						setLoading(false);
+						navigate('/early-access');
+						return;
+					}
 				}
 			} else {
 				setLoading(false);
@@ -53,7 +66,7 @@ const VerifyUserStep = ({
 
 			<a
 				className="signinWithGoogle"
-				href="https://ap.api.ve.ai/tenant-users/1.0/auth/google"
+				href={`https://auth.ve.ai/google/url?locationDetails=${locationDetails}`}
 			>
 				<img src={GoogleLogo} alt={'G'} />
 				<p>Continue with Google</p>

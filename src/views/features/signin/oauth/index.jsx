@@ -9,6 +9,8 @@ const OauthVerify = () => {
 	useEffect(() => {
 		const accessToken = params.get('accessToken');
 		let accessibleWorkspaces = params.get('workspaceId');
+		let isEarlyAccess = params.get('isEarlyAccess');
+		let region = params.get('region');
 
 		if (accessToken) {
 			if (accessibleWorkspaces && accessibleWorkspaces?.length) {
@@ -16,6 +18,7 @@ const OauthVerify = () => {
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
 				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
 				localStorage.setItem('usertoken', accessToken);
+				localStorage.setItem('region', region || 'ap-south-1');
 
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
@@ -25,7 +28,11 @@ const OauthVerify = () => {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
-
+				Cookies.set('region', region || 'ap-south-1', {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				});
+				localStorage.removeItem('locationDetails');
 				return navigate('/sales');
 			}
 			if (
@@ -35,7 +42,12 @@ const OauthVerify = () => {
 			) {
 				localStorage.setItem('usertoken', accessToken);
 				navigate('/create-workspace');
+				return;
 			}
+		}
+		if (isEarlyAccess) {
+			navigate('/early-access');
+			return;
 		}
 	}, [params]);
 	return <div></div>;

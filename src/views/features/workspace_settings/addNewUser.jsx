@@ -452,7 +452,7 @@ const AddNewUserModal = (props) => {
 								fontFamily: 'Inter',
 								textAlign: 'center',
 							}}
-							onClick={() => InviteNewUser()}
+							onClick={InviteNewUser}
 						>
 							<div>
 								<span>Save Changes</span>

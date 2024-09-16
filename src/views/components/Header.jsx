@@ -89,7 +89,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 				return navigate('/my-profile');
 			}
 			if (label === 'Create Workspace') {
-				return navigate('/create-workspace');
+				return navigate('/create-workspace?authtenticated=true');
 			} else {
 				setInfo((prev) => ({ ...prev, switchWorkspaceModal: true }));
 			}

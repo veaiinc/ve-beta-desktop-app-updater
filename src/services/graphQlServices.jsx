@@ -1,9 +1,18 @@
 import { ApolloClient, ApolloLink, HttpLink, from, InMemoryCache } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
 
-const { ve_conversations_api, workflows_Api } = require('./config');
+const {
+	ve_conversations_api,
+	workflows_Api,
+	ve_conversations_api_US,
+	workflows_Api_US,
+} = require('./config');
 
 const graphQLAPICall = { ve_conversations_api, workflows_Api };
+const graphQLAPICallUS = {
+	ve_conversations_api: ve_conversations_api_US,
+	workflows_Api: workflows_Api_US,
+};
 
 const defaultOptions = {
 	watchQuery: {
@@ -36,8 +45,11 @@ const errorLink = onError(({ graphQLErrors, networkError, forward, operation }) 
 
 const Service = {
 	query: async (query, variables, workspaceID, usertoken, type = null) => {
+		const region = localStorage.getItem('region') || 'ap-south-1';
+		let subUrl = region === 'ap-south-1' ? graphQLAPICall?.[type] : graphQLAPICallUS?.[type];
+
 		const httpLink = new HttpLink({
-			uri: `${graphQLAPICall[type]}/${workspaceID}/graphql`,
+			uri: `${subUrl}/${workspaceID}/graphql`,
 		});
 
 		const apolloClient = new ApolloClient({
@@ -73,8 +85,10 @@ const Service = {
 	},
 
 	mutation: async (mutation, variables, workspaceID, usertoken, type = null) => {
+		const region = localStorage.getItem('region') || 'ap-south-1';
+		let subUrl = region === 'ap-south-1' ? graphQLAPICall?.[type] : graphQLAPICallUS?.[type];
 		const httpLink = new HttpLink({
-			uri: `${graphQLAPICall[type]}/${workspaceID}/graphql`,
+			uri: `${subUrl}/${workspaceID}/graphql`,
 		});
 
 		const link = ApolloLink.from([errorLink, httpLink]);
