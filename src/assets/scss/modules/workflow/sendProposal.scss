@@ -1,254 +1,702 @@
-.sendProposalContainer {
+.tooltipParentContainer {
 	display: flex;
-	width: 680px;
-	// height: 800px;
 	flex-direction: column;
+	justify-content: center;
 	align-items: flex-start;
-	border-radius: 40px;
+	gap: 8px;
+	flex: 1 0 0;
+	width: 160px;
+	padding: var(--Spacing-space-7, 12px);
+	border-radius: 4px;
+	background: #202020;
+
+	.tooltipHeadertext {
+		color: #e8e8e8;
+		text-align: center;
+		font-family: Inter;
+		font-size: 11px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+	.tooltipHeaderSubtext {
+		color: #797979;
+		font-family: Inter;
+		font-size: 10px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+	}
+}
+
+.sendSmartFileupdatedContainer {
+	display: flex;
+	width: 510px;
+	padding: 24px 20px;
+	border-radius: 15px;
+	border: 1px solid #313131;
 	background: #151515;
-	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+	flex-direction: column;
+	height: 355px;
+	transition: all 0.2s;
 
-	.uppercontainer {
+	.sendSmartFileSettingScreen {
+		flex: 1;
 		display: flex;
-		padding: 40px;
 		flex-direction: column;
-		align-items: flex-start;
-		gap: 16px;
-		align-self: stretch;
-
-		.sendSmartFileHeaderContainer {
-			display: flex;
-			align-items: center;
-			gap: 4px;
-			align-self: stretch;
-			.sendSmartFileHeaderTitle {
-				color: #e4e5e6;
-				font-family: Inter;
-				font-size: 16px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 26px; /* 162.5% */
-				flex: 1;
-			}
-			.closeBtnWrapper {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				cursor: pointer;
-			}
-		}
-
-		.clientAuthenticationContainer {
-			display: flex;
-			align-items: center;
-			align-self: stretch;
-
-			.styledLeftPart {
-				width: 6px;
-				height: 48px;
-				border-radius: 100px var(--cartCount, 0px) var(--cartCount, 0px) 100px;
-				background: #6055ec;
-			}
-			.clientAuthenticationContentContainer {
-				display: flex;
-				padding: 14px;
-				padding-left: 8px;
-				justify-content: space-between;
-				align-items: center;
-				align-self: stretch;
-				border-radius: 8px;
-				border-top-left-radius: 0px;
-				border-bottom-left-radius: 0px;
-				background: #202020;
-				flex: 1;
-
-				.clientContentLabel {
-					color: #e4e5e6;
-					font-family: Inter;
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 400;
-					line-height: 20px;
-					flex: 1;
-				}
-			}
-		}
-		.inputWrapperForSendSmartFile {
+		gap: 24px;
+		.sendSmartFileHeader {
 			display: flex;
 			flex-direction: column;
-			align-items: flex-start;
 			gap: 4px;
 			align-self: stretch;
-			.inputlabel {
+			.sendSmartFileHeaderWrapper {
 				display: flex;
-				padding-left: 14px;
-				align-items: flex-start;
-				gap: 10px;
+				align-items: center;
 				align-self: stretch;
-				color: #b0b0b0;
+				padding-bottom: 4px;
+				border-bottom: 1px solid #232323;
+				.linkDetailText {
+					overflow: hidden;
+					color: #e4e5e6;
+					text-overflow: ellipsis;
+					font-family: Inter;
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+					letter-spacing: -0.26px;
+					flex: 1;
+					white-space: nowrap;
+					display: flex;
+					align-items: center;
+					.editableSlugInput {
+						background-color: transparent;
+						border: none;
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+						letter-spacing: -0.26px;
+						flex: 1;
+					}
+				}
+				.editLinkBtn {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
+				}
+			}
+			.slugErrorHandler {
+				display: flex;
+				align-items: center;
+				align-self: stretch;
+				color: #cc5756;
 				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
 				line-height: 16px; /* 133.333% */
 			}
-			.inputForSendSmartFile {
-				display: flex;
-				padding: 11px 14px;
-				align-items: center;
-				gap: 10px;
-				align-self: stretch;
-				border-radius: 10px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
-				color: rgba(228, 229, 230, 0.8);
-				font-family: Inter;
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: 26px; /* 185.714% */
-				background-color: transparent;
-			}
-
-			.joditWrapper {
-				width: 100%;
-				max-height: 350px;
-				overflow-y: auto;
-			}
 		}
-
-		.modalHeader {
-			color: #e4e5e6;
-			font-family: Inter;
-			font-size: 18px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 26px; /* 144.444% */
-		}
-		.sendEmailBtn {
+		.configurationSettingsContainer {
 			display: flex;
-			padding: 16px 24px;
-			justify-content: center;
-			align-items: center;
-			gap: 16px;
-			border-radius: 100px;
-			border: 1px solid rgba(36, 36, 36, 0.64);
-			background: #6055ec;
-			color: #e4e5e6;
-			font-family: Inter;
-			font-size: 13px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 16px; /* 123.077% */
-			letter-spacing: 0.26px;
-			cursor: pointer;
-		}
-		.inputWrapperForEmail {
-			display: flex;
+			align-self: stretch;
 			flex-direction: column;
 			align-items: flex-start;
-			gap: 6px;
-			flex: 1 0 0;
+			gap: 16px;
+
+			.settingsWrapper {
+				display: flex;
+				flex-direction: column;
+				align-self: stretch;
+				.settingsContainer {
+					display: flex;
+					padding: 8px;
+					align-items: center;
+					gap: 12px;
+					align-self: stretch;
+
+					.settingsIconHolder {
+						display: flex;
+						width: 30px;
+						height: 30px;
+						padding: 5px;
+						justify-content: center;
+						align-items: center;
+						gap: 12.5px;
+						border-radius: 6.25px;
+						background: #292929;
+					}
+					.settingsLabelholder {
+						display: flex;
+						align-items: center;
+						flex: 1;
+
+						.settingsLabelText {
+							color: #e8e8e8;
+							// text-align: center;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							flex: 1;
+						}
+					}
+				}
+				.settingsContainer:hover {
+					border-radius: 8px;
+					background: #1b1b1b;
+				}
+
+				.enableLinkSettingsContainer {
+					display: flex;
+					padding: var(--cartCount, 0px) var(--Spacing-space-8, 16px);
+					justify-content: space-between;
+					align-items: center;
+					align-self: stretch;
+					margin-top: 8px;
+					.linkExpireLabelContainer {
+						display: flex;
+						flex-direction: column;
+						align-self: stretch;
+						gap: 8px;
+						flex: 1;
+						.expiryHeadingLabel {
+							color: #e8e8e8;
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+						.expirySubLabel {
+							color: #797979;
+							font-family: Inter;
+							font-size: 9px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+							text-transform: uppercase;
+						}
+					}
+					.linkExpiryInputParentContainer {
+						display: flex;
+						align-items: center;
+						gap: var(--Spacing-space-7, 12px);
+
+						.daysButtons {
+							width: 24px;
+							height: 24px;
+							border-radius: 100%;
+							border: 1px solid #797979;
+							color: #797979;
+							text-align: center;
+							font-family: Inter;
+							font-size: 9px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							cursor: pointer;
+						}
+						.daysButtons:hover {
+							border: 1px solid #fff;
+							color: #fff;
+						}
+						.incrementContainer {
+							display: flex;
+							padding: 8px;
+							align-items: center;
+							gap: 10px;
+							border-radius: 10px;
+							border: 1px solid rgba(36, 36, 36, 0.64);
+
+							.incrementFontstyling {
+								color: #c7c7c7;
+								font-family: Inter;
+								font-size: 14px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: normal;
+								cursor: pointer;
+							}
+						}
+						.customDateButton {
+							color: #e8e8e8;
+							cursor: pointer;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+							text-transform: capitalize;
+						}
+					}
+				}
+				.accessSettingsContainer {
+					display: flex;
+					padding: var(--Spacing-space-7, 12px);
+					flex-direction: column;
+					align-items: flex-start;
+					gap: var(--Spacing-space-7, 12px);
+					border-radius: 8px;
+					border: 1px solid rgba(36, 36, 36, 0.64);
+					background: rgba(42, 42, 42, 0.16);
+					margin-top: 8px;
+
+					.identificationContainer {
+						display: flex;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: var(--Spacing-space-7, 12px);
+						align-self: stretch;
+						padding-bottom: 12px;
+						border-bottom: 1px solid #232323;
+
+						.accessSettingsLabelContainer {
+							display: flex;
+							align-items: center;
+							gap: var(--Spacing-space-3, 4px);
+							.headingLabel {
+								color: #e8e8e8;
+								font-family: Inter;
+								font-size: 14px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
+						}
+
+						.checkBoxContainer {
+							display: flex;
+							align-items: flex-start;
+							gap: var(--Spacing-space-8, 16px);
+							.checkboxWrapper {
+								display: flex;
+								align-items: center;
+								gap: var(--Spacing-space-3, 4px);
+								.sendSmartFileCheckbox {
+									accent-color: #6055ec;
+								}
+
+								.checkboxLabel {
+									color: #8c8c8c;
+									text-align: center;
+									font-family: Inter;
+									font-size: 11px;
+									font-style: normal;
+									font-weight: 400;
+									line-height: normal;
+									letter-spacing: 0.44px;
+								}
+							}
+						}
+					}
+					.securityContainer {
+						display: flex;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: var(--Spacing-space-7, 12px);
+						align-self: stretch;
+						.accessSettingsLabelContainer {
+							display: flex;
+							align-items: center;
+							gap: var(--Spacing-space-3, 4px);
+							.headingLabel {
+								color: #e8e8e8;
+								font-family: Inter;
+								font-size: 14px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
+						}
+						.checkBoxContainer {
+							display: flex;
+							align-items: flex-start;
+							gap: var(--Spacing-space-8, 16px);
+							.checkboxWrapper {
+								display: flex;
+								align-items: center;
+								gap: var(--Spacing-space-3, 4px);
+								.sendSmartFileCheckbox {
+									accent-color: #6055ec;
+								}
+
+								.checkboxLabel {
+									color: #8c8c8c;
+									text-align: center;
+									font-family: Inter;
+									font-size: 11px;
+									font-style: normal;
+									font-weight: 400;
+									line-height: normal;
+									letter-spacing: 0.44px;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		.aiSalesContainer {
+			display: flex;
 			align-self: stretch;
-			.labelStyling {
-				color: #b0b0b0;
-				font-family: Inter;
-				font-size: 11px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: 16px; /* 145.455% */
-			}
-			.modalInput {
-				width: 100%;
+			gap: 12px;
+			align-items: center;
+			padding-left: 7px;
+			.aiLabel {
 				display: flex;
-				padding: 11px 14px;
+				align-items: center;
+				justify-content: space-between;
+				flex: 1;
+
+				.aiLabelText {
+					color: #e8e8e8;
+					text-align: center;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+
+		.sendSmartFileBtnContainer {
+			display: flex;
+			align-self: stretch;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			gap: 12px;
+			padding-bottom: 12px;
+			border-bottom: 1px solid rgba(36, 36, 36, 0.64);
+			.sendSmartFileBtn {
+				display: flex;
+				height: 36px;
+				padding: 9px var(--Spacing-space-7, 12px);
 				justify-content: center;
 				align-items: center;
-				gap: 10px;
+				gap: var(--Spacing-space-3, 4px);
 				align-self: stretch;
-				border-radius: 10px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
-				background-color: transparent;
-				color: rgba(228, 229, 230, 0.8);
+				border-radius: 8px;
+				background: #6055ec;
+				color: #f5f5f5;
+				text-align: center;
 				font-family: Inter;
-				font-size: 14px;
+				font-size: 13px;
 				font-style: normal;
-				font-weight: 400;
-				line-height: 26px; /* 185.714% */
-				resize: none;
+				font-weight: 500;
+				line-height: 16px; /* 123.077% */
+				cursor: pointer;
 			}
-			.selectContainer {
-				width: 100%;
-				display: flex;
-				padding: 11px 14px;
-				justify-content: center;
-				align-items: center;
-				gap: 10px;
-				align-self: stretch;
-				border-radius: 10px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
-				background-color: transparent;
-				color: rgba(228, 229, 230, 0.8);
+			.orText {
+				color: #797979;
+				text-align: center;
 				font-family: Inter;
-				font-size: 14px;
+				font-size: 9px;
 				font-style: normal;
 				font-weight: 400;
-				line-height: 26px; /* 185.714% */
+				line-height: normal;
+			}
+			.copyTextDiv {
+				display: flex;
+				justify-content: center;
+				align-items: flex-start;
+				gap: 8px;
+
+				.copyLinkText {
+					color: #6055ec;
+					text-align: center;
+					font-family: Inter;
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 16px; /* 123.077% */
+					cursor: pointer;
+				}
 			}
 		}
 	}
-	.modalFooter {
+
+	.sendProposalContainer {
 		display: flex;
-		padding: 24px 32px;
+		margin-top: 24px;
+		padding-bottom: 54px;
+		flex-direction: column;
 		align-items: flex-start;
-		gap: 32px;
-		align-self: stretch;
-		background: #1e1f20;
-		border-bottom-left-radius: 40px;
-		border-bottom-right-radius: 40px;
-		.footerLabel {
+
+		.uppercontainer {
 			display: flex;
-			flex: 1;
+			// padding: 40px;
 			flex-direction: column;
 			align-items: flex-start;
-			gap: 4px;
+			gap: 16px;
+			align-self: stretch;
 
-			.mainfooterTitle {
+			.sendSmartFileHeaderContainer {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+				align-self: stretch;
+				.sendSmartFileHeaderTitle {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 26px; /* 162.5% */
+					flex: 1;
+				}
+				.closeBtnWrapper {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
+				}
+			}
+
+			.clientAuthenticationContainer {
+				display: flex;
+				align-items: center;
+				align-self: stretch;
+
+				.styledLeftPart {
+					width: 6px;
+					height: 48px;
+					border-radius: 100px var(--cartCount, 0px) var(--cartCount, 0px) 100px;
+					background: #6055ec;
+				}
+				.clientAuthenticationContentContainer {
+					display: flex;
+					padding: 14px;
+					padding-left: 8px;
+					justify-content: space-between;
+					align-items: center;
+					align-self: stretch;
+					border-radius: 8px;
+					border-top-left-radius: 0px;
+					border-bottom-left-radius: 0px;
+					background: #202020;
+					flex: 1;
+
+					.clientContentLabel {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 20px;
+						flex: 1;
+					}
+				}
+			}
+			.inputWrapperForSendSmartFile {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 4px;
+				align-self: stretch;
+				.inputlabel {
+					display: flex;
+					padding-left: 14px;
+					align-items: flex-start;
+					gap: 10px;
+					align-self: stretch;
+					color: #b0b0b0;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px; /* 133.333% */
+				}
+				.inputForSendSmartFile {
+					display: flex;
+					padding: 11px 14px;
+					align-items: center;
+					gap: 10px;
+					align-self: stretch;
+					border-radius: 10px;
+					border: 1px solid rgba(36, 36, 36, 0.64);
+					color: rgba(228, 229, 230, 0.8);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 26px; /* 185.714% */
+					background-color: transparent;
+				}
+
+				.joditWrapper {
+					width: 100%;
+					max-height: 350px;
+					overflow-y: auto;
+				}
+			}
+
+			.modalHeader {
 				color: #e4e5e6;
 				font-family: Inter;
-				font-size: 14px;
+				font-size: 18px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: 26px; /* 185.714% */
+				line-height: 26px; /* 144.444% */
 			}
-			.mainFooterSubTitle {
-				color: rgba(228, 229, 230, 0.48);
+			.sendEmailBtn {
+				display: flex;
+				padding: 16px 24px;
+				justify-content: center;
+				align-items: center;
+				gap: 16px;
+				border-radius: 100px;
+				border: 1px solid rgba(36, 36, 36, 0.64);
+				background: #6055ec;
+				color: #e4e5e6;
 				font-family: Inter;
-				font-size: 12px;
+				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: 20px; /* 166.667% */
-				letter-spacing: 0.24px;
-				text-transform: capitalize;
+				line-height: 16px; /* 123.077% */
+				letter-spacing: 0.26px;
+				cursor: pointer;
+			}
+			.inputWrapperForEmail {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 6px;
+				flex: 1 0 0;
+				align-self: stretch;
+				.labelStyling {
+					color: #b0b0b0;
+					font-family: Inter;
+					font-size: 11px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px; /* 145.455% */
+				}
+				.modalInput {
+					width: 100%;
+					display: flex;
+					padding: 11px 14px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					align-self: stretch;
+					border-radius: 10px;
+					border: 1px solid rgba(36, 36, 36, 0.64);
+					background-color: transparent;
+					color: rgba(228, 229, 230, 0.8);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 26px; /* 185.714% */
+					resize: none;
+				}
+				.selectContainer {
+					width: 100%;
+					display: flex;
+					padding: 11px 14px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					align-self: stretch;
+					border-radius: 10px;
+					border: 1px solid rgba(36, 36, 36, 0.64);
+					background-color: transparent;
+					color: rgba(228, 229, 230, 0.8);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 26px; /* 185.714% */
+				}
 			}
 		}
-		.linkCopyBtn {
-			width: auto;
+		.modalFooter {
 			display: flex;
-			padding: 16px 24px;
-			justify-content: center;
-			align-items: center;
-			gap: 16px;
-			border-radius: 100px;
-			border: 1px solid rgba(36, 36, 36, 0.64);
-			background: #262626;
-			color: #e4e5e6;
-			font-family: Inter;
-			font-size: 13px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 16px; /* 123.077% */
-			letter-spacing: 0.26px;
-			cursor: pointer;
+			padding: 24px 32px;
+			align-items: flex-start;
+			gap: 32px;
+			align-self: stretch;
+			background: #1e1f20;
+			border-bottom-left-radius: 40px;
+			border-bottom-right-radius: 40px;
+			.footerLabel {
+				display: flex;
+				flex: 1;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 4px;
+
+				.mainfooterTitle {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 26px; /* 185.714% */
+				}
+				.mainFooterSubTitle {
+					color: rgba(228, 229, 230, 0.48);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 20px; /* 166.667% */
+					letter-spacing: 0.24px;
+					text-transform: capitalize;
+				}
+			}
+			.linkCopyBtn {
+				width: auto;
+				display: flex;
+				padding: 16px 24px;
+				justify-content: center;
+				align-items: center;
+				gap: 16px;
+				border-radius: 100px;
+				border: 1px solid rgba(36, 36, 36, 0.64);
+				background: #262626;
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 16px; /* 123.077% */
+				letter-spacing: 0.26px;
+				cursor: pointer;
+			}
 		}
 	}
+}
+
+.sendSmartFileupdatedContainer.enableLinkExpiry {
+	height: 409px;
+}
+.sendSmartFileupdatedContainer.showAccessSettings {
+	height: 503px;
+}
+
+.sendSmartFileupdatedContainer.showAccessSettings.enableLinkExpiry {
+	height: 557px;
+}
+.sendSmartFileupdatedContainer.showEmail {
+	height: 797px !important;
+}
+
+.svgHolder {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
 }

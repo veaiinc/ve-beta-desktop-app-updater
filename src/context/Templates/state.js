@@ -1,4 +1,5 @@
 import service from '../../services/graphQlServices';
+import { message } from 'antd';
 import {
 	getTemmplatesQuery,
 	duplicateTemplateQuery,
@@ -24,6 +25,9 @@ import {
 	getSpecifiTemplatesInfoQuery,
 	getSendSmartFileTemplateQuery,
 	sendSmartFileMutation,
+	checkSmartFileSlugExistsQuery,
+	updateSmartFileSlugMutation,
+	deleteLeadMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -493,8 +497,10 @@ export const TemplatesState = (props) => {
 				'workflows_Api',
 			);
 			if (response?.[0]) {
+				message.success('Email Sent Successfully');
 				return [true];
 			} else {
+				message.error('Something Went wrong, try again');
 				return [false, response?.[1]?.message || 'Something went Worng'];
 			}
 		} catch (error) {
@@ -677,6 +683,74 @@ export const TemplatesState = (props) => {
 			console.log('api failed ==>getSendSmartFileEmailTemplate', error);
 		}
 	};
+
+	const checkSmartFileSlugExists = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				checkSmartFileSlugExistsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const { isSlugAvailable } = response?.[1]?.data;
+				return [isSlugAvailable];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>checkSmartFileSlugExists', error);
+		}
+	};
+
+	const updateSmartFileSlug = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateSmartFileSlugMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.updateSlug?.slug];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>updateSmartFileSlug', error);
+		}
+	};
+
+	const deleteLead = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				deleteLeadMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>deleteLead', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -707,5 +781,8 @@ export const TemplatesState = (props) => {
 		moveWorkflowStatus,
 		getSpecificTemplatesInfo,
 		getSendSmartFileEmailTemplate,
+		checkSmartFileSlugExists,
+		updateSmartFileSlug,
+		deleteLead,
 	};
 };
