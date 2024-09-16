@@ -49,6 +49,7 @@ const SmartFile = () => {
 		loading: true,
 		workspaceLogo: false,
 		showUploadLogoNotification: false,
+		workflowExpiryAt: '',
 	});
 
 	//useEffect
@@ -99,6 +100,7 @@ const SmartFile = () => {
 				workflowStatus: smartFileInfo?.status,
 				workflowData: workflowDataObj,
 				edit,
+				workflowExpiryAt: smartFileInfo?.expiresAt,
 			}));
 		}
 	}, [smartFileInfo]);
@@ -293,6 +295,7 @@ const SmartFile = () => {
 
 	const handleWorkspaceLogoExistence = useCallback(async () => {
 		if (userWorkSpaceList) {
+			console.log('I reached There');
 			const workspaceId = localStorage.getItem('workspaceId');
 			let logoExist = false;
 			for (let i = 0; i < userWorkSpaceList?.length; i++) {
@@ -304,6 +307,13 @@ const SmartFile = () => {
 			setInfo((prev) => ({ ...prev, workspaceLogo: logoExist }));
 		}
 	}, [userWorkSpaceList]);
+
+	const updateSendSmartFileExpiryData = useCallback(
+		async (updatedValue) => {
+			setInfo((prev) => ({ ...prev, workflowExpiryAt: updatedValue }));
+		},
+		[info?.workflowExpiryAt],
+	);
 
 	return info?.loading ? (
 		<UpdatedPageLoader />
@@ -346,6 +356,8 @@ const SmartFile = () => {
 				changeEditStatus={changeEditStatus}
 				slug={info?.workflowData?.slug}
 				updateWorkflowSlug={updateWorkflowSlug}
+				expiresAt={info?.workflowExpiryAt || ''}
+				updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
 			/>
 
 			<CopiedModal

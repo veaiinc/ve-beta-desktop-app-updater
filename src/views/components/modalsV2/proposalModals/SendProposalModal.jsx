@@ -49,6 +49,8 @@ const initialState = {
 	editSlug: false,
 	timeout: null,
 	aiAssistant: false,
+	expiresAt: null,
+	linkExpiryText: 'No Expiry',
 };
 
 const SendProposalModal = ({
@@ -63,6 +65,8 @@ const SendProposalModal = ({
 	changeEditStatus,
 	slug,
 	updateWorkflowSlug,
+	expiresAt,
+	updateSendSmartFileExpiryData,
 }) => {
 	const {
 		templates: {
@@ -119,6 +123,24 @@ const SendProposalModal = ({
 		}
 	}, [slug]);
 
+	useEffect(() => {
+		if (expiresAt) {
+			let linkExpiryText;
+			const currentTimestamp = moment().unix();
+			// Calculate the difference in hours, then round up to the nearest full day
+			const hoursLeft = moment.unix(expiresAt).diff(moment.unix(currentTimestamp), 'hours');
+			const daysLeft = Math.max(0, Math.ceil(hoursLeft / 24));
+			if (daysLeft <= 0) {
+				linkExpiryText = 'Link Has expired';
+			} else {
+				linkExpiryText = `Link Expires on ${moment
+					?.unix(expiresAt)
+					?.format('DD MMM YYYY')}`;
+			}
+			setInfo((prev) => ({ ...prev, expiryInDays: daysLeft, linkExpiryText }));
+		}
+	}, [expiresAt]);
+
 	const handleCopy = useCallback(async () => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -162,6 +184,9 @@ const SendProposalModal = ({
 		}
 
 		sendSmartFile(payload);
+		if (payload.expiresAt) {
+			updateSendSmartFileExpiryData(payload.expiresAt);
+		}
 
 		if (workflowStatus === 'enquiry') {
 			chnageWorkflowStats({
@@ -372,7 +397,8 @@ const SendProposalModal = ({
 											Days till file expires
 										</span>
 										<span className="expirySubLabel">
-											Link Expires on 5 Oct 2024
+											{info?.linkExpiryText}
+											{/* Link Expires on 5 Oct 2024 */}
 										</span>
 									</div>
 									{!info?.showCustomExpiryButton ? (
