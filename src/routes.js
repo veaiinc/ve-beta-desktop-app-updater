@@ -3,7 +3,7 @@ import LoginScreen from './views/features/signin';
 import ChatScreen from './views/features/meta_Integ/index';
 import OauthVerify from './views/features/signin/oauth';
 import MySettings from './views/features/profile_settings/MySettings';
-import CompanySettingsWrapper from './views/features/workspace_settings/CompanySettingsWrapper';
+import CompanySettingsWrapper from './views/features/settings/SettingsWrapper';
 import Workflow_builder from './views/features/workflow_builder';
 import Sales from './views/features/sales/Sales';
 import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
@@ -11,6 +11,7 @@ import SmartFile from './views/features/sales/smartFiles/SmartFile';
 import WorkflowBuilderLayout from './views/layouts/workflowBuilderLayout';
 import SmartFileLayout from './views/layouts/smartFileLayout';
 import EarlyAccess from './views/features/early_access';
+import SettingsWrapper from './views/features/settings/SettingsWrapper';
 
 const routes = [
 	{
@@ -115,6 +116,15 @@ const routes = [
 	{
 		path: '/early-access',
 		component: <EarlyAccess />,
+		exact: true,
+	},
+	{
+		path: '/my-settings',
+		component: (
+			<AuthWrapper title={'Workspace Settings'}>
+				<SettingsWrapper />
+			</AuthWrapper>
+		),
 		exact: true,
 	},
 ];

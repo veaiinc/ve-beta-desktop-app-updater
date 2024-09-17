@@ -31,7 +31,7 @@ const AuthWrapper = ({ title, children, hideQuickNav = false }) => {
 				activeWorkspaceId={workspaceId}
 			/>
 			<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>
-				<div className="childrenContainer">{children}</div>
+				<div className="childrenContaine">{children}</div>
 			</SkeletonTheme>
 			<Footer />
 		</div>
