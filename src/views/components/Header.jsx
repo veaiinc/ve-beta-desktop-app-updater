@@ -113,7 +113,6 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 		setInfo((prev) => ({ ...prev, createLeadModal: false }));
 	}, []);
 
-	console.log(info);
 	return (
 		<div className="headerContainer">
 			<VE />

@@ -67,7 +67,6 @@ const CompanyTeamMembers = () => {
 	}, [tenantUserDetails]);
 
 	useEffect(() => {
-		console.log(inviteUserRes, 'this is called');
 		if (inviteUserRes === 'success') {
 			getTeamMembers();
 		}
