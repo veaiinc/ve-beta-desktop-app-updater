@@ -1,0 +1,87 @@
+.editViewEmaiTemplateModalParentContainer {
+	display: flex;
+	width: 510px;
+	padding: 24px 20px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--Spacing-space-8, 16px);
+	border-radius: 15px;
+	border: 1px solid #313131;
+	background: #151515;
+	.editViewEmaiTemplateModalSubContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--Spacing-space-8, 16px);
+		align-self: stretch;
+
+		.editEmailTemplateHeader {
+			display: flex;
+			align-items: center;
+			align-self: stretch;
+
+			.editEmailTemplateHeaderTitle {
+				overflow: hidden;
+				color: #e4e5e6;
+				text-overflow: ellipsis;
+				font-family: Inter;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				letter-spacing: -0.26px;
+			}
+		}
+
+		.inputWrapperForSubjectInput {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: var(--Spacing-space-4, 6px);
+			align-self: stretch;
+
+			.inputlabel {
+				color: #b0b0b0;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 16px; /* 133.333% */
+				padding-left: 14px;
+			}
+			.inputForeditEmailInput {
+				display: flex;
+				padding: 11px 14px;
+				align-items: center;
+				gap: 10px;
+				align-self: stretch;
+				color: rgba(228, 229, 230, 0.8);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 26px; /* 185.714% */
+				background-color: transparent;
+				border-radius: 10px;
+				border: 1px solid rgba(36, 36, 36, 0.64);
+			}
+		}
+		.doneEditingBtn {
+			display: flex;
+			width: 112px;
+			padding: var(--Spacing-space-8, 16px) 24px;
+			justify-content: center;
+			align-items: center;
+			gap: var(--Spacing-space-8, 16px);
+			border-radius: 100px;
+			background: #6055ec;
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 16px; /* 123.077% */
+			align-self: flex-end;
+		}
+	}
+}
