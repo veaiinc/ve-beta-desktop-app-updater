@@ -78,8 +78,9 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					workflowId,
 					expiryInDays,
 					signatures = [],
-				} = currentModule;
+				} = currentModule || {};
 				let activeVersionData;
+
 				for (let j = 0; j < versions?.length; j++) {
 					if (versions?.[j]?._id === activeVersion) {
 						activeVersionData = {
