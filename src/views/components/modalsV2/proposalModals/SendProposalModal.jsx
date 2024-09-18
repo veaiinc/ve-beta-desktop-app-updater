@@ -141,6 +141,12 @@ const SendProposalModal = ({
 		}
 	}, [expiresAt]);
 
+	useEffect(() => {
+		if (info?.editSlug && inputRef) {
+			inputRef.current?.focus();
+		}
+	}, [info?.editSlug, inputRef]);
+
 	const handleCopy = useCallback(async () => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -255,7 +261,6 @@ const SendProposalModal = ({
 
 	const editSlugOnClick = useCallback(() => {
 		setInfo((prev) => ({ ...prev, editSlug: !prev.editSlug }));
-		inputRef.current?.focus();
 	}, [info?.editSlug, inputRef]);
 
 	const slugOnChange = useCallback(
