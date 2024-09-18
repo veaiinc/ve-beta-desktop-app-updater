@@ -371,3 +371,11 @@ export const deleteLeadMutation = gql`
 		deleteWorkflow(id: $deleteWorkflowId)
 	}
 `;
+
+export const deleteWorkflowTemplatesMutation = gql`
+	mutation DeleteTemplate($deleteTemplateId: ID!) {
+		deleteTemplate(id: $deleteTemplateId) {
+			message
+		}
+	}
+`;

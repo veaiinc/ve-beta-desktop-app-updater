@@ -28,6 +28,7 @@ import {
 	checkSmartFileSlugExistsQuery,
 	updateSmartFileSlugMutation,
 	deleteLeadMutation,
+	deleteWorkflowTemplatesMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -750,6 +751,27 @@ export const TemplatesState = (props) => {
 			console.log('api failed ==>deleteLead', error);
 		}
 	};
+	const deleteWorkflowTemplates = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				deleteWorkflowTemplatesMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>deleteLead', error);
+		}
+	};
 
 	return {
 		...state,
@@ -784,5 +806,6 @@ export const TemplatesState = (props) => {
 		checkSmartFileSlugExists,
 		updateSmartFileSlug,
 		deleteLead,
+		deleteWorkflowTemplates,
 	};
 };
