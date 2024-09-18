@@ -216,20 +216,8 @@ const MyProfile = () => {
 			<div className="settingsContainer">
 				{/* Settings Profile details  */}
 
-				<div className="settingProfileDetailss testModule" id="profile">
-					{/* <ProfileDetailsComponent
-						handleSubmit={handleSubmit}
-						handleEditClick={handleEditClick}
-						isEditMode={isEditMode}
-						userDetails={userDetails}
-						errors={errors}
-						handleChange={handleChange}
-						userDetailsData={userDetailsData}
-						showForm={showForm}
-						handleImageChange={handleImageChange}
-						handlePopupFormClose={handlePopupFormClose}
-					/> */}
-					<Test
+				<div className="ProfileDetailsComponent activeBackgroundColor" id="profile">
+					<ProfileDetailsComponent
 						handleSubmit={handleSubmit}
 						handleEditClick={handleEditClick}
 						isEditMode={isEditMode}
@@ -244,7 +232,7 @@ const MyProfile = () => {
 				</div>
 
 				{/* Theme Preference */}
-				<div className="settingsTheme" id="theme">
+				<div className="settingsTheme activeBackgroundColor" id="theme">
 					<ThemePreferenceComponent
 						setActiveTheme={setActiveTheme}
 						activeTheme={activeTheme}
@@ -253,37 +241,24 @@ const MyProfile = () => {
 
 				{/* Access Settings */}
 				<div className={'accessSettingsContainer'} id="updatepassword">
-					<UpdatePasswordComponent />
+					<UpdatePasswordComponent handleFormPopUp={handleFormPopUp} />
 				</div>
 
 				{/* Settings Two Factor Authentication */}
 				<div className="settingsTwoFactorAuthentication" id="twoFactorAuth">
-					<TwoFactorAuthenticationComponent />
+					<TwoFactorAuthenticationComponent
+						toggleEnable={toggleEnable}
+						userDetails={userDetails}
+						qrcode={qrcode}
+					/>
 				</div>
 
 				<div className={'accessSettingsContainer'} id="leaveworkspace">
 					<LeaveWorkspaceComponent />
 				</div>
 			</div>
-
-			{showForm && (
-				<MySettingsChangePasword showForm={showForm} onClose={handlePopupFormClose} />
-			)}
 		</div>
 	);
 };
 
 export default MyProfile;
-
-//  Notifications
-//  <div className={'notificationContainer'} id="notifications">
-// 	<div className={'notificationMain'}>
-// 		<div className={'notificationText'}>
-// 			<h4>Notifications</h4>
-// 			<p>
-// 				We see you're in several workspaces. Choose one to update your
-// 				notification settings.
-// 			</p>
-// 		</div>
-// 	</div>
-// </div>

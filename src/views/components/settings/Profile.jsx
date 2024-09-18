@@ -1,14 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
-import jwt_decode from 'jwt-decode';
+import React, { useState } from 'react';
 import '../../../assets/scss/AccountSettings/myProfile.scss';
-import Context from '../../../context/context';
-import InputForModules from '../../components/input/inputForModules';
-// import { collapseToast, useToast } from 'react-toastify';
-import validator from 'validator';
 import { getInitials } from '../../features/profile_settings/getInitials';
 import ToggleSlider from '../../components/input/slider';
 import ReusableButtonSettings from '../../features/workspace_settings/ReusableButtonSettings';
 import MySettingsChangePasword from '../../features/profile_settings/MySettingsChangePasword';
+import PhoneInput from 'react-phone-number-input';
+import { UploadAvatarPopupComponent } from './ProfilePopups';
 
 // profile details component
 export const ProfileDetailsComponent = ({
@@ -23,115 +20,8 @@ export const ProfileDetailsComponent = ({
 	handleImageChange,
 	handlePopupFormClose,
 }) => {
-	return (
-		<>
-			<form onSubmit={handleSubmit} className={`${'formsMain'} `}>
-				<div className={'profileMain'}>
-					<h1>My Profile</h1>
-					<p
-						onClick={handleEditClick}
-						className={isEditMode ? 'saveButton' : ''}
-						style={{ cursor: 'pointer' }}
-					>
-						{isEditMode ? 'Save Changes' : 'Edit'}
-					</p>
-				</div>
-				<div className={`${'formContainerMain'} ${isEditMode ? 'formsEdit' : ''}`}>
-					<div className={'profileImgName'}>
-						<div className={'profileImgContainerMain'}>
-							<input
-								type="file"
-								id="profilePicture"
-								name="profilePicture"
-								onChange={handleImageChange}
-								style={{ display: 'none' }}
-							/>
+	const [uploadAvatarPopup, setuploadAvatarPopup] = useState(false);
 
-							<label htmlFor="profilePicture">
-								{userDetails?.logoURL ? (
-									<img src={userDetails?.logoURL} alt="logo" />
-								) : (
-									<div>
-										{getInitials(
-											userDetailsData?.firstName,
-
-											userDetailsData?.lastName,
-										)}
-									</div>
-								)}
-							</label>
-						</div>
-						<div className={'fullName'}>
-							<InputForModules
-								label={'Full Name'}
-								type={'text'}
-								placeholder={'Enter your Full Name'}
-								name={'fullName'}
-								value={userDetails?.fullName || ''}
-								onChange={handleChange}
-								isError={false}
-								errorMessage={''}
-								disabled={!isEditMode}
-							/>
-						</div>
-					</div>
-
-					<div>
-						{/* <label>Phone Number</label> */}
-
-						<InputForModules
-							label={'Phone Number'}
-							type={'phoneNumber'}
-							placeholder={'Enter your Phone Number'}
-							name={'phoneNumber'}
-							value={userDetails?.phoneNumber}
-							onChange={handleChange}
-							isError={false}
-							errorMessage={''}
-							disabled={true}
-							defaultCountry={'IN'}
-						/>
-
-						{errors.phoneNumber && <p className={'error'}>{errors.phoneNumber}</p>}
-					</div>
-
-					<div>
-						<InputForModules
-							label={'Email'}
-							type={'email'}
-							placeholder={'Enter your Email'}
-							name={'email'}
-							value={userDetails?.email}
-							onChange={(e) => handleChange(e)}
-							isError={false}
-							errorMessage={''}
-							disabled={true}
-						/>
-						{errors.email && <p className={'error'}>{errors.email}</p>}
-						<label>Email Address cannot be changed once set</label>
-					</div>
-				</div>
-			</form>
-
-			{showForm && (
-				<MySettingsChangePasword showForm={showForm} onClose={handlePopupFormClose} />
-			)}
-		</>
-	);
-};
-// profile details component
-export const Test = ({
-	handleSubmit,
-	handleEditClick,
-	isEditMode,
-	userDetails,
-	errors,
-	handleChange,
-	userDetailsData,
-	showForm,
-	handleImageChange,
-	handlePopupFormClose,
-}) => {
 	return (
 		<>
 			<form onSubmit={handleSubmit} className={`${'formsMain'} `}>
@@ -156,7 +46,7 @@ export const Test = ({
 							</div>
 						)}
 
-						<div className="editImage">
+						<div className="editImage" onClick={() => setuploadAvatarPopup(true)}>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="16"
@@ -184,11 +74,132 @@ export const Test = ({
 						</div>
 					</div>
 				</div>
+
+				<div className="profileBody">
+					<div className="name_phone_container">
+						<div className="iconAlignclass">
+							<span>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="18"
+									height="18"
+									viewBox="0 0 18 18"
+									fill="none"
+								>
+									<path
+										d="M8.99999 1C4.5816 1 1 4.5816 1 8.99999C1 13.4184 4.5816 17 8.99999 17C13.4184 17 17 13.4184 17 8.99999C17 4.5816 13.4184 1 8.99999 1Z"
+										stroke="#E4E5E6"
+										stroke-width="0.875"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									/>
+									<path
+										d="M2.81641 14.0721C2.81641 14.0721 4.5996 11.7953 8.9996 11.7953C13.3996 11.7953 15.1836 14.0721 15.1836 14.0721M8.9996 8.99531C9.63612 8.99531 10.2466 8.74245 10.6967 8.29236C11.1467 7.84228 11.3996 7.23183 11.3996 6.59531C11.3996 5.95879 11.1467 5.34834 10.6967 4.89826C10.2466 4.44817 9.63612 4.19531 8.9996 4.19531C8.36308 4.19531 7.75263 4.44817 7.30255 4.89826C6.85246 5.34834 6.5996 5.95879 6.5996 6.59531C6.5996 7.23183 6.85246 7.84228 7.30255 8.29236C7.75263 8.74245 8.36308 8.99531 8.9996 8.99531Z"
+										stroke="#E4E5E6"
+										stroke-width="0.875"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									/>
+								</svg>
+							</span>
+
+							<input
+								type="text"
+								placeholder={'Enter the Name'}
+								value={userDetails?.fullName}
+								required
+							/>
+						</div>
+
+						<div className="iconAlignclass  phoneDiv">
+							{/* <span>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="18"
+									height="18"
+									viewBox="0 0 18 18"
+									fill="none"
+								>
+									<path
+										d="M8.99999 1C4.5816 1 1 4.5816 1 8.99999C1 13.4184 4.5816 17 8.99999 17C13.4184 17 17 13.4184 17 8.99999C17 4.5816 13.4184 1 8.99999 1Z"
+										stroke="#E4E5E6"
+										stroke-width="0.875"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									/>
+									<path
+										d="M2.81641 14.0721C2.81641 14.0721 4.5996 11.7953 8.9996 11.7953C13.3996 11.7953 15.1836 14.0721 15.1836 14.0721M8.9996 8.99531C9.63612 8.99531 10.2466 8.74245 10.6967 8.29236C11.1467 7.84228 11.3996 7.23183 11.3996 6.59531C11.3996 5.95879 11.1467 5.34834 10.6967 4.89826C10.2466 4.44817 9.63612 4.19531 8.9996 4.19531C8.36308 4.19531 7.75263 4.44817 7.30255 4.89826C6.85246 5.34834 6.5996 5.95879 6.5996 6.59531C6.5996 7.23183 6.85246 7.84228 7.30255 8.29236C7.75263 8.74245 8.36308 8.99531 8.9996 8.99531Z"
+										stroke="#E4E5E6"
+										stroke-width="0.875"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									/>
+								</svg>
+							</span> */}
+
+							<PhoneInput
+								defaultCountry={'IN'}
+								placeholder={'Enter Phone Number'}
+								value={userDetails?.phoneNumber || ''}
+								// onChange={(e) => onChange({ target: { name: name, value: e } })}
+								// disabled={}
+							/>
+						</div>
+					</div>
+					<div>
+						<div className="iconAlignclass">
+							<span>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="20"
+									height="20"
+									viewBox="0 0 20 20"
+									fill="none"
+								>
+									<path
+										d="M3.7563 15.5846C3.38116 15.5846 3.06407 15.4551 2.80505 15.1959C2.54602 14.9367 2.4165 14.6194 2.4165 14.244V5.75193C2.4165 5.37651 2.54602 5.06033 2.80505 4.80339C3.06407 4.54644 3.38116 4.41797 3.7563 4.41797H16.2434C16.6185 4.41797 16.9356 4.54755 17.1946 4.80672C17.4537 5.06588 17.5832 5.38318 17.5832 5.75859V14.2507C17.5832 14.6261 17.4537 14.9423 17.1946 15.1992C16.9356 15.4562 16.6185 15.5846 16.2434 15.5846H3.7563ZM9.99984 10.6328L3.49984 6.80734V14.2448C3.49984 14.3197 3.52387 14.3812 3.57192 14.4292C3.61998 14.4773 3.68143 14.5013 3.7563 14.5013H16.2434C16.3182 14.5013 16.3797 14.4773 16.4278 14.4292C16.4758 14.3812 16.4998 14.3197 16.4998 14.2448V6.80734L9.99984 10.6328ZM9.99984 9.23047L16.3717 5.5013H3.62796L9.99984 9.23047ZM3.49984 6.80734V5.5013V14.2448C3.49984 14.3197 3.52387 14.3812 3.57192 14.4292C3.61998 14.4773 3.68143 14.5013 3.7563 14.5013H3.49984V6.80734Z"
+										fill="#E4E5E6"
+									/>
+								</svg>
+							</span>
+
+							<input
+								type="text"
+								placeholder={'Enter the Name'}
+								value={userDetails?.email}
+								required
+							/>
+
+							<span>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="20"
+									height="20"
+									viewBox="0 0 20 20"
+									fill="none"
+								>
+									<path
+										d="M8.92154 12.7128L13.6074 8.04776L12.8334 7.2738L8.92154 11.1648L7.15071 9.41484L6.37675 10.1888L8.92154 12.7128ZM10.0015 17.5846C8.9621 17.5846 7.98147 17.3873 7.05966 16.9926C6.13786 16.5978 5.33105 16.0547 4.63925 15.3632C3.94744 14.6716 3.40404 13.8652 3.00904 12.9438C2.61418 12.0224 2.41675 11.0421 2.41675 10.0028C2.41675 8.94943 2.61411 7.96533 3.00883 7.05047C3.40355 6.13561 3.94668 5.33227 4.63821 4.64047C5.32973 3.94866 6.13619 3.40526 7.05758 3.01026C7.97897 2.6154 8.95932 2.41797 9.99862 2.41797C11.052 2.41797 12.0361 2.61533 12.9509 3.01005C13.8658 3.40477 14.6691 3.9479 15.3609 4.63943C16.0527 5.33096 16.5961 6.13394 16.9911 7.04839C17.386 7.96283 17.5834 8.94665 17.5834 9.99984C17.5834 11.0393 17.3861 12.0199 16.9913 12.9417C16.5966 13.8635 16.0535 14.6703 15.362 15.3621C14.6704 16.0539 13.8674 16.5973 12.953 16.9923C12.0386 17.3872 11.0547 17.5846 10.0015 17.5846ZM10.0001 16.5013C11.8056 16.5013 13.3404 15.8694 14.6042 14.6055C15.8681 13.3416 16.5001 11.8069 16.5001 10.0013C16.5001 8.19575 15.8681 6.66102 14.6042 5.39714C13.3404 4.13325 11.8056 3.5013 10.0001 3.5013C8.19453 3.5013 6.6598 4.13325 5.39591 5.39714C4.13203 6.66102 3.50008 8.19575 3.50008 10.0013C3.50008 11.8069 4.13203 13.3416 5.39591 14.6055C6.6598 15.8694 8.19453 16.5013 10.0001 16.5013Z"
+										fill="#006B25"
+										fill-opacity="0.64"
+									/>
+								</svg>
+							</span>
+						</div>
+					</div>
+				</div>
 			</form>
 
 			{showForm && (
 				<MySettingsChangePasword showForm={showForm} onClose={handlePopupFormClose} />
 			)}
+
+			<UploadAvatarPopupComponent
+				userDetails={userDetails}
+				userDetailsData={userDetailsData}
+				uploadAvatarPopup={uploadAvatarPopup}
+				setuploadAvatarPopup={setuploadAvatarPopup}
+			/>
 		</>
 	);
 };
@@ -223,202 +234,7 @@ export const ThemePreferenceComponent = ({ setActiveTheme, activeTheme }) => {
 };
 
 // update password component
-export const UpdatePasswordComponent = () => {
-	const {
-		profileInfo: {
-			getTenantSettings,
-			getUserDetails,
-			getTenantUserDetails,
-			get2FAQrCode,
-			set2FASettings,
-			userDetailsData,
-			updateUserDetails,
-			qrcode,
-			getUserWorkSpaceList,
-			userWorkSpaceList,
-			chooseDefaultWorkspace,
-			tennantSettingsData,
-			updateUserLogo,
-		},
-	} = useContext(Context);
-	const [showForm, setShowForm] = useState(false);
-	const [isEditMode, setIsEditMode] = useState(false);
-	const [errors, setErrors] = useState({});
-	const [activeTheme, setActiveTheme] = useState('light');
-	const [activeWorkspace, setActiveWorkspace] = useState(null);
-	const [userDetails, setUserDetails] = useState({
-		fullName: '',
-		email: '',
-		phoneNumber: '',
-		is2FAEnabled: '',
-		logoURL: '',
-	});
-
-	const [isAdmin, setIsAdmin] = useState(false);
-	const [activeItem, setActiveItem] = useState('profile');
-
-	const handleNavigation = (id) => {
-		setActiveItem(id);
-		document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-	};
-	useEffect(() => {
-		if (userWorkSpaceList && userWorkSpaceList.length > 0) {
-			setActiveWorkspace(userWorkSpaceList?.[0].tenant_id);
-		}
-	}, [userWorkSpaceList]);
-
-	useEffect(() => {
-		if (userDetailsData) {
-			setUserDetails((prev) => ({
-				...prev,
-				fullName: userDetailsData?.firstName || '',
-				email: userDetailsData?.email || '',
-				phoneNumber: userDetailsData?.phoneNumber || '',
-				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
-				logoURL: userDetailsData?.dp_s3_500w_key || '',
-			}));
-		}
-	}, [userDetailsData]);
-	useEffect(() => {
-		if (userDetails.is2FAEnabled) {
-			get2FAQrCode();
-		}
-	}, [userDetails.is2FAEnabled]);
-
-	useEffect(() => {
-		fetchData();
-	}, []);
-	const fetchData = async () => {
-		// let usertoken = localStorage.getItem('usertoken');
-		// let decoded = jwt_decode(usertoken);
-		// let workspaceID = localStorage.getItem('workspaceId');
-		// let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded.user_id}`));
-		// setIsAdmin(role === 'admin');
-		// if (!tennantSettingsData) {
-		// 	getTenantSettings();
-		// }
-		// if (!userDetailsData) {
-		// 	getUserDetails();
-		// }
-		// if (!userWorkSpaceList) {
-		// 	getUserWorkSpaceList();
-		// }
-		// getTenantUserDetails();
-	};
-
-	const handleFormPopUp = () => {
-		setShowForm(true);
-	};
-	const handlePopupFormClose = () => {
-		setShowForm(false);
-	};
-	const toggleEnable = async (e) => {
-		setUserDetails((prevState) => ({
-			...prevState,
-			is2FAEnabled: !prevState.is2FAEnabled,
-		}));
-		await set2FASettings(e);
-	};
-
-	const handleTheme = (activeName) => {
-		setActiveTheme(activeName);
-	};
-
-	const validateField = (name, value) => {
-		let error;
-		const stringValue = value || '';
-		switch (name) {
-			case 'fullName':
-				if (validator.isEmpty(stringValue)) {
-					error = 'First Name is required';
-				}
-				break;
-
-			case 'phoneNumber':
-				if (validator.isEmpty(stringValue)) {
-					error = 'Phone Number is required';
-				} else if (!validator.isMobilePhone(stringValue, 'any', { strictMode: false })) {
-					error = 'Phone Number is invalid';
-				}
-				break;
-			case 'email':
-				if (validator.isEmpty(stringValue)) {
-					error = 'Email is required';
-				} else if (!validator.isEmail(stringValue)) {
-					error = 'Email is invalid';
-				}
-				break;
-			default:
-				break;
-		}
-		return error;
-	};
-
-	const handlehandleDefaultWorkspace = (data) => {
-		setActiveWorkspace(data?.tenant_id);
-		chooseDefaultWorkspace(data);
-	};
-
-	const handleChange = (e) => {
-		const { name, value } = e.target;
-		setUserDetails((prevDetails) => ({
-			...prevDetails,
-			[name]: value,
-		}));
-
-		const error = validateField(name, value);
-		setErrors({
-			...errors,
-			[name]: error,
-		});
-	};
-
-	const handleImageChange = (e) => {
-		const file = e.target.files[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				setUserDetails({
-					...userDetails,
-					logoURL: reader.result,
-				});
-			};
-			reader.readAsDataURL(file);
-			updateUserLogo(file);
-		}
-	};
-
-	const validate = () => {
-		const newErrors = {};
-		Object.keys(userDetails).forEach((key) => {
-			const error = validateField(key, userDetails[key]);
-			if (error) {
-				newErrors[key] = error;
-			}
-		});
-		setErrors(newErrors);
-		return Object.keys(newErrors).length === 0;
-	};
-
-	const handleSubmit = (e) => {
-		e.preventDefault();
-		if (validate()) {
-			setIsEditMode(false);
-			let json = {
-				firstName: userDetails.fullName,
-				lastName: userDetails.fullName,
-			};
-			updateUserDetails(json);
-		}
-	};
-
-	const handleEditClick = () => {
-		if (isEditMode) {
-			handleSubmit(new Event('submit'));
-		} else {
-			setIsEditMode(true);
-		}
-	};
+export const UpdatePasswordComponent = ({ handleFormPopUp }) => {
 	return (
 		<div className={'accessContainer'}>
 			<div className={'accessInfo'}>
@@ -437,202 +253,8 @@ export const UpdatePasswordComponent = () => {
 	);
 };
 
-export const TwoFactorAuthenticationComponent = () => {
-	const {
-		profileInfo: {
-			getTenantSettings,
-			getUserDetails,
-			getTenantUserDetails,
-			get2FAQrCode,
-			set2FASettings,
-			userDetailsData,
-			updateUserDetails,
-			qrcode,
-			getUserWorkSpaceList,
-			userWorkSpaceList,
-			chooseDefaultWorkspace,
-			tennantSettingsData,
-			updateUserLogo,
-		},
-	} = useContext(Context);
-	const [showForm, setShowForm] = useState(false);
-	const [isEditMode, setIsEditMode] = useState(false);
-	const [errors, setErrors] = useState({});
-	const [activeTheme, setActiveTheme] = useState('light');
-	const [activeWorkspace, setActiveWorkspace] = useState(null);
-	const [userDetails, setUserDetails] = useState({
-		fullName: '',
-		email: '',
-		phoneNumber: '',
-		is2FAEnabled: '',
-		logoURL: '',
-	});
-
-	const [isAdmin, setIsAdmin] = useState(false);
-	const [activeItem, setActiveItem] = useState('profile');
-
-	const handleNavigation = (id) => {
-		setActiveItem(id);
-		document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-	};
-	useEffect(() => {
-		if (userWorkSpaceList && userWorkSpaceList.length > 0) {
-			setActiveWorkspace(userWorkSpaceList?.[0].tenant_id);
-		}
-	}, [userWorkSpaceList]);
-
-	useEffect(() => {
-		if (userDetailsData) {
-			setUserDetails((prev) => ({
-				...prev,
-				fullName: userDetailsData?.firstName || '',
-				email: userDetailsData?.email || '',
-				phoneNumber: userDetailsData?.phoneNumber || '',
-				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
-				logoURL: userDetailsData?.dp_s3_500w_key || '',
-			}));
-		}
-	}, [userDetailsData]);
-	useEffect(() => {
-		if (userDetails.is2FAEnabled) {
-			get2FAQrCode();
-		}
-	}, [userDetails.is2FAEnabled]);
-
-	useEffect(() => {
-		fetchData();
-	}, []);
-	const fetchData = async () => {
-		// let usertoken = localStorage.getItem('usertoken');
-		// let decoded = jwt_decode(usertoken);
-		// let workspaceID = localStorage.getItem('workspaceId');
-		// let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded.user_id}`));
-		// setIsAdmin(role === 'admin');
-		// if (!tennantSettingsData) {
-		// 	getTenantSettings();
-		// }
-		// if (!userDetailsData) {
-		// 	getUserDetails();
-		// }
-		// if (!userWorkSpaceList) {
-		// 	getUserWorkSpaceList();
-		// }
-		// getTenantUserDetails();
-	};
-
-	const handleFormPopUp = () => {
-		setShowForm(true);
-	};
-	const handlePopupFormClose = () => {
-		setShowForm(false);
-	};
-	const toggleEnable = async (e) => {
-		setUserDetails((prevState) => ({
-			...prevState,
-			is2FAEnabled: !prevState.is2FAEnabled,
-		}));
-		await set2FASettings(e);
-	};
-
-	const handleTheme = (activeName) => {
-		setActiveTheme(activeName);
-	};
-
-	const validateField = (name, value) => {
-		let error;
-		const stringValue = value || '';
-		switch (name) {
-			case 'fullName':
-				if (validator.isEmpty(stringValue)) {
-					error = 'First Name is required';
-				}
-				break;
-
-			case 'phoneNumber':
-				if (validator.isEmpty(stringValue)) {
-					error = 'Phone Number is required';
-				} else if (!validator.isMobilePhone(stringValue, 'any', { strictMode: false })) {
-					error = 'Phone Number is invalid';
-				}
-				break;
-			case 'email':
-				if (validator.isEmpty(stringValue)) {
-					error = 'Email is required';
-				} else if (!validator.isEmail(stringValue)) {
-					error = 'Email is invalid';
-				}
-				break;
-			default:
-				break;
-		}
-		return error;
-	};
-
-	const handlehandleDefaultWorkspace = (data) => {
-		setActiveWorkspace(data?.tenant_id);
-		chooseDefaultWorkspace(data);
-	};
-
-	const handleChange = (e) => {
-		const { name, value } = e.target;
-		setUserDetails((prevDetails) => ({
-			...prevDetails,
-			[name]: value,
-		}));
-
-		const error = validateField(name, value);
-		setErrors({
-			...errors,
-			[name]: error,
-		});
-	};
-
-	const handleImageChange = (e) => {
-		const file = e.target.files[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				setUserDetails({
-					...userDetails,
-					logoURL: reader.result,
-				});
-			};
-			reader.readAsDataURL(file);
-			updateUserLogo(file);
-		}
-	};
-
-	const validate = () => {
-		const newErrors = {};
-		Object.keys(userDetails).forEach((key) => {
-			const error = validateField(key, userDetails[key]);
-			if (error) {
-				newErrors[key] = error;
-			}
-		});
-		setErrors(newErrors);
-		return Object.keys(newErrors).length === 0;
-	};
-
-	const handleSubmit = (e) => {
-		e.preventDefault();
-		if (validate()) {
-			setIsEditMode(false);
-			let json = {
-				firstName: userDetails.fullName,
-				lastName: userDetails.fullName,
-			};
-			updateUserDetails(json);
-		}
-	};
-
-	const handleEditClick = () => {
-		if (isEditMode) {
-			handleSubmit(new Event('submit'));
-		} else {
-			setIsEditMode(true);
-		}
-	};
+// two factor authentication component
+export const TwoFactorAuthenticationComponent = ({ toggleEnable, userDetails, qrcode }) => {
 	return (
 		<div className={'twoFactorAuthMain'}>
 			<div className={'twoFactorAuthText'}>
@@ -687,201 +309,6 @@ export const TwoFactorAuthenticationComponent = () => {
 };
 
 export const LeaveWorkspaceComponent = () => {
-	const {
-		profileInfo: {
-			getTenantSettings,
-			getUserDetails,
-			getTenantUserDetails,
-			get2FAQrCode,
-			set2FASettings,
-			userDetailsData,
-			updateUserDetails,
-			qrcode,
-			getUserWorkSpaceList,
-			userWorkSpaceList,
-			chooseDefaultWorkspace,
-			tennantSettingsData,
-			updateUserLogo,
-		},
-	} = useContext(Context);
-	const [showForm, setShowForm] = useState(false);
-	const [isEditMode, setIsEditMode] = useState(false);
-	const [errors, setErrors] = useState({});
-	const [activeTheme, setActiveTheme] = useState('light');
-	const [activeWorkspace, setActiveWorkspace] = useState(null);
-	const [userDetails, setUserDetails] = useState({
-		fullName: '',
-		email: '',
-		phoneNumber: '',
-		is2FAEnabled: '',
-		logoURL: '',
-	});
-
-	const [isAdmin, setIsAdmin] = useState(false);
-	const [activeItem, setActiveItem] = useState('profile');
-
-	const handleNavigation = (id) => {
-		setActiveItem(id);
-		document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-	};
-	useEffect(() => {
-		if (userWorkSpaceList && userWorkSpaceList.length > 0) {
-			setActiveWorkspace(userWorkSpaceList?.[0].tenant_id);
-		}
-	}, [userWorkSpaceList]);
-
-	useEffect(() => {
-		if (userDetailsData) {
-			setUserDetails((prev) => ({
-				...prev,
-				fullName: userDetailsData?.firstName || '',
-				email: userDetailsData?.email || '',
-				phoneNumber: userDetailsData?.phoneNumber || '',
-				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
-				logoURL: userDetailsData?.dp_s3_500w_key || '',
-			}));
-		}
-	}, [userDetailsData]);
-	useEffect(() => {
-		if (userDetails.is2FAEnabled) {
-			get2FAQrCode();
-		}
-	}, [userDetails.is2FAEnabled]);
-
-	useEffect(() => {
-		fetchData();
-	}, []);
-	const fetchData = async () => {
-		// let usertoken = localStorage.getItem('usertoken');
-		// let decoded = jwt_decode(usertoken);
-		// let workspaceID = localStorage.getItem('workspaceId');
-		// let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded.user_id}`));
-		// setIsAdmin(role === 'admin');
-		// if (!tennantSettingsData) {
-		// 	getTenantSettings();
-		// }
-		// if (!userDetailsData) {
-		// 	getUserDetails();
-		// }
-		// if (!userWorkSpaceList) {
-		// 	getUserWorkSpaceList();
-		// }
-		// getTenantUserDetails();
-	};
-
-	const handleFormPopUp = () => {
-		setShowForm(true);
-	};
-	const handlePopupFormClose = () => {
-		setShowForm(false);
-	};
-	const toggleEnable = async (e) => {
-		setUserDetails((prevState) => ({
-			...prevState,
-			is2FAEnabled: !prevState.is2FAEnabled,
-		}));
-		await set2FASettings(e);
-	};
-
-	const handleTheme = (activeName) => {
-		setActiveTheme(activeName);
-	};
-
-	const validateField = (name, value) => {
-		let error;
-		const stringValue = value || '';
-		switch (name) {
-			case 'fullName':
-				if (validator.isEmpty(stringValue)) {
-					error = 'First Name is required';
-				}
-				break;
-
-			case 'phoneNumber':
-				if (validator.isEmpty(stringValue)) {
-					error = 'Phone Number is required';
-				} else if (!validator.isMobilePhone(stringValue, 'any', { strictMode: false })) {
-					error = 'Phone Number is invalid';
-				}
-				break;
-			case 'email':
-				if (validator.isEmpty(stringValue)) {
-					error = 'Email is required';
-				} else if (!validator.isEmail(stringValue)) {
-					error = 'Email is invalid';
-				}
-				break;
-			default:
-				break;
-		}
-		return error;
-	};
-
-	const handlehandleDefaultWorkspace = (data) => {
-		setActiveWorkspace(data?.tenant_id);
-		chooseDefaultWorkspace(data);
-	};
-
-	const handleChange = (e) => {
-		const { name, value } = e.target;
-		setUserDetails((prevDetails) => ({
-			...prevDetails,
-			[name]: value,
-		}));
-
-		const error = validateField(name, value);
-		setErrors({
-			...errors,
-			[name]: error,
-		});
-	};
-
-	const handleImageChange = (e) => {
-		const file = e.target.files[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				setUserDetails({
-					...userDetails,
-					logoURL: reader.result,
-				});
-			};
-			reader.readAsDataURL(file);
-			updateUserLogo(file);
-		}
-	};
-
-	const validate = () => {
-		const newErrors = {};
-		Object.keys(userDetails).forEach((key) => {
-			const error = validateField(key, userDetails[key]);
-			if (error) {
-				newErrors[key] = error;
-			}
-		});
-		setErrors(newErrors);
-		return Object.keys(newErrors).length === 0;
-	};
-
-	const handleSubmit = (e) => {
-		e.preventDefault();
-		if (validate()) {
-			setIsEditMode(false);
-			let json = {
-				firstName: userDetails.fullName,
-				lastName: userDetails.fullName,
-			};
-			updateUserDetails(json);
-		}
-	};
-
-	const handleEditClick = () => {
-		if (isEditMode) {
-			handleSubmit(new Event('submit'));
-		} else {
-			setIsEditMode(true);
-		}
-	};
 	return (
 		<div className={'accessContainer'}>
 			<div className={'leaveComponent'}>

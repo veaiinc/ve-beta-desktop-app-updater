@@ -4,23 +4,7 @@ import Context from '../../../context/context';
 import { getBuisnessName } from '../profile_settings/getInitials';
 import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
-
-const menuItems = [
-	{ id: 'my-profile', label: 'My Profile' },
-	{ id: 'workspace', label: 'Workspace' },
-	{ id: 'public-information', label: 'Public Information' },
-	{ id: 'brand-setup', label: 'Brand Setup' },
-	{ id: 'team-settings', label: 'Team Settings' },
-	{ id: 'integrations', label: 'Integrations' },
-	{ id: 'plan-billing', label: 'Plan Billing' },
-	{ id: 'company-overview-settings', label: 'Overview' },
-	// { id: 'company-branding-settings', label: 'Branding' },
-	// // { id: 'company-domain-verification-settings', label: 'Domain Verification' },
-	// // { id: 'company-gallery-settings', label: 'Gallery' },
-	// { id: 'company-integration-settings', label: 'Integrations' },
-	// { id: 'company-team-settings', label: 'Team' },
-	// { id: 'company-billing-settings', label: 'Billing' },
-];
+import { menuItems } from './indexConstant';
 
 const SettingsPageSideBar = ({ type, setType1, setactiveSettingComp, activeSettingComp }) => {
 	const navigate = useNavigate();

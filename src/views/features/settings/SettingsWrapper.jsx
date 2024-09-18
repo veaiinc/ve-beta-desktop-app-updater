@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import CompanyOverview from './CompanyOverview';
-import CompanyBranding from './CompanyBranding';
 import CompanyIntegrations from './CompanyIntegrations';
 import CompanyTeamMembers from './CompanyTeamMembers';
 import CompanyPlanBilling from './CompanyPlanBilling';
@@ -11,16 +9,19 @@ import SettingsPageSideBar from './SettingsPageSideBar';
 import '../../../assets/scss/AccountSettings/companySettingsWrapper.scss';
 import Context from '../../../context/context';
 import MyProfile from './MyProfile';
+import SettingsWorkspace from './Workspace';
+import PublicInformation from './PublicInformation';
+import BrandingSetup from './BrandSetup';
 
 let mapper = {
 	'my-profile': <MyProfile />,
-	'company-overview-settings': <CompanyOverview />,
-	'company-gallery-settings': <CompanyGallery />,
-	'company-integration-settings': <CompanyIntegrations />,
-	'company-team-settings': <CompanyTeamMembers />,
-	'company-billing-settings': <CompanyPlanBilling />,
+	workspace: <SettingsWorkspace />,
+	'public-information': <PublicInformation />,
+	'brand-setup': <BrandingSetup />,
+	integrations: <CompanyIntegrations />,
+	'team-settings': <CompanyTeamMembers />,
+	'plan-billing': <CompanyPlanBilling />,
 	'company-domain-verification-settings': <CompanyDomainVerification />,
-	'company-branding-settings': <CompanyBranding />,
 };
 const SettingsWrapper = (props) => {
 	const { type } = useParams();

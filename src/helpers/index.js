@@ -36,7 +36,7 @@ export const getLocationsDetails = async () => {
 		country: country_name,
 		city,
 		timezone,
-		postalCode: postal,
+		postalCode: postal || '',
 		currency,
 	};
 

@@ -10,7 +10,7 @@
 		gap: 15px;
 		width: 100%;
 		.accountSettingsMapper {
-			width: 50%;
+			width: 55%;
 			height: 85vh;
 			overflow-y: scroll;
 		}
@@ -19,6 +19,15 @@
 			display: flex;
 			flex-direction: column;
 			align-items: flex-end;
+		}
+	}
+}
+
+@media (min-width: 1600px) {
+	.accountSettingsMainWrapper {
+		padding: 0 10rem;
+		.accountSettingsMapper {
+			width: 40%;
 		}
 	}
 }

@@ -1,15 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
-import '../../../assets/scss/CompanySettings/overview.scss';
-import jwt_decode from 'jwt-decode';
+import '../../../assets/scss/AccountSettings/publicinformation.scss';
+import PhoneInput from 'react-phone-number-input';
 import InputForModules from '../../components/input/inputForModules';
-import { BusinessTypesOptions } from './BusinessTypes';
 import Context from '../../../context/context';
+import jwt_decode from 'jwt-decode';
 import validator from 'validator';
-import { ReactComponent as GlobeSettings } from '../../../assets/svg/workspaceSettings/globeSettings.svg';
-import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
-import { getBuisnessName } from '../profile_settings/getInitials';
+import { BusinessTypesOptions } from './indexConstant';
 
-const CompanyOverview = () => {
+const PublicInformation = () => {
 	const {
 		profileInfo: { getTenantSettings, tennantSettingsData, updateBusniessName },
 		companyInfo: {
@@ -21,7 +19,7 @@ const CompanyOverview = () => {
 	} = useContext(Context);
 
 	const [error, setErrors] = useState({});
-	const [isEditMode, setIsEditMode] = useState(false);
+	const [isEditMode, setIsEditMode] = useState(true);
 
 	const [overviewState, setOverviewState] = useState({
 		phoneNumber: '',
@@ -192,36 +190,52 @@ const CompanyOverview = () => {
 	const workspaceId = localStorage.getItem('workspaceId');
 	const companyHandle = 'https://' + workspaceId + '.ve.ai';
 	return (
-		<div className="overviewContainer">
-			<div className="workspaceHandle">
-				<div>
-					<h1>Workspace Handle</h1>
-					<p>Upgrade Your Web Presence: Switch to Your Custom Domain</p>
+		<div className="publicInformationContainer">
+			<div className="header">
+				<h1>Public Information</h1>
+			</div>
+
+			<div className="imageCircleDiv">
+				<img
+					src={'https://randomuser.me/api/portraits/men/75.jpg'}
+					alt="logo"
+					onError={(e) =>
+						(e.target.src = 'https://randomuser.me/api/portraits/men/75.jpg')
+					}
+				/>
+
+				<div className="editImage">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="16"
+						height="15"
+						viewBox="0 0 15 14"
+						fill="none"
+					>
+						<path
+							d="M3.85354 9.81771H4.41632L9.39683 4.87207L8.83405 4.31323L3.85354 9.25886V9.81771ZM3.19531 10.4713V8.98334L9.4943 2.71878C9.5624 2.64973 9.63569 2.60058 9.71417 2.57134C9.79265 2.54201 9.87489 2.52734 9.96088 2.52734C10.047 2.52734 10.1291 2.54104 10.2073 2.56845C10.2856 2.59585 10.3615 2.64437 10.4348 2.714L11.0025 3.27285C11.0727 3.34567 11.1223 3.42108 11.1515 3.4991C11.1807 3.57711 11.1953 3.65743 11.1953 3.74006C11.1953 3.82813 11.18 3.91218 11.1492 3.9922C11.1184 4.07223 11.0695 4.14539 11.0025 4.21167L4.69379 10.4713H3.19531ZM9.1105 4.59756L8.83405 4.31323L9.39683 4.87207L9.1105 4.59756Z"
+							fill="#E8EAED"
+						/>
+					</svg>
 				</div>
-				<div className="workspaceInputContainer">
+			</div>
+
+			<div className="detailsBody">
+				<div className="inputDiv">
 					<InputForModules
-						label={'Company Handle'}
+						label={'Business Name'}
 						type={'text'}
-						placeholder={companyHandle}
-						name={'companyHandle'}
-						value={''}
-						// onChange={handleChange}
+						placeholder={'Enter your Business Name'}
+						name={'businessName'}
+						onChange={handleChange}
+						value={overviewState.businessName}
 						isError={false}
 						errorMessage={''}
-						disabled={true}
+						disabled={!isEditMode}
 					/>
-					<InputForModules
-						label={'Company Type'}
-						type={'text'}
-						options={BusinessTypesOptions}
-						placeholder={'Choose your Company Type'}
-						name={'CompanyType'}
-						value={''}
-						// onChange={handleChange}
-						isError={false}
-						errorMessage={''}
-						disabled={true}
-					/>
+				</div>
+
+				<div className="inputDiv">
 					<InputForModules
 						label={'Company Email'}
 						type={'email'}
@@ -231,77 +245,41 @@ const CompanyOverview = () => {
 						// onChange={handleChange}
 						isError={false}
 						errorMessage={''}
-						disabled={true}
+						disabled={!isEditMode}
 					/>
-
-					{/* <button>Add your own Domain</button> */}
 				</div>
-			</div>
 
-			<div className="business">
-				<div className="businessHeadding">
-					<div className="HeaddingContainer">
-						<h1>Business Communications</h1>
-						<h3>This will be your client facing address for all your Documents</h3>
-					</div>
-					<p
-						className={`${'editButton'} ${isEditMode ? 'activeEdit' : ''}`}
-						onClick={handleEdit}
-					>
-						{isEditMode ? 'Save Changes' : 'Edit'}
-					</p>
+				<div className="inputDiv">
+					<InputForModules
+						label={'Website'}
+						type={'text'}
+						value={overviewState.website}
+						onChange={handleChange}
+						placeholder={'https://www.studio.com'}
+						name={'website'}
+						isError={error?.errorwebsite?.error || false}
+						errorMessage={error?.errorwebsite?.message || ''}
+						disabled={!isEditMode}
+					/>
 				</div>
-				<form onSubmit={handleSubmit}>
-					<div className={`${'businessDetailsForm'} ${isEditMode ? 'activeInput' : ''}`}>
-						<div className="businessImgName">
-							{overviewState.businessLogo ? (
-								<div className="businessImgContainerMain">
-									<input
-										type="file"
-										id="businessPicture"
-										name="businessPicture"
-										style={{ display: 'none' }}
-									/>
-									<label htmlFor="businessPicture">
-										<img
-											src={overviewState?.businessLogo}
-											alt="Profile"
-											style={{
-												cursor: isEditMode ? 'pointer' : 'default',
-											}}
-										/>
-									</label>
-								</div>
-							) : (
-								<div className="defaultLogo">
-									{getBuisnessName(overviewState?.businessName)}
-								</div>
-							)}
-							<div className={'businessName'}>
-								<InputForModules
-									label={'Business Name'}
-									type={'text'}
-									placeholder={'Enter your Business Name'}
-									name={'businessName'}
-									onChange={handleChange}
-									value={overviewState.businessName}
-									isError={false}
-									errorMessage={''}
-									disabled={!isEditMode}
-								/>
-							</div>
-						</div>
+
+				<div className="flex-gap">
+					<div className="inputDiv">
 						<InputForModules
-							label={'Company Email'}
-							type={'email'}
-							value={overviewState.email}
+							label="Company Type"
+							type={'text'}
+							options={BusinessTypesOptions}
+							placeholder="Choose your Company Type"
+							name={'CompanyType'}
+							value={''}
 							onChange={handleChange}
-							placeholder={'business@email.com'}
-							name={'email'}
-							isError={error?.erroremail?.error || ''}
-							errorMessage={error?.erroremail?.message || ''}
+							isError={false}
+							errorMessage={''}
 							disabled={!isEditMode}
 						/>
+					</div>
+
+					<div className="inputDiv">
 						<InputForModules
 							label={'Phone Number'}
 							type={'phoneNumber'}
@@ -314,86 +292,25 @@ const CompanyOverview = () => {
 							disabled={!isEditMode}
 							defaultCountry={'IN'}
 						/>
-
-						<InputForModules
-							label={'Address'}
-							type={'text'}
-							onChange={handleChange}
-							value={overviewState.address}
-							placeholder={'Enter your Company Address'}
-							name={'address'}
-							isError={false}
-							errorMessage={''}
-							disabled={!isEditMode}
-						/>
-						<InputForModules
-							label={'Website'}
-							type={'text'}
-							value={overviewState.website}
-							onChange={handleChange}
-							placeholder={'https://www.studio.com'}
-							name={'website'}
-							isError={error?.errorwebsite?.error || false}
-							errorMessage={error?.errorwebsite?.message || ''}
-							disabled={!isEditMode}
-						/>
 					</div>
-				</form>
-			</div>
-			<div className="timeZone">
-				<div className="timeZoneHeadding">
-					<h1>Time Zone</h1>
-					<p>
-						Your email send times, account data, and analytics information will be
-						displayed in the timezone you select below.
-					</p>
 				</div>
-				{/* Options container for the time zone */}
-				<div>
-					<ReusableButtonSettings
-						text={overviewState?.timeZone}
-						icon={<GlobeSettings />}
-						downArrow={false}
-						disableHover={true}
-						// func={() => this.setState({ timeZonePickerPopup: true })}
+
+				<div className="inputDiv">
+					<InputForModules
+						label={'Address'}
+						type={'text'}
+						onChange={handleChange}
+						value={overviewState.address}
+						placeholder={'Enter your Company Address'}
+						name={'address'}
+						isError={false}
+						errorMessage={''}
+						disabled={!isEditMode}
 					/>
-				</div>
-			</div>
-			<div className="currency">
-				<div className="currencyheadding">
-					<h1>Currency</h1>
-					<p>
-						Note that once selected, the currency symbol will change, but the values
-						won't be converted. For example, switching from ₹ to $ will change the
-						symbol but not the actual value displayed.
-					</p>
-				</div>
-				<div>
-					<ReusableButtonSettings
-						text={overviewState?.currency}
-						icon={'₹'}
-						downArrow={false}
-						disableHover={true}
-						// func={() => this.setState({ currencyPickerPopup: true })}
-					/>
-				</div>
-			</div>
-			<div className="deleteWorkspace">
-				<div>
-					<h1>Delete Workspace</h1>
-				</div>
-				<div>
-					<h1>Do you want to delete your workspace?</h1>
-					<p>
-						When you delete your workspace, all your work will be permanently lost and
-						cannot be recovered. Additionally, all members associated with this
-						workspace will lose access. You will be billed for the month, but you'll
-						receive a refund for the remaining duration.
-					</p>
 				</div>
 			</div>
 		</div>
 	);
 };
 
-export default CompanyOverview;
+export default PublicInformation;
