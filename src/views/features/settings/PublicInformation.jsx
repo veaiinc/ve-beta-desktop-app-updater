@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useMemo, useEffect, useState } from 'react';
 import '../../../assets/scss/AccountSettings/publicinformation.scss';
 import PhoneInput from 'react-phone-number-input';
 import InputForModules from '../../components/input/inputForModules';
@@ -6,6 +6,9 @@ import Context from '../../../context/context';
 import jwt_decode from 'jwt-decode';
 import validator from 'validator';
 import { BusinessTypesOptions } from './indexConstant';
+import { Tooltip } from 'antd';
+import ToolTipContainer from '../../components/popover/ToolTipContainer';
+import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/questionMark.svg';
 
 const PublicInformation = () => {
 	const {
@@ -33,6 +36,7 @@ const PublicInformation = () => {
 		currency: '',
 	});
 	const [initialState, setInitialState] = useState({ ...overviewState });
+	const [arrow, setArrow] = useState('Show');
 
 	useEffect(() => {
 		// if (!tennantSettingsData) {
@@ -40,6 +44,18 @@ const PublicInformation = () => {
 		// }
 		checkIsAdmin();
 	}, []);
+
+	const mergedArrow = useMemo(() => {
+		if (arrow === 'Hide') {
+			return false;
+		}
+		if (arrow === 'Show') {
+			return true;
+		}
+		return {
+			pointAtCenter: true,
+		};
+	}, [arrow]);
 
 	const checkIsAdmin = () => {
 		let usertoken = localStorage.getItem('usertoken');
@@ -193,6 +209,23 @@ const PublicInformation = () => {
 		<div className="publicInformationContainer">
 			<div className="header">
 				<h1>Public Information</h1>
+
+				<span className="svgHolder">
+					<Tooltip
+						placement="bottomRight"
+						title={
+							<ToolTipContainer
+								// title={'Link Expiry'}
+								content="All your business and website details will appear publicly. It helps others identify and connect with your business profile."
+							/>
+						}
+						arrow={mergedArrow}
+						color={'#202020'}
+						placement={'rightTop'}
+					>
+						<QuestionMark />
+					</Tooltip>
+				</span>
 			</div>
 
 			<div className="imageCircleDiv">

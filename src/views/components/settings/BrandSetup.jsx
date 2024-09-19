@@ -19,10 +19,10 @@ import PinterestActive from '../../../assets/images/companySettings/pinterestAct
 import TelegramActive from '../../../assets/images/companySettings/telegramActive.png';
 import TiktokActive from '../../../assets/svg/workspaceSettings/activeTiktok.svg';
 import ActiveSpotify from '../../../assets/svg/workspaceSettings/activeSpotify.svg';
-import ReusableButtonSettings from '../../features/settings/ReusableButtonSettings';
 import { BrandingColorPopUp, ChangeFontPopup, SocialMediaPopup } from './popups/BrandingPopups';
 import { BrandColorList, FontList } from '../../features/settings/indexConstant';
 import { ReactComponent as PlusSvg } from '../../../assets/svg/workspaceSettings/plus-button.svg';
+import ReusableButtonSettings from './ReusableButtonSettings';
 // social component
 export const SocialMediaLinksComponent = ({
 	tennantSettingsData,
@@ -141,6 +141,43 @@ export const BrandColorComponent = ({ setbrandState, brandState, handleSelectedC
 				/>
 			)}
 		</>
+	);
+};
+
+export const ClientPortalComponent = () => {
+	return (
+		<div>
+			<div className="title">
+				{' '}
+				<h1>Client Portal</h1>{' '}
+			</div>
+
+			<div className="containerBody">
+				<div className="ClientViewContainer"></div>
+
+				<div className="optionsContainer">
+					<h3>Choose Customise Theme</h3>
+
+					<div className="themesList">
+						<div className="singleTheme"></div>
+						<div className="singleTheme"></div>
+					</div>
+
+					<div className="lineDiv"></div>
+
+					<div className="propertiesContainer">
+						<div className="singlePropertyDiv">
+							<h6>Background Color</h6>
+
+							<div className="property_name">
+								<div className="color"></div>
+								<input type="text" value={'#12345'} />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	);
 };
 

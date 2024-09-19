@@ -11,6 +11,9 @@
 	padding: 32px;
 
 	.header {
+		display: flex;
+		gap: 5px;
+		justify-content: center;
 		h1 {
 			color: #e4e5e6;
 			font-family: Inter;

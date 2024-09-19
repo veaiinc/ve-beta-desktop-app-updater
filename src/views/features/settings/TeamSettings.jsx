@@ -1,14 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
-import '../../../assets/scss/CompanySettings/teamMembers.scss';
-import Line from './Line';
+import '../../../assets/scss/AccountSettings/teamMembers.scss';
 import _ from 'lodash';
 import Modal from '../../components/modalsV2/index';
 import search from '../../../assets/svg/workspaceSettings/searchSettings.svg';
-import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
 import validator from 'validator';
 import Context from '../../../context/context';
-import { getInitials } from '../profile_settings/getInitials';
-
 import AddNewUserModal from './addNewUser';
 import {
 	InviteMembersWorkspaceComponent,
@@ -198,17 +194,15 @@ const TeamSettings = () => {
 	};
 
 	return (
-		<div className="companyTeamMemberContainer">
-			<h1>Team Members</h1>
-			<Line />
-			<div className="inviteMemberContainer">
+		<div className="TeamMemberContainer">
+			<div className="inviteMemberComponent">
 				<InviteMembersWorkspaceComponent
 					handleChnage={handleChnage}
 					info={info}
 					handleSubmit={handleSubmit}
 				/>
 			</div>
-			<Line />
+
 			<div className="yourTeamContainer">
 				<TeamAccessListComponent
 					search={search}

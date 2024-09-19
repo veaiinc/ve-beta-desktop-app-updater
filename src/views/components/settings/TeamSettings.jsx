@@ -1,9 +1,10 @@
 import React from 'react';
-import ReusableButtonSettings from '../../features/settings/ReusableButtonSettings';
 import Skeleton from 'react-loading-skeleton';
 import { getInitials } from '../../features/profile_settings/getInitials';
+import { ReactComponent as PlusSvg } from '../../../assets/svg/close.svg';
+import ReusableButtonSettings from './ReusableButtonSettings';
 
-export const InviteMembersWorkspaceComponent = ({ handleChnage, info, handleSubmit }) => {
+export const Temp = ({ handleChnage, info, handleSubmit }) => {
 	return (
 		<>
 			<div className="inviteMemberText">
@@ -53,16 +54,75 @@ export const InviteMembersWorkspaceComponent = ({ handleChnage, info, handleSubm
 	);
 };
 
+export const InviteMembersWorkspaceComponent = ({ handleChnage, info, handleSubmit }) => {
+	return (
+		<>
+			<div className="inviteMemberText">
+				<h1>Invite Members to Workspace</h1>
+				<p>
+					Members you invite will have full access to your workspace unless you customise
+					user roles
+				</p>
+			</div>
+			<div>
+				<div className="sendRequestInputContainer">
+					<div className="sendRequestInput">
+						<input
+							type="email"
+							className="textInput"
+							placeholder="Enter text here..."
+							name="emailID"
+							onChange={handleChnage}
+							value={info.emailID}
+						/>
+						<div className="dropdownContainer">
+							<select className="dropdownInput">
+								<option value="">Admin</option>
+								<option value="">Member</option>
+							</select>
+						</div>
+					</div>
+				</div>
+
+				{info.emailIDError && (
+					<p
+						style={{
+							color: 'crimson',
+							fontSize: '11px',
+							fontFamily: 'Inter',
+							marginLeft: '10px',
+						}}
+					>
+						{info.emailIDMessage}
+					</p>
+				)}
+			</div>
+
+			<div className="buttonsContainer">
+				<div className="addmore">
+					<span>
+						<PlusSvg />
+					</span>
+					<p>Add More</p>
+				</div>
+				<div style={{ minWidth: '150px' }}>
+					<ReusableButtonSettings text="Send Request" func={handleSubmit} />
+				</div>
+			</div>
+		</>
+	);
+};
+
 export const TeamAccessListComponent = ({ search, handleInputChange, info, filteredUsers }) => {
 	return (
 		<>
 			<div className="yourTeamTitle">
-				<h1>Your Team</h1>
+				<h1>Your Team Access</h1>
 				<div className="yourTeamFilter">
 					<img src={search} alt="searchh" />
 					<input
 						type="text"
-						placeholder="search"
+						placeholder="Search by name"
 						onChange={handleInputChange}
 						value={info.searchQuery}
 					/>
@@ -74,7 +134,12 @@ export const TeamAccessListComponent = ({ search, handleInputChange, info, filte
 						<div className="tenantDetailsContainer">
 							<div className="tenantProfileContainer">
 								<div className="tenantLogo">
-									{getInitials(user?.firstName, user?.lastName)}
+									{/* <img
+										src="https://randomuser.me/api/portraits/women/75.jpg"
+										alt=""
+										srcset=""
+									/> */}
+									<p>{getInitials(user?.firstName, user?.lastName)}</p>
 								</div>
 								<div className="tenantProfileName">
 									<h1>
@@ -107,10 +172,10 @@ export const TeamAccessListComponent = ({ search, handleInputChange, info, filte
 				<div>
 					{info.isloading ? (
 						<div>
-							<Skeleton height={100} />
-							<Skeleton height={100} />
-							<Skeleton height={100} />
-							<Skeleton height={100} />
+							<Skeleton height={66} />
+							<Skeleton height={66} />
+							<Skeleton height={66} />
+							<Skeleton height={66} />
 						</div>
 					) : (
 						' '

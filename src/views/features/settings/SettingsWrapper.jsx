@@ -1,8 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import CompanyPlanBilling from './CompanyPlanBilling';
-import CompanyGallery from './CompanyGallery';
-import CompanyDomainVerification from './CompanyDomainVerification';
 import SettingsPageSideBar from './SettingsPageSideBar';
 import '../../../assets/scss/AccountSettings/companySettingsWrapper.scss';
 import Context from '../../../context/context';
@@ -12,6 +9,7 @@ import PublicInformation from './PublicInformation';
 import BrandingSetup from './BrandSetup';
 import Integrations from './Integrations';
 import TeamSettings from './TeamSettings';
+import PlanBilling from './PlanBilling';
 
 let mapper = {
 	'my-profile': <MyProfile />,
@@ -20,8 +18,7 @@ let mapper = {
 	'brand-setup': <BrandingSetup />,
 	integrations: <Integrations />,
 	'team-settings': <TeamSettings />,
-	'plan-billing': <CompanyPlanBilling />,
-	'company-domain-verification-settings': <CompanyDomainVerification />,
+	'plan-billing': <PlanBilling />,
 };
 const SettingsWrapper = (props) => {
 	const { type } = useParams();

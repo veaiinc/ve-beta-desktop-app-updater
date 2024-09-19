@@ -5,7 +5,6 @@ import stripe from '../../../assets/images/companySettings/stripe.svg';
 import paypal from '../../../assets/images/companySettings/paypal.svg';
 import square from '../../../assets/images/companySettings/square.svg';
 import '../../../assets/scss/AccountSettings/integrations.scss';
-import Line from './Line';
 import Context from '../../../context/context';
 import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
 import { ve_conversations_api } from '../../../services/config';
@@ -107,7 +106,6 @@ const Temp = () => {
 						)}
 					</div>
 
-					<Line />
 					<div className="integrationContainer">
 						<div className="imageContainer">
 							<img src={google} alt="google" />
@@ -119,7 +117,6 @@ const Temp = () => {
 						<ReusableButtonSettings text={'Connect'} />
 					</div>
 
-					<Line />
 					<div className="integrationContainer">
 						<div className="imageContainer">
 							<img src={stripe} alt="stripe" />

@@ -6,6 +6,7 @@ import {
 	SocialMediaLinksComponent,
 	BrandColorComponent,
 	BrandFontsComponent,
+	ClientPortalComponent,
 } from '../../components/settings/BrandSetup';
 // const Temp = () => {
 // 	const {
@@ -489,6 +490,11 @@ const BrandingSetup = () => {
 					handleChange={handleChange}
 					handleActivateLogo={handleActivateLogo}
 				/>
+			</div>
+
+			{/* client portal */}
+			<div className="clientPortalContainer">
+				<ClientPortalComponent />
 			</div>
 
 			{/* Branding color */}

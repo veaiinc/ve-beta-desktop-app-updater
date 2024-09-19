@@ -41,6 +41,138 @@
 		}
 	}
 
+	.clientPortalContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		align-self: stretch;
+		padding: 32px;
+		border-radius: 40px;
+		background: rgba(29, 29, 35, 0.24);
+		max-height: 652px;
+		height: 652px;
+
+		.lineDiv {
+			width: 216px;
+			height: 1px;
+			background: rgba(100, 100, 100, 0.16);
+		}
+
+		.title {
+			h1 {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 24px; /* 150% */
+			}
+		}
+
+		.containerBody {
+			display: flex;
+			width: 510px;
+			height: 540px;
+			justify-content: space-between;
+			align-items: flex-start;
+
+			.ClientViewContainer {
+				display: flex;
+				padding: 0px 24.043px 16.276px 24.346px;
+				flex-direction: column;
+				align-items: center;
+				gap: 16.148px;
+				background: #bbebff;
+				width: 253px;
+				height: 452px;
+				border-radius: 30px;
+			}
+
+			.optionsContainer {
+				display: flex;
+				width: 232px;
+				height: 472px;
+				padding: 8px;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 24px;
+				flex-shrink: 0;
+
+				h3 {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 24px; /* 150% */
+				}
+
+				.themesList {
+					display: flex;
+					align-items: center;
+					align-content: center;
+					gap: 24px;
+					align-self: stretch;
+					flex-wrap: wrap;
+					.singleTheme {
+						width: 48px;
+						height: 48px;
+						border-radius: 8px;
+						border: 2px solid #0057ff;
+						background-color: green;
+					}
+				}
+
+				.propertiesContainer {
+					width: 100%;
+					.singlePropertyDiv {
+						display: flex;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: 6px;
+						flex: 1 0 0;
+						width: 100%;
+
+						h6 {
+							color: #b0b0b0;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 16px; /* 133.333% */
+						}
+
+						.property_name {
+							width: 100%;
+							display: flex;
+							justify-content: space-between;
+							align-items: center;
+							.color {
+								width: 30px;
+								height: 30px;
+								border-radius: 50%;
+								background-color: #0057ff;
+							}
+							input {
+								width: 70px;
+								color: rgba(228, 229, 230, 0.48);
+								font-family: Inter;
+								font-size: 15px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: 22px; /* 146.667% */
+								background: none;
+								border: none;
+								outline: none;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	.brandingContainer {
 		display: flex;
 		flex-direction: column;
@@ -65,6 +197,7 @@
 			display: flex;
 			justify-content: space-between;
 			flex-wrap: wrap;
+			gap: 15px;
 
 			.chooseBrandColor {
 				display: flex;

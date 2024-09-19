@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/CompanySettings/planBilling.scss';
-import ProgressBar from './ProgressBar';
+import ProgressBar from '../../components/settings/ProgressBar';
 import moment from 'moment';
 import Context from '../../../context/context';
 
@@ -12,7 +12,7 @@ let progressBar = 30;
 const GB = 1;
 const usedGB = 3;
 
-const CompanyPlanBilling = () => {
+const PlanBilling = () => {
 	const {
 		companyInfo: { getTenantSubscriptionDetails, tenantSubscriptionDetails },
 	} = useContext(Context);
@@ -108,4 +108,4 @@ const CompanyPlanBilling = () => {
 	);
 };
 
-export default CompanyPlanBilling;
+export default PlanBilling;

@@ -7,7 +7,7 @@ import useActiveWorkspace from '../hooks/useActiveWorkspace';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import Footer from '../components/Footer';
-const AuthWrapper = ({ title, children, hideQuickNav = false }) => {
+const AuthWrapper = ({ title, children, hideQuickNav = false, isFullScreen = false }) => {
 	const navigate = useNavigate();
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 
@@ -31,7 +31,7 @@ const AuthWrapper = ({ title, children, hideQuickNav = false }) => {
 				activeWorkspaceId={workspaceId}
 			/>
 			<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>
-				<div className="childrenContaine">{children}</div>
+				<div className={isFullScreen ? '' : 'childrenContainer'}>{children}</div>
 			</SkeletonTheme>
 			<Footer />
 		</div>
