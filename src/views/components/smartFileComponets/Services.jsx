@@ -37,6 +37,17 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 
 			let updatedData = [...(info?.data || [])];
 			let selectedServiceTable = updatedData?.[outerIndex];
+
+			//for service subtotal value
+			if (type === 'subTotalValue') {
+				let { style } = selectedServiceTable || {};
+				style = { ...style, subTotalValue: val };
+				selectedServiceTable.style = style;
+				updatedData?.splice(outerIndex, 1, selectedServiceTable);
+				setInfo((prev) => ({ ...prev, data: updatedData }));
+				serviceOnChangeFunc(selectedServiceTable, outerIndex);
+				return;
+			}
 			let { blocks } = selectedServiceTable;
 			let selectedBlocks = blocks?.[innerIndex];
 
@@ -100,6 +111,45 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 
 			{info?.data?.map((ele, index) => (
 				<div className="serviceCardWrapper" key={index}>
+					<div className="serviceCardHeaderBlock">
+						<span className="serviceSubTitle">
+							{ele?.style?.subTotalTitle
+								?.replace(/&nbsp;/g, ' ')
+								.replace(/<\/?[^>]+(>|$)/g, '')
+								.replace(/"/g, '') || ''}
+						</span>
+						<div className="serviceSubTotalWrapper">
+							<span className="subTotalValueTitle">Subtotal</span>
+							{editable ? (
+								<input
+									value={
+										ele?.style?.subTotalValue
+											?.replace(/&nbsp;/g, ' ')
+											.replace(/<\/?[^>]+(>|$)/g, '')
+											.replace(/"/g, '') || ''
+									}
+									onChange={(e) =>
+										onLocalServiceDataChange(
+											0,
+											index,
+											'subTotalValue',
+											e.target.value,
+										)
+									}
+									className="serviceSubtotalValueInput"
+									readOnly={!editable}
+								/>
+							) : (
+								<span className="ServiceSubTotalValue">
+									{ele?.style?.subTotalValue
+										?.replace(/&nbsp;/g, ' ')
+										.replace(/<\/?[^>]+(>|$)/g, '')
+										.replace(/"/g, '') || ''}
+								</span>
+							)}
+						</div>
+					</div>
+
 					{/* //USE ,MAP HERE */}
 					{ele?.blocks?.map((val, ind) => (
 						<div className="serviceCard" key={ind}>
