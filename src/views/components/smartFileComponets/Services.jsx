@@ -1,10 +1,27 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
 import ToggleSlider from '../../components/input/slider';
+import { Tooltip } from 'antd';
+import ToolTipContainer from '../popover/ToolTipContainer';
+import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/questionMark.svg';
+
 const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 	const [info, setInfo] = useState({
 		data: [],
 	});
+
+	const [arrow, setArrow] = useState('Show');
+	const mergedArrow = useMemo(() => {
+		if (arrow === 'Hide') {
+			return false;
+		}
+		if (arrow === 'Show') {
+			return true;
+		}
+		return {
+			pointAtCenter: true,
+		};
+	}, [arrow]);
 
 	useEffect(() => {
 		if (serviceData) {
@@ -60,7 +77,26 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 
 	return info?.data?.length ? (
 		<div className="servicesParentContainer">
-			<span className="servicesHeader">Services - View Only</span>
+			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+				<span className="servicesHeader">Services - View Only</span>
+				<span className="svgHolder">
+					<Tooltip
+						placement="bottomLeft"
+						title={
+							<ToolTipContainer
+								title={'Services - View Only'}
+								content={
+									'This Table shows view only services that are mentioned in the smart file, Lead will only view this service details'
+								}
+							/>
+						}
+						arrow={mergedArrow}
+						color={'#202020'}
+					>
+						<QuestionMark />
+					</Tooltip>
+				</span>
+			</div>
 
 			{info?.data?.map((ele, index) => (
 				<div className="serviceCardWrapper" key={index}>

@@ -17,18 +17,7 @@ import JoditEditor from 'jodit-react';
 import { message } from 'antd';
 import moment from 'moment';
 import { Tooltip } from 'antd';
-
-const ToolTipContainer = () => {
-	return (
-		<div className="tooltipParentContainer">
-			<span className="tooltipHeadertext">Link Expiry</span>
-			<span className="tooltipHeaderSubtext">
-				Smart File expires after ‘X’ days when enabled. smart files that expired will go
-				into a Expired state and can’t be accessed using link.
-			</span>
-		</div>
-	);
-};
+import ToolTipContainer from '../../popover/ToolTipContainer';
 
 const initialState = {
 	subject: '',
@@ -387,7 +376,14 @@ const SendProposalModal = ({
 								<span className="svgHolder">
 									<Tooltip
 										placement="bottomRight"
-										title={<ToolTipContainer />}
+										title={
+											<ToolTipContainer
+												title={'Link Expiry'}
+												content={
+													'Smart File expires after ‘X’ days when enabled. smart files that expired will go into a Expired state and can’t be accessed using link.'
+												}
+											/>
+										}
 										arrow={mergedArrow}
 										color={'#202020'}
 									>
