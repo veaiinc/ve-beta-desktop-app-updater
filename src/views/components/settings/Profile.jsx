@@ -5,7 +5,7 @@ import ToggleSlider from '../../components/input/slider';
 import ReusableButtonSettings from '../../features/workspace_settings/ReusableButtonSettings';
 import MySettingsChangePasword from '../../features/profile_settings/MySettingsChangePasword';
 import PhoneInput from 'react-phone-number-input';
-import { UploadAvatarPopupComponent } from './ProfilePopups';
+import { UploadAvatarPopupComponent } from './popups/ProfilePopups';
 
 // profile details component
 export const ProfileDetailsComponent = ({

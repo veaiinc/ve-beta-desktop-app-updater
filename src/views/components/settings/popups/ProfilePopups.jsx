@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import ReactModal from '../modalsV2';
-import { getInitials } from '../../features/profile_settings/getInitials';
-import { ReactComponent as CloseSvg } from '../../../assets/svg/close.svg';
-import { ReactComponent as PlusSvg } from '../../../assets/svg/workspaceSettings/plus-button.svg';
+import ReactModal from '../../modalsV2';
+import { getInitials } from '../../../features/profile_settings/getInitials';
+import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
+import { ReactComponent as PlusSvg } from '../../../../assets/svg/workspaceSettings/plus-button.svg';
 
 const ColorsList = [
 	'#6055EC',

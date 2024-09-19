@@ -66,18 +66,27 @@
 
 					.editImage {
 						position: absolute;
-						bottom: -1px;
-						left: 2px;
+						bottom: 0;
+						left: 0px;
 						right: 1px;
-						height: 39%;
+						height: 100%;
+						width: 98px;
 						border-radius: 0 0 45px 45px;
-						background-color: rgba(0, 0, 0, 0.774);
-						border-radius: 0 0 40px 39px;
+						border-radius: 50%;
 						display: flex;
 						justify-content: center;
-						align-items: center;
+						align-items: flex-end;
 						opacity: 0.9;
 						cursor: pointer;
+						/* zoom: 0.5; */
+						background: linear-gradient(
+							180deg,
+							rgba(198, 220, 250, 0) 68%,
+							rgba(19, 19, 20, 0.95) 18%
+						);
+						svg {
+							margin-bottom: 10px;
+						}
 					}
 				}
 

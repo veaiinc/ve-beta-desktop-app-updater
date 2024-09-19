@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import CompanyIntegrations from './CompanyIntegrations';
-import CompanyTeamMembers from './CompanyTeamMembers';
 import CompanyPlanBilling from './CompanyPlanBilling';
 import CompanyGallery from './CompanyGallery';
 import CompanyDomainVerification from './CompanyDomainVerification';
@@ -12,14 +10,16 @@ import MyProfile from './MyProfile';
 import SettingsWorkspace from './Workspace';
 import PublicInformation from './PublicInformation';
 import BrandingSetup from './BrandSetup';
+import Integrations from './Integrations';
+import TeamSettings from './TeamSettings';
 
 let mapper = {
 	'my-profile': <MyProfile />,
 	workspace: <SettingsWorkspace />,
 	'public-information': <PublicInformation />,
 	'brand-setup': <BrandingSetup />,
-	integrations: <CompanyIntegrations />,
-	'team-settings': <CompanyTeamMembers />,
+	integrations: <Integrations />,
+	'team-settings': <TeamSettings />,
 	'plan-billing': <CompanyPlanBilling />,
 	'company-domain-verification-settings': <CompanyDomainVerification />,
 };

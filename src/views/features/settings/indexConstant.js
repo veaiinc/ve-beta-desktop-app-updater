@@ -34,3 +34,14 @@ export const CurrencyList = [
 	{ label: 'Indian Rupees', value: '₹ INR' },
 	{ label: 'united States Dollars', value: '$ USD' },
 ];
+
+export const BrandColorList = [
+	{ label: 'color1', value: '#6055EC' },
+	{ label: 'color2', value: '#EAE294' },
+	{ label: 'color3', value: '#0D55B0' },
+];
+
+export const FontList = [
+	{ name: 'Bebas Neue', type: 'Regular' },
+	{ name: 'Battambang', type: 'Regular' },
+];
