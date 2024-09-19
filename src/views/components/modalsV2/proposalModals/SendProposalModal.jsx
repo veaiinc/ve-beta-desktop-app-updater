@@ -340,12 +340,11 @@ const SendProposalModal = ({
 									type="text"
 									className="editableSlugInput"
 									value={info?.slugHolder}
-									disabled={!info?.editSlug}
 									ref={inputRef}
 									onChange={slugOnChange}
 								/>
 							</span>
-							<span className="editLinkBtn" onClick={editSlugOnClick}>
+							<span className="editLinkBtn">
 								<Edit />
 							</span>
 						</div>

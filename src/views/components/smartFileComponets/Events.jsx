@@ -199,7 +199,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 	return info?.data?.map((ele, index) => (
 		<div className="eventsParentContainer" key={index}>
 			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-				<span className="eventsTitle">Events {(index || 0) + 1} </span>
+				<span className="eventsTitle">Events </span>
 				<span className="svgHolder">
 					<Tooltip
 						placement="bottomLeft"
