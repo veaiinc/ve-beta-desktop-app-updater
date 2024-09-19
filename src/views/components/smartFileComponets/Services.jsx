@@ -125,8 +125,8 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 									value={
 										ele?.style?.subTotalValue
 											?.replace(/&nbsp;/g, ' ')
-											.replace(/<\/?[^>]+(>|$)/g, '')
-											.replace(/"/g, '') || ''
+											?.replace(/<\/?[^>]+(>|$)/g, '')
+											?.replace(/"/g, '') || ''
 									}
 									onChange={(e) =>
 										onLocalServiceDataChange(
@@ -142,9 +142,10 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 							) : (
 								<span className="ServiceSubTotalValue">
 									{ele?.style?.subTotalValue
+										?.toString()
 										?.replace(/&nbsp;/g, ' ')
-										.replace(/<\/?[^>]+(>|$)/g, '')
-										.replace(/"/g, '') || ''}
+										?.replace(/<\/?[^>]+(>|$)/g, '')
+										?.replace(/"/g, '') || ''}
 								</span>
 							)}
 						</div>
