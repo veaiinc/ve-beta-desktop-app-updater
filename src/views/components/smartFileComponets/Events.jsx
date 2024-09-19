@@ -1,13 +1,30 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
 import Services from './Services';
 import moment from 'moment';
+import { ReactComponent as Close } from '../../../assets/svg/close.svg';
+import { Tooltip } from 'antd';
+import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/questionMark.svg';
+import ToolTipContainer from '../popover/ToolTipContainer';
 
 const Events = ({ eventsData, eventsDataChange, editable }) => {
 	const [info, setInfo] = useState({
 		data: [],
 	});
+
+	const [arrow, setArrow] = useState('Show');
+	const mergedArrow = useMemo(() => {
+		if (arrow === 'Hide') {
+			return false;
+		}
+		if (arrow === 'Show') {
+			return true;
+		}
+		return {
+			pointAtCenter: true,
+		};
+	}, [arrow]);
 
 	useEffect(() => {
 		if (eventsData) {
@@ -86,6 +103,11 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 			if (type === 'addRole') {
 				let roleArray = [...(valueTobeChanged?.roles || [])];
 				roleArray?.push({ type: '', categories: [{ category: '', quantity: 0 }] });
+				valueTobeChanged = { ...valueTobeChanged, roles: roleArray };
+			}
+			if (type === 'removeRole') {
+				let roleArray = [...(valueTobeChanged?.roles || [])];
+				roleArray?.splice(roleIndex, 1);
 				valueTobeChanged = { ...valueTobeChanged, roles: roleArray };
 			}
 			selectedEventsTable?.values?.splice(innerIndex, 1, valueTobeChanged);
@@ -176,7 +198,27 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 
 	return info?.data?.map((ele, index) => (
 		<div className="eventsParentContainer" key={index}>
-			<span className="eventsTitle">Events {(index || 0) + 1}</span>
+			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+				<span className="eventsTitle">Events {(index || 0) + 1} </span>
+				<span className="svgHolder">
+					<Tooltip
+						placement="bottomLeft"
+						title={
+							<ToolTipContainer
+								title={'Events'}
+								content={
+									'This table outlines the different events that will be covered by the business, including dates, locations, and descriptions.'
+								}
+							/>
+						}
+						arrow={mergedArrow}
+						color={'#202020'}
+					>
+						<QuestionMark />
+					</Tooltip>
+				</span>
+			</div>
+
 			{/* //use map here */}
 			{ele?.values?.map((item, ind) => (
 				<div className="eventsCard" key={ind}>
@@ -309,6 +351,18 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 										+
 									</span>
 								</div>
+								{editable ? (
+									<span
+										className="removeRoleContainer"
+										onClick={() =>
+											localEventsOnchange(ind, index, 'removeRole', null, lt)
+										}
+									>
+										<Close />
+									</span>
+								) : (
+									''
+								)}
 							</div>
 						))}
 
