@@ -124,6 +124,7 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 								<input
 									value={
 										ele?.style?.subTotalValue
+											?.toString()
 											?.replace(/&nbsp;/g, ' ')
 											?.replace(/<\/?[^>]+(>|$)/g, '')
 											?.replace(/"/g, '') || ''
