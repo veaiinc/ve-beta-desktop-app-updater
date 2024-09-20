@@ -6,10 +6,8 @@ import search from '../../../assets/svg/workspaceSettings/searchSettings.svg';
 import validator from 'validator';
 import Context from '../../../context/context';
 import AddNewUserModal from './addNewUser';
-import {
-	InviteMembersWorkspaceComponent,
-	TeamAccessListComponent,
-} from '../../components/settings/TeamSettings';
+import InviteMembersWorkspaceComponent from '../../components/settings/team/InviteMembersWorkspace';
+import TeamAccessListComponent from '../../components/settings/team/TeamAccessList';
 
 const TeamSettings = () => {
 	const {

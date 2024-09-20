@@ -1,6 +1,5 @@
 import React, { useContext, useMemo, useEffect, useState } from 'react';
 import '../../../assets/scss/AccountSettings/publicinformation.scss';
-import PhoneInput from 'react-phone-number-input';
 import InputForModules from '../../components/input/inputForModules';
 import Context from '../../../context/context';
 import jwt_decode from 'jwt-decode';

@@ -1,18 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/AccountSettings/workspacesection.scss';
 import jwt_decode from 'jwt-decode';
-import InputForModules from '../../components/input/inputForModules';
-import { BusinessTypesOptions } from './indexConstant';
 import Context from '../../../context/context';
 import validator from 'validator';
-import { ReactComponent as GlobeSettings } from '../../../assets/svg/workspaceSettings/globeSettings.svg';
-import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
-import { getBuisnessName } from '../profile_settings/getInitials';
-import {
-	DeleteWorkpsaceComponent,
-	TimeZoneCurrencyComponent,
-	WorkspaceHandleComponent,
-} from '../../components/settings/SettingsWorkspace';
+import WorkspaceHandleComponent from '../../components/settings/workspace/WorkspaceHandle';
+import TimeZoneCurrencyComponent from '../../components/settings/workspace/TimezoneCurrency';
+import DeleteWorkpsaceComponent from '../../components/settings/workspace/DeleteWorkspace';
 
 const SettingsWorkspace = () => {
 	const {

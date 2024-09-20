@@ -13,13 +13,10 @@
 	width: 100%;
 	color: white;
 	.settingsContainer {
-		overflow-y: scroll;
 		display: flex;
 		flex-direction: column;
 		gap: 56px;
-		max-height: 85vh;
 		width: 100%;
-		scroll-behavior: smooth;
 
 		// styles for profile details
 		.ProfileDetailsComponent {

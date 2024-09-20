@@ -45,3 +45,21 @@ export const FontList = [
 	{ name: 'Bebas Neue', type: 'Regular' },
 	{ name: 'Battambang', type: 'Regular' },
 ];
+
+export const ThemesList = [
+	{
+		id: 'theme1',
+		imageUrl: '',
+		properties: [
+			{ label: 'Background Color', property: 'background', value: '#BBEBFF' },
+			{
+				label: 'Logo Shape Color',
+				property: 'background',
+				value: 'linear-gradient(139deg, #38BBF1 14.64%, #84305E 93.17%)',
+			},
+			{ label: 'Text Color', property: 'color', value: '#343434' },
+			{ label: 'Button Color', property: 'background', value: '#71B1EE' },
+			{ label: 'Button Text', property: 'color', value: '#343434' },
+		],
+	},
+];

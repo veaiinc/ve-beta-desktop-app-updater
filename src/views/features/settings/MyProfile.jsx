@@ -2,21 +2,13 @@ import React, { useState, useEffect, useContext } from 'react';
 import jwt_decode from 'jwt-decode';
 import '../../../assets/scss/AccountSettings/myProfile.scss';
 import Context from '../../../context/context';
-import InputForModules from '../../components/input/inputForModules';
-import ToggleSlider from '../../components/input/slider';
 // import { collapseToast, useToast } from 'react-toastify';
-import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
 import validator from 'validator';
-import MySettingsChangePasword from '../profile_settings/MySettingsChangePasword';
-import { getInitials } from '../profile_settings/getInitials';
-import {
-	LeaveWorkspaceComponent,
-	ProfileDetailsComponent,
-	Test,
-	ThemePreferenceComponent,
-	TwoFactorAuthenticationComponent,
-	UpdatePasswordComponent,
-} from '../../components/settings/Profile';
+import ProfileDetailsComponent from '../../components/settings/profile/ProfileDetails';
+import ThemePreferenceComponent from '../../components/settings/profile/ThemePreference';
+import UpdatePasswordComponent from '../../components/settings/profile/UpdatePassword';
+import TwoFactorAuthenticationComponent from '../../components/settings/profile/TwoFactorAuthentication';
+import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWorkspace';
 
 const MyProfile = () => {
 	const {
@@ -83,6 +75,33 @@ const MyProfile = () => {
 	useEffect(() => {
 		fetchData();
 	}, []);
+
+	useEffect(() => {
+		const timeOut = setTimeout(() => {
+			if (userDetails?.fullName && isEditMode) {
+				handleSubmit();
+			}
+		}, 800);
+
+		return () => {
+			clearTimeout(timeOut);
+		};
+	}, [userDetails?.fullName]);
+
+	// const handleDebounceSearch = useCallback(() => {
+	// 	clearInterval(info?.timeout);
+	// 	const timeout = setTimeout(() => {
+	// 		if (userDetails?.fullName && isEditMode) {
+	// 			handleSubmit();
+	// 		}
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			timeout: null,
+	// 		}));
+	// 	}, 800);
+	// 	setInfo((prev) => ({ ...prev, timeout }));
+	// }, [info?.timeout, info?.searchValue, info?.searchValueChanged]);
+
 	const fetchData = async () => {
 		let usertoken = localStorage.getItem('usertoken');
 		let decoded = jwt_decode(usertoken);
@@ -151,6 +170,7 @@ const MyProfile = () => {
 	};
 
 	const handleChange = (e) => {
+		if (!isEditMode) setIsEditMode(true);
 		const { name, value } = e.target;
 		setUserDetails((prevDetails) => ({
 			...prevDetails,
@@ -191,24 +211,15 @@ const MyProfile = () => {
 		return Object.keys(newErrors).length === 0;
 	};
 
-	const handleSubmit = (e) => {
-		e.preventDefault();
+	const handleSubmit = () => {
 		if (validate()) {
 			setIsEditMode(false);
-			let json = {
-				firstName: userDetails.fullName,
-				lastName: userDetails.fullName,
-			};
-			updateUserDetails(json);
 		}
-	};
-
-	const handleEditClick = () => {
-		if (isEditMode) {
-			handleSubmit(new Event('submit'));
-		} else {
-			setIsEditMode(true);
-		}
+		let json = {
+			firstName: userDetails.fullName,
+			lastName: userDetails.fullName,
+		};
+		updateUserDetails(json);
 	};
 
 	return (
@@ -219,8 +230,6 @@ const MyProfile = () => {
 				<div className="ProfileDetailsComponent activeBackgroundColor" id="profile">
 					<ProfileDetailsComponent
 						handleSubmit={handleSubmit}
-						handleEditClick={handleEditClick}
-						isEditMode={isEditMode}
 						userDetails={userDetails}
 						errors={errors}
 						handleChange={handleChange}

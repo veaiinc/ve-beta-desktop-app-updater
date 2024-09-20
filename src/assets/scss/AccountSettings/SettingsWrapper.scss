@@ -3,31 +3,22 @@
 	height: 100%;
 	width: 80%;
 	margin: auto;
-	margin-top: 7rem;
+
 	.accountSettingsWrapper {
 		display: flex;
 		justify-content: space-between;
 		gap: 15px;
 		width: 100%;
+		max-height: 100%;
+		overflow-y: scroll;
+		scroll-behavior: smooth;
 		.accountSettingsMapper {
-			width: 55%;
+			width: 580px;
 			height: 85vh;
-			overflow-y: scroll;
 		}
 		.accountSettingsSidebar {
-			width: 20%;
-			display: flex;
-			flex-direction: column;
-			align-items: flex-end;
-		}
-	}
-}
-
-@media (min-width: 1600px) {
-	.accountSettingsMainWrapper {
-		padding: 0 10rem;
-		.accountSettingsMapper {
-			width: 40%;
+			position: sticky;
+			top: 0;
 		}
 	}
 }

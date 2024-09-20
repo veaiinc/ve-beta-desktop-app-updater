@@ -1,0 +1,56 @@
+import ReusableButtonSettings from '../ReusableButtonSettings';
+import { FontList } from '../../../features/settings/indexConstant';
+import { ChangeFontPopup } from '../popups/BrandingPopups';
+
+//  brand fonts component
+const BrandFontsComponent = ({ setbrandState, brandState }) => {
+	return (
+		<>
+			<div className="brandTextContainer">
+				<h1>Brand Fonts</h1>
+			</div>
+
+			<div className="fontslistcontainer">
+				{FontList.map((font, index, arr) => (
+					<div key={index}>
+						<div className="singleListDiv">
+							<div
+								style={{
+									fontFamily: `${font.name}`,
+								}}
+								className="fontName"
+							>
+								{font.name}
+							</div>
+							<div className="fontType">{font.type}</div>
+						</div>
+
+						<div
+							style={{
+								height: '1px',
+								backgroundColor: '#2827287A',
+								margin: '16px 0',
+							}}
+						/>
+					</div>
+				))}
+			</div>
+
+			<div className="button">
+				<ReusableButtonSettings
+					text={'Mangage Font'}
+					func={() => setbrandState((prev) => ({ ...prev, fontPopup: true }))}
+				/>
+			</div>
+
+			{brandState.fontPopup && (
+				<ChangeFontPopup
+					handleClose={() => setbrandState((prev) => ({ ...prev, fontPopup: false }))}
+					show={brandState.fontPopup}
+				/>
+			)}
+		</>
+	);
+};
+
+export default BrandFontsComponent;

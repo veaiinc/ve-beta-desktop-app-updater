@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
-import '../../../assets/scss/AccountSettings/myProfile.scss';
-import { getInitials } from '../../features/profile_settings/getInitials';
-import ToggleSlider from '../../components/input/slider';
-import ReusableButtonSettings from '../../features/workspace_settings/ReusableButtonSettings';
-import MySettingsChangePasword from '../../features/profile_settings/MySettingsChangePasword';
+import { getInitials } from '../../../features/profile_settings/getInitials';
+import MySettingsChangePasword from '../../../features/profile_settings/MySettingsChangePasword';
 import PhoneInput from 'react-phone-number-input';
-import { UploadAvatarPopupComponent } from './popups/ProfilePopups';
+import { UploadAvatarPopupComponent } from '../popups/ProfilePopups';
 
 // profile details component
-export const ProfileDetailsComponent = ({
-	handleSubmit,
-	handleEditClick,
-	isEditMode,
+const ProfileDetailsComponent = ({
 	userDetails,
 	errors,
 	handleChange,
@@ -24,7 +18,7 @@ export const ProfileDetailsComponent = ({
 
 	return (
 		<>
-			<form onSubmit={handleSubmit} className={`${'formsMain'} `}>
+			<div className={`${'formsMain'} `}>
 				<div className="profileHeader">
 					<div className="imageCircleDiv">
 						{!userDetails?.logoURL ? (
@@ -107,36 +101,13 @@ export const ProfileDetailsComponent = ({
 								type="text"
 								placeholder={'Enter the Name'}
 								value={userDetails?.fullName}
+								name="fullName"
+								onChange={handleChange}
 								required
 							/>
 						</div>
 
 						<div className="iconAlignclass  phoneDiv">
-							{/* <span>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="18"
-									height="18"
-									viewBox="0 0 18 18"
-									fill="none"
-								>
-									<path
-										d="M8.99999 1C4.5816 1 1 4.5816 1 8.99999C1 13.4184 4.5816 17 8.99999 17C13.4184 17 17 13.4184 17 8.99999C17 4.5816 13.4184 1 8.99999 1Z"
-										stroke="#E4E5E6"
-										stroke-width="0.875"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-									/>
-									<path
-										d="M2.81641 14.0721C2.81641 14.0721 4.5996 11.7953 8.9996 11.7953C13.3996 11.7953 15.1836 14.0721 15.1836 14.0721M8.9996 8.99531C9.63612 8.99531 10.2466 8.74245 10.6967 8.29236C11.1467 7.84228 11.3996 7.23183 11.3996 6.59531C11.3996 5.95879 11.1467 5.34834 10.6967 4.89826C10.2466 4.44817 9.63612 4.19531 8.9996 4.19531C8.36308 4.19531 7.75263 4.44817 7.30255 4.89826C6.85246 5.34834 6.5996 5.95879 6.5996 6.59531C6.5996 7.23183 6.85246 7.84228 7.30255 8.29236C7.75263 8.74245 8.36308 8.99531 8.9996 8.99531Z"
-										stroke="#E4E5E6"
-										stroke-width="0.875"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-									/>
-								</svg>
-							</span> */}
-
 							<PhoneInput
 								defaultCountry={'IN'}
 								placeholder={'Enter Phone Number'}
@@ -167,6 +138,8 @@ export const ProfileDetailsComponent = ({
 								type="text"
 								placeholder={'Enter the Name'}
 								value={userDetails?.email}
+								disabled={true}
+								readOnly={true}
 								required
 							/>
 
@@ -188,7 +161,7 @@ export const ProfileDetailsComponent = ({
 						</div>
 					</div>
 				</div>
-			</form>
+			</div>
 
 			{showForm && (
 				<MySettingsChangePasword showForm={showForm} onClose={handlePopupFormClose} />
@@ -204,120 +177,4 @@ export const ProfileDetailsComponent = ({
 	);
 };
 
-// theme preference component
-export const ThemePreferenceComponent = ({ setActiveTheme, activeTheme }) => {
-	return (
-		<div className={'themeMain'}>
-			<h4>Theme performance</h4>
-			<div>
-				<button
-					className={activeTheme === 'system' ? 'activeButton' : ''}
-					onClick={() => setActiveTheme('system')}
-				>
-					Follow system preferences
-				</button>
-				<button
-					className={activeTheme === 'light' ? 'activeButton' : ''}
-					onClick={() => setActiveTheme('light')}
-				>
-					Light
-				</button>
-				<button
-					className={activeTheme === 'dark' ? 'activeButton' : ''}
-					onClick={() => setActiveTheme('dark')}
-				>
-					Dark
-				</button>
-			</div>
-		</div>
-	);
-};
-
-// update password component
-export const UpdatePasswordComponent = ({ handleFormPopUp }) => {
-	return (
-		<div className={'accessContainer'}>
-			<div className={'accessInfo'}>
-				<h4>Strengthen your Account Security</h4>
-				<p>
-					As you've signed up through Google, we suggest adding a password for extra
-					security.
-				</p>
-				{/* <button>Update my password</button> */}
-				<ReusableButtonSettings
-					text={'Update my password'}
-					func={() => handleFormPopUp()}
-				/>
-			</div>
-		</div>
-	);
-};
-
-// two factor authentication component
-export const TwoFactorAuthenticationComponent = ({ toggleEnable, userDetails, qrcode }) => {
-	return (
-		<div className={'twoFactorAuthMain'}>
-			<div className={'twoFactorAuthText'}>
-				<h4>Two Factor Authentication</h4>
-				<p>
-					Boost your account security effortlessly with two-factor authentication (2FA).
-					Simply use your password along with a code from your phone or an app. This extra
-					step makes it tough for hackers to break in, ensuring your peace of mind.
-				</p>
-			</div>
-			<div className={'switchStep'}>
-				<div className={'switchToggle'}>
-					<p>Enable Two Factor Authentication</p>
-					<ToggleSlider onChange={toggleEnable} value={userDetails?.is2FAEnabled} />
-				</div>
-
-				{userDetails?.is2FAEnabled ? (
-					<div className={'toggleOptions'}>
-						<div className={`${'step'} ${'stepOne'}`}>
-							<h4>STEP 1</h4>
-							<p>Install an authenticator app on your mobile device</p>
-						</div>
-						<div className={`${'step'} ${'stepTwo'}`}>
-							<h4>STEP 2</h4>
-							<div>
-								<p>Scan the following QR code in your authenticator app</p>
-
-								<img src={qrcode?.qrCode} alt="" />
-							</div>
-						</div>
-						<div className={`${'step'} `}>
-							<h4>STEP 3</h4>
-							<div className={'stepThree'}>
-								<p>Enter the code from your authenticator app below</p>
-								<input placeholder="Enter Authentication App Password here.." />
-							</div>
-						</div>
-						<div className={`${'step'}`}>
-							<h4>STEP 4</h4>
-							<div className={'stepFour'}>
-								<p>Install an authenticator app on your mobile device</p>
-								<input placeholder="Enter Authentication App Password here.." />
-							</div>
-						</div>
-					</div>
-				) : (
-					''
-				)}
-			</div>
-		</div>
-	);
-};
-
-export const LeaveWorkspaceComponent = () => {
-	return (
-		<div className={'accessContainer'}>
-			<div className={'leaveComponent'}>
-				<h4>Do you want to leave your workspace?</h4>
-				<p>
-					When you leave your workspace, your work will be lost, and your team will be
-					notified. Select a workspace you would like to leave
-				</p>
-			</div>
-		</div>
-	);
-};
+export default ProfileDetailsComponent;

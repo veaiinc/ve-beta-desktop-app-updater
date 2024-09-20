@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import SettingsPageSideBar from './SettingsPageSideBar';
-import '../../../assets/scss/AccountSettings/companySettingsWrapper.scss';
+import '../../../assets/scss/AccountSettings/SettingsWrapper.scss';
 import Context from '../../../context/context';
 import MyProfile from './MyProfile';
 import SettingsWorkspace from './Workspace';
@@ -11,7 +11,7 @@ import Integrations from './Integrations';
 import TeamSettings from './TeamSettings';
 import PlanBilling from './PlanBilling';
 
-let mapper = {
+const mapper = {
 	'my-profile': <MyProfile />,
 	workspace: <SettingsWorkspace />,
 	'public-information': <PublicInformation />,
@@ -20,13 +20,15 @@ let mapper = {
 	'team-settings': <TeamSettings />,
 	'plan-billing': <PlanBilling />,
 };
+
 const SettingsWrapper = (props) => {
 	const { type } = useParams();
+	console.log(type, 'dty');
 	const navigate = useNavigate();
 	const [urlType, setUrlype] = useState('');
-	const [activeSettingComp, setactiveSettingComp] = useState('my-profile');
+
 	const setType = (type) => {
-		navigate(`/workspace-settings/${type}`);
+		navigate(`/my-settings/${type}`);
 		setUrlype(type);
 	};
 	const {
@@ -41,15 +43,9 @@ const SettingsWrapper = (props) => {
 	return (
 		<div className="accountSettingsMainWrapper">
 			<div className="accountSettingsWrapper">
-				<div className="accountSettingsMapper">{mapper?.[activeSettingComp]}</div>
+				<div className="accountSettingsMapper">{mapper?.[type]}</div>
 				<div className="accountSettingsSidebar">
-					<SettingsPageSideBar
-						{...props}
-						type={type}
-						setType1={setType}
-						setactiveSettingComp={setactiveSettingComp}
-						activeSettingComp={activeSettingComp}
-					/>
+					<SettingsPageSideBar {...props} type={type} setType1={setType} />
 				</div>
 			</div>
 		</div>
