@@ -3,6 +3,7 @@ import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/bac
 import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
 import { useNavigate } from 'react-router-dom';
 import HeadersDropDownComp from '../dropDown/HeadersDropDownComp';
+import Spinner from '../loaders/Spinner';
 
 const options = [
 	{ label: 'Edit' },
@@ -25,11 +26,13 @@ const SmartFileHeader = ({
 	changeEditStatus,
 	openMoveToStageModal,
 	openDeleteModal,
+	onPreviewClick,
 }) => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		loading: false,
 		threeDotOptions: options,
+		previewLoader: false,
 	});
 
 	const modifiedAccetFunc = useCallback(async () => {
@@ -93,6 +96,11 @@ const SmartFileHeader = ({
 		}
 	}, [workflowStatus]);
 
+	const modifiedPreviewClick = useCallback(() => {
+		setInfo((prev) => ({ ...prev, previewLoader: true }));
+		onPreviewClick();
+	}, []);
+
 	return (
 		<div className="smarFileHeader">
 			<div className="HeaderContentContainer">
@@ -147,7 +155,11 @@ const SmartFileHeader = ({
 					</div>
 				</div>
 			</div>
+
 			<div className="flexEndButtonContainer">
+				<div className="previewBtn" onClick={modifiedPreviewClick}>
+					{info?.previewLoader ? <Spinner /> : ''}Preview
+				</div>
 				{workflowStatus === 'enquiry' ? (
 					<div className="sendSmartFileBtn" onClick={openSendSmartFileModal}>
 						Send Smart File

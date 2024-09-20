@@ -315,6 +315,13 @@ const SmartFile = () => {
 		[info?.workflowExpiryAt],
 	);
 
+	const onPreviewClick = useCallback(() => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const region = localStorage.getItem('region');
+		window.location.href = `https://${workspaceId}.ve.ai/portal/${info?.workflowData?.slug}?region=${region}&usertoken=${usertoken}`;
+	}, [info?.workflowData]);
+
 	return info?.loading ? (
 		<UpdatedPageLoader />
 	) : (
@@ -331,6 +338,7 @@ const SmartFile = () => {
 				changeEditStatus={changeEditStatus}
 				openMoveToStageModal={openMoveToStageModal}
 				openDeleteModal={openDeleteModal}
+				onPreviewClick={onPreviewClick}
 			/>
 			<div className="mainContentContainer">
 				{info?.activeTab === 'form' ? (
