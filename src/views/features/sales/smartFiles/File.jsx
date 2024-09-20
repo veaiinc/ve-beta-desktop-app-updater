@@ -552,7 +552,6 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 				if (index !== -1) {
 					variableModuleArraytoBeUpdated?.splice(index, 1, updatedData);
 					updatedVariableData[moduleType] = [...variableModuleArraytoBeUpdated];
-					setInfo((prev) => ({ ...prev, variablesData: updatedVariableData }));
 				}
 
 				let moduleIndex = -1;
