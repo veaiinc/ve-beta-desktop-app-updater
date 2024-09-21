@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useEffect, useState } from 'react';
+import React, { useContext, useMemo, useEffect, useState, useCallback } from 'react';
 import '../../../assets/scss/AccountSettings/publicinformation.scss';
 import InputForModules from '../../components/input/inputForModules';
 import Context from '../../../context/context';
@@ -11,7 +11,7 @@ import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/que
 
 const PublicInformation = () => {
 	const {
-		profileInfo: { getTenantSettings, tennantSettingsData, updateBusniessName },
+		profileInfo: { tennantSettingsData, updateBusniessName },
 		companyInfo: {
 			updateTenantContactDetails,
 			updateTenantAddress,
@@ -21,13 +21,14 @@ const PublicInformation = () => {
 	} = useContext(Context);
 
 	const [error, setErrors] = useState({});
-	const [isEditMode, setIsEditMode] = useState(true);
+	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 
 	const [overviewState, setOverviewState] = useState({
 		phoneNumber: '',
 		email: '',
 		address: '',
 		website: '',
+		companyType: '',
 		businessName: '',
 		isAdmin: '',
 		businessLogo: '',
@@ -90,6 +91,10 @@ const PublicInformation = () => {
 		}));
 	}, [tennantSettingsData]);
 
+	useEffect(() => {
+		handleDebounceSearch('phone');
+	}, [overviewState]);
+
 	const validateField = (fieldName, value) => {
 		let Value = value || '';
 		switch (fieldName) {
@@ -129,6 +134,7 @@ const PublicInformation = () => {
 		}
 		return '';
 	};
+
 	const validate = () => {
 		const newErrors = {};
 		Object.keys(overviewState).forEach((key) => {
@@ -172,6 +178,7 @@ const PublicInformation = () => {
 			updateTenantBusinessName(json);
 		}
 	};
+
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		if (validate()) {
@@ -182,6 +189,9 @@ const PublicInformation = () => {
 	};
 
 	const handleChange = (e) => {
+		if (!isEditMode?.isValueChanged) {
+			setIsEditMode((prev) => ({ ...prev, isValueChanged: true }));
+		}
 		const { name, value = '' } = e.target;
 
 		const error = validateField(name, value);
@@ -194,14 +204,18 @@ const PublicInformation = () => {
 			[name]: value,
 		}));
 	};
-	const handleEdit = () => {
-		if (isEditMode) {
-			handleSubmit(new Event('submit'));
-		} else {
-			setIsEditMode(true);
-		}
-		// setIsEditMode(!isEditMode);
-	};
+
+	const handleDebounceSearch = useCallback(() => {
+		clearInterval(isEditMode?.timeout);
+		const timeout = setTimeout(() => {
+			if (isEditMode?.isValueChanged) {
+				handleSubmit(new Event('submit'));
+			}
+			setIsEditMode((prev) => ({ ...prev, timeout: null }));
+		}, 800);
+		setIsEditMode((prev) => ({ ...prev, timeout }));
+	}, [isEditMode?.timeout, overviewState]);
+
 	const workspaceId = localStorage.getItem('workspaceId');
 	const companyHandle = 'https://' + workspaceId + '.ve.ai';
 	return (
@@ -260,10 +274,9 @@ const PublicInformation = () => {
 						placeholder={'Enter your Business Name'}
 						name={'businessName'}
 						onChange={handleChange}
-						value={overviewState.businessName}
+						value={overviewState?.businessName}
 						isError={false}
 						errorMessage={''}
-						disabled={!isEditMode}
 					/>
 				</div>
 
@@ -271,13 +284,12 @@ const PublicInformation = () => {
 					<InputForModules
 						label={'Company Email'}
 						type={'email'}
-						placeholder={overviewState.companyEmail}
+						placeholder={overviewState?.companyEmail || ''}
 						name={'companyEmail'}
-						value={overviewState.email}
-						// onChange={handleChange}
+						value={overviewState?.email}
+						onChange={handleChange}
 						isError={false}
 						errorMessage={''}
-						disabled={!isEditMode}
 					/>
 				</div>
 
@@ -285,13 +297,12 @@ const PublicInformation = () => {
 					<InputForModules
 						label={'Website'}
 						type={'text'}
-						value={overviewState.website}
+						value={overviewState?.website || ''}
 						onChange={handleChange}
 						placeholder={'https://www.studio.com'}
 						name={'website'}
 						isError={error?.errorwebsite?.error || false}
 						errorMessage={error?.errorwebsite?.message || ''}
-						disabled={!isEditMode}
 					/>
 				</div>
 
@@ -303,11 +314,10 @@ const PublicInformation = () => {
 							options={BusinessTypesOptions}
 							placeholder="Choose your Company Type"
 							name={'CompanyType'}
-							value={''}
+							value={overviewState?.companyType || ''}
 							onChange={handleChange}
 							isError={false}
 							errorMessage={''}
-							disabled={!isEditMode}
 						/>
 					</div>
 
@@ -316,12 +326,11 @@ const PublicInformation = () => {
 							label={'Phone Number'}
 							type={'phoneNumber'}
 							onChange={handleChange}
-							value={overviewState.phoneNumber}
+							value={overviewState.phoneNumber || ''}
 							placeholder={'Enter your Phone Number'}
 							name={'phoneNumber'}
 							isError={error?.errorphoneNumber?.error || false}
 							errorMessage={error?.errorphoneNumber?.message || ''}
-							disabled={!isEditMode}
 							defaultCountry={'IN'}
 						/>
 					</div>
@@ -332,12 +341,11 @@ const PublicInformation = () => {
 						label={'Address'}
 						type={'text'}
 						onChange={handleChange}
-						value={overviewState.address}
+						value={overviewState.address || ''}
 						placeholder={'Enter your Company Address'}
 						name={'address'}
 						isError={false}
 						errorMessage={''}
-						disabled={!isEditMode}
 					/>
 				</div>
 			</div>

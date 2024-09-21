@@ -37,6 +37,7 @@ const BrandingSetup = () => {
 		brandingPopup: false,
 		fontPopup: false,
 		brandColor: '',
+		brandingThemes: [],
 	});
 
 	useEffect(() => {
@@ -75,6 +76,7 @@ const BrandingSetup = () => {
 				...prev,
 				isEnabled: tenantPreferenceData?.showFooter,
 				brandColor: tenantPreferenceData?.brandAccentColor || '#6055EC',
+				brandingThemes: tenantPreferenceData?.brandingThemes || [],
 			}));
 		}
 	}, [tenantPreferenceData]);
@@ -92,10 +94,29 @@ const BrandingSetup = () => {
 	};
 
 	const handleSelectedColor = (selectedColor) => {
+		const isAlreadyExist = brandState.brandingThemes.find(
+			(item) => item.value === selectedColor,
+		);
+
+		console.log(brandState.brandingThemes);
+
+		if (isAlreadyExist) return;
+
+		const json = {
+			brandingThemes: [
+				...brandState.brandingThemes,
+				{ label: selectedColor, value: selectedColor },
+			],
+		};
+
+		console.log(json);
+
 		setbrandState((prev) => ({
 			...prev,
-			brandColor: selectedColor,
+			brandingThemes: json?.brandingThemes,
 		}));
+
+		updatePrefernces(json);
 	};
 
 	const handleToggleChange = (e) => {

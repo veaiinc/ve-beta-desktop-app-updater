@@ -3,6 +3,7 @@ import { getInitials } from '../../../features/profile_settings/getInitials';
 import MySettingsChangePasword from '../../../features/profile_settings/MySettingsChangePasword';
 import PhoneInput from 'react-phone-number-input';
 import { UploadAvatarPopupComponent } from '../popups/ProfilePopups';
+import InputForModules from '../../../components/input/inputForModules';
 
 // profile details component
 const ProfileDetailsComponent = ({
@@ -13,6 +14,7 @@ const ProfileDetailsComponent = ({
 	showForm,
 	handleImageChange,
 	handlePopupFormClose,
+	role,
 }) => {
 	const [uploadAvatarPopup, setuploadAvatarPopup] = useState(false);
 
@@ -21,14 +23,14 @@ const ProfileDetailsComponent = ({
 			<div className={`${'formsMain'} `}>
 				<div className="profileHeader">
 					<div className="imageCircleDiv">
-						{!userDetails?.logoURL ? (
+						{userDetails?.logoURL ? (
 							<img
 								src={userDetails?.logoURL}
 								alt="logo"
-								onError={(e) =>
-									(e.target.src =
-										'https://randomuser.me/api/portraits/men/75.jpg')
-								}
+								// onError={(e) =>
+								// 	(e.target.src =
+								// 		'https://randomuser.me/api/portraits/men/75.jpg')
+								// }
 							/>
 						) : (
 							<div className="noImageText">
@@ -61,7 +63,7 @@ const ProfileDetailsComponent = ({
 								<p>{userDetails?.fullName || ''}</p>
 
 								<span className="point"></span>
-								<p className="role">{userDetails?.fullName || ''}</p>
+								<p className="role">{role || ''}</p>
 							</div>
 
 							<p>{userDetails?.email}</p>
@@ -71,50 +73,62 @@ const ProfileDetailsComponent = ({
 
 				<div className="profileBody">
 					<div className="name_phone_container">
-						<div className="iconAlignclass">
-							<span>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="18"
-									height="18"
-									viewBox="0 0 18 18"
-									fill="none"
-								>
-									<path
-										d="M8.99999 1C4.5816 1 1 4.5816 1 8.99999C1 13.4184 4.5816 17 8.99999 17C13.4184 17 17 13.4184 17 8.99999C17 4.5816 13.4184 1 8.99999 1Z"
-										stroke="#E4E5E6"
-										stroke-width="0.875"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-									/>
-									<path
-										d="M2.81641 14.0721C2.81641 14.0721 4.5996 11.7953 8.9996 11.7953C13.3996 11.7953 15.1836 14.0721 15.1836 14.0721M8.9996 8.99531C9.63612 8.99531 10.2466 8.74245 10.6967 8.29236C11.1467 7.84228 11.3996 7.23183 11.3996 6.59531C11.3996 5.95879 11.1467 5.34834 10.6967 4.89826C10.2466 4.44817 9.63612 4.19531 8.9996 4.19531C8.36308 4.19531 7.75263 4.44817 7.30255 4.89826C6.85246 5.34834 6.5996 5.95879 6.5996 6.59531C6.5996 7.23183 6.85246 7.84228 7.30255 8.29236C7.75263 8.74245 8.36308 8.99531 8.9996 8.99531Z"
-										stroke="#E4E5E6"
-										stroke-width="0.875"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-									/>
-								</svg>
-							</span>
+						<div>
+							<div className="iconAlignclass">
+								<span>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="18"
+										height="18"
+										viewBox="0 0 18 18"
+										fill="none"
+									>
+										<path
+											d="M8.99999 1C4.5816 1 1 4.5816 1 8.99999C1 13.4184 4.5816 17 8.99999 17C13.4184 17 17 13.4184 17 8.99999C17 4.5816 13.4184 1 8.99999 1Z"
+											stroke="#E4E5E6"
+											stroke-width="0.875"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										/>
+										<path
+											d="M2.81641 14.0721C2.81641 14.0721 4.5996 11.7953 8.9996 11.7953C13.3996 11.7953 15.1836 14.0721 15.1836 14.0721M8.9996 8.99531C9.63612 8.99531 10.2466 8.74245 10.6967 8.29236C11.1467 7.84228 11.3996 7.23183 11.3996 6.59531C11.3996 5.95879 11.1467 5.34834 10.6967 4.89826C10.2466 4.44817 9.63612 4.19531 8.9996 4.19531C8.36308 4.19531 7.75263 4.44817 7.30255 4.89826C6.85246 5.34834 6.5996 5.95879 6.5996 6.59531C6.5996 7.23183 6.85246 7.84228 7.30255 8.29236C7.75263 8.74245 8.36308 8.99531 8.9996 8.99531Z"
+											stroke="#E4E5E6"
+											stroke-width="0.875"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										/>
+									</svg>
+								</span>
 
-							<input
-								type="text"
-								placeholder={'Enter the Name'}
-								value={userDetails?.fullName}
-								name="fullName"
-								onChange={handleChange}
-								required
-							/>
+								<input
+									type="text"
+									placeholder={'Enter the Name'}
+									value={userDetails?.fullName}
+									name="fullName"
+									onChange={handleChange}
+									required
+								/>
+							</div>
+							{errors?.fullName && <p className="errorMessage">{errors?.fullName}</p>}
 						</div>
 
-						<div className="iconAlignclass  phoneDiv">
-							<PhoneInput
-								defaultCountry={'IN'}
-								placeholder={'Enter Phone Number'}
-								value={userDetails?.phoneNumber || ''}
-								// onChange={(e) => onChange({ target: { name: name, value: e } })}
-								// disabled={}
-							/>
+						<div>
+							<div className="iconAlignclass  phoneDiv">
+								<PhoneInput
+									defaultCountry={'IN'}
+									placeholder={'Enter Phone Number'}
+									value={userDetails?.phoneNumber || ''}
+									name="phoneNumber"
+									// onChange={handleChange}
+									onChange={(e) =>
+										handleChange({ target: { name: 'phoneNumber', value: e } })
+									}
+									// disabled={}
+								/>
+							</div>
+							{errors?.phoneNumber && (
+								<p className="errorMessage">{errors?.phoneNumber}</p>
+							)}
 						</div>
 					</div>
 					<div>

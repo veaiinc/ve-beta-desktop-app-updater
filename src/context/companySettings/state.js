@@ -135,6 +135,7 @@ export const CompanySettingsState = () => {
 			console.log('error => getTenantPreferences ', error);
 		}
 	};
+
 	const getTenantSubscriptionDetails = async () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');

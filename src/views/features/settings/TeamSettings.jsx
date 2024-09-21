@@ -34,9 +34,14 @@ const TeamSettings = () => {
 		showDeleteInvite: '',
 	});
 
+	const [sendRequestList, setsendRequestList] = useState([
+		{ email: '', userRole: 'admin', emailID: '', emailIDError: false, emailIDMessage: '' },
+	]);
+
 	useEffect(() => {
 		fetchData();
 	}, []);
+
 	const fetchData = async () => {
 		if (!tenantsUserList) {
 			await getTeamMembers();
@@ -46,6 +51,7 @@ const TeamSettings = () => {
 			isloading: false,
 		}));
 	};
+
 	useEffect(() => {
 		if (tenantsUserList) {
 			setInfo((prev) => ({
@@ -54,6 +60,7 @@ const TeamSettings = () => {
 			}));
 		}
 	}, [tenantsUserList]);
+
 	useEffect(() => {
 		if (tenantUserDetails) {
 			setInfo((prev) => ({
@@ -71,8 +78,11 @@ const TeamSettings = () => {
 		}
 	}, [inviteUserRes]);
 
-	const handleChnage = (e) => {
+	const handleChnage = (e, index) => {
 		const { name, value } = e.target;
+		const update = [...sendRequestList];
+		update[index][name] = value;
+		setsendRequestList(update);
 		setInfo((prev) => ({
 			...prev,
 			[name]: value,
@@ -85,6 +95,7 @@ const TeamSettings = () => {
 			searchQuery: event.target.value,
 		}));
 	};
+
 	const handleClearInput = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -113,7 +124,8 @@ const TeamSettings = () => {
 			showAddTenantUserModal: !prev.showAddTenantUserModal,
 		}));
 	};
-	const handleSubmit = () => {
+
+	const backupt = () => {
 		if (info.emailID === null || info.emailID === '') {
 			setInfo((prev) => ({
 				...prev,
@@ -191,6 +203,93 @@ const TeamSettings = () => {
 		}
 	};
 
+	const validateUsersEmails = (email, index) => {
+		const update = [...sendRequestList];
+		console.log(update);
+		if (email === null || email === '') {
+			update[index]['emailIDError'] = true;
+			update[index]['emailIDMessage'] = 'Required Field!';
+			setsendRequestList(update);
+			return false;
+		} else if (!validator.isEmail(email)) {
+			update[index]['emailIDError'] = true;
+			update[index]['emailIDMessage'] = 'Please enter correct email';
+			setsendRequestList(update);
+			return false;
+		} else {
+			update[index]['emailIDError'] = false;
+			update[index]['emailIDMessage'] = '';
+			setsendRequestList(update);
+			return true;
+		}
+	};
+
+	const validateExistUser = (email, index) => {
+		const update = [...sendRequestList];
+
+		const isAlreadyExist = info?.tenantUser?.find((item) => item?.email === email || null);
+		if (isAlreadyExist) {
+			update[index]['emailIDError'] = true;
+			update[index]['emailIDMessage'] = 'User already exist!';
+			setsendRequestList(update);
+			return false;
+		}
+		update[index]['emailIDError'] = false;
+		update[index]['emailIDMessage'] = '';
+		setsendRequestList(update);
+		return true;
+	};
+
+	const mapUsersRoleBased = () => {
+		const data = sendRequestList.map((singleUser) => {
+			return {
+				email: singleUser?.email,
+				role: singleUser?.userRole || 'admin',
+				accessControls: [
+					{
+						app: 'form',
+						isEnabled: true,
+						hasFullAccess: true,
+					},
+					{
+						app: 'project',
+						isEnabled: true,
+						hasFullAccess: true,
+						hasFinanceAccess: false,
+					},
+					{
+						app: 'proposal',
+						isEnabled: true,
+						hasFullAccess: true,
+					},
+					{
+						app: 'gallery',
+						isEnabled: true,
+						hasFullAccess: true,
+					},
+				],
+			};
+		});
+
+		return data;
+	};
+
+	const handleSubmit = () => {
+		const isEmailsCorrect = _.map(sendRequestList, (singleUser, index) =>
+			validateUsersEmails(singleUser.email, index),
+		);
+
+		if (!_.every(isEmailsCorrect)) return;
+
+		const isUsersValidate = _.map(sendRequestList, (singleUser, index) =>
+			validateExistUser(singleUser.email, index),
+		);
+
+		if (!_.every(isUsersValidate)) return;
+
+		const dataRoles = mapUsersRoleBased();
+	};
+
 	return (
 		<div className="TeamMemberContainer">
 			<div className="inviteMemberComponent">
@@ -198,6 +297,8 @@ const TeamSettings = () => {
 					handleChnage={handleChnage}
 					info={info}
 					handleSubmit={handleSubmit}
+					sendRequestList={sendRequestList}
+					setsendRequestList={setsendRequestList}
 				/>
 			</div>
 

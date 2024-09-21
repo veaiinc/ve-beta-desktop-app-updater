@@ -15,7 +15,7 @@ const ClientPortalComponent = () => {
 					<div className="ClientViewContainer"></div>
 
 					<div className="optionsContainer">
-						<h3>Choose Customise Theme</h3>
+						<h3>Choose Theme</h3>
 
 						<div className="themesList">
 							<div className="singleTheme"></div>

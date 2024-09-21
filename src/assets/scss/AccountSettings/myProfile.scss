@@ -12,6 +12,7 @@
 	height: inherit;
 	width: 100%;
 	color: white;
+
 	.settingsContainer {
 		display: flex;
 		flex-direction: column;
@@ -124,6 +125,15 @@
 						}
 					}
 				}
+
+				.errorMessage {
+					color: #cc5756;
+					font-family: Inter;
+					font-size: 0.6875rem;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 1rem;
+				}
 			}
 
 			.profileBody {
@@ -172,6 +182,10 @@
 					display: flex;
 					gap: 8px;
 
+					> div {
+						width: 100%;
+					}
+
 					.phoneDiv {
 						justify-content: start;
 						.PhoneInputInput,
@@ -205,6 +219,7 @@
 					border: 1px solid #1c1c1c;
 					background: #1c1c1c;
 					margin-right: 13px;
+					cursor: pointer;
 				}
 				.activeButton {
 					border: 1px solid #6055ec;

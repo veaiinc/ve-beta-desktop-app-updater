@@ -2,6 +2,7 @@ import ReusableButtonSettings from '../ReusableButtonSettings';
 import { BrandingColorPopUp } from '../popups/BrandingPopups';
 import { BrandColorList } from '../../../features/settings/indexConstant';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/workspaceSettings/plus-button.svg';
+import ColorPicker from '../../colorPicker/ColorPicker';
 
 const BrandColorComponent = ({ setbrandState, brandState, handleSelectedColor }) => {
 	return (
@@ -10,7 +11,7 @@ const BrandColorComponent = ({ setbrandState, brandState, handleSelectedColor })
 				<h1>Branding</h1>
 			</div>
 			<div className="brandColorContainer">
-				{BrandColorList.map((singleColor) => (
+				{brandState?.brandingThemes?.map((singleColor) => (
 					<div className="chooseBrandColor" key={singleColor.label}>
 						<div
 							className="circleColor"
@@ -19,13 +20,13 @@ const BrandColorComponent = ({ setbrandState, brandState, handleSelectedColor })
 						<p className="hashColor">{singleColor.value}</p>
 					</div>
 				))}
-				<div className="chooseBrandColor">
+				{/* <div className="chooseBrandColor">
 					<div
 						className="circleColor"
 						style={{ background: `${brandState?.brandColor}` }}
 					></div>
 					<p className="hashColor">{brandState?.brandColor}</p>
-				</div>
+				</div> */}
 			</div>
 
 			<div>
@@ -38,11 +39,11 @@ const BrandColorComponent = ({ setbrandState, brandState, handleSelectedColor })
 			</div>
 
 			{brandState.brandingPopup && (
-				<BrandingColorPopUp
-					handleClose={() => setbrandState((prev) => ({ ...prev, brandingPopup: false }))}
-					show={brandState.brandingPopup}
-					value={brandState.brandColor}
-					selectedColor={handleSelectedColor}
+				<ColorPicker
+					closeModal={() => setbrandState((prev) => ({ ...prev, brandingPopup: false }))}
+					isOpen={brandState.brandingPopup}
+					colorValue={brandState.brandColor}
+					getSelectedColorFunc={handleSelectedColor}
 				/>
 			)}
 		</>

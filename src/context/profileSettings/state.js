@@ -131,6 +131,24 @@ export const ProfileState = () => {
 			console.log('error==>updateUserDetails', error);
 		}
 	};
+
+	// added api
+	const updateUserPhoneNumber = async (payload) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let decoded = jwt_decode(usertoken);
+			console.log(decoded);
+			let response = service.fetchPut(
+				'/' + decoded.user_id + API.TENANTS.updateTenantUser,
+				payload,
+				usertoken,
+				'tenant-users',
+			);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
 	const getUserWorkSpaceList = async () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -248,6 +266,7 @@ export const ProfileState = () => {
 		get2FAQrCode,
 		set2FASettings,
 		updateUserDetails,
+		updateUserPhoneNumber,
 		getUserWorkSpaceList,
 		updatePassword,
 		chooseDefaultWorkspace,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import jwt_decode from 'jwt-decode';
 import '../../../assets/scss/AccountSettings/myProfile.scss';
 import Context from '../../../context/context';
@@ -13,23 +13,22 @@ import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWork
 const MyProfile = () => {
 	const {
 		profileInfo: {
-			getTenantSettings,
-			getUserDetails,
-			getTenantUserDetails,
 			get2FAQrCode,
 			set2FASettings,
 			userDetailsData,
 			updateUserDetails,
+			updateUserPhoneNumber,
 			qrcode,
-			getUserWorkSpaceList,
 			userWorkSpaceList,
 			chooseDefaultWorkspace,
-			tennantSettingsData,
 			updateUserLogo,
+			getTenantUserDetails,
+			tenantUserDetails,
 		},
+		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
 	} = useContext(Context);
 	const [showForm, setShowForm] = useState(false);
-	const [isEditMode, setIsEditMode] = useState(false);
+	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [errors, setErrors] = useState({});
 	const [activeTheme, setActiveTheme] = useState('light');
 	const [activeWorkspace, setActiveWorkspace] = useState(null);
@@ -55,6 +54,15 @@ const MyProfile = () => {
 	}, [userWorkSpaceList]);
 
 	useEffect(() => {
+		if (!tenantPreferenceData) {
+			getTenantPreferences();
+		}
+		if (!tenantUserDetails) {
+			getTenantUserDetails();
+		}
+	}, []);
+
+	useEffect(() => {
 		if (userDetailsData) {
 			setUserDetails((prev) => ({
 				...prev,
@@ -66,6 +74,13 @@ const MyProfile = () => {
 			}));
 		}
 	}, [userDetailsData]);
+
+	useEffect(() => {
+		if (tenantPreferenceData) {
+			setActiveTheme(tenantPreferenceData?.theme);
+		}
+	}, [tenantPreferenceData?.theme]);
+
 	useEffect(() => {
 		if (userDetails.is2FAEnabled) {
 			get2FAQrCode();
@@ -73,52 +88,36 @@ const MyProfile = () => {
 	}, [userDetails.is2FAEnabled]);
 
 	useEffect(() => {
-		fetchData();
-	}, []);
-
-	useEffect(() => {
-		const timeOut = setTimeout(() => {
-			if (userDetails?.fullName && isEditMode) {
-				handleSubmit();
-			}
-		}, 800);
-
-		return () => {
-			clearTimeout(timeOut);
-		};
+		if (userDetails?.fullName) {
+			handleDebounceSearch('name');
+		}
 	}, [userDetails?.fullName]);
 
-	// const handleDebounceSearch = useCallback(() => {
-	// 	clearInterval(info?.timeout);
-	// 	const timeout = setTimeout(() => {
-	// 		if (userDetails?.fullName && isEditMode) {
-	// 			handleSubmit();
-	// 		}
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			timeout: null,
-	// 		}));
-	// 	}, 800);
-	// 	setInfo((prev) => ({ ...prev, timeout }));
-	// }, [info?.timeout, info?.searchValue, info?.searchValueChanged]);
+	useEffect(() => {
+		if (userDetails?.phoneNumber) {
+			handleDebounceSearch('phone');
+		}
+	}, [userDetails?.phoneNumber]);
 
-	const fetchData = async () => {
-		let usertoken = localStorage.getItem('usertoken');
-		let decoded = jwt_decode(usertoken);
-		let workspaceID = localStorage.getItem('workspaceId');
-		let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded.user_id}`));
-		setIsAdmin(role === 'admin');
-		if (!tennantSettingsData) {
-			getTenantSettings();
-		}
-		if (!userDetailsData) {
-			getUserDetails();
-		}
-		if (!userWorkSpaceList) {
-			getUserWorkSpaceList();
-		}
-		getTenantUserDetails();
-	};
+	const handleDebounceSearch = useCallback(
+		(typeCall = '') => {
+			clearInterval(isEditMode?.timeout);
+			const timeout = setTimeout(() => {
+				if (userDetails?.fullName && isEditMode?.isValueChanged && typeCall === 'name') {
+					handleSubmit(typeCall);
+				} else if (
+					userDetails?.phoneNumber &&
+					isEditMode?.isValueChanged &&
+					typeCall === 'phone'
+				) {
+					handleSubmit(typeCall);
+				}
+				setIsEditMode((prev) => ({ ...prev, timeout: null }));
+			}, 1500);
+			setIsEditMode((prev) => ({ ...prev, timeout }));
+		},
+		[isEditMode?.timeout, userDetails?.fullName],
+	);
 
 	const handleFormPopUp = () => {
 		setShowForm(true);
@@ -170,7 +169,8 @@ const MyProfile = () => {
 	};
 
 	const handleChange = (e) => {
-		if (!isEditMode) setIsEditMode(true);
+		if (!isEditMode?.isValueChanged)
+			setIsEditMode((prev) => ({ ...prev, isValueChanged: true }));
 		const { name, value } = e.target;
 		setUserDetails((prevDetails) => ({
 			...prevDetails,
@@ -211,15 +211,29 @@ const MyProfile = () => {
 		return Object.keys(newErrors).length === 0;
 	};
 
-	const handleSubmit = () => {
-		if (validate()) {
-			setIsEditMode(false);
+	const handleSubmit = (nameApi = 'name') => {
+		if (!validate()) return;
+
+		if (nameApi === 'name') {
+			let json = {
+				firstName: userDetails.fullName,
+				lastName: userDetails.fullName,
+			};
+			updateUserDetails(json);
+		} else if (nameApi === 'phone') {
+			let json = {
+				phoneNumber: userDetails?.phoneNumber,
+			};
+			updateUserPhoneNumber(json);
 		}
-		let json = {
-			firstName: userDetails.fullName,
-			lastName: userDetails.fullName,
+	};
+
+	const updateThemeSubmitHandler = (mode) => {
+		const json = {
+			theme: mode,
 		};
-		updateUserDetails(json);
+		setActiveTheme(mode);
+		updatePrefernces(json);
 	};
 
 	return (
@@ -237,13 +251,14 @@ const MyProfile = () => {
 						showForm={showForm}
 						handleImageChange={handleImageChange}
 						handlePopupFormClose={handlePopupFormClose}
+						role={tenantUserDetails?.role === 'admin' ? 'Admin' : 'Member'}
 					/>
 				</div>
 
 				{/* Theme Preference */}
 				<div className="settingsTheme activeBackgroundColor" id="theme">
 					<ThemePreferenceComponent
-						setActiveTheme={setActiveTheme}
+						updateThemeSubmitHandler={updateThemeSubmitHandler}
 						activeTheme={activeTheme}
 					/>
 				</div>
