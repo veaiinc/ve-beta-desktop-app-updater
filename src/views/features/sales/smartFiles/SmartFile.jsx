@@ -295,7 +295,6 @@ const SmartFile = () => {
 
 	const handleWorkspaceLogoExistence = useCallback(async () => {
 		if (userWorkSpaceList) {
-			console.log('I reached There');
 			const workspaceId = localStorage.getItem('workspaceId');
 			let logoExist = false;
 			for (let i = 0; i < userWorkSpaceList?.length; i++) {
@@ -319,7 +318,7 @@ const SmartFile = () => {
 		const workspaceId = localStorage.getItem('workspaceId');
 		const usertoken = localStorage.getItem('usertoken');
 		const region = localStorage.getItem('region');
-		window.location.href = `https://${workspaceId}.ve.ai/portal/${info?.workflowData?.slug}?region=${region}&usertoken=${usertoken}`;
+		window.location.href = `https://${workspaceId}.ve.ai/portal/${info?.workflowData?.slug}/${region}/${usertoken}`;
 	}, [info?.workflowData]);
 
 	return info?.loading ? (
