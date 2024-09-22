@@ -1,3 +1,4 @@
+import React, { memo } from 'react';
 import ToggleSlider from '../../../components/input/slider';
 
 // two factor authentication component
@@ -55,4 +56,4 @@ const TwoFactorAuthenticationComponent = ({ toggleEnable, userDetails, qrcode })
 	);
 };
 
-export default TwoFactorAuthenticationComponent;
+export default memo(TwoFactorAuthenticationComponent);

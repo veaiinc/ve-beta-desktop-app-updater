@@ -3,6 +3,7 @@ import { BrandingColorPopUp } from '../popups/BrandingPopups';
 import { BrandColorList } from '../../../features/settings/indexConstant';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/workspaceSettings/plus-button.svg';
 import ColorPicker from '../../colorPicker/ColorPicker';
+import { memo } from 'react';
 
 const BrandColorComponent = ({ setbrandState, brandState, handleSelectedColor }) => {
 	return (
@@ -12,12 +13,12 @@ const BrandColorComponent = ({ setbrandState, brandState, handleSelectedColor })
 			</div>
 			<div className="brandColorContainer">
 				{brandState?.brandingThemes?.map((singleColor) => (
-					<div className="chooseBrandColor" key={singleColor.label}>
+					<div className="chooseBrandColor" key={singleColor?.label}>
 						<div
 							className="circleColor"
-							style={{ background: `${singleColor.value}` }}
+							style={{ background: `${singleColor?.value || ''}` }}
 						></div>
-						<p className="hashColor">{singleColor.value}</p>
+						<p className="hashColor">{singleColor?.value}</p>
 					</div>
 				))}
 				{/* <div className="chooseBrandColor">
@@ -41,8 +42,8 @@ const BrandColorComponent = ({ setbrandState, brandState, handleSelectedColor })
 			{brandState.brandingPopup && (
 				<ColorPicker
 					closeModal={() => setbrandState((prev) => ({ ...prev, brandingPopup: false }))}
-					isOpen={brandState.brandingPopup}
-					colorValue={brandState.brandColor}
+					isOpen={brandState?.brandingPopup}
+					colorValue={brandState?.brandColor}
 					getSelectedColorFunc={handleSelectedColor}
 				/>
 			)}
@@ -50,4 +51,4 @@ const BrandColorComponent = ({ setbrandState, brandState, handleSelectedColor })
 	);
 };
 
-export default BrandColorComponent;
+export default memo(BrandColorComponent);

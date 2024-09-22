@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ThemesList } from '../../../features/settings/indexConstant';
+import ClientPortalView from './ClientPortalView';
 
 const ClientPortalComponent = () => {
 	const [selectedTheme, setselectedTheme] = useState('theme1');
@@ -12,14 +13,24 @@ const ClientPortalComponent = () => {
 				</div>
 
 				<div className="containerBody">
-					<div className="ClientViewContainer"></div>
+					<div className="ClientViewContainer">
+						<ClientPortalView />
+					</div>
 
 					<div className="optionsContainer">
 						<h3>Choose Theme</h3>
 
 						<div className="themesList">
-							<div className="singleTheme"></div>
-							<div className="singleTheme"></div>
+							{ThemesList?.map((singleTheme) => (
+								<div
+									className="singleTheme"
+									onClick={() => setselectedTheme(singleTheme?.id)}
+								>
+									<img src={singleTheme?.imageUrl} alt="" />
+								</div>
+							))}
+
+							{/* <div className="singleTheme"></div> */}
 						</div>
 
 						<div className="lineDiv"></div>

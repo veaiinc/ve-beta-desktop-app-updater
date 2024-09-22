@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, memo } from 'react';
 import '../../../assets/scss/CompanySettings/planBilling.scss';
 import ProgressBar from '../../components/settings/ProgressBar';
 import moment from 'moment';
@@ -129,4 +129,4 @@ const PlanBilling = () => {
 	);
 };
 
-export default PlanBilling;
+export default memo(PlanBilling);

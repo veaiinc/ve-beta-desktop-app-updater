@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, memo } from 'react';
 import '../../../assets/scss/AccountSettings/teamMembers.scss';
 import _ from 'lodash';
 import Modal from '../../components/modalsV2/index';
@@ -12,7 +12,13 @@ import TeamAccessListComponent from '../../components/settings/team/TeamAccessLi
 const TeamSettings = () => {
 	const {
 		profileInfo: { getTenantUserDetails, tenantUserDetails },
-		companyInfo: { getTeamMembers, tenantsUserList, inviteUserRes },
+		companyInfo: {
+			getTeamMembers,
+			tenantsUserList,
+			inviteUserRes,
+			inviteNewuser,
+			updateTenantRole,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -32,11 +38,23 @@ const TeamSettings = () => {
 		selectedUserRole: '',
 		showDeactivate: '',
 		showDeleteInvite: '',
+		buttonLoading: false,
 	});
 
 	const [sendRequestList, setsendRequestList] = useState([
-		{ email: '', userRole: 'admin', emailID: '', emailIDError: false, emailIDMessage: '' },
+		{
+			email: '',
+			userRole: 'admin',
+			emailIDError: false,
+			emailIDMessage: '',
+			successTrue: false,
+		},
 	]);
+
+	const [selectedOption, setselectedOption] = useState({
+		tenantid: '',
+		role: '',
+	});
 
 	useEffect(() => {
 		fetchData();
@@ -71,12 +89,11 @@ const TeamSettings = () => {
 		}
 	}, [tenantUserDetails]);
 
-	useEffect(() => {
-		console.log(inviteUserRes, 'this is called');
-		if (inviteUserRes === 'success') {
-			getTeamMembers();
-		}
-	}, [inviteUserRes]);
+	// useEffect(() => {
+	// 	if (inviteUserRes === 'success') {
+	// 		getTeamMembers();
+	// 	}
+	// }, [inviteUserRes]);
 
 	const handleChnage = (e, index) => {
 		const { name, value } = e.target;
@@ -205,7 +222,6 @@ const TeamSettings = () => {
 
 	const validateUsersEmails = (email, index) => {
 		const update = [...sendRequestList];
-		console.log(update);
 		if (email === null || email === '') {
 			update[index]['emailIDError'] = true;
 			update[index]['emailIDMessage'] = 'Required Field!';
@@ -275,6 +291,7 @@ const TeamSettings = () => {
 	};
 
 	const handleSubmit = () => {
+		setInfo((prev) => ({ ...prev, buttonLoading: true }));
 		const isEmailsCorrect = _.map(sendRequestList, (singleUser, index) =>
 			validateUsersEmails(singleUser.email, index),
 		);
@@ -288,6 +305,35 @@ const TeamSettings = () => {
 		if (!_.every(isUsersValidate)) return;
 
 		const dataRoles = mapUsersRoleBased();
+
+		const promises = dataRoles?.map((payload, index) => () => inviteNewuser(payload));
+
+		Promise.all(promises.map((fn) => fn()))
+			.then((results) => {
+				const update = [...sendRequestList];
+				results?.map((singleResult, index) => {
+					console.log(singleResult[0]);
+					if (!_.isBoolean(singleResult[0]) && singleResult[0] !== true) {
+						update[index].emailIDError = true;
+						update[index].emailIDMessage = singleResult[1]?.message;
+					} else {
+						update[index].emailIDError = false;
+						update[index].successTrue = true;
+						update[index].emailIDMessage = 'invitation mail send successfully';
+					}
+					setsendRequestList(update);
+					getTeamMembers();
+					setInfo((prev) => ({ ...prev, buttonLoading: false }));
+				});
+			})
+			.catch((error) => {
+				console.error(error); // handle any errors that occur
+			});
+	};
+
+	const updateTenantRoleFunc = (_id, role) => {
+		updateTenantRole({ _id, role });
+		setselectedOption({ tenantid: '', role: '' });
 	};
 
 	return (
@@ -302,12 +348,15 @@ const TeamSettings = () => {
 				/>
 			</div>
 
-			<div className="yourTeamContainer">
+			<div className="yourTeamComponent">
 				<TeamAccessListComponent
 					search={search}
 					handleInputChange={handleInputChange}
 					info={info}
 					filteredUsers={filteredUsers}
+					selectedOption={selectedOption}
+					setselectedOption={setselectedOption}
+					updateTenantRoleFunc={updateTenantRoleFunc}
 				/>
 			</div>
 			<Modal closeModal={showAddTenantUserModal} isOpen={info.showAddTenantUserModal}>
@@ -326,4 +375,4 @@ const TeamSettings = () => {
 	);
 };
 
-export default TeamSettings;
+export default memo(TeamSettings);

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, memo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import SettingsPageSideBar from './SettingsPageSideBar';
 import '../../../assets/scss/AccountSettings/SettingsWrapper.scss';
@@ -52,4 +52,4 @@ const SettingsWrapper = (props) => {
 	);
 };
 
-export default SettingsWrapper;
+export default memo(SettingsWrapper);

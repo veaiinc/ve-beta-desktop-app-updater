@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../assets/scss/AccountSettings/settingsPageSidebar.scss';
 import { useNavigate } from 'react-router-dom';
 import { menuItems } from './indexConstant';
@@ -34,4 +34,4 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 	);
 };
 
-export default SettingsPageSideBar;
+export default memo(SettingsPageSideBar);

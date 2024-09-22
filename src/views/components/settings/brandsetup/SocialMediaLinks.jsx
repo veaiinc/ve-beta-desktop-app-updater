@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import InstagramLogoColorless from '../../../../assets/svg/workspaceSettings/InstagramLogoColorless.svg';
 import FacebookLogoColorless from '../../../../assets/svg/workspaceSettings/FacebookLogoColorless.svg';
 import PinterestLogoColorless from '../../../../assets/svg/workspaceSettings/PinterestLogoColorless.svg';
@@ -55,7 +55,7 @@ const SocialMediaLinksComponent = ({
 						brandState?.[`${logoName}Profile`] === 'active' ||
 						false;
 
-					const logoToDisplay = isActive ? logoData.active : logoData.inactive;
+					const logoToDisplay = isActive ? logoData?.active : logoData?.inactive;
 
 					return (
 						<div
@@ -83,11 +83,11 @@ const SocialMediaLinksComponent = ({
 							brandingMediaPopup: false,
 						}))
 					}
-					show={brandState.brandingMediaPopup}
-					logo={brandState.socialMediaType}
-					name={brandState.socialMediaType + 'Profile'}
+					show={brandState?.brandingMediaPopup}
+					logo={brandState?.socialMediaType}
+					name={brandState?.socialMediaType + 'Profile'}
 					onChangeFunc={handleChange}
-					value={brandState?.[brandState.socialMediaType + 'Profile']}
+					value={brandState?.[brandState?.socialMediaType + 'Profile']}
 					handleActivate={handleActivateLogo}
 				/>
 			)}
@@ -95,4 +95,4 @@ const SocialMediaLinksComponent = ({
 	);
 };
 
-export default SocialMediaLinksComponent;
+export default memo(SocialMediaLinksComponent);

@@ -1,6 +1,7 @@
 import ReusableButtonSettings from '../ReusableButtonSettings';
 import { FontList } from '../../../features/settings/indexConstant';
 import { ChangeFontPopup } from '../popups/BrandingPopups';
+import { memo } from 'react';
 
 //  brand fonts component
 const BrandFontsComponent = ({ setbrandState, brandState }) => {
@@ -16,13 +17,13 @@ const BrandFontsComponent = ({ setbrandState, brandState }) => {
 						<div className="singleListDiv">
 							<div
 								style={{
-									fontFamily: `${font.name}`,
+									fontFamily: `${font?.name}`,
 								}}
 								className="fontName"
 							>
-								{font.name}
+								{font?.name}
 							</div>
-							<div className="fontType">{font.type}</div>
+							<div className="fontType">{font?.type}</div>
 						</div>
 
 						<div
@@ -43,14 +44,14 @@ const BrandFontsComponent = ({ setbrandState, brandState }) => {
 				/>
 			</div>
 
-			{brandState.fontPopup && (
+			{brandState?.fontPopup && (
 				<ChangeFontPopup
 					handleClose={() => setbrandState((prev) => ({ ...prev, fontPopup: false }))}
-					show={brandState.fontPopup}
+					show={brandState?.fontPopup}
 				/>
 			)}
 		</>
 	);
 };
 
-export default BrandFontsComponent;
+export default memo(BrandFontsComponent);

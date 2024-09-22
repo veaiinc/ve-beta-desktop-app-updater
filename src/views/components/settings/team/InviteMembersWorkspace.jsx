@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/close.svg';
 import ReusableButtonSettings from '../ReusableButtonSettings';
 
@@ -91,6 +91,19 @@ const InviteMembersWorkspaceComponent = ({
 								{singleUser.emailIDMessage}
 							</p>
 						)}
+
+						{singleUser.successTrue && (
+							<p
+								style={{
+									color: 'green',
+									fontSize: '11px',
+									fontFamily: 'Inter',
+									marginLeft: '10px',
+								}}
+							>
+								{singleUser.emailIDMessage}
+							</p>
+						)}
 					</div>
 				);
 			})}
@@ -98,18 +111,19 @@ const InviteMembersWorkspaceComponent = ({
 			<div className="buttonsContainer">
 				<div
 					className="addmore"
-					onClick={() =>
+					onClick={() => {
+						if (info?.buttonLoading) return;
 						setsendRequestList((prev) => [
 							...prev,
 							{
 								email: '',
 								userRole: 'admin',
-								emailID: '',
 								emailIDError: '',
 								emailIDMessage: '',
+								successTrue: false,
 							},
-						])
-					}
+						]);
+					}}
 				>
 					<span>
 						<PlusSvg />
@@ -124,4 +138,4 @@ const InviteMembersWorkspaceComponent = ({
 	);
 };
 
-export default InviteMembersWorkspaceComponent;
+export default memo(InviteMembersWorkspaceComponent);

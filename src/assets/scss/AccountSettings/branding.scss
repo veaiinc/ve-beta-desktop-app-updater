@@ -123,8 +123,15 @@
 						width: 48px;
 						height: 48px;
 						border-radius: 8px;
-						border: 2px solid #0057ff;
-						background-color: green;
+						cursor: pointer;
+						// border: 2px solid #0057ff;
+						// background-color: green;
+
+						img {
+							width: inherit;
+							height: inherit;
+							border-radius: inherit;
+						}
 					}
 				}
 

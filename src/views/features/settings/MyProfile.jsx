@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
-import jwt_decode from 'jwt-decode';
+import React, { useState, useEffect, useContext, useCallback, memo } from 'react';
 import '../../../assets/scss/AccountSettings/myProfile.scss';
 import Context from '../../../context/context';
-// import { collapseToast, useToast } from 'react-toastify';
 import validator from 'validator';
 import ProfileDetailsComponent from '../../components/settings/profile/ProfileDetails';
 import ThemePreferenceComponent from '../../components/settings/profile/ThemePreference';
@@ -30,7 +28,7 @@ const MyProfile = () => {
 	const [showForm, setShowForm] = useState(false);
 	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [errors, setErrors] = useState({});
-	const [activeTheme, setActiveTheme] = useState('light');
+	const [activeTheme, setActiveTheme] = useState('dark');
 	const [activeWorkspace, setActiveWorkspace] = useState(null);
 	const [userDetails, setUserDetails] = useState({
 		fullName: '',
@@ -285,4 +283,4 @@ const MyProfile = () => {
 	);
 };
 
-export default MyProfile;
+export default memo(MyProfile);

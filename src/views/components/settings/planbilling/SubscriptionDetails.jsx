@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { ReactComponent as FlowArrowSvg } from '../../../../assets/svg/Settings/FlowArrow.svg';
 import { ReactComponent as TableSvg } from '../../../../assets/svg/Settings/Table.svg';
 import { ReactComponent as ImagesSvg } from '../../../../assets/svg/Settings/Images.svg';
@@ -59,4 +59,4 @@ const SubscriptionDetailsComponent = () => {
 	);
 };
 
-export default SubscriptionDetailsComponent;
+export default memo(SubscriptionDetailsComponent);

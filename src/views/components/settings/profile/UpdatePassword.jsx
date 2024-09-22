@@ -1,3 +1,4 @@
+import React, { memo } from 'react';
 import ReusableButtonSettings from '../ReusableButtonSettings';
 
 // update password component
@@ -20,4 +21,4 @@ const UpdatePasswordComponent = ({ handleFormPopUp }) => {
 	);
 };
 
-export default UpdatePasswordComponent;
+export default memo(UpdatePasswordComponent);

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, memo } from 'react';
 import '../../../assets/scss/AccountSettings/branding.scss';
 import validator from 'validator';
 import Context from '../../../context/context';
@@ -186,4 +186,4 @@ const BrandingSetup = () => {
 	);
 };
 
-export default BrandingSetup;
+export default memo(BrandingSetup);

@@ -1,8 +1,37 @@
-import React from 'react';
+import React, { memo } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { getInitials } from '../../../features/profile_settings/getInitials';
+import { ReactComponent as TickSvg } from '../../../../assets/svg/tick.svg';
+import { ReactComponent as DownArrow } from '../../../../assets/svg/Settings/Downarrowwhite.svg';
+import { useState } from 'react';
 
-const TeamAccessListComponent = ({ search, handleInputChange, info, filteredUsers }) => {
+const TeamAccessListComponent = ({
+	search,
+	handleInputChange,
+	info,
+	filteredUsers,
+	selectedOption,
+	setselectedOption,
+	updateTenantRoleFunc,
+}) => {
+	console.log(filteredUsers);
+
+	const toggleOption = (_id, role) => {
+		setselectedOption({
+			tenantid: selectedOption?.tenantid ? '' : _id,
+			role: selectedOption?.role ? '' : role,
+		});
+	};
+
+	const updateUserRoleFunction = (role) => {
+		setselectedOption((prev) => ({
+			...prev,
+			role: 'admin',
+		}));
+
+		updateTenantRoleFunc(selectedOption?.tenantid, role);
+	};
+
 	return (
 		<>
 			<div className="yourTeamTitle">
@@ -49,8 +78,40 @@ const TeamAccessListComponent = ({ search, handleInputChange, info, filteredUser
 										<p className="owner">Owner</p>
 									) : (
 										<div className="editAccessControl">
-											{/* <p className="Edit">Edit Access</p> */}
-											<p className="role">Admin</p>
+											<div
+												className="optionDiv"
+												onClick={() => toggleOption(user?._id, user?.role)}
+											>
+												<p>{user?.role}</p>
+												<DownArrow />
+											</div>
+
+											{selectedOption?.tenantid === user?._id && (
+												<div className="allListContainer">
+													<div
+														className="option"
+														onClick={() =>
+															updateUserRoleFunction('admin')
+														}
+													>
+														<p>Admin</p>{' '}
+														{selectedOption?.role === 'admin' && (
+															<TickSvg />
+														)}{' '}
+													</div>
+													<div
+														className="option"
+														onClick={() =>
+															updateUserRoleFunction('default')
+														}
+													>
+														<p>Member</p>{' '}
+														{selectedOption?.role === 'default' && (
+															<TickSvg />
+														)}{' '}
+													</div>
+												</div>
+											)}
 										</div>
 									)}
 								</div>
@@ -60,11 +121,11 @@ const TeamAccessListComponent = ({ search, handleInputChange, info, filteredUser
 				</div>
 				<div>
 					{info.isloading ? (
-						<div>
-							<Skeleton height={66} />
-							<Skeleton height={66} />
-							<Skeleton height={66} />
-							<Skeleton height={66} />
+						<div className="skeletonDiv">
+							<Skeleton height={52} />
+							<Skeleton height={52} />
+							<Skeleton height={52} />
+							<Skeleton height={52} />
 						</div>
 					) : (
 						' '
@@ -75,4 +136,4 @@ const TeamAccessListComponent = ({ search, handleInputChange, info, filteredUser
 	);
 };
 
-export default TeamAccessListComponent;
+export default memo(TeamAccessListComponent);

@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useCallback, useState } from 'react';
+import React, { useEffect, useContext, useCallback, useState, memo } from 'react';
 import google from '../../../assets/images/companySettings/google.svg';
 import meta from '../../../assets/images/companySettings/meta.svg';
 import stripe from '../../../assets/images/companySettings/stripe.svg';
@@ -160,4 +160,4 @@ const Integrations = () => {
 	);
 };
 
-export default Integrations;
+export default memo(Integrations);

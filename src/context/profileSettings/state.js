@@ -255,6 +255,23 @@ export const ProfileState = () => {
 			console.log('error==>updateUserLogo', error);
 		}
 	};
+
+	const updateWorkSpaceId = async (json) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+
+			const responseData = await service.fetchPut(
+				'/' + workspaceId + '/add-workspaceId ',
+				json,
+				usertoken,
+				'tenant',
+			);
+		} catch (error) {
+			console.log('error', error);
+		}
+	};
+
 	const resetProfileSettingsState = async () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -274,5 +291,6 @@ export const ProfileState = () => {
 		updateBusniessName,
 		updateUserLogo,
 		resetProfileSettingsState,
+		updateWorkSpaceId,
 	};
 };

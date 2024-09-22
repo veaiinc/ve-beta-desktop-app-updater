@@ -1,10 +1,11 @@
+import React, { memo } from 'react';
 // theme preference component
 const ThemePreferenceComponent = ({ updateThemeSubmitHandler, activeTheme }) => {
 	return (
 		<div className={'themeMain'}>
 			<h4>Theme performance</h4>
 			<div>
-				<button
+				{/* <button
 					className={activeTheme === 'system' ? 'activeButton' : ''}
 					onClick={() => updateThemeSubmitHandler('system')}
 				>
@@ -15,10 +16,11 @@ const ThemePreferenceComponent = ({ updateThemeSubmitHandler, activeTheme }) => 
 					onClick={() => updateThemeSubmitHandler('light')}
 				>
 					Light
-				</button>
+				</button> */}
 				<button
 					className={activeTheme === 'dark' ? 'activeButton' : ''}
 					onClick={() => updateThemeSubmitHandler('dark')}
+					disabled={activeTheme === 'dark' ? true : false}
 				>
 					Dark
 				</button>
@@ -27,4 +29,4 @@ const ThemePreferenceComponent = ({ updateThemeSubmitHandler, activeTheme }) => 
 	);
 };
 
-export default ThemePreferenceComponent;
+export default memo(ThemePreferenceComponent);

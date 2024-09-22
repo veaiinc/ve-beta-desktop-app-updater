@@ -1,3 +1,5 @@
+import React, { memo } from 'react';
+
 const LeaveWorkspaceComponent = () => {
 	return (
 		<div className={'accessContainer'}>
@@ -11,4 +13,4 @@ const LeaveWorkspaceComponent = () => {
 		</div>
 	);
 };
-export default LeaveWorkspaceComponent;
+export default memo(LeaveWorkspaceComponent);

@@ -177,21 +177,52 @@ export const CompanySettingsState = () => {
 			console.log('error => uploadTenantLogo ', error);
 		}
 	};
+	// const inviteNewuser = async (payload) => {
+	// 	try {
+	// 		let usertoken = localStorage.getItem('usertoken');
+	// 		let workspaceId = localStorage.getItem('workspaceId');
+	// 		const response = await service.fetchPost(
+	// 			'/tenant/' + workspaceId + API.TENANTS.tenantUsers,
+	// 			payload,
+	// 			usertoken,
+	// 			'auth',
+	// 		);
+	// 		if (response?.[0] === true) {
+	// 			getTeamMembers();
+	// 		}
+	// 	} catch (error) {
+	// 		console.log('error => inviteNewuser ', error);
+	// 	}
+	// };
 	const inviteNewuser = async (payload) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			const response = await service.fetchPost(
+			return await service.fetchPost(
 				'/tenant/' + workspaceId + API.TENANTS.tenantUsers,
 				payload,
 				usertoken,
 				'auth',
 			);
-			if (response?.[0] === true) {
-				getTeamMembers();
-			}
 		} catch (error) {
 			console.log('error => inviteNewuser ', error);
+			throw error;
+		}
+	};
+
+	const updateTenantRole = async (payload) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			let response = await service.fetchPut(
+				'/' + workspaceId + API.TENANTS.tenantUsers + '/' + payload?._id + '/role',
+				// payload?.role,
+				{ role: payload?.role },
+				usertoken,
+				'tenant',
+			);
+		} catch (error) {
+			console.log('error => updateTenantBusinessName ', error);
 		}
 	};
 	const resetCompanySettings = async () => {
@@ -216,5 +247,6 @@ export const CompanySettingsState = () => {
 		uploadTenantLogo,
 		resetCompanySettings,
 		inviteNewuser,
+		updateTenantRole,
 	};
 };

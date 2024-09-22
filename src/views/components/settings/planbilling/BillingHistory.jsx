@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { ReactComponent as DownloadSvg } from '../../../../assets/svg/Settings/Download.svg';
 
 const DataList = [
@@ -87,4 +87,4 @@ const BillingHistoryComponent = () => {
 	);
 };
 
-export default BillingHistoryComponent;
+export default memo(BillingHistoryComponent);
