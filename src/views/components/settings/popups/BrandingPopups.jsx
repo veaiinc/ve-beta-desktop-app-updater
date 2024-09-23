@@ -5,6 +5,7 @@ import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSet
 import Context from '../../../../context/context';
 import Modal from '../../../components/modalsV2/index';
 import Dropzone from 'react-dropzone';
+import ColorPicker from '../../colorPicker/ColorPicker';
 
 export const SocialMediaPopup = (props) => {
 	const {
@@ -207,10 +208,10 @@ export const BrandingColorPopUp = (props) => {
 			<div
 				style={{
 					backgroundColor: '#151515',
-					width: '480px',
+					width: '302px',
 					maxHeight: '350px',
 					borderRadius: '40px',
-					padding: '32px 24px 0 24px',
+					// padding: '32px 24px 0 24px',
 				}}
 			>
 				<div
@@ -233,6 +234,9 @@ export const BrandingColorPopUp = (props) => {
 					<span style={{ cursor: 'pointer' }} onClick={props.handleClose}>
 						<CrossIcon />
 					</span>
+				</div>
+				<div style={{ border: 'green' }}>
+					<ColorPicker />
 				</div>
 				<div style={{ width: '100%', padding: '24px 0 0 0' }}>
 					<div

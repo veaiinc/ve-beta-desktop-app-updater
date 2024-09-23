@@ -110,7 +110,7 @@
 		}
 	}
 
-	.yourTeamContainer {
+	.yourTeamComponent {
 		padding: 32px;
 		border-radius: 40px;
 		background: rgba(29, 29, 35, 0.24);
@@ -135,6 +135,8 @@
 				gap: 10px;
 				border-radius: 50px;
 				border: 0.5px solid #333;
+				width: 232px;
+
 				input {
 					background: none;
 					border: none;
@@ -146,6 +148,7 @@
 				}
 			}
 		}
+
 		.tenantDetailsContainer {
 			display: flex;
 			justify-content: space-between;
@@ -202,6 +205,7 @@
 					}
 				}
 			}
+
 			.AccessControl {
 				.owner {
 					border-radius: 4px;
@@ -223,36 +227,70 @@
 					gap: 24px;
 					align-items: center;
 					justify-content: center;
-					.Edit {
+					position: relative;
+
+					.optionDiv {
 						display: flex;
-						padding: 9px 12px;
+						gap: 10px;
 						align-items: center;
-						gap: 12px;
-						border-radius: 20px;
-						border: 1px solid #6055ec;
-						color: #6055ec;
-						font-size: 14px;
-						font-weight: 400;
-						line-height: 16px;
-						letter-spacing: -0.3px;
-						&:hover {
+						p {
+							color: #e4e5e6;
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 20px; /* 142.857% */
+							text-transform: capitalize;
 							cursor: pointer;
 						}
 					}
-					.role {
-						color: #e4e5e6;
 
-						font-size: 14px;
+					.allListContainer {
+						position: absolute;
+						display: flex;
+						flex-direction: column;
+						width: 183px;
+						padding: 0;
+						justify-content: space-between;
+						align-items: center;
+						align-self: stretch;
+						background: #151515;
+						top: 29px;
+						right: 12px;
+						z-index: 10px;
+						border-radius: 15px;
+						overflow: hidden;
 
-						font-weight: 400;
-						line-height: 16px;
-						letter-spacing: -0.3px;
-						&:hover {
-							cursor: pointer;
+						.option {
+							width: 100%;
+							display: flex;
+							justify-content: space-between;
+							align-items: center;
+							padding: 16px 24px;
+							p {
+								color: #fff;
+								font-family: Inter;
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: 14px; /* 116.667% */
+							}
+
+							&:hover {
+								background-color: #2f2f2f;
+								cursor: pointer;
+							}
 						}
 					}
 				}
 			}
+		}
+
+		.skeletonDiv {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			margin-top: 10px;
 		}
 	}
 }

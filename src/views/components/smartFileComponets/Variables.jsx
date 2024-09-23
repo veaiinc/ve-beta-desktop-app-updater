@@ -17,6 +17,7 @@ const Variables = ({
 		timeout: null,
 	});
 
+	//useEffects
 	useEffect(() => {
 		if (variablesData) {
 			let data = [].concat(...Object.values(variablesData));
@@ -38,6 +39,8 @@ const Variables = ({
 		setInfo((prev) => ({ ...prev, localExpiry: expiryInDays }));
 	}, [expiryInDays]);
 
+	//function definations
+
 	const onLocalVariableDataChange = useCallback(
 		async (e, index) => {
 			let updatedData = [...(info?.data || [])];
@@ -51,30 +54,6 @@ const Variables = ({
 		},
 		[info?.data],
 	);
-
-	const onLocalVariableFocus = useCallback(
-		async (e, index) => {
-			let updatedData = [...(info?.data || [])];
-			let variableElementToBeUpdated = updatedData?.[index];
-			variableOnFocusFunc(variableElementToBeUpdated._id);
-			return;
-		},
-		[info?.data],
-	);
-
-	const onChangeLocalExpiry = useCallback(
-		async (e) => {
-			const value = e.target.value.replace(/[^0-9]/g, '');
-			if (+value === +info?.localExpiry) {
-				return;
-			}
-			setInfo((prev) => ({ ...prev, localExpiry: +value }));
-			updateExpiryInDays(+value);
-			return;
-		},
-		[expiryInDays, info?.localExpiry],
-	);
-
 	const updateDuplicatedVaribales = useCallback(
 		async (data) => {
 			clearInterval(info?.timeout);
@@ -103,6 +82,29 @@ const Variables = ({
 			setInfo((prev) => ({ ...prev, timeout }));
 		},
 		[info?.variableMapper, info?.timeout],
+	);
+
+	const onLocalVariableFocus = useCallback(
+		async (e, index) => {
+			let updatedData = [...(info?.data || [])];
+			let variableElementToBeUpdated = updatedData?.[index];
+			variableOnFocusFunc(variableElementToBeUpdated._id);
+			return;
+		},
+		[info?.data],
+	);
+
+	const onChangeLocalExpiry = useCallback(
+		async (e) => {
+			const value = e.target.value.replace(/[^0-9]/g, '');
+			if (+value === +info?.localExpiry) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, localExpiry: +value }));
+			updateExpiryInDays(+value);
+			return;
+		},
+		[expiryInDays, info?.localExpiry],
 	);
 
 	return (

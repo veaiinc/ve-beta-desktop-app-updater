@@ -67,6 +67,22 @@
 			justify-content: flex-end;
 			align-items: center;
 			gap: 14px;
+			.previewBtn {
+				display: flex;
+				padding: var(--Spacing-space-8, 16px) 24px;
+				align-items: center;
+				gap: var(--Spacing-space-8, 16px);
+				border-radius: 100px;
+				border: 1px solid #373737;
+				cursor: pointer;
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 16px; /* 123.077% */
+				letter-spacing: 0.26px;
+			}
 			.sendSmartFileBtn {
 				display: flex;
 				padding: 16px 24px;

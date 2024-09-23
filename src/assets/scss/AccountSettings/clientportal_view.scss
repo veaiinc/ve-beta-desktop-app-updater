@@ -1,0 +1,239 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+.loginWrapper {
+	background: #bbebff;
+	width: 98%;
+	height: inherit;
+	display: flex;
+	flex-direction: column;
+	padding: 0;
+	margin: 0;
+	overflow: auto;
+	zoom: 0.5;
+
+	.updatedLoginContainer {
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+		flex: 1;
+		align-self: stretch;
+		padding: 88px 24px 24px 24px;
+		gap: 32px;
+
+		.imageContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 20px;
+			align-self: stretch;
+			height: 350px;
+			.ShapDiv {
+				position: relative;
+				width: 247px;
+				height: 250px;
+				border-radius: 50%;
+				overflow: hidden;
+				background: linear-gradient(137deg, #fff8f3 21.34%, #a8d7f1 81.22%);
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+				border-radius: 38% 62% 37% 63% / 49% 50% 50% 51%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				animation: ShapDiv-animate 15s ease-in-out infinite;
+			}
+			.ShapDiv img {
+				width: 110px;
+				height: 110px;
+				object-fit: cover;
+				border-radius: inherit;
+				animation: counter-rotate 15s ease-in-out infinite;
+			}
+			.detailsSection {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 8px;
+				height: 68px;
+				.clientName {
+					color: #111;
+					text-align: center;
+					font-family: Ivy Mode;
+					font-size: 32px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+					margin-top: 20px;
+					text-transform: capitalize;
+				}
+				.title {
+					color: #343434;
+					text-align: center;
+					font-family: Satoshi Variable;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+		.inputSectionWrapper {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 24px;
+			align-self: stretch;
+
+			.inputWrappertext {
+				color: #343434;
+				text-align: center;
+				font-family: Satoshi Variable;
+				font-size: 15px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 18px; /* 120% */
+				width: 100%;
+			}
+
+			.formContainer {
+				display: flex;
+				align-items: flex-start;
+				gap: 17px;
+				// align-self: stretch;
+				width: 100%;
+				justify-content: center;
+				height: auto;
+
+				.emailInputWrapper {
+					display: flex;
+					height: 42px;
+					padding: var(--cartCount, 0px) var(--Spacing-space-7, 12px);
+					align-items: center;
+					gap: var(--Spacing-space-7, 12px);
+					flex: 1 0 0;
+					border-radius: 10px;
+					border: 0.5px solid rgba(17, 17, 17, 0.6);
+					width: 100%;
+					.emailInputWrapperClass {
+						flex: 1;
+						background-color: transparent;
+						border: none;
+						color: #111;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						outline: none;
+						width: 100%;
+					}
+				}
+
+				.disabledSubmitBtn {
+					display: flex;
+					padding: 8px 24px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					align-self: stretch;
+					border-radius: 10px;
+					background: rgba(63, 138, 226, 0.6);
+					color: #fff;
+					font-family: 'Satoshi Variable';
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					cursor: pointer;
+					// width: 93px;
+				}
+
+				.submitBtn {
+					display: flex;
+					padding: 8px 24px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					align-self: stretch;
+					border-radius: 10px;
+					background: #3f8ae2;
+					color: #fff;
+					font-family: 'Satoshi Variable';
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					cursor: pointer;
+					height: 42px;
+					// width: 93px;
+				}
+			}
+		}
+	}
+
+	.footer {
+		margin-bottom: 36px;
+		display: flex;
+		align-self: stretch;
+		justify-content: center;
+		gap: 4px;
+		text-decoration: none;
+
+		.footerText {
+			color: #6d6d6d;
+			font-family: Inter;
+			font-size: 10px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 10px; /* 100% */
+		}
+	}
+}
+
+.error-msg {
+	display: flex;
+	height: 40px;
+	color: red;
+	font-family: 'Inter';
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 400;
+	margin-top: 5px;
+}
+@keyframes ShapDiv-animate {
+	0% {
+		transform: rotate(0);
+	}
+	25% {
+		transform: rotate(90deg);
+	}
+	50% {
+		transform: rotate(180deg);
+	}
+	/* 75% {
+	  transform: rotate(270deg);
+	} */
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes counter-rotate {
+	0% {
+		transform: rotate(0);
+	}
+	25% {
+		transform: rotate(-90deg);
+	}
+	50% {
+		transform: rotate(-180deg);
+	}
+	/* 75% {
+	  transform: rotate(-270deg);
+	} */
+	100% {
+		transform: rotate(-360deg);
+	}
+}

@@ -119,9 +119,9 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/my-settings',
+		path: '/my-settings/:type',
 		component: (
-			<AuthWrapper title={'Workspace Settings'} isFullScreen={true}>
+			<AuthWrapper title={'Workspace Settings'}>
 				<SettingsWrapper />
 			</AuthWrapper>
 		),

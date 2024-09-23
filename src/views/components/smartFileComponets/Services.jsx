@@ -5,6 +5,18 @@ import { Tooltip } from 'antd';
 import ToolTipContainer from '../popover/ToolTipContainer';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/questionMark.svg';
 
+const serviceStyleMapper = {
+	0: 'Select One',
+	1: 'Select Multiply',
+	2: 'View Only',
+};
+
+const sericesContentMapper = {
+	0: 'This Table shows Select one services that are mentioned in the smart file, Lead can select any one service from the list of services.',
+	1: 'This Table shows Select mutiple services that are mentioned in the smart file, Lead can select multiple services from the list of services.',
+	2: 'This Table shows view only services that are mentioned in the smart file, Lead will only view this service details',
+};
+
 const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 	const [info, setInfo] = useState({
 		data: [],
@@ -88,117 +100,127 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 
 	return info?.data?.length ? (
 		<div className="servicesParentContainer">
-			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-				<span className="servicesHeader">Services - View Only</span>
-				<span className="svgHolder">
-					<Tooltip
-						placement="bottomLeft"
-						title={
-							<ToolTipContainer
-								title={'Services - View Only'}
-								content={
-									'This Table shows view only services that are mentioned in the smart file, Lead will only view this service details'
-								}
-							/>
-						}
-						arrow={mergedArrow}
-						color={'#202020'}
-					>
-						<QuestionMark />
-					</Tooltip>
-				</span>
-			</div>
-
 			{info?.data?.map((ele, index) => (
-				<div className="serviceCardWrapper" key={index}>
-					<div className="serviceCardHeaderBlock">
-						<span className="serviceSubTitle">
-							{ele?.style?.subTotalTitle
-								?.replace(/&nbsp;/g, ' ')
-								.replace(/<\/?[^>]+(>|$)/g, '')
-								.replace(/"/g, '') || ''}
+				<>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+						<span className="servicesHeader">
+							Services - {serviceStyleMapper?.[ele?.style?.services_selection || '2']}
 						</span>
-						<div className="serviceSubTotalWrapper">
-							<span className="subTotalValueTitle">Subtotal</span>
-							{editable ? (
-								<input
-									value={
-										ele?.style?.subTotalValue
+						<span className="svgHolder">
+							<Tooltip
+								placement="bottomLeft"
+								title={
+									<ToolTipContainer
+										title={`Services - ${
+											serviceStyleMapper?.[
+												ele?.style?.services_selection || '2'
+											]
+										}`}
+										content={
+											sericesContentMapper?.[
+												ele?.style?.services_selection || '2'
+											]
+											// 'This Table shows view only services that are mentioned in the smart file, Lead will only view this service details'
+										}
+									/>
+								}
+								arrow={mergedArrow}
+								color={'#202020'}
+							>
+								<QuestionMark />
+							</Tooltip>
+						</span>
+					</div>
+					<div className="serviceCardWrapper" key={index}>
+						<div className="serviceCardHeaderBlock">
+							<span className="serviceSubTitle">
+								{ele?.style?.subTotalTitle
+									?.replace(/&nbsp;/g, ' ')
+									.replace(/<\/?[^>]+(>|$)/g, '')
+									.replace(/"/g, '') || ''}
+							</span>
+							<div className="serviceSubTotalWrapper">
+								<span className="subTotalValueTitle">Subtotal</span>
+								{editable ? (
+									<input
+										value={
+											ele?.style?.subTotalValue
+												?.toString()
+												?.replace(/&nbsp;/g, ' ')
+												?.replace(/<\/?[^>]+(>|$)/g, '')
+												?.replace(/"/g, '') || ''
+										}
+										onChange={(e) =>
+											onLocalServiceDataChange(
+												0,
+												index,
+												'subTotalValue',
+												e.target.value,
+											)
+										}
+										className="serviceSubtotalValueInput"
+										readOnly={!editable}
+									/>
+								) : (
+									<span className="ServiceSubTotalValue">
+										{ele?.style?.subTotalValue
 											?.toString()
 											?.replace(/&nbsp;/g, ' ')
 											?.replace(/<\/?[^>]+(>|$)/g, '')
-											?.replace(/"/g, '') || ''
-									}
-									onChange={(e) =>
-										onLocalServiceDataChange(
-											0,
-											index,
-											'subTotalValue',
-											e.target.value,
-										)
-									}
-									className="serviceSubtotalValueInput"
-									readOnly={!editable}
-								/>
-							) : (
-								<span className="ServiceSubTotalValue">
-									{ele?.style?.subTotalValue
-										?.toString()
-										?.replace(/&nbsp;/g, ' ')
-										?.replace(/<\/?[^>]+(>|$)/g, '')
-										?.replace(/"/g, '') || ''}
-								</span>
-							)}
-						</div>
-					</div>
-
-					{/* //USE ,MAP HERE */}
-					{ele?.blocks?.map((val, ind) => (
-						<div className="serviceCard" key={ind}>
-							<div className="serviceTitleContainer">
-								<ToggleSlider
-									value={val?.subBlocks?.[0]?.show}
-									onChange={(val) =>
-										onLocalServiceDataChange(ind, index, 'show', val)
-									}
-								/>
-								<span className="serviceCardTitle">
-									{val?.subBlocks?.[0]?.title
-										?.replace(/&nbsp;/g, ' ')
-										.replace(/<\/?[^>]+(>|$)/g, '')
-										.replace(/"/g, '') || ''}
-								</span>
-							</div>
-							<div className="serviceQuantityContainer">
-								<span className="quantityTitle">Quantity</span>
-								<div className="incrementDecrementContainer">
-									<span
-										className="incrementorBtns"
-										onClick={() =>
-											onLocalServiceDataChange(ind, index, 'decrement')
-										}
-									>
-										-
+											?.replace(/"/g, '') || ''}
 									</span>
-									<input
-										type="number"
-										className="incrementDecrementinput"
-										value={val?.subBlocks?.[0]?.quantity}
-										readOnly={!editable}
-									/>
-									<span
-										className="incrementorBtns"
-										onClick={() =>
-											onLocalServiceDataChange(ind, index, 'increment')
+								)}
+							</div>
+						</div>
+
+						{/* //USE ,MAP HERE */}
+						{ele?.blocks?.map((val, ind) => (
+							<div className="serviceCard" key={ind}>
+								<div className="serviceTitleContainer">
+									<ToggleSlider
+										value={val?.subBlocks?.[0]?.show}
+										onChange={(val) =>
+											onLocalServiceDataChange(ind, index, 'show', val)
 										}
-									>
-										+
+									/>
+									<span className="serviceCardTitle">
+										{val?.subBlocks?.[0]?.title
+											?.replace(/&nbsp;/g, ' ')
+											.replace(/<\/?[^>]+(>|$)/g, '')
+											.replace(/"/g, '') || ''}
 									</span>
 								</div>
+								<div className="serviceQuantityContainer">
+									<span className="quantityTitle">Quantity</span>
+									<div className="incrementDecrementContainer">
+										<span
+											className="incrementorBtns"
+											onClick={() =>
+												onLocalServiceDataChange(ind, index, 'decrement')
+											}
+										>
+											-
+										</span>
+										<input
+											type="number"
+											className="incrementDecrementinput"
+											value={val?.subBlocks?.[0]?.quantity}
+											readOnly={!editable}
+										/>
+										<span
+											className="incrementorBtns"
+											onClick={() =>
+												onLocalServiceDataChange(ind, index, 'increment')
+											}
+										>
+											+
+										</span>
+									</div>
+								</div>
 							</div>
-						</div>
-					))}
-				</div>
+						))}
+					</div>
+				</>
 			))}
 		</div>
 	) : (

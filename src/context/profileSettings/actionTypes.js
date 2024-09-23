@@ -3,6 +3,7 @@ export const TENANTS = {
 	tenantUsers: '/tenant-users',
 	accessibleTenants: '/accessible-tenants',
 	displayPicture: '/display-picture',
+	updateTenantUser: '/update-tenant-user',
 };
 
 export const TENANT_USER_LOGIN_SIGNUP_API = {

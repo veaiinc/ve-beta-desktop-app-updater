@@ -28,11 +28,11 @@ const initialState = {
 	showEmail: false,
 	enableLinkExpiry: false,
 	showCustomExpiryButton: false,
-	showAccessSettings: false,
+	showAccessSettings: true,
 	expiryInDays: 0,
 	nameAccess: false,
-	emailAccess: false,
-	emailIdentification: false,
+	emailAccess: true,
+	emailIdentification: true,
 	slugErrorMessage: '',
 	slugHolder: '',
 	editSlug: false,
@@ -120,13 +120,18 @@ const SendProposalModal = ({
 			const hoursLeft = moment.unix(expiresAt).diff(moment.unix(currentTimestamp), 'hours');
 			const daysLeft = Math.max(0, Math.ceil(hoursLeft / 24));
 			if (daysLeft <= 0) {
-				linkExpiryText = 'Link Has expired';
+				linkExpiryText = 'Link has expired';
 			} else {
 				linkExpiryText = `Link Expires on ${moment
 					?.unix(expiresAt)
 					?.format('DD MMM YYYY')}`;
 			}
-			setInfo((prev) => ({ ...prev, expiryInDays: daysLeft, linkExpiryText }));
+			setInfo((prev) => ({
+				...prev,
+				expiryInDays: daysLeft,
+				linkExpiryText,
+				enableLinkExpiry: true,
+			}));
 		}
 	}, [expiresAt]);
 
@@ -220,7 +225,10 @@ const SendProposalModal = ({
 				newValue =
 					info?.expiryInDays && info?.expiryInDays - 1 ? info?.expiryInDays - 1 : 0;
 			}
-			setInfo((prev) => ({ ...prev, expiryInDays: newValue }));
+			let linkExpiryText = `Link Expires on ${moment()
+				.add(newValue, 'days')
+				?.format('DD MMM YYYY')}`;
+			setInfo((prev) => ({ ...prev, expiryInDays: newValue, linkExpiryText }));
 		},
 		[info?.expiryInDays],
 	);
@@ -230,7 +238,10 @@ const SendProposalModal = ({
 			if (info?.expiryInDays === val) {
 				return;
 			}
-			setInfo((prev) => ({ ...prev, expiryInDays: val }));
+			let linkExpiryText = `Link Expires on ${moment()
+				.add(val, 'days')
+				?.format('DD MMM YYYY')}`;
+			setInfo((prev) => ({ ...prev, expiryInDays: val, linkExpiryText }));
 		},
 		[info?.expiryInDays],
 	);
@@ -247,10 +258,6 @@ const SendProposalModal = ({
 			setInfo((prev) => ({ ...prev, emailIdentification: true }));
 		}
 	}, []);
-
-	const editSlugOnClick = useCallback(() => {
-		setInfo((prev) => ({ ...prev, editSlug: !prev.editSlug }));
-	}, [info?.editSlug, inputRef]);
 
 	const slugOnChange = useCallback(
 		(e) => {

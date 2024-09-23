@@ -1,3 +1,6 @@
+import Theme1 from '../../../assets/images/settings/theme1.png';
+import Theme2 from '../../../assets/images/settings/theme2.png';
+
 export const menuItems = [
 	{ id: 'my-profile', label: 'My Profile' },
 	{ id: 'workspace', label: 'Workspace' },
@@ -41,7 +44,52 @@ export const BrandColorList = [
 	{ label: 'color3', value: '#0D55B0' },
 ];
 
+export const AvatarColorList = [
+	'#6055EC',
+	'#D36262',
+	'#DFD57C',
+	'#768ECB',
+	'#EF4E7E',
+	'#FF4E4E',
+	'#C49581',
+	'#8ACEBA',
+	'#24624F',
+];
+
 export const FontList = [
 	{ name: 'Bebas Neue', type: 'Regular' },
 	{ name: 'Battambang', type: 'Regular' },
+];
+
+export const ThemesList = [
+	{
+		id: 'theme1',
+		imageUrl: Theme1,
+		properties: [
+			{ label: 'Background Color', property: 'background', value: '#BBEBFF' },
+			{
+				label: 'Logo Shape Color',
+				property: 'background',
+				value: 'linear-gradient(139deg, #38BBF1 14.64%, #84305E 93.17%)',
+			},
+			{ label: 'Text Color', property: 'color', value: '#343434' },
+			{ label: 'Button Color', property: 'background', value: '#71B1EE' },
+			{ label: 'Button Text', property: 'color', value: '#343434' },
+		],
+	},
+	{
+		id: 'theme2',
+		imageUrl: Theme2,
+		properties: [
+			{ label: 'Background Color', property: 'background', value: '#F6F8FA' },
+			{
+				label: 'Logo Shape Color',
+				property: 'background',
+				value: '#F6F8FA',
+			},
+			{ label: 'Text Color', property: 'color', value: '#343434' },
+			{ label: 'Button Color', property: 'background', value: '#FFA3D7' },
+			{ label: 'Button Text', property: 'color', value: '#FFFF' },
+		],
+	},
 ];

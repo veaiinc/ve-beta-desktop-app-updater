@@ -15,59 +15,10 @@
 		font-weight: 500;
 		line-height: 24px;
 	}
-	// .integrationsTypes {
-	// 	display: flex;
-	// 	flex-direction: column;
-	// 	gap: 24px;
-	// 	.integrationContainer {
-	// 		display: flex;
-	// 		justify-content: space-between;
-	// 		.imageContainer {
-	// 			display: flex;
-	// 			gap: 18px;
-	// 			.textContainer {
-	// 				h1 {
-	// 					color: #e4e5e6;
-	// 					font-size: 13px;
-	// 					font-weight: 500;
-	// 					line-height: 21px;
-	// 				}
-	// 				p {
-	// 					color: rgba(228, 229, 230, 0.48);
-	// 					font-size: 11px;
-	// 					font-weight: 500;
-	// 					line-height: 19px;
-	// 					letter-spacing: 0.22px;
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// 	.facbookOptions {
-	// 		display: flex;
-	// 		gap: 13px;
-	// 		opacity: 1;
-	// 		transition: opacity 0.3s ease-in-out;
-
-	// 		&.closed {
-	// 			opacity: 0;
-	// 		}
-	// 	}
-	// 	button {
-	// 		padding: 16px 24px;
-	// 		border-radius: 100px;
-	// 		border: 1px solid rgba(36, 36, 36, 0.64);
-	// 		background: rgba(42, 42, 42, 0.16);
-	// 		color: #e4e5e6;
-	// 		font-size: 13px;
-	// 		font-weight: 500;
-	// 		line-height: 16px;
-	// 		letter-spacing: 0.26px;
-	// 	}
-	// }
 
 	.integrationsTypes {
 		display: flex;
-		gap: 18px;
+		gap: 12px;
 		flex-wrap: wrap;
 
 		.integrationSingleList {

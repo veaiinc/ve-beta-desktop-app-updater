@@ -1,6 +1,5 @@
-import React, { useContext, useMemo, useEffect, useState } from 'react';
+import React, { useContext, useMemo, useEffect, useState, useCallback, memo } from 'react';
 import '../../../assets/scss/AccountSettings/publicinformation.scss';
-import PhoneInput from 'react-phone-number-input';
 import InputForModules from '../../components/input/inputForModules';
 import Context from '../../../context/context';
 import jwt_decode from 'jwt-decode';
@@ -9,26 +8,32 @@ import { BusinessTypesOptions } from './indexConstant';
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../../components/popover/ToolTipContainer';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/questionMark.svg';
+import { ReactComponent as EditSvg } from '../../../assets/svg/Settings/pencilwhite.svg';
+import { ReactComponent as CloudFileUploadSvg } from '../../../assets/svg/Settings/CloudUpload.svg';
+import Dropzone from 'react-dropzone';
 
 const PublicInformation = () => {
 	const {
-		profileInfo: { getTenantSettings, tennantSettingsData, updateBusniessName },
+		profileInfo: { tennantSettingsData, updateBusniessName, changelogo },
 		companyInfo: {
 			updateTenantContactDetails,
 			updateTenantAddress,
 			updateTenantWebsite,
 			updateTenantBusinessName,
+			uploadTenantLogo,
 		},
 	} = useContext(Context);
 
 	const [error, setErrors] = useState({});
-	const [isEditMode, setIsEditMode] = useState(true);
+	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
+	const [logoUrl, setLogoUrl] = useState('');
 
 	const [overviewState, setOverviewState] = useState({
 		phoneNumber: '',
 		email: '',
 		address: '',
 		website: '',
+		companyType: '',
 		businessName: '',
 		isAdmin: '',
 		businessLogo: '',
@@ -37,13 +42,6 @@ const PublicInformation = () => {
 	});
 	const [initialState, setInitialState] = useState({ ...overviewState });
 	const [arrow, setArrow] = useState('Show');
-
-	useEffect(() => {
-		// if (!tennantSettingsData) {
-		// 	getTenantSettings();
-		// }
-		checkIsAdmin();
-	}, []);
 
 	const mergedArrow = useMemo(() => {
 		if (arrow === 'Hide') {
@@ -89,7 +87,13 @@ const PublicInformation = () => {
 			website: tennantSettingsData?.website || '',
 			businessName: tennantSettingsData?.businessName || '',
 		}));
+		setLogoUrl(tennantSettingsData?.logo_s3_500w_key || '');
+		// setLogoUrl('https://randomuser.me/api/portraits/men/75.jpg');
 	}, [tennantSettingsData]);
+
+	useEffect(() => {
+		handleDebounceSearch('phone');
+	}, [overviewState]);
 
 	const validateField = (fieldName, value) => {
 		let Value = value || '';
@@ -130,6 +134,7 @@ const PublicInformation = () => {
 		}
 		return '';
 	};
+
 	const validate = () => {
 		const newErrors = {};
 		Object.keys(overviewState).forEach((key) => {
@@ -173,6 +178,7 @@ const PublicInformation = () => {
 			updateTenantBusinessName(json);
 		}
 	};
+
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		if (validate()) {
@@ -183,6 +189,9 @@ const PublicInformation = () => {
 	};
 
 	const handleChange = (e) => {
+		if (!isEditMode?.isValueChanged) {
+			setIsEditMode((prev) => ({ ...prev, isValueChanged: true }));
+		}
 		const { name, value = '' } = e.target;
 
 		const error = validateField(name, value);
@@ -195,18 +204,33 @@ const PublicInformation = () => {
 			[name]: value,
 		}));
 	};
-	const handleEdit = () => {
-		if (isEditMode) {
-			handleSubmit(new Event('submit'));
-		} else {
-			setIsEditMode(true);
-		}
-		// setIsEditMode(!isEditMode);
+
+	const handleDebounceSearch = useCallback(() => {
+		clearInterval(isEditMode?.timeout);
+		const timeout = setTimeout(() => {
+			if (isEditMode?.isValueChanged) {
+				handleSubmit(new Event('submit'));
+			}
+			setIsEditMode((prev) => ({ ...prev, timeout: null }));
+		}, 800);
+		setIsEditMode((prev) => ({ ...prev, timeout }));
+	}, [isEditMode?.timeout, overviewState]);
+
+	const checkUploadLogo = (acceptedFiles) => {
+		const file = acceptedFiles[0];
+		const reader = new FileReader();
+
+		reader.onloadend = () => {
+			setLogoUrl(reader.result);
+			changelogo(reader?.result);
+		};
+
+		reader.readAsDataURL(file);
+		uploadTenantLogo(file);
 	};
-	const workspaceId = localStorage.getItem('workspaceId');
-	const companyHandle = 'https://' + workspaceId + '.ve.ai';
+
 	return (
-		<div className="publicInformationContainer">
+		<div className="publicInformationComponent">
 			<div className="header">
 				<h1>Public Information</h1>
 
@@ -228,30 +252,63 @@ const PublicInformation = () => {
 				</span>
 			</div>
 
-			<div className="imageCircleDiv">
-				<img
-					src={'https://randomuser.me/api/portraits/men/75.jpg'}
-					alt="logo"
-					onError={(e) =>
-						(e.target.src = 'https://randomuser.me/api/portraits/men/75.jpg')
-					}
-				/>
+			{logoUrl ? (
+				<Dropzone
+					onDrop={checkUploadLogo}
+					accept={'image/png'}
+					multiple={false}
+					// disabled={!isAdmin}
+				>
+					{({ getRootProps, getInputProps }) => (
+						<div className="upload-brand-embeded-btn" {...getRootProps()}>
+							<input {...getInputProps()} />
 
-				<div className="editImage">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="16"
-						height="15"
-						viewBox="0 0 15 14"
-						fill="none"
-					>
-						<path
-							d="M3.85354 9.81771H4.41632L9.39683 4.87207L8.83405 4.31323L3.85354 9.25886V9.81771ZM3.19531 10.4713V8.98334L9.4943 2.71878C9.5624 2.64973 9.63569 2.60058 9.71417 2.57134C9.79265 2.54201 9.87489 2.52734 9.96088 2.52734C10.047 2.52734 10.1291 2.54104 10.2073 2.56845C10.2856 2.59585 10.3615 2.64437 10.4348 2.714L11.0025 3.27285C11.0727 3.34567 11.1223 3.42108 11.1515 3.4991C11.1807 3.57711 11.1953 3.65743 11.1953 3.74006C11.1953 3.82813 11.18 3.91218 11.1492 3.9922C11.1184 4.07223 11.0695 4.14539 11.0025 4.21167L4.69379 10.4713H3.19531ZM9.1105 4.59756L8.83405 4.31323L9.39683 4.87207L9.1105 4.59756Z"
-							fill="#E8EAED"
-						/>
-					</svg>
-				</div>
-			</div>
+							<div className="imageCircleDiv">
+								<img src={logoUrl} alt="logo" />
+								<div className="editImage">
+									<EditSvg />
+								</div>
+							</div>
+						</div>
+					)}
+				</Dropzone>
+			) : (
+				<Dropzone
+					onDrop={checkUploadLogo}
+					accept={'image/png'}
+					multiple={false}
+					// disabled={!isAdmin}
+				>
+					{({ getRootProps, getInputProps }) => (
+						<div
+							className="upload-brand-embeded-btn"
+							{...getRootProps()}
+							// style={{ cursor: !isAdmin ? 'not-allowed' : '' }}
+						>
+							<input {...getInputProps()} />
+							<div className="upload-brand-placeholder">
+								<input
+									type="file"
+									style={{
+										opacity: 0,
+										position: 'absolute',
+										top: 0,
+										left: 0,
+										width: '100%',
+										height: '100%',
+										cursor: 'pointer',
+									}}
+								/>
+								<div className="icon_name_div">
+									{' '}
+									<CloudFileUploadSvg />
+									<p>Upload image</p>
+								</div>
+							</div>
+						</div>
+					)}
+				</Dropzone>
+			)}
 
 			<div className="detailsBody">
 				<div className="inputDiv">
@@ -261,10 +318,9 @@ const PublicInformation = () => {
 						placeholder={'Enter your Business Name'}
 						name={'businessName'}
 						onChange={handleChange}
-						value={overviewState.businessName}
+						value={overviewState?.businessName}
 						isError={false}
 						errorMessage={''}
-						disabled={!isEditMode}
 					/>
 				</div>
 
@@ -272,13 +328,12 @@ const PublicInformation = () => {
 					<InputForModules
 						label={'Company Email'}
 						type={'email'}
-						placeholder={overviewState.companyEmail}
+						placeholder={overviewState?.companyEmail || ''}
 						name={'companyEmail'}
-						value={overviewState.email}
-						// onChange={handleChange}
+						value={overviewState?.email}
+						onChange={handleChange}
 						isError={false}
 						errorMessage={''}
-						disabled={!isEditMode}
 					/>
 				</div>
 
@@ -286,13 +341,12 @@ const PublicInformation = () => {
 					<InputForModules
 						label={'Website'}
 						type={'text'}
-						value={overviewState.website}
+						value={overviewState?.website || ''}
 						onChange={handleChange}
 						placeholder={'https://www.studio.com'}
 						name={'website'}
 						isError={error?.errorwebsite?.error || false}
 						errorMessage={error?.errorwebsite?.message || ''}
-						disabled={!isEditMode}
 					/>
 				</div>
 
@@ -304,11 +358,10 @@ const PublicInformation = () => {
 							options={BusinessTypesOptions}
 							placeholder="Choose your Company Type"
 							name={'CompanyType'}
-							value={''}
+							value={overviewState?.companyType || ''}
 							onChange={handleChange}
 							isError={false}
 							errorMessage={''}
-							disabled={!isEditMode}
 						/>
 					</div>
 
@@ -317,12 +370,11 @@ const PublicInformation = () => {
 							label={'Phone Number'}
 							type={'phoneNumber'}
 							onChange={handleChange}
-							value={overviewState.phoneNumber}
+							value={overviewState.phoneNumber || ''}
 							placeholder={'Enter your Phone Number'}
 							name={'phoneNumber'}
 							isError={error?.errorphoneNumber?.error || false}
 							errorMessage={error?.errorphoneNumber?.message || ''}
-							disabled={!isEditMode}
 							defaultCountry={'IN'}
 						/>
 					</div>
@@ -333,12 +385,11 @@ const PublicInformation = () => {
 						label={'Address'}
 						type={'text'}
 						onChange={handleChange}
-						value={overviewState.address}
+						value={overviewState.address || ''}
 						placeholder={'Enter your Company Address'}
 						name={'address'}
 						isError={false}
 						errorMessage={''}
-						disabled={!isEditMode}
 					/>
 				</div>
 			</div>
@@ -346,4 +397,4 @@ const PublicInformation = () => {
 	);
 };
 
-export default PublicInformation;
+export default memo(PublicInformation);

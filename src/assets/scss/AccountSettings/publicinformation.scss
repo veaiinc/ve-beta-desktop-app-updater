@@ -1,4 +1,4 @@
-.publicInformationContainer {
+.publicInformationComponent {
 	border-radius: 32px;
 	border: 1px solid #7871c030;
 	background: rgba(29, 29, 35, 0.24);
@@ -41,12 +41,10 @@
 		}
 
 		.noImageText {
-			background-color: red;
 			width: 100%;
 			height: 100%;
 			border-radius: 100px;
-
-			background-color: #151515;
+			background: #6055ec;
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -59,18 +57,52 @@
 
 		.editImage {
 			position: absolute;
-			bottom: -1px;
-			left: 2px;
+			bottom: 0;
+			left: 0px;
 			right: 1px;
-			height: 39%;
+			height: 100%;
+			width: 98px;
 			border-radius: 0 0 45px 45px;
-			background-color: rgba(0, 0, 0, 0.774);
-			border-radius: 0 0 40px 39px;
+			border-radius: 50%;
+			display: flex;
+			justify-content: center;
+			align-items: flex-end;
+			opacity: 0.9;
+			cursor: pointer;
+
+			/* zoom: 0.5; */
+			background: linear-gradient(
+				180deg,
+				rgba(198, 220, 250, 0) 68%,
+				rgba(19, 19, 20, 0.95) 18%
+			);
+			svg {
+				margin-bottom: 10px;
+			}
+		}
+	}
+
+	.upload-brand-embeded-btn {
+		width: 70%;
+		margin: auto;
+		.upload-brand-placeholder {
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			opacity: 0.9;
+			width: 100%;
+			height: 100px;
+			border-radius: 24px;
+			border: 1px dashed #242424;
+			// background-color: #1c1c1c;
+			color: #ccc;
 			cursor: pointer;
+			position: relative;
+		}
+
+		.icon_name_div {
+			display: flex;
+			gap: 10px;
+			align-items: c;
 		}
 	}
 
@@ -124,7 +156,7 @@
 				background: rgba(32, 32, 33, 0.24) !important;
 
 				input {
-					color: rgba(228, 229, 230, 0.48);
+					color: #e4e5e6;
 					font-family: Inter;
 					font-size: 16px;
 					font-style: normal;

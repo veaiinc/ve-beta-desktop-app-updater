@@ -1,9 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, memo } from 'react';
 import '../../../assets/scss/CompanySettings/planBilling.scss';
 import ProgressBar from '../../components/settings/ProgressBar';
 import moment from 'moment';
 import Context from '../../../context/context';
-
+import SubscriptionDetailsComponent from '../../components/settings/planbilling/SubscriptionDetails';
+import { ReactComponent as BackgroundSvg } from '../../../assets/svg/Settings/subscriptionbackground.svg';
+import BillingHistoryComponent from '../../components/settings/planbilling/BillingHistory';
 //constants
 const noOfDay = 7;
 const period = 'On Trial Plan';
@@ -12,7 +14,7 @@ let progressBar = 30;
 const GB = 1;
 const usedGB = 3;
 
-const PlanBilling = () => {
+const Temp = () => {
 	const {
 		companyInfo: { getTenantSubscriptionDetails, tenantSubscriptionDetails },
 	} = useContext(Context);
@@ -108,4 +110,23 @@ const PlanBilling = () => {
 	);
 };
 
-export default PlanBilling;
+const PlanBilling = () => {
+	return (
+		<div className="planBillingContianer">
+			<div className="subscriptionDetailsComponent">
+				<div className="backgroundDesingDiv">
+					<div>
+						<BackgroundSvg />
+					</div>
+				</div>
+				<SubscriptionDetailsComponent />
+			</div>
+
+			<div className="billingHinstoryComponent">
+				<BillingHistoryComponent />
+			</div>
+		</div>
+	);
+};
+
+export default memo(PlanBilling);

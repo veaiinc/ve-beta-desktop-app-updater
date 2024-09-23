@@ -1,45 +1,34 @@
-import React, { useState, useEffect, useContext } from 'react';
-import jwt_decode from 'jwt-decode';
+import React, { useState, useEffect, useContext, useCallback, memo } from 'react';
 import '../../../assets/scss/AccountSettings/myProfile.scss';
 import Context from '../../../context/context';
-import InputForModules from '../../components/input/inputForModules';
-import ToggleSlider from '../../components/input/slider';
-// import { collapseToast, useToast } from 'react-toastify';
-import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
 import validator from 'validator';
-import MySettingsChangePasword from '../profile_settings/MySettingsChangePasword';
-import { getInitials } from '../profile_settings/getInitials';
-import {
-	LeaveWorkspaceComponent,
-	ProfileDetailsComponent,
-	Test,
-	ThemePreferenceComponent,
-	TwoFactorAuthenticationComponent,
-	UpdatePasswordComponent,
-} from '../../components/settings/Profile';
+import ProfileDetailsComponent from '../../components/settings/profile/ProfileDetails';
+import ThemePreferenceComponent from '../../components/settings/profile/ThemePreference';
+import UpdatePasswordComponent from '../../components/settings/profile/UpdatePassword';
+import TwoFactorAuthenticationComponent from '../../components/settings/profile/TwoFactorAuthentication';
+import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWorkspace';
 
 const MyProfile = () => {
 	const {
 		profileInfo: {
-			getTenantSettings,
-			getUserDetails,
-			getTenantUserDetails,
 			get2FAQrCode,
 			set2FASettings,
 			userDetailsData,
 			updateUserDetails,
+			updateUserPhoneNumber,
 			qrcode,
-			getUserWorkSpaceList,
 			userWorkSpaceList,
 			chooseDefaultWorkspace,
-			tennantSettingsData,
 			updateUserLogo,
+			getTenantUserDetails,
+			tenantUserDetails,
 		},
+		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
 	} = useContext(Context);
 	const [showForm, setShowForm] = useState(false);
-	const [isEditMode, setIsEditMode] = useState(false);
+	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [errors, setErrors] = useState({});
-	const [activeTheme, setActiveTheme] = useState('light');
+	const [activeTheme, setActiveTheme] = useState('dark');
 	const [activeWorkspace, setActiveWorkspace] = useState(null);
 	const [userDetails, setUserDetails] = useState({
 		fullName: '',
@@ -63,6 +52,15 @@ const MyProfile = () => {
 	}, [userWorkSpaceList]);
 
 	useEffect(() => {
+		if (!tenantPreferenceData) {
+			getTenantPreferences();
+		}
+		if (!tenantUserDetails) {
+			getTenantUserDetails();
+		}
+	}, []);
+
+	useEffect(() => {
 		if (userDetailsData) {
 			setUserDetails((prev) => ({
 				...prev,
@@ -74,6 +72,13 @@ const MyProfile = () => {
 			}));
 		}
 	}, [userDetailsData]);
+
+	useEffect(() => {
+		if (tenantPreferenceData) {
+			setActiveTheme(tenantPreferenceData?.theme);
+		}
+	}, [tenantPreferenceData?.theme]);
+
 	useEffect(() => {
 		if (userDetails.is2FAEnabled) {
 			get2FAQrCode();
@@ -81,25 +86,36 @@ const MyProfile = () => {
 	}, [userDetails.is2FAEnabled]);
 
 	useEffect(() => {
-		fetchData();
-	}, []);
-	const fetchData = async () => {
-		let usertoken = localStorage.getItem('usertoken');
-		let decoded = jwt_decode(usertoken);
-		let workspaceID = localStorage.getItem('workspaceId');
-		let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded.user_id}`));
-		setIsAdmin(role === 'admin');
-		if (!tennantSettingsData) {
-			getTenantSettings();
+		if (userDetails?.fullName) {
+			handleDebounceSearch('name');
 		}
-		if (!userDetailsData) {
-			getUserDetails();
+	}, [userDetails?.fullName]);
+
+	useEffect(() => {
+		if (userDetails?.phoneNumber) {
+			handleDebounceSearch('phone');
 		}
-		if (!userWorkSpaceList) {
-			getUserWorkSpaceList();
-		}
-		getTenantUserDetails();
-	};
+	}, [userDetails?.phoneNumber]);
+
+	const handleDebounceSearch = useCallback(
+		(typeCall = '') => {
+			clearInterval(isEditMode?.timeout);
+			const timeout = setTimeout(() => {
+				if (userDetails?.fullName && isEditMode?.isValueChanged && typeCall === 'name') {
+					handleSubmit(typeCall);
+				} else if (
+					userDetails?.phoneNumber &&
+					isEditMode?.isValueChanged &&
+					typeCall === 'phone'
+				) {
+					handleSubmit(typeCall);
+				}
+				setIsEditMode((prev) => ({ ...prev, timeout: null }));
+			}, 1500);
+			setIsEditMode((prev) => ({ ...prev, timeout }));
+		},
+		[isEditMode?.timeout, userDetails?.fullName],
+	);
 
 	const handleFormPopUp = () => {
 		setShowForm(true);
@@ -151,6 +167,8 @@ const MyProfile = () => {
 	};
 
 	const handleChange = (e) => {
+		if (!isEditMode?.isValueChanged)
+			setIsEditMode((prev) => ({ ...prev, isValueChanged: true }));
 		const { name, value } = e.target;
 		setUserDetails((prevDetails) => ({
 			...prevDetails,
@@ -191,24 +209,29 @@ const MyProfile = () => {
 		return Object.keys(newErrors).length === 0;
 	};
 
-	const handleSubmit = (e) => {
-		e.preventDefault();
-		if (validate()) {
-			setIsEditMode(false);
+	const handleSubmit = (nameApi = 'name') => {
+		if (!validate()) return;
+
+		if (nameApi === 'name') {
 			let json = {
 				firstName: userDetails.fullName,
 				lastName: userDetails.fullName,
 			};
 			updateUserDetails(json);
+		} else if (nameApi === 'phone') {
+			let json = {
+				phoneNumber: userDetails?.phoneNumber,
+			};
+			updateUserPhoneNumber(json);
 		}
 	};
 
-	const handleEditClick = () => {
-		if (isEditMode) {
-			handleSubmit(new Event('submit'));
-		} else {
-			setIsEditMode(true);
-		}
+	const updateThemeSubmitHandler = (mode) => {
+		const json = {
+			theme: mode,
+		};
+		setActiveTheme(mode);
+		updatePrefernces(json);
 	};
 
 	return (
@@ -219,8 +242,6 @@ const MyProfile = () => {
 				<div className="ProfileDetailsComponent activeBackgroundColor" id="profile">
 					<ProfileDetailsComponent
 						handleSubmit={handleSubmit}
-						handleEditClick={handleEditClick}
-						isEditMode={isEditMode}
 						userDetails={userDetails}
 						errors={errors}
 						handleChange={handleChange}
@@ -228,13 +249,14 @@ const MyProfile = () => {
 						showForm={showForm}
 						handleImageChange={handleImageChange}
 						handlePopupFormClose={handlePopupFormClose}
+						role={tenantUserDetails?.role === 'admin' ? 'Admin' : 'Member'}
 					/>
 				</div>
 
 				{/* Theme Preference */}
 				<div className="settingsTheme activeBackgroundColor" id="theme">
 					<ThemePreferenceComponent
-						setActiveTheme={setActiveTheme}
+						updateThemeSubmitHandler={updateThemeSubmitHandler}
 						activeTheme={activeTheme}
 					/>
 				</div>
@@ -261,4 +283,4 @@ const MyProfile = () => {
 	);
 };
 
-export default MyProfile;
+export default memo(MyProfile);
