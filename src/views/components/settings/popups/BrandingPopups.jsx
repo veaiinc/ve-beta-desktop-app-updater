@@ -6,12 +6,23 @@ import Context from '../../../../context/context';
 import Modal from '../../../components/modalsV2/index';
 import Dropzone from 'react-dropzone';
 import ColorPicker from '../../colorPicker/ColorPicker';
+import validator from 'validator';
 
-export const SocialMediaPopup = (props) => {
+export const SocialMediaPopup = ({
+	handleClose,
+	show,
+	logo,
+	name,
+	onChangeFunc,
+	value,
+	handleActivate,
+	isActive,
+}) => {
 	const {
 		companyInfo: { updateTenantSocialMediaProfile },
-		profileInfo: { getTenantSettings },
 	} = useContext(Context);
+
+	console.log(isActive, value);
 
 	const [error, setError] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
@@ -26,15 +37,29 @@ export const SocialMediaPopup = (props) => {
 		};
 	}, []);
 	useEffect(() => {
-		setCopyValue(props.value);
+		setCopyValue(value);
 	}, []);
 
 	const handleInputChange = async (e) => {
+		console.log(e.target.value);
 		setError(false);
 		setErrorMessage('');
-		setChanges(true);
 
-		const response = await props.onChangeFunc(e);
+		if (isActive) {
+			const isWebsiteValid = validator.isURL(value, { require_protocol: true });
+			if (!isWebsiteValid) {
+				setError(true);
+				setErrorMessage('Invalid Website! Example Format: https://example.com');
+				return;
+			} else {
+				// console.log(e.target);
+				setCopyValue(e.target.value);
+			}
+
+			return;
+		}
+		setChanges(true);
+		const response = await onChangeFunc(e);
 		if (!response?.[0]) {
 			setError(true);
 			setErrorMessage(response?.[1]);
@@ -42,33 +67,41 @@ export const SocialMediaPopup = (props) => {
 	};
 
 	const handleSaveLinkChanges = async () => {
-		if (changes) {
-			if (!props.value?.length) {
-				setError(true);
-				setErrorMessage('Invalid Url');
-				return;
-			}
-			if (error) {
-				return;
-			}
-
-			const json = {
-				[props.name]: props.value,
-			};
-
-			updateTenantSocialMediaProfile(json);
-			props.handleActivate();
-			props.handleClose();
+		if (!value?.length) {
+			setError(true);
+			setErrorMessage('Invalid Url');
+			return;
 		}
+		if (error) {
+			return;
+		}
+
+		let json = null;
+		if (changes) {
+			json = {
+				[name]: value,
+			};
+		} else {
+			json = {
+				[name]: copyvalue,
+			};
+		}
+
+		updateTenantSocialMediaProfile(json);
+		handleActivate(json[name]);
+		handleClose();
 	};
 	const handleRequestClose = () => {
+		if (changes && isActive) {
+			setCopyValue(value);
+		}
 		setChanges(false);
 
-		props.handleClose();
+		handleClose();
 	};
 
 	return (
-		<ReactModal closeModal={handleRequestClose} isOpen={props.show}>
+		<ReactModal closeModal={handleRequestClose} isOpen={show}>
 			<div
 				style={{
 					backgroundColor: '#151515',
@@ -93,9 +126,9 @@ export const SocialMediaPopup = (props) => {
 							lineHeight: '24px',
 						}}
 					>
-						Add your Social Media
+						{isActive ? 'Update your Social Media' : 'Add your Social Media'}
 					</span>
-					<span style={{ cursor: 'pointer' }} onClick={props.handleClose}>
+					<span style={{ cursor: 'pointer' }} onClick={handleClose}>
 						<CrossIcon />
 					</span>
 				</div>
@@ -109,7 +142,7 @@ export const SocialMediaPopup = (props) => {
 							paddingLeft: '11px',
 						}}
 					>
-						{props.logo.charAt(0).toUpperCase() + props.logo.slice(1)} Link
+						{logo.charAt(0).toUpperCase() + logo.slice(1)} Link
 					</div>
 					<div>
 						<input
@@ -126,9 +159,9 @@ export const SocialMediaPopup = (props) => {
 								fontFamily: 'Inter',
 							}}
 							placeholder="Type here.."
-							onChange={(e) => handleInputChange(e)}
-							value={changes ? props.value : copyvalue}
-							name={props.name}
+							onChange={handleInputChange}
+							value={changes ? value : copyvalue}
+							name={name}
 						/>
 						{error ? (
 							<span
@@ -161,9 +194,7 @@ export const SocialMediaPopup = (props) => {
 								color: '#e4e5e6',
 								backgroundColor: '#181818',
 								cursor:
-									!error && props.value && props.value.length > 0
-										? 'pointer'
-										: 'not-allowed',
+									!error && value && value.length > 0 ? 'pointer' : 'not-allowed',
 								borderRadius: '100px',
 								padding: '16px 24px',
 								height: '48px',
@@ -175,8 +206,8 @@ export const SocialMediaPopup = (props) => {
 						>
 							<div>
 								<span>
-									Add
-									{props.logo.charAt(0).toUpperCase() + props.logo.slice(1)}
+									{isActive ? 'Update' : 'Add'}
+									{logo.charAt(0).toUpperCase() + logo.slice(1)}
 								</span>
 							</div>
 						</div>

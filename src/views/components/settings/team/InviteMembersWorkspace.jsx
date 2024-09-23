@@ -19,40 +19,6 @@ const InviteMembersWorkspaceComponent = ({
 				</p>
 			</div>
 
-			{/* <div>
-				<div className="sendRequestInputContainer">
-					<div className="sendRequestInput">
-						<input
-							type="email"
-							className="textInput"
-							placeholder="Enter text here..."
-							name="emailID"
-							onChange={handleChnage}
-							value={info.emailID}
-						/>
-						<div className="dropdownContainer">
-							<select className="dropdownInput">
-								<option value="">Admin</option>
-								<option value="">Member</option>
-							</select>
-						</div>
-					</div>
-				</div>
-
-				{info.emailIDError && (
-					<p
-						style={{
-							color: 'crimson',
-							fontSize: '11px',
-							fontFamily: 'Inter',
-							marginLeft: '10px',
-						}}
-					>
-						{info.emailIDMessage}
-					</p>
-				)}
-			</div> */}
-
 			{sendRequestList?.map((singleUser, index) => {
 				return (
 					<div>
@@ -79,7 +45,7 @@ const InviteMembersWorkspaceComponent = ({
 							</div>
 						</div>
 
-						{singleUser.emailIDError && (
+						{singleUser?.emailIDError && !singleUser?.successTrue && (
 							<p
 								style={{
 									color: 'crimson',
@@ -92,7 +58,7 @@ const InviteMembersWorkspaceComponent = ({
 							</p>
 						)}
 
-						{singleUser.successTrue && (
+						{singleUser?.successTrue && !singleUser?.emailIDError && (
 							<p
 								style={{
 									color: 'green',

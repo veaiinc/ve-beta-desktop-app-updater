@@ -225,6 +225,7 @@ export const CompanySettingsState = () => {
 			console.log('error => updateTenantBusinessName ', error);
 		}
 	};
+
 	const resetCompanySettings = async () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });

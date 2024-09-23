@@ -14,7 +14,7 @@ import Dropzone from 'react-dropzone';
 
 const PublicInformation = () => {
 	const {
-		profileInfo: { tennantSettingsData, updateBusniessName, changelogo },
+		profileInfo: { tennantSettingsData, updateCompanyDetailsState, changelogo },
 		companyInfo: {
 			updateTenantContactDetails,
 			updateTenantAddress,
@@ -25,23 +25,20 @@ const PublicInformation = () => {
 	} = useContext(Context);
 
 	const [error, setErrors] = useState({});
-	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [logoUrl, setLogoUrl] = useState('');
-
+	const [arrow, setArrow] = useState('Show');
+	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [overviewState, setOverviewState] = useState({
 		phoneNumber: '',
 		email: '',
 		address: '',
 		website: '',
-		companyType: '',
+		businessType: '',
 		businessName: '',
 		isAdmin: '',
 		businessLogo: '',
-		timeZone: '',
-		currency: '',
 	});
 	const [initialState, setInitialState] = useState({ ...overviewState });
-	const [arrow, setArrow] = useState('Show');
 
 	const mergedArrow = useMemo(() => {
 		if (arrow === 'Hide') {
@@ -75,9 +72,8 @@ const PublicInformation = () => {
 			address: tennantSettingsData?.address || '',
 			website: tennantSettingsData?.website || '',
 			businessName: tennantSettingsData?.businessName || '',
-			timeZone: tennantSettingsData?.locationDetails?.timezone,
-			currency: tennantSettingsData?.locationDetails?.currency,
 			businessLogo: tennantSettingsData?.logo_s3_500w_key || '',
+			businessType: tennantSettingsData?.businessType || '',
 		}));
 		setInitialState((prev) => ({
 			...prev,
@@ -86,9 +82,9 @@ const PublicInformation = () => {
 			address: tennantSettingsData?.address || '',
 			website: tennantSettingsData?.website || '',
 			businessName: tennantSettingsData?.businessName || '',
+			businessType: tennantSettingsData?.businessType || '',
 		}));
 		setLogoUrl(tennantSettingsData?.logo_s3_500w_key || '');
-		// setLogoUrl('https://randomuser.me/api/portraits/men/75.jpg');
 	}, [tennantSettingsData]);
 
 	useEffect(() => {
@@ -153,28 +149,34 @@ const PublicInformation = () => {
 		if (initialState.email !== overviewState.email) {
 			contactJson.email = overviewState.email;
 		}
+
 		if (initialState.phoneNumber !== overviewState.phoneNumber) {
 			contactJson.phoneNumber = overviewState.phoneNumber;
 		}
 
 		if (Object.keys(contactJson).length) {
-			// pass the contantjson
+			updateCompanyDetailsState(contactJson);
 			updateTenantContactDetails(contactJson);
 		}
+
 		if (initialState.address !== overviewState.address && overviewState.address.length) {
 			let json = { address: overviewState.address };
+			updateCompanyDetailsState(json);
 			updateTenantAddress(json);
 		}
+
 		if (initialState.website !== overviewState.website && overviewState.website.length) {
 			let json = { websiteUrl: overviewState.website };
+			updateCompanyDetailsState(json);
 			updateTenantWebsite(json);
 		}
+
 		if (
 			initialState.businessName !== overviewState.businessName &&
 			overviewState.businessName.length
 		) {
 			let json = { businessName: overviewState.businessName };
-			updateBusniessName(overviewState.businessName);
+			updateCompanyDetailsState(json);
 			updateTenantBusinessName(json);
 		}
 	};
@@ -183,7 +185,6 @@ const PublicInformation = () => {
 		e.preventDefault();
 		if (validate()) {
 			updateDetails();
-
 			setIsEditMode(false);
 		}
 	};
@@ -328,12 +329,12 @@ const PublicInformation = () => {
 					<InputForModules
 						label={'Company Email'}
 						type={'email'}
-						placeholder={overviewState?.companyEmail || ''}
-						name={'companyEmail'}
+						placeholder={overviewState?.email || ''}
+						name={'email'}
 						value={overviewState?.email}
 						onChange={handleChange}
-						isError={false}
-						errorMessage={''}
+						isError={error?.erroremail?.error || false}
+						errorMessage={error?.erroremail?.message || ''}
 					/>
 				</div>
 
@@ -354,13 +355,14 @@ const PublicInformation = () => {
 					<div className="inputDiv">
 						<InputForModules
 							label="Company Type"
-							type={'text'}
+							type={'dropdown'}
 							options={BusinessTypesOptions}
 							placeholder="Choose your Company Type"
-							name={'CompanyType'}
-							value={overviewState?.companyType || ''}
+							name={'businessName'}
+							value={overviewState?.businessType || ''}
 							onChange={handleChange}
 							isError={false}
+							disabled={true}
 							errorMessage={''}
 						/>
 					</div>

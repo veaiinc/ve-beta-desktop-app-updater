@@ -272,6 +272,17 @@ export const ProfileState = () => {
 		}
 	};
 
+	const updateCompanyDetailsState = (payload) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_COMPANY_DETAILS,
+				payload,
+			});
+		} catch (error) {
+			console.log('error==>updateBusniessName', error);
+		}
+	};
+
 	const resetProfileSettingsState = async () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -292,5 +303,6 @@ export const ProfileState = () => {
 		updateUserLogo,
 		resetProfileSettingsState,
 		updateWorkSpaceId,
+		updateCompanyDetailsState,
 	};
 };
