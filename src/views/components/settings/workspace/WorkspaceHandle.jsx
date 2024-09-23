@@ -18,9 +18,9 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 	} = useContext(Context);
 
 	const [domainUpdate, setdomainUpdate] = useState({
-		isValueChanged: true,
-		isDomainPresent: true,
-		message: 'Domain name has already been taken.',
+		isValueChanged: false,
+		isDomainPresent: false,
+		message: '',
 		isPopupOpen: false,
 	});
 	const [domainInput, setdomainInput] = useState(overviewState?.workspaceId || '');

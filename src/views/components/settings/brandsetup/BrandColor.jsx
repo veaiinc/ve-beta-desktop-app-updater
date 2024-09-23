@@ -3,9 +3,16 @@ import { BrandingColorPopUp } from '../popups/BrandingPopups';
 import { BrandColorList } from '../../../features/settings/indexConstant';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/workspaceSettings/plus-button.svg';
 import ColorPicker from '../../colorPicker/ColorPicker';
-import { memo } from 'react';
+import { ReactComponent as CloseSvg } from '../../../../assets/svg/Settings/CrossWhite.svg';
+import { memo, useState } from 'react';
 
-const BrandColorComponent = ({ setbrandState, brandState, handleSelectedColor }) => {
+const BrandColorComponent = ({
+	setbrandState,
+	brandState,
+	handleSelectedColor,
+	handleRemoveColorFunc,
+}) => {
+	const [deleteColor, setdeleteColor] = useState('');
 	return (
 		<>
 			<div className="brandingTextContainer">
@@ -13,14 +20,29 @@ const BrandColorComponent = ({ setbrandState, brandState, handleSelectedColor })
 			</div>
 			<div className="brandColorContainer">
 				{brandState?.brandingThemes?.map((singleColor) => (
-					<div className="chooseBrandColor" key={singleColor?.label}>
+					<div
+						className="fullColorWrapper"
+						onMouseEnter={() => setdeleteColor(singleColor?.value)}
+						onMouseLeave={() => setdeleteColor('')}
+					>
+						<div className="chooseBrandColor" key={singleColor?.label}>
+							<div
+								className="circleColor"
+								style={{ background: `${singleColor?.value || ''}` }}
+							></div>
+							<p className="hashColor">{singleColor?.value}</p>
+						</div>
+
 						<div
-							className="circleColor"
-							style={{ background: `${singleColor?.value || ''}` }}
-						></div>
-						<p className="hashColor">{singleColor?.value}</p>
+							className="cancelDiv"
+							style={{ right: singleColor?.value === deleteColor ? '-7px' : '51px' }}
+							onClick={() => handleRemoveColorFunc(singleColor?.value)}
+						>
+							<CloseSvg />
+						</div>
 					</div>
 				))}
+
 				{/* <div className="chooseBrandColor">
 					<div
 						className="circleColor"

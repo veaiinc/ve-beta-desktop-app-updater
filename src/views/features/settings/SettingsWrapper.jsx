@@ -23,9 +23,10 @@ const mapper = {
 
 const SettingsWrapper = (props) => {
 	const { type } = useParams();
-	console.log(type, 'dty');
+
 	const navigate = useNavigate();
 	const [urlType, setUrlype] = useState('');
+	const [animate, setAnimate] = useState(true);
 
 	const setType = (type) => {
 		navigate(`/my-settings/${type}`);
@@ -34,16 +35,27 @@ const SettingsWrapper = (props) => {
 	const {
 		profileInfo: { getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
+
 	useEffect(() => {
 		if (!tennantSettingsData) {
 			getTenantSettings();
 		}
 	}, []);
 
+	useEffect(() => {
+		setAnimate(true);
+		const timeout = setTimeout(() => {
+			setAnimate(false);
+		}, 1600);
+		return () => clearTimeout(timeout);
+	}, [type]);
+
 	return (
 		<div className="accountSettingsMainWrapper">
 			<div className="accountSettingsWrapper">
-				<div className="accountSettingsMapper">{mapper?.[type]}</div>
+				<div className={`accountSettingsMapper ${animate ? 'animate' : ''}`}>
+					{mapper?.[type]}
+				</div>
 				<div className="accountSettingsSidebar">
 					<SettingsPageSideBar {...props} type={type} setType1={setType} />
 				</div>

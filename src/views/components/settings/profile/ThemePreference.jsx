@@ -5,7 +5,7 @@ const ThemePreferenceComponent = ({ updateThemeSubmitHandler, activeTheme }) => 
 		<div className={'themeMain'}>
 			<h4>Theme performance</h4>
 			<div>
-				{/* <button
+				<button
 					className={activeTheme === 'system' ? 'activeButton' : ''}
 					onClick={() => updateThemeSubmitHandler('system')}
 				>
@@ -16,7 +16,7 @@ const ThemePreferenceComponent = ({ updateThemeSubmitHandler, activeTheme }) => 
 					onClick={() => updateThemeSubmitHandler('light')}
 				>
 					Light
-				</button> */}
+				</button>
 				<button
 					className={activeTheme === 'dark' ? 'activeButton' : ''}
 					onClick={() => updateThemeSubmitHandler('dark')}

@@ -75,6 +75,8 @@
 		li {
 			cursor: pointer;
 			color: rgba(228, 229, 230, 0.32);
+			animation-duration: 0.3s;
+			animation-fill-mode: both;
 
 			span {
 				transition: all 0.8s;
@@ -88,5 +90,16 @@
 				color: #fff;
 			}
 		}
+	}
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0);
 	}
 }

@@ -237,29 +237,54 @@
 		.brandColorContainer {
 			width: 100%;
 			display: flex;
-			justify-content: space-between;
+			// justify-content: space-between;
 			flex-wrap: wrap;
 			gap: 15px;
 
-			.chooseBrandColor {
-				display: flex;
-				align-items: center;
-				width: 132px;
-				height: 48px;
-				gap: 16px;
-				padding: 6px 11px 6px 6px;
-				border-radius: 100px;
-				background: #181819;
-				.hashColor {
-					color: rgba(228, 229, 230, 0.48);
-					font-size: 16px;
-					line-height: 26px;
+			.fullColorWrapper {
+				width: 162px;
+				position: relative;
+				.chooseBrandColor {
+					display: flex;
+					align-items: center;
+					width: 140px;
+					height: 48px;
+					gap: 16px;
+					padding: 6px 11px 6px 6px;
+					border-radius: 100px;
+					background: #181819;
+					position: relative;
+					cursor: pointer;
+					z-index: 2;
+					.hashColor {
+						color: rgba(228, 229, 230, 0.48);
+						font-size: 16px;
+						line-height: 26px;
+					}
+					.circleColor {
+						width: 36px;
+						height: 36px;
+						border-radius: 100%;
+						background-color: #6055ec;
+					}
 				}
-				.circleColor {
-					width: 36px;
-					height: 36px;
-					border-radius: 100%;
-					background-color: #6055ec;
+
+				.cancelDiv {
+					position: absolute;
+					top: 0;
+					right: 51px;
+					z-index: 1;
+					display: flex;
+					width: 79px;
+					height: 48px;
+					padding: 16px 10px 16px 53px;
+					justify-content: flex-end;
+					align-items: center;
+					flex-shrink: 0;
+					border-radius: 100px;
+					background: #28282a;
+					transition: all 1s ease;
+					cursor: pointer;
 				}
 			}
 		}

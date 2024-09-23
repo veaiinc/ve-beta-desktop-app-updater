@@ -109,11 +109,26 @@ const BrandingSetup = () => {
 			],
 		};
 
-		console.log(json);
-
 		setbrandState((prev) => ({
 			...prev,
 			brandingThemes: json?.brandingThemes,
+		}));
+
+		updatePrefernces(json);
+	};
+
+	const handleRemoveColorFunc = (selectedColor) => {
+		const newBrandColorList = brandState?.brandingThemes.filter(
+			(color) => color?.value !== selectedColor,
+		);
+
+		const json = {
+			brandingThemes: [...newBrandColorList],
+		};
+
+		setbrandState((prev) => ({
+			...prev,
+			brandingThemes: newBrandColorList,
 		}));
 
 		updatePrefernces(json);
@@ -175,6 +190,7 @@ const BrandingSetup = () => {
 					brandState={brandState}
 					setbrandState={setbrandState}
 					handleSelectedColor={handleSelectedColor}
+					handleRemoveColorFunc={handleRemoveColorFunc}
 				/>
 			</div>
 

@@ -13,17 +13,25 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 	return (
 		<div className="settingsPageLayout">
 			<ul>
-				{menuItems.map((item) => (
+				{menuItems.map((item, index) => (
 					<li
 						key={item.id}
 						onClick={() => changeRouteFunction(item.id)}
 						className={type === item.id ? 'active' : ''}
+						style={{
+							animationDelay: `${index * 40}ms`,
+							animationName: 'fadeIn',
+						}}
 					>
 						<span>{item.label}</span>
 					</li>
 				))}
 				<li
 					// style={{ color: '#6055EC' }}
+					style={{
+						animationDelay: `${menuItems?.length * 10}ms`,
+						animationName: 'fadeIn',
+					}}
 					onClick={() => navigate(`/create-workspace?authtenticated=true`)}
 				>
 					{' '}

@@ -15,10 +15,28 @@
 		.accountSettingsMapper {
 			width: 580px;
 			height: 85vh;
+			transition: opacity 0.5s, transform 0.5s;
+			// animation: slideIn 0.5s forwards;
+		}
+
+		.animate {
+			transform: translateY(100vh);
+			animation: slideIn 1.5s forwards;
 		}
 		.accountSettingsSidebar {
 			position: sticky;
 			top: 0;
 		}
+	}
+}
+
+@keyframes slideIn {
+	0% {
+		opacity: 0;
+		transform: translateY(100vh);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0);
 	}
 }
