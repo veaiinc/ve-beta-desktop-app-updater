@@ -12,6 +12,7 @@ const actionHandlers = {
 		...state,
 		tenantSubscriptionDetails: action.payload,
 	}),
+
 	RESET_STATE: () => ({ ...intialState }),
 };
 const Reducer = (state, action) => {

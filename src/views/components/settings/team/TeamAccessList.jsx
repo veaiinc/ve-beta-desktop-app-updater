@@ -14,9 +14,8 @@ const TeamAccessListComponent = ({
 	setselectedOption,
 	updateTenantRoleFunc,
 }) => {
-	console.log(filteredUsers);
-
 	const toggleOption = (_id, role) => {
+		if (!info?.isOwner) return;
 		setselectedOption({
 			tenantid: selectedOption?.tenantid ? '' : _id,
 			role: selectedOption?.role ? '' : role,
@@ -31,6 +30,8 @@ const TeamAccessListComponent = ({
 
 		updateTenantRoleFunc(selectedOption?.tenantid, role);
 	};
+
+	console.log(info);
 
 	return (
 		<>
@@ -83,35 +84,36 @@ const TeamAccessListComponent = ({
 												onClick={() => toggleOption(user?._id, user?.role)}
 											>
 												<p>{user?.role}</p>
-												<DownArrow />
+												{info?.isOwner && <DownArrow />}
 											</div>
 
-											{selectedOption?.tenantid === user?._id && (
-												<div className="allListContainer">
-													<div
-														className="option"
-														onClick={() =>
-															updateUserRoleFunction('admin')
-														}
-													>
-														<p>Admin</p>{' '}
-														{selectedOption?.role === 'admin' && (
-															<TickSvg />
-														)}{' '}
+											{info?.isOwner &&
+												selectedOption?.tenantid === user?._id && (
+													<div className="allListContainer">
+														<div
+															className="option"
+															onClick={() =>
+																updateUserRoleFunction('admin')
+															}
+														>
+															<p>Admin</p>{' '}
+															{selectedOption?.role === 'admin' && (
+																<TickSvg />
+															)}{' '}
+														</div>
+														<div
+															className="option"
+															onClick={() =>
+																updateUserRoleFunction('default')
+															}
+														>
+															<p>Member</p>{' '}
+															{selectedOption?.role === 'default' && (
+																<TickSvg />
+															)}{' '}
+														</div>
 													</div>
-													<div
-														className="option"
-														onClick={() =>
-															updateUserRoleFunction('default')
-														}
-													>
-														<p>Member</p>{' '}
-														{selectedOption?.role === 'default' && (
-															<TickSvg />
-														)}{' '}
-													</div>
-												</div>
-											)}
+												)}
 										</div>
 									)}
 								</div>

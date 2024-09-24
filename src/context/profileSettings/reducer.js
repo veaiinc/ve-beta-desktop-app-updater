@@ -41,6 +41,14 @@ const actionHandlers = {
 			businessName: action.payload,
 		},
 	}),
+
+	UPDATE_COMPANY_DETAILS: (state, action) => ({
+		...state,
+		tennantSettingsData: {
+			...state?.tennantSettingsData,
+			...action.payload,
+		},
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 

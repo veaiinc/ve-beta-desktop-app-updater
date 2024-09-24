@@ -16,26 +16,6 @@ const BillingHistoryComponent = () => {
 			</div>
 
 			<div className="billingList">
-				{/* <div className="billingTable">
-					<div className="tableHeading">
-						<div>Subscription</div>
-						<div> Date</div>
-						<div>Status</div>
-						<div>Amount</div>
-						<div>PDF</div>
-					</div>
-
-					{DataList?.map((singleBilling) => (
-						<div className="tableRow">
-							<div>{singleBilling?.subcription}</div>
-							<td>{singleBilling?.date}</td>
-							<td>{singleBilling?.status}</td>
-							<td>{singleBilling?.amount}</td>
-							<td>{singleBilling?.amount}</td>
-						</div>
-					))}
-				</div> */}
-
 				<table>
 					<thead>
 						<tr>
@@ -47,7 +27,7 @@ const BillingHistoryComponent = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{DataList.map((data, index) => (
+						{[].map((data, index) => (
 							<tr key={index}>
 								<td className="subscription">
 									{data.subcription}

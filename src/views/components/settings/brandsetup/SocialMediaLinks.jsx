@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { useState, memo } from 'react';
 import InstagramLogoColorless from '../../../../assets/svg/workspaceSettings/InstagramLogoColorless.svg';
 import FacebookLogoColorless from '../../../../assets/svg/workspaceSettings/FacebookLogoColorless.svg';
 import PinterestLogoColorless from '../../../../assets/svg/workspaceSettings/PinterestLogoColorless.svg';
@@ -27,7 +27,6 @@ const SocialMediaLinksComponent = ({
 	brandState,
 	setbrandState,
 	handleChange,
-	handleActivateLogo,
 }) => {
 	const logoComponents = {
 		instagram: { inactive: InstagramLogoColorless, active: InstagramActive },
@@ -41,6 +40,28 @@ const SocialMediaLinksComponent = ({
 		telegram: { inactive: TelegramLogoColorless, active: TelegramActive },
 		steam: { inactive: DribbbleLogoColorless, active: DribbbleLogoactive },
 	};
+
+	const [isActive, setisActive] = useState(false);
+
+	const openPopupFunction = (logoName, isActive) => {
+		console.log(isActive);
+		if (isActive) setisActive(true);
+		setbrandState((prev) => ({
+			...prev,
+			brandingMediaPopup: true,
+			socialMediaType: logoName,
+		}));
+	};
+
+	const handleActivateLogo = (value) => {
+		if (brandState.socialMediaType) {
+			setbrandState((prev) => ({
+				...prev,
+				[`${brandState.socialMediaType}Profile`]: value,
+			}));
+		}
+	};
+
 	return (
 		<>
 			<div className="socialLinkTextContainer">
@@ -61,13 +82,7 @@ const SocialMediaLinksComponent = ({
 						<div
 							className="logoContainer"
 							key={index}
-							onClick={() => {
-								setbrandState((prev) => ({
-									...prev,
-									brandingMediaPopup: true,
-									socialMediaType: logoName,
-								}));
-							}}
+							onClick={() => openPopupFunction(logoName, isActive)}
 						>
 							<img src={logoToDisplay} alt={`${logoName} logo`} />
 						</div>
@@ -89,6 +104,7 @@ const SocialMediaLinksComponent = ({
 					onChangeFunc={handleChange}
 					value={brandState?.[brandState?.socialMediaType + 'Profile']}
 					handleActivate={handleActivateLogo}
+					isActive={isActive}
 				/>
 			)}
 		</>

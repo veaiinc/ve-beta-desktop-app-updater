@@ -9,6 +9,7 @@ const UpdateWorkspacePopup = ({
 	domainUpdate,
 	setdomainUpdate,
 	updateDomainFunction,
+	remainingCount,
 }) => {
 	const closeModalFunc = () => {
 		setdomainUpdate((prev) => ({ ...prev, isPopupOpen: false }));
@@ -36,7 +37,7 @@ const UpdateWorkspacePopup = ({
 
 					<div className="finalWarningDiv">
 						<FinalInfoSvg />
-						<p>You would have 2 domain changes left after this change</p>
+						<p>{`You would have ${remainingCount} domain changes left after this change`}</p>
 					</div>
 
 					<button className="updateFinalWorkspaceButton" onClick={updateDomainFunction}>

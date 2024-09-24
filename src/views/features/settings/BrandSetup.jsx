@@ -10,12 +10,7 @@ import BrandFontsComponent from '../../components/settings/brandsetup/BrandFonts
 const BrandingSetup = () => {
 	const {
 		profileInfo: { getTenantSettings, tennantSettingsData, changelogo },
-		companyInfo: {
-			updatePrefernces,
-			getTenantPreferences,
-			tenantPreferenceData,
-			uploadTenantLogo,
-		},
+		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
 	} = useContext(Context);
 
 	const [isAdmin, setIsAdmin] = useState(true); // Set this based on your logic
@@ -41,9 +36,6 @@ const BrandingSetup = () => {
 	});
 
 	useEffect(() => {
-		// if (!tennantSettingsData) {
-		// 	getTenantSettings();
-		// }
 		if (!tenantPreferenceData) {
 			getTenantPreferences();
 		}
@@ -80,18 +72,6 @@ const BrandingSetup = () => {
 			}));
 		}
 	}, [tenantPreferenceData]);
-	const checkUploadLogo = (acceptedFiles) => {
-		const file = acceptedFiles[0];
-		const reader = new FileReader();
-
-		reader.onloadend = () => {
-			setLogoUrl(reader.result);
-			changelogo(reader?.result);
-		};
-
-		reader.readAsDataURL(file);
-		uploadTenantLogo(file);
-	};
 
 	const handleSelectedColor = (selectedColor) => {
 		const isAlreadyExist = brandState.brandingThemes.find(
@@ -134,16 +114,6 @@ const BrandingSetup = () => {
 		updatePrefernces(json);
 	};
 
-	const handleToggleChange = (e) => {
-		setbrandState((prev) => ({
-			...prev,
-			isEnabled: !prev.isEnabled,
-		}));
-		let json = {
-			showFooter: e,
-		};
-		updatePrefernces(json);
-	};
 	const handleChange = async (e) => {
 		const { name, value } = e.target;
 
@@ -157,14 +127,6 @@ const BrandingSetup = () => {
 		}
 		return [true];
 	};
-	const handleActivateLogo = () => {
-		if (brandState.socialMediaType) {
-			setbrandState((prev) => ({
-				...prev,
-				[`${brandState.socialMediaType}Profile`]: 'active',
-			}));
-		}
-	};
 
 	return (
 		<div className="brandsetupContainer">
@@ -175,7 +137,6 @@ const BrandingSetup = () => {
 					brandState={brandState}
 					setbrandState={setbrandState}
 					handleChange={handleChange}
-					handleActivateLogo={handleActivateLogo}
 				/>
 			</div>
 

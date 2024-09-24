@@ -11,10 +11,9 @@ import { ve_conversations_api } from '../../../services/config';
 import axios from 'axios';
 
 const Configs = [
-	{ isActive: true, title: 'Meta Leads', icon: meta },
 	{ isActive: false, title: 'Google', icon: google },
-	{ isActive: true, title: 'Stripe', icon: stripe },
-	{ isActive: true, title: 'Paypal', icon: paypal },
+	{ isActive: false, title: 'Stripe', icon: stripe },
+	{ isActive: false, title: 'Paypal', icon: paypal },
 	{ isActive: false, title: 'Square', icon: square },
 ];
 
@@ -28,22 +27,22 @@ const Integrations = () => {
 		openMoreFacebook: false,
 		loader: false,
 	});
-	useEffect(() => {
-		fetchMetaInfo();
-	}, []);
+	// useEffect(() => {
+	// 	fetchMetaInfo();
+	// }, []);
 
-	useEffect(() => {
-		if (pageInfoData) {
-			const { data } = pageInfoData;
-			let updatedValue;
-			if (data?.length) {
-				updatedValue = true;
-			} else {
-				updatedValue = false;
-			}
-			setInfo((prev) => ({ ...prev, metaInteg: updatedValue }));
-		}
-	}, [pageInfoData]);
+	// useEffect(() => {
+	// 	if (pageInfoData) {
+	// 		const { data } = pageInfoData;
+	// 		let updatedValue;
+	// 		if (data?.length) {
+	// 			updatedValue = true;
+	// 		} else {
+	// 			updatedValue = false;
+	// 		}
+	// 		setInfo((prev) => ({ ...prev, metaInteg: updatedValue }));
+	// 	}
+	// }, [pageInfoData]);
 
 	const fetchMetaInfo = useCallback(async () => {
 		const payload = {
@@ -55,39 +54,46 @@ const Integrations = () => {
 		getPageInfo(payload);
 	}, []);
 
-	const handleFaceBookConnection = async () => {
-		if (info.loader) {
-			return;
-		}
-		if (info.metaInteg) {
-			return;
-		}
-		setInfo((prev) => ({
-			...prev,
-			loader: true,
-		}));
-		const usertoken = localStorage.getItem('usertoken');
-		const workspaceID = localStorage.getItem('workspaceId');
-		const link = `${ve_conversations_api}/oauth/${workspaceID}/login`;
-		const response = await axios.get(link, {
-			headers: {
-				Authorization: `Bearer ${usertoken}`,
-			},
-		});
-		if (response.status === 200) {
+	const functionsObject = {
+		handleFaceBookConnection: async () => {
+			if (info.loader) {
+				return;
+			}
+			if (info.metaInteg) {
+				return;
+			}
 			setInfo((prev) => ({
 				...prev,
-				loader: false,
+				loader: true,
 			}));
 
-			const url = response?.data;
-			window.location.href = url;
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				loader: false,
-			}));
-		}
+			try {
+				const usertoken = localStorage.getItem('usertoken');
+				const workspaceID = localStorage.getItem('workspaceId');
+				const link = `${ve_conversations_api}/oauth/${workspaceID}/login`;
+				const response = await axios.get(link, {
+					headers: {
+						Authorization: `Bearer ${usertoken}`,
+					},
+				});
+				if (response.status === 200) {
+					setInfo((prev) => ({
+						...prev,
+						loader: false,
+					}));
+
+					const url = response?.data;
+					window.location.href = url;
+				} else {
+					setInfo((prev) => ({
+						...prev,
+						loader: false,
+					}));
+				}
+			} catch (error) {
+				console.log(error);
+			}
+		},
 	};
 
 	return (
@@ -95,6 +101,49 @@ const Integrations = () => {
 			<h1 className="title">Integrations</h1>
 
 			<div className="integrationsTypes">
+				{/* meta */}
+				<div className="integrationSingleList">
+					<div className="imageContainer">
+						<img src={meta} alt="meta" />
+						<div className="textContainer">
+							<h1>Meta Leads</h1>
+						</div>
+					</div>
+
+					<div className="buttonsContainer">
+						{info.openMoreFacebook ? (
+							<>
+								<div className="disconnectButton">
+									<ReusableButtonSettings
+										text={'Disconnect'}
+										loader={info.loader}
+										active={info.metaInteg}
+										disableHover={!info.metaInteg}
+									/>
+								</div>
+
+								<div className="configButton">
+									<ReusableButtonSettings text={'Configure'} />
+								</div>
+							</>
+						) : (
+							<div className="connectButton">
+								<ReusableButtonSettings
+									text={'Connect'}
+									func={!info.metaInteg ? null : null}
+									loader={info.loader}
+									// active={info.metaInteg}
+									active={info.metaInteg}
+									disableHover={!info.metaInteg}
+								/>
+							</div>
+						)}
+					</div>
+
+					{info.openMoreFacebook && <div className="activeCirlce"></div>}
+				</div>
+
+				{/* other only static  */}
 				{Configs.map((singleIntegration) => {
 					// logic
 
@@ -113,11 +162,6 @@ const Integrations = () => {
 										<div className="disconnectButton">
 											<ReusableButtonSettings
 												text={'Disconnect'}
-												func={
-													!info.metaInteg
-														? handleFaceBookConnection
-														: null
-												}
 												loader={info.loader}
 												active={info.metaInteg}
 												disableHover={!info.metaInteg}
@@ -125,28 +169,12 @@ const Integrations = () => {
 										</div>
 
 										<div className="configButton">
-											<ReusableButtonSettings
-												text={'Configure'}
-												func={
-													!info.metaInteg
-														? handleFaceBookConnection
-														: null
-												}
-												loader={info.loader}
-												active={info.metaInteg}
-												disableHover={!info.metaInteg}
-											/>
+											<ReusableButtonSettings text={'Configure'} />
 										</div>
 									</>
 								) : (
 									<div className="connectButton">
-										<ReusableButtonSettings
-											text={'Connect'}
-											func={!info.metaInteg ? handleFaceBookConnection : null}
-											loader={info.loader}
-											active={info.metaInteg}
-											disableHover={!info.metaInteg}
-										/>
+										<ReusableButtonSettings text={'Connect'} />
 									</div>
 								)}
 							</div>
