@@ -27,22 +27,22 @@ const Integrations = () => {
 		openMoreFacebook: false,
 		loader: false,
 	});
-	// useEffect(() => {
-	// 	fetchMetaInfo();
-	// }, []);
+	useEffect(() => {
+		fetchMetaInfo();
+	}, []);
 
-	// useEffect(() => {
-	// 	if (pageInfoData) {
-	// 		const { data } = pageInfoData;
-	// 		let updatedValue;
-	// 		if (data?.length) {
-	// 			updatedValue = true;
-	// 		} else {
-	// 			updatedValue = false;
-	// 		}
-	// 		setInfo((prev) => ({ ...prev, metaInteg: updatedValue }));
-	// 	}
-	// }, [pageInfoData]);
+	useEffect(() => {
+		if (pageInfoData) {
+			const { data } = pageInfoData;
+			let updatedValue;
+			if (data?.length) {
+				updatedValue = true;
+			} else {
+				updatedValue = false;
+			}
+			setInfo((prev) => ({ ...prev, metaInteg: updatedValue }));
+		}
+	}, [pageInfoData]);
 
 	const fetchMetaInfo = useCallback(async () => {
 		const payload = {
@@ -145,8 +145,6 @@ const Integrations = () => {
 
 				{/* other only static  */}
 				{Configs.map((singleIntegration) => {
-					// logic
-
 					return (
 						<div className="integrationSingleList">
 							<div className="imageContainer">

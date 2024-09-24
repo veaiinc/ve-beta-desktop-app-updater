@@ -177,23 +177,7 @@ export const CompanySettingsState = () => {
 			console.log('error => uploadTenantLogo ', error);
 		}
 	};
-	// const inviteNewuser = async (payload) => {
-	// 	try {
-	// 		let usertoken = localStorage.getItem('usertoken');
-	// 		let workspaceId = localStorage.getItem('workspaceId');
-	// 		const response = await service.fetchPost(
-	// 			'/tenant/' + workspaceId + API.TENANTS.tenantUsers,
-	// 			payload,
-	// 			usertoken,
-	// 			'auth',
-	// 		);
-	// 		if (response?.[0] === true) {
-	// 			getTeamMembers();
-	// 		}
-	// 	} catch (error) {
-	// 		console.log('error => inviteNewuser ', error);
-	// 	}
-	// };
+
 	const inviteNewuser = async (payload) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -214,7 +198,7 @@ export const CompanySettingsState = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			let response = await service.fetchPut(
+			await service.fetchPut(
 				'/' + workspaceId + API.TENANTS.tenantUsers + '/' + payload?._id + '/role',
 				// payload?.role,
 				{ role: payload?.role },
@@ -223,6 +207,19 @@ export const CompanySettingsState = () => {
 			);
 		} catch (error) {
 			console.log('error => updateTenantBusinessName ', error);
+		}
+	};
+
+	const checkWorkspaceId = async (payload) => {
+		try {
+			const responce = await service.fetchGet(
+				'/tenant/workspaceId-availability?workspaceId=' + payload,
+				null,
+				'auth',
+			);
+			return responce;
+		} catch (error) {
+			return error;
 		}
 	};
 
@@ -249,5 +246,6 @@ export const CompanySettingsState = () => {
 		resetCompanySettings,
 		inviteNewuser,
 		updateTenantRole,
+		checkWorkspaceId,
 	};
 };

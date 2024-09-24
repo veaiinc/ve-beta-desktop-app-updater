@@ -130,12 +130,12 @@ const ProfileDetailsComponent = ({
 				setuploadAvatarPopup={setuploadAvatarPopup}
 			/>
 
-			<UploadFileProiflePopup
+			{/* <UploadFileProiflePopup
 				userDetails={userDetails}
 				userDetailsData={userDetailsData}
 				uploadAvatarPopup={uploadAvatarPopup}
 				setuploadAvatarPopup={setuploadAvatarPopup}
-			/>
+			/> */}
 		</>
 	);
 };

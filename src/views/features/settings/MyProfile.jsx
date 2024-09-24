@@ -9,6 +9,7 @@ import TwoFactorAuthenticationComponent from '../../components/settings/profile/
 import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWorkspace';
 
 const MyProfile = () => {
+	// # Context
 	const {
 		profileInfo: {
 			get2FAQrCode,
@@ -17,19 +18,18 @@ const MyProfile = () => {
 			updateUserDetails,
 			updateUserPhoneNumber,
 			qrcode,
-			userWorkSpaceList,
-			chooseDefaultWorkspace,
 			updateUserLogo,
 			getTenantUserDetails,
 			tenantUserDetails,
 		},
 		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
 	} = useContext(Context);
+
+	// # States
 	const [showForm, setShowForm] = useState(false);
 	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [errors, setErrors] = useState({});
 	const [activeTheme, setActiveTheme] = useState('dark');
-	const [activeWorkspace, setActiveWorkspace] = useState(null);
 	const [userDetails, setUserDetails] = useState({
 		fullName: '',
 		email: '',
@@ -38,19 +38,7 @@ const MyProfile = () => {
 		logoURL: '',
 	});
 
-	const [isAdmin, setIsAdmin] = useState(false);
-	const [activeItem, setActiveItem] = useState('profile');
-
-	const handleNavigation = (id) => {
-		setActiveItem(id);
-		document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-	};
-	useEffect(() => {
-		if (userWorkSpaceList && userWorkSpaceList.length > 0) {
-			setActiveWorkspace(userWorkSpaceList?.[0].tenant_id);
-		}
-	}, [userWorkSpaceList]);
-
+	// # Useeffects
 	useEffect(() => {
 		if (!tenantPreferenceData) {
 			getTenantPreferences();
@@ -97,6 +85,7 @@ const MyProfile = () => {
 		}
 	}, [userDetails?.phoneNumber]);
 
+	// # Functions
 	const handleDebounceSearch = useCallback(
 		(typeCall = '') => {
 			clearInterval(isEditMode?.timeout);
@@ -159,11 +148,6 @@ const MyProfile = () => {
 				break;
 		}
 		return error;
-	};
-
-	const handlehandleDefaultWorkspace = (data) => {
-		setActiveWorkspace(data?.tenant_id);
-		chooseDefaultWorkspace(data);
 	};
 
 	const handleChange = (e) => {

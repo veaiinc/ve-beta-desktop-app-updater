@@ -1,7 +1,8 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useCallback, useEffect, memo } from 'react';
 import { ReactComponent as ActivePoint } from '../../../../assets/svg/Settings/GreenpinActive.svg';
 import UpdateWorkspacePopup from './UpdateWorkspacePopup';
 import Context from '../../../../context/context';
+import { toast } from 'react-toastify';
 
 const IsActiveComponent = () => {
 	return (
@@ -13,24 +14,88 @@ const IsActiveComponent = () => {
 };
 
 const WorkspaceHandleComponent = ({ overviewState }) => {
+	// Contexts
 	const {
-		profileInfo: { updateWorkSpaceId },
+		profileInfo: { updateWorkSpaceId, tennantSettingsData, getTenantSettings },
+		companyInfo: { checkWorkspaceId },
 	} = useContext(Context);
 
+	// useStates
 	const [domainUpdate, setdomainUpdate] = useState({
 		isValueChanged: false,
 		isDomainPresent: false,
 		message: '',
 		isPopupOpen: false,
+		isActive: true,
+		timeout: null,
+		isWorkspaceFull: false,
 	});
-	const [domainInput, setdomainInput] = useState(
-		overviewState?.tennatWorkspaceIds[overviewState?.tennatWorkspaceIds.length - 1] || '',
+	const [domainInput, setdomainInput] = useState('');
+
+	// useEffects
+	useEffect(() => {
+		const doamins = tennantSettingsData?.workspaceIds
+			? [...tennantSettingsData?.workspaceIds]
+			: [];
+
+		if (doamins?.length > 0) {
+			setdomainInput(
+				tennantSettingsData?.workspaceIds[tennantSettingsData?.workspaceIds?.length - 1],
+			);
+
+			if (doamins.length === 3) {
+				setdomainUpdate((prev) => ({ ...prev, isWorkspaceFull: true }));
+			}
+		}
+	}, [tennantSettingsData?.workspaceIds]);
+
+	// Functions
+	const workspaceChangeHandler = async (e) => {
+		const updatedValue = e?.target?.value;
+		toast.success('jheloo');
+		setdomainInput(e.target.value);
+		if (updatedValue?.length <= 3) {
+			return setdomainUpdate((prev) => ({
+				...prev,
+				isValueChanged: true,
+				message: 'Domain name should be at least 4',
+				isPopupOpen: false,
+				isDomainPresent: false,
+				isActive: false,
+			}));
+		} else if (!domainUpdate?.isValueChanged) {
+			setdomainUpdate((prev) => ({ ...prev, isValueChanged: true }));
+		}
+
+		handleDebounceSearch(updatedValue);
+	};
+
+	const handleDebounceSearch = useCallback(
+		(domainname) => {
+			clearInterval(domainUpdate?.timeout);
+			const timeout = setTimeout(() => {
+				checkDomainNameFunc(domainname);
+				setdomainUpdate((prev) => ({ ...prev, timeout: null }));
+			}, 800);
+			setdomainUpdate((prev) => ({ ...prev, timeout }));
+		},
+		[domainUpdate?.timeout],
 	);
 
-	const workspaceChangeHandler = (e) => {
-		if (!domainUpdate?.isValueChanged)
-			setdomainUpdate((prev) => ({ ...prev, isValueChanged: true, isPopupOpen: false }));
-		setdomainInput(e.target.value);
+	const checkDomainNameFunc = async (domainname) => {
+		const respone = await checkWorkspaceId(domainname);
+
+		setdomainUpdate((prev) => {
+			const update = { ...prev };
+			if (respone?.[1]?.isAvailable) {
+				update.isDomainPresent = true;
+				update.message = 'Available';
+			} else {
+				update.isDomainPresent = false;
+				update.message = 'Domain name has already been taken.';
+			}
+			return update;
+		});
 	};
 
 	const updateDomainFunction = () => {
@@ -38,8 +103,9 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 			workspaceId: domainInput,
 		};
 
-		// {"updatesRemaining":1}
 		updateWorkSpaceId(json);
+		setdomainUpdate((prev) => ({ ...prev, isPopupOpen: false }));
+		getTenantSettings();
 	};
 
 	return (
@@ -55,17 +121,20 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 					<div
 						className="inputDiv"
 						style={{
-							border: !domainUpdate?.isValueChanged
-								? ''
-								: domainUpdate?.isDomainPresent
-								? '1px dashed rgba(9, 169, 53, 0.16)'
-								: '1px solid rgba(255, 64, 64, 0.16)',
+							border: domainUpdate?.isValueChanged
+								? domainUpdate?.message === ''
+									? ''
+									: domainUpdate?.isDomainPresent
+									? '1px dashed rgba(9, 169, 53, 0.16)'
+									: '1px solid rgba(255, 64, 64, 0.16)'
+								: '',
 						}}
 					>
 						<input
 							placeholder="minimun 4 letters"
 							value={domainInput}
 							onChange={workspaceChangeHandler}
+							disabled={domainUpdate?.isWorkspaceFull ? true : false}
 						/>
 						<p className="domainName">ve.ai</p>
 					</div>
@@ -82,7 +151,7 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 						</button>
 					)}
 
-					{!domainUpdate.isValueChanged && <IsActiveComponent />}
+					{domainUpdate?.isActive && <IsActiveComponent />}
 				</div>
 
 				{domainUpdate?.isValueChanged && domainUpdate?.message && (
@@ -97,6 +166,12 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 						{domainUpdate?.message}
 					</p>
 				)}
+
+				{domainUpdate?.isWorkspaceFull && (
+					<p className="messsageShow" style={{ color: 'gray' }}>
+						You Cannot Change the Doamins
+					</p>
+				)}
 			</div>
 
 			{domainUpdate?.isDomainPresent && domainInput !== overviewState?.workspaceId && (
@@ -106,11 +181,11 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 					domainUpdate={domainUpdate}
 					setdomainUpdate={setdomainUpdate}
 					updateDomainFunction={updateDomainFunction}
-					remainingCount={overviewState?.tennatWorkspaceIds?.length || 2}
+					remainingCount={3 - overviewState?.tennatWorkspaceIds?.length || 2}
 				/>
 			)}
 		</div>
 	);
 };
 
-export default WorkspaceHandleComponent;
+export default memo(WorkspaceHandleComponent);

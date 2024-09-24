@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 const DeleteWorkpsaceComponent = () => {
 	return (
 		<>
@@ -10,4 +12,4 @@ const DeleteWorkpsaceComponent = () => {
 	);
 };
 
-export default DeleteWorkpsaceComponent;
+export default memo(DeleteWorkpsaceComponent);

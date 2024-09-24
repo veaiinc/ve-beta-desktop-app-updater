@@ -8,13 +8,13 @@ import ClientPortalComponent from '../../components/settings/brandsetup/ClientPo
 import BrandFontsComponent from '../../components/settings/brandsetup/BrandFonts';
 
 const BrandingSetup = () => {
+	// Contexts
 	const {
-		profileInfo: { getTenantSettings, tennantSettingsData, changelogo },
+		profileInfo: { tennantSettingsData },
 		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
 	} = useContext(Context);
 
-	const [isAdmin, setIsAdmin] = useState(true); // Set this based on your logic
-	const [logoUrl, setLogoUrl] = useState('');
+	// useStates
 	const [brandState, setbrandState] = useState({
 		brandingMediaPopup: false,
 		socialMediaType: '',
@@ -35,11 +35,14 @@ const BrandingSetup = () => {
 		brandingThemes: [],
 	});
 
+	// useEffects
+
 	useEffect(() => {
 		if (!tenantPreferenceData) {
 			getTenantPreferences();
 		}
 	}, []);
+
 	useEffect(() => {
 		if (tennantSettingsData) {
 			setbrandState((prev) => ({
@@ -58,7 +61,6 @@ const BrandingSetup = () => {
 				steamProfile: tennantSettingsData?.steamProfile || '',
 				youtubeProfile: tennantSettingsData?.youtubeProfile || 'https://www.youtube.com/',
 			}));
-			setLogoUrl(tennantSettingsData?.logo_s3_500w_key || '');
 		}
 	}, [tennantSettingsData]);
 
@@ -73,6 +75,7 @@ const BrandingSetup = () => {
 		}
 	}, [tenantPreferenceData]);
 
+	// Functions
 	const handleSelectedColor = (selectedColor) => {
 		const isAlreadyExist = brandState.brandingThemes.find(
 			(item) => item.value === selectedColor,

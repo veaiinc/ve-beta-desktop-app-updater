@@ -13,6 +13,7 @@ import { ReactComponent as CloudFileUploadSvg } from '../../../assets/svg/Settin
 import Dropzone from 'react-dropzone';
 
 const PublicInformation = () => {
+	// Context
 	const {
 		profileInfo: { tennantSettingsData, updateCompanyDetailsState, changelogo },
 		companyInfo: {
@@ -24,6 +25,7 @@ const PublicInformation = () => {
 		},
 	} = useContext(Context);
 
+	// useStates
 	const [error, setErrors] = useState({});
 	const [logoUrl, setLogoUrl] = useState('');
 	const [arrow, setArrow] = useState('Show');
@@ -40,30 +42,7 @@ const PublicInformation = () => {
 	});
 	const [initialState, setInitialState] = useState({ ...overviewState });
 
-	const mergedArrow = useMemo(() => {
-		if (arrow === 'Hide') {
-			return false;
-		}
-		if (arrow === 'Show') {
-			return true;
-		}
-		return {
-			pointAtCenter: true,
-		};
-	}, [arrow]);
-
-	const checkIsAdmin = () => {
-		let usertoken = localStorage.getItem('usertoken');
-		let decoded = jwt_decode(usertoken);
-		let workspaceID = localStorage.getItem('workspaceId');
-		let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded.user_id}`));
-
-		setOverviewState((prev) => ({
-			...prev,
-			isAdmin: role === 'admin',
-		}));
-	};
-
+	// useEffects
 	useEffect(() => {
 		setOverviewState((prev) => ({
 			...prev,
@@ -90,6 +69,32 @@ const PublicInformation = () => {
 	useEffect(() => {
 		handleDebounceSearch('phone');
 	}, [overviewState]);
+
+	// functions
+
+	const mergedArrow = useMemo(() => {
+		if (arrow === 'Hide') {
+			return false;
+		}
+		if (arrow === 'Show') {
+			return true;
+		}
+		return {
+			pointAtCenter: true,
+		};
+	}, [arrow]);
+
+	const checkIsAdmin = () => {
+		let usertoken = localStorage.getItem('usertoken');
+		let decoded = jwt_decode(usertoken);
+		let workspaceID = localStorage.getItem('workspaceId');
+		let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded.user_id}`));
+
+		setOverviewState((prev) => ({
+			...prev,
+			isAdmin: role === 'admin',
+		}));
+	};
 
 	const validateField = (fieldName, value) => {
 		let Value = value || '';

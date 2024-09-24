@@ -8,20 +8,16 @@ import Context from '../../../context/context';
 import AddNewUserModal from './addNewUser';
 import InviteMembersWorkspaceComponent from '../../components/settings/team/InviteMembersWorkspace';
 import TeamAccessListComponent from '../../components/settings/team/TeamAccessList';
-import { Button, message } from 'antd';
+import { message } from 'antd';
 
 const TeamSettings = () => {
+	// Contexts
 	const {
-		profileInfo: { getTenantUserDetails, tenantUserDetails },
-		companyInfo: {
-			getTeamMembers,
-			tenantsUserList,
-			inviteUserRes,
-			inviteNewuser,
-			updateTenantRole,
-		},
+		profileInfo: { tenantUserDetails },
+		companyInfo: { getTeamMembers, tenantsUserList, inviteNewuser, updateTenantRole },
 	} = useContext(Context);
 
+	// useStates
 	const [info, setInfo] = useState({
 		showAddTenantUserModal: false,
 		tenantUser: [],
@@ -54,19 +50,10 @@ const TeamSettings = () => {
 
 	const [messageApi, contextHolder] = message.useMessage();
 
+	// useEffects
 	useEffect(() => {
 		fetchData();
 	}, []);
-
-	const fetchData = async () => {
-		if (!tenantsUserList) {
-			await getTeamMembers();
-		}
-		setInfo((prev) => ({
-			...prev,
-			isloading: false,
-		}));
-	};
 
 	useEffect(() => {
 		if (tenantsUserList) {
@@ -89,13 +76,15 @@ const TeamSettings = () => {
 		}
 	}, [tenantUserDetails]);
 
-	console.log(tenantUserDetails);
-
-	// useEffect(() => {
-	// 	if (inviteUserRes === 'success') {
-	// 		getTeamMembers();
-	// 	}
-	// }, [inviteUserRes]);
+	const fetchData = async () => {
+		if (!tenantsUserList) {
+			await getTeamMembers();
+		}
+		setInfo((prev) => ({
+			...prev,
+			isloading: false,
+		}));
+	};
 
 	const handleChnage = (e, index) => {
 		const { name, value } = e.target;
@@ -250,7 +239,6 @@ const TeamSettings = () => {
 			.then((results) => {
 				const update = [...sendRequestList];
 				results?.map((singleResult, index) => {
-					console.log(singleResult[0]);
 					if (!_.isBoolean(singleResult[0]) && singleResult[0] !== true) {
 						update[index].emailIDError = true;
 						update[index].emailIDMessage = singleResult[1]?.message;
@@ -262,7 +250,6 @@ const TeamSettings = () => {
 							const tempUpdate = [...sendRequestList];
 							tempUpdate[index].successTrue = false;
 							tempUpdate[index].emailIDMessage = '';
-							// console.log(tempUpdate);
 
 							setsendRequestList(tempUpdate);
 						}, 2000);

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { ThemesList } from '../../../features/settings/indexConstant';
 import ClientPortalView from './ClientPortalView';
 
@@ -78,4 +78,4 @@ const ClientPortalComponent = () => {
 	);
 };
 
-export default ClientPortalComponent;
+export default memo(ClientPortalComponent);

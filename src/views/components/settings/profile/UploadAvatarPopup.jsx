@@ -65,7 +65,7 @@ const UploadAvatarPopupComponent = ({
 						</div>
 					)}
 
-					<button
+					{/* <button
 						className="customAvatarButton"
 						onClick={() => {
 							setuploadAvatarPopup((prev) => ({ ...prev, theme: false, file: true }));
@@ -76,7 +76,7 @@ const UploadAvatarPopupComponent = ({
 							<PlusSvg />
 						</span>
 						<span>Add Custom Avatar</span>
-					</button>
+					</button> */}
 
 					<div>
 						<button className="saveChangeButton">Save Changes</button>

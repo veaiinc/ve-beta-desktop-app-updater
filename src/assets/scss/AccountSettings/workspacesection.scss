@@ -22,6 +22,7 @@
 		}
 
 		.domainContainer {
+			margin-top: 24px;
 			h2 {
 				color: #b0b0b0;
 				font-family: Inter;
@@ -29,12 +30,12 @@
 				font-style: normal;
 				font-weight: 400;
 				line-height: 16px; /* 133.333% */
+				margin-bottom: 8px;
 			}
 
 			.domainInput {
 				display: flex;
 				gap: 16px;
-
 				.inputDiv {
 					display: flex;
 					height: 48px;

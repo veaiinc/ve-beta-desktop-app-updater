@@ -261,11 +261,11 @@ export const ProfileState = () => {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 
-			const responseData = await service.fetchPut(
-				'/' + workspaceId + '/add-workspaceId ',
+			await service.fetchPut(
+				'/tenant/' + workspaceId + '/add-workspaceId ',
 				json,
 				usertoken,
-				'tenant',
+				'auth',
 			);
 		} catch (error) {
 			console.log('error', error);
