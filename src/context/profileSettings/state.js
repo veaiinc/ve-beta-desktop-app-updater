@@ -71,6 +71,7 @@ export const ProfileState = () => {
 			console.log('error==>getTenantUserDetails', error);
 		}
 	};
+
 	const get2FAQrCode = async () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -127,8 +128,10 @@ export const ProfileState = () => {
 				usertoken,
 				'tenant-users',
 			);
+			return response;
 		} catch (error) {
 			console.log('error==>updateUserDetails', error);
+			return error;
 		}
 	};
 
@@ -137,15 +140,16 @@ export const ProfileState = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let decoded = jwt_decode(usertoken);
-			console.log(decoded);
 			let response = service.fetchPut(
 				'/' + decoded.user_id + API.TENANTS.updateTenantUser,
 				payload,
 				usertoken,
 				'tenant-users',
 			);
+			return response;
 		} catch (error) {
 			console.log(error);
+			return error;
 		}
 	};
 
@@ -261,14 +265,16 @@ export const ProfileState = () => {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 
-			await service.fetchPut(
+			const response = await service.fetchPut(
 				'/tenant/' + workspaceId + '/add-workspaceId ',
 				json,
 				usertoken,
 				'auth',
 			);
+
+			return response;
 		} catch (error) {
-			console.log('error', error);
+			return error;
 		}
 	};
 
@@ -279,7 +285,7 @@ export const ProfileState = () => {
 				payload,
 			});
 		} catch (error) {
-			console.log('error==>updateBusniessName', error);
+			console.log('error', error);
 		}
 	};
 

@@ -103,7 +103,7 @@ const MyProfile = () => {
 			}, 1500);
 			setIsEditMode((prev) => ({ ...prev, timeout }));
 		},
-		[isEditMode?.timeout, userDetails?.fullName],
+		[isEditMode?.timeout, userDetails?.fullName, userDetails?.phoneNumber],
 	);
 
 	const handleFormPopUp = () => {
@@ -193,7 +193,7 @@ const MyProfile = () => {
 		return Object.keys(newErrors).length === 0;
 	};
 
-	const handleSubmit = (nameApi = 'name') => {
+	const handleSubmit = async (nameApi = 'name') => {
 		if (!validate()) return;
 
 		if (nameApi === 'name') {
@@ -201,12 +201,18 @@ const MyProfile = () => {
 				firstName: userDetails.fullName,
 				lastName: userDetails.fullName,
 			};
-			updateUserDetails(json);
+			const response = await updateUserDetails(json);
+
+			if (response[0] !== true)
+				setErrors((prev) => ({ ...prev, fullName: response[1]?.message }));
 		} else if (nameApi === 'phone') {
 			let json = {
 				phoneNumber: userDetails?.phoneNumber,
 			};
-			updateUserPhoneNumber(json);
+			const response = await updateUserPhoneNumber(json);
+			console.log(response);
+			if (response[0] !== true)
+				setErrors((prev) => ({ ...prev, phoneNumber: response[1]?.message }));
 		}
 	};
 

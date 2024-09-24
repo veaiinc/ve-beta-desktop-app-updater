@@ -1,7 +1,7 @@
 import { useState, memo } from 'react';
 import ReusableButtonSettings from '../ReusableButtonSettings';
 import { ReactComponent as GlobeSettings } from '../../../../assets/svg/workspaceSettings/globeSettings.svg';
-import { TimeZoneCurrencyPopup } from '../popups/TimezoneCurrencypopups';
+import TimezoneCurrencypopups from './TimezoneCurrencypopups';
 
 const TimeZoneCurrencyComponent = ({ overviewState }) => {
 	const [openPopup, setopenPopup] = useState(false);
@@ -55,7 +55,7 @@ const TimeZoneCurrencyComponent = ({ overviewState }) => {
 				</div>
 			</div>
 
-			<TimeZoneCurrencyPopup
+			<TimezoneCurrencypopups
 				openPopup={openPopup}
 				setopenPopup={setopenPopup}
 				popupType={popupType}

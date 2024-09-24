@@ -112,8 +112,10 @@ export const CompanySettingsState = () => {
 				usertoken,
 				'tenant',
 			);
+			return response;
 		} catch (error) {
 			console.log('error => updatePrefernces ', error);
+			return error;
 		}
 	};
 	const getTenantPreferences = async () => {
@@ -196,28 +198,31 @@ export const CompanySettingsState = () => {
 
 	const updateTenantRole = async (payload) => {
 		try {
+			const json = {
+				role: payload?.role,
+			};
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			await service.fetchPut(
+			return await service.fetchPut(
 				'/' + workspaceId + API.TENANTS.tenantUsers + '/' + payload?._id + '/role',
-				// payload?.role,
-				{ role: payload?.role },
+				json,
 				usertoken,
 				'tenant',
 			);
 		} catch (error) {
 			console.log('error => updateTenantBusinessName ', error);
+			return error;
 		}
 	};
 
 	const checkWorkspaceId = async (payload) => {
 		try {
-			const responce = await service.fetchGet(
+			const response = await service.fetchGet(
 				'/tenant/workspaceId-availability?workspaceId=' + payload,
 				null,
 				'auth',
 			);
-			return responce;
+			return response;
 		} catch (error) {
 			return error;
 		}

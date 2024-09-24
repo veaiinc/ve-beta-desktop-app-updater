@@ -1,7 +1,7 @@
 import ReusableButtonSettings from '../ReusableButtonSettings';
 import { FontList } from '../../../features/settings/indexConstant';
-import { ChangeFontPopup } from '../popups/BrandingPopups';
 import { memo } from 'react';
+import ChangeFontPopup from './BrandingColorPopUp';
 
 //  brand fonts component
 const BrandFontsComponent = ({ setbrandState, brandState }) => {

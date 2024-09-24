@@ -19,7 +19,20 @@ import PinterestActive from '../../../../assets/images/companySettings/pinterest
 import TelegramActive from '../../../../assets/images/companySettings/telegramActive.png';
 import TiktokActive from '../../../../assets/svg/workspaceSettings/activeTiktok.svg';
 import ActiveSpotify from '../../../../assets/svg/workspaceSettings/activeSpotify.svg';
-import { SocialMediaPopup } from '../popups/BrandingPopups';
+import SocialMediaPopup from './SocialMediaPopup';
+
+const logoComponents = {
+	instagram: { inactive: InstagramLogoColorless, active: InstagramActive },
+	facebook: { inactive: FacebookLogoColorless, active: FacebookActive },
+	pinterest: { inactive: PinterestLogoColorless, active: PinterestActive },
+	youtube: { inactive: YouTubeLogoColorless, active: ActiveYoutube },
+	linkedIn: { inactive: LinkedinLogoColorless, active: LinkedInActive },
+	tiktok: { inactive: TiktokLogoColorless, active: TiktokActive },
+	spotify: { inactive: SpotifyLogoColorless, active: ActiveSpotify },
+	behance: { inactive: BehanceLogoColorless, active: BehanceActive },
+	telegram: { inactive: TelegramLogoColorless, active: TelegramActive },
+	steam: { inactive: DribbbleLogoColorless, active: DribbbleLogoactive },
+};
 
 // social component
 const SocialMediaLinksComponent = ({
@@ -28,19 +41,6 @@ const SocialMediaLinksComponent = ({
 	setbrandState,
 	handleChange,
 }) => {
-	const logoComponents = {
-		instagram: { inactive: InstagramLogoColorless, active: InstagramActive },
-		facebook: { inactive: FacebookLogoColorless, active: FacebookActive },
-		pinterest: { inactive: PinterestLogoColorless, active: PinterestActive },
-		youtube: { inactive: YouTubeLogoColorless, active: ActiveYoutube },
-		linkedIn: { inactive: LinkedinLogoColorless, active: LinkedInActive },
-		tiktok: { inactive: TiktokLogoColorless, active: TiktokActive },
-		spotify: { inactive: SpotifyLogoColorless, active: ActiveSpotify },
-		behance: { inactive: BehanceLogoColorless, active: BehanceActive },
-		telegram: { inactive: TelegramLogoColorless, active: TelegramActive },
-		steam: { inactive: DribbbleLogoColorless, active: DribbbleLogoactive },
-	};
-
 	const [isActive, setisActive] = useState(false);
 
 	const openPopupFunction = (logoName, isActive) => {

@@ -88,11 +88,9 @@ const ProfileDetailsComponent = ({
 									placeholder={'Enter Phone Number'}
 									value={userDetails?.phoneNumber || ''}
 									name="phoneNumber"
-									// onChange={handleChange}
 									onChange={(e) =>
 										handleChange({ target: { name: 'phoneNumber', value: e } })
 									}
-									// disabled={}
 								/>
 							</div>
 							{errors?.phoneNumber && (

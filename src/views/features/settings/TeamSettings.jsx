@@ -48,6 +48,7 @@ const TeamSettings = () => {
 		role: '',
 	});
 
+	const [filteredUsers, setfilteredUsers] = useState([]);
 	const [messageApi, contextHolder] = message.useMessage();
 
 	// useEffects
@@ -63,6 +64,7 @@ const TeamSettings = () => {
 				isOwner: findOwnerId ? true : false,
 				tenantUser: tenantsUserList,
 			}));
+			setfilteredUsers(tenantsUserList);
 		}
 	}, [tenantsUserList]);
 
@@ -75,6 +77,25 @@ const TeamSettings = () => {
 			}));
 		}
 	}, [tenantUserDetails]);
+
+	useEffect(() => {
+		const filtered = info.tenantUser
+			?.filter((user) => {
+				const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.toLowerCase();
+				return fullName.includes(info.searchQuery.toLowerCase());
+			})
+			.sort((a, b) => {
+				if (a.role === 'admin' && b.role !== 'admin') {
+					return -1;
+				} else if (a.role !== 'admin' && b.role === 'admin') {
+					return 1;
+				} else {
+					return 0;
+				}
+			});
+
+		setfilteredUsers(filtered);
+	}, [info?.searchQuery]);
 
 	const fetchData = async () => {
 		if (!tenantsUserList) {
@@ -114,21 +135,6 @@ const TeamSettings = () => {
 			emailID: '',
 		}));
 	};
-
-	const filteredUsers = info.tenantUser
-		?.filter((user) => {
-			const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.toLowerCase();
-			return fullName.includes(info.searchQuery.toLowerCase());
-		})
-		.sort((a, b) => {
-			if (a.role === 'admin' && b.role !== 'admin') {
-				return -1;
-			} else if (a.role !== 'admin' && b.role === 'admin') {
-				return 1;
-			} else {
-				return 0;
-			}
-		});
 
 	const showAddTenantUserModal = () => {
 		setInfo((prev) => ({

@@ -31,8 +31,6 @@ const TeamAccessListComponent = ({
 		updateTenantRoleFunc(selectedOption?.tenantid, role);
 	};
 
-	console.log(info);
-
 	return (
 		<>
 			<div className="yourTeamTitle">
@@ -50,7 +48,7 @@ const TeamAccessListComponent = ({
 			<div>
 				<div>
 					{filteredUsers.map((user, index) => (
-						<div className="tenantDetailsContainer">
+						<div className="tenantDetailsContainer" key={user?._id}>
 							<div className="tenantProfileContainer">
 								<div className="tenantLogo">
 									{/* <img

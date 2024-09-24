@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/seach-magnifier.svg';
 import ReactModal from '../../modalsV2';
 import { TimeZoneList, CurrencyList } from '../../../features/settings/indexConstant';
 
-export const TimeZoneCurrencyPopup = ({
+const TimeZoneCurrencyPopup = ({
 	openPopup,
 	setopenPopup,
 	popupType = 'timezone',
@@ -73,3 +73,5 @@ export const TimeZoneCurrencyPopup = ({
 		</ReactModal>
 	);
 };
+
+export default memo(TimeZoneCurrencyPopup);
