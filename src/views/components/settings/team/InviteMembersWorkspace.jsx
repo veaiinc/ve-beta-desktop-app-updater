@@ -51,7 +51,8 @@ const InviteMembersWorkspaceComponent = ({
 									color: 'crimson',
 									fontSize: '11px',
 									fontFamily: 'Inter',
-									marginLeft: '10px',
+									textAlign: 'end',
+									marginTop: '10px',
 								}}
 							>
 								{singleUser.emailIDMessage}
@@ -64,7 +65,8 @@ const InviteMembersWorkspaceComponent = ({
 									color: 'green',
 									fontSize: '11px',
 									fontFamily: 'Inter',
-									marginLeft: '10px',
+									textAlign: 'end',
+									marginTop: '10px',
 								}}
 							>
 								{singleUser.emailIDMessage}

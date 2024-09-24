@@ -23,7 +23,9 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 		message: '',
 		isPopupOpen: false,
 	});
-	const [domainInput, setdomainInput] = useState(overviewState?.workspaceId || '');
+	const [domainInput, setdomainInput] = useState(
+		overviewState?.tennatWorkspaceIds[overviewState?.tennatWorkspaceIds.length - 1] || '',
+	);
 
 	const workspaceChangeHandler = (e) => {
 		if (!domainUpdate?.isValueChanged)
@@ -104,6 +106,7 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 					domainUpdate={domainUpdate}
 					setdomainUpdate={setdomainUpdate}
 					updateDomainFunction={updateDomainFunction}
+					remainingCount={overviewState?.tennatWorkspaceIds?.length || 2}
 				/>
 			)}
 		</div>

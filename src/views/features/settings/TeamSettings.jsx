@@ -23,11 +23,6 @@ const TeamSettings = () => {
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		emailID: '',
-		emailIDError: '',
-		emailIDMessage: '',
-		sentInvitationSteps: '',
-		userRoleType: 'admin',
 		showAddTenantUserModal: false,
 		tenantUser: [],
 		activeUserId: '',
@@ -75,8 +70,10 @@ const TeamSettings = () => {
 
 	useEffect(() => {
 		if (tenantsUserList) {
+			const findOwnerId = _.find(tenantsUserList, (item) => item.isOwner);
 			setInfo((prev) => ({
 				...prev,
+				isOwner: findOwnerId ? true : false,
 				tenantUser: tenantsUserList,
 			}));
 		}
@@ -92,6 +89,8 @@ const TeamSettings = () => {
 		}
 	}, [tenantUserDetails]);
 
+	console.log(tenantUserDetails);
+
 	// useEffect(() => {
 	// 	if (inviteUserRes === 'success') {
 	// 		getTeamMembers();
@@ -102,6 +101,10 @@ const TeamSettings = () => {
 		const { name, value } = e.target;
 		const update = [...sendRequestList];
 		update[index][name] = value;
+		if (update[index]['emailIDError']) {
+			update[index]['emailIDError'] = false;
+			update[index]['emailIDMessage'] = '';
+		}
 		setsendRequestList(update);
 		setInfo((prev) => ({
 			...prev,

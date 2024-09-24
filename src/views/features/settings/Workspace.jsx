@@ -21,16 +21,26 @@ const SettingsWorkspace = () => {
 		timeZone: '',
 		currency: '',
 		workspaceId: localStorage.getItem('workspaceId'),
+		tennatWorkspaceIds: [],
 	});
 	const [initialState, setInitialState] = useState({ ...overviewState });
+
+	console.log(tennantSettingsData);
 
 	useEffect(() => {
 		setOverviewState((prev) => ({
 			...prev,
-			timeZone: tennantSettingsData?.locationDetails?.timezone,
-			currency: tennantSettingsData?.locationDetails?.currency,
+			timeZone: tennantSettingsData?.locationDetails?.timezone || '',
+			currency: tennantSettingsData?.locationDetails?.currency || '',
+			tennatWorkspaceIds: tennantSettingsData?.workspaceIds || [],
 		}));
 	}, [tennantSettingsData]);
+
+	// useEffect(() => {
+	// 	if (!tennantSettingsData) {
+	// 		getTenantSettings();
+	// 	}
+	// }, []);
 
 	return (
 		<div className="workspaceContainer">
