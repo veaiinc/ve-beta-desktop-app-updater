@@ -36,7 +36,12 @@ const MyProfile = () => {
 		phoneNumber: '',
 		is2FAEnabled: '',
 		logoURL: '',
+		cropSettings: { crop: { x: 0, y: 0 }, zoom: 1 },
 	});
+
+	const [initialState, setInitialState] = useState({ ...userDetails });
+
+	const [logoFile, setlogoFile] = useState(null);
 
 	// # Useeffects
 	useEffect(() => {
@@ -57,6 +62,16 @@ const MyProfile = () => {
 				phoneNumber: userDetailsData?.phoneNumber || '',
 				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
 				logoURL: userDetailsData?.dp_s3_500w_key || '',
+				cropSettings: userDetailsData?.dp_style || { crop: { x: 0, y: 0 }, zoom: 1 },
+			}));
+			setInitialState((prev) => ({
+				...prev,
+				fullName: userDetailsData?.firstName || '',
+				email: userDetailsData?.email || '',
+				phoneNumber: userDetailsData?.phoneNumber || '',
+				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
+				logoURL: userDetailsData?.dp_s3_500w_key || '',
+				cropSettings: userDetailsData?.dp_style || { crop: { x: 0, y: 0 }, zoom: 1 },
 			}));
 		}
 	}, [userDetailsData]);
@@ -90,13 +105,7 @@ const MyProfile = () => {
 		(typeCall = '') => {
 			clearInterval(isEditMode?.timeout);
 			const timeout = setTimeout(() => {
-				if (userDetails?.fullName && isEditMode?.isValueChanged && typeCall === 'name') {
-					handleSubmit(typeCall);
-				} else if (
-					userDetails?.phoneNumber &&
-					isEditMode?.isValueChanged &&
-					typeCall === 'phone'
-				) {
+				if (isEditMode?.isValueChanged) {
 					handleSubmit(typeCall);
 				}
 				setIsEditMode((prev) => ({ ...prev, timeout: null }));
@@ -127,6 +136,8 @@ const MyProfile = () => {
 			case 'fullName':
 				if (validator.isEmpty(stringValue)) {
 					error = 'First Name is required';
+				} else if (initialState?.fullName === stringValue) {
+					error = 'Name cannot be the same as the current one';
 				}
 				break;
 
@@ -135,6 +146,8 @@ const MyProfile = () => {
 					error = 'Phone Number is required';
 				} else if (!validator.isMobilePhone(stringValue, 'any', { strictMode: false })) {
 					error = 'Phone Number is invalid';
+				} else if (initialState.phoneNumber !== stringValue) {
+					error = 'Phone Number is already in use';
 				}
 				break;
 			case 'email':
@@ -166,8 +179,16 @@ const MyProfile = () => {
 		});
 	};
 
-	const updateProfileImage = () => {
-		updateUserLogo(userDetails?.logoURL);
+	const updateProfileImage = async (settings) => {
+		let json = {
+			dp_style: settings,
+		};
+		const response = await updateUserDetails(json);
+
+		if (response[0]) {
+			setUserDetails((prev) => ({ ...prev, cropSettings: settings }));
+			updateUserLogo(logoFile);
+		}
 	};
 
 	const validate = () => {
@@ -230,6 +251,7 @@ const MyProfile = () => {
 						handlePopupFormClose={handlePopupFormClose}
 						role={tenantUserDetails?.role === 'admin' ? 'Admin' : 'Member'}
 						setUserDetails={setUserDetails}
+						setlogoFile={setlogoFile}
 					/>
 				</div>
 

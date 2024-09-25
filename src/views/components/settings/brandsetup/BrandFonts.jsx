@@ -1,5 +1,5 @@
 import ReusableButtonSettings from '../ReusableButtonSettings';
-import { FontList } from '../../../features/settings/indexConstant';
+import { fontList } from '../../../features/settings/indexConstant';
 import { memo } from 'react';
 import ChangeFontPopup from './BrandingColorPopUp';
 
@@ -12,7 +12,7 @@ const BrandFontsComponent = ({ setbrandState, brandState }) => {
 			</div>
 
 			<div className="fontslistcontainer">
-				{FontList.map((font, index, arr) => (
+				{fontList?.map((font, index, arr) => (
 					<div key={index}>
 						<div className="singleListDiv">
 							<div

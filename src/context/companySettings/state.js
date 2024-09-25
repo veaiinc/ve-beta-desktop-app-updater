@@ -113,13 +113,12 @@ export const CompanySettingsState = () => {
 			);
 
 			if (response?.[0]) {
-				return [true, response];
+				return [true, response[1]];
 			} else {
-				return [false];
+				return [false, response[1]];
 			}
 		} catch (error) {
 			console.log('error => updatePrefernces ', error);
-			return error;
 		}
 	};
 	const getTenantPreferences = async () => {
@@ -215,13 +214,12 @@ export const CompanySettingsState = () => {
 			);
 
 			if (response?.[0]) {
-				return [true, response];
+				return [true, response[1]];
 			} else {
-				return [false];
+				return [false, response[1]];
 			}
 		} catch (error) {
 			console.log('error => updatetennat role', error);
-			return error;
 		}
 	};
 
@@ -234,13 +232,12 @@ export const CompanySettingsState = () => {
 			);
 
 			if (response?.[0]) {
-				return [true, response];
+				return [true, response[1]];
 			} else {
 				return [false];
 			}
 		} catch (error) {
 			console.log('error occureed in checkWorkspaceId', error);
-			return error;
 		}
 	};
 

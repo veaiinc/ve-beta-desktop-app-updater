@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/seach-magnifier.svg';
 import ReactModal from '../../modalsV2';
-import { TimeZoneList, CurrencyList } from '../../../features/settings/indexConstant';
+import { timeZoneList, currencyList } from '../../../features/settings/indexConstant';
 
 const TimeZoneCurrencyPopup = ({
 	openPopup,
@@ -38,33 +38,35 @@ const TimeZoneCurrencyPopup = ({
 				<div className="searchListDiv">
 					<ul style={{ listStyle: 'none' }}>
 						{popupType === 'timezone' &&
-							TimeZoneList.map((timeZone, index) => (
+							timeZoneList?.map((timeZone, index) => (
 								<li key={timeZone?.label}>
 									<div>
 										<input
 											type="radio"
-											id={timeZone.label}
+											id={timeZone?.label}
 											className="radioItem"
 											name="timezone"
 										/>
-										<label for={timeZone.label}>{timeZone.label}</label>
+										<label for={timeZone?.label}>{timeZone?.label}</label>
 									</div>
-									<p>{timeZone.value}</p>
+									<p>{timeZone?.value}</p>
 								</li>
 							))}
 						{popupType === 'currency' &&
-							CurrencyList.map((currencyItem, index) => (
+							currencyList.map((currencyItem, index) => (
 								<li key={currencyItem?.label}>
 									<div>
 										<input
 											type="radio"
-											id={currencyItem.label}
+											id={currencyItem?.label}
 											className="radioItem"
 											name="currency"
 										/>
-										<label for={currencyItem.label}>{currencyItem.label}</label>
+										<label for={currencyItem?.label}>
+											{currencyItem?.label}
+										</label>
 									</div>
-									<p>{currencyItem.value}</p>
+									<p>{currencyItem?.value}</p>
 								</li>
 							))}
 					</ul>

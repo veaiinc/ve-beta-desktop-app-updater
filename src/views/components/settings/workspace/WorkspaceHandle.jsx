@@ -87,7 +87,6 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 			clearInterval(domainUpdate?.timeout);
 			const timeout = setTimeout(() => {
 				checkDomainNameFunc(domainname);
-				setdomainUpdate((prev) => ({ ...prev, timeout: null }));
 			}, 800);
 			setdomainUpdate((prev) => ({ ...prev, timeout }));
 		},
@@ -95,6 +94,7 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 	);
 
 	const checkDomainNameFunc = async (domainname) => {
+		setdomainUpdate((prev) => ({ ...prev, timeout: null }));
 		const respone = await checkWorkspaceId(domainname);
 
 		setdomainUpdate((prev) => {

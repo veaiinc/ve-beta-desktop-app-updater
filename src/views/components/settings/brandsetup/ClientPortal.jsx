@@ -1,5 +1,5 @@
 import { useState, memo } from 'react';
-import { ThemesList } from '../../../features/settings/indexConstant';
+import { themesList } from '../../../features/settings/indexConstant';
 import ClientPortalView from './ClientPortalView';
 
 const ClientPortalComponent = () => {
@@ -21,7 +21,7 @@ const ClientPortalComponent = () => {
 						<h3>Choose Theme</h3>
 
 						<div className="themesList">
-							{ThemesList?.map((singleTheme) => (
+							{themesList?.map((singleTheme) => (
 								<div
 									className="singleTheme"
 									onClick={() => setselectedTheme(singleTheme?.id)}
@@ -36,8 +36,9 @@ const ClientPortalComponent = () => {
 						<div className="lineDiv"></div>
 
 						<div className="propertiesContainer">
-							{ThemesList.find((item) => item?.id === selectedTheme)?.properties?.map(
-								(singleProperty) => (
+							{themesList
+								.find((item) => item?.id === selectedTheme)
+								?.properties?.map((singleProperty) => (
 									<>
 										<div className="singlePropertyDiv">
 											<h6>{singleProperty?.label}</h6>
@@ -58,8 +59,7 @@ const ClientPortalComponent = () => {
 
 										<div className="lineDiv"></div>
 									</>
-								),
-							)}
+								))}
 
 							<div className="singlePropertyDiv">
 								<h6>Client Name Font</h6>

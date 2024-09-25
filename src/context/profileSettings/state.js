@@ -122,20 +122,20 @@ export const ProfileState = () => {
 	const updateUserDetails = async (payload) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
-			let response = service.fetchPut(
+			let response = await service.fetchPut(
 				API.TENANTS.myProfile,
 				payload,
 				usertoken,
 				'tenant-users',
 			);
+			console.log(response);
 			if (response?.[0]) {
-				return [true, response];
+				return [true, response[1]];
 			} else {
 				return [false];
 			}
 		} catch (error) {
 			console.log('error==>updateUserDetails', error);
-			return error;
 		}
 	};
 
@@ -144,7 +144,7 @@ export const ProfileState = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let decoded = jwt_decode(usertoken);
-			let response = service.fetchPut(
+			let response = await service.fetchPut(
 				'/' + decoded.user_id + API.TENANTS.updateTenantUser,
 				payload,
 				usertoken,
@@ -152,13 +152,12 @@ export const ProfileState = () => {
 			);
 
 			if (response?.[0]) {
-				return [true, response];
+				return [true, response[1]];
 			} else {
-				return [false];
+				return [false, response[1]];
 			}
 		} catch (error) {
-			console.log(error);
-			return error;
+			console.log('error==>updateUserPhoneNumber', error);
 		}
 	};
 
@@ -282,13 +281,12 @@ export const ProfileState = () => {
 			);
 
 			if (response?.[0]) {
-				return [true, response];
+				return [true, response[1]];
 			} else {
-				return [false];
+				return [false, response[1]];
 			}
 		} catch (error) {
-			console.log('error occureed in update workspace', error);
-			return error;
+			console.log('error==>updateWorkSpaceId', error);
 		}
 	};
 
@@ -299,7 +297,7 @@ export const ProfileState = () => {
 				payload,
 			});
 		} catch (error) {
-			console.log('error', error);
+			console.log('error==>updateCompanyDetailsState', error);
 		}
 	};
 

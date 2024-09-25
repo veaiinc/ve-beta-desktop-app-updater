@@ -145,38 +145,64 @@ const TeamSettings = () => {
 
 	const validateUsersEmails = (email, index) => {
 		const update = [...sendRequestList];
-		if (email === null || email === '') {
-			update[index]['emailIDError'] = true;
-			update[index]['emailIDMessage'] = 'Required Field!';
-			setsendRequestList(update);
-			return false;
-		} else if (!validator.isEmail(email)) {
-			update[index]['emailIDError'] = true;
-			update[index]['emailIDMessage'] = 'Please enter correct email';
-			setsendRequestList(update);
-			return false;
-		} else {
-			update[index]['emailIDError'] = false;
-			update[index]['emailIDMessage'] = '';
-			setsendRequestList(update);
-			return true;
+		let emailError = false,
+			emailIDMessage = '';
+		if (email === null || email?.length) {
+			emailError = true;
+			emailIDMessage = 'Required Field!';
 		}
+		if (!validator.isEmail(email)) {
+			emailError = true;
+			emailIDMessage = 'Please enter correct email';
+		}
+		update[index]['emailIDError'] = emailError;
+		update[index]['emailIDMessage'] = emailIDMessage;
+		setsendRequestList(update);
+		return !emailError;
+	};
+
+	const validateDuplicateEmails = (email, index) => {
+		const update = [...sendRequestList];
+		let emailError = false;
+		let emailIDMessage = '';
+
+		const isDuplicate = sendRequestList?.some(
+			(item, idx) => item?.email === email && idx !== index,
+		);
+
+		if (isDuplicate) {
+			emailError = true;
+			emailIDMessage = 'Duplicate email found!';
+		}
+
+		// Update the state with the error message
+		update[index]['emailIDError'] = emailError;
+		update[index]['emailIDMessage'] = emailIDMessage;
+		setsendRequestList(update);
+
+		// Return whether the email has an error or not
+		return !emailError;
 	};
 
 	const validateExistUser = (email, index) => {
 		const update = [...sendRequestList];
+		let emailError = false;
+		let emailIDMessage = '';
 
+		// Check if the user already exists
 		const isAlreadyExist = info?.tenantUser?.find((item) => item?.email === email || null);
 		if (isAlreadyExist) {
-			update[index]['emailIDError'] = true;
-			update[index]['emailIDMessage'] = 'User already exist!';
-			setsendRequestList(update);
-			return false;
+			emailError = true;
+			emailIDMessage = 'User already exists!';
 		}
-		update[index]['emailIDError'] = false;
-		update[index]['emailIDMessage'] = '';
+
+		// Update the state
+		update[index]['emailIDError'] = emailError;
+		update[index]['emailIDMessage'] = emailIDMessage;
 		setsendRequestList(update);
-		return true;
+
+		// Return whether the email has an error or not
+		return !emailError;
 	};
 
 	const mapUsersRoleBased = () => {
@@ -223,18 +249,40 @@ const TeamSettings = () => {
 
 	const handleSubmit = async () => {
 		try {
-			setInfo((prev) => ({ ...prev, buttonLoading: true }));
-			const isEmailsCorrect = _.map(sendRequestList, (singleUser, index) =>
-				validateUsersEmails(singleUser.email, index),
-			);
+			if (info?.buttonLoading) return;
 
-			if (!_.every(isEmailsCorrect)) return;
+			setInfo((prev) => ({ ...prev, buttonLoading: false }));
 
-			const isUsersValidate = _.map(sendRequestList, (singleUser, index) =>
-				validateExistUser(singleUser.email, index),
-			);
+			let isAllCorrect = true;
 
-			if (!_.every(isUsersValidate)) return;
+			for (let index = 0; index < sendRequestList.length; index++) {
+				if (!validateUsersEmails(sendRequestList[index].email, index) && isAllCorrect) {
+					isAllCorrect = false;
+					console.log(isAllCorrect);
+				}
+			}
+
+			if (!isAllCorrect) return;
+			else isAllCorrect = true;
+
+			for (let index = 0; index < sendRequestList.length; index++) {
+				if (!validateDuplicateEmails(sendRequestList[index].email, index) && isAllCorrect) {
+					isAllCorrect = false;
+					console.log(isAllCorrect);
+				}
+			}
+
+			if (!isAllCorrect) return;
+			else isAllCorrect = true;
+
+			for (let index = 0; index < sendRequestList.length; index++) {
+				if (!validateExistUser(sendRequestList[index].email, index) && isAllCorrect) {
+					isAllCorrect = false;
+					console.log(isAllCorrect);
+				}
+			}
+
+			if (!isAllCorrect) return;
 
 			const dataRoles = mapUsersRoleBased();
 			loadingToastFunction();

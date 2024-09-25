@@ -6,9 +6,9 @@ import { ReactComponent as UserAccountSvg } from '../../../../assets/svg/Setting
 import { ReactComponent as EmailSvg } from '../../../../assets/svg/Settings/emailwhite.svg';
 import { ReactComponent as GreenTickSvg } from '../../../../assets/svg/Settings/TickCirclegree.svg';
 import { ReactComponent as PencilkSvg } from '../../../../assets/svg/Settings/pencilwhite.svg';
-
 import UploadAvatarPopupComponent from './UploadAvatarPopup';
 import UploadFileProiflePopup from './UploadFileProiflePopup';
+import Cropper from 'react-easy-crop';
 
 // profile details component
 const ProfileDetailsComponent = ({
@@ -21,6 +21,7 @@ const ProfileDetailsComponent = ({
 	handlePopupFormClose,
 	role,
 	setUserDetails,
+	setlogoFile,
 }) => {
 	const [uploadAvatarPopup, setuploadAvatarPopup] = useState({ theme: false, file: false });
 
@@ -37,6 +38,7 @@ const ProfileDetailsComponent = ({
 			reader.readAsDataURL(file);
 
 			setuploadAvatarPopup((prev) => ({ ...prev, theme: false, file: true }));
+			setlogoFile(file);
 		}
 	};
 
@@ -46,7 +48,20 @@ const ProfileDetailsComponent = ({
 				<div className="profileHeader">
 					<div className="imageCircleDiv">
 						{userDetails?.logoURL ? (
-							<img src={userDetails?.logoURL} alt="logo" />
+							// <img src={userDetails?.logoURL} alt="logo" />
+							<div className="crop-container">
+								<Cropper
+									image={userDetails?.logoURL} // Image URL to crop
+									crop={userDetails?.cropSettings?.crop}
+									zoom={userDetails?.cropSettings?.zoom}
+									// crop={{ x: 2, y: 0 }}
+									// zoom={1}
+									showGrid={false}
+									onCropChange={(e) => ''}
+									onCropComplete={(e) => ''}
+									onZoomChange={(e) => ''}
+								/>
+							</div>
 						) : (
 							<div className="noImageText">
 								{getInitials(

@@ -18,6 +18,7 @@ const UploadFileProfilePopup = ({
 	const [crop, setCrop] = useState({ x: 0, y: 0 });
 	const [zoom, setZoom] = useState(2);
 	const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+	console.log(zoom, croppedAreaPixels);
 
 	// This function captures the cropped area of the image
 	const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
@@ -29,7 +30,10 @@ const UploadFileProfilePopup = ({
 	};
 
 	const submitImageHandlerButton = () => {
-		updateProfileImage();
+		updateProfileImage({
+			crop: { ...crop },
+			zoom,
+		});
 		closeModalFunc();
 	};
 
@@ -57,6 +61,7 @@ const UploadFileProfilePopup = ({
 								onCropChange={setCrop}
 								onZoomChange={setZoom}
 								onCropComplete={onCropComplete}
+								cropShape="round"
 							/>
 						</div>
 
