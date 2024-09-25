@@ -221,54 +221,52 @@ const TeamSettings = () => {
 		});
 	};
 
-	const handleSubmit = () => {
-		setInfo((prev) => ({ ...prev, buttonLoading: true }));
-		const isEmailsCorrect = _.map(sendRequestList, (singleUser, index) =>
-			validateUsersEmails(singleUser.email, index),
-		);
+	const handleSubmit = async () => {
+		try {
+			setInfo((prev) => ({ ...prev, buttonLoading: true }));
+			const isEmailsCorrect = _.map(sendRequestList, (singleUser, index) =>
+				validateUsersEmails(singleUser.email, index),
+			);
 
-		if (!_.every(isEmailsCorrect)) return;
+			if (!_.every(isEmailsCorrect)) return;
 
-		const isUsersValidate = _.map(sendRequestList, (singleUser, index) =>
-			validateExistUser(singleUser.email, index),
-		);
+			const isUsersValidate = _.map(sendRequestList, (singleUser, index) =>
+				validateExistUser(singleUser.email, index),
+			);
 
-		if (!_.every(isUsersValidate)) return;
+			if (!_.every(isUsersValidate)) return;
 
-		const dataRoles = mapUsersRoleBased();
+			const dataRoles = mapUsersRoleBased();
+			loadingToastFunction();
 
-		const promises = dataRoles?.map((payload, index) => () => inviteNewuser(payload));
+			const promises = dataRoles?.map((payload) => inviteNewuser(payload));
+			const results = await Promise.all(promises);
+			const update = [...sendRequestList];
+			results?.forEach((singleResult, index) => {
+				if (!_.isBoolean(singleResult[0]) && singleResult[0] !== true) {
+					update[index].emailIDError = true;
+					update[index].emailIDMessage = singleResult[1]?.message;
+				} else {
+					update[index].emailIDError = false;
+					update[index].successTrue = true;
+					update[index].emailIDMessage = 'Invitation mail sent successfully';
 
-		loadingToastFunction();
-
-		Promise.all(promises.map((fn) => fn()))
-			.then((results) => {
-				const update = [...sendRequestList];
-				results?.map((singleResult, index) => {
-					if (!_.isBoolean(singleResult[0]) && singleResult[0] !== true) {
-						update[index].emailIDError = true;
-						update[index].emailIDMessage = singleResult[1]?.message;
-					} else {
-						update[index].emailIDError = false;
-						update[index].successTrue = true;
-						update[index].emailIDMessage = 'invitation mail send successfully';
-						setTimeout(() => {
-							const tempUpdate = [...sendRequestList];
-							tempUpdate[index].successTrue = false;
-							tempUpdate[index].emailIDMessage = '';
-
-							setsendRequestList(tempUpdate);
-						}, 2000);
-					}
-					setsendRequestList(update);
-					setInfo((prev) => ({ ...prev, buttonLoading: false }));
-				});
-				getTeamMembers();
-				messageApi.destroy();
-			})
-			.catch((error) => {
-				console.error(error); // handle any errors that occur
+					setTimeout(() => {
+						const tempUpdate = [...sendRequestList];
+						tempUpdate[index].successTrue = false;
+						tempUpdate[index].emailIDMessage = '';
+						setsendRequestList(tempUpdate);
+					}, 2000);
+				}
 			});
+
+			setsendRequestList(update);
+			setInfo((prev) => ({ ...prev, buttonLoading: false }));
+			getTeamMembers();
+			messageApi.destroy();
+		} catch (error) {
+			console.error(error); // handle any errors that occur
+		}
 	};
 
 	const updateTenantRoleFunc = (_id, role) => {
@@ -277,42 +275,45 @@ const TeamSettings = () => {
 	};
 
 	return (
-		<div className="TeamMemberContainer">
+		<>
 			{contextHolder}
-			<div className="inviteMemberComponent">
-				<InviteMembersWorkspaceComponent
-					handleChnage={handleChnage}
-					info={info}
-					handleSubmit={handleSubmit}
-					sendRequestList={sendRequestList}
-					setsendRequestList={setsendRequestList}
-				/>
-			</div>
 
-			<div className="yourTeamComponent">
-				<TeamAccessListComponent
-					search={search}
-					handleInputChange={handleInputChange}
-					info={info}
-					filteredUsers={filteredUsers}
-					selectedOption={selectedOption}
-					setselectedOption={setselectedOption}
-					updateTenantRoleFunc={updateTenantRoleFunc}
-				/>
+			<div className="TeamMemberContainer">
+				<div className="inviteMemberComponent">
+					<InviteMembersWorkspaceComponent
+						handleChnage={handleChnage}
+						info={info}
+						handleSubmit={handleSubmit}
+						sendRequestList={sendRequestList}
+						setsendRequestList={setsendRequestList}
+					/>
+				</div>
+
+				<div className="yourTeamComponent">
+					<TeamAccessListComponent
+						search={search}
+						handleInputChange={handleInputChange}
+						info={info}
+						filteredUsers={filteredUsers}
+						selectedOption={selectedOption}
+						setselectedOption={setselectedOption}
+						updateTenantRoleFunc={updateTenantRoleFunc}
+					/>
+				</div>
+				<Modal closeModal={showAddTenantUserModal} isOpen={info.showAddTenantUserModal}>
+					<AddNewUserModal
+						isAdmin={info.isAdmin}
+						isOwner={info.isOwner}
+						close={showAddTenantUserModal}
+						tenantUser={info?.tenantUser}
+						step={info.sentInvitationSteps}
+						role={info.userRoleType}
+						email={info.emailID}
+						clearForm={handleClearInput}
+					/>
+				</Modal>
 			</div>
-			<Modal closeModal={showAddTenantUserModal} isOpen={info.showAddTenantUserModal}>
-				<AddNewUserModal
-					isAdmin={info.isAdmin}
-					isOwner={info.isOwner}
-					close={showAddTenantUserModal}
-					tenantUser={info?.tenantUser}
-					step={info.sentInvitationSteps}
-					role={info.userRoleType}
-					email={info.emailID}
-					clearForm={handleClearInput}
-				/>
-			</Modal>
-		</div>
+		</>
 	);
 };
 

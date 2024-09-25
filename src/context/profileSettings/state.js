@@ -128,7 +128,11 @@ export const ProfileState = () => {
 				usertoken,
 				'tenant-users',
 			);
-			return response;
+			if (response?.[0]) {
+				return [true, response];
+			} else {
+				return [false];
+			}
 		} catch (error) {
 			console.log('error==>updateUserDetails', error);
 			return error;
@@ -146,7 +150,12 @@ export const ProfileState = () => {
 				usertoken,
 				'tenant-users',
 			);
-			return response;
+
+			if (response?.[0]) {
+				return [true, response];
+			} else {
+				return [false];
+			}
 		} catch (error) {
 			console.log(error);
 			return error;
@@ -272,8 +281,13 @@ export const ProfileState = () => {
 				'auth',
 			);
 
-			return response;
+			if (response?.[0]) {
+				return [true, response];
+			} else {
+				return [false];
+			}
 		} catch (error) {
+			console.log('error occureed in update workspace', error);
 			return error;
 		}
 	};

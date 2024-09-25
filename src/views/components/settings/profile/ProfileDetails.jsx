@@ -17,11 +17,28 @@ const ProfileDetailsComponent = ({
 	handleChange,
 	userDetailsData,
 	showForm,
-	handleImageChange,
+	updateProfileImage,
 	handlePopupFormClose,
 	role,
+	setUserDetails,
 }) => {
 	const [uploadAvatarPopup, setuploadAvatarPopup] = useState({ theme: false, file: false });
+
+	const handleImageChange = (acceptedFiles) => {
+		const file = acceptedFiles[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setUserDetails({
+					...userDetails,
+					logoURL: reader.result,
+				});
+			};
+			reader.readAsDataURL(file);
+
+			setuploadAvatarPopup((prev) => ({ ...prev, theme: false, file: true }));
+		}
+	};
 
 	return (
 		<>
@@ -126,14 +143,16 @@ const ProfileDetailsComponent = ({
 				userDetailsData={userDetailsData}
 				uploadAvatarPopup={uploadAvatarPopup}
 				setuploadAvatarPopup={setuploadAvatarPopup}
+				handleImageChange={handleImageChange}
 			/>
 
-			{/* <UploadFileProiflePopup
+			<UploadFileProiflePopup
 				userDetails={userDetails}
 				userDetailsData={userDetailsData}
 				uploadAvatarPopup={uploadAvatarPopup}
 				setuploadAvatarPopup={setuploadAvatarPopup}
-			/> */}
+				updateProfileImage={updateProfileImage}
+			/>
 		</>
 	);
 };

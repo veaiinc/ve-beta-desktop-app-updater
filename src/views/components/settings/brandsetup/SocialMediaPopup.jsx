@@ -15,30 +15,29 @@ const SocialMediaPopup = ({
 	handleActivate,
 	isActive,
 }) => {
+	// context
 	const {
 		companyInfo: { updateTenantSocialMediaProfile },
 	} = useContext(Context);
 
-	console.log(isActive, value);
-
+	// useStates
 	const [error, setError] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 	const [changes, setChanges] = useState(false);
-
 	const [copyvalue, setCopyValue] = useState('');
 
+	// useEffects
 	useEffect(() => {
+		setCopyValue(value);
+
 		return () => {
 			setError(false);
 			setErrorMessage('');
 		};
 	}, []);
-	useEffect(() => {
-		setCopyValue(value);
-	}, []);
 
+	// functions
 	const handleInputChange = async (e) => {
-		console.log(e.target.value);
 		setError(false);
 		setErrorMessage('');
 
@@ -49,10 +48,8 @@ const SocialMediaPopup = ({
 				setErrorMessage('Invalid Website! Example Format: https://example.com');
 				return;
 			} else {
-				// console.log(e.target);
 				setCopyValue(e.target.value);
 			}
-
 			return;
 		}
 		setChanges(true);
@@ -84,12 +81,12 @@ const SocialMediaPopup = ({
 		handleActivate(json[name]);
 		handleClose();
 	};
+
 	const handleRequestClose = () => {
 		if (changes && isActive) {
 			setCopyValue(value);
 		}
 		setChanges(false);
-
 		handleClose();
 	};
 

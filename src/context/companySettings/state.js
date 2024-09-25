@@ -103,7 +103,6 @@ export const CompanySettingsState = () => {
 	};
 	const updatePrefernces = async (json) => {
 		try {
-			// brandAccentColor: '#ffffff',
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchPut(
@@ -112,7 +111,12 @@ export const CompanySettingsState = () => {
 				usertoken,
 				'tenant',
 			);
-			return response;
+
+			if (response?.[0]) {
+				return [true, response];
+			} else {
+				return [false];
+			}
 		} catch (error) {
 			console.log('error => updatePrefernces ', error);
 			return error;
@@ -203,14 +207,20 @@ export const CompanySettingsState = () => {
 			};
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			return await service.fetchPut(
+			let response = await service.fetchPut(
 				'/' + workspaceId + API.TENANTS.tenantUsers + '/' + payload?._id + '/role',
 				json,
 				usertoken,
 				'tenant',
 			);
+
+			if (response?.[0]) {
+				return [true, response];
+			} else {
+				return [false];
+			}
 		} catch (error) {
-			console.log('error => updateTenantBusinessName ', error);
+			console.log('error => updatetennat role', error);
 			return error;
 		}
 	};
@@ -222,8 +232,14 @@ export const CompanySettingsState = () => {
 				null,
 				'auth',
 			);
-			return response;
+
+			if (response?.[0]) {
+				return [true, response];
+			} else {
+				return [false];
+			}
 		} catch (error) {
+			console.log('error occureed in checkWorkspaceId', error);
 			return error;
 		}
 	};

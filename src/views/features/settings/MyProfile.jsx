@@ -166,19 +166,8 @@ const MyProfile = () => {
 		});
 	};
 
-	const handleImageChange = (e) => {
-		const file = e.target.files[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				setUserDetails({
-					...userDetails,
-					logoURL: reader.result,
-				});
-			};
-			reader.readAsDataURL(file);
-			updateUserLogo(file);
-		}
+	const updateProfileImage = () => {
+		updateUserLogo(userDetails?.logoURL);
 	};
 
 	const validate = () => {
@@ -210,7 +199,7 @@ const MyProfile = () => {
 				phoneNumber: userDetails?.phoneNumber,
 			};
 			const response = await updateUserPhoneNumber(json);
-			console.log(response);
+
 			if (response[0] !== true)
 				setErrors((prev) => ({ ...prev, phoneNumber: response[1]?.message }));
 		}
@@ -237,9 +226,10 @@ const MyProfile = () => {
 						handleChange={handleChange}
 						userDetailsData={userDetailsData}
 						showForm={showForm}
-						handleImageChange={handleImageChange}
+						updateProfileImage={updateProfileImage}
 						handlePopupFormClose={handlePopupFormClose}
 						role={tenantUserDetails?.role === 'admin' ? 'Admin' : 'Member'}
+						setUserDetails={setUserDetails}
 					/>
 				</div>
 

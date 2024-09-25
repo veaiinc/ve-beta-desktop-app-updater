@@ -1,18 +1,36 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useCallback } from 'react';
 import ReactModal from '../../modalsV2';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
-import { ReactComponent as CloudFileUploadSvg } from '../../../../assets/svg/Settings/CloudUpload.svg';
-import Dropzone from 'react-dropzone';
+import Cropper from 'react-easy-crop';
+import { Slider } from 'antd';
 
 const UploadFileProfilePopup = ({
 	userDetails,
 	userDetailsData,
 	uploadAvatarPopup,
 	setuploadAvatarPopup,
+	updateProfileImage,
 }) => {
-	const [openCrop, setopenCrop] = useState(false);
 	const closeModalFunc = () => {
-		openCrop ? setopenCrop(false) : setuploadAvatarPopup((prev) => ({ ...prev, file: false }));
+		setuploadAvatarPopup((prev) => ({ ...prev, file: false }));
+	};
+
+	const [crop, setCrop] = useState({ x: 0, y: 0 });
+	const [zoom, setZoom] = useState(2);
+	const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+
+	// This function captures the cropped area of the image
+	const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+		setCroppedAreaPixels(croppedAreaPixels);
+	}, []);
+
+	const handleZoomChange = (value) => {
+		setZoom(value);
+	};
+
+	const submitImageHandlerButton = () => {
+		updateProfileImage();
+		closeModalFunc();
 	};
 
 	return (
@@ -26,50 +44,39 @@ const UploadFileProfilePopup = ({
 						</span>
 					</div>
 
-					{openCrop ? (
-						<div className="">Crop Div</div>
-					) : (
-						<div className="">
-							<Dropzone
-								// onDrop={checkUploadLogo}
-								accept={'image/png'}
-								multiple={false}
-								// disabled={!isAdmin}
-							>
-								{({ getRootProps, getInputProps }) => (
-									<div
-										className="upload-brand-embeded-btn"
-										{...getRootProps()}
-										// style={{ cursor: !isAdmin ? 'not-allowed' : '' }}
-									>
-										<input {...getInputProps()} />
-										<div className="upload-brand-placeholder">
-											<input
-												type="file"
-												style={{
-													opacity: 0,
-													position: 'absolute',
-													top: 0,
-													left: 0,
-													width: '100%',
-													height: '100%',
-													cursor: 'pointer',
-												}}
-											/>
-											<div className="icon_name_div">
-												{' '}
-												<CloudFileUploadSvg />
-												<p>Upload image</p>
-											</div>
-										</div>
-									</div>
-								)}
-							</Dropzone>
+					<div className="cropBody">
+						<div
+							className="crop-container"
+							style={{ position: 'relative', height: 120, width: 120 }}
+						>
+							<Cropper
+								image={userDetails?.logoURL} // Image URL to crop
+								crop={crop}
+								zoom={zoom}
+								aspect={1} // Square aspect ratio
+								onCropChange={setCrop}
+								onZoomChange={setZoom}
+								onCropComplete={onCropComplete}
+							/>
 						</div>
-					)}
+
+						{/* Slider for zoom control */}
+						<div className="sliderDiv">
+							<Slider
+								min={1}
+								max={3}
+								step={0.1}
+								value={zoom}
+								onChange={handleZoomChange}
+								tooltipVisible={false}
+							/>
+						</div>
+					</div>
 
 					<div>
-						<button className="saveChangeButton">Upload Avatar</button>
+						<button className="saveChangeButton" onClick={submitImageHandlerButton}>
+							Upload Avatar
+						</button>
 					</div>
 				</div>
 			</ReactModal>

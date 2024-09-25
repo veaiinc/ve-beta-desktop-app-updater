@@ -6,6 +6,7 @@ import SocialMediaLinksComponent from '../../components/settings/brandsetup/Soci
 import BrandColorComponent from '../../components/settings/brandsetup/BrandColor';
 import ClientPortalComponent from '../../components/settings/brandsetup/ClientPortal';
 import BrandFontsComponent from '../../components/settings/brandsetup/BrandFonts';
+import { message } from 'antd';
 
 const BrandingSetup = () => {
 	// Contexts
@@ -13,6 +14,8 @@ const BrandingSetup = () => {
 		profileInfo: { tennantSettingsData },
 		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
 	} = useContext(Context);
+
+	const [messageApi, contextHolder] = message.useMessage();
 
 	// useStates
 	const [brandState, setbrandState] = useState({
@@ -75,13 +78,18 @@ const BrandingSetup = () => {
 		}
 	}, [tenantPreferenceData]);
 
+	const messageFunction = (type, message) => {
+		messageApi.open({
+			type,
+			content: message,
+		});
+	};
+
 	// Functions
-	const handleSelectedColor = (selectedColor) => {
+	const handleSelectedColor = async (selectedColor) => {
 		const isAlreadyExist = brandState.brandingThemes.find(
 			(item) => item.value === selectedColor,
 		);
-
-		console.log(brandState.brandingThemes);
 
 		if (isAlreadyExist) return;
 
@@ -92,15 +100,19 @@ const BrandingSetup = () => {
 			],
 		};
 
-		setbrandState((prev) => ({
-			...prev,
-			brandingThemes: json?.brandingThemes,
-		}));
-
-		updatePrefernces(json);
+		const response = await updatePrefernces(json);
+		if (response[0]) {
+			messageFunction('success', 'successfully brand color is added');
+			setbrandState((prev) => ({
+				...prev,
+				brandingThemes: json?.brandingThemes,
+			}));
+		} else {
+			messageFunction('error', 'Failed to add brand color');
+		}
 	};
 
-	const handleRemoveColorFunc = (selectedColor) => {
+	const handleRemoveColorFunc = async (selectedColor) => {
 		const newBrandColorList = brandState?.brandingThemes.filter(
 			(color) => color?.value !== selectedColor,
 		);
@@ -114,7 +126,12 @@ const BrandingSetup = () => {
 			brandingThemes: newBrandColorList,
 		}));
 
-		updatePrefernces(json);
+		const response = await updatePrefernces(json);
+		if (response[0]) {
+			messageFunction('success', 'successfully brand color is removed');
+		} else {
+			messageFunction('error', 'Failed to remove brand color');
+		}
 	};
 
 	const handleChange = async (e) => {
@@ -132,37 +149,41 @@ const BrandingSetup = () => {
 	};
 
 	return (
-		<div className="brandsetupContainer">
-			{/* Social Links */}
-			<div className="socialLinkContainer">
-				<SocialMediaLinksComponent
-					tennantSettingsData={tennantSettingsData}
-					brandState={brandState}
-					setbrandState={setbrandState}
-					handleChange={handleChange}
-				/>
-			</div>
+		<>
+			{contextHolder}
 
-			{/* client portal */}
-			<div className="clientPortalContainer">
-				<ClientPortalComponent />
-			</div>
+			<div className="brandsetupContainer">
+				{/* Social Links */}
+				<div className="socialLinkContainer">
+					<SocialMediaLinksComponent
+						tennantSettingsData={tennantSettingsData}
+						brandState={brandState}
+						setbrandState={setbrandState}
+						handleChange={handleChange}
+					/>
+				</div>
 
-			{/* Branding color */}
-			<div className="brandingContainer">
-				<BrandColorComponent
-					brandState={brandState}
-					setbrandState={setbrandState}
-					handleSelectedColor={handleSelectedColor}
-					handleRemoveColorFunc={handleRemoveColorFunc}
-				/>
-			</div>
+				{/* client portal */}
+				<div className="clientPortalContainer">
+					<ClientPortalComponent />
+				</div>
 
-			{/* Brand Fonts */}
-			<div className="brandFontContainer">
-				<BrandFontsComponent setbrandState={setbrandState} brandState={brandState} />
+				{/* Branding color */}
+				<div className="brandingContainer">
+					<BrandColorComponent
+						brandState={brandState}
+						setbrandState={setbrandState}
+						handleSelectedColor={handleSelectedColor}
+						handleRemoveColorFunc={handleRemoveColorFunc}
+					/>
+				</div>
+
+				{/* Brand Fonts */}
+				<div className="brandFontContainer">
+					<BrandFontsComponent setbrandState={setbrandState} brandState={brandState} />
+				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 

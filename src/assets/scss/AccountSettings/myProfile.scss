@@ -679,4 +679,31 @@
 			align-items: center;
 		}
 	}
+
+	.cropBody {
+		display: flex;
+		flex-direction: column;
+		width: 150px;
+		margin: auto;
+
+		.sliderDiv {
+			margin-top: 20px;
+			width: 90%;
+		}
+	}
+
+	.ant-slider {
+		width: 90%;
+	}
+
+	.ant-slider-rail {
+		background-color: white;
+		&:hover {
+			background-color: white;
+		}
+	}
+
+	.ant-slider-track {
+		background: #6055ec;
+	}
 }

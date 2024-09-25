@@ -1,23 +1,28 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useRef } from 'react';
 import ReactModal from '../../modalsV2';
 import { getInitials } from '../../../features/profile_settings/getInitials';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/workspaceSettings/plus-button.svg';
 import { ReactComponent as PencilSvg } from '../../../../assets/svg/Settings/pencilwhite.svg';
 import { AvatarColorList } from '../../../features/settings/indexConstant';
+import Dropzone from 'react-dropzone';
 
 const UploadAvatarPopupComponent = ({
 	userDetails,
 	userDetailsData,
 	uploadAvatarPopup,
 	setuploadAvatarPopup,
+	handleImageChange,
 }) => {
+	const fileInputRef = useRef(null);
 	const [openTheme, setopenTheme] = useState(false);
+
 	const closeModalFunc = () => {
 		openTheme
 			? setopenTheme(false)
 			: setuploadAvatarPopup((prev) => ({ ...prev, theme: false }));
 	};
+
 	return (
 		<div>
 			<ReactModal isOpen={uploadAvatarPopup?.theme} closeModal={closeModalFunc}>
@@ -65,18 +70,23 @@ const UploadAvatarPopupComponent = ({
 						</div>
 					)}
 
-					{/* <button
-						className="customAvatarButton"
-						onClick={() => {
-							setuploadAvatarPopup((prev) => ({ ...prev, theme: false, file: true }));
-						}}
+					<Dropzone
+						onDrop={handleImageChange}
+						accept={'image/png'}
+						multiple={false}
+						// disabled={!isAdmin}
 					>
-						{' '}
-						<span className="addIcon">
-							<PlusSvg />
-						</span>
-						<span>Add Custom Avatar</span>
-					</button> */}
+						{({ getRootProps, getInputProps }) => (
+							<div className="customAvatarButton" {...getRootProps()}>
+								<input {...getInputProps()} />
+
+								<span className="addIcon">
+									<PlusSvg />
+								</span>
+								<span>Add Custom Avatar</span>
+							</div>
+						)}
+					</Dropzone>
 
 					<div>
 						<button className="saveChangeButton">Save Changes</button>

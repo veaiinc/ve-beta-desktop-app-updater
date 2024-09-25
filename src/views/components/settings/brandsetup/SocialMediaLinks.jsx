@@ -41,10 +41,11 @@ const SocialMediaLinksComponent = ({
 	setbrandState,
 	handleChange,
 }) => {
+	// useStates
 	const [isActive, setisActive] = useState(false);
 
+	// functions
 	const openPopupFunction = (logoName, isActive) => {
-		console.log(isActive);
 		if (isActive) setisActive(true);
 		setbrandState((prev) => ({
 			...prev,
