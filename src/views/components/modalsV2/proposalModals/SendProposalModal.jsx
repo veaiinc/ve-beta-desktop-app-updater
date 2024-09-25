@@ -56,6 +56,8 @@ const SendProposalModal = ({
 	updateWorkflowSlug,
 	expiresAt,
 	updateSendSmartFileExpiryData,
+	isEnabled,
+	updateSmartFileEmailAuth,
 }) => {
 	const {
 		templates: {
@@ -141,6 +143,10 @@ const SendProposalModal = ({
 		}
 	}, [info?.editSlug, inputRef]);
 
+	useEffect(() => {
+		setInfo((prev) => ({ ...prev, emailAccess: isEnabled }));
+	}, [isEnabled]);
+
 	const handleCopy = useCallback(async () => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -184,9 +190,10 @@ const SendProposalModal = ({
 		}
 
 		sendSmartFile(payload);
-		if (payload.expiresAt) {
+		if (payload?.expiresAt) {
 			updateSendSmartFileExpiryData(payload.expiresAt);
 		}
+		updateSmartFileEmailAuth(info?.emailAccess);
 
 		if (workflowStatus === 'enquiry') {
 			chnageWorkflowStats({
@@ -266,16 +273,16 @@ const SendProposalModal = ({
 			if (valueWithoutSpaces === slug) {
 				return;
 			}
-			handleDebouceFunctionCall(checkSlugAvailability);
+			handleDebouceFunctionCall(checkSlugAvailability, valueWithoutSpaces);
 		},
 		[info?.slugHolder, slug],
 	);
 
 	const handleDebouceFunctionCall = useCallback(
-		(func) => {
+		(func, valueWithoutSpaces) => {
 			clearTimeout(info?.timeout);
 			const timeout = setTimeout(() => {
-				func();
+				func(valueWithoutSpaces);
 				setInfo((prev) => ({
 					...prev,
 					loading: true,
@@ -286,21 +293,23 @@ const SendProposalModal = ({
 		[info?.timeout],
 	);
 
-	const checkSlugAvailability = useCallback(async () => {
-		if (info?.slugHolder?.length) {
-			const slug = info?.slugHolder;
-			const payload = {
-				slug: slug,
-				moduleType: 'workflows',
-			};
-			const response = await checkSmartFileSlugExists(payload);
-			if (response?.[0]) {
-				updateSmartFileSlugFunc(slug);
-			} else {
-				setInfo((prev) => ({ ...prev, slugErrorMessage: 'This is not available' }));
+	const checkSlugAvailability = useCallback(
+		async (slugVal) => {
+			if (slugVal?.length) {
+				const payload = {
+					slug: slugVal,
+					moduleType: 'workflows',
+				};
+				const response = await checkSmartFileSlugExists(payload);
+				if (response?.[0]) {
+					updateSmartFileSlugFunc(slugVal);
+				} else {
+					setInfo((prev) => ({ ...prev, slugErrorMessage: 'This is not available' }));
+				}
 			}
-		}
-	}, [info?.slugHolder]);
+		},
+		[info?.slugHolder],
+	);
 
 	const updateSmartFileSlugFunc = useCallback(
 		async (slug) => {

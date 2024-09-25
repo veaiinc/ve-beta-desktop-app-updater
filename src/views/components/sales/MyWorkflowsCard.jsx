@@ -127,7 +127,7 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 				},
 				{
 					headerText: 'All Enquires',
-					subText: data?.formResponses || 0,
+					subText: data?.workflows || 0,
 					status: 'allenquiries',
 					type: 'actionCards',
 					modalHeader: 'All Enquires',
