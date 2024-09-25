@@ -50,6 +50,7 @@ const SmartFile = () => {
 		workspaceLogo: false,
 		showUploadLogoNotification: false,
 		workflowExpiryAt: '',
+		isEmailAuth: true,
 	});
 
 	//useEffect
@@ -101,6 +102,7 @@ const SmartFile = () => {
 				workflowData: workflowDataObj,
 				edit,
 				workflowExpiryAt: smartFileInfo?.expiresAt,
+				isEmailAuth: smartFileInfo?.access?.isEnabled,
 			}));
 		}
 	}, [smartFileInfo]);
@@ -314,6 +316,13 @@ const SmartFile = () => {
 		[info?.workflowExpiryAt],
 	);
 
+	const updateSmartFileEmailAuth = useCallback(
+		(data) => {
+			setInfo((prev) => ({ ...prev, isEmailAuth: data }));
+		},
+		[info?.isEmailAuth],
+	);
+
 	const onPreviewClick = useCallback(() => {
 		const workspaceId = localStorage.getItem('workspaceId');
 		const usertoken = localStorage.getItem('usertoken');
@@ -365,6 +374,8 @@ const SmartFile = () => {
 				updateWorkflowSlug={updateWorkflowSlug}
 				expiresAt={info?.workflowExpiryAt || ''}
 				updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
+				isEnabled={info?.isEmailAuth}
+				updateSmartFileEmailAuth={updateSmartFileEmailAuth}
 			/>
 
 			<CopiedModal

@@ -9,6 +9,7 @@ import TwoFactorAuthenticationComponent from '../../components/settings/profile/
 import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWorkspace';
 
 const MyProfile = () => {
+	// # Context
 	const {
 		profileInfo: {
 			get2FAQrCode,
@@ -17,40 +18,32 @@ const MyProfile = () => {
 			updateUserDetails,
 			updateUserPhoneNumber,
 			qrcode,
-			userWorkSpaceList,
-			chooseDefaultWorkspace,
 			updateUserLogo,
 			getTenantUserDetails,
 			tenantUserDetails,
 		},
 		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
 	} = useContext(Context);
+
+	// # States
 	const [showForm, setShowForm] = useState(false);
 	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [errors, setErrors] = useState({});
 	const [activeTheme, setActiveTheme] = useState('dark');
-	const [activeWorkspace, setActiveWorkspace] = useState(null);
 	const [userDetails, setUserDetails] = useState({
 		fullName: '',
 		email: '',
 		phoneNumber: '',
 		is2FAEnabled: '',
 		logoURL: '',
+		cropSettings: { crop: { x: 0, y: 0 }, zoom: 1 },
 	});
 
-	const [isAdmin, setIsAdmin] = useState(false);
-	const [activeItem, setActiveItem] = useState('profile');
+	const [initialState, setInitialState] = useState({ ...userDetails });
 
-	const handleNavigation = (id) => {
-		setActiveItem(id);
-		document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-	};
-	useEffect(() => {
-		if (userWorkSpaceList && userWorkSpaceList.length > 0) {
-			setActiveWorkspace(userWorkSpaceList?.[0].tenant_id);
-		}
-	}, [userWorkSpaceList]);
+	const [logoFile, setlogoFile] = useState(null);
 
+	// # Useeffects
 	useEffect(() => {
 		if (!tenantPreferenceData) {
 			getTenantPreferences();
@@ -69,6 +62,16 @@ const MyProfile = () => {
 				phoneNumber: userDetailsData?.phoneNumber || '',
 				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
 				logoURL: userDetailsData?.dp_s3_500w_key || '',
+				cropSettings: userDetailsData?.dp_style || { crop: { x: 0, y: 0 }, zoom: 1 },
+			}));
+			setInitialState((prev) => ({
+				...prev,
+				fullName: userDetailsData?.firstName || '',
+				email: userDetailsData?.email || '',
+				phoneNumber: userDetailsData?.phoneNumber || '',
+				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
+				logoURL: userDetailsData?.dp_s3_500w_key || '',
+				cropSettings: userDetailsData?.dp_style || { crop: { x: 0, y: 0 }, zoom: 1 },
 			}));
 		}
 	}, [userDetailsData]);
@@ -97,24 +100,19 @@ const MyProfile = () => {
 		}
 	}, [userDetails?.phoneNumber]);
 
+	// # Functions
 	const handleDebounceSearch = useCallback(
 		(typeCall = '') => {
 			clearInterval(isEditMode?.timeout);
 			const timeout = setTimeout(() => {
-				if (userDetails?.fullName && isEditMode?.isValueChanged && typeCall === 'name') {
-					handleSubmit(typeCall);
-				} else if (
-					userDetails?.phoneNumber &&
-					isEditMode?.isValueChanged &&
-					typeCall === 'phone'
-				) {
+				if (isEditMode?.isValueChanged) {
 					handleSubmit(typeCall);
 				}
 				setIsEditMode((prev) => ({ ...prev, timeout: null }));
 			}, 1500);
 			setIsEditMode((prev) => ({ ...prev, timeout }));
 		},
-		[isEditMode?.timeout, userDetails?.fullName],
+		[isEditMode?.timeout, userDetails?.fullName, userDetails?.phoneNumber],
 	);
 
 	const handleFormPopUp = () => {
@@ -138,6 +136,8 @@ const MyProfile = () => {
 			case 'fullName':
 				if (validator.isEmpty(stringValue)) {
 					error = 'First Name is required';
+				} else if (initialState?.fullName === stringValue) {
+					error = 'Name cannot be the same as the current one';
 				}
 				break;
 
@@ -146,6 +146,8 @@ const MyProfile = () => {
 					error = 'Phone Number is required';
 				} else if (!validator.isMobilePhone(stringValue, 'any', { strictMode: false })) {
 					error = 'Phone Number is invalid';
+				} else if (initialState.phoneNumber !== stringValue) {
+					error = 'Phone Number is already in use';
 				}
 				break;
 			case 'email':
@@ -159,11 +161,6 @@ const MyProfile = () => {
 				break;
 		}
 		return error;
-	};
-
-	const handlehandleDefaultWorkspace = (data) => {
-		setActiveWorkspace(data?.tenant_id);
-		chooseDefaultWorkspace(data);
 	};
 
 	const handleChange = (e) => {
@@ -182,18 +179,15 @@ const MyProfile = () => {
 		});
 	};
 
-	const handleImageChange = (e) => {
-		const file = e.target.files[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				setUserDetails({
-					...userDetails,
-					logoURL: reader.result,
-				});
-			};
-			reader.readAsDataURL(file);
-			updateUserLogo(file);
+	const updateProfileImage = async (settings) => {
+		let json = {
+			dp_style: settings,
+		};
+		const response = await updateUserDetails(json);
+
+		if (response[0]) {
+			setUserDetails((prev) => ({ ...prev, cropSettings: settings }));
+			updateUserLogo(logoFile);
 		}
 	};
 
@@ -209,7 +203,7 @@ const MyProfile = () => {
 		return Object.keys(newErrors).length === 0;
 	};
 
-	const handleSubmit = (nameApi = 'name') => {
+	const handleSubmit = async (nameApi = 'name') => {
 		if (!validate()) return;
 
 		if (nameApi === 'name') {
@@ -217,12 +211,18 @@ const MyProfile = () => {
 				firstName: userDetails.fullName,
 				lastName: userDetails.fullName,
 			};
-			updateUserDetails(json);
+			const response = await updateUserDetails(json);
+
+			if (response[0] !== true)
+				setErrors((prev) => ({ ...prev, fullName: response[1]?.message }));
 		} else if (nameApi === 'phone') {
 			let json = {
 				phoneNumber: userDetails?.phoneNumber,
 			};
-			updateUserPhoneNumber(json);
+			const response = await updateUserPhoneNumber(json);
+
+			if (response[0] !== true)
+				setErrors((prev) => ({ ...prev, phoneNumber: response[1]?.message }));
 		}
 	};
 
@@ -247,9 +247,11 @@ const MyProfile = () => {
 						handleChange={handleChange}
 						userDetailsData={userDetailsData}
 						showForm={showForm}
-						handleImageChange={handleImageChange}
+						updateProfileImage={updateProfileImage}
 						handlePopupFormClose={handlePopupFormClose}
 						role={tenantUserDetails?.role === 'admin' ? 'Admin' : 'Member'}
+						setUserDetails={setUserDetails}
+						setlogoFile={setlogoFile}
 					/>
 				</div>
 

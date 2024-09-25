@@ -1,6 +1,4 @@
 import ReusableButtonSettings from '../ReusableButtonSettings';
-import { BrandingColorPopUp } from '../popups/BrandingPopups';
-import { BrandColorList } from '../../../features/settings/indexConstant';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/workspaceSettings/plus-button.svg';
 import ColorPicker from '../../colorPicker/ColorPicker';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/Settings/CrossWhite.svg';

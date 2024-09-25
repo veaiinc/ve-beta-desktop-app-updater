@@ -71,6 +71,7 @@ export const ProfileState = () => {
 			console.log('error==>getTenantUserDetails', error);
 		}
 	};
+
 	const get2FAQrCode = async () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -121,12 +122,18 @@ export const ProfileState = () => {
 	const updateUserDetails = async (payload) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
-			let response = service.fetchPut(
+			let response = await service.fetchPut(
 				API.TENANTS.myProfile,
 				payload,
 				usertoken,
 				'tenant-users',
 			);
+			console.log(response);
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false];
+			}
 		} catch (error) {
 			console.log('error==>updateUserDetails', error);
 		}
@@ -137,15 +144,20 @@ export const ProfileState = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let decoded = jwt_decode(usertoken);
-			console.log(decoded);
-			let response = service.fetchPut(
+			let response = await service.fetchPut(
 				'/' + decoded.user_id + API.TENANTS.updateTenantUser,
 				payload,
 				usertoken,
 				'tenant-users',
 			);
+
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
 		} catch (error) {
-			console.log(error);
+			console.log('error==>updateUserPhoneNumber', error);
 		}
 	};
 
@@ -261,14 +273,20 @@ export const ProfileState = () => {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 
-			const responseData = await service.fetchPut(
-				'/' + workspaceId + '/add-workspaceId ',
+			const response = await service.fetchPut(
+				'/tenant/' + workspaceId + '/add-workspaceId ',
 				json,
 				usertoken,
-				'tenant',
+				'auth',
 			);
+
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
 		} catch (error) {
-			console.log('error', error);
+			console.log('error==>updateWorkSpaceId', error);
 		}
 	};
 
@@ -279,7 +297,7 @@ export const ProfileState = () => {
 				payload,
 			});
 		} catch (error) {
-			console.log('error==>updateBusniessName', error);
+			console.log('error==>updateCompanyDetailsState', error);
 		}
 	};
 

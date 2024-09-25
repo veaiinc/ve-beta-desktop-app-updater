@@ -11,7 +11,7 @@ export const menuItems = [
 	{ id: 'plan-billing', label: 'Plan Billing' },
 ];
 
-export const BusinessTypesOptions = [
+export const businessTypesOptions = [
 	{ value: 'makeUpArtist', label: 'Make up Artist' },
 	{ value: 'consultant', label: 'Consultant' },
 	{ value: 'salonAndSpa', label: 'Salon & Spa' },
@@ -24,27 +24,27 @@ export const BusinessTypesOptions = [
 	{ value: 'restaurateur', label: 'Restaurateur' },
 ];
 
-export const TimeZoneList = [
+export const timeZoneList = [
 	{ label: 'India, Sri Lanka Time', value: '12:58 PM' },
 	{ label: 'Kathmandu Time', value: '12:58 PM' },
 	{ label: 'Pakistan, Maldives Time', value: '12:58 PM' },
 	{ label: 'Asia/Omsk', value: '12:58 PM' },
 ];
 
-export const CurrencyList = [
+export const currencyList = [
 	{ label: 'Japanese Yen', value: '¥ JPY' },
 	{ label: 'Euros', value: '€ EUR' },
 	{ label: 'Indian Rupees', value: '₹ INR' },
 	{ label: 'united States Dollars', value: '$ USD' },
 ];
 
-export const BrandColorList = [
+export const brandColorList = [
 	{ label: 'color1', value: '#6055EC' },
 	{ label: 'color2', value: '#EAE294' },
 	{ label: 'color3', value: '#0D55B0' },
 ];
 
-export const AvatarColorList = [
+export const avatarColorList = [
 	'#6055EC',
 	'#D36262',
 	'#DFD57C',
@@ -56,12 +56,12 @@ export const AvatarColorList = [
 	'#24624F',
 ];
 
-export const FontList = [
+export const fontList = [
 	{ name: 'Bebas Neue', type: 'Regular' },
 	{ name: 'Battambang', type: 'Regular' },
 ];
 
-export const ThemesList = [
+export const themesList = [
 	{
 		id: 'theme1',
 		imageUrl: Theme1,

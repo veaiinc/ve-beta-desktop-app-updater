@@ -103,7 +103,6 @@ export const CompanySettingsState = () => {
 	};
 	const updatePrefernces = async (json) => {
 		try {
-			// brandAccentColor: '#ffffff',
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchPut(
@@ -112,6 +111,12 @@ export const CompanySettingsState = () => {
 				usertoken,
 				'tenant',
 			);
+
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
 		} catch (error) {
 			console.log('error => updatePrefernces ', error);
 		}
@@ -177,23 +182,7 @@ export const CompanySettingsState = () => {
 			console.log('error => uploadTenantLogo ', error);
 		}
 	};
-	// const inviteNewuser = async (payload) => {
-	// 	try {
-	// 		let usertoken = localStorage.getItem('usertoken');
-	// 		let workspaceId = localStorage.getItem('workspaceId');
-	// 		const response = await service.fetchPost(
-	// 			'/tenant/' + workspaceId + API.TENANTS.tenantUsers,
-	// 			payload,
-	// 			usertoken,
-	// 			'auth',
-	// 		);
-	// 		if (response?.[0] === true) {
-	// 			getTeamMembers();
-	// 		}
-	// 	} catch (error) {
-	// 		console.log('error => inviteNewuser ', error);
-	// 	}
-	// };
+
 	const inviteNewuser = async (payload) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -212,17 +201,43 @@ export const CompanySettingsState = () => {
 
 	const updateTenantRole = async (payload) => {
 		try {
+			const json = {
+				role: payload?.role,
+			};
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			let response = await service.fetchPut(
 				'/' + workspaceId + API.TENANTS.tenantUsers + '/' + payload?._id + '/role',
-				// payload?.role,
-				{ role: payload?.role },
+				json,
 				usertoken,
 				'tenant',
 			);
+
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
 		} catch (error) {
-			console.log('error => updateTenantBusinessName ', error);
+			console.log('error => updatetennat role', error);
+		}
+	};
+
+	const checkWorkspaceId = async (payload) => {
+		try {
+			const response = await service.fetchGet(
+				'/tenant/workspaceId-availability?workspaceId=' + payload,
+				null,
+				'auth',
+			);
+
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error occureed in checkWorkspaceId', error);
 		}
 	};
 
@@ -249,5 +264,6 @@ export const CompanySettingsState = () => {
 		resetCompanySettings,
 		inviteNewuser,
 		updateTenantRole,
+		checkWorkspaceId,
 	};
 };

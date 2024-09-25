@@ -37,7 +37,13 @@
 					border-radius: 100px;
 					border: 1px solid rgba(151, 151, 151, 0.36);
 					position: relative;
-
+					overflow: hidden;
+					.crop-container {
+						.reactEasyCrop_CropArea {
+							border: none !important; /* Removes the crop area border */
+							display: none !important;
+						}
+					}
 					img {
 						width: 100%;
 						height: 100%;
@@ -678,5 +684,32 @@
 			gap: 10px;
 			align-items: center;
 		}
+	}
+
+	.cropBody {
+		display: flex;
+		flex-direction: column;
+		width: 150px;
+		margin: auto;
+
+		.sliderDiv {
+			margin-top: 20px;
+			width: 90%;
+		}
+	}
+
+	.ant-slider {
+		width: 90%;
+	}
+
+	.ant-slider-rail {
+		background-color: white;
+		&:hover {
+			background-color: white;
+		}
+	}
+
+	.ant-slider-track {
+		background: #6055ec;
 	}
 }

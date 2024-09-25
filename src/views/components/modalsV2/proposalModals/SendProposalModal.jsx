@@ -56,6 +56,8 @@ const SendProposalModal = ({
 	updateWorkflowSlug,
 	expiresAt,
 	updateSendSmartFileExpiryData,
+	isEnabled,
+	updateSmartFileEmailAuth,
 }) => {
 	const {
 		templates: {
@@ -141,6 +143,10 @@ const SendProposalModal = ({
 		}
 	}, [info?.editSlug, inputRef]);
 
+	useEffect(() => {
+		setInfo((prev) => ({ ...prev, emailAccess: isEnabled }));
+	}, [isEnabled]);
+
 	const handleCopy = useCallback(async () => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -184,9 +190,10 @@ const SendProposalModal = ({
 		}
 
 		sendSmartFile(payload);
-		if (payload.expiresAt) {
+		if (payload?.expiresAt) {
 			updateSendSmartFileExpiryData(payload.expiresAt);
 		}
+		updateSmartFileEmailAuth(info?.emailAccess);
 
 		if (workflowStatus === 'enquiry') {
 			chnageWorkflowStats({

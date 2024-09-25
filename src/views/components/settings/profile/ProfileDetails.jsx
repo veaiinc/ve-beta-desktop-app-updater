@@ -6,9 +6,9 @@ import { ReactComponent as UserAccountSvg } from '../../../../assets/svg/Setting
 import { ReactComponent as EmailSvg } from '../../../../assets/svg/Settings/emailwhite.svg';
 import { ReactComponent as GreenTickSvg } from '../../../../assets/svg/Settings/TickCirclegree.svg';
 import { ReactComponent as PencilkSvg } from '../../../../assets/svg/Settings/pencilwhite.svg';
-
 import UploadAvatarPopupComponent from './UploadAvatarPopup';
 import UploadFileProiflePopup from './UploadFileProiflePopup';
+import Cropper from 'react-easy-crop';
 
 // profile details component
 const ProfileDetailsComponent = ({
@@ -17,11 +17,30 @@ const ProfileDetailsComponent = ({
 	handleChange,
 	userDetailsData,
 	showForm,
-	handleImageChange,
+	updateProfileImage,
 	handlePopupFormClose,
 	role,
+	setUserDetails,
+	setlogoFile,
 }) => {
 	const [uploadAvatarPopup, setuploadAvatarPopup] = useState({ theme: false, file: false });
+
+	const handleImageChange = (acceptedFiles) => {
+		const file = acceptedFiles[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setUserDetails({
+					...userDetails,
+					logoURL: reader.result,
+				});
+			};
+			reader.readAsDataURL(file);
+
+			setuploadAvatarPopup((prev) => ({ ...prev, theme: false, file: true }));
+			setlogoFile(file);
+		}
+	};
 
 	return (
 		<>
@@ -29,7 +48,20 @@ const ProfileDetailsComponent = ({
 				<div className="profileHeader">
 					<div className="imageCircleDiv">
 						{userDetails?.logoURL ? (
-							<img src={userDetails?.logoURL} alt="logo" />
+							// <img src={userDetails?.logoURL} alt="logo" />
+							<div className="crop-container">
+								<Cropper
+									image={userDetails?.logoURL} // Image URL to crop
+									crop={userDetails?.cropSettings?.crop}
+									zoom={userDetails?.cropSettings?.zoom}
+									// crop={{ x: 2, y: 0 }}
+									// zoom={1}
+									showGrid={false}
+									onCropChange={(e) => ''}
+									onCropComplete={(e) => ''}
+									onZoomChange={(e) => ''}
+								/>
+							</div>
 						) : (
 							<div className="noImageText">
 								{getInitials(
@@ -88,11 +120,9 @@ const ProfileDetailsComponent = ({
 									placeholder={'Enter Phone Number'}
 									value={userDetails?.phoneNumber || ''}
 									name="phoneNumber"
-									// onChange={handleChange}
 									onChange={(e) =>
 										handleChange({ target: { name: 'phoneNumber', value: e } })
 									}
-									// disabled={}
 								/>
 							</div>
 							{errors?.phoneNumber && (
@@ -128,6 +158,7 @@ const ProfileDetailsComponent = ({
 				userDetailsData={userDetailsData}
 				uploadAvatarPopup={uploadAvatarPopup}
 				setuploadAvatarPopup={setuploadAvatarPopup}
+				handleImageChange={handleImageChange}
 			/>
 
 			<UploadFileProiflePopup
@@ -135,6 +166,7 @@ const ProfileDetailsComponent = ({
 				userDetailsData={userDetailsData}
 				uploadAvatarPopup={uploadAvatarPopup}
 				setuploadAvatarPopup={setuploadAvatarPopup}
+				updateProfileImage={updateProfileImage}
 			/>
 		</>
 	);

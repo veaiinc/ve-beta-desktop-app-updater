@@ -8,20 +8,16 @@ import Context from '../../../context/context';
 import AddNewUserModal from './addNewUser';
 import InviteMembersWorkspaceComponent from '../../components/settings/team/InviteMembersWorkspace';
 import TeamAccessListComponent from '../../components/settings/team/TeamAccessList';
-import { Button, message } from 'antd';
+import { message } from 'antd';
 
 const TeamSettings = () => {
+	// Contexts
 	const {
-		profileInfo: { getTenantUserDetails, tenantUserDetails },
-		companyInfo: {
-			getTeamMembers,
-			tenantsUserList,
-			inviteUserRes,
-			inviteNewuser,
-			updateTenantRole,
-		},
+		profileInfo: { tenantUserDetails },
+		companyInfo: { getTeamMembers, tenantsUserList, inviteNewuser, updateTenantRole },
 	} = useContext(Context);
 
+	// useStates
 	const [info, setInfo] = useState({
 		showAddTenantUserModal: false,
 		tenantUser: [],
@@ -52,21 +48,13 @@ const TeamSettings = () => {
 		role: '',
 	});
 
+	const [filteredUsers, setfilteredUsers] = useState([]);
 	const [messageApi, contextHolder] = message.useMessage();
 
+	// useEffects
 	useEffect(() => {
 		fetchData();
 	}, []);
-
-	const fetchData = async () => {
-		if (!tenantsUserList) {
-			await getTeamMembers();
-		}
-		setInfo((prev) => ({
-			...prev,
-			isloading: false,
-		}));
-	};
 
 	useEffect(() => {
 		if (tenantsUserList) {
@@ -76,6 +64,7 @@ const TeamSettings = () => {
 				isOwner: findOwnerId ? true : false,
 				tenantUser: tenantsUserList,
 			}));
+			setfilteredUsers(tenantsUserList);
 		}
 	}, [tenantsUserList]);
 
@@ -89,13 +78,34 @@ const TeamSettings = () => {
 		}
 	}, [tenantUserDetails]);
 
-	console.log(tenantUserDetails);
+	useEffect(() => {
+		const filtered = info.tenantUser
+			?.filter((user) => {
+				const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.toLowerCase();
+				return fullName.includes(info.searchQuery.toLowerCase());
+			})
+			.sort((a, b) => {
+				if (a.role === 'admin' && b.role !== 'admin') {
+					return -1;
+				} else if (a.role !== 'admin' && b.role === 'admin') {
+					return 1;
+				} else {
+					return 0;
+				}
+			});
 
-	// useEffect(() => {
-	// 	if (inviteUserRes === 'success') {
-	// 		getTeamMembers();
-	// 	}
-	// }, [inviteUserRes]);
+		setfilteredUsers(filtered);
+	}, [info?.searchQuery]);
+
+	const fetchData = async () => {
+		if (!tenantsUserList) {
+			await getTeamMembers();
+		}
+		setInfo((prev) => ({
+			...prev,
+			isloading: false,
+		}));
+	};
 
 	const handleChnage = (e, index) => {
 		const { name, value } = e.target;
@@ -126,21 +136,6 @@ const TeamSettings = () => {
 		}));
 	};
 
-	const filteredUsers = info.tenantUser
-		?.filter((user) => {
-			const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.toLowerCase();
-			return fullName.includes(info.searchQuery.toLowerCase());
-		})
-		.sort((a, b) => {
-			if (a.role === 'admin' && b.role !== 'admin') {
-				return -1;
-			} else if (a.role !== 'admin' && b.role === 'admin') {
-				return 1;
-			} else {
-				return 0;
-			}
-		});
-
 	const showAddTenantUserModal = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -150,38 +145,64 @@ const TeamSettings = () => {
 
 	const validateUsersEmails = (email, index) => {
 		const update = [...sendRequestList];
-		if (email === null || email === '') {
-			update[index]['emailIDError'] = true;
-			update[index]['emailIDMessage'] = 'Required Field!';
-			setsendRequestList(update);
-			return false;
-		} else if (!validator.isEmail(email)) {
-			update[index]['emailIDError'] = true;
-			update[index]['emailIDMessage'] = 'Please enter correct email';
-			setsendRequestList(update);
-			return false;
-		} else {
-			update[index]['emailIDError'] = false;
-			update[index]['emailIDMessage'] = '';
-			setsendRequestList(update);
-			return true;
+		let emailError = false,
+			emailIDMessage = '';
+		if (email === null || email?.length) {
+			emailError = true;
+			emailIDMessage = 'Required Field!';
 		}
+		if (!validator.isEmail(email)) {
+			emailError = true;
+			emailIDMessage = 'Please enter correct email';
+		}
+		update[index]['emailIDError'] = emailError;
+		update[index]['emailIDMessage'] = emailIDMessage;
+		setsendRequestList(update);
+		return !emailError;
+	};
+
+	const validateDuplicateEmails = (email, index) => {
+		const update = [...sendRequestList];
+		let emailError = false;
+		let emailIDMessage = '';
+
+		const isDuplicate = sendRequestList?.some(
+			(item, idx) => item?.email === email && idx !== index,
+		);
+
+		if (isDuplicate) {
+			emailError = true;
+			emailIDMessage = 'Duplicate email found!';
+		}
+
+		// Update the state with the error message
+		update[index]['emailIDError'] = emailError;
+		update[index]['emailIDMessage'] = emailIDMessage;
+		setsendRequestList(update);
+
+		// Return whether the email has an error or not
+		return !emailError;
 	};
 
 	const validateExistUser = (email, index) => {
 		const update = [...sendRequestList];
+		let emailError = false;
+		let emailIDMessage = '';
 
+		// Check if the user already exists
 		const isAlreadyExist = info?.tenantUser?.find((item) => item?.email === email || null);
 		if (isAlreadyExist) {
-			update[index]['emailIDError'] = true;
-			update[index]['emailIDMessage'] = 'User already exist!';
-			setsendRequestList(update);
-			return false;
+			emailError = true;
+			emailIDMessage = 'User already exists!';
 		}
-		update[index]['emailIDError'] = false;
-		update[index]['emailIDMessage'] = '';
+
+		// Update the state
+		update[index]['emailIDError'] = emailError;
+		update[index]['emailIDMessage'] = emailIDMessage;
 		setsendRequestList(update);
-		return true;
+
+		// Return whether the email has an error or not
+		return !emailError;
 	};
 
 	const mapUsersRoleBased = () => {
@@ -226,56 +247,74 @@ const TeamSettings = () => {
 		});
 	};
 
-	const handleSubmit = () => {
-		setInfo((prev) => ({ ...prev, buttonLoading: true }));
-		const isEmailsCorrect = _.map(sendRequestList, (singleUser, index) =>
-			validateUsersEmails(singleUser.email, index),
-		);
+	const handleSubmit = async () => {
+		try {
+			if (info?.buttonLoading) return;
 
-		if (!_.every(isEmailsCorrect)) return;
+			setInfo((prev) => ({ ...prev, buttonLoading: false }));
 
-		const isUsersValidate = _.map(sendRequestList, (singleUser, index) =>
-			validateExistUser(singleUser.email, index),
-		);
+			let isAllCorrect = true;
 
-		if (!_.every(isUsersValidate)) return;
+			for (let index = 0; index < sendRequestList.length; index++) {
+				if (!validateUsersEmails(sendRequestList[index].email, index) && isAllCorrect) {
+					isAllCorrect = false;
+					console.log(isAllCorrect);
+				}
+			}
 
-		const dataRoles = mapUsersRoleBased();
+			if (!isAllCorrect) return;
+			else isAllCorrect = true;
 
-		const promises = dataRoles?.map((payload, index) => () => inviteNewuser(payload));
+			for (let index = 0; index < sendRequestList.length; index++) {
+				if (!validateDuplicateEmails(sendRequestList[index].email, index) && isAllCorrect) {
+					isAllCorrect = false;
+					console.log(isAllCorrect);
+				}
+			}
 
-		loadingToastFunction();
+			if (!isAllCorrect) return;
+			else isAllCorrect = true;
 
-		Promise.all(promises.map((fn) => fn()))
-			.then((results) => {
-				const update = [...sendRequestList];
-				results?.map((singleResult, index) => {
-					console.log(singleResult[0]);
-					if (!_.isBoolean(singleResult[0]) && singleResult[0] !== true) {
-						update[index].emailIDError = true;
-						update[index].emailIDMessage = singleResult[1]?.message;
-					} else {
-						update[index].emailIDError = false;
-						update[index].successTrue = true;
-						update[index].emailIDMessage = 'invitation mail send successfully';
-						setTimeout(() => {
-							const tempUpdate = [...sendRequestList];
-							tempUpdate[index].successTrue = false;
-							tempUpdate[index].emailIDMessage = '';
-							// console.log(tempUpdate);
+			for (let index = 0; index < sendRequestList.length; index++) {
+				if (!validateExistUser(sendRequestList[index].email, index) && isAllCorrect) {
+					isAllCorrect = false;
+					console.log(isAllCorrect);
+				}
+			}
 
-							setsendRequestList(tempUpdate);
-						}, 2000);
-					}
-					setsendRequestList(update);
-					setInfo((prev) => ({ ...prev, buttonLoading: false }));
-				});
-				getTeamMembers();
-				messageApi.destroy();
-			})
-			.catch((error) => {
-				console.error(error); // handle any errors that occur
+			if (!isAllCorrect) return;
+
+			const dataRoles = mapUsersRoleBased();
+			loadingToastFunction();
+
+			const promises = dataRoles?.map((payload) => inviteNewuser(payload));
+			const results = await Promise.all(promises);
+			const update = [...sendRequestList];
+			results?.forEach((singleResult, index) => {
+				if (!_.isBoolean(singleResult[0]) && singleResult[0] !== true) {
+					update[index].emailIDError = true;
+					update[index].emailIDMessage = singleResult[1]?.message;
+				} else {
+					update[index].emailIDError = false;
+					update[index].successTrue = true;
+					update[index].emailIDMessage = 'Invitation mail sent successfully';
+
+					setTimeout(() => {
+						const tempUpdate = [...sendRequestList];
+						tempUpdate[index].successTrue = false;
+						tempUpdate[index].emailIDMessage = '';
+						setsendRequestList(tempUpdate);
+					}, 2000);
+				}
 			});
+
+			setsendRequestList(update);
+			setInfo((prev) => ({ ...prev, buttonLoading: false }));
+			getTeamMembers();
+			messageApi.destroy();
+		} catch (error) {
+			console.error(error); // handle any errors that occur
+		}
 	};
 
 	const updateTenantRoleFunc = (_id, role) => {
@@ -284,42 +323,45 @@ const TeamSettings = () => {
 	};
 
 	return (
-		<div className="TeamMemberContainer">
+		<>
 			{contextHolder}
-			<div className="inviteMemberComponent">
-				<InviteMembersWorkspaceComponent
-					handleChnage={handleChnage}
-					info={info}
-					handleSubmit={handleSubmit}
-					sendRequestList={sendRequestList}
-					setsendRequestList={setsendRequestList}
-				/>
-			</div>
 
-			<div className="yourTeamComponent">
-				<TeamAccessListComponent
-					search={search}
-					handleInputChange={handleInputChange}
-					info={info}
-					filteredUsers={filteredUsers}
-					selectedOption={selectedOption}
-					setselectedOption={setselectedOption}
-					updateTenantRoleFunc={updateTenantRoleFunc}
-				/>
+			<div className="TeamMemberContainer">
+				<div className="inviteMemberComponent">
+					<InviteMembersWorkspaceComponent
+						handleChnage={handleChnage}
+						info={info}
+						handleSubmit={handleSubmit}
+						sendRequestList={sendRequestList}
+						setsendRequestList={setsendRequestList}
+					/>
+				</div>
+
+				<div className="yourTeamComponent">
+					<TeamAccessListComponent
+						search={search}
+						handleInputChange={handleInputChange}
+						info={info}
+						filteredUsers={filteredUsers}
+						selectedOption={selectedOption}
+						setselectedOption={setselectedOption}
+						updateTenantRoleFunc={updateTenantRoleFunc}
+					/>
+				</div>
+				<Modal closeModal={showAddTenantUserModal} isOpen={info.showAddTenantUserModal}>
+					<AddNewUserModal
+						isAdmin={info.isAdmin}
+						isOwner={info.isOwner}
+						close={showAddTenantUserModal}
+						tenantUser={info?.tenantUser}
+						step={info.sentInvitationSteps}
+						role={info.userRoleType}
+						email={info.emailID}
+						clearForm={handleClearInput}
+					/>
+				</Modal>
 			</div>
-			<Modal closeModal={showAddTenantUserModal} isOpen={info.showAddTenantUserModal}>
-				<AddNewUserModal
-					isAdmin={info.isAdmin}
-					isOwner={info.isOwner}
-					close={showAddTenantUserModal}
-					tenantUser={info?.tenantUser}
-					step={info.sentInvitationSteps}
-					role={info.userRoleType}
-					email={info.emailID}
-					clearForm={handleClearInput}
-				/>
-			</Modal>
-		</div>
+		</>
 	);
 };
 

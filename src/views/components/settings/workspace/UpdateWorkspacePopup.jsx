@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 import ReactModal from '../../modalsV2';
 import { ReactComponent as FinalInfoSvg } from '../../../../assets/svg/Settings/exlametryCircle.svg';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';

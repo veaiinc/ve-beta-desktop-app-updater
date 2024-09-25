@@ -4,7 +4,7 @@ import InputForModules from '../../components/input/inputForModules';
 import Context from '../../../context/context';
 import jwt_decode from 'jwt-decode';
 import validator from 'validator';
-import { BusinessTypesOptions } from './indexConstant';
+import { businessTypesOptions } from './indexConstant';
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../../components/popover/ToolTipContainer';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/questionMark.svg';
@@ -13,6 +13,7 @@ import { ReactComponent as CloudFileUploadSvg } from '../../../assets/svg/Settin
 import Dropzone from 'react-dropzone';
 
 const PublicInformation = () => {
+	// Context
 	const {
 		profileInfo: { tennantSettingsData, updateCompanyDetailsState, changelogo },
 		companyInfo: {
@@ -24,6 +25,7 @@ const PublicInformation = () => {
 		},
 	} = useContext(Context);
 
+	// useStates
 	const [error, setErrors] = useState({});
 	const [logoUrl, setLogoUrl] = useState('');
 	const [arrow, setArrow] = useState('Show');
@@ -40,30 +42,7 @@ const PublicInformation = () => {
 	});
 	const [initialState, setInitialState] = useState({ ...overviewState });
 
-	const mergedArrow = useMemo(() => {
-		if (arrow === 'Hide') {
-			return false;
-		}
-		if (arrow === 'Show') {
-			return true;
-		}
-		return {
-			pointAtCenter: true,
-		};
-	}, [arrow]);
-
-	const checkIsAdmin = () => {
-		let usertoken = localStorage.getItem('usertoken');
-		let decoded = jwt_decode(usertoken);
-		let workspaceID = localStorage.getItem('workspaceId');
-		let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded.user_id}`));
-
-		setOverviewState((prev) => ({
-			...prev,
-			isAdmin: role === 'admin',
-		}));
-	};
-
+	// useEffects
 	useEffect(() => {
 		setOverviewState((prev) => ({
 			...prev,
@@ -91,18 +70,44 @@ const PublicInformation = () => {
 		handleDebounceSearch('phone');
 	}, [overviewState]);
 
+	// functions
+
+	const mergedArrow = useMemo(() => {
+		if (arrow === 'Hide') {
+			return false;
+		}
+		if (arrow === 'Show') {
+			return true;
+		}
+		return {
+			pointAtCenter: true,
+		};
+	}, [arrow]);
+
+	const checkIsAdmin = () => {
+		let usertoken = localStorage.getItem('usertoken');
+		let decoded = jwt_decode(usertoken);
+		let workspaceID = localStorage.getItem('workspaceId');
+		let role = atob(localStorage.getItem(`userRole::${workspaceID}::${decoded?.user_id}`));
+
+		setOverviewState((prev) => ({
+			...prev,
+			isAdmin: role === 'admin',
+		}));
+	};
+
 	const validateField = (fieldName, value) => {
 		let Value = value || '';
 		switch (fieldName) {
 			case 'email':
-				if (!validator.isEmail(Value) && initialState.email !== overviewState.email) {
+				if (!validator.isEmail(Value) && initialState?.email !== overviewState?.email) {
 					return { error: true, message: 'Invalid Email' };
 				}
 				break;
 			case 'phoneNumber':
 				if (
 					!validator.isMobilePhone(Value, 'any', { strictMode: true }) &&
-					initialState.phoneNumber !== overviewState.phoneNumber
+					initialState?.phoneNumber !== overviewState?.phoneNumber
 				) {
 					return { error: true, message: 'Phone Number is invalid' };
 				}
@@ -113,7 +118,7 @@ const PublicInformation = () => {
 						protocols: ['http', 'https'],
 						require_protocol: true,
 					}) &&
-					initialState.website !== overviewState.website
+					initialState?.website !== overviewState?.website
 				) {
 					return {
 						error: true,
@@ -146,11 +151,11 @@ const PublicInformation = () => {
 
 	const updateDetails = () => {
 		let contactJson = {};
-		if (initialState.email !== overviewState.email) {
+		if (initialState?.email !== overviewState?.email) {
 			contactJson.email = overviewState.email;
 		}
 
-		if (initialState.phoneNumber !== overviewState.phoneNumber) {
+		if (initialState?.phoneNumber !== overviewState?.phoneNumber) {
 			contactJson.phoneNumber = overviewState.phoneNumber;
 		}
 
@@ -159,20 +164,20 @@ const PublicInformation = () => {
 			updateTenantContactDetails(contactJson);
 		}
 
-		if (initialState.address !== overviewState.address && overviewState.address.length) {
+		if (initialState.address !== overviewState.address && overviewState?.address?.length) {
 			let json = { address: overviewState.address };
 			updateCompanyDetailsState(json);
 			updateTenantAddress(json);
 		}
 
-		if (initialState.website !== overviewState.website && overviewState.website.length) {
+		if (initialState.website !== overviewState.website && overviewState?.website?.length) {
 			let json = { websiteUrl: overviewState.website };
 			updateCompanyDetailsState(json);
 			updateTenantWebsite(json);
 		}
 
 		if (
-			initialState.businessName !== overviewState.businessName &&
+			initialState?.businessName !== overviewState?.businessName &&
 			overviewState.businessName.length
 		) {
 			let json = { businessName: overviewState.businessName };
@@ -356,7 +361,7 @@ const PublicInformation = () => {
 						<InputForModules
 							label="Company Type"
 							type={'dropdown'}
-							options={BusinessTypesOptions}
+							options={businessTypesOptions}
 							placeholder="Choose your Company Type"
 							name={'businessName'}
 							value={overviewState?.businessType || ''}
