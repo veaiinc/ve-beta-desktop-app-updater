@@ -40,14 +40,6 @@ const BrandColorComponent = ({
 						</div>
 					</div>
 				))}
-
-				{/* <div className="chooseBrandColor">
-					<div
-						className="circleColor"
-						style={{ background: `${brandState?.brandColor}` }}
-					></div>
-					<p className="hashColor">{brandState?.brandColor}</p>
-				</div> */}
 			</div>
 
 			<div>

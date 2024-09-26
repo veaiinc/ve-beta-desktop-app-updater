@@ -102,13 +102,13 @@ const BrandingSetup = () => {
 
 		const response = await updatePrefernces(json);
 		if (response[0]) {
-			messageFunction('success', 'successfully brand color is added');
+			messageFunction('success', 'Brand color is uploaded successfully');
 			setbrandState((prev) => ({
 				...prev,
 				brandingThemes: json?.brandingThemes,
 			}));
 		} else {
-			messageFunction('error', 'Failed to add brand color');
+			messageFunction('error', 'Brand color is removed successfully');
 		}
 	};
 

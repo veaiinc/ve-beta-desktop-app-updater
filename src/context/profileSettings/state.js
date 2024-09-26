@@ -301,6 +301,17 @@ export const ProfileState = () => {
 		}
 	};
 
+	const updateUserDetailsState = (payload) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_USER_DETAILS,
+				payload,
+			});
+		} catch (error) {
+			console.log('error==>updateUserDetailsState', error);
+		}
+	};
+
 	const resetProfileSettingsState = async () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -322,5 +333,6 @@ export const ProfileState = () => {
 		resetProfileSettingsState,
 		updateWorkSpaceId,
 		updateCompanyDetailsState,
+		updateUserDetailsState,
 	};
 };

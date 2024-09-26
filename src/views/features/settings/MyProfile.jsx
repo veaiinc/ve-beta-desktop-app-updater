@@ -21,6 +21,7 @@ const MyProfile = () => {
 			updateUserLogo,
 			getTenantUserDetails,
 			tenantUserDetails,
+			updateUserDetailsState,
 		},
 		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
 	} = useContext(Context);
@@ -73,6 +74,8 @@ const MyProfile = () => {
 				logoURL: userDetailsData?.dp_s3_500w_key || '',
 				cropSettings: userDetailsData?.dp_style || { crop: { x: 0, y: 0 }, zoom: 1 },
 			}));
+
+			console.log(userDetailsData);
 		}
 	}, [userDetailsData]);
 
@@ -142,11 +145,9 @@ const MyProfile = () => {
 				break;
 
 			case 'phoneNumber':
-				if (validator.isEmpty(stringValue)) {
-					error = 'Phone Number is required';
-				} else if (!validator.isMobilePhone(stringValue, 'any', { strictMode: false })) {
+				if (!validator.isMobilePhone(stringValue, 'any', { strictMode: true })) {
 					error = 'Phone Number is invalid';
-				} else if (initialState.phoneNumber !== stringValue) {
+				} else if (initialState.phoneNumber === stringValue) {
 					error = 'Phone Number is already in use';
 				}
 				break;
@@ -191,6 +192,22 @@ const MyProfile = () => {
 		}
 	};
 
+	const updateDpThemeHandler = async (color) => {
+		let json = {
+			dp_style: {
+				...userDetails?.cropSettings,
+				profileDpColor: color,
+			},
+		};
+
+		const response = await updateUserDetails(json);
+		if (response[0]) {
+			updateUserDetailsState({
+				...json.dp_style,
+			});
+		}
+	};
+
 	const validate = () => {
 		const newErrors = {};
 		Object.keys(userDetails).forEach((key) => {
@@ -204,9 +221,7 @@ const MyProfile = () => {
 	};
 
 	const handleSubmit = async (nameApi = 'name') => {
-		if (!validate()) return;
-
-		if (nameApi === 'name') {
+		if (nameApi === 'name' && !validateField('fullName', userDetails?.fullName)) {
 			let json = {
 				firstName: userDetails.fullName,
 				lastName: userDetails.fullName,
@@ -214,15 +229,19 @@ const MyProfile = () => {
 			const response = await updateUserDetails(json);
 
 			if (response[0] !== true)
-				setErrors((prev) => ({ ...prev, fullName: response[1]?.message }));
-		} else if (nameApi === 'phone') {
+				return setErrors((prev) => ({ ...prev, fullName: response[1]?.message }));
+
+			updateUserDetailsState(json);
+		} else if (nameApi === 'phone' && !validateField('phoneNumber', userDetails?.phoneNumber)) {
 			let json = {
 				phoneNumber: userDetails?.phoneNumber,
 			};
 			const response = await updateUserPhoneNumber(json);
 
 			if (response[0] !== true)
-				setErrors((prev) => ({ ...prev, phoneNumber: response[1]?.message }));
+				return setErrors((prev) => ({ ...prev, phoneNumber: response[1]?.message }));
+
+			updateUserDetailsState(json);
 		}
 	};
 
@@ -252,6 +271,7 @@ const MyProfile = () => {
 						role={tenantUserDetails?.role === 'admin' ? 'Admin' : 'Member'}
 						setUserDetails={setUserDetails}
 						setlogoFile={setlogoFile}
+						updateDpThemeHandler={updateDpThemeHandler}
 					/>
 				</div>
 

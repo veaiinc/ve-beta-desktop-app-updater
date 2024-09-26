@@ -22,6 +22,7 @@ const ProfileDetailsComponent = ({
 	role,
 	setUserDetails,
 	setlogoFile,
+	updateDpThemeHandler,
 }) => {
 	const [uploadAvatarPopup, setuploadAvatarPopup] = useState({ theme: false, file: false });
 
@@ -48,14 +49,11 @@ const ProfileDetailsComponent = ({
 				<div className="profileHeader">
 					<div className="imageCircleDiv">
 						{userDetails?.logoURL ? (
-							// <img src={userDetails?.logoURL} alt="logo" />
 							<div className="crop-container">
 								<Cropper
 									image={userDetails?.logoURL} // Image URL to crop
 									crop={userDetails?.cropSettings?.crop}
 									zoom={userDetails?.cropSettings?.zoom}
-									// crop={{ x: 2, y: 0 }}
-									// zoom={1}
 									showGrid={false}
 									onCropChange={(e) => ''}
 									onCropComplete={(e) => ''}
@@ -63,7 +61,12 @@ const ProfileDetailsComponent = ({
 								/>
 							</div>
 						) : (
-							<div className="noImageText">
+							<div
+								className="noImageText"
+								style={{
+									background: userDetails?.cropSettings?.profileDpColor || '',
+								}}
+							>
 								{getInitials(
 									userDetailsData?.firstName,
 
@@ -159,6 +162,7 @@ const ProfileDetailsComponent = ({
 				uploadAvatarPopup={uploadAvatarPopup}
 				setuploadAvatarPopup={setuploadAvatarPopup}
 				handleImageChange={handleImageChange}
+				updateDpThemeHandler={updateDpThemeHandler}
 			/>
 
 			<UploadFileProiflePopup

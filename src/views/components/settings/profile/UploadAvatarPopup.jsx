@@ -1,4 +1,4 @@
-import React, { memo, useState, useRef } from 'react';
+import React, { memo, useState } from 'react';
 import ReactModal from '../../modalsV2';
 import { getInitials } from '../../../features/profile_settings/getInitials';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
@@ -7,6 +7,7 @@ import { ReactComponent as PlusSvgColor } from '../../../../assets/svg/Settings/
 import { ReactComponent as PencilSvg } from '../../../../assets/svg/Settings/pencilwhite.svg';
 import { avatarColorList } from '../../../features/settings/indexConstant';
 import Dropzone from 'react-dropzone';
+import Cropper from 'react-easy-crop';
 
 const UploadAvatarPopupComponent = ({
 	userDetails,
@@ -14,8 +15,8 @@ const UploadAvatarPopupComponent = ({
 	uploadAvatarPopup,
 	setuploadAvatarPopup,
 	handleImageChange,
+	updateDpThemeHandler,
 }) => {
-	const fileInputRef = useRef(null);
 	const [openTheme, setopenTheme] = useState(false);
 	const [hover, sethover] = useState(false);
 
@@ -26,81 +27,95 @@ const UploadAvatarPopupComponent = ({
 	};
 
 	return (
-		<div>
-			<ReactModal isOpen={uploadAvatarPopup?.theme} closeModal={closeModalFunc}>
-				<div className="uploadAvatarPopupComponent">
-					<div className="headerPopup">
-						<h1>Upload Avatar</h1>
-						<span onClick={closeModalFunc}>
-							<CloseSvg />
-						</span>
+		<ReactModal isOpen={uploadAvatarPopup?.theme} closeModal={closeModalFunc}>
+			<div className="uploadAvatarPopupComponent">
+				<div className="headerPopup">
+					<h1>Upload Avatar</h1>
+					<span onClick={closeModalFunc}>
+						<CloseSvg />
+					</span>
+				</div>
+
+				{openTheme ? (
+					<div className="avatarColorContainer">
+						<h4>Avatar color</h4>
+						<div className="colorList">
+							{avatarColorList?.map((singleColor) => (
+								<div
+									style={{ background: singleColor }}
+									className="colorCircleDiv"
+									onClick={() => updateDpThemeHandler(singleColor)}
+								></div>
+							))}
+						</div>
+
+						<br />
+
+						<br />
 					</div>
-
-					{openTheme ? (
-						<div className="avatarColorContainer">
-							<h4>Avatar color</h4>
-							<div className="colorList">
-								{avatarColorList?.map((singleColor) => (
-									<div
-										style={{ background: singleColor }}
-										className="colorCircleDiv"
-									></div>
-								))}
+				) : (
+					<div className="imageCircleDiv" onClick={() => setopenTheme(true)} z>
+						{userDetails?.logoURL ? (
+							<div className="crop-container">
+								<Cropper
+									image={userDetails?.logoURL} // Image URL to crop
+									crop={userDetails?.cropSettings?.crop}
+									zoom={userDetails?.cropSettings?.zoom}
+									showGrid={false}
+									onCropChange={(e) => ''}
+									onCropComplete={(e) => ''}
+									onZoomChange={(e) => ''}
+								/>
 							</div>
-
-							<br />
-
-							<br />
-						</div>
-					) : (
-						<div className="imageCircleDiv" onClick={() => setopenTheme(true)} z>
-							{userDetails?.logoURL ? (
-								<img src={userDetails?.logoURL} alt="logo" />
-							) : (
-								<div className="noImageText">
-									{getInitials(
-										userDetailsData?.firstName,
-
-										userDetailsData?.lastName,
-									)}
-								</div>
-							)}
-
-							<div className="editImage">
-								<PencilSvg />
-							</div>
-						</div>
-					)}
-
-					<Dropzone
-						onDrop={handleImageChange}
-						accept={'image/png'}
-						multiple={false}
-						// disabled={!isAdmin}
-					>
-						{({ getRootProps, getInputProps }) => (
+						) : (
 							<div
-								className="customAvatarButton"
-								{...getRootProps()}
-								onMouseEnter={() => sethover(true)}
-								onMouseLeave={() => sethover(false)}
+								className="noImageText"
+								style={{
+									background: userDetails?.cropSettings?.profileDpColor || '',
+								}}
 							>
-								<input {...getInputProps()} />
+								{getInitials(
+									userDetailsData?.firstName,
 
-								<span className="addIcon">
-									{hover ? <PlusSvgColor /> : <PlusSvg />}
-								</span>
-								<span> Add Custom Avatar</span>
+									userDetailsData?.lastName,
+								)}
 							</div>
 						)}
-					</Dropzone>
 
-					<div>
-						<button className="saveChangeButton">Save Changes</button>
+						<div className="editImage">
+							<PencilSvg />
+						</div>
 					</div>
+				)}
+
+				<Dropzone
+					onDrop={handleImageChange}
+					accept={'image/png'}
+					multiple={false}
+					// disabled={!isAdmin}
+				>
+					{({ getRootProps, getInputProps }) => (
+						<div
+							className="customAvatarButton"
+							{...getRootProps()}
+							onMouseEnter={() => sethover(true)}
+							onMouseLeave={() => sethover(false)}
+						>
+							<input {...getInputProps()} />
+
+							<span className="addIcon">
+								{hover ? <PlusSvgColor /> : <PlusSvg />}
+							</span>
+							<span> Add Custom Avatar</span>
+						</div>
+					)}
+				</Dropzone>
+
+				<div>
+					<button className="saveChangeButton">Save Changes</button>
 				</div>
-			</ReactModal>
-		</div>
+			</div>
+		</ReactModal>
 	);
 };
 

@@ -166,7 +166,7 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 							/>
 							<p className="domainName">ve.ai</p>
 						</div>
-						{domainUpdate?.isDomainPresent && (
+						{!domainUpdate?.isWorkspaceFull && domainUpdate?.isDomainPresent && (
 							<button
 								className="checkButton"
 								onClick={() => {
