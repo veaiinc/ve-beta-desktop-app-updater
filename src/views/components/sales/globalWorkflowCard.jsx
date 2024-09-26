@@ -6,16 +6,27 @@ import { ReactComponent as RightArrow } from '../../../assets/svg/workflow/right
 const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 	const [info, setInfo] = useState({
 		formParsedContentHtml: '',
+		publicModules: [],
+		privateModules: [],
 	});
 
 	useEffect(() => {
 		if (data) {
 			const { moduleTemplates, templates } = data;
 			let formData, formParsedContentHtml;
+			let publicModules = [],
+				privateModules = [];
 			for (let i = 0; i < moduleTemplates.length; i++) {
 				if (moduleTemplates?.[i]?.module === 'form') {
 					formData = moduleTemplates?.[i];
-					break;
+				}
+
+				if (moduleTemplates?.[i]?.isPublic) {
+					publicModules?.push(moduleTemplates?.[i]);
+				}
+
+				if (!moduleTemplates?.[i]?.isPublic) {
+					privateModules?.push(moduleTemplates?.[i]);
 				}
 			}
 			for (let i = 0; i < templates?.length; i++) {
@@ -24,7 +35,7 @@ const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 					break;
 				}
 			}
-			setInfo((prev) => ({ ...prev, formParsedContentHtml }));
+			setInfo((prev) => ({ ...prev, formParsedContentHtml, publicModules, privateModules }));
 		}
 	}, [data]);
 
@@ -41,13 +52,22 @@ const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 				<div className="actionContainer">
 					<span className="actionsTitle">Actions</span>
 					<div className="actionBTnContainer">
-						{data?.moduleTemplates?.map((ele, index) => (
+						{info?.publicModules?.map((ele, index) => (
 							<div className="actionBtnWrapper" key={index}>
 								<div className="actionBtn">
 									<Circled />
 									<span className="actionBtnTitlestyling">{ele?.module}</span>
 								</div>
-								{index < data?.moduleTemplates?.length - 1 ? <RightArrow /> : ''}
+								{info?.privateModules?.length ? <RightArrow /> : ''}
+							</div>
+						))}
+						{info?.privateModules?.map((ele, index) => (
+							<div className="actionBtnWrapper" key={index}>
+								<div className="actionBtn">
+									<Circled />
+									<span className="actionBtnTitlestyling">{ele?.module}</span>
+								</div>
+								{index < info?.privateModules?.length - 1 ? <RightArrow /> : ''}
 							</div>
 						))}
 					</div>
