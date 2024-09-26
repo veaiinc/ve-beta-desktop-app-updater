@@ -112,7 +112,7 @@ const MyProfile = () => {
 					handleSubmit(typeCall);
 				}
 				setIsEditMode((prev) => ({ ...prev, timeout: null }));
-			}, 1500);
+			}, 800);
 			setIsEditMode((prev) => ({ ...prev, timeout }));
 		},
 		[isEditMode?.timeout, userDetails?.fullName, userDetails?.phoneNumber],

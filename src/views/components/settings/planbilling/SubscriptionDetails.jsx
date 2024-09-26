@@ -21,7 +21,7 @@ const SubscriptionDetailsComponent = () => {
 	return (
 		<div className="subscriptionDiv">
 			<div className="title">
-				<h1>Subscription Details</h1>
+				<h1>Your Subscription Details</h1>
 			</div>
 
 			<div className="planDetailsContainer">

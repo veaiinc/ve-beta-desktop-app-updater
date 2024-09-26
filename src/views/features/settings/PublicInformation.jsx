@@ -124,7 +124,7 @@ const PublicInformation = () => {
 				) {
 					return {
 						error: true,
-						message: 'Invalid Website URL. example: https://www.website.com',
+						message: 'Invalid URL: for eg https://www.website.com',
 					};
 				}
 				break;

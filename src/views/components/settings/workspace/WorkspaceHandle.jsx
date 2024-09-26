@@ -139,11 +139,11 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 
 			<div>
 				<div>
-					<h1>Your workspace handle</h1>
+					<h1>Your Workspace Handle</h1>
 				</div>
 
 				<div className="domainContainer">
-					<h2>Domain Name</h2>
+					<h2>Sub Domain Name</h2>
 
 					<div className="domainInput">
 						<div
@@ -197,7 +197,7 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 
 					{domainUpdate?.isWorkspaceFull && (
 						<p className="messsageShow" style={{ color: 'gray' }}>
-							You Cannot Change the Doamins
+							You have reached maximum limit of sub-domains
 						</p>
 					)}
 				</div>

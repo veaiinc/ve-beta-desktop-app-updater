@@ -39,7 +39,7 @@ const BrandFontsComponent = ({ setbrandState, brandState }) => {
 
 			<div className="button">
 				<ReusableButtonSettings
-					text={'Mangage Font'}
+					text={'Manage Font'}
 					func={() => setbrandState((prev) => ({ ...prev, fontPopup: true }))}
 				/>
 			</div>

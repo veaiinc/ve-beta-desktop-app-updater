@@ -156,7 +156,7 @@ const TeamSettings = () => {
 		}
 		if (!validator.isEmail(email)) {
 			emailError = true;
-			emailIDMessage = 'Please enter correct email';
+			emailIDMessage = 'Please enter verified email';
 		}
 		update[index]['emailIDError'] = emailError;
 		update[index]['emailIDMessage'] = emailIDMessage;

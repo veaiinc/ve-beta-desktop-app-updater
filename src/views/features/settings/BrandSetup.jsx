@@ -169,7 +169,7 @@ const BrandingSetup = () => {
 		} else {
 			messageFunction('error', 'Failed to apply the theme');
 		}
-		setbrandState((prev) => ({ ...prev, themeButtonLoading: true }));
+		setbrandState((prev) => ({ ...prev, themeButtonLoading: false }));
 	};
 
 	return (

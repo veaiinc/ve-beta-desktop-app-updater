@@ -23,7 +23,6 @@ const TimeZoneCurrencyComponent = ({ overviewState }) => {
 						icon={<GlobeSettings />}
 						downArrow={true}
 						disableHover={true}
-
 						// func={() => {
 						// 	setpopupType('timezone');
 						// 	setopenPopup(true);
