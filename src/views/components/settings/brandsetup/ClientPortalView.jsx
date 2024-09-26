@@ -1,34 +1,33 @@
 import React, { memo } from 'react';
 import '../../../../assets/scss/AccountSettings/clientportal_view.scss';
 import { ReactComponent as VEAI } from '../../../../assets/svg/ve.svg';
-const ClientPortalView = () => {
+const ClientPortalView = ({ themeProperties, logoUrl }) => {
 	return (
-		<div className="loginWrapper">
+		<div
+			className="loginWrapper"
+			style={{ background: themeProperties?.backgroundColor?.value }}
+		>
 			<div className="updatedLoginContainer">
 				<div className="imageContainer">
-					<div className="ShapDiv">
-						{/* {this.props?.workflowData?.logo_s3_500w_key ? (
-                    <img
-                        src={
-                            this.props?.workflowData
-                                ?.logo_s3_500w_key || ''
-                        }
-                        alt="Image inside blob"
-                    />
-                ) : (
-                    ''
-                )} */}
+					<div
+						className="ShapDiv"
+						style={{ background: themeProperties?.logoShapeColor?.value }}
+					>
+						{logoUrl ? <img src={logoUrl} alt="Image inside blob" /> : ''}
 					</div>
 					<div className="detailsSection">
 						<h1 className="clientName">{`Dear Samantha & Akhil`}</h1>
-						<p className="title">
+						<p className="title" style={{ color: themeProperties?.textColor?.value }}>
 							Hoping this could be start of something great together
 						</p>
 					</div>
 				</div>
 
 				<div className="inputSectionWrapper">
-					<span className="inputWrappertext">
+					<span
+						className="inputWrappertext"
+						style={{ color: themeProperties?.textColor?.value }}
+					>
 						Please type the email address to access your file
 					</span>
 
@@ -58,11 +57,10 @@ const ClientPortalView = () => {
 							/>
 						</div>
 						<div
-							// className={
-							//     isEmail(this.state.email)
-							//         ? 'submitBtn'
-							//         : 'disabledSubmitBtn'
-							// }
+							style={{
+								background: themeProperties?.buttonColor?.value,
+								color: themeProperties?.buttonText?.value,
+							}}
 							className="submitBtn"
 						>
 							Submit

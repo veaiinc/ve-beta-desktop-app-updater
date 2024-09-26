@@ -49,6 +49,14 @@ const actionHandlers = {
 			...action.payload,
 		},
 	}),
+
+	UPDATE_USER_DETAILS: (state, action) => ({
+		...state,
+		userDetailsData: {
+			...state?.userDetailsData,
+			...action.payload,
+		},
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 

@@ -82,7 +82,10 @@ const TeamSettings = () => {
 		const filtered = info.tenantUser
 			?.filter((user) => {
 				const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.toLowerCase();
-				return fullName.includes(info.searchQuery.toLowerCase());
+				return (
+					fullName.includes(info.searchQuery.toLowerCase()) ||
+					user?.email.toLocaleLowerCase().includes(info.searchQuery.toLocaleLowerCase())
+				);
 			})
 			.sort((a, b) => {
 				if (a.role === 'admin' && b.role !== 'admin') {
@@ -147,7 +150,7 @@ const TeamSettings = () => {
 		const update = [...sendRequestList];
 		let emailError = false,
 			emailIDMessage = '';
-		if (email === null || email?.length) {
+		if (email === null || email === '') {
 			emailError = true;
 			emailIDMessage = 'Required Field!';
 		}
@@ -251,40 +254,34 @@ const TeamSettings = () => {
 		try {
 			if (info?.buttonLoading) return;
 
-			setInfo((prev) => ({ ...prev, buttonLoading: false }));
-
 			let isAllCorrect = true;
 
 			for (let index = 0; index < sendRequestList.length; index++) {
 				if (!validateUsersEmails(sendRequestList[index].email, index) && isAllCorrect) {
 					isAllCorrect = false;
-					console.log(isAllCorrect);
 				}
 			}
 
 			if (!isAllCorrect) return;
-			else isAllCorrect = true;
 
 			for (let index = 0; index < sendRequestList.length; index++) {
 				if (!validateDuplicateEmails(sendRequestList[index].email, index) && isAllCorrect) {
 					isAllCorrect = false;
-					console.log(isAllCorrect);
 				}
 			}
 
 			if (!isAllCorrect) return;
-			else isAllCorrect = true;
 
 			for (let index = 0; index < sendRequestList.length; index++) {
 				if (!validateExistUser(sendRequestList[index].email, index) && isAllCorrect) {
 					isAllCorrect = false;
-					console.log(isAllCorrect);
 				}
 			}
 
 			if (!isAllCorrect) return;
 
 			const dataRoles = mapUsersRoleBased();
+			setInfo((prev) => ({ ...prev, buttonLoading: true }));
 			loadingToastFunction();
 
 			const promises = dataRoles?.map((payload) => inviteNewuser(payload));

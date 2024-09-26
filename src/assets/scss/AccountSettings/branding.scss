@@ -124,9 +124,7 @@
 						height: 48px;
 						border-radius: 8px;
 						cursor: pointer;
-						// border: 2px solid #0057ff;
-						// background-color: green;
-
+						overflow: hidden;
 						img {
 							width: inherit;
 							height: inherit;
@@ -174,6 +172,7 @@
 								height: 30px;
 								border-radius: 50%;
 								background-color: #0057ff;
+								cursor: pointer;
 							}
 							input {
 								width: 70px;
@@ -211,6 +210,7 @@
 				border: 1px solid #6055ec;
 				background: rgba(28, 28, 32, 0.9);
 				padding: 9px 16px;
+				cursor: pointer;
 			}
 		}
 	}

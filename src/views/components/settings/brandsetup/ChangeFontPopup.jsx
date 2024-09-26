@@ -1,10 +1,10 @@
 import React, { useState, memo } from 'react';
 import 'react-phone-input-2/lib/style.css';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
-import Modal from '../../../components/modalsV2/index';
+import ReactModal from '../../modalsV2';
 import Dropzone from 'react-dropzone';
 
-const ChangeFontPopup = (props) => {
+const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 	const [fonts, setFonts] = useState([
 		{
 			name: 'Bebas Neue',
@@ -32,7 +32,7 @@ const ChangeFontPopup = (props) => {
 	};
 
 	return (
-		<Modal onRequestClose={props.handleClose} isOpen={props.show}>
+		<ReactModal closeModal={handleClose} isOpen={show}>
 			<div
 				style={{
 					backgroundColor: '#151515',
@@ -60,7 +60,7 @@ const ChangeFontPopup = (props) => {
 						>
 							Manage Brand Font
 						</span>
-						<span style={{ cursor: 'pointer' }} onClick={props.handleClose}>
+						<span style={{ cursor: 'pointer' }} onClick={handleClose}>
 							<CrossIcon />
 						</span>
 					</div>
@@ -119,17 +119,13 @@ const ChangeFontPopup = (props) => {
 						))
 					) : (
 						<>
-							<Dropzone
-								accept={'image/png'}
-								multiple={false}
-								disabled={!props.isAdmin}
-							>
+							<Dropzone accept={'image/png'} multiple={false} disabled={!isAdmin}>
 								{({ getRootProps, getInputProps }) => (
 									<div
 										className="upload-brand-embeded-btn"
 										{...getRootProps({})}
 										style={{
-											cursor: !props.isAdmin ? 'not-allowed' : '',
+											cursor: !isAdmin ? 'not-allowed' : '',
 										}}
 									>
 										<input {...getInputProps()} />
@@ -192,13 +188,7 @@ const ChangeFontPopup = (props) => {
 								border: '1px solid #242424A3',
 								color: '#e4e5e6',
 								backgroundColor: '#181818',
-								cursor:
-									props.newPassword !== '' &&
-									props.reNewPassword !== '' &&
-									props.newPassword === props.reNewPassword &&
-									props.currentPassword !== ''
-										? 'pointer'
-										: 'not-allowed',
+								cursor: 'pointer',
 								borderRadius: '100px',
 								padding: '16px 24px',
 								height: '48px',
@@ -215,7 +205,7 @@ const ChangeFontPopup = (props) => {
 					</div>
 				</div>
 			</div>
-		</Modal>
+		</ReactModal>
 	);
 };
 

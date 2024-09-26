@@ -64,6 +64,8 @@ const PublicInformation = () => {
 			businessType: tennantSettingsData?.businessType || '',
 		}));
 		setLogoUrl(tennantSettingsData?.logo_s3_500w_key || '');
+
+		console.log(tennantSettingsData);
 	}, [tennantSettingsData]);
 
 	useEffect(() => {
@@ -172,7 +174,7 @@ const PublicInformation = () => {
 
 		if (initialState.website !== overviewState.website && overviewState?.website?.length) {
 			let json = { websiteUrl: overviewState.website };
-			updateCompanyDetailsState(json);
+			updateCompanyDetailsState({ website: overviewState.website });
 			updateTenantWebsite(json);
 		}
 
@@ -327,6 +329,7 @@ const PublicInformation = () => {
 						value={overviewState?.businessName}
 						isError={false}
 						errorMessage={''}
+						key={'businessname'}
 					/>
 				</div>
 
@@ -340,6 +343,7 @@ const PublicInformation = () => {
 						onChange={handleChange}
 						isError={error?.erroremail?.error || false}
 						errorMessage={error?.erroremail?.message || ''}
+						key={'businessemail'}
 					/>
 				</div>
 
@@ -353,6 +357,7 @@ const PublicInformation = () => {
 						name={'website'}
 						isError={error?.errorwebsite?.error || false}
 						errorMessage={error?.errorwebsite?.message || ''}
+						key={'businesswebsite'}
 					/>
 				</div>
 
@@ -369,6 +374,7 @@ const PublicInformation = () => {
 							isError={false}
 							disabled={true}
 							errorMessage={''}
+							key={'businessType'}
 						/>
 					</div>
 
@@ -383,6 +389,7 @@ const PublicInformation = () => {
 							isError={error?.errorphoneNumber?.error || false}
 							errorMessage={error?.errorphoneNumber?.message || ''}
 							defaultCountry={'IN'}
+							key={'businessphone'}
 						/>
 					</div>
 				</div>
@@ -397,6 +404,7 @@ const PublicInformation = () => {
 						name={'address'}
 						isError={false}
 						errorMessage={''}
+						key={'businessaddress'}
 					/>
 				</div>
 			</div>

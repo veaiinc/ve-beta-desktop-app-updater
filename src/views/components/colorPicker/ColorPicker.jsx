@@ -190,7 +190,7 @@ const ColorPicker = ({
 						<h1>{title ? title : 'Choose Accent Colour'}</h1>
 					</div>
 					<div className="closeDiv">
-						<span>
+						<span onClick={closeModal}>
 							<CrossIcon />
 						</span>
 					</div>

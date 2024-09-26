@@ -39,7 +39,7 @@ const TeamAccessListComponent = ({
 					<img src={search} alt="searchh" />
 					<input
 						type="text"
-						placeholder="Search by name"
+						placeholder="Search by name, email"
 						onChange={handleInputChange}
 						value={info.searchQuery}
 					/>
