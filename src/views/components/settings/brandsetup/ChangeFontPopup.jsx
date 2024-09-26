@@ -32,7 +32,7 @@ const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 	};
 
 	return (
-		<ReactModal onRequestClose={handleClose} isOpen={show}>
+		<ReactModal closeModal={handleClose} isOpen={show}>
 			<div
 				style={{
 					backgroundColor: '#151515',

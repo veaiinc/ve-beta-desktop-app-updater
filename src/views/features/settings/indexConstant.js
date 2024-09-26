@@ -65,31 +65,35 @@ export const themesList = [
 	{
 		id: 'theme1',
 		imageUrl: Theme1,
-		properties: [
-			{ label: 'Background Color', property: 'background', value: '#BBEBFF' },
-			{
+		properties: {
+			backgroundColor: {
+				label: 'Background Color',
+				property: 'background',
+				value: '#BBEBFF',
+			},
+			logoShapeColor: {
 				label: 'Logo Shape Color',
 				property: 'background',
-				value: 'linear-gradient(139deg, #38BBF1 14.64%, #84305E 93.17%)',
+				value: 'linear-gradient(137deg, #fff8f3 21.34%, #a8d7f1 81.22%)',
 			},
-			{ label: 'Text Color', property: 'color', value: '#343434' },
-			{ label: 'Button Color', property: 'background', value: '#71B1EE' },
-			{ label: 'Button Text', property: 'color', value: '#343434' },
-		],
+			textColor: { label: 'Text Color', property: 'color', value: '#343434' },
+			buttonColor: { label: 'Button Color', property: 'background', value: '#71B1EE' },
+			buttonText: { label: 'Button Text', property: 'color', value: '#343434' },
+		},
 	},
 	{
 		id: 'theme2',
 		imageUrl: Theme2,
-		properties: [
-			{ label: 'Background Color', property: 'background', value: '#F6F8FA' },
-			{
-				label: 'Logo Shape Color',
+		properties: {
+			backgroundColor: {
+				label: 'Background Color',
 				property: 'background',
 				value: '#F6F8FA',
 			},
-			{ label: 'Text Color', property: 'color', value: '#343434' },
-			{ label: 'Button Color', property: 'background', value: '#FFA3D7' },
-			{ label: 'Button Text', property: 'color', value: '#FFFF' },
-		],
+			logoShapeColor: { label: 'Logo Shape Color', property: 'background', value: '#F6F8FA' },
+			textColor: { label: 'Text Color', property: 'color', value: '#343434' },
+			buttonColor: { label: 'Button Color', property: 'background', value: '#FFA3D7' },
+			buttonText: { label: 'Button Text', property: 'color', value: '#FFFF' },
+		},
 	},
 ];

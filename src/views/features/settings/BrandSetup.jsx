@@ -35,7 +35,10 @@ const BrandingSetup = () => {
 		brandingPopup: false,
 		fontPopup: false,
 		brandColor: '',
+		brandLogo: '',
 		brandingThemes: [],
+		themeButtonLoading: false,
+		clientPortalPreferences: {},
 	});
 
 	// useEffects
@@ -63,6 +66,7 @@ const BrandingSetup = () => {
 				telegramProfile: tennantSettingsData?.telegramProfile || 'https://telegram.org/',
 				steamProfile: tennantSettingsData?.steamProfile || '',
 				youtubeProfile: tennantSettingsData?.youtubeProfile || 'https://www.youtube.com/',
+				brandLogo: tennantSettingsData?.logo_s3_500w_key || '',
 			}));
 		}
 	}, [tennantSettingsData]);
@@ -74,6 +78,7 @@ const BrandingSetup = () => {
 				isEnabled: tenantPreferenceData?.showFooter,
 				brandColor: tenantPreferenceData?.brandAccentColor || '#6055EC',
 				brandingThemes: tenantPreferenceData?.brandingThemes || [],
+				clientPortalPreferences: tenantPreferenceData?.clientPortalPreferences || {},
 			}));
 		}
 	}, [tenantPreferenceData]);
@@ -148,6 +153,25 @@ const BrandingSetup = () => {
 		return [true];
 	};
 
+	const updateSubmitThemeHandler = async (activeId, properties) => {
+		if (brandState?.themeButtonLoading) return;
+
+		setbrandState((prev) => ({ ...prev, themeButtonLoading: true }));
+		const json = {
+			clientPortalPreferences: {
+				activeId,
+				properties,
+			},
+		};
+		const response = await updatePrefernces(json);
+		if (response[0]) {
+			messageFunction('success', 'successfully client portal theme is updated');
+		} else {
+			messageFunction('error', 'Failed to apply the theme');
+		}
+		setbrandState((prev) => ({ ...prev, themeButtonLoading: true }));
+	};
+
 	return (
 		<>
 			{contextHolder}
@@ -165,7 +189,10 @@ const BrandingSetup = () => {
 
 				{/* client portal */}
 				<div className="clientPortalContainer">
-					<ClientPortalComponent />
+					<ClientPortalComponent
+						brandState={brandState}
+						updateSubmitThemeHandler={updateSubmitThemeHandler}
+					/>
 				</div>
 
 				{/* Branding color */}
