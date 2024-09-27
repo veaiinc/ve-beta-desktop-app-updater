@@ -81,19 +81,19 @@ export const themesList = [
 			buttonText: { label: 'Button Text', property: 'color', value: '#343434' },
 		},
 	},
-	// {
-	// 	id: 'theme2',
-	// 	imageUrl: Theme2,
-	// 	properties: {
-	// 		backgroundColor: {
-	// 			label: 'Background Color',
-	// 			property: 'background',
-	// 			value: '#F6F8FA',
-	// 		},
-	// 		logoShapeColor: { label: 'Logo Shape Color', property: 'background', value: '#F6F8FA' },
-	// 		textColor: { label: 'Text Color', property: 'color', value: '#343434' },
-	// 		buttonColor: { label: 'Button Color', property: 'background', value: '#FFA3D7' },
-	// 		buttonText: { label: 'Button Text', property: 'color', value: '#FFFF' },
-	// 	},
-	// },
+	{
+		id: 'theme2',
+		imageUrl: Theme2,
+		properties: {
+			backgroundColor: {
+				label: 'Background Color',
+				property: 'background',
+				value: '#F6F8FA',
+			},
+			logoShapeColor: { label: 'Logo Shape Color', property: 'background', value: '#F6F8FA' },
+			textColor: { label: 'Text Color', property: 'color', value: '#343434' },
+			buttonColor: { label: 'Button Color', property: 'background', value: '#FFA3D7' },
+			buttonText: { label: 'Button Text', property: 'color', value: '#FFFF' },
+		},
+	},
 ];

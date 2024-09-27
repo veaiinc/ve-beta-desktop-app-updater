@@ -3,17 +3,15 @@ import { themesList } from '../../../features/settings/indexConstant';
 import ClientPortalView from './ClientPortalView';
 import ColorPicker from '../../colorPicker/ColorPicker';
 
-const ClientPortalComponent = ({ brandState, updateSubmitThemeHandler }) => {
+const ClientPortalComponent = ({ brandState, setbrandState, updateSubmitThemeHandler }) => {
 	const [selectedTheme, setselectedTheme] = useState('theme1');
 	const [themeProperties, setthemeProperties] = useState({});
 	const [colorPopup, setcolorPopup] = useState({ isOpen: false, colorValue: '', property: '' });
 
 	useEffect(() => {
-		console.log(brandState?.clientPortalPreferences);
 		if (brandState?.clientPortalPreferences?.activeId) {
 			setselectedTheme(brandState?.clientPortalPreferences?.activeId);
 			setthemeProperties(brandState?.clientPortalPreferences?.properties);
-			console.log('calling');
 		} else {
 			const theme = themesList[0];
 			setthemeProperties(theme?.properties);
@@ -25,6 +23,10 @@ const ClientPortalComponent = ({ brandState, updateSubmitThemeHandler }) => {
 	};
 
 	const getSelectedColorFunc = (selectedvalue) => {
+		if (!brandState?.isThemeChange) {
+			setbrandState((prev) => ({ ...prev, isThemeChange: true }));
+		}
+
 		const { property } = colorPopup;
 		const updateProperties = { ...themeProperties };
 		updateProperties[property].value = selectedvalue;
@@ -70,8 +72,17 @@ const ClientPortalComponent = ({ brandState, updateSubmitThemeHandler }) => {
 											(theme) => theme?.id === singleTheme?.id,
 										);
 										if (theme) {
-											setthemeProperties(theme?.properties);
+											setthemeProperties((prev) => ({
+												...prev,
+												...theme?.properties,
+											}));
 											setselectedTheme(theme?.id);
+											if (!brandState?.isThemeChange) {
+												setbrandState((prev) => ({
+													...prev,
+													isThemeChange: true,
+												}));
+											}
 										}
 									}}
 									style={{
@@ -136,6 +147,7 @@ const ClientPortalComponent = ({ brandState, updateSubmitThemeHandler }) => {
 				<button
 					className="buttonApplyTheme"
 					onClick={() => {
+						if (!brandState?.isThemeChange) return;
 						updateSubmitThemeHandler(selectedTheme, themeProperties);
 					}}
 				>
