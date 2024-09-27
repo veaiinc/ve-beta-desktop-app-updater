@@ -45,6 +45,7 @@ const BrandingSetup = () => {
 		brandLogo: '',
 		brandingThemes: [],
 		themeButtonLoading: false,
+		isThemeChange: false,
 		clientPortalPreferences: {},
 	});
 
@@ -184,6 +185,7 @@ const BrandingSetup = () => {
 		const response = await updateClientPortalPreference(json);
 		if (response[0]) {
 			messageFunction('success', 'successfully client portal theme is updated');
+			setbrandState((prev) => ({ ...prev, isThemeChange: false }));
 		} else {
 			messageFunction('error', 'Failed to apply the theme');
 		}
@@ -210,6 +212,7 @@ const BrandingSetup = () => {
 					<ClientPortalComponent
 						brandState={brandState}
 						updateSubmitThemeHandler={updateSubmitThemeHandler}
+						setbrandState={setbrandState}
 					/>
 				</div>
 
