@@ -10,6 +10,7 @@ import WorkflowBuilderLayout from './views/layouts/workflowBuilderLayout';
 import SmartFileLayout from './views/layouts/smartFileLayout';
 import EarlyAccess from './views/features/early_access';
 import SettingsWrapper from './views/features/settings/SettingsWrapper';
+import PrivacyPolicy from './views/features/signin/PrivacyPolicy';
 
 const routes = [
 	{
@@ -44,7 +45,10 @@ const routes = [
 		path: '/user/verify-oauth-user',
 		component: <OauthVerify />,
 	},
-
+	{
+		path: '/privacy-policy',
+		component: <PrivacyPolicy />,
+	},
 	// {
 	// 	path: '/inbox',
 	// 	component: (
