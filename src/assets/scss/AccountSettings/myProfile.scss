@@ -16,7 +16,7 @@
 	.settingsContainer {
 		display: flex;
 		flex-direction: column;
-		gap: 56px;
+		gap: 48px;
 		width: 100%;
 
 		// styles for profile details
@@ -204,7 +204,7 @@
 		// This are the styling belongs to Theme preferences
 		.settingsTheme {
 			padding: 32px;
-			border-radius: 40px;
+			border-radius: 32px;
 			background: rgba(29, 29, 35, 0.24);
 
 			.themeMain {
@@ -353,12 +353,15 @@
 				}
 
 				.accessInfo {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
 					h4 {
 						color: #e4e5e6;
 						font-size: 16px;
 						font-weight: 500;
 						line-height: 24px;
-						margin-bottom: 8px;
+						margin-bottom: 24px;
 					}
 
 					p {

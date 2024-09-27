@@ -1,18 +1,9 @@
 .brandsetupContainer {
 	display: flex;
 	flex-direction: column;
-	gap: 56px;
+	gap: 48px;
 
 	.socialLinkContainer {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 24px;
-		align-self: stretch;
-		padding: 32px;
-		border-radius: 40px;
-		background: rgba(29, 29, 35, 0.24);
-
 		.socialLinkTextContainer {
 			h1 {
 				color: #e4e5e6;
@@ -42,9 +33,6 @@
 	}
 
 	.clientPortalContainer {
-		padding: 32px;
-		border-radius: 40px;
-		background: rgba(29, 29, 35, 0.24);
 		max-height: 652px;
 		height: 652px;
 
@@ -216,14 +204,6 @@
 	}
 
 	.brandingContainer {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 24px;
-		align-self: stretch;
-		padding: 32px;
-		border-radius: 40px;
-		background: rgba(29, 29, 35, 0.24);
 		.brandingTextContainer {
 			h1 {
 				color: #e4e5e6;
@@ -291,14 +271,6 @@
 	}
 
 	.brandFontContainer {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 24px;
-		align-self: stretch;
-		padding: 32px;
-		border-radius: 40px;
-		background: rgba(29, 29, 35, 0.24);
 		.brandTextContainer {
 			h1 {
 				color: #e4e5e6;

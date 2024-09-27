@@ -12,7 +12,14 @@ const BrandingSetup = () => {
 	// Contexts
 	const {
 		profileInfo: { tennantSettingsData },
-		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
+		companyInfo: {
+			updatePrefernces,
+			getTenantPreferences,
+			tenantPreferenceData,
+			clientPortalPreferences,
+			getClientPortalPreference,
+			updateClientPortalPreference,
+		},
 	} = useContext(Context);
 
 	const [messageApi, contextHolder] = message.useMessage();
@@ -47,6 +54,9 @@ const BrandingSetup = () => {
 		if (!tenantPreferenceData) {
 			getTenantPreferences();
 		}
+		if (!clientPortalPreferences) {
+			getClientPortalPreference();
+		}
 	}, []);
 
 	useEffect(() => {
@@ -72,13 +82,21 @@ const BrandingSetup = () => {
 	}, [tennantSettingsData]);
 
 	useEffect(() => {
+		if (clientPortalPreferences) {
+			setbrandState((prev) => ({
+				...prev,
+				clientPortalPreferences: clientPortalPreferences || {},
+			}));
+		}
+	}, [clientPortalPreferences]);
+
+	useEffect(() => {
 		if (tenantPreferenceData) {
 			setbrandState((prev) => ({
 				...prev,
 				isEnabled: tenantPreferenceData?.showFooter,
 				brandColor: tenantPreferenceData?.brandAccentColor || '#6055EC',
 				brandingThemes: tenantPreferenceData?.brandingThemes || [],
-				clientPortalPreferences: tenantPreferenceData?.clientPortalPreferences || {},
 			}));
 		}
 	}, [tenantPreferenceData]);
@@ -163,13 +181,13 @@ const BrandingSetup = () => {
 				properties,
 			},
 		};
-		const response = await updatePrefernces(json);
+		const response = await updateClientPortalPreference(json);
 		if (response[0]) {
 			messageFunction('success', 'successfully client portal theme is updated');
 		} else {
 			messageFunction('error', 'Failed to apply the theme');
 		}
-		setbrandState((prev) => ({ ...prev, themeButtonLoading: true }));
+		setbrandState((prev) => ({ ...prev, themeButtonLoading: false }));
 	};
 
 	return (
@@ -178,7 +196,7 @@ const BrandingSetup = () => {
 
 			<div className="brandsetupContainer">
 				{/* Social Links */}
-				<div className="socialLinkContainer">
+				<div className="settingsBoxContainer socialLinkContainer">
 					<SocialMediaLinksComponent
 						tennantSettingsData={tennantSettingsData}
 						brandState={brandState}
@@ -188,7 +206,7 @@ const BrandingSetup = () => {
 				</div>
 
 				{/* client portal */}
-				<div className="clientPortalContainer">
+				<div className="settingsBoxContainer clientPortalContainer">
 					<ClientPortalComponent
 						brandState={brandState}
 						updateSubmitThemeHandler={updateSubmitThemeHandler}
@@ -196,7 +214,7 @@ const BrandingSetup = () => {
 				</div>
 
 				{/* Branding color */}
-				<div className="brandingContainer">
+				<div className="settingsBoxContainer brandingContainer">
 					<BrandColorComponent
 						brandState={brandState}
 						setbrandState={setbrandState}
@@ -206,7 +224,7 @@ const BrandingSetup = () => {
 				</div>
 
 				{/* Brand Fonts */}
-				<div className="brandFontContainer">
+				<div className="settingsBoxContainer brandFontContainer">
 					<BrandFontsComponent setbrandState={setbrandState} brandState={brandState} />
 				</div>
 			</div>

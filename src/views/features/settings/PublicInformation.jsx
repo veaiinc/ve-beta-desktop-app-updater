@@ -124,7 +124,7 @@ const PublicInformation = () => {
 				) {
 					return {
 						error: true,
-						message: 'Invalid Website URL. example: https://www.website.com',
+						message: 'Invalid URL: for eg https://www.website.com',
 					};
 				}
 				break;
@@ -238,7 +238,7 @@ const PublicInformation = () => {
 	};
 
 	return (
-		<div className="publicInformationComponent">
+		<div className="settingsBoxContainer publicInformationComponent">
 			<div className="header">
 				<h1>Public Information</h1>
 

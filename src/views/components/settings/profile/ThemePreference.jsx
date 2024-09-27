@@ -3,7 +3,7 @@ import React, { memo } from 'react';
 const ThemePreferenceComponent = ({ updateThemeSubmitHandler, activeTheme }) => {
 	return (
 		<div className={'themeMain'}>
-			<h4>Theme performance</h4>
+			<h4>Theme Preference</h4>
 			<div>
 				<button
 					className={activeTheme === 'system' ? 'activeButton' : ''}

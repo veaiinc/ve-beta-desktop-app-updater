@@ -98,7 +98,23 @@ const InviteMembersWorkspaceComponent = ({
 					</span>
 					<p>Add More</p>
 				</div>
-				<div style={{ minWidth: '150px' }}>
+				<div style={{ minWidth: '150px', display: 'flex', gap: '5px' }}>
+					{sendRequestList?.length > 1 && (
+						<ReusableButtonSettings
+							text="Reset"
+							func={() =>
+								setsendRequestList([
+									{
+										email: '',
+										userRole: 'admin',
+										emailIDError: '',
+										emailIDMessage: '',
+										successTrue: false,
+									},
+								])
+							}
+						/>
+					)}
 					<ReusableButtonSettings text="Send Request" func={handleSubmit} />
 				</div>
 			</div>

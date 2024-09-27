@@ -56,8 +56,8 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 
 	// Functions
 	const workspaceChangeHandler = async (e) => {
-		const updatedValue = e?.target?.value;
-		setdomainInput(e.target.value);
+		const updatedValue = e?.target?.value?.toLowerCase();
+		setdomainInput(updatedValue);
 		if (updatedValue?.length <= 3) {
 			return setdomainUpdate((prev) => ({
 				...prev,
@@ -120,7 +120,7 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 		if (response[0] === true) {
 			messageApi.open({
 				type: 'success',
-				content: 'Successfully  updated the domain name',
+				content: 'Successfully updated the workspace handle',
 			});
 			getTenantSettings();
 		} else {
@@ -129,7 +129,14 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 				content: response[1]?.message || 'something went wrong',
 			});
 		}
-		setdomainUpdate((prev) => ({ ...prev, isPopupOpen: false }));
+		setdomainUpdate((prev) => ({
+			...prev,
+			isValueChanged: false,
+			isDomainPresent: false,
+			message: '',
+			isPopupOpen: false,
+			isActive: true,
+		}));
 		setdomainInput(domainUpdate?.activeWorkspace);
 	};
 
@@ -139,11 +146,11 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 
 			<div>
 				<div>
-					<h1>Your workspace handle</h1>
+					<h1>Your Workspace Handle</h1>
 				</div>
 
 				<div className="domainContainer">
-					<h2>Domain Name</h2>
+					<h2>Sub Domain Name</h2>
 
 					<div className="domainInput">
 						<div
@@ -197,7 +204,7 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 
 					{domainUpdate?.isWorkspaceFull && (
 						<p className="messsageShow" style={{ color: 'gray' }}>
-							You Cannot Change the Doamins
+							You have reached maximum limit of sub-domains
 						</p>
 					)}
 				</div>
