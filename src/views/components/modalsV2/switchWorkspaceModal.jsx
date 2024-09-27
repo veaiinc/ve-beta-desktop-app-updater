@@ -7,7 +7,7 @@ import { ReactComponent as Unselected } from '../../../assets/svg/workspaceSetti
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import useLogout from '../../hooks/useLogout';
-import { getBuisnessName } from '../../features/profile_settings/getInitials';
+import { getBuisnessName } from '../../../helpers/index';
 import { useParams } from 'react-router-dom';
 const customStyles = {
 	content: {

@@ -6,7 +6,7 @@ import paypal from '../../../assets/svg/Settings/paypal.svg';
 import square from '../../../assets/svg/Settings/square.svg';
 import '../../../assets/scss/AccountSettings/integrations.scss';
 import Context from '../../../context/context';
-import ReusableButtonSettings from '../workspace_settings/ReusableButtonSettings';
+import ReusableButtonSettings from '../../components/settings/ReusableButtonSettings';
 import { ve_conversations_api } from '../../../services/config';
 import axios from 'axios';
 
@@ -27,9 +27,9 @@ const Integrations = () => {
 		openMoreFacebook: false,
 		loader: false,
 	});
-	useEffect(() => {
-		fetchMetaInfo();
-	}, []);
+	// useEffect(() => {
+	// 	fetchMetaInfo();
+	// }, []);
 
 	useEffect(() => {
 		if (pageInfoData) {

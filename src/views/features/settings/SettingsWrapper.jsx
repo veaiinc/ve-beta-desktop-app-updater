@@ -29,7 +29,7 @@ const SettingsWrapper = (props) => {
 	const [animate, setAnimate] = useState(true);
 
 	const setType = (type) => {
-		navigate(`/my-settings/${type}`);
+		navigate(`/settings/${type}`);
 		setUrlype(type);
 	};
 	const {

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import Skeleton from 'react-loading-skeleton';
-import { getInitials } from '../../../features/profile_settings/getInitials';
+import { getInitials } from '../../../../helpers/index';
 import { ReactComponent as TickSvg } from '../../../../assets/svg/tick.svg';
 import { ReactComponent as DownArrow } from '../../../../assets/svg/Settings/Downarrowwhite.svg';
 import { useState } from 'react';

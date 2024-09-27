@@ -1,6 +1,6 @@
 import React, { memo, useState } from 'react';
-import { getInitials } from '../../../features/profile_settings/getInitials';
-import MySettingsChangePasword from '../../../features/profile_settings/MySettingsChangePasword';
+import { getInitials } from '../../../../helpers/index';
+import MySettingsChangePasword from '../../../features/settings/MySettingsChangePasword';
 import PhoneInput from 'react-phone-number-input';
 import { ReactComponent as UserAccountSvg } from '../../../../assets/svg/Settings/useraccount.svg';
 import { ReactComponent as EmailSvg } from '../../../../assets/svg/Settings/emailwhite.svg';

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import ReactModal from '../../components/modalsV2/index';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import InputForModules from '../../components/input/inputForModules';
