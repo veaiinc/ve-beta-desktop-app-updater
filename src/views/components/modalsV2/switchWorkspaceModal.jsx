@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext } from 'react';
 import Modal from 'react-modal';
-import '../../../assets/scss/workspaceSettings/switchWorkspaceModal.scss';
+import '../../../assets/scss/switchWorkspace/switchWorkspaceModal.scss';
 import { ReactComponent as Close } from '../../../assets/svg/workspaceSettings/modalclose.svg';
 import { ReactComponent as Selected } from '../../../assets/svg/workspaceSettings/Selected.svg';
 import { ReactComponent as Unselected } from '../../../assets/svg/workspaceSettings/Unselected.svg';
