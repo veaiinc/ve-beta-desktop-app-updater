@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback, memo } from 'react';
-import '../../../assets/scss/AccountSettings/myProfile.scss';
+import '../../../assets/scss/settings/myProfile.scss';
 import Context from '../../../context/context';
 import validator from 'validator';
 import ProfileDetailsComponent from '../../components/settings/profile/ProfileDetails';
@@ -74,8 +74,6 @@ const MyProfile = () => {
 				logoURL: userDetailsData?.dp_s3_500w_key || '',
 				cropSettings: userDetailsData?.dp_style || { crop: { x: 0, y: 0 }, zoom: 1 },
 			}));
-
-			console.log(userDetailsData);
 		}
 	}, [userDetailsData]);
 

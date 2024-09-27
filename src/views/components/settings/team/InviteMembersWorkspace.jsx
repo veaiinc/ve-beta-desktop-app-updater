@@ -21,7 +21,7 @@ const InviteMembersWorkspaceComponent = ({
 
 			{sendRequestList?.map((singleUser, index) => {
 				return (
-					<div>
+					<div key={singleUser?.email + index}>
 						<div className="sendRequestInputContainer">
 							<div className="sendRequestInput">
 								<input

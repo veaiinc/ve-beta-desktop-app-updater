@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import '../../../assets/scss/AccountSettings/settingsPageSidebar.scss';
+import '../../../assets/scss/settings/settingsPageSidebar.scss';
 import { useNavigate } from 'react-router-dom';
 import { menuItems } from './indexConstant';
 

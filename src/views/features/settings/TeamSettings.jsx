@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, memo } from 'react';
-import '../../../assets/scss/AccountSettings/teamMembers.scss';
+import '../../../assets/scss/settings/teamMembers.scss';
 import _ from 'lodash';
 import search from '../../../assets/svg/workspaceSettings/searchSettings.svg';
 import validator from 'validator';

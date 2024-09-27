@@ -1,5 +1,5 @@
 import React, { useContext, useMemo, useEffect, useState, useCallback, memo } from 'react';
-import '../../../assets/scss/AccountSettings/publicinformation.scss';
+import '../../../assets/scss/settings/publicinformation.scss';
 import InputForModules from '../../components/input/inputForModules';
 import Context from '../../../context/context';
 import jwt_decode from 'jwt-decode';
@@ -64,8 +64,6 @@ const PublicInformation = () => {
 			businessType: tennantSettingsData?.businessType || '',
 		}));
 		setLogoUrl(tennantSettingsData?.logo_s3_500w_key || '');
-
-		console.log(tennantSettingsData);
 	}, [tennantSettingsData]);
 
 	useEffect(() => {

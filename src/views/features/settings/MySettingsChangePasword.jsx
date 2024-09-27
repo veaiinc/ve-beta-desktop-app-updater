@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import ReactModal from '../../components/modalsV2/index';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import InputForModules from '../../components/input/inputForModules';
-import '../../../assets/scss/AccountSettings/changePassword.scss';
+import '../../../assets/scss/settings/changePassword.scss';
 import Context from '../../../context/context';
 
 const MySettingsChangePasword = ({ onClose, showForm }) => {

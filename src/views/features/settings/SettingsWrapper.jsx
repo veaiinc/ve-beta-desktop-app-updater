@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, memo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import SettingsPageSideBar from './SettingsPageSideBar';
-import '../../../assets/scss/AccountSettings/SettingsWrapper.scss';
+import '../../../assets/scss/settings/SettingsWrapper.scss';
 import Context from '../../../context/context';
 import MyProfile from './MyProfile';
 import SettingsWorkspace from './Workspace';
@@ -27,6 +27,7 @@ const SettingsWrapper = (props) => {
 	const navigate = useNavigate();
 	const [urlType, setUrlype] = useState('');
 	const [animate, setAnimate] = useState(true);
+	const [temp, settemp] = useState(false);
 
 	const setType = (type) => {
 		navigate(`/settings/${type}`);
@@ -46,8 +47,11 @@ const SettingsWrapper = (props) => {
 		setAnimate(true);
 		const timeout = setTimeout(() => {
 			setAnimate(false);
-		}, 1600);
-		return () => clearTimeout(timeout);
+		}, 1500);
+
+		return () => {
+			clearTimeout(timeout);
+		};
 	}, [type]);
 
 	return (

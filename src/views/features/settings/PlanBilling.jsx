@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, memo } from 'react';
-import '../../../assets/scss/AccountSettings/planBilling.scss';
+import '../../../assets/scss/settings/planBilling.scss';
 import ProgressBar from '../../components/settings/ProgressBar';
 import moment from 'moment';
 import Context from '../../../context/context';

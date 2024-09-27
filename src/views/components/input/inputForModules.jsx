@@ -42,12 +42,16 @@ const InputForModules = ({
 					disabled={disabled}
 					value={value}
 				>
-					<option value="" disabled className="placeholder">
+					<option value="" defaultChecked disabled className="placeholder">
 						{placeholder}
 					</option>
-					{options.map((item, index) => {
+					{options.map((item) => {
 						return (
-							<option value={item.value} selected={value === item.value}>
+							<option
+								value={item.value}
+								selected={value === item.value}
+								key={item.value}
+							>
 								{item.label}
 							</option>
 						);

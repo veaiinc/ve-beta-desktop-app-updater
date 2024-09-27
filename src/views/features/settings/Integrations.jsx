@@ -4,7 +4,7 @@ import meta from '../../../assets/svg/Settings/meta.svg';
 import stripe from '../../../assets/svg/Settings/stripe.svg';
 import paypal from '../../../assets/svg/Settings/paypal.svg';
 import square from '../../../assets/svg/Settings/square.svg';
-import '../../../assets/scss/AccountSettings/integrations.scss';
+import '../../../assets/scss/settings/integrations.scss';
 import Context from '../../../context/context';
 import ReusableButtonSettings from '../../components/settings/ReusableButtonSettings';
 import { ve_conversations_api } from '../../../services/config';
@@ -146,7 +146,7 @@ const Integrations = () => {
 				{/* other only static  */}
 				{Configs.map((singleIntegration) => {
 					return (
-						<div className="integrationSingleList">
+						<div className="integrationSingleList" key={singleIntegration?.title}>
 							<div className="imageContainer">
 								<img src={singleIntegration.icon} alt="meta" />
 								<div className="textContainer">

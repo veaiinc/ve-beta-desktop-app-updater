@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, memo } from 'react';
-import '../../../assets/scss/AccountSettings/workspacesection.scss';
+import '../../../assets/scss/settings/workspacesection.scss';
 import Context from '../../../context/context';
 import WorkspaceHandleComponent from '../../components/settings/workspace/WorkspaceHandle';
 import TimeZoneCurrencyComponent from '../../components/settings/workspace/TimezoneCurrency';

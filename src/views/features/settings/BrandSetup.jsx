@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, memo } from 'react';
-import '../../../assets/scss/AccountSettings/branding.scss';
+import '../../../assets/scss/settings/branding.scss';
 import validator from 'validator';
 import Context from '../../../context/context';
 import SocialMediaLinksComponent from '../../components/settings/brandsetup/SocialMediaLinks';
