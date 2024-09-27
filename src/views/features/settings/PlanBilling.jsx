@@ -4,7 +4,7 @@ import ProgressBar from '../../components/settings/ProgressBar';
 import moment from 'moment';
 import Context from '../../../context/context';
 import SubscriptionDetailsComponent from '../../components/settings/planbilling/SubscriptionDetails';
-import { ReactComponent as BackgroundSvg } from '../../../assets/svg/settings/subscriptionbackground.svg';
+import { ReactComponent as BackgroundSvg } from '../../../assets/svg/Settings/subscriptionbackground.svg';
 import BillingHistoryComponent from '../../components/settings/planbilling/BillingHistory';
 //constants
 const noOfDay = 7;

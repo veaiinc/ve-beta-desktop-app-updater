@@ -1,5 +1,5 @@
 import React, { useState, useContext, useCallback, useEffect, memo } from 'react';
-import { ReactComponent as ActivePoint } from '../../../../assets/svg/settings/GreenpinActive.svg';
+import { ReactComponent as ActivePoint } from '../../../../assets/svg/Settings/GreenpinActive.svg';
 import UpdateWorkspacePopup from './UpdateWorkspacePopup';
 import Context from '../../../../context/context';
 import { message } from 'antd';

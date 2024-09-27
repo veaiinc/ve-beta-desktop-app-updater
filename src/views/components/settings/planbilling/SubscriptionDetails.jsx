@@ -1,12 +1,12 @@
 import React, { memo } from 'react';
-import { ReactComponent as FlowArrowSvg } from '../../../../assets/svg/settings/FlowArrow.svg';
-import { ReactComponent as TableSvg } from '../../../../assets/svg/settings/Table.svg';
-import { ReactComponent as ImagesSvg } from '../../../../assets/svg/settings/Images.svg';
-import { ReactComponent as InvoiceSvg } from '../../../../assets/svg/settings/Invoice.svg';
-import { ReactComponent as HandshakeSvg } from '../../../../assets/svg/settings/Handshake.svg';
-import { ReactComponent as LibraryCheckSvg } from '../../../../assets/svg/settings/Library_add_check.svg';
-import { ReactComponent as InsertLinkSvg } from '../../../../assets/svg/settings/Insert_link.svg';
-import { ReactComponent as SubscriptionButtonSvg } from '../../../../assets/svg/settings/ArrowCross.svg';
+import { ReactComponent as FlowArrowSvg } from '../../../../assets/svg/Settings/FlowArrow.svg';
+import { ReactComponent as TableSvg } from '../../../../assets/svg/Settings/Table.svg';
+import { ReactComponent as ImagesSvg } from '../../../../assets/svg/Settings/Images.svg';
+import { ReactComponent as InvoiceSvg } from '../../../../assets/svg/Settings/Invoice.svg';
+import { ReactComponent as HandshakeSvg } from '../../../../assets/svg/Settings/Handshake.svg';
+import { ReactComponent as LibraryCheckSvg } from '../../../../assets/svg/Settings/Library_add_check.svg';
+import { ReactComponent as InsertLinkSvg } from '../../../../assets/svg/Settings/Insert_link.svg';
+import { ReactComponent as SubscriptionButtonSvg } from '../../../../assets/svg/Settings/ArrowCross.svg';
 
 const PlansList = [
 	{ label: 'Workflow Automations', icon: <FlowArrowSvg /> },

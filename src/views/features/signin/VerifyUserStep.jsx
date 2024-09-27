@@ -129,10 +129,7 @@ const VerifyUserStep = ({
 			<p className="errorMessage">{errorStates['message']}</p>
 			<div className="privacyPolicyContainer">
 				<p>By signing up to create an account, I accept Company’s</p>
-				<p
-					style={{ cursor: 'pointer   ' }}
-					// onClick={() => navigate('/privacy-policy')}
-				>
+				<p style={{ cursor: 'pointer   ' }} onClick={() => navigate('/privacy-policy')}>
 					<span>Terms of Use</span> & <span>Privacy Policy</span>
 				</p>
 			</div>

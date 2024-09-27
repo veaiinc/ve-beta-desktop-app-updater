@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { SliderPicker } from 'react-color';
 import 'react-color-palette/css';
-import '../../../assets/scss/colorPicker/colorPicker.scss';
+import '../../../assets/scss/ColorPicker/colorpicker.scss';
 import _ from 'lodash';
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossIcon } from '../../../assets/svg/workspaceSettings/cross.svg';
