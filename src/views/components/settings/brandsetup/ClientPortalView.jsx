@@ -16,7 +16,12 @@ const ClientPortalView = ({ themeProperties, logoUrl }) => {
 						{logoUrl ? <img src={logoUrl} alt="Image inside blob" /> : ''}
 					</div>
 					<div className="detailsSection">
-						<h1 className="clientName">{`Dear Samantha & Akhil`}</h1>
+						<h1
+							className="clientName"
+							style={{ color: themeProperties?.textColor?.value }}
+						>
+							Dear Samantha & Akhil
+						</h1>
 						<p className="title" style={{ color: themeProperties?.textColor?.value }}>
 							Hoping this could be start of something great together
 						</p>

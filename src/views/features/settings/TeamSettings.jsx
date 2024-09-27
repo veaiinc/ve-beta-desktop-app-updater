@@ -1,11 +1,9 @@
 import React, { useContext, useEffect, useState, memo } from 'react';
 import '../../../assets/scss/AccountSettings/teamMembers.scss';
 import _ from 'lodash';
-import Modal from '../../components/modalsV2/index';
 import search from '../../../assets/svg/workspaceSettings/searchSettings.svg';
 import validator from 'validator';
 import Context from '../../../context/context';
-import AddNewUserModal from './addNewUser';
 import InviteMembersWorkspaceComponent from '../../components/settings/team/InviteMembersWorkspace';
 import TeamAccessListComponent from '../../components/settings/team/TeamAccessList';
 import { message } from 'antd';
@@ -286,7 +284,8 @@ const TeamSettings = () => {
 
 			const promises = dataRoles?.map((payload) => inviteNewuser(payload));
 			const results = await Promise.all(promises);
-			const update = [...sendRequestList];
+			let update = [...sendRequestList];
+			let completionCount = 0;
 			results?.forEach((singleResult, index) => {
 				if (!_.isBoolean(singleResult[0]) && singleResult[0] !== true) {
 					update[index].emailIDError = true;
@@ -295,8 +294,10 @@ const TeamSettings = () => {
 					update[index].emailIDError = false;
 					update[index].successTrue = true;
 					update[index].emailIDMessage = 'Invitation mail sent successfully';
+					completionCount++;
 
 					setTimeout(() => {
+						if (sendRequestList?.length === completionCount) return;
 						const tempUpdate = [...sendRequestList];
 						tempUpdate[index].successTrue = false;
 						tempUpdate[index].emailIDMessage = '';
@@ -305,6 +306,17 @@ const TeamSettings = () => {
 				}
 			});
 
+			if (completionCount === results?.length) {
+				update = [
+					{
+						email: '',
+						userRole: 'admin',
+						emailIDError: false,
+						emailIDMessage: '',
+						successTrue: false,
+					},
+				];
+			}
 			setsendRequestList(update);
 			setInfo((prev) => ({ ...prev, buttonLoading: false }));
 			getTeamMembers();
@@ -324,7 +336,7 @@ const TeamSettings = () => {
 			{contextHolder}
 
 			<div className="TeamMemberContainer">
-				<div className="inviteMemberComponent">
+				<div className="settingsBoxContainer inviteMemberComponent">
 					<InviteMembersWorkspaceComponent
 						handleChnage={handleChnage}
 						info={info}
@@ -334,7 +346,7 @@ const TeamSettings = () => {
 					/>
 				</div>
 
-				<div className="yourTeamComponent">
+				<div className="settingsBoxContainer yourTeamComponent">
 					<TeamAccessListComponent
 						search={search}
 						handleInputChange={handleInputChange}
@@ -345,18 +357,6 @@ const TeamSettings = () => {
 						updateTenantRoleFunc={updateTenantRoleFunc}
 					/>
 				</div>
-				<Modal closeModal={showAddTenantUserModal} isOpen={info.showAddTenantUserModal}>
-					<AddNewUserModal
-						isAdmin={info.isAdmin}
-						isOwner={info.isOwner}
-						close={showAddTenantUserModal}
-						tenantUser={info?.tenantUser}
-						step={info.sentInvitationSteps}
-						role={info.userRoleType}
-						email={info.emailID}
-						clearForm={handleClearInput}
-					/>
-				</Modal>
 			</div>
 		</>
 	);

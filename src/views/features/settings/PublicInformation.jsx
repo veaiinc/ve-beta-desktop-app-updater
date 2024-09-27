@@ -238,7 +238,7 @@ const PublicInformation = () => {
 	};
 
 	return (
-		<div className="publicInformationComponent">
+		<div className="settingsBoxContainer publicInformationComponent">
 			<div className="header">
 				<h1>Public Information</h1>
 

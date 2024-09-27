@@ -32,15 +32,15 @@ const SettingsWorkspace = () => {
 
 	return (
 		<div className="workspaceContainer">
-			<div className="workspaceHandleComponent">
+			<div className="settingsBoxContainer workspaceHandleComponent">
 				<WorkspaceHandleComponent overviewState={overviewState} />
 			</div>
 
-			<div className="timezoneCurrencyComponent">
+			<div className="settingsBoxContainer timezoneCurrencyComponent">
 				<TimeZoneCurrencyComponent overviewState={overviewState} />
 			</div>
 
-			<div className="deleteWorkpsaceComponent">
+			<div className="settingsBoxContainer deleteWorkpsaceComponent">
 				<DeleteWorkpsaceComponent />
 			</div>
 		</div>

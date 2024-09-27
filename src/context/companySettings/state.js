@@ -8,6 +8,7 @@ export const intialState = {
 	tenantsUserList: null,
 	tenantPreferenceData: null,
 	tenantSubscriptionDetails: null,
+	clientPortalPreferences: null,
 };
 export const CompanySettingsState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -241,6 +242,46 @@ export const CompanySettingsState = () => {
 		}
 	};
 
+	const getClientPortalPreference = async () => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				'/tenant/' + workspaceId + API.TENANTS.clientPortalPreferences,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_CLIENT_PORTAL_PREFERENCES,
+					payload: { ...response?.[1]?.clientPortalPreferences },
+				});
+			}
+		} catch (error) {
+			console.log('error ==> getClientPortalPreference', error);
+		}
+	};
+
+	const updateClientPortalPreference = async (json) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				'/tenant/' + workspaceId + API.TENANTS.clientPortalPreferences,
+				json,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error ==> getClientPortalPreference', error);
+		}
+	};
+
 	const resetCompanySettings = async () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
@@ -265,5 +306,7 @@ export const CompanySettingsState = () => {
 		inviteNewuser,
 		updateTenantRole,
 		checkWorkspaceId,
+		getClientPortalPreference,
+		updateClientPortalPreference,
 	};
 };

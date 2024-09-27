@@ -4,16 +4,11 @@
 	gap: 48px;
 
 	.inviteMemberComponent {
-		display: flex;
-		flex-direction: column;
-		gap: 24px;
-		border-radius: 32px;
 		border: 1px solid #7871c030;
 		background: rgba(29, 29, 35, 0.24);
 		box-shadow: 2px 2px 8px 0px rgba(74, 40, 210, 0.06),
 			4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
 		backdrop-filter: blur(8px);
-		padding: 32px;
 
 		.inviteMemberText {
 			h1 {
@@ -111,9 +106,6 @@
 	}
 
 	.yourTeamComponent {
-		padding: 32px;
-		border-radius: 40px;
-		background: rgba(29, 29, 35, 0.24);
 		.yourTeamTitle {
 			display: flex;
 			justify-content: space-between;
