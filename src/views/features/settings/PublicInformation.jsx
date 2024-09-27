@@ -8,8 +8,8 @@ import { businessTypesOptions } from './indexConstant';
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../../components/popover/ToolTipContainer';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/questionMark.svg';
-import { ReactComponent as EditSvg } from '../../../assets/svg/Settings/pencilwhite.svg';
-import { ReactComponent as CloudFileUploadSvg } from '../../../assets/svg/Settings/CloudUpload.svg';
+import { ReactComponent as EditSvg } from '../../../assets/svg/settings/pencilwhite.svg';
+import { ReactComponent as CloudFileUploadSvg } from '../../../assets/svg/settings/CloudUpload.svg';
 import Dropzone from 'react-dropzone';
 
 const PublicInformation = () => {

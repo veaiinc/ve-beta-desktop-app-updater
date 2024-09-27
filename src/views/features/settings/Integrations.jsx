@@ -1,9 +1,9 @@
 import React, { useEffect, useContext, useCallback, useState, memo } from 'react';
-import google from '../../../assets/svg/Settings/google.svg';
-import meta from '../../../assets/svg/Settings/meta.svg';
-import stripe from '../../../assets/svg/Settings/stripe.svg';
-import paypal from '../../../assets/svg/Settings/paypal.svg';
-import square from '../../../assets/svg/Settings/square.svg';
+import google from '../../../assets/svg/settings/google.svg';
+import meta from '../../../assets/svg/settings/meta.svg';
+import stripe from '../../../assets/svg/settings/stripe.svg';
+import paypal from '../../../assets/svg/settings/paypal.svg';
+import square from '../../../assets/svg/settings/square.svg';
 import '../../../assets/scss/settings/integrations.scss';
 import Context from '../../../context/context';
 import ReusableButtonSettings from '../../components/settings/ReusableButtonSettings';
@@ -90,9 +90,7 @@ const Integrations = () => {
 						loader: false,
 					}));
 				}
-			} catch (error) {
-				console.log(error);
-			}
+			} catch (error) {}
 		},
 	};
 

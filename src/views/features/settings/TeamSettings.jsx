@@ -322,7 +322,7 @@ const TeamSettings = () => {
 			getTeamMembers();
 			messageApi.destroy();
 		} catch (error) {
-			console.error(error); // handle any errors that occur
+			console.log('error==>handleSubmit', error);
 		}
 	};
 
