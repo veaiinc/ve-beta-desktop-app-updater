@@ -2,8 +2,6 @@ import AuthWrapper from './views/layouts/authWrapper';
 import LoginScreen from './views/features/signin';
 import ChatScreen from './views/features/meta_Integ/index';
 import OauthVerify from './views/features/signin/oauth';
-import MySettings from './views/features/profile_settings/MySettings';
-import CompanySettingsWrapper from './views/features/workspace_settings/CompanySettingsWrapper';
 import Workflow_builder from './views/features/workflow_builder';
 import Sales from './views/features/sales/Sales';
 import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
@@ -78,24 +76,6 @@ const routes = [
 	},
 
 	{
-		path: '/workspace-settings/:type',
-		component: (
-			<AuthWrapper title={'Workspace Settings'}>
-				<CompanySettingsWrapper />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
-	{
-		path: '/my-profile',
-		component: (
-			<AuthWrapper title={'Profile Settings'}>
-				<MySettings />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
-	{
 		path: '/workflow_builder/:templateId',
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
@@ -119,7 +99,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/my-settings/:type',
+		path: '/settings/:type',
 		component: (
 			<AuthWrapper title={'Workspace Settings'}>
 				<SettingsWrapper />

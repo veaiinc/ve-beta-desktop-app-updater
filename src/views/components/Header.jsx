@@ -25,11 +25,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 		switchWorkspaceModal: false,
 		items: [
 			{
-				label: 'Company Profile',
-			},
-
-			{
-				label: 'My Profile',
+				label: 'Settings',
 			},
 			{
 				label: 'Create Workspace',
@@ -83,11 +79,8 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 		async (data) => {
 			const { label } = data;
 
-			if (label === 'Company Profile') {
-				return navigate('/workspace-settings/company-overview-settings');
-			}
-			if (label === 'My Profile') {
-				return navigate('/my-profile');
+			if (label === 'Settings') {
+				return navigate('/settings/my-profile');
 			}
 			if (label === 'Create Workspace') {
 				return navigate('/create-workspace?authtenticated=true');
