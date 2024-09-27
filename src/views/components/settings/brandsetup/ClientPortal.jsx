@@ -5,18 +5,20 @@ import ColorPicker from '../../colorPicker/ColorPicker';
 
 const ClientPortalComponent = ({ brandState, setbrandState, updateSubmitThemeHandler }) => {
 	const [selectedTheme, setselectedTheme] = useState('theme1');
-	const [themeProperties, setthemeProperties] = useState({});
+	const [themeProperties, setthemeProperties] = useState({
+		...(themesList?.[0]?.properties || {}),
+	});
 	const [colorPopup, setcolorPopup] = useState({ isOpen: false, colorValue: '', property: '' });
 
 	useEffect(() => {
 		if (brandState?.clientPortalPreferences?.activeId) {
-			setselectedTheme(brandState?.clientPortalPreferences?.activeId);
-			setthemeProperties(brandState?.clientPortalPreferences?.properties);
-		} else {
-			const theme = themesList[0];
-			setthemeProperties(theme?.properties);
+			setselectedTheme(brandState?.clientPortalPreferences?.activeId || '');
+			setthemeProperties({ ...(brandState?.clientPortalPreferences?.properties || {}) });
 		}
-	}, [brandState?.clientPortalPreferences?.activeId]);
+	}, [
+		brandState?.clientPortalPreferences?.activeId,
+		brandState?.clientPortalPreferences?.properties,
+	]);
 
 	const openColorPickerFunction = (key, value) => {
 		setcolorPopup({ isOpen: true, colorValue: value, property: key });
@@ -26,9 +28,8 @@ const ClientPortalComponent = ({ brandState, setbrandState, updateSubmitThemeHan
 		if (!brandState?.isThemeChange) {
 			setbrandState((prev) => ({ ...prev, isThemeChange: true }));
 		}
-
 		const { property } = colorPopup;
-		const updateProperties = { ...themeProperties };
+		const updateProperties = { ...(JSON.parse(JSON.stringify(themeProperties)) || {}) };
 		updateProperties[property].value = selectedvalue;
 		setthemeProperties(updateProperties);
 		setcolorPopup((prev) => ({ ...prev, colorValue: '', property: '' }));
@@ -36,9 +37,23 @@ const ClientPortalComponent = ({ brandState, setbrandState, updateSubmitThemeHan
 
 	const colorInputChangeFunc = (e) => {
 		const { name, value } = e.target;
-		const updateProperties = { ...themeProperties };
+		const updateProperties = { ...(JSON.parse(JSON.stringify(themeProperties)) || {}) };
 		updateProperties[name].value = value?.toUpperCase() || '';
 		setthemeProperties(updateProperties);
+	};
+
+	const themOnButtonClikck = async (themeIndex) => {
+		setthemeProperties((prev) => ({
+			...prev,
+			...themesList?.[themeIndex]?.properties,
+		}));
+		setselectedTheme(themesList?.[themeIndex]?.id);
+		if (!brandState?.isThemeChange) {
+			setbrandState((prev) => ({
+				...prev,
+				isThemeChange: true,
+			}));
+		}
 	};
 
 	return (
@@ -64,35 +79,21 @@ const ClientPortalComponent = ({ brandState, setbrandState, updateSubmitThemeHan
 						<h3>Choose Theme</h3>
 
 						<div className="themesList">
-							{themesList?.map((singleTheme) => (
+							{themesList?.map((prefinedThems, index) => (
 								<div
+									key={index}
 									className="singleTheme"
 									onClick={() => {
-										const theme = themesList.find(
-											(theme) => theme?.id === singleTheme?.id,
-										);
-										if (theme) {
-											setthemeProperties((prev) => ({
-												...prev,
-												...theme?.properties,
-											}));
-											setselectedTheme(theme?.id);
-											if (!brandState?.isThemeChange) {
-												setbrandState((prev) => ({
-													...prev,
-													isThemeChange: true,
-												}));
-											}
-										}
+										themOnButtonClikck(index);
 									}}
 									style={{
 										border:
-											singleTheme?.id !== selectedTheme
+											prefinedThems?.id !== selectedTheme
 												? ''
 												: '2px solid #6055ec',
 									}}
 								>
-									<img src={singleTheme?.imageUrl} alt="" />
+									<img src={prefinedThems?.imageUrl} alt="" />
 								</div>
 							))}
 
@@ -103,7 +104,15 @@ const ClientPortalComponent = ({ brandState, setbrandState, updateSubmitThemeHan
 
 						<div className="propertiesContainer">
 							{Object.entries(themeProperties).map(([key, singleProperty]) => (
-								<>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										alignSelf: 'stretch',
+										flexDirection: 'column',
+									}}
+									key={key}
+								>
 									<div className="singlePropertyDiv" key={key}>
 										<h6>{singleProperty?.label}</h6>
 
@@ -130,7 +139,7 @@ const ClientPortalComponent = ({ brandState, setbrandState, updateSubmitThemeHan
 									</div>
 
 									<div className="lineDiv"></div>
-								</>
+								</div>
 							))}
 
 							<div className="singlePropertyDiv">

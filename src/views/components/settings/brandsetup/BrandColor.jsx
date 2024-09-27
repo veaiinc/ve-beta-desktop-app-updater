@@ -17,11 +17,12 @@ const BrandColorComponent = ({
 				<h1>Branding</h1>
 			</div>
 			<div className="brandColorContainer">
-				{brandState?.brandingThemes?.map((singleColor) => (
+				{brandState?.brandingThemes?.map((singleColor, index) => (
 					<div
 						className="fullColorWrapper"
 						onMouseEnter={() => setdeleteColor(singleColor?.value)}
 						onMouseLeave={() => setdeleteColor('')}
+						key={index}
 					>
 						<div className="chooseBrandColor" key={singleColor?.label}>
 							<div

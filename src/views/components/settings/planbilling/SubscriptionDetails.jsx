@@ -38,7 +38,7 @@ const SubscriptionDetailsComponent = () => {
 
 				<div className="subcriptionListDiv">
 					{PlansList.map((item, index) => (
-						<div className="singleListDetails">
+						<div className="singleListDetails" key={index}>
 							<div>{item?.icon}</div>
 							<p>{item?.label}</p>
 						</div>
