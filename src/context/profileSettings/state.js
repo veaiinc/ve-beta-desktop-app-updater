@@ -128,7 +128,7 @@ export const ProfileState = () => {
 				usertoken,
 				'tenant-users',
 			);
-			console.log(response);
+
 			if (response?.[0]) {
 				return [true, response[1]];
 			} else {
