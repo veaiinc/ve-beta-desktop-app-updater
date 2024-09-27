@@ -9,7 +9,7 @@ const PrivacyPolicy = () => {
 	const pdfUrl = 'https://drive.google.com/file/d/1ktST1T5uBCs-LlPvLTKmpVBKe09HhxOj/preview';
 
 	return (
-		<div className="privacyPolicyContainer">
+		<div className="privacyPolicyMainContainer">
 			{/* header section */}
 			<div className="privacypolicyHeader">
 				<div className="privacypolicyHeaderLogo">
