@@ -27,7 +27,6 @@ const SettingsWrapper = (props) => {
 	const navigate = useNavigate();
 	const [urlType, setUrlype] = useState('');
 	const [animate, setAnimate] = useState(true);
-	const [temp, settemp] = useState(false);
 
 	const setType = (type) => {
 		navigate(`/settings/${type}`);
