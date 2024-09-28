@@ -1,10 +1,24 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import '../../../assets/scss/earlyAccess/earlyAccess.scss';
 import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { ReactComponent as Facebook } from '../../../assets/svg/earlyAccess/facebook.svg';
 import { ReactComponent as LinkedIn } from '../../../assets/svg/earlyAccess/linkedIn.svg';
 import { ReactComponent as Instagram } from '../../../assets/svg/earlyAccess/instagram.svg';
+import { useNavigate } from 'react-router-dom';
 const EarlyAccess = () => {
+	const navigate = useNavigate();
+	useEffect(() => {
+		checkIsOnBoardUser();
+	}, []);
+
+	const checkIsOnBoardUser = useCallback(() => {
+		const isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
+		const usertoken = localStorage.getItem('usertoken');
+		if (isOnboard && usertoken) {
+			navigate('/sales');
+		}
+	}, []);
+
 	return (
 		<div className="earlyAccessParentContainer">
 			<VE />

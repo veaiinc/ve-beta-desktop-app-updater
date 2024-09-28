@@ -7,15 +7,14 @@ import useActiveWorkspace from '../hooks/useActiveWorkspace';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import Footer from '../components/Footer';
+import useAuth from '../hooks/useAuth';
 const AuthWrapper = ({ title, children, hideQuickNav = false }) => {
-	const navigate = useNavigate();
+	const checkAuth = useAuth();
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 
 	useEffect(() => {
-		if (!localStorage.getItem('usertoken')) {
-			return navigate('/');
-		}
-	}, [navigate]);
+		checkAuth();
+	}, []);
 
 	return (
 		<div className="authParentContainer">
