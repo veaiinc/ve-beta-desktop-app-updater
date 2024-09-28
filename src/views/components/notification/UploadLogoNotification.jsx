@@ -8,7 +8,7 @@ const UploadLogoNotification = ({ onClose, open }) => {
 	const navigate = useNavigate();
 
 	const uploadLogoBtnClickRedirection = useCallback(() => {
-		navigate('/workspace-settings/company-branding-settings');
+		navigate('/settings/public-information');
 	}, []);
 
 	return (

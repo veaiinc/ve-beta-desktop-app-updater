@@ -278,8 +278,9 @@ export const UserLoginState = (props) => {
 					return [true, 'createWorkspace'];
 				}
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
-				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
-				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
+				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]?.workspaceId);
+				localStorage.setItem('isOnboard', accessibleWorkspaces?.[0]?.isOnboard);
+				Cookies.set('workspaceID', accessibleWorkspaces?.[0]?.workspaceId, {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
