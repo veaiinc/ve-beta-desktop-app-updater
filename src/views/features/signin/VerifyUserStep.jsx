@@ -9,8 +9,6 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
 var validator = require('validator');
 
-const locationDetails = encodeURIComponent(localStorage.getItem('locationDetails'));
-
 const VerifyUserStep = ({
 	handleInput,
 	usersData,
@@ -44,21 +42,14 @@ const VerifyUserStep = ({
 				let response = await verifyAccountExistsUsingEmail(usersData['emailId']);
 
 				if (response?.[0]) {
-					const { isAccountExist, isAccountVerified } = response?.[1] || {};
+					const { isAccountExist } = response?.[1] || {};
 					if (!isAccountExist) {
 						setStage('signup-user');
-						setLoading(false);
-						return;
-					}
-					if (isAccountExist && isAccountVerified) {
-						setStage('login-with-password');
-						setLoading(false);
-						return;
 					} else {
-						setLoading(false);
-						navigate('/early-access');
-						return;
+						setStage('login-with-password');
 					}
+					setLoading(false);
+					return;
 				}
 			} else {
 				setLoading(false);

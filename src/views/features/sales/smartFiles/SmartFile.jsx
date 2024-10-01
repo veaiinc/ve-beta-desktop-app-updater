@@ -62,7 +62,11 @@ const SmartFile = () => {
 			});
 		}
 		return () => {
-			updateStateValues({ smartFileInfo: null, specificTemplatesInfo: null });
+			updateStateValues({
+				smartFileInfo: null,
+				specificTemplatesInfo: null,
+				formResponseData: null,
+			});
 		};
 	}, []);
 

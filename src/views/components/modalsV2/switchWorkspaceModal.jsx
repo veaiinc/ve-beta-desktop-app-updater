@@ -48,14 +48,16 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 	}, [logoutFunc]);
 
 	const handleSwitchWorkSpaceLogic = useCallback((data) => {
+		const { activeWorkspaceId, isOnboard } = data;
 		const workspaceId = localStorage.getItem('workspaceId');
 		if (workspaceId === data) {
 			closeModal();
 			return;
 		}
 		closeModal();
-		localStorage.setItem('workspaceId', data);
-		Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
+		localStorage.setItem('workspaceId', activeWorkspaceId);
+		localStorage.setItem('isOnboard', isOnboard);
+		Cookies.set('workspaceID', activeWorkspaceId, {
 			sameSite: 'lax',
 			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 		});
@@ -85,7 +87,7 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 							className="workspaceCard"
 							key={index}
 							onClick={() => {
-								handleSwitchWorkSpaceLogic(ele?.activeWorkspaceId);
+								handleSwitchWorkSpaceLogic(ele);
 							}}
 						>
 							{ele?.logo_s3_500w_key ? (

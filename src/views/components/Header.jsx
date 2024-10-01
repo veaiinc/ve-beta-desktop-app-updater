@@ -55,9 +55,9 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 				name: userDetailsData.firstName + ' ' + userDetailsData.lastName,
 				email: userDetailsData.email,
 				company: {
-					name: info.activeBusniessName.activeWorkspaceId,
-					id: info.activeBusniessName.businessName,
-					region: info.activeBusniessName.region,
+					name: info.activeBusniessName?.activeWorkspaceId,
+					id: info.activeBusniessName?.businessName,
+					region: info.activeBusniessName?.region,
 				},
 			});
 		}

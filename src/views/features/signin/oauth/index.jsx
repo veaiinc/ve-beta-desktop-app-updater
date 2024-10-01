@@ -9,22 +9,24 @@ const OauthVerify = () => {
 	useEffect(() => {
 		const accessToken = params.get('accessToken');
 		let accessibleWorkspaces = params.get('workspaceId');
-		let isEarlyAccess = params.get('isEarlyAccess');
+		accessibleWorkspaces = decodeURIComponent(accessibleWorkspaces);
+		accessibleWorkspaces = JSON.parse(accessibleWorkspaces);
+
 		let region = params.get('region');
 
 		if (accessToken) {
 			if (accessibleWorkspaces && accessibleWorkspaces?.length) {
-				accessibleWorkspaces = accessibleWorkspaces?.split(',');
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
-				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
+				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]?.workspaceId);
 				localStorage.setItem('usertoken', accessToken);
 				localStorage.setItem('region', region || 'ap-south-1');
+				localStorage.setItem('isOnboard', accessibleWorkspaces?.[0]?.isOnboard);
 
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
-				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
+				Cookies.set('workspaceID', accessibleWorkspaces?.[0]?.workspaceId, {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
@@ -44,10 +46,6 @@ const OauthVerify = () => {
 				navigate('/create-workspace');
 				return;
 			}
-		}
-		if (isEarlyAccess) {
-			navigate('/early-access');
-			return;
 		}
 	}, [params]);
 	return <div></div>;

@@ -61,7 +61,8 @@ const GetBusinessDetails = ({ errorStates, setLoading, setErrorState, isLoading 
 			if (isAuthenticated) {
 				getUserWorkSpaceList();
 			}
-			navigate('/sales');
+
+			navigate(response?.[1]); //either sales or earlyAccess
 		} else {
 			setLoading(false);
 		}

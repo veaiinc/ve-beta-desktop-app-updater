@@ -61,16 +61,10 @@ const UserSignUp = ({
 			};
 			let response = await createUsersAccount(json);
 
-			if (response[0]) {
+			if (response?.[0]) {
 				setLoading(false);
-				if (usersData['emailId'].includes('@ve.ai')) {
-					setStage('verify-email-code');
-					return;
-				} else {
-					navigate('/early-access');
-				}
-
-				// setStage('verify-email-code');
+				setStage('verify-email-code');
+				return;
 			} else {
 				setLoading(false);
 				setErrorState((prevState) => ({

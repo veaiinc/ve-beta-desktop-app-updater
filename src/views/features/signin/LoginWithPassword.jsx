@@ -45,19 +45,17 @@ const LoginWithPassword = ({
 				if (response?.[0]) {
 					if (response?.[1] === 'redirect') {
 						const payload = { email: usersData['emailId'] };
-						setLoading(false);
 						setStage('verify-email-code');
 						sendEmailOtpRequest(payload);
-						return;
 					}
 					if (response?.[1] === 'createWorkspace') {
-						setLoading(false);
 						setStage('create-workspace');
-						return;
 					}
-					localStorage.removeItem('locationDetails');
-					navigate('/sales');
 					setLoading(false);
+					localStorage.removeItem('locationDetails');
+					navigate(response?.[1]); // either login or ealry access
+					setLoading(false);
+					return;
 				} else {
 					setLoading(false);
 					setErrorState((prevState) => ({
