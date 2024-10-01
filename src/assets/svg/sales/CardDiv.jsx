@@ -1,0 +1,41 @@
+import React from 'react';
+import '../../../assets/scss/sales/sales.scss';
+
+const CardDiv = () => {
+	return (
+		<svg
+			className="card-div-svg"
+			width="200"
+			height="284"
+			viewBox="0 0 200 284"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<g clip-path="url(#clip0_2432_14530)">
+				<path
+					d="M184 0.25H16C7.30152 0.25 0.25 7.30152 0.25 16V268C0.25 276.698 7.30152 283.75 16 283.75H184C192.698 283.75 199.75 276.698 199.75 268V16C199.75 7.30152 192.698 0.25 184 0.25Z"
+					stroke="url(#paint0_radial_2432_14530)"
+					stroke-width="0.5"
+				/>
+			</g>
+			<defs>
+				<radialGradient
+					id="paint0_radial_2432_14530"
+					cx="0"
+					cy="0"
+					r="1"
+					gradientUnits="userSpaceOnUse"
+					gradientTransform="rotate(56.534) scale(270.805 277.29)"
+				>
+					<stop stop-color="white" stop-opacity="0.2" />
+					<stop offset="1" stop-opacity="0.34" />
+				</radialGradient>
+				<clipPath id="clip0_2432_14530">
+					<rect width="200" height="284" fill="white" />
+				</clipPath>
+			</defs>
+		</svg>
+	);
+};
+
+export default CardDiv;

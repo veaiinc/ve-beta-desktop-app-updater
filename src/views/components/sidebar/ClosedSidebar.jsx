@@ -2,6 +2,7 @@ import React, { useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg';
+import DropDrownMenu from './DropDrownMenu';
 
 const ClosedSideBarHoverStateIcons = ({ Icon, initialColor = null, hoverClassName = '' }) => {
 	const [isHover, setisHover] = useState(false);
@@ -63,8 +64,15 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info }) 
 
 			<div className="TabOptions">
 				<div>
-					<ClosedSideBarHoverStateIcons Icon={PlusSvg} hoverClassName="plusIconHover" />
+					<div className="dropDownMenuContainer">
+						<ClosedSideBarHoverStateIcons
+							Icon={PlusSvg}
+							hoverClassName="plusIconHover"
+						/>
+						{/* <DropDrownMenu /> */}
+					</div>
 				</div>
+
 				<div onClick={() => navigate('/sales')}>
 					<ClosedSideBarHoverStateIcons Icon={AppartmentHomeSvg} />
 				</div>

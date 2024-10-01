@@ -1,32 +1,27 @@
 import React, { memo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import Cookies from 'js-cookie';
 
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
-	const navigate = useNavigate();
-
 	const closeWorkspaceList = () => {
 		setsidebarStates({ ...sidebarStates, workSpaceOpen: false, navStyle: 'open' });
 	};
 
 	const handleSwitchWorkSpaceLogic = useCallback((data) => {
+		const { activeWorkspaceId, isOnboard } = data;
 		const workspaceId = localStorage.getItem('workspaceId');
 		if (workspaceId === data) {
 			return;
 		}
-		localStorage.setItem('workspaceId', data);
-		console.log(userWorkSpaceList?.[0]);
-		Cookies.set('workspaceID', userWorkSpaceList?.[0], {
+		localStorage.setItem('workspaceId', activeWorkspaceId);
+		localStorage.setItem('isOnboard', isOnboard);
+		Cookies.set('workspaceID', activeWorkspaceId, {
 			sameSite: 'lax',
 			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 		});
-
-		navigate('/sales');
-
-		// window.location.reload();
+		window.location.reload();
 	}, []);
 
 	return (
@@ -47,7 +42,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 								: ''
 						}`}
 						onClick={() => {
-							handleSwitchWorkSpaceLogic(singleWorkspace?.activeWorkspaceId);
+							handleSwitchWorkSpaceLogic(singleWorkspace);
 						}}
 					>
 						<div className="workSpaceCircle">

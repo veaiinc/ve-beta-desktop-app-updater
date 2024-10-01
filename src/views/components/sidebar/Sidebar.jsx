@@ -1,20 +1,18 @@
-import React, { useState, useContext, useEffect, memo } from 'react';
+import React, { useState, useContext, useEffect, useCallback, memo } from 'react';
 import '../../../assets/scss/sidebar.scss';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Intercom from '@intercom/messenger-js-sdk';
 import OpenedSideBarItemsComponent from './OpenedSidebar';
 import ClosedSideBarItemsComponent from './ClosedSidebar';
 import Context from '../../../context/context';
 import { styles } from './sidebarindex';
-import WorkspaceListComponent from './Workspace';
+import CreateLeadModal from '../modalsV2/proposalModals/CreateLeadModal';
 
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
 	} = useContext(Context);
 	const location = useLocation();
-	const navigate = useNavigate();
-	const accessibleWorkspaces = JSON.parse(localStorage.getItem('accessibleWorkspaces'));
 
 	const [sidebarStates, setsidebarStates] = useState({
 		isOpen: false,
@@ -70,31 +68,29 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		}
 	}, [location?.pathname]);
 
-	return (
-		<div className="FullScreenSidebar">
-			<nav className="sidebar2" style={styles[sidebarStates?.navStyle]}>
-				{!sidebarStates?.workSpaceOpen &&
-					(sidebarStates?.isOpen ? (
-						<OpenedSideBarItemsComponent
-							setsidebarStates={setsidebarStates}
-							sidebarStates={sidebarStates}
-							info={info}
-							setInfo={setInfo}
-						/>
-					) : (
-						<ClosedSideBarItemsComponent
-							setsidebarStates={setsidebarStates}
-							sidebarStates={sidebarStates}
-							info={info}
-						/>
-					))}
+	const closeCreateLeadModal = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, createLeadModal: false }));
+	}, []);
 
-				{sidebarStates?.workSpaceOpen && sidebarStates?.isOpen && (
-					<WorkspaceListComponent
+	return (
+		<div
+			className="FullScreenSidebar"
+			style={{ alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ' }}
+		>
+			<nav className="sidebar2" style={styles[sidebarStates?.navStyle]}>
+				{sidebarStates?.isOpen ? (
+					<OpenedSideBarItemsComponent
 						setsidebarStates={setsidebarStates}
 						sidebarStates={sidebarStates}
 						info={info}
+						setInfo={setInfo}
 						userWorkSpaceList={userWorkSpaceList}
+					/>
+				) : (
+					<ClosedSideBarItemsComponent
+						setsidebarStates={setsidebarStates}
+						sidebarStates={sidebarStates}
+						info={info}
 					/>
 				)}
 			</nav>
@@ -112,6 +108,11 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					}
 				></div>
 			)}
+
+			<CreateLeadModal
+				modalIsOpen={info?.createLeadModal}
+				closeModal={closeCreateLeadModal}
+			/>
 		</div>
 	);
 };

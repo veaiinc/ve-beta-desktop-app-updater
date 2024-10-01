@@ -4,6 +4,7 @@ import { veAiModulesItemsList, bottomOptionsList } from './sidebarindex';
 // import { ReactComponent as DownArrowSmallSvg } from '../../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
+import WorkspaceListComponent from './Workspace';
 
 const OpenedSideBarHoverStateIcons = ({
 	name,
@@ -42,7 +43,12 @@ const OpenedSideBarHoverStateIcons = ({
 	);
 };
 
-const OpenedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info }) => {
+const OpenedSideBarItemsComponent = ({
+	sidebarStates,
+	setsidebarStates,
+	info,
+	userWorkSpaceList,
+}) => {
 	const navigate = useNavigate();
 
 	const openWorkspacesFunction = () => {
@@ -54,7 +60,14 @@ const OpenedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info }) 
 		setsidebarStates({ ...sidebarStates, isOpen: false, navStyle: 'close' });
 	};
 
-	return (
+	return sidebarStates?.workSpaceOpen ? (
+		<WorkspaceListComponent
+			setsidebarStates={setsidebarStates}
+			sidebarStates={sidebarStates}
+			info={info}
+			userWorkSpaceList={userWorkSpaceList}
+		/>
+	) : (
 		<div className="openSideBarComponent">
 			<div className="topOptionsList">
 				<div className="currentWorkspaceDiv" onClick={openWorkspacesFunction}>
