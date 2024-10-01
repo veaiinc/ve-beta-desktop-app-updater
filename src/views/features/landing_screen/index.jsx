@@ -6,7 +6,6 @@ import Cards from '../../components/landing_screen/Cards';
 import { ReactComponent as StarLogo } from '../../../assets/svg/landingScreen/starlogo.svg';
 import { ReactComponent as MicrophoneLogo } from '../../../assets/svg/landingScreen/microphoneLogo.svg';
 import { ReactComponent as RightArrowLogo } from '../../../assets/svg/landingScreen/rightArrowLogo.svg';
-// import PrivacyAndTermsModal from '../../components/privacy_and_terms_modal';
 // import MobielNavSidebar from '../../components/Navbar/mobielNavSidebar';
 import { ReactComponent as Hamburger } from '../../../assets/svg/landingScreen/hamburger.svg';
 import { gsap } from 'gsap';
