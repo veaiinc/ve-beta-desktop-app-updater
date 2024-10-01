@@ -15,7 +15,13 @@ import Dropzone from 'react-dropzone';
 const PublicInformation = () => {
 	// Context
 	const {
-		profileInfo: { tennantSettingsData, updateCompanyDetailsState, changelogo },
+		profileInfo: {
+			tennantSettingsData,
+			updateCompanyDetailsState,
+			changelogo,
+			updateProfileState,
+			userWorkSpaceList,
+		},
 		companyInfo: {
 			updateTenantContactDetails,
 			updateTenantAddress,
@@ -229,11 +235,31 @@ const PublicInformation = () => {
 		reader.onloadend = () => {
 			setLogoUrl(reader.result);
 			changelogo(reader?.result);
+			updateActiveWorkspaceLogo(reader?.result);
 		};
 
 		reader.readAsDataURL(file);
 		uploadTenantLogo(file);
 	};
+
+	const updateActiveWorkspaceLogo = useCallback(
+		(data) => {
+			const accessibleTennatsData = [...userWorkSpaceList];
+			const workspaceId = localStorage.getItem('workspaceId');
+			let index = -1;
+			for (let i = 0; i < accessibleTennatsData?.length; i++) {
+				if (accessibleTennatsData?.[i]?.activeWorkspaceId === workspaceId) {
+					index = i;
+					break;
+				}
+			}
+			let dataTobeUpdated = accessibleTennatsData?.[index];
+			dataTobeUpdated = { ...dataTobeUpdated, logo_s3_500w_key: data };
+			accessibleTennatsData?.splice(index, 1, dataTobeUpdated);
+			updateProfileState({ userWorkSpaceList: accessibleTennatsData });
+		},
+		[userWorkSpaceList, updateProfileState],
+	);
 
 	return (
 		<div className="settingsBoxContainer publicInformationComponent">
