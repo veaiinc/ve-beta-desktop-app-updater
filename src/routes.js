@@ -11,6 +11,7 @@ import SmartFileLayout from './views/layouts/smartFileLayout';
 import EarlyAccess from './views/features/early_access';
 import SettingsWrapper from './views/features/settings/SettingsWrapper';
 import PrivacyPolicy from './views/features/signin/PrivacyPolicy';
+import Sidebar from './views/components/sidebar/Sidebar';
 
 const routes = [
 	{
@@ -108,6 +109,15 @@ const routes = [
 			<AuthWrapper title={'Workspace Settings'}>
 				<SettingsWrapper />
 			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/temp',
+		component: (
+			<div>
+				<Sidebar />
+			</div>
 		),
 		exact: true,
 	},
