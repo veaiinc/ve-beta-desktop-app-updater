@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
 import '../../../assets/scss/landingScreen/index.scss';
-// import Navbar from '../../components/Navbar';
+import Navbar from '../../components/landing_screen/Navbar';
 import VeLogo from '../../../assets/svg/landingScreen/Velogo';
-// import Cards from './Cards';
+import Cards from '../../components/landing_screen/Cards';
 import { ReactComponent as StarLogo } from '../../../assets/svg/landingScreen/starlogo.svg';
 import { ReactComponent as MicrophoneLogo } from '../../../assets/svg/landingScreen/microphoneLogo.svg';
 import { ReactComponent as RightArrowLogo } from '../../../assets/svg/landingScreen/rightArrowLogo.svg';
 // import PrivacyAndTermsModal from '../../components/privacy_and_terms_modal';
 // import MobielNavSidebar from '../../components/Navbar/mobielNavSidebar';
-// import ReactModal from '../../components/react_modal';
 import { ReactComponent as Hamburger } from '../../../assets/svg/landingScreen/hamburger.svg';
 import { gsap } from 'gsap';
+import PrivacyPolicyModal from '../../components/modalsV2/landingPage/PrivacyPolicyModal';
 
 const LandingPage = () => {
 	const [showMobielNavSidebar, setShowMobielNavSidebar] = useState(false);
@@ -128,19 +128,19 @@ const LandingPage = () => {
 	};
 
 	return (
-		<div className={'container'}>
-			{!isLargeScreen ? (
-				<div className={'veLogoStyles'}>
-					<VeLogo veLogoRef={veLogoRef} />
-
+		<div className={'landingPagecontainer'}>
+			<div className={'veLogoStyles'}>
+				<VeLogo veLogoRef={veLogoRef} />
+				{!isLargeScreen && (
 					<div className={'hamburger'}>
 						<Hamburger openMobileNavSidebar={() => setShowMobielNavSidebar(true)} />
 					</div>
-				</div>
-			) : (
-				''
-				// <Navbar openPrivacyAndTermsModal={() => setTogglePrivacyAndTermsModal(true)} />
+				)}
+			</div>
+			{isLargeScreen && (
+				<Navbar openPrivacyAndTermsModal={() => setTogglePrivacyAndTermsModal(true)} />
 			)}
+
 			<div className={'mainContent'}>
 				<div className={'mainBox'}>
 					<div className={'title'}>
@@ -155,7 +155,7 @@ const LandingPage = () => {
 					<h4 ref={h4Ref} className={'gettingStarted'}>
 						Let’s get started with any of these actions!
 					</h4>
-					{/* <Cards cardsRef={cardsRef} /> */}
+					<Cards cardsRef={cardsRef} />
 
 					<div ref={promptContainerRef} className={'promptContainer'}>
 						<div className={'box550px'}>
@@ -179,6 +179,10 @@ const LandingPage = () => {
 					</div>
 				</div>
 			</div>
+			<PrivacyPolicyModal
+				isOpen={togglePrivacyAndTermsModal}
+				closeModal={handleClosePrivacyAndTermsModal}
+			/>
 			{/* <ReactModal
 				isOpen={togglePrivacyAndTermsModal}
 				closeModal={handleClosePrivacyAndTermsModal}

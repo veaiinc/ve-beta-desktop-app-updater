@@ -1,35 +1,9 @@
-@media (max-width: 500px) {
-	.container {
-		overflow-x: hidden;
-	}
-}
-
-.container {
+.landingPagecontainer {
 	width: 100vw;
 	height: 100vh;
 	background-color: var(--prim-bg-clr);
 	position: relative;
 	padding: 0 200px;
-
-	@media (max-width: 500px) {
-		.veLogoStyles {
-			left: 0 !important;
-			top: 0 !important;
-			width: 100vw;
-			height: 70px;
-
-			&:hover {
-				animation: none !important;
-			}
-
-			svg {
-				position: absolute;
-				top: 50%;
-				transform: translateY(-50%);
-				left: 32px;
-			}
-		}
-	}
 
 	.veLogoStyles {
 		position: fixed;
@@ -86,51 +60,6 @@
 			width: fit-content;
 			height: calc(100vh - 90px);
 
-			@media (max-width: 500px) {
-				.title {
-					padding: 0 48px;
-					width: 100%;
-
-					h1 {
-						text-align: center;
-						margin-top: 64px !important;
-						font-size: 22px !important;
-						svg {
-							padding-top: 8px;
-							width: 24px !important;
-						}
-					}
-
-					h2 {
-						width: 100% !important;
-						padding: 0 24px !important;
-						text-align: center !important;
-					}
-
-					h3 {
-						font-size: 12px !important;
-						text-align: center;
-						width: 100%;
-						font-size: 12px;
-					}
-				}
-
-				h4.gettingStarted {
-					width: 100vw;
-					padding: 0 48px;
-					color: rgba(228, 229, 230, 0.48);
-					text-align: center !important;
-					margin-left: 9px !important;
-					// margin-top: 4px !important;
-					font-family: Inter;
-					font-size: 10px;
-					font-style: normal;
-					font-weight: 400;
-					line-height: 14px;
-					text-align: center;
-				}
-			}
-
 			.title {
 				overflow: hidden;
 				position: relative;
@@ -177,25 +106,6 @@
 				font-style: normal;
 				font-weight: 400;
 				margin: 48px 0 16px;
-			}
-
-			@media (max-width: 500px) {
-				.cardsContainer {
-					margin-left: 4px !important;
-					width: 100vw !important;
-					padding: 0 28px !important;
-					display: grid !important;
-					grid-template-columns: repeat(2, 1fr) !important;
-					grid-template-rows: auto !important;
-					gap: 8px !important;
-					justify-content: center !important;
-				}
-
-				.card {
-					width: 100% !important;
-					max-width: none !important;
-					aspect-ratio: 245 / 166 !important;
-				}
 			}
 
 			.cardsContainer {
@@ -264,12 +174,6 @@
 				}
 			}
 
-			@media (max-width: 500px) {
-				.refreshPrompts {
-					padding-left: 28px;
-				}
-			}
-
 			.refreshPrompts {
 				margin-top: 16px;
 				display: flex;
@@ -290,22 +194,6 @@
 					&:hover {
 						color: white;
 						text-shadow: 0px 0px 3px rgba(255, 255, 255, 0.8);
-					}
-				}
-			}
-
-			@media (max-width: 500px) {
-				.promptContainer {
-					width: 100vw !important;
-					position: static !important;
-					margin-top: 36px !important;
-					margin-left: 4px !important;
-					padding: 0 24px !important;
-					justify-content: flex-start !important;
-					height: 20% !important;
-
-					.box550px {
-						width: 100% !important;
 					}
 				}
 			}
@@ -397,14 +285,112 @@
 					}
 				}
 			}
-
-			/* Apply absolute position only for screens with width >= 1440px */
-			// @media (min-width: 1440px) {
-			//     .promptContainer {
-			//         position: absolute;
-			//         bottom: 0px;
-			//     }
-			// }
 		}
+	}
+}
+
+.animatedLogoContainer {
+	svg {
+		position: absolute;
+		top: 0;
+		left: 0;
+		border-radius: 16px;
+	}
+}
+
+@media (max-width: 500px) {
+	.landingPagecontainer {
+		overflow-x: hidden;
+	}
+	.veLogoStyles {
+		left: 0 !important;
+		top: 0 !important;
+		width: 100vw;
+		height: 70px;
+
+		&:hover {
+			animation: none !important;
+		}
+
+		svg {
+			position: absolute;
+			top: 50%;
+			transform: translateY(-50%);
+			left: 32px;
+		}
+	}
+	.title {
+		padding: 0 48px;
+		width: 100%;
+
+		h1 {
+			text-align: center;
+			margin-top: 64px !important;
+			font-size: 22px !important;
+			svg {
+				padding-top: 8px;
+				width: 24px !important;
+			}
+		}
+
+		h2 {
+			width: 100% !important;
+			padding: 0 24px !important;
+			text-align: center !important;
+		}
+
+		h3 {
+			font-size: 12px !important;
+			text-align: center;
+			width: 100%;
+			font-size: 12px;
+		}
+	}
+
+	h4.gettingStarted {
+		width: 100vw;
+		padding: 0 48px;
+		color: rgba(228, 229, 230, 0.48);
+		text-align: center !important;
+		margin-left: 9px !important;
+		// margin-top: 4px !important;
+		font-family: Inter;
+		font-size: 10px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 14px;
+		text-align: center;
+	}
+	.refreshPrompts {
+		padding-left: 28px;
+	}
+	.promptContainer {
+		width: 100vw !important;
+		position: static !important;
+		margin-top: 36px !important;
+		margin-left: 4px !important;
+		padding: 0 24px !important;
+		justify-content: flex-start !important;
+		height: 20% !important;
+
+		.box550px {
+			width: 100% !important;
+		}
+	}
+	.cardsContainer {
+		margin-left: 4px !important;
+		width: 100vw !important;
+		padding: 0 28px !important;
+		display: grid !important;
+		grid-template-columns: repeat(2, 1fr) !important;
+		grid-template-rows: auto !important;
+		gap: 8px !important;
+		justify-content: center !important;
+	}
+
+	.card {
+		width: 100% !important;
+		max-width: none !important;
+		aspect-ratio: 245 / 166 !important;
 	}
 }
