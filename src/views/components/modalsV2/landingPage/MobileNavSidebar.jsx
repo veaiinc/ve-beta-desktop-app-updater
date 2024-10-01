@@ -1,12 +1,22 @@
 import React, { memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/landingScreen/mobileNavSidebar.scss';
 import { ReactComponent as BackIcon } from '../../../../assets/svg/landingScreen/backIcon.svg';
 
 const MobileNavSidebar = ({ isOpen, closeModal, openPrivacyAndTermsModal }) => {
+	const navigate = useNavigate();
 	const handlePrivacyAndTerms = () => {
 		closeModal();
 		openPrivacyAndTermsModal();
+	};
+
+	const handleLogin = () => {
+		navigate('/verify-user');
+	};
+
+	const handleSignup = () => {
+		navigate('/verify-user');
 	};
 
 	return (
@@ -18,16 +28,8 @@ const MobileNavSidebar = ({ isOpen, closeModal, openPrivacyAndTermsModal }) => {
 					</div>
 					<nav>
 						<ul>
-							<li
-							// onClick={handleLogin}
-							>
-								Login
-							</li>
-							<li
-							// onClick={handleSignup}
-							>
-								Signup
-							</li>{' '}
+							<li onClick={handleLogin}>Login</li>
+							<li onClick={handleSignup}>Signup</li>{' '}
 							<li onClick={handlePrivacyAndTerms}>Privacy and Terms</li>
 							{/* Added signup handler */}
 							<li>Blog</li>

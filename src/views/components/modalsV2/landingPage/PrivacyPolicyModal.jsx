@@ -24,7 +24,7 @@ const PrivacyPolicyModal = ({ isOpen, closeModal }) => {
 	}, []);
 
 	return (
-		<ReactModal isOpen={isOpen} closeModal={closeModal}>
+		<ReactModal isOpen={isOpen} closeModal={closeModal} modalType="privacyAndTerms">
 			<div className={'PrivacyAndTermsModalContainer'}>
 				<div onClick={closeModal} className={'closeIconContainer'}>
 					<CrossIcon />
