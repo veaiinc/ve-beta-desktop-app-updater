@@ -7,7 +7,6 @@ import Cards from '../../components/landing_screen/Cards';
 import { ReactComponent as StarLogo } from '../../../assets/svg/landingScreen/starlogo.svg';
 import { ReactComponent as MicrophoneLogo } from '../../../assets/svg/landingScreen/microphoneLogo.svg';
 import { ReactComponent as RightArrowLogo } from '../../../assets/svg/landingScreen/rightArrowLogo.svg';
-// import MobielNavSidebar from '../../components/Navbar/mobielNavSidebar';
 import { ReactComponent as Hamburger } from '../../../assets/svg/landingScreen/hamburger.svg';
 import { gsap } from 'gsap';
 import PrivacyPolicyModal from '../../components/modalsV2/landingPage/PrivacyPolicyModal';
@@ -150,11 +149,7 @@ const LandingPage = () => {
 				)}
 			</div>
 			{isLargeScreen ? (
-				<Navbar
-					openPrivacyAndTermsModal={() => setTogglePrivacyAndTermsModal(true)}
-					// openSignupModal={() => setToggleSignupModal(true)}
-					// openLoginModal={() => setloginModalToggle(true)}
-				/>
+				<Navbar openPrivacyAndTermsModal={() => setTogglePrivacyAndTermsModal(true)} />
 			) : (
 				// <div onClick={handleOpenMobileNavSidebar} className={'hamburger'}>
 				// 	<Hamburger />
@@ -214,21 +209,6 @@ const LandingPage = () => {
 				closeModal={handleCloseMobileNavSidebar}
 				openPrivacyAndTermsModal={() => setTogglePrivacyAndTermsModal(true)}
 			/>
-			{/* <ReactModal
-				isOpen={togglePrivacyAndTermsModal}
-				closeModal={handleClosePrivacyAndTermsModal}
-				modalType="privacyAndTerms"
-			>
-				<PrivacyAndTermsModal closePrivacyAndTermsModal={handleClosePrivacyAndTermsModal} />
-			</ReactModal>
-
-			<ReactModal
-				isOpen={showMobielNavSidebar}
-				closeModal={handleCloseMobileNavSidebar}
-				modalType="mobileNavSidebar"
-			>
-				<MobielNavSidebar closeMobileNavSidebar={() => setShowMobielNavSidebar(false)} />
-			</ReactModal> */}
 		</div>
 	);
 };

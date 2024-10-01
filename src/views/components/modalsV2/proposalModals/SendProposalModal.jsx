@@ -18,6 +18,7 @@ import { message } from 'antd';
 import moment from 'moment';
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../../popover/ToolTipContainer';
+import jwtDecode from 'jwt-decode';
 
 const initialState = {
 	subject: '',
@@ -58,6 +59,8 @@ const SendProposalModal = ({
 	updateSendSmartFileExpiryData,
 	isEnabled,
 	updateSmartFileEmailAuth,
+	businessName,
+	pin,
 }) => {
 	const {
 		templates: {
@@ -74,6 +77,7 @@ const SendProposalModal = ({
 
 	const [info, setInfo] = useState({ ...initialState, name: clientDetails?.name });
 	const [arrow, setArrow] = useState('Show');
+
 	const mergedArrow = useMemo(() => {
 		if (arrow === 'Hide') {
 			return false;
@@ -92,10 +96,13 @@ const SendProposalModal = ({
 
 	useEffect(() => {
 		if (smartFileEmailTemplateData) {
+			let emailBody = smartFileEmailTemplateData?.htmlBody || '';
+			emailBody = replaceEmailBodyPlaceholder(emailBody);
+
 			setInfo((prev) => ({
 				...prev,
 				subject: smartFileEmailTemplateData?.subject || '',
-				emailBody: smartFileEmailTemplateData?.htmlBody || '',
+				emailBody: emailBody || '',
 			}));
 		}
 	}, [smartFileEmailTemplateData]);
@@ -214,11 +221,13 @@ const SendProposalModal = ({
 
 	const modifiedCloseModal = useCallback(() => {
 		closeModal();
+		let emailBody = smartFileEmailTemplateData?.htmlBody || '';
+		emailBody = replaceEmailBodyPlaceholder(emailBody);
 		setInfo({
 			...initialState,
 			name: clientDetails?.name,
 			subject: smartFileEmailTemplateData?.subject || '',
-			emailBody: smartFileEmailTemplateData?.htmlBody || '',
+			emailBody: emailBody || '',
 			slugHolder: slug,
 		});
 	}, [smartFileEmailTemplateData, slug]);
@@ -330,6 +339,33 @@ const SendProposalModal = ({
 			}
 		},
 		[info?.slugHolder, workflowId],
+	);
+
+	const replaceEmailBodyPlaceholder = useCallback(
+		(emailBody) => {
+			let emailBodyText = emailBody;
+			if (!emailBodyText?.length) {
+				return emailBodyText;
+			}
+			if (clientDetails?.name?.length) {
+				emailBodyText = emailBodyText?.replace(/{clientName}/g, clientDetails?.name);
+			}
+			const usertoken = localStorage.getItem('usertoken');
+			const decodedToken = jwtDecode(usertoken);
+			const { userName } = decodedToken;
+			if (userName?.length) {
+				emailBodyText = emailBodyText?.replace(/{userName}/g, userName);
+			}
+			if (pin) {
+				emailBodyText = emailBodyText?.replace(/{accessPin}/g, pin);
+			}
+			if (businessName?.length) {
+				emailBodyText = emailBodyText?.replace(/{companyName}/g, businessName);
+			}
+
+			return emailBodyText;
+		},
+		[clientDetails, pin, businessName],
 	);
 
 	return (
