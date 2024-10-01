@@ -25,10 +25,8 @@
 		position: absolute;
 		top: 36px;
 		right: 80px;
-
-		svg {
-			cursor: pointer;
-		}
+		cursor: pointer;
+		z-index: 3;
 	}
 
 	@keyframes rotateAnimation {
@@ -113,7 +111,7 @@
 				width: 100%;
 				max-width: 1240px; // 1440px - 200px of padding
 				display: flex;
-				justify-content: flex-start;
+				justify-content: center;
 				flex-wrap: wrap;
 				gap: 18px;
 
@@ -298,7 +296,7 @@
 	}
 }
 
-@media (max-width: 500px) {
+@media (max-width: 823px) {
 	.landingPagecontainer {
 		overflow-x: hidden;
 	}
@@ -377,6 +375,9 @@
 			width: 100% !important;
 		}
 	}
+}
+
+@media (max-width: 500px) {
 	.cardsContainer {
 		margin-left: 4px !important;
 		width: 100vw !important;

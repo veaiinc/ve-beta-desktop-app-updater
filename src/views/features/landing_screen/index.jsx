@@ -11,10 +11,11 @@ import { ReactComponent as RightArrowLogo } from '../../../assets/svg/landingScr
 import { ReactComponent as Hamburger } from '../../../assets/svg/landingScreen/hamburger.svg';
 import { gsap } from 'gsap';
 import PrivacyPolicyModal from '../../components/modalsV2/landingPage/PrivacyPolicyModal';
+import MobileNavSidebar from '../../components/modalsV2/landingPage/MobileNavSidebar';
 
 const LandingPage = () => {
 	const [showMobielNavSidebar, setShowMobielNavSidebar] = useState(false);
-	const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 500);
+	const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 823);
 	const [togglePrivacyAndTermsModal, setTogglePrivacyAndTermsModal] = useState(false);
 
 	const h1Ref = useRef(null);
@@ -116,7 +117,7 @@ const LandingPage = () => {
 	}, []);
 
 	const handleResize = () => {
-		setIsLargeScreen(window.innerWidth >= 500);
+		setIsLargeScreen(window.innerWidth >= 823);
 	};
 
 	const handleClosePrivacyAndTermsModal = () => {
@@ -127,18 +128,30 @@ const LandingPage = () => {
 		setShowMobielNavSidebar(false);
 	};
 
+	const handleOpenMobileNavSidebar = () => {
+		setShowMobielNavSidebar(true);
+	};
+
 	return (
 		<div className={'landingPagecontainer'}>
 			<div className={'veLogoStyles'}>
 				<VeLogo veLogoRef={veLogoRef} />
-				{!isLargeScreen && (
+				{/* {!isLargeScreen && (
 					<div className={'hamburger'}>
 						<Hamburger openMobileNavSidebar={() => setShowMobielNavSidebar(true)} />
 					</div>
-				)}
+				)} */}
 			</div>
-			{isLargeScreen && (
-				<Navbar openPrivacyAndTermsModal={() => setTogglePrivacyAndTermsModal(true)} />
+			{isLargeScreen ? (
+				<Navbar
+					openPrivacyAndTermsModal={() => setTogglePrivacyAndTermsModal(true)}
+					// openSignupModal={() => setToggleSignupModal(true)}
+					// openLoginModal={() => setloginModalToggle(true)}
+				/>
+			) : (
+				<div onClick={handleOpenMobileNavSidebar} className={'hamburger'}>
+					<Hamburger />
+				</div>
 			)}
 
 			<div className={'mainContent'}>
@@ -182,6 +195,12 @@ const LandingPage = () => {
 			<PrivacyPolicyModal
 				isOpen={togglePrivacyAndTermsModal}
 				closeModal={handleClosePrivacyAndTermsModal}
+			/>
+			<MobileNavSidebar
+				isOpen={showMobielNavSidebar}
+				closeModal={handleCloseMobileNavSidebar}
+				openPrivacyAndTermsModal={() => setTogglePrivacyAndTermsModal(true)}
+				modalType="mobileNavSidebar"
 			/>
 			{/* <ReactModal
 				isOpen={togglePrivacyAndTermsModal}

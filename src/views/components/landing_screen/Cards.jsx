@@ -10,7 +10,7 @@ import { gsap } from 'gsap';
 const cards = [
 	{
 		description:
-			'Transform the way you engage with leads by leveraging AI-driven smart files that help you close deals faster and smarter. Click to discover how AI Sales Assistance can revolutionize your business.',
+			'Engage leads with AI-driven smart files to close deals faster. Discover how AI can transform your business.',
 		title: 'AI Sales Assistance',
 		logo: 'AiSalesLogo',
 	},
