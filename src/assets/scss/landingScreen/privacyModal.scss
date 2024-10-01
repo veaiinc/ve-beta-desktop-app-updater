@@ -57,3 +57,13 @@
 		}
 	}
 }
+
+@media (max-width: 768px) {
+	.PrivacyAndTermsModalContainer {
+		width: 100% !important;
+	}
+
+	.closeIconContainer {
+		right: 28px !important;
+	}
+}

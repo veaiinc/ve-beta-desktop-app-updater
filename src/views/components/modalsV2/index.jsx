@@ -74,7 +74,6 @@ const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {}
 			backgroundColor: 'transparent',
 			transition: 'opacity 0.3s ease-in-out',
 			opacity: isOpen ? 1 : 0,
-			border: '1px solid red',
 		},
 	};
 
