@@ -151,10 +151,7 @@ const LandingPage = () => {
 			{isLargeScreen ? (
 				<Navbar openPrivacyAndTermsModal={() => setTogglePrivacyAndTermsModal(true)} />
 			) : (
-				// <div onClick={handleOpenMobileNavSidebar} className={'hamburger'}>
-				// 	<Hamburger />
-				// </div>
-				<></>
+				''
 			)}
 
 			<div className={'mainContent'}>
