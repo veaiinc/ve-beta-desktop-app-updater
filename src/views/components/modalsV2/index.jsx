@@ -54,60 +54,6 @@ const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {}
 		},
 	};
 
-	const customModalStylesForMobileNavSidebar = {
-		content: {
-			inset: '0px',
-			background: 'inherit',
-			border: 'none',
-			outline: 'none',
-			padding: '0px',
-		},
-
-		overlay: {
-			position: 'absolute',
-			top: '0',
-			left: '0',
-			width: '100%',
-			height: '100%',
-			backdropFilter: 'blur(8px)',
-			zIndex: 4,
-			backgroundColor: 'transparent',
-			transition: 'opacity 0.3s ease-in-out',
-			opacity: isOpen ? 1 : 0,
-		},
-	};
-
-	const customModalStylesForPrivacyAndTerms = {
-		content: {
-			top: '50%',
-			left: '50%',
-			background: 'inherit',
-			border: 'none',
-			outline: 'none',
-			padding: '0px',
-			inset: '0px',
-			display: 'flex',
-			justifyContent: 'center',
-			alignItems: 'center',
-		},
-
-		overlay: {
-			position: 'absolute',
-			top: '0',
-			left: '0',
-			width: '100vw',
-			height: '100vh',
-			backdropFilter: 'blur(8px)',
-			display: 'flex',
-			justifyContent: 'center',
-			alignItems: 'center',
-			zIndex: 4,
-			backgroundColor: 'transparent',
-			transition: 'opacity 0.3s ease-in-out',
-			opacity: isOpen ? 1 : 0,
-		},
-	};
-
 	return (
 		<>
 			<Modal
@@ -122,28 +68,6 @@ const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {}
 								},
 								overlay: {
 									...customModalStylesForRight?.overlay,
-									...customStyles?.overlay,
-								},
-						  }
-						: modalType == 'mobileNavSidebar'
-						? {
-								content: {
-									...customModalStylesForMobileNavSidebar?.content,
-									...customStyles?.content,
-								},
-								overlay: {
-									...customModalStylesForMobileNavSidebar?.overlay,
-									...customStyles?.overlay,
-								},
-						  }
-						: modalType == 'privacyAndTerms'
-						? {
-								content: {
-									...customModalStylesForPrivacyAndTerms?.content,
-									...customStyles?.content,
-								},
-								overlay: {
-									...customModalStylesForPrivacyAndTerms?.overlay,
 									...customStyles?.overlay,
 								},
 						  }

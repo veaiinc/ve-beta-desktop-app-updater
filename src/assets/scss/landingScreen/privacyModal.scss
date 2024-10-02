@@ -15,7 +15,7 @@
 	.closeIconContainer {
 		position: absolute;
 		top: 34px;
-		right: 54px;
+		right: 42px;
 		cursor: pointer;
 	}
 
@@ -62,9 +62,5 @@
 @media (max-width: 768px) {
 	.PrivacyAndTermsModalContainer {
 		width: 100% !important;
-	}
-
-	.closeIconContainer {
-		right: 28px !important;
 	}
 }
