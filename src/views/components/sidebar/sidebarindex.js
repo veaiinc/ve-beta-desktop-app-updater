@@ -35,7 +35,6 @@ export const veAiModulesItemsList = [
 		initialColor: '#7D7D7D',
 	},
 	{ name: 'Calendar', moduleRoute: '/calendar', route: null, icon: CalendarSvg },
-	{ name: 'Playbook', moduleRoute: '/sales', route: '/sales', icon: BookSvg },
 	{ name: 'Inbox', moduleRoute: '/inbox', route: null, icon: MailOutlineSvg },
 	{ name: 'Clients', moduleRoute: '/clients', route: null, icon: LayoutSvg },
 	{ name: 'Finance', moduleRoute: '/finance', route: null, icon: AttachMoneySvg },
@@ -47,6 +46,7 @@ export const veAiModulesItemsList = [
 
 export const bottomOptionsList = [
 	{ name: 'Upgrade', moduleRoute: '/upgrade', route: null, icon: CrownSvg },
+	{ name: 'Playbook', moduleRoute: '/sales', route: null, icon: BookSvg },
 	{
 		name: 'App store',
 		moduleRoute: '/app-store',
@@ -77,14 +77,13 @@ export const styles = {
 		borderRadius: '14px',
 		minHeight: '20vh',
 		height: 'fit-content',
-		marginTop: 'calc(100vh - 95vh)',
 	},
 };
 
 export const newBtnActions = [
-	{ label: 'Lead' },
+	{ label: 'Lead', action: 'functionCall', funcName: 'openLeadPopup', redirect: null },
+	{ label: 'Workflow', action: 'redirect', funcName: null, redirect: '/sales/workflows' },
 	// { label: 'Smart File' },
-	{ label: 'Workflow' },
 ];
 
 // const veSubModules = {

@@ -1,10 +1,11 @@
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { veAiModulesItemsList, bottomOptionsList } from './sidebarindex';
 // import { ReactComponent as DownArrowSmallSvg } from '../../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import WorkspaceListComponent from './Workspace';
+import useLogout from '../../hooks/useLogout';
 
 const OpenedSideBarHoverStateIcons = ({
 	name,
@@ -50,6 +51,11 @@ const OpenedSideBarItemsComponent = ({
 	userWorkSpaceList,
 }) => {
 	const navigate = useNavigate();
+	const logoutFunc = useLogout();
+
+	const handleLogout = useCallback(async () => {
+		logoutFunc();
+	}, [logoutFunc]);
 
 	const openWorkspacesFunction = () => {
 		setsidebarStates({ ...sidebarStates, workSpaceOpen: true, navStyle: 'workspace' });
@@ -109,7 +115,7 @@ const OpenedSideBarItemsComponent = ({
 					/>
 				))}
 
-				<div className={'singleModuleItem logoutItem'}>
+				<div className={'singleModuleItem logoutItem'} onClick={handleLogout}>
 					<p>Logout</p>
 					<LogoutRedSvg />
 				</div>

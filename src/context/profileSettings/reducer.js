@@ -57,6 +57,10 @@ const actionHandlers = {
 			...action.payload,
 		},
 	}),
+	UPDATE_PROFILE_STATE: (state, action) => ({
+		...state,
+		...action.payload,
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 

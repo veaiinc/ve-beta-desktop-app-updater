@@ -1,41 +1,37 @@
 import React from 'react';
 import { newBtnActions } from './sidebarindex';
+import { useNavigate } from 'react-router-dom';
 
-const DropDrownMenu = () => {
+const DropDrownMenu = ({ info, setInfo }) => {
+	const navigate = useNavigate();
+	const allFunctionsObject = {
+		openLeadPopup: () => {
+			setInfo((prev) => ({ ...prev, createLeadModal: true }));
+		},
+	};
+
+	const handleOptionClick = (option) => {
+		if (option?.action === 'functionCall') {
+			allFunctionsObject[option?.funcName]();
+		} else if (option?.action === 'redirect') {
+			navigate(option?.redirect);
+		}
+	};
+
 	return (
 		<div
 			style={{
 				position: 'absolute',
-				top: '5px',
-				left: '50px',
-				width: '200px',
-				height: '100px',
-				minWidth: '200px',
-				backgroundColor: '#151515',
-				borderRadius: '10px',
-				color: '#E4E5E6',
+				top: info?.isNewFeaturePlusOpen ? '5px' : '0px',
+				left: info?.isNewFeaturePlusOpen ? '50px' : '0px',
+				width: info?.isNewFeaturePlusOpen ? '180px' : '0px',
+				transition: 'all 0.3s ease-in-out',
+				opacity: info?.isNewFeaturePlusOpen ? '1' : '0',
 			}}
-			// onMouseOver={onMouseHoverFunc ? handleOpen : null}
-			// onMouseLeave={onMouseHoverFunc ? handleClose : null}
 		>
-			<div>
+			<div className="closedDropDownMenu">
 				{newBtnActions?.map((option, index) => (
-					<div
-						key={index}
-						// className="dropdown-item"
-						// onClick={() => handleOptionClick(option)}
-						style={{
-							color: '#E4E5E6',
-							textOverflow: 'ellipsis',
-							fontFamily: 'Inter',
-							fontSize: '14px',
-							fontStyle: 'normal',
-							fontWeight: '400',
-							lineHeight: '16px' /* 114.286% */,
-							letterSpacing: '-0.3px',
-							// backgroundColor: 'blue',
-						}}
-					>
+					<div key={option?.label} onClick={() => handleOptionClick(option)}>
 						{option?.label}
 					</div>
 				))}

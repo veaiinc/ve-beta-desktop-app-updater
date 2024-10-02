@@ -1,0 +1,39 @@
+.landingPageNavcontainer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: inherit;
+	z-index: 1;
+
+	nav {
+		display: flex;
+		justify-content: center;
+		margin: 24px;
+		border-radius: 100px;
+		border: 1px solid rgba(100, 100, 100, 0.16);
+		background: #1e1f20;
+
+		ul {
+			display: flex;
+			justify-content: center;
+			list-style: none;
+			gap: 36px;
+			padding: 12px 24px;
+
+			li {
+				color: #e4e5e67a;
+				font-family: Inter;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 400;
+				cursor: pointer;
+				transition: all 0.3s ease;
+
+				&:hover {
+					color: white;
+					text-shadow: 0px 0px 3px rgba(255, 255, 255, 0.8);
+				}
+			}
+		}
+	}
+}

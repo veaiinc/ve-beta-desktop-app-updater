@@ -51,6 +51,7 @@ const SmartFile = () => {
 		showUploadLogoNotification: false,
 		workflowExpiryAt: '',
 		isEmailAuth: true,
+		businessName: '',
 	});
 
 	//useEffect
@@ -303,13 +304,15 @@ const SmartFile = () => {
 		if (userWorkSpaceList) {
 			const workspaceId = localStorage.getItem('workspaceId');
 			let logoExist = false;
+			let businessName = '';
 			for (let i = 0; i < userWorkSpaceList?.length; i++) {
 				if (userWorkSpaceList?.[i]?.activeWorkspaceId === workspaceId) {
 					logoExist = userWorkSpaceList?.[i]?.logo_s3_500w_key?.length ? true : false;
+					businessName = userWorkSpaceList?.[i]?.businessName;
 					break;
 				}
 			}
-			setInfo((prev) => ({ ...prev, workspaceLogo: logoExist }));
+			setInfo((prev) => ({ ...prev, workspaceLogo: logoExist, businessName }));
 		}
 	}, [userWorkSpaceList]);
 
@@ -380,6 +383,8 @@ const SmartFile = () => {
 				updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
 				isEnabled={info?.isEmailAuth}
 				updateSmartFileEmailAuth={updateSmartFileEmailAuth}
+				pin={smartFileInfo?.access?.pin}
+				businessName={info?.businessName}
 			/>
 
 			<CopiedModal
