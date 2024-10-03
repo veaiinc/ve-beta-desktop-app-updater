@@ -1,7 +1,5 @@
 import Spinner from '../views/components/loaders/Spinner';
 import axios from 'axios';
-import { useContext } from 'react';
-import Context from '../context/context';
 
 export const nameShortner = (name) => {
 	let newName = name?.split(' ');
