@@ -395,9 +395,11 @@ const SendProposalModal = ({
 			updateWorkflowId: workflowId,
 			updateWorkflowInput: {
 				isPublic: !info?.emailAccess,
-				expiresAt: moment().add(info?.expiryInDays, 'days').unix(),
 			},
 		};
+		if (info?.expiryInDays && info?.expiryInDays > 0) {
+			payload.updateWorkflowInput.expiresAt = moment().add(info?.expiryInDays, 'days').unix();
+		}
 		const response = await updateSendSmartFileSettings(payload);
 		if (response?.[0]) {
 			updateSendSmartFileExpiryData(payload.expiresAt);
