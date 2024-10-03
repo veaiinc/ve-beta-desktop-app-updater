@@ -13,12 +13,11 @@ import UpdatedPageLoader from '../../../components/loaders/UpdatedPageLoader';
 import DeleteLeadModal from '../../../components/modalsV2/workflowsModals/DeleteLeadModal';
 import Notification from '../../../components/notification/Notification';
 import UploadLogoNotification from '../../../components/notification/UploadLogoNotification';
-import useCurrentWorkspaceId from '../../../hooks/useCurrentWorkspace';
+import getCurrentWorkspaceId from '../../../../helpers';
 
 const SmartFile = () => {
 	const { templateId, workflowId } = useParams();
 	const navigate = useNavigate();
-	const currentWorkspaceId = useCurrentWorkspaceId();
 
 	let {
 		templates: {
@@ -336,7 +335,9 @@ const SmartFile = () => {
 	const onPreviewClick = useCallback(() => {
 		const usertoken = localStorage.getItem('usertoken');
 		const region = localStorage.getItem('region');
-		window.location.href = `https://${currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}/${region}/${usertoken}`;
+		window.location.href = `https://${getCurrentWorkspaceId(userWorkSpaceList)}.ve.ai/portal/${
+			info?.workflowData?.slug
+		}/${region}/${usertoken}`;
 	}, [info?.workflowData]);
 
 	return info?.loading ? (
@@ -393,7 +394,9 @@ const SmartFile = () => {
 				open={info?.copyModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
 				modules={info?.workflowData?.modules?.filter((e) => e?.type !== 'form')}
-				copyLink={`https://${currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}`}
+				copyLink={`https://${getCurrentWorkspaceId(userWorkSpaceList)}.ve.ai/portal/${
+					info?.workflowData?.slug
+				}`}
 				pin={smartFileInfo?.access?.pin}
 			/>
 			<UploadSignature

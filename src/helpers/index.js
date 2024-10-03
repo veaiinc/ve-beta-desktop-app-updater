@@ -1,5 +1,7 @@
 import Spinner from '../views/components/loaders/Spinner';
 import axios from 'axios';
+import { useContext } from 'react';
+import Context from '../context/context';
 
 export const nameShortner = (name) => {
 	let newName = name?.split(' ');
@@ -66,6 +68,7 @@ export const getInitials = (firstName, lastName) => {
 	const initials = `${firstNameInitial?.toUpperCase()}${lastNameInitial?.toUpperCase()}`;
 	return initials;
 };
+
 export const getBuisnessName = (name) => {
 	const words = name?.split(' ');
 
@@ -80,3 +83,20 @@ export const getBuisnessName = (name) => {
 		return initials;
 	}
 };
+
+function getCurrentWorkspaceId(userWorkSpaceList = []) {
+	const workspaceId = localStorage.getItem('workspaceId');
+
+	if (!userWorkSpaceList) return workspaceId;
+
+	const tenant = userWorkSpaceList?.find((item) => item.activeWorkspaceId === workspaceId);
+
+	if (!tenant) {
+		return workspaceId;
+	}
+
+	const currentWorkspaceIds = tenant.workspaceIds || [workspaceId];
+	return currentWorkspaceIds[currentWorkspaceIds.length - 1];
+}
+
+export default getCurrentWorkspaceId;
