@@ -19,6 +19,7 @@ import moment from 'moment';
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../../popover/ToolTipContainer';
 import jwtDecode from 'jwt-decode';
+import useCurrentWorkspaceId from '../../../hooks/useCurrentWorkspace';
 
 const initialState = {
 	subject: '',
@@ -74,7 +75,7 @@ const SendProposalModal = ({
 	} = useContext(Context);
 	const editor = useRef(null);
 	const inputRef = useRef(null);
-
+	const currentWorkspaceId = useCurrentWorkspaceId();
 	const [info, setInfo] = useState({ ...initialState, name: clientDetails?.name });
 	const [arrow, setArrow] = useState('Show');
 
@@ -156,9 +157,8 @@ const SendProposalModal = ({
 
 	const handleCopy = useCallback(async () => {
 		try {
-			const workspaceId = localStorage.getItem('workspaceId');
 			await navigator.clipboard.writeText(
-				`https://${workspaceId}.ve.ai/portal/${workflowSlug}`,
+				`https://${currentWorkspaceId}.ve.ai/portal/${workflowSlug}`,
 			);
 			modifiedCloseModal();
 			openCopyModal();
@@ -387,7 +387,7 @@ const SendProposalModal = ({
 					<div className="sendSmartFileHeader">
 						<div className="sendSmartFileHeaderWrapper">
 							<span className="linkDetailText">
-								{`https://${localStorage.getItem('workspaceId')}.ve.ai/portal/`}
+								{`https://${currentWorkspaceId}.ve.ai/portal/`}
 								<input
 									type="text"
 									className="editableSlugInput"

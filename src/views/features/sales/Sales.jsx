@@ -10,7 +10,7 @@ import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
 import PublicLinkGeneratedModal from '../../components/modalsV2/workflowsModals/PublicLinkGeneratedModal';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import InitialPageLoader from '../../components/loaders/PageLoader';
-
+import useCurrentWorkspaceId from '../../hooks/useCurrentWorkspace';
 const Sales = () => {
 	let {
 		templates: {
@@ -23,6 +23,8 @@ const Sales = () => {
 		},
 	} = useContext(Context);
 	const navigate = useNavigate();
+	const currentWorkspaceId = useCurrentWorkspaceId();
+	// console.log(currentWorkspaceId, 'active workspaceidi');
 
 	const [info, setInfo] = useState({
 		loading: true,
@@ -157,8 +159,9 @@ const Sales = () => {
 
 	const openCopyLinkModal = useCallback(async (data) => {
 		try {
-			const workspaceId = localStorage.getItem('workspaceId');
-			await navigator.clipboard.writeText(`https://${workspaceId}.ve.ai/${data?.slug}`);
+			await navigator.clipboard.writeText(
+				`https://${currentWorkspaceId}.ve.ai/${data?.slug}`,
+			);
 			setInfo((prev) => ({ ...prev, copyModal: true, activeTemplateData: data }));
 		} catch (err) {
 			console.log('Failed to copy text');
@@ -215,9 +218,7 @@ const Sales = () => {
 				closeModal={closeCopyLinkModal}
 				slug={info?.activeTemplateData?.slug}
 				modules={info?.activeTemplateData?.moduleTemplates?.filter((ele) => ele?.isPublic)}
-				copyLink={`https://${localStorage.getItem('workspaceId')}.ve.ai/${
-					info?.activeTemplateData?.slug
-				}`}
+				copyLink={`https://${currentWorkspaceId}.ve.ai/${info?.activeTemplateData?.slug}`}
 			/>
 			<PublicLinkGeneratedModal
 				open={info?.showGeneratedLinkModalData ? true : false}
