@@ -220,6 +220,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 			</div>
 
 			{/* //use map here */}
+			{console.log('hello therer==>', ele)}
 			{ele?.values?.map((item, ind) => (
 				<div className="eventsCard" key={ind}>
 					{editable ? (
