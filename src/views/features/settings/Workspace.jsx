@@ -40,9 +40,10 @@ const SettingsWorkspace = () => {
 				<TimeZoneCurrencyComponent overviewState={overviewState} />
 			</div>
 
-			<div className="settingsBoxContainer deleteWorkpsaceComponent">
+			{/* tmeporary Hide */}
+			{/* <div className="settingsBoxContainer deleteWorkpsaceComponent">
 				<DeleteWorkpsaceComponent />
-			</div>
+			</div> */}
 		</div>
 	);
 };
