@@ -315,6 +315,10 @@ export const ProfileState = () => {
 	const resetProfileSettingsState = async () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
+
+	const updateProfileState = async (payload) => {
+		dispatch({ type: Actions.UPDATE_PROFILE_STATE, payload: payload });
+	};
 	return {
 		...state,
 		getTenantSettings,
@@ -334,5 +338,6 @@ export const ProfileState = () => {
 		updateWorkSpaceId,
 		updateCompanyDetailsState,
 		updateUserDetailsState,
+		updateProfileState,
 	};
 };

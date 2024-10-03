@@ -24,6 +24,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		switchWorkspaceModal: false,
 		activeBusniessName: '',
 		createLeadModal: false,
+		isNewFeaturePlusOpen: false,
 		activeRoute: '/' + location.pathname.split('/')[1],
 	});
 
@@ -73,27 +74,35 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	}, []);
 
 	return (
-		<div
-			className="FullScreenSidebar"
-			style={{ alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ' }}
-		>
-			<nav className="sidebar2" style={styles[sidebarStates?.navStyle]}>
-				{sidebarStates?.isOpen ? (
-					<OpenedSideBarItemsComponent
-						setsidebarStates={setsidebarStates}
-						sidebarStates={sidebarStates}
-						info={info}
-						setInfo={setInfo}
-						userWorkSpaceList={userWorkSpaceList}
-					/>
-				) : (
-					<ClosedSideBarItemsComponent
-						setsidebarStates={setsidebarStates}
-						sidebarStates={sidebarStates}
-						info={info}
-					/>
-				)}
-			</nav>
+		<>
+			<div
+				className="FullScreenSidebar"
+				style={{ alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ' }}
+			>
+				<nav className="sidebarComponent" style={styles[sidebarStates?.navStyle]}>
+					{sidebarStates?.isOpen ? (
+						<OpenedSideBarItemsComponent
+							setsidebarStates={setsidebarStates}
+							sidebarStates={sidebarStates}
+							info={info}
+							setInfo={setInfo}
+							userWorkSpaceList={userWorkSpaceList}
+						/>
+					) : (
+						<ClosedSideBarItemsComponent
+							setsidebarStates={setsidebarStates}
+							sidebarStates={sidebarStates}
+							info={info}
+							setInfo={setInfo}
+						/>
+					)}
+				</nav>
+
+				<CreateLeadModal
+					modalIsOpen={info?.createLeadModal}
+					closeModal={closeCreateLeadModal}
+				/>
+			</div>
 
 			{sidebarStates?.isOpen && (
 				<div
@@ -108,12 +117,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					}
 				></div>
 			)}
-
-			<CreateLeadModal
-				modalIsOpen={info?.createLeadModal}
-				closeModal={closeCreateLeadModal}
-			/>
-		</div>
+		</>
 	);
 };
 

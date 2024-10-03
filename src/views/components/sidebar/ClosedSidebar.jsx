@@ -2,6 +2,8 @@ import React, { useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg';
+import { ReactComponent as SvgGradient1 } from '../../../assets/svg/sidebar/svggradient1.svg';
+import { ReactComponent as SvgGradient2 } from '../../../assets/svg/sidebar/svggradient2.svg';
 import DropDrownMenu from './DropDrownMenu';
 
 const ClosedSideBarHoverStateIcons = ({ Icon, initialColor = null, hoverClassName = '' }) => {
@@ -17,46 +19,26 @@ const ClosedSideBarHoverStateIcons = ({ Icon, initialColor = null, hoverClassNam
 	);
 };
 
-const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info }) => {
+const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, setInfo }) => {
 	const navigate = useNavigate();
 
 	const openModuleFunction = () => {
 		setsidebarStates({ ...sidebarStates, isOpen: true, navStyle: 'open' });
+	};
+
+	const openNewFeaturePlus = () => {
+		setInfo((prev) => ({ ...prev, isNewFeaturePlusOpen: !prev.isNewFeaturePlusOpen }));
 	};
 	return (
 		<div className="closedSideBarComponent">
 			<div className="openWorkFlowContainer" onClick={openModuleFunction}>
 				<div className="gradientCirlce">
 					<p>W</p>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="39"
-						height="39"
-						viewBox="0 0 39 39"
-						fill="none"
-					>
-						<circle
-							cx="19.9849"
-							cy="19.4815"
-							r="18.5"
-							transform="rotate(-135 19.9849 19.4815)"
-							stroke="url(#paint0_linear_6906_14714)"
-						/>
-						<defs>
-							<linearGradient
-								id="paint0_linear_6906_14714"
-								x1="1.25732"
-								y1="0.753965"
-								x2="39.2573"
-								y2="38.754"
-								gradientUnits="userSpaceOnUse"
-							>
-								<stop stopColor="#5D43FB" />
-								<stop offset="0.535" stopColor="#5D43FB" stopOpacity="0.13" />
-								<stop offset="1" stopColor="#5D43FB" stopOpacity="0" />
-							</linearGradient>
-						</defs>
-					</svg>
+
+					<div className="svgDiv">
+						<SvgGradient1 />
+						<SvgGradient2 />
+					</div>
 
 					<h6>Workflow</h6>
 				</div>
@@ -64,12 +46,12 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info }) 
 
 			<div className="TabOptions">
 				<div>
-					<div className="dropDownMenuContainer">
+					<div className="dropDownMenuContainer" onClick={openNewFeaturePlus}>
 						<ClosedSideBarHoverStateIcons
 							Icon={PlusSvg}
 							hoverClassName="plusIconHover"
 						/>
-						{/* <DropDrownMenu /> */}
+						<DropDrownMenu info={info} setInfo={setInfo} />
 					</div>
 				</div>
 

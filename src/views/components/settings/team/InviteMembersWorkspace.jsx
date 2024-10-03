@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/close.svg';
 import ReusableButtonSettings from '../ReusableButtonSettings';
 
@@ -21,7 +21,7 @@ const InviteMembersWorkspaceComponent = ({
 
 			{sendRequestList?.map((singleUser, index) => {
 				return (
-					<div key={singleUser?.email + index}>
+					<div key={'singleUser' + index}>
 						<div className="sendRequestInputContainer">
 							<div className="sendRequestInput">
 								<input
@@ -122,4 +122,4 @@ const InviteMembersWorkspaceComponent = ({
 	);
 };
 
-export default memo(InviteMembersWorkspaceComponent);
+export default InviteMembersWorkspaceComponent;
