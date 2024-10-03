@@ -10,7 +10,8 @@ import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
 import PublicLinkGeneratedModal from '../../components/modalsV2/workflowsModals/PublicLinkGeneratedModal';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import InitialPageLoader from '../../components/loaders/PageLoader';
-import useCurrentWorkspaceId from '../../hooks/useCurrentWorkspace';
+import { getCurrentWorkspaceId } from '../../../helpers';
+
 const Sales = () => {
 	let {
 		templates: {
@@ -21,10 +22,9 @@ const Sales = () => {
 			updateStateValues,
 			generatePublicLinkData,
 		},
+		profileInfo: { userWorkSpaceList },
 	} = useContext(Context);
 	const navigate = useNavigate();
-	const currentWorkspaceId = useCurrentWorkspaceId();
-	// console.log(currentWorkspaceId, 'active workspaceidi');
 
 	const [info, setInfo] = useState({
 		loading: true,
@@ -38,6 +38,7 @@ const Sales = () => {
 		showGeneratedLinkModalData: null,
 		testingDrawerModal: false,
 		shownInitialLoader: localStorage.getItem('showInitialLoader'),
+		currentWorkspaceId: '',
 	});
 
 	//useEffects
@@ -70,6 +71,13 @@ const Sales = () => {
 			updateStateValues({ generatePublicLinkData: null });
 		}
 	}, [generatePublicLinkData]);
+
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
+			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
+		}
+	}, [userWorkSpaceList]);
 
 	//function definations
 
@@ -157,16 +165,19 @@ const Sales = () => {
 		}));
 	}, []);
 
-	const openCopyLinkModal = useCallback(async (data) => {
-		try {
-			await navigator.clipboard.writeText(
-				`https://${currentWorkspaceId}.ve.ai/${data?.slug}`,
-			);
-			setInfo((prev) => ({ ...prev, copyModal: true, activeTemplateData: data }));
-		} catch (err) {
-			console.log('Failed to copy text');
-		}
-	}, []);
+	const openCopyLinkModal = useCallback(
+		async (data) => {
+			try {
+				await navigator.clipboard.writeText(
+					`https://${info?.currentWorkspaceId}.ve.ai/${data?.slug}`,
+				);
+				setInfo((prev) => ({ ...prev, copyModal: true, activeTemplateData: data }));
+			} catch (err) {
+				console.log('Failed to copy text');
+			}
+		},
+		[info?.currentWorkspaceId],
+	);
 
 	const closeCopyLinkModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, copyModal: false, activeTemplateData: null }));
@@ -218,16 +229,14 @@ const Sales = () => {
 				closeModal={closeCopyLinkModal}
 				slug={info?.activeTemplateData?.slug}
 				modules={info?.activeTemplateData?.moduleTemplates?.filter((ele) => ele?.isPublic)}
-				copyLink={`https://${currentWorkspaceId}.ve.ai/${info?.activeTemplateData?.slug}`}
+				copyLink={`https://${info?.currentWorkspaceId}.ve.ai/${info?.activeTemplateData?.slug}`}
 			/>
 			<PublicLinkGeneratedModal
 				open={info?.showGeneratedLinkModalData ? true : false}
 				closeModal={closeGeneratedLinkModal}
 				copyLink={
 					info?.showGeneratedLinkModalData
-						? `https://${localStorage.getItem('workspaceId')}.ve.ai/${
-								info?.showGeneratedLinkModalData?.slug
-						  }`
+						? `https://${info?.currentWorkspaceId}.ve.ai/${info?.showGeneratedLinkModalData?.slug}`
 						: ''
 				}
 				modules={info?.showGeneratedLinkModalData?.moduleTemplates}

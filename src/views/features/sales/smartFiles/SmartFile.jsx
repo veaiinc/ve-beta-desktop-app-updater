@@ -13,12 +13,11 @@ import UpdatedPageLoader from '../../../components/loaders/UpdatedPageLoader';
 import DeleteLeadModal from '../../../components/modalsV2/workflowsModals/DeleteLeadModal';
 import Notification from '../../../components/notification/Notification';
 import UploadLogoNotification from '../../../components/notification/UploadLogoNotification';
-import useCurrentWorkspaceId from '../../../hooks/useCurrentWorkspace';
+import { getCurrentWorkspaceId } from '../../../../helpers';
 
 const SmartFile = () => {
 	const { templateId, workflowId } = useParams();
 	const navigate = useNavigate();
-	const currentWorkspaceId = useCurrentWorkspaceId();
 
 	let {
 		templates: {
@@ -55,6 +54,7 @@ const SmartFile = () => {
 		workflowExpiryAt: '',
 		isEmailAuth: true,
 		businessName: '',
+		currentWorkspaceId: localStorage.getItem('workspaceId'),
 	});
 
 	//useEffect
@@ -118,6 +118,8 @@ const SmartFile = () => {
 	useEffect(() => {
 		if (userWorkSpaceList) {
 			handleWorkspaceLogoExistence();
+			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
+			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
 		} else {
 			getUserWorkSpaceList();
 		}
@@ -336,8 +338,8 @@ const SmartFile = () => {
 	const onPreviewClick = useCallback(() => {
 		const usertoken = localStorage.getItem('usertoken');
 		const region = localStorage.getItem('region');
-		window.location.href = `https://${currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}/${region}/${usertoken}`;
-	}, [info?.workflowData]);
+		window.location.href = `https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}/${region}/${usertoken}`;
+	}, [info?.workflowData, info?.currentWorkspaceId]);
 
 	return info?.loading ? (
 		<UpdatedPageLoader />
@@ -393,7 +395,7 @@ const SmartFile = () => {
 				open={info?.copyModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
 				modules={info?.workflowData?.modules?.filter((e) => e?.type !== 'form')}
-				copyLink={`https://${currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}`}
+				copyLink={`https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}`}
 				pin={smartFileInfo?.access?.pin}
 			/>
 			<UploadSignature

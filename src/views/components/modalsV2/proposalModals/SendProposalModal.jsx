@@ -19,7 +19,7 @@ import moment from 'moment';
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../../popover/ToolTipContainer';
 import jwtDecode from 'jwt-decode';
-import useCurrentWorkspaceId from '../../../hooks/useCurrentWorkspace';
+import { getCurrentWorkspaceId } from '../../../../helpers';
 
 const initialState = {
 	subject: '',
@@ -43,6 +43,7 @@ const initialState = {
 	expiresAt: null,
 	linkExpiryText: 'No Expiry',
 	smartFileSettingsUpdate: false,
+	currentWorkspaceId: '',
 };
 
 const SendProposalModal = ({
@@ -74,10 +75,10 @@ const SendProposalModal = ({
 			updateSmartFileSlug,
 			updateSendSmartFileSettings,
 		},
+		profileInfo: { userWorkSpaceList },
 	} = useContext(Context);
 	const editor = useRef(null);
 	const inputRef = useRef(null);
-	const currentWorkspaceId = useCurrentWorkspaceId();
 	const [info, setInfo] = useState({ ...initialState, name: clientDetails?.name });
 	const [arrow, setArrow] = useState('Show');
 
@@ -157,25 +158,13 @@ const SendProposalModal = ({
 		setInfo((prev) => ({ ...prev, emailAccess: isEnabled }));
 	}, [isEnabled]);
 
-	// const handleCopy = useCallback(async () => {
-	// 	try {
-	// 		await navigator.clipboard.writeText(
-	// 			`https://${currentWorkspaceId}.ve.ai/portal/${workflowSlug}`,
-	// 		);
-	// 		modifiedCloseModal();
-	// 		openCopyModal();
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
+			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
+		}
+	}, [userWorkSpaceList]);
 
-	// 		if (workflowStatus === 'enquiry') {
-	// 			chnageWorkflowStats({
-	// 				fileSentStatusId: workflowId,
-	// 			});
-	// 			changelocalWorflowStatus('filesSent');
-	// 			changeEditStatus(false);
-	// 		}
-	// 	} catch (err) {
-	// 		console.log('Failed to copy text');
-	// 	}
-	// }, []);
 	useEffect(() => {
 		if (info?.smartFileSettingsUpdate) {
 			handleDebouceFunctionCall(updateSendSmartFileSettingFunc);
@@ -235,14 +224,14 @@ const SendProposalModal = ({
 			emailBody: emailBody || '',
 			slugHolder: slug,
 			emailAccess: isEnabled,
+			currentWorkspaceId: info?.currentWorkspaceId,
 		});
-	}, [smartFileEmailTemplateData, slug, isEnabled]);
+	}, [smartFileEmailTemplateData, slug, isEnabled, info?.currentWorkspaceId]);
 
 	const handleCopy = useCallback(async () => {
 		try {
-			const workspaceId = localStorage.getItem('workspaceId');
 			await navigator.clipboard.writeText(
-				`https://${currentWorkspaceId}.ve.ai/portal/${workflowSlug}`,
+				`https://${info?.currentWorkspaceId}.ve.ai/portal/${workflowSlug}`,
 			);
 			modifiedCloseModal();
 			openCopyModal();
@@ -257,7 +246,7 @@ const SendProposalModal = ({
 		} catch (err) {
 			console.log('Failed to copy text');
 		}
-	}, [workflowSlug, workflowStatus, modifiedCloseModal]);
+	}, [workflowSlug, workflowStatus, modifiedCloseModal, info?.currentWorkspaceId]);
 
 	const incrementDecrementExpiry = useCallback(
 		(type) => {
@@ -446,7 +435,7 @@ const SendProposalModal = ({
 					<div className="sendSmartFileHeader">
 						<div className="sendSmartFileHeaderWrapper">
 							<span className="linkDetailText">
-								{`https://${currentWorkspaceId}.ve.ai/portal/`}
+								{`https://${info?.currentWorkspaceId}.ve.ai/portal/`}
 								<input
 									type="text"
 									className="editableSlugInput"
