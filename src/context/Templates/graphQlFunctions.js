@@ -379,3 +379,32 @@ export const deleteWorkflowTemplatesMutation = gql`
 		}
 	}
 `;
+
+// Sheshant
+export const getTabItemCountQuery = gql`
+	query Query {
+		getNumberOfRequiredActions {
+			counterSign
+			emailApprovals
+			enquires
+			eventsInThreeDays
+		}
+	}
+`;
+
+// Sheshant
+export const getRequiredActionDetailsQuery = gql`
+	query Query($filters: RequiredActionsFiltersInput) {
+		listRequiredActions(filters: $filters) {
+			currentPage
+			data {
+				_id
+				action
+				clientName
+				createdAt
+				title
+			}
+			hasNextPage
+		}
+	}
+`;

@@ -29,6 +29,8 @@ import {
 	updateSmartFileSlugMutation,
 	deleteLeadMutation,
 	deleteWorkflowTemplatesMutation,
+	getTabItemCountQuery, // Sheshant
+	getRequiredActionDetailsQuery, // Sheshant
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -773,6 +775,51 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	// Sheshant
+	const getTabItemCount = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getTabItemCountQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.getNumberOfRequiredActions];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>getTabItemCount', error);
+		}
+	};
+
+	const getRequiredActionDetails = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getRequiredActionDetailsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.listRequiredActions];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>getRequiredActionDetails', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -807,5 +854,9 @@ export const TemplatesState = (props) => {
 		updateSmartFileSlug,
 		deleteLead,
 		deleteWorkflowTemplates,
+		// Sheshant
+		getTabItemCount,
+		// Sheshant
+		getRequiredActionDetails,
 	};
 };

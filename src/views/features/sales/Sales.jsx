@@ -11,24 +11,14 @@ import PublicLinkGeneratedModal from '../../components/modalsV2/workflowsModals/
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import InitialPageLoader from '../../components/loaders/PageLoader';
 import moment from 'moment';
-import Icon from '../../../assets/images/sales/icon.png';
-import axios from 'axios';
+// import Icon from '../../../assets/images/sales/icon.png';
 import HeaderImage from '../../../assets/images/sales/header-image.png';
 import CardDiv from '../../../assets/svg/sales/CardDiv';
 import { ReactComponent as Gradient } from '../../../assets/svg/sales/gradient.svg';
 
 const Sales = () => {
-	let {
-		templates: {
-			getMyWorkflows,
-			myWorkflows,
-			myMoreWorkflows,
-			salePageRefresh,
-			updateStateValues,
-			generatePublicLinkData,
-		},
-	} = useContext(Context);
-
+	const navigate = useNavigate();
+	const [activeTab, setActiveTab] = useState('All');
 	const tabItems = [
 		{ id: 'All', label: 'All' },
 		{ id: 'Enquires', label: 'Enquires' },
@@ -36,76 +26,17 @@ const Sales = () => {
 		{ id: 'EmailApprovals', label: 'Email Approvals' },
 		{ id: 'ExpiringIn3Days', label: 'Expiring in 3 days' },
 	];
-
-	const navigate = useNavigate();
-
-	const {
-		profileInfo: { userDetailsData, getUserDetails },
-	} = useContext(Context);
-
-	useEffect(() => {
-		if (!userDetailsData) {
-			getUserDetails();
-		}
-	}, []);
-
-	const getGreeting = () => {
-		const hour = new Date().getHours();
-		if (hour < 12) return 'Good morning';
-		if (hour < 16) return 'Good afternoon';
-		return 'Good evening';
-	};
+	const [tabItemCount, setTabItemCount] = useState({
+		All: 0,
+		Enquires: 0,
+		CounterSign: 0,
+		EmailApprovals: 0,
+		ExpiringIn3Days: 0,
+	});
 
 	const [currentTime, setCurrentTime] = useState(moment().format('HH:mm'));
 	const [currentDate, setCurrentDate] = useState(moment().format('dddd Do MMM, YYYY'));
 	const [location, setLocation] = useState('Fetching location...');
-	const [greeting, setGreeting] = useState(getGreeting());
-
-	useEffect(() => {
-		const timer = setInterval(() => {
-			setCurrentTime(moment().format('HH:mm'));
-			setCurrentDate(moment().format('dddd Do MMM, YYYY'));
-			setGreeting(getGreeting());
-		}, 60000); // Update every minute
-
-		return () => clearInterval(timer);
-	}, []);
-
-	useEffect(() => {
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(
-				(position) => {
-					const { latitude, longitude } = position.coords;
-					getLocationInfo(latitude, longitude);
-				},
-				(error) => {
-					console.error('Error getting location:', error);
-					setLocation('Unable to fetch location');
-				},
-			);
-		} else {
-			setLocation('Geolocation is not supported by this browser.');
-		}
-	}, []);
-
-	const getLocationInfo = async (latitude, longitude) => {
-		try {
-			const response = await axios.get(
-				`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
-			);
-			if (response.data && response.data.address) {
-				setLocation(
-					response.data.address['state'] + ', ' + response.data.address['country'],
-				);
-			} else {
-				setLocation('Location not found');
-			}
-		} catch (error) {
-			console.error('Error fetching location info:', error);
-			setLocation('Error fetching location info');
-		}
-	};
-
 	const [info, setInfo] = useState({
 		loading: true,
 		myWorkflowData: null,
@@ -119,11 +50,93 @@ const Sales = () => {
 		testingDrawerModal: false,
 		shownInitialLoader: localStorage.getItem('showInitialLoader'),
 	});
+	const [requiredActions, setRequiredActions] = useState([]);
+	const [hasMoreRequiredActions, setHasMoreRequiredActions] = useState(false);
+	const scrollRef = useRef(null);
 
-	//useEffects
-	useEffect(() => {
+	let {
+		templates: {
+			getMyWorkflows,
+			myWorkflows,
+			myMoreWorkflows,
+			salePageRefresh,
+			updateStateValues,
+			generatePublicLinkData,
+			getTabItemCount, // Sheshant
+			getRequiredActionDetails, // Sheshant
+		},
+	} = useContext(Context);
+
+	const {
+		profileInfo: { userDetailsData, getUserDetails },
+	} = useContext(Context);
+
+	const getGreeting = () => {
+		const hour = new Date().getHours();
+		if (hour < 12) return 'Good morning';
+		if (hour < 16) return 'Good afternoon';
+		return 'Good evening';
+	};
+	const [greeting, setGreeting] = useState(getGreeting());
+
+	useEffect(async () => {
 		getMyWorkflowTemplatesData(1);
+		const locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
+		setLocation(locationDetails?.countryRegion + ', ' + locationDetails?.country);
+
+		if (!userDetailsData) {
+			getUserDetails();
+		}
+
+		const timer = setInterval(() => {
+			setCurrentTime(moment().format('HH:mm'));
+			setCurrentDate(moment().format('dddd Do MMM, YYYY'));
+			setGreeting(getGreeting());
+		}, 60000);
+
+		// Sheshant
+		const response = await getTabItemCount();
+		if (response[0]) {
+			const { counterSign, emailApprovals, enquires, eventsInThreeDays } = response[1];
+			setTabItemCount((prevState) => ({
+				...prevState,
+				All: enquires + counterSign + emailApprovals + eventsInThreeDays,
+				Enquires: enquires,
+				CounterSign: counterSign,
+				EmailApprovals: emailApprovals,
+				ExpiringIn3Days: eventsInThreeDays,
+			}));
+		}
+		getRequiredActions('all', 1, 10);
+
+		return () => clearInterval(timer);
 	}, []);
+
+	useEffect(() => {
+		const handleScroll = () => {
+			if (scrollRef.current) {
+				const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+				if (scrollLeft + clientWidth >= scrollWidth - 20) {
+					if (hasMoreRequiredActions) {
+						getRequiredActions(
+							activeTab,
+							Math.ceil(requiredActions.length / 10) + 1,
+							10,
+						);
+					}
+				}
+			}
+		};
+		const scrollableDiv = scrollRef.current;
+		if (scrollableDiv) {
+			scrollableDiv.addEventListener('scroll', handleScroll);
+		}
+		return () => {
+			if (scrollableDiv) {
+				scrollableDiv.removeEventListener('scroll', handleScroll);
+			}
+		};
+	}, [activeTab, requiredActions.length, hasMoreRequiredActions]);
 
 	useEffect(() => {
 		if (salePageRefresh) {
@@ -150,8 +163,6 @@ const Sales = () => {
 			updateStateValues({ generatePublicLinkData: null });
 		}
 	}, [generatePublicLinkData]);
-
-	//function definations
 
 	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
 		const payload = {
@@ -258,10 +269,32 @@ const Sales = () => {
 		[info?.activeTemplateData],
 	);
 
-	const [activeTab, setActiveTab] = useState('All');
+	const getRequiredActions = useCallback(async (filter, page, limit) => {
+		const response = await getRequiredActionDetails({
+			filters: {
+				filter: tabMapping[filter] || 'all',
+				page: page,
+				limit: limit,
+			},
+		});
+		if (response[0]) {
+			setHasMoreRequiredActions(response[1]?.hasNextPage);
+			setRequiredActions((prevActions) => [...prevActions, ...response[1]?.data]);
+		}
+	}, []);
+
+	const tabMapping = {
+		All: 'all',
+		Enquires: 'enquiry',
+		CounterSign: 'counterSign',
+		EmailApprovals: 'emailApproval',
+		ExpiringIn3Days: 'eventsInThreeDays',
+	};
 
 	const handleTabClick = (tabId) => {
 		setActiveTab(tabId);
+		setRequiredActions([]);
+		getRequiredActions(tabId, 1, 10);
 	};
 
 	return (
@@ -290,342 +323,36 @@ const Sales = () => {
 								className={activeTab === item.id ? 'active' : ''}
 								onClick={() => handleTabClick(item.id)}
 							>
-								{item.label}
+								{item.label}{' '}
+								{tabItemCount?.[item.id] !== 0
+									? `(${tabItemCount?.[item.id]})`
+									: ''}
 							</li>
 						))}
 					</ul>
 				</div>
 				<div className="cards-container">
-					<div className="card-div">
-						<div className="card">
-							<CardDiv />
-							<div className="card-content">
-								<span className="card-title">Enquires</span>
-								<h1>Avinash G.</h1>
-								<p>Looking for professional photography services for wedding</p>
-							</div>
-							<div className="card-footer">
-								<div className="card-footer-left">
-									<img src={Icon} alt="Profile Pic" />
-									<p>Portrait Photography Workflow</p>
+					<div ref={scrollRef} className="card-div">
+						{requiredActions?.map((cardData, index) => (
+							<div className="card" key={index}>
+								<CardDiv />
+								<div className="card-content">
+									<span className="card-title">{cardData?.action}</span>
+									<h1>{cardData?.clientName}</h1>
 								</div>
-								<div className="stoke-line"></div>
-								<div className="card-footer-time">
-									<span>2 days ago</span>
-								</div>
-							</div>
-						</div>
-						<div className="card">
-							<CardDiv />
-							<div className="card-content">
-								<span className="card-title">Enquires</span>
-								<h1>Avinash G.</h1>
-								<p>Looking for professional photography services for wedding</p>
-							</div>
-							<div className="card-footer">
-								<div className="card-footer-left">
-									<img src={Icon} alt="Profile Pic" />
-									<p>Portrait Photography Workflow</p>
-								</div>
-								<div className="stoke-line"></div>
-								<div className="card-footer-time">
-									<span>2 days ago</span>
+								<div className="card-footer">
+									<div className="card-footer-left">
+										<p>{cardData?.title}</p>
+									</div>
+									<div className="card-footer-time">
+										<span>{moment.unix(cardData?.createdAt).fromNow()}</span>
+									</div>
 								</div>
 							</div>
-						</div>
-						<div className="card">
-							<CardDiv />
-							<div className="card-content">
-								<span className="card-title">Enquires</span>
-								<h1>Avinash G.</h1>
-								<p>Looking for professional photography services for wedding</p>
-							</div>
-							<div className="card-footer">
-								<div className="card-footer-left">
-									<img src={Icon} alt="Profile Pic" />
-									<p>Portrait Photography Workflow</p>
-								</div>
-								<div className="stoke-line"></div>
-								<div className="card-footer-time">
-									<span>2 days ago</span>
-								</div>
-							</div>
-						</div>
-						<div className="card">
-							<CardDiv />
-							<div className="card-content">
-								<span className="card-title">Email Approval</span>
-								<h1>Avinash G.</h1>
-								<ul>
-									<li>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="8"
-											height="9"
-											viewBox="0 0 8 9"
-											fill="none"
-										>
-											<path
-												d="M8 4.5C8 6.70914 6.20914 8.5 4 8.5C1.79086 8.5 0 6.70914 0 4.5C0 2.29086 1.79086 0.5 4 0.5C6.20914 0.5 8 2.29086 8 4.5ZM1.42107 4.5C1.42107 5.92431 2.57569 7.07893 4 7.07893C5.42431 7.07893 6.57893 5.92431 6.57893 4.5C6.57893 3.07569 5.42431 1.92107 4 1.92107C2.57569 1.92107 1.42107 3.07569 1.42107 4.5Z"
-												fill="#E4E5E6"
-												fill-opacity="0.36"
-											/>
-										</svg>
-										<span>Review</span>
-									</li>
-									<li>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="8"
-											height="9"
-											viewBox="0 0 8 9"
-											fill="none"
-										>
-											<path
-												d="M8 4.5C8 6.70914 6.20914 8.5 4 8.5C1.79086 8.5 0 6.70914 0 4.5C0 2.29086 1.79086 0.5 4 0.5C6.20914 0.5 8 2.29086 8 4.5ZM1.42107 4.5C1.42107 5.92431 2.57569 7.07893 4 7.07893C5.42431 7.07893 6.57893 5.92431 6.57893 4.5C6.57893 3.07569 5.42431 1.92107 4 1.92107C2.57569 1.92107 1.42107 3.07569 1.42107 4.5Z"
-												fill="#E4E5E6"
-												fill-opacity="0.36"
-											/>
-										</svg>
-										<span>Approve</span>
-									</li>
-									<li>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="8"
-											height="9"
-											viewBox="0 0 8 9"
-											fill="none"
-										>
-											<path
-												d="M8 4.5C8 6.70914 6.20914 8.5 4 8.5C1.79086 8.5 0 6.70914 0 4.5C0 2.29086 1.79086 0.5 4 0.5C6.20914 0.5 8 2.29086 8 4.5ZM1.42107 4.5C1.42107 5.92431 2.57569 7.07893 4 7.07893C5.42431 7.07893 6.57893 5.92431 6.57893 4.5C6.57893 3.07569 5.42431 1.92107 4 1.92107C2.57569 1.92107 1.42107 3.07569 1.42107 4.5Z"
-												fill="#E4E5E6"
-												fill-opacity="0.36"
-											/>
-										</svg>
-										<span>Confirmation</span>
-									</li>
-								</ul>
-							</div>
-							<div className="card-footer">
-								<div className="card-footer-left">
-									<img src={Icon} alt="Profile Pic" />
-									<p>Portrait Photography Workflow</p>
-								</div>
-								<div className="stoke-line"></div>
-								<div className="card-footer-time">
-									<span>2 days ago</span>
-								</div>
-							</div>
-						</div>
-						<div className="card">
-							<CardDiv />
-							<div className="card-content">
-								<span className="card-title">Counter Sign</span>
-								<h1>Avinash G.</h1>
-								<p>Need to confirm your agreement </p>
-								<div className="counter-sign-icon">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="12"
-										height="12"
-										viewBox="0 0 12 12"
-										fill="none"
-									>
-										<path
-											d="M6 2L5.295 2.705L8.085 5.5H2V6.5H8.085L5.295 9.295L6 10L10 6L6 2Z"
-											fill="#E4E5E6"
-											fill-opacity="0.36"
-										/>
-									</svg>
-									<span>Counter sign needed!</span>
-								</div>
-							</div>
-							<div className="card-footer">
-								<div className="card-footer-left">
-									<img src={Icon} alt="Profile Pic" />
-									<p>Portrait Photography Workflow</p>
-								</div>
-								<div className="stoke-line"></div>
-								<div className="card-footer-time">
-									<span>2 days ago</span>
-								</div>
-							</div>
-						</div>
-						<div className="card">
-							<CardDiv />
-							<div className="card-content">
-								<span className="card-title">Enquires</span>
-								<h1>Avinash G.</h1>
-								<p>Looking for professional photography services for wedding</p>
-							</div>
-							<div className="card-footer">
-								<div className="card-footer-left">
-									<img src={Icon} alt="Profile Pic" />
-									<p>Portrait Photography Workflow</p>
-								</div>
-								<div className="stoke-line"></div>
-								<div className="card-footer-time">
-									<span>2 days ago</span>
-								</div>
-							</div>
-						</div>
-						<div className="card">
-							<CardDiv />
-							<div className="card-content">
-								<span className="card-title">Enquires</span>
-								<h1>Avinash G.</h1>
-								<p>Looking for professional photography services for wedding</p>
-							</div>
-							<div className="card-footer">
-								<div className="card-footer-left">
-									<img src={Icon} alt="Profile Pic" />
-									<p>Portrait Photography Workflow</p>
-								</div>
-								<div className="stoke-line"></div>
-								<div className="card-footer-time">
-									<span>2 days ago</span>
-								</div>
-							</div>
-						</div>
-						<div className="card">
-							<CardDiv />
-							<div className="card-content">
-								<span className="card-title">Enquires</span>
-								<h1>Avinash G.</h1>
-								<p>Looking for professional photography services for wedding</p>
-							</div>
-							<div className="card-footer">
-								<div className="card-footer-left">
-									<img src={Icon} alt="Profile Pic" />
-									<p>Portrait Photography Workflow</p>
-								</div>
-								<div className="stoke-line"></div>
-								<div className="card-footer-time">
-									<span>2 days ago</span>
-								</div>
-							</div>
-						</div>
-						<div className="card">
-							<CardDiv />
-							<div className="card-content">
-								<span className="card-title">Email Approval</span>
-								<h1>Avinash G.</h1>
-								<ul>
-									<li>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="8"
-											height="9"
-											viewBox="0 0 8 9"
-											fill="none"
-										>
-											<path
-												d="M8 4.5C8 6.70914 6.20914 8.5 4 8.5C1.79086 8.5 0 6.70914 0 4.5C0 2.29086 1.79086 0.5 4 0.5C6.20914 0.5 8 2.29086 8 4.5ZM1.42107 4.5C1.42107 5.92431 2.57569 7.07893 4 7.07893C5.42431 7.07893 6.57893 5.92431 6.57893 4.5C6.57893 3.07569 5.42431 1.92107 4 1.92107C2.57569 1.92107 1.42107 3.07569 1.42107 4.5Z"
-												fill="#E4E5E6"
-												fill-opacity="0.36"
-											/>
-										</svg>
-										<span>Review</span>
-									</li>
-									<li>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="8"
-											height="9"
-											viewBox="0 0 8 9"
-											fill="none"
-										>
-											<path
-												d="M8 4.5C8 6.70914 6.20914 8.5 4 8.5C1.79086 8.5 0 6.70914 0 4.5C0 2.29086 1.79086 0.5 4 0.5C6.20914 0.5 8 2.29086 8 4.5ZM1.42107 4.5C1.42107 5.92431 2.57569 7.07893 4 7.07893C5.42431 7.07893 6.57893 5.92431 6.57893 4.5C6.57893 3.07569 5.42431 1.92107 4 1.92107C2.57569 1.92107 1.42107 3.07569 1.42107 4.5Z"
-												fill="#E4E5E6"
-												fill-opacity="0.36"
-											/>
-										</svg>
-										<span>Approve</span>
-									</li>
-									<li>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="8"
-											height="9"
-											viewBox="0 0 8 9"
-											fill="none"
-										>
-											<path
-												d="M8 4.5C8 6.70914 6.20914 8.5 4 8.5C1.79086 8.5 0 6.70914 0 4.5C0 2.29086 1.79086 0.5 4 0.5C6.20914 0.5 8 2.29086 8 4.5ZM1.42107 4.5C1.42107 5.92431 2.57569 7.07893 4 7.07893C5.42431 7.07893 6.57893 5.92431 6.57893 4.5C6.57893 3.07569 5.42431 1.92107 4 1.92107C2.57569 1.92107 1.42107 3.07569 1.42107 4.5Z"
-												fill="#E4E5E6"
-												fill-opacity="0.36"
-											/>
-										</svg>
-										<span>Confirmation</span>
-									</li>
-								</ul>
-							</div>
-							<div className="card-footer">
-								<div className="card-footer-left">
-									<img src={Icon} alt="Profile Pic" />
-									<p>Portrait Photography Workflow</p>
-								</div>
-								<div className="stoke-line"></div>
-								<div className="card-footer-time">
-									<span>2 days ago</span>
-								</div>
-							</div>
-						</div>
-						<div className="card">
-							<CardDiv />
-							<div className="card-content">
-								<span className="card-title">Counter Sign</span>
-								<h1>Avinash G.</h1>
-								<p>Need to confirm your agreement </p>
-								<div className="counter-sign-icon">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="12"
-										height="12"
-										viewBox="0 0 12 12"
-										fill="none"
-									>
-										<path
-											d="M6 2L5.295 2.705L8.085 5.5H2V6.5H8.085L5.295 9.295L6 10L10 6L6 2Z"
-											fill="#E4E5E6"
-											fill-opacity="0.36"
-										/>
-									</svg>
-									<span>Counter sign needed!</span>
-								</div>
-							</div>
-							<div className="card-footer">
-								<div className="card-footer-left">
-									<img src={Icon} alt="Profile Pic" />
-									<p>Portrait Photography Workflow</p>
-								</div>
-								<div className="stoke-line"></div>
-								<div className="card-footer-time">
-									<span>2 days ago</span>
-								</div>
-							</div>
-						</div>
+						))}
+
 						<div className="card-div-end-black-shadow"></div>
 					</div>
-
-					{/* <div className="card">
-						<div className="card-content">
-							<span className="card-title">Enquires</span>
-							<h1>Avinash G.</h1>
-							<p>Looking for professional photography services for wedding</p>
-						</div>
-						<div className="card-footer">
-							<div className="card-footer-left">
-								<img src={Icon} alt="Profile Pic" />
-								<p>Portrait Photography Workflow Workflow</p>
-							</div>
-							<div className="card-footer-time">
-								<span>2 days ago</span>
-							</div>
-						</div>
-					</div> */}
 				</div>
 			</div>
 			<InfiniteScroll

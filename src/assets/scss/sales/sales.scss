@@ -334,7 +334,7 @@
 			display: flex;
 			gap: 30px;
 			width: 100%;
-			overflow-x: scroll;
+			overflow-x: auto;
 			padding: 12px;
 
 			.card-div-end-black-shadow {
@@ -354,6 +354,7 @@
 				background: #171717;
 				padding: 16px;
 				min-width: 200px;
+				max-width: 200px;
 				min-height: 284px;
 				text-align: left;
 				display: flex;
