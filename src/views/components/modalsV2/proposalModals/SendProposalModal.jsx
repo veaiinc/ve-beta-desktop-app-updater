@@ -42,6 +42,7 @@ const initialState = {
 	aiAssistant: false,
 	expiresAt: null,
 	linkExpiryText: 'No Expiry',
+	smartFileSettingsUpdate: false,
 };
 
 const SendProposalModal = ({
@@ -71,6 +72,7 @@ const SendProposalModal = ({
 			smartFileEmailTemplateData,
 			checkSmartFileSlugExists,
 			updateSmartFileSlug,
+			updateSendSmartFileSettings,
 		},
 	} = useContext(Context);
 	const editor = useRef(null);
@@ -155,25 +157,30 @@ const SendProposalModal = ({
 		setInfo((prev) => ({ ...prev, emailAccess: isEnabled }));
 	}, [isEnabled]);
 
-	const handleCopy = useCallback(async () => {
-		try {
-			await navigator.clipboard.writeText(
-				`https://${currentWorkspaceId}.ve.ai/portal/${workflowSlug}`,
-			);
-			modifiedCloseModal();
-			openCopyModal();
+	// const handleCopy = useCallback(async () => {
+	// 	try {
+	// 		await navigator.clipboard.writeText(
+	// 			`https://${currentWorkspaceId}.ve.ai/portal/${workflowSlug}`,
+	// 		);
+	// 		modifiedCloseModal();
+	// 		openCopyModal();
 
-			if (workflowStatus === 'enquiry') {
-				chnageWorkflowStats({
-					fileSentStatusId: workflowId,
-				});
-				changelocalWorflowStatus('filesSent');
-				changeEditStatus(false);
-			}
-		} catch (err) {
-			console.log('Failed to copy text');
+	// 		if (workflowStatus === 'enquiry') {
+	// 			chnageWorkflowStats({
+	// 				fileSentStatusId: workflowId,
+	// 			});
+	// 			changelocalWorflowStatus('filesSent');
+	// 			changeEditStatus(false);
+	// 		}
+	// 	} catch (err) {
+	// 		console.log('Failed to copy text');
+	// 	}
+	// }, []);
+	useEffect(() => {
+		if (info?.smartFileSettingsUpdate) {
+			handleDebouceFunctionCall(updateSendSmartFileSettingFunc);
 		}
-	}, [workflowSlug, workflowStatus]);
+	}, [info?.emailAccess, info?.expiryInDays, info?.smartFileSettingsUpdate]);
 
 	const handleSendProposalViaEmail = useCallback(async () => {
 		modifiedCloseModal();
@@ -198,9 +205,7 @@ const SendProposalModal = ({
 
 		sendSmartFile(payload);
 		if (payload?.expiresAt) {
-			updateSendSmartFileExpiryData(payload.expiresAt);
 		}
-		updateSmartFileEmailAuth(info?.emailAccess);
 
 		if (workflowStatus === 'enquiry') {
 			chnageWorkflowStats({
@@ -229,8 +234,30 @@ const SendProposalModal = ({
 			subject: smartFileEmailTemplateData?.subject || '',
 			emailBody: emailBody || '',
 			slugHolder: slug,
+			emailAccess: isEnabled,
 		});
-	}, [smartFileEmailTemplateData, slug]);
+	}, [smartFileEmailTemplateData, slug, isEnabled]);
+
+	const handleCopy = useCallback(async () => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			await navigator.clipboard.writeText(
+				`https://${currentWorkspaceId}.ve.ai/portal/${workflowSlug}`,
+			);
+			modifiedCloseModal();
+			openCopyModal();
+
+			if (workflowStatus === 'enquiry') {
+				chnageWorkflowStats({
+					fileSentStatusId: workflowId,
+				});
+				changelocalWorflowStatus('filesSent');
+				changeEditStatus(false);
+			}
+		} catch (err) {
+			console.log('Failed to copy text');
+		}
+	}, [workflowSlug, workflowStatus, modifiedCloseModal]);
 
 	const incrementDecrementExpiry = useCallback(
 		(type) => {
@@ -244,7 +271,12 @@ const SendProposalModal = ({
 			let linkExpiryText = `Link Expires on ${moment()
 				.add(newValue, 'days')
 				?.format('DD MMM YYYY')}`;
-			setInfo((prev) => ({ ...prev, expiryInDays: newValue, linkExpiryText }));
+			setInfo((prev) => ({
+				...prev,
+				expiryInDays: newValue,
+				linkExpiryText,
+				smartFileSettingsUpdate: true,
+			}));
 		},
 		[info?.expiryInDays],
 	);
@@ -257,7 +289,12 @@ const SendProposalModal = ({
 			let linkExpiryText = `Link Expires on ${moment()
 				.add(val, 'days')
 				?.format('DD MMM YYYY')}`;
-			setInfo((prev) => ({ ...prev, expiryInDays: val, linkExpiryText }));
+			setInfo((prev) => ({
+				...prev,
+				expiryInDays: val,
+				linkExpiryText,
+				smartFileSettingsUpdate: true,
+			}));
 		},
 		[info?.expiryInDays],
 	);
@@ -265,13 +302,18 @@ const SendProposalModal = ({
 	// Handle change for checkboxes
 	const handleCheckboxChange = useCallback((e) => {
 		const { name, checked } = e.target;
+		let updateSettingFlag = name === 'emailAccess' ? { smartFileSettingsUpdate: true } : {};
 
 		setInfo((prevState) => ({
 			...prevState,
 			[name]: checked,
+			...updateSettingFlag,
 		}));
 		if (name === 'emailAccess' && checked === true) {
-			setInfo((prev) => ({ ...prev, emailIdentification: true }));
+			setInfo((prev) => ({
+				...prev,
+				emailIdentification: true,
+			}));
 		}
 	}, []);
 
@@ -288,10 +330,10 @@ const SendProposalModal = ({
 	);
 
 	const handleDebouceFunctionCall = useCallback(
-		(func, valueWithoutSpaces) => {
+		(func, args) => {
 			clearTimeout(info?.timeout);
 			const timeout = setTimeout(() => {
-				func(valueWithoutSpaces);
+				func(args);
 				setInfo((prev) => ({
 					...prev,
 					loading: true,
@@ -367,6 +409,23 @@ const SendProposalModal = ({
 		},
 		[clientDetails, pin, businessName],
 	);
+
+	const updateSendSmartFileSettingFunc = useCallback(async () => {
+		const payload = {
+			updateWorkflowId: workflowId,
+			updateWorkflowInput: {
+				isPublic: !info?.emailAccess,
+			},
+		};
+		if (info?.expiryInDays && info?.expiryInDays > 0) {
+			payload.updateWorkflowInput.expiresAt = moment().add(info?.expiryInDays, 'days').unix();
+		}
+		const response = await updateSendSmartFileSettings(payload);
+		if (response?.[0]) {
+			updateSendSmartFileExpiryData(payload.expiresAt);
+			updateSmartFileEmailAuth(info?.emailAccess);
+		}
+	}, [workflowId, info?.emailAccess, info?.expiryInDays]);
 
 	return (
 		<ReactModal

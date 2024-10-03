@@ -379,3 +379,9 @@ export const deleteWorkflowTemplatesMutation = gql`
 		}
 	}
 `;
+
+export const updateSendSmartFileSettingsMutation = gql`
+	mutation UpdateWorkflow($updateWorkflowId: ID!, $updateWorkflowInput: UpdateWorkflowInput) {
+		updateWorkflow(id: $updateWorkflowId, updateWorkflowInput: $updateWorkflowInput)
+	}
+`;
