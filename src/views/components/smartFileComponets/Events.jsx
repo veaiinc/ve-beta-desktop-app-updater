@@ -102,7 +102,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 
 			if (type === 'addRole') {
 				let roleArray = [...(valueTobeChanged?.roles || [])];
-				roleArray?.push({ type: '', categories: [{ category: '', quantity: 0 }] });
+				roleArray?.push({ type: '', categories: [{ category: 'candid', quantity: 0 }] });
 				valueTobeChanged = { ...valueTobeChanged, roles: roleArray };
 			}
 			if (type === 'removeRole') {
@@ -220,7 +220,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 			</div>
 
 			{/* //use map here */}
-			{console.log('hello therer==>', ele)}
+
 			{ele?.values?.map((item, ind) => (
 				<div className="eventsCard" key={ind}>
 					{editable ? (

@@ -104,7 +104,14 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 				<>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 						<span className="servicesHeader">
-							Services - {serviceStyleMapper?.[ele?.style?.services_selection || '2']}
+							Services -{' '}
+							{
+								serviceStyleMapper?.[
+									ele?.style?.services_selection !== undefined
+										? ele?.style?.services_selection
+										: '2'
+								]
+							}
 						</span>
 						<span className="svgHolder">
 							<Tooltip
@@ -113,12 +120,16 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 									<ToolTipContainer
 										title={`Services - ${
 											serviceStyleMapper?.[
-												ele?.style?.services_selection || '2'
+												ele?.style?.services_selection !== undefined
+													? ele?.style?.services_selection
+													: '2'
 											]
 										}`}
 										content={
 											sericesContentMapper?.[
-												ele?.style?.services_selection || '2'
+												ele?.style?.services_selection !== undefined
+													? ele?.style?.services_selection
+													: '2'
 											]
 											// 'This Table shows view only services that are mentioned in the smart file, Lead will only view this service details'
 										}
