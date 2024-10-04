@@ -55,15 +55,15 @@ const Sales = () => {
 
 	let {
 		templates: {
-			requiredActions,
-			getRequiredActions,
+			requiredActions, // Sheshant
+			getRequiredActions, // Sheshant
+			getTabItemCount, // Sheshant
 			getMyWorkflows,
 			myWorkflows,
 			myMoreWorkflows,
 			salePageRefresh,
 			updateStateValues,
 			generatePublicLinkData,
-			getTabItemCount, // Sheshant
 		},
 		profileInfo: { userDetailsData },
 	} = useContext(Context);
@@ -77,28 +77,22 @@ const Sales = () => {
 			if (scrollRef.current) {
 				const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
 				if (scrollLeft + clientWidth >= scrollWidth - 20) {
-					if (requiredActions.hasMore) {
+					if (requiredActions?.hasMore) {
 						getRequiredActions({
 							filters: {
 								filter: activeTab,
 								page: Math.ceil(requiredActions?.actions?.length / 10) + 1,
 								limit: 10,
 							},
+							resetRequiredActions: false,
 						});
 					}
 				}
 			}
 		};
-		const scrollableDiv = scrollRef.current;
-		if (scrollableDiv) {
-			scrollableDiv.addEventListener('scroll', handleScroll);
-		}
-		return () => {
-			if (scrollableDiv) {
-				scrollableDiv.removeEventListener('scroll', handleScroll);
-			}
-		};
-	}, [activeTab, requiredActions.length]);
+		scrollRef.current?.addEventListener('scroll', handleScroll);
+		return () => scrollRef.current?.removeEventListener('scroll', handleScroll);
+	}, [requiredActions]);
 
 	useEffect(() => {
 		if (salePageRefresh) {
@@ -276,8 +270,8 @@ const Sales = () => {
 				page: 1,
 				limit: 10,
 			},
+			resetRequiredActions: true,
 		});
-		// setRequiredActions([]);
 	}, []);
 
 	return (

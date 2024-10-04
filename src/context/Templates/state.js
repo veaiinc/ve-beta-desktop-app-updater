@@ -803,9 +803,13 @@ export const TemplatesState = (props) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
+
+			// Create a new object without the resetRequiredActions key
+			const { resetRequiredActions, ...queryPayload } = payload;
+
 			const response = await service.query(
 				getRequiredActionDetailsQuery,
-				payload,
+				queryPayload,
 				workspaceId,
 				usertoken,
 				'workflows_Api',
@@ -813,15 +817,12 @@ export const TemplatesState = (props) => {
 
 			if (response?.[0]) {
 				const selectedvariable = 'requiredActions';
-				console.log(
-					response?.[1]?.data?.listRequiredActions?.data,
-					response?.[1]?.data?.listRequiredActions?.hasNextPage,
-				);
 				dispatch({
 					type: Actions.GET_REQUIRED_ACTIONS_SUCCESS,
 					payload: {
 						actions: response?.[1]?.data?.listRequiredActions?.data,
 						hasMore: response?.[1]?.data?.listRequiredActions?.hasNextPage,
+						resetRequiredActions: payload?.resetRequiredActions,
 					},
 					selectedvariable,
 				});

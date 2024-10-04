@@ -44,7 +44,9 @@ const actionHandlers = {
 	GET_REQUIRED_ACTIONS_SUCCESS: (state, action) => ({
 		...state,
 		requiredActions: {
-			actions: state.requiredActions.actions.concat(action.payload.actions),
+			actions: action.payload.resetRequiredActions
+				? action.payload.actions
+				: state.requiredActions.actions.concat(action.payload.actions),
 			hasMore: action.payload.hasMore,
 		},
 	}),
