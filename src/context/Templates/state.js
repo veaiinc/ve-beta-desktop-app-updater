@@ -53,6 +53,7 @@ export const intialState = {
 	contractSignedLocalState: null,
 	specificTemplatesInfo: null,
 	smartFileEmailTemplateData: null,
+	requiredActions: { actions: [], hasMore: false },
 };
 
 export const TemplatesState = (props) => {
@@ -798,7 +799,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getRequiredActionDetails = async (payload) => {
+	const getRequiredActions = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -811,7 +812,19 @@ export const TemplatesState = (props) => {
 			);
 
 			if (response?.[0]) {
-				return [true, response?.[1]?.data?.listRequiredActions];
+				const selectedvariable = 'requiredActions';
+				console.log(
+					response?.[1]?.data?.listRequiredActions?.data,
+					response?.[1]?.data?.listRequiredActions?.hasNextPage,
+				);
+				dispatch({
+					type: Actions.GET_REQUIRED_ACTIONS_SUCCESS,
+					payload: {
+						actions: response?.[1]?.data?.listRequiredActions?.data,
+						hasMore: response?.[1]?.data?.listRequiredActions?.hasNextPage,
+					},
+					selectedvariable,
+				});
 			} else {
 				return [false];
 			}
@@ -857,6 +870,6 @@ export const TemplatesState = (props) => {
 		// Sheshant
 		getTabItemCount,
 		// Sheshant
-		getRequiredActionDetails,
+		getRequiredActions,
 	};
 };

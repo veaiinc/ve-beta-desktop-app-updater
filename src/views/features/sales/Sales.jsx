@@ -15,17 +15,20 @@ import moment from 'moment';
 import HeaderImage from '../../../assets/images/sales/header-image.png';
 import CardDiv from '../../../assets/svg/sales/CardDiv';
 import { ReactComponent as Gradient } from '../../../assets/svg/sales/gradient.svg';
+import DateTimeLocation from './DateTimeLocation';
+
+const tabItems = [
+	{ id: 'all', label: 'All' },
+	{ id: 'enquires', label: 'Enquires' },
+	{ id: 'counterSign', label: 'Counter Sign' },
+	{ id: 'emailApprovals', label: 'Email Approvals' },
+	{ id: 'eventsInThreeDays', label: 'Expiring in 3 days' },
+];
 
 const Sales = () => {
 	const navigate = useNavigate();
-	const [activeTab, setActiveTab] = useState('All');
-	const tabItems = [
-		{ id: 'All', label: 'All' },
-		{ id: 'Enquires', label: 'Enquires' },
-		{ id: 'CounterSign', label: 'Counter Sign' },
-		{ id: 'EmailApprovals', label: 'Email Approvals' },
-		{ id: 'ExpiringIn3Days', label: 'Expiring in 3 days' },
-	];
+	const [activeTab, setActiveTab] = useState('all');
+
 	const [tabItemCount, setTabItemCount] = useState({
 		All: 0,
 		Enquires: 0,
@@ -34,9 +37,6 @@ const Sales = () => {
 		ExpiringIn3Days: 0,
 	});
 
-	const [currentTime, setCurrentTime] = useState(moment().format('HH:mm'));
-	const [currentDate, setCurrentDate] = useState(moment().format('dddd Do MMM, YYYY'));
-	const [location, setLocation] = useState('Fetching location...');
 	const [info, setInfo] = useState({
 		loading: true,
 		myWorkflowData: null,
@@ -50,12 +50,13 @@ const Sales = () => {
 		testingDrawerModal: false,
 		shownInitialLoader: localStorage.getItem('showInitialLoader'),
 	});
-	const [requiredActions, setRequiredActions] = useState([]);
-	const [hasMoreRequiredActions, setHasMoreRequiredActions] = useState(false);
+	const [greeting, setGreeting] = useState('');
 	const scrollRef = useRef(null);
 
 	let {
 		templates: {
+			requiredActions,
+			getRequiredActions,
 			getMyWorkflows,
 			myWorkflows,
 			myMoreWorkflows,
@@ -63,53 +64,12 @@ const Sales = () => {
 			updateStateValues,
 			generatePublicLinkData,
 			getTabItemCount, // Sheshant
-			getRequiredActionDetails, // Sheshant
 		},
+		profileInfo: { userDetailsData },
 	} = useContext(Context);
 
-	const {
-		profileInfo: { userDetailsData, getUserDetails },
-	} = useContext(Context);
-
-	const getGreeting = () => {
-		const hour = new Date().getHours();
-		if (hour < 12) return 'Good morning';
-		if (hour < 16) return 'Good afternoon';
-		return 'Good evening';
-	};
-	const [greeting, setGreeting] = useState(getGreeting());
-
-	useEffect(async () => {
-		getMyWorkflowTemplatesData(1);
-		const locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
-		setLocation(locationDetails?.countryRegion + ', ' + locationDetails?.country);
-
-		if (!userDetailsData) {
-			getUserDetails();
-		}
-
-		const timer = setInterval(() => {
-			setCurrentTime(moment().format('HH:mm'));
-			setCurrentDate(moment().format('dddd Do MMM, YYYY'));
-			setGreeting(getGreeting());
-		}, 60000);
-
-		// Sheshant
-		const response = await getTabItemCount();
-		if (response[0]) {
-			const { counterSign, emailApprovals, enquires, eventsInThreeDays } = response[1];
-			setTabItemCount((prevState) => ({
-				...prevState,
-				All: enquires + counterSign + emailApprovals + eventsInThreeDays,
-				Enquires: enquires,
-				CounterSign: counterSign,
-				EmailApprovals: emailApprovals,
-				ExpiringIn3Days: eventsInThreeDays,
-			}));
-		}
-		getRequiredActions('all', 1, 10);
-
-		return () => clearInterval(timer);
+	useEffect(() => {
+		fetchData();
 	}, []);
 
 	useEffect(() => {
@@ -117,12 +77,14 @@ const Sales = () => {
 			if (scrollRef.current) {
 				const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
 				if (scrollLeft + clientWidth >= scrollWidth - 20) {
-					if (hasMoreRequiredActions) {
-						getRequiredActions(
-							activeTab,
-							Math.ceil(requiredActions.length / 10) + 1,
-							10,
-						);
+					if (requiredActions.hasMore) {
+						getRequiredActions({
+							filters: {
+								filter: activeTab,
+								page: Math.ceil(requiredActions?.actions?.length / 10) + 1,
+								limit: 10,
+							},
+						});
 					}
 				}
 			}
@@ -136,7 +98,7 @@ const Sales = () => {
 				scrollableDiv.removeEventListener('scroll', handleScroll);
 			}
 		};
-	}, [activeTab, requiredActions.length, hasMoreRequiredActions]);
+	}, [activeTab, requiredActions.length]);
 
 	useEffect(() => {
 		if (salePageRefresh) {
@@ -163,6 +125,29 @@ const Sales = () => {
 			updateStateValues({ generatePublicLinkData: null });
 		}
 	}, [generatePublicLinkData]);
+
+	const fetchData = async () => {
+		getRequiredActions({
+			filters: {
+				filter: 'all',
+				page: 1,
+				limit: 10,
+			},
+		});
+		getMyWorkflowTemplatesData(1);
+		const response = await getTabItemCount();
+		if (response[0]) {
+			const { counterSign, emailApprovals, enquires, eventsInThreeDays } = response[1];
+			setTabItemCount((prevState) => ({
+				...prevState,
+				all: enquires + counterSign + emailApprovals + eventsInThreeDays,
+				enquires,
+				counterSign,
+				emailApprovals,
+				eventsInThreeDays,
+			}));
+		}
+	};
 
 	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
 		const payload = {
@@ -269,33 +254,31 @@ const Sales = () => {
 		[info?.activeTemplateData],
 	);
 
-	const getRequiredActions = useCallback(async (filter, page, limit) => {
-		const response = await getRequiredActionDetails({
+	// const getRequiredActions = useCallback(async (filter, page, limit) => {
+	// 	const response = await getRequiredActionDetails({
+	// 		filters: {
+	// 			filter: filter || 'all',
+	// 			page: page,
+	// 			limit: limit,
+	// 		},
+	// 	});
+	// 	if (response[0]) {
+	// 		setHasMoreRequiredActions(response[1]?.hasNextPage);
+	// 		setRequiredActions((prevActions) => [...prevActions, ...response[1]?.data]);
+	// 	}
+	// }, []);
+
+	const handleTabClick = useCallback((tabId) => {
+		setActiveTab(tabId);
+		getRequiredActions({
 			filters: {
-				filter: tabMapping[filter] || 'all',
-				page: page,
-				limit: limit,
+				filter: tabId,
+				page: 1,
+				limit: 10,
 			},
 		});
-		if (response[0]) {
-			setHasMoreRequiredActions(response[1]?.hasNextPage);
-			setRequiredActions((prevActions) => [...prevActions, ...response[1]?.data]);
-		}
+		// setRequiredActions([]);
 	}, []);
-
-	const tabMapping = {
-		All: 'all',
-		Enquires: 'enquiry',
-		CounterSign: 'counterSign',
-		EmailApprovals: 'emailApproval',
-		ExpiringIn3Days: 'eventsInThreeDays',
-	};
-
-	const handleTabClick = (tabId) => {
-		setActiveTab(tabId);
-		setRequiredActions([]);
-		getRequiredActions(tabId, 1, 10);
-	};
 
 	return (
 		<>
@@ -310,9 +293,7 @@ const Sales = () => {
 						<h1>{greeting} 😃</h1>
 					</div>
 					<div className="right-content">
-						<p>{currentDate}</p>
-						<h1>{currentTime}</h1>
-						<p>{location}</p>
+						<DateTimeLocation setGreeting={setGreeting} />
 					</div>
 				</div>
 				<div className="sales-page-filter">
@@ -333,19 +314,19 @@ const Sales = () => {
 				</div>
 				<div className="cards-container">
 					<div ref={scrollRef} className="card-div">
-						{requiredActions?.map((cardData, index) => (
+						{requiredActions?.actions?.map((actionItem, index) => (
 							<div className="card" key={index}>
 								<CardDiv />
 								<div className="card-content">
-									<span className="card-title">{cardData?.action}</span>
-									<h1>{cardData?.clientName}</h1>
+									<span className="card-title">{actionItem?.action}</span>
+									<h1>{actionItem?.clientName}</h1>
 								</div>
 								<div className="card-footer">
 									<div className="card-footer-left">
-										<p>{cardData?.title}</p>
+										<p>{actionItem?.title}</p>
 									</div>
 									<div className="card-footer-time">
-										<span>{moment.unix(cardData?.createdAt).fromNow()}</span>
+										<span>{moment.unix(actionItem?.createdAt).fromNow()}</span>
 									</div>
 								</div>
 							</div>

@@ -40,6 +40,15 @@ const actionHandlers = {
 		...state,
 		smartFileEmailTemplateData: action.payload,
 	}),
+	// Sheshant
+	GET_REQUIRED_ACTIONS_SUCCESS: (state, action) => ({
+		...state,
+		requiredActions: {
+			actions: state.requiredActions.actions.concat(action.payload.actions),
+			hasMore: action.payload.hasMore,
+		},
+	}),
+
 	RESET_STATE: () => intialState,
 };
 
