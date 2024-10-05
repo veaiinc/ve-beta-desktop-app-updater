@@ -7,7 +7,7 @@ import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/que
 
 const serviceStyleMapper = {
 	0: 'Select One',
-	1: 'Select Multiply',
+	1: 'Select Multiple',
 	2: 'View Only',
 };
 
