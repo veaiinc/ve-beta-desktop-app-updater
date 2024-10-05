@@ -644,7 +644,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 				<AcceptedStageSmartFileBlocks
 					smartFileStatus={info?.smartFileStatus}
 					clientDetails={workflowData}
-					propsalData={info?.servicesTableData?.['proposal']}
+					propsalData={info?.proposal}
 					contractData={info?.contract}
 					userSigned={userSigned}
 				/>
