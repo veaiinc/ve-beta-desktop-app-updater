@@ -55,6 +55,7 @@ const SmartFile = () => {
 		isEmailAuth: true,
 		businessName: '',
 		currentWorkspaceId: localStorage.getItem('workspaceId'),
+		noContractTemplate: false,
 	});
 
 	//useEffect
@@ -94,8 +95,13 @@ const SmartFile = () => {
 
 	useEffect(() => {
 		if (smartFileInfo) {
+			let noContractTemplate = false;
 			const status = smartFileInfo?.status;
 			const edit = status === 'enquiry' ? true : false;
+			let contractExist = smartFileInfo?.modules?.filter((ele) => ele === 'contract');
+			if (!contractExist?.length) {
+				noContractTemplate = true;
+			}
 			const workflowDataObj = {
 				_id: workflowId,
 				clientDetails: smartFileInfo?.clientDetails,
@@ -111,6 +117,7 @@ const SmartFile = () => {
 				edit,
 				workflowExpiryAt: smartFileInfo?.expiresAt,
 				isEmailAuth: smartFileInfo?.access?.isEnabled,
+				noContractTemplate,
 			}));
 		}
 	}, [smartFileInfo]);
@@ -341,6 +348,17 @@ const SmartFile = () => {
 		window.location.href = `https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}/${region}/${usertoken}`;
 	}, [info?.workflowData, info?.currentWorkspaceId]);
 
+	const counterAccpetOnClick = useCallback(async () => {
+		const payloadForConfirming = {
+			updateWorkflowStatusId: info?.workflowData?._id,
+			workflowInput: {
+				status: 'confirmed',
+			},
+		};
+		await moveWorkflowStatus(payloadForConfirming);
+		return [true];
+	}, [info?.workflowData, moveWorkflowStatus]);
+
 	return info?.loading ? (
 		<UpdatedPageLoader />
 	) : (
@@ -358,6 +376,8 @@ const SmartFile = () => {
 				openMoveToStageModal={openMoveToStageModal}
 				openDeleteModal={openDeleteModal}
 				onPreviewClick={onPreviewClick}
+				noContractTemplate={info?.noContractTemplate}
+				counterAccpetOnClick={counterAccpetOnClick}
 			/>
 			<div className="mainContentContainer">
 				{info?.activeTab === 'form' ? (
