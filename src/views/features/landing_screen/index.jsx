@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/landingScreen/index.scss';
 import Navbar from '../../components/landing_screen/Navbar';
 import VeLogo from '../../../assets/svg/landingScreen/Velogo';
@@ -12,6 +13,7 @@ import PrivacyPolicyModal from '../../components/modalsV2/landingPage/PrivacyPol
 import MobileNavSidebar from '../../components/modalsV2/landingPage/MobileNavSidebar';
 
 const LandingPage = () => {
+	const navigate = useNavigate();
 	const [showMobielNavSidebar, setShowMobielNavSidebar] = useState(false);
 	const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 823);
 	const [togglePrivacyAndTermsModal, setTogglePrivacyAndTermsModal] = useState(false);
@@ -130,17 +132,26 @@ const LandingPage = () => {
 		setShowMobielNavSidebar(true);
 	};
 
+	const handleEnterKey = (e) => {
+		if (e.key === 'Enter') {
+			navigate('/verify-user');
+		}
+	};
+
 	return (
 		<div className={'landingPagecontainer'}>
 			<div className={'veLogoStyles'}>
 				<VeLogo veLogoRef={veLogoRef} />
+				{!isLargeScreen && (
+					<div className={'hamburger'}>
+						<Hamburger onClick={handleOpenMobileNavSidebar} />
+					</div>
+				)}
 			</div>
 			{isLargeScreen ? (
 				<Navbar openPrivacyAndTermsModal={() => setTogglePrivacyAndTermsModal(true)} />
 			) : (
-				<div onClick={handleOpenMobileNavSidebar} className={'hamburger'}>
-					<Hamburger />
-				</div>
+				''
 			)}
 
 			<div className={'mainContent'}>
@@ -166,14 +177,19 @@ const LandingPage = () => {
 								<div className={'promptTextArea'}>
 									<StarLogo />
 									<textarea
+										onKeyDown={handleEnterKey}
 										name="prompt"
 										placeholder="Hey, give me million dollar service business idea!"
 										autoFocus={true}
 									></textarea>
 								</div>
 								<div className={'promptActions'}>
-									<MicrophoneLogo />
-									<RightArrowLogo className={'rightArrowLogo'} />
+									<div onClick={() => navigate('/verify-user')}>
+										<MicrophoneLogo />
+									</div>
+									<div onClick={() => navigate('/verify-user')}>
+										<RightArrowLogo className={'rightArrowLogo'} />
+									</div>
 								</div>
 							</div>
 							<p className={'tagLine'}>Built by Professionals for Professionals</p>
@@ -189,7 +205,6 @@ const LandingPage = () => {
 				isOpen={showMobielNavSidebar}
 				closeModal={handleCloseMobileNavSidebar}
 				openPrivacyAndTermsModal={() => setTogglePrivacyAndTermsModal(true)}
-				modalType="mobileNavSidebar"
 			/>
 		</div>
 	);

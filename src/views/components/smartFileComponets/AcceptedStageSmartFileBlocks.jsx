@@ -50,6 +50,27 @@ const AcceptedStageSmartFileBlocks = ({
 		}
 	}, [contractSignedLocalState]);
 
+	useEffect(() => {
+		if (propsalData) {
+			const tables = [...(propsalData?.tables || [])];
+			let serivesCollectiveData = [];
+			for (let i = 0; i < tables.length; i++) {
+				let requiredData = { values: [] };
+				if (tables?.[i]?.type === 'services') {
+					const tableValues = tables?.[i].values;
+					for (let j = 0; j < tableValues?.length; j++) {
+						if (tableValues?.[j]?.isSelected) {
+							requiredData?.values?.push(tableValues?.[j]);
+						}
+					}
+				}
+				serivesCollectiveData?.push(requiredData);
+			}
+
+			setInfo((prev) => ({ ...prev, proposalInfo: serivesCollectiveData }));
+		}
+	}, [propsalData]);
+
 	return smartFileStatus !== 'enquiry' && smartFileStatus !== 'filesSent' ? (
 		<div className="acceptedSmartFileBlocks">
 			<div className="acceptedSmartFileBlocksRowContainer">
@@ -59,14 +80,17 @@ const AcceptedStageSmartFileBlocks = ({
 					</div>
 					<div className="proposalSummary">
 						<div className="seperator"></div>
-						{propsalData?.map((ele, index) => (
+						{info?.proposalInfo?.map((ele, index) => (
 							<div className="propsalServices" key={index}>
 								{ele?.values?.map((item, ind) => (
 									<div className="servicesValues" key={ind}>
 										<span className="keyValuepairs" style={{ flex: 1 }}>
 											{item?.quantity} {item?.title}
 										</span>
-										<span className="keyValuepairs">${item?.price || 0}</span>
+										<span className="keyValuepairs">
+											{item?.currency === 'INR' ? '₹' : '$'}
+											{item?.price || 0}
+										</span>
 									</div>
 								))}
 							</div>

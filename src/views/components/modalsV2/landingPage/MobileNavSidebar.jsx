@@ -19,7 +19,24 @@ const MobileNavSidebar = ({ isOpen, closeModal, openPrivacyAndTermsModal }) => {
 		}
 	};
 	return (
-		<ReactModal isOpen={isOpen} closeModal={closeModal} modalType="mobileNavSidebar">
+		<ReactModal
+			isOpen={isOpen}
+			closeModal={closeModal}
+			customStyles={{
+				content: {
+					width: '100%',
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					inset: '0px',
+					transform: 'none',
+				},
+				overlay: {
+					backdropFilter: 'blur(8px)',
+					zIndex: 4,
+				},
+			}}
+		>
 			<div className={'modalContainer'}>
 				<div className={'modalContainerMain'}>
 					<div className={'backDiv'} onClick={closeModal}>

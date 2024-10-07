@@ -27,12 +27,15 @@ const SmartFileHeader = ({
 	openMoveToStageModal,
 	openDeleteModal,
 	onPreviewClick,
+	noContractTemplate,
+	counterAccpetOnClick,
 }) => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		loading: false,
 		threeDotOptions: options,
 		previewLoader: false,
+		counterAccpetLoading: false,
 	});
 
 	const modifiedAccetFunc = useCallback(async () => {
@@ -100,6 +103,17 @@ const SmartFileHeader = ({
 		setInfo((prev) => ({ ...prev, previewLoader: true }));
 		onPreviewClick();
 	}, []);
+
+	const onCounterAcceptClickFunc = useCallback(async () => {
+		if (info?.counterAccpetLoading) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, counterAccpetLoading: true }));
+		const respose = await counterAccpetOnClick();
+		if (respose?.[0]) {
+			setInfo((prev) => ({ ...prev, counterAccpetLoading: false }));
+		}
+	}, [info?.counterAccpetLoading]);
 
 	return (
 		<div className="smarFileHeader">
@@ -179,6 +193,13 @@ const SmartFileHeader = ({
 				{workflowStatus === 'contractSigned' && !editable ? (
 					<div className="sendSmartFileBtn" onClick={openSignatureModal}>
 						Counter Sign
+					</div>
+				) : (
+					''
+				)}
+				{noContractTemplate && workflowStatus === 'proposalAccepted' ? (
+					<div className="sendSmartFileBtn" onClick={onCounterAcceptClickFunc}>
+						{info?.counterAccpetLoading ? 'Accepting ....' : 'Counter Accept'}
 					</div>
 				) : (
 					''

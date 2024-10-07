@@ -11,8 +11,20 @@ import PublicLinkGeneratedModal from '../../components/modalsV2/workflowsModals/
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import InitialPageLoader from '../../components/loaders/PageLoader';
 import SalesInfo from './SalesInfo';
+import { getCurrentWorkspaceId } from '../../../helpers';
 
 const Sales = () => {
+	let {
+		templates: {
+			getMyWorkflows,
+			myWorkflows,
+			myMoreWorkflows,
+			salePageRefresh,
+			updateStateValues,
+			generatePublicLinkData,
+		},
+		profileInfo: { userWorkSpaceList },
+	} = useContext(Context);
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
@@ -27,18 +39,19 @@ const Sales = () => {
 		showGeneratedLinkModalData: null,
 		testingDrawerModal: false,
 		shownInitialLoader: localStorage.getItem('showInitialLoader'),
+		currentWorkspaceId: '',
 	});
 
-	let {
-		templates: {
-			getMyWorkflows,
-			myWorkflows,
-			myMoreWorkflows,
-			salePageRefresh,
-			updateStateValues,
-			generatePublicLinkData,
-		},
-	} = useContext(Context);
+	// let {
+	// 	templates: {
+	// 		getMyWorkflows,
+	// 		myWorkflows,
+	// 		myMoreWorkflows,
+	// 		salePageRefresh,
+	// 		updateStateValues,
+	// 		generatePublicLinkData,
+	// 	},
+	// } = useContext(Context);
 
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
@@ -69,6 +82,15 @@ const Sales = () => {
 			updateStateValues({ generatePublicLinkData: null });
 		}
 	}, [generatePublicLinkData]);
+
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
+			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
+		}
+	}, [userWorkSpaceList]);
+
+	//function definations
 
 	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
 		const payload = {
@@ -154,15 +176,19 @@ const Sales = () => {
 		}));
 	}, []);
 
-	const openCopyLinkModal = useCallback(async (data) => {
-		try {
-			const workspaceId = localStorage.getItem('workspaceId');
-			await navigator.clipboard.writeText(`https://${workspaceId}.ve.ai/${data?.slug}`);
-			setInfo((prev) => ({ ...prev, copyModal: true, activeTemplateData: data }));
-		} catch (err) {
-			console.log('Failed to copy text');
-		}
-	}, []);
+	const openCopyLinkModal = useCallback(
+		async (data) => {
+			try {
+				await navigator.clipboard.writeText(
+					`https://${info?.currentWorkspaceId}.ve.ai/${data?.slug}`,
+				);
+				setInfo((prev) => ({ ...prev, copyModal: true, activeTemplateData: data }));
+			} catch (err) {
+				console.log('Failed to copy text');
+			}
+		},
+		[info?.currentWorkspaceId],
+	);
 
 	const closeCopyLinkModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, copyModal: false, activeTemplateData: null }));
@@ -216,18 +242,14 @@ const Sales = () => {
 				closeModal={closeCopyLinkModal}
 				slug={info?.activeTemplateData?.slug}
 				modules={info?.activeTemplateData?.moduleTemplates?.filter((ele) => ele?.isPublic)}
-				copyLink={`https://${localStorage.getItem('workspaceId')}.ve.ai/${
-					info?.activeTemplateData?.slug
-				}`}
+				copyLink={`https://${info?.currentWorkspaceId}.ve.ai/${info?.activeTemplateData?.slug}`}
 			/>
 			<PublicLinkGeneratedModal
 				open={info?.showGeneratedLinkModalData ? true : false}
 				closeModal={closeGeneratedLinkModal}
 				copyLink={
 					info?.showGeneratedLinkModalData
-						? `https://${localStorage.getItem('workspaceId')}.ve.ai/${
-								info?.showGeneratedLinkModalData?.slug
-						  }`
+						? `https://${info?.currentWorkspaceId}.ve.ai/${info?.showGeneratedLinkModalData?.slug}`
 						: ''
 				}
 				modules={info?.showGeneratedLinkModalData?.moduleTemplates}

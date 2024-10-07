@@ -1,5 +1,6 @@
 import React, { useState, useRef, memo } from 'react';
 import '../../../assets/scss/landingScreen/index.scss';
+import { useNavigate } from 'react-router-dom';
 import { ReactComponent as AiSalesLogo } from '../../../assets/svg/landingScreen/aiSaleslogo.svg';
 import { ReactComponent as AiLinkInBioLogo } from '../../../assets/svg/landingScreen/aiLinkInBioLogo.svg';
 import { ReactComponent as InvoiceLogo } from '../../../assets/svg/landingScreen/invoiceLogo.svg';
@@ -15,21 +16,20 @@ const cards = [
 		logo: 'AiSalesLogo',
 	},
 	{
-		description:
-			'Make it easier for your audience to connect with all your essential content through',
+		description: 'Make it easier for your audience to connect with all your essential content.',
 		title: 'AI Link in Bio',
 		logo: 'AiLinkInBioLogo',
 	},
 	{
 		description:
-			'Simplifying your billing process. Create and share professional, detailed invoices in seconds',
-		title: 'Send Invoices',
+			'Effortlessly build and customize professional client files with AI, designed to match your style and needs.',
+		title: 'AI Client Files',
 		logo: 'InvoiceLogo',
 	},
 	{
 		description:
-			'From task management to client follow-ups, automate routine actions and focus on what truly matters',
-		title: 'AI Client Files',
+			'Transform your client delivery with AI. Share stunning photo and video galleries in seconds, perfectly tailored to every need',
+		title: 'AI Galleries',
 		logo: 'AiClientFilesLogo',
 	},
 ];
@@ -41,6 +41,7 @@ const logosObject = {
 };
 
 const Cards = ({ cardsRef }) => {
+	const navigate = useNavigate();
 	const [hoveredCard, setHoveredCard] = useState(null);
 	const cardRefs = useRef([]);
 
@@ -62,12 +63,17 @@ const Cards = ({ cardsRef }) => {
 		setHoveredCard(null);
 	};
 
+	const handleCardClick = () => {
+		return navigate('/verify-user');
+	};
+
 	return (
 		<div ref={cardsRef} className={'cardsContainer'}>
 			{cards?.map((card, index) => (
 				<div
 					ref={(el) => (cardRefs.current[index] = el)}
 					key={index}
+					onClick={handleCardClick}
 					className={'card'}
 					onMouseEnter={() => handleMouseEnter(index)}
 					onMouseLeave={() => handleMouseLeave(index)}

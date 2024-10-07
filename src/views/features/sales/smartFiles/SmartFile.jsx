@@ -13,6 +13,8 @@ import UpdatedPageLoader from '../../../components/loaders/UpdatedPageLoader';
 import DeleteLeadModal from '../../../components/modalsV2/workflowsModals/DeleteLeadModal';
 import Notification from '../../../components/notification/Notification';
 import UploadLogoNotification from '../../../components/notification/UploadLogoNotification';
+import { getCurrentWorkspaceId } from '../../../../helpers';
+
 const SmartFile = () => {
 	const { templateId, workflowId } = useParams();
 	const navigate = useNavigate();
@@ -52,6 +54,8 @@ const SmartFile = () => {
 		workflowExpiryAt: '',
 		isEmailAuth: true,
 		businessName: '',
+		currentWorkspaceId: localStorage.getItem('workspaceId'),
+		noContractTemplate: false,
 	});
 
 	//useEffect
@@ -91,8 +95,13 @@ const SmartFile = () => {
 
 	useEffect(() => {
 		if (smartFileInfo) {
+			let noContractTemplate = false;
 			const status = smartFileInfo?.status;
 			const edit = status === 'enquiry' ? true : false;
+			let contractExist = smartFileInfo?.modules?.filter((ele) => ele === 'contract');
+			if (!contractExist?.length) {
+				noContractTemplate = true;
+			}
 			const workflowDataObj = {
 				_id: workflowId,
 				clientDetails: smartFileInfo?.clientDetails,
@@ -108,6 +117,7 @@ const SmartFile = () => {
 				edit,
 				workflowExpiryAt: smartFileInfo?.expiresAt,
 				isEmailAuth: smartFileInfo?.access?.isEnabled,
+				noContractTemplate,
 			}));
 		}
 	}, [smartFileInfo]);
@@ -115,6 +125,8 @@ const SmartFile = () => {
 	useEffect(() => {
 		if (userWorkSpaceList) {
 			handleWorkspaceLogoExistence();
+			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
+			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
 		} else {
 			getUserWorkSpaceList();
 		}
@@ -331,11 +343,21 @@ const SmartFile = () => {
 	);
 
 	const onPreviewClick = useCallback(() => {
-		const workspaceId = localStorage.getItem('workspaceId');
 		const usertoken = localStorage.getItem('usertoken');
 		const region = localStorage.getItem('region');
-		window.location.href = `https://${workspaceId}.ve.ai/portal/${info?.workflowData?.slug}/${region}/${usertoken}`;
-	}, [info?.workflowData]);
+		window.location.href = `https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}/${region}/${usertoken}`;
+	}, [info?.workflowData, info?.currentWorkspaceId]);
+
+	const counterAccpetOnClick = useCallback(async () => {
+		const payloadForConfirming = {
+			updateWorkflowStatusId: info?.workflowData?._id,
+			workflowInput: {
+				status: 'confirmed',
+			},
+		};
+		await moveWorkflowStatus(payloadForConfirming);
+		return [true];
+	}, [info?.workflowData, moveWorkflowStatus]);
 
 	return info?.loading ? (
 		<UpdatedPageLoader />
@@ -354,6 +376,8 @@ const SmartFile = () => {
 				openMoveToStageModal={openMoveToStageModal}
 				openDeleteModal={openDeleteModal}
 				onPreviewClick={onPreviewClick}
+				noContractTemplate={info?.noContractTemplate}
+				counterAccpetOnClick={counterAccpetOnClick}
 			/>
 			<div className="mainContentContainer">
 				{info?.activeTab === 'form' ? (
@@ -391,9 +415,7 @@ const SmartFile = () => {
 				open={info?.copyModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
 				modules={info?.workflowData?.modules?.filter((e) => e?.type !== 'form')}
-				copyLink={`https://${localStorage.getItem('workspaceId')}.ve.ai/portal/${
-					info?.workflowData?.slug
-				}`}
+				copyLink={`https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}`}
 				pin={smartFileInfo?.access?.pin}
 			/>
 			<UploadSignature

@@ -7,7 +7,7 @@ import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/que
 
 const serviceStyleMapper = {
 	0: 'Select One',
-	1: 'Select Multiply',
+	1: 'Select Multiple',
 	2: 'View Only',
 };
 
@@ -20,6 +20,7 @@ const sericesContentMapper = {
 const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 	const [info, setInfo] = useState({
 		data: [],
+		subTotalValueMapper: {},
 	});
 
 	const [arrow, setArrow] = useState('Show');
@@ -38,6 +39,42 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 	useEffect(() => {
 		if (serviceData) {
 			setInfo((prev) => ({ ...prev, data: serviceData }));
+			for (let i = 0; i < serviceData?.length; i++) {
+				const { blocks = [] } = serviceData?.[i] || {};
+				let subTotalValue = 0;
+				for (let j = 0; j < blocks?.length; j++) {
+					let { amount, quantity } = blocks?.[j]?.subBlocks?.[0];
+
+					amount =
+						+(
+							(amount + '')
+								?.replace(/&nbsp;/g, ' ')
+								.replace(/<\/?[^>]+(>|$)/g, '')
+								.replace(/"/g, '') || ''
+						) || 0;
+					quantity =
+						+(
+							(quantity + '')
+								?.replace(/&nbsp;/g, ' ')
+								.replace(/<\/?[^>]+(>|$)/g, '')
+								.replace(/"/g, '') || ''
+						) || 0;
+					subTotalValue += +(amount * quantity);
+				}
+				let editable =
+					serviceData?.[i]?.style?.services_selection === 2 &&
+					+serviceData?.[i]?.style?.subTotalValue === 0
+						? true
+						: false;
+				let obj = { subTotalValue, editable };
+				setInfo((prev) => ({
+					...prev,
+					subTotalValueMapper: {
+						...prev.subTotalValueMapper,
+						[i]: obj,
+					},
+				}));
+			}
 		}
 	}, [serviceData]);
 
@@ -104,7 +141,14 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 				<>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 						<span className="servicesHeader">
-							Services - {serviceStyleMapper?.[ele?.style?.services_selection || '2']}
+							Services -{' '}
+							{
+								serviceStyleMapper?.[
+									ele?.style?.services_selection !== undefined
+										? ele?.style?.services_selection
+										: '2'
+								]
+							}
 						</span>
 						<span className="svgHolder">
 							<Tooltip
@@ -113,12 +157,16 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 									<ToolTipContainer
 										title={`Services - ${
 											serviceStyleMapper?.[
-												ele?.style?.services_selection || '2'
+												ele?.style?.services_selection !== undefined
+													? ele?.style?.services_selection
+													: '2'
 											]
 										}`}
 										content={
 											sericesContentMapper?.[
-												ele?.style?.services_selection || '2'
+												ele?.style?.services_selection !== undefined
+													? ele?.style?.services_selection
+													: '2'
 											]
 											// 'This Table shows view only services that are mentioned in the smart file, Lead will only view this service details'
 										}
@@ -141,15 +189,9 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 							</span>
 							<div className="serviceSubTotalWrapper">
 								<span className="subTotalValueTitle">Subtotal</span>
-								{editable ? (
+								{editable && info?.subTotalValueMapper?.[index]?.editable ? (
 									<input
-										value={
-											ele?.style?.subTotalValue
-												?.toString()
-												?.replace(/&nbsp;/g, ' ')
-												?.replace(/<\/?[^>]+(>|$)/g, '')
-												?.replace(/"/g, '') || ''
-										}
+										value={info?.subTotalValueMapper?.[index]?.subTotalValue}
 										onChange={(e) =>
 											onLocalServiceDataChange(
 												0,
@@ -163,11 +205,7 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 									/>
 								) : (
 									<span className="ServiceSubTotalValue">
-										{ele?.style?.subTotalValue
-											?.toString()
-											?.replace(/&nbsp;/g, ' ')
-											?.replace(/<\/?[^>]+(>|$)/g, '')
-											?.replace(/"/g, '') || ''}
+										{info?.subTotalValueMapper?.[index]?.subTotalValue}
 									</span>
 								)}
 							</div>

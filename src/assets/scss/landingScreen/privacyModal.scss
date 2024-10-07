@@ -10,11 +10,12 @@
 	background: #252526;
 	box-shadow: 2px 4px 20px 0px rgba(119, 112, 210, 0.12);
 	position: relative;
+	margin: 12px;
 
 	.closeIconContainer {
 		position: absolute;
 		top: 34px;
-		right: 54px;
+		right: 42px;
 		cursor: pointer;
 	}
 
@@ -61,9 +62,5 @@
 @media (max-width: 768px) {
 	.PrivacyAndTermsModalContainer {
 		width: 100% !important;
-	}
-
-	.closeIconContainer {
-		right: 28px !important;
 	}
 }
