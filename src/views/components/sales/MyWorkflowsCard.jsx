@@ -5,9 +5,9 @@ import StatsCard from './StatsCard';
 import { ReactComponent as ArrowSvg } from '../../../assets/svg/worflow_builder/smallArrow.svg';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
 
-const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflowBuilder }) => {
-	const [info, setInfo] = useState({
-		actionCards: [
+const generateCardsInfoData = (data, type, moduleWithoutContract = false) => {
+	if (type === 'actionCards') {
+		return [
 			{
 				headerText: 'Actions Required',
 				subText: data?.actionRequired || 0,
@@ -17,19 +17,24 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 			},
 			{
 				headerText: 'All Enquires',
-				subText: data?.formResponses || 0,
+				subText: data?.workflows || 0,
 				status: 'allenquiries',
 				type: 'actionCards',
 				modalHeader: 'All Enquires',
 			},
 			{
 				headerText: 'Smart File sent',
-				subText: data?.filesSent || 0,
+				subText:
+					data?.filesSent && data?.filesSent > 0
+						? Math.floor(
+								((data?.workflowStats?.confirmed || 0) * 100) / data?.filesSent,
+						  ) + '%'
+						: '0 %',
 				status: 'allfilessent',
 				type: 'actionCards',
 				modalHeader: 'All Smart File Sent',
 			},
-			// { headerText: 'Expired', subText: '290', status: 'enquiry' },
+
 			{
 				headerText: 'Success Rate',
 				subText:
@@ -42,8 +47,9 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 				type: 'actionCards',
 				modalHeader: '',
 			},
-		],
-		statstCards: [
+		];
+	} else {
+		const statusCardData = [
 			{
 				headerText: 'Enquiry',
 				subText: data?.workflowStats?.enquiry || 0,
@@ -72,6 +78,7 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 				type: 'statstCards',
 				modalHeader: 'Contract Signed',
 			},
+
 			{
 				headerText: 'Booking Confirmed',
 				subText: data?.workflowStats?.confirmed || 0,
@@ -79,10 +86,29 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 				type: 'statstCards',
 				modalHeader: 'Booking Confirmed',
 			},
-			// { headerText: 'Proposal Expired', subText: '290', status: '' },
-		],
+		];
+
+		if (moduleWithoutContract) {
+			statusCardData?.splice(3, 1, {
+				headerText: 'Proposal Accepted',
+				subText: data?.workflowStats?.proposalAccepted || 0,
+				status: 'proposalAccepted',
+				type: 'statstCards',
+				modalHeader: 'Proposal Accepted',
+			});
+		}
+
+		return statusCardData;
+	}
+};
+
+const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflowBuilder }) => {
+	const [info, setInfo] = useState({
+		actionCards: [...generateCardsInfoData(data, 'actionCards')],
+		statstCards: [...generateCardsInfoData(data, 'statstCards')],
 		showCopyModalButton: false,
 		formParsedContentHtml: '',
+		contractExist: true,
 	});
 
 	//useEFFects
@@ -98,6 +124,7 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 		let isPublic = false;
 		let formData;
 		let formParsedContentHtml = '';
+		let contractExist = false;
 
 		for (let i = 0; i < moduleTemplates.length; i++) {
 			if (moduleTemplates?.[i]?.isPublic) {
@@ -106,6 +133,10 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 			if (moduleTemplates?.[i]?.module === 'form') {
 				formData = moduleTemplates?.[i];
 			}
+
+			if (moduleTemplates?.[i]?.module === 'contract') {
+				contractExist = true;
+			}
 		}
 
 		for (let i = 0; i < templates?.length; i++) {
@@ -113,85 +144,20 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 				formParsedContentHtml = templates?.[i]?.parsedHtmlContent;
 			}
 		}
+		let actionCards = [
+			...generateCardsInfoData(data, 'actionCards', contractExist ? false : true),
+		];
+		let statstCards = [
+			...generateCardsInfoData(data, 'statstCards', contractExist ? false : true),
+		];
 
 		setInfo((prev) => ({
 			...prev,
 			showCopyModalButton: isPublic,
-			actionCards: [
-				{
-					headerText: 'Actions Required',
-					subText: data?.actionRequired || 0,
-					status: 'actionRequired',
-					type: 'actionCards',
-					modalHeader: 'Actions Required',
-				},
-				{
-					headerText: 'All Enquires',
-					subText: data?.workflows || 0,
-					status: 'allenquiries',
-					type: 'actionCards',
-					modalHeader: 'All Enquires',
-				},
-				{
-					headerText: 'Smart File sent',
-					subText: data?.filesSent || 0,
-					status: 'allfilessent',
-					type: 'actionCards',
-					modalHeader: 'All Smart File Sent',
-				},
-				// { headerText: 'Expired', subText: '290', status: 'enquiry' },
-				{
-					headerText: 'Success Rate',
-					subText:
-						data?.filesSent && data?.filesSent > 0
-							? Math.floor(
-									((data?.workflowStats?.confirmed || 0) * 100) / data?.filesSent,
-							  ) + '%'
-							: '0 %',
-					status: 'successRate',
-					type: 'actionCards',
-					modalHeader: '',
-				},
-			],
-			statstCards: [
-				{
-					headerText: 'Enquiry',
-					subText: data?.workflowStats?.enquiry || 0,
-					status: 'enquiry',
-					type: 'statstCards',
-					modalHeader: 'Enquiry',
-				},
-				{
-					headerText: 'Smart File sent',
-					subText: data?.workflowStats?.filesSent || 0,
-					status: 'filesSent',
-					type: 'statstCards',
-					modalHeader: 'Smart File sent',
-				},
-				{
-					headerText: 'Smart Files Viewed',
-					subText: data?.workflowStats?.filesViewed || 0,
-					status: 'filesViewed',
-					type: 'statstCards',
-					modalHeader: 'Smart Files Viewed',
-				},
-				{
-					headerText: 'Contract Signed',
-					subText: data?.workflowStats?.contractSigned || 0,
-					status: 'contractSigned',
-					type: 'statstCards',
-					modalHeader: 'Contract Signed',
-				},
-				{
-					headerText: 'Booking Confirmed',
-					subText: data?.workflowStats?.confirmed || 0,
-					status: 'confirmed',
-					type: 'statstCards',
-					modalHeader: 'Booking Confirmed',
-				},
-				// { headerText: 'Proposal Expired', subText: '290', status: '' },
-			],
+			actionCards,
+			statstCards,
 			formParsedContentHtml,
+			contractExist,
 		}));
 	}, [data]);
 
