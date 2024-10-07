@@ -54,6 +54,13 @@ export const intialState = {
 	specificTemplatesInfo: null,
 	smartFileEmailTemplateData: null,
 	requiredActions: { actions: [], hasMore: false },
+	tabItemCount: {
+		all: 0,
+		enquiry: 0,
+		counterSign: 0,
+		emailApproval: 0,
+		expiresInThreeDays: 0,
+	},
 };
 
 export const TemplatesState = (props) => {
@@ -790,9 +797,13 @@ export const TemplatesState = (props) => {
 			);
 
 			if (response?.[0]) {
-				return [true, response?.[1]?.data?.getNumberOfRequiredActions];
+				const requiredActions = response?.[1]?.data?.getNumberOfRequiredActions;
+				dispatch({
+					type: Actions.GET_TAB_ITEM_COUNT_SUCCESS,
+					payload: requiredActions,
+				});
 			} else {
-				return [false];
+				console.log('api failed ==>getTabItemCount', response);
 			}
 		} catch (error) {
 			console.log('api failed ==>getTabItemCount', error);
@@ -804,7 +815,6 @@ export const TemplatesState = (props) => {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 
-			// Create a new object without the resetRequiredActions key
 			const { resetRequiredActions, ...queryPayload } = payload;
 
 			const response = await service.query(
@@ -816,15 +826,16 @@ export const TemplatesState = (props) => {
 			);
 
 			if (response?.[0]) {
-				const selectedvariable = 'requiredActions';
 				dispatch({
 					type: Actions.GET_REQUIRED_ACTIONS_SUCCESS,
 					payload: {
-						actions: response?.[1]?.data?.listRequiredActions?.data,
+						actions: resetRequiredActions
+							? response?.[1]?.data?.listRequiredActions?.data
+							: state.requiredActions.actions.concat(
+									response?.[1]?.data?.listRequiredActions?.data,
+							  ),
 						hasMore: response?.[1]?.data?.listRequiredActions?.hasNextPage,
-						resetRequiredActions: payload?.resetRequiredActions,
 					},
-					selectedvariable,
 				});
 			} else {
 				return [false];

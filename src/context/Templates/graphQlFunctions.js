@@ -384,10 +384,11 @@ export const deleteWorkflowTemplatesMutation = gql`
 export const getTabItemCountQuery = gql`
 	query Query {
 		getNumberOfRequiredActions {
+			enquiry
 			counterSign
-			emailApprovals
-			enquires
-			eventsInThreeDays
+			emailApproval
+			expiresInThreeDays
+			all
 		}
 	}
 `;
@@ -396,13 +397,15 @@ export const getTabItemCountQuery = gql`
 export const getRequiredActionDetailsQuery = gql`
 	query Query($filters: RequiredActionsFiltersInput) {
 		listRequiredActions(filters: $filters) {
-			currentPage
 			data {
 				_id
+				title
 				action
 				clientName
 				createdAt
-				title
+				expiresAt
+				approvalRequired
+				status
 			}
 			hasNextPage
 		}

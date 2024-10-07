@@ -108,104 +108,6 @@
 			background: transparent;
 		}
 
-		// .top-section {
-		// 	width: 100%;
-		// 	height: 50%;
-		// 	display: flex;
-		// 	justify-content: space-between;
-		// 	align-items: flex-start;
-		// 	.top-left-section {
-		// 		width: 37.5%;
-		// 		height: 100%;
-		// 		border-top-left-radius: 36px;
-		// 		border-top-right-radius: 36px;
-		// 		border: 1px solid blue;
-		// 		position: relative;
-
-		// 		.left-content {
-		// 			position: absolute;
-		// 			top: 0;
-		// 			left: 0;
-		// 			width: 100%;
-		// 			height: 200%;
-		// 			padding: 16px 24px;
-
-		// 			p {
-		// 				color: #e4e5e6;
-		// 				font-family: Inter;
-		// 				font-size: 16px;
-		// 				font-style: normal;
-		// 				font-weight: 500;
-		// 				line-height: 40px; /* 250% */
-		// 				margin: 0;
-		// 			}
-
-		// 			h1 {
-		// 				color: #fff;
-		// 				font-family: Inter;
-		// 				font-size: 32px;
-		// 				font-style: normal;
-		// 				font-weight: 600;
-		// 				line-height: 40px;
-		// 				margin: 0;
-		// 			}
-		// 		}
-
-		// 		&::before {
-		// 			content: '';
-		// 			position: absolute;
-		// 			bottom: 0;
-		// 			right: -25px;
-		// 			width: 25px;
-		// 			height: 25px;
-		// 			background-color: rgb(17, 17, 17);
-		// 			z-index: 1;
-		// 			clip-path: circle(100% at 0 100%);
-		// 			transform: rotate(-180deg);
-		// 		}
-
-		// 		.top-left-box-section {
-		// 			position: absolute;
-		// 			width: 25px;
-		// 			height: 25px;
-		// 			bottom: -1px;
-		// 			right: -25px;
-		// 			border: 1px solid blue;
-		// 		}
-		// 	}
-
-		// 	.top-right-section {
-		// 		width: 37.5%;
-		// 		height: 100%;
-		// 		border-top-left-radius: 36px;
-		// 		border-top-right-radius: 36px;
-		// 		position: relative;
-		// 		border: 1px solid blue;
-
-		// 		&::before {
-		// 			content: '';
-		// 			position: absolute;
-		// 			bottom: 0;
-		// 			left: -25px;
-		// 			width: 25px;
-		// 			height: 25px;
-		// 			border-bottom-right-radius: 25px;
-		// 			background-color: rgb(17, 17, 17);
-		// 			clip-path: circle(100% at 0 0);
-		// 			z-index: 1;
-		// 		}
-
-		// 		.top-right-box-section {
-		// 			position: absolute;
-		// 			width: 25px;
-		// 			height: 25px;
-		// 			bottom: -1px;
-		// 			left: -25px;
-		// 			border: 1px solid blue;
-		// 		}
-		// 	}
-		// }
-
 		.bottom-section {
 			border-bottom-left-radius: 36px;
 			border-bottom-right-radius: 36px;
@@ -217,10 +119,10 @@
 
 	.greeting {
 		position: relative;
-		background-color: #000; /* Adjust the color to match the image */
-		color: #fff; /* Text color */
+		background-color: #000;
+		color: #fff;
 		padding: 20px;
-		margin-top: 20px; /* Adjust based on your layout */
+		margin-top: 20px;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -246,7 +148,7 @@
 					font-size: 20px;
 					font-style: normal;
 					font-weight: 500;
-					line-height: 30px; /* 150% */
+					line-height: 30px;
 				}
 
 				h1 {
@@ -255,7 +157,7 @@
 					font-size: 36px;
 					font-style: normal;
 					font-weight: 500;
-					line-height: 40px; /* 111.111% */
+					line-height: 40px;
 					margin: 0;
 				}
 			}
@@ -270,7 +172,7 @@
 				font-size: 10.347px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: 12.735px; /* 123.077% */
+				line-height: 12.735px;
 			}
 
 			p.location {
@@ -279,7 +181,7 @@
 				font-size: 9.551px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: 12.735px; /* 133.333% */
+				line-height: 12.735px;
 			}
 
 			h2.time {
@@ -288,7 +190,7 @@
 				font-size: 44.571px;
 				font-style: normal;
 				font-weight: 600;
-				line-height: 58.898px; /* 132.143% */
+				line-height: 58.898px;
 				margin: 0;
 			}
 		}
@@ -302,13 +204,13 @@
 			gap: 20px;
 			list-style: none;
 
-			li {
+			button {
 				color: rgba(228, 229, 230, 0.48);
 				font-family: Inter;
 				font-size: 11px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: 15px; /* 136.364% */
+				line-height: 15px;
 				cursor: pointer;
 				border-radius: 100px;
 				border: 1px solid #242424;
@@ -368,7 +270,7 @@
 					transform: scale(1.01);
 				}
 
-				svg.card-div-svg {
+				.card-svg {
 					position: absolute;
 					top: 0;
 					left: 0;
@@ -468,6 +370,17 @@
 					.card-footer-left {
 						display: flex;
 						gap: 10px;
+					}
+
+					.line {
+						background: linear-gradient(
+							270deg,
+							rgba(255, 255, 255, 0) 0%,
+							rgba(255, 255, 255, 0.2) 49%,
+							rgba(255, 255, 255, 0) 100%
+						);
+						width: 168px;
+						height: 0.5px;
 					}
 
 					img {

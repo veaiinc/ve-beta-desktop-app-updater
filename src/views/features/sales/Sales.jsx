@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/sales.scss';
 import MyWorkflowsCard from '../../components/sales/MyWorkflowsCard';
 import Context from '../../../context/context';
@@ -10,32 +10,10 @@ import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
 import PublicLinkGeneratedModal from '../../components/modalsV2/workflowsModals/PublicLinkGeneratedModal';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import InitialPageLoader from '../../components/loaders/PageLoader';
-import moment from 'moment';
-// import Icon from '../../../assets/images/sales/icon.png';
-import HeaderImage from '../../../assets/images/sales/header-image.png';
-import CardDiv from '../../../assets/svg/sales/CardDiv';
-import { ReactComponent as Gradient } from '../../../assets/svg/sales/gradient.svg';
-import DateTimeLocation from './DateTimeLocation';
-
-const tabItems = [
-	{ id: 'all', label: 'All' },
-	{ id: 'enquires', label: 'Enquires' },
-	{ id: 'counterSign', label: 'Counter Sign' },
-	{ id: 'emailApprovals', label: 'Email Approvals' },
-	{ id: 'eventsInThreeDays', label: 'Expiring in 3 days' },
-];
+import SalesInfo from './SalesInfo';
 
 const Sales = () => {
 	const navigate = useNavigate();
-	const [activeTab, setActiveTab] = useState('all');
-
-	const [tabItemCount, setTabItemCount] = useState({
-		All: 0,
-		Enquires: 0,
-		CounterSign: 0,
-		EmailApprovals: 0,
-		ExpiringIn3Days: 0,
-	});
 
 	const [info, setInfo] = useState({
 		loading: true,
@@ -50,14 +28,9 @@ const Sales = () => {
 		testingDrawerModal: false,
 		shownInitialLoader: localStorage.getItem('showInitialLoader'),
 	});
-	const [greeting, setGreeting] = useState('');
-	const scrollRef = useRef(null);
 
 	let {
 		templates: {
-			requiredActions, // Sheshant
-			getRequiredActions, // Sheshant
-			getTabItemCount, // Sheshant
 			getMyWorkflows,
 			myWorkflows,
 			myMoreWorkflows,
@@ -65,34 +38,11 @@ const Sales = () => {
 			updateStateValues,
 			generatePublicLinkData,
 		},
-		profileInfo: { userDetailsData },
 	} = useContext(Context);
 
 	useEffect(() => {
-		fetchData();
+		getMyWorkflowTemplatesData(1);
 	}, []);
-
-	useEffect(() => {
-		const handleScroll = () => {
-			if (scrollRef.current) {
-				const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-				if (scrollLeft + clientWidth >= scrollWidth - 20) {
-					if (requiredActions?.hasMore) {
-						getRequiredActions({
-							filters: {
-								filter: activeTab,
-								page: Math.ceil(requiredActions?.actions?.length / 10) + 1,
-								limit: 10,
-							},
-							resetRequiredActions: false,
-						});
-					}
-				}
-			}
-		};
-		scrollRef.current?.addEventListener('scroll', handleScroll);
-		return () => scrollRef.current?.removeEventListener('scroll', handleScroll);
-	}, [requiredActions]);
 
 	useEffect(() => {
 		if (salePageRefresh) {
@@ -119,29 +69,6 @@ const Sales = () => {
 			updateStateValues({ generatePublicLinkData: null });
 		}
 	}, [generatePublicLinkData]);
-
-	const fetchData = async () => {
-		getRequiredActions({
-			filters: {
-				filter: 'all',
-				page: 1,
-				limit: 10,
-			},
-		});
-		getMyWorkflowTemplatesData(1);
-		const response = await getTabItemCount();
-		if (response[0]) {
-			const { counterSign, emailApprovals, enquires, eventsInThreeDays } = response[1];
-			setTabItemCount((prevState) => ({
-				...prevState,
-				all: enquires + counterSign + emailApprovals + eventsInThreeDays,
-				enquires,
-				counterSign,
-				emailApprovals,
-				eventsInThreeDays,
-			}));
-		}
-	};
 
 	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
 		const payload = {
@@ -248,88 +175,9 @@ const Sales = () => {
 		[info?.activeTemplateData],
 	);
 
-	// const getRequiredActions = useCallback(async (filter, page, limit) => {
-	// 	const response = await getRequiredActionDetails({
-	// 		filters: {
-	// 			filter: filter || 'all',
-	// 			page: page,
-	// 			limit: limit,
-	// 		},
-	// 	});
-	// 	if (response[0]) {
-	// 		setHasMoreRequiredActions(response[1]?.hasNextPage);
-	// 		setRequiredActions((prevActions) => [...prevActions, ...response[1]?.data]);
-	// 	}
-	// }, []);
-
-	const handleTabClick = useCallback((tabId) => {
-		setActiveTab(tabId);
-		getRequiredActions({
-			filters: {
-				filter: tabId,
-				page: 1,
-				limit: 10,
-			},
-			resetRequiredActions: true,
-		});
-	}, []);
-
 	return (
 		<>
-			<div className="gradient-container">
-				<Gradient />
-			</div>
-			<div className="sales-page">
-				<div className="header-image">
-					<img src={HeaderImage} alt="Header Image" />
-					<div className="left-content">
-						<p>Hey, {userDetailsData?.firstName || 'User'}!</p>
-						<h1>{greeting} 😃</h1>
-					</div>
-					<div className="right-content">
-						<DateTimeLocation setGreeting={setGreeting} />
-					</div>
-				</div>
-				<div className="sales-page-filter">
-					<ul>
-						{tabItems.map((item) => (
-							<li
-								key={item.id}
-								className={activeTab === item.id ? 'active' : ''}
-								onClick={() => handleTabClick(item.id)}
-							>
-								{item.label}{' '}
-								{tabItemCount?.[item.id] !== 0
-									? `(${tabItemCount?.[item.id]})`
-									: ''}
-							</li>
-						))}
-					</ul>
-				</div>
-				<div className="cards-container">
-					<div ref={scrollRef} className="card-div">
-						{requiredActions?.actions?.map((actionItem, index) => (
-							<div className="card" key={index}>
-								<CardDiv />
-								<div className="card-content">
-									<span className="card-title">{actionItem?.action}</span>
-									<h1>{actionItem?.clientName}</h1>
-								</div>
-								<div className="card-footer">
-									<div className="card-footer-left">
-										<p>{actionItem?.title}</p>
-									</div>
-									<div className="card-footer-time">
-										<span>{moment.unix(actionItem?.createdAt).fromNow()}</span>
-									</div>
-								</div>
-							</div>
-						))}
-
-						<div className="card-div-end-black-shadow"></div>
-					</div>
-				</div>
-			</div>
+			<SalesInfo />
 			<InfiniteScroll
 				dataLength={info?.myWorkflowData?.length || 0}
 				next={fetchMoreMyWorkflows}

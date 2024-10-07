@@ -43,12 +43,12 @@ const actionHandlers = {
 	// Sheshant
 	GET_REQUIRED_ACTIONS_SUCCESS: (state, action) => ({
 		...state,
-		requiredActions: {
-			actions: action.payload.resetRequiredActions
-				? action.payload.actions
-				: state.requiredActions.actions.concat(action.payload.actions),
-			hasMore: action.payload.hasMore,
-		},
+		requiredActions: action.payload,
+	}),
+	// Sheshant
+	GET_TAB_ITEM_COUNT_SUCCESS: (state, action) => ({
+		...state,
+		tabItemCount: action.payload,
 	}),
 
 	RESET_STATE: () => intialState,
