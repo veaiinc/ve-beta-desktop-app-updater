@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import '../../../assets/scss/workflowBuilder/workflowBuilderCard.scss';
 import { ReactComponent as EmailSvg } from '../../../assets/svg/worflow_builder/email.svg';
 
-const FirstWorkflowCard = ({ publicData, openPreviewModal }) => {
+const FirstWorkflowCard = ({ publicData, openPreviewModal, editOnClickHandler }) => {
 	return (
 		<div className="previewCard" onClick={() => openPreviewModal('public')}>
 			<div className="htmlContentViewer">
@@ -20,7 +20,15 @@ const FirstWorkflowCard = ({ publicData, openPreviewModal }) => {
 				<span className="labelTitle">Enquiry Form</span>
 				<div className="actionContainer">
 					<div className="viewBtn">View</div>
-					<div className="editBtn">Edit Form</div>
+					<div
+						className="editBtn"
+						onClick={(e) => {
+							editOnClickHandler();
+							e.stopPropagation();
+						}}
+					>
+						Edit Form
+					</div>
 				</div>
 			</div>
 		</div>
@@ -99,6 +107,11 @@ const WorkflowBuilderCards = ({
 			/>
 		),
 	};
+
+	const editOnClickHandler = useCallback(() => {
+		window.location.href = `https://builder.ve.ai/${templateData?._id}`;
+	}, [templateData]);
+
 	return (
 		<div className="WorkflowBuilderCardsParentContainer">
 			{mapper?.[workflowdata?.module] ? (
@@ -110,6 +123,7 @@ const WorkflowBuilderCards = ({
 					index={index}
 					publicData={publicData}
 					openPreviewModal={openPreviewModal}
+					editOnClickHandler={editOnClickHandler}
 				/>
 			)}
 		</div>
