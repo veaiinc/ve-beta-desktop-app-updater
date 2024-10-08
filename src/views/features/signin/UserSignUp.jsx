@@ -84,7 +84,7 @@ const UserSignUp = ({
 			};
 			const response = await signUpInvitedUser(json);
 			if (response?.[0]) {
-				localStorage.removeItem('locationDetails');
+				// localStorage.removeItem('locationDetails');
 				navigate('/sales');
 				setLoading(false);
 			} else {
