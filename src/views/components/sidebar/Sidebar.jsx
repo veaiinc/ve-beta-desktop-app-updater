@@ -83,13 +83,13 @@ const Sidebar = ({ activeWorkspaceId }) => {
 						location?.pathname === '/sales'
 							? sidebarStates?.isOpen
 								? ''
-								: '20vh'
+								: '250px'
 							: '',
 					minHeight:
 						location?.pathname === '/sales'
 							? sidebarStates?.isOpen
 								? ''
-								: '20vh'
+								: '250px'
 							: '',
 				}}
 			>
