@@ -198,6 +198,7 @@ const Sales = () => {
 				next={fetchMoreMyWorkflows}
 				hasMore={info?.hasNextPage}
 				loader={<FetchMoreLoaderComp />}
+				scrollableTarget={'scrollableTarget'}
 			>
 				{info?.loading ? (
 					info?.shownInitialLoader ? (
