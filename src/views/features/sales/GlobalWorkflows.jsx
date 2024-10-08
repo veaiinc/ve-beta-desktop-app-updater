@@ -137,6 +137,7 @@ const GlobalWorkflows = () => {
 					next={fetchMoreGlobalWorkflows}
 					hasMore={info?.hasNextPage}
 					loader={<FetchMoreLoaderComp />}
+					scrollableTarget={'scrollableTarget'}
 				>
 					<div className="globalWorkflowParentCardContainer">
 						{info?.loading ? (

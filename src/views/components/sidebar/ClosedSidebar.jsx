@@ -33,14 +33,14 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 		<div className="closedSideBarComponent">
 			<div className="openWorkFlowContainer" onClick={openModuleFunction}>
 				<div className="gradientCirlce">
-					<p>W</p>
+					<p style={{ textTransform: 'capitalize' }}>{info?.activeRoute?.[1]}</p>
 
 					<div className="svgDiv">
 						<SvgGradient1 />
 						<SvgGradient2 />
 					</div>
 
-					<h6>Workflow</h6>
+					<h6>{info?.activeRoute?.replace('/', '')}</h6>
 				</div>
 			</div>
 

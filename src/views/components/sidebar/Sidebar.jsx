@@ -77,7 +77,21 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		<>
 			<div
 				className="FullScreenSidebar"
-				style={{ alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ' }}
+				style={{
+					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
+					maxHeight:
+						info?.activeRoute === '/sales'
+							? sidebarStates?.isOpen
+								? ''
+								: '250px'
+							: '',
+					minHeight:
+						info?.activeRoute === '/sales'
+							? sidebarStates?.isOpen
+								? ''
+								: '250px'
+							: '',
+				}}
 			>
 				<nav className="sidebarComponent" style={styles[sidebarStates?.navStyle]}>
 					{sidebarStates?.isOpen ? (

@@ -27,7 +27,6 @@ const AuthWrapper = ({ title, children }) => {
 				style={{
 					display: 'flex',
 					height: '100vh',
-					overflowY: 'auto',
 					padding: '60px 0 0 32px',
 				}}
 			>
@@ -37,7 +36,10 @@ const AuthWrapper = ({ title, children }) => {
 				/>
 
 				<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>
-					<div style={{ flex: 1, overflowY: 'auto', maxHeight: '100%', height: '100%' }}>
+					<div
+						style={{ flex: 1, overflowY: 'auto', maxHeight: '100%', height: '100%' }}
+						id="scrollableTarget"
+					>
 						<div className="childrenContainer">{children}</div>
 					</div>
 				</SkeletonTheme>

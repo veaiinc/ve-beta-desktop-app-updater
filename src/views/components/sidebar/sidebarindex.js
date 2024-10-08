@@ -26,22 +26,22 @@ import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/left
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export const veAiModulesItemsList = [
-	{ name: 'Workflow', moduleRoute: '/workflows', route: '/sales/workflows', icon: FlowArrowSvg },
-	{
-		name: 'Linkin Bio',
-		moduleRoute: '/linkin-bio',
-		route: null,
-		icon: InsertLinkSvg,
-		initialColor: '#7D7D7D',
-	},
-	{ name: 'Calendar', moduleRoute: '/calendar', route: null, icon: CalendarSvg },
-	{ name: 'Inbox', moduleRoute: '/inbox', route: null, icon: MailOutlineSvg },
-	{ name: 'Clients', moduleRoute: '/clients', route: null, icon: LayoutSvg },
-	{ name: 'Finance', moduleRoute: '/finance', route: null, icon: AttachMoneySvg },
-	{ name: 'Email', moduleRoute: '/email', route: null, icon: AtSignSvg },
-	{ name: 'HR', moduleRoute: '/hr', route: null, icon: FinanceSvg },
-	{ name: 'Inventory', moduleRoute: '/inventory', route: null, icon: LayoutSvg },
-	{ name: 'Team', moduleRoute: '/team', route: null, icon: LayoutSvg },
+	// { name: 'Workflow', moduleRoute: '/workflows', route: '/sales/workflows', icon: FlowArrowSvg },
+	// {
+	// 	name: 'Linkin Bio',
+	// 	moduleRoute: '/linkin-bio',
+	// 	route: null,
+	// 	icon: InsertLinkSvg,
+	// 	initialColor: '#7D7D7D',
+	// },
+	// { name: 'Calendar', moduleRoute: '/calendar', route: null, icon: CalendarSvg },
+	// { name: 'Inbox', moduleRoute: '/inbox', route: null, icon: MailOutlineSvg },
+	// { name: 'Clients', moduleRoute: '/clients', route: null, icon: LayoutSvg },
+	// { name: 'Finance', moduleRoute: '/finance', route: null, icon: AttachMoneySvg },
+	// { name: 'Email', moduleRoute: '/email', route: null, icon: AtSignSvg },
+	// { name: 'HR', moduleRoute: '/hr', route: null, icon: FinanceSvg },
+	// { name: 'Inventory', moduleRoute: '/inventory', route: null, icon: LayoutSvg },
+	// { name: 'Team', moduleRoute: '/team', route: null, icon: LayoutSvg },
 ];
 
 export const bottomOptionsList = [
