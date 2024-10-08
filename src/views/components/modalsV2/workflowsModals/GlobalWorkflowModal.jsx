@@ -325,7 +325,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 										<span>{e?.module}</span>
 										<div className="imageContainer">
 											<div className="coverImage">
-												<div
+												{/* <div
 													dangerouslySetInnerHTML={{
 														__html: info?.templatesMapper?.[e?._id],
 													}}
@@ -333,6 +333,20 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 														width: '100%',
 														zoom: e?.module === 'thankyou' ? 5 : 3,
 													}}
+												/> */}
+												{console.log(
+													'hello==>',
+													`http://localhost:3000/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}`,
+												)}
+												<iframe
+													src={
+														window.location.hostname === 'localhost'
+															? `http://localhost:3000/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}`
+															: `https://builder.ve.ai/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}`
+													}
+													title="Builder Preview"
+													width="100%"
+													height="100%"
 												/>
 											</div>
 										</div>
