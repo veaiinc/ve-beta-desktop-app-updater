@@ -519,19 +519,20 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			return;
 		}
 		setInfo((prev) => ({ ...prev, duplicateLoader: true }));
-		const payload = {
-			templateId: templateData?._id,
-			title: templateData?.title,
-		};
+		window.location.href = `https://builder.ve.ai/${workflowData?._id}`;
+		// const payload = {
+		// 	templateId: templateData?._id,
+		// 	title: templateData?.title,
+		// };
 
-		const response = await duplicateGlobalWorkflowTemplate(payload);
-		setInfo((prev) => ({ ...prev, duplicateLoader: false }));
-		if (response?.[0]) {
-			window.location.href = `https://builder.ve.ai/${response?.[1]?._id}?clientName=${
-				workflowData?.name || ''
-			}&clientEmail=${workflowData?.email || ''}`;
-			return;
-		}
+		// const response = await duplicateGlobalWorkflowTemplate(payload);
+		// setInfo((prev) => ({ ...prev, duplicateLoader: false }));
+		// if (response?.[0]) {
+		// 	window.location.href = `https://builder.ve.ai/${response?.[1]?._id}?clientName=${
+		// 		workflowData?.name || ''
+		// 	}&clientEmail=${workflowData?.email || ''}`;
+		// 	return;
+		// }
 	}, [info?.duplicateLoader, workflowData]);
 
 	const handleUpdateVaraiblesArray = useCallback(
@@ -631,8 +632,8 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					<iframe
 						src={
 							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${templateData._id}`
-								: `https://builder.ve.ai/preview/${templateData._id}`
+								? `http://localhost:3000/preview/${workflowData?._id}`
+								: `https://builder.ve.ai/preview/${workflowData?._id}`
 						}
 						title="Builder Preview"
 						width="100%"
