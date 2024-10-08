@@ -42,17 +42,6 @@ const Sales = () => {
 		currentWorkspaceId: '',
 	});
 
-	// let {
-	// 	templates: {
-	// 		getMyWorkflows,
-	// 		myWorkflows,
-	// 		myMoreWorkflows,
-	// 		salePageRefresh,
-	// 		updateStateValues,
-	// 		generatePublicLinkData,
-	// 	},
-	// } = useContext(Context);
-
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
 	}, []);

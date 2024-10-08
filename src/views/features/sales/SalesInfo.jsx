@@ -1,10 +1,10 @@
-import React, { useContext, useRef, useCallback, useEffect, useState } from 'react';
+import React, { useContext, useRef, useEffect, useState, useCallback } from 'react';
 import Context from '../../../context/context';
-import DateTimeLocation from './DateTimeLocation';
 import { ReactComponent as Gradient } from '../../../assets/svg/sales/gradient.svg';
 import { ReactComponent as CardDiv } from '../../../assets/svg/sales/card-div.svg';
 import HeaderImage from '../../../assets/images/sales/header-image.png';
 import moment from 'moment';
+import HeaderInfo from './HeaderInfo';
 
 const tabItems = [
 	{ id: 'all', label: 'All' },
@@ -16,42 +16,56 @@ const tabItems = [
 
 const SalesInfo = () => {
 	const [activeTab, setActiveTab] = useState('all');
-	const [greeting, setGreeting] = useState('');
 
 	let {
 		templates: { requiredActions, getRequiredActions, tabItemCount, getTabItemCount },
-		profileInfo: { userDetailsData },
 	} = useContext(Context);
 
 	const scrollRef = useRef(null);
+	const debounceTimerRef = useRef(null);
 
 	useEffect(() => {
 		fetchSalesInfo();
 	}, []);
 
 	useEffect(() => {
-		const handleScroll = () => {
-			if (scrollRef.current) {
-				const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-				if (scrollLeft + clientWidth >= scrollWidth - 20) {
-					if (requiredActions?.hasMore) {
-						getRequiredActions({
-							filters: {
-								action: activeTab,
-								page: Math.ceil(requiredActions?.actions?.length / 10) + 1,
-								limit: 10,
-							},
-							resetRequiredActions: false,
-						});
-					}
-				}
+		scrollRef?.current?.addEventListener('scroll', debouncedHandleScroll);
+		return () => {
+			scrollRef?.current?.removeEventListener('scroll', debouncedHandleScroll);
+			if (debounceTimerRef.current) {
+				clearTimeout(debounceTimerRef.current);
 			}
 		};
-		scrollRef.current?.addEventListener('scroll', handleScroll);
-		return () => scrollRef.current?.removeEventListener('scroll', handleScroll);
-	}, [requiredActions]);
+	}, [requiredActions, activeTab]);
 
-	const fetchSalesInfo = async () => {
+	const handleScroll = useCallback(() => {
+		if (scrollRef.current) {
+			const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+			if (scrollLeft + clientWidth >= scrollWidth - 20) {
+				if (requiredActions?.hasMore) {
+					getRequiredActions({
+						filters: {
+							action: activeTab,
+							page: Math.ceil(requiredActions?.actions?.length / 10) + 1,
+							limit: 10,
+						},
+						resetRequiredActions: false,
+					});
+				}
+			}
+		}
+	}, [requiredActions, activeTab, getRequiredActions]);
+
+	const debouncedHandleScroll = () => {
+		if (debounceTimerRef.current) {
+			clearTimeout(debounceTimerRef.current);
+		}
+		debounceTimerRef.current = setTimeout(() => {
+			handleScroll();
+		}, 500);
+	};
+
+	const fetchSalesInfo = useCallback(() => {
 		getRequiredActions({
 			filters: {
 				action: 'all',
@@ -60,19 +74,23 @@ const SalesInfo = () => {
 			},
 		});
 		getTabItemCount();
-	};
+	}, [getRequiredActions, getTabItemCount]);
 
-	const handleTabClick = (tabId) => {
-		setActiveTab(tabId);
-		getRequiredActions({
-			filters: {
-				action: tabId,
-				page: 1,
-				limit: 10,
-			},
-			resetRequiredActions: true,
-		});
-	};
+	const handleTabClick = useCallback(
+		(tabId) => {
+			if (tabId === activeTab) return;
+			setActiveTab(tabId);
+			getRequiredActions({
+				filters: {
+					action: tabId,
+					page: 1,
+					limit: 10,
+				},
+				resetRequiredActions: true,
+			});
+		},
+		[requiredActions, getRequiredActions],
+	);
 
 	return (
 		<>
@@ -82,13 +100,7 @@ const SalesInfo = () => {
 			<div className="sales-page">
 				<div className="header-image">
 					<img src={HeaderImage} alt="Header" />
-					<div className="left-content">
-						<p>Hey, {userDetailsData?.firstName || 'User'}!</p>
-						<h1>{greeting} 😃</h1>
-					</div>
-					<div className="right-content">
-						<DateTimeLocation setGreeting={setGreeting} />
-					</div>
+					<HeaderInfo />
 				</div>
 				<div className="sales-page-filter">
 					<ul>
