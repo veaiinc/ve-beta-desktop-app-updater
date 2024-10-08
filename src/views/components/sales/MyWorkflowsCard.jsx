@@ -175,6 +175,13 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 							''
 						)}
 						<span onClick={() => navigateToWorkflowBuilder(data)}>Edit Workflow</span>
+						<span
+							onClick={() =>
+								(window.location.href = `https://builder.ve.ai/${data?._id} `)
+							}
+						>
+							Edit{' '}
+						</span>
 					</div>
 				</div>
 
