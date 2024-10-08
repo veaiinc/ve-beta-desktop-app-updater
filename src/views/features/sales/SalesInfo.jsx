@@ -62,7 +62,7 @@ const SalesInfo = () => {
 		}
 		debounceTimerRef.current = setTimeout(() => {
 			handleScroll();
-		}, 500);
+		}, 300);
 	};
 
 	const fetchSalesInfo = useCallback(() => {
