@@ -54,14 +54,8 @@ export const intialState = {
 	contractSignedLocalState: null,
 	specificTemplatesInfo: null,
 	smartFileEmailTemplateData: null,
-	requiredActions: { actions: [], hasMore: false },
-	tabItemCount: {
-		all: 0,
-		enquiry: 0,
-		counterSign: 0,
-		emailApproval: 0,
-		expiresInThreeDays: 0,
-	},
+	requiredActions: { actions: [], hasMore: false, loading: true },
+	tabItemCount: null,
 };
 
 export const TemplatesState = (props) => {
@@ -832,10 +826,11 @@ export const TemplatesState = (props) => {
 					payload: {
 						actions: resetRequiredActions
 							? response?.[1]?.data?.listRequiredActions?.data
-							: state.requiredActions.actions.concat(
+							: state?.requiredActions?.actions?.concat(
 									response?.[1]?.data?.listRequiredActions?.data,
 							  ),
 						hasMore: response?.[1]?.data?.listRequiredActions?.hasNextPage,
+						loading: false,
 					},
 				});
 			} else {

@@ -5,7 +5,7 @@ import moment from 'moment';
 
 const HeaderInfo = () => {
 	const [headerInfo, setHeaderInfo] = useState({
-		greeting: '',
+		greeting: getGreeting(),
 		currentTime: moment().format('HH:mm'),
 		currentDate: moment().format('dddd Do MMM, YYYY'),
 		location: 'Fetching location...',

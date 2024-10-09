@@ -1,5 +1,7 @@
+import Skeleton from 'react-loading-skeleton';
 import Spinner from '../views/components/loaders/Spinner';
 import axios from 'axios';
+import { useEffect } from 'react';
 
 export const nameShortner = (name) => {
 	let newName = name?.split(' ');
@@ -102,4 +104,29 @@ export const getCurrentWorkspaceId = (userWorkSpaceList = []) => {
 
 	const currentWorkspaceIds = tenant.workspaceIds || [workspaceId];
 	return currentWorkspaceIds[currentWorkspaceIds.length - 1];
+};
+
+export const RequiredActionsLoader = () => {
+	useEffect(() => {
+		const skeletonContainer = document.querySelector('.skeleton-container');
+		if (skeletonContainer) {
+			skeletonContainer.style.display = 'flex';
+			skeletonContainer.style.padding = '16px';
+			skeletonContainer.style.gap = '8px';
+		}
+	}, []);
+
+	return (
+		<div>
+			<Skeleton
+				width={'200px'}
+				height={'284px'}
+				style={{
+					borderRadius: '16px',
+				}}
+				count={10}
+				containerClassName={'skeleton-container'}
+			/>
+		</div>
+	);
 };

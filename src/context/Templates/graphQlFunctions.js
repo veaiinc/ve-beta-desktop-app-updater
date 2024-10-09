@@ -406,6 +406,7 @@ export const getRequiredActionDetailsQuery = gql`
 				expiresAt
 				approvalRequired
 				status
+				templateId
 			}
 			hasNextPage
 		}

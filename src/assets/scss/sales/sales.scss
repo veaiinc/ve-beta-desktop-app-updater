@@ -264,6 +264,8 @@
 				display: flex;
 				flex-direction: column;
 				justify-content: space-between;
+				cursor: pointer;
+				transition: all 0.2s ease-in;
 				position: relative;
 
 				&:hover {
