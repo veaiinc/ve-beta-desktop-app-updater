@@ -14,22 +14,27 @@ const initialState = {
 	activeTab: 'design', //design,automation
 	duplicateApiLoading: false,
 	templatesMapper: null,
-	publicData: null,
-	privateData: null,
 	activeTemplateData: null,
 	loading: true,
 };
 
 const EntryPointCard = ({ publicData }) => {
+	const data = publicData?.moduleTemplates?.filter((e) => e?.isPublic);
+
 	return (
 		<div className="previewCard" style={{ pointerEvents: 'none' }}>
 			<div className="htmlContentViewer">
 				<div className="coverImage">
-					<div
-						dangerouslySetInnerHTML={{
-							__html: Object?.values(publicData || {})?.[0]?.parsedHtmlContent,
-						}}
-						style={{ width: '100%' }}
+					<iframe
+						src={
+							window.location.hostname === 'localhost'
+								? `http://localhost:3000/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}`
+								: `https://builder.ve.ai/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}`
+						}
+						title="Builder Preview"
+						width="100%"
+						height="100%"
+						style={{ zoom: 0.2 }}
 					/>
 				</div>
 			</div>
@@ -61,15 +66,21 @@ const OtherViewCard = ({ data }) => {
 };
 
 const PreviewCard = ({ privateData }) => {
+	const data = privateData?.moduleTemplates?.filter((e) => !e?.isPublic);
 	return (
 		<div className="previewCard" style={{ pointerEvents: 'none' }}>
 			<div className="htmlContentViewer">
 				<div className="coverImage">
-					<div
-						dangerouslySetInnerHTML={{
-							__html: Object?.values(privateData || {})?.[0]?.parsedHtmlContent,
-						}}
-						style={{ width: '100%' }}
+					<iframe
+						src={
+							window.location.hostname === 'localhost'
+								? `http://localhost:3000/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}`
+								: `https://builder.ve.ai/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}`
+						}
+						title="Builder Preview"
+						width="100%"
+						height="100%"
+						style={{ zoom: 0.2 }}
 					/>
 				</div>
 			</div>
@@ -84,12 +95,12 @@ const PreviewCard = ({ privateData }) => {
 	);
 };
 
-const AutomationComponent = ({ activeTemplateData, publicData, privateData, loading }) => {
+const AutomationComponent = ({ activeTemplateData, loading }) => {
 	const [data, setData] = useState({
 		stepsData: null,
 		componentmapper: {
 			theEnd: <EndPointViewCard />,
-			preview: <PreviewCard privateData={privateData} />,
+			preview: <PreviewCard privateData={activeTemplateData} />,
 		},
 	});
 
@@ -127,7 +138,7 @@ const AutomationComponent = ({ activeTemplateData, publicData, privateData, load
 						}}
 					>
 						{index === 0 ? (
-							<EntryPointCard publicData={publicData} />
+							<EntryPointCard publicData={activeTemplateData} />
 						) : data?.componentmapper?.[ele?.module] ? (
 							data?.componentmapper?.[ele?.module]
 						) : (
@@ -182,36 +193,6 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 				obj[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
 			}
 			setInfo((prev) => ({ ...prev, templatesMapper: obj }));
-		}
-	}, [info?.activeTemplateData]);
-
-	useEffect(() => {
-		if (info?.activeTemplateData) {
-			const { moduleTemplates, templates } = info?.activeTemplateData;
-			let publicData = {};
-			let privateData = {};
-
-			for (let i = 0; i < moduleTemplates?.length; i++) {
-				if (moduleTemplates?.[i]?.isPublic) {
-					publicData[moduleTemplates?.[i]?._id] = {};
-				} else {
-					privateData[moduleTemplates?.[i]?._id] = {};
-				}
-			}
-
-			for (let i = 0; i < templates?.length; i++) {
-				if (publicData?.[templates?.[i]?._id]) {
-					publicData[templates?.[i]?._id] = {
-						parsedHtmlContent: templates?.[i]?.parsedHtmlContent,
-					};
-				}
-				if (privateData?.[templates?.[i]?._id]) {
-					privateData[templates?.[i]?._id] = {
-						parsedHtmlContent: templates?.[i]?.parsedHtmlContent,
-					};
-				}
-			}
-			setInfo((prev) => ({ ...prev, publicData, privateData }));
 		}
 	}, [info?.activeTemplateData]);
 
@@ -344,8 +325,6 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 					) : (
 						<AutomationComponent
 							activeTemplateData={info?.activeTemplateData}
-							publicData={info?.publicData}
-							privateData={info?.privateData}
 							loading={info?.loading}
 						/>
 					)}

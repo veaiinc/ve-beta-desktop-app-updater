@@ -54,8 +54,6 @@ const WorkflowBuilder = () => {
 		renameModal: false,
 		duplicateWorkflowModal: false,
 		exitModal: false,
-		publicData: null,
-		privateData: null,
 		previewType: null,
 		loading: true,
 		deleteWorkflowModal: false,
@@ -93,36 +91,6 @@ const WorkflowBuilder = () => {
 				loading: false,
 				incomingTemplateData: specificTemplatesInfo,
 			}));
-		}
-	}, [specificTemplatesInfo]);
-
-	useEffect(() => {
-		if (specificTemplatesInfo) {
-			const { moduleTemplates, templates } = specificTemplatesInfo;
-			let publicData = {};
-			let privateData = {};
-
-			for (let i = 0; i < moduleTemplates?.length; i++) {
-				if (moduleTemplates?.[i]?.isPublic) {
-					publicData[moduleTemplates?.[i]?._id] = {};
-				} else {
-					privateData[moduleTemplates?.[i]?._id] = {};
-				}
-			}
-
-			for (let i = 0; i < templates?.length; i++) {
-				if (publicData?.[templates?.[i]?._id]) {
-					publicData[templates?.[i]?._id] = {
-						parsedHtmlContent: templates?.[i]?.parsedHtmlContent,
-					};
-				}
-				if (privateData?.[templates?.[i]?._id]) {
-					privateData[templates?.[i]?._id] = {
-						parsedHtmlContent: templates?.[i]?.parsedHtmlContent,
-					};
-				}
-			}
-			setInfo((prev) => ({ ...prev, publicData, privateData }));
 		}
 	}, [specificTemplatesInfo]);
 
@@ -409,8 +377,6 @@ const WorkflowBuilder = () => {
 								index={index}
 								templateData={info?.incomingTemplateData}
 								openPreviewModal={openPreviewModal}
-								publicData={info?.publicData}
-								privateData={info?.privateData}
 							/>
 							{index < info?.data?.length - 1 ? (
 								<WorkflowConnector alterData={alterData} index={index} />
