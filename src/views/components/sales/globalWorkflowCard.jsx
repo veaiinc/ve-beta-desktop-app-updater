@@ -13,6 +13,7 @@ const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 	useEffect(() => {
 		if (data) {
 			const { moduleTemplates, templates } = data;
+			console.log('data==>', data);
 			let formData, formParsedContentHtml;
 			let publicModules = [],
 				privateModules = [];
@@ -75,14 +76,16 @@ const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 			</div>
 
 			<div className="imageContainer">
-				<div className="coverImage">
-					<div
-						dangerouslySetInnerHTML={{
-							__html: info?.formParsedContentHtml,
-						}}
-						style={{ width: '100%', height: '100%', zoom: 3, pointerEvents: 'none' }}
-					/>
-				</div>
+				<iframe
+					src={
+						window.location.hostname === 'localhost'
+							? `http://localhost:3000/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}`
+							: `https://builder.ve.ai/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}`
+					}
+					// title="Builder Preview"
+					width="100%"
+					height="100%"
+				/>
 			</div>
 		</div>
 	);
