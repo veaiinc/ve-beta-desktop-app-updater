@@ -46,7 +46,7 @@ export const veAiModulesItemsList = [
 
 export const bottomOptionsList = [
 	{ name: 'Upgrade', moduleRoute: '/upgrade', route: null, icon: CrownSvg },
-	{ name: 'Playbook', moduleRoute: '/sales', route: null, icon: BookSvg },
+	{ name: 'Playbook', moduleRoute: '/playbook', route: '/playbook', icon: BookSvg },
 	{
 		name: 'App store',
 		moduleRoute: '/app-store',
@@ -82,7 +82,7 @@ export const styles = {
 
 export const newBtnActions = [
 	{ label: 'Lead', action: 'functionCall', funcName: 'openLeadPopup', redirect: null },
-	{ label: 'Workflow', action: 'redirect', funcName: null, redirect: '/sales/workflows' },
+	{ label: 'Workflow', action: 'redirect', funcName: null, redirect: '/playbook' },
 	// { label: 'Smart File' },
 ];
 

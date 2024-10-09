@@ -97,7 +97,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 		}
 		if (data?.label === 'Smart File') {
 		} else {
-			navigate('/sales/workflows');
+			navigate('/playbook');
 		}
 		return;
 	}, []);
@@ -127,7 +127,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 							className={`filterButton ${
 								title === 'Sales' ? 'filterButtonActive' : ''
 							}`}
-							onClick={() => navigate('/sales')}
+							onClick={() => navigate('/home')}
 						>
 							Sales
 						</div>

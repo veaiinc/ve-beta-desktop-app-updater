@@ -320,19 +320,20 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 									<div
 										className="modulesViewer"
 										key={index}
-										style={{ pointerEvents: 'none' }}
+										// style={{ pointerEvents: 'none' }}
 									>
 										<span>{e?.module}</span>
 										<div className="imageContainer">
-											<div className="coverImage">
-												<div
-													dangerouslySetInnerHTML={{
-														__html: info?.templatesMapper?.[e?._id],
-													}}
-													style={{
-														width: '100%',
-														zoom: e?.module === 'thankyou' ? 5 : 3,
-													}}
+											<div style={{ width: '100%', height: '100%' }}>
+												<iframe
+													src={
+														window.location.hostname === 'localhost'
+															? `http://localhost:3000/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}`
+															: `https://builder.ve.ai/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}`
+													}
+													title="Builder Preview"
+													width="100%"
+													height="100%"
 												/>
 											</div>
 										</div>

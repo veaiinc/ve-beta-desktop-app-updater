@@ -101,7 +101,7 @@ const Sales = () => {
 			let myWorkflowData = [];
 			if (currentPage === 1 && !data?.length && !generatePublicLinkData) {
 				localStorage.setItem('showInitialLoader', true);
-				return navigate('/sales/workflows');
+				return navigate('/playbook');
 			}
 
 			for (let i = 0; i < data?.length; i++) {

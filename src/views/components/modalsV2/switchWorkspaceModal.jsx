@@ -62,7 +62,7 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 		});
 		if (salesId) {
-			navigate('/sales');
+			navigate('/home');
 		}
 		window.location.reload();
 	}, []);

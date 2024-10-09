@@ -240,7 +240,7 @@ const WorkflowBuilder = () => {
 				updateStateValues({ generatePublicLinkData: response?.[1] });
 			}
 			refreshSalesModuleData();
-			return navigate('/sales');
+			return navigate('/home');
 		}
 	}, [info?.publishLoading, info?.incomingTemplateData]);
 
@@ -326,7 +326,7 @@ const WorkflowBuilder = () => {
 		setInfo((prev) => ({ ...prev, deleteWorkflowModal: false, deleteWorkflowLoader: false }));
 		if (resposne?.[0]) {
 			refreshSalesModuleData();
-			return navigate('/sales');
+			return navigate('/home');
 		} else {
 			message.error('Something went wrong,try again');
 		}
