@@ -338,7 +338,7 @@ const WorkflowBuilder = () => {
 			<div className="workflowBuilderHeader">
 				<div className="workflowBuilderNavigationContainer">
 					<div className="veIconHolder">
-						<VE />
+						{/* <VE /> */}
 						<span
 							style={{
 								display: 'flex',

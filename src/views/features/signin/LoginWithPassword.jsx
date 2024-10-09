@@ -52,7 +52,7 @@ const LoginWithPassword = ({
 						setStage('create-workspace');
 					}
 					setLoading(false);
-					localStorage.removeItem('locationDetails');
+					// localStorage.removeItem('locationDetails');
 					navigate(response?.[1]); // either login or ealry access
 					setLoading(false);
 					return;
