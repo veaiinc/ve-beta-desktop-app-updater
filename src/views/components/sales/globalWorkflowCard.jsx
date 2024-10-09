@@ -82,9 +82,10 @@ const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 							? `http://localhost:3000/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}`
 							: `https://builder.ve.ai/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}`
 					}
-					// title="Builder Preview"
+					title="Builder Preview"
 					width="100%"
 					height="100%"
+					style={{ zoom: 0.3 }}
 				/>
 			</div>
 		</div>

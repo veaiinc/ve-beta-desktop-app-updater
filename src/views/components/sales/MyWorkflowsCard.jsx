@@ -195,6 +195,7 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 						title="Builder Preview"
 						width="100%"
 						height="100%"
+						style={{ zoom: 0.3 }}
 					/>
 				</div>
 			</div>
