@@ -8,10 +8,12 @@ import Context from '../../../../context/context';
 import AcceptedStageSmartFileBlocks from '../../../components/smartFileComponets/AcceptedStageSmartFileBlocks';
 import { ReactComponent as EditSvg } from '../.././../../assets/svg/worflow_builder/edit.svg';
 import Spinner from '../../../components/loaders/Spinner';
+import { useParams } from 'react-router-dom';
 
 let origin =
 	window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://builder.ve.ai';
 const File = ({ templateData, workflowData, userSigned, edit }) => {
+	const { workflowId } = useParams();
 	let {
 		templates: {
 			smartFileInfo,
@@ -20,7 +22,6 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			updateInvoice,
 			updateForm,
 			updateThankyou,
-			duplicateGlobalWorkflowTemplate,
 			formResponseData,
 		},
 	} = useContext(Context);
@@ -294,6 +295,14 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 	//servicesTableChnages
 	const serviceTableOnChnageFunc = useCallback(
 		async (updateServiceBlockInfo, index) => {
+			const iframe = document.querySelector('iframe');
+			if (iframe && iframe.contentWindow) {
+				iframe.contentWindow.postMessage(
+					{ type: 'SERVICE_TABLE_DATA', serviceBlock: updateServiceBlockInfo },
+					origin,
+				);
+			}
+
 			let updatedServiceData = [...(info?.servicesTableData || [])];
 			updatedServiceData?.splice(index, 1, updateServiceBlockInfo);
 			const serviceBlockId = updateServiceBlockInfo?._id;
@@ -310,6 +319,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			if (replaceServiceIndex !== -1) {
 				sections?.splice(replaceServiceIndex, 1, updateServiceBlockInfo);
 			}
+
 			setInfo((prev) => ({
 				...prev,
 				proposal: proposalData,
@@ -325,6 +335,15 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		async (updatedData) => {
 			const moduleType = updatedData?.moduleType;
 			let updatedEventsData = { ...info?.eventsTableData };
+
+			const iframe = document.querySelector('iframe');
+			if (iframe && iframe.contentWindow) {
+				iframe.contentWindow.postMessage(
+					{ type: 'EVENTS_TABLE_DATA', eventsTable: updatedEventsData },
+					origin,
+				);
+			}
+
 			let eventsModuleArrayToBeUpdated = [...(updatedEventsData?.[moduleType] || [])];
 			let index = -1;
 			for (let i = 0; i < eventsModuleArrayToBeUpdated?.length; i++) {
@@ -515,24 +534,8 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 	);
 
 	const duplicateTemplateFromSmartFile = useCallback(async () => {
-		if (info?.duplicateLoader) {
-			return;
-		}
-		setInfo((prev) => ({ ...prev, duplicateLoader: true }));
-		const payload = {
-			templateId: templateData?._id,
-			title: templateData?.title,
-		};
-
-		const response = await duplicateGlobalWorkflowTemplate(payload);
-		setInfo((prev) => ({ ...prev, duplicateLoader: false }));
-		if (response?.[0]) {
-			window.location.href = `https://builder.ve.ai/${response?.[1]?._id}?clientName=${
-				workflowData?.name || ''
-			}&clientEmail=${workflowData?.email || ''}`;
-			return;
-		}
-	}, [info?.duplicateLoader, workflowData]);
+		window.location.href = `${origin}/${workflowId}?workflow=true`;
+	}, [workflowData]);
 
 	const handleUpdateVaraiblesArray = useCallback(
 		async (updatedDuplicateVariableArray) => {
@@ -631,8 +634,8 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					<iframe
 						src={
 							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${templateData._id}`
-								: `https://builder.ve.ai/preview/${templateData._id}`
+								? `http://localhost:3000/preview/${workflowId}?workflow=true`
+								: `https://builder.ve.ai/preview/${workflowId}?workflow=true`
 						}
 						title="Builder Preview"
 						width="100%"

@@ -55,7 +55,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 					</div>
 				</div>
 
-				<div onClick={() => navigate('/sales')}>
+				<div onClick={() => navigate('/home')}>
 					<ClosedSideBarHoverStateIcons Icon={AppartmentHomeSvg} />
 				</div>
 				<div className="activeWorkspaceDiv" onClick={openModuleFunction}>

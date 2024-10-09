@@ -106,7 +106,7 @@ const VerifyEmailCode = ({
 				return;
 			}
 			// localStorage.removeItem('locationDetails');
-			navigate('/sales');
+			navigate('/home');
 			setLoading(false);
 		} else {
 			setLoading(false);
