@@ -6,7 +6,7 @@ import { ReactComponent as CardDiv } from '../../../assets/svg/sales/card-div.sv
 import HeaderImage from '../../../assets/images/sales/header-image.png';
 import moment from 'moment';
 import HeaderInfo from './HeaderInfo';
-import { RequiredActionsLoader } from '../../../helpers';
+import RequiredActionsLoader from '../../components/sales/RequiredActionsLoader';
 
 const tabItems = [
 	{ id: 'all', label: 'All' },
