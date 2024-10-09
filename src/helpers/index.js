@@ -107,26 +107,24 @@ export const getCurrentWorkspaceId = (userWorkSpaceList = []) => {
 };
 
 export const RequiredActionsLoader = () => {
-	useEffect(() => {
-		const skeletonContainer = document.querySelector('.skeleton-container');
-		if (skeletonContainer) {
-			skeletonContainer.style.display = 'flex';
-			skeletonContainer.style.padding = '16px';
-			skeletonContainer.style.gap = '8px';
-		}
-	}, []);
-
 	return (
-		<div>
-			<Skeleton
-				width={'200px'}
-				height={'284px'}
-				style={{
-					borderRadius: '16px',
-				}}
-				count={10}
-				containerClassName={'skeleton-container'}
-			/>
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'row',
+				padding: '16px',
+				gap: '8px',
+				justifyContent: 'flex-start',
+			}}
+		>
+			{[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]?.map((_, index) => (
+				<Skeleton
+					width={'200px'}
+					height={'284px'}
+					style={{ borderRadius: '16px' }}
+					key={index}
+				/>
+			))}
 		</div>
 	);
 };
