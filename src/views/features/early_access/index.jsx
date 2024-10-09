@@ -15,7 +15,7 @@ const EarlyAccess = () => {
 		const isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
 		const usertoken = localStorage.getItem('usertoken');
 		if (isOnboard && usertoken) {
-			navigate('/sales');
+			navigate('/home');
 		}
 	}, []);
 
