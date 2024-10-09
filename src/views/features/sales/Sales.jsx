@@ -10,6 +10,7 @@ import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
 import PublicLinkGeneratedModal from '../../components/modalsV2/workflowsModals/PublicLinkGeneratedModal';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import InitialPageLoader from '../../components/loaders/PageLoader';
+import SalesInfo from './SalesInfo';
 import { getCurrentWorkspaceId } from '../../../helpers';
 
 const Sales = () => {
@@ -41,7 +42,6 @@ const Sales = () => {
 		currentWorkspaceId: '',
 	});
 
-	//useEffects
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
 	}, []);
@@ -192,11 +192,13 @@ const Sales = () => {
 
 	return (
 		<>
+			<SalesInfo />
 			<InfiniteScroll
 				dataLength={info?.myWorkflowData?.length || 0}
 				next={fetchMoreMyWorkflows}
 				hasMore={info?.hasNextPage}
 				loader={<FetchMoreLoaderComp />}
+				scrollableTarget={'scrollableTarget'}
 			>
 				{info?.loading ? (
 					info?.shownInitialLoader ? (
@@ -218,6 +220,7 @@ const Sales = () => {
 					</div>
 				)}
 			</InfiniteScroll>
+
 			<MyWorkflowsModals
 				modalIsOpen={info?.myWorkflowModal}
 				closeModal={closeWorkflowModal}

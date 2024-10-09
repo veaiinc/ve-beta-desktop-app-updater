@@ -29,6 +29,8 @@ import {
 	updateSmartFileSlugMutation,
 	deleteLeadMutation,
 	deleteWorkflowTemplatesMutation,
+	getTabItemCountQuery, // Sheshant
+	getRequiredActionDetailsQuery, // Sheshant
 	updateSendSmartFileSettingsMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
@@ -52,6 +54,14 @@ export const intialState = {
 	contractSignedLocalState: null,
 	specificTemplatesInfo: null,
 	smartFileEmailTemplateData: null,
+	requiredActions: { actions: [], hasMore: false },
+	tabItemCount: {
+		all: 0,
+		enquiry: 0,
+		counterSign: 0,
+		emailApproval: 0,
+		expiresInThreeDays: 0,
+	},
 };
 
 export const TemplatesState = (props) => {
@@ -774,6 +784,68 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	// Sheshant
+	const getTabItemCount = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getTabItemCountQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const requiredActions = response?.[1]?.data?.getNumberOfRequiredActions;
+				dispatch({
+					type: Actions.GET_TAB_ITEM_COUNT_SUCCESS,
+					payload: requiredActions,
+				});
+			} else {
+				console.log('api failed ==>getTabItemCount', response);
+			}
+		} catch (error) {
+			console.log('api failed ==>getTabItemCount', error);
+		}
+	};
+
+	const getRequiredActions = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const { resetRequiredActions, ...queryPayload } = payload;
+
+			const response = await service.query(
+				getRequiredActionDetailsQuery,
+				queryPayload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_REQUIRED_ACTIONS_SUCCESS,
+					payload: {
+						actions: resetRequiredActions
+							? response?.[1]?.data?.listRequiredActions?.data
+							: state.requiredActions.actions.concat(
+									response?.[1]?.data?.listRequiredActions?.data,
+							  ),
+						hasMore: response?.[1]?.data?.listRequiredActions?.hasNextPage,
+					},
+				});
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>getRequiredActionDetails', error);
+		}
+	};
+
 	const updateSendSmartFileSettings = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -830,6 +902,10 @@ export const TemplatesState = (props) => {
 		updateSmartFileSlug,
 		deleteLead,
 		deleteWorkflowTemplates,
+		// Sheshant
+		getTabItemCount,
+		// Sheshant
+		getRequiredActions,
 		updateSendSmartFileSettings,
 	};
 };

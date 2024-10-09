@@ -113,7 +113,7 @@ export const CompanySettingsState = () => {
 				'tenant',
 			);
 
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				return [true, response[1]];
 			} else {
 				return [false, response[1]];

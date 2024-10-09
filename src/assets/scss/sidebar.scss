@@ -1,0 +1,486 @@
+.FullScreenSidebar {
+	padding: 20px;
+	display: flex;
+	// align-items: center;
+	min-height: calc(95vh - 60px);
+	padding: 0 15px;
+	position: relative;
+	max-height: calc(95vh - 60px);
+	transition: all 0.5s;
+	z-index: 1000;
+	// position: fixed;
+	// background: red;
+
+	.sidebarComponent {
+		min-height: 100%;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		background: #1d1d1d;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		transition: width 0.5s;
+		overflow-y: auto;
+		transition: all 0.5s ease-in-out;
+		z-index: 1;
+		// position: relative;
+
+		.closedSideBarComponent {
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			align-items: center;
+			min-height: inherit;
+			padding: 10px 10px 18px 10px;
+			border-radius: inherit;
+			z-index: 1;
+
+			.hoverStateIconsClosed {
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+
+				svg {
+					transition: all 0.5s;
+				}
+			}
+
+			.openWorkFlowContainer {
+				width: 41px;
+				height: 41px;
+				border-radius: 50%;
+				fill: linear-gradient(
+					180deg,
+					rgba(255, 255, 255, 0.11) -9.68%,
+					rgba(0, 0, 0, 0.05) 98.65%
+				);
+				box-shadow: 2px 2px 4px 0px #151515 inset, -2px -2px 4px 0px #212121 inset;
+				filter: drop-shadow(1px 1px 2px rgba(14, 14, 14, 0.7));
+				position: relative;
+				cursor: pointer;
+
+				.gradientCirlce {
+					width: 41px;
+					height: 41px;
+					border-radius: 50%;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					position: relative;
+
+					.svgDiv {
+						position: absolute;
+						inset: 0;
+						.svg1 {
+							position: absolute;
+							inset: 0;
+							transition: all 0.5s;
+							opacity: 1;
+							animation: rotateSvg1 2s linear infinite alternate;
+							animation-delay: 15s;
+						}
+						.svg2 {
+							position: absolute;
+							left: -9px;
+							top: -9px;
+							opacity: 0;
+							animation: rotateSvg2 2s linear infinite alternate;
+							animation-delay: 15s;
+						}
+					}
+
+					p {
+						color: rgba(224, 224, 224, 0.48);
+						font-family: Satoshi;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+					}
+
+					h6 {
+						position: absolute;
+						color: #e4e5e6;
+						font-family: 'Apple LiSung';
+						font-size: 11px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 22px; /* 200% */
+						letter-spacing: -0.22px;
+						scale: 0;
+						transform: translateY(20px);
+						transition: all 0.8s;
+					}
+				}
+
+				&:hover {
+					box-shadow: 0px -12px 30px 0px rgba(96, 85, 236, 0.4);
+					.gradientCirlce {
+						stroke-width: 1px;
+						stroke: #5d43fb;
+						filter: drop-shadow(0px 0px 10px #9890ff);
+
+						p {
+							color: #6055ec;
+						}
+						.svg1 {
+							transform: rotate(180deg);
+							animation: none;
+						}
+						.svg2 {
+							opacity: 0;
+							animation: none;
+						}
+						h6 {
+							transform: translateY(34px);
+							scale: 1;
+						}
+					}
+				}
+			}
+
+			.TabOptions {
+				display: flex;
+				flex-direction: column;
+				gap: 24px;
+				.plusIconHover {
+					svg {
+						rotate: 180deg;
+					}
+				}
+
+				.activeWorkspaceDiv {
+					width: 30px;
+					height: 30px;
+					border-radius: 100px;
+					background: #cdc29d;
+					cursor: pointer;
+
+					img {
+						width: 100%;
+						height: 100%;
+						border-radius: 100px;
+					}
+				}
+			}
+
+			.dropDownMenuContainer {
+				position: absolute;
+				left: 35px;
+				transform: translateY(-13px);
+
+				.closedDropDownMenu {
+					display: flex;
+					flex-direction: column;
+					width: inherit;
+					border-radius: 10px;
+					border: 1px solid rgba(100, 100, 100, 0.16);
+					background: #151515;
+					padding: 0px 0px;
+					overflow: hidden;
+
+					> div {
+						color: #e4e5e6;
+						text-overflow: ellipsis;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 16px;
+						letter-spacing: -0.3px;
+						padding: 12px 24px;
+						cursor: pointer;
+						transition: all 0.3s;
+						&:hover {
+							background: #5d43fb;
+						}
+					}
+				}
+			}
+		}
+
+		.openSideBarComponent {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: space-between;
+			min-height: inherit;
+			width: inherit;
+			padding: 18px 9px;
+			border-radius: inherit;
+
+			// common classess for both
+			.allmodulesList,
+			.bottomOptionsList {
+				.singleModuleItem {
+					width: 194px;
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					padding: 12px 12px;
+					p {
+						color: #7d7d7d;
+						text-align: right;
+						font-family: 'Inter';
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+						letter-spacing: -0.3px;
+					}
+
+					&:hover {
+						border-radius: 8px;
+						background: rgba(42, 42, 42, 0.32);
+						cursor: pointer;
+						p {
+							color: #e4e5e6;
+						}
+					}
+				}
+
+				.activeListModule,
+				.activeListModule:hover {
+					background: #6055ec;
+					cursor: pointer;
+					border-radius: 8px;
+					p {
+						color: #e4e5e6;
+					}
+				}
+			}
+
+			.topOptionsList {
+				width: 194px;
+				display: flex;
+				flex-direction: column;
+				gap: 14px;
+
+				.currentWorkspaceDiv {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					flex: 1 0 0;
+					cursor: pointer;
+					padding: 2px;
+
+					.detailsDiv {
+						display: flex;
+						align-items: center;
+						gap: 12px;
+
+						img {
+							width: 38px;
+							height: 38px;
+							border-radius: 50%;
+						}
+
+						h6 {
+							color: #7d7d7d;
+							text-align: right;
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+							max-width: 120px; // Adjust this value as needed
+							white-space: nowrap;
+							overflow: hidden;
+							text-overflow: ellipsis;
+						}
+					}
+				}
+			}
+
+			.bottomOptionsList {
+				.logoutItem,
+				.logoutItem:hover {
+					p {
+						color: #cc5756cc;
+					}
+				}
+			}
+		}
+
+		.workspaceListComponent {
+			padding: 24px;
+			display: flex;
+			flex-direction: column;
+			gap: 21px;
+
+			.backContinaer {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				cursor: pointer;
+				h6 {
+					color: #e4e5e6;
+					text-align: right;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+					letter-spacing: -0.3px;
+				}
+			}
+
+			.workspaceList {
+				display: grid;
+				grid-template-columns: repeat(2, 1fr);
+				gap: 10px;
+
+				.singleWorkspace {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					gap: 8px;
+					cursor: pointer;
+
+					.workSpaceCircle {
+						width: 86px;
+						height: 86px;
+						border-radius: 50%;
+						background: #1d1d1d;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						background: #2b2b2b;
+
+						p {
+							color: #c3c0c0;
+							text-align: right;
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+							letter-spacing: -0.3px;
+						}
+
+						img {
+							width: 100%;
+							height: 100%;
+							border-radius: 50%;
+						}
+					}
+
+					h6 {
+						color: #7d7d7d;
+						text-align: center;
+						font-family: Inter;
+						font-size: 11px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+						letter-spacing: -0.22px;
+					}
+				}
+
+				.activeWorkspace {
+					position: relative;
+					.workSpaceCircle {
+						background: #6055ec;
+
+						p {
+							color: #e4e5e6;
+						}
+					}
+
+					h6 {
+						color: #e4e5e6;
+					}
+
+					.activeWorkspaceCheck {
+						position: absolute;
+						right: 0;
+					}
+				}
+			}
+		}
+	}
+}
+
+.sidebar__overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(17, 17, 17, 0.6);
+	backdrop-filter: blur(5px);
+	z-index: 1000;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+	z-index: 500;
+}
+
+// @media screen and (min-width: 1200px) {
+// 	.FullScreenSidebar {
+// 		min-height: 56px;
+// 		max-height: 56px;
+
+// 		.sidebarComponent {
+// 			width: 300px !important;
+// 			align-items: normal;
+// 			margin: 0;
+// 			padding: 0;
+
+// 			// transform-origin: top center;
+// 			// transform: rotate(-90deg);
+
+// 			.closedSideBarComponent {
+// 				flex-direction: row;
+// 				width: 100%;
+// 				padding: 10px;
+
+// 				.TabOptions {
+// 					flex-direction: row;
+// 					align-items: center;
+// 				}
+
+// 				.dropDownMenuContainer {
+// 					right: 0;
+// 					transform: translateY(-7px);
+// 				}
+// 			}
+// 		}
+// 	}
+// }
+
+@keyframes rotateSvg1 {
+	0% {
+		transform: rotate(0deg);
+		opacity: 1;
+	}
+	30% {
+		transform: rotate(20deg);
+		opacity: 0;
+	}
+}
+
+@keyframes rotateSvg2 {
+	0%,
+	30% {
+		transform: rotate(0deg);
+		opacity: 1;
+	}
+	100% {
+		transform: rotate(180deg);
+		opacity: 0;
+	}
+}
+
+@keyframes sidebarEntrance {
+	0% {
+		transform: translateY(100%) rotate(100deg);
+		opacity: 0;
+	}
+	100% {
+		transform: translateY(0) rotate(0);
+		opacity: 1;
+	}
+}

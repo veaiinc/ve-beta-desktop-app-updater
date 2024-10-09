@@ -21,7 +21,7 @@ const TimeZoneCurrencyComponent = ({ overviewState }) => {
 					<ReusableButtonSettings
 						text={overviewState?.timeZone}
 						icon={<GlobeSettings />}
-						downArrow={true}
+						downArrow={false}
 						disableHover={true}
 						// func={() => {
 						// 	setpopupType('timezone');
@@ -44,7 +44,7 @@ const TimeZoneCurrencyComponent = ({ overviewState }) => {
 					<ReusableButtonSettings
 						text={overviewState?.currency}
 						icon={'₹'}
-						downArrow={true}
+						downArrow={false}
 						disableHover={true}
 						// func={() => {
 						// 	setpopupType('currency');

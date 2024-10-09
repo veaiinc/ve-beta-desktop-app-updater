@@ -380,6 +380,38 @@ export const deleteWorkflowTemplatesMutation = gql`
 	}
 `;
 
+// Sheshant
+export const getTabItemCountQuery = gql`
+	query Query {
+		getNumberOfRequiredActions {
+			enquiry
+			counterSign
+			emailApproval
+			expiresInThreeDays
+			all
+		}
+	}
+`;
+
+// Sheshant
+export const getRequiredActionDetailsQuery = gql`
+	query Query($filters: RequiredActionsFiltersInput) {
+		listRequiredActions(filters: $filters) {
+			data {
+				_id
+				title
+				action
+				clientName
+				createdAt
+				expiresAt
+				approvalRequired
+				status
+			}
+			hasNextPage
+		}
+	}
+`;
+
 export const updateSendSmartFileSettingsMutation = gql`
 	mutation UpdateWorkflow($updateWorkflowId: ID!, $updateWorkflowInput: UpdateWorkflowInput) {
 		updateWorkflow(id: $updateWorkflowId, updateWorkflowInput: $updateWorkflowInput)
