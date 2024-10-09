@@ -61,12 +61,13 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 						) || 0;
 					subTotalValue += +(amount * quantity);
 				}
-				let editable =
-					serviceData?.[i]?.style?.services_selection === 2 &&
-					+serviceData?.[i]?.style?.subTotalValue === 0
-						? true
-						: false;
-				let obj = { subTotalValue, editable };
+				let editable = serviceData?.[i]?.style?.services_selection === 2 ? true : false;
+				let obj = {
+					subTotalValue: editable
+						? serviceData?.[i]?.style?.subTotalValue
+						: subTotalValue,
+					editable,
+				};
 				setInfo((prev) => ({
 					...prev,
 					subTotalValueMapper: {
@@ -89,8 +90,9 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 
 			//for service subtotal value
 			if (type === 'subTotalValue') {
+				let value = val?.replace(/[^0-9]/g, '');
 				let { style } = selectedServiceTable || {};
-				style = { ...style, subTotalValue: val };
+				style = { ...style, subTotalValue: value };
 				selectedServiceTable.style = style;
 				updatedData?.splice(outerIndex, 1, selectedServiceTable);
 				setInfo((prev) => ({ ...prev, data: updatedData }));
@@ -202,6 +204,7 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 										}
 										className="serviceSubtotalValueInput"
 										readOnly={!editable}
+										type="text"
 									/>
 								) : (
 									<span className="ServiceSubTotalValue">
