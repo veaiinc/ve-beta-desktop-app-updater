@@ -295,6 +295,14 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 	//servicesTableChnages
 	const serviceTableOnChnageFunc = useCallback(
 		async (updateServiceBlockInfo, index) => {
+			const iframe = document.querySelector('iframe');
+			if (iframe && iframe.contentWindow) {
+				iframe.contentWindow.postMessage(
+					{ type: 'SERVICE_TABLE_DATA', serviceBlock: updateServiceBlockInfo },
+					origin,
+				);
+			}
+
 			let updatedServiceData = [...(info?.servicesTableData || [])];
 			updatedServiceData?.splice(index, 1, updateServiceBlockInfo);
 			const serviceBlockId = updateServiceBlockInfo?._id;
@@ -311,6 +319,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			if (replaceServiceIndex !== -1) {
 				sections?.splice(replaceServiceIndex, 1, updateServiceBlockInfo);
 			}
+
 			setInfo((prev) => ({
 				...prev,
 				proposal: proposalData,
@@ -326,6 +335,15 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		async (updatedData) => {
 			const moduleType = updatedData?.moduleType;
 			let updatedEventsData = { ...info?.eventsTableData };
+
+			const iframe = document.querySelector('iframe');
+			if (iframe && iframe.contentWindow) {
+				iframe.contentWindow.postMessage(
+					{ type: 'EVENTS_TABLE_DATA', eventsTable: updatedEventsData },
+					origin,
+				);
+			}
+
 			let eventsModuleArrayToBeUpdated = [...(updatedEventsData?.[moduleType] || [])];
 			let index = -1;
 			for (let i = 0; i < eventsModuleArrayToBeUpdated?.length; i++) {
