@@ -7,12 +7,12 @@ const FirstWorkflowCard = ({ openPreviewModal, editOnClickHandler, templateData 
 	return (
 		<div className="previewCard" onClick={() => openPreviewModal('public')}>
 			<div className="htmlContentViewer">
-				<div className="coverImage">
+				<div className="coverImage" style={{ pointerEvents: 'none' }}>
 					<iframe
 						src={
 							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}`
-								: `https://builder.ve.ai/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}`
+								? `http://localhost:3000/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+								: `https://builder.ve.ai/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
 						}
 						title="Builder Preview"
 						width="100%"
@@ -74,12 +74,12 @@ const PreviewCard = ({ templateData, openPreviewModal }) => {
 	return (
 		<div className="previewCard" onClick={() => openPreviewModal('private')}>
 			<div className="htmlContentViewer">
-				<div className="coverImage">
+				<div className="coverImage" style={{ pointerEvents: 'none' }}>
 					<iframe
 						src={
 							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}`
-								: `https://builder.ve.ai/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}`
+								? `http://localhost:3000/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+								: `https://builder.ve.ai/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
 						}
 						title="Builder Preview"
 						width="100%"

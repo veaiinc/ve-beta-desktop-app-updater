@@ -73,8 +73,8 @@ const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData, p
 										<iframe
 											src={
 												window.location.hostname === 'localhost'
-													? `http://localhost:3000/preview/${incomingTemplateData?._id}?module=${e?._id}&isPubic=${e?.isPublic}`
-													: `https://builder.ve.ai/preview/${incomingTemplateData?._id}?module=${e?._id}&isPubic=${e?.isPublic}`
+													? `http://localhost:3000/preview/${incomingTemplateData?._id}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`
+													: `https://builder.ve.ai/preview/${incomingTemplateData?._id}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`
 											}
 											title="Builder Preview"
 											width="100%"

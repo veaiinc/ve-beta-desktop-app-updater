@@ -28,8 +28,8 @@ const EntryPointCard = ({ publicData }) => {
 					<iframe
 						src={
 							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}`
-								: `https://builder.ve.ai/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}`
+								? `http://localhost:3000/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+								: `https://builder.ve.ai/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
 						}
 						title="Builder Preview"
 						width="100%"
@@ -74,8 +74,8 @@ const PreviewCard = ({ privateData }) => {
 					<iframe
 						src={
 							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}`
-								: `https://builder.ve.ai/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}`
+								? `http://localhost:3000/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+								: `https://builder.ve.ai/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
 						}
 						title="Builder Preview"
 						width="100%"
@@ -309,8 +309,8 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 												<iframe
 													src={
 														window.location.hostname === 'localhost'
-															? `http://localhost:3000/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}`
-															: `https://builder.ve.ai/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}`
+															? `http://localhost:3000/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`
+															: `https://builder.ve.ai/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`
 													}
 													title="Builder Preview"
 													width="100%"

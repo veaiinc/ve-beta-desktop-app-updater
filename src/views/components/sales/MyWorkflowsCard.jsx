@@ -180,7 +180,7 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 								(window.location.href = `https://builder.ve.ai/${data?._id} `)
 							}
 						>
-							Edit{' '}
+							Edit Design
 						</span>
 					</div>
 				</div>
@@ -189,8 +189,8 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 					<iframe
 						src={
 							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}`
-								: `https://builder.ve.ai/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}`
+								? `http://localhost:3000/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`
+								: `https://builder.ve.ai/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`
 						}
 						title="Builder Preview"
 						width="100%"
