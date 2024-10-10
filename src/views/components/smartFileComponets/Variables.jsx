@@ -1,19 +1,23 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
+import moment from 'moment';
 
 const Variables = ({
 	variablesData,
 	variableOnChangeFunc,
 	variableOnFocusFunc,
 	editable,
-	expiryInDays,
-	updateExpiryInDays,
 	handleUpdateVaraiblesArray,
+	expiresAt,
+	updateSmartFileExpiry,
 }) => {
 	const [info, setInfo] = useState({
 		data: [],
-		localExpiry: expiryInDays,
+
 		variableMapper: {},
+		timeout: null,
+		workflowexpiryInDays: 0,
+		workflowexpiryInDaysChanged: false,
 		timeout: null,
 	});
 
@@ -36,8 +40,19 @@ const Variables = ({
 	}, [variablesData]);
 
 	useEffect(() => {
-		setInfo((prev) => ({ ...prev, localExpiry: expiryInDays }));
-	}, [expiryInDays]);
+		if (expiresAt) {
+			const currentTimestamp = moment().unix();
+			const hoursLeft = moment.unix(expiresAt).diff(moment.unix(currentTimestamp), 'hours');
+			const daysLeft = Math.max(0, Math.ceil(hoursLeft / 24));
+			setInfo((prev) => ({ ...prev, workflowexpiryInDays: daysLeft }));
+		}
+	}, [expiresAt]);
+
+	useEffect(() => {
+		if (info?.workflowexpiryInDaysChanged) {
+			handleDebouceFunctionCall(info?.workflowexpiryInDays);
+		}
+	}, [info?.workflowexpiryInDays, info?.workflowexpiryInDaysChanged]);
 
 	//function definations
 
@@ -94,17 +109,34 @@ const Variables = ({
 		[info?.data],
 	);
 
-	const onChangeLocalExpiry = useCallback(
+	const onChangeLocalWorkflowExpiry = useCallback(
 		async (e) => {
 			const value = e.target.value.replace(/[^0-9]/g, '');
-			if (+value === +info?.localExpiry) {
+			if (+value === +info?.workflowexpiryInDays) {
 				return;
 			}
-			setInfo((prev) => ({ ...prev, localExpiry: +value }));
-			updateExpiryInDays(+value);
-			return;
+			setInfo((prev) => ({
+				...prev,
+				workflowexpiryInDays: +value,
+				workflowexpiryInDaysChanged: true,
+			}));
 		},
-		[expiryInDays, info?.localExpiry],
+		[info?.workflowexpiryInDays],
+	);
+
+	const handleDebouceFunctionCall = useCallback(
+		(data) => {
+			clearTimeout(info?.timeout);
+			const timeout = setTimeout(() => {
+				updateSmartFileExpiry(data);
+				setInfo((prev) => ({
+					...prev,
+					timeout: null,
+				}));
+			}, 800);
+			setInfo((prev) => ({ ...prev, timeout }));
+		},
+		[info?.timeout, updateSmartFileExpiry],
 	);
 
 	return (
@@ -125,7 +157,7 @@ const Variables = ({
 				))}
 				<div className="proposalContainer">
 					<div className="inputWithLabelContainer">
-						<span className="labelName">Proposal Validity</span>
+						<span className="labelName">Worklow Validity</span>
 						<div
 							style={{
 								display: 'flex',
@@ -141,8 +173,8 @@ const Variables = ({
 							<input
 								className="proposalInputCustomContainer"
 								type="text"
-								value={expiryInDays}
-								onChange={onChangeLocalExpiry}
+								value={info?.workflowexpiryInDays}
+								onChange={onChangeLocalWorkflowExpiry}
 								readOnly={!editable}
 								style={{ flex: 1 }}
 							/>

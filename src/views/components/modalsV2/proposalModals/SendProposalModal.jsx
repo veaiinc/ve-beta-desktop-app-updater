@@ -408,10 +408,10 @@ const SendProposalModal = ({
 		};
 		if (info?.expiryInDays && info?.expiryInDays > 0) {
 			payload.updateWorkflowInput.expiresAt = moment().add(info?.expiryInDays, 'days').unix();
+			updateSendSmartFileExpiryData(moment().add(info?.expiryInDays, 'days').unix());
 		}
 		const response = await updateSendSmartFileSettings(payload);
 		if (response?.[0]) {
-			updateSendSmartFileExpiryData(payload.expiresAt);
 			updateSmartFileEmailAuth(info?.emailAccess);
 		}
 	}, [workflowId, info?.emailAccess, info?.expiryInDays]);

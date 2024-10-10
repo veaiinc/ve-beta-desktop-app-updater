@@ -9,10 +9,18 @@ import AcceptedStageSmartFileBlocks from '../../../components/smartFileComponets
 import { ReactComponent as EditSvg } from '../.././../../assets/svg/worflow_builder/edit.svg';
 import Spinner from '../../../components/loaders/Spinner';
 import { useParams } from 'react-router-dom';
+import moment from 'moment';
 
 let origin =
 	window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://builder.ve.ai';
-const File = ({ templateData, workflowData, userSigned, edit }) => {
+const File = ({
+	templateData,
+	workflowData,
+	userSigned,
+	edit,
+	expiresAt,
+	updateSendSmartFileExpiryData,
+}) => {
 	const { workflowId } = useParams();
 	let {
 		templates: {
@@ -23,6 +31,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			updateForm,
 			updateThankyou,
 			formResponseData,
+			updateSendSmartFileSettings,
 		},
 	} = useContext(Context);
 
@@ -577,6 +586,23 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		[info?.variablesData, moduleUpdateFuncWrapper],
 	);
 
+	const updateSmartFileExpiry = useCallback(
+		async (data) => {
+			const payload = {
+				updateWorkflowId: workflowId,
+				updateWorkflowInput: {
+					expiresAt: moment().add(data, 'days').unix(),
+				},
+			};
+
+			const response = await updateSendSmartFileSettings(payload);
+			if (response?.[0]) {
+				updateSendSmartFileExpiryData(moment().add(data, 'days').unix());
+			}
+		},
+		[workflowId],
+	);
+
 	//scroll functions
 	const scrollToElement = useCallback(
 		(id) => {
@@ -663,8 +689,9 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					variableOnFocusFunc={variableOnFocusFunc}
 					editable={edit}
 					expiryInDays={info?.expiryInDays}
-					updateExpiryInDays={updateExpiryInDays}
 					handleUpdateVaraiblesArray={handleUpdateVaraiblesArray}
+					expiresAt={expiresAt}
+					updateSmartFileExpiry={updateSmartFileExpiry}
 				/>
 				<Events
 					eventsData={info?.eventsTableData}

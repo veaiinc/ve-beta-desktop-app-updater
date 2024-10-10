@@ -328,12 +328,9 @@ const SmartFile = () => {
 		}
 	}, [userWorkSpaceList]);
 
-	const updateSendSmartFileExpiryData = useCallback(
-		async (updatedValue) => {
-			setInfo((prev) => ({ ...prev, workflowExpiryAt: updatedValue }));
-		},
-		[info?.workflowExpiryAt],
-	);
+	const updateSendSmartFileExpiryData = useCallback(async (updatedValue) => {
+		setInfo((prev) => ({ ...prev, workflowExpiryAt: updatedValue }));
+	}, []);
 
 	const updateSmartFileEmailAuth = useCallback(
 		(data) => {
@@ -388,6 +385,8 @@ const SmartFile = () => {
 						templateData={info?.incomingData}
 						workflowData={info?.workflowData?.clientDetails}
 						edit={info?.edit}
+						expiresAt={info?.workflowExpiryAt || ''}
+						updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
 					/>
 				)}
 			</div>
