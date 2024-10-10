@@ -356,6 +356,7 @@ const SmartFile = () => {
 			},
 		};
 		await moveWorkflowStatus(payloadForConfirming);
+		setInfo((prev) => ({ ...prev, workflowStatus: 'confirmed' }));
 		return [true];
 	}, [info?.workflowData, moveWorkflowStatus]);
 

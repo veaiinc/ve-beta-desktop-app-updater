@@ -89,7 +89,7 @@ const AcceptedStageSmartFileBlocks = ({
 										</span>
 										<span className="keyValuepairs">
 											{item?.currency === 'INR' ? '₹' : '$'}
-											{item?.price || 0}
+											{item?.amount || 0}
 										</span>
 									</div>
 								))}
