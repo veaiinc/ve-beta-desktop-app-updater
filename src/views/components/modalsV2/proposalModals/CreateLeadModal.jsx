@@ -43,9 +43,9 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	}, []);
 
 	useEffect(() => {
-		const isValidEmail = leadDetails['emailId'] && validator.isEmail(leadDetails['emailId']);
-		const isValidName = leadDetails['name'].trim().length > 0;
-		const isValidSource = leadDetails['source'].trim().length > 0;
+		const isValidEmail = leadDetails['emailId'] && validator?.isEmail(leadDetails['emailId']);
+		const isValidName = leadDetails['name'].trim()?.length > 0;
+		const isValidSource = leadDetails['source'].trim()?.length > 0;
 
 		setCreateButtonActiveState(isValidEmail && isValidName && isValidSource);
 	}, [leadDetails]);
@@ -94,6 +94,21 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 		}
 	}, [templatesListForCreateLead]);
 
+	useEffect(() => {
+		if (info?.clientData?.length && info?.existingLeadSource && modalIsOpen) {
+			setExistingLeadData();
+		}
+	}, [info?.clientData, info?.existingLeadSource, modalIsOpen]);
+
+	const setExistingLeadData = useCallback(() => {
+		if (info?.clientData?.length && info?.existingLeadSource && modalIsOpen) {
+			let { value } = info?.clientData?.[0] || {};
+			value = JSON.parse(value);
+			setSelectedLead(value);
+			handleSelectedLead(value);
+		}
+	}, [info?.clientData, info?.existingLeadSource, modalIsOpen]);
+
 	const getClientListData = useCallback(() => {
 		const payload = {
 			filters: {
@@ -110,11 +125,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 			isError: false,
 			errorMessage: '',
 		}));
-		setLeadDetails(() => ({
-			name: '',
-			emailId: '',
-			source: '',
-		}));
+		setLeadDetails({ name: '', emailId: '', source: 'instagram' });
 		setCreateButtonActiveState(false);
 		closeModal();
 	};
@@ -272,6 +283,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								...prev,
 								existingLeadSource: !prev.existingLeadSource,
 							}));
+							setLeadDetails((prev) => ({ ...prev, name: '', emailId: '' }));
 						}}
 					>
 						{!info?.existingLeadSource ? <Checked /> : <Unchecked />}
