@@ -1,8 +1,91 @@
-import React, { memo } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import ReactModal from '../../modalsV2/index';
 import { ReactComponent as UpArrow } from '../../../../assets/svg/workflow/downArrow.svg';
 import '../../../../assets/scss/gallery/modals/createGallery.scss';
-const CreateGallery = ({ open, closeModal }) => {
+import axios from 'axios';
+import jwt_decode from 'jwt-decode';
+
+const CreateGallery = ({ open, closeModal, workspaceID }) => {
+	const [galleryData, setGalleryData] = useState({
+		title: '',
+		shotDuring: '',
+		workspaceID: '',
+		userID: '',
+	});
+
+	useEffect(() => {
+		const storedWorkspaceID = localStorage.getItem('workspaceId');
+		const userToken = localStorage.getItem('usertoken');
+
+		if (storedWorkspaceID) {
+			setGalleryData((prevData) => ({ ...prevData, workspaceID: storedWorkspaceID }));
+		} else {
+			console.error('WorkspaceID not found in local storage');
+		}
+
+		if (userToken) {
+			try {
+				const decodedToken = jwt_decode(userToken);
+				const userID = decodedToken.userId;
+				setGalleryData((prevData) => ({ ...prevData, userID }));
+			} catch (error) {
+				console.error('Error decoding user token:', error);
+			}
+		} else {
+			console.error('User token not found in local storage');
+		}
+	}, []);
+
+	const handleInputChange = (e) => {
+		const { name, value } = e.target;
+		setGalleryData({ ...galleryData, [name]: value });
+	};
+
+	const handleSubmit = async () => {
+		const userToken = localStorage.getItem('usertoken');
+		try {
+			const response = await axios.post(
+				`https://ap.api.ve.ai/galleries/1.0/${galleryData.workspaceID}/galleries`,
+				{
+					title: galleryData.title,
+					slug: galleryData.title,
+					category: 'wedding', // You might want to make this dynamic
+					shotDuring: galleryData.shotDuring.replace(/-/g, ''),
+					dueDateEpoch: new Date(galleryData.shotDuring).getTime() / 1000,
+					tenantUsers: [
+						{
+							_id: galleryData.userID, // This should be dynamic based on the current user
+							role: 'admin',
+						},
+					],
+					canClientReview: false,
+					canClientSuggestEdits: true,
+					theme: 'dark',
+					visitorFormAccess: {
+						accessibleTo: ['master', 'guest', 'face'],
+						isEnabled: true,
+					},
+					canClientDownloadOriginals: true,
+					canClientDownloadOptimized: false,
+					ctaPreferences: {
+						isEnabled: true,
+						link: 'https://www.youtube.com/watch?v=dOKQeqGNJwY',
+					},
+					maxAICreditsAllowed: 25000,
+					isAICreditRestrictionApplied: true,
+				},
+				{
+					headers: {
+						'x-access-token': userToken,
+					},
+				},
+			);
+			closeModal();
+		} catch (error) {
+			console.error('Error creating gallery:', error);
+		}
+	};
+
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
 			<div className="createModalMainContainer">
@@ -15,21 +98,25 @@ const CreateGallery = ({ open, closeModal }) => {
 				<div className="inputContainer">
 					<div className="gallery-name">
 						<p className="subHeading">Gallery Name</p>
-						<input placeholder="e.g. Swarthika & Gandhi" />
+						<input
+							name="title"
+							value={galleryData.title}
+							onChange={handleInputChange}
+							placeholder="e.g. Swarthika & Gandhi"
+						/>
 					</div>
 					<div className="gallery-date">
 						<p className="subHeading">Gallery date</p>
-						<input placeholder="pick a date" type="date" />
-					</div>
-					<div className="choose-workflow">
-						<p className="subHeading">Choose a workflow</p>
-						<div className="selectWorkflow">
-							<input placeholder="Select Workflow" />
-							<UpArrow />
-						</div>
+						<input
+							name="shotDuring"
+							value={galleryData.shotDuring}
+							onChange={handleInputChange}
+							placeholder="pick a date"
+							type="date"
+						/>
 					</div>
 				</div>
-				<div className="create-gallery-button">
+				<div className="create-gallery-button" onClick={handleSubmit}>
 					<p>Create Gallery</p>
 				</div>
 			</div>

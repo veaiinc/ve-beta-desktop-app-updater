@@ -296,7 +296,12 @@
 						width: 130px;
 						padding: 8px 16px;
 						border-radius: 16px;
-						background: #2a2a2a;
+						background: #1d1d1d;
+						&:hover {
+							background: #2a2a2a;
+							cursor: pointer;
+						}
+
 						.galleryName {
 							color: rgba(228, 229, 230, 0.48);
 							font-size: 12px;
@@ -311,6 +316,9 @@
 							font-weight: 500;
 							line-height: 26px; /* 162.5% */
 						}
+					}
+					.active {
+						background: #2a2a2a;
 					}
 				}
 				.shareContainer {
@@ -600,6 +608,102 @@
 						cursor: pointer;
 						justify-content: center;
 						align-items: center;
+						.forwardOptions {
+							position: absolute;
+							top: -130px;
+							right: 0;
+							display: flex;
+							flex-direction: column;
+							gap: 8px;
+							border-radius: 16px;
+							background: #151515;
+							width: 200px;
+							padding: 12px 16px;
+							li {
+								color: #e4e5e6;
+								font-size: 14px;
+								font-weight: 400;
+								line-height: 16px;
+								letter-spacing: -0.42px;
+								text-transform: capitalize;
+								list-style: none;
+								padding: 8px 0px;
+							}
+						}
+						.pinOptions {
+							position: absolute;
+							top: -150px;
+							right: 0;
+							display: flex;
+							flex-direction: column;
+							gap: 12px;
+							border-radius: 16px;
+							background: #151515;
+							width: 200px;
+							overflow: hidden;
+							.pinSearchContainer {
+								display: flex;
+								justify-content: space-between;
+								align-items: center;
+								padding: 8px;
+								background: #1f1f1f;
+								p {
+									color: rgba(228, 229, 230, 0.48);
+									font-size: 12px;
+									font-weight: 500;
+									line-height: 16px; /* 133.333% */
+									text-transform: capitalize;
+								}
+							}
+							.pinOptionsList {
+								display: flex;
+								flex-direction: column;
+								gap: 8px;
+								width: 100%;
+								margin: 0px 12px;
+								padding-bottom: 16px;
+
+								.checkboxLabel {
+									display: flex;
+									gap: 8px;
+
+									span {
+										overflow: hidden;
+										color: #e4e5e6;
+										text-overflow: ellipsis;
+										white-space: nowrap;
+										font-family: Inter;
+										font-size: 12px;
+										font-style: normal;
+										font-weight: 400;
+										line-height: 16px; /* 133.333% */
+										letter-spacing: -0.3px;
+									}
+								}
+							}
+						}
+						.optionsContainer {
+							display: flex;
+							flex-direction: column;
+							gap: 10px;
+							border-radius: 16px;
+							background: #151515;
+							width: 150px;
+							padding: 12px 16px;
+							position: absolute;
+							top: -200px;
+							right: 0;
+							li {
+								color: #e4e5e6;
+								font-size: 14px;
+								font-weight: 400;
+								line-height: 16px;
+								letter-spacing: -0.42px;
+								text-transform: capitalize;
+								list-style: none;
+								padding: 8px 0px;
+							}
+						}
 					}
 				}
 			}

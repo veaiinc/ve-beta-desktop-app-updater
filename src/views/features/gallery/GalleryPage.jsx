@@ -134,8 +134,12 @@ const GalleryPage = () => {
 		showShearch: false,
 		showFilter: false,
 		selectedImages: [],
-		showSettings: false,
+
 		activeLink: 'gallery-overview',
+		showForward: false,
+		showPin: false,
+		showOptionsContainer: false,
+		activeTab: 'Albums',
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -143,6 +147,12 @@ const GalleryPage = () => {
 	const galleryIconRef = useRef(null);
 	const filtersRef = useRef(null);
 	const filtersOptionsRef = useRef(null);
+	const forwardOptionsRef = useRef(null);
+	const forwardIconRef = useRef(null);
+	const pinIconRef = useRef(null);
+	const pinSearchRef = useRef(null);
+	const optionsIconRef = useRef(null);
+	const optionsContainerRef = useRef(null);
 
 	useEffect(() => {
 		const handleClickOutside = (event) => {
@@ -166,6 +176,27 @@ const GalleryPage = () => {
 				!filtersRef.current.contains(event.target)
 			) {
 				setInfo((prevInfo) => ({ ...prevInfo, showFilter: false }));
+			}
+			if (
+				forwardOptionsRef.current &&
+				!forwardOptionsRef.current.contains(event.target) &&
+				!forwardIconRef.current.contains(event.target)
+			) {
+				setInfo((prevInfo) => ({ ...prevInfo, showForward: false }));
+			}
+			if (
+				pinSearchRef.current &&
+				!pinSearchRef.current.contains(event.target) &&
+				!pinIconRef.current.contains(event.target)
+			) {
+				setInfo((prevInfo) => ({ ...prevInfo, showPin: false }));
+			}
+			if (
+				optionsContainerRef.current &&
+				!optionsContainerRef.current.contains(event.target) &&
+				!optionsIconRef.current.contains(event.target)
+			) {
+				setInfo((prevInfo) => ({ ...prevInfo, showOptionsContainer: false }));
 			}
 		};
 
@@ -219,7 +250,21 @@ const GalleryPage = () => {
 			element.scrollIntoView({ behavior: 'smooth' });
 		}
 	};
-
+	const handleForwardIcon = () => {
+		setInfo((prevInfo) => ({ ...prevInfo, showForward: !prevInfo.showForward }));
+	};
+	const handlePinIcon = () => {
+		setInfo((prevInfo) => ({ ...prevInfo, showPin: !prevInfo.showPin }));
+	};
+	const handleOptionsIcon = () => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			showOptionsContainer: !prevInfo.showOptionsContainer,
+		}));
+	};
+	const handleClickContent = (name) => {
+		setInfo((prevInfo) => ({ ...prevInfo, activeTab: name }));
+	};
 	return (
 		<>
 			<div className="galleryContainer">
@@ -228,12 +273,13 @@ const GalleryPage = () => {
 						<div className="galleryPicSettings">
 							<UpArrow />
 							<p
-								onClick={() =>
-									setInfo((prevInfo) => ({
-										...prevInfo,
-										showSettings: !prevInfo.showSettings,
-									}))
-								}
+								// onClick={() =>
+								// 	setInfo((prevInfo) => ({
+								// 		...prevInfo,
+								// 		showSettings: !prevInfo.showSettings,
+								// 	}))
+								// }
+								onClick={() => handleClickContent('Settings')}
 								style={{ cursor: 'pointer' }}
 							>
 								Settings
@@ -245,7 +291,13 @@ const GalleryPage = () => {
 						<div className="galleryContentContainer">
 							<div className="content">
 								{data.map((item, index) => (
-									<div key={index} className="galleryContent">
+									<div
+										key={index}
+										className={`galleryContent ${
+											info.activeTab === item.name ? 'active' : ''
+										}`}
+										onClick={() => handleClickContent(item.name)}
+									>
 										<p className="galleryName">{item.name}</p>
 										<p className="count">{item.number}</p>
 									</div>
@@ -307,7 +359,7 @@ const GalleryPage = () => {
 					</div>
 				</div>
 				<div className="line"></div>
-				{!info.showSettings ? (
+				{info.activeTab === 'Albums' && (
 					<div className="galleryViewer">
 						<div className="galleryNavbar">
 							<div className="aboutAlbum">
@@ -491,14 +543,77 @@ const GalleryPage = () => {
 											<div onClick={handleExpandClick}>
 												<ExpandIcon />
 											</div>
-											<div>
-												<ForwardIcon />
+											<div
+												style={{ position: 'relative' }}
+												ref={forwardIconRef}
+											>
+												<ForwardIcon onClick={handleForwardIcon} />
+
+												{info.showForward && (
+													<div
+														className="forwardOptions"
+														ref={forwardOptionsRef}
+													>
+														<li>Copy to client selection</li>
+														<li>Move to Other Albums</li>
+													</div>
+												)}
 											</div>
-											<div>
-												<PinIcon />
+											<div style={{ position: 'relative' }} ref={pinIconRef}>
+												<PinIcon onClick={handlePinIcon} />
+												{info.showPin && (
+													<div className="pinOptions" ref={pinSearchRef}>
+														<div className="pinSearchContainer">
+															<p>type to Search or create</p>
+															<p
+																style={{
+																	cursor: 'pointer',
+																	marginRight: '5px',
+																}}
+																onClick={handlePinIcon}
+															>
+																X
+															</p>
+														</div>
+														<div className="pinOptionsList">
+															<label className="checkboxLabel">
+																<input type="checkbox" />
+																<span className="checkboxText">
+																	Portraits
+																</span>
+															</label>
+															<label className="checkboxLabel">
+																<input type="checkbox" />
+																<span className="checkboxText">
+																	Documentary
+																</span>
+															</label>
+															<label className="checkboxLabel">
+																<input type="checkbox" />
+																<span className="checkboxText">
+																	Decor
+																</span>
+															</label>
+														</div>
+													</div>
+												)}
 											</div>
-											<div>
-												<OptionsIcon />
+											<div
+												style={{ position: 'relative' }}
+												ref={optionsIconRef}
+											>
+												<OptionsIcon onClick={handleOptionsIcon} />
+												{info.showOptionsContainer && (
+													<div
+														className="optionsContainer"
+														ref={optionsContainerRef}
+													>
+														<li>Download</li>
+														<li>Set as cover</li>
+														<li>Share</li>
+														<li>Delete</li>
+													</div>
+												)}
 											</div>
 										</div>
 									</div>
@@ -506,7 +621,9 @@ const GalleryPage = () => {
 							</div>
 						</div>
 					</div>
-				) : (
+				)}
+
+				{info.activeTab === 'Settings' && (
 					<div className="settingsMainContainer">
 						<div className="settingsContianer">
 							<div id="gallery-overview" className="settings-overview">

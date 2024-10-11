@@ -114,7 +114,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/gallery/*',
+		path: '/galleries/*',
 		component: (
 			<AuthWrapper title={'Gallery'}>
 				<Gallery />
