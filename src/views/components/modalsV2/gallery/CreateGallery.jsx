@@ -49,12 +49,12 @@ const CreateGallery = ({ open, closeModal, workspaceID }) => {
 				{
 					title: galleryData.title,
 					slug: galleryData.title,
-					category: 'wedding', // You might want to make this dynamic
+					category: 'wedding',
 					shotDuring: galleryData.shotDuring.replace(/-/g, ''),
 					dueDateEpoch: new Date(galleryData.shotDuring).getTime() / 1000,
 					tenantUsers: [
 						{
-							_id: galleryData.userID, // This should be dynamic based on the current user
+							_id: galleryData.userID,
 							role: 'admin',
 						},
 					],
