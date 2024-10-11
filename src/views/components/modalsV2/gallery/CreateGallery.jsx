@@ -80,6 +80,10 @@ const CreateGallery = ({ open, closeModal, workspaceID }) => {
 					},
 				},
 			);
+			setGalleryData({
+				title: '',
+				shotDuring: '',
+			});
 			closeModal();
 		} catch (error) {
 			console.error('Error creating gallery:', error);
