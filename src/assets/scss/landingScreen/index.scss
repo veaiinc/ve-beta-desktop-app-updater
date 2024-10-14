@@ -300,6 +300,7 @@
 @media (max-width: 823px) {
 	.landingPagecontainer {
 		overflow-x: hidden;
+		padding: 0 !important;
 	}
 	.veLogoStyles {
 		left: 0 !important;
@@ -384,7 +385,7 @@
 	}
 }
 
-@media (max-width: 500px) {
+@media (min-width: 411px) and (max-width: 500px) {
 	.cardsContainer {
 		margin-left: 4px !important;
 		width: 100vw !important;
@@ -400,5 +401,23 @@
 		width: 100% !important;
 		max-width: none !important;
 		// height: 165px !important;
+	}
+}
+
+@media (max-width: 410px) {
+	.cardsContainer {
+		margin-left: 4px !important;
+		width: 100vw !important;
+		padding: 0 28px !important;
+		gap: 8px !important;
+		justify-content: center !important;
+		align-items: center !important;
+		flex-direction: column;
+	}
+
+	.card {
+		width: 60% !important;
+		max-width: none !important;
+		height: 165px !important;
 	}
 }
