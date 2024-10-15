@@ -75,6 +75,7 @@ const SalesInfo = () => {
 				page: 1,
 				limit: 10,
 			},
+			resetRequiredActions: true,
 		});
 		getTabItemCount();
 	}, [getRequiredActions, getTabItemCount]);
