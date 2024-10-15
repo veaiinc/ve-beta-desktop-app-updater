@@ -98,7 +98,7 @@ const SmartFile = () => {
 			let noContractTemplate = false;
 			const status = smartFileInfo?.status;
 			const edit = status === 'enquiry' ? true : false;
-			let contractExist = smartFileInfo?.modules?.filter((ele) => ele === 'contract');
+			let contractExist = smartFileInfo?.modules?.filter((ele) => ele?.type === 'contract');
 			if (!contractExist?.length) {
 				noContractTemplate = true;
 			}
@@ -120,7 +120,7 @@ const SmartFile = () => {
 				noContractTemplate,
 			}));
 		}
-	}, [smartFileInfo]);
+	}, [smartFileInfo, workflowId]);
 
 	useEffect(() => {
 		if (userWorkSpaceList) {
