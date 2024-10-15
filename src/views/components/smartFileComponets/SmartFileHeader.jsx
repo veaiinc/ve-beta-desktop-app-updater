@@ -167,6 +167,13 @@ const SmartFileHeader = ({
 							Smart File
 						</span>
 					</div>
+					<span
+						className="tabBtns"
+						style={{ color: activeTab === 'activity' ? '#e4e5e6' : '' }}
+						onClick={() => chnageActiveTab('activity')}
+					>
+						Activity
+					</span>
 				</div>
 			</div>
 
