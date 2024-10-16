@@ -4,7 +4,7 @@
 	gap: 24px;
 	align-self: stretch;
 
-	.summaryOverviewContainer{
+	.summaryOverviewContainer {
 		display: flex;
 		width: 409px;
 		height: 96px;
@@ -16,7 +16,7 @@
 		border: 1px solid #212121;
 		background: rgba(42, 42, 42, 0.16);
 
-		.summaryTitle{
+		.summaryTitle {
 			color: rgba(228, 229, 230, 0.48);
 			font-family: Inter;
 			font-size: 12px;
@@ -26,19 +26,19 @@
 			align-self: stretch;
 		}
 
-		.summaryDetails{
+		.summaryDetails {
 			display: flex;
 			align-items: center;
 			gap: 12px;
 			align-self: stretch;
 
-			.summaryIcon{
+			.summaryIcon {
 				width: var(--Icon-icon-lg, 24px);
 				height: var(--Icon-icon-lg, 24px);
 			}
 
-			.summaryValue{
-				color: #E4E5E6;
+			.summaryValue {
+				color: #e4e5e6;
 				font-family: Inter;
 				font-size: 20px;
 				font-style: normal;
@@ -46,12 +46,10 @@
 				line-height: normal;
 			}
 		}
-
-
 	}
 }
 
-.timelineContainer{
+.timelineContainer {
 	display: flex;
 	flex: 2.5;
 	flex-direction: column;
@@ -59,14 +57,14 @@
 	gap: 12px;
 	align-self: stretch;
 
-	.timelineHeader{
+	.timelineHeader {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		align-self: stretch;
 
-		.timelineHeaderText{
-			color: #E4E5E6;
+		.timelineHeaderText {
+			color: #e4e5e6;
 			font-family: Inter;
 			font-size: 16px;
 			font-style: normal;
@@ -75,12 +73,12 @@
 			// letter-spacing: -0.28px; /* for Earliest*/
 		}
 
-		.timelineSortContainer{
+		.timelineSortContainer {
 			display: flex;
 			align-items: center;
 			gap: 6px;
 
-			.timelineHeaderIcon{
+			.timelineHeaderIcon {
 				display: flex;
 				width: 20px;
 				height: 20px;
@@ -94,7 +92,7 @@
 		}
 	}
 
-	.timelineViewParentContainer{
+	.timelineViewParentContainer {
 		display: flex;
 		width: 675px;
 		height: 497px;
@@ -103,9 +101,9 @@
 		align-items: center;
 		border-radius: 24px;
 		border: 1px solid #212121;
-		background: rgba(36, 36, 36, 0.10);
+		background: rgba(36, 36, 36, 0.1);
 
-		.timelineEventContainer{
+		.timelineEventContainer {
 			display: flex;
 			width: 587px;
 			height: 447px;
@@ -113,47 +111,45 @@
 			overflow-y: auto;
 			border: 1px solid #212121; //remove border
 
-			.timelineDateBlock{
+			.timelineDateBlock {
 				display: flex;
 				width: 106px;
 				flex-direction: column;
 				align-items: flex-end;
 				gap: 40px;
 
-				.dateTimeWrapper{
+				.dateTimeWrapper {
 					display: flex;
 					flex-direction: column;
 					align-items: flex-end;
 					gap: 2px;
 
-					p{
+					p {
 						text-align: right;
 						font-family: Inter;
 						font-style: normal;
 						line-height: normal;
 						align-self: stretch;
 					}
-	
-					.dateLable{
-						color: #D3D3D3;
+
+					.dateLable {
+						color: #d3d3d3;
 						font-size: 12px;
 						font-weight: 500;
 					}
-	
-					.timeLable{
-						color: #6F6F6F;
+
+					.timeLable {
+						color: #6f6f6f;
 						font-size: 11px;
 						font-weight: 400;
 					}
 				}
-
-				
 			}
 		}
 	}
 }
 
-.viewersContainer{
+.viewersContainer {
 	display: flex;
 	flex: 2;
 	flex-direction: column;
@@ -161,15 +157,15 @@
 	gap: 12px;
 	align-self: stretch;
 
-	.viewersHeader{
+	.viewersHeader {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		align-self: stretch;
 		padding: 0px 3px;
 
-		.viewersHeaderText{
-			color: #E4E5E6;
+		.viewersHeaderText {
+			color: #e4e5e6;
 			font-family: Inter;
 			font-size: 16px;
 			font-style: normal;
@@ -177,12 +173,12 @@
 			line-height: 16px;
 		}
 
-		.sortIconWrapper{
+		.sortIconWrapper {
 			display: flex;
 			align-items: center;
 			gap: 6px;
 
-			.sortIcon{
+			.sortIcon {
 				display: flex;
 				width: 20px;
 				height: 20px;
@@ -196,7 +192,7 @@
 		}
 	}
 
-	.viewersListParentContainer{
+	.viewersListParentContainer {
 		display: flex;
 		flex-direction: column;
 		width: 100%;
@@ -205,7 +201,7 @@
 		border-top: 1px solid #212121;
 		overflow-y: auto;
 
-		.viewersListItemWrapper{
+		.viewersListItemWrapper {
 			display: flex;
 			padding: 8px 5px;
 			justify-content: space-between;
@@ -219,12 +215,12 @@
 				cursor: pointer;
 			}
 
-			.viewerInfoContainer{
+			.viewerInfoContainer {
 				display: flex;
 				align-items: center;
 				gap: 15px;
 
-				.viewerAvatar{
+				.viewerAvatar {
 					display: flex;
 					width: 38px;
 					height: 38px;
@@ -233,10 +229,10 @@
 					align-items: center;
 					gap: 8.837px;
 					border-radius: 87.488px;
-					background: #DAE0FF;
+					background: #dae0ff;
 
-					span{
-						color: #6C83FF;
+					span {
+						color: #6c83ff;
 						font-family: Inter;
 						font-size: 12.372px;
 						font-style: normal;
@@ -246,14 +242,14 @@
 					}
 				}
 
-				.viewerDetails{
+				.viewerDetails {
 					display: flex;
 					flex-direction: column;
 					align-items: flex-start;
 					gap: 4px;
 
-					.viewerName{
-						color: #E4E5E6;
+					.viewerName {
+						color: #e4e5e6;
 						font-family: Inter;
 						font-size: 16px;
 						font-style: normal;
@@ -261,7 +257,7 @@
 						line-height: normal;
 					}
 
-					.viewerEmail{
+					.viewerEmail {
 						color: #929292;
 						font-family: Inter;
 						font-size: 12px;
@@ -273,15 +269,15 @@
 				}
 			}
 
-			.viewerSessionsContainer{
+			.viewerSessionsContainer {
 				display: flex;
 				flex-direction: column;
 				justify-content: center;
 				align-items: flex-end;
 				gap: 4px;
 
-				.viewerSessions{
-					color: #E4E5E6;
+				.viewerSessions {
+					color: #e4e5e6;
 					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
@@ -291,7 +287,7 @@
 					text-align: right;
 				}
 
-				.viewerTime{
+				.viewerTime {
 					color: #929292;
 					font-family: Inter;
 					font-size: 12px;
@@ -302,9 +298,150 @@
 					text-align: right;
 				}
 			}
-
 		}
 	}
+}
 
+.activityMetricsContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+	align-self: stretch;
 
+	.metricsTitle {
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 24px;
+	}
+
+	.metricsContentWrapper {
+		display: flex;
+		height: 379px;
+		padding: 32px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 24px;
+		border: 1px solid #212121;
+		background: rgba(36, 36, 36, 0.16);
+
+		.metricsContentContainer {
+			flex: 1 0 0;
+			align-self: stretch;
+			height: 100%;
+
+			.metricsLablesWrapper {
+				display: flex;
+				width: 658px;
+				height: 100%;
+				padding: 20px;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				gap: 4px;
+				// overflow-y: auto;
+
+				.headerWrapper {
+					display: flex;
+					padding: 8px 10px;
+					align-items: center;
+					gap: 12px;
+					align-self: stretch;
+					justify-content: space-between;
+					border-bottom: 1px solid #222222;
+
+					span {
+						color: #d3d3d3;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 20px;
+					}
+				}
+
+				.lablesContainer {
+					display: flex;
+					flex-direction: column;
+					width: 100%;
+					overflow-y: auto;
+
+					.lableItemRow {
+						display: flex;
+						padding: 12px 8px;
+						justify-content: flex-start;
+						align-items: center;
+						gap: 33px;
+						align-self: stretch;
+						border-radius: 14px;
+						transition: background-color 0.3s ease;
+
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 20px;
+
+						.nameLable {
+							flex: 1.5;
+							display: flex;
+							gap: 10px;
+
+							.dot {
+								width: 8px;
+								height: 8px;
+							}
+						}
+
+						.metricsLables {
+							flex: 2;
+							display: flex;
+							justify-content: space-between;
+
+							.percentageWithArrow {
+								display: flex;
+								align-items: center;
+								justify-content: flex-end;
+
+								// .percentageValue{}
+
+								.downArrow {
+									display: none;
+									opacity: 0;
+									transform: translateX(10px);
+									transition: transform 0.5s ease, opacity 0.5s ease;
+									padding-left: 5px;
+									width: 14px;
+									height: 14px;
+								}
+
+								&:hover .downArrow {
+									display: inline-block;
+									transform: translateX(0);
+									opacity: 1;
+								}
+							}
+						}
+
+						&:hover {
+							.metricsLables .percentageWithArrow .downArrow {
+								display: inline-block;
+								transform: translateX(0);
+								opacity: 1;
+							}
+							cursor: pointer;
+							background-color: rgb(26, 26, 26);
+
+						}
+					}
+				}
+			}
+		}
+	}
 }

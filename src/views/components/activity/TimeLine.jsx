@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { ReactComponent as SortSvg } from '../../../assets/svg/activity/sortIcon.svg';
 
 const TimeLine = () => {
@@ -46,4 +46,4 @@ const TimeLine = () => {
 	);
 };
 
-export default TimeLine;
+export default memo(TimeLine);
