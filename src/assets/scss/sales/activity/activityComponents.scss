@@ -212,6 +212,12 @@
 			align-items: center;
 			align-self: stretch;
 			border-radius: 14px;
+			transition: background-color 0.3s ease;
+
+			&:hover {
+				background-color: rgb(26, 26, 26);
+				cursor: pointer;
+			}
 
 			.viewerInfoContainer{
 				display: flex;
