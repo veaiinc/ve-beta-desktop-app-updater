@@ -29,6 +29,10 @@ const SalesInfo = () => {
 
 	useEffect(() => {
 		fetchSalesInfo();
+		const interval = setInterval(() => {
+			fetchSalesInfo();
+		}, 5000);
+		return () => clearInterval(interval);
 	}, []);
 
 	useEffect(() => {

@@ -44,6 +44,10 @@ const Sales = () => {
 
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
+		const interval = setInterval(() => {
+			getMyWorkflowTemplatesData(1);
+		}, 5000);
+		return () => clearInterval(interval);
 	}, []);
 
 	useEffect(() => {
