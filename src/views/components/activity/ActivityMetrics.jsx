@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { ReactComponent as DotSvg } from '../../../assets/svg/activity/dot.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
+import DoughnutChart from '../../components/activity/DoughnutChart.jsx';
 
 const ActivityMetrics = (props) => {
 	const dummyData = [
@@ -53,7 +54,9 @@ const ActivityMetrics = (props) => {
 						</div>
 					</div>
 
-					<div className="metricsChartWrapper">{/* Donut chart would be here */}</div>
+					<div className="metricsChartWrapper">
+						<DoughnutChart />
+					</div>
 				</div>
 			</div>
 		</div>

@@ -17,7 +17,7 @@ const ActivityDashboard = () => {
 
 			{/* Metric Component */}
 			<ActivityMetrics title="Time Spent" />
-			{/* <ActivityMetrics title="Interactions" /> */}
+			<ActivityMetrics title="Interactions" />
 		</div>
 	);
 };

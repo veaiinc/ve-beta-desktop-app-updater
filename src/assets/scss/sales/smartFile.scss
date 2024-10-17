@@ -370,7 +370,6 @@
 		}
 
 		.activityParentContainer {
-			border: 1px solid white; //remove border
 			color: white; //remove text color
 
 			display: flex;
@@ -386,7 +385,6 @@
 				gap: 50px;
 				align-self: stretch;
 				justify-content: space-between;
-				// border: 1px solid rgb(255, 0, 0); //remove it
 			}
 		}
 	}
