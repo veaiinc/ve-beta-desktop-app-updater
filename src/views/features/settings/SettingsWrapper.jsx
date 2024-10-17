@@ -10,6 +10,7 @@ import BrandingSetup from './BrandSetup';
 import Integrations from './Integrations';
 import TeamSettings from './TeamSettings';
 import PlanBilling from './PlanBilling';
+import AiSetup from './AiSetup';
 
 const mapper = {
 	'my-profile': <MyProfile />,
@@ -19,6 +20,7 @@ const mapper = {
 	integrations: <Integrations />,
 	'team-settings': <TeamSettings />,
 	'plan-billing': <PlanBilling />,
+	'ai-setup': <AiSetup />,
 };
 
 const SettingsWrapper = (props) => {
