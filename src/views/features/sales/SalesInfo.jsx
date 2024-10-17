@@ -34,7 +34,7 @@ const SalesInfo = () => {
 	useEffect(() => {
 		const interval = setInterval(() => {
 			fetchSalesInfo();
-		}, 5000);
+		}, 15000);
 		return () => clearInterval(interval);
 	}, []);
 
