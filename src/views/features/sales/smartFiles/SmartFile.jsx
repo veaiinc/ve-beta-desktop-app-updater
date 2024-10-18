@@ -56,6 +56,7 @@ const SmartFile = () => {
 		businessName: '',
 		currentWorkspaceId: localStorage.getItem('workspaceId'),
 		noContractTemplate: false,
+		isAlChatEnabled: false,
 	});
 
 	//useEffect
@@ -110,6 +111,7 @@ const SmartFile = () => {
 				modules: smartFileInfo?.modules,
 				formResponse: smartFileInfo?.formResponse,
 			};
+
 			setInfo((prev) => ({
 				...prev,
 				workflowStatus: smartFileInfo?.status,
@@ -118,6 +120,7 @@ const SmartFile = () => {
 				workflowExpiryAt: smartFileInfo?.expiresAt,
 				isEmailAuth: smartFileInfo?.access?.isEnabled,
 				noContractTemplate,
+				isAlChatEnabled: smartFileInfo?.isAlChatEnabled || false,
 			}));
 		}
 	}, [smartFileInfo, workflowId]);
@@ -339,6 +342,13 @@ const SmartFile = () => {
 		[info?.isEmailAuth],
 	);
 
+	const updateSmartFileIsAiChatEnabled = useCallback(
+		(data) => {
+			setInfo((prev) => ({ ...prev, isAlChatEnabled: data }));
+		},
+		[info?.isAlChatEnabled],
+	);
+
 	const onPreviewClick = useCallback(() => {
 		const usertoken = localStorage.getItem('usertoken');
 		const region = localStorage.getItem('region');
@@ -409,6 +419,8 @@ const SmartFile = () => {
 				updateSmartFileEmailAuth={updateSmartFileEmailAuth}
 				pin={smartFileInfo?.access?.pin}
 				businessName={info?.businessName}
+				isAlChatEnabled={info?.isAlChatEnabled}
+				updateSmartFileIsAiChatEnabled={updateSmartFileIsAiChatEnabled}
 			/>
 
 			<CopiedModal

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/modules/workflow/sendProposal.scss';
@@ -39,7 +40,7 @@ const initialState = {
 	slugHolder: '',
 	editSlug: false,
 	timeout: null,
-	aiAssistant: false,
+	isAlChatEnabled: false,
 	expiresAt: null,
 	linkExpiryText: 'No Expiry',
 	smartFileSettingsUpdate: false,
@@ -64,6 +65,8 @@ const SendProposalModal = ({
 	updateSmartFileEmailAuth,
 	businessName,
 	pin,
+	isAlChatEnabled,
+	updateSmartFileIsAiChatEnabled,
 }) => {
 	const {
 		templates: {
@@ -169,7 +172,16 @@ const SendProposalModal = ({
 		if (info?.smartFileSettingsUpdate) {
 			handleDebouceFunctionCall(updateSendSmartFileSettingFunc);
 		}
-	}, [info?.emailAccess, info?.expiryInDays, info?.smartFileSettingsUpdate]);
+	}, [
+		info?.emailAccess,
+		info?.expiryInDays,
+		info?.smartFileSettingsUpdate,
+		info?.isAlChatEnabled,
+	]);
+
+	useEffect(() => {
+		setInfo((prev) => ({ ...prev, isAlChatEnabled: isAlChatEnabled }));
+	}, [isAlChatEnabled]);
 
 	const handleSendProposalViaEmail = useCallback(async () => {
 		modifiedCloseModal();
@@ -225,8 +237,15 @@ const SendProposalModal = ({
 			slugHolder: slug,
 			emailAccess: isEnabled,
 			currentWorkspaceId: info?.currentWorkspaceId,
+			isAlChatEnabled: info?.isAlChatEnabled,
 		});
-	}, [smartFileEmailTemplateData, slug, isEnabled, info?.currentWorkspaceId]);
+	}, [
+		smartFileEmailTemplateData,
+		slug,
+		isEnabled,
+		info?.currentWorkspaceId,
+		info?.isAlChatEnabled,
+	]);
 
 	const handleCopy = useCallback(async () => {
 		try {
@@ -404,6 +423,7 @@ const SendProposalModal = ({
 			updateWorkflowId: workflowId,
 			updateWorkflowInput: {
 				isPublic: !info?.emailAccess,
+				isAlChatEnabled: info?.isAlChatEnabled,
 			},
 		};
 		if (info?.expiryInDays && info?.expiryInDays > 0) {
@@ -413,8 +433,9 @@ const SendProposalModal = ({
 		const response = await updateSendSmartFileSettings(payload);
 		if (response?.[0]) {
 			updateSmartFileEmailAuth(info?.emailAccess);
+			updateSmartFileIsAiChatEnabled(info?.isAlChatEnabled);
 		}
-	}, [workflowId, info?.emailAccess, info?.expiryInDays]);
+	}, [workflowId, info?.emailAccess, info?.expiryInDays, info?.isAlChatEnabled]);
 
 	return (
 		<ReactModal
@@ -679,9 +700,13 @@ const SendProposalModal = ({
 						<div className="aiLabel">
 							<span className="aiLabelText">AI Sales Assistant</span>
 							<ToggleSlider
-								value={info?.aiAssistant}
+								value={info?.isAlChatEnabled}
 								onChange={(val) =>
-									setInfo((prev) => ({ ...prev, aiAssistant: val }))
+									setInfo((prev) => ({
+										...prev,
+										isAlChatEnabled: val,
+										smartFileSettingsUpdate: true,
+									}))
 								}
 							/>
 						</div>
