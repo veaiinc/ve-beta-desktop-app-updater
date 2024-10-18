@@ -1,13 +1,16 @@
 import React, { useEffect, useState, memo } from 'react';
 import '../../../assets/scss/inputComponent.scss';
 
-const ToggleSlider = ({ onChange, value }) => {
+const ToggleSlider = ({ onChange, value, editable = true }) => {
 	const [checked, setChecked] = useState(value || false);
 	useEffect(() => {
 		setChecked(value);
 	}, [value]);
 
 	const handleToggle = () => {
+		if (!editable) {
+			return;
+		}
 		const newValue = !checked;
 		setChecked(newValue);
 		onChange(newValue);

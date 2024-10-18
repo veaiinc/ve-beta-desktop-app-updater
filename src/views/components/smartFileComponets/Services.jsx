@@ -223,6 +223,7 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 										onChange={(val) =>
 											onLocalServiceDataChange(ind, index, 'show', val)
 										}
+										editable={editable}
 									/>
 									<span className="serviceCardTitle">
 										{val?.subBlocks?.[0]?.title

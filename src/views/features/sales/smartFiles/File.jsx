@@ -316,7 +316,7 @@ const File = ({
 			updatedServiceData?.splice(index, 1, updateServiceBlockInfo);
 			const serviceBlockId = updateServiceBlockInfo?._id;
 			const proposalData = { ...info.proposal };
-			const { sections } = proposalData;
+			const { sections, tables } = proposalData;
 			let replaceServiceIndex = -1;
 			for (let i = 0; i < sections?.length; i++) {
 				if (sections?.[i]?.type === 'services' && sections?.[i]?._id === serviceBlockId) {
@@ -327,6 +327,46 @@ const File = ({
 
 			if (replaceServiceIndex !== -1) {
 				sections?.splice(replaceServiceIndex, 1, updateServiceBlockInfo);
+			}
+
+			//syncing tables also
+			const { _id, blocks } = updateServiceBlockInfo || {};
+			const blcoksMapper = {};
+			for (let i = 0; i < blocks?.length; i++) {
+				blcoksMapper[blocks?.[i]?._id] = blocks?.[i]?.subBlocks?.[0];
+			}
+
+			for (let i = 0; i < tables?.length; i++) {
+				if (tables?.[i]?.type === 'services' && tables?.[i]?._id === _id) {
+					let values = tables?.[i]?.values || [];
+
+					for (let j = 0; j < values?.length; j++) {
+						if (blcoksMapper?.[values?.[j]?.blockId]) {
+							const {
+								show,
+								amount,
+								description,
+								price,
+								quantity,
+								title,
+								currency,
+								imageURL,
+							} = blcoksMapper?.[values?.[j]?.blockId] || {};
+							values[j] = {
+								...(values[j] || {}),
+								show,
+								amount,
+								description,
+								price,
+								quantity,
+								title,
+								currency,
+								image: imageURL,
+							};
+						}
+					}
+					tables[i].values = values;
+				}
 			}
 
 			setInfo((prev) => ({
