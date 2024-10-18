@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import '../../../assets/scss/sales/activity/activityComponents.scss';
 import { ReactComponent as SortSvg } from '../../../assets/svg/activity/sortIcon.svg';
 import SessionActivityModal from './ActivitySessionModal.jsx';
 const viewers = [

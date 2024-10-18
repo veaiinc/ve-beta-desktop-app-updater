@@ -1,4 +1,5 @@
 import React, { memo, useState } from 'react';
+import '../../../assets/scss/sales/activity/activityComponents.scss';
 import { ReactComponent as DotSvg } from '../../../assets/svg/activity/dot.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
 import { ReactComponent as RightSvg } from '../../../assets/svg/activity/right.svg';
