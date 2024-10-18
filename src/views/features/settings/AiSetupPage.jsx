@@ -1,4 +1,5 @@
 import React, { memo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/settings/aiSetupPage.scss';
 import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/Settings/left-arrow-back-btn.svg';
 import { ReactComponent as DividerLineVerticalWhite } from '../../../assets/svg/Settings/divider-line-vertical-white.svg';
@@ -54,7 +55,8 @@ const personas = [
 	},
 ];
 
-const AiSetupPage = memo(() => {
+const AiSetupPage = () => {
+	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		activeNavItem: 'Personality',
 		selectedPersonas: [
@@ -109,9 +111,13 @@ const AiSetupPage = memo(() => {
 		});
 	};
 
+	const handleNavigateToPreviousPage = () => {
+		navigate(-1);
+	};
+
 	return (
 		<div className="ai-setup-page-container">
-			<div className="back-btn-container">
+			<div onClick={handleNavigateToPreviousPage} className="back-btn-container">
 				<LeftArrowBackBtn />
 			</div>
 			<div className="left-container">
@@ -146,7 +152,7 @@ const AiSetupPage = memo(() => {
 			</div>
 		</div>
 	);
-});
+};
 
 const PersonalityCustomization = ({ info, handleSetActiveOption }) => {
 	return (
