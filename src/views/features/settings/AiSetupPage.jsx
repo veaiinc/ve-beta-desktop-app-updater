@@ -87,6 +87,10 @@ const AiSetupPage = () => {
 		],
 	});
 
+	const handleNavigateToPreviousPage = () => {
+		navigate(-1);
+	};
+
 	const handleNavItemClick = (e) => {
 		if (e.target.tagName === 'LI') {
 			setInfo((prevInfo) => {
@@ -109,10 +113,6 @@ const AiSetupPage = () => {
 				],
 			};
 		});
-	};
-
-	const handleNavigateToPreviousPage = () => {
-		navigate(-1);
 	};
 
 	return (
