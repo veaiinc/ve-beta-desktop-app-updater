@@ -2,7 +2,6 @@ import React, { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/settings/aiSetupPage.scss';
 import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/Settings/left-arrow-back-btn.svg';
-import { ReactComponent as DividerLineVerticalWhite } from '../../../assets/svg/Settings/divider-line-vertical-white.svg';
 import { ReactComponent as DotWhite } from '../../../assets/svg/Settings/dot-white.svg';
 import { ReactComponent as Speaker } from '../../../assets/svg/Settings/speaker.svg';
 import { ReactComponent as Dustbin } from '../../../assets/svg/Settings/dustbin.svg';
@@ -10,6 +9,7 @@ import { ReactComponent as Reload } from '../../../assets/svg/Settings/reload.sv
 import { ReactComponent as LinkWhite } from '../../../assets/svg/Settings/link-white-color.svg';
 import { ReactComponent as HollowCircleBlue } from '../../../assets/svg/Settings/hollow-circle-blue.svg';
 import Template from './tempImg.png';
+import AiPersonalityCustomization from '../../components/settings/ai_setup/AiPersonalityCustomization';
 
 const navItems = [
 	{
@@ -20,71 +20,10 @@ const navItems = [
 	},
 ];
 
-const personas = [
-	{
-		option1: 'Formal',
-		option2: 'Friendly',
-	},
-	{
-		option1: 'Concise',
-		option2: 'Detailed',
-	},
-	{
-		option1: 'Professional',
-		option2: 'Casual',
-	},
-	{
-		option1: 'Optimistic',
-		option2: 'Natural',
-	},
-	{
-		option1: 'Straightforward',
-		option2: 'Humorous',
-	},
-	{
-		option1: 'Empathetic',
-		option2: 'Objective',
-	},
-	{
-		option1: 'Enthusiastic',
-		option2: 'Reserved',
-	},
-	{
-		option1: 'Simplistic',
-		option2: 'Sophisticated',
-	},
-];
-
 const AiSetupPage = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		activeNavItem: 'Personality',
-		selectedPersonas: [
-			{
-				activeOption: 'option1',
-			},
-			{
-				activeOption: 'option2',
-			},
-			{
-				activeOption: 'option1',
-			},
-			{
-				activeOption: 'option1',
-			},
-			{
-				activeOption: 'option1',
-			},
-			{
-				activeOption: 'option2',
-			},
-			{
-				activeOption: 'option1',
-			},
-			{
-				activeOption: 'option1',
-			},
-		],
 	});
 
 	const handleNavigateToPreviousPage = () => {
@@ -100,19 +39,6 @@ const AiSetupPage = () => {
 				};
 			});
 		}
-	};
-
-	const handleSetActiveOption = (index, option) => {
-		setInfo((prevInfo) => {
-			return {
-				...prevInfo,
-				selectedPersonas: [
-					...prevInfo?.selectedPersonas?.map((persona, i) =>
-						i === index ? { ...persona, activeOption: option } : persona,
-					),
-				],
-			};
-		});
 	};
 
 	return (
@@ -138,78 +64,11 @@ const AiSetupPage = () => {
 						))}
 					</ul>
 				</nav>
-				{info.activeNavItem === 'Personality' && (
-					<PersonalityCustomization
-						info={info}
-						setInfo={setInfo}
-						handleSetActiveOption={handleSetActiveOption}
-					/>
-				)}
+				{info.activeNavItem === 'Personality' && <AiPersonalityCustomization />}
 				{info.activeNavItem === 'Knowledge Base' && <KnowledgeBase />}
 			</div>
 			<div className="right-container">
 				<QueryResponseCustomization />
-			</div>
-		</div>
-	);
-};
-
-const PersonalityCustomization = ({ info, handleSetActiveOption }) => {
-	return (
-		<div className="ai-personality-customization">
-			<p className="description">
-				Customize your AI bot's personality to match your brand! Adjust its tone and style,
-				and interaction preferences to create a unique experience.
-			</p>
-
-			<div className="ai-assistant-name-container">
-				<h1 className="ai-assistant-name">Setup AI Assistant's Name</h1>
-				<div className="ai-assistant-name-input-container">
-					<input className="ai-assistant-name-input" type="text" placeholder="Optimus" />
-				</div>
-			</div>
-			<div className="ai-personality-description">
-				<h1>Personality</h1>
-				<h2>Add background, identity and expertise to your bot.</h2>
-			</div>
-			<textarea
-				className="ai-personality-textarea"
-				placeholder="You are Optimus, and you will lead the Autobots to victory!"
-			></textarea>
-			<div className="ai-response-tone">
-				<div className="description">
-					<h1>Response Tone</h1>
-					<h2>Choose one Persona from each row</h2>
-				</div>
-				<div className="ai-persona-container">
-					<ul>
-						{personas.map((persona, index) => (
-							<li className="persona-option-container" key={index}>
-								<div
-									onClick={() => handleSetActiveOption(index, 'option1')}
-									className={`persona-option ${
-										info.selectedPersonas[index].activeOption === 'option1'
-											? 'persona-option-selected'
-											: ''
-									}`}
-								>
-									{persona.option1}
-								</div>
-								<DividerLineVerticalWhite />
-								<div
-									onClick={() => handleSetActiveOption(index, 'option2')}
-									className={`persona-option ${
-										info.selectedPersonas[index].activeOption === 'option2'
-											? 'persona-option-selected'
-											: ''
-									}`}
-								>
-									{persona.option2}
-								</div>
-							</li>
-						))}
-					</ul>
-				</div>
 			</div>
 		</div>
 	);

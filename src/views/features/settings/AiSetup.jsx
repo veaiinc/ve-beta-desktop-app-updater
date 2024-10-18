@@ -1,12 +1,11 @@
 import React, { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CreateNewAiModal from '../../components/modalsV2/settings/ai_setup/createNewAiModal';
 import '../../../assets/scss/settings/aiSetup.scss';
-import Modal from '../../components/modalsV2';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/Settings/question_circle.svg';
 import { ReactComponent as Plus } from '../../../assets/svg/Settings/plus.svg';
 import { ReactComponent as Robot } from '../../../assets/svg/Settings/robot.svg';
 import { ReactComponent as LinkGrey } from '../../../assets/svg/Settings/link-grey-color.svg';
-import { ReactComponent as CrossGrey } from '../../../assets/svg/Settings/cross-grey.svg';
 
 const rowsData = [
 	{
@@ -59,7 +58,14 @@ const AiSetup = () => {
 						onMouseEnter={() => setInfo((prev) => ({ ...prev, isTooltipOpen: true }))}
 						onMouseLeave={() => setInfo((prev) => ({ ...prev, isTooltipOpen: false }))}
 					/>
-					{info?.isTooltipOpen && <Tooltip />}
+					{info?.isTooltipOpen && (
+						<div className="tooltipContainer">
+							<p>
+								Your AI Assistance is set to your default sales workflows, set up
+								your knowledge based to each workflow to get essential information.
+							</p>
+						</div>
+					)}
 				</h1>
 				<h2 onClick={toggleModal}>
 					<Plus />
@@ -100,34 +106,5 @@ const AiSetup = () => {
 		</div>
 	);
 };
-
-const CreateNewAiModal = memo(({ isOpen, toggleModal }) => {
-	return (
-		<Modal isOpen={isOpen} closeModal={toggleModal}>
-			<div className="CreateNewAiModalContainer">
-				<div className="titleAndCloseBtnContainer">
-					<h1 className="title">Create new AI Assistant</h1>
-					<CrossGrey className="closeBtn" onClick={toggleModal} />
-				</div>
-				<div className="nameContainer">
-					<h1>Name</h1>
-					<input type="text" placeholder="Type here..." />
-				</div>
-				<div className="createBtn">Create</div>
-			</div>
-		</Modal>
-	);
-});
-
-const Tooltip = memo(() => {
-	return (
-		<div className="tooltipContainer">
-			<p>
-				Your AI Assistance is set to your default sales workflows, set up your knowledge
-				based to each workflow to get essential information.
-			</p>
-		</div>
-	);
-});
 
 export default memo(AiSetup);
