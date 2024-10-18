@@ -2,6 +2,7 @@ import React, { memo, useState } from 'react';
 import { ReactComponent as DotSvg } from '../../../assets/svg/activity/dot.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
 import { ReactComponent as RightSvg } from '../../../assets/svg/activity/right.svg';
+import { ReactComponent as GallerySvg } from '../../../assets/svg/activity/galleryIcon.svg';
 
 import DoughnutChart from '../../components/activity/DoughnutChart.jsx';
 
@@ -68,12 +69,11 @@ const ActivityMetrics = (props) => {
 	const handleShowLabels = () => {
 		if (!isLabelItemSelected) {
 			setLabelItemSelected(true);
-			console.log(`Label Item Clicked : ${isLabelItemSelected}`);
 			return;
 		}
 		setLabelItemSelected(false);
-		console.log(`Label Item Clicked : ${isLabelItemSelected}`);
 	};
+
 	const handleActivelable = (label) => {
 		setactiveLabelItem(label);
 	};
@@ -92,6 +92,7 @@ const ActivityMetrics = (props) => {
 						</div>
 
 						{isLabelItemSelected ? (
+							//LablesItewmRows ==>
 							<div className="lablesContainer">
 								{dummyData.map((item, index) => (
 									<div
@@ -127,7 +128,7 @@ const ActivityMetrics = (props) => {
 
 							<div className="lablesContainer">
 								{
-									//selected label - fix close for hadleShowLabels
+									//SelectedLabel ==>
 
 									<div
 										onClick={handleShowLabels}
@@ -148,12 +149,15 @@ const ActivityMetrics = (props) => {
 									</div>
 								}
 								{dummyLabelData.map((item, index) => (
-									//internal data
+									//Internal Data of Label ==>
 
 									<div key={index} className="lableItemRow">
 										<div className="nameLable">
 											<div className="dot">
 												<DotSvg dotColor="#FFAB6F" />
+											</div>
+											<div className="selectedBlockSvg">
+												<GallerySvg />
 											</div>
 											<div>{item.label}</div>
 										</div>

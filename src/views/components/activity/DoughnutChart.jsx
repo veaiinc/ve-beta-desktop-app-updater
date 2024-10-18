@@ -17,7 +17,7 @@ const DoughnutChart = () => {
 				data={data}
 				// cx={200}
 				// cy={200}
-				innerRadius={80}
+				innerRadius={100}
 				outerRadius={140}
 				fill="#8884d8"
 				paddingAngle={1}
