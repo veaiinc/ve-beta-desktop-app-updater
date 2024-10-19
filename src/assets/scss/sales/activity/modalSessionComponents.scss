@@ -1,0 +1,178 @@
+.timeLineWrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 20px;
+	flex: 1 0 0;
+	align-self: stretch;
+	overflow-y: auto;
+
+	.blockParentContainer {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--Spacing-space-7, 12px);
+		align-self: stretch;
+
+		.blockIcon {
+			display: flex;
+			width: 36px;
+			height: 36px;
+			padding: 7.2px;
+			justify-content: center;
+			align-items: center;
+			gap: 9px;
+			border-radius: 89.1px;
+			border: 1px solid #535298;
+			background: #2e2b44;
+		}
+
+		.blockContentContainer {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			gap: 8px;
+			flex: 1 0 0;
+			border-radius: 4px;
+
+			.blockHeader {
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				align-self: stretch;
+
+				.blockTitle {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 16px; /* 114.286% */
+				}
+
+				.headerIcon {
+					display: flex;
+					width: 16px;
+					height: 16px;
+					padding: var(--Spacing-space-3, 4px);
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
+					gap: 6.667px;
+					border-radius: 66px;
+					background: #4a4c4d;
+				}
+			}
+
+			.blockDescription {
+				display: flex;
+				gap: 4px;
+				border-bottom: 1px solid #222;
+				align-self: stretch;
+				padding-bottom: 8px;
+
+				.blockKey {
+					color: #929292;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px;
+				}
+				.blockValue {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px;
+				}
+			}
+
+			.blockElementsContainer {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: var(--Spacing-space-7, 12px);
+				align-self: stretch;
+
+				.blockElementWrapper {
+					display: flex;
+					padding: 8px;
+					align-items: center;
+					gap: var(--Spacing-space-7, 12px);
+					align-self: stretch;
+
+					.blockElementIcon {
+						display: flex;
+						padding: var(--Spacing-space-3, 4px);
+						align-items: center;
+						gap: 10px;
+						border-radius: 5px;
+						background: #1f1f1f;
+					}
+
+					.blockElementInfo {
+						display: flex;
+                        width: 276px;
+                        align-items: flex-start;
+                        gap: 8px;
+
+                        .elementTitle{
+                            overflow: hidden;
+                            color: #E4E5E6;
+                            text-overflow: ellipsis;
+                            font-family: Inter;
+                            font-size: 12px;
+                            font-style: normal;
+                            font-weight: 400;
+                            line-height: normal;
+                        }
+                        .elementValue{
+                            overflow: hidden;
+                            -webkit-box-orient: vertical;
+                            -webkit-line-clamp: 1;
+                            color: #929292;
+                            text-overflow: ellipsis;
+                            font-family: Inter;
+                            font-size: 12px;
+                            font-style: normal;
+                            font-weight: 400;
+                            line-height: normal;
+                        }
+					}
+				}
+			}
+		}
+	}
+}
+
+.timeSpentWrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 20px;
+	flex: 1 0 0;
+	align-self: stretch;
+	overflow-y: auto;
+}
+
+.interactionWrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 20px;
+	flex: 1 0 0;
+	align-self: stretch;
+	overflow-y: auto;
+}
+
+.chatWrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 20px;
+	flex: 1 0 0;
+	align-self: stretch;
+	overflow-y: auto;
+}

@@ -1,6 +1,5 @@
 .activitySidePanel {
 	height: 100%;
-	width: 480px;
 	display: flex;
 	padding: 10px;
 	color: #e4e5e6;
@@ -10,9 +9,9 @@
 		flex-direction: column;
 		flex: 1;
 		gap: 24px;
-		// align-items: flex-start;
+		align-items: flex-start;
 		align-self: stretch;
-		padding: 24px 32px;
+		padding: 20px;
 		border-radius: 32px;
 		border: 1px solid #1f1f1f;
 		background: #151515;
@@ -70,6 +69,10 @@
 					width: 16px;
 					height: 16px;
 					align-items: center;
+
+                    &:hover{
+                        cursor: pointer;
+                    }
 				}
 			}
 		}
@@ -155,33 +158,167 @@
 				}
 			}
 
-			.sessionNavigationContainer {
+			.sessionParentContainer {
 				display: flex;
-                align-items: center;
-                justify-content: space-between;
-                align-self: stretch;
-                gap: 24px;
+				flex-direction: column;
+				justify-content: center;
+				align-items: flex-start;
+				gap: 24px;
 
-                .viewMoreButton{
-                    display: flex;
-                    height: 18px;
-                    align-items: center;
-                    gap: 10px;       
+				.sessionNavWrapper {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					align-self: stretch;
+					gap: 24px;
 
-                    span{
-                        color: #E4E5E6;
-                        font-family: Inter;
-                        font-size: 12px;
-                        font-style: normal;
-                        font-weight: 500;
-                        line-height: normal;
-                    }
-                    
-                    .viewMoreSvg{
-                        width: 14px;
-                        height: 14px;
-                    }
-                }
+					.sessionNavigationContainer {
+						display: flex;
+						padding: 12px 18px;
+						justify-content: space-between;
+						width: 183px;
+						align-items: center;
+						flex: 1 0 0;
+						border-radius: 100px;
+						border: 1px solid rgba(228, 229, 230, 0.1);
+
+						span {
+							color: #e4e5e6;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+
+					.viewMoreButton {
+						display: flex;
+						align-items: center;
+						justify-content: flex-end;
+						gap: 10px;
+						width: 209px;
+
+						.textContainer {
+							position: relative;
+							display: inline-block;
+							color: #e4e5e6;
+							font-family: Inter, sans-serif;
+							font-size: 12px;
+							font-weight: 500;
+							// transition: opacity 0.1s ease, transform 0.1s ease;
+
+							// &Exit {
+							// 	opacity: 0;
+							// }
+
+							// &Enter {
+							// 	opacity: 1;
+							// }
+
+                            &:hover{
+                                cursor: pointer;
+                            }
+						}
+
+						.viewMoreSvg {
+							width: 14px;
+							height: 14px;
+							transition: transform 0.2s ease;
+
+                            &:hover{
+                                cursor: pointer;
+                            }
+
+							&.rotated {
+								transform: rotate(180deg);
+							}
+						}
+					}
+				}
+
+				.sessionInfoWrapper {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 12px;
+					align-self: stretch;
+
+					.sessionInfoLabel {
+						display: flex;
+						align-items: center;
+						gap: 25px;
+						align-self: stretch;
+
+						.labelKey {
+							width: 76px;
+							color: #929292;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+						}
+
+						.labelValue {
+							display: flex;
+							align-items: center;
+							gap: 8px;
+							flex: 1 0 0;
+
+							.labelDescription {
+								color: #e4e5e6;
+								font-family: Inter;
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+								letter-spacing: -0.24px;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.sessionActivityParentContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			flex: 1 0 0;
+			align-self: stretch;
+
+			.sessionNavbar {
+				display: flex;
+				align-items: flex-start;
+				align-self: stretch;
+				gap: 8px;
+				border-bottom: 1px solid #272727;
+
+				.sessionTab {
+					display: flex;
+					padding: 10px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px;
+
+					&:hover {
+						cursor: pointer;
+					}
+
+					&.sessionTabActive {
+						font-weight: 500;
+						border-bottom: 2px solid white;
+					}
+				}
 			}
 		}
 	}

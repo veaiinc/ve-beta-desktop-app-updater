@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/sales/activity/activityComponents.scss';
 import { ReactComponent as SortSvg } from '../../../assets/svg/activity/sortIcon.svg';
-import SessionActivityModal from './ActivitySessionModal.jsx';
 const viewers = [
 	{
 		name: 'John Michael',
@@ -42,7 +41,7 @@ const viewers = [
 	{ name: 'Anonymous', email: null, sessions: 1, time: '00:15:45', avatar: 'A' },
 	{ name: 'Anonymous', email: null, sessions: 1, time: '00:15:45', avatar: 'A' },
 ];
-const ViewersList = ({ modalIsOpen, showDrawer }) => {
+const ViewersList = ({ showDrawer }) => {
 	return (
 		<>
 			<div className="viewersContainer">
@@ -83,8 +82,6 @@ const ViewersList = ({ modalIsOpen, showDrawer }) => {
 					))}
 				</div>
 			</div>
-
-			<SessionActivityModal modalIsOpen={modalIsOpen} showDrawer={showDrawer} />
 		</>
 	);
 };

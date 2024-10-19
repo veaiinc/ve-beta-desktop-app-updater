@@ -4,6 +4,7 @@ import ActivityOverview from '../../../components/activity/ActivityOverview';
 import TimeLine from '../../../components/activity/TimeLine';
 import ViewersList from '../../../components/activity/ViewersList';
 import ActivityMetrics from '../../../components/activity/ActivityMetrics';
+import SessionActivityModal from '../../../components/activity/ActivitySessionModal.jsx';
 
 const ActivityDashboard = () => {
 	const [info, setInfo] = useState({
@@ -23,14 +24,17 @@ const ActivityDashboard = () => {
 			<ActivityOverview />
 
 			<div className="activityDetailsContainer">
-				<TimeLine modalIsOpen={info?.modalIsOpen} showDrawer={showDrawer} />
+				<TimeLine showDrawer={showDrawer} />
 
-				<ViewersList modalIsOpen={info?.modalIsOpen} showDrawer={showDrawer} />
+				<ViewersList showDrawer={showDrawer} />
 			</div>
 
 			{/* Metric Component */}
 			<ActivityMetrics title="Time Spent" />
 			<ActivityMetrics title="Interactions" />
+
+			{/* /Modals */}
+			<SessionActivityModal modalIsOpen={info?.modalIsOpen} showDrawer={showDrawer} />
 		</div>
 	);
 };
