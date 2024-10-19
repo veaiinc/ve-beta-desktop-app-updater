@@ -216,7 +216,7 @@ const SmartFile = () => {
 		moveWorkflowStatus(payloadForConfirming);
 
 		if (response?.[0]) {
-			setInfo((prev) => ({ ...prev, workflowStatus: 'proposalAccepted' }));
+			setInfo((prev) => ({ ...prev, workflowStatus: 'confirmed' }));
 			return [true];
 		}
 		return [false];
