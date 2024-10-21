@@ -63,12 +63,16 @@ const ActivityMetrics = (props) => {
 			percentage: '9%',
 		},
 	];
-
-	const [isLabelItemSelected, setLabelItemSelected] = useState(true);
+	// const [info, setInfo] = useState({
+	//     labelData: dummyLabelData,
+	//     isLabelSelected: true,
+	//     activeLabelItem: null,
+	// }) Do it later...
+	const [isLabelSelected, setLabelItemSelected] = useState(true);
 	const [activeLabelItem, setactiveLabelItem] = useState(null);
 
 	const handleShowLabels = () => {
-		if (!isLabelItemSelected) {
+		if (!isLabelSelected) {
 			setLabelItemSelected(true);
 			return;
 		}
@@ -78,6 +82,23 @@ const ActivityMetrics = (props) => {
 	const handleActivelable = (label) => {
 		setactiveLabelItem(label);
 	};
+
+	const formatedLabelStats = dummyData.map((item) => {
+		const { label, percentage, ...rest } = item;
+		return {
+			name: label,
+			percentage: parseFloat(percentage),
+			...rest,
+		};
+	});
+	const formatedLabelItemStats = dummyLabelData.map((item) => {
+		const { label, percentage, ...rest } = item;
+		return {
+			name: label,
+			percentage: parseFloat(percentage),
+			...rest,
+		};
+	});
 
 	return (
 		<div className="activityMetricsContainer">
@@ -92,7 +113,7 @@ const ActivityMetrics = (props) => {
 							<span>%</span>
 						</div>
 
-						{isLabelItemSelected ? (
+						{isLabelSelected ? (
 							//LablesItewmRows ==>
 							<div className="lablesContainer">
 								{dummyData.map((item, index) => (
@@ -177,7 +198,11 @@ const ActivityMetrics = (props) => {
 					</div>
 
 					<div className="metricsChartWrapper">
-						<DoughnutChart />
+						{isLabelSelected ? (
+							<DoughnutChart statsData={formatedLabelStats} />
+						) : (
+							<DoughnutChart statsData={formatedLabelItemStats} />
+						)}
 					</div>
 				</div>
 			</div>
