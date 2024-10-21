@@ -85,11 +85,20 @@ const AcceptedStageSmartFileBlocks = ({
 								{ele?.values?.map((item, ind) => (
 									<div className="servicesValues" key={ind}>
 										<span className="keyValuepairs" style={{ flex: 1 }}>
-											{item?.quantity} {item?.title}
+											{item?.quantity}{' '}
+											{item?.title
+												?.replace(/&nbsp;/g, ' ')
+												.replace(/<\/?[^>]+(>|$)/g, '')
+												.replace(/"/g, '') || ''}
 										</span>
 										<span className="keyValuepairs">
 											{item?.currency === 'INR' ? '₹' : '$'}
-											{item?.amount || 0}
+											{+(
+												(item?.amount + '')
+													?.replace(/&nbsp;/g, ' ')
+													.replace(/<\/?[^>]+(>|$)/g, '')
+													.replace(/"/g, '') || ''
+											) || 0}
 										</span>
 									</div>
 								))}
