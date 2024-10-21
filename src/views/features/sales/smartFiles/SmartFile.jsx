@@ -441,6 +441,7 @@ const SmartFile = () => {
 				closeModal={() => setInfo((prev) => ({ ...prev, moveToStageModal: false }))}
 				moveStageFunc={moveStageFunc}
 				changelocalWorflowStatus={changelocalWorflowStatus}
+				noContractTemplate={info?.noContractTemplate}
 				// workflowStatus={smartFileInfo?.status}
 			/>
 			<DeleteLeadModal

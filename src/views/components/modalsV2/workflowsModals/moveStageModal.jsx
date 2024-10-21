@@ -11,19 +11,43 @@ const options = [
 	// { label: 'Expired', value: 'expired' },
 ];
 
-const MoveStageModal = ({ open, closeModal, moveStageFunc, changelocalWorflowStatus }) => {
+const MoveStageModal = ({
+	open,
+	closeModal,
+	moveStageFunc,
+	changelocalWorflowStatus,
+	noContractTemplate,
+}) => {
 	const [info, setInfo] = useState({
 		selectedStage: options?.[0],
 		loading: false,
 		moveStageOptions: options,
 	});
 
-	const onChangeFunc = useCallback(async (data) => {
-		if (info?.selectedStage?.value === data?.value || data?.value === 'expired') {
-			return;
+	useEffect(() => {
+		if (noContractTemplate) {
+			const updatedOptions = [...options];
+			let i;
+			for (i = 0; i < updatedOptions.length; i++) {
+				if (updatedOptions?.[i]?.value === 'contractSigned') {
+					break;
+				}
+			}
+
+			updatedOptions?.splice(i, 1);
+			setInfo((prev) => ({ ...prev, moveStageOptions: updatedOptions }));
 		}
-		setInfo((prev) => ({ ...prev, selectedStage: data }));
-	}, []);
+	}, [noContractTemplate]);
+
+	const onChangeFunc = useCallback(
+		async (data) => {
+			if (info?.selectedStage?.value === data?.value || data?.value === 'expired') {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, selectedStage: data }));
+		},
+		[info?.selectedStage],
+	);
 
 	const moveFunc = useCallback(async () => {
 		if (info?.loading) {
@@ -64,7 +88,7 @@ const MoveStageModal = ({ open, closeModal, moveStageFunc, changelocalWorflowSta
 					<span className="dropDownLabel">Select Workflow Stage</span>
 					<HeadersDropDownComp
 						selectedValue={info?.selectedStage?.label || ''}
-						options={options}
+						options={info?.moveStageOptions}
 						containerStyle={{
 							display: 'flex',
 							padding: '11px 14px',
