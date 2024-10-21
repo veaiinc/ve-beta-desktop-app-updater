@@ -216,7 +216,7 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer }) => {
 
 						{info?.isSessionTabActive === 'Time Spent' ? <TimeSpentSession /> : ''}
 
-						{info?.isSessionTabActive === 'Interaction' ? <InteractionSession /> : ''}
+						{info?.isSessionTabActive === 'Interaction' ? <TimeSpentSession /> : ''}
 
 						{info?.isSessionTabActive === 'AI Chat' ? <ChatSession /> : ''}
 					</div>
