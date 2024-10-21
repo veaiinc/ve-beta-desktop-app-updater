@@ -445,7 +445,7 @@ const SmartFile = () => {
 			/>
 			<DeleteLeadModal
 				open={info?.deleteLeadModal}
-				closeModal={() => setInfo((prev) => ({ ...prev, deleteLoadModal: false }))}
+				closeModal={() => setInfo((prev) => ({ ...prev, deleteLeadModal: false }))}
 				deleteLeadFunc={deleteLeadFunc}
 			/>
 			<UploadLogoNotification
