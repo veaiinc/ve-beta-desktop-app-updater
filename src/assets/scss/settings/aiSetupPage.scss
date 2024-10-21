@@ -666,6 +666,16 @@
 							right: 0;
 							cursor: pointer;
 						}
+
+						.speaker-active {
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							position: absolute;
+							top: 4px;
+							right: 4px;
+							cursor: pointer;
+						}
 					}
 
 					.response-container {

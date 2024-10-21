@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/cross-grey.svg';
-import Modal from '../../';
+import '../../../../../assets/scss/settings/aiSetup.scss';
+import Modal from '../..';
 
 const CreateNewAiModal = memo(({ isOpen, toggleModal }) => {
 	return (

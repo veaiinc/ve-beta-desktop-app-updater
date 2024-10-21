@@ -67,38 +67,32 @@ const AiPersonalityCustomization = () => {
 	const [info, setInfo] = useState({
 		aiAssistantName: '',
 		aiAssistantNameFocus: false,
-		selectedPersonas: initialSelectedPersonas,
+		selectedPersonas: [...initialSelectedPersonas],
 	});
 
 	const handleSetAiAssistantName = (e) => {
-		setInfo((prevInfo) => {
-			return {
-				...prevInfo,
-				aiAssistantName: e.target.value,
-			};
-		});
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			aiAssistantName: e?.target?.value,
+		}));
 	};
 
 	const handleSetAiAssistantNameFocus = (focusState) => {
-		setInfo((prevInfo) => {
-			return {
-				...prevInfo,
-				aiAssistantNameFocus: focusState,
-			};
-		});
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			aiAssistantNameFocus: focusState,
+		}));
 	};
 
 	const handleSetActiveOption = (index, option) => {
-		setInfo((prevInfo) => {
-			return {
-				...prevInfo,
-				selectedPersonas: [
-					...prevInfo?.selectedPersonas?.map((persona, i) =>
-						i === index ? { ...persona, activeOption: option } : persona,
-					),
-				],
-			};
-		});
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			selectedPersonas: [
+				...prevInfo?.selectedPersonas?.map((persona, i) =>
+					i === index ? { ...persona, activeOption: option } : persona,
+				),
+			],
+		}));
 	};
 
 	return (
@@ -140,12 +134,12 @@ const AiPersonalityCustomization = () => {
 				</div>
 				<div className="ai-persona-container">
 					<ul>
-						{personas.map((persona, index) => (
+						{personas?.map((persona, index) => (
 							<li className="persona-option-container" key={index}>
 								<div
 									onClick={() => handleSetActiveOption(index, 'option1')}
 									className={`persona-option ${
-										info.selectedPersonas[index].activeOption === 'option1'
+										info?.selectedPersonas[index]?.activeOption === 'option1'
 											? 'persona-option-selected'
 											: ''
 									}`}
@@ -156,12 +150,12 @@ const AiPersonalityCustomization = () => {
 								<div
 									onClick={() => handleSetActiveOption(index, 'option2')}
 									className={`persona-option ${
-										info.selectedPersonas[index].activeOption === 'option2'
+										info?.selectedPersonas[index]?.activeOption === 'option2'
 											? 'persona-option-selected'
 											: ''
 									}`}
 								>
-									{persona.option2}
+									{persona?.option2}
 								</div>
 							</li>
 						))}

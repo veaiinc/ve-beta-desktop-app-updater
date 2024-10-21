@@ -1,6 +1,6 @@
 import React, { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CreateNewAiModal from '../../components/modalsV2/settings/ai_setup/createNewAiModal';
+import CreateNewAiModal from '../../components/modalsV2/settings/ai_setup/CreateNewAiModal';
 import '../../../assets/scss/settings/aiSetup.scss';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/Settings/question_circle.svg';
 import { ReactComponent as Plus } from '../../../assets/svg/Settings/plus.svg';

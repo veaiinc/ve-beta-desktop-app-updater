@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState, useRef } from 'react';
 import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/cross-grey.svg';
 import { ReactComponent as LinkPurple } from '../../../../../assets/svg/Settings/link-purple-color.svg';
 import { ReactComponent as LinkGrey } from '../../../../../assets/svg/Settings/link-grey-color.svg';
@@ -7,6 +7,7 @@ import { ReactComponent as FilePurple } from '../../../../../assets/svg/Settings
 import { ReactComponent as CustomTextGrey } from '../../../../../assets/svg/Settings/custom-text-grey.svg';
 import { ReactComponent as CustomTextPurple } from '../../../../../assets/svg/Settings/custom-text-purple.svg';
 import { ReactComponent as UploadIcon } from '../../../../../assets/svg/Settings/CloudUpload.svg';
+import '../../../../../assets/scss/settings/aiSetup.scss';
 
 import Modal from '../../';
 
@@ -28,7 +29,7 @@ const knowledgeFileTypes = [
 	},
 ];
 
-const AddKnowledgeModal = memo(({ isOpen, toggleModal }) => {
+const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 	const [info, setInfo] = useState({
 		activeFileType: knowledgeFileTypes[0].name,
 		inputURL: '',
@@ -44,6 +45,7 @@ const AddKnowledgeModal = memo(({ isOpen, toggleModal }) => {
 	const handleAddURL = () => {
 		setInfo((prev) => ({
 			...prev,
+			inputURL: '',
 			urlsInfo: [
 				...prev.urlsInfo,
 				{
@@ -58,20 +60,11 @@ const AddKnowledgeModal = memo(({ isOpen, toggleModal }) => {
 	};
 
 	const handleRemoveURL = (index) => {
-		console.log('index', index);
 		setInfo((prev) => ({
 			...prev,
 			urlsInfo: prev.urlsInfo.filter((_, i) => i !== index),
 		}));
 	};
-
-	useEffect(() => {
-		console.log(info.pdfFilesInfo);
-	}, [info.pdfFilesInfo]);
-
-	useEffect(() => {
-		console.log(info.urlsInfo);
-	}, [info.urlsInfo]);
 
 	return (
 		<Modal isOpen={isOpen} closeModal={toggleModal}>
@@ -134,6 +127,7 @@ const AddKnowledgeModal = memo(({ isOpen, toggleModal }) => {
 								onChange={handleSetInputURL}
 								type="text"
 								placeholder="Enter URL"
+								autoFocus={true}
 							/>
 							<button onClick={handleAddURL}>Add</button>
 						</div>
@@ -166,6 +160,6 @@ const AddKnowledgeModal = memo(({ isOpen, toggleModal }) => {
 			</div>
 		</Modal>
 	);
-});
+};
 
 export default memo(AddKnowledgeModal);

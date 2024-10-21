@@ -1,18 +1,24 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useContext, useEffect } from 'react';
 import { ReactComponent as LinkWhite } from '../../../../assets/svg/Settings/link-white-color.svg';
 import AddKnowledgeModal from '../../../components/modalsV2/settings/ai_setup/AddKnowledgeModal';
+import '../../../../assets/scss/settings/aiSetupPage.scss';
+import Context from '../../../../context/context';
 // import { ReactComponent as HollowCircleBlue } from '../../../../assets/svg/Settings/hollow-circle-blue.svg';
 // import Template from './tempImg.png';
 
 const columnNames = ['Source', 'Status'];
 
 const KnowledgeBase = () => {
+	let {
+		aiSetup: { knowledgeBaseFiles },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		isAddKnowledgeModalOpen: false,
 	});
 
 	const toggleModal = () => {
-		setInfo({ ...info, isAddKnowledgeModalOpen: !info.isAddKnowledgeModalOpen });
+		setInfo({ ...info, isAddKnowledgeModalOpen: !info?.isAddKnowledgeModalOpen });
 	};
 
 	return (
@@ -233,56 +239,28 @@ const KnowledgeBase = () => {
 					<h1>Active Knowledges</h1>
 					<button onClick={toggleModal}>Add Knowledge</button>
 				</div>
-				<ul className="column-titles-container">
-					{columnNames.map((columnName) => (
-						<li key={columnName} className={columnName.toLowerCase()}>
-							{columnName}
-						</li>
-					))}
-				</ul>
+				{knowledgeBaseFiles?.length > 0 && (
+					<ul className="column-titles-container">
+						{columnNames?.map((columnName) => (
+							<li key={columnName} className={columnName?.toLowerCase()}>
+								{columnName}
+							</li>
+						))}
+					</ul>
+				)}
 				<div className="knowledges-list">
-					<div className="knowledge-item">
-						<div className="knowledge-link-container">
-							<LinkWhite />
-							<p>https://www.wikipedia.org/ve-ai</p>
+					{knowledgeBaseFiles?.map((knowledge) => (
+						<div className="knowledge-item">
+							<div className="knowledge-link-container">
+								<LinkWhite />
+								<p>{knowledge?.name}</p>
+							</div>
+							{/* <div className="knowledge-status">
+								<span className="status">Training...</span>
+								<span className="time">2 hrs left</span>
+							</div> */}
 						</div>
-						<div className="knowledge-status">
-							{/* Loading state */}
-							<span className="status">Training...</span>
-							<span className="time">2 hrs left</span>
-						</div>
-					</div>
-					<div className="knowledge-item">
-						<div className="knowledge-link-container">
-							<LinkWhite />
-							<p>https://www.wikipedia.org/ve-ai</p>
-						</div>
-						<div className="knowledge-status">
-							{/* Ready state */}
-							<span className="status">Training...</span>
-							<span className="time">2 hrs left</span>
-						</div>
-					</div>
-					<div className="knowledge-item">
-						<div className="knowledge-link-container">
-							<LinkWhite />
-							<p>https://www.wikipedia.org/ve-ai</p>
-						</div>
-						<div className="knowledge-status">
-							<span className="status">Training...</span>
-							<span className="time">2 hrs left</span>
-						</div>
-					</div>
-					<div className="knowledge-item">
-						<div className="knowledge-link-container">
-							<LinkWhite />
-							<p>https://www.wikipedia.org/ve-ai</p>
-						</div>
-						<div className="knowledge-status">
-							<span className="status">Training...</span>
-							<span className="time">2 hrs left</span>
-						</div>
-					</div>
+					))}
 				</div>
 			</div>
 			<AddKnowledgeModal isOpen={info?.isAddKnowledgeModalOpen} toggleModal={toggleModal} />
