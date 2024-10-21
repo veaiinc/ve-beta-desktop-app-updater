@@ -66,6 +66,7 @@ const initialSelectedPersonas = [
 const AiPersonalityCustomization = () => {
 	const [info, setInfo] = useState({
 		aiAssistantName: '',
+		aiAssistantNameFocus: false,
 		selectedPersonas: initialSelectedPersonas,
 	});
 
@@ -74,6 +75,15 @@ const AiPersonalityCustomization = () => {
 			return {
 				...prevInfo,
 				aiAssistantName: e.target.value,
+			};
+		});
+	};
+
+	const handleSetAiAssistantNameFocus = (focusState) => {
+		setInfo((prevInfo) => {
+			return {
+				...prevInfo,
+				aiAssistantNameFocus: focusState,
 			};
 		});
 	};
@@ -100,9 +110,15 @@ const AiPersonalityCustomization = () => {
 
 			<div className="ai-assistant-name-container">
 				<h1 className="ai-assistant-name">Setup AI Assistant's Name</h1>
-				<div className="ai-assistant-name-input-container">
+				<div
+					className={`ai-assistant-name-input-container ${
+						info.aiAssistantNameFocus ? 'ai-assistant-name-input-container-focus' : ''
+					}`}
+				>
 					<input
 						onInput={handleSetAiAssistantName}
+						onFocus={() => handleSetAiAssistantNameFocus(true)}
+						onBlur={() => handleSetAiAssistantNameFocus(false)}
 						className="ai-assistant-name-input"
 						type="text"
 						placeholder="Optimus"

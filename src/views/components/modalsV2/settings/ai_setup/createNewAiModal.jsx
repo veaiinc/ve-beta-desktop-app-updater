@@ -7,8 +7,10 @@ const CreateNewAiModal = memo(({ isOpen, toggleModal }) => {
 		<Modal isOpen={isOpen} closeModal={toggleModal}>
 			<div className="CreateNewAiModalContainer">
 				<div className="titleAndCloseBtnContainer">
-					<h1 className="title">Create new AI Assistant</h1>
-					<CrossGrey className="closeBtn" onClick={toggleModal} />
+					<h1 className="title">
+						Create new AI Assistant
+						<CrossGrey className="closeBtn" onClick={toggleModal} />
+					</h1>
 				</div>
 				<div className="nameContainer">
 					<h1>Name</h1>
