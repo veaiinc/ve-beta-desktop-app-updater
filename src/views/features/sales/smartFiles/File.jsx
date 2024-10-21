@@ -20,6 +20,7 @@ const File = ({
 	edit,
 	expiresAt,
 	updateSendSmartFileExpiryData,
+	workflowStatus,
 }) => {
 	const { workflowId } = useParams();
 	let {
@@ -716,6 +717,7 @@ const File = ({
 					propsalData={info?.proposal}
 					contractData={info?.contract}
 					userSigned={userSigned}
+					workflowStatus={workflowStatus}
 				/>
 				<span className="editContainerHeader">
 					{edit

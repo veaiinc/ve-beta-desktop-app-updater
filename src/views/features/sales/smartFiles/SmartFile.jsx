@@ -397,6 +397,7 @@ const SmartFile = () => {
 						edit={info?.edit}
 						expiresAt={info?.workflowExpiryAt || ''}
 						updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
+						workflowStatus={info?.workflowStatus}
 					/>
 				)}
 			</div>

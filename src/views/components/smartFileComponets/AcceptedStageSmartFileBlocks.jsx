@@ -10,6 +10,7 @@ const AcceptedStageSmartFileBlocks = ({
 	clientDetails,
 	propsalData,
 	contractData,
+	workflowStatus,
 }) => {
 	let {
 		templates: { contractSignedLocalState, updateStateValues },
@@ -52,14 +53,30 @@ const AcceptedStageSmartFileBlocks = ({
 
 	useEffect(() => {
 		if (propsalData) {
-			const tables = [...(propsalData?.tables || [])];
+			//need to show selected and also view only services
+
+			const { tables = [], sections = [] } = propsalData || {};
+
 			let serivesCollectiveData = [];
+			let sectionMapper = {};
+			for (let i = 0; i < sections?.length; i++) {
+				if (sections?.[i]?.type === 'services') {
+					const { style } = sections?.[i];
+					if (style?.services_selection === 2) {
+						sectionMapper[sections?.[i]?._id] = true;
+					}
+				}
+			}
+
 			for (let i = 0; i < tables.length; i++) {
 				let requiredData = { values: [] };
 				if (tables?.[i]?.type === 'services') {
 					const tableValues = tables?.[i].values;
 					for (let j = 0; j < tableValues?.length; j++) {
-						if (tableValues?.[j]?.isSelected) {
+						if (
+							(tableValues?.[j]?.isSelected || sectionMapper?.[tables?.[i]?._id]) &&
+							tableValues?.[j]?.show
+						) {
 							requiredData?.values?.push(tableValues?.[j]);
 						}
 					}
@@ -71,7 +88,7 @@ const AcceptedStageSmartFileBlocks = ({
 		}
 	}, [propsalData]);
 
-	return smartFileStatus !== 'enquiry' && smartFileStatus !== 'filesSent' ? (
+	return workflowStatus !== 'enquiry' && workflowStatus !== 'filesSent' ? (
 		<div className="acceptedSmartFileBlocks">
 			<div className="acceptedSmartFileBlocksRowContainer">
 				<div className="acceptedBlocks">
