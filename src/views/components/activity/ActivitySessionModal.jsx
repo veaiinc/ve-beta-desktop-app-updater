@@ -14,8 +14,7 @@ import { ReactComponent as WebSvg } from '../../../assets/svg/activity/web.svg';
 import { Drawer } from 'antd';
 import TimeLineSession from './TimeLineSession.jsx';
 import ChatSession from './ChatSession.jsx';
-import TimeSpentSession from './TimeSpentSession.jsx';
-import InteractionSession from './InteractionSession.jsx';
+import SessionMetric from './SessionMetric.jsx';
 
 const SessionActivityModal = ({ modalIsOpen, showDrawer }) => {
 	const [info, setInfo] = useState({
@@ -214,9 +213,9 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer }) => {
 
 						{info?.isSessionTabActive === 'Time Line' ? <TimeLineSession /> : ''}
 
-						{info?.isSessionTabActive === 'Time Spent' ? <TimeSpentSession /> : ''}
+						{info?.isSessionTabActive === 'Time Spent' ? <SessionMetric /> : ''}
 
-						{info?.isSessionTabActive === 'Interaction' ? <TimeSpentSession /> : ''}
+						{info?.isSessionTabActive === 'Interaction' ? <SessionMetric /> : ''}
 
 						{info?.isSessionTabActive === 'AI Chat' ? <ChatSession /> : ''}
 					</div>

@@ -6,7 +6,7 @@ import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg
 import { ReactComponent as RightSvg } from '../../../assets/svg/activity/right.svg';
 import { ReactComponent as GallerySvg } from '../../../assets/svg/activity/galleryIcon.svg';
 
-const TimeSpentSession = () => {
+const SessionMetric = () => {
 	const dummyData = [
 		{ label: 'Proposal', timeSpent: '00:12:34', percentage: '50%' },
 		{ label: 'Proposal Summary', timeSpent: '00:12:34', percentage: '12.5%' },
@@ -198,4 +198,4 @@ const TimeSpentSession = () => {
 	);
 };
 
-export default memo(TimeSpentSession);
+export default memo(SessionMetric);

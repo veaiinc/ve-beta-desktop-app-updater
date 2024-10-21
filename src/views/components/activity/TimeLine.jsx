@@ -39,6 +39,31 @@ const TimeLine = () => {
 							<p className="dateLable">Mon, 24 Sep 2024</p>
 							<p className="timeLable">10:20 pm</p>
 						</div>
+						<div className="dateTimeWrapper">
+							{/* Map the event date and time with Api data  */}
+							<p className="dateLable">Mon, 24 Sep 2024</p>
+							<p className="timeLable">10:20 pm</p>
+						</div>
+						<div className="dateTimeWrapper">
+							{/* Map the event date and time with Api data  */}
+							<p className="dateLable">Mon, 24 Sep 2024</p>
+							<p className="timeLable">10:20 pm</p>
+						</div>
+						<div className="dateTimeWrapper">
+							{/* Map the event date and time with Api data  */}
+							<p className="dateLable">Mon, 24 Sep 2024</p>
+							<p className="timeLable">10:20 pm</p>
+						</div>
+						<div className="dateTimeWrapper">
+							{/* Map the event date and time with Api data  */}
+							<p className="dateLable">Mon, 24 Sep 2024</p>
+							<p className="timeLable">10:20 pm</p>
+						</div>
+						<div className="dateTimeWrapper">
+							{/* Map the event date and time with Api data  */}
+							<p className="dateLable">Mon, 24 Sep 2024</p>
+							<p className="timeLable">10:20 pm</p>
+						</div>
 					</div>
 
 					{/* Event Block */}
@@ -158,6 +183,7 @@ const TimeLine = () => {
 
 							<div className="eventActions">View</div>
 						</div>
+
 						<div className="eventBlock">
 							<div className="eventIcon">
 								<div className="eventIconContainer">
@@ -186,62 +212,7 @@ const TimeLine = () => {
 
 							<div className="eventActions">View</div>
 						</div>
-						<div className="eventBlock">
-							<div className="eventIcon">
-								<div className="eventIconContainer">
-									<FileArrowUp />
-								</div>
-							</div>
 
-							<div className="eventDetails">
-								<div className="eventType">Form Submitted</div>
-								<div className="eventUserDetails">
-									<div className="eventUserImg">
-										<EventUser />
-									</div>
-									<div className="userDetails">
-										<div className="userLabel">
-											<span className="labelKey">Name : </span>
-											<span className="labelValue">John Michael</span>
-										</div>
-										<div className="userLabel">
-											<span className="labelKey">Email : </span>
-											<span className="labelValue">Johnmichael@mail.com</span>
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<div className="eventActions">View</div>
-						</div>
-						<div className="eventBlock">
-							<div className="eventIcon">
-								<div className="eventIconContainer">
-									<FileArrowUp />
-								</div>
-							</div>
-
-							<div className="eventDetails">
-								<div className="eventType">Form Submitted</div>
-								<div className="eventUserDetails">
-									<div className="eventUserImg">
-										<EventUser />
-									</div>
-									<div className="userDetails">
-										<div className="userLabel">
-											<span className="labelKey">Name : </span>
-											<span className="labelValue">John Michael</span>
-										</div>
-										<div className="userLabel">
-											<span className="labelKey">Email : </span>
-											<span className="labelValue">Johnmichael@mail.com</span>
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<div className="eventActions">View</div>
-						</div>
 						<div className="eventBlock">
 							<div className="eventIcon">
 								<div className="eventIconContainer">
