@@ -5,6 +5,7 @@ import TimeLine from '../../../components/activity/TimeLine';
 import ViewersList from '../../../components/activity/ViewersList';
 import ActivityMetrics from '../../../components/activity/ActivityMetrics';
 import SessionActivityModal from '../../../components/activity/ActivitySessionModal.jsx';
+// import EmailModal from '../../../components/activity/EmailModal.jsx';
 
 const ActivityDashboard = () => {
 	const [info, setInfo] = useState({
@@ -12,7 +13,6 @@ const ActivityDashboard = () => {
 	});
 
 	const showDrawer = useCallback(() => {
-		console.log(`Drawer Clicked: ${info.modalIsOpen}`);
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			modalIsOpen: !prevInfo.modalIsOpen,
@@ -35,6 +35,7 @@ const ActivityDashboard = () => {
 
 			{/* /Modals */}
 			<SessionActivityModal modalIsOpen={info?.modalIsOpen} showDrawer={showDrawer} />
+			{/* <EmailModal modalIsOpen={info?.modalIsOpen} showDrawer={showDrawer} /> */}
 		</div>
 	);
 };

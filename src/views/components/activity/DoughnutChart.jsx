@@ -4,7 +4,6 @@ import { PieChart, Pie, Cell, Tooltip } from 'recharts';
 const COLORS = ['#FF6384', '#FFCE56', '#FF9F40', '#36A2EB', '#9966FF'];
 
 const DoughnutChart = ({ statsData }) => {
-	console.log('Donutchart data:' + JSON.stringify(statsData, null, 2));
 	return (
 		<PieChart width={390} height={300} className="ringChart">
 			<Pie

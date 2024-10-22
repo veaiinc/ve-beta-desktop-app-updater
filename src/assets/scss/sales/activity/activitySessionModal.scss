@@ -70,9 +70,26 @@
 					height: 16px;
 					align-items: center;
 
-                    &:hover{
-                        cursor: pointer;
-                    }
+					&:hover {
+						cursor: pointer;
+					}
+
+					cursor: pointer;
+					// &:hover {
+					// 	background: #373737;
+					// }
+					// &:active {
+					// 	background: #28282a;
+					// }
+					// &:focus {
+					// 	background: #28282a;
+					// }
+					// &:focus-visible {
+					// 	outline: 2px solid #6c83ff;
+					// }
+					// &:focus-within {
+					// 	outline: 2px solid #6c83ff;
+					// }
 				}
 			}
 		}
@@ -216,9 +233,9 @@
 							// 	opacity: 1;
 							// }
 
-                            &:hover{
-                                cursor: pointer;
-                            }
+							&:hover {
+								cursor: pointer;
+							}
 						}
 
 						.viewMoreSvg {
@@ -226,9 +243,9 @@
 							height: 14px;
 							transition: transform 0.2s ease;
 
-                            &:hover{
-                                cursor: pointer;
-                            }
+							&:hover {
+								cursor: pointer;
+							}
 
 							&.rotated {
 								transform: rotate(180deg);
