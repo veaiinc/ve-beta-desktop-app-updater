@@ -62,10 +62,16 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 					subTotalValue += +(amount * quantity);
 				}
 				let editable = serviceData?.[i]?.style?.services_selection === 2 ? true : false;
+				subTotalValue = editable ? serviceData?.[i]?.style?.subTotalValue : subTotalValue;
+				subTotalValue =
+					+(
+						(subTotalValue + '')
+							?.replace(/&nbsp;/g, ' ')
+							.replace(/<\/?[^>]+(>|$)/g, '')
+							.replace(/"/g, '') || ''
+					) || 0;
 				let obj = {
-					subTotalValue: editable
-						? serviceData?.[i]?.style?.subTotalValue
-						: subTotalValue,
+					subTotalValue,
 					editable,
 				};
 				setInfo((prev) => ({
@@ -223,6 +229,7 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 										onChange={(val) =>
 											onLocalServiceDataChange(ind, index, 'show', val)
 										}
+										editable={editable}
 									/>
 									<span className="serviceCardTitle">
 										{val?.subBlocks?.[0]?.title

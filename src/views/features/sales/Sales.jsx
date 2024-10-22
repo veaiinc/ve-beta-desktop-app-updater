@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/sales.scss';
 import MyWorkflowsCard from '../../components/sales/MyWorkflowsCard';
@@ -44,6 +45,13 @@ const Sales = () => {
 
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
+	}, []);
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			getMyWorkflowTemplatesData(1);
+		}, 15000);
+		return () => clearInterval(interval);
 	}, []);
 
 	useEffect(() => {

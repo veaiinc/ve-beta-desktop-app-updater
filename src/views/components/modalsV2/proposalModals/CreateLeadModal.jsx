@@ -33,7 +33,12 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	});
 	const [isLoading, setLoading] = useState(false);
 	const [errorState, setErrorState] = useState({ isError: false, errorMessage: '' });
-	const [leadDetails, setLeadDetails] = useState({ name: '', emailId: '', source: 'instagram' });
+	const [leadDetails, setLeadDetails] = useState({
+		name: '',
+		emailId: '',
+		phoneNumber: '',
+		source: 'instagram',
+	});
 	const [createButtonActiveState, setCreateButtonActiveState] = useState(false);
 	const [selectedLead, setSelectedLead] = useState({});
 
@@ -232,6 +237,18 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 				},
 			};
 
+			if (leadDetails?.['phoneNumber']?.length) {
+				if (!validator?.isMobilePhone(leadDetails?.['phoneNumber'])) {
+					setLoading(false);
+					return setErrorState((prevState) => ({
+						...prevState,
+						isphoneNumberError: true,
+						phoneNumberErrorMessage: 'Invalid phone number',
+					}));
+				}
+				payload.workflowInput.clientDetails.phoneNumber = leadDetails['phoneNumber'];
+			}
+
 			const response = await createLeadfromTemplates(payload);
 			if (response?.[0]) {
 				setLoading(false);
@@ -311,6 +328,17 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 							onChange={handleInputChange}
 							isError={errorState['isemailError']}
 							errorMessage={errorState['emailErrorMessage']}
+						/>
+						<InputForModules
+							label={'Phone Number'}
+							type={'phoneNumber'}
+							placeholder={'Enter Phone Number'}
+							name={'phoneNumber'}
+							value={leadDetails['phoneNumber']}
+							onChange={handleInputChange}
+							isError={errorState['isphoneNumberError']}
+							errorMessage={errorState['phoneNumberErrorMessage']}
+							defaultCountry={'IN'}
 						/>
 
 						{/* {source} */}
