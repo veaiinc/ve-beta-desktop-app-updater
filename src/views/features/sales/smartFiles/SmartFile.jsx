@@ -56,6 +56,7 @@ const SmartFile = () => {
 		businessName: '',
 		currentWorkspaceId: localStorage.getItem('workspaceId'),
 		noContractTemplate: false,
+		isAlChatEnabled: false,
 	});
 
 	//useEffect
@@ -98,7 +99,7 @@ const SmartFile = () => {
 			let noContractTemplate = false;
 			const status = smartFileInfo?.status;
 			const edit = status === 'enquiry' ? true : false;
-			let contractExist = smartFileInfo?.modules?.filter((ele) => ele === 'contract');
+			let contractExist = smartFileInfo?.modules?.filter((ele) => ele?.type === 'contract');
 			if (!contractExist?.length) {
 				noContractTemplate = true;
 			}
@@ -110,6 +111,7 @@ const SmartFile = () => {
 				modules: smartFileInfo?.modules,
 				formResponse: smartFileInfo?.formResponse,
 			};
+
 			setInfo((prev) => ({
 				...prev,
 				workflowStatus: smartFileInfo?.status,
@@ -118,9 +120,10 @@ const SmartFile = () => {
 				workflowExpiryAt: smartFileInfo?.expiresAt,
 				isEmailAuth: smartFileInfo?.access?.isEnabled,
 				noContractTemplate,
+				isAlChatEnabled: smartFileInfo?.isAlChatEnabled || false,
 			}));
 		}
-	}, [smartFileInfo]);
+	}, [smartFileInfo, workflowId]);
 
 	useEffect(() => {
 		if (userWorkSpaceList) {
@@ -213,7 +216,7 @@ const SmartFile = () => {
 		moveWorkflowStatus(payloadForConfirming);
 
 		if (response?.[0]) {
-			setInfo((prev) => ({ ...prev, workflowStatus: 'proposalAccepted' }));
+			setInfo((prev) => ({ ...prev, workflowStatus: 'confirmed' }));
 			return [true];
 		}
 		return [false];
@@ -339,6 +342,13 @@ const SmartFile = () => {
 		[info?.isEmailAuth],
 	);
 
+	const updateSmartFileIsAiChatEnabled = useCallback(
+		(data) => {
+			setInfo((prev) => ({ ...prev, isAlChatEnabled: data }));
+		},
+		[info?.isAlChatEnabled],
+	);
+
 	const onPreviewClick = useCallback(() => {
 		const usertoken = localStorage.getItem('usertoken');
 		const region = localStorage.getItem('region');
@@ -387,6 +397,7 @@ const SmartFile = () => {
 						edit={info?.edit}
 						expiresAt={info?.workflowExpiryAt || ''}
 						updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
+						workflowStatus={info?.workflowStatus}
 					/>
 				)}
 			</div>
@@ -409,6 +420,8 @@ const SmartFile = () => {
 				updateSmartFileEmailAuth={updateSmartFileEmailAuth}
 				pin={smartFileInfo?.access?.pin}
 				businessName={info?.businessName}
+				isAlChatEnabled={info?.isAlChatEnabled}
+				updateSmartFileIsAiChatEnabled={updateSmartFileIsAiChatEnabled}
 			/>
 
 			<CopiedModal
@@ -429,11 +442,12 @@ const SmartFile = () => {
 				closeModal={() => setInfo((prev) => ({ ...prev, moveToStageModal: false }))}
 				moveStageFunc={moveStageFunc}
 				changelocalWorflowStatus={changelocalWorflowStatus}
+				noContractTemplate={info?.noContractTemplate}
 				// workflowStatus={smartFileInfo?.status}
 			/>
 			<DeleteLeadModal
 				open={info?.deleteLeadModal}
-				closeModal={() => setInfo((prev) => ({ ...prev, deleteLoadModal: false }))}
+				closeModal={() => setInfo((prev) => ({ ...prev, deleteLeadModal: false }))}
 				deleteLeadFunc={deleteLeadFunc}
 			/>
 			<UploadLogoNotification

@@ -32,6 +32,13 @@ const SalesInfo = () => {
 	}, []);
 
 	useEffect(() => {
+		const interval = setInterval(() => {
+			fetchSalesInfo();
+		}, 15000);
+		return () => clearInterval(interval);
+	}, []);
+
+	useEffect(() => {
 		scrollRef?.current?.addEventListener('scroll', debouncedHandleScroll);
 		return () => {
 			scrollRef?.current?.removeEventListener('scroll', debouncedHandleScroll);
@@ -75,6 +82,7 @@ const SalesInfo = () => {
 				page: 1,
 				limit: 10,
 			},
+			resetRequiredActions: true,
 		});
 		getTabItemCount();
 	}, [getRequiredActions, getTabItemCount]);
