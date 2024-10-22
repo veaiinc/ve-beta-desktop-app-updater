@@ -17,7 +17,7 @@ const ActivityDashboard = () => {
 			...prevInfo,
 			modalIsOpen: !prevInfo.modalIsOpen,
 		}));
-	}, [info?.modalIsOpen]);
+	}, []);
 
 	return (
 		<div className="activityParentContainer">
