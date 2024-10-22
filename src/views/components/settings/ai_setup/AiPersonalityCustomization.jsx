@@ -1,5 +1,6 @@
 import React, { memo, useState } from 'react';
 import { ReactComponent as DividerLineVerticalWhite } from '../../../../assets/svg/Settings/divider-line-vertical-white.svg';
+import '../../../../assets/scss/settings/aiSetupPage.scss';
 
 const personas = [
 	{

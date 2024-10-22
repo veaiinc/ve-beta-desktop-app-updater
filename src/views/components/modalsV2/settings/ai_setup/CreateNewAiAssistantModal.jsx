@@ -3,7 +3,7 @@ import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/
 import '../../../../../assets/scss/settings/aiSetup.scss';
 import Modal from '../..';
 
-const CreateNewAiModal = memo(({ isOpen, toggleModal }) => {
+const CreateNewAiModal = ({ isOpen, toggleModal }) => {
 	return (
 		<Modal isOpen={isOpen} closeModal={toggleModal}>
 			<div className="CreateNewAiModalContainer">
@@ -21,6 +21,6 @@ const CreateNewAiModal = memo(({ isOpen, toggleModal }) => {
 			</div>
 		</Modal>
 	);
-});
+};
 
 export default memo(CreateNewAiModal);

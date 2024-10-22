@@ -45,11 +45,11 @@ const AiSetupPage = () => {
 
 	return (
 		<div className="ai-setup-page-container">
-			<div onClick={handleNavigateToPreviousPage} className="back-btn-container">
-				<LeftArrowBackBtn />
-			</div>
 			<div className="left-container">
 				<div className="header">
+					<div onClick={handleNavigateToPreviousPage} className="back-btn-container">
+						<LeftArrowBackBtn />
+					</div>
 					<h1>Ve.ai</h1>
 				</div>
 				<nav>

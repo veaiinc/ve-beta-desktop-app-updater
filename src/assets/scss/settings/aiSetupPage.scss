@@ -5,7 +5,7 @@
 	align-items: flex-start;
 	gap: 96px;
 	position: relative;
-	margin-left: 40px;
+	padding: 0 40px;
 
 	.left-container {
 		width: 50%;
@@ -15,6 +15,11 @@
 
 		.header {
 			width: 100%;
+
+			.back-btn-container {
+				cursor: pointer;
+			}
+
 			h1 {
 				color: #e4e5e6;
 				font-family: Inter;
@@ -610,7 +615,6 @@
 					}
 
 					.test-case-response {
-						width: fit-content;
 						display: flex;
 						justify-content: flex-start;
 						align-items: center;
@@ -730,12 +734,5 @@
 				}
 			}
 		}
-	}
-
-	.back-btn-container {
-		position: absolute;
-		top: 8px;
-		left: -32px;
-		cursor: pointer;
 	}
 }

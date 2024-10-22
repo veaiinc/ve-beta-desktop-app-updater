@@ -1,6 +1,6 @@
 import React, { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CreateNewAiModal from '../../components/modalsV2/settings/ai_setup/CreateNewAiModal';
+import CreateNewAiModal from '../../components/modalsV2/settings/ai_setup/CreateNewAiAssistantModal';
 import '../../../assets/scss/settings/aiSetup.scss';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/Settings/question_circle.svg';
 import { ReactComponent as Plus } from '../../../assets/svg/Settings/plus.svg';
@@ -46,7 +46,7 @@ const AiSetup = () => {
 	};
 
 	const handleNavigationToAiSetupPage = () => {
-		navigate('/settings/ai-setup/page');
+		navigate('/settings/ai-setup-page');
 	};
 
 	return (

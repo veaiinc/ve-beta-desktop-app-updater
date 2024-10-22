@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, useRef } from 'react';
+import { memo, useState } from 'react';
 import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/cross-grey.svg';
 import { ReactComponent as LinkPurple } from '../../../../../assets/svg/Settings/link-purple-color.svg';
 import { ReactComponent as LinkGrey } from '../../../../../assets/svg/Settings/link-grey-color.svg';
@@ -8,8 +8,8 @@ import { ReactComponent as CustomTextGrey } from '../../../../../assets/svg/Sett
 import { ReactComponent as CustomTextPurple } from '../../../../../assets/svg/Settings/custom-text-purple.svg';
 import { ReactComponent as UploadIcon } from '../../../../../assets/svg/Settings/CloudUpload.svg';
 import '../../../../../assets/scss/settings/aiSetup.scss';
-
 import Modal from '../../';
+import isURL from 'validator/lib/isURL';
 
 const knowledgeFileTypes = [
 	{
@@ -46,6 +46,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 		setInfo((prev) => ({
 			...prev,
 			inputURL: '',
+			isUrlValid: false,
 			urlsInfo: [
 				...prev.urlsInfo,
 				{
@@ -56,13 +57,17 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 	};
 
 	const handleSetInputURL = (e) => {
-		setInfo((prev) => ({ ...prev, inputURL: e.target.value }));
+		setInfo((prev) => ({
+			...prev,
+			isUrlValid: isURL(e?.target?.value),
+			inputURL: e?.target?.value,
+		}));
 	};
 
 	const handleRemoveURL = (index) => {
 		setInfo((prev) => ({
 			...prev,
-			urlsInfo: prev.urlsInfo.filter((_, i) => i !== index),
+			urlsInfo: prev.urlsInfo?.filter((url, i) => i !== index),
 		}));
 	};
 
@@ -129,7 +134,13 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 								placeholder="Enter URL"
 								autoFocus={true}
 							/>
-							<button onClick={handleAddURL}>Add</button>
+							<button
+								disabled={!info?.isUrlValid}
+								style={{ cursor: !info?.isUrlValid ? 'not-allowed' : 'pointer' }}
+								onClick={handleAddURL}
+							>
+								Add
+							</button>
 						</div>
 					)}
 					{info?.activeFileType === 'PDF' && (
