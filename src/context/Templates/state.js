@@ -323,6 +323,7 @@ export const TemplatesState = (props) => {
 				return [true];
 			} else {
 				console.log('Api failed==>updateProposal', response);
+				return [false];
 			}
 		} catch (error) {
 			console.log('error==>updateProposal', error);

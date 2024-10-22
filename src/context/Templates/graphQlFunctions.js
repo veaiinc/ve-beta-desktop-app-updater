@@ -57,6 +57,7 @@ export const getClientListQuery = gql`
 			data {
 				email
 				name
+				phoneNumber
 				_id
 			}
 		}

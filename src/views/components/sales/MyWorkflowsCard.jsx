@@ -24,12 +24,7 @@ const generateCardsInfoData = (data, type, moduleWithoutContract = false) => {
 			},
 			{
 				headerText: 'Smart File sent',
-				subText:
-					data?.filesSent && data?.filesSent > 0
-						? Math.floor(
-								((data?.workflowStats?.confirmed || 0) * 100) / data?.filesSent,
-						  ) + '%'
-						: '0 %',
+				subText: data?.filesSent || 0,
 				status: 'allfilessent',
 				type: 'actionCards',
 				modalHeader: 'All Smart File Sent',
