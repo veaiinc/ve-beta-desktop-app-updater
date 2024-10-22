@@ -45,6 +45,7 @@ const initialState = {
 	linkExpiryText: 'No Expiry',
 	smartFileSettingsUpdate: false,
 	currentWorkspaceId: '',
+	toogleExpiryChnaged: false,
 };
 
 const SendProposalModal = ({
@@ -177,6 +178,7 @@ const SendProposalModal = ({
 		info?.expiryInDays,
 		info?.smartFileSettingsUpdate,
 		info?.isAlChatEnabled,
+		info?.enableLinkExpiry,
 	]);
 
 	useEffect(() => {
@@ -426,16 +428,37 @@ const SendProposalModal = ({
 				isAlChatEnabled: info?.isAlChatEnabled,
 			},
 		};
-		if (info?.expiryInDays && info?.expiryInDays > 0) {
-			payload.updateWorkflowInput.expiresAt = moment().add(info?.expiryInDays, 'days').unix();
-			updateSendSmartFileExpiryData(moment().add(info?.expiryInDays, 'days').unix());
+
+		if (info?.toogleExpiryChnaged) {
+			let expiryData;
+			if (info?.enableLinkExpiry) {
+				if (info?.expiryInDays && info?.expiryInDays > 0) {
+					expiryData = moment().add(info?.expiryInDays, 'days').unix();
+					payload.updateWorkflowInput.expiresAt = expiryData;
+				} else {
+					expiryData = moment().add(7, 'days').unix();
+					payload.updateWorkflowInput.expiresAt = moment().add(7, 'days').unix();
+				}
+			} else {
+				expiryData = null;
+				payload.updateWorkflowInput.expiresAt = null;
+			}
+			updateSendSmartFileExpiryData(expiryData);
 		}
+
 		const response = await updateSendSmartFileSettings(payload);
 		if (response?.[0]) {
 			updateSmartFileEmailAuth(info?.emailAccess);
 			updateSmartFileIsAiChatEnabled(info?.isAlChatEnabled);
 		}
-	}, [workflowId, info?.emailAccess, info?.expiryInDays, info?.isAlChatEnabled]);
+	}, [
+		workflowId,
+		info?.emailAccess,
+		info?.expiryInDays,
+		info?.isAlChatEnabled,
+		info?.enableLinkExpiry,
+		info?.toogleExpiryChnaged,
+	]);
 
 	return (
 		<ReactModal
@@ -488,7 +511,12 @@ const SendProposalModal = ({
 									<ToggleSlider
 										value={info?.enableLinkExpiry}
 										onChange={(val) =>
-											setInfo((prev) => ({ ...prev, enableLinkExpiry: val }))
+											setInfo((prev) => ({
+												...prev,
+												enableLinkExpiry: val,
+												toogleExpiryChnaged: true,
+												smartFileSettingsUpdate: true,
+											}))
 										}
 									/>
 								</div>
