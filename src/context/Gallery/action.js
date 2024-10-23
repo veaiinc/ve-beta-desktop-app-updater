@@ -1,0 +1,3 @@
+export const Actions = {
+	GET_TENANT_GALLERIES: 'GET_TENANT_GALLERIES',
+};

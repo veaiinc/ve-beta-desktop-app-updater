@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import '../../../assets/scss/gallery/index.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
 import { useNavigate } from 'react-router-dom';
 import testImage from '../../../assets/svg/gallery/testing.png';
 import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
+import Context from '../../../context/context';
 
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
@@ -11,6 +12,9 @@ import jwt_decode from 'jwt-decode';
 const date = 'APRIL 2024';
 
 const AddGallery = () => {
+	const {
+		galleryInfo: { getGalleries },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
 		createNewGalleryModal: false,
 		galleries: [],
@@ -20,6 +24,7 @@ const AddGallery = () => {
 	const navigate = useNavigate();
 	useEffect(() => {
 		fetchGalleries();
+		getGalleries();
 	}, []);
 
 	const fetchGalleries = async () => {
