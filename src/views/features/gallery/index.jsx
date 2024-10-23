@@ -5,6 +5,7 @@ import Gallerys from './Gallerys';
 import GalleryPage from './GalleryPage';
 import GalleryViewer from './GalleryViewer';
 import AlbumSettings from './AlbumSettings';
+import UploadPhotos from './UploadPhotos';
 const GalleryRoutes = () => {
 	return (
 		<Routes>
@@ -13,6 +14,7 @@ const GalleryRoutes = () => {
 			<Route path="gallery-page" element={<GalleryPage />} />
 			<Route path="album-settings" element={<AlbumSettings />} />
 			<Route path="gallery-viewer" element={<GalleryViewer />} />
+			<Route path="upload-photos" element={<UploadPhotos />} />
 		</Routes>
 	);
 };
