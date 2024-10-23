@@ -10,7 +10,7 @@ import { ReactComponent as LinkGrey } from '../../../assets/svg/Settings/link-gr
 
 const AiSetup = () => {
 	const {
-		aiSetup: { existingAiAssistants, setActiveAiAssistantId },
+		aiSetup: { existingAiAssistants },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -22,7 +22,7 @@ const AiSetup = () => {
 	const toggleModal = () => {
 		setInfo((prev) => ({
 			...prev,
-			isCreateAiModalOpen: !prev.isCreateAiModalOpen,
+			isCreateAiModalOpen: !prev?.isCreateAiModalOpen,
 		}));
 	};
 

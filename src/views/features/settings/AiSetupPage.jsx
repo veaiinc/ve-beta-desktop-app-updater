@@ -21,14 +21,14 @@ const AiSetupPage = () => {
 		aiSetup: { getKnowledgeBaseFiles, getActiveAiAssistantDetails },
 	} = useContext(Context);
 
-	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		activeNavItem: 'Personality',
 	});
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		getKnowledgeBaseFiles();
-		const aiAssistantId = window.location.pathname.split('/')[3];
+		const aiAssistantId = window?.location?.pathname?.split('/')?.[3];
 		getActiveAiAssistantDetails(aiAssistantId);
 	}, []);
 
