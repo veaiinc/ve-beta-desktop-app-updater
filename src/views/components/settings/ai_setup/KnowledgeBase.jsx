@@ -249,8 +249,8 @@ const KnowledgeBase = () => {
 					</ul>
 				)}
 				<div className="knowledges-list">
-					{knowledgeBaseFiles?.map((knowledge) => (
-						<div className="knowledge-item">
+					{knowledgeBaseFiles?.map((knowledge, i) => (
+						<div key={i} className="knowledge-item">
 							<div className="knowledge-link-container">
 								<LinkWhite />
 								<p>{knowledge?.name}</p>

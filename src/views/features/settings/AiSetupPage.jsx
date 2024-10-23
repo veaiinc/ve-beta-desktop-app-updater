@@ -18,7 +18,7 @@ const navItems = [
 
 const AiSetupPage = () => {
 	let {
-		aiSetup: { getKnowledgeBaseFiles },
+		aiSetup: { getKnowledgeBaseFiles, getActiveAiAssistantDetails },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
@@ -28,6 +28,8 @@ const AiSetupPage = () => {
 
 	useEffect(() => {
 		getKnowledgeBaseFiles();
+		const aiAssistantId = window.location.pathname.split('/')[3];
+		getActiveAiAssistantDetails(aiAssistantId);
 	}, []);
 
 	const handleNavigateToPreviousPage = () => {

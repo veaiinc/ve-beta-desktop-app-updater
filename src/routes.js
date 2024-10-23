@@ -114,7 +114,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/settings/ai-setup-page',
+		path: '/settings/ai-setup-page/:aiAssistantId',
 		component: (
 			<AuthWrapper title={'AI Setup'}>
 				<AiSetupPage />

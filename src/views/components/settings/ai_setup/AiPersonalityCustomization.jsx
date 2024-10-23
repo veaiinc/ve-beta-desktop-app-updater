@@ -1,4 +1,5 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useContext, useEffect } from 'react';
+import Context from '../../../../context/context';
 import { ReactComponent as DividerLineVerticalWhite } from '../../../../assets/svg/Settings/divider-line-vertical-white.svg';
 import '../../../../assets/scss/settings/aiSetupPage.scss';
 
@@ -37,39 +38,57 @@ const personas = [
 	},
 ];
 
-const initialSelectedPersonas = [
-	{
-		activeOption: 'option1',
-	},
-	{
-		activeOption: 'option2',
-	},
-	{
-		activeOption: 'option1',
-	},
-	{
-		activeOption: 'option1',
-	},
-	{
-		activeOption: 'option1',
-	},
-	{
-		activeOption: 'option2',
-	},
-	{
-		activeOption: 'option1',
-	},
-	{
-		activeOption: 'option1',
-	},
-];
+// const initialSelectedPersonas = [
+// 	{
+// 		activeOption: 'option1',
+// 	},
+// 	{
+// 		activeOption: 'option2',
+// 	},
+// 	{
+// 		activeOption: 'option1',
+// 	},
+// 	{
+// 		activeOption: 'option1',
+// 	},
+// 	{
+// 		activeOption: 'option1',
+// 	},
+// 	{
+// 		activeOption: 'option2',
+// 	},
+// 	{
+// 		activeOption: 'option1',
+// 	},
+// 	{
+// 		activeOption: 'option1',
+// 	},
+// ];
 
 const AiPersonalityCustomization = () => {
+	let {
+		aiSetup: { updateAiAssistant, activeAiAssistantDetails },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		aiAssistantName: '',
 		aiAssistantNameFocus: false,
-		selectedPersonas: [...initialSelectedPersonas],
+		selectedPersonas: [],
+		aiPersonalityDescription: '',
 	});
+
+	useEffect(() => {
+		const initialSelectedPersonas = activeAiAssistantDetails?.responseTone?.map((tone, i) => ({
+			activeOption: personas[i]['option1'].toLowerCase() === tone ? 'option1' : 'option2',
+		}));
+
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			aiAssistantName: activeAiAssistantDetails?.name || '',
+			aiPersonalityDescription: activeAiAssistantDetails?.personality || '',
+			selectedPersonas: initialSelectedPersonas,
+		}));
+	}, [activeAiAssistantDetails]);
 
 	const handleSetAiAssistantName = (e) => {
 		setInfo((prevInfo) => ({
@@ -96,6 +115,24 @@ const AiPersonalityCustomization = () => {
 		}));
 	};
 
+	const handleSetAiPersonalityDescription = (e) => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			aiPersonalityDescription: e?.target?.value,
+		}));
+	};
+
+	const handlePersonifyAssistant = () => {
+		const selectedPersonas = info?.selectedPersonas?.map((persona, i) =>
+			personas[i][persona?.activeOption].toLowerCase(),
+		);
+		updateAiAssistant(activeAiAssistantDetails?._id, {
+			name: info?.aiAssistantName,
+			responseTone: selectedPersonas,
+			personality: info?.aiPersonalityDescription,
+		});
+	};
+
 	return (
 		<div className="ai-personality-customization">
 			<p className="description">
@@ -111,6 +148,7 @@ const AiPersonalityCustomization = () => {
 					}`}
 				>
 					<input
+						value={info?.aiAssistantName}
 						onInput={handleSetAiAssistantName}
 						onFocus={() => handleSetAiAssistantNameFocus(true)}
 						onBlur={() => handleSetAiAssistantNameFocus(false)}
@@ -127,6 +165,8 @@ const AiPersonalityCustomization = () => {
 			<textarea
 				className="ai-personality-textarea"
 				placeholder="You are Optimus, and you will lead the Autobots to victory!"
+				onChange={handleSetAiPersonalityDescription}
+				value={info?.aiPersonalityDescription}
 			></textarea>
 			<div className="ai-response-tone">
 				<div className="description">
@@ -135,32 +175,38 @@ const AiPersonalityCustomization = () => {
 				</div>
 				<div className="ai-persona-container">
 					<ul>
-						{personas?.map((persona, index) => (
-							<li className="persona-option-container" key={index}>
-								<div
-									onClick={() => handleSetActiveOption(index, 'option1')}
-									className={`persona-option ${
-										info?.selectedPersonas[index]?.activeOption === 'option1'
-											? 'persona-option-selected'
-											: ''
-									}`}
-								>
-									{persona.option1}
-								</div>
-								<DividerLineVerticalWhite />
-								<div
-									onClick={() => handleSetActiveOption(index, 'option2')}
-									className={`persona-option ${
-										info?.selectedPersonas[index]?.activeOption === 'option2'
-											? 'persona-option-selected'
-											: ''
-									}`}
-								>
-									{persona?.option2}
-								</div>
-							</li>
-						))}
+						{info?.selectedPersonas?.length > 0 &&
+							personas?.map((persona, index) => (
+								<li className="persona-option-container" key={index}>
+									<div
+										onClick={() => handleSetActiveOption(index, 'option1')}
+										className={`persona-option ${
+											info?.selectedPersonas[index]?.activeOption ===
+											'option1'
+												? 'persona-option-selected'
+												: ''
+										}`}
+									>
+										{persona.option1}
+									</div>
+									<DividerLineVerticalWhite />
+									<div
+										onClick={() => handleSetActiveOption(index, 'option2')}
+										className={`persona-option ${
+											info?.selectedPersonas[index]?.activeOption ===
+											'option2'
+												? 'persona-option-selected'
+												: ''
+										}`}
+									>
+										{persona?.option2}
+									</div>
+								</li>
+							))}
 					</ul>
+					<div onClick={handlePersonifyAssistant} className="createBtn">
+						Personify Assistant
+					</div>
 				</div>
 			</div>
 		</div>

@@ -36,12 +36,14 @@ const SettingsWrapper = (props) => {
 	};
 	const {
 		profileInfo: { getTenantSettings, tennantSettingsData },
+		aiSetup: { getExistingAiAssistants },
 	} = useContext(Context);
 
 	useEffect(() => {
 		if (!tennantSettingsData) {
 			getTenantSettings();
 		}
+		getExistingAiAssistants();
 	}, []);
 
 	useEffect(() => {

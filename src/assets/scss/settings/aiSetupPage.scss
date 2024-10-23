@@ -5,7 +5,7 @@
 	align-items: flex-start;
 	gap: 96px;
 	position: relative;
-	padding: 0 40px;
+	padding: 0 40px 24px;
 
 	.left-container {
 		width: 50%;
@@ -15,6 +15,10 @@
 
 		.header {
 			width: 100%;
+			display: flex;
+			justify-content: flex-start;
+			align-items: center;
+			gap: 24px;
 
 			.back-btn-container {
 				cursor: pointer;
@@ -210,6 +214,10 @@
 		}
 
 		.ai-persona-container {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+
 			ul {
 				display: flex;
 				flex-direction: column;
@@ -252,6 +260,28 @@
 						box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.25) inset;
 					}
 				}
+			}
+
+			.createBtn {
+				width: 100%;
+				display: flex;
+				height: 48px;
+				padding: 16px 24px;
+				justify-content: center;
+				align-items: center;
+				gap: 16px;
+				align-self: stretch;
+				border-radius: 100px;
+				border: 1px solid rgba(36, 36, 36, 0.64);
+				background: #1e1e1f;
+				cursor: pointer;
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 16px;
+				letter-spacing: 0.26px;
 			}
 		}
 
