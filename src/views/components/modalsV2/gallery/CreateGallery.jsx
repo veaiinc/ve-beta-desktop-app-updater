@@ -26,7 +26,7 @@ const CreateGallery = ({ open, closeModal, workspaceID }) => {
 		if (userToken) {
 			try {
 				const decodedToken = jwt_decode(userToken);
-				const userID = decodedToken.userId;
+				const userID = decodedToken.user_id;
 				setGalleryData((prevData) => ({ ...prevData, userID }));
 			} catch (error) {
 				console.error('Error decoding user token:', error);
@@ -43,6 +43,9 @@ const CreateGallery = ({ open, closeModal, workspaceID }) => {
 
 	const handleSubmit = async () => {
 		const userToken = localStorage.getItem('usertoken');
+		const decodedToken = jwt_decode(userToken);
+		const userID = decodedToken.user_id;
+		console.log(userID, 'userIDWhile crateing the gallery');
 		try {
 			const response = await axios.post(
 				`https://ap.api.ve.ai/galleries/1.0/${galleryData.workspaceID}/galleries`,
@@ -54,8 +57,8 @@ const CreateGallery = ({ open, closeModal, workspaceID }) => {
 					dueDateEpoch: new Date(galleryData.shotDuring).getTime() / 1000,
 					tenantUsers: [
 						{
-							_id: galleryData.userID,
-							role: 'admin',
+							_id: userID,
+							role: ['admin'],
 						},
 					],
 					canClientReview: false,
