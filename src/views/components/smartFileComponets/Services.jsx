@@ -99,7 +99,7 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 			//for service subtotal value
 			if (type === 'subTotalValue') {
 				let value = val?.replace(/[^0-9]/g, '');
-				//fetching subtotal value incoming styling and replacing it with new value
+				//fetching subtotal value  with incoming styling and replacing it with new value
 				let subtotalValueWithTags =
 					info?.subTotalValueMapper?.[outerIndex]?.itsHtmlTags || '';
 				let incomingValue =
