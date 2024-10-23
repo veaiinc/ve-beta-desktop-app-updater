@@ -100,17 +100,17 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 			if (type === 'subTotalValue') {
 				let value = val?.replace(/[^0-9]/g, '');
 				//fetching subtotal value  with incoming styling and replacing it with new value
-				let subtotalValueWithTags =
-					info?.subTotalValueMapper?.[outerIndex]?.itsHtmlTags || '';
-				let incomingValue =
-					subtotalValueWithTags
-						?.replace(/&nbsp;/g, ' ')
-						.replace(/<\/?[^>]+(>|$)/g, '')
-						.replace(/"/g, '') || '';
-				subtotalValueWithTags = subtotalValueWithTags?.replace(incomingValue, value);
+				// let subtotalValueWithTags =
+				// 	info?.subTotalValueMapper?.[outerIndex]?.itsHtmlTags || '';
+				// let incomingValue =
+				// 	subtotalValueWithTags
+				// 		?.replace(/&nbsp;/g, ' ')
+				// 		.replace(/<\/?[^>]+(>|$)/g, '')
+				// 		.replace(/"/g, '') || '';
+				// subtotalValueWithTags = subtotalValueWithTags?.replace(incomingValue, value);
 
 				let { style } = selectedServiceTable || {};
-				style = { ...style, subTotalValue: subtotalValueWithTags };
+				style = { ...style, subTotalValue: value };
 				selectedServiceTable.style = style;
 				updatedData?.splice(outerIndex, 1, selectedServiceTable);
 				setInfo((prev) => ({ ...prev, data: updatedData }));
