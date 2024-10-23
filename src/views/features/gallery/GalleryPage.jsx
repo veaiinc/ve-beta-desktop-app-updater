@@ -19,16 +19,14 @@ import AlbumSettings from './AlbumSettings';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import { useNavigate } from 'react-router-dom';
 
-const imageURL =
-	'https://d1dcrj0f0bqbp5.cloudfront.net/bhogesh/6639fae6efe501000817b87e/thumbnails-300w/6639fbe5dd579c0007adbfa8_1715076069253.JPG?Key-Pair-Id=APKAIK2HFU7T3M5YKO2Q&Signature=TqcvPUOwydpP0QnsCpCUS7EKP6rz48Xmn9ohTVNqmZM6uoA22ZXkxuLDF7QY25LKbQEJyMubyehKFHCoremiLibX-IjZnKdDwddk1iFCKhqblMoOqQvMJxpASj~UpX7-~MxDUOMEGokzUtuVda~yaE4zXmsSBocd0ZXUj9dv~OMYOPpuDvGexuu0UbCDF6SSo-3Hg~U5YMYixUr8PksRv6ZsXj2ICtq23uHCVO72r~rB8nmPm-VBV0ZvYodAgijhYp5ant4Z5fO9QIqfAZV7I4Qc-GuFqmbUTCdeyrnQtAcIIOR8dDvr~ZWsWrlkJn8N8sMHT3YHBsGyNBvECJbWZw__&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9kMWRjcmowZjBicWJwNS5jbG91ZGZyb250Lm5ldC9iaG9nZXNoLyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3Mjg1NzMzNTV9fX1dfQ__';
+const imageURL = 'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg';
 const image1 =
-	'https://d1dcrj0f0bqbp5.cloudfront.net/bhogesh/6639fae6efe501000817b87e/thumbnails-300w/6639fd4d94f73f00082452bf_1715076429960.JPG?Key-Pair-Id=APKAIK2HFU7T3M5YKO2Q&Signature=fVQ7cmNBWOmEFhdcvk2Db5eutPWyrBbCHjs0Fi67aBf-LqSUfYMhWA4hJXlbzX0zlspN7UU4DevE6S16vBacl5EES2sPOPZYfNNbR3yK0blrwz7qBwzOxTYEM2hrfS5CEKXJvDE5-885fGebhShk4Vr8I4vhaWw0P~T5w1Bg~1Kwhx8Q9fWOCSlGuw89u9iwxkouTMzvrjpab~2mbdA7v0lOMWVO-90SsuqsC3MzHHuJHsebXACFF6W3sVeLju7AV-l7a5Ha-rPBZ7psAWrg4fYip2Qjo30qG4y8NL9gdnQeM7RRSyWLMdZlBH-tqNYGg5TuXhrlHko5PDpD4gU5Kw__&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9kMWRjcmowZjBicWJwNS5jbG91ZGZyb250Lm5ldC9iaG9nZXNoLyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3Mjg2MTI3MjR9fX1dfQ__';
+	'https://i0.wp.com/picjumbo.com/wp-content/uploads/silhouette-of-a-guy-with-a-cap-at-red-sky-sunset-free-image.jpeg?h=800&quality=80';
 const image2 =
-	'https://d1dcrj0f0bqbp5.cloudfront.net/bhogesh/6639fae6efe501000817b87e/thumbnails-300w/6639fc3ecb086800084dd15c_1715076158872.JPG?Key-Pair-Id=APKAIK2HFU7T3M5YKO2Q&Signature=BpQUQg3rdZbSKftPmUM6ccPMmZ~d7qsIgVsmtSmGkzyUH4shlCudNDbSNVoYi8rvnct0-yotEWhWwA5Y4dtbIPzsZMDpvG2Qy0eW9Kl-V7oYb47O-Hlm5RmKkGVD-X9AasJlx7PtoHhA8g00NG20wJVDyOK2tiUwMf~-WtOJkuOrdvWwjDkUzBXlvDmby2RGjqWBWdDpSa4uPuPxmfP6AdFIPS~BYfK4kLwmzmg4sW~3R5-3QztzcmYgjcDsaLccEXljClr2zWTmEGr~ES96N40OMvh6X43-u1maBDs6Vq77eOQ5f0SYkWTKwDgxlfDxB1dR-tMyODm583Y-bmLkjQ__&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9kMWRjcmowZjBicWJwNS5jbG91ZGZyb250Lm5ldC9iaG9nZXNoLyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3Mjg2MTE4NDR9fX1dfQ__';
-const image3 =
-	'https://d1dcrj0f0bqbp5.cloudfront.net/bhogesh/6639fae6efe501000817b87e/thumbnails-300w/6639fbfad8dc510008b4b9bf_1715076090981.JPG?Key-Pair-Id=APKAIK2HFU7T3M5YKO2Q&Signature=D01icL5-IcJpUpYMPpXWMlH9B-2l6M7O75XtQ~Dsfc4d6RyELqeMpQQ8glwfwF4V5qeR3eE7W0qvmnWZImJZfwZKgSOsjBzkeZIx5MwJziAca8xBZO10BrhebhsrWMhQv9sVi8e2MUZC0lC5Y1HlQg3EOHE~gfHrqtDl9j3pHjuVzZchrIuYgBjU3kkrE1Dk8JkLOPc-gErdbKEkWGoMiKaW-mT714ZnEbw-HxyYHSFcOVslfNIvvzQMV8rCko1q8zIxgE0-unsrryPoEPKfdeL84GTjN-u52Aymtz1KOY6uBLOCbUwzTlrznwKzkgT1LroLOVv7al-ohS86Ebl~dA__&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9kMWRjcmowZjBicWJwNS5jbG91ZGZyb250Lm5ldC9iaG9nZXNoLyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3Mjg2MTE4MTh9fX1dfQ__';
+	'https://img-cdn.pixlr.com/image-generator/history/65bb506dcb310754719cf81f/ede935de-1138-4f66-8ed7-44bd16efc709/medium.webp';
+const image3 = 'https://assets.techrepublic.com/uploads/2023/05/tr5423-what-is-generative-ai.jpeg';
 const image4 =
-	'https://d1dcrj0f0bqbp5.cloudfront.net/bhogesh/6639fae6efe501000817b87e/optimized/6639fd05d8dc510008b4be15_1715076357942.JPG?Key-Pair-Id=APKAIK2HFU7T3M5YKO2Q&Signature=anu4Unzc1pYM2BryxliuCRvTP8U50HhuxPvT2uC2ViAnHl6sAL5fhq7ABj8~fngjUVVE5J50MXrT7IItCpECnGPiuDC2mFTwNFrqqkG4m69pWvNU4i-JH9aIioFF30Hm1dJF7BIiiN5ZzPMKaqRsj3caf7Fjvd~Z60oi4~is4AhFACiG59iaAF~Nii-dMNE2pSaiDHh836KirlxQ0lbqjwl3VIN05faGawiX8POS83JEEGxCYJVbvl07r5rDmu6bCBOJ8B-8LFD1kRf0AcbcaP7njDdNrNXPgq7OtV6WKqdhc~xHu5VjPVaIFVEqE6zjdq2muDE3IYPrR~vrnewUkA__&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9kMWRjcmowZjBicWJwNS5jbG91ZGZyb250Lm5ldC9iaG9nZXNoLyoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3Mjg2MTIwMTd9fX1dfQ__';
+	'https://www.nttdata.com/global/en/-/media/nttdataglobal/1_images/insights/generative-ai/generative-ai_d.jpg?h=1680&iar=0&w=2800&rev=4e69afcc968d4bab9480891634b63b34';
 const data = [
 	{ name: 'Albums', number: 14 },
 	{ name: 'Videos', number: 2 },
@@ -38,12 +36,12 @@ const data = [
 ];
 const imageData = [
 	{
-		image: imageURL,
+		// image: imageURL,
 		name: 'Wedding Shoot',
 		photos: 103,
 	},
 	{
-		image: imageURL,
+		// image: imageURL,
 		name: 'Beach Party',
 		photos: 87,
 	},
@@ -63,7 +61,7 @@ const imageData = [
 		photos: 201,
 	},
 	{
-		image: imageURL,
+		// image: imageURL,
 		name: 'Birthday Bash',
 		photos: 76,
 	},
@@ -285,7 +283,9 @@ const GalleryPage = () => {
 								Settings
 							</p>
 						</div>
-						<img src={imageURL} />
+						<div className="imageContaienr">
+							<img src={imageURL} />
+						</div>
 					</div>
 					<div className="albumsContianer">
 						<div className="galleryContentContainer">
@@ -340,8 +340,14 @@ const GalleryPage = () => {
 									className={`album ${
 										info.albumName === album.name ? 'active' : ''
 									}`}
+									style={{
+										background: album.image
+											? ''
+											: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+									}}
 								>
-									<img src={album.image} />
+									{album.image && <img src={album.image} />}
+
 									<div
 										className="albumDetails"
 										onClick={() => handleClickAlbum(album.name, 'albumName')}

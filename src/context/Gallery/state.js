@@ -13,12 +13,14 @@ export const Galleries = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
 	const getGalleries = async (params) => {
-		console.log('this is triggerd in gallery');
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
+			let decoded = jwt_decode(usertoken);
+
+			const queryString = new URLSearchParams(params).toString();
 			const response = await service.fetchGet(
-				`/${workspaceId}/${API.GALLERY.galleries}`,
+				`/${workspaceId}${API.GALLERY.galleries}?${queryString}`,
 				usertoken,
 				'galleries',
 			);
@@ -32,9 +34,24 @@ export const Galleries = () => {
 			console.log('error==>getGalleries', error);
 		}
 	};
+	const createNewGallery = async (payload) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}${API.GALLERY.galleries}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>createNewGallery', error);
+		}
+	};
 
 	return {
 		...state,
 		getGalleries,
+		createNewGallery,
 	};
 };

@@ -1,11 +1,15 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState, useEffect, useContext } from 'react';
 import ReactModal from '../../modalsV2/index';
 import { ReactComponent as UpArrow } from '../../../../assets/svg/workflow/downArrow.svg';
 import '../../../../assets/scss/gallery/modals/createGallery.scss';
 import axios from 'axios';
+import Context from '../../../../context/context';
 import jwt_decode from 'jwt-decode';
 
 const CreateGallery = ({ open, closeModal, workspaceID }) => {
+	const {
+		galleryInfo: { createNewGallery },
+	} = useContext(Context);
 	const [galleryData, setGalleryData] = useState({
 		title: '',
 		shotDuring: '',
@@ -45,44 +49,21 @@ const CreateGallery = ({ open, closeModal, workspaceID }) => {
 		const userToken = localStorage.getItem('usertoken');
 		const decodedToken = jwt_decode(userToken);
 		const userID = decodedToken.user_id;
-		console.log(userID, 'userIDWhile crateing the gallery');
 		try {
-			const response = await axios.post(
-				`https://ap.api.ve.ai/galleries/1.0/${galleryData.workspaceID}/galleries`,
-				{
-					title: galleryData.title,
-					slug: galleryData.title,
-					category: 'wedding',
-					shotDuring: galleryData.shotDuring.replace(/-/g, ''),
-					dueDateEpoch: new Date(galleryData.shotDuring).getTime() / 1000,
-					tenantUsers: [
-						{
-							_id: userID,
-							role: ['admin'],
-						},
-					],
-					canClientReview: false,
-					canClientSuggestEdits: true,
-					theme: 'dark',
-					visitorFormAccess: {
-						accessibleTo: ['master', 'guest', 'face'],
-						isEnabled: true,
+			const payload = {
+				title: galleryData.title,
+				slug: galleryData.title,
+				category: 'wedding',
+				shotDuring: galleryData.shotDuring.replace(/-/g, ''),
+				dueDateEpoch: new Date(galleryData.shotDuring).getTime() / 1000,
+				tenantUsers: [
+					{
+						_id: userID,
+						role: ['admin'],
 					},
-					canClientDownloadOriginals: true,
-					canClientDownloadOptimized: false,
-					ctaPreferences: {
-						isEnabled: true,
-						link: 'https://www.youtube.com/watch?v=dOKQeqGNJwY',
-					},
-					maxAICreditsAllowed: 25000,
-					isAICreditRestrictionApplied: true,
-				},
-				{
-					headers: {
-						'x-access-token': userToken,
-					},
-				},
-			);
+				],
+			};
+			await createNewGallery(payload);
 			setGalleryData({
 				title: '',
 				shotDuring: '',

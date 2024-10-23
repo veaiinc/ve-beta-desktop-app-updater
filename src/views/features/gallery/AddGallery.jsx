@@ -13,7 +13,7 @@ const date = 'APRIL 2024';
 
 const AddGallery = () => {
 	const {
-		galleryInfo: { getGalleries },
+		galleryInfo: { getGalleries, tenantGalleries },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		createNewGalleryModal: false,
@@ -24,47 +24,25 @@ const AddGallery = () => {
 	const navigate = useNavigate();
 	useEffect(() => {
 		fetchGalleries();
-		getGalleries();
 	}, []);
 
 	const fetchGalleries = async () => {
 		try {
-			const workspaceId = localStorage.getItem('workspaceId');
 			const accessToken = localStorage.getItem('usertoken');
-
-			if (!workspaceId || !accessToken) {
-				throw new Error('Workspace ID or Access Token not found');
-			}
-
 			const decodedToken = jwt_decode(accessToken);
 			const userId = decodedToken.user_id;
-			console.log('galleriesTriggered');
-			const response = await axios.get(
-				`https://ap.api.ve.ai/galleries/1.0/${workspaceId}/galleries`,
-				{
-					params: {
-						user_id: userId,
-						detailed: false,
-						sort: '-shotDuring',
-						page: 1,
-						status: 'active',
-					},
-					headers: {
-						'x-access-token': accessToken,
-					},
-				},
-			);
-			console.log(response.data.galleries, 'galleries'); // Changed this line
-			setInfo((prevState) => ({
-				...prevState,
-				galleries: response.data.galleries,
-				loading: false,
-			}));
+			const params = {
+				user_id: userId,
+				detailed: false,
+				sort: '-shotDuring',
+				page: 1,
+				// status: 'active',
+			};
+			getGalleries(params);
 		} catch (err) {
 			setInfo((prevState) => ({
 				...prevState,
 				error: err.message || 'Failed to fetch galleries',
-				loading: false,
 			}));
 		}
 	};
@@ -103,8 +81,8 @@ const AddGallery = () => {
 						<div className="add-gallery" onClick={handleCreateNewGallery}>
 							+ Create a Gallery
 						</div>
-						{info.galleries.length > 0 &&
-							info.galleries.map((items, index) => (
+						{tenantGalleries?.galleries.length > 0 &&
+							tenantGalleries?.galleries.map((items, index) => (
 								<div
 									className="add-gallery-image"
 									onClick={handleCreateGallery}

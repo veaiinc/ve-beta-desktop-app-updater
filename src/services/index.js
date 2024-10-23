@@ -6,6 +6,7 @@ const {
 	tenant_users_api_US,
 	tenant_api_US,
 	proposals_api_US,
+	galleries,
 } = require('./config');
 
 const apiEndpoints = {
@@ -14,6 +15,7 @@ const apiEndpoints = {
 	'tenant-users': tenant_users_api,
 	proposals_api,
 	auth: auth_Api,
+	galleries: galleries,
 };
 const apiEndpointsUS = {
 	tenant_users_api: tenant_users_api_US,
