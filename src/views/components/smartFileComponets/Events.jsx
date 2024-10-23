@@ -7,6 +7,7 @@ import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { Tooltip } from 'antd';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/questionMark.svg';
 import ToolTipContainer from '../popover/ToolTipContainer';
+import _ from 'lodash';
 
 const Events = ({ eventsData, eventsDataChange, editable }) => {
 	const [info, setInfo] = useState({
@@ -102,7 +103,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 
 			if (type === 'addRole') {
 				let roleArray = [...(valueTobeChanged?.roles || [])];
-				roleArray?.push({ type: '', categories: [{ category: '', quantity: 0 }] });
+				roleArray?.push({ type: '', categories: [{ category: 'candid', quantity: 0 }] });
 				valueTobeChanged = { ...valueTobeChanged, roles: roleArray };
 			}
 			if (type === 'removeRole') {
@@ -123,12 +124,17 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 			if (!editable) {
 				return;
 			}
+			let updatedData = [...(info?.data || [])];
+			let selectedEventsArray = updatedData?.[outerIndex];
+
 			const newDummyObj = {
 				name: '',
 				description: '',
 				date: '',
 				location: '',
 				addlServices: [],
+				blockId: selectedEventsArray?._id,
+				subBlockId: _.size(selectedEventsArray.values),
 				roles: [
 					{
 						type: 'cinematographer',
@@ -171,8 +177,8 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 					},
 				],
 			};
-			let updatedData = [...(info?.data || [])];
-			let selectedEventsArray = updatedData?.[outerIndex];
+
+			console.log('\n\n\n\n\n selectedEventsArray ====>', selectedEventsArray);
 			selectedEventsArray?.values?.push(newDummyObj);
 			updatedData?.splice(outerIndex, 1, selectedEventsArray);
 			setInfo((prev) => ({ ...prev, data: updatedData }));
@@ -199,7 +205,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 	return info?.data?.map((ele, index) => (
 		<div className="eventsParentContainer" key={index}>
 			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-				<span className="eventsTitle">Events </span>
+				<span className="eventsTitle">Events {ele?.values?.length || 0}</span>
 				<span className="svgHolder">
 					<Tooltip
 						placement="bottomLeft"
@@ -220,6 +226,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 			</div>
 
 			{/* //use map here */}
+
 			{ele?.values?.map((item, ind) => (
 				<div className="eventsCard" key={ind}>
 					{editable ? (

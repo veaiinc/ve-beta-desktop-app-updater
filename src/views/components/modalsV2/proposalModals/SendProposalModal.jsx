@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/modules/workflow/sendProposal.scss';
@@ -19,6 +20,7 @@ import moment from 'moment';
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../../popover/ToolTipContainer';
 import jwtDecode from 'jwt-decode';
+import { getCurrentWorkspaceId } from '../../../../helpers';
 
 const initialState = {
 	subject: '',
@@ -38,9 +40,12 @@ const initialState = {
 	slugHolder: '',
 	editSlug: false,
 	timeout: null,
-	aiAssistant: false,
+	isAlChatEnabled: false,
 	expiresAt: null,
 	linkExpiryText: 'No Expiry',
+	smartFileSettingsUpdate: false,
+	currentWorkspaceId: '',
+	toogleExpiryChnaged: false,
 };
 
 const SendProposalModal = ({
@@ -61,6 +66,8 @@ const SendProposalModal = ({
 	updateSmartFileEmailAuth,
 	businessName,
 	pin,
+	isAlChatEnabled,
+	updateSmartFileIsAiChatEnabled,
 }) => {
 	const {
 		templates: {
@@ -70,11 +77,12 @@ const SendProposalModal = ({
 			smartFileEmailTemplateData,
 			checkSmartFileSlugExists,
 			updateSmartFileSlug,
+			updateSendSmartFileSettings,
 		},
+		profileInfo: { userWorkSpaceList },
 	} = useContext(Context);
 	const editor = useRef(null);
 	const inputRef = useRef(null);
-
 	const [info, setInfo] = useState({ ...initialState, name: clientDetails?.name });
 	const [arrow, setArrow] = useState('Show');
 
@@ -154,26 +162,28 @@ const SendProposalModal = ({
 		setInfo((prev) => ({ ...prev, emailAccess: isEnabled }));
 	}, [isEnabled]);
 
-	const handleCopy = useCallback(async () => {
-		try {
-			const workspaceId = localStorage.getItem('workspaceId');
-			await navigator.clipboard.writeText(
-				`https://${workspaceId}.ve.ai/portal/${workflowSlug}`,
-			);
-			modifiedCloseModal();
-			openCopyModal();
-
-			if (workflowStatus === 'enquiry') {
-				chnageWorkflowStats({
-					fileSentStatusId: workflowId,
-				});
-				changelocalWorflowStatus('filesSent');
-				changeEditStatus(false);
-			}
-		} catch (err) {
-			console.log('Failed to copy text');
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
+			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
 		}
-	}, [workflowSlug, workflowStatus]);
+	}, [userWorkSpaceList]);
+
+	useEffect(() => {
+		if (info?.smartFileSettingsUpdate) {
+			handleDebouceFunctionCall(updateSendSmartFileSettingFunc);
+		}
+	}, [
+		info?.emailAccess,
+		info?.expiryInDays,
+		info?.smartFileSettingsUpdate,
+		info?.isAlChatEnabled,
+		info?.enableLinkExpiry,
+	]);
+
+	useEffect(() => {
+		setInfo((prev) => ({ ...prev, isAlChatEnabled: isAlChatEnabled }));
+	}, [isAlChatEnabled]);
 
 	const handleSendProposalViaEmail = useCallback(async () => {
 		modifiedCloseModal();
@@ -198,9 +208,7 @@ const SendProposalModal = ({
 
 		sendSmartFile(payload);
 		if (payload?.expiresAt) {
-			updateSendSmartFileExpiryData(payload.expiresAt);
 		}
-		updateSmartFileEmailAuth(info?.emailAccess);
 
 		if (workflowStatus === 'enquiry') {
 			chnageWorkflowStats({
@@ -229,8 +237,37 @@ const SendProposalModal = ({
 			subject: smartFileEmailTemplateData?.subject || '',
 			emailBody: emailBody || '',
 			slugHolder: slug,
+			emailAccess: isEnabled,
+			currentWorkspaceId: info?.currentWorkspaceId,
+			isAlChatEnabled: info?.isAlChatEnabled,
 		});
-	}, [smartFileEmailTemplateData, slug]);
+	}, [
+		smartFileEmailTemplateData,
+		slug,
+		isEnabled,
+		info?.currentWorkspaceId,
+		info?.isAlChatEnabled,
+	]);
+
+	const handleCopy = useCallback(async () => {
+		try {
+			await navigator.clipboard.writeText(
+				`https://${info?.currentWorkspaceId}.ve.ai/portal/${workflowSlug}`,
+			);
+			modifiedCloseModal();
+			openCopyModal();
+
+			if (workflowStatus === 'enquiry') {
+				chnageWorkflowStats({
+					fileSentStatusId: workflowId,
+				});
+				changelocalWorflowStatus('filesSent');
+				changeEditStatus(false);
+			}
+		} catch (err) {
+			console.log('Failed to copy text');
+		}
+	}, [workflowSlug, workflowStatus, modifiedCloseModal, info?.currentWorkspaceId]);
 
 	const incrementDecrementExpiry = useCallback(
 		(type) => {
@@ -244,7 +281,12 @@ const SendProposalModal = ({
 			let linkExpiryText = `Link Expires on ${moment()
 				.add(newValue, 'days')
 				?.format('DD MMM YYYY')}`;
-			setInfo((prev) => ({ ...prev, expiryInDays: newValue, linkExpiryText }));
+			setInfo((prev) => ({
+				...prev,
+				expiryInDays: newValue,
+				linkExpiryText,
+				smartFileSettingsUpdate: true,
+			}));
 		},
 		[info?.expiryInDays],
 	);
@@ -257,7 +299,12 @@ const SendProposalModal = ({
 			let linkExpiryText = `Link Expires on ${moment()
 				.add(val, 'days')
 				?.format('DD MMM YYYY')}`;
-			setInfo((prev) => ({ ...prev, expiryInDays: val, linkExpiryText }));
+			setInfo((prev) => ({
+				...prev,
+				expiryInDays: val,
+				linkExpiryText,
+				smartFileSettingsUpdate: true,
+			}));
 		},
 		[info?.expiryInDays],
 	);
@@ -265,13 +312,18 @@ const SendProposalModal = ({
 	// Handle change for checkboxes
 	const handleCheckboxChange = useCallback((e) => {
 		const { name, checked } = e.target;
+		let updateSettingFlag = name === 'emailAccess' ? { smartFileSettingsUpdate: true } : {};
 
 		setInfo((prevState) => ({
 			...prevState,
 			[name]: checked,
+			...updateSettingFlag,
 		}));
 		if (name === 'emailAccess' && checked === true) {
-			setInfo((prev) => ({ ...prev, emailIdentification: true }));
+			setInfo((prev) => ({
+				...prev,
+				emailIdentification: true,
+			}));
 		}
 	}, []);
 
@@ -288,10 +340,10 @@ const SendProposalModal = ({
 	);
 
 	const handleDebouceFunctionCall = useCallback(
-		(func, valueWithoutSpaces) => {
+		(func, args) => {
 			clearTimeout(info?.timeout);
 			const timeout = setTimeout(() => {
-				func(valueWithoutSpaces);
+				func(args);
 				setInfo((prev) => ({
 					...prev,
 					loading: true,
@@ -368,6 +420,46 @@ const SendProposalModal = ({
 		[clientDetails, pin, businessName],
 	);
 
+	const updateSendSmartFileSettingFunc = useCallback(async () => {
+		const payload = {
+			updateWorkflowId: workflowId,
+			updateWorkflowInput: {
+				isPublic: !info?.emailAccess,
+				isAlChatEnabled: info?.isAlChatEnabled,
+			},
+		};
+
+		if (info?.toogleExpiryChnaged) {
+			let expiryData;
+			if (info?.enableLinkExpiry) {
+				if (info?.expiryInDays && info?.expiryInDays > 0) {
+					expiryData = moment().add(info?.expiryInDays, 'days').unix();
+					payload.updateWorkflowInput.expiresAt = expiryData;
+				} else {
+					expiryData = moment().add(7, 'days').unix();
+					payload.updateWorkflowInput.expiresAt = moment().add(7, 'days').unix();
+				}
+			} else {
+				expiryData = null;
+				payload.updateWorkflowInput.expiresAt = null;
+			}
+			updateSendSmartFileExpiryData(expiryData);
+		}
+
+		const response = await updateSendSmartFileSettings(payload);
+		if (response?.[0]) {
+			updateSmartFileEmailAuth(info?.emailAccess);
+			updateSmartFileIsAiChatEnabled(info?.isAlChatEnabled);
+		}
+	}, [
+		workflowId,
+		info?.emailAccess,
+		info?.expiryInDays,
+		info?.isAlChatEnabled,
+		info?.enableLinkExpiry,
+		info?.toogleExpiryChnaged,
+	]);
+
 	return (
 		<ReactModal
 			isOpen={open}
@@ -387,7 +479,7 @@ const SendProposalModal = ({
 					<div className="sendSmartFileHeader">
 						<div className="sendSmartFileHeaderWrapper">
 							<span className="linkDetailText">
-								{`https://${localStorage.getItem('workspaceId')}.ve.ai/portal/`}
+								{`https://${info?.currentWorkspaceId}.ve.ai/portal/`}
 								<input
 									type="text"
 									className="editableSlugInput"
@@ -419,7 +511,12 @@ const SendProposalModal = ({
 									<ToggleSlider
 										value={info?.enableLinkExpiry}
 										onChange={(val) =>
-											setInfo((prev) => ({ ...prev, enableLinkExpiry: val }))
+											setInfo((prev) => ({
+												...prev,
+												enableLinkExpiry: val,
+												toogleExpiryChnaged: true,
+												smartFileSettingsUpdate: true,
+											}))
 										}
 									/>
 								</div>
@@ -631,9 +728,13 @@ const SendProposalModal = ({
 						<div className="aiLabel">
 							<span className="aiLabelText">AI Sales Assistant</span>
 							<ToggleSlider
-								value={info?.aiAssistant}
+								value={info?.isAlChatEnabled}
 								onChange={(val) =>
-									setInfo((prev) => ({ ...prev, aiAssistant: val }))
+									setInfo((prev) => ({
+										...prev,
+										isAlChatEnabled: val,
+										smartFileSettingsUpdate: true,
+									}))
 								}
 							/>
 						</div>

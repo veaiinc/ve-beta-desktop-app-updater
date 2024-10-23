@@ -243,12 +243,14 @@ const MyProfile = () => {
 		}
 	};
 
-	const updateThemeSubmitHandler = (mode) => {
+	const updateThemeSubmitHandler = async (mode) => {
 		const json = {
 			theme: mode,
 		};
-		setActiveTheme(mode);
-		updatePrefernces(json);
+		const response = await updatePrefernces(json);
+		if (response[0]) {
+			setActiveTheme(mode);
+		}
 	};
 
 	return (
@@ -295,9 +297,10 @@ const MyProfile = () => {
 					/>
 				</div>
 
-				<div className={'accessSettingsContainer'} id="leaveworkspace">
+				{/* Temporary Hide */}
+				{/* <div className={'accessSettingsContainer'} id="leaveworkspace">
 					<LeaveWorkspaceComponent />
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);

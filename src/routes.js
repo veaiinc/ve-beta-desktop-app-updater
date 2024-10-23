@@ -62,9 +62,9 @@ const routes = [
 	// },
 
 	{
-		path: '/sales',
+		path: '/home',
 		component: (
-			<AuthWrapper title={'Sales'}>
+			<AuthWrapper title={'Home'}>
 				<Sales />
 			</AuthWrapper>
 		),
@@ -72,7 +72,7 @@ const routes = [
 	},
 
 	{
-		path: '/sales/workflows',
+		path: '/playbook',
 		component: (
 			<AuthWrapper title={'Sales'}>
 				<GlobalWorkflows />

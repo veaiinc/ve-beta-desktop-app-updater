@@ -2,7 +2,7 @@ import React, { memo, useState, useCallback } from 'react';
 import ReactModal from '../../modalsV2/index';
 import { ReactComponent as Warning } from '../../../../assets/svg/worflow_builder/warning.svg';
 import '../../../../assets/scss/workflowBuilder/deleteLeadModal.scss';
-import { useNavigate } from 'react-router-dom';
+
 import Spinner from '../../loaders/Spinner';
 const DeleteLeadModal = ({ open, closeModal, deleteLeadFunc }) => {
 	const [info, setInfo] = useState({

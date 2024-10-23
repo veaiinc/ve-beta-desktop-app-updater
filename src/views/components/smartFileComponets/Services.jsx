@@ -7,7 +7,7 @@ import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/que
 
 const serviceStyleMapper = {
 	0: 'Select One',
-	1: 'Select Multiply',
+	1: 'Select Multiple',
 	2: 'View Only',
 };
 
@@ -20,6 +20,7 @@ const sericesContentMapper = {
 const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 	const [info, setInfo] = useState({
 		data: [],
+		subTotalValueMapper: {},
 	});
 
 	const [arrow, setArrow] = useState('Show');
@@ -38,6 +39,51 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 	useEffect(() => {
 		if (serviceData) {
 			setInfo((prev) => ({ ...prev, data: serviceData }));
+			for (let i = 0; i < serviceData?.length; i++) {
+				const { blocks = [] } = serviceData?.[i] || {};
+				let subTotalValue = 0;
+				for (let j = 0; j < blocks?.length; j++) {
+					let { amount, quantity } = blocks?.[j]?.subBlocks?.[0];
+
+					amount =
+						+(
+							(amount + '')
+								?.replace(/&nbsp;/g, ' ')
+								.replace(/<\/?[^>]+(>|$)/g, '')
+								.replace(/"/g, '') || ''
+						) || 0;
+					quantity =
+						+(
+							(quantity + '')
+								?.replace(/&nbsp;/g, ' ')
+								.replace(/<\/?[^>]+(>|$)/g, '')
+								.replace(/"/g, '') || ''
+						) || 0;
+					subTotalValue += +(amount * quantity);
+				}
+				let editable = serviceData?.[i]?.style?.services_selection === 2 ? true : false;
+
+				subTotalValue = editable ? serviceData?.[i]?.style?.subTotalValue : subTotalValue;
+				subTotalValue =
+					+(
+						(subTotalValue + '')
+							?.replace(/&nbsp;/g, ' ')
+							.replace(/<\/?[^>]+(>|$)/g, '')
+							.replace(/"/g, '') || ''
+					) || 0;
+				let obj = {
+					subTotalValue,
+					editable,
+					itsHtmlTags: serviceData?.[i]?.style?.subTotalValue + '',
+				};
+				setInfo((prev) => ({
+					...prev,
+					subTotalValueMapper: {
+						...prev.subTotalValueMapper,
+						[i]: obj,
+					},
+				}));
+			}
 		}
 	}, [serviceData]);
 
@@ -52,8 +98,19 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 
 			//for service subtotal value
 			if (type === 'subTotalValue') {
+				let value = val?.replace(/[^0-9]/g, '');
+				//fetching subtotal value incoming styling and replacing it with new value
+				let subtotalValueWithTags =
+					info?.subTotalValueMapper?.[outerIndex]?.itsHtmlTags || '';
+				let incomingValue =
+					subtotalValueWithTags
+						?.replace(/&nbsp;/g, ' ')
+						.replace(/<\/?[^>]+(>|$)/g, '')
+						.replace(/"/g, '') || '';
+				subtotalValueWithTags = subtotalValueWithTags?.replace(incomingValue, value);
+
 				let { style } = selectedServiceTable || {};
-				style = { ...style, subTotalValue: val };
+				style = { ...style, subTotalValue: subtotalValueWithTags };
 				selectedServiceTable.style = style;
 				updatedData?.splice(outerIndex, 1, selectedServiceTable);
 				setInfo((prev) => ({ ...prev, data: updatedData }));
@@ -104,7 +161,14 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 				<>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 						<span className="servicesHeader">
-							Services - {serviceStyleMapper?.[ele?.style?.services_selection || '2']}
+							Services -{' '}
+							{
+								serviceStyleMapper?.[
+									ele?.style?.services_selection !== undefined
+										? ele?.style?.services_selection
+										: '2'
+								]
+							}
 						</span>
 						<span className="svgHolder">
 							<Tooltip
@@ -113,12 +177,16 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 									<ToolTipContainer
 										title={`Services - ${
 											serviceStyleMapper?.[
-												ele?.style?.services_selection || '2'
+												ele?.style?.services_selection !== undefined
+													? ele?.style?.services_selection
+													: '2'
 											]
 										}`}
 										content={
 											sericesContentMapper?.[
-												ele?.style?.services_selection || '2'
+												ele?.style?.services_selection !== undefined
+													? ele?.style?.services_selection
+													: '2'
 											]
 											// 'This Table shows view only services that are mentioned in the smart file, Lead will only view this service details'
 										}
@@ -141,15 +209,9 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 							</span>
 							<div className="serviceSubTotalWrapper">
 								<span className="subTotalValueTitle">Subtotal</span>
-								{editable ? (
+								{editable && info?.subTotalValueMapper?.[index]?.editable ? (
 									<input
-										value={
-											ele?.style?.subTotalValue
-												?.toString()
-												?.replace(/&nbsp;/g, ' ')
-												?.replace(/<\/?[^>]+(>|$)/g, '')
-												?.replace(/"/g, '') || ''
-										}
+										value={info?.subTotalValueMapper?.[index]?.subTotalValue}
 										onChange={(e) =>
 											onLocalServiceDataChange(
 												0,
@@ -160,14 +222,11 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 										}
 										className="serviceSubtotalValueInput"
 										readOnly={!editable}
+										type="text"
 									/>
 								) : (
 									<span className="ServiceSubTotalValue">
-										{ele?.style?.subTotalValue
-											?.toString()
-											?.replace(/&nbsp;/g, ' ')
-											?.replace(/<\/?[^>]+(>|$)/g, '')
-											?.replace(/"/g, '') || ''}
+										{info?.subTotalValueMapper?.[index]?.subTotalValue}
 									</span>
 								)}
 							</div>
@@ -182,6 +241,7 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 										onChange={(val) =>
 											onLocalServiceDataChange(ind, index, 'show', val)
 										}
+										editable={editable}
 									/>
 									<span className="serviceCardTitle">
 										{val?.subBlocks?.[0]?.title

@@ -57,6 +57,7 @@ export const getClientListQuery = gql`
 			data {
 				email
 				name
+				phoneNumber
 				_id
 			}
 		}
@@ -377,5 +378,44 @@ export const deleteWorkflowTemplatesMutation = gql`
 		deleteTemplate(id: $deleteTemplateId) {
 			message
 		}
+	}
+`;
+
+// Sheshant
+export const getTabItemCountQuery = gql`
+	query Query {
+		getNumberOfRequiredActions {
+			enquiry
+			counterSign
+			emailApproval
+			expiresInThreeDays
+			all
+		}
+	}
+`;
+
+// Sheshant
+export const getRequiredActionDetailsQuery = gql`
+	query Query($filters: RequiredActionsFiltersInput) {
+		listRequiredActions(filters: $filters) {
+			data {
+				_id
+				title
+				action
+				clientName
+				createdAt
+				expiresAt
+				approvalRequired
+				status
+				templateId
+			}
+			hasNextPage
+		}
+	}
+`;
+
+export const updateSendSmartFileSettingsMutation = gql`
+	mutation UpdateWorkflow($updateWorkflowId: ID!, $updateWorkflowInput: UpdateWorkflowInput) {
+		updateWorkflow(id: $updateWorkflowId, updateWorkflowInput: $updateWorkflowInput)
 	}
 `;

@@ -105,8 +105,8 @@ const VerifyEmailCode = ({
 				setStage('create-workspace');
 				return;
 			}
-			localStorage.removeItem('locationDetails');
-			navigate('/sales');
+			// localStorage.removeItem('locationDetails');
+			navigate('/home');
 			setLoading(false);
 		} else {
 			setLoading(false);

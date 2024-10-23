@@ -34,8 +34,8 @@ const OauthVerify = () => {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
-				localStorage.removeItem('locationDetails');
-				return navigate('/sales');
+				// localStorage.removeItem('locationDetails');
+				return navigate('/home');
 			}
 			if (
 				!accessibleWorkspaces ||

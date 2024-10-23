@@ -94,7 +94,7 @@ export const UserLoginState = (props) => {
 				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 			});
 
-			return [true, isOnboard ? '/sales' : '/early-access'];
+			return [true, isOnboard ? '/home' : '/early-access'];
 		} else {
 			if (response?.[1]?.messageCode === 'EMAIL_NOT_VERIFIED') {
 				return [true, 'redirect'];
@@ -247,7 +247,7 @@ export const UserLoginState = (props) => {
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
 
-				return [true, isOnboard ? '/sales' : '/early-access'];
+				return [true, isOnboard ? '/home' : '/early-access'];
 			} else {
 				return [false, response?.[1]?.message || 'Something went wrong'];
 			}

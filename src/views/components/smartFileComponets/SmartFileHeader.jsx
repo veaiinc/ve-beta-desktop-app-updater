@@ -27,12 +27,15 @@ const SmartFileHeader = ({
 	openMoveToStageModal,
 	openDeleteModal,
 	onPreviewClick,
+	noContractTemplate,
+	counterAccpetOnClick,
 }) => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		loading: false,
 		threeDotOptions: options,
 		previewLoader: false,
+		counterAccpetLoading: false,
 	});
 
 	const modifiedAccetFunc = useCallback(async () => {
@@ -40,7 +43,7 @@ const SmartFileHeader = ({
 			return;
 		}
 		setInfo((prev) => ({ ...prev, loading: true }));
-		const response = acceptProposalFunc();
+		const response = await acceptProposalFunc();
 		if (response?.[0]) {
 			setInfo((prev) => ({ ...prev, loading: false }));
 		}
@@ -101,6 +104,17 @@ const SmartFileHeader = ({
 		onPreviewClick();
 	}, []);
 
+	const onCounterAcceptClickFunc = useCallback(async () => {
+		if (info?.counterAccpetLoading) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, counterAccpetLoading: true }));
+		const respose = await counterAccpetOnClick();
+		if (respose?.[0]) {
+			setInfo((prev) => ({ ...prev, counterAccpetLoading: false }));
+		}
+	}, [info?.counterAccpetLoading]);
+
 	return (
 		<div className="smarFileHeader">
 			<div className="HeaderContentContainer">
@@ -160,6 +174,7 @@ const SmartFileHeader = ({
 				<div className="previewBtn" onClick={modifiedPreviewClick}>
 					{info?.previewLoader ? <Spinner /> : ''}Preview
 				</div>
+				{/* //send smart button */}
 				{workflowStatus === 'enquiry' ? (
 					<div className="sendSmartFileBtn" onClick={openSendSmartFileModal}>
 						Send Smart File
@@ -167,7 +182,7 @@ const SmartFileHeader = ({
 				) : (
 					''
 				)}
-
+				{/* //Accept button */}
 				{workflowStatus === 'filesSent' && !editable ? (
 					<div className="sendSmartFileBtn" onClick={modifiedAccetFunc}>
 						{info?.loading ? 'Accepting ....' : 'Accept'}
@@ -175,7 +190,7 @@ const SmartFileHeader = ({
 				) : (
 					''
 				)}
-
+				{/* //Counter Sign button */}
 				{workflowStatus === 'contractSigned' && !editable ? (
 					<div className="sendSmartFileBtn" onClick={openSignatureModal}>
 						Counter Sign
@@ -183,6 +198,17 @@ const SmartFileHeader = ({
 				) : (
 					''
 				)}
+
+				{/* //Counter Accept button for proposal+thankyou */}
+				{noContractTemplate && workflowStatus === 'proposalAccepted' ? (
+					<div className="sendSmartFileBtn" onClick={onCounterAcceptClickFunc}>
+						{info?.counterAccpetLoading ? 'Accepting ....' : 'Counter Accept'}
+					</div>
+				) : (
+					''
+				)}
+
+				{/* //Update button */}
 				{workflowStatus !== 'enquiry' ? (
 					<>
 						{editable ? (

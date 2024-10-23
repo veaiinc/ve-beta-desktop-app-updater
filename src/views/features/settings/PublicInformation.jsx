@@ -330,6 +330,7 @@ const PublicInformation = () => {
 										height: '100%',
 										cursor: 'pointer',
 									}}
+									{...getInputProps()}
 								/>
 								<div className="icon_name_div">
 									{' '}

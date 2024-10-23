@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/sales.scss';
 import MyWorkflowsCard from '../../components/sales/MyWorkflowsCard';
@@ -10,6 +11,8 @@ import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
 import PublicLinkGeneratedModal from '../../components/modalsV2/workflowsModals/PublicLinkGeneratedModal';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import InitialPageLoader from '../../components/loaders/PageLoader';
+import SalesInfo from './SalesInfo';
+import { getCurrentWorkspaceId } from '../../../helpers';
 
 const Sales = () => {
 	let {
@@ -21,6 +24,7 @@ const Sales = () => {
 			updateStateValues,
 			generatePublicLinkData,
 		},
+		profileInfo: { userWorkSpaceList },
 	} = useContext(Context);
 	const navigate = useNavigate();
 
@@ -36,11 +40,18 @@ const Sales = () => {
 		showGeneratedLinkModalData: null,
 		testingDrawerModal: false,
 		shownInitialLoader: localStorage.getItem('showInitialLoader'),
+		currentWorkspaceId: '',
 	});
 
-	//useEffects
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
+	}, []);
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			getMyWorkflowTemplatesData(1);
+		}, 15000);
+		return () => clearInterval(interval);
 	}, []);
 
 	useEffect(() => {
@@ -69,6 +80,13 @@ const Sales = () => {
 		}
 	}, [generatePublicLinkData]);
 
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
+			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
+		}
+	}, [userWorkSpaceList]);
+
 	//function definations
 
 	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
@@ -91,7 +109,7 @@ const Sales = () => {
 			let myWorkflowData = [];
 			if (currentPage === 1 && !data?.length && !generatePublicLinkData) {
 				localStorage.setItem('showInitialLoader', true);
-				return navigate('/sales/workflows');
+				return navigate('/playbook');
 			}
 
 			for (let i = 0; i < data?.length; i++) {
@@ -155,15 +173,19 @@ const Sales = () => {
 		}));
 	}, []);
 
-	const openCopyLinkModal = useCallback(async (data) => {
-		try {
-			const workspaceId = localStorage.getItem('workspaceId');
-			await navigator.clipboard.writeText(`https://${workspaceId}.ve.ai/${data?.slug}`);
-			setInfo((prev) => ({ ...prev, copyModal: true, activeTemplateData: data }));
-		} catch (err) {
-			console.log('Failed to copy text');
-		}
-	}, []);
+	const openCopyLinkModal = useCallback(
+		async (data) => {
+			try {
+				await navigator.clipboard.writeText(
+					`https://${info?.currentWorkspaceId}.ve.ai/${data?.slug}`,
+				);
+				setInfo((prev) => ({ ...prev, copyModal: true, activeTemplateData: data }));
+			} catch (err) {
+				console.log('Failed to copy text');
+			}
+		},
+		[info?.currentWorkspaceId],
+	);
 
 	const closeCopyLinkModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, copyModal: false, activeTemplateData: null }));
@@ -178,11 +200,13 @@ const Sales = () => {
 
 	return (
 		<>
+			<SalesInfo />
 			<InfiniteScroll
 				dataLength={info?.myWorkflowData?.length || 0}
 				next={fetchMoreMyWorkflows}
 				hasMore={info?.hasNextPage}
 				loader={<FetchMoreLoaderComp />}
+				scrollableTarget={'scrollableTarget'}
 			>
 				{info?.loading ? (
 					info?.shownInitialLoader ? (
@@ -204,6 +228,7 @@ const Sales = () => {
 					</div>
 				)}
 			</InfiniteScroll>
+
 			<MyWorkflowsModals
 				modalIsOpen={info?.myWorkflowModal}
 				closeModal={closeWorkflowModal}
@@ -215,18 +240,14 @@ const Sales = () => {
 				closeModal={closeCopyLinkModal}
 				slug={info?.activeTemplateData?.slug}
 				modules={info?.activeTemplateData?.moduleTemplates?.filter((ele) => ele?.isPublic)}
-				copyLink={`https://${localStorage.getItem('workspaceId')}.ve.ai/${
-					info?.activeTemplateData?.slug
-				}`}
+				copyLink={`https://${info?.currentWorkspaceId}.ve.ai/${info?.activeTemplateData?.slug}`}
 			/>
 			<PublicLinkGeneratedModal
 				open={info?.showGeneratedLinkModalData ? true : false}
 				closeModal={closeGeneratedLinkModal}
 				copyLink={
 					info?.showGeneratedLinkModalData
-						? `https://${localStorage.getItem('workspaceId')}.ve.ai/${
-								info?.showGeneratedLinkModalData?.slug
-						  }`
+						? `https://${info?.currentWorkspaceId}.ve.ai/${info?.showGeneratedLinkModalData?.slug}`
 						: ''
 				}
 				modules={info?.showGeneratedLinkModalData?.moduleTemplates}

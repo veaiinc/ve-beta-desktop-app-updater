@@ -79,10 +79,10 @@ export const CompanySettingsState = () => {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			let response = await service.fetchPut(
-				'/' + workspaceId + API.TENANTS.businessName,
+				'/tenant/' + workspaceId + API.TENANTS.businessName,
 				json,
 				usertoken,
-				'tenant',
+				'auth',
 			);
 		} catch (error) {
 			console.log('error => updateTenantBusinessName ', error);
@@ -113,7 +113,7 @@ export const CompanySettingsState = () => {
 				'tenant',
 			);
 
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				return [true, response[1]];
 			} else {
 				return [false, response[1]];
