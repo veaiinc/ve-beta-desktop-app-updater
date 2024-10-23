@@ -1,6 +1,7 @@
 .timeLineWrapper {
 	display: flex;
 	flex-direction: column;
+	width: 100%;
 	align-items: flex-start;
 	gap: 20px;
 	flex: 1 0 0;
@@ -10,7 +11,7 @@
 	.blockParentContainer {
 		display: flex;
 		align-items: flex-start;
-		gap: var(--Spacing-space-7, 12px);
+		gap: 12px;
 		align-self: stretch;
 
 		.blockIcon {
@@ -61,6 +62,7 @@
 					gap: 6.667px;
 					border-radius: 66px;
 					background: #4a4c4d;
+					margin-right: 10px; //Just to show scrollbar - can be removed
 				}
 			}
 
@@ -144,7 +146,7 @@
 				}
 			}
 
-			.hideBlockElementsContainer{
+			.hideBlockElementsContainer {
 				display: none;
 			}
 		}
