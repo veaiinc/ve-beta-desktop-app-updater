@@ -80,14 +80,35 @@
 			align-self: stretch;
 
 			.serviceContainerTitle {
-				color: rgba(228, 229, 230, 0.48);
-				font-family: Inter;
-				font-size: 10px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 14px; /* 140% */
-				letter-spacing: 0.2px;
-				text-transform: capitalize;
+				display: flex;
+				align-items: center;
+				gap: 12px;
+
+				.serviceContainerTitleStyling {
+					color: rgba(228, 229, 230, 0.48);
+					font-family: Inter;
+					font-size: 10px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 14px; /* 140% */
+					letter-spacing: 0.2px;
+					text-transform: capitalize;
+				}
+				.eventsPresetsContainer {
+					display: flex;
+					align-items: center;
+					gap: 6px;
+					cursor: pointer;
+					.eventsPresetsStyling {
+						color: #6055ec;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 14px; /* 116.667% */
+						text-transform: capitalize;
+					}
+				}
 			}
 			.serviceRoleContainer {
 				display: flex;

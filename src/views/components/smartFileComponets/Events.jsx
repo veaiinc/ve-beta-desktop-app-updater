@@ -2,6 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
+import { ReactComponent as EventsPridiction } from '../../../assets/svg/sales/smartFile/eventsPrediction.svg';
 import { DatePicker, Tooltip } from 'antd';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/questionMark.svg';
 import ToolTipContainer from '../popover/ToolTipContainer';
@@ -137,47 +138,47 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 				addlServices: [],
 				blockId: selectedEventsArray?._id,
 				subBlockId: _.size(selectedEventsArray.values),
-				roles: [
-					{
-						type: 'cinematographer',
-						categories: [
-							{
-								category: 'candid',
-								quantity: 0,
-							},
-							{
-								category: 'traditional',
-								quantity: 0,
-							},
-						],
-					},
-					{
-						type: 'photographer',
-						categories: [
-							{
-								category: 'candid',
-								quantity: 0,
-							},
-							{
-								category: 'traditional',
-								quantity: 0,
-							},
-						],
-					},
-					{
-						type: 'support',
-						categories: [
-							{
-								category: 'candid',
-								quantity: 0,
-							},
-							{
-								category: 'traditional',
-								quantity: 0,
-							},
-						],
-					},
-				],
+				// roles: [
+				// 	{
+				// 		type: 'cinematographer',
+				// 		categories: [
+				// 			{
+				// 				category: 'candid',
+				// 				quantity: 0,
+				// 			},
+				// 			{
+				// 				category: 'traditional',
+				// 				quantity: 0,
+				// 			},
+				// 		],
+				// 	},
+				// 	{
+				// 		type: 'photographer',
+				// 		categories: [
+				// 			{
+				// 				category: 'candid',
+				// 				quantity: 0,
+				// 			},
+				// 			{
+				// 				category: 'traditional',
+				// 				quantity: 0,
+				// 			},
+				// 		],
+				// 	},
+				// 	{
+				// 		type: 'support',
+				// 		categories: [
+				// 			{
+				// 				category: 'candid',
+				// 				quantity: 0,
+				// 			},
+				// 			{
+				// 				category: 'traditional',
+				// 				quantity: 0,
+				// 			},
+				// 		],
+				// 	},
+				// ],
 			};
 
 			selectedEventsArray?.values?.push(newDummyObj);
@@ -304,7 +305,13 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 					</div>
 
 					<div className="servicesContainer">
-						<span className="serviceContainerTitle">Services Provided</span>
+						<div className="serviceContainerTitle">
+							<span className="serviceContainerTitleStyling">Services Provided</span>
+							<div className="eventsPresetsContainer">
+								<EventsPridiction />
+								<span className="eventsPresetsStyling">Add from preset</span>
+							</div>
+						</div>
 
 						{item?.roles?.map((x, lt) => (
 							<div className="serviceRoleContainer" key={lt}>
