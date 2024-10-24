@@ -152,6 +152,19 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 					],
 				};
 			}
+			if (type === 'quantityInputChange') {
+				let updatedQuantity = val;
+
+				selectedBlocks = {
+					...selectedBlocks,
+					subBlocks: [
+						{
+							...selectedBlocks?.subBlocks?.[0],
+							quantity: updatedQuantity >= 0 ? updatedQuantity : 0,
+						},
+					],
+				};
+			}
 			blocks?.splice(innerIndex, 1, selectedBlocks);
 			selectedServiceTable = { ...selectedServiceTable, blocks };
 			updatedData?.splice(outerIndex, 1, selectedServiceTable);
@@ -271,6 +284,14 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 											type="number"
 											className="incrementDecrementinput"
 											value={val?.subBlocks?.[0]?.quantity}
+											onChange={(e) =>
+												onLocalServiceDataChange(
+													ind,
+													index,
+													'quantityInputChange',
+													e.target.value,
+												)
+											}
 											readOnly={!editable}
 										/>
 										<span
