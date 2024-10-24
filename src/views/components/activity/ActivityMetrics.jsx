@@ -62,7 +62,9 @@ const dummyLabelData = [
 	},
 ];
 
-const ActivityMetrics = ({ title }) => {
+const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
+	console.log('labelsData: ' + JSON.stringify(labelsData, null, 2));
+	console.log('labelItemsData: ' + JSON.stringify(labelItemsData, null, 2));
 	const [info, setInfo] = useState({
 		isLabelSelected: true,
 		activeLabelItem: null,
@@ -76,7 +78,7 @@ const ActivityMetrics = ({ title }) => {
 	};
 
 	const handleActivelable = (label, section) => {
-		console.log('section ===>', section);
+		console.log('Label Data ===>', label);
 		setInfo((prevState) => ({
 			...prevState,
 			activeLabelItem: label,
@@ -89,7 +91,6 @@ const ActivityMetrics = ({ title }) => {
 		const chartElement = document.querySelector(scrollClass);
 
 		if (chartElement) {
-			console.log('called scrollIntoView');
 			chartElement.scrollIntoView({ behavior: 'smooth' });
 		}
 	};
@@ -102,6 +103,7 @@ const ActivityMetrics = ({ title }) => {
 			...rest,
 		};
 	});
+
 	const formatedLabelItemStats = dummyLabelData.map((item) => {
 		const { label, percentage, ...rest } = item;
 		return {
@@ -120,14 +122,14 @@ const ActivityMetrics = ({ title }) => {
 					<div className="metricsLablesWrapper">
 						<div className="headerWrapper">
 							<span>Label</span>
-							<span>Time Spent</span>
+							<span>{title}</span>
 							<span>%</span>
 						</div>
 
 						{info?.isLabelSelected ? (
 							//LablesItewmRows ==>
 							<div className="lablesContainer">
-								{dummyData.map((item, index) => (
+								{labelsData?.map((item, index) => (
 									<div
 										key={index}
 										className="lableItemRow"
@@ -135,15 +137,20 @@ const ActivityMetrics = ({ title }) => {
 									>
 										<div className="nameLable">
 											<div className="dot">
-												<DotSvg dotColor="#FFAB6F" />
+												<DotSvg />
 											</div>
-											<div>{item.label}</div>
+											<div>{item?.moduleType || 'Label Name'}</div>
 										</div>
 										<div className="metricsLables">
-											<div>{item.timeSpent}</div>
+											<div>
+												{title === 'Interactions'
+													? item?.totalCount
+													: item?.duration}
+											</div>
+
 											<div className="percentageWithArrow">
 												<span className="percentageValue">
-													{item.percentage}
+													{item?.percentage || '%'}
 												</span>
 												<span className="downArrow">
 													<DownSvg />
@@ -165,13 +172,13 @@ const ActivityMetrics = ({ title }) => {
 										className="lableItemRow selectedLabelItem"
 									>
 										<div className="nameLable">
-											{info?.activeLabelItem.label}
+											{info?.activeLabelItem?.moduleType}
 										</div>
 										<div className="metricsLables">
-											<div>{info?.activeLabelItem.timeSpent}</div>
+											<div>{info?.activeLabelItem?.duration}</div>
 											<div className="percentageWithArrow">
 												<span className="percentageValue">
-													{info?.activeLabelItem.percentage}
+													{info?.activeLabelItem?.duration}
 												</span>
 												<span className="rightArrow">
 													<RightSvg />
@@ -180,29 +187,34 @@ const ActivityMetrics = ({ title }) => {
 										</div>
 									</div>
 								}
-								{dummyLabelData.map((item, index) => (
-									//Internal Data of Label ==>
+								{labelItemsData
+									.filter(
+										(item) =>
+											item?.moduleType === info?.activeLabelItem?.moduleType,
+									)
+									.map((item, index) => (
+										//Internal Data of Label ==>
 
-									<div key={index} className="lableItemRow">
-										<div className="nameLable">
-											<div className="dot">
-												<DotSvg dotColor="#FFAB6F" />
+										<div key={index} className="lableItemRow">
+											<div className="nameLable">
+												<div className="dot">
+													<DotSvg />
+												</div>
+												<div className="selectedBlockSvg">
+													<GallerySvg />
+												</div>
+												<div>{item?.content}</div>
 											</div>
-											<div className="selectedBlockSvg">
-												<GallerySvg />
+											<div className="metricsLables">
+												<div>{item?.duration || item?.totalCount}</div>
+												<div className="percentageWithArrow">
+													<span className="percentageValue">
+														{item?.percentage || '%'}
+													</span>
+												</div>
 											</div>
-											<div>{item.label}</div>
 										</div>
-										<div className="metricsLables">
-											<div>{item.timeSpent}</div>
-											<div className="percentageWithArrow">
-												<span className="percentageValue">
-													{item.percentage}
-												</span>
-											</div>
-										</div>
-									</div>
-								))}
+									))}
 							</div>
 						)}
 					</div>

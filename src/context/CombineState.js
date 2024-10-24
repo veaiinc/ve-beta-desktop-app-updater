@@ -3,6 +3,7 @@ import { UserLoginState } from './Login/state';
 import { TemplatesState } from './Templates/state';
 import { ProfileState } from './profileSettings/state';
 import { CompanySettingsState } from './companySettings/state';
+import { ActivityState } from './Activity/state';
 
 const CombineState = () => {
 	return {
@@ -11,6 +12,7 @@ const CombineState = () => {
 		templates: TemplatesState(),
 		profileInfo: ProfileState(),
 		companyInfo: CompanySettingsState(),
+		activityInfo: ActivityState(),
 	};
 };
 

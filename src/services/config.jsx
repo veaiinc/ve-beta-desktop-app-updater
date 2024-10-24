@@ -6,6 +6,7 @@ module.exports = {
 	proposals_api: 'https://ap.api.ve.ai/proposals/1.0',
 	workflows_Api: 'https://ap.api.ve.ai/workflows/1.0',
 	auth_Api: 'https://auth.ve.ai',
+	activity_api: 'https://ap.api.ve.ai/workflow-user-analytics/1.0',
 	// auth_Api: 'http://192.168.2.224:5050',
 
 	//outside India
@@ -14,4 +15,5 @@ module.exports = {
 	ve_conversations_api_US: 'https://us.api.ve.ai/ve-conversations/1.0',
 	proposals_api_US: 'https://us.api.ve.ai/proposals/1.0',
 	workflows_Api_US: 'https://us.api.ve.ai/workflows/1.0',
+	activity_api_US: 'https://ap.api.ve.ai/workflow-user-analytics/1.0',
 };

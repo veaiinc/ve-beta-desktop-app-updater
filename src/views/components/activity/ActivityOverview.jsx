@@ -1,10 +1,16 @@
-import React, { memo } from 'react';
+import React, { memo, useContext } from 'react';
 import '../../../assets/scss/sales/activity/activityComponents.scss';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { ReactComponent as HandTapSvg } from '../../../assets/svg/activity/handTap.svg';
 import { ReactComponent as EyeSvg } from '../../../assets/svg/activity/eye.svg';
+import Context from '../../../context/context';
 
 const ActivityOverview = () => {
+	//Context
+	const {
+		activityInfo: { activityData },
+	} = useContext(Context);
+
 	return (
 		<div className="activityOverviewParentContainer">
 			<div className="summaryOverviewContainer">
@@ -13,7 +19,7 @@ const ActivityOverview = () => {
 					<span className="summaryIcon">
 						<EyeSvg />
 					</span>
-					<span className="summaryValue">12</span>
+					<span className="summaryValue">{activityData?.totalViews || 0}</span>
 				</div>
 			</div>
 			<div className="summaryOverviewContainer">
@@ -22,7 +28,9 @@ const ActivityOverview = () => {
 					<span className="summaryIcon">
 						<ClockSvg />
 					</span>
-					<span className="summaryValue">3m 8s</span>
+					<span className="summaryValue">
+						{activityData?.averageTimeSpent || '0m 0s'}
+					</span>
 				</div>
 			</div>
 			<div className="summaryOverviewContainer">
@@ -31,7 +39,7 @@ const ActivityOverview = () => {
 					<span className="summaryIcon">
 						<HandTapSvg />
 					</span>
-					<span className="summaryValue">127</span>
+					<span className="summaryValue">{activityData?.totalInteractions || 0}</span>
 				</div>
 			</div>
 		</div>

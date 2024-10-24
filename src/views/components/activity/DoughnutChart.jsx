@@ -4,7 +4,6 @@ import { PieChart, Pie, Cell, Tooltip } from 'recharts';
 const COLORS = ['#FF6384', '#FFCE56', '#FF9F40', '#36A2EB', '#9966FF'];
 
 const DoughnutChart = ({ statsData, scrollClass = '' }) => {
-	console.log('Donut Chart ====>', scrollClass);
 	return (
 		<PieChart width={390} height={300} className={`ringChart ${scrollClass}`}>
 			<Pie

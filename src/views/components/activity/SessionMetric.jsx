@@ -125,7 +125,7 @@ const SessionMetric = () => {
 							>
 								<div className="nameLable">
 									<div className="dot">
-										<DotSvg dotColor="#FFAB6F" />
+										<DotSvg />
 									</div>
 									<div>{item.label}</div>
 								</div>
@@ -173,7 +173,7 @@ const SessionMetric = () => {
 								<div key={index} className="lableItemRow">
 									<div className="nameLable">
 										<div className="dot">
-											<DotSvg dotColor="#FFAB6F" />
+											<DotSvg />
 										</div>
 										<div className="selectedBlockSvg">
 											<GallerySvg />
