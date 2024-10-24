@@ -36,7 +36,6 @@ const AddGallery = () => {
 				detailed: false,
 				sort: '-shotDuring',
 				page: 1,
-				// status: 'active',
 			};
 			getGalleries(params);
 		} catch (err) {
@@ -47,8 +46,8 @@ const AddGallery = () => {
 		}
 	};
 
-	const handleCreateGallery = () => {
-		navigate('gallery-page');
+	const handleCreateGallery = (galleryId) => {
+		navigate(`/gallery-page/${galleryId}`);
 	};
 	const handleCreateNewGallery = () => {
 		setInfo({
@@ -85,7 +84,7 @@ const AddGallery = () => {
 							tenantGalleries?.galleries.map((items, index) => (
 								<div
 									className="add-gallery-image"
-									onClick={handleCreateGallery}
+									onClick={() => handleCreateGallery(items._id)}
 									key={index}
 								>
 									<img src={testImage} alt="test" />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext, useCallback } from 'react';
 import share from '../../../assets/svg/gallery/share.svg';
 import sixDots from '../../../assets/svg/gallery/sixdots.svg';
 import threeDots from '../../../assets/svg/gallery/threeDots.svg';
@@ -17,7 +17,9 @@ import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArro
 import ToggleSlider from '../../../views/components/input/slider';
 import AlbumSettings from './AlbumSettings';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
-import { useNavigate } from 'react-router-dom';
+import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
+import { useNavigate, useParams } from 'react-router-dom';
+import Context from '../../../context/context';
 
 const imageURL = 'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg';
 const image1 =
@@ -122,7 +124,11 @@ function createRandomImageArray() {
 const randomizedImages = createRandomImageArray();
 
 const GalleryPage = () => {
+	const { galleryId } = useParams();
 	const navigate = useNavigate();
+	const {
+		galleryInfo: { getAlbums, tenantAlbums },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
 		albumName: imageData[0].name,
 		albumContains: albumContains[0].name,
@@ -132,12 +138,13 @@ const GalleryPage = () => {
 		showShearch: false,
 		showFilter: false,
 		selectedImages: [],
-
 		activeLink: 'gallery-overview',
 		showForward: false,
 		showPin: false,
 		showOptionsContainer: false,
 		activeTab: 'Albums',
+		showCreateAlbum: false,
+		isMouseInGallery: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -151,58 +158,34 @@ const GalleryPage = () => {
 	const pinSearchRef = useRef(null);
 	const optionsIconRef = useRef(null);
 	const optionsContainerRef = useRef(null);
-
-	useEffect(() => {
-		const handleClickOutside = (event) => {
+	const handleClickOutside = useCallback((event) => {
+		const clickOutsideCheck = (ref, iconRef, stateName) => {
 			if (
-				optionsRef.current &&
-				!optionsRef.current.contains(event.target) &&
+				ref.current &&
+				!ref.current.contains(event.target) &&
 				!iconRef.current.contains(event.target)
 			) {
-				setInfo((prevInfo) => ({ ...prevInfo, showOptions: false }));
-			}
-			if (
-				galleryOptionsRef.current &&
-				!galleryOptionsRef.current.contains(event.target) &&
-				!galleryIconRef.current.contains(event.target)
-			) {
-				setInfo((prevInfo) => ({ ...prevInfo, showGalleryOptions: false }));
-			}
-			if (
-				filtersOptionsRef.current &&
-				!filtersOptionsRef.current.contains(event.target) &&
-				!filtersRef.current.contains(event.target)
-			) {
-				setInfo((prevInfo) => ({ ...prevInfo, showFilter: false }));
-			}
-			if (
-				forwardOptionsRef.current &&
-				!forwardOptionsRef.current.contains(event.target) &&
-				!forwardIconRef.current.contains(event.target)
-			) {
-				setInfo((prevInfo) => ({ ...prevInfo, showForward: false }));
-			}
-			if (
-				pinSearchRef.current &&
-				!pinSearchRef.current.contains(event.target) &&
-				!pinIconRef.current.contains(event.target)
-			) {
-				setInfo((prevInfo) => ({ ...prevInfo, showPin: false }));
-			}
-			if (
-				optionsContainerRef.current &&
-				!optionsContainerRef.current.contains(event.target) &&
-				!optionsIconRef.current.contains(event.target)
-			) {
-				setInfo((prevInfo) => ({ ...prevInfo, showOptionsContainer: false }));
+				setInfo((prevInfo) => ({ ...prevInfo, [stateName]: false }));
 			}
 		};
 
+		clickOutsideCheck(optionsRef, iconRef, 'showOptions');
+		clickOutsideCheck(galleryOptionsRef, galleryIconRef, 'showGalleryOptions');
+		clickOutsideCheck(filtersOptionsRef, filtersRef, 'showFilter');
+		clickOutsideCheck(forwardOptionsRef, forwardIconRef, 'showForward');
+		clickOutsideCheck(pinSearchRef, pinIconRef, 'showPin');
+		clickOutsideCheck(optionsContainerRef, optionsIconRef, 'showOptionsContainer');
+	}, []);
+	useEffect(() => {
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
+	}, [handleClickOutside]);
+	useEffect(() => {
+		getAlbums(galleryId);
 	}, []);
+
 	const handleImageSelect = (index) => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
@@ -334,7 +317,18 @@ const GalleryPage = () => {
 							</div>
 						</div>
 						<div className="albums">
-							{imageData.map((album, index) => (
+							<div
+								className="create-album"
+								onClick={() =>
+									setInfo((prevData) => ({
+										...prevData,
+										showCreateAlbum: true,
+									}))
+								}
+							>
+								<p>+ New Album</p>
+							</div>
+							{tenantAlbums?.albums.map((album, index) => (
 								<div
 									key={index}
 									className={`album ${
@@ -350,9 +344,9 @@ const GalleryPage = () => {
 
 									<div
 										className="albumDetails"
-										onClick={() => handleClickAlbum(album.name, 'albumName')}
+										onClick={() => handleClickAlbum(album.title, 'albumName')}
 									>
-										<p>{album.name}</p>
+										<p>{album.title}</p>
 										<p>{`${album.photos} photos`}</p>
 									</div>
 									<div
@@ -437,12 +431,10 @@ const GalleryPage = () => {
 												showShearch: !prevInfo.showShearch,
 											}))
 										}
-										className="iconsContainer"
+										className="searchContainer"
 									>
 										<SearchIcon />
-										{info.showShearch && (
-											<input type="text" placeholder="Search" />
-										)}
+										<input type="text" placeholder="Search" />
 									</div>
 									<div style={{ position: 'relative' }}>
 										<div
@@ -510,7 +502,21 @@ const GalleryPage = () => {
 							</ResponsiveMasonry>
 						</div> */}
 
-							<div className="galleryImagesContainer">
+							<div
+								className="galleryImagesContainer"
+								onMouseEnter={() =>
+									setInfo((prev) => ({
+										...prev,
+										isMouseInGallery: true,
+									}))
+								}
+								onMouseLeave={() =>
+									setInfo((prev) => ({
+										...prev,
+										isMouseInGallery: false,
+									}))
+								}
+							>
 								<ResponsiveMasonry
 									columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3, 1200: 4 }}
 								>
@@ -530,6 +536,9 @@ const GalleryPage = () => {
 													alt={`Gallery image ${index}`}
 													style={{ width: '100%', display: 'block' }}
 												/>
+												{info.isMouseInGallery && (
+													<div className="imageOverlay"></div>
+												)}
 											</div>
 										))}
 									</Masonry>
@@ -800,6 +809,16 @@ const GalleryPage = () => {
 			</div>
 
 			<ShareModal open={info.shareModal} closeModal={openShareModal} />
+			<CreateAlbum
+				open={info.showCreateAlbum}
+				closeModal={() =>
+					setInfo((prev) => ({
+						...prev,
+						showCreateAlbum: false,
+					}))
+				}
+				galleryId={galleryId}
+			/>
 		</>
 	);
 };

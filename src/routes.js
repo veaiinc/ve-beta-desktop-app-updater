@@ -12,7 +12,11 @@ import EarlyAccess from './views/features/early_access';
 import SettingsWrapper from './views/features/settings/SettingsWrapper';
 import PrivacyPolicy from './views/features/signin/PrivacyPolicy';
 import Landing_screen from './views/features/landing_screen';
-import Gallery from './views/features/gallery/index';
+import AddGallery from './views/features/gallery/AddGallery';
+import GalleryPage from './views/features/gallery/GalleryPage';
+import GalleryViewer from './views/features/gallery/GalleryViewer';
+import AlbumSettings from './views/features/gallery/AlbumSettings';
+import UploadPhotos from './views/features/gallery/UploadPhotos';
 
 const routes = [
 	{
@@ -114,10 +118,46 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/galleries/*',
+		path: '/galleries',
 		component: (
 			<AuthWrapper title={'Gallery'}>
-				<Gallery />
+				<AddGallery />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/gallery-page/:galleryId',
+		component: (
+			<AuthWrapper title={'Gallery'}>
+				<GalleryPage />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/gallery/album-settings',
+		component: (
+			<AuthWrapper title={'Gallery'}>
+				<AlbumSettings />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/gallery-viewer',
+		component: (
+			<AuthWrapper title={'Gallery'}>
+				<GalleryViewer />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/upload-photos',
+		component: (
+			<AuthWrapper title={'Gallery'}>
+				<UploadPhotos />
 			</AuthWrapper>
 		),
 		exact: true,

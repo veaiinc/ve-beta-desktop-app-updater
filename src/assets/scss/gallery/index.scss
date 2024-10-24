@@ -377,6 +377,28 @@
 				.active {
 					border: 1px solid #6055ec;
 				}
+				.create-album {
+					display: flex;
+					flex: 0 0 auto;
+					justify-content: center;
+					align-items: center;
+					background: #1d1d1d;
+					cursor: pointer;
+					width: 130px;
+					height: 100%;
+					border-radius: 16px;
+					overflow: hidden;
+					p {
+						color: rgba(228, 229, 230, 0.6);
+						text-align: center;
+						text-overflow: ellipsis;
+						font-size: 12px;
+						font-weight: 500;
+						line-height: 16px;
+						letter-spacing: 0.24px;
+						text-transform: capitalize;
+					}
+				}
 				.album {
 					flex: 0 0 auto;
 					width: 130px;
@@ -459,6 +481,7 @@
 					.galleryEditOptions {
 						display: flex;
 						position: absolute;
+						z-index: 2;
 						top: 30px;
 						gap: 16px;
 						flex-direction: column;
@@ -504,6 +527,35 @@
 						border: 1px solid rgba(228, 229, 230, 0.05);
 						background: #151515;
 					}
+					.searchContainer {
+						display: flex;
+						width: 40px;
+						gap: 10px;
+						padding: 10px;
+						align-items: center;
+						border-radius: 100px;
+						border: 1px solid rgba(228, 229, 230, 0.05);
+						background: #151515;
+						transition: width 0.3s ease;
+						overflow: hidden;
+						input {
+							display: none;
+							background: transparent;
+							border: none;
+							color: white;
+						}
+						svg {
+							path {
+								fill: #e4e5e6;
+							}
+						}
+						&:hover {
+							width: 200px;
+							input {
+								display: block;
+							}
+						}
+					}
 					.iconsContainer {
 						display: flex;
 						width: 40px;
@@ -532,6 +584,7 @@
 						border: 1px solid #1f1f1f;
 						background: #151515;
 						gap: 10px;
+						z-index: 2;
 						li {
 							list-style: none;
 							height: 32px;
@@ -576,13 +629,35 @@
 				width: 100%;
 				padding: 10px;
 				.imageContainer {
+					position: relative;
 					margin-bottom: 10px;
+					transition: transform 0.3s ease;
 					img {
 						border-radius: 8px;
+					}
+					.imageOverlay {
+						position: absolute;
+						top: 0;
+						left: 0;
+						width: 100%;
+						height: 100%;
+						border-radius: 8px;
+						background: rgba(0, 0, 0, 0.5); /* Adjust opacity as needed */
+						pointer-events: none;
+					}
+					&:hover {
+						transform: scale(1.05);
+						.imageOverlay {
+							background: rgba(0, 0, 0, 0);
+						}
+						// img {
+
+						// }
 					}
 				}
 				.selected {
 					border: 2px solid #6055ec;
+					border-radius: 8px;
 				}
 				.selectedImagesCotainer {
 					display: flex;

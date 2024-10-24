@@ -5,6 +5,10 @@ const actionHandlers = {
 		...state,
 		tenantGalleries: action.payload,
 	}),
+	GET_TENANT_ALBUMS: (state, action) => ({
+		...state,
+		tenantAlbums: action.payload,
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 

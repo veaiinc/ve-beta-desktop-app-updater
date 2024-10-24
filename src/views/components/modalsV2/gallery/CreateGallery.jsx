@@ -1,5 +1,5 @@
 import React, { memo, useState, useEffect, useContext } from 'react';
-import ReactModal from '../../modalsV2/index';
+import ReactModal from '../index';
 import { ReactComponent as UpArrow } from '../../../../assets/svg/workflow/downArrow.svg';
 import '../../../../assets/scss/gallery/modals/createGallery.scss';
 import axios from 'axios';

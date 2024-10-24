@@ -10,7 +10,7 @@ const GalleryRoutes = () => {
 	return (
 		<Routes>
 			<Route path="" element={<AddGallery />} />
-			<Route path="add-gallery" element={<Gallerys />} />
+			{/* <Route path="add-gallery" element={<Gallerys />} /> */}
 			<Route path="gallery-page" element={<GalleryPage />} />
 			<Route path="album-settings" element={<AlbumSettings />} />
 			<Route path="gallery-viewer" element={<GalleryViewer />} />
