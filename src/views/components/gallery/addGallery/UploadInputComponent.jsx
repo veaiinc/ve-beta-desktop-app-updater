@@ -2,11 +2,11 @@ import React from 'react';
 import { ReactComponent as CloudFileUploadSvg } from '../../../../assets/svg/Settings/CloudUpload.svg';
 import Dropzone from 'react-dropzone';
 
-const UploadInputComponent = () => {
+const UploadInputComponent = ({ onDropFunction }) => {
 	return (
 		<Dropzone
-			// onDrop={checkUploadLogo}
-			accept={'image/png'}
+			onDrop={onDropFunction}
+			accept={'image/png, image/jpeg'}
 			multiple={true}
 			// disabled={!isAdmin}
 		>

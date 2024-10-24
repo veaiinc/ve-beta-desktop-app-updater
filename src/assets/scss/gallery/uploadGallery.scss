@@ -1,6 +1,19 @@
 .upload-gallery-container {
 	color: #e4e5e6;
 
+	.progress {
+		.ant-progress-inner {
+			background-color: #1c1c1c !important;
+			.ant-progress-bg {
+				height: 5px !important;
+
+				&::after {
+					background: #6055ec !important;
+				}
+			}
+		}
+	}
+
 	.backHeader {
 		display: flex;
 		gap: 14px;
@@ -167,6 +180,7 @@
 			flex-shrink: 0;
 			border-radius: 14px;
 			background: #151515;
+			height: fit-content;
 
 			.text_div {
 				h1 {
@@ -194,7 +208,7 @@
 			padding: 24px;
 			flex-direction: column;
 			align-items: flex-start;
-			gap: 10px;
+			// gap: 10px;
 			border-radius: 14px;
 			background: #151515;
 
@@ -230,28 +244,106 @@
 					align-items: center;
 					gap: 10px;
 					border-radius: 33px;
-					background: #2f2f2f;
 					border: none;
 					outline: none;
-					cursor: pointer;
 
 					p {
 						overflow: hidden;
-						color: #979797;
 						text-overflow: ellipsis;
 						font-family: Inter;
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 500;
 						line-height: 22px; /* 169.231% */
-						overflow: hidden;
+					}
+
+					&.activeButton {
+						background: #6055ec;
+						cursor: pointer;
+						color: #fff;
+					}
+
+					&.inactiveButton {
+						background: #2f2f2f;
+						cursor: not-allowed;
 						color: #979797;
-						text-overflow: ellipsis;
+					}
+				}
+
+				.overall_percentage {
+					width: 205px;
+					max-width: 205px;
+					display: flex;
+					gap: 16px;
+					align-items: center;
+
+					.progress {
+						width: 145px;
+						max-width: 145px;
+					}
+
+					.text_value {
+						p {
+							color: #e4e5e6;
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+				}
+			}
+
+			.body_upload_div {
+				width: 100%;
+				display: flex;
+				flex-direction: column;
+				gap: 16px;
+				margin-top: 16px;
+				.line_div {
+					background: rgba(151, 151, 151, 0.2);
+					width: 100%;
+					height: 1px;
+				}
+
+				.single_file_detail {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+
+					.fileName {
+						color: #979797;
 						font-family: Inter;
 						font-size: 13px;
 						font-style: normal;
-						font-weight: 500;
+						font-weight: 400;
 						line-height: 22px; /* 169.231% */
+					}
+
+					.progress_div {
+						display: flex;
+						align-items: center;
+						gap: 12px;
+						.progress {
+							width: 145px;
+							max-width: 145px;
+						}
+
+						.text_value {
+							p {
+								color: #979797;
+								font-family: Inter;
+								font-size: 13px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: 22px; /* 169.231% */
+							}
+						}
+
+						svg {
+							cursor: pointer;
+						}
 					}
 				}
 			}
