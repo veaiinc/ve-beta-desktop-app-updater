@@ -20,7 +20,7 @@ import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
 import { useNavigate, useParams } from 'react-router-dom';
 import Context from '../../../context/context';
-
+import { ReactComponent as CloudUpload } from '../../../assets/svg/Settings/CloudUpload.svg';
 const imageURL = 'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg';
 const image1 =
 	'https://i0.wp.com/picjumbo.com/wp-content/uploads/silhouette-of-a-guy-with-a-cap-at-red-sky-sunset-free-image.jpeg?h=800&quality=80';
@@ -31,9 +31,9 @@ const image4 =
 	'https://www.nttdata.com/global/en/-/media/nttdataglobal/1_images/insights/generative-ai/generative-ai_d.jpg?h=1680&iar=0&w=2800&rev=4e69afcc968d4bab9480891634b63b34';
 const data = [
 	{ name: 'Albums', number: 14 },
-	{ name: 'Videos', number: 2 },
-	{ name: 'Slide Show', number: 1 },
-	{ name: 'Client Selections', number: 6 },
+	// { name: 'Videos', number: 2 },
+	// { name: 'Slide Show', number: 1 },
+	// { name: 'Client Selections', number: 6 },
 	{ name: 'AI', number: '' },
 ];
 const imageData = [
@@ -127,10 +127,10 @@ const GalleryPage = () => {
 	const { galleryId } = useParams();
 	const navigate = useNavigate();
 	const {
-		galleryInfo: { getAlbums, tenantAlbums },
+		galleryInfo: { getAlbums, tenantAlbums, tenantGalleries, basicAlbumDetails },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		albumName: imageData[0].name,
+		albumName: tenantAlbums?.albums?.[0].title,
 		albumContains: albumContains[0].name,
 		showOptions: false,
 		showGalleryOptions: false,
@@ -145,6 +145,7 @@ const GalleryPage = () => {
 		activeTab: 'Albums',
 		showCreateAlbum: false,
 		isMouseInGallery: false,
+		activeAlbumId: tenantAlbums?.albums?.[0]._id,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -195,9 +196,9 @@ const GalleryPage = () => {
 		}));
 	};
 
-	const handleClickAlbum = (album, name) => {
+	const handleClickAlbum = (album, name, activeAlbumId = null) => {
 		if (name === 'albumName') {
-			setInfo((prevInfo) => ({ ...prevInfo, albumName: album }));
+			setInfo((prevInfo) => ({ ...prevInfo, albumName: album, activeAlbumId }));
 		} else if (name === 'containName') {
 			setInfo((prevInfo) => ({ ...prevInfo, albumContains: album }));
 		}
@@ -245,6 +246,9 @@ const GalleryPage = () => {
 	};
 	const handleClickContent = (name) => {
 		setInfo((prevInfo) => ({ ...prevInfo, activeTab: name }));
+	};
+	const handleNavigateUpload = () => {
+		navigate(`/gallery-page/${info?.activeAlbumId}/${galleryId}/upload-photos`);
 	};
 	return (
 		<>
@@ -340,19 +344,18 @@ const GalleryPage = () => {
 											: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
 									}}
 								>
-									{album.image && <img src={album.image} />}
+									{album.image && <img src={album?.image} />}
 
 									<div
 										className="albumDetails"
-										onClick={() => handleClickAlbum(album.title, 'albumName')}
+										onClick={() =>
+											handleClickAlbum(album?.title, 'albumName', album?._id)
+										}
 									>
-										<p>{album.title}</p>
-										<p>{`${album.photos} photos`}</p>
+										<p>{album?.title}</p>
+										<p>{`${album?.photos} photos`}</p>
 									</div>
-									<div
-										className="overlay"
-										onClick={() => handleClickAlbum(album.name, 'albumName')}
-									></div>
+									<div className="overlay"></div>
 								</div>
 							))}
 						</div>
@@ -521,6 +524,15 @@ const GalleryPage = () => {
 									columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3, 1200: 4 }}
 								>
 									<Masonry gutter="10px">
+										<div
+											className="imageContainer"
+											onClick={handleNavigateUpload}
+										>
+											<div className="imageUpload">
+												<CloudUpload className="uploadIcon" />
+												<p>Add Photos</p>
+											</div>
+										</div>
 										{randomizedImages.map((image, index) => (
 											<div
 												key={index}

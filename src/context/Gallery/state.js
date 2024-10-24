@@ -51,15 +51,6 @@ export const Galleries = () => {
 	};
 
 	const createNewAlbum = async (payload, galleryId) => {
-		// payload
-		// {
-		//     "slug": "ablbufdffdfmf3Wi3f43th_one_id",
-		//     "title": "ablbumWithaih_id",
-		//     "eventDateEpoch": 1766060200,
-		//     "notes": "a is very importent note",
-		//     "isFaceIdEnabled": false
-		// }
-		// {{gallery-base-url}}/{{workspaceId}}/galleries/{{galleryId}}/albums
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -69,6 +60,9 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+			if (response?.[0]) {
+				getAlbums(galleryId);
+			}
 		} catch (error) {
 			console.log('error==>createNewAlbum', error);
 		}
@@ -143,21 +137,39 @@ get gallery
 			console.log('error==>getGalleryData', error);
 		}
 	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/
 	// {{gallery-base-url}}/{{workspaceId}}/galleries/{{galleryId}}/basic-details   ---> get gallery
 	// already in the getAlbums
-	// const basicGalleryDetails = async (galleryId) => {
-	// 	try {
-	// 		let usertoken = localStorage.getItem('usertoken');
-	// 		let workspaceId = localStorage.getItem('workspaceId');
-	// 		const response = await service.getGallery(
-	// 			`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/basic-details`,
-	// 			usertoken,
-	// 			'galleries',
-	// 		);
-	// 	} catch (error) {
-	// 		console.log('error==>basicGalleryDetails', error);
-	// 	}
-	// };
+	const basicAlbumDetails = async (galleryId, albumSlug) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.getGallery(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/albums/${albumSlug}`,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>basicGalleryDetails', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/preferences. edit perrance put
+
+	const editPreferences = async (galleryId, payload) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.getGallery(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/preferences`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>editPreferences', error);
+		}
+	};
 
 	return {
 		...state,
@@ -168,5 +180,7 @@ get gallery
 		postGallery,
 		getGalleryData,
 		getAlbums,
+		basicAlbumDetails,
+		editPreferences,
 	};
 };
