@@ -1,23 +1,49 @@
-import React, { memo, useCallback, useEffect } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/earlyAccess/earlyAccess.scss';
 import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { ReactComponent as Facebook } from '../../../assets/svg/earlyAccess/facebook.svg';
 import { ReactComponent as LinkedIn } from '../../../assets/svg/earlyAccess/linkedIn.svg';
 import { ReactComponent as Instagram } from '../../../assets/svg/earlyAccess/instagram.svg';
 import { useNavigate } from 'react-router-dom';
+import Context from '../../../context/context';
 const EarlyAccess = () => {
 	const navigate = useNavigate();
+	const {
+		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		loading: true,
+	});
+
 	useEffect(() => {
-		checkIsOnBoardUser();
+		getUserWorkSpaceList();
 	}, []);
 
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			checkIsOnBoardUser();
+		}
+	}, [userWorkSpaceList]);
+
 	const checkIsOnBoardUser = useCallback(() => {
-		const isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
+		let isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
 		const usertoken = localStorage.getItem('usertoken');
+		const workspaceId = localStorage.getItem('workspaceId');
+		const currentWorkspaceData = (userWorkSpaceList || [])?.filter(
+			(ele) => ele?.activeWorkspaceId === workspaceId,
+		);
+
+		if (currentWorkspaceData) {
+			isOnboard = currentWorkspaceData[0]?.isOnboard;
+		}
 		if (isOnboard && usertoken) {
+			localStorage.setItem('isOnboard', true);
 			navigate('/home');
 		}
-	}, []);
+		setInfo({ loading: false });
+	}, [userWorkSpaceList]);
 
 	return (
 		<div className="earlyAccessParentContainer">
