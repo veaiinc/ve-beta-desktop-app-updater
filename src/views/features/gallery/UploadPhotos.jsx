@@ -5,6 +5,7 @@ import UploadInputComponent from '../../components/gallery/addGallery/UploadInpu
 import { ReactComponent as BackIcon } from '../../../assets/svg/gallery/back-gray.svg';
 import WaterMarkComponent from '../../components/gallery/addGallery/WaterMarkComponent';
 import UploadStatusComponent from '../../components/gallery/addGallery/UploadStatusComponent';
+import randomize from 'randomatic';
 
 const UploadPhotos = () => {
 	const [info, setinfo] = useState({
@@ -15,6 +16,9 @@ const UploadPhotos = () => {
 		uploadSize: 0,
 		uploadLimit: 5,
 		recentImageInitiated: null,
+		isSkipDuplicates: false,
+		uploadBatchID: randomize('Aa0', 10),
+		selectedGalleryTags: [],
 	});
 
 	// drop function
@@ -137,7 +141,7 @@ const UploadPhotos = () => {
 			</div>
 
 			<div className="options_upload_container">
-				<AddLables />
+				<AddLables info={info} setinfo={setinfo} />
 				<UploadInputComponent onDropFunction={onDropFunction} />
 			</div>
 

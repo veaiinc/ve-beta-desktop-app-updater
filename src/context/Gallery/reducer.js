@@ -9,6 +9,15 @@ const actionHandlers = {
 		...state,
 		tenantAlbums: action.payload,
 	}),
+	GET_TAGS_LIST: (state, action) => ({
+		...state,
+		tagsList: action.payload,
+	}),
+
+	POST_TAG_LIST: (state, action) => ({
+		...state,
+		tagsList: { ...state.tagsList, list: [...state.tagsList.list, action.payload] },
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 

@@ -136,6 +136,15 @@ const routes = [
 		exact: true,
 	},
 	{
+		path: '/gallery-page/:albumId/:galleryId/upload-photos',
+		component: (
+			<AuthWrapper title={'Gallery'}>
+				<UploadPhotos />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
 		path: '/gallery/album-settings',
 		component: (
 			<AuthWrapper title={'Gallery'}>
@@ -149,15 +158,6 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Gallery'}>
 				<GalleryViewer />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
-	{
-		path: '/upload-photos',
-		component: (
-			<AuthWrapper title={'Gallery'}>
-				<UploadPhotos />
 			</AuthWrapper>
 		),
 		exact: true,

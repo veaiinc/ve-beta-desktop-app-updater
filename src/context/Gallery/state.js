@@ -8,6 +8,7 @@ import axios from 'axios';
 export const intialState = {
 	tenantGalleries: null,
 	tenantAlbums: null,
+	tagsList: null,
 };
 
 export const Galleries = () => {
@@ -127,9 +128,7 @@ export const Galleries = () => {
 			console.log('error==>getGallery', error);
 		}
 	};
-	/*
-get gallery
-{{gallery-base-url}}/{{workspaceId}}/galleries/{{galleryId}}/details --> here we will get the list of tags and albums */
+
 	const getGalleryData = async (galleryId) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -143,21 +142,47 @@ get gallery
 			console.log('error==>getGalleryData', error);
 		}
 	};
-	// {{gallery-base-url}}/{{workspaceId}}/galleries/{{galleryId}}/basic-details   ---> get gallery
-	// already in the getAlbums
-	// const basicGalleryDetails = async (galleryId) => {
-	// 	try {
-	// 		let usertoken = localStorage.getItem('usertoken');
-	// 		let workspaceId = localStorage.getItem('workspaceId');
-	// 		const response = await service.getGallery(
-	// 			`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/basic-details`,
-	// 			usertoken,
-	// 			'galleries',
-	// 		);
-	// 	} catch (error) {
-	// 		console.log('error==>basicGalleryDetails', error);
-	// 	}
-	// };
+
+	const getGalleryTagsList = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.tags}`,
+				usertoken,
+				'galleries',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_TAGS_LIST,
+					payload: { galleryId, list: response?.[1] },
+				});
+			}
+		} catch (error) {
+			console.log('error==>getTags', error);
+		}
+	};
+
+	const addGalleryTag = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.tags}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.POST_TAG_LIST,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>addGalleryTag', error);
+		}
+	};
 
 	return {
 		...state,
@@ -168,5 +193,7 @@ get gallery
 		postGallery,
 		getGalleryData,
 		getAlbums,
+		getGalleryTagsList,
+		addGalleryTag,
 	};
 };
