@@ -1,12 +1,14 @@
 import React, { memo, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Context from '../../../context/context';
-import CreateNewAiModal from '../../components/modalsV2/settings/ai_setup/CreateNewAiAssistantModal';
-import '../../../assets/scss/settings/aiSetup.scss';
-import { ReactComponent as QuestionMark } from '../../../assets/svg/Settings/question_circle.svg';
-import { ReactComponent as Plus } from '../../../assets/svg/Settings/plus.svg';
-import { ReactComponent as Robot } from '../../../assets/svg/Settings/robot.svg';
-import { ReactComponent as LinkGrey } from '../../../assets/svg/Settings/link-grey-color.svg';
+import Context from '../../../../context/context';
+import CreateNewAiAssistantModal from '../../../components/modalsV2/settings/ai_setup/CreateNewAiAssistantModal';
+import '../../../../assets/scss/settings/aiSetup.scss';
+import { ReactComponent as QuestionMark } from '../../../../assets/svg/Settings/question_circle.svg';
+import { ReactComponent as Plus } from '../../../../assets/svg/Settings/plus.svg';
+import { ReactComponent as Robot } from '../../../../assets/svg/Settings/robot.svg';
+import { ReactComponent as LinkGrey } from '../../../../assets/svg/Settings/link-grey-color.svg';
+import { Tooltip } from 'antd';
+import ToolTipContainer from '../../../components/popover/ToolTipContainer';
 
 const AiSetup = () => {
 	const {
@@ -15,7 +17,6 @@ const AiSetup = () => {
 
 	const [info, setInfo] = useState({
 		isCreateAiModalOpen: false,
-		isTooltipOpen: false,
 	});
 	const navigate = useNavigate();
 
@@ -35,18 +36,38 @@ const AiSetup = () => {
 			<div className="heading">
 				<h1>
 					AI Assistants
-					<QuestionMark
-						onMouseEnter={() => setInfo((prev) => ({ ...prev, isTooltipOpen: true }))}
-						onMouseLeave={() => setInfo((prev) => ({ ...prev, isTooltipOpen: false }))}
-					/>
-					{info?.isTooltipOpen && (
-						<div className="tooltipContainer">
-							<p>
-								Your AI Assistance is set to your default sales workflows, set up
-								your knowledge based to each workflow to get essential information.
-							</p>
-						</div>
-					)}
+					<Tooltip
+						title={
+							<ToolTipContainer
+								style={{
+									borderRadius: '16px',
+									border: '1px solid rgba(100, 100, 100, 0.16)',
+									background: '#151515',
+									boxShadow:
+										'0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1)',
+									width: '390px',
+									padding: '32px',
+									span: {
+										color: 'rgba(228, 229, 230, 0.48)',
+										fontFamily: 'Inter',
+										fontSize: '13px',
+										fontStyle: 'normal',
+										fontWeight: '400',
+										lineHeight: '18px',
+										alignSelf: 'stretch',
+									},
+								}}
+								showTitle={false}
+								content={
+									'Your AI Assistance is set to your default sales workflows, set up your knowledge based to each workflow to get essential information.'
+								}
+							/>
+						}
+						arrow={true}
+						color={'transparent'}
+					>
+						<QuestionMark />
+					</Tooltip>
 				</h1>
 				<h2 onClick={toggleModal}>
 					<Plus />
@@ -86,7 +107,10 @@ const AiSetup = () => {
 				))}
 			</div>
 
-			<CreateNewAiModal isOpen={info?.isCreateAiModalOpen} toggleModal={toggleModal} />
+			<CreateNewAiAssistantModal
+				isOpen={info?.isCreateAiModalOpen}
+				toggleModal={toggleModal}
+			/>
 		</div>
 	);
 };

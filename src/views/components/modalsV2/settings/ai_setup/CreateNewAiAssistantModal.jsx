@@ -4,18 +4,30 @@ import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/
 import '../../../../../assets/scss/settings/aiSetup.scss';
 import Modal from '../../';
 import Context from '../../../../../context/context';
+import { message } from 'antd';
 
 const CreateNewAiModal = ({ isOpen, toggleModal }) => {
 	const {
 		aiSetup: { createNewAiAssistant },
 	} = useContext(Context);
 	const navigate = useNavigate();
-	const [name, setName] = useState('');
+	const [info, setInfo] = useState({
+		name: '',
+		isLoading: false,
+	});
+
 	const handleCreateNewAiAssistant = async () => {
-		const path = await createNewAiAssistant({
-			name,
+		if (info?.name === '') {
+			message?.error('Please enter a name for your AI Assistant');
+			return;
+		}
+		if (info?.isLoading) return;
+		setInfo((prev) => ({ ...prev, isLoading: true }));
+		const aiAssistantId = await createNewAiAssistant({
+			name: info?.name,
 		});
-		navigate(path);
+		setInfo((prev) => ({ ...prev, isLoading: false }));
+		navigate(`/settings/ai-setup-page/${aiAssistantId}`);
 	};
 
 	return (
@@ -31,15 +43,22 @@ const CreateNewAiModal = ({ isOpen, toggleModal }) => {
 					<h1>Name</h1>
 					<input
 						type="text"
-						value={name}
-						onChange={(e) => setName(e.target.value)}
+						value={info?.name}
+						onChange={(e) => setInfo((prev) => ({ ...prev, name: e?.target?.value }))}
 						placeholder="Type here..."
 						autoFocus
 					/>
 				</div>
-				<div className="createBtn" onClick={handleCreateNewAiAssistant}>
-					Create
-				</div>
+				<button
+					disabled={info?.isLoading}
+					style={{
+						cursor: info?.isLoading ? 'not-allowed' : 'pointer',
+					}}
+					className="createBtn"
+					onClick={handleCreateNewAiAssistant}
+				>
+					{info?.isLoading ? 'Creating...' : 'Create'}
+				</button>
 			</div>
 		</Modal>
 	);

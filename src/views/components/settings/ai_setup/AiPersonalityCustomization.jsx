@@ -2,6 +2,7 @@ import React, { memo, useState, useContext, useEffect } from 'react';
 import Context from '../../../../context/context';
 import { ReactComponent as DividerLineVerticalWhite } from '../../../../assets/svg/Settings/divider-line-vertical-white.svg';
 import '../../../../assets/scss/settings/aiSetupPage.scss';
+import UpdatedPageLoader from '../../loaders/UpdatedPageLoader';
 
 const personas = [
 	{
@@ -38,33 +39,6 @@ const personas = [
 	},
 ];
 
-// const initialSelectedPersonas = [
-// 	{
-// 		activeOption: 'option1',
-// 	},
-// 	{
-// 		activeOption: 'option2',
-// 	},
-// 	{
-// 		activeOption: 'option1',
-// 	},
-// 	{
-// 		activeOption: 'option1',
-// 	},
-// 	{
-// 		activeOption: 'option1',
-// 	},
-// 	{
-// 		activeOption: 'option2',
-// 	},
-// 	{
-// 		activeOption: 'option1',
-// 	},
-// 	{
-// 		activeOption: 'option1',
-// 	},
-// ];
-
 const AiPersonalityCustomization = () => {
 	let {
 		aiSetup: { updateAiAssistant, activeAiAssistantDetails },
@@ -75,19 +49,29 @@ const AiPersonalityCustomization = () => {
 		aiAssistantNameFocus: false,
 		selectedPersonas: [],
 		aiPersonalityDescription: '',
+		isAiAssistantDetailsLoading: true,
 	});
 
 	useEffect(() => {
-		const initialSelectedPersonas = activeAiAssistantDetails?.responseTone?.map((tone, i) => ({
-			activeOption: personas[i]['option1'].toLowerCase() === tone ? 'option1' : 'option2',
-		}));
-
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			aiAssistantName: activeAiAssistantDetails?.name || '',
-			aiPersonalityDescription: activeAiAssistantDetails?.personality || '',
-			selectedPersonas: initialSelectedPersonas,
+			isAiAssistantDetailsLoading: true,
 		}));
+		if (activeAiAssistantDetails) {
+			const initialSelectedPersonas = activeAiAssistantDetails?.responseTone?.map(
+				(tone, i) => ({
+					activeOption:
+						personas[i]['option1'].toLowerCase() === tone ? 'option1' : 'option2',
+				}),
+			);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				aiAssistantName: activeAiAssistantDetails?.name || '',
+				aiPersonalityDescription: activeAiAssistantDetails?.personality || '',
+				selectedPersonas: initialSelectedPersonas,
+				isAiAssistantDetailsLoading: false,
+			}));
+		}
 	}, [activeAiAssistantDetails]);
 
 	const handleSetAiAssistantName = (e) => {
@@ -126,6 +110,10 @@ const AiPersonalityCustomization = () => {
 		const selectedPersonas = info?.selectedPersonas?.map((persona, i) =>
 			personas[i][persona?.activeOption].toLowerCase(),
 		);
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			isAiAssistantDetailsLoading: true,
+		}));
 		updateAiAssistant(activeAiAssistantDetails?._id, {
 			name: info?.aiAssistantName,
 			responseTone: selectedPersonas,
@@ -133,7 +121,11 @@ const AiPersonalityCustomization = () => {
 		});
 	};
 
-	return (
+	return info?.isAiAssistantDetailsLoading ? (
+		<div className="loader-container">
+			<UpdatedPageLoader />
+		</div>
+	) : (
 		<div className="ai-personality-customization">
 			<p className="description">
 				Customize your AI bot's personality to match your brand! Adjust its tone and style,
@@ -142,21 +134,21 @@ const AiPersonalityCustomization = () => {
 
 			<div className="ai-assistant-name-container">
 				<h1 className="ai-assistant-name">Setup AI Assistant's Name</h1>
-				<div
+				{/* <div
 					className={`ai-assistant-name-input-container ${
 						info.aiAssistantNameFocus ? 'ai-assistant-name-input-container-focus' : ''
 					}`}
-				>
-					<input
-						value={info?.aiAssistantName}
-						onInput={handleSetAiAssistantName}
-						onFocus={() => handleSetAiAssistantNameFocus(true)}
-						onBlur={() => handleSetAiAssistantNameFocus(false)}
-						className="ai-assistant-name-input"
-						type="text"
-						placeholder="Optimus"
-					/>
-				</div>
+				> */}
+				<input
+					value={info?.aiAssistantName}
+					onInput={handleSetAiAssistantName}
+					onFocus={() => handleSetAiAssistantNameFocus(true)}
+					onBlur={() => handleSetAiAssistantNameFocus(false)}
+					className="ai-assistant-name-input"
+					type="text"
+					placeholder="Optimus"
+				/>
+				{/* </div> */}
 			</div>
 			<div className="ai-personality-description">
 				<h1>Personality</h1>
@@ -181,7 +173,7 @@ const AiPersonalityCustomization = () => {
 									<div
 										onClick={() => handleSetActiveOption(index, 'option1')}
 										className={`persona-option ${
-											info?.selectedPersonas[index]?.activeOption ===
+											info?.selectedPersonas?.[index]?.activeOption ===
 											'option1'
 												? 'persona-option-selected'
 												: ''
@@ -193,7 +185,7 @@ const AiPersonalityCustomization = () => {
 									<div
 										onClick={() => handleSetActiveOption(index, 'option2')}
 										className={`persona-option ${
-											info?.selectedPersonas[index]?.activeOption ===
+											info?.selectedPersonas?.[index]?.activeOption ===
 											'option2'
 												? 'persona-option-selected'
 												: ''

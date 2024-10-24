@@ -10,7 +10,7 @@ import BrandingSetup from './BrandSetup';
 import Integrations from './Integrations';
 import TeamSettings from './TeamSettings';
 import PlanBilling from './PlanBilling';
-import AiSetup from './AiSetup';
+import AiSetup from './ai_settings/AiSetup';
 
 const mapper = {
 	'my-profile': <MyProfile />,

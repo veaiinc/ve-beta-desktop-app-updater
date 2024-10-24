@@ -10,6 +10,7 @@ import { ReactComponent as UploadIcon } from '../../../../../assets/svg/Settings
 import '../../../../../assets/scss/settings/aiSetup.scss';
 import Modal from '../../';
 import isURL from 'validator/lib/isURL';
+import { message } from 'antd';
 
 const knowledgeFileTypes = [
 	{
@@ -31,7 +32,7 @@ const knowledgeFileTypes = [
 
 const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 	const [info, setInfo] = useState({
-		activeFileType: knowledgeFileTypes[0].name,
+		activeFileType: knowledgeFileTypes?.[0]?.name,
 		inputURL: '',
 		urlsInfo: [],
 		pdfFilesInfo: [],
@@ -39,16 +40,20 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 	});
 
 	const handleSetAllUploadedPDFFiles = (e) => {
-		setInfo((prev) => ({ ...prev, pdfFilesInfo: e.target.files }));
+		setInfo((prev) => ({ ...prev, pdfFilesInfo: e?.target?.files }));
 	};
 
 	const handleAddURL = () => {
+		if (!info?.isUrlValid) {
+			message.error('Please enter a valid URL');
+			return;
+		}
 		setInfo((prev) => ({
 			...prev,
 			inputURL: '',
 			isUrlValid: false,
 			urlsInfo: [
-				...prev.urlsInfo,
+				...prev?.urlsInfo,
 				{
 					url: info?.inputURL,
 				},
@@ -67,7 +72,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 	const handleRemoveURL = (index) => {
 		setInfo((prev) => ({
 			...prev,
-			urlsInfo: prev.urlsInfo?.filter((url, i) => i !== index),
+			urlsInfo: prev?.urlsInfo?.filter((url, i) => i !== index),
 		}));
 	};
 
@@ -87,20 +92,20 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 					{knowledgeFileTypes.map((knowledgeFileType, index) => (
 						<div
 							className={`knowledgeFileType ${
-								info?.activeFileType === knowledgeFileType.name ? 'active' : ''
+								info?.activeFileType === knowledgeFileType?.name ? 'active' : ''
 							}`}
 							key={index}
 							onClick={() =>
 								setInfo((prev) => ({
 									...prev,
-									activeFileType: knowledgeFileType.name,
+									activeFileType: knowledgeFileType?.name,
 								}))
 							}
 						>
 							{info?.activeFileType === knowledgeFileType?.name
-								? knowledgeFileType.activeIcon
-								: knowledgeFileType.defaultIcon}
-							<span>{knowledgeFileType.name}</span>
+								? knowledgeFileType?.activeIcon
+								: knowledgeFileType?.defaultIcon}
+							<span>{knowledgeFileType?.name}</span>
 						</div>
 					))}
 				</div>
@@ -134,13 +139,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 								placeholder="Enter URL"
 								autoFocus={true}
 							/>
-							<button
-								disabled={!info?.isUrlValid}
-								style={{ cursor: !info?.isUrlValid ? 'not-allowed' : 'pointer' }}
-								onClick={handleAddURL}
-							>
-								Add
-							</button>
+							<button onClick={handleAddURL}>Add</button>
 						</div>
 					)}
 					{info?.activeFileType === 'PDF' && (
