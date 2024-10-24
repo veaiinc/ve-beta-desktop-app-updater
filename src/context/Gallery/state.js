@@ -7,6 +7,7 @@ import service from '../../services/index';
 import axios from 'axios';
 export const intialState = {
 	tenantGalleries: null,
+	tenantAlbums: null,
 };
 
 export const Galleries = () => {
@@ -49,9 +50,123 @@ export const Galleries = () => {
 		}
 	};
 
+	const createNewAlbum = async (payload, galleryId) => {
+		// payload
+		// {
+		//     "slug": "ablbufdffdfmf3Wi3f43th_one_id",
+		//     "title": "ablbumWithaih_id",
+		//     "eventDateEpoch": 1766060200,
+		//     "notes": "a is very importent note",
+		//     "isFaceIdEnabled": false
+		// }
+		// {{gallery-base-url}}/{{workspaceId}}/galleries/{{galleryId}}/albums
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/albums`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>createNewAlbum', error);
+		}
+	};
+
+	const getAlbums = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/basic-details`,
+				usertoken,
+				'galleries',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_TENANT_ALBUMS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getAlbums', error);
+		}
+	};
+
+	const getGallery = async (galleryId) => {
+		// {{gallery-base-url}}/{{workspaceId}}/galleries/{{galleryId}}
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}`,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>getGallery', error);
+		}
+	};
+	const postGallery = async (payload, galleryId) => {
+		// {{gallery-base-url}}/{{workspaceId}}/galleries/{{galleryId}}
+		// {
+		//     "category": "wedding",
+		//     "title":"my dcj galdfdfdfdry"
+		// }
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>getGallery', error);
+		}
+	};
+	/*
+get gallery
+{{gallery-base-url}}/{{workspaceId}}/galleries/{{galleryId}}/details --> here we will get the list of tags and albums */
+	const getGalleryData = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.getGallery(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/details`,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>getGalleryData', error);
+		}
+	};
+	// {{gallery-base-url}}/{{workspaceId}}/galleries/{{galleryId}}/basic-details   ---> get gallery
+	// already in the getAlbums
+	// const basicGalleryDetails = async (galleryId) => {
+	// 	try {
+	// 		let usertoken = localStorage.getItem('usertoken');
+	// 		let workspaceId = localStorage.getItem('workspaceId');
+	// 		const response = await service.getGallery(
+	// 			`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/basic-details`,
+	// 			usertoken,
+	// 			'galleries',
+	// 		);
+	// 	} catch (error) {
+	// 		console.log('error==>basicGalleryDetails', error);
+	// 	}
+	// };
+
 	return {
 		...state,
 		getGalleries,
 		createNewGallery,
+		createNewAlbum,
+		getGallery,
+		postGallery,
+		getGalleryData,
+		getAlbums,
 	};
 };
