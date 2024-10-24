@@ -456,13 +456,26 @@
 		font-weight: 400;
 		line-height: 26px; /* 185.714% */
 		background-color: transparent;
+		box-shadow: none !important;
+		.anticon-calendar svg {
+			fill: #fff;
+		}
+	}
+	.custominputContainer.ant-picker-disabled .ant-picker-input input {
+		color: #e4e5e6 !important;
 	}
 	.custominputContainer.edit:focus {
 		border: 1px solid rgba(255, 255, 255, 0.4);
 	}
+	.custominputContainer.edit.ant-picker-focused {
+		.anticon-calendar svg {
+			fill: #fff;
+		}
+	}
 	.custominputContainer.edit:hover {
 		border: 1px solid rgba(255, 255, 255, 0.2);
 	}
+
 	.inputwithSumbols {
 		display: flex;
 		flex: 1;
@@ -729,3 +742,10 @@
 		}
 	}
 }
+
+// .custominputContainer .anticon-calendar svg {
+// 	fill: #fff;
+// }
+// .custominputContainer .ant-picker-disabled .ant-picker-input input {
+// 	color: #e4e5e6 !important;
+// }
