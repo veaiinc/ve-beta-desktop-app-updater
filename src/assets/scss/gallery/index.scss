@@ -833,6 +833,26 @@
 				background: transparent;
 				border-radius: 10px;
 				border: 1px solid rgba(151, 151, 151, 0.2);
+				color: white;
+			}
+			.datePicker {
+				background-color: transparent;
+				color: white;
+				padding: 11px 14px 11px 0px;
+				width: 464px;
+				border: 1px solid rgba(151, 151, 151, 0.2);
+				input {
+					height: 18px;
+					border: none;
+					&::placeholder {
+						color: white; // Adjust this color as needed
+					}
+				}
+				span {
+					svg {
+						fill: #979797;
+					}
+				}
 			}
 			.heading {
 				color: #fafafa;
@@ -853,6 +873,9 @@
 				font-size: 13px;
 				font-weight: 400;
 				line-height: 21px;
+			}
+			.active {
+				color: #6055ec;
 			}
 			.settings-overview {
 				display: flex;
@@ -997,6 +1020,15 @@
 					flex-shrink: 0;
 					border-radius: 8px;
 					border: 1px solid rgba(151, 151, 151, 0.2);
+					cursor: pointer;
+					.active {
+						rect {
+							fill: #6055ec;
+						}
+					}
+				}
+				.activeBorder {
+					border-color: #6055ec;
 				}
 				.grid-style {
 					display: flex;

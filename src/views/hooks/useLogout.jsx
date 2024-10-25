@@ -9,6 +9,7 @@ const useLogout = () => {
 		companyInfo: { resetCompanySettings },
 		profileInfo: { resetProfileSettingsState },
 		templates: { resetTemplateState },
+		galleryInfo: { resetGallleryState },
 	} = useContext(Context);
 
 	const resetApplications = useCallback(async () => {
@@ -21,6 +22,7 @@ const useLogout = () => {
 		resetCompanySettings();
 		resetProfileSettingsState();
 		resetTemplateState();
+		resetGallleryState();
 	}, []);
 
 	return resetApplications;
