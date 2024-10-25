@@ -28,16 +28,16 @@ const AddGallery = () => {
 
 	const fetchGalleries = async () => {
 		try {
-			const accessToken = localStorage.getItem('usertoken');
-			const decodedToken = jwt_decode(accessToken);
-			const userId = decodedToken.user_id;
-			const params = {
-				user_id: userId,
-				detailed: false,
-				sort: '-shotDuring',
-				page: 1,
-			};
-			getGalleries(params);
+			// const accessToken = localStorage.getItem('usertoken');
+			// const decodedToken = jwt_decode(accessToken);
+			// const userId = decodedToken.user_id;
+			// const params = {
+			// 	user_id: userId,
+			// 	detailed: false,
+			// 	sort: '-shotDuring',
+			// 	page: 1,
+			// };
+			getGalleries();
 		} catch (err) {
 			setInfo((prevState) => ({
 				...prevState,
@@ -47,7 +47,11 @@ const AddGallery = () => {
 	};
 
 	const handleCreateGallery = (galleryId) => {
-		navigate(`/gallery-page/${galleryId}`);
+		const selectedGallery = tenantGalleries?.galleries.find(
+			(gallery) => gallery._id === galleryId,
+		);
+		console.log(selectedGallery, 'selectedGallery');
+		navigate(`/gallery-page/${galleryId}`, { state: { galleryData: selectedGallery } });
 	};
 	const handleCreateNewGallery = () => {
 		setInfo({

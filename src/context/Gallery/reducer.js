@@ -18,6 +18,10 @@ const actionHandlers = {
 		...state,
 		tagsList: { ...state.tagsList, list: [...state.tagsList.list, action.payload] },
 	}),
+	GET_EDIT_PREFERENCES: (state, action) => ({
+		...state,
+		tenantPreferences: action.payload,
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 

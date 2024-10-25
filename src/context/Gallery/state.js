@@ -9,16 +9,24 @@ export const intialState = {
 	tenantGalleries: null,
 	tenantAlbums: null,
 	tagsList: null,
+	tenantPreferences: null,
 };
 
 export const Galleries = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
-	const getGalleries = async (params) => {
+	const getGalleries = async () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			let decoded = jwt_decode(usertoken);
+			const userId = decoded.user_id;
+			const params = {
+				user_id: userId,
+				detailed: false,
+				sort: '-shotDuring',
+				page: 1,
+			};
 
 			const queryString = new URLSearchParams(params).toString();
 			const response = await service.fetchGet(
@@ -196,11 +204,30 @@ export const Galleries = () => {
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/preferences. edit perrance put
 
+	const getEditPreferences = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/preferences`,
+				usertoken,
+				'galleries',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_EDIT_PREFERENCES,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>editPreferences', error);
+		}
+	};
 	const editPreferences = async (galleryId, payload) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			const response = await service.getGallery(
+			const response = await service.fetchPut(
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}/preferences`,
 				payload,
 				usertoken,
@@ -224,5 +251,6 @@ export const Galleries = () => {
 		editPreferences,
 		getGalleryTagsList,
 		addGalleryTag,
+		getEditPreferences,
 	};
 };

@@ -6,7 +6,6 @@ import { ReactComponent as Mail } from '../../../../assets/svg/gallery/mail.svg'
 import ToggleSlider from '../../input/slider';
 
 const ShareModal = ({ open, closeModal }) => {
-	console.log(open, 'isOpen');
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} modalType={'right'}>
 			<div className="shareMainContainer">

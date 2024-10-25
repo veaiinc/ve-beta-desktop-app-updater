@@ -12,15 +12,18 @@ import { ReactComponent as GridStyleVertical } from '../../../assets/svg/gallery
 import { ReactComponent as ThumbnailV } from '../../../assets/svg/gallery/thumbnailV.svg';
 import { ReactComponent as GridStyleHorizontal } from '../../../assets/svg/gallery/gridStyleH.svg';
 import { ReactComponent as ThumbnailH } from '../../../assets/svg/gallery/thumbnailH.svg';
+import { ReactComponent as CloudUpload } from '../../../assets/svg/Settings/CloudUpload.svg';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
 import ToggleSlider from '../../../views/components/input/slider';
 import AlbumSettings from './AlbumSettings';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
-import { ReactComponent as CloudUpload } from '../../../assets/svg/Settings/CloudUpload.svg';
+import { DatePicker } from 'antd';
+import moment from 'moment';
+
 const imageURL = 'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg';
 const image1 =
 	'https://i0.wp.com/picjumbo.com/wp-content/uploads/silhouette-of-a-guy-with-a-cap-at-red-sky-sunset-free-image.jpeg?h=800&quality=80';
@@ -29,79 +32,13 @@ const image2 =
 const image3 = 'https://assets.techrepublic.com/uploads/2023/05/tr5423-what-is-generative-ai.jpeg';
 const image4 =
 	'https://www.nttdata.com/global/en/-/media/nttdataglobal/1_images/insights/generative-ai/generative-ai_d.jpg?h=1680&iar=0&w=2800&rev=4e69afcc968d4bab9480891634b63b34';
+
 const data = [
 	{ name: 'Albums', number: 14 },
 	// { name: 'Videos', number: 2 },
 	// { name: 'Slide Show', number: 1 },
 	// { name: 'Client Selections', number: 6 },
 	{ name: 'AI', number: '' },
-];
-const imageData = [
-	{
-		// image: imageURL,
-		name: 'Wedding Shoot',
-		photos: 103,
-	},
-	{
-		// image: imageURL,
-		name: 'Beach Party',
-		photos: 87,
-	},
-	{
-		image: imageURL,
-		name: 'Corporate Event',
-		photos: 152,
-	},
-	{
-		image: imageURL,
-		name: 'Family Reunion',
-		photos: 94,
-	},
-	{
-		image: imageURL,
-		name: 'Graduation Ceremony',
-		photos: 201,
-	},
-	{
-		// image: imageURL,
-		name: 'Birthday Bash',
-		photos: 76,
-	},
-	{
-		image: imageURL,
-		name: 'Fashion Show',
-		photos: 183,
-	},
-	{
-		image: imageURL,
-		name: 'Music Festival',
-		photos: 245,
-	},
-	{
-		image: imageURL,
-		name: 'Food Tasting',
-		photos: 112,
-	},
-	{
-		image: imageURL,
-		name: 'Sports Tournament',
-		photos: 167,
-	},
-	{
-		image: imageURL,
-		name: 'Art Exhibition',
-		photos: 98,
-	},
-	{
-		image: imageURL,
-		name: 'Product Launch',
-		photos: 134,
-	},
-	{
-		image: imageURL,
-		name: 'Charity Gala',
-		photos: 89,
-	},
 ];
 const albumContains = [
 	{ name: 'Portraits', number: 40 },
@@ -126,12 +63,21 @@ const randomizedImages = createRandomImageArray();
 const GalleryPage = () => {
 	const { galleryId } = useParams();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const {
-		galleryInfo: { getAlbums, tenantAlbums, tenantGalleries, basicAlbumDetails },
+		galleryInfo: {
+			getAlbums,
+			tenantAlbums,
+			getEditPreferences,
+			tenantPreferences,
+			editPreferences,
+			tenantGalleries,
+			basicAlbumDetails,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		albumName: tenantAlbums?.albums?.[0].title,
-		albumContains: albumContains[0].name,
+		albumName: '',
+		albumContains: albumContains[0]?.name,
 		showOptions: false,
 		showGalleryOptions: false,
 		shareModal: false,
@@ -145,7 +91,9 @@ const GalleryPage = () => {
 		activeTab: 'Albums',
 		showCreateAlbum: false,
 		isMouseInGallery: false,
-		activeAlbumId: tenantAlbums?.albums?.[0]._id,
+		activeGallery: location?.state,
+		activeAlbumId: tenantAlbums?.albums?.[0]?._id,
+		callToActionToggle: tenantPreferences?.ctaPreferences?.isEnabled,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -184,8 +132,26 @@ const GalleryPage = () => {
 		};
 	}, [handleClickOutside]);
 	useEffect(() => {
-		getAlbums(galleryId);
-	}, []);
+		if (!tenantAlbums) {
+			getAlbums(galleryId);
+		}
+		if (!tenantPreferences) {
+			getEditPreferences(galleryId);
+		}
+		if (tenantAlbums) {
+			setInfo((prev) => ({
+				...prev,
+				albumName: tenantAlbums?.albums?.[0]?.title,
+				activeAlbumId: tenantAlbums?.albums?.[0]?._id,
+			}));
+		}
+		if (tenantPreferences) {
+			setInfo((prev) => ({
+				...prev,
+				callToActionToggle: tenantPreferences?.ctaPreferences?.isEnabled,
+			}));
+		}
+	}, [tenantPreferences, tenantAlbums]);
 
 	const handleImageSelect = (index) => {
 		setInfo((prevInfo) => ({
@@ -203,6 +169,7 @@ const GalleryPage = () => {
 			setInfo((prevInfo) => ({ ...prevInfo, albumContains: album }));
 		}
 	};
+
 	const handleAlbumSettings = (sectionId) => {
 		navigate('/gallery/album-settings', { state: { sectionId } });
 	};
@@ -250,8 +217,32 @@ const GalleryPage = () => {
 	const handleNavigateUpload = () => {
 		navigate(`/gallery-page/${info?.activeAlbumId}/${galleryId}/upload-photos`);
 	};
+	const convertEpochToDate = (value) => {
+		if (!value) return null;
+		if (moment(value).isValid()) {
+			return moment.unix(value).format('DD-MM-YYYY');
+		}
+		// const epochDate = moment(parseInt(value));
+		// if (epochDate.isValid()) {
+		// 	return epochDate.toDate();
+		// }
+		return null;
+	};
+	const handleCallToAction = useCallback(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			callToActionToggle: !prevInfo.callToActionToggle,
+		}));
+		const payload = {
+			ctaPreferences: {
+				isEnabled: !info.callToActionToggle,
+			},
+		};
+		editPreferences(galleryId, payload);
+	}, [getEditPreferences, info.callToActionToggle]);
 	return (
 		<>
+			{console.log(info?.activeGallery, 'activeGallery')}
 			<div className="galleryContainer">
 				<div className="mainGalleryContainer">
 					<div className="galleryPic">
@@ -665,7 +656,11 @@ const GalleryPage = () => {
 										Renaming affects the URL. Share the new link with clients
 										each time.
 									</p>
-									<input placeholder="Hannef x Mahi" />
+									{console.log(tenantGalleries, 'tenantGallery')}
+									<input
+										placeholder="Hannef x Mahi"
+										value={info.activeGallery?.galleryData?.title}
+									/>
 								</div>
 								<div className="galleryDate">
 									<p className="subHeading">Gallery Date </p>
@@ -673,14 +668,32 @@ const GalleryPage = () => {
 										Sort galleries by this date. Which is visible to the client
 									</p>
 									<div>
-										<img />
-										<input type="date" />
+										{console.log(
+											convertEpochToDate(
+												info.activeGallery?.galleryData?.dueDateEpoch,
+											),
+											'dueDateEpoch',
+										)}
+										<DatePicker
+											className="datePicker"
+											format="DD-MM-YYYY"
+											selected={convertEpochToDate(
+												info.activeGallery?.galleryData?.dueDateEpoch,
+											)}
+											// onChange={(date, dateString) =>
+											// 	handleAlbumNameChange(dateString, 'date')
+											// }
+										/>
 									</div>
 								</div>
 								<div className="callToAction">
 									<p className="subHeading">Call to Action (CTA)</p>
 									<div className="callToActionToggle">
-										<ToggleSlider />
+										{console.log(info.callToActionToggle, 'callToActionToggle')}
+										<ToggleSlider
+											value={info?.callToActionToggle}
+											onChange={handleCallToAction}
+										/>
 										<p className="subTitle">
 											Enable to display CTA for the gallery.
 										</p>
