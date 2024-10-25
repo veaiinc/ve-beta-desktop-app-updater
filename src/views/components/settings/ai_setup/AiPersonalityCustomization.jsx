@@ -52,6 +52,7 @@ const AiPersonalityCustomization = () => {
 		selectedPersonas: [],
 		aiPersonalityDescription: '',
 		isAiAssistantDetailsLoading: true,
+		dataFromAPI: null,
 	});
 
 	useEffect(() => {
@@ -72,6 +73,11 @@ const AiPersonalityCustomization = () => {
 				aiPersonalityDescription: activeAiAssistantDetails?.personality || '',
 				selectedPersonas: initialSelectedPersonas,
 				isAiAssistantDetailsLoading: false,
+				dataFromAPI: JSON.stringify({
+					aiAssistantName: activeAiAssistantDetails?.name || '',
+					aiPersonalityDescription: activeAiAssistantDetails?.personality || '',
+					selectedPersonas: initialSelectedPersonas,
+				}),
 			}));
 		}
 	}, [activeAiAssistantDetails]);
@@ -109,6 +115,15 @@ const AiPersonalityCustomization = () => {
 	};
 
 	const handlePersonifyAssistant = () => {
+		const updatedData = JSON.stringify({
+			aiAssistantName: info?.aiAssistantName,
+			aiPersonalityDescription: info?.aiPersonalityDescription,
+			selectedPersonas: info?.selectedPersonas,
+		});
+		if (updatedData === info?.dataFromAPI) {
+			message.error('Warning: No changes were made to the AI Assistant');
+			return;
+		}
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			isAiAssistantDetailsLoading: true,
