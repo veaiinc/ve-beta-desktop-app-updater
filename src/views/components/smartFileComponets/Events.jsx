@@ -1,17 +1,17 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
-import Services from './Services';
-import moment from 'moment';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
-import { Tooltip } from 'antd';
+import { DatePicker, Tooltip } from 'antd';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/questionMark.svg';
 import ToolTipContainer from '../popover/ToolTipContainer';
+import dayjs from 'dayjs';
 import _ from 'lodash';
 
 const Events = ({ eventsData, eventsDataChange, editable }) => {
 	const [info, setInfo] = useState({
 		data: [],
+		calenderStartDate: '',
 	});
 
 	const [arrow, setArrow] = useState('Show');
@@ -41,6 +41,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 			let updatedData = [...(info?.data || [])];
 			let selectedEventsTable = updatedData?.[outerIndex];
 			let valueTobeChanged = selectedEventsTable?.values?.[innerIndex];
+			let calenderStartDate = info?.calenderStartDate;
 
 			if (type === 'name') {
 				valueTobeChanged = { ...valueTobeChanged, name: val };
@@ -53,6 +54,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 			}
 			if (type === 'date') {
 				valueTobeChanged = { ...valueTobeChanged, date: val };
+				calenderStartDate = val;
 			}
 			if (type === 'serviecType') {
 				let roleArray = [...(valueTobeChanged?.roles || [])];
@@ -113,10 +115,10 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 			}
 			selectedEventsTable?.values?.splice(innerIndex, 1, valueTobeChanged);
 			updatedData?.splice(outerIndex, 1, selectedEventsTable);
-			setInfo((prev) => ({ ...prev, data: updatedData }));
+			setInfo((prev) => ({ ...prev, data: updatedData, calenderStartDate }));
 			eventsDataChange(selectedEventsTable);
 		},
-		[info?.data, editable],
+		[info?.data, editable, info?.calenderStartDate],
 	);
 
 	const addMoreEventsValues = useCallback(
@@ -178,7 +180,6 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 				],
 			};
 
-			console.log('\n\n\n\n\n selectedEventsArray ====>', selectedEventsArray);
 			selectedEventsArray?.values?.push(newDummyObj);
 			updatedData?.splice(outerIndex, 1, selectedEventsArray);
 			setInfo((prev) => ({ ...prev, data: updatedData }));
@@ -255,14 +256,22 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 						<div className="inputWithLabelContainer">
 							<span className="labelName">Date</span>
 
-							<input
-								className={`custominputContainer ${editable ? 'edit' : ''}`}
-								type="date"
-								value={moment(`${item?.date}`).format('yyyy-MM-DD')}
-								onChange={(e) =>
-									localEventsOnchange(ind, index, 'date', e.target.value)
+							<DatePicker
+								onChange={(date, dateString) => {
+									localEventsOnchange(ind, index, 'date', dateString);
+								}}
+								format={['YYYY-MM-DD', 'DD-MM-YYYY']}
+								value={
+									item?.date ? dayjs(`${item?.date}`, 'YYYY-MM-DD') : item?.date
 								}
-								readOnly={!editable}
+								className={`custominputContainer ${editable ? 'edit' : ''}`}
+								style={{ height: '50px' }}
+								disabled={!editable}
+								defaultPickerValue={
+									info?.calenderStartDate
+										? dayjs(`${info?.calenderStartDate}`, 'YYYY-MM-DD')
+										: ''
+								}
 							/>
 						</div>
 						<div className="inputWithLabelContainer">
