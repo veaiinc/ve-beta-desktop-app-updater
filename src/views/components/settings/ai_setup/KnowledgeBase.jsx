@@ -6,7 +6,7 @@ import Context from '../../../../context/context';
 // import { ReactComponent as HollowCircleBlue } from '../../../../assets/svg/Settings/hollow-circle-blue.svg';
 // import Template from './tempImg.png';
 
-const columnNames = ['Source', 'Status'];
+const columnNames = ['Source']; // TODO: add status later
 
 const KnowledgeBase = () => {
 	let {

@@ -492,7 +492,7 @@
 							justify-content: flex-start;
 							align-items: center;
 							gap: 12px;
-							width: 55%;
+							width: 100%; // TODO: change this later to 55%
 							height: auto;
 							color: rgba(228, 229, 230, 0.48);
 							text-overflow: ellipsis;
@@ -504,7 +504,7 @@
 							cursor: pointer;
 
 							p {
-								width: 60%;
+								width: 100%; // TODO: change this later to 60%
 								overflow: hidden;
 								height: 18px;
 								text-overflow: ellipsis;

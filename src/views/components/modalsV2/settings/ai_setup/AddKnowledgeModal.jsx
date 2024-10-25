@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useEffect, useState, useContext } from 'react';
 import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/cross-grey.svg';
 import { ReactComponent as LinkPurple } from '../../../../../assets/svg/Settings/link-purple-color.svg';
 import { ReactComponent as LinkGrey } from '../../../../../assets/svg/Settings/link-grey-color.svg';
@@ -11,6 +11,8 @@ import '../../../../../assets/scss/settings/aiSetup.scss';
 import Modal from '../../';
 import isURL from 'validator/lib/isURL';
 import { message } from 'antd';
+import Context from '../../../../../context/context';
+import { useParams } from 'react-router-dom';
 
 const knowledgeFileTypes = [
 	{
@@ -31,6 +33,11 @@ const knowledgeFileTypes = [
 ];
 
 const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
+	let {
+		aiSetup: { uploadPDFsToKnowledgeBase },
+	} = useContext(Context);
+	const { aiAssistantId } = useParams();
+
 	const [info, setInfo] = useState({
 		activeFileType: knowledgeFileTypes?.[0]?.name,
 		inputURL: '',
@@ -40,12 +47,31 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 	});
 
 	const handleSetAllUploadedPDFFiles = (e) => {
-		setInfo((prev) => ({ ...prev, pdfFilesInfo: e?.target?.files }));
+		const files = Array.from(e?.target?.files);
+		if (files?.length > 10) {
+			message.error('Warning: You can upload only 10 files at a time', 1);
+			return;
+		}
+		files?.forEach((file) => {
+			if (file?.size > 10 * 1024 * 1024) {
+				message.error('Warning: File size must be less than or equal to 10 MB', 1);
+				return;
+			}
+		});
+		setInfo((prev) => ({ ...prev, pdfFilesInfo: files }));
+	};
+
+	const handleUploadPDFsToKnowledgeBase = async () => {
+		const files = info?.pdfFilesInfo;
+		const statusSummary = await uploadPDFsToKnowledgeBase(aiAssistantId, files);
+		if (statusSummary?.[0]) {
+			message.success('Files uploaded successfully!', 1);
+		}
 	};
 
 	const handleAddURL = () => {
 		if (!info?.isUrlValid) {
-			message.error('Please enter a valid URL');
+			message.error('Warning: Please enter a valid URL', 1);
 			return;
 		}
 		setInfo((prev) => ({
@@ -166,7 +192,9 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 						</div>
 					)}
 				</div>
-				<button className="updateBtn">Update</button>
+				<button onClick={handleUploadPDFsToKnowledgeBase} className="updateBtn">
+					Update
+				</button>
 			</div>
 		</Modal>
 	);

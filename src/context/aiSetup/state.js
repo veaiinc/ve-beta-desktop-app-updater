@@ -3,6 +3,7 @@ import Reducer from './reducer';
 import { AI_PERSONALITY, KNOWLEDGE_BASE } from './actionTypes';
 import { Actions } from './actions';
 import service from '../../services';
+import { generatePDFsBatchId } from '../../helpers';
 
 export const intialState = {
 	knowledgeBaseFiles: null,
@@ -13,16 +14,21 @@ export const intialState = {
 export const AiSetupState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
-	const getKnowledgeBaseFiles = async () => {
+	const getKnowledgeBaseFiles = async (page = 1, limit = 10) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = '/' + workspaceId + KNOWLEDGE_BASE?.listFilesInKnowledgeBase;
-			const response = await service.fetchPost(url, null, usertoken, 'ai_setup');
+			const url =
+				'/' +
+				workspaceId +
+				KNOWLEDGE_BASE?.listFilesInKnowledgeBase +
+				`?page=${page}&limit=${limit}`;
+			const response = await service.fetchGet(url, usertoken, 'tenant'); // change the type to ai_setup later
 			if (response?.[0]) {
+				console.log('response?.[1]?.files', response);
 				dispatch({
 					type: Actions?.SET_KNOWLEDGE_BASE_FILES,
-					payload: response?.[1]?.files,
+					payload: response?.[1]?.result,
 				});
 			}
 		} catch (error) {
@@ -99,6 +105,73 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const uploadPDFsToKnowledgeBase = async (aiAssistantId, files) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + KNOWLEDGE_BASE?.uploadPDFsToKnowledgeBase;
+		const batchId = generatePDFsBatchId(aiAssistantId);
+
+		const fileUploadPromises = files.map((file) => {
+			return new Promise(async (resolve, reject) => {
+				const body = {
+					assistant_ids: [aiAssistantId],
+					uploadBatchId: batchId,
+					originalFileName: file?.name,
+				};
+
+				let signedUrl = '';
+				try {
+					const response = await service?.fetchPost(url, body, usertoken, 'tenant'); // change the type to ai_setup later
+					if (response?.[0] && response?.[1]?.signedUrl) {
+						signedUrl = response[1].signedUrl;
+					} else {
+						return reject({
+							file: file.name,
+							status: 'rejected',
+							error: 'Failed to get signed URL',
+						});
+					}
+
+					if (signedUrl) {
+						const uploadResponse = await fetch(signedUrl, {
+							method: 'PUT',
+							headers: {
+								'Content-Type': file.type || 'application/pdf',
+							},
+							body: file,
+						});
+
+						if (uploadResponse.ok) {
+							return resolve({ file: file.name, status: 'resolved' });
+						} else {
+							return reject({
+								file: file.name,
+								status: 'rejected',
+								error: 'Failed to upload to S3',
+							});
+						}
+					}
+				} catch (error) {
+					return reject({ file: file.name, status: 'rejected', error: error.message });
+				}
+			});
+		});
+
+		const uploadResults = await Promise.allSettled(fileUploadPromises);
+		const statusSummary = uploadResults.map((result) => {
+			if (result.status === 'fulfilled') {
+				return { file: result.value.file, status: result.value.status };
+			} else {
+				return {
+					file: result.reason.file,
+					status: result.reason.status,
+					error: result.reason.error,
+				};
+			}
+		});
+		return statusSummary;
+	};
+
 	return {
 		...state,
 		getKnowledgeBaseFiles,
@@ -106,5 +179,6 @@ export const AiSetupState = () => {
 		createNewAiAssistant,
 		updateAiAssistant,
 		getActiveAiAssistantDetails,
+		uploadPDFsToKnowledgeBase,
 	};
 };
