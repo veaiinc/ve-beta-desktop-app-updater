@@ -1,4 +1,4 @@
-import React, { memo, useState, useContext } from 'react';
+import React, { memo, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
 import CreateNewAiAssistantModal from '../../../components/modalsV2/settings/ai_setup/CreateNewAiAssistantModal';
@@ -12,13 +12,17 @@ import ToolTipContainer from '../../../components/popover/ToolTipContainer';
 
 const AiSetup = () => {
 	const {
-		aiSetup: { existingAiAssistants },
+		aiSetup: { existingAiAssistants, getExistingAiAssistants },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		isCreateAiModalOpen: false,
 	});
 	const navigate = useNavigate();
+
+	useEffect(() => {
+		getExistingAiAssistants();
+	}, []);
 
 	const toggleModal = () => {
 		setInfo((prev) => ({
