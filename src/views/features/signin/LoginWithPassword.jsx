@@ -47,10 +47,13 @@ const LoginWithPassword = ({
 						const payload = { email: usersData['emailId'] };
 						setStage('verify-email-code');
 						sendEmailOtpRequest(payload);
+						setLoading(false);
 						return;
 					}
 					if (response?.[1] === 'createWorkspace') {
 						setStage('create-workspace');
+						setLoading(false);
+						return;
 					}
 					setLoading(false);
 					// localStorage.removeItem('locationDetails');
