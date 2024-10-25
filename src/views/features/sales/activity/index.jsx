@@ -14,9 +14,10 @@ const ActivityDashboard = () => {
 
 	//Context
 	const {
-		activityInfo: { getSmartFileActivity, activityData },
+		activityInfo: { activityData, getSmartFileActivity, getSmartFileViewers, viewersList },
 	} = useContext(Context);
-
+	console.log('Index activityData: ' + activityData);
+	console.log('Index viewersList: ' + viewersList);
 	//States
 	const [info, setInfo] = useState({
 		modalIsOpen: false,
@@ -25,6 +26,7 @@ const ActivityDashboard = () => {
 	//UseEffect
 	useEffect(() => {
 		fetchActivityData();
+		fetchViewersListData();
 	}, []);
 
 	//Functions
@@ -40,6 +42,14 @@ const ActivityDashboard = () => {
 			getSmartFileActivity({ workflowId });
 		}
 	}, [getSmartFileActivity, workflowId, activityData]);
+
+	const fetchViewersListData = useCallback(() => {
+		if (!viewersList) {
+			console.log('workflowId:', workflowId);
+
+			getSmartFileViewers({ workflowId });
+		}
+	}, [getSmartFileViewers, workflowId, viewersList]);
 
 	return (
 		<div className="activityParentContainer">
