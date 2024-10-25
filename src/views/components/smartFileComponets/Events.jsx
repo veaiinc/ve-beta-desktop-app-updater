@@ -9,6 +9,7 @@ import ToolTipContainer from '../popover/ToolTipContainer';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
+import AddPresetModal from '../modalsV2/proposalModals/AddPresetModal';
 
 const Events = ({ eventsData, eventsDataChange, editable }) => {
 	const [info, setInfo] = useState({
@@ -206,6 +207,10 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 		[info?.data, editable],
 	);
 
+	const closePresetPopUp = useCallback(() => {
+		setInfo((prev) => ({ ...prev, presetPopUp: false }));
+	}, []);
+
 	return info?.data?.map((ele, index) => (
 		<div className="eventsParentContainer" key={index}>
 			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -309,13 +314,21 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 					<div className="servicesContainer">
 						<Tooltip
 							placement="bottomLeft"
-							title={<EventsPresetsPopOverComponent />}
+							title={
+								<EventsPresetsPopOverComponent
+									closePresetPopUp={closePresetPopUp}
+								/>
+							}
 							color={'#202020'}
 							arrow={false}
 							trigger="click"
 							overlayClassName="toolTipContainer"
+							open={info?.presetPopUp}
 						>
-							<div className="serviceContainerTitle">
+							<div
+								className="serviceContainerTitle"
+								onClick={() => setInfo((prev) => ({ ...prev, presetPopUp: true }))}
+							>
 								<span className="serviceContainerTitleStyling">
 									Services Provided
 								</span>
@@ -430,7 +443,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 
 export default memo(Events);
 
-const EventsPresetsPopOverComponent = () => {
+const EventsPresetsPopOverComponent = ({ closePresetPopUp }) => {
 	const data = [
 		{
 			title: 'Wedding Basics',
@@ -445,9 +458,24 @@ const EventsPresetsPopOverComponent = () => {
 			roles: ['2 candid photographers'],
 		},
 	];
+	const [info, setInfo] = useState({
+		createEditPresetModal: false,
+	});
+
+	const openCreateEditPresetModal = useCallback(() => {
+		closePresetPopUp();
+		setInfo((prev) => ({ ...prev, createEditPresetModal: true }));
+	}, []);
+
+	const closeCreateEditPresetModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, createEditPresetModal: false }));
+	}, []);
+
 	return (
 		<div className="eventsPresetsParentContainer">
-			<div className="addNewPresetButton">+ Add new preset</div>
+			<div className="addNewPresetButton" onClick={openCreateEditPresetModal}>
+				+ Add new preset
+			</div>
 			<div className="definedPresetContainer">
 				{data?.map((ele, index) => (
 					<div className="presetCards">
@@ -472,6 +500,10 @@ const EventsPresetsPopOverComponent = () => {
 					</div>
 				))}
 			</div>
+			<AddPresetModal
+				modalIsOpen={info?.createEditPresetModal}
+				closeModal={closeCreateEditPresetModal}
+			/>
 		</div>
 	);
 };
