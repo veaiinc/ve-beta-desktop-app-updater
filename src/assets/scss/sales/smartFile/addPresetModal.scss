@@ -8,9 +8,9 @@
 	border-radius: 32px;
 	background: #151515;
 	height: auto;
-	min-height: 426px;
+	// min-height: 426px;
 	max-height: 545px;
-	overflow-y: auto;
+	// overflow-y: auto;
 
 	.presetHeaderContainer {
 		display: flex;
@@ -74,48 +74,58 @@
 			}
 		}
 
-		.presetServicesCard {
+		.presetCardHolder {
 			display: flex;
-			align-items: center;
-			gap: var(--Spacing-space-8, 16px);
-			align-self: stretch;
-
-			.presetservicesIncrementor {
+			flex-direction: column;
+			align-items: flex-start;
+			flex: 1;
+			max-height: 265px;
+			overflow-y: auto;
+			gap: 7px;
+			.presetServicesCard {
 				display: flex;
-				width: 100px;
-				padding: 11px 14px;
-				// justify-content: space-between;
 				align-items: center;
-				border-radius: 10px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
-				gap: 4px;
+				gap: var(--Spacing-space-8, 16px);
+				align-self: stretch;
 
-				.incrementorDecrementorInput {
-					flex: 1;
-					background-color: transparent;
-					outline: none;
+				.presetservicesIncrementor {
 					display: flex;
-					width: 100%;
-					border: none;
-					color: #e4e5e6;
-					font-family: Inter;
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 400;
-					line-height: 26px; /* 185.714% */
-				}
+					width: 100px;
+					padding: 11px 14px;
+					// justify-content: space-between;
+					align-items: center;
+					border-radius: 10px;
+					border: 1px solid rgba(36, 36, 36, 0.64);
+					gap: 4px;
 
-				.incrementorButtons {
-					width: 8px;
-					color: #6055ec;
-					font-family: Inter;
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 400;
-					line-height: 26px; /* 185.714% */
+					.incrementorDecrementorInput {
+						flex: 1;
+						background-color: transparent;
+						outline: none;
+						display: flex;
+						width: 100%;
+						border: none;
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 26px; /* 185.714% */
+					}
+
+					.incrementorButtons {
+						width: 8px;
+						color: #6055ec;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 26px; /* 185.714% */
+					}
 				}
 			}
 		}
+
 		.addRoleBtn {
 			color: #6055ec;
 			text-align: center;

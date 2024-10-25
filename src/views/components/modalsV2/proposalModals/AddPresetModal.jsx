@@ -3,7 +3,30 @@ import ReactModal from '../../modalsV2/index';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import '../../../../assets/scss/sales/smartFile/addPresetModal.scss';
 const AddPresetModal = ({ modalIsOpen, closeModal }) => {
-	const presetData = [{}, {}];
+	const presetData = [
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+	];
 	return (
 		<ReactModal isOpen={modalIsOpen} closeModal={closeModal}>
 			<div className="addPresetModalParentContainer">
@@ -24,29 +47,32 @@ const AddPresetModal = ({ modalIsOpen, closeModal }) => {
 					<div className="addPresetEventNameContainer">
 						<span className="eventNameLabel">Services Provided</span>
 					</div>
-					{presetData?.map((ele, index) => (
-						<div className="presetServicesCard" key={index}>
-							<input className="addpresetInput" placeholder="Title" />
-							<div className="presetservicesIncrementor">
-								<span
-									onClick={closeModal}
-									className="closePresetModalBtn incrementorButtons"
-								>
-									-
-								</span>
-								<input className="incrementorDecrementorInput" />
-								<span
-									onClick={closeModal}
-									className="closePresetModalBtn incrementorButtons"
-								>
-									+
+					<div className="presetCardHolder">
+						{presetData?.map((ele, index) => (
+							<div className="presetServicesCard" key={index}>
+								<input className="addpresetInput" placeholder="Title" />
+								<div className="presetservicesIncrementor">
+									<span
+										onClick={closeModal}
+										className="closePresetModalBtn incrementorButtons"
+									>
+										-
+									</span>
+									<input className="incrementorDecrementorInput" />
+									<span
+										onClick={closeModal}
+										className="closePresetModalBtn incrementorButtons"
+									>
+										+
+									</span>
+								</div>
+								<span className="closePresetModalBtn">
+									<Close />
 								</span>
 							</div>
-							<span onClick={closeModal} className="closePresetModalBtn">
-								<Close />
-							</span>
-						</div>
-					))}
+						))}
+					</div>
+
 					<span className="addRoleBtn">+ Add role</span>
 					<div className="createPresetBtn"> Create Preset</div>
 				</div>
