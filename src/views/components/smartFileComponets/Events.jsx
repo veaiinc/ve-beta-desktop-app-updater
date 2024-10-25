@@ -8,11 +8,13 @@ import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/que
 import ToolTipContainer from '../popover/ToolTipContainer';
 import dayjs from 'dayjs';
 import _ from 'lodash';
+import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
 
 const Events = ({ eventsData, eventsDataChange, editable }) => {
 	const [info, setInfo] = useState({
 		data: [],
 		calenderStartDate: '',
+		presetPopUp: false,
 	});
 
 	const [arrow, setArrow] = useState('Show');
@@ -305,13 +307,25 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 					</div>
 
 					<div className="servicesContainer">
-						<div className="serviceContainerTitle">
-							<span className="serviceContainerTitleStyling">Services Provided</span>
-							<div className="eventsPresetsContainer">
-								<EventsPridiction />
-								<span className="eventsPresetsStyling">Add from preset</span>
+						<Tooltip
+							placement="bottomLeft"
+							title={<EventsPresetsPopOverComponent />}
+							color={'#202020'}
+							arrow={false}
+							trigger="click"
+							overlayClassName="toolTipContainer"
+						>
+							<div className="serviceContainerTitle">
+								<span className="serviceContainerTitleStyling">
+									Services Provided
+								</span>
+
+								<div className="eventsPresetsContainer">
+									<EventsPridiction />
+									<span className="eventsPresetsStyling">Add from preset</span>
+								</div>
 							</div>
-						</div>
+						</Tooltip>
 
 						{item?.roles?.map((x, lt) => (
 							<div className="serviceRoleContainer" key={lt}>
@@ -415,3 +429,68 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 };
 
 export default memo(Events);
+
+const EventsPresetsPopOverComponent = () => {
+	const data = [
+		{
+			title: 'Wedding Basics',
+			roles: ['2 candid photographers'],
+		},
+		{
+			title: 'Wedding Basics',
+			roles: ['2 candid photographers'],
+		},
+		{
+			title: 'Wedding Basics',
+			roles: ['2 candid photographers'],
+		},
+	];
+	return (
+		<div className="eventsPresetsParentContainer">
+			<div className="addNewPresetButton">+ Add new preset</div>
+			<div className="definedPresetContainer">
+				{data?.map((ele, index) => (
+					<div className="presetCards">
+						<div className="presetCardContentContainer">
+							<span className="presetTitle">Wedding Basics</span>
+							<span className="presetSubTitle">
+								Wedding Basics 2 Candid photographer , 2 traditional photographer
+							</span>
+						</div>
+						<div className="threeDotsButton">
+							<Tooltip
+								placement="bottomRight"
+								title={<ThreeDotsPopUp />}
+								color={'#202020'}
+								arrow={false}
+								trigger="click"
+								overlayClassName="toolTipContainer"
+							>
+								<ThreeDots />
+							</Tooltip>
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+};
+
+const ThreeDotsPopUp = () => {
+	return (
+		<div className="threeDotsPopupContainer">
+			<div className="threeDotOptionsContainer">
+				<span className="optionsStyling">Make Default</span>
+			</div>
+			<div className="threeDotOptionsContainer">
+				<span className="optionsStyling">Edit</span>
+			</div>
+			<div className="threeDotOptionsContainer">
+				<span className="optionsStyling">Duplicate</span>
+			</div>
+			<div className="threeDotOptionsContainer">
+				<span className="optionsStyling deleteStyling">Delete</span>
+			</div>
+		</div>
+	);
+};
