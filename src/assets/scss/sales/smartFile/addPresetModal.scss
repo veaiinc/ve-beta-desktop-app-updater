@@ -1,0 +1,14 @@
+.addPresetModalParentContainer {
+	display: flex;
+	width: 545px;
+	padding: 32px;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 30px;
+	border-radius: 32px;
+	background: #151515;
+	height: auto;
+	min-height: 426px;
+	max-height: 545px;
+	overflow-y: auto;
+}
