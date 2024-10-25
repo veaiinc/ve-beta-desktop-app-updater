@@ -47,6 +47,7 @@ const LoginWithPassword = ({
 						const payload = { email: usersData['emailId'] };
 						setStage('verify-email-code');
 						sendEmailOtpRequest(payload);
+						return;
 					}
 					if (response?.[1] === 'createWorkspace') {
 						setStage('create-workspace');
