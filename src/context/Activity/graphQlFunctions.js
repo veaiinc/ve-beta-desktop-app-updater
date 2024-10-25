@@ -14,15 +14,19 @@ export const getSmartFileActivityQuery = gql`
 			sectionViewDuration {
 				duration
 				sectionId
-				moduleType
 				sectionType
 				content
+				moduleType
 			}
 			interaction {
 				moduleType
-				interactionType
-				totalCount
-				content
+				totalInteractionsCount
+				interactions {
+					moduleType
+					interactionType
+					totalCount
+					content
+				}
 			}
 		}
 	}
@@ -43,8 +47,8 @@ export const getSmartFileViewersQuery = gql`
 `;
 
 export const getViewersSessionDetailsQuery = gql`
-	query GetSessionSummary($getSessionSummaryId: ID!) {
-		getSessionSummary(id: $getSessionSummaryId) {
+	query GetSessionSummary($workflowId: ID!, $getSessionSummaryId: ID!) {
+		getSessionSummary(workflowId: $workflowId, id: $getSessionSummaryId) {
 			_id
 			tenantId
 			workflowId
@@ -73,9 +77,13 @@ export const getViewersSessionDetailsQuery = gql`
 			}
 			interaction {
 				moduleType
-				interactionType
-				totalCount
-				content
+				totalInteractionsCount
+				interactions {
+					moduleType
+					interactionType
+					totalCount
+					content
+				}
 			}
 		}
 	}

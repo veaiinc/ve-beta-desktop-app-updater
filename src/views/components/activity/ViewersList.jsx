@@ -1,47 +1,8 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/sales/activity/activityComponents.scss';
 import { ReactComponent as SortSvg } from '../../../assets/svg/activity/sortIcon.svg';
-const viewers = [
-	{
-		name: 'John Michael',
-		email: 'martin@gmail.com',
-		sessions: 5,
-		time: '00:32:23',
-		avatar: 'JS',
-	},
-	{
-		name: 'Gowtham Kasala',
-		email: 'gowtham@gmail.com',
-		sessions: 2,
-		time: '00:13:23',
-		avatar: 'MD',
-	},
-	{
-		name: 'Gowtham Kasala',
-		email: 'gowtham@gmail.com',
-		sessions: 2,
-		time: '00:13:23',
-		avatar: 'MD',
-	},
-	{
-		name: 'Gowtham Kasala',
-		email: 'gowtham@gmail.com',
-		sessions: 2,
-		time: '00:13:23',
-		avatar: 'MD',
-	},
-	{
-		name: 'Alex Henry',
-		email: 'alexhenry@gmail.com',
-		sessions: 2,
-		time: '00:13:23',
-		avatar: 'MD',
-	},
-	{ name: 'Anonymous', email: null, sessions: 1, time: '00:15:45', avatar: 'A' },
-	{ name: 'Anonymous', email: null, sessions: 1, time: '00:15:45', avatar: 'A' },
-	{ name: 'Anonymous', email: null, sessions: 1, time: '00:15:45', avatar: 'A' },
-];
-const ViewersList = ({ showDrawer }) => {
+
+const ViewersList = ({ showDrawer, viewersListData, handelViewerSelection }) => {
 	return (
 		<>
 			<div className="viewersContainer">
@@ -57,29 +18,62 @@ const ViewersList = ({ showDrawer }) => {
 				</div>
 				{/* Body Section */}
 				<div className="viewersListParentContainer">
-					{viewers.map((viewer, index) => (
-						<div className="viewersListItemWrapper" onClick={showDrawer}>
-							<div key={index} className="viewerInfoContainer">
+					{!viewersListData || viewersListData.length === 0 ? (
+						// Fallback UI when viewersListData is empty or null
+						<div className="viewersListItemWrapper">
+							<div className="viewerInfoContainer">
 								{/* Avatar Section */}
 								<div className="viewerAvatar">
-									<span>{viewer.avatar}</span>
+									<span>N/A</span>
 								</div>
 								{/* Viewer Details */}
 								<div className="viewerDetails">
-									<span className="viewerName">{viewer.name}</span>
-									{viewer.email && (
-										<span className="viewerEmail">{viewer.email}</span>
-									)}
+									<span className="viewerName">N/A</span>{' '}
+									<span className="viewerEmail">N/A</span>{' '}
 								</div>
 							</div>
 							<div className="viewerSessionsContainer">
 								<div className="viewerSessionInfo">
-									<div className="viewerSessions">{viewer.sessions} Sessions</div>
-									<div className="viewerTime">{viewer.time}</div>
+									<div className="viewerSessions">N/A Sessions</div>{' '}
+									<div className="viewerTime">N/A</div>{' '}
 								</div>
 							</div>
 						</div>
-					))}
+					) : (
+						// Render the data when viewersListData is not empty or null
+						viewersListData.map((viewer, index) => (
+							<div
+								className="viewersListItemWrapper"
+								onClick={() => {
+									showDrawer();
+									handelViewerSelection(viewer);
+								}}
+								key={index}
+							>
+								<div className="viewerInfoContainer">
+									{/* Avatar Section */}
+									<div className="viewerAvatar">
+										<span>{viewer?.avatar}</span>
+									</div>
+									{/* Viewer Details */}
+									<div className="viewerDetails">
+										<span className="viewerName">{viewer?.name}</span>
+										{viewer.email && (
+											<span className="viewerEmail">{viewer?.email}</span>
+										)}
+									</div>
+								</div>
+								<div className="viewerSessionsContainer">
+									<div className="viewerSessionInfo">
+										<div className="viewerSessions">
+											{viewer?.sessionCount} Sessions
+										</div>
+										<div className="viewerTime">{viewer?.duration}</div>
+									</div>
+								</div>
+							</div>
+						))
+					)}
 				</div>
 			</div>
 		</>

@@ -52,7 +52,7 @@ export const ActivityState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'activity_Api',
+				'activity_api',
 			);
 
 			if (response?.[0]) {
@@ -69,6 +69,7 @@ export const ActivityState = (props) => {
 	};
 
 	const getViewersSessionDetails = async (payload) => {
+		console.log('getViewersSessionDetails:', payload);
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -77,7 +78,7 @@ export const ActivityState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'activity_Api',
+				'activity_api',
 			);
 
 			if (response?.[0]) {

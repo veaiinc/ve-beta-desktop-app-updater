@@ -16,24 +16,30 @@ const ActivityDashboard = () => {
 	const {
 		activityInfo: { activityData, getSmartFileActivity, getSmartFileViewers, viewersList },
 	} = useContext(Context);
-	console.log('Index activityData: ' + activityData);
-	console.log('Index viewersList: ' + viewersList);
+	// console.log('activityData: ' + activityData);
+	// console.log('viewersList: ' + JSON.stringify(viewersList, null, 2));
+
 	//States
 	const [info, setInfo] = useState({
 		modalIsOpen: false,
+		selectedViewer: null,
 	});
 
-	//UseEffect
-	useEffect(() => {
-		fetchActivityData();
-		fetchViewersListData();
-	}, []);
-
 	//Functions
+
+	//To open Modal
 	const showDrawer = useCallback(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			modalIsOpen: !prevInfo.modalIsOpen,
+		}));
+	}, []);
+
+	//To handle selected viewer
+	const handelViewerSelection = useCallback((selectedViewerItem) => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			selectedViewer: selectedViewerItem,
 		}));
 	}, []);
 
@@ -45,11 +51,15 @@ const ActivityDashboard = () => {
 
 	const fetchViewersListData = useCallback(() => {
 		if (!viewersList) {
-			console.log('workflowId:', workflowId);
-
 			getSmartFileViewers({ workflowId });
 		}
 	}, [getSmartFileViewers, workflowId, viewersList]);
+
+	//UseEffect
+	useEffect(() => {
+		fetchActivityData();
+		fetchViewersListData();
+	}, [fetchActivityData, fetchViewersListData, workflowId]);
 
 	return (
 		<div className="activityParentContainer">
@@ -58,7 +68,11 @@ const ActivityDashboard = () => {
 			<div className="activityDetailsContainer">
 				<TimeLine showDrawer={showDrawer} />
 
-				<ViewersList showDrawer={showDrawer} />
+				<ViewersList
+					showDrawer={showDrawer}
+					viewersListData={viewersList}
+					handelViewerSelection={handelViewerSelection}
+				/>
 			</div>
 
 			{/* Metric Component */}
@@ -70,11 +84,17 @@ const ActivityDashboard = () => {
 			<ActivityMetrics
 				title="Interactions"
 				labelsData={activityData?.interaction}
-				labelItemsData={activityData?.interaction}
+				labelItemsData={activityData?.interaction?.reduce((acc, item) => {
+					return acc.concat(item.interactions); //reducing the interactions array for sending each interaction data
+				}, [])}
 			/>
 
 			{/* /Modals */}
-			<SessionActivityModal modalIsOpen={info?.modalIsOpen} showDrawer={showDrawer} />
+			<SessionActivityModal
+				modalIsOpen={info?.modalIsOpen}
+				showDrawer={showDrawer}
+				selectedViewer={info?.selectedViewer}
+			/>
 			{/* <EmailModal modalIsOpen={info?.modalIsOpen} showDrawer={showDrawer} /> */}
 		</div>
 	);

@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useState, useCallback, useMemo } from 'react';
 import '../../../assets/scss/sales/activity/activitySessionModal.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/activity/close.svg';
 import { ReactComponent as ActivitySvg } from '../../../assets/svg/activity/activity.svg';
@@ -16,28 +16,35 @@ import TimeLineSession from './TimeLineSession.jsx';
 import ChatSession from './ChatSession.jsx';
 import SessionMetric from './SessionMetric.jsx';
 
-const SessionActivityModal = ({ modalIsOpen, showDrawer }) => {
+const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer }) => {
 	const [info, setInfo] = useState({
 		viewMore: false,
-		textTransition: false,
-		isSessionTabActive: 'Time Line',
+		isSessionTabActive: 'TimeLine',
+		currentSessionIndex: 0,
 	});
 
+	const sessionIds = selectedViewer?.sessionIds || [];
+	const totalSessions = sessionIds.length;
+
+	const handleNextSession = () => {
+		setInfo((prevState) => ({
+			...prevState,
+			currentSessionIndex: Math.min(prevState.currentSessionIndex + 1, totalSessions - 1),
+		}));
+	};
+
+	const handlePrevSession = () => {
+		setInfo((prevState) => ({
+			...prevState,
+			currentSessionIndex: Math.max(prevState.currentSessionIndex - 1, 0),
+		}));
+	};
+
 	const handleViewMore = useCallback(() => {
-		// Start the text exit transition
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			textTransition: true,
+			viewMore: !prevInfo.viewMore,
 		}));
-
-		// Switch the text after the exit animation completes
-		setTimeout(() => {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				viewMore: !prevInfo.viewMore,
-				textTransition: false,
-			}));
-		}, 100);
 	}, []);
 
 	const setActiveTab = (tabName) => {
@@ -46,6 +53,34 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer }) => {
 			isSessionTabActive: tabName,
 		}));
 	};
+
+	const componentMapper = useMemo(() => {
+		return {
+			TimeLine: <TimeLineSession />,
+			TimeSpent: (
+				<SessionMetric
+					title={'Time Spent'}
+					viewerSessionId={sessionIds[info?.currentSessionIndex]}
+				/>
+			),
+			Interaction: (
+				<SessionMetric
+					title={'Interactions'}
+					viewerSessionId={sessionIds[info?.currentSessionIndex]}
+				/>
+			),
+			AIChat: <ChatSession />,
+			// Add more tabs if needed
+		};
+	}, [info?.currentSessionIndex, sessionIds]);
+
+	// Function to render selected tab component
+	const renderActiveTab = useMemo(() => {
+		return (activeTab) => {
+			// console.log('renderActiveTab with activeTab:', activeTab);
+			return componentMapper[activeTab] || null;
+		};
+	}, [componentMapper]);
 
 	return (
 		<Drawer
@@ -73,11 +108,11 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer }) => {
 						</div>
 					</div>
 
-					<div class="profileCardContainer">
+					<div className="profileCardContainer">
 						{/* <!-- User Information Section --> */}
-						<div class="profileInfoContainer">
-							<div class="profileAvatar">JS</div>
-							<div class="profileDetailsWrapper">
+						<div className="profileInfoContainer">
+							<div className="profileAvatar">JS</div>
+							<div className="profileDetailsWrapper">
 								<div className="profileTitle">
 									<span className="titleName">Jhon Michael</span>
 									<span className="titleIcon">
@@ -95,23 +130,18 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer }) => {
 
 						{/* <!-- Session Navigation Section --> */}
 						<div className="sessionParentContainer">
-							<div class="sessionNavWrapper">
+							<div className="sessionNavWrapper">
 								<div className="sessionNavigationContainer">
-									<LeftSvg />
-									<span>Session 2/5</span>
-									<RightSvg />
+									<LeftSvg onClick={handlePrevSession} />
+									<span>
+										Session {info.currentSessionIndex + 1}/{totalSessions}
+									</span>
+									<RightSvg onClick={handleNextSession} />
 								</div>
 
 								{/* View More  */}
 								<div className="viewMoreButton" onClick={handleViewMore}>
-									<span
-										// className={`textContainer ${
-										// 	info?.textTransition
-										// 		? 'textContainerExit'
-										// 		: 'textContainerEnter'
-										// }`}
-										className="textContainer"
-									>
+									<span className="textContainer">
 										{info?.viewMore ? 'View Less' : 'View More'}
 									</span>
 									<span
@@ -173,21 +203,19 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer }) => {
 						<div className="sessionNavbar">
 							<div
 								className={`sessionTab ${
-									info.isSessionTabActive === 'Time Line'
-										? 'sessionTabActive'
-										: ''
+									info.isSessionTabActive === 'TimeLine' ? 'sessionTabActive' : ''
 								}`}
-								onClick={() => setActiveTab('Time Line')}
+								onClick={() => setActiveTab('TimeLine')}
 							>
 								Time Line
 							</div>
 							<div
 								className={`sessionTab ${
-									info.isSessionTabActive === 'Time Spent'
+									info.isSessionTabActive === 'TimeSpent'
 										? 'sessionTabActive'
 										: ''
 								}`}
-								onClick={() => setActiveTab('Time Spent')}
+								onClick={() => setActiveTab('TimeSpent')}
 							>
 								Time Spent
 							</div>
@@ -203,21 +231,23 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer }) => {
 							</div>
 							<div
 								className={`sessionTab ${
-									info.isSessionTabActive === 'AI Chat' ? 'sessionTabActive' : ''
+									info.isSessionTabActive === 'AIChat' ? 'sessionTabActive' : ''
 								}`}
-								onClick={() => setActiveTab('AI Chat')}
+								onClick={() => setActiveTab('AIChat')}
 							>
 								AI Chat
 							</div>
 						</div>
 
-						{info?.isSessionTabActive === 'Time Line' ? <TimeLineSession /> : ''}
+						{/* {info?.isSessionTabActive === 'Time Line' ? <TimeLineSession /> : ''}
 
 						{info?.isSessionTabActive === 'Time Spent' ? <SessionMetric /> : ''}
 
 						{info?.isSessionTabActive === 'Interaction' ? <SessionMetric /> : ''}
 
-						{info?.isSessionTabActive === 'AI Chat' ? <ChatSession /> : ''}
+						{info?.isSessionTabActive === 'AI Chat' ? <ChatSession /> : ''} */}
+
+						{renderActiveTab(info?.isSessionTabActive)}
 					</div>
 				</div>
 			</div>

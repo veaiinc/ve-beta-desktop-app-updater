@@ -1,67 +1,86 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useCallback, useContext, useEffect } from 'react';
 import '../../../assets/scss/sales/activity/modalSessionComponents.scss';
 import DoughnutChart from '../../components/activity/DoughnutChart.jsx';
 import { ReactComponent as DotSvg } from '../../../assets/svg/activity/dot.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
 import { ReactComponent as RightSvg } from '../../../assets/svg/activity/right.svg';
 import { ReactComponent as GallerySvg } from '../../../assets/svg/activity/galleryIcon.svg';
+import Context from '../../../context/context';
+import { useParams } from 'react-router-dom';
 
-const SessionMetric = () => {
-	const dummyData = [
-		{ label: 'Proposal', timeSpent: '00:12:34', percentage: '50%' },
-		{ label: 'Proposal Summary', timeSpent: '00:12:34', percentage: '12.5%' },
-		{ label: 'Invoice', timeSpent: '00:08:23', percentage: '4.17%' },
-		{ label: 'Contract', timeSpent: '00:04:21', percentage: '16.67%' },
-		{ label: 'Thank You', timeSpent: '00:04:21', percentage: '16.67%' },
-	];
+const dummyData = [
+	{ label: 'Proposal', timeSpent: '00:12:34', percentage: '50%' },
+	{ label: 'Proposal Summary', timeSpent: '00:12:34', percentage: '12.5%' },
+	{ label: 'Invoice', timeSpent: '00:08:23', percentage: '4.17%' },
+	{ label: 'Contract', timeSpent: '00:04:21', percentage: '16.67%' },
+	{ label: 'Thank You', timeSpent: '00:04:21', percentage: '16.67%' },
+];
 
-	const dummyLabelData = [
-		{
-			label: 'Header Block',
-			timeSpent: '00:12:34',
-			percentage: '25%',
-		},
-		{
-			label: 'Text Block',
-			timeSpent: '00:12:34',
-			percentage: '12.5%',
-		},
-		{
-			label: 'Image Block',
-			timeSpent: '00:12:34',
-			percentage: '4.1%',
-		},
-		{
-			label: 'List Block',
-			timeSpent: '00:12:34',
-			percentage: '16%',
-		},
-		{
-			label: 'Gallery Block',
-			timeSpent: '00:12:34',
-			percentage: '12%',
-		},
-		{
-			label: 'Magazine Block',
-			timeSpent: '00:12:34',
-			percentage: '12.7%',
-		},
-		{
-			label: 'Testimonial Block',
-			timeSpent: '00:12:34',
-			percentage: '3.5%',
-		},
-		{
-			label: 'Service Block',
-			timeSpent: '00:12:34',
-			percentage: '5%',
-		},
-		{
-			label: 'Event Block',
-			timeSpent: '00:12:34',
-			percentage: '9%',
-		},
-	];
+const dummyLabelData = [
+	{
+		label: 'Header Block',
+		timeSpent: '00:12:34',
+		percentage: '25%',
+	},
+	{
+		label: 'Text Block',
+		timeSpent: '00:12:34',
+		percentage: '12.5%',
+	},
+	{
+		label: 'Image Block',
+		timeSpent: '00:12:34',
+		percentage: '4.1%',
+	},
+	{
+		label: 'List Block',
+		timeSpent: '00:12:34',
+		percentage: '16%',
+	},
+	{
+		label: 'Gallery Block',
+		timeSpent: '00:12:34',
+		percentage: '12%',
+	},
+	{
+		label: 'Magazine Block',
+		timeSpent: '00:12:34',
+		percentage: '12.7%',
+	},
+	{
+		label: 'Testimonial Block',
+		timeSpent: '00:12:34',
+		percentage: '3.5%',
+	},
+	{
+		label: 'Service Block',
+		timeSpent: '00:12:34',
+		percentage: '5%',
+	},
+	{
+		label: 'Event Block',
+		timeSpent: '00:12:34',
+		percentage: '9%',
+	},
+];
+
+const SessionMetric = ({ title, viewerSessionId }) => {
+	console.log('SessionMetric chart componenrt rendered');
+	const { workflowId } = useParams();
+
+	const {
+		activityInfo: { getViewersSessionDetails, viewerSessionDetails },
+	} = useContext(Context);
+
+	const fetchViewersSessionDetails = useCallback(() => {
+		if (!viewerSessionDetails || viewerSessionDetails?._id !== viewerSessionId) {
+			getViewersSessionDetails({ workflowId, getSessionSummaryId: viewerSessionId });
+		}
+	}, [getViewersSessionDetails, viewerSessionDetails, viewerSessionId, workflowId]);
+
+	useEffect(() => {
+		fetchViewersSessionDetails();
+	}, [fetchViewersSessionDetails, viewerSessionId]);
 
 	const formatedLabelStats = dummyData.map((item) => {
 		const { label, percentage, ...rest } = item;
@@ -97,17 +116,15 @@ const SessionMetric = () => {
 	return (
 		<div className="sessionDetailsWrapper">
 			<div className="sessionChartContainer">
-				{isLabelSelected ? (
-					<DoughnutChart statsData={formatedLabelStats} />
-				) : (
-					<DoughnutChart statsData={formatedLabelItemStats} />
-				)}
+				<DoughnutChart
+					statsData={isLabelSelected ? formatedLabelStats : formatedLabelItemStats}
+				/>
 			</div>
 
 			<div className="sessionLablesContainer">
 				<div className="headerContainer">
 					<span>Label</span>
-					<span>Time Spent</span>
+					<span>{title}</span>
 					<span>%</span>
 				</div>
 

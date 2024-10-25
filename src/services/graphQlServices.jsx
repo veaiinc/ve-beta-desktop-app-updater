@@ -48,12 +48,10 @@ const Service = {
 	query: async (query, variables, workspaceID, usertoken, type = null) => {
 		const region = localStorage.getItem('region') || 'ap-south-1';
 		let subUrl = region === 'ap-south-1' ? graphQLAPICall?.[type] : graphQLAPICallUS?.[type];
-		console.log('subUrl:', subUrl); //debug
 
 		const httpLink = new HttpLink({
 			uri: `${subUrl}/${workspaceID}/graphql`,
 		});
-		console.log('API URL:', `${subUrl}/${workspaceID}/graphql`); //debug
 
 		const apolloClient = new ApolloClient({
 			cache: new InMemoryCache({
