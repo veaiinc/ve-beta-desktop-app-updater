@@ -31,6 +31,7 @@ const AddLables = ({ info, setinfo }) => {
 		};
 
 		addGalleryTag(json, galleryId);
+		setinputTag('');
 	};
 
 	const removeTagsFromSelectionList = (id) => {

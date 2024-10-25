@@ -211,6 +211,44 @@ export const Galleries = () => {
 		}
 	};
 
+	const getUploadImageSignUrl = async (galleryId, albumId, payload) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.albums}/${albumId}${API.GALLERY.images}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+
+			return response;
+		} catch (error) {
+			console.log('error==>updateUserLogo', error);
+		}
+	};
+
+	// {{galleryId}}/albums/{{albumId}}/image-upload-status?uploadBatchId=Ai9dxsGi2X
+
+	const getImageUploadStatus = async (galleryId, albumId, batchId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.albums}/${albumId}${API.GALLERY.imageUploadStatus}?uploadBatchId=${batchId}`,
+				usertoken,
+				'galleries',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>getTags', error);
+		}
+	};
+
 	return {
 		...state,
 		getGalleries,
@@ -224,5 +262,7 @@ export const Galleries = () => {
 		editPreferences,
 		getGalleryTagsList,
 		addGalleryTag,
+		getUploadImageSignUrl,
+		getImageUploadStatus,
 	};
 };

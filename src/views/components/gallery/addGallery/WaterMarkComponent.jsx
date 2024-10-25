@@ -1,7 +1,7 @@
 import React from 'react';
 import { Switch } from 'antd';
 
-const WaterMarkComponent = () => {
+const WaterMarkComponent = ({ info }) => {
 	return (
 		<div className="watermark_div">
 			<div className="text_div">
@@ -9,8 +9,7 @@ const WaterMarkComponent = () => {
 				<p>Use AI people on edited photos for delightful client experience.</p>
 			</div>
 
-			{/* <div className='switch'></div> */}
-			<Switch />
+			<Switch checked={info?.isWaterMarkApply || false} />
 		</div>
 	);
 };

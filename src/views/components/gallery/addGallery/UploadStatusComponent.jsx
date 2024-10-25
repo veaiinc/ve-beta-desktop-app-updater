@@ -4,7 +4,7 @@ import { ReactComponent as CancelUploadSvg } from '../../../../assets/svg/galler
 import { Progress } from 'antd';
 import DuplicateComponent from './DuplicateComponent';
 
-const UploadStatusComponent = ({ info, setinfo, triggerUploadImages }) => {
+const UploadStatusComponent = ({ info, setinfo, triggerUploadImages, uploadFilesConcurrently }) => {
 	// func for removing the image
 	const deleteFromUploads = (fileName) => {
 		const update = { ...info };
@@ -13,13 +13,25 @@ const UploadStatusComponent = ({ info, setinfo, triggerUploadImages }) => {
 	};
 
 	// submit handler
-	const uploadPhotosSubmitHandler = () => {
+	// const uploadPhotosSubmitHandler = (e) => {
+	// 	e.preventDefault();
+	// 	let imageCount = Object.keys(info?.uploadImages || {}).length;
+	// 	if (imageCount <= 0) return;
+	// 	setinfo((prev) => ({
+	// 		...prev,
+	// 		startedUploading: true,
+	// 		// recentImageInitiated: Object.keys(info?.uploadImages)[0],
+	// 	}));
+	// 	triggerUploadImages(true);
+	// 	// if (imageCount > 0) triggerUploadImages();
+	// };
+	// submit handler
+	const uploadPhotosSubmitHandler = (e) => {
+		e.preventDefault();
 		let imageCount = Object.keys(info?.uploadImages || {}).length;
-		setinfo({
-			startedUploading: imageCount > 0 ? true : false,
-		});
+		if (imageCount <= 0) return;
 
-		if (imageCount > 0) triggerUploadImages();
+		uploadFilesConcurrently();
 	};
 
 	return (
@@ -38,7 +50,7 @@ const UploadStatusComponent = ({ info, setinfo, triggerUploadImages }) => {
 					<div className="text_div">
 						<h1>
 							{Object.keys(info?.uploadImages || {}).length} Images added -{' '}
-							{info?.uploadSize.toFixed(2)} MB{' '}
+							{info?.uploadSize?.toFixed(2)} MB{' '}
 						</h1>
 						<p>Max amount 10,000 photos</p>
 					</div>
@@ -55,6 +67,7 @@ const UploadStatusComponent = ({ info, setinfo, triggerUploadImages }) => {
 						</div>
 					) : (
 						<button
+							type="button"
 							className={`upload_button ${
 								Object.keys(info?.uploadImages || {}).length
 									? 'activeButton'
@@ -82,11 +95,16 @@ const UploadStatusComponent = ({ info, setinfo, triggerUploadImages }) => {
 
 								{info?.startedUploading && (
 									<div className="progress">
-										<Progress percent={50} showInfo={false} />
+										<Progress
+											percent={singlePhoto?.uploadedPerct}
+											showInfo={false}
+										/>
 									</div>
 								)}
 
-								<CancelUploadSvg onClick={() => deleteFromUploads(key)} />
+								{!singlePhoto?.isUploaded && (
+									<CancelUploadSvg onClick={() => deleteFromUploads(key)} />
+								)}
 							</div>
 						</div>
 					))}

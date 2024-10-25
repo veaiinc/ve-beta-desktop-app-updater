@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import '../../../assets/scss/gallery/uploadGallery.scss';
 import AddLables from '../../components/gallery/addGallery/AddLablesComponent';
 import UploadInputComponent from '../../components/gallery/addGallery/UploadInputComponent';
@@ -6,15 +6,26 @@ import { ReactComponent as BackIcon } from '../../../assets/svg/gallery/back-gra
 import WaterMarkComponent from '../../components/gallery/addGallery/WaterMarkComponent';
 import UploadStatusComponent from '../../components/gallery/addGallery/UploadStatusComponent';
 import randomize from 'randomatic';
+import moment from 'moment';
+import Context from '../../../context/context';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
 const UploadPhotos = () => {
+	const { galleryId, albumId } = useParams();
+
+	const {
+		galleryInfo: { getUploadImageSignUrl, getImageUploadStatus },
+	} = useContext(Context);
+
 	const [info, setinfo] = useState({
-		applyWaterMark: false,
+		isWaterMarkApply: false,
 		initialUpload: false,
 		startedUploading: false,
 		uploadImages: {},
 		uploadSize: 0,
-		uploadLimit: 5,
+		uploadLimit: 2,
+		currentUpload: 1,
 		recentImageInitiated: null,
 		isSkipDuplicates: false,
 		uploadBatchID: randomize('Aa0', 10),
@@ -69,70 +80,147 @@ const UploadPhotos = () => {
 		setinfo(updateInfo);
 	};
 
-	// const triggerUploadImages = async () => {
-	// 	const imageKeysArray = Object.keys(info?.uploadImages);
+	const getJsonFunction = (currentImagge) => {
+		const imageKeysArray = Object.keys(info?.uploadImages);
 
-	// 	const imageKeyIndex =
-	// 		info?.recentImageInitiated !== null
-	// 			? imageKeysArray[imageKeysArray.indexOf(info?.recentImageInitiated) + 1]
-	// 			: imageKeysArray[0];
-	// 	const image = info?.uploadImages[imageKeyIndex];
+		const imageKeyIndex =
+			info?.recentImageInitiated !== null
+				? imageKeysArray[imageKeysArray.indexOf(currentImagge) + 1]
+				: imageKeysArray[0];
+		const image = info?.uploadImages[imageKeyIndex];
+		if (image && image.isUploaded) return null;
 
-	// 	const imageName = image.file.name;
+		const imageName = image?.file?.name || '';
 
-	// 	// const tags = info.selectedGalleryTags.map(tag => tag != null ? tag._id : '').filter(Boolean);
+		const tags = info?.selectedGalleryTags?.map((tag) => (tag != null ? tag._id : ''));
 
-	// 	const json = {
-	// 		originalFileName: imageName,
-	// 		originalDateTime: moment(image['originalDate']).unix(),
-	// 		uploadBatchId: info.uploadBatchID,
-	// 		tag_ids: tags,
-	// 		isAIFacesEnabled: info.isFaceIdEnabled,
-	// 	};
+		const json = {
+			originalFileName: imageName,
+			originalDateTime: moment(image['originalDate']).unix(),
+			uploadBatchId: info.uploadBatchID,
+			tag_ids: tags,
+			isAIFacesEnabled: true,
+		};
 
-	// 	if (image.isDuplicate === true && info.isSkipDuplicates === false) {
-	// 		json = {
-	// 			...json,
-	// 			image_id: image.originalImage._id,
-	// 		};
-	// 	}
+		// for duplicates
+		if (image?.isDuplicate === true && info?.isSkipDuplicates === false) {
+			json = {
+				...json,
+				image_id: image?.originalImage?._id,
+			};
+		}
 
-	// 	if (info.isWaterMarkApply) {
-	// 		json = {
-	// 			...json,
-	// 			watermarkPosition: info.watermarkPosition,
-	// 			watermarkProfileId: info.isWaterMarkApply ? info.watermarkProfileId : null,
-	// 		};
-	// 	}
+		// if there is a watermark
+		if (info.isWaterMarkApply) {
+			json = {
+				...json,
+				watermarkPosition: info?.watermarkPosition,
+				watermarkProfileId: info?.isWaterMarkApply ? info?.watermarkProfileId : null,
+			};
+		}
 
-	// 	setInfo(
-	// 		{
-	// 			...info,
-	// 			recentImageInitiated: imageName,
-	// 			currentUpload:
-	// 				(info.isSkipDuplicates === true && image.isDuplicate === false) ||
-	// 				info.isSkipDuplicates === false
-	// 					? info.currentUpload + 1
-	// 					: info.currentUpload,
-	// 		},
-	// 		async () => {
-	// 			if (
-	// 				info.currentUpload <= info.uploadLimit &&
-	// 				imageKeysArray.indexOf(info.recentImageInitiated) + 1 !==
-	// 					Object.keys(info.uploadedImages).length
-	// 			) {
-	// 				triggerUploadImages();
-	// 			}
+		setinfo((prev) => ({
+			...prev,
+			recentImageInitiated: imageName,
+			currentUpload:
+				(prev?.isSkipDuplicates === true && image?.isDuplicate === false) ||
+				prev?.isSkipDuplicates === false
+					? prev.currentUpload + 1
+					: prev.currentUpload,
+		}));
 
-	// 			if (
-	// 				(info.isSkipDuplicates === true && image.isDuplicate === false) ||
-	// 				info.isSkipDuplicates === false
-	// 			) {
-	// 				await uploaderActions(json, imageName);
-	// 			}
-	// 		},
-	// 	);
-	// };
+		return json;
+	};
+
+	const uploadOnS3Function = async (image, key, signUrl) => {
+		try {
+			let options = {
+				onUploadProgress: (progressEvent) => {
+					const { loaded, total } = progressEvent;
+
+					let percent = Math.floor((loaded * 100) / total);
+					console.log(percent, key);
+
+					if (percent <= 100) {
+						setinfo((prev) => {
+							const uploadImages = { ...prev.uploadImages };
+							uploadImages[key]['uploadedPerct'] = parseInt(percent);
+							return { ...prev, uploadImages };
+						});
+					}
+				},
+				headers: {
+					'Content-Type': image.file.type,
+				},
+			};
+			const response = await axios.put(signUrl, image.file, options);
+
+			if (response.status === 200) {
+				setinfo((prev) => {
+					let uploadImages = { ...prev.uploadImages };
+					uploadImages[key]['isUploaded'] = true;
+					const size = uploadImages[key]['file'].size;
+					delete uploadImages[key]['file'];
+					uploadImages[key]['file'] = { size, name: key };
+					return { ...prev, uploadImages };
+				});
+
+				return true;
+			} else {
+				return false;
+			}
+		} catch (error) {
+			console.log('something error occured');
+		}
+	};
+
+	const uploadFilesConcurrently = async () => {
+		setinfo((prev) => ({
+			...prev,
+			startedUploading: true,
+		}));
+
+		setInterval(() => {
+			const response = getImageUploadStatus(galleryId, albumId, info?.uploadBatchID);
+			console.log(response);
+		}, 3000);
+
+		const queue = Object.keys(info.uploadImages);
+		const activeUploads = [];
+
+		const nextUploadFunc = async () => {
+			if (queue.length === 0) return;
+
+			const currentFile = queue.shift();
+			const json = getJsonFunction(currentFile);
+			const signedURLUpload = await getUploadImageSignUrl(galleryId, albumId, json);
+			if (signedURLUpload[0] === true) {
+				// Push the upload promise to activeUploads
+				const uploadPromise = uploadOnS3Function(
+					info.uploadImages[currentFile],
+					currentFile,
+					signedURLUpload[1]['signedUrl'],
+				);
+				activeUploads.push(uploadPromise); // Add this line
+
+				// Wait for the upload to complete and get the result
+				const isSuccessUpload = await uploadPromise;
+
+				if (isSuccessUpload) {
+					// Remove the promise from activeUploads if successful
+					activeUploads.splice(activeUploads.indexOf(uploadPromise), 1);
+				}
+				nextUploadFunc(); // Call nextUploadFunc regardless of success
+			}
+		};
+
+		for (let i = 0; i < 2 && queue.length > 0; i++) {
+			nextUploadFunc();
+		}
+
+		await Promise.allSettled(activeUploads);
+	};
+	console.log(info);
 
 	return (
 		<div className="upload-gallery-container">
@@ -146,13 +234,12 @@ const UploadPhotos = () => {
 			</div>
 
 			<div className="watermark_progress_container">
-				<WaterMarkComponent />
+				<WaterMarkComponent info={info} setinfo={setinfo} />
 				<UploadStatusComponent
 					info={info}
 					setinfo={setinfo}
-					triggerUploadImages={() => {
-						return;
-					}}
+					// triggerUploadImages={triggerUploadImages}
+					uploadFilesConcurrently={uploadFilesConcurrently}
 				/>
 			</div>
 		</div>
