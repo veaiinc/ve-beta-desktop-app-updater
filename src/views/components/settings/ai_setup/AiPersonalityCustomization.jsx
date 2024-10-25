@@ -4,6 +4,7 @@ import { ReactComponent as DividerLineVerticalWhite } from '../../../../assets/s
 import '../../../../assets/scss/settings/aiSetupPage.scss';
 import Skeleton from 'react-loading-skeleton';
 import Spinner from '../../loaders/Spinner';
+import { message } from 'antd';
 
 const personas = [
 	{
@@ -121,6 +122,7 @@ const AiPersonalityCustomization = () => {
 			responseTone: selectedPersonas,
 			personality: info?.aiPersonalityDescription,
 		});
+		message.success('Your AI assistant has been personified successfully!', 1.5);
 	};
 
 	return (
