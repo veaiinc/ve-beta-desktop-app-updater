@@ -16,13 +16,15 @@ import { ReactComponent as CloudUpload } from '../../../assets/svg/Settings/Clou
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
 import ToggleSlider from '../../../views/components/input/slider';
-import AlbumSettings from './AlbumSettings';
+import { message } from 'antd';
+// import AlbumSettings from './AlbumSettings';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
 import { DatePicker } from 'antd';
 import moment from 'moment';
+import { updateProposalQuery } from '../../../context/Templates/graphQlFunctions';
 
 const imageURL = 'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg';
 const image1 =
@@ -72,6 +74,11 @@ const GalleryPage = () => {
 			tenantPreferences,
 			editPreferences,
 			tenantGalleries,
+			postGallery,
+			getAlbumCount,
+			getLayoutSettings,
+			layoutSettings,
+			putLayoutSettings,
 			basicAlbumDetails,
 		},
 	} = useContext(Context);
@@ -93,7 +100,12 @@ const GalleryPage = () => {
 		isMouseInGallery: false,
 		activeGallery: location?.state,
 		activeAlbumId: tenantAlbums?.albums?.[0]?._id,
-		callToActionToggle: tenantPreferences?.ctaPreferences?.isEnabled,
+		callToAction: tenantPreferences?.ctaPreferences,
+		timeout: null,
+		linkUpdateError: '',
+		albumContains: albumContains,
+		gridStyle: layoutSettings?.gridStyle,
+		thumbnailSize: layoutSettings?.thumbnailSize,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -148,11 +160,27 @@ const GalleryPage = () => {
 		if (tenantPreferences) {
 			setInfo((prev) => ({
 				...prev,
-				callToActionToggle: tenantPreferences?.ctaPreferences?.isEnabled,
+				callToAction: tenantPreferences?.ctaPreferences,
 			}));
 		}
 	}, [tenantPreferences, tenantAlbums]);
-
+	useEffect(() => {
+		if (tenantAlbums?.albums?.[0]?.title) {
+			getAlbumCount(galleryId, tenantAlbums?.albums?.[0]?.title);
+		}
+	}, [tenantAlbums?.albums?.[0]?.title]);
+	useEffect(() => {
+		if (!layoutSettings) {
+			getLayoutSettings(galleryId);
+		}
+		if (layoutSettings) {
+			setInfo((prev) => ({
+				...prev,
+				gridStyle: layoutSettings?.gridStyle,
+				thumbnailSize: layoutSettings?.thumbnailSize,
+			}));
+		}
+	}, [layoutSettings]);
 	const handleImageSelect = (index) => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
@@ -165,6 +193,9 @@ const GalleryPage = () => {
 	const handleClickAlbum = (album, name, activeAlbumId = null) => {
 		if (name === 'albumName') {
 			setInfo((prevInfo) => ({ ...prevInfo, albumName: album, activeAlbumId }));
+			if (info?.albumName !== album) {
+				getAlbumCount(galleryId, album);
+			}
 		} else if (name === 'containName') {
 			setInfo((prevInfo) => ({ ...prevInfo, albumContains: album }));
 		}
@@ -182,9 +213,9 @@ const GalleryPage = () => {
 	const handleExpandClick = () => {
 		const selectedImageIndexes = info.selectedImages;
 		const selectedImages = selectedImageIndexes.map((index) => randomizedImages[index]);
-		const activeIndex = selectedImageIndexes[0]; // Assuming the first selected image is the active one
+		const activeIndex = selectedImageIndexes[0];
 
-		navigate('/gallery/gallery-viewer', {
+		navigate('/gallery-viewer', {
 			state: {
 				images: randomizedImages,
 				selectedImages: selectedImages,
@@ -231,15 +262,127 @@ const GalleryPage = () => {
 	const handleCallToAction = useCallback(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			callToActionToggle: !prevInfo.callToActionToggle,
+			callToAction: {
+				...info?.callToAction,
+				isEnabled: !info?.callToAction?.isEnabled,
+			},
 		}));
 		const payload = {
 			ctaPreferences: {
-				isEnabled: !info.callToActionToggle,
+				isEnabled: !info.callToAction?.isEnabled,
 			},
 		};
 		editPreferences(galleryId, payload);
-	}, [getEditPreferences, info.callToActionToggle]);
+	}, [getEditPreferences, info.callToAction?.isEnabled]);
+
+	const handleLinkChange = useCallback(
+		(e) => {
+			const value = e.target.value;
+			setInfo((prev) => ({
+				...prev,
+				callToAction: {
+					...prev?.callToAction,
+					link: value,
+				},
+			}));
+			handleDebouceFunctionCall(updatePreferences, value);
+		},
+		[info?.callToAction?.link],
+	);
+	const handleGalleryChange = useCallback(
+		(e) => {
+			const value = e.target.value;
+			setInfo((prev) => ({
+				...prev,
+				activeGallery: {
+					galleryData: {
+						...prev?.activeGallery?.galleryData,
+						title: value,
+					},
+				},
+			}));
+			handleDebouceFunctionCall(updateGallery, value);
+		},
+		[info?.activeGallery?.galleryData?.title],
+	);
+
+	const updateGallery = useCallback(async (value) => {
+		const payload = {
+			title: value,
+		};
+		const response = await postGallery(payload, galleryId);
+		if (response?.[0]) {
+			message.success('galleryUpdated');
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				linkUpdateError: 'Error while updatating the gallery',
+			}));
+		}
+	}, []);
+
+	const updatePreferences = useCallback(
+		async (value) => {
+			const payload = {
+				ctaPreferences: {
+					...info?.callToAction,
+					link: value,
+				},
+			};
+
+			const response = await editPreferences(galleryId, payload);
+			if (response?.[0]) {
+				message.success('edited preferences');
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					linkUpdateError: 'edited preferences not updated',
+				}));
+			}
+		},
+		[info?.callToAction],
+	);
+
+	const handleDebouceFunctionCall = useCallback(
+		(func, args) => {
+			clearTimeout(info?.timeout);
+			const timeout = setTimeout(() => {
+				func(args);
+				setInfo((prev) => ({
+					...prev,
+					loading: true,
+				}));
+			}, 800);
+			setInfo((prev) => ({ ...prev, timeout }));
+		},
+		[info?.timeout],
+	);
+
+	const handleLayoutType = (styleName, value) => {
+		if (styleName === 'gridStyle') {
+			const newGridStyle = {
+				vertical: value === 'vertical',
+				horizontal: value === 'horizontal',
+			};
+			setInfo((prev) => ({
+				...prev,
+				gridStyle: newGridStyle,
+			}));
+			putLayoutSettings({ gridStyle: { [value]: true } }, galleryId);
+		}
+		if (styleName === 'thumbnailSize') {
+			const newThumbnailSize = {
+				regular: value === 'regular',
+				large: value === 'large',
+			};
+			setInfo((prev) => ({
+				...prev,
+				thumbnailSize: newThumbnailSize,
+			}));
+			putLayoutSettings({ thumbnailSize: { [value]: true } }, galleryId);
+		}
+	};
+
 	return (
 		<>
 			{console.log(info?.activeGallery, 'activeGallery')}
@@ -461,7 +604,7 @@ const GalleryPage = () => {
 								</div>
 							</div>
 							<div className="albumContains">
-								{albumContains.map((contain, index) => (
+								{info?.albumContains.map((contain, index) => (
 									<div key={index} className="albumContain">
 										<img src={sixDots} alt="sixDots" />
 										<p
@@ -660,6 +803,7 @@ const GalleryPage = () => {
 									<input
 										placeholder="Hannef x Mahi"
 										value={info.activeGallery?.galleryData?.title}
+										onChange={handleGalleryChange}
 									/>
 								</div>
 								<div className="galleryDate">
@@ -689,16 +833,19 @@ const GalleryPage = () => {
 								<div className="callToAction">
 									<p className="subHeading">Call to Action (CTA)</p>
 									<div className="callToActionToggle">
-										{console.log(info.callToActionToggle, 'callToActionToggle')}
 										<ToggleSlider
-											value={info?.callToActionToggle}
+											value={info?.callToAction?.isEnabled}
 											onChange={handleCallToAction}
 										/>
 										<p className="subTitle">
 											Enable to display CTA for the gallery.
 										</p>
 									</div>
-									<input placeholder="https://Instagtagram/sam/9tbevccxggvcxg" />
+									<input
+										placeholder="https://Instagtagram/sam/9tbevccxggvcxg"
+										value={info?.callToAction?.link}
+										onChange={handleLinkChange}
+									/>
 								</div>
 								<div className="clientSubscription">
 									<p className="subHeading">Client Subscription</p>
@@ -776,26 +923,94 @@ const GalleryPage = () => {
 								<div className="grid-style">
 									<p className="subHeading">Grid Style</p>
 									<div className="grid-types">
-										<div className="box">
-											<GridStyleVertical />
-											<p className="subTitle">Vertical</p>
+										<div
+											className={`box ${
+												info?.gridStyle?.vertical ? 'activeBorder' : ''
+											}`}
+											onClick={() =>
+												handleLayoutType('gridStyle', 'vertical')
+											}
+										>
+											<GridStyleVertical
+												className={
+													info?.gridStyle?.vertical ? 'active' : ''
+												}
+											/>
+											<p
+												className={`subTitle ${
+													info?.gridStyle?.vertical ? 'active' : ''
+												}`}
+											>
+												Vertical
+											</p>
 										</div>
-										<div className="box">
-											<GridStyleHorizontal />
-											<p className="subTitle">Horizontal</p>
+										<div
+											className={`box ${
+												info?.gridStyle?.horizontal ? 'activeBorder' : ''
+											}`}
+											onClick={() =>
+												handleLayoutType('gridStyle', 'horizontal')
+											}
+										>
+											<GridStyleHorizontal
+												className={
+													info?.gridStyle?.horizontal ? 'active' : ''
+												}
+											/>
+											<p
+												className={`subTitle ${
+													info?.gridStyle?.horizontal ? 'active' : ''
+												}`}
+											>
+												Horizontal
+											</p>
 										</div>
 									</div>
 								</div>
 								<div className="thumbnail-size">
 									<p className="subHeading">Thumbnail Size</p>
 									<div className="thumbnail-types">
-										<div className="box">
-											<ThumbnailV />
-											<p className="subTitle">Vertical</p>
+										<div
+											className={`box ${
+												info?.thumbnailSize?.regular ? 'activeBorder' : ''
+											}`}
+											onClick={() =>
+												handleLayoutType('thumbnailSize', 'regular')
+											}
+										>
+											<ThumbnailV
+												className={
+													info?.thumbnailSize?.regular ? 'active' : ''
+												}
+											/>
+											<p
+												className={`subTitle ${
+													info?.thumbnailSize?.regular ? 'active' : ''
+												}`}
+											>
+												Regular
+											</p>
 										</div>
-										<div className="box">
-											<ThumbnailH />
-											<p className="subTitle">Horizontal</p>
+										<div
+											className={`box ${
+												info?.thumbnailSize?.large ? 'activeBorder' : ''
+											}`}
+											onClick={() =>
+												handleLayoutType('thumbnailSize', 'large')
+											}
+										>
+											<ThumbnailH
+												className={
+													info?.thumbnailSize?.large ? 'active' : ''
+												}
+											/>
+											<p
+												className={`subTitle ${
+													info?.thumbnailSize?.large ? 'active' : ''
+												}`}
+											>
+												Large
+											</p>
 										</div>
 									</div>
 								</div>

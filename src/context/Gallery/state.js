@@ -10,6 +10,7 @@ export const intialState = {
 	tenantAlbums: null,
 	tagsList: null,
 	tenantPreferences: null,
+	layoutSettings: null,
 };
 
 export const Galleries = () => {
@@ -120,7 +121,7 @@ export const Galleries = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			const response = await service.fetchPost(
+			const response = await service.fetchPut(
 				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}`,
 				payload,
 				usertoken,
@@ -220,7 +221,7 @@ export const Galleries = () => {
 				});
 			}
 		} catch (error) {
-			console.log('error==>editPreferences', error);
+			console.log('error==>geteditPreferences', error);
 		}
 	};
 	const editPreferences = async (galleryId, payload) => {
@@ -237,6 +238,110 @@ export const Galleries = () => {
 			console.log('error==>editPreferences', error);
 		}
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/details
+	const getAlbumCount = async (galleryId, albumSlug) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumSlug}`,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>getAlbumCount', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/layout-settings
+	const getLayoutSettings = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/layout-settings`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_LAYOUT_SETTINGS,
+					payload: response?.[1]?.layoutSettings,
+				});
+			}
+		} catch (error) {
+			console.log('error==>getLayoutSettings', error);
+		}
+	};
+	const putLayoutSettings = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/layout-settings`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_LAYOUT_SETTINGS,
+					payload: response?.[1]?.layoutSettings,
+				});
+			}
+		} catch (error) {
+			console.log('error==>getLayoutSettings', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/tenant-users
+	const getCollaborators = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/tenant-users`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_LAYOUT_SETTINGS,
+					payload: response?.[1]?.layoutSettings,
+				});
+			}
+		} catch (error) {
+			console.log('error==>getLayoutSettings', error);
+		}
+	};
+	const postCollaborators = async (payload, galleryId) => {
+		// {
+		//     "_id": "66ecfc69a27061c8cd3e66ca",
+		//     "role": [
+
+		//         "collaborator"
+		//     ],
+		//     "canDownload": false
+		// }
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}/galleries/${galleryId}/tenant-users`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_LAYOUT_SETTINGS,
+					payload: response?.[1]?.layoutSettings,
+				});
+			}
+		} catch (error) {
+			console.log('error==>getLayoutSettings', error);
+		}
+	};
+	const resetGallleryState = async () => {
+		dispatch({ type: Actions.RESET_STATE });
+	};
 
 	return {
 		...state,
@@ -252,5 +357,9 @@ export const Galleries = () => {
 		getGalleryTagsList,
 		addGalleryTag,
 		getEditPreferences,
+		getAlbumCount,
+		getLayoutSettings,
+		resetGallleryState,
+		putLayoutSettings,
 	};
 };

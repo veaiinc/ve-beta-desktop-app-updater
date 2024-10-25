@@ -22,6 +22,10 @@ const actionHandlers = {
 		...state,
 		tenantPreferences: action.payload,
 	}),
+	GET_LAYOUT_SETTINGS: (state, action) => ({
+		...state,
+		layoutSettings: action.payload,
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 
