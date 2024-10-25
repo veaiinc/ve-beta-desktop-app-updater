@@ -20,6 +20,7 @@ import { message } from 'antd';
 // import AlbumSettings from './AlbumSettings';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
+import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPopup';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
 import { DatePicker } from 'antd';
@@ -98,6 +99,7 @@ const GalleryPage = () => {
 		activeTab: 'Albums',
 		showCreateAlbum: false,
 		isMouseInGallery: false,
+		showCollaborators: false,
 		activeGallery: location?.state,
 		activeAlbumId: tenantAlbums?.albums?.[0]?._id,
 		callToAction: tenantPreferences?.ctaPreferences,
@@ -382,7 +384,12 @@ const GalleryPage = () => {
 			putLayoutSettings({ thumbnailSize: { [value]: true } }, galleryId);
 		}
 	};
-
+	const handleManageCollaboratorPopup = () => {
+		setInfo((prev) => ({
+			...prev,
+			showCollaborators: !info?.showCollaborators,
+		}));
+	};
 	return (
 		<>
 			{console.log(info?.activeGallery, 'activeGallery')}
@@ -866,7 +873,10 @@ const GalleryPage = () => {
 												add to or remove from this gallery.
 											</p>
 										</div>
-										<p className="subHeading manageButton">
+										<p
+											className="subHeading manageButton"
+											onClick={handleManageCollaboratorPopup}
+										>
 											+ Manage Collaborators
 										</p>
 									</div>
@@ -1058,6 +1068,11 @@ const GalleryPage = () => {
 					}))
 				}
 				galleryId={galleryId}
+			/>
+
+			<CollaboratorPopup
+				open={info?.showCollaborators}
+				closeModal={handleManageCollaboratorPopup}
 			/>
 		</>
 	);

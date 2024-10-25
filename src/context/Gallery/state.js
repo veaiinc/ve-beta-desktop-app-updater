@@ -394,5 +394,12 @@ export const Galleries = () => {
 		editPreferences,
 		getGalleryTagsList,
 		addGalleryTag,
+		getImageUploadStatus,
+		getUploadImageSignUrl,
+		resetGallleryState,
+		putLayoutSettings,
+		getLayoutSettings,
+		getAlbumCount,
+		getEditPreferences,
 	};
 };
