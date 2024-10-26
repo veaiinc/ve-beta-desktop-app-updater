@@ -63,8 +63,8 @@ const dummyLabelData = [
 ];
 
 const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
-	console.log('labelsData: ' + JSON.stringify(labelsData, null, 2));
-	console.log('labelItemsData: ' + JSON.stringify(labelItemsData, null, 2));
+	// console.log('labelsData: ' + JSON.stringify(labelsData, null, 2));
+	// console.log('labelItemsData: ' + JSON.stringify(labelItemsData, null, 2));
 	const [info, setInfo] = useState({
 		isLabelSelected: true,
 		activeLabelItem: null,
@@ -76,24 +76,6 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 			isLabelSelected: !prevState.isLabelSelected,
 		}));
 	};
-
-	// const handleActivelable = (label, section) => {
-	// 	console.log('Label Data ===>', label);
-	// 	setInfo((prevState) => ({
-	// 		...prevState,
-	// 		activeLabelItem: label,
-	// 		isLabelSelected: false,
-	// 	}));
-
-	// 	// Scroll to the chart view
-	// 	const scrollClass = section === 'Time Spent' ? `.timeSpentChart` : `.interactionChart`;
-
-	// 	const chartElement = document.querySelector(scrollClass);
-
-	// 	if (chartElement) {
-	// 		chartElement.scrollIntoView({ behavior: 'smooth' });
-	// 	}
-	// };
 
 	const handleActivelable = useCallback((selectedLabel, section) => {
 		console.log('Label Data ===>', selectedLabel);

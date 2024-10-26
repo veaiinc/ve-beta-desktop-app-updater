@@ -43,12 +43,14 @@ const ActivityDashboard = () => {
 		}));
 	}, []);
 
+	//API Activity Summary ====>
 	const fetchActivityData = useCallback(() => {
 		if (!activityData) {
 			getSmartFileActivity({ workflowId });
 		}
 	}, [getSmartFileActivity, workflowId, activityData]);
 
+	//API Viewers List ====>
 	const fetchViewersListData = useCallback(() => {
 		if (!viewersList) {
 			getSmartFileViewers({ workflowId });
@@ -85,16 +87,20 @@ const ActivityDashboard = () => {
 				title="Interactions"
 				labelsData={activityData?.interaction}
 				labelItemsData={activityData?.interaction?.reduce((acc, item) => {
-					return acc.concat(item.interactions); //reducing the interactions array for sending each interaction data
+					return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending each "interaction" array data
 				}, [])}
 			/>
 
 			{/* /Modals */}
-			<SessionActivityModal
-				modalIsOpen={info?.modalIsOpen}
-				showDrawer={showDrawer}
-				selectedViewer={info?.selectedViewer}
-			/>
+			{info?.selectedViewer ? (
+				<SessionActivityModal
+					modalIsOpen={info?.modalIsOpen}
+					showDrawer={showDrawer}
+					selectedViewer={info?.selectedViewer}
+				/>
+			) : (
+				''
+			)}
 			{/* <EmailModal modalIsOpen={info?.modalIsOpen} showDrawer={showDrawer} /> */}
 		</div>
 	);
