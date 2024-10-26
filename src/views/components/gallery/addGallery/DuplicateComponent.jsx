@@ -12,14 +12,7 @@ const DuplicateComponent = ({ info, setinfo }) => {
 			<div className="text_div">
 				<h1>Skip Duplicates</h1>
 				<p>Automatically remove photos with the same file name.</p>
-				<p>
-					{
-						Object.keys(info?.uploadImages || {}).filter(
-							(key) => info.uploadImages[key]?.isDuplicate,
-						)?.length
-					}{' '}
-					Duplicates Found
-				</p>
+				<p>{info?.duplciatesFound} Duplicates Found</p>
 			</div>
 			<Switch
 				checked={info?.isSkipDuplicates || false}

@@ -11,6 +11,8 @@ export const intialState = {
 	tagsList: null,
 	tenantPreferences: null,
 	layoutSettings: null,
+	imageDuplicatesList: null,
+	waterMarks: null,
 };
 
 export const Galleries = () => {
@@ -360,8 +362,6 @@ export const Galleries = () => {
 		}
 	};
 
-	// {{galleryId}}/albums/{{albumId}}/image-upload-status?uploadBatchId=Ai9dxsGi2X
-
 	const getImageUploadStatus = async (galleryId, albumId, batchId) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -378,6 +378,74 @@ export const Galleries = () => {
 			}
 		} catch (error) {
 			console.log('error==>getTags', error);
+		}
+	};
+
+	const getImageDuplicatesList = async (galleryId, albumId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.albums}/${albumId}${API.GALLERY.checkImageDuplicates}`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_IMAGE_DUPLICATES,
+					payload: { galleryId, albumId, list: response?.[1] },
+				});
+			}
+		} catch (error) {
+			console.log('error==>getImageDuplicatesList', error);
+		}
+	};
+
+	const getWaterMarks = async () => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}${API.GALLERY.watermarks}`,
+				usertoken,
+				'tenant',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_WATERMARKS_LIST,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getImageDuplicatesList', error);
+		}
+	};
+
+	const uploadWaterMark = async (file) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}${API.GALLERY.watermarks}`,
+				null,
+				usertoken,
+				'tenant',
+			);
+			if (response[0]) {
+				const responseUrl = await axios.put(response[1]?.signedUrl, file, {
+					headers: {
+						'Content-Type': file.type,
+					},
+				});
+
+				if (responseUrl.status === 200) {
+					return [true];
+				} else {
+					return [false];
+				}
+			}
+		} catch (error) {
+			console.log('error==>uploadWaterMark', error);
 		}
 	};
 
@@ -401,5 +469,8 @@ export const Galleries = () => {
 		getLayoutSettings,
 		getAlbumCount,
 		getEditPreferences,
+		getImageDuplicatesList,
+		getWaterMarks,
+		uploadWaterMark,
 	};
 };

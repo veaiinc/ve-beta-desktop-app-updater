@@ -8,24 +8,15 @@ const UploadStatusComponent = ({ info, setinfo, triggerUploadImages, uploadFiles
 	// func for removing the image
 	const deleteFromUploads = (fileName) => {
 		const update = { ...info };
+		const image = update.uploadImages[fileName];
+		if (image?.isDuplicate) {
+			update.duplciatesFound -= 1;
+		}
+		update.uploadSize -= image.file.size / 1024;
 		delete update.uploadImages[fileName];
 		setinfo(update);
 	};
 
-	// submit handler
-	// const uploadPhotosSubmitHandler = (e) => {
-	// 	e.preventDefault();
-	// 	let imageCount = Object.keys(info?.uploadImages || {}).length;
-	// 	if (imageCount <= 0) return;
-	// 	setinfo((prev) => ({
-	// 		...prev,
-	// 		startedUploading: true,
-	// 		// recentImageInitiated: Object.keys(info?.uploadImages)[0],
-	// 	}));
-	// 	triggerUploadImages(true);
-	// 	// if (imageCount > 0) triggerUploadImages();
-	// };
-	// submit handler
 	const uploadPhotosSubmitHandler = (e) => {
 		e.preventDefault();
 		let imageCount = Object.keys(info?.uploadImages || {}).length;
@@ -35,7 +26,7 @@ const UploadStatusComponent = ({ info, setinfo, triggerUploadImages, uploadFiles
 	};
 
 	return (
-		<div style={{ display: 'flex', flexDirection: 'column', width: '50%', gap: '12px' }}>
+		<div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '12px' }}>
 			<DuplicateComponent info={info} setinfo={setinfo} />
 
 			<div className="upload_status_container">
@@ -50,7 +41,9 @@ const UploadStatusComponent = ({ info, setinfo, triggerUploadImages, uploadFiles
 					<div className="text_div">
 						<h1>
 							{Object.keys(info?.uploadImages || {}).length} Images added -{' '}
-							{info?.uploadSize?.toFixed(2)} MB{' '}
+							{info?.uploadSize > 1024
+								? (info?.uploadSize / 1024).toFixed(2) + ' MB'
+								: (info?.uploadSize).toFixed(2) + ' KB'}{' '}
 						</h1>
 						<p>Max amount 10,000 photos</p>
 					</div>
@@ -89,6 +82,12 @@ const UploadStatusComponent = ({ info, setinfo, triggerUploadImages, uploadFiles
 							<div className="fileName">{singlePhoto?.file?.name}</div>
 
 							<div className="progress_div">
+								{singlePhoto?.isDuplicate && (
+									<div className="text_value">
+										<p>Duplicate || </p>
+									</div>
+								)}
+
 								<div className="text_value">
 									<p>{(singlePhoto?.file?.size / 1024).toFixed(2)} KB</p>
 								</div>

@@ -26,6 +26,16 @@ const actionHandlers = {
 		...state,
 		layoutSettings: action.payload,
 	}),
+
+	GET_IMAGE_DUPLICATES: (state, action) => ({
+		...state,
+		imageDuplicatesList: action.payload,
+	}),
+	GET_WATERMARKS_LIST: (state, action) => ({
+		...state,
+		waterMarks: action.payload,
+	}),
+
 	RESET_STATE: () => ({ ...intialState }),
 };
 

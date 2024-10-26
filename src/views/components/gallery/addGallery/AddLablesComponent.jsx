@@ -5,9 +5,9 @@ import { useParams } from 'react-router-dom';
 const labels = ['Portrait', 'Documentary', 'Decor', 'Decor'];
 
 const AddLables = ({ info, setinfo }) => {
-	const { galleryId } = useParams();
+	const { galleryId, albumId } = useParams();
 	const {
-		galleryInfo: { tagsList, getGalleryTagsList, addGalleryTag },
+		galleryInfo: { tagsList, getGalleryTagsList, addGalleryTag, getImageDuplicatesList },
 	} = useContext(Context);
 
 	const [inputTag, setinputTag] = useState('');
@@ -15,10 +15,11 @@ const AddLables = ({ info, setinfo }) => {
 	useEffect(() => {
 		if (tagsList?.galleryId !== galleryId) {
 			getGalleryTagsList(galleryId);
+			getImageDuplicatesList(galleryId, albumId);
 		} else {
 			setinfo((prev) => ({ ...prev, selectedGalleryTags: tagsList?.list || [] }));
 		}
-	}, [tagsList, galleryId]);
+	}, [tagsList, galleryId, albumId]);
 
 	const addNewTagHandler = () => {
 		if (!inputTag.length) return;

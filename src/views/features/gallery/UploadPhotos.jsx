@@ -15,22 +15,45 @@ const UploadPhotos = () => {
 	const { galleryId, albumId } = useParams();
 
 	const {
-		galleryInfo: { getUploadImageSignUrl, getImageUploadStatus },
+		galleryInfo: {
+			getUploadImageSignUrl,
+			getImageUploadStatus,
+			imageDuplicatesList,
+			getWaterMarks,
+			waterMarks,
+		},
 	} = useContext(Context);
 
 	const [info, setinfo] = useState({
 		isWaterMarkApply: false,
+		watermarkProfileId: null,
+		watermarkPosition: {
+			bpos: 10,
+			lpos: 'auto',
+			name: 'southeast',
+			rpos: 10,
+			tpos: 'auto',
+		},
 		initialUpload: false,
 		startedUploading: false,
 		uploadImages: {},
-		uploadSize: 0,
+		uploadSize: 0, // kb
 		uploadLimit: 2,
 		currentUpload: 1,
 		recentImageInitiated: null,
 		isSkipDuplicates: false,
 		uploadBatchID: randomize('Aa0', 10),
 		selectedGalleryTags: [],
+		duplciatesFound: 0,
 	});
+
+	useEffect(() => {
+		if (!waterMarks) {
+			getWaterMarks();
+		} else if (waterMarks && waterMarks?.length > 0) {
+			setinfo((prev) => ({ ...prev, watermarkProfileId: waterMarks[0].profileId }));
+		}
+	}, [waterMarks]);
 
 	// drop function
 	const onDropFunction = async (files) => {
@@ -39,11 +62,12 @@ const UploadPhotos = () => {
 		if (updateInfo?.initialUpload) {
 			updateInfo.initialUpload = true;
 		}
+		let totalSize = 0;
 
 		files?.map((file) => {
 			let uploadedImages = { ...updateInfo?.uploadImages };
 
-			let findDuplicateImage = info?.checkDuplicateImages?.find(
+			let findDuplicateImage = imageDuplicatesList?.list?.find(
 				(image) => image?.displayName === file?.name,
 			);
 
@@ -61,11 +85,11 @@ const UploadPhotos = () => {
 				};
 
 				updateInfo.uploadImages = uploadedImages;
-				updateInfo.uploadSize = (updateInfo.uploadSize + file.size) / 1024; // Convert to KB
+				totalSize += file.size;
 
-				// if (galleryImages.some((image) => image.displayName === file.name)) {
-				// 	setDuplciatesFound((prevCount) => prevCount + 1);
-				// }
+				if (imageDuplicatesList?.list?.some((image) => image.displayName === file.name)) {
+					updateInfo.duplciatesFound = updateInfo?.duplciatesFound + 1;
+				}
 			} else {
 				uploadedImages[file.name] = {
 					file: file,
@@ -76,6 +100,8 @@ const UploadPhotos = () => {
 				};
 			}
 		});
+
+		updateInfo.uploadSize = updateInfo.uploadSize + totalSize / 1024;
 
 		setinfo(updateInfo);
 	};
@@ -94,7 +120,7 @@ const UploadPhotos = () => {
 
 		const tags = info?.selectedGalleryTags?.map((tag) => (tag != null ? tag._id : ''));
 
-		const json = {
+		let json = {
 			originalFileName: imageName,
 			originalDateTime: moment(image['originalDate']).unix(),
 			uploadBatchId: info.uploadBatchID,
@@ -114,7 +140,7 @@ const UploadPhotos = () => {
 		if (info.isWaterMarkApply) {
 			json = {
 				...json,
-				watermarkPosition: info?.watermarkPosition,
+				watermarkPosition: info?.watermarkPosition?.name,
 				watermarkProfileId: info?.isWaterMarkApply ? info?.watermarkProfileId : null,
 			};
 		}
@@ -180,8 +206,8 @@ const UploadPhotos = () => {
 			startedUploading: true,
 		}));
 
-		setInterval(() => {
-			const response = getImageUploadStatus(galleryId, albumId, info?.uploadBatchID);
+		setInterval(async () => {
+			const response = await getImageUploadStatus(galleryId, albumId, info?.uploadBatchID);
 			console.log(response);
 		}, 3000);
 
@@ -220,7 +246,6 @@ const UploadPhotos = () => {
 
 		await Promise.allSettled(activeUploads);
 	};
-	console.log(info);
 
 	return (
 		<div className="upload-gallery-container">
@@ -234,7 +259,7 @@ const UploadPhotos = () => {
 			</div>
 
 			<div className="watermark_progress_container">
-				<WaterMarkComponent info={info} setinfo={setinfo} />
+				<WaterMarkComponent info={info} setinfo={setinfo} waterMarks={waterMarks} />
 				<UploadStatusComponent
 					info={info}
 					setinfo={setinfo}

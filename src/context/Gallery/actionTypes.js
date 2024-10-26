@@ -4,4 +4,6 @@ export const GALLERY = {
 	albums: '/albums',
 	images: '/images',
 	imageUploadStatus: '/image-upload-status',
+	checkImageDuplicates: '/check-image-duplicates',
+	watermarks: '/watermarks',
 };
