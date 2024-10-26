@@ -62,12 +62,32 @@ const apiFetch = async (url, method, body, token, type) => {
 	}
 };
 
+const handleParams = (params) => {
+	let subUrl = '';
+	if (Object.keys(params)?.length) {
+		subUrl += '?';
+		const keys = Object.keys(params);
+		for (let i = 0; i < keys?.length; i++) {
+			subUrl += `${keys[i]}=${encodeURIComponent(params[keys[i]])}&`;
+		}
+	}
+	return subUrl;
+};
+
 const Service = {
-	fetchGet: (url, token = null, type = null) => apiFetch(url, 'GET', null, token, type),
-	fetchPost: (url, body, token = null, type = null) => apiFetch(url, 'POST', body, token, type),
-	fetchPut: (url, body, token = null, type = null) => apiFetch(url, 'PUT', body, token, type),
-	fetchDelete: (url, token = null, body = null, type = null) =>
-		apiFetch(url, 'DELETE', body, token, type),
+	fetchGet: async (url, token = null, type = null, params = {}) => {
+		let completeUrl = url;
+		if (Object.keys(params)?.length) {
+			completeUrl += handleParams(params);
+		}
+		return await apiFetch(completeUrl, 'GET', null, token, type);
+	},
+	fetchPost: async (url, body, token = null, type = null) =>
+		await apiFetch(url, 'POST', body, token, type),
+	fetchPut: async (url, body, token = null, type = null) =>
+		await apiFetch(url, 'PUT', body, token, type),
+	fetchDelete: async (url, token = null, body = null, type = null) =>
+		await apiFetch(url, 'DELETE', body, token, type),
 };
 
 const onFailure = async (res, url) => {

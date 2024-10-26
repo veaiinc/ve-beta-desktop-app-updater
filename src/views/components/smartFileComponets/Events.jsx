@@ -1,4 +1,5 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
@@ -8,8 +9,7 @@ import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/que
 import ToolTipContainer from '../popover/ToolTipContainer';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
-import AddPresetModal from '../modalsV2/proposalModals/AddPresetModal';
+import EventsPresetsPopOverComponent from '../modalsV2/proposalModals/EventsPresetPopUp';
 
 const Events = ({ eventsData, eventsDataChange, editable }) => {
 	const [info, setInfo] = useState({
@@ -324,6 +324,11 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 							trigger="click"
 							overlayClassName="toolTipContainer"
 							open={info?.presetPopUp}
+							onOpenChange={(open) => {
+								if (!open) {
+									closePresetPopUp();
+								}
+							}}
 						>
 							<div
 								className="serviceContainerTitle"
@@ -442,87 +447,3 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 };
 
 export default memo(Events);
-
-const EventsPresetsPopOverComponent = ({ closePresetPopUp }) => {
-	const data = [
-		{
-			title: 'Wedding Basics',
-			roles: ['2 candid photographers'],
-		},
-		{
-			title: 'Wedding Basics',
-			roles: ['2 candid photographers'],
-		},
-		{
-			title: 'Wedding Basics',
-			roles: ['2 candid photographers'],
-		},
-	];
-	const [info, setInfo] = useState({
-		createEditPresetModal: false,
-	});
-
-	const openCreateEditPresetModal = useCallback(() => {
-		closePresetPopUp();
-		setInfo((prev) => ({ ...prev, createEditPresetModal: true }));
-	}, []);
-
-	const closeCreateEditPresetModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, createEditPresetModal: false }));
-	}, []);
-
-	return (
-		<div className="eventsPresetsParentContainer">
-			<div className="addNewPresetButton" onClick={openCreateEditPresetModal}>
-				+ Add new preset
-			</div>
-			<div className="definedPresetContainer">
-				{data?.map((ele, index) => (
-					<div className="presetCards">
-						<div className="presetCardContentContainer">
-							<span className="presetTitle">Wedding Basics</span>
-							<span className="presetSubTitle">
-								Wedding Basics 2 Candid photographer , 2 traditional photographer
-							</span>
-						</div>
-						<div className="threeDotsButton">
-							<Tooltip
-								placement="bottomRight"
-								title={<ThreeDotsPopUp />}
-								color={'#202020'}
-								arrow={false}
-								trigger="click"
-								overlayClassName="toolTipContainer"
-							>
-								<ThreeDots />
-							</Tooltip>
-						</div>
-					</div>
-				))}
-			</div>
-			<AddPresetModal
-				modalIsOpen={info?.createEditPresetModal}
-				closeModal={closeCreateEditPresetModal}
-			/>
-		</div>
-	);
-};
-
-const ThreeDotsPopUp = () => {
-	return (
-		<div className="threeDotsPopupContainer">
-			<div className="threeDotOptionsContainer">
-				<span className="optionsStyling">Make Default</span>
-			</div>
-			<div className="threeDotOptionsContainer">
-				<span className="optionsStyling">Edit</span>
-			</div>
-			<div className="threeDotOptionsContainer">
-				<span className="optionsStyling">Duplicate</span>
-			</div>
-			<div className="threeDotOptionsContainer">
-				<span className="optionsStyling deleteStyling">Delete</span>
-			</div>
-		</div>
-	);
-};
