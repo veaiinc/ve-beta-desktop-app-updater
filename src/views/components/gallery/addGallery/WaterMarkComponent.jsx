@@ -46,7 +46,7 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 	};
 
 	const switchChangeHandler = (checked) => {
-		if (info?.isWaterMarkApply === checked) return;
+		if (info?.isWaterMarkApply === checked || info?.startedUploading) return;
 		setinfo((prev) => ({ ...prev, isWaterMarkApply: checked }));
 	};
 
@@ -76,7 +76,7 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 
 			{info?.isWaterMarkApply && (
 				<>
-					<div class="watermark_container">
+					<div className="watermark_container">
 						<img
 							src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NzV8fHdlZGRpbmd8ZW58MHx8MHx8fDA%3D"
 							alt="bgwatermark"
@@ -89,7 +89,7 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 							}}
 						/>
 
-						<div class="grid-overlay">
+						<div className="grid-overlay">
 							{watermarkPositions?.map(({ position, top, left, bottom, right }) => (
 								<div
 									key={position}

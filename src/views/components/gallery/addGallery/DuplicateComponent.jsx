@@ -3,7 +3,7 @@ import { Switch } from 'antd';
 
 const DuplicateComponent = ({ info, setinfo }) => {
 	const onChangeHandler = (checked) => {
-		if (info?.isSkipDuplicates === checked) return;
+		if (info?.isSkipDuplicates === checked || info?.startedUploading) return;
 		setinfo((prev) => ({ ...prev, isSkipDuplicates: checked }));
 	};
 

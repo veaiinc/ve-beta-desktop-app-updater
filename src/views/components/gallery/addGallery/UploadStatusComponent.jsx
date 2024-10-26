@@ -4,7 +4,7 @@ import { ReactComponent as CancelUploadSvg } from '../../../../assets/svg/galler
 import { Progress } from 'antd';
 import DuplicateComponent from './DuplicateComponent';
 
-const UploadStatusComponent = ({ info, setinfo, triggerUploadImages, uploadFilesConcurrently }) => {
+const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently }) => {
 	// func for removing the image
 	const deleteFromUploads = (fileName) => {
 		const update = { ...info };
@@ -51,12 +51,10 @@ const UploadStatusComponent = ({ info, setinfo, triggerUploadImages, uploadFiles
 					{info?.startedUploading ? (
 						<div className="overall_percentage">
 							<div className="progress">
-								<Progress percent={50} showInfo={false} />
+								<Progress percent={info?.overAllProgress} showInfo={false} />
 							</div>
 
-							<div className="text_value">
-								<p>40 MB</p>
-							</div>
+							<div className="text_value">{info?.overAllProgress}%</div>
 						</div>
 					) : (
 						<button
@@ -74,40 +72,42 @@ const UploadStatusComponent = ({ info, setinfo, triggerUploadImages, uploadFiles
 					)}
 				</div>
 
-				<div className="body_upload_div">
-					<div className="line_div"></div>
+				{Object.entries(info?.uploadImages || {}).length > 0 && (
+					<div className="body_upload_div">
+						<div className="line_div"></div>
 
-					{Object.entries(info?.uploadImages || {}).map(([key, singlePhoto]) => (
-						<div className="single_file_detail" key={key}>
-							<div className="fileName">{singlePhoto?.file?.name}</div>
+						{Object.entries(info?.uploadImages || {}).map(([key, singlePhoto]) => (
+							<div className="single_file_detail" key={key}>
+								<div className="fileName">{singlePhoto?.file?.name}</div>
 
-							<div className="progress_div">
-								{singlePhoto?.isDuplicate && (
+								<div className="progress_div">
+									{singlePhoto?.isDuplicate && (
+										<div className="text_value">
+											<p>Duplicate || </p>
+										</div>
+									)}
+
 									<div className="text_value">
-										<p>Duplicate || </p>
+										<p>{(singlePhoto?.file?.size / 1024).toFixed(2)} KB</p>
 									</div>
-								)}
 
-								<div className="text_value">
-									<p>{(singlePhoto?.file?.size / 1024).toFixed(2)} KB</p>
+									{info?.startedUploading && (
+										<div className="progress">
+											<Progress
+												percent={singlePhoto?.uploadedPerct}
+												showInfo={false}
+											/>
+										</div>
+									)}
+
+									{!singlePhoto?.isUploaded && (
+										<CancelUploadSvg onClick={() => deleteFromUploads(key)} />
+									)}
 								</div>
-
-								{info?.startedUploading && (
-									<div className="progress">
-										<Progress
-											percent={singlePhoto?.uploadedPerct}
-											showInfo={false}
-										/>
-									</div>
-								)}
-
-								{!singlePhoto?.isUploaded && (
-									<CancelUploadSvg onClick={() => deleteFromUploads(key)} />
-								)}
 							</div>
-						</div>
-					))}
-				</div>
+						))}
+					</div>
+				)}
 			</div>
 		</div>
 	);

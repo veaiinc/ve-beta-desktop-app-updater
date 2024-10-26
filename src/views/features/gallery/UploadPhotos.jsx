@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import '../../../assets/scss/gallery/uploadGallery.scss';
 import AddLables from '../../components/gallery/addGallery/AddLablesComponent';
 import UploadInputComponent from '../../components/gallery/addGallery/UploadInputComponent';
@@ -25,7 +25,7 @@ const UploadPhotos = () => {
 	} = useContext(Context);
 
 	const [info, setinfo] = useState({
-		isWaterMarkApply: false,
+		isWaterMarkApply: true,
 		watermarkProfileId: null,
 		watermarkPosition: {
 			bpos: 10,
@@ -45,7 +45,10 @@ const UploadPhotos = () => {
 		uploadBatchID: randomize('Aa0', 10),
 		selectedGalleryTags: [],
 		duplciatesFound: 0,
+		uploadStatus: { processedCount: 0, uploadedCount: 0 },
+		overAllProgress: 0,
 	});
+	const recentImageInitiatedRef = useRef(info.recentImageInitiated);
 
 	useEffect(() => {
 		if (!waterMarks) {
@@ -54,6 +57,10 @@ const UploadPhotos = () => {
 			setinfo((prev) => ({ ...prev, watermarkProfileId: waterMarks[0].profileId }));
 		}
 	}, [waterMarks]);
+
+	// useEffect(() => {
+	// 	recentImageInitiatedRef.current = info.recentImageInitiated;
+	// }, [info.recentImageInitiated]);
 
 	// drop function
 	const onDropFunction = async (files) => {
@@ -106,24 +113,28 @@ const UploadPhotos = () => {
 		setinfo(updateInfo);
 	};
 
-	const getJsonFunction = (currentImagge) => {
-		const imageKeysArray = Object.keys(info?.uploadImages);
+	const getJsonFunction = (currentImage) => {
+		console.log(currentImage, 'test', info.recentImageInitiated, recentImageInitiatedRef);
+		const imageKeysArray = Object.keys(info?.uploadImages || {});
 
 		const imageKeyIndex =
-			info?.recentImageInitiated !== null
-				? imageKeysArray[imageKeysArray.indexOf(currentImagge) + 1]
+			recentImageInitiatedRef.current !== null
+				? imageKeysArray[imageKeysArray.indexOf(currentImage) + 1]
 				: imageKeysArray[0];
 		const image = info?.uploadImages[imageKeyIndex];
-		if (image && image.isUploaded) return null;
+
+		console.log(image, image);
+		if (image && image?.isUploaded) return null;
 
 		const imageName = image?.file?.name || '';
+		console.log(imageName, 'test2');
 
-		const tags = info?.selectedGalleryTags?.map((tag) => (tag != null ? tag._id : ''));
+		const tags = info?.selectedGalleryTags?.map((tag) => (tag != null ? tag._id : '')) || [];
 
 		let json = {
 			originalFileName: imageName,
-			originalDateTime: moment(image['originalDate']).unix(),
-			uploadBatchId: info.uploadBatchID,
+			originalDateTime: moment(image?.['originalDate']).unix() || 0,
+			uploadBatchId: info?.uploadBatchID,
 			tag_ids: tags,
 			isAIFacesEnabled: true,
 		};
@@ -145,9 +156,10 @@ const UploadPhotos = () => {
 			};
 		}
 
+		recentImageInitiatedRef.current = currentImage;
 		setinfo((prev) => ({
 			...prev,
-			recentImageInitiated: imageName,
+			// recentImageInitiated: currentImage,
 			currentUpload:
 				(prev?.isSkipDuplicates === true && image?.isDuplicate === false) ||
 				prev?.isSkipDuplicates === false
@@ -165,7 +177,6 @@ const UploadPhotos = () => {
 					const { loaded, total } = progressEvent;
 
 					let percent = Math.floor((loaded * 100) / total);
-					console.log(percent, key);
 
 					if (percent <= 100) {
 						setinfo((prev) => {
@@ -206,9 +217,41 @@ const UploadPhotos = () => {
 			startedUploading: true,
 		}));
 
-		setInterval(async () => {
+		const interval = setInterval(async () => {
 			const response = await getImageUploadStatus(galleryId, albumId, info?.uploadBatchID);
-			console.log(response);
+			const { processedCount, uploadedCount } = response[1];
+			const result =
+				Object.values(info.uploadImages || {}).length ===
+				Object.values(info.uploadImages || {}).filter((image) => image.isDuplicate).length
+					? '100'
+					: parseInt(
+							(Object.values(info?.uploadImages || {}).filter(
+								(image) => image?.isUploaded,
+							).length /
+								(info?.uploadImages?.length -
+									(info?.isSkipDuplicates
+										? Object.values(info?.uploadImages).filter(
+												(image) => image?.isDuplicate,
+										  ).length
+										: 0))) *
+								50,
+					  ) +
+					  parseInt(
+							(processedCount /
+								(info?.uploadImages?.length -
+									(info?.isSkipDuplicates
+										? Object.values(info?.uploadImages || {}).filter(
+												(image) => image?.isDuplicate,
+										  )?.length
+										: 0))) *
+								50,
+					  );
+
+			setinfo((prev) => ({ ...prev, uploadStatus: response[1], overAllProgress: result }));
+
+			if (Number(result) === 100) {
+				clearInterval(interval);
+			}
 		}, 3000);
 
 		const queue = Object.keys(info.uploadImages);
@@ -219,24 +262,37 @@ const UploadPhotos = () => {
 
 			const currentFile = queue.shift();
 			const json = getJsonFunction(currentFile);
-			const signedURLUpload = await getUploadImageSignUrl(galleryId, albumId, json);
-			if (signedURLUpload[0] === true) {
-				// Push the upload promise to activeUploads
-				const uploadPromise = uploadOnS3Function(
-					info.uploadImages[currentFile],
-					currentFile,
-					signedURLUpload[1]['signedUrl'],
-				);
-				activeUploads.push(uploadPromise); // Add this line
+			console.log(json, currentFile, '==>currentFile');
 
-				// Wait for the upload to complete and get the result
-				const isSuccessUpload = await uploadPromise;
+			if (info.isSkipDuplicates && info.uploadImages[currentFile]?.isDuplicate) {
+				nextUploadFunc();
+				return;
+			}
 
-				if (isSuccessUpload) {
-					// Remove the promise from activeUploads if successful
-					activeUploads.splice(activeUploads.indexOf(uploadPromise), 1);
+			let attempts = 0;
+			let isSuccessUpload = false;
+			while (attempts < 3) {
+				console.log(json, attempts, currentFile);
+				const signedURLUpload = await getUploadImageSignUrl(galleryId, albumId, json);
+				if (signedURLUpload[0] === true) {
+					const uploadPromise = uploadOnS3Function(
+						info.uploadImages[currentFile],
+						currentFile,
+						signedURLUpload[1]['signedUrl'],
+					);
+					activeUploads.push(uploadPromise);
+
+					isSuccessUpload = await uploadPromise;
+
+					if (isSuccessUpload) {
+						activeUploads.splice(activeUploads.indexOf(uploadPromise), 1);
+						break;
+					}
 				}
-				nextUploadFunc(); // Call nextUploadFunc regardless of success
+				attempts++;
+			}
+			if (isSuccessUpload) {
+				nextUploadFunc();
 			}
 		};
 
@@ -246,6 +302,8 @@ const UploadPhotos = () => {
 
 		await Promise.allSettled(activeUploads);
 	};
+
+	console.log(info);
 
 	return (
 		<div className="upload-gallery-container">
@@ -263,7 +321,6 @@ const UploadPhotos = () => {
 				<UploadStatusComponent
 					info={info}
 					setinfo={setinfo}
-					// triggerUploadImages={triggerUploadImages}
 					uploadFilesConcurrently={uploadFilesConcurrently}
 				/>
 			</div>
