@@ -43,6 +43,10 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const getUploadedKnowledgeBaseFiles = async () => {
+		return;
+	};
+
 	const getExistingAiAssistants = async () => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -224,6 +228,7 @@ export const AiSetupState = () => {
 	return {
 		...state,
 		getKnowledgeBaseFiles,
+		getUploadedKnowledgeBaseFiles,
 		getExistingAiAssistants,
 		createNewAiAssistant,
 		updateAiAssistant,

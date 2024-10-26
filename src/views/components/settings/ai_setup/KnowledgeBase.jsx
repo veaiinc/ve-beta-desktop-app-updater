@@ -274,16 +274,18 @@ const KnowledgeBase = () => {
 						dataLength={knowledgeBaseFiles?.data?.length || 0}
 						height={350}
 						endMessage={
-							<p
-								style={{
-									textAlign: 'center',
-									color: 'white',
-									fontSize: '10px',
-									padding: '4px',
-								}}
-							>
-								End of knowledge files list!
-							</p>
+							knowledgeBaseFiles?.data?.length > 0 && (
+								<p
+									style={{
+										textAlign: 'center',
+										color: 'white',
+										fontSize: '10px',
+										padding: '4px',
+									}}
+								>
+									End of knowledge files list!
+								</p>
+							)
 						}
 						scrollableTarget={'knowledges-list-target'}
 						next={fetchMoreKnowledgeBaseFiles}
