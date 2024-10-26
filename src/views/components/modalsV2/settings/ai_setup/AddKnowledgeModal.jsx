@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, useContext } from 'react';
+import { memo, useState, useContext } from 'react';
 import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/cross-grey.svg';
 import { ReactComponent as LinkPurple } from '../../../../../assets/svg/Settings/link-purple-color.svg';
 import { ReactComponent as LinkGrey } from '../../../../../assets/svg/Settings/link-grey-color.svg';
@@ -14,6 +14,7 @@ import { message } from 'antd';
 import Context from '../../../../../context/context';
 import { useParams } from 'react-router-dom';
 import { isURL } from '../../../../../helpers';
+import Spinner from '../../../loaders/Spinner';
 
 const knowledgeFileTypes = [
 	{
@@ -51,6 +52,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 			filename: '',
 			fileContent: '',
 		},
+		isUploading: false,
 	});
 
 	const handleSetAllUploadedPDFFiles = (e) => {
@@ -84,26 +86,36 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 	};
 
 	const handleFileUpload = async () => {
-		console.log(info?.activeFileType);
-		console.log(info?.pdfFilesInfo?.length > 0);
-		if (info?.activeFileType === 'url' && info?.urlsInfo?.length > 0) {
+		if (info?.activeFileType === 'url') {
+			if (info?.urlsInfo?.length === 0) {
+				message.error('Warning: Please enter atleast one URL to upload!', 1.7);
+				return;
+			}
+			setInfo((prev) => ({ ...prev, isUploading: true }));
 			const statusSummary = await uploadURLsToKnowledgeBase(aiAssistantId, info?.urlsInfo);
 			if (statusSummary?.[0]) {
 				message.success('URLs uploaded successfully!', 1);
 			}
-		} else if (info?.activeFileType === 'pdf' && info?.pdfFilesInfo?.length > 0) {
-			console.log('pdf');
+		} else if (info?.activeFileType === 'pdf') {
+			if (info?.pdfFilesInfo?.length === 0) {
+				message.error('Warning: Please add atleast one PDF file to upload!', 1.7);
+				return;
+			}
+			setInfo((prev) => ({ ...prev, isUploading: true }));
 			const files = info?.pdfFilesInfo;
 			const statusSummary = await uploadPDFsToKnowledgeBase(aiAssistantId, files);
 			if (statusSummary?.[0]) {
 				message.success('PDF Files uploaded successfully!', 1);
 			}
-		} else if (
-			info?.activeFileType === 'customText' &&
-			info?.customTextInfo?.filename &&
-			info?.customTextInfo?.fileContent
-		) {
-			console.log('uploading text file');
+		} else if (info?.activeFileType === 'customText') {
+			if (info?.customTextInfo?.filename === '') {
+				message.error('Warning: Please add filename to upload!', 1.7);
+				return;
+			} else if (info?.customTextInfo?.fileContent.trim() === '') {
+				message.error('Warning: Please add file content to upload!', 1.7);
+				return;
+			}
+			setInfo((prev) => ({ ...prev, isUploading: true }));
 			const textBlob = new Blob([info?.customTextInfo?.fileContent], { type: 'text/plain' });
 			const file = new File([textBlob], info?.customTextInfo?.filename, {
 				type: 'text/plain',
@@ -113,6 +125,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 				message.success('Text File uploaded successfully!', 1);
 			}
 		}
+		setInfo((prev) => ({ ...prev, isUploading: false }));
 	};
 
 	const handleAddURL = () => {
@@ -291,11 +304,25 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 						</div>
 					)}
 				</div>
-				<button onClick={handleFileUpload} className="updateBtn">
-					Upload{' '}
-					{knowledgeFileTypes
-						?.filter((knowledge) => knowledge?.value === info?.activeFileType)
-						.map((knowledge) => knowledge?.name)}
+				<button
+					disabled={info?.isUploading}
+					style={{ cursor: info?.isUploading ? 'not-allowed' : 'pointer' }}
+					onClick={handleFileUpload}
+					className="updateBtn"
+				>
+					{info?.isUploading ? (
+						<p className="loader">
+							Uploading Knowledge Files...
+							<Spinner width={'14px'} height={'14px'} />
+						</p>
+					) : (
+						<p>
+							Upload{' '}
+							{knowledgeFileTypes
+								?.filter((knowledge) => knowledge?.value === info?.activeFileType)
+								.map((knowledge) => knowledge?.name)}
+						</p>
+					)}
 				</button>
 			</div>
 		</Modal>

@@ -123,7 +123,6 @@ export const AiSetupState = () => {
 					type: 'url',
 					url: link?.url,
 				};
-				console.log(body);
 				try {
 					const response = await service?.fetchPost(url, body, usertoken, 'tenant');
 					if (response?.[0]) {
@@ -183,7 +182,6 @@ export const AiSetupState = () => {
 					}
 
 					if (signedUrl) {
-						console.log('FileType', file.type);
 						const uploadResponse = await fetch(signedUrl, {
 							method: 'PUT',
 							headers: {

@@ -1,4 +1,4 @@
-import React, { memo, useState, useContext, useEffect } from 'react';
+import React, { memo, useState, useContext } from 'react';
 import AddKnowledgeModal from '../../../components/modalsV2/settings/ai_setup/AddKnowledgeModal';
 import '../../../../assets/scss/settings/aiSetupPage.scss';
 import Context from '../../../../context/context';

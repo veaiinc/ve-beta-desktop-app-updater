@@ -658,6 +658,12 @@
 		font-weight: 500;
 		line-height: 16px;
 		letter-spacing: 0.26px;
-		cursor: pointer;
+
+		.loader {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+		}
 	}
 }
