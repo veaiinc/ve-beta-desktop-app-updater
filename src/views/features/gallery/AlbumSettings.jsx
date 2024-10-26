@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import '../../../assets/scss/gallery/albumSettings.scss';
 import ToggleSlider from '../../../views/components/input/slider';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { ReactComponent as CopyLogo } from '../../../assets/svg/gallery/copy.svg';
 import { ReactComponent as SaveLogo } from '../../../assets/svg/gallery/save.svg';
 import { ReactComponent as GalleryLogo } from '../../../assets/svg/gallery/gallery.svg';
 import { ReactComponent as DeleteLogo } from '../../../assets/svg/gallery/delete.svg';
 const AlbumSettings = () => {
+	const { galleryId } = useParams();
 	const [info, setInfo] = useState({
 		activeSetting: 'album-overview,',
 	});
@@ -27,7 +28,7 @@ const AlbumSettings = () => {
 		}
 	};
 	const handleGoBack = () => {
-		navigate('/gallery/gallery-page');
+		navigate(`/gallery-page/${galleryId}`);
 	};
 	return (
 		<div className="mainAlbumSettings">

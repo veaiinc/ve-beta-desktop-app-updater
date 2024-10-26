@@ -26,6 +26,7 @@ import Context from '../../../context/context';
 import { DatePicker } from 'antd';
 import moment from 'moment';
 import { updateProposalQuery } from '../../../context/Templates/graphQlFunctions';
+import { getInitials } from '../../../helpers/index';
 
 const imageURL = 'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg';
 const image1 =
@@ -80,6 +81,9 @@ const GalleryPage = () => {
 			getLayoutSettings,
 			layoutSettings,
 			putLayoutSettings,
+			getCollaborators,
+			collaborators,
+			updateCollaborators,
 			basicAlbumDetails,
 		},
 	} = useContext(Context);
@@ -108,7 +112,9 @@ const GalleryPage = () => {
 		albumContains: albumContains,
 		gridStyle: layoutSettings?.gridStyle,
 		thumbnailSize: layoutSettings?.thumbnailSize,
+		collaboratorsData: collaborators,
 	});
+	console.log(layoutSettings, 'layoutSettings', info);
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
 	const galleryOptionsRef = useRef(null);
@@ -172,7 +178,9 @@ const GalleryPage = () => {
 		}
 	}, [tenantAlbums?.albums?.[0]?.title]);
 	useEffect(() => {
+		console.log(layoutSettings, 'this is called');
 		if (!layoutSettings) {
+			console.log('this is called');
 			getLayoutSettings(galleryId);
 		}
 		if (layoutSettings) {
@@ -183,6 +191,18 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [layoutSettings]);
+	useEffect(() => {
+		if (!collaborators) {
+			getCollaborators(galleryId);
+		}
+		if (collaborators) {
+			setInfo((prev) => ({
+				...prev,
+				collaboratorsData: collaborators,
+			}));
+		}
+	}, [collaborators]);
+
 	const handleImageSelect = (index) => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
@@ -204,7 +224,7 @@ const GalleryPage = () => {
 	};
 
 	const handleAlbumSettings = (sectionId) => {
-		navigate('/gallery/album-settings', { state: { sectionId } });
+		navigate(`/gallery/${galleryId}/album-settings`, { state: { sectionId } });
 	};
 	const openShareModal = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, shareModal: !prevInfo.shareModal }));
@@ -390,6 +410,13 @@ const GalleryPage = () => {
 			showCollaborators: !info?.showCollaborators,
 		}));
 	};
+	const handleManageCollaborator = (data) => {
+		console.log(data, 'updatedData');
+		setInfo((prev) => ({
+			...prev,
+			collaboratorsData: data,
+		}));
+	};
 	return (
 		<>
 			{console.log(info?.activeGallery, 'activeGallery')}
@@ -496,7 +523,7 @@ const GalleryPage = () => {
 										<p>{album?.title}</p>
 										<p>{`${album?.photos} photos`}</p>
 									</div>
-									<div className="overlay"></div>
+									{/* <div className="overlay"></div> */}
 								</div>
 							))}
 						</div>
@@ -881,9 +908,21 @@ const GalleryPage = () => {
 										</p>
 									</div>
 									<div className="collaboratorsList">
-										<div className="collaboratorsImage">image</div>
-										<div className="collaboratorsImage">name</div>
-										<div className="collaboratorsImage">email</div>
+										{info?.collaboratorsData?.map((ele, index) => (
+											<div className="collaboratorsContainer">
+												<div className="collaboratorsImage">
+													<div className="tenantLogo">
+														<p>
+															{getInitials(
+																ele?.firstName,
+																ele?.lastName,
+															)}
+														</p>
+													</div>
+												</div>
+												<p>{ele?.firstName}</p>
+											</div>
+										))}
 									</div>
 								</div>
 							</div>
@@ -1073,6 +1112,8 @@ const GalleryPage = () => {
 			<CollaboratorPopup
 				open={info?.showCollaborators}
 				closeModal={handleManageCollaboratorPopup}
+				galleryId={galleryId}
+				setCollaborator={(data) => handleManageCollaborator(data)}
 			/>
 		</>
 	);

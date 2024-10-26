@@ -26,6 +26,10 @@ const actionHandlers = {
 		...state,
 		layoutSettings: action.payload,
 	}),
+	GET_COLLABORATORS: (state, action) => ({
+		...state,
+		collaborators: action.payload,
+	}),
 
 	GET_IMAGE_DUPLICATES: (state, action) => ({
 		...state,

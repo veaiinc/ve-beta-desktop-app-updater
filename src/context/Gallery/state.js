@@ -5,6 +5,7 @@ import * as API from './actionTypes';
 import jwt_decode from 'jwt-decode';
 import service from '../../services/index';
 import axios from 'axios';
+
 export const intialState = {
 	tenantGalleries: null,
 	tenantAlbums: null,
@@ -13,6 +14,7 @@ export const intialState = {
 	layoutSettings: null,
 	imageDuplicatesList: null,
 	waterMarks: null,
+	collaborators: null,
 };
 
 export const Galleries = () => {
@@ -306,8 +308,8 @@ export const Galleries = () => {
 			);
 			if (response[0]) {
 				dispatch({
-					type: Actions.GET_LAYOUT_SETTINGS,
-					payload: response?.[1]?.layoutSettings,
+					type: Actions.GET_COLLABORATORS,
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
@@ -328,15 +330,41 @@ export const Galleries = () => {
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchPost(
 				`/${workspaceId}/galleries/${galleryId}/tenant-users`,
+				payload,
 				usertoken,
 				'galleries',
 			);
-			if (response[0]) {
-				dispatch({
-					type: Actions.GET_LAYOUT_SETTINGS,
-					payload: response?.[1]?.layoutSettings,
-				});
-			}
+		} catch (error) {
+			console.log('error==>getLayoutSettings', error);
+		}
+	};
+	const updateCollaborators = async (payload, galleryId, tenant_user_id) => {
+		// {
+		//     "canDownload": false
+		// }
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/tenant-users/${tenant_user_id}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>getLayoutSettings', error);
+		}
+	};
+	const deleteCollaborators = async (galleryId, tenant_user_id) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchDelete(
+				`/${workspaceId}/galleries/${galleryId}/tenant-users/${tenant_user_id}`,
+				usertoken,
+				null,
+				'galleries',
+			);
 		} catch (error) {
 			console.log('error==>getLayoutSettings', error);
 		}
@@ -469,6 +497,10 @@ export const Galleries = () => {
 		getLayoutSettings,
 		getAlbumCount,
 		getEditPreferences,
+		getCollaborators,
+		postCollaborators,
+		updateCollaborators,
+		deleteCollaborators,
 		getImageDuplicatesList,
 		getWaterMarks,
 		uploadWaterMark,
