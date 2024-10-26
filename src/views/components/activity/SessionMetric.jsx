@@ -62,8 +62,10 @@ const dummyLabelData = [
 	},
 ];
 
-const SessionMetric = ({ title }) => {
-	console.log('SessionMetric chart componenrt rendered');
+const SessionMetric = ({ title, labelsData, labelItemsData }) => {
+	// console.log('label Data===>' + JSON.stringify(labelsData, null, 2));
+	// console.log('labels Item Data===>' + JSON.stringify(labelsData, null, 2));
+	// console.log('SessionMetric chart componenrt rendered');
 
 	const formatedLabelStats = dummyData.map((item) => {
 		const { label, percentage, ...rest } = item;
@@ -82,25 +84,49 @@ const SessionMetric = ({ title }) => {
 		};
 	});
 
-	const [isLabelSelected, setLabelItemSelected] = useState(true);
-	const [activeLabelItem, setactiveLabelItem] = useState(null);
+	const [info, setInfo] = useState({
+		isLabelSelected: true,
+		activeLabelItem: null,
+	});
 
 	const handleShowLabels = () => {
-		if (!isLabelSelected) {
-			setLabelItemSelected(true);
-			return;
-		}
-		setLabelItemSelected(false);
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			isLabelSelected: !prevInfo.isLabelSelected,
+		}));
 	};
 
 	const handleActivelable = (label) => {
-		setactiveLabelItem(label);
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			activeLabelItem: label,
+		}));
+	};
+
+	//custom funtion for handling Interaction chart data
+	const transformLabelItemsData = (data) => {
+		return data.map((item) => {
+			// Check if the item has 'totalCount' (specific to InteractionDetail)
+			if (item.hasOwnProperty('totalCount')) {
+				// Rename 'totalCount' to 'totalInteractionsCount'
+				const { totalCount, ...rest } = item;
+				return {
+					...rest,
+					totalInteractionsCount: totalCount,
+				};
+			}
+			// If 'totalCount' does not exist, return the item unchanged
+			return item;
+		});
 	};
 	return (
 		<div className="sessionDetailsWrapper">
 			<div className="sessionChartContainer">
 				<DoughnutChart
-					statsData={isLabelSelected ? formatedLabelStats : formatedLabelItemStats}
+					statsData={
+						info?.isLabelSelected ? labelsData : transformLabelItemsData(labelItemsData)
+					}
+					title={title}
 				/>
 			</div>
 
@@ -111,35 +137,63 @@ const SessionMetric = ({ title }) => {
 					<span>%</span>
 				</div>
 
-				{isLabelSelected ? (
+				{info?.isLabelSelected ? (
 					//LablesItewmRows ==>
 					<div className="lablesContainer">
-						{dummyData.map((item, index) => (
-							<div
-								key={index}
-								className="lableItemRow"
-								onClick={() => {
-									handleActivelable(item);
-									handleShowLabels();
-								}}
-							>
+						{!labelsData || labelsData === 0 ? (
+							// Fallback UI when labelsData is empty
+							<div className="lableItemRow">
 								<div className="nameLable">
 									<div className="dot">
 										<DotSvg />
 									</div>
-									<div>{item.label}</div>
+									<div>N/A</div>
 								</div>
 								<div className="metricsLables">
-									<div>{item.timeSpent}</div>
+									<div>N/A</div>{' '}
 									<div className="percentageWithArrow">
-										<span className="percentageValue">{item.percentage}</span>
-										<div className="downArrow">
+										<span className="percentageValue">N/A</span>{' '}
+										<span className="downArrow">
 											<DownSvg />
-										</div>
+										</span>
 									</div>
 								</div>
 							</div>
-						))}
+						) : (
+							// Render the data when labelsData is not empty
+							labelsData.map((item, index) => (
+								<div
+									key={index}
+									className="lableItemRow"
+									onClick={() => {
+										handleActivelable(item);
+										handleShowLabels();
+									}}
+								>
+									<div className="nameLable">
+										<div className="dot">
+											<DotSvg />
+										</div>
+										<div>{item?.moduleType || 'Label Name'}</div>
+									</div>
+									<div className="metricsLables">
+										<div>
+											{title === 'Interactions'
+												? item?.totalInteractionsCount
+												: item?.duration}
+										</div>
+										<div className="percentageWithArrow">
+											<span className="percentageValue">
+												{item?.percentage || '%'}
+											</span>
+											<div className="downArrow">
+												<DownSvg />
+											</div>
+										</div>
+									</div>
+								</div>
+							))
+						)}
 					</div>
 				) : (
 					// Render selected Label Data
@@ -152,12 +206,16 @@ const SessionMetric = ({ title }) => {
 								onClick={handleShowLabels}
 								className="lableItemRow selectedLabelItem"
 							>
-								<div className="nameLable">{activeLabelItem.label}</div>
+								<div className="nameLable">{info?.activeLabelItem.moduleType}</div>
 								<div className="metricsLables">
-									<div>{activeLabelItem.timeSpent}</div>
+									<div>
+										{title === 'Interactions'
+											? info?.activeLabelItem?.totalInteractionsCount
+											: info?.activeLabelItem?.duration}
+									</div>
 									<div className="percentageWithArrow">
 										<span className="percentageValue">
-											{activeLabelItem.percentage}
+											{info?.activeLabelItem.percentage || '%'}
 										</span>
 										<div className="rightArrow">
 											<RightSvg />
@@ -167,10 +225,9 @@ const SessionMetric = ({ title }) => {
 							</div>
 						}
 						<div className="labelItemRowContainer">
-							{dummyLabelData.map((item, index) => (
-								//Internal Data of Label ==>
-
-								<div key={index} className="lableItemRow">
+							{!labelItemsData || labelItemsData?.length === 0 ? (
+								// Fallback UI when labelItemsData is empty
+								<div className="lableItemRow">
 									<div className="nameLable">
 										<div className="dot">
 											<DotSvg />
@@ -178,18 +235,46 @@ const SessionMetric = ({ title }) => {
 										<div className="selectedBlockSvg">
 											<GallerySvg />
 										</div>
-										<div>{item.label}</div>
+										<div>N/A</div> {/* Display N/A for content */}
 									</div>
 									<div className="metricsLables">
-										<div>{item.timeSpent}</div>
+										<div>N/A</div>{' '}
+										{/* Display N/A for duration or totalCount */}
 										<div className="percentageWithArrow">
-											<span className="percentageValue">
-												{item.percentage}
-											</span>
+											<span className="percentageValue">N/A</span>{' '}
+											{/* Display N/A for percentage */}
 										</div>
 									</div>
 								</div>
-							))}
+							) : (
+								// Render the Internal Data when labelItemsData is not empty
+								labelItemsData
+									.filter(
+										(item) =>
+											item?.moduleType === info?.activeLabelItem?.moduleType,
+									)
+									.map((item, index) => (
+										<div key={index} className="lableItemRow">
+											<div className="nameLable">
+												<div className="dot">
+													<DotSvg />
+												</div>
+												<div className="selectedBlockSvg">
+													<GallerySvg />
+												</div>
+												<div>{item.content}</div>
+											</div>
+											<div className="metricsLables">
+												<div>{item?.duration || item?.totalCount}</div>
+												<div className="percentageWithArrow">
+													<span className="percentageValue">
+														{item?.percentage || '%'}
+													</span>
+												</div>
+											</div>
+										</div>
+									))
+							)}
 						</div>
 					</div>
 				)}

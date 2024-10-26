@@ -26,7 +26,10 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer }) => {
 		activityInfo: { getViewersSessionDetails, viewerSessionDetails },
 	} = useContext(Context);
 
-	console.log('viewerSessionDetails======>', JSON.stringify(viewerSessionDetails, null, 2));
+	// console.log(
+	// 	'viewerSessionDetails======>',
+	// 	JSON.stringify(viewerSessionDetails?.moduleViewDuration, null, 2),
+	// );
 
 	const [info, setInfo] = useState({
 		viewMore: false,
@@ -117,21 +120,33 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer }) => {
 	const componentMapper = useMemo(() => {
 		return {
 			TimeLine: <TimeLineSession />,
+
 			TimeSpent: (
-				<SessionMetric title={'Time Spent'} labelsData={true} labelItemsData={true} />
+				<SessionMetric
+					title={'Time Spent'}
+					labelsData={viewerSessionDetails?.moduleViewDuration}
+					labelItemsData={viewerSessionDetails?.sectionViewDuration}
+				/>
 			),
+
 			Interaction: (
-				<SessionMetric title={'Interactions'} labelsData={true} labelItemsData={true} />
+				<SessionMetric
+					title={'Interactions'}
+					labelsData={viewerSessionDetails?.interaction}
+					labelItemsData={viewerSessionDetails?.interaction?.reduce((acc, item) => {
+						return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending each "interaction" array data
+					}, [])}
+				/>
 			),
+
 			AIChat: <ChatSession />,
 			// Add more tabs if needed
 		};
-	}, [info?.currentSessionIndex, info?.sessionIds]);
+	}, [info?.currentSessionIndex, info?.sessionIds, viewerSessionDetails]);
 
 	// Render selected tab component
 	const renderActiveTab = useMemo(() => {
 		return (activeTab) => {
-			// console.log('renderActiveTab with activeTab:', activeTab);
 			return componentMapper[activeTab] || null;
 		};
 	}, [componentMapper]);

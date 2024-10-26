@@ -113,6 +113,23 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 		};
 	});
 
+	// Function to transform labelItemsData for InteractionChart
+	const transformLabelItemsData = (data) => {
+		return data.map((item) => {
+			// Check if the item has 'totalCount' (specific to InteractionDetail)
+			if (item.hasOwnProperty('totalCount')) {
+				// Rename 'totalCount' to 'totalInteractionsCount'
+				const { totalCount, ...rest } = item;
+				return {
+					...rest,
+					totalInteractionsCount: totalCount,
+				};
+			}
+			// If 'totalCount' does not exist, return the item unchanged
+			return item;
+		});
+	};
+
 	return (
 		<div className="activityMetricsContainer">
 			<div className="metricsTitle">{title}</div>
@@ -204,7 +221,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 											</div>
 											<div className="percentageWithArrow">
 												<span className="percentageValue">
-													{info?.activeLabelItem?.duration}
+													{info?.activeLabelItem?.percentage || '%'}
 												</span>
 												<span className="rightArrow">
 													<RightSvg />
@@ -235,7 +252,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 										</div>
 									</div>
 								) : (
-									// Render the data when labelItemsData is not empty
+									// Render the Internal Data when labelItemsData is not empty
 									labelItemsData
 										.filter(
 											(item) =>
@@ -274,8 +291,11 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 								title === 'Interactions' ? 'interactionChart' : 'timeSpentChart'
 							}
 							statsData={
-								info?.isLabelSelected ? formatedLabelStats : formatedLabelItemStats
+								info?.isLabelSelected
+									? labelsData
+									: transformLabelItemsData(labelItemsData)
 							}
+							title={title}
 						/>
 					</div>
 				</div>
