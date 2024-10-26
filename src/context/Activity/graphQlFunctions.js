@@ -85,6 +85,8 @@ export const getViewersSessionDetailsQuery = gql`
 					content
 				}
 			}
+			createdAt
+			updatedAt
 		}
 	}
 `;

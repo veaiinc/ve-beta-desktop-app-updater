@@ -19,12 +19,14 @@ import ChatSession from './ChatSession.jsx';
 import SessionMetric from './SessionMetric.jsx';
 
 const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer }) => {
-	console.log('selectedViewer======>', JSON.stringify(selectedViewer, null, 2));
+	// console.log('selectedViewer======>', JSON.stringify(selectedViewer, null, 2));
 	const { workflowId } = useParams();
 
 	const {
 		activityInfo: { getViewersSessionDetails, viewerSessionDetails },
 	} = useContext(Context);
+
+	console.log('viewerSessionDetails======>', JSON.stringify(viewerSessionDetails, null, 2));
 
 	const [info, setInfo] = useState({
 		viewMore: false,
@@ -91,11 +93,36 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer }) => {
 		}));
 	};
 
+	const convertSecondsToFormattedDate = (seconds) => {
+		const date = new Date(seconds * 1000);
+		const options = {
+			day: '2-digit',
+			month: 'short',
+			year: 'numeric',
+			hour: 'numeric',
+			minute: '2-digit',
+			hour12: true,
+		};
+		return date.toLocaleString('en-GB', options);
+	};
+
+	const durationFormater = (duration) => {
+		const hours = String(Math.floor(duration / 3600)).padStart(2, '0');
+		const minutes = String(Math.floor((duration % 3600) / 60)).padStart(2, '0');
+		const seconds = String(duration % 60).padStart(2, '0');
+
+		return `${hours}:${minutes}:${seconds}`;
+	};
+
 	const componentMapper = useMemo(() => {
 		return {
 			TimeLine: <TimeLineSession />,
-			TimeSpent: <SessionMetric title={'Time Spent'} />,
-			Interaction: <SessionMetric title={'Interactions'} />,
+			TimeSpent: (
+				<SessionMetric title={'Time Spent'} labelsData={true} labelItemsData={true} />
+			),
+			Interaction: (
+				<SessionMetric title={'Interactions'} labelsData={true} labelItemsData={true} />
+			),
 			AIChat: <ChatSession />,
 			// Add more tabs if needed
 		};
@@ -185,37 +212,53 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer }) => {
 										<div className="labelKey">Session Time</div>
 										<div className="labelValue">
 											<CalendarSvg />
-											<spna className="labelDescription">
-												16 Sept 2024, 4:23PM - 23 Sept 2024, 6:23PM
-											</spna>
+											<span className="labelDescription">
+												{convertSecondsToFormattedDate(
+													viewerSessionDetails?.createdAt,
+												)}
+											</span>
+											-
+											<span className="labelDescription">
+												{convertSecondsToFormattedDate(
+													viewerSessionDetails?.updatedAt,
+												)}
+											</span>
 										</div>
 									</div>
 									<div className="sessionInfoLabel">
-										<div className="labelKey">Delivery</div>
+										<div className="labelKey">Duration</div>
 										<div className="labelValue">
 											<DurationSvg />
-											<spna className="labelDescription">00:32:23</spna>
+											<spna className="labelDescription">
+												{durationFormater(viewerSessionDetails?.duration)}
+											</spna>
 										</div>
 									</div>
 									<div className="sessionInfoLabel">
 										<div className="labelKey">Location</div>
 										<div className="labelValue">
 											<LocationSvg />
-											<spna className="labelDescription">Hyderabad</spna>
+											<spna className="labelDescription">
+												{viewerSessionDetails?.clientDetails?.location}
+											</spna>
 										</div>
 									</div>
 									<div className="sessionInfoLabel">
 										<div className="labelKey">Device</div>
 										<div className="labelValue">
 											<PhoneSvg />
-											<spna className="labelDescription">Apple 16 pro</spna>
+											<spna className="labelDescription">
+												{viewerSessionDetails?.clientDetails?.device}
+											</spna>
 										</div>
 									</div>
 									<div className="sessionInfoLabel">
 										<div className="labelKey">IP Address</div>
 										<div className="labelValue">
 											<WebSvg />
-											<spna className="labelDescription">172.32.67.567</spna>
+											<spna className="labelDescription">
+												{viewerSessionDetails?.clientDetails?.ip}
+											</spna>
 										</div>
 									</div>
 								</div>
@@ -265,14 +308,6 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer }) => {
 								AI Chat
 							</div>
 						</div>
-
-						{/* {info?.isSessionTabActive === 'Time Line' ? <TimeLineSession /> : ''}
-
-						{info?.isSessionTabActive === 'Time Spent' ? <SessionMetric /> : ''}
-
-						{info?.isSessionTabActive === 'Interaction' ? <SessionMetric /> : ''}
-
-						{info?.isSessionTabActive === 'AI Chat' ? <ChatSession /> : ''} */}
 
 						{renderActiveTab(info?.isSessionTabActive)}
 					</div>
