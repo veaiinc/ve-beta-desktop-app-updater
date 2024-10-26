@@ -5,6 +5,7 @@ import Context from '../../../../context/context';
 import { message, Tooltip } from 'antd';
 import { ReactComponent as ThreeDots } from '../../../../assets/svg/workflow/threeDots.svg';
 import Spinner from '../../loaders/Spinner';
+import Skeleton from 'react-loading-skeleton';
 
 const initialState = {
 	createEditPresetModal: false,
@@ -16,18 +17,18 @@ const initialState = {
 	updatePresetLoading: {},
 };
 
-const EventsPresetsPopOverComponent = ({ closePresetPopUp }) => {
+const EventsPresetsPopOverComponent = ({
+	closePresetPopUp,
+	addServiceDataInEvents,
+	outerIndex,
+	innerIndex,
+}) => {
 	let {
-		templates: { getEventsPresets, eventsPresetData, deleteEventsPreset, addEventsPresets },
+		templates: { eventsPresetData, deleteEventsPreset, addEventsPresets },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		...initialState,
 	});
-
-	//useEffects
-	useEffect(() => {
-		getEventsPresetsData();
-	}, []);
 
 	useEffect(() => {
 		if (eventsPresetData) {
@@ -52,25 +53,13 @@ const EventsPresetsPopOverComponent = ({ closePresetPopUp }) => {
 		}
 	}, [eventsPresetData]);
 
-	//function definations
-	const getEventsPresetsData = useCallback(async () => {
-		const params = {
-			page: 1,
-			limit: 50,
-			sortBy: 'createdAt',
-			sortType: -1,
-			subType: 'event_table',
-		};
-		getEventsPresets(params);
-	}, []);
-
 	const openCreateEditPresetModal = useCallback(() => {
 		modifiedClosePopUp();
 		setInfo((prev) => ({ ...prev, createEditPresetModal: true, mode: 'create' }));
 	}, []);
 
 	const closeCreateEditPresetModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, createEditPresetModal: false }));
+		setInfo((prev) => ({ ...prev, createEditPresetModal: false, mode: null }));
 	}, []);
 
 	const closeThreeDotsPopup = useCallback((index) => {
@@ -89,9 +78,10 @@ const EventsPresetsPopOverComponent = ({ closePresetPopUp }) => {
 			...initialState,
 			loading: false,
 			presetData: prev?.presetData,
+			mode: info?.mode,
 		}));
 		closePresetPopUp();
-	}, [info?.presetData]);
+	}, [info]);
 
 	const deletePreset = useCallback(
 		async (_id, index) => {
@@ -178,13 +168,15 @@ const EventsPresetsPopOverComponent = ({ closePresetPopUp }) => {
 	const setSelectedEventsPreset = useCallback(
 		(data, type, index) => {
 			if (type === 'edit') {
-				openCreateEditPresetModal();
+				modifiedClosePopUp();
 				setInfo((prev) => ({
 					...prev,
 					selectedEventsPresetData: data,
 					mode: 'edit',
 					threeDotsPopUp: false,
+					createEditPresetModal: true,
 				}));
+
 				return;
 			}
 			if (type === 'delete') {
@@ -195,7 +187,39 @@ const EventsPresetsPopOverComponent = ({ closePresetPopUp }) => {
 				duplicatePreset(data, index);
 			}
 		},
-		[info?.selectedEventsPresetData, deletePreset],
+		[info?.selectedEventsPresetData, deletePreset, info],
+	);
+
+	const updateEventspresetData = useCallback(
+		(type, data) => {
+			let obj = data || {};
+			let presetInfo = obj?.eventTableValues || [];
+			let subtitleString = '';
+			for (let j = 0; j < presetInfo?.length; j++) {
+				subtitleString +=
+					'' +
+					presetInfo?.[j]?.categories?.[0]?.quantity +
+					' ' +
+					presetInfo?.[j]?.categories?.[0]?.category;
+			}
+			obj.subtitleString = subtitleString;
+
+			const presetdata = [...(info?.presetData || [])];
+			if (type === 'create') {
+				presetdata?.unshift(obj);
+			} else {
+				//edit
+				const { _id } = obj;
+				for (let i = 0; i < presetdata?.length; i++) {
+					if (presetdata?.[i]?._id === _id) {
+						presetdata?.splice(i, 1, obj);
+						break;
+					}
+				}
+			}
+			setInfo((prev) => ({ ...prev, presetData: presetdata }));
+		},
+		[info?.presetData],
 	);
 
 	return (
@@ -204,79 +228,96 @@ const EventsPresetsPopOverComponent = ({ closePresetPopUp }) => {
 				+ Add new preset
 			</div>
 			<div className="definedPresetContainer">
-				{info?.presetData?.map((ele, index) => (
-					<div className="presetCards" key={index}>
-						<div className="presetCardContentContainer">
-							<span className="presetTitle">{ele?.displayName}</span>
-							<span className="presetSubTitle">
-								{ele?.subtitleString || ''}
-								{/* Wedding Basics 2 Candid photographer , 2 traditional photographer */}
-							</span>
-						</div>
-						{info?.updatePresetLoading?.[index] ? (
-							<Spinner width={'12px'} height={'12px'} />
-						) : (
-							<Tooltip
-								placement="bottomRight"
-								title={
-									<ThreeDotsPopUp
-										data={ele}
-										setSelectedEventsPreset={setSelectedEventsPreset}
-										index={index}
-									/>
-								}
-								color={'#202020'}
-								arrow={false}
-								trigger="click"
-								overlayClassName="toolTipContainer"
-								open={info?.threeDotsPopUp?.[index]}
-								onOpenChange={(open) => {
-									if (!open) {
-										closeThreeDotsPopup(index);
-									}
-								}}
-							>
+				{info?.loading
+					? [{}, {}]?.map((ele, index) => (
+							<Skeleton
+								width={'416.17px'}
+								height={'73px'}
+								style={{ borderRadius: '20px' }}
+								key={index}
+							/>
+					  ))
+					: info?.presetData?.map((ele, index) => (
+							<div className="presetCards" key={index}>
 								<div
-									className="threeDotsButton"
+									className="presetCardContentContainer"
 									onClick={() =>
-										setInfo((prev) => ({
-											...prev,
-											threeDotsPopUp: {
-												...prev.threeDotsPopUp,
-												[index]: true,
-											},
-										}))
+										addServiceDataInEvents(ele, outerIndex, innerIndex)
 									}
 								>
-									<ThreeDots />
+									<span className="presetTitle">{ele?.displayName}</span>
+									<span className="presetSubTitle">
+										{ele?.subtitleString || ''}
+									</span>
 								</div>
-							</Tooltip>
-						)}
-					</div>
-				))}
+								{info?.updatePresetLoading?.[index] ? (
+									<Spinner width={'12px'} height={'12px'} />
+								) : (
+									<Tooltip
+										placement="bottomRight"
+										title={
+											<ThreeDotsPopUp
+												data={ele}
+												setSelectedEventsPreset={setSelectedEventsPreset}
+												index={index}
+											/>
+										}
+										color={'#202020'}
+										arrow={false}
+										trigger="click"
+										overlayClassName="toolTipContainer"
+										open={info?.threeDotsPopUp?.[index]}
+										onOpenChange={(open) => {
+											if (!open) {
+												closeThreeDotsPopup(index);
+											}
+										}}
+									>
+										<div
+											className="threeDotsButton"
+											onClick={() =>
+												setInfo((prev) => ({
+													...prev,
+													threeDotsPopUp: {
+														...prev.threeDotsPopUp,
+														[index]: true,
+													},
+												}))
+											}
+										>
+											<ThreeDots />
+										</div>
+									</Tooltip>
+								)}
+							</div>
+					  ))}
 			</div>
 			<AddPresetModal
 				modalIsOpen={info?.createEditPresetModal}
 				closeModal={closeCreateEditPresetModal}
 				mode={info?.mode}
 				selectedEventsPresetData={info?.selectedEventsPresetData}
+				updateEventspresetData={updateEventspresetData}
 			/>
 		</div>
 	);
 };
 
 const ThreeDotsPopUp = ({ setSelectedEventsPreset, data, index }) => {
-	const optionOnClick = useCallback((type) => {
-		if (type === 'edit') {
-			setSelectedEventsPreset(data, 'edit');
-		}
-		if (type === 'delete') {
-			setSelectedEventsPreset(data, 'delete', index);
-		}
-		if (type === 'duplicate') {
-			setSelectedEventsPreset(data, 'duplicate', index);
-		}
-	}, []);
+	const optionOnClick = useCallback(
+		(type) => {
+			if (type === 'edit') {
+				setSelectedEventsPreset(data, 'edit');
+			}
+			if (type === 'delete') {
+				setSelectedEventsPreset(data, 'delete', index);
+			}
+			if (type === 'duplicate') {
+				setSelectedEventsPreset(data, 'duplicate', index);
+			}
+		},
+		[setSelectedEventsPreset],
+	);
 
 	return (
 		<div className="threeDotsPopupContainer">

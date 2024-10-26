@@ -921,7 +921,7 @@ export const TemplatesState = (props) => {
 				'proposals_api',
 			);
 			if (response?.[0] === true) {
-				return [true];
+				return [true, response?.[1]];
 			} else {
 				console.log('api failed ==>editEventsPresets', response);
 				return [false];

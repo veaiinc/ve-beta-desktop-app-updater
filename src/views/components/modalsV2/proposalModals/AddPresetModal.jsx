@@ -14,7 +14,13 @@ const initialState = {
 	variableId: null,
 };
 
-const AddPresetModal = ({ modalIsOpen, closeModal, mode, selectedEventsPresetData }) => {
+const AddPresetModal = ({
+	modalIsOpen,
+	closeModal,
+	mode,
+	selectedEventsPresetData,
+	updateEventspresetData,
+}) => {
 	let {
 		templates: { addEventsPresets, editEventsPresets },
 	} = useContext(Context);
@@ -42,7 +48,7 @@ const AddPresetModal = ({ modalIsOpen, closeModal, mode, selectedEventsPresetDat
 			const serviceRoleData = [...(info?.services || [])];
 			const serviceToBeChanged = serviceRoleData?.[index] || {};
 			if (type === 'serviceName') {
-				serviceToBeChanged.categories[0].category = value;
+				serviceToBeChanged.type = value;
 			}
 
 			if (type === 'quantity') {
@@ -104,10 +110,18 @@ const AddPresetModal = ({ modalIsOpen, closeModal, mode, selectedEventsPresetDat
 		}
 
 		if (response?.[0]) {
+			updateEventspresetData(mode, response?.[1]);
 			modifiedCloseModal();
 		}
 		setInfo((prev) => ({ ...prev, createPresetLoading: false }));
-	}, [info?.services, info?.eventPresetName, info?.createPresetLoading, mode, info?.variableId]);
+	}, [
+		info?.services,
+		info?.eventPresetName,
+		info?.createPresetLoading,
+		mode,
+		info?.variableId,
+		updateEventspresetData,
+	]);
 
 	const modifiedCloseModal = useCallback(() => {
 		setInfo(initialState);
@@ -167,7 +181,7 @@ const AddPresetModal = ({ modalIsOpen, closeModal, mode, selectedEventsPresetDat
 								<input
 									className="addpresetInput"
 									placeholder="Title"
-									value={ele?.categories?.[0]?.category}
+									value={ele?.type}
 									onChange={(e) =>
 										servicesOnChange(index, 'serviceName', e.target?.value)
 									}

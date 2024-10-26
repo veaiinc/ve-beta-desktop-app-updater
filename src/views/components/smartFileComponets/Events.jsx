@@ -15,7 +15,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 	const [info, setInfo] = useState({
 		data: [],
 		calenderStartDate: '',
-		presetPopUp: false,
+		presetPopUp: {},
 	});
 
 	const [arrow, setArrow] = useState('Show');
@@ -207,9 +207,42 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 		[info?.data, editable],
 	);
 
-	const closePresetPopUp = useCallback(() => {
-		setInfo((prev) => ({ ...prev, presetPopUp: false }));
+	const closePresetPopUp = useCallback((outerIndex, innerIndex) => {
+		setInfo((prev) => ({
+			...prev,
+			presetPopUp: { ...prev.presetPopUp, [`events${outerIndex}${innerIndex}`]: false },
+		}));
 	}, []);
+
+	const openEventPreset = useCallback(
+		(outerIndex, innerIndex) => {
+			if (!editable) {
+				return;
+			}
+			setInfo((prev) => ({
+				...prev,
+				presetPopUp: { ...prev.presetPopUp, [`events${outerIndex}${innerIndex}`]: true },
+			}));
+		},
+		[editable],
+	);
+
+	const addServiceDataInEvents = useCallback(
+		(data, outerIndex, innerIndex) => {
+			const { eventTableValues } = data || {};
+			let updatedData = [...(info?.data || [])];
+			let selectedEventsTable = updatedData?.[outerIndex];
+			let valueTobeChanged = selectedEventsTable?.values?.[innerIndex];
+			let roleArray = [...(eventTableValues || [])];
+			valueTobeChanged = { ...valueTobeChanged, roles: roleArray };
+			selectedEventsTable?.values?.splice(innerIndex, 1, valueTobeChanged);
+			updatedData?.splice(outerIndex, 1, selectedEventsTable);
+			setInfo((prev) => ({ ...prev, data: updatedData }));
+			closePresetPopUp(outerIndex, innerIndex);
+			eventsDataChange(selectedEventsTable);
+		},
+		[info?.data],
+	);
 
 	return info?.data?.map((ele, index) => (
 		<div className="eventsParentContainer" key={index}>
@@ -315,24 +348,31 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 						<Tooltip
 							placement="bottomLeft"
 							title={
-								<EventsPresetsPopOverComponent
-									closePresetPopUp={closePresetPopUp}
-								/>
+								editable ? (
+									<EventsPresetsPopOverComponent
+										closePresetPopUp={() => closePresetPopUp(index, ind)}
+										addServiceDataInEvents={addServiceDataInEvents}
+										outerIndex={index}
+										innerIndex={ind}
+									/>
+								) : (
+									''
+								)
 							}
 							color={'#202020'}
 							arrow={false}
 							trigger="click"
 							overlayClassName="toolTipContainer"
-							open={info?.presetPopUp}
+							open={info?.presetPopUp?.[`events${index}${ind}`]}
 							onOpenChange={(open) => {
 								if (!open) {
-									closePresetPopUp();
+									closePresetPopUp(index, ind);
 								}
 							}}
 						>
 							<div
 								className="serviceContainerTitle"
-								onClick={() => setInfo((prev) => ({ ...prev, presetPopUp: true }))}
+								onClick={() => openEventPreset(index, ind)}
 							>
 								<span className="serviceContainerTitleStyling">
 									Services Provided

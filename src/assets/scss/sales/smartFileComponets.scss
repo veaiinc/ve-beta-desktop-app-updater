@@ -804,11 +804,10 @@
 		.presetCards {
 			display: flex;
 			padding: var(--Spacing-space-8, 16px);
-
 			align-items: center;
 			align-self: stretch;
 			border-radius: 8px;
-			// border: 1px solid red;
+			cursor: pointer;
 
 			.presetCardContentContainer {
 				display: flex;
