@@ -145,7 +145,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/gallery/album-settings',
+		path: '/gallery/:galleryId/album-settings',
 		component: (
 			<AuthWrapper title={'Gallery'}>
 				<AlbumSettings />
