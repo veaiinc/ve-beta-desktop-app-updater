@@ -141,7 +141,7 @@ const AddPresetModal = ({
 					{/* //events Name */}
 					<div className="addPresetEventNameContainer">
 						<div className="inputLabelContainer">
-							<span className="eventNameLabel">Event Name</span>
+							<span className="eventNameLabel">Event Preset Name</span>
 							{info?.eventPresetNameError ? (
 								<span className="errorMessage">Event Preset Name Required!</span>
 							) : (
