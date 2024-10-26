@@ -1,4 +1,4 @@
-import { memo, useContext, useState } from 'react';
+import { memo, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/cross-grey.svg';
 import '../../../../../assets/scss/settings/aiSetup.scss';
@@ -15,6 +15,14 @@ const CreateNewAiModal = ({ isOpen, toggleModal }) => {
 		name: '',
 		isLoading: false,
 	});
+
+	useEffect(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			name: '',
+			isLoading: false,
+		}));
+	}, [isOpen]);
 
 	const handleCreateNewAiAssistant = async () => {
 		if (info?.name === '') {

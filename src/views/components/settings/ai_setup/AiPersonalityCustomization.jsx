@@ -2,7 +2,9 @@ import React, { memo, useState, useContext, useEffect } from 'react';
 import Context from '../../../../context/context';
 import { ReactComponent as DividerLineVerticalWhite } from '../../../../assets/svg/Settings/divider-line-vertical-white.svg';
 import '../../../../assets/scss/settings/aiSetupPage.scss';
-import UpdatedPageLoader from '../../loaders/UpdatedPageLoader';
+import Skeleton from 'react-loading-skeleton';
+import Spinner from '../../loaders/Spinner';
+import { message } from 'antd';
 
 const personas = [
 	{
@@ -50,6 +52,7 @@ const AiPersonalityCustomization = () => {
 		selectedPersonas: [],
 		aiPersonalityDescription: '',
 		isAiAssistantDetailsLoading: true,
+		dataFromAPI: null,
 	});
 
 	useEffect(() => {
@@ -70,6 +73,11 @@ const AiPersonalityCustomization = () => {
 				aiPersonalityDescription: activeAiAssistantDetails?.personality || '',
 				selectedPersonas: initialSelectedPersonas,
 				isAiAssistantDetailsLoading: false,
+				dataFromAPI: JSON.stringify({
+					aiAssistantName: activeAiAssistantDetails?.name || '',
+					aiPersonalityDescription: activeAiAssistantDetails?.personality || '',
+					selectedPersonas: initialSelectedPersonas,
+				}),
 			}));
 		}
 	}, [activeAiAssistantDetails]);
@@ -107,25 +115,32 @@ const AiPersonalityCustomization = () => {
 	};
 
 	const handlePersonifyAssistant = () => {
-		const selectedPersonas = info?.selectedPersonas?.map((persona, i) =>
-			personas[i][persona?.activeOption].toLowerCase(),
-		);
+		const updatedData = JSON.stringify({
+			aiAssistantName: info?.aiAssistantName,
+			aiPersonalityDescription: info?.aiPersonalityDescription,
+			selectedPersonas: info?.selectedPersonas,
+		});
+		if (updatedData === info?.dataFromAPI) {
+			message.error('Warning: No changes were made to the AI Assistant');
+			return;
+		}
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			isAiAssistantDetailsLoading: true,
 		}));
+		const selectedPersonas = info?.selectedPersonas?.map((persona, i) =>
+			personas[i][persona?.activeOption].toLowerCase(),
+		);
+
 		updateAiAssistant(activeAiAssistantDetails?._id, {
 			name: info?.aiAssistantName,
 			responseTone: selectedPersonas,
 			personality: info?.aiPersonalityDescription,
 		});
+		message.success('Your AI assistant has been personified successfully!', 1.5);
 	};
 
-	return info?.isAiAssistantDetailsLoading ? (
-		<div className="loader-container">
-			<UpdatedPageLoader />
-		</div>
-	) : (
+	return (
 		<div className="ai-personality-customization">
 			<p className="description">
 				Customize your AI bot's personality to match your brand! Adjust its tone and style,
@@ -139,66 +154,93 @@ const AiPersonalityCustomization = () => {
 						info.aiAssistantNameFocus ? 'ai-assistant-name-input-container-focus' : ''
 					}`}
 				> */}
-				<input
-					value={info?.aiAssistantName}
-					onInput={handleSetAiAssistantName}
-					onFocus={() => handleSetAiAssistantNameFocus(true)}
-					onBlur={() => handleSetAiAssistantNameFocus(false)}
-					className="ai-assistant-name-input"
-					type="text"
-					placeholder="Optimus"
-				/>
+				{info?.isAiAssistantDetailsLoading ? (
+					<Skeleton width={'100%'} height={48} />
+				) : (
+					<input
+						value={info?.aiAssistantName}
+						onInput={handleSetAiAssistantName}
+						onFocus={() => handleSetAiAssistantNameFocus(true)}
+						onBlur={() => handleSetAiAssistantNameFocus(false)}
+						className="ai-assistant-name-input"
+						type="text"
+						placeholder="Optimus"
+					/>
+				)}
 				{/* </div> */}
 			</div>
 			<div className="ai-personality-description">
 				<h1>Personality</h1>
 				<h2>Add background, identity and expertise to your bot.</h2>
 			</div>
-			<textarea
-				className="ai-personality-textarea"
-				placeholder="You are Optimus, and you will lead the Autobots to victory!"
-				onChange={handleSetAiPersonalityDescription}
-				value={info?.aiPersonalityDescription}
-			></textarea>
+			{info?.isAiAssistantDetailsLoading ? (
+				<Skeleton width={'100%'} height={156} />
+			) : (
+				<textarea
+					className="ai-personality-textarea"
+					placeholder="You are Optimus, and you will lead the Autobots to victory!"
+					onChange={handleSetAiPersonalityDescription}
+					value={info?.aiPersonalityDescription}
+				></textarea>
+			)}
 			<div className="ai-response-tone">
 				<div className="description">
 					<h1>Response Tone</h1>
 					<h2>Choose one Persona from each row</h2>
 				</div>
 				<div className="ai-persona-container">
-					<ul>
-						{info?.selectedPersonas?.length > 0 &&
-							personas?.map((persona, index) => (
-								<li className="persona-option-container" key={index}>
-									<div
-										onClick={() => handleSetActiveOption(index, 'option1')}
-										className={`persona-option ${
-											info?.selectedPersonas?.[index]?.activeOption ===
-											'option1'
-												? 'persona-option-selected'
-												: ''
-										}`}
-									>
-										{persona.option1}
-									</div>
-									<DividerLineVerticalWhite />
-									<div
-										onClick={() => handleSetActiveOption(index, 'option2')}
-										className={`persona-option ${
-											info?.selectedPersonas?.[index]?.activeOption ===
-											'option2'
-												? 'persona-option-selected'
-												: ''
-										}`}
-									>
-										{persona?.option2}
-									</div>
-								</li>
-							))}
-					</ul>
-					<div onClick={handlePersonifyAssistant} className="createBtn">
-						Personify Assistant
-					</div>
+					{info?.isAiAssistantDetailsLoading ? (
+						<Skeleton width={'100%'} height={490} />
+					) : (
+						<ul>
+							{info?.selectedPersonas?.length > 0 &&
+								personas?.map((persona, index) => (
+									<li className="persona-option-container" key={index}>
+										<div
+											onClick={() => handleSetActiveOption(index, 'option1')}
+											className={`persona-option ${
+												info?.selectedPersonas?.[index]?.activeOption ===
+												'option1'
+													? 'persona-option-selected'
+													: ''
+											}`}
+										>
+											{persona.option1}
+										</div>
+										<DividerLineVerticalWhite />
+										<div
+											onClick={() => handleSetActiveOption(index, 'option2')}
+											className={`persona-option ${
+												info?.selectedPersonas?.[index]?.activeOption ===
+												'option2'
+													? 'persona-option-selected'
+													: ''
+											}`}
+										>
+											{persona?.option2}
+										</div>
+									</li>
+								))}
+						</ul>
+					)}
+					<button
+						disabled={info?.isAiAssistantDetailsLoading}
+						style={{
+							opacity: info?.isAiAssistantDetailsLoading ? 0.5 : 1,
+							cursor: info?.isAiAssistantDetailsLoading ? 'not-allowed' : 'pointer',
+						}}
+						onClick={handlePersonifyAssistant}
+						className="createBtn"
+					>
+						{info?.isAiAssistantDetailsLoading ? (
+							<div className="spinner-container">
+								<p>Personifying Assistant...</p>
+								<Spinner width={24} height={24} />
+							</div>
+						) : (
+							'Personify Assistant'
+						)}
+					</button>
 				</div>
 			</div>
 		</div>

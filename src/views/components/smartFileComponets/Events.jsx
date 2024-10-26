@@ -260,7 +260,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 								onChange={(date, dateString) => {
 									localEventsOnchange(ind, index, 'date', dateString);
 								}}
-								format="YYYY-MM-DD"
+								format={['YYYY-MM-DD', 'DD-MM-YYYY']}
 								value={
 									item?.date ? dayjs(`${item?.date}`, 'YYYY-MM-DD') : item?.date
 								}

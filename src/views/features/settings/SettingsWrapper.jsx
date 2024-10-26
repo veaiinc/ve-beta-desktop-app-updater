@@ -43,7 +43,6 @@ const SettingsWrapper = (props) => {
 		if (!tennantSettingsData) {
 			getTenantSettings();
 		}
-		getExistingAiAssistants();
 	}, []);
 
 	useEffect(() => {

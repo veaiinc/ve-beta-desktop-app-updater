@@ -465,6 +465,62 @@
 				}
 			}
 		}
+
+		.pdfListContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 16px;
+			width: 100%;
+			height: 200px;
+			overflow-y: auto;
+
+			.urlItem {
+				display: flex;
+				align-items: center;
+				gap: 16px;
+				width: 100%;
+				position: relative;
+
+				.linkIconContainer {
+					display: flex;
+					width: 36px;
+					height: 36px;
+					padding: 10.286px 0.857px;
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
+					gap: 8.571px;
+					border-radius: 3.429px;
+					background: #333;
+					cursor: pointer;
+				}
+
+				.url {
+					max-width: 75%;
+					text-overflow: ellipsis;
+					overflow: hidden;
+					white-space: nowrap;
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px;
+				}
+
+				.removeIconContainer {
+					position: absolute;
+					right: 14px;
+					top: 50%;
+					transform: translateY(-50%);
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
+				}
+			}
+		}
 	}
 
 	.knowledgeFileInputContainer {
@@ -602,6 +658,12 @@
 		font-weight: 500;
 		line-height: 16px;
 		letter-spacing: 0.26px;
-		cursor: pointer;
+
+		.loader {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+		}
 	}
 }
