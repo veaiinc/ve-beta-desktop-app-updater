@@ -1,17 +1,21 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/sales/smartFileComponets.scss';
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
+import { ReactComponent as EventsPridiction } from '../../../assets/svg/sales/smartFile/eventsPrediction.svg';
 import { DatePicker, Tooltip } from 'antd';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/workflow/questionMark.svg';
 import ToolTipContainer from '../popover/ToolTipContainer';
 import dayjs from 'dayjs';
 import _ from 'lodash';
+import EventsPresetsPopOverComponent from '../modalsV2/proposalModals/EventsPresetPopUp';
 
 const Events = ({ eventsData, eventsDataChange, editable }) => {
 	const [info, setInfo] = useState({
 		data: [],
 		calenderStartDate: '',
+		presetPopUp: {},
 	});
 
 	const [arrow, setArrow] = useState('Show');
@@ -137,47 +141,47 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 				addlServices: [],
 				blockId: selectedEventsArray?._id,
 				subBlockId: _.size(selectedEventsArray.values),
-				roles: [
-					{
-						type: 'cinematographer',
-						categories: [
-							{
-								category: 'candid',
-								quantity: 0,
-							},
-							{
-								category: 'traditional',
-								quantity: 0,
-							},
-						],
-					},
-					{
-						type: 'photographer',
-						categories: [
-							{
-								category: 'candid',
-								quantity: 0,
-							},
-							{
-								category: 'traditional',
-								quantity: 0,
-							},
-						],
-					},
-					{
-						type: 'support',
-						categories: [
-							{
-								category: 'candid',
-								quantity: 0,
-							},
-							{
-								category: 'traditional',
-								quantity: 0,
-							},
-						],
-					},
-				],
+				// roles: [
+				// 	{
+				// 		type: 'cinematographer',
+				// 		categories: [
+				// 			{
+				// 				category: 'candid',
+				// 				quantity: 0,
+				// 			},
+				// 			{
+				// 				category: 'traditional',
+				// 				quantity: 0,
+				// 			},
+				// 		],
+				// 	},
+				// 	{
+				// 		type: 'photographer',
+				// 		categories: [
+				// 			{
+				// 				category: 'candid',
+				// 				quantity: 0,
+				// 			},
+				// 			{
+				// 				category: 'traditional',
+				// 				quantity: 0,
+				// 			},
+				// 		],
+				// 	},
+				// 	{
+				// 		type: 'support',
+				// 		categories: [
+				// 			{
+				// 				category: 'candid',
+				// 				quantity: 0,
+				// 			},
+				// 			{
+				// 				category: 'traditional',
+				// 				quantity: 0,
+				// 			},
+				// 		],
+				// 	},
+				// ],
 			};
 
 			selectedEventsArray?.values?.push(newDummyObj);
@@ -201,6 +205,43 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 			eventsDataChange(selectedEventsArray);
 		},
 		[info?.data, editable],
+	);
+
+	const closePresetPopUp = useCallback((outerIndex, innerIndex) => {
+		setInfo((prev) => ({
+			...prev,
+			presetPopUp: { ...prev.presetPopUp, [`events${outerIndex}${innerIndex}`]: false },
+		}));
+	}, []);
+
+	const openEventPreset = useCallback(
+		(outerIndex, innerIndex) => {
+			if (!editable) {
+				return;
+			}
+			setInfo((prev) => ({
+				...prev,
+				presetPopUp: { ...prev.presetPopUp, [`events${outerIndex}${innerIndex}`]: true },
+			}));
+		},
+		[editable],
+	);
+
+	const addServiceDataInEvents = useCallback(
+		(data, outerIndex, innerIndex) => {
+			const { eventTableValues } = data || {};
+			let updatedData = [...(info?.data || [])];
+			let selectedEventsTable = updatedData?.[outerIndex];
+			let valueTobeChanged = selectedEventsTable?.values?.[innerIndex];
+			let roleArray = [...(eventTableValues || [])];
+			valueTobeChanged = { ...valueTobeChanged, roles: roleArray };
+			selectedEventsTable?.values?.splice(innerIndex, 1, valueTobeChanged);
+			updatedData?.splice(outerIndex, 1, selectedEventsTable);
+			setInfo((prev) => ({ ...prev, data: updatedData }));
+			closePresetPopUp(outerIndex, innerIndex);
+			eventsDataChange(selectedEventsTable);
+		},
+		[info?.data],
 	);
 
 	return info?.data?.map((ele, index) => (
@@ -304,7 +345,45 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 					</div>
 
 					<div className="servicesContainer">
-						<span className="serviceContainerTitle">Services Provided</span>
+						<Tooltip
+							placement="bottomLeft"
+							title={
+								editable ? (
+									<EventsPresetsPopOverComponent
+										closePresetPopUp={() => closePresetPopUp(index, ind)}
+										addServiceDataInEvents={addServiceDataInEvents}
+										outerIndex={index}
+										innerIndex={ind}
+									/>
+								) : (
+									''
+								)
+							}
+							color={'#202020'}
+							arrow={false}
+							trigger="click"
+							overlayClassName="toolTipContainer"
+							open={info?.presetPopUp?.[`events${index}${ind}`]}
+							onOpenChange={(open) => {
+								if (!open) {
+									closePresetPopUp(index, ind);
+								}
+							}}
+						>
+							<div
+								className="serviceContainerTitle"
+								onClick={() => openEventPreset(index, ind)}
+							>
+								<span className="serviceContainerTitleStyling">
+									Services Provided
+								</span>
+
+								<div className="eventsPresetsContainer">
+									<EventsPridiction />
+									<span className="eventsPresetsStyling">Add from preset</span>
+								</div>
+							</div>
+						</Tooltip>
 
 						{item?.roles?.map((x, lt) => (
 							<div className="serviceRoleContainer" key={lt}>

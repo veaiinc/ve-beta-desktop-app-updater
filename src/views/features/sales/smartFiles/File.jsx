@@ -33,6 +33,7 @@ const File = ({
 			updateThankyou,
 			formResponseData,
 			updateSendSmartFileSettings,
+			getEventsPresets,
 		},
 	} = useContext(Context);
 
@@ -225,6 +226,9 @@ const File = ({
 		info?.iframeReady,
 		info?.variableInitialised,
 	]);
+	useEffect(() => {
+		getEventsPresetsData();
+	}, []);
 
 	//function defination
 	//when the variable is clicked, autofocus the input
@@ -669,6 +673,18 @@ const File = ({
 		},
 		[edit],
 	);
+
+	//get preset data for events
+	const getEventsPresetsData = useCallback(async () => {
+		const params = {
+			page: 1,
+			limit: 50,
+			sortBy: 'createdAt',
+			sortType: -1,
+			subType: 'event_table',
+		};
+		getEventsPresets(params);
+	}, []);
 
 	return (
 		<div className="fileParentContainer">
