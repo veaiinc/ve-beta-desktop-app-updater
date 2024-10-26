@@ -1,14 +1,27 @@
 import React, { memo, useState, useContext, useEffect } from 'react';
-import { ReactComponent as LinkWhite } from '../../../../assets/svg/Settings/link-white-color.svg';
 import AddKnowledgeModal from '../../../components/modalsV2/settings/ai_setup/AddKnowledgeModal';
 import '../../../../assets/scss/settings/aiSetupPage.scss';
 import Context from '../../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Spinner from '../../loaders/Spinner';
+import { ReactComponent as LinkIcon } from '../../../../assets/svg/Settings/link-white-color.svg';
+import { ReactComponent as PdfIcon } from '../../../../assets/svg/Settings/pdf-icon.svg';
+import { ReactComponent as TextIcon } from '../../../../assets/svg/Settings/text-icon.svg';
 // import { ReactComponent as HollowCircleBlue } from '../../../../assets/svg/Settings/hollow-circle-blue.svg';
 // import Template from './tempImg.png';
 
-const columnNames = ['Source']; // TODO: add 'status' later
+const columnNames = ['Source', 'Status'];
+const statuses = {
+	notStarted: 'Not Started',
+	processing: 'Training...',
+	ready: 'Ready',
+	error: 'Error',
+};
+const sourceTypes = {
+	pdf: <PdfIcon />,
+	url: <LinkIcon />,
+	txt: <TextIcon />,
+};
 
 const KnowledgeBase = () => {
 	let {
@@ -296,13 +309,19 @@ const KnowledgeBase = () => {
 						{knowledgeBaseFiles?.data?.map((knowledge) => (
 							<div key={knowledge?._id} className="knowledge-item">
 								<div className="knowledge-link-container">
-									<LinkWhite />
+									{sourceTypes?.[knowledge?.sourceType]}
 									<p>{knowledge?.name}</p>
 								</div>
-								{/* <div className="knowledge-status">
-									<span className="status">Training...</span>
-									<span className="time">2 hrs left</span>
-									</div> */}
+								<div className="knowledge-status">
+									<span className={`${knowledge?.status}`}>
+										{knowledge?.status === 'processing' && (
+											<div class="spinner-knowledge">
+												<div className="inner-div"></div>
+											</div>
+										)}
+										{statuses?.[knowledge?.status]}
+									</span>
+								</div>
 							</div>
 						))}
 					</InfiniteScroll>

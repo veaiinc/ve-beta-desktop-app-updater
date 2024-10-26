@@ -84,12 +84,15 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 	};
 
 	const handleFileUpload = async () => {
+		console.log(info?.activeFileType);
+		console.log(info?.pdfFilesInfo?.length > 0);
 		if (info?.activeFileType === 'url' && info?.urlsInfo?.length > 0) {
 			const statusSummary = await uploadURLsToKnowledgeBase(aiAssistantId, info?.urlsInfo);
 			if (statusSummary?.[0]) {
 				message.success('URLs uploaded successfully!', 1);
 			}
-		} else if (info?.activeFileType === 'pdf' && !info?.pdfFilesInfo?.length) {
+		} else if (info?.activeFileType === 'pdf' && info?.pdfFilesInfo?.length > 0) {
+			console.log('pdf');
 			const files = info?.pdfFilesInfo;
 			const statusSummary = await uploadPDFsToKnowledgeBase(aiAssistantId, files);
 			if (statusSummary?.[0]) {
@@ -264,7 +267,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 									onChange={handleSetAllUploadedPDFFiles}
 									type="file"
 									id="pdfInput"
-									// accept=".pdf"
+									accept=".pdf"
 									multiple
 								/>
 								<UploadIcon />
