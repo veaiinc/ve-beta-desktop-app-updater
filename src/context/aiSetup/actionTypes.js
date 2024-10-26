@@ -3,6 +3,7 @@ export const KNOWLEDGE_BASE = {
 	deleteFromKnowledgeBase: '/delete_from_knowledge_base',
 	listFilesInKnowledgeBase: '/knowledge-bases',
 	uploadPDFsToKnowledgeBase: '/knowledge-bases/upload-file',
+	uploadURLsToKnowledgeBase: '/knowledge-bases',
 };
 
 export const AI_PERSONALITY = {

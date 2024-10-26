@@ -415,6 +415,7 @@
 				border-radius: 16px;
 				border: 1px solid rgba(100, 100, 100, 0.24);
 				padding: 32px;
+				height: 500px;
 
 				.ai-header {
 					display: flex;
@@ -480,6 +481,12 @@
 					display: flex;
 					flex-direction: column;
 					gap: 16px;
+					height: 324px;
+					// overflow: auto;
+
+					.knowledgebase-infinite-scroll {
+						overflow: auto !important;
+					}
 
 					.knowledge-item {
 						display: flex;

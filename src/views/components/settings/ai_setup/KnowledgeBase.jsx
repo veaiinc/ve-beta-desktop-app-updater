@@ -3,19 +3,26 @@ import { ReactComponent as LinkWhite } from '../../../../assets/svg/Settings/lin
 import AddKnowledgeModal from '../../../components/modalsV2/settings/ai_setup/AddKnowledgeModal';
 import '../../../../assets/scss/settings/aiSetupPage.scss';
 import Context from '../../../../context/context';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import Spinner from '../../loaders/Spinner';
 // import { ReactComponent as HollowCircleBlue } from '../../../../assets/svg/Settings/hollow-circle-blue.svg';
 // import Template from './tempImg.png';
 
-const columnNames = ['Source']; // TODO: add status later
+const columnNames = ['Source']; // TODO: add 'status' later
 
 const KnowledgeBase = () => {
 	let {
-		aiSetup: { knowledgeBaseFiles },
+		aiSetup: { knowledgeBaseFiles, getKnowledgeBaseFiles },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		isAddKnowledgeModalOpen: false,
 	});
+
+	const fetchMoreKnowledgeBaseFiles = () => {
+		const nextPageNumber = knowledgeBaseFiles?.currentPage + 1;
+		getKnowledgeBaseFiles(nextPageNumber);
+	};
 
 	const toggleModal = () => {
 		setInfo({ ...info, isAddKnowledgeModalOpen: !info?.isAddKnowledgeModalOpen });
@@ -239,7 +246,7 @@ const KnowledgeBase = () => {
 					<h1>Active Knowledges</h1>
 					<button onClick={toggleModal}>Add Knowledge</button>
 				</div>
-				{knowledgeBaseFiles?.length > 0 && (
+				{knowledgeBaseFiles?.data?.length > 0 && (
 					<ul className="column-titles-container">
 						{columnNames?.map((columnName) => (
 							<li key={columnName} className={columnName?.toLowerCase()}>
@@ -248,19 +255,57 @@ const KnowledgeBase = () => {
 						))}
 					</ul>
 				)}
-				<div className="knowledges-list">
-					{knowledgeBaseFiles?.map((knowledge, i) => (
-						<div key={i} className="knowledge-item">
-							<div className="knowledge-link-container">
-								<LinkWhite />
-								<p>{knowledge?.name}</p>
+				<div className="knowledges-list" id="knowledges-list-target">
+					<InfiniteScroll
+						className="knowledgebase-infinite-scroll"
+						dataLength={knowledgeBaseFiles?.data?.length || 0}
+						height={350}
+						endMessage={
+							<p
+								style={{
+									textAlign: 'center',
+									color: 'white',
+									fontSize: '10px',
+									padding: '4px',
+								}}
+							>
+								End of knowledge files list!
+							</p>
+						}
+						scrollableTarget={'knowledges-list-target'}
+						next={fetchMoreKnowledgeBaseFiles}
+						hasMore={knowledgeBaseFiles?.hasMore}
+						loader={
+							<div
+								style={{
+									color: 'white',
+									textAlign: 'center',
+									fontSize: '10px',
+									padding: '4px',
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									gap: '4px',
+								}}
+							>
+								<span>Fetching More Files...</span>
+								<Spinner width={'12px'} height={'12px'} />
 							</div>
-							{/* <div className="knowledge-status">
-								<span className="status">Training...</span>
-								<span className="time">2 hrs left</span>
-							</div> */}
-						</div>
-					))}
+						}
+					>
+						{knowledgeBaseFiles?.data?.map((knowledge) => (
+							<div key={knowledge?._id} className="knowledge-item">
+								<div className="knowledge-link-container">
+									<LinkWhite />
+									<p>{knowledge?.name}</p>
+								</div>
+								{/* <div className="knowledge-status">
+									<span className="status">Training...</span>
+									<span className="time">2 hrs left</span>
+									</div> */}
+							</div>
+						))}
+					</InfiniteScroll>
 				</div>
 			</div>
 			<AddKnowledgeModal isOpen={info?.isAddKnowledgeModalOpen} toggleModal={toggleModal} />

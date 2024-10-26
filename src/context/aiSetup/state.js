@@ -6,7 +6,9 @@ import service from '../../services';
 import { generatePDFsBatchId } from '../../helpers';
 
 export const intialState = {
-	knowledgeBaseFiles: null,
+	knowledgeBaseFiles: {
+		data: [],
+	},
 	existingAiAssistants: null,
 	activeAiAssistantDetails: null,
 };
@@ -24,11 +26,16 @@ export const AiSetupState = () => {
 				KNOWLEDGE_BASE?.listFilesInKnowledgeBase +
 				`?page=${page}&limit=${limit}`;
 			const response = await service.fetchGet(url, usertoken, 'tenant'); // change the type to ai_setup later
+			const knowledgeBaseData = {
+				data: [...state?.knowledgeBaseFiles?.data, ...response?.[1]?.result],
+				hasMore: response?.[1]?.hasNextPage,
+				currentPage: response?.[1]?.currentPage,
+				totalPages: response?.[1]?.totalPages,
+			};
 			if (response?.[0]) {
-				console.log('response?.[1]?.files', response);
 				dispatch({
 					type: Actions?.SET_KNOWLEDGE_BASE_FILES,
-					payload: response?.[1]?.result,
+					payload: knowledgeBaseData,
 				});
 			}
 		} catch (error) {
@@ -105,6 +112,49 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const uploadURLsToKnowledgeBase = async (aiAssistantId, urls) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + KNOWLEDGE_BASE?.uploadURLsToKnowledgeBase;
+		const urlUploadPromises = urls.map((link) => {
+			return new Promise(async (resolve, reject) => {
+				const body = {
+					assistant_ids: [aiAssistantId],
+					type: 'url',
+					url: link?.url,
+				};
+				console.log(body);
+				try {
+					const response = await service?.fetchPost(url, body, usertoken, 'tenant');
+					if (response?.[0]) {
+						return resolve({ url: link, status: 'resolved' });
+					} else {
+						return reject({
+							url: link,
+							status: 'rejected',
+							error: 'API response indicated failure',
+						});
+					}
+				} catch (error) {
+					return reject({ url: link, status: 'rejected', error: error.message });
+				}
+			});
+		});
+		const uploadResults = await Promise.allSettled(urlUploadPromises);
+		const statusSummary = uploadResults.map((result) => {
+			if (result.status === 'fulfilled') {
+				return { url: result.value.url, status: result.value.status };
+			} else {
+				return {
+					url: result.reason.url,
+					status: result.reason.status,
+					error: result.reason.error,
+				};
+			}
+		});
+		return statusSummary;
+	};
+
 	const uploadPDFsToKnowledgeBase = async (aiAssistantId, files) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -133,6 +183,7 @@ export const AiSetupState = () => {
 					}
 
 					if (signedUrl) {
+						console.log('FileType', file.type);
 						const uploadResponse = await fetch(signedUrl, {
 							method: 'PUT',
 							headers: {
@@ -180,5 +231,6 @@ export const AiSetupState = () => {
 		updateAiAssistant,
 		getActiveAiAssistantDetails,
 		uploadPDFsToKnowledgeBase,
+		uploadURLsToKnowledgeBase,
 	};
 };

@@ -9,24 +9,28 @@ import { ReactComponent as CustomTextPurple } from '../../../../../assets/svg/Se
 import { ReactComponent as UploadIcon } from '../../../../../assets/svg/Settings/CloudUpload.svg';
 import '../../../../../assets/scss/settings/aiSetup.scss';
 import Modal from '../../';
-import isURL from 'validator/lib/isURL';
+// import isURL from 'validator/lib/isURL';
 import { message } from 'antd';
 import Context from '../../../../../context/context';
 import { useParams } from 'react-router-dom';
+import { isURL } from '../../../../../helpers';
 
 const knowledgeFileTypes = [
 	{
 		name: 'URL',
+		value: 'url',
 		defaultIcon: <LinkGrey />,
 		activeIcon: <LinkPurple />,
 	},
 	{
 		name: 'PDF',
+		value: 'pdf',
 		defaultIcon: <FileGrey />,
 		activeIcon: <FilePurple />,
 	},
 	{
 		name: 'Custom Text',
+		value: 'customText',
 		defaultIcon: <CustomTextGrey />,
 		activeIcon: <CustomTextPurple />,
 	},
@@ -34,38 +38,77 @@ const knowledgeFileTypes = [
 
 const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 	let {
-		aiSetup: { uploadPDFsToKnowledgeBase },
+		aiSetup: { uploadURLsToKnowledgeBase, uploadPDFsToKnowledgeBase },
 	} = useContext(Context);
 	const { aiAssistantId } = useParams();
 
 	const [info, setInfo] = useState({
-		activeFileType: knowledgeFileTypes?.[0]?.name,
+		activeFileType: knowledgeFileTypes?.[0]?.value,
 		inputURL: '',
 		urlsInfo: [],
 		pdfFilesInfo: [],
-		customTextInfo: [],
+		customTextInfo: {
+			filename: '',
+			fileContent: '',
+		},
 	});
 
 	const handleSetAllUploadedPDFFiles = (e) => {
 		const files = Array.from(e?.target?.files);
 		if (files?.length > 10) {
-			message.error('Warning: You can upload only 10 files at a time', 1);
+			message.error('Warning: You can upload only 10 files at a time', 2);
 			return;
 		}
-		files?.forEach((file) => {
+		files?.forEach((file, i) => {
 			if (file?.size > 10 * 1024 * 1024) {
 				message.error('Warning: File size must be less than or equal to 10 MB', 1);
 				return;
 			}
+			const fileAlreadyUploaded = info?.pdfFilesInfo?.some((pdf) => {
+				console.log('Comparision', pdf.name, ':', file.name);
+				return pdf?.name === file?.name;
+			});
+			if (fileAlreadyUploaded) {
+				message.error(
+					'Warning: The selected file(s) was(were) previously uploaded already!',
+					1.7,
+				);
+				return;
+			}
 		});
-		setInfo((prev) => ({ ...prev, pdfFilesInfo: files }));
+
+		setInfo((prev) => ({
+			...prev,
+			pdfFilesInfo: [...prev?.pdfFilesInfo, ...files],
+		}));
 	};
 
-	const handleUploadPDFsToKnowledgeBase = async () => {
-		const files = info?.pdfFilesInfo;
-		const statusSummary = await uploadPDFsToKnowledgeBase(aiAssistantId, files);
-		if (statusSummary?.[0]) {
-			message.success('Files uploaded successfully!', 1);
+	const handleFileUpload = async () => {
+		if (info?.activeFileType === 'url' && info?.urlsInfo?.length > 0) {
+			const statusSummary = await uploadURLsToKnowledgeBase(aiAssistantId, info?.urlsInfo);
+			if (statusSummary?.[0]) {
+				message.success('URLs uploaded successfully!', 1);
+			}
+		} else if (info?.activeFileType === 'pdf' && !info?.pdfFilesInfo?.length) {
+			const files = info?.pdfFilesInfo;
+			const statusSummary = await uploadPDFsToKnowledgeBase(aiAssistantId, files);
+			if (statusSummary?.[0]) {
+				message.success('PDF Files uploaded successfully!', 1);
+			}
+		} else if (
+			info?.activeFileType === 'customText' &&
+			info?.customTextInfo?.filename &&
+			info?.customTextInfo?.fileContent
+		) {
+			console.log('uploading text file');
+			const textBlob = new Blob([info?.customTextInfo?.fileContent], { type: 'text/plain' });
+			const file = new File([textBlob], info?.customTextInfo?.filename, {
+				type: 'text/plain',
+			});
+			const statusSummary = await uploadPDFsToKnowledgeBase(aiAssistantId, [file]);
+			if (statusSummary?.[0]) {
+				message.success('Text File uploaded successfully!', 1);
+			}
 		}
 	};
 
@@ -102,6 +145,35 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 		}));
 	};
 
+	const handleRemovePDF = (index) => {
+		setInfo((prev) => ({
+			...prev,
+			pdfFilesInfo: prev?.pdfFilesInfo?.filter((pdf, i) => i !== index),
+		}));
+	};
+
+	const handleSetTxtFilename = (e) => {
+		const filename = e?.target?.value;
+		setInfo((prev) => ({
+			...prev,
+			customTextInfo: {
+				...prev?.customTextInfo,
+				filename: `${filename}.txt`,
+			},
+		}));
+	};
+
+	const handleSetTxtFileContent = (e) => {
+		const fileContent = e?.target?.value;
+		setInfo((prev) => ({
+			...prev,
+			customTextInfo: {
+				...prev?.customTextInfo,
+				fileContent,
+			},
+		}));
+	};
+
 	return (
 		<Modal isOpen={isOpen} closeModal={toggleModal}>
 			<div className="addKnowledgeModalContainer">
@@ -118,17 +190,17 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 					{knowledgeFileTypes.map((knowledgeFileType, index) => (
 						<div
 							className={`knowledgeFileType ${
-								info?.activeFileType === knowledgeFileType?.name ? 'active' : ''
+								info?.activeFileType === knowledgeFileType?.value ? 'active' : ''
 							}`}
 							key={index}
 							onClick={() =>
 								setInfo((prev) => ({
 									...prev,
-									activeFileType: knowledgeFileType?.name,
+									activeFileType: knowledgeFileType?.value,
 								}))
 							}
 						>
-							{info?.activeFileType === knowledgeFileType?.name
+							{info?.activeFileType === knowledgeFileType?.value
 								? knowledgeFileType?.activeIcon
 								: knowledgeFileType?.defaultIcon}
 							<span>{knowledgeFileType?.name}</span>
@@ -136,7 +208,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 					))}
 				</div>
 				<div className="knowledgeFileListContainer">
-					{info?.activeFileType === 'URL' && (
+					{info?.activeFileType === 'url' ? (
 						<div className="urlListContainer">
 							{info?.urlsInfo.map((url, index) => (
 								<div className="urlItem" key={index}>
@@ -153,10 +225,27 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 								</div>
 							))}
 						</div>
-					)}
+					) : info?.activeFileType === 'pdf' ? (
+						<div className="pdfListContainer">
+							{info?.pdfFilesInfo?.map((pdf, index) => (
+								<div className="urlItem" key={index}>
+									<div className="linkIconContainer">
+										<LinkGrey />
+									</div>
+									<span className="url">{pdf?.name}</span>
+									<div
+										className="removeIconContainer"
+										onClick={() => handleRemovePDF(index)}
+									>
+										<CrossGrey />
+									</div>
+								</div>
+							))}
+						</div>
+					) : null}
 				</div>
 				<div className="knowledgeFileInputContainer">
-					{info?.activeFileType === 'URL' && (
+					{info?.activeFileType === 'url' && (
 						<div className="URLInputContainer">
 							<input
 								value={info?.inputURL}
@@ -168,14 +257,14 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 							<button onClick={handleAddURL}>Add</button>
 						</div>
 					)}
-					{info?.activeFileType === 'PDF' && (
+					{info?.activeFileType === 'pdf' && (
 						<div className="PDFInputContainer">
 							<label htmlFor="pdfInput">
 								<input
 									onChange={handleSetAllUploadedPDFFiles}
 									type="file"
 									id="pdfInput"
-									accept=".pdf"
+									// accept=".pdf"
 									multiple
 								/>
 								<UploadIcon />
@@ -184,16 +273,26 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 							</label>
 						</div>
 					)}
-					{info?.activeFileType === 'Custom Text' && (
+					{info?.activeFileType === 'customText' && (
 						<div className="customTextInputContainer">
 							<div className="line"></div>
-							<input type="text" placeholder="File Name" />
-							<textarea placeholder="Type here..." />
+							<input
+								onInput={handleSetTxtFilename}
+								type="text"
+								placeholder="File Name"
+							/>
+							<textarea
+								onInput={handleSetTxtFileContent}
+								placeholder="Type here..."
+							/>
 						</div>
 					)}
 				</div>
-				<button onClick={handleUploadPDFsToKnowledgeBase} className="updateBtn">
-					Update
+				<button onClick={handleFileUpload} className="updateBtn">
+					Upload{' '}
+					{knowledgeFileTypes
+						?.filter((knowledge) => knowledge?.value === info?.activeFileType)
+						.map((knowledge) => knowledge?.name)}
 				</button>
 			</div>
 		</Modal>
