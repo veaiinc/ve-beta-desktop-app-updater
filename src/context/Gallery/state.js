@@ -15,6 +15,7 @@ export const intialState = {
 	imageDuplicatesList: null,
 	waterMarks: null,
 	collaborators: null,
+	updateActiveAlbum: null,
 };
 
 export const Galleries = () => {
@@ -369,6 +370,37 @@ export const Galleries = () => {
 			console.log('error==>getLayoutSettings', error);
 		}
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}
+
+	const editAlbum = async (payload, galleryId, albumID) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumID}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>getLayoutSettings', error);
+		}
+	};
+	const editLockAlbum = async (payload, galleryId, albumID) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumID}/guest-access`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>getLayoutSettings', error);
+		}
+	};
+
 	const resetGallleryState = async () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -448,7 +480,13 @@ export const Galleries = () => {
 			console.log('error==>getImageDuplicatesList', error);
 		}
 	};
-
+	const updatedAlbum = (value) => {
+		console.log(value, 'activeUpdateAlbumfromFunction');
+		dispatch({
+			type: Actions.UPDATE_ALBUM_STATE,
+			payload: value,
+		});
+	};
 	const uploadWaterMark = async (file) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -504,5 +542,8 @@ export const Galleries = () => {
 		getImageDuplicatesList,
 		getWaterMarks,
 		uploadWaterMark,
+		editAlbum,
+		editLockAlbum,
+		updatedAlbum,
 	};
 };
