@@ -39,6 +39,10 @@ const actionHandlers = {
 		...state,
 		waterMarks: action.payload,
 	}),
+	UPDATE_ALBUM_STATE: (state, action) => ({
+		...state,
+		updateActiveAlbum: action.payload,
+	}),
 
 	RESET_STATE: () => ({ ...intialState }),
 };

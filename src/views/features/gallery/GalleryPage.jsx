@@ -83,6 +83,7 @@ const GalleryPage = () => {
 			putLayoutSettings,
 			getCollaborators,
 			collaborators,
+			updateActiveAlbum,
 			updateCollaborators,
 			basicAlbumDetails,
 		},
@@ -113,6 +114,8 @@ const GalleryPage = () => {
 		gridStyle: layoutSettings?.gridStyle,
 		thumbnailSize: layoutSettings?.thumbnailSize,
 		collaboratorsData: collaborators,
+		tenantAlbums: tenantAlbums?.albums,
+		activeAlbum: {},
 	});
 	console.log(layoutSettings, 'layoutSettings', info);
 	const optionsRef = useRef(null);
@@ -163,6 +166,8 @@ const GalleryPage = () => {
 				...prev,
 				albumName: tenantAlbums?.albums?.[0]?.title,
 				activeAlbumId: tenantAlbums?.albums?.[0]?._id,
+				activeAlbum: tenantAlbums?.albums?.[0],
+				tenantAlbums: tenantAlbums?.albums,
 			}));
 		}
 		if (tenantPreferences) {
@@ -173,8 +178,26 @@ const GalleryPage = () => {
 		}
 	}, [tenantPreferences, tenantAlbums]);
 	useEffect(() => {
+		if (updateActiveAlbum !== null && updateActiveAlbum !== info?.activeAlbum) {
+			let updatedArray = info.tenantAlbums.map((album) => {
+				if (album._id === updateActiveAlbum._id) {
+					return updateActiveAlbum;
+				}
+				return album;
+			});
+
+			setInfo((prev) => ({
+				...prev,
+				albumName: updateActiveAlbum?.title,
+				activeAlbum: updateActiveAlbum,
+				tenantAlbums: updatedArray,
+			}));
+		}
+	}, [updateActiveAlbum]);
+
+	useEffect(() => {
 		if (tenantAlbums?.albums?.[0]?.title) {
-			getAlbumCount(galleryId, tenantAlbums?.albums?.[0]?.title);
+			getAlbumCount(galleryId, tenantAlbums?.albums?.[0]?._id);
 		}
 	}, [tenantAlbums?.albums?.[0]?.title]);
 	useEffect(() => {
@@ -212,11 +235,17 @@ const GalleryPage = () => {
 		}));
 	};
 
-	const handleClickAlbum = (album, name, activeAlbumId = null) => {
+	const handleClickAlbum = (album, name) => {
+		console.log(album, 'albumName======>');
 		if (name === 'albumName') {
-			setInfo((prevInfo) => ({ ...prevInfo, albumName: album, activeAlbumId }));
-			if (info?.albumName !== album) {
-				getAlbumCount(galleryId, album);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				albumName: album?.title,
+				activeAlbumId: album?._id,
+				activeAlbum: album,
+			}));
+			if (info?.albumName !== album?.title) {
+				getAlbumCount(galleryId, album?.title);
 			}
 		} else if (name === 'containName') {
 			setInfo((prevInfo) => ({ ...prevInfo, albumContains: album }));
@@ -224,7 +253,9 @@ const GalleryPage = () => {
 	};
 
 	const handleAlbumSettings = (sectionId) => {
-		navigate(`/gallery/${galleryId}/album-settings`, { state: { sectionId } });
+		navigate(`/gallery/${galleryId}/album-settings`, {
+			state: { sectionId, activeAlbum: info?.activeAlbum },
+		});
 	};
 	const openShareModal = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, shareModal: !prevInfo.shareModal }));
@@ -500,11 +531,11 @@ const GalleryPage = () => {
 							>
 								<p>+ New Album</p>
 							</div>
-							{tenantAlbums?.albums.map((album, index) => (
+							{info?.tenantAlbums?.map((album, index) => (
 								<div
 									key={index}
 									className={`album ${
-										info.albumName === album.name ? 'active' : ''
+										info.albumName === album.title ? 'active' : ''
 									}`}
 									style={{
 										background: album.image
@@ -516,9 +547,7 @@ const GalleryPage = () => {
 
 									<div
 										className="albumDetails"
-										onClick={() =>
-											handleClickAlbum(album?.title, 'albumName', album?._id)
-										}
+										onClick={() => handleClickAlbum(album, 'albumName')}
 									>
 										<p>{album?.title}</p>
 										<p>{`${album?.photos} photos`}</p>
