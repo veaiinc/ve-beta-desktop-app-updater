@@ -77,13 +77,13 @@ const UploadPhotos = () => {
 		}
 	}, [tenantAlbums]);
 
-	useEffect(() => {
-		window.addEventListener('beforeunload', (e) => {
-			e.preventDefault();
-			const message = 'Are you sure you want to leave? All provided data will be lost.';
-			return message;
-		});
-	}, []);
+	// useEffect(() => {
+	// 	window.addEventListener('beforeunload', (e) => {
+	// 		e.preventDefault();
+	// 		const message = 'Are you sure you want to leave? All provided data will be lost.';
+	// 		return message;
+	// 	});
+	// }, []);
 
 	// drop function
 	const onDropFunction = async (files) => {

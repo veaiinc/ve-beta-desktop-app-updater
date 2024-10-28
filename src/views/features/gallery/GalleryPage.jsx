@@ -276,6 +276,7 @@ const GalleryPage = () => {
 	}, [albumDetails]);
 
 	const fetchMoreImages = () => {
+		console.log('calling');
 		const nextPage = info.page + 1;
 		getGalleryImages(
 			galleryId,
@@ -519,6 +520,8 @@ const GalleryPage = () => {
 			collaboratorsData: data,
 		}));
 	};
+
+	console.log(imagesList, 'imagesList');
 	return (
 		<>
 			{console.log(info?.activeGallery, 'activeGallery')}
@@ -777,6 +780,7 @@ const GalleryPage = () => {
 
 							<div
 								className="galleryImagesContainer"
+								id="galleryScrollTarget"
 								onMouseEnter={() =>
 									setInfo((prev) => ({
 										...prev,
@@ -794,8 +798,12 @@ const GalleryPage = () => {
 									dataLength={imagesList?.docs?.length || 0}
 									next={fetchMoreImages}
 									hasMore={info.hasMore}
-									loader={<h4>Loading...</h4>}
-									scrollableTarget="galleryImagesContainer"
+									loader={
+										<h4 style={{ color: 'white', textAlign: 'center' }}>
+											Loading...
+										</h4>
+									}
+									scrollableTarget="galleryScrollTarget"
 								>
 									<ResponsiveMasonry
 										columnsCountBreakPoints={{
@@ -815,6 +823,7 @@ const GalleryPage = () => {
 													<p>Add Photos</p>
 												</div>
 											</div>
+
 											{imagesList?.docs?.map((image, index) => {
 												// Replace the problematic params construction with this fixed version
 												const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
@@ -846,6 +855,7 @@ const GalleryPage = () => {
 										</Masonry>
 									</ResponsiveMasonry>
 								</InfiniteScroll>
+
 								{info.selectedImages.length > 0 && (
 									<div className="selectedImagesCotainer">
 										<div className="selectedImagesCounter">

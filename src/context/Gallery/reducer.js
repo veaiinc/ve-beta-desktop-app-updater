@@ -53,7 +53,13 @@ const actionHandlers = {
 	}),
 	GET_IMAGES_LIST: (state, action) => ({
 		...state,
-		imagesList: action.payload,
+		imagesList: state.imagesList
+			? {
+					...state.imagesList,
+					...action.payload,
+					docs: [...state.imagesList.docs, ...action.payload.docs],
+			  }
+			: action.payload,
 	}),
 
 	RESET_STATE: () => ({ ...intialState }),
