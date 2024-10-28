@@ -16,6 +16,9 @@ export const intialState = {
 	waterMarks: null,
 	collaborators: null,
 	updateActiveAlbum: null,
+	galleryCredentials: null,
+	albumDetails: null,
+	imagesList: null,
 };
 
 export const Galleries = () => {
@@ -253,6 +256,12 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_ALBUM_DETAILS,
+					payload: response?.[1],
+				});
+			}
 		} catch (error) {
 			console.log('error==>getAlbumCount', error);
 		}
@@ -376,20 +385,14 @@ export const Galleries = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			const availability = await checkSlugIsAvalible(galleryId, payload?.title);
-			console.log(availability, 'availability');
-			if (availability?.[1]?.isAvailable) {
-				const response = await service.fetchPut(
-					`/${workspaceId}/galleries/${galleryId}/albums/${albumID}`,
-					payload,
-					usertoken,
-					'galleries',
-				);
-				if (response[0]) {
-					getAlbums(galleryId);
-				}
-			} else {
-				return availability;
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumID}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				getAlbums(galleryId);
 			}
 		} catch (error) {
 			console.log('error==>getLayoutSettings', error);
@@ -539,7 +542,46 @@ export const Galleries = () => {
 		}
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/images  ==> to get the images
-	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/content-distribution/get-credentials/{{ _.gallery_id }}  ==> to get the access for the gallerry
+
+	const getGalleryCredentials = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/content-distribution/get-credentials/${galleryId}`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_GALLERY_CREDENTIALS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getGalleryCredentials', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/images  ==> to get the images
+	const getGalleryImages = async (galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_IMAGES_LIST,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getGalleryImages', error);
+		}
+	};
 
 	return {
 		...state,
@@ -572,5 +614,7 @@ export const Galleries = () => {
 		editLockAlbum,
 		updatedAlbum,
 		checkSlugIsAvalible,
+		getGalleryCredentials,
+		getGalleryImages,
 	};
 };
