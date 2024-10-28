@@ -1,4 +1,5 @@
-import React, { memo, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { memo, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import '../.././../../assets/scss/sales/smartFile.scss';
 import Events from '../../../components/smartFileComponets/Events';
 import Services from '../../../components/smartFileComponets/Services';
@@ -23,6 +24,7 @@ const File = ({
 	workflowStatus,
 }) => {
 	const { workflowId } = useParams();
+	const timeoutRef = useRef(null);
 	let {
 		templates: {
 			smartFileInfo,
@@ -48,7 +50,6 @@ const File = ({
 		eventsTableData: null,
 		servicesTableData: null,
 		loading: true,
-		timeout: null,
 		smartFileStatus: '',
 		templatesMapper: null,
 		duplicateLoader: false,
@@ -429,7 +430,14 @@ const File = ({
 
 			handleDebounceUpdate(moduleType, moduleData);
 		},
-		[info?.eventsTableData],
+		[
+			info?.eventsTableData,
+			info?.proposal,
+			info?.contract,
+			info?.invoice,
+			info?.thankyou,
+			info?.form,
+		],
 	);
 
 	//proposalUpdate
@@ -559,32 +567,14 @@ const File = ({
 		updateThankYouFunc,
 	]);
 
-	const updateExpiryInDays = useCallback(
-		async (updatedData) => {
-			const newModuleData = { ...info?.proposal, expiryInDays: +updatedData };
-			setInfo((prev) => ({ ...prev, proposal: newModuleData }));
-			handleDebounceUpdate('proposal', newModuleData);
-		},
-		[info?.proposal],
-	);
 	const handleDebounceUpdate = useCallback(
 		(module, moduleData) => {
-			clearInterval(info?.timeout);
-			const timeout = setTimeout(() => {
+			if (timeoutRef.current) clearTimeout(timeoutRef.current);
+			timeoutRef.current = setTimeout(() => {
 				moduleUpdateFuncWrapper?.[module](moduleData);
 			}, 1000);
-			setInfo((prev) => ({ ...prev, timeout }));
 		},
-		[
-			info?.timeout,
-			updateProposalFunc,
-			updateContractFunc,
-			updateFormFunc,
-			updateInvoiceFunc,
-			updateThankYouFunc,
-			moduleUpdateFuncWrapper,
-			updateExpiryInDays,
-		],
+		[moduleUpdateFuncWrapper, timeoutRef],
 	);
 
 	const duplicateTemplateFromSmartFile = useCallback(async () => {

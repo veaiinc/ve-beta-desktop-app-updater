@@ -171,7 +171,7 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 			setInfo((prev) => ({ ...prev, data: updatedData }));
 			serviceOnChangeFunc(selectedServiceTable, outerIndex);
 		},
-		[info?.data, editable],
+		[info?.data, editable, serviceOnChangeFunc],
 	);
 
 	return info?.data?.length ? (

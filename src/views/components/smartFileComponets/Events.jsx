@@ -122,7 +122,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 			setInfo((prev) => ({ ...prev, data: updatedData, calenderStartDate }));
 			eventsDataChange(selectedEventsTable);
 		},
-		[info?.data, editable, info?.calenderStartDate],
+		[info?.data, editable, info?.calenderStartDate, eventsDataChange],
 	);
 
 	const addMoreEventsValues = useCallback(
