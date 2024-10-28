@@ -11,26 +11,43 @@ import { message } from 'antd';
 const AlbumSettings = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const { sectionId, activeAlbum } = location.state || {};
+	const { sectionId, activeAlbumId } = location.state || {};
 	const { galleryId } = useParams();
 	const {
-		galleryInfo: { editAlbum, editLockAlbum, updatedAlbum },
+		galleryInfo: { editAlbum, editLockAlbum, tenantAlbums, getAlbums },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		activeSetting: 'album-overview,',
-		activeAlbumName: activeAlbum?.title,
-		isPublished: activeAlbum?.isPublished,
+		activeAlbumName: '',
+		activeAlbumId: activeAlbumId,
+		isPublished: false,
 		timeout: null,
 		albumUpdateError: '',
 		loading: false,
-		isEnabled: activeAlbum?.guestAccess?.isEnabled,
-		activeAlbum: activeAlbum,
+		isEnabled: false,
+		// activeAlbum: activeAlbum,
 	});
 
 	useEffect(() => {
 		setInfo((prev) => ({ ...prev, activeSetting: sectionId }));
 		scrollToSection(sectionId);
 	}, [sectionId]);
+
+	useEffect(() => {
+		if (!tenantAlbums) {
+			getAlbums(galleryId);
+		}
+		if (tenantAlbums) {
+			console.log(tenantAlbums, 'tenantAlbums');
+			const activeAlbum = tenantAlbums?.albums?.find((album) => album?._id === activeAlbumId);
+			setInfo((prev) => ({
+				...prev,
+				activeAlbumName: activeAlbum?.title,
+				isPublished: activeAlbum?.isPublished,
+				isEnabled: activeAlbum?.guestAccess?.isEnabled,
+			}));
+		}
+	}, [tenantAlbums]);
 
 	const scrollToSection = (sectionId) => {
 		setInfo((prev) => ({ ...prev, activeSetting: sectionId }));
@@ -44,17 +61,15 @@ const AlbumSettings = () => {
 	};
 
 	const handleHideAlbum = useCallback(() => {
-		const updatedActiveAlbum = { ...info?.activeAlbum, isPublished: !info?.isPublished };
 		setInfo((prev) => ({
 			...prev,
 			isPublished: !prev?.isPublished,
-			activeAlbum: updatedActiveAlbum,
 		}));
 		const payload = {
 			isPublished: !info?.isPublished,
 		};
-		updatedAlbum(updatedActiveAlbum);
-		editAlbum(payload, galleryId, activeAlbum?._id);
+
+		editAlbum(payload, galleryId, info?.activeAlbumId);
 	}, [info?.isPublished]);
 	const handleAlbumChange = useCallback(
 		(e) => {
@@ -67,21 +82,19 @@ const AlbumSettings = () => {
 		},
 		[info?.activeAlbumName],
 	);
+
 	const albumChanges = useCallback(async (value) => {
-		const updatedActiveAlbum = { ...info?.activeAlbum, title: value };
-		setInfo((prev) => ({
-			...prev,
-			activeAlbum: updatedActiveAlbum,
-		}));
 		const payload = {
 			title: value,
 		};
-		updatedAlbum(updatedActiveAlbum);
-		const response = await editAlbum(payload, galleryId, activeAlbum?._id);
 
-		if (response?.[0]) {
+		const response = await editAlbum(payload, galleryId, activeAlbumId);
+		console.log(response, 'availabilityResponse');
+
+		if (response?.[1]?.isAvailable) {
 			message.success('galleryUpdated');
 		} else {
+			message.error('Slug is not available');
 			setInfo((prev) => ({
 				...prev,
 				albumUpdateError: 'Error while updatating the gallery',
@@ -103,13 +116,6 @@ const AlbumSettings = () => {
 		[info?.timeout],
 	);
 	const handleIsEnable = useCallback(() => {
-		const updatedActiveAlbum = {
-			...info?.activeAlbum,
-			guestAccess: {
-				...info?.activeAlbum?.guestAccess,
-				isEnabled: !info?.isEnabled,
-			},
-		};
 		setInfo((prev) => ({
 			...prev,
 			isEnabled: !prev?.isEnabled,
@@ -117,8 +123,7 @@ const AlbumSettings = () => {
 		const payload = {
 			isEnabled: !info?.isEnabled,
 		};
-		updatedAlbum(updatedActiveAlbum);
-		editLockAlbum(payload, galleryId, activeAlbum?._id);
+		editLockAlbum(payload, galleryId, info?.activeAlbumId);
 	}, [info?.isEnabled]);
 
 	return (

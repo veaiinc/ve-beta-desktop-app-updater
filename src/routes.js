@@ -136,7 +136,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/gallery-page/:albumId/:galleryId/upload-photos',
+		path: '/gallery-page/:galleryId/:albumId/upload-photos',
 		component: (
 			<AuthWrapper title={'Gallery'}>
 				<UploadPhotos />

@@ -376,15 +376,39 @@ export const Galleries = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			const response = await service.fetchPut(
-				`/${workspaceId}/galleries/${galleryId}/albums/${albumID}`,
-				payload,
-				usertoken,
-				'galleries',
-			);
+			const availability = await checkSlugIsAvalible(galleryId, payload?.title);
+			console.log(availability, 'availability');
+			if (availability?.[1]?.isAvailable) {
+				const response = await service.fetchPut(
+					`/${workspaceId}/galleries/${galleryId}/albums/${albumID}`,
+					payload,
+					usertoken,
+					'galleries',
+				);
+				if (response[0]) {
+					getAlbums(galleryId);
+				}
+			} else {
+				return availability;
+			}
 		} catch (error) {
 			console.log('error==>getLayoutSettings', error);
 		}
+	};
+	// /{{galleryId}}/album-slug-availability/{{slug}}
+	const checkSlugIsAvalible = async (galleryId, slugName) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const updatedSlugName = slugName.replace(/\s+/g, '');
+			console.log(updatedSlugName, 'updatedSlugName');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/album-slug-availability/${slugName}`,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {}
 	};
 	const editLockAlbum = async (payload, galleryId, albumID) => {
 		try {
@@ -514,6 +538,8 @@ export const Galleries = () => {
 			console.log('error==>uploadWaterMark', error);
 		}
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/images  ==> to get the images
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/content-distribution/get-credentials/{{ _.gallery_id }}  ==> to get the access for the gallerry
 
 	return {
 		...state,
@@ -545,5 +571,6 @@ export const Galleries = () => {
 		editAlbum,
 		editLockAlbum,
 		updatedAlbum,
+		checkSlugIsAvalible,
 	};
 };
