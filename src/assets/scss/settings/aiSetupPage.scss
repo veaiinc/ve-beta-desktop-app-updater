@@ -479,12 +479,21 @@
 
 				.knowledges-list {
 					display: flex;
-					flex-direction: column-reverse;
+					flex-direction: column;
 					gap: 16px;
 					height: 324px;
 
 					.knowledgebase-infinite-scroll {
 						overflow: auto !important;
+
+						.no-knowledge-files-found {
+							color: rgba(228, 229, 230, 0.48);
+							font-family: Inter;
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 18px;
+						}
 					}
 
 					.knowledge-item {

@@ -17,12 +17,19 @@ const AiSetup = () => {
 
 	const [info, setInfo] = useState({
 		isCreateAiModalOpen: false,
+		noAiAssistants: true,
 	});
 	const navigate = useNavigate();
 
 	useEffect(() => {
 		getExistingAiAssistants();
 	}, []);
+
+	useEffect(() => {
+		if (existingAiAssistants?.length === 0) {
+			setInfo((prev) => ({ ...prev, noAiAssistants: true }));
+		}
+	}, [existingAiAssistants]);
 
 	const toggleModal = () => {
 		setInfo((prev) => ({
@@ -78,38 +85,48 @@ const AiSetup = () => {
 					Create new
 				</h2>
 			</div>
-			<div className="columnNames">
-				<h1>Name</h1>
-				<h1>Sources</h1>
-			</div>
-			<div className="line"></div>
-			<div className="rows">
-				{existingAiAssistants?.map((aiAssistant, index) => (
-					<React.Fragment key={index}>
-						<div
-							className="row"
-							onClick={() => handleNavigationToAiSetupPage(aiAssistant.id)}
-						>
-							<div className="leftContent">
-								<div className="iconContainer">
-									<Robot />
+			{!info?.noAiAssistants ? (
+				<>
+					<div className="columnNames">
+						<h1>Name</h1>
+						<h1>Sources</h1>
+					</div>
+					<div className="line"></div>
+					<div className="rows">
+						{existingAiAssistants?.map((aiAssistant, index) => (
+							<React.Fragment key={index}>
+								<div
+									className="row"
+									onClick={() => handleNavigationToAiSetupPage(aiAssistant.id)}
+								>
+									<div className="leftContent">
+										<div className="iconContainer">
+											<Robot />
+										</div>
+										<div className="textContainer">
+											<h1>{aiAssistant.name}</h1>
+											{/* <h2>{aiAssistant.knowledgeBaseFiles}</h2> */}
+										</div>
+									</div>
+									<div className="rightContent">
+										<div className="iconContainer">
+											<LinkGrey />
+										</div>
+										{/* <h1 className="count">{aiAssistant.knowledgeBaseFiles.length}</h1> */}
+									</div>
 								</div>
-								<div className="textContainer">
-									<h1>{aiAssistant.name}</h1>
-									{/* <h2>{aiAssistant.knowledgeBaseFiles}</h2> */}
-								</div>
-							</div>
-							<div className="rightContent">
-								<div className="iconContainer">
-									<LinkGrey />
-								</div>
-								{/* <h1 className="count">{aiAssistant.knowledgeBaseFiles.length}</h1> */}
-							</div>
-						</div>
-						{index !== existingAiAssistants.length - 1 && <div className="line"></div>}
-					</React.Fragment>
-				))}
-			</div>
+								{index !== existingAiAssistants.length - 1 && (
+									<div className="line"></div>
+								)}
+							</React.Fragment>
+						))}
+					</div>
+				</>
+			) : (
+				<p className="no-ai-assistants-found">
+					No AI assistants found! Create your first AI assistant.
+				</p>
+			)}
 
 			<CreateNewAiAssistantModal
 				isOpen={info?.isCreateAiModalOpen}

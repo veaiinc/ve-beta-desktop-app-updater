@@ -1,4 +1,4 @@
-import { memo, useState, useContext } from 'react';
+import { memo, useState, useContext, useEffect } from 'react';
 import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/cross-grey.svg';
 import { ReactComponent as LinkPurple } from '../../../../../assets/svg/Settings/link-purple-color.svg';
 import { ReactComponent as LinkGrey } from '../../../../../assets/svg/Settings/link-grey-color.svg';
@@ -47,18 +47,27 @@ const initialState = {
 		fileContent: '',
 	},
 	isUploading: false,
+	currentPage: 1,
 };
 
 const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 	let {
 		aiSetup: {
-			getUploadedKnowledgeBaseFiles,
+			knowledgeBaseFiles,
+			getKnowledgeBaseFiles,
 			uploadURLsToKnowledgeBase,
 			uploadPDFsToKnowledgeBase,
 		},
 	} = useContext(Context);
 	const { aiAssistantId } = useParams();
 	const [info, setInfo] = useState(initialState);
+
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			currentPage: knowledgeBaseFiles?.currentPage,
+		}));
+	}, [knowledgeBaseFiles]);
 
 	const handleSetAllUploadedPDFFiles = (e) => {
 		const files = Array.from(e?.target?.files);
@@ -104,7 +113,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 			if (statusSummary?.[0]) {
 				message.success('URLs uploaded successfully!', 1);
 				toggleModal();
-				getUploadedKnowledgeBaseFiles();
+				getKnowledgeBaseFiles(1, 10, true);
 			}
 		} else if (info?.activeFileType === 'pdf') {
 			if (info?.pdfFilesInfo?.length === 0) {
@@ -121,7 +130,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 			if (statusSummary?.[0]) {
 				message.success('PDF Files uploaded successfully!', 1);
 				toggleModal();
-				getUploadedKnowledgeBaseFiles();
+				getKnowledgeBaseFiles(1, 10, true);
 			}
 		} else if (info?.activeFileType === 'customText') {
 			if (info?.customTextInfo?.filename === '') {
@@ -147,7 +156,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 			if (statusSummary?.[0]) {
 				message.success('Text File uploaded successfully!', 1);
 				toggleModal();
-				getUploadedKnowledgeBaseFiles();
+				getKnowledgeBaseFiles(1, 10, true);
 			}
 		}
 		setInfo((prev) => ({ ...prev, isUploading: false }));

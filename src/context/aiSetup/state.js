@@ -8,6 +8,7 @@ import { generatePDFsBatchId } from '../../helpers';
 export const intialState = {
 	knowledgeBaseFiles: {
 		data: [],
+		areKnowledgeBaseFilesLoading: true,
 	},
 	existingAiAssistants: null,
 	activeAiAssistantDetails: null,
@@ -16,7 +17,7 @@ export const intialState = {
 export const AiSetupState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
-	const getKnowledgeBaseFiles = async (page = 1, limit = 10) => {
+	const getKnowledgeBaseFiles = async (page = 1, limit = 10, reset = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -27,10 +28,13 @@ export const AiSetupState = () => {
 				`?page=${page}&limit=${limit}`;
 			const response = await service.fetchGet(url, usertoken, 'tenant'); // change the type to ai_setup later
 			const knowledgeBaseData = {
-				data: [...state?.knowledgeBaseFiles?.data, ...response?.[1]?.result],
+				data: reset
+					? [...response?.[1]?.result]
+					: [...state?.knowledgeBaseFiles?.data, ...response?.[1]?.result],
 				hasMore: response?.[1]?.hasNextPage,
 				currentPage: response?.[1]?.currentPage,
 				totalPages: response?.[1]?.totalPages,
+				areKnowledgeBaseFilesLoading: false,
 			};
 			if (response?.[0]) {
 				dispatch({
@@ -41,10 +45,6 @@ export const AiSetupState = () => {
 		} catch (error) {
 			console.log('error==>getKnowledgeBaseFiles', error);
 		}
-	};
-
-	const getUploadedKnowledgeBaseFiles = async () => {
-		return;
 	};
 
 	const getExistingAiAssistants = async () => {
@@ -228,7 +228,6 @@ export const AiSetupState = () => {
 	return {
 		...state,
 		getKnowledgeBaseFiles,
-		getUploadedKnowledgeBaseFiles,
 		getExistingAiAssistants,
 		createNewAiAssistant,
 		updateAiAssistant,
