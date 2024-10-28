@@ -84,6 +84,7 @@ const GalleryPage = () => {
 			getCollaborators,
 			collaborators,
 			updateActiveAlbum,
+
 			updateCollaborators,
 			basicAlbumDetails,
 		},
@@ -116,6 +117,7 @@ const GalleryPage = () => {
 		collaboratorsData: collaborators,
 		tenantAlbums: tenantAlbums?.albums,
 		activeAlbum: {},
+		albumSlug: tenantAlbums?.albums?.[0]?.slug,
 	});
 	console.log(layoutSettings, 'layoutSettings', info);
 	const optionsRef = useRef(null);
@@ -168,6 +170,7 @@ const GalleryPage = () => {
 				activeAlbumId: tenantAlbums?.albums?.[0]?._id,
 				activeAlbum: tenantAlbums?.albums?.[0],
 				tenantAlbums: tenantAlbums?.albums,
+				albumSlug: tenantAlbums?.albums?.[0]?.slug,
 			}));
 		}
 		if (tenantPreferences) {
@@ -243,6 +246,7 @@ const GalleryPage = () => {
 				albumName: album?.title,
 				activeAlbumId: album?._id,
 				activeAlbum: album,
+				albumSlug: album?.slug,
 			}));
 			if (info?.albumName !== album?.title) {
 				getAlbumCount(galleryId, album?.title);
@@ -254,7 +258,7 @@ const GalleryPage = () => {
 
 	const handleAlbumSettings = (sectionId) => {
 		navigate(`/gallery/${galleryId}/album-settings`, {
-			state: { sectionId, activeAlbum: info?.activeAlbum },
+			state: { sectionId, activeAlbumId: info?.activeAlbumId },
 		});
 	};
 	const openShareModal = () => {
@@ -299,7 +303,7 @@ const GalleryPage = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, activeTab: name }));
 	};
 	const handleNavigateUpload = () => {
-		navigate(`/gallery-page/${info?.activeAlbumId}/${galleryId}/upload-photos`);
+		navigate(`/gallery-page/${galleryId}/${info?.activeAlbumId}/upload-photos`);
 	};
 	const convertEpochToDate = (value) => {
 		if (!value) return null;
@@ -535,7 +539,7 @@ const GalleryPage = () => {
 								<div
 									key={index}
 									className={`album ${
-										info.albumName === album.title ? 'active' : ''
+										info?.albumSlug === album?.slug ? 'active' : ''
 									}`}
 									style={{
 										background: album.image
