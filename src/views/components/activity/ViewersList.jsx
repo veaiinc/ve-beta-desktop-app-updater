@@ -4,13 +4,6 @@ import { ReactComponent as SortSvg } from '../../../assets/svg/activity/sortIcon
 import Skeleton from 'react-loading-skeleton';
 
 const ViewersList = ({ showDrawer, viewersListData, handelViewerSelection, formatTime }) => {
-	// const formatTime = (seconds) => {
-	// 	const duration = moment.duration(seconds, 'seconds');
-	// 	const hours = String(duration.hours()).padStart(2, '0');
-	// 	const minutes = String(duration.minutes()).padStart(2, '0');
-	// 	const secs = String(duration.seconds()).padStart(2, '0');
-	// 	return `${hours}:${minutes}:${secs}`;
-	// };
 	return (
 		<>
 			<div className="viewersContainer">
