@@ -27,6 +27,7 @@ import { DatePicker } from 'antd';
 import moment from 'moment';
 import { updateProposalQuery } from '../../../context/Templates/graphQlFunctions';
 import { getInitials } from '../../../helpers/index';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 const imageURL = 'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg';
 const image1 =
@@ -89,6 +90,7 @@ const GalleryPage = () => {
 			albumDetails,
 			getGalleryImages,
 			imagesList,
+
 			getImage,
 
 			updateCollaborators,
@@ -124,6 +126,9 @@ const GalleryPage = () => {
 		activeAlbum: {},
 		albumSlug: tenantAlbums?.albums?.[0]?.slug,
 		albumTagId: '',
+		hasMore: true,
+		page: 1,
+		limit: 20,
 	});
 	console.log(layoutSettings, 'layoutSettings', info);
 	const optionsRef = useRef(null);
@@ -250,7 +255,13 @@ const GalleryPage = () => {
 	}, [info?.activeAlbumId]);
 	useEffect(() => {
 		if (info?.albumTagId && info?.activeAlbumId) {
-			getGalleryImages(galleryId, info?.activeAlbumId, info?.albumTagId);
+			getGalleryImages(
+				galleryId,
+				info?.activeAlbumId,
+				info?.albumTagId,
+				info?.page,
+				info?.limit,
+			);
 		}
 	}, [info?.albumTagId, info?.activeAlbumId]);
 
@@ -263,6 +274,23 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [albumDetails]);
+
+	const fetchMoreImages = () => {
+		const nextPage = info.page + 1;
+		getGalleryImages(
+			galleryId,
+			info?.activeAlbumId,
+			info?.albumTagId,
+			nextPage,
+			info?.limit,
+		).then(() => {
+			setInfo((prev) => ({
+				...prev,
+				page: nextPage,
+				hasMore: imagesList?.hasNextPage || false,
+			}));
+		});
+	};
 
 	const handleImageSelect = (index) => {
 		setInfo((prevInfo) => ({
@@ -311,7 +339,7 @@ const GalleryPage = () => {
 		const selectedImages = selectedImageIndexes.map((index) => randomizedImages[index]);
 		const activeIndex = selectedImageIndexes[0];
 
-		navigate('/gallery-viewer', {
+		navigate(`/gallery-page/${galleryId}/${info?.activeAlbumId}/gallery-viewer`, {
 			state: {
 				images: randomizedImages,
 				selectedImages: selectedImages,
@@ -762,46 +790,62 @@ const GalleryPage = () => {
 									}))
 								}
 							>
-								<ResponsiveMasonry
-									columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3, 1200: 4 }}
+								<InfiniteScroll
+									dataLength={imagesList?.docs?.length || 0}
+									next={fetchMoreImages}
+									hasMore={info.hasMore}
+									loader={<h4>Loading...</h4>}
+									scrollableTarget="galleryImagesContainer"
 								>
-									<Masonry gutter="10px">
-										<div
-											className="imageContainer"
-											onClick={handleNavigateUpload}
-										>
-											<div className="imageUpload">
-												<CloudUpload className="uploadIcon" />
-												<p>Add Photos</p>
-											</div>
-										</div>
-										{imagesList?.docs?.map((image, index) => {
-											// Replace the problematic params construction with this fixed version
-											const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-											const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
-											return (
-												<div
-													key={index}
-													className={`imageContainer ${
-														info.selectedImages.includes(index)
-															? 'selected'
-															: ''
-													}`}
-													onClick={() => handleImageSelect(index)}
-												>
-													<img
-														src={src}
-														alt={`Gallery image ${index}`}
-														style={{ width: '100%', display: 'block' }}
-													/>
-													{info.isMouseInGallery && (
-														<div className="imageOverlay"></div>
-													)}
+									<ResponsiveMasonry
+										columnsCountBreakPoints={{
+											350: 1,
+											750: 2,
+											900: 3,
+											1200: 4,
+										}}
+									>
+										<Masonry gutter="10px">
+											<div
+												className="imageContainer"
+												onClick={handleNavigateUpload}
+											>
+												<div className="imageUpload">
+													<CloudUpload className="uploadIcon" />
+													<p>Add Photos</p>
 												</div>
-											);
-										})}
-									</Masonry>
-								</ResponsiveMasonry>
+											</div>
+											{imagesList?.docs?.map((image, index) => {
+												// Replace the problematic params construction with this fixed version
+												const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+												const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+												return (
+													<div
+														key={index}
+														className={`imageContainer ${
+															info.selectedImages.includes(index)
+																? 'selected'
+																: ''
+														}`}
+														onClick={() => handleImageSelect(index)}
+													>
+														<img
+															src={src}
+															alt={`Gallery image ${index}`}
+															style={{
+																width: '100%',
+																display: 'block',
+															}}
+														/>
+														{info.isMouseInGallery && (
+															<div className="imageOverlay"></div>
+														)}
+													</div>
+												);
+											})}
+										</Masonry>
+									</ResponsiveMasonry>
+								</InfiniteScroll>
 								{info.selectedImages.length > 0 && (
 									<div className="selectedImagesCotainer">
 										<div className="selectedImagesCounter">
