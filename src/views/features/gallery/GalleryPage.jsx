@@ -183,6 +183,7 @@ const GalleryPage = () => {
 		if (!tenantPreferences) {
 			getEditPreferences(galleryId);
 		}
+
 		if (tenantAlbums) {
 			setInfo((prev) => ({
 				...prev,

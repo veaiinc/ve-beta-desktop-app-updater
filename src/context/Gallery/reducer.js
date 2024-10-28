@@ -61,6 +61,10 @@ const actionHandlers = {
 			  }
 			: action.payload,
 	}),
+	GET_LIGHTROOM_COPY_LIST: (state, action) => ({
+		...state,
+		lightroomCopyList: action.payload,
+	}),
 
 	RESET_STATE: () => ({ ...intialState }),
 };
