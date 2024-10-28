@@ -61,7 +61,7 @@ const actionHandlers = {
 			  }
 			: action.payload,
 	}),
-
+	RESET_IMAGES_LIST: (state) => ({ ...state, imagesList: null }),
 	RESET_STATE: () => ({ ...intialState }),
 };
 

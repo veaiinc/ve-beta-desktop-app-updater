@@ -563,8 +563,20 @@ export const Galleries = () => {
 		}
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/images  ==> to get the images
-	const getGalleryImages = async (galleryId, albumId, tagId, page, limit) => {
+	const getGalleryImages = async (
+		galleryId,
+		albumId,
+		tagId,
+		page = 1,
+		limit = 20,
+		reset = false,
+	) => {
 		try {
+			if (reset) {
+				dispatch({
+					type: Actions.RESET_IMAGES_LIST,
+				});
+			}
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(
