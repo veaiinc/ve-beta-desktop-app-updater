@@ -339,7 +339,7 @@ const GalleryPage = () => {
 		const selectedImages = selectedImageIndexes.map((index) => randomizedImages[index]);
 		const activeIndex = selectedImageIndexes[0];
 
-		navigate('/gallery-viewer', {
+		navigate(`/gallery-page/${galleryId}/${info?.activeAlbumId}/gallery-viewer`, {
 			state: {
 				images: randomizedImages,
 				selectedImages: selectedImages,

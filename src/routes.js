@@ -154,7 +154,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/gallery-viewer',
+		path: '/gallery-page/:galleryId/:albumId/gallery-viewer',
 		component: (
 			<AuthWrapper title={'Gallery'}>
 				<GalleryViewer />
