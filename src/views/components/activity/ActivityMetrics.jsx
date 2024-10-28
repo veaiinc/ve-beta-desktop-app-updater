@@ -6,62 +6,6 @@ import { ReactComponent as RightSvg } from '../../../assets/svg/activity/right.s
 import { ReactComponent as GallerySvg } from '../../../assets/svg/activity/galleryIcon.svg';
 import DoughnutChart from '../../components/activity/DoughnutChart.jsx';
 
-const dummyData = [
-	{ label: 'Proposal', timeSpent: '00:12:34', percentage: '50%' },
-	{ label: 'Proposal Summary', timeSpent: '00:12:34', percentage: '12.5%' },
-	{ label: 'Invoice', timeSpent: '00:08:23', percentage: '4.17%' },
-	{ label: 'Contract', timeSpent: '00:04:21', percentage: '16.67%' },
-	{ label: 'Thank You', timeSpent: '00:04:21', percentage: '16.67%' },
-];
-
-const dummyLabelData = [
-	{
-		label: 'Header Block',
-		timeSpent: '00:12:34',
-		percentage: '25%',
-	},
-	{
-		label: 'Text Block',
-		timeSpent: '00:12:34',
-		percentage: '12.5%',
-	},
-	{
-		label: 'Image Block',
-		timeSpent: '00:12:34',
-		percentage: '4.1%',
-	},
-	{
-		label: 'List Block',
-		timeSpent: '00:12:34',
-		percentage: '16%',
-	},
-	{
-		label: 'Gallery Block',
-		timeSpent: '00:12:34',
-		percentage: '12%',
-	},
-	{
-		label: 'Magazine Block',
-		timeSpent: '00:12:34',
-		percentage: '12.7%',
-	},
-	{
-		label: 'Testimonial Block',
-		timeSpent: '00:12:34',
-		percentage: '3.5%',
-	},
-	{
-		label: 'Service Block',
-		timeSpent: '00:12:34',
-		percentage: '5%',
-	},
-	{
-		label: 'Event Block',
-		timeSpent: '00:12:34',
-		percentage: '9%',
-	},
-];
-
 const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 	// console.log('labelsData: ' + JSON.stringify(labelsData, null, 2));
 	// console.log('labelItemsData: ' + JSON.stringify(labelItemsData, null, 2));
@@ -78,7 +22,6 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 	};
 
 	const handleActivelable = useCallback((selectedLabel, section) => {
-		console.log('Label Data ===>', selectedLabel);
 		setInfo((prevState) => ({
 			...prevState,
 			activeLabelItem: selectedLabel,
@@ -95,39 +38,17 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 		}
 	}, []);
 
-	const formatedLabelStats = dummyData.map((item) => {
-		const { label, percentage, ...rest } = item;
-		return {
-			name: label,
-			percentage: parseFloat(percentage),
-			...rest,
-		};
-	});
-
-	const formatedLabelItemStats = dummyLabelData.map((item) => {
-		const { label, percentage, ...rest } = item;
-		return {
-			name: label,
-			percentage: parseFloat(percentage),
-			...rest,
-		};
-	});
-
 	// Function to transform labelItemsData for InteractionChart
 	const transformLabelItemsData = (data) => {
-		return data.map((item) => {
-			// Check if the item has 'totalCount' (specific to InteractionDetail)
-			if (item.hasOwnProperty('totalCount')) {
-				// Rename 'totalCount' to 'totalInteractionsCount'
-				const { totalCount, ...rest } = item;
-				return {
-					...rest,
-					totalInteractionsCount: totalCount,
-				};
-			}
-			// If 'totalCount' does not exist, return the item unchanged
-			return item;
-		});
+		const selectedlabelitems = data.filter(
+			(item) => item.moduleType === info?.activeLabelItem?.moduleType,
+		);
+
+		return selectedlabelitems.map((item) =>
+			item.hasOwnProperty('totalCount')
+				? { ...item, totalInteractionsCount: item.totalCount }
+				: item,
+		);
 	};
 
 	return (

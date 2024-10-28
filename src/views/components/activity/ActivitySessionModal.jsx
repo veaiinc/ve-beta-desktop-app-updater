@@ -17,6 +17,7 @@ import Context from '../../../context/context';
 import TimeLineSession from './TimeLineSession.jsx';
 import ChatSession from './ChatSession.jsx';
 import SessionMetric from './SessionMetric.jsx';
+import Skeleton from 'react-loading-skeleton';
 
 const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer }) => {
 	// console.log('selectedViewer======>', JSON.stringify(selectedViewer, null, 2));
@@ -162,170 +163,203 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer }) => {
 		>
 			<div className="activitySidePanel">
 				<div className="innerContainer">
-					<div className="headParentContianer">
-						<div className="headContainer">
-							<div className="headerInfo">
-								<div className="logoContainer">
-									<ActivitySvg />
-									<span className="logoText">Session Activity</span>
-								</div>
-								<span className="headerTitle">James Stark - Smart File</span>
+					{!viewerSessionDetails || viewerSessionDetails.length === 0 ? (
+						Array.from({ length: 9 }).map((ele, index) => (
+							<div className="spinnerWrapper" key={index}>
+								<Skeleton
+									width={'418px'}
+									height={'59px'}
+									style={{ borderRadius: '16px' }}
+									key={index}
+								/>
 							</div>
-							<div className="closeBtn" onClick={showDrawer}>
-								<CloseSvg />
-							</div>
-						</div>
-					</div>
-
-					<div className="profileCardContainer">
-						{/* <!-- User Information Section --> */}
-						<div className="profileInfoContainer">
-							<div className="profileAvatar">JS</div>
-							<div className="profileDetailsWrapper">
-								<div className="profileTitle">
-									<span className="titleName">Jhon Michael</span>
-									<span className="titleIcon">
-										<LinkedinSvg />
-									</span>
-								</div>
-								<div className="profileDescription">
-									<p>
-										Digital Marketing Strategist | Growth Hacker | Storyteller
-									</p>
-									<p>johnmichael@gmail.com</p>
+						))
+					) : (
+						<>
+							<div className="headParentContianer">
+								<div className="headContainer">
+									<div className="headerInfo">
+										<div className="logoContainer">
+											<ActivitySvg />
+											<span className="logoText">Session Activity</span>
+										</div>
+										<span className="headerTitle">
+											James Stark - Smart File
+										</span>
+									</div>
+									<div className="closeBtn" onClick={showDrawer}>
+										<CloseSvg />
+									</div>
 								</div>
 							</div>
-						</div>
 
-						{/* <!-- Session Navigation Section --> */}
-						<div className="sessionParentContainer">
-							<div className="sessionNavWrapper">
-								<div className="sessionNavigationContainer">
-									<LeftSvg onClick={handlePrevSession} />
-									<span>
-										Session {info.currentSessionIndex + 1}/{info?.totalSessions}
-									</span>
-									<RightSvg onClick={handleNextSession} />
+							<div className="profileCardContainer">
+								{/* <!-- User Information Section --> */}
+								<div className="profileInfoContainer">
+									<div className="profileAvatar">JS</div>
+									<div className="profileDetailsWrapper">
+										<div className="profileTitle">
+											<span className="titleName">Jhon Michael</span>
+											<span className="titleIcon">
+												<LinkedinSvg />
+											</span>
+										</div>
+										<div className="profileDescription">
+											<p>
+												Digital Marketing Strategist | Growth Hacker |
+												Storyteller
+											</p>
+											<p>johnmichael@gmail.com</p>
+										</div>
+									</div>
 								</div>
 
-								{/* View More  */}
-								<div className="viewMoreButton" onClick={handleViewMore}>
-									<span className="textContainer">
-										{info?.viewMore ? 'View Less' : 'View More'}
-									</span>
-									<span
-										className={`viewMoreSvg ${info?.viewMore ? 'rotated' : ''}`}
+								{/* <!-- Session Navigation Section --> */}
+								<div className="sessionParentContainer">
+									<div className="sessionNavWrapper">
+										<div className="sessionNavigationContainer">
+											<LeftSvg onClick={handlePrevSession} />
+											<span>
+												Session {info.currentSessionIndex + 1}/
+												{info?.totalSessions}
+											</span>
+											<RightSvg onClick={handleNextSession} />
+										</div>
+
+										{/* View More  */}
+										<div className="viewMoreButton" onClick={handleViewMore}>
+											<span className="textContainer">
+												{info?.viewMore ? 'View Less' : 'View More'}
+											</span>
+											<span
+												className={`viewMoreSvg ${
+													info?.viewMore ? 'rotated' : ''
+												}`}
+											>
+												<DownSvg />
+											</span>
+										</div>
+									</div>
+
+									{info?.viewMore ? (
+										<div className="sessionInfoWrapper">
+											<div className="sessionInfoLabel">
+												<div className="labelKey">Session Time</div>
+												<div className="labelValue">
+													<CalendarSvg />
+													<span className="labelDescription">
+														{convertSecondsToFormattedDate(
+															viewerSessionDetails?.createdAt,
+														)}
+													</span>
+													-
+													<span className="labelDescription">
+														{convertSecondsToFormattedDate(
+															viewerSessionDetails?.updatedAt,
+														)}
+													</span>
+												</div>
+											</div>
+											<div className="sessionInfoLabel">
+												<div className="labelKey">Duration</div>
+												<div className="labelValue">
+													<DurationSvg />
+													<spna className="labelDescription">
+														{durationFormater(
+															viewerSessionDetails?.duration,
+														)}
+													</spna>
+												</div>
+											</div>
+											<div className="sessionInfoLabel">
+												<div className="labelKey">Location</div>
+												<div className="labelValue">
+													<LocationSvg />
+													<spna className="labelDescription">
+														{
+															viewerSessionDetails?.clientDetails
+																?.location
+														}
+													</spna>
+												</div>
+											</div>
+											<div className="sessionInfoLabel">
+												<div className="labelKey">Device</div>
+												<div className="labelValue">
+													<PhoneSvg />
+													<spna className="labelDescription">
+														{
+															viewerSessionDetails?.clientDetails
+																?.device
+														}
+													</spna>
+												</div>
+											</div>
+											<div className="sessionInfoLabel">
+												<div className="labelKey">IP Address</div>
+												<div className="labelValue">
+													<WebSvg />
+													<spna className="labelDescription">
+														{viewerSessionDetails?.clientDetails?.ip}
+													</spna>
+												</div>
+											</div>
+										</div>
+									) : (
+										''
+									)}
+								</div>
+							</div>
+
+							<div className="sessionActivityParentContainer">
+								{/* NavBar Container  */}
+								<div className="sessionNavbar">
+									<div
+										className={`sessionTab ${
+											info.isSessionTabActive === 'TimeLine'
+												? 'sessionTabActive'
+												: ''
+										}`}
+										onClick={() => setActiveTab('TimeLine')}
 									>
-										<DownSvg />
-									</span>
-								</div>
-							</div>
-
-							{info?.viewMore ? (
-								<div className="sessionInfoWrapper">
-									<div className="sessionInfoLabel">
-										<div className="labelKey">Session Time</div>
-										<div className="labelValue">
-											<CalendarSvg />
-											<span className="labelDescription">
-												{convertSecondsToFormattedDate(
-													viewerSessionDetails?.createdAt,
-												)}
-											</span>
-											-
-											<span className="labelDescription">
-												{convertSecondsToFormattedDate(
-													viewerSessionDetails?.updatedAt,
-												)}
-											</span>
-										</div>
+										Time Line
 									</div>
-									<div className="sessionInfoLabel">
-										<div className="labelKey">Duration</div>
-										<div className="labelValue">
-											<DurationSvg />
-											<spna className="labelDescription">
-												{durationFormater(viewerSessionDetails?.duration)}
-											</spna>
-										</div>
+									<div
+										className={`sessionTab ${
+											info.isSessionTabActive === 'TimeSpent'
+												? 'sessionTabActive'
+												: ''
+										}`}
+										onClick={() => setActiveTab('TimeSpent')}
+									>
+										Time Spent
 									</div>
-									<div className="sessionInfoLabel">
-										<div className="labelKey">Location</div>
-										<div className="labelValue">
-											<LocationSvg />
-											<spna className="labelDescription">
-												{viewerSessionDetails?.clientDetails?.location}
-											</spna>
-										</div>
+									<div
+										className={`sessionTab ${
+											info.isSessionTabActive === 'Interaction'
+												? 'sessionTabActive'
+												: ''
+										}`}
+										onClick={() => setActiveTab('Interaction')}
+									>
+										Interaction
 									</div>
-									<div className="sessionInfoLabel">
-										<div className="labelKey">Device</div>
-										<div className="labelValue">
-											<PhoneSvg />
-											<spna className="labelDescription">
-												{viewerSessionDetails?.clientDetails?.device}
-											</spna>
-										</div>
-									</div>
-									<div className="sessionInfoLabel">
-										<div className="labelKey">IP Address</div>
-										<div className="labelValue">
-											<WebSvg />
-											<spna className="labelDescription">
-												{viewerSessionDetails?.clientDetails?.ip}
-											</spna>
-										</div>
+									<div
+										className={`sessionTab ${
+											info.isSessionTabActive === 'AIChat'
+												? 'sessionTabActive'
+												: ''
+										}`}
+										onClick={() => setActiveTab('AIChat')}
+									>
+										AI Chat
 									</div>
 								</div>
-							) : (
-								''
-							)}
-						</div>
-					</div>
 
-					<div className="sessionActivityParentContainer">
-						{/* NavBar Container  */}
-						<div className="sessionNavbar">
-							<div
-								className={`sessionTab ${
-									info.isSessionTabActive === 'TimeLine' ? 'sessionTabActive' : ''
-								}`}
-								onClick={() => setActiveTab('TimeLine')}
-							>
-								Time Line
+								{renderActiveTab(info?.isSessionTabActive)}
 							</div>
-							<div
-								className={`sessionTab ${
-									info.isSessionTabActive === 'TimeSpent'
-										? 'sessionTabActive'
-										: ''
-								}`}
-								onClick={() => setActiveTab('TimeSpent')}
-							>
-								Time Spent
-							</div>
-							<div
-								className={`sessionTab ${
-									info.isSessionTabActive === 'Interaction'
-										? 'sessionTabActive'
-										: ''
-								}`}
-								onClick={() => setActiveTab('Interaction')}
-							>
-								Interaction
-							</div>
-							<div
-								className={`sessionTab ${
-									info.isSessionTabActive === 'AIChat' ? 'sessionTabActive' : ''
-								}`}
-								onClick={() => setActiveTab('AIChat')}
-							>
-								AI Chat
-							</div>
-						</div>
-
-						{renderActiveTab(info?.isSessionTabActive)}
-					</div>
+						</>
+					)}
 				</div>
 			</div>
 		</Drawer>

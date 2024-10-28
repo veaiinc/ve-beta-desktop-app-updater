@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useState, useContext, useEffect } from 'react';
 import '../../../../assets/scss/sales/activity/activityComponents.scss';
 import ActivityOverview from '../../../components/activity/ActivityOverview';
-import TimeLine from '../../../components/activity/TimeLine';
+// import TimeLine from '../../../components/activity/TimeLine';
 import ViewersList from '../../../components/activity/ViewersList';
 import ActivityMetrics from '../../../components/activity/ActivityMetrics';
 import SessionActivityModal from '../../../components/activity/ActivitySessionModal.jsx';
@@ -23,6 +23,8 @@ const ActivityDashboard = () => {
 	const [info, setInfo] = useState({
 		modalIsOpen: false,
 		selectedViewer: null,
+		viewersListData: null,
+		loading: false,
 	});
 
 	//Functions
@@ -68,7 +70,7 @@ const ActivityDashboard = () => {
 			<ActivityOverview />
 
 			<div className="activityDetailsContainer">
-				<TimeLine showDrawer={showDrawer} />
+				{/* <TimeLine showDrawer={showDrawer} /> */}
 
 				<ViewersList
 					showDrawer={showDrawer}
@@ -87,7 +89,7 @@ const ActivityDashboard = () => {
 				title="Interactions"
 				labelsData={activityData?.interaction}
 				labelItemsData={activityData?.interaction?.reduce((acc, item) => {
-					return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending each "interaction" array data
+					return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending only each "interaction" array data
 				}, [])}
 			/>
 

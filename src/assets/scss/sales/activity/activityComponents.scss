@@ -366,6 +366,13 @@
 				border-top: 1px solid #212121;
 				overflow-y: auto;
 
+				.spinnerWrapper {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					flex-direction: column;
+				}
+
 				.viewersListItemWrapper {
 					display: flex;
 					padding: 12px 15px;
