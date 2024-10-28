@@ -1,8 +1,11 @@
 import React from 'react';
 import ReactModal from '../../modalsV2';
 import randomize from 'randomatic';
+import { useParams, Link } from 'react-router-dom';
 
 const UploadCompletedPopup = ({ info, setinfo }) => {
+	const { galleryId } = useParams();
+
 	const reUploadFunction = () => {
 		setinfo((prev) => ({
 			...prev,
@@ -27,14 +30,19 @@ const UploadCompletedPopup = ({ info, setinfo }) => {
 			isPopupOpen: false,
 		}));
 	};
+
 	return (
 		<ReactModal isOpen={info.isPopupOpen} closeModal={() => {}}>
 			<div className="upload-completed-popup">
 				<h1>Upload Completed</h1>
 
 				<div className="options_div">
-					<button className="back-to-gallery-button">Back to Gallery</button>
-					<button onClick={reUploadFunction}>Re-Upload</button>
+					<Link to={`/gallery-page/${galleryId}`} className="back-to-gallery-button">
+						Back to Gallery
+					</Link>
+					<button className="re-upload-button" onClick={reUploadFunction}>
+						Re-Upload
+					</button>
 				</div>
 			</div>
 		</ReactModal>

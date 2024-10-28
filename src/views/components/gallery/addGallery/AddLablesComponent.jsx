@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { ReactComponent as CancelTag } from '../../../../assets/svg/gallery/cancel_tag.svg';
 import Context from '../../../../context/context';
 import { useParams } from 'react-router-dom';
-const labels = ['Portrait', 'Documentary', 'Decor', 'Decor'];
+import { message } from 'antd';
 
 const AddLables = ({ info, setinfo }) => {
 	const { galleryId, albumId } = useParams();
@@ -11,6 +11,8 @@ const AddLables = ({ info, setinfo }) => {
 	} = useContext(Context);
 
 	const [inputTag, setinputTag] = useState('');
+
+	const [messageApi, contextHolder] = message.useMessage();
 
 	useEffect(() => {
 		if (tagsList?.galleryId !== galleryId) {
@@ -22,9 +24,28 @@ const AddLables = ({ info, setinfo }) => {
 	}, [tagsList, galleryId, albumId]);
 
 	const addNewTagHandler = () => {
-		if (!inputTag.length) return;
+		if (!inputTag.trim().length) {
+			messageApi.error('Tag cannot be empty');
+			setinputTag('');
+			return;
+		}
 
-		if (tagsList?.list.find((tag) => tag.displayName === inputTag)) return;
+		if (tagsList?.list.find((tag) => tag.displayName === inputTag)) {
+			if (info?.selectedGalleryTags?.find((tag) => tag.displayName === inputTag)) {
+				messageApi.warning('Tag already exists');
+			} else {
+				setinfo((prev) => ({
+					...prev,
+					selectedGalleryTags: [
+						...prev.selectedGalleryTags,
+						tagsList?.list.find((tag) => tag.displayName === inputTag),
+					],
+				}));
+				setinputTag('');
+			}
+
+			return;
+		}
 
 		const json = {
 			displayName: inputTag,
@@ -44,18 +65,23 @@ const AddLables = ({ info, setinfo }) => {
 
 	return (
 		<div className="add-labels-container">
+			{contextHolder}
 			<div className="headerLabels">
 				<h1>Add Labels</h1>
 				<p>Categories your photos under different labels</p>
 			</div>
 
 			<div className="labels_tags_div">
-				{info?.selectedGalleryTags?.map((singleTag) => (
-					<div className="label_tag" key={singleTag?._id}>
-						<p>{singleTag?.displayName}</p>
-						<CancelTag onClick={() => removeTagsFromSelectionList(singleTag?._id)} />
-					</div>
-				))}
+				{info?.selectedGalleryTags
+					?.filter((tag) => tag.displayName !== 'All')
+					.map((singleTag) => (
+						<div className="label_tag" key={singleTag?._id}>
+							<p>{singleTag?.displayName}</p>
+							<CancelTag
+								onClick={() => removeTagsFromSelectionList(singleTag?._id)}
+							/>
+						</div>
+					))}
 			</div>
 
 			<div className="add_label_div">

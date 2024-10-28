@@ -89,7 +89,10 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 							}}
 						/>
 
-						<div className="grid-overlay">
+						<div
+							className="grid-overlay"
+							style={{ zIndex: info?.isPopupOpen ? '0' : '1' }}
+						>
 							{watermarkPositions?.map(({ position, top, left, bottom, right }) => (
 								<div
 									key={position}

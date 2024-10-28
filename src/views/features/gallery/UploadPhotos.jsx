@@ -8,9 +8,10 @@ import UploadStatusComponent from '../../components/gallery/addGallery/UploadSta
 import randomize from 'randomatic';
 import moment from 'moment';
 import Context from '../../../context/context';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
+import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
 
 const UploadPhotos = () => {
 	const { galleryId, albumId } = useParams();
@@ -22,6 +23,8 @@ const UploadPhotos = () => {
 			imageDuplicatesList,
 			getWaterMarks,
 			waterMarks,
+			tenantAlbums,
+			getAlbums,
 		},
 	} = useContext(Context);
 
@@ -49,6 +52,8 @@ const UploadPhotos = () => {
 		uploadStatus: { processedCount: 0, uploadedCount: 0 },
 		overAllProgress: 0,
 		isPopupOpen: false,
+		title: '',
+		isRefreshPopupOpen: false,
 	});
 	const recentImageInitiatedRef = useRef(info.recentImageInitiated);
 
@@ -59,6 +64,26 @@ const UploadPhotos = () => {
 			setinfo((prev) => ({ ...prev, watermarkProfileId: waterMarks[0].profileId }));
 		}
 	}, [waterMarks]);
+
+	useEffect(() => {
+		if (tenantAlbums) {
+			setinfo((prev) => ({
+				...prev,
+				title:
+					tenantAlbums?.albums?.find((album) => album._id === albumId)?.title || 'Back',
+			}));
+		} else {
+			getAlbums(galleryId);
+		}
+	}, [tenantAlbums]);
+
+	useEffect(() => {
+		window.addEventListener('beforeunload', (e) => {
+			e.preventDefault();
+			const message = 'Are you sure you want to leave? All provided data will be lost.';
+			return message;
+		});
+	}, []);
 
 	// drop function
 	const onDropFunction = async (files) => {
@@ -210,6 +235,9 @@ const UploadPhotos = () => {
 	};
 
 	const uploadFilesConcurrently = async () => {
+		const queue = Object.keys(info.uploadImages);
+		const activeUploads = [];
+
 		setinfo((prev) => ({
 			...prev,
 			startedUploading: true,
@@ -246,15 +274,14 @@ const UploadPhotos = () => {
 								50,
 					  );
 
+			console.log(result, 'result');
 			setinfo((prev) => ({ ...prev, uploadStatus: response[1], overAllProgress: result }));
 
-			if (Number(result) === 100) {
+			if (response[1].processedCount === response[1].uploadedCount) {
 				clearInterval(interval);
+				setinfo((prev) => ({ ...prev, isPopupOpen: true }));
 			}
 		}, 3000);
-
-		const queue = Object.keys(info.uploadImages);
-		const activeUploads = [];
 
 		const nextUploadFunc = async () => {
 			if (queue.length === 0) return;
@@ -302,13 +329,11 @@ const UploadPhotos = () => {
 		await Promise.allSettled(activeUploads);
 	};
 
-	// console.log(info.overAllProgress);
-
 	return (
 		<div className="upload-gallery-container">
-			<div className="backHeader">
-				<BackIcon /> <p>Swarthika + Akhil - Wedding shoot</p>
-			</div>
+			<Link to={`/gallery-page/${galleryId}`} className="backHeader">
+				<BackIcon /> <p>{info?.title}</p>
+			</Link>
 
 			<div className="options_upload_container">
 				<AddLables info={info} setinfo={setinfo} />
@@ -325,6 +350,7 @@ const UploadPhotos = () => {
 			</div>
 
 			<UploadCompletedPopup info={info} setinfo={setinfo} />
+			{/* <RefreshPopup info={info} setinfo={setinfo} /> */}
 		</div>
 	);
 };

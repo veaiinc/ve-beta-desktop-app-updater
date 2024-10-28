@@ -100,7 +100,8 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently }) => {
 										</div>
 									)}
 
-									{!singlePhoto?.isUploaded && (
+									{(!singlePhoto?.isUploaded ||
+										singlePhoto?.uploadedPerct === 0) && (
 										<CancelUploadSvg onClick={() => deleteFromUploads(key)} />
 									)}
 								</div>

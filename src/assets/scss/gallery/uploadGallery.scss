@@ -273,7 +273,7 @@
 					position: absolute;
 					top: 0;
 					left: 0;
-					z-index: 1;
+					// z-index: 1;
 
 					.grid-item {
 						position: relative;
@@ -556,6 +556,7 @@
 	.options_div {
 		display: flex;
 		gap: 16px;
+
 		.back-to-gallery-button {
 			display: flex;
 			padding: 16px 24px;
@@ -572,6 +573,21 @@
 			font-weight: 500;
 			line-height: 16px; /* 123.077% */
 			letter-spacing: 0.26px;
+			cursor: pointer;
+		}
+
+		.re-upload-button {
+			color: #fff;
+			font-family: Inter;
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 16px; /* 123.077% */
+			letter-spacing: 0.26px;
+			background-color: transparent;
+			border: none;
+			outline: none;
+			cursor: pointer;
 		}
 	}
 }
