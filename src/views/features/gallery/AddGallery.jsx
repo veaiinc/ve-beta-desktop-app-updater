@@ -13,7 +13,7 @@ const date = 'APRIL 2024';
 
 const AddGallery = () => {
 	const {
-		galleryInfo: { getGalleries, tenantGalleries },
+		galleryInfo: { getGalleries, tenantGalleries, getGalleryCredentials },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		createNewGalleryModal: false,
@@ -51,6 +51,7 @@ const AddGallery = () => {
 			(gallery) => gallery._id === galleryId,
 		);
 		console.log(selectedGallery, 'selectedGallery');
+		getGalleryCredentials(galleryId);
 		navigate(`/gallery-page/${galleryId}`, { state: { galleryData: selectedGallery } });
 	};
 	const handleCreateNewGallery = () => {

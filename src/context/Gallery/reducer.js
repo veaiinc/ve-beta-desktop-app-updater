@@ -43,6 +43,18 @@ const actionHandlers = {
 		...state,
 		updateActiveAlbum: action.payload,
 	}),
+	GET_GALLERY_CREDENTIALS: (state, action) => ({
+		...state,
+		galleryCredentials: action.payload,
+	}),
+	GET_ALBUM_DETAILS: (state, action) => ({
+		...state,
+		albumDetails: action.payload,
+	}),
+	GET_IMAGES_LIST: (state, action) => ({
+		...state,
+		imagesList: action.payload,
+	}),
 
 	RESET_STATE: () => ({ ...intialState }),
 };

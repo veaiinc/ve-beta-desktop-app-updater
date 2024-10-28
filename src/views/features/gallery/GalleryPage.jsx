@@ -84,6 +84,12 @@ const GalleryPage = () => {
 			getCollaborators,
 			collaborators,
 			updateActiveAlbum,
+			galleryCredentials,
+			getGalleryCredentials,
+			albumDetails,
+			getGalleryImages,
+			imagesList,
+			getImage,
 
 			updateCollaborators,
 			basicAlbumDetails,
@@ -91,7 +97,7 @@ const GalleryPage = () => {
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		albumName: '',
-		albumContains: albumContains[0]?.name,
+		albumContains: 'All',
 		showOptions: false,
 		showGalleryOptions: false,
 		shareModal: false,
@@ -111,13 +117,13 @@ const GalleryPage = () => {
 		callToAction: tenantPreferences?.ctaPreferences,
 		timeout: null,
 		linkUpdateError: '',
-		albumContains: albumContains,
 		gridStyle: layoutSettings?.gridStyle,
 		thumbnailSize: layoutSettings?.thumbnailSize,
 		collaboratorsData: collaborators,
 		tenantAlbums: tenantAlbums?.albums,
 		activeAlbum: {},
 		albumSlug: tenantAlbums?.albums?.[0]?.slug,
+		albumTagId: '',
 	});
 	console.log(layoutSettings, 'layoutSettings', info);
 	const optionsRef = useRef(null);
@@ -156,6 +162,15 @@ const GalleryPage = () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, [handleClickOutside]);
+
+	useEffect(() => {
+		if (!galleryCredentials) {
+			getGalleryCredentials(galleryId);
+		}
+		if (galleryCredentials) {
+			console.log(galleryCredentials, 'galleryCredentials');
+		}
+	}, [galleryCredentials]);
 	useEffect(() => {
 		if (!tenantAlbums) {
 			getAlbums(galleryId);
@@ -198,11 +213,11 @@ const GalleryPage = () => {
 		}
 	}, [updateActiveAlbum]);
 
-	useEffect(() => {
-		if (tenantAlbums?.albums?.[0]?.title) {
-			getAlbumCount(galleryId, tenantAlbums?.albums?.[0]?._id);
-		}
-	}, [tenantAlbums?.albums?.[0]?.title]);
+	// useEffect(() => {
+	// 	if (tenantAlbums?.albums?.[0]?.title) {
+	// 		getAlbumCount(galleryId, tenantAlbums?.albums?.[0]?._id);
+	// 	}
+	// }, [tenantAlbums?.albums?.[0]?.title]);
 	useEffect(() => {
 		console.log(layoutSettings, 'this is called');
 		if (!layoutSettings) {
@@ -228,6 +243,26 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [collaborators]);
+	useEffect(() => {
+		if (info?.activeAlbumId) {
+			getAlbumCount(galleryId, info?.activeAlbumId);
+		}
+	}, [info?.activeAlbumId]);
+	useEffect(() => {
+		if (info?.albumTagId && info?.activeAlbumId) {
+			getGalleryImages(galleryId, info?.activeAlbumId, info?.albumTagId);
+		}
+	}, [info?.albumTagId, info?.activeAlbumId]);
+
+	useEffect(() => {
+		if (albumDetails?.tags?.length > 0) {
+			setInfo((prev) => ({
+				...prev,
+				albumContains: albumDetails?.tags?.[0]?.displayName,
+				albumTagId: albumDetails?.tags?.[0]?._id,
+			}));
+		}
+	}, [albumDetails]);
 
 	const handleImageSelect = (index) => {
 		setInfo((prevInfo) => ({
@@ -248,11 +283,15 @@ const GalleryPage = () => {
 				activeAlbum: album,
 				albumSlug: album?.slug,
 			}));
-			if (info?.albumName !== album?.title) {
-				getAlbumCount(galleryId, album?.title);
-			}
+			// if (info?.albumName !== album?.title) {
+			// 	getAlbumCount(galleryId, album?.title);
+			// }
 		} else if (name === 'containName') {
-			setInfo((prevInfo) => ({ ...prevInfo, albumContains: album }));
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				albumContains: album?.displayName,
+				albumTagId: album?._id,
+			}));
 		}
 	};
 
@@ -671,20 +710,22 @@ const GalleryPage = () => {
 								</div>
 							</div>
 							<div className="albumContains">
-								{info?.albumContains.map((contain, index) => (
+								{albumDetails?.tags?.map((contain, index) => (
 									<div key={index} className="albumContain">
 										<img src={sixDots} alt="sixDots" />
 										<p
 											className={
-												info.albumContains === contain.name ? 'active' : ''
+												info?.albumContains === contain.displayName
+													? 'active'
+													: ''
 											}
 											onClick={() =>
-												handleClickAlbum(contain.name, 'containName')
+												handleClickAlbum(contain.displayName, 'containName')
 											}
 										>
-											{contain.name}
+											{contain.displayName}
 										</p>
-										<p className="count">{contain.number}</p>
+										<p className="count">{contain.imagesCount}</p>
 									</div>
 								))}
 							</div>
@@ -734,26 +775,31 @@ const GalleryPage = () => {
 												<p>Add Photos</p>
 											</div>
 										</div>
-										{randomizedImages.map((image, index) => (
-											<div
-												key={index}
-												className={`imageContainer ${
-													info.selectedImages.includes(index)
-														? 'selected'
-														: ''
-												}`}
-												onClick={() => handleImageSelect(index)}
-											>
-												<img
-													src={image}
-													alt={`Gallery image ${index}`}
-													style={{ width: '100%', display: 'block' }}
-												/>
-												{info.isMouseInGallery && (
-													<div className="imageOverlay"></div>
-												)}
-											</div>
-										))}
+										{imagesList?.docs?.map((image, index) => {
+											// Replace the problematic params construction with this fixed version
+											const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+											const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+											return (
+												<div
+													key={index}
+													className={`imageContainer ${
+														info.selectedImages.includes(index)
+															? 'selected'
+															: ''
+													}`}
+													onClick={() => handleImageSelect(index)}
+												>
+													<img
+														src={src}
+														alt={`Gallery image ${index}`}
+														style={{ width: '100%', display: 'block' }}
+													/>
+													{info.isMouseInGallery && (
+														<div className="imageOverlay"></div>
+													)}
+												</div>
+											);
+										})}
 									</Masonry>
 								</ResponsiveMasonry>
 								{info.selectedImages.length > 0 && (

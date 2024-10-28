@@ -7,7 +7,7 @@ import { useLocation } from 'react-router-dom';
 
 const CreateAlbum = ({ open, closeModal, galleryId }) => {
 	const {
-		galleryInfo: { createNewAlbum },
+		galleryInfo: { createNewAlbum, checkSlugIsAvalible },
 	} = useContext(Context);
 	const location = useLocation();
 	const [info, setInfo] = useState({

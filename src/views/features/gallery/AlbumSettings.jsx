@@ -14,7 +14,7 @@ const AlbumSettings = () => {
 	const { sectionId, activeAlbumId } = location.state || {};
 	const { galleryId } = useParams();
 	const {
-		galleryInfo: { editAlbum, editLockAlbum, tenantAlbums, getAlbums },
+		galleryInfo: { editAlbum, editLockAlbum, tenantAlbums, getAlbums, checkSlugIsAvalible },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		activeSetting: 'album-overview,',
@@ -88,17 +88,9 @@ const AlbumSettings = () => {
 			title: value,
 		};
 
-		const response = await editAlbum(payload, galleryId, activeAlbumId);
-		console.log(response, 'availabilityResponse');
-
-		if (response?.[1]?.isAvailable) {
-			message.success('galleryUpdated');
-		} else {
-			message.error('Slug is not available');
-			setInfo((prev) => ({
-				...prev,
-				albumUpdateError: 'Error while updatating the gallery',
-			}));
+		const availability = await checkSlugIsAvalible(galleryId, payload?.title);
+		if (availability?.[1]?.isAvailable) {
+			const response = await editAlbum(payload, galleryId, activeAlbumId);
 		}
 	}, []);
 	const handleDebouceFunctionCall = useCallback(
