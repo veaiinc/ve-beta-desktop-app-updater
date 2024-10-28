@@ -10,6 +10,7 @@ import moment from 'moment';
 import Context from '../../../context/context';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
 
 const UploadPhotos = () => {
 	const { galleryId, albumId } = useParams();
@@ -47,6 +48,7 @@ const UploadPhotos = () => {
 		duplciatesFound: 0,
 		uploadStatus: { processedCount: 0, uploadedCount: 0 },
 		overAllProgress: 0,
+		isPopupOpen: false,
 	});
 	const recentImageInitiatedRef = useRef(info.recentImageInitiated);
 
@@ -57,10 +59,6 @@ const UploadPhotos = () => {
 			setinfo((prev) => ({ ...prev, watermarkProfileId: waterMarks[0].profileId }));
 		}
 	}, [waterMarks]);
-
-	// useEffect(() => {
-	// 	recentImageInitiatedRef.current = info.recentImageInitiated;
-	// }, [info.recentImageInitiated]);
 
 	// drop function
 	const onDropFunction = async (files) => {
@@ -114,20 +112,20 @@ const UploadPhotos = () => {
 	};
 
 	const getJsonFunction = (currentImage) => {
-		console.log(currentImage, 'test', info.recentImageInitiated, recentImageInitiatedRef);
 		const imageKeysArray = Object.keys(info?.uploadImages || {});
+		console.log(imageKeysArray, 'imageKeysArray');
 
 		const imageKeyIndex =
 			recentImageInitiatedRef.current !== null
-				? imageKeysArray[imageKeysArray.indexOf(currentImage) + 1]
+				? imageKeysArray[imageKeysArray.indexOf(currentImage)]
 				: imageKeysArray[0];
 		const image = info?.uploadImages[imageKeyIndex];
 
-		console.log(image, image);
+		console.log(currentImage, imageKeyIndex, image, 'image');
+
 		if (image && image?.isUploaded) return null;
 
 		const imageName = image?.file?.name || '';
-		console.log(imageName, 'test2');
 
 		const tags = info?.selectedGalleryTags?.map((tag) => (tag != null ? tag._id : '')) || [];
 
@@ -220,10 +218,11 @@ const UploadPhotos = () => {
 		const interval = setInterval(async () => {
 			const response = await getImageUploadStatus(galleryId, albumId, info?.uploadBatchID);
 			const { processedCount, uploadedCount } = response[1];
+			console.log(response[1]);
 			const result =
 				Object.values(info.uploadImages || {}).length ===
 				Object.values(info.uploadImages || {}).filter((image) => image.isDuplicate).length
-					? '100'
+					? 100
 					: parseInt(
 							(Object.values(info?.uploadImages || {}).filter(
 								(image) => image?.isUploaded,
@@ -262,7 +261,7 @@ const UploadPhotos = () => {
 
 			const currentFile = queue.shift();
 			const json = getJsonFunction(currentFile);
-			console.log(json, currentFile, '==>currentFile');
+			// console.log(json, currentFile, '==>currentFile');
 
 			if (info.isSkipDuplicates && info.uploadImages[currentFile]?.isDuplicate) {
 				nextUploadFunc();
@@ -272,7 +271,7 @@ const UploadPhotos = () => {
 			let attempts = 0;
 			let isSuccessUpload = false;
 			while (attempts < 3) {
-				console.log(json, attempts, currentFile);
+				// console.log(json, attempts, currentFile);
 				const signedURLUpload = await getUploadImageSignUrl(galleryId, albumId, json);
 				if (signedURLUpload[0] === true) {
 					const uploadPromise = uploadOnS3Function(
@@ -303,7 +302,7 @@ const UploadPhotos = () => {
 		await Promise.allSettled(activeUploads);
 	};
 
-	console.log(info);
+	// console.log(info.overAllProgress);
 
 	return (
 		<div className="upload-gallery-container">
@@ -324,6 +323,8 @@ const UploadPhotos = () => {
 					uploadFilesConcurrently={uploadFilesConcurrently}
 				/>
 			</div>
+
+			<UploadCompletedPopup info={info} setinfo={setinfo} />
 		</div>
 	);
 };
