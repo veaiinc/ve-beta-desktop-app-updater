@@ -3,7 +3,14 @@ import '../../../assets/scss/sales/activity/activityComponents.scss';
 import { ReactComponent as SortSvg } from '../../../assets/svg/activity/sortIcon.svg';
 import Skeleton from 'react-loading-skeleton';
 
-const ViewersList = ({ showDrawer, viewersListData, handelViewerSelection }) => {
+const ViewersList = ({ showDrawer, viewersListData, handelViewerSelection, formatTime }) => {
+	// const formatTime = (seconds) => {
+	// 	const duration = moment.duration(seconds, 'seconds');
+	// 	const hours = String(duration.hours()).padStart(2, '0');
+	// 	const minutes = String(duration.minutes()).padStart(2, '0');
+	// 	const secs = String(duration.seconds()).padStart(2, '0');
+	// 	return `${hours}:${minutes}:${secs}`;
+	// };
 	return (
 		<>
 			<div className="viewersContainer">
@@ -56,7 +63,11 @@ const ViewersList = ({ showDrawer, viewersListData, handelViewerSelection }) => 
 											<div className="viewerSessions">
 												{viewer?.sessionCount} Sessions
 											</div>
-											<div className="viewerTime">{viewer?.duration}</div>
+											<div className="viewerTime">
+												{viewer?.duration
+													? formatTime(viewer?.duration)
+													: '00:00:0'}
+											</div>
 										</div>
 									</div>
 								</div>

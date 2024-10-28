@@ -8,6 +8,7 @@ import SessionActivityModal from '../../../components/activity/ActivitySessionMo
 // import EmailModal from '../../../components/activity/EmailModal.jsx';
 import Context from '../../../../context/context';
 import { useParams } from 'react-router-dom';
+import moment from 'moment';
 
 const ActivityDashboard = () => {
 	const { workflowId } = useParams();
@@ -28,6 +29,14 @@ const ActivityDashboard = () => {
 	});
 
 	//Functions
+
+	const formatTime = (seconds) => {
+		const duration = moment.duration(seconds, 'seconds');
+		const hours = String(duration.hours()).padStart(2, '0');
+		const minutes = String(duration.minutes()).padStart(2, '0');
+		const secs = String(duration.seconds()).padStart(2, '0');
+		return `${hours}:${minutes}:${secs}`;
+	};
 
 	//To open Modal
 	const showDrawer = useCallback(() => {
@@ -67,7 +76,7 @@ const ActivityDashboard = () => {
 
 	return (
 		<div className="activityParentContainer">
-			<ActivityOverview />
+			<ActivityOverview formatTime={formatTime} />
 
 			<div className="activityDetailsContainer">
 				{/* <TimeLine showDrawer={showDrawer} /> */}
@@ -76,6 +85,7 @@ const ActivityDashboard = () => {
 					showDrawer={showDrawer}
 					viewersListData={viewersList}
 					handelViewerSelection={handelViewerSelection}
+					formatTime={formatTime}
 				/>
 			</div>
 
@@ -99,6 +109,7 @@ const ActivityDashboard = () => {
 					modalIsOpen={info?.modalIsOpen}
 					showDrawer={showDrawer}
 					selectedViewer={info?.selectedViewer}
+					formatTime={formatTime}
 				/>
 			) : (
 				''

@@ -18,9 +18,9 @@ import TimeLineSession from './TimeLineSession.jsx';
 import ChatSession from './ChatSession.jsx';
 import SessionMetric from './SessionMetric.jsx';
 import Skeleton from 'react-loading-skeleton';
+import moment from 'moment';
 
-const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer }) => {
-	// console.log('selectedViewer======>', JSON.stringify(selectedViewer, null, 2));
+const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer, formatTime }) => {
 	const { workflowId } = useParams();
 
 	const {
@@ -97,25 +97,8 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer }) => {
 		}));
 	};
 
-	const convertSecondsToFormattedDate = (seconds) => {
-		const date = new Date(seconds * 1000);
-		const options = {
-			day: '2-digit',
-			month: 'short',
-			year: 'numeric',
-			hour: 'numeric',
-			minute: '2-digit',
-			hour12: true,
-		};
-		return date.toLocaleString('en-GB', options);
-	};
-
-	const durationFormater = (duration) => {
-		const hours = String(Math.floor(duration / 3600)).padStart(2, '0');
-		const minutes = String(Math.floor((duration % 3600) / 60)).padStart(2, '0');
-		const seconds = String(duration % 60).padStart(2, '0');
-
-		return `${hours}:${minutes}:${seconds}`;
+	const formatDate = (epochTimestamp) => {
+		return moment.unix(epochTimestamp).format('D MMM YYYY, h:mm a');
 	};
 
 	const componentMapper = useMemo(() => {
@@ -248,13 +231,13 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer }) => {
 												<div className="labelValue">
 													<CalendarSvg />
 													<span className="labelDescription">
-														{convertSecondsToFormattedDate(
+														{formatDate(
 															viewerSessionDetails?.createdAt,
 														)}
 													</span>
 													-
 													<span className="labelDescription">
-														{convertSecondsToFormattedDate(
+														{formatDate(
 															viewerSessionDetails?.updatedAt,
 														)}
 													</span>
@@ -265,9 +248,7 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer }) => {
 												<div className="labelValue">
 													<DurationSvg />
 													<spna className="labelDescription">
-														{durationFormater(
-															viewerSessionDetails?.duration,
-														)}
+														{formatTime(viewerSessionDetails?.duration)}
 													</spna>
 												</div>
 											</div>
