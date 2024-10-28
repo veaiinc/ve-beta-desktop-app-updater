@@ -12,7 +12,6 @@ export const initialActivityState = {
 	activityData: null,
 	viewersList: null,
 	viewerSessionDetails: null,
-	loading: true, // TODO: remove loading state
 };
 
 export const ActivityState = (props) => {
@@ -69,7 +68,6 @@ export const ActivityState = (props) => {
 	};
 
 	const getViewersSessionDetails = async (payload) => {
-		console.log('getViewersSessionDetails:', payload);
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');

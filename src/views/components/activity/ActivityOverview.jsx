@@ -11,15 +11,6 @@ const ActivityOverview = ({ formatTime }) => {
 		activityInfo: { activityData },
 	} = useContext(Context);
 
-	// Function to format seconds to "00hr 00m 00s" format
-	// const formatTime = (seconds) => {
-	// 	const duration = moment.duration(seconds, 'seconds');
-	// 	const hours = String(duration.hours()).padStart(2, '0');
-	// 	const minutes = String(duration.minutes()).padStart(2, '0');
-	// 	const secs = String(duration.seconds()).padStart(2, '0');
-	// 	return `${hours}hr ${minutes}m ${secs}s`;
-	// };
-
 	return (
 		<div className="activityOverviewParentContainer">
 			<div className="summaryOverviewContainer">

@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/activity/modalSessionComponents.scss';
 import DoughnutChart from '../../components/activity/DoughnutChart.jsx';
 import { ReactComponent as DotSvg } from '../../../assets/svg/activity/dot.svg';
@@ -8,7 +8,7 @@ import { ReactComponent as GallerySvg } from '../../../assets/svg/activity/galle
 import Skeleton from 'react-loading-skeleton';
 import Spinner from '../loaders/Spinner.jsx';
 
-const SessionMetric = ({ title, labelsData, labelItemsData }) => {
+const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 	const [info, setInfo] = useState({
 		isLabelSelected: true,
 		activeLabelItem: null,
@@ -43,7 +43,7 @@ const SessionMetric = ({ title, labelsData, labelItemsData }) => {
 	return (
 		<div className="sessionDetailsWrapper">
 			<div className="sessionChartContainer">
-				{!labelsData || !labelsData ? (
+				{loading === true ? (
 					<Spinner width={'50px'} height={'50px'} />
 				) : (
 					<DoughnutChart
@@ -70,7 +70,7 @@ const SessionMetric = ({ title, labelsData, labelItemsData }) => {
 				{info?.isLabelSelected ? (
 					//LablesItewmRows ==>
 					<div className="lablesContainer">
-						{!labelsData || labelsData === 0
+						{loading === true
 							? // Fallback UI when labelsData is empty
 							  [{}, {}, {}].map((ele, index) => (
 									<Skeleton
@@ -80,7 +80,7 @@ const SessionMetric = ({ title, labelsData, labelItemsData }) => {
 									/>
 							  ))
 							: // Render the data when labelsData is not empty
-							  labelsData.map((item, index) => (
+							  labelsData?.map((item, index) => (
 									<div
 										key={index}
 										className="lableItemRow"

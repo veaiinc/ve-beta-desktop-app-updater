@@ -34,6 +34,7 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer, formatT
 
 	const [info, setInfo] = useState({
 		viewMore: false,
+		isLoading: false,
 		isSessionTabActive: 'TimeLine',
 		currentSessionIndex: 0,
 		sessionIds: selectedViewer?.sessionIds || [],
@@ -42,22 +43,25 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer, formatT
 	});
 
 	//API call getSessionSummary ===>
-	const fetchViewersSessionDetails = useCallback(() => {
+	const fetchViewersSessionDetails = useCallback(async () => {
 		if (
 			info.currentSessionId &&
 			(!viewerSessionDetails || viewerSessionDetails?._id !== info.currentSessionId)
 		) {
-			console.log('Calling getSessionSummary====>');
-			getViewersSessionDetails({ workflowId, getSessionSummaryId: info.currentSessionId });
+			setInfo((prevInfo) => ({ ...prevInfo, isLoading: true }));
+			await getViewersSessionDetails({
+				workflowId,
+				getSessionSummaryId: info.currentSessionId,
+			});
+			setInfo((prevInfo) => ({ ...prevInfo, isLoading: false }));
 		}
 	}, [getViewersSessionDetails, viewerSessionDetails, info.currentSessionId, workflowId]);
 
 	useEffect(() => {
 		if (info.currentSessionId) {
-			console.log('Calling UseEffect====>');
 			fetchViewersSessionDetails();
 		}
-	}, [fetchViewersSessionDetails, info.currentSessionId]);
+	}, [info.currentSessionId]);
 
 	//Handle Session Next Session ===>
 	const handleNextSession = () => {
@@ -108,6 +112,7 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer, formatT
 			TimeSpent: (
 				<SessionMetric
 					title={'Time Spent'}
+					loading={info?.isLoading}
 					labelsData={viewerSessionDetails?.moduleViewDuration}
 					labelItemsData={viewerSessionDetails?.sectionViewDuration}
 				/>
@@ -116,6 +121,7 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer, formatT
 			Interaction: (
 				<SessionMetric
 					title={'Interactions'}
+					loading={info?.isLoading}
 					labelsData={viewerSessionDetails?.interaction}
 					labelItemsData={viewerSessionDetails?.interaction?.reduce((acc, item) => {
 						return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending each "interaction" array data
@@ -126,7 +132,7 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer, formatT
 			AIChat: <ChatSession />,
 			// Add more tabs if needed
 		};
-	}, [info?.currentSessionIndex, info?.sessionIds, viewerSessionDetails]);
+	}, [info?.isLoading, viewerSessionDetails]);
 
 	// Render selected tab component
 	const renderActiveTab = useMemo(() => {
