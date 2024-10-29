@@ -1,9 +1,7 @@
 import React, { memo } from 'react';
 import { PieChart, Pie, Cell, Tooltip } from 'recharts';
 
-const COLORS = ['#FF6384', '#FFCE56', '#FF9F40', '#36A2EB', '#9966FF'];
-
-const DoughnutChart = ({ statsData, scrollClass = '', title }) => {
+const DoughnutChart = ({ scrollClass = '', statsData, title, COLORS }) => {
 	const dataKey = title === 'Interactions' ? 'totalInteractionsCount' : 'duration';
 	return (
 		<PieChart width={390} height={300} className={`ringChart ${scrollClass}`}>

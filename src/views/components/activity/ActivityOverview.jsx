@@ -6,7 +6,6 @@ import { ReactComponent as EyeSvg } from '../../../assets/svg/activity/eye.svg';
 import Context from '../../../context/context';
 
 const ActivityOverview = ({ formatTime }) => {
-	//Context
 	const {
 		activityInfo: { activityData },
 	} = useContext(Context);

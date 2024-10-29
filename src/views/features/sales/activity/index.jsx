@@ -25,18 +25,17 @@ const ActivityDashboard = () => {
 		modalIsOpen: false,
 		selectedViewer: null,
 		viewersListData: null,
-		loading: false,
 	});
 
 	//Functions
 
-	const formatTime = (seconds) => {
+	const formatTime = useCallback((seconds) => {
 		const duration = moment.duration(seconds, 'seconds');
 		const hours = String(duration.hours()).padStart(2, '0');
 		const minutes = String(duration.minutes()).padStart(2, '0');
 		const secs = String(duration.seconds()).padStart(2, '0');
 		return `${hours}:${minutes}:${secs}`;
-	};
+	}, []);
 
 	//To open Modal
 	const showDrawer = useCallback(() => {
@@ -70,8 +69,10 @@ const ActivityDashboard = () => {
 
 	//UseEffect
 	useEffect(() => {
-		fetchActivityData();
-		fetchViewersListData();
+		if (workflowId) {
+			fetchActivityData();
+			fetchViewersListData();
+		}
 	}, [fetchActivityData, fetchViewersListData, workflowId]);
 
 	return (

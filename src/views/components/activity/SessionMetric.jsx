@@ -1,7 +1,7 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useState } from 'react';
 import '../../../assets/scss/sales/activity/modalSessionComponents.scss';
 import DoughnutChart from '../../components/activity/DoughnutChart.jsx';
-import { ReactComponent as DotSvg } from '../../../assets/svg/activity/dot.svg';
+import DotSvg from '../../../assets/svg/activity/DotSvg.jsx';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
 import { ReactComponent as RightSvg } from '../../../assets/svg/activity/right.svg';
 import { ReactComponent as GallerySvg } from '../../../assets/svg/activity/galleryIcon.svg';
@@ -12,6 +12,7 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 	const [info, setInfo] = useState({
 		isLabelSelected: true,
 		activeLabelItem: null,
+		COLORS: ['#FFCE56', '#FF9F40', '#36A2EB', '#9966FF', '#FF6384'],
 	});
 
 	const handleShowLabels = () => {
@@ -56,6 +57,7 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 								: transformLabelItemsData(labelItemsData)
 						}
 						title={title}
+						COLORS={info?.COLORS}
 					/>
 				)}
 			</div>
@@ -91,7 +93,9 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 									>
 										<div className="nameLable">
 											<div className="dot">
-												<DotSvg />
+												<DotSvg
+													fill={info?.COLORS[index % info.COLORS.length]}
+												/>
 											</div>
 											<div>{item?.moduleType || 'Label Name'}</div>
 										</div>
@@ -163,7 +167,13 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 											<div key={index} className="lableItemRow">
 												<div className="nameLable">
 													<div className="dot">
-														<DotSvg />
+														<DotSvg
+															fill={
+																info?.COLORS[
+																	index % info.COLORS.length
+																]
+															}
+														/>
 													</div>
 													<div className="selectedBlockSvg">
 														<GallerySvg />

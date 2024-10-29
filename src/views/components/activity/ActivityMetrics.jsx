@@ -1,8 +1,8 @@
 import React, { memo, useState, useCallback } from 'react';
 import '../../../assets/scss/sales/activity/activityComponents.scss';
-import { ReactComponent as DotSvg } from '../../../assets/svg/activity/dot.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
 import { ReactComponent as RightSvg } from '../../../assets/svg/activity/right.svg';
+import DotSvg from '../../../assets/svg/activity/DotSvg.jsx';
 import { ReactComponent as GallerySvg } from '../../../assets/svg/activity/galleryIcon.svg';
 import DoughnutChart from '../../components/activity/DoughnutChart.jsx';
 import Skeleton from 'react-loading-skeleton';
@@ -14,6 +14,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 	const [info, setInfo] = useState({
 		isLabelSelected: true,
 		activeLabelItem: null,
+		COLORS: ['#FFCE56', '#FF9F40', '#36A2EB', '#9966FF', '#FF6384'],
 	});
 
 	const handleShowLabels = () => {
@@ -87,7 +88,13 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 											>
 												<div className="nameLable">
 													<div className="dot">
-														<DotSvg />
+														<DotSvg
+															fill={
+																info?.COLORS[
+																	index % info.COLORS.length
+																]
+															}
+														/>
 													</div>
 													<div>{item?.moduleType || 'Label Name'}</div>
 												</div>
@@ -161,7 +168,13 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 												<div key={index} className="lableItemRow">
 													<div className="nameLable">
 														<div className="dot">
-															<DotSvg />
+															<DotSvg
+																fill={
+																	info?.COLORS[
+																		index % info.COLORS.length
+																	]
+																}
+															/>
 														</div>
 														<div className="selectedBlockSvg">
 															<GallerySvg />
@@ -198,6 +211,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 										: transformLabelItemsData(labelItemsData)
 								}
 								title={title}
+								COLORS={info?.COLORS}
 							/>
 						)}
 					</div>
