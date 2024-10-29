@@ -10,7 +10,7 @@ const DoughnutChart = ({ scrollClass = '', statsData, title, COLORS }) => {
 		<PieChart width={390} height={300} className={`ringChart ${scrollClass}`}>
 			<Pie
 				data={statsData}
-				cx={170}
+				cx={190}
 				cy={150}
 				innerRadius={100}
 				outerRadius={130}
