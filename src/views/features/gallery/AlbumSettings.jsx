@@ -11,6 +11,7 @@ import mobile from '../../../assets/svg/gallery/mobile.png';
 import Context from '../../../context/context';
 import { ReactComponent as DownArrow } from '../../../assets/svg/workflow/downArrow.svg';
 import { message } from 'antd';
+import Cropper from 'react-easy-crop';
 
 const imageURL = 'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg';
 const AlbumSettings = () => {
@@ -40,6 +41,11 @@ const AlbumSettings = () => {
 		isEnabled: false,
 		coverPhoto: false,
 		lightroomList: false,
+		crop: {
+			x: 0,
+			y: 0,
+		},
+		zoom: 1,
 		// activeAlbum: activeAlbum,
 	});
 
@@ -294,18 +300,65 @@ const AlbumSettings = () => {
 								<div className="album-preview">
 									<div className="laptop-preview">
 										<div className="screen">
-											<img src={imageURL} alt="image" />
+											{/* <img src={imageURL} alt="image" /> */}
+											<div
+												style={{
+													width: '100%',
+													height: '100%',
+													backgroundImage: `url(${imageURL})`,
+													backgroundPosition: info?.crop?.x
+														? `${info?.crop?.x}% ${info?.crop?.y}%`
+														: 'center',
+													backgroundSize: 'cover',
+													backgroundRepeat: 'no-repeat',
+												}}
+											></div>
 										</div>
 										<LaptopLogo />
 									</div>
 									<div className="mobile-preview">
-										<div className="mobile-preview-container">
-											<img src={imageURL} alt="mobile" />
+										<div
+											className="mobile-preview-container"
+											style={{
+												backgroundImage: `url(${imageURL})`,
+												backgroundPosition: info?.crop?.x
+													? `${info?.crop?.x}% ${info?.crop?.y}%`
+													: 'center',
+												backgroundSize: 'cover',
+												backgroundRepeat: 'no-repeat',
+											}}
+										>
+											{/* <img src={imageURL} alt="mobile" /> */}
 										</div>
 										<img src={mobile} alt="mobile" className="mobile-logo" />
 									</div>
 								</div>
-								<div className="album-cover-image"></div>
+								<div className="album-cover-image">
+									<Cropper
+										image={imageURL}
+										crop={info?.crop}
+										zoom={info?.zoom}
+										aspect={228 / 370}
+										onCropChange={(cropValue) =>
+											setInfo((prev) => ({
+												...prev,
+												crop: cropValue,
+											}))
+										}
+										onCropComplete={(croppedArea, croppedAreaPixels) => {
+											// You can store croppedAreaPixels if you need the final crop dimensions
+											console.log('Cropped area:', croppedAreaPixels);
+										}}
+										onZoomChange={(zoomValue) =>
+											setInfo((prev) => ({
+												...prev,
+												zoom: zoomValue,
+											}))
+										}
+										showGrid={false}
+										cropSize={{ width: 233.8432, height: 402.667 }}
+									/>
+								</div>
 							</div>
 						)}
 						<div className="upload-cover-photo">
