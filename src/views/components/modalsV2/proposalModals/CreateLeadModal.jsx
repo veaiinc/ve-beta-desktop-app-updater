@@ -51,8 +51,11 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 		const isValidEmail = leadDetails['emailId'] && validator?.isEmail(leadDetails['emailId']);
 		const isValidName = leadDetails['name'].trim()?.length > 0;
 		const isValidSource = leadDetails['source'].trim()?.length > 0;
+		const isValidPhoneNumber = leadDetails['phoneNumber']?.trim()?.length > 0;
 
-		setCreateButtonActiveState(isValidEmail && isValidName && isValidSource);
+		setCreateButtonActiveState(
+			(isValidEmail || isValidPhoneNumber) && isValidName && isValidSource,
+		);
 	}, [leadDetails]);
 
 	useEffect(() => {
@@ -229,7 +232,6 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 			const payload = {
 				workflowInput: {
 					clientDetails: {
-						email: leadDetails['emailId'],
 						name: leadDetails['name'],
 					},
 					templateId: info?.selectedTemplate?._id,
@@ -247,6 +249,16 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 					}));
 				}
 				payload.workflowInput.clientDetails.phoneNumber = leadDetails['phoneNumber'];
+			}
+			if (leadDetails?.emailId?.length) {
+				if (!validator?.isEmail(leadDetails?.emailId)) {
+					return setErrorState((prevState) => ({
+						...prevState,
+						isemailError: true,
+						emailErrorMessage: 'Enter Valid Email Id',
+					}));
+				}
+				payload.workflowInput.clientDetails.email = leadDetails?.['emailId'];
 			}
 
 			const response = await createLeadfromTemplates(payload);

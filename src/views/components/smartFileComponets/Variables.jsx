@@ -67,7 +67,7 @@ const Variables = ({
 			variableOnChangeFunc(variableElementToBeUpdated);
 			return;
 		},
-		[info?.data],
+		[info?.data, variableOnChangeFunc],
 	);
 	const updateDuplicatedVaribales = useCallback(
 		async (data) => {

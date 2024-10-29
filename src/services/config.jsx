@@ -6,7 +6,6 @@ module.exports = {
 	proposals_api: 'https://ap.api.ve.ai/proposals/1.0',
 	workflows_Api: 'https://ap.api.ve.ai/workflows/1.0',
 	auth_Api: 'https://auth.ve.ai',
-	// auth_Api: 'http://192.168.2.224:5050',
 	ai_setup_api: 'https://ap.api.ve.ai/sales-chat-assistant/1.0',
 
 	//outside India
