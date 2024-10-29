@@ -28,6 +28,8 @@ const AiSetup = () => {
 	useEffect(() => {
 		if (existingAiAssistants?.length === 0) {
 			setInfo((prev) => ({ ...prev, noAiAssistants: true }));
+		} else {
+			setInfo((prev) => ({ ...prev, noAiAssistants: false }));
 		}
 	}, [existingAiAssistants]);
 
