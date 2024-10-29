@@ -92,6 +92,7 @@ const GalleryPage = () => {
 			getGalleryImages,
 			imagesList,
 			updateTagOrder,
+			shareGalleryViaEmail,
 
 			getImage,
 
@@ -270,6 +271,7 @@ const GalleryPage = () => {
 				info?.albumTagId,
 				info?.page,
 				info?.limit,
+				true,
 			);
 		}
 		if (imagesList) {
@@ -1528,7 +1530,12 @@ const GalleryPage = () => {
 				)}
 			</div>
 
-			<ShareModal open={info.shareModal} closeModal={openShareModal} galleryId={galleryId} />
+			<ShareModal
+				open={info.shareModal}
+				closeModal={openShareModal}
+				galleryId={galleryId}
+				activeGallery={info?.activeGallery?.galleryData}
+			/>
 			<CreateAlbum
 				open={info.showCreateAlbum}
 				closeModal={() =>

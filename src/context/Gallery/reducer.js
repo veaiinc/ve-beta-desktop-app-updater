@@ -73,6 +73,10 @@ const actionHandlers = {
 		...state,
 		imageDetail: action.payload,
 	}),
+	GET_GALLERY_GUEST_ACCESS: (state, action) => ({
+		...state,
+		galleryGuestAccess: action.payload,
+	}),
 	RESET_IMAGES_LIST: (state) => ({ ...state, imagesList: null }),
 	RESET_STATE: () => ({ ...intialState }),
 };

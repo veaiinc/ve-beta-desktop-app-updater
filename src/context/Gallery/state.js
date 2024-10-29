@@ -22,6 +22,7 @@ export const intialState = {
 	lightroomCopyList: null,
 	visitorFormAccess: null,
 	imageDetail: null,
+	galleryGuestAccess: null,
 };
 
 export const Galleries = () => {
@@ -734,6 +735,56 @@ export const Galleries = () => {
 			console.log('error==>updateAlbumCoverImage', error);
 		}
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/guest-access
+	const getGalleryGuestAccess = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/guest-access`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_GALLERY_GUEST_ACCESS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getGalleryGuestAccess', error);
+		}
+	};
+	const editGalleryGuestAccess = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/guest-access`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>editGalleryGuestAccess', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{_['workspaceId']}}/galleries/{{ _.gallery_id }}/share-via-email
+	const shareGalleryViaEmail = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}/galleries/${galleryId}/share-via-email`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>shareGalleryViaEmail', error);
+		}
+	};
 	return {
 		...state,
 		getGalleries,
@@ -772,5 +823,10 @@ export const Galleries = () => {
 		editVisitorFormAccess,
 		getImageDetail,
 		updateAlbumCoverImage,
+		getGalleryGuestAccess,
+		editGalleryGuestAccess,
+		shareGalleryViaEmail,
+		updateTagOrder,
+		setAlbumCoverImage,
 	};
 };
