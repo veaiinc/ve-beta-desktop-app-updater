@@ -180,7 +180,7 @@ const LandingPage = () => {
 										onKeyDown={handleEnterKey}
 										name="prompt"
 										placeholder="Hey, give me million dollar service business idea!"
-										autoFocus={true}
+										autoFocus={false}
 									></textarea>
 								</div>
 								<div className={'promptActions'}>
