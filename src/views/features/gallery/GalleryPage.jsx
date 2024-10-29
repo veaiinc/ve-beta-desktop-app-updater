@@ -800,7 +800,7 @@ const GalleryPage = () => {
 								<InfiniteScroll
 									dataLength={imagesList?.docs?.length || 0}
 									next={fetchMoreImages}
-									hasMore={info.hasMore}
+									hasMore={imagesList?.hasNextPage || false}
 									loader={
 										<h4 style={{ color: 'white', textAlign: 'center' }}>
 											Loading...
