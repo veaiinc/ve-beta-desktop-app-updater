@@ -35,7 +35,11 @@ const CreateNewAiModal = ({ isOpen, toggleModal }) => {
 			name: info?.name,
 		});
 		setInfo((prev) => ({ ...prev, isLoading: false }));
-		navigate(`/settings/ai-setup-page/${aiAssistantId}`);
+		if (aiAssistantId) {
+			navigate(`/settings/ai-setup-page/${aiAssistantId}`);
+		} else {
+			message?.error('Failed to create AI Assistant! Please try again.');
+		}
 	};
 
 	return (
