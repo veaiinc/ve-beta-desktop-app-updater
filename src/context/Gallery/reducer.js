@@ -65,6 +65,10 @@ const actionHandlers = {
 		...state,
 		lightroomCopyList: action.payload,
 	}),
+	GET_VISITOR_FORM_ACCESS: (state, action) => ({
+		...state,
+		visitorFormAccess: action.payload,
+	}),
 	RESET_IMAGES_LIST: (state) => ({ ...state, imagesList: null }),
 	RESET_STATE: () => ({ ...intialState }),
 };
