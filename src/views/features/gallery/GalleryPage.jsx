@@ -28,6 +28,7 @@ import moment from 'moment';
 import { updateProposalQuery } from '../../../context/Templates/graphQlFunctions';
 import { getInitials } from '../../../helpers/index';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const imageURL = 'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg';
 const image1 =
@@ -129,6 +130,7 @@ const GalleryPage = () => {
 		hasMore: true,
 		page: 1,
 		limit: 20,
+		albumTags: albumDetails?.tags,
 	});
 	console.log(layoutSettings, 'layoutSettings', info);
 	const optionsRef = useRef(null);
@@ -183,6 +185,7 @@ const GalleryPage = () => {
 		if (!tenantPreferences) {
 			getEditPreferences(galleryId);
 		}
+
 		if (tenantAlbums) {
 			setInfo((prev) => ({
 				...prev,
@@ -271,6 +274,7 @@ const GalleryPage = () => {
 				...prev,
 				albumContains: albumDetails?.tags?.[0]?.displayName,
 				albumTagId: albumDetails?.tags?.[0]?._id,
+				albumTags: albumDetails?.tags,
 			}));
 		}
 	}, [albumDetails]);
@@ -523,8 +527,23 @@ const GalleryPage = () => {
 			collaboratorsData: data,
 		}));
 	};
+	const onDragEnd = (result) => {
+		if (!result.destination) return;
 
-	console.log(imagesList, 'imagesList');
+		const items = Array.from(info.albumTags);
+		const [reorderedItem] = items.splice(result.source.index, 1);
+		items.splice(result.destination.index, 0, reorderedItem);
+		console.log(items, 'items');
+		const updatedItems = items.map((item, index) => ({
+			...item,
+			customSortIndex: index + 1,
+		}));
+		console.log(updatedItems, 'itemsUpdated');
+		setInfo((prev) => ({
+			...prev,
+			albumTags: updatedItems,
+		}));
+	};
 	return (
 		<>
 			{console.log(info?.activeGallery, 'activeGallery')}
@@ -744,24 +763,72 @@ const GalleryPage = () => {
 								</div>
 							</div>
 							<div className="albumContains">
-								{albumDetails?.tags?.map((contain, index) => (
-									<div key={index} className="albumContain">
-										<img src={sixDots} alt="sixDots" />
-										<p
-											className={
-												info?.albumContains === contain.displayName
-													? 'active'
-													: ''
-											}
-											onClick={() =>
-												handleClickAlbum(contain.displayName, 'containName')
-											}
-										>
-											{contain.displayName}
-										</p>
-										<p className="count">{contain.imagesCount}</p>
-									</div>
-								))}
+								<DragDropContext onDragEnd={onDragEnd}>
+									<Droppable droppableId="tags" direction="horizontal">
+										{(provided) => (
+											<div
+												{...provided.droppableProps}
+												ref={provided.innerRef}
+												style={{ display: 'flex', gap: '10px' }}
+											>
+												{info?.albumTags?.map((contain, index) => (
+													<Draggable
+														key={contain._id || index}
+														draggableId={contain._id || `tag-${index}`}
+														index={index}
+													>
+														{(provided, snapshot) => (
+															<div
+																ref={provided.innerRef}
+																{...provided.draggableProps}
+																className={`albumContain ${
+																	snapshot.isDragging
+																		? 'dragging'
+																		: ''
+																}`}
+																style={{
+																	...provided.draggableProps
+																		.style,
+																	marginBottom: '8px', // Add spacing between items
+																}}
+															>
+																<div
+																	{...provided.dragHandleProps}
+																	style={{ cursor: 'grab' }}
+																>
+																	<img
+																		src={sixDots}
+																		alt="sixDots"
+																	/>
+																</div>
+																<p
+																	className={
+																		info?.albumContains ===
+																		contain.displayName
+																			? 'active'
+																			: ''
+																	}
+																	onClick={() =>
+																		handleClickAlbum(
+																			contain,
+																			'containName',
+																		)
+																	}
+																>
+																	{contain.displayName}
+																</p>
+																<p className="count">
+																	{contain.imagesCount}
+																</p>
+															</div>
+														)}
+													</Draggable>
+												))}
+												{provided.placeholder}
+											</div>
+										)}
+									</Droppable>
+								</DragDropContext>
 							</div>
 							{/* <div className="galleryImagesContainer">
 							<ResponsiveMasonry

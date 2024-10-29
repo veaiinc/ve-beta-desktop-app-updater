@@ -19,6 +19,7 @@ export const intialState = {
 	galleryCredentials: null,
 	albumDetails: null,
 	imagesList: null,
+	lightroomCopyList: null,
 };
 
 export const Galleries = () => {
@@ -594,7 +595,64 @@ export const Galleries = () => {
 			console.log('error==>getGalleryImages', error);
 		}
 	};
-
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/cover-image
+	// {
+	// 	"image_id": "671f4cbb7387c4027511d4a8",
+	// 	"xPosition": 30,
+	// 	"yPosition": 4.999482990383619,
+	// 	"givenFileName": "66ab2a42dc8cb6e520a5d7cc_1722493506126.jpg",
+	// 	"width": 100,
+	// 	"height": 100
+	// }
+	const setAlbumCoverImage = async (payload, galleryId, albumId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/cover-image`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>setAlbumCoverImage', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/image-file-names
+	const getLightroomCopyList = async (galleryId, albumId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/image-file-names`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_LIGHTROOM_COPY_LIST,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getAlbumImageFileNames', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}
+	const updateTagOrder = async (payload, galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>updateTagOrder', error);
+		}
+	};
 	return {
 		...state,
 		getGalleries,
@@ -628,5 +686,6 @@ export const Galleries = () => {
 		checkSlugIsAvalible,
 		getGalleryCredentials,
 		getGalleryImages,
+		getLightroomCopyList,
 	};
 };
