@@ -7,7 +7,7 @@ const Navbar = ({ openSignupModal, openLoginModal, openPrivacyAndTermsModal }) =
 	const navigate = useNavigate();
 	const handleNavClick = (navItem) => {
 		if (navItem === 'Login') {
-			return navigate('/verify-user');
+			return navigate('/login');
 		}
 		if (navItem === 'Signup') {
 			return navigate('/verify-user');
