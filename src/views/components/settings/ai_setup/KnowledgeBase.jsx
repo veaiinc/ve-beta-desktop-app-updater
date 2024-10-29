@@ -42,6 +42,8 @@ const KnowledgeBase = () => {
 		}));
 		if (knowledgeBaseFiles?.data?.length === 0) {
 			setInfo((prev) => ({ ...prev, isKnowledgeBaseEmpty: true }));
+		} else {
+			setInfo((prev) => ({ ...prev, isKnowledgeBaseEmpty: false }));
 		}
 	}, [knowledgeBaseFiles]);
 
