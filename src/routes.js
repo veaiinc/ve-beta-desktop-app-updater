@@ -13,6 +13,11 @@ import SettingsWrapper from './views/features/settings/SettingsWrapper';
 import AiSetupPage from './views/features/settings/ai_settings/AiSetupPage';
 import PrivacyPolicy from './views/features/signin/PrivacyPolicy';
 import Landing_screen from './views/features/landing_screen';
+import AddGallery from './views/features/gallery/AddGallery';
+import GalleryPage from './views/features/gallery/GalleryPage';
+import GalleryViewer from './views/features/gallery/GalleryViewer';
+import AlbumSettings from './views/features/gallery/AlbumSettings';
+import UploadPhotos from './views/features/gallery/UploadPhotos';
 
 const routes = [
 	{
@@ -109,6 +114,51 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Workspace Settings'}>
 				<SettingsWrapper />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/galleries',
+		component: (
+			<AuthWrapper title={'Gallery'}>
+				<AddGallery />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/gallery-page/:galleryId',
+		component: (
+			<AuthWrapper title={'Gallery'}>
+				<GalleryPage />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/gallery-page/:galleryId/:albumId/upload-photos',
+		component: (
+			<AuthWrapper title={'Gallery'}>
+				<UploadPhotos />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/gallery/:galleryId/album-settings',
+		component: (
+			<AuthWrapper title={'Gallery'}>
+				<AlbumSettings />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/gallery-page/:galleryId/:albumId/gallery-viewer',
+		component: (
+			<AuthWrapper title={'Gallery'}>
+				<GalleryViewer />
 			</AuthWrapper>
 		),
 		exact: true,
