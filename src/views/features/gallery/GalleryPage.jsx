@@ -137,7 +137,6 @@ const GalleryPage = () => {
 		imagesList: imagesList,
 		isRearranging: false,
 	});
-	console.log(layoutSettings, 'layoutSettings', info);
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
 	const galleryOptionsRef = useRef(null);
@@ -178,9 +177,6 @@ const GalleryPage = () => {
 	useEffect(() => {
 		if (!galleryCredentials) {
 			getGalleryCredentials(galleryId);
-		}
-		if (galleryCredentials) {
-			console.log(galleryCredentials, 'galleryCredentials');
 		}
 	}, [galleryCredentials]);
 	useEffect(() => {
@@ -233,9 +229,7 @@ const GalleryPage = () => {
 	// }, [tenantAlbums?.albums?.[0]?.title]);
 
 	useEffect(() => {
-		console.log(layoutSettings, 'this is called');
 		if (!layoutSettings) {
-			console.log('this is called');
 			getLayoutSettings(galleryId);
 		}
 		if (layoutSettings) {
@@ -300,7 +294,6 @@ const GalleryPage = () => {
 	}, [albumDetails]);
 
 	const fetchMoreImages = () => {
-		console.log('calling');
 		const nextPage = info.page + 1;
 		getGalleryImages(
 			galleryId,
@@ -327,7 +320,6 @@ const GalleryPage = () => {
 	};
 
 	const handleClickAlbum = (album, name) => {
-		console.log(album, 'albumName======>');
 		if (name === 'albumName') {
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -364,13 +356,16 @@ const GalleryPage = () => {
 		const selectedImages = selectedImageIndexes.map((index) => randomizedImages[index]);
 		const activeIndex = selectedImageIndexes[0];
 
-		navigate(`/gallery-page/${galleryId}/${info?.activeAlbumId}/gallery-viewer`, {
-			state: {
-				images: randomizedImages,
-				selectedImages: selectedImages,
-				activeIndex: activeIndex,
+		navigate(
+			`/gallery-page/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}`,
+			{
+				state: {
+					images: randomizedImages,
+					selectedImages: selectedImages,
+					activeIndex: activeIndex,
+				},
 			},
-		});
+		);
 	};
 	const scrollToSection = (sectionId) => {
 		setInfo((prevInfo) => ({ ...prevInfo, activeLink: sectionId }));
@@ -538,7 +533,6 @@ const GalleryPage = () => {
 		}));
 	};
 	const handleManageCollaborator = (data) => {
-		console.log(data, 'updatedData');
 		setInfo((prev) => ({
 			...prev,
 			collaboratorsData: data,
@@ -572,7 +566,6 @@ const GalleryPage = () => {
 			const payload = {
 				customSortIndex: changedItemIndex,
 			};
-			console.log(payload, 'payload');
 
 			updateTagOrder(payload, galleryId, info?.activeAlbumId, tagID);
 		}
@@ -614,10 +607,8 @@ const GalleryPage = () => {
 		const images = [...info?.imagesList?.docs];
 
 		const selectedImages = info.draggedImages.map((index) => images[index]);
-		console.log('Selected images to index:', selectedImages);
 
 		const sortedIndices = [...info.draggedImages].sort((a, b) => b - a);
-		console.log('Sorted indices for index:', sortedIndices);
 
 		// Remove images from their original positions
 		sortedIndices.forEach((index) => {
@@ -625,10 +616,8 @@ const GalleryPage = () => {
 		});
 
 		const destinationIndex = result.destination.index;
-		console.log('Destination index:', destinationIndex);
 
 		images.splice(destinationIndex, 0, ...selectedImages);
-		console.log('Final reordered index:', images);
 
 		setInfo((prev) => ({
 			...prev,
@@ -646,7 +635,6 @@ const GalleryPage = () => {
 	};
 	return (
 		<>
-			{console.log(info?.activeGallery, 'activeGallery')}
 			<div className="galleryContainer">
 				<div className="mainGalleryContainer">
 					<div className="galleryPic">
@@ -727,30 +715,39 @@ const GalleryPage = () => {
 							>
 								<p>+ New Album</p>
 							</div>
-							{info?.tenantAlbums?.map((album, index) => (
-								<div
-									key={index}
-									className={`album ${
-										info?.albumSlug === album?.slug ? 'active' : ''
-									}`}
-									style={{
-										background: album.image
-											? ''
-											: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
-									}}
-								>
-									{album.image && <img src={album?.image} />}
-
+							{info?.tenantAlbums?.map((album, index) => {
+								let src = null;
+								if (album?.coverImage?._id) {
+									const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+									src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
+								}
+								return (
 									<div
-										className="albumDetails"
-										onClick={() => handleClickAlbum(album, 'albumName')}
+										key={index}
+										className={`album ${
+											info?.albumSlug === album?.slug ? 'active' : ''
+										}`}
+										style={{
+											background: src
+												? `url(${src})`
+												: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+											backgroundSize: 'cover',
+											backgroundPosition: 'center',
+										}}
 									>
-										<p>{album?.title}</p>
-										<p>{`${album?.photos} photos`}</p>
+										{album.image && <img src={album?.image} />}
+
+										<div
+											className="albumDetails"
+											onClick={() => handleClickAlbum(album, 'albumName')}
+										>
+											<p>{album?.title}</p>
+											<p>{`${album?.photos || 0} photos`}</p>
+										</div>
+										{/* <div className="overlay"></div> */}
 									</div>
-									{/* <div className="overlay"></div> */}
-								</div>
-							))}
+								);
+							})}
 						</div>
 					</div>
 				</div>
@@ -1264,7 +1261,6 @@ const GalleryPage = () => {
 										Renaming affects the URL. Share the new link with clients
 										each time.
 									</p>
-									{console.log(tenantGalleries, 'tenantGallery')}
 									<input
 										placeholder="Hannef x Mahi"
 										value={info.activeGallery?.galleryData?.title}
@@ -1277,12 +1273,6 @@ const GalleryPage = () => {
 										Sort galleries by this date. Which is visible to the client
 									</p>
 									<div>
-										{console.log(
-											convertEpochToDate(
-												info.activeGallery?.galleryData?.dueDateEpoch,
-											),
-											'dueDateEpoch',
-										)}
 										<DatePicker
 											className="datePicker"
 											format="DD-MM-YYYY"
