@@ -6,13 +6,24 @@ const DoughnutChart = ({ scrollClass = '', statsData, title, COLORS }) => {
 		return `${JSON.stringify(payload.percentage)} %`;
 	};
 
+	const contentStyle = {
+		backgroundColor: 'rgba(0, 0, 0, 0.6)',
+		backdropFilter: 'blur(10px)',
+		padding: '5px',
+		borderRadius: '8px',
+	};
+
+	const labelStyle = {
+		color: 'white',
+	};
+
 	return (
 		<PieChart width={390} height={300} className={`ringChart ${scrollClass}`}>
 			<Pie
 				data={statsData}
 				cx={190}
 				cy={150}
-				innerRadius={100}
+				innerRadius={90}
 				outerRadius={130}
 				fill="#8884d8"
 				paddingAngle={1}
@@ -26,7 +37,7 @@ const DoughnutChart = ({ scrollClass = '', statsData, title, COLORS }) => {
 					<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
 				))}
 			</Pie>
-			{/* <Tooltip /> */}
+			<Tooltip contentStyle={contentStyle} itemStyle={labelStyle} />
 		</PieChart>
 	);
 };
