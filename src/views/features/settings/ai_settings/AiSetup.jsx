@@ -52,7 +52,7 @@ const AiSetup = () => {
 					<Tooltip
 						title={
 							<ToolTipContainer
-								style={{
+								customContainerStyle={{
 									borderRadius: '16px',
 									border: '1px solid rgba(100, 100, 100, 0.16)',
 									background: '#151515',
@@ -60,15 +60,15 @@ const AiSetup = () => {
 										'0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1)',
 									width: '390px',
 									padding: '32px',
-									span: {
-										color: 'rgba(228, 229, 230, 0.48)',
-										fontFamily: 'Inter',
-										fontSize: '13px',
-										fontStyle: 'normal',
-										fontWeight: '400',
-										lineHeight: '18px',
-										alignSelf: 'stretch',
-									},
+								}}
+								contentStyling={{
+									color: 'rgba(228, 229, 230, 0.48)',
+									fontFamily: 'Inter',
+									fontSize: '13px',
+									fontStyle: 'normal',
+									fontWeight: '400',
+									lineHeight: '18px',
+									alignSelf: 'stretch',
 								}}
 								title={''}
 								content={

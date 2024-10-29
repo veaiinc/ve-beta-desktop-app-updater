@@ -1,11 +1,18 @@
 import React from 'react';
 import '../../../assets/scss/popover/tooltip.scss';
 
-const ToolTipContainer = ({ title = '', content, style = {}, removeClassName = false }) => {
+const ToolTipContainer = ({
+	title = '',
+	content,
+	customContainerStyle = {},
+	contentStyling = {},
+}) => {
 	return (
-		<div className={removeClassName ? '' : 'tooltipParentContainer'} style={{ ...style }}>
-			{title ? <span className="tooltipHeadertext">{title}</span> : ''}
-			<span className="tooltipHeaderSubtext">{content}</span>
+		<div className={'tooltipParentContainer'} style={{ ...customContainerStyle }}>
+			{title?.length ? <span className="tooltipHeadertext">{title}</span> : ''}
+			<span className="tooltipHeaderSubtext" style={{ ...contentStyling }}>
+				{content}
+			</span>
 		</div>
 	);
 };
