@@ -9,8 +9,6 @@ import Skeleton from 'react-loading-skeleton';
 import Spinner from '../loaders/Spinner.jsx';
 
 const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
-	// console.log('labelsData: ' + JSON.stringify(labelsData, null, 2));
-	// console.log('labelItemsData: ' + JSON.stringify(labelItemsData, null, 2));
 	const [info, setInfo] = useState({
 		isLabelSelected: true,
 		activeLabelItem: null,

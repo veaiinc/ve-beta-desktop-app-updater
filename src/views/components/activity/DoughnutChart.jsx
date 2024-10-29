@@ -15,6 +15,8 @@ const DoughnutChart = ({ scrollClass = '', statsData, title, COLORS }) => {
 				paddingAngle={1}
 				dataKey={dataKey}
 				label={true}
+				animationDuration={400}
+				animationEasing="ease-in-out"
 			>
 				{statsData?.map((entry, index) => (
 					<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

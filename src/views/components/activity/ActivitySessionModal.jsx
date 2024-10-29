@@ -27,11 +27,6 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer, formatT
 		activityInfo: { getViewersSessionDetails, viewerSessionDetails },
 	} = useContext(Context);
 
-	// console.log(
-	// 	'viewerSessionDetails======>',
-	// 	JSON.stringify(viewerSessionDetails?.moduleViewDuration, null, 2),
-	// );
-
 	const [info, setInfo] = useState({
 		viewMore: false,
 		isLoading: false,
@@ -111,6 +106,7 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer, formatT
 
 			TimeSpent: (
 				<SessionMetric
+					key={'Time Spent'}
 					title={'Time Spent'}
 					loading={info?.isLoading}
 					labelsData={viewerSessionDetails?.moduleViewDuration}
@@ -120,6 +116,7 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer, formatT
 
 			Interaction: (
 				<SessionMetric
+					key={'Interactions'}
 					title={'Interactions'}
 					loading={info?.isLoading}
 					labelsData={viewerSessionDetails?.interaction}
