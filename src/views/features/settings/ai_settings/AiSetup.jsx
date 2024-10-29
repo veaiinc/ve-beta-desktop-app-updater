@@ -70,10 +70,11 @@ const AiSetup = () => {
 										alignSelf: 'stretch',
 									},
 								}}
-								showTitle={false}
+								title={''}
 								content={
 									'Your AI Assistance is set to your default sales workflows, set up your knowledge based to each workflow to get essential information.'
 								}
+								removeClassName={true}
 							/>
 						}
 						arrow={true}
