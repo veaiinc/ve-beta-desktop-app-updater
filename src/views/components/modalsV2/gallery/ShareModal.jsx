@@ -1,11 +1,56 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useContext, useState, useCallback } from 'react';
 import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/gallery/modals/shareModal.scss';
 import { ReactComponent as Copy } from '../../../../assets/svg/gallery/copy.svg';
 import { ReactComponent as Mail } from '../../../../assets/svg/gallery/mail.svg';
 import ToggleSlider from '../../input/slider';
+import Context from '../../../../context/context';
 
-const ShareModal = ({ open, closeModal }) => {
+const ShareModal = ({ open, closeModal, galleryId }) => {
+	const {
+		galleryInfo: {
+			visitorFormAccess,
+			getVisitorFormAccess,
+			editVisitorFormAccess,
+			editPreferences,
+		},
+	} = useContext(Context);
+	const [info, setInfo] = useState({
+		visitorFormAccess: visitorFormAccess,
+	});
+	useEffect(() => {
+		if (!visitorFormAccess) {
+			getVisitorFormAccess(galleryId);
+		}
+		if (visitorFormAccess) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				visitorFormAccess: visitorFormAccess,
+			}));
+		}
+	}, [visitorFormAccess]);
+
+	const handleVisitorFormAccess = useCallback(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			visitorFormAccess: {
+				...visitorFormAccess,
+				isEnabled: !prevInfo?.visitorFormAccess?.isEnabled,
+			},
+		}));
+		const payload = {
+			isEnabled: !info?.visitorFormAccess?.isEnabled,
+		};
+		editVisitorFormAccess(payload, galleryId);
+	}, []);
+
+	const handleGalleryProtection = useCallback(() => {
+		const payload = {
+			canClientDownloadOriginals: true,
+			canClientDownloadOptimized: false,
+		};
+	}, []);
+
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} modalType={'right'}>
 			<div className="shareMainContainer">
@@ -52,7 +97,10 @@ const ShareModal = ({ open, closeModal }) => {
 					<p>Visitors Details Form</p>
 					<div className="toggleContainer">
 						<div style={{ width: '32px' }}>
-							<ToggleSlider />
+							<ToggleSlider
+								value={info?.visitorFormAccess?.isEnabled}
+								onChange={handleVisitorFormAccess}
+							/>
 						</div>
 						<p>
 							If enabled, guests will be required to input their name, email ID, and
