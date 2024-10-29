@@ -1,10 +1,19 @@
 import React, { memo, useState } from 'react';
 import '../../../assets/scss/sales/activity/modalSessionComponents.scss';
 import DoughnutChart from '../../components/activity/DoughnutChart.jsx';
-import DotSvg from '../../../assets/svg/activity/DotSvg.jsx';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
 import { ReactComponent as RightSvg } from '../../../assets/svg/activity/right.svg';
+import DotSvg from '../../../assets/svg/activity/DotSvg.jsx';
 import { ReactComponent as GallerySvg } from '../../../assets/svg/activity/galleryIcon.svg';
+import { ReactComponent as HeaderSvg } from '../../../assets/svg/activity/header.svg';
+import { ReactComponent as TextSvg } from '../../../assets/svg/activity/text.svg';
+import { ReactComponent as ImageSvg } from '../../../assets/svg/activity/image.svg';
+import { ReactComponent as ListSvg } from '../../../assets/svg/activity/list.svg';
+import { ReactComponent as TestimonialSvg } from '../../../assets/svg/activity/testimonial.svg';
+import { ReactComponent as LinkInteractionSvg } from '../../../assets/svg/activity/linkInteraction.svg';
+import { ReactComponent as BlockUnfoldSvg } from '../../../assets/svg/activity/blockUnfold.svg';
+import { ReactComponent as QuoteChangedSvg } from '../../../assets/svg/activity/money.svg';
+import { ReactComponent as ButtonInteractionSvg } from '../../../assets/svg/activity/buttonIteraction.svg';
 import Skeleton from 'react-loading-skeleton';
 import Spinner from '../loaders/Spinner.jsx';
 
@@ -40,6 +49,21 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 				? { ...item, totalInteractionsCount: item.totalCount }
 				: item,
 		);
+	};
+
+	const labelsItemIconMapper = {
+		text: <TextSvg />,
+		image: <GallerySvg />,
+		header: <HeaderSvg />,
+		list: <ListSvg />,
+		video: <ImageSvg />,
+		gallery: <GallerySvg />,
+		testimonial: <TestimonialSvg />,
+		buttonInteraction: <ButtonInteractionSvg />,
+		linkInteraction: <LinkInteractionSvg />,
+		blockUnfolded: <BlockUnfoldSvg />,
+		quoteChanged: <QuoteChangedSvg />,
+		moduleNavigation: <ButtonInteractionSvg />,
 	};
 	return (
 		<div className="sessionDetailsWrapper">
@@ -176,7 +200,10 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 														/>
 													</div>
 													<div className="selectedBlockSvg">
-														<GallerySvg />
+														{labelsItemIconMapper[item.sectionType] ||
+															labelsItemIconMapper[
+																item.interactionType
+															] || <TestimonialSvg />}
 													</div>
 													<div>{item.content}</div>
 												</div>
