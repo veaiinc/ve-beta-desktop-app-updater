@@ -65,6 +65,10 @@ const actionHandlers = {
 		...state,
 		lightroomCopyList: action.payload,
 	}),
+	GET_IMAGE_DETAIL: (state, action) => ({
+		...state,
+		imageDetail: action.payload,
+	}),
 	RESET_IMAGES_LIST: (state) => ({ ...state, imagesList: null }),
 	RESET_STATE: () => ({ ...intialState }),
 };

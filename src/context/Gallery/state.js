@@ -20,6 +20,7 @@ export const intialState = {
 	albumDetails: null,
 	imagesList: null,
 	lightroomCopyList: null,
+	imageDetail: null,
 };
 
 export const Galleries = () => {
@@ -170,6 +171,8 @@ export const Galleries = () => {
 					payload: { galleryId, list: response?.[1] },
 				});
 			}
+
+			return response;
 		} catch (error) {
 			console.log('error==>getTags', error);
 		}
@@ -653,6 +656,47 @@ export const Galleries = () => {
 			console.log('error==>updateTagOrder', error);
 		}
 	};
+
+	const getImageDetail = async (imageId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/gallery-images/${imageId}`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_IMAGE_DETAIL,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getImageDetail', error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/cover-image
+	const updateAlbumCoverImage = async (json, galleryId, albumId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.albums}/${albumId}${API.GALLERY.coverImage}`,
+				json,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				return response;
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateAlbumCoverImage', error);
+		}
+	};
 	return {
 		...state,
 		getGalleries,
@@ -687,5 +731,7 @@ export const Galleries = () => {
 		getGalleryCredentials,
 		getGalleryImages,
 		getLightroomCopyList,
+		getImageDetail,
+		updateAlbumCoverImage,
 	};
 };
