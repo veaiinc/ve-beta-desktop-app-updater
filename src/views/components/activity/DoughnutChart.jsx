@@ -2,19 +2,23 @@ import React, { memo } from 'react';
 import { PieChart, Pie, Cell, Tooltip } from 'recharts';
 
 const DoughnutChart = ({ scrollClass = '', statsData, title, COLORS }) => {
-	const dataKey = title === 'Interactions' ? 'totalInteractionsCount' : 'duration';
+	const renderCustomizedLabel = ({ payload }) => {
+		return `${JSON.stringify(payload.percentage)} %`;
+	};
+
 	return (
 		<PieChart width={390} height={300} className={`ringChart ${scrollClass}`}>
 			<Pie
 				data={statsData}
-				// cx={200}
-				// cy={200}
+				cx={170}
+				cy={150}
 				innerRadius={100}
-				outerRadius={140}
+				outerRadius={130}
 				fill="#8884d8"
 				paddingAngle={1}
-				dataKey={dataKey}
-				label={true}
+				// dataKey={dataKey}
+				dataKey="percentage"
+				label={renderCustomizedLabel}
 				animationDuration={400}
 				animationEasing="ease-in-out"
 			>

@@ -65,7 +65,7 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer, formatT
 			return {
 				...prevState,
 				currentSessionIndex: newIndex,
-				currentSessionId: prevState.sessionIds[newIndex], // Update currentSessionId
+				currentSessionId: prevState.sessionIds[newIndex],
 			};
 		});
 	};

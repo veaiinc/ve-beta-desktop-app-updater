@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useState, useCallback, useEffect } from 'react';
 import '../../../assets/scss/sales/activity/activityComponents.scss';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
 import { ReactComponent as RightSvg } from '../../../assets/svg/activity/right.svg';
@@ -21,8 +21,64 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 	const [info, setInfo] = useState({
 		isLabelSelected: true,
 		activeLabelItem: null,
-		COLORS: ['#FFCE56', '#FF9F40', '#36A2EB', '#9966FF', '#FF6384'],
+		labelsData: [],
+		labelItemsData: [],
+		COLORS: [
+			'#FFCE56',
+			'#FF9F40',
+			'#36A2EB',
+			'#9966FF',
+			'#FF6384',
+			'#a34f72',
+			'#3e8cd2',
+			'#f2c94c',
+			'#e7638c',
+			'#61c56a',
+		],
 	});
+
+	useEffect(() => {
+		// Function to determine the total based on title
+		const calculateTotal = (data, field) =>
+			data?.reduce((total, item) => total + (item[field] || 0), 0);
+
+		// Calculate total for labelsData based on title
+		const labelsTotal =
+			title === 'Time Spent'
+				? calculateTotal(labelsData, 'duration')
+				: calculateTotal(labelsData, 'totalInteractionsCount');
+
+		// Add percentages to labelsData items based on title
+		const labelsDataWithPercentages = labelsData?.map((item) => ({
+			...item,
+			percentage:
+				title === 'Time Spent'
+					? Number(((item.duration / labelsTotal) * 100).toFixed(2))
+					: Number(((item.totalInteractionsCount / labelsTotal) * 100).toFixed(2)),
+		}));
+
+		// Calculate total for labelItemsData based on title
+		const labelItemsTotal =
+			title === 'Time Spent'
+				? calculateTotal(labelItemsData, 'duration')
+				: calculateTotal(labelItemsData, 'totalCount');
+
+		// Add percentages to labelItemsData items based on title
+		const labelItemsDataWithPercentages = labelItemsData?.map((item) => ({
+			...item,
+			percentage:
+				title === 'Time Spent'
+					? Number(((item.duration / labelItemsTotal) * 100).toFixed(2))
+					: Number(((item.totalCount / labelItemsTotal) * 100).toFixed(2)),
+		}));
+
+		// Update state with calculated data
+		setInfo((prevState) => ({
+			...prevState,
+			labelsData: labelsDataWithPercentages,
+			labelItemsData: labelItemsDataWithPercentages,
+		}));
+	}, [title, labelsData, labelItemsData]);
 
 	const handleShowLabels = () => {
 		setInfo((prevState) => ({
@@ -92,7 +148,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 						{info?.isLabelSelected ? (
 							//LablesItewmRows ==>
 							<div className="lablesContainer">
-								{!labelsData || labelsData === 0
+								{!info?.labelsData || info?.labelsData.length === 0
 									? // Fallback UI when labelsData is empty
 									  [{}, {}, {}].map((ele, index) => (
 											<Skeleton
@@ -102,7 +158,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 											/>
 									  ))
 									: // Render the data when labelsData is not empty
-									  labelsData?.map((item, index) => (
+									  info?.labelsData?.map((item, index) => (
 											<div
 												key={index}
 												className="lableItemRow"
@@ -129,7 +185,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 
 													<div className="percentageWithArrow">
 														<span className="percentageValue">
-															{item?.percentage || '%'}
+															{`${item?.percentage} %` || '%'}
 														</span>
 														<span className="downArrow">
 															<DownSvg />
@@ -161,7 +217,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 											</div>
 											<div className="percentageWithArrow">
 												<span className="percentageValue">
-													{info?.activeLabelItem?.percentage || '%'}
+													{`${info?.activeLabelItem?.percentage} %`}
 												</span>
 												<span className="rightArrow">
 													<RightSvg />
@@ -170,7 +226,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 										</div>
 									</div>
 								}
-								{!labelItemsData || labelItemsData.length === 0
+								{!info?.labelItemsData || info?.labelItemsData.length === 0
 									? // Fallback UI when labelItemsData is empty
 									  [{}, {}, {}].map((ele, index) => (
 											<Skeleton
@@ -180,7 +236,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 											/>
 									  ))
 									: // Render the Internal Data when labelItemsData is not empty
-									  labelItemsData
+									  info?.labelItemsData
 											.filter(
 												(item) =>
 													item?.moduleType ===
@@ -214,7 +270,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 														</div>
 														<div className="percentageWithArrow">
 															<span className="percentageValue">
-																{item?.percentage || '%'}
+																{`${item?.percentage} %`}
 															</span>
 														</div>
 													</div>
@@ -225,7 +281,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 					</div>
 
 					<div className="metricsChartWrapper">
-						{!labelsData || !labelsData ? (
+						{!info?.labelsData || !info?.labelsData ? (
 							<Spinner width={'50px'} height={'50px'} />
 						) : (
 							<DoughnutChart
@@ -234,8 +290,8 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 								}
 								statsData={
 									info?.isLabelSelected
-										? labelsData
-										: transformLabelItemsData(labelItemsData)
+										? info?.labelsData
+										: transformLabelItemsData(info?.labelItemsData)
 								}
 								title={title}
 								COLORS={info?.COLORS}

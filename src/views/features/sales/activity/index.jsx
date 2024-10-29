@@ -17,8 +17,6 @@ const ActivityDashboard = () => {
 	const {
 		activityInfo: { activityData, getSmartFileActivity, getSmartFileViewers, viewersList },
 	} = useContext(Context);
-	// console.log('activityData: ' + activityData);
-	// console.log('viewersList: ' + JSON.stringify(viewersList, null, 2));
 
 	//States
 	const [info, setInfo] = useState({
