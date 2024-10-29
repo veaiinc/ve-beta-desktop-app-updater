@@ -6,6 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import ContextState from './context/ContextStates';
 import './assets/fonts/Inter/inter.css';
 import './assets/fonts/brasley/brasley.css';
+import './assets/fonts/brasley/brasley.css';
 import './assets/scss/global.scss';
 import './index.css';
 
