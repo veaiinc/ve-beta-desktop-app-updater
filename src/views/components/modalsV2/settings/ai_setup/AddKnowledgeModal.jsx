@@ -1,4 +1,4 @@
-import { memo, useState, useContext } from 'react';
+import { memo, useState, useContext, useEffect } from 'react';
 import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/cross-grey.svg';
 import { ReactComponent as LinkPurple } from '../../../../../assets/svg/Settings/link-purple-color.svg';
 import { ReactComponent as LinkGrey } from '../../../../../assets/svg/Settings/link-grey-color.svg';
@@ -37,23 +37,37 @@ const knowledgeFileTypes = [
 	},
 ];
 
+const initialState = {
+	activeFileType: knowledgeFileTypes?.[0]?.value,
+	inputURL: '',
+	urlsInfo: [],
+	pdfFilesInfo: [],
+	customTextInfo: {
+		filename: '',
+		fileContent: '',
+	},
+	isUploading: false,
+	currentPage: 1,
+};
+
 const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 	let {
-		aiSetup: { uploadURLsToKnowledgeBase, uploadPDFsToKnowledgeBase },
+		aiSetup: {
+			knowledgeBaseFiles,
+			getKnowledgeBaseFiles,
+			uploadURLsToKnowledgeBase,
+			uploadPDFsToKnowledgeBase,
+		},
 	} = useContext(Context);
 	const { aiAssistantId } = useParams();
+	const [info, setInfo] = useState(initialState);
 
-	const [info, setInfo] = useState({
-		activeFileType: knowledgeFileTypes?.[0]?.value,
-		inputURL: '',
-		urlsInfo: [],
-		pdfFilesInfo: [],
-		customTextInfo: {
-			filename: '',
-			fileContent: '',
-		},
-		isUploading: false,
-	});
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			currentPage: knowledgeBaseFiles?.currentPage,
+		}));
+	}, [knowledgeBaseFiles]);
 
 	const handleSetAllUploadedPDFFiles = (e) => {
 		const files = Array.from(e?.target?.files);
@@ -67,7 +81,6 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 				return;
 			}
 			const fileAlreadyUploaded = info?.pdfFilesInfo?.some((pdf) => {
-				console.log('Comparision', pdf.name, ':', file.name);
 				return pdf?.name === file?.name;
 			});
 			if (fileAlreadyUploaded) {
@@ -93,8 +106,14 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 			}
 			setInfo((prev) => ({ ...prev, isUploading: true }));
 			const statusSummary = await uploadURLsToKnowledgeBase(aiAssistantId, info?.urlsInfo);
+			setInfo((prev) => ({
+				...prev,
+				urlsInfo: [],
+			}));
 			if (statusSummary?.[0]) {
 				message.success('URLs uploaded successfully!', 1);
+				toggleModal();
+				getKnowledgeBaseFiles(1, 10, true);
 			}
 		} else if (info?.activeFileType === 'pdf') {
 			if (info?.pdfFilesInfo?.length === 0) {
@@ -104,8 +123,14 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 			setInfo((prev) => ({ ...prev, isUploading: true }));
 			const files = info?.pdfFilesInfo;
 			const statusSummary = await uploadPDFsToKnowledgeBase(aiAssistantId, files);
+			setInfo((prev) => ({
+				...prev,
+				pdfFilesInfo: [],
+			}));
 			if (statusSummary?.[0]) {
 				message.success('PDF Files uploaded successfully!', 1);
+				toggleModal();
+				getKnowledgeBaseFiles(1, 10, true);
 			}
 		} else if (info?.activeFileType === 'customText') {
 			if (info?.customTextInfo?.filename === '') {
@@ -121,8 +146,17 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 				type: 'text/plain',
 			});
 			const statusSummary = await uploadPDFsToKnowledgeBase(aiAssistantId, [file]);
+			setInfo((prev) => ({
+				...prev,
+				customTextInfo: {
+					filename: '',
+					fileContent: '',
+				},
+			}));
 			if (statusSummary?.[0]) {
 				message.success('Text File uploaded successfully!', 1);
+				toggleModal();
+				getKnowledgeBaseFiles(1, 10, true);
 			}
 		}
 		setInfo((prev) => ({ ...prev, isUploading: false }));
