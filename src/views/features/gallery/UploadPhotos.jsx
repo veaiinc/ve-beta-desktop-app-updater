@@ -42,7 +42,7 @@ const UploadPhotos = () => {
 		startedUploading: false,
 		uploadImages: {},
 		uploadSize: 0, // kb
-		uploadLimit: 8,
+		uploadLimit: 5,
 		currentUpload: 1,
 		recentImageInitiated: null,
 		isSkipDuplicates: false,
@@ -238,6 +238,7 @@ const UploadPhotos = () => {
 	const uploadFilesConcurrently = async () => {
 		const queue = Object.keys(info.uploadImages);
 		const activeUploads = [];
+		let totalImages = Object.keys(info.uploadImages || {}).length;
 
 		setinfo((prev) => ({
 			...prev,
@@ -247,38 +248,57 @@ const UploadPhotos = () => {
 		const interval = setInterval(async () => {
 			const response = await getImageUploadStatus(galleryId, albumId, info?.uploadBatchID);
 			const { processedCount, uploadedCount } = response[1];
-			console.log(response[1]);
-			const result =
-				Object.values(info.uploadImages || {}).length ===
-				Object.values(info.uploadImages || {}).filter((image) => image.isDuplicate).length
-					? 100
-					: parseInt(
-							(Object.values(info?.uploadImages || {}).filter(
-								(image) => image?.isUploaded,
-							).length /
-								(info?.uploadImages?.length -
-									(info?.isSkipDuplicates
-										? Object.values(info?.uploadImages).filter(
-												(image) => image?.isDuplicate,
-										  ).length
-										: 0))) *
-								50,
-					  ) +
-					  parseInt(
-							(processedCount /
-								(info?.uploadImages?.length -
-									(info?.isSkipDuplicates
-										? Object.values(info?.uploadImages || {}).filter(
-												(image) => image?.isDuplicate,
-										  )?.length
-										: 0))) *
-								50,
-					  );
+			// console.log(response[1]);
+			// const result =
+			// 	Object.values(info.uploadImages || {}).length ===
+			// 	Object.values(info.uploadImages || {}).filter((image) => image.isDuplicate).length
+			// 		? 100
+			// 		: parseInt(
+			// 				(Object.values(info?.uploadImages || {}).filter(
+			// 					(image) => image?.isUploaded,
+			// 				).length /
+			// 					(info?.uploadImages?.length -
+			// 						(info?.isSkipDuplicates
+			// 							? Object.values(info?.uploadImages).filter(
+			// 									(image) => image?.isDuplicate,
+			// 							  ).length
+			// 							: 0))) *
+			// 					50,
+			// 		  ) +
+			// 		  parseInt(
+			// 				(processedCount /
+			// 					(info?.uploadImages?.length -
+			// 						(info?.isSkipDuplicates
+			// 							? Object.values(info?.uploadImages || {}).filter(
+			// 									(image) => image?.isDuplicate,
+			// 							  )?.length
+			// 							: 0))) *
+			// 					50,
+			// 		  );
 
-			console.log(result, 'result');
+			let result = 0;
+			let shouldClearInterval = false;
+
+			if (info?.isSkipDuplicates && totalImages === info?.duplciatesFound) {
+				result = 100;
+				shouldClearInterval = true;
+			} else if (info?.isSkipDuplicates && totalImages !== info?.duplciatesFound) {
+				let totalImagesWithoutDuplicates = totalImages - info?.duplciatesFound;
+				result =
+					processedCount > 0
+						? parseInt((processedCount / totalImagesWithoutDuplicates) * 100)
+						: 0;
+			} else {
+				result = processedCount > 0 ? parseInt((processedCount / totalImages) * 100) : 0;
+			}
+
+			if (result === 100) {
+				shouldClearInterval = true;
+			}
+
 			setinfo((prev) => ({ ...prev, uploadStatus: response[1], overAllProgress: result }));
 
-			if (response[1].processedCount === response[1].uploadedCount) {
+			if (response[1].processedCount === response[1].uploadedCount && shouldClearInterval) {
 				clearInterval(interval);
 				setinfo((prev) => ({ ...prev, isPopupOpen: true }));
 			}
@@ -323,7 +343,7 @@ const UploadPhotos = () => {
 			}
 		};
 
-		for (let i = 0; i < 8 && queue.length > 0; i++) {
+		for (let i = 0; i < info.uploadLimit && queue.length > 0; i++) {
 			nextUploadFunc();
 		}
 
