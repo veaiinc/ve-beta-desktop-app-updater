@@ -785,6 +785,40 @@ export const Galleries = () => {
 			console.log('error==>shareGalleryViaEmail', error);
 		}
 	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}
+	const deleteAlbum = async (galleryId, albumId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchDelete(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.albums}/${albumId}`,
+				usertoken,
+				null,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>deleteAlbum', error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }} DELETE METHOD
+	const deleteGallery = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchDelete(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}`,
+				usertoken,
+				null,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>deleteGallery', error);
+		}
+	};
 	return {
 		...state,
 		getGalleries,
@@ -828,5 +862,7 @@ export const Galleries = () => {
 		shareGalleryViaEmail,
 		updateTagOrder,
 		setAlbumCoverImage,
+		deleteAlbum,
+		deleteGallery,
 	};
 };

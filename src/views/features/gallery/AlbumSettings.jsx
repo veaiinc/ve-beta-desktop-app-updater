@@ -5,7 +5,6 @@ import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { ReactComponent as CopyLogo } from '../../../assets/svg/gallery/copy.svg';
 import { ReactComponent as SaveLogo } from '../../../assets/svg/gallery/save.svg';
 import { ReactComponent as GalleryLogo } from '../../../assets/svg/gallery/gallery.svg';
-import { ReactComponent as DeleteLogo } from '../../../assets/svg/gallery/delete.svg';
 import { ReactComponent as LaptopLogo } from '../../../assets/svg/gallery/laptop.svg';
 import mobile from '../../../assets/svg/gallery/mobile.png';
 import Context from '../../../context/context';
@@ -15,6 +14,7 @@ import Cropper from 'react-easy-crop';
 import moment from 'moment';
 import randomize from 'randomatic';
 import axios from 'axios';
+import DeleteAlbmumComponent from '../../components/gallery/albumSettings/DeleteAlbmumComponent';
 
 const AlbumSettings = () => {
 	const navigate = useNavigate();
@@ -39,6 +39,7 @@ const AlbumSettings = () => {
 			galleryCredentials,
 			getGalleryCredentials,
 			updateAlbumCoverImage,
+			deleteAlbum,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -522,22 +523,14 @@ const AlbumSettings = () => {
 							)}
 						</div>
 					</div>
+
 					<div id="delete-album" className="settings-container">
-						<div className="delete-container">
-							<div style={{ padding: '4px' }}>
-								<DeleteLogo />
-							</div>
-							<div className="delete-content">
-								<p className="title">Delete Album</p>
-								<p className="subtitle">
-									You cannot undo this. All your albums and information will be
-									lost.
-								</p>
-								<div className="delete">
-									<p>Delete permanently</p>
-								</div>
-							</div>
-						</div>
+						<DeleteAlbmumComponent
+							albumName={info?.activeAlbumName}
+							deleteAlbum={deleteAlbum}
+							galleryId={galleryId}
+							albumId={info?.activeAlbumId}
+						/>
 					</div>
 				</div>
 

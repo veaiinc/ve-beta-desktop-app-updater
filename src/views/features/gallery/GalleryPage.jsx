@@ -29,6 +29,7 @@ import { updateProposalQuery } from '../../../context/Templates/graphQlFunctions
 import { getInitials } from '../../../helpers/index';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import DeleteGalleryComponent from '../../components/gallery/gallerySettings/DeleteGalleryComponent';
 
 const imageURL = 'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg';
 const image1 =
@@ -98,6 +99,7 @@ const GalleryPage = () => {
 
 			updateCollaborators,
 			basicAlbumDetails,
+			deleteGallery,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -1488,12 +1490,13 @@ const GalleryPage = () => {
 								</div>
 							</div>
 							<div id="delete" className="settings-overview">
-								<p className="heading">Delete Gallery </p>
-								<p className="subTitle">
-									You cannot undo this. All your albums and information will be
-									lost.
-								</p>
-								<p className="deletePermanently">Delete permanently</p>
+								{console.log(tenantAlbums)}
+								<DeleteGalleryComponent
+									galleryName={tenantAlbums?.title || ''}
+									galleryId={galleryId}
+									albumId={info?.activeGallery?.galleryData?._id}
+									deleteGallery={deleteGallery}
+								/>
 							</div>
 						</div>
 						<div className="settingsNavContianer">
