@@ -76,7 +76,9 @@
 						height: 70%;
 						position: relative;
 						object-fit: cover;
-						transition: width 0.5s ease-in-out, height 0.5s ease-in-out;
+						transition:
+							width 0.5s ease-in-out,
+							height 0.5s ease-in-out;
 					}
 					.album-side-options {
 						display: none;
@@ -363,6 +365,7 @@
 								font-weight: 400;
 								line-height: 16px;
 								text-transform: capitalize;
+								cursor: pointer;
 							}
 						}
 					}
@@ -639,8 +642,7 @@
 					height: 160px;
 					border-radius: 8px;
 					border: 1px solid #2a2a2a;
-					background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%),
-						#1d1d1d;
+					background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%), #1d1d1d;
 					.uploadIcon {
 						width: 16px;
 						height: 11px;
@@ -1338,4 +1340,23 @@
 			}
 		}
 	}
+}
+
+.rearrange-image-container {
+	border: 2px solid transparent;
+	transition: all 0.2s;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.rearrange-image-container.selected {
+	border-color: #007bff;
+}
+
+.rearrange-image-container:hover {
+	transform: scale(1.02);
+}
+
+.rearrange-image-container.dragging {
+	opacity: 0.5;
 }

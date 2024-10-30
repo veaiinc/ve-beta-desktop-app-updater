@@ -141,7 +141,10 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 								value={`https://${workspaceId}.ve.ai/galleries/${activeGallery?.slug}`}
 							/>
 							<div>
-								<Copy onClick={handleCopyGalleryLink} />
+								<Copy
+									onClick={handleCopyGalleryLink}
+									style={{ cursor: 'pointer' }}
+								/>
 							</div>
 						</div>
 						<div className="shareViaMail">

@@ -568,7 +568,7 @@ export const Galleries = () => {
 			console.log('error==>getGalleryCredentials', error);
 		}
 	};
-	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/images  ==> to get the images
+	// `// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/images  ==> to get the images`;
 	const getGalleryImages = async (
 		galleryId,
 		albumId,
@@ -819,6 +819,7 @@ export const Galleries = () => {
 			console.log('error==>deleteGallery', error);
 		}
 	};
+
 	return {
 		...state,
 		getGalleries,

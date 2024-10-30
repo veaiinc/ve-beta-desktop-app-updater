@@ -139,6 +139,9 @@ const GalleryPage = () => {
 		draggedImages: [],
 		imagesList: imagesList,
 		isRearranging: false,
+		clientSubscription: tenantPreferences?.allowClientsToSubscribe || false,
+		dragPreviewPosition: null,
+		insertIndex: null,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -204,6 +207,7 @@ const GalleryPage = () => {
 			setInfo((prev) => ({
 				...prev,
 				callToAction: tenantPreferences?.ctaPreferences,
+				clientSubscription: tenantPreferences?.allowClientsToSubscribe || false,
 			}));
 		}
 	}, [tenantPreferences, tenantAlbums]);
@@ -423,6 +427,20 @@ const GalleryPage = () => {
 		editPreferences(galleryId, payload);
 	}, [getEditPreferences, info.callToAction?.isEnabled]);
 
+	const handleClientSubscription = useCallback(
+		(value) => {
+			setInfo((prev) => ({
+				...prev,
+				clientSubscription: value,
+			}));
+			const payload = {
+				allowClientsToSubscribe: value,
+			};
+			editPreferences(galleryId, payload);
+		},
+		[getEditPreferences, info?.clientSubscription],
+	);
+
 	const handleLinkChange = useCallback(
 		(e) => {
 			const value = e.target.value;
@@ -587,17 +605,97 @@ const GalleryPage = () => {
 		}));
 	};
 
-	const handleDragStart = (result) => {
+	// const handleDragStart = (result) => {
+	// 	const selectedIndexes = info.selectedImages;
+
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		isDragging: true,
+	// 		draggedImages: selectedIndexes,
+	// 	}));
+	// };
+
+	// // Add this new function to handle drag end
+	// const handleDragEnd = (result) => {
+	// 	if (!result.destination) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			isDragging: false,
+	// 			draggedImages: [],
+	// 			selectedImages: [],
+	// 		}));
+	// 		return;
+	// 	}
+	// 	const images = [...info?.imagesList?.docs];
+
+	// 	const selectedImages = info.draggedImages.map((index) => images[index]);
+
+	// 	const sortedIndices = [...info.draggedImages].sort((a, b) => b - a);
+
+	// 	// Remove images from their original positions
+	// 	sortedIndices.forEach((index) => {
+	// 		images.splice(index, 1);
+	// 	});
+
+	// 	const destinationIndex = result.destination.index;
+
+	// 	images.splice(destinationIndex, 0, ...selectedImages);
+
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		isDragging: false,
+	// 		draggedImages: [],
+	// 		selectedImages: [],
+	// 		imagesList: {
+	// 			...prev.imagesList,
+	// 			docs: images,
+	// 		},
+	// 	}));
+	// };
+	const handleDragStart = (start, provided) => {
 		const selectedIndexes = info.selectedImages;
 
 		setInfo((prev) => ({
 			...prev,
 			isDragging: true,
 			draggedImages: selectedIndexes,
+			// dragPreviewPosition: null,
+			insertIndex: null,
 		}));
+
+		// Add mousemove event listener
+		document.addEventListener('mousemove', handleDragMove);
 	};
 
-	// Add this new function to handle drag end
+	// Add handleDragMove function
+	const handleDragMove = (e) => {
+		// Get the element under the cursor
+		const elementsUnderCursor = document.elementsFromPoint(e.clientX, e.clientY);
+
+		// Find the closest image container
+		const imageContainer = elementsUnderCursor.find((el) =>
+			el.closest('.masonry-image-container'),
+		);
+
+		if (imageContainer) {
+			const rect = imageContainer.getBoundingClientRect();
+			const index = parseInt(imageContainer.dataset.index);
+
+			// Determine if cursor is in first or second half of the image
+			const isInFirstHalf = e.clientY < rect.top + rect.height / 2;
+			const insertPosition = isInFirstHalf ? index : index + 1;
+
+			setInfo((prev) => ({
+				...prev,
+				insertIndex: insertPosition,
+				dragPreviewPosition: {
+					x: e.clientX,
+					y: isInFirstHalf ? rect.top : rect.bottom,
+				},
+			}));
+		}
+	};
+
 	const handleDragEnd = (result) => {
 		if (!result.destination) {
 			setInfo((prev) => ({
@@ -608,10 +706,9 @@ const GalleryPage = () => {
 			}));
 			return;
 		}
+
 		const images = [...info?.imagesList?.docs];
-
 		const selectedImages = info.draggedImages.map((index) => images[index]);
-
 		const sortedIndices = [...info.draggedImages].sort((a, b) => b - a);
 
 		// Remove images from their original positions
@@ -619,8 +716,8 @@ const GalleryPage = () => {
 			images.splice(index, 1);
 		});
 
+		// Insert images at the new position
 		const destinationIndex = result.destination.index;
-
 		images.splice(destinationIndex, 0, ...selectedImages);
 
 		setInfo((prev) => ({
@@ -633,10 +730,49 @@ const GalleryPage = () => {
 				docs: images,
 			},
 		}));
-
-		// Here you could also make an API call to persist the new order
-		// updateImagesOrder(galleryId, images.map(img => img._id));
 	};
+
+	const handleCopyGalleryLink = () => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		navigator.clipboard.writeText(
+			`https://${workspaceId}.ve.ai/galleries/${info?.activeGallery?.slug}`,
+		);
+		message.success('Gallery link copied to clipboard');
+		setInfo((prev) => ({
+			...prev,
+			showOptions: !prev.showOptions,
+		}));
+	};
+	// const handleDragEnd = (e, dropIndex) => {
+	// 	e.preventDefault();
+
+	// 	if (!info.isDragging) return;
+
+	// 	const images = [...info?.imagesList?.docs];
+	// 	const selectedImages = info.draggedImages.map((index) => images[index]);
+	// 	const sortedIndices = [...info.draggedImages].sort((a, b) => b - a);
+
+	// 	// Remove images from their original positions
+	// 	sortedIndices.forEach((index) => {
+	// 		images.splice(index, 1);
+	// 	});
+
+	// 	// Insert images at the new position
+	// 	images.splice(dropIndex, 0, ...selectedImages);
+
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		isDragging: false,
+	// 		draggedImages: [],
+	// 		selectedImages: [],
+	// 		imagesList: {
+	// 			...prev.imagesList,
+	// 			docs: images,
+	// 		},
+	// 	}));
+
+	// 	// Here you can add API call to update the order in backend
+	// };
 	return (
 		<>
 			<div className="galleryContainer">
@@ -698,9 +834,9 @@ const GalleryPage = () => {
 											ref={optionsRef}
 											onClick={(e) => e.stopPropagation()}
 										>
-											<li>Preview</li>
-											<li>Copy link</li>
-											<li>Share</li>
+											<li style={{ cursor: 'not-allowed' }}>Preview</li>
+											<li onClick={handleCopyGalleryLink}>Copy link</li>
+											<li onClick={openShareModal}>Share</li>
 											<li>Unpublish</li>
 										</div>
 									)}
@@ -820,7 +956,7 @@ const GalleryPage = () => {
 									</div>
 								</div>
 								<div className="albumSearchCotainer">
-									<p onClick={handleRearrange} style={{ cursor: 'pointer' }}>
+									{/* <p onClick={handleRearrange} style={{ cursor: 'pointer' }}>
 										Rearrange manually
 									</p>
 									<div
@@ -862,7 +998,7 @@ const GalleryPage = () => {
 												<li>Random</li>
 											</div>
 										)}
-									</div>
+									</div> */}
 								</div>
 							</div>
 							<div className="albumContains">
@@ -1053,9 +1189,9 @@ const GalleryPage = () => {
 										>
 											<Droppable
 												droppableId="masonry-grid"
-												direction="vertical"
+												direction="horizontal"
 											>
-												{(provided) => (
+												{(provided, snapshot) => (
 													<div
 														{...provided.droppableProps}
 														ref={provided.innerRef}
@@ -1074,7 +1210,7 @@ const GalleryPage = () => {
 																		const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 																		const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
 
-																		// Skip rendering if image is being dragged
+																		// Hide original items while being dragged
 																		if (
 																			info.isDragging &&
 																			info.draggedImages.includes(
@@ -1085,63 +1221,110 @@ const GalleryPage = () => {
 																		}
 
 																		return (
-																			<Draggable
-																				key={
-																					image._id ||
-																					index
-																				}
-																				draggableId={
-																					image._id ||
-																					`image-${index}`
-																				}
-																				index={index}
-																				isDragDisabled={
-																					!info.selectedImages.includes(
-																						index,
-																					)
-																				}
-																			>
-																				{(
-																					provided,
-																					snapshot,
-																				) => (
-																					<div
-																						ref={
-																							provided.innerRef
-																						}
-																						{...provided.draggableProps}
-																						{...provided.dragHandleProps}
-																						className={`${
-																							info.selectedImages.includes(
-																								index,
-																							)
-																								? 'selected'
-																								: ''
-																						} ${
-																							snapshot.isDragging
-																								? 'dragging'
-																								: ''
-																						}`}
-																						onClick={() =>
-																							handleImageSelect(
-																								index,
-																							)
-																						}
-																					>
-																						<img
-																							src={
-																								src
-																							}
-																							alt={`Gallery image ${index}`}
+																			<>
+																				{info.insertIndex ===
+																					index &&
+																					info.isDragging && (
+																						<div
+																							className="drop-preview"
 																							style={{
-																								width: '100%',
-																								display:
-																									'block',
+																								height: '4px',
+																								background:
+																									'#007bff',
+																								margin: '8px 0',
+																								transition:
+																									'all 0.2s',
 																							}}
 																						/>
-																					</div>
-																				)}
-																			</Draggable>
+																					)}
+																				<Draggable
+																					key={
+																						image._id ||
+																						`image-${index}`
+																					}
+																					draggableId={
+																						image._id ||
+																						`image-${index}`
+																					}
+																					index={index}
+																					isDragDisabled={
+																						!info.selectedImages.includes(
+																							index,
+																						)
+																					}
+																				>
+																					{(
+																						provided,
+																						snapshot,
+																					) => (
+																						<div
+																							ref={
+																								provided.innerRef
+																							}
+																							{...provided.draggableProps}
+																							{...provided.dragHandleProps}
+																							className="masonry-image-container"
+																							data-index={
+																								index
+																							}
+																							style={{
+																								...provided
+																									.draggableProps
+																									.style,
+																								position:
+																									'relative',
+																								transition:
+																									'all 0.2s',
+																								opacity:
+																									snapshot.isDragging
+																										? 0.8
+																										: 1,
+																								cursor: snapshot.isDragging
+																									? 'grabbing'
+																									: 'pointer',
+																								border: info.selectedImages.includes(
+																									index,
+																								)
+																									? '2px solid #007bff'
+																									: 'none',
+																								borderRadius:
+																									'4px',
+																								overflow:
+																									'hidden',
+																								transform:
+																									snapshot.isDragging
+																										? `${provided.draggableProps.style.transform} scale(1.02)`
+																										: provided
+																												.draggableProps
+																												.style
+																												.transform,
+																							}}
+																						>
+																							<img
+																								src={
+																									src
+																								}
+																								alt={`Gallery image ${index}`}
+																								style={{
+																									width: '100%',
+																									display:
+																										'block',
+																									pointerEvents:
+																										info.isDragging
+																											? 'none'
+																											: 'auto',
+																								}}
+																								onClick={() =>
+																									!info.isDragging &&
+																									handleImageSelect(
+																										index,
+																									)
+																								}
+																							/>
+																						</div>
+																					)}
+																				</Draggable>
+																			</>
 																		);
 																	},
 																)}
@@ -1151,7 +1334,103 @@ const GalleryPage = () => {
 													</div>
 												)}
 											</Droppable>
+
+											{/* Drag Preview */}
+											{info.isDragging && info.draggedImages.length > 0 && (
+												<div
+													style={{
+														position: 'fixed',
+														left: info.dragPreviewPosition?.x || 0,
+														top: info.dragPreviewPosition?.y || 0,
+														transform: 'translate(-50%, -50%)',
+														pointerEvents: 'none',
+														zIndex: 9999,
+														display: 'flex',
+														gap: '4px',
+													}}
+												>
+													{info.draggedImages.map((index) => {
+														const image = info?.imagesList?.docs[index];
+														const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+														const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+
+														return (
+															<img
+																key={index}
+																src={src}
+																alt="Drag Preview"
+																style={{
+																	width: '100px',
+																	height: '100px',
+																	objectFit: 'cover',
+																	opacity: 0.8,
+																	borderRadius: '4px',
+																	boxShadow:
+																		'0 2px 8px rgba(0,0,0,0.2)',
+																}}
+															/>
+														);
+													})}
+												</div>
+											)}
 										</DragDropContext>
+										// <div
+										// 	className="rearrange-grid"
+										// 	style={{
+										// 		display: 'flex',
+										// 		flexWrap: 'wrap',
+										// 		gap: '10px',
+										// 		padding: '10px',
+										// 	}}
+										// >
+										// 	{info?.imagesList?.docs?.map((image, index) => {
+										// 		const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+										// 		const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+
+										// 		return (
+										// 			<div
+										// 				key={index}
+										// 				className={`rearrange-image-container ${
+										// 					info.selectedImages.includes(index)
+										// 						? 'selected'
+										// 						: ''
+										// 				}`}
+										// 				draggable={info.selectedImages.includes(
+										// 					index,
+										// 				)}
+										// 				onDragStart={(e) =>
+										// 					handleDragStart(e, index)
+										// 				}
+										// 				onDragOver={(e) => e.preventDefault()}
+										// 				onDrop={(e) => handleDragEnd(e, index)}
+										// 				onClick={() => handleImageSelect(index)}
+										// 				style={{
+										// 					width: '200px',
+										// 					height: '200px',
+										// 					position: 'relative',
+										// 					cursor: info.selectedImages.includes(
+										// 						index,
+										// 					)
+										// 						? 'grab'
+										// 						: 'pointer',
+										// 				}}
+										// 			>
+										// 				<img
+										// 					src={src}
+										// 					alt={`Gallery image ${index}`}
+										// 					style={{
+										// 						width: '100%',
+										// 						height: '100%',
+										// 						objectFit: 'cover',
+										// 					}}
+										// 				/>
+										// 				{info.isMouseInGallery && (
+										// 					<div className="imageOverlay"></div>
+										// 				)}
+										// 			</div>
+										// 		);
+										// 	})}
+										// </div>
 									)}
 								</InfiniteScroll>
 
@@ -1170,7 +1449,7 @@ const GalleryPage = () => {
 											<div onClick={handleExpandClick}>
 												<ExpandIcon />
 											</div>
-											<div
+											{/* <div
 												style={{ position: 'relative' }}
 												ref={forwardIconRef}
 											>
@@ -1241,7 +1520,7 @@ const GalleryPage = () => {
 														<li>Delete</li>
 													</div>
 												)}
-											</div>
+											</div> */}
 										</div>
 									</div>
 								)}
@@ -1309,7 +1588,10 @@ const GalleryPage = () => {
 								<div className="clientSubscription">
 									<p className="subHeading">Client Subscription</p>
 									<div className="clientSubscriptionToggle">
-										<ToggleSlider />
+										<ToggleSlider
+											value={info?.clientSubscription}
+											onChange={handleClientSubscription}
+										/>
 										<p className="subTitle">
 											Allow clients to subscribe and take ownership after
 											expiry.
