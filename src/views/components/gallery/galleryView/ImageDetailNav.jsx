@@ -30,7 +30,16 @@ const OptionsArray = [
 		label: 'Delete',
 	},
 ];
-const ImageDetailNav = ({ info, imageDetail, images }) => {
+
+const image1 =
+	'https://i0.wp.com/picjumbo.com/wp-content/uploads/silhouette-of-a-guy-with-a-cap-at-red-sky-sunset-free-image.jpeg?h=800&quality=80';
+const image2 =
+	'https://img-cdn.pixlr.com/image-generator/history/65bb506dcb310754719cf81f/ede935de-1138-4f66-8ed7-44bd16efc709/medium.webp';
+const image3 = 'https://assets.techrepublic.com/uploads/2023/05/tr5423-what-is-generative-ai.jpeg';
+const image4 =
+	'https://www.nttdata.com/global/en/-/media/nttdataglobal/1_images/insights/generative-ai/generative-ai_d.jpg?h=1680&iar=0&w=2800&rev=4e69afcc968d4bab9480891634b63b34';
+
+const ImageDetailNav = ({ info, imageDetail }) => {
 	return (
 		<div className="galleryViewerNavbarContainer">
 			<div className="galleryViewerNavbar">
@@ -43,19 +52,19 @@ const ImageDetailNav = ({ info, imageDetail, images }) => {
 					<p>Client Selection</p>
 					<div className="clientSelectionImages">
 						<div className="clientAlbum">
-							<img src={images[0]} />
+							<img src={image1} />
 							<p>Album 1</p>
 						</div>
 						<div className="clientAlbum">
-							<img src={images[1]} />
+							<img src={image2} />
 							<p>Album 2</p>
 						</div>
 						<div className="clientAlbum">
-							<img src={images[2]} />
+							<img src={image3} />
 							<p>Album 3</p>
 						</div>
 						<div className="clientAlbum">
-							<img src={images[3]} />
+							<img src={image4} />
 							<p>Album 4</p>
 						</div>
 					</div>

@@ -31,15 +31,6 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DeleteGalleryComponent from '../../components/gallery/gallerySettings/DeleteGalleryComponent';
 
-const imageURL = 'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg';
-const image1 =
-	'https://i0.wp.com/picjumbo.com/wp-content/uploads/silhouette-of-a-guy-with-a-cap-at-red-sky-sunset-free-image.jpeg?h=800&quality=80';
-const image2 =
-	'https://img-cdn.pixlr.com/image-generator/history/65bb506dcb310754719cf81f/ede935de-1138-4f66-8ed7-44bd16efc709/medium.webp';
-const image3 = 'https://assets.techrepublic.com/uploads/2023/05/tr5423-what-is-generative-ai.jpeg';
-const image4 =
-	'https://www.nttdata.com/global/en/-/media/nttdataglobal/1_images/insights/generative-ai/generative-ai_d.jpg?h=1680&iar=0&w=2800&rev=4e69afcc968d4bab9480891634b63b34';
-
 const data = [
 	{ name: 'Albums', number: 14 },
 	// { name: 'Videos', number: 2 },
@@ -53,19 +44,7 @@ const albumContains = [
 	{ name: 'Decor', number: 89 },
 	{ name: 'All', number: 60 },
 ];
-function createRandomImageArray() {
-	const images = [image1, image2, image3, image4];
-	const result = [];
-
-	for (let i = 0; i < 40; i++) {
-		const randomIndex = Math.floor(Math.random() * images.length);
-		result.push(images[randomIndex]);
-	}
-
-	return result;
-}
-
-const randomizedImages = createRandomImageArray();
+const imageURL = 'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg';
 
 const GalleryPage = () => {
 	const { galleryId } = useParams();
@@ -99,7 +78,6 @@ const GalleryPage = () => {
 
 			updateCollaborators,
 			basicAlbumDetails,
-			deleteGallery,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -186,10 +164,10 @@ const GalleryPage = () => {
 		}
 	}, [galleryCredentials]);
 	useEffect(() => {
-		if (!tenantAlbums) {
+		if (!tenantAlbums || tenantAlbums?._id !== galleryId) {
 			getAlbums(galleryId);
 		}
-		if (!tenantPreferences) {
+		if (!tenantPreferences || tenantPreferences?._id !== galleryId) {
 			getEditPreferences(galleryId);
 		}
 
@@ -360,19 +338,8 @@ const GalleryPage = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, selectedImages: [] }));
 	};
 	const handleExpandClick = () => {
-		const selectedImageIndexes = info.selectedImages;
-		const selectedImages = selectedImageIndexes.map((index) => randomizedImages[index]);
-		const activeIndex = selectedImageIndexes[0];
-
 		navigate(
-			`/gallery-page/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}`,
-			{
-				state: {
-					images: randomizedImages,
-					selectedImages: selectedImages,
-					activeIndex: activeIndex,
-				},
-			},
+			`/gallery-page/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}&image=${info?.selectedImages?.[0]}`,
 		);
 	};
 	const scrollToSection = (sectionId) => {
@@ -1153,7 +1120,6 @@ const GalleryPage = () => {
 												</div>
 
 												{imagesList?.docs?.map((image, index) => {
-													// Replace the problematic params construction with this fixed version
 													const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 													const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
 													return (
@@ -1777,7 +1743,6 @@ const GalleryPage = () => {
 									galleryName={tenantAlbums?.title || ''}
 									galleryId={galleryId}
 									albumId={info?.activeGallery?.galleryData?._id}
-									deleteGallery={deleteGallery}
 								/>
 							</div>
 						</div>

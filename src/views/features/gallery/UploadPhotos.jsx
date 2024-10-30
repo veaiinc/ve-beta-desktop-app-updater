@@ -219,6 +219,7 @@ const UploadPhotos = () => {
 				setinfo((prev) => {
 					let uploadImages = { ...prev.uploadImages };
 					uploadImages[key]['isUploaded'] = true;
+					uploadImages[key]['uploadedPerct'] = 100;
 					const size = uploadImages[key]['file'].size;
 					delete uploadImages[key]['file'];
 					uploadImages[key]['file'] = { size, name: key };

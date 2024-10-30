@@ -786,7 +786,6 @@ export const Galleries = () => {
 		}
 	};
 
-	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}
 	const deleteAlbum = async (galleryId, albumId) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -797,13 +796,19 @@ export const Galleries = () => {
 				null,
 				'galleries',
 			);
+
+			if (response[0] === true) {
+				dispatch({
+					type: Actions.RESET_IMAGES_LIST,
+				});
+			}
+
 			return response;
 		} catch (error) {
 			console.log('error==>deleteAlbum', error);
 		}
 	};
 
-	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }} DELETE METHOD
 	const deleteGallery = async (galleryId) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');

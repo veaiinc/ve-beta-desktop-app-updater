@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { ReactComponent as DeleteLogo } from '../../../../assets/svg/gallery/delete.svg';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import Context from '../../../../context/context';
 
-const DeleteAlbmumComponent = ({ albumName, deleteAlbum, galleryId, albumId }) => {
+const DeleteAlbmumComponent = ({ albumName, galleryId, albumId }) => {
+	const {
+		galleryInfo: { getAlbums, deleteAlbum },
+	} = useContext(Context);
 	const [deleteInfo, setdeleteInfo] = useState({
 		showConfirmInput: false,
 		inputValue: '',
@@ -25,6 +29,7 @@ const DeleteAlbmumComponent = ({ albumName, deleteAlbum, galleryId, albumId }) =
 		if (response[0] === true) {
 			message.destroy();
 			message.success('Album deleted successfully');
+			getAlbums(galleryId);
 			navigate(`/gallery-page/${galleryId}`);
 		} else {
 			message.destroy();

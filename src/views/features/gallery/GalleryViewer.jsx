@@ -6,7 +6,6 @@ import FullImagesComponent from '../../components/gallery/galleryView/FullImages
 import ImageDetailNav from '../../components/gallery/galleryView/ImageDetailNav';
 
 const GalleryViewer = () => {
-	const location = useLocation();
 	const { galleryId, albumId } = useParams();
 	const [searchkeys, setsearchkeys] = useSearchParams();
 
@@ -21,7 +20,6 @@ const GalleryViewer = () => {
 		},
 	} = useContext(Context);
 
-	const { images } = location.state;
 	const [info, setInfo] = useState({
 		index: 0,
 		page: 1,
@@ -32,24 +30,47 @@ const GalleryViewer = () => {
 	});
 
 	useEffect(() => {
-		getGalleryImages(
-			galleryId,
-			albumId,
-			searchkeys.get('tagId'),
-			info?.page,
-			info?.limit,
-			true,
-		);
+		if (!imagesList) {
+			getGalleryImages(
+				galleryId,
+				albumId,
+				searchkeys.get('tagId'),
+				info?.page,
+				info?.limit,
+				true,
+			);
+			setsearchkeys({ tagId: searchkeys.get('tagId') });
+		}
+
+		if (imagesList) {
+			const imageId = imagesList?.docs?.[searchkeys.get('image')] || 0;
+
+			console.log(imageId);
+			if (!imageId) return;
+
+			setInfo((prev) => ({
+				...prev,
+				activeImage: imageId?._id,
+			}));
+			setTimeout(() => {
+				const image = document.getElementById(imageId?._id || '');
+				image.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}, 1000);
+		}
 
 		if (!galleryCredentials) {
 			getGalleryCredentials(galleryId);
 		}
-	}, []);
+	}, [imagesList]);
 
 	useEffect(() => {
 		if (info?.activeImage) {
 			const thumbnail = document.getElementById('thumbnail' + info?.activeImage);
 			thumbnail.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+			if (searchkeys.get('image')) {
+				setsearchkeys({ tagId: searchkeys.get('tagId') });
+			}
 		}
 	}, [info?.activeImage]);
 
@@ -117,9 +138,7 @@ const GalleryViewer = () => {
 					setInfo={setInfo}
 				/>
 
-				{info?.imageDetailId && (
-					<ImageDetailNav info={info} imageDetail={imageDetail} images={images} />
-				)}
+				{info?.imageDetailId && <ImageDetailNav info={info} imageDetail={imageDetail} />}
 			</div>
 		</div>
 	);

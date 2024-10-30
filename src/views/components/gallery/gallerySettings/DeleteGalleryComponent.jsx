@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { ReactComponent as DeleteLogo } from '../../../../assets/svg/gallery/delete.svg';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import Context from '../../../../context/context';
 
-const DeleteGalleryComponent = ({ galleryName, galleryId, deleteGallery }) => {
+const DeleteGalleryComponent = ({ galleryName, galleryId }) => {
+	const {
+		galleryInfo: { getGalleries, deleteGallery },
+	} = useContext(Context);
 	const [deleteInfo, setdeleteInfo] = useState({
 		showConfirmInput: false,
 		inputValue: '',
@@ -25,6 +29,7 @@ const DeleteGalleryComponent = ({ galleryName, galleryId, deleteGallery }) => {
 		if (response[0] === true) {
 			message.destroy();
 			message.success('Gallery deleted successfully');
+			getGalleries();
 			navigate('/galleries');
 		} else {
 			message.destroy();
