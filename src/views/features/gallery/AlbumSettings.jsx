@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React, { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import '../../../assets/scss/gallery/albumSettings.scss';
 import ToggleSlider from '../../../views/components/input/slider';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
@@ -12,13 +12,16 @@ import Context from '../../../context/context';
 import { ReactComponent as DownArrow } from '../../../assets/svg/workflow/downArrow.svg';
 import { message } from 'antd';
 import Cropper from 'react-easy-crop';
+import moment from 'moment';
+import randomize from 'randomatic';
+import axios from 'axios';
 
-const imageURL = 'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg';
 const AlbumSettings = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { sectionId, activeAlbumId } = location.state || {};
 	const { galleryId } = useParams();
+	const fileInputRef = useRef();
 	const {
 		galleryInfo: {
 			editAlbum,
@@ -28,6 +31,14 @@ const AlbumSettings = () => {
 			checkSlugIsAvalible,
 			getLightroomCopyList,
 			lightroomCopyList,
+			getGalleryTagsList,
+			getImageDetail,
+			imageDetail,
+			getImageUploadStatus,
+			getUploadImageSignUrl,
+			galleryCredentials,
+			getGalleryCredentials,
+			updateAlbumCoverImage,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -46,6 +57,9 @@ const AlbumSettings = () => {
 			y: 0,
 		},
 		zoom: 1,
+		uploadImageId: null,
+		imageURL: '',
+		coverImageDetails: null,
 		// activeAlbum: activeAlbum,
 	});
 
@@ -62,16 +76,49 @@ const AlbumSettings = () => {
 			getAlbums(galleryId);
 		}
 		if (tenantAlbums) {
-			console.log(tenantAlbums, 'tenantAlbums');
 			const activeAlbum = tenantAlbums?.albums?.find((album) => album?._id === activeAlbumId);
 			setInfo((prev) => ({
 				...prev,
 				activeAlbumName: activeAlbum?.title,
 				isPublished: activeAlbum?.isPublished,
 				isEnabled: activeAlbum?.guestAccess?.isEnabled,
+				coverImageDetails: activeAlbum?.coverImage,
 			}));
 		}
 	}, [tenantAlbums]);
+
+	useEffect(() => {
+		if (
+			(!galleryCredentials && info?.uploadImageId) ||
+			(!galleryCredentials && info?.coverImageDetails?._id)
+		) {
+			getGalleryCredentials(galleryId);
+		}
+
+		if (imageDetail?._id === info?.uploadImageId && galleryCredentials) {
+			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+			const src = `${galleryCredentials?.baseURL}/${imageDetail?.image?.s3_optimized?.key}?${params}`;
+			setInfo((prev) => ({
+				...prev,
+				imageURL: src,
+			}));
+		}
+
+		if (info?.coverImageDetails?._id && galleryCredentials) {
+			console.log(info?.coverImageDetails, 'coverImageDetails');
+			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+			const src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info?.coverImageDetails?.givenFileName}?${params}`;
+			setInfo((prev) => ({
+				...prev,
+				imageURL: src,
+				coverPhoto: true,
+				crop: {
+					x: info?.coverImageDetails?.xPosition,
+					y: info?.coverImageDetails?.yPosition,
+				},
+			}));
+		}
+	}, [galleryCredentials, imageDetail, info?.uploadImageId, info?.coverImageDetails?._id]);
 
 	const scrollToSection = (sectionId) => {
 		setInfo((prev) => ({ ...prev, activeSetting: sectionId }));
@@ -95,6 +142,7 @@ const AlbumSettings = () => {
 
 		editAlbum(payload, galleryId, info?.activeAlbumId);
 	}, [info?.isPublished]);
+
 	const handleAlbumChange = useCallback(
 		(e) => {
 			const value = e.target.value;
@@ -141,6 +189,7 @@ const AlbumSettings = () => {
 		};
 		editLockAlbum(payload, galleryId, info?.activeAlbumId);
 	}, [info?.isEnabled]);
+
 	const handleCopyList = () => {
 		if (lightroomCopyList?.length) {
 			const textToCopy = lightroomCopyList.join(',');
@@ -156,6 +205,87 @@ const AlbumSettings = () => {
 			message.warning('No items to copy');
 		}
 	};
+
+	const getImageDetails = async (imageId, batchId) => {
+		const clearinterval = setInterval(async () => {
+			const imageStatus = await getImageUploadStatus(galleryId, activeAlbumId, batchId);
+			if (
+				imageStatus?.[0] === true &&
+				imageStatus?.[1]?.processedCount === 1 &&
+				imageStatus?.[1]?.uploadedCount === 1
+			) {
+				clearInterval(clearinterval);
+				getImageDetail(imageId);
+				message.destroy();
+			}
+		}, 2000);
+	};
+
+	const uploadAlbumCoverChangeHandler = async (e) => {
+		message.open({
+			type: 'loading',
+			content: 'Uploading album cover image..',
+			duration: 0,
+		});
+		const image = e.target.files[0];
+		const batchId = randomize('Aa0', 10);
+
+		const responseGalleryTags = await getGalleryTagsList(galleryId);
+		if (responseGalleryTags?.[0] === true) {
+			const allTagId = responseGalleryTags?.[1]?.find((item) => item.displayName === 'All');
+			let json = {
+				originalFileName: image?.name,
+				originalDateTime: moment(image?.['originalDate']).unix() || 0,
+				uploadBatchId: batchId,
+				tag_ids: [allTagId?._id],
+				isAIFacesEnabled: true,
+			};
+
+			const signedURLUpload = await getUploadImageSignUrl(galleryId, activeAlbumId, json);
+			if (signedURLUpload?.[0] === true) {
+				const uploadResponse = await axios.put(signedURLUpload[1]['signedUrl'], image, {
+					headers: {
+						'Content-Type': image?.type,
+					},
+				});
+				setInfo((prev) => ({
+					...prev,
+					uploadImageId: signedURLUpload?.[1]?._id,
+				}));
+
+				if (uploadResponse.status === 200) {
+					getImageDetails(signedURLUpload?.[1]?._id, batchId);
+				}
+			} else {
+				message.destroy();
+				message.error('Something went wrong, please try again later');
+			}
+		} else {
+			message.destroy();
+			message.error('Something went wrong, please try again later');
+		}
+	};
+
+	const handleSetCoverPosition = async () => {
+		const json = {
+			image_id: info?.uploadImageId || info?.coverImageDetails?._id,
+			xPosition: info?.crop?.x,
+			yPosition: info?.crop?.y,
+			givenFileName:
+				imageDetail?.image?.givenFileName || info?.coverImageDetails?.givenFileName,
+			width: 100,
+			height: 100,
+			// zoom: info?.zoom,
+		};
+		const respone = await updateAlbumCoverImage(json, galleryId, info?.activeAlbumId);
+		if (respone?.[0] === true) {
+			message.success('Cover position set successfully!');
+		} else {
+			message.error('Something went wrong, please try again later');
+		}
+	};
+
+	console.log(info.crop, 'notfound');
 
 	return (
 		<div className="mainAlbumSettings">
@@ -305,7 +435,7 @@ const AlbumSettings = () => {
 												style={{
 													width: '100%',
 													height: '100%',
-													backgroundImage: `url(${imageURL})`,
+													backgroundImage: `url(${info?.imageURL})`,
 													backgroundPosition: info?.crop?.x
 														? `${info?.crop?.x}% ${info?.crop?.y}%`
 														: 'center',
@@ -320,7 +450,7 @@ const AlbumSettings = () => {
 										<div
 											className="mobile-preview-container"
 											style={{
-												backgroundImage: `url(${imageURL})`,
+												backgroundImage: `url(${info?.imageURL})`,
 												backgroundPosition: info?.crop?.x
 													? `${info?.crop?.x}% ${info?.crop?.y}%`
 													: 'center',
@@ -335,7 +465,7 @@ const AlbumSettings = () => {
 								</div>
 								<div className="album-cover-image">
 									<Cropper
-										image={imageURL}
+										image={info?.imageURL}
 										crop={info?.crop}
 										zoom={info?.zoom}
 										aspect={228 / 370}
@@ -347,7 +477,7 @@ const AlbumSettings = () => {
 										}
 										onCropComplete={(croppedArea, croppedAreaPixels) => {
 											// You can store croppedAreaPixels if you need the final crop dimensions
-											console.log('Cropped area:', croppedAreaPixels);
+											// console.log('Cropped area:', croppedAreaPixels);
 										}}
 										onZoomChange={(zoomValue) =>
 											setInfo((prev) => ({
@@ -364,11 +494,32 @@ const AlbumSettings = () => {
 						<div className="upload-cover-photo">
 							<p
 								className="bt"
-								onClick={() => setInfo((prev) => ({ ...prev, coverPhoto: true }))}
+								onClick={() => {
+									if (info?.coverPhoto) {
+										fileInputRef.current.click();
+									} else {
+										setInfo((prev) => ({
+											...prev,
+											coverPhoto: true,
+										}));
+									}
+								}}
 							>
 								Upload cover photo
 							</p>
-							{info?.coverPhoto && <p className="bt">Set cover position</p>}
+
+							<input
+								ref={fileInputRef}
+								type="file"
+								hidden
+								onChange={uploadAlbumCoverChangeHandler}
+							/>
+
+							{info?.coverPhoto && (
+								<p className="bt" onClick={handleSetCoverPosition}>
+									Set cover position
+								</p>
+							)}
 						</div>
 					</div>
 					<div id="delete-album" className="settings-container">
@@ -389,6 +540,7 @@ const AlbumSettings = () => {
 						</div>
 					</div>
 				</div>
+
 				<div className="albumSettingsNavbar">
 					<li
 						onClick={() => scrollToSection('album-overview')}

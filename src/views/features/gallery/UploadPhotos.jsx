@@ -42,7 +42,7 @@ const UploadPhotos = () => {
 		startedUploading: false,
 		uploadImages: {},
 		uploadSize: 0, // kb
-		uploadLimit: 2,
+		uploadLimit: 8,
 		currentUpload: 1,
 		recentImageInitiated: null,
 		isSkipDuplicates: false,
@@ -322,7 +322,7 @@ const UploadPhotos = () => {
 			}
 		};
 
-		for (let i = 0; i < 2 && queue.length > 0; i++) {
+		for (let i = 0; i < 8 && queue.length > 0; i++) {
 			nextUploadFunc();
 		}
 
