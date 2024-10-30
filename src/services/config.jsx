@@ -6,6 +6,7 @@ module.exports = {
 	proposals_api: 'https://ap.api.ve.ai/proposals/1.0',
 	workflows_Api: 'https://ap.api.ve.ai/workflows/1.0',
 	auth_Api: 'https://auth.ve.ai',
+	activity_api: 'https://ap.api.ve.ai/workflow-user-analytics/1.0',
 	galleries: 'https://ap.api.ve.ai/galleries/1.0',
 	ai_setup_api: 'https://ap.api.ve.ai/sales-chat-assistant/1.0',
 
@@ -16,4 +17,5 @@ module.exports = {
 	proposals_api_US: 'https://us.api.ve.ai/proposals/1.0',
 	workflows_Api_US: 'https://us.api.ve.ai/workflows/1.0',
 	ai_setup_api_US: 'https://ap.api.ve.ai/sales-chat-assistant/1.0', // Need confirmation regarding US region
+	activity_api_US: 'https://ap.api.ve.ai/workflow-user-analytics/1.0',
 };

@@ -1,8 +1,9 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../.././../../assets/scss/sales/smartFile.scss';
 import SmartFileHeader from '../../../components/smartFileComponets/SmartFileHeader';
 import FormResponses from './FormResponses';
 import File from './File';
+import ActivityDashboard from '../activity';
 import { useNavigate, useParams } from 'react-router-dom';
 import Context from '../../../../context/context';
 import SendProposalModal from '../../../components/modalsV2/proposalModals/SendProposalModal';
@@ -37,7 +38,7 @@ const SmartFile = () => {
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		activeTab: 'file', //form,file
+		activeTab: 'file', //form,file,activity
 		incomingData: null,
 		workflowId: workflowId,
 		sendSmartFileModal: false,
@@ -367,6 +368,28 @@ const SmartFile = () => {
 		return [true];
 	}, [info?.workflowData, moveWorkflowStatus]);
 
+	const componentMapper = useMemo(() => {
+		return {
+			form: <FormResponses workflowData={info?.workflowData} />,
+			file: (
+				<File
+					templateData={info?.incomingData}
+					workflowData={info?.workflowData?.clientDetails}
+					edit={info?.edit}
+					expiresAt={info?.workflowExpiryAt || ''}
+					updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
+				/>
+			),
+			activity: <ActivityDashboard />,
+		};
+	}, [
+		info?.workflowData,
+		info?.incomingData,
+		info?.edit,
+		info?.workflowExpiryAt,
+		updateSendSmartFileExpiryData,
+	]);
+
 	return info?.loading ? (
 		<UpdatedPageLoader />
 	) : (
@@ -387,20 +410,7 @@ const SmartFile = () => {
 				noContractTemplate={info?.noContractTemplate}
 				counterAccpetOnClick={counterAccpetOnClick}
 			/>
-			<div className="mainContentContainer">
-				{info?.activeTab === 'form' ? (
-					<FormResponses workflowData={info?.workflowData} />
-				) : (
-					<File
-						templateData={info?.incomingData}
-						workflowData={info?.workflowData?.clientDetails}
-						edit={info?.edit}
-						expiresAt={info?.workflowExpiryAt || ''}
-						updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
-						workflowStatus={info?.workflowStatus}
-					/>
-				)}
-			</div>
+			<div className="mainContentContainer">{componentMapper?.[info?.activeTab]}</div>
 
 			<SendProposalModal
 				open={info?.sendSmartFileModal}
