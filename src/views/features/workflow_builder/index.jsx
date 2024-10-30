@@ -19,7 +19,7 @@ import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals
 import { message } from 'antd';
 const options = [
 	{ label: 'Rename Workflow' },
-	// { label: 'Duplicate Workflow' },
+	{ label: 'Duplicate Workflow' },
 	{ label: 'Delete Worklfow' },
 ];
 
@@ -251,36 +251,44 @@ const WorkflowBuilder = () => {
 		[info?.incomingTemplateData],
 	);
 
-	const onOptionChangeFunc = useCallback(async (data) => {
-		if (data?.label === 'Rename Workflow') {
-			setInfo((prev) => ({ ...prev, renameModal: true }));
-			return;
-		}
-		// if (data?.label === 'Duplicate Workflow') {
-		// 	setInfo((prev) => ({ ...prev, duplicateWorkflowModal: true }));
-		// 	return;
-		// }
-		if (data?.label === 'Delete Worklfow') {
-			setInfo((prev) => ({ ...prev, deleteWorkflowModal: true }));
-		}
-	}, []);
-
 	const closeDuplicateWorkflowModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, duplicateWorkflowModal: false }));
 	}, []);
+	const duplicateWorkflowFunc = useCallback(async () => {
+		if (!info?.incomingTemplateData) {
+			return;
+		}
+
+		const payload = {
+			templateId: info?.incomingTemplateData?._id,
+			title: info?.incomingTemplateData?.title,
+		};
+		const response = await duplicateGlobalWorkflowTemplate(payload);
+		if (response?.[0]) {
+			window.location.href = `https://builder.ve.ai/${response?.[1]?._id}`;
+		}
+		closeDuplicateWorkflowModal();
+	}, [info?.incomingTemplateData, closeDuplicateWorkflowModal]);
+
+	const onOptionChangeFunc = useCallback(
+		async (data) => {
+			if (data?.label === 'Rename Workflow') {
+				setInfo((prev) => ({ ...prev, renameModal: true }));
+				return;
+			}
+			if (data?.label === 'Duplicate Workflow') {
+				duplicateWorkflowFunc();
+				setInfo((prev) => ({ ...prev, duplicateWorkflowModal: true }));
+				return;
+			}
+			if (data?.label === 'Delete Worklfow') {
+				setInfo((prev) => ({ ...prev, deleteWorkflowModal: true }));
+			}
+		},
+		[duplicateWorkflowFunc],
+	);
 
 	//keep it on hold
-
-	// const duplicateWorkflowFunc = useCallback(async () => {
-	// 	if (!info?.incomingTemplateData) {
-	// 		return;
-	// 	}
-	// 	const payload = {
-	// 		templateId: info?.incomingTemplateData?._id,
-	// 		title: info?.incomingTemplateData?.title,
-	// 	};
-	// 	const response = await duplicateGlobalWorkflowTemplate(payload);
-	// }, [info?.incomingTemplateData]);
 
 	const deleteWorkflowFunc = useCallback(async () => {
 		if (info?.deleteWorkflowLoader) {
@@ -420,10 +428,10 @@ const WorkflowBuilder = () => {
 					deleteWorkflowFunc={deleteWorkflowFunc}
 					deleteLoader={info?.deleteWorkflowLoader}
 				/>
-				{/* <DuplicateIndicatorModal
+				<DuplicateIndicatorModal
 					open={info?.duplicateWorkflowModal}
 					closeModal={closeDuplicateWorkflowModal}
-				/> */}
+				/>
 			</div>
 		</div>
 	);

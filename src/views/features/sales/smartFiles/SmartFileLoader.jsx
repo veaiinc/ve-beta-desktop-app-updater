@@ -101,6 +101,3 @@ const SmartFileLoader = () => {
 };
 
 export default memo(SmartFileLoader);
-{
-	/* <Skeleton width={'2500px'} height={'291px'} style={{ borderRadius: '20px' }} /> */
-}
