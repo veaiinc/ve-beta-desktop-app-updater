@@ -57,7 +57,7 @@ const actionHandlers = {
 			? {
 					...state.imagesList,
 					...action.payload,
-					docs: [...state.imagesList.docs, ...action.payload.docs],
+					docs: [...state.imagesList.docs, ...(action?.payload?.docs || [])],
 			  }
 			: action.payload,
 	}),
@@ -65,7 +65,19 @@ const actionHandlers = {
 		...state,
 		lightroomCopyList: action.payload,
 	}),
-
+	GET_VISITOR_FORM_ACCESS: (state, action) => ({
+		...state,
+		visitorFormAccess: action.payload,
+	}),
+	GET_IMAGE_DETAIL: (state, action) => ({
+		...state,
+		imageDetail: action.payload,
+	}),
+	GET_GALLERY_GUEST_ACCESS: (state, action) => ({
+		...state,
+		galleryGuestAccess: action.payload,
+	}),
+	RESET_IMAGES_LIST: (state) => ({ ...state, imagesList: null }),
 	RESET_STATE: () => ({ ...intialState }),
 };
 
