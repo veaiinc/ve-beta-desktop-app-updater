@@ -9,6 +9,7 @@ export const menuItems = [
 	{ id: 'team-settings', label: 'Team Settings' },
 	{ id: 'integrations', label: 'Integrations' },
 	{ id: 'plan-billing', label: 'Plan Billing' },
+	{ id: 'ai-setup', label: 'AI Setup' },
 ];
 
 export const businessTypesOptions = [
