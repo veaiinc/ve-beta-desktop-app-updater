@@ -91,6 +91,8 @@ const GalleryPage = () => {
 			albumDetails,
 			getGalleryImages,
 			imagesList,
+			updateTagOrder,
+			shareGalleryViaEmail,
 
 			getImage,
 
@@ -131,8 +133,14 @@ const GalleryPage = () => {
 		page: 1,
 		limit: 20,
 		albumTags: albumDetails?.tags,
+		isDragging: false,
+		draggedImages: [],
+		imagesList: imagesList,
+		isRearranging: false,
+		clientSubscription: tenantPreferences?.allowClientsToSubscribe || false,
+		dragPreviewPosition: null,
+		insertIndex: null,
 	});
-	console.log(layoutSettings, 'layoutSettings', info);
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
 	const galleryOptionsRef = useRef(null);
@@ -174,9 +182,6 @@ const GalleryPage = () => {
 		if (!galleryCredentials) {
 			getGalleryCredentials(galleryId);
 		}
-		if (galleryCredentials) {
-			console.log(galleryCredentials, 'galleryCredentials');
-		}
 	}, [galleryCredentials]);
 	useEffect(() => {
 		if (!tenantAlbums) {
@@ -200,6 +205,7 @@ const GalleryPage = () => {
 			setInfo((prev) => ({
 				...prev,
 				callToAction: tenantPreferences?.ctaPreferences,
+				clientSubscription: tenantPreferences?.allowClientsToSubscribe || false,
 			}));
 		}
 	}, [tenantPreferences, tenantAlbums]);
@@ -226,10 +232,9 @@ const GalleryPage = () => {
 	// 		getAlbumCount(galleryId, tenantAlbums?.albums?.[0]?._id);
 	// 	}
 	// }, [tenantAlbums?.albums?.[0]?.title]);
+
 	useEffect(() => {
-		console.log(layoutSettings, 'this is called');
 		if (!layoutSettings) {
-			console.log('this is called');
 			getLayoutSettings(galleryId);
 		}
 		if (layoutSettings) {
@@ -264,9 +269,24 @@ const GalleryPage = () => {
 				info?.albumTagId,
 				info?.page,
 				info?.limit,
+				true,
 			);
 		}
+		if (imagesList) {
+			setInfo((prev) => ({
+				...prev,
+				imagesList: imagesList,
+			}));
+		}
 	}, [info?.albumTagId, info?.activeAlbumId]);
+	useEffect(() => {
+		if (imagesList) {
+			setInfo((prev) => ({
+				...prev,
+				imagesList: imagesList,
+			}));
+		}
+	}, [imagesList]);
 
 	useEffect(() => {
 		if (albumDetails?.tags?.length > 0) {
@@ -280,7 +300,6 @@ const GalleryPage = () => {
 	}, [albumDetails]);
 
 	const fetchMoreImages = () => {
-		console.log('calling');
 		const nextPage = info.page + 1;
 		getGalleryImages(
 			galleryId,
@@ -307,7 +326,6 @@ const GalleryPage = () => {
 	};
 
 	const handleClickAlbum = (album, name) => {
-		console.log(album, 'albumName======>');
 		if (name === 'albumName') {
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -344,13 +362,16 @@ const GalleryPage = () => {
 		const selectedImages = selectedImageIndexes.map((index) => randomizedImages[index]);
 		const activeIndex = selectedImageIndexes[0];
 
-		navigate(`/gallery-page/${galleryId}/${info?.activeAlbumId}/gallery-viewer`, {
-			state: {
-				images: randomizedImages,
-				selectedImages: selectedImages,
-				activeIndex: activeIndex,
+		navigate(
+			`/gallery-page/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}`,
+			{
+				state: {
+					images: randomizedImages,
+					selectedImages: selectedImages,
+					activeIndex: activeIndex,
+				},
 			},
-		});
+		);
 	};
 	const scrollToSection = (sectionId) => {
 		setInfo((prevInfo) => ({ ...prevInfo, activeLink: sectionId }));
@@ -403,6 +424,20 @@ const GalleryPage = () => {
 		};
 		editPreferences(galleryId, payload);
 	}, [getEditPreferences, info.callToAction?.isEnabled]);
+
+	const handleClientSubscription = useCallback(
+		(value) => {
+			setInfo((prev) => ({
+				...prev,
+				clientSubscription: value,
+			}));
+			const payload = {
+				allowClientsToSubscribe: value,
+			};
+			editPreferences(galleryId, payload);
+		},
+		[getEditPreferences, info?.clientSubscription],
+	);
 
 	const handleLinkChange = useCallback(
 		(e) => {
@@ -518,7 +553,6 @@ const GalleryPage = () => {
 		}));
 	};
 	const handleManageCollaborator = (data) => {
-		console.log(data, 'updatedData');
 		setInfo((prev) => ({
 			...prev,
 			collaboratorsData: data,
@@ -530,20 +564,215 @@ const GalleryPage = () => {
 		const items = Array.from(info.albumTags);
 		const [reorderedItem] = items.splice(result.source.index, 1);
 		items.splice(result.destination.index, 0, reorderedItem);
-		console.log(items, 'items');
-		const updatedItems = items.map((item, index) => ({
-			...item,
-			customSortIndex: index + 1,
-		}));
-		console.log(updatedItems, 'itemsUpdated');
+
+		let changedItemIndex = null;
+		let tagID = null;
+
+		items.forEach((item, index) => {
+			if (index === result.destination.index) {
+				if (index === items.length - 1) {
+					item.customSortIndex = items.length + 1;
+				} else {
+					const prevIndex = index > 0 ? items[index - 1].customSortIndex : 0;
+					const nextIndex = items[index + 1].customSortIndex;
+					item.customSortIndex = (prevIndex + nextIndex) / 2;
+				}
+				changedItemIndex = item.customSortIndex;
+				tagID = item?._id;
+			}
+		});
+
+		if (changedItemIndex !== null && tagID !== null) {
+			const payload = {
+				customSortIndex: changedItemIndex,
+			};
+
+			updateTagOrder(payload, galleryId, info?.activeAlbumId, tagID);
+		}
+
 		setInfo((prev) => ({
 			...prev,
-			albumTags: updatedItems,
+			albumTags: items,
 		}));
 	};
+	const handleRearrange = () => {
+		setInfo((prev) => ({
+			...prev,
+			isRearranging: !prev.isRearranging,
+			selectedImages: [],
+		}));
+	};
+
+	// const handleDragStart = (result) => {
+	// 	const selectedIndexes = info.selectedImages;
+
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		isDragging: true,
+	// 		draggedImages: selectedIndexes,
+	// 	}));
+	// };
+
+	// // Add this new function to handle drag end
+	// const handleDragEnd = (result) => {
+	// 	if (!result.destination) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			isDragging: false,
+	// 			draggedImages: [],
+	// 			selectedImages: [],
+	// 		}));
+	// 		return;
+	// 	}
+	// 	const images = [...info?.imagesList?.docs];
+
+	// 	const selectedImages = info.draggedImages.map((index) => images[index]);
+
+	// 	const sortedIndices = [...info.draggedImages].sort((a, b) => b - a);
+
+	// 	// Remove images from their original positions
+	// 	sortedIndices.forEach((index) => {
+	// 		images.splice(index, 1);
+	// 	});
+
+	// 	const destinationIndex = result.destination.index;
+
+	// 	images.splice(destinationIndex, 0, ...selectedImages);
+
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		isDragging: false,
+	// 		draggedImages: [],
+	// 		selectedImages: [],
+	// 		imagesList: {
+	// 			...prev.imagesList,
+	// 			docs: images,
+	// 		},
+	// 	}));
+	// };
+	const handleDragStart = (start, provided) => {
+		const selectedIndexes = info.selectedImages;
+
+		setInfo((prev) => ({
+			...prev,
+			isDragging: true,
+			draggedImages: selectedIndexes,
+			// dragPreviewPosition: null,
+			insertIndex: null,
+		}));
+
+		// Add mousemove event listener
+		document.addEventListener('mousemove', handleDragMove);
+	};
+
+	// Add handleDragMove function
+	const handleDragMove = (e) => {
+		// Get the element under the cursor
+		const elementsUnderCursor = document.elementsFromPoint(e.clientX, e.clientY);
+
+		// Find the closest image container
+		const imageContainer = elementsUnderCursor.find((el) =>
+			el.closest('.masonry-image-container'),
+		);
+
+		if (imageContainer) {
+			const rect = imageContainer.getBoundingClientRect();
+			const index = parseInt(imageContainer.dataset.index);
+
+			// Determine if cursor is in first or second half of the image
+			const isInFirstHalf = e.clientY < rect.top + rect.height / 2;
+			const insertPosition = isInFirstHalf ? index : index + 1;
+
+			setInfo((prev) => ({
+				...prev,
+				insertIndex: insertPosition,
+				dragPreviewPosition: {
+					x: e.clientX,
+					y: isInFirstHalf ? rect.top : rect.bottom,
+				},
+			}));
+		}
+	};
+
+	const handleDragEnd = (result) => {
+		if (!result.destination) {
+			setInfo((prev) => ({
+				...prev,
+				isDragging: false,
+				draggedImages: [],
+				selectedImages: [],
+			}));
+			return;
+		}
+
+		const images = [...info?.imagesList?.docs];
+		const selectedImages = info.draggedImages.map((index) => images[index]);
+		const sortedIndices = [...info.draggedImages].sort((a, b) => b - a);
+
+		// Remove images from their original positions
+		sortedIndices.forEach((index) => {
+			images.splice(index, 1);
+		});
+
+		// Insert images at the new position
+		const destinationIndex = result.destination.index;
+		images.splice(destinationIndex, 0, ...selectedImages);
+
+		setInfo((prev) => ({
+			...prev,
+			isDragging: false,
+			draggedImages: [],
+			selectedImages: [],
+			imagesList: {
+				...prev.imagesList,
+				docs: images,
+			},
+		}));
+	};
+
+	const handleCopyGalleryLink = () => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		navigator.clipboard.writeText(
+			`https://${workspaceId}.ve.ai/galleries/${info?.activeGallery?.slug}`,
+		);
+		message.success('Gallery link copied to clipboard');
+		setInfo((prev) => ({
+			...prev,
+			showOptions: !prev.showOptions,
+		}));
+	};
+	// const handleDragEnd = (e, dropIndex) => {
+	// 	e.preventDefault();
+
+	// 	if (!info.isDragging) return;
+
+	// 	const images = [...info?.imagesList?.docs];
+	// 	const selectedImages = info.draggedImages.map((index) => images[index]);
+	// 	const sortedIndices = [...info.draggedImages].sort((a, b) => b - a);
+
+	// 	// Remove images from their original positions
+	// 	sortedIndices.forEach((index) => {
+	// 		images.splice(index, 1);
+	// 	});
+
+	// 	// Insert images at the new position
+	// 	images.splice(dropIndex, 0, ...selectedImages);
+
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		isDragging: false,
+	// 		draggedImages: [],
+	// 		selectedImages: [],
+	// 		imagesList: {
+	// 			...prev.imagesList,
+	// 			docs: images,
+	// 		},
+	// 	}));
+
+	// 	// Here you can add API call to update the order in backend
+	// };
 	return (
 		<>
-			{console.log(info?.activeGallery, 'activeGallery')}
 			<div className="galleryContainer">
 				<div className="mainGalleryContainer">
 					<div className="galleryPic">
@@ -603,9 +832,9 @@ const GalleryPage = () => {
 											ref={optionsRef}
 											onClick={(e) => e.stopPropagation()}
 										>
-											<li>Preview</li>
-											<li>Copy link</li>
-											<li>Share</li>
+											<li style={{ cursor: 'not-allowed' }}>Preview</li>
+											<li onClick={handleCopyGalleryLink}>Copy link</li>
+											<li onClick={openShareModal}>Share</li>
 											<li>Unpublish</li>
 										</div>
 									)}
@@ -624,30 +853,39 @@ const GalleryPage = () => {
 							>
 								<p>+ New Album</p>
 							</div>
-							{info?.tenantAlbums?.map((album, index) => (
-								<div
-									key={index}
-									className={`album ${
-										info?.albumSlug === album?.slug ? 'active' : ''
-									}`}
-									style={{
-										background: album.image
-											? ''
-											: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
-									}}
-								>
-									{album.image && <img src={album?.image} />}
-
+							{info?.tenantAlbums?.map((album, index) => {
+								let src = null;
+								if (album?.coverImage?._id) {
+									const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+									src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
+								}
+								return (
 									<div
-										className="albumDetails"
-										onClick={() => handleClickAlbum(album, 'albumName')}
+										key={index}
+										className={`album ${
+											info?.albumSlug === album?.slug ? 'active' : ''
+										}`}
+										style={{
+											background: src
+												? `url(${src})`
+												: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+											backgroundSize: 'cover',
+											backgroundPosition: 'center',
+										}}
 									>
-										<p>{album?.title}</p>
-										<p>{`${album?.photos} photos`}</p>
+										{album.image && <img src={album?.image} />}
+
+										<div
+											className="albumDetails"
+											onClick={() => handleClickAlbum(album, 'albumName')}
+										>
+											<p>{album?.title}</p>
+											<p>{`${album?.photos || 0} photos`}</p>
+										</div>
+										{/* <div className="overlay"></div> */}
 									</div>
-									{/* <div className="overlay"></div> */}
-								</div>
-							))}
+								);
+							})}
 						</div>
 					</div>
 				</div>
@@ -716,7 +954,9 @@ const GalleryPage = () => {
 									</div>
 								</div>
 								<div className="albumSearchCotainer">
-									<p>Rearrange manually</p>
+									{/* <p onClick={handleRearrange} style={{ cursor: 'pointer' }}>
+										Rearrange manually
+									</p>
 									<div
 										onClick={() =>
 											setInfo((prevInfo) => ({
@@ -756,7 +996,7 @@ const GalleryPage = () => {
 												<li>Random</li>
 											</div>
 										)}
-									</div>
+									</div> */}
 								</div>
 							</div>
 							<div className="albumContains">
@@ -768,59 +1008,77 @@ const GalleryPage = () => {
 												ref={provided.innerRef}
 												style={{ display: 'flex', gap: '10px' }}
 											>
-												{info?.albumTags?.map((contain, index) => (
-													<Draggable
-														key={contain._id || index}
-														draggableId={contain._id || `tag-${index}`}
-														index={index}
-													>
-														{(provided, snapshot) => (
-															<div
-																ref={provided.innerRef}
-																{...provided.draggableProps}
-																className={`albumContain ${
-																	snapshot.isDragging
-																		? 'dragging'
-																		: ''
-																}`}
-																style={{
-																	...provided.draggableProps
-																		.style,
-																	marginBottom: '8px', // Add spacing between items
-																}}
-															>
+												{info?.albumTags
+													?.sort(
+														(a, b) =>
+															a.customSortIndex - b.customSortIndex,
+													)
+													?.map((contain, index) => (
+														<Draggable
+															key={contain._id || index}
+															draggableId={
+																contain._id || `tag-${index}`
+															}
+															index={index}
+															isDragDisabled={
+																contain?.displayName === 'All'
+																	? true
+																	: false
+															}
+														>
+															{(provided, snapshot) => (
 																<div
-																	{...provided.dragHandleProps}
-																	style={{ cursor: 'grab' }}
-																>
-																	<img
-																		src={sixDots}
-																		alt="sixDots"
-																	/>
-																</div>
-																<p
-																	className={
-																		info?.albumContains ===
-																		contain.displayName
-																			? 'active'
+																	ref={provided.innerRef}
+																	{...provided.draggableProps}
+																	className={`albumContain ${
+																		snapshot.isDragging
+																			? 'dragging'
 																			: ''
-																	}
-																	onClick={() =>
-																		handleClickAlbum(
-																			contain,
-																			'containName',
-																		)
-																	}
+																	}`}
+																	style={{
+																		...provided.draggableProps
+																			.style,
+																		marginBottom: '8px', // Add spacing between items
+																	}}
 																>
-																	{contain.displayName}
-																</p>
-																<p className="count">
-																	{contain.imagesCount}
-																</p>
-															</div>
-														)}
-													</Draggable>
-												))}
+																	<div
+																		{...provided.dragHandleProps}
+																		style={{
+																			cursor:
+																				contain?.displayName ===
+																				'All'
+																					? 'not-allowed'
+																					: 'grab',
+																		}}
+																	>
+																		<img
+																			src={sixDots}
+																			alt="sixDots"
+																		/>
+																	</div>
+																	<p
+																		className={
+																			info?.albumContains ===
+																			contain.displayName
+																				? 'active'
+																				: ''
+																		}
+																		onClick={() =>
+																			handleClickAlbum(
+																				contain,
+																				'containName',
+																			)
+																		}
+																	>
+																		{contain.displayName}
+																	</p>
+																	<p className="count">
+																		{contain.imagesCount}
+																	</p>
+																</div>
+															)}
+														</Draggable>
+													))}
 												{provided.placeholder}
 											</div>
 										)}
@@ -864,7 +1122,7 @@ const GalleryPage = () => {
 								<InfiniteScroll
 									dataLength={imagesList?.docs?.length || 0}
 									next={fetchMoreImages}
-									hasMore={info.hasMore}
+									hasMore={imagesList?.hasNextPage || false}
 									loader={
 										<h4 style={{ color: 'white', textAlign: 'center' }}>
 											Loading...
@@ -872,55 +1130,306 @@ const GalleryPage = () => {
 									}
 									scrollableTarget="galleryScrollTarget"
 								>
-									<ResponsiveMasonry
-										columnsCountBreakPoints={{
-											350: 1,
-											750: 2,
-											900: 3,
-											1200: 4,
-										}}
-									>
-										<Masonry gutter="10px">
-											<div
-												className="imageContainer"
-												onClick={handleNavigateUpload}
-											>
-												<div className="imageUpload">
-													<CloudUpload className="uploadIcon" />
-													<p>Add Photos</p>
-												</div>
-											</div>
-
-											{imagesList?.docs?.map((image, index) => {
-												// Replace the problematic params construction with this fixed version
-												const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-												const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
-												return (
-													<div
-														key={index}
-														className={`imageContainer ${
-															info.selectedImages.includes(index)
-																? 'selected'
-																: ''
-														}`}
-														onClick={() => handleImageSelect(index)}
-													>
-														<img
-															src={src}
-															alt={`Gallery image ${index}`}
-															style={{
-																width: '100%',
-																display: 'block',
-															}}
-														/>
-														{info.isMouseInGallery && (
-															<div className="imageOverlay"></div>
-														)}
+									{!info.isRearranging ? (
+										<ResponsiveMasonry
+											columnsCountBreakPoints={{
+												350: 1,
+												750: 2,
+												900: 3,
+												1200: 4,
+											}}
+										>
+											<Masonry gutter="10px">
+												<div
+													className="imageContainer"
+													onClick={handleNavigateUpload}
+												>
+													<div className="imageUpload">
+														<CloudUpload className="uploadIcon" />
+														<p>Add Photos</p>
 													</div>
-												);
-											})}
-										</Masonry>
-									</ResponsiveMasonry>
+												</div>
+
+												{imagesList?.docs?.map((image, index) => {
+													// Replace the problematic params construction with this fixed version
+													const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+													const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+													return (
+														<div
+															key={index}
+															className={`imageContainer ${
+																info.selectedImages.includes(index)
+																	? 'selected'
+																	: ''
+															}`}
+															onClick={() => handleImageSelect(index)}
+														>
+															<img
+																src={src}
+																alt={`Gallery image ${index}`}
+																style={{
+																	width: '100%',
+																	display: 'block',
+																}}
+															/>
+															{info.isMouseInGallery && (
+																<div className="imageOverlay"></div>
+															)}
+														</div>
+													);
+												})}
+											</Masonry>
+										</ResponsiveMasonry>
+									) : (
+										<DragDropContext
+											onDragStart={handleDragStart}
+											onDragEnd={handleDragEnd}
+										>
+											<Droppable
+												droppableId="masonry-grid"
+												direction="horizontal"
+											>
+												{(provided, snapshot) => (
+													<div
+														{...provided.droppableProps}
+														ref={provided.innerRef}
+													>
+														<ResponsiveMasonry
+															columnsCountBreakPoints={{
+																350: 1,
+																750: 2,
+																900: 3,
+																1200: 4,
+															}}
+														>
+															<Masonry gutter="10px">
+																{info?.imagesList?.docs?.map(
+																	(image, index) => {
+																		const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+																		const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+
+																		// Hide original items while being dragged
+																		if (
+																			info.isDragging &&
+																			info.draggedImages.includes(
+																				index,
+																			)
+																		) {
+																			return null;
+																		}
+
+																		return (
+																			<>
+																				{info.insertIndex ===
+																					index &&
+																					info.isDragging && (
+																						<div
+																							className="drop-preview"
+																							style={{
+																								height: '4px',
+																								background:
+																									'#007bff',
+																								margin: '8px 0',
+																								transition:
+																									'all 0.2s',
+																							}}
+																						/>
+																					)}
+																				<Draggable
+																					key={
+																						image._id ||
+																						`image-${index}`
+																					}
+																					draggableId={
+																						image._id ||
+																						`image-${index}`
+																					}
+																					index={index}
+																					isDragDisabled={
+																						!info.selectedImages.includes(
+																							index,
+																						)
+																					}
+																				>
+																					{(
+																						provided,
+																						snapshot,
+																					) => (
+																						<div
+																							ref={
+																								provided.innerRef
+																							}
+																							{...provided.draggableProps}
+																							{...provided.dragHandleProps}
+																							className="masonry-image-container"
+																							data-index={
+																								index
+																							}
+																							style={{
+																								...provided
+																									.draggableProps
+																									.style,
+																								position:
+																									'relative',
+																								transition:
+																									'all 0.2s',
+																								opacity:
+																									snapshot.isDragging
+																										? 0.8
+																										: 1,
+																								cursor: snapshot.isDragging
+																									? 'grabbing'
+																									: 'pointer',
+																								border: info.selectedImages.includes(
+																									index,
+																								)
+																									? '2px solid #007bff'
+																									: 'none',
+																								borderRadius:
+																									'4px',
+																								overflow:
+																									'hidden',
+																								transform:
+																									snapshot.isDragging
+																										? `${provided.draggableProps.style.transform} scale(1.02)`
+																										: provided
+																												.draggableProps
+																												.style
+																												.transform,
+																							}}
+																						>
+																							<img
+																								src={
+																									src
+																								}
+																								alt={`Gallery image ${index}`}
+																								style={{
+																									width: '100%',
+																									display:
+																										'block',
+																									pointerEvents:
+																										info.isDragging
+																											? 'none'
+																											: 'auto',
+																								}}
+																								onClick={() =>
+																									!info.isDragging &&
+																									handleImageSelect(
+																										index,
+																									)
+																								}
+																							/>
+																						</div>
+																					)}
+																				</Draggable>
+																			</>
+																		);
+																	},
+																)}
+																{provided.placeholder}
+															</Masonry>
+														</ResponsiveMasonry>
+													</div>
+												)}
+											</Droppable>
+
+											{/* Drag Preview */}
+											{info.isDragging && info.draggedImages.length > 0 && (
+												<div
+													style={{
+														position: 'fixed',
+														left: info.dragPreviewPosition?.x || 0,
+														top: info.dragPreviewPosition?.y || 0,
+														transform: 'translate(-50%, -50%)',
+														pointerEvents: 'none',
+														zIndex: 9999,
+														display: 'flex',
+														gap: '4px',
+													}}
+												>
+													{info.draggedImages.map((index) => {
+														const image = info?.imagesList?.docs[index];
+														const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+														const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+
+														return (
+															<img
+																key={index}
+																src={src}
+																alt="Drag Preview"
+																style={{
+																	width: '100px',
+																	height: '100px',
+																	objectFit: 'cover',
+																	opacity: 0.8,
+																	borderRadius: '4px',
+																	boxShadow:
+																		'0 2px 8px rgba(0,0,0,0.2)',
+																}}
+															/>
+														);
+													})}
+												</div>
+											)}
+										</DragDropContext>
+										// <div
+										// 	className="rearrange-grid"
+										// 	style={{
+										// 		display: 'flex',
+										// 		flexWrap: 'wrap',
+										// 		gap: '10px',
+										// 		padding: '10px',
+										// 	}}
+										// >
+										// 	{info?.imagesList?.docs?.map((image, index) => {
+										// 		const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+										// 		const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+
+										// 		return (
+										// 			<div
+										// 				key={index}
+										// 				className={`rearrange-image-container ${
+										// 					info.selectedImages.includes(index)
+										// 						? 'selected'
+										// 						: ''
+										// 				}`}
+										// 				draggable={info.selectedImages.includes(
+										// 					index,
+										// 				)}
+										// 				onDragStart={(e) =>
+										// 					handleDragStart(e, index)
+										// 				}
+										// 				onDragOver={(e) => e.preventDefault()}
+										// 				onDrop={(e) => handleDragEnd(e, index)}
+										// 				onClick={() => handleImageSelect(index)}
+										// 				style={{
+										// 					width: '200px',
+										// 					height: '200px',
+										// 					position: 'relative',
+										// 					cursor: info.selectedImages.includes(
+										// 						index,
+										// 					)
+										// 						? 'grab'
+										// 						: 'pointer',
+										// 				}}
+										// 			>
+										// 				<img
+										// 					src={src}
+										// 					alt={`Gallery image ${index}`}
+										// 					style={{
+										// 						width: '100%',
+										// 						height: '100%',
+										// 						objectFit: 'cover',
+										// 					}}
+										// 				/>
+										// 				{info.isMouseInGallery && (
+										// 					<div className="imageOverlay"></div>
+										// 				)}
+										// 			</div>
+										// 		);
+										// 	})}
+										// </div>
+									)}
 								</InfiniteScroll>
 
 								{info.selectedImages.length > 0 && (
@@ -938,7 +1447,7 @@ const GalleryPage = () => {
 											<div onClick={handleExpandClick}>
 												<ExpandIcon />
 											</div>
-											<div
+											{/* <div
 												style={{ position: 'relative' }}
 												ref={forwardIconRef}
 											>
@@ -1009,7 +1518,7 @@ const GalleryPage = () => {
 														<li>Delete</li>
 													</div>
 												)}
-											</div>
+											</div> */}
 										</div>
 									</div>
 								)}
@@ -1033,7 +1542,6 @@ const GalleryPage = () => {
 										Renaming affects the URL. Share the new link with clients
 										each time.
 									</p>
-									{console.log(tenantGalleries, 'tenantGallery')}
 									<input
 										placeholder="Hannef x Mahi"
 										value={info.activeGallery?.galleryData?.title}
@@ -1046,12 +1554,6 @@ const GalleryPage = () => {
 										Sort galleries by this date. Which is visible to the client
 									</p>
 									<div>
-										{console.log(
-											convertEpochToDate(
-												info.activeGallery?.galleryData?.dueDateEpoch,
-											),
-											'dueDateEpoch',
-										)}
 										<DatePicker
 											className="datePicker"
 											format="DD-MM-YYYY"
@@ -1084,7 +1586,10 @@ const GalleryPage = () => {
 								<div className="clientSubscription">
 									<p className="subHeading">Client Subscription</p>
 									<div className="clientSubscriptionToggle">
-										<ToggleSlider />
+										<ToggleSlider
+											value={info?.clientSubscription}
+											onChange={handleClientSubscription}
+										/>
 										<p className="subTitle">
 											Allow clients to subscribe and take ownership after
 											expiry.
@@ -1297,7 +1802,12 @@ const GalleryPage = () => {
 				)}
 			</div>
 
-			<ShareModal open={info.shareModal} closeModal={openShareModal} />
+			<ShareModal
+				open={info.shareModal}
+				closeModal={openShareModal}
+				galleryId={galleryId}
+				activeGallery={info?.activeGallery?.galleryData}
+			/>
 			<CreateAlbum
 				open={info.showCreateAlbum}
 				closeModal={() =>
