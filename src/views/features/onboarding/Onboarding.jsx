@@ -2,71 +2,125 @@ import React, { memo, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import '../../../assets/scss/onboarding/index.scss';
 import Username from '../../components/onboarding/Username';
+import WorkspaceHandleName from '../../components/onboarding/WorkspaceHandleName';
+import { useRef } from 'react';
 
-const AiIntro = {
-	0: (
-		<div className="message-1">
-			<h1>Hi! I am VE</h1>
-			<h2>Your AI companion</h2>
-		</div>
-	),
-	1: (
-		<div className="message-2">
-			<h1>What can I call you ?</h1>
-		</div>
-	),
-};
-
-const tl = gsap?.timeline();
-
-const animateAiIntro = () => {
-	tl?.fromTo(
-		'.ai-intro',
-		{
-			zoom: 2,
-			opacity: 0,
-			y: 20,
-		},
-		{
-			zoom: 1,
-			opacity: 1,
-			y: 0,
-			duration: 2,
-			ease: 'power2.out',
-			delay: 0.5,
-		},
-	);
-};
-
-const animateUsernameInput = () => {
-	tl?.fromTo('.username-input-container', { opacity: 0 }, { opacity: 1, duration: 1 });
-	tl?.from('.username-input-container', { bottom: 0, duration: 1 });
-};
+const tl = gsap.timeline();
+const tl2 = gsap.timeline();
 
 const Onboarding = () => {
 	const [info, setInfo] = useState({
+		stage: 0,
 		step: 0,
+		username: '',
 	});
 
-	useEffect(() => {
-		if (info?.step === 0) {
-			animateAiIntro();
-			setInfo((prev) => ({ ...prev, step: prev.step + 1 }));
-		} else if (info?.step === 1) {
-			// animateUsernameInput();
-		}
-	}, [info?.step]);
+	const aiIntroRef = useRef(null);
 
-	const onboardingSteps = {
-		1: <Username />,
+	const AiIntro = {
+		0: (
+			<>
+				<h1>Hi! I am VE</h1>
+				<h2>Your AI companion</h2>
+			</>
+		),
+		1: <h1>What can I call you ?</h1>,
+	};
+
+	const onboardingStages = {
+		1: <Username onboardingInfo={info} setOnboardingInfo={setInfo} />,
+		2: <WorkspaceHandleName />,
+	};
+
+	useEffect(() => {
+		if (info?.step === 0 && aiIntroRef?.current) {
+			animateAiIntro();
+		} else if (info?.step === 1 && aiIntroRef?.current) {
+			animateRightContainer();
+		} else if (info?.step === 2 && aiIntroRef?.current) {
+			animateUsername();
+		}
+	}, [info?.step, aiIntroRef?.current]);
+
+	const animateAiIntro = () => {
+		tl?.fromTo(
+			aiIntroRef?.current,
+			{
+				zoom: 2,
+				opacity: 0,
+			},
+			{
+				zoom: 1,
+				opacity: 1,
+				duration: 1,
+				ease: 'power2.out',
+				delay: 1,
+			},
+		);
+		tl?.to(aiIntroRef?.current, {
+			opacity: 0,
+			duration: 1,
+			ease: 'power2.out',
+			delay: 1,
+			onComplete: () => {
+				setTimeout(() => {
+					setInfo((prev) => ({
+						...prev,
+						step: prev?.step + 1,
+						stage: prev?.stage + 1,
+					}));
+				}, 500);
+			},
+		});
+	};
+
+	const animateRightContainer = () => {
+		tl.fromTo(
+			[aiIntroRef?.current],
+			{
+				opacity: 0,
+				y: 20,
+			},
+			{
+				opacity: 1,
+				y: 0,
+				duration: 1,
+				ease: 'power2.out',
+			},
+		);
+		tl2.fromTo(
+			'.right-container-content',
+			{
+				zoom: 0,
+			},
+			{
+				zoom: 1,
+				duration: 1,
+				ease: 'power2.out',
+			},
+		);
+	};
+
+	const animateUsername = () => {
+		tl.fromTo(
+			aiIntroRef?.current,
+			{
+				y: 0,
+			},
+			{
+				y: -20,
+				duration: 1,
+				ease: 'power2.out',
+			},
+		);
 	};
 
 	return (
 		<div className="onboarding-container">
 			<div className="left-container">
-				<div className="ai-intro">
+				<div ref={aiIntroRef} className="ai-intro">
 					{AiIntro[info?.step]}
-					{onboardingSteps[info?.step]}
+					{onboardingStages[info?.stage]}
 				</div>
 			</div>
 			{info?.step === 1 && (

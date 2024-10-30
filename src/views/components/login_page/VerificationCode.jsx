@@ -1,5 +1,6 @@
 import React, { memo, useEffect, useState } from 'react';
 import OtpInput from 'react-otp-input';
+import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/login_page/left-arrow-back-btn.svg';
 import { ReactComponent as OutlookLogo } from '../../../assets/svg/login_page/outlook.svg';
@@ -8,13 +9,14 @@ import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/up
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 
 const VerificationCode = ({ email, setLoginPageInfo }) => {
+	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		otp: '',
 		otpError: '',
 	});
 
 	const handleVerify = () => {
-		setLoginPageInfo((prev) => ({ ...prev, activeStage: 'username' }));
+		navigate('/onboarding');
 	};
 
 	return (
