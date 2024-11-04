@@ -378,6 +378,7 @@ const SmartFile = () => {
 					edit={info?.edit}
 					expiresAt={info?.workflowExpiryAt || ''}
 					updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
+					workflowStatus={info?.workflowStatus}
 				/>
 			),
 			activity: <ActivityDashboard />,
@@ -388,6 +389,7 @@ const SmartFile = () => {
 		info?.edit,
 		info?.workflowExpiryAt,
 		updateSendSmartFileExpiryData,
+		info?.workflowStatus,
 	]);
 
 	return info?.loading ? (
