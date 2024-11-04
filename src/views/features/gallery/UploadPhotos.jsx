@@ -25,6 +25,7 @@ const UploadPhotos = () => {
 			waterMarks,
 			tenantAlbums,
 			getAlbums,
+			getImageDuplicatesList,
 		},
 	} = useContext(Context);
 
@@ -276,20 +277,31 @@ const UploadPhotos = () => {
 			// 					50,
 			// 		  );
 
-			let result = 0;
-			let shouldClearInterval = false;
+			let result = 0,
+				uploaded75Percent = 0,
+				processed25Percent = 0,
+				shouldClearInterval = false;
 
 			if (info?.isSkipDuplicates && totalImages === info?.duplciatesFound) {
 				result = 100;
 				shouldClearInterval = true;
 			} else if (info?.isSkipDuplicates && totalImages !== info?.duplciatesFound) {
 				let totalImagesWithoutDuplicates = totalImages - info?.duplciatesFound;
-				result =
+				processed25Percent =
 					processedCount > 0
-						? parseInt((processedCount / totalImagesWithoutDuplicates) * 100)
+						? parseInt((processedCount / totalImagesWithoutDuplicates) * 25)
 						: 0;
+				uploaded75Percent =
+					uploadedCount > 0
+						? parseInt((uploadedCount / totalImagesWithoutDuplicates) * 75)
+						: 0;
+				result = uploaded75Percent + processed25Percent;
 			} else {
-				result = processedCount > 0 ? parseInt((processedCount / totalImages) * 100) : 0;
+				processed25Percent =
+					processedCount > 0 ? parseInt((processedCount / totalImages) * 25) : 0;
+				uploaded75Percent =
+					uploadedCount > 0 ? parseInt((uploadedCount / totalImages) * 75) : 0;
+				result = uploaded75Percent + processed25Percent;
 			}
 
 			if (result === 100) {
@@ -312,6 +324,15 @@ const UploadPhotos = () => {
 			// console.log(json, currentFile, '==>currentFile');
 
 			if (info.isSkipDuplicates && info.uploadImages[currentFile]?.isDuplicate) {
+				setinfo((prev) => {
+					let uploadImages = { ...prev.uploadImages };
+					uploadImages[currentFile]['isUploaded'] = true;
+					uploadImages[currentFile]['uploadedPerct'] = 100;
+					const size = uploadImages[currentFile]['file'].size;
+					delete uploadImages[currentFile]['file'];
+					uploadImages[currentFile]['file'] = { size, name: currentFile };
+					return { ...prev, uploadImages };
+				});
 				nextUploadFunc();
 				return;
 			}
@@ -370,7 +391,11 @@ const UploadPhotos = () => {
 				/>
 			</div>
 
-			<UploadCompletedPopup info={info} setinfo={setinfo} />
+			<UploadCompletedPopup
+				info={info}
+				setinfo={setinfo}
+				getImageDuplicatesList={getImageDuplicatesList}
+			/>
 			{/* <RefreshPopup info={info} setinfo={setinfo} /> */}
 		</div>
 	);
