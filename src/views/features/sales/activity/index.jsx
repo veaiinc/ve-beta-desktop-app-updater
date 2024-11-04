@@ -68,10 +68,12 @@ const ActivityDashboard = () => {
 	//UseEffect
 	useEffect(() => {
 		if (workflowId) {
+			console.log('Fetching ActivityData');
 			fetchActivityData();
+			console.log('Fetching ViewersListData');
 			fetchViewersListData();
 		}
-	}, [fetchActivityData, fetchViewersListData, workflowId]);
+	}, [workflowId]);
 
 	return (
 		<div className="activityParentContainer">
