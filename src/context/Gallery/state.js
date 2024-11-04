@@ -23,6 +23,7 @@ export const intialState = {
 	visitorFormAccess: null,
 	imageDetail: null,
 	galleryGuestAccess: null,
+	albumImagesCount: null,
 };
 
 export const Galleries = () => {
@@ -99,11 +100,13 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.GET_TENANT_ALBUMS,
 					payload: response?.[1],
 				});
+			} else {
+				return response;
 			}
 		} catch (error) {
 			console.log('error==>getAlbums', error);
@@ -167,7 +170,7 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.GET_TAGS_LIST,
 					payload: { galleryId, list: response?.[1] },
@@ -176,7 +179,7 @@ export const Galleries = () => {
 
 			return response;
 		} catch (error) {
-			console.log('error==>getTags', error);
+			console.log('error==>getGalleryTagsList', error);
 		}
 	};
 
@@ -464,11 +467,8 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response?.[0]) {
-				return response;
-			} else {
-				return [false];
-			}
+
+			return response;
 		} catch (error) {
 			console.log('error==>getTags', error);
 		}
@@ -483,11 +483,13 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response[0]) {
+			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_IMAGE_DUPLICATES,
 					payload: { galleryId, albumId, list: response?.[1] },
 				});
+			} else {
+				return response;
 			}
 		} catch (error) {
 			console.log('error==>getImageDuplicatesList', error);
@@ -503,14 +505,14 @@ export const Galleries = () => {
 				usertoken,
 				'tenant',
 			);
-			if (response[0]) {
+			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_WATERMARKS_LIST,
 					payload: response?.[1],
 				});
 			}
 		} catch (error) {
-			console.log('error==>getImageDuplicatesList', error);
+			console.log('error==>getWaterMarks', error);
 		}
 	};
 	const updatedAlbum = (value) => {
@@ -590,7 +592,7 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response[0]) {
+			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_IMAGES_LIST,
 					payload: response?.[1],
@@ -726,11 +728,7 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response[0]) {
-				return response;
-			} else {
-				return [false];
-			}
+			return response;
 		} catch (error) {
 			console.log('error==>updateAlbumCoverImage', error);
 		}
@@ -825,6 +823,28 @@ export const Galleries = () => {
 		}
 	};
 
+	const getAlbumImagesCount = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}`,
+				usertoken,
+				'galleries',
+			);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_ALBUM_IMAGES_COUNT,
+					payload: response?.[1],
+				});
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>getAlbums', error);
+		}
+	};
+
 	return {
 		...state,
 		getGalleries,
@@ -870,5 +890,6 @@ export const Galleries = () => {
 		setAlbumCoverImage,
 		deleteAlbum,
 		deleteGallery,
+		getAlbumImagesCount,
 	};
 };

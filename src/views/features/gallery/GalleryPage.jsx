@@ -2,34 +2,25 @@ import React, { useState, useEffect, useRef, useContext, useCallback } from 'rea
 import share from '../../../assets/svg/gallery/share.svg';
 import sixDots from '../../../assets/svg/gallery/sixdots.svg';
 import threeDots from '../../../assets/svg/gallery/threeDots.svg';
-import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
-import { ReactComponent as FilterIcon } from '../../../assets/svg/chat/filter.svg';
 import { ReactComponent as ExpandIcon } from '../../../assets/svg/gallery/expand.svg';
-import { ReactComponent as ForwardIcon } from '../../../assets/svg/gallery/forward.svg';
-import { ReactComponent as PinIcon } from '../../../assets/svg/gallery/pin.svg';
-import { ReactComponent as OptionsIcon } from '../../../assets/svg/gallery/dotsThree.svg';
-import { ReactComponent as GridStyleVertical } from '../../../assets/svg/gallery/gridStyleVertical.svg';
-import { ReactComponent as ThumbnailV } from '../../../assets/svg/gallery/thumbnailV.svg';
-import { ReactComponent as GridStyleHorizontal } from '../../../assets/svg/gallery/gridStyleH.svg';
-import { ReactComponent as ThumbnailH } from '../../../assets/svg/gallery/thumbnailH.svg';
 import { ReactComponent as CloudUpload } from '../../../assets/svg/Settings/CloudUpload.svg';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
-import ToggleSlider from '../../../views/components/input/slider';
 import { message } from 'antd';
-// import AlbumSettings from './AlbumSettings';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
 import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPopup';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
-import { DatePicker } from 'antd';
 import moment from 'moment';
-import { updateProposalQuery } from '../../../context/Templates/graphQlFunctions';
-import { getInitials } from '../../../helpers/index';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DeleteGalleryComponent from '../../components/gallery/gallerySettings/DeleteGalleryComponent';
+import GalleryOverview from '../../components/gallery/galleryPage/GalleryOverviewComp';
+import DesignOverviewComp from '../../components/gallery/galleryPage/DesignOverviewComp';
+import UploadGalleryImageCover from '../../components/gallery/galleryPage/UploadGalleryImageCover';
+import randomize from 'randomatic';
+import axios from 'axios';
 
 const data = [
 	{ name: 'Albums', number: 14 },
@@ -38,13 +29,6 @@ const data = [
 	// { name: 'Client Selections', number: 6 },
 	{ name: 'AI', number: '' },
 ];
-const albumContains = [
-	{ name: 'Portraits', number: 40 },
-	{ name: 'Documents', number: 23 },
-	{ name: 'Decor', number: 89 },
-	{ name: 'All', number: 60 },
-];
-const imageURL = 'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg';
 
 const GalleryPage = () => {
 	const { galleryId } = useParams();
@@ -73,11 +57,17 @@ const GalleryPage = () => {
 			imagesList,
 			updateTagOrder,
 			shareGalleryViaEmail,
-
+			getAlbumImagesCount,
 			getImage,
-
+			albumImagesCount,
 			updateCollaborators,
 			basicAlbumDetails,
+			getGalleryTagsList,
+			getImageUploadStatus,
+			getUploadImageSignUrl,
+			getImageDetail,
+			imageDetail,
+			updateAlbumCoverImage,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -120,6 +110,14 @@ const GalleryPage = () => {
 		clientSubscription: tenantPreferences?.allowClientsToSubscribe || false,
 		dragPreviewPosition: null,
 		insertIndex: null,
+		crop: {
+			x: 0,
+			y: 0,
+		},
+		zoom: 1,
+		uploadImageId: null,
+		imageURL: '',
+		coverImageDetails: null,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -133,6 +131,8 @@ const GalleryPage = () => {
 	const pinSearchRef = useRef(null);
 	const optionsIconRef = useRef(null);
 	const optionsContainerRef = useRef(null);
+	const fileInputRef = useRef();
+
 	const handleClickOutside = useCallback((event) => {
 		const clickOutsideCheck = (ref, iconRef, stateName) => {
 			if (
@@ -151,6 +151,7 @@ const GalleryPage = () => {
 		clickOutsideCheck(pinSearchRef, pinIconRef, 'showPin');
 		clickOutsideCheck(optionsContainerRef, optionsIconRef, 'showOptionsContainer');
 	}, []);
+
 	useEffect(() => {
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
@@ -165,7 +166,13 @@ const GalleryPage = () => {
 	}, [galleryCredentials]);
 	useEffect(() => {
 		if (!tenantAlbums || tenantAlbums?._id !== galleryId) {
-			getAlbums(galleryId);
+			getAlbums(galleryId).then((response) => {
+				if (response?.[0] === 404 && response?.[1]?.message === 'gallery not found') {
+					navigate('/galleries');
+				}
+			});
+
+			getAlbumImagesCount(galleryId);
 		}
 		if (!tenantPreferences || tenantPreferences?._id !== galleryId) {
 			getEditPreferences(galleryId);
@@ -278,6 +285,32 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [albumDetails]);
+
+	useEffect(() => {
+		if (imageDetail?._id === info?.uploadImageId && galleryCredentials) {
+			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+			const src = `${galleryCredentials?.baseURL}/${imageDetail?.image?.s3_optimized?.key}?${params}`;
+			setInfo((prev) => ({
+				...prev,
+				imageURL: src,
+			}));
+		}
+
+		if (info?.coverImageDetails?._id && galleryCredentials) {
+			console.log(info?.coverImageDetails, 'coverImageDetails');
+			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+			const src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info?.coverImageDetails?.givenFileName}?${params}`;
+			setInfo((prev) => ({
+				...prev,
+				imageURL: src,
+				coverPhoto: true,
+				crop: {
+					x: info?.coverImageDetails?.xPosition,
+					y: info?.coverImageDetails?.yPosition,
+				},
+			}));
+		}
+	}, [galleryCredentials, imageDetail, info?.uploadImageId, info?.coverImageDetails?._id]);
 
 	const fetchMoreImages = () => {
 		const nextPage = info.page + 1;
@@ -710,6 +743,89 @@ const GalleryPage = () => {
 			showOptions: !prev.showOptions,
 		}));
 	};
+
+	const getImageDetails = async (imageId, batchId) => {
+		const clearinterval = setInterval(async () => {
+			const imageStatus = await getImageUploadStatus(galleryId, info?.activeAlbumId, batchId);
+			if (
+				imageStatus?.[0] === true &&
+				imageStatus?.[1]?.processedCount === 1 &&
+				imageStatus?.[1]?.uploadedCount === 1
+			) {
+				clearInterval(clearinterval);
+				getImageDetail(imageId);
+				message.destroy();
+			}
+		}, 2000);
+	};
+
+	const uploadAlbumCoverChangeHandler = async (e) => {
+		message.open({
+			type: 'loading',
+			content: 'Uploading album cover image..',
+			duration: 0,
+		});
+		const image = e.target.files[0];
+		const batchId = randomize('Aa0', 10);
+
+		const responseGalleryTags = await getGalleryTagsList(galleryId);
+		if (responseGalleryTags?.[0] === true) {
+			const allTagId = responseGalleryTags?.[1]?.find((item) => item.displayName === 'All');
+			let json = {
+				originalFileName: image?.name,
+				originalDateTime: moment(image?.['originalDate']).unix() || 0,
+				uploadBatchId: batchId,
+				tag_ids: [allTagId?._id],
+				isAIFacesEnabled: true,
+			};
+
+			const signedURLUpload = await getUploadImageSignUrl(
+				galleryId,
+				info?.activeAlbumId,
+				json,
+			);
+			if (signedURLUpload?.[0] === true) {
+				const uploadResponse = await axios.put(signedURLUpload[1]['signedUrl'], image, {
+					headers: {
+						'Content-Type': image?.type,
+					},
+				});
+				setInfo((prev) => ({
+					...prev,
+					uploadImageId: signedURLUpload?.[1]?._id,
+				}));
+
+				if (uploadResponse.status === 200) {
+					getImageDetails(signedURLUpload?.[1]?._id, batchId);
+				}
+			} else {
+				message.destroy();
+				message.error('Something went wrong, please try again later');
+			}
+		} else {
+			message.destroy();
+			message.error('Something went wrong, please try again later');
+		}
+	};
+
+	const handleSetCoverPosition = async () => {
+		const json = {
+			image_id: info?.uploadImageId || info?.coverImageDetails?._id,
+			xPosition: info?.crop?.x,
+			yPosition: info?.crop?.y,
+			givenFileName:
+				imageDetail?.image?.givenFileName || info?.coverImageDetails?.givenFileName,
+			width: 100,
+			height: 100,
+			// zoom: info?.zoom,
+		};
+		const respone = await updateAlbumCoverImage(json, galleryId, info?.activeAlbumId);
+		if (respone?.[0] === true) {
+			message.success('Cover position set successfully!');
+		} else {
+			message.error('Something went wrong, please try again later');
+		}
+	};
 	// const handleDragEnd = (e, dropIndex) => {
 	// 	e.preventDefault();
 
@@ -740,6 +856,8 @@ const GalleryPage = () => {
 
 	// 	// Here you can add API call to update the order in backend
 	// };
+
+	// console.log(albumImagesCount, 'count');
 	return (
 		<>
 			<div className="galleryContainer">
@@ -761,7 +879,9 @@ const GalleryPage = () => {
 							</p>
 						</div>
 						<div className="imageContaienr">
-							<img src={imageURL} />
+							<img
+								src={`${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`}
+							/>
 						</div>
 					</div>
 					<div className="albumsContianer">
@@ -822,7 +942,7 @@ const GalleryPage = () => {
 							>
 								<p>+ New Album</p>
 							</div>
-							{info?.tenantAlbums?.map((album, index) => {
+							{albumImagesCount?.albums?.map((album, index) => {
 								let src = null;
 								if (album?.coverImage?._id) {
 									const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
@@ -849,7 +969,7 @@ const GalleryPage = () => {
 											onClick={() => handleClickAlbum(album, 'albumName')}
 										>
 											<p>{album?.title}</p>
-											<p>{`${album?.photos || 0} photos`}</p>
+											<p>{`${album?.imagesCount || 0} photos`}</p>
 										</div>
 										{/* <div className="overlay"></div> */}
 									</div>
@@ -1498,254 +1618,33 @@ const GalleryPage = () => {
 				{info.activeTab === 'Settings' && (
 					<div className="settingsMainContainer">
 						<div className="settingsContianer">
-							<div id="gallery-overview" className="settings-overview">
-								<p className="heading">Gallery overview</p>
-								<p className="subHeading">
-									Gallery URL
-									<span className="subTitle">- ankitttt.ve-s.../-my gallery</span>
-								</p>
-								<div className="renameGallery">
-									<p className="subHeading">Rename Gallery </p>
-									<p className="subTitle">
-										Renaming affects the URL. Share the new link with clients
-										each time.
-									</p>
-									<input
-										placeholder="Hannef x Mahi"
-										value={info.activeGallery?.galleryData?.title}
-										onChange={handleGalleryChange}
-									/>
-								</div>
-								<div className="galleryDate">
-									<p className="subHeading">Gallery Date </p>
-									<p className="subTitle">
-										Sort galleries by this date. Which is visible to the client
-									</p>
-									<div>
-										<DatePicker
-											className="datePicker"
-											format="DD-MM-YYYY"
-											selected={convertEpochToDate(
-												info.activeGallery?.galleryData?.dueDateEpoch,
-											)}
-											// onChange={(date, dateString) =>
-											// 	handleAlbumNameChange(dateString, 'date')
-											// }
-										/>
-									</div>
-								</div>
-								<div className="callToAction">
-									<p className="subHeading">Call to Action (CTA)</p>
-									<div className="callToActionToggle">
-										<ToggleSlider
-											value={info?.callToAction?.isEnabled}
-											onChange={handleCallToAction}
-										/>
-										<p className="subTitle">
-											Enable to display CTA for the gallery.
-										</p>
-									</div>
-									<input
-										placeholder="https://Instagtagram/sam/9tbevccxggvcxg"
-										value={info?.callToAction?.link}
-										onChange={handleLinkChange}
-									/>
-								</div>
-								<div className="clientSubscription">
-									<p className="subHeading">Client Subscription</p>
-									<div className="clientSubscriptionToggle">
-										<ToggleSlider
-											value={info?.clientSubscription}
-											onChange={handleClientSubscription}
-										/>
-										<p className="subTitle">
-											Allow clients to subscribe and take ownership after
-											expiry.
-										</p>
-									</div>
-								</div>
-								<div className="collaborators">
-									<div className="collaboratorsContainer">
-										<div>
-											<p className="subHeading">3 Collaborators</p>
-											<p className="subTitle">
-												Collaborators are your team members that you want to
-												add to or remove from this gallery.
-											</p>
-										</div>
-										<p
-											className="subHeading manageButton"
-											onClick={handleManageCollaboratorPopup}
-										>
-											+ Manage Collaborators
-										</p>
-									</div>
-									<div className="collaboratorsList">
-										{info?.collaboratorsData?.map((ele, index) => (
-											<div className="collaboratorsContainer">
-												<div className="collaboratorsImage">
-													<div className="tenantLogo">
-														<p>
-															{getInitials(
-																ele?.firstName,
-																ele?.lastName,
-															)}
-														</p>
-													</div>
-												</div>
-												<p>{ele?.firstName}</p>
-											</div>
-										))}
-									</div>
-								</div>
-							</div>
-							<div id="design" className="settings-overview">
-								<div className="designaContainer">
-									<p className="heading">Design</p>
-									<div className="previewLayout">
-										<p className="subTitle">Preview layout</p>
-										<UpArrow />
-									</div>
-								</div>
-								<div className="coverDesign">
-									<p className="subHeading">Select gallery cover design</p>
-									<div className="selectDesign">
-										<div className="cover-images"></div>
-										<div className="cover-images"></div>
-										<div className="cover-images"></div>
-										<div className="cover-images"></div>
-										<div className="cover-images"></div>
-										<div className="cover-images"></div>
-										<div className="cover-images"></div>
-										<div className="cover-images"></div>
-										<div className="cover-images"></div>
-										<div className="cover-images"></div>
-										<div className="cover-images"></div>
-									</div>
-								</div>
-								<div className="aiBackground">
-									<p className="subHeading">AI Background</p>
-									<div className="aiTogglebar">
-										<ToggleSlider />
-										<p className="subTitle">
-											Automatically choose cover color based on photo
-										</p>
-									</div>
-								</div>
-								<div className="titleText">
-									<p className="subHeading">Title text</p>
-									<div className="textContainer">
-										<input
-											type="text"
-											placeholder="FreightText Pro + Futura PT "
-										/>
-										<UpArrow />
-									</div>
-								</div>
-								<div className="grid-style">
-									<p className="subHeading">Grid Style</p>
-									<div className="grid-types">
-										<div
-											className={`box ${
-												info?.gridStyle?.vertical ? 'activeBorder' : ''
-											}`}
-											onClick={() =>
-												handleLayoutType('gridStyle', 'vertical')
-											}
-										>
-											<GridStyleVertical
-												className={
-													info?.gridStyle?.vertical ? 'active' : ''
-												}
-											/>
-											<p
-												className={`subTitle ${
-													info?.gridStyle?.vertical ? 'active' : ''
-												}`}
-											>
-												Vertical
-											</p>
-										</div>
-										<div
-											className={`box ${
-												info?.gridStyle?.horizontal ? 'activeBorder' : ''
-											}`}
-											onClick={() =>
-												handleLayoutType('gridStyle', 'horizontal')
-											}
-										>
-											<GridStyleHorizontal
-												className={
-													info?.gridStyle?.horizontal ? 'active' : ''
-												}
-											/>
-											<p
-												className={`subTitle ${
-													info?.gridStyle?.horizontal ? 'active' : ''
-												}`}
-											>
-												Horizontal
-											</p>
-										</div>
-									</div>
-								</div>
-								<div className="thumbnail-size">
-									<p className="subHeading">Thumbnail Size</p>
-									<div className="thumbnail-types">
-										<div
-											className={`box ${
-												info?.thumbnailSize?.regular ? 'activeBorder' : ''
-											}`}
-											onClick={() =>
-												handleLayoutType('thumbnailSize', 'regular')
-											}
-										>
-											<ThumbnailV
-												className={
-													info?.thumbnailSize?.regular ? 'active' : ''
-												}
-											/>
-											<p
-												className={`subTitle ${
-													info?.thumbnailSize?.regular ? 'active' : ''
-												}`}
-											>
-												Regular
-											</p>
-										</div>
-										<div
-											className={`box ${
-												info?.thumbnailSize?.large ? 'activeBorder' : ''
-											}`}
-											onClick={() =>
-												handleLayoutType('thumbnailSize', 'large')
-											}
-										>
-											<ThumbnailH
-												className={
-													info?.thumbnailSize?.large ? 'active' : ''
-												}
-											/>
-											<p
-												className={`subTitle ${
-													info?.thumbnailSize?.large ? 'active' : ''
-												}`}
-											>
-												Large
-											</p>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div id="delete" className="settings-overview">
-								{console.log(tenantAlbums)}
-								<DeleteGalleryComponent
-									galleryName={tenantAlbums?.title || ''}
-									galleryId={galleryId}
-									albumId={info?.activeGallery?.galleryData?._id}
-								/>
-							</div>
+							<GalleryOverview
+								info={info}
+								handleGalleryChange={handleGalleryChange}
+								handleCallToAction={handleCallToAction}
+								handleClientSubscription={handleClientSubscription}
+								handleManageCollaboratorPopup={handleManageCollaboratorPopup}
+								convertEpochToDate={convertEpochToDate}
+								handleLinkChange={handleLinkChange}
+							/>
+
+							<DesignOverviewComp info={info} handleLayoutType={handleLayoutType} />
+
+							<UploadGalleryImageCover
+								info={info}
+								setInfo={setInfo}
+								fileInputRef={fileInputRef}
+								uploadAlbumCoverChangeHandler={uploadAlbumCoverChangeHandler}
+								handleSetCoverPosition={handleSetCoverPosition}
+							/>
+
+							<DeleteGalleryComponent
+								galleryName={tenantAlbums?.title || ''}
+								galleryId={galleryId}
+								albumId={info?.activeGallery?.galleryData?._id}
+							/>
 						</div>
+
 						<div className="settingsNavContianer">
 							<li
 								onClick={() => scrollToSection('gallery-overview')}

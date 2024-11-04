@@ -77,6 +77,10 @@ const actionHandlers = {
 		...state,
 		galleryGuestAccess: action.payload,
 	}),
+	GET_ALBUM_IMAGES_COUNT: (state, action) => ({
+		...state,
+		albumImagesCount: action.payload,
+	}),
 	RESET_IMAGES_LIST: (state) => ({ ...state, imagesList: null }),
 	RESET_STATE: () => ({ ...intialState }),
 };

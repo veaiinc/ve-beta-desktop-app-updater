@@ -138,7 +138,14 @@ const GalleryViewer = () => {
 					setInfo={setInfo}
 				/>
 
-				{info?.imageDetailId && <ImageDetailNav info={info} imageDetail={imageDetail} />}
+				{info?.imageDetailId && (
+					<ImageDetailNav
+						info={info}
+						imageDetail={imageDetail}
+						galleryCredentials={galleryCredentials}
+						galleryId={galleryId}
+					/>
+				)}
 			</div>
 		</div>
 	);

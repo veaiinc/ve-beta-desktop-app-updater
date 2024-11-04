@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { ReactComponent as CancelTag } from '../../../../assets/svg/gallery/cancel_tag.svg';
 import Context from '../../../../context/context';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 
 const AddLables = ({ info, setinfo }) => {
@@ -9,7 +9,7 @@ const AddLables = ({ info, setinfo }) => {
 	const {
 		galleryInfo: { tagsList, getGalleryTagsList, addGalleryTag, getImageDuplicatesList },
 	} = useContext(Context);
-
+	const navigate = useNavigate();
 	const [inputTag, setinputTag] = useState('');
 
 	const [messageApi, contextHolder] = message.useMessage();
@@ -17,7 +17,11 @@ const AddLables = ({ info, setinfo }) => {
 	useEffect(() => {
 		if (tagsList?.galleryId !== galleryId) {
 			getGalleryTagsList(galleryId);
-			getImageDuplicatesList(galleryId, albumId);
+			getImageDuplicatesList(galleryId, albumId).then((response) => {
+				if (response?.[0] === 404 && response?.[1]?.message === 'album not found') {
+					navigate(`/gallery-page/${galleryId}`);
+				}
+			});
 		} else {
 			setinfo((prev) => ({ ...prev, selectedGalleryTags: tagsList?.list || [] }));
 		}

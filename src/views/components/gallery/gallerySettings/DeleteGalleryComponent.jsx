@@ -38,56 +38,61 @@ const DeleteGalleryComponent = ({ galleryName, galleryId }) => {
 		setdeleteInfo({ ...deleteInfo, isLoading: false });
 	};
 	return (
-		<div className="delete-container">
-			<div style={{ padding: '4px' }}>
-				<DeleteLogo />
-			</div>
-			<div className="delete-content">
-				<p className="heading">Delete Gallery </p>
-				<p className="subTitle">
-					You cannot undo this. All your albums and information will be lost.
-				</p>
-				<div className="deletePermanently">
-					{deleteInfo.showConfirmInput ? (
-						<>
-							<input
-								type="text"
-								placeholder={`Please Enter '${galleryName}'`}
-								value={deleteInfo.inputValue}
-								onChange={(e) =>
-									setdeleteInfo({ ...deleteInfo, inputValue: e.target.value })
-								}
-							/>
+		<div id="delete" className="settings-overview">
+			<div className="delete-container">
+				<div style={{ padding: '4px' }}>
+					<DeleteLogo />
+				</div>
+				<div className="delete-content">
+					<p className="heading">Delete Gallery </p>
+					<p className="subTitle">
+						You cannot undo this. All your albums and information will be lost.
+					</p>
+					<div className="deletePermanently">
+						{deleteInfo.showConfirmInput ? (
+							<>
+								<input
+									type="text"
+									placeholder={`Please Enter '${galleryName}'`}
+									value={deleteInfo.inputValue}
+									onChange={(e) =>
+										setdeleteInfo({ ...deleteInfo, inputValue: e.target.value })
+									}
+								/>
 
+								<button
+									style={{
+										opacity: deleteInfo.inputValue !== galleryName ? 0.5 : 1,
+										cursor:
+											deleteInfo.inputValue !== galleryName
+												? 'not-allowed'
+												: 'pointer',
+									}}
+									disabled={
+										deleteInfo.inputValue !== galleryName ||
+										deleteInfo.isLoading
+									}
+									onClick={handleDeleteFunction}
+								>
+									Delete
+								</button>
+
+								<CloseSvg
+									onClick={() =>
+										setdeleteInfo({ ...deleteInfo, showConfirmInput: false })
+									}
+								/>
+							</>
+						) : (
 							<button
-								style={{
-									opacity: deleteInfo.inputValue !== galleryName ? 0.5 : 1,
-									cursor:
-										deleteInfo.inputValue !== galleryName
-											? 'not-allowed'
-											: 'pointer',
-								}}
-								disabled={
-									deleteInfo.inputValue !== galleryName || deleteInfo.isLoading
-								}
-								onClick={handleDeleteFunction}
-							>
-								Delete
-							</button>
-
-							<CloseSvg
 								onClick={() =>
-									setdeleteInfo({ ...deleteInfo, showConfirmInput: false })
+									setdeleteInfo({ ...deleteInfo, showConfirmInput: true })
 								}
-							/>
-						</>
-					) : (
-						<button
-							onClick={() => setdeleteInfo({ ...deleteInfo, showConfirmInput: true })}
-						>
-							Delete permanently
-						</button>
-					)}
+							>
+								Delete permanently
+							</button>
+						)}
+					</div>
 				</div>
 			</div>
 		</div>

@@ -8,13 +8,14 @@ import UploadStatusComponent from '../../components/gallery/addGallery/UploadSta
 import randomize from 'randomatic';
 import moment from 'moment';
 import Context from '../../../context/context';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
 import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
 
 const UploadPhotos = () => {
 	const { galleryId, albumId } = useParams();
+	const navigate = useNavigate();
 
 	const {
 		galleryInfo: {
@@ -74,7 +75,11 @@ const UploadPhotos = () => {
 					tenantAlbums?.albums?.find((album) => album._id === albumId)?.title || 'Back',
 			}));
 		} else {
-			getAlbums(galleryId);
+			getAlbums(galleryId).then((response) => {
+				if (response?.[0] === 404 && response?.[1]?.message === 'gallery not found') {
+					navigate('/galleries');
+				}
+			});
 		}
 	}, [tenantAlbums]);
 
