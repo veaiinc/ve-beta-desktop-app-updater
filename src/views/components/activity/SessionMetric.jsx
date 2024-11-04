@@ -125,7 +125,9 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 		<div className="sessionDetailsWrapper">
 			<div className="sessionChartContainer">
 				{loading === true ? (
-					<Spinner width={'50px'} height={'50px'} />
+					<div className="spinnerWrapper">
+						<Spinner width={'50px'} height={'50px'} />
+					</div>
 				) : (
 					<DoughnutChart
 						scrollClass={
