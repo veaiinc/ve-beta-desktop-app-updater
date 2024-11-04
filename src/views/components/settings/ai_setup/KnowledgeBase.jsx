@@ -1,4 +1,4 @@
-import React, { memo, useState, useContext, useEffect } from 'react';
+import React, { memo, useState, useContext, useEffect, useCallback } from 'react';
 import AddKnowledgeModal from '../../../components/modalsV2/settings/ai_setup/AddKnowledgeModal';
 import '../../../../assets/scss/settings/aiSetupPage.scss';
 import Context from '../../../../context/context';
@@ -8,8 +8,8 @@ import { ReactComponent as LinkIcon } from '../../../../assets/svg/Settings/link
 import { ReactComponent as PdfIcon } from '../../../../assets/svg/Settings/pdf-icon.svg';
 import { ReactComponent as TextIcon } from '../../../../assets/svg/Settings/text-icon.svg';
 import Skeleton from 'react-loading-skeleton';
-// import { ReactComponent as HollowCircleBlue } from '../../../../assets/svg/Settings/hollow-circle-blue.svg';
-// import Template from './tempImg.png';
+import AssignAiAssistantModal from '../../../components/modalsV2/settings/ai_setup/AssignAiAssistantModal';
+import Workflows from './Workflows';
 
 const columnNames = ['Source', 'Status'];
 const statuses = {
@@ -26,14 +26,28 @@ const sourceTypes = {
 
 const KnowledgeBase = () => {
 	let {
-		aiSetup: { knowledgeBaseFiles, getKnowledgeBaseFiles },
+		aiSetup: { activeAiAssistantDetails, knowledgeBaseFiles, getKnowledgeBaseFiles },
+		templates: { myWorkflows, getMyWorkflows },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		isAddKnowledgeModalOpen: false,
 		areKnowledgeBaseFilesLoading: true,
 		isKnowledgeBaseEmpty: false,
+		isAssignAiAssistantModalOpen: false,
+		workflows: null,
+		selectedWorkflows: [],
 	});
+
+	useEffect(() => {
+		getMyWorkflowTemplatesData(1);
+	}, []);
+
+	useEffect(() => {
+		if (myWorkflows) {
+			setInfo((prev) => ({ ...prev, workflows: myWorkflows?.data }));
+		}
+	}, [myWorkflows]);
 
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -47,6 +61,20 @@ const KnowledgeBase = () => {
 		}
 	}, [knowledgeBaseFiles]);
 
+	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
+		const payload = {
+			filters: {
+				limit: 10,
+				page: page,
+				type: 'workspace',
+				status: 'published',
+				sortBy: 'createdAt',
+				sortType: -1,
+			},
+		};
+		getMyWorkflows(payload, fetchMore);
+	}, []);
+
 	const fetchMoreKnowledgeBaseFiles = () => {
 		const nextPageNumber = knowledgeBaseFiles?.currentPage + 1;
 		getKnowledgeBaseFiles(nextPageNumber);
@@ -56,223 +84,28 @@ const KnowledgeBase = () => {
 		setInfo({ ...info, isAddKnowledgeModalOpen: !info?.isAddKnowledgeModalOpen });
 	};
 
+	const toggleAssignAiAssistantModal = () => {
+		setInfo({ ...info, isAssignAiAssistantModalOpen: !info?.isAssignAiAssistantModalOpen });
+	};
+
+	const handleOpenAssignAiAssistantModal = () => {
+		toggleAssignAiAssistantModal();
+	};
+
 	useEffect(() => {
 		console.log('knowledgeBaseFilesLoading', knowledgeBaseFiles?.areKnowledgeBaseFilesLoading);
 	}, [knowledgeBaseFiles?.areKnowledgeBaseFilesLoading]);
 
 	return (
 		<div className="ai-knowledge-base-container">
-			{/* <div className="assigning-ai">
+			<div className="assigning-ai">
 				<div className="ai-header">
-					<h1>Ve.ai is assisting to:</h1>
-					<button>Assign</button>
+					<h1>{activeAiAssistantDetails?.name} is assisting to:</h1>
+					<button onClick={handleOpenAssignAiAssistantModal}>Assign</button>
 				</div>
 				<div className="line"></div>
-				<div className="templates-container">
-					<div className="template-preview">
-						<img src={Template} alt="template" />
-					</div>
-					<div className="template-details">
-						<h1 className="template-name">Wedding Photography Business Solution</h1>
-						<ul>
-							<li>
-								<HollowCircleBlue />
-								<span>Enquiry Form</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Proposal</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Contract</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Thank You</span>
-							</li>
-						</ul>
-						<div className="default-knowledge-container">
-							<p>Default Knowledge: </p>
-							<div className="default-knowledge-link-container">
-								<LinkWhite />
-								<p>Smart File</p>
-							</div>
-						</div>
-					</div>
-					<div className="template-remove">Remove</div>
-				</div>
-				<div className="templates-container">
-					<div className="template-preview">
-						<img src={Template} alt="template" />
-					</div>
-					<div className="template-details">
-						<h1 className="template-name">Wedding Photography Business Solution</h1>
-						<ul>
-							<li>
-								<HollowCircleBlue />
-								<span>Enquiry Form</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Proposal</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Contract</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Thank You</span>
-							</li>
-						</ul>
-						<div className="default-knowledge-container">
-							<p>Default Knowledge: </p>
-							<div className="default-knowledge-link-container">
-								<LinkWhite />
-								<p>Smart File</p>
-							</div>
-						</div>
-					</div>
-					<div className="template-remove">Remove</div>
-				</div>
-				<div className="templates-container">
-					<div className="template-preview">
-						<img src={Template} alt="template" />
-					</div>
-					<div className="template-details">
-						<h1 className="template-name">Wedding Photography Business Solution</h1>
-						<ul>
-							<li>
-								<HollowCircleBlue />
-								<span>Enquiry Form</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Proposal</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Contract</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Thank You</span>
-							</li>
-						</ul>
-						<div className="default-knowledge-container">
-							<p>Default Knowledge: </p>
-							<div className="default-knowledge-link-container">
-								<LinkWhite />
-								<p>Smart File</p>
-							</div>
-						</div>
-					</div>
-					<div className="template-remove">Remove</div>
-				</div>
-				<div className="templates-container">
-					<div className="template-preview">
-						<img src={Template} alt="template" />
-					</div>
-					<div className="template-details">
-						<h1 className="template-name">Wedding Photography Business Solution</h1>
-						<ul>
-							<li>
-								<HollowCircleBlue />
-								<span>Enquiry Form</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Proposal</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Contract</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Thank You</span>
-							</li>
-						</ul>
-						<div className="default-knowledge-container">
-							<p>Default Knowledge: </p>
-							<div className="default-knowledge-link-container">
-								<LinkWhite />
-								<p>Smart File</p>
-							</div>
-						</div>
-					</div>
-					<div className="template-remove">Remove</div>
-				</div>
-				<div className="templates-container">
-					<div className="template-preview">
-						<img src={Template} alt="template" />
-					</div>
-					<div className="template-details">
-						<h1 className="template-name">Wedding Photography Business Solution</h1>
-						<ul>
-							<li>
-								<HollowCircleBlue />
-								<span>Enquiry Form</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Proposal</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Contract</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Thank You</span>
-							</li>
-						</ul>
-						<div className="default-knowledge-container">
-							<p>Default Knowledge: </p>
-							<div className="default-knowledge-link-container">
-								<LinkWhite />
-								<p>Smart File</p>
-							</div>
-						</div>
-					</div>
-					<div className="template-remove">Remove</div>
-				</div>
-				<div className="templates-container">
-					<div className="template-preview">
-						<img src={Template} alt="template" />
-					</div>
-					<div className="template-details">
-						<h1 className="template-name">Wedding Photography Business Solution</h1>
-						<ul>
-							<li>
-								<HollowCircleBlue />
-								<span>Enquiry Form</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Proposal</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Contract</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Thank You</span>
-							</li>
-						</ul>
-						<div className="default-knowledge-container">
-							<p>Default Knowledge: </p>
-							<div className="default-knowledge-link-container">
-								<LinkWhite />
-								<p>Smart File</p>
-							</div>
-						</div>
-					</div>
-					<div className="template-remove">Remove</div>
-				</div>
-			</div> */}
+				<Workflows info={info} />
+			</div>
 			<div className="active-knowledge-base">
 				<div className="ai-header">
 					<h1>Active Knowledges</h1>
@@ -359,6 +192,14 @@ const KnowledgeBase = () => {
 				</div>
 			</div>
 			<AddKnowledgeModal isOpen={info?.isAddKnowledgeModalOpen} toggleModal={toggleModal} />
+			<AssignAiAssistantModal
+				isOpen={info?.isAssignAiAssistantModalOpen}
+				toggleModal={toggleAssignAiAssistantModal}
+				getMyWorkflowTemplatesData={getMyWorkflowTemplatesData}
+				myWorkflows={myWorkflows}
+				info={info}
+				activeAiAssistantDetails={activeAiAssistantDetails}
+			/>
 		</div>
 	);
 };
