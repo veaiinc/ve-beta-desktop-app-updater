@@ -21,8 +21,8 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 	const [info, setInfo] = useState({
 		isLabelSelected: true,
 		activeLabelItem: null,
-		labelsData: [],
-		labelItemsData: [],
+		labelsData: null,
+		labelItemsData: null,
 		COLORS: [
 			'#FFCE56',
 			'#FF9F40',
@@ -154,50 +154,56 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 				{info?.isLabelSelected ? (
 					//LablesItewmRows ==>
 					<div className="lablesContainer">
-						{loading === true
-							? // Fallback UI when labelsData is empty
-							  [{}, {}, {}].map((ele, index) => (
-									<Skeleton
-										height={'59px'}
-										style={{ borderRadius: '16px' }}
-										key={index}
-									/>
-							  ))
-							: // Render the data when labelsData is not empty
-							  info?.labelsData?.map((item, index) => (
-									<div
-										key={index}
-										className="lableItemRow"
-										onClick={() => {
-											handleActivelable(item);
-											handleShowLabels();
-										}}
-									>
-										<div className="nameLable">
-											<div className="dot">
-												<DotSvg
-													fill={info?.COLORS[index % info.COLORS.length]}
-												/>
-											</div>
-											<div>{item?.moduleType || 'Label Name'}</div>
+						{loading === true ? (
+							// Fallback UI when labelsData is empty
+							[{}, {}, {}].map((ele, index) => (
+								<Skeleton
+									height={'59px'}
+									style={{ borderRadius: '16px' }}
+									key={index}
+								/>
+							))
+						) : info?.labelsData?.length === 0 ? (
+							<div className="lableItemRow selectedLabelItem">
+								Data not available at the moment ...
+							</div>
+						) : (
+							// Render the data when labelsData is not empty
+							info?.labelsData?.map((item, index) => (
+								<div
+									key={index}
+									className="lableItemRow"
+									onClick={() => {
+										handleActivelable(item);
+										handleShowLabels();
+									}}
+								>
+									<div className="nameLable">
+										<div className="dot">
+											<DotSvg
+												fill={info?.COLORS[index % info.COLORS.length]}
+											/>
 										</div>
-										<div className="metricsLables">
-											<div>
-												{title === 'Interactions'
-													? item?.totalInteractionsCount
-													: item?.duration}
-											</div>
-											<div className="percentageWithArrow">
-												<span className="percentageValue">
-													{`${item?.percentage} %` || '%'}
-												</span>
-												<div className="downArrow">
-													<DownSvg />
-												</div>
+										<div>{item?.moduleType || 'Label Name'}</div>
+									</div>
+									<div className="metricsLables">
+										<div>
+											{title === 'Interactions'
+												? item?.totalInteractionsCount
+												: item?.duration}
+										</div>
+										<div className="percentageWithArrow">
+											<span className="percentageValue">
+												{`${item?.percentage} %` || '%'}
+											</span>
+											<div className="downArrow">
+												<DownSvg />
 											</div>
 										</div>
 									</div>
-							  ))}
+								</div>
+							))
+						)}
 					</div>
 				) : (
 					// Render selected Label Data
@@ -229,52 +235,55 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 							</div>
 						}
 						<div className="labelItemRowContainer">
-							{!info?.labelItemsData || info?.labelItemsData.length === 0
-								? // Fallback UI when labelItemsData is empty
-								  [{}, {}, {}].map((ele, index) => (
-										<Skeleton
-											height={'59px'}
-											style={{ borderRadius: '16px' }}
-											key={index}
-										/>
-								  ))
-								: // Render the Internal Data when labelItemsData is not empty
-								  info?.labelItemsData
-										.filter(
-											(item) =>
-												item?.moduleType ===
-												info?.activeLabelItem?.moduleType,
-										)
-										.map((item, index) => (
-											<div key={index} className="lableItemRow">
-												<div className="nameLable">
-													<div className="dot">
-														<DotSvg
-															fill={
-																info?.COLORS[
-																	index % info.COLORS.length
-																]
-															}
-														/>
-													</div>
-													<div className="selectedBlockSvg">
-														{labelsItemIconMapper[item.sectionType] ||
-															labelsItemIconMapper[
-																item.interactionType
-															] || <TestimonialSvg />}
-													</div>
-													<div>{item.content}</div>
+							{!info?.labelItemsData ? (
+								// Fallback UI when labelItemsData is empty
+								[{}, {}, {}].map((ele, index) => (
+									<Skeleton
+										height={'59px'}
+										style={{ borderRadius: '16px' }}
+										key={index}
+									/>
+								))
+							) : info?.labelItemsData?.length === 0 ? (
+								<div className="lableItemRow selectedLabelItem">
+									Data not available at the moment ...
+								</div>
+							) : (
+								// Render the Internal Data when labelItemsData is not empty
+								info?.labelItemsData
+									?.filter(
+										(item) =>
+											item?.moduleType === info?.activeLabelItem?.moduleType,
+									)
+									?.map((item, index) => (
+										<div key={index} className="lableItemRow">
+											<div className="nameLable">
+												<div className="dot">
+													<DotSvg
+														fill={
+															info?.COLORS[index % info.COLORS.length]
+														}
+													/>
 												</div>
-												<div className="metricsLables">
-													<div>{item?.duration || item?.totalCount}</div>
-													<div className="percentageWithArrow">
-														<span className="percentageValue">
-															{`${item?.percentage} %`}
-														</span>
-													</div>
+												<div className="selectedBlockSvg">
+													{labelsItemIconMapper[item.sectionType] ||
+														labelsItemIconMapper[
+															item.interactionType
+														] || <TestimonialSvg />}
+												</div>
+												<div>{item.content}</div>
+											</div>
+											<div className="metricsLables">
+												<div>{item?.duration || item?.totalCount}</div>
+												<div className="percentageWithArrow">
+													<span className="percentageValue">
+														{`${item?.percentage} %`}
+													</span>
 												</div>
 											</div>
-										))}
+										</div>
+									))
+							)}
 						</div>
 					</div>
 				)}
