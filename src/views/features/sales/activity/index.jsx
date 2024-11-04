@@ -93,6 +93,7 @@ const ActivityDashboard = () => {
 				title="Time Spent"
 				labelsData={activityData?.moduleViewDuration}
 				labelItemsData={activityData?.sectionViewDuration}
+				formatTime={formatTime}
 			/>
 			<ActivityMetrics
 				title="Interactions"
@@ -100,6 +101,7 @@ const ActivityDashboard = () => {
 				labelItemsData={activityData?.interaction?.reduce((acc, item) => {
 					return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending only each "interaction" array data
 				}, [])}
+				formatTime={formatTime}
 			/>
 
 			{/* /Modals */}

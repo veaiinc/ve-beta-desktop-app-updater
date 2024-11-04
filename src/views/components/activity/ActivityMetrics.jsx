@@ -17,7 +17,7 @@ import DoughnutChart from '../../components/activity/DoughnutChart.jsx';
 import Skeleton from 'react-loading-skeleton';
 import Spinner from '../loaders/Spinner.jsx';
 
-const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
+const ActivityMetrics = ({ title, labelsData, labelItemsData, formatTime }) => {
 	const [info, setInfo] = useState({
 		isLabelSelected: true,
 		activeLabelItem: null,
@@ -180,7 +180,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 													<div>
 														{title === 'Interactions'
 															? item?.totalInteractionsCount
-															: item?.duration}
+															: formatTime(item?.duration)}
 													</div>
 
 													<div className="percentageWithArrow">
@@ -197,11 +197,9 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 							</div>
 						) : (
 							// Render selected Label Data
-
 							<div className="lablesContainer">
 								{
 									//SelectedLabel ==>
-
 									<div
 										onClick={handleShowLabels}
 										className="lableItemRow selectedLabelItem"
