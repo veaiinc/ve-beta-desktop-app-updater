@@ -39,6 +39,10 @@ const routes = [
 		component: <LoginPage />,
 	},
 	{
+		path: '/signup',
+		component: <LoginPage />,
+	},
+	{
 		path: '/login-with-password',
 		component: <LoginScreen stage={'login-with-password'} />,
 	},

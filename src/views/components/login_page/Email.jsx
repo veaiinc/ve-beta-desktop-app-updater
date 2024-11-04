@@ -1,11 +1,13 @@
 import React, { memo, useState } from 'react';
+import validator from 'validator';
 import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 
-const Email = ({ setLoginPageInfo }) => {
+const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	const [info, setInfo] = useState({
 		isHovering: false,
+		isEmailValid: false,
 	});
 
 	const handleGoogleLogin = () => {
@@ -13,14 +15,33 @@ const Email = ({ setLoginPageInfo }) => {
 	};
 
 	const handleSetEmail = (e) => {
-		setLoginPageInfo((prev) => ({ ...prev, email: e?.target?.value }));
+		const email = e?.target?.value;
+		const isValid = validator.isEmail(email);
+
+		setInfo((prev) => ({
+			...prev,
+			isEmailValid: isValid,
+		}));
+
+		setLoginPageInfo((prev) => ({
+			...prev,
+			email: email,
+		}));
 	};
 
 	const handleEmailLogin = () => {
-		setLoginPageInfo((prev) => ({
-			...prev,
-			activeStage: 'verificationCode',
-		}));
+		if (info.isEmailValid) {
+			setLoginPageInfo((prev) => ({
+				...prev,
+				activeStage: 'verificationCode',
+			}));
+		}
+	};
+
+	const handleKeyDown = (e) => {
+		if (e.key === 'Enter') {
+			handleEmailLogin();
+		}
 	};
 
 	return (
@@ -40,13 +61,19 @@ const Email = ({ setLoginPageInfo }) => {
 				</div>
 				<div className="email-input-container">
 					<input
-						value={info?.email}
+						value={loginPageInfo?.email}
 						onChange={handleSetEmail}
+						onKeyDown={handleKeyDown}
 						autoFocus={true}
 						type="email"
 						placeholder="work@gmail.com"
 					/>
 					<button
+						disabled={!info.isEmailValid}
+						style={{
+							cursor: !info.isEmailValid ? 'not-allowed' : 'pointer',
+							background: !info.isEmailValid ? 'rgba(255, 255, 255, 0.1)' : '',
+						}}
 						onMouseEnter={() => setInfo({ ...info, isHovering: true })}
 						onMouseLeave={() => setInfo({ ...info, isHovering: false })}
 						onClick={handleEmailLogin}

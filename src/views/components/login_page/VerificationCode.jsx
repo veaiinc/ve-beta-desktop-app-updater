@@ -30,9 +30,9 @@ const VerificationCode = ({ email, setLoginPageInfo }) => {
 				<span>Back</span>
 			</div>
 			<h1 className="verification-code-title">
-				<b>We sent you a code</b>
+				<b>We sent a verification code</b>
 			</h1>
-			<p className="verification-code-subtitle">We sent verification code to {email}</p>
+			<p className="verification-code-subtitle">to {email}</p>
 			<div className="open-email-container">
 				<p>Open in</p>
 				<div className="email-logo-container">

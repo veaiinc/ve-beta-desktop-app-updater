@@ -19,9 +19,8 @@ const LoginPage = () => {
 	});
 
 	const stages = {
-		email: <Email setLoginPageInfo={setInfo} />,
+		email: <Email loginPageInfo={info} setLoginPageInfo={setInfo} />,
 		verificationCode: <VerificationCode email={info?.email} setLoginPageInfo={setInfo} />,
-		// username: <Username setLoginPageInfo={setInfo} />,
 	};
 
 	return (

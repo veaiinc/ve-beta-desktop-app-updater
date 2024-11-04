@@ -10,7 +10,7 @@ const Navbar = ({ openSignupModal, openLoginModal, openPrivacyAndTermsModal }) =
 			return navigate('/login');
 		}
 		if (navItem === 'Signup') {
-			return navigate('/verify-user');
+			return navigate('/signup');
 		}
 		if (navItem === 'Privacy and Terms') {
 			return openPrivacyAndTermsModal();

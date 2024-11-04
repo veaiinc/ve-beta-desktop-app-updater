@@ -343,7 +343,22 @@
 		}
 	}
 }
-@media screen and (max-width: 890px) {
+
+@media screen and (max-width: 810px) {
+	.login-page-container {
+		.left-container {
+			.logo-container {
+				position: static !important;
+				margin-bottom: 48px;
+			}
+		}
+		.right-container {
+			display: none;
+		}
+	}
+}
+
+@media screen and (max-width: 920px) {
 	.login-page-container {
 		.svg-grid {
 			scale: 0.5;
@@ -378,7 +393,8 @@
 @media screen and (max-width: 1662px) {
 	.login-page-container {
 		.logo-container {
-			left: 50px !important;
+			left: 140px !important;
+			top: 108px !important;
 		}
 
 		.login-button-container {
@@ -387,8 +403,22 @@
 		}
 	}
 }
+
+// @media screen and (max-width: 1662px) {
+// 	.login-page-container {
+// 		.logo-container {
+// 			left: 58px !important;
+// 			top: 108px !important;
+// 		}
+// 	}
+// }
+
 @media screen and (max-width: 1220px) {
 	.login-page-container {
+		.logo-container {
+			left: 60px !important;
+		}
+
 		.left-container {
 			padding: 180px 56px;
 		}

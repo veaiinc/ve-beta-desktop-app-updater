@@ -1,9 +1,12 @@
 import React, { memo, useState, useEffect } from 'react';
 import gsap from 'gsap';
+import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/onboarding/index.scss';
 import Username from '../../components/onboarding/Username';
 import WorkspaceHandleName from '../../components/onboarding/WorkspaceHandleName';
 import { useRef } from 'react';
+import WorkspaceType from '../../components/onboarding/WorkspaceType';
+import Profession from '../../components/onboarding/Profession';
 
 const tl = gsap.timeline();
 const tl2 = gsap.timeline();
@@ -13,24 +16,20 @@ const Onboarding = () => {
 		stage: 0,
 		step: 0,
 		username: '',
+		workspaceHandle: '',
+		workspaceType: '',
+		profession: '',
 	});
 
+	const navigate = useNavigate();
+
 	const aiIntroRef = useRef(null);
-
-	const AiIntro = {
-		0: (
-			<>
-				<h1>Hi! I am VE</h1>
-				<h2>Your AI companion</h2>
-			</>
-		),
-		1: <h1>What can I call you ?</h1>,
-	};
-
-	const onboardingStages = {
-		1: <Username onboardingInfo={info} setOnboardingInfo={setInfo} />,
-		2: <WorkspaceHandleName />,
-	};
+	const step1Ref = useRef(null);
+	const step2Ref = useRef(null);
+	const step4Ref = useRef(null);
+	const step5Ref = useRef(null);
+	const step6Ref = useRef(null);
+	const step7Ref = useRef(null);
 
 	useEffect(() => {
 		if (info?.step === 0 && aiIntroRef?.current) {
@@ -38,7 +37,18 @@ const Onboarding = () => {
 		} else if (info?.step === 1 && aiIntroRef?.current) {
 			animateRightContainer();
 		} else if (info?.step === 2 && aiIntroRef?.current) {
-			animateUsername();
+			animateStep2Enter();
+		} else if (info?.step === 3 && aiIntroRef?.current) {
+			animateStep3Enter();
+		} else if (info?.step === 4 && aiIntroRef?.current) {
+			animateStep4Enter();
+		} else if (info?.step === 5 && aiIntroRef?.current) {
+			animateStep5Enter();
+		} else if (info?.step === 6 && aiIntroRef?.current) {
+			// animateStep6Enter();
+		} else if (info?.step === 7 && aiIntroRef?.current) {
+			// animateStep7Enter();
+			navigate('/home');
 		}
 	}, [info?.step, aiIntroRef?.current]);
 
@@ -101,18 +111,157 @@ const Onboarding = () => {
 		);
 	};
 
-	const animateUsername = () => {
-		tl.fromTo(
-			aiIntroRef?.current,
+	const animateStep1Exit = () => {
+		tl.to(step1Ref?.current, {
+			zoom: 0.5,
+			color: 'rgba(255, 255, 255, 0.1)',
+			opacity: 0,
+			duration: 1,
+			ease: 'power2.out',
+			onComplete: () => {
+				setInfo((prev) => ({
+					...prev,
+					step: prev?.step + 1,
+				}));
+			},
+		});
+	};
+
+	const animateStep2Enter = () => {
+		tl2?.fromTo(
+			step2Ref?.current,
 			{
-				y: 0,
+				y: 20,
+				zoom: 0.5,
+				color: 'rgba(255, 255, 255, 0.1)',
+				opacity: 0,
 			},
 			{
-				y: -20,
+				y: 0,
+				zoom: 1,
+				color: 'white',
+				opacity: 1,
 				duration: 1,
+				delay: 1,
 				ease: 'power2.out',
 			},
 		);
+		tl2?.to(step2Ref?.current, {
+			opacity: 0,
+			duration: 1,
+			ease: 'power2.out',
+			delay: 1,
+			onComplete: () => {
+				setInfo((prev) => ({
+					...prev,
+					step: prev?.step + 1,
+				}));
+			},
+		});
+	};
+
+	const animateStep3Enter = () => {
+		tl2?.fromTo(
+			aiIntroRef?.current,
+			{
+				y: 20,
+				zoom: 0.5,
+				opacity: 0,
+			},
+			{
+				y: 0,
+				zoom: 1,
+				opacity: 1,
+				duration: 1,
+				delay: 1,
+				ease: 'power2.out',
+				onComplete: () => {
+					setInfo((prev) => ({
+						...prev,
+						stage: prev?.stage + 1,
+					}));
+				},
+			},
+		);
+	};
+
+	const animateStep4Enter = () => {
+		tl2?.fromTo(
+			aiIntroRef?.current,
+			{
+				y: 20,
+				zoom: 0.5,
+				opacity: 0,
+			},
+			{
+				y: 0,
+				zoom: 1,
+				opacity: 1,
+				duration: 1,
+				delay: 1,
+				ease: 'power2.out',
+				onComplete: () => {
+					tl2?.to(step4Ref?.current, {
+						opacity: 0,
+						duration: 1,
+						ease: 'power2.out',
+					});
+					setInfo((prev) => ({
+						...prev,
+						step: prev?.step + 1,
+						stage: prev?.stage + 1,
+					}));
+				},
+			},
+		);
+	};
+
+	const animateStep5Enter = () => {
+		tl2?.fromTo(
+			step5Ref?.current,
+			{ opacity: 0 },
+			{ opacity: 1, duration: 1, delay: 1, ease: 'power2.out' },
+		);
+	};
+
+	const AiIntro = {
+		0: (
+			<>
+				<h1>Hi! I am VE</h1>
+				<h2>Your AI companion</h2>
+			</>
+		),
+		1: <h1 ref={step1Ref}>What can I call you ?</h1>,
+		2: <h1 ref={step2Ref}>Hey {info?.username}, nice to meet you.</h1>,
+		3: (
+			<>
+				<h1>Let's setup your workspace handle</h1>
+				<h2>Eg - workspacename.ve.ai</h2>
+			</>
+		),
+		4: <h1 ref={step4Ref}>{info?.workspaceHandle}.ve.ai</h1>,
+		5: <h1 ref={step5Ref}>What will be the workspace type ?</h1>,
+		6: <h1 ref={step6Ref}>What is your profession ?</h1>,
+		7: <h1 ref={step7Ref}>Setting up your workspace</h1>,
+	};
+
+	const onboardingStages = {
+		1: (
+			<Username
+				onboardingInfo={info}
+				setOnboardingInfo={setInfo}
+				animateStep1Exit={animateStep1Exit}
+			/>
+		),
+		2: (
+			<WorkspaceHandleName
+				onboardingInfo={info}
+				setOnboardingInfo={setInfo}
+				animateStep4Enter={animateStep4Enter}
+			/>
+		),
+		3: <WorkspaceType setOnboardingInfo={setInfo} />,
+		4: <Profession setOnboardingInfo={setInfo} />,
 	};
 
 	return (
@@ -123,7 +272,7 @@ const Onboarding = () => {
 					{onboardingStages[info?.stage]}
 				</div>
 			</div>
-			{info?.step === 1 && (
+			{info?.step >= 1 && (
 				<div className="right-container">
 					<div className="right-container-content"></div>
 				</div>
