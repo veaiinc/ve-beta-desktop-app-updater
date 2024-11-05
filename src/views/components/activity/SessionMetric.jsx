@@ -19,7 +19,7 @@ import Spinner from '../loaders/Spinner.jsx';
 
 const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 	const [info, setInfo] = useState({
-		isLabelSelected: true,
+		isLabelSelected: false,
 		activeLabelItem: null,
 		labelsData: null,
 		labelItemsData: null,
@@ -124,7 +124,7 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 	return (
 		<div className="sessionDetailsWrapper">
 			<div className="sessionChartContainer">
-				{loading === true ? (
+				{loading ? (
 					<div className="spinnerWrapper">
 						<Spinner width={'50px'} height={'50px'} />
 					</div>
@@ -134,7 +134,7 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 							title === 'Interactions' ? 'interactionChart' : 'timeSpentChart'
 						}
 						statsData={
-							info?.isLabelSelected
+							!info?.isLabelSelected
 								? info?.labelsData
 								: transformLabelItemsData(info?.labelItemsData)
 						}
@@ -151,10 +151,10 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 					<span>%</span>
 				</div>
 
-				{info?.isLabelSelected ? (
+				{!info?.isLabelSelected ? (
 					//LablesItewmRows ==>
 					<div className="lablesContainer">
-						{loading === true ? (
+						{loading ? (
 							// Fallback UI when labelsData is empty
 							[{}, {}, {}].map((ele, index) => (
 								<Skeleton
@@ -207,11 +207,9 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 					</div>
 				) : (
 					// Render selected Label Data
-
 					<div className="lablesContainer">
 						{
 							//SelectedLabel ==>
-
 							<div
 								onClick={handleShowLabels}
 								className="lableItemRow selectedLabelItem"
@@ -235,7 +233,7 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 							</div>
 						}
 						<div className="labelItemRowContainer">
-							{!info?.labelItemsData ? (
+							{loading ? (
 								// Fallback UI when labelItemsData is empty
 								[{}, {}, {}].map((ele, index) => (
 									<Skeleton

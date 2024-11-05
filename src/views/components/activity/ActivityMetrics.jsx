@@ -153,7 +153,7 @@ const ActivityMetrics = ({
 						{!info?.isLabelSelected ? (
 							//LablesItewmRows ==>
 							<div className="lablesContainer">
-								{!info?.labelsData ? (
+								{activityDataLoading ? (
 									// Fallback UI when labelsData is empty
 									[{}, {}, {}].map((ele, index) => (
 										<Skeleton
@@ -162,7 +162,7 @@ const ActivityMetrics = ({
 											key={index}
 										/>
 									))
-								) : info?.labelsData.length === 0 ? (
+								) : info?.labelsData?.length === 0 ? (
 									<div className="lableItemRow selectedLabelItem">
 										Data not available at the moment ...
 									</div>
@@ -233,7 +233,7 @@ const ActivityMetrics = ({
 										</div>
 									</div>
 								}
-								{!info?.labelItemsData ? (
+								{activityDataLoading ? (
 									// Fallback UI when labelItemsData is empty
 									[{}, {}, {}].map((ele, index) => (
 										<Skeleton
@@ -242,7 +242,7 @@ const ActivityMetrics = ({
 											key={index}
 										/>
 									))
-								) : info?.labelItemsData.length === 0 ? (
+								) : info?.labelItemsData?.length === 0 ? (
 									<div className="lableItemRow selectedLabelItem">
 										Data not available at the moment ...
 									</div>
@@ -290,7 +290,7 @@ const ActivityMetrics = ({
 					</div>
 
 					<div className="metricsChartWrapper">
-						{!info?.labelsData || !info?.labelsData ? (
+						{activityDataLoading ? (
 							<Spinner width={'50px'} height={'50px'} />
 						) : (
 							<DoughnutChart

@@ -23,9 +23,51 @@ const ActivityDashboard = () => {
 		modalIsOpen: false,
 		selectedViewer: null,
 		viewersListData: null,
+		activitySummaryData: null,
+		activityDataLoading: false,
+		viewersListLoading: false,
 	});
 
 	//Functions
+	// Fetch Activity Data
+	const fetchActivityData = useCallback(() => {
+		if (!activityData) {
+			setInfo((prev) => ({ ...prev, activityDataLoading: true }));
+			getSmartFileActivity({ workflowId }).finally(() => {
+				setInfo((prev) => ({ ...prev, activityDataLoading: false }));
+			});
+		}
+	}, [getSmartFileActivity, workflowId, activityData]);
+
+	// Fetch Viewers List Data
+	const fetchViewersListData = useCallback(() => {
+		if (!viewersList) {
+			setInfo((prev) => ({ ...prev, viewersListLoading: true }));
+			getSmartFileViewers({ workflowId }).finally(() => {
+				setInfo((prev) => ({ ...prev, viewersListLoading: false }));
+			});
+		}
+	}, [getSmartFileViewers, workflowId, viewersList]);
+
+	// UseEffect to fetch data on component mount or workflowId change
+	useEffect(() => {
+		if (workflowId) {
+			console.log('Fetching ActivityDataAPI');
+			fetchActivityData();
+			console.log('Fetching ViewersListData');
+			fetchViewersListData();
+		}
+	}, [workflowId, fetchActivityData, fetchViewersListData]);
+
+	// Update local state when context data changes
+	useEffect(() => {
+		if (activityData) {
+			setInfo((prev) => ({ ...prev, activitySummaryData: activityData }));
+		}
+		if (viewersList) {
+			setInfo((prev) => ({ ...prev, viewersListData: viewersList }));
+		}
+	}, [activityData, viewersList]);
 
 	const formatTime = useCallback((seconds) => {
 		const duration = moment.duration(seconds, 'seconds');
@@ -52,58 +94,70 @@ const ActivityDashboard = () => {
 	}, []);
 
 	//API Activity Summary ====>
-	const fetchActivityData = useCallback(() => {
-		if (!activityData) {
-			getSmartFileActivity({ workflowId });
-		}
-	}, [getSmartFileActivity, workflowId, activityData]);
+	// const fetchActivityData = useCallback(() => {
+	// 	if (!activityData) {
+	// 		getSmartFileActivity({ workflowId });
+	// 	}
+	// }, [getSmartFileActivity, workflowId, activityData]);
 
 	//API Viewers List ====>
-	const fetchViewersListData = useCallback(() => {
-		if (!viewersList) {
-			getSmartFileViewers({ workflowId });
-		}
-	}, [getSmartFileViewers, workflowId, viewersList]);
+	// const fetchViewersListData = useCallback(() => {
+	// 	if (!viewersList) {
+	// 		getSmartFileViewers({ workflowId });
+	// 	}
+	// }, [getSmartFileViewers, workflowId, viewersList]);
 
 	//UseEffect
-	useEffect(() => {
-		if (workflowId) {
-			console.log('Fetching ActivityData');
-			fetchActivityData();
-			console.log('Fetching ViewersListData');
-			fetchViewersListData();
-		}
-	}, [workflowId]);
+	// useEffect(() => {
+	// 	if (workflowId) {
+	// 		console.log('Fetching ActivityDataAPI');
+	// 		fetchActivityData();
+	// 		console.log('Fetching ViewersListData');
+	// 		fetchViewersListData();
+	// 	}
+	// }, [workflowId]);
+
+	// console.log('Fetching ActivityData: ' + JSON.stringify(activityData, null, 2));
+	// console.log('Fetching viewersList: ' + JSON.stringify(viewersList, null, 2));
 
 	return (
 		<div className="activityParentContainer">
-			<ActivityOverview formatTime={formatTime} />
+			<ActivityOverview
+				formatTime={formatTime}
+				activityDataLoading={info?.activityDataLoading}
+			/>
 
 			<div className="activityDetailsContainer">
 				{/* <TimeLine showDrawer={showDrawer} /> */}
 
 				<ViewersList
 					showDrawer={showDrawer}
-					viewersListData={viewersList}
+					// viewersListData={viewersList}
+					viewersListData={info?.viewersListData || []}
 					handelViewerSelection={handelViewerSelection}
 					formatTime={formatTime}
+					viewersListLoading={info?.viewersListLoading}
 				/>
 			</div>
 
 			{/* Metric Component */}
 			<ActivityMetrics
 				title="Time Spent"
-				labelsData={activityData?.moduleViewDuration}
-				labelItemsData={activityData?.sectionViewDuration}
+				labelsData={activityData?.moduleViewDuration || []}
+				labelItemsData={activityData?.sectionViewDuration || []}
 				formatTime={formatTime}
+				activityDataLoading={info?.activityDataLoading}
 			/>
 			<ActivityMetrics
 				title="Interactions"
-				labelsData={activityData?.interaction}
-				labelItemsData={activityData?.interaction?.reduce((acc, item) => {
-					return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending only each "interaction" array data
-				}, [])}
+				labelsData={activityData?.interaction || []}
+				labelItemsData={
+					activityData?.interaction?.reduce((acc, item) => {
+						return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending only each "interaction" array data
+					}, []) || []
+				}
 				formatTime={formatTime}
+				activityDataLoading={info?.activityDataLoading}
 			/>
 
 			{/* /Modals */}
@@ -113,6 +167,7 @@ const ActivityDashboard = () => {
 					showDrawer={showDrawer}
 					selectedViewer={info?.selectedViewer}
 					formatTime={formatTime}
+					activityDataLoading={info?.activityDataLoading}
 				/>
 			) : (
 				''

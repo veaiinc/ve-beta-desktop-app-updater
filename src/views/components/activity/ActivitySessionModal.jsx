@@ -20,7 +20,13 @@ import SessionMetric from './SessionMetric.jsx';
 import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
 
-const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer, formatTime }) => {
+const SessionActivityModal = ({
+	modalIsOpen,
+	showDrawer,
+	selectedViewer,
+	formatTime,
+	activityDataLoading,
+}) => {
 	const { workflowId } = useParams();
 
 	const {
@@ -109,8 +115,8 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer, formatT
 					key={'Time Spent'}
 					title={'Time Spent'}
 					loading={info?.isLoading}
-					labelsData={viewerSessionDetails?.moduleViewDuration}
-					labelItemsData={viewerSessionDetails?.sectionViewDuration}
+					labelsData={viewerSessionDetails?.moduleViewDuration || []}
+					labelItemsData={viewerSessionDetails?.sectionViewDuration || []}
 				/>
 			),
 
