@@ -220,7 +220,7 @@ const ActivityMetrics = ({
 											<div>
 												{title === 'Interactions'
 													? info?.activeLabelItem?.totalInteractionsCount
-													: info?.activeLabelItem?.duration}
+													: formatTime(info?.activeLabelItem?.duration)}
 											</div>
 											<div className="percentageWithArrow">
 												<span className="percentageValue">
