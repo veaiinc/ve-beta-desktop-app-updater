@@ -85,6 +85,7 @@ export const Galleries = () => {
 			);
 			if (response?.[0]) {
 				getAlbums(galleryId);
+				getAlbumImagesCount(galleryId);
 			}
 		} catch (error) {
 			console.log('error==>createNewAlbum', error);
@@ -733,6 +734,21 @@ export const Galleries = () => {
 			console.log('error==>updateAlbumCoverImage', error);
 		}
 	};
+	const updateGalleryCoverImage = async (json, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.coverImage}`,
+				json,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>updateAlbumCoverImage', error);
+		}
+	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/guest-access
 	const getGalleryGuestAccess = async (galleryId) => {
 		try {
@@ -913,6 +929,7 @@ export const Galleries = () => {
 		editVisitorFormAccess,
 		getImageDetail,
 		updateAlbumCoverImage,
+		updateGalleryCoverImage,
 		getGalleryGuestAccess,
 		editGalleryGuestAccess,
 		shareGalleryViaEmail,

@@ -107,7 +107,6 @@ const AlbumSettings = () => {
 
 		// if  coverimage details is present
 		if (info?.coverImageDetails?._id && galleryCredentials) {
-			console.log(info?.coverImageDetails, 'coverImageDetails');
 			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 			const src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info?.coverImageDetails?.givenFileName}?${params}`;
 			setInfo((prev) => ({
@@ -223,7 +222,6 @@ const AlbumSettings = () => {
 		}, 2000);
 	};
 
-	console.log(imageDetail, 'imageDetail', info.uploadImageId);
 	const uploadAlbumCoverChangeHandler = async (e) => {
 		message.open({
 			type: 'loading',

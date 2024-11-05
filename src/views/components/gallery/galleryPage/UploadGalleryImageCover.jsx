@@ -18,7 +18,6 @@ const UploadGalleryImageCover = ({
 					<div className="album-preview">
 						<div className="laptop-preview">
 							<div className="screen">
-								{/* <img src={imageURL} alt="image" /> */}
 								<div
 									style={{
 										width: '100%',
@@ -83,14 +82,7 @@ const UploadGalleryImageCover = ({
 				<p
 					className="bt"
 					onClick={() => {
-						if (info?.coverPhoto) {
-							fileInputRef.current.click();
-						} else {
-							setInfo((prev) => ({
-								...prev,
-								coverPhoto: true,
-							}));
-						}
+						fileInputRef.current.click();
 					}}
 				>
 					Upload cover photo
@@ -101,7 +93,7 @@ const UploadGalleryImageCover = ({
 					type="file"
 					onChange={uploadAlbumCoverChangeHandler}
 					hidden
-					style={{ opacity: 0 }}
+					style={{ width: 0, visibility: 'hidden' }}
 					// style={{ visibility: 'hidden' }}
 				/>
 

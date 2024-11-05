@@ -75,7 +75,7 @@ const GalleryPage = () => {
 			getUploadImageSignUrl,
 			getImageDetail,
 			imageDetail,
-			updateAlbumCoverImage,
+			updateGalleryCoverImage,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -129,6 +129,7 @@ const GalleryPage = () => {
 		uploadImageId: null,
 		imageURL: '',
 		coverImageDetails: null,
+		coverPhoto: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -299,30 +300,32 @@ const GalleryPage = () => {
 	}, [albumDetails]);
 
 	useEffect(() => {
+		// if image detail is upload image id
 		if (imageDetail?._id === info?.uploadImageId && galleryCredentials) {
 			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-			const src = `${galleryCredentials?.baseURL}/${imageDetail?.image?.s3_optimized?.key}?${params}`;
+			const src = `${galleryCredentials?.baseURL}/${imageDetail?.activeVersion?.s3_optimized?.key}?${params}`;
 			setInfo((prev) => ({
 				...prev,
 				imageURL: src,
 			}));
 		}
 
-		if (info?.coverImageDetails?._id && galleryCredentials) {
-			console.log(info?.coverImageDetails, 'coverImageDetails');
+		// if  coverimage details is present
+		if (albumImagesCount?.coverImage?._id && galleryCredentials) {
 			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-			const src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info?.coverImageDetails?.givenFileName}?${params}`;
+			const src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?${params}`;
 			setInfo((prev) => ({
 				...prev,
 				imageURL: src,
 				coverPhoto: true,
 				crop: {
-					x: info?.coverImageDetails?.xPosition,
-					y: info?.coverImageDetails?.yPosition,
+					x: albumImagesCount?.coverImage?.xPosition,
+					y: albumImagesCount?.coverImage?.yPosition,
 				},
 			}));
 		}
-	}, [imageDetail, info?.uploadImageId, info?.coverImageDetails?._id]);
+	}, [imageDetail, info?.uploadImageId, albumImagesCount]);
+	console.log(info?.coverImageDetails, 'coverImageDetails');
 
 	const fetchMoreImages = () => {
 		const nextPage = info.page + 1;
@@ -778,45 +781,36 @@ const GalleryPage = () => {
 	const uploadAlbumCoverChangeHandler = async (e) => {
 		message.open({
 			type: 'loading',
-			content: 'Uploading album cover image..',
+			content: 'Uploading Gallery cover image..',
 			duration: 0,
 		});
 		const image = e.target.files[0];
 		const batchId = randomize('Aa0', 10);
 
-		const responseGalleryTags = await getGalleryTagsList(galleryId);
-		if (responseGalleryTags?.[0] === true) {
-			const allTagId = responseGalleryTags?.[1]?.find((item) => item.displayName === 'All');
-			let json = {
-				originalFileName: image?.name,
-				originalDateTime: moment(image?.['originalDate']).unix() || 0,
-				uploadBatchId: batchId,
-				tag_ids: [allTagId?._id],
-				isAIFacesEnabled: true,
-			};
+		const allTagId = info?.albumTags?.find((item) => item?.displayName === 'All');
+		let json = {
+			originalFileName: image?.name,
+			originalDateTime: moment(image?.['originalDate']).unix() || 0,
+			uploadBatchId: batchId,
+			tag_ids: [allTagId?._id],
+			isAIFacesEnabled: true,
+		};
 
-			const signedURLUpload = await getUploadImageSignUrl(
-				galleryId,
-				info?.activeAlbumId,
-				json,
-			);
-			if (signedURLUpload?.[0] === true) {
-				const uploadResponse = await axios.put(signedURLUpload[1]['signedUrl'], image, {
-					headers: {
-						'Content-Type': image?.type,
-					},
-				});
-				setInfo((prev) => ({
-					...prev,
-					uploadImageId: signedURLUpload?.[1]?._id,
-				}));
+		const signedURLUpload = await getUploadImageSignUrl(galleryId, info?.activeAlbumId, json);
+		if (signedURLUpload?.[0] === true) {
+			const uploadResponse = await axios.put(signedURLUpload[1]['signedUrl'], image, {
+				headers: {
+					'Content-Type': image?.type,
+				},
+			});
+			setInfo((prev) => ({
+				...prev,
+				uploadImageId: signedURLUpload?.[1]?._id,
+				coverPhoto: true,
+			}));
 
-				if (uploadResponse.status === 200) {
-					getImageDetails(signedURLUpload?.[1]?._id, batchId);
-				}
-			} else {
-				message.destroy();
-				message.error('Something went wrong, please try again later');
+			if (uploadResponse.status === 200) {
+				getImageDetails(signedURLUpload?.[1]?._id, batchId);
 			}
 		} else {
 			message.destroy();
@@ -826,18 +820,24 @@ const GalleryPage = () => {
 
 	const handleSetCoverPosition = async () => {
 		const json = {
-			image_id: info?.uploadImageId || info?.coverImageDetails?._id,
+			image_id: info?.uploadImageId || albumImagesCount?.coverImage?._id,
 			xPosition: info?.crop?.x,
 			yPosition: info?.crop?.y,
 			givenFileName:
-				imageDetail?.image?.givenFileName || info?.coverImageDetails?.givenFileName,
+				imageDetail?.activeVersion?.givenFileName ||
+				albumImagesCount?.coverImage?.givenFileName,
 			width: 100,
 			height: 100,
 			// zoom: info?.zoom,
 		};
-		const respone = await updateAlbumCoverImage(json, galleryId, info?.activeAlbumId);
+		const respone = await updateGalleryCoverImage(json, galleryId);
 		if (respone?.[0] === true) {
 			message.success('Cover position set successfully!');
+			getAlbumImagesCount(galleryId);
+			setInfo((prev) => ({
+				...prev,
+				activeTab: 'Albums',
+			}));
 		} else {
 			message.error('Something went wrong, please try again later');
 		}
