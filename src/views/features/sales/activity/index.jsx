@@ -31,23 +31,19 @@ const ActivityDashboard = () => {
 	//Functions
 	// Fetch Activity Data
 	const fetchActivityData = useCallback(() => {
-		if (!activityData) {
-			setInfo((prev) => ({ ...prev, activityDataLoading: true }));
-			getSmartFileActivity({ workflowId }).finally(() => {
-				setInfo((prev) => ({ ...prev, activityDataLoading: false }));
-			});
-		}
-	}, [getSmartFileActivity, workflowId, activityData]);
+		setInfo((prev) => ({ ...prev, activityDataLoading: true }));
+		getSmartFileActivity({ workflowId }).finally(() => {
+			setInfo((prev) => ({ ...prev, activityDataLoading: false }));
+		});
+	}, [workflowId]);
 
 	// Fetch Viewers List Data
 	const fetchViewersListData = useCallback(() => {
-		if (!viewersList) {
-			setInfo((prev) => ({ ...prev, viewersListLoading: true }));
-			getSmartFileViewers({ workflowId }).finally(() => {
-				setInfo((prev) => ({ ...prev, viewersListLoading: false }));
-			});
-		}
-	}, [getSmartFileViewers, workflowId, viewersList]);
+		setInfo((prev) => ({ ...prev, viewersListLoading: true }));
+		getSmartFileViewers({ workflowId }).finally(() => {
+			setInfo((prev) => ({ ...prev, viewersListLoading: false }));
+		});
+	}, [workflowId]);
 
 	// UseEffect to fetch data on component mount or workflowId change
 	useEffect(() => {
@@ -57,7 +53,7 @@ const ActivityDashboard = () => {
 			console.log('Fetching ViewersListData');
 			fetchViewersListData();
 		}
-	}, [workflowId, fetchActivityData, fetchViewersListData]);
+	}, [workflowId]);
 
 	// Update local state when context data changes
 	useEffect(() => {
@@ -67,7 +63,7 @@ const ActivityDashboard = () => {
 		if (viewersList) {
 			setInfo((prev) => ({ ...prev, viewersListData: viewersList }));
 		}
-	}, [activityData, viewersList]);
+	}, []);
 
 	const formatTime = useCallback((seconds) => {
 		const duration = moment.duration(seconds, 'seconds');
