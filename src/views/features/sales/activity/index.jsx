@@ -63,7 +63,7 @@ const ActivityDashboard = () => {
 		if (viewersList) {
 			setInfo((prev) => ({ ...prev, viewersListData: viewersList }));
 		}
-	}, []);
+	}, [activityData, viewersList]);
 
 	const formatTime = useCallback((seconds) => {
 		const duration = moment.duration(seconds, 'seconds');

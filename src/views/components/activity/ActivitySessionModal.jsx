@@ -56,13 +56,13 @@ const SessionActivityModal = ({
 			});
 			setInfo((prevInfo) => ({ ...prevInfo, isLoading: false }));
 		}
-	}, [getViewersSessionDetails, viewerSessionDetails, info.currentSessionId, workflowId]);
+	}, [getViewersSessionDetails, info.currentSessionId, workflowId]);
 
 	useEffect(() => {
 		if (info.currentSessionId) {
 			fetchViewersSessionDetails();
 		}
-	}, [info.currentSessionId]);
+	}, [fetchViewersSessionDetails, info.currentSessionId]);
 
 	//Handle Session Next Session ===>
 	const handleNextSession = () => {
