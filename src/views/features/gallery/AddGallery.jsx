@@ -10,10 +10,12 @@ import axios from 'axios';
 import jwt_decode from 'jwt-decode';
 
 const date = 'APRIL 2024';
+const noImage =
+	'https://png.pngtree.com/png-clipart/20230917/original/pngtree-no-image-available-icon-flatvector-illustration-thumbnail-graphic-illustration-vector-png-image_12323920.png';
 
 const AddGallery = () => {
 	const {
-		galleryInfo: { getGalleries, tenantGalleries, getGalleryCredentials },
+		galleryInfo: { getGalleries, tenantGalleries, getGalleryCredentials, galleryCredentials },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		createNewGalleryModal: false,
@@ -28,15 +30,6 @@ const AddGallery = () => {
 
 	const fetchGalleries = async () => {
 		try {
-			// const accessToken = localStorage.getItem('usertoken');
-			// const decodedToken = jwt_decode(accessToken);
-			// const userId = decodedToken.user_id;
-			// const params = {
-			// 	user_id: userId,
-			// 	detailed: false,
-			// 	sort: '-shotDuring',
-			// 	page: 1,
-			// };
 			getGalleries();
 		} catch (err) {
 			setInfo((prevState) => ({
@@ -90,9 +83,15 @@ const AddGallery = () => {
 								<div
 									className="add-gallery-image"
 									onClick={() => handleCreateGallery(items._id)}
-									key={index}
+									key={items._id}
 								>
-									<img src={testImage} alt="test" />
+									<img
+										src={items?.coverImage?.thumbnailUrl || noImage}
+										onError={(e) => {
+											e.target.src = noImage;
+										}}
+										alt={items?.title}
+									/>
 									<div
 										className="album-side-options"
 										onClick={(e) => e.stopPropagation()}

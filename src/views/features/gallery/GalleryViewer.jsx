@@ -1,5 +1,6 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
-import { useLocation, useSearchParams, useParams } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import '../../../assets/scss/gallery/galleryViewer.scss';
+import { useSearchParams, useParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import Thumbnails from '../../components/gallery/galleryView/Thumbnails';
 import FullImagesComponent from '../../components/gallery/galleryView/FullImagesComponent';

@@ -8,13 +8,13 @@ const Thumbnails = ({
 	info,
 }) => {
 	return (
-		<div className="galleryScroller" id="galleryScroller-target">
+		<div className="galleryThumbnails" id="galleryThumbnails-target">
 			<InfiniteScroll
 				dataLength={imagesList?.docs?.length || 0}
 				next={fetchMoreImages}
 				hasMore={imagesList?.hasNextPage || false}
 				loader={<h6 style={{ color: 'white', textAlign: 'center' }}>loading..</h6>}
-				scrollableTarget="galleryScroller-target"
+				scrollableTarget="galleryThumbnails-target"
 				style={{
 					display: 'flex',
 					flexDirection: 'column',
