@@ -132,7 +132,6 @@ const ActivityDashboard = () => {
 
 				<ViewersList
 					showDrawer={showDrawer}
-					// viewersListData={viewersList}
 					viewersListData={info?.viewersListData || []}
 					handelViewerSelection={handelViewerSelection}
 					formatTime={formatTime}
@@ -143,16 +142,16 @@ const ActivityDashboard = () => {
 			{/* Metric Component */}
 			<ActivityMetrics
 				title="Time Spent"
-				labelsData={activityData?.moduleViewDuration || []}
-				labelItemsData={activityData?.sectionViewDuration || []}
+				labelsData={info?.activitySummaryData?.moduleViewDuration || []}
+				labelItemsData={info?.activitySummaryData?.sectionViewDuration || []}
 				formatTime={formatTime}
 				activityDataLoading={info?.activityDataLoading}
 			/>
 			<ActivityMetrics
 				title="Interactions"
-				labelsData={activityData?.interaction || []}
+				labelsData={info?.activitySummaryData?.interaction || []}
 				labelItemsData={
-					activityData?.interaction?.reduce((acc, item) => {
+					info?.activitySummaryData?.interaction?.reduce((acc, item) => {
 						return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending only each "interaction" array data
 					}, []) || []
 				}

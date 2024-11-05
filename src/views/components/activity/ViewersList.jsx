@@ -35,7 +35,17 @@ const ViewersList = ({
 							/>
 						))
 					) : viewersListData?.length === 0 ? (
-						<div className="lableItemRow selectedLabelItem">
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'center',
+								alignItems: 'center',
+								backgroundColor: '#262626',
+								height: '55px',
+								borderRadius: '8px',
+								fontWeight: 'bold',
+							}}
+						>
 							Data not available at the moment ...
 						</div>
 					) : (

@@ -164,7 +164,17 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 								/>
 							))
 						) : info?.labelsData?.length === 0 ? (
-							<div className="lableItemRow selectedLabelItem">
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									backgroundColor: '#262626',
+									height: '55px',
+									borderRadius: '8px',
+									fontWeight: 'bold',
+								}}
+							>
 								Data not available at the moment ...
 							</div>
 						) : (
@@ -243,7 +253,17 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 									/>
 								))
 							) : info?.labelItemsData?.length === 0 ? (
-								<div className="lableItemRow selectedLabelItem">
+								<div
+									style={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+										backgroundColor: '#262626',
+										height: '55px',
+										borderRadius: '8px',
+										fontWeight: 'bold',
+									}}
+								>
 									Data not available at the moment ...
 								</div>
 							) : (
