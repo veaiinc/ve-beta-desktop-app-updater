@@ -32,6 +32,7 @@ import {
 	getTabItemCountQuery,
 	getRequiredActionDetailsQuery,
 	updateSendSmartFileSettingsMutation,
+	getLatestSendSmartFileSettingsQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -59,6 +60,7 @@ export const intialState = {
 	requiredActions: { actions: [], hasMore: false, loading: true },
 	tabItemCount: null,
 	eventsPresetData: null,
+	sendSmartFileSettings: null,
 };
 
 export const TemplatesState = (props) => {
@@ -952,6 +954,30 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getLatestSendSmartFileSettings = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getLatestSendSmartFileSettingsQuery,
+				null,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SEND_SMART_FILE_SETTINGS_SUCCESS,
+					payload: response?.[1]?.data?.getLatestWorkflowSettings,
+				});
+			} else {
+				console.log('api failed==>getLatestSendSmartFileSettings', response);
+			}
+		} catch (error) {
+			console.log('errror ==>getLatestSendSmartFileSettings', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -993,5 +1019,6 @@ export const TemplatesState = (props) => {
 		addEventsPresets,
 		editEventsPresets,
 		deleteEventsPreset,
+		getLatestSendSmartFileSettings,
 	};
 };

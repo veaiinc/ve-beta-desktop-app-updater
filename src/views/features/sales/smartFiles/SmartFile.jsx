@@ -33,6 +33,8 @@ const SmartFile = () => {
 			getSpecificTemplatesInfo,
 			specificTemplatesInfo,
 			deleteLead,
+			getLatestSendSmartFileSettings,
+			sendSmartFileSettings,
 		},
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
 	} = useContext(Context);
@@ -58,11 +60,14 @@ const SmartFile = () => {
 		currentWorkspaceId: localStorage.getItem('workspaceId'),
 		noContractTemplate: false,
 		isAlChatEnabled: false,
+		nameIdentification: false,
+		emailIdentification: false,
 	});
 
 	//useEffect
 	useEffect(() => {
 		getSmartFileInfo();
+		getLatestSendSmartFileSettings();
 		if (templateId) {
 			getSpecificTemplatesInfo({
 				templateInfoId: templateId,
@@ -119,9 +124,7 @@ const SmartFile = () => {
 				workflowData: workflowDataObj,
 				edit,
 				workflowExpiryAt: smartFileInfo?.expiresAt,
-				isEmailAuth: smartFileInfo?.access?.isEnabled,
 				noContractTemplate,
-				isAlChatEnabled: smartFileInfo?.isAlChatEnabled || false,
 			}));
 		}
 	}, [smartFileInfo, workflowId]);
@@ -135,6 +138,19 @@ const SmartFile = () => {
 			getUserWorkSpaceList();
 		}
 	}, [userWorkSpaceList]);
+
+	useEffect(() => {
+		if (sendSmartFileSettings) {
+			const { isAlChatEnabled, access, userIdentification } = sendSmartFileSettings;
+			setInfo((prev) => ({
+				...prev,
+				isAlChatEnabled: isAlChatEnabled || false,
+				isEmailAuth: access?.isEnabled,
+				nameIdentification: userIdentification?.name,
+				emailIdentification: userIdentification?.email,
+			}));
+		}
+	}, [sendSmartFileSettings]);
 
 	//function defination
 
@@ -368,6 +384,10 @@ const SmartFile = () => {
 		return [true];
 	}, [info?.workflowData, moveWorkflowStatus]);
 
+	const updateIdentification = useCallback((data, type) => {
+		setInfo((prev) => ({ ...prev, [type]: data }));
+	}, []);
+
 	const componentMapper = useMemo(() => {
 		return {
 			form: <FormResponses workflowData={info?.workflowData} />,
@@ -434,6 +454,9 @@ const SmartFile = () => {
 				businessName={info?.businessName}
 				isAlChatEnabled={info?.isAlChatEnabled}
 				updateSmartFileIsAiChatEnabled={updateSmartFileIsAiChatEnabled}
+				nameIdentification={info?.nameIdentification}
+				emailIdentification={info?.emailIdentification}
+				updateIdentification={updateIdentification}
 			/>
 
 			<CopiedModal
