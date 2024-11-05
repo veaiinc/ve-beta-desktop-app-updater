@@ -20,7 +20,13 @@ import SessionMetric from './SessionMetric.jsx';
 import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
 
-const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer, formatTime }) => {
+const SessionActivityModal = ({
+	modalIsOpen,
+	showDrawer,
+	selectedViewer,
+	formatTime,
+	activityDataLoading,
+}) => {
 	const { workflowId } = useParams();
 
 	const {
@@ -50,13 +56,13 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer, formatT
 			});
 			setInfo((prevInfo) => ({ ...prevInfo, isLoading: false }));
 		}
-	}, [getViewersSessionDetails, viewerSessionDetails, info.currentSessionId, workflowId]);
+	}, [getViewersSessionDetails, info.currentSessionId, workflowId]);
 
 	useEffect(() => {
 		if (info.currentSessionId) {
 			fetchViewersSessionDetails();
 		}
-	}, [info.currentSessionId]);
+	}, [fetchViewersSessionDetails, info.currentSessionId]);
 
 	//Handle Session Next Session ===>
 	const handleNextSession = () => {
@@ -109,8 +115,8 @@ const SessionActivityModal = ({ modalIsOpen, showDrawer, selectedViewer, formatT
 					key={'Time Spent'}
 					title={'Time Spent'}
 					loading={info?.isLoading}
-					labelsData={viewerSessionDetails?.moduleViewDuration}
-					labelItemsData={viewerSessionDetails?.sectionViewDuration}
+					labelsData={viewerSessionDetails?.moduleViewDuration || []}
+					labelItemsData={viewerSessionDetails?.sectionViewDuration || []}
 				/>
 			),
 

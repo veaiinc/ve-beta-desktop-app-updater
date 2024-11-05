@@ -17,12 +17,18 @@ import DoughnutChart from '../../components/activity/DoughnutChart.jsx';
 import Skeleton from 'react-loading-skeleton';
 import Spinner from '../loaders/Spinner.jsx';
 
-const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
+const ActivityMetrics = ({
+	title,
+	labelsData,
+	labelItemsData,
+	formatTime,
+	activityDataLoading,
+}) => {
 	const [info, setInfo] = useState({
-		isLabelSelected: true,
+		isLabelSelected: false,
 		activeLabelItem: null,
-		labelsData: [],
-		labelItemsData: [],
+		labelsData: null,
+		labelItemsData: null,
 		COLORS: [
 			'#FFCE56',
 			'#FF9F40',
@@ -86,12 +92,11 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 			isLabelSelected: !prevState.isLabelSelected,
 		}));
 	};
-
 	const handleActivelable = useCallback((selectedLabel, section) => {
 		setInfo((prevState) => ({
 			...prevState,
 			activeLabelItem: selectedLabel,
-			isLabelSelected: false,
+			isLabelSelected: true,
 		}));
 
 		// Scroll to the chart view
@@ -145,63 +150,75 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 							<span>%</span>
 						</div>
 
-						{info?.isLabelSelected ? (
+						{!info?.isLabelSelected ? (
 							//LablesItewmRows ==>
 							<div className="lablesContainer">
-								{!info?.labelsData || info?.labelsData.length === 0
-									? // Fallback UI when labelsData is empty
-									  [{}, {}, {}].map((ele, index) => (
-											<Skeleton
-												height={'59px'}
-												style={{ borderRadius: '16px' }}
-												key={index}
-											/>
-									  ))
-									: // Render the data when labelsData is not empty
-									  info?.labelsData?.map((item, index) => (
-											<div
-												key={index}
-												className="lableItemRow"
-												onClick={() => handleActivelable(item, title)}
-											>
-												<div className="nameLable">
-													<div className="dot">
-														<DotSvg
-															fill={
-																info?.COLORS[
-																	index % info.COLORS.length
-																]
-															}
-														/>
-													</div>
-													<div>{item?.moduleType || 'Label Name'}</div>
+								{activityDataLoading ? (
+									// Fallback UI when labelsData is empty
+									[{}, {}, {}].map((ele, index) => (
+										<Skeleton
+											height={'59px'}
+											style={{ borderRadius: '16px' }}
+											key={index}
+										/>
+									))
+								) : info?.labelsData?.length === 0 ? (
+									<div
+										style={{
+											display: 'flex',
+											justifyContent: 'center',
+											alignItems: 'center',
+											backgroundColor: '#262626',
+											height: '55px',
+											borderRadius: '8px',
+											fontWeight: 'bold',
+										}}
+									>
+										Data not available at the moment ...
+									</div>
+								) : (
+									// Render the data when labelsData is not empty
+									info?.labelsData?.map((item, index) => (
+										<div
+											key={index}
+											className="lableItemRow"
+											onClick={() => handleActivelable(item, title)}
+										>
+											<div className="nameLable">
+												<div className="dot">
+													<DotSvg
+														fill={
+															info?.COLORS[index % info.COLORS.length]
+														}
+													/>
 												</div>
-												<div className="metricsLables">
-													<div>
-														{title === 'Interactions'
-															? item?.totalInteractionsCount
-															: item?.duration}
-													</div>
+												<div>{item?.moduleType || 'Label Name'}</div>
+											</div>
+											<div className="metricsLables">
+												<div>
+													{title === 'Interactions'
+														? item?.totalInteractionsCount
+														: formatTime(item?.duration)}
+												</div>
 
-													<div className="percentageWithArrow">
-														<span className="percentageValue">
-															{`${item?.percentage} %` || '%'}
-														</span>
-														<span className="downArrow">
-															<DownSvg />
-														</span>
-													</div>
+												<div className="percentageWithArrow">
+													<span className="percentageValue">
+														{`${item?.percentage} %` || '%'}
+													</span>
+													<span className="downArrow">
+														<DownSvg />
+													</span>
 												</div>
 											</div>
-									  ))}
+										</div>
+									))
+								)}
 							</div>
 						) : (
 							// Render selected Label Data
-
 							<div className="lablesContainer">
 								{
 									//SelectedLabel ==>
-
 									<div
 										onClick={handleShowLabels}
 										className="lableItemRow selectedLabelItem"
@@ -213,7 +230,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 											<div>
 												{title === 'Interactions'
 													? info?.activeLabelItem?.totalInteractionsCount
-													: info?.activeLabelItem?.duration}
+													: formatTime(info?.activeLabelItem?.duration)}
 											</div>
 											<div className="percentageWithArrow">
 												<span className="percentageValue">
@@ -226,62 +243,74 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 										</div>
 									</div>
 								}
-								{!info?.labelItemsData || info?.labelItemsData.length === 0
-									? // Fallback UI when labelItemsData is empty
-									  [{}, {}, {}].map((ele, index) => (
-											<Skeleton
-												height={'59px'}
-												style={{ borderRadius: '16px' }}
-												key={index}
-											/>
-									  ))
-									: // Render the Internal Data when labelItemsData is not empty
-									  info?.labelItemsData
-											.filter(
-												(item) =>
-													item?.moduleType ===
-													info?.activeLabelItem?.moduleType,
-											)
-											.map((item, index) => (
-												<div key={index} className="lableItemRow">
-													<div className="nameLable">
-														<div className="dot">
-															<DotSvg
-																fill={
-																	info?.COLORS[
-																		index % info.COLORS.length
-																	]
-																}
-															/>
-														</div>
-														<div className="selectedBlockSvg">
-															{labelsItemIconMapper[
-																item.sectionType
-															] ||
-																labelsItemIconMapper[
-																	item.interactionType
-																] || <TestimonialSvg />}
-														</div>
-														<div>{item?.content}</div>
+								{activityDataLoading ? (
+									// Fallback UI when labelItemsData is empty
+									[{}, {}, {}].map((ele, index) => (
+										<Skeleton
+											height={'59px'}
+											style={{ borderRadius: '16px' }}
+											key={index}
+										/>
+									))
+								) : info?.labelItemsData?.length === 0 ? (
+									<div
+										style={{
+											display: 'flex',
+											justifyContent: 'center',
+											alignItems: 'center',
+											backgroundColor: '#262626',
+											height: '55px',
+											borderRadius: '8px',
+											fontWeight: 'bold',
+										}}
+									>
+										Data not available at the moment ...
+									</div>
+								) : (
+									// Render the Internal Data when labelItemsData is not empty
+									info?.labelItemsData
+										?.filter(
+											(item) =>
+												item?.moduleType ===
+												info?.activeLabelItem?.moduleType,
+										)
+										?.map((item, index) => (
+											<div key={index} className="lableItemRow">
+												<div className="nameLable">
+													<div className="dot">
+														<DotSvg
+															fill={
+																info?.COLORS[
+																	index % info.COLORS.length
+																]
+															}
+														/>
 													</div>
-													<div className="metricsLables">
-														<div>
-															{item?.duration || item?.totalCount}
-														</div>
-														<div className="percentageWithArrow">
-															<span className="percentageValue">
-																{`${item?.percentage} %`}
-															</span>
-														</div>
+													<div className="selectedBlockSvg">
+														{labelsItemIconMapper[item.sectionType] ||
+															labelsItemIconMapper[
+																item.interactionType
+															] || <TestimonialSvg />}
+													</div>
+													<div>{item?.content}</div>
+												</div>
+												<div className="metricsLables">
+													<div>{item?.duration || item?.totalCount}</div>
+													<div className="percentageWithArrow">
+														<span className="percentageValue">
+															{`${item?.percentage} %`}
+														</span>
 													</div>
 												</div>
-											))}
+											</div>
+										))
+								)}
 							</div>
 						)}
 					</div>
 
 					<div className="metricsChartWrapper">
-						{!info?.labelsData || !info?.labelsData ? (
+						{activityDataLoading ? (
 							<Spinner width={'50px'} height={'50px'} />
 						) : (
 							<DoughnutChart
@@ -289,7 +318,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData }) => {
 									title === 'Interactions' ? 'interactionChart' : 'timeSpentChart'
 								}
 								statsData={
-									info?.isLabelSelected
+									!info?.isLabelSelected
 										? info?.labelsData
 										: transformLabelItemsData(info?.labelItemsData)
 								}

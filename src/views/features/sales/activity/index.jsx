@@ -15,7 +15,13 @@ const ActivityDashboard = () => {
 
 	//Context
 	const {
-		activityInfo: { activityData, getSmartFileActivity, getSmartFileViewers, viewersList },
+		activityInfo: {
+			activityData,
+			getSmartFileActivity,
+			getSmartFileViewers,
+			viewersList,
+			resetActivityState,
+		},
 	} = useContext(Context);
 
 	//States
@@ -23,12 +29,54 @@ const ActivityDashboard = () => {
 		modalIsOpen: false,
 		selectedViewer: null,
 		viewersListData: null,
+		activitySummaryData: null,
+		activityDataLoading: false,
+		viewersListLoading: false,
 	});
 
 	//Functions
+	// Fetch Activity Data
+	const fetchActivityData = useCallback(() => {
+		setInfo((prev) => ({ ...prev, activityDataLoading: true }));
+		getSmartFileActivity({ workflowId }).finally(() => {
+			setInfo((prev) => ({ ...prev, activityDataLoading: false }));
+		});
+	}, [workflowId]);
 
-	const formatTime = useCallback((seconds) => {
-		const duration = moment.duration(seconds, 'seconds');
+	// Fetch Viewers List Data
+	const fetchViewersListData = useCallback(() => {
+		setInfo((prev) => ({ ...prev, viewersListLoading: true }));
+		getSmartFileViewers({ workflowId }).finally(() => {
+			setInfo((prev) => ({ ...prev, viewersListLoading: false }));
+		});
+	}, [workflowId]);
+
+	// UseEffect to fetch data on component mount or workflowId change
+	useEffect(() => {
+		if (workflowId) {
+			fetchActivityData();
+			fetchViewersListData();
+		}
+	}, [workflowId]);
+
+	// Update local state when context data changes
+	useEffect(() => {
+		if (activityData) {
+			setInfo((prev) => ({ ...prev, activitySummaryData: activityData }));
+		}
+		if (viewersList) {
+			setInfo((prev) => ({ ...prev, viewersListData: viewersList }));
+		}
+	}, [activityData, viewersList]);
+
+	useEffect(() => {
+		return () => {
+			resetActivityState();
+		};
+	}, []);
+
+	const formatTime = useCallback((milliseconds) => {
+		const duration = moment.duration(milliseconds / 1000, 'seconds');
 		const hours = String(duration.hours()).padStart(2, '0');
 		const minutes = String(duration.minutes()).padStart(2, '0');
 		const secs = String(duration.seconds()).padStart(2, '0');
@@ -51,55 +99,43 @@ const ActivityDashboard = () => {
 		}));
 	}, []);
 
-	//API Activity Summary ====>
-	const fetchActivityData = useCallback(() => {
-		if (!activityData) {
-			getSmartFileActivity({ workflowId });
-		}
-	}, [getSmartFileActivity, workflowId, activityData]);
-
-	//API Viewers List ====>
-	const fetchViewersListData = useCallback(() => {
-		if (!viewersList) {
-			getSmartFileViewers({ workflowId });
-		}
-	}, [getSmartFileViewers, workflowId, viewersList]);
-
-	//UseEffect
-	useEffect(() => {
-		if (workflowId) {
-			fetchActivityData();
-			fetchViewersListData();
-		}
-	}, [fetchActivityData, fetchViewersListData, workflowId]);
-
 	return (
 		<div className="activityParentContainer">
-			<ActivityOverview formatTime={formatTime} />
+			<ActivityOverview
+				formatTime={formatTime}
+				activityDataLoading={info?.activityDataLoading}
+			/>
 
 			<div className="activityDetailsContainer">
 				{/* <TimeLine showDrawer={showDrawer} /> */}
 
 				<ViewersList
 					showDrawer={showDrawer}
-					viewersListData={viewersList}
+					viewersListData={info?.viewersListData || []}
 					handelViewerSelection={handelViewerSelection}
 					formatTime={formatTime}
+					viewersListLoading={info?.viewersListLoading}
 				/>
 			</div>
 
 			{/* Metric Component */}
 			<ActivityMetrics
 				title="Time Spent"
-				labelsData={activityData?.moduleViewDuration}
-				labelItemsData={activityData?.sectionViewDuration}
+				labelsData={info?.activitySummaryData?.moduleViewDuration || []}
+				labelItemsData={info?.activitySummaryData?.sectionViewDuration || []}
+				formatTime={formatTime}
+				activityDataLoading={info?.activityDataLoading}
 			/>
 			<ActivityMetrics
 				title="Interactions"
-				labelsData={activityData?.interaction}
-				labelItemsData={activityData?.interaction?.reduce((acc, item) => {
-					return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending only each "interaction" array data
-				}, [])}
+				labelsData={info?.activitySummaryData?.interaction || []}
+				labelItemsData={
+					info?.activitySummaryData?.interaction?.reduce((acc, item) => {
+						return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending only each "interaction" array data
+					}, []) || []
+				}
+				formatTime={formatTime}
+				activityDataLoading={info?.activityDataLoading}
 			/>
 
 			{/* /Modals */}
@@ -109,6 +145,7 @@ const ActivityDashboard = () => {
 					showDrawer={showDrawer}
 					selectedViewer={info?.selectedViewer}
 					formatTime={formatTime}
+					activityDataLoading={info?.activityDataLoading}
 				/>
 			) : (
 				''
