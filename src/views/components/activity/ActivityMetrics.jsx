@@ -17,9 +17,15 @@ import DoughnutChart from '../../components/activity/DoughnutChart.jsx';
 import Skeleton from 'react-loading-skeleton';
 import Spinner from '../loaders/Spinner.jsx';
 
-const ActivityMetrics = ({ title, labelsData, labelItemsData, formatTime }) => {
+const ActivityMetrics = ({
+	title,
+	labelsData,
+	labelItemsData,
+	formatTime,
+	activityDataLoading,
+}) => {
 	const [info, setInfo] = useState({
-		isLabelSelected: true,
+		isLabelSelected: false,
 		activeLabelItem: null,
 		labelsData: null,
 		labelItemsData: null,
@@ -86,12 +92,11 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData, formatTime }) => {
 			isLabelSelected: !prevState.isLabelSelected,
 		}));
 	};
-
 	const handleActivelable = useCallback((selectedLabel, section) => {
 		setInfo((prevState) => ({
 			...prevState,
 			activeLabelItem: selectedLabel,
-			isLabelSelected: false,
+			isLabelSelected: true,
 		}));
 
 		// Scroll to the chart view
@@ -145,7 +150,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData, formatTime }) => {
 							<span>%</span>
 						</div>
 
-						{info?.isLabelSelected ? (
+						{!info?.isLabelSelected ? (
 							//LablesItewmRows ==>
 							<div className="lablesContainer">
 								{!info?.labelsData ? (
@@ -293,7 +298,7 @@ const ActivityMetrics = ({ title, labelsData, labelItemsData, formatTime }) => {
 									title === 'Interactions' ? 'interactionChart' : 'timeSpentChart'
 								}
 								statsData={
-									info?.isLabelSelected
+									!info?.isLabelSelected
 										? info?.labelsData
 										: transformLabelItemsData(info?.labelItemsData)
 								}
