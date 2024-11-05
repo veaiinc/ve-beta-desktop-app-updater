@@ -87,6 +87,7 @@ const AlbumSettings = () => {
 	}, [tenantAlbums]);
 
 	useEffect(() => {
+		// if no gallery credentails
 		if (
 			(!galleryCredentials && info?.uploadImageId) ||
 			(!galleryCredentials && info?.coverImageDetails?._id)
@@ -94,15 +95,17 @@ const AlbumSettings = () => {
 			getGalleryCredentials(galleryId);
 		}
 
+		// if image detail is upload image id
 		if (imageDetail?._id === info?.uploadImageId && galleryCredentials) {
 			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-			const src = `${galleryCredentials?.baseURL}/${imageDetail?.image?.s3_optimized?.key}?${params}`;
+			const src = `${galleryCredentials?.baseURL}/${imageDetail?.activeVersion?.s3_optimized?.key}?${params}`;
 			setInfo((prev) => ({
 				...prev,
 				imageURL: src,
 			}));
 		}
 
+		// if  coverimage details is present
 		if (info?.coverImageDetails?._id && galleryCredentials) {
 			console.log(info?.coverImageDetails, 'coverImageDetails');
 			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
@@ -220,6 +223,7 @@ const AlbumSettings = () => {
 		}, 2000);
 	};
 
+	console.log(imageDetail, 'imageDetail', info.uploadImageId);
 	const uploadAlbumCoverChangeHandler = async (e) => {
 		message.open({
 			type: 'loading',
@@ -250,6 +254,7 @@ const AlbumSettings = () => {
 				setInfo((prev) => ({
 					...prev,
 					uploadImageId: signedURLUpload?.[1]?._id,
+					coverPhoto: true,
 				}));
 
 				if (uploadResponse.status === 200) {
@@ -271,7 +276,7 @@ const AlbumSettings = () => {
 			xPosition: info?.crop?.x,
 			yPosition: info?.crop?.y,
 			givenFileName:
-				imageDetail?.image?.givenFileName || info?.coverImageDetails?.givenFileName,
+				imageDetail?.activeVersion?.givenFileName || info?.coverImageDetails?.givenFileName,
 			width: 100,
 			height: 100,
 			// zoom: info?.zoom,

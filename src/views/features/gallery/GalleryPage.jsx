@@ -310,7 +310,7 @@ const GalleryPage = () => {
 				},
 			}));
 		}
-	}, [galleryCredentials, imageDetail, info?.uploadImageId, info?.coverImageDetails?._id]);
+	}, [imageDetail, info?.uploadImageId, info?.coverImageDetails?._id]);
 
 	const fetchMoreImages = () => {
 		const nextPage = info.page + 1;

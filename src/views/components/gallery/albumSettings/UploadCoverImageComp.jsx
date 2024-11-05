@@ -83,14 +83,7 @@ const UploadCoverImage = ({
 				<p
 					className="bt"
 					onClick={() => {
-						if (info?.coverPhoto) {
-							fileInputRef.current.click();
-						} else {
-							setInfo((prev) => ({
-								...prev,
-								coverPhoto: true,
-							}));
-						}
+						fileInputRef.current.click();
 					}}
 				>
 					Upload cover photo
