@@ -419,3 +419,9 @@ export const updateSendSmartFileSettingsMutation = gql`
 		updateWorkflow(id: $updateWorkflowId, updateWorkflowInput: $updateWorkflowInput)
 	}
 `;
+
+export const getLatestSendSmartFileSettingsQuery = gql`
+	query Query {
+		getLatestWorkflowSettings
+	}
+`;
