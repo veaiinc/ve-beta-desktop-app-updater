@@ -4,8 +4,9 @@ import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.s
 import { ReactComponent as HandTapSvg } from '../../../assets/svg/activity/handTap.svg';
 import { ReactComponent as EyeSvg } from '../../../assets/svg/activity/eye.svg';
 import Context from '../../../context/context';
+import Spinner from '../loaders/Spinner.jsx';
 
-const ActivityOverview = ({ formatTime }) => {
+const ActivityOverview = ({ formatTime, activityDataLoading }) => {
 	const {
 		activityInfo: { activityData },
 	} = useContext(Context);
@@ -18,7 +19,13 @@ const ActivityOverview = ({ formatTime }) => {
 					<span className="summaryIcon">
 						<EyeSvg />
 					</span>
-					<span className="summaryValue">{activityData?.totalViews || 0}</span>
+					<span className="summaryValue">
+						{activityDataLoading ? (
+							<Spinner width="20px" height="20px" />
+						) : (
+							activityData?.totalViews || 0
+						)}
+					</span>
 				</div>
 			</div>
 			<div className="summaryOverviewContainer">
@@ -28,9 +35,11 @@ const ActivityOverview = ({ formatTime }) => {
 						<ClockSvg />
 					</span>
 					<span className="summaryValue">
-						{activityData?.averageTimeSpent
-							? formatTime(activityData.averageTimeSpent)
-							: '0m 0s'}
+						{activityDataLoading ? (
+							<Spinner width="20px" height="20px" />
+						) : (
+							formatTime(activityData?.averageTimeSpent)
+						)}
 					</span>
 				</div>
 			</div>
@@ -40,7 +49,13 @@ const ActivityOverview = ({ formatTime }) => {
 					<span className="summaryIcon">
 						<HandTapSvg />
 					</span>
-					<span className="summaryValue">{activityData?.totalInteractions || 0}</span>
+					<span className="summaryValue">
+						{activityDataLoading ? (
+							<Spinner width="20px" height="20px" />
+						) : (
+							activityData?.totalInteractionsCount || 0
+						)}
+					</span>
 				</div>
 			</div>
 		</div>
