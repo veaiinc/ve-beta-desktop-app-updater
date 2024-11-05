@@ -65,8 +65,8 @@ const ActivityDashboard = () => {
 		}
 	}, [activityData, viewersList]);
 
-	const formatTime = useCallback((seconds) => {
-		const duration = moment.duration(seconds, 'seconds');
+	const formatTime = useCallback((milliseconds) => {
+		const duration = moment.duration(milliseconds / 1000, 'seconds');
 		const hours = String(duration.hours()).padStart(2, '0');
 		const minutes = String(duration.minutes()).padStart(2, '0');
 		const secs = String(duration.seconds()).padStart(2, '0');
