@@ -1,8 +1,13 @@
-import React, { useState, useEffect, useRef, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useContext, useCallback, Children } from 'react';
 import share from '../../../assets/svg/gallery/share.svg';
 import sixDots from '../../../assets/svg/gallery/sixdots.svg';
 import threeDots from '../../../assets/svg/gallery/threeDots.svg';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
+import { ReactComponent as FilterIcon } from '../../../assets/svg/chat/filter.svg';
 import { ReactComponent as ExpandIcon } from '../../../assets/svg/gallery/expand.svg';
+import { ReactComponent as ForwardIcon } from '../../../assets/svg/gallery/forward.svg';
+import { ReactComponent as PinIcon } from '../../../assets/svg/gallery/pin.svg';
+import { ReactComponent as OptionsIcon } from '../../../assets/svg/gallery/dotsThree.svg';
 import { ReactComponent as CloudUpload } from '../../../assets/svg/Settings/CloudUpload.svg';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
@@ -16,6 +21,7 @@ import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DeleteGalleryComponent from '../../components/gallery/gallerySettings/DeleteGalleryComponent';
+import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
 import GalleryOverview from '../../components/gallery/galleryPage/GalleryOverviewComp';
 import DesignOverviewComp from '../../components/gallery/galleryPage/DesignOverviewComp';
 import UploadGalleryImageCover from '../../components/gallery/galleryPage/UploadGalleryImageCover';
@@ -62,6 +68,8 @@ const GalleryPage = () => {
 			albumImagesCount,
 			updateCollaborators,
 			basicAlbumDetails,
+			deleteImages,
+			updateTagSortType,
 			getGalleryTagsList,
 			getImageUploadStatus,
 			getUploadImageSignUrl,
@@ -110,6 +118,9 @@ const GalleryPage = () => {
 		clientSubscription: tenantPreferences?.allowClientsToSubscribe || false,
 		dragPreviewPosition: null,
 		insertIndex: null,
+		showDeleteAlbum: false,
+		selectedImagesTags: [],
+		sortType: '',
 		crop: {
 			x: 0,
 			y: 0,
@@ -265,7 +276,7 @@ const GalleryPage = () => {
 				imagesList: imagesList,
 			}));
 		}
-	}, [info?.albumTagId, info?.activeAlbumId]);
+	}, [info?.albumTagId, info?.activeAlbumId, info?.sortType]);
 	useEffect(() => {
 		if (imagesList) {
 			setInfo((prev) => ({
@@ -281,6 +292,7 @@ const GalleryPage = () => {
 				...prev,
 				albumContains: albumDetails?.tags?.[0]?.displayName,
 				albumTagId: albumDetails?.tags?.[0]?._id,
+				sortType: albumDetails?.tags?.[0]?.sortType,
 				albumTags: albumDetails?.tags,
 			}));
 		}
@@ -329,13 +341,17 @@ const GalleryPage = () => {
 		});
 	};
 
-	const handleImageSelect = (index) => {
+	const handleImageSelect = (index, images) => {
+		console.log(images, 'images');
+		const uniqueImages = [...new Set([...info?.selectedImagesTags, images?.tagId])];
+		console.log(uniqueImages, 'uniqueImages');
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			selectedImages: prevInfo.selectedImages.includes(index)
-				? prevInfo.selectedImages.filter((i) => i !== index)
-				: [...prevInfo.selectedImages, index],
+			selectedImages: prevInfo.selectedImages.includes(images?._id)
+				? prevInfo.selectedImages.filter((i) => i !== images?._id)
+				: [...prevInfo.selectedImages, images?._id],
 		}));
+		console.log(info?.selectedImages, 'selectedImages');
 	};
 
 	const handleClickAlbum = (album, name) => {
@@ -857,6 +873,40 @@ const GalleryPage = () => {
 	// 	// Here you can add API call to update the order in backend
 	// };
 
+	const handleAlbumDelete = () => {
+		const payload = {
+			image_ids: info?.selectedImages,
+		};
+		let updatedImages = info?.imagesList?.docs?.filter((image) => {
+			return !info?.selectedImages?.includes(image?._id);
+		});
+		deleteImages(payload, galleryId, info?.activeAlbumId);
+		setInfo((prev) => ({
+			...prev,
+			imagesList: {
+				...prev.imagesList,
+				docs: updatedImages,
+			},
+			showDeleteAlbum: false,
+		}));
+		message.success('Images deleted successfully');
+	};
+
+	const handleFilter = (filter) => {
+		// albumTagId
+		setInfo((prev) => ({
+			...prev,
+			albumTags: {
+				...prev.albumTags,
+				sortType: filter,
+			},
+		}));
+		const payload = {
+			sortType: filter,
+		};
+		updateTagSortType(payload, galleryId, info?.activeAlbumId, info?.albumTagId);
+	};
+
 	// console.log(albumImagesCount, 'count');
 	return (
 		<>
@@ -1043,7 +1093,7 @@ const GalleryPage = () => {
 									</div>
 								</div>
 								<div className="albumSearchCotainer">
-									{/* <p onClick={handleRearrange} style={{ cursor: 'pointer' }}>
+									<p onClick={handleRearrange} style={{ cursor: 'pointer' }}>
 										Rearrange manually
 									</p>
 									<div
@@ -1076,16 +1126,74 @@ const GalleryPage = () => {
 												ref={filtersOptionsRef}
 												className="filterContianer"
 											>
-												<li>File name</li>
-												<li>File name (reverse)</li>
-												<li>Date Captured</li>
-												<li>Date captured (reverse)</li>
-												<li>upload time</li>
-												<li>upload time (reverse)</li>
-												<li>Random</li>
+												<li
+													onClick={() => handleFilter('displayName')}
+													className={
+														info?.albumTags?.sortType === 'displayName'
+															? 'active'
+															: ''
+													}
+												>
+													File name
+												</li>
+												<li
+													onClick={() => handleFilter('-displayName')}
+													className={
+														info?.albumTags?.sortType === '-displayName'
+															? 'active'
+															: ''
+													}
+												>
+													File name (reverse)
+												</li>
+												<li
+													onClick={() => handleFilter('createdAt')}
+													className={
+														info?.albumTags?.sortType === 'createdAt'
+															? 'active'
+															: ''
+													}
+												>
+													Date Captured
+												</li>
+												<li
+													onClick={() => handleFilter('-createdAt')}
+													className={
+														info?.albumTags?.sortType === '-createdAt'
+															? 'active'
+															: ''
+													}
+												>
+													Date captured (reverse)
+												</li>
+												<li
+													onClick={() => handleFilter('uploadTime')}
+													className={
+														info?.albumTags?.sortType === 'uploadTime'
+															? 'active'
+															: ''
+													}
+												>
+													upload time
+												</li>
+												<li
+													onClick={() =>
+														handleFilter('uploadTimeReverse')
+													}
+												>
+													upload time (reverse)
+												</li>
+												<li
+													onClick={() => handleFilter('custom')}
+													className={
+														info?.sortType === 'custom' ? 'active' : ''
+													}
+												>
+													Random
+												</li>
 											</div>
 										)}
-									</div> */}
+									</div>
 								</div>
 							</div>
 							<div className="albumContains">
@@ -1239,18 +1347,22 @@ const GalleryPage = () => {
 													</div>
 												</div>
 
-												{imagesList?.docs?.map((image, index) => {
+												{info?.imagesList?.docs?.map((image, index) => {
 													const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 													const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
 													return (
 														<div
 															key={index}
 															className={`imageContainer ${
-																info.selectedImages.includes(index)
+																info.selectedImages.includes(
+																	image?._id,
+																)
 																	? 'selected'
 																	: ''
 															}`}
-															onClick={() => handleImageSelect(index)}
+															onClick={() =>
+																handleImageSelect(index, image)
+															}
 														>
 															<img
 																src={src}
@@ -1275,7 +1387,17 @@ const GalleryPage = () => {
 										>
 											<Droppable
 												droppableId="masonry-grid"
-												direction="horizontal"
+												// direction="horizontal"
+												direction={
+													info?.gridStyle?.vertical
+														? 'vertical'
+														: 'horizontal'
+												}
+												type={
+													info?.gridStyle?.vertical
+														? 'VERTICAL'
+														: 'HORIZONTAL'
+												}
 											>
 												{(provided, snapshot) => (
 													<div
@@ -1535,7 +1657,7 @@ const GalleryPage = () => {
 											<div onClick={handleExpandClick}>
 												<ExpandIcon />
 											</div>
-											{/* <div
+											<div
 												style={{ position: 'relative' }}
 												ref={forwardIconRef}
 											>
@@ -1567,26 +1689,16 @@ const GalleryPage = () => {
 																X
 															</p>
 														</div>
-														<div className="pinOptionsList">
-															<label className="checkboxLabel">
-																<input type="checkbox" />
-																<span className="checkboxText">
-																	Portraits
-																</span>
-															</label>
-															<label className="checkboxLabel">
-																<input type="checkbox" />
-																<span className="checkboxText">
-																	Documentary
-																</span>
-															</label>
-															<label className="checkboxLabel">
-																<input type="checkbox" />
-																<span className="checkboxText">
-																	Decor
-																</span>
-															</label>
-														</div>
+														{info?.albumTags?.map((tag) => (
+															<div className="pinOptionsList">
+																<label className="checkboxLabel">
+																	<input type="checkbox" />
+																	<span className="checkboxText">
+																		{tag?.displayName}
+																	</span>
+																</label>
+															</div>
+														))}
 													</div>
 												)}
 											</div>
@@ -1603,10 +1715,19 @@ const GalleryPage = () => {
 														<li>Download</li>
 														<li>Set as cover</li>
 														<li>Share</li>
-														<li>Delete</li>
+														<li
+															onClick={() =>
+																setInfo((prev) => ({
+																	...prev,
+																	showDeleteAlbum: true,
+																}))
+															}
+														>
+															Delete
+														</li>
 													</div>
 												)}
-											</div> */}
+											</div>
 										</div>
 									</div>
 								)}
@@ -1691,6 +1812,16 @@ const GalleryPage = () => {
 				closeModal={handleManageCollaboratorPopup}
 				galleryId={galleryId}
 				setCollaborator={(data) => handleManageCollaborator(data)}
+			/>
+			<DeletePopup
+				open={info?.showDeleteAlbum}
+				closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
+				galleryId={galleryId}
+				title={'Permanently Delete All the selected images?'}
+				paragraph={
+					'You cannot undo this action.All your photos in this album lined to this label will be lost'
+				}
+				handleDelete={handleAlbumDelete}
 			/>
 		</>
 	);

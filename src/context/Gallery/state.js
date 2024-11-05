@@ -822,6 +822,36 @@ export const Galleries = () => {
 			console.log('error==>deleteGallery', error);
 		}
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/images
+	const deleteImages = async (payload, galleryId, albumId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchDelete(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/images`,
+				usertoken,
+				payload,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>deleteImages', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/sortType
+	const updateTagSortType = async (payload, galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/sortType`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>updateTagSortType', error);
+		}
+	};
 
 	const getAlbumImagesCount = async (galleryId) => {
 		try {
@@ -890,6 +920,8 @@ export const Galleries = () => {
 		setAlbumCoverImage,
 		deleteAlbum,
 		deleteGallery,
+		deleteImages,
+		updateTagSortType,
 		getAlbumImagesCount,
 	};
 };
