@@ -40,21 +40,20 @@ const GalleryViewer = () => {
 				info?.limit,
 				true,
 			);
-			setsearchkeys({ tagId: searchkeys.get('tagId') });
+			// setsearchkeys({ tagId: searchkeys.get('tagId') });
 		}
 
 		if (imagesList) {
-			const imageId = imagesList?.docs?.[searchkeys.get('image')] || 0;
+			const imageId = searchkeys.get('image');
 
-			console.log(imageId);
 			if (!imageId) return;
 
 			setInfo((prev) => ({
 				...prev,
-				activeImage: imageId?._id,
+				activeImage: searchkeys.get('image'),
 			}));
 			setTimeout(() => {
-				const image = document.getElementById(imageId?._id || '');
+				const image = document.getElementById(imageId || '');
 				image.scrollIntoView({ behavior: 'smooth', block: 'start' });
 			}, 1000);
 		}
