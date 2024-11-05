@@ -331,8 +331,31 @@
 					background: rgba(100, 100, 100, 0.16);
 				}
 
+				.no-workflows-container {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					width: 100%;
+					height: 292px;
+
+					p {
+						color: rgba(228, 229, 230, 0.48);
+						font-family: Inter;
+						font-size: 13px;
+
+						span {
+							color: #6055ec;
+						}
+
+						.ai-name {
+							color: #e4e5e6;
+						}
+					}
+				}
+
 				.workflows-infinite-scroll {
 					overflow: auto !important;
+					padding-right: 16px;
 
 					.templates-container {
 						display: flex;
@@ -415,6 +438,8 @@
 						}
 
 						.template-remove {
+							border: none;
+							background: transparent;
 							color: #e46b64;
 							font-family: Inter;
 							font-size: 12px;

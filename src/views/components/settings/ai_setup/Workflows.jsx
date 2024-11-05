@@ -1,35 +1,110 @@
-import { memo, useState } from 'react';
+import { memo, useState, useEffect, useContext } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import Skeleton from 'react-loading-skeleton';
 import { ReactComponent as HollowCircleBlue } from '../../../../assets/svg/Settings/hollow-circle-blue.svg';
 import '../../../../assets/scss/settings/aiSetupPage.scss';
-// import Template from './tempImg.png';
-// import { ReactComponent as LinkWhite } from '../../../../assets/svg/Settings/link-white-color.svg';
+import { message } from 'antd';
+import Spinner from '../../loaders/Spinner';
+import Context from '../../../../context/context';
+import { ReactComponent as LinkWhite } from '../../../../assets/svg/Settings/link-white-color.svg';
 
-const Workflows = ({ info, hideRemove = false, allowWorkflowsSelection = false }) => {
-	const [selectedWorkflows, setSelectedWorkflows] = useState([]);
+const Workflows = ({
+	info,
+	renderAssignedWorkflows = false,
+	hideRemove = false,
+	allowWorkflowsSelection = false,
+	setSelectedWorkflows,
+	assistantId,
+}) => {
+	let {
+		aiSetup: {
+			assignedWorkflowsToAiAssistant,
+			getAssignedWorkflowsToAiAssistant,
+			unassignWorkflowToAiAssistant,
+			workflows,
+			getWorkflows,
+		},
+	} = useContext(Context);
+
+	const [isLoading, setIsLoading] = useState(false);
 
 	const handleWorkflowSelection = (e, workflow) => {
 		if (e?.target?.checked) {
-			setSelectedWorkflows((prevSelectedWorkflows) => [
-				...prevSelectedWorkflows,
-				workflow?._id,
-			]);
+			setSelectedWorkflows((prev) => ({
+				...prev,
+				selectedWorkflows: [...prev?.selectedWorkflows, workflow?._id],
+			}));
 		} else {
-			setSelectedWorkflows((prevSelectedWorkflows) =>
-				prevSelectedWorkflows?.filter((id) => id !== workflow?._id),
-			);
+			setSelectedWorkflows((prev) => ({
+				...prev,
+				selectedWorkflows: prev?.selectedWorkflows?.filter((id) => id !== workflow?._id),
+			}));
 		}
 	};
 
-	return info?.workflows ? (
-		<InfiniteScroll
-			className="workflows-infinite-scroll"
-			dataLength={info?.workflows?.length || 0}
-			height={310}
-		>
-			{info?.workflows &&
-				info?.workflows?.map(
+	const handleRemoveWorkflow = async (assistantId, workflowId) => {
+		setIsLoading(true);
+		const response = await unassignWorkflowToAiAssistant(assistantId, workflowId);
+		if (!response) {
+			message.error('Failed to unassign workflow! Please try again.');
+		} else {
+			message.success('Workflow unassigned  successfully!');
+			getAssignedWorkflowsToAiAssistant(assistantId, 1, 10, true);
+		}
+		setIsLoading(false);
+	};
+
+	const fetchMoreWorkflows = async () => {
+		if (renderAssignedWorkflows) {
+			alert('fetching more workflows');
+			getAssignedWorkflowsToAiAssistant(
+				assistantId,
+				assignedWorkflowsToAiAssistant?.currentPage + 1,
+				10,
+			);
+		} else {
+			getWorkflows(workflows?.currentPage + 1, 10);
+		}
+	};
+
+	return (
+		<div id="workflowsDiv">
+			<InfiniteScroll
+				className="workflows-infinite-scroll"
+				dataLength={
+					renderAssignedWorkflows
+						? assignedWorkflowsToAiAssistant?.data?.length
+						: workflows?.data?.length
+				}
+				height={310}
+				scrollableTarget="workflowsDiv"
+				hasMore={
+					renderAssignedWorkflows
+						? assignedWorkflowsToAiAssistant?.hasMore || false
+						: workflows?.hasMore || false
+				}
+				next={fetchMoreWorkflows}
+				loader={
+					<div
+						style={{
+							color: 'white',
+							textAlign: 'center',
+							fontSize: '10px',
+							padding: '4px',
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+							gap: '4px',
+						}}
+					>
+						<span>Fetching More Files...</span>
+						<Spinner width={'12px'} height={'12px'} />
+					</div>
+				}
+			>
+				{(renderAssignedWorkflows
+					? assignedWorkflowsToAiAssistant?.data
+					: workflows?.data
+				)?.map(
 					(workflow) =>
 						workflow?.tenantId !== null && (
 							<div key={workflow?._id} className="templates-container">
@@ -60,30 +135,44 @@ const Workflows = ({ info, hideRemove = false, allowWorkflowsSelection = false }
 										<ul>
 											{workflow?.moduleTemplates?.map((moduleInfo) => {
 												return (
-													<li>
+													<li key={moduleInfo?._id}>
 														<HollowCircleBlue />
 														<span>{moduleInfo?.module}</span>
 													</li>
 												);
 											})}
 										</ul>
-										{/* <div className="default-knowledge-container">
-													<p>Default Knowledge: </p>
-													<div className="default-knowledge-link-container">
-														<LinkWhite />
-														<p>Smart File</p>
-													</div>
-												</div> */}
+										<div className="default-knowledge-container">
+											<p>Default Knowledge: </p>
+											<div className="default-knowledge-link-container">
+												<LinkWhite />
+												<p>Smart File</p>
+											</div>
+										</div>
 									</div>
 								</div>
-								{!hideRemove && <div className="template-remove">Remove</div>}
+								{!hideRemove && (
+									<button
+										disabled={isLoading}
+										style={{
+											cursor: isLoading ? 'not-allowed' : 'pointer',
+										}}
+										onClick={() =>
+											handleRemoveWorkflow(assistantId, workflow?._id)
+										}
+										className="template-remove"
+									>
+										Remove
+									</button>
+								)}
 							</div>
 						),
 				)}
-		</InfiniteScroll>
-	) : (
-		<Skeleton width={'100%'} height={'292px'} />
+			</InfiniteScroll>
+		</div>
 	);
+
+	// <Skeleton width={'100%'} height={'292px'} />
 };
 
 export default memo(Workflows);

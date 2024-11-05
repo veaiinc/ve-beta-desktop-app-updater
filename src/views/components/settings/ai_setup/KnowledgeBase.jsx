@@ -1,4 +1,4 @@
-import React, { memo, useState, useContext, useEffect, useCallback } from 'react';
+import React, { memo, useState, useContext, useEffect } from 'react';
 import AddKnowledgeModal from '../../../components/modalsV2/settings/ai_setup/AddKnowledgeModal';
 import '../../../../assets/scss/settings/aiSetupPage.scss';
 import Context from '../../../../context/context';
@@ -26,8 +26,15 @@ const sourceTypes = {
 
 const KnowledgeBase = () => {
 	let {
-		aiSetup: { activeAiAssistantDetails, knowledgeBaseFiles, getKnowledgeBaseFiles },
-		templates: { myWorkflows, getMyWorkflows },
+		aiSetup: {
+			activeAiAssistantDetails,
+			knowledgeBaseFiles,
+			getKnowledgeBaseFiles,
+			assignedWorkflowsToAiAssistant,
+			getAssignedWorkflowsToAiAssistant,
+			unassignWorkflowToAiAssistant,
+			getWorkflows,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -35,19 +42,18 @@ const KnowledgeBase = () => {
 		areKnowledgeBaseFilesLoading: true,
 		isKnowledgeBaseEmpty: false,
 		isAssignAiAssistantModalOpen: false,
-		workflows: null,
-		selectedWorkflows: [],
 	});
 
 	useEffect(() => {
-		getMyWorkflowTemplatesData(1);
+		getWorkflows(1, 10);
+		getAssignedWorkflowsToAiAssistant(activeAiAssistantDetails?._id, 1, 10);
 	}, []);
 
 	useEffect(() => {
-		if (myWorkflows) {
-			setInfo((prev) => ({ ...prev, workflows: myWorkflows?.data }));
+		if (assignedWorkflowsToAiAssistant) {
+			setInfo((prev) => ({ ...prev, assignedWorkflows: assignedWorkflowsToAiAssistant }));
 		}
-	}, [myWorkflows]);
+	}, [assignedWorkflowsToAiAssistant]);
 
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -61,23 +67,9 @@ const KnowledgeBase = () => {
 		}
 	}, [knowledgeBaseFiles]);
 
-	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
-		const payload = {
-			filters: {
-				limit: 10,
-				page: page,
-				type: 'workspace',
-				status: 'published',
-				sortBy: 'createdAt',
-				sortType: -1,
-			},
-		};
-		getMyWorkflows(payload, fetchMore);
-	}, []);
-
 	const fetchMoreKnowledgeBaseFiles = () => {
 		const nextPageNumber = knowledgeBaseFiles?.currentPage + 1;
-		getKnowledgeBaseFiles(nextPageNumber);
+		getKnowledgeBaseFiles(activeAiAssistantDetails?._id, nextPageNumber);
 	};
 
 	const toggleModal = () => {
@@ -92,10 +84,6 @@ const KnowledgeBase = () => {
 		toggleAssignAiAssistantModal();
 	};
 
-	useEffect(() => {
-		console.log('knowledgeBaseFilesLoading', knowledgeBaseFiles?.areKnowledgeBaseFilesLoading);
-	}, [knowledgeBaseFiles?.areKnowledgeBaseFilesLoading]);
-
 	return (
 		<div className="ai-knowledge-base-container">
 			<div className="assigning-ai">
@@ -104,7 +92,23 @@ const KnowledgeBase = () => {
 					<button onClick={handleOpenAssignAiAssistantModal}>Assign</button>
 				</div>
 				<div className="line"></div>
-				<Workflows info={info} />
+				{assignedWorkflowsToAiAssistant?.data?.length > 0 ? (
+					<Workflows
+						getAssignedWorkflowsToAiAssistant={getAssignedWorkflowsToAiAssistant}
+						assistantId={activeAiAssistantDetails?._id}
+						renderAssignedWorkflows={true}
+						// info={info}
+						unassignWorkflowToAiAssistant={unassignWorkflowToAiAssistant}
+					/>
+				) : (
+					<div className="no-workflows-container">
+						<p>
+							No workflows found! <br /> Click on the <span>Assign</span> button to
+							assign workflows to <br />{' '}
+							<span className="ai-name">{activeAiAssistantDetails?.name}</span>
+						</p>
+					</div>
+				)}
 			</div>
 			<div className="active-knowledge-base">
 				<div className="ai-header">
@@ -128,20 +132,6 @@ const KnowledgeBase = () => {
 							className="knowledgebase-infinite-scroll"
 							dataLength={knowledgeBaseFiles?.data?.length || 0}
 							height={350}
-							endMessage={
-								knowledgeBaseFiles?.data?.length > 0 && (
-									<p
-										style={{
-											textAlign: 'center',
-											color: 'white',
-											fontSize: '10px',
-											padding: '4px',
-										}}
-									>
-										End of knowledge files list!
-									</p>
-								)
-							}
 							scrollableTarget={'knowledges-list-target'}
 							next={fetchMoreKnowledgeBaseFiles}
 							hasMore={knowledgeBaseFiles?.hasMore}
@@ -193,12 +183,12 @@ const KnowledgeBase = () => {
 			</div>
 			<AddKnowledgeModal isOpen={info?.isAddKnowledgeModalOpen} toggleModal={toggleModal} />
 			<AssignAiAssistantModal
+				assignedWorkflows={info?.assignedWorkflows}
 				isOpen={info?.isAssignAiAssistantModalOpen}
 				toggleModal={toggleAssignAiAssistantModal}
-				getMyWorkflowTemplatesData={getMyWorkflowTemplatesData}
-				myWorkflows={myWorkflows}
-				info={info}
+				myWorkflows={info?.workflows}
 				activeAiAssistantDetails={activeAiAssistantDetails}
+				getAssignedWorkflowsToAiAssistant={getAssignedWorkflowsToAiAssistant}
 			/>
 		</div>
 	);

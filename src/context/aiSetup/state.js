@@ -3,7 +3,9 @@ import Reducer from './reducer';
 import { AI_PERSONALITY, KNOWLEDGE_BASE } from './actionTypes';
 import { Actions } from './actions';
 import service from '../../services';
+import gqlService from '../../services/graphQlServices';
 import { generatePDFsBatchId } from '../../helpers';
+import { getTemmplatesQuery } from '../Templates/graphQlFunctions';
 
 export const intialState = {
 	knowledgeBaseFiles: {
@@ -12,12 +14,119 @@ export const intialState = {
 	},
 	existingAiAssistants: null,
 	activeAiAssistantDetails: null,
+	workflows: {
+		data: [],
+		hasMore: false,
+		currentPage: 1,
+	},
+	assignedWorkflowsToAiAssistant: {
+		data: [],
+		hasMore: false,
+		currentPage: 1,
+	},
 };
 
 export const AiSetupState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
-	const getKnowledgeBaseFiles = async (page = 1, limit = 10, reset = false) => {
+	const getWorkflows = async (page = 1, limit = 10, reset = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const payload = {
+			filters: {
+				limit: limit,
+				page: page,
+				type: 'workspace',
+				status: 'published',
+				sortBy: 'createdAt',
+				sortType: -1,
+			},
+		};
+
+		const response = await gqlService?.query(
+			getTemmplatesQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			dispatch({
+				type: Actions?.SET_WORKFLOWS,
+				payload: {
+					data: reset
+						? [...response?.[1]?.data?.templates?.data]
+						: [...state?.workflows?.data, ...response?.[1]?.data?.templates?.data],
+					hasMore: response?.[1]?.data?.templates?.hasNextPage,
+					currentPage: response?.[1]?.data?.templates?.currentPage,
+				},
+			});
+		}
+	};
+
+	const assignAiAssistantToSelectedWorkflows = async (assistantId, workflowIds) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + `/ai-assistants/${assistantId}/workflow-templates`;
+
+		const response = await service.fetchPost(
+			url,
+			{ workflowTemplateIds: workflowIds },
+			usertoken,
+			'ai_assistant_api',
+		);
+		if (response?.[0] === true) {
+			return true;
+		}
+		return false;
+	};
+
+	const getAssignedWorkflowsToAiAssistant = async (
+		assistantId,
+		page = 1,
+		limit = 10,
+		reset = false,
+	) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' +
+			workspaceId +
+			`/ai-assistants/${assistantId}/workflow-templates/?page=${page}&limit=${limit}`;
+		const response = await service.fetchGet(url, usertoken, 'ai_assistant_api');
+		if (response?.[0]) {
+			dispatch({
+				type: Actions?.SET_ASSIGNED_WORKFLOWS_TO_AI_ASSISTANT,
+				payload: {
+					data: reset
+						? [...response?.[1]?.[0]?.docs]
+						: [
+								...state?.assignedWorkflowsToAiAssistant?.data,
+								...response?.[1]?.[0]?.docs,
+						  ],
+					hasMore: response?.[1]?.[0]?.metadata?.[0]?.hasNextPage,
+					currentPage: response?.[1]?.[0]?.metadata?.[0]?.currentPage,
+				},
+			});
+			return true;
+		}
+		return false;
+	};
+
+	const unassignWorkflowToAiAssistant = async (assistantId, workflowId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + `/ai-assistants/${assistantId}/workflow-templates`;
+		const payload = {
+			workflowTemplateId: workflowId,
+		};
+		const response = await service.fetchDelete(url, usertoken, payload, 'ai_assistant_api');
+		return response?.[0];
+	};
+
+	const getKnowledgeBaseFiles = async (assistantId, page = 1, limit = 10, reset = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -25,15 +134,15 @@ export const AiSetupState = () => {
 				'/' +
 				workspaceId +
 				KNOWLEDGE_BASE?.listFilesInKnowledgeBase +
-				`?page=${page}&limit=${limit}`;
-			const response = await service.fetchGet(url, usertoken, 'tenant'); // change the type to ai_setup later
+				`?page=${page}&limit=${limit}&assistantId=${assistantId}`;
+			const response = await service.fetchGet(url, usertoken, 'ai_assistant_api'); // change the type to ai_setup later
 			const knowledgeBaseData = {
 				data: reset
-					? [...response?.[1]?.result]
-					: [...state?.knowledgeBaseFiles?.data, ...response?.[1]?.result],
+					? [...response?.[1]?.data]
+					: [...state?.knowledgeBaseFiles?.data, ...response?.[1]?.data],
 				hasMore: response?.[1]?.hasNextPage,
 				currentPage: response?.[1]?.currentPage,
-				totalPages: response?.[1]?.totalPages,
+				totalPages: response?.[1]?.totalDocs,
 				areKnowledgeBaseFilesLoading: false,
 			};
 			if (response?.[0]) {
@@ -52,9 +161,9 @@ export const AiSetupState = () => {
 		let usertoken = localStorage.getItem('usertoken');
 		const url = '/' + workspaceId + AI_PERSONALITY?.listAiAssistants;
 		try {
-			const response = await service?.fetchGet(url, usertoken, 'tenant'); // change the type to ai_setup later
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api'); // change the type to ai_setup later
 			if (response?.[0]) {
-				const existingAiAssistants = response?.[1]?.['result']?.map((aiAssistant) => ({
+				const existingAiAssistants = response?.[1]?.['data']?.map((aiAssistant) => ({
 					id: aiAssistant?._id,
 					name: aiAssistant?.name,
 				}));
@@ -73,7 +182,7 @@ export const AiSetupState = () => {
 		let usertoken = localStorage.getItem('usertoken');
 		const url = '/' + workspaceId + AI_PERSONALITY?.createNewAiAssistant;
 		try {
-			const response = await service?.fetchPost(url, data, usertoken, 'tenant'); // change the type to ai_setup later
+			const response = await service?.fetchPost(url, data, usertoken, 'ai_assistant_api'); // change the type to ai_setup later
 			if (response?.[0]) {
 				return response?.[1]?._id;
 			}
@@ -87,7 +196,7 @@ export const AiSetupState = () => {
 		let usertoken = localStorage.getItem('usertoken');
 		const url = '/' + workspaceId + AI_PERSONALITY?.updateAiAssistant + '/' + aiAssistantId;
 		try {
-			const response = await service?.fetchPut(url, data, usertoken, 'tenant'); // change the type to ai_setup later
+			const response = await service?.fetchPut(url, data, usertoken, 'ai_assistant_api'); // change the type to ai_setup later
 			if (response?.[0]) {
 				dispatch({
 					type: Actions?.SET_ACTIVE_AI_ASSISTANT_DETAILS,
@@ -104,7 +213,7 @@ export const AiSetupState = () => {
 		let usertoken = localStorage.getItem('usertoken');
 		const url = '/' + workspaceId + AI_PERSONALITY?.getAiAssistantDetails + '/' + aiAssistantId;
 		try {
-			const response = await service?.fetchGet(url, usertoken, 'tenant'); // change the type to ai_setup later
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api'); // change the type to ai_setup later
 			if (response?.[0]) {
 				dispatch({
 					type: Actions?.SET_ACTIVE_AI_ASSISTANT_DETAILS,
@@ -128,7 +237,12 @@ export const AiSetupState = () => {
 					url: link?.url,
 				};
 				try {
-					const response = await service?.fetchPost(url, body, usertoken, 'tenant');
+					const response = await service?.fetchPost(
+						url,
+						body,
+						usertoken,
+						'ai_assistant_api',
+					);
 					if (response?.[0]) {
 						return resolve({ url: link, status: 'resolved' });
 					} else {
@@ -174,7 +288,12 @@ export const AiSetupState = () => {
 
 				let signedUrl = '';
 				try {
-					const response = await service?.fetchPost(url, body, usertoken, 'tenant'); // change the type to ai_setup later
+					const response = await service?.fetchPost(
+						url,
+						body,
+						usertoken,
+						'ai_assistant_api',
+					); // change the type to ai_setup later
 					if (response?.[0] && response?.[1]?.signedUrl) {
 						signedUrl = response[1].signedUrl;
 					} else {
@@ -225,6 +344,10 @@ export const AiSetupState = () => {
 		return statusSummary;
 	};
 
+	const resetState = () => {
+		dispatch({ type: Actions?.RESET_STATE });
+	};
+
 	return {
 		...state,
 		getKnowledgeBaseFiles,
@@ -234,5 +357,10 @@ export const AiSetupState = () => {
 		getActiveAiAssistantDetails,
 		uploadPDFsToKnowledgeBase,
 		uploadURLsToKnowledgeBase,
+		assignAiAssistantToSelectedWorkflows,
+		getAssignedWorkflowsToAiAssistant,
+		unassignWorkflowToAiAssistant,
+		getWorkflows,
+		resetState,
 	};
 };
