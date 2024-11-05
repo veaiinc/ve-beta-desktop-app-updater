@@ -15,7 +15,13 @@ const ActivityDashboard = () => {
 
 	//Context
 	const {
-		activityInfo: { activityData, getSmartFileActivity, getSmartFileViewers, viewersList },
+		activityInfo: {
+			activityData,
+			getSmartFileActivity,
+			getSmartFileViewers,
+			viewersList,
+			resetActivityState,
+		},
 	} = useContext(Context);
 
 	//States
@@ -48,9 +54,7 @@ const ActivityDashboard = () => {
 	// UseEffect to fetch data on component mount or workflowId change
 	useEffect(() => {
 		if (workflowId) {
-			console.log('Fetching ActivityDataAPI');
 			fetchActivityData();
-			console.log('Fetching ViewersListData');
 			fetchViewersListData();
 		}
 	}, [workflowId]);
@@ -64,6 +68,12 @@ const ActivityDashboard = () => {
 			setInfo((prev) => ({ ...prev, viewersListData: viewersList }));
 		}
 	}, [activityData, viewersList]);
+
+	useEffect(() => {
+		return () => {
+			resetActivityState();
+		};
+	}, []);
 
 	const formatTime = useCallback((milliseconds) => {
 		const duration = moment.duration(milliseconds / 1000, 'seconds');
@@ -88,33 +98,6 @@ const ActivityDashboard = () => {
 			selectedViewer: selectedViewerItem,
 		}));
 	}, []);
-
-	//API Activity Summary ====>
-	// const fetchActivityData = useCallback(() => {
-	// 	if (!activityData) {
-	// 		getSmartFileActivity({ workflowId });
-	// 	}
-	// }, [getSmartFileActivity, workflowId, activityData]);
-
-	//API Viewers List ====>
-	// const fetchViewersListData = useCallback(() => {
-	// 	if (!viewersList) {
-	// 		getSmartFileViewers({ workflowId });
-	// 	}
-	// }, [getSmartFileViewers, workflowId, viewersList]);
-
-	//UseEffect
-	// useEffect(() => {
-	// 	if (workflowId) {
-	// 		console.log('Fetching ActivityDataAPI');
-	// 		fetchActivityData();
-	// 		console.log('Fetching ViewersListData');
-	// 		fetchViewersListData();
-	// 	}
-	// }, [workflowId]);
-
-	// console.log('Fetching ActivityData: ' + JSON.stringify(activityData, null, 2));
-	// console.log('Fetching viewersList: ' + JSON.stringify(viewersList, null, 2));
 
 	return (
 		<div className="activityParentContainer">

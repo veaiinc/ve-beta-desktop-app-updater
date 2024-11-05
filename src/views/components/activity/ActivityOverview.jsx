@@ -38,7 +38,7 @@ const ActivityOverview = ({ formatTime, activityDataLoading }) => {
 						{activityDataLoading ? (
 							<Spinner width="20px" height="20px" />
 						) : (
-							formatTime(activityData?.averageTimeSpent)
+							formatTime(activityData?.averageTimeSpent || 0) || 0
 						)}
 					</span>
 				</div>
