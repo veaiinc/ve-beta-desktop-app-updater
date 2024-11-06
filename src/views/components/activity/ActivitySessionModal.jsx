@@ -189,7 +189,10 @@ const SessionActivityModal = ({
 											<span className="logoText">Session Activity</span>
 										</div>
 										<span className="headerTitle">
-											James Stark - Smart File
+											{/* James Stark - Smart File */}
+											{viewerSessionDetails?.isAnonymus
+												? 'Anonymus - Smart File'
+												: viewerSessionDetails?.clientDetails?.name}
 										</span>
 									</div>
 									<div className="closeBtn" onClick={showDrawer}>
