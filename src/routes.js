@@ -18,6 +18,7 @@ import GalleryPage from './views/features/gallery/GalleryPage';
 import GalleryViewer from './views/features/gallery/GalleryViewer';
 import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
+import Calendar from './views/features/calendar/index';
 
 const routes = [
 	{
@@ -168,6 +169,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'AI Setup'}>
 				<AiSetupPage />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/calendar',
+		component: (
+			<AuthWrapper title={'Calendar'}>
+				<Calendar />
 			</AuthWrapper>
 		),
 		exact: true,
