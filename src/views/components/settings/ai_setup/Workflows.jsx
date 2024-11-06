@@ -25,7 +25,19 @@ const Workflows = ({
 		},
 	} = useContext(Context);
 
+	const [filteredWorkflows, setFilteredWorkflows] = useState([]); // workflows that are not assigned to the assistant
 	const [isLoading, setIsLoading] = useState(false);
+
+	useEffect(() => {
+		setFilteredWorkflows(
+			workflows?.data?.filter(
+				(workflow) =>
+					!assignedWorkflowsToAiAssistant?.data?.some(
+						(assignedWorkflow) => assignedWorkflow?._id === workflow?._id,
+					),
+			),
+		);
+	}, [workflows?.data, assignedWorkflowsToAiAssistant?.data]);
 
 	const handleWorkflowSelection = (e, workflow) => {
 		if (e?.target?.checked) {
@@ -103,7 +115,7 @@ const Workflows = ({
 			>
 				{(renderAssignedWorkflows
 					? assignedWorkflowsToAiAssistant?.data
-					: workflows?.data
+					: filteredWorkflows
 				)?.map(
 					(workflow) =>
 						workflow?.tenantId !== null && (
