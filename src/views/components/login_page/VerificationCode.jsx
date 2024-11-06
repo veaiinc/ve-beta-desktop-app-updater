@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useState } from 'react';
 import OtpInput from 'react-otp-input';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/login_page/index.scss';
