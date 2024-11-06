@@ -27,6 +27,7 @@ import DesignOverviewComp from '../../components/gallery/galleryPage/DesignOverv
 import UploadGalleryImageCover from '../../components/gallery/galleryPage/UploadGalleryImageCover';
 import randomize from 'randomatic';
 import axios from 'axios';
+import Skeleton from 'react-loading-skeleton';
 
 const data = [
 	{ name: 'Albums', number: 14 },
@@ -78,6 +79,8 @@ const GalleryPage = () => {
 			getImageDetail,
 			imageDetail,
 			updateGalleryCoverImage,
+			addTagToImage,
+			removeTagFromImage,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -131,6 +134,7 @@ const GalleryPage = () => {
 		uploadImageId: null,
 		imageURL: '',
 		coverImageDetails: null,
+		searchValue: '',
 		coverPhoto: false,
 	});
 	const optionsRef = useRef(null);
@@ -347,16 +351,46 @@ const GalleryPage = () => {
 	};
 
 	const handleImageSelect = (index, images) => {
-		console.log(images, 'images');
-		const uniqueImages = [...new Set([...info?.selectedImagesTags, images?.tagId])];
-		console.log(uniqueImages, 'uniqueImages');
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			selectedImages: prevInfo.selectedImages.includes(images?._id)
+		// console.log(images, 'images');
+		// const uniqueImages = [...new Set([...info?.selectedImagesTags, images?.tagId])];
+		// console.log(uniqueImages, 'uniqueImages');
+		// setInfo((prevInfo) => ({
+		// 	...prevInfo,
+		// 	selectedImages: prevInfo.selectedImages.includes(images?._id)
+		// 		? prevInfo.selectedImages.filter((i) => i !== images?._id)
+		// 		: [...prevInfo.selectedImages, images?._id],
+		// }));
+
+		setInfo((prevInfo) => {
+			const isDeselecting = prevInfo.selectedImages.includes(images?._id);
+			const newSelectedImages = isDeselecting
 				? prevInfo.selectedImages.filter((i) => i !== images?._id)
-				: [...prevInfo.selectedImages, images?._id],
-		}));
-		console.log(info?.selectedImages, 'selectedImages');
+				: [...prevInfo.selectedImages, images?._id];
+			let newSelectedImagesTags;
+			if (isDeselecting) {
+				const remainingImages = info?.imagesList?.docs.filter(
+					(img) => newSelectedImages.includes(img._id) && img._id !== images?._id,
+				);
+				newSelectedImagesTags = [
+					...new Set(
+						remainingImages.flatMap((img) => img.galleryTags).map((tag) => tag._id),
+					),
+				];
+			} else {
+				newSelectedImagesTags = [
+					...new Set([
+						...(prevInfo.selectedImagesTags || []),
+						...images?.galleryTags.map((tag) => tag._id),
+					]),
+				];
+			}
+
+			return {
+				...prevInfo,
+				selectedImages: newSelectedImages,
+				selectedImagesTags: newSelectedImagesTags,
+			};
+		});
 	};
 
 	const handleClickAlbum = (album, name) => {
@@ -376,6 +410,7 @@ const GalleryPage = () => {
 				...prevInfo,
 				albumContains: album?.displayName,
 				albumTagId: album?._id,
+				sortType: album?.sortType,
 			}));
 		}
 	};
@@ -898,10 +933,7 @@ const GalleryPage = () => {
 		// albumTagId
 		setInfo((prev) => ({
 			...prev,
-			albumTags: {
-				...prev.albumTags,
-				sortType: filter,
-			},
+			sortType: filter,
 		}));
 		const payload = {
 			sortType: filter,
@@ -909,7 +941,30 @@ const GalleryPage = () => {
 		updateTagSortType(payload, galleryId, info?.activeAlbumId, info?.albumTagId);
 	};
 
-	// console.log(albumImagesCount, 'count');
+	const handleTagChange = (tagId) => {
+		const isTagSelected = info.selectedImagesTags.includes(tagId);
+		setInfo((prev) => ({
+			...prev,
+			selectedImagesTags: isTagSelected
+				? prev.selectedImagesTags.filter((id) => id !== tagId)
+				: [...prev.selectedImagesTags, tagId],
+		}));
+		const payload = {
+			image_ids: info?.selectedImages,
+		};
+		console.log(payload, 'payload');
+		if (isTagSelected) {
+			removeTagFromImage(payload, galleryId, info?.activeAlbumId, tagId);
+		} else {
+			addTagToImage(payload, galleryId, info?.activeAlbumId, tagId);
+		}
+	};
+	const handleSearch = (value) => {
+		setInfo((prev) => ({
+			...prev,
+			searchValue: value,
+		}));
+	};
 	return (
 		<>
 			<div className="galleryContainer">
@@ -918,12 +973,6 @@ const GalleryPage = () => {
 						<div className="galleryPicSettings">
 							<UpArrow />
 							<p
-								// onClick={() =>
-								// 	setInfo((prevInfo) => ({
-								// 		...prevInfo,
-								// 		showSettings: !prevInfo.showSettings,
-								// 	}))
-								// }
 								onClick={() => handleClickContent('Settings')}
 								style={{ cursor: 'pointer' }}
 							>
@@ -940,6 +989,10 @@ const GalleryPage = () => {
 									e.target.src = noImage;
 								}}
 							/>
+							<div className="publishIndicator">
+								<div className="liveIndicator"></div>
+								<p>LIVE</p>
+							</div>
 						</div>
 					</div>
 					<div className="albumsContianer">
@@ -1143,9 +1196,19 @@ const GalleryPage = () => {
 											}))
 										}
 										className="searchContainer"
+										style={{
+											width: info?.searchValue && '200px',
+										}}
 									>
 										<SearchIcon />
-										<input type="text" placeholder="Search" />
+
+										<input
+											type="text"
+											placeholder="Search"
+											value={info.searchValue}
+											onChange={(e) => handleSearch(e.target.value)}
+											style={{ display: info?.searchValue && 'block' }}
+										/>
 									</div>
 									<div style={{ position: 'relative' }}>
 										<div
@@ -1168,7 +1231,7 @@ const GalleryPage = () => {
 												<li
 													onClick={() => handleFilter('displayName')}
 													className={
-														info?.albumTags?.sortType === 'displayName'
+														info?.sortType === 'displayName'
 															? 'active'
 															: ''
 													}
@@ -1178,7 +1241,7 @@ const GalleryPage = () => {
 												<li
 													onClick={() => handleFilter('-displayName')}
 													className={
-														info?.albumTags?.sortType === '-displayName'
+														info?.sortType === '-displayName'
 															? 'active'
 															: ''
 													}
@@ -1188,7 +1251,7 @@ const GalleryPage = () => {
 												<li
 													onClick={() => handleFilter('createdAt')}
 													className={
-														info?.albumTags?.sortType === 'createdAt'
+														info?.sortType === 'createdAt'
 															? 'active'
 															: ''
 													}
@@ -1198,7 +1261,7 @@ const GalleryPage = () => {
 												<li
 													onClick={() => handleFilter('-createdAt')}
 													className={
-														info?.albumTags?.sortType === '-createdAt'
+														info?.sortType === '-createdAt'
 															? 'active'
 															: ''
 													}
@@ -1208,7 +1271,7 @@ const GalleryPage = () => {
 												<li
 													onClick={() => handleFilter('uploadTime')}
 													className={
-														info?.albumTags?.sortType === 'uploadTime'
+														info?.sortType === 'uploadTime'
 															? 'active'
 															: ''
 													}
@@ -1359,11 +1422,9 @@ const GalleryPage = () => {
 									dataLength={imagesList?.docs?.length || 0}
 									next={fetchMoreImages}
 									hasMore={imagesList?.hasNextPage || false}
-									loader={
-										<h4 style={{ color: 'white', textAlign: 'center' }}>
-											Loading...
-										</h4>
-									}
+									// loader={[...Array(10)].map((_, index) => (
+									// 	<Skeleton key={index} height={100} />
+									// ))}
 									scrollableTarget="galleryScrollTarget"
 								>
 									{!info.isRearranging ? (
@@ -1386,37 +1447,54 @@ const GalleryPage = () => {
 													</div>
 												</div>
 
-												{info?.imagesList?.docs?.map((image, index) => {
-													const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-													const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
-													return (
-														<div
-															key={index}
-															className={`imageContainer ${
-																info.selectedImages.includes(
-																	image?._id,
-																)
-																	? 'selected'
-																	: ''
-															}`}
-															onClick={() =>
-																handleImageSelect(index, image)
-															}
-														>
-															<img
-																src={src}
-																alt={`Gallery image ${index}`}
-																style={{
-																	width: '100%',
-																	display: 'block',
-																}}
-															/>
-															{info.isMouseInGallery && (
-																<div className="imageOverlay"></div>
-															)}
-														</div>
-													);
-												})}
+												{info?.imagesList?.docs
+													? info?.imagesList?.docs?.map(
+															(image, index) => {
+																const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+																const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+																return (
+																	<div
+																		key={index}
+																		className={`imageContainer ${
+																			info.selectedImages.includes(
+																				image?._id,
+																			)
+																				? 'selected'
+																				: ''
+																		}`}
+																		onClick={() =>
+																			handleImageSelect(
+																				index,
+																				image,
+																			)
+																		}
+																	>
+																		<img
+																			src={src}
+																			alt={`Gallery image ${index}`}
+																			style={{
+																				width: '100%',
+																				display: 'block',
+																			}}
+																		/>
+																		{info.isMouseInGallery && (
+																			<div className="imageOverlay"></div>
+																		)}
+																	</div>
+																);
+															},
+													  )
+													: [...Array(10)].map((_, index) => (
+															<div
+																key={index}
+																className="imageContainer"
+															>
+																<Skeleton
+																	width="100%"
+																	height="200px"
+																/>
+															</div>
+													  ))}
 											</Masonry>
 										</ResponsiveMasonry>
 									) : (
@@ -1731,7 +1809,17 @@ const GalleryPage = () => {
 														{info?.albumTags?.map((tag) => (
 															<div className="pinOptionsList">
 																<label className="checkboxLabel">
-																	<input type="checkbox" />
+																	<input
+																		type="checkbox"
+																		checked={info?.selectedImagesTags?.includes(
+																			tag?._id,
+																		)}
+																		onChange={() =>
+																			handleTagChange(
+																				tag?._id,
+																			)
+																		}
+																	/>
 																	<span className="checkboxText">
 																		{tag?.displayName}
 																	</span>

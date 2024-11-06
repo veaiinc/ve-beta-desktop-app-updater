@@ -903,6 +903,36 @@ export const Galleries = () => {
 			console.log('error==>getAlbums', error);
 		}
 	};
+	//{{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/images
+	const addTagToImage = async (payload, galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>addTagToImage', error);
+		}
+	};
+
+	const removeTagFromImage = async (payload, galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchDelete(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images`,
+				usertoken,
+				payload,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>removeTagFromImage', error);
+		}
+	};
 
 	return {
 		...state,
@@ -953,5 +983,7 @@ export const Galleries = () => {
 		deleteImages,
 		updateTagSortType,
 		getAlbumImagesCount,
+		addTagToImage,
+		removeTagFromImage,
 	};
 };
