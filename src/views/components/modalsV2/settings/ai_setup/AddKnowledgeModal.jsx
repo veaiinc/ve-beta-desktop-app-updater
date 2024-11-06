@@ -9,7 +9,6 @@ import { ReactComponent as CustomTextPurple } from '../../../../../assets/svg/Se
 import { ReactComponent as UploadIcon } from '../../../../../assets/svg/Settings/CloudUpload.svg';
 import '../../../../../assets/scss/settings/aiSetup.scss';
 import Modal from '../../';
-// import isURL from 'validator/lib/isURL';
 import { message } from 'antd';
 import Context from '../../../../../context/context';
 import { useParams } from 'react-router-dom';
