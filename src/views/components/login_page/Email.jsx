@@ -3,6 +3,7 @@ import validator from 'validator';
 import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
+import { checkAccountExistsUsingEmail } from '../../../services/authServices/authServices';
 
 const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	const [info, setInfo] = useState({
@@ -29,18 +30,20 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 		}));
 	};
 
-	const handleEmailLogin = () => {
-		if (info.isEmailValid) {
-			setLoginPageInfo((prev) => ({
-				...prev,
-				activeStage: 'verificationCode',
-			}));
+	const handleContinueWithEmail = async () => {
+		try {
+			console.log('loginPageInfo', loginPageInfo?.email);
+
+			const response = await checkAccountExistsUsingEmail(loginPageInfo?.email);
+			console.log('result', response);
+		} catch (error) {
+			console.error('Failed to check email:', error.message);
 		}
 	};
 
 	const handleKeyDown = (e) => {
 		if (e.key === 'Enter') {
-			handleEmailLogin();
+			handleContinueWithEmail();
 		}
 	};
 
@@ -76,7 +79,7 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 						}}
 						onMouseEnter={() => setInfo({ ...info, isHovering: true })}
 						onMouseLeave={() => setInfo({ ...info, isHovering: false })}
-						onClick={handleEmailLogin}
+						onClick={handleContinueWithEmail}
 					>
 						{info?.isHovering ? (
 							<span>
