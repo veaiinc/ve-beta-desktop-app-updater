@@ -117,6 +117,7 @@ const SessionActivityModal = ({
 					loading={info?.isLoading}
 					labelsData={viewerSessionDetails?.moduleViewDuration || []}
 					labelItemsData={viewerSessionDetails?.sectionViewDuration || []}
+					formatTime={formatTime}
 				/>
 			),
 
@@ -129,6 +130,7 @@ const SessionActivityModal = ({
 					labelItemsData={viewerSessionDetails?.interaction?.reduce((acc, item) => {
 						return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending each "interaction" array data
 					}, [])}
+					formatTime={formatTime}
 				/>
 			),
 
