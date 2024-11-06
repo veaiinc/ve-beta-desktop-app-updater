@@ -32,10 +32,36 @@
 		line-height: 16px; /* 145.455% */
 	}
 
+	.datePicker {
+		background-color: transparent;
+		color: white;
+		padding: 11px 14px;
+		border: 1px solid rgba(36, 36, 36, 0.64);
+		input {
+			height: 18px;
+			border: none !important;
+			outline: none !important;
+			&::placeholder {
+				color: #979797; // Adjust this color as needed
+			}
+		}
+		span {
+			svg {
+				fill: #979797;
+			}
+		}
+	}
+
 	.inputContainer {
 		display: flex;
 		flex-direction: column;
 		gap: 16px;
+		.error {
+			color: #ff3939;
+			font-size: 11px;
+			font-weight: 400;
+			line-height: 16px;
+		}
 		.gallery-name {
 			display: flex;
 			flex-direction: column;
@@ -101,6 +127,7 @@
 		align-self: stretch;
 		border-radius: 100px;
 		background: #6055ec;
+		cursor: pointer;
 		p {
 			color: #fafafa;
 			font-size: 13px;

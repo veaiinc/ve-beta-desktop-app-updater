@@ -815,6 +815,19 @@ export const Galleries = () => {
 				dispatch({
 					type: Actions.RESET_IMAGES_LIST,
 				});
+
+				if (state.albumImagesCount) {
+					let ablumsData = state.albumImagesCount.albums.filter(
+						(item) => item._id !== albumId,
+					);
+					dispatch({
+						type: Actions.GET_ALBUM_IMAGES_COUNT,
+						payload: {
+							...state.albumImagesCount,
+							albums: ablumsData,
+						},
+					});
+				}
 			}
 
 			return response;

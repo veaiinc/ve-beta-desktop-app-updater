@@ -12,6 +12,7 @@
 			padding: 16px 24px;
 			width: fit-content;
 			border-radius: 100px;
+			cursor: pointer;
 		}
 		.gallery-filter {
 			display: flex;
@@ -445,6 +446,38 @@
 						cursor: pointer;
 						background-color: rgba(0, 0, 0, 0.3);
 					}
+				}
+			}
+		}
+	}
+	.noAlbumContainer {
+		.ant-result-title {
+			color: #fff;
+		}
+		.ant-result-subtitle {
+			color: #fff;
+		}
+
+		.ant-result-extra {
+			.create-album-button {
+				display: flex;
+				margin: auto;
+				padding: 16px 24px;
+				justify-content: center;
+				align-items: center;
+				gap: 4px;
+				align-self: stretch;
+				border-radius: 100px;
+				background: #6055ec;
+				cursor: pointer;
+				border: none;
+				outline: none;
+				p {
+					color: #fafafa;
+					font-size: 13px;
+					font-weight: 500;
+					line-height: 16px;
+					letter-spacing: 0.26px;
 				}
 			}
 		}

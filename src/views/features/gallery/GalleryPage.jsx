@@ -11,7 +11,7 @@ import { ReactComponent as OptionsIcon } from '../../../assets/svg/gallery/dotsT
 import { ReactComponent as CloudUpload } from '../../../assets/svg/Settings/CloudUpload.svg';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
-import { message } from 'antd';
+import { message, Result } from 'antd';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
 import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPopup';
@@ -35,6 +35,8 @@ const data = [
 	// { name: 'Client Selections', number: 6 },
 	{ name: 'AI', number: '' },
 ];
+const noImage =
+	'https://png.pngtree.com/png-clipart/20230917/original/pngtree-no-image-available-icon-flatvector-illustration-thumbnail-graphic-illustration-vector-png-image_12323920.png';
 
 const GalleryPage = () => {
 	const { galleryId } = useParams();
@@ -930,14 +932,30 @@ const GalleryPage = () => {
 						</div>
 						<div className="imageContaienr">
 							<img
-								src={`${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`}
+								src={
+									`${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}` ||
+									noImage
+								}
+								onError={(e) => {
+									e.target.src = noImage;
+								}}
 							/>
 						</div>
 					</div>
 					<div className="albumsContianer">
 						<div className="galleryContentContainer">
 							<div className="content">
-								{data.map((item, index) => (
+								<div
+									className={`galleryContent ${
+										info.activeTab === 'Albums' ? 'active' : ''
+									}`}
+									onClick={() => handleClickContent('Albums')}
+								>
+									<p className="galleryName">Albums</p>
+									<p className="count">{albumImagesCount?.albums?.length}</p>
+								</div>
+
+								{/* {data.map((item, index) => (
 									<div
 										key={index}
 										className={`galleryContent ${
@@ -948,7 +966,7 @@ const GalleryPage = () => {
 										<p className="galleryName">{item.name}</p>
 										<p className="count">{item.number}</p>
 									</div>
-								))}
+								))} */}
 							</div>
 							<div className="shareContainer">
 								<div className="icon" onClick={openShareModal}>
@@ -1029,7 +1047,28 @@ const GalleryPage = () => {
 					</div>
 				</div>
 				<div className="line"></div>
-				{info.activeTab === 'Albums' && (
+				{info.activeTab === 'Albums' && albumImagesCount?.albums.length === 0 ? (
+					<div className="noAlbumContainer">
+						<Result
+							status="404"
+							title="Albums Not Found"
+							subTitle="It's quiet for now... You haven't missed anything yet! Create your first album to start organizing your memories"
+							extra={
+								<button
+									className="create-album-button"
+									onClick={() =>
+										setInfo((prevData) => ({
+											...prevData,
+											showCreateAlbum: true,
+										}))
+									}
+								>
+									<p>Create Album</p>
+								</button>
+							}
+						/>
+					</div>
+				) : (
 					<div className="galleryViewer">
 						<div className="galleryNavbar">
 							<div className="aboutAlbum">
@@ -1045,7 +1084,7 @@ const GalleryPage = () => {
 											}))
 										}
 									>
-										<img src={threeDots} />
+										<img src={threeDots} style={{ cursor: 'pointer' }} />
 										{info.showGalleryOptions && (
 											<div
 												className="galleryEditOptions"

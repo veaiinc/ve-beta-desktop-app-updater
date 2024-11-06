@@ -4,6 +4,7 @@ import ReactModal from '../index';
 import { DatePicker } from 'antd';
 import Context from '../../../../context/context';
 import { useLocation } from 'react-router-dom';
+import { ReactComponent as CrossWhite } from '../../../../assets/svg/workspaceSettings/cross.svg';
 
 const CreateAlbum = ({ open, closeModal, galleryId }) => {
 	const {
@@ -65,7 +66,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 				<div className="createAlbumHeading">
 					<p className="heading">Create New Album</p>
 					<p className="close" onClick={closeModal}>
-						X
+						<CrossWhite />
 					</p>
 				</div>
 				<div className="inputContainer">
@@ -89,7 +90,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 								handleAlbumNameChange(dateString, 'date')
 							}
 						/>
-						{info?.eventDateError && <p className="error">Album Name is Required</p>}
+						{info?.eventDateError && <p className="error">Album Date is Required</p>}
 					</div>
 				</div>
 				<div className="createButton" onClick={() => handleCreateAlbum()}>
