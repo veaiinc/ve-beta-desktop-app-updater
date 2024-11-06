@@ -867,7 +867,7 @@ export const Galleries = () => {
 					return !payload?.image_ids?.includes(image?._id);
 				});
 
-				const payload = {
+				const payloadData = {
 					...state.imagesList,
 					docs,
 				};
@@ -878,13 +878,13 @@ export const Galleries = () => {
 
 				dispatch({
 					type: Actions.GET_IMAGES_LIST,
-					payload,
+					payload: payloadData,
 				});
 
 				return [true];
+			} else {
+				return response;
 			}
-
-			return response;
 		} catch (error) {
 			console.log('error==>deleteImages', error);
 		}

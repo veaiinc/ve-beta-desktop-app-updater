@@ -122,23 +122,23 @@ const GalleryViewer = () => {
 		});
 	};
 
-	const handleAlbumDelete = () => {
+	const handleAlbumDelete = async () => {
 		const payload = {
 			image_ids: [info?.imageDetailId],
 		};
 
-		deleteImages(payload, galleryId, albumId).then((response) => {
-			console.log('response==>', response);
-			if (response[0] === true) {
-				setInfo((prev) => ({
-					...prev,
-					showDeleteAlbum: false,
-				}));
-				message.success('Images deleted successfully');
-			} else {
-				message.error('Failed to delete images');
-			}
-		});
+		const response = await deleteImages(payload, galleryId, albumId);
+		console.log('response==>', response);
+		if (response[0] === true) {
+			setInfo((prev) => ({
+				...prev,
+				showDeleteAlbum: false,
+				imageDetailId: null,
+			}));
+			message.success('Images deleted successfully');
+		} else {
+			message.error('Failed to delete images');
+		}
 	};
 
 	return (

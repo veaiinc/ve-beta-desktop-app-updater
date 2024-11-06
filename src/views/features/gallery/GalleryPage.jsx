@@ -1079,7 +1079,7 @@ const GalleryPage = () => {
 											background: src
 												? `url(${src})`
 												: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
-											backgroundSize: 'cover',
+											backgroundSize: 'cover ',
 											backgroundPosition: 'center',
 											// border: '1px solid red',
 										}}
@@ -1101,291 +1101,300 @@ const GalleryPage = () => {
 					</div>
 				</div>
 				<div className="line"></div>
-				{info.activeTab === 'Albums' && albumImagesCount?.albums.length === 0 ? (
-					<div className="noAlbumContainer">
-						<Result
-							status="404"
-							title="Albums Not Found"
-							subTitle="It's quiet for now... You haven't missed anything yet! Create your first album to start organizing your memories"
-							extra={
-								<button
-									className="create-album-button"
-									onClick={() =>
-										setInfo((prevData) => ({
-											...prevData,
-											showCreateAlbum: true,
-										}))
-									}
-								>
-									<p>Create Album</p>
-								</button>
-							}
-						/>
-					</div>
-				) : (
-					<div className="galleryViewer">
-						<div className="galleryNavbar">
-							<div className="aboutAlbum">
-								<div className="albumName">
-									<p>{info.albumName}</p>
-									<div
-										style={{ position: 'relative' }}
-										ref={galleryIconRef}
-										onClick={() =>
-											setInfo((prevInfo) => ({
-												...prevInfo,
-												showGalleryOptions: !prevInfo.showGalleryOptions,
-											}))
-										}
-									>
-										<img src={threeDots} style={{ cursor: 'pointer' }} />
-										{info.showGalleryOptions && (
-											<div
-												className="galleryEditOptions"
-												ref={galleryOptionsRef}
-											>
-												<li
-													onClick={() =>
-														handleAlbumSettings('album-overview')
-													}
-												>
-													Album overview
-												</li>
-												<li
-													onClick={() =>
-														handleAlbumSettings('download-album')
-													}
-												>
-													Download album
-												</li>
-												<li
-													onClick={() =>
-														handleAlbumSettings('lightroom-copy-list')
-													}
-												>
-													Light Room Copy List
-												</li>
-												<li
-													onClick={() =>
-														handleAlbumSettings('album-cover')
-													}
-												>
-													Album Cover
-												</li>
-												<li
-													onClick={() =>
-														handleAlbumSettings('delete-album')
-													}
-													style={{ color: '#A74A49' }}
-												>
-													Delete album
-												</li>
-											</div>
-										)}
-										<div></div>
-									</div>
-								</div>
-								<div className="albumSearchCotainer">
-									<p onClick={handleRearrange} style={{ cursor: 'pointer' }}>
-										Rearrange manually
-									</p>
-									<div
-										onClick={() =>
-											setInfo((prevInfo) => ({
-												...prevInfo,
-												showShearch: !prevInfo.showShearch,
-											}))
-										}
-										className="searchContainer"
-										style={{
-											width: info?.searchValue && '200px',
-										}}
-									>
-										<SearchIcon />
 
-										<input
-											type="text"
-											placeholder="Search"
-											value={info.searchValue}
-											onChange={(e) => handleSearch(e.target.value)}
-											style={{ display: info?.searchValue && 'block' }}
-										/>
+				{info.activeTab === 'Albums' &&
+					(albumImagesCount?.albums?.length === 0 ? (
+						<div className="noAlbumContainer">
+							<Result
+								status="404"
+								title="Albums Not Found"
+								subTitle="It's quiet for now... You haven't missed anything yet! Create your first album to start organizing your memories"
+								extra={
+									<button
+										className="create-album-button"
+										onClick={() =>
+											setInfo((prevData) => ({
+												...prevData,
+												showCreateAlbum: true,
+											}))
+										}
+									>
+										<p>Create Album</p>
+									</button>
+								}
+							/>
+						</div>
+					) : (
+						<div className="galleryViewer">
+							<div className="galleryNavbar">
+								<div className="aboutAlbum">
+									<div className="albumName">
+										<p>{info.albumName}</p>
+										<div
+											style={{ position: 'relative' }}
+											ref={galleryIconRef}
+											onClick={() =>
+												setInfo((prevInfo) => ({
+													...prevInfo,
+													showGalleryOptions:
+														!prevInfo.showGalleryOptions,
+												}))
+											}
+										>
+											<img src={threeDots} style={{ cursor: 'pointer' }} />
+											{info.showGalleryOptions && (
+												<div
+													className="galleryEditOptions"
+													ref={galleryOptionsRef}
+												>
+													<li
+														onClick={() =>
+															handleAlbumSettings('album-overview')
+														}
+													>
+														Album overview
+													</li>
+													<li
+														onClick={() =>
+															handleAlbumSettings('download-album')
+														}
+													>
+														Download album
+													</li>
+													<li
+														onClick={() =>
+															handleAlbumSettings(
+																'lightroom-copy-list',
+															)
+														}
+													>
+														Light Room Copy List
+													</li>
+													<li
+														onClick={() =>
+															handleAlbumSettings('album-cover')
+														}
+													>
+														Album Cover
+													</li>
+													<li
+														onClick={() =>
+															handleAlbumSettings('delete-album')
+														}
+														style={{ color: '#A74A49' }}
+													>
+														Delete album
+													</li>
+												</div>
+											)}
+											<div></div>
+										</div>
 									</div>
-									<div style={{ position: 'relative' }}>
+									<div className="albumSearchCotainer">
+										<p onClick={handleRearrange} style={{ cursor: 'pointer' }}>
+											Rearrange manually
+										</p>
 										<div
 											onClick={() =>
 												setInfo((prevInfo) => ({
 													...prevInfo,
-													showFilter: !prevInfo.showFilter,
+													showShearch: !prevInfo.showShearch,
 												}))
 											}
-											ref={filtersRef}
-											className="iconsContainer"
+											className="searchContainer"
+											style={{
+												width: info?.searchValue && '200px',
+											}}
 										>
-											<FilterIcon />
+											<SearchIcon />
+
+											<input
+												type="text"
+												placeholder="Search"
+												value={info.searchValue}
+												onChange={(e) => handleSearch(e.target.value)}
+												style={{ display: info?.searchValue && 'block' }}
+											/>
 										</div>
-										{info.showFilter && (
+										<div style={{ position: 'relative' }}>
 											<div
-												ref={filtersOptionsRef}
-												className="filterContianer"
+												onClick={() =>
+													setInfo((prevInfo) => ({
+														...prevInfo,
+														showFilter: !prevInfo.showFilter,
+													}))
+												}
+												ref={filtersRef}
+												className="iconsContainer"
 											>
-												<li
-													onClick={() => handleFilter('displayName')}
-													className={
-														info?.sortType === 'displayName'
-															? 'active'
-															: ''
-													}
-												>
-													File name
-												</li>
-												<li
-													onClick={() => handleFilter('-displayName')}
-													className={
-														info?.sortType === '-displayName'
-															? 'active'
-															: ''
-													}
-												>
-													File name (reverse)
-												</li>
-												<li
-													onClick={() => handleFilter('createdAt')}
-													className={
-														info?.sortType === 'createdAt'
-															? 'active'
-															: ''
-													}
-												>
-													Date Captured
-												</li>
-												<li
-													onClick={() => handleFilter('-createdAt')}
-													className={
-														info?.sortType === '-createdAt'
-															? 'active'
-															: ''
-													}
-												>
-													Date captured (reverse)
-												</li>
-												<li
-													onClick={() => handleFilter('uploadTime')}
-													className={
-														info?.sortType === 'uploadTime'
-															? 'active'
-															: ''
-													}
-												>
-													upload time
-												</li>
-												<li
-													onClick={() =>
-														handleFilter('uploadTimeReverse')
-													}
-												>
-													upload time (reverse)
-												</li>
-												<li
-													onClick={() => handleFilter('custom')}
-													className={
-														info?.sortType === 'custom' ? 'active' : ''
-													}
-												>
-													Random
-												</li>
+												<FilterIcon />
 											</div>
-										)}
+											{info.showFilter && (
+												<div
+													ref={filtersOptionsRef}
+													className="filterContianer"
+												>
+													<li
+														onClick={() => handleFilter('displayName')}
+														className={
+															info?.sortType === 'displayName'
+																? 'active'
+																: ''
+														}
+													>
+														File name
+													</li>
+													<li
+														onClick={() => handleFilter('-displayName')}
+														className={
+															info?.sortType === '-displayName'
+																? 'active'
+																: ''
+														}
+													>
+														File name (reverse)
+													</li>
+													<li
+														onClick={() => handleFilter('createdAt')}
+														className={
+															info?.sortType === 'createdAt'
+																? 'active'
+																: ''
+														}
+													>
+														Date Captured
+													</li>
+													<li
+														onClick={() => handleFilter('-createdAt')}
+														className={
+															info?.sortType === '-createdAt'
+																? 'active'
+																: ''
+														}
+													>
+														Date captured (reverse)
+													</li>
+													<li
+														onClick={() => handleFilter('uploadTime')}
+														className={
+															info?.sortType === 'uploadTime'
+																? 'active'
+																: ''
+														}
+													>
+														upload time
+													</li>
+													<li
+														onClick={() =>
+															handleFilter('uploadTimeReverse')
+														}
+													>
+														upload time (reverse)
+													</li>
+													<li
+														onClick={() => handleFilter('custom')}
+														className={
+															info?.sortType === 'custom'
+																? 'active'
+																: ''
+														}
+													>
+														Random
+													</li>
+												</div>
+											)}
+										</div>
 									</div>
 								</div>
-							</div>
-							<div className="albumContains">
-								<DragDropContext onDragEnd={onDragEnd}>
-									<Droppable droppableId="tags" direction="horizontal">
-										{(provided) => (
-											<div
-												{...provided.droppableProps}
-												ref={provided.innerRef}
-												style={{ display: 'flex', gap: '10px' }}
-											>
-												{info?.albumTags
-													?.sort(
-														(a, b) =>
-															a.customSortIndex - b.customSortIndex,
-													)
-													?.map((contain, index) => (
-														<Draggable
-															key={contain._id || index}
-															draggableId={
-																contain._id || `tag-${index}`
-															}
-															index={index}
-															isDragDisabled={
-																contain?.displayName === 'All'
-																	? true
-																	: false
-															}
-														>
-															{(provided, snapshot) => (
-																<div
-																	ref={provided.innerRef}
-																	{...provided.draggableProps}
-																	className={`albumContain ${
-																		snapshot.isDragging
-																			? 'dragging'
-																			: ''
-																	}`}
-																	style={{
-																		...provided.draggableProps
-																			.style,
-																		marginBottom: '8px', // Add spacing between items
-																	}}
-																>
+								<div className="albumContains">
+									<DragDropContext onDragEnd={onDragEnd}>
+										<Droppable droppableId="tags" direction="horizontal">
+											{(provided) => (
+												<div
+													{...provided.droppableProps}
+													ref={provided.innerRef}
+													style={{ display: 'flex', gap: '10px' }}
+												>
+													{info?.albumTags
+														?.sort(
+															(a, b) =>
+																a.customSortIndex -
+																b.customSortIndex,
+														)
+														?.map((contain, index) => (
+															<Draggable
+																key={contain._id || index}
+																draggableId={
+																	contain._id || `tag-${index}`
+																}
+																index={index}
+																isDragDisabled={
+																	contain?.displayName === 'All'
+																		? true
+																		: false
+																}
+															>
+																{(provided, snapshot) => (
 																	<div
-																		{...provided.dragHandleProps}
+																		ref={provided.innerRef}
+																		{...provided.draggableProps}
+																		className={`albumContain ${
+																			snapshot.isDragging
+																				? 'dragging'
+																				: ''
+																		}`}
 																		style={{
-																			cursor:
-																				contain?.displayName ===
-																				'All'
-																					? 'not-allowed'
-																					: 'grab',
+																			...provided
+																				.draggableProps
+																				.style,
+																			marginBottom: '8px', // Add spacing between items
 																		}}
 																	>
-																		<img
-																			src={sixDots}
-																			alt="sixDots"
-																		/>
+																		<div
+																			{...provided.dragHandleProps}
+																			style={{
+																				cursor:
+																					contain?.displayName ===
+																					'All'
+																						? 'not-allowed'
+																						: 'grab',
+																			}}
+																		>
+																			<img
+																				src={sixDots}
+																				alt="sixDots"
+																			/>
+																		</div>
+																		<p
+																			className={
+																				info?.albumContains ===
+																				contain.displayName
+																					? 'active'
+																					: ''
+																			}
+																			onClick={() =>
+																				handleClickAlbum(
+																					contain,
+																					'containName',
+																				)
+																			}
+																		>
+																			{contain.displayName}
+																		</p>
+																		<p className="count">
+																			{contain.imagesCount}
+																		</p>
 																	</div>
-																	<p
-																		className={
-																			info?.albumContains ===
-																			contain.displayName
-																				? 'active'
-																				: ''
-																		}
-																		onClick={() =>
-																			handleClickAlbum(
-																				contain,
-																				'containName',
-																			)
-																		}
-																	>
-																		{contain.displayName}
-																	</p>
-																	<p className="count">
-																		{contain.imagesCount}
-																	</p>
-																</div>
-															)}
-														</Draggable>
-													))}
-												{provided.placeholder}
-											</div>
-										)}
-									</Droppable>
-								</DragDropContext>
-							</div>
-							{/* <div className="galleryImagesContainer">
+																)}
+															</Draggable>
+														))}
+													{provided.placeholder}
+												</div>
+											)}
+										</Droppable>
+									</DragDropContext>
+								</div>
+								{/* <div className="galleryImagesContainer">
 							<ResponsiveMasonry
 								columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3, 1200: 4 }}
 							>
@@ -1403,466 +1412,481 @@ const GalleryPage = () => {
 							</ResponsiveMasonry>
 						</div> */}
 
-							<div
-								className="galleryImagesContainer"
-								id="galleryScrollTarget"
-								onMouseEnter={() =>
-									setInfo((prev) => ({
-										...prev,
-										isMouseInGallery: true,
-									}))
-								}
-								onMouseLeave={() =>
-									setInfo((prev) => ({
-										...prev,
-										isMouseInGallery: false,
-									}))
-								}
-							>
-								<InfiniteScroll
-									dataLength={imagesList?.docs?.length || 0}
-									next={fetchMoreImages}
-									hasMore={imagesList?.hasNextPage || false}
-									// loader={[...Array(10)].map((_, index) => (
-									// 	<Skeleton key={index} height={100} />
-									// ))}
-									scrollableTarget="galleryScrollTarget"
+								<div
+									className="galleryImagesContainer"
+									id="galleryScrollTarget"
+									onMouseEnter={() =>
+										setInfo((prev) => ({
+											...prev,
+											isMouseInGallery: true,
+										}))
+									}
+									onMouseLeave={() =>
+										setInfo((prev) => ({
+											...prev,
+											isMouseInGallery: false,
+										}))
+									}
 								>
-									{!info.isRearranging ? (
-										<ResponsiveMasonry
-											columnsCountBreakPoints={{
-												350: 1,
-												750: 2,
-												900: 3,
-												1200: 4,
-											}}
-										>
-											<Masonry gutter="10px">
-												<div
-													className="imageContainer"
-													onClick={handleNavigateUpload}
-												>
-													<div className="imageUpload">
-														<CloudUpload className="uploadIcon" />
-														<p>Add Photos</p>
-													</div>
-												</div>
-
-												{info?.imagesList?.docs
-													? info?.imagesList?.docs?.map(
-															(image, index) => {
-																const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-																const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
-																return (
-																	<div
-																		key={index}
-																		className={`imageContainer ${
-																			info.selectedImages.includes(
-																				image?._id,
-																			)
-																				? 'selected'
-																				: ''
-																		}`}
-																		onClick={() =>
-																			handleImageSelect(
-																				index,
-																				image,
-																			)
-																		}
-																	>
-																		<img
-																			src={src}
-																			alt={`Gallery image ${index}`}
-																			style={{
-																				width: '100%',
-																				display: 'block',
-																			}}
-																		/>
-																		{info.isMouseInGallery && (
-																			<div className="imageOverlay"></div>
-																		)}
-																	</div>
-																);
-															},
-													  )
-													: [...Array(10)].map((_, index) => (
-															<div
-																key={index}
-																className="imageContainer"
-															>
-																<Skeleton
-																	width="100%"
-																	height="200px"
-																/>
-															</div>
-													  ))}
-											</Masonry>
-										</ResponsiveMasonry>
-									) : (
-										<DragDropContext
-											onDragStart={handleDragStart}
-											onDragEnd={handleDragEnd}
-										>
-											<Droppable
-												droppableId="masonry-grid"
-												// direction="horizontal"
-												direction={
-													info?.gridStyle?.vertical
-														? 'vertical'
-														: 'horizontal'
-												}
-												type={
-													info?.gridStyle?.vertical
-														? 'VERTICAL'
-														: 'HORIZONTAL'
-												}
+									<InfiniteScroll
+										dataLength={imagesList?.docs?.length || 0}
+										next={fetchMoreImages}
+										hasMore={imagesList?.hasNextPage || false}
+										// loader={[...Array(10)].map((_, index) => (
+										// 	<Skeleton key={index} height={100} />
+										// ))}
+										scrollableTarget="galleryScrollTarget"
+									>
+										{!info.isRearranging ? (
+											<ResponsiveMasonry
+												columnsCountBreakPoints={{
+													350: 1,
+													750: 2,
+													900: 3,
+													1200: 4,
+												}}
 											>
-												{(provided, snapshot) => (
+												<Masonry gutter="10px">
 													<div
-														{...provided.droppableProps}
-														ref={provided.innerRef}
+														className="imageContainer"
+														onClick={handleNavigateUpload}
 													>
-														<ResponsiveMasonry
-															columnsCountBreakPoints={{
-																350: 1,
-																750: 2,
-																900: 3,
-																1200: 4,
-															}}
+														<div className="imageUpload">
+															<CloudUpload className="uploadIcon" />
+															<p>Add Photos</p>
+														</div>
+													</div>
+
+													{info?.imagesList?.docs
+														? info?.imagesList?.docs?.map(
+																(image, index) => {
+																	const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+																	const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+																	return (
+																		<div
+																			key={index}
+																			className={`imageContainer ${
+																				info.selectedImages.includes(
+																					image?._id,
+																				)
+																					? 'selected'
+																					: ''
+																			}`}
+																			onClick={() =>
+																				handleImageSelect(
+																					index,
+																					image,
+																				)
+																			}
+																		>
+																			<img
+																				src={src}
+																				alt={`Gallery image ${index}`}
+																				style={{
+																					width: '100%',
+																					display:
+																						'block',
+																				}}
+																			/>
+																			{info.isMouseInGallery && (
+																				<div className="imageOverlay"></div>
+																			)}
+																		</div>
+																	);
+																},
+														  )
+														: [...Array(10)].map((_, index) => (
+																<div
+																	key={index}
+																	className="imageContainer"
+																>
+																	<Skeleton
+																		width="100%"
+																		height="200px"
+																	/>
+																</div>
+														  ))}
+												</Masonry>
+											</ResponsiveMasonry>
+										) : (
+											<DragDropContext
+												onDragStart={handleDragStart}
+												onDragEnd={handleDragEnd}
+											>
+												<Droppable
+													droppableId="masonry-grid"
+													// direction="horizontal"
+													direction={
+														info?.gridStyle?.vertical
+															? 'vertical'
+															: 'horizontal'
+													}
+													type={
+														info?.gridStyle?.vertical
+															? 'VERTICAL'
+															: 'HORIZONTAL'
+													}
+												>
+													{(provided, snapshot) => (
+														<div
+															{...provided.droppableProps}
+															ref={provided.innerRef}
 														>
-															<Masonry gutter="10px">
-																{info?.imagesList?.docs?.map(
-																	(image, index) => {
-																		const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-																		const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+															<ResponsiveMasonry
+																columnsCountBreakPoints={{
+																	350: 1,
+																	750: 2,
+																	900: 3,
+																	1200: 4,
+																}}
+															>
+																<Masonry gutter="10px">
+																	{info?.imagesList?.docs?.map(
+																		(image, index) => {
+																			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+																			const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
 
-																		// Hide original items while being dragged
-																		if (
-																			info.isDragging &&
-																			info.draggedImages.includes(
-																				index,
-																			)
-																		) {
-																			return null;
-																		}
+																			// Hide original items while being dragged
+																			if (
+																				info.isDragging &&
+																				info.draggedImages.includes(
+																					index,
+																				)
+																			) {
+																				return null;
+																			}
 
-																		return (
-																			<>
-																				{info.insertIndex ===
-																					index &&
-																					info.isDragging && (
-																						<div
-																							className="drop-preview"
-																							style={{
-																								height: '4px',
-																								background:
-																									'#007bff',
-																								margin: '8px 0',
-																								transition:
-																									'all 0.2s',
-																							}}
-																						/>
-																					)}
-																				<Draggable
-																					key={
-																						image._id ||
-																						`image-${index}`
-																					}
-																					draggableId={
-																						image._id ||
-																						`image-${index}`
-																					}
-																					index={index}
-																					isDragDisabled={
-																						!info.selectedImages.includes(
-																							index,
-																						)
-																					}
-																				>
-																					{(
-																						provided,
-																						snapshot,
-																					) => (
-																						<div
-																							ref={
-																								provided.innerRef
-																							}
-																							{...provided.draggableProps}
-																							{...provided.dragHandleProps}
-																							className="masonry-image-container"
-																							data-index={
-																								index
-																							}
-																							style={{
-																								...provided
-																									.draggableProps
-																									.style,
-																								position:
-																									'relative',
-																								transition:
-																									'all 0.2s',
-																								opacity:
-																									snapshot.isDragging
-																										? 0.8
-																										: 1,
-																								cursor: snapshot.isDragging
-																									? 'grabbing'
-																									: 'pointer',
-																								border: info.selectedImages.includes(
-																									index,
-																								)
-																									? '2px solid #007bff'
-																									: 'none',
-																								borderRadius:
-																									'4px',
-																								overflow:
-																									'hidden',
-																								transform:
-																									snapshot.isDragging
-																										? `${provided.draggableProps.style.transform} scale(1.02)`
-																										: provided
-																												.draggableProps
-																												.style
-																												.transform,
-																							}}
-																						>
-																							<img
-																								src={
-																									src
-																								}
-																								alt={`Gallery image ${index}`}
+																			return (
+																				<>
+																					{info.insertIndex ===
+																						index &&
+																						info.isDragging && (
+																							<div
+																								className="drop-preview"
 																								style={{
-																									width: '100%',
-																									display:
-																										'block',
-																									pointerEvents:
-																										info.isDragging
-																											? 'none'
-																											: 'auto',
+																									height: '4px',
+																									background:
+																										'#007bff',
+																									margin: '8px 0',
+																									transition:
+																										'all 0.2s',
 																								}}
-																								onClick={() =>
-																									!info.isDragging &&
-																									handleImageSelect(
+																							/>
+																						)}
+																					<Draggable
+																						key={
+																							image._id ||
+																							`image-${index}`
+																						}
+																						draggableId={
+																							image._id ||
+																							`image-${index}`
+																						}
+																						index={
+																							index
+																						}
+																						isDragDisabled={
+																							!info.selectedImages.includes(
+																								index,
+																							)
+																						}
+																					>
+																						{(
+																							provided,
+																							snapshot,
+																						) => (
+																							<div
+																								ref={
+																									provided.innerRef
+																								}
+																								{...provided.draggableProps}
+																								{...provided.dragHandleProps}
+																								className="masonry-image-container"
+																								data-index={
+																									index
+																								}
+																								style={{
+																									...provided
+																										.draggableProps
+																										.style,
+																									position:
+																										'relative',
+																									transition:
+																										'all 0.2s',
+																									opacity:
+																										snapshot.isDragging
+																											? 0.8
+																											: 1,
+																									cursor: snapshot.isDragging
+																										? 'grabbing'
+																										: 'pointer',
+																									border: info.selectedImages.includes(
 																										index,
 																									)
-																								}
-																							/>
-																						</div>
-																					)}
-																				</Draggable>
-																			</>
-																		);
-																	},
-																)}
-																{provided.placeholder}
-															</Masonry>
-														</ResponsiveMasonry>
-													</div>
-												)}
-											</Droppable>
-
-											{/* Drag Preview */}
-											{info.isDragging && info.draggedImages.length > 0 && (
-												<div
-													style={{
-														position: 'fixed',
-														left: info.dragPreviewPosition?.x || 0,
-														top: info.dragPreviewPosition?.y || 0,
-														transform: 'translate(-50%, -50%)',
-														pointerEvents: 'none',
-														zIndex: 9999,
-														display: 'flex',
-														gap: '4px',
-													}}
-												>
-													{info.draggedImages.map((index) => {
-														const image = info?.imagesList?.docs[index];
-														const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-														const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
-
-														return (
-															<img
-																key={index}
-																src={src}
-																alt="Drag Preview"
-																style={{
-																	width: '100px',
-																	height: '100px',
-																	objectFit: 'cover',
-																	opacity: 0.8,
-																	borderRadius: '4px',
-																	boxShadow:
-																		'0 2px 8px rgba(0,0,0,0.2)',
-																}}
-															/>
-														);
-													})}
-												</div>
-											)}
-										</DragDropContext>
-										// <div
-										// 	className="rearrange-grid"
-										// 	style={{
-										// 		display: 'flex',
-										// 		flexWrap: 'wrap',
-										// 		gap: '10px',
-										// 		padding: '10px',
-										// 	}}
-										// >
-										// 	{info?.imagesList?.docs?.map((image, index) => {
-										// 		const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-										// 		const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
-
-										// 		return (
-										// 			<div
-										// 				key={index}
-										// 				className={`rearrange-image-container ${
-										// 					info.selectedImages.includes(index)
-										// 						? 'selected'
-										// 						: ''
-										// 				}`}
-										// 				draggable={info.selectedImages.includes(
-										// 					index,
-										// 				)}
-										// 				onDragStart={(e) =>
-										// 					handleDragStart(e, index)
-										// 				}
-										// 				onDragOver={(e) => e.preventDefault()}
-										// 				onDrop={(e) => handleDragEnd(e, index)}
-										// 				onClick={() => handleImageSelect(index)}
-										// 				style={{
-										// 					width: '200px',
-										// 					height: '200px',
-										// 					position: 'relative',
-										// 					cursor: info.selectedImages.includes(
-										// 						index,
-										// 					)
-										// 						? 'grab'
-										// 						: 'pointer',
-										// 				}}
-										// 			>
-										// 				<img
-										// 					src={src}
-										// 					alt={`Gallery image ${index}`}
-										// 					style={{
-										// 						width: '100%',
-										// 						height: '100%',
-										// 						objectFit: 'cover',
-										// 					}}
-										// 				/>
-										// 				{info.isMouseInGallery && (
-										// 					<div className="imageOverlay"></div>
-										// 				)}
-										// 			</div>
-										// 		);
-										// 	})}
-										// </div>
-									)}
-								</InfiniteScroll>
-
-								{info.selectedImages.length > 0 && (
-									<div className="selectedImagesCotainer">
-										<div className="selectedImagesCounter">
-											<p
-												onClick={() => handleClearSelectedImages()}
-												style={{ cursor: 'pointer' }}
-											>
-												X
-											</p>
-											<p>{info.selectedImages.length} selected</p>
-										</div>
-										<div className="selectedImagesActions">
-											<div onClick={handleExpandClick}>
-												<ExpandIcon />
-											</div>
-											<div
-												style={{ position: 'relative' }}
-												ref={forwardIconRef}
-											>
-												<ForwardIcon onClick={handleForwardIcon} />
-
-												{info.showForward && (
-													<div
-														className="forwardOptions"
-														ref={forwardOptionsRef}
-													>
-														<li>Copy to client selection</li>
-														<li>Move to Other Albums</li>
-													</div>
-												)}
-											</div>
-											<div style={{ position: 'relative' }} ref={pinIconRef}>
-												<PinIcon onClick={handlePinIcon} />
-												{info.showPin && (
-													<div className="pinOptions" ref={pinSearchRef}>
-														<div className="pinSearchContainer">
-															<p>type to Search or create</p>
-															<p
-																style={{
-																	cursor: 'pointer',
-																	marginRight: '5px',
-																}}
-																onClick={handlePinIcon}
-															>
-																X
-															</p>
+																										? '2px solid #007bff'
+																										: 'none',
+																									borderRadius:
+																										'4px',
+																									overflow:
+																										'hidden',
+																									transform:
+																										snapshot.isDragging
+																											? `${provided.draggableProps.style.transform} scale(1.02)`
+																											: provided
+																													.draggableProps
+																													.style
+																													.transform,
+																								}}
+																							>
+																								<img
+																									src={
+																										src
+																									}
+																									alt={`Gallery image ${index}`}
+																									style={{
+																										width: '100%',
+																										display:
+																											'block',
+																										pointerEvents:
+																											info.isDragging
+																												? 'none'
+																												: 'auto',
+																									}}
+																									onClick={() =>
+																										!info.isDragging &&
+																										handleImageSelect(
+																											index,
+																										)
+																									}
+																								/>
+																							</div>
+																						)}
+																					</Draggable>
+																				</>
+																			);
+																		},
+																	)}
+																	{provided.placeholder}
+																</Masonry>
+															</ResponsiveMasonry>
 														</div>
-														{info?.albumTags?.map((tag) => (
-															<div className="pinOptionsList">
-																<label className="checkboxLabel">
-																	<input
-																		type="checkbox"
-																		checked={info?.selectedImagesTags?.includes(
-																			tag?._id,
-																		)}
-																		onChange={() =>
-																			handleTagChange(
-																				tag?._id,
-																			)
-																		}
-																	/>
-																	<span className="checkboxText">
-																		{tag?.displayName}
-																	</span>
-																</label>
-															</div>
-														))}
-													</div>
-												)}
-											</div>
-											<div
-												style={{ position: 'relative' }}
-												ref={optionsIconRef}
-											>
-												<OptionsIcon onClick={handleOptionsIcon} />
-												{info.showOptionsContainer && (
-													<div
-														className="optionsContainer"
-														ref={optionsContainerRef}
-													>
-														<li>Download</li>
-														<li>Set as cover</li>
-														<li>Share</li>
-														<li
-															onClick={() =>
-																setInfo((prev) => ({
-																	...prev,
-																	showDeleteAlbum: true,
-																}))
-															}
+													)}
+												</Droppable>
+
+												{/* Drag Preview */}
+												{info.isDragging &&
+													info.draggedImages.length > 0 && (
+														<div
+															style={{
+																position: 'fixed',
+																left:
+																	info.dragPreviewPosition?.x ||
+																	0,
+																top:
+																	info.dragPreviewPosition?.y ||
+																	0,
+																transform: 'translate(-50%, -50%)',
+																pointerEvents: 'none',
+																zIndex: 9999,
+																display: 'flex',
+																gap: '4px',
+															}}
 														>
-															Delete
-														</li>
-													</div>
-												)}
+															{info.draggedImages.map((index) => {
+																const image =
+																	info?.imagesList?.docs[index];
+																const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+																const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+
+																return (
+																	<img
+																		key={index}
+																		src={src}
+																		alt="Drag Preview"
+																		style={{
+																			width: '100px',
+																			height: '100px',
+																			objectFit: 'cover',
+																			opacity: 0.8,
+																			borderRadius: '4px',
+																			boxShadow:
+																				'0 2px 8px rgba(0,0,0,0.2)',
+																		}}
+																	/>
+																);
+															})}
+														</div>
+													)}
+											</DragDropContext>
+											// <div
+											// 	className="rearrange-grid"
+											// 	style={{
+											// 		display: 'flex',
+											// 		flexWrap: 'wrap',
+											// 		gap: '10px',
+											// 		padding: '10px',
+											// 	}}
+											// >
+											// 	{info?.imagesList?.docs?.map((image, index) => {
+											// 		const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+											// 		const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+
+											// 		return (
+											// 			<div
+											// 				key={index}
+											// 				className={`rearrange-image-container ${
+											// 					info.selectedImages.includes(index)
+											// 						? 'selected'
+											// 						: ''
+											// 				}`}
+											// 				draggable={info.selectedImages.includes(
+											// 					index,
+											// 				)}
+											// 				onDragStart={(e) =>
+											// 					handleDragStart(e, index)
+											// 				}
+											// 				onDragOver={(e) => e.preventDefault()}
+											// 				onDrop={(e) => handleDragEnd(e, index)}
+											// 				onClick={() => handleImageSelect(index)}
+											// 				style={{
+											// 					width: '200px',
+											// 					height: '200px',
+											// 					position: 'relative',
+											// 					cursor: info.selectedImages.includes(
+											// 						index,
+											// 					)
+											// 						? 'grab'
+											// 						: 'pointer',
+											// 				}}
+											// 			>
+											// 				<img
+											// 					src={src}
+											// 					alt={`Gallery image ${index}`}
+											// 					style={{
+											// 						width: '100%',
+											// 						height: '100%',
+											// 						objectFit: 'cover',
+											// 					}}
+											// 				/>
+											// 				{info.isMouseInGallery && (
+											// 					<div className="imageOverlay"></div>
+											// 				)}
+											// 			</div>
+											// 		);
+											// 	})}
+											// </div>
+										)}
+									</InfiniteScroll>
+
+									{info.selectedImages.length > 0 && (
+										<div className="selectedImagesCotainer">
+											<div className="selectedImagesCounter">
+												<p
+													onClick={() => handleClearSelectedImages()}
+													style={{ cursor: 'pointer' }}
+												>
+													X
+												</p>
+												<p>{info.selectedImages.length} selected</p>
+											</div>
+											<div className="selectedImagesActions">
+												<div onClick={handleExpandClick}>
+													<ExpandIcon />
+												</div>
+												<div
+													style={{ position: 'relative' }}
+													ref={forwardIconRef}
+												>
+													<ForwardIcon onClick={handleForwardIcon} />
+
+													{info.showForward && (
+														<div
+															className="forwardOptions"
+															ref={forwardOptionsRef}
+														>
+															<li>Copy to client selection</li>
+															<li>Move to Other Albums</li>
+														</div>
+													)}
+												</div>
+												<div
+													style={{ position: 'relative' }}
+													ref={pinIconRef}
+												>
+													<PinIcon onClick={handlePinIcon} />
+													{info.showPin && (
+														<div
+															className="pinOptions"
+															ref={pinSearchRef}
+														>
+															<div className="pinSearchContainer">
+																<p>type to Search or create</p>
+																<p
+																	style={{
+																		cursor: 'pointer',
+																		marginRight: '5px',
+																	}}
+																	onClick={handlePinIcon}
+																>
+																	X
+																</p>
+															</div>
+															{info?.albumTags?.map((tag) => (
+																<div className="pinOptionsList">
+																	<label className="checkboxLabel">
+																		<input
+																			type="checkbox"
+																			checked={info?.selectedImagesTags?.includes(
+																				tag?._id,
+																			)}
+																			onChange={() =>
+																				handleTagChange(
+																					tag?._id,
+																				)
+																			}
+																		/>
+																		<span className="checkboxText">
+																			{tag?.displayName}
+																		</span>
+																	</label>
+																</div>
+															))}
+														</div>
+													)}
+												</div>
+												<div
+													style={{ position: 'relative' }}
+													ref={optionsIconRef}
+												>
+													<OptionsIcon onClick={handleOptionsIcon} />
+													{info.showOptionsContainer && (
+														<div
+															className="optionsContainer"
+															ref={optionsContainerRef}
+														>
+															<li>Download</li>
+															<li>Set as cover</li>
+															<li>Share</li>
+															<li
+																onClick={() =>
+																	setInfo((prev) => ({
+																		...prev,
+																		showDeleteAlbum: true,
+																	}))
+																}
+															>
+																Delete
+															</li>
+														</div>
+													)}
+												</div>
 											</div>
 										</div>
-									</div>
-								)}
+									)}
+								</div>
 							</div>
 						</div>
-					</div>
-				)}
+					))}
 
 				{info.activeTab === 'Settings' && (
 					<div className="settingsMainContainer">
@@ -1893,7 +1917,6 @@ const GalleryPage = () => {
 								albumId={info?.activeGallery?.galleryData?._id}
 							/>
 						</div>
-
 						<div className="settingsNavContianer">
 							<li
 								onClick={() => scrollToSection('gallery-overview')}
