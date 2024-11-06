@@ -7,8 +7,10 @@ import { ReactComponent as Delete } from '../../../../assets/svg/gallery/delete.
 import { ReactComponent as People } from '../../../../assets/svg/gallery/persons.svg';
 import { ReactComponent as Pin } from '../../../../assets/svg/gallery/pin.svg';
 import { ReactComponent as Edit } from '../../../../assets/svg/gallery/editpen.svg';
+import { useNavigate } from 'react-router-dom';
 
-const ImageDetailNav = ({ info, setInfo, imageDetail, galleryCredentials, galleryId }) => {
+const ImageDetailNav = ({ info, setInfo, imageDetail, galleryCredentials, galleryId, albumId }) => {
+	const navigate = useNavigate();
 	const OptionsArray = [
 		{
 			icon: <Image />,
@@ -38,6 +40,11 @@ const ImageDetailNav = ({ info, setInfo, imageDetail, galleryCredentials, galler
 				...prev,
 				showDeleteAlbum: true,
 			}));
+		},
+		Image: () => {
+			navigate(`/gallery/${galleryId}/album-settings?uploadImageId=${info?.imageDetailId}`, {
+				state: { activeAlbumId: albumId },
+			});
 		},
 	};
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import '../../../assets/scss/gallery/albumSettings.scss';
 import ToggleSlider from '../../../views/components/input/slider';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { ReactComponent as CopyLogo } from '../../../assets/svg/gallery/copy.svg';
 import { ReactComponent as SaveLogo } from '../../../assets/svg/gallery/save.svg';
 import { ReactComponent as GalleryLogo } from '../../../assets/svg/gallery/gallery.svg';
@@ -20,6 +20,7 @@ const AlbumSettings = () => {
 	const { sectionId, activeAlbumId } = location.state || {};
 	const { galleryId } = useParams();
 	const fileInputRef = useRef();
+	const [searchkeys, setsearchkeys] = useSearchParams();
 	const {
 		galleryInfo: {
 			editAlbum,
@@ -64,6 +65,15 @@ const AlbumSettings = () => {
 	});
 
 	useEffect(() => {
+		const uploadImageId = searchkeys.get('uploadImageId');
+		if (uploadImageId) {
+			setInfo((prev) => ({ ...prev, uploadImageId, coverPhoto: true }));
+			getImageDetail(uploadImageId);
+			getGalleryCredentials(galleryId);
+		}
+	}, []);
+
+	useEffect(() => {
 		setInfo((prev) => ({ ...prev, activeSetting: sectionId }));
 		scrollToSection(sectionId);
 	}, [sectionId]);
@@ -88,11 +98,13 @@ const AlbumSettings = () => {
 	}, [tenantAlbums]);
 
 	useEffect(() => {
+		const imageSearchKey = searchkeys.get('uploadImageId');
 		// if no gallery credentails
 		if (
 			(!galleryCredentials && info?.uploadImageId) ||
 			(!galleryCredentials && info?.coverImageDetails?._id)
 		) {
+			if (imageSearchKey) return;
 			getGalleryCredentials(galleryId);
 		}
 
@@ -110,14 +122,22 @@ const AlbumSettings = () => {
 		if (info?.coverImageDetails?._id && galleryCredentials) {
 			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 			const src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info?.coverImageDetails?.givenFileName}?${params}`;
-			setInfo((prev) => ({
-				...prev,
+
+			let options = {
 				imageURL: src,
 				coverPhoto: true,
 				crop: {
 					x: info?.coverImageDetails?.xPosition,
 					y: info?.coverImageDetails?.yPosition,
 				},
+				zoom: info?.coverImageDetails?.zoom || 1,
+			};
+
+			if (imageSearchKey) options.coverImageDetails = null;
+
+			setInfo((prev) => ({
+				...prev,
+				...options,
 			}));
 		}
 	}, [galleryCredentials, imageDetail, info?.uploadImageId, info?.coverImageDetails?._id]);
@@ -312,7 +332,7 @@ const AlbumSettings = () => {
 				imageDetail?.activeVersion?.givenFileName || info?.coverImageDetails?.givenFileName,
 			width: 100,
 			height: 100,
-			// zoom: info?.zoom,
+			zoom: info?.zoom,
 		};
 		const respone = await updateAlbumCoverImage(json, galleryId, info?.activeAlbumId);
 		if (respone?.[0] === true) {

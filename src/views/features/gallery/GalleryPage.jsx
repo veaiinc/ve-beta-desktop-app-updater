@@ -329,10 +329,10 @@ const GalleryPage = () => {
 					x: albumImagesCount?.coverImage?.xPosition,
 					y: albumImagesCount?.coverImage?.yPosition,
 				},
+				zoom: albumImagesCount?.coverImage?.zoom || 1,
 			}));
 		}
 	}, [imageDetail, info?.uploadImageId, albumImagesCount]);
-	console.log(info?.coverImageDetails, 'coverImageDetails');
 
 	const fetchMoreImages = () => {
 		const nextPage = info.page + 1;
@@ -889,8 +889,6 @@ const GalleryPage = () => {
 		}
 	};
 
-	console.log(info?.uploadImageId, 'uploadImageId', imageDetail, info.imageURL);
-
 	const handleSetCoverPosition = async () => {
 		const json = {
 			image_id: info?.uploadImageId || albumImagesCount?.coverImage?._id,
@@ -901,7 +899,7 @@ const GalleryPage = () => {
 				albumImagesCount?.coverImage?.givenFileName,
 			width: 100,
 			height: 100,
-			// zoom: info?.zoom,
+			zoom: info?.zoom,
 		};
 		const respone = await updateGalleryCoverImage(json, galleryId);
 		if (respone?.[0] === true) {

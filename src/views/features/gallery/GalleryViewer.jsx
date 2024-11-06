@@ -168,6 +168,7 @@ const GalleryViewer = () => {
 						imageDetail={imageDetail}
 						galleryCredentials={galleryCredentials}
 						galleryId={galleryId}
+						albumId={albumId}
 					/>
 				)}
 			</div>
