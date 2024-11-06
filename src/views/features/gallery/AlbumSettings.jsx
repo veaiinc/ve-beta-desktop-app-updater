@@ -38,6 +38,7 @@ const AlbumSettings = () => {
 			getGalleryCredentials,
 			updateAlbumCoverImage,
 			deleteAlbum,
+			getImageDuplicatesList,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -223,13 +224,47 @@ const AlbumSettings = () => {
 	};
 
 	const uploadAlbumCoverChangeHandler = async (e) => {
+		const image = e.target.files[0];
+
+		if (!image) {
+			return;
+		}
+
 		message.open({
 			type: 'loading',
 			content: 'Uploading album cover image..',
 			duration: 0,
 		});
-		const image = e.target.files[0];
+
+		if (info?.imageURL) {
+			setInfo((prev) => ({
+				...prev,
+				crop: {
+					x: 0,
+					y: 0,
+				},
+				zoom: 1,
+				uploadImageId: null,
+				imageURL: '',
+				coverImageDetails: null,
+			}));
+		}
 		const batchId = randomize('Aa0', 10);
+
+		const duplicateImage = await getImageDuplicatesList(galleryId, activeAlbumId);
+		const isHavingDuplicateImage = duplicateImage?.[1]?.find(
+			(item) => item?.displayName === image?.name,
+		);
+
+		if (isHavingDuplicateImage) {
+			getImageDetail(isHavingDuplicateImage?._id);
+			setInfo((prev) => ({
+				...prev,
+				uploadImageId: isHavingDuplicateImage?._id,
+			}));
+			message.destroy();
+			return;
+		}
 
 		const responseGalleryTags = await getGalleryTagsList(galleryId);
 		if (responseGalleryTags?.[0] === true) {
@@ -343,6 +378,7 @@ const AlbumSettings = () => {
 							</div>
 						</div>
 					</div>
+
 					<div id="download-album" className="settings-container">
 						<p className="title">Download Album</p>
 						<div className="save-settings">
@@ -384,6 +420,7 @@ const AlbumSettings = () => {
 							<p>Download</p>
 						</div>
 					</div>
+
 					<div id="lightroom-copy-list" className="settings-container">
 						<div className="lightroom-container">
 							<div>

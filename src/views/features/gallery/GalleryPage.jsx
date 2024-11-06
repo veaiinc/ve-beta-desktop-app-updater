@@ -81,6 +81,7 @@ const GalleryPage = () => {
 			updateGalleryCoverImage,
 			addTagToImage,
 			removeTagFromImage,
+			getImageDuplicatesList,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -317,7 +318,7 @@ const GalleryPage = () => {
 		}
 
 		// if  coverimage details is present
-		if (albumImagesCount?.coverImage?._id && galleryCredentials) {
+		if (albumImagesCount?.coverImage?._id && galleryCredentials && !imageDetail) {
 			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 			const src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?${params}`;
 			setInfo((prev) => ({
@@ -815,14 +816,47 @@ const GalleryPage = () => {
 		}, 2000);
 	};
 
-	const uploadAlbumCoverChangeHandler = async (e) => {
+	const uploadGalleryCoverChangeHandler = async (e) => {
+		const image = e.target.files[0];
+
+		if (!image) {
+			return;
+		}
+
 		message.open({
 			type: 'loading',
 			content: 'Uploading Gallery cover image..',
 			duration: 0,
 		});
-		const image = e.target.files[0];
+		if (info?.imageURL) {
+			setInfo((prev) => ({
+				...prev,
+				crop: {
+					x: 0,
+					y: 0,
+				},
+				zoom: 1,
+				uploadImageId: null,
+				imageURL: '',
+				coverImageDetails: null,
+			}));
+		}
 		const batchId = randomize('Aa0', 10);
+
+		const duplicateImage = await getImageDuplicatesList(galleryId, info?.activeAlbumId);
+		const isHavingDuplicateImage = duplicateImage?.[1]?.find(
+			(item) => item?.displayName === image?.name,
+		);
+
+		if (isHavingDuplicateImage) {
+			getImageDetail(isHavingDuplicateImage?._id);
+			setInfo((prev) => ({
+				...prev,
+				uploadImageId: isHavingDuplicateImage?._id,
+			}));
+			message.destroy();
+			return;
+		}
 
 		const allTagId = info?.albumTags?.find((item) => item?.displayName === 'All');
 		let json = {
@@ -854,6 +888,8 @@ const GalleryPage = () => {
 			message.error('Something went wrong, please try again later');
 		}
 	};
+
+	console.log(info?.uploadImageId, 'uploadImageId', imageDetail, info.imageURL);
 
 	const handleSetCoverPosition = async () => {
 		const json = {
@@ -1907,7 +1943,7 @@ const GalleryPage = () => {
 								info={info}
 								setInfo={setInfo}
 								fileInputRef={fileInputRef}
-								uploadAlbumCoverChangeHandler={uploadAlbumCoverChangeHandler}
+								uploadGalleryCoverChangeHandler={uploadGalleryCoverChangeHandler}
 								handleSetCoverPosition={handleSetCoverPosition}
 							/>
 

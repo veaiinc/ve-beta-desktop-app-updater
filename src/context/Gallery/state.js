@@ -489,9 +489,9 @@ export const Galleries = () => {
 					type: Actions.GET_IMAGE_DUPLICATES,
 					payload: { galleryId, albumId, list: response?.[1] },
 				});
-			} else {
-				return response;
 			}
+
+			return response;
 		} catch (error) {
 			console.log('error==>getImageDuplicatesList', error);
 		}

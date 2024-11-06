@@ -7,7 +7,7 @@ const UploadGalleryImageCover = ({
 	info,
 	setInfo,
 	fileInputRef,
-	uploadAlbumCoverChangeHandler,
+	uploadGalleryCoverChangeHandler,
 	handleSetCoverPosition,
 }) => {
 	return (
@@ -91,7 +91,7 @@ const UploadGalleryImageCover = ({
 				<input
 					ref={fileInputRef}
 					type="file"
-					onChange={uploadAlbumCoverChangeHandler}
+					onChange={uploadGalleryCoverChangeHandler}
 					hidden
 					style={{ width: 0, visibility: 'hidden' }}
 					// style={{ visibility: 'hidden' }}
