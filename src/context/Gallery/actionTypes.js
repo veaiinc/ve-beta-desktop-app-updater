@@ -6,4 +6,5 @@ export const GALLERY = {
 	imageUploadStatus: '/image-upload-status',
 	checkImageDuplicates: '/check-image-duplicates',
 	watermarks: '/watermarks',
+	coverImage: '/cover-image',
 };
