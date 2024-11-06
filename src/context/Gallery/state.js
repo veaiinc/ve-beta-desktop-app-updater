@@ -862,6 +862,29 @@ export const Galleries = () => {
 				payload,
 				'galleries',
 			);
+			if (response[0] === true) {
+				let docs = state.imagesList?.docs?.filter((image) => {
+					return !payload?.image_ids?.includes(image?._id);
+				});
+
+				const payload = {
+					...state.imagesList,
+					docs,
+				};
+
+				dispatch({
+					type: Actions.RESET_IMAGES_LIST,
+				});
+
+				dispatch({
+					type: Actions.GET_IMAGES_LIST,
+					payload,
+				});
+
+				return [true];
+			}
+
+			return response;
 		} catch (error) {
 			console.log('error==>deleteImages', error);
 		}

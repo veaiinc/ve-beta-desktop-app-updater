@@ -5,6 +5,8 @@ import Context from '../../../context/context';
 import Thumbnails from '../../components/gallery/galleryView/Thumbnails';
 import FullImagesComponent from '../../components/gallery/galleryView/FullImagesComponent';
 import ImageDetailNav from '../../components/gallery/galleryView/ImageDetailNav';
+import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
+import { message } from 'antd';
 
 const GalleryViewer = () => {
 	const { galleryId, albumId } = useParams();
@@ -18,6 +20,7 @@ const GalleryViewer = () => {
 			getGalleryCredentials,
 			getImageDetail,
 			imageDetail,
+			deleteImages,
 		},
 	} = useContext(Context);
 
@@ -28,6 +31,7 @@ const GalleryViewer = () => {
 		activeImage: null,
 		activeImageIndex: 0,
 		imageDetailId: null,
+		showDeleteAlbum: false,
 	});
 
 	useEffect(() => {
@@ -118,6 +122,25 @@ const GalleryViewer = () => {
 		});
 	};
 
+	const handleAlbumDelete = () => {
+		const payload = {
+			image_ids: [info?.imageDetailId],
+		};
+
+		deleteImages(payload, galleryId, albumId).then((response) => {
+			console.log('response==>', response);
+			if (response[0] === true) {
+				setInfo((prev) => ({
+					...prev,
+					showDeleteAlbum: false,
+				}));
+				message.success('Images deleted successfully');
+			} else {
+				message.error('Failed to delete images');
+			}
+		});
+	};
+
 	return (
 		<div className="galleryViewerCotnainer">
 			<Thumbnails
@@ -141,12 +164,24 @@ const GalleryViewer = () => {
 				{info?.imageDetailId && (
 					<ImageDetailNav
 						info={info}
+						setInfo={setInfo}
 						imageDetail={imageDetail}
 						galleryCredentials={galleryCredentials}
 						galleryId={galleryId}
 					/>
 				)}
 			</div>
+
+			<DeletePopup
+				open={info?.showDeleteAlbum}
+				closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
+				galleryId={galleryId}
+				title={'Permanently Delete  image?'}
+				paragraph={
+					'You cannot undo this action.All your photos in this album lined to this label will be lost'
+				}
+				handleDelete={handleAlbumDelete}
+			/>
 		</div>
 	);
 };

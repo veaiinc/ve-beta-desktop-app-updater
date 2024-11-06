@@ -1081,9 +1081,10 @@ const GalleryPage = () => {
 												: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
 											backgroundSize: 'cover',
 											backgroundPosition: 'center',
+											// border: '1px solid red',
 										}}
 									>
-										{album.image && <img src={album?.image} />}
+										{/* {album.image && <img src={album?.image} />} */}
 
 										<div
 											className="albumDetails"

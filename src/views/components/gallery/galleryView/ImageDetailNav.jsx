@@ -8,35 +8,51 @@ import { ReactComponent as People } from '../../../../assets/svg/gallery/persons
 import { ReactComponent as Pin } from '../../../../assets/svg/gallery/pin.svg';
 import { ReactComponent as Edit } from '../../../../assets/svg/gallery/editpen.svg';
 
-const OptionsArray = [
-	{
-		icon: <Image />,
-		label: 'Image',
-	},
-	{
-		icon: <Rotate />,
-		label: 'Rotate',
-	},
-	{
-		icon: <Share />,
-		label: 'Share',
-	},
-	{
-		icon: <Download />,
-		label: 'Download',
-	},
-	{
-		icon: <Delete />,
-		label: 'Delete',
-	},
-];
+const ImageDetailNav = ({ info, setInfo, imageDetail, galleryCredentials, galleryId }) => {
+	const OptionsArray = [
+		{
+			icon: <Image />,
+			label: 'Image',
+		},
+		{
+			icon: <Rotate />,
+			label: 'Rotate',
+		},
+		{
+			icon: <Share />,
+			label: 'Share',
+		},
+		{
+			icon: <Download />,
+			label: 'Download',
+		},
+		{
+			icon: <Delete />,
+			label: 'Delete',
+		},
+	];
 
-const ImageDetailNav = ({ info, imageDetail, galleryCredentials, galleryId }) => {
+	const functionsList = {
+		Delete: () => {
+			setInfo((prev) => ({
+				...prev,
+				showDeleteAlbum: true,
+			}));
+		},
+	};
+
 	return (
 		<div className="galleryViewerNavbarContainer">
 			<div className="galleryViewerNavbar">
 				{OptionsArray?.map((option) => (
-					<div key={option?.label}>{option.icon}</div>
+					<div
+						key={option?.label}
+						onClick={() =>
+							functionsList[option?.label] && functionsList[option?.label]()
+						}
+					>
+						{option.icon}
+					</div>
 				))}
 			</div>
 			<div className="gallerySelectionContainer">
