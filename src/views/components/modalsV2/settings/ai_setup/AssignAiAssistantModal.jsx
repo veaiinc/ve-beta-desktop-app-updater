@@ -13,7 +13,6 @@ const AssignAiAssistantModal = ({
 	getAssignedWorkflowsToAiAssistant,
 	myWorkflows,
 	activeAiAssistantDetails,
-	getMyWorkflowTemplatesData,
 }) => {
 	let {
 		aiSetup: { assignAiAssistantToSelectedWorkflows },
@@ -79,12 +78,14 @@ const AssignAiAssistantModal = ({
 						assignedWorkflows: assignedWorkflows,
 					}}
 					hideRemove={true}
-					getMyWorkflowTemplatesData={getMyWorkflowTemplatesData}
 				/>
 				<button
-					disabled={info?.isLoading}
+					disabled={info?.isLoading || info?.selectedWorkflows?.length === 0}
 					style={{
-						cursor: info?.isLoading ? 'not-allowed' : 'pointer',
+						cursor:
+							info?.isLoading || info?.selectedWorkflows?.length === 0
+								? 'not-allowed'
+								: 'pointer',
 					}}
 					onClick={handleAssignAiAssistantToSelectedWorkflows}
 					className="assignBtn"

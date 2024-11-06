@@ -1,14 +1,13 @@
 import { memo, useState, useEffect, useContext } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { ReactComponent as HollowCircleBlue } from '../../../../assets/svg/Settings/hollow-circle-blue.svg';
-import '../../../../assets/scss/settings/aiSetupPage.scss';
+import '../../../../assets/scss/settings/aiSetup.scss';
 import { message } from 'antd';
 import Spinner from '../../loaders/Spinner';
 import Context from '../../../../context/context';
 import { ReactComponent as LinkWhite } from '../../../../assets/svg/Settings/link-white-color.svg';
 
 const Workflows = ({
-	info,
 	renderAssignedWorkflows = false,
 	hideRemove = false,
 	allowWorkflowsSelection = false,
@@ -17,6 +16,7 @@ const Workflows = ({
 }) => {
 	let {
 		aiSetup: {
+			activeAiAssistantDetails,
 			assignedWorkflowsToAiAssistant,
 			getAssignedWorkflowsToAiAssistant,
 			unassignWorkflowToAiAssistant,
@@ -27,6 +27,15 @@ const Workflows = ({
 
 	const [filteredWorkflows, setFilteredWorkflows] = useState([]); // workflows that are not assigned to the assistant
 	const [isLoading, setIsLoading] = useState(false);
+	const [workflowsEmpty, setWorkflowsEmpty] = useState(false);
+
+	useEffect(() => {
+		if (filteredWorkflows?.length === 0) {
+			setWorkflowsEmpty(true);
+		} else {
+			setWorkflowsEmpty(false);
+		}
+	}, [filteredWorkflows]);
 
 	useEffect(() => {
 		setFilteredWorkflows(
@@ -80,6 +89,15 @@ const Workflows = ({
 
 	return (
 		<div id="workflowsDiv">
+			{workflowsEmpty && !renderAssignedWorkflows && (
+				<div className="workflows-empty-state">
+					<p>
+						No workflows found! <br /> Either all workflows are assigned to{' '}
+						<span className="ai-assistant-name">{activeAiAssistantDetails?.name}</span>{' '}
+						or no workflows exist.
+					</p>
+				</div>
+			)}
 			<InfiniteScroll
 				className="workflows-infinite-scroll"
 				dataLength={
