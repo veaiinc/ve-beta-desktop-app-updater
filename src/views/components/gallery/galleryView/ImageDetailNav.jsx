@@ -3,13 +3,21 @@ import { ReactComponent as Download } from '../../../../assets/svg/gallery/downl
 import { ReactComponent as Image } from '../../../../assets/svg/gallery/gallery2.svg';
 import { ReactComponent as Rotate } from '../../../../assets/svg/gallery/rotate.svg';
 import { ReactComponent as Share } from '../../../../assets/svg/gallery/share.svg';
-import { ReactComponent as Delete } from '../../../../assets/svg/gallery/delete.svg';
+import { ReactComponent as Delete } from '../../../../assets/svg/gallery/delete-red.svg';
 import { ReactComponent as People } from '../../../../assets/svg/gallery/persons.svg';
 import { ReactComponent as Pin } from '../../../../assets/svg/gallery/pin.svg';
 import { ReactComponent as Edit } from '../../../../assets/svg/gallery/editpen.svg';
 import { useNavigate } from 'react-router-dom';
 
-const ImageDetailNav = ({ info, setInfo, imageDetail, galleryCredentials, galleryId, albumId }) => {
+const ImageDetailNav = ({
+	info,
+	setInfo,
+	imageDetail,
+	galleryCredentials,
+	galleryId,
+	albumId,
+	handleRotateImage,
+}) => {
 	const navigate = useNavigate();
 	const OptionsArray = [
 		{
@@ -45,6 +53,14 @@ const ImageDetailNav = ({ info, setInfo, imageDetail, galleryCredentials, galler
 			navigate(`/gallery/${galleryId}/album-settings?uploadImageId=${info?.imageDetailId}`, {
 				state: { activeAlbumId: albumId },
 			});
+		},
+		Rotate: () => {
+			let currentRotation = imageDetail?.rotation || 0;
+			currentRotation += 90;
+			if (currentRotation > 360) {
+				currentRotation = 90;
+			}
+			handleRotateImage(currentRotation);
 		},
 	};
 

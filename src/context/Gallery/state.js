@@ -594,11 +594,11 @@ export const Galleries = () => {
 		reset = false,
 	) => {
 		try {
-			if (reset) {
-				dispatch({
-					type: Actions.RESET_IMAGES_LIST,
-				});
-			}
+			// if (reset) {
+			// 	dispatch({
+			// 		type: Actions.RESET_IMAGES_LIST,
+			// 	});
+			// }
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(
@@ -606,10 +606,18 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+
+			const payload = state.imagesList
+				? {
+						...state.imagesList,
+						...response?.[1],
+						docs: [...state.imagesList.docs, ...(response?.[1]?.docs || [])],
+				  }
+				: response?.[1];
 			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_IMAGES_LIST,
-					payload: response?.[1],
+					payload: reset ? response?.[1] : payload,
 				});
 			}
 		} catch (error) {
@@ -725,6 +733,40 @@ export const Galleries = () => {
 					type: Actions.GET_IMAGE_DETAIL,
 					payload: response?.[1],
 				});
+			}
+		} catch (error) {
+			console.log('error==>getImageDetail', error);
+		}
+	};
+	const updateImageDetail = async (payload, imageId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/gallery-images/${imageId}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+
+			if (response[0] === true) {
+				let updateDataDocs = state?.imagesList?.docs;
+				const imageIndex = updateDataDocs.findIndex((doc) => doc._id === imageId);
+				updateDataDocs[imageIndex] = response?.[1];
+
+				dispatch({
+					type: Actions.GET_IMAGES_LIST,
+					payload: { ...state.imagesList, docs: updateDataDocs },
+				});
+
+				dispatch({
+					type: Actions.GET_IMAGE_DETAIL,
+					payload: response?.[1],
+				});
+
+				return [true];
+			} else {
+				return response;
 			}
 		} catch (error) {
 			console.log('error==>getImageDetail', error);
@@ -1022,6 +1064,7 @@ export const Galleries = () => {
 		getVisitorFormAccess,
 		editVisitorFormAccess,
 		getImageDetail,
+		updateImageDetail,
 		updateAlbumCoverImage,
 		updateGalleryCoverImage,
 		getGalleryGuestAccess,

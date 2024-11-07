@@ -20,6 +20,7 @@ const GalleryViewer = () => {
 			galleryCredentials,
 			getGalleryCredentials,
 			getImageDetail,
+			updateImageDetail,
 			imageDetail,
 			deleteImages,
 		},
@@ -47,7 +48,6 @@ const GalleryViewer = () => {
 				info?.limit,
 				true,
 			);
-			// setsearchkeys({ tagId: searchkeys.get('tagId') });
 		}
 
 		const imageId = searchkeys.get('image');
@@ -158,6 +158,18 @@ const GalleryViewer = () => {
 		navigate(`/gallery-page/${galleryId}`);
 	};
 
+	const handleRotateImage = async (degree) => {
+		const payload = {
+			rotation: degree,
+		};
+		const response = await updateImageDetail(payload, info?.imageDetailId);
+		if (response[0] === true) {
+			message.success('Image rotated successfully');
+		} else {
+			message.error('Failed to rotate image');
+		}
+	};
+
 	return (
 		<>
 			<div className="closeGallery">
@@ -198,6 +210,7 @@ const GalleryViewer = () => {
 							galleryCredentials={galleryCredentials}
 							galleryId={galleryId}
 							albumId={albumId}
+							handleRotateImage={handleRotateImage}
 						/>
 					)}
 				</div>

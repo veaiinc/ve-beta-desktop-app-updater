@@ -53,13 +53,7 @@ const actionHandlers = {
 	}),
 	GET_IMAGES_LIST: (state, action) => ({
 		...state,
-		imagesList: state.imagesList
-			? {
-					...state.imagesList,
-					...action.payload,
-					docs: [...state.imagesList.docs, ...(action?.payload?.docs || [])],
-			  }
-			: action.payload,
+		imagesList: action.payload,
 	}),
 	GET_LIGHTROOM_COPY_LIST: (state, action) => ({
 		...state,

@@ -41,7 +41,10 @@ const FullImagesComponent = ({
 									<img
 										src={src}
 										alt={`Gallery image ${index}`}
-										style={{ cursor: 'pointer' }}
+										style={{
+											cursor: 'pointer',
+											transform: `rotate(${image?.rotation || 0}deg)`,
+										}}
 									/>
 								</div>
 							);
