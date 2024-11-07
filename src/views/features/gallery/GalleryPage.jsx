@@ -29,13 +29,6 @@ import randomize from 'randomatic';
 import axios from 'axios';
 import Skeleton from 'react-loading-skeleton';
 
-const data = [
-	{ name: 'Albums', number: 14 },
-	// { name: 'Videos', number: 2 },
-	// { name: 'Slide Show', number: 1 },
-	// { name: 'Client Selections', number: 6 },
-	{ name: 'AI', number: '' },
-];
 const noImage =
 	'https://png.pngtree.com/png-clipart/20230917/original/pngtree-no-image-available-icon-flatvector-illustration-thumbnail-graphic-illustration-vector-png-image_12323920.png';
 
@@ -82,6 +75,9 @@ const GalleryPage = () => {
 			addTagToImage,
 			removeTagFromImage,
 			getImageDuplicatesList,
+			getClientSelections,
+			clientSelectionsData,
+			getClientSelectionImages,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -138,6 +134,9 @@ const GalleryPage = () => {
 		searchValue: '',
 		coverPhoto: false,
 		albumFullScreen: false,
+		activeClientSelection: clientSelectionsData?.data?.[0]?.slug,
+		clientSelectionID: clientSelectionsData?.data?.[0]?._id,
+		clientSelectionName: clientSelectionsData?.data?.[0]?.title,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -152,6 +151,13 @@ const GalleryPage = () => {
 	const optionsIconRef = useRef(null);
 	const optionsContainerRef = useRef(null);
 	const fileInputRef = useRef();
+	const data = [
+		{ name: 'Albums', number: albumImagesCount?.albums?.length },
+		// { name: 'Videos', number: 2 },
+		// { name: 'Slide Show', number: 1 },
+		{ name: 'Client Selections', number: 6 },
+		{ name: 'AI', number: '' },
+	];
 
 	const handleClickOutside = useCallback((event) => {
 		const clickOutsideCheck = (ref, iconRef, stateName) => {
@@ -178,12 +184,29 @@ const GalleryPage = () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, [handleClickOutside]);
-
+	useEffect(() => {
+		if (!clientSelectionsData) {
+			getClientSelections(galleryId);
+		}
+		if (clientSelectionsData) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				activeClientSelection: clientSelectionsData?.data?.[0]?.slug,
+				clientSelectionID: clientSelectionsData?.data?.[0]?._id,
+				clientSelectionName: clientSelectionsData?.data?.[0]?.title,
+			}));
+		}
+	}, [clientSelectionsData]);
 	useEffect(() => {
 		if (!galleryCredentials) {
 			getGalleryCredentials(galleryId);
 		}
 	}, [galleryCredentials]);
+	useEffect(() => {
+		if (info?.activeTab === 'Client Selections' && info?.clientSelectionID) {
+			getClientSelectionImages(info?.clientSelectionID);
+		}
+	}, [info?.clientSelectionID, info?.activeTab]);
 	useEffect(() => {
 		if (!tenantAlbums || tenantAlbums?._id !== galleryId) {
 			getAlbums(galleryId).then((response) => {
@@ -415,6 +438,13 @@ const GalleryPage = () => {
 				albumContains: album?.displayName,
 				albumTagId: album?._id,
 				sortType: album?.sortType,
+			}));
+		} else if (name === 'clientSelection') {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				activeClientSelection: album?.slug,
+				clientSelectionID: album?._id,
+				clientSelectionName: album?.title,
 			}));
 		}
 	};
@@ -1035,7 +1065,7 @@ const GalleryPage = () => {
 					<div className="albumsContianer">
 						<div className="galleryContentContainer">
 							<div className="content">
-								<div
+								{/* <div
 									className={`galleryContent ${
 										info.activeTab === 'Albums' ? 'active' : ''
 									}`}
@@ -1043,9 +1073,9 @@ const GalleryPage = () => {
 								>
 									<p className="galleryName">Albums</p>
 									<p className="count">{albumImagesCount?.albums?.length}</p>
-								</div>
+								</div> */}
 
-								{/* {data.map((item, index) => (
+								{data.map((item, index) => (
 									<div
 										key={index}
 										className={`galleryContent ${
@@ -1056,7 +1086,7 @@ const GalleryPage = () => {
 										<p className="galleryName">{item.name}</p>
 										<p className="count">{item.number}</p>
 									</div>
-								))} */}
+								))}
 							</div>
 							<div className="shareContainer">
 								<div className="icon" onClick={openShareModal}>
@@ -1093,6 +1123,7 @@ const GalleryPage = () => {
 								display: 'flex',
 								height: '100%',
 								alignItems: 'center',
+								justifyContent: 'space-between',
 								gap: '20px',
 							}}
 						>
@@ -1105,51 +1136,96 @@ const GalleryPage = () => {
 									}),
 								}}
 							>
-								<div
-									className="create-album"
-									onClick={() =>
-										setInfo((prevData) => ({
-											...prevData,
-											showCreateAlbum: true,
-										}))
-									}
-								>
-									<p>+ New Album</p>
-								</div>
-								{albumImagesCount?.albums?.map((album, index) => {
-									let src = null;
-									if (album?.coverImage?._id) {
-										const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-										src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
-									}
-									return (
-										<div
-											key={index}
-											className={`album ${
-												info?.albumSlug === album?.slug ? 'active' : ''
-											}`}
-											style={{
-												background: src
-													? `url(${src})`
-													: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
-												backgroundSize: 'cover ',
-												backgroundPosition: 'center',
-											}}
-										>
-											{album.image && <img src={src} />}
+								{info.activeTab === 'Albums' && (
+									<div
+										className="create-album"
+										onClick={() =>
+											setInfo((prevData) => ({
+												...prevData,
+												showCreateAlbum: true,
+											}))
+										}
+									>
+										<p>+ New Album</p>
+									</div>
+								)}
 
+								{info.activeTab === 'Albums' &&
+									albumImagesCount?.albums?.map((album, index) => {
+										let src = null;
+										if (album?.coverImage?._id) {
+											const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+											src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
+										}
+										return (
 											<div
-												className="albumDetails"
-												onClick={() => handleClickAlbum(album, 'albumName')}
+												key={index}
+												className={`album ${
+													info?.albumSlug === album?.slug ? 'active' : ''
+												}`}
+												style={{
+													background: src
+														? `url(${src})`
+														: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+													backgroundSize: 'cover ',
+													backgroundPosition: 'center',
+												}}
 											>
-												<p>{album?.title}</p>
-												<p>{`${album?.imagesCount || 0} photos`}</p>
+												{album.image && <img src={src} />}
+
+												<div
+													className="albumDetails"
+													onClick={() =>
+														handleClickAlbum(album, 'albumName')
+													}
+												>
+													<p>{album?.title}</p>
+													<p>{`${album?.imagesCount || 0} photos`}</p>
+												</div>
+												{/* <div className="overlay"></div> */}
 											</div>
-											{/* <div className="overlay"></div> */}
-										</div>
-									);
-								})}
+										);
+									})}
+								{info.activeTab === 'Client Selections' &&
+									clientSelectionsData?.data?.map((album, index) => {
+										let src = null;
+										if (album?.coverImage?._id) {
+											const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+											src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
+										}
+										return (
+											<div
+												key={index}
+												className={`album ${
+													info?.activeClientSelection === album?.slug
+														? 'active'
+														: ''
+												}`}
+												style={{
+													background: src
+														? `url(${src})`
+														: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+													backgroundSize: 'cover ',
+													backgroundPosition: 'center',
+												}}
+											>
+												{album.image && <img src={src} />}
+
+												<div
+													className="albumDetails"
+													onClick={() =>
+														handleClickAlbum(album, 'clientSelection')
+													}
+												>
+													<p>{album?.title}</p>
+													<p>{`${album?.imagesCount || 0} photos`}</p>
+												</div>
+												{/* <div className="overlay"></div> */}
+											</div>
+										);
+									})}
 							</div>
+
 							<div
 								className="fullScreenContainer"
 								onClick={() =>
@@ -1847,6 +1923,267 @@ const GalleryPage = () => {
 											// 	})}
 											// </div>
 										)}
+									</InfiniteScroll>
+
+									{info.selectedImages.length > 0 && (
+										<div className="selectedImagesCotainer">
+											<div className="selectedImagesCounter">
+												<p
+													onClick={() => handleClearSelectedImages()}
+													style={{ cursor: 'pointer' }}
+												>
+													X
+												</p>
+												<p>{info.selectedImages.length} selected</p>
+											</div>
+											<div className="selectedImagesActions">
+												<div onClick={handleExpandClick}>
+													<ExpandIcon />
+												</div>
+												<div
+													style={{ position: 'relative' }}
+													ref={forwardIconRef}
+												>
+													<ForwardIcon onClick={handleForwardIcon} />
+
+													{info.showForward && (
+														<div
+															className="forwardOptions"
+															ref={forwardOptionsRef}
+														>
+															<li>Copy to client selection</li>
+															<li>Move to Other Albums</li>
+														</div>
+													)}
+												</div>
+												<div
+													style={{ position: 'relative' }}
+													ref={pinIconRef}
+												>
+													<PinIcon onClick={handlePinIcon} />
+													{info.showPin && (
+														<div
+															className="pinOptions"
+															ref={pinSearchRef}
+														>
+															<div className="pinSearchContainer">
+																<p>type to Search or create</p>
+																<p
+																	style={{
+																		cursor: 'pointer',
+																		marginRight: '5px',
+																	}}
+																	onClick={handlePinIcon}
+																>
+																	X
+																</p>
+															</div>
+															{info?.albumTags?.map((tag) => (
+																<div className="pinOptionsList">
+																	<label className="checkboxLabel">
+																		<input
+																			type="checkbox"
+																			checked={info?.selectedImagesTags?.includes(
+																				tag?._id,
+																			)}
+																			onChange={() =>
+																				handleTagChange(
+																					tag?._id,
+																				)
+																			}
+																		/>
+																		<span className="checkboxText">
+																			{tag?.displayName}
+																		</span>
+																	</label>
+																</div>
+															))}
+														</div>
+													)}
+												</div>
+												<div
+													style={{ position: 'relative' }}
+													ref={optionsIconRef}
+												>
+													<OptionsIcon onClick={handleOptionsIcon} />
+													{info.showOptionsContainer && (
+														<div
+															className="optionsContainer"
+															ref={optionsContainerRef}
+														>
+															<li>Download</li>
+															<li>Set as cover</li>
+															<li>Share</li>
+															<li
+																onClick={() =>
+																	setInfo((prev) => ({
+																		...prev,
+																		showDeleteAlbum: true,
+																	}))
+																}
+															>
+																Delete
+															</li>
+														</div>
+													)}
+												</div>
+											</div>
+										</div>
+									)}
+								</div>
+							</div>
+						</div>
+					))}
+				{info.activeTab === 'Client Selections' &&
+					(clientSelectionsData?.data?.length === 0 ? (
+						<div className="noAlbumContainer">
+							<Result
+								status="404"
+								title="Albums Not Found"
+								subTitle="It's quiet for now... You haven't missed anything yet! Create your first album to start organizing your memories"
+								extra={
+									<button
+										className="create-album-button"
+										onClick={() =>
+											setInfo((prevData) => ({
+												...prevData,
+												showCreateAlbum: true,
+											}))
+										}
+									>
+										<p>Create Album</p>
+									</button>
+								}
+							/>
+						</div>
+					) : (
+						<div className="galleryViewer">
+							<div className="galleryNavbar">
+								<div className="aboutAlbum">
+									<div className="albumName">
+										<p>{info?.clientSelectionName}</p>
+										<div
+											style={{ position: 'relative' }}
+											// onClick={() =>
+
+											// }
+										>
+											<img src={threeDots} style={{ cursor: 'pointer' }} />
+
+											<div></div>
+										</div>
+									</div>
+									<div className="albumSearchCotainer">
+										<div
+											onClick={() =>
+												setInfo((prevInfo) => ({
+													...prevInfo,
+													showShearch: !prevInfo.showShearch,
+												}))
+											}
+											className="searchContainer"
+											style={{
+												width: info?.searchValue && '200px',
+											}}
+										>
+											<SearchIcon />
+
+											<input
+												type="text"
+												placeholder="Search"
+												value={info.searchValue}
+												onChange={(e) => handleSearch(e.target.value)}
+												style={{ display: info?.searchValue && 'block' }}
+											/>
+										</div>
+									</div>
+								</div>
+								<div
+									className="galleryImagesContainer"
+									id="galleryScrollTarget"
+									onMouseEnter={() =>
+										setInfo((prev) => ({
+											...prev,
+											isMouseInGallery: true,
+										}))
+									}
+									onMouseLeave={() =>
+										setInfo((prev) => ({
+											...prev,
+											isMouseInGallery: false,
+										}))
+									}
+								>
+									<InfiniteScroll
+										dataLength={imagesList?.docs?.length || 0}
+										next={fetchMoreImages}
+										hasMore={imagesList?.hasNextPage || false}
+										loader={
+											<p style={{ textAlign: 'center', color: '#fff' }}>
+												Loading...
+											</p>
+										}
+										scrollableTarget="galleryScrollTarget"
+									>
+										<ResponsiveMasonry
+											columnsCountBreakPoints={{
+												350: 1,
+												750: 2,
+												900: 3,
+												1200: 4,
+											}}
+										>
+											<Masonry gutter="10px">
+												{info?.imagesList?.docs
+													? info?.imagesList?.docs?.map(
+															(image, index) => {
+																const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+																const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+																return (
+																	<div
+																		key={index}
+																		className={`imageContainer ${
+																			info.selectedImages.includes(
+																				image?._id,
+																			)
+																				? 'selected'
+																				: ''
+																		}`}
+																		onClick={() =>
+																			handleImageSelect(
+																				index,
+																				image,
+																			)
+																		}
+																	>
+																		<img
+																			src={src}
+																			alt={`Gallery image ${index}`}
+																			style={{
+																				width: '100%',
+																				display: 'block',
+																			}}
+																		/>
+																		{info.isMouseInGallery && (
+																			<div className="imageOverlay"></div>
+																		)}
+																	</div>
+																);
+															},
+													  )
+													: [...Array(10)].map((_, index) => (
+															<div
+																key={index}
+																className="imageContainer"
+															>
+																<Skeleton
+																	width="100%"
+																	height="200px"
+																/>
+															</div>
+													  ))}
+											</Masonry>
+										</ResponsiveMasonry>
 									</InfiniteScroll>
 
 									{info.selectedImages.length > 0 && (
