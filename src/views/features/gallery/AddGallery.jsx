@@ -159,9 +159,9 @@ const AddGallery = () => {
 											key={items._id}
 										>
 											<img
-												src={items?.coverImage?.thumbnailUrl || noImage}
+												src={items?.coverImage?.thumbnailUrl || testImage}
 												onError={(e) => {
-													e.target.src = noImage;
+													e.target.src = testImage;
 												}}
 												alt={items?.title}
 											/>

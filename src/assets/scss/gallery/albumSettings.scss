@@ -384,6 +384,10 @@
 				}
 				.lightroom-list-container {
 					display: flex;
+					flex-wrap: wrap;
+					gap: 10px;
+					max-height: 90px;
+					overflow-y: auto;
 					p {
 						color: #979797;
 						font-size: 16px;

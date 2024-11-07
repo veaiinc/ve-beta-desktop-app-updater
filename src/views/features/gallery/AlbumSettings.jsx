@@ -468,7 +468,7 @@ const AlbumSettings = () => {
 							<div className="lightroom-list-container">
 								{lightroomCopyList?.map((item, index) => (
 									<p key={index}>
-										{item}
+										<b>({index + 1}).</b> {item}
 										{index !== lightroomCopyList.length - 1 ? ',' : ''}
 									</p>
 								))}
