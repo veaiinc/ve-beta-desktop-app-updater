@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useContext } from 'react';
+import React, { memo, useState, useEffect, useContext, useCallback } from 'react';
 import ReactModal from '../index';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import '../../../../assets/scss/gallery/modals/createGallery.scss';
@@ -9,7 +9,7 @@ import { DatePicker } from 'antd';
 
 const CreateGallery = ({ open, closeModal, workspaceID }) => {
 	const {
-		galleryInfo: { createNewGallery },
+		galleryInfo: { createNewGallery, checkGallerySlugAvailable },
 	} = useContext(Context);
 	const [galleryData, setGalleryData] = useState({
 		title: '',
@@ -18,6 +18,8 @@ const CreateGallery = ({ open, closeModal, workspaceID }) => {
 		userID: '',
 		galleryNameError: false,
 		eventDateError: false,
+		gallerySlugError: false,
+		timeout: null,
 	});
 
 	useEffect(() => {
@@ -50,6 +52,7 @@ const CreateGallery = ({ open, closeModal, workspaceID }) => {
 				title: e.target.value,
 				galleryNameError: !e.target.value.trim(),
 			});
+			handleDebounceSearch(e.target.value);
 		} else {
 			setGalleryData({
 				...galleryData,
@@ -59,15 +62,41 @@ const CreateGallery = ({ open, closeModal, workspaceID }) => {
 		}
 	};
 
+	const checkGallerySlugAvailableFunc = async (slug) => {
+		if (slug === '') {
+			setGalleryData((prev) => ({ ...prev, gallerySlugError: false }));
+			return;
+		}
+		const respone = await checkGallerySlugAvailable(slug);
+		if (respone?.[1]?.isAvailable) {
+			setGalleryData((prev) => ({ ...prev, gallerySlugError: false }));
+		} else {
+			setGalleryData((prev) => ({ ...prev, gallerySlugError: true }));
+		}
+	};
+
+	const handleDebounceSearch = useCallback(
+		(slug) => {
+			clearInterval(galleryData?.timeout);
+			const timeout = setTimeout(() => {
+				checkGallerySlugAvailableFunc(slug);
+			}, 800);
+			setGalleryData((prev) => ({ ...prev, timeout }));
+		},
+		[galleryData?.timeout],
+	);
+
 	const handleSubmit = async () => {
 		const galleryNameError = !galleryData.title.trim();
 		const eventDateError = !galleryData.shotDuring;
+		const gallerySlugError = galleryData.gallerySlugError;
 
-		if (galleryNameError || eventDateError) {
+		if (galleryNameError || eventDateError || gallerySlugError) {
 			setGalleryData((prevData) => ({
 				...prevData,
 				galleryNameError,
 				eventDateError,
+				gallerySlugError,
 			}));
 			return;
 		}
@@ -115,6 +144,7 @@ const CreateGallery = ({ open, closeModal, workspaceID }) => {
 					userID: '',
 					galleryNameError: false,
 					eventDateError: false,
+					gallerySlugError: false,
 				});
 				closeModal();
 			}}
@@ -133,6 +163,7 @@ const CreateGallery = ({ open, closeModal, workspaceID }) => {
 								userID: '',
 								galleryNameError: false,
 								eventDateError: false,
+								gallerySlugError: false,
 							});
 							closeModal();
 						}}
@@ -142,7 +173,9 @@ const CreateGallery = ({ open, closeModal, workspaceID }) => {
 				</div>
 				<div className="inputContainer">
 					<div className="gallery-name">
-						<p className="subHeading">Gallery Name</p>
+						<p className="subHeading">
+							Gallery Name <span>*</span>
+						</p>
 						<input
 							name="title"
 							value={galleryData.title}
@@ -152,9 +185,14 @@ const CreateGallery = ({ open, closeModal, workspaceID }) => {
 						{galleryData?.galleryNameError && (
 							<p className="error">Gallery Name is Required</p>
 						)}
+						{galleryData?.gallerySlugError && (
+							<p className="error">Gallery Slug is already taken</p>
+						)}
 					</div>
 					<div className="gallery-date">
-						<p className="subHeading">Gallery date</p>
+						<p className="subHeading">
+							Gallery date <span>*</span>
+						</p>
 						{/* <input
 							name="shotDuring"
 							value={galleryData.shotDuring}

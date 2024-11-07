@@ -97,7 +97,7 @@ const GalleryPage = () => {
 		showForward: false,
 		showPin: false,
 		showOptionsContainer: false,
-		activeTab: 'Albums',
+		activeTab: location?.state?.openSettings || 'Albums',
 		showCreateAlbum: false,
 		isMouseInGallery: false,
 		showCollaborators: false,
@@ -350,6 +350,8 @@ const GalleryPage = () => {
 			}));
 		});
 	};
+
+	console.log('location', location.state);
 
 	const handleImageSelect = (index, images) => {
 		// console.log(images, 'images');
@@ -1466,9 +1468,11 @@ const GalleryPage = () => {
 										dataLength={imagesList?.docs?.length || 0}
 										next={fetchMoreImages}
 										hasMore={imagesList?.hasNextPage || false}
-										// loader={[...Array(10)].map((_, index) => (
-										// 	<Skeleton key={index} height={100} />
-										// ))}
+										loader={
+											<p style={{ textAlign: 'center', color: '#fff' }}>
+												Loading...
+											</p>
+										}
 										scrollableTarget="galleryScrollTarget"
 									>
 										{!info.isRearranging ? (

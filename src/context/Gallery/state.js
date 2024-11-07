@@ -29,7 +29,7 @@ export const intialState = {
 export const Galleries = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
-	const getGalleries = async () => {
+	const getGalleries = async (queryParams = {}, reset = false) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -38,8 +38,7 @@ export const Galleries = () => {
 			const params = {
 				user_id: userId,
 				detailed: false,
-				sort: '-shotDuring',
-				page: 1,
+				...queryParams,
 			};
 
 			const queryString = new URLSearchParams(params).toString();
@@ -48,10 +47,22 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response?.[0]) {
+
+			console.log(reset, 'reset');
+			if (response?.[0] === true) {
+				const data = state?.tenantGalleries
+					? {
+							...state?.tenantGalleries,
+							...response?.[1],
+							galleries: [
+								...state?.tenantGalleries?.galleries,
+								...response?.[1]?.galleries,
+							],
+					  }
+					: response?.[1];
 				dispatch({
 					type: Actions.GET_TENANT_GALLERIES,
-					payload: response?.[1],
+					payload: reset ? response?.[1] : data,
 				});
 			}
 		} catch (error) {
@@ -957,6 +968,21 @@ export const Galleries = () => {
 		}
 	};
 
+	const checkGallerySlugAvailable = async (slug) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/gallery-slug-availability/${slug}`,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>checkGallerySlugAvailable', error);
+		}
+	};
+
 	return {
 		...state,
 		getGalleries,
@@ -1008,5 +1034,6 @@ export const Galleries = () => {
 		getAlbumImagesCount,
 		addTagToImage,
 		removeTagFromImage,
+		checkGallerySlugAvailable,
 	};
 };
