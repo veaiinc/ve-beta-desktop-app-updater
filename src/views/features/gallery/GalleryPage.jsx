@@ -1903,7 +1903,28 @@ const GalleryPage = () => {
 															ref={optionsContainerRef}
 														>
 															<li>Download</li>
-															<li>Set as cover</li>
+															<li
+																style={{
+																	cursor:
+																		info?.selectedImages
+																			.length === 1
+																			? 'pointer'
+																			: 'not-allowed',
+																}}
+																onClick={() =>
+																	navigate(
+																		`/gallery/${galleryId}/album-settings?uploadImageId=${info?.selectedImages[0]}`,
+																		{
+																			state: {
+																				activeAlbumId:
+																					info?.activeAlbumId,
+																			},
+																		},
+																	)
+																}
+															>
+																Set as cover
+															</li>
 															<li>Share</li>
 															<li
 																onClick={() =>
