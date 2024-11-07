@@ -1,3 +1,20 @@
+.closeGallery {
+	display: flex;
+	margin-bottom: 15px;
+	gap: 8px;
+	align-items: center;
+	svg {
+		cursor: pointer;
+	}
+	p {
+		color: #fff;
+		font-size: 14px;
+		font-weight: 500;
+		line-height: 17px;
+		letter-spacing: 0.28px;
+	}
+}
+
 .galleryViewerCotnainer {
 	display: flex;
 	width: 100%;

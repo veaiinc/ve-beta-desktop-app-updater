@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/gallery/galleryViewer.scss';
-import { useSearchParams, useParams } from 'react-router-dom';
+import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import Thumbnails from '../../components/gallery/galleryView/Thumbnails';
 import FullImagesComponent from '../../components/gallery/galleryView/FullImagesComponent';
 import ImageDetailNav from '../../components/gallery/galleryView/ImageDetailNav';
 import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
 import { message } from 'antd';
-
+import { ReactComponent as CrossWhite } from '../../../assets/svg/workspaceSettings/cross.svg';
+import Skeleton from 'react-loading-skeleton';
 const GalleryViewer = () => {
 	const { galleryId, albumId } = useParams();
 	const [searchkeys, setsearchkeys] = useSearchParams();
@@ -32,7 +33,9 @@ const GalleryViewer = () => {
 		activeImageIndex: 0,
 		imageDetailId: null,
 		showDeleteAlbum: false,
+		fakeLoading: false,
 	});
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (!imagesList) {
@@ -47,19 +50,26 @@ const GalleryViewer = () => {
 			// setsearchkeys({ tagId: searchkeys.get('tagId') });
 		}
 
-		if (imagesList) {
-			const imageId = searchkeys.get('image');
-
-			if (!imageId) return;
-
+		const imageId = searchkeys.get('image');
+		if (imagesList && imageId) {
 			setInfo((prev) => ({
 				...prev,
 				activeImage: searchkeys.get('image'),
+				fakeLoading: true,
 			}));
 			setTimeout(() => {
 				const image = document.getElementById(imageId || '');
-				image.scrollIntoView({ behavior: 'smooth', block: 'start' });
+				if (image) {
+					image.scrollIntoView({ behavior: 'smooth', block: 'start' });
+				}
 			}, 1000);
+
+			setTimeout(() => {
+				setInfo((prev) => ({
+					...prev,
+					fakeLoading: false,
+				}));
+			}, 1500);
 		}
 
 		if (!galleryCredentials) {
@@ -70,7 +80,9 @@ const GalleryViewer = () => {
 	useEffect(() => {
 		if (info?.activeImage) {
 			const thumbnail = document.getElementById('thumbnail' + info?.activeImage);
-			thumbnail.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			if (thumbnail) {
+				thumbnail.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			}
 
 			if (searchkeys.get('image')) {
 				setsearchkeys({ tagId: searchkeys.get('tagId') });
@@ -105,7 +117,9 @@ const GalleryViewer = () => {
 
 		setTimeout(() => {
 			const image = document.getElementById(id);
-			image.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			if (image) {
+				image.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
 		}, 300);
 	};
 
@@ -128,7 +142,6 @@ const GalleryViewer = () => {
 		};
 
 		const response = await deleteImages(payload, galleryId, albumId);
-		console.log('response==>', response);
 		if (response[0] === true) {
 			setInfo((prev) => ({
 				...prev,
@@ -141,49 +154,100 @@ const GalleryViewer = () => {
 		}
 	};
 
-	return (
-		<div className="galleryViewerCotnainer">
-			<Thumbnails
-				galleryCredentials={galleryCredentials}
-				fetchMoreImages={fetchMoreImages}
-				imagesList={imagesList}
-				activeThumbnailFunction={activeThumbnailFunction}
-				info={info}
-			/>
+	const handleCloseGallery = () => {
+		navigate(`/gallery-page/${galleryId}`);
+	};
 
-			<div className="activeImageContainer">
-				<FullImagesComponent
-					galleryCredentials={galleryCredentials}
-					fetchMoreImages={fetchMoreImages}
-					imagesList={imagesList}
-					largeImageFunction={largeImageFunction}
-					info={info}
-					setInfo={setInfo}
-				/>
+	return (
+		<>
+			<div className="closeGallery">
+				<CrossWhite onClick={handleCloseGallery} />
 
 				{info?.imageDetailId && (
-					<ImageDetailNav
-						info={info}
-						setInfo={setInfo}
-						imageDetail={imageDetail}
-						galleryCredentials={galleryCredentials}
-						galleryId={galleryId}
-						albumId={albumId}
-					/>
+					<p onClick={handleCloseGallery}>{imageDetail?.displayName}</p>
 				)}
 			</div>
 
-			<DeletePopup
-				open={info?.showDeleteAlbum}
-				closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
-				galleryId={galleryId}
-				title={'Permanently Delete  image?'}
-				paragraph={
-					'You cannot undo this action.All your photos in this album lined to this label will be lost'
-				}
-				handleDelete={handleAlbumDelete}
-			/>
-		</div>
+			<div
+				className="galleryViewerCotnainer"
+				// style={{ display: info?.fakeLoading ? 'none' : 'flex' }}
+			>
+				<Thumbnails
+					galleryCredentials={galleryCredentials}
+					fetchMoreImages={fetchMoreImages}
+					imagesList={imagesList}
+					activeThumbnailFunction={activeThumbnailFunction}
+					info={info}
+				/>
+
+				<div className="activeImageContainer">
+					<FullImagesComponent
+						galleryCredentials={galleryCredentials}
+						fetchMoreImages={fetchMoreImages}
+						imagesList={imagesList}
+						largeImageFunction={largeImageFunction}
+						info={info}
+						setInfo={setInfo}
+					/>
+
+					{info?.imageDetailId && (
+						<ImageDetailNav
+							info={info}
+							setInfo={setInfo}
+							imageDetail={imageDetail}
+							galleryCredentials={galleryCredentials}
+							galleryId={galleryId}
+							albumId={albumId}
+						/>
+					)}
+				</div>
+
+				<DeletePopup
+					open={info?.showDeleteAlbum}
+					closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
+					galleryId={galleryId}
+					title={'Permanently Delete  image?'}
+					paragraph={
+						'You cannot undo this action.All your photos in this album lined to this label will be lost'
+					}
+					handleDelete={handleAlbumDelete}
+				/>
+			</div>
+
+			{/* <div
+				className="galleryViewerCotnainer"
+				style={{
+					display: info?.fakeLoading ? 'flex' : 'none',
+					maxHeight: '80vh',
+					overflow: 'hidden',
+				}}
+			>
+				<div
+					className="galleryThumbnails"
+					style={{ display: 'flex', flexDirection: 'column' }}
+				>
+					{[...Array(15)].map((_, index) => (
+						<div key={index} className="imageContainer">
+							<Skeleton width="79px" height="50px" />
+						</div>
+					))}
+				</div>
+
+				<div
+					className="activeImageContainer"
+					style={{ display: 'flex', flexDirection: 'column', gap: '72px' }}
+				>
+					{[...Array(3)].map((_, index) => (
+						<div key={index} className="imageContainer" style={{ width: '500px' }}>
+							<Skeleton
+								width="100%"
+								height={`${Math.floor(Math.random() * 200) + 200}px`}
+							/>
+						</div>
+					))}
+				</div>
+			</div> */}
+		</>
 	);
 };
 

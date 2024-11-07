@@ -1,5 +1,7 @@
 import React from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import Skeleton from 'react-loading-skeleton';
+
 const Thumbnails = ({
 	galleryCredentials,
 	fetchMoreImages,
@@ -21,27 +23,31 @@ const Thumbnails = ({
 					gap: '24px',
 				}}
 			>
-				{galleryCredentials &&
-					imagesList &&
-					imagesList?.docs?.map((image, index) => {
-						const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-						const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_thumbnail_100h?.key}?${params}`;
-						return (
-							<div
-								className={`imageContainer ${
-									info?.activeImage === image?._id ? 'active' : ''
-								}`}
-								id={'thumbnail' + image?._id}
-								onClick={() => activeThumbnailFunction(image?._id, index)}
-							>
-								<img
-									src={src}
-									alt={`Gallery image ${index}`}
-									style={{ cursor: 'pointer' }}
-								/>
+				{galleryCredentials && imagesList
+					? imagesList?.docs?.map((image, index) => {
+							const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+							const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_thumbnail_100h?.key}?${params}`;
+							return (
+								<div
+									className={`imageContainer ${
+										info?.activeImage === image?._id ? 'active' : ''
+									}`}
+									id={'thumbnail' + image?._id}
+									onClick={() => activeThumbnailFunction(image?._id, index)}
+								>
+									<img
+										src={src}
+										alt={`Gallery image ${index}`}
+										style={{ cursor: 'pointer' }}
+									/>
+								</div>
+							);
+					  })
+					: [...Array(15)].map((_, index) => (
+							<div key={index} className="imageContainer">
+								<Skeleton width="79px" height="50px" />
 							</div>
-						);
-					})}
+					  ))}
 			</InfiniteScroll>
 		</div>
 	);
