@@ -24,6 +24,7 @@ export const intialState = {
 	imageDetail: null,
 	galleryGuestAccess: null,
 	albumImagesCount: null,
+	clientSelectionsData: null,
 };
 
 export const Galleries = () => {
@@ -1026,7 +1027,46 @@ export const Galleries = () => {
 			console.log('error==>checkGallerySlugAvailable', error);
 		}
 	};
-
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/collections
+	const getClientSelections = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/collections`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_CLIENT_SELECTIONS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getClientSelections', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-collections/{{ _.collection_id }}/images
+	const getClientSelectionImages = async (collectionId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/gallery-collections/${collectionId}/images`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_IMAGES_LIST,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getClientSelectionImages', error);
+		}
+	};
 	return {
 		...state,
 		getGalleries,
@@ -1080,5 +1120,7 @@ export const Galleries = () => {
 		addTagToImage,
 		removeTagFromImage,
 		checkGallerySlugAvailable,
+		getClientSelections,
+		getClientSelectionImages,
 	};
 };

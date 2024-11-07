@@ -75,6 +75,10 @@ const actionHandlers = {
 		...state,
 		albumImagesCount: action.payload,
 	}),
+	GET_CLIENT_SELECTIONS: (state, action) => ({
+		...state,
+		clientSelectionsData: action.payload,
+	}),
 	RESET_IMAGES_LIST: (state) => ({ ...state, imagesList: null }),
 	RESET_STATE: () => ({ ...intialState }),
 };
