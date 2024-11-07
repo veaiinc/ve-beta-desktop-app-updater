@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import '../../../assets/scss/onboarding/index.scss';
+import { updateUserName } from '../../../services/authServices/authServices';
 
 const Username = ({ onboardingInfo, setOnboardingInfo, animateStep1Exit }) => {
 	const [info, setInfo] = useState({
@@ -29,7 +30,8 @@ const Username = ({ onboardingInfo, setOnboardingInfo, animateStep1Exit }) => {
 			opacity: 0,
 			duration: 0.5,
 			ease: 'power2.inOut',
-			onComplete: () => {
+			onComplete: async () => {
+				await updateUserName(onboardingInfo?.username);
 				animateStep1Exit();
 			},
 		});

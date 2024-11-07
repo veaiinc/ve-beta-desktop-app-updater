@@ -16,11 +16,18 @@ const LoginPage = () => {
 	const [info, setInfo] = useState({
 		activeStage: 'email',
 		email: '',
+		emailVerified: false,
 	});
 
 	const stages = {
 		email: <Email loginPageInfo={info} setLoginPageInfo={setInfo} />,
-		verificationCode: <VerificationCode email={info?.email} setLoginPageInfo={setInfo} />,
+		verificationCode: (
+			<VerificationCode
+				email={info?.email}
+				emailVerified={info?.emailVerified}
+				setLoginPageInfo={setInfo}
+			/>
+		),
 	};
 
 	return (
