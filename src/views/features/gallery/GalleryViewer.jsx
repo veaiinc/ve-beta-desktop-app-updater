@@ -23,6 +23,11 @@ const GalleryViewer = () => {
 			updateImageDetail,
 			imageDetail,
 			deleteImages,
+			getGalleryTagsList,
+			tagsList,
+			addGalleryTag,
+			removeTagFromImage,
+			addTagToImage,
 		},
 	} = useContext(Context);
 
@@ -211,6 +216,11 @@ const GalleryViewer = () => {
 							galleryId={galleryId}
 							albumId={albumId}
 							handleRotateImage={handleRotateImage}
+							getGalleryTagsList={getGalleryTagsList}
+							tagsList={tagsList}
+							addGalleryTag={addGalleryTag}
+							addTagToImage={addTagToImage}
+							removeTagFromImage={removeTagFromImage}
 						/>
 					)}
 				</div>

@@ -7,7 +7,7 @@ import Context from '../../../../context/context';
 import jwt_decode from 'jwt-decode';
 import { DatePicker } from 'antd';
 
-const CreateGallery = ({ open, closeModal, workspaceID }) => {
+const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
 	const {
 		galleryInfo: { createNewGallery, checkGallerySlugAvailable },
 	} = useContext(Context);
@@ -118,16 +118,21 @@ const CreateGallery = ({ open, closeModal, workspaceID }) => {
 					},
 				],
 			};
-			await createNewGallery(payload);
-			setGalleryData({
-				title: '',
-				shotDuring: '',
-				workspaceID: '',
-				userID: '',
-				galleryNameError: false,
-				eventDateError: false,
-			});
-			closeModal();
+			let response = await createNewGallery(payload);
+
+			if (response?.[0] === true) {
+				setGalleryData({
+					title: '',
+					shotDuring: '',
+					workspaceID: '',
+					userID: '',
+					galleryNameError: false,
+					eventDateError: false,
+				});
+				closeModal();
+
+				fetchGalleries(1, null, true);
+			}
 		} catch (error) {
 			console.error('Error creating gallery:', error);
 		}

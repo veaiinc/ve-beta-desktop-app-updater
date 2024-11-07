@@ -16,7 +16,7 @@ const actionHandlers = {
 
 	POST_TAG_LIST: (state, action) => ({
 		...state,
-		tagsList: { ...state.tagsList, list: [...state.tagsList.list, action.payload] },
+		tagsList: action.payload,
 	}),
 	GET_EDIT_PREFERENCES: (state, action) => ({
 		...state,

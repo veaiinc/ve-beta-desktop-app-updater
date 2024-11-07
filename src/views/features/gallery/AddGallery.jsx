@@ -76,17 +76,18 @@ const AddGallery = () => {
 			createNewGalleryModal: true,
 		});
 	};
+
 	const handleCloseModal = () => {
 		setInfo({
 			...info,
 			createNewGalleryModal: false,
 		});
-		fetchGalleries(1);
 	};
 
 	const fetchMoreGalleries = () => {
 		const nextPage = info.page + 1;
-		fetchGalleries(nextPage);
+		info.search === '' ? fetchGalleries(nextPage) : fetchGalleries(nextPage, info.search);
+
 		setInfo((prev) => ({
 			...prev,
 			page: nextPage,
@@ -105,7 +106,8 @@ const AddGallery = () => {
 	);
 
 	const handleSearch = (e) => {
-		setInfo((prev) => ({ ...prev, search: e.target.value }));
+		setInfo((prev) => ({ ...prev, search: e.target.value, page: 1 }));
+
 		if (e.target.value === '' || e.target.value === null) {
 			fetchGalleries(1);
 		} else {
@@ -187,12 +189,14 @@ const AddGallery = () => {
 											<div className="album-full-details">
 												<div className="album-details">
 													<p className="album-count">{`${
-														items.album_count ? items.album_count : '0'
-													} Albums`}</p>
-													<p className="dot"></p>
+														items.albumsCount ? items.albumsCount : 0
+													} ${
+														items.albumsCount > 1 ? 'Albums' : 'Album'
+													}`}</p>
+													{/* <p className="dot"></p>
 													<p className="album-count">{`${
 														items.photoCount ? items.photoCount : '0'
-													} Photos`}</p>
+													} Photos`}</p> */}
 												</div>
 												<p className="album-title">{items.title}</p>
 											</div>
@@ -222,7 +226,11 @@ const AddGallery = () => {
 				</div>
 			</div>
 			<div>
-				<CreateGallery open={info.createNewGalleryModal} closeModal={handleCloseModal} />
+				<CreateGallery
+					open={info.createNewGalleryModal}
+					closeModal={handleCloseModal}
+					fetchGalleries={fetchGalleries}
+				/>
 			</div>
 		</div>
 	);

@@ -217,6 +217,62 @@
 							}
 						}
 					}
+
+					.lablesListContainer {
+						width: 100%;
+						min-height: 100px;
+						.header {
+							padding: 10px 16px;
+							display: flex;
+							justify-content: space-between;
+							align-items: center;
+							width: 100%;
+							padding-bottom: 10px;
+
+							input {
+								width: 90%;
+								border: none;
+								outline: none;
+								background-color: transparent;
+								color: #fff;
+							}
+
+							svg {
+								cursor: pointer;
+							}
+						}
+
+						.line {
+							width: 100%;
+							height: 1px;
+							background-color: gray;
+						}
+
+						.labelsList {
+							max-height: 100px;
+							overflow-y: auto;
+
+							.pinOptionsList {
+								display: flex;
+								align-items: center;
+								gap: 10px;
+								padding: 10px 16px;
+
+								.checkboxText {
+									color: #fff;
+									overflow: hidden;
+									text-overflow: ellipsis;
+									white-space: nowrap;
+									font-family: Inter;
+									font-size: 12px;
+									font-style: normal;
+									font-weight: 400;
+									line-height: 16px; /* 133.333% */
+									letter-spacing: -0.3px;
+								}
+							}
+						}
+					}
 				}
 			}
 		}

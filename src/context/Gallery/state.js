@@ -82,6 +82,8 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+
+			return response;
 		} catch (error) {
 			console.log('error==>createNewGallery', error);
 		}
@@ -185,6 +187,7 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.GET_TAGS_LIST,
@@ -208,10 +211,15 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response?.[0]) {
+
+			const payloadData = state?.tagsList
+				? { ...state.tagsList, galleryId, list: [...state?.tagsList?.list, response?.[1]] }
+				: { galleryId, list: response?.[1] };
+
+			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.POST_TAG_LIST,
-					payload: response?.[1],
+					payload: payloadData,
 				});
 			}
 		} catch (error) {
