@@ -133,7 +133,10 @@ const AlbumSettings = () => {
 				zoom: info?.coverImageDetails?.zoom || 1,
 			};
 
-			if (imageSearchKey) options.coverImageDetails = null;
+			if (imageSearchKey) {
+				options.coverImageDetails = null;
+				scrollToSection('album-cover');
+			}
 
 			setInfo((prev) => ({
 				...prev,

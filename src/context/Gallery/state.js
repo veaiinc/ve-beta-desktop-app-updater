@@ -38,6 +38,9 @@ export const Galleries = () => {
 			const params = {
 				user_id: userId,
 				detailed: false,
+				sort: '-createdAt',
+				page: 1,
+				limit: 15,
 				...queryParams,
 			};
 
@@ -48,7 +51,6 @@ export const Galleries = () => {
 				'galleries',
 			);
 
-			console.log(reset, 'reset');
 			if (response?.[0] === true) {
 				const data = state?.tenantGalleries
 					? {
