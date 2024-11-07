@@ -137,6 +137,7 @@ const GalleryPage = () => {
 		coverImageDetails: null,
 		searchValue: '',
 		coverPhoto: false,
+		albumFullScreen: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -1004,10 +1005,10 @@ const GalleryPage = () => {
 	return (
 		<>
 			<div className="galleryContainer">
-				<div className="mainGalleryContainer">
+				<div className="mainGalleryContainer" style={{ height: '100%' }}>
 					<div className="galleryPic">
 						<div className="galleryPicSettings">
-							<UpArrow />
+							<UpArrow className="upArrow" />
 							<p
 								onClick={() => handleClickContent('Settings')}
 								style={{ cursor: 'pointer' }}
@@ -1087,52 +1088,84 @@ const GalleryPage = () => {
 								</div>
 							</div>
 						</div>
-						<div className="albums">
+						<div
+							style={{
+								display: 'flex',
+								height: '100%',
+								alignItems: 'center',
+								gap: '20px',
+							}}
+						>
 							<div
-								className="create-album"
+								className="albums"
+								style={{
+									...(info?.albumFullScreen && {
+										flexWrap: 'wrap',
+										overflow: 'visible',
+									}),
+								}}
+							>
+								<div
+									className="create-album"
+									onClick={() =>
+										setInfo((prevData) => ({
+											...prevData,
+											showCreateAlbum: true,
+										}))
+									}
+								>
+									<p>+ New Album</p>
+								</div>
+								{albumImagesCount?.albums?.map((album, index) => {
+									let src = null;
+									if (album?.coverImage?._id) {
+										const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+										src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
+									}
+									return (
+										<div
+											key={index}
+											className={`album ${
+												info?.albumSlug === album?.slug ? 'active' : ''
+											}`}
+											style={{
+												background: src
+													? `url(${src})`
+													: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+												backgroundSize: 'cover ',
+												backgroundPosition: 'center',
+											}}
+										>
+											{album.image && <img src={src} />}
+
+											<div
+												className="albumDetails"
+												onClick={() => handleClickAlbum(album, 'albumName')}
+											>
+												<p>{album?.title}</p>
+												<p>{`${album?.imagesCount || 0} photos`}</p>
+											</div>
+											{/* <div className="overlay"></div> */}
+										</div>
+									);
+								})}
+							</div>
+							<div
+								className="fullScreenContainer"
 								onClick={() =>
-									setInfo((prevData) => ({
-										...prevData,
-										showCreateAlbum: true,
+									setInfo((prev) => ({
+										...prev,
+										albumFullScreen: !prev.albumFullScreen,
 									}))
 								}
+								style={{
+									...(info?.albumFullScreen && {
+										rotate: '180deg',
+									}),
+								}}
 							>
-								<p>+ New Album</p>
+								<UpArrow />
 							</div>
-							{albumImagesCount?.albums?.map((album, index) => {
-								let src = null;
-								if (album?.coverImage?._id) {
-									const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-									src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
-								}
-								return (
-									<div
-										key={index}
-										className={`album ${
-											info?.albumSlug === album?.slug ? 'active' : ''
-										}`}
-										style={{
-											background: src
-												? `url(${src})`
-												: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
-											backgroundSize: 'cover ',
-											backgroundPosition: 'center',
-											// border: '1px solid red',
-										}}
-									>
-										{/* {album.image && <img src={album?.image} />} */}
-
-										<div
-											className="albumDetails"
-											onClick={() => handleClickAlbum(album, 'albumName')}
-										>
-											<p>{album?.title}</p>
-											<p>{`${album?.imagesCount || 0} photos`}</p>
-										</div>
-										{/* <div className="overlay"></div> */}
-									</div>
-								);
-							})}
 						</div>
 					</div>
 				</div>
