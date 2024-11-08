@@ -1101,6 +1101,22 @@ export const Galleries = () => {
 			console.log('error==>getClientSelectionImages', error);
 		}
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/move-images
+	const moveImagesToAlbum = async (payload, galleryId, albumId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/move-images`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>moveImagesToAlbum', error);
+		}
+	};
 	return {
 		...state,
 		getGalleries,
@@ -1156,5 +1172,6 @@ export const Galleries = () => {
 		checkGallerySlugAvailable,
 		getClientSelections,
 		getClientSelectionImages,
+		moveImagesToAlbum,
 	};
 };
