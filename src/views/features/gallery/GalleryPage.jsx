@@ -1070,7 +1070,12 @@ const GalleryPage = () => {
 	return (
 		<>
 			<div className="galleryContainer">
-				<div className="mainGalleryContainer" style={{ height: '100%' }}>
+				<div
+					className="mainGalleryContainer"
+					style={{
+						height: 'fit-content',
+					}}
+				>
 					<div className="galleryPic">
 						<div className="galleryPicSettings">
 							<UpArrow className="upArrow" />
@@ -1168,7 +1173,8 @@ const GalleryPage = () => {
 									}),
 								}}
 							>
-								{info.activeTab === 'Albums' && (
+								{(info.activeTab === 'Albums' ||
+									info.activeTab !== 'Client Selections') && (
 									<div
 										className="create-album"
 										onClick={() =>
@@ -1182,7 +1188,8 @@ const GalleryPage = () => {
 									</div>
 								)}
 
-								{info.activeTab === 'Albums' &&
+								{(info.activeTab === 'Albums' ||
+									info.activeTab !== 'Client Selections') &&
 									albumImagesCount?.albums?.map((album, index) => {
 										let src = null;
 										if (album?.coverImage?._id) {
@@ -1259,7 +1266,7 @@ const GalleryPage = () => {
 													<p>{album?.title}</p>
 													<p>{`${album?.numberOfImages || 0} photos`}</p>
 												</div>
-												{/* <div className="overlay"></div> */}
+												<div className="overlay"></div>
 											</div>
 										);
 									})}
