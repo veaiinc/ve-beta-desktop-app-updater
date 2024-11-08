@@ -53,7 +53,7 @@ const ActivityOverview = ({ formatTime, activityDataLoading }) => {
 						{activityDataLoading ? (
 							<Spinner width="20px" height="20px" />
 						) : (
-							activityData?.totalInteractionsCount || 0
+							activityData?.totalInteractions || 0
 						)}
 					</span>
 				</div>
