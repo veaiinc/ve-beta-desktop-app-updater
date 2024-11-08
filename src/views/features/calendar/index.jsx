@@ -1,7 +1,14 @@
 import React, { memo } from 'react';
+import CalendarSidebar from './CalendarSidebar';
+import CalendarView from './CalendarView';
 
 const Calendar = () => {
-	return <div>Calendar</div>;
+	return (
+		<div className="calendarParentContainer">
+			<CalendarSidebar />
+			<CalendarView />
+		</div>
+	);
 };
 
 export default memo(Calendar);
