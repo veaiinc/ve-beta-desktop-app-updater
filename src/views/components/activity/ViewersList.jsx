@@ -62,12 +62,23 @@ const ViewersList = ({
 								<div className="viewerInfoContainer">
 									{/* Avatar Section */}
 									<div className="viewerAvatar">
-										<span>{viewer?.avatar}</span>
+										{/* <span>{viewer?.avatar}</span> */}
+										{viewer?.isAnonymus ? (
+											<span className="viewerName">A</span>
+										) : (
+											viewer?.name
+												?.split(' ')
+												.map((word) => word[0])
+												.join('')
+												.toUpperCase() || null
+										)}
 									</div>
 									{/* Viewer Details */}
 									<div className="viewerDetails">
-										{viewer?.isAnonymus && (
+										{viewer?.isAnonymus ? (
 											<span className="viewerName">Anonymous</span>
+										) : (
+											<span className="viewerName">{viewer?.name}</span>
 										)}
 										{viewer.email && (
 											<span className="viewerEmail">{viewer?.email}</span>
