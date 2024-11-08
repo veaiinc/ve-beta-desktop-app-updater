@@ -45,8 +45,11 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
 		}
 	}, []);
 
-	const handleInputChange = (e, name) => {
+	const handleInputChange = (e, name, test) => {
 		if (name === 'title') {
+			if (e.target.value.trim().length > 50) {
+				return;
+			}
 			setGalleryData({
 				...galleryData,
 				title: e.target.value,
@@ -91,15 +94,15 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
 		const eventDateError = !galleryData.shotDuring;
 		const gallerySlugError = galleryData.gallerySlugError;
 
-		if (galleryNameError || eventDateError || gallerySlugError) {
-			setGalleryData((prevData) => ({
-				...prevData,
-				galleryNameError,
-				eventDateError,
-				gallerySlugError,
-			}));
-			return;
-		}
+		// if (galleryNameError || eventDateError || gallerySlugError) {
+		// 	setGalleryData((prevData) => ({
+		// 		...prevData,
+		// 		galleryNameError,
+		// 		eventDateError,
+		// 		gallerySlugError,
+		// 	}));
+		// 	return;
+		// }
 
 		const userToken = localStorage.getItem('usertoken');
 		const decodedToken = jwt_decode(userToken);
@@ -198,25 +201,49 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
 						<p className="subHeading">
 							Gallery date <span>*</span>
 						</p>
-						{/* <input
-							name="shotDuring"
-							value={galleryData.shotDuring}
-							onChange={handleInputChange}
-							placeholder="pick a date"
-							type="date"
-						/> */}
 						<DatePicker
 							className="datePicker"
 							format="YYYY-MM-DD"
 							selected={galleryData.shotDuring}
 							onChange={(date, dateString) => handleInputChange(dateString, 'date')}
+							inputReadOnly
 						/>
 						{galleryData?.eventDateError && (
 							<p className="error">Gallery Date is Required</p>
 						)}
 					</div>
 				</div>
-				<div className="create-gallery-button" onClick={handleSubmit}>
+				<div
+					className="create-gallery-button"
+					onClick={handleSubmit}
+					readOnly={
+						!galleryData?.galleryNameError &&
+						!galleryData?.eventDateError &&
+						!galleryData?.gallerySlugError &&
+						galleryData?.title !== '' &&
+						galleryData?.shotDuring !== ''
+							? true
+							: false
+					}
+					style={{
+						opacity:
+							!galleryData?.galleryNameError &&
+							!galleryData?.eventDateError &&
+							!galleryData?.gallerySlugError &&
+							galleryData?.title !== '' &&
+							galleryData?.shotDuring !== ''
+								? 1
+								: 0.2,
+						cursor:
+							!galleryData?.galleryNameError &&
+							!galleryData?.eventDateError &&
+							!galleryData?.gallerySlugError &&
+							galleryData?.title !== '' &&
+							galleryData?.shotDuring !== ''
+								? 'pointer'
+								: 'not-allowed',
+					}}
+				>
 					<p>Create Gallery</p>
 				</div>
 			</div>

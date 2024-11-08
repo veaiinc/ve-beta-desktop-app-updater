@@ -7,9 +7,56 @@ import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
-
+import { Result } from 'antd';
 const noImage =
 	'https://png.pngtree.com/png-clipart/20230917/original/pngtree-no-image-available-icon-flatvector-illustration-thumbnail-graphic-illustration-vector-png-image_12323920.png';
+
+const LoadingSkeleton = () => {
+	return [...Array(10)].map((_, index) => (
+		<div className="add-gallery-image" key={index}>
+			<Skeleton width="280px" height="196px" />
+			<div className="album-full-details">
+				<div className="album-details">
+					<p className="album-count">
+						<Skeleton width="55px" height="14px" />
+					</p>
+					<p className="dot"></p>
+					<p className="album-count">
+						<Skeleton width="55px" height="14px" />
+					</p>
+				</div>
+				<p className="album-title">
+					<Skeleton width="100%" height="26px" />
+				</p>
+			</div>
+		</div>
+	));
+};
+
+const NoGallerySkeleton = () => {
+	return (
+		<div className="noAlbumContainer">
+			<Result
+				status="404"
+				title="Galleries Not Found"
+				subTitle="It's quiet for now... You haven't missed anything yet! Create your first gallery to start organizing your memories"
+				// extra={
+				// 	<button
+				// 		className="create-album-button"
+				// 		onClick={() =>
+				// 			setInfo((prevData) => ({
+				// 				...prevData,
+				// 				showCreateAlbum: true,
+				// 			}))
+				// 		}
+				// 	>
+				// 		<p>Create </p>
+				// 	</button>
+				// }
+			/>
+		</div>
+	);
+};
 
 const AddGallery = () => {
 	const {
@@ -19,7 +66,6 @@ const AddGallery = () => {
 		createNewGalleryModal: false,
 		galleries: [],
 		search: '',
-		loading: true,
 		error: null,
 		sort: '-createdAt',
 		page: 1,
@@ -42,6 +88,7 @@ const AddGallery = () => {
 			};
 			if (title) {
 				options.title = title;
+				options.limit = info.limit + 1;
 			}
 			getGalleries(options, reset);
 		} catch (err) {
@@ -95,10 +142,10 @@ const AddGallery = () => {
 	};
 
 	const handleDebounceSearch = useCallback(
-		(search) => {
+		(page = 1, search = null, reset = false) => {
 			clearInterval(info?.timeout);
 			const timeout = setTimeout(() => {
-				fetchGalleries(1, search, true);
+				fetchGalleries(page, search, reset);
 			}, 800);
 			setInfo((prev) => ({ ...prev, timeout }));
 		},
@@ -109,9 +156,11 @@ const AddGallery = () => {
 		setInfo((prev) => ({ ...prev, search: e.target.value, page: 1 }));
 
 		if (e.target.value === '' || e.target.value === null) {
-			fetchGalleries(1);
+			// handleDebounceSearch(1, null, true);
+			clearInterval(info?.timeout);
+			fetchGalleries(1, null, true);
 		} else {
-			handleDebounceSearch(e.target.value);
+			handleDebounceSearch(1, e.target.value, true);
 		}
 	};
 
@@ -140,33 +189,43 @@ const AddGallery = () => {
 							dataLength={tenantGalleries?.galleries?.length || 0}
 							next={fetchMoreGalleries}
 							hasMore={tenantGalleries?.hasNextPage || false}
-							// loader={[...Array(10)].map((_, index) => (
-							// 	<Skeleton key={index} height={100} />
-							// ))}
+							loader={
+								<div style={{ textAlign: 'center', color: '#fff' }}>Loading...</div>
+							}
 							scrollableTarget="galleryListScrollTarget"
 							style={{
 								display: 'flex',
 								flexWrap: 'wrap',
 								gap: '16px',
+								width: '100%',
+								// border: '1px solid red',
 							}}
 						>
-							<div className="add-gallery" onClick={handleCreateNewGallery}>
-								+ Create a Gallery
-							</div>
-							{tenantGalleries
-								? tenantGalleries?.galleries.map((items, index) => (
+							{info?.search === '' && (
+								<div className="add-gallery" onClick={handleCreateNewGallery}>
+									+ Create a Gallery
+								</div>
+							)}
+
+							{tenantGalleries ? (
+								tenantGalleries?.galleries?.length > 0 ? (
+									tenantGalleries?.galleries.map((items, index) => (
 										<div
 											className="add-gallery-image"
 											onClick={() => handleNavigateGallery(items._id)}
 											key={items._id}
 										>
-											<img
-												src={items?.coverImage?.thumbnailUrl || testImage}
-												onError={(e) => {
-													e.target.src = testImage;
-												}}
-												alt={items?.title}
-											/>
+											{items?.coverImage?.thumbnailUrl ? (
+												<img
+													src={items?.coverImage?.thumbnailUrl}
+													// onError={(e) => {
+													// 	e.target.src = testImage;
+													// }}
+													alt={items?.title}
+												/>
+											) : (
+												<div className="no-image"></div>
+											)}
 											<div
 												className="album-side-options"
 												onClick={(e) => e.stopPropagation()}
@@ -176,8 +235,8 @@ const AddGallery = () => {
 												>
 													View
 												</li>
-												<li>Client view</li>
-												<li>Share</li>
+												{/* <li>Client view</li>
+												<li>Share</li> */}
 												<li
 													onClick={() =>
 														handleNavigateSettings(items._id)
@@ -201,26 +260,13 @@ const AddGallery = () => {
 												<p className="album-title">{items.title}</p>
 											</div>
 										</div>
-								  ))
-								: [...Array(10)].map((_, index) => (
-										<div className="add-gallery-image" key={index}>
-											<Skeleton width="280px" height="196px" />
-											<div className="album-full-details">
-												<div className="album-details">
-													<p className="album-count">
-														<Skeleton width="55px" height="14px" />
-													</p>
-													<p className="dot"></p>
-													<p className="album-count">
-														<Skeleton width="55px" height="14px" />
-													</p>
-												</div>
-												<p className="album-title">
-													<Skeleton width="100%" height="26px" />
-												</p>
-											</div>
-										</div>
-								  ))}
+									))
+								) : (
+									<NoGallerySkeleton />
+								)
+							) : (
+								<LoadingSkeleton />
+							)}
 						</InfiniteScroll>
 					</div>
 				</div>

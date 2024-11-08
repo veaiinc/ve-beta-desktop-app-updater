@@ -45,6 +45,13 @@ export const Galleries = () => {
 				...queryParams,
 			};
 
+			if (reset) {
+				dispatch({
+					type: Actions.GET_TENANT_GALLERIES,
+					payload: null,
+				});
+			}
+
 			const queryString = new URLSearchParams(params).toString();
 			const response = await service.fetchGet(
 				`/${workspaceId}${API.GALLERY.galleries}?${queryString}`,
