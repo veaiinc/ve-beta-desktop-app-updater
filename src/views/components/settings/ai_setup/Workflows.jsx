@@ -28,6 +28,7 @@ const Workflows = ({
 	const [filteredWorkflows, setFilteredWorkflows] = useState([]); // workflows that are not assigned to the assistant
 	const [isLoading, setIsLoading] = useState(false);
 	const [workflowsEmpty, setWorkflowsEmpty] = useState(false);
+	const [deletedWorkflowIds, setDeletedWorkflowIds] = useState([]);
 
 	useEffect(() => {
 		if (filteredWorkflows?.length === 0) {
@@ -69,14 +70,13 @@ const Workflows = ({
 			message.error('Failed to unassign workflow! Please try again.');
 		} else {
 			message.success('Workflow unassigned  successfully!');
-			getAssignedWorkflowsToAiAssistant(assistantId, 1, 10, true);
+			setDeletedWorkflowIds((prev) => [...prev, workflowId]);
 		}
 		setIsLoading(false);
 	};
 
 	const fetchMoreWorkflows = async () => {
 		if (renderAssignedWorkflows) {
-			alert('fetching more workflows');
 			getAssignedWorkflowsToAiAssistant(
 				assistantId,
 				assignedWorkflowsToAiAssistant?.currentPage + 1,
@@ -137,7 +137,15 @@ const Workflows = ({
 				)?.map(
 					(workflow) =>
 						workflow?.tenantId !== null && (
-							<div key={workflow?._id} className="templates-container">
+							<div
+								key={workflow?._id}
+								className="templates-container"
+								style={{
+									display: deletedWorkflowIds?.includes(workflow?._id)
+										? 'none'
+										: 'flex',
+								}}
+							>
 								<div className="template-preview-and-details-container">
 									{allowWorkflowsSelection && (
 										<div className="workflow-selection-checkbox">

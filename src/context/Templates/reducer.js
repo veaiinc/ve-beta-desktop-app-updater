@@ -55,6 +55,10 @@ const actionHandlers = {
 		...state,
 		eventsPresetData: action.payload,
 	}),
+	GET_SEND_SMART_FILE_SETTINGS_SUCCESS: (state, action) => ({
+		...state,
+		sendSmartFileSettings: action.payload,
+	}),
 
 	RESET_STATE: () => intialState,
 };

@@ -7,9 +7,11 @@ import Spinner from '../../loaders/Spinner';
 import { ReactComponent as LinkIcon } from '../../../../assets/svg/Settings/link-white-color.svg';
 import { ReactComponent as PdfIcon } from '../../../../assets/svg/Settings/pdf-icon.svg';
 import { ReactComponent as TextIcon } from '../../../../assets/svg/Settings/text-icon.svg';
+import { ReactComponent as CrossGrey } from '../../../../assets/svg/Settings/cross-grey.svg';
 import Skeleton from 'react-loading-skeleton';
 import AssignAiAssistantModal from '../../../components/modalsV2/settings/ai_setup/AssignAiAssistantModal';
 import Workflows from './Workflows';
+import { message } from 'antd';
 
 const columnNames = ['Source', 'Status'];
 const statuses = {
@@ -34,6 +36,7 @@ const KnowledgeBase = () => {
 			getAssignedWorkflowsToAiAssistant,
 			unassignWorkflowToAiAssistant,
 			getWorkflows,
+			deleteKnowledge,
 		},
 	} = useContext(Context);
 
@@ -42,6 +45,8 @@ const KnowledgeBase = () => {
 		areKnowledgeBaseFilesLoading: true,
 		isKnowledgeBaseEmpty: false,
 		isAssignAiAssistantModalOpen: false,
+		isDeletingKnowledgeLoading: false,
+		deletedKnowledgeIds: [],
 	});
 
 	useEffect(() => {
@@ -82,6 +87,21 @@ const KnowledgeBase = () => {
 
 	const handleOpenAssignAiAssistantModal = () => {
 		toggleAssignAiAssistantModal();
+	};
+
+	const handleDeleteKnowledge = async (knowledgeId) => {
+		setInfo((prev) => ({ ...prev, isDeletingKnowledgeLoading: true }));
+		const response = await deleteKnowledge(knowledgeId);
+		if (response?.ok) {
+			message.success(response?.message);
+			setInfo((prev) => ({
+				...prev,
+				deletedKnowledgeIds: [...prev?.deletedKnowledgeIds, knowledgeId],
+			}));
+		} else {
+			message.error(response?.message);
+		}
+		setInfo((prev) => ({ ...prev, isDeletingKnowledgeLoading: false }));
 	};
 
 	return (
@@ -159,7 +179,17 @@ const KnowledgeBase = () => {
 								</p>
 							) : (
 								knowledgeBaseFiles?.data?.map((knowledge) => (
-									<div key={knowledge?._id} className="knowledge-item">
+									<div
+										key={knowledge?._id}
+										className="knowledge-item"
+										style={{
+											display: info?.deletedKnowledgeIds?.includes(
+												knowledge?._id,
+											)
+												? 'none'
+												: 'flex',
+										}}
+									>
 										<div className="knowledge-link-container">
 											{sourceTypes?.[knowledge?.sourceType]}
 											<p>{knowledge?.name}</p>
@@ -172,6 +202,19 @@ const KnowledgeBase = () => {
 													</div>
 												)}
 												{statuses?.[knowledge?.status]}
+											</span>
+											<span
+												disabled={info?.isDeletingKnowledgeLoading}
+												style={{
+													cursor: info?.isDeletingKnowledgeLoading
+														? 'not-allowed'
+														: 'pointer',
+												}}
+												onClick={() =>
+													handleDeleteKnowledge(knowledge?._id)
+												}
+											>
+												<CrossGrey />
 											</span>
 										</div>
 									</div>

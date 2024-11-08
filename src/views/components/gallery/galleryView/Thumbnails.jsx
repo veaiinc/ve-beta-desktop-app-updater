@@ -1,0 +1,50 @@
+import React from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+const Thumbnails = ({
+	galleryCredentials,
+	fetchMoreImages,
+	imagesList,
+	activeThumbnailFunction,
+	info,
+}) => {
+	return (
+		<div className="galleryScroller" id="galleryScroller-target">
+			<InfiniteScroll
+				dataLength={imagesList?.docs?.length || 0}
+				next={fetchMoreImages}
+				hasMore={imagesList?.hasNextPage || false}
+				loader={<h6 style={{ color: 'white', textAlign: 'center' }}>loading..</h6>}
+				scrollableTarget="galleryScroller-target"
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					gap: '24px',
+				}}
+			>
+				{galleryCredentials &&
+					imagesList &&
+					imagesList?.docs?.map((image, index) => {
+						const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+						const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_thumbnail_100h?.key}?${params}`;
+						return (
+							<div
+								className={`imageContainer ${
+									info?.activeImage === image?._id ? 'active' : ''
+								}`}
+								id={'thumbnail' + image?._id}
+								onClick={() => activeThumbnailFunction(image?._id, index)}
+							>
+								<img
+									src={src}
+									alt={`Gallery image ${index}`}
+									style={{ cursor: 'pointer' }}
+								/>
+							</div>
+						);
+					})}
+			</InfiniteScroll>
+		</div>
+	);
+};
+
+export default Thumbnails;

@@ -20,6 +20,9 @@ export const intialState = {
 	albumDetails: null,
 	imagesList: null,
 	lightroomCopyList: null,
+	visitorFormAccess: null,
+	imageDetail: null,
+	galleryGuestAccess: null,
 };
 
 export const Galleries = () => {
@@ -170,6 +173,8 @@ export const Galleries = () => {
 					payload: { galleryId, list: response?.[1] },
 				});
 			}
+
+			return response;
 		} catch (error) {
 			console.log('error==>getTags', error);
 		}
@@ -563,9 +568,21 @@ export const Galleries = () => {
 			console.log('error==>getGalleryCredentials', error);
 		}
 	};
-	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/images  ==> to get the images
-	const getGalleryImages = async (galleryId, albumId, tagId, page, limit) => {
+	// `// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/images  ==> to get the images`;
+	const getGalleryImages = async (
+		galleryId,
+		albumId,
+		tagId,
+		page = 1,
+		limit = 20,
+		reset = false,
+	) => {
 		try {
+			if (reset) {
+				dispatch({
+					type: Actions.RESET_IMAGES_LIST,
+				});
+			}
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(
@@ -641,6 +658,134 @@ export const Galleries = () => {
 			console.log('error==>updateTagOrder', error);
 		}
 	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/visitor-form-access
+	const getVisitorFormAccess = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/visitor-form-access`,
+				usertoken,
+				'galleries',
+			);
+			console.log(response, 'response');
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_VISITOR_FORM_ACCESS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getVisitorFormAccess', error);
+		}
+	};
+	const editVisitorFormAccess = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/visitor-form-access`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>editVisitorFormAccess', error);
+		}
+	};
+
+	const getImageDetail = async (imageId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/gallery-images/${imageId}`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_IMAGE_DETAIL,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getImageDetail', error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/cover-image
+	const updateAlbumCoverImage = async (json, galleryId, albumId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.albums}/${albumId}${API.GALLERY.coverImage}`,
+				json,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				return response;
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateAlbumCoverImage', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/guest-access
+	const getGalleryGuestAccess = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/guest-access`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_GALLERY_GUEST_ACCESS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getGalleryGuestAccess', error);
+		}
+	};
+	const editGalleryGuestAccess = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/guest-access`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>editGalleryGuestAccess', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{_['workspaceId']}}/galleries/{{ _.gallery_id }}/share-via-email
+	const shareGalleryViaEmail = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}/galleries/${galleryId}/share-via-email`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>shareGalleryViaEmail', error);
+		}
+	};
+
 	return {
 		...state,
 		getGalleries,
@@ -675,5 +820,14 @@ export const Galleries = () => {
 		getGalleryCredentials,
 		getGalleryImages,
 		getLightroomCopyList,
+		getVisitorFormAccess,
+		editVisitorFormAccess,
+		getImageDetail,
+		updateAlbumCoverImage,
+		getGalleryGuestAccess,
+		editGalleryGuestAccess,
+		shareGalleryViaEmail,
+		updateTagOrder,
+		setAlbumCoverImage,
 	};
 };

@@ -1,0 +1,424 @@
+.timeLineWrapper {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	align-items: flex-start;
+	gap: 20px;
+	flex: 1 0 0;
+	align-self: stretch;
+	overflow-y: auto;
+
+	.blockParentContainer {
+		display: flex;
+		align-items: flex-start;
+		gap: 12px;
+		align-self: stretch;
+
+		.blockIcon {
+			display: flex;
+			width: 36px;
+			height: 36px;
+			padding: 7.2px;
+			justify-content: center;
+			align-items: center;
+			gap: 9px;
+			border-radius: 89.1px;
+			border: 1px solid #535298;
+			background: #2e2b44;
+		}
+
+		.blockContentContainer {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			gap: 8px;
+			flex: 1 0 0;
+			border-radius: 4px;
+
+			.blockHeader {
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				align-self: stretch;
+
+				.blockTitle {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 16px; /* 114.286% */
+				}
+
+				.headerIcon {
+					display: flex;
+					width: 16px;
+					height: 16px;
+					padding: var(--Spacing-space-3, 4px);
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
+					gap: 6.667px;
+					border-radius: 66px;
+					background: #4a4c4d;
+					margin-right: 10px; //Just to show scrollbar - can be removed
+				}
+			}
+
+			.blockDescription {
+				display: flex;
+				gap: 4px;
+				border-bottom: 1px solid #222;
+				align-self: stretch;
+				padding-bottom: 8px;
+
+				.blockKey {
+					color: #929292;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px;
+				}
+				.blockValue {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px;
+				}
+			}
+
+			.blockElementsContainer {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: var(--Spacing-space-7, 12px);
+				align-self: stretch;
+
+				.blockElementWrapper {
+					display: flex;
+					padding: 8px;
+					align-items: center;
+					gap: var(--Spacing-space-7, 12px);
+					align-self: stretch;
+
+					.blockElementIcon {
+						display: flex;
+						padding: var(--Spacing-space-3, 4px);
+						align-items: center;
+						gap: 10px;
+						border-radius: 5px;
+						background: #1f1f1f;
+					}
+
+					.blockElementInfo {
+						display: flex;
+						width: 276px;
+						align-items: flex-start;
+						gap: 8px;
+
+						.elementTitle {
+							overflow: hidden;
+							color: #e4e5e6;
+							text-overflow: ellipsis;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+						}
+						.elementValue {
+							overflow: hidden;
+							-webkit-box-orient: vertical;
+							-webkit-line-clamp: 1;
+							color: #929292;
+							text-overflow: ellipsis;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+						}
+					}
+				}
+			}
+
+			.hideBlockElementsContainer {
+				display: none;
+			}
+		}
+	}
+}
+
+.sessionDetailsWrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 30px;
+	flex: 1 0 0;
+	align-self: stretch;
+	overflow-y: auto;
+
+	.sessionChartContainer {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 300px;
+		flex-shrink: 0;
+
+		.ringChart .recharts-layer g path {
+			stroke: none;
+		}
+
+		.spinnerWrapper {
+			height: 300px;
+			align-content: center;
+		}
+	}
+
+	.sessionLablesContainer {
+		display: flex;
+		padding: 20px;
+		height: 485px;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: center;
+		gap: 4px;
+		align-self: stretch;
+
+		.headerContainer {
+			display: flex;
+			padding: 8px 10px;
+			align-items: center;
+			align-self: stretch;
+			justify-content: space-between;
+			border-bottom: 1px solid #222222;
+
+			span {
+				color: #d3d3d3;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 20px;
+			}
+		}
+
+		.lablesContainer {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			gap: 12px;
+			overflow-y: auto;
+
+			.selectedLabelItem {
+				background: #262626;
+			}
+
+			.lableItemRow {
+				display: flex;
+				padding: 12px 8px;
+				justify-content: flex-start;
+				align-items: center;
+				gap: 33px;
+				align-self: stretch;
+				border-radius: 14px;
+				transition: background-color 0.3s ease;
+
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px;
+
+				.nameLable {
+					flex: 1.5;
+					display: flex;
+					justify-content: flex-start;
+					align-items: center;
+					gap: 7px;
+
+					.dot {
+						display: flex;
+						padding: 4px;
+						align-items: center;
+					}
+
+					.selectedBlockSvg {
+						display: flex;
+						padding: 4px;
+						align-items: center;
+						gap: 10px;
+					}
+				}
+
+				.metricsLables {
+					flex: 2;
+					display: flex;
+					justify-content: space-between;
+
+					.percentageWithArrow {
+						display: flex;
+						align-items: center;
+						justify-content: flex-end;
+
+						// .percentageValue{}
+
+						.downArrow {
+							display: none;
+							margin-left: 10px;
+							transition: transform 0.5s ease, opacity 0.5s ease;
+							margin-left: 10px;
+							width: 14px;
+							height: 14px;
+						}
+
+						&:hover .downArrow {
+							display: flex;
+							justify-content: center;
+							align-items: center;
+						}
+
+						.rightArrow {
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							margin-left: 10px;
+							width: 14px;
+							height: 17px;
+						}
+					}
+				}
+
+				&:hover {
+					.metricsLables .percentageWithArrow .downArrow {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+					}
+					cursor: pointer;
+					background: #262626;
+				}
+			}
+
+			.labelItemRowContainer {
+				//scroll selected label item data
+				flex-grow: 1;
+				overflow-y: auto;
+			}
+		}
+	}
+}
+
+.chatParentContainer {
+	display: flex;
+	padding: var(--cartCount, 0px) var(--Spacing-space-8, 16px);
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	flex: 1 0 0;
+	align-self: stretch;
+	overflow-y: auto;
+
+	.chatContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--Spacing-space-8, 16px);
+		flex: 1 0 0;
+		align-self: stretch;
+
+		.chatMessage {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+
+			.chatMessageHeader {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+
+				.chatMessager {
+					display: flex;
+					align-items: center;
+					gap: var(--Spacing-space-3, 4px);
+
+					.chatMessageIcon {
+						width: 12px;
+						height: 12px;
+					}
+
+					.chatMessageUsername {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 10px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 14px; /* 140% */
+					}
+				}
+
+				.chatMessageTimestamp {
+					color: rgba(100, 100, 100, 0.6);
+					font-family: Inter;
+					font-size: 10px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 14px; /* 140% */
+				}
+			}
+
+			.chatMessageBody {
+				display: flex;
+				max-width: 300px;
+				padding: 8px;
+				flex-direction: column;
+				align-items: flex-start;
+				border-radius: 8px;
+				border: 1px solid #232323;
+				background: #1c1c1c;
+
+				.textByAi {
+					color: rgba(228, 229, 230, 0.48);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+
+				.textByUser {
+					color: #e4e5e6;
+					text-align: start;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+			}
+		}
+
+		.chatMessageAi {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+		}
+
+		.chatMessageUser {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-end;
+			gap: 8px;
+			align-self: stretch;
+		}
+	}
+}

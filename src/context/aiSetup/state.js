@@ -344,6 +344,28 @@ export const AiSetupState = () => {
 		return statusSummary;
 	};
 
+	const deleteKnowledge = async (knowledgeId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + KNOWLEDGE_BASE?.deleteKnowledge + '/' + knowledgeId;
+		try {
+			const response = await service?.fetchDelete(url, usertoken, {}, 'ai_assistant_api');
+			if (response?.[0]) {
+				return {
+					ok: true,
+					message: 'Knowledge link/file deleted successfully',
+				};
+			} else {
+				return {
+					ok: false,
+					message: 'Failed to delete knowledge link/file. Please try again.',
+				};
+			}
+		} catch (error) {
+			console.log('error==>deleteKnowledge', error);
+		}
+	};
+
 	const resetState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -362,5 +384,6 @@ export const AiSetupState = () => {
 		unassignWorkflowToAiAssistant,
 		getWorkflows,
 		resetState,
+		deleteKnowledge,
 	};
 };

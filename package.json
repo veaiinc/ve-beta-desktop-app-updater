@@ -37,6 +37,7 @@
 		"react-scripts": "5.0.1",
 		"react-signature-canvas": "^1.0.6",
 		"react-toastify": "^10.0.5",
+		"recharts": "^2.13.0",
 		"sass": "^1.77.5",
 		"universal-cookie": "^7.1.4",
 		"validator": "^13.12.0",
