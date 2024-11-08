@@ -455,19 +455,21 @@ export const Galleries = () => {
 		}
 	};
 	// /{{galleryId}}/album-slug-availability/{{slug}}
-	const checkSlugIsAvalible = async (galleryId, slugName) => {
+	const checkAlbumSlugIsAvalible = async (galleryId, slugName) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			const updatedSlugName = slugName.replace(/\s+/g, '');
-			console.log(updatedSlugName, 'updatedSlugName');
+			// const updatedSlugName = slugName.replace(/\s+/g, '');
+			// console.log(updatedSlugName, 'updatedSlugName');
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/album-slug-availability/${slugName}`,
 				usertoken,
 				'galleries',
 			);
 			return response;
-		} catch (error) {}
+		} catch (error) {
+			console.log('error==>checkAlbumSlugIsAvalible', error);
+		}
 	};
 	const editLockAlbum = async (payload, galleryId, albumID) => {
 		try {
@@ -1131,7 +1133,7 @@ export const Galleries = () => {
 		editAlbum,
 		editLockAlbum,
 		updatedAlbum,
-		checkSlugIsAvalible,
+		checkAlbumSlugIsAvalible,
 		getGalleryCredentials,
 		getGalleryImages,
 		getLightroomCopyList,

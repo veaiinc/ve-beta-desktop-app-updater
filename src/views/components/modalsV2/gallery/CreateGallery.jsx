@@ -13,6 +13,7 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
 	} = useContext(Context);
 	const [galleryData, setGalleryData] = useState({
 		title: '',
+		slug: '',
 		shotDuring: '',
 		workspaceID: '',
 		userID: '',
@@ -53,9 +54,10 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
 			setGalleryData({
 				...galleryData,
 				title: e.target.value,
-				galleryNameError: !e.target.value.trim(),
+				slug: e.target.value.replace(/\s+/g, '-'),
+				galleryNameError: !e.target.value,
 			});
-			handleDebounceSearch(e.target.value);
+			handleDebounceSearch(e.target.value.replace(/\s+/g, '-'));
 		} else {
 			setGalleryData({
 				...galleryData,
@@ -89,20 +91,33 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
 		[galleryData?.timeout],
 	);
 
+	const closeModalFunc = () => {
+		setGalleryData({
+			title: '',
+			shotDuring: '',
+			workspaceID: '',
+			userID: '',
+			galleryNameError: false,
+			eventDateError: false,
+			gallerySlugError: false,
+		});
+		closeModal();
+	};
+
 	const handleSubmit = async () => {
-		const galleryNameError = !galleryData.title.trim();
+		const galleryNameError = !galleryData.title;
 		const eventDateError = !galleryData.shotDuring;
 		const gallerySlugError = galleryData.gallerySlugError;
 
-		// if (galleryNameError || eventDateError || gallerySlugError) {
-		// 	setGalleryData((prevData) => ({
-		// 		...prevData,
-		// 		galleryNameError,
-		// 		eventDateError,
-		// 		gallerySlugError,
-		// 	}));
-		// 	return;
-		// }
+		if (galleryNameError || eventDateError || gallerySlugError) {
+			setGalleryData((prevData) => ({
+				...prevData,
+				galleryNameError,
+				eventDateError,
+				gallerySlugError,
+			}));
+			return;
+		}
 
 		const userToken = localStorage.getItem('usertoken');
 		const decodedToken = jwt_decode(userToken);
@@ -110,7 +125,7 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
 		try {
 			const payload = {
 				title: galleryData.title,
-				slug: galleryData.title,
+				slug: galleryData.slug,
 				category: 'wedding',
 				shotDuring: galleryData.shotDuring.replace(/-/g, ''),
 				dueDateEpoch: new Date(galleryData.shotDuring).getTime() / 1000,
@@ -124,16 +139,7 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
 			let response = await createNewGallery(payload);
 
 			if (response?.[0] === true) {
-				setGalleryData({
-					title: '',
-					shotDuring: '',
-					workspaceID: '',
-					userID: '',
-					galleryNameError: false,
-					eventDateError: false,
-				});
-				closeModal();
-
+				closeModalFunc();
 				fetchGalleries(1, null, true);
 			}
 		} catch (error) {
@@ -142,40 +148,11 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
 	};
 
 	return (
-		<ReactModal
-			isOpen={open}
-			closeModal={() => {
-				setGalleryData({
-					title: '',
-					shotDuring: '',
-					workspaceID: '',
-					userID: '',
-					galleryNameError: false,
-					eventDateError: false,
-					gallerySlugError: false,
-				});
-				closeModal();
-			}}
-			modalType={'center'}
-		>
+		<ReactModal isOpen={open} closeModal={closeModalFunc} modalType={'center'}>
 			<div className="createModalMainContainer">
 				<div className="headingContainer">
 					<p className="heading">Create New Gallery</p>
-					<p
-						className="closeIcon heading"
-						onClick={() => {
-							setGalleryData({
-								title: '',
-								shotDuring: '',
-								workspaceID: '',
-								userID: '',
-								galleryNameError: false,
-								eventDateError: false,
-								gallerySlugError: false,
-							});
-							closeModal();
-						}}
-					>
+					<p className="closeIcon heading" onClick={closeModalFunc}>
 						<CrossWhite />
 					</p>
 				</div>
@@ -213,17 +190,15 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
 						)}
 					</div>
 				</div>
-				<div
+				<button
 					className="create-gallery-button"
 					onClick={handleSubmit}
-					readOnly={
-						!galleryData?.galleryNameError &&
-						!galleryData?.eventDateError &&
-						!galleryData?.gallerySlugError &&
-						galleryData?.title !== '' &&
-						galleryData?.shotDuring !== ''
-							? true
-							: false
+					disabled={
+						galleryData?.galleryNameError ||
+						galleryData?.eventDateError ||
+						galleryData?.gallerySlugError ||
+						galleryData?.title === '' ||
+						galleryData?.shotDuring === ''
 					}
 					style={{
 						opacity:
@@ -245,7 +220,7 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
 					}}
 				>
 					<p>Create Gallery</p>
-				</div>
+				</button>
 			</div>
 		</ReactModal>
 	);

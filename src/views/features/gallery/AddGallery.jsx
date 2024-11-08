@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
+import '../../../assets/scss/gallery/allGalleries.scss';
 import '../../../assets/scss/gallery/index.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
 import { useNavigate } from 'react-router-dom';
