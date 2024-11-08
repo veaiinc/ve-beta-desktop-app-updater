@@ -74,6 +74,22 @@ export const Galleries = () => {
 					type: Actions.GET_TENANT_GALLERIES,
 					payload: reset ? response?.[1] : data,
 				});
+			} else {
+				dispatch({
+					type: Actions.GET_TENANT_GALLERIES,
+					payload: {
+						galleries: [],
+						totalPages: 0,
+						totalDocs: 0,
+						limit: 0,
+						currentPage: 1,
+						hasPrevPage: false,
+						hasNextPage: false,
+						prevPage: null,
+						nextPage: null,
+					},
+				});
+				return response;
 			}
 		} catch (error) {
 			console.log('error==>getGalleries', error);
