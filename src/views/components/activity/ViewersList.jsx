@@ -66,7 +66,9 @@ const ViewersList = ({
 									</div>
 									{/* Viewer Details */}
 									<div className="viewerDetails">
-										<span className="viewerName">{viewer?.name}</span>
+										{viewer?.isAnonymus && (
+											<span className="viewerName">Anonymous</span>
+										)}
 										{viewer.email && (
 											<span className="viewerEmail">{viewer?.email}</span>
 										)}
