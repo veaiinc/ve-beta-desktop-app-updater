@@ -52,7 +52,8 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 				}
 			} else setLoginPageInfo((prev) => ({ ...prev, activeStage: 'login' }));
 		} else {
-			message?.error(response?.message, 1.5);
+			// message?.error(response?.message, 1.5);
+			setInfo((prev) => ({ ...prev, otpError: response?.message }));
 		}
 		setInfo((prev) => ({ ...prev, isLoading: false }));
 	};
@@ -79,7 +80,6 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 				</div>
 			</div>
 			<div className="verification-code-input-container">
-				<p className="otp-error-message">{info?.otpError}</p>
 				<div ref={otpContainerRef}>
 					<OtpInput
 						value={info?.otp}
@@ -107,6 +107,7 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 						shouldAutoFocus={true}
 					/>
 				</div>
+				<p className="otp-error-message">{info?.otpError}</p>
 			</div>
 			<button
 				onClick={handleVerifyEmailVerificationCode}

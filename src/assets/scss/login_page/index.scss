@@ -217,6 +217,11 @@
 
 			.verification-code-input-container {
 				margin-top: 24px;
+				width: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				position: relative;
 
 				input {
 					&::selection {
@@ -225,6 +230,9 @@
 				}
 
 				.otp-error-message {
+					position: absolute;
+					bottom: -24px;
+					right: 28px;
 					color: #ff7070;
 					font-family: Brasley;
 					font-size: 12px;
@@ -232,12 +240,11 @@
 					font-weight: 500;
 					line-height: normal;
 					text-align: right;
-					margin: 24px 0;
 				}
 			}
 
 			.verification-code-button {
-				margin-top: 24px;
+				margin-top: 40px;
 				border-radius: 60px;
 				background: rgba(255, 255, 255, 0.05);
 				border: none;
