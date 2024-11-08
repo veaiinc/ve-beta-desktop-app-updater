@@ -28,6 +28,7 @@ import UploadGalleryImageCover from '../../components/gallery/galleryPage/Upload
 import randomize from 'randomatic';
 import axios from 'axios';
 import Skeleton from 'react-loading-skeleton';
+import { gsap } from 'gsap';
 
 const GalleryPage = () => {
 	const { galleryId } = useParams();
@@ -137,6 +138,7 @@ const GalleryPage = () => {
 		clientSelectionName: clientSelectionsData?.data?.[0]?.title,
 		clientSelectionImages: clientSelectionImages,
 		resetInfinityScroll: false,
+		flexWrap_visible: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -151,6 +153,7 @@ const GalleryPage = () => {
 	const optionsIconRef = useRef(null);
 	const optionsContainerRef = useRef(null);
 	const fileInputRef = useRef();
+
 	const data = [
 		{ name: 'Albums', number: albumImagesCount?.albums?.length },
 		// { name: 'Videos', number: 2 },
@@ -1067,6 +1070,136 @@ const GalleryPage = () => {
 		},
 		[info?.activeAlbumId, info?.albumTagId],
 	);
+
+	const dynamicHeightFunc = () => {
+		const containerWidth = document.querySelector('.albums')?.clientWidth || 0; // Get the width of the container
+		const cardWidth = 130; // Width of each album card
+		const numberOfCards = albumImagesCount?.albums?.length + 1 || 0;
+		const cardHeight = 160; // Height of each album card
+		const gap = 20; // Optional padding between cards
+		const cardsPerRow = Math.floor((containerWidth + gap) / (cardWidth + gap));
+		const totalRows = Math.ceil(numberOfCards / cardsPerRow);
+
+		// Calculate total height based on rows
+		const totalHeight = totalRows * (cardHeight + gap);
+
+		// setTimeout(() => {
+		// 	// document.querySelector('.albums').style.width = 'auto';
+		// 	document.querySelector('.albums').style.flexWrap = 'wrap';
+		// 	document.querySelector('.albums').style.overflow = 'visible';
+		// }, 1010);
+
+		// setTimeout(
+		// 	() =>
+		// 		setInfo(
+		// 			(prev) => ({
+		// 		...prev,
+		// 		flexWrap_visible: true,
+		// 		}),
+		// 	300,
+		// )
+
+		// let timeout = setTimeout(() => {
+		// 	setInfo((prev) => ({
+		// 		...prev,
+		// 		flexWrap_visible: true,
+		// 	}));
+		// 	clearTimeout(timeout);
+		// }, 400);
+
+		console.log(
+			totalHeight,
+			'totalHeight',
+			cardsPerRow,
+			'cardsPerRow',
+			numberOfCards,
+			'numberOfCards',
+			containerWidth,
+			'containerWidth',
+			totalRows,
+			'totalRows',
+		);
+		return totalHeight;
+	};
+
+	useEffect(() => {
+		if (info?.albumFullScreen) {
+			gsap.to('.albums', {
+				height: dynamicHeightFunc(),
+				flexWrap: 'wrap',
+				// overflow: 'visible',
+				// overflow: info?.albumFullScreen ? 'visible' : 'scroll',
+				duration: 0.3, // Duration of the animation
+				ease: 'power2.out', // Easing function
+			});
+		} else if (tenantAlbums) {
+			const t1 = gsap.timeline();
+			t1.to('.album', {
+				opacity: '0.7',
+			});
+			t1.to('.albums', {
+				height: '160px',
+				// flexWrap: 'nowrap',
+				// overflow: 'scroll',
+				// opacity: '0.4',
+				duration: 0.3,
+				ease: 'power2.out',
+			});
+
+			t1.to('.album', {
+				opacity: 1,
+				ease: 'power2.out',
+			});
+			t1.to('.albums', {
+				flexWrap: 'nowrap',
+				// overflow: '',
+				// duration: 0.3,
+				opacity: 1,
+				delay: 0.4,
+				ease: 'power2.out',
+			});
+		}
+
+		// if (info?.albumFullScreen === false) {
+		// 	setTimeout(() => {
+		// 		gsap.to('.albums', {
+		// 			flexWrap: 'nowrap',
+		// 			overflow: 'scroll',
+		// 		});
+		// 	}, 1000);
+		// }
+		// } else if (tenantAlbums) {
+		// 	const t1 = gsap.timeline();
+		// 	t1.to('.albums', {
+		// 		height: '160px',
+		// 		// flexWrap: 'nowrap',
+		// 		// overflow: 'scroll',
+		// 		duration: 0.2, // Duration of the animation
+		// 		// ease: 'power2.out', // Easing function
+		// 	});
+
+		// t1.to('.albums', {
+		// 	// height: dynamicHeightFunc(),
+		// 	height: '160px',
+		// 	flexWrap: 'nowrap',
+		// 	overflow: 'scroll',
+		// 	// border: '1px solid red',
+		// 	delay: 0.5,
+		// 	duration: 0, // Duration of the animation
+		// 	// ease: 'power2.out', // Easing function
+		// });
+
+		// setTimeout(() => {
+		// 	gsap.to('.albums', {
+		// 		height: '160px',
+		// 		flexWrap: 'nowrap',
+		// 		overflow: 'scroll',
+		// 		duration: 0.3, // Duration of the animation
+		// 		ease: 'power2.out', // Easing function
+		// 	});
+		// }, 1000);
+	}, [info?.albumFullScreen]);
+
 	return (
 		<>
 			<div className="galleryContainer">
@@ -1162,15 +1295,26 @@ const GalleryPage = () => {
 								alignItems: 'center',
 								justifyContent: 'space-between',
 								gap: '20px',
+								// height: '160px',
 							}}
 						>
 							<div
 								className="albums"
 								style={{
-									...(info?.albumFullScreen && {
-										flexWrap: 'wrap',
-										overflow: 'visible',
-									}),
+									...(info?.albumFullScreen &&
+										{
+											// flexWrap: 'wrap',
+											// overflow: 'visible',
+											// minHeight: '400px',
+											// maxHeight: '100vh',
+										}),
+
+									// minHeight: info?.albumFullScreen
+									// 	? dynamicHeightFunc()
+									// 	: '160px',
+									// overflow: info?.flexWrap_visible ? 'visible' : 'scroll',
+									// flexWrap: info?.flexWrap_visible ? 'wrap' : 'nowrap',
+									height: '160px',
 								}}
 							>
 								{(info.activeTab === 'Albums' ||
