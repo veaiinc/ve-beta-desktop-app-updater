@@ -248,7 +248,7 @@
 		gap: 24px;
 		padding: 24px;
 		border: 1px solid transparent;
-		transition: height 5s ease-in;
+		will-change: height;
 		&:hover {
 			border: 1px solid rgba(224, 224, 224, 0.1);
 			background: #111;
@@ -265,7 +265,7 @@
 					}
 				}
 				.imageContaienr {
-					transform: translateY(0px);
+					transform: translateY(20px);
 				}
 			}
 			.albumsContianer {
@@ -288,12 +288,13 @@
 			flex-direction: column;
 			align-items: center;
 			height: 233px;
-
+			position: relative;
 			background: linear-gradient(0deg, #1d1d1d 0%, #1d1d1d 100%);
 			border-radius: 16px;
 			overflow: hidden;
 			.galleryPicSettings {
-				display: none;
+				display: flex;
+				position: absolute;
 				opacity: 0;
 				width: 100%;
 				align-items: center;
@@ -323,6 +324,7 @@
 				height: 100%;
 				border-radius: 16px;
 				position: relative;
+				transform: translateY(0px);
 				transition: all 0.5s ease-in-out;
 				img {
 					overflow: hidden;

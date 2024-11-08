@@ -51,6 +51,7 @@ const GalleryViewer = () => {
 				searchkeys.get('tagId'),
 				info?.page,
 				info?.limit,
+				'',
 				true,
 			);
 		}

@@ -102,11 +102,11 @@ const ImageDetailNav = ({
 		}
 	};
 
-	const handleTagChange = (e, tagId) => {
+	const handleTagChange = (e, tagId, imageId) => {
 		const isTagSelected = e.target.checked;
 		console.log('isTagSelected', isTagSelected);
 		const payload = {
-			image_ids: [tagId],
+			image_ids: [imageId],
 		};
 		if (isTagSelected) {
 			addTagToImage(payload, galleryId, albumId, tagId);
@@ -245,7 +245,9 @@ const ImageDetailNav = ({
 												checked={imageDetail?.galleryTags?.find(
 													(checkTag) => tag._id === checkTag?._id,
 												)}
-												onChange={(e) => handleTagChange(e, tag?._id)}
+												onChange={(e) =>
+													handleTagChange(e, tag?._id, imageDetail?._id)
+												}
 											/>
 											<span className="checkboxText">{tag?.displayName}</span>
 										</div>
