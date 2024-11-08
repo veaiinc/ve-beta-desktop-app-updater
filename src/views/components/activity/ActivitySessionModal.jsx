@@ -296,10 +296,19 @@ const SessionActivityModal = ({
 												<div className="labelValue">
 													<PhoneSvg />
 													<spna className="labelDescription">
-														{
-															viewerSessionDetails?.clientDetails
-																?.device
-														}
+														{viewerSessionDetails?.clientDetails?.device
+															? `${
+																	JSON.parse(
+																		viewerSessionDetails
+																			.clientDetails.device,
+																	).vendor
+															  } ${
+																	JSON.parse(
+																		viewerSessionDetails
+																			.clientDetails.device,
+																	).model
+															  }`
+															: ''}
 													</spna>
 												</div>
 											</div>
