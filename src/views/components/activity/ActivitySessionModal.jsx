@@ -36,7 +36,8 @@ const SessionActivityModal = ({
 	const [info, setInfo] = useState({
 		viewMore: false,
 		isLoading: false,
-		isSessionTabActive: 'TimeLine',
+		// isSessionTabActive: 'TimeLine',
+		isSessionTabActive: 'TimeSpent',
 		currentSessionIndex: 0,
 		sessionIds: selectedViewer?.sessionIds || [],
 		totalSessions: (selectedViewer?.sessionIds || []).length,
@@ -106,9 +107,19 @@ const SessionActivityModal = ({
 		return moment.unix(epochTimestamp).format('D MMM YYYY, h:mm a');
 	};
 
+	//miliseconds for viewers duration ===>
+	const formatTimeMiliSec = useCallback((milliseconds) => {
+		const duration = moment.duration(milliseconds / 1000, 'seconds');
+		const hours = String(duration.hours()).padStart(2, '0');
+		const minutes = String(duration.minutes()).padStart(2, '0');
+		const secs = String(duration.seconds()).padStart(2, '0');
+		const millisecs = String(milliseconds % 1000).padStart(1, '0');
+		return `${hours}:${minutes}:${secs}.${millisecs}`;
+	}, []);
+
 	const componentMapper = useMemo(() => {
 		return {
-			TimeLine: <TimeLineSession />,
+			// TimeLine: <TimeLineSession />,
 
 			TimeSpent: (
 				<SessionMetric
@@ -117,6 +128,7 @@ const SessionActivityModal = ({
 					loading={info?.isLoading}
 					labelsData={viewerSessionDetails?.moduleViewDuration || []}
 					labelItemsData={viewerSessionDetails?.sectionViewDuration || []}
+					formatTime={formatTime}
 				/>
 			),
 
@@ -129,10 +141,11 @@ const SessionActivityModal = ({
 					labelItemsData={viewerSessionDetails?.interaction?.reduce((acc, item) => {
 						return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending each "interaction" array data
 					}, [])}
+					formatTime={formatTime}
 				/>
 			),
 
-			AIChat: <ChatSession />,
+			// AIChat: <ChatSession />,
 			// Add more tabs if needed
 		};
 	}, [info?.isLoading, viewerSessionDetails]);
@@ -176,7 +189,10 @@ const SessionActivityModal = ({
 											<span className="logoText">Session Activity</span>
 										</div>
 										<span className="headerTitle">
-											James Stark - Smart File
+											{/* James Stark - Smart File */}
+											{viewerSessionDetails?.isAnonymus
+												? 'Anonymus - Smart File'
+												: viewerSessionDetails?.clientDetails?.name}
 										</span>
 									</div>
 									<div className="closeBtn" onClick={showDrawer}>
@@ -257,7 +273,9 @@ const SessionActivityModal = ({
 												<div className="labelValue">
 													<DurationSvg />
 													<spna className="labelDescription">
-														{formatTime(viewerSessionDetails?.duration)}
+														{formatTimeMiliSec(
+															viewerSessionDetails?.duration,
+														)}
 													</spna>
 												</div>
 											</div>
@@ -278,10 +296,19 @@ const SessionActivityModal = ({
 												<div className="labelValue">
 													<PhoneSvg />
 													<spna className="labelDescription">
-														{
-															viewerSessionDetails?.clientDetails
-																?.device
-														}
+														{viewerSessionDetails?.clientDetails?.device
+															? `${
+																	JSON.parse(
+																		viewerSessionDetails
+																			.clientDetails.device,
+																	).vendor
+															  } ${
+																	JSON.parse(
+																		viewerSessionDetails
+																			.clientDetails.device,
+																	).model
+															  }`
+															: ''}
 													</spna>
 												</div>
 											</div>
@@ -304,7 +331,7 @@ const SessionActivityModal = ({
 							<div className="sessionActivityParentContainer">
 								{/* NavBar Container  */}
 								<div className="sessionNavbar">
-									<div
+									{/* <div
 										className={`sessionTab ${
 											info.isSessionTabActive === 'TimeLine'
 												? 'sessionTabActive'
@@ -313,7 +340,7 @@ const SessionActivityModal = ({
 										onClick={() => setActiveTab('TimeLine')}
 									>
 										Time Line
-									</div>
+									</div> */}
 									<div
 										className={`sessionTab ${
 											info.isSessionTabActive === 'TimeSpent'
@@ -334,7 +361,7 @@ const SessionActivityModal = ({
 									>
 										Interaction
 									</div>
-									<div
+									{/* <div
 										className={`sessionTab ${
 											info.isSessionTabActive === 'AIChat'
 												? 'sessionTabActive'
@@ -343,7 +370,7 @@ const SessionActivityModal = ({
 										onClick={() => setActiveTab('AIChat')}
 									>
 										AI Chat
-									</div>
+									</div> */}
 								</div>
 
 								{renderActiveTab(info?.isSessionTabActive)}

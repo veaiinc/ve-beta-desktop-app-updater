@@ -17,7 +17,7 @@ import { ReactComponent as ButtonInteractionSvg } from '../../../assets/svg/acti
 import Skeleton from 'react-loading-skeleton';
 import Spinner from '../loaders/Spinner.jsx';
 
-const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
+const SessionMetric = ({ title, labelsData, labelItemsData, loading, formatTime }) => {
 	const [info, setInfo] = useState({
 		isLabelSelected: false,
 		activeLabelItem: null,
@@ -200,7 +200,7 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 										<div>
 											{title === 'Interactions'
 												? item?.totalInteractionsCount
-												: item?.duration}
+												: formatTime(item?.duration)}
 										</div>
 										<div className="percentageWithArrow">
 											<span className="percentageValue">
@@ -229,7 +229,7 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 									<div>
 										{title === 'Interactions'
 											? info?.activeLabelItem?.totalInteractionsCount
-											: info?.activeLabelItem?.duration}
+											: formatTime(info?.activeLabelItem?.duration)}
 									</div>
 									<div className="percentageWithArrow">
 										<span className="percentageValue">
@@ -292,7 +292,11 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading }) => {
 												<div>{item.content}</div>
 											</div>
 											<div className="metricsLables">
-												<div>{item?.duration || item?.totalCount}</div>
+												<div>
+													{title === 'Interactions'
+														? item?.totalCount
+														: formatTime(item?.duration)}
+												</div>
 												<div className="percentageWithArrow">
 													<span className="percentageValue">
 														{`${item?.percentage} %`}
