@@ -25,6 +25,7 @@ export const intialState = {
 	galleryGuestAccess: null,
 	albumImagesCount: null,
 	clientSelectionsData: null,
+	clientSelectionImages: null,
 };
 
 export const Galleries = () => {
@@ -623,6 +624,7 @@ export const Galleries = () => {
 		tagId,
 		page = 1,
 		limit = 20,
+		displayName = '',
 		reset = false,
 	) => {
 		try {
@@ -631,10 +633,11 @@ export const Galleries = () => {
 			// 		type: Actions.RESET_IMAGES_LIST,
 			// 	});
 			// }
+
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(
-				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images?page=${page}&limit=${limit}`,
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images?page=${page}&limit=${limit}&displayName=${displayName}`,
 				usertoken,
 				'galleries',
 			);
@@ -1090,7 +1093,7 @@ export const Galleries = () => {
 			);
 			if (response[0]) {
 				dispatch({
-					type: Actions.GET_IMAGES_LIST,
+					type: Actions.GET_CLIENT_SELECTION_IMAGES,
 					payload: response?.[1],
 				});
 			}

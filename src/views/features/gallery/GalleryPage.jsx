@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext, useCallback, Children } from 'react';
-import share from '../../../assets/svg/gallery/share.svg';
+import { ReactComponent as ShareIcon } from '../../../assets/svg/gallery/share.svg';
 import sixDots from '../../../assets/svg/gallery/sixdots.svg';
-import threeDots from '../../../assets/svg/gallery/threeDots.svg';
+import { ReactComponent as ThreeDotsIcon } from '../../../assets/svg/gallery/threeDots.svg';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/chat/filter.svg';
 import { ReactComponent as ExpandIcon } from '../../../assets/svg/gallery/expand.svg';
@@ -28,9 +28,6 @@ import UploadGalleryImageCover from '../../components/gallery/galleryPage/Upload
 import randomize from 'randomatic';
 import axios from 'axios';
 import Skeleton from 'react-loading-skeleton';
-
-const noImage =
-	'https://png.pngtree.com/png-clipart/20230917/original/pngtree-no-image-available-icon-flatvector-illustration-thumbnail-graphic-illustration-vector-png-image_12323920.png';
 
 const GalleryPage = () => {
 	const { galleryId } = useParams();
@@ -78,6 +75,7 @@ const GalleryPage = () => {
 			getClientSelections,
 			clientSelectionsData,
 			getClientSelectionImages,
+			clientSelectionImages,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -137,6 +135,8 @@ const GalleryPage = () => {
 		activeClientSelection: clientSelectionsData?.data?.[0]?.slug,
 		clientSelectionID: clientSelectionsData?.data?.[0]?._id,
 		clientSelectionName: clientSelectionsData?.data?.[0]?.title,
+		clientSelectionImages: clientSelectionImages,
+		resetInfinityScroll: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -155,7 +155,7 @@ const GalleryPage = () => {
 		{ name: 'Albums', number: albumImagesCount?.albums?.length },
 		// { name: 'Videos', number: 2 },
 		// { name: 'Slide Show', number: 1 },
-		{ name: 'Client Selections', number: 6 },
+		{ name: 'Client Selections', number: clientSelectionsData?.totalDocs },
 		{ name: 'AI', number: '' },
 	];
 
@@ -207,6 +207,14 @@ const GalleryPage = () => {
 			getClientSelectionImages(info?.clientSelectionID);
 		}
 	}, [info?.clientSelectionID, info?.activeTab]);
+	useEffect(() => {
+		if (clientSelectionImages) {
+			setInfo((prev) => ({
+				...prev,
+				clientSelectionImages: clientSelectionImages,
+			}));
+		}
+	}, [clientSelectionImages]);
 	useEffect(() => {
 		if (!tenantAlbums || tenantAlbums?._id !== galleryId) {
 			getAlbums(galleryId).then((response) => {
@@ -292,13 +300,14 @@ const GalleryPage = () => {
 		}
 	}, [info?.activeAlbumId]);
 	useEffect(() => {
-		if (info?.albumTagId && info?.activeAlbumId) {
+		if (info?.albumTagId && info?.activeAlbumId && info?.activeTab === 'Albums') {
 			getGalleryImages(
 				galleryId,
 				info?.activeAlbumId,
 				info?.albumTagId,
 				info?.page,
 				info?.limit,
+				'',
 				true,
 			);
 		}
@@ -308,7 +317,7 @@ const GalleryPage = () => {
 				imagesList: imagesList,
 			}));
 		}
-	}, [info?.albumTagId, info?.activeAlbumId, info?.sortType]);
+	}, [info?.albumTagId, info?.activeAlbumId, info?.sortType, info?.activeTab]);
 	useEffect(() => {
 		if (imagesList) {
 			setInfo((prev) => ({
@@ -341,7 +350,6 @@ const GalleryPage = () => {
 			}));
 		}
 
-		// if  coverimage details is present
 		if (albumImagesCount?.coverImage?._id && galleryCredentials && !imageDetail) {
 			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 			const src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?${params}`;
@@ -359,6 +367,8 @@ const GalleryPage = () => {
 	}, [imageDetail, info?.uploadImageId, albumImagesCount]);
 
 	const fetchMoreImages = () => {
+		console.log(info?.page, 'pageFetch');
+
 		const nextPage = info.page + 1;
 		getGalleryImages(
 			galleryId,
@@ -373,21 +383,16 @@ const GalleryPage = () => {
 				hasMore: imagesList?.hasNextPage || false,
 			}));
 		});
+		// setInfo((prev) => ({
+		// 	...prev,
+		// 	page: prev?.page + 1,
+		// 	hasMore: imagesList?.hasNextPage || false,
+		// }));
 	};
 
 	console.log('location', location.state);
 
 	const handleImageSelect = (index, images) => {
-		// console.log(images, 'images');
-		// const uniqueImages = [...new Set([...info?.selectedImagesTags, images?.tagId])];
-		// console.log(uniqueImages, 'uniqueImages');
-		// setInfo((prevInfo) => ({
-		// 	...prevInfo,
-		// 	selectedImages: prevInfo.selectedImages.includes(images?._id)
-		// 		? prevInfo.selectedImages.filter((i) => i !== images?._id)
-		// 		: [...prevInfo.selectedImages, images?._id],
-		// }));
-
 		setInfo((prevInfo) => {
 			const isDeselecting = prevInfo.selectedImages.includes(images?._id);
 			const newSelectedImages = isDeselecting
@@ -424,10 +429,13 @@ const GalleryPage = () => {
 		if (name === 'albumName') {
 			setInfo((prevInfo) => ({
 				...prevInfo,
+				page: prevInfo.page !== 1 ? 1 : prevInfo.page,
 				albumName: album?.title,
 				activeAlbumId: album?._id,
 				activeAlbum: album,
 				albumSlug: album?.slug,
+				resetInfinityScroll: !prevInfo.resetInfinityScroll,
+				imagesList: [],
 			}));
 			// if (info?.albumName !== album?.title) {
 			// 	getAlbumCount(galleryId, album?.title);
@@ -435,9 +443,11 @@ const GalleryPage = () => {
 		} else if (name === 'containName') {
 			setInfo((prevInfo) => ({
 				...prevInfo,
+				page: prevInfo.page !== 1 ? 1 : prevInfo.page,
 				albumContains: album?.displayName,
 				albumTagId: album?._id,
 				sortType: album?.sortType,
+				imagesList: [],
 			}));
 		} else if (name === 'clientSelection') {
 			setInfo((prevInfo) => ({
@@ -608,7 +618,7 @@ const GalleryPage = () => {
 					...prev,
 					loading: true,
 				}));
-			}, 800);
+			}, 500);
 			setInfo((prev) => ({ ...prev, timeout }));
 		},
 		[info?.timeout],
@@ -1026,12 +1036,37 @@ const GalleryPage = () => {
 			addTagToImage(payload, galleryId, info?.activeAlbumId, tagId);
 		}
 	};
-	const handleSearch = (value) => {
-		setInfo((prev) => ({
-			...prev,
-			searchValue: value,
-		}));
-	};
+	// const handleSearch = (value) => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		searchValue: value,
+	// 	}));
+	// };
+
+	const handleSearch = useCallback(
+		(value) => {
+			setInfo((prev) => ({
+				...prev,
+				searchValue: value,
+			}));
+			handleDebouceFunctionCall(searchImages, value);
+		},
+		[info?.searchValue],
+	);
+	const searchImages = useCallback(
+		async (value) => {
+			getGalleryImages(
+				galleryId,
+				info.activeAlbumId,
+				info.albumTagId,
+				info.page,
+				info.limit,
+				value,
+				true,
+			);
+		},
+		[info?.activeAlbumId, info?.albumTagId],
+	);
 	return (
 		<>
 			<div className="galleryContainer">
@@ -1048,12 +1083,9 @@ const GalleryPage = () => {
 						</div>
 						<div className="imageContaienr">
 							<img
-								src={
-									`${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}` ||
-									noImage
-								}
+								src={`${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`}
 								onError={(e) => {
-									e.target.src = noImage;
+									e.target.src = 'none';
 								}}
 							/>
 							<div className="publishIndicator">
@@ -1090,7 +1122,7 @@ const GalleryPage = () => {
 							</div>
 							<div className="shareContainer">
 								<div className="icon" onClick={openShareModal}>
-									<img src={share} />
+									<ShareIcon className="shareIcon" />
 								</div>
 								<div
 									className="icon"
@@ -1102,7 +1134,7 @@ const GalleryPage = () => {
 										}))
 									}
 								>
-									<img src={threeDots} />
+									<ThreeDotsIcon className="threeDotsIcon" />
 									{info.showOptions && (
 										<div
 											className="optionsContainer"
@@ -1167,11 +1199,18 @@ const GalleryPage = () => {
 													background: src
 														? `url(${src})`
 														: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
-													backgroundSize: 'cover ',
-													backgroundPosition: 'center',
 												}}
 											>
-												{album.image && <img src={src} />}
+												{src && (
+													<img
+														src={src}
+														style={{
+															width: '100%',
+															height: '100%',
+															objectFit: 'cover',
+														}}
+													/>
+												)}
 
 												<div
 													className="albumDetails"
@@ -1182,7 +1221,7 @@ const GalleryPage = () => {
 													<p>{album?.title}</p>
 													<p>{`${album?.imagesCount || 0} photos`}</p>
 												</div>
-												{/* <div className="overlay"></div> */}
+												<div className="overlay"></div>
 											</div>
 										);
 									})}
@@ -1218,7 +1257,7 @@ const GalleryPage = () => {
 													}
 												>
 													<p>{album?.title}</p>
-													<p>{`${album?.imagesCount || 0} photos`}</p>
+													<p>{`${album?.numberOfImages || 0} photos`}</p>
 												</div>
 												{/* <div className="overlay"></div> */}
 											</div>
@@ -1286,7 +1325,10 @@ const GalleryPage = () => {
 												}))
 											}
 										>
-											<img src={threeDots} style={{ cursor: 'pointer' }} />
+											<ThreeDotsIcon
+												className="threeDotsIcon"
+												style={{ cursor: 'pointer' }}
+											/>
 											{info.showGalleryOptions && (
 												<div
 													className="galleryEditOptions"
@@ -1400,9 +1442,11 @@ const GalleryPage = () => {
 														File name (reverse)
 													</li>
 													<li
-														onClick={() => handleFilter('createdAt')}
+														onClick={() =>
+															handleFilter('originalDateTime')
+														}
 														className={
-															info?.sortType === 'createdAt'
+															info?.sortType === 'originalDateTime'
 																? 'active'
 																: ''
 														}
@@ -1410,9 +1454,11 @@ const GalleryPage = () => {
 														Date Captured
 													</li>
 													<li
-														onClick={() => handleFilter('-createdAt')}
+														onClick={() =>
+															handleFilter('-originalDateTime')
+														}
 														className={
-															info?.sortType === '-createdAt'
+															info?.sortType === '-originalDateTime'
 																? 'active'
 																: ''
 														}
@@ -1420,9 +1466,9 @@ const GalleryPage = () => {
 														Date captured (reverse)
 													</li>
 													<li
-														onClick={() => handleFilter('uploadTime')}
+														onClick={() => handleFilter('createdAt')}
 														className={
-															info?.sortType === 'uploadTime'
+															info?.sortType === 'createdAt'
 																? 'active'
 																: ''
 														}
@@ -1430,8 +1476,11 @@ const GalleryPage = () => {
 														upload time
 													</li>
 													<li
-														onClick={() =>
-															handleFilter('uploadTimeReverse')
+														onClick={() => handleFilter('-createdAt')}
+														className={
+															info?.sortType === '-createdAt'
+																? 'active'
+																: ''
 														}
 													>
 														upload time (reverse)
@@ -1458,7 +1507,11 @@ const GalleryPage = () => {
 												<div
 													{...provided.droppableProps}
 													ref={provided.innerRef}
-													style={{ display: 'flex', gap: '10px' }}
+													style={{
+														display: 'flex',
+														gap: '30px',
+														alignItems: 'center',
+													}}
 												>
 													{info?.albumTags
 														?.sort(
@@ -1498,6 +1551,8 @@ const GalleryPage = () => {
 																		<div
 																			{...provided.dragHandleProps}
 																			style={{
+																				width: '14px',
+																				height: '15px',
 																				cursor:
 																					contain?.displayName ===
 																					'All'
@@ -1526,7 +1581,15 @@ const GalleryPage = () => {
 																		>
 																			{contain.displayName}
 																		</p>
-																		<p className="count">
+																		<p
+																			className="count"
+																			onClick={() =>
+																				handleClickAlbum(
+																					contain,
+																					'containName',
+																				)
+																			}
+																		>
 																			{contain.imagesCount}
 																		</p>
 																	</div>
@@ -1583,6 +1646,8 @@ const GalleryPage = () => {
 											</p>
 										}
 										scrollableTarget="galleryScrollTarget"
+										refreshFunction={info?.resetInfinityScroll}
+										disableDrop={true}
 									>
 										{!info.isRearranging ? (
 											<ResponsiveMasonry
@@ -1634,6 +1699,7 @@ const GalleryPage = () => {
 																					display:
 																						'block',
 																				}}
+																				draggable={false}
 																			/>
 																			{info.isMouseInGallery && (
 																				<div className="imageOverlay"></div>
@@ -1656,215 +1722,217 @@ const GalleryPage = () => {
 												</Masonry>
 											</ResponsiveMasonry>
 										) : (
-											<DragDropContext
-												onDragStart={handleDragStart}
-												onDragEnd={handleDragEnd}
-											>
-												<Droppable
-													droppableId="masonry-grid"
-													// direction="horizontal"
-													direction={
-														info?.gridStyle?.vertical
-															? 'vertical'
-															: 'horizontal'
-													}
-													type={
-														info?.gridStyle?.vertical
-															? 'VERTICAL'
-															: 'HORIZONTAL'
-													}
-												>
-													{(provided, snapshot) => (
-														<div
-															{...provided.droppableProps}
-															ref={provided.innerRef}
-														>
-															<ResponsiveMasonry
-																columnsCountBreakPoints={{
-																	350: 1,
-																	750: 2,
-																	900: 3,
-																	1200: 4,
-																}}
-															>
-																<Masonry gutter="10px">
-																	{info?.imagesList?.docs?.map(
-																		(image, index) => {
-																			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-																			const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+											''
+											// <DragDropContext
+											// 	onDragStart={handleDragStart}
+											// 	onDragEnd={handleDragEnd}
+											// 	disableDrop={true}
+											// >
+											// 	<Droppable
+											// 		droppableId="masonry-grid"
+											// 		// direction="horizontal"
+											// 		direction={
+											// 			info?.gridStyle?.vertical
+											// 				? 'vertical'
+											// 				: 'horizontal'
+											// 		}
+											// 		type={
+											// 			info?.gridStyle?.vertical
+											// 				? 'VERTICAL'
+											// 				: 'HORIZONTAL'
+											// 		}
+											// 	>
+											// 		{(provided, snapshot) => (
+											// 			<div
+											// 				{...provided.droppableProps}
+											// 				ref={provided.innerRef}
+											// 			>
+											// 				<ResponsiveMasonry
+											// 					columnsCountBreakPoints={{
+											// 						350: 1,
+											// 						750: 2,
+											// 						900: 3,
+											// 						1200: 4,
+											// 					}}
+											// 				>
+											// 					<Masonry gutter="10px">
+											// 						{info?.imagesList?.docs?.map(
+											// 							(image, index) => {
+											// 								const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+											// 								const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
 
-																			// Hide original items while being dragged
-																			if (
-																				info.isDragging &&
-																				info.draggedImages.includes(
-																					index,
-																				)
-																			) {
-																				return null;
-																			}
+											// 								// Hide original items while being dragged
+											// 								if (
+											// 									info.isDragging &&
+											// 									info.draggedImages.includes(
+											// 										index,
+											// 									)
+											// 								) {
+											// 									return null;
+											// 								}
 
-																			return (
-																				<>
-																					{info.insertIndex ===
-																						index &&
-																						info.isDragging && (
-																							<div
-																								className="drop-preview"
-																								style={{
-																									height: '4px',
-																									background:
-																										'#007bff',
-																									margin: '8px 0',
-																									transition:
-																										'all 0.2s',
-																								}}
-																							/>
-																						)}
-																					<Draggable
-																						key={
-																							image._id ||
-																							`image-${index}`
-																						}
-																						draggableId={
-																							image._id ||
-																							`image-${index}`
-																						}
-																						index={
-																							index
-																						}
-																						isDragDisabled={
-																							!info.selectedImages.includes(
-																								index,
-																							)
-																						}
-																					>
-																						{(
-																							provided,
-																							snapshot,
-																						) => (
-																							<div
-																								ref={
-																									provided.innerRef
-																								}
-																								{...provided.draggableProps}
-																								{...provided.dragHandleProps}
-																								className="masonry-image-container"
-																								data-index={
-																									index
-																								}
-																								style={{
-																									...provided
-																										.draggableProps
-																										.style,
-																									position:
-																										'relative',
-																									transition:
-																										'all 0.2s',
-																									opacity:
-																										snapshot.isDragging
-																											? 0.8
-																											: 1,
-																									cursor: snapshot.isDragging
-																										? 'grabbing'
-																										: 'pointer',
-																									border: info.selectedImages.includes(
-																										index,
-																									)
-																										? '2px solid #007bff'
-																										: 'none',
-																									borderRadius:
-																										'4px',
-																									overflow:
-																										'hidden',
-																									transform:
-																										snapshot.isDragging
-																											? `${provided.draggableProps.style.transform} scale(1.02)`
-																											: provided
-																													.draggableProps
-																													.style
-																													.transform,
-																								}}
-																							>
-																								<img
-																									src={
-																										src
-																									}
-																									alt={`Gallery image ${index}`}
-																									style={{
-																										width: '100%',
-																										display:
-																											'block',
-																										pointerEvents:
-																											info.isDragging
-																												? 'none'
-																												: 'auto',
-																									}}
-																									onClick={() =>
-																										!info.isDragging &&
-																										handleImageSelect(
-																											index,
-																										)
-																									}
-																								/>
-																							</div>
-																						)}
-																					</Draggable>
-																				</>
-																			);
-																		},
-																	)}
-																	{provided.placeholder}
-																</Masonry>
-															</ResponsiveMasonry>
-														</div>
-													)}
-												</Droppable>
+											// 								return (
+											// 									<>
+											// 										{info.insertIndex ===
+											// 											index &&
+											// 											info.isDragging && (
+											// 												<div
+											// 													className="drop-preview"
+											// 													style={{
+											// 														height: '4px',
+											// 														background:
+											// 															'#007bff',
+											// 														margin: '8px 0',
+											// 														transition:
+											// 															'all 0.2s',
+											// 													}}
+											// 												/>
+											// 											)}
+											// 										<Draggable
+											// 											key={
+											// 												image._id ||
+											// 												`image-${index}`
+											// 											}
+											// 											draggableId={
+											// 												image._id ||
+											// 												`image-${index}`
+											// 											}
+											// 											index={
+											// 												index
+											// 											}
+											// 											isDragDisabled={
+											// 												!info.selectedImages.includes(
+											// 													index,
+											// 												)
+											// 											}
+											// 										>
+											// 											{(
+											// 												provided,
+											// 												snapshot,
+											// 											) => (
+											// 												<div
+											// 													ref={
+											// 														provided.innerRef
+											// 													}
+											// 													{...provided.draggableProps}
+											// 													{...provided.dragHandleProps}
+											// 													className="masonry-image-container"
+											// 													data-index={
+											// 														index
+											// 													}
+											// 													style={{
+											// 														...provided
+											// 															.draggableProps
+											// 															.style,
+											// 														position:
+											// 															'relative',
+											// 														transition:
+											// 															'all 0.2s',
+											// 														opacity:
+											// 															snapshot.isDragging
+											// 																? 0.8
+											// 																: 1,
+											// 														cursor: snapshot.isDragging
+											// 															? 'grabbing'
+											// 															: 'pointer',
+											// 														border: info.selectedImages.includes(
+											// 															index,
+											// 														)
+											// 															? '2px solid #007bff'
+											// 															: 'none',
+											// 														borderRadius:
+											// 															'4px',
+											// 														overflow:
+											// 															'hidden',
+											// 														transform:
+											// 															snapshot.isDragging
+											// 																? `${provided.draggableProps.style.transform} scale(1.02)`
+											// 																: provided
+											// 																		.draggableProps
+											// 																		.style
+											// 																		.transform,
+											// 													}}
+											// 												>
+											// 													<img
+											// 														src={
+											// 															src
+											// 														}
+											// 														alt={`Gallery image ${index}`}
+											// 														style={{
+											// 															width: '100%',
+											// 															display:
+											// 																'block',
+											// 															pointerEvents:
+											// 																info.isDragging
+											// 																	? 'none'
+											// 																	: 'auto',
+											// 														}}
+											// 														onClick={() =>
+											// 															!info.isDragging &&
+											// 															handleImageSelect(
+											// 																index,
+											// 															)
+											// 														}
+											// 													/>
+											// 												</div>
+											// 											)}
+											// 										</Draggable>
+											// 									</>
+											// 								);
+											// 							},
+											// 						)}
+											// 						{provided.placeholder}
+											// 					</Masonry>
+											// 				</ResponsiveMasonry>
+											// 			</div>
+											// 		)}
+											// 	</Droppable>
 
-												{/* Drag Preview */}
-												{info.isDragging &&
-													info.draggedImages.length > 0 && (
-														<div
-															style={{
-																position: 'fixed',
-																left:
-																	info.dragPreviewPosition?.x ||
-																	0,
-																top:
-																	info.dragPreviewPosition?.y ||
-																	0,
-																transform: 'translate(-50%, -50%)',
-																pointerEvents: 'none',
-																zIndex: 9999,
-																display: 'flex',
-																gap: '4px',
-															}}
-														>
-															{info.draggedImages.map((index) => {
-																const image =
-																	info?.imagesList?.docs[index];
-																const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-																const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+											// 	{/* Drag Preview */}
+											// 	{info.isDragging &&
+											// 		info.draggedImages.length > 0 && (
+											// 			<div
+											// 				style={{
+											// 					position: 'fixed',
+											// 					left:
+											// 						info.dragPreviewPosition?.x ||
+											// 						0,
+											// 					top:
+											// 						info.dragPreviewPosition?.y ||
+											// 						0,
+											// 					transform: 'translate(-50%, -50%)',
+											// 					pointerEvents: 'none',
+											// 					zIndex: 9999,
+											// 					display: 'flex',
+											// 					gap: '4px',
+											// 				}}
+											// 			>
+											// 				{info.draggedImages.map((index) => {
+											// 					const image =
+											// 						info?.imagesList?.docs[index];
+											// 					const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+											// 					const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
 
-																return (
-																	<img
-																		key={index}
-																		src={src}
-																		alt="Drag Preview"
-																		style={{
-																			width: '100px',
-																			height: '100px',
-																			objectFit: 'cover',
-																			opacity: 0.8,
-																			borderRadius: '4px',
-																			boxShadow:
-																				'0 2px 8px rgba(0,0,0,0.2)',
-																		}}
-																	/>
-																);
-															})}
-														</div>
-													)}
-											</DragDropContext>
+											// 					return (
+											// 						<img
+											// 							key={index}
+											// 							src={src}
+											// 							alt="Drag Preview"
+											// 							style={{
+											// 								width: '100px',
+											// 								height: '100px',
+											// 								objectFit: 'cover',
+											// 								opacity: 0.8,
+											// 								borderRadius: '4px',
+											// 								boxShadow:
+											// 									'0 2px 8px rgba(0,0,0,0.2)',
+											// 							}}
+											// 						/>
+											// 					);
+											// 				})}
+											// 			</div>
+											// 		)}
+											// </DragDropContext>
 											// <div
 											// 	className="rearrange-grid"
 											// 	style={{
@@ -2089,7 +2157,10 @@ const GalleryPage = () => {
 
 											// }
 										>
-											<img src={threeDots} style={{ cursor: 'pointer' }} />
+											<ThreeDotsIcon
+												className="threeDotsIcon"
+												style={{ cursor: 'pointer' }}
+											/>
 
 											<div></div>
 										</div>
@@ -2120,7 +2191,7 @@ const GalleryPage = () => {
 									</div>
 								</div>
 								<div
-									className="galleryImagesContainer"
+									className="galleryImagesContainer clientSelectionImagesContainer"
 									id="galleryScrollTarget"
 									onMouseEnter={() =>
 										setInfo((prev) => ({
@@ -2136,9 +2207,9 @@ const GalleryPage = () => {
 									}
 								>
 									<InfiniteScroll
-										dataLength={imagesList?.docs?.length || 0}
+										dataLength={clientSelectionImages?.docs?.length || 0}
 										next={fetchMoreImages}
-										hasMore={imagesList?.hasNextPage || false}
+										hasMore={clientSelectionImages?.hasNextPage || false}
 										loader={
 											<p style={{ textAlign: 'center', color: '#fff' }}>
 												Loading...
@@ -2155,8 +2226,8 @@ const GalleryPage = () => {
 											}}
 										>
 											<Masonry gutter="10px">
-												{info?.imagesList?.docs
-													? info?.imagesList?.docs?.map(
+												{info?.clientSelectionImages?.docs
+													? info?.clientSelectionImages?.docs.map(
 															(image, index) => {
 																const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 																const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
@@ -2170,12 +2241,12 @@ const GalleryPage = () => {
 																				? 'selected'
 																				: ''
 																		}`}
-																		onClick={() =>
-																			handleImageSelect(
-																				index,
-																				image,
-																			)
-																		}
+																		// onClick={() =>
+																		// 	handleImageSelect(
+																		// 		index,
+																		// 		image,
+																		// 	)
+																		// }
 																	>
 																		<img
 																			src={src}
@@ -2207,7 +2278,7 @@ const GalleryPage = () => {
 										</ResponsiveMasonry>
 									</InfiniteScroll>
 
-									{info.selectedImages.length > 0 && (
+									{/* {info.selectedImages.length > 0 && (
 										<div className="selectedImagesCotainer">
 											<div className="selectedImagesCounter">
 												<p
@@ -2311,7 +2382,7 @@ const GalleryPage = () => {
 												</div>
 											</div>
 										</div>
-									)}
+									)} */}
 								</div>
 							</div>
 						</div>
