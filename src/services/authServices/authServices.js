@@ -160,32 +160,50 @@ export const verifyEmailVerificationCode = async (email, verificationCode, email
 	}
 };
 
-export const getUserName = async () => {
-	const path = '/my-profile';
-	const token = localStorage?.getItem('usertoken') || '';
+export const checkUserSessionStatus = async () => {
+	const path = '/accessible-tenants';
+	const token = localStorage?.getItem('usertoken') || false;
 
 	try {
-		const response = await service?.fetchGet(path, token, 'tenant_users_api');
-		if (response?.[0] === true) {
+		if (!token) {
 			return {
-				ok: true,
-				username: response?.[1]?.firstName || '',
+				ok: false,
+				tokenValid: false,
 			};
+		}
+		const response = await service?.fetchGet(path, token, 'auth');
+		if (response?.[0] === true) {
+			if (!response?.[1]?.length) {
+				return {
+					ok: true,
+					isOnboard: false,
+					tokenValid: true,
+				};
+			} else {
+				const { isOnboard, workspaceIds } = response?.[1]?.[0];
+				return {
+					ok: true,
+					isOnboard,
+					tokenValid: true,
+					workspaceIds,
+				};
+			}
 		} else {
 			return {
 				ok: false,
-				username: '',
+				message: response?.[1]?.message?.trim() + '. Please try again!',
+				tokenValid: false,
 			};
 		}
 	} catch (error) {
-		console.error('Error getting user name:', error);
+		console.error('Error checking user session status:', error);
 		throw error;
 	}
 };
 
-export const updateUserName = async (username) => {
+export const updateUserDetails = async (firstName, phoneNumber = false) => {
 	const path = '/tenant-user';
-	const body = { firstName: username };
+	const body = phoneNumber ? { firstName, phoneNumber } : { firstName };
 	const token = localStorage?.getItem('usertoken') || '';
 
 	try {
@@ -202,6 +220,62 @@ export const updateUserName = async (username) => {
 		}
 	} catch (error) {
 		console.error('Error updating user name:', error);
+		throw error;
+	}
+};
+
+export const checkWorkspaceHandleAvailability = async (workspaceHandle) => {
+	const path = '/tenant/workspaceId-availability';
+	const params = { workspaceId: workspaceHandle };
+
+	try {
+		const response = await service?.fetchGet(path, null, 'auth', params);
+		if (response?.[0] === true) {
+			return {
+				ok: true,
+				available: response?.[1]?.isAvailable,
+			};
+		} else {
+			return {
+				ok: false,
+				message: response?.[1]?.message?.trim() + '. Please try again!',
+			};
+		}
+	} catch (error) {
+		console.error('Error checking workspace handle availability:', error);
+		throw error;
+	}
+};
+
+const setUserDetails = async (firstName, phoneNumber = false) => {
+	const path = '/tenant-user';
+	const body = phoneNumber ? { firstName, phoneNumber } : { firstName };
+};
+
+export const createWorkspace = async (workspaceHandle, workspaceType, profession) => {
+	const path = '/tenant/create-workspace';
+	const token = localStorage?.getItem('usertoken') || '';
+	const body = {
+		workspaceId: workspaceHandle,
+		businessType: profession,
+		category: workspaceType,
+	};
+
+	try {
+		const response = await service?.fetchPost(path, body, token, 'auth');
+		if (response?.[0] === true) {
+			return {
+				ok: true,
+				isOnboard: response?.[1]?.isOnboard,
+			};
+		} else {
+			return {
+				ok: false,
+				message: response?.[1]?.message?.trim() + '. Please try again!',
+			};
+		}
+	} catch (error) {
+		console.error('Error creating workspace:', error);
 		throw error;
 	}
 };

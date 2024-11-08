@@ -61,18 +61,22 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 				message?.info('You are a new user, redirecting to signup!', 1.5);
 				setTimeout(async () => {
 					if (urlDetails?.pathname !== '/signup') {
-						navigate('/signup');
-						const locationDetails = await getLocationsDetails();
-						const response = await createAccountUsingEmail(
-							loginPageInfo?.email,
-							locationDetails,
-						);
-						if (response?.verifyEmailSentTo === loginPageInfo?.email) {
-							setLoginPageInfo((prev) => ({
-								...prev,
-								activeStage: 'verificationCode',
-							}));
-						}
+						setLoginPageInfo((prev) => ({
+							...prev,
+							activeStage: 'signup',
+						}));
+						navigate('/signup?signupemail=' + loginPageInfo?.email);
+						// const locationDetails = await getLocationsDetails();
+						// const response = await createAccountUsingEmail(
+						// 	loginPageInfo?.email,
+						// 	locationDetails,
+						// );
+						// if (response?.verifyEmailSentTo === loginPageInfo?.email) {
+						// 	setLoginPageInfo((prev) => ({
+						// 		...prev,
+						// 		activeStage: 'verificationCode',
+						// 	}));
+						// }
 					}
 				}, 1500);
 			}

@@ -1,18 +1,44 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 
-const professions = [
-	'student',
-	'doctor',
-	'photographer',
-	'real estate',
-	'technologist',
-	'therapist',
-	'chef',
-	'boutique',
-	'lawyer',
-];
+const professions = {
+	professional: {
+		id: 1,
+		professions: [
+			{
+				id: 1,
+				name: 'Photography',
+				value: 'photography',
+			},
+			{
+				id: 2,
+				name: 'Agency',
+				value: 'agency',
+			},
+			{
+				id: 3,
+				name: 'Interior Designing',
+				value: 'interior_designing',
+			},
+		],
+	},
+	enterprise: {
+		id: 2,
+		professions: [
+			{
+				id: 1,
+				name: 'Information Technology',
+				value: 'information_technology',
+			},
+			{
+				id: 2,
+				name: 'Healthcare',
+				value: 'healthcare',
+			},
+		],
+	},
+};
 
-const Profession = ({ setOnboardingInfo }) => {
+const Profession = ({ onboardingInfo, setOnboardingInfo }) => {
 	const handleSelectProfession = (profession) => {
 		setOnboardingInfo((prev) => ({
 			...prev,
@@ -24,13 +50,13 @@ const Profession = ({ setOnboardingInfo }) => {
 	return (
 		<div className="profession-grid-container">
 			<div className="profession-grid">
-				{professions.map((profession) => (
+				{professions[onboardingInfo?.workspaceType]?.professions?.map((profession) => (
 					<div
-						key={profession}
-						onClick={() => handleSelectProfession(profession)}
+						key={profession?.id}
+						onClick={() => handleSelectProfession(profession?.value)}
 						className="profession-option"
 					>
-						<h1>{profession}</h1>
+						<h1>{profession?.name}</h1>
 					</div>
 				))}
 			</div>

@@ -11,13 +11,16 @@ import { ReactComponent as Hamburger } from '../../../assets/svg/landingScreen/h
 import { gsap } from 'gsap';
 import PrivacyPolicyModal from '../../components/modalsV2/landingPage/PrivacyPolicyModal';
 import MobileNavSidebar from '../../components/modalsV2/landingPage/MobileNavSidebar';
+import { checkUserSessionStatus } from '../../../services/authServices/authServices';
 
 const LandingPage = () => {
 	const navigate = useNavigate();
 	const [showMobielNavSidebar, setShowMobielNavSidebar] = useState(false);
 	const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 823);
 	const [togglePrivacyAndTermsModal, setTogglePrivacyAndTermsModal] = useState(false);
-
+	const [isOnboard, setIsOnboard] = useState(false);
+	const [tokenValid, setTokenValid] = useState(false);
+	const [workspaceIds, setWorkspaceIds] = useState([]);
 	const h1Ref = useRef(null);
 	const h2Ref = useRef(null);
 	const h3Ref = useRef(null);
@@ -33,6 +36,18 @@ const LandingPage = () => {
 	useEffect(() => {
 		handleEvents();
 		handleAnimations();
+		checkUserSessionStatus()
+			.then((response) => {
+				console.log(response);
+				if (response?.ok) {
+					setIsOnboard(response?.isOnboard);
+					setTokenValid(response?.tokenValid);
+					setWorkspaceIds(response?.workspaceIds);
+				}
+			})
+			.catch((error) => {
+				console.error('Error checking user session status:', error);
+			});
 	}, []);
 
 	const handleEvents = useCallback(() => {
@@ -42,6 +57,20 @@ const LandingPage = () => {
 			window.removeEventListener('resize', handleResize);
 		};
 	}, []);
+
+	useEffect(() => {
+		if (!isOnboard && tokenValid) {
+			if (workspaceIds?.length >= 1) {
+				navigate('/home');
+			} else {
+				navigate('/onboarding');
+			}
+		} else if (isOnboard && tokenValid) {
+			navigate('/home');
+		} else if (!tokenValid) {
+			return;
+		}
+	}, [isOnboard, tokenValid, workspaceIds]);
 
 	const handleAnimations = useCallback(() => {
 		const tl = gsap.timeline();

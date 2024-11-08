@@ -3,10 +3,13 @@ import gsap from 'gsap';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import '../../../assets/scss/onboarding/index.scss';
+import { checkWorkspaceHandleAvailability } from '../../../services/authServices/authServices';
+import { message } from 'antd';
 
 const WorkspaceHandleName = ({ onboardingInfo, setOnboardingInfo, animateStep4Enter }) => {
 	const [info, setInfo] = useState({
 		isHovering: false,
+		isChecking: false,
 	});
 
 	const workspaceHandleNameRef = useRef(null);
@@ -23,14 +26,38 @@ const WorkspaceHandleName = ({ onboardingInfo, setOnboardingInfo, animateStep4En
 		);
 	}, []);
 
-	const handleSetUsername = (e) => {
+	useEffect(() => {
+		if (onboardingInfo?.workspaceHandle?.length > 1) {
+			setInfo((prev) => ({ ...prev, isChecking: true }));
+			const timeout = setTimeout(async () => {
+				await handleCheckWorkspaceHandleAvailability(onboardingInfo?.workspaceHandle);
+				setInfo((prev) => ({ ...prev, isChecking: false }));
+			}, 1000);
+
+			return () => clearTimeout(timeout);
+		}
+	}, [onboardingInfo?.workspaceHandle]);
+
+	const handleCheckWorkspaceHandleAvailability = async (workspaceHandle) => {
+		const response = await checkWorkspaceHandleAvailability(workspaceHandle);
+		if (response?.ok) {
+			setOnboardingInfo((prev) => ({
+				...prev,
+				isWorkspaceHandleAvailable: response?.available,
+			}));
+		} else {
+			message.error(response?.message);
+		}
+	};
+
+	const handleSetWorkspaceHandle = (e) => {
 		setOnboardingInfo((prev) => ({
 			...prev,
 			workspaceHandle: e?.target?.value?.toLowerCase(),
 		}));
 	};
 
-	const handleNext = () => {
+	const handleNext = async () => {
 		gsap.to(workspaceHandleNameRef.current, {
 			opacity: 0,
 			duration: 0.5,
@@ -58,19 +85,29 @@ const WorkspaceHandleName = ({ onboardingInfo, setOnboardingInfo, animateStep4En
 			<input
 				className="workspace-handle-name-input"
 				value={onboardingInfo?.workspaceHandle}
-				onChange={handleSetUsername}
+				onChange={handleSetWorkspaceHandle}
 				onKeyDown={handleKeyDown}
 				autoFocus={true}
 				type="text"
 				placeholder="workspace name"
 			/>
 			<button
-				disabled={onboardingInfo?.workspaceHandle?.length === 0}
+				disabled={
+					info?.isChecking ||
+					onboardingInfo?.workspaceHandle?.length === 0 ||
+					!onboardingInfo?.isWorkspaceHandleAvailable
+				}
 				style={{
 					cursor:
-						onboardingInfo?.workspaceHandle?.length === 0 ? 'not-allowed' : 'pointer',
+						info?.isChecking ||
+						onboardingInfo?.workspaceHandle?.length === 0 ||
+						!onboardingInfo?.isWorkspaceHandleAvailable
+							? 'not-allowed'
+							: 'pointer',
 					background:
-						onboardingInfo?.workspaceHandle?.length === 0
+						info?.isChecking ||
+						onboardingInfo?.workspaceHandle?.length === 0 ||
+						!onboardingInfo?.isWorkspaceHandleAvailable
 							? 'rgba(255, 255, 255, 0.1)'
 							: '',
 				}}

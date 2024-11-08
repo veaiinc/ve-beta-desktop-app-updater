@@ -7,6 +7,9 @@ import WorkspaceHandleName from '../../components/onboarding/WorkspaceHandleName
 import { useRef } from 'react';
 import WorkspaceType from '../../components/onboarding/WorkspaceType';
 import Profession from '../../components/onboarding/Profession';
+import { updateUserDetails, createWorkspace } from '../../../services/authServices/authServices';
+import { message } from 'antd';
+import CreatingNewWorkspace from '../../components/onboarding/CreatingNewWorkspace';
 
 const tl = gsap.timeline();
 const tl2 = gsap.timeline();
@@ -17,8 +20,11 @@ const Onboarding = () => {
 		step: 0,
 		username: '',
 		workspaceHandle: '',
+		isWorkspaceHandleAvailable: false,
 		workspaceType: '',
 		profession: '',
+		phoneNumber: '',
+		isOnboard: false,
 	});
 
 	const navigate = useNavigate();
@@ -47,10 +53,38 @@ const Onboarding = () => {
 		} else if (info?.step === 6 && aiIntroRef?.current) {
 			// animateStep6Enter();
 		} else if (info?.step === 7 && aiIntroRef?.current) {
+			handleOnboarding();
 			// animateStep7Enter();
-			navigate('/home');
 		}
 	}, [info?.step, aiIntroRef?.current]);
+
+	const handleOnboarding = async () => {
+		const userDetailsResponse = await updateUserDetails(info?.username);
+		if (userDetailsResponse?.ok) {
+			const workspaceResponse = await createWorkspace(
+				info?.workspaceHandle,
+				info?.workspaceType,
+				info?.profession,
+			);
+			if (workspaceResponse?.ok) {
+				setInfo((prev) => ({
+					...prev,
+					step: prev?.step + 1,
+					isOnboard: workspaceResponse?.isOnboard,
+				}));
+				handleNavigate();
+			} else {
+				message.error(workspaceResponse?.message);
+			}
+		} else {
+			message.error(userDetailsResponse?.message);
+		}
+	};
+
+	const handleNavigate = () => {
+		const route = info?.isOnboard ? '/home' : '/early-access';
+		navigate(route);
+	};
 
 	const animateAiIntro = () => {
 		tl?.fromTo(
@@ -234,10 +268,27 @@ const Onboarding = () => {
 		1: <h1 ref={step1Ref}>What can I call you ?</h1>,
 		2: <h1 ref={step2Ref}>Hey {info?.username}, nice to meet you.</h1>,
 		3: (
-			<>
+			<div style={{ position: 'relative' }}>
 				<h1>Let's setup your workspace handle</h1>
-				<h2>Eg - workspacename.ve.ai</h2>
-			</>
+				<h2>{info?.workspaceHandle || 'workspacename'}.ve.ai</h2>
+				{info?.workspaceHandle?.length > 1 && (
+					<span
+						style={{
+							position: 'absolute',
+							bottom: 0,
+							left: '34px',
+							fontSize: '12px',
+							color: info?.isWorkspaceHandleAvailable
+								? 'rgb(152, 255, 152)'
+								: 'rgb(255, 111, 97)',
+						}}
+					>
+						{info?.isWorkspaceHandleAvailable
+							? 'This handle is available'
+							: 'This handle is already taken'}
+					</span>
+				)}
+			</div>
 		),
 		4: <h1 ref={step4Ref}>{info?.workspaceHandle}.ve.ai</h1>,
 		5: <h1 ref={step5Ref}>What will be the workspace type ?</h1>,
@@ -261,7 +312,8 @@ const Onboarding = () => {
 			/>
 		),
 		3: <WorkspaceType setOnboardingInfo={setInfo} />,
-		4: <Profession setOnboardingInfo={setInfo} />,
+		4: <Profession onboardingInfo={info} setOnboardingInfo={setInfo} />,
+		5: <CreatingNewWorkspace profession={info?.profession} />,
 	};
 
 	return (

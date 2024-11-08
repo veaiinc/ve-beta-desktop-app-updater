@@ -1,12 +1,23 @@
 import React, { memo } from 'react';
 
-const businessTypes = ['personal', 'professional', 'enterprise'];
+const businessTypes = [
+	{
+		id: 1,
+		name: 'Professional',
+		value: 'professional',
+	},
+	{
+		id: 2,
+		name: 'Enterprise',
+		value: 'enterprise',
+	},
+];
 
 const WorkspaceType = ({ setOnboardingInfo }) => {
 	const handleSelectType = (type) => {
 		setOnboardingInfo((prev) => ({
 			...prev,
-			workspaceType: type,
+			workspaceType: type.value,
 			step: prev?.step + 1,
 			stage: prev?.stage + 1,
 		}));
@@ -15,8 +26,12 @@ const WorkspaceType = ({ setOnboardingInfo }) => {
 	return (
 		<div className="workspace-type-container">
 			{businessTypes.map((type) => (
-				<div onClick={() => handleSelectType(type)} className="workspace-type-option">
-					<h1>{type}</h1>
+				<div
+					key={type.id}
+					onClick={() => handleSelectType(type)}
+					className="workspace-type-option"
+				>
+					<h1>{type.name}</h1>
 				</div>
 			))}
 		</div>
