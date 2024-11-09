@@ -7,9 +7,11 @@ import Spinner from '../../loaders/Spinner';
 import { ReactComponent as LinkIcon } from '../../../../assets/svg/Settings/link-white-color.svg';
 import { ReactComponent as PdfIcon } from '../../../../assets/svg/Settings/pdf-icon.svg';
 import { ReactComponent as TextIcon } from '../../../../assets/svg/Settings/text-icon.svg';
+import { ReactComponent as CrossGrey } from '../../../../assets/svg/Settings/cross-grey.svg';
 import Skeleton from 'react-loading-skeleton';
-// import { ReactComponent as HollowCircleBlue } from '../../../../assets/svg/Settings/hollow-circle-blue.svg';
-// import Template from './tempImg.png';
+import AssignAiAssistantModal from '../../../components/modalsV2/settings/ai_setup/AssignAiAssistantModal';
+import Workflows from './Workflows';
+import { message } from 'antd';
 
 const columnNames = ['Source', 'Status'];
 const statuses = {
@@ -26,14 +28,37 @@ const sourceTypes = {
 
 const KnowledgeBase = () => {
 	let {
-		aiSetup: { knowledgeBaseFiles, getKnowledgeBaseFiles },
+		aiSetup: {
+			activeAiAssistantDetails,
+			knowledgeBaseFiles,
+			getKnowledgeBaseFiles,
+			assignedWorkflowsToAiAssistant,
+			getAssignedWorkflowsToAiAssistant,
+			unassignWorkflowToAiAssistant,
+			getWorkflows,
+			deleteKnowledge,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		isAddKnowledgeModalOpen: false,
 		areKnowledgeBaseFilesLoading: true,
 		isKnowledgeBaseEmpty: false,
+		isAssignAiAssistantModalOpen: false,
+		isDeletingKnowledgeLoading: false,
+		deletedKnowledgeIds: [],
 	});
+
+	useEffect(() => {
+		getWorkflows(1, 10);
+		getAssignedWorkflowsToAiAssistant(activeAiAssistantDetails?._id, 1, 10);
+	}, []);
+
+	useEffect(() => {
+		if (assignedWorkflowsToAiAssistant) {
+			setInfo((prev) => ({ ...prev, assignedWorkflows: assignedWorkflowsToAiAssistant }));
+		}
+	}, [assignedWorkflowsToAiAssistant]);
 
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -49,230 +74,62 @@ const KnowledgeBase = () => {
 
 	const fetchMoreKnowledgeBaseFiles = () => {
 		const nextPageNumber = knowledgeBaseFiles?.currentPage + 1;
-		getKnowledgeBaseFiles(nextPageNumber);
+		getKnowledgeBaseFiles(activeAiAssistantDetails?._id, nextPageNumber);
 	};
 
 	const toggleModal = () => {
 		setInfo({ ...info, isAddKnowledgeModalOpen: !info?.isAddKnowledgeModalOpen });
 	};
 
-	useEffect(() => {
-		console.log('knowledgeBaseFilesLoading', knowledgeBaseFiles?.areKnowledgeBaseFilesLoading);
-	}, [knowledgeBaseFiles?.areKnowledgeBaseFilesLoading]);
+	const toggleAssignAiAssistantModal = () => {
+		setInfo({ ...info, isAssignAiAssistantModalOpen: !info?.isAssignAiAssistantModalOpen });
+	};
+
+	const handleOpenAssignAiAssistantModal = () => {
+		toggleAssignAiAssistantModal();
+	};
+
+	const handleDeleteKnowledge = async (knowledgeId) => {
+		setInfo((prev) => ({ ...prev, isDeletingKnowledgeLoading: true }));
+		const response = await deleteKnowledge(knowledgeId);
+		if (response?.ok) {
+			message.success(response?.message);
+			setInfo((prev) => ({
+				...prev,
+				deletedKnowledgeIds: [...prev?.deletedKnowledgeIds, knowledgeId],
+			}));
+		} else {
+			message.error(response?.message);
+		}
+		setInfo((prev) => ({ ...prev, isDeletingKnowledgeLoading: false }));
+	};
 
 	return (
 		<div className="ai-knowledge-base-container">
-			{/* <div className="assigning-ai">
+			<div className="assigning-ai">
 				<div className="ai-header">
-					<h1>Ve.ai is assisting to:</h1>
-					<button>Assign</button>
+					<h1>{activeAiAssistantDetails?.name} is assisting to:</h1>
+					<button onClick={handleOpenAssignAiAssistantModal}>Assign</button>
 				</div>
 				<div className="line"></div>
-				<div className="templates-container">
-					<div className="template-preview">
-						<img src={Template} alt="template" />
+				{assignedWorkflowsToAiAssistant?.data?.length > 0 ? (
+					<Workflows
+						getAssignedWorkflowsToAiAssistant={getAssignedWorkflowsToAiAssistant}
+						assistantId={activeAiAssistantDetails?._id}
+						renderAssignedWorkflows={true}
+						// info={info}
+						unassignWorkflowToAiAssistant={unassignWorkflowToAiAssistant}
+					/>
+				) : (
+					<div className="no-workflows-container">
+						<p>
+							No workflows found! <br /> Click on the <span>Assign</span> button to
+							assign workflows to <br />{' '}
+							<span className="ai-name">{activeAiAssistantDetails?.name}</span>
+						</p>
 					</div>
-					<div className="template-details">
-						<h1 className="template-name">Wedding Photography Business Solution</h1>
-						<ul>
-							<li>
-								<HollowCircleBlue />
-								<span>Enquiry Form</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Proposal</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Contract</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Thank You</span>
-							</li>
-						</ul>
-						<div className="default-knowledge-container">
-							<p>Default Knowledge: </p>
-							<div className="default-knowledge-link-container">
-								<LinkWhite />
-								<p>Smart File</p>
-							</div>
-						</div>
-					</div>
-					<div className="template-remove">Remove</div>
-				</div>
-				<div className="templates-container">
-					<div className="template-preview">
-						<img src={Template} alt="template" />
-					</div>
-					<div className="template-details">
-						<h1 className="template-name">Wedding Photography Business Solution</h1>
-						<ul>
-							<li>
-								<HollowCircleBlue />
-								<span>Enquiry Form</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Proposal</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Contract</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Thank You</span>
-							</li>
-						</ul>
-						<div className="default-knowledge-container">
-							<p>Default Knowledge: </p>
-							<div className="default-knowledge-link-container">
-								<LinkWhite />
-								<p>Smart File</p>
-							</div>
-						</div>
-					</div>
-					<div className="template-remove">Remove</div>
-				</div>
-				<div className="templates-container">
-					<div className="template-preview">
-						<img src={Template} alt="template" />
-					</div>
-					<div className="template-details">
-						<h1 className="template-name">Wedding Photography Business Solution</h1>
-						<ul>
-							<li>
-								<HollowCircleBlue />
-								<span>Enquiry Form</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Proposal</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Contract</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Thank You</span>
-							</li>
-						</ul>
-						<div className="default-knowledge-container">
-							<p>Default Knowledge: </p>
-							<div className="default-knowledge-link-container">
-								<LinkWhite />
-								<p>Smart File</p>
-							</div>
-						</div>
-					</div>
-					<div className="template-remove">Remove</div>
-				</div>
-				<div className="templates-container">
-					<div className="template-preview">
-						<img src={Template} alt="template" />
-					</div>
-					<div className="template-details">
-						<h1 className="template-name">Wedding Photography Business Solution</h1>
-						<ul>
-							<li>
-								<HollowCircleBlue />
-								<span>Enquiry Form</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Proposal</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Contract</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Thank You</span>
-							</li>
-						</ul>
-						<div className="default-knowledge-container">
-							<p>Default Knowledge: </p>
-							<div className="default-knowledge-link-container">
-								<LinkWhite />
-								<p>Smart File</p>
-							</div>
-						</div>
-					</div>
-					<div className="template-remove">Remove</div>
-				</div>
-				<div className="templates-container">
-					<div className="template-preview">
-						<img src={Template} alt="template" />
-					</div>
-					<div className="template-details">
-						<h1 className="template-name">Wedding Photography Business Solution</h1>
-						<ul>
-							<li>
-								<HollowCircleBlue />
-								<span>Enquiry Form</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Proposal</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Contract</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Thank You</span>
-							</li>
-						</ul>
-						<div className="default-knowledge-container">
-							<p>Default Knowledge: </p>
-							<div className="default-knowledge-link-container">
-								<LinkWhite />
-								<p>Smart File</p>
-							</div>
-						</div>
-					</div>
-					<div className="template-remove">Remove</div>
-				</div>
-				<div className="templates-container">
-					<div className="template-preview">
-						<img src={Template} alt="template" />
-					</div>
-					<div className="template-details">
-						<h1 className="template-name">Wedding Photography Business Solution</h1>
-						<ul>
-							<li>
-								<HollowCircleBlue />
-								<span>Enquiry Form</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Proposal</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Contract</span>
-							</li>
-							<li>
-								<HollowCircleBlue />
-								<span>Thank You</span>
-							</li>
-						</ul>
-						<div className="default-knowledge-container">
-							<p>Default Knowledge: </p>
-							<div className="default-knowledge-link-container">
-								<LinkWhite />
-								<p>Smart File</p>
-							</div>
-						</div>
-					</div>
-					<div className="template-remove">Remove</div>
-				</div>
-			</div> */}
+				)}
+			</div>
 			<div className="active-knowledge-base">
 				<div className="ai-header">
 					<h1>Active Knowledges</h1>
@@ -295,20 +152,6 @@ const KnowledgeBase = () => {
 							className="knowledgebase-infinite-scroll"
 							dataLength={knowledgeBaseFiles?.data?.length || 0}
 							height={350}
-							endMessage={
-								knowledgeBaseFiles?.data?.length > 0 && (
-									<p
-										style={{
-											textAlign: 'center',
-											color: 'white',
-											fontSize: '10px',
-											padding: '4px',
-										}}
-									>
-										End of knowledge files list!
-									</p>
-								)
-							}
 							scrollableTarget={'knowledges-list-target'}
 							next={fetchMoreKnowledgeBaseFiles}
 							hasMore={knowledgeBaseFiles?.hasMore}
@@ -336,7 +179,17 @@ const KnowledgeBase = () => {
 								</p>
 							) : (
 								knowledgeBaseFiles?.data?.map((knowledge) => (
-									<div key={knowledge?._id} className="knowledge-item">
+									<div
+										key={knowledge?._id}
+										className="knowledge-item"
+										style={{
+											display: info?.deletedKnowledgeIds?.includes(
+												knowledge?._id,
+											)
+												? 'none'
+												: 'flex',
+										}}
+									>
 										<div className="knowledge-link-container">
 											{sourceTypes?.[knowledge?.sourceType]}
 											<p>{knowledge?.name}</p>
@@ -350,6 +203,19 @@ const KnowledgeBase = () => {
 												)}
 												{statuses?.[knowledge?.status]}
 											</span>
+											<span
+												disabled={info?.isDeletingKnowledgeLoading}
+												style={{
+													cursor: info?.isDeletingKnowledgeLoading
+														? 'not-allowed'
+														: 'pointer',
+												}}
+												onClick={() =>
+													handleDeleteKnowledge(knowledge?._id)
+												}
+											>
+												<CrossGrey />
+											</span>
 										</div>
 									</div>
 								))
@@ -359,6 +225,14 @@ const KnowledgeBase = () => {
 				</div>
 			</div>
 			<AddKnowledgeModal isOpen={info?.isAddKnowledgeModalOpen} toggleModal={toggleModal} />
+			<AssignAiAssistantModal
+				assignedWorkflows={info?.assignedWorkflows}
+				isOpen={info?.isAssignAiAssistantModalOpen}
+				toggleModal={toggleAssignAiAssistantModal}
+				myWorkflows={info?.workflows}
+				activeAiAssistantDetails={activeAiAssistantDetails}
+				getAssignedWorkflowsToAiAssistant={getAssignedWorkflowsToAiAssistant}
+			/>
 		</div>
 	);
 };

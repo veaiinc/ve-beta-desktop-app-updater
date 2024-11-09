@@ -34,7 +34,7 @@ const AiSetupPage = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		getKnowledgeBaseFiles();
+		getKnowledgeBaseFiles(aiAssistantId);
 		getActiveAiAssistantDetails(aiAssistantId);
 	}, []);
 

@@ -12,7 +12,7 @@ import ToolTipContainer from '../../../components/popover/ToolTipContainer';
 
 const AiSetup = () => {
 	const {
-		aiSetup: { existingAiAssistants, getExistingAiAssistants },
+		aiSetup: { existingAiAssistants, getExistingAiAssistants, resetState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -22,6 +22,7 @@ const AiSetup = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
+		resetState();
 		getExistingAiAssistants();
 	}, []);
 
