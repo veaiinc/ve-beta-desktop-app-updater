@@ -342,7 +342,7 @@ const SendProposalModal = ({
 
 	const slugOnChange = useCallback(
 		(e) => {
-			const valueWithoutSpaces = e?.target?.value.replace(/\s+/g, '');
+			const valueWithoutSpaces = e?.target?.value.replace(/[^a-z0-9]/g, '');
 			setInfo((prev) => ({ ...prev, slugHolder: valueWithoutSpaces, slugErrorMessage: '' }));
 			if (valueWithoutSpaces === slug) {
 				return;
