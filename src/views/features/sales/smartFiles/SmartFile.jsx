@@ -401,7 +401,7 @@ const SmartFile = () => {
 					workflowStatus={info?.workflowStatus}
 				/>
 			),
-			activity: <ActivityDashboard />,
+			activity: <ActivityDashboard workflowData={info?.workflowData?.clientDetails} />,
 		};
 	}, [
 		info?.workflowData,

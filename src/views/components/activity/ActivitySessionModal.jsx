@@ -25,8 +25,9 @@ const SessionActivityModal = ({
 	showDrawer,
 	selectedViewer,
 	formatTime,
-	activityDataLoading,
+	workflowData,
 }) => {
+	console.log('selectedViewer:' + JSON.stringify(selectedViewer, null, 2));
 	const { workflowId } = useParams();
 
 	const {
@@ -118,6 +119,10 @@ const SessionActivityModal = ({
 		return `${hours}:${minutes}:${secs}.${millisecs}`;
 	}, []);
 
+	const capitalizeWords = (string) => {
+		return string.replace(/\b\w/g, (char) => char.toUpperCase());
+	};
+
 	const componentMapper = useMemo(() => {
 		return {
 			// TimeLine: <TimeLineSession />,
@@ -190,10 +195,7 @@ const SessionActivityModal = ({
 											<span className="logoText">Session Activity</span>
 										</div>
 										<span className="headerTitle">
-											{/* James Stark - Smart File */}
-											{viewerSessionDetails?.isAnonymus
-												? 'Anonymus - Smart File'
-												: viewerSessionDetails?.clientDetails?.name}
+											{capitalizeWords(workflowData?.name || '')} - Smart File
 										</span>
 									</div>
 									<div className="closeBtn" onClick={showDrawer}>
@@ -205,20 +207,45 @@ const SessionActivityModal = ({
 							<div className="profileCardContainer">
 								{/* <!-- User Information Section --> */}
 								<div className="profileInfoContainer">
-									<div className="profileAvatar">JS</div>
+									<div className="profileAvatar">
+										{selectedViewer?.isAnonymus ? (
+											<span className="viewerName">A</span>
+										) : (
+											selectedViewer?.name
+												?.split(' ')
+												.map((word) => word[0])
+												.join('')
+												.toUpperCase() || null
+										)}
+									</div>
 									<div className="profileDetailsWrapper">
 										<div className="profileTitle">
-											<span className="titleName">Jhon Michael</span>
-											<span className="titleIcon">
-												<LinkedinSvg />
+											<span className="titleName">
+												{selectedViewer?.isAnonymus ? (
+													<span>Anonymous</span>
+												) : (
+													<span>
+														{selectedViewer?.name || 'Anonymous'}
+													</span>
+												)}
 											</span>
+											<a
+												href={`https://www.linkedin.com/search/results/all?keywords=${selectedViewer?.name}`}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="titleIconLink"
+											>
+												<span className="titleIcon">
+													<LinkedinSvg />
+												</span>
+											</a>
 										</div>
 										<div className="profileDescription">
-											<p>
+											{/* <p>
 												Digital Marketing Strategist | Growth Hacker |
 												Storyteller
-											</p>
-											<p>johnmichael@gmail.com</p>
+											</p> */}
+											<p>{selectedViewer?.email || 'anonymous@domain.com'}</p>
 										</div>
 									</div>
 								</div>

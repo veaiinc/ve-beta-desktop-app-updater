@@ -10,7 +10,7 @@ import Context from '../../../../context/context';
 import { useParams } from 'react-router-dom';
 import moment from 'moment';
 
-const ActivityDashboard = () => {
+const ActivityDashboard = ({ workflowData }) => {
 	const { workflowId } = useParams();
 
 	//Context
@@ -149,6 +149,7 @@ const ActivityDashboard = () => {
 					selectedViewer={info?.selectedViewer}
 					formatTime={formatTime}
 					activityDataLoading={info?.activityDataLoading}
+					workflowData={workflowData}
 				/>
 			) : (
 				''
