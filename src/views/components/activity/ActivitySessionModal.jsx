@@ -27,7 +27,6 @@ const SessionActivityModal = ({
 	formatTime,
 	workflowData,
 }) => {
-	console.log('selectedViewer:' + JSON.stringify(selectedViewer, null, 2));
 	const { workflowId } = useParams();
 
 	const {
