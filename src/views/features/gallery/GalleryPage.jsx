@@ -25,6 +25,7 @@ import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
 import GalleryOverview from '../../components/gallery/galleryPage/GalleryOverviewComp';
 import DesignOverviewComp from '../../components/gallery/galleryPage/DesignOverviewComp';
 import UploadGalleryImageCover from '../../components/gallery/galleryPage/UploadGalleryImageCover';
+import MoveToAlbumPopup from '../../components/modalsV2/gallery/MoveToAlbumPopup';
 import randomize from 'randomatic';
 import axios from 'axios';
 import Skeleton from 'react-loading-skeleton';
@@ -77,6 +78,7 @@ const GalleryPage = () => {
 			clientSelectionsData,
 			getClientSelectionImages,
 			clientSelectionImages,
+			moveImagesToAlbum,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -138,6 +140,7 @@ const GalleryPage = () => {
 		clientSelectionName: clientSelectionsData?.data?.[0]?.title,
 		clientSelectionImages: clientSelectionImages,
 		resetInfinityScroll: false,
+		showMoveToAlbum: false,
 		flexWrap_visible: false,
 	});
 	const optionsRef = useRef(null);
@@ -1070,6 +1073,31 @@ const GalleryPage = () => {
 		},
 		[info?.activeAlbumId, info?.albumTagId],
 	);
+	const handleMoveImageToAlbum = async (albumId) => {
+		const payload = {
+			image_ids: info?.selectedImages,
+		};
+		let updatedImages = info?.imagesList?.docs?.filter((image) => {
+			return !info?.selectedImages?.includes(image?._id);
+		});
+
+		const response = await moveImagesToAlbum(payload, galleryId, albumId);
+		if (response?.[0] === true) {
+			getAlbumImagesCount(galleryId);
+			setInfo((prev) => ({
+				...prev,
+				imagesList: {
+					...prev.imagesList,
+					docs: updatedImages,
+				},
+				selectedImages: [],
+				showMoveToAlbum: false,
+			}));
+			message.success('Images moved to album successfully');
+		} else {
+			message.error('Something went wrong, please try again later');
+		}
+	};
 
 	const dynamicHeightFunc = () => {
 		const containerWidth = document.querySelector('.albums')?.clientWidth || 0; // Get the width of the container
@@ -2171,7 +2199,16 @@ const GalleryPage = () => {
 															ref={forwardOptionsRef}
 														>
 															<li>Copy to client selection</li>
-															<li>Move to Other Albums</li>
+															<li
+																onClick={() =>
+																	setInfo((prev) => ({
+																		...prev,
+																		showMoveToAlbum: true,
+																	}))
+																}
+															>
+																Move to Other Albums
+															</li>
 														</div>
 													)}
 												</div>
@@ -2624,6 +2661,14 @@ const GalleryPage = () => {
 					'You cannot undo this action.All your photos in this album lined to this label will be lost'
 				}
 				handleDelete={handleAlbumDelete}
+			/>
+			<MoveToAlbumPopup
+				open={info?.showMoveToAlbum}
+				closeModal={() => setInfo((prev) => ({ ...prev, showMoveToAlbum: false }))}
+				galleryId={galleryId}
+				albums={albumImagesCount?.albums}
+				albumName={info?.albumName}
+				moveImageToAlbum={(e) => handleMoveImageToAlbum(e)}
 			/>
 		</>
 	);
