@@ -10,6 +10,7 @@ import Profession from '../../components/onboarding/Profession';
 import { updateUserDetails, createWorkspace } from '../../../services/authServices/authServices';
 import { message } from 'antd';
 import CreatingNewWorkspace from '../../components/onboarding/CreatingNewWorkspace';
+import { checkUserSessionStatus } from '../../../services/authServices/authServices';
 
 const tl = gsap.timeline();
 const tl2 = gsap.timeline();
@@ -27,6 +28,10 @@ const Onboarding = () => {
 		isOnboard: false,
 	});
 
+	const [isOnboard, setIsOnboard] = useState(false);
+	const [tokenValid, setTokenValid] = useState(false);
+	const [workspaceIds, setWorkspaceIds] = useState([]);
+
 	const navigate = useNavigate();
 
 	const aiIntroRef = useRef(null);
@@ -36,6 +41,34 @@ const Onboarding = () => {
 	const step5Ref = useRef(null);
 	const step6Ref = useRef(null);
 	const step7Ref = useRef(null);
+
+	useEffect(() => {
+		checkUserSessionStatus()
+			.then((response) => {
+				if (response?.ok) {
+					setIsOnboard(response?.isOnboard);
+					setTokenValid(response?.tokenValid);
+					setWorkspaceIds(response?.workspaceIds);
+				}
+			})
+			.catch((error) => {
+				console.error('Error checking user session status:', error);
+			});
+	}, []);
+
+	useEffect(() => {
+		if (!isOnboard && tokenValid) {
+			if (workspaceIds?.length >= 1) {
+				navigate('/home');
+			} else {
+				navigate('/onboarding');
+			}
+		} else if (isOnboard && tokenValid) {
+			navigate('/home');
+		} else if (!tokenValid) {
+			navigate('/');
+		}
+	}, [isOnboard, tokenValid, workspaceIds]);
 
 	useEffect(() => {
 		if (info?.step === 0 && aiIntroRef?.current) {
