@@ -14,8 +14,8 @@ import { ReactComponent as WebSvg } from '../../../assets/svg/activity/web.svg';
 import { Drawer } from 'antd';
 import { useParams } from 'react-router-dom';
 import Context from '../../../context/context';
-import TimeLineSession from './TimeLineSession.jsx';
-import ChatSession from './ChatSession.jsx';
+// import TimeLineSession from './TimeLineSession.jsx';
+// import ChatSession from './ChatSession.jsx';
 import SessionMetric from './SessionMetric.jsx';
 import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
@@ -47,23 +47,24 @@ const SessionActivityModal = ({
 	//API call getSessionSummary ===>
 	const fetchViewersSessionDetails = useCallback(async () => {
 		if (
-			info.currentSessionId &&
-			(!viewerSessionDetails || viewerSessionDetails?._id !== info.currentSessionId)
+			info?.currentSessionId &&
+			(!viewerSessionDetails || viewerSessionDetails?._id !== info?.currentSessionId)
 		) {
 			setInfo((prevInfo) => ({ ...prevInfo, isLoading: true }));
 			await getViewersSessionDetails({
 				workflowId,
-				getSessionSummaryId: info.currentSessionId,
+				getSessionSummaryId: info?.currentSessionId,
 			});
 			setInfo((prevInfo) => ({ ...prevInfo, isLoading: false }));
 		}
-	}, [getViewersSessionDetails, info.currentSessionId, workflowId]);
+	}, [info?.currentSessionId, workflowId]);
 
 	useEffect(() => {
-		if (info.currentSessionId) {
+		console.log('Using current session===>,' + info.currentSessionId);
+		if (info?.currentSessionId) {
 			fetchViewersSessionDetails();
 		}
-	}, [fetchViewersSessionDetails, info.currentSessionId]);
+	}, [info?.currentSessionId, selectedViewer]);
 
 	//Handle Session Next Session ===>
 	const handleNextSession = () => {
