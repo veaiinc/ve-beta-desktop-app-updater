@@ -13,6 +13,14 @@ const actionHandlers = {
 		...state,
 		activeAiAssistantDetails: action?.payload,
 	}),
+	SET_ASSIGNED_WORKFLOWS_TO_AI_ASSISTANT: (state, action) => ({
+		...state,
+		assignedWorkflowsToAiAssistant: action?.payload,
+	}),
+	SET_WORKFLOWS: (state, action) => ({
+		...state,
+		workflows: action?.payload,
+	}),
 
 	RESET_STATE: () => intialState,
 };
