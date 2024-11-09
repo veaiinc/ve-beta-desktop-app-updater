@@ -97,7 +97,7 @@ const GalleryViewer = () => {
 	}, [info?.activeImage]);
 
 	useEffect(() => {
-		if (info?.imageDetailId) {
+		if (info?.imageDetailId && info?.imageDetailId !== imageDetail?._id) {
 			getImageDetail(info?.imageDetailId);
 		}
 	}, [info?.imageDetailId]);
@@ -119,6 +119,7 @@ const GalleryViewer = () => {
 			...prev,
 			activeImage: id,
 			activeImageIndex: index,
+			imageDetailId: null,
 		}));
 
 		setTimeout(() => {

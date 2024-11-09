@@ -34,6 +34,10 @@ const FullImagesComponent = ({
 											...prev,
 											activeImage: image?._id,
 											activeImageIndex: index,
+											imageDetailId:
+												prev?.imageDetailId !== image?._id
+													? null
+													: image?._id,
 										}))
 									}
 									onClick={() => largeImageFunction(image?._id, index)}

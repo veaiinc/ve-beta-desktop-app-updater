@@ -1518,9 +1518,9 @@ const GalleryPage = () => {
 										</div>
 									</div>
 									<div className="albumSearchCotainer">
-										<p onClick={handleRearrange} style={{ cursor: 'pointer' }}>
+										{/* <p onClick={handleRearrange} style={{ cursor: 'pointer' }}>
 											Rearrange manually
-										</p>
+										</p> */}
 										<div
 											onClick={() =>
 												setInfo((prevInfo) => ({
@@ -2159,7 +2159,9 @@ const GalleryPage = () => {
 															className="forwardOptions"
 															ref={forwardOptionsRef}
 														>
-															<li>Copy to client selection</li>
+															<li style={{ cursor: 'not-allowed' }}>
+																Copy to client selection
+															</li>
 															<li
 																onClick={() =>
 																	setInfo((prev) => ({

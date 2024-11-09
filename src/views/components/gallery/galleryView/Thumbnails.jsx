@@ -30,7 +30,7 @@ const Thumbnails = ({
 							return (
 								<div
 									className={`imageContainer ${
-										info?.activeImage === image?._id ? 'active' : ''
+										info?.imageDetailId === image?._id ? 'active' : ''
 									}`}
 									id={'thumbnail' + image?._id}
 									onClick={() => activeThumbnailFunction(image?._id, index)}
