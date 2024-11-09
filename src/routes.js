@@ -26,22 +26,22 @@ const routes = [
 		path: '/',
 		component: <Landing_screen />,
 	},
-	{
-		path: '/verify-user',
-		component: <LoginScreen stage={'verify-user'} />,
-	},
+	// {
+	// 	path: '/verify-user',
+	// 	component: <LoginScreen stage={'verify-user'} />,
+	// },
 	{
 		path: '/onboarding',
 		component: <Onboarding />,
 	},
 	{
-		path: '/login',
+		path: '/verify-user',
 		component: <LoginPage />,
 	},
-	{
-		path: '/signup',
-		component: <LoginPage />,
-	},
+	// {
+	// 	path: '/verify-user',
+	// 	component: <LoginPage />,
+	// },
 	{
 		path: '/login-with-password',
 		component: <LoginScreen stage={'login-with-password'} />,

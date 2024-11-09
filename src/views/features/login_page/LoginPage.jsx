@@ -1,7 +1,6 @@
 import React, { memo, useState, useEffect } from 'react';
 import '../../../assets/scss/login_page/index.scss';
 import Email from '../../components/login_page/Email';
-import { useParams, useLocation } from 'react-router-dom';
 import VerificationCode from '../../components/login_page/VerificationCode';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/login_page/ve-ai-logo.svg';
 import { ReactComponent as CircleLightPurple } from '../../../assets/svg/login_page/circle-light-purple.svg';
@@ -20,15 +19,6 @@ const LoginPage = () => {
 		emailVerified: false,
 		accountExists: false,
 	});
-
-	const { signupemail } = useParams();
-	const pathdetails = useLocation();
-
-	useEffect(() => {
-		if (pathdetails?.search?.split('=')?.[1] && pathdetails?.pathname === '/signup') {
-			setInfo((prev) => ({ ...prev, email: pathdetails?.search?.split('=')?.[1] }));
-		}
-	}, []);
 
 	const stages = {
 		email: <Email loginPageInfo={info} setLoginPageInfo={setInfo} />,

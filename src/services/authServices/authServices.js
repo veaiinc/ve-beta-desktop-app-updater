@@ -55,7 +55,7 @@ export const checkAccountExistsUsingEmail = async (email) => {
 					} else {
 						return {
 							ok: false,
-							message: response?.[1]?.message?.trim() + '. Please try again!',
+							message: 'An unexpected error occurred. Please try again!',
 						};
 					}
 				}
@@ -97,11 +97,13 @@ export const createAccountUsingEmail = async (email, locationDetails) => {
 			});
 			return {
 				ok: true,
+				accountExists: true,
+				emailVerified: false,
 			};
 		} else {
 			return {
 				ok: false,
-				message: response?.[1]?.message?.trim() + '. Please try again!',
+				message: 'An unexpected error occurred. Please try again!',
 			};
 		}
 	} catch (error) {

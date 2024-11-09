@@ -7,6 +7,11 @@ import { ReactComponent as LinkedIn } from '../../../assets/svg/earlyAccess/link
 import { ReactComponent as Instagram } from '../../../assets/svg/earlyAccess/instagram.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
+
+let isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
+const usertoken = localStorage.getItem('usertoken');
+const workspaceId = localStorage.getItem('workspaceId');
+
 const EarlyAccess = () => {
 	const navigate = useNavigate();
 	const {
@@ -18,7 +23,11 @@ const EarlyAccess = () => {
 	});
 
 	useEffect(() => {
-		getUserWorkSpaceList();
+		if (!usertoken) {
+			navigate('/');
+		} else {
+			getUserWorkSpaceList();
+		}
 	}, []);
 
 	useEffect(() => {
@@ -28,9 +37,7 @@ const EarlyAccess = () => {
 	}, [userWorkSpaceList]);
 
 	const checkIsOnBoardUser = useCallback(() => {
-		let isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
-		const usertoken = localStorage.getItem('usertoken');
-		const workspaceId = localStorage.getItem('workspaceId');
+		setInfo({ loading: true });
 		const currentWorkspaceData = (userWorkSpaceList || [])?.filter(
 			(ele) => ele?.activeWorkspaceId === workspaceId,
 		);

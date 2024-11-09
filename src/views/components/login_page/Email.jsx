@@ -1,6 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
 import validator from 'validator';
-import { useNavigate, useLocation } from 'react-router-dom';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
@@ -14,28 +13,11 @@ import { message } from 'antd';
 import Spinner from '../loaders/Spinner';
 
 const Email = ({ loginPageInfo, setLoginPageInfo }) => {
-	const navigate = useNavigate();
-	const urlDetails = useLocation();
-
 	const [info, setInfo] = useState({
 		isHovering: false,
 		isEmailValid: false,
 		isLoading: false,
 	});
-
-	useEffect(() => {
-		if (urlDetails?.pathname === '/signup') {
-			const email = urlDetails?.search?.split('=')[1];
-			if (email) {
-				handleCreateAccountWithEmail(email);
-			}
-		} else if (urlDetails?.pathname === '/login') {
-			const email = urlDetails?.search?.split('=')[1];
-			if (email) {
-				handleContinueWithEmail();
-			}
-		}
-	}, [urlDetails?.pathname]);
 
 	useEffect(() => {
 		validateEmail(loginPageInfo?.email);
@@ -45,13 +27,10 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 		const locationDetails = await getLocationsDetails();
 		const response = await createAccountUsingEmail(email, locationDetails);
 		if (response?.ok) {
-			message?.info('Account created successfully! Please verify your email.', 1.5);
-			setTimeout(() => {
-				setLoginPageInfo((prev) => ({
-					...prev,
-					activeStage: 'verificationCode',
-				}));
-			}, 1500);
+			setLoginPageInfo((prev) => ({
+				...prev,
+				activeStage: 'verificationCode',
+			}));
 		} else {
 			message?.error(response?.message);
 		}
@@ -83,31 +62,22 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 			const response = await checkAccountExistsUsingEmail(loginPageInfo?.email);
 			if (response?.ok) {
 				if (response?.accountExists) {
-					if (urlDetails?.pathname === '/login') {
+					if (response?.emailVerified) {
 						setLoginPageInfo((prev) => ({
 							...prev,
+							emailVerified: true,
 							activeStage: 'verificationCode',
-							emailVerified: response?.emailVerified,
-							accountExists: response?.accountExists,
 						}));
 					} else {
-						message?.info(
-							'This email is already registered, redirecting to login!',
-							1.5,
-						);
-						setTimeout(() => {
-							navigate('/login?loginemail=' + loginPageInfo?.email);
-						}, 1500);
+						setLoginPageInfo((prev) => ({
+							...prev,
+							emailVerified: false,
+							activeStage: 'verificationCode',
+						}));
 					}
-				} else if (!response?.accountExists) {
-					if (urlDetails?.pathname === '/login') {
-						message?.info('This email is not registered, redirecting to signup!', 1.5);
-						setTimeout(() => {
-							navigate('/signup?signupemail=' + loginPageInfo?.email);
-						}, 1500);
-					} else if (urlDetails?.pathname === '/signup') {
-						handleCreateAccountWithEmail(loginPageInfo?.email);
-					}
+				} else {
+					await handleCreateAccountWithEmail(loginPageInfo?.email);
+					handleContinueWithEmail();
 				}
 			} else {
 				message?.error(response?.message);

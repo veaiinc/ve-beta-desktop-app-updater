@@ -80,6 +80,7 @@ const Onboarding = () => {
 					step: prev?.step + 1,
 					isOnboard: workspaceResponse?.isOnboard,
 				}));
+				localStorage.setItem('isOnboard', workspaceResponse?.isOnboard);
 				handleNavigate();
 			} else {
 				message.error(workspaceResponse?.message);
