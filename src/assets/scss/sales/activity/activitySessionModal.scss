@@ -153,6 +153,15 @@
 							width: 18px;
 							height: 18px;
 						}
+						.titleIconLink {
+							display: inline-flex;
+							align-items: center;
+
+							&:hover {
+								opacity: 0.8;
+								cursor: pointer;
+							}
+						}
 					}
 
 					.profileDescription {
