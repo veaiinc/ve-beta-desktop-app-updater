@@ -821,6 +821,9 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+			if (response[0] === true && state?.albumImagesCount) {
+				getAlbumImagesCount(galleryId);
+			}
 			return response;
 		} catch (error) {
 			console.log('error==>updateAlbumCoverImage', error);

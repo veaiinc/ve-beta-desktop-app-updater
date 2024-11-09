@@ -5,7 +5,7 @@ import { DatePicker } from 'antd';
 import Context from '../../../../context/context';
 import { useLocation } from 'react-router-dom';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/workspaceSettings/cross.svg';
-
+import slugify from 'slugify';
 const CreateAlbum = ({ open, closeModal, galleryId }) => {
 	const {
 		galleryInfo: { createNewAlbum, checkAlbumSlugIsAvalible },
@@ -27,13 +27,18 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 			if (albumName.length > 50) {
 				return;
 			}
+
+			const slugConverted = slugify(albumName, {
+				lower: true,
+				strict: true,
+			});
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				albumName,
-				slug: albumName.replace(/\s+/g, '-'),
+				slug: slugConverted,
 				albumNameError: !albumName,
 			}));
-			handleDebounceSearch(albumName.replace(/\s+/g, '-'));
+			handleDebounceSearch(slugConverted);
 		} else {
 			setInfo((prevInfo) => ({
 				...prevInfo,

@@ -396,8 +396,6 @@ const GalleryPage = () => {
 		// }));
 	};
 
-	console.log('location', location.state);
-
 	const handleImageSelect = (index, images) => {
 		setInfo((prevInfo) => {
 			const isDeselecting = prevInfo.selectedImages.includes(images?._id);
@@ -1100,53 +1098,16 @@ const GalleryPage = () => {
 	};
 
 	const dynamicHeightFunc = () => {
-		const containerWidth = document.querySelector('.albums')?.clientWidth || 0; // Get the width of the container
-		const cardWidth = 130; // Width of each album card
+		const containerWidth = document.querySelector('.albums')?.clientWidth || 0;
+		const cardWidth = 130;
 		const numberOfCards = albumImagesCount?.albums?.length + 1 || 0;
-		const cardHeight = 160; // Height of each album card
-		const gap = 20; // Optional padding between cards
+		const cardHeight = 160;
+		const gap = 20;
 		const cardsPerRow = Math.floor((containerWidth + gap) / (cardWidth + gap));
 		const totalRows = Math.ceil(numberOfCards / cardsPerRow);
 
-		// Calculate total height based on rows
 		const totalHeight = totalRows * (cardHeight + gap);
 
-		// setTimeout(() => {
-		// 	// document.querySelector('.albums').style.width = 'auto';
-		// 	document.querySelector('.albums').style.flexWrap = 'wrap';
-		// 	document.querySelector('.albums').style.overflow = 'visible';
-		// }, 1010);
-
-		// setTimeout(
-		// 	() =>
-		// 		setInfo(
-		// 			(prev) => ({
-		// 		...prev,
-		// 		flexWrap_visible: true,
-		// 		}),
-		// 	300,
-		// )
-
-		// let timeout = setTimeout(() => {
-		// 	setInfo((prev) => ({
-		// 		...prev,
-		// 		flexWrap_visible: true,
-		// 	}));
-		// 	clearTimeout(timeout);
-		// }, 400);
-
-		console.log(
-			totalHeight,
-			'totalHeight',
-			cardsPerRow,
-			'cardsPerRow',
-			numberOfCards,
-			'numberOfCards',
-			containerWidth,
-			'containerWidth',
-			totalRows,
-			'totalRows',
-		);
 		return totalHeight;
 	};
 

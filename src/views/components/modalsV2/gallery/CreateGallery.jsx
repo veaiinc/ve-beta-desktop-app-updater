@@ -2,10 +2,10 @@ import React, { memo, useState, useEffect, useContext, useCallback } from 'react
 import ReactModal from '../index';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import '../../../../assets/scss/gallery/modals/createGallery.scss';
-import axios from 'axios';
 import Context from '../../../../context/context';
 import jwt_decode from 'jwt-decode';
 import { DatePicker } from 'antd';
+import slugify from 'slugify';
 
 const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
 	const {
@@ -51,13 +51,17 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
 			if (e.target.value.trim().length > 50) {
 				return;
 			}
+			const slugConverted = slugify(e.target.value, {
+				lower: true,
+				strict: true,
+			});
 			setGalleryData({
 				...galleryData,
 				title: e.target.value,
-				slug: e.target.value.replace(/\s+/g, '-'),
+				slug: slugConverted,
 				galleryNameError: !e.target.value,
 			});
-			handleDebounceSearch(e.target.value.replace(/\s+/g, '-'));
+			handleDebounceSearch(slugConverted);
 		} else {
 			setGalleryData({
 				...galleryData,
