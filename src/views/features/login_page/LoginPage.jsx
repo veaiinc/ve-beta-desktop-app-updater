@@ -34,10 +34,12 @@ const LoginPage = () => {
 	return (
 		<div className="login-page-container">
 			<div className="left-container">
-				<div className="logo-container">
-					<VeAiLogo />
+				<div className="stages-container">
+					<div className="logo-container">
+						<VeAiLogo />
+					</div>
+					{stages[info?.activeStage]}
 				</div>
-				{stages[info?.activeStage]}
 			</div>
 			<div className="right-container">
 				<div className="right-container-content">

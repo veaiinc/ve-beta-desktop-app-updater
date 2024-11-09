@@ -91,7 +91,7 @@ const Onboarding = () => {
 	};
 
 	const handleNavigate = () => {
-		const route = info?.isOnboard ? '/home' : '/early-access';
+		const route = localStorage.getItem('isOnboard') ? '/home' : '/early-access';
 		navigate(route);
 	};
 

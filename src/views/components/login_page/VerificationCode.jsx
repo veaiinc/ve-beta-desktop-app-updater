@@ -123,10 +123,10 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 				}}
 			>
 				{info?.otp?.length === 6 ? <UpArrowBlackHover /> : <UpArrowGrey />}
-				<p>
-					Verify Code{' '}
+				<div className="verify-code-text-container">
+					<span>Verify Code</span>
 					{info?.isLoading && <Spinner width="20px" height="20px" color="black" />}
-				</p>
+				</div>
 			</button>
 			<p className="resend-code-text">Resend code</p>
 		</div>
