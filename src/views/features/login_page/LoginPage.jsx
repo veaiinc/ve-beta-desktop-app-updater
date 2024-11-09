@@ -18,6 +18,7 @@ const LoginPage = () => {
 		activeStage: 'email',
 		email: '',
 		emailVerified: false,
+		accountExists: false,
 	});
 
 	const { signupemail } = useParams();

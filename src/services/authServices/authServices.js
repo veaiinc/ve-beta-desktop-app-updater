@@ -40,6 +40,7 @@ export const checkAccountExistsUsingEmail = async (email) => {
 					if (response?.[0] === true) {
 						return {
 							ok: true,
+							accountExists: true,
 							emailVerified: true,
 						};
 					}
@@ -48,6 +49,7 @@ export const checkAccountExistsUsingEmail = async (email) => {
 					if (response?.[0] === true) {
 						return {
 							ok: true,
+							accountExists: true,
 							emailVerified: false,
 						};
 					} else {
@@ -58,11 +60,15 @@ export const checkAccountExistsUsingEmail = async (email) => {
 					}
 				}
 			} else {
+				return {
+					ok: true,
+					accountExists: false,
+				};
 			}
 		} else {
 			return {
 				ok: false,
-				message: response?.[1]?.message?.trim() + '. Please try again!',
+				message: 'An unexpected error occurred. Please try again!',
 			};
 		}
 	} catch (error) {

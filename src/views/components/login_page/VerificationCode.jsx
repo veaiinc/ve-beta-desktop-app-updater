@@ -21,12 +21,6 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 	const otpContainerRef = useRef(null);
 
 	useEffect(() => {
-		const handleKeyDown = (e) => {
-			if (e?.key === 'Enter' && info?.otp?.length === 6 && !info?.isLoading) {
-				handleVerifyEmailVerificationCode();
-			}
-		};
-
 		const container = otpContainerRef?.current;
 		if (container) {
 			container?.addEventListener('keydown', handleKeyDown);
@@ -39,6 +33,12 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 		};
 	}, [info?.otp, info?.isLoading]);
 
+	const handleKeyDown = (e) => {
+		if (e?.key === 'Enter' && info?.otp?.length === 6 && !info?.isLoading) {
+			handleVerifyEmailVerificationCode();
+		}
+	};
+
 	const handleVerifyEmailVerificationCode = async () => {
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 		const response = await verifyEmailVerificationCode(email, info?.otp, emailVerified);
@@ -50,9 +50,12 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 				} else {
 					navigate('/onboarding');
 				}
-			} else setLoginPageInfo((prev) => ({ ...prev, activeStage: 'login' }));
+			} else if (response?.hasWorkspaces) {
+				navigate('/home');
+			} else {
+				navigate('/onboarding');
+			}
 		} else {
-			// message?.error(response?.message, 1.5);
 			setInfo((prev) => ({ ...prev, otpError: response?.message }));
 		}
 		setInfo((prev) => ({ ...prev, isLoading: false }));

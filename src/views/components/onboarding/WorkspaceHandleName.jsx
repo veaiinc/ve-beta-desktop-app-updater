@@ -72,7 +72,12 @@ const WorkspaceHandleName = ({ onboardingInfo, setOnboardingInfo, animateStep4En
 	};
 
 	const handleKeyDown = (e) => {
-		if (e.key === 'Enter' && onboardingInfo?.workspaceHandle?.length > 0) {
+		if (
+			e.key === 'Enter' &&
+			!info?.isChecking &&
+			onboardingInfo?.workspaceHandle?.length > 1 &&
+			onboardingInfo?.isWorkspaceHandleAvailable
+		) {
 			handleNext();
 		}
 	};

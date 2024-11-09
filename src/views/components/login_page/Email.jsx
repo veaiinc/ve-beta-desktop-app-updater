@@ -24,8 +24,38 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	});
 
 	useEffect(() => {
+		if (urlDetails?.pathname === '/signup') {
+			const email = urlDetails?.search?.split('=')[1];
+			if (email) {
+				handleCreateAccountWithEmail(email);
+			}
+		} else if (urlDetails?.pathname === '/login') {
+			const email = urlDetails?.search?.split('=')[1];
+			if (email) {
+				handleContinueWithEmail();
+			}
+		}
+	}, [urlDetails?.pathname]);
+
+	useEffect(() => {
 		validateEmail(loginPageInfo?.email);
 	}, [loginPageInfo?.email]);
+
+	const handleCreateAccountWithEmail = async (email) => {
+		const locationDetails = await getLocationsDetails();
+		const response = await createAccountUsingEmail(email, locationDetails);
+		if (response?.ok) {
+			message?.info('Account created successfully! Please verify your email.', 1.5);
+			setTimeout(() => {
+				setLoginPageInfo((prev) => ({
+					...prev,
+					activeStage: 'verificationCode',
+				}));
+			}, 1500);
+		} else {
+			message?.error(response?.message);
+		}
+	};
 
 	const handleGoogleLogin = () => {
 		console.log('google login');
@@ -52,33 +82,35 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 		try {
 			const response = await checkAccountExistsUsingEmail(loginPageInfo?.email);
 			if (response?.ok) {
-				setLoginPageInfo((prev) => ({
-					...prev,
-					activeStage: 'verificationCode',
-					emailVerified: response?.emailVerified,
-				}));
-			} else {
-				message?.info('You are a new user, redirecting to signup!', 1.5);
-				setTimeout(async () => {
-					if (urlDetails?.pathname !== '/signup') {
+				if (response?.accountExists) {
+					if (urlDetails?.pathname === '/login') {
 						setLoginPageInfo((prev) => ({
 							...prev,
-							activeStage: 'signup',
+							activeStage: 'verificationCode',
+							emailVerified: response?.emailVerified,
+							accountExists: response?.accountExists,
 						}));
-						navigate('/signup?signupemail=' + loginPageInfo?.email);
-						// const locationDetails = await getLocationsDetails();
-						// const response = await createAccountUsingEmail(
-						// 	loginPageInfo?.email,
-						// 	locationDetails,
-						// );
-						// if (response?.verifyEmailSentTo === loginPageInfo?.email) {
-						// 	setLoginPageInfo((prev) => ({
-						// 		...prev,
-						// 		activeStage: 'verificationCode',
-						// 	}));
-						// }
+					} else {
+						message?.info(
+							'This email is already registered, redirecting to login!',
+							1.5,
+						);
+						setTimeout(() => {
+							navigate('/login?loginemail=' + loginPageInfo?.email);
+						}, 1500);
 					}
-				}, 1500);
+				} else if (!response?.accountExists) {
+					if (urlDetails?.pathname === '/login') {
+						message?.info('This email is not registered, redirecting to signup!', 1.5);
+						setTimeout(() => {
+							navigate('/signup?signupemail=' + loginPageInfo?.email);
+						}, 1500);
+					} else if (urlDetails?.pathname === '/signup') {
+						handleCreateAccountWithEmail(loginPageInfo?.email);
+					}
+				}
+			} else {
+				message?.error(response?.message);
 			}
 		} catch (error) {
 			console.error('Failed to check email:', error.message);
@@ -87,7 +119,7 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	};
 
 	const handleKeyDown = (e) => {
-		if (e.key === 'Enter' && !info?.isLoading) {
+		if (e.key === 'Enter' && info.isEmailValid && !info.isLoading) {
 			handleContinueWithEmail();
 		}
 	};
