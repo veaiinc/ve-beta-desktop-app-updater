@@ -11,7 +11,11 @@ const FullImagesComponent = ({
 	setInfo,
 }) => {
 	return (
-		<div className="activeImageWrapper" id="activeImageWrapper-target">
+		<div
+			className="activeImageWrapper"
+			id="activeImageWrapper-target"
+			// style={{ overflow: 'hidden' }}
+		>
 			<InfiniteScroll
 				dataLength={imagesList?.docs?.length || 0}
 				next={fetchMoreImages}

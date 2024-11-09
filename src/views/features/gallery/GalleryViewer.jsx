@@ -68,7 +68,7 @@ const GalleryViewer = () => {
 			setTimeout(() => {
 				const image = document.getElementById(imageId || '');
 				if (image) {
-					image.scrollIntoView({ behavior: 'smooth', block: 'start' });
+					image.scrollIntoView({ behavior: 'instant', block: 'start' });
 				}
 			}, 1000);
 
@@ -164,7 +164,7 @@ const GalleryViewer = () => {
 		setTimeout(() => {
 			const image = document.getElementById(id);
 			if (image) {
-				image.scrollIntoView({ behavior: 'smooth', block: 'start' });
+				image.scrollIntoView({ behavior: 'instant', block: 'start' });
 			}
 		}, 300);
 	};
