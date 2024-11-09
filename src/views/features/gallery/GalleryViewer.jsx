@@ -103,7 +103,7 @@ const GalleryViewer = () => {
 			getImageDetail(info?.imageDetailId);
 		}
 
-		if (imageDetail && info?.imageDetailId) {
+		if (info?.imageDetailId) {
 			const duration = 0.5;
 			const opacity = 0;
 			const y = 90;
@@ -134,19 +134,11 @@ const GalleryViewer = () => {
 			gsap.from('.stagger_step_animation4', {
 				opacity,
 				duration,
-				height: 0,
+				// height: 0,
 				// scale: 0.9,
 				y: 40,
 			});
 		}
-
-		// if (!info?.imageDetailId && imageDetail) {
-		// 	gsap.to('.galleryViewerNavbarContainer', {
-		// 		opacity: 1,
-		// 		duration: 0.5,
-		// 		y: 100,
-		// 	});
-		// }
 	}, [info?.imageDetailId]);
 
 	const fetchMoreImages = () => {

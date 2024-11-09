@@ -19,6 +19,7 @@ const FullImagesComponent = ({
 				loader={<h4 style={{ color: 'white', textAlign: 'center' }}>Loading...</h4>}
 				scrollableTarget="activeImageWrapper-target"
 				style={{ display: 'flex', flexDirection: 'column', gap: '72px' }}
+				onScroll={() => setInfo((prev) => ({ ...prev, imageDetailId: null }))}
 			>
 				{galleryCredentials && imagesList
 					? imagesList?.docs?.map((image, index) => {
@@ -34,10 +35,6 @@ const FullImagesComponent = ({
 											...prev,
 											activeImage: image?._id,
 											activeImageIndex: index,
-											imageDetailId:
-												prev?.imageDetailId !== image?._id
-													? null
-													: image?._id,
 										}))
 									}
 									onClick={() => largeImageFunction(image?._id, index)}

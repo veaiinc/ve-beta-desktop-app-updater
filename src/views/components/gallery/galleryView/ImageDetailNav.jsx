@@ -39,7 +39,7 @@ const ImageDetailNav = ({
 			label: 'Rotate',
 		},
 		{
-			icon: <Share />,
+			icon: <Share className="shareIcon" />,
 			label: 'Share',
 		},
 		{
