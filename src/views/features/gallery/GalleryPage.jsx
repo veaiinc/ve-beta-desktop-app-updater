@@ -190,6 +190,7 @@ const GalleryPage = () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, [handleClickOutside]);
+
 	useEffect(() => {
 		if (!clientSelectionsData) {
 			getClientSelections(galleryId);
@@ -203,16 +204,19 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [clientSelectionsData]);
+
 	useEffect(() => {
 		if (!galleryCredentials) {
 			getGalleryCredentials(galleryId);
 		}
 	}, [galleryCredentials]);
+
 	useEffect(() => {
 		if (info?.activeTab === 'Client Selections' && info?.clientSelectionID) {
 			getClientSelectionImages(info?.clientSelectionID);
 		}
 	}, [info?.clientSelectionID, info?.activeTab]);
+
 	useEffect(() => {
 		if (clientSelectionImages) {
 			setInfo((prev) => ({
@@ -221,6 +225,7 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [clientSelectionImages]);
+
 	useEffect(() => {
 		if (!tenantAlbums || tenantAlbums?._id !== galleryId) {
 			getAlbums(galleryId).then((response) => {
@@ -253,6 +258,7 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [tenantPreferences, tenantAlbums]);
+
 	useEffect(() => {
 		if (updateActiveAlbum !== null && updateActiveAlbum !== info?.activeAlbum) {
 			let updatedArray = info.tenantAlbums.map((album) => {
@@ -289,6 +295,7 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [layoutSettings]);
+
 	useEffect(() => {
 		if (!collaborators) {
 			getCollaborators(galleryId);
@@ -300,11 +307,13 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [collaborators]);
+
 	useEffect(() => {
 		if (info?.activeAlbumId) {
 			getAlbumCount(galleryId, info?.activeAlbumId);
 		}
 	}, [info?.activeAlbumId]);
+
 	useEffect(() => {
 		if (info?.albumTagId && info?.activeAlbumId && info?.activeTab === 'Albums') {
 			getGalleryImages(
@@ -324,6 +333,7 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [info?.albumTagId, info?.activeAlbumId, info?.sortType, info?.activeTab]);
+
 	useEffect(() => {
 		if (imagesList) {
 			setInfo((prev) => ({
@@ -371,6 +381,38 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [imageDetail, info?.uploadImageId, albumImagesCount]);
+
+	useEffect(() => {
+		if (info?.albumFullScreen) {
+			gsap.to('.albums', {
+				height: dynamicHeightFunc(),
+				flexWrap: 'wrap',
+				duration: 0.3,
+				ease: 'power2.out',
+			});
+		} else if (tenantAlbums) {
+			const t1 = gsap.timeline();
+			t1.to('.album', {
+				opacity: '0.7',
+			});
+			t1.to('.albums', {
+				height: '160px',
+				duration: 0.3,
+				ease: 'power2.out',
+			});
+
+			t1.to('.album', {
+				opacity: 1,
+				ease: 'power2.out',
+			});
+			t1.to('.albums', {
+				flexWrap: 'nowrap',
+				opacity: 1,
+				delay: 0.4,
+				ease: 'power2.out',
+			});
+		}
+	}, [info?.albumFullScreen]);
 
 	const fetchMoreImages = () => {
 		console.log(info?.page, 'pageFetch');
@@ -1111,84 +1153,6 @@ const GalleryPage = () => {
 		return totalHeight;
 	};
 
-	useEffect(() => {
-		if (info?.albumFullScreen) {
-			gsap.to('.albums', {
-				height: dynamicHeightFunc(),
-				flexWrap: 'wrap',
-				// overflow: 'visible',
-				// overflow: info?.albumFullScreen ? 'visible' : 'scroll',
-				duration: 0.3, // Duration of the animation
-				ease: 'power2.out', // Easing function
-			});
-		} else if (tenantAlbums) {
-			const t1 = gsap.timeline();
-			t1.to('.album', {
-				opacity: '0.7',
-			});
-			t1.to('.albums', {
-				height: '160px',
-				// flexWrap: 'nowrap',
-				// overflow: 'scroll',
-				// opacity: '0.4',
-				duration: 0.3,
-				ease: 'power2.out',
-			});
-
-			t1.to('.album', {
-				opacity: 1,
-				ease: 'power2.out',
-			});
-			t1.to('.albums', {
-				flexWrap: 'nowrap',
-				// overflow: '',
-				// duration: 0.3,
-				opacity: 1,
-				delay: 0.4,
-				ease: 'power2.out',
-			});
-		}
-
-		// if (info?.albumFullScreen === false) {
-		// 	setTimeout(() => {
-		// 		gsap.to('.albums', {
-		// 			flexWrap: 'nowrap',
-		// 			overflow: 'scroll',
-		// 		});
-		// 	}, 1000);
-		// }
-		// } else if (tenantAlbums) {
-		// 	const t1 = gsap.timeline();
-		// 	t1.to('.albums', {
-		// 		height: '160px',
-		// 		// flexWrap: 'nowrap',
-		// 		// overflow: 'scroll',
-		// 		duration: 0.2, // Duration of the animation
-		// 		// ease: 'power2.out', // Easing function
-		// 	});
-
-		// t1.to('.albums', {
-		// 	// height: dynamicHeightFunc(),
-		// 	height: '160px',
-		// 	flexWrap: 'nowrap',
-		// 	overflow: 'scroll',
-		// 	// border: '1px solid red',
-		// 	delay: 0.5,
-		// 	duration: 0, // Duration of the animation
-		// 	// ease: 'power2.out', // Easing function
-		// });
-
-		// setTimeout(() => {
-		// 	gsap.to('.albums', {
-		// 		height: '160px',
-		// 		flexWrap: 'nowrap',
-		// 		overflow: 'scroll',
-		// 		duration: 0.3, // Duration of the animation
-		// 		ease: 'power2.out', // Easing function
-		// 	});
-		// }, 1000);
-	}, [info?.albumFullScreen]);
-
 	return (
 		<>
 			<div className="galleryContainer">
@@ -1212,7 +1176,9 @@ const GalleryPage = () => {
 							<img
 								src={`${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`}
 								onError={(e) => {
-									e.target.src = 'none';
+									if (albumImagesCount?.coverImage) {
+										e.target.style.display = 'none';
+									}
 								}}
 							/>
 							<div className="publishIndicator">

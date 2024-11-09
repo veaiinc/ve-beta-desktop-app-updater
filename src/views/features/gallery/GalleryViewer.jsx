@@ -9,6 +9,8 @@ import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
 import { message } from 'antd';
 import { ReactComponent as CrossWhite } from '../../../assets/svg/workspaceSettings/cross.svg';
 import Skeleton from 'react-loading-skeleton';
+import gsap from 'gsap';
+
 const GalleryViewer = () => {
 	const { galleryId, albumId } = useParams();
 	const [searchkeys, setsearchkeys] = useSearchParams();
@@ -100,6 +102,51 @@ const GalleryViewer = () => {
 		if (info?.imageDetailId && info?.imageDetailId !== imageDetail?._id) {
 			getImageDetail(info?.imageDetailId);
 		}
+
+		if (imageDetail && info?.imageDetailId) {
+			const duration = 0.5;
+			const opacity = 0;
+			const y = 90;
+			gsap.from('.galleryViewerNavbarContainer', {
+				opacity,
+				duration,
+				y: 70,
+			});
+			gsap.from('.stagger_step_animation1', {
+				opacity,
+				duration,
+				// scale: 0.9,
+				y: 10,
+			});
+			gsap.from('.stagger_step_animation2', {
+				opacity,
+				duration,
+				// scale: 0.9,
+				y: 90,
+			});
+			gsap.from('.stagger_step_animation3', {
+				opacity,
+				duration,
+				height: 30,
+				// scale: 0.9,
+				y: 70,
+			});
+			gsap.from('.stagger_step_animation4', {
+				opacity,
+				duration,
+				height: 0,
+				// scale: 0.9,
+				y: 40,
+			});
+		}
+
+		// if (!info?.imageDetailId && imageDetail) {
+		// 	gsap.to('.galleryViewerNavbarContainer', {
+		// 		opacity: 1,
+		// 		duration: 0.5,
+		// 		y: 100,
+		// 	});
+		// }
 	}, [info?.imageDetailId]);
 
 	const fetchMoreImages = () => {

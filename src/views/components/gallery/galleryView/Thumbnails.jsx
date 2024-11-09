@@ -33,6 +33,7 @@ const Thumbnails = ({
 										info?.imageDetailId === image?._id ? 'active' : ''
 									}`}
 									id={'thumbnail' + image?._id}
+									key={'thumbnail' + image?._id}
 									onClick={() => activeThumbnailFunction(image?._id, index)}
 								>
 									<img

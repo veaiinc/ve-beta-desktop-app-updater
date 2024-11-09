@@ -115,10 +115,10 @@ const ImageDetailNav = ({
 		}
 	};
 
-	console.log('imageDetail', imageDetail);
+	// console.log('imageDetail', imageDetail);
 	return (
 		<div className="galleryViewerNavbarContainer">
-			<div className="galleryViewerNavbar">
+			<div className="galleryViewerNavbar stagger_step_animation1">
 				{OptionsArray?.map((option) => (
 					<div
 						key={option?.label}
@@ -130,8 +130,9 @@ const ImageDetailNav = ({
 					</div>
 				))}
 			</div>
+
 			<div className="gallerySelectionContainer">
-				<div className="clientSelection">
+				<div className="clientSelection stagger_step_animation2">
 					<p>Client Selection</p>
 					<div className="clientSelectionImages">
 						{imageDetail?.galleryCollections?.map((singleAlbum) => {
@@ -150,14 +151,14 @@ const ImageDetailNav = ({
 					</div>
 				</div>
 
-				<div className="peopleSelection">
-					<div className="peopleHeader">
+				<div className="peopleSelection stagger_step_animation3">
+					<div className="peopleHeader ">
 						<div className="personIcon">
 							<People />
 						</div>
 						<p>People</p>
 					</div>
-					<div className="peopleSelectionImages">
+					<div className="peopleSelectionImages ">
 						<div className="rounded"></div>
 						<div className="rounded"></div>
 						<div className="rounded"></div>
@@ -170,7 +171,7 @@ const ImageDetailNav = ({
 				</div>
 
 				<div
-					className="labelsSelection"
+					className="labelsSelection stagger_step_animation4"
 					style={{ padding: navInfo?.showLabels ? '10px 16px' : '0px' }}
 				>
 					{navInfo?.showLabels ? (
