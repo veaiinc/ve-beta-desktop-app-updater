@@ -1,0 +1,199 @@
+.addPresetModalParentContainer {
+	display: flex;
+	width: 545px;
+	padding: 32px;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 30px;
+	border-radius: 32px;
+	background: #151515;
+	height: auto;
+	// min-height: 426px;
+	max-height: 545px;
+	// overflow-y: auto;
+
+	.presetHeaderContainer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		align-self: stretch;
+
+		.createNewEventStyling {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.createPresetContainer {
+		display: flex;
+		flex-direction: column;
+		// align-items: flex-end;
+		gap: var(--Spacing-space-7, 12px);
+		align-self: stretch;
+		flex: 1;
+		align-self: stretch;
+
+		.addPresetEventNameContainer {
+			display: flex;
+			flex-direction: column;
+			align-self: stretch;
+			gap: 7px;
+			align-items: flex-start;
+
+			.inputLabelContainer {
+				display: flex;
+				align-self: stretch;
+				justify-content: space-between;
+				align-items: center;
+				.eventNameLabel {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px; /* 133.333% */
+				}
+				.errorMessage {
+					font-family: 'Inter';
+					font-size: 12px;
+					font-weight: 400;
+					line-height: 19px;
+					text-align: right;
+					color: #cc5756;
+				}
+			}
+
+			.addpresetInput {
+				display: flex;
+				padding: 11px 14px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				align-self: stretch;
+				border-radius: 10px;
+				border: 1px solid rgba(36, 36, 36, 0.64);
+				background-color: transparent;
+				outline: none;
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 16px; /* 133.333% */
+				flex: 1;
+			}
+		}
+
+		.presetCardHolder {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			flex: 1;
+			max-height: 265px;
+			overflow-y: auto;
+			gap: 7px;
+			.presetServicesCard {
+				display: flex;
+				align-items: center;
+				gap: var(--Spacing-space-8, 16px);
+				align-self: stretch;
+
+				.presetservicesIncrementor {
+					display: flex;
+					width: 100px;
+					padding: 11px 14px;
+					// justify-content: space-between;
+					align-items: center;
+					border-radius: 10px;
+					border: 1px solid rgba(36, 36, 36, 0.64);
+					gap: 4px;
+
+					.incrementorDecrementorInput {
+						flex: 1;
+						background-color: transparent;
+						outline: none;
+						display: flex;
+						width: 100%;
+						border: none;
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 26px; /* 185.714% */
+						text-align: center;
+					}
+
+					.incrementorButtons {
+						width: 8px;
+						color: #6055ec;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 26px; /* 185.714% */
+					}
+				}
+			}
+		}
+
+		.addRoleBtn {
+			color: #6055ec;
+			text-align: center;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+			cursor: pointer;
+			align-self: flex-start;
+		}
+		.createPresetBtn {
+			display: flex;
+			padding: var(--Spacing-space-8, 16px) 32px;
+			justify-content: center;
+			align-items: center;
+			gap: var(--Spacing-space-8, 16px);
+			border-radius: 100px;
+			background: #6055ec;
+			cursor: pointer;
+			align-self: flex-end;
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+}
+
+.addpresetInput {
+	display: flex;
+	padding: 11px 14px;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	align-self: stretch;
+	border-radius: 10px;
+	border: 1px solid rgba(36, 36, 36, 0.64);
+	background-color: transparent;
+	outline: none;
+	color: #e4e5e6;
+	font-family: Inter;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 16px; /* 133.333% */
+	flex: 1;
+}
+.closePresetModalBtn {
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}

@@ -10,6 +10,7 @@ import BrandingSetup from './BrandSetup';
 import Integrations from './Integrations';
 import TeamSettings from './TeamSettings';
 import PlanBilling from './PlanBilling';
+import AiSetup from './ai_settings/AiSetup';
 
 const mapper = {
 	'my-profile': <MyProfile />,
@@ -19,6 +20,7 @@ const mapper = {
 	integrations: <Integrations />,
 	'team-settings': <TeamSettings />,
 	'plan-billing': <PlanBilling />,
+	'ai-setup': <AiSetup />,
 };
 
 const SettingsWrapper = (props) => {
@@ -26,7 +28,6 @@ const SettingsWrapper = (props) => {
 
 	const navigate = useNavigate();
 	const [urlType, setUrlype] = useState('');
-	const [animate, setAnimate] = useState(true);
 
 	const setType = (type) => {
 		navigate(`/settings/${type}`);
@@ -34,6 +35,7 @@ const SettingsWrapper = (props) => {
 	};
 	const {
 		profileInfo: { getTenantSettings, tennantSettingsData },
+		aiSetup: { getExistingAiAssistants },
 	} = useContext(Context);
 
 	useEffect(() => {
@@ -42,23 +44,10 @@ const SettingsWrapper = (props) => {
 		}
 	}, []);
 
-	useEffect(() => {
-		setAnimate(true);
-		const timeout = setTimeout(() => {
-			setAnimate(false);
-		}, 1500);
-
-		return () => {
-			clearTimeout(timeout);
-		};
-	}, [type]);
-
 	return (
 		<div className="accountSettingsMainWrapper">
 			<div className="accountSettingsWrapper">
-				<div className={`accountSettingsMapper ${animate ? 'animate' : ''}`}>
-					{mapper?.[type]}
-				</div>
+				<div className={`accountSettingsMapper`}>{mapper?.[type]}</div>
 				<div className="accountSettingsSidebar">
 					<SettingsPageSideBar {...props} type={type} setType1={setType} />
 				</div>
