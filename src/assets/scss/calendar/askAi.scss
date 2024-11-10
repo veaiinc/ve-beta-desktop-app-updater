@@ -1,0 +1,37 @@
+.askAiParentContainer {
+	display: flex;
+	padding: 16px 24px;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 8px;
+	align-self: stretch;
+	border-radius: 24px;
+	border: 1px solid #272727;
+	background: #1d1d1d;
+
+	.aiHeadWrapper {
+		display: flex;
+		padding: 4px 0px;
+		align-items: center;
+		gap: 12px;
+		align-self: stretch;
+	}
+
+	.aiBodyWrapper {
+		display: flex;
+		padding: 4px 0px;
+
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+	}
+
+	.aiFootWrapper {
+		display: flex;
+		padding: 4px 0px;
+		align-self: flex-end;
+	}
+}

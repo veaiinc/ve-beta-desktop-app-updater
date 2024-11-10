@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSidebar from './CalendarSidebar';
 import CalendarView from './CalendarView';
 
