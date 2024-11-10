@@ -320,6 +320,8 @@
 			// gap: 10px;
 			border-radius: 14px;
 			background: #151515;
+			overflow: auto;
+			max-height: calc(100vh - 500px);
 
 			.header_upload_div {
 				display: flex;

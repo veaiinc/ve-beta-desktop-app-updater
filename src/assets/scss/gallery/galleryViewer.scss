@@ -1,0 +1,303 @@
+.closeGallery {
+	display: flex;
+	margin-bottom: 15px;
+	padding: 0px 50px;
+	gap: 8px;
+	align-items: center;
+	svg {
+		cursor: pointer;
+	}
+	p {
+		color: #fff;
+		font-size: 14px;
+		font-weight: 500;
+		line-height: 17px;
+		letter-spacing: 0.28px;
+	}
+}
+
+.galleryViewerCotnainer {
+	display: flex;
+	width: 100%;
+	padding: 40px;
+	height: 90vh;
+	max-height: 90vh;
+	align-items: center;
+	// border: 1px solid red;
+
+	.galleryThumbnails {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		height: 72%;
+		overflow-y: auto;
+		width: 110px;
+		scroll-snap-type: y mandatory;
+		// border: 1px solid blue;
+		.imageContainer {
+			display: flex;
+			width: 79px;
+			height: 50px;
+			cursor: pointer;
+			border-radius: 8px;
+			transition: all 0.7s ease;
+			scroll-snap-align: center;
+			img {
+				border-radius: 8px;
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+			&.active {
+				border: 2px solid #6055ec;
+				border-radius: 8px;
+				padding: 2px;
+			}
+
+			&:hover {
+				transform: scale(1.4);
+				margin: 15px;
+			}
+		}
+	}
+
+	.activeImageContainer {
+		display: flex;
+		flex: 1;
+		height: inherit;
+		padding-left: 100px;
+		justify-content: space-between;
+		// border: 1px solid green;
+		// gap: 20px;
+
+		.activeImageWrapper {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 72px;
+			width: 100%;
+			overflow: auto;
+			max-width: 70%;
+			max-height: inherit;
+			scroll-snap-type: y mandatory;
+			.imageContainer {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 24px;
+				height: 85vh;
+				scroll-snap-align: center;
+				img {
+					width: 100%;
+					max-height: 85vh;
+					// height: 30%;
+					aspect-ratio: 1/1;
+					object-fit: contain;
+					border-radius: 24px;
+				}
+			}
+		}
+
+		.galleryViewerNavbarContainer {
+			display: flex;
+			align-items: center;
+			width: 35%;
+			gap: 20px;
+			.galleryViewerNavbar {
+				display: flex;
+				padding: 12px 10px;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				gap: 24px;
+				border-radius: 28px;
+				border: 1px solid rgba(0, 0, 0, 0.7);
+				background: rgba(255, 255, 255, 0.05);
+				cursor: pointer;
+			}
+			.gallerySelectionContainer {
+				display: flex;
+				flex-direction: column;
+				gap: 22px;
+				p {
+					color: #fff;
+					font-size: 11px;
+					font-weight: 500;
+					line-height: 14px;
+					letter-spacing: 0.22px;
+					text-transform: capitalize;
+				}
+				.clientSelection {
+					display: flex;
+					width: 250px;
+					padding: 10px 16px;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 8px;
+					border-radius: 16px;
+					border: 1px solid rgba(244, 244, 244, 0.7);
+					background: rgba(255, 255, 255, 0.15);
+					box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.06);
+					overflow: auto;
+
+					.clientSelectionImages {
+						display: flex;
+						gap: 10px;
+
+						.clientAlbum {
+							display: flex;
+							flex-direction: column;
+							img {
+								width: 40px;
+								height: 50px;
+								border-radius: 8px;
+							}
+							p {
+								overflow: hidden;
+								color: #979797;
+								text-align: center;
+								text-overflow: ellipsis;
+								white-space: nowrap;
+								font-size: 6px;
+								font-weight: 500;
+								line-height: 22.5px; /* 375% */
+							}
+						}
+					}
+				}
+				.peopleSelection {
+					display: flex;
+					width: 250px;
+					padding: 10px 16px;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 8px;
+					border-radius: 16px;
+					border: 1px solid rgba(244, 244, 244, 0.7);
+					background: rgba(255, 255, 255, 0.15);
+					box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.06);
+					.peopleHeader {
+						display: flex;
+						align-items: center;
+						gap: 8px;
+						.personIcon {
+							width: 24px;
+							height: 24px;
+							border-radius: 100px;
+							background-color: #111;
+							display: flex;
+							justify-content: center;
+							align-items: center;
+						}
+					}
+					.peopleSelectionImages {
+						display: flex;
+						flex-wrap: wrap;
+						gap: 8px;
+						.rounded {
+							width: 48px;
+							height: 48px;
+							border-radius: 100px;
+							background-color: #111;
+						}
+					}
+				}
+				.labelsSelection {
+					display: flex;
+					width: 250px;
+					padding: 10px 16px;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 16px;
+					border-radius: 16px;
+					border: 1px solid rgba(244, 244, 244, 0.7);
+					background: rgba(255, 255, 255, 0.15);
+					box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.06);
+					.labelsHeader {
+						display: flex;
+						width: 100%;
+						justify-content: space-between;
+						.labelIcon {
+							display: flex;
+							gap: 8px;
+							align-items: center;
+							.pinIcon {
+								display: flex;
+								justify-content: center;
+								align-items: center;
+								width: 24px;
+								height: 24px;
+								border-radius: 100px;
+								background-color: #111;
+								svg {
+									width: 13px;
+								}
+							}
+						}
+					}
+
+					.lablesListContainer {
+						width: 100%;
+						min-height: 100px;
+						.header {
+							padding: 10px 16px;
+							display: flex;
+							justify-content: space-between;
+							align-items: center;
+							width: 100%;
+							padding-bottom: 10px;
+
+							input {
+								width: 90%;
+								border: none;
+								outline: none;
+								background-color: transparent;
+								color: #fff;
+							}
+
+							svg {
+								cursor: pointer;
+							}
+						}
+
+						.line {
+							width: 100%;
+							height: 1px;
+							background-color: gray;
+						}
+
+						.labelsList {
+							max-height: 100px;
+							overflow-y: auto;
+
+							.pinOptionsList {
+								display: flex;
+								align-items: center;
+								gap: 10px;
+								padding: 10px 16px;
+
+								.checkboxText {
+									color: #fff;
+									overflow: hidden;
+									text-overflow: ellipsis;
+									white-space: nowrap;
+									font-family: Inter;
+									font-size: 12px;
+									font-style: normal;
+									font-weight: 400;
+									line-height: 16px; /* 133.333% */
+									letter-spacing: -0.3px;
+								}
+							}
+						}
+					}
+				}
+			}
+			.shareIcon {
+				path {
+					fill: #fff;
+				}
+			}
+		}
+	}
+}

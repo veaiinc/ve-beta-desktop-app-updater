@@ -3,8 +3,8 @@ import ReactModal from '../../modalsV2';
 import randomize from 'randomatic';
 import { useParams, Link } from 'react-router-dom';
 
-const UploadCompletedPopup = ({ info, setinfo }) => {
-	const { galleryId } = useParams();
+const UploadCompletedPopup = ({ info, setinfo, getImageDuplicatesList }) => {
+	const { galleryId, albumId } = useParams();
 
 	const reUploadFunction = () => {
 		setinfo((prev) => ({
@@ -29,6 +29,7 @@ const UploadCompletedPopup = ({ info, setinfo }) => {
 			overAllProgress: 0,
 			isPopupOpen: false,
 		}));
+		getImageDuplicatesList(galleryId, albumId);
 	};
 
 	return (
