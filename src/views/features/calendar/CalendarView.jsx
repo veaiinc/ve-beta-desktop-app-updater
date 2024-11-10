@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import '../../../assets/scss/calendar/calendarView.scss';
+import '../../../assets/scss/calendar/calendar.scss';
 // import Header from '../../components/calendar/MeetingDetails';
 // import DayHeader from '../../components/calendar/MeetingDetails';
 // import DayGrid from '../../components/calendar/MeetingDetails';
