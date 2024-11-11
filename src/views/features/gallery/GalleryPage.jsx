@@ -142,6 +142,7 @@ const GalleryPage = () => {
 		resetInfinityScroll: false,
 		showMoveToAlbum: false,
 		flexWrap_visible: false,
+		tagSearchValue: '',
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -172,7 +173,7 @@ const GalleryPage = () => {
 				!ref.current.contains(event.target) &&
 				!iconRef.current.contains(event.target)
 			) {
-				setInfo((prevInfo) => ({ ...prevInfo, [stateName]: false }));
+				setInfo((prevInfo) => ({ ...prevInfo, [stateName]: false, tagSearchValue: '' }));
 			}
 		};
 
@@ -1064,7 +1065,7 @@ const GalleryPage = () => {
 		updateTagSortType(payload, galleryId, info?.activeAlbumId, info?.albumTagId);
 	};
 
-	const handleTagChange = (tagId) => {
+	const handleTagChange = async (tagId) => {
 		const isTagSelected = info.selectedImagesTags.includes(tagId);
 		setInfo((prev) => ({
 			...prev,
@@ -1077,9 +1078,31 @@ const GalleryPage = () => {
 		};
 		console.log(payload, 'payload');
 		if (isTagSelected) {
-			removeTagFromImage(payload, galleryId, info?.activeAlbumId, tagId);
+			const response = await removeTagFromImage(
+				payload,
+				galleryId,
+				info?.activeAlbumId,
+				tagId,
+			);
+			if (response?.[0] === true) {
+				getAlbumCount(galleryId, info?.activeAlbumId);
+				setInfo((prev) => ({
+					...prev,
+					selectedImages: [],
+				}));
+				message.success('Tag removed successfully');
+			}
 		} else {
-			addTagToImage(payload, galleryId, info?.activeAlbumId, tagId);
+			const response = await addTagToImage(payload, galleryId, info?.activeAlbumId, tagId);
+			if (response?.[0] === true) {
+				getAlbumCount(galleryId, info?.activeAlbumId);
+				setInfo((prev) => ({
+					...prev,
+					selectedImages: [],
+					// selectedImagesTags: [tagId],
+				}));
+				message.success('Tag added successfully');
+			}
 		}
 	};
 	// const handleSearch = (value) => {
@@ -1175,11 +1198,11 @@ const GalleryPage = () => {
 						<div className="imageContaienr">
 							<img
 								src={`${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`}
-								onError={(e) => {
-									if (albumImagesCount?.coverImage) {
-										e.target.style.display = 'none';
-									}
-								}}
+								// onError={(e) => {
+								// 	if (!albumImagesCount?.coverImage?.givenFileName) {
+								// 		e.target.style.display = 'none';
+								// 	}
+								// }}
 							/>
 							<div className="publishIndicator">
 								<div className="liveIndicator"></div>
@@ -2125,9 +2148,9 @@ const GalleryPage = () => {
 															className="forwardOptions"
 															ref={forwardOptionsRef}
 														>
-															<li style={{ cursor: 'not-allowed' }}>
+															{/* <li style={{ cursor: 'not-allowed' }}>
 																Copy to client selection
-															</li>
+															</li> */}
 															<li
 																onClick={() =>
 																	setInfo((prev) => ({
@@ -2152,7 +2175,18 @@ const GalleryPage = () => {
 															ref={pinSearchRef}
 														>
 															<div className="pinSearchContainer">
-																<p>type to Search or create</p>
+																<input
+																	type="text"
+																	placeholder="type to Search or create"
+																	value={info.tagSearchValue}
+																	onChange={(e) =>
+																		setInfo((prev) => ({
+																			...prev,
+																			tagSearchValue:
+																				e.target.value,
+																		}))
+																	}
+																/>
 																<p
 																	style={{
 																		cursor: 'pointer',
@@ -2163,26 +2197,34 @@ const GalleryPage = () => {
 																	X
 																</p>
 															</div>
-															{info?.albumTags?.map((tag) => (
-																<div className="pinOptionsList">
-																	<label className="checkboxLabel">
-																		<input
-																			type="checkbox"
-																			checked={info?.selectedImagesTags?.includes(
-																				tag?._id,
-																			)}
-																			onChange={() =>
-																				handleTagChange(
+															{info?.albumTags
+																?.filter((tag) =>
+																	tag?.displayName
+																		?.toLowerCase()
+																		.includes(
+																			info.tagSearchValue.toLowerCase(),
+																		),
+																)
+																.map((tag) => (
+																	<div className="pinOptionsList">
+																		<label className="checkboxLabel">
+																			<input
+																				type="checkbox"
+																				checked={info?.selectedImagesTags?.includes(
 																					tag?._id,
-																				)
-																			}
-																		/>
-																		<span className="checkboxText">
-																			{tag?.displayName}
-																		</span>
-																	</label>
-																</div>
-															))}
+																				)}
+																				onChange={() =>
+																					handleTagChange(
+																						tag?._id,
+																					)
+																				}
+																			/>
+																			<span className="checkboxText">
+																				{tag?.displayName}
+																			</span>
+																		</label>
+																	</div>
+																))}
 														</div>
 													)}
 												</div>

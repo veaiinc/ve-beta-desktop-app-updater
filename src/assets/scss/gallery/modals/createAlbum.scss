@@ -86,3 +86,7 @@
 		border: none;
 	}
 }
+
+.ReactModal__Overlay:has(> .createAlbumModal) {
+	z-index: 9999;
+}

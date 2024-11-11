@@ -2,6 +2,7 @@ import React, { useState, memo, useCallback } from 'react';
 import Modal from 'react-modal';
 
 const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {} }) => {
+	console.log('customStyles', customStyles);
 	const customModalStylesForCenter = {
 		content: {
 			top: '50%',
@@ -59,6 +60,7 @@ const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {}
 			<Modal
 				isOpen={isOpen}
 				onRequestClose={closeModal}
+				className={customStyles?.className}
 				style={
 					modalType == 'right'
 						? {

@@ -1032,6 +1032,7 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+			return response;
 		} catch (error) {
 			console.log('error==>addTagToImage', error);
 		}
@@ -1047,6 +1048,7 @@ export const Galleries = () => {
 				payload,
 				'galleries',
 			);
+			return response;
 		} catch (error) {
 			console.log('error==>removeTagFromImage', error);
 		}
@@ -1180,3 +1182,5 @@ export const Galleries = () => {
 		moveImagesToAlbum,
 	};
 };
+
+// getGalleryImages
