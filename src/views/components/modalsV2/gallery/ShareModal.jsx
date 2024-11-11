@@ -5,7 +5,7 @@ import { ReactComponent as Copy } from '../../../../assets/svg/gallery/copy.svg'
 import { ReactComponent as Mail } from '../../../../assets/svg/gallery/mail.svg';
 import ToggleSlider from '../../input/slider';
 import Context from '../../../../context/context';
-import { message } from 'antd';
+import { message, Drawer } from 'antd';
 
 const workspaceId = localStorage.getItem('workspaceId');
 
@@ -122,7 +122,14 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 	}, [activeGallery?.slug]);
 
 	return (
-		<ReactModal isOpen={open} closeModal={closeModal} modalType={'right'}>
+		<Drawer
+			open={open}
+			width={677}
+			onClose={closeModal}
+			headerStyle={{ display: 'none' }}
+			bodyStyle={{ padding: '0px' }}
+			style={{ padding: '0px', backgroundColor: 'transparent' }}
+		>
 			<div className="shareMainContainer">
 				<div className="shareHeadingContainer">
 					<b className="shareHeading">Share</b>
@@ -198,7 +205,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 					</div>
 				</div>
 			</div>
-		</ReactModal>
+		</Drawer>
 	);
 };
 

@@ -88,7 +88,14 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently }) => {
 									)}
 
 									<div className="text_value">
-										<p>{(singlePhoto?.file?.size / 1024).toFixed(2)} KB</p>
+										<p>
+											{singlePhoto?.file?.size > 1024 * 1024
+												? (singlePhoto?.file?.size / (1024 * 1024)).toFixed(
+														2,
+												  ) + ' MB'
+												: (singlePhoto?.file?.size / 1024).toFixed(2) +
+												  ' KB'}
+										</p>
 									</div>
 
 									{info?.startedUploading && (

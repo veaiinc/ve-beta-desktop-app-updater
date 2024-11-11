@@ -10,7 +10,7 @@ import Context from '../../../../context/context';
 import { useParams } from 'react-router-dom';
 import moment from 'moment';
 
-const ActivityDashboard = () => {
+const ActivityDashboard = ({ workflowData }) => {
 	const { workflowId } = useParams();
 
 	//Context
@@ -92,12 +92,16 @@ const ActivityDashboard = () => {
 	}, []);
 
 	//To handle selected viewer
-	const handelViewerSelection = useCallback((selectedViewerItem) => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			selectedViewer: selectedViewerItem,
-		}));
-	}, []);
+	const handelViewerSelection = useCallback(
+		(selectedViewerItem) => {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				selectedViewer: selectedViewerItem,
+			}));
+			showDrawer();
+		},
+		[showDrawer],
+	);
 
 	return (
 		<div className="activityParentContainer">
@@ -110,7 +114,6 @@ const ActivityDashboard = () => {
 				{/* <TimeLine showDrawer={showDrawer} /> */}
 
 				<ViewersList
-					showDrawer={showDrawer}
 					viewersListData={info?.viewersListData || []}
 					handelViewerSelection={handelViewerSelection}
 					formatTime={formatTime}
@@ -146,6 +149,7 @@ const ActivityDashboard = () => {
 					selectedViewer={info?.selectedViewer}
 					formatTime={formatTime}
 					activityDataLoading={info?.activityDataLoading}
+					workflowData={workflowData}
 				/>
 			) : (
 				''

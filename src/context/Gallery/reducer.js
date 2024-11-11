@@ -16,7 +16,7 @@ const actionHandlers = {
 
 	POST_TAG_LIST: (state, action) => ({
 		...state,
-		tagsList: { ...state.tagsList, list: [...state.tagsList.list, action.payload] },
+		tagsList: action.payload,
 	}),
 	GET_EDIT_PREFERENCES: (state, action) => ({
 		...state,
@@ -53,13 +53,7 @@ const actionHandlers = {
 	}),
 	GET_IMAGES_LIST: (state, action) => ({
 		...state,
-		imagesList: state.imagesList
-			? {
-					...state.imagesList,
-					...action.payload,
-					docs: [...state.imagesList.docs, ...(action?.payload?.docs || [])],
-			  }
-			: action.payload,
+		imagesList: action.payload,
 	}),
 	GET_LIGHTROOM_COPY_LIST: (state, action) => ({
 		...state,
@@ -76,6 +70,18 @@ const actionHandlers = {
 	GET_GALLERY_GUEST_ACCESS: (state, action) => ({
 		...state,
 		galleryGuestAccess: action.payload,
+	}),
+	GET_ALBUM_IMAGES_COUNT: (state, action) => ({
+		...state,
+		albumImagesCount: action.payload,
+	}),
+	GET_CLIENT_SELECTIONS: (state, action) => ({
+		...state,
+		clientSelectionsData: action.payload,
+	}),
+	GET_CLIENT_SELECTION_IMAGES: (state, action) => ({
+		...state,
+		clientSelectionImages: action.payload,
 	}),
 	RESET_IMAGES_LIST: (state) => ({ ...state, imagesList: null }),
 	RESET_STATE: () => ({ ...intialState }),

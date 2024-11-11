@@ -20,6 +20,7 @@ import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
 import Calendar from './views/features/calendar/index';
 
+import GalleryViewLayout from './views/layouts/galleryViewLayout';
 const routes = [
 	{
 		path: '/',
@@ -158,9 +159,9 @@ const routes = [
 	{
 		path: '/gallery-page/:galleryId/:albumId/gallery-viewer',
 		component: (
-			<AuthWrapper title={'Gallery'}>
+			<GalleryViewLayout title={'Gallery'}>
 				<GalleryViewer />
-			</AuthWrapper>
+			</GalleryViewLayout>
 		),
 		exact: true,
 	},

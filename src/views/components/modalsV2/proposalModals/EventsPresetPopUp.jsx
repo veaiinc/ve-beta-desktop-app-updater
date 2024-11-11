@@ -43,7 +43,8 @@ const EventsPresetsPopOverComponent = ({
 						'' +
 						presetDataInfo?.[j]?.categories?.[0]?.quantity +
 						' ' +
-						presetDataInfo?.[j]?.categories?.[0]?.category;
+						presetDataInfo?.[j]?.type +
+						' ';
 				}
 				presetDataObj.subtitleString = subtitleString;
 				presetData?.push(presetDataObj);
@@ -144,7 +145,8 @@ const EventsPresetsPopOverComponent = ({
 						'' +
 						presetInfo?.[j]?.categories?.[0]?.quantity +
 						' ' +
-						presetInfo?.[j]?.categories?.[0]?.category;
+						presetInfo?.[j]?.type +
+						' ';
 				}
 				obj.subtitleString = subtitleString;
 
@@ -200,7 +202,8 @@ const EventsPresetsPopOverComponent = ({
 					'' +
 					presetInfo?.[j]?.categories?.[0]?.quantity +
 					' ' +
-					presetInfo?.[j]?.categories?.[0]?.category;
+					presetInfo?.[j]?.type +
+					' ';
 			}
 			obj.subtitleString = subtitleString;
 

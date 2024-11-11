@@ -54,7 +54,6 @@ const ViewersList = ({
 							<div
 								className="viewersListItemWrapper"
 								onClick={() => {
-									showDrawer();
 									handelViewerSelection(viewer);
 								}}
 								key={index}
