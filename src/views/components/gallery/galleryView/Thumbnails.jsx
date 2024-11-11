@@ -23,7 +23,7 @@ const Thumbnails = ({
 					gap: '24px',
 				}}
 			>
-				{galleryCredentials && imagesList
+				{!info?.fakeLoading && galleryCredentials && imagesList
 					? imagesList?.docs?.map((image, index) => {
 							const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 							const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_thumbnail_100h?.key}?${params}`;

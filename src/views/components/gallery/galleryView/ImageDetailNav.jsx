@@ -125,6 +125,12 @@ const ImageDetailNav = ({
 						onClick={() =>
 							functionsList[option?.label] && functionsList[option?.label]()
 						}
+						style={{
+							cursor:
+								option?.label === 'Download' || option?.label === 'Share'
+									? 'not-allowed'
+									: '',
+						}}
 					>
 						{option.icon}
 					</div>

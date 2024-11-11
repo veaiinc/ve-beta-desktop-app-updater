@@ -226,7 +226,7 @@ const GalleryViewer = () => {
 				)}
 			</div>
 
-			<div className="galleryViewerCotnainer" style={{ opacity: info?.fakeLoading ? 0 : 1 }}>
+			<div className="galleryViewerCotnainer">
 				<Thumbnails
 					galleryCredentials={galleryCredentials}
 					fetchMoreImages={fetchMoreImages}
@@ -274,51 +274,6 @@ const GalleryViewer = () => {
 					handleDelete={handleAlbumDelete}
 				/>
 			</div>
-			{info?.fakeLoading && (
-				<div
-					className="galleryViewerCotnainer"
-					style={{
-						display: 'flex',
-						maxHeight: '80vh',
-						overflow: 'hidden',
-						position: 'absolute',
-						// top: 10,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						transition: 'all 0.5s ease',
-					}}
-				>
-					<div
-						className="galleryThumbnails"
-						style={{ display: 'flex', flexDirection: 'column' }}
-					>
-						{[...Array(15)].map((_, index) => (
-							<div key={index} className="imageContainer">
-								<Skeleton width="79px" height="50px" />
-							</div>
-						))}
-					</div>
-
-					<div
-						className="activeImageContainer"
-						style={{ display: 'flex', flexDirection: 'column', gap: '72px' }}
-					>
-						{[...Array(3)].map((_, index) => (
-							<div
-								key={index}
-								className="imageContainer"
-								style={{ width: '60%', scrollSnapAlign: 'center', height: '100%' }}
-							>
-								<Skeleton
-									width="100%"
-									height={`${Math.floor(Math.random() * 500) + 500}px`}
-								/>
-							</div>
-						))}
-					</div>
-				</div>
-			)}
 		</>
 	);
 };
