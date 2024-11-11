@@ -9,6 +9,7 @@ const UploadGalleryImageCover = ({
 	fileInputRef,
 	uploadGalleryCoverChangeHandler,
 	handleSetCoverPosition,
+	message,
 }) => {
 	return (
 		<div div id="upload-gallery-cover" className="settings-overview">
@@ -82,7 +83,13 @@ const UploadGalleryImageCover = ({
 				<p
 					className="bt"
 					onClick={() => {
-						fileInputRef.current.click();
+						if (!info?.activeAlbumId) {
+							message.destroy();
+							message.error('Please create a album first');
+							return;
+						} else {
+							fileInputRef.current.click();
+						}
 					}}
 				>
 					Upload cover photo

@@ -2568,6 +2568,7 @@ const GalleryPage = () => {
 								fileInputRef={fileInputRef}
 								uploadGalleryCoverChangeHandler={uploadGalleryCoverChangeHandler}
 								handleSetCoverPosition={handleSetCoverPosition}
+								message={message}
 							/>
 
 							<DeleteGalleryComponent

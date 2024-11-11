@@ -9,6 +9,7 @@ import { ReactComponent as Pin } from '../../../../assets/svg/gallery/pin.svg';
 import { ReactComponent as Edit } from '../../../../assets/svg/gallery/editpen.svg';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/CrossWhite.svg';
 import { useNavigate } from 'react-router-dom';
+import slugify from 'slugify';
 
 const ImageDetailNav = ({
 	info,
@@ -90,7 +91,7 @@ const ImageDetailNav = ({
 
 		const json = {
 			displayName: navInfo.searchInput,
-			slug: navInfo.searchInput,
+			slug: slugify(navInfo.searchInput, { lower: true, strict: true }),
 		};
 
 		const response = await addGalleryTag(json, galleryId);
@@ -104,7 +105,6 @@ const ImageDetailNav = ({
 
 	const handleTagChange = (e, tagId, imageId) => {
 		const isTagSelected = e.target.checked;
-		console.log('isTagSelected', isTagSelected);
 		const payload = {
 			image_ids: [imageId],
 		};
@@ -115,7 +115,6 @@ const ImageDetailNav = ({
 		}
 	};
 
-	// console.log('imageDetail', imageDetail);
 	return (
 		<div className="galleryViewerNavbarContainer">
 			<div className="galleryViewerNavbar stagger_step_animation1">
