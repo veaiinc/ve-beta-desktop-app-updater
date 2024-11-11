@@ -5,6 +5,11 @@
 	// height: 865px;
 	height: calc(95vh - 60px);
 	color: white;
+
+	//To override the default AuthWrapper Children Component
+	max-width: 1800px !important;
+	margin: auto;
+	width: 100%;
 }
 
 .calendarSidebarContainer {
