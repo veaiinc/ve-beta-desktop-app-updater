@@ -2,8 +2,8 @@ import React, { useState, useContext, useEffect } from 'react';
 import { ReactComponent as CancelTag } from '../../../../assets/svg/gallery/cancel_tag.svg';
 import Context from '../../../../context/context';
 import { useParams, useNavigate } from 'react-router-dom';
-import { message } from 'antd';
-
+import { message, Select } from 'antd';
+import slugify from 'slugify';
 const AddLables = ({ info, setinfo }) => {
 	const { galleryId, albumId } = useParams();
 	const {
@@ -22,12 +22,16 @@ const AddLables = ({ info, setinfo }) => {
 					navigate(`/gallery-page/${galleryId}`);
 				}
 			});
-		} else {
-			setinfo((prev) => ({ ...prev, selectedGalleryTags: tagsList?.list || [] }));
+		} else if (info?.selectedGalleryTags?.length === 0) {
+			// setinfo((prev) => ({ ...prev, selectedGalleryTags: tagsList?.list || [] }));
+			setinfo((prev) => ({
+				...prev,
+				selectedGalleryTags: tagsList?.list?.filter((tag) => tag.displayName === 'All'),
+			}));
 		}
 	}, [tagsList, galleryId, albumId]);
 
-	const addNewTagHandler = () => {
+	const addNewTagHandler = async () => {
 		if (!inputTag.trim().length) {
 			messageApi.error('Tag cannot be empty');
 			setinputTag('');
@@ -37,15 +41,17 @@ const AddLables = ({ info, setinfo }) => {
 		if (tagsList?.list.find((tag) => tag.displayName === inputTag)) {
 			if (info?.selectedGalleryTags?.find((tag) => tag.displayName === inputTag)) {
 				messageApi.warning('Tag already exists');
+				return;
 			} else {
-				setinfo((prev) => ({
-					...prev,
-					selectedGalleryTags: [
-						...prev.selectedGalleryTags,
-						tagsList?.list.find((tag) => tag.displayName === inputTag),
-					],
-				}));
-				setinputTag('');
+				return;
+				// setinfo((prev) => ({
+				// 	...prev,
+				// 	selectedGalleryTags: [
+				// 		...prev.selectedGalleryTags,
+				// 		tagsList?.list.find((tag) => tag.displayName === inputTag),
+				// 	],
+				// }));
+				// setinputTag('');
 			}
 
 			return;
@@ -53,10 +59,30 @@ const AddLables = ({ info, setinfo }) => {
 
 		const json = {
 			displayName: inputTag,
-			slug: inputTag,
+			slug: slugify(inputTag, { lower: true, strict: true }),
 		};
 
-		addGalleryTag(json, galleryId);
+		const response = await addGalleryTag(json, galleryId);
+		if (response?.[0] === true) {
+			setinfo((prev) => ({
+				...prev,
+				selectedGalleryTags: [
+					...prev.selectedGalleryTags,
+					{ _id: response?.[1]?._id, displayName: response?.[1]?.displayName },
+				],
+			}));
+			setinputTag('');
+		}
+	};
+
+	const onSelectTagFunc = (value, moreOptions) => {
+		setinfo((prev) => ({
+			...prev,
+			selectedGalleryTags: [
+				...prev.selectedGalleryTags,
+				{ _id: value, displayName: moreOptions?.label },
+			],
+		}));
 		setinputTag('');
 	};
 
@@ -76,25 +102,78 @@ const AddLables = ({ info, setinfo }) => {
 			</div>
 
 			<div className="labels_tags_div">
-				{info?.selectedGalleryTags
-					?.filter((tag) => tag.displayName !== 'All')
-					.map((singleTag) => (
-						<div className="label_tag" key={singleTag?._id}>
-							<p>{singleTag?.displayName}</p>
+				{info?.selectedGalleryTags.map((singleTag) => (
+					<div className="label_tag" key={singleTag?._id}>
+						<p>{singleTag?.displayName}</p>
+						{singleTag?.displayName !== 'All' && (
 							<CancelTag
 								onClick={() => removeTagsFromSelectionList(singleTag?._id)}
 							/>
-						</div>
-					))}
+						)}
+					</div>
+				))}
 			</div>
 
 			<div className="add_label_div">
-				<input
+				<div className="add_label_input">Label </div>
+				<div> :</div>
+				{/* <input
 					type="text"
 					placeholder="Add Label"
 					value={inputTag}
 					onChange={(e) => setinputTag(e.target.value)}
 					onKeyDown={(e) => e.key === 'Enter' && addNewTagHandler()}
+				/> */}
+
+				{/* <Select
+					showSearch
+					value={inputTag}
+					placeholder="Add Label"
+					style={{ width: '100%', color: '#fff' }}
+					defaultActiveFirstOption={false}
+					suffixIcon={null}
+					filterOption={true}
+					onSearch={(value) => setinputTag(value)}
+					// onChange={(value, v2) => console.log(value, v2)}
+					onSelect={onSelectTagFunc}
+					notFoundContent={null}
+					optionFilterProp="label"
+					// allowClear
+					options={(tagsList?.list || [])
+						?.filter(
+							(tag) =>
+								!info.selectedGalleryTags.some(
+									(selectedTag) => selectedTag._id === tag._id,
+								),
+						)
+						.map((d) => ({
+							value: d._id,
+							label: d.displayName,
+						}))}
+					onKeyDown={(e) => e.key === 'Enter' && addNewTagHandler()}
+					// dropdownStyle={{ backgroundColor: '#333', color: '#fff' }}
+				/> */}
+
+				<Select
+					showSearch
+					value={inputTag}
+					placeholder="Add Label"
+					style={{ width: '100%', color: '#fff' }}
+					suffixIcon={null}
+					notFoundContent={null}
+					onSelect={onSelectTagFunc}
+					autoFocus
+					onSearch={(value) => setinputTag(value)}
+					optionFilterProp="label"
+					onKeyDown={(e) => e.key === 'Enter' && addNewTagHandler()}
+					options={(tagsList?.list || [])
+						?.filter(
+							(tag) =>
+								!info.selectedGalleryTags.some(
+									(selectedTag) => selectedTag._id === tag._id,
+								),
+						)
+						.map((d) => ({ value: d._id, label: d.displayName }))}
 				/>
 			</div>
 		</div>

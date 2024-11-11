@@ -246,6 +246,8 @@ export const Galleries = () => {
 					payload: payloadData,
 				});
 			}
+
+			return response;
 		} catch (error) {
 			console.log('error==>addGalleryTag', error);
 		}

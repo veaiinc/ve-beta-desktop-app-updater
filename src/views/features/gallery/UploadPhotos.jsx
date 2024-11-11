@@ -254,33 +254,6 @@ const UploadPhotos = () => {
 		const interval = setInterval(async () => {
 			const response = await getImageUploadStatus(galleryId, albumId, info?.uploadBatchID);
 			const { processedCount, uploadedCount } = response[1];
-			// console.log(response[1]);
-			// const result =
-			// 	Object.values(info.uploadImages || {}).length ===
-			// 	Object.values(info.uploadImages || {}).filter((image) => image.isDuplicate).length
-			// 		? 100
-			// 		: parseInt(
-			// 				(Object.values(info?.uploadImages || {}).filter(
-			// 					(image) => image?.isUploaded,
-			// 				).length /
-			// 					(info?.uploadImages?.length -
-			// 						(info?.isSkipDuplicates
-			// 							? Object.values(info?.uploadImages).filter(
-			// 									(image) => image?.isDuplicate,
-			// 							  ).length
-			// 							: 0))) *
-			// 					50,
-			// 		  ) +
-			// 		  parseInt(
-			// 				(processedCount /
-			// 					(info?.uploadImages?.length -
-			// 						(info?.isSkipDuplicates
-			// 							? Object.values(info?.uploadImages || {}).filter(
-			// 									(image) => image?.isDuplicate,
-			// 							  )?.length
-			// 							: 0))) *
-			// 					50,
-			// 		  );
 
 			let result = 0,
 				uploaded75Percent = 0,
@@ -326,7 +299,6 @@ const UploadPhotos = () => {
 
 			const currentFile = queue.shift();
 			const json = getJsonFunction(currentFile);
-			// console.log(json, currentFile, '==>currentFile');
 
 			if (info.isSkipDuplicates && info.uploadImages[currentFile]?.isDuplicate) {
 				setinfo((prev) => {
@@ -345,7 +317,6 @@ const UploadPhotos = () => {
 			let attempts = 0;
 			let isSuccessUpload = false;
 			while (attempts < 3) {
-				// console.log(json, attempts, currentFile);
 				const signedURLUpload = await getUploadImageSignUrl(galleryId, albumId, json);
 				if (signedURLUpload[0] === true) {
 					const uploadPromise = uploadOnS3Function(

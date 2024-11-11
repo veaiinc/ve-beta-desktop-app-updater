@@ -19,6 +19,7 @@
 		gap: 14px;
 		align-items: center;
 		margin-bottom: 32px;
+		width: fit-content;
 
 		svg {
 			cursor: pointer;
@@ -107,28 +108,86 @@
 
 			.add_label_div {
 				display: flex;
+				// flex-direction: column;
 				width: 278px;
-				height: 40px;
-				padding: 12px 16px;
+				// height: 40px;
+				// padding: 12px 10px;
 				align-items: center;
 				gap: 10px;
 				border-radius: 8px;
-				background: rgba(255, 255, 255, 0.03);
+				// border: 1px solid #2b2b2b;
+				// background: rgba(255, 255, 255, 0.03);
 
-				input {
-					width: 100%;
-					border: none;
-					outline: none;
-					background: transparent;
+				.add_label_input {
+					// width: inherit;
+					// height: 40px;
+					// display: flex;
+					// align-items: center;
+					// justify-content: center;
+					// border-radius: 8px;
+					// background: rgba(255, 255, 255, 0.03);
 					color: #e4e5e6;
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
 					line-height: normal;
+				}
+				.ant-select {
+					border: none !important;
+					outline: none !important;
+					width: inherit;
+					height: 40px;
+					// padding: 12px 10px;
+					align-items: center;
+					gap: 10px;
+					border-radius: 8px;
+					background: rgba(255, 255, 255, 0.03);
 
-					&::placeholder {
-						color: #979797;
+					svg {
+						path {
+							fill: #fff !important;
+						}
+					}
+					.ant-select-selection-search {
+						input {
+							color: #e4e5e6 !important;
+							&::placeholder {
+								color: #979797;
+								content: 'Add Label';
+							}
+						}
+					}
+					.ant-select-selector {
+						width: 100%;
+						border: none;
+						outline: none;
+						background: transparent;
+						color: #e4e5e6 !important;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+
+						&::placeholder {
+							color: #fff;
+						}
+						&:focus {
+							border: none !important;
+							outline: none !important;
+							width: 100%;
+							box-shadow: none !important; /* Added to remove focus outline */
+						}
+						&:hover {
+							border: none !important;
+							outline: none !important;
+							box-shadow: none !important;
+						}
+						&:active {
+							border: none !important;
+							outline: none !important;
+						}
 					}
 				}
 			}
