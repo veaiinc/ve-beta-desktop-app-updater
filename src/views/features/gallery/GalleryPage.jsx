@@ -313,6 +313,15 @@ const GalleryPage = () => {
 		if (info?.activeAlbumId) {
 			getAlbumCount(galleryId, info?.activeAlbumId);
 		}
+		if (albumDetails) {
+			setInfo((prev) => ({
+				...prev,
+				albumContains: albumDetails?.tags?.[0]?.displayName,
+				albumTagId: albumDetails?.tags?.[0]?._id,
+				sortType: albumDetails?.tags?.[0]?.sortType,
+				albumTags: albumDetails?.tags,
+			}));
+		}
 	}, [info?.activeAlbumId]);
 
 	useEffect(() => {
@@ -345,7 +354,7 @@ const GalleryPage = () => {
 	}, [imagesList]);
 
 	useEffect(() => {
-		if (albumDetails?.tags?.length > 0) {
+		if (albumDetails) {
 			setInfo((prev) => ({
 				...prev,
 				albumContains: albumDetails?.tags?.[0]?.displayName,
@@ -880,9 +889,10 @@ const GalleryPage = () => {
 	};
 
 	const handleCopyGalleryLink = () => {
+		console.log(info?.activeGallery, 'activeGallery');
 		const workspaceId = localStorage.getItem('workspaceId');
 		navigator.clipboard.writeText(
-			`https://${workspaceId}.ve.ai/galleries/${info?.activeGallery?.slug}`,
+			`https://${workspaceId}.ve.ai/galleries/${info?.activeGallery?.galleryData?.slug}`,
 		);
 		message.success('Gallery link copied to clipboard');
 		setInfo((prev) => ({
@@ -1003,36 +1013,6 @@ const GalleryPage = () => {
 			message.error('Something went wrong, please try again later');
 		}
 	};
-	// const handleDragEnd = (e, dropIndex) => {
-	// 	e.preventDefault();
-
-	// 	if (!info.isDragging) return;
-
-	// 	const images = [...info?.imagesList?.docs];
-	// 	const selectedImages = info.draggedImages.map((index) => images[index]);
-	// 	const sortedIndices = [...info.draggedImages].sort((a, b) => b - a);
-
-	// 	// Remove images from their original positions
-	// 	sortedIndices.forEach((index) => {
-	// 		images.splice(index, 1);
-	// 	});
-
-	// 	// Insert images at the new position
-	// 	images.splice(dropIndex, 0, ...selectedImages);
-
-	// 	setInfo((prev) => ({
-	// 		...prev,
-	// 		isDragging: false,
-	// 		draggedImages: [],
-	// 		selectedImages: [],
-	// 		imagesList: {
-	// 			...prev.imagesList,
-	// 			docs: images,
-	// 		},
-	// 	}));
-
-	// 	// Here you can add API call to update the order in backend
-	// };
 
 	const handleAlbumDelete = () => {
 		const payload = {
@@ -1112,30 +1092,26 @@ const GalleryPage = () => {
 	// 	}));
 	// };
 
-	const handleSearch = useCallback(
-		(value) => {
-			setInfo((prev) => ({
-				...prev,
-				searchValue: value,
-			}));
-			handleDebouceFunctionCall(searchImages, value);
-		},
-		[info?.searchValue],
-	);
-	const searchImages = useCallback(
-		async (value) => {
-			getGalleryImages(
-				galleryId,
-				info.activeAlbumId,
-				info.albumTagId,
-				info.page,
-				info.limit,
-				value,
-				true,
-			);
-		},
-		[info?.activeAlbumId, info?.albumTagId],
-	);
+	const handleSearch = (value) => {
+		setInfo((prev) => ({
+			...prev,
+			searchValue: value,
+		}));
+		handleDebouceFunctionCall(searchImages, value);
+	};
+
+	const searchImages = async (value) => {
+		await getGalleryImages(
+			galleryId,
+			info.activeAlbumId,
+			info.albumTagId,
+			info.page,
+			info.limit,
+			value,
+			true,
+		);
+	};
+
 	const handleMoveImageToAlbum = async (albumId) => {
 		const payload = {
 			image_ids: info?.selectedImages,
@@ -1175,6 +1151,27 @@ const GalleryPage = () => {
 
 		return totalHeight;
 	};
+	// const addTagHandler = async () => {
+	// 	if (
+	// 		!info?.tagSearchValue.trim().length ||
+	// 		tagsList?.list.find((tag) => tag.displayName === info?.tagSearchValue)
+	// 	) {
+	// 		return;
+	// 	}
+
+	// 	const json = {
+	// 		displayName: info.tagSearchValue,
+	// 		slug: info.tagSearchValue,
+	// 	};
+
+	// 	const response = await addGalleryTag(json, galleryId);
+	// 	if (response?.[0] === true) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			tagSearchValue: '',
+	// 		}));
+	// 	}
+	// };
 
 	return (
 		<>

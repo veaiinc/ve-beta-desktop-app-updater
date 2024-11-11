@@ -52,7 +52,7 @@ const AlbumSettings = () => {
 		loading: false,
 		isEnabled: false,
 		coverPhoto: false,
-		lightroomList: false,
+		lightroomList: true,
 		crop: {
 			x: 0,
 			y: 0,

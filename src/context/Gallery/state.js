@@ -26,6 +26,7 @@ export const intialState = {
 	albumImagesCount: null,
 	clientSelectionsData: null,
 	clientSelectionImages: null,
+	galleryShareDetails: null,
 };
 
 export const Galleries = () => {
@@ -1126,6 +1127,41 @@ export const Galleries = () => {
 			console.log('error==>moveImagesToAlbum', error);
 		}
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}
+	const pubslishGallery = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>pubslishGallery', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/share-details
+	const getGalleryShareDetails = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/share-details`,
+				usertoken,
+				'galleries',
+			);
+			dispatch({
+				type: Actions.GET_GALLERY_SHARE_DETAILS,
+				payload: response?.[1],
+			});
+		} catch (error) {
+			console.log('error==>getGalleryShareDetails', error);
+		}
+	};
+
 	return {
 		...state,
 		getGalleries,
@@ -1182,7 +1218,7 @@ export const Galleries = () => {
 		getClientSelections,
 		getClientSelectionImages,
 		moveImagesToAlbum,
+		pubslishGallery,
+		getGalleryShareDetails,
 	};
 };
-
-// getGalleryImages

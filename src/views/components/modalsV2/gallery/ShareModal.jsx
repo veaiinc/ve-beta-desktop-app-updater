@@ -22,14 +22,29 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 			editGalleryGuestAccess,
 			galleryGuestAccess,
 			shareGalleryViaEmail,
+			getGalleryShareDetails,
+			galleryShareDetails,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		visitorFormAccess: visitorFormAccess,
 		canClientDownloadOriginals: tenantPreferences?.canClientDownloadOriginals,
+		canClientDownloadOptimized: tenantPreferences?.canClientDownloadOptimized,
 		galleryGuestAccess: galleryGuestAccess,
 		shareEmail: '',
+		galleryShareDetails: galleryShareDetails,
 	});
+	useEffect(() => {
+		if (!galleryShareDetails) {
+			getGalleryShareDetails(galleryId);
+		}
+		if (galleryShareDetails) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				galleryShareDetails: galleryShareDetails,
+			}));
+		}
+	}, [galleryShareDetails]);
 	useEffect(() => {
 		if (!visitorFormAccess) {
 			getVisitorFormAccess(galleryId);
@@ -60,6 +75,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				canClientDownloadOriginals: tenantPreferences?.canClientDownloadOriginals,
+				canClientDownloadOptimized: tenantPreferences?.canClientDownloadOptimized,
 			}));
 		}
 	}, [tenantPreferences]);
@@ -78,15 +94,27 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 		editVisitorFormAccess(payload, galleryId);
 	}, [info?.visitorFormAccess?.isEnabled]);
 
-	const handleGalleryProtection = useCallback(() => {
+	const handleGalleryProtection = () => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			canClientDownloadOriginals: !prevInfo?.canClientDownloadOriginals,
+			canClientDownloadOptimized: !prevInfo?.canClientDownloadOriginals,
+		}));
 		const payload = {
 			canClientDownloadOriginals: !info?.canClientDownloadOriginals,
 			canClientDownloadOptimized: !info?.canClientDownloadOriginals,
 		};
 		editPreferences(galleryId, payload);
-	}, [info?.canClientDownloadOriginals]);
+	};
 
 	const handleGalleryGuestAccess = useCallback(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			galleryGuestAccess: {
+				...prevInfo?.galleryGuestAccess,
+				isEnabled: !prevInfo?.galleryGuestAccess?.isEnabled,
+			},
+		}));
 		const payload = {
 			isEnabled: !info?.galleryGuestAccess?.isEnabled,
 		};
@@ -98,7 +126,6 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 			email: info?.shareEmail,
 		};
 		const response = await shareGalleryViaEmail(payload, galleryId);
-		console.log('response==>handleShareViaEmail', response);
 		if (response[0]) {
 			message.success('Email sent successfully');
 			setInfo((prevInfo) => ({
@@ -120,6 +147,25 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 				message.error('Failed to copy gallery link');
 			});
 	}, [activeGallery?.slug]);
+
+	const handleEditPin = (e, type) => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			galleryShareDetails: { ...prevInfo?.galleryShareDetails, [type]: e.target.value },
+		}));
+	};
+
+	const handleCopyPin = (type) => {
+		if (type === 'masterAccessPin') {
+			navigator.clipboard.writeText(info?.galleryShareDetails?.masterAccessPin).then(() => {
+				message.success('PIN copied to clipboard');
+			});
+		} else if (type === 'guestAccessPin') {
+			navigator.clipboard.writeText(info?.galleryShareDetails?.guestAccess?.pin).then(() => {
+				message.success('PIN copied to clipboard');
+			});
+		}
+	};
 
 	return (
 		<Drawer
@@ -178,6 +224,58 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 						<p>Gallery protection</p>
 					</div>
 					<p>Protect your gallery with Client & Guest PIN</p>
+					{info?.galleryGuestAccess?.isEnabled && (
+						<div className="pinContainer">
+							<div className="pinContainerItem">
+								<p>Client PIN</p>
+								<div className="editPinContainer">
+									<input
+										placeholder="Enter 4-digit PIN"
+										maxLength={4}
+										onKeyPress={(e) => {
+											if (!/[0-9]/.test(e.key)) {
+												e.preventDefault();
+											}
+										}}
+										onChange={(e) => {
+											handleEditPin(e, 'masterAccessPin');
+										}}
+										value={info?.galleryShareDetails?.masterAccessPin}
+									/>
+									<div>
+										<Copy
+											onClick={() => handleCopyPin('masterAccessPin')}
+											style={{ cursor: 'pointer' }}
+										/>
+									</div>
+								</div>
+							</div>
+							<div className="pinContainerItem">
+								<p>Guest PIN</p>
+								<div className="editPinContainer">
+									<input
+										placeholder="Enter 3-digit PIN"
+										maxLength={3}
+										onKeyPress={(e) => {
+											if (!/[0-9]/.test(e.key)) {
+												e.preventDefault();
+											}
+										}}
+										onChange={(e) => {
+											handleEditPin(e, 'guestAccessPin');
+										}}
+										value={info?.galleryShareDetails?.guestAccess?.pin}
+									/>
+									<div>
+										<Copy
+											onClick={() => handleCopyPin('guestAccessPin')}
+											style={{ cursor: 'pointer' }}
+										/>
+									</div>
+								</div>
+							</div>
+						</div>
+					)}
 				</div>
 				<div className="optionsContainer">
 					<div className="optionsToggleContainer">

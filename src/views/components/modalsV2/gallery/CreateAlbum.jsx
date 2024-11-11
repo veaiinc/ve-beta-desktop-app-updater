@@ -112,6 +112,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 			isOpen={open}
 			closeModal={closeModelFunction}
 			customStyles={{
+				content: { position: 'absolute', overflow: 'hidden' },
 				className: 'createAlbumModal',
 			}}
 		>
