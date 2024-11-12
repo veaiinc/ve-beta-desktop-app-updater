@@ -40,9 +40,9 @@ const DeleteGalleryComponent = ({ galleryName, galleryId }) => {
 	return (
 		<div id="delete" className="settings-overview">
 			<div className="delete-container">
-				<div style={{ padding: '4px' }}>
+				{/* <div style={{ padding: '4px' }}>
 					<DeleteLogo />
-				</div>
+				</div> */}
 				<div className="delete-content">
 					<p className="heading">Delete Gallery </p>
 					<p className="subTitle">

@@ -387,13 +387,13 @@ const AlbumSettings = () => {
 								</p>
 							</div>
 						</div>
-						<div className="albumLink">
+						{/* <div className="albumLink">
 							<p className="title">Album link</p>
 							<div className="inputContainer">
 								<input placeholder="Wedding" />
 								<CopyLogo className="copy-logo" />
 							</div>
-						</div>
+						</div> */}
 						<div className="lockAlbum">
 							<p className="title">Lock Album</p>
 							<div className="lockOption">
