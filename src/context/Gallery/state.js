@@ -1161,6 +1161,22 @@ export const Galleries = () => {
 			console.log('error==>getGalleryShareDetails', error);
 		}
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/change-master-access-pin.
+	const changeMasterAccessPin = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/change-master-access-pin`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>changeMasterAccessPin', error);
+		}
+	};
 
 	return {
 		...state,
@@ -1220,5 +1236,6 @@ export const Galleries = () => {
 		moveImagesToAlbum,
 		pubslishGallery,
 		getGalleryShareDetails,
+		changeMasterAccessPin,
 	};
 };

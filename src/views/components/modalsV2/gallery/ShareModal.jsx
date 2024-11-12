@@ -24,6 +24,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 			shareGalleryViaEmail,
 			getGalleryShareDetails,
 			galleryShareDetails,
+			changeMasterAccessPin,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -149,10 +150,32 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 	}, [activeGallery?.slug]);
 
 	const handleEditPin = (e, type) => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			galleryShareDetails: { ...prevInfo?.galleryShareDetails, [type]: e.target.value },
-		}));
+		if (type === 'masterAccessPin') {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				galleryShareDetails: { ...prevInfo?.galleryShareDetails, [type]: e.target.value },
+			}));
+			if (
+				e.target.value.length === 4 &&
+				e.target.value !== galleryShareDetails?.masterAccessPin
+			) {
+				let payload = {
+					accessPin: e.target.value,
+				};
+				changeMasterAccessPin(payload, galleryId);
+			}
+		} else if (type === 'guestAccessPin') {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				galleryShareDetails: {
+					...prevInfo?.galleryShareDetails,
+					guestAccess: {
+						...prevInfo?.galleryShareDetails?.guestAccess,
+						pin: e.target.value,
+					},
+				},
+			}));
+		}
 	};
 
 	const handleCopyPin = (type) => {
