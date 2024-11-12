@@ -19,7 +19,7 @@ const AddLables = ({ info, setinfo }) => {
 			getGalleryTagsList(galleryId);
 			getImageDuplicatesList(galleryId, albumId).then((response) => {
 				if (response?.[0] === 404 && response?.[1]?.message === 'album not found') {
-					navigate(`/gallery-page/${galleryId}`);
+					navigate(`/galleries/${galleryId}`);
 				}
 			});
 		} else if (info?.selectedGalleryTags?.length === 0) {

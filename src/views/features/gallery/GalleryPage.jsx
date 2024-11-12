@@ -528,7 +528,7 @@ const GalleryPage = () => {
 	};
 	const handleExpandClick = () => {
 		navigate(
-			`/gallery-page/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}&image=${info?.selectedImages?.[0]}`,
+			`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}&image=${info?.selectedImages?.[0]}`,
 		);
 	};
 	const scrollToSection = (sectionId) => {
@@ -554,7 +554,7 @@ const GalleryPage = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, activeTab: name }));
 	};
 	const handleNavigateUpload = () => {
-		navigate(`/gallery-page/${galleryId}/${info?.activeAlbumId}/upload-photos`);
+		navigate(`/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos`);
 	};
 	const convertEpochToDate = (value) => {
 		if (!value) return null;
@@ -2246,7 +2246,7 @@ const GalleryPage = () => {
 																}}
 																onClick={() =>
 																	navigate(
-																		`/gallery/${galleryId}/album-settings?uploadImageId=${info?.selectedImages[0]}`,
+																		`/galleries/${galleryId}/${info?.activeAlbumId}/album-settings?uploadImageId=${info?.selectedImages[0]}`,
 																		{
 																			state: {
 																				activeAlbumId:

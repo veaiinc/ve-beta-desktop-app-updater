@@ -105,7 +105,7 @@ const AddGallery = () => {
 			(gallery) => gallery._id === galleryId,
 		);
 		getGalleryCredentials(galleryId);
-		navigate(`/gallery-page/${galleryId}`, { state: { galleryData: selectedGallery } });
+		navigate(`/galleries/${galleryId}`, { state: { galleryData: selectedGallery } });
 	};
 
 	const handleNavigateSettings = (galleryId) => {
@@ -113,7 +113,7 @@ const AddGallery = () => {
 			(gallery) => gallery._id === galleryId,
 		);
 		getGalleryCredentials(galleryId);
-		navigate(`/gallery-page/${galleryId}`, {
+		navigate(`/galleries/${galleryId}`, {
 			state: { galleryData: selectedGallery, openSettings: 'Settings' },
 		});
 	};
