@@ -153,7 +153,7 @@ const AlbumSettings = () => {
 		}
 	};
 	const handleGoBack = () => {
-		navigate(`/gallery-page/${galleryId}`);
+		navigate(`/galleries/${galleryId}`);
 	};
 
 	const handleHideAlbum = useCallback(() => {

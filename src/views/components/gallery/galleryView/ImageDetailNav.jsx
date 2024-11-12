@@ -67,9 +67,12 @@ const ImageDetailNav = ({
 			}));
 		},
 		Image: () => {
-			navigate(`/gallery/${galleryId}/album-settings?uploadImageId=${info?.imageDetailId}`, {
-				state: { activeAlbumId: albumId },
-			});
+			navigate(
+				`/galleries/${galleryId}/${albumId}/album-settings?uploadImageId=${info?.imageDetailId}`,
+				{
+					state: { activeAlbumId: albumId },
+				},
+			);
 		},
 		Rotate: () => {
 			let currentRotation = imageDetail?.rotation || 0;

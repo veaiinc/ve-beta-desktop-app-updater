@@ -201,7 +201,7 @@ const GalleryViewer = () => {
 	};
 
 	const handleCloseGallery = () => {
-		navigate(`/gallery-page/${galleryId}`);
+		navigate(`/galleries/${galleryId}`);
 	};
 
 	const handleRotateImage = async (degree) => {

@@ -349,7 +349,7 @@ const UploadPhotos = () => {
 
 	return (
 		<div className="upload-gallery-container">
-			<Link to={`/gallery-page/${galleryId}`} className="backHeader">
+			<Link to={`/galleries/${galleryId}`} className="backHeader">
 				<BackIcon /> <p>{info?.title}</p>
 			</Link>
 
