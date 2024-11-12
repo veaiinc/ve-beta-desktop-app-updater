@@ -21,7 +21,7 @@ const FullImagesComponent = ({
 				style={{ display: 'flex', flexDirection: 'column', gap: '72px' }}
 				onScroll={() => setInfo((prev) => ({ ...prev, imageDetailId: null }))}
 			>
-				{!info?.fakeLoading && galleryCredentials && imagesList
+				{galleryCredentials && imagesList
 					? imagesList?.docs?.map((image, index) => {
 							const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 							const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
