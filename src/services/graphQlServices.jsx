@@ -6,9 +6,10 @@ const {
 	workflows_Api,
 	ve_conversations_api_US,
 	workflows_Api_US,
+	activity_api,
 } = require('./config');
 
-const graphQLAPICall = { ve_conversations_api, workflows_Api };
+const graphQLAPICall = { ve_conversations_api, workflows_Api, activity_api };
 const graphQLAPICallUS = {
 	ve_conversations_api: ve_conversations_api_US,
 	workflows_Api: workflows_Api_US,

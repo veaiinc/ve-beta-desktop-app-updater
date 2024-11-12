@@ -103,3 +103,17 @@ export const getCurrentWorkspaceId = (userWorkSpaceList = []) => {
 	const currentWorkspaceIds = tenant.workspaceIds || [workspaceId];
 	return currentWorkspaceIds[currentWorkspaceIds.length - 1];
 };
+
+export const generatePDFsBatchId = (assistantId) => {
+	const timestamp = Date.now();
+	return `${timestamp}_${assistantId}`;
+};
+
+export const isURL = (url) => {
+	try {
+		new URL(url);
+		return true;
+	} catch (error) {
+		return false;
+	}
+};

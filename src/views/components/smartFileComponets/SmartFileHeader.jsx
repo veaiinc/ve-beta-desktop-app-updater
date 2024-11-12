@@ -134,7 +134,9 @@ const SmartFileHeader = ({
 						Form Response
 					</span>
 					<div style={{ display: 'flex', flexDirection: 'column' }}>
-						{workflowStatus !== 'filesSent' && workflowStatus !== 'enquiry' ? (
+						{workflowStatus !== 'filesSent' &&
+						workflowStatus !== 'enquiry' &&
+						workflowStatus !== 'filesViewed' ? (
 							<span
 								style={{
 									display: 'flex',
@@ -167,6 +169,13 @@ const SmartFileHeader = ({
 							Smart File
 						</span>
 					</div>
+					<span
+						className="tabBtns"
+						style={{ color: activeTab === 'activity' ? '#e4e5e6' : '' }}
+						onClick={() => chnageActiveTab('activity')}
+					>
+						Activity
+					</span>
 				</div>
 			</div>
 

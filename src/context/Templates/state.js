@@ -29,13 +29,16 @@ import {
 	updateSmartFileSlugMutation,
 	deleteLeadMutation,
 	deleteWorkflowTemplatesMutation,
-	getTabItemCountQuery, // Sheshant
-	getRequiredActionDetailsQuery, // Sheshant
+	getTabItemCountQuery,
+	getRequiredActionDetailsQuery,
 	updateSendSmartFileSettingsMutation,
+	getLatestSendSmartFileSettingsQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './Actions';
+import Service from '../../services/index';
+import { errorCodes } from '@apollo/client/invariantErrorCodes';
 
 export const intialState = {
 	workflowslist: null,
@@ -56,6 +59,8 @@ export const intialState = {
 	smartFileEmailTemplateData: null,
 	requiredActions: { actions: [], hasMore: false, loading: true },
 	tabItemCount: null,
+	eventsPresetData: null,
+	sendSmartFileSettings: null,
 };
 
 export const TemplatesState = (props) => {
@@ -864,6 +869,115 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	//events presets
+	const getEventsPresets = async (params) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/${workspaceId}/variables/list`,
+				usertoken,
+				'proposals_api',
+				params,
+			);
+			if (response?.[0] === true) {
+				dispatch({ type: Actions.GET_EVENTS_PRESETDATA_SUCCESS, payload: response?.[1] });
+			} else {
+				message.error('Unable to fetch events presets');
+				console.log('api failed ==>getEventsPresets', response);
+			}
+		} catch (error) {
+			console.log('errror ==>getEventsPresets', error);
+		}
+	};
+
+	const addEventsPresets = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchPost(
+				`/${workspaceId}/variables`,
+				payload,
+				usertoken,
+				'proposals_api',
+			);
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			} else {
+				console.log('api failed ==>addEventsPresets', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>addEventsPresets', error);
+		}
+	};
+
+	const editEventsPresets = async (payload, varaibleId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchPut(
+				`/${workspaceId}/variables/${varaibleId}`,
+				payload,
+				usertoken,
+				'proposals_api',
+			);
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			} else {
+				console.log('api failed ==>editEventsPresets', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>editEventsPresets', error);
+		}
+	};
+
+	const deleteEventsPreset = async (varaibleId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchDelete(
+				`/${workspaceId}/variables/${varaibleId}`,
+				usertoken,
+				null,
+				'proposals_api',
+			);
+			if (response?.[0] === true) {
+				return [true];
+			} else {
+				console.log('api failed ==>editEventsPresets', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>editEventsPresets', error);
+		}
+	};
+
+	const getLatestSendSmartFileSettings = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getLatestSendSmartFileSettingsQuery,
+				null,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SEND_SMART_FILE_SETTINGS_SUCCESS,
+					payload: response?.[1]?.data?.getLatestWorkflowSettings,
+				});
+			} else {
+				console.log('api failed==>getLatestSendSmartFileSettings', response);
+			}
+		} catch (error) {
+			console.log('errror ==>getLatestSendSmartFileSettings', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -898,10 +1012,13 @@ export const TemplatesState = (props) => {
 		updateSmartFileSlug,
 		deleteLead,
 		deleteWorkflowTemplates,
-		// Sheshant
 		getTabItemCount,
-		// Sheshant
 		getRequiredActions,
 		updateSendSmartFileSettings,
+		getEventsPresets,
+		addEventsPresets,
+		editEventsPresets,
+		deleteEventsPreset,
+		getLatestSendSmartFileSettings,
 	};
 };

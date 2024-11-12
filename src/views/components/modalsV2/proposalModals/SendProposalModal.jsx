@@ -68,6 +68,9 @@ const SendProposalModal = ({
 	pin,
 	isAlChatEnabled,
 	updateSmartFileIsAiChatEnabled,
+	nameIdentification,
+	emailIdentification,
+	updateIdentification,
 }) => {
 	const {
 		templates: {
@@ -184,6 +187,10 @@ const SendProposalModal = ({
 	useEffect(() => {
 		setInfo((prev) => ({ ...prev, isAlChatEnabled: isAlChatEnabled }));
 	}, [isAlChatEnabled]);
+
+	useEffect(() => {
+		setInfo((prev) => ({ ...prev, nameAccess: nameIdentification, emailIdentification }));
+	}, [nameIdentification, emailIdentification]);
 
 	const handleSendProposalViaEmail = useCallback(async () => {
 		modifiedCloseModal();
@@ -325,11 +332,17 @@ const SendProposalModal = ({
 				emailIdentification: true,
 			}));
 		}
+
+		if (name !== 'emailAccess') {
+			let type;
+			type = name === 'emailIdentification' ? 'emailIdentification' : 'nameIdentification';
+			updateIdentification(checked, type);
+		}
 	}, []);
 
 	const slugOnChange = useCallback(
 		(e) => {
-			const valueWithoutSpaces = e?.target?.value.replace(/\s+/g, '');
+			const valueWithoutSpaces = e?.target?.value.replace(/[^a-z0-9]/g, '');
 			setInfo((prev) => ({ ...prev, slugHolder: valueWithoutSpaces, slugErrorMessage: '' }));
 			if (valueWithoutSpaces === slug) {
 				return;

@@ -40,15 +40,24 @@ const actionHandlers = {
 		...state,
 		smartFileEmailTemplateData: action.payload,
 	}),
-	// Sheshant
+
 	GET_REQUIRED_ACTIONS_SUCCESS: (state, action) => ({
 		...state,
 		requiredActions: action.payload,
 	}),
-	// Sheshant
+
 	GET_TAB_ITEM_COUNT_SUCCESS: (state, action) => ({
 		...state,
 		tabItemCount: action.payload,
+	}),
+
+	GET_EVENTS_PRESETDATA_SUCCESS: (state, action) => ({
+		...state,
+		eventsPresetData: action.payload,
+	}),
+	GET_SEND_SMART_FILE_SETTINGS_SUCCESS: (state, action) => ({
+		...state,
+		sendSmartFileSettings: action.payload,
 	}),
 
 	RESET_STATE: () => intialState,

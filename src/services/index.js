@@ -7,6 +7,10 @@ const {
 	tenant_api_US,
 	proposals_api_US,
 	galleries,
+	ai_setup_api,
+	ai_setup_api_US,
+	ai_assistant_api,
+	ai_assistant_api_US,
 } = require('./config');
 
 const apiEndpoints = {
@@ -16,6 +20,8 @@ const apiEndpoints = {
 	proposals_api,
 	auth: auth_Api,
 	galleries: galleries,
+	// ai_setup: ai_setup_api,
+	ai_assistant_api,
 };
 const apiEndpointsUS = {
 	tenant_users_api: tenant_users_api_US,
@@ -23,13 +29,15 @@ const apiEndpointsUS = {
 	'tenant-users': tenant_users_api_US,
 	proposals_api: proposals_api_US,
 	auth: auth_Api,
+	// ai_setup: ai_setup_api_US,
+	ai_assistant_api_US,
 };
 
 const handleHeaders = (token, body, type) => {
 	const headers = { 'Content-Type': 'application/json' };
 	if (token) {
 		headers['x-access-token'] = token;
-		if (type === 'form') {
+		if (type === 'form' || type === 'ai_setup') {
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 	}
@@ -64,12 +72,32 @@ const apiFetch = async (url, method, body, token, type) => {
 	}
 };
 
+const handleParams = (params) => {
+	let subUrl = '';
+	if (Object.keys(params)?.length) {
+		subUrl += '?';
+		const keys = Object.keys(params);
+		for (let i = 0; i < keys?.length; i++) {
+			subUrl += `${keys[i]}=${encodeURIComponent(params[keys[i]])}&`;
+		}
+	}
+	return subUrl;
+};
+
 const Service = {
-	fetchGet: (url, token = null, type = null) => apiFetch(url, 'GET', null, token, type),
-	fetchPost: (url, body, token = null, type = null) => apiFetch(url, 'POST', body, token, type),
-	fetchPut: (url, body, token = null, type = null) => apiFetch(url, 'PUT', body, token, type),
-	fetchDelete: (url, token = null, body = null, type = null) =>
-		apiFetch(url, 'DELETE', body, token, type),
+	fetchGet: async (url, token = null, type = null, params = {}) => {
+		let completeUrl = url;
+		if (Object.keys(params)?.length) {
+			completeUrl += handleParams(params);
+		}
+		return await apiFetch(completeUrl, 'GET', null, token, type);
+	},
+	fetchPost: async (url, body, token = null, type = null) =>
+		await apiFetch(url, 'POST', body, token, type),
+	fetchPut: async (url, body, token = null, type = null) =>
+		await apiFetch(url, 'PUT', body, token, type),
+	fetchDelete: async (url, token = null, body = null, type = null) =>
+		await apiFetch(url, 'DELETE', body, token, type),
 };
 
 const onFailure = async (res, url) => {
