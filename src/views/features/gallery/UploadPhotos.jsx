@@ -8,13 +8,14 @@ import UploadStatusComponent from '../../components/gallery/addGallery/UploadSta
 import randomize from 'randomatic';
 import moment from 'moment';
 import Context from '../../../context/context';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
 import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
 
 const UploadPhotos = () => {
 	const { galleryId, albumId } = useParams();
+	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
 
 	const {
@@ -354,7 +355,7 @@ const UploadPhotos = () => {
 			</Link>
 
 			<div className="options_upload_container">
-				<AddLables info={info} setinfo={setinfo} />
+				<AddLables info={info} setinfo={setinfo} searchParams={searchParams} />
 				<UploadInputComponent onDropFunction={onDropFunction} />
 			</div>
 

@@ -4,7 +4,7 @@ import Context from '../../../../context/context';
 import { useParams, useNavigate } from 'react-router-dom';
 import { message, Select } from 'antd';
 import slugify from 'slugify';
-const AddLables = ({ info, setinfo }) => {
+const AddLables = ({ info, setinfo, searchParams }) => {
 	const { galleryId, albumId } = useParams();
 	const {
 		galleryInfo: { tagsList, getGalleryTagsList, addGalleryTag, getImageDuplicatesList },
@@ -24,10 +24,18 @@ const AddLables = ({ info, setinfo }) => {
 			});
 		} else if (info?.selectedGalleryTags?.length === 0) {
 			// setinfo((prev) => ({ ...prev, selectedGalleryTags: tagsList?.list || [] }));
+			let selectedGalleryTags = tagsList?.list?.filter((tag) => tag.displayName === 'All');
+			if (searchParams.get('tag')) {
+				selectedGalleryTags.push(
+					tagsList?.list?.find((tag) => tag?.displayName === searchParams.get('tag')),
+				);
+			}
 			setinfo((prev) => ({
 				...prev,
-				selectedGalleryTags: tagsList?.list?.filter((tag) => tag.displayName === 'All'),
+				selectedGalleryTags,
 			}));
+
+			console.log(searchParams.get('tag'));
 		}
 	}, [tagsList, galleryId, albumId]);
 
