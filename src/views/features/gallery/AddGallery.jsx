@@ -8,7 +8,8 @@ import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
-import { Result } from 'antd';
+import { Result, message } from 'antd';
+
 const noImage =
 	'https://png.pngtree.com/png-clipart/20230917/original/pngtree-no-image-available-icon-flatvector-illustration-thumbnail-graphic-illustration-vector-png-image_12323920.png';
 
@@ -72,6 +73,7 @@ const AddGallery = () => {
 		page: 1,
 		limit: 15,
 		timeout: null,
+		workspaceId: localStorage.getItem('workspaceId'),
 	});
 	const navigate = useNavigate();
 	useEffect(() => {
@@ -165,6 +167,18 @@ const AddGallery = () => {
 		}
 	};
 
+	const copyGallerySlugFunction = (slug) => {
+		const galleryLink = `https://${info?.workspaceId}.ve.ai/galleries/${slug}`;
+		navigator.clipboard
+			.writeText(galleryLink)
+			.then(() => {
+				message.success('Gallery link copied to clipboard');
+			})
+			.catch(() => {
+				message.error('Failed to copy gallery link');
+			});
+	};
+
 	return (
 		<div className="gallery-main-container">
 			<div className="seachbar-container">
@@ -236,8 +250,14 @@ const AddGallery = () => {
 												>
 													View
 												</li>
-												{/* <li>Client view</li>
-												<li>Share</li> */}
+												{/* <li>Client view</li> */}
+												<li
+													onClick={() =>
+														copyGallerySlugFunction(items?.slug)
+													}
+												>
+													Share
+												</li>
 												<li
 													onClick={() =>
 														handleNavigateSettings(items._id)
@@ -277,6 +297,7 @@ const AddGallery = () => {
 					open={info.createNewGalleryModal}
 					closeModal={handleCloseModal}
 					fetchGalleries={fetchGalleries}
+					message={message}
 				/>
 			</div>
 		</div>

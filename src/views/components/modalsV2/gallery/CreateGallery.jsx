@@ -7,7 +7,7 @@ import jwt_decode from 'jwt-decode';
 import { DatePicker } from 'antd';
 import slugify from 'slugify';
 
-const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
+const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries, message }) => {
 	const {
 		galleryInfo: { createNewGallery, checkGallerySlugAvailable },
 	} = useContext(Context);
@@ -145,6 +145,9 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries }) => {
 			if (response?.[0] === true) {
 				closeModalFunc();
 				fetchGalleries(1, null, true);
+				message.success('Gallery created successfully');
+			} else {
+				message.error(response?.[1]?.message || 'Failed to create gallery');
 			}
 		} catch (error) {
 			console.error('Error creating gallery:', error);

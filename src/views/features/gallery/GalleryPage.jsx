@@ -551,6 +551,7 @@ const GalleryPage = () => {
 		}));
 	};
 	const handleClickContent = (name) => {
+		console.log(name, 'name');
 		setInfo((prevInfo) => ({ ...prevInfo, activeTab: name }));
 	};
 	const handleNavigateUpload = () => {
@@ -889,7 +890,6 @@ const GalleryPage = () => {
 	};
 
 	const handleCopyGalleryLink = () => {
-		console.log(info?.activeGallery, 'activeGallery');
 		const workspaceId = localStorage.getItem('workspaceId');
 		navigator.clipboard.writeText(
 			`https://${workspaceId}.ve.ai/galleries/${info?.activeGallery?.galleryData?.slug}`,
@@ -1056,7 +1056,7 @@ const GalleryPage = () => {
 		const payload = {
 			image_ids: info?.selectedImages,
 		};
-		console.log(payload, 'payload');
+
 		if (isTagSelected) {
 			const response = await removeTagFromImage(
 				payload,
