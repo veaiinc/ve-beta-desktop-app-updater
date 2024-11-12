@@ -22,7 +22,136 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 				</div>
 
 				<div className="userMessage">
+					<p>
+						That sounds good.That sounds good.That sounds good.That sounds good.That
+						sounds good.That sounds good.
+					</p>
+				</div>
+				<div className="aiMessageWrapper">
+					<AiSparkel />
+					<div className="aiMessage">
+						<span>Google Meet?</span>
+					</div>
+				</div>
+
+				<div className="userMessage">
 					<p>That sounds good.</p>
+				</div>
+				<div className="aiMessageWrapper">
+					<AiSparkel />
+					<div className="aiMessage">
+						<span>Google Meet?</span>
+					</div>
+				</div>
+
+				<div className="userMessage">
+					<p>That sounds good.</p>
+				</div>
+				<div className="aiMessageWrapper">
+					<AiSparkel />
+					<div className="aiMessage">
+						<span>Google Meet?</span>
+					</div>
+				</div>
+
+				<div className="userMessage">
+					<p>That sounds good.</p>
+				</div>
+				<div className="aiMessageWrapper">
+					<AiSparkel />
+					<div className="aiMessage">
+						<span>Google Meet?</span>
+					</div>
+				</div>
+
+				<div className="userMessage">
+					<p>That sounds good.</p>
+				</div>
+				<div className="aiMessageWrapper">
+					<AiSparkel />
+					<div className="aiMessage">
+						<span>Google Meet?</span>
+					</div>
+				</div>
+
+				<div className="userMessage">
+					<p>That sounds good.</p>
+				</div>
+				<div className="aiMessageWrapper">
+					<AiSparkel />
+					<div className="aiMessage">
+						<span>Google Meet?</span>
+					</div>
+				</div>
+
+				<div className="userMessage">
+					<p>That sounds good.</p>
+				</div>
+				<div className="aiMessageWrapper">
+					<AiSparkel />
+					<div className="aiMessage">
+						<span>Google Meet?</span>
+					</div>
+				</div>
+
+				<div className="userMessage">
+					<p>That sounds good.</p>
+				</div>
+				<div className="aiMessageWrapper">
+					<AiSparkel />
+					<div className="aiMessage">
+						<span>Google Meet?</span>
+					</div>
+				</div>
+
+				<div className="userMessage">
+					<p>That sounds good.</p>
+				</div>
+				<div className="aiMessageWrapper">
+					<AiSparkel />
+					<div className="aiMessage">
+						<span>Google Meet?</span>
+					</div>
+				</div>
+
+				<div className="userMessage">
+					<p>That sounds good.</p>
+				</div>
+				<div className="aiMessageWrapper">
+					<AiSparkel />
+					<div className="aiMessage">
+						<span>Google Meet?</span>
+					</div>
+				</div>
+
+				<div className="userMessage">
+					<p>That sounds good.</p>
+				</div>
+				<div className="aiMessageWrapper">
+					<AiSparkel />
+					<div className="aiMessage">
+						<span>Google Meet?</span>
+					</div>
+				</div>
+
+				<div className="userMessage">
+					<p>That sounds good.</p>
+				</div>
+				<div className="aiMessageWrapper">
+					<AiSparkel />
+					<div className="aiMessage">
+						<span>
+							Google Meet?Google Meet?Google Meet?Google Meet?Google Meet?Google
+							Meet?Google Meet?
+						</span>
+					</div>
+				</div>
+
+				<div className="userMessage">
+					<p>
+						That sounds good.That sounds good.That sounds good.That sounds good.That
+						sounds good.That sounds good.
+					</p>
 				</div>
 			</div>
 
