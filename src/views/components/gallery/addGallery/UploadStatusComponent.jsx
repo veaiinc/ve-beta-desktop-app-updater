@@ -73,48 +73,52 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently }) => {
 				</div>
 
 				{Object.entries(info?.uploadImages || {}).length > 0 && (
-					<div className="body_upload_div">
+					<>
 						<div className="line_div"></div>
+						<div className="body_upload_div">
+							{Object.entries(info?.uploadImages || {}).map(([key, singlePhoto]) => (
+								<div className="single_file_detail" key={key}>
+									<div className="fileName">{singlePhoto?.file?.name}</div>
 
-						{Object.entries(info?.uploadImages || {}).map(([key, singlePhoto]) => (
-							<div className="single_file_detail" key={key}>
-								<div className="fileName">{singlePhoto?.file?.name}</div>
+									<div className="progress_div">
+										{singlePhoto?.isDuplicate && (
+											<div className="text_value">
+												<p>Duplicate || </p>
+											</div>
+										)}
 
-								<div className="progress_div">
-									{singlePhoto?.isDuplicate && (
 										<div className="text_value">
-											<p>Duplicate || </p>
+											<p>
+												{singlePhoto?.file?.size > 1024 * 1024
+													? (
+															singlePhoto?.file?.size /
+															(1024 * 1024)
+													  ).toFixed(2) + ' MB'
+													: (singlePhoto?.file?.size / 1024).toFixed(2) +
+													  ' KB'}
+											</p>
 										</div>
-									)}
 
-									<div className="text_value">
-										<p>
-											{singlePhoto?.file?.size > 1024 * 1024
-												? (singlePhoto?.file?.size / (1024 * 1024)).toFixed(
-														2,
-												  ) + ' MB'
-												: (singlePhoto?.file?.size / 1024).toFixed(2) +
-												  ' KB'}
-										</p>
-									</div>
+										{info?.startedUploading && (
+											<div className="progress">
+												<Progress
+													percent={singlePhoto?.uploadedPerct}
+													showInfo={false}
+												/>
+											</div>
+										)}
 
-									{info?.startedUploading && (
-										<div className="progress">
-											<Progress
-												percent={singlePhoto?.uploadedPerct}
-												showInfo={false}
+										{(!singlePhoto?.isUploaded ||
+											singlePhoto?.uploadedPerct === 0) && (
+											<CancelUploadSvg
+												onClick={() => deleteFromUploads(key)}
 											/>
-										</div>
-									)}
-
-									{(!singlePhoto?.isUploaded ||
-										singlePhoto?.uploadedPerct === 0) && (
-										<CancelUploadSvg onClick={() => deleteFromUploads(key)} />
-									)}
+										)}
+									</div>
 								</div>
-							</div>
-						))}
-					</div>
+							))}
+						</div>
+					</>
 				)}
 			</div>
 		</div>

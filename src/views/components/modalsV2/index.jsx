@@ -2,7 +2,6 @@ import React, { useState, memo, useCallback } from 'react';
 import Modal from 'react-modal';
 
 const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {} }) => {
-	console.log('customStyles', customStyles);
 	const customModalStylesForCenter = {
 		content: {
 			top: '50%',

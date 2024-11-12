@@ -376,11 +376,10 @@
 			padding: 24px;
 			flex-direction: column;
 			align-items: flex-start;
-			// gap: 10px;
 			border-radius: 14px;
 			background: #151515;
-			overflow: auto;
-			max-height: calc(100vh - 500px);
+			// overflow: auto;
+			// max-height: calc(100vh - 500px);
 
 			.header_upload_div {
 				display: flex;
@@ -465,17 +464,21 @@
 				}
 			}
 
+			.line_div {
+				background: rgba(151, 151, 151, 0.2);
+				width: 100%;
+				height: 1px;
+				margin: 10px 0px 0px 0px;
+			}
+
 			.body_upload_div {
 				width: 100%;
 				display: flex;
 				flex-direction: column;
 				gap: 16px;
 				margin-top: 16px;
-				.line_div {
-					background: rgba(151, 151, 151, 0.2);
-					width: 100%;
-					height: 1px;
-				}
+				overflow: auto;
+				max-height: calc(100vh - 600px);
 
 				.single_file_detail {
 					display: flex;
