@@ -19,6 +19,7 @@ import GalleryViewer from './views/features/gallery/GalleryViewer';
 import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
+import ShareAndEarn from './views/features/ShareAndEarn';
 const routes = [
 	{
 		path: '/',
@@ -81,6 +82,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Sales'}>
 				<GlobalWorkflows />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/share-and-earn',
+		component: (
+			<AuthWrapper title={'Share and Earn'}>
+				<ShareAndEarn />
 			</AuthWrapper>
 		),
 		exact: true,
