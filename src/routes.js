@@ -177,7 +177,7 @@ const routes = [
 	{
 		path: '/calendar',
 		component: (
-			<AuthWrapper title={'Calendar'}>
+			<AuthWrapper title={'Calendar'} calendarWidth={'1800px'}>
 				<Calendar />
 			</AuthWrapper>
 		),
