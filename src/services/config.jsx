@@ -2,12 +2,12 @@ module.exports = {
 	//india
 	tenant_api: 'https://ap.api.ve.ai/tenants/1.0',
 	// tenant_users_api: 'https://ap.api.ve.ai/tenant-users/1.0',
-	tenant_users_api: 'http://192.168.2.187:9876',
+	tenant_users_api: 'http://192.168.2.190:9876',
 	ve_conversations_api: 'https://api.ve.co/ve-conversations/1.0',
 	proposals_api: 'https://ap.api.ve.ai/proposals/1.0',
 	workflows_Api: 'https://ap.api.ve.ai/workflows/1.0',
 	// auth_Api: 'https://auth.ve.ai',
-	auth_Api: 'http://192.168.2.187:5050', // Need to change to production base url
+	auth_Api: 'http://192.168.2.190:5050', // Need to change to production base url
 	activity_api: 'https://ap.api.ve.ai/workflow-user-analytics/1.0',
 	galleries: 'https://ap.api.ve.ai/galleries/1.0',
 	ai_setup_api: 'https://ap.api.ve.ai/sales-chat-assistant/1.0',

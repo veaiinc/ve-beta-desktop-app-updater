@@ -4,6 +4,7 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	background: linear-gradient(180deg, #0e0f0f 0%, #19191b 100%);
 
 	.left-container {
 		width: 45%;
@@ -206,6 +207,7 @@
 						align-items: center;
 						justify-content: center;
 						gap: 12px;
+						margin-bottom: 32px;
 
 						svg {
 							cursor: pointer;
@@ -229,7 +231,7 @@
 
 					.otp-error-message {
 						position: absolute;
-						bottom: -24px;
+						top: -24px;
 						right: 28px;
 						color: #ff7070;
 						font-family: Brasley;
@@ -261,15 +263,15 @@
 					font-weight: 500;
 					line-height: normal;
 
-					p {
+					svg {
+						margin-top: -3px;
+					}
+
+					.verify-code-text-container {
 						display: flex;
 						align-items: center;
 						justify-content: center;
 						gap: 12px;
-					}
-
-					svg {
-						margin-top: -3px;
 					}
 				}
 

@@ -4,7 +4,13 @@ import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/up
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import '../../../assets/scss/onboarding/index.scss';
 
-const Username = ({ onboardingInfo, setOnboardingInfo, animateStep1Exit }) => {
+const Username = ({
+	onboardingInfo,
+	setOnboardingInfo,
+	animateStep1Exit,
+	handleInvitedUser,
+	createAccountViaInvite = false,
+}) => {
 	const [info, setInfo] = useState({
 		isHovering: false,
 	});
@@ -23,14 +29,16 @@ const Username = ({ onboardingInfo, setOnboardingInfo, animateStep1Exit }) => {
 			username: capitalizedValue,
 		}));
 	};
-
 	const handleNext = () => {
 		gsap.to(usernameDivRef.current, {
 			opacity: 0,
 			duration: 0.5,
 			ease: 'power2.inOut',
-			onComplete: async () => {
+			onComplete: () => {
 				animateStep1Exit();
+				if (createAccountViaInvite) {
+					handleInvitedUser();
+				}
 			},
 		});
 	};

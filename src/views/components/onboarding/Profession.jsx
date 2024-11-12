@@ -1,4 +1,5 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
+import gsap from 'gsap';
 
 const professions = {
 	professional: {
@@ -38,17 +39,40 @@ const professions = {
 	},
 };
 
-const Profession = ({ onboardingInfo, setOnboardingInfo }) => {
+const Profession = ({ onboardingInfo, setOnboardingInfo, animateStep6Exit }) => {
+	const professionRef = useRef(null);
+
+	useEffect(() => {
+		gsap.fromTo(
+			professionRef.current,
+			{ opacity: 0 },
+			{ opacity: 1, duration: 1, delay: 0.5, ease: 'power2.inOut' },
+		);
+	}, []);
+
 	const handleSelectProfession = (profession) => {
-		setOnboardingInfo((prev) => ({
-			...prev,
-			profession: profession,
-			step: prev?.step + 1,
-		}));
+		gsap.fromTo(
+			professionRef.current,
+			{
+				opacity: 1,
+			},
+			{
+				opacity: 0,
+				duration: 1,
+				ease: 'power2.inOut',
+				onComplete: () => {
+					setOnboardingInfo((prev) => ({
+						...prev,
+						profession: profession,
+						step: prev?.step + 1,
+					}));
+				},
+			},
+		);
 	};
 
 	return (
-		<div className="profession-grid-container">
+		<div ref={professionRef} className="profession-grid-container">
 			<div className="profession-grid">
 				{professions[onboardingInfo?.workspaceType]?.professions?.map((profession) => (
 					<div

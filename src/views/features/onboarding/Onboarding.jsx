@@ -1,15 +1,20 @@
 import React, { memo, useState, useEffect } from 'react';
 import gsap from 'gsap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../../../assets/scss/onboarding/index.scss';
 import Username from '../../components/onboarding/Username';
 import WorkspaceHandleName from '../../components/onboarding/WorkspaceHandleName';
 import { useRef } from 'react';
 import WorkspaceType from '../../components/onboarding/WorkspaceType';
 import Profession from '../../components/onboarding/Profession';
-import { updateUserDetails, createWorkspace } from '../../../services/authServices/authServices';
+import {
+	updateUserDetails,
+	createWorkspace,
+	createAccountViaInvite,
+} from '../../../services/authServices/authServices';
 import { message } from 'antd';
 import CreatingNewWorkspace from '../../components/onboarding/CreatingNewWorkspace';
+import { getLocationsDetails } from '../../../helpers';
 
 const tl = gsap.timeline();
 const tl2 = gsap.timeline();
@@ -28,6 +33,7 @@ const Onboarding = () => {
 	});
 
 	const navigate = useNavigate();
+	const location = useLocation();
 
 	const aiIntroRef = useRef(null);
 	const step1Ref = useRef(null);
@@ -37,13 +43,25 @@ const Onboarding = () => {
 	const step6Ref = useRef(null);
 	const step7Ref = useRef(null);
 
+	const params = new URLSearchParams(location?.search);
+	const invitedWorkspaceId = params?.get('invitedWorkspaceId');
+	const invitedUserEmail = params?.get('inviteeEmail');
+
 	useEffect(() => {
+		if (invitedWorkspaceId && invitedUserEmail) {
+			return;
+		}
 		if (!localStorage?.getItem('usertoken')) {
 			navigate('/');
 		} else if (localStorage?.getItem('isOnboard')) {
 			navigate('/home');
 		}
 	}, []);
+
+	useEffect(() => {
+		console.log('step', info?.step);
+		console.log('stage', info?.stage);
+	}, [info?.step, info?.stage]);
 
 	useEffect(() => {
 		if (info?.step === 0 && aiIntroRef?.current) {
@@ -59,12 +77,27 @@ const Onboarding = () => {
 		} else if (info?.step === 5 && aiIntroRef?.current) {
 			animateStep5Enter();
 		} else if (info?.step === 6 && aiIntroRef?.current) {
-			// animateStep6Enter();
+			animateStep6Enter();
 		} else if (info?.step === 7 && aiIntroRef?.current) {
-			handleOnboarding();
-			// animateStep7Enter();
+			// handleOnboarding();
+			animateStep7Enter();
 		}
 	}, [info?.step, aiIntroRef?.current]);
+
+	const handleInvitedUser = async () => {
+		const locationDetails = await getLocationsDetails();
+		const response = await createAccountViaInvite(
+			info?.username,
+			invitedUserEmail,
+			invitedWorkspaceId,
+			locationDetails,
+		);
+		if (response?.ok) {
+			navigate('/home');
+		} else {
+			message.error(response?.message);
+		}
+	};
 
 	const handleOnboarding = async () => {
 		const userDetailsResponse = await updateUserDetails(info?.username);
@@ -219,6 +252,11 @@ const Onboarding = () => {
 				delay: 1,
 				ease: 'power2.out',
 				onComplete: () => {
+					tl2?.to(aiIntroRef?.current, {
+						opacity: 1,
+						duration: 1,
+						ease: 'power2.out',
+					});
 					setInfo((prev) => ({
 						...prev,
 						stage: prev?.stage + 1,
@@ -243,15 +281,43 @@ const Onboarding = () => {
 				duration: 1,
 				delay: 1,
 				ease: 'power2.out',
+			},
+		);
+		tl2?.to(aiIntroRef?.current, {
+			opacity: 0,
+			duration: 1,
+			ease: 'power2.out',
+			delay: 1,
+			onComplete: () => {
+				setInfo((prev) => ({
+					...prev,
+					step: prev?.step + 1,
+				}));
+			},
+		});
+	};
+
+	const animateStep5Enter = () => {
+		tl2?.to(aiIntroRef?.current, {
+			opacity: 1,
+			duration: 0.5,
+			ease: 'power2.out',
+		});
+		tl2?.fromTo(
+			step5Ref?.current,
+			{
+				opacity: 0,
+				zoom: 0.5,
+			},
+			{
+				opacity: 1,
+				zoom: 1,
+				duration: 1,
+				delay: 1,
+				ease: 'power2.out',
 				onComplete: () => {
-					tl2?.to(step4Ref?.current, {
-						opacity: 0,
-						duration: 1,
-						ease: 'power2.out',
-					});
 					setInfo((prev) => ({
 						...prev,
-						step: prev?.step + 1,
 						stage: prev?.stage + 1,
 					}));
 				},
@@ -259,11 +325,50 @@ const Onboarding = () => {
 		);
 	};
 
-	const animateStep5Enter = () => {
+	const animateStep6Enter = () => {
 		tl2?.fromTo(
-			step5Ref?.current,
-			{ opacity: 0 },
-			{ opacity: 1, duration: 1, delay: 1, ease: 'power2.out' },
+			step6Ref?.current,
+			{
+				y: 20,
+				zoom: 0.5,
+				color: 'rgba(255, 255, 255, 0.1)',
+				opacity: 0,
+			},
+			{
+				y: 0,
+				zoom: 1,
+				color: 'white',
+				opacity: 1,
+				duration: 1,
+				delay: 1,
+				ease: 'power2.out',
+				onComplete: () => {
+					setInfo((prev) => ({
+						...prev,
+						stage: prev?.stage + 1,
+					}));
+				},
+			},
+		);
+	};
+
+	const animateStep7Enter = () => {
+		tl2?.fromTo(
+			aiIntroRef?.current,
+			{
+				opacity: 0,
+				zoom: 0.5,
+			},
+			{
+				opacity: 1,
+				zoom: 1,
+				duration: 1,
+				ease: 'power2.out',
+				onComplete: () => {
+					console.log('onboarding');
+					// handleOnboarding();
+				},
+			},
 		);
 	};
 
@@ -311,6 +416,8 @@ const Onboarding = () => {
 				onboardingInfo={info}
 				setOnboardingInfo={setInfo}
 				animateStep1Exit={animateStep1Exit}
+				handleInvitedUser={handleInvitedUser}
+				createAccountViaInvite={invitedWorkspaceId && invitedUserEmail}
 			/>
 		),
 		2: (

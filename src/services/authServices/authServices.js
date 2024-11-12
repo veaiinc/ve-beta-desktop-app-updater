@@ -1,5 +1,6 @@
 import service from '../';
 import Cookies from 'js-cookie';
+const { auth_Api: authBaseUrl } = require('../config');
 
 const requestEmailVerificationCode = async (email) => {
 	const path = '/email-verification-code';
@@ -108,6 +109,50 @@ export const createAccountUsingEmail = async (email, locationDetails) => {
 		}
 	} catch (error) {
 		console.error('Error creating account:', error);
+		throw error;
+	}
+};
+
+export const createAccountViaInvite = async (firstName, email, workspaceId, locationDetails) => {
+	const path = '/signup-invited-user';
+	const body = { email, firstName, workspaceId, locationDetails };
+
+	try {
+		const response = await service?.fetchPost(path, body, null, 'auth');
+		console.log('response', response);
+		if (response?.[0] === true) {
+			const { accessToken, region } = response?.[1];
+			localStorage.setItem('usertoken', accessToken);
+			localStorage.setItem('workspaceId', workspaceId);
+			localStorage.setItem('region', region || 'ap-south-1');
+			localStorage.setItem(
+				'isOnboard',
+				response?.[1]?.accessibleWorkspaces?.[0]?.isOnboard?.toString(),
+			);
+			localStorage.setItem(
+				'accessibleWorkspaces',
+				JSON.stringify(response?.[1]?.accessibleWorkspaces),
+			);
+			localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
+			Cookies.set('usertoken', accessToken, {
+				sameSite: 'lax',
+				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+			});
+			Cookies.set('region', region || 'ap-south-1', {
+				sameSite: 'lax',
+				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+			});
+			return {
+				ok: true,
+			};
+		} else {
+			return {
+				ok: false,
+				message: response?.[1]?.message?.trim() + '. Please try again!',
+			};
+		}
+	} catch (error) {
+		console.error('Error creating account via invite:', error);
 		throw error;
 	}
 };
@@ -255,11 +300,6 @@ export const checkWorkspaceHandleAvailability = async (workspaceHandle) => {
 	}
 };
 
-const setUserDetails = async (firstName, phoneNumber = false) => {
-	const path = '/tenant-user';
-	const body = phoneNumber ? { firstName, phoneNumber } : { firstName };
-};
-
 export const createWorkspace = async (workspaceHandle, workspaceType, profession) => {
 	const path = '/tenant/create-workspace';
 	const token = localStorage?.getItem('usertoken') || '';
@@ -286,4 +326,62 @@ export const createWorkspace = async (workspaceHandle, workspaceType, profession
 		console.error('Error creating workspace:', error);
 		throw error;
 	}
+};
+
+export const createUsersAccount = async (payload) => {
+	const path = '/signup';
+	try {
+		let response = await service?.fetchPost(path, payload, null, 'auth');
+		if (response[0] === true) {
+			return [true, response[1]];
+		} else {
+			return [false, response[1]];
+		}
+	} catch (error) {
+		console.log('error creating user account', error);
+	}
+};
+
+export const signUpInvitedUser = async (payload) => {
+	try {
+		const response = await service?.fetchPost('/signup-invited-user', payload, null, 'auth');
+		if (response?.[0] === true) {
+			let { accessToken, accessibleWorkspaces, region } = response?.[1] || {};
+			if (accessToken?.length) {
+				localStorage.setItem('usertoken', accessToken);
+				localStorage.setItem('region', region || 'ap-south-1');
+				Cookies.set('usertoken', accessToken, {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				});
+				Cookies.set('region', region || 'ap-south-1', {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				});
+			}
+			if (!accessibleWorkspaces?.length) {
+				return [true, 'createWorkspace'];
+			}
+			localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
+			localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]?.workspaceId);
+			localStorage.setItem('isOnboard', accessibleWorkspaces?.[0]?.isOnboard);
+			Cookies.set('workspaceID', accessibleWorkspaces?.[0]?.workspaceId, {
+				sameSite: 'lax',
+				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+			});
+			return [true];
+		} else {
+			console.log('api failed==>signUpInvitedUser', JSON.stringify(response));
+			return [false, response?.[1]];
+		}
+	} catch (error) {
+		console.log('Error==>signUpInvitedUser', error);
+	}
+};
+
+export const continueWithGoogle = async (locationDetails) => {
+	const encodedLocationDetails = encodeURIComponent(JSON.stringify(locationDetails));
+	const path = '/google/url';
+	const params = new URLSearchParams({ locationDetails: encodedLocationDetails })?.toString();
+	window.location.href = `${authBaseUrl}${path}?${params}`;
 };

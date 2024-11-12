@@ -23,7 +23,7 @@ const UserSignUp = ({
 }) => {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const params = new URLSearchParams(location.search);
+	const params = new URLSearchParams(location?.search);
 
 	const [info, setInfo] = useState({
 		invitedWorkspaceId: params.get('invitedWorkspaceId') || '',

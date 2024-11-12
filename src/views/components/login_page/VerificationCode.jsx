@@ -8,7 +8,6 @@ import { ReactComponent as GmailLogo } from '../../../assets/svg/login_page/gmai
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import { verifyEmailVerificationCode } from '../../../services/authServices/authServices';
-import { message } from 'antd';
 import Spinner from '../loaders/Spinner';
 
 const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
@@ -72,9 +71,14 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 				<span>Back</span>
 			</div>
 			<h1 className="verification-code-title">
-				<b>We sent a verification code</b>
+				<b>We sent you a code</b>
 			</h1>
-			<p className="verification-code-subtitle">to {email}</p>
+			<p className="verification-code-subtitle">
+				A 6-digit verification code has been sent to {email}. <br />
+				<br />
+				<br />
+				Please enter it to continue.
+			</p>
 			<div className="open-email-container">
 				<p>Open in</p>
 				<div className="email-logo-container">
