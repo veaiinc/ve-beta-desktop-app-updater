@@ -398,6 +398,8 @@ const GalleryPage = () => {
 	}, [imageDetail, info?.uploadImageId, albumImagesCount]);
 
 	useEffect(() => {
+		if (!document.querySelector('.albums')) return;
+
 		if (info?.albumFullScreen) {
 			gsap.to('.albums', {
 				height: dynamicHeightFunc(),
@@ -587,8 +589,9 @@ const GalleryPage = () => {
 			showOptionsContainer: !prevInfo.showOptionsContainer,
 		}));
 	};
-	const handleClickContent = (name) => {
-		setInfo((prevInfo) => ({ ...prevInfo, activeTab: name, page: 1, albumFullScreen: false }));
+	const handleClickContent = (name, count) => {
+		if (count === 0) return;
+		setInfo((prevInfo) => ({ ...prevInfo, activeTab: name, page: 1 }));
 	};
 	const handleNavigateUpload = () => {
 		info?.albumContains === 'All'
@@ -1213,6 +1216,15 @@ const GalleryPage = () => {
 		const cardsPerRow = Math.floor((containerWidth + gap) / (cardWidth + gap));
 		const totalRows = Math.ceil(numberOfCards / cardsPerRow);
 
+		console.log(
+			'numberOfCards',
+			numberOfCards,
+			'cardsPerRow',
+			cardsPerRow,
+			'totalRows',
+			totalRows,
+		);
+
 		const totalHeight = totalRows * (cardHeight + gap);
 
 		return totalHeight;
@@ -1317,7 +1329,7 @@ const GalleryPage = () => {
 										className={`galleryContent ${
 											info.activeTab === item.name ? 'active' : ''
 										}`}
-										onClick={() => handleClickContent(item.name)}
+										onClick={() => handleClickContent(item.name, item.number)}
 									>
 										<p className="galleryName">{item.name}</p>
 										<p className="count">{item.number}</p>
@@ -1435,7 +1447,11 @@ const GalleryPage = () => {
 												<div
 													className="albumDetails"
 													onClick={() =>
-														handleClickAlbum(album, 'albumName')
+														handleClickAlbum(
+															album,
+															'albumName',
+															album?.imagesCount,
+														)
 													}
 												>
 													<p>{album?.title}</p>
