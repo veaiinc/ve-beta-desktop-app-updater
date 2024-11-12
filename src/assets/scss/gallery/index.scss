@@ -299,7 +299,7 @@
 					display: none;
 				}
 				.active {
-					border: 1px solid #6055ec;
+					border: 1px solid #b89cf9;
 				}
 				.create-album {
 					display: flex;
@@ -379,8 +379,7 @@
 						left: 0;
 						cursor: pointer;
 						// background-color: rgba(0, 0, 0, 0.3);
-						background: linear-gradient(rgba(0, 0, 0, 0) 6%, rgb(0, 0, 0) 100%),
-							rgba(196, 196, 196, 0);
+						background: linear-gradient(rgba(0, 0, 0, 0) 6%, rgb(0, 0, 0) 100%), rgba(196, 196, 196, 0);
 					}
 				}
 			}
@@ -628,8 +627,7 @@
 					height: 160px;
 					border-radius: 8px;
 					border: 1px solid #2a2a2a;
-					background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%),
-						#1d1d1d;
+					background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%), #1d1d1d;
 					.uploadIcon {
 						width: 16px;
 						height: 11px;
@@ -708,7 +706,7 @@
 						align-items: center;
 						.forwardOptions {
 							position: absolute;
-							top: -130px;
+							top: -75px;
 							right: 0;
 							display: flex;
 							flex-direction: column;
@@ -747,7 +745,6 @@
 								padding: 8px;
 								width: 100%;
 								gap: 8px;
-
 								background: #1f1f1f;
 								p {
 									color: rgba(228, 229, 230, 0.48);
@@ -758,6 +755,9 @@
 								}
 								input {
 									width: 100%;
+									background: transparent;
+									border: none;
+									color: white;
 								}
 							}
 							.pinOptionsList {
@@ -831,11 +831,14 @@
 		justify-content: space-between;
 		padding: 40px;
 		width: 100%;
+		height: 100%;
+		overflow: auto;
 		.settingsContianer {
 			display: flex;
 			flex-direction: column;
 			gap: 24px;
 			width: 75%;
+			height: 60vh;
 			input {
 				display: flex;
 				width: 464px;
@@ -1239,6 +1242,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: 16px;
+		position: sticky;
+		top: 10px;
 		li {
 			list-style: none;
 			color: #979797;

@@ -8,7 +8,8 @@ import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
-import { Result } from 'antd';
+import { Result, message } from 'antd';
+
 const noImage =
 	'https://png.pngtree.com/png-clipart/20230917/original/pngtree-no-image-available-icon-flatvector-illustration-thumbnail-graphic-illustration-vector-png-image_12323920.png';
 
@@ -41,19 +42,6 @@ const NoGallerySkeleton = () => {
 				status="404"
 				title="Galleries Not Found"
 				subTitle="It's quiet for now... You haven't missed anything yet! Create your first gallery to start organizing your memories"
-				// extra={
-				// 	<button
-				// 		className="create-album-button"
-				// 		onClick={() =>
-				// 			setInfo((prevData) => ({
-				// 				...prevData,
-				// 				showCreateAlbum: true,
-				// 			}))
-				// 		}
-				// 	>
-				// 		<p>Create </p>
-				// 	</button>
-				// }
 			/>
 		</div>
 	);
@@ -72,6 +60,7 @@ const AddGallery = () => {
 		page: 1,
 		limit: 15,
 		timeout: null,
+		workspaceId: localStorage.getItem('workspaceId'),
 	});
 	const navigate = useNavigate();
 	useEffect(() => {
@@ -105,7 +94,7 @@ const AddGallery = () => {
 			(gallery) => gallery._id === galleryId,
 		);
 		getGalleryCredentials(galleryId);
-		navigate(`/gallery-page/${galleryId}`, { state: { galleryData: selectedGallery } });
+		navigate(`/galleries/${galleryId}`, { state: { galleryData: selectedGallery } });
 	};
 
 	const handleNavigateSettings = (galleryId) => {
@@ -113,7 +102,7 @@ const AddGallery = () => {
 			(gallery) => gallery._id === galleryId,
 		);
 		getGalleryCredentials(galleryId);
-		navigate(`/gallery-page/${galleryId}`, {
+		navigate(`/galleries/${galleryId}`, {
 			state: { galleryData: selectedGallery, openSettings: 'Settings' },
 		});
 	};
@@ -165,6 +154,18 @@ const AddGallery = () => {
 		}
 	};
 
+	const copyGallerySlugFunction = (slug) => {
+		const galleryLink = `https://${info?.workspaceId}.ve.ai/galleries/${slug}`;
+		navigator?.clipboard
+			?.writeText(galleryLink)
+			.then(() => {
+				message.success('Gallery link copied to clipboard');
+			})
+			.catch(() => {
+				message.error('Failed to copy gallery link');
+			});
+	};
+
 	return (
 		<div className="gallery-main-container">
 			<div className="seachbar-container">
@@ -185,7 +186,14 @@ const AddGallery = () => {
 				<div className="add-gallery-header">
 					<p></p>
 
-					<div className="all-gallery" id="galleryListScrollTarget">
+					<div
+						className="all-gallery"
+						id="galleryListScrollTarget"
+						style={{
+							justifyContent:
+								tenantGalleries?.galleries?.length === 0 ? 'center' : '',
+						}}
+					>
 						<InfiniteScroll
 							dataLength={tenantGalleries?.galleries?.length || 0}
 							next={fetchMoreGalleries}
@@ -199,7 +207,6 @@ const AddGallery = () => {
 								flexWrap: 'wrap',
 								gap: '16px',
 								width: '100%',
-								// border: '1px solid red',
 							}}
 						>
 							{info?.search === '' && (
@@ -236,8 +243,14 @@ const AddGallery = () => {
 												>
 													View
 												</li>
-												{/* <li>Client view</li>
-												<li>Share</li> */}
+												{/* <li>Client view</li> */}
+												<li
+													onClick={() =>
+														copyGallerySlugFunction(items?.slug)
+													}
+												>
+													Share
+												</li>
 												<li
 													onClick={() =>
 														handleNavigateSettings(items._id)
@@ -253,10 +266,19 @@ const AddGallery = () => {
 													} ${
 														items.albumsCount > 1 ? 'Albums' : 'Album'
 													}`}</p>
-													{/* <p className="dot"></p>
+													<p className="dot"></p>
 													<p className="album-count">{`${
-														items.photoCount ? items.photoCount : '0'
-													} Photos`}</p> */}
+														items?.storageDetails
+															?.imagesCountWithVersions
+															? items?.storageDetails
+																	?.imagesCountWithVersions
+															: 0
+													} ${
+														items?.storageDetails
+															?.imagesCountWithVersions > 1
+															? 'Photos'
+															: 'Photo'
+													}`}</p>
 												</div>
 												<p className="album-title">{items.title}</p>
 											</div>
@@ -277,6 +299,7 @@ const AddGallery = () => {
 					open={info.createNewGalleryModal}
 					closeModal={handleCloseModal}
 					fetchGalleries={fetchGalleries}
+					message={message}
 				/>
 			</div>
 		</div>

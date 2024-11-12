@@ -12,12 +12,15 @@ const GalleryOverview = ({
 	convertEpochToDate,
 	handleLinkChange,
 }) => {
+	const workspaceId = localStorage.getItem('workspaceId');
 	return (
 		<div id="gallery-overview" className="settings-overview">
 			<p className="heading">Gallery overview</p>
 			<p className="subHeading">
-				Gallery URL
-				<span className="subTitle">- ankitttt.ve-s.../-my gallery</span>
+				Gallery URL&nbsp;
+				<span className="subTitle">
+					https://{workspaceId}.ve.ai/galleries/{info?.activeGallery?.galleryData?.slug}
+				</span>
 			</p>
 			<div className="renameGallery">
 				<p className="subHeading">Rename Gallery </p>
@@ -76,7 +79,9 @@ const GalleryOverview = ({
 			<div className="collaborators">
 				<div className="collaboratorsContainer">
 					<div>
-						<p className="subHeading">3 Collaborators</p>
+						<p className="subHeading">
+							{info?.collaboratorsData?.length} Collaborators
+						</p>
 						<p className="subTitle">
 							Collaborators are your team members that you want to add to or remove
 							from this gallery.

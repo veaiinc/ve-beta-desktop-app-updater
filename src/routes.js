@@ -19,6 +19,7 @@ import GalleryViewer from './views/features/gallery/GalleryViewer';
 import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
+
 const routes = [
 	{
 		path: '/',
@@ -121,14 +122,14 @@ const routes = [
 	{
 		path: '/galleries',
 		component: (
-			<AuthWrapper title={'Gallery'}>
+			<AuthWrapper title={'Galleries'}>
 				<AddGallery />
 			</AuthWrapper>
 		),
 		exact: true,
 	},
 	{
-		path: '/gallery-page/:galleryId',
+		path: '/galleries/:galleryId',
 		component: (
 			<AuthWrapper title={'Gallery'}>
 				<GalleryPage />
@@ -137,27 +138,27 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/gallery-page/:galleryId/:albumId/upload-photos',
+		path: '/galleries/:galleryId/:albumId/upload-photos',
 		component: (
-			<AuthWrapper title={'Gallery'}>
+			<AuthWrapper title={'Upload Photos'}>
 				<UploadPhotos />
 			</AuthWrapper>
 		),
 		exact: true,
 	},
 	{
-		path: '/gallery/:galleryId/album-settings',
+		path: '/galleries/:galleryId/:albumId/album-settings',
 		component: (
-			<AuthWrapper title={'Gallery'}>
+			<AuthWrapper title={'Album Settings'}>
 				<AlbumSettings />
 			</AuthWrapper>
 		),
 		exact: true,
 	},
 	{
-		path: '/gallery-page/:galleryId/:albumId/gallery-viewer',
+		path: '/galleries/:galleryId/:albumId/gallery-viewer',
 		component: (
-			<GalleryViewLayout title={'Gallery'}>
+			<GalleryViewLayout title={'Gallery Viewer'}>
 				<GalleryViewer />
 			</GalleryViewLayout>
 		),

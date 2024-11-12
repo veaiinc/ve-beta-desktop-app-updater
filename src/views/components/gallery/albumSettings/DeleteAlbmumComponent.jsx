@@ -30,7 +30,7 @@ const DeleteAlbmumComponent = ({ albumName, galleryId, albumId }) => {
 			message.destroy();
 			message.success('Album deleted successfully');
 			getAlbums(galleryId);
-			navigate(`/gallery-page/${galleryId}`);
+			navigate(`/galleries/${galleryId}`);
 		} else {
 			message.destroy();
 			message.error(response[1].message);

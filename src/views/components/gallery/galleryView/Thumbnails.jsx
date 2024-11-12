@@ -33,8 +33,15 @@ const Thumbnails = ({
 										info?.imageDetailId === image?._id ? 'active' : ''
 									}`}
 									id={'thumbnail' + image?._id}
-									key={'thumbnail' + image?._id}
+									key={'key-thumbnail' + index + '+' + image?._id}
 									onClick={() => activeThumbnailFunction(image?._id, index)}
+									style={{
+										border:
+											info?.activeImage === image?._id &&
+											info?.imageDetailId !== image?._id
+												? '1.3px solid gray'
+												: '',
+									}}
 								>
 									<img
 										src={src}

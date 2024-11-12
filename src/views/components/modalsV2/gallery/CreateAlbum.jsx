@@ -108,7 +108,14 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 	};
 
 	return (
-		<ReactModal isOpen={open} closeModal={closeModelFunction}>
+		<ReactModal
+			isOpen={open}
+			closeModal={closeModelFunction}
+			customStyles={{
+				content: { position: 'absolute', overflow: 'hidden' },
+				className: 'createAlbumModal',
+			}}
+		>
 			<div className="createAlbumMainContainer">
 				<div className="createAlbumHeading">
 					<p className="heading">Create New Album</p>
