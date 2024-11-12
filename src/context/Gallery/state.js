@@ -1004,6 +1004,7 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+			return response;
 		} catch (error) {
 			console.log('error==>updateTagSortType', error);
 		}

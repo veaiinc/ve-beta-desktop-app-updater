@@ -87,8 +87,6 @@ const UploadCoverImage = ({
 						style={{
 							display: 'flex',
 							alignItems: 'center',
-							width: '100%',
-							height: '100%',
 						}}
 					>
 						{/* <Cropper

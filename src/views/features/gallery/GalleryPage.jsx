@@ -146,6 +146,8 @@ const GalleryPage = () => {
 		showMoveToAlbum: false,
 		flexWrap_visible: false,
 		tagSearchValue: '',
+		albumLoading: false,
+		isPublished: tenantAlbums?.isPublished || false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -237,7 +239,6 @@ const GalleryPage = () => {
 					navigate('/galleries');
 				}
 			});
-
 			getAlbumImagesCount(galleryId);
 		}
 		if (!tenantPreferences || tenantPreferences?._id !== galleryId) {
@@ -252,6 +253,7 @@ const GalleryPage = () => {
 				activeAlbum: tenantAlbums?.albums?.[0],
 				tenantAlbums: tenantAlbums?.albums,
 				albumSlug: tenantAlbums?.albums?.[0]?.slug,
+				isPublished: tenantAlbums?.isPublished,
 			}));
 		}
 		if (tenantPreferences) {
@@ -345,7 +347,7 @@ const GalleryPage = () => {
 				imagesList: imagesList,
 			}));
 		}
-	}, [info?.albumTagId, info?.activeAlbumId, info?.sortType, info?.activeTab]);
+	}, [info?.albumTagId, info?.activeAlbumId, info?.activeTab]);
 
 	useEffect(() => {
 		if (imagesList) {
@@ -426,6 +428,21 @@ const GalleryPage = () => {
 			});
 		}
 	}, [info?.albumFullScreen]);
+	useEffect(() => {
+		if (location?.state?.from === 'albumSettings') {
+			const activeAlbum = tenantAlbums?.albums?.find(
+				(album) => album?._id === location?.state?.activeAlbumId,
+			);
+			setInfo((prev) => ({
+				...prev,
+				albumSlug: activeAlbum?.slug,
+				albumName: activeAlbum?.title,
+				activeAlbumId: activeAlbum?._id,
+				activeAlbum: activeAlbum,
+				tenantAlbums: tenantAlbums?.albums,
+			}));
+		}
+	}, [location?.state?.from]);
 
 	const fetchMoreImages = () => {
 		const nextPage = info.page + 1;
@@ -478,9 +495,19 @@ const GalleryPage = () => {
 	};
 
 	const handleClickAlbum = (album, name) => {
+		if (album?.displayName !== info?.albumContains) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				albumLoading: true,
+			}));
+		}
 		if (name === 'albumName') {
 			setInfo((prevInfo) => ({
 				...prevInfo,
+				imagesList: {
+					...prevInfo.imagesList,
+					docs: [],
+				},
 				page: prevInfo.page !== 1 ? 1 : prevInfo.page,
 				albumName: album?.title,
 				activeAlbumId: album?._id,
@@ -488,20 +515,22 @@ const GalleryPage = () => {
 				albumSlug: album?.slug,
 				resetInfinityScroll: !prevInfo.resetInfinityScroll,
 				activeTab: 'Albums',
-				imagesList: [],
-				selectedImages: [],
 			}));
 			// if (info?.albumName !== album?.title) {
 			// 	getAlbumCount(galleryId, album?.title);
 			// }
-		} else if (name === 'containName') {
+		} else if (name === 'containName' && album?.displayName !== info?.albumContains) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
+				imagesList: {
+					...prevInfo.imagesList,
+					docs: [],
+				},
 				page: prevInfo.page !== 1 ? 1 : prevInfo.page,
 				albumContains: album?.displayName,
 				albumTagId: album?._id,
 				sortType: album?.sortType,
-				imagesList: [],
+
 				selectedImages: [],
 			}));
 		} else if (name === 'clientSelection') {
@@ -512,6 +541,12 @@ const GalleryPage = () => {
 				clientSelectionName: album?.title,
 			}));
 		}
+		setTimeout(() => {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				albumLoading: false,
+			}));
+		}, 1000);
 	};
 
 	const handleAlbumSettings = (sectionId) => {
@@ -766,6 +801,16 @@ const GalleryPage = () => {
 			selectedImages: [],
 		}));
 	};
+	const handleUnpublish = () => {
+		setInfo((prev) => ({
+			...prev,
+			isPublished: !info?.isPublished,
+		}));
+		const payload = {
+			isPublished: !info?.isPublished,
+		};
+		postGallery(payload, galleryId);
+	};
 
 	// const handleDragStart = (result) => {
 	// 	const selectedIndexes = info.selectedImages;
@@ -994,11 +1039,11 @@ const GalleryPage = () => {
 		}
 	};
 
-	const handleSetCoverPosition = async () => {
+	const handleSetCoverPosition = async (focalPoint) => {
 		const json = {
 			image_id: info?.uploadImageId || albumImagesCount?.coverImage?._id,
-			xPosition: info?.crop?.x,
-			yPosition: info?.crop?.y,
+			xPosition: focalPoint?.x,
+			yPosition: focalPoint?.y,
 			givenFileName:
 				imageDetail?.activeVersion?.givenFileName ||
 				albumImagesCount?.coverImage?.givenFileName,
@@ -1038,7 +1083,7 @@ const GalleryPage = () => {
 		message.success('Images deleted successfully');
 	};
 
-	const handleFilter = (filter) => {
+	const handleFilter = async (filter) => {
 		// albumTagId
 		setInfo((prev) => ({
 			...prev,
@@ -1047,7 +1092,23 @@ const GalleryPage = () => {
 		const payload = {
 			sortType: filter,
 		};
-		updateTagSortType(payload, galleryId, info?.activeAlbumId, info?.albumTagId);
+		const response = await updateTagSortType(
+			payload,
+			galleryId,
+			info?.activeAlbumId,
+			info?.albumTagId,
+		);
+		if (response?.[0] === true) {
+			getGalleryImages(
+				galleryId,
+				info?.activeAlbumId,
+				info?.albumTagId,
+				info?.page,
+				info?.limit,
+				'',
+				true,
+			);
+		}
 	};
 
 	const handleTagChange = async (tagId) => {
@@ -1227,8 +1288,13 @@ const GalleryPage = () => {
 								/>
 							)}
 							<div className="publishIndicator">
-								<div className="liveIndicator"></div>
-								<p>LIVE</p>
+								<div
+									className="liveIndicator"
+									style={{
+										backgroundColor: info?.isPublished ? '#368748' : ' #FFA500',
+									}}
+								></div>
+								<p>{info?.isPublished ? 'LIVE' : 'DRAFT'}</p>
 							</div>
 						</div>
 					</div>
@@ -1282,7 +1348,9 @@ const GalleryPage = () => {
 											<li style={{ cursor: 'not-allowed' }}>Preview</li>
 											<li onClick={handleCopyGalleryLink}>Copy link</li>
 											<li onClick={openShareModal}>Share</li>
-											<li>Unpublish</li>
+											<li onClick={handleUnpublish}>
+												{info?.isPublished ? 'Unpublish' : 'Publish'}
+											</li>
 										</div>
 									)}
 								</div>
@@ -1824,7 +1892,7 @@ const GalleryPage = () => {
 														</div>
 													</div>
 
-													{info?.imagesList?.docs
+													{info?.imagesList?.docs && !info?.albumLoading
 														? info?.imagesList?.docs?.map(
 																(image, index) => {
 																	const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;

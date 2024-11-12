@@ -76,7 +76,9 @@ const GalleryOverview = ({
 			<div className="collaborators">
 				<div className="collaboratorsContainer">
 					<div>
-						<p className="subHeading">3 Collaborators</p>
+						<p className="subHeading">
+							{info?.collaboratorsData?.length} Collaborators
+						</p>
 						<p className="subTitle">
 							Collaborators are your team members that you want to add to or remove
 							from this gallery.
