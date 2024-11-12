@@ -591,7 +591,11 @@ const GalleryPage = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, activeTab: name, page: 1 }));
 	};
 	const handleNavigateUpload = () => {
-		navigate(`/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos`);
+		info?.albumContains === 'All'
+			? navigate(`/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos`)
+			: navigate(
+					`/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?tag=${info?.albumContains}`,
+			  );
 	};
 	const convertEpochToDate = (value) => {
 		if (!value) return null;
@@ -1278,14 +1282,11 @@ const GalleryPage = () => {
 							</p>
 						</div>
 						<div className="imageContaienr">
-							<img
-								src={`${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`}
-								// onError={(e) => {
-								// 	if (!albumImagesCount?.coverImage?.givenFileName) {
-								// 		e.target.style.display = 'none';
-								// 	}
-								// }}
-							/>
+							{albumImagesCount?.coverImage?.givenFileName && galleryCredentials && (
+								<img
+									src={`${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`}
+								/>
+							)}
 							<div className="publishIndicator">
 								<div
 									className="liveIndicator"
@@ -2227,9 +2228,11 @@ const GalleryPage = () => {
 												<p>{info.selectedImages.length} selected</p>
 											</div>
 											<div className="selectedImagesActions">
-												<div onClick={handleExpandClick}>
-													<ExpandIcon />
-												</div>
+												{info?.selectedImages?.length === 1 && (
+													<div onClick={handleExpandClick}>
+														<ExpandIcon />
+													</div>
+												)}
 												<div
 													style={{ position: 'relative' }}
 													ref={forwardIconRef}

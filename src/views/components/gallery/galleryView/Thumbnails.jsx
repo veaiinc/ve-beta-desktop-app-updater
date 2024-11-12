@@ -23,7 +23,7 @@ const Thumbnails = ({
 					gap: '24px',
 				}}
 			>
-				{!info?.fakeLoading && galleryCredentials && imagesList
+				{galleryCredentials && imagesList
 					? imagesList?.docs?.map((image, index) => {
 							const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 							const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_thumbnail_100h?.key}?${params}`;
@@ -33,8 +33,15 @@ const Thumbnails = ({
 										info?.imageDetailId === image?._id ? 'active' : ''
 									}`}
 									id={'thumbnail' + image?._id}
-									key={'thumbnail' + image?._id}
+									key={'key-thumbnail' + index + '+' + image?._id}
 									onClick={() => activeThumbnailFunction(image?._id, index)}
+									style={{
+										border:
+											info?.activeImage === image?._id &&
+											info?.imageDetailId !== image?._id
+												? '1.3px solid gray'
+												: '',
+									}}
 								>
 									<img
 										src={src}

@@ -11,6 +11,47 @@ import { ReactComponent as CrossWhite } from '../../../assets/svg/workspaceSetti
 import Skeleton from 'react-loading-skeleton';
 import gsap from 'gsap';
 
+const FakeLoadingComponent = () => {
+	return (
+		<div
+			className="galleryViewerCotnainer"
+			style={{ position: 'absolute', top: '80px', left: 0 }}
+		>
+			<div className="galleryThumbnails" id="galleryThumbnails-target">
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						gap: '24px',
+					}}
+				>
+					{[...Array(15)].map((_, index) => (
+						<div key={index} className="imageContainer">
+							<Skeleton width="79px" height="50px" />
+						</div>
+					))}
+				</div>
+			</div>
+
+			<div className="activeImageContainer">
+				<div className="activeImageWrapper" id="activeImageWrapper-target">
+					{[...Array(1)].map((_, index) => (
+						<div key={index} className="imageContainer" style={{ width: '800px' }}>
+							<Skeleton width="800px" height="900px" />
+						</div>
+					))}
+				</div>
+
+				<div className="galleryViewerNavbarContainer">
+					<div className="galleryViewerNavbar"></div>
+
+					<div className="gallerySelectionContainer"></div>
+				</div>
+			</div>
+		</div>
+	);
+};
+
 const GalleryViewer = () => {
 	const { galleryId, albumId } = useParams();
 	const [searchkeys, setsearchkeys] = useSearchParams();
@@ -59,6 +100,7 @@ const GalleryViewer = () => {
 		}
 
 		const imageId = searchkeys.get('image');
+		// console.log(imageId);
 		if (imagesList && imageId) {
 			setInfo((prev) => ({
 				...prev,
@@ -226,7 +268,7 @@ const GalleryViewer = () => {
 				)}
 			</div>
 
-			<div className="galleryViewerCotnainer">
+			<div className="galleryViewerCotnainer" style={{ opacity: info?.fakeLoading ? 0 : 1 }}>
 				<Thumbnails
 					galleryCredentials={galleryCredentials}
 					fetchMoreImages={fetchMoreImages}
@@ -274,6 +316,8 @@ const GalleryViewer = () => {
 					handleDelete={handleAlbumDelete}
 				/>
 			</div>
+
+			{info?.fakeLoading && <FakeLoadingComponent />}
 		</>
 	);
 };

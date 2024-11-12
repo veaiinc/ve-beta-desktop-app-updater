@@ -42,19 +42,6 @@ const NoGallerySkeleton = () => {
 				status="404"
 				title="Galleries Not Found"
 				subTitle="It's quiet for now... You haven't missed anything yet! Create your first gallery to start organizing your memories"
-				// extra={
-				// 	<button
-				// 		className="create-album-button"
-				// 		onClick={() =>
-				// 			setInfo((prevData) => ({
-				// 				...prevData,
-				// 				showCreateAlbum: true,
-				// 			}))
-				// 		}
-				// 	>
-				// 		<p>Create </p>
-				// 	</button>
-				// }
 			/>
 		</div>
 	);
@@ -169,8 +156,8 @@ const AddGallery = () => {
 
 	const copyGallerySlugFunction = (slug) => {
 		const galleryLink = `https://${info?.workspaceId}.ve.ai/galleries/${slug}`;
-		navigator.clipboard
-			.writeText(galleryLink)
+		navigator?.clipboard
+			?.writeText(galleryLink)
 			.then(() => {
 				message.success('Gallery link copied to clipboard');
 			})
@@ -199,7 +186,14 @@ const AddGallery = () => {
 				<div className="add-gallery-header">
 					<p></p>
 
-					<div className="all-gallery" id="galleryListScrollTarget">
+					<div
+						className="all-gallery"
+						id="galleryListScrollTarget"
+						style={{
+							justifyContent:
+								tenantGalleries?.galleries?.length === 0 ? 'center' : '',
+						}}
+					>
 						<InfiniteScroll
 							dataLength={tenantGalleries?.galleries?.length || 0}
 							next={fetchMoreGalleries}
@@ -213,7 +207,6 @@ const AddGallery = () => {
 								flexWrap: 'wrap',
 								gap: '16px',
 								width: '100%',
-								// border: '1px solid red',
 							}}
 						>
 							{info?.search === '' && (
@@ -273,10 +266,19 @@ const AddGallery = () => {
 													} ${
 														items.albumsCount > 1 ? 'Albums' : 'Album'
 													}`}</p>
-													{/* <p className="dot"></p>
+													<p className="dot"></p>
 													<p className="album-count">{`${
-														items.photoCount ? items.photoCount : '0'
-													} Photos`}</p> */}
+														items?.storageDetails
+															?.imagesCountWithVersions
+															? items?.storageDetails
+																	?.imagesCountWithVersions
+															: 0
+													} ${
+														items?.storageDetails
+															?.imagesCountWithVersions > 1
+															? 'Photos'
+															: 'Photo'
+													}`}</p>
 												</div>
 												<p className="album-title">{items.title}</p>
 											</div>
