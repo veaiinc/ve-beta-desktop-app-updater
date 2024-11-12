@@ -491,6 +491,7 @@ const GalleryPage = () => {
 				activeAlbum: album,
 				albumSlug: album?.slug,
 				resetInfinityScroll: !prevInfo.resetInfinityScroll,
+				activeTab: 'Albums',
 				imagesList: [],
 			}));
 			// if (info?.albumName !== album?.title) {

@@ -217,7 +217,7 @@ const AlbumSettings = () => {
 
 	const handleCopyList = () => {
 		if (lightroomCopyList?.length) {
-			const textToCopy = lightroomCopyList.join(',');
+			const textToCopy = lightroomCopyList?.join(',');
 			navigator.clipboard
 				.writeText(textToCopy)
 				.then(() => {
@@ -464,12 +464,12 @@ const AlbumSettings = () => {
 								}
 							/>
 						</div>
-						{info?.lightroomList && (
+						{info?.lightroomList && lightroomCopyList?.length && (
 							<div className="lightroom-list-container">
 								{lightroomCopyList?.map((item, index) => (
 									<p key={index}>
 										<b>({index + 1}).</b> {item}
-										{index !== lightroomCopyList.length - 1 ? ',' : ''}
+										{index !== lightroomCopyList?.length - 1 ? ',' : ''}
 									</p>
 								))}
 							</div>
