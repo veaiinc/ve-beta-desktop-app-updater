@@ -12,12 +12,15 @@ const GalleryOverview = ({
 	convertEpochToDate,
 	handleLinkChange,
 }) => {
+	const workspaceId = localStorage.getItem('workspaceId');
 	return (
 		<div id="gallery-overview" className="settings-overview">
 			<p className="heading">Gallery overview</p>
 			<p className="subHeading">
-				Gallery URL
-				<span className="subTitle">- ankitttt.ve-s.../-my gallery</span>
+				Gallery URL&nbsp;
+				<span className="subTitle">
+					https://{workspaceId}.ve.ai/galleries/{info?.activeGallery?.galleryData?.slug}
+				</span>
 			</p>
 			<div className="renameGallery">
 				<p className="subHeading">Rename Gallery </p>
