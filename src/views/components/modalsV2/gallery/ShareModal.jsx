@@ -68,6 +68,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 			}));
 		}
 	}, [galleryGuestAccess]);
+
 	useEffect(() => {
 		if (!tenantPreferences) {
 			getEditPreferences(galleryId);
@@ -108,7 +109,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 		editPreferences(galleryId, payload);
 	};
 
-	const handleGalleryGuestAccess = useCallback(() => {
+	const handleGalleryGuestAccess = () => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			galleryGuestAccess: {
@@ -120,7 +121,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 			isEnabled: !info?.galleryGuestAccess?.isEnabled,
 		};
 		editGalleryGuestAccess(payload, galleryId);
-	}, [info?.galleryGuestAccess?.isEnabled]);
+	};
 
 	const handleShareViaEmail = useCallback(async () => {
 		const payload = {
@@ -239,42 +240,50 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 				</div>
 				<p className="line"></p>
 				<div className="optionsContainer">
-					<div className="optionsToggleContainer">
+					{/* <div className="optionsToggleContainer">
 						<ToggleSlider
 							value={info?.galleryGuestAccess?.isEnabled}
 							onChange={handleGalleryGuestAccess}
 						/>
 						<p>Gallery protection</p>
-					</div>
-					<p>Protect your gallery with Client & Guest PIN</p>
-					{info?.galleryGuestAccess?.isEnabled && (
-						<div className="pinContainer">
-							<div className="pinContainerItem">
-								<p>Client PIN</p>
-								<div className="editPinContainer">
-									<input
-										placeholder="Enter 4-digit PIN"
-										maxLength={4}
-										onKeyPress={(e) => {
-											if (!/[0-9]/.test(e.key)) {
-												e.preventDefault();
-											}
-										}}
-										onChange={(e) => {
-											handleEditPin(e, 'masterAccessPin');
-										}}
-										value={info?.galleryShareDetails?.masterAccessPin}
+					</div> */}
+					{/* <p>Protect your gallery with Client & Guest PIN</p> */}
+
+					<div className="pinContainer">
+						<div className="pinContainerItem">
+							<p>Client PIN</p>
+							<div className="editPinContainer">
+								<input
+									placeholder="Enter 4-digit PIN"
+									maxLength={4}
+									onKeyPress={(e) => {
+										if (!/[0-9]/.test(e.key)) {
+											e.preventDefault();
+										}
+									}}
+									onChange={(e) => {
+										handleEditPin(e, 'masterAccessPin');
+									}}
+									value={info?.galleryShareDetails?.masterAccessPin}
+								/>
+								<div>
+									<Copy
+										onClick={() => handleCopyPin('masterAccessPin')}
+										style={{ cursor: 'pointer' }}
 									/>
-									<div>
-										<Copy
-											onClick={() => handleCopyPin('masterAccessPin')}
-											style={{ cursor: 'pointer' }}
-										/>
-									</div>
 								</div>
 							</div>
-							<div className="pinContainerItem">
+						</div>
+						<div className="pinContainerItem">
+							<div className="optionsToggleContainer">
+								<ToggleSlider
+									value={info?.galleryGuestAccess?.isEnabled}
+									onChange={handleGalleryGuestAccess}
+								/>
 								<p>Guest PIN</p>
+							</div>
+							<p>If enabled gallery will be protected by PIN for guests</p>
+							{info?.galleryGuestAccess?.isEnabled && (
 								<div className="editPinContainer">
 									<input
 										placeholder="Enter 3-digit PIN"
@@ -287,7 +296,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 										onChange={(e) => {
 											handleEditPin(e, 'guestAccessPin');
 										}}
-										value={info?.galleryShareDetails?.guestAccess?.pin}
+										value={galleryGuestAccess?.pin}
 									/>
 									<div>
 										<Copy
@@ -296,9 +305,9 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 										/>
 									</div>
 								</div>
-							</div>
+							)}
 						</div>
-					)}
+					</div>
 				</div>
 				<div className="optionsContainer">
 					<div className="optionsToggleContainer">

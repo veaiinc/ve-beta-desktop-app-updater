@@ -326,16 +326,17 @@ const AlbumSettings = () => {
 		}
 	};
 
-	const handleSetCoverPosition = async () => {
+	const handleSetCoverPosition = async (focalPoint) => {
+		console.log(focalPoint, 'focalPoint');
 		const json = {
 			image_id: info?.uploadImageId || info?.coverImageDetails?._id,
-			xPosition: info?.crop?.x,
-			yPosition: info?.crop?.y,
+			xPosition: focalPoint?.x,
+			yPosition: focalPoint?.y,
 			givenFileName:
 				imageDetail?.activeVersion?.givenFileName || info?.coverImageDetails?.givenFileName,
 			width: 100,
 			height: 100,
-			zoom: info?.zoom,
+			zoom: 1,
 		};
 		const respone = await updateAlbumCoverImage(json, galleryId, info?.activeAlbumId);
 		if (respone?.[0] === true) {

@@ -877,6 +877,12 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_GALLERY_GUEST_ACCESS,
+					payload: response?.[1],
+				});
+			}
 		} catch (error) {
 			console.log('error==>editGalleryGuestAccess', error);
 		}

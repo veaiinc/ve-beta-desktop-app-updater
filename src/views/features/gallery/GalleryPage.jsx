@@ -489,6 +489,7 @@ const GalleryPage = () => {
 				resetInfinityScroll: !prevInfo.resetInfinityScroll,
 				activeTab: 'Albums',
 				imagesList: [],
+				selectedImages: [],
 			}));
 			// if (info?.albumName !== album?.title) {
 			// 	getAlbumCount(galleryId, album?.title);
@@ -501,6 +502,7 @@ const GalleryPage = () => {
 				albumTagId: album?._id,
 				sortType: album?.sortType,
 				imagesList: [],
+				selectedImages: [],
 			}));
 		} else if (name === 'clientSelection') {
 			setInfo((prevInfo) => ({
@@ -551,7 +553,7 @@ const GalleryPage = () => {
 		}));
 	};
 	const handleClickContent = (name) => {
-		setInfo((prevInfo) => ({ ...prevInfo, activeTab: name }));
+		setInfo((prevInfo) => ({ ...prevInfo, activeTab: name, page: 1 }));
 	};
 	const handleNavigateUpload = () => {
 		navigate(`/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos`);
@@ -1188,10 +1190,11 @@ const GalleryPage = () => {
 
 		const response = await addGalleryTag(json, galleryId);
 		if (response?.[0] === true) {
-			setInfo((prev) => ({
-				...prev,
-				tagSearchValue: '',
-			}));
+			// setInfo((prev) => ({
+			// 	...prev,
+			// 	// tagSearchValue: '',
+			// }));
+			message.success('Tag added successfully');
 		}
 	};
 
@@ -1348,6 +1351,7 @@ const GalleryPage = () => {
 														? `url(${src})`
 														: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
 												}}
+												onClick={() => handleClickAlbum(album, 'albumName')}
 											>
 												{src && (
 													<img
@@ -1395,6 +1399,9 @@ const GalleryPage = () => {
 													backgroundSize: 'cover ',
 													backgroundPosition: 'center',
 												}}
+												onClick={() =>
+													handleClickAlbum(album, 'clientSelection')
+												}
 											>
 												{album.image && <img src={src} />}
 
