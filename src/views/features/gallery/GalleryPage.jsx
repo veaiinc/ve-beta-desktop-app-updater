@@ -30,6 +30,7 @@ import randomize from 'randomatic';
 import axios from 'axios';
 import Skeleton from 'react-loading-skeleton';
 import { gsap } from 'gsap';
+import slugify from 'slugify';
 
 const GalleryPage = () => {
 	const { galleryId } = useParams();
@@ -79,6 +80,8 @@ const GalleryPage = () => {
 			getClientSelectionImages,
 			clientSelectionImages,
 			moveImagesToAlbum,
+			addGalleryTag,
+			tagsList,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -425,8 +428,6 @@ const GalleryPage = () => {
 	}, [info?.albumFullScreen]);
 
 	const fetchMoreImages = () => {
-		console.log(info?.page, 'pageFetch');
-
 		const nextPage = info.page + 1;
 		getGalleryImages(
 			galleryId,
@@ -441,11 +442,6 @@ const GalleryPage = () => {
 				hasMore: imagesList?.hasNextPage || false,
 			}));
 		});
-		// setInfo((prev) => ({
-		// 	...prev,
-		// 	page: prev?.page + 1,
-		// 	hasMore: imagesList?.hasNextPage || false,
-		// }));
 	};
 
 	const handleImageSelect = (index, images) => {
@@ -517,7 +513,7 @@ const GalleryPage = () => {
 	};
 
 	const handleAlbumSettings = (sectionId) => {
-		navigate(`/gallery/${galleryId}/album-settings`, {
+		navigate(`/galleries/${galleryId}/${info?.activeAlbumId}/album-settings`, {
 			state: { sectionId, activeAlbumId: info?.activeAlbumId },
 		});
 	};
@@ -543,6 +539,9 @@ const GalleryPage = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, showForward: !prevInfo.showForward }));
 	};
 	const handlePinIcon = () => {
+		if (!tagsList) {
+			getGalleryTagsList(galleryId);
+		}
 		setInfo((prevInfo) => ({ ...prevInfo, showPin: !prevInfo.showPin }));
 	};
 	const handleOptionsIcon = () => {
@@ -1152,27 +1151,49 @@ const GalleryPage = () => {
 
 		return totalHeight;
 	};
+
 	// const addTagHandler = async () => {
 	// 	if (
-	// 		!info?.tagSearchValue.trim().length ||
-	// 		tagsList?.list.find((tag) => tag.displayName === info?.tagSearchValue)
+	// 		!navInfo?.searchInput.trim().length ||
+	// 		tagsList?.list.find((tag) => tag.displayName === navInfo?.searchInput)
 	// 	) {
 	// 		return;
 	// 	}
 
 	// 	const json = {
-	// 		displayName: info.tagSearchValue,
-	// 		slug: info.tagSearchValue,
+	// 		displayName: navInfo.searchInput,
+	// 		slug: slugify(navInfo.searchInput, { lower: true, strict: true }),
 	// 	};
 
 	// 	const response = await addGalleryTag(json, galleryId);
 	// 	if (response?.[0] === true) {
-	// 		setInfo((prev) => ({
+	// 		setnavInfo((prev) => ({
 	// 			...prev,
-	// 			tagSearchValue: '',
+	// 			searchInput: '',
 	// 		}));
 	// 	}
 	// };
+	const addTagHandlerFunction = async () => {
+		if (
+			!info?.tagSearchValue.trim().length ||
+			tagsList?.list.find((tag) => tag?.displayName === info?.tagSearchValue)
+		) {
+			return;
+		}
+
+		const json = {
+			displayName: info?.tagSearchValue,
+			slug: slugify(info?.tagSearchValue, { lower: true, strict: true }),
+		};
+
+		const response = await addGalleryTag(json, galleryId);
+		if (response?.[0] === true) {
+			setInfo((prev) => ({
+				...prev,
+				tagSearchValue: '',
+			}));
+		}
+	};
 
 	return (
 		<>
@@ -2184,6 +2205,11 @@ const GalleryPage = () => {
 																				e.target.value,
 																		}))
 																	}
+																	onKeyDown={(e) => {
+																		if (e.key === 'Enter') {
+																			addTagHandlerFunction();
+																		}
+																	}}
 																/>
 																<p
 																	style={{
@@ -2195,7 +2221,7 @@ const GalleryPage = () => {
 																	X
 																</p>
 															</div>
-															{info?.albumTags
+															{tagsList?.list
 																?.filter((tag) =>
 																	tag?.displayName
 																		?.toLowerCase()
