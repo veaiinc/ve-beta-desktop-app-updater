@@ -61,6 +61,7 @@ const AlbumSettings = () => {
 		uploadImageId: null,
 		imageURL: '',
 		coverImageDetails: null,
+		tenantAlbums: [],
 		// activeAlbum: activeAlbum,
 	});
 
@@ -93,6 +94,7 @@ const AlbumSettings = () => {
 				isPublished: activeAlbum?.isPublished,
 				isEnabled: activeAlbum?.guestAccess?.isEnabled,
 				coverImageDetails: activeAlbum?.coverImage,
+				activeAlbumSlug: activeAlbum?.slug,
 			}));
 		}
 	}, [tenantAlbums]);
@@ -153,7 +155,9 @@ const AlbumSettings = () => {
 		}
 	};
 	const handleGoBack = () => {
-		navigate(`/galleries/${galleryId}`);
+		navigate(`/galleries/${galleryId}`, {
+			state: { from: 'albumSettings', activeAlbumId: info?.activeAlbumId },
+		});
 	};
 
 	const handleHideAlbum = useCallback(() => {
@@ -403,7 +407,7 @@ const AlbumSettings = () => {
 						</div>
 					</div>
 
-					<div id="download-album" className="settings-container">
+					{/* <div id="download-album" className="settings-container">
 						<p className="title">Download Album</p>
 						<div className="save-settings">
 							<div style={{ padding: '4px' }}>
@@ -443,7 +447,7 @@ const AlbumSettings = () => {
 						<div className="download-button">
 							<p>Download</p>
 						</div>
-					</div>
+					</div> */}
 
 					<div id="lightroom-copy-list" className="settings-container">
 						<div className="lightroom-container">
@@ -512,12 +516,12 @@ const AlbumSettings = () => {
 					>
 						Album overview
 					</li>
-					<li
+					{/* <li
 						onClick={() => scrollToSection('download-album')}
 						className={info.activeSetting === 'download-album' ? 'activeLink' : ''}
 					>
 						Download album
-					</li>
+					</li> */}
 					<li
 						onClick={() => scrollToSection('lightroom-copy-list')}
 						className={info.activeSetting === 'lightroom-copy-list' ? 'activeLink' : ''}
