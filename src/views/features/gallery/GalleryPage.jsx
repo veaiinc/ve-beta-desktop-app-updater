@@ -588,7 +588,7 @@ const GalleryPage = () => {
 		}));
 	};
 	const handleClickContent = (name) => {
-		setInfo((prevInfo) => ({ ...prevInfo, activeTab: name, page: 1 }));
+		setInfo((prevInfo) => ({ ...prevInfo, activeTab: name, page: 1, albumFullScreen: false }));
 	};
 	const handleNavigateUpload = () => {
 		info?.albumContains === 'All'
@@ -1488,22 +1488,24 @@ const GalleryPage = () => {
 									})}
 							</div>
 
-							<div
-								className="fullScreenContainer"
-								onClick={() =>
-									setInfo((prev) => ({
-										...prev,
-										albumFullScreen: !prev.albumFullScreen,
-									}))
-								}
-								style={{
-									...(info?.albumFullScreen && {
-										rotate: '180deg',
-									}),
-								}}
-							>
-								<UpArrow />
-							</div>
+							{albumImagesCount?.albums?.length > 4 && (
+								<div
+									className="fullScreenContainer"
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											albumFullScreen: !prev.albumFullScreen,
+										}))
+									}
+									style={{
+										...(info?.albumFullScreen && {
+											rotate: '180deg',
+										}),
+									}}
+								>
+									<UpArrow />
+								</div>
+							)}
 						</div>
 					</div>
 				</div>
