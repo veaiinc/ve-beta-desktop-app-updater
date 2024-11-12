@@ -15,6 +15,28 @@
 		align-items: center;
 		gap: 12px;
 		align-self: stretch;
+		height: 27px;
+
+		.aiIcon {
+			display: flex;
+			width: 16px;
+			height: 16px;
+			padding: 1px;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.aiLabel {
+			font-family: Inter;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			background: linear-gradient(270deg, #f9f5e0 0%, #f5895c 46.5%, #b34ecc 100%);
+			background-clip: text;
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+		}
 	}
 
 	.aiBodyWrapper {
@@ -29,9 +51,33 @@
 		line-height: normal;
 	}
 
-	.aiFootWrapper {
+	.aiActionBtn {
 		display: flex;
-		padding: 4px 0px;
-		align-self: flex-end;
+		justify-content: center;
+		align-items: center;
+		position: relative;
+		background: linear-gradient(270deg, #f9f5e0 0%, #f5895c 46.5%, #b34ecc 100%);
+		padding: 1px;
+		border-radius: 100px;
+		box-shadow: 0px 0px 5px 0px #b44fcb;
+
+		span {
+			color: white;
+			background: #222;
+			padding: 12px;
+			border-radius: 100px;
+			width: 100px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+
+			color: #e4e5e6;
+			text-align: center;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
 	}
 }

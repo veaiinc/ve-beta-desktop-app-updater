@@ -1,12 +1,20 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/calendar/askAi.scss';
+import { ReactComponent as AiStar } from '../../../assets/svg/calendar/aiStar.svg';
 
 const AskAI = () => {
 	return (
 		<div className="askAiParentContainer">
-			<div className="aiHeadWrapper">Ask Ai</div>
+			<div className="aiHeadWrapper">
+				{/* <div className="aiIcon"></div> */}
+				<AiStar />
+
+				<span className="aiLabel">Ask Ai</span>
+			</div>
 			<div className="aiBodyWrapper">Try AI to Schedule your meetings effortless</div>
-			<div className="aiFootWrapper">Try Now</div>
+			<div className="aiActionBtn">
+				<span>Try Now</span>
+			</div>
 		</div>
 	);
 };
