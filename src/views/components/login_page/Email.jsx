@@ -7,6 +7,7 @@ import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_p
 import {
 	checkAccountExistsUsingEmail,
 	createAccountUsingEmail,
+	continueWithGoogle,
 } from '../../../services/authServices/authServices';
 import { getLocationsDetails } from '../../../helpers';
 import { message } from 'antd';
@@ -36,8 +37,9 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 		}
 	};
 
-	const handleGoogleLogin = () => {
-		console.log('google login');
+	const handleContinueWithGoogle = async () => {
+		const locationDetails = await getLocationsDetails();
+		continueWithGoogle(locationDetails);
 	};
 
 	const validateEmail = (email) => {
@@ -100,7 +102,7 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 				Access <span>to your</span> workspace
 			</h1>
 			<div className="login-button-container">
-				<button className="google-login-button" onClick={handleGoogleLogin}>
+				<button className="google-login-button" onClick={handleContinueWithGoogle}>
 					<GoogleLogo />
 					<p>Continue with Google</p>
 				</button>

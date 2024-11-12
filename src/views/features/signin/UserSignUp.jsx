@@ -5,6 +5,8 @@ import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { ReactComponent as EyeOpen } from '../../../assets/svg/password-eye-open.svg';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getLocationsDetails } from '../../../helpers';
+import { createUsersAccount, signUpInvitedUser } from '../../../services/authServices/authServices';
+
 const UserSignUp = ({
 	handleInput,
 	usersData,
@@ -19,9 +21,6 @@ const UserSignUp = ({
 	secondStageButtonActive,
 	setUsersData,
 }) => {
-	let {
-		userLogin: { createUsersAccount, signUpInvitedUser },
-	} = useContext(Context);
 	const location = useLocation();
 	const navigate = useNavigate();
 	const params = new URLSearchParams(location.search);
