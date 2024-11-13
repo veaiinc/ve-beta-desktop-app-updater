@@ -184,6 +184,9 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+			if (response?.[0]) {
+				getAlbumImagesCount(galleryId);
+			}
 		} catch (error) {
 			console.log('error==>getGallery', error);
 		}

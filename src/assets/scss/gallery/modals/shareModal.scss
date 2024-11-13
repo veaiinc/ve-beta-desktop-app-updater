@@ -113,26 +113,89 @@
 			gap: 10px;
 			.downloadOptionItem {
 				display: flex;
-				align-items: center;
+				flex-direction: column;
+				justify-content: center;
 				gap: 10px;
-				.dropdown {
-					width: 100%;
-					.anticon-search {
-						display: none;
-					}
-					.ant-select-selector {
-						background: transparent;
-						border: 1px solid rgba(36, 36, 36, 1);
-						&:hover {
+				.downloadOptionItemText {
+					display: flex;
+					gap: 10px;
+					align-items: center;
+					.dropdownContainer {
+						display: flex;
+						flex-direction: column;
+						gap: 10px;
+						width: 100%;
+						.dropdown {
+							display: flex;
+							justify-content: space-between;
+							width: 100%;
+							margin-right: 30px;
+							align-items: center;
+							border-radius: 10px;
+							padding: 12px 20px 12px 16px;
 							border: 1px solid rgba(36, 36, 36, 0.68);
+
+							.rotate {
+								transform: rotate(180deg);
+								transition: transform 0.3s ease-in-out;
+							}
 						}
-					}
-					.ant-select-arrow {
-						color: #979797;
-					}
-					input {
-						background: transparent;
-						color: #fff;
+						.downloadOptionContainer {
+							display: flex;
+							flex-direction: column;
+							width: 100%;
+							padding: 0px;
+							border-radius: 10px;
+							background: #1b1b1b;
+							gap: 16px;
+							max-height: 0px;
+							overflow: hidden;
+							transition: all 0.5s ease-in-out;
+
+							&.expanded {
+								padding: 8px 24px;
+								max-height: 70px;
+							}
+							&.expandedGuest {
+								padding: 8px 24px;
+								max-height: 100px;
+							}
+							.downloadOptions {
+								display: flex;
+								width: 100%;
+								justify-content: space-between;
+								input[type="checkbox"] {
+									appearance: none;
+									width: 16px;
+									height: 16px;
+									border: 1.5px solid #979797;
+									border-radius: 50%; // Makes it circular
+									cursor: pointer;
+									position: relative;
+									background: transparent;
+
+									&:checked {
+										border-color: #3b82f6;
+
+										&::after {
+											content: "";
+											position: absolute;
+											left: 50%;
+											top: 50%;
+											transform: translate(-50%, -50%);
+											width: 8px;
+											height: 8px;
+											background: #3b82f6;
+											border-radius: 50%; // Makes the inner dot circular
+										}
+									}
+
+									&:hover {
+										border-color: #3b82f6;
+									}
+								}
+							}
+						}
 					}
 				}
 			}

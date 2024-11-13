@@ -101,7 +101,7 @@ const GalleryPage = () => {
 		showCreateAlbum: false,
 		isMouseInGallery: false,
 		showCollaborators: false,
-		activeGallery: location?.state,
+		activeGallery: location?.state?.galleryData,
 		activeAlbumId: tenantAlbums?.albums?.[0]?._id,
 		callToAction: tenantPreferences?.ctaPreferences,
 		timeout: null,
@@ -234,6 +234,12 @@ const GalleryPage = () => {
 	useEffect(() => {
 		if (!albumImagesCount) {
 			getAlbumImagesCount(galleryId);
+		}
+		if (albumImagesCount) {
+			setInfo((prev) => ({
+				...prev,
+				activeGallery: albumImagesCount,
+			}));
 		}
 	}, [albumImagesCount]);
 
@@ -666,15 +672,13 @@ const GalleryPage = () => {
 			setInfo((prev) => ({
 				...prev,
 				activeGallery: {
-					galleryData: {
-						...prev?.activeGallery?.galleryData,
-						title: value,
-					},
+					...prev?.activeGallery,
+					title: value,
 				},
 			}));
 			handleDebouceFunctionCall(updateGallery, value);
 		},
-		[info?.activeGallery?.galleryData?.title],
+		[info?.activeGallery?.title],
 	);
 
 	const updateGallery = useCallback(async (value) => {
@@ -948,9 +952,10 @@ const GalleryPage = () => {
 	};
 
 	const handleCopyGalleryLink = () => {
+		console.log(info, 'activeGallery');
 		const workspaceId = localStorage.getItem('workspaceId');
 		navigator.clipboard.writeText(
-			`https://${workspaceId}.ve.ai/galleries/${info?.activeGallery?.galleryData?.slug}`,
+			`https://${workspaceId}.ve.ai/galleries/${info?.activeGallery?.slug}`,
 		);
 		message.success('Gallery link copied to clipboard');
 		setInfo((prev) => ({
@@ -2749,7 +2754,7 @@ const GalleryPage = () => {
 				open={info.shareModal}
 				closeModal={openShareModal}
 				galleryId={galleryId}
-				activeGallery={info?.activeGallery?.galleryData}
+				activeGallery={info?.activeGallery}
 			/>
 			<CreateAlbum
 				open={info.showCreateAlbum}
