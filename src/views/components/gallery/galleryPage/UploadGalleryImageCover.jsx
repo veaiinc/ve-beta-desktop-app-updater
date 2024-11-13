@@ -144,6 +144,7 @@ const UploadGalleryImageCover = ({
 					ref={fileInputRef}
 					type="file"
 					onChange={uploadGalleryCoverChangeHandler}
+					accept={['image/png', 'image/jpeg']}
 					hidden
 					style={{ width: 0, visibility: 'hidden' }}
 					// style={{ visibility: 'hidden' }}

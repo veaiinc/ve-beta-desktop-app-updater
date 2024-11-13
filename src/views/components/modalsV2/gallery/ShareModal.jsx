@@ -5,7 +5,7 @@ import { ReactComponent as Copy } from '../../../../assets/svg/gallery/copy.svg'
 import { ReactComponent as Mail } from '../../../../assets/svg/gallery/mail.svg';
 import ToggleSlider from '../../input/slider';
 import Context from '../../../../context/context';
-import { message, Drawer } from 'antd';
+import { message, Drawer, Select } from 'antd';
 
 const workspaceId = localStorage.getItem('workspaceId');
 
@@ -164,18 +164,23 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 					accessPin: e.target.value,
 				};
 				changeMasterAccessPin(payload, galleryId);
+				message.success('Client PIN updated successfully');
 			}
 		} else if (type === 'guestAccessPin') {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				galleryShareDetails: {
-					...prevInfo?.galleryShareDetails,
-					guestAccess: {
-						...prevInfo?.galleryShareDetails?.guestAccess,
-						pin: e.target.value,
-					},
+				galleryGuestAccess: {
+					...prevInfo?.galleryGuestAccess,
+					pin: e.target.value,
 				},
 			}));
+			if (e.target.value.length === 3 && e.target.value !== galleryGuestAccess?.pin) {
+				let payload = {
+					accessPin: e.target.value,
+				};
+				editGalleryGuestAccess(payload, galleryId);
+				message.success('Guest PIN updated successfully');
+			}
 		}
 	};
 
@@ -296,7 +301,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 										onChange={(e) => {
 											handleEditPin(e, 'guestAccessPin');
 										}}
-										value={galleryGuestAccess?.pin}
+										value={info?.galleryGuestAccess?.pin}
 									/>
 									<div>
 										<Copy
@@ -318,6 +323,18 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 						<p>Download</p>
 					</div>
 					<p>Who all can download the photos</p>
+					{info?.canClientDownloadOriginals && (
+						<div className="downloadOptionsContainer">
+							<div className="downloadOptionItem">
+								<p>Client </p>
+								<Select mode="multiple" className="clientDownloadSelect dropdown" />
+							</div>
+							<div className="downloadOptionItem">
+								<p>Guest</p>
+								<Select mode="multiple" className="guestDownloadSelect dropdown" />
+							</div>
+						</div>
+					)}
 				</div>
 				<div className="optionsContainer">
 					<p>Visitors Details Form</p>

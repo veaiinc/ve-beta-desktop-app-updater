@@ -107,6 +107,36 @@
 				gap: 8px;
 			}
 		}
+		.downloadOptionsContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			.downloadOptionItem {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				.dropdown {
+					width: 100%;
+					.anticon-search {
+						display: none;
+					}
+					.ant-select-selector {
+						background: transparent;
+						border: 1px solid rgba(36, 36, 36, 1);
+						&:hover {
+							border: 1px solid rgba(36, 36, 36, 0.68);
+						}
+					}
+					.ant-select-arrow {
+						color: #979797;
+					}
+					input {
+						background: transparent;
+						color: #fff;
+					}
+				}
+			}
+		}
 	}
 }
 .editPinContainer {

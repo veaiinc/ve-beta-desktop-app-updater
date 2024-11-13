@@ -1273,6 +1273,15 @@ const GalleryPage = () => {
 			message.success('Tag added successfully');
 		}
 	};
+	const handleAlbumDragEnd = (result) => {
+		if (!result.destination) return;
+
+		const albums = Array.from(albumImagesCount?.albums || []);
+		const [reorderedItem] = albums.splice(result.source.index, 1);
+		albums.splice(result.destination.index, 0, reorderedItem);
+
+		// Update the order in your state/backend here
+	};
 
 	return (
 		<>
@@ -1461,6 +1470,7 @@ const GalleryPage = () => {
 											</div>
 										);
 									})}
+
 								{info.activeTab === 'Client Selections' &&
 									clientSelectionsData?.data?.map((album, index) => {
 										let src = null;
@@ -1774,6 +1784,7 @@ const GalleryPage = () => {
 																		? true
 																		: false
 																}
+																boundaries="hideScrollBar"
 															>
 																{(provided, snapshot) => (
 																	<div

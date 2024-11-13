@@ -1280,3 +1280,8 @@
 .rearrange-image-container.dragging {
 	opacity: 0.5;
 }
+.hideScrollBar {
+	::-webkit-scrollbar {
+		display: none;
+	}
+}
