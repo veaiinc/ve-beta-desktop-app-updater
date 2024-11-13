@@ -1,0 +1,33 @@
+.subscriptionParentContainer {
+	width: 100%;
+	height: 100%;
+	background-color: rgba(96, 85, 236, 0.1) 99.87%;
+	background-image: url('../../images/subscription/subscriptionBackground.png');
+	background-size: cover;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+
+	.planCardsContainer {
+		display: flex;
+		gap: 65px;
+	}
+
+	.gobackBtn {
+		margin-top: 52px;
+		display: flex;
+		gap: 12px;
+		// width: 16px;
+		height: 16px;
+		justify-content: center;
+		align-items: center;
+		color: #e8e8e8;
+		// font-family: Satoshi;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+		cursor: pointer;
+	}
+}

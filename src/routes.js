@@ -19,6 +19,7 @@ import GalleryViewer from './views/features/gallery/GalleryViewer';
 import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
+import Subscription from './views/features/subscription';
 
 const routes = [
 	{
@@ -171,6 +172,11 @@ const routes = [
 				<AiSetupPage />
 			</AuthWrapper>
 		),
+		exact: true,
+	},
+	{
+		path: '/subscription',
+		component: <Subscription />,
 		exact: true,
 	},
 ];

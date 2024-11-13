@@ -7,6 +7,7 @@ import { ReactComponent as HandshakeSvg } from '../../../../assets/svg/Settings/
 import { ReactComponent as LibraryCheckSvg } from '../../../../assets/svg/Settings/Library_add_check.svg';
 import { ReactComponent as InsertLinkSvg } from '../../../../assets/svg/Settings/Insert_link.svg';
 import { ReactComponent as SubscriptionButtonSvg } from '../../../../assets/svg/Settings/ArrowCross.svg';
+import { useNavigate } from 'react-router-dom';
 
 const PlansList = [
 	{ label: 'Workflow Automations', icon: <FlowArrowSvg /> },
@@ -18,6 +19,7 @@ const PlansList = [
 	{ label: 'Link in Bio', icon: <InsertLinkSvg /> },
 ];
 const SubscriptionDetailsComponent = () => {
+	const navigate = useNavigate();
 	return (
 		<div className="subscriptionDiv">
 			<div className="title">
@@ -47,7 +49,7 @@ const SubscriptionDetailsComponent = () => {
 			</div>
 
 			<div className="upgradSubscriptionButton">
-				<div className="button">
+				<div className="button" onClick={() => navigate('/subscription')}>
 					<p>Upgrade Subscription</p>
 
 					<div className="circleDiv">
