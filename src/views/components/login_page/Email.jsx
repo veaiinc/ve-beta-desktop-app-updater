@@ -120,9 +120,10 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 
 	return (
 		<>
-			<h1 className="login-page-title">
-				Access <span>to your</span> workspace
-			</h1>
+			<div className="login-page-content">
+				<h2 className="login-page-subtitle">Welcome to the home of</h2>
+				<h1 className="login-page-title">AI workers who mind your business.</h1>
+			</div>
 			<div className="login-button-container">
 				<button className="google-login-button" onClick={handleContinueWithGoogle}>
 					<GoogleLogo />
