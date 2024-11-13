@@ -12,6 +12,7 @@
 	border-radius: 24px;
 	border: 1px solid #272727;
 	background: #1d1d1d;
+	overflow: hidden; //to hide svg element overflow
 
 	.meetingCard {
 		display: flex;
