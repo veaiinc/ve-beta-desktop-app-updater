@@ -49,6 +49,7 @@ const Onboarding = () => {
 
 	useEffect(() => {
 		if (invitedWorkspaceId && invitedUserEmail) {
+			localStorage.clear();
 			return;
 		}
 		if (!localStorage?.getItem('usertoken')) {
@@ -74,7 +75,6 @@ const Onboarding = () => {
 		} else if (info?.step === 6 && aiIntroRef?.current) {
 			animateStep6Enter();
 		} else if (info?.step === 7 && aiIntroRef?.current) {
-			// handleOnboarding();
 			animateStep7Enter();
 		}
 	}, [info?.step, aiIntroRef?.current]);
@@ -91,6 +91,7 @@ const Onboarding = () => {
 			navigate('/home');
 		} else {
 			message.error(response?.message);
+			navigate('/');
 		}
 	};
 
@@ -109,7 +110,6 @@ const Onboarding = () => {
 					isOnboard: workspaceResponse?.isOnboard,
 				}));
 				localStorage.setItem('isOnboard', JSON.stringify(workspaceResponse?.isOnboard));
-				// handleNavigate(workspaceResponse?.isOnboard);
 				window.location.reload();
 			} else {
 				message.error(workspaceResponse?.message);
@@ -117,11 +117,6 @@ const Onboarding = () => {
 		} else {
 			message.error(userDetailsResponse?.message);
 		}
-	};
-
-	const handleNavigate = (isOnboard) => {
-		const route = isOnboard ? '/home' : '/early-access';
-		navigate(route);
 	};
 
 	const animateAiIntro = () => {
