@@ -1185,6 +1185,34 @@ export const Galleries = () => {
 		}
 	};
 
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/custom-sort-index
+	const updateAlbumOrder = async (payload, galleryId, albumId, sortedItems) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/custom-sort-index`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+
+			if (response[0] === true) {
+				dispatch({
+					type: Actions.GET_ALBUM_IMAGES_COUNT,
+					payload: {
+						...state.albumImagesCount,
+						albums: [...sortedItems],
+					},
+				});
+			}
+
+			return response;
+		} catch (error) {
+			console.log('error==>updateAlbumOrder', error);
+		}
+	};
+
 	return {
 		...state,
 		getGalleries,
@@ -1244,5 +1272,6 @@ export const Galleries = () => {
 		pubslishGallery,
 		getGalleryShareDetails,
 		changeMasterAccessPin,
+		updateAlbumOrder,
 	};
 };
