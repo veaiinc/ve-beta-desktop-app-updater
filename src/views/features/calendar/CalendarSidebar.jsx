@@ -24,7 +24,7 @@ const CalendarSidebar = () => {
 			) : (
 				<div className="calendarSidebarContainer">
 					<CalendarSelector />
-					<AskAI askAi={info?.askAi} toggleAskAi={toggleAskAi} />
+					<AskAI toggleAskAi={toggleAskAi} />
 					<CalendarCategories />
 					<MeetingDetails />
 				</div>

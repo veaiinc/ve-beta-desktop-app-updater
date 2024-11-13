@@ -57,7 +57,74 @@ const CalendarCategories = () => {
 
 			{info?.expanded ? (
 				<div className="categoriesContainer">
-					<div> meet </div>
+					<div className="categoryTypeContainer">
+						<div className="typeWrapper">
+							<input type="checkbox" className="checkBox" id="meeting-checkbox" />
+							<label for="meeting-checkbox" className="typeLabel">
+								Meeting
+							</label>
+						</div>
+						<div className="statusWrapper" data-type="meeting">
+							<div className="statusCount">
+								<span className="activeCount">4</span>/
+								<span className="totalCount">15</span>
+							</div>
+
+							<span className="statusIndicator"></span>
+						</div>
+					</div>
+					<div className="categoryTypeContainer">
+						<div className="typeWrapper">
+							<input type="checkbox" className="checkBox" id="task-checkbox" />
+							<label for="task-checkbox" className="typeLabel">
+								Task
+							</label>
+						</div>
+						<div className="statusWrapper" data-type="task">
+							<div className="statusCount">
+								<span className="activeCount">4</span>/
+								<span className="totalCount">15</span>
+							</div>
+
+							<span className="statusIndicator"></span>
+						</div>
+					</div>
+					<div className="categoryTypeContainer">
+						<div className="typeWrapper">
+							<input type="checkbox" className="checkBox" id="payment-checkbox" />
+							<label for="payment-checkbox" className="typeLabel">
+								Payments
+							</label>
+						</div>
+						<div className="statusWrapper" data-type="payments">
+							<div className="statusCount">
+								<span className="activeCount">4</span>/
+								<span className="totalCount">15</span>
+							</div>
+
+							<span className="statusIndicator"></span>
+						</div>
+					</div>
+					<div className="categoryTypeContainer">
+						<div className="typeWrapper">
+							<input
+								type="checkbox"
+								className="checkBox"
+								id="appointments-checkbox"
+							/>
+							<label for="appointments-checkbox" className="typeLabel">
+								Appointments
+							</label>
+						</div>
+						<div className="statusWrapper" data-type="appointments">
+							<div className="statusCount">
+								<span className="activeCount">4</span>/
+								<span className="totalCount">15</span>
+							</div>
+
+							<span className="statusIndicator"></span>
+						</div>
+					</div>
 				</div>
 			) : (
 				''
