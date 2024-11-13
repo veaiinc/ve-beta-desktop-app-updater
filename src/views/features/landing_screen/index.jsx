@@ -38,7 +38,6 @@ const LandingPage = () => {
 		handleAnimations();
 		checkUserSessionStatus()
 			.then((response) => {
-				console.log('response', response);
 				if (response?.ok) {
 					setIsOnboard(response?.isOnboard);
 					setTokenValid(response?.tokenValid);
