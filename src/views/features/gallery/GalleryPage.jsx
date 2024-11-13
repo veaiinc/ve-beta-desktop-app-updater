@@ -1218,7 +1218,10 @@ const GalleryPage = () => {
 	const dynamicHeightFunc = () => {
 		const containerWidth = document.querySelector('.albums')?.clientWidth || 0;
 		const cardWidth = 130;
-		const numberOfCards = albumImagesCount?.albums?.length + 1 || 0;
+		const numberOfCards =
+			info.activeTab === 'Client Selections'
+				? clientSelectionsData?.data?.length || 0
+				: albumImagesCount?.albums?.length + 1 || 0;
 		const cardHeight = 160;
 		const gap = 20;
 		const cardsPerRow = Math.floor((containerWidth + gap) / (cardWidth + gap));
