@@ -1,6 +1,7 @@
 .categoriesParentContainer {
 	display: flex;
-	min-height: 62px;
+	// height: auto;
+	// min-height: 62px;
 	width: 320px;
 	padding: 16px 24px;
 	flex-direction: column;
@@ -11,6 +12,7 @@
 	border-radius: 24px;
 	border: 1px solid #272727;
 	background: #1d1d1d;
+	transition: height 0.3s ease;
 
 	.categoriesHeadWrapper {
 		display: flex;
