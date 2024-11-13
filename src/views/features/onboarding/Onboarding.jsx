@@ -59,11 +59,6 @@ const Onboarding = () => {
 	}, []);
 
 	useEffect(() => {
-		console.log('step', info?.step);
-		console.log('stage', info?.stage);
-	}, [info?.step, info?.stage]);
-
-	useEffect(() => {
 		if (info?.step === 0 && aiIntroRef?.current) {
 			animateAiIntro();
 		} else if (info?.step === 1 && aiIntroRef?.current) {
@@ -113,8 +108,9 @@ const Onboarding = () => {
 					step: prev?.step + 1,
 					isOnboard: workspaceResponse?.isOnboard,
 				}));
-				localStorage.setItem('isOnboard', workspaceResponse?.isOnboard);
-				handleNavigate();
+				localStorage.setItem('isOnboard', JSON.stringify(workspaceResponse?.isOnboard));
+				// handleNavigate(workspaceResponse?.isOnboard);
+				window.location.reload();
 			} else {
 				message.error(workspaceResponse?.message);
 			}
@@ -123,8 +119,8 @@ const Onboarding = () => {
 		}
 	};
 
-	const handleNavigate = () => {
-		const route = localStorage.getItem('isOnboard') ? '/home' : '/early-access';
+	const handleNavigate = (isOnboard) => {
+		const route = isOnboard ? '/home' : '/early-access';
 		navigate(route);
 	};
 
@@ -326,6 +322,7 @@ const Onboarding = () => {
 	};
 
 	const animateStep6Enter = () => {
+		console.log(step6Ref?.current?.value);
 		tl2?.fromTo(
 			step6Ref?.current,
 			{
@@ -353,6 +350,11 @@ const Onboarding = () => {
 	};
 
 	const animateStep7Enter = () => {
+		tl2.to(step6Ref?.current, {
+			opacity: 0,
+			duration: 1,
+			ease: 'power2.out',
+		});
 		tl2?.fromTo(
 			aiIntroRef?.current,
 			{
@@ -365,8 +367,10 @@ const Onboarding = () => {
 				duration: 1,
 				ease: 'power2.out',
 				onComplete: () => {
-					console.log('onboarding');
-					// handleOnboarding();
+					const timeout = setTimeout(() => {
+						handleOnboarding();
+					}, 500);
+					return () => clearTimeout(timeout);
 				},
 			},
 		);
@@ -428,7 +432,7 @@ const Onboarding = () => {
 			/>
 		),
 		3: <WorkspaceType setOnboardingInfo={setInfo} />,
-		4: <Profession onboardingInfo={info} setOnboardingInfo={setInfo} />,
+		4: <Profession onboardingInfo={info} setOnboardingInfo={setInfo} step6Ref={step6Ref} />,
 		5: <CreatingNewWorkspace profession={info?.profession} />,
 	};
 
