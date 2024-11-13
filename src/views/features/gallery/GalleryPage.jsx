@@ -1752,7 +1752,9 @@ const GalleryPage = () => {
 														display: 'flex',
 														gap: '30px',
 														alignItems: 'center',
+														overflowX: 'auto',
 													}}
+													className="hideScrollBar"
 												>
 													{info?.albumTags
 														?.sort(

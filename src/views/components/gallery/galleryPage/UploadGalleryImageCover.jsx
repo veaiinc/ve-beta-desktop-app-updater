@@ -3,6 +3,7 @@ import { ReactComponent as LaptopLogo } from '../../../../assets/svg/gallery/lap
 import mobile from '../../../../assets/svg/gallery/mobile.png';
 import Cropper from 'react-easy-crop';
 import { FocusedImage, FocusPicker } from 'image-focus';
+import '../../../../assets/scss/gallery/albumSettings.scss';
 
 const UploadGalleryImageCover = ({
 	info,
