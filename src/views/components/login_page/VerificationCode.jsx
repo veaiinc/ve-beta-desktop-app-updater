@@ -5,10 +5,13 @@ import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/login_page/left-arrow-back-btn.svg';
 import { ReactComponent as OutlookLogo } from '../../../assets/svg/login_page/outlook.svg';
 import { ReactComponent as GmailLogo } from '../../../assets/svg/login_page/gmail.svg';
-import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
-import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import { verifyEmailVerificationCode } from '../../../services/authServices/authServices';
-import Spinner from '../loaders/Spinner';
+import { message } from 'antd';
+import { getLocationsDetails } from '../../../helpers';
+import {
+	createAccountUsingEmail,
+	checkAccountExistsUsingEmail,
+} from '../../../services/authServices/authServices';
 
 const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 	const navigate = useNavigate();
@@ -32,10 +35,63 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 		};
 	}, [info?.otp, info?.isLoading]);
 
+	useEffect(() => {
+		if (info?.otp?.length === 6) {
+			handleVerifyEmailVerificationCode();
+		} else {
+			setInfo((prev) => ({ ...prev, otpError: '' }));
+		}
+	}, [info?.otp]);
+
 	const handleKeyDown = (e) => {
 		if (e?.key === 'Enter' && info?.otp?.length === 6 && !info?.isLoading) {
 			handleVerifyEmailVerificationCode();
 		}
+	};
+
+	const handleCreateAccountWithEmail = async (email) => {
+		const locationDetails = await getLocationsDetails();
+		const response = await createAccountUsingEmail(email, locationDetails);
+		if (response?.ok) {
+			setLoginPageInfo((prev) => ({
+				...prev,
+				activeStage: 'verificationCode',
+			}));
+		} else {
+			message?.error(response?.message);
+		}
+	};
+
+	const handleResendCode = async () => {
+		setInfo((prev) => ({ ...prev, isLoading: true }));
+		try {
+			const response = await checkAccountExistsUsingEmail(email);
+			if (response?.ok) {
+				message?.success('Code resent successfully! Check your email.');
+				if (response?.accountExists) {
+					if (response?.emailVerified) {
+						setLoginPageInfo((prev) => ({
+							...prev,
+							emailVerified: true,
+							activeStage: 'verificationCode',
+						}));
+					} else {
+						setLoginPageInfo((prev) => ({
+							...prev,
+							emailVerified: false,
+							activeStage: 'verificationCode',
+						}));
+					}
+				} else {
+					await handleCreateAccountWithEmail(email);
+				}
+			} else {
+				message?.error(response?.message);
+			}
+		} catch (error) {
+			console.error('Failed to check email:', error.message);
+		}
+		setInfo((prev) => ({ ...prev, isLoading: false }));
 	};
 
 	const handleVerifyEmailVerificationCode = async () => {
@@ -116,23 +172,9 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 				</div>
 				<p className="otp-error-message">{info?.otpError}</p>
 			</div>
-			<button
-				onClick={handleVerifyEmailVerificationCode}
-				className="verification-code-button"
-				disabled={info?.otp?.length !== 6 || info?.isLoading}
-				style={{
-					backgroundColor: info?.otp?.length === 6 ? '#fff' : 'rgba(255, 255, 255, 0.05)',
-					color: info?.otp?.length === 6 ? '#000' : 'rgba(255, 255, 255, 0.5)',
-					cursor: info?.otp?.length === 6 ? 'pointer' : 'not-allowed',
-				}}
-			>
-				{info?.otp?.length === 6 ? <UpArrowBlackHover /> : <UpArrowGrey />}
-				<div className="verify-code-text-container">
-					<span>Verify Code</span>
-					{info?.isLoading && <Spinner width="20px" height="20px" color="black" />}
-				</div>
-			</button>
-			<p className="resend-code-text">Resend code</p>
+			<p className="resend-code-text" onClick={handleResendCode}>
+				Resend code
+			</p>
 		</div>
 	);
 };

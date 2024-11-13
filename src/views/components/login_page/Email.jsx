@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import validator from 'validator';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
@@ -11,14 +11,33 @@ import {
 } from '../../../services/authServices/authServices';
 import { getLocationsDetails } from '../../../helpers';
 import { message } from 'antd';
+import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 
 const Email = ({ loginPageInfo, setLoginPageInfo }) => {
+	const arrowRef = useRef(null);
+
 	const [info, setInfo] = useState({
 		isHovering: false,
 		isEmailValid: false,
 		isLoading: false,
 	});
+
+	useEffect(() => {
+		if (arrowRef.current && info.isEmailValid) {
+			gsap.to(arrowRef.current, {
+				rotation: 90,
+				duration: 0.5,
+				ease: 'power2.out',
+			});
+		} else if (arrowRef.current && !info.isEmailValid) {
+			gsap.to(arrowRef.current, {
+				rotation: 0,
+				duration: 0.5,
+				ease: 'power2.out',
+			});
+		}
+	}, [info.isEmailValid]);
 
 	useEffect(() => {
 		validateEmail(loginPageInfo?.email);
@@ -125,7 +144,7 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 						style={{
 							cursor:
 								!info.isEmailValid || info.isLoading ? 'not-allowed' : 'pointer',
-							background: !info.isEmailValid ? 'rgba(255, 255, 255, 0.1)' : '',
+							background: !info.isEmailValid ? 'rgba(255, 255, 255, 0.1)' : 'white',
 						}}
 						onMouseEnter={() => setInfo({ ...info, isHovering: true })}
 						onMouseLeave={() => setInfo({ ...info, isHovering: false })}
@@ -133,12 +152,12 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 					>
 						{info.isLoading ? (
 							<Spinner width="20px" height="20px" />
-						) : info?.isHovering ? (
-							<span>
+						) : info?.isEmailValid ? (
+							<span ref={arrowRef}>
 								<UpArrowBlackHover />
 							</span>
 						) : (
-							<span>
+							<span ref={arrowRef}>
 								<UpArrowGrey />
 							</span>
 						)}
