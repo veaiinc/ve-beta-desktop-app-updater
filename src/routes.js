@@ -21,6 +21,7 @@ import GalleryViewer from './views/features/gallery/GalleryViewer';
 import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
+import { Navigate } from 'react-router-dom';
 
 const routes = [
 	{
@@ -186,6 +187,10 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+	},
+	{
+		path: '*',
+		component: <Navigate to="/" />,
 	},
 ];
 
