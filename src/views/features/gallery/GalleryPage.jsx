@@ -231,6 +231,11 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [clientSelectionImages]);
+	useEffect(() => {
+		if (!albumImagesCount) {
+			getAlbumImagesCount(galleryId);
+		}
+	}, [albumImagesCount]);
 
 	useEffect(() => {
 		if (!tenantAlbums || tenantAlbums?._id !== galleryId) {
@@ -1281,6 +1286,21 @@ const GalleryPage = () => {
 		albums.splice(result.destination.index, 0, reorderedItem);
 
 		// Update the order in your state/backend here
+	};
+
+	const handleSetAlbumCover = async () => {
+		if (info?.selectedImages?.length < 2) {
+			navigate(
+				`/galleries/${galleryId}/${info?.activeAlbumId}/album-settings?uploadImageId=${info?.selectedImages[0]}`,
+				{
+					state: {
+						activeAlbumId: info?.activeAlbumId,
+					},
+				},
+			);
+		} else {
+			message.error('Cant set album cover with more than 1 image');
+		}
 	};
 
 	return (
@@ -2380,15 +2400,7 @@ const GalleryPage = () => {
 																			: 'not-allowed',
 																}}
 																onClick={() =>
-																	navigate(
-																		`/galleries/${galleryId}/${info?.activeAlbumId}/album-settings?uploadImageId=${info?.selectedImages[0]}`,
-																		{
-																			state: {
-																				activeAlbumId:
-																					info?.activeAlbumId,
-																			},
-																		},
-																	)
+																	handleSetAlbumCover()
 																}
 															>
 																Set as cover
