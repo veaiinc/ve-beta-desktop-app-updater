@@ -59,6 +59,7 @@ const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {}
 			<Modal
 				isOpen={isOpen}
 				onRequestClose={closeModal}
+				className={customStyles.className || ''}
 				style={
 					modalType == 'right'
 						? {

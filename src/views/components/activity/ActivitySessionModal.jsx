@@ -14,8 +14,8 @@ import { ReactComponent as WebSvg } from '../../../assets/svg/activity/web.svg';
 import { Drawer } from 'antd';
 import { useParams } from 'react-router-dom';
 import Context from '../../../context/context';
-import TimeLineSession from './TimeLineSession.jsx';
-import ChatSession from './ChatSession.jsx';
+// import TimeLineSession from './TimeLineSession.jsx';
+// import ChatSession from './ChatSession.jsx';
 import SessionMetric from './SessionMetric.jsx';
 import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
@@ -25,7 +25,7 @@ const SessionActivityModal = ({
 	showDrawer,
 	selectedViewer,
 	formatTime,
-	activityDataLoading,
+	workflowData,
 }) => {
 	const { workflowId } = useParams();
 
@@ -36,7 +36,8 @@ const SessionActivityModal = ({
 	const [info, setInfo] = useState({
 		viewMore: false,
 		isLoading: false,
-		isSessionTabActive: 'TimeLine',
+		// isSessionTabActive: 'TimeLine',
+		isSessionTabActive: 'TimeSpent',
 		currentSessionIndex: 0,
 		sessionIds: selectedViewer?.sessionIds || [],
 		totalSessions: (selectedViewer?.sessionIds || []).length,
@@ -46,23 +47,24 @@ const SessionActivityModal = ({
 	//API call getSessionSummary ===>
 	const fetchViewersSessionDetails = useCallback(async () => {
 		if (
-			info.currentSessionId &&
-			(!viewerSessionDetails || viewerSessionDetails?._id !== info.currentSessionId)
+			info?.currentSessionId &&
+			(!viewerSessionDetails || viewerSessionDetails?._id !== info?.currentSessionId)
 		) {
 			setInfo((prevInfo) => ({ ...prevInfo, isLoading: true }));
 			await getViewersSessionDetails({
 				workflowId,
-				getSessionSummaryId: info.currentSessionId,
+				getSessionSummaryId: info?.currentSessionId,
 			});
 			setInfo((prevInfo) => ({ ...prevInfo, isLoading: false }));
 		}
-	}, [getViewersSessionDetails, info.currentSessionId, workflowId]);
+	}, [info?.currentSessionId, workflowId]);
 
 	useEffect(() => {
-		if (info.currentSessionId) {
+		console.log('Using current session===>,' + info.currentSessionId);
+		if (info?.currentSessionId) {
 			fetchViewersSessionDetails();
 		}
-	}, [fetchViewersSessionDetails, info.currentSessionId]);
+	}, [info?.currentSessionId, selectedViewer]);
 
 	//Handle Session Next Session ===>
 	const handleNextSession = () => {
@@ -106,9 +108,23 @@ const SessionActivityModal = ({
 		return moment.unix(epochTimestamp).format('D MMM YYYY, h:mm a');
 	};
 
+	//miliseconds for viewers duration ===>
+	const formatTimeMiliSec = useCallback((milliseconds) => {
+		const duration = moment.duration(milliseconds / 1000, 'seconds');
+		const hours = String(duration.hours()).padStart(2, '0');
+		const minutes = String(duration.minutes()).padStart(2, '0');
+		const secs = String(duration.seconds()).padStart(2, '0');
+		const millisecs = String(milliseconds % 1000).padStart(1, '0');
+		return `${hours}:${minutes}:${secs}.${millisecs}`;
+	}, []);
+
+	const capitalizeWords = (string) => {
+		return string.replace(/\b\w/g, (char) => char.toUpperCase());
+	};
+
 	const componentMapper = useMemo(() => {
 		return {
-			TimeLine: <TimeLineSession />,
+			// TimeLine: <TimeLineSession />,
 
 			TimeSpent: (
 				<SessionMetric
@@ -117,6 +133,7 @@ const SessionActivityModal = ({
 					loading={info?.isLoading}
 					labelsData={viewerSessionDetails?.moduleViewDuration || []}
 					labelItemsData={viewerSessionDetails?.sectionViewDuration || []}
+					formatTime={formatTime}
 				/>
 			),
 
@@ -129,10 +146,11 @@ const SessionActivityModal = ({
 					labelItemsData={viewerSessionDetails?.interaction?.reduce((acc, item) => {
 						return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending each "interaction" array data
 					}, [])}
+					formatTime={formatTime}
 				/>
 			),
 
-			AIChat: <ChatSession />,
+			// AIChat: <ChatSession />,
 			// Add more tabs if needed
 		};
 	}, [info?.isLoading, viewerSessionDetails]);
@@ -176,7 +194,7 @@ const SessionActivityModal = ({
 											<span className="logoText">Session Activity</span>
 										</div>
 										<span className="headerTitle">
-											James Stark - Smart File
+											{capitalizeWords(workflowData?.name || '')} - Smart File
 										</span>
 									</div>
 									<div className="closeBtn" onClick={showDrawer}>
@@ -188,20 +206,45 @@ const SessionActivityModal = ({
 							<div className="profileCardContainer">
 								{/* <!-- User Information Section --> */}
 								<div className="profileInfoContainer">
-									<div className="profileAvatar">JS</div>
+									<div className="profileAvatar">
+										{selectedViewer?.isAnonymus ? (
+											<span className="viewerName">A</span>
+										) : (
+											selectedViewer?.name
+												?.split(' ')
+												.map((word) => word[0])
+												.join('')
+												.toUpperCase() || null
+										)}
+									</div>
 									<div className="profileDetailsWrapper">
 										<div className="profileTitle">
-											<span className="titleName">Jhon Michael</span>
-											<span className="titleIcon">
-												<LinkedinSvg />
+											<span className="titleName">
+												{selectedViewer?.isAnonymus ? (
+													<span>Anonymous</span>
+												) : (
+													<span>
+														{selectedViewer?.name || 'Anonymous'}
+													</span>
+												)}
 											</span>
+											<a
+												href={`https://www.linkedin.com/search/results/all?keywords=${selectedViewer?.name}`}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="titleIconLink"
+											>
+												<span className="titleIcon">
+													<LinkedinSvg />
+												</span>
+											</a>
 										</div>
 										<div className="profileDescription">
-											<p>
+											{/* <p>
 												Digital Marketing Strategist | Growth Hacker |
 												Storyteller
-											</p>
-											<p>johnmichael@gmail.com</p>
+											</p> */}
+											<p>{selectedViewer?.email || 'anonymous@domain.com'}</p>
 										</div>
 									</div>
 								</div>
@@ -257,7 +300,9 @@ const SessionActivityModal = ({
 												<div className="labelValue">
 													<DurationSvg />
 													<spna className="labelDescription">
-														{formatTime(viewerSessionDetails?.duration)}
+														{formatTimeMiliSec(
+															viewerSessionDetails?.duration,
+														)}
 													</spna>
 												</div>
 											</div>
@@ -278,10 +323,19 @@ const SessionActivityModal = ({
 												<div className="labelValue">
 													<PhoneSvg />
 													<spna className="labelDescription">
-														{
-															viewerSessionDetails?.clientDetails
-																?.device
-														}
+														{viewerSessionDetails?.clientDetails?.device
+															? `${
+																	JSON.parse(
+																		viewerSessionDetails
+																			.clientDetails.device,
+																	).vendor
+															  } ${
+																	JSON.parse(
+																		viewerSessionDetails
+																			.clientDetails.device,
+																	).model
+															  }`
+															: ''}
 													</spna>
 												</div>
 											</div>
@@ -304,7 +358,7 @@ const SessionActivityModal = ({
 							<div className="sessionActivityParentContainer">
 								{/* NavBar Container  */}
 								<div className="sessionNavbar">
-									<div
+									{/* <div
 										className={`sessionTab ${
 											info.isSessionTabActive === 'TimeLine'
 												? 'sessionTabActive'
@@ -313,7 +367,7 @@ const SessionActivityModal = ({
 										onClick={() => setActiveTab('TimeLine')}
 									>
 										Time Line
-									</div>
+									</div> */}
 									<div
 										className={`sessionTab ${
 											info.isSessionTabActive === 'TimeSpent'
@@ -334,7 +388,7 @@ const SessionActivityModal = ({
 									>
 										Interaction
 									</div>
-									<div
+									{/* <div
 										className={`sessionTab ${
 											info.isSessionTabActive === 'AIChat'
 												? 'sessionTabActive'
@@ -343,7 +397,7 @@ const SessionActivityModal = ({
 										onClick={() => setActiveTab('AIChat')}
 									>
 										AI Chat
-									</div>
+									</div> */}
 								</div>
 
 								{renderActiveTab(info?.isSessionTabActive)}

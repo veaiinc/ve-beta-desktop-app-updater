@@ -23,12 +23,16 @@ export const intialState = {
 	visitorFormAccess: null,
 	imageDetail: null,
 	galleryGuestAccess: null,
+	albumImagesCount: null,
+	clientSelectionsData: null,
+	clientSelectionImages: null,
+	galleryShareDetails: null,
 };
 
 export const Galleries = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
-	const getGalleries = async () => {
+	const getGalleries = async (queryParams = {}, reset = false) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -37,9 +41,18 @@ export const Galleries = () => {
 			const params = {
 				user_id: userId,
 				detailed: false,
-				sort: '-shotDuring',
+				sort: '-createdAt',
 				page: 1,
+				limit: 15,
+				...queryParams,
 			};
+
+			if (reset) {
+				dispatch({
+					type: Actions.GET_TENANT_GALLERIES,
+					payload: null,
+				});
+			}
 
 			const queryString = new URLSearchParams(params).toString();
 			const response = await service.fetchGet(
@@ -47,11 +60,38 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response?.[0]) {
+
+			if (response?.[0] === true) {
+				const data = state?.tenantGalleries
+					? {
+							...state?.tenantGalleries,
+							...response?.[1],
+							galleries: [
+								...state?.tenantGalleries?.galleries,
+								...response?.[1]?.galleries,
+							],
+					  }
+					: response?.[1];
 				dispatch({
 					type: Actions.GET_TENANT_GALLERIES,
-					payload: response?.[1],
+					payload: reset ? response?.[1] : data,
 				});
+			} else {
+				dispatch({
+					type: Actions.GET_TENANT_GALLERIES,
+					payload: {
+						galleries: [],
+						totalPages: 0,
+						totalDocs: 0,
+						limit: 0,
+						currentPage: 1,
+						hasPrevPage: false,
+						hasNextPage: false,
+						prevPage: null,
+						nextPage: null,
+					},
+				});
+				return response;
 			}
 		} catch (error) {
 			console.log('error==>getGalleries', error);
@@ -67,6 +107,8 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+
+			return response;
 		} catch (error) {
 			console.log('error==>createNewGallery', error);
 		}
@@ -84,6 +126,7 @@ export const Galleries = () => {
 			);
 			if (response?.[0]) {
 				getAlbums(galleryId);
+				getAlbumImagesCount(galleryId);
 			}
 		} catch (error) {
 			console.log('error==>createNewAlbum', error);
@@ -99,11 +142,13 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.GET_TENANT_ALBUMS,
 					payload: response?.[1],
 				});
+			} else {
+				return response;
 			}
 		} catch (error) {
 			console.log('error==>getAlbums', error);
@@ -167,7 +212,8 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response?.[0]) {
+
+			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.GET_TAGS_LIST,
 					payload: { galleryId, list: response?.[1] },
@@ -176,7 +222,7 @@ export const Galleries = () => {
 
 			return response;
 		} catch (error) {
-			console.log('error==>getTags', error);
+			console.log('error==>getGalleryTagsList', error);
 		}
 	};
 
@@ -190,12 +236,19 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response?.[0]) {
+
+			const payloadData = state?.tagsList
+				? { ...state.tagsList, galleryId, list: [...state?.tagsList?.list, response?.[1]] }
+				: { galleryId, list: response?.[1] };
+
+			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.POST_TAG_LIST,
-					payload: response?.[1],
+					payload: payloadData,
 				});
 			}
+
+			return response;
 		} catch (error) {
 			console.log('error==>addGalleryTag', error);
 		}
@@ -405,19 +458,21 @@ export const Galleries = () => {
 		}
 	};
 	// /{{galleryId}}/album-slug-availability/{{slug}}
-	const checkSlugIsAvalible = async (galleryId, slugName) => {
+	const checkAlbumSlugIsAvalible = async (galleryId, slugName) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			const updatedSlugName = slugName.replace(/\s+/g, '');
-			console.log(updatedSlugName, 'updatedSlugName');
+			// const updatedSlugName = slugName.replace(/\s+/g, '');
+			// console.log(updatedSlugName, 'updatedSlugName');
 			const response = await service.fetchGet(
 				`/${workspaceId}/galleries/${galleryId}/album-slug-availability/${slugName}`,
 				usertoken,
 				'galleries',
 			);
 			return response;
-		} catch (error) {}
+		} catch (error) {
+			console.log('error==>checkAlbumSlugIsAvalible', error);
+		}
 	};
 	const editLockAlbum = async (payload, galleryId, albumID) => {
 		try {
@@ -464,11 +519,8 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response?.[0]) {
-				return response;
-			} else {
-				return [false];
-			}
+
+			return response;
 		} catch (error) {
 			console.log('error==>getTags', error);
 		}
@@ -483,12 +535,14 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response[0]) {
+			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_IMAGE_DUPLICATES,
 					payload: { galleryId, albumId, list: response?.[1] },
 				});
 			}
+
+			return response;
 		} catch (error) {
 			console.log('error==>getImageDuplicatesList', error);
 		}
@@ -503,14 +557,14 @@ export const Galleries = () => {
 				usertoken,
 				'tenant',
 			);
-			if (response[0]) {
+			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_WATERMARKS_LIST,
 					payload: response?.[1],
 				});
 			}
 		} catch (error) {
-			console.log('error==>getImageDuplicatesList', error);
+			console.log('error==>getWaterMarks', error);
 		}
 	};
 	const updatedAlbum = (value) => {
@@ -575,25 +629,35 @@ export const Galleries = () => {
 		tagId,
 		page = 1,
 		limit = 20,
+		displayName = '',
 		reset = false,
 	) => {
 		try {
-			if (reset) {
-				dispatch({
-					type: Actions.RESET_IMAGES_LIST,
-				});
-			}
+			// if (reset) {
+			// 	dispatch({
+			// 		type: Actions.RESET_IMAGES_LIST,
+			// 	});
+			// }
+
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(
-				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images?page=${page}&limit=${limit}`,
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images?page=${page}&limit=${limit}&displayName=${displayName}`,
 				usertoken,
 				'galleries',
 			);
-			if (response[0]) {
+
+			const payload = state.imagesList
+				? {
+						...state.imagesList,
+						...response?.[1],
+						docs: [...state.imagesList.docs, ...(response?.[1]?.docs || [])],
+				  }
+				: response?.[1];
+			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_IMAGES_LIST,
-					payload: response?.[1],
+					payload: reset ? response?.[1] : payload,
 				});
 			}
 		} catch (error) {
@@ -714,6 +778,40 @@ export const Galleries = () => {
 			console.log('error==>getImageDetail', error);
 		}
 	};
+	const updateImageDetail = async (payload, imageId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/gallery-images/${imageId}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+
+			if (response[0] === true) {
+				let updateDataDocs = state?.imagesList?.docs;
+				const imageIndex = updateDataDocs.findIndex((doc) => doc._id === imageId);
+				updateDataDocs[imageIndex] = response?.[1];
+
+				dispatch({
+					type: Actions.GET_IMAGES_LIST,
+					payload: { ...state.imagesList, docs: updateDataDocs },
+				});
+
+				dispatch({
+					type: Actions.GET_IMAGE_DETAIL,
+					payload: response?.[1],
+				});
+
+				return [true];
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>getImageDetail', error);
+		}
+	};
 
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/cover-image
 	const updateAlbumCoverImage = async (json, galleryId, albumId) => {
@@ -726,11 +824,25 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response[0]) {
-				return response;
-			} else {
-				return [false];
+			if (response[0] === true && state?.albumImagesCount) {
+				getAlbumImagesCount(galleryId);
 			}
+			return response;
+		} catch (error) {
+			console.log('error==>updateAlbumCoverImage', error);
+		}
+	};
+	const updateGalleryCoverImage = async (json, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.coverImage}`,
+				json,
+				usertoken,
+				'galleries',
+			);
+			return response;
 		} catch (error) {
 			console.log('error==>updateAlbumCoverImage', error);
 		}
@@ -765,6 +877,12 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_GALLERY_GUEST_ACCESS,
+					payload: response?.[1],
+				});
+			}
 		} catch (error) {
 			console.log('error==>editGalleryGuestAccess', error);
 		}
@@ -783,6 +901,287 @@ export const Galleries = () => {
 			return response;
 		} catch (error) {
 			console.log('error==>shareGalleryViaEmail', error);
+		}
+	};
+
+	const deleteAlbum = async (galleryId, albumId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchDelete(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}${API.GALLERY.albums}/${albumId}`,
+				usertoken,
+				null,
+				'galleries',
+			);
+
+			if (response[0] === true) {
+				dispatch({
+					type: Actions.RESET_IMAGES_LIST,
+				});
+
+				if (state.albumImagesCount) {
+					let ablumsData = state.albumImagesCount.albums.filter(
+						(item) => item._id !== albumId,
+					);
+					dispatch({
+						type: Actions.GET_ALBUM_IMAGES_COUNT,
+						payload: {
+							...state.albumImagesCount,
+							albums: ablumsData,
+						},
+					});
+				}
+			}
+
+			return response;
+		} catch (error) {
+			console.log('error==>deleteAlbum', error);
+		}
+	};
+
+	const deleteGallery = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchDelete(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}`,
+				usertoken,
+				null,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>deleteGallery', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/images
+	const deleteImages = async (payload, galleryId, albumId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchDelete(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/images`,
+				usertoken,
+				payload,
+				'galleries',
+			);
+			if (response[0] === true) {
+				let docs = state.imagesList?.docs?.filter((image) => {
+					return !payload?.image_ids?.includes(image?._id);
+				});
+
+				const payloadData = {
+					...state.imagesList,
+					docs,
+				};
+
+				dispatch({
+					type: Actions.RESET_IMAGES_LIST,
+				});
+
+				dispatch({
+					type: Actions.GET_IMAGES_LIST,
+					payload: payloadData,
+				});
+
+				return [true];
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>deleteImages', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/sortType
+	const updateTagSortType = async (payload, galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/sortType`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>updateTagSortType', error);
+		}
+	};
+
+	const getAlbumImagesCount = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}${API.GALLERY.galleries}/${galleryId}`,
+				usertoken,
+				'galleries',
+			);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_ALBUM_IMAGES_COUNT,
+					payload: response?.[1],
+				});
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>getAlbums', error);
+		}
+	};
+	//{{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/images
+	const addTagToImage = async (payload, galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>addTagToImage', error);
+		}
+	};
+
+	const removeTagFromImage = async (payload, galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchDelete(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images`,
+				usertoken,
+				payload,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>removeTagFromImage', error);
+		}
+	};
+
+	const checkGallerySlugAvailable = async (slug) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/gallery-slug-availability/${slug}`,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>checkGallerySlugAvailable', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/collections
+	const getClientSelections = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/collections`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_CLIENT_SELECTIONS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getClientSelections', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-collections/{{ _.collection_id }}/images
+	const getClientSelectionImages = async (collectionId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/gallery-collections/${collectionId}/images`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_CLIENT_SELECTION_IMAGES,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getClientSelectionImages', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/move-images
+	const moveImagesToAlbum = async (payload, galleryId, albumId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/move-images`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>moveImagesToAlbum', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}
+	const pubslishGallery = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>pubslishGallery', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/share-details
+	const getGalleryShareDetails = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/share-details`,
+				usertoken,
+				'galleries',
+			);
+			dispatch({
+				type: Actions.GET_GALLERY_SHARE_DETAILS,
+				payload: response?.[1],
+			});
+		} catch (error) {
+			console.log('error==>getGalleryShareDetails', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/change-master-access-pin.
+	const changeMasterAccessPin = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/change-master-access-pin`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>changeMasterAccessPin', error);
 		}
 	};
 
@@ -816,18 +1215,34 @@ export const Galleries = () => {
 		editAlbum,
 		editLockAlbum,
 		updatedAlbum,
-		checkSlugIsAvalible,
+		checkAlbumSlugIsAvalible,
 		getGalleryCredentials,
 		getGalleryImages,
 		getLightroomCopyList,
 		getVisitorFormAccess,
 		editVisitorFormAccess,
 		getImageDetail,
+		updateImageDetail,
 		updateAlbumCoverImage,
+		updateGalleryCoverImage,
 		getGalleryGuestAccess,
 		editGalleryGuestAccess,
 		shareGalleryViaEmail,
 		updateTagOrder,
 		setAlbumCoverImage,
+		deleteAlbum,
+		deleteGallery,
+		deleteImages,
+		updateTagSortType,
+		getAlbumImagesCount,
+		addTagToImage,
+		removeTagFromImage,
+		checkGallerySlugAvailable,
+		getClientSelections,
+		getClientSelectionImages,
+		moveImagesToAlbum,
+		pubslishGallery,
+		getGalleryShareDetails,
+		changeMasterAccessPin,
 	};
 };

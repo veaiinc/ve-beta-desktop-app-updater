@@ -134,7 +134,9 @@ const SmartFileHeader = ({
 						Form Response
 					</span>
 					<div style={{ display: 'flex', flexDirection: 'column' }}>
-						{workflowStatus !== 'filesSent' && workflowStatus !== 'enquiry' ? (
+						{workflowStatus !== 'filesSent' &&
+						workflowStatus !== 'enquiry' &&
+						workflowStatus !== 'filesViewed' ? (
 							<span
 								style={{
 									display: 'flex',

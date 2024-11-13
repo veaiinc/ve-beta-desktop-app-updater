@@ -1,87 +1,92 @@
 .createAlbumMainContainer {
-    display: flex;
-    padding: 32px;
-    flex-direction: column;
-    gap: 32px;
-    border-radius: 40px;
-    background: #151515;
-    width: 480px;
-    .createAlbumHeading {
-        display: flex;
-        justify-content: space-between;
-        .heading {
-            color: #e4e5e6;
-            font-family: Inter;
-            font-size: 18px;
-            font-style: normal;
-            font-weight: 500;
-            line-height: 26px;
-        }
-        .close {
-            color: #979797;
-            cursor: pointer;
-        }
-    }
-    .inputContainer {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
+	display: flex;
+	padding: 32px;
+	flex-direction: column;
+	gap: 32px;
+	border-radius: 40px;
+	background: #151515;
+	width: 480px;
+	.createAlbumHeading {
+		display: flex;
+		justify-content: space-between;
+		.heading {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 26px;
+		}
+		.close {
+			color: #979797;
+			cursor: pointer;
+		}
+	}
+	.inputContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
 
-        .inputs {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            width: 100%;
-            label {
-                color: #b0b0b0;
-                font-size: 11px;
-                font-weight: 400;
-                line-height: 16px;
-            }
-            .error {
-                color: #ff3939;
-                font-size: 11px;
-                font-weight: 400;
-                line-height: 16px;
-            }
-            .albumName {
-                padding: 11px 14px;
-                background: transparent;
-                border-radius: 10px;
-                border: 1px solid rgba(36, 36, 36, 0.64);
-                color: white;
-            }
-            .datePicker {
-                background-color: transparent;
-                color: white;
-                padding: 11px 14px;
-                border: 1px solid rgba(36, 36, 36, 0.64);
-                input {
-                    height: 18px;
-                    &::placeholder {
-                        color: #979797; // Adjust this color as needed
-                    }
-                }
-                span {
-                    svg {
-                        fill: #979797;
-                    }
-                }
-            }
-        }
-    }
-    .createButton {
-        display: flex;
-        padding: 12px 20px;
-        justify-content: center;
-        align-items: center;
-        border-radius: 100px;
-        background: #6055ec;
-        color: #fff;
-        font-size: 12px;
-        font-weight: 500;
-        line-height: 16px;
-        letter-spacing: 0.24px;
-        cursor: pointer;
-    }
+		.inputs {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			width: 100%;
+			label {
+				color: #b0b0b0;
+				font-size: 11px;
+				font-weight: 400;
+				line-height: 16px;
+			}
+			.error {
+				color: #ff3939;
+				font-size: 11px;
+				font-weight: 400;
+				line-height: 16px;
+			}
+			.albumName {
+				padding: 11px 14px;
+				background: transparent;
+				border-radius: 10px;
+				border: 1px solid rgba(36, 36, 36, 0.64);
+				color: white;
+			}
+			.datePicker {
+				background-color: transparent;
+				color: white;
+				padding: 11px 14px;
+				border: 1px solid rgba(36, 36, 36, 0.64);
+				input {
+					height: 18px;
+					&::placeholder {
+						color: #979797; // Adjust this color as needed
+					}
+				}
+				span {
+					svg {
+						fill: #979797;
+					}
+				}
+			}
+		}
+	}
+	.createButton {
+		display: flex;
+		padding: 12px 20px;
+		justify-content: center;
+		align-items: center;
+		border-radius: 100px;
+		background: #6055ec;
+		color: #fff;
+		font-size: 12px;
+		font-weight: 500;
+		line-height: 16px;
+		letter-spacing: 0.24px;
+		cursor: pointer;
+		border: none;
+	}
+}
+
+.ReactModal__Overlay:has(> .createAlbumModal) {
+	z-index: 5;
 }

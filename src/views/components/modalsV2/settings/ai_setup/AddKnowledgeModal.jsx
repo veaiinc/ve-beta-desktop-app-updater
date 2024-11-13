@@ -52,6 +52,7 @@ const initialState = {
 const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 	let {
 		aiSetup: {
+			activeAiAssistantDetails,
 			knowledgeBaseFiles,
 			getKnowledgeBaseFiles,
 			uploadURLsToKnowledgeBase,
@@ -112,7 +113,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 			if (statusSummary?.[0]) {
 				message.success('URLs uploaded successfully!', 1);
 				toggleModal();
-				getKnowledgeBaseFiles(1, 10, true);
+				getKnowledgeBaseFiles(activeAiAssistantDetails?._id, 1, 10, true);
 			}
 		} else if (info?.activeFileType === 'pdf') {
 			if (info?.pdfFilesInfo?.length === 0) {
@@ -129,7 +130,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 			if (statusSummary?.[0]) {
 				message.success('PDF Files uploaded successfully!', 1);
 				toggleModal();
-				getKnowledgeBaseFiles(1, 10, true);
+				getKnowledgeBaseFiles(activeAiAssistantDetails?._id, 1, 10, true);
 			}
 		} else if (info?.activeFileType === 'customText') {
 			if (info?.customTextInfo?.filename === '') {
@@ -155,7 +156,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 			if (statusSummary?.[0]) {
 				message.success('Text File uploaded successfully!', 1);
 				toggleModal();
-				getKnowledgeBaseFiles(1, 10, true);
+				getKnowledgeBaseFiles(activeAiAssistantDetails?._id, 1, 10, true);
 			}
 		}
 		setInfo((prev) => ({ ...prev, isUploading: false }));

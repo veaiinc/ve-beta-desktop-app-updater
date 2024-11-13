@@ -28,12 +28,6 @@
 			}
 		}
 
-		.animate {
-			// transform: translateY(100vh);
-			opacity: 0;
-			animation: slideIn 1.5s forwards ease-out;
-		}
-
 		.accountSettingsSidebar {
 			position: sticky;
 			top: 0;
