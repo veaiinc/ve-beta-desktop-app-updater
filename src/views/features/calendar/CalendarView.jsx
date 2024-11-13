@@ -1,16 +1,11 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
-// import Header from '../../components/calendar/MeetingDetails';
-// import DayHeader from '../../components/calendar/MeetingDetails';
-// import DayGrid from '../../components/calendar/MeetingDetails';
+import CalendarHeader from '../../components/calendar/CalendarHeader';
 
 const CalendarView = () => {
 	return (
 		<div className="calendarViewParentContainer">
-			{/* <Header /> */}
-			{/* <DayHeader /> */}
-			{/* <DayGrid /> */}
-			This is the Main view
+			<CalendarHeader />
 		</div>
 	);
 };

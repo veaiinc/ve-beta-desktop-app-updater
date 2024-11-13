@@ -40,7 +40,7 @@ const CalendarSelector = () => {
 					onSelect={handleSelectDate}
 					captionLayout="dropdown"
 					weekStartsOn={1}
-					// showOutsideDays
+					showOutsideDays
 				/>
 			</div>
 		</div>
