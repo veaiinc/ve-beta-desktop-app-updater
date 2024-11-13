@@ -13,6 +13,7 @@ import { getLocationsDetails } from '../../../helpers';
 import { message } from 'antd';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
+import debounce from 'lodash/debounce';
 
 const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	const arrowRef = useRef(null);
@@ -44,16 +45,18 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	}, [loginPageInfo?.email]);
 
 	const handleCreateAccountWithEmail = async (email) => {
-		const locationDetails = await getLocationsDetails();
-		const response = await createAccountUsingEmail(email, locationDetails);
-		if (response?.ok) {
-			setLoginPageInfo((prev) => ({
-				...prev,
-				activeStage: 'verificationCode',
-			}));
-		} else {
-			message?.error(response?.message);
-		}
+		debounce(async () => {
+			const locationDetails = await getLocationsDetails();
+			const response = await createAccountUsingEmail(email, locationDetails);
+			if (response?.ok) {
+				setLoginPageInfo((prev) => ({
+					...prev,
+					activeStage: 'verificationCode',
+				}));
+			} else {
+				message?.error(response?.message);
+			}
+		}, 1000);
 	};
 
 	const handleContinueWithGoogle = async () => {
