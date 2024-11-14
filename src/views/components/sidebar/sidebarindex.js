@@ -19,6 +19,7 @@ import { ReactComponent as CrownSvg } from '../../../assets/svg/sidebar/Crown.sv
 import SquareFour from '../../../assets/svg/sidebar/SquareFour.jsx';
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
 import SettingsSvg from '../../../assets/svg/sidebar/SettingsSvg.jsx';
+import UploadSvg from '../../../assets/svg/sidebar/UploadSvg.jsx';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
@@ -26,6 +27,7 @@ import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/left
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export const veAiModulesItemsList = [
+	{ name: 'Gallery', moduleRoute: '/galleries', route: '/galleries', icon: UploadSvg },
 	// { name: 'Workflow', moduleRoute: '/workflows', route: '/sales/workflows', icon: FlowArrowSvg },
 	// {
 	// 	name: 'Linkin Bio',
