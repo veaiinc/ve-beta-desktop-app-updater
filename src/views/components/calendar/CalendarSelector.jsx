@@ -10,39 +10,23 @@ const CalendarSelector = () => {
 	const [info, setInfo] = useState({
 		selectedDate: new Date(),
 	});
+	console.log('selectedDate');
 
 	const handleSelectDate = useCallback((selectedDate) => {
 		setInfo((prevInfo) => ({ ...prevInfo, selectedDate }));
 	}, []);
+
 	return (
 		<div className="calendarSelectorParentContainer">
-			<div className="calendarContainer">
-				{/* <div className="calendarHeaderContainer">
-					<div className="headerLabelWrapper">
-						<span>September 2024</span>
-
-						<OpenCalSvg />
-					</div>
-					<div className="headerButtons">
-						<span>
-							<LeftSvg />
-						</span>
-						<span>
-							<RightSvg />
-						</span>
-					</div>
-				</div> */}
-				{/* <div className="calendarBody">
-				</div> */}
-				<DayPicker
-					mode="single"
-					selected={info?.selectedDate}
-					onSelect={handleSelectDate}
-					captionLayout="dropdown"
-					weekStartsOn={1}
-					showOutsideDays
-				/>
-			</div>
+			<DayPicker
+				mode="single"
+				selected={info?.selectedDate}
+				onSelect={handleSelectDate}
+				captionLayout="dropdown"
+				weekStartsOn={1}
+				showOutsideDays
+				className="weekRow"
+			/>
 		</div>
 	);
 };
