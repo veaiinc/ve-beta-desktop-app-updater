@@ -12,7 +12,7 @@
 	background: #191919;
 
 	.headerWrapper {
-		flex-shrink: 0; /* Prevents shrinking */
+		flex-shrink: 0;
 		display: flex;
 		position: relative;
 		width: 100%;
@@ -32,7 +32,7 @@
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
-			line-height: 12px; /* 100% */
+			line-height: 12px;
 			background: linear-gradient(270deg, #f9f5e0 0%, #f5895c 46.5%, #b34ecc 100%);
 			background-clip: text;
 			-webkit-background-clip: text;
@@ -41,7 +41,7 @@
 	}
 
 	.aiInputContainer {
-		flex-shrink: 0; /* Prevents shrinking */
+		flex-shrink: 0;
 
 		display: flex;
 		width: 272px;
@@ -74,11 +74,16 @@
 		flex-grow: 1; /* Takes up remaining space */
 		overflow-y: auto;
 		display: flex;
-		justify-content: flex-end;
+		// justify-content: flex-end;
+		// align-self: flex-end;
 		flex-direction: column;
 		width: 272px;
 		margin: 0px 23px;
 		gap: 15px;
+
+		.forScroll{
+			flex-grow: 1; //nessary div to scroll from bottom to top
+		}
 
 		.chatDate {
 			display: flex;
