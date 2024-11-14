@@ -178,8 +178,8 @@ const GalleryPage = () => {
 		const clickOutsideCheck = (ref, iconRef, stateName) => {
 			if (
 				ref.current &&
-				!ref.current.contains(event.target) &&
-				!iconRef.current.contains(event.target)
+				!ref.current?.contains(event.target) &&
+				!iconRef.current?.contains(event.target)
 			) {
 				setInfo((prevInfo) => ({ ...prevInfo, [stateName]: false, tagSearchValue: '' }));
 			}
@@ -1104,6 +1104,8 @@ const GalleryPage = () => {
 		setInfo((prev) => ({
 			...prev,
 			sortType: filter,
+			imagesList: [],
+			page: 1,
 		}));
 		const payload = {
 			sortType: filter,
@@ -1344,7 +1346,12 @@ const GalleryPage = () => {
 	};
 
 	const sortByCustomIndex = (items) => {
-		return items?.sort((a, b) => a.customSortIndex - b.customSortIndex);
+		const sortedItems = items?.sort((a, b) => a.customSortIndex - b.customSortIndex);
+		// setInfo((prevInfo) => ({
+		// 	...prevInfo,
+		// 	albumSlug: sortedItems?.[0]?.slug,
+		// }));
+		return sortedItems;
 	};
 
 	return (
@@ -1489,7 +1496,6 @@ const GalleryPage = () => {
 																	<div
 																		ref={provided.innerRef}
 																		{...provided.draggableProps}
-																		// {...provided.dragHandleProps}
 																		className={`album ${
 																			info?.albumSlug ===
 																			album?.slug
@@ -1592,62 +1598,102 @@ const GalleryPage = () => {
 														src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
 													}
 													return (
-														<Draggable
-															key={album._id}
-															draggableId={album._id}
-															index={index}
-														>
-															{(provided) => (
-																<div
-																	ref={provided.innerRef}
-																	// {...provided.draggableProps}
-																	// {...provided.dragHandleProps}
-																	className={`album ${
-																		info?.activeClientSelection ===
-																		album?.slug
-																			? 'active'
-																			: ''
-																	}`}
-																	style={{
-																		background: src
-																			? `url(${src})`
-																			: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
-																		backgroundSize: 'cover ',
-																		backgroundPosition:
-																			'center',
-																		...provided.draggableProps
-																			.style,
-																	}}
-																	onClick={() =>
-																		handleClickAlbum(
-																			album,
-																			'clientSelection',
-																		)
-																	}
-																>
-																	{album.image && (
-																		<img src={src} />
-																	)}
+														// <Draggable
+														// 	key={album._id}
+														// 	draggableId={album._id}
+														// 	index={index}
+														// >
+														// 	{(provided) => (
+														// 		<div
+														// 			ref={provided.innerRef}
+														// 			// {...provided.draggableProps}
+														// 			// {...provided.dragHandleProps}
+														// 			className={`album ${
+														// 				info?.activeClientSelection ===
+														// 				album?.slug
+														// 					? 'active'
+														// 					: ''
+														// 			}`}
+														// 			style={{
+														// 				background: src
+														// 					? `url(${src})`
+														// 					: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+														// 				backgroundSize: 'cover ',
+														// 				backgroundPosition:
+														// 					'center',
+														// 				...provided.draggableProps
+														// 					.style,
+														// 			}}
+														// 			onClick={() =>
+														// 				handleClickAlbum(
+														// 					album,
+														// 					'clientSelection',
+														// 				)
+														// 			}
+														// 		>
+														// 			{album.image && (
+														// 				<img src={src} />
+														// 			)}
 
-																	<div
-																		className="albumDetails"
-																		onClick={() =>
-																			handleClickAlbum(
-																				album,
-																				'clientSelection',
-																			)
-																		}
-																	>
-																		<p>{album?.title}</p>
-																		<p>{`${
-																			album?.numberOfImages ||
-																			0
-																		} photos`}</p>
-																	</div>
-																	<div className="overlay"></div>
-																</div>
-															)}
-														</Draggable>
+														// 			<div
+														// 				className="albumDetails"
+														// 				onClick={() =>
+														// 					handleClickAlbum(
+														// 						album,
+														// 						'clientSelection',
+														// 					)
+														// 				}
+														// 			>
+														// 				<p>{album?.title}</p>
+														// 				<p>{`${
+														// 					album?.numberOfImages ||
+														// 					0
+														// 				} photos`}</p>
+														// 			</div>
+														// 			<div className="overlay"></div>
+														// 		</div>
+														// 	)}
+														// </Draggable>
+														<div
+															key={album._id}
+															className={`album ${
+																info?.activeClientSelection ===
+																album?.slug
+																	? 'active'
+																	: ''
+															}`}
+															style={{
+																background: src
+																	? `url(${src})`
+																	: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+																backgroundSize: 'cover',
+																backgroundPosition: 'center',
+															}}
+															onClick={() =>
+																handleClickAlbum(
+																	album,
+																	'clientSelection',
+																)
+															}
+														>
+															{album.image && <img src={src} />}
+
+															<div
+																className="albumDetails"
+																onClick={() =>
+																	handleClickAlbum(
+																		album,
+																		'clientSelection',
+																	)
+																}
+															>
+																<p>{album?.title}</p>
+																<p>{`${
+																	album?.numberOfImages || 0
+																} photos`}</p>
+															</div>
+															<div className="overlay"></div>
+														</div>
 													);
 												})}
 											{provided.placeholder}

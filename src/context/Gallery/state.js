@@ -143,9 +143,12 @@ export const Galleries = () => {
 				'galleries',
 			);
 			if (response?.[0] === true) {
+				const sortedAlbums = response?.[1]?.albums?.sort(
+					(a, b) => a.customSortIndex - b.customSortIndex,
+				);
 				dispatch({
 					type: Actions.GET_TENANT_ALBUMS,
-					payload: response?.[1],
+					payload: { ...response?.[1], albums: sortedAlbums },
 				});
 			} else {
 				return response;
