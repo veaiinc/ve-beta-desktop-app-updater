@@ -84,6 +84,8 @@ const GalleryPage = () => {
 			addGalleryTag,
 			tagsList,
 			updateAlbumOrder,
+			getRearrangeStatus,
+			updateImageOrder,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -151,6 +153,13 @@ const GalleryPage = () => {
 		albumLoading: false,
 		isPublished: tenantAlbums?.isPublished || false,
 		showDragIconOfAlbum: null,
+
+		isDragging: false,
+		dragPosition: { x: 0, y: 0 },
+		stackOffset: 3,
+		dropIndex: null,
+		dropPlaceholder: null, // Add this new state
+		rearrangingLoading: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -809,12 +818,30 @@ const GalleryPage = () => {
 			albumTags: items,
 		}));
 	};
-	const handleRearrange = () => {
+	const handleRearrange = async () => {
 		setInfo((prev) => ({
 			...prev,
 			isRearranging: !prev.isRearranging,
 			selectedImages: [],
+			rearrangingLoading: true,
 		}));
+		const response = await getRearrangeStatus(galleryId, info?.activeAlbumId, info?.albumTagId);
+		if (response?.[0] === true) {
+			setInfo((prev) => ({
+				...prev,
+				rearrangingLoading: false,
+				page: 1,
+			}));
+			getGalleryImages(
+				galleryId,
+				info?.activeAlbumId,
+				info?.albumTagId,
+				1,
+				info?.limit,
+				'',
+				true,
+			);
+		}
 	};
 	const handleUnpublish = () => {
 		setInfo((prev) => ({
@@ -825,133 +852,6 @@ const GalleryPage = () => {
 			isPublished: !info?.isPublished,
 		};
 		postGallery(payload, galleryId);
-	};
-
-	// const handleDragStart = (result) => {
-	// 	const selectedIndexes = info.selectedImages;
-
-	// 	setInfo((prev) => ({
-	// 		...prev,
-	// 		isDragging: true,
-	// 		draggedImages: selectedIndexes,
-	// 	}));
-	// };
-
-	// // Add this new function to handle drag end
-	// const handleDragEnd = (result) => {
-	// 	if (!result.destination) {
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			isDragging: false,
-	// 			draggedImages: [],
-	// 			selectedImages: [],
-	// 		}));
-	// 		return;
-	// 	}
-	// 	const images = [...info?.imagesList?.docs];
-
-	// 	const selectedImages = info.draggedImages.map((index) => images[index]);
-
-	// 	const sortedIndices = [...info.draggedImages].sort((a, b) => b - a);
-
-	// 	// Remove images from their original positions
-	// 	sortedIndices.forEach((index) => {
-	// 		images.splice(index, 1);
-	// 	});
-
-	// 	const destinationIndex = result.destination.index;
-
-	// 	images.splice(destinationIndex, 0, ...selectedImages);
-
-	// 	setInfo((prev) => ({
-	// 		...prev,
-	// 		isDragging: false,
-	// 		draggedImages: [],
-	// 		selectedImages: [],
-	// 		imagesList: {
-	// 			...prev.imagesList,
-	// 			docs: images,
-	// 		},
-	// 	}));
-	// };
-	const handleDragStart = (start, provided) => {
-		const selectedIndexes = info.selectedImages;
-
-		setInfo((prev) => ({
-			...prev,
-			isDragging: true,
-			draggedImages: selectedIndexes,
-			// dragPreviewPosition: null,
-			insertIndex: null,
-		}));
-
-		// Add mousemove event listener
-		document.addEventListener('mousemove', handleDragMove);
-	};
-
-	// Add handleDragMove function
-	const handleDragMove = (e) => {
-		// Get the element under the cursor
-		const elementsUnderCursor = document.elementsFromPoint(e.clientX, e.clientY);
-
-		// Find the closest image container
-		const imageContainer = elementsUnderCursor.find((el) =>
-			el.closest('.masonry-image-container'),
-		);
-
-		if (imageContainer) {
-			const rect = imageContainer.getBoundingClientRect();
-			const index = parseInt(imageContainer.dataset.index);
-
-			// Determine if cursor is in first or second half of the image
-			const isInFirstHalf = e.clientY < rect.top + rect.height / 2;
-			const insertPosition = isInFirstHalf ? index : index + 1;
-
-			setInfo((prev) => ({
-				...prev,
-				insertIndex: insertPosition,
-				dragPreviewPosition: {
-					x: e.clientX,
-					y: isInFirstHalf ? rect.top : rect.bottom,
-				},
-			}));
-		}
-	};
-
-	const handleDragEnd = (result) => {
-		if (!result.destination) {
-			setInfo((prev) => ({
-				...prev,
-				isDragging: false,
-				draggedImages: [],
-				selectedImages: [],
-			}));
-			return;
-		}
-
-		const images = [...info?.imagesList?.docs];
-		const selectedImages = info.draggedImages.map((index) => images[index]);
-		const sortedIndices = [...info.draggedImages].sort((a, b) => b - a);
-
-		// Remove images from their original positions
-		sortedIndices.forEach((index) => {
-			images.splice(index, 1);
-		});
-
-		// Insert images at the new position
-		const destinationIndex = result.destination.index;
-		images.splice(destinationIndex, 0, ...selectedImages);
-
-		setInfo((prev) => ({
-			...prev,
-			isDragging: false,
-			draggedImages: [],
-			selectedImages: [],
-			imagesList: {
-				...prev.imagesList,
-				docs: images,
-			},
-		}));
 	};
 
 	const handleCopyGalleryLink = () => {
@@ -1353,6 +1253,171 @@ const GalleryPage = () => {
 		// }));
 		return sortedItems;
 	};
+
+	const handleDragStart = (e) => {
+		if (info.selectedImages.length === 0) return;
+
+		setInfo((prev) => ({
+			...prev,
+			isDragging: true,
+			dragPosition: {
+				x: e.clientX,
+				y: e.clientY,
+			},
+		}));
+
+		// Create and append ghost image container
+		const ghostContainer = document.createElement('div');
+		ghostContainer.style.position = 'fixed';
+		ghostContainer.style.pointerEvents = 'none';
+		ghostContainer.style.zIndex = '1000';
+		ghostContainer.style.left = '-1000px';
+		document.body.appendChild(ghostContainer);
+		e.dataTransfer.setDragImage(ghostContainer, 0, 0);
+	};
+
+	const handleDrag = (e) => {
+		if (!e.clientX || !e.clientY) return; // Ignore invalid drag events
+
+		setInfo((prev) => ({
+			...prev,
+			dragPosition: {
+				x: e.clientX,
+				y: e.clientY,
+			},
+			dropPlaceholder: calculateDropPosition(e, rearrangeContainerRef),
+		}));
+	};
+
+	// const handleDragEnd = () => {
+	// 	if (!info.dropPlaceholder && info.dropPlaceholder !== 0) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			isDragging: false,
+	// 			selectedImages: [],
+	// 			dropPlaceholder: null,
+	// 		}));
+	// 		return;
+	// 	}
+
+	// 	const currentImages = [...info.imagesList.docs];
+	// 	const selectedImageObjects = currentImages.filter((img) =>
+	// 		info.selectedImages.includes(img._id),
+	// 	);
+	// 	const remainingImages = currentImages.filter(
+	// 		(img) => !info.selectedImages.includes(img._id),
+	// 	);
+	// 	remainingImages.splice(info.dropPlaceholder, 0, ...selectedImageObjects);
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		isDragging: false,
+	// 		selectedImages: [],
+	// 		dropPlaceholder: null,
+	// 	}));
+	// 	updateImageOrder(remainingImages);
+
+	// 	const imageIds = remainingImages.map((img) => img._id);
+	// 	// updateImageOrder(imageIds);
+	// };
+
+	// ... existing code ...
+
+	const handleDragEnd = () => {
+		if (!info.dropPlaceholder && info.dropPlaceholder !== 0) {
+			setInfo((prev) => ({
+				...prev,
+				isDragging: false,
+				selectedImages: [],
+				dropPlaceholder: null,
+			}));
+			return;
+		}
+
+		const currentImages = [...info.imagesList.docs];
+		const selectedImageObjects = currentImages.filter((img) =>
+			info.selectedImages.includes(img._id),
+		);
+		const remainingImages = currentImages.filter(
+			(img) => !info.selectedImages.includes(img._id),
+		);
+
+		// Calculate new customSortIndex values
+		const beforeIndex =
+			info.dropPlaceholder > 0
+				? getCustomSortIndex(remainingImages[info.dropPlaceholder - 1])
+				: 0;
+		const afterIndex =
+			info.dropPlaceholder < remainingImages.length
+				? getCustomSortIndex(remainingImages[info.dropPlaceholder])
+				: beforeIndex + (selectedImageObjects.length + 1);
+
+		// Calculate step size for even distribution
+		const stepSize = (afterIndex - beforeIndex) / (selectedImageObjects.length + 1);
+
+		// Create payload with new sort indices
+		const payload = selectedImageObjects.map((image, index) => ({
+			image_id: image._id,
+			customSortIndex: beforeIndex + (index + 1) * stepSize,
+		}));
+
+		console.log(payload, 'payload');
+
+		remainingImages.splice(info.dropPlaceholder, 0, ...selectedImageObjects);
+
+		setInfo((prev) => ({
+			...prev,
+			isDragging: false,
+			selectedImages: [],
+			dropPlaceholder: null,
+		}));
+		updateImageOrder(remainingImages);
+	};
+
+	// Helper function to get customSortIndex from image
+	const getCustomSortIndex = (image) => {
+		if (!image) return 0;
+		const activeTag = image.galleryTags.find((tag) => tag._id === info.albumTagId);
+		return activeTag?.customSortIndex || 0;
+	};
+
+	// Add this function to calculate drop position
+	const calculateDropPosition = (e, containerRef) => {
+		if (!containerRef.current) return null;
+
+		const container = containerRef.current;
+		const containerRect = container.getBoundingClientRect();
+		const mouseX = e.clientX - containerRect.left;
+		const mouseY = e.clientY - containerRect.top;
+
+		// Get all image containers
+		const imageContainers = Array.from(
+			container.getElementsByClassName('rearrange-image-container'),
+		);
+
+		// Find nearest position
+		let nearestIndex = 0;
+		let shortestDistance = Infinity;
+
+		imageContainers.forEach((container, index) => {
+			const rect = container.getBoundingClientRect();
+			const centerX = rect.left + rect.width / 2 - containerRect.left;
+			const centerY = rect.top + rect.height / 2 - containerRect.top;
+
+			const distance = Math.sqrt(
+				Math.pow(mouseX - centerX, 2) + Math.pow(mouseY - centerY, 2),
+			);
+
+			if (distance < shortestDistance) {
+				shortestDistance = distance;
+				nearestIndex = index;
+			}
+		});
+
+		return nearestIndex;
+	};
+
+	// Add container ref
+	const rearrangeContainerRef = useRef(null);
 
 	return (
 		<>
@@ -1819,9 +1884,9 @@ const GalleryPage = () => {
 										</div>
 									</div>
 									<div className="albumSearchCotainer">
-										{/* <p onClick={handleRearrange} style={{ cursor: 'pointer' }}>
+										<p onClick={handleRearrange} style={{ cursor: 'pointer' }}>
 											Rearrange manually
-										</p> */}
+										</p>
 										<div
 											onClick={() =>
 												setInfo((prevInfo) => ({
@@ -1941,128 +2006,123 @@ const GalleryPage = () => {
 										</div>
 									</div>
 								</div>
-								<div className="albumContains">
-									<DragDropContext onDragEnd={onDragEnd}>
-										<Droppable droppableId="tags" direction="horizontal">
-											{(provided) => (
-												<div
-													{...provided.droppableProps}
-													ref={provided.innerRef}
-													style={{
-														display: 'flex',
-														gap: '30px',
-														alignItems: 'center',
-														overflowX: 'auto',
-													}}
-													className="hideScrollBar"
-												>
-													{info?.albumTags
-														?.sort(
-															(a, b) =>
-																a.customSortIndex -
-																b.customSortIndex,
-														)
-														?.map((contain, index) => (
-															<Draggable
-																key={contain._id || index}
-																draggableId={
-																	contain._id || `tag-${index}`
-																}
-																index={index}
-																isDragDisabled={
-																	contain?.displayName === 'All'
-																		? true
-																		: false
-																}
-																boundaries="hideScrollBar"
-															>
-																{(provided, snapshot) => (
-																	<div
-																		ref={provided.innerRef}
-																		{...provided.draggableProps}
-																		className={`albumContain ${
-																			snapshot.isDragging
-																				? 'dragging'
-																				: ''
-																		}`}
-																		style={{
-																			...provided
-																				.draggableProps
-																				.style,
-																			marginBottom: '8px', // Add spacing between items
-																		}}
-																	>
+								{!info?.isRearranging ? (
+									<div className="albumContains">
+										<DragDropContext onDragEnd={onDragEnd}>
+											<Droppable droppableId="tags" direction="horizontal">
+												{(provided) => (
+													<div
+														{...provided.droppableProps}
+														ref={provided.innerRef}
+														style={{
+															display: 'flex',
+															gap: '30px',
+															alignItems: 'center',
+															overflowX: 'auto',
+														}}
+														className="hideScrollBar"
+													>
+														{info?.albumTags
+															?.sort(
+																(a, b) =>
+																	a.customSortIndex -
+																	b.customSortIndex,
+															)
+															?.map((contain, index) => (
+																<Draggable
+																	key={contain._id || index}
+																	draggableId={
+																		contain._id ||
+																		`tag-${index}`
+																	}
+																	index={index}
+																	isDragDisabled={
+																		contain?.displayName ===
+																		'All'
+																			? true
+																			: false
+																	}
+																	boundaries="hideScrollBar"
+																>
+																	{(provided, snapshot) => (
 																		<div
-																			{...provided.dragHandleProps}
+																			ref={provided.innerRef}
+																			{...provided.draggableProps}
+																			className={`albumContain ${
+																				snapshot.isDragging
+																					? 'dragging'
+																					: ''
+																			}`}
 																			style={{
-																				width: '14px',
-																				height: '15px',
-																				cursor:
-																					contain?.displayName ===
-																					'All'
-																						? 'not-allowed'
-																						: 'grab',
+																				...provided
+																					.draggableProps
+																					.style,
+																				marginBottom: '8px', // Add spacing between items
 																			}}
 																		>
-																			<img
-																				src={sixDots}
-																				alt="sixDots"
-																			/>
+																			<div
+																				{...provided.dragHandleProps}
+																				style={{
+																					width: '14px',
+																					height: '15px',
+																					cursor:
+																						contain?.displayName ===
+																						'All'
+																							? 'not-allowed'
+																							: 'grab',
+																				}}
+																			>
+																				<img
+																					src={sixDots}
+																					alt="sixDots"
+																				/>
+																			</div>
+																			<p
+																				className={
+																					info?.albumContains ===
+																					contain.displayName
+																						? 'active'
+																						: ''
+																				}
+																				onClick={() =>
+																					handleClickAlbum(
+																						contain,
+																						'containName',
+																					)
+																				}
+																			>
+																				{
+																					contain.displayName
+																				}
+																			</p>
+																			<p
+																				className="count"
+																				onClick={() =>
+																					handleClickAlbum(
+																						contain,
+																						'containName',
+																					)
+																				}
+																			>
+																				{
+																					contain.imagesCount
+																				}
+																			</p>
 																		</div>
-																		<p
-																			className={
-																				info?.albumContains ===
-																				contain.displayName
-																					? 'active'
-																					: ''
-																			}
-																			onClick={() =>
-																				handleClickAlbum(
-																					contain,
-																					'containName',
-																				)
-																			}
-																		>
-																			{contain.displayName}
-																		</p>
-																		<p
-																			className="count"
-																			onClick={() =>
-																				handleClickAlbum(
-																					contain,
-																					'containName',
-																				)
-																			}
-																		>
-																			{contain.imagesCount}
-																		</p>
-																	</div>
-																)}
-															</Draggable>
-														))}
-													{provided.placeholder}
-												</div>
-											)}
-										</Droppable>
-									</DragDropContext>
-								</div>
-								{/* <div className="galleryImagesContainer">
-							<ResponsiveMasonry
-								columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3, 1200: 4 }}
-							>
-								<Masonry gutter="10px">
-									{randomizedImages.map((image, index) => (
-										<div className="imageContainer" key={index}>
-											<img
-												src={image}
-												alt={`Gallery image ${index}`}
-												style={{ width: '100%', display: 'block' }}
-											/>
-										</div>
-									))}
-								</Masonry>
-							</ResponsiveMasonry>
-						</div> */}
+																	)}
+																</Draggable>
+															))}
+														{provided.placeholder}
+													</div>
+												)}
+											</Droppable>
+										</DragDropContext>
+									</div>
+								) : (
+									<div className="saveRearrange">
+										<p>Save</p>
+									</div>
+								)}
 
 								<div
 									className="galleryImagesContainer"
@@ -2166,432 +2226,355 @@ const GalleryPage = () => {
 												</Masonry>
 											</ResponsiveMasonry>
 										) : (
-											''
-											// <DragDropContext
-											// 	onDragStart={handleDragStart}
-											// 	onDragEnd={handleDragEnd}
-											// 	disableDrop={true}
-											// >
-											// 	<Droppable
-											// 		droppableId="masonry-grid"
-											// 		// direction="horizontal"
-											// 		direction={
-											// 			info?.gridStyle?.vertical
-											// 				? 'vertical'
-											// 				: 'horizontal'
-											// 		}
-											// 		type={
-											// 			info?.gridStyle?.vertical
-											// 				? 'VERTICAL'
-											// 				: 'HORIZONTAL'
-											// 		}
-											// 	>
-											// 		{(provided, snapshot) => (
-											// 			<div
-											// 				{...provided.droppableProps}
-											// 				ref={provided.innerRef}
-											// 			>
-											// 				<ResponsiveMasonry
-											// 					columnsCountBreakPoints={{
-											// 						350: 1,
-											// 						750: 2,
-											// 						900: 3,
-											// 						1200: 4,
-											// 					}}
-											// 				>
-											// 					<Masonry gutter="10px">
-											// 						{info?.imagesList?.docs?.map(
-											// 							(image, index) => {
-											// 								const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-											// 								const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+											<>
+												{!info?.rearrangingLoading ? (
+													<div
+														className="rearrange-image-container-wrapper"
+														ref={rearrangeContainerRef}
+													>
+														{info?.imagesList?.docs
+															// Filter out selected images during drag
+															?.filter(
+																(image) =>
+																	!info.isDragging ||
+																	!info.selectedImages.includes(
+																		image._id,
+																	),
+															)
+															?.map((image, index) => {
+																const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+																const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
 
-											// 								// Hide original items while being dragged
-											// 								if (
-											// 									info.isDragging &&
-											// 									info.draggedImages.includes(
-											// 										index,
-											// 									)
-											// 								) {
-											// 									return null;
-											// 								}
+																const isSelected =
+																	info.selectedImages.includes(
+																		image?._id,
+																	);
 
-											// 								return (
-											// 									<>
-											// 										{info.insertIndex ===
-											// 											index &&
-											// 											info.isDragging && (
-											// 												<div
-											// 													className="drop-preview"
-											// 													style={{
-											// 														height: '4px',
-											// 														background:
-											// 															'#007bff',
-											// 														margin: '8px 0',
-											// 														transition:
-											// 															'all 0.2s',
-											// 													}}
-											// 												/>
-											// 											)}
-											// 										<Draggable
-											// 											key={
-											// 												image._id ||
-											// 												`image-${index}`
-											// 											}
-											// 											draggableId={
-											// 												image._id ||
-											// 												`image-${index}`
-											// 											}
-											// 											index={
-											// 												index
-											// 											}
-											// 											isDragDisabled={
-											// 												!info.selectedImages.includes(
-											// 													index,
-											// 												)
-											// 											}
-											// 										>
-											// 											{(
-											// 												provided,
-											// 												snapshot,
-											// 											) => (
-											// 												<div
-											// 													ref={
-											// 														provided.innerRef
-											// 													}
-											// 													{...provided.draggableProps}
-											// 													{...provided.dragHandleProps}
-											// 													className="masonry-image-container"
-											// 													data-index={
-											// 														index
-											// 													}
-											// 													style={{
-											// 														...provided
-											// 															.draggableProps
-											// 															.style,
-											// 														position:
-											// 															'relative',
-											// 														transition:
-											// 															'all 0.2s',
-											// 														opacity:
-											// 															snapshot.isDragging
-											// 																? 0.8
-											// 																: 1,
-											// 														cursor: snapshot.isDragging
-											// 															? 'grabbing'
-											// 															: 'pointer',
-											// 														border: info.selectedImages.includes(
-											// 															index,
-											// 														)
-											// 															? '2px solid #007bff'
-											// 															: 'none',
-											// 														borderRadius:
-											// 															'4px',
-											// 														overflow:
-											// 															'hidden',
-											// 														transform:
-											// 															snapshot.isDragging
-											// 																? `${provided.draggableProps.style.transform} scale(1.02)`
-											// 																: provided
-											// 																		.draggableProps
-											// 																		.style
-											// 																		.transform,
-											// 													}}
-											// 												>
-											// 													<img
-											// 														src={
-											// 															src
-											// 														}
-											// 														alt={`Gallery image ${index}`}
-											// 														style={{
-											// 															width: '100%',
-											// 															display:
-											// 																'block',
-											// 															pointerEvents:
-											// 																info.isDragging
-											// 																	? 'none'
-											// 																	: 'auto',
-											// 														}}
-											// 														onClick={() =>
-											// 															!info.isDragging &&
-											// 															handleImageSelect(
-											// 																index,
-											// 															)
-											// 														}
-											// 													/>
-											// 												</div>
-											// 											)}
-											// 										</Draggable>
-											// 									</>
-											// 								);
-											// 							},
-											// 						)}
-											// 						{provided.placeholder}
-											// 					</Masonry>
-											// 				</ResponsiveMasonry>
-											// 			</div>
-											// 		)}
-											// 	</Droppable>
+																return (
+																	<>
+																		{info.dropPlaceholder ===
+																			index &&
+																			info.isDragging && (
+																				<div
+																					className="drop-placeholder"
+																					style={{
+																						width: '200px',
+																						height: '200px',
+																						border: '2px dashed #fff',
+																						borderRadius:
+																							'4px',
+																						margin: '5px',
+																						backgroundColor:
+																							'rgba(255,255,255,0.1)',
+																					}}
+																				/>
+																			)}
+																		<div
+																			key={index}
+																			className={`rearrange-image-container ${
+																				isSelected
+																					? 'selected'
+																					: ''
+																			}`}
+																			style={{
+																				width: '200px',
+																				height: '200px',
+																				position:
+																					'relative',
+																				cursor: isSelected
+																					? 'grab'
+																					: 'pointer',
+																				opacity:
+																					isSelected &&
+																					info.isDragging
+																						? 0.3
+																						: 1,
+																			}}
+																			onClick={() =>
+																				handleImageSelect(
+																					index,
+																					image,
+																				)
+																			}
+																			draggable={isSelected}
+																			onDragStart={
+																				handleDragStart
+																			}
+																			onDrag={handleDrag}
+																			onDragEnd={
+																				handleDragEnd
+																			}
+																		>
+																			<img
+																				src={src}
+																				alt={`Gallery image ${index}`}
+																				style={{
+																					width: '100%',
+																					height: '100%',
+																					objectFit:
+																						'cover',
+																				}}
+																				draggable={false}
+																			/>
+																		</div>
+																	</>
+																);
+															})}
 
-											// 	{/* Drag Preview */}
-											// 	{info.isDragging &&
-											// 		info.draggedImages.length > 0 && (
-											// 			<div
-											// 				style={{
-											// 					position: 'fixed',
-											// 					left:
-											// 						info.dragPreviewPosition?.x ||
-											// 						0,
-											// 					top:
-											// 						info.dragPreviewPosition?.y ||
-											// 						0,
-											// 					transform: 'translate(-50%, -50%)',
-											// 					pointerEvents: 'none',
-											// 					zIndex: 9999,
-											// 					display: 'flex',
-											// 					gap: '4px',
-											// 				}}
-											// 			>
-											// 				{info.draggedImages.map((index) => {
-											// 					const image =
-											// 						info?.imagesList?.docs[index];
-											// 					const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-											// 					const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+														{/* Dragging stack overlay */}
+														{info.isDragging &&
+															info.selectedImages.length > 0 && (
+																<div
+																	style={{
+																		position: 'fixed',
+																		left: info.dragPosition.x,
+																		top: info.dragPosition.y,
+																		zIndex: 1000,
+																		pointerEvents: 'none',
+																		transform:
+																			'translate(-50%, -50%)',
+																	}}
+																>
+																	{info.selectedImages
+																		.slice(0, 3)
+																		.map((imageId, idx) => {
+																			const image =
+																				info.imagesList.docs.find(
+																					(img) =>
+																						img._id ===
+																						imageId,
+																				);
+																			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+																			const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
 
-											// 					return (
-											// 						<img
-											// 							key={index}
-											// 							src={src}
-											// 							alt="Drag Preview"
-											// 							style={{
-											// 								width: '100px',
-											// 								height: '100px',
-											// 								objectFit: 'cover',
-											// 								opacity: 0.8,
-											// 								borderRadius: '4px',
-											// 								boxShadow:
-											// 									'0 2px 8px rgba(0,0,0,0.2)',
-											// 							}}
-											// 						/>
-											// 					);
-											// 				})}
-											// 			</div>
-											// 		)}
-											// </DragDropContext>
-											// <div
-											// 	className="rearrange-grid"
-											// 	style={{
-											// 		display: 'flex',
-											// 		flexWrap: 'wrap',
-											// 		gap: '10px',
-											// 		padding: '10px',
-											// 	}}
-											// >
-											// 	{info?.imagesList?.docs?.map((image, index) => {
-											// 		const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-											// 		const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
-
-											// 		return (
-											// 			<div
-											// 				key={index}
-											// 				className={`rearrange-image-container ${
-											// 					info.selectedImages.includes(index)
-											// 						? 'selected'
-											// 						: ''
-											// 				}`}
-											// 				draggable={info.selectedImages.includes(
-											// 					index,
-											// 				)}
-											// 				onDragStart={(e) =>
-											// 					handleDragStart(e, index)
-											// 				}
-											// 				onDragOver={(e) => e.preventDefault()}
-											// 				onDrop={(e) => handleDragEnd(e, index)}
-											// 				onClick={() => handleImageSelect(index)}
-											// 				style={{
-											// 					width: '200px',
-											// 					height: '200px',
-											// 					position: 'relative',
-											// 					cursor: info.selectedImages.includes(
-											// 						index,
-											// 					)
-											// 						? 'grab'
-											// 						: 'pointer',
-											// 				}}
-											// 			>
-											// 				<img
-											// 					src={src}
-											// 					alt={`Gallery image ${index}`}
-											// 					style={{
-											// 						width: '100%',
-											// 						height: '100%',
-											// 						objectFit: 'cover',
-											// 					}}
-											// 				/>
-											// 				{info.isMouseInGallery && (
-											// 					<div className="imageOverlay"></div>
-											// 				)}
-											// 			</div>
-											// 		);
-											// 	})}
-											// </div>
+																			return (
+																				<div
+																					key={imageId}
+																					style={{
+																						position:
+																							'absolute',
+																						width: '100px',
+																						height: '100px',
+																						border: '2px solid white',
+																						borderRadius:
+																							'4px',
+																						backgroundColor:
+																							'#fff',
+																						boxShadow:
+																							'0 2px 4px rgba(0,0,0,0.2)',
+																						transform: `translate(${
+																							idx *
+																							info.stackOffset
+																						}px, ${
+																							idx *
+																							info.stackOffset
+																						}px)`,
+																					}}
+																				>
+																					<img
+																						src={src}
+																						alt="Dragged image"
+																						style={{
+																							width: '100%',
+																							height: '100%',
+																							objectFit:
+																								'cover',
+																						}}
+																					/>
+																				</div>
+																			);
+																		})}
+																	{info.selectedImages.length >
+																		3 && (
+																		<div
+																			style={{
+																				position:
+																					'absolute',
+																				top: '50%',
+																				right: '-20px',
+																				transform:
+																					'translateY(-50%)',
+																				background: '#666',
+																				color: '#fff',
+																				padding: '2px 6px',
+																				borderRadius:
+																					'10px',
+																				fontSize: '12px',
+																			}}
+																		>
+																			+
+																			{info.selectedImages
+																				.length - 3}
+																		</div>
+																	)}
+																</div>
+															)}
+													</div>
+												) : (
+													<div>Loading.....</div>
+												)}
+											</>
 										)}
 									</InfiniteScroll>
 
-									{info.selectedImages.length > 0 && (
-										<div className="selectedImagesCotainer">
-											<div className="selectedImagesCounter">
-												<p
-													onClick={() => handleClearSelectedImages()}
-													style={{ cursor: 'pointer' }}
-												>
-													X
-												</p>
-												<p>{info.selectedImages.length} selected</p>
-											</div>
-											<div className="selectedImagesActions">
-												{info?.selectedImages?.length === 1 && (
-													<div onClick={handleExpandClick}>
-														<ExpandIcon />
-													</div>
-												)}
-												<div
-													style={{ position: 'relative' }}
-													ref={forwardIconRef}
-												>
-													<ForwardIcon onClick={handleForwardIcon} />
+									{info.selectedImages.length > 0 &&
+										info?.isRearranging === false && (
+											<div className="selectedImagesCotainer">
+												<div className="selectedImagesCounter">
+													<p
+														onClick={() => handleClearSelectedImages()}
+														style={{ cursor: 'pointer' }}
+													>
+														X
+													</p>
+													<p>{info.selectedImages.length} selected</p>
+												</div>
+												<div className="selectedImagesActions">
+													{info?.selectedImages?.length === 1 && (
+														<div onClick={handleExpandClick}>
+															<ExpandIcon />
+														</div>
+													)}
+													<div
+														style={{ position: 'relative' }}
+														ref={forwardIconRef}
+													>
+														<ForwardIcon onClick={handleForwardIcon} />
 
-													{info.showForward && (
-														<div
-															className="forwardOptions"
-															ref={forwardOptionsRef}
-														>
-															{/* <li style={{ cursor: 'not-allowed' }}>
+														{info.showForward && (
+															<div
+																className="forwardOptions"
+																ref={forwardOptionsRef}
+															>
+																{/* <li style={{ cursor: 'not-allowed' }}>
 																Copy to client selection
 															</li> */}
-															<li
-																onClick={() =>
-																	setInfo((prev) => ({
-																		...prev,
-																		showMoveToAlbum: true,
-																	}))
-																}
-															>
-																Move to Other Albums
-															</li>
-														</div>
-													)}
-												</div>
-												<div
-													style={{ position: 'relative' }}
-													ref={pinIconRef}
-												>
-													<PinIcon onClick={handlePinIcon} />
-													{info.showPin && (
-														<div
-															className="pinOptions"
-															ref={pinSearchRef}
-														>
-															<div className="pinSearchContainer">
-																<input
-																	type="text"
-																	placeholder="type to Search or create"
-																	value={info.tagSearchValue}
-																	onChange={(e) =>
+																<li
+																	onClick={() =>
 																		setInfo((prev) => ({
 																			...prev,
-																			tagSearchValue:
-																				e.target.value,
+																			showMoveToAlbum: true,
 																		}))
 																	}
-																	onKeyDown={(e) => {
-																		if (e.key === 'Enter') {
-																			addTagHandlerFunction();
-																		}
-																	}}
-																/>
-																<p
-																	style={{
-																		cursor: 'pointer',
-																		marginRight: '5px',
-																	}}
-																	onClick={handlePinIcon}
 																>
-																	X
-																</p>
+																	Move to Other Albums
+																</li>
 															</div>
-															{tagsList?.list
-																?.filter((tag) =>
-																	tag?.displayName
-																		?.toLowerCase()
-																		.includes(
-																			info.tagSearchValue.toLowerCase(),
-																		),
-																)
-																.map((tag) => (
-																	<div className="pinOptionsList">
-																		<label className="checkboxLabel">
-																			<input
-																				type="checkbox"
-																				checked={info?.selectedImagesTags?.includes(
-																					tag?._id,
-																				)}
-																				onChange={() =>
-																					handleTagChange(
+														)}
+													</div>
+													<div
+														style={{ position: 'relative' }}
+														ref={pinIconRef}
+													>
+														<PinIcon onClick={handlePinIcon} />
+														{info.showPin && (
+															<div
+																className="pinOptions"
+																ref={pinSearchRef}
+															>
+																<div className="pinSearchContainer">
+																	<input
+																		type="text"
+																		placeholder="type to Search or create"
+																		value={info.tagSearchValue}
+																		onChange={(e) =>
+																			setInfo((prev) => ({
+																				...prev,
+																				tagSearchValue:
+																					e.target.value,
+																			}))
+																		}
+																		onKeyDown={(e) => {
+																			if (e.key === 'Enter') {
+																				addTagHandlerFunction();
+																			}
+																		}}
+																	/>
+																	<p
+																		style={{
+																			cursor: 'pointer',
+																			marginRight: '5px',
+																		}}
+																		onClick={handlePinIcon}
+																	>
+																		X
+																	</p>
+																</div>
+																{tagsList?.list
+																	?.filter((tag) =>
+																		tag?.displayName
+																			?.toLowerCase()
+																			.includes(
+																				info.tagSearchValue.toLowerCase(),
+																			),
+																	)
+																	.map((tag) => (
+																		<div className="pinOptionsList">
+																			<label className="checkboxLabel">
+																				<input
+																					type="checkbox"
+																					checked={info?.selectedImagesTags?.includes(
 																						tag?._id,
-																					)
-																				}
-																			/>
-																			<span className="checkboxText">
-																				{tag?.displayName}
-																			</span>
-																		</label>
-																	</div>
-																))}
-														</div>
-													)}
-												</div>
-												<div
-													style={{ position: 'relative' }}
-													ref={optionsIconRef}
-												>
-													<OptionsIcon onClick={handleOptionsIcon} />
-													{info.showOptionsContainer && (
-														<div
-															className="optionsContainer"
-															ref={optionsContainerRef}
-														>
-															<li>Download</li>
-															<li
-																style={{
-																	cursor:
-																		info?.selectedImages
-																			.length === 1
-																			? 'pointer'
-																			: 'not-allowed',
-																}}
-																onClick={() =>
-																	handleSetAlbumCover()
-																}
+																					)}
+																					onChange={() =>
+																						handleTagChange(
+																							tag?._id,
+																						)
+																					}
+																				/>
+																				<span className="checkboxText">
+																					{
+																						tag?.displayName
+																					}
+																				</span>
+																			</label>
+																		</div>
+																	))}
+															</div>
+														)}
+													</div>
+													<div
+														style={{ position: 'relative' }}
+														ref={optionsIconRef}
+													>
+														<OptionsIcon onClick={handleOptionsIcon} />
+														{info.showOptionsContainer && (
+															<div
+																className="optionsContainer"
+																ref={optionsContainerRef}
 															>
-																Set as cover
-															</li>
-															<li>Share</li>
-															<li
-																onClick={() =>
-																	setInfo((prev) => ({
-																		...prev,
-																		showDeleteAlbum: true,
-																	}))
-																}
-															>
-																Delete
-															</li>
-														</div>
-													)}
+																<li>Download</li>
+																<li
+																	style={{
+																		cursor:
+																			info?.selectedImages
+																				.length === 1
+																				? 'pointer'
+																				: 'not-allowed',
+																	}}
+																	onClick={() =>
+																		handleSetAlbumCover()
+																	}
+																>
+																	Set as cover
+																</li>
+																<li>Share</li>
+																<li
+																	onClick={() =>
+																		setInfo((prev) => ({
+																			...prev,
+																			showDeleteAlbum: true,
+																		}))
+																	}
+																>
+																	Delete
+																</li>
+															</div>
+														)}
+													</div>
 												</div>
 											</div>
-										</div>
-									)}
+										)}
 								</div>
 							</div>
 						</div>

@@ -1218,6 +1218,36 @@ export const Galleries = () => {
 			console.log('error==>updateAlbumOrder', error);
 		}
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/re-arrange-status
+
+	const getRearrangeStatus = async (galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/re-arrange-status?isSortRequired=true`,
+
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>updateTagRearrangeStatus', error);
+		}
+	};
+	const updateImageOrder = async (images) => {
+		try {
+			dispatch({
+				type: Actions.GET_IMAGES_LIST,
+				payload: {
+					...state.imagesList,
+					docs: images,
+				},
+			});
+		} catch (error) {
+			console.log('error==>updateImageOrder', error);
+		}
+	};
 
 	return {
 		...state,
@@ -1279,5 +1309,7 @@ export const Galleries = () => {
 		getGalleryShareDetails,
 		changeMasterAccessPin,
 		updateAlbumOrder,
+		getRearrangeStatus,
+		updateImageOrder,
 	};
 };
