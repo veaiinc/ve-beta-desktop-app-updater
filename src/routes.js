@@ -22,6 +22,7 @@ import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
 import { Navigate } from 'react-router-dom';
+import Subscription from './views/features/subscription';
 
 const routes = [
 	{
@@ -191,6 +192,11 @@ const routes = [
 	{
 		path: '*',
 		component: <Navigate to="/" />,
+	},
+	{
+		path: '/subscription',
+		component: <Subscription />,
+		exact: true,
 	},
 ];
 
