@@ -56,6 +56,9 @@ const SubscriptionCard = ({ planData }) => {
 			payload.couponId = coupons?.[0]?._id;
 		}
 		const response = await createStripeCheckoutSession(payload);
+		if (response?.[0]) {
+			window.location.href = response?.[1];
+		}
 		setInfo((prev) => ({ ...prev, btnLoading: false }));
 	}, [planData, info?.btnLoading, coupons]);
 

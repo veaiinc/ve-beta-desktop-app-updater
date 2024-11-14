@@ -70,11 +70,7 @@ export const SubscriptionState = (props) => {
 				'auth',
 			);
 			if (response?.[0] === true) {
-				console.log('response==>', response);
-				// dispatch({
-				// 	type: Actions.GET_ALL_COUPONS_SUCCESS,
-				// 	payload: response?.[1],
-				// });
+				return [true, response?.[1]?.url];
 			} else {
 				message.error('Unable to create  stripe sessions');
 				console.log('api failed ==>createStripeCheckoutSession', response);
