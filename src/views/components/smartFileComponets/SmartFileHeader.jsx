@@ -77,7 +77,7 @@ const SmartFileHeader = ({
 	useEffect(() => {
 		if (workflowStatus) {
 			let modifiedOptions = [...options];
-			if (workflowStatus === 'filesSent') {
+			if (workflowStatus === 'filesSent' || workflowStatus === 'filesViewed') {
 				modifiedOptions = [
 					{ label: 'Edit' },
 					{ label: 'Resend File' },

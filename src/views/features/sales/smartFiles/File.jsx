@@ -109,7 +109,7 @@ const File = ({
 				}
 
 				let variables = activeVersionData?.variables?.filter((ele) => {
-					if (ele?.type !== 'workspace') {
+					if (ele?.type !== 'workspace' && !ele?.blockId) {
 						ele['moduleType'] = updatedModules?.[i];
 						return ele;
 					}
