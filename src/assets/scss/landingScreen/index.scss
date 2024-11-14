@@ -3,8 +3,11 @@
 	height: 100vh;
 	padding: 48px 120px;
 	background: linear-gradient(180deg, #0e0f0f 0%, #19191b 100%);
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 
-	.nav-container {
+	.header-container {
 		width: 100%;
 		height: 100px;
 		display: flex;
@@ -21,6 +24,150 @@
 			border: none;
 			background: none;
 			cursor: pointer;
+		}
+	}
+
+	.landing-page-content {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 120px;
+		height: 100%;
+		max-width: 1440px;
+		max-height: 1790px;
+		margin: 0 auto;
+
+		.hero-section-1 {
+			width: 50%;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: center;
+			gap: 16px;
+
+			& > * {
+				max-width: 380px;
+			}
+
+			.veai-logo-container {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+
+				.veai-logo-text {
+					color: rgba(255, 255, 255, 0.5);
+					font-family: Inter;
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+			}
+
+			.heading {
+				color: #fff;
+				font-family: Brasley;
+				font-size: 36px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 44px;
+			}
+
+			.description {
+				color: rgba(255, 255, 255, 0.5);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 24px;
+			}
+
+			.cta-container {
+				display: flex;
+				gap: 8px;
+				width: 100%;
+
+				& > * {
+					padding: 14px 24px;
+					border: none;
+					cursor: pointer;
+					width: 50%;
+				}
+
+				.get-started-button {
+					border-radius: 59px;
+					background: #b89cf9;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					gap: 8px;
+					color: #000;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+
+				.request-demo-button {
+					border-radius: 59px;
+					background: #202123;
+					color: #e8e8e8;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+
+		.hero-section-2 {
+			width: 50%;
+			// height: 65%;
+			// min-height: 680px;
+			// border-radius: 40px;
+			// background: #202123;
+			// display: flex;
+			// flex-direction: column;
+			// align-items: center;
+			// justify-content: center;
+		}
+	}
+
+	.footer-container {
+		width: 100%;
+		border-top: 1px solid #333334;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 24px 0;
+
+		nav {
+			ul {
+				display: flex;
+				gap: 40px;
+				list-style: none;
+
+				li {
+					color: #e8e8e8;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					cursor: pointer;
+				}
+			}
+		}
+
+		.copyright {
+			color: #333334;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
 		}
 	}
 }
