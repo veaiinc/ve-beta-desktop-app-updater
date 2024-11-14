@@ -1319,7 +1319,7 @@ const GalleryPage = () => {
 			};
 			console.log(items);
 
-			updateAlbumOrder(payload, galleryId, info?.activeAlbumId, items);
+			updateAlbumOrder(payload, galleryId, albumID, items);
 		}
 
 		// setInfo((prev) => ({
@@ -1341,6 +1341,10 @@ const GalleryPage = () => {
 		} else {
 			message.error('Cant set album cover with more than 1 image');
 		}
+	};
+
+	const sortByCustomIndex = (items) => {
+		return items?.sort((a, b) => a.customSortIndex - b.customSortIndex);
 	};
 
 	return (
@@ -1468,12 +1472,8 @@ const GalleryPage = () => {
 
 											{(info.activeTab === 'Albums' ||
 												info.activeTab !== 'Client Selections') &&
-												albumImagesCount?.albums
-													?.sort(
-														(a, b) =>
-															a.customSortIndex - b.customSortIndex,
-													)
-													?.map((album, index) => {
+												sortByCustomIndex(albumImagesCount?.albums)?.map(
+													(album, index) => {
 														let src = null;
 														if (album?.coverImage?._id) {
 															const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
@@ -1581,7 +1581,8 @@ const GalleryPage = () => {
 																)}
 															</Draggable>
 														);
-													})}
+													},
+												)}
 
 											{info.activeTab === 'Client Selections' &&
 												clientSelectionsData?.data?.map((album, index) => {
@@ -1599,8 +1600,8 @@ const GalleryPage = () => {
 															{(provided) => (
 																<div
 																	ref={provided.innerRef}
-																	{...provided.draggableProps}
-																	{...provided.dragHandleProps}
+																	// {...provided.draggableProps}
+																	// {...provided.dragHandleProps}
 																	className={`album ${
 																		info?.activeClientSelection ===
 																		album?.slug
