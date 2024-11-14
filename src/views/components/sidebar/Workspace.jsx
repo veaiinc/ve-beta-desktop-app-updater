@@ -12,7 +12,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 	const handleSwitchWorkSpaceLogic = useCallback((data) => {
 		const { activeWorkspaceId, isOnboard } = data;
 		const workspaceId = localStorage.getItem('workspaceId');
-		if (workspaceId === data) {
+		if (workspaceId === activeWorkspaceId) {
 			return;
 		}
 		localStorage.setItem('workspaceId', activeWorkspaceId);
@@ -21,6 +21,22 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 			sameSite: 'lax',
 			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 		});
+
+		const currentRegion = localStorage.getItem('region');
+		let newWorkspaceRegion;
+		for (let i = 0; i < userWorkSpaceList?.length; i++) {
+			if (userWorkSpaceList?.[i]?.activeWorkspaceId === activeWorkspaceId) {
+				newWorkspaceRegion = userWorkSpaceList?.[i]?.region;
+				break;
+			}
+		}
+		if (newWorkspaceRegion !== currentRegion) {
+			localStorage.setItem('region', newWorkspaceRegion);
+			Cookies.set('region', newWorkspaceRegion, {
+				sameSite: 'lax',
+				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+			});
+		}
 		window.location.reload();
 	}, []);
 
