@@ -7,6 +7,7 @@ import { ReactComponent as FilterIcon } from '../../../assets/svg/chat/filter.sv
 import { ReactComponent as ExpandIcon } from '../../../assets/svg/gallery/expand.svg';
 import { ReactComponent as ForwardIcon } from '../../../assets/svg/gallery/forward.svg';
 import { ReactComponent as PinIcon } from '../../../assets/svg/gallery/pin.svg';
+import { ReactComponent as DragIcon } from '../../../assets/svg/gallery/drag.svg';
 import { ReactComponent as OptionsIcon } from '../../../assets/svg/gallery/dotsThree.svg';
 import { ReactComponent as CloudUpload } from '../../../assets/svg/Settings/CloudUpload.svg';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
@@ -82,6 +83,7 @@ const GalleryPage = () => {
 			moveImagesToAlbum,
 			addGalleryTag,
 			tagsList,
+			updateAlbumOrder,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -148,6 +150,7 @@ const GalleryPage = () => {
 		tagSearchValue: '',
 		albumLoading: false,
 		isPublished: tenantAlbums?.isPublished || false,
+		showDragIconOfAlbum: null,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -1220,7 +1223,10 @@ const GalleryPage = () => {
 	const dynamicHeightFunc = () => {
 		const containerWidth = document.querySelector('.albums')?.clientWidth || 0;
 		const cardWidth = 130;
-		const numberOfCards = albumImagesCount?.albums?.length + 1 || 0;
+		const numberOfCards =
+			info.activeTab === 'Client Selections'
+				? clientSelectionsData?.data?.length || 0
+				: albumImagesCount?.albums?.length + 1 || 0;
 		const cardHeight = 160;
 		const gap = 20;
 		const cardsPerRow = Math.floor((containerWidth + gap) / (cardWidth + gap));
@@ -1286,11 +1292,40 @@ const GalleryPage = () => {
 	const handleAlbumDragEnd = (result) => {
 		if (!result.destination) return;
 
-		const albums = Array.from(albumImagesCount?.albums || []);
-		const [reorderedItem] = albums.splice(result.source.index, 1);
-		albums.splice(result.destination.index, 0, reorderedItem);
+		const items = Array.from(albumImagesCount?.albums || []);
+		const [reorderedItem] = items.splice(result.source.index, 1);
+		items.splice(result.destination.index, 0, reorderedItem);
 
-		// Update the order in your state/backend here
+		let changedItemIndex = null;
+		let albumID = null;
+
+		items.forEach((item, index) => {
+			if (index === result.destination.index) {
+				if (index === items.length - 1) {
+					item.customSortIndex = items.length + 1;
+				} else {
+					const prevIndex = index > 0 ? items[index - 1].customSortIndex : 0;
+					const nextIndex = items[index + 1].customSortIndex;
+					item.customSortIndex = (prevIndex + nextIndex) / 2;
+				}
+				changedItemIndex = item.customSortIndex;
+				albumID = item?._id;
+			}
+		});
+
+		if (changedItemIndex !== null && albumID !== null) {
+			const payload = {
+				customSortIndex: changedItemIndex,
+			};
+			console.log(items);
+
+			updateAlbumOrder(payload, galleryId, info?.activeAlbumId, items);
+		}
+
+		// setInfo((prev) => ({
+		// 	...prev,
+		// 	albumTags: items,
+		// }));
 	};
 
 	const handleSetAlbumCover = async () => {
@@ -1344,19 +1379,10 @@ const GalleryPage = () => {
 							</div>
 						</div>
 					</div>
+
 					<div className="albumsContianer">
 						<div className="galleryContentContainer">
 							<div className="content">
-								{/* <div
-									className={`galleryContent ${
-										info.activeTab === 'Albums' ? 'active' : ''
-									}`}
-									onClick={() => handleClickContent('Albums')}
-								>
-									<p className="galleryName">Albums</p>
-									<p className="count">{albumImagesCount?.albums?.length}</p>
-								</div> */}
-
 								{data.map((item, index) => (
 									<div
 										key={index}
@@ -1409,135 +1435,225 @@ const GalleryPage = () => {
 								alignItems: 'center',
 								justifyContent: 'space-between',
 								gap: '20px',
+
 								// height: '160px',
 							}}
+							id="droppableAlblumId"
 						>
-							<div
-								className="albums"
-								style={{
-									...(info?.albumFullScreen &&
-										{
-											// flexWrap: 'wrap',
-											// overflow: 'visible',
-											// minHeight: '400px',
-											// maxHeight: '100vh',
-										}),
-
-									// minHeight: info?.albumFullScreen
-									// 	? dynamicHeightFunc()
-									// 	: '160px',
-									// overflow: info?.flexWrap_visible ? 'visible' : 'scroll',
-									// flexWrap: info?.flexWrap_visible ? 'wrap' : 'nowrap',
-									height: '160px',
-								}}
-							>
-								{(info.activeTab === 'Albums' ||
-									info.activeTab !== 'Client Selections') && (
-									<div
-										className="create-album"
-										onClick={() =>
-											setInfo((prevData) => ({
-												...prevData,
-												showCreateAlbum: true,
-											}))
-										}
-									>
-										<p>+ New Album</p>
-									</div>
-								)}
-
-								{(info.activeTab === 'Albums' ||
-									info.activeTab !== 'Client Selections') &&
-									albumImagesCount?.albums?.map((album, index) => {
-										let src = null;
-										if (album?.coverImage?._id) {
-											const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-											src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
-										}
-										return (
-											<div
-												key={index}
-												className={`album ${
-													info?.albumSlug === album?.slug ? 'active' : ''
-												}`}
-												style={{
-													background: src
-														? `url(${src})`
-														: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
-												}}
-												onClick={() => handleClickAlbum(album, 'albumName')}
-											>
-												{src && (
-													<img
-														src={src}
-														style={{
-															width: '100%',
-															height: '100%',
-															objectFit: 'cover',
-														}}
-													/>
-												)}
-
+							<DragDropContext onDragEnd={handleAlbumDragEnd}>
+								<Droppable droppableId="droppableAlblumId" direction="horizontal">
+									{(provided) => (
+										<div
+											className="albums"
+											style={{
+												height: '160px',
+											}}
+											{...provided.droppableProps}
+											ref={provided.innerRef}
+										>
+											{(info.activeTab === 'Albums' ||
+												info.activeTab !== 'Client Selections') && (
 												<div
-													className="albumDetails"
+													className="create-album"
 													onClick={() =>
-														handleClickAlbum(
-															album,
-															'albumName',
-															album?.imagesCount,
-														)
+														setInfo((prevData) => ({
+															...prevData,
+															showCreateAlbum: true,
+														}))
 													}
 												>
-													<p>{album?.title}</p>
-													<p>{`${album?.imagesCount || 0} photos`}</p>
+													<p>+ New Album</p>
 												</div>
-												<div className="overlay"></div>
-											</div>
-										);
-									})}
+											)}
 
-								{info.activeTab === 'Client Selections' &&
-									clientSelectionsData?.data?.map((album, index) => {
-										let src = null;
-										if (album?.coverImage?._id) {
-											const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-											src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
-										}
-										return (
-											<div
-												key={index}
-												className={`album ${
-													info?.activeClientSelection === album?.slug
-														? 'active'
-														: ''
-												}`}
-												style={{
-													background: src
-														? `url(${src})`
-														: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
-													backgroundSize: 'cover ',
-													backgroundPosition: 'center',
-												}}
-												onClick={() =>
-													handleClickAlbum(album, 'clientSelection')
-												}
-											>
-												{album.image && <img src={src} />}
+											{(info.activeTab === 'Albums' ||
+												info.activeTab !== 'Client Selections') &&
+												albumImagesCount?.albums
+													?.sort(
+														(a, b) =>
+															a.customSortIndex - b.customSortIndex,
+													)
+													?.map((album, index) => {
+														let src = null;
+														if (album?.coverImage?._id) {
+															const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+															src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
+														}
+														return (
+															<Draggable
+																key={album._id}
+																draggableId={album._id}
+																index={index}
+															>
+																{(provided) => (
+																	<div
+																		ref={provided.innerRef}
+																		{...provided.draggableProps}
+																		// {...provided.dragHandleProps}
+																		className={`album ${
+																			info?.albumSlug ===
+																			album?.slug
+																				? 'active'
+																				: ''
+																		}`}
+																		style={{
+																			background: src
+																				? `url(${src})`
+																				: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+																			...provided
+																				.draggableProps
+																				.style,
+																		}}
+																		onClick={() =>
+																			handleClickAlbum(
+																				album,
+																				'albumName',
+																			)
+																		}
+																		onMouseEnter={() =>
+																			setInfo((prev) => ({
+																				...prev,
+																				showDragIconOfAlbum:
+																					album?._id,
+																			}))
+																		}
+																		onMouseLeave={() =>
+																			setInfo((prev) => ({
+																				...prev,
+																				showDragIconOfAlbum:
+																					null,
+																			}))
+																		}
+																	>
+																		{src && (
+																			<img
+																				src={src}
+																				style={{
+																					width: '100%',
+																					height: '100%',
+																					objectFit:
+																						'cover',
+																				}}
+																			/>
+																		)}
 
-												<div
-													className="albumDetails"
-													onClick={() =>
-														handleClickAlbum(album, 'clientSelection')
+																		{info?.showDragIconOfAlbum ===
+																			album?._id && (
+																			<span
+																				{...provided.dragHandleProps}
+																				style={{
+																					position:
+																						'absolute',
+																					top: '10px',
+																					right: '10px',
+																					zIndex: '10',
+																					transition:
+																						'all 0.3s ease',
+																				}}
+																			>
+																				<DragIcon />
+																			</span>
+																		)}
+
+																		<div
+																			className="albumDetails"
+																			onClick={() =>
+																				handleClickAlbum(
+																					album,
+																					'albumName',
+																					album?.imagesCount,
+																				)
+																			}
+																		>
+																			<p>{album?.title}</p>
+																			<p>{`${
+																				album?.imagesCount ||
+																				0
+																			} ${
+																				album?.imagesCount >
+																				1
+																					? 'photos'
+																					: 'photo'
+																			}`}</p>
+																		</div>
+																		<div className="overlay"></div>
+																	</div>
+																)}
+															</Draggable>
+														);
+													})}
+
+											{info.activeTab === 'Client Selections' &&
+												clientSelectionsData?.data?.map((album, index) => {
+													let src = null;
+													if (album?.coverImage?._id) {
+														const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+														src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
 													}
-												>
-													<p>{album?.title}</p>
-													<p>{`${album?.numberOfImages || 0} photos`}</p>
-												</div>
-												<div className="overlay"></div>
-											</div>
-										);
-									})}
-							</div>
+													return (
+														<Draggable
+															key={album._id}
+															draggableId={album._id}
+															index={index}
+														>
+															{(provided) => (
+																<div
+																	ref={provided.innerRef}
+																	{...provided.draggableProps}
+																	{...provided.dragHandleProps}
+																	className={`album ${
+																		info?.activeClientSelection ===
+																		album?.slug
+																			? 'active'
+																			: ''
+																	}`}
+																	style={{
+																		background: src
+																			? `url(${src})`
+																			: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+																		backgroundSize: 'cover ',
+																		backgroundPosition:
+																			'center',
+																		...provided.draggableProps
+																			.style,
+																	}}
+																	onClick={() =>
+																		handleClickAlbum(
+																			album,
+																			'clientSelection',
+																		)
+																	}
+																>
+																	{album.image && (
+																		<img src={src} />
+																	)}
+
+																	<div
+																		className="albumDetails"
+																		onClick={() =>
+																			handleClickAlbum(
+																				album,
+																				'clientSelection',
+																			)
+																		}
+																	>
+																		<p>{album?.title}</p>
+																		<p>{`${
+																			album?.numberOfImages ||
+																			0
+																		} photos`}</p>
+																	</div>
+																	<div className="overlay"></div>
+																</div>
+															)}
+														</Draggable>
+													);
+												})}
+											{provided.placeholder}
+										</div>
+									)}
+								</Droppable>
+							</DragDropContext>
 
 							{albumImagesCount?.albums?.length > 4 && (
 								<div
@@ -1557,9 +1673,11 @@ const GalleryPage = () => {
 									<UpArrow />
 								</div>
 							)}
+							{/* </div> */}
 						</div>
 					</div>
 				</div>
+
 				<div className="line"></div>
 
 				{info.activeTab === 'Albums' &&
@@ -2643,18 +2761,18 @@ const GalleryPage = () => {
 																<div className="pinOptionsList">
 																	<label className="checkboxLabel">
 																		<input
-																			type="checkbox"
-																			checked={info?.selectedImagesTags?.includes(
-																				tag?._id,
-																			)}
-																			onChange={() =>
-																				handleTagChange(
-																					tag?._id,
-																				)
-																			}
+																				type="checkbox"
+																				checked={info?.selectedImagesTags?.includes(
+																						tag?._id,
+																				)}
+																				onChange={() =>
+																						handleTagChange(
+																								tag?._id,
+																						)
+																				}
 																		/>
 																		<span className="checkboxText">
-																			{tag?.displayName}
+																				{tag?.displayName}
 																		</span>
 																	</label>
 																</div>
