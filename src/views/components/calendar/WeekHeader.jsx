@@ -5,9 +5,6 @@ const WeekHeader = () => {
 	return (
 		<div className="weekHeaderWrapper">
 			<div className="dayHeader">
-				<span>Sunday</span>
-			</div>
-			<div className="dayHeader">
 				<span>Monday</span>
 			</div>
 			<div className="dayHeader">
@@ -24,6 +21,9 @@ const WeekHeader = () => {
 			</div>
 			<div className="dayHeader">
 				<span>Saturday</span>
+			</div>
+			<div className="dayHeader">
+				<span>Sunday</span>
 			</div>
 		</div>
 	);

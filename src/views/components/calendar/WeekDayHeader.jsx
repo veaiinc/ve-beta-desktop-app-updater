@@ -3,7 +3,7 @@ import '../../../assets/scss/calendar/calendarHeader.scss';
 
 const WeekDayHeader = () => {
 	const [info, setInfo] = useState({
-		selectedWeekday: null,
+		selectedWeekday: 0,
 	});
 
 	const handleSelectedDay = useCallback((day) => {

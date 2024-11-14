@@ -1,19 +1,11 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo } from 'react';
 import '../../../assets/scss/calendar/calendarHeader.scss';
 import { ReactComponent as Down } from '../../../assets/svg/activity/down.svg';
 import WeekHeader from './WeekHeader';
 import DayHeader from './DaysHeader';
 import WeekDayHeader from './WeekDayHeader';
 
-const CalendarHeader = () => {
-	const [info, setInfo] = useState({
-		activeView: 'Month',
-	});
-
-	const handleToggleView = useCallback((view) => {
-		setInfo((prevInfo) => ({ ...prevInfo, activeView: view }));
-	}, []);
-
+const CalendarHeader = ({ activeView, handleToggleView }) => {
 	const views = {
 		Month: <WeekHeader />,
 		Week: <WeekDayHeader />,
@@ -33,7 +25,7 @@ const CalendarHeader = () => {
 									<span
 										key={view}
 										className={`toggleButton ${
-											info?.activeView === view ? 'active' : ''
+											activeView === view ? 'active' : ''
 										}`}
 										onClick={() => handleToggleView(view)}
 									>
@@ -55,7 +47,7 @@ const CalendarHeader = () => {
 					</div>
 
 					{/* Render the active calendar day Header */}
-					{views[info?.activeView]}
+					{views[activeView]}
 				</div>
 			</div>
 		</>
