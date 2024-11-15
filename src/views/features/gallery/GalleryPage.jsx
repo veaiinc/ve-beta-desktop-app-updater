@@ -86,6 +86,7 @@ const GalleryPage = () => {
 			updateAlbumOrder,
 			getRearrangeStatus,
 			updateImageOrder,
+			changeImageOrder,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -160,6 +161,7 @@ const GalleryPage = () => {
 		dropIndex: null,
 		dropPlaceholder: null, // Add this new state
 		rearrangingLoading: false,
+		totalPayload: [],
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -1341,7 +1343,6 @@ const GalleryPage = () => {
 			(img) => !info.selectedImages.includes(img._id),
 		);
 
-		// Calculate new customSortIndex values
 		const beforeIndex =
 			info.dropPlaceholder > 0
 				? getCustomSortIndex(remainingImages[info.dropPlaceholder - 1])
@@ -1355,14 +1356,29 @@ const GalleryPage = () => {
 		const stepSize = (afterIndex - beforeIndex) / (selectedImageObjects.length + 1);
 
 		// Create payload with new sort indices
+
 		const payload = selectedImageObjects.map((image, index) => ({
 			image_id: image._id,
 			customSortIndex: beforeIndex + (index + 1) * stepSize,
 		}));
+		setInfo((prev) => ({
+			...prev,
+			totalPayload: [...prev.totalPayload, ...payload],
+		}));
+		const updatedImages = selectedImageObjects.map((image, index) => ({
+			...image,
+			galleryTags: image.galleryTags.map((tag) =>
+				tag._id === info.albumTagId
+					? {
+							...tag,
+							customSortIndex: beforeIndex + (index + 1) * stepSize,
+					  }
+					: tag,
+			),
+		}));
+		console.log(updatedImages, 'updatedImages');
 
-		console.log(payload, 'payload');
-
-		remainingImages.splice(info.dropPlaceholder, 0, ...selectedImageObjects);
+		remainingImages.splice(info.dropPlaceholder, 0, ...updatedImages);
 
 		setInfo((prev) => ({
 			...prev,
@@ -1371,6 +1387,36 @@ const GalleryPage = () => {
 			dropPlaceholder: null,
 		}));
 		updateImageOrder(remainingImages);
+	};
+	const handleSaveImage = async () => {
+		message.loading('Rearranging images...');
+		// setInfo((prev) => ({
+		// 	...prev,
+		// 	imagesList: [],
+		// }));
+		const sortedPayload = [...info.totalPayload].sort(
+			(a, b) => a.customSortIndex - b.customSortIndex,
+		);
+		if (sortedPayload.length > 0) {
+			const response = await changeImageOrder(
+				sortedPayload,
+				galleryId,
+				info.activeAlbumId,
+				info.albumTagId,
+			);
+			if (response?.[0] === true) {
+				message.destroy();
+				message.success('Images rearranged successfully');
+				setInfo((prev) => ({
+					...prev,
+					totalPayload: [],
+					isRearranging: false,
+				}));
+			} else {
+				message.destroy();
+				message.error('Something went wrong, please try again later');
+			}
+		}
 	};
 
 	// Helper function to get customSortIndex from image
@@ -1418,7 +1464,58 @@ const GalleryPage = () => {
 
 	// Add container ref
 	const rearrangeContainerRef = useRef(null);
+	const galleryScrollTargetRef = useRef(null);
+	// useEffect(() => {
+	// 	const handleMouseMove = (e) => {
+	// 		const container = galleryScrollTargetRef.current;
+	// 		if (!container || !info.isDragging) return;
 
+	// 		const { top, bottom } = container.getBoundingClientRect();
+	// 		const scrollAmount = 10;
+
+	// 		if (e.clientY < top + 30) {
+	// 			container.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
+	// 		} else if (e.clientY > bottom - 150) {
+	// 			container.scrollBy({ top: scrollAmount, behavior: 'smooth' });
+	// 		}
+	// 	};
+	// 	document.addEventListener('mousemove', handleMouseMove);
+	// 	return () => document.removeEventListener('mousemove', handleMouseMove);
+	// }, [info.isDragging]);
+	let scrolling = false;
+
+	useEffect(() => {
+		const handleMouseMove = (e) => {
+			const container = galleryScrollTargetRef.current;
+			if (!container || !info.isDragging) return; // Only trigger when dragging
+
+			const { top, bottom } = container.getBoundingClientRect();
+			const scrollAmount = 10; // Adjust scroll speed
+
+			// Check if scrolling is already in progress
+			if (!scrolling) {
+				// Check if cursor is near the top within 30px
+				if (e.clientY < top + 30) {
+					scrolling = true;
+					container.scrollBy({ top: -scrollAmount, behavior: 'auto' });
+				}
+				// Check if cursor is near the bottom within 150px
+				else if (e.clientY > bottom - 150) {
+					scrolling = true;
+					container.scrollBy({ top: scrollAmount, behavior: 'auto' });
+				}
+
+				// Reset the scrolling flag after a delay for smooth interval
+				setTimeout(() => (scrolling = false), 30);
+			}
+		};
+
+		// Throttle the mousemove event listener
+		document.addEventListener('mousemove', handleMouseMove);
+
+		// Clean up event listener on component unmount
+		return () => document.removeEventListener('mousemove', handleMouseMove);
+	}, [info.isDragging]);
 	return (
 		<>
 			<div className="galleryContainer">
@@ -1608,23 +1705,25 @@ const GalleryPage = () => {
 																			/>
 																		)}
 
-																		{info?.showDragIconOfAlbum ===
-																			album?._id && (
-																			<span
-																				{...provided.dragHandleProps}
-																				style={{
-																					position:
-																						'absolute',
-																					top: '10px',
-																					right: '10px',
-																					zIndex: '10',
-																					transition:
-																						'all 0.3s ease',
-																				}}
-																			>
-																				<DragIcon />
-																			</span>
-																		)}
+																		<span
+																			{...provided.dragHandleProps}
+																			style={{
+																				position:
+																					'absolute',
+																				top: '10px',
+																				right: '10px',
+																				zIndex: '10',
+																				transition:
+																					'all 0.3s ease',
+																				opacity:
+																					info?.showDragIconOfAlbum ===
+																					album?._id
+																						? 1
+																						: 0,
+																			}}
+																		>
+																			<DragIcon />
+																		</span>
 
 																		<div
 																			className="albumDetails"
@@ -1663,62 +1762,6 @@ const GalleryPage = () => {
 														src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
 													}
 													return (
-														// <Draggable
-														// 	key={album._id}
-														// 	draggableId={album._id}
-														// 	index={index}
-														// >
-														// 	{(provided) => (
-														// 		<div
-														// 			ref={provided.innerRef}
-														// 			// {...provided.draggableProps}
-														// 			// {...provided.dragHandleProps}
-														// 			className={`album ${
-														// 				info?.activeClientSelection ===
-														// 				album?.slug
-														// 					? 'active'
-														// 					: ''
-														// 			}`}
-														// 			style={{
-														// 				background: src
-														// 					? `url(${src})`
-														// 					: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
-														// 				backgroundSize: 'cover ',
-														// 				backgroundPosition:
-														// 					'center',
-														// 				...provided.draggableProps
-														// 					.style,
-														// 			}}
-														// 			onClick={() =>
-														// 				handleClickAlbum(
-														// 					album,
-														// 					'clientSelection',
-														// 				)
-														// 			}
-														// 		>
-														// 			{album.image && (
-														// 				<img src={src} />
-														// 			)}
-
-														// 			<div
-														// 				className="albumDetails"
-														// 				onClick={() =>
-														// 					handleClickAlbum(
-														// 						album,
-														// 						'clientSelection',
-														// 					)
-														// 				}
-														// 			>
-														// 				<p>{album?.title}</p>
-														// 				<p>{`${
-														// 					album?.numberOfImages ||
-														// 					0
-														// 				} photos`}</p>
-														// 			</div>
-														// 			<div className="overlay"></div>
-														// 		</div>
-														// 	)}
-														// </Draggable>
 														<div
 															key={album._id}
 															className={`album ${
@@ -2120,7 +2163,7 @@ const GalleryPage = () => {
 									</div>
 								) : (
 									<div className="saveRearrange">
-										<p>Save</p>
+										<p onClick={handleSaveImage}>Save</p>
 									</div>
 								)}
 
@@ -2146,12 +2189,13 @@ const GalleryPage = () => {
 										hasMore={imagesList?.hasNextPage || false}
 										loader={
 											<p style={{ textAlign: 'center', color: '#fff' }}>
-												Loading...
+												Loading
 											</p>
 										}
 										scrollableTarget="galleryScrollTarget"
 										refreshFunction={info?.resetInfinityScroll}
 										disableDrop={true}
+										scrollThreshold={info?.isRearranging ? 0.2 : 0.8}
 									>
 										{!info.isRearranging ? (
 											<ResponsiveMasonry
@@ -2417,18 +2461,18 @@ const GalleryPage = () => {
 										)}
 									</InfiniteScroll>
 
-									{info.selectedImages.length > 0 &&
-										info?.isRearranging === false && (
-											<div className="selectedImagesCotainer">
-												<div className="selectedImagesCounter">
-													<p
-														onClick={() => handleClearSelectedImages()}
-														style={{ cursor: 'pointer' }}
-													>
-														X
-													</p>
-													<p>{info.selectedImages.length} selected</p>
-												</div>
+									{info.selectedImages.length > 0 && (
+										<div className="selectedImagesCotainer">
+											<div className="selectedImagesCounter">
+												<p
+													onClick={() => handleClearSelectedImages()}
+													style={{ cursor: 'pointer' }}
+												>
+													X
+												</p>
+												<p>{info.selectedImages.length} selected</p>
+											</div>
+											{!info.isRearranging && (
 												<div className="selectedImagesActions">
 													{info?.selectedImages?.length === 1 && (
 														<div onClick={handleExpandClick}>
@@ -2573,8 +2617,9 @@ const GalleryPage = () => {
 														)}
 													</div>
 												</div>
-											</div>
-										)}
+											)}
+										</div>
+									)}
 								</div>
 							</div>
 						</div>
@@ -2649,6 +2694,7 @@ const GalleryPage = () => {
 								<div
 									className="galleryImagesContainer clientSelectionImagesContainer"
 									id="galleryScrollTarget"
+									ref={galleryScrollTargetRef}
 									onMouseEnter={() =>
 										setInfo((prev) => ({
 											...prev,

@@ -635,12 +635,13 @@
 					border-radius: 32px;
 					border: 1px solid rgba(228, 229, 230, 0.05);
 					background: #151515;
+					cursor: pointer;
 				}
 			}
 			.galleryImagesContainer {
 				width: 100%;
 				padding: 10px;
-				height: 70vh;
+				height: 58vh;
 				overflow: auto;
 				.imageUpload {
 					display: flex;
@@ -1290,6 +1291,8 @@
 .rearrange-image-container-wrapper {
 	display: flex;
 	width: 100%;
+	// height: 60vh;
+	overflow: auto;
 	justify-content: center;
 	flex-wrap: wrap;
 	margin: auto;

@@ -1249,6 +1249,23 @@ export const Galleries = () => {
 		}
 	};
 
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/images
+	const changeImageOrder = async (payload, galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>changeImageOrder', error);
+		}
+	};
+
 	return {
 		...state,
 		getGalleries,
@@ -1311,5 +1328,6 @@ export const Galleries = () => {
 		updateAlbumOrder,
 		getRearrangeStatus,
 		updateImageOrder,
+		changeImageOrder,
 	};
 };
