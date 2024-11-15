@@ -50,12 +50,8 @@ const CalendarCategories = () => {
 					</span>
 				</div>
 
-				<div className="expandIcon">
-					{info?.expanded ? (
-						<UpSvg onClick={handleCategoryExpand} />
-					) : (
-						<DownSvg onClick={handleCategoryExpand} />
-					)}
+				<div className="expandIcon" onClick={handleCategoryExpand}>
+					{info?.expanded ? <UpSvg /> : <DownSvg />}
 				</div>
 			</div>
 
