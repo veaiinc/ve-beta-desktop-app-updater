@@ -2,16 +2,17 @@
 	display: grid;
 	grid-template-columns: repeat(7, 1fr);
 	gap: 4px;
-	padding: 20px 30px;
+	padding: 10px 30px;
 	height: 100%;
+	overflow-y: auto;
 }
 
 .day {
 	display: flex;
 	// width: 129px;
 	height: auto;
-	max-height: 140px;
-	padding: 16px;
+	max-height: 155px;
+	padding: 13px;
 	flex-direction: column;
 	align-items: flex-start;
 	justify-content: flex-start;
