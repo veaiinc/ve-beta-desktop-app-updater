@@ -1265,6 +1265,7 @@ export const Galleries = () => {
 			console.log('error==>changeImageOrder', error);
 		}
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/visitor-form-access
 
 	return {
 		...state,

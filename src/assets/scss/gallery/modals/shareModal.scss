@@ -162,36 +162,38 @@
 							}
 							.downloadOptions {
 								display: flex;
+								flex-direction: row-reverse;
 								width: 100%;
 								justify-content: space-between;
 								input[type="checkbox"] {
+									-webkit-appearance: none;
 									appearance: none;
-									width: 16px;
-									height: 16px;
-									border: 1.5px solid #979797;
-									border-radius: 50%; // Makes it circular
-									cursor: pointer;
-									position: relative;
 									background: transparent;
-
+									font: inherit;
+									display: grid;
+									place-content: center;
+									color: currentColor;
+									width: 1.15em;
+									height: 1.15em;
+									border: 0.1px solid #fff;
+									border-radius: 0.15em;
+									transform: translateY(-0.075em);
 									&:checked {
-										border-color: #3b82f6;
-
-										&::after {
-											content: "";
-											position: absolute;
-											left: 50%;
-											top: 50%;
-											transform: translate(-50%, -50%);
-											width: 8px;
-											height: 8px;
-											background: #3b82f6;
-											border-radius: 50%; // Makes the inner dot circular
-										}
+										border-color: #6055ec;
 									}
-
-									&:hover {
-										border-color: #3b82f6;
+									&::before {
+										content: "";
+										width: 0.65em;
+										height: 0.65em;
+										transform: scale(0);
+										transition: 120ms transform ease-in-out;
+										box-shadow: inset 1em 1em #6055ec;
+										transform-origin: bottom left;
+										clip-path: polygon(14% 44%, 0 55%, 50% 100%, 100% 16%, 80% 0%, 43% 72%);
+									}
+									&:checked::before {
+										transform: scale(1);
+										border: 0.1px solid #6055ec;
 									}
 								}
 							}
@@ -221,5 +223,88 @@
 		color: #fafafa;
 		font-size: 14px;
 		font-weight: 400;
+	}
+}
+.visitorFormAccessContainer {
+	display: flex;
+	flex-direction: column;
+	padding-top: 10px;
+	gap: 10px;
+	height: 0px;
+	opacity: 0;
+	transition: all 0.5s ease-in-out;
+	&.visitorAnimation {
+		height: 150px;
+		opacity: 1;
+	}
+	.visitorFormAccessItem {
+		display: flex;
+		gap: 10px;
+		padding: 12px 20px 12px 16px;
+		width: 190px;
+		border-radius: 8px;
+		border: 1px solid rgba(151, 151, 151, 0.2);
+		// input[type="checkbox"] {
+		// 	appearance: none;
+		// 	width: 16px;
+		// 	height: 16px;
+		// 	border: 1.5px solid #979797;
+		// 	border-radius: 50%; // Makes it circular
+		// 	cursor: pointer;
+		// 	position: relative;
+		// 	background: transparent;
+
+		// 	&:checked {
+		// 		border-color: #3b82f6;
+
+		// 		&::after {
+		// 			content: "";
+		// 			position: absolute;
+		// 			left: 50%;
+		// 			top: 50%;
+		// 			transform: translate(-50%, -50%);
+		// 			width: 8px;
+		// 			height: 8px;
+		// 			background: #3b82f6;
+		// 			border-radius: 50%; // Makes the inner dot circular
+		// 		}
+		// 	}
+
+		// 	&:hover {
+		// 		border-color: #3b82f6;
+		// 	}
+		// }
+		input[type="checkbox"] {
+			-webkit-appearance: none;
+			appearance: none;
+			background: transparent;
+			font: inherit;
+			display: grid;
+			place-content: center;
+			color: currentColor;
+			width: 1.15em;
+			height: 1.15em;
+			border: 0.1px solid #fff;
+			border-radius: 0.15em;
+			transform: translateY(-0.075em);
+			cursor: pointer;
+			&:checked {
+				border-color: #6055ec;
+			}
+			&::before {
+				content: "";
+				width: 0.65em;
+				height: 0.65em;
+				transform: scale(0);
+				transition: 120ms transform ease-in-out;
+				box-shadow: inset 1em 1em #6055ec;
+				transform-origin: bottom left;
+				clip-path: polygon(14% 44%, 0 55%, 50% 100%, 100% 16%, 80% 0%, 43% 72%);
+			}
+			&:checked::before {
+				transform: scale(1);
+				border: 0.1px solid #6055ec;
+			}
+		}
 	}
 }

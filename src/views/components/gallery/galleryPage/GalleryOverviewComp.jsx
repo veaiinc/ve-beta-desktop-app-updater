@@ -19,7 +19,7 @@ const GalleryOverview = ({
 			<p className="subHeading">
 				Gallery URL&nbsp;
 				<span className="subTitle">
-					https://{workspaceId}.ve.ai/galleries/{info?.activeGallery?.slug}
+					https://{workspaceId}.ve.ai/gallery/{info?.activeGallery?.slug}
 				</span>
 			</p>
 			<div className="renameGallery">

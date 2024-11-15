@@ -7,6 +7,7 @@ import { ReactComponent as UpArrow } from '../../../../assets/svg/workflow/downA
 import ToggleSlider from '../../input/slider';
 import Context from '../../../../context/context';
 import { message, Drawer, Select } from 'antd';
+import _ from 'lodash';
 
 const workspaceId = localStorage.getItem('workspaceId');
 
@@ -295,6 +296,32 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 		}));
 	};
 
+	const handleVisitorForm = (apiKey) => {
+		const currentAccessibleTo = [...(info?.visitorFormAccess?.accessibleTo || [])];
+		const index = currentAccessibleTo.indexOf(apiKey);
+
+		let newAccessibleTo;
+		if (index > -1) {
+			newAccessibleTo = currentAccessibleTo.filter((key) => key !== apiKey);
+		} else {
+			newAccessibleTo = [...currentAccessibleTo, apiKey];
+		}
+
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			visitorFormAccess: {
+				...prevInfo.visitorFormAccess,
+				accessibleTo: newAccessibleTo,
+			},
+		}));
+
+		const payload = {
+			accessibleTo: newAccessibleTo,
+		};
+		console.log(payload, 'payload');
+		editVisitorFormAccess(payload, galleryId);
+	};
+
 	return (
 		<Drawer
 			open={open}
@@ -319,7 +346,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 							<input
 								placeholder="tussgabscgausgcharxyz//ail.com"
 								disabled
-								value={`https://${workspaceId}.ve.ai/galleries/${activeGallery?.slug}`}
+								value={`https://${workspaceId}.ve.ai/gallery/${activeGallery?.slug}`}
 							/>
 							<div>
 								<Copy
@@ -545,6 +572,26 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 							mobile number after entering a Pin or completing a face scan.
 						</p>
 					</div>
+					{info?.visitorFormAccess?.isEnabled && (
+						<div className="visitorFormAccessContainer visitorAnimation">
+							{[
+								{ label: 'Client', apiKey: 'master' },
+								{ label: 'Guest', apiKey: 'guest' },
+								{ label: 'AI Face Recognition', apiKey: 'face' },
+							].map((item) => (
+								<div key={item.label} className="visitorFormAccessItem">
+									<input
+										type="checkbox"
+										checked={info?.visitorFormAccess?.accessibleTo?.includes(
+											item.apiKey,
+										)}
+										onChange={() => handleVisitorForm(item.apiKey)}
+									/>
+									<p>{item.label}</p>
+								</div>
+							))}
+						</div>
+					)}
 				</div>
 			</div>
 		</Drawer>

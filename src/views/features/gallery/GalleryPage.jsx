@@ -542,6 +542,7 @@ const GalleryPage = () => {
 				albumSlug: album?.slug,
 				resetInfinityScroll: !prevInfo.resetInfinityScroll,
 				activeTab: 'Albums',
+				isRearranging: false,
 			}));
 			// if (info?.albumName !== album?.title) {
 			// 	getAlbumCount(galleryId, album?.title);
@@ -559,6 +560,7 @@ const GalleryPage = () => {
 				sortType: album?.sortType,
 
 				selectedImages: [],
+				isRearranging: false,
 			}));
 		} else if (name === 'clientSelection') {
 			setInfo((prevInfo) => ({
@@ -566,6 +568,7 @@ const GalleryPage = () => {
 				activeClientSelection: album?.slug,
 				clientSelectionID: album?._id,
 				clientSelectionName: album?.title,
+				isRearranging: false,
 			}));
 		}
 		setTimeout(() => {
@@ -860,7 +863,7 @@ const GalleryPage = () => {
 		console.log(info, 'activeGallery');
 		const workspaceId = localStorage.getItem('workspaceId');
 		navigator.clipboard.writeText(
-			`https://${workspaceId}.ve.ai/galleries/${info?.activeGallery?.slug}`,
+			`https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`,
 		);
 		message.success('Gallery link copied to clipboard');
 		setInfo((prev) => ({
