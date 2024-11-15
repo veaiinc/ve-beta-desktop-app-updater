@@ -1,0 +1,63 @@
+.schedule {
+	background-color: #1e1e1e;
+	color: #fff;
+	padding: 20px;
+	font-family: Arial, sans-serif;
+	position: relative;
+	width: 300px;
+}
+
+.schedule .time-header {
+	text-align: center;
+	font-size: 14px;
+	color: #bbb;
+	padding-bottom: 10px;
+}
+
+.schedule .time-slots {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	left: 0;
+	top: 40px;
+}
+
+.schedule .time-slots .hour {
+	height: 40px;
+	font-size: 12px;
+	color: #bbb;
+	padding: 10px 0;
+	text-align: left;
+	border-top: 1px solid #333;
+}
+
+.schedule .events {
+	position: relative;
+	margin-left: 80px;
+}
+
+.schedule .events .event {
+	background-color: #333;
+	color: #fff;
+	border-radius: 8px;
+	padding: 8px;
+	font-size: 12px;
+	margin-bottom: 8px;
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	width: 70px;
+	border: 1px solid #444;
+}
+
+.schedule .events .event span {
+	display: block;
+	margin-bottom: 2px;
+}
+
+.schedule .events .event .time {
+	font-size: 10px;
+	color: #999;
+}
