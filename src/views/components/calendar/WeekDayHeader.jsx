@@ -1,17 +1,14 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import '../../../assets/scss/calendar/calendarHeader.scss';
 
-const WeekDayHeader = ({ activeView, selectedWeek, getCurrentWeek }) => {
+const WeekDayHeader = ({ activeView, selectedWeek, selectedDate, getCurrentWeek }) => {
 	const [info, setInfo] = useState({
-		selectedWeekday: 0,
+		selectedWeek: [],
+		selectedWeekday: selectedDate,
 	});
 
-	useEffect(() => {
-		console.log('getting week Array' + selectedWeek);
-		getCurrentWeek();
-	}, [activeView, getCurrentWeek, selectedWeek]);
-
 	const handleSelectedDay = useCallback((day) => {
+		// console.log('Calling UseCallBack for selected');
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			selectedWeekday: day,
@@ -19,14 +16,17 @@ const WeekDayHeader = ({ activeView, selectedWeek, getCurrentWeek }) => {
 	}, []);
 
 	const days = [
-		{ name: 'Monday', date: '12' },
-		{ name: 'Tuesday', date: '13' },
-		{ name: 'Wednesday', date: '14' },
-		{ name: 'Thursday', date: '15' },
-		{ name: 'Friday', date: '16' },
-		{ name: 'Saturday', date: '17' },
-		{ name: 'Sunday', date: '18' },
-	];
+		{ name: 'Monday' },
+		{ name: 'Tuesday' },
+		{ name: 'Wednesday' },
+		{ name: 'Thursday' },
+		{ name: 'Friday' },
+		{ name: 'Saturday' },
+		{ name: 'Sunday' },
+	]?.map((day, index) => ({
+		...day,
+		date: selectedWeek[index],
+	}));
 
 	return (
 		<div className="weekDayHeaderContainer">

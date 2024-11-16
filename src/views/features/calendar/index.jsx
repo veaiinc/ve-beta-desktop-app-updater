@@ -1,7 +1,8 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useState, useCallback, useEffect } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSidebar from './CalendarSidebar';
 import CalendarView from './CalendarView';
+import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import {
 	// format,
 	// startOfMonth,
@@ -22,8 +23,11 @@ const Calendar = () => {
 		selectedYear: new Date().getFullYear(),
 		selectedDate: new Date(),
 		selectedWeek: [],
-		activeView: 'Month', // Week, Day
+		activeView: 'Month', // 'Week', 'Day'
+		loading: false,
 	});
+
+	// console.log('Type of selectedDate: ' + info?.selectedDate);
 
 	const handleToggleView = useCallback((view) => {
 		setInfo((prevInfo) => ({ ...prevInfo, activeView: view }));
@@ -49,7 +53,7 @@ const Calendar = () => {
 	// };
 
 	// Get Week Days array for <WeekDayHeader /> component
-	const getCurrentWeek = () => {
+	const getCurrentWeek = useCallback(() => {
 		const start = startOfWeek(info?.selectedDate, { weekStartsOn: 1 });
 		const end = endOfWeek(info?.selectedDate, { weekStartsOn: 1 });
 
@@ -58,28 +62,45 @@ const Calendar = () => {
 			start,
 			end,
 		});
-		return week.map((date) => date.getDate());
-	};
+		const weekDates = week.map((date) => date.getDate());
+
+		setInfo((prev) => ({
+			...prev,
+			selectedWeek: weekDates,
+		}));
+	}, [info?.selectedDate]);
+
+	useEffect(() => {
+		getCurrentWeek();
+	}, [getCurrentWeek, info.selectedDate]);
+	// console.log(`and selectedWeek: ${info?.selectedWeek}`);
 
 	return (
-		<div className="calendarParentContainer">
-			<CalendarSidebar
-				currentCalendarDate={info?.currentCalendarDate}
-				selectedMonth={info?.selectedMonth}
-				selectedYear={info?.selectedYear}
-				selectedDate={info?.selectedDate}
-				handlecurrentCalendarDateChange={handlecurrentCalendarDateChange}
-				handleMonthChange={handleMonthChange}
-				handleYearChange={handleYearChange}
-				handelSelectedDate={handelSelectedDate}
-			/>
-			<CalendarView
-				activeView={info?.activeView}
-				selectedWeek={info?.selectedWeek}
-				getCurrentWeek={getCurrentWeek}
-				handleToggleView={handleToggleView}
-			/>
-		</div>
+		<>
+			{info?.loading ? (
+				<UpdatedPageLoader />
+			) : (
+				<div className="calendarParentContainer">
+					<CalendarSidebar
+						currentCalendarDate={info?.currentCalendarDate}
+						selectedMonth={info?.selectedMonth}
+						selectedYear={info?.selectedYear}
+						selectedDate={info?.selectedDate}
+						handlecurrentCalendarDateChange={handlecurrentCalendarDateChange}
+						handleMonthChange={handleMonthChange}
+						handleYearChange={handleYearChange}
+						handelSelectedDate={handelSelectedDate}
+					/>
+					<CalendarView
+						activeView={info?.activeView}
+						selectedWeek={info?.selectedWeek}
+						selectedDate={info?.selectedDate}
+						getCurrentWeek={getCurrentWeek}
+						handleToggleView={handleToggleView}
+					/>
+				</div>
+			)}
+		</>
 	);
 };
 
