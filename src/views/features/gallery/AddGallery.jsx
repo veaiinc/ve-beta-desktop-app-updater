@@ -235,9 +235,7 @@ const AddGallery = () => {
 												className="album-side-options"
 												onClick={(e) => e.stopPropagation()}
 											>
-												<li
-													onClick={() => handleNavigateGallery(items._id)}
-												>
+												<li onClick={() => handleNavigateGallery(items)}>
 													View
 												</li>
 												{/* <li>Client view</li> */}
