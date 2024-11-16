@@ -232,7 +232,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 		}
 	}, [info?.shareEmail]);
 	const handleCopyGalleryLink = useCallback(() => {
-		const galleryLink = `https://${workspaceId}.ve.ai/galleries/${activeGallery?.slug}`;
+		const galleryLink = `https://${workspaceId}.ve.ai/gallery/${activeGallery?.slug}`;
 		navigator.clipboard
 			.writeText(galleryLink)
 			.then(() => {
