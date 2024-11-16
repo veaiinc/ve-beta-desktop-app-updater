@@ -6,7 +6,16 @@ import CalendarCategories from '../../components/calendar/CalendarCategories';
 import MeetingDetails from '../../components/calendar/MeetingDetails';
 import CalendarAiChat from '../../components/calendar/CalendarAiChat';
 
-const CalendarSidebar = () => {
+const CalendarSidebar = ({
+	currentCalendarDate,
+	selectedMonth,
+	selectedYear,
+	selectedDate,
+	handlecurrentCalendarDateChange,
+	handleMonthChange,
+	handleYearChange,
+	handelSelectedDate,
+}) => {
 	const [info, setInfo] = useState({
 		askAi: false,
 	});
@@ -23,7 +32,16 @@ const CalendarSidebar = () => {
 				<CalendarAiChat toggleAskAi={toggleAskAi} />
 			) : (
 				<div className="calendarSidebarContainer">
-					<CalendarSelector />
+					<CalendarSelector
+						currentCalendarDate={currentCalendarDate}
+						selectedMonth={selectedMonth}
+						selectedYear={selectedYear}
+						selectedDate={selectedDate}
+						handlecurrentCalendarDateChange={handlecurrentCalendarDateChange}
+						handleMonthChange={handleMonthChange}
+						handleYearChange={handleYearChange}
+						handelSelectedDate={handelSelectedDate}
+					/>
 					<AskAI toggleAskAi={toggleAskAi} />
 					<CalendarCategories />
 					<MeetingDetails />

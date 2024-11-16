@@ -18,26 +18,26 @@ import { ReactComponent as LeftSvg } from '../../../assets/svg/activity/left.svg
 import { ReactComponent as RightSvg } from '../../../assets/svg/activity/right.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 
-const CalendarSelector = () => {
+const CalendarSelector = ({
+	handlecurrentCalendarDateChange,
+	currentCalendarDate,
+	selectedMonth,
+	selectedYear,
+	selectedDate,
+	handleMonthChange,
+	handleYearChange,
+	handelSelectedDate,
+}) => {
 	// const [info, setInfo] = useState({
+	// 	todaysDate: new Date(),
+	// 	currentCalendarDate: new Date(),
+	// 	selectedMonth: new Date().getMonth(),
+	// 	selectedYear: new Date().getFullYear(),
 	// 	selectedDate: new Date(),
+	// 	selectedWeek: [],
 	// });
 
-	// const handleSelectDate = useCallback((selectedDate) => {
-	// 	setInfo((prevInfo) => ({ ...prevInfo, selectedDate }));
-	// }, []);
-
-	const [info, setInfo] = useState({
-		todaysDate: new Date(),
-		currentCalendarDate: new Date(),
-		selectedMonth: new Date().getMonth(),
-		selectedYear: new Date().getFullYear(),
-		selectedDate: new Date(),
-		selectedWeek: [],
-	});
-
-	// console.log('selectedDate:====>' + info?.selectedDate);
-
+	//keeping it local
 	const calendarInfo = useMemo(() => {
 		const minYear = 1990;
 		const maxYear = 2050;
@@ -62,28 +62,11 @@ const CalendarSelector = () => {
 		};
 	}, []);
 
-	const handleMonthChange = (month) => {
-		setInfo((prevInfo) => ({ ...prevInfo, selectedMonth: month }));
-	};
-
-	const handleYearChange = (year) => {
-		setInfo((prevInfo) => ({ ...prevInfo, selectedYear: year }));
-	};
-
-	const handlecurrentCalendarDateChange = (date) => {
-		setInfo((prevInfo) => ({ ...prevInfo, currentCalendarDate: date }));
-	};
-
-	const handelSelectedDate = (date) => {
-		setInfo((prevInfo) => ({ ...prevInfo, selectedDate: date }));
-	};
-	const handleWeekChange = (week) => {
-		setInfo((prevInfo) => ({ ...prevInfo, selectedWeek: week }));
-	};
-
+	//keeping it local
 	const [showMonths, setShowMonths] = useState(false);
 	const [showYears, setShowYears] = useState(false);
 
+	//keeping it local
 	// Handles month drop-down and year drop-down
 	const toggleMonthDropDown = () => {
 		if (showYears && !showMonths) {
@@ -100,22 +83,22 @@ const CalendarSelector = () => {
 
 	// Changes calendar when month or year being changed
 	useEffect(() => {
-		handlecurrentCalendarDateChange(new Date(info.selectedYear, info.selectedMonth));
-	}, [info.selectedMonth, info.selectedYear]);
+		handlecurrentCalendarDateChange(new Date(selectedYear, selectedMonth));
+	}, [selectedMonth, selectedYear]);
 
 	// Handles selected week when selected date changes
-	useEffect(() => {
-		if (daysInMonth) {
-			const [currentWeek] = chunkArray(daysInMonth).filter((week) => {
-				return week.some((date) => isSameDay(date, info.selectedDate));
-			});
-			handleWeekChange(currentWeek.map((date) => date.getDate()));
-		}
-	}, [info.selectedDate, info.todaysDate]);
+	// useEffect(() => {
+	// 	if (daysInMonth) {
+	// 		const [currentWeek] = chunkArray(daysInMonth).filter((week) => {
+	// 			return week.some((date) => isSameDay(date, selectedDate));
+	// 		});
+	// 		handleWeekChange(currentWeek.map((date) => date.getDate()));
+	// 	}
+	// }, [selectedDate, info.todaysDate]);
 
 	// Get the first and last day of the current month
-	const firstDayOfMonth = startOfMonth(info.currentCalendarDate);
-	const lastDayOfMonth = endOfMonth(info.currentCalendarDate);
+	const firstDayOfMonth = startOfMonth(currentCalendarDate);
+	const lastDayOfMonth = endOfMonth(currentCalendarDate);
 
 	// Get the first and last day of the week for the current month
 	const startOfCalendar = startOfWeek(firstDayOfMonth, { weekStartsOn: 1 });
@@ -129,24 +112,23 @@ const CalendarSelector = () => {
 
 	// Handlers to navigate between months
 	const goToPreviousMonth = () => {
-		const date = subMonths(info.currentCalendarDate, 1);
-		console.log(subMonths(info.currentCalendarDate, 1).toLocaleDateString());
+		const date = subMonths(currentCalendarDate, 1);
 		handlecurrentCalendarDateChange(
-			date.getFullYear() < calendarInfo.minYear ? info.currentCalendarDate : date,
+			date.getFullYear() < calendarInfo.minYear ? currentCalendarDate : date,
 		);
 	};
 	const goToNextMonth = () => {
-		const date = addMonths(info.currentCalendarDate, 1);
+		const date = addMonths(currentCalendarDate, 1);
 		handlecurrentCalendarDateChange(
-			date.getFullYear() > calendarInfo.maxYear ? info.currentCalendarDate : date,
+			date.getFullYear() > calendarInfo.maxYear ? currentCalendarDate : date,
 		);
 	};
 
 	// Get the month and year for display
-	const monthName = format(info.currentCalendarDate, 'MMMM');
-	const currentYear = format(info.currentCalendarDate, 'yyyy');
+	const monthName = format(currentCalendarDate, 'MMMM');
+	const currentYear = format(currentCalendarDate, 'yyyy');
 
-	// Function to chunk the array into groups of 7
+	// Function to chunk the array into groups of 7 for style properties
 	function chunkArray(arr, size = 7) {
 		const result = [];
 		for (let i = 0; i < arr.length; i += size) {
@@ -182,7 +164,7 @@ const CalendarSelector = () => {
 									<div
 										key={`monthName-${index}`}
 										className={`monthName ${
-											index === info.selectedMonth ? `selectedMonth` : ``
+											index === selectedMonth ? `selectedMonth` : ``
 										}`}
 										onClick={() => {
 											handleMonthChange(index);
@@ -207,7 +189,7 @@ const CalendarSelector = () => {
 									<div
 										key={year}
 										className={`yearList ${
-											info.selectedYear === year ? `selectedYear` : ``
+											selectedYear === year ? `selectedYear` : ``
 										}`}
 										onClick={() => handleYearChange(year)}
 									>
@@ -241,7 +223,7 @@ const CalendarSelector = () => {
 
 			<div className="dateContainer">
 				{chunkArray(daysInMonth).map((week, weekIndex) => {
-					const isSelectedWeek = week.some((date) => isSameDay(date, info.selectedDate));
+					const isSelectedWeek = week.some((date) => isSameDay(date, selectedDate));
 
 					return (
 						<div
@@ -249,14 +231,14 @@ const CalendarSelector = () => {
 							className={`dateRow ${isSelectedWeek ? 'highlightedRow' : ''}`}
 						>
 							{week.map((date, dateIndex) => {
-								const isSelected = isSameDay(date, info.selectedDate);
+								const isSelected = isSameDay(date, selectedDate);
 								const isCurrent = isSameDay(date, new Date());
 
 								return (
 									<div
 										key={dateIndex}
 										className={`calendarDay ${
-											date.getMonth() === info.currentCalendarDate.getMonth()
+											date.getMonth() === currentCalendarDate.getMonth()
 												? 'currentMonth'
 												: 'otherMonth'
 										} ${isSelected ? 'selectedDay' : ''} ${

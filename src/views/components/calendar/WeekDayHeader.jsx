@@ -1,10 +1,15 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/calendar/calendarHeader.scss';
 
-const WeekDayHeader = () => {
+const WeekDayHeader = ({ activeView, selectedWeek, getCurrentWeek }) => {
 	const [info, setInfo] = useState({
 		selectedWeekday: 0,
 	});
+
+	useEffect(() => {
+		console.log('getting week Array' + selectedWeek);
+		getCurrentWeek();
+	}, [activeView, getCurrentWeek, selectedWeek]);
 
 	const handleSelectedDay = useCallback((day) => {
 		setInfo((prevInfo) => ({

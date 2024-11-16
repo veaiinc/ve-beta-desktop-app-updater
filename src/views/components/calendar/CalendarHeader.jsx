@@ -5,10 +5,16 @@ import WeekHeader from './WeekHeader';
 import DayHeader from './DaysHeader';
 import WeekDayHeader from './WeekDayHeader';
 
-const CalendarHeader = ({ activeView, handleToggleView }) => {
+const CalendarHeader = ({ activeView, selectedWeek, handleToggleView, getCurrentWeek }) => {
 	const views = {
 		Month: <WeekHeader />,
-		Week: <WeekDayHeader />,
+		Week: (
+			<WeekDayHeader
+				activeView={activeView}
+				selectedWeek={selectedWeek}
+				getCurrentWeek={getCurrentWeek}
+			/>
+		),
 		Day: <DayHeader />,
 	};
 	return (
