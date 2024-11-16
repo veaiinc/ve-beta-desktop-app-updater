@@ -101,7 +101,6 @@ const ImageDetailNav = ({
 		if (response?.[0] === true) {
 			setnavInfo((prev) => ({
 				...prev,
-				searchInput: '',
 			}));
 		}
 	};

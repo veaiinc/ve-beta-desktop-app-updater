@@ -612,10 +612,36 @@
 					}
 				}
 			}
+			.saveRearrange {
+				display: flex;
+				width: 100%;
+				justify-content: flex-end;
+				padding-right: 100px;
+				p {
+					display: flex;
+					width: 146px;
+					height: 36px;
+					padding: 12px 16px;
+					justify-content: center;
+					align-items: center;
+					overflow: hidden;
+					color: #e4e5e6;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+					font-size: 12px;
+					font-weight: 500;
+					line-height: 20px; /* 166.667% */
+					letter-spacing: -0.03px;
+					border-radius: 32px;
+					border: 1px solid rgba(228, 229, 230, 0.05);
+					background: #151515;
+					cursor: pointer;
+				}
+			}
 			.galleryImagesContainer {
 				width: 100%;
 				padding: 10px;
-				height: 70vh;
+				height: 58vh;
 				overflow: auto;
 				.imageUpload {
 					display: flex;
@@ -1204,13 +1230,15 @@
 					}
 				}
 				.album-cover-image {
-					width: 228px;
-					height: 370px;
-					border-radius: 24px;
-					border: 1px solid #eaeaea;
-					cursor: pointer;
+					width: 100%;
+					height: 100%;
 					position: relative;
-					overflow: hidden;
+					img {
+						border-radius: 24px;
+						border: 1px solid #eaeaea;
+						cursor: pointer;
+						overflow: hidden;
+					}
 				}
 			}
 			.upload-cover-photo {
@@ -1260,21 +1288,43 @@
 	}
 }
 
-.rearrange-image-container {
-	border: 2px solid transparent;
-	transition: all 0.2s;
-	border-radius: 4px;
-	overflow: hidden;
+.rearrange-image-container-wrapper {
+	display: flex;
+	width: 100%;
+	// height: 60vh;
+	overflow: auto;
+	justify-content: center;
+	flex-wrap: wrap;
+	margin: auto;
+	.selected {
+		border-color: 1px solid #007bff;
+	}
+	.rearrange-image-container {
+		border: 2px solid transparent;
+		transition: all 0.2s;
+		border-radius: 4px;
+		overflow: hidden;
+	}
 }
 
-.rearrange-image-container.selected {
-	border-color: #007bff;
-}
+// .rearrange-image-container.selected {
+// 	border-color: #007bff;
+// }
 
-.rearrange-image-container:hover {
-	transform: scale(1.02);
-}
+// .rearrange-image-container:hover {
+// 	transform: scale(1.02);
+// }
 
-.rearrange-image-container.dragging {
-	opacity: 0.5;
-}
+// .rearrange-image-container.dragging {
+// 	opacity: 0.5;
+// }
+// .hideScrollBar {
+// 	::-webkit-scrollbar {
+// 		display: none;
+// 	}
+// }
+// .focus-picker-img {
+// 	img {
+// 		background-color: red;
+// 	}
+// }

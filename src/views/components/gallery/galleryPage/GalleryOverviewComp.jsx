@@ -19,7 +19,7 @@ const GalleryOverview = ({
 			<p className="subHeading">
 				Gallery URL&nbsp;
 				<span className="subTitle">
-					https://{workspaceId}.ve.ai/galleries/{info?.activeGallery?.galleryData?.slug}
+					https://{workspaceId}.ve.ai/gallery/{info?.activeGallery?.slug}
 				</span>
 			</p>
 			<div className="renameGallery">
@@ -29,7 +29,7 @@ const GalleryOverview = ({
 				</p>
 				<input
 					placeholder="Hannef x Mahi"
-					value={info.activeGallery?.galleryData?.title}
+					value={info.activeGallery?.title}
 					onChange={handleGalleryChange}
 				/>
 			</div>
@@ -42,7 +42,7 @@ const GalleryOverview = ({
 					<DatePicker
 						className="datePicker"
 						format="DD-MM-YYYY"
-						selected={convertEpochToDate(info.activeGallery?.galleryData?.dueDateEpoch)}
+						selected={convertEpochToDate(info.activeGallery?.dueDateEpoch)}
 						// onChange={(date, dateString) =>
 						// 	handleAlbumNameChange(dateString, 'date')
 						// }
