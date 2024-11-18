@@ -143,7 +143,7 @@ export const ProfileState = () => {
 	const updateUserPhoneNumber = async (payload) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
-			let decoded = jwt_decode(usertoken);
+			// let decoded = jwt_decode(usertoken);
 			let response = await service.fetchPut('/tenant-user', payload, usertoken, 'auth');
 
 			if (response?.[0]) {
