@@ -19,7 +19,6 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	const arrowRef = useRef(null);
 
 	const [info, setInfo] = useState({
-		isHovering: false,
 		isEmailValid: false,
 		isLoading: false,
 	});
@@ -150,8 +149,6 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 								!info.isEmailValid || info.isLoading ? 'not-allowed' : 'pointer',
 							background: !info.isEmailValid ? 'rgba(255, 255, 255, 0.1)' : 'white',
 						}}
-						onMouseEnter={() => setInfo({ ...info, isHovering: true })}
-						onMouseLeave={() => setInfo({ ...info, isHovering: false })}
 						onClick={handleContinueWithEmail}
 					>
 						{info.isLoading ? (
