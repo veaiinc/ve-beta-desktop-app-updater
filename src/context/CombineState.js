@@ -5,6 +5,7 @@ import { CompanySettingsState } from './companySettings/state';
 import { Galleries } from './Gallery/state';
 import { AiSetupState } from './aiSetup/state';
 import { ActivityState } from './Activity/state';
+import { SubscriptionState } from './subscription/state';
 
 const CombineState = () => {
 	return {
@@ -15,6 +16,7 @@ const CombineState = () => {
 		galleryInfo: Galleries(),
 		aiSetup: AiSetupState(),
 		activityInfo: ActivityState(),
+		subscriptionInfo: SubscriptionState(),
 	};
 };
 

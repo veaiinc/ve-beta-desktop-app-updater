@@ -89,12 +89,9 @@ const AddGallery = () => {
 		}
 	};
 
-	const handleNavigateGallery = (galleryId) => {
-		const selectedGallery = tenantGalleries?.galleries.find(
-			(gallery) => gallery._id === galleryId,
-		);
-		getGalleryCredentials(galleryId);
-		navigate(`/galleries/${galleryId}`, { state: { galleryData: selectedGallery } });
+	const handleNavigateGallery = (gallery) => {
+		getGalleryCredentials(gallery?._id);
+		navigate(`/galleries/${gallery?._id}`, { state: { galleryData: gallery } });
 	};
 
 	const handleNavigateSettings = (galleryId) => {
@@ -220,7 +217,7 @@ const AddGallery = () => {
 									tenantGalleries?.galleries.map((items, index) => (
 										<div
 											className="add-gallery-image"
-											onClick={() => handleNavigateGallery(items._id)}
+											onClick={() => handleNavigateGallery(items)}
 											key={items._id}
 										>
 											{items?.coverImage?.thumbnailUrl ? (

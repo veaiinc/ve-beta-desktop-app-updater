@@ -3,6 +3,7 @@ import { ReactComponent as LaptopLogo } from '../../../../assets/svg/gallery/lap
 import mobile from '../../../../assets/svg/gallery/mobile.png';
 import Cropper from 'react-easy-crop';
 import { FocusedImage, FocusPicker } from 'image-focus';
+import '../../../../assets/scss/gallery/albumSettings.scss';
 
 const UploadGalleryImageCover = ({
 	info,
@@ -143,6 +144,7 @@ const UploadGalleryImageCover = ({
 					ref={fileInputRef}
 					type="file"
 					onChange={uploadGalleryCoverChangeHandler}
+					accept={['image/png', 'image/jpeg']}
 					hidden
 					style={{ width: 0, visibility: 'hidden' }}
 					// style={{ visibility: 'hidden' }}

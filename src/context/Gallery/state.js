@@ -143,9 +143,12 @@ export const Galleries = () => {
 				'galleries',
 			);
 			if (response?.[0] === true) {
+				const sortedAlbums = response?.[1]?.albums?.sort(
+					(a, b) => a.customSortIndex - b.customSortIndex,
+				);
 				dispatch({
 					type: Actions.GET_TENANT_ALBUMS,
-					payload: response?.[1],
+					payload: { ...response?.[1], albums: sortedAlbums },
 				});
 			} else {
 				return response;
@@ -184,6 +187,9 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+			if (response?.[0]) {
+				getAlbumImagesCount(galleryId);
+			}
 		} catch (error) {
 			console.log('error==>getGallery', error);
 		}
@@ -1185,6 +1191,82 @@ export const Galleries = () => {
 		}
 	};
 
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/custom-sort-index
+	const updateAlbumOrder = async (payload, galleryId, albumId, sortedItems) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/custom-sort-index`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+
+			if (response[0] === true) {
+				dispatch({
+					type: Actions.GET_ALBUM_IMAGES_COUNT,
+					payload: {
+						...state.albumImagesCount,
+						albums: [...sortedItems],
+					},
+				});
+			}
+
+			return response;
+		} catch (error) {
+			console.log('error==>updateAlbumOrder', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/re-arrange-status
+
+	const getRearrangeStatus = async (galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/re-arrange-status?isSortRequired=true`,
+
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>updateTagRearrangeStatus', error);
+		}
+	};
+	const updateImageOrder = async (images) => {
+		try {
+			dispatch({
+				type: Actions.GET_IMAGES_LIST,
+				payload: {
+					...state.imagesList,
+					docs: images,
+				},
+			});
+		} catch (error) {
+			console.log('error==>updateImageOrder', error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/images
+	const changeImageOrder = async (payload, galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>changeImageOrder', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/visitor-form-access
+
 	return {
 		...state,
 		getGalleries,
@@ -1244,5 +1326,9 @@ export const Galleries = () => {
 		pubslishGallery,
 		getGalleryShareDetails,
 		changeMasterAccessPin,
+		updateAlbumOrder,
+		getRearrangeStatus,
+		updateImageOrder,
+		changeImageOrder,
 	};
 };

@@ -3,9 +3,11 @@ import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/gallery/modals/shareModal.scss';
 import { ReactComponent as Copy } from '../../../../assets/svg/gallery/copy.svg';
 import { ReactComponent as Mail } from '../../../../assets/svg/gallery/mail.svg';
+import { ReactComponent as UpArrow } from '../../../../assets/svg/workflow/downArrow.svg';
 import ToggleSlider from '../../input/slider';
 import Context from '../../../../context/context';
-import { message, Drawer } from 'antd';
+import { message, Drawer, Select } from 'antd';
+import _ from 'lodash';
 
 const workspaceId = localStorage.getItem('workspaceId');
 
@@ -31,9 +33,24 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 		visitorFormAccess: visitorFormAccess,
 		canClientDownloadOriginals: tenantPreferences?.canClientDownloadOriginals,
 		canClientDownloadOptimized: tenantPreferences?.canClientDownloadOptimized,
+		isDownloadEnabled:
+			tenantPreferences?.canClientDownloadOriginals ||
+			tenantPreferences?.canClientDownloadOptimized ||
+			tenantPreferences?.canGuestDownloadOptimized ||
+			tenantPreferences?.canGuestDownloadOriginals ||
+			false,
+		guestCannotDownload:
+			tenantPreferences?.canGuestDownloadOriginals &&
+			tenantPreferences?.canGuestDownloadOptimized
+				? false
+				: true,
 		galleryGuestAccess: galleryGuestAccess,
 		shareEmail: '',
+		showClientDownloadOptions: false,
+		showGuestDownloadOptions: false,
 		galleryShareDetails: galleryShareDetails,
+		canGuestDownloadOptimized: tenantPreferences?.canGuestDownloadOptimized || false,
+		canGuestDownloadOriginals: tenantPreferences?.canGuestDownloadOriginals || false,
 	});
 	useEffect(() => {
 		if (!galleryShareDetails) {
@@ -78,9 +95,41 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 				...prevInfo,
 				canClientDownloadOriginals: tenantPreferences?.canClientDownloadOriginals,
 				canClientDownloadOptimized: tenantPreferences?.canClientDownloadOptimized,
+				canGuestDownloadOptimized: tenantPreferences?.canGuestDownloadOptimized,
+				canGuestDownloadOriginals: tenantPreferences?.canGuestDownloadOriginals,
+				isDownloadEnabled:
+					tenantPreferences?.canClientDownloadOriginals ||
+					tenantPreferences?.canClientDownloadOptimized ||
+					tenantPreferences?.canGuestDownloadOptimized ||
+					tenantPreferences?.canGuestDownloadOriginals ||
+					false,
+				guestCannotDownload:
+					tenantPreferences?.canGuestDownloadOriginals &&
+					tenantPreferences?.canGuestDownloadOptimized
+						? false
+						: true,
 			}));
 		}
 	}, [tenantPreferences]);
+	useEffect(() => {
+		handleDownloadOptions();
+	}, [
+		info?.canClientDownloadOriginals,
+		info?.canClientDownloadOptimized,
+		info?.canGuestDownloadOptimized,
+		info?.canGuestDownloadOriginals,
+	]);
+
+	const handleDownloadOptions = () => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			isDownloadEnabled:
+				prevInfo?.canClientDownloadOriginals ||
+				prevInfo?.canClientDownloadOptimized ||
+				prevInfo?.canGuestDownloadOptimized ||
+				prevInfo?.canGuestDownloadOriginals,
+		}));
+	};
 
 	const handleVisitorFormAccess = useCallback(() => {
 		setInfo((prevInfo) => ({
@@ -96,16 +145,60 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 		editVisitorFormAccess(payload, galleryId);
 	}, [info?.visitorFormAccess?.isEnabled]);
 
-	const handleGalleryProtection = () => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			canClientDownloadOriginals: !prevInfo?.canClientDownloadOriginals,
-			canClientDownloadOptimized: !prevInfo?.canClientDownloadOriginals,
-		}));
-		const payload = {
-			canClientDownloadOriginals: !info?.canClientDownloadOriginals,
-			canClientDownloadOptimized: !info?.canClientDownloadOriginals,
-		};
+	const handleGalleryProtection = (name) => {
+		let payload = {};
+		if (name === 'download') {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				isDownloadEnabled: !prevInfo?.isDownloadEnabled,
+				canClientDownloadOriginals: false,
+				canClientDownloadOptimized: false,
+				canGuestDownloadOptimized: false,
+				canGuestDownloadOriginals: false,
+			}));
+			if (!info?.isDownloadEnabled) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					canClientDownloadOptimized: true,
+				}));
+				payload = {
+					canClientDownloadOptimized: true,
+				};
+			} else {
+				payload = {
+					canClientDownloadOriginals: false,
+					canClientDownloadOptimized: false,
+					canGuestDownloadOptimized: false,
+					canGuestDownloadOriginals: false,
+				};
+			}
+		} else if (name === 'guestCannotDownload') {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				guestCannotDownload: !prevInfo?.guestCannotDownload,
+			}));
+			console.log(info?.guestCannotDownload, 'guestCannotDownload');
+			if (info?.guestCannotDownload) {
+				payload = {
+					canGuestDownloadOriginals: false,
+					canGuestDownloadOptimized: false,
+				};
+			} else {
+				payload = {
+					canGuestDownloadOptimized: true,
+				};
+			}
+		} else {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				[name]: !prevInfo[name],
+				// isDownloadEnabled:
+			}));
+			payload = {
+				[name]: !info[name],
+			};
+		}
+
 		editPreferences(galleryId, payload);
 	};
 
@@ -139,7 +232,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 		}
 	}, [info?.shareEmail]);
 	const handleCopyGalleryLink = useCallback(() => {
-		const galleryLink = `https://${workspaceId}.ve.ai/galleries/${activeGallery?.slug}`;
+		const galleryLink = `https://${workspaceId}.ve.ai/gallery/${activeGallery?.slug}`;
 		navigator.clipboard
 			.writeText(galleryLink)
 			.then(() => {
@@ -164,18 +257,23 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 					accessPin: e.target.value,
 				};
 				changeMasterAccessPin(payload, galleryId);
+				message.success('Client PIN updated successfully');
 			}
 		} else if (type === 'guestAccessPin') {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				galleryShareDetails: {
-					...prevInfo?.galleryShareDetails,
-					guestAccess: {
-						...prevInfo?.galleryShareDetails?.guestAccess,
-						pin: e.target.value,
-					},
+				galleryGuestAccess: {
+					...prevInfo?.galleryGuestAccess,
+					pin: e.target.value,
 				},
 			}));
+			if (e.target.value.length === 3 && e.target.value !== galleryGuestAccess?.pin) {
+				let payload = {
+					accessPin: e.target.value,
+				};
+				editGalleryGuestAccess(payload, galleryId);
+				message.success('Guest PIN updated successfully');
+			}
 		}
 	};
 
@@ -189,6 +287,39 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 				message.success('PIN copied to clipboard');
 			});
 		}
+	};
+
+	const handleOpenDownloadOptions = (type) => {
+		setInfo((prev) => ({
+			...prev,
+			[`show${type}DownloadOptions`]: !prev[`show${type}DownloadOptions`],
+		}));
+	};
+
+	const handleVisitorForm = (apiKey) => {
+		const currentAccessibleTo = [...(info?.visitorFormAccess?.accessibleTo || [])];
+		const index = currentAccessibleTo.indexOf(apiKey);
+
+		let newAccessibleTo;
+		if (index > -1) {
+			newAccessibleTo = currentAccessibleTo.filter((key) => key !== apiKey);
+		} else {
+			newAccessibleTo = [...currentAccessibleTo, apiKey];
+		}
+
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			visitorFormAccess: {
+				...prevInfo.visitorFormAccess,
+				accessibleTo: newAccessibleTo,
+			},
+		}));
+
+		const payload = {
+			accessibleTo: newAccessibleTo,
+		};
+		console.log(payload, 'payload');
+		editVisitorFormAccess(payload, galleryId);
 	};
 
 	return (
@@ -215,7 +346,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 							<input
 								placeholder="tussgabscgausgcharxyz//ail.com"
 								disabled
-								value={`https://${workspaceId}.ve.ai/galleries/${activeGallery?.slug}`}
+								value={`https://${workspaceId}.ve.ai/gallery/${activeGallery?.slug}`}
 							/>
 							<div>
 								<Copy
@@ -296,7 +427,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 										onChange={(e) => {
 											handleEditPin(e, 'guestAccessPin');
 										}}
-										value={galleryGuestAccess?.pin}
+										value={info?.galleryGuestAccess?.pin}
 									/>
 									<div>
 										<Copy
@@ -312,12 +443,120 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 				<div className="optionsContainer">
 					<div className="optionsToggleContainer">
 						<ToggleSlider
-							value={info?.canClientDownloadOriginals}
-							onChange={handleGalleryProtection}
+							value={info?.isDownloadEnabled}
+							onChange={() => handleGalleryProtection('download')}
 						/>
 						<p>Download</p>
 					</div>
 					<p>Who all can download the photos</p>
+					{info?.isDownloadEnabled && (
+						<div className="downloadOptionsContainer">
+							<div className="downloadOptionItem">
+								<div className="downloadOptionItemText">
+									<p>Client </p>
+									<div className="dropdownContainer">
+										<div
+											className="dropdown"
+											onClick={() => handleOpenDownloadOptions('Client')}
+										>
+											<p></p>
+											<UpArrow className="rotate" />
+										</div>
+
+										<div
+											className={`downloadOptionContainer ${
+												info?.showClientDownloadOptions ? 'expanded' : ''
+											}`}
+										>
+											<div className="downloadOptions">
+												<p>Can Download Originals Images</p>
+												<input
+													type="checkbox"
+													checked={info?.canClientDownloadOriginals}
+													onChange={() =>
+														handleGalleryProtection(
+															'canClientDownloadOriginals',
+														)
+													}
+												/>
+											</div>
+											<div className="downloadOptions">
+												<p>Can Download Optimised Images</p>
+												<input
+													type="checkbox"
+													checked={info?.canClientDownloadOptimized}
+													onChange={() =>
+														handleGalleryProtection(
+															'canClientDownloadOptimized',
+														)
+													}
+												/>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div className="downloadOptionItem">
+								<div className="downloadOptionItemText">
+									<p>Guest</p>
+									<div className="dropdownContainer">
+										<div
+											className="dropdown"
+											onClick={() => handleOpenDownloadOptions('Guest')}
+										>
+											<p></p>
+											<UpArrow className="rotate" />
+										</div>
+
+										<div
+											className={`downloadOptionContainer ${
+												info?.showGuestDownloadOptions
+													? 'expandedGuest'
+													: ''
+											}`}
+										>
+											{/* <div className="downloadOptions">
+												<p>Cannot Download </p>
+												<input
+													type="checkbox"
+													checked={!info?.guestCannotDownload}
+													onChange={() =>
+														handleGalleryProtection(
+															'guestCannotDownload',
+														)
+													}
+												/>
+											</div> */}
+											<div className="downloadOptions">
+												<p>Can Download Originals Images</p>
+												<input
+													type="checkbox"
+													checked={info?.canGuestDownloadOriginals}
+													onChange={() =>
+														handleGalleryProtection(
+															'canGuestDownloadOriginals',
+														)
+													}
+												/>
+											</div>
+											<div className="downloadOptions">
+												<p>Can Download Optimised Images</p>
+												<input
+													type="checkbox"
+													checked={info?.canGuestDownloadOptimized}
+													onChange={() =>
+														handleGalleryProtection(
+															'canGuestDownloadOptimized',
+														)
+													}
+												/>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					)}
 				</div>
 				<div className="optionsContainer">
 					<p>Visitors Details Form</p>
@@ -333,6 +572,26 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 							mobile number after entering a Pin or completing a face scan.
 						</p>
 					</div>
+					{info?.visitorFormAccess?.isEnabled && (
+						<div className="visitorFormAccessContainer visitorAnimation">
+							{[
+								{ label: 'Client', apiKey: 'master' },
+								{ label: 'Guest', apiKey: 'guest' },
+								{ label: 'AI Face Recognition', apiKey: 'face' },
+							].map((item) => (
+								<div key={item.label} className="visitorFormAccessItem">
+									<input
+										type="checkbox"
+										checked={info?.visitorFormAccess?.accessibleTo?.includes(
+											item.apiKey,
+										)}
+										onChange={() => handleVisitorForm(item.apiKey)}
+									/>
+									<p>{item.label}</p>
+								</div>
+							))}
+						</div>
+					)}
 				</div>
 			</div>
 		</Drawer>

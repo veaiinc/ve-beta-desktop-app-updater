@@ -26,7 +26,9 @@ export const FetchMoreLoaderComp = () => {
 };
 
 export const getLocationsDetails = async () => {
-	const response = await axios.get('https://ipapi.co/json/');
+	const response = await axios.get(
+		'https://ipapi.co/json/?key=B17oRoM25399fyZGLiTtq5qbfNE2XaleKkzTmKdnPzGJfgo1UY',
+	);
 	const { country_code, region_code, region, country_name, city, timezone, postal, currency } =
 		response?.data;
 	const locationDetails = {
