@@ -10,7 +10,7 @@ import { ReactComponent as LinkGrey } from '../../../../assets/svg/Settings/link
 import { ReactComponent as Tick } from '../../../../assets/svg/sales/smartFile/tick.svg';
 import { message } from 'antd';
 import Spinner from '../../loaders/Spinner';
-const AssignAssistantModal = ({ modalIsOpen, closeModal }) => {
+const AssignAssistantModal = ({ modalIsOpen, closeModal, selectedAssistant }) => {
 	const navigate = useNavigate();
 	const { templateId } = useParams();
 	const {
@@ -35,6 +35,16 @@ const AssignAssistantModal = ({ modalIsOpen, closeModal }) => {
 			setInfo((prev) => ({ ...prev, assisstantData: existingAiAssistants, loading: false }));
 		}
 	}, [existingAiAssistants]);
+
+	useEffect(() => {
+		if (selectedAssistant?._id) {
+			const updatedSelectedAssistantData = {
+				name: selectedAssistant?.name,
+				id: selectedAssistant?._id,
+			};
+			setInfo((prev) => ({ ...prev, selectedAssistant: updatedSelectedAssistantData }));
+		}
+	}, [selectedAssistant]);
 
 	const onCardClick = useCallback(
 		(assistantData) => {
