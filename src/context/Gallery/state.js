@@ -1265,7 +1265,24 @@ export const Galleries = () => {
 			console.log('error==>changeImageOrder', error);
 		}
 	};
-	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/visitor-form-access
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/default-sort
+	const setDefaultSort = async (payload) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/default-sort`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			if (response[0] === true) {
+				getGalleries({ page: 1, limit: 15 }, true);
+			}
+		} catch (error) {
+			console.log('error==>setDefaultSort', error);
+		}
+	};
 
 	return {
 		...state,
@@ -1330,5 +1347,6 @@ export const Galleries = () => {
 		getRearrangeStatus,
 		updateImageOrder,
 		changeImageOrder,
+		setDefaultSort,
 	};
 };
