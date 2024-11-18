@@ -30,7 +30,7 @@ const Username = ({
 		}));
 	};
 	const handleNext = () => {
-		gsap.to(usernameDivRef.current, {
+		gsap.to(usernameDivRef?.current, {
 			opacity: 0,
 			duration: 0.5,
 			ease: 'power2.inOut',
