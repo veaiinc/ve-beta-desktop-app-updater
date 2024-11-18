@@ -123,10 +123,10 @@ export const ProfileState = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let response = await service.fetchPut(
-				API.TENANTS.myProfile,
+				'/tenant-user', // API.TENANTS.myProfile,
 				payload,
 				usertoken,
-				'tenant-users',
+				'auth',
 			);
 
 			if (response?.[0]) {
@@ -144,12 +144,7 @@ export const ProfileState = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let decoded = jwt_decode(usertoken);
-			let response = await service.fetchPut(
-				'/' + decoded.user_id + API.TENANTS.updateTenantUser,
-				payload,
-				usertoken,
-				'tenant-users',
-			);
+			let response = await service.fetchPut('/tenant-user', payload, usertoken, 'auth');
 
 			if (response?.[0]) {
 				return [true, response[1]];
