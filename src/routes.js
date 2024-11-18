@@ -18,6 +18,8 @@ import GalleryPage from './views/features/gallery/GalleryPage';
 import GalleryViewer from './views/features/gallery/GalleryViewer';
 import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
+import Calendar from './views/features/calendar/index';
+
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
 import Subscription from './views/features/subscription';
 
@@ -175,8 +177,12 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/subscription',
-		component: <Subscription />,
+		path: '/calendar',
+		component: (
+			<AuthWrapper title={'Calendar'} calendarWidth={'1500px'}>
+				<Calendar />
+			</AuthWrapper>
+		),
 		exact: true,
 	},
 ];

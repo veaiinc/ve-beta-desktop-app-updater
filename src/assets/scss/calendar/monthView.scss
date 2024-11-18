@@ -1,0 +1,62 @@
+.calendar-grid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 4px;
+	padding: 10px 30px;
+	height: 100%;
+	overflow-y: auto;
+}
+
+.day {
+	display: flex;
+	// width: 129px;
+	height: auto;
+	max-height: 155px;
+	padding: 13px;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+	gap: 10px;
+	flex-shrink: 0;
+
+	border-radius: 4px;
+	background: rgba(176, 176, 176, 0.05);
+
+	&:hover {
+		border-radius: 4px;
+		background: rgba(176, 176, 176, 0.15);
+		box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
+			4px 4px 6px 0px rgba(17, 17, 17, 0.51) inset;
+	}
+
+	&.prev-month {
+		opacity: 0.3;
+	}
+
+	.date {
+		align-self: stretch;
+		font-weight: bold;
+	}
+
+	.event {
+		font-size: 0.85em;
+		padding: 0px 5px;
+		margin: 2px 0;
+		display: inline-block;
+		color: #e4e5e6;
+		text-align: right;
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+
+		&.wedding {
+			border-left: 2px solid #89ac4f;
+		}
+
+		&.engagement {
+			border-left: 2px solid #cf824b;
+		}
+	}
+}
