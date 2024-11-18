@@ -76,7 +76,7 @@ const AddGallery = () => {
 		limit: 15,
 		timeout: null,
 		workspaceId: localStorage.getItem('workspaceId'),
-		showFilter: true,
+		showFilter: false,
 		activeSort: tenantGalleries?.sort || '-createdAt',
 	});
 	const navigate = useNavigate();
@@ -227,7 +227,12 @@ const AddGallery = () => {
 						}
 						open={info?.showFilter}
 						color="transparent"
-						// color="red"
+						trigger="click"
+						onOpenChange={(open) => {
+							if (!open) {
+								handleFilter();
+							}
+						}}
 						className="filter-tooltip"
 						arrow={false}
 					/>
