@@ -27,6 +27,7 @@ import GalleryOverview from '../../components/gallery/galleryPage/GalleryOvervie
 import DesignOverviewComp from '../../components/gallery/galleryPage/DesignOverviewComp';
 import UploadGalleryImageCover from '../../components/gallery/galleryPage/UploadGalleryImageCover';
 import MoveToAlbumPopup from '../../components/modalsV2/gallery/MoveToAlbumPopup';
+import AiSelection from './AiSelection';
 import randomize from 'randomatic';
 import axios from 'axios';
 import Skeleton from 'react-loading-skeleton';
@@ -2945,6 +2946,7 @@ const GalleryPage = () => {
 						</div>
 					</div>
 				)}
+				{info.activeTab === 'AI' && <AiSelection />}
 			</div>
 
 			<ShareModal

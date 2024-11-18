@@ -1,0 +1,94 @@
+.aiSelection-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    .aiOptions-navbar {
+        display: flex;
+        justify-content: space-between;
+        .aiOptions-navbar-options {
+            display: flex;
+            padding: 16px 24px;
+            align-items: center;
+            gap: 28px;
+            border-radius: 100px;
+            border: 1px solid rgba(36, 36, 36, 0.64);
+            background: rgba(42, 42, 42, 0.16);
+            p {
+                color: rgba(228, 229, 230, 0.48);
+                cursor: pointer;
+                font-size: 15px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: 16px;
+            }
+            .active {
+                color: #e4e5e6;
+            }
+        }
+    }
+    .searchContainer {
+        display: flex;
+        width: 40px;
+        height: 40px;
+        gap: 10px;
+        padding: 10px;
+        align-items: center;
+        border-radius: 100px;
+        border: 1px solid rgba(228, 229, 230, 0.05);
+        background: #151515;
+        transition: width 0.3s ease;
+        overflow: hidden;
+        cursor: pointer;
+        input {
+            display: none;
+            background: transparent;
+            border: none;
+            color: white;
+        }
+        svg {
+            path {
+                fill: #e4e5e6;
+            }
+        }
+        &:hover {
+            width: 200px;
+            input {
+                display: block;
+            }
+        }
+    }
+    .aiPeople-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        overflow: auto;
+        p {
+            color: #979797;
+            font-size: 12px;
+            font-weight: 400;
+        }
+        .aiPeople {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            height: 60vh;
+            overflow-y: scroll;
+            .aiPeople-person {
+                display: flex;
+                justify-content: space-between;
+                width: 121.985px;
+                height: 134px;
+                padding: 11.729px 9.383px;
+                flex-direction: column;
+                align-items: center;
+                border-radius: 16px;
+                border: 1px solid rgb(92, 13, 219);
+                img {
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 50%;
+                }
+            }
+        }
+    }
+}
