@@ -49,9 +49,6 @@ const Calendar = () => {
 	const handelSelectedDate = (date) => {
 		setInfo((prevInfo) => ({ ...prevInfo, selectedDate: date }));
 	};
-	// const handleWeekChange = (week) => {
-	// 	setInfo((prevInfo) => ({ ...prevInfo, selectedWeek: week }));
-	// };
 
 	// Get Week Days array for <WeekDayHeader /> component
 	const getCurrentWeek = useCallback(() => {

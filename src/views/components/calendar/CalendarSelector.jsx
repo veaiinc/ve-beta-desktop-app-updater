@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, useMemo, useEffect } from 'react';
+import React, { memo, useState, useMemo, useEffect } from 'react';
 import '../../../assets/scss/calendar/calendarSelector.scss';
 import {
 	format,
@@ -62,11 +62,9 @@ const CalendarSelector = ({
 		};
 	}, []);
 
-	//keeping it local
+	//keeping these sates local to CalendarSelector
 	const [showMonths, setShowMonths] = useState(false);
 	const [showYears, setShowYears] = useState(false);
-
-	//keeping it local
 	// Handles month drop-down and year drop-down
 	const toggleMonthDropDown = () => {
 		if (showYears && !showMonths) {
@@ -85,16 +83,6 @@ const CalendarSelector = ({
 	useEffect(() => {
 		handlecurrentCalendarDateChange(new Date(selectedYear, selectedMonth));
 	}, [selectedMonth, selectedYear]);
-
-	// Handles selected week when selected date changes
-	// useEffect(() => {
-	// 	if (daysInMonth) {
-	// 		const [currentWeek] = chunkArray(daysInMonth).filter((week) => {
-	// 			return week.some((date) => isSameDay(date, selectedDate));
-	// 		});
-	// 		handleWeekChange(currentWeek.map((date) => date.getDate()));
-	// 	}
-	// }, [selectedDate, info.todaysDate]);
 
 	// Get the first and last day of the current month
 	const firstDayOfMonth = startOfMonth(currentCalendarDate);

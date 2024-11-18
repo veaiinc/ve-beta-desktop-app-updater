@@ -4,6 +4,7 @@ import { ReactComponent as Down } from '../../../assets/svg/activity/down.svg';
 import WeekHeader from './WeekHeader';
 import DayHeader from './DaysHeader';
 import WeekDayHeader from './WeekDayHeader';
+import moment from 'moment';
 
 const CalendarHeader = ({
 	activeView,
@@ -12,31 +13,6 @@ const CalendarHeader = ({
 	handleToggleView,
 	getCurrentWeek,
 }) => {
-	// Initialize local state
-	const [info, setInfo] = useState({ selectedDate: null });
-
-	// Function to format and update the selected date
-	const handleSelectedDate = (selectedDate) => {
-		// console.log(`recevid selected date as: ${selectedDate}`);
-
-		const formattedDate = selectedDate.toLocaleDateString('en-US', {
-			month: 'long',
-			year: 'numeric',
-		});
-
-		setInfo((prev) => ({
-			...prev,
-			selectedDate: formattedDate,
-		}));
-	};
-
-	// Update state when selectedDate prop changes
-	useEffect(() => {
-		if (selectedDate) {
-			handleSelectedDate(selectedDate);
-		}
-	}, [selectedDate]);
-
 	const views = {
 		Month: <WeekHeader />,
 		Week: (
@@ -55,7 +31,9 @@ const CalendarHeader = ({
 			<div className="calendarHeaderParentContainer">
 				<div className="calendarHeaderContainer">
 					<div className="calendarControls">
-						<div className="calendarDate">{info?.selectedDate || 'CALENDAR'}</div>
+						<div className="calendarDate">
+							{moment(selectedDate).format('MMMM YYYY') || 'CALENDAR'}
+						</div>
 						<div className="viewToggleWrapper">
 							<div className="viewToggle">
 								{/* map on views Object  */}
