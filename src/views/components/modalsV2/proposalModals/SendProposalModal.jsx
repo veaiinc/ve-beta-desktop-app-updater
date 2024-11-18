@@ -73,6 +73,7 @@ const SendProposalModal = ({
 	nameIdentification,
 	emailIdentification,
 	updateIdentification,
+	assisstanceData,
 }) => {
 	const {
 		templates: {
@@ -489,7 +490,11 @@ const SendProposalModal = ({
 			<div
 				className={`sendSmartFileupdatedContainer ${info?.showEmail ? 'showEmail' : ''} ${
 					info?.enableLinkExpiry ? 'enableLinkExpiry' : ''
-				}    ${info?.showAccessSettings ? 'showAccessSettings' : ''}`}
+				}    ${info?.showAccessSettings ? 'showAccessSettings' : ''} ${
+					assisstanceData?._id && info?.isAlChatEnabled
+						? 'showAccessSettingsWithAssistanceData'
+						: ''
+				}`}
 				style={{ overflowY: info?.showEmail ? 'auto' : 'hidden' }}
 			>
 				{/* setting screen */}
@@ -742,22 +747,39 @@ const SendProposalModal = ({
 					</div>
 
 					{/* Ai AssistantContainer */}
-					<div className="aiSalesContainer">
-						<Ai />
-						<div className="aiLabel">
-							<span className="aiLabelText">AI Sales Assistant</span>
-							<ToggleSlider
-								value={info?.isAlChatEnabled}
-								onChange={(val) =>
-									setInfo((prev) => ({
-										...prev,
-										isAlChatEnabled: val,
-										smartFileSettingsUpdate: true,
-										assignAssisstantModal: val,
-									}))
-								}
-							/>
+					<div
+						className="aiContentWrapper"
+						style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
+					>
+						<div className="aiSalesContainer">
+							<Ai />
+							<div className="aiLabel">
+								<span className="aiLabelText">AI Sales Assistant</span>
+								<ToggleSlider
+									value={info?.isAlChatEnabled}
+									onChange={(val) =>
+										setInfo((prev) => ({
+											...prev,
+											isAlChatEnabled: val,
+											smartFileSettingsUpdate: true,
+											assignAssisstantModal: assisstanceData?._id
+												? false
+												: val,
+										}))
+									}
+								/>
+							</div>
 						</div>
+						{info?.isAlChatEnabled && assisstanceData?._id ? (
+							<span className="assignedAssitant">
+								{assisstanceData?.name + ' '}
+								is assisting this sales.<br></br> AI Can make mistakes while turning
+								on AI Sales Assistant, VE AI is not responsible for any malfunction
+								that AI might make
+							</span>
+						) : (
+							''
+						)}
 					</div>
 
 					<div className="sendSmartFileBtnContainer">
@@ -835,6 +857,7 @@ const SendProposalModal = ({
 			<AssignAssistantModal
 				modalIsOpen={info?.assignAssisstantModal}
 				closeModal={closeAssignAssistantModal}
+				selectedAssistant={assisstanceData}
 			/>
 		</ReactModal>
 	);

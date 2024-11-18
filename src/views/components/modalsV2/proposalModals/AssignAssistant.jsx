@@ -3,22 +3,28 @@ import React, { memo, useContext, useState, useEffect, useCallback } from 'react
 import '../../../../assets/scss/sales/smartFile/assisstantModal.scss';
 import ReactModal from '../../modalsV2/index';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Context from '../../../../context/context';
 import { ReactComponent as Robot } from '../../../../assets/svg/Settings/robot.svg';
 import { ReactComponent as LinkGrey } from '../../../../assets/svg/Settings/link-grey-color.svg';
 import { ReactComponent as Tick } from '../../../../assets/svg/sales/smartFile/tick.svg';
 import { message } from 'antd';
-const AssignAssistantModal = ({ modalIsOpen, closeModal }) => {
+import Spinner from '../../loaders/Spinner';
+const AssignAssistantModal = ({ modalIsOpen, closeModal, selectedAssistant }) => {
 	const navigate = useNavigate();
+	const { templateId } = useParams();
 	const {
-		aiSetup: { existingAiAssistants, getExistingAiAssistants },
+		aiSetup: {
+			existingAiAssistants,
+			getExistingAiAssistants,
+			assignAiAssistantToSelectedWorkflows,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		assisstantData: null,
 		loading: true,
-		selectedAssistant: {},
+		selectedAssistant: null,
 		assignLoading: false,
 	});
 
@@ -30,20 +36,28 @@ const AssignAssistantModal = ({ modalIsOpen, closeModal }) => {
 		}
 	}, [existingAiAssistants]);
 
+	useEffect(() => {
+		if (selectedAssistant?._id) {
+			const updatedSelectedAssistantData = {
+				name: selectedAssistant?.name,
+				id: selectedAssistant?._id,
+			};
+			setInfo((prev) => ({ ...prev, selectedAssistant: updatedSelectedAssistantData }));
+		}
+	}, [selectedAssistant]);
+
 	const onCardClick = useCallback(
-		(assistantId) => {
-			const selectedAssistant = { ...info?.selectedAssistant };
-			if (selectedAssistant?.[assistantId]) {
-				delete selectedAssistant?.[assistantId];
-			} else {
-				selectedAssistant[assistantId] = true;
+		(assistantData) => {
+			if (info?.selectedAssistant?.id === assistantData?.id) {
+				return;
 			}
-			setInfo((prev) => ({ ...prev, selectedAssistant }));
+
+			setInfo((prev) => ({ ...prev, selectedAssistant: assistantData }));
 		},
 		[info?.selectedAssistant],
 	);
 
-	const onClickAssign = useCallback(() => {
+	const onClickAssign = useCallback(async () => {
 		if (info?.assignLoading) {
 			return;
 		}
@@ -52,7 +66,14 @@ const AssignAssistantModal = ({ modalIsOpen, closeModal }) => {
 		}
 
 		setInfo((prev) => ({ ...prev, assignLoading: true }));
-		const payload = {};
+
+		const response = await assignAiAssistantToSelectedWorkflows(info?.selectedAssistant?.id, [
+			templateId,
+		]);
+		if (response) {
+			closeModal();
+		}
+
 		setInfo((prev) => ({ ...prev, assignLoading: false }));
 	}, [info?.selectedAssistant]);
 
@@ -61,7 +82,7 @@ const AssignAssistantModal = ({ modalIsOpen, closeModal }) => {
 			<div className="assisstantModalContainer">
 				<div className="assisstantHeaderContainer">
 					<span className="assisstantHeaderTitle">Assign to</span>
-					<span className="closeBtnContainer">
+					<span className="closeBtnContainer" onClick={closeModal}>
 						<Close />
 					</span>
 				</div>
@@ -70,10 +91,10 @@ const AssignAssistantModal = ({ modalIsOpen, closeModal }) => {
 						<div
 							className="assisstantCards"
 							key={index}
-							onClick={() => onCardClick(ele?.id)}
+							onClick={() => onCardClick(ele)}
 						>
 							<div className="assisstantCardContent">
-								{info?.selectedAssistant?.[ele?.id] ? <Tick /> : ''}
+								{info?.selectedAssistant?.id === ele?.id ? <Tick /> : ''}
 								<div className="robotIconContainer">
 									<Robot />
 								</div>
@@ -91,7 +112,7 @@ const AssignAssistantModal = ({ modalIsOpen, closeModal }) => {
 						Create new
 					</div>
 					<div className="assignBtn" onClick={onClickAssign}>
-						Assign
+						{info?.assignLoading ? <Spinner /> : 'Assign'}
 					</div>
 				</div>
 			</div>
