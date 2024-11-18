@@ -18,7 +18,7 @@ const Username = ({
 	const usernameDivRef = useRef(null);
 
 	const handleSetUsername = (e) => {
-		const value = e?.target?.value;
+		const value = e?.target?.value || '';
 		const firstName = value.split(' ')[0];
 		const capitalizedValue = firstName
 			? firstName.charAt(0).toUpperCase() + firstName.slice(1)
@@ -30,7 +30,7 @@ const Username = ({
 		}));
 	};
 	const handleNext = () => {
-		gsap.to(usernameDivRef?.current, {
+		gsap.to(usernameDivRef.current, {
 			opacity: 0,
 			duration: 0.5,
 			ease: 'power2.inOut',
