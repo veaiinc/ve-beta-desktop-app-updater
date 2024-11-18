@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState, useEffect, useContext } from 'react';
 import gsap from 'gsap';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../../../assets/scss/onboarding/index.scss';
@@ -7,11 +7,7 @@ import WorkspaceHandleName from '../../components/onboarding/WorkspaceHandleName
 import { useRef } from 'react';
 import WorkspaceType from '../../components/onboarding/WorkspaceType';
 import Profession from '../../components/onboarding/Profession';
-import {
-	updateUserDetails,
-	createWorkspace,
-	createAccountViaInvite,
-} from '../../../services/authServices/authServices';
+import Context from '../../../context/context';
 import { message } from 'antd';
 import CreatingNewWorkspace from '../../components/onboarding/CreatingNewWorkspace';
 import { getLocationsDetails } from '../../../helpers';
@@ -20,6 +16,10 @@ const tl = gsap.timeline();
 const tl2 = gsap.timeline();
 
 const Onboarding = () => {
+	const {
+		authInfo: { updateUserDetails, createWorkspace, createAccountViaInvite },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		stage: 0,
 		step: 0,
@@ -87,7 +87,7 @@ const Onboarding = () => {
 			invitedWorkspaceId,
 			locationDetails,
 		);
-		if (response?.ok) {
+		if (response?.[0] === true) {
 			navigate('/home');
 		} else {
 			message.error(response?.message);
@@ -97,19 +97,22 @@ const Onboarding = () => {
 
 	const handleOnboarding = async () => {
 		const userDetailsResponse = await updateUserDetails(info?.username);
-		if (userDetailsResponse?.ok) {
+		if (userDetailsResponse[0] === true) {
 			const workspaceResponse = await createWorkspace(
 				info?.workspaceHandle,
 				info?.workspaceType,
 				info?.profession,
 			);
-			if (workspaceResponse?.ok) {
+			if (workspaceResponse[0] === true) {
 				setInfo((prev) => ({
 					...prev,
 					step: prev?.step + 1,
-					isOnboard: workspaceResponse?.isOnboard,
+					isOnboard: workspaceResponse?.[1]?.isOnboard,
 				}));
-				localStorage.setItem('isOnboard', JSON.stringify(workspaceResponse?.isOnboard));
+				localStorage.setItem(
+					'isOnboard',
+					JSON.stringify(workspaceResponse?.[1]?.isOnboard),
+				);
 				window.location.reload();
 			} else {
 				message.error(workspaceResponse?.message);

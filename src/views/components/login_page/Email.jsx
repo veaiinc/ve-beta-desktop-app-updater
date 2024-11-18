@@ -1,14 +1,10 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import validator from 'validator';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
-import {
-	checkAccountExistsUsingEmail,
-	createAccountUsingEmail,
-	continueWithGoogle,
-} from '../../../services/authServices/authServices';
+import Context from '../../../context/context';
 import { getLocationsDetails } from '../../../helpers';
 import { message } from 'antd';
 import gsap from 'gsap';
@@ -17,6 +13,10 @@ import debounce from 'lodash/debounce';
 
 const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	const arrowRef = useRef(null);
+
+	let {
+		authInfo: { checkAccountExistsUsingEmail, createAccountUsingEmail, continueWithGoogle },
+	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		isEmailValid: false,
@@ -46,13 +46,13 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	const handleCreateAccountWithEmail = async (email) => {
 		const locationDetails = await getLocationsDetails();
 		const response = await createAccountUsingEmail(email, locationDetails);
-		if (response?.ok) {
+		if (response[0] === true) {
 			setLoginPageInfo((prev) => ({
 				...prev,
 				activeStage: 'verificationCode',
 			}));
 		} else {
-			message?.error(response?.message);
+			message?.error(response?.[1]?.message);
 		}
 		return response;
 	};
@@ -84,9 +84,9 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 		try {
 			const response = await checkAccountExistsUsingEmail(loginPageInfo?.email);
-			if (response?.ok) {
-				if (response?.accountExists) {
-					if (response?.emailVerified) {
+			if (response[0] === true) {
+				if (response?.[1]?.accountExists) {
+					if (response?.[1]?.emailVerified) {
 						setLoginPageInfo((prev) => ({
 							...prev,
 							emailVerified: true,

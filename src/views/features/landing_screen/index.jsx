@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, memo, useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/landingScreen/index.scss';
 import Navbar from '../../components/landing_screen/Navbar';
@@ -11,10 +11,13 @@ import { ReactComponent as Hamburger } from '../../../assets/svg/landingScreen/h
 import { gsap } from 'gsap';
 import PrivacyPolicyModal from '../../components/modalsV2/landingPage/PrivacyPolicyModal';
 import MobileNavSidebar from '../../components/modalsV2/landingPage/MobileNavSidebar';
-import { checkUserSessionStatus } from '../../../services/authServices/authServices';
+import Context from '../../../context/context';
 
 const LandingPage = () => {
 	const navigate = useNavigate();
+	const {
+		authInfo: { checkUserSessionStatus },
+	} = useContext(Context);
 	const [showMobielNavSidebar, setShowMobielNavSidebar] = useState(false);
 	const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 823);
 	const [togglePrivacyAndTermsModal, setTogglePrivacyAndTermsModal] = useState(false);
@@ -36,17 +39,7 @@ const LandingPage = () => {
 	useEffect(() => {
 		handleEvents();
 		handleAnimations();
-		checkUserSessionStatus()
-			.then((response) => {
-				if (response?.ok) {
-					setIsOnboard(response?.isOnboard);
-					setTokenValid(response?.tokenValid);
-					setWorkspaceIds(response?.workspaceIds);
-				}
-			})
-			.catch((error) => {
-				console.error('Error checking user session status:', error);
-			});
+		checkUserSession();
 	}, []);
 
 	const handleEvents = useCallback(() => {
@@ -163,6 +156,19 @@ const LandingPage = () => {
 	const handleEnterKey = (e) => {
 		if (e.key === 'Enter') {
 			navigate('/verify-user');
+		}
+	};
+
+	const checkUserSession = async () => {
+		try {
+			const response = await checkUserSessionStatus();
+			if (response[0] === true) {
+				setIsOnboard(response?.[1]?.isOnboard);
+				setTokenValid(response?.[1]?.tokenValid);
+				setWorkspaceIds(response?.[1]?.workspaceIds);
+			}
+		} catch (error) {
+			console.error('Error checking user session status:', error);
 		}
 	};
 

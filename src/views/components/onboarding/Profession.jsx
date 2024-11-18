@@ -39,7 +39,7 @@ const professions = {
 	},
 };
 
-const Profession = ({ onboardingInfo, setOnboardingInfo, step6Ref }) => {
+const Profession = ({ onboardingInfo, setOnboardingInfo }) => {
 	const professionRef = useRef(null);
 
 	useEffect(() => {
@@ -51,11 +51,6 @@ const Profession = ({ onboardingInfo, setOnboardingInfo, step6Ref }) => {
 	}, []);
 
 	const handleSelectProfession = (profession) => {
-		// gsap.to(step6Ref?.current, {
-		// 	opacity: 0,
-		// 	duration: 1,
-		// 	ease: 'power2.out',
-		// });
 		gsap.fromTo(
 			professionRef.current,
 			{

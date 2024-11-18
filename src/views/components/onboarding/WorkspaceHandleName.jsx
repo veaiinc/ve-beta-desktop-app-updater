@@ -1,12 +1,16 @@
-import React, { useState, memo, useRef, useEffect } from 'react';
+import React, { useState, memo, useRef, useEffect, useContext } from 'react';
 import gsap from 'gsap';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import '../../../assets/scss/onboarding/index.scss';
-import { checkWorkspaceHandleAvailability } from '../../../services/authServices/authServices';
 import { message } from 'antd';
+import Context from '../../../context/context';
 
-const WorkspaceHandleName = ({ onboardingInfo, setOnboardingInfo, animateStep4Enter }) => {
+const WorkspaceHandleName = ({ onboardingInfo, setOnboardingInfo }) => {
+	const {
+		authInfo: { checkWorkspaceHandleAvailability },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		isHovering: false,
 		isChecking: false,
@@ -40,13 +44,13 @@ const WorkspaceHandleName = ({ onboardingInfo, setOnboardingInfo, animateStep4En
 
 	const handleCheckWorkspaceHandleAvailability = async (workspaceHandle) => {
 		const response = await checkWorkspaceHandleAvailability(workspaceHandle);
-		if (response?.ok) {
+		if (response?.[0] === true) {
 			setOnboardingInfo((prev) => ({
 				...prev,
-				isWorkspaceHandleAvailable: response?.available,
+				isWorkspaceHandleAvailable: response?.[1]?.available,
 			}));
 		} else {
-			message.error(response?.message);
+			message.error(response?.[1]?.message);
 		}
 	};
 

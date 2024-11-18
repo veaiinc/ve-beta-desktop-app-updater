@@ -6,7 +6,7 @@ import { Galleries } from './Gallery/state';
 import { AiSetupState } from './aiSetup/state';
 import { ActivityState } from './Activity/state';
 import { SubscriptionState } from './subscription/state';
-
+import { AuthState } from './auth/state';
 const CombineState = () => {
 	return {
 		chatInfo: ChatState(),
@@ -17,6 +17,7 @@ const CombineState = () => {
 		aiSetup: AiSetupState(),
 		activityInfo: ActivityState(),
 		subscriptionInfo: SubscriptionState(),
+		authInfo: AuthState(),
 	};
 };
 

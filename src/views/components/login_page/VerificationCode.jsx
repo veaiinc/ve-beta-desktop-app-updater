@@ -1,20 +1,24 @@
-import React, { memo, useState, useEffect, useRef } from 'react';
+import React, { memo, useState, useEffect, useRef, useContext } from 'react';
 import OtpInput from 'react-otp-input';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/login_page/left-arrow-back-btn.svg';
 import { ReactComponent as OutlookLogo } from '../../../assets/svg/login_page/outlook.svg';
 import { ReactComponent as GmailLogo } from '../../../assets/svg/login_page/gmail.svg';
-import { verifyEmailVerificationCode } from '../../../services/authServices/authServices';
 import { message } from 'antd';
 import { getLocationsDetails } from '../../../helpers';
-import {
-	createAccountUsingEmail,
-	checkAccountExistsUsingEmail,
-} from '../../../services/authServices/authServices';
+import Context from '../../../context/context';
 
 const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 	const navigate = useNavigate();
+	const {
+		authInfo: {
+			createAccountUsingEmail,
+			checkAccountExistsUsingEmail,
+			verifyEmailVerificationCode,
+		},
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		otp: '',
 		otpError: '',
@@ -52,7 +56,7 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 	const handleCreateAccountWithEmail = async (email) => {
 		const locationDetails = await getLocationsDetails();
 		const response = await createAccountUsingEmail(email, locationDetails);
-		if (response?.ok) {
+		if (response[0] === true) {
 			setLoginPageInfo((prev) => ({
 				...prev,
 				activeStage: 'verificationCode',
@@ -66,10 +70,10 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 		try {
 			const response = await checkAccountExistsUsingEmail(email);
-			if (response?.ok) {
+			if (response[0] === true) {
 				message?.success('Code resent successfully! Check your email.');
-				if (response?.accountExists) {
-					if (response?.emailVerified) {
+				if (response?.[1]?.accountExists) {
+					if (response?.[1]?.emailVerified) {
 						setLoginPageInfo((prev) => ({
 							...prev,
 							emailVerified: true,
@@ -86,7 +90,7 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 					await handleCreateAccountWithEmail(email);
 				}
 			} else {
-				message?.error(response?.message);
+				message?.error(response?.[1]?.message);
 			}
 		} catch (error) {
 			console.error('Failed to check email:', error.message);
@@ -97,21 +101,21 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 	const handleVerifyEmailVerificationCode = async () => {
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 		const response = await verifyEmailVerificationCode(email, info?.otp, emailVerified);
-		if (response?.ok) {
+		if (response[0] === true) {
 			if (emailVerified) {
-				if (response?.hasWorkspaces) {
-					if (response?.isOnboard) navigate('/home');
+				if (response?.[1]?.hasWorkspaces) {
+					if (response?.[1]?.isOnboard) navigate('/home');
 					else navigate('/early-access');
 				} else {
 					navigate('/onboarding');
 				}
-			} else if (response?.hasWorkspaces) {
+			} else if (response?.[1]?.hasWorkspaces) {
 				navigate('/home');
 			} else {
 				navigate('/onboarding');
 			}
 		} else {
-			setInfo((prev) => ({ ...prev, otpError: response?.message }));
+			setInfo((prev) => ({ ...prev, otpError: response?.[1]?.message }));
 		}
 		setInfo((prev) => ({ ...prev, isLoading: false }));
 	};
