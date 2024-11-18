@@ -29,10 +29,6 @@ const routes = [
 		path: '/',
 		component: <Landing_screen />,
 	},
-	// {
-	// 	path: '/verify-user',
-	// 	component: <LoginScreen stage={'verify-user'} />,
-	// },
 	{
 		path: '/onboarding',
 		component: <Onboarding />,
@@ -41,10 +37,6 @@ const routes = [
 		path: '/verify-user',
 		component: <LoginPage />,
 	},
-	// {
-	// 	path: '/verify-user',
-	// 	component: <LoginPage />,
-	// },
 	{
 		path: '/login-with-password',
 		component: <LoginScreen stage={'login-with-password'} />,
