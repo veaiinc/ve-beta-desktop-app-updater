@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
-import '../../../assets/scss/gallery/allGalleries.scss';
 import '../../../assets/scss/gallery/index.scss';
+import '../../../assets/scss/gallery/allGalleries.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
 import { useNavigate } from 'react-router-dom';
 import testImage from '../../../assets/svg/gallery/testing.png';
@@ -8,7 +8,8 @@ import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
-import { Result, message } from 'antd';
+import { ReactComponent as FilterIcon } from '../../../assets/svg/chat/filter.svg';
+import { Result, message, Tooltip } from 'antd';
 
 const noImage =
 	'https://png.pngtree.com/png-clipart/20230917/original/pngtree-no-image-available-icon-flatvector-illustration-thumbnail-graphic-illustration-vector-png-image_12323920.png';
@@ -47,20 +48,36 @@ const NoGallerySkeleton = () => {
 	);
 };
 
+const filterOptions = [
+	{ name: 'Gallery name', value: 'title' },
+	{ name: 'Gallery name (reverse)', value: '-title' },
+	{ name: 'Created Date', value: 'createdAt' },
+	{ name: 'Created Date (reverse)', value: '-createdAt' },
+	{ name: 'Updated Date', value: 'updatedAt' },
+	{ name: 'Updated Date (reverse)', value: '-updatedAt' },
+	{ name: 'Custom', value: 'custom' },
+];
 const AddGallery = () => {
 	const {
-		galleryInfo: { getGalleries, tenantGalleries, getGalleryCredentials, galleryCredentials },
+		galleryInfo: {
+			getGalleries,
+			tenantGalleries,
+			getGalleryCredentials,
+			galleryCredentials,
+			setDefaultSort,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		createNewGalleryModal: false,
 		galleries: [],
 		search: '',
 		error: null,
-		sort: '-createdAt',
 		page: 1,
 		limit: 15,
 		timeout: null,
 		workspaceId: localStorage.getItem('workspaceId'),
+		showFilter: false,
+		activeSort: tenantGalleries?.sort || '-createdAt',
 	});
 	const navigate = useNavigate();
 	useEffect(() => {
@@ -68,11 +85,15 @@ const AddGallery = () => {
 			fetchGalleries(info.page);
 		}
 	}, []);
+	useEffect(() => {
+		if (tenantGalleries) {
+			setInfo((prev) => ({ ...prev, activeSort: tenantGalleries?.sort }));
+		}
+	}, [tenantGalleries]);
 
 	const fetchGalleries = async (page, title = null, reset = false) => {
 		try {
 			const options = {
-				sort: info.sort,
 				page,
 				limit: info.limit,
 			};
@@ -162,6 +183,16 @@ const AddGallery = () => {
 				message.error('Failed to copy gallery link');
 			});
 	};
+	const handleFilter = () => {
+		setInfo((prev) => ({ ...prev, showFilter: !prev.showFilter }));
+	};
+	const handleSort = (value) => {
+		setInfo((prev) => ({ ...prev, activeSort: value }));
+		const payload = {
+			sort: value,
+		};
+		setDefaultSort(payload);
+	};
 
 	return (
 		<div className="gallery-main-container">
@@ -173,6 +204,37 @@ const AddGallery = () => {
 						placeholder="Search by title"
 						value={info?.search}
 						onChange={handleSearch}
+					/>
+				</div>
+				<div className="filter-container">
+					<div className="filter-icon" onClick={handleFilter}>
+						<FilterIcon />
+					</div>
+					<Tooltip
+						placement="bottom"
+						title={
+							<div className="filterContainer">
+								{filterOptions.map((option, index) => (
+									<p
+										key={index}
+										onClick={() => handleSort(option.value)}
+										className={info.activeSort === option.value ? 'active' : ''}
+									>
+										{option.name}
+									</p>
+								))}
+							</div>
+						}
+						open={info?.showFilter}
+						color="transparent"
+						trigger="click"
+						onOpenChange={(open) => {
+							if (!open) {
+								handleFilter();
+							}
+						}}
+						className="filter-tooltip"
+						arrow={false}
 					/>
 				</div>
 				<div className="create-btn" onClick={handleCreateNewGallery}>
@@ -235,9 +297,7 @@ const AddGallery = () => {
 												className="album-side-options"
 												onClick={(e) => e.stopPropagation()}
 											>
-												<li
-													onClick={() => handleNavigateGallery(items._id)}
-												>
+												<li onClick={() => handleNavigateGallery(items)}>
 													View
 												</li>
 												{/* <li>Client view</li> */}

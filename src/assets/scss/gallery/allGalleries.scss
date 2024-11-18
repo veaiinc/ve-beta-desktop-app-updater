@@ -34,6 +34,37 @@
 				width: 100%;
 			}
 		}
+		.filter-container {
+			display: flex;
+			align-items: center;
+			width: fit-content;
+			position: relative;
+			.filter-icon {
+				display: flex;
+				width: 40px;
+				height: 40px;
+				padding: 10px;
+				align-items: center;
+				gap: 10px;
+				border-radius: 100px;
+				border: 1px solid rgba(228, 229, 230, 0.05);
+				background: #151515;
+
+				cursor: pointer;
+				svg {
+					path {
+						fill: #e4e5e6;
+					}
+				}
+			}
+			.filter-tooltip {
+				display: flex;
+				position: absolute;
+				right: -30px;
+				bottom: 0px;
+				width: 100%;
+			}
+		}
 	}
 	.add-gallery-container {
 		.add-gallery-header {
@@ -81,7 +112,9 @@
 						height: 70%;
 						position: relative;
 						object-fit: cover;
-						transition: width 0.5s ease-in-out, height 0.5s ease-in-out;
+						transition:
+							width 0.5s ease-in-out,
+							height 0.5s ease-in-out;
 						cursor: pointer;
 					}
 					.no-image {
@@ -184,5 +217,24 @@
 		.ant-result-subtitle {
 			color: #fff;
 		}
+	}
+}
+
+.filterContainer {
+	display: flex;
+	flex-direction: column;
+	padding: 12px 10px;
+	border-radius: 16px;
+	border: 1px solid #1f1f1f;
+	background: #151515;
+	gap: 8px;
+	p {
+		height: 32px;
+		display: flex;
+		align-items: center;
+		cursor: pointer;
+	}
+	.active {
+		color: #6055ec;
 	}
 }
