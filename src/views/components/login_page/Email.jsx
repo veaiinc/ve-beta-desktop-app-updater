@@ -45,19 +45,20 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	}, [loginPageInfo?.email]);
 
 	const handleCreateAccountWithEmail = async (email) => {
-		debounce(async () => {
-			const locationDetails = await getLocationsDetails();
-			const response = await createAccountUsingEmail(email, locationDetails);
-			if (response?.ok) {
-				setLoginPageInfo((prev) => ({
-					...prev,
-					activeStage: 'verificationCode',
-				}));
-			} else {
-				message?.error(response?.message);
-			}
-		}, 1000);
+		const locationDetails = await getLocationsDetails();
+		const response = await createAccountUsingEmail(email, locationDetails);
+		if (response?.ok) {
+			setLoginPageInfo((prev) => ({
+				...prev,
+				activeStage: 'verificationCode',
+			}));
+		} else {
+			message?.error(response?.message);
+		}
+		return response;
 	};
+
+	const debouncedCreateAccount = debounce(handleCreateAccountWithEmail, 1000);
 
 	const handleContinueWithGoogle = async () => {
 		const locationDetails = await getLocationsDetails();
@@ -100,8 +101,7 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 						}));
 					}
 				} else {
-					await handleCreateAccountWithEmail(loginPageInfo?.email);
-					handleContinueWithEmail();
+					await debouncedCreateAccount(loginPageInfo?.email);
 				}
 			} else {
 				message?.error(response?.message);
