@@ -11,6 +11,8 @@ import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 import debounce from 'lodash/debounce';
 
+const locationDetails = await getLocationsDetails();
+
 const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	const arrowRef = useRef(null);
 
@@ -21,6 +23,8 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	const [info, setInfo] = useState({
 		isEmailValid: false,
 		isLoading: false,
+		googleLoading: false,
+		enterPressed: false,
 	});
 
 	useEffect(() => {
@@ -44,7 +48,8 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	}, [loginPageInfo?.email]);
 
 	const handleCreateAccountWithEmail = async (email) => {
-		const locationDetails = await getLocationsDetails();
+		if (info?.enterPressed) return;
+		setInfo((prev) => ({ ...prev, isLoading: true, enterPressed: true }));
 		const response = await createAccountUsingEmail(email, locationDetails);
 		if (response[0] === true) {
 			setLoginPageInfo((prev) => ({
@@ -54,13 +59,14 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 		} else {
 			message?.error(response?.[1]?.message);
 		}
+		setInfo((prev) => ({ ...prev, isLoading: false }));
 		return response;
 	};
 
 	const debouncedCreateAccount = debounce(handleCreateAccountWithEmail, 1000);
 
 	const handleContinueWithGoogle = async () => {
-		const locationDetails = await getLocationsDetails();
+		setInfo((prev) => ({ ...prev, googleLoading: true }));
 		continueWithGoogle(locationDetails);
 	};
 
@@ -81,7 +87,8 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	};
 
 	const handleContinueWithEmail = async () => {
-		setInfo((prev) => ({ ...prev, isLoading: true }));
+		if (info?.enterPressed) return;
+		setInfo((prev) => ({ ...prev, isLoading: true, enterPressed: true }));
 		try {
 			const response = await checkAccountExistsUsingEmail(loginPageInfo?.email);
 			if (response[0] === true) {
@@ -103,7 +110,7 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 					await debouncedCreateAccount(loginPageInfo?.email);
 				}
 			} else {
-				message?.error(response?.message);
+				message?.error(response?.[1]?.message);
 			}
 		} catch (error) {
 			console.error('Failed to check email:', error.message);
@@ -127,6 +134,14 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 				<button className="google-login-button" onClick={handleContinueWithGoogle}>
 					<GoogleLogo />
 					<p>Continue with Google</p>
+					{info?.googleLoading && (
+						<Spinner
+							width="20px"
+							height="20px"
+							color="black"
+							borderTopColor="transparent"
+						/>
+					)}
 				</button>
 				<div className="or-divider">
 					<div className="line"></div>
@@ -152,7 +167,12 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 						onClick={handleContinueWithEmail}
 					>
 						{info.isLoading ? (
-							<Spinner width="20px" height="20px" />
+							<Spinner
+								width="20px"
+								height="20px"
+								borderTopColor="transparent"
+								color="black"
+							/>
 						) : info?.isEmailValid ? (
 							<span ref={arrowRef}>
 								<UpArrowBlackHover />

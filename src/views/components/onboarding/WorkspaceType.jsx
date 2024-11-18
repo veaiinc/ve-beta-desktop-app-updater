@@ -1,4 +1,4 @@
-import React, { memo, useRef, useEffect } from 'react';
+import React, { memo, useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
 
 const businessTypes = [
@@ -16,6 +16,9 @@ const businessTypes = [
 
 const WorkspaceType = ({ setOnboardingInfo }) => {
 	const businessTypeRef = useRef(null);
+	const [info, setInfo] = useState({
+		optionSelected: false,
+	});
 
 	useEffect(() => {
 		gsap.fromTo(
@@ -30,6 +33,8 @@ const WorkspaceType = ({ setOnboardingInfo }) => {
 	}, []);
 
 	const handleSelectType = (type) => {
+		if (info?.optionSelected) return;
+		setInfo((prev) => ({ ...prev, optionSelected: true }));
 		gsap.to(businessTypeRef.current, {
 			opacity: 0,
 			duration: 1,

@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 
 const professions = {
@@ -41,6 +41,9 @@ const professions = {
 
 const Profession = ({ onboardingInfo, setOnboardingInfo }) => {
 	const professionRef = useRef(null);
+	const [info, setInfo] = useState({
+		optionSelected: false,
+	});
 
 	useEffect(() => {
 		gsap.fromTo(
@@ -51,6 +54,8 @@ const Profession = ({ onboardingInfo, setOnboardingInfo }) => {
 	}, []);
 
 	const handleSelectProfession = (profession) => {
+		if (info?.optionSelected) return;
+		setInfo((prev) => ({ ...prev, optionSelected: true }));
 		gsap.fromTo(
 			professionRef.current,
 			{

@@ -14,13 +14,14 @@ const WorkspaceHandleName = ({ onboardingInfo, setOnboardingInfo }) => {
 	const [info, setInfo] = useState({
 		isHovering: false,
 		isChecking: false,
+		enterPressed: false,
 	});
 
 	const workspaceHandleNameRef = useRef(null);
 
 	useEffect(() => {
 		gsap.fromTo(
-			workspaceHandleNameRef.current,
+			workspaceHandleNameRef?.current,
 			{ opacity: 0 },
 			{
 				opacity: 1,
@@ -76,6 +77,7 @@ const WorkspaceHandleName = ({ onboardingInfo, setOnboardingInfo }) => {
 	};
 
 	const handleKeyDown = (e) => {
+		if (info?.enterPressed) return;
 		if (
 			e.key === 'Enter' &&
 			!info?.isChecking &&
@@ -83,6 +85,7 @@ const WorkspaceHandleName = ({ onboardingInfo, setOnboardingInfo }) => {
 			onboardingInfo?.isWorkspaceHandleAvailable
 		) {
 			handleNext();
+			setInfo((prev) => ({ ...prev, enterPressed: true }));
 		}
 	};
 

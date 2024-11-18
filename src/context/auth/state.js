@@ -2,6 +2,7 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 import service from '../../services';
 import Cookies from 'js-cookie';
+import { message } from 'antd';
 const { auth_Api: authBaseUrl } = require('../../services/config');
 
 export const AuthState = () => {
@@ -14,7 +15,11 @@ export const AuthState = () => {
 
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
-			return response;
+			if (response[0] === true) {
+				return [true];
+			} else {
+				return [false];
+			}
 		} catch (error) {
 			console.error('Error requesting email verification code:', error);
 			throw error;
@@ -27,7 +32,11 @@ export const AuthState = () => {
 
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
-			return response;
+			if (response[0] === true) {
+				return [true];
+			} else {
+				return [false];
+			}
 		} catch (error) {
 			console.error('Error requesting login OTP:', error);
 			throw error;
@@ -40,54 +49,26 @@ export const AuthState = () => {
 
 		try {
 			const response = await service?.fetchGet(path, null, 'auth', params);
-			if (response[0] === true) {
-				if (response?.[1]?.isAccountExist) {
-					if (response?.[1]?.isEmailVerified) {
-						const response = await requestLoginOTP(email);
-						if (response?.[0] === true) {
-							return [
-								true,
-								{
-									accountExists: true,
-									emailVerified: true,
-								},
-							];
-						}
-					} else {
-						const response = await requestEmailVerificationCode(email);
-						if (response?.[0] === true) {
-							return [
-								true,
-								{
-									accountExists: true,
-									emailVerified: false,
-								},
-							];
-						} else {
-							return [
-								false,
-								{
-									message: 'An unexpected error occurred. Please try again!',
-								},
-							];
-						}
-					}
-				} else {
-					return [
-						true,
-						{
-							accountExists: false,
-						},
-					];
-				}
-			} else {
-				return [
-					false,
-					{
-						message: 'An unexpected error occurred. Please try again!',
-					},
-				];
+			if (!response?.[0]) {
+				return [false, { message: 'An unexpected error occurred. Please try again!' }];
 			}
+
+			const accountInfo = response?.[1];
+			if (!accountInfo?.isAccountExist) {
+				return [true, { accountExists: false }];
+			}
+
+			if (accountInfo?.isEmailVerified) {
+				const otpResponse = await requestLoginOTP(email);
+				return otpResponse?.[0]
+					? [true, { accountExists: true, emailVerified: true }]
+					: [false, { message: 'An unexpected error occurred. Please try again!' }];
+			}
+
+			const verificationResponse = await requestEmailVerificationCode(email);
+			return verificationResponse?.[0]
+				? [true, { accountExists: true, emailVerified: false }]
+				: [false, { message: 'An unexpected error occurred. Please try again!' }];
 		} catch (error) {
 			console.error('Error checking email existence:', error);
 			throw error;
@@ -101,17 +82,6 @@ export const AuthState = () => {
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
 			if (response[0] === true) {
-				const { accessToken, region } = response?.[1];
-				localStorage.setItem('usertoken', accessToken);
-				localStorage.setItem('region', region || 'ap-south-1');
-				Cookies.set('usertoken', accessToken, {
-					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
-				});
-				Cookies.set('region', region || 'ap-south-1', {
-					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
-				});
 				return [
 					true,
 					{
@@ -370,20 +340,6 @@ export const AuthState = () => {
 		}
 	};
 
-	const createUsersAccount = async (payload) => {
-		const path = '/signup';
-		try {
-			let response = await service?.fetchPost(path, payload, null, 'auth');
-			if (response[0] === true) {
-				return [true, response[1]];
-			} else {
-				return [false, response[1]];
-			}
-		} catch (error) {
-			console.log('error creating user account', error);
-		}
-	};
-
 	const continueWithGoogle = async (locationDetails) => {
 		const encodedLocationDetails = encodeURIComponent(JSON.stringify(locationDetails));
 		const path = '/google/url';
@@ -397,7 +353,6 @@ export const AuthState = () => {
 		continueWithGoogle,
 		verifyEmailVerificationCode,
 		checkUserSessionStatus,
-		createUsersAccount,
 		createWorkspace,
 		checkWorkspaceHandleAvailability,
 		updateUserDetails,

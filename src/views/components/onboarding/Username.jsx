@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import '../../../assets/scss/onboarding/index.scss';
+import debounce from 'lodash/debounce';
 
 const Username = ({
 	onboardingInfo,
@@ -13,6 +14,7 @@ const Username = ({
 }) => {
 	const [info, setInfo] = useState({
 		isHovering: false,
+		enterPressed: false,
 	});
 
 	const usernameDivRef = useRef(null);
@@ -44,8 +46,10 @@ const Username = ({
 	};
 
 	const handleKeyDown = (e) => {
+		if (info?.enterPressed) return;
 		if (e.key === 'Enter' && onboardingInfo?.username?.length > 0) {
 			handleNext();
+			setInfo((prev) => ({ ...prev, enterPressed: true }));
 		}
 	};
 
