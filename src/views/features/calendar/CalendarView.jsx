@@ -9,6 +9,7 @@ const CalendarView = ({
 	selectedDate,
 	handleToggleView,
 	getCurrentWeek,
+	toggleCreateEvent,
 }) => {
 	return (
 		<div className="calendarViewParentContainer">
@@ -19,7 +20,7 @@ const CalendarView = ({
 				handleToggleView={handleToggleView}
 				getCurrentWeek={getCurrentWeek}
 			/>
-			<CalendarViewType activeView={activeView} />
+			<CalendarViewType activeView={activeView} toggleCreateEvent={toggleCreateEvent} />
 		</div>
 	);
 };

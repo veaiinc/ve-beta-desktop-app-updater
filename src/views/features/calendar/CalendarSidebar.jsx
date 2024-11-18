@@ -5,6 +5,7 @@ import AskAI from '../../components/calendar/AskAI';
 import CalendarCategories from '../../components/calendar/CalendarCategories';
 import MeetingDetails from '../../components/calendar/MeetingDetails';
 import CalendarAiChat from '../../components/calendar/CalendarAiChat';
+import CreateEvent from '../../components/calendar/CreateEvent';
 
 const CalendarSidebar = ({
 	currentCalendarDate,
@@ -15,6 +16,8 @@ const CalendarSidebar = ({
 	handleMonthChange,
 	handleYearChange,
 	handelSelectedDate,
+	isCreateEventOpen,
+	toggleCreateEvent,
 }) => {
 	const [info, setInfo] = useState({
 		askAi: false,
@@ -30,6 +33,8 @@ const CalendarSidebar = ({
 		<>
 			{info?.askAi ? (
 				<CalendarAiChat toggleAskAi={toggleAskAi} />
+			) : isCreateEventOpen ? (
+				<CreateEvent toggleCreateEvent={toggleCreateEvent} />
 			) : (
 				<div className="calendarSidebarContainer">
 					<CalendarSelector

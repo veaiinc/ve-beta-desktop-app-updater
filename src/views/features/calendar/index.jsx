@@ -25,6 +25,7 @@ const Calendar = () => {
 		selectedWeek: [],
 		activeView: 'Month', // 'Week', 'Day'
 		loading: false,
+		isCreateEventOpen: true,
 	});
 
 	// console.log('Type of selectedDate: ' + info?.selectedDate);
@@ -70,6 +71,13 @@ const Calendar = () => {
 		}));
 	}, [info?.selectedDate]);
 
+	const toggleCreateEvent = useCallback(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			isCreateEventOpen: !prevInfo.isCreateEventOpen,
+		}));
+	}, []);
+
 	useEffect(() => {
 		getCurrentWeek();
 	}, [getCurrentWeek, info.selectedDate]);
@@ -90,6 +98,8 @@ const Calendar = () => {
 						handleMonthChange={handleMonthChange}
 						handleYearChange={handleYearChange}
 						handelSelectedDate={handelSelectedDate}
+						isCreateEventOpen={info?.isCreateEventOpen}
+						toggleCreateEvent={toggleCreateEvent}
 					/>
 					<CalendarView
 						activeView={info?.activeView}
@@ -97,6 +107,7 @@ const Calendar = () => {
 						selectedDate={info?.selectedDate}
 						getCurrentWeek={getCurrentWeek}
 						handleToggleView={handleToggleView}
+						toggleCreateEvent={toggleCreateEvent}
 					/>
 				</div>
 			)}
