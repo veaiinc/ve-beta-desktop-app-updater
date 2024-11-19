@@ -1,6 +1,13 @@
 import { ApolloClient, ApolloLink, HttpLink, from, InMemoryCache } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
+const DEV_ENVIRONMENT = process.env.REACT_APP_DEV_ENVIRONMENT || 'development';
+let config;
 
+if (DEV_ENVIRONMENT === 'production') {
+	config = require('./config.live'); // Load live (production) configuration
+} else {
+	config = require('./config.dev'); // Load dev configuration
+}
 const {
 	ve_conversations_api,
 	workflows_Api,
@@ -8,7 +15,7 @@ const {
 	workflows_Api_US,
 	activity_api,
 	activity_api_US,
-} = require('./config');
+} = config || {};
 
 const graphQLAPICall = { ve_conversations_api, workflows_Api, activity_api };
 const graphQLAPICallUS = {

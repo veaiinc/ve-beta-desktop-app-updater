@@ -1,3 +1,11 @@
+const DEV_ENVIRONMENT = process.env.REACT_APP_DEV_ENVIRONMENT || 'development';
+let config;
+
+if (DEV_ENVIRONMENT === 'production') {
+	config = require('./config.live'); // Load live (production) configuration
+} else {
+	config = require('./config.dev'); // Load dev configuration
+}
 const {
 	tenant_users_api,
 	tenant_api,
@@ -7,12 +15,10 @@ const {
 	tenant_api_US,
 	proposals_api_US,
 	galleries,
-	ai_setup_api,
-	ai_setup_api_US,
 	ai_assistant_api,
 	ai_assistant_api_US,
 	galleries_api_US,
-} = require('./config');
+} = config || {};
 
 const apiEndpoints = {
 	tenant_users_api,
@@ -21,7 +27,6 @@ const apiEndpoints = {
 	proposals_api,
 	auth: auth_Api,
 	galleries: galleries,
-	// ai_setup: ai_setup_api,
 	ai_assistant_api,
 };
 const apiEndpointsUS = {
@@ -30,8 +35,7 @@ const apiEndpointsUS = {
 	'tenant-users': tenant_users_api_US,
 	proposals_api: proposals_api_US,
 	auth: auth_Api,
-	// ai_setup: ai_setup_api_US,
-	ai_assistant_api_US,
+	ai_assistant_api: ai_assistant_api_US,
 	galleries: galleries_api_US,
 };
 
