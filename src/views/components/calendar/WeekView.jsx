@@ -6,6 +6,13 @@ import moment from 'moment';
 
 const events = [
 	{
+		start: moment('2015-04-11').toDate(),
+		end: moment('2015-04-13').toDate(),
+		title: 'Conference',
+		description: 'Big conference for important people',
+		categories: ['Conference', 'Business'],
+	},
+	{
 		start: moment('2024-11-18T10:00:00').toDate(),
 		end: moment('2024-11-18T15:00:00').toDate(),
 		title: 'MRI Registration',
@@ -59,6 +66,7 @@ const WeekView = ({ toggleCreateEvent }) => {
 				// date={moment('2024-12-05').toDate()} //for syncing with calendarSelector current date
 				toolbar={false} //to hide inbuilt calendar header controls
 				// components={components}
+				className="custom"
 			/>
 		</div>
 	);

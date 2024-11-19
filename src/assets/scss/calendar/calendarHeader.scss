@@ -167,7 +167,9 @@
 			display: flex;
 			// width: 857px;
 			align-items: center;
-			gap: var(--Spacing-space-8, 16px);
+			// gap: var(--Spacing-space-8, 16px);
+			gap: 5px;
+			margin-left: 50px;
 			flex: 1 0 0;
 			align-self: stretch;
 			cursor: pointer;
