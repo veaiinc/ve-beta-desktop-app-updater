@@ -1,0 +1,103 @@
+.earlyAccessParentContainer {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	padding: 70px;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	flex-shrink: 0;
+	background-color: #131314;
+
+	.backdropStuff {
+		width: 500px;
+		height: 500px;
+		background-color: #6055ec;
+		border-radius: 100%;
+		border-radius: var(--Radius-Sharp, 500px);
+		background: #7a71ec;
+		filter: blur(280px);
+		position: absolute;
+		top: -200px;
+	}
+
+	.earlyAccessScreenTextContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 32px;
+		align-self: stretch;
+
+		.earlyAccessMainText {
+			text-align: center;
+			font-family: Inter;
+			font-size: 36px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+			background: linear-gradient(
+				90deg,
+				#d0cfe5 0%,
+				rgba(208, 207, 229, 0.75) 51.5%,
+				#d0cfe5 100%
+			);
+			background-clip: text;
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+
+			.earlyAccessText {
+				background: linear-gradient(89deg, #7166ff 0.81%, #a8a1ff 24.95%, #7166ff 49.08%);
+				background-clip: text;
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				font-family: Inter;
+				font-size: 36px;
+				font-style: normal;
+				font-weight: 300;
+				line-height: normal;
+			}
+		}
+
+		.earlyAccessSubText {
+			background: linear-gradient(
+				90deg,
+				rgba(208, 207, 229, 0.5) 0%,
+				#d0cfe5 47.74%,
+				rgba(208, 207, 229, 0.5) 100%
+			);
+			background-clip: text;
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			text-align: center;
+			font-family: Inter;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 300;
+			line-height: normal;
+			letter-spacing: -0.32px;
+		}
+	}
+
+	.earlyAccessFooter {
+		display: flex;
+		width: 154px;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--Spacing-space-8, 16px);
+
+		.earlyAccessFooterText {
+			color: #d0cfe5;
+			text-align: center;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+		}
+		.earlyAccessFooterIconHolder {
+			display: flex;
+			align-items: flex-start;
+			gap: 12px;
+		}
+	}
+}

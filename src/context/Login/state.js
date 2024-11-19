@@ -12,7 +12,7 @@ export const UserLoginState = (props) => {
 		let response = await Service.fetchGet(
 			`${API.USERS_LOGIN.VERIFY_EMAIL_EXISTS}${email}`,
 			null,
-			'tenant_users_api',
+			'auth',
 		);
 
 		if (response[0]) {
@@ -23,33 +23,37 @@ export const UserLoginState = (props) => {
 	};
 
 	const createUsersAccount = async (payload) => {
-		let response = await Service.fetchPost(
-			`${API.USERS_LOGIN.SIGNUP}`,
-			payload,
-			null,
-			'tenant_users_api',
-		);
+		try {
+			let response = await Service.fetchPost(
+				`${API.USERS_LOGIN.SIGNUP}`,
+				payload,
+				null,
+				'auth',
+			);
 
-		if (response[0] === true) {
-			return [true, response[1]];
-		} else {
-			return [false, response[1]];
+			if (response[0] === true) {
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
+		} catch (error) {
+			console.log('error creating user account', error);
 		}
 	};
 
 	const verifyUserEmailCode = async (payload) => {
-		let response = await Service.fetchPost(
-			API.USERS_LOGIN.VERIFY_SIGNUP_CODE,
-			payload,
-			null,
-			'tenant_users_api',
-		);
+		let response = await Service.fetchPost('/verify-signup-email', payload, null, 'auth');
 
 		if (response[0] === true) {
-			const { accessToken } = response?.[1];
+			const { accessToken, region } = response?.[1];
 			if (accessToken?.length) {
 				localStorage.setItem('usertoken', accessToken);
+				localStorage.setItem('region', region || 'ap-south-1');
 				Cookies.set('usertoken', accessToken, {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				});
+				Cookies.set('region', region || 'ap-south-1', {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
@@ -61,19 +65,19 @@ export const UserLoginState = (props) => {
 	};
 
 	const userLogin = async (payload) => {
-		let response = await Service.fetchPost(
-			`${API.USERS_LOGIN.LOGIN}`,
-			payload,
-			null,
-			'tenant_users_api',
-		);
+		let response = await Service.fetchPost(`${API.USERS_LOGIN.LOGIN}`, payload, null, 'auth');
 
 		if (response[0] === true) {
-			const { accessToken, accessibleWorkspaces } = response?.[1] || {};
+			const { accessToken, accessibleWorkspaces, region } = response?.[1] || {};
 
 			if (accessToken?.length) {
 				localStorage.setItem('usertoken', accessToken);
+				localStorage.setItem('region', region || 'ap-south-1');
 				Cookies.set('usertoken', accessToken, {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				});
+				Cookies.set('region', region || 'ap-south-1', {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
@@ -81,15 +85,16 @@ export const UserLoginState = (props) => {
 			if (!accessibleWorkspaces?.length) {
 				return [true, 'createWorkspace'];
 			}
-
+			const { isOnboard, workspaceId } = accessibleWorkspaces?.[0];
+			localStorage.setItem('isOnboard', isOnboard);
 			localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
-			localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
-			Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
+			localStorage.setItem('workspaceId', workspaceId);
+			Cookies.set('workspaceID', workspaceId, {
 				sameSite: 'lax',
 				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 			});
 
-			return [true];
+			return [true, isOnboard ? '/home' : '/early-access'];
 		} else {
 			if (response?.[1]?.messageCode === 'EMAIL_NOT_VERIFIED') {
 				return [true, 'redirect'];
@@ -104,7 +109,7 @@ export const UserLoginState = (props) => {
 				'/email-verification-code',
 				payload,
 				null,
-				'tenant_users_api',
+				'auth',
 			);
 
 			if (response?.[0] === true) {
@@ -124,7 +129,7 @@ export const UserLoginState = (props) => {
 				'/verify-password-reset-code',
 				payload,
 				null,
-				'tenant_users_api',
+				'auth',
 			);
 
 			if (response?.[0] === true) {
@@ -153,7 +158,7 @@ export const UserLoginState = (props) => {
 				'/request-password-reset-code',
 				payload,
 				null,
-				'tenant_users_api',
+				'auth',
 			);
 
 			if (response?.[0] === true) {
@@ -174,14 +179,19 @@ export const UserLoginState = (props) => {
 				'/update-password',
 				payload,
 				usertoken,
-				'tenant_users_api',
+				'auth',
 			);
 
 			if (response?.[0] === true) {
-				const { accessToken, accessibleWorkspaces } = response?.[1] || {};
+				const { accessToken, accessibleWorkspaces, region } = response?.[1] || {};
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
+					localStorage.setItem('region', region || 'ap-south-1');
 					Cookies.set('usertoken', accessToken, {
+						sameSite: 'lax',
+						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					});
+					Cookies.set('region', region || 'ap-south-1', {
 						sameSite: 'lax',
 						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 					});
@@ -191,8 +201,9 @@ export const UserLoginState = (props) => {
 				}
 
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
-				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
-				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
+				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]?.workspaceId);
+				localStorage.setItem('isOnboard', accessibleWorkspaces?.[0]?.isOnboard);
+				Cookies.set('workspaceID', accessibleWorkspaces?.[0]?.workspaceId, {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
@@ -209,28 +220,34 @@ export const UserLoginState = (props) => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
 			const response = await Service.fetchPost(
-				'/create-workspace',
+				'/tenant/create-workspace',
 				payload,
 				usertoken,
-				'tenant',
+				'auth',
 			);
 			if (response?.[0] === true) {
-				let { tenantId, workspaceId } = response?.[1];
+				let { workspaceId, isOnboard } = response?.[1];
 				let accessibleWorkspaces = localStorage.getItem('accessibleWorkspaces');
+				const obj = {
+					workspaceId: workspaceId,
+					isOnboard: isOnboard,
+				};
 				if (accessibleWorkspaces?.length) {
 					accessibleWorkspaces = JSON.parse(accessibleWorkspaces);
-					accessibleWorkspaces.push(workspaceId);
+					accessibleWorkspaces.push(obj);
 				} else {
-					accessibleWorkspaces = [workspaceId];
+					accessibleWorkspaces = [obj];
+					localStorage.setItem('isOnboard', isOnboard);
 				}
-				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
+
+				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]?.workspaceId);
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
 				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
 
-				return [true];
+				return [true, isOnboard ? '/home' : '/early-access'];
 			} else {
 				return [false, response?.[1]?.message || 'Something went wrong'];
 			}
@@ -241,19 +258,18 @@ export const UserLoginState = (props) => {
 
 	const signUpInvitedUser = async (payload) => {
 		try {
-			const response = await Service.fetchPost(
-				'/signup-invited-user',
-				payload,
-				null,
-				'tenant_users_api',
-			);
-			console.log('response: ', response);
+			const response = await Service.fetchPost('/signup-invited-user', payload, null, 'auth');
 
 			if (response?.[0] === true) {
-				let { accessToken, accessibleWorkspaces } = response?.[1] || {};
+				let { accessToken, accessibleWorkspaces, region } = response?.[1] || {};
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
+					localStorage.setItem('region', region || 'ap-south-1');
 					Cookies.set('usertoken', accessToken, {
+						sameSite: 'lax',
+						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					});
+					Cookies.set('region', region || 'ap-south-1', {
 						sameSite: 'lax',
 						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 					});
@@ -262,8 +278,9 @@ export const UserLoginState = (props) => {
 					return [true, 'createWorkspace'];
 				}
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
-				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
-				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
+				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]?.workspaceId);
+				localStorage.setItem('isOnboard', accessibleWorkspaces?.[0]?.isOnboard);
+				Cookies.set('workspaceID', accessibleWorkspaces?.[0]?.workspaceId, {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});

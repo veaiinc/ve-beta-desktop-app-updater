@@ -8,4 +8,5 @@ export const TENANTS = {
 	preferences: '/preferences',
 	subscriptionDetails: '/subscription-details',
 	logos: '/logos',
+	clientPortalPreferences: '/client-portal-preferences',
 };

@@ -18,7 +18,7 @@ const CopiedModal = ({ open, closeModal, modules, copyLink, pin }) => {
 				></iframe>
 				<span className="copyText">Copied !</span>
 				<span className="copylink">{copyLink}</span>
-				{pin ? <span className="copylink">Use this pin to unlock {pin}</span> : ''}
+				{/* {pin ? <span className="copylink">Use this pin to unlock {pin}</span> : ''} */}
 
 				<div className="workflowData">
 					<span className="linkData">This link contains of </span>

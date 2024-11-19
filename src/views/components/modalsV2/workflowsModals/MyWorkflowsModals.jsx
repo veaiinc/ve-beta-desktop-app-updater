@@ -338,7 +338,8 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 								uniqueIdentifierForTickIcon={'value'}
 								selectedValueObj={info?.selectedDuration}
 							/>
-							{activeCardsData?.type !== 'statstCards' ? (
+
+							{/* {activeCardsData?.type !== 'statstCards' ? (
 								<HeadersDropDownComp
 									showIcon={false}
 									options={stageOptions}
@@ -368,14 +369,14 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 										fontSize: '12px',
 										fontStyle: 'normal',
 										fontWeight: '400',
-										lineHeight: '14px' /* 116.667% */,
+										lineHeight: '14px',
 										letterSpacing: '-0.24px',
 									}}
-									// onChangeFunc={(e) => onChangeEmailTemplates(e)}
 								/>
 							) : (
 								''
-							)}
+							)} */}
+
 							<HeadersDropDownComp
 								showIcon={false}
 								options={sortOptions}
@@ -489,12 +490,9 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 										className="modalSubCard"
 										key={index}
 										onClick={() =>
-											navigate(`/smart-file/${activeTemplateData?._id}`, {
-												state: {
-													workflowId: item?._id,
-													workflow: item,
-												},
-											})
+											navigate(
+												`/smart-file/${activeTemplateData?._id}/${item?._id}`,
+											)
 										}
 									>
 										<span className="modalSubCardTitle">

@@ -3,8 +3,8 @@ import React, { useState, useEffect, useContext, useCallback } from 'react';
 import Context from '../../../context/context';
 import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { ReactComponent as EyeOpen } from '../../../assets/svg/password-eye-open.svg';
-import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { getLocationsDetails } from '../../../helpers';
 const UserSignUp = ({
 	handleInput,
 	usersData,
@@ -25,7 +25,7 @@ const UserSignUp = ({
 	const location = useLocation();
 	const navigate = useNavigate();
 	const params = new URLSearchParams(location.search);
-	const [geoGraphicData, setGeoGraphData] = useState(null);
+
 	const [info, setInfo] = useState({
 		invitedWorkspaceId: params.get('invitedWorkspaceId') || '',
 		invitedEmail: params.get('inviteeEmail') || '',
@@ -41,33 +41,30 @@ const UserSignUp = ({
 			setUsersData((prev) => ({ ...prev, emailId: info?.invitedEmail }));
 		}
 		localStorage.clear();
-		getGeoGraphicData();
+		getLocationsDetails();
+
 		return () => {
 			setUsersData((prev) => ({ ...prev, name: '', password: '' }));
 		};
 	}, []);
 
-	const getGeoGraphicData = useCallback(async () => {
-		const response = await axios.get('https://ipapi.co/json/');
-		setGeoGraphData(response?.data);
-	}, []);
-
 	const handleUserSignUp = async () => {
+		const locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
 		if (secondStageButtonActive && !info?.invitedUser) {
 			setLoading(true);
+
 			let json = {
 				firstName: usersData['name'],
 				email: usersData['emailId'],
 				password: usersData['password'],
-				country: geoGraphicData?.country_name || 'India',
-				timezone: geoGraphicData?.timezone || 'Asia/Kolkata',
-				currency: geoGraphicData?.currency || 'INR',
+				locationDetails,
 			};
 			let response = await createUsersAccount(json);
 
-			if (response[0]) {
+			if (response?.[0]) {
 				setLoading(false);
 				setStage('verify-email-code');
+				return;
 			} else {
 				setLoading(false);
 				setErrorState((prevState) => ({
@@ -83,10 +80,12 @@ const UserSignUp = ({
 				email: usersData['emailId'],
 				password: usersData['password'],
 				workspaceId: info?.invitedWorkspaceId,
+				locationDetails,
 			};
 			const response = await signUpInvitedUser(json);
 			if (response?.[0]) {
-				navigate('/sales');
+				// localStorage.removeItem('locationDetails');
+				navigate('/home');
 				setLoading(false);
 			} else {
 				setLoading(false);
@@ -148,7 +147,7 @@ const UserSignUp = ({
 					</div>
 					<div
 						className={`continueContainer ${secondStageButtonActive ? 'active' : ''}`}
-						onClick={() => (secondStageButtonActive ? handleUserSignUp() : '')}
+						onClick={secondStageButtonActive ? handleUserSignUp : ''}
 					>
 						{isLoading ? <p>Loading...</p> : <p>Continue</p>}
 					</div>

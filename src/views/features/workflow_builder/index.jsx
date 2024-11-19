@@ -14,11 +14,13 @@ import HeadersDropDownComp from '../../components/dropDown/HeadersDropDownComp';
 import DuplicateIndicatorModal from '../../components/modalsV2/workflowBuilderModals/DuplicateIndicatorModal';
 import ExitWithoutPublishingModal from '../../components/modalsV2/workflowBuilderModals/ExitWithoutPublishingModal';
 import { ReactComponent as VE } from '../../../assets/svg/smallVe.svg';
-import WorkflowBuilderLoader from './workflowBuilderLoader';
+import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
+import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
+import { message } from 'antd';
 const options = [
 	{ label: 'Rename Workflow' },
-	// { label: 'Duplicate Workflow' },
-	// { label: 'Delete Worklfow' },
+	{ label: 'Duplicate Workflow' },
+	{ label: 'Delete Worklfow' },
 ];
 
 const WorkflowBuilder = () => {
@@ -31,6 +33,7 @@ const WorkflowBuilder = () => {
 			getTemplatesListForCreateLead,
 			getSpecificTemplatesInfo,
 			specificTemplatesInfo,
+			deleteWorkflowTemplates,
 			duplicateGlobalWorkflowTemplate,
 		},
 	} = useContext(Context);
@@ -51,10 +54,10 @@ const WorkflowBuilder = () => {
 		renameModal: false,
 		duplicateWorkflowModal: false,
 		exitModal: false,
-		publicData: null,
-		privateData: null,
 		previewType: null,
 		loading: true,
+		deleteWorkflowModal: false,
+		deleteWorkflowLoader: false,
 	});
 
 	useEffect(() => {
@@ -88,36 +91,6 @@ const WorkflowBuilder = () => {
 				loading: false,
 				incomingTemplateData: specificTemplatesInfo,
 			}));
-		}
-	}, [specificTemplatesInfo]);
-
-	useEffect(() => {
-		if (specificTemplatesInfo) {
-			const { moduleTemplates, templates } = specificTemplatesInfo;
-			let publicData = {};
-			let privateData = {};
-
-			for (let i = 0; i < moduleTemplates?.length; i++) {
-				if (moduleTemplates?.[i]?.isPublic) {
-					publicData[moduleTemplates?.[i]?._id] = {};
-				} else {
-					privateData[moduleTemplates?.[i]?._id] = {};
-				}
-			}
-
-			for (let i = 0; i < templates?.length; i++) {
-				if (publicData?.[templates?.[i]?._id]) {
-					publicData[templates?.[i]?._id] = {
-						parsedHtmlContent: templates?.[i]?.parsedHtmlContent,
-					};
-				}
-				if (privateData?.[templates?.[i]?._id]) {
-					privateData[templates?.[i]?._id] = {
-						parsedHtmlContent: templates?.[i]?.parsedHtmlContent,
-					};
-				}
-			}
-			setInfo((prev) => ({ ...prev, publicData, privateData }));
 		}
 	}, [specificTemplatesInfo]);
 
@@ -235,7 +208,7 @@ const WorkflowBuilder = () => {
 				updateStateValues({ generatePublicLinkData: response?.[1] });
 			}
 			refreshSalesModuleData();
-			return navigate('/sales');
+			return navigate('/home');
 		}
 	}, [info?.publishLoading, info?.incomingTemplateData]);
 
@@ -251,7 +224,6 @@ const WorkflowBuilder = () => {
 			},
 		};
 		getMyWorkflows(payload, false);
-
 		getTemplatesListForCreateLead();
 	}, []);
 
@@ -279,36 +251,62 @@ const WorkflowBuilder = () => {
 		[info?.incomingTemplateData],
 	);
 
-	const onOptionChangeFunc = useCallback(async (data) => {
-		if (data?.label === 'Rename Workflow') {
-			setInfo((prev) => ({ ...prev, renameModal: true }));
-			return;
-		}
-		// if (data?.label === 'Duplicate Workflow') {
-		// 	setInfo((prev) => ({ ...prev, duplicateWorkflowModal: true }));
-		// 	return;
-		// }
-		// if (data?.label === 'Delete Worklfow') {
-		// 	return;
-		// }
-	}, []);
-
 	const closeDuplicateWorkflowModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, duplicateWorkflowModal: false }));
 	}, []);
+	const duplicateWorkflowFunc = useCallback(async () => {
+		if (!info?.incomingTemplateData) {
+			return;
+		}
+
+		const payload = {
+			templateId: info?.incomingTemplateData?._id,
+			title: info?.incomingTemplateData?.title,
+		};
+		const response = await duplicateGlobalWorkflowTemplate(payload);
+		if (response?.[0]) {
+			window.location.href = `https://builder.ve.ai/${response?.[1]?._id}`;
+		}
+		closeDuplicateWorkflowModal();
+	}, [info?.incomingTemplateData, closeDuplicateWorkflowModal]);
+
+	const onOptionChangeFunc = useCallback(
+		async (data) => {
+			if (data?.label === 'Rename Workflow') {
+				setInfo((prev) => ({ ...prev, renameModal: true }));
+				return;
+			}
+			if (data?.label === 'Duplicate Workflow') {
+				duplicateWorkflowFunc();
+				setInfo((prev) => ({ ...prev, duplicateWorkflowModal: true }));
+				return;
+			}
+			if (data?.label === 'Delete Worklfow') {
+				setInfo((prev) => ({ ...prev, deleteWorkflowModal: true }));
+			}
+		},
+		[duplicateWorkflowFunc],
+	);
 
 	//keep it on hold
 
-	// const duplicateWorkflowFunc = useCallback(async () => {
-	// 	if (!info?.incomingTemplateData) {
-	// 		return;
-	// 	}
-	// 	const payload = {
-	// 		templateId: info?.incomingTemplateData?._id,
-	// 		title: info?.incomingTemplateData?.title,
-	// 	};
-	// 	const response = await duplicateGlobalWorkflowTemplate(payload);
-	// }, [info?.incomingTemplateData]);
+	const deleteWorkflowFunc = useCallback(async () => {
+		if (info?.deleteWorkflowLoader) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, deleteWorkflowLoader: true }));
+		const payload = {
+			deleteTemplateId: templateId,
+		};
+		const resposne = await deleteWorkflowTemplates(payload);
+		setInfo((prev) => ({ ...prev, deleteWorkflowModal: false, deleteWorkflowLoader: false }));
+		if (resposne?.[0]) {
+			refreshSalesModuleData();
+			return navigate('/home');
+		} else {
+			message.error('Something went wrong,try again');
+		}
+	}, [templateId, info?.deleteWorkflowLoader]);
 
 	return (
 		<div className="workflowBuilderContainer">
@@ -316,7 +314,7 @@ const WorkflowBuilder = () => {
 			<div className="workflowBuilderHeader">
 				<div className="workflowBuilderNavigationContainer">
 					<div className="veIconHolder">
-						<VE />
+						{/* <VE /> */}
 						<span
 							style={{
 								display: 'flex',
@@ -369,7 +367,7 @@ const WorkflowBuilder = () => {
 			<div className="workflowBuilderSeperator"></div>
 			<div className="workflowBuilderContentContainer">
 				{info?.loading ? (
-					<WorkflowBuilderLoader />
+					<UpdatedPageLoader />
 				) : (
 					info?.data?.map((ele, index) => (
 						<div
@@ -387,8 +385,6 @@ const WorkflowBuilder = () => {
 								index={index}
 								templateData={info?.incomingTemplateData}
 								openPreviewModal={openPreviewModal}
-								publicData={info?.publicData}
-								privateData={info?.privateData}
 							/>
 							{index < info?.data?.length - 1 ? (
 								<WorkflowConnector alterData={alterData} index={index} />
@@ -426,10 +422,16 @@ const WorkflowBuilder = () => {
 					closeModal={() => setInfo((prev) => ({ ...prev, exitModal: false }))}
 					open={info?.exitModal}
 				/>
-				{/* <DuplicateIndicatorModal
+				<DeleteWorkflowModal
+					modalIsOpen={info?.deleteWorkflowModal}
+					closeModal={() => setInfo((prev) => ({ ...prev, deleteWorkflowModal: false }))}
+					deleteWorkflowFunc={deleteWorkflowFunc}
+					deleteLoader={info?.deleteWorkflowLoader}
+				/>
+				<DuplicateIndicatorModal
 					open={info?.duplicateWorkflowModal}
 					closeModal={closeDuplicateWorkflowModal}
-				/> */}
+				/>
 			</div>
 		</div>
 	);

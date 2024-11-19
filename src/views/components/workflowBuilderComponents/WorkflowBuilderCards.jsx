@@ -1,17 +1,23 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import '../../../assets/scss/workflowBuilder/workflowBuilderCard.scss';
 import { ReactComponent as EmailSvg } from '../../../assets/svg/worflow_builder/email.svg';
 
-const FirstWorkflowCard = ({ publicData, openPreviewModal }) => {
+const FirstWorkflowCard = ({ openPreviewModal, editOnClickHandler, templateData }) => {
+	const data = templateData?.moduleTemplates?.filter((e) => e?.isPublic);
 	return (
 		<div className="previewCard" onClick={() => openPreviewModal('public')}>
 			<div className="htmlContentViewer">
-				<div className="coverImage">
-					<div
-						dangerouslySetInnerHTML={{
-							__html: Object.values(publicData)?.[0]?.parsedHtmlContent,
-						}}
-						style={{ width: '100%' }}
+				<div className="coverImage" style={{ pointerEvents: 'none' }}>
+					<iframe
+						src={
+							window.location.hostname === 'localhost'
+								? `http://localhost:3000/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+								: `https://builder.ve.ai/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+						}
+						title="Builder Preview"
+						width="100%"
+						height="100%"
+						style={{ zoom: 0.2 }}
 					/>
 				</div>
 			</div>
@@ -20,7 +26,15 @@ const FirstWorkflowCard = ({ publicData, openPreviewModal }) => {
 				<span className="labelTitle">Enquiry Form</span>
 				<div className="actionContainer">
 					<div className="viewBtn">View</div>
-					<div className="editBtn">Edit Form</div>
+					<div
+						className="editBtn"
+						onClick={(e) => {
+							editOnClickHandler();
+							e.stopPropagation();
+						}}
+					>
+						Edit Form
+					</div>
 				</div>
 			</div>
 		</div>
@@ -30,9 +44,13 @@ const FirstWorkflowCard = ({ publicData, openPreviewModal }) => {
 const EmailCards = ({ openModal, workflowdata, index }) => {
 	return (
 		<div className="cardContentContainer" onClick={() => openModal(workflowdata, index)}>
-			<div className="footer">
-				<EmailSvg />
-				<span className="cardContentContainerheaderSubTitle">Email template</span>
+			<div className="cardContentContainerfooter">
+				<div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+					{' '}
+					<EmailSvg />
+					<span className="cardContentContainerheaderSubTitle">Send Email</span>
+				</div>
+
 				<span className="cardContentContainerheaderTitle">
 					{workflowdata?.emailTemplateSubject}
 				</span>
@@ -51,16 +69,22 @@ const EndPointViewCard = () => {
 	);
 };
 
-const PreviewCard = ({ templateData, openPreviewModal, privateData }) => {
+const PreviewCard = ({ templateData, openPreviewModal }) => {
+	const data = templateData?.moduleTemplates?.filter((e) => !e?.isPublic);
 	return (
 		<div className="previewCard" onClick={() => openPreviewModal('private')}>
 			<div className="htmlContentViewer">
-				<div className="coverImage">
-					<div
-						dangerouslySetInnerHTML={{
-							__html: Object.values(privateData)?.[0]?.parsedHtmlContent,
-						}}
-						style={{ width: '100%' }}
+				<div className="coverImage" style={{ pointerEvents: 'none' }}>
+					<iframe
+						src={
+							window.location.hostname === 'localhost'
+								? `http://localhost:3000/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+								: `https://builder.ve.ai/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+						}
+						title="Builder Preview"
+						width="100%"
+						height="100%"
+						style={{ zoom: 0.2 }}
 					/>
 				</div>
 			</div>
@@ -81,20 +105,17 @@ const WorkflowBuilderCards = ({
 	openModal,
 	openPreviewModal,
 	index,
-	publicData,
-	privateData,
 }) => {
 	const mapper = {
 		email: <EmailCards openModal={openModal} workflowdata={workflowdata} index={index} />,
 		theEnd: <EndPointViewCard />,
-		preview: (
-			<PreviewCard
-				templateData={templateData}
-				openPreviewModal={openPreviewModal}
-				privateData={privateData}
-			/>
-		),
+		preview: <PreviewCard templateData={templateData} openPreviewModal={openPreviewModal} />,
 	};
+
+	const editOnClickHandler = useCallback(() => {
+		window.location.href = `https://builder.ve.ai/${templateData?._id}`;
+	}, [templateData]);
+
 	return (
 		<div className="WorkflowBuilderCardsParentContainer">
 			{mapper?.[workflowdata?.module] ? (
@@ -104,8 +125,9 @@ const WorkflowBuilderCards = ({
 					openModal={openModal}
 					workflowdata={workflowdata}
 					index={index}
-					publicData={publicData}
 					openPreviewModal={openPreviewModal}
+					editOnClickHandler={editOnClickHandler}
+					templateData={templateData}
 				/>
 			)}
 		</div>

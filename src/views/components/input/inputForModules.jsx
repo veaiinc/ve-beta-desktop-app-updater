@@ -40,12 +40,21 @@ const InputForModules = ({
 					placeholder={placeholder}
 					onChange={onChange}
 					disabled={disabled}
+					value={value}
 				>
-					<option value="" disabled selected class="placeholder">
+					<option value="" defaultChecked disabled className="placeholder">
 						{placeholder}
 					</option>
-					{options.map((item, index) => {
-						return <option value={item.value}>{item.label}</option>;
+					{options.map((item) => {
+						return (
+							<option
+								value={item.value}
+								selected={value === item.value}
+								key={item.value}
+							>
+								{item.label}
+							</option>
+						);
 					})}
 				</select>
 			) : type == 'textArea' ? (
@@ -138,7 +147,7 @@ const InputForModules = ({
 
 InputForModules.propTypes = {
 	label: PropTypes.string,
-	type: PropTypes.oneOf(['text', 'email', 'textArea', 'phoneNumber']).isRequired,
+	type: PropTypes.oneOf(['text', 'email', 'textArea', 'phoneNumber', 'dropdown']).isRequired,
 	placeholder: PropTypes.string,
 	name: PropTypes.string,
 	value: PropTypes.string,

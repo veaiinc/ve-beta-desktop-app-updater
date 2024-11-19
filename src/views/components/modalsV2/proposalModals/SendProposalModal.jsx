@@ -1,7 +1,54 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/modules/workflow/sendProposal.scss';
 import Context from '../../../../context/context';
+import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
+import { ReactComponent as Edit } from '../../../../assets/svg/workflow/edit.svg';
+import { ReactComponent as Clock } from '../../../../assets/svg/workflow/clock.svg';
+import { ReactComponent as QuestionMark } from '../../../../assets/svg/workflow/questionMark.svg';
+import { ReactComponent as Ai } from '../../../../assets/svg/workflow/ai.svg';
+import { ReactComponent as Message } from '../../../../assets/svg/workflow/message.svg';
+import { ReactComponent as Security } from '../../../../assets/svg/workflow/security.svg';
+import { ReactComponent as Profile } from '../../../../assets/svg/workflow/profile.svg';
+import { ReactComponent as Settings } from '../../../../assets/svg/workflow/settings.svg';
+import { ReactComponent as DownArrow } from '../../../../assets/svg/workflow/smallDownArrow.svg';
+import ToggleSlider from '../../../components/input/slider';
+import JoditEditor from 'jodit-react';
+import { message } from 'antd';
+import moment from 'moment';
+import { Tooltip } from 'antd';
+import ToolTipContainer from '../../popover/ToolTipContainer';
+import jwtDecode from 'jwt-decode';
+import { getCurrentWorkspaceId } from '../../../../helpers';
+import AssignAssistantModal from './AssignAssistant';
+
+const initialState = {
+	subject: '',
+	emailBody: '',
+	name: '',
+	enableLinkExpiry: false,
+	accessSettings: false,
+	showEmail: false,
+	enableLinkExpiry: false,
+	showCustomExpiryButton: false,
+	showAccessSettings: true,
+	expiryInDays: 0,
+	nameAccess: false,
+	emailAccess: true,
+	emailIdentification: true,
+	slugErrorMessage: '',
+	slugHolder: '',
+	editSlug: false,
+	timeout: null,
+	isAlChatEnabled: false,
+	expiresAt: null,
+	linkExpiryText: 'No Expiry',
+	smartFileSettingsUpdate: false,
+	currentWorkspaceId: '',
+	toogleExpiryChnaged: false,
+	assignAssisstantModal: false,
+};
 
 const SendProposalModal = ({
 	open,
@@ -13,69 +60,211 @@ const SendProposalModal = ({
 	changelocalWorflowStatus,
 	workflowStatus,
 	changeEditStatus,
+	slug,
+	updateWorkflowSlug,
+	expiresAt,
+	updateSendSmartFileExpiryData,
+	isEnabled,
+	updateSmartFileEmailAuth,
+	businessName,
+	pin,
+	isAlChatEnabled,
+	updateSmartFileIsAiChatEnabled,
+	nameIdentification,
+	emailIdentification,
+	updateIdentification,
+	assisstanceData,
 }) => {
 	const {
-		templates: { sendSmartFile, chnageWorkflowStats },
+		templates: {
+			sendSmartFile,
+			chnageWorkflowStats,
+			getSendSmartFileEmailTemplate,
+			smartFileEmailTemplateData,
+			checkSmartFileSlugExists,
+			updateSmartFileSlug,
+			updateSendSmartFileSettings,
+		},
+		profileInfo: { userWorkSpaceList },
 	} = useContext(Context);
+	const editor = useRef(null);
+	const inputRef = useRef(null);
+	const [info, setInfo] = useState({ ...initialState, name: clientDetails?.name });
+	const [arrow, setArrow] = useState('Show');
 
-	const [info, setInfo] = useState({
-		subject: '',
-		emailBody: '',
-		selectedtemplate: 'invoice',
-		templateChange: false,
-		name: clientDetails?.name,
-	});
-
-	const options = {
-		invoice: {
-			value: 'invoice',
-			label: 'Send Invoice',
-			subject: `Hello there ${clientDetails?.name}, here’s a Invoice for you`,
-		},
-		contract: {
-			value: 'contract',
-			label: 'Send Contract',
-			subject: `Hello there ${clientDetails?.name}, here’s a contract for you`,
-		},
-		proposal: {
-			value: 'proposal',
-			label: 'Send Proposal',
-			subject: `Hello there ${clientDetails?.name}, here’s a proposal for you`,
-		},
-		forms: {
-			value: 'forms',
-			label: 'Send Forms',
-			subject: `Hello there ${clientDetails?.name}, here’s a forms for you`,
-		},
-	};
+	const mergedArrow = useMemo(() => {
+		if (arrow === 'Hide') {
+			return false;
+		}
+		if (arrow === 'Show') {
+			return true;
+		}
+		return {
+			pointAtCenter: true,
+		};
+	}, [arrow]);
 
 	useEffect(() => {
-		if (info?.templateChange) {
-			setInfo((prev) => ({
-				...prev,
-				subject: options?.[info?.selectedtemplate]?.subject,
-			}));
-		}
-	}, [info?.selectedtemplate, info?.templateChange]);
+		getSendSmartFileEmailTemplate();
+	}, []);
 
 	useEffect(() => {
-		if (clientDetails) {
+		if (smartFileEmailTemplateData) {
+			let emailBody = smartFileEmailTemplateData?.htmlBody || '';
+			emailBody = replaceEmailBodyPlaceholder(emailBody);
+
 			setInfo((prev) => ({
 				...prev,
-				subject: `Hello there ${clientDetails?.name}, here’s a Invoice for you`,
-				emailBody: `Hi ${clientDetails?.name},Attached is the file for your review. Please let me know if you have any questions or need any further information. {Invoice Link} Best regards,[Your Name]`,
-				name: clientDetails?.name,
+				subject: smartFileEmailTemplateData?.subject || '',
+				emailBody: emailBody || '',
 			}));
 		}
-	}, [clientDetails]);
+	}, [smartFileEmailTemplateData]);
+
+	useEffect(() => {
+		if (info?.showEmail) {
+			document
+				.querySelector('.sendProposalContainer')
+				?.scrollIntoView({ behavior: 'smooth' });
+		}
+	}, [info?.showEmail]);
+
+	useEffect(() => {
+		if (slug) {
+			setInfo((prev) => ({ ...prev, slugHolder: slug }));
+		}
+	}, [slug]);
+
+	useEffect(() => {
+		if (expiresAt) {
+			let linkExpiryText;
+			const currentTimestamp = moment().unix();
+			// Calculate the difference in hours, then round up to the nearest full day
+			const hoursLeft = moment.unix(expiresAt).diff(moment.unix(currentTimestamp), 'hours');
+			const daysLeft = Math.max(0, Math.ceil(hoursLeft / 24));
+			if (daysLeft <= 0) {
+				linkExpiryText = 'Link has expired';
+			} else {
+				linkExpiryText = `Link Expires on ${moment
+					?.unix(expiresAt)
+					?.format('DD MMM YYYY')}`;
+			}
+			setInfo((prev) => ({
+				...prev,
+				expiryInDays: daysLeft,
+				linkExpiryText,
+				enableLinkExpiry: true,
+			}));
+		}
+	}, [expiresAt]);
+
+	useEffect(() => {
+		if (info?.editSlug && inputRef) {
+			inputRef.current?.focus();
+		}
+	}, [info?.editSlug, inputRef]);
+
+	useEffect(() => {
+		setInfo((prev) => ({ ...prev, emailAccess: isEnabled }));
+	}, [isEnabled]);
+
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
+			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
+		}
+	}, [userWorkSpaceList]);
+
+	useEffect(() => {
+		if (info?.smartFileSettingsUpdate) {
+			handleDebouceFunctionCall(updateSendSmartFileSettingFunc);
+		}
+	}, [
+		info?.emailAccess,
+		info?.expiryInDays,
+		info?.smartFileSettingsUpdate,
+		info?.isAlChatEnabled,
+		info?.enableLinkExpiry,
+	]);
+
+	useEffect(() => {
+		setInfo((prev) => ({ ...prev, isAlChatEnabled: isAlChatEnabled }));
+	}, [isAlChatEnabled]);
+
+	useEffect(() => {
+		setInfo((prev) => ({ ...prev, nameAccess: nameIdentification, emailIdentification }));
+	}, [nameIdentification, emailIdentification]);
+
+	const handleSendProposalViaEmail = useCallback(async () => {
+		modifiedCloseModal();
+
+		const payload = {
+			clientEmail: clientDetails?.email,
+			workflowId: workflowId,
+			mailContent: {
+				htmlBody: info?.emailBody,
+				subject: info?.subject,
+			},
+		};
+		if (info?.expiryInDays && info?.expiryInDays > 0) {
+			payload.expiresAt = moment().add(info?.expiryInDays, 'days').unix();
+		}
+		if (info?.emailAccess) {
+			payload.isPublic = false;
+		}
+		if (!info?.emailAccess) {
+			payload.isPublic = true;
+		}
+
+		sendSmartFile(payload);
+		if (payload?.expiresAt) {
+		}
+
+		if (workflowStatus === 'enquiry') {
+			chnageWorkflowStats({
+				fileSentStatusId: workflowId,
+			});
+			changelocalWorflowStatus('filesSent');
+			changeEditStatus(false);
+		}
+	}, [
+		clientDetails,
+		workflowId,
+		workflowStatus,
+		info?.emailBody,
+		info?.subject,
+		info?.emailAccess,
+		info?.expiryInDays,
+	]);
+
+	const modifiedCloseModal = useCallback(() => {
+		closeModal();
+		let emailBody = smartFileEmailTemplateData?.htmlBody || '';
+		emailBody = replaceEmailBodyPlaceholder(emailBody);
+		setInfo({
+			...initialState,
+			name: clientDetails?.name,
+			subject: smartFileEmailTemplateData?.subject || '',
+			emailBody: emailBody || '',
+			slugHolder: slug,
+			emailAccess: isEnabled,
+			currentWorkspaceId: info?.currentWorkspaceId,
+			isAlChatEnabled: info?.isAlChatEnabled,
+		});
+	}, [
+		smartFileEmailTemplateData,
+		slug,
+		isEnabled,
+		info?.currentWorkspaceId,
+		info?.isAlChatEnabled,
+	]);
 
 	const handleCopy = useCallback(async () => {
 		try {
-			const workspaceId = localStorage.getItem('workspaceId');
 			await navigator.clipboard.writeText(
-				`https://${workspaceId}.ve.ai/portal/${workflowSlug}`,
+				`https://${info?.currentWorkspaceId}.ve.ai/portal/${workflowSlug}`,
 			);
-			closeModal();
+			modifiedCloseModal();
 			openCopyModal();
 
 			if (workflowStatus === 'enquiry') {
@@ -88,90 +277,588 @@ const SendProposalModal = ({
 		} catch (err) {
 			console.log('Failed to copy text');
 		}
-	}, [workflowSlug, workflowStatus]);
+	}, [workflowSlug, workflowStatus, modifiedCloseModal, info?.currentWorkspaceId]);
 
-	const handleSendProposalViaEmail = useCallback(async () => {
-		closeModal();
-		const payload = {
-			clientEmail: clientDetails?.email,
-			workflowId: workflowId,
-		};
-		sendSmartFile(payload);
+	const incrementDecrementExpiry = useCallback(
+		(type) => {
+			let newValue;
+			if (type === 'increment') {
+				newValue = info?.expiryInDays ? info?.expiryInDays + 1 : 1;
+			} else {
+				newValue =
+					info?.expiryInDays && info?.expiryInDays - 1 ? info?.expiryInDays - 1 : 0;
+			}
+			let linkExpiryText = `Link Expires on ${moment()
+				.add(newValue, 'days')
+				?.format('DD MMM YYYY')}`;
+			setInfo((prev) => ({
+				...prev,
+				expiryInDays: newValue,
+				linkExpiryText,
+				smartFileSettingsUpdate: true,
+			}));
+		},
+		[info?.expiryInDays],
+	);
 
-		if (workflowStatus === 'enquiry') {
-			chnageWorkflowStats({
-				fileSentStatusId: workflowId,
-			});
-			changelocalWorflowStatus('filesSent');
-			changeEditStatus(false);
+	const handleDaysButtonOnClick = useCallback(
+		(val) => {
+			if (info?.expiryInDays === val) {
+				return;
+			}
+			let linkExpiryText = `Link Expires on ${moment()
+				.add(val, 'days')
+				?.format('DD MMM YYYY')}`;
+			setInfo((prev) => ({
+				...prev,
+				expiryInDays: val,
+				linkExpiryText,
+				smartFileSettingsUpdate: true,
+			}));
+		},
+		[info?.expiryInDays],
+	);
+
+	// Handle change for checkboxes
+	const handleCheckboxChange = useCallback((e) => {
+		const { name, checked } = e.target;
+		let updateSettingFlag = name === 'emailAccess' ? { smartFileSettingsUpdate: true } : {};
+
+		setInfo((prevState) => ({
+			...prevState,
+			[name]: checked,
+			...updateSettingFlag,
+		}));
+		if (name === 'emailAccess' && checked === true) {
+			setInfo((prev) => ({
+				...prev,
+				emailIdentification: true,
+			}));
 		}
-	}, [clientDetails, workflowId, workflowStatus]);
+
+		if (name !== 'emailAccess') {
+			let type;
+			type = name === 'emailIdentification' ? 'emailIdentification' : 'nameIdentification';
+			updateIdentification(checked, type);
+		}
+	}, []);
+
+	const slugOnChange = useCallback(
+		(e) => {
+			const valueWithoutSpaces = e?.target?.value.replace(/[^a-z0-9]/g, '');
+			setInfo((prev) => ({ ...prev, slugHolder: valueWithoutSpaces, slugErrorMessage: '' }));
+			if (valueWithoutSpaces === slug) {
+				return;
+			}
+			handleDebouceFunctionCall(checkSlugAvailability, valueWithoutSpaces);
+		},
+		[info?.slugHolder, slug],
+	);
+
+	const handleDebouceFunctionCall = useCallback(
+		(func, args) => {
+			clearTimeout(info?.timeout);
+			const timeout = setTimeout(() => {
+				func(args);
+				setInfo((prev) => ({
+					...prev,
+					loading: true,
+				}));
+			}, 800);
+			setInfo((prev) => ({ ...prev, timeout }));
+		},
+		[info?.timeout],
+	);
+
+	const checkSlugAvailability = useCallback(
+		async (slugVal) => {
+			if (slugVal?.length) {
+				const payload = {
+					slug: slugVal,
+					moduleType: 'workflows',
+				};
+				const response = await checkSmartFileSlugExists(payload);
+				if (response?.[0]) {
+					updateSmartFileSlugFunc(slugVal);
+				} else {
+					setInfo((prev) => ({ ...prev, slugErrorMessage: 'This is not available' }));
+				}
+			}
+		},
+		[info?.slugHolder],
+	);
+
+	const updateSmartFileSlugFunc = useCallback(
+		async (slug) => {
+			const payload = {
+				updateSlugId: workflowId,
+				slug: slug,
+				moduleType: 'workflows',
+			};
+			const response = await updateSmartFileSlug(payload);
+			if (response?.[0]) {
+				updateWorkflowSlug(slug);
+				message.success('Url Updated Successfully');
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					slugErrorMessage: 'Unable to Save the Slug, try typing again',
+				}));
+			}
+		},
+		[info?.slugHolder, workflowId],
+	);
+
+	const replaceEmailBodyPlaceholder = useCallback(
+		(emailBody) => {
+			let emailBodyText = emailBody;
+			if (!emailBodyText?.length) {
+				return emailBodyText;
+			}
+			if (clientDetails?.name?.length) {
+				emailBodyText = emailBodyText?.replace(/{clientName}/g, clientDetails?.name);
+			}
+			const usertoken = localStorage.getItem('usertoken');
+			const decodedToken = jwtDecode(usertoken);
+			const { userName } = decodedToken;
+			if (userName?.length) {
+				emailBodyText = emailBodyText?.replace(/{userName}/g, userName);
+			}
+			if (pin) {
+				emailBodyText = emailBodyText?.replace(/{accessPin}/g, pin);
+			}
+			if (businessName?.length) {
+				emailBodyText = emailBodyText?.replace(/{companyName}/g, businessName);
+			}
+
+			return emailBodyText;
+		},
+		[clientDetails, pin, businessName],
+	);
+
+	const updateSendSmartFileSettingFunc = useCallback(async () => {
+		const payload = {
+			updateWorkflowId: workflowId,
+			updateWorkflowInput: {
+				isPublic: !info?.emailAccess,
+				isAlChatEnabled: info?.isAlChatEnabled,
+			},
+		};
+
+		if (info?.toogleExpiryChnaged) {
+			let expiryData;
+			if (info?.enableLinkExpiry) {
+				if (info?.expiryInDays && info?.expiryInDays > 0) {
+					expiryData = moment().add(info?.expiryInDays, 'days').unix();
+					payload.updateWorkflowInput.expiresAt = expiryData;
+				} else {
+					expiryData = moment().add(7, 'days').unix();
+					payload.updateWorkflowInput.expiresAt = moment().add(7, 'days').unix();
+				}
+			} else {
+				expiryData = null;
+				payload.updateWorkflowInput.expiresAt = null;
+			}
+			updateSendSmartFileExpiryData(expiryData);
+		}
+
+		const response = await updateSendSmartFileSettings(payload);
+		if (response?.[0]) {
+			updateSmartFileEmailAuth(info?.emailAccess);
+			updateSmartFileIsAiChatEnabled(info?.isAlChatEnabled);
+		}
+	}, [
+		workflowId,
+		info?.emailAccess,
+		info?.expiryInDays,
+		info?.isAlChatEnabled,
+		info?.enableLinkExpiry,
+		info?.toogleExpiryChnaged,
+	]);
+
+	const closeAssignAssistantModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, assignAssisstantModal: false }));
+	}, [info?.assignAssisstantModal]);
 
 	return (
-		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
-			<div className="sendProposalContainer">
-				<div className="uppercontainer">
-					<span className="modalHeader">Send File</span>
-					{/* select Template */}
-					<div className="inputWrapperForEmail">
-						<span className="labelStyling">Select Template</span>
-						<select
-							className="selectContainer"
-							onChange={(e) =>
-								setInfo((prev) => ({
-									...prev,
-									selectedtemplate: e?.target?.value,
-									templateChange: true,
-								}))
-							}
+		<ReactModal
+			isOpen={open}
+			closeModal={modifiedCloseModal}
+			modalType={'center'}
+			customStyles={{ content: { borderRadius: '15px' } }}
+		>
+			<div
+				className={`sendSmartFileupdatedContainer ${info?.showEmail ? 'showEmail' : ''} ${
+					info?.enableLinkExpiry ? 'enableLinkExpiry' : ''
+				}    ${info?.showAccessSettings ? 'showAccessSettings' : ''} ${
+					assisstanceData?._id && info?.isAlChatEnabled
+						? 'showAccessSettingsWithAssistanceData'
+						: ''
+				}`}
+				style={{ overflowY: info?.showEmail ? 'auto' : 'hidden' }}
+			>
+				{/* setting screen */}
+				<div className="sendSmartFileSettingScreen">
+					{/* smart File Header */}
+					<div className="sendSmartFileHeader">
+						<div className="sendSmartFileHeaderWrapper">
+							<span className="linkDetailText">
+								{`https://${info?.currentWorkspaceId}.ve.ai/portal/`}
+								<input
+									type="text"
+									className="editableSlugInput"
+									value={info?.slugHolder}
+									ref={inputRef}
+									onChange={slugOnChange}
+								/>
+							</span>
+							<span className="editLinkBtn">
+								<Edit />
+							</span>
+						</div>
+						{info?.slugErrorMessage?.length ? (
+							<div className="slugErrorHandler">{info?.slugErrorMessage}</div>
+						) : (
+							''
+						)}
+					</div>
+					{/* smartFileSettings */}
+
+					<div className="configurationSettingsContainer">
+						<div className="settingsWrapper">
+							<div className="settingsContainer">
+								<div className="settingsIconHolder">
+									<Clock />
+								</div>
+								<div className="settingsLabelholder">
+									<span className="settingsLabelText">Enable Link Expiry</span>
+									<ToggleSlider
+										value={info?.enableLinkExpiry}
+										onChange={(val) =>
+											setInfo((prev) => ({
+												...prev,
+												enableLinkExpiry: val,
+												toogleExpiryChnaged: true,
+												smartFileSettingsUpdate: true,
+											}))
+										}
+									/>
+								</div>
+
+								<span className="svgHolder">
+									<Tooltip
+										placement="bottomRight"
+										title={
+											<ToolTipContainer
+												title={'Link Expiry'}
+												content={
+													'Smart File expires after ‘X’ days when enabled. smart files that expired will go into a Expired state and can’t be accessed using link.'
+												}
+											/>
+										}
+										arrow={mergedArrow}
+										color={'#202020'}
+									>
+										<QuestionMark />
+									</Tooltip>
+								</span>
+							</div>
+							{info?.enableLinkExpiry ? (
+								<div className="enableLinkSettingsContainer">
+									<div className="linkExpireLabelContainer">
+										<span className="expiryHeadingLabel">
+											Days till file expires
+										</span>
+										<span className="expirySubLabel">
+											{info?.linkExpiryText}
+											{/* Link Expires on 5 Oct 2024 */}
+										</span>
+									</div>
+									{!info?.showCustomExpiryButton ? (
+										<div className="linkExpiryInputParentContainer">
+											<div
+												className="daysButtons"
+												style={{
+													color: info?.expiryInDays === 7 ? '#fff' : '',
+													border:
+														info?.expiryInDays === 7
+															? '1px solid #fff'
+															: '',
+												}}
+												onClick={() => handleDaysButtonOnClick(7)}
+											>
+												7d
+											</div>
+											<div
+												className="daysButtons"
+												style={{
+													color: info?.expiryInDays === 15 ? '#fff' : '',
+													border:
+														info?.expiryInDays === 15
+															? '1px solid #fff'
+															: '',
+												}}
+												onClick={() => handleDaysButtonOnClick(15)}
+											>
+												15d
+											</div>
+											<div
+												className="daysButtons"
+												style={{
+													color: info?.expiryInDays === 30 ? '#fff' : '',
+													border:
+														info?.expiryInDays === 30
+															? '1px solid #fff'
+															: '',
+												}}
+												onClick={() => handleDaysButtonOnClick(30)}
+											>
+												30d
+											</div>
+											<span
+												className="customDateButton"
+												onClick={() =>
+													setInfo((prev) => ({
+														...prev,
+														showCustomExpiryButton: true,
+													}))
+												}
+											>
+												Custom
+											</span>
+										</div>
+									) : (
+										<div className="linkExpiryInputParentContainer">
+											<span
+												className="svgHolder"
+												onClick={() =>
+													setInfo((prev) => ({
+														...prev,
+														showCustomExpiryButton: false,
+													}))
+												}
+											>
+												<Close />
+											</span>
+											<div className="incrementContainer">
+												<span
+													className=" incrementFontstyling"
+													onClick={() =>
+														incrementDecrementExpiry('decrement')
+													}
+												>
+													-
+												</span>
+												<span className="incrementFontstyling">
+													{info?.expiryInDays || 0}
+												</span>
+												<span
+													className="incrementFontstyling"
+													onClick={() =>
+														incrementDecrementExpiry('increment')
+													}
+												>
+													+
+												</span>
+											</div>
+											<span className="customDateButton">Days</span>
+										</div>
+									)}
+								</div>
+							) : (
+								''
+							)}
+						</div>
+
+						<div className="settingsWrapper">
+							<div
+								className="settingsContainer"
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										showAccessSettings: !prev.showAccessSettings,
+									}))
+								}
+							>
+								<div className="settingsIconHolder">
+									<Settings />
+								</div>
+								<div className="settingsLabelholder">
+									<span className="settingsLabelText">Access Settings</span>
+									<DownArrow />
+								</div>
+							</div>
+							{info?.showAccessSettings ? (
+								<div className="accessSettingsContainer">
+									<div className="identificationContainer">
+										<div className="accessSettingsLabelContainer">
+											<Profile />
+											<span className="headingLabel">Identification</span>
+										</div>
+										<div className="checkBoxContainer">
+											<div className="checkboxWrapper">
+												<input
+													type="checkbox"
+													className="sendSmartFileCheckbox"
+													checked={info?.nameAccess}
+													name="nameAccess"
+													onChange={handleCheckboxChange}
+												/>
+												<span className="checkboxLabel">Name</span>
+											</div>
+											<div className="checkboxWrapper">
+												<input
+													type="checkbox"
+													className="sendSmartFileCheckbox"
+													checked={info?.emailIdentification}
+													onChange={handleCheckboxChange}
+													name="emailIdentification"
+												/>
+												<span className="checkboxLabel">Email</span>
+											</div>
+										</div>
+									</div>
+
+									<div className="securityContainer">
+										<div className="accessSettingsLabelContainer">
+											<Security />
+											<span className="headingLabel">Security</span>
+										</div>
+										<div className="checkBoxContainer">
+											<div className="checkboxWrapper">
+												<input
+													type="checkbox"
+													className="sendSmartFileCheckbox"
+													checked={info?.emailAccess}
+													onChange={handleCheckboxChange}
+													name="emailAccess"
+												/>
+												<span className="checkboxLabel">
+													Email Verification
+												</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							) : (
+								''
+							)}
+						</div>
+					</div>
+
+					{/* Ai AssistantContainer */}
+					<div
+						className="aiContentWrapper"
+						style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
+					>
+						<div className="aiSalesContainer">
+							<Ai />
+							<div className="aiLabel">
+								<span className="aiLabelText">AI Sales Assistant</span>
+								<ToggleSlider
+									value={info?.isAlChatEnabled}
+									onChange={(val) =>
+										setInfo((prev) => ({
+											...prev,
+											isAlChatEnabled: val,
+											smartFileSettingsUpdate: true,
+											assignAssisstantModal: assisstanceData?._id
+												? false
+												: val,
+										}))
+									}
+								/>
+							</div>
+						</div>
+						{info?.isAlChatEnabled && assisstanceData?._id ? (
+							<span className="assignedAssitant">
+								{assisstanceData?.name + ' '}
+								is assisting this sales.<br></br> AI Can make mistakes while turning
+								on AI Sales Assistant, VE AI is not responsible for any malfunction
+								that AI might make
+							</span>
+						) : (
+							''
+						)}
+					</div>
+
+					<div className="sendSmartFileBtnContainer">
+						<div
+							className="sendSmartFileBtn"
+							onClick={() => {
+								setInfo((prev) => ({ ...prev, showEmail: true }));
+							}}
 						>
-							{Object.values(options)?.map((ele, index) => (
-								<option key={index} value={ele?.value}>
-									{ele?.label}
-								</option>
-							))}
-						</select>
-					</div>
-					{/* subJect */}
-					<div className="inputWrapperForEmail">
-						<span className="labelStyling">Subject Line Here</span>
-						<input
-							type="text"
-							className="modalInput"
-							value={info?.subject}
-							onChange={(e) =>
-								setInfo((prev) => ({ ...prev, subject: e.target.value }))
-							}
-						/>
-					</div>
-					{/* email body */}
-					<div className="inputWrapperForEmail">
-						<span className="labelStyling">Email Body Here</span>
-						<textarea
-							className="modalInput"
-							value={info?.emailBody}
-							onChange={(e) =>
-								setInfo((prev) => ({ ...prev, emailBody: e.target.value }))
-							}
-						/>
-					</div>
-					<div className="sendEmailBtn" onClick={handleSendProposalViaEmail}>
-						Send Email
+							<Message />
+							Send Email
+						</div>
+						<span className="orText">OR</span>
+						<div className="copyTextDiv">
+							<span className="copyLinkText" onClick={handleCopy}>
+								Copy Link
+							</span>
+							<QuestionMark />
+						</div>
 					</div>
 				</div>
-				<div className="modalFooter">
-					<div className="footerLabel">
-						<span className="mainfooterTitle">Send a link to this file</span>
-						<span className="mainFooterSubTitle">
-							Copying the link will mark this stage as sent. Ensure all details are
-							filled in correctly before proceeding.
-						</span>
+				{info?.showEmail ? (
+					<div className="sendProposalContainer">
+						<div className="uppercontainer">
+							<div className="sendSmartFileHeaderContainer">
+								<span className="sendSmartFileHeaderTitle">Send smart file</span>
+							</div>
+
+							<div className="inputWrapperForSendSmartFile">
+								<span className="inputlabel">Email to</span>
+								<input
+									type="email"
+									value={clientDetails?.email}
+									disabled
+									className="inputForSendSmartFile"
+								/>
+							</div>
+
+							<div className="inputWrapperForSendSmartFile">
+								<span className="inputlabel">Subject Line Here</span>
+								<input
+									type="text"
+									value={info?.subject}
+									className="inputForSendSmartFile"
+									onChange={(e) =>
+										setInfo((prev) => ({ ...prev, subject: e.target.value }))
+									}
+								/>
+							</div>
+
+							<div className="inputWrapperForSendSmartFile">
+								<span className="inputlabel">Email Body Here</span>
+								<div className="joditWrapper">
+									<JoditEditor
+										ref={editor}
+										value={info?.emailBody}
+										tabIndex={1} // tabIndex of textarea
+										onChange={(newContent) =>
+											setInfo((prev) => ({ ...prev, emailBody: newContent }))
+										}
+									/>
+								</div>
+							</div>
+
+							<div className="sendEmailBtn" onClick={handleSendProposalViaEmail}>
+								Send Email
+							</div>
+						</div>
 					</div>
-					<div className="linkCopyBtn" onClick={handleCopy}>
-						Copy Link
-					</div>
-				</div>
+				) : (
+					''
+				)}
 			</div>
+
+			<AssignAssistantModal
+				modalIsOpen={info?.assignAssisstantModal}
+				closeModal={closeAssignAssistantModal}
+				selectedAssistant={assisstanceData}
+			/>
 		</ReactModal>
 	);
 };

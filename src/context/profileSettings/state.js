@@ -71,6 +71,7 @@ export const ProfileState = () => {
 			console.log('error==>getTenantUserDetails', error);
 		}
 	};
+
 	const get2FAQrCode = async () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -121,23 +122,47 @@ export const ProfileState = () => {
 	const updateUserDetails = async (payload) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
-			let response = service.fetchPut(
-				API.TENANTS.myProfile,
+			let response = await service.fetchPut(
+				'/tenant-user', // API.TENANTS.myProfile,
 				payload,
 				usertoken,
-				'tenant-users',
+				'auth',
 			);
+
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false];
+			}
 		} catch (error) {
 			console.log('error==>updateUserDetails', error);
 		}
 	};
+
+	// added api
+	const updateUserPhoneNumber = async (payload) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			// let decoded = jwt_decode(usertoken);
+			let response = await service.fetchPut('/tenant-user', payload, usertoken, 'auth');
+
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
+		} catch (error) {
+			console.log('error==>updateUserPhoneNumber', error);
+		}
+	};
+
 	const getUserWorkSpaceList = async () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workSpaceList = await service.fetchGet(
 				API.TENANTS.accessibleTenants,
 				usertoken,
-				'tenant-users',
+				'auth',
 			);
 
 			if (workSpaceList?.[0]) {
@@ -237,8 +262,57 @@ export const ProfileState = () => {
 			console.log('error==>updateUserLogo', error);
 		}
 	};
+
+	const updateWorkSpaceId = async (json) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+
+			const response = await service.fetchPut(
+				'/tenant/' + workspaceId + '/add-workspaceId ',
+				json,
+				usertoken,
+				'auth',
+			);
+
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
+		} catch (error) {
+			console.log('error==>updateWorkSpaceId', error);
+		}
+	};
+
+	const updateCompanyDetailsState = (payload) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_COMPANY_DETAILS,
+				payload,
+			});
+		} catch (error) {
+			console.log('error==>updateCompanyDetailsState', error);
+		}
+	};
+
+	const updateUserDetailsState = (payload) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_USER_DETAILS,
+				payload,
+			});
+		} catch (error) {
+			console.log('error==>updateUserDetailsState', error);
+		}
+	};
+
 	const resetProfileSettingsState = async () => {
 		dispatch({ type: Actions.RESET_STATE });
+	};
+
+	const updateProfileState = async (payload) => {
+		dispatch({ type: Actions.UPDATE_PROFILE_STATE, payload: payload });
 	};
 	return {
 		...state,
@@ -248,6 +322,7 @@ export const ProfileState = () => {
 		get2FAQrCode,
 		set2FASettings,
 		updateUserDetails,
+		updateUserPhoneNumber,
 		getUserWorkSpaceList,
 		updatePassword,
 		chooseDefaultWorkspace,
@@ -255,5 +330,9 @@ export const ProfileState = () => {
 		updateBusniessName,
 		updateUserLogo,
 		resetProfileSettingsState,
+		updateWorkSpaceId,
+		updateCompanyDetailsState,
+		updateUserDetailsState,
+		updateProfileState,
 	};
 };

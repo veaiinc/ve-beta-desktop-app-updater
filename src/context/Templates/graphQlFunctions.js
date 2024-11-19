@@ -57,6 +57,7 @@ export const getClientListQuery = gql`
 			data {
 				email
 				name
+				phoneNumber
 				_id
 			}
 		}
@@ -264,9 +265,21 @@ export const createLeadfromTemplatesQuery = gql`
 	}
 `;
 
-export const workflowsLinkQuery = gql`
-	mutation WorkflowLink($clientEmail: String!, $workflowId: ID!) {
-		workflowLink(clientEmail: $clientEmail, workflowId: $workflowId)
+export const sendSmartFileMutation = gql`
+	mutation ShareWorkflowLink(
+		$clientEmail: String!
+		$workflowId: ID!
+		$mailContent: mailContentInput
+		$expiresAt: Int
+		$isPublic: Boolean
+	) {
+		shareWorkflowLink(
+			clientEmail: $clientEmail
+			workflowId: $workflowId
+			mailContent: $mailContent
+			expiresAt: $expiresAt
+			isPublic: $isPublic
+		)
 	}
 `;
 
@@ -333,5 +346,82 @@ export const getSpecifiTemplatesInfoQuery = gql`
 			}
 			slug
 		}
+	}
+`;
+
+export const getSendSmartFileTemplateQuery = gql`
+	query Query {
+		getWorflowEmailTemplate
+	}
+`;
+
+export const checkSmartFileSlugExistsQuery = gql`
+	query Query($slug: String!, $moduleType: Modules!) {
+		isSlugAvailable(slug: $slug, moduleType: $moduleType)
+	}
+`;
+
+export const updateSmartFileSlugMutation = gql`
+	mutation UpdateSlug($updateSlugId: ID!, $slug: String!, $moduleType: Modules!) {
+		updateSlug(id: $updateSlugId, slug: $slug, moduleType: $moduleType)
+	}
+`;
+
+export const deleteLeadMutation = gql`
+	mutation DeleteWorkflow($deleteWorkflowId: ID!) {
+		deleteWorkflow(id: $deleteWorkflowId)
+	}
+`;
+
+export const deleteWorkflowTemplatesMutation = gql`
+	mutation DeleteTemplate($deleteTemplateId: ID!) {
+		deleteTemplate(id: $deleteTemplateId) {
+			message
+		}
+	}
+`;
+
+// Sheshant
+export const getTabItemCountQuery = gql`
+	query Query {
+		getNumberOfRequiredActions {
+			enquiry
+			counterSign
+			emailApproval
+			expiresInThreeDays
+			all
+		}
+	}
+`;
+
+// Sheshant
+export const getRequiredActionDetailsQuery = gql`
+	query Query($filters: RequiredActionsFiltersInput) {
+		listRequiredActions(filters: $filters) {
+			data {
+				_id
+				title
+				action
+				clientName
+				createdAt
+				expiresAt
+				approvalRequired
+				status
+				templateId
+			}
+			hasNextPage
+		}
+	}
+`;
+
+export const updateSendSmartFileSettingsMutation = gql`
+	mutation UpdateWorkflow($updateWorkflowId: ID!, $updateWorkflowInput: UpdateWorkflowInput) {
+		updateWorkflow(id: $updateWorkflowId, updateWorkflowInput: $updateWorkflowInput)
+	}
+`;
+
+export const getLatestSendSmartFileSettingsQuery = gql`
+	query Query {
+		getLatestWorkflowSettings
 	}
 `;

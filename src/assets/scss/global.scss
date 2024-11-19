@@ -6083,35 +6083,35 @@ input[type='number'] {
 	color: #707070;
 }
 
-.jodit-container {
-	height: 500px !important;
-	border: none !important;
-	border-top: 1px solid rgba(224, 224, 224, 0.2) !important;
-	background-color: transparent !important;
-
-	.jodit-workplace {
-		// height: 100% !important;
-		height: 500px !important;
-		background-color: transparent !important;
-		border-radius: 10px !important;
-		border: 1px solid rgba(224, 224, 224, 0.2) !important;
-		border-top-left-radius: 0px !important;
-		border-top-right-radius: 0px !important;
-
-		p {
-			color: #fff;
-		}
-	}
-	.jodit-status-bar {
-		background-color: transparent !important;
+.jodit-react-container {
+	.jodit-container {
+		// height: 500px !important;
+		width: 100% !important;
 		border: none !important;
+		border-top: 1px solid rgba(224, 224, 224, 0.2) !important;
+		background-color: transparent !important;
 
-		.jodit-status-bar__item {
-			color: transparent !important;
+		.jodit-workplace {
+			// height: 500px !important;
+			background-color: transparent !important;
+			border-radius: 10px !important;
+			border: 1px solid rgba(224, 224, 224, 0.2) !important;
+			border-top-left-radius: 0px !important;
+			border-top-right-radius: 0px !important;
 
-			a {
-				color: transparent !important;
-			}
+			// p {
+			// 	color: #fff;
+			// }
+		}
+		.jodit-status-bar {
+			display: none !important;
+		}
+		.jodit-add-new-line {
+			display: none !important;
 		}
 	}
+}
+
+.toolTipContainer .ant-tooltip-inner {
+	padding: 0 !important;
 }

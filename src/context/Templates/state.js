@@ -1,4 +1,5 @@
 import service from '../../services/graphQlServices';
+import { message } from 'antd';
 import {
 	getTemmplatesQuery,
 	duplicateTemplateQuery,
@@ -17,16 +18,27 @@ import {
 	getWorkflowListQuery,
 	getTemplatesListForCreateLeadQuery,
 	createLeadfromTemplatesQuery,
-	workflowsLinkQuery,
 	formResponsesQuery,
 	changeWorkflowStatusQuery,
 	getSignedUrlForContractsQuery,
 	moveWorkflowStatusQuery,
 	getSpecifiTemplatesInfoQuery,
+	getSendSmartFileTemplateQuery,
+	sendSmartFileMutation,
+	checkSmartFileSlugExistsQuery,
+	updateSmartFileSlugMutation,
+	deleteLeadMutation,
+	deleteWorkflowTemplatesMutation,
+	getTabItemCountQuery,
+	getRequiredActionDetailsQuery,
+	updateSendSmartFileSettingsMutation,
+	getLatestSendSmartFileSettingsQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './Actions';
+import Service from '../../services/index';
+import { errorCodes } from '@apollo/client/invariantErrorCodes';
 
 export const intialState = {
 	workflowslist: null,
@@ -44,6 +56,11 @@ export const intialState = {
 	generatePublicLinkData: null,
 	contractSignedLocalState: null,
 	specificTemplatesInfo: null,
+	smartFileEmailTemplateData: null,
+	requiredActions: { actions: [], hasMore: false, loading: true },
+	tabItemCount: null,
+	eventsPresetData: null,
+	sendSmartFileSettings: null,
 };
 
 export const TemplatesState = (props) => {
@@ -311,6 +328,7 @@ export const TemplatesState = (props) => {
 				return [true];
 			} else {
 				console.log('Api failed==>updateProposal', response);
+				return [false];
 			}
 		} catch (error) {
 			console.log('error==>updateProposal', error);
@@ -484,15 +502,17 @@ export const TemplatesState = (props) => {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
-				workflowsLinkQuery,
+				sendSmartFileMutation,
 				payload,
 				workspaceId,
 				usertoken,
 				'workflows_Api',
 			);
 			if (response?.[0]) {
+				message.success('Email Sent Successfully');
 				return [true];
 			} else {
+				message.error('Something Went wrong, try again');
 				return [false, response?.[1]?.message || 'Something went Worng'];
 			}
 		} catch (error) {
@@ -651,6 +671,313 @@ export const TemplatesState = (props) => {
 			console.log('api failed ==>getSpecificTemplatesInfo', error);
 		}
 	};
+
+	const getSendSmartFileEmailTemplate = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getSendSmartFileTemplateQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SMART_FILE_EMAIL_TEMPLATE_SUCCESS,
+					payload: response?.[1]?.data?.getWorflowEmailTemplate,
+				});
+			} else {
+				console.log('handle the error getSendSmartFileEmailTemplate', response);
+			}
+		} catch (error) {
+			console.log('api failed ==>getSendSmartFileEmailTemplate', error);
+		}
+	};
+
+	const checkSmartFileSlugExists = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				checkSmartFileSlugExistsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const { isSlugAvailable } = response?.[1]?.data;
+				return [isSlugAvailable];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>checkSmartFileSlugExists', error);
+		}
+	};
+
+	const updateSmartFileSlug = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateSmartFileSlugMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.updateSlug?.slug];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>updateSmartFileSlug', error);
+		}
+	};
+
+	const deleteLead = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				deleteLeadMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>deleteLead', error);
+		}
+	};
+	const deleteWorkflowTemplates = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				deleteWorkflowTemplatesMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>deleteLead', error);
+		}
+	};
+
+	// Sheshant
+	const getTabItemCount = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getTabItemCountQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const requiredActions = response?.[1]?.data?.getNumberOfRequiredActions;
+				dispatch({
+					type: Actions.GET_TAB_ITEM_COUNT_SUCCESS,
+					payload: requiredActions,
+				});
+			} else {
+				console.log('api failed ==>getTabItemCount', response);
+			}
+		} catch (error) {
+			console.log('api failed ==>getTabItemCount', error);
+		}
+	};
+
+	const getRequiredActions = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const { resetRequiredActions, ...queryPayload } = payload;
+
+			const response = await service.query(
+				getRequiredActionDetailsQuery,
+				queryPayload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_REQUIRED_ACTIONS_SUCCESS,
+					payload: {
+						actions: resetRequiredActions
+							? response?.[1]?.data?.listRequiredActions?.data
+							: state?.requiredActions?.actions?.concat(
+									response?.[1]?.data?.listRequiredActions?.data,
+							  ),
+						hasMore: response?.[1]?.data?.listRequiredActions?.hasNextPage,
+						loading: false,
+					},
+				});
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>getRequiredActionDetails', error);
+		}
+	};
+
+	const updateSendSmartFileSettings = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateSendSmartFileSettingsMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>updateSendSmartFileSettings', error);
+		}
+	};
+
+	//events presets
+	const getEventsPresets = async (params) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/${workspaceId}/variables/list`,
+				usertoken,
+				'proposals_api',
+				params,
+			);
+			if (response?.[0] === true) {
+				dispatch({ type: Actions.GET_EVENTS_PRESETDATA_SUCCESS, payload: response?.[1] });
+			} else {
+				message.error('Unable to fetch events presets');
+				console.log('api failed ==>getEventsPresets', response);
+			}
+		} catch (error) {
+			console.log('errror ==>getEventsPresets', error);
+		}
+	};
+
+	const addEventsPresets = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchPost(
+				`/${workspaceId}/variables`,
+				payload,
+				usertoken,
+				'proposals_api',
+			);
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			} else {
+				console.log('api failed ==>addEventsPresets', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>addEventsPresets', error);
+		}
+	};
+
+	const editEventsPresets = async (payload, varaibleId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchPut(
+				`/${workspaceId}/variables/${varaibleId}`,
+				payload,
+				usertoken,
+				'proposals_api',
+			);
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			} else {
+				console.log('api failed ==>editEventsPresets', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>editEventsPresets', error);
+		}
+	};
+
+	const deleteEventsPreset = async (varaibleId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchDelete(
+				`/${workspaceId}/variables/${varaibleId}`,
+				usertoken,
+				null,
+				'proposals_api',
+			);
+			if (response?.[0] === true) {
+				return [true];
+			} else {
+				console.log('api failed ==>editEventsPresets', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>editEventsPresets', error);
+		}
+	};
+
+	const getLatestSendSmartFileSettings = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getLatestSendSmartFileSettingsQuery,
+				null,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SEND_SMART_FILE_SETTINGS_SUCCESS,
+					payload: response?.[1]?.data?.getLatestWorkflowSettings,
+				});
+			} else {
+				console.log('api failed==>getLatestSendSmartFileSettings', response);
+			}
+		} catch (error) {
+			console.log('errror ==>getLatestSendSmartFileSettings', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -680,5 +1007,18 @@ export const TemplatesState = (props) => {
 		uploadContractSignature,
 		moveWorkflowStatus,
 		getSpecificTemplatesInfo,
+		getSendSmartFileEmailTemplate,
+		checkSmartFileSlugExists,
+		updateSmartFileSlug,
+		deleteLead,
+		deleteWorkflowTemplates,
+		getTabItemCount,
+		getRequiredActions,
+		updateSendSmartFileSettings,
+		getEventsPresets,
+		addEventsPresets,
+		editEventsPresets,
+		deleteEventsPreset,
+		getLatestSendSmartFileSettings,
 	};
 };

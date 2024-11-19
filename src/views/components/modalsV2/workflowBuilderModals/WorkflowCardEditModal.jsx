@@ -2,9 +2,8 @@ import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useSt
 import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import { ReactComponent as Dustbin } from '../../../../assets/svg/worflow_builder/dustbin.svg';
-import { ReactComponent as EditSvg } from '../../../../assets/svg/worflow_builder/edit.svg';
+import { ReactComponent as Ai } from '../../../../assets/svg/workflow/ai.svg';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
-import JoditEditor from 'jodit-react';
 import Context from '../../../../context/context';
 import ToggleSlider from '../../input/slider';
 import Spinner from '../../loaders/Spinner';
@@ -17,6 +16,7 @@ import {
 	calculateTimeStamp,
 } from '../../../features/workflow_builder/workflowContantsHelpers';
 import { Drawer } from 'antd';
+import EditAndViewEmailTemplateModal from './EditAndViewEmailTemplateModal';
 
 const initialState = {
 	editState: false,
@@ -35,6 +35,7 @@ const initialState = {
 	deleteStepModal: false,
 	title: null,
 	deleteLoader: false,
+	previewAndEdit: false,
 };
 
 const WorkflowCardEditModal = ({
@@ -49,7 +50,6 @@ const WorkflowCardEditModal = ({
 	editWorkflowStep,
 	templateId,
 }) => {
-	const editor = useRef(null);
 	const {
 		templates: {
 			getAllEmailTemplates,
@@ -194,12 +194,16 @@ const WorkflowCardEditModal = ({
 	}, [closeModalFunc, info?.emailTemplates]);
 
 	const saveChangesFunc = useCallback(async () => {
+		if (info?.info?.pageLoader) {
+			return;
+		}
 		if (info?.editState) {
 			return setInfo((prev) => ({ ...prev, editState: false }));
 		}
 		if (info?.saveLoader) {
 			return;
 		}
+
 		setInfo((prev) => ({ ...prev, saveLoader: true }));
 
 		let response;
@@ -269,6 +273,7 @@ const WorkflowCardEditModal = ({
 		mode,
 		currentStepInfo,
 		currentStepIndex,
+		info?.pageLoader,
 	]);
 
 	const incrementorDecrementorFunc = useCallback(
@@ -315,6 +320,13 @@ const WorkflowCardEditModal = ({
 			closeModal();
 		}
 	}, [deleteWorkFlowStep, info?.deleteLoader]);
+
+	const changeSubjectOrEmailBody = useCallback(
+		(updatedData) => {
+			setInfo((prev) => ({ ...prev, ...updatedData }));
+		},
+		[info],
+	);
 
 	return (
 		<Drawer
@@ -369,11 +381,32 @@ const WorkflowCardEditModal = ({
 							<Spinner />
 							<span>Fetching details ....</span>
 						</div>
-					) : !info?.editState ? (
+					) : (
 						<div className="WorkFlowEditorBody">
 							{/* action typ */}
+
 							<div className="actionType">
 								<span className="actionTypeTitle">Action Type</span>
+
+								<div className="staticActionTitle">Send Email</div>
+							</div>
+
+							{/* email templates */}
+							<div className="actionType">
+								<div className="emailTemplateHeaderWrapper">
+									<span className="actionTypeTitle">Email Templates</span>
+									<span
+										className="previewAndEdit"
+										onClick={() =>
+											setInfo((prev) => ({
+												...prev,
+												previewAndEdit: true,
+											}))
+										}
+									>
+										Preview & edit
+									</span>
+								</div>
 
 								{mode === 'create' ? (
 									<HeadersDropDownComp
@@ -418,43 +451,6 @@ const WorkflowCardEditModal = ({
 								)}
 							</div>
 
-							{/* email template */}
-							<div className="emailTemplate">
-								<div className="emailTemplateHeader">
-									<span className="emailTemplateNameStyling">
-										Subject Line Here
-									</span>
-									<div
-										className="editBtnContainer"
-										onClick={() =>
-											setInfo((prev) => ({ ...prev, editState: true }))
-										}
-									>
-										<span className="EditBtn">Edit</span>
-										<EditSvg />
-									</div>
-								</div>
-								<div className="subjectInputDiv">{info?.subject}</div>
-							</div>
-							<div
-								className="emailTemplate"
-								style={{
-									paddingBottom: '20px',
-									borderBottom: '1px solid rgba(40, 39, 40, 0.48)',
-								}}
-							>
-								<div className="emailTemplateHeader">
-									<span className="emailTemplateNameStyling">
-										Email Body Here
-									</span>
-								</div>
-								<div className="emailBody">
-									<div
-										dangerouslySetInnerHTML={{ __html: info?.emailBody }}
-										style={{ pointerEvents: 'none' }}
-									/>
-								</div>
-							</div>
 							<div className="emailScheduleTimingContainer">
 								<span className="emailScheduleTimingContainerheader">When?</span>
 								<div className="buttonContainer">
@@ -546,30 +542,15 @@ const WorkflowCardEditModal = ({
 									onChange={approvalOnChange}
 								/>
 							</div>
-						</div>
-					) : (
-						<div className="editEmailContainer">
-							<div className="editEmailSubject">
-								<span className="emailSubjectHeader">Subject Line Here</span>
-								<textarea
-									className="subjectTextArea"
-									value={info?.subject}
-									onChange={(e) =>
-										setInfo((prev) => ({ ...prev, subject: e?.target?.value }))
-									}
-								/>
+							<div className="editWorkflowBuilderModalFooterContainer">
+								<Ai />
+								<span className="editWorkflowBuilderModalFooterTextStyling">
+									If you need assistance, contact our support team at<br></br>
+									<span className="supportVeText">support@ve.ai</span>
+									<br></br>
+									Here’s to doing what you love! Let’s do this :)
+								</span>
 							</div>
-							<JoditEditor
-								ref={editor}
-								value={info?.emailBody}
-								tabIndex={1} // tabIndex of textarea
-								onBlur={(newContent) =>
-									setInfo((prev) => ({ ...prev, emailBody: newContent }))
-								} // preferred to use only this option to update the content for performance reasons
-								onChange={(newContent) =>
-									setInfo((prev) => ({ ...prev, emailBody: newContent }))
-								}
-							/>
 						</div>
 					)}
 
@@ -588,6 +569,13 @@ const WorkflowCardEditModal = ({
 				closeModal={closeDeleteStepModal}
 				deleteWorkFlowStep={modifiedDeleteWorkflowStep}
 				deleteLoader={info?.deleteLoader}
+			/>
+			<EditAndViewEmailTemplateModal
+				open={info?.previewAndEdit}
+				closeModal={() => setInfo((prev) => ({ ...prev, previewAndEdit: false }))}
+				subject={info?.subject}
+				emailBody={info?.emailBody}
+				changeSubjectOrEmailBody={changeSubjectOrEmailBody}
 			/>
 		</Drawer>
 	);

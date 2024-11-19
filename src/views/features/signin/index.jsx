@@ -17,6 +17,7 @@ import UserSignUp from './UserSignUp';
 import VerifyEmailCode from './VerifyEmailCode';
 import GetBusinessDetails from './GetBusinessDetails';
 import LoginWithPassword from './LoginWithPassword';
+import { getLocationsDetails } from '../../../helpers';
 
 var validator = require('validator');
 const creatorCards = [
@@ -57,14 +58,12 @@ const SignIn = (props) => {
 		message: '',
 	});
 
-	const goBack = (stage) => {
-		setStage(stage);
-		setErrorState((prevState) => ({
-			...prevState,
-			message: '',
-		}));
-		setLoading(false);
-	};
+	useEffect(() => {
+		const locationDetails = localStorage.getItem('locationDetails');
+		if (!JSON.parse(locationDetails)) {
+			getLocationsDetails();
+		}
+	}, []);
 
 	useEffect(() => {
 		if (firstRender.current) {
@@ -111,6 +110,14 @@ const SignIn = (props) => {
 		}
 	};
 
+	const goBack = (stage) => {
+		setStage(stage);
+		setErrorState((prevState) => ({
+			...prevState,
+			message: '',
+		}));
+		setLoading(false);
+	};
 	const mapper = {
 		'verify-user': (
 			<VerifyUserStep

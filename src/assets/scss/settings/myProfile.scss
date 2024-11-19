@@ -1,0 +1,727 @@
+.activeBackgroundColor {
+	border-radius: 32px;
+	border: 1px solid #7871c030;
+	background: rgba(29, 29, 35, 0.24);
+	box-shadow: 2px 2px 8px 0px rgba(74, 40, 210, 0.06),
+		4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
+	backdrop-filter: blur(8px);
+}
+
+.myProfileComponent {
+	display: flex;
+	height: inherit;
+	width: 100%;
+	color: white;
+
+	.settingsContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 48px;
+		width: 100%;
+
+		// styles for profile details
+		.ProfileDetailsComponent {
+			.profileHeader {
+				display: flex;
+				padding: 36px 0;
+				justify-content: center;
+				align-items: center;
+				gap: 24px;
+				align-self: stretch;
+				border-radius: 32px 32px 0 0;
+				background: #0b0b0d;
+
+				.imageCircleDiv {
+					width: 100px;
+					height: 100px;
+					border-radius: 100px;
+					border: 1px solid rgba(151, 151, 151, 0.36);
+					position: relative;
+					overflow: hidden;
+					.crop-container {
+						.reactEasyCrop_CropArea {
+							border: none !important; /* Removes the crop area border */
+							display: none !important;
+						}
+					}
+					img {
+						width: 100%;
+						height: 100%;
+						border-radius: 100px;
+						object-fit: cover;
+					}
+
+					.noImageText {
+						width: 100%;
+						height: 100%;
+						border-radius: 100px;
+						background: #6055ec;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						font-size: 24px;
+						color: #e4e5e6;
+						font-weight: bold;
+						font-family: Inter;
+						padding: 0px;
+					}
+
+					.editImage {
+						position: absolute;
+						bottom: 0;
+						left: 0px;
+						right: 1px;
+						height: 100%;
+						width: 98px;
+						border-radius: 0 0 45px 45px;
+						border-radius: 50%;
+						display: flex;
+						justify-content: center;
+						align-items: flex-end;
+						opacity: 0.9;
+						cursor: pointer;
+						/* zoom: 0.5; */
+						background: linear-gradient(
+							180deg,
+							rgba(198, 220, 250, 0) 68%,
+							rgba(19, 19, 20, 0.95) 18%
+						);
+						svg {
+							margin-bottom: 10px;
+						}
+					}
+				}
+
+				.details {
+					color: rgba(228, 229, 230, 0.48);
+					font-family: Inter;
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 24px; /* 150% */
+
+					.full_name_div {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 20px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 30px; /* 150% */
+						display: flex;
+						align-items: center;
+						gap: 10px;
+
+						.point {
+							display: block;
+							width: 5px;
+							height: 5px;
+							border-radius: 50%;
+							background: #e4e5e67a;
+						}
+
+						.role {
+							color: #6055ec;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 18px; /* 150% */
+						}
+					}
+				}
+
+				.errorMessage {
+					color: #cc5756;
+					font-family: Inter;
+					font-size: 0.6875rem;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 1rem;
+				}
+			}
+
+			.profileBody {
+				padding: 36px 32px 32px;
+				background: rgba(29, 29, 35, 0.24);
+				border-radius: 0 0 32px 32px;
+				display: flex;
+				flex-direction: column;
+				gap: 16px;
+
+				.iconAlignclass {
+					display: flex;
+					height: 48px;
+					padding: 11px 14px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					border: 1px solid rgba(100, 100, 100, 0.16);
+					background: rgba(32, 32, 33, 0.24);
+					border-radius: 10px;
+					width: 100%;
+					transition: all 0.5s;
+
+					input {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 26px; /* 162.5% */
+						background-color: transparent;
+						border: none;
+						outline: none;
+						width: 100%;
+					}
+
+					&:hover {
+						border: 1px solid #7871c030;
+						box-shadow: 2px 2px 8px 0px rgba(74, 40, 210, 0.06),
+							4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
+						backdrop-filter: blur(8px);
+					}
+				}
+
+				.name_phone_container {
+					display: flex;
+					gap: 8px;
+
+					> div {
+						width: 100%;
+					}
+
+					.phoneDiv {
+						justify-content: start;
+						.PhoneInputInput,
+						.PhoneInput {
+							width: 100%;
+						}
+					}
+				}
+			}
+		}
+
+		// This are the styling belongs to Theme preferences
+		.settingsTheme {
+			padding: 32px;
+			border-radius: 32px;
+			background: rgba(29, 29, 35, 0.24);
+
+			.themeMain {
+				display: flex;
+				flex-direction: column;
+				gap: 24px;
+				h4 {
+					color: #e4e5e6;
+					font-size: 16px;
+					font-weight: 500;
+					// margin: 24px;
+				}
+
+				button {
+					padding: 9px 16px;
+					align-items: center;
+					border-radius: 20px;
+					color: #666;
+					border: 1px solid #1c1c1c;
+					background: #1c1c1c;
+					margin-right: 13px;
+					cursor: pointer;
+					transition: all 1s;
+
+					&:hover {
+						border: 1px solid #6055ec;
+					}
+				}
+				.activeButton {
+					border: 1px solid #6055ec;
+					color: #6055ec;
+				}
+			}
+		}
+
+		// This are the styling belongs to two-factor-authentication
+
+		.settingsTwoFactorAuthentication {
+			padding: 32px;
+			border-radius: 40px;
+			background: rgba(29, 29, 35, 0.24);
+
+			.twoFactorAuthText {
+				margin-bottom: 40px;
+
+				h4 {
+					color: #e4e5e6;
+					font-size: 16px;
+					font-weight: 500;
+					margin-bottom: 8px;
+				}
+
+				p {
+					color: rgba(228, 229, 230, 0.48);
+					font-size: 13px;
+					font-weight: 400;
+				}
+			}
+
+			.switchStep {
+				display: flex;
+				flex-direction: column;
+				gap: 40px;
+
+				.switchToggle {
+					display: flex;
+					gap: 12px;
+
+					p {
+						color: #e4e5e6;
+						font-size: 13px;
+						font-weight: 500;
+					}
+				}
+
+				.toggleOptions {
+					display: flex;
+					flex-direction: column;
+					gap: 24px;
+
+					.step {
+						display: flex;
+						gap: 12px;
+
+						h4 {
+							color: #e4e5e6;
+							text-align: center;
+							font-size: 11px;
+							font-weight: 400;
+							line-height: 16px;
+							border-radius: 100px;
+							background: #333;
+							padding: 4px;
+							height: 24px;
+							width: 50px;
+							margin: 0px;
+						}
+
+						p {
+							color: rgba(228, 229, 230, 0.48);
+							font-family: Inter;
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 21px;
+							margin-bottom: 10px;
+						}
+
+						input {
+							width: 100%;
+							padding: 11px 14px;
+							border-radius: 10px;
+							border: 1px solid rgba(36, 36, 36, 0.64);
+							background-color: transparent;
+							color: white;
+						}
+					}
+
+					.stepThree {
+						width: 90%;
+					}
+
+					.stepFour {
+						width: 90%;
+					}
+				}
+			}
+		}
+
+		// this are the stylings for the access controllers
+		.accessSettingsContainer {
+			padding: 32px;
+			border-radius: 40px;
+			background: rgba(29, 29, 35, 0.24);
+
+			.accessContainer {
+				display: flex;
+				flex-direction: column;
+				gap: 48px;
+
+				h1 {
+					color: #e4e5e6;
+					font-size: 16px;
+					font-weight: 500;
+					line-height: 24px;
+				}
+
+				.accessInfo {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					h4 {
+						color: #e4e5e6;
+						font-size: 16px;
+						font-weight: 500;
+						line-height: 24px;
+						margin-bottom: 24px;
+					}
+
+					p {
+						color: rgba(228, 229, 230, 0.48);
+						font-size: 13px;
+						font-weight: 400;
+						line-height: 21px;
+						margin-bottom: 24px;
+					}
+
+					button {
+						padding: 9px 16px;
+						border-radius: 20px;
+						border: 1px solid #1c1c1c;
+						background: #1c1c1c;
+						color: #666;
+					}
+				}
+
+				.chooseWorkspaces {
+					h4 {
+						color: #e4e5e6;
+						font-size: 16px;
+						font-weight: 500;
+						line-height: 24px;
+						margin-bottom: 8px;
+					}
+
+					p {
+						color: rgba(228, 229, 230, 0.48);
+						font-size: 13px;
+						font-weight: 400;
+						line-height: 21px;
+						margin-bottom: 24px;
+					}
+
+					button {
+						padding: 9px 16px;
+						border-radius: 20px;
+						border: 1px solid #1c1c1c;
+						background: #1c1c1c;
+						color: #666;
+					}
+
+					.workSpaceContainer {
+						display: flex;
+						flex-wrap: wrap;
+						gap: 13px;
+						padding: 20px 0;
+						width: 90%;
+					}
+
+					.workspaces {
+						padding: 9px 16px;
+						border-radius: 20px;
+						border: 1px solid #1c1c1c;
+						background: #1c1c1c;
+						color: #666;
+						width: fit-content;
+						cursor: pointer;
+						transition: background-color 0.3s;
+					}
+					.activeWorkspace {
+						border: 1px solid #6055ec;
+						color: #6055ec;
+					}
+				}
+
+				.leaveComponent {
+					h4 {
+						color: #e4e5e6;
+						font-size: 16px;
+						font-weight: 500;
+						line-height: 24px;
+						margin-bottom: 8px;
+					}
+
+					p {
+						color: rgba(228, 229, 230, 0.48);
+						font-size: 13px;
+						font-weight: 400;
+						line-height: 21px;
+					}
+
+					.notificationWorkspace {
+						display: flex;
+						gap: 18px;
+						align-items: center;
+						border-bottom: 0.8px solid rgba(40, 39, 40, 0.48);
+
+						.workspaceContainer {
+							width: 100%;
+							margin: 24px 0px;
+						}
+					}
+
+					button {
+						height: fit-content;
+						padding: 16px 24px;
+						border-radius: 30px;
+						border: 1px solid rgba(36, 36, 36, 0.64);
+						background: rgba(42, 42, 42, 0.16);
+						color: #e4e5e6;
+					}
+				}
+			}
+		}
+	}
+}
+
+.uploadAvatarPopupComponent,
+.uploadFileProfilePopup {
+	display: flex;
+	width: 480px;
+	padding: 32px;
+	flex-direction: column;
+	gap: 32px;
+	border-radius: 40px;
+	background: #151515;
+	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+
+	.headerPopup {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		h1 {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 26px; /* 144.444% */
+			text-align: start;
+		}
+
+		span {
+			cursor: pointer;
+		}
+	}
+
+	.imageCircleDiv {
+		width: 100px;
+		height: 100px;
+		border-radius: 100px;
+		border: 1px solid rgba(151, 151, 151, 0.36);
+		position: relative;
+		margin: auto;
+
+		.crop-container {
+			.reactEasyCrop_CropArea {
+				border: none !important; /* Removes the crop area border */
+				display: none !important;
+			}
+		}
+
+		img {
+			width: 100%;
+			height: 100%;
+			border-radius: 100px;
+			object-fit: cover;
+		}
+
+		.noImageText {
+			width: 100%;
+			height: 100%;
+			border-radius: 100px;
+			background: #6055ec;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 24px;
+			color: #e4e5e6;
+			font-weight: bold;
+			font-family: Inter;
+			padding: 0px;
+		}
+
+		.editImage {
+			position: absolute;
+			bottom: 0;
+			left: 0px;
+			right: 1px;
+			height: 100%;
+			width: 98px;
+			border-radius: 0 0 45px 45px;
+			border-radius: 50%;
+			display: flex;
+			justify-content: center;
+			align-items: flex-end;
+			opacity: 0.9;
+			cursor: pointer;
+			/* zoom: 0.5; */
+			background: linear-gradient(
+				180deg,
+				rgba(198, 220, 250, 0) 68%,
+				rgba(19, 19, 20, 0.95) 18%
+			);
+			svg {
+				margin-bottom: 10px;
+			}
+		}
+	}
+
+	// avatar colors
+	.avatarColorContainer {
+		display: flex;
+		width: 314px;
+		padding: 8px 24px;
+		flex-direction: column;
+		// align-items: center;
+		gap: 10 px;
+		border-radius: 8px;
+		background: #1e1e1f;
+		margin: auto;
+
+		h4 {
+			color: #666;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			letter-spacing: -0.28px;
+			margin: 0;
+			padding: 10px;
+		}
+
+		.colorList {
+			display: flex;
+			align-items: center;
+			align-content: center;
+			gap: 16px;
+			flex-wrap: wrap;
+
+			.colorCircleDiv {
+				width: 24px;
+				height: 24px;
+				border-radius: 50%;
+				cursor: pointer;
+			}
+		}
+	}
+
+	.customAvatarButton {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 4px;
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 22px; /* 157.143% */
+		letter-spacing: -0.28px;
+		text-align: center;
+		transition: all 0.5s;
+		border-radius: 20px;
+		border: 1px solid rgba(100, 100, 100, 0.16);
+		background: rgba(32, 32, 33, 0.24);
+		width: 266px;
+		margin: auto;
+		padding: 9px 16px;
+		cursor: pointer;
+
+		span {
+			margin: 0;
+			padding: 0;
+			display: block;
+		}
+
+		.addIcon {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		&:hover {
+			color: '#6055ec';
+			border-color: #6055ec;
+
+			span {
+				color: #6055ec;
+			}
+
+			svg {
+				fill: #6055ec;
+			}
+		}
+	}
+
+	.saveChangeButton {
+		display: flex;
+		width: 100%;
+		padding: 16px 24px;
+		justify-content: center;
+		align-items: center;
+		gap: 16px;
+		align-self: stretch;
+		border-radius: 100px;
+		border: 1px solid rgba(36, 36, 36, 0.64);
+		background: #1e1e1f;
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 13px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 16px; /* 123.077% */
+		letter-spacing: 0.26px;
+		cursor: pointer;
+	}
+}
+
+.uploadFileProfilePopup {
+	.upload-brand-embeded-btn {
+		width: 100%;
+		.upload-brand-placeholder {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: 100%;
+			height: 100px;
+			border-radius: 24px;
+			border: 1px dashed #242424;
+			// background-color: #1c1c1c;
+			color: #ccc;
+			cursor: pointer;
+			position: relative;
+		}
+
+		.icon_name_div {
+			display: flex;
+			gap: 10px;
+			align-items: center;
+		}
+	}
+
+	.cropBody {
+		display: flex;
+		flex-direction: column;
+		width: 150px;
+		margin: auto;
+
+		.sliderDiv {
+			margin-top: 20px;
+			width: 90%;
+		}
+	}
+
+	.ant-slider {
+		width: 90%;
+	}
+
+	.ant-slider-rail {
+		background-color: white;
+		&:hover {
+			background-color: white;
+		}
+	}
+
+	.ant-slider-track {
+		background: #6055ec;
+	}
+}

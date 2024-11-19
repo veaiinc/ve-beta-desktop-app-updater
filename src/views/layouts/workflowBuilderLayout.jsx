@@ -3,13 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import '../../assets/scss/workflowBuilder/workflowBuilderLayout.scss';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { Helmet } from 'react-helmet';
+import useAuth from '../hooks/useAuth';
 const WorkflowBuilderLayout = ({ title, children, hideQuickNav = false }) => {
-	const navigate = useNavigate();
+	const checkAuth = useAuth();
 	useEffect(() => {
-		if (!localStorage.getItem('usertoken')) {
-			return navigate('/');
-		}
-	}, [navigate]);
+		checkAuth();
+	}, []);
 	return (
 		<div className="workflowBuilderParentContainer">
 			<Helmet>

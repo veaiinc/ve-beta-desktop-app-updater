@@ -7,7 +7,11 @@ const workflowBuilderLoader = () => {
 			style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}
 			key={index}
 		>
-			<Skeleton width={'300px'} height={'291px'} style={{ borderRadius: '40px' }} />
+			<Skeleton
+				width={'300px'}
+				height={'291px'}
+				style={{ borderRadius: '40px', backgroundColor: 'rgba(22, 21, 31, 0.80)' }}
+			/>
 			{index < length - 1 ? (
 				<div
 					style={{

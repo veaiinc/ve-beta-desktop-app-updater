@@ -4,13 +4,12 @@ import '../../assets/scss/sales/smartFileLayout.scss';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { Helmet } from 'react-helmet';
 import { ReactComponent as VE } from '../../assets/svg/smallVe.svg';
+import useAuth from '../hooks/useAuth';
 const SmartFileLayout = ({ title, children, hideQuickNav = false }) => {
-	const navigate = useNavigate();
+	const checkAuth = useAuth();
 	useEffect(() => {
-		if (!localStorage.getItem('usertoken')) {
-			return navigate('/');
-		}
-	}, [navigate]);
+		checkAuth();
+	}, []);
 	return (
 		<div className="smartFileLayoutParentContainer">
 			<Helmet>

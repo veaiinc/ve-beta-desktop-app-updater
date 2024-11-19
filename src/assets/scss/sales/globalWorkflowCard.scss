@@ -91,27 +91,12 @@
 		display: flex;
 		flex-direction: column;
 		border-radius: 20px;
-		.coverImage {
-			background-size: cover;
-			background-position: center;
-			background-repeat: no-repeat;
-			width: 240px;
-			height: 291px;
-			overflow: scroll;
+		width: 240px;
+		height: 291px;
+		background-color: #fff;
+		overflow-y: auto;
+		iframe {
 			border-radius: 20px;
-			border: 1px solid rgba(224, 224, 224, 0.3);
-			opacity: 0.9;
-
-			.builder {
-				zoom: 0.1;
-				overflow-y: hidden;
-				div {
-					width: 100%;
-					.PhoneInputCountrySelectArrow {
-						display: none;
-					}
-				}
-			}
 		}
 	}
 }

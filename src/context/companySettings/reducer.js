@@ -12,6 +12,12 @@ const actionHandlers = {
 		...state,
 		tenantSubscriptionDetails: action.payload,
 	}),
+
+	GET_CLIENT_PORTAL_PREFERENCES: (state, action) => ({
+		...state,
+		clientPortalPreferences: action.payload,
+	}),
+
 	RESET_STATE: () => ({ ...intialState }),
 };
 const Reducer = (state, action) => {

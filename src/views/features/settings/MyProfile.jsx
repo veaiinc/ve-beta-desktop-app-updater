@@ -1,0 +1,309 @@
+import React, { useState, useEffect, useContext, useCallback, memo } from 'react';
+import '../../../assets/scss/settings/myProfile.scss';
+import Context from '../../../context/context';
+import validator from 'validator';
+import ProfileDetailsComponent from '../../components/settings/profile/ProfileDetails';
+import ThemePreferenceComponent from '../../components/settings/profile/ThemePreference';
+import UpdatePasswordComponent from '../../components/settings/profile/UpdatePassword';
+import TwoFactorAuthenticationComponent from '../../components/settings/profile/TwoFactorAuthentication';
+import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWorkspace';
+
+const MyProfile = () => {
+	// # Context
+	const {
+		profileInfo: {
+			get2FAQrCode,
+			set2FASettings,
+			userDetailsData,
+			updateUserDetails,
+			updateUserPhoneNumber,
+			qrcode,
+			updateUserLogo,
+			getTenantUserDetails,
+			tenantUserDetails,
+			updateUserDetailsState,
+		},
+		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
+	} = useContext(Context);
+
+	// # States
+	const [showForm, setShowForm] = useState(false);
+	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
+	const [errors, setErrors] = useState({});
+	const [activeTheme, setActiveTheme] = useState('dark');
+	const [userDetails, setUserDetails] = useState({
+		fullName: '',
+		email: '',
+		phoneNumber: '',
+		is2FAEnabled: '',
+		logoURL: '',
+		cropSettings: { crop: { x: 0, y: 0 }, zoom: 1 },
+	});
+
+	const [initialState, setInitialState] = useState({ ...userDetails });
+
+	const [logoFile, setlogoFile] = useState(null);
+
+	// # Useeffects
+	useEffect(() => {
+		if (!tenantPreferenceData) {
+			getTenantPreferences();
+		}
+		if (!tenantUserDetails) {
+			getTenantUserDetails();
+		}
+	}, []);
+
+	useEffect(() => {
+		if (userDetailsData) {
+			setUserDetails((prev) => ({
+				...prev,
+				fullName: userDetailsData?.firstName || '',
+				email: userDetailsData?.email || '',
+				phoneNumber: userDetailsData?.phoneNumber || '',
+				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
+				logoURL: userDetailsData?.dp_s3_500w_key || '',
+				cropSettings: userDetailsData?.dp_style || { crop: { x: 0, y: 0 }, zoom: 1 },
+			}));
+			setInitialState((prev) => ({
+				...prev,
+				fullName: userDetailsData?.firstName || '',
+				email: userDetailsData?.email || '',
+				phoneNumber: userDetailsData?.phoneNumber || '',
+				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
+				logoURL: userDetailsData?.dp_s3_500w_key || '',
+				cropSettings: userDetailsData?.dp_style || { crop: { x: 0, y: 0 }, zoom: 1 },
+			}));
+		}
+	}, [userDetailsData]);
+
+	useEffect(() => {
+		if (tenantPreferenceData) {
+			setActiveTheme(tenantPreferenceData?.theme);
+		}
+	}, [tenantPreferenceData?.theme]);
+
+	useEffect(() => {
+		if (userDetails.is2FAEnabled) {
+			get2FAQrCode();
+		}
+	}, [userDetails.is2FAEnabled]);
+
+	useEffect(() => {
+		if (userDetails?.fullName) {
+			handleDebounceSearch('name');
+		}
+	}, [userDetails?.fullName]);
+
+	useEffect(() => {
+		if (userDetails?.phoneNumber) {
+			handleDebounceSearch('phone');
+		}
+	}, [userDetails?.phoneNumber]);
+
+	// # Functions
+	const handleDebounceSearch = useCallback(
+		(typeCall = '') => {
+			clearInterval(isEditMode?.timeout);
+			const timeout = setTimeout(() => {
+				if (isEditMode?.isValueChanged) {
+					handleSubmit(typeCall);
+				}
+				setIsEditMode((prev) => ({ ...prev, timeout: null }));
+			}, 800);
+			setIsEditMode((prev) => ({ ...prev, timeout }));
+		},
+		[isEditMode?.timeout, userDetails?.fullName, userDetails?.phoneNumber],
+	);
+
+	const handleFormPopUp = () => {
+		setShowForm(true);
+	};
+	const handlePopupFormClose = () => {
+		setShowForm(false);
+	};
+	const toggleEnable = async (e) => {
+		setUserDetails((prevState) => ({
+			...prevState,
+			is2FAEnabled: !prevState.is2FAEnabled,
+		}));
+		await set2FASettings(e);
+	};
+
+	const validateField = (name, value) => {
+		let error;
+		const stringValue = value || '';
+		switch (name) {
+			case 'fullName':
+				if (validator.isEmpty(stringValue)) {
+					error = 'First Name is required';
+				} else if (initialState?.fullName === stringValue) {
+					error = 'Name cannot be the same as the current one';
+				}
+				break;
+
+			case 'phoneNumber':
+				if (!validator.isMobilePhone(stringValue, 'any', { strictMode: true })) {
+					error = 'Phone Number is invalid';
+				} else if (initialState.phoneNumber === stringValue) {
+					error = 'Phone Number is already in use';
+				}
+				break;
+			case 'email':
+				if (validator.isEmpty(stringValue)) {
+					error = 'Email is required';
+				} else if (!validator.isEmail(stringValue)) {
+					error = 'Email is invalid';
+				}
+				break;
+			default:
+				break;
+		}
+		return error;
+	};
+
+	const handleChange = (e) => {
+		if (!isEditMode?.isValueChanged)
+			setIsEditMode((prev) => ({ ...prev, isValueChanged: true }));
+		const { name, value } = e.target;
+		setUserDetails((prevDetails) => ({
+			...prevDetails,
+			[name]: value,
+		}));
+
+		const error = validateField(name, value);
+		setErrors({
+			...errors,
+			[name]: error,
+		});
+	};
+
+	const updateProfileImage = async (settings) => {
+		let json = {
+			dp_style: settings,
+		};
+		const response = await updateUserDetails(json);
+
+		if (response[0]) {
+			setUserDetails((prev) => ({ ...prev, cropSettings: settings }));
+			updateUserLogo(logoFile);
+		}
+	};
+
+	const updateDpThemeHandler = async (color) => {
+		let json = {
+			dp_style: {
+				...userDetails?.cropSettings,
+				profileDpColor: color,
+			},
+		};
+
+		const response = await updateUserDetails(json);
+		if (response[0]) {
+			updateUserDetailsState({
+				...json.dp_style,
+			});
+		}
+	};
+
+	const validate = () => {
+		const newErrors = {};
+		Object.keys(userDetails).forEach((key) => {
+			const error = validateField(key, userDetails[key]);
+			if (error) {
+				newErrors[key] = error;
+			}
+		});
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
+	};
+
+	const handleSubmit = async (nameApi = 'name') => {
+		if (nameApi === 'name' && !validateField('fullName', userDetails?.fullName)) {
+			let json = {
+				firstName: userDetails.fullName,
+				lastName: userDetails.fullName,
+			};
+			const response = await updateUserDetails(json);
+
+			if (response[0] !== true)
+				return setErrors((prev) => ({ ...prev, fullName: response[1]?.message }));
+
+			updateUserDetailsState(json);
+		} else if (nameApi === 'phone' && !validateField('phoneNumber', userDetails?.phoneNumber)) {
+			let json = {
+				phoneNumber: userDetails?.phoneNumber,
+			};
+			const response = await updateUserPhoneNumber(json);
+
+			if (response[0] !== true)
+				return setErrors((prev) => ({ ...prev, phoneNumber: response[1]?.message }));
+
+			updateUserDetailsState(json);
+		}
+	};
+
+	const updateThemeSubmitHandler = async (mode) => {
+		const json = {
+			theme: mode,
+		};
+		const response = await updatePrefernces(json);
+		if (response[0]) {
+			setActiveTheme(mode);
+		}
+	};
+
+	return (
+		<div className="myProfileComponent">
+			<div className="settingsContainer">
+				{/* Settings Profile details  */}
+
+				<div className="ProfileDetailsComponent activeBackgroundColor" id="profile">
+					<ProfileDetailsComponent
+						handleSubmit={handleSubmit}
+						userDetails={userDetails}
+						errors={errors}
+						handleChange={handleChange}
+						userDetailsData={userDetailsData}
+						showForm={showForm}
+						updateProfileImage={updateProfileImage}
+						handlePopupFormClose={handlePopupFormClose}
+						role={tenantUserDetails?.role === 'admin' ? 'Admin' : 'Member'}
+						setUserDetails={setUserDetails}
+						setlogoFile={setlogoFile}
+						updateDpThemeHandler={updateDpThemeHandler}
+					/>
+				</div>
+
+				{/* Theme Preference */}
+				<div className="settingsTheme activeBackgroundColor" id="theme">
+					<ThemePreferenceComponent
+						updateThemeSubmitHandler={updateThemeSubmitHandler}
+						activeTheme={activeTheme}
+					/>
+				</div>
+
+				{/* Access Settings */}
+				<div className={'accessSettingsContainer'} id="updatepassword">
+					<UpdatePasswordComponent handleFormPopUp={handleFormPopUp} />
+				</div>
+
+				{/* Settings Two Factor Authentication */}
+				<div className="settingsTwoFactorAuthentication" id="twoFactorAuth">
+					<TwoFactorAuthenticationComponent
+						toggleEnable={toggleEnable}
+						userDetails={userDetails}
+						qrcode={qrcode}
+					/>
+				</div>
+
+				{/* Temporary Hide */}
+				{/* <div className={'accessSettingsContainer'} id="leaveworkspace">
+					<LeaveWorkspaceComponent />
+				</div> */}
+			</div>
+		</div>
+	);
+};
+
+export default memo(MyProfile);

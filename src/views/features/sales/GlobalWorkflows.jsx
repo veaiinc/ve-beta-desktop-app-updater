@@ -7,7 +7,7 @@ import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Spinner from '../../components/loaders/Spinner';
 import GlobalWorkflowModal from '../../components/modalsV2/workflowsModals/GlobalWorkflowModal';
-import GlobalWorkflowLoader from './GlobalWorkflowLoader';
+import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 
 const FetchMoreLoaderComp = () => {
 	return (
@@ -137,10 +137,11 @@ const GlobalWorkflows = () => {
 					next={fetchMoreGlobalWorkflows}
 					hasMore={info?.hasNextPage}
 					loader={<FetchMoreLoaderComp />}
+					scrollableTarget={'scrollableTarget'}
 				>
 					<div className="globalWorkflowParentCardContainer">
 						{info?.loading ? (
-							<GlobalWorkflowLoader />
+							<UpdatedPageLoader />
 						) : (
 							info?.globalWorkflowData?.map((ele, index) => (
 								<GlobalWorkflowCard
@@ -153,21 +154,11 @@ const GlobalWorkflows = () => {
 					</div>
 				</InfiniteScroll>
 			</div>
-			<div className="globalWorkflowSidebar">
-				{servicesList?.map((ele, index) => (
-					<span
-						key={index}
-						className="sidebarLabel"
-						style={{ color: index === 0 ? '#E4E5E6' : '' }}
-					>
-						{ele}
-					</span>
-				))}
-			</div>
+
 			<GlobalWorkflowModal
 				modalIsOpen={info?.modalIsOpen}
 				closeModal={closeModal}
-				activeTemplateData={info?.activeTemplateData}
+				globalTemplateId={info?.activeTemplateData?._id}
 			/>
 		</div>
 	);

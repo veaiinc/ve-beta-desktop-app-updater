@@ -53,6 +53,7 @@
 				background: #202124;
 				align-items: center;
 				margin-top: 27px;
+				cursor: pointer;
 				img {
 					background-color: #fff;
 					border-radius: 50%;
@@ -69,6 +70,9 @@
 					line-height: 24px; /* 171.429% */
 					margin: 0px;
 					align-items: center;
+					flex: 1;
+					display: flex;
+					justify-content: center;
 				}
 			}
 

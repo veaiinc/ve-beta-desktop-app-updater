@@ -41,6 +41,26 @@ const actionHandlers = {
 			businessName: action.payload,
 		},
 	}),
+
+	UPDATE_COMPANY_DETAILS: (state, action) => ({
+		...state,
+		tennantSettingsData: {
+			...state?.tennantSettingsData,
+			...action.payload,
+		},
+	}),
+
+	UPDATE_USER_DETAILS: (state, action) => ({
+		...state,
+		userDetailsData: {
+			...state?.userDetailsData,
+			...action.payload,
+		},
+	}),
+	UPDATE_PROFILE_STATE: (state, action) => ({
+		...state,
+		...action.payload,
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 

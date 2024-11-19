@@ -1,18 +1,24 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../.././../../assets/scss/sales/smartFile.scss';
 import SmartFileHeader from '../../../components/smartFileComponets/SmartFileHeader';
 import FormResponses from './FormResponses';
 import File from './File';
-import { useLocation, useParams } from 'react-router-dom';
+import ActivityDashboard from '../activity';
+import { useNavigate, useParams } from 'react-router-dom';
 import Context from '../../../../context/context';
 import SendProposalModal from '../../../components/modalsV2/proposalModals/SendProposalModal';
 import CopiedModal from '../../../components/modalsV2/workflowsModals/CopiedModal';
 import UploadSignature from '../../../components/modalsV2/workflowsModals/UploadSignature';
 import MoveStageModal from '../../../components/modalsV2/workflowsModals/moveStageModal';
-import SmartFileLoader from './SmartFileLoader';
+import UpdatedPageLoader from '../../../components/loaders/UpdatedPageLoader';
+import DeleteLeadModal from '../../../components/modalsV2/workflowsModals/DeleteLeadModal';
+import Notification from '../../../components/notification/Notification';
+import UploadLogoNotification from '../../../components/notification/UploadLogoNotification';
+import { getCurrentWorkspaceId } from '../../../../helpers';
+
 const SmartFile = () => {
-	const location = useLocation();
-	const { templateId } = useParams();
+	const { templateId, workflowId } = useParams();
+	const navigate = useNavigate();
 
 	let {
 		templates: {
@@ -26,33 +32,54 @@ const SmartFile = () => {
 			updateStateValues,
 			getSpecificTemplatesInfo,
 			specificTemplatesInfo,
+			deleteLead,
+			getLatestSendSmartFileSettings,
+			sendSmartFileSettings,
 		},
+		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		activeTab: 'file', //form,file
+		activeTab: 'file', //form,file,activity
 		incomingData: null,
-		workflowId: location?.state?.workflowId,
+		workflowId: workflowId,
 		sendSmartFileModal: false,
-		workflowData: location?.state?.workflow,
+		workflowData: null,
 		workflowStatus: '',
 		copyModal: false,
 		signatureModal: false,
 		moveToStageModal: false,
+		deleteLeadModal: false,
 		edit: false,
 		loading: true,
+		workspaceLogo: false,
+		showUploadLogoNotification: false,
+		workflowExpiryAt: '',
+		isEmailAuth: true,
+		businessName: '',
+		currentWorkspaceId: localStorage.getItem('workspaceId'),
+		noContractTemplate: false,
+		isAlChatEnabled: false,
+		nameIdentification: false,
+		emailIdentification: false,
+		assisstanceData: null,
 	});
 
 	//useEffect
 	useEffect(() => {
 		getSmartFileInfo();
+		getLatestSendSmartFileSettings();
 		if (templateId) {
 			getSpecificTemplatesInfo({
 				templateInfoId: templateId,
 			});
 		}
 		return () => {
-			updateStateValues({ smartFileInfo: null, specificTemplatesInfo: null });
+			updateStateValues({
+				smartFileInfo: null,
+				specificTemplatesInfo: null,
+				formResponseData: null,
+			});
 		};
 	}, []);
 
@@ -76,15 +103,58 @@ const SmartFile = () => {
 
 	useEffect(() => {
 		if (smartFileInfo) {
+			let noContractTemplate = false;
 			const status = smartFileInfo?.status;
 			const edit = status === 'enquiry' ? true : false;
+			let contractExist = smartFileInfo?.modules?.filter((ele) => ele?.type === 'contract');
+			let assisstanceData = smartFileInfo?.aiAssistant || {};
+
+			if (!contractExist?.length) {
+				noContractTemplate = true;
+			}
+			const workflowDataObj = {
+				_id: workflowId,
+				clientDetails: smartFileInfo?.clientDetails,
+				status: smartFileInfo?.status,
+				slug: smartFileInfo?.slug,
+				modules: smartFileInfo?.modules,
+				formResponse: smartFileInfo?.formResponse,
+			};
+
 			setInfo((prev) => ({
 				...prev,
 				workflowStatus: smartFileInfo?.status,
+				workflowData: workflowDataObj,
 				edit,
+				workflowExpiryAt: smartFileInfo?.expiresAt,
+				noContractTemplate,
+				assisstanceData,
 			}));
 		}
-	}, [smartFileInfo]);
+	}, [smartFileInfo, workflowId]);
+
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			handleWorkspaceLogoExistence();
+			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
+			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
+		} else {
+			getUserWorkSpaceList();
+		}
+	}, [userWorkSpaceList]);
+
+	useEffect(() => {
+		if (sendSmartFileSettings) {
+			const { isAlChatEnabled, access, userIdentification } = sendSmartFileSettings;
+			setInfo((prev) => ({
+				...prev,
+				isAlChatEnabled: isAlChatEnabled || false,
+				isEmailAuth: access?.isEnabled,
+				nameIdentification: userIdentification?.name,
+				emailIdentification: userIdentification?.email,
+			}));
+		}
+	}, [sendSmartFileSettings]);
 
 	//function defination
 
@@ -131,8 +201,12 @@ const SmartFile = () => {
 		if (info?.activeTab === 'form') {
 			return setInfo((prev) => ({ ...prev, activeTab: 'file' }));
 		}
+		if (!info?.workspaceLogo) {
+			return setInfo((prev) => ({ ...prev, showUploadLogoNotification: true }));
+		}
+
 		setInfo((prev) => ({ ...prev, sendSmartFileModal: true }));
-	}, [info?.sendSmartFileModal, info?.activeTab]);
+	}, [info?.sendSmartFileModal, info?.activeTab, info?.workspaceLogo]);
 
 	const openCopyModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, copyModal: true }));
@@ -163,7 +237,7 @@ const SmartFile = () => {
 		moveWorkflowStatus(payloadForConfirming);
 
 		if (response?.[0]) {
-			setInfo((prev) => ({ ...prev, workflowStatus: 'proposalAccepted' }));
+			setInfo((prev) => ({ ...prev, workflowStatus: 'confirmed' }));
 			return [true];
 		}
 		return [false];
@@ -239,8 +313,111 @@ const SmartFile = () => {
 		[info?.workflowData],
 	);
 
+	const updateWorkflowSlug = useCallback(
+		(updatedSlug) => {
+			setInfo((prev) => ({
+				...prev,
+				workflowData: { ...prev?.workflowData, slug: updatedSlug },
+			}));
+		},
+		[info?.workflowData],
+	);
+
+	const deleteLeadFunc = useCallback(async () => {
+		const payload = {
+			deleteWorkflowId: info?.workflowData?._id,
+		};
+		await deleteLead(payload);
+		updateStateValues({ salePageRefresh: true });
+		navigate(-1);
+	}, [info?.workflowData]);
+
+	const openDeleteModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, deleteLeadModal: true }));
+	}, []);
+
+	const handleWorkspaceLogoExistence = useCallback(async () => {
+		if (userWorkSpaceList) {
+			const workspaceId = localStorage.getItem('workspaceId');
+			let logoExist = false;
+			let businessName = '';
+			for (let i = 0; i < userWorkSpaceList?.length; i++) {
+				if (userWorkSpaceList?.[i]?.activeWorkspaceId === workspaceId) {
+					logoExist = userWorkSpaceList?.[i]?.logo_s3_500w_key?.length ? true : false;
+					businessName = userWorkSpaceList?.[i]?.businessName;
+					break;
+				}
+			}
+			setInfo((prev) => ({ ...prev, workspaceLogo: logoExist, businessName }));
+		}
+	}, [userWorkSpaceList]);
+
+	const updateSendSmartFileExpiryData = useCallback(async (updatedValue) => {
+		setInfo((prev) => ({ ...prev, workflowExpiryAt: updatedValue }));
+	}, []);
+
+	const updateSmartFileEmailAuth = useCallback(
+		(data) => {
+			setInfo((prev) => ({ ...prev, isEmailAuth: data }));
+		},
+		[info?.isEmailAuth],
+	);
+
+	const updateSmartFileIsAiChatEnabled = useCallback(
+		(data) => {
+			setInfo((prev) => ({ ...prev, isAlChatEnabled: data }));
+		},
+		[info?.isAlChatEnabled],
+	);
+
+	const onPreviewClick = useCallback(() => {
+		const usertoken = localStorage.getItem('usertoken');
+		const region = localStorage.getItem('region');
+		window.location.href = `https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}/${region}/${usertoken}`;
+	}, [info?.workflowData, info?.currentWorkspaceId]);
+
+	const counterAccpetOnClick = useCallback(async () => {
+		const payloadForConfirming = {
+			updateWorkflowStatusId: info?.workflowData?._id,
+			workflowInput: {
+				status: 'confirmed',
+			},
+		};
+		await moveWorkflowStatus(payloadForConfirming);
+		setInfo((prev) => ({ ...prev, workflowStatus: 'confirmed' }));
+		return [true];
+	}, [info?.workflowData, moveWorkflowStatus]);
+
+	const updateIdentification = useCallback((data, type) => {
+		setInfo((prev) => ({ ...prev, [type]: data }));
+	}, []);
+
+	const componentMapper = useMemo(() => {
+		return {
+			form: <FormResponses workflowData={info?.workflowData} />,
+			file: (
+				<File
+					templateData={info?.incomingData}
+					workflowData={info?.workflowData?.clientDetails}
+					edit={info?.edit}
+					expiresAt={info?.workflowExpiryAt || ''}
+					updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
+					workflowStatus={info?.workflowStatus}
+				/>
+			),
+			activity: <ActivityDashboard workflowData={info?.workflowData?.clientDetails} />,
+		};
+	}, [
+		info?.workflowData,
+		info?.incomingData,
+		info?.edit,
+		info?.workflowExpiryAt,
+		updateSendSmartFileExpiryData,
+		info?.workflowStatus,
+	]);
+
 	return info?.loading ? (
-		<SmartFileLoader />
+		<UpdatedPageLoader />
 	) : (
 		<div className="smartFileParentContainer">
 			<SmartFileHeader
@@ -254,18 +431,12 @@ const SmartFile = () => {
 				editable={info?.edit}
 				changeEditStatus={changeEditStatus}
 				openMoveToStageModal={openMoveToStageModal}
+				openDeleteModal={openDeleteModal}
+				onPreviewClick={onPreviewClick}
+				noContractTemplate={info?.noContractTemplate}
+				counterAccpetOnClick={counterAccpetOnClick}
 			/>
-			<div className="mainContentContainer">
-				{info?.activeTab === 'form' ? (
-					<FormResponses workflowData={info?.workflowData} />
-				) : (
-					<File
-						templateData={info?.incomingData}
-						workflowData={info?.workflowData?.clientDetails}
-						edit={info?.edit}
-					/>
-				)}
-			</div>
+			<div className="mainContentContainer">{componentMapper?.[info?.activeTab]}</div>
 
 			<SendProposalModal
 				open={info?.sendSmartFileModal}
@@ -275,17 +446,29 @@ const SmartFile = () => {
 				workflowId={info?.workflowId}
 				openCopyModal={openCopyModal}
 				changelocalWorflowStatus={changelocalWorflowStatus}
-				workflowStatus={smartFileInfo?.status}
+				workflowStatus={info?.workflowStatus}
 				changeEditStatus={changeEditStatus}
+				slug={info?.workflowData?.slug}
+				updateWorkflowSlug={updateWorkflowSlug}
+				expiresAt={info?.workflowExpiryAt || ''}
+				updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
+				isEnabled={info?.isEmailAuth}
+				updateSmartFileEmailAuth={updateSmartFileEmailAuth}
+				pin={smartFileInfo?.access?.pin}
+				businessName={info?.businessName}
+				isAlChatEnabled={info?.isAlChatEnabled}
+				updateSmartFileIsAiChatEnabled={updateSmartFileIsAiChatEnabled}
+				nameIdentification={info?.nameIdentification}
+				emailIdentification={info?.emailIdentification}
+				updateIdentification={updateIdentification}
+				assisstanceData={info?.assisstanceData}
 			/>
 
 			<CopiedModal
 				open={info?.copyModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
 				modules={info?.workflowData?.modules?.filter((e) => e?.type !== 'form')}
-				copyLink={`https://${localStorage.getItem('workspaceId')}.ve.ai/portal/${
-					info?.workflowData?.slug
-				}`}
+				copyLink={`https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}`}
 				pin={smartFileInfo?.access?.pin}
 			/>
 			<UploadSignature
@@ -299,7 +482,17 @@ const SmartFile = () => {
 				closeModal={() => setInfo((prev) => ({ ...prev, moveToStageModal: false }))}
 				moveStageFunc={moveStageFunc}
 				changelocalWorflowStatus={changelocalWorflowStatus}
+				noContractTemplate={info?.noContractTemplate}
 				// workflowStatus={smartFileInfo?.status}
+			/>
+			<DeleteLeadModal
+				open={info?.deleteLeadModal}
+				closeModal={() => setInfo((prev) => ({ ...prev, deleteLeadModal: false }))}
+				deleteLeadFunc={deleteLeadFunc}
+			/>
+			<UploadLogoNotification
+				open={info?.showUploadLogoNotification}
+				onClose={() => setInfo((prev) => ({ ...prev, showUploadLogoNotification: false }))}
 			/>
 		</div>
 	);

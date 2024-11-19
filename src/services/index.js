@@ -1,17 +1,49 @@
-const { tenant_users_api, tenant_api, proposals_api } = require('./config');
+const DEV_ENVIRONMENT = process.env.REACT_APP_DEV_ENVIRONMENT || 'development';
+let config;
+
+if (DEV_ENVIRONMENT === 'production') {
+	config = require('./config.live'); // Load live (production) configuration
+} else {
+	config = require('./config.dev'); // Load dev configuration
+}
+const {
+	tenant_users_api,
+	tenant_api,
+	proposals_api,
+	auth_Api,
+	tenant_users_api_US,
+	tenant_api_US,
+	proposals_api_US,
+	galleries,
+	ai_assistant_api,
+	ai_assistant_api_US,
+	galleries_api_US,
+} = config || {};
 
 const apiEndpoints = {
 	tenant_users_api,
 	tenant: tenant_api,
 	'tenant-users': tenant_users_api,
 	proposals_api,
+	auth: auth_Api,
+	galleries: galleries,
+	ai_assistant_api,
+};
+const apiEndpointsUS = {
+	tenant_users_api: tenant_users_api_US,
+	tenant: tenant_api_US,
+	'tenant-users': tenant_users_api_US,
+	proposals_api: proposals_api_US,
+	auth: auth_Api,
+	ai_assistant_api: ai_assistant_api_US,
+	galleries: galleries_api_US,
 };
 
 const handleHeaders = (token, body, type) => {
 	const headers = { 'Content-Type': 'application/json' };
 	if (token) {
 		headers['x-access-token'] = token;
-		if (type === 'form') {
+		if (type === 'form' || type === 'ai_setup') {
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 	}
@@ -26,13 +58,13 @@ const processResponse = async (response) => {
 		// onUserKickedOut();
 		return [false, jsonData];
 	} else {
-		console.log('Hellow rold');
 		return [response.status, jsonData];
 	}
 };
 
 const apiFetch = async (url, method, body, token, type) => {
-	const endpoint = apiEndpoints[type] + url;
+	const region = localStorage.getItem('region') || 'ap-south-1';
+	const endpoint = (region === 'ap-south-1' ? apiEndpoints[type] : apiEndpointsUS?.[type]) + url;
 	const headers = handleHeaders(token, body, type);
 	if (body) {
 		body = JSON.stringify(body);
@@ -46,12 +78,32 @@ const apiFetch = async (url, method, body, token, type) => {
 	}
 };
 
+const handleParams = (params) => {
+	let subUrl = '';
+	if (Object.keys(params)?.length) {
+		subUrl += '?';
+		const keys = Object.keys(params);
+		for (let i = 0; i < keys?.length; i++) {
+			subUrl += `${keys[i]}=${encodeURIComponent(params[keys[i]])}&`;
+		}
+	}
+	return subUrl;
+};
+
 const Service = {
-	fetchGet: (url, token = null, type = null) => apiFetch(url, 'GET', null, token, type),
-	fetchPost: (url, body, token = null, type = null) => apiFetch(url, 'POST', body, token, type),
-	fetchPut: (url, body, token = null, type = null) => apiFetch(url, 'PUT', body, token, type),
-	fetchDelete: (url, token = null, body = null, type = null) =>
-		apiFetch(url, 'DELETE', body, token, type),
+	fetchGet: async (url, token = null, type = null, params = {}) => {
+		let completeUrl = url;
+		if (Object.keys(params)?.length) {
+			completeUrl += handleParams(params);
+		}
+		return await apiFetch(completeUrl, 'GET', null, token, type);
+	},
+	fetchPost: async (url, body, token = null, type = null) =>
+		await apiFetch(url, 'POST', body, token, type),
+	fetchPut: async (url, body, token = null, type = null) =>
+		await apiFetch(url, 'PUT', body, token, type),
+	fetchDelete: async (url, token = null, body = null, type = null) =>
+		await apiFetch(url, 'DELETE', body, token, type),
 };
 
 const onFailure = async (res, url) => {

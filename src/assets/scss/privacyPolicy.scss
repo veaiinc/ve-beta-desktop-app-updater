@@ -1,0 +1,58 @@
+.privacyPolicyMainContainer {
+	display: flex;
+	width: 100vw;
+	height: 100vh;
+	flex-direction: column;
+
+	.privacypolicyHeader {
+		display: flex;
+		width: 100vw;
+		flex-direction: column;
+		background: #151719;
+		// height: 236px;
+		.privacypolicyHeaderLogo {
+			margin-top: 27px;
+			margin-left: 32px;
+		}
+		.privacyPolicyHeaderContentContainer {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			margin-top: 63px;
+			padding-bottom: 90px;
+			padding-left: 12px;
+
+			.privacypolicyheaderContent {
+				width: 100%;
+				max-width: 800px;
+				margin: auto;
+				display: flex;
+				gap: 20px;
+				align-items: center;
+				.backBtnWrapper {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
+				}
+				.privacyPolicyText {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 3rem;
+					font-style: normal;
+					font-weight: 600;
+					line-height: 3.5rem; /* 116.667% */
+				}
+			}
+		}
+	}
+	.pdfViewer {
+		width: 100vw;
+		height: 100%;
+		background-color: #343434;
+
+		.pdfViewerIframer {
+			height: calc(100vh - 210px);
+		}
+	}
+}

@@ -67,24 +67,19 @@ const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData, p
 								previewType === 'public' ? ele?.isPublic : !ele?.isPublic,
 							)
 							?.map((e, index) => (
-								<div
-									className="modulesViewer"
-									key={index}
-									style={{ pointerEvents: 'none' }}
-								>
+								<div className="modulesViewer" key={index}>
 									<span>{e?.module}</span>
 									<div className="imageContainer">
-										<div className="coverImage">
-											<div
-												dangerouslySetInnerHTML={{
-													__html: info?.templatesMapper?.[e?._id],
-												}}
-												style={{
-													width: '100%',
-													zoom: e?.module === 'thankyou' ? 5 : 3,
-												}}
-											/>
-										</div>
+										<iframe
+											src={
+												window.location.hostname === 'localhost'
+													? `http://localhost:3000/preview/${incomingTemplateData?._id}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`
+													: `https://builder.ve.ai/preview/${incomingTemplateData?._id}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`
+											}
+											title="Builder Preview"
+											width="100%"
+											height="100%"
+										/>
 									</div>
 								</div>
 							))}

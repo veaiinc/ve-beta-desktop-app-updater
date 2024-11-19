@@ -1,13 +1,18 @@
 import '../../../assets/scss/signin.scss';
 import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import Context from '../../../context/context';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import HeadersDropDownComp from '../../components/dropDown/HeadersDropDownComp';
 
 const GetBusinessDetails = ({ errorStates, setLoading, setErrorState, isLoading }) => {
 	const navigate = useNavigate();
+	const location = useLocation();
+	const params = new URLSearchParams(location.search);
+	const isAuthenticated = params.get('authtenticated');
+
 	let {
 		userLogin: { createWorkspace },
+		profileInfo: { getUserWorkSpaceList },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		businessName: '',
@@ -52,7 +57,12 @@ const GetBusinessDetails = ({ errorStates, setLoading, setErrorState, isLoading 
 		const response = await createWorkspace(json);
 		if (response?.[0]) {
 			setLoading(false);
-			navigate('/sales');
+			// localStorage.removeItem('locationDetails');
+			if (isAuthenticated) {
+				getUserWorkSpaceList();
+			}
+
+			navigate(response?.[1]); //either sales or earlyAccess
 		} else {
 			setLoading(false);
 		}

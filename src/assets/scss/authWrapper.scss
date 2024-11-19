@@ -7,8 +7,12 @@
 
 	.childrenContainer {
 		flex: 1;
-		padding: 1.5rem 6rem 3rem 6rem;
+		// padding: 1.5rem 6rem 3rem 6rem;
 		background: #111;
 		margin-top: 5rem;
+		width: 100%;
+		max-width: 1200px;
+		margin: auto;
+		// margin-top: 12vh;
 	}
 }

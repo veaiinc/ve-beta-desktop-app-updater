@@ -6,6 +6,7 @@ import HeadersDropDownComp from './dropDown/HeadersDropDownComp';
 import SwitchWorkspaceModal from './modalsV2/switchWorkspaceModal';
 import Context from '../../context/context';
 import CreateLeadModal from './modalsV2/proposalModals/CreateLeadModal';
+import Intercom from '@intercom/messenger-js-sdk';
 
 const newBtnActions = [
 	{ label: 'Lead' },
@@ -15,7 +16,7 @@ const newBtnActions = [
 
 const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 	const {
-		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
+		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const accessibleWorkspaces = JSON.parse(localStorage.getItem('accessibleWorkspaces'));
@@ -24,11 +25,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 		switchWorkspaceModal: false,
 		items: [
 			{
-				label: 'Company Profile',
-			},
-
-			{
-				label: 'My Profile',
+				label: 'Settings',
 			},
 			{
 				label: 'Create Workspace',
@@ -44,8 +41,27 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 		if (!userWorkSpaceList) {
 			getUserWorkSpaceList();
 		}
+
+		if (!userDetailsData) {
+			getUserDetails();
+		}
 	}, []);
 
+	useEffect(() => {
+		if (userDetailsData && info) {
+			Intercom({
+				app_id: 'vmvweabd',
+				user_id: userDetailsData._id,
+				name: userDetailsData.firstName + ' ' + userDetailsData.lastName,
+				email: userDetailsData.email,
+				company: {
+					name: info.activeBusniessName?.activeWorkspaceId,
+					id: info.activeBusniessName?.businessName,
+					region: info.activeBusniessName?.region,
+				},
+			});
+		}
+	}, [userDetailsData, info]);
 	useEffect(() => {
 		if (userWorkSpaceList) {
 			const activeBusniessName = userWorkSpaceList?.find(
@@ -63,14 +79,11 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 		async (data) => {
 			const { label } = data;
 
-			if (label === 'Company Profile') {
-				return navigate('/workspace-settings/company-overview-settings');
-			}
-			if (label === 'My Profile') {
-				return navigate('/my-profile');
+			if (label === 'Settings') {
+				return navigate('/settings/my-profile');
 			}
 			if (label === 'Create Workspace') {
-				return navigate('/create-workspace');
+				return navigate('/create-workspace?authtenticated=true');
 			} else {
 				setInfo((prev) => ({ ...prev, switchWorkspaceModal: true }));
 			}
@@ -84,7 +97,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 		}
 		if (data?.label === 'Smart File') {
 		} else {
-			navigate('/sales/workflows');
+			navigate('/playbook');
 		}
 		return;
 	}, []);
@@ -114,7 +127,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 							className={`filterButton ${
 								title === 'Sales' ? 'filterButtonActive' : ''
 							}`}
-							onClick={() => navigate('/sales')}
+							onClick={() => navigate('/home')}
 						>
 							Sales
 						</div>
@@ -181,7 +194,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 						width: 'auto',
 						height: 'auto',
 						minWidth: '200px',
-						minHeight: '200px',
+						// minHeight: '200px',
 					}}
 					outerContainerStyle={{ width: 'auto' }}
 					logoutOptions={true}

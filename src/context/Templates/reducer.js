@@ -36,6 +36,30 @@ const actionHandlers = {
 		...state,
 		specificTemplatesInfo: action.payload,
 	}),
+	GET_SMART_FILE_EMAIL_TEMPLATE_SUCCESS: (state, action) => ({
+		...state,
+		smartFileEmailTemplateData: action.payload,
+	}),
+
+	GET_REQUIRED_ACTIONS_SUCCESS: (state, action) => ({
+		...state,
+		requiredActions: action.payload,
+	}),
+
+	GET_TAB_ITEM_COUNT_SUCCESS: (state, action) => ({
+		...state,
+		tabItemCount: action.payload,
+	}),
+
+	GET_EVENTS_PRESETDATA_SUCCESS: (state, action) => ({
+		...state,
+		eventsPresetData: action.payload,
+	}),
+	GET_SEND_SMART_FILE_SETTINGS_SUCCESS: (state, action) => ({
+		...state,
+		sendSmartFileSettings: action.payload,
+	}),
+
 	RESET_STATE: () => intialState,
 };
 

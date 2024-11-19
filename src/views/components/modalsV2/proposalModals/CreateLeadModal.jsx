@@ -33,7 +33,12 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	});
 	const [isLoading, setLoading] = useState(false);
 	const [errorState, setErrorState] = useState({ isError: false, errorMessage: '' });
-	const [leadDetails, setLeadDetails] = useState({ name: '', emailId: '', source: 'instagram' });
+	const [leadDetails, setLeadDetails] = useState({
+		name: '',
+		emailId: '',
+		phoneNumber: '',
+		source: 'instagram',
+	});
 	const [createButtonActiveState, setCreateButtonActiveState] = useState(false);
 	const [selectedLead, setSelectedLead] = useState({});
 
@@ -43,11 +48,14 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	}, []);
 
 	useEffect(() => {
-		const isValidEmail = leadDetails['emailId'] && validator.isEmail(leadDetails['emailId']);
-		const isValidName = leadDetails['name'].trim().length > 0;
-		const isValidSource = leadDetails['source'].trim().length > 0;
+		const isValidEmail = leadDetails['emailId'] && validator?.isEmail(leadDetails['emailId']);
+		const isValidName = leadDetails['name'].trim()?.length > 0;
+		const isValidSource = leadDetails['source'].trim()?.length > 0;
+		const isValidPhoneNumber = leadDetails['phoneNumber']?.trim()?.length > 0;
 
-		setCreateButtonActiveState(isValidEmail && isValidName && isValidSource);
+		setCreateButtonActiveState(
+			(isValidEmail || isValidPhoneNumber) && isValidName && isValidSource,
+		);
 	}, [leadDetails]);
 
 	useEffect(() => {
@@ -94,6 +102,21 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 		}
 	}, [templatesListForCreateLead]);
 
+	useEffect(() => {
+		if (info?.clientData?.length && info?.existingLeadSource && modalIsOpen) {
+			setExistingLeadData();
+		}
+	}, [info?.clientData, info?.existingLeadSource, modalIsOpen]);
+
+	const setExistingLeadData = useCallback(() => {
+		if (info?.clientData?.length && info?.existingLeadSource && modalIsOpen) {
+			let { value } = info?.clientData?.[0] || {};
+			value = JSON.parse(value);
+			setSelectedLead(value);
+			handleSelectedLead(value);
+		}
+	}, [info?.clientData, info?.existingLeadSource, modalIsOpen]);
+
 	const getClientListData = useCallback(() => {
 		const payload = {
 			filters: {
@@ -110,11 +133,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 			isError: false,
 			errorMessage: '',
 		}));
-		setLeadDetails(() => ({
-			name: '',
-			emailId: '',
-			source: '',
-		}));
+		setLeadDetails({ name: '', emailId: '', source: 'instagram' });
 		setCreateButtonActiveState(false);
 		closeModal();
 	};
@@ -213,13 +232,34 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 			const payload = {
 				workflowInput: {
 					clientDetails: {
-						email: leadDetails['emailId'],
 						name: leadDetails['name'],
 					},
 					templateId: info?.selectedTemplate?._id,
 					title: leadDetails['name'],
 				},
 			};
+
+			if (leadDetails?.['phoneNumber']?.length) {
+				if (!validator?.isMobilePhone(leadDetails?.['phoneNumber'])) {
+					setLoading(false);
+					return setErrorState((prevState) => ({
+						...prevState,
+						isphoneNumberError: true,
+						phoneNumberErrorMessage: 'Invalid phone number',
+					}));
+				}
+				payload.workflowInput.clientDetails.phoneNumber = leadDetails['phoneNumber'];
+			}
+			if (leadDetails?.emailId?.length) {
+				if (!validator?.isEmail(leadDetails?.emailId)) {
+					return setErrorState((prevState) => ({
+						...prevState,
+						isemailError: true,
+						emailErrorMessage: 'Enter Valid Email Id',
+					}));
+				}
+				payload.workflowInput.clientDetails.email = leadDetails?.['emailId'];
+			}
 
 			const response = await createLeadfromTemplates(payload);
 			if (response?.[0]) {
@@ -272,6 +312,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								...prev,
 								existingLeadSource: !prev.existingLeadSource,
 							}));
+							setLeadDetails((prev) => ({ ...prev, name: '', emailId: '' }));
 						}}
 					>
 						{!info?.existingLeadSource ? <Checked /> : <Unchecked />}
@@ -299,6 +340,17 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 							onChange={handleInputChange}
 							isError={errorState['isemailError']}
 							errorMessage={errorState['emailErrorMessage']}
+						/>
+						<InputForModules
+							label={'Phone Number'}
+							type={'phoneNumber'}
+							placeholder={'Enter Phone Number'}
+							name={'phoneNumber'}
+							value={leadDetails['phoneNumber']}
+							onChange={handleInputChange}
+							isError={errorState['isphoneNumberError']}
+							errorMessage={errorState['phoneNumberErrorMessage']}
+							defaultCountry={'IN'}
 						/>
 
 						{/* {source} */}

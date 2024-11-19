@@ -3,7 +3,7 @@ import '../../../assets/scss/dropdown/headerDropdown.scss';
 import { ReactComponent as DownArrow } from '../../../assets/svg/chat/downArrow.svg';
 import { ReactComponent as Tick } from '../../../assets/svg/tick.svg';
 import useLogout from '../../hooks/useLogout';
-import { getBuisnessName } from '../../features/profile_settings/getInitials';
+import { getBuisnessName } from '../../../helpers/index';
 
 const iconComponent = (
 	<div

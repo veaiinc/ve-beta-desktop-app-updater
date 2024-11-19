@@ -80,14 +80,35 @@
 			align-self: stretch;
 
 			.serviceContainerTitle {
-				color: rgba(228, 229, 230, 0.48);
-				font-family: Inter;
-				font-size: 10px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 14px; /* 140% */
-				letter-spacing: 0.2px;
-				text-transform: capitalize;
+				display: flex;
+				align-items: center;
+				gap: 12px;
+
+				.serviceContainerTitleStyling {
+					color: rgba(228, 229, 230, 0.48);
+					font-family: Inter;
+					font-size: 10px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 14px; /* 140% */
+					letter-spacing: 0.2px;
+					text-transform: capitalize;
+				}
+				.eventsPresetsContainer {
+					display: flex;
+					align-items: center;
+					gap: 6px;
+					cursor: pointer;
+					.eventsPresetsStyling {
+						color: #6055ec;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 14px; /* 116.667% */
+						text-transform: capitalize;
+					}
+				}
 			}
 			.serviceRoleContainer {
 				display: flex;
@@ -103,7 +124,7 @@
 					flex: 1 0 0;
 					align-self: stretch;
 					border-radius: 10px;
-					border: 1px solid rgba(36, 36, 36, 0.64);
+					border: 1px solid rgba(255, 255, 255, 0.05);
 					background-color: transparent;
 					color: #b0b0b0;
 					font-family: Inter;
@@ -111,6 +132,12 @@
 					font-style: normal;
 					font-weight: 400;
 					line-height: 16px; /* 145.455% */
+				}
+				.customInputWithoutLabel.edit:focus {
+					border: 1px solid rgba(255, 255, 255, 0.4);
+				}
+				.customInputWithoutLabel.edit:hover {
+					border: 1px solid rgba(255, 255, 255, 0.2);
 				}
 				.incrementDecrementContainer {
 					display: flex;
@@ -132,6 +159,7 @@
 						width: 100%;
 						background-color: transparent;
 						border: none;
+						text-align: center;
 					}
 					.incrementorBtns {
 						display: flex;
@@ -145,6 +173,12 @@
 						line-height: 26px; /* 185.714% */
 						cursor: pointer;
 					}
+				}
+				.removeRoleContainer {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
 				}
 			}
 			.addMoreRoleBtn {
@@ -185,6 +219,62 @@
 		border-radius: 16px;
 		border: 1px solid #242424;
 		background: rgba(42, 42, 42, 0.16);
+
+		.serviceCardHeaderBlock {
+			display: flex;
+			align-self: stretch;
+			align-items: center;
+
+			.serviceSubTitle {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 23px; /* 143.75% */
+				flex: 1;
+			}
+			.serviceSubTotalWrapper {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				.subTotalValueTitle {
+					color: #b0b0b0;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px; /* 133.333% */
+				}
+				.serviceSubtotalValueInput {
+					background-color: transparent;
+					display: flex;
+					width: 100px;
+					padding: 11px 14px;
+					align-items: center;
+					gap: 10px;
+					flex-shrink: 0;
+					border-radius: 10px;
+					border: 1px solid rgba(255, 255, 255, 0.05);
+					outline: none;
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 26px; /* 185.714% */
+				}
+				.ServiceSubTotalValue {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 26px; /* 185.714% */
+				}
+			}
+		}
+
 		.serviceCard {
 			display: flex;
 			align-items: center;
@@ -242,6 +332,7 @@
 						width: 100%;
 						background-color: transparent;
 						border: none;
+						text-align: center;
 					}
 					.incrementorBtns {
 						display: flex;
@@ -341,12 +432,30 @@
 		margin-left: 14px;
 		text-transform: capitalize;
 	}
-	.custominputContainer {
+	.customproposalInputContainer {
+		border: 1px solid rgba(255, 255, 255, 0.05);
+		span {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 26px; /* 185.714% */
+		}
+	}
+	.customproposalInputContainer.edit:focus {
+		border: 1px solid rgba(255, 255, 255, 0.4);
+	}
+	.customproposalInputContainer.edit:hover {
+		border: 1px solid rgba(255, 255, 255, 0.2);
+	}
+	.proposalInputCustomContainer {
 		padding: 11px 14px;
 		gap: 10px;
 		align-self: stretch;
 		border-radius: 10px;
-		border: 1px solid rgba(36, 36, 36, 0.64);
+		border: none;
+		// border: 1px solid rgba(255, 255, 255, 0.05);
 		color: #e4e5e6;
 		font-family: Inter;
 		font-size: 14px;
@@ -355,6 +464,39 @@
 		line-height: 26px; /* 185.714% */
 		background-color: transparent;
 	}
+	.custominputContainer {
+		padding: 11px 14px;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 10px;
+		border: 1px solid rgba(255, 255, 255, 0.05);
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 26px; /* 185.714% */
+		background-color: transparent;
+		box-shadow: none !important;
+		.anticon-calendar svg {
+			fill: #fff;
+		}
+	}
+	.custominputContainer.ant-picker-disabled .ant-picker-input input {
+		color: #e4e5e6 !important;
+	}
+	.custominputContainer.edit:focus {
+		border: 1px solid rgba(255, 255, 255, 0.4);
+	}
+	.custominputContainer.edit.ant-picker-focused {
+		.anticon-calendar svg {
+			fill: #fff;
+		}
+	}
+	.custominputContainer.edit:hover {
+		border: 1px solid rgba(255, 255, 255, 0.2);
+	}
+
 	.inputwithSumbols {
 		display: flex;
 		flex: 1;
@@ -618,6 +760,126 @@
 					}
 				}
 			}
+		}
+	}
+}
+
+.eventsPresetsParentContainer {
+	display: flex;
+	width: 426px;
+	padding: var(--Spacing-space-3, 4px);
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 2px;
+	border-radius: 12px;
+	border: 1px solid rgba(228, 229, 230, 0.05);
+	background: #151515;
+	max-height: 240px;
+	// overflow-y: auto;
+
+	.addNewPresetButton {
+		display: flex;
+		padding: var(--Spacing-space-8, 16px);
+		align-items: center;
+		gap: var(--Spacing-space-7, 12px);
+		align-self: stretch;
+		color: #6055ec;
+		text-align: center;
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+		cursor: pointer;
+	}
+	.definedPresetContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		align-self: stretch;
+		max-height: 185px;
+		overflow-y: auto;
+
+		.presetCards {
+			display: flex;
+			padding: var(--Spacing-space-8, 16px);
+			align-items: center;
+			align-self: stretch;
+			border-radius: 8px;
+			cursor: pointer;
+
+			.presetCardContentContainer {
+				display: flex;
+				flex-direction: column;
+				align-self: stretch;
+				gap: 12px;
+				flex: 1;
+				.presetTitle {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+				.presetSubTitle {
+					color: rgba(228, 229, 230, 0.48);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+			}
+			.threeDotsButton {
+				width: 16px;
+				height: 16px;
+				cursor: pointer;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+		}
+	}
+}
+
+.threeDotsPopupContainer {
+	display: inline-flex;
+	padding: var(--Spacing-space-3, 4px);
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 2px;
+	border-radius: 12px;
+	border: 1px solid rgba(228, 229, 230, 0.05);
+	background: #151515;
+
+	.threeDotOptionsContainer {
+		display: flex;
+		padding: var(--Spacing-space-8, 16px);
+		align-items: center;
+		gap: var(--Spacing-space-7, 12px);
+		align-self: stretch;
+
+		.optionsStyling {
+			color: #e4e5e6;
+			text-align: center;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+			cursor: pointer;
+		}
+		.deleteStyling {
+			color: #cc5756;
+			text-align: center;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
 		}
 	}
 }

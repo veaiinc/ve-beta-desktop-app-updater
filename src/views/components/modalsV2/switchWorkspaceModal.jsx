@@ -1,13 +1,13 @@
 import React, { memo, useCallback, useContext } from 'react';
 import Modal from 'react-modal';
-import '../../../assets/scss/workspaceSettings/switchWorkspaceModal.scss';
+import '../../../assets/scss/switchWorkspace/switchWorkspaceModal.scss';
 import { ReactComponent as Close } from '../../../assets/svg/workspaceSettings/modalclose.svg';
 import { ReactComponent as Selected } from '../../../assets/svg/workspaceSettings/Selected.svg';
 import { ReactComponent as Unselected } from '../../../assets/svg/workspaceSettings/Unselected.svg';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import useLogout from '../../hooks/useLogout';
-import { getBuisnessName } from '../../features/profile_settings/getInitials';
+import { getBuisnessName } from '../../../helpers/index';
 import { useParams } from 'react-router-dom';
 const customStyles = {
 	content: {
@@ -48,19 +48,21 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 	}, [logoutFunc]);
 
 	const handleSwitchWorkSpaceLogic = useCallback((data) => {
+		const { activeWorkspaceId, isOnboard } = data;
 		const workspaceId = localStorage.getItem('workspaceId');
 		if (workspaceId === data) {
 			closeModal();
 			return;
 		}
 		closeModal();
-		localStorage.setItem('workspaceId', data);
-		Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
+		localStorage.setItem('workspaceId', activeWorkspaceId);
+		localStorage.setItem('isOnboard', isOnboard);
+		Cookies.set('workspaceID', activeWorkspaceId, {
 			sameSite: 'lax',
 			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 		});
 		if (salesId) {
-			navigate('/sales');
+			navigate('/home');
 		}
 		window.location.reload();
 	}, []);
@@ -85,7 +87,7 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 							className="workspaceCard"
 							key={index}
 							onClick={() => {
-								handleSwitchWorkSpaceLogic(ele?.activeWorkspaceId);
+								handleSwitchWorkSpaceLogic(ele);
 							}}
 						>
 							{ele?.logo_s3_500w_key ? (
@@ -114,7 +116,10 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 			</div>
 			<div className="seperator"></div>
 			<div className="switchWorkspaceModalFooter">
-				<span onClick={() => navigate('/create-workspace')} className="newWorkspace">
+				<span
+					onClick={() => navigate('/create-workspace?authtenticated=true')}
+					className="newWorkspace"
+				>
 					New Workspace
 				</span>
 				<span onClick={handleLogout} className="logoutContainer">

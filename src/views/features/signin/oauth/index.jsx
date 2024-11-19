@@ -9,24 +9,33 @@ const OauthVerify = () => {
 	useEffect(() => {
 		const accessToken = params.get('accessToken');
 		let accessibleWorkspaces = params.get('workspaceId');
+		accessibleWorkspaces = decodeURIComponent(accessibleWorkspaces);
+		accessibleWorkspaces = JSON.parse(accessibleWorkspaces);
+
+		let region = params.get('region');
 
 		if (accessToken) {
 			if (accessibleWorkspaces && accessibleWorkspaces?.length) {
-				accessibleWorkspaces = accessibleWorkspaces?.split(',');
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
-				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]);
+				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]?.workspaceId);
 				localStorage.setItem('usertoken', accessToken);
+				localStorage.setItem('region', region || 'ap-south-1');
+				localStorage.setItem('isOnboard', accessibleWorkspaces?.[0]?.isOnboard);
 
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
-				Cookies.set('workspaceID', accessibleWorkspaces?.[0], {
+				Cookies.set('workspaceID', accessibleWorkspaces?.[0]?.workspaceId, {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 				});
-
-				return navigate('/sales');
+				Cookies.set('region', region || 'ap-south-1', {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				});
+				// localStorage.removeItem('locationDetails');
+				return navigate('/home');
 			}
 			if (
 				!accessibleWorkspaces ||
@@ -35,6 +44,7 @@ const OauthVerify = () => {
 			) {
 				localStorage.setItem('usertoken', accessToken);
 				navigate('/create-workspace');
+				return;
 			}
 		}
 	}, [params]);

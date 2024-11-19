@@ -2,19 +2,29 @@ import AuthWrapper from './views/layouts/authWrapper';
 import LoginScreen from './views/features/signin';
 import ChatScreen from './views/features/meta_Integ/index';
 import OauthVerify from './views/features/signin/oauth';
-import MySettings from './views/features/profile_settings/MySettings';
-import CompanySettingsWrapper from './views/features/workspace_settings/CompanySettingsWrapper';
 import Workflow_builder from './views/features/workflow_builder';
 import Sales from './views/features/sales/Sales';
 import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
 import SmartFile from './views/features/sales/smartFiles/SmartFile';
 import WorkflowBuilderLayout from './views/layouts/workflowBuilderLayout';
 import SmartFileLayout from './views/layouts/smartFileLayout';
+import EarlyAccess from './views/features/early_access';
+import SettingsWrapper from './views/features/settings/SettingsWrapper';
+import AiSetupPage from './views/features/settings/ai_settings/AiSetupPage';
+import PrivacyPolicy from './views/features/signin/PrivacyPolicy';
+import Landing_screen from './views/features/landing_screen';
+import AddGallery from './views/features/gallery/AddGallery';
+import GalleryPage from './views/features/gallery/GalleryPage';
+import GalleryViewer from './views/features/gallery/GalleryViewer';
+import AlbumSettings from './views/features/gallery/AlbumSettings';
+import UploadPhotos from './views/features/gallery/UploadPhotos';
+import GalleryViewLayout from './views/layouts/galleryViewLayout';
+import Subscription from './views/features/subscription';
 
 const routes = [
 	{
 		path: '/',
-		component: <LoginScreen stage={'verify-user'} />,
+		component: <Landing_screen />,
 	},
 	{
 		path: '/verify-user',
@@ -44,21 +54,24 @@ const routes = [
 		path: '/user/verify-oauth-user',
 		component: <OauthVerify />,
 	},
-
 	{
-		path: '/inbox',
-		component: (
-			<AuthWrapper title={'Inbox'}>
-				<ChatScreen />
-			</AuthWrapper>
-		),
-		exact: true,
+		path: '/privacy-policy',
+		component: <PrivacyPolicy />,
 	},
+	// {
+	// 	path: '/inbox',
+	// 	component: (
+	// 		<AuthWrapper title={'Inbox'}>
+	// 			<ChatScreen />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 
 	{
-		path: '/sales',
+		path: '/home',
 		component: (
-			<AuthWrapper title={'Sales'}>
+			<AuthWrapper title={'Home'}>
 				<Sales />
 			</AuthWrapper>
 		),
@@ -66,7 +79,7 @@ const routes = [
 	},
 
 	{
-		path: '/sales/workflows',
+		path: '/playbook',
 		component: (
 			<AuthWrapper title={'Sales'}>
 				<GlobalWorkflows />
@@ -75,24 +88,6 @@ const routes = [
 		exact: true,
 	},
 
-	{
-		path: '/workspace-settings/:type',
-		component: (
-			<AuthWrapper title={'Workspace Settings'}>
-				<CompanySettingsWrapper />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
-	{
-		path: '/my-profile',
-		component: (
-			<AuthWrapper title={'Profile Settings'}>
-				<MySettings />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
 	{
 		path: '/workflow_builder/:templateId',
 		component: (
@@ -103,12 +98,85 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/smart-file/:templateId',
+		path: '/smart-file/:templateId/:workflowId',
 		component: (
 			<SmartFileLayout title={'Smart File'}>
 				<SmartFile />
 			</SmartFileLayout>
 		),
+		exact: true,
+	},
+	{
+		path: '/early-access',
+		component: <EarlyAccess />,
+		exact: true,
+	},
+	{
+		path: '/settings/:type',
+		component: (
+			<AuthWrapper title={'Workspace Settings'}>
+				<SettingsWrapper />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/galleries',
+		component: (
+			<AuthWrapper title={'Galleries'}>
+				<AddGallery />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/galleries/:galleryId',
+		component: (
+			<AuthWrapper title={'Gallery'}>
+				<GalleryPage />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/galleries/:galleryId/:albumId/upload-photos',
+		component: (
+			<AuthWrapper title={'Upload Photos'}>
+				<UploadPhotos />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/galleries/:galleryId/:albumId/album-settings',
+		component: (
+			<AuthWrapper title={'Album Settings'}>
+				<AlbumSettings />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/galleries/:galleryId/:albumId/gallery-viewer',
+		component: (
+			<GalleryViewLayout title={'Gallery Viewer'}>
+				<GalleryViewer />
+			</GalleryViewLayout>
+		),
+		exact: true,
+	},
+	{
+		path: '/settings/ai-setup-page/:aiAssistantId',
+		component: (
+			<AuthWrapper title={'AI Setup'}>
+				<AiSetupPage />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/subscription',
+		component: <Subscription />,
 		exact: true,
 	},
 ];

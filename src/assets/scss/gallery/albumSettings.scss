@@ -1,0 +1,431 @@
+.mainAlbumSettings {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	gap: 13px;
+
+	.exit-option-container {
+		display: flex;
+		padding: 8px 0px;
+		gap: 24px;
+		p {
+			color: #fafafa;
+			font-size: 15px;
+			font-weight: 500;
+			line-height: 21px; /* 140% */
+		}
+	}
+	.albumSettingsContainerMain {
+		display: flex;
+		gap: 13px;
+		height: 80vh;
+		overflow: scroll;
+		position: relative; // Add this
+
+		.title {
+			color: #fafafa;
+			font-size: 14px;
+			font-weight: 500;
+			line-height: 22px; /* 157.143% */
+		}
+		.subtitle {
+			color: #979797;
+			font-size: 13px;
+			font-weight: 400;
+			line-height: 21px; /* 161.538% */
+		}
+		.albumSettingsContainer {
+			width: 80%;
+			display: flex;
+
+			flex-direction: column;
+			gap: 16px;
+			.settings-container {
+				display: flex;
+				padding: 40px;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 24px;
+				align-self: stretch;
+				border-radius: 16px;
+				border: 1px solid #808080;
+				background: rgba(125, 125, 125, 0.1);
+				box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+				.renameAlbum {
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					gap: 4px;
+					.inputContainer {
+						display: flex;
+						width: 386px;
+						height: 40px;
+						padding: 12px 20px 12px 16px;
+						align-items: center;
+						border-radius: 10px;
+						border: 1px solid rgba(151, 151, 151, 0.2);
+						input {
+							width: 100%;
+							border: none;
+							outline: none;
+							background: transparent;
+							color: #fafafa;
+							font-size: 14px;
+							font-weight: 400;
+						}
+					}
+				}
+				.hideAlbum {
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					gap: 8px;
+					.hideOption {
+						display: flex;
+						gap: 16px;
+					}
+				}
+				.albumLink {
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					gap: 8px;
+					.inputContainer {
+						display: flex;
+						flex-direction: row;
+						gap: 16px;
+						width: 464px;
+						height: 40px;
+						padding: 12px 20px 12px 16px;
+						align-items: center;
+						border-radius: 10px;
+						border: 1px solid rgba(151, 151, 151, 0.2);
+						input {
+							width: 100%;
+							border: none;
+							outline: none;
+							background: transparent;
+							color: #fafafa;
+							font-size: 14px;
+							font-weight: 400;
+						}
+						.copy-logo {
+							width: 16px;
+							height: 16px;
+						}
+					}
+				}
+				.lockAlbum {
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					gap: 8px;
+					.lockOption {
+						display: flex;
+						gap: 16px;
+					}
+				}
+				.save-settings {
+					display: flex;
+					gap: 8px;
+					.select-labels {
+						display: flex;
+						flex-direction: column;
+						gap: 16px;
+						.labels-container {
+							display: flex;
+							gap: 6px;
+							p {
+								display: flex;
+								padding: 8px 16px;
+								align-items: center;
+								gap: 10px;
+								border-radius: 1000px;
+								border: 1px solid rgba(234, 234, 234, 0.2);
+								color: #979797;
+								font-size: 13px;
+								font-weight: 400;
+								line-height: 16px;
+								span {
+									color: #6055ec;
+								}
+							}
+						}
+					}
+				}
+				.select-images {
+					display: flex;
+					gap: 16px;
+					.image-type {
+						display: flex;
+						flex-direction: column;
+						gap: 16px;
+						.image-type-container {
+							display: flex;
+							gap: 16px;
+							.image-type-container-item {
+								display: flex;
+								gap: 16px;
+								p {
+									color: #fafafa;
+									font-size: 13px;
+									font-weight: 500;
+									line-height: 16px; /* 123.077% */
+									letter-spacing: -0.03px;
+								}
+							}
+						}
+					}
+				}
+				.download-button {
+					display: flex;
+					width: 70%;
+					justify-content: flex-end;
+					p {
+						display: flex;
+						width: 103px;
+						height: 32px;
+						padding: 1px 8px;
+						justify-content: center;
+						align-items: center;
+						border-radius: 100px;
+						background: #6055ec;
+						color: #fff;
+						font-size: 12px;
+						font-weight: 500;
+						line-height: 24px; /* 200% */
+					}
+				}
+				.copy-button {
+					display: flex;
+					width: 100%;
+					justify-content: flex-end;
+					.button {
+						display: flex;
+						width: 103px;
+						height: 32px;
+						padding: 1px 10px;
+						justify-content: center;
+						align-items: center;
+						gap: 4px;
+						border-radius: 100px;
+						background: #6055ec;
+						cursor: pointer;
+						p {
+							color: #fff;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 24px; /* 200% */
+						}
+						.copy-logo {
+							width: 16px;
+							height: 16px;
+							svg {
+								path {
+									fill: #fff;
+								}
+							}
+						}
+					}
+				}
+				.lightroom-container {
+					display: flex;
+					gap: 16px;
+					.down-arrow {
+						width: 18px;
+						height: 18px;
+						cursor: pointer;
+						transition: transform 0.3s ease;
+						&.rotated {
+							transform: rotate(180deg);
+						}
+					}
+				}
+				.album-cover-container {
+					display: flex;
+					gap: 28px;
+					.album-preview {
+						display: flex;
+						width: 559px;
+						height: 312px;
+						position: relative;
+						.laptop-preview {
+							display: flex;
+							align-items: center;
+							flex-direction: column;
+							.screen {
+								width: 445px;
+								height: 291px;
+								background: #000;
+								padding: 16px;
+								border-top-left-radius: 16px;
+								border-top-right-radius: 16px;
+								img {
+									width: 100%;
+									height: 100%;
+									object-fit: cover;
+								}
+							}
+						}
+						.mobile-preview {
+							display: flex;
+							width: 103px;
+							height: 209px;
+							padding: 1px;
+							position: relative;
+							bottom: -94px;
+							right: 101px;
+							.mobile-preview-container {
+								width: 102px;
+								height: 208px;
+								border-radius: 24px;
+								overflow: hidden;
+								img {
+									width: 100%;
+									height: 100%;
+									object-fit: cover;
+								}
+							}
+							.mobile-logo {
+								position: absolute;
+								bottom: 0;
+								right: 0;
+							}
+						}
+					}
+					.album-cover-image {
+						width: 100%;
+						height: 100%;
+
+						position: relative;
+
+						img {
+							border-radius: 24px;
+							border: 1px solid #eaeaea;
+							cursor: pointer;
+							overflow: hidden;
+						}
+					}
+				}
+				.upload-cover-photo {
+					display: flex;
+					gap: 26px;
+					width: 100%;
+					justify-content: center;
+					.bt {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						width: 190px;
+						height: 48px;
+						overflow: hidden;
+						color: #979797;
+						text-overflow: ellipsis;
+						font-size: 14px;
+						font-weight: 500;
+						line-height: 16px;
+						letter-spacing: -0.3px;
+						border-radius: 10px;
+						border: 1px solid rgba(151, 151, 151, 0.2);
+						cursor: pointer;
+					}
+				}
+				.delete-container {
+					display: flex;
+					gap: 16px;
+					.delete-content {
+						display: flex;
+						flex-direction: column;
+						gap: 8px;
+						.delete {
+							display: flex;
+							margin: 10px 0px;
+							max-width: 390px;
+							align-items: center;
+							gap: 16px;
+							transition: all 0.3s ease;
+							button {
+								display: flex;
+								padding: 15px 35px;
+								justify-content: center;
+								align-items: center;
+								gap: 10px;
+								border-radius: 100px;
+								background: #ea4f4f;
+								overflow: hidden;
+								color: #fff;
+								text-overflow: ellipsis;
+								font-size: 13px;
+								font-weight: 500;
+								line-height: 16px;
+								border: none;
+								cursor: pointer;
+								outline: none;
+								transition: opacity 0.3s ease;
+							}
+
+							input {
+								width: 100%;
+								max-width: 215px;
+								border: none;
+								outline: none;
+								background: transparent;
+								height: 46px;
+								padding: 12px 20px 12px 16px;
+								align-items: center;
+								border-radius: 100px;
+								border: 1px solid #2f2f2f;
+								color: #fff;
+							}
+
+							svg {
+								cursor: pointer;
+							}
+						}
+					}
+				}
+				.lightroom-list-container {
+					display: flex;
+					flex-wrap: wrap;
+					gap: 10px;
+					max-height: 90px;
+					overflow-y: auto;
+					p {
+						color: #979797;
+						font-size: 16px;
+						font-weight: 400;
+						line-height: 24px;
+					}
+				}
+			}
+		}
+		.albumSettingsNavbar {
+			width: 20%;
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+			padding: 16px 12px;
+			position: sticky;
+			height: 50vh;
+			top: 10px;
+
+			overflow-y: auto;
+			li {
+				list-style: none;
+				color: #979797;
+				text-align: right;
+				font-size: 13px;
+				font-weight: 400;
+				line-height: 22px;
+				letter-spacing: 0.26px;
+				text-transform: capitalize;
+				cursor: pointer;
+			}
+			.activeLink {
+				color: #6055ec;
+			}
+		}
+	}
+}

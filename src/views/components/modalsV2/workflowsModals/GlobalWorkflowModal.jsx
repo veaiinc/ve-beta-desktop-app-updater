@@ -8,24 +8,33 @@ import { ReactComponent as EmailSvg } from '../../../../assets/svg/worflow_build
 import Context from '../../../../context/context';
 import Spinner from '../../../components/loaders/Spinner';
 import { Drawer } from 'antd';
+import GlobalWorkflowDesignModalLoader from './GlobalWorkflowDesignModalLoader';
+import GlobalWorkflowAutomationLoader from './GlobalWorkflowAutomationLoader';
 const initialState = {
 	activeTab: 'design', //design,automation
 	duplicateApiLoading: false,
 	templatesMapper: null,
-	publicData: null,
-	privateData: null,
+	activeTemplateData: null,
+	loading: true,
 };
 
 const EntryPointCard = ({ publicData }) => {
+	const data = publicData?.moduleTemplates?.filter((e) => e?.isPublic);
+
 	return (
 		<div className="previewCard" style={{ pointerEvents: 'none' }}>
 			<div className="htmlContentViewer">
 				<div className="coverImage">
-					<div
-						dangerouslySetInnerHTML={{
-							__html: Object.values(publicData)?.[0]?.parsedHtmlContent,
-						}}
-						style={{ width: '100%' }}
+					<iframe
+						src={
+							window.location.hostname === 'localhost'
+								? `http://localhost:3000/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+								: `https://builder.ve.ai/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+						}
+						title="Builder Preview"
+						width="100%"
+						height="100%"
+						style={{ zoom: 0.2 }}
 					/>
 				</div>
 			</div>
@@ -43,29 +52,35 @@ const EndPointViewCard = () => {
 		</div>
 	);
 };
-const OtherViewCard = () => {
+const OtherViewCard = ({ data }) => {
 	return (
 		<div className="otherViewCard">
 			<div className="sendEmailHeader">
 				<EmailSvg />
 				<span className="sendEmailText">Send Email</span>
 			</div>
-			<span className="emailSubjectText">Thank You for Your Enquiry</span>
+			<span className="emailSubjectText">{data?.emailTemplateSubject}</span>
 			<span className="subalabel">Immediately after enquiry form is submitted </span>
 		</div>
 	);
 };
 
 const PreviewCard = ({ privateData }) => {
+	const data = privateData?.moduleTemplates?.filter((e) => !e?.isPublic);
 	return (
 		<div className="previewCard" style={{ pointerEvents: 'none' }}>
 			<div className="htmlContentViewer">
 				<div className="coverImage">
-					<div
-						dangerouslySetInnerHTML={{
-							__html: Object.values(privateData)?.[0]?.parsedHtmlContent,
-						}}
-						style={{ width: '100%' }}
+					<iframe
+						src={
+							window.location.hostname === 'localhost'
+								? `http://localhost:3000/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+								: `https://builder.ve.ai/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+						}
+						title="Builder Preview"
+						width="100%"
+						height="100%"
+						style={{ zoom: 0.2 }}
 					/>
 				</div>
 			</div>
@@ -80,19 +95,20 @@ const PreviewCard = ({ privateData }) => {
 	);
 };
 
-const AutomationComponent = ({ activeTemplateData, publicData, privateData }) => {
+const AutomationComponent = ({ activeTemplateData, loading }) => {
 	const [data, setData] = useState({
 		stepsData: null,
 		componentmapper: {
 			theEnd: <EndPointViewCard />,
-			preview: <PreviewCard privateData={privateData} />,
+			preview: <PreviewCard privateData={activeTemplateData} />,
 		},
 	});
 
 	useEffect(() => {
 		if (activeTemplateData?.steps?.length) {
 			const steps = [...(activeTemplateData?.steps || [])];
-			const stepsData = [];
+
+			let stepsData = [];
 			stepsData?.push(steps?.[0]);
 			stepsData?.push({
 				module: 'preview',
@@ -100,7 +116,7 @@ const AutomationComponent = ({ activeTemplateData, publicData, privateData }) =>
 				parsedHtmlContent: activeTemplateData?.templates?.[0]?.parsedHtmlContent,
 			});
 			steps.shift();
-			stepsData?.concat(steps);
+			stepsData = stepsData?.concat(steps);
 			stepsData?.push({ module: 'theEnd' });
 			setData((prev) => ({ ...prev, stepsData }));
 		}
@@ -108,77 +124,77 @@ const AutomationComponent = ({ activeTemplateData, publicData, privateData }) =>
 
 	return (
 		<div className="autoMationDiv">
-			{data?.stepsData?.map((ele, index) => (
-				<div
-					key={index}
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'center',
-						justifyContent: 'center',
-					}}
-				>
-					{index === 0 ? (
-						<EntryPointCard publicData={publicData} />
-					) : data?.componentmapper?.[ele?.module] ? (
-						data?.componentmapper?.[ele?.module]
-					) : (
-						<OtherViewCard />
-					)}
-					{index < data?.stepsData?.length - 1 ? <ConnectorSvg /> : ''}
-				</div>
-			))}
+			{loading ? (
+				<GlobalWorkflowAutomationLoader />
+			) : (
+				data?.stepsData?.map((ele, index) => (
+					<div
+						key={index}
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'center',
+							justifyContent: 'center',
+						}}
+					>
+						{index === 0 ? (
+							<EntryPointCard publicData={activeTemplateData} />
+						) : data?.componentmapper?.[ele?.module] ? (
+							data?.componentmapper?.[ele?.module]
+						) : (
+							<OtherViewCard data={ele} />
+						)}
+						{index < data?.stepsData?.length - 1 ? <ConnectorSvg /> : ''}
+					</div>
+				))
+			)}
 		</div>
 	);
 };
 
-const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) => {
+const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 	const navigate = useNavigate();
 	let {
-		templates: { duplicateGlobalWorkflowTemplate },
+		templates: {
+			duplicateGlobalWorkflowTemplate,
+			getSpecificTemplatesInfo,
+			specificTemplatesInfo,
+			updateStateValues,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState(initialState);
 
 	useEffect(() => {
-		if (activeTemplateData) {
-			const { templates } = activeTemplateData || {};
+		if (globalTemplateId) {
+			getSpecificTemplatesInfo({
+				templateInfoId: globalTemplateId,
+			});
+		}
+		return () => {
+			updateStateValues({ specificTemplatesInfo: null });
+		};
+	}, [globalTemplateId]);
+
+	useEffect(() => {
+		if (specificTemplatesInfo) {
+			setInfo((prev) => ({
+				...prev,
+				loading: false,
+				activeTemplateData: specificTemplatesInfo,
+			}));
+		}
+	}, [specificTemplatesInfo]);
+
+	useEffect(() => {
+		if (info?.activeTemplateData) {
+			const { templates } = info?.activeTemplateData || {};
 			let obj = {};
 			for (let i = 0; i < templates?.length; i++) {
 				obj[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
 			}
 			setInfo((prev) => ({ ...prev, templatesMapper: obj }));
 		}
-	}, [activeTemplateData]);
-
-	useEffect(() => {
-		if (activeTemplateData) {
-			const { moduleTemplates, templates } = activeTemplateData;
-			let publicData = {};
-			let privateData = {};
-
-			for (let i = 0; i < moduleTemplates?.length; i++) {
-				if (moduleTemplates?.[i]?.isPublic) {
-					publicData[moduleTemplates?.[i]?._id] = {};
-				} else {
-					privateData[moduleTemplates?.[i]?._id] = {};
-				}
-			}
-
-			for (let i = 0; i < templates?.length; i++) {
-				if (publicData?.[templates?.[i]?._id]) {
-					publicData[templates?.[i]?._id] = {
-						parsedHtmlContent: templates?.[i]?.parsedHtmlContent,
-					};
-				}
-				if (privateData?.[templates?.[i]?._id]) {
-					privateData[templates?.[i]?._id] = {
-						parsedHtmlContent: templates?.[i]?.parsedHtmlContent,
-					};
-				}
-			}
-			setInfo((prev) => ({ ...prev, publicData, privateData }));
-		}
-	}, [activeTemplateData]);
+	}, [info?.activeTemplateData]);
 
 	//function defination
 	const changeActiveTab = useCallback(
@@ -194,6 +210,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 	const modifiedCloseModal = useCallback(async () => {
 		setInfo(initialState);
 		closeModal();
+		updateStateValues({ specificTemplatesInfo: null });
 	}, [closeModal]);
 
 	const onCustomiseFunc = useCallback(async () => {
@@ -202,8 +219,8 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 		}
 		setInfo((prev) => ({ ...prev, duplicateApiLoading: true }));
 		const payload = {
-			templateId: activeTemplateData?._id,
-			title: activeTemplateData?.title,
+			templateId: info?.activeTemplateData?._id,
+			title: info?.activeTemplateData?.title,
 		};
 		const response = await duplicateGlobalWorkflowTemplate(payload);
 		setInfo((prev) => ({ ...prev, duplicateApiLoading: false }));
@@ -215,8 +232,10 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 				return;
 			}
 		}
-	}, [activeTemplateData, info?.activeTab, info?.duplicateApiLoading]);
-
+	}, [info?.activeTemplateData, info?.activeTab, info?.duplicateApiLoading]);
+	const onGenerateAIFunc = () => {
+		window.location.href = `https://builder.ve.ai/generate/${info?.activeTemplateData?._id}`;
+	};
 	return (
 		<Drawer
 			onClose={modifiedCloseModal}
@@ -265,6 +284,9 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 										''
 									)}
 								</div>
+								<div onClick={onGenerateAIFunc} className="svgContainer">
+									GenAI
+								</div>
 								{/* )} */}
 							</div>
 							<span className="svgContainer" onClick={modifiedCloseModal}>
@@ -277,34 +299,38 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, activeTemplateData }) =>
 					</div>
 					{info?.activeTab === 'design' ? (
 						<div className="innerMainContent">
-							{activeTemplateData?.moduleTemplates?.map((e, index) => (
-								<div
-									className="modulesViewer"
-									key={index}
-									style={{ pointerEvents: 'none' }}
-								>
-									<span>{e?.module}</span>
-									<div className="imageContainer">
-										<div className="coverImage">
-											<div
-												dangerouslySetInnerHTML={{
-													__html: info?.templatesMapper?.[e?._id],
-												}}
-												style={{
-													width: '100%',
-													zoom: e?.module === 'thankyou' ? 5 : 3,
-												}}
-											/>
+							{info?.loading ? (
+								<GlobalWorkflowDesignModalLoader />
+							) : (
+								info?.activeTemplateData?.moduleTemplates?.map((e, index) => (
+									<div
+										className="modulesViewer"
+										key={index}
+										// style={{ pointerEvents: 'none' }}
+									>
+										<span>{e?.module}</span>
+										<div className="imageContainer">
+											<div style={{ width: '100%', height: '100%' }}>
+												<iframe
+													src={
+														window.location.hostname === 'localhost'
+															? `http://localhost:3000/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`
+															: `https://builder.ve.ai/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`
+													}
+													title="Builder Preview"
+													width="100%"
+													height="100%"
+												/>
+											</div>
 										</div>
 									</div>
-								</div>
-							))}
+								))
+							)}
 						</div>
 					) : (
 						<AutomationComponent
-							activeTemplateData={activeTemplateData}
-							publicData={info?.publicData}
-							privateData={info?.privateData}
+							activeTemplateData={info?.activeTemplateData}
+							loading={info?.loading}
 						/>
 					)}
 				</div>

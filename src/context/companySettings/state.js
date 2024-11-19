@@ -8,6 +8,7 @@ export const intialState = {
 	tenantsUserList: null,
 	tenantPreferenceData: null,
 	tenantSubscriptionDetails: null,
+	clientPortalPreferences: null,
 };
 export const CompanySettingsState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -59,9 +60,9 @@ export const CompanySettingsState = () => {
 			let workspaceId = localStorage.getItem('workspaceId');
 
 			let tenantTeam = await service.fetchGet(
-				'/' + workspaceId + API.TENANTS.tenantUsers,
+				'/tenant/' + workspaceId + API.TENANTS.tenantUsers,
 				usertoken,
-				'tenant',
+				'auth',
 			);
 			if (tenantTeam?.[0]) {
 				dispatch({
@@ -78,10 +79,10 @@ export const CompanySettingsState = () => {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			let response = await service.fetchPut(
-				'/' + workspaceId + API.TENANTS.businessName,
+				'/tenant/' + workspaceId + API.TENANTS.businessName,
 				json,
 				usertoken,
-				'tenant',
+				'auth',
 			);
 		} catch (error) {
 			console.log('error => updateTenantBusinessName ', error);
@@ -103,7 +104,6 @@ export const CompanySettingsState = () => {
 	};
 	const updatePrefernces = async (json) => {
 		try {
-			// brandAccentColor: '#ffffff',
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchPut(
@@ -112,6 +112,12 @@ export const CompanySettingsState = () => {
 				usertoken,
 				'tenant',
 			);
+
+			if (response?.[0] === true) {
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
 		} catch (error) {
 			console.log('error => updatePrefernces ', error);
 		}
@@ -135,6 +141,7 @@ export const CompanySettingsState = () => {
 			console.log('error => getTenantPreferences ', error);
 		}
 	};
+
 	const getTenantSubscriptionDetails = async () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -176,23 +183,105 @@ export const CompanySettingsState = () => {
 			console.log('error => uploadTenantLogo ', error);
 		}
 	};
+
 	const inviteNewuser = async (payload) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			const response = await service.fetchPost(
-				'/' + workspaceId + API.TENANTS.tenantUsers,
+			return await service.fetchPost(
+				'/tenant/' + workspaceId + API.TENANTS.tenantUsers,
 				payload,
+				usertoken,
+				'auth',
+			);
+		} catch (error) {
+			console.log('error => inviteNewuser ', error);
+			throw error;
+		}
+	};
+
+	const updateTenantRole = async (payload) => {
+		try {
+			const json = {
+				role: payload?.role,
+			};
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			let response = await service.fetchPut(
+				'/' + workspaceId + API.TENANTS.tenantUsers + '/' + payload?._id + '/role',
+				json,
 				usertoken,
 				'tenant',
 			);
-			if (response?.[0] === true) {
-				getTeamMembers();
+
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
 			}
 		} catch (error) {
-			console.log('error => inviteNewuser ', error);
+			console.log('error => updatetennat role', error);
 		}
 	};
+
+	const checkWorkspaceId = async (payload) => {
+		try {
+			const response = await service.fetchGet(
+				'/tenant/workspaceId-availability?workspaceId=' + payload,
+				null,
+				'auth',
+			);
+
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error occureed in checkWorkspaceId', error);
+		}
+	};
+
+	const getClientPortalPreference = async () => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				'/tenant/' + workspaceId + API.TENANTS.clientPortalPreferences,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_CLIENT_PORTAL_PREFERENCES,
+					payload: { ...response?.[1]?.clientPortalPreferences },
+				});
+			}
+		} catch (error) {
+			console.log('error ==> getClientPortalPreference', error);
+		}
+	};
+
+	const updateClientPortalPreference = async (json) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				'/tenant/' + workspaceId + API.TENANTS.clientPortalPreferences,
+				json,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error ==> getClientPortalPreference', error);
+		}
+	};
+
 	const resetCompanySettings = async () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
@@ -215,5 +304,9 @@ export const CompanySettingsState = () => {
 		uploadTenantLogo,
 		resetCompanySettings,
 		inviteNewuser,
+		updateTenantRole,
+		checkWorkspaceId,
+		getClientPortalPreference,
+		updateClientPortalPreference,
 	};
 };

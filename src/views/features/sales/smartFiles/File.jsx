@@ -1,4 +1,5 @@
-import React, { memo, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { memo, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import '../.././../../assets/scss/sales/smartFile.scss';
 import Events from '../../../components/smartFileComponets/Events';
 import Services from '../../../components/smartFileComponets/Services';
@@ -8,7 +9,22 @@ import Context from '../../../../context/context';
 import AcceptedStageSmartFileBlocks from '../../../components/smartFileComponets/AcceptedStageSmartFileBlocks';
 import { ReactComponent as EditSvg } from '../.././../../assets/svg/worflow_builder/edit.svg';
 import Spinner from '../../../components/loaders/Spinner';
-const File = ({ templateData, workflowData, userSigned, edit }) => {
+import { useParams } from 'react-router-dom';
+import moment from 'moment';
+
+let origin =
+	window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://builder.ve.ai';
+const File = ({
+	templateData,
+	workflowData,
+	userSigned,
+	edit,
+	expiresAt,
+	updateSendSmartFileExpiryData,
+	workflowStatus,
+}) => {
+	const { workflowId } = useParams();
+	const timeoutRef = useRef(null);
 	let {
 		templates: {
 			smartFileInfo,
@@ -17,8 +33,9 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			updateInvoice,
 			updateForm,
 			updateThankyou,
-			duplicateGlobalWorkflowTemplate,
 			formResponseData,
+			updateSendSmartFileSettings,
+			getEventsPresets,
 		},
 	} = useContext(Context);
 
@@ -33,14 +50,21 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		eventsTableData: null,
 		servicesTableData: null,
 		loading: true,
-		timeout: null,
 		smartFileStatus: '',
 		templatesMapper: null,
 		duplicateLoader: false,
 		expiryInDays: null,
 		varibalesModified: false,
+		iframeReady: false,
+		variableInitialised: false,
 	});
 
+	useEffect(() => {
+		window.addEventListener('message', handleMessage);
+		return () => {
+			window.removeEventListener('message', handleMessage);
+		};
+	}, []);
 	//useEffects
 	useEffect(() => {
 		if (smartFileInfo) {
@@ -51,7 +75,6 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 			let variablesData = {},
 				paymentScheduleData = {},
 				eventsTableData = {},
-				servicesTableData = {},
 				moduleData = {
 					proposal: null,
 					invoice: null,
@@ -68,8 +91,9 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					workflowId,
 					expiryInDays,
 					signatures = [],
-				} = currentModule;
+				} = currentModule || {};
 				let activeVersionData;
+
 				for (let j = 0; j < versions?.length; j++) {
 					if (versions?.[j]?._id === activeVersion) {
 						activeVersionData = {
@@ -85,23 +109,17 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 				}
 
 				let variables = activeVersionData?.variables?.filter((ele) => {
-					if (ele?.type !== 'workspace') {
+					if (ele?.type !== 'workspace' && !ele?.blockId) {
 						ele['moduleType'] = updatedModules?.[i];
 						return ele;
 					}
 				});
 
 				let eventsTable = [];
-				let servicesTable = [];
 
 				for (let k = 0; k < activeVersionData?.tables?.length; k++) {
 					const currentTableData = activeVersionData?.tables?.[k];
-					if (currentTableData?.type === 'services') {
-						servicesTable?.push({
-							...currentTableData,
-							moduleType: updatedModules?.[i],
-						});
-					}
+
 					if (currentTableData?.type === 'events') {
 						eventsTable?.push({
 							...currentTableData,
@@ -117,7 +135,6 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 				variablesData[updatedModules?.[i]] = variables;
 				paymentScheduleData[updatedModules?.[i]] = paymentSchedule;
 				eventsTableData[updatedModules?.[i]] = eventsTable;
-				servicesTableData[updatedModules?.[i]] = servicesTable;
 				moduleData[updatedModules?.[i]] = activeVersionData;
 			}
 			setInfo((prev) => ({
@@ -125,7 +142,6 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 				variablesData,
 				paymentScheduleData,
 				eventsTableData,
-				servicesTableData,
 				loading: true,
 				smartFileStatus: smartFileInfo?.status,
 				...moduleData,
@@ -148,6 +164,13 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		if (info?.proposal) {
 			const { expiryInDays } = info.proposal || {};
 			setInfo((prev) => ({ ...prev, expiryInDays }));
+			let servicesTable = [];
+			for (let i = 0; i < info?.proposal?.sections?.length; i++) {
+				if (info?.proposal?.sections?.[i]?.type === 'services') {
+					servicesTable?.push(info?.proposal?.sections?.[i]);
+				}
+			}
+			setInfo((prev) => ({ ...prev, servicesTableData: servicesTable }));
 		}
 	}, [info?.proposal]);
 
@@ -181,12 +204,75 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		}
 	}, [info?.variablesData, formResponseData, info?.varibalesModified]);
 
+	useEffect(() => {
+		if (
+			info?.varibalesModified &&
+			info?.variablesData &&
+			info?.iframeReady &&
+			!info?.variableInitialised
+		) {
+			const variableArray = [].concat(...Object.values(info?.variablesData));
+			const iframe = document.querySelector('iframe');
+			if (iframe && iframe.contentWindow) {
+				iframe.contentWindow.postMessage(
+					{ type: 'REPLACE_TEXT_ARRAY', textArray: [...variableArray] },
+					origin,
+				);
+				setInfo((prev) => ({ ...prev, variableInitialised: true }));
+			}
+		}
+	}, [
+		info?.variablesData,
+		info?.varibalesModified,
+		info?.iframeReady,
+		info?.variableInitialised,
+	]);
+	useEffect(() => {
+		getEventsPresetsData();
+	}, []);
+
 	//function defination
+	//when the variable is clicked, autofocus the input
+
+	const handleMessage = useCallback((event) => {
+		if (event.origin !== origin) return;
+
+		if (event.data.type === 'IFRAME_READY') {
+			setInfo((prev) => ({ ...prev, iframeReady: true }));
+		}
+
+		if (event.data.type === 'CONSOLE_LOG') {
+			console.log('Log from iframe:', event.data);
+		} else if (event.data.type === 'SPAN_CLICKED') {
+			scrollToElement(event?.data?.id);
+		}
+	}, []);
+
+	const variableOnFocusFunc = (id) => {
+		const iframe = document.querySelector('iframe');
+		if (iframe && iframe.contentWindow) {
+			iframe.contentWindow.postMessage(
+				{
+					type: 'SCROLL_TO_ELEMENT',
+					id: id,
+				},
+				origin,
+			);
+		}
+	};
 
 	//variableOnChangeFunc
 	const variableOnChangeFunc = useCallback(
 		async (updatedData) => {
 			const moduleType = updatedData?.moduleType;
+			const iframe = document.querySelector('iframe');
+			if (iframe && iframe.contentWindow) {
+				iframe.contentWindow.postMessage(
+					{ type: 'REPLACE_TEXT', text: updatedData.value, id: updatedData._id },
+					origin,
+				);
+			}
+
 			let updatedVariableData = { ...info?.variablesData };
 			let variableModuleArraytoBeUpdated = [...(updatedVariableData?.[moduleType] || [])];
 			let index = -1;
@@ -223,41 +309,80 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 
 	//servicesTableChnages
 	const serviceTableOnChnageFunc = useCallback(
-		async (updatedData) => {
-			const moduleType = updatedData?.moduleType;
-			let updatedServiceData = { ...info?.servicesTableData };
-			let serviceModuleArraytoBeUpdated = [...(updatedServiceData?.[moduleType] || [])];
-			let index = -1;
-			for (let i = 0; i < serviceModuleArraytoBeUpdated?.length; i++) {
-				if (serviceModuleArraytoBeUpdated?.[i]?._id === updatedData?._id) {
-					index = i;
+		async (updateServiceBlockInfo, index) => {
+			const iframe = document.querySelector('iframe');
+			if (iframe && iframe.contentWindow) {
+				iframe.contentWindow.postMessage(
+					{ type: 'SERVICE_TABLE_DATA', serviceBlock: updateServiceBlockInfo },
+					origin,
+				);
+			}
+
+			let updatedServiceData = [...(info?.servicesTableData || [])];
+			updatedServiceData?.splice(index, 1, updateServiceBlockInfo);
+			const serviceBlockId = updateServiceBlockInfo?._id;
+			const proposalData = { ...info.proposal };
+			const { sections, tables } = proposalData;
+			let replaceServiceIndex = -1;
+			for (let i = 0; i < sections?.length; i++) {
+				if (sections?.[i]?.type === 'services' && sections?.[i]?._id === serviceBlockId) {
+					replaceServiceIndex = i;
 					break;
 				}
 			}
 
-			if (index !== -1) {
-				serviceModuleArraytoBeUpdated?.splice(index, 1, updatedData);
-				updatedServiceData[moduleType] = [...serviceModuleArraytoBeUpdated];
-				setInfo((prev) => ({ ...prev, servicesTableData: updatedServiceData }));
+			if (replaceServiceIndex !== -1) {
+				sections?.splice(replaceServiceIndex, 1, updateServiceBlockInfo);
 			}
 
-			let moduleIndex = -1;
-			const moduleData = { ...(info?.[moduleType] || {}) };
-			const moduleTable = [...(moduleData?.tables || [])];
-			for (let i = 0; i < moduleTable?.length; i++) {
-				if (moduleTable?.[i]?._id === updatedData?._id) {
-					moduleIndex = i;
-					break;
+			//syncing tables also
+			const { _id, blocks } = updateServiceBlockInfo || {};
+			const blcoksMapper = {};
+			for (let i = 0; i < blocks?.length; i++) {
+				blcoksMapper[blocks?.[i]?._id] = blocks?.[i]?.subBlocks?.[0];
+			}
+
+			for (let i = 0; i < tables?.length; i++) {
+				if (tables?.[i]?.type === 'services' && tables?.[i]?._id === _id) {
+					let values = tables?.[i]?.values || [];
+
+					for (let j = 0; j < values?.length; j++) {
+						if (blcoksMapper?.[values?.[j]?.blockId]) {
+							const {
+								show,
+								amount,
+								description,
+								price,
+								quantity,
+								title,
+								currency,
+								imageURL,
+							} = blcoksMapper?.[values?.[j]?.blockId] || {};
+							values[j] = {
+								...(values[j] || {}),
+								show,
+								amount,
+								description,
+								price,
+								quantity,
+								title,
+								currency,
+								image: imageURL,
+							};
+						}
+					}
+					tables[i].values = values;
 				}
 			}
-			if (moduleIndex !== -1) {
-				moduleTable?.splice(moduleIndex, 1, updatedData);
-				moduleData.tables = [...moduleTable];
-				setInfo((prev) => ({ ...prev, [moduleType]: moduleData }));
-			}
-			handleDebounceUpdate(moduleType, moduleData);
+
+			setInfo((prev) => ({
+				...prev,
+				proposal: proposalData,
+				servicesTableData: updatedServiceData,
+			}));
+			handleDebounceUpdate('proposal', proposalData);
 		},
-		[info?.servicesTableData],
+		[info?.servicesTableData, info?.proposal],
 	);
 
 	//events table onChange
@@ -265,6 +390,15 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		async (updatedData) => {
 			const moduleType = updatedData?.moduleType;
 			let updatedEventsData = { ...info?.eventsTableData };
+
+			const iframe = document.querySelector('iframe');
+			if (iframe && iframe.contentWindow) {
+				iframe.contentWindow.postMessage(
+					{ type: 'EVENTS_TABLE_DATA', eventsTable: updatedEventsData },
+					origin,
+				);
+			}
+
 			let eventsModuleArrayToBeUpdated = [...(updatedEventsData?.[moduleType] || [])];
 			let index = -1;
 			for (let i = 0; i < eventsModuleArrayToBeUpdated?.length; i++) {
@@ -296,13 +430,28 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 
 			handleDebounceUpdate(moduleType, moduleData);
 		},
-		[info?.eventsTableData],
+		[
+			info?.eventsTableData,
+			info?.proposal,
+			info?.contract,
+			info?.invoice,
+			info?.thankyou,
+			info?.form,
+		],
 	);
 
 	//proposalUpdate
 	const updateProposalFunc = useCallback(async (moduleData) => {
-		const { activeVersion, _id, variables, tables, paymentSchedule, workflowId, expiryInDays } =
-			moduleData || {};
+		const {
+			activeVersion,
+			_id,
+			variables,
+			tables,
+			paymentSchedule,
+			workflowId,
+			expiryInDays,
+			sections,
+		} = moduleData || {};
 
 		const payload = {
 			proposalId: _id,
@@ -313,6 +462,7 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 					paymentSchedule,
 					variables,
 					tables,
+					sections,
 				},
 			},
 			versionId: activeVersion,
@@ -417,53 +567,19 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		updateThankYouFunc,
 	]);
 
-	const updateExpiryInDays = useCallback(
-		async (updatedData) => {
-			const newModuleData = { ...info?.proposal, expiryInDays: +updatedData };
-			setInfo((prev) => ({ ...prev, proposal: newModuleData }));
-			handleDebounceUpdate('proposal', newModuleData);
-		},
-		[info?.proposal],
-	);
 	const handleDebounceUpdate = useCallback(
 		(module, moduleData) => {
-			clearInterval(info?.timeout);
-			const timeout = setTimeout(() => {
+			if (timeoutRef.current) clearTimeout(timeoutRef.current);
+			timeoutRef.current = setTimeout(() => {
 				moduleUpdateFuncWrapper?.[module](moduleData);
 			}, 1000);
-			setInfo((prev) => ({ ...prev, timeout }));
 		},
-		[
-			info?.timeout,
-			updateProposalFunc,
-			updateContractFunc,
-			updateFormFunc,
-			updateInvoiceFunc,
-			updateThankYouFunc,
-			moduleUpdateFuncWrapper,
-			updateExpiryInDays,
-		],
+		[moduleUpdateFuncWrapper, timeoutRef],
 	);
 
 	const duplicateTemplateFromSmartFile = useCallback(async () => {
-		if (info?.duplicateLoader) {
-			return;
-		}
-		setInfo((prev) => ({ ...prev, duplicateLoader: true }));
-		const payload = {
-			templateId: templateData?._id,
-			title: templateData?.title,
-		};
-
-		const response = await duplicateGlobalWorkflowTemplate(payload);
-		setInfo((prev) => ({ ...prev, duplicateLoader: false }));
-		if (response?.[0]) {
-			window.location.href = `https://builder.ve.ai/${response?.[1]?._id}?clientName=${
-				workflowData?.name || ''
-			}&clientEmail=${workflowData?.email || ''}`;
-			return;
-		}
-	}, [info?.duplicateLoader, workflowData]);
+		window.location.href = `${origin}/${workflowId}?workflow=true`;
+	}, [workflowData]);
 
 	const handleUpdateVaraiblesArray = useCallback(
 		async (updatedDuplicateVariableArray) => {
@@ -483,7 +599,6 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 				if (index !== -1) {
 					variableModuleArraytoBeUpdated?.splice(index, 1, updatedData);
 					updatedVariableData[moduleType] = [...variableModuleArraytoBeUpdated];
-					setInfo((prev) => ({ ...prev, variablesData: updatedVariableData }));
 				}
 
 				let moduleIndex = -1;
@@ -506,65 +621,132 @@ const File = ({ templateData, workflowData, userSigned, edit }) => {
 		[info?.variablesData, moduleUpdateFuncWrapper],
 	);
 
+	const updateSmartFileExpiry = useCallback(
+		async (data) => {
+			const payload = {
+				updateWorkflowId: workflowId,
+				updateWorkflowInput: {
+					expiresAt: moment().add(data, 'days').unix(),
+				},
+			};
+
+			const response = await updateSendSmartFileSettings(payload);
+			if (response?.[0]) {
+				updateSendSmartFileExpiryData(moment().add(data, 'days').unix());
+			}
+		},
+		[workflowId],
+	);
+
+	//scroll functions
+	const scrollToElement = useCallback(
+		(id) => {
+			let element = document.getElementById(id);
+			if (!element) {
+				element = document.querySelector(`[data-id="${id}"]`);
+			}
+
+			if (!element) {
+				return;
+			}
+
+			element.scrollIntoView({
+				behavior: 'smooth',
+				block: 'center',
+				inline: 'nearest',
+			});
+
+			if (edit) {
+				// Focus the element after it scrolls
+				element.focus({ preventScroll: true });
+			}
+		},
+		[edit],
+	);
+
+	//get preset data for events
+	const getEventsPresetsData = useCallback(async () => {
+		const params = {
+			page: 1,
+			limit: 50,
+			sortBy: 'createdAt',
+			sortType: -1,
+			subType: 'event_table',
+		};
+		getEventsPresets(params);
+	}, []);
+
 	return (
 		<div className="fileParentContainer">
 			<div className="previewContainer">
-				<div className="previewHeader">
-					<span className="previewHeaderText">
-						Customise your design for {workflowData?.name}
-					</span>
-					{info?.duplicateLoader ? (
-						<Spinner width={'20px'} height={'20px'} />
-					) : (
-						<div className="editPreviewBtn" onClick={duplicateTemplateFromSmartFile}>
-							<EditSvg />
-							<span className="editText">Edit</span>
-						</div>
-					)}
-				</div>
-
-				<div className="previewHolderWrapper">
-					{templateData?.moduleTemplates
-						?.filter((comp, i) => !comp?.isPublic)
-						.map((ele, index) => (
-							<div className="imageContainer" key={index}>
-								<div className="coverImage">
-									<div
-										dangerouslySetInnerHTML={{
-											__html: info?.templatesMapper?.[ele?._id],
-										}}
-										style={{ width: '100%', zoom: 2 }}
-									/>
-								</div>
+				{edit ? (
+					<div className="previewHeader">
+						<span className="previewHeaderText">
+							Customise your design for {workflowData?.name}
+						</span>
+						{info?.duplicateLoader ? (
+							<Spinner width={'20px'} height={'20px'} />
+						) : (
+							<div
+								className="editPreviewBtn"
+								onClick={duplicateTemplateFromSmartFile}
+							>
+								<EditSvg />
+								<span className="editText">Edit</span>
 							</div>
-						))}
+						)}
+					</div>
+				) : (
+					''
+				)}
+
+				<div
+					className="previewHolderWrapper"
+					style={{ borderRadius: !edit ? '26px' : '', height: '100%' }}
+				>
+					<iframe
+						src={
+							window.location.hostname === 'localhost'
+								? `http://localhost:3000/preview/${workflowId}?workflow=true`
+								: `https://builder.ve.ai/preview/${workflowId}?workflow=true`
+						}
+						title="Builder Preview"
+						width="100%"
+						height="100%"
+					/>
 				</div>
 			</div>
 			<div className="editParentContainer">
 				<AcceptedStageSmartFileBlocks
 					smartFileStatus={info?.smartFileStatus}
 					clientDetails={workflowData}
-					propsalData={info?.servicesTableData?.['proposal']}
+					propsalData={info?.proposal}
 					contractData={info?.contract}
 					userSigned={userSigned}
+					workflowStatus={workflowStatus}
 				/>
 				<span className="editContainerHeader">
-					Please enter the following custom data to send this proposal{' '}
+					{edit
+						? `Please enter the following custom data to send this proposal`
+						: 'Smart File Details'}
 				</span>
 
 				<Variables
 					variablesData={info?.variablesData}
 					variableOnChangeFunc={variableOnChangeFunc}
+					variableOnFocusFunc={variableOnFocusFunc}
 					editable={edit}
 					expiryInDays={info?.expiryInDays}
-					updateExpiryInDays={updateExpiryInDays}
 					handleUpdateVaraiblesArray={handleUpdateVaraiblesArray}
+					expiresAt={expiresAt}
+					updateSmartFileExpiry={updateSmartFileExpiry}
 				/>
 				<Events
 					eventsData={info?.eventsTableData}
 					eventsDataChange={eventsTableOnChangeFunc}
 					editable={edit}
 				/>
+
 				<Services
 					serviceData={info?.servicesTableData}
 					serviceOnChangeFunc={serviceTableOnChnageFunc}
