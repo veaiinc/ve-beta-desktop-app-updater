@@ -12,12 +12,15 @@ const GalleryOverview = ({
 	convertEpochToDate,
 	handleLinkChange,
 }) => {
+	const workspaceId = localStorage.getItem('workspaceId');
 	return (
 		<div id="gallery-overview" className="settings-overview">
 			<p className="heading">Gallery overview</p>
 			<p className="subHeading">
-				Gallery URL
-				<span className="subTitle">- ankitttt.ve-s.../-my gallery</span>
+				Gallery URL&nbsp;
+				<span className="subTitle">
+					https://{workspaceId}.ve.ai/gallery/{info?.activeGallery?.slug}
+				</span>
 			</p>
 			<div className="renameGallery">
 				<p className="subHeading">Rename Gallery </p>
@@ -26,7 +29,7 @@ const GalleryOverview = ({
 				</p>
 				<input
 					placeholder="Hannef x Mahi"
-					value={info.activeGallery?.galleryData?.title}
+					value={info.activeGallery?.title}
 					onChange={handleGalleryChange}
 				/>
 			</div>
@@ -39,7 +42,7 @@ const GalleryOverview = ({
 					<DatePicker
 						className="datePicker"
 						format="DD-MM-YYYY"
-						selected={convertEpochToDate(info.activeGallery?.galleryData?.dueDateEpoch)}
+						selected={convertEpochToDate(info.activeGallery?.dueDateEpoch)}
 						// onChange={(date, dateString) =>
 						// 	handleAlbumNameChange(dateString, 'date')
 						// }
@@ -76,7 +79,9 @@ const GalleryOverview = ({
 			<div className="collaborators">
 				<div className="collaboratorsContainer">
 					<div>
-						<p className="subHeading">3 Collaborators</p>
+						<p className="subHeading">
+							{info?.collaboratorsData?.length} Collaborators
+						</p>
 						<p className="subTitle">
 							Collaborators are your team members that you want to add to or remove
 							from this gallery.

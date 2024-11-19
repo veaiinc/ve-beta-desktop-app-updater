@@ -11,12 +11,12 @@ const DesignOverviewComp = ({ info, handleLayoutType }) => {
 		<div id="design" className="settings-overview">
 			<div className="designaContainer">
 				<p className="heading">Design</p>
-				<div className="previewLayout">
+				{/* <div className="previewLayout">
 					<p className="subTitle">Preview layout</p>
 					<UpArrow />
-				</div>
+				</div> */}
 			</div>
-			<div className="coverDesign">
+			{/* <div className="coverDesign">
 				<p className="subHeading">Select gallery cover design</p>
 				<div className="selectDesign">
 					<div className="cover-images"></div>
@@ -45,7 +45,7 @@ const DesignOverviewComp = ({ info, handleLayoutType }) => {
 					<input type="text" placeholder="FreightText Pro + Futura PT " />
 					<UpArrow />
 				</div>
-			</div>
+			</div> */}
 			<div className="grid-style">
 				<p className="subHeading">Grid Style</p>
 				<div className="grid-types">

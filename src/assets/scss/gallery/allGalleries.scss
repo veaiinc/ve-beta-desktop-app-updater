@@ -3,6 +3,7 @@
 		display: flex;
 		justify-content: flex-end;
 		gap: 16px;
+		width: 97%;
 
 		.create-btn {
 			background-color: #6055ec;
@@ -50,7 +51,7 @@
 				flex-wrap: wrap;
 				overflow: auto;
 				height: 85vh;
-				justify-content: center;
+
 				.add-gallery {
 					display: flex;
 					width: 280px;
@@ -148,7 +149,11 @@
 							color: #e4e5e6;
 							font-size: 16px;
 							font-weight: 500;
-							line-height: 26px; /* 162.5% */
+							line-height: 26px;
+							max-height: 50px;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							white-space: nowrap;
 						}
 					}
 					&:hover {

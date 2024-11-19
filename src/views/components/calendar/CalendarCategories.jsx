@@ -3,11 +3,14 @@ import '../../../assets/scss/calendar/calendarCategories.scss';
 import { ReactComponent as PlusSvg } from '../../../assets/svg/calendar/plus.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import { ReactComponent as UpSvg } from '../../../assets/svg/calendar/up.svg';
+import AddCategoryModal from './AddCategoryModal';
 
 const CalendarCategories = () => {
 	const [info, setInfo] = useState({
 		expanded: false,
 		height: '62px',
+		isCategoryModalOpen: false,
+		isCategoryEditable: false,
 	});
 	const expandRef = useRef(null);
 
@@ -34,6 +37,15 @@ const CalendarCategories = () => {
 			expanded: !prevInfo.expanded,
 		}));
 	}, []);
+
+	const handleCategoryModalClose = useCallback(() => {
+		setInfo((previnfo) => ({ ...previnfo, isCategoryModalOpen: false }));
+	}, []);
+
+	const handleCategoryModalOpen = useCallback(() => {
+		setInfo((previnfo) => ({ ...previnfo, isCategoryModalOpen: true }));
+	}, []);
+
 	return (
 		<div
 			className={`categoriesParentContainer `}
@@ -45,7 +57,7 @@ const CalendarCategories = () => {
 			<div className="categoriesHeadWrapper">
 				<div className="headerContainer">
 					<span className="headLabel">Categories</span>
-					<span className="headicon">
+					<span className="headicon" onClick={handleCategoryModalOpen}>
 						<PlusSvg />
 					</span>
 				</div>
@@ -126,6 +138,14 @@ const CalendarCategories = () => {
 						</div>
 					</div>
 				</div>
+			) : (
+				''
+			)}
+			{info?.isCategoryModalOpen ? (
+				<AddCategoryModal
+					handleCategoryModalClose={handleCategoryModalClose}
+					isCategoryEditable={info?.isCategoryEditable}
+				/>
 			) : (
 				''
 			)}

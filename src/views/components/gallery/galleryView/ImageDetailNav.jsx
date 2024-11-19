@@ -9,6 +9,7 @@ import { ReactComponent as Pin } from '../../../../assets/svg/gallery/pin.svg';
 import { ReactComponent as Edit } from '../../../../assets/svg/gallery/editpen.svg';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/CrossWhite.svg';
 import { useNavigate } from 'react-router-dom';
+import slugify from 'slugify';
 
 const ImageDetailNav = ({
 	info,
@@ -66,9 +67,12 @@ const ImageDetailNav = ({
 			}));
 		},
 		Image: () => {
-			navigate(`/gallery/${galleryId}/album-settings?uploadImageId=${info?.imageDetailId}`, {
-				state: { activeAlbumId: albumId },
-			});
+			navigate(
+				`/galleries/${galleryId}/${albumId}/album-settings?uploadImageId=${info?.imageDetailId}`,
+				{
+					state: { activeAlbumId: albumId },
+				},
+			);
 		},
 		Rotate: () => {
 			let currentRotation = imageDetail?.rotation || 0;
@@ -90,21 +94,19 @@ const ImageDetailNav = ({
 
 		const json = {
 			displayName: navInfo.searchInput,
-			slug: navInfo.searchInput,
+			slug: slugify(navInfo.searchInput, { lower: true, strict: true }),
 		};
 
 		const response = await addGalleryTag(json, galleryId);
 		if (response?.[0] === true) {
 			setnavInfo((prev) => ({
 				...prev,
-				searchInput: '',
 			}));
 		}
 	};
 
 	const handleTagChange = (e, tagId, imageId) => {
 		const isTagSelected = e.target.checked;
-		console.log('isTagSelected', isTagSelected);
 		const payload = {
 			image_ids: [imageId],
 		};
@@ -115,7 +117,6 @@ const ImageDetailNav = ({
 		}
 	};
 
-	// console.log('imageDetail', imageDetail);
 	return (
 		<div className="galleryViewerNavbarContainer">
 			<div className="galleryViewerNavbar stagger_step_animation1">
@@ -125,6 +126,12 @@ const ImageDetailNav = ({
 						onClick={() =>
 							functionsList[option?.label] && functionsList[option?.label]()
 						}
+						style={{
+							cursor:
+								option?.label === 'Download' || option?.label === 'Share'
+									? 'not-allowed'
+									: '',
+						}}
 					>
 						{option.icon}
 					</div>

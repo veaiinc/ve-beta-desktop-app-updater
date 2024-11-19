@@ -9,16 +9,20 @@ import { ReactComponent as Category } from '../../../assets/svg/calendar/categor
 const CreateEvent = ({ toggleCreateEvent }) => {
 	const [info, setInfo] = useState({
 		showCategory: false,
+		isAllDayEvent: false,
 	});
 	const handleCategoryToggle = () => {
 		setInfo((previnfo) => ({ ...previnfo, showCategory: !previnfo.showCategory }));
+	};
+	const handleAllDayEventToggle = () => {
+		setInfo((previnfo) => ({ ...previnfo, isAllDayEvent: !previnfo.isAllDayEvent }));
 	};
 
 	return (
 		<div className="createEventContainer">
 			<div className="eventDetailsContainer">
 				<div className="headerWrapper">
-					<span className="headLabel">Create an event</span>
+					<span className="headerLabel">Create an event</span>
 					<CloseSvg onClick={toggleCreateEvent} style={{ cursor: 'pointer' }} />
 				</div>
 				<div className="agendaContainer">
@@ -30,16 +34,28 @@ const CreateEvent = ({ toggleCreateEvent }) => {
 						<Clock />
 						<span className="detailsLabel">Details</span>
 					</div>
-					<div className="eventStartWrapper">
+					<div className={`${info.isAllDayEvent ? `` : `eventTimeWrapper`}`}>
 						<input type="text" placeholder="Wed, September 22 2024" />
-						<input type="text" placeholder="12:00PM" />
+						{info.isAllDayEvent ? '' : <input type="text" placeholder="12:00PM" />}
 					</div>
-					<div className="eventEndWrapper">
+					<div className={`${info.isAllDayEvent ? `` : `eventTimeWrapper`}`}>
 						<input type="text" placeholder="Wed, September 22 2024" />
-						<input type="text" placeholder="12:30AM" />
+						{info.isAllDayEvent ? '' : <input type="text" placeholder="12:30AM" />}
 					</div>
 					<div className="allDayWrapper">
 						<span className="allDayLabel">All Day Event</span>
+						<div className="toggleSwitch">
+							<input
+								type="checkbox"
+								id="toggleSwitchCheckbox"
+								className="toggleSwitchCheckbox"
+								checked={info.isAllDayEvent}
+								onChange={handleAllDayEventToggle}
+							/>
+							<label className="toggleSwitchLabel" htmlFor="toggleSwitchCheckbox">
+								<span className="toggleSwitchHandle"></span>
+							</label>
+						</div>
 					</div>
 				</div>
 				<div className="categoriesContainer">
@@ -63,10 +79,10 @@ const CreateEvent = ({ toggleCreateEvent }) => {
 							''
 						)}
 					</div>
-					<div className="optionsInput">
+					{/* <div className="optionsInput">
 						<input type="text" />
 						<input type="text" />
-					</div>
+					</div> */}
 				</div>
 				<div className="attendeesContainer">
 					<div className="attendeesHeader">

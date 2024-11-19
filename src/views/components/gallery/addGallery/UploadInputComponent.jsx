@@ -3,10 +3,15 @@ import { ReactComponent as CloudFileUploadSvg } from '../../../../assets/svg/Set
 import Dropzone from 'react-dropzone';
 
 const UploadInputComponent = ({ onDropFunction }) => {
+	const acceptedFileTypes = {
+		'image/png': ['.png'],
+		'image/jpeg': ['.jpg', '.jpeg'],
+	};
+
 	return (
 		<Dropzone
 			onDrop={onDropFunction}
-			accept={'image/png, image/jpeg'}
+			accept={acceptedFileTypes}
 			multiple={true}
 			// disabled={!isAdmin}
 		>
@@ -29,6 +34,7 @@ const UploadInputComponent = ({ onDropFunction }) => {
 								height: '100%',
 								cursor: 'pointer',
 							}}
+							accept={['image/png', 'image/jpeg']}
 							{...getInputProps()}
 						/>
 						<div className="icon_name_div">

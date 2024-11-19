@@ -83,6 +83,10 @@ const actionHandlers = {
 		...state,
 		clientSelectionImages: action.payload,
 	}),
+	GET_GALLERY_SHARE_DETAILS: (state, action) => ({
+		...state,
+		galleryShareDetails: action.payload,
+	}),
 	RESET_IMAGES_LIST: (state) => ({ ...state, imagesList: null }),
 	RESET_STATE: () => ({ ...intialState }),
 };

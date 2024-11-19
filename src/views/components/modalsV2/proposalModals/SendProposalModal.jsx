@@ -21,6 +21,7 @@ import { Tooltip } from 'antd';
 import ToolTipContainer from '../../popover/ToolTipContainer';
 import jwtDecode from 'jwt-decode';
 import { getCurrentWorkspaceId } from '../../../../helpers';
+import AssignAssistantModal from './AssignAssistant';
 
 const initialState = {
 	subject: '',
@@ -46,6 +47,7 @@ const initialState = {
 	smartFileSettingsUpdate: false,
 	currentWorkspaceId: '',
 	toogleExpiryChnaged: false,
+	assignAssisstantModal: false,
 };
 
 const SendProposalModal = ({
@@ -473,6 +475,10 @@ const SendProposalModal = ({
 		info?.toogleExpiryChnaged,
 	]);
 
+	const closeAssignAssistantModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, assignAssisstantModal: false }));
+	}, [info?.assignAssisstantModal]);
+
 	return (
 		<ReactModal
 			isOpen={open}
@@ -747,6 +753,7 @@ const SendProposalModal = ({
 										...prev,
 										isAlChatEnabled: val,
 										smartFileSettingsUpdate: true,
+										assignAssisstantModal: val,
 									}))
 								}
 							/>
@@ -824,6 +831,11 @@ const SendProposalModal = ({
 					''
 				)}
 			</div>
+
+			<AssignAssistantModal
+				modalIsOpen={info?.assignAssisstantModal}
+				closeModal={closeAssignAssistantModal}
+			/>
 		</ReactModal>
 	);
 };

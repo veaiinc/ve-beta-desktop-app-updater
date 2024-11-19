@@ -52,7 +52,7 @@ const AlbumSettings = () => {
 		loading: false,
 		isEnabled: false,
 		coverPhoto: false,
-		lightroomList: false,
+		lightroomList: true,
 		crop: {
 			x: 0,
 			y: 0,
@@ -61,6 +61,7 @@ const AlbumSettings = () => {
 		uploadImageId: null,
 		imageURL: '',
 		coverImageDetails: null,
+		tenantAlbums: [],
 		// activeAlbum: activeAlbum,
 	});
 
@@ -93,6 +94,7 @@ const AlbumSettings = () => {
 				isPublished: activeAlbum?.isPublished,
 				isEnabled: activeAlbum?.guestAccess?.isEnabled,
 				coverImageDetails: activeAlbum?.coverImage,
+				activeAlbumSlug: activeAlbum?.slug,
 			}));
 		}
 	}, [tenantAlbums]);
@@ -153,7 +155,9 @@ const AlbumSettings = () => {
 		}
 	};
 	const handleGoBack = () => {
-		navigate(`/gallery-page/${galleryId}`);
+		navigate(`/galleries/${galleryId}`, {
+			state: { from: 'albumSettings', activeAlbumId: info?.activeAlbumId },
+		});
 	};
 
 	const handleHideAlbum = useCallback(() => {
@@ -217,7 +221,7 @@ const AlbumSettings = () => {
 
 	const handleCopyList = () => {
 		if (lightroomCopyList?.length) {
-			const textToCopy = lightroomCopyList.join(',');
+			const textToCopy = lightroomCopyList?.join(',');
 			navigator.clipboard
 				.writeText(textToCopy)
 				.then(() => {
@@ -326,16 +330,17 @@ const AlbumSettings = () => {
 		}
 	};
 
-	const handleSetCoverPosition = async () => {
+	const handleSetCoverPosition = async (focalPoint) => {
+		console.log(focalPoint, 'focalPoint');
 		const json = {
 			image_id: info?.uploadImageId || info?.coverImageDetails?._id,
-			xPosition: info?.crop?.x,
-			yPosition: info?.crop?.y,
+			xPosition: focalPoint?.x,
+			yPosition: focalPoint?.y,
 			givenFileName:
 				imageDetail?.activeVersion?.givenFileName || info?.coverImageDetails?.givenFileName,
 			width: 100,
 			height: 100,
-			zoom: info?.zoom,
+			zoom: 1,
 		};
 		const respone = await updateAlbumCoverImage(json, galleryId, info?.activeAlbumId);
 		if (respone?.[0] === true) {
@@ -382,13 +387,13 @@ const AlbumSettings = () => {
 								</p>
 							</div>
 						</div>
-						<div className="albumLink">
+						{/* <div className="albumLink">
 							<p className="title">Album link</p>
 							<div className="inputContainer">
 								<input placeholder="Wedding" />
 								<CopyLogo className="copy-logo" />
 							</div>
-						</div>
+						</div> */}
 						<div className="lockAlbum">
 							<p className="title">Lock Album</p>
 							<div className="lockOption">
@@ -402,7 +407,7 @@ const AlbumSettings = () => {
 						</div>
 					</div>
 
-					<div id="download-album" className="settings-container">
+					{/* <div id="download-album" className="settings-container">
 						<p className="title">Download Album</p>
 						<div className="save-settings">
 							<div style={{ padding: '4px' }}>
@@ -442,7 +447,7 @@ const AlbumSettings = () => {
 						<div className="download-button">
 							<p>Download</p>
 						</div>
-					</div>
+					</div> */}
 
 					<div id="lightroom-copy-list" className="settings-container">
 						<div className="lightroom-container">
@@ -464,12 +469,12 @@ const AlbumSettings = () => {
 								}
 							/>
 						</div>
-						{info?.lightroomList && (
+						{info?.lightroomList && lightroomCopyList?.length && (
 							<div className="lightroom-list-container">
 								{lightroomCopyList?.map((item, index) => (
 									<p key={index}>
 										<b>({index + 1}).</b> {item}
-										{index !== lightroomCopyList.length - 1 ? ',' : ''}
+										{index !== lightroomCopyList?.length - 1 ? ',' : ''}
 									</p>
 								))}
 							</div>
@@ -511,12 +516,12 @@ const AlbumSettings = () => {
 					>
 						Album overview
 					</li>
-					<li
+					{/* <li
 						onClick={() => scrollToSection('download-album')}
 						className={info.activeSetting === 'download-album' ? 'activeLink' : ''}
 					>
 						Download album
-					</li>
+					</li> */}
 					<li
 						onClick={() => scrollToSection('lightroom-copy-list')}
 						className={info.activeSetting === 'lightroom-copy-list' ? 'activeLink' : ''}

@@ -7,11 +7,11 @@
 	color: #e4e5e6;
 	width: 320px;
 	font-size: 12px;
-
 	border-radius: 24px;
 	border: 1px solid #272727;
 	background: #191919;
 	.eventDetailsContainer {
+
 		.headerWrapper {
 			display: flex;
 			width: 320px;
@@ -19,6 +19,16 @@
 			justify-content: space-between;
 			align-items: center;
 			border-bottom: 0.5px solid #272727;
+
+			.headerLabel {
+				color: #e4e5e6;
+				text-align: center;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
 		}
 		.agendaContainer {
 			padding: 8px 24px;
@@ -26,6 +36,16 @@
 			flex-direction: column;
 			gap: 6px;
 			border-bottom: 0.5px solid #272727;
+
+			.agendaLabel {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-transform: capitalize;
+			}
 		}
 		.detailsContainer {
 			padding: 15px 24px;
@@ -33,19 +53,95 @@
 			flex-direction: column;
 			gap: 6px;
 			border-bottom: 0.5px solid #272727;
+
 			.detailsWrapper {
 				display: flex;
+				align-items: center;
 				gap: 6px;
+				svg {
+					width: 14px;
+					height: 15px;
+				}
+
+				.detailsLabel {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					text-transform: capitalize;
+				}
 			}
 
-			.eventStartWrapper,
-			.eventEndWrapper {
+			.eventTimeWrapper {
 				display: grid;
 				grid-template-columns: 2fr 1fr;
 				gap: 6px;
 			}
 			.allDayWrapper {
-				padding: 8px 0;
+				padding-top: 8px;
+				display: flex;
+				justify-content: space-between;
+
+				.allDayLabel {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+
+				.toggleSwitch {
+					position: relative;
+					display: flex;
+					width: 32px;
+					height: 20px;
+					align-items: center;
+					border-radius: 100px;
+
+					.toggleSwitchCheckbox {
+						display: none; // Hides the actual checkbox
+					}
+
+					.toggleSwitchLabel {
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						cursor: pointer;
+						width: 100%;
+						height: 100%;
+						padding: 2px;
+						border-radius: 24px;
+						background: #373737;
+						transition: background-color 0.3s;
+
+						.toggleSwitchHandle {
+							position: absolute;
+							top: 50%;
+							left: 4px;
+							transform: translateY(-50%);
+							background: #fff;
+							border-radius: 50%;
+							box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+							transition: left 0.3s;
+							width: 16px;
+							height: 16px;
+							flex-shrink: 0;
+							border-radius: 100px;
+							background: var(--white-white, #fff);
+						}
+					}
+
+					.toggleSwitchCheckbox:checked + .toggleSwitchLabel {
+						background-color: #6055ec;
+
+						.toggleSwitchHandle {
+							left: calc(28px - 16px); // Handle moves to the right
+						}
+					}
+				}
 			}
 		}
 		.categoriesContainer {
@@ -54,12 +150,23 @@
 			display: flex;
 			flex-direction: column;
 			gap: 6px;
+
 			.categoriesWrapper {
 				display: flex;
 				gap: 6px;
+				.categoriesLabel {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					text-transform: capitalize;
+				}
 			}
 			.categoriesSelector {
 				position: relative;
+
 				.categoryDropDown {
 					position: absolute;
 					top: 44px;
@@ -69,6 +176,7 @@
 					align-items: flex-start;
 					border-radius: 10px;
 					background: #1d1d1d;
+
 					.categoryDropDownItem {
 						display: flex;
 						height: 48px;
@@ -77,6 +185,7 @@
 						align-items: center;
 						align-self: stretch;
 					}
+
 					.addCategory {
 						color: #6055ec;
 					}
@@ -104,6 +213,7 @@
 			display: flex;
 			flex-direction: column;
 			gap: 6px;
+
 			.attendeesHeader {
 				display: flex;
 				justify-content: space-between;
@@ -115,6 +225,17 @@
 				font-weight: 500;
 				line-height: normal;
 				text-transform: capitalize;
+
+				.attendiesLabel {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					text-transform: capitalize;
+				}
+
 				.attendeesCount {
 					display: flex;
 					min-width: 28px;
@@ -132,11 +253,13 @@
 				padding-top: 4px;
 				display: flex;
 				flex-direction: column;
-				gap: 6px;
+				gap: 8px;
+
 				.attendeesDetails {
 					display: flex;
 					align-items: center;
-					gap: 8px;
+					gap: 16px;
+
 					.avatar {
 						background: rgb(64, 65, 70);
 						width: 24px;
@@ -145,10 +268,12 @@
 						border-radius: 100px;
 						overflow: hidden;
 					}
+
 					.nameWrapper {
 						flex-grow: 1;
 						display: flex;
 						flex-direction: column;
+
 						.name {
 							overflow: hidden;
 							color: #e4e5e6;
@@ -159,6 +284,7 @@
 							font-weight: 500;
 							line-height: normal;
 						}
+
 						.role {
 							overflow: hidden;
 							color: rgba(228, 229, 230, 0.48);
@@ -186,7 +312,7 @@
 		color: #e4e5e6;
 	}
 
-	input {
+	input[type='text'] {
 		padding: 11px 14px;
 		align-items: center;
 		border-radius: 10px;
@@ -195,5 +321,6 @@
 		color: #e4e5e6;
 		width: 100%;
 		font-size: 12px;
+		flex-grow: 1;
 	}
 }

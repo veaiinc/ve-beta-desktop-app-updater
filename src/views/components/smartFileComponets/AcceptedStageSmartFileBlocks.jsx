@@ -88,7 +88,9 @@ const AcceptedStageSmartFileBlocks = ({
 		}
 	}, [propsalData]);
 
-	return workflowStatus !== 'enquiry' && workflowStatus !== 'filesSent' ? (
+	return workflowStatus !== 'enquiry' &&
+		workflowStatus !== 'filesSent' &&
+		workflowStatus !== 'filesViewed' ? (
 		<div className="acceptedSmartFileBlocks">
 			<div className="acceptedSmartFileBlocksRowContainer">
 				<div className="acceptedBlocks">

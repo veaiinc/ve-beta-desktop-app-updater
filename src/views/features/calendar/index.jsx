@@ -25,7 +25,7 @@ const Calendar = () => {
 		selectedWeek: [],
 		activeView: 'Month', // 'Week', 'Day'
 		loading: false,
-		isCreateEventOpen: true,
+		isCreateEventOpen: false,
 	});
 
 	// console.log('Type of selectedDate: ' + info?.selectedDate);

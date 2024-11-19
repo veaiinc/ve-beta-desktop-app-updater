@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ReactComponent as LaptopLogo } from '../../../../assets/svg/gallery/laptop.svg';
 import mobile from '../../../../assets/svg/gallery/mobile.png';
 import Cropper from 'react-easy-crop';
+import { FocusedImage, FocusPicker } from 'image-focus';
+import '../../../../assets/scss/gallery/albumSettings.scss';
 
 const UploadGalleryImageCover = ({
 	info,
@@ -9,7 +11,35 @@ const UploadGalleryImageCover = ({
 	fileInputRef,
 	uploadGalleryCoverChangeHandler,
 	handleSetCoverPosition,
+	message,
 }) => {
+	const [focusInfo, setFocusInfo] = useState({
+		focalPoint: { x: 0, y: 0 },
+	});
+	useEffect(() => {
+		setCoverPosition();
+	}, [info]);
+	useEffect(() => {
+		setFocusInfo({
+			focalPoint: { x: info?.crop?.x, y: info?.crop?.y },
+		});
+	}, [info?.crop]);
+
+	const setCoverPosition = () => {
+		const imgEl = document.querySelector('.focused-image');
+		if (imgEl) {
+			const focusedImage = new FocusedImage(imgEl);
+			const focusPickerEl = document.querySelector('.focus-picker-img');
+			const focusPicker = new FocusPicker(focusPickerEl, {
+				onChange: (focus) => {
+					focusedImage.setFocus(focus);
+					setFocusInfo({
+						focalPoint: focus,
+					});
+				},
+			});
+		}
+	};
 	return (
 		<div div id="upload-gallery-cover" className="settings-overview">
 			<p className="title">Gallery Cover</p>
@@ -18,13 +48,16 @@ const UploadGalleryImageCover = ({
 					<div className="album-preview">
 						<div className="laptop-preview">
 							<div className="screen">
+								{console.log(focusInfo, 'focusInfoinsideDIv')}
 								<div
 									style={{
 										width: '100%',
 										height: '100%',
 										backgroundImage: `url(${info?.imageURL})`,
-										backgroundPosition: info?.crop?.x
-											? `${info?.crop?.x}% ${info?.crop?.y}%`
+										backgroundPosition: focusInfo?.focalPoint?.x
+											? `${focusInfo?.focalPoint?.x * 50 + 50}% ${
+													50 - focusInfo?.focalPoint?.y * 50
+											  }%`
 											: 'center',
 										backgroundSize: 'cover',
 										backgroundRepeat: 'no-repeat',
@@ -38,8 +71,10 @@ const UploadGalleryImageCover = ({
 								className="mobile-preview-container"
 								style={{
 									backgroundImage: `url(${info?.imageURL})`,
-									backgroundPosition: info?.crop?.x
-										? `${info?.crop?.x}% ${info?.crop?.y}%`
+									backgroundPosition: focusInfo?.focalPoint?.x
+										? `${focusInfo?.focalPoint?.x * 50 + 50}% ${
+												50 - focusInfo?.focalPoint?.y * 50
+										  }%`
 										: 'center',
 									backgroundSize: 'cover',
 									backgroundRepeat: 'no-repeat',
@@ -50,8 +85,11 @@ const UploadGalleryImageCover = ({
 							<img src={mobile} alt="mobile" className="mobile-logo" />
 						</div>
 					</div>
-					<div className="album-cover-image">
-						<Cropper
+					<div
+						className="album-cover-image"
+						style={{ display: 'flex', alignItems: 'center' }}
+					>
+						{/* <Cropper
 							image={info?.imageURL}
 							crop={info?.crop}
 							zoom={info?.zoom}
@@ -74,7 +112,15 @@ const UploadGalleryImageCover = ({
 							}
 							showGrid={false}
 							cropSize={{ width: 233.8432, height: 402.667 }}
-						/>
+						/> */}
+						<div className="focused-image">
+							<img
+								className="focus-picker-img"
+								src={info?.imageURL}
+								alt="cover"
+								style={{ width: '100%', objectFit: 'cover' }}
+							/>
+						</div>
 					</div>
 				</div>
 			)}
@@ -82,7 +128,13 @@ const UploadGalleryImageCover = ({
 				<p
 					className="bt"
 					onClick={() => {
-						fileInputRef.current.click();
+						if (!info?.activeAlbumId) {
+							message.destroy();
+							message.error('Please create a album first');
+							return;
+						} else {
+							fileInputRef.current.click();
+						}
 					}}
 				>
 					Upload cover photo
@@ -92,13 +144,14 @@ const UploadGalleryImageCover = ({
 					ref={fileInputRef}
 					type="file"
 					onChange={uploadGalleryCoverChangeHandler}
+					accept={['image/png', 'image/jpeg']}
 					hidden
 					style={{ width: 0, visibility: 'hidden' }}
 					// style={{ visibility: 'hidden' }}
 				/>
 
 				{info?.coverPhoto && (
-					<p className="bt" onClick={handleSetCoverPosition}>
+					<p className="bt" onClick={() => handleSetCoverPosition(focusInfo?.focalPoint)}>
 						Set cover position
 					</p>
 				)}

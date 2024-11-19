@@ -12,6 +12,7 @@
 		"axios": "^1.7.2",
 		"date-fns": "^4.1.0",
 		"gsap": "^3.12.5",
+		"image-focus": "^1.2.1",
 		"jodit-react": "^4.1.2",
 		"js-cookie": "^3.0.5",
 		"jwt-decode": "^3.1.2",
