@@ -7,7 +7,7 @@ import square from '../../../assets/svg/Settings/square.svg';
 import '../../../assets/scss/settings/integrations.scss';
 import Context from '../../../context/context';
 import ReusableButtonSettings from '../../components/settings/ReusableButtonSettings';
-import { ve_conversations_api } from '../../../services/config';
+import { ve_conversations_api } from '../../../services/config.live';
 import axios from 'axios';
 
 const Configs = [
