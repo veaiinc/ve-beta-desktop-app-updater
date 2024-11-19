@@ -8,6 +8,8 @@ const CalendarView = ({
 	selectedWeek,
 	selectedDate,
 	getCurrentWeek,
+	selectedMonth,
+	selectedYear,
 	updateCalendarInfo,
 }) => {
 	return (
@@ -19,7 +21,12 @@ const CalendarView = ({
 				getCurrentWeek={getCurrentWeek}
 				updateCalendarInfo={updateCalendarInfo}
 			/>
-			<CalendarViewType activeView={activeView} updateCalendarInfo={updateCalendarInfo} />
+			<CalendarViewType
+				activeView={activeView}
+				selectedMonth={selectedMonth}
+				selectedYear={selectedYear}
+				updateCalendarInfo={updateCalendarInfo}
+			/>
 		</div>
 	);
 };

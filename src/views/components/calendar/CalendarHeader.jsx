@@ -32,7 +32,14 @@ const CalendarHeader = ({
 				<div className="calendarHeaderContainer">
 					<div className="calendarControls">
 						<div className="calendarDate">
-							{moment(selectedDate).format('MMMM YYYY') || 'CALENDAR'}
+							{activeView && selectedDate
+								? activeView === 'Month'
+									? moment(selectedDate).format('MMMM YYYY')
+									: activeView === 'Week'
+									? moment(selectedDate).format('MMMM') +
+									  ` ${selectedWeek[0]} - ${selectedWeek.at(-1)}`
+									: moment(selectedDate).format('dddd MMM DD')
+								: 'CALENDAR'}
 						</div>
 						<div className="viewToggleWrapper">
 							<div className="viewToggle">
