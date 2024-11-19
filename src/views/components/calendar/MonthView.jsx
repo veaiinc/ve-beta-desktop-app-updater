@@ -11,12 +11,12 @@ const events = [
 	{ date: 30, type: 'wedding', label: 'Wedding +2' },
 ];
 
-const MonthView = ({ month = 6, year = 2024 }) => {
+const MonthView = ({ selectedMonth = 10, selectedYear = 2024 }) => {
 	const [days, setDays] = useState([]);
 
 	useEffect(() => {
-		const daysInMonth = new Date(year, month + 1, 0).getDate(); // Number of days in the month
-		let firstDayOfMonth = new Date(year, month, 1).getDay(); // Day of the week the month starts on
+		const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate(); // Number of days in the month
+		let firstDayOfMonth = new Date(selectedYear, selectedMonth, 1).getDay(); // Day of the week the month starts on
 
 		// Adjust firstDayOfMonth to treat Monday as the first day
 		firstDayOfMonth = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
@@ -45,7 +45,7 @@ const MonthView = ({ month = 6, year = 2024 }) => {
 		}
 
 		setDays(generatedDays);
-	}, [month, year]);
+	}, [selectedMonth, selectedYear]);
 
 	return (
 		<div className="calendar-grid">

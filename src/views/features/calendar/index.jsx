@@ -7,7 +7,7 @@ import moment from 'moment';
 
 const Calendar = () => {
 	const [info, setInfo] = useState({
-		todaysDate: new Date(),
+		// todaysDate: new Date(),
 		currentCalendarDate: new Date(),
 		selectedMonth: new Date().getMonth(),
 		selectedYear: new Date().getFullYear(),
@@ -17,8 +17,6 @@ const Calendar = () => {
 		loading: false,
 		isCreateEventOpen: false,
 	});
-
-	// console.log('Type of selectedDate: ' + info?.selectedDate);
 
 	const updateCalendarInfo = useCallback((key, value) => {
 		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
@@ -45,8 +43,9 @@ const Calendar = () => {
 
 	useEffect(() => {
 		getCurrentWeek();
-	}, [getCurrentWeek, info.selectedDate]);
-	// console.log(`and selectedWeek: ${info?.selectedWeek}`);
+		updateCalendarInfo('selectedMonth', info?.selectedDate.getMonth());
+		updateCalendarInfo('selectedYear', info?.selectedDate.getFullYear());
+	}, [info.selectedDate]);
 
 	return (
 		<>
@@ -66,6 +65,8 @@ const Calendar = () => {
 						activeView={info?.activeView}
 						selectedWeek={info?.selectedWeek}
 						selectedDate={info?.selectedDate}
+						selectedMonth={info?.selectedMonth}
+						selectedYear={info?.selectedYear}
 						getCurrentWeek={getCurrentWeek}
 						updateCalendarInfo={updateCalendarInfo}
 					/>
