@@ -21,6 +21,7 @@
 		"randomatic": "^3.1.1",
 		"react": "^18.3.1",
 		"react-beautiful-dnd": "^13.1.1",
+		"react-big-calendar": "^1.15.0",
 		"react-color": "^2.19.3",
 		"react-color-palette": "^7.3.0",
 		"react-datepicker": "^7.2.0",
