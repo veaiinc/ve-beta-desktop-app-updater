@@ -2,7 +2,6 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 import service from '../../services';
 import Cookies from 'js-cookie';
-import { message } from 'antd';
 const { auth_Api: authBaseUrl } = require('../../services/config');
 
 export const AuthState = () => {
