@@ -26,8 +26,6 @@ const EarlyAccess = () => {
 	useEffect(() => {
 		if (!usertoken) {
 			navigate('/');
-		} else if (localStorage.getItem('isOnboard') === 'true') {
-			navigate('/home');
 		} else {
 			getUserWorkSpaceList();
 		}
@@ -47,10 +45,12 @@ const EarlyAccess = () => {
 
 		if (currentWorkspaceData) {
 			isOnboard = currentWorkspaceData[0]?.isOnboard;
-		}
-		if (isOnboard && usertoken) {
 			localStorage.setItem('isOnboard', JSON.stringify(isOnboard));
-			navigate('/home');
+			if (isOnboard) {
+				navigate('/home');
+			} else {
+				navigate('/onboarding');
+			}
 		}
 		setInfo({ loading: false });
 	}, [userWorkSpaceList]);

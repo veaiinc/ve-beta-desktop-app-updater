@@ -169,19 +169,24 @@ export const AuthState = () => {
 					});
 				}
 
-				if (!hasWorkspaces) {
+				if (!accessibleWorkspaces?.length) {
 					return [
 						true,
 						{
 							hasWorkspaces: false,
+							isOnboard: false,
 						},
 					];
 				}
 
 				const { isOnboard, workspaceId } = accessibleWorkspaces?.[0];
-				localStorage.setItem('isOnboard', isOnboard);
-				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
-				localStorage.setItem('workspaceId', workspaceId);
+				if (isOnboard) localStorage.setItem('isOnboard', isOnboard);
+				if (accessibleWorkspaces?.length)
+					localStorage.setItem(
+						'accessibleWorkspaces',
+						JSON.stringify(accessibleWorkspaces),
+					);
+				if (workspaceId) localStorage.setItem('workspaceId', workspaceId);
 				Cookies.set('workspaceID', workspaceId, {
 					sameSite: 'lax',
 					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
@@ -192,6 +197,7 @@ export const AuthState = () => {
 					{
 						hasWorkspaces,
 						isOnboard,
+						workspaceId,
 					},
 				];
 			} else {
@@ -227,7 +233,7 @@ export const AuthState = () => {
 					return [
 						true,
 						{
-							isOnboard: false,
+							isOnboard: response?.[1]?.[0]?.isOnboard,
 							tokenValid: true,
 						},
 					];
