@@ -8,7 +8,6 @@ const WeekDayHeader = ({ activeView, selectedWeek, selectedDate, getCurrentWeek 
 	});
 
 	const handleSelectedDay = useCallback((day) => {
-		// console.log('Calling UseCallBack for selected');
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			selectedWeekday: day,
@@ -33,7 +32,7 @@ const WeekDayHeader = ({ activeView, selectedWeek, selectedDate, getCurrentWeek 
 			{days?.map((day, index) => (
 				<div
 					key={index}
-					className={`weekDayBlock ${info?.selectedWeekday === index ? 'active' : ''}`}
+					className={`weekDayBlock ${new Date().getDate() === day?.date ? 'active' : ''}`}
 					onClick={() => handleSelectedDay(index)}
 				>
 					<div className="weekDayWrapper">
