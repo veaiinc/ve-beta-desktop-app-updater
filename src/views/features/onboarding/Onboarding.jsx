@@ -128,6 +128,7 @@ const Onboarding = () => {
 					'isOnboard',
 					JSON.stringify(workspaceResponse?.[1]?.isOnboard),
 				);
+				localStorage.setItem('workspaceId', workspaceResponse?.[1]?.workspaceId);
 				if (!createWorkspaceUsername) {
 					window.location.reload();
 				}

@@ -324,13 +324,14 @@ export const AuthState = () => {
 					true,
 					{
 						isOnboard: response?.[1]?.isOnboard,
+						workspaceId: response?.[1]?.workspaceId,
 					},
 				];
 			} else {
 				return [
 					false,
 					{
-						message: response?.[1]?.message?.trim() + '. Please try again!',
+						message: 'An unexpected error occurred. Please try again!',
 					},
 				];
 			}
