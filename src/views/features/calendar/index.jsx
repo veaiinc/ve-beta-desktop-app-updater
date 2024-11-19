@@ -20,25 +20,9 @@ const Calendar = () => {
 
 	// console.log('Type of selectedDate: ' + info?.selectedDate);
 
-	const handleToggleView = useCallback((view) => {
-		setInfo((prevInfo) => ({ ...prevInfo, activeView: view }));
+	const updateCalendarInfo = useCallback((key, value) => {
+		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
 	}, []);
-
-	const handleMonthChange = (month) => {
-		setInfo((prevInfo) => ({ ...prevInfo, selectedMonth: month }));
-	};
-
-	const handleYearChange = (year) => {
-		setInfo((prevInfo) => ({ ...prevInfo, selectedYear: year }));
-	};
-
-	const handlecurrentCalendarDateChange = (date) => {
-		setInfo((prevInfo) => ({ ...prevInfo, currentCalendarDate: date }));
-	};
-
-	const handelSelectedDate = (date) => {
-		setInfo((prevInfo) => ({ ...prevInfo, selectedDate: date }));
-	};
 
 	// Get Week Days array for <WeekDayHeader /> component
 	const getCurrentWeek = useCallback(() => {
@@ -59,13 +43,6 @@ const Calendar = () => {
 		}));
 	}, [info?.selectedDate]);
 
-	const toggleCreateEvent = useCallback(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			isCreateEventOpen: !prevInfo.isCreateEventOpen,
-		}));
-	}, []);
-
 	useEffect(() => {
 		getCurrentWeek();
 	}, [getCurrentWeek, info.selectedDate]);
@@ -82,20 +59,15 @@ const Calendar = () => {
 						selectedMonth={info?.selectedMonth}
 						selectedYear={info?.selectedYear}
 						selectedDate={info?.selectedDate}
-						handlecurrentCalendarDateChange={handlecurrentCalendarDateChange}
-						handleMonthChange={handleMonthChange}
-						handleYearChange={handleYearChange}
-						handelSelectedDate={handelSelectedDate}
 						isCreateEventOpen={info?.isCreateEventOpen}
-						toggleCreateEvent={toggleCreateEvent}
+						updateCalendarInfo={updateCalendarInfo}
 					/>
 					<CalendarView
 						activeView={info?.activeView}
 						selectedWeek={info?.selectedWeek}
 						selectedDate={info?.selectedDate}
 						getCurrentWeek={getCurrentWeek}
-						handleToggleView={handleToggleView}
-						toggleCreateEvent={toggleCreateEvent}
+						updateCalendarInfo={updateCalendarInfo}
 					/>
 				</div>
 			)}

@@ -7,9 +7,9 @@ const events = [
 	{ title: 'Payment 3 Shilpa Ram', time: '1,00,000 Rs', top: 0, height: 30, left: 160 },
 	{ title: 'Reception', time: '9:00 - 1:00', top: 90, height: 120, left: 240 },
 ];
-const WeekView = ({ toggleCreateEvent }) => {
+const WeekView = ({ updateCalendarInfo }) => {
 	return (
-		<div className="schedule" onClick={toggleCreateEvent}>
+		<div className="schedule" onClick={() => updateCalendarInfo('isCreateEventOpen', true)}>
 			<div className="time-header">
 				<span>GMT +05:30</span>
 			</div>

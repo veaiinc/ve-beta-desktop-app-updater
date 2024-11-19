@@ -6,14 +6,11 @@ import { ReactComponent as RightSvg } from '../../../assets/svg/activity/right.s
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 
 const CalendarSelector = ({
-	handlecurrentCalendarDateChange,
 	currentCalendarDate,
 	selectedMonth,
 	selectedYear,
 	selectedDate,
-	handleMonthChange,
-	handleYearChange,
-	handelSelectedDate,
+	updateCalendarInfo,
 }) => {
 	// Memoized calendar information
 	const calendarInfo = useMemo(() => {
@@ -44,7 +41,8 @@ const CalendarSelector = ({
 
 	// Sync calendar date on month or year change
 	useEffect(() => {
-		handlecurrentCalendarDateChange(
+		updateCalendarInfo(
+			'currentCalendarDate',
 			moment({ year: selectedYear, month: selectedMonth }).toDate(),
 		);
 	}, [selectedMonth, selectedYear]);
@@ -67,14 +65,14 @@ const CalendarSelector = ({
 	const goToPreviousMonth = () => {
 		const previousMonth = moment(currentCalendarDate)?.subtract(1, 'month');
 		if (previousMonth?.year() >= calendarInfo?.minYear) {
-			handlecurrentCalendarDateChange(previousMonth?.toDate());
+			updateCalendarInfo('currentCalendarDate', previousMonth?.toDate());
 		}
 	};
 
 	const goToNextMonth = () => {
 		const nextMonth = moment(currentCalendarDate)?.add(1, 'month');
 		if (nextMonth?.year() <= calendarInfo?.maxYear) {
-			handlecurrentCalendarDateChange(nextMonth?.toDate());
+			updateCalendarInfo('currentCalendarDate', nextMonth?.toDate());
 		}
 	};
 
@@ -106,7 +104,7 @@ const CalendarSelector = ({
 										className={`monthName ${
 											index === selectedMonth ? 'selectedMonth' : ''
 										}`}
-										onClick={() => handleMonthChange(index)}
+										onClick={() => updateCalendarInfo('selectedMonth', index)}
 									>
 										{month}
 									</div>
@@ -127,7 +125,7 @@ const CalendarSelector = ({
 										className={`yearList ${
 											year === selectedYear ? 'selectedYear' : ''
 										}`}
-										onClick={() => handleYearChange(year)}
+										onClick={() => updateCalendarInfo('selectedYear', year)}
 									>
 										{year}
 									</div>
@@ -181,7 +179,9 @@ const CalendarSelector = ({
 										} ${isSelected ? 'selectedDay' : ''} ${
 											isCurrent ? 'currentDay' : ''
 										}`}
-										onClick={() => handelSelectedDate(date?.toDate())}
+										onClick={() =>
+											updateCalendarInfo('selectedDate', date?.toDate())
+										}
 									>
 										{date?.date()}
 									</div>

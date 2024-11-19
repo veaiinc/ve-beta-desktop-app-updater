@@ -9,8 +9,8 @@ const CalendarHeader = ({
 	activeView,
 	selectedWeek,
 	selectedDate,
-	handleToggleView,
 	getCurrentWeek,
+	updateCalendarInfo,
 }) => {
 	// Initialize local state
 	const [info, setInfo] = useState({ selectedDate: null });
@@ -65,7 +65,7 @@ const CalendarHeader = ({
 										className={`toggleButton ${
 											activeView === view ? 'active' : ''
 										}`}
-										onClick={() => handleToggleView(view)}
+										onClick={() => updateCalendarInfo('activeView', view)}
 									>
 										{view}
 									</span>

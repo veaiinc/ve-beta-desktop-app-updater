@@ -6,7 +6,7 @@ import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg
 import { ReactComponent as Clock } from '../../../assets/svg/activity/duration.svg';
 import { ReactComponent as Category } from '../../../assets/svg/calendar/category.svg';
 
-const CreateEvent = ({ toggleCreateEvent }) => {
+const CreateEvent = ({ updateCalendarInfo }) => {
 	const [info, setInfo] = useState({
 		showCategory: false,
 		isAllDayEvent: false,
@@ -23,7 +23,10 @@ const CreateEvent = ({ toggleCreateEvent }) => {
 			<div className="eventDetailsContainer">
 				<div className="headerWrapper">
 					<span className="headerLabel">Create an event</span>
-					<CloseSvg onClick={toggleCreateEvent} style={{ cursor: 'pointer' }} />
+					<CloseSvg
+						onClick={() => updateCalendarInfo('isCreateEventOpen', false)}
+						style={{ cursor: 'pointer' }}
+					/>
 				</div>
 				<div className="agendaContainer">
 					<span className="agendaLabel">Agenda</span>
