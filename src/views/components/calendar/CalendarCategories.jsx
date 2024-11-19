@@ -3,6 +3,7 @@ import '../../../assets/scss/calendar/calendarCategories.scss';
 import { ReactComponent as PlusSvg } from '../../../assets/svg/calendar/plus.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import { ReactComponent as UpSvg } from '../../../assets/svg/calendar/up.svg';
+import { ReactComponent as PencilSvg } from '../../../assets/svg/calendar/pencil.svg';
 import AddCategoryModal from './AddCategoryModal';
 
 const CalendarCategories = () => {
@@ -11,6 +12,23 @@ const CalendarCategories = () => {
 		height: '62px',
 		isCategoryModalOpen: false,
 		isCategoryEditable: false,
+		colorsArray: [
+			'#CF824B',
+			'#89AC4F',
+			'#4F9BAC',
+			'#7E78C9',
+			'#C378C9',
+			'#5E8BE2',
+			'#CF4B92',
+			'#7A7A7A',
+			'#B08D8D',
+			'#D76262',
+		],
+		categoryLabelData: {
+			name: '',
+			type: '',
+			color: '',
+		},
 	});
 	const expandRef = useRef(null);
 
@@ -38,12 +56,36 @@ const CalendarCategories = () => {
 		}));
 	}, []);
 
-	const handleCategoryModalClose = useCallback(() => {
-		setInfo((previnfo) => ({ ...previnfo, isCategoryModalOpen: false }));
+	const handleCategoryModalToggle = useCallback((value) => {
+		if (value === true) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				categoryLabelData: { name: '', type: '', color: '' },
+			}));
+		}
+		setInfo((prevInfo) => ({ ...prevInfo, isCategoryModalOpen: value }));
 	}, []);
 
-	const handleCategoryModalOpen = useCallback(() => {
-		setInfo((previnfo) => ({ ...previnfo, isCategoryModalOpen: true }));
+	const handleAddCategoryClick = useCallback(() => {
+		setInfo((prevInfo) => ({ ...prevInfo, isCategoryEditable: false }));
+		handleCategoryModalToggle(true);
+	}, []);
+
+	const handleCategoryEditClick = useCallback(() => {
+		setInfo((prevInfo) => ({ ...prevInfo, isCategoryEditable: true }));
+		handleCategoryModalToggle(true);
+	}, []);
+
+	const handelCategoryLabelDataChange = useCallback((propertyName, value) => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			categoryLabelData: { ...prevInfo.categoryLabelData, [propertyName]: value },
+		}));
+	}, []);
+
+	const handleModalActionClick = useCallback(() => {
+		// this function will run when the modal action button is pressed
+		handleCategoryModalToggle(false);
 	}, []);
 
 	return (
@@ -57,7 +99,7 @@ const CalendarCategories = () => {
 			<div className="categoriesHeadWrapper">
 				<div className="headerContainer">
 					<span className="headLabel">Categories</span>
-					<span className="headicon" onClick={handleCategoryModalOpen}>
+					<span className="headicon" onClick={handleAddCategoryClick}>
 						<PlusSvg />
 					</span>
 				</div>
@@ -72,9 +114,12 @@ const CalendarCategories = () => {
 					<div className="categoryTypeContainer">
 						<div className="typeWrapper">
 							<input type="checkbox" className="checkBox" id="meeting-checkbox" />
-							<label for="meeting-checkbox" className="typeLabel">
+							<label htmlFor="meeting-checkbox" className="typeLabel">
 								Meeting
 							</label>
+							<button className="editButton" onClick={handleCategoryEditClick}>
+								<PencilSvg />
+							</button>
 						</div>
 						<div className="statusWrapper" data-type="meeting">
 							<div className="statusCount">
@@ -88,9 +133,12 @@ const CalendarCategories = () => {
 					<div className="categoryTypeContainer">
 						<div className="typeWrapper">
 							<input type="checkbox" className="checkBox" id="task-checkbox" />
-							<label for="task-checkbox" className="typeLabel">
+							<label htmlFor="task-checkbox" className="typeLabel">
 								Task
 							</label>
+							<button className="editButton" onClick={handleCategoryEditClick}>
+								<PencilSvg />
+							</button>
 						</div>
 						<div className="statusWrapper" data-type="task">
 							<div className="statusCount">
@@ -104,9 +152,12 @@ const CalendarCategories = () => {
 					<div className="categoryTypeContainer">
 						<div className="typeWrapper">
 							<input type="checkbox" className="checkBox" id="payment-checkbox" />
-							<label for="payment-checkbox" className="typeLabel">
+							<label htmlFor="payment-checkbox" className="typeLabel">
 								Payments
 							</label>
+							<button className="editButton" onClick={handleCategoryEditClick}>
+								<PencilSvg />
+							</button>
 						</div>
 						<div className="statusWrapper" data-type="payments">
 							<div className="statusCount">
@@ -124,9 +175,12 @@ const CalendarCategories = () => {
 								className="checkBox"
 								id="appointments-checkbox"
 							/>
-							<label for="appointments-checkbox" className="typeLabel">
+							<label htmlFor="appointments-checkbox" className="typeLabel">
 								Appointments
 							</label>
+							<button className="editButton" onClick={handleCategoryEditClick}>
+								<PencilSvg />
+							</button>
 						</div>
 						<div className="statusWrapper" data-type="appointments">
 							<div className="statusCount">
@@ -143,8 +197,14 @@ const CalendarCategories = () => {
 			)}
 			{info?.isCategoryModalOpen ? (
 				<AddCategoryModal
-					handleCategoryModalClose={handleCategoryModalClose}
+					handleCategoryModalToggle={handleCategoryModalToggle}
 					isCategoryEditable={info?.isCategoryEditable}
+					name={info?.categoryLabelData?.name}
+					type={info?.categoryLabelData?.type}
+					color={info?.categoryLabelData?.color}
+					colorsArray={info?.colorsArray}
+					handelCategoryLabelDataChange={handelCategoryLabelDataChange}
+					handleModalActionClick={handleModalActionClick}
 				/>
 			) : (
 				''

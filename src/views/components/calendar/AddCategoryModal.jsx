@@ -1,31 +1,21 @@
+import React, { memo, useCallback, useRef } from 'react';
 import '../../../assets/scss/calendar/addCategoryModal.scss';
-import React, { memo, useCallback, useRef, useState } from 'react';
 
-const AddCategoryModal = ({ handleCategoryModalClose, isCategoryEditable }) => {
-	const [info, setInfo] = useState({
-		colors: [
-			'#CF824B',
-			'#89AC4F',
-			'#4F9BAC',
-			'#7E78C9',
-			'#C378C9',
-			'#5E8BE2',
-			'#CF4B92',
-			'#7A7A7A',
-			'#B08D8D',
-			'#D76262',
-		],
-		selectedColor: null,
-	});
+const AddCategoryModal = ({
+	handleCategoryModalToggle,
+	isCategoryEditable,
+	name,
+	type,
+	color,
+	colorsArray,
+	handelCategoryLabelDataChange,
+	handleModalActionClick,
+}) => {
 	const modalRef = useRef(null);
-
-	const handleSelectedColorChange = useCallback((colorCode) => {
-		setInfo((previnfo) => ({ ...previnfo, selectedColor: colorCode }));
-	}, []);
 
 	const handleOutSideClick = useCallback((e) => {
 		if (modalRef.current && !modalRef.current.contains(e.target)) {
-			handleCategoryModalClose();
+			handleCategoryModalToggle(false);
 		}
 	}, []);
 
@@ -49,11 +39,25 @@ const AddCategoryModal = ({ handleCategoryModalClose, isCategoryEditable }) => {
 						<div className="inputContainer">
 							<div className="inputWrapper">
 								<label htmlFor="">Name</label>
-								<input type="text" placeholder="Meeting" />
+								<input
+									type="text"
+									placeholder="Meeting"
+									value={name}
+									onChange={(e) =>
+										handelCategoryLabelDataChange('name', e.target.value)
+									}
+								/>
 							</div>
 							<div className="inputWrapper">
 								<label htmlFor="">Type</label>
-								<input type="text" placeholder="Google meet" />
+								<input
+									type="text"
+									placeholder="Google meet"
+									value={type}
+									onChange={(e) =>
+										handelCategoryLabelDataChange('type', e.target.value)
+									}
+								/>
 							</div>
 						</div>
 						<div className="colorPickerContainer">
@@ -65,8 +69,8 @@ const AddCategoryModal = ({ handleCategoryModalClose, isCategoryEditable }) => {
 								</p>
 							</div>
 							<div className="colorPicker">
-								{info?.colors
-									? info.colors.map((colorCode) => (
+								{colorsArray
+									? colorsArray.map((colorCode) => (
 											<label
 												htmlFor={colorCode}
 												className="colorCircle"
@@ -78,8 +82,12 @@ const AddCategoryModal = ({ handleCategoryModalClose, isCategoryEditable }) => {
 													name="color"
 													value={colorCode}
 													id={colorCode}
+													checked={colorCode == color}
 													onChange={(e) =>
-														handleSelectedColorChange(e.target.value)
+														handelCategoryLabelDataChange(
+															'color',
+															e.target.value,
+														)
 													}
 												/>
 												<div className="innerCircle"></div>
@@ -89,8 +97,12 @@ const AddCategoryModal = ({ handleCategoryModalClose, isCategoryEditable }) => {
 							</div>
 						</div>
 						<div className="actionsContainer">
-							<button onClick={handleCategoryModalClose}>Go back</button>
-							<button className="primaryButton">Add</button>
+							<button onClick={() => handleCategoryModalToggle(false)}>
+								Go back
+							</button>
+							<button className="primaryButton" onClick={handleModalActionClick}>
+								{isCategoryEditable ? 'Change' : 'Add'}
+							</button>
 						</div>
 					</div>
 				</div>

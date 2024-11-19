@@ -6,6 +6,11 @@ import moment from 'moment';
 
 const events = [
 	{
+		title: 'Long Event',
+		start: new Date(2024, 10, 15),
+		end: new Date(2024, 10, 17),
+	},
+	{
 		start: moment('2015-04-11').toDate(),
 		end: moment('2015-04-13').toDate(),
 		title: 'Conference',
@@ -49,13 +54,15 @@ const events = [
 	},
 ];
 
-const WeekView = ({ toggleCreateEvent }) => {
-	// const components = useMemo(
-	// 	() => ({
-	// 		toolbar: CalendarHeader,
-	// 	}),
-	// 	[],
-	// );
+const WeekView = ({ updateCalendarInfo }) => {
+	const components = useMemo(
+		() => ({
+			// toolbar: CalendarHeader,
+			timeGutterHeader: 'Hello',
+		}),
+		[],
+	);
+
 	return (
 		<div className="scheduler">
 			<CalendarWrapper
@@ -63,10 +70,14 @@ const WeekView = ({ toggleCreateEvent }) => {
 				// view={'month'} //if pased defaultview will not work
 				defaultView={'week'} //use active view state here to display views of calendar
 				views={['month', 'week', 'day']}
-				// date={moment('2024-12-05').toDate()} //for syncing with calendarSelector current date
 				toolbar={false} //to hide inbuilt calendar header controls
-				// components={components}
 				className="custom"
+				selectable
+				onSelectSlot={() => updateCalendarInfo('isCreateEventOpen', true)}
+				onSelectEvent={(event) => alert(event.title)}
+				// date={moment('2024-12-05').toDate()} //for syncing with calendarSelector current date
+				// popup //for monthview show +extra events
+				components={components}
 			/>
 		</div>
 	);

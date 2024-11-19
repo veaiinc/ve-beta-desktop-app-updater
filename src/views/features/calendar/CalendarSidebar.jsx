@@ -12,12 +12,8 @@ const CalendarSidebar = ({
 	selectedMonth,
 	selectedYear,
 	selectedDate,
-	handlecurrentCalendarDateChange,
-	handleMonthChange,
-	handleYearChange,
-	handelSelectedDate,
 	isCreateEventOpen,
-	toggleCreateEvent,
+	updateCalendarInfo,
 }) => {
 	const [info, setInfo] = useState({
 		askAi: false,
@@ -34,7 +30,7 @@ const CalendarSidebar = ({
 			{info?.askAi ? (
 				<CalendarAiChat toggleAskAi={toggleAskAi} />
 			) : isCreateEventOpen ? (
-				<CreateEvent toggleCreateEvent={toggleCreateEvent} />
+				<CreateEvent updateCalendarInfo={updateCalendarInfo} />
 			) : (
 				<div className="calendarSidebarContainer">
 					<CalendarSelector
@@ -42,10 +38,7 @@ const CalendarSidebar = ({
 						selectedMonth={selectedMonth}
 						selectedYear={selectedYear}
 						selectedDate={selectedDate}
-						handlecurrentCalendarDateChange={handlecurrentCalendarDateChange}
-						handleMonthChange={handleMonthChange}
-						handleYearChange={handleYearChange}
-						handelSelectedDate={handelSelectedDate}
+						updateCalendarInfo={updateCalendarInfo}
 					/>
 					<AskAI toggleAskAi={toggleAskAi} />
 					<CalendarCategories />
