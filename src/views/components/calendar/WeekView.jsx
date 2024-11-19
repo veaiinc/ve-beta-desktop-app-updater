@@ -54,7 +54,7 @@ const events = [
 	},
 ];
 
-const WeekView = ({ updateCalendarInfo }) => {
+const WeekView = ({ selectedDate, updateCalendarInfo }) => {
 	const components = useMemo(
 		() => ({
 			// toolbar: CalendarHeader,
@@ -76,6 +76,7 @@ const WeekView = ({ updateCalendarInfo }) => {
 				onSelectSlot={() => updateCalendarInfo('isCreateEventOpen', true)}
 				onSelectEvent={(event) => alert(event.title)}
 				// date={moment('2024-12-05').toDate()} //for syncing with calendarSelector current date
+				date={selectedDate} //for syncing with calendarSelector current date
 				// popup //for monthview show +extra events
 				components={components}
 			/>

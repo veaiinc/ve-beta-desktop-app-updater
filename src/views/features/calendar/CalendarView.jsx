@@ -23,6 +23,7 @@ const CalendarView = ({
 			/>
 			<CalendarViewType
 				activeView={activeView}
+				selectedDate={selectedDate}
 				selectedMonth={selectedMonth}
 				selectedYear={selectedYear}
 				updateCalendarInfo={updateCalendarInfo}
