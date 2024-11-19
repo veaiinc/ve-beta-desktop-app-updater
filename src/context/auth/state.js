@@ -1,8 +1,8 @@
 import { useReducer } from 'react';
 import Reducer from './reducer';
-import service from '../../services';
+import service from '../../services/';
 import Cookies from 'js-cookie';
-const { auth_Api: authBaseUrl } = require('../../services/config');
+const { auth_Api: authBaseUrl } = require('../../services/config.live');
 
 export const AuthState = () => {
 	const intialState = {};

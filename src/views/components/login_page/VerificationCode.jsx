@@ -8,6 +8,7 @@ import { ReactComponent as GmailLogo } from '../../../assets/svg/login_page/gmai
 import { message } from 'antd';
 import { getLocationsDetails } from '../../../helpers';
 import Context from '../../../context/context';
+import debounce from 'lodash/debounce';
 
 const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 	const navigate = useNavigate();
@@ -23,8 +24,31 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 		otp: '',
 		otpError: '',
 		isLoading: false,
+		canResend: true,
 	});
 	const otpContainerRef = useRef(null);
+
+	const debouncedVerifyCode = debounce(async (otp, email, emailVerified, setInfo, navigate) => {
+		setInfo((prev) => ({ ...prev, isLoading: true }));
+		const response = await verifyEmailVerificationCode(email, otp, emailVerified);
+		if (response[0] === true) {
+			if (emailVerified) {
+				if (response?.[1]?.hasWorkspaces) {
+					if (response?.[1]?.isOnboard) navigate('/home');
+					else navigate('/early-access');
+				} else {
+					navigate('/onboarding');
+				}
+			} else if (response?.[1]?.hasWorkspaces) {
+				navigate('/home');
+			} else {
+				navigate('/onboarding');
+			}
+		} else {
+			setInfo((prev) => ({ ...prev, otpError: response?.[1]?.message }));
+		}
+		setInfo((prev) => ({ ...prev, isLoading: false }));
+	}, 1500);
 
 	useEffect(() => {
 		const container = otpContainerRef?.current;
@@ -41,15 +65,20 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 
 	useEffect(() => {
 		if (info?.otp?.length === 6) {
-			handleVerifyEmailVerificationCode();
+			debouncedVerifyCode(info.otp, email, emailVerified, setInfo, navigate);
 		} else {
 			setInfo((prev) => ({ ...prev, otpError: '' }));
+			debouncedVerifyCode.cancel();
 		}
+
+		return () => {
+			debouncedVerifyCode.cancel();
+		};
 	}, [info?.otp]);
 
 	const handleKeyDown = (e) => {
 		if (e?.key === 'Enter' && info?.otp?.length === 6 && !info?.isLoading) {
-			handleVerifyEmailVerificationCode();
+			debouncedVerifyCode(info.otp, email, emailVerified, setInfo, navigate);
 		}
 	};
 
@@ -67,7 +96,14 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 	};
 
 	const handleResendCode = async () => {
+		if (!info?.canResend) {
+			message.info('Please wait 60 seconds before requesting another code');
+			return;
+		}
+
 		setInfo((prev) => ({ ...prev, isLoading: true }));
+		setInfo((prev) => ({ ...prev, canResend: false }));
+
 		try {
 			const response = await checkAccountExistsUsingEmail(email);
 			if (response[0] === true) {
@@ -95,29 +131,12 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 		} catch (error) {
 			console.error('Failed to check email:', error.message);
 		}
-		setInfo((prev) => ({ ...prev, isLoading: false }));
-	};
 
-	const handleVerifyEmailVerificationCode = async () => {
-		setInfo((prev) => ({ ...prev, isLoading: true }));
-		const response = await verifyEmailVerificationCode(email, info?.otp, emailVerified);
-		if (response[0] === true) {
-			if (emailVerified) {
-				if (response?.[1]?.hasWorkspaces) {
-					if (response?.[1]?.isOnboard) navigate('/home');
-					else navigate('/early-access');
-				} else {
-					navigate('/onboarding');
-				}
-			} else if (response?.[1]?.hasWorkspaces) {
-				navigate('/home');
-			} else {
-				navigate('/onboarding');
-			}
-		} else {
-			setInfo((prev) => ({ ...prev, otpError: response?.[1]?.message }));
-		}
 		setInfo((prev) => ({ ...prev, isLoading: false }));
+
+		setTimeout(() => {
+			setInfo((prev) => ({ ...prev, canResend: true }));
+		}, 60000);
 	};
 
 	return (
@@ -176,7 +195,14 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 				</div>
 				<p className="otp-error-message">{info?.otpError}</p>
 			</div>
-			<p className="resend-code-text" onClick={handleResendCode}>
+			<p
+				className={`resend-code-text ${!info?.canResend ? 'disabled' : ''}`}
+				onClick={handleResendCode}
+				style={{
+					cursor: info?.canResend ? 'pointer' : 'not-allowed',
+					opacity: info?.canResend ? 1 : 0.5,
+				}}
+			>
 				Resend code
 			</p>
 		</div>

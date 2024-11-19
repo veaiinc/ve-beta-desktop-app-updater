@@ -131,7 +131,11 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 				<h1 className="login-page-title">AI workers who mind your business.</h1>
 			</div>
 			<div className="login-button-container">
-				<button className="google-login-button" onClick={handleContinueWithGoogle}>
+				<button
+					disabled={info?.googleLoading}
+					className="google-login-button"
+					onClick={handleContinueWithGoogle}
+				>
 					<GoogleLogo />
 					<p>Continue with Google</p>
 					{info?.googleLoading && (
