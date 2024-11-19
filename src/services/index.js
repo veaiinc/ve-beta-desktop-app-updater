@@ -11,6 +11,7 @@ const {
 	ai_setup_api_US,
 	ai_assistant_api,
 	ai_assistant_api_US,
+	galleries_api_US,
 } = require('./config');
 
 const apiEndpoints = {
@@ -31,6 +32,7 @@ const apiEndpointsUS = {
 	auth: auth_Api,
 	// ai_setup: ai_setup_api_US,
 	ai_assistant_api_US,
+	galleries: galleries_api_US,
 };
 
 const handleHeaders = (token, body, type) => {
