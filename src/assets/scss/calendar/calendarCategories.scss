@@ -116,6 +116,18 @@
 					font-weight: 500;
 					line-height: normal;
 				}
+
+				.editButton {
+					padding: 0;
+					margin: 0;
+					background-color: transparent;
+					border: none;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					opacity: 0;
+					cursor: pointer;
+				}
 			}
 
 			.statusWrapper {
@@ -176,6 +188,13 @@
 
 					border-radius: 100px;
 					border: 2px solid rgb(249, 241, 10);
+				}
+			}
+			&:hover {
+				.typeWrapper {
+					.editButton {
+						opacity: 1;
+					}
 				}
 			}
 		}
