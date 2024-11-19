@@ -307,13 +307,14 @@ export const AuthState = () => {
 		}
 	};
 
-	const createWorkspace = async (workspaceHandle, workspaceType, profession) => {
+	const createWorkspace = async (workspaceHandle, workspaceType, profession, businessName) => {
 		const path = '/tenant/create-workspace';
 		const token = localStorage?.getItem('usertoken') || '';
 		const body = {
 			workspaceId: workspaceHandle,
 			businessType: profession,
 			category: workspaceType,
+			businessName,
 		};
 
 		try {

@@ -59,6 +59,7 @@ const WorkspaceHandleName = ({ onboardingInfo, setOnboardingInfo }) => {
 		setOnboardingInfo((prev) => ({
 			...prev,
 			workspaceHandle: e?.target?.value?.toLowerCase(),
+			businessName: e?.target?.value?.toLowerCase(),
 		}));
 	};
 

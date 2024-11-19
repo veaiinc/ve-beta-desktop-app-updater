@@ -30,6 +30,7 @@ const Onboarding = () => {
 		profession: '',
 		phoneNumber: '',
 		isOnboard: false,
+		businessName: '',
 	});
 
 	const navigate = useNavigate();
@@ -46,6 +47,7 @@ const Onboarding = () => {
 	const params = new URLSearchParams(location?.search);
 	const invitedWorkspaceId = params?.get('invitedWorkspaceId');
 	const invitedUserEmail = params?.get('inviteeEmail');
+	const createWorkspaceUsername = params?.get('username');
 
 	useEffect(() => {
 		if (invitedWorkspaceId && invitedUserEmail) {
@@ -54,10 +56,22 @@ const Onboarding = () => {
 		}
 		if (!localStorage?.getItem('usertoken')) {
 			navigate('/');
-		} else if (localStorage?.getItem('isOnboard')) {
+		} else if (localStorage?.getItem('isOnboard') && !createWorkspaceUsername) {
+			console.log(localStorage?.getItem('isOnboard') && !createWorkspaceUsername);
 			navigate('/home');
 		}
 	}, []);
+
+	useEffect(() => {
+		if (info?.step === 1 && info?.stage === 1) {
+			if (createWorkspaceUsername) {
+				setInfo((prev) => ({
+					...prev,
+					username: createWorkspaceUsername,
+				}));
+			}
+		}
+	}, [info?.step, info?.stage]);
 
 	useEffect(() => {
 		if (info?.step === 0 && aiIntroRef?.current) {
@@ -102,6 +116,7 @@ const Onboarding = () => {
 				info?.workspaceHandle,
 				info?.workspaceType,
 				info?.profession,
+				info?.businessName,
 			);
 			if (workspaceResponse[0] === true) {
 				setInfo((prev) => ({
@@ -113,7 +128,10 @@ const Onboarding = () => {
 					'isOnboard',
 					JSON.stringify(workspaceResponse?.[1]?.isOnboard),
 				);
-				window.location.reload();
+				if (!createWorkspaceUsername) {
+					window.location.reload();
+				}
+				navigate('/home');
 			} else {
 				message.error(workspaceResponse?.message);
 			}
@@ -420,6 +438,7 @@ const Onboarding = () => {
 				animateStep1Exit={animateStep1Exit}
 				handleInvitedUser={handleInvitedUser}
 				createAccountViaInvite={invitedWorkspaceId && invitedUserEmail}
+				createWorkspaceUsername={createWorkspaceUsername}
 			/>
 		),
 		2: (

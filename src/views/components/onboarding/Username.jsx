@@ -1,9 +1,8 @@
-import React, { useState, memo, useRef } from 'react';
+import React, { useState, memo, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import '../../../assets/scss/onboarding/index.scss';
-import debounce from 'lodash/debounce';
 
 const Username = ({
 	onboardingInfo,
@@ -11,11 +10,24 @@ const Username = ({
 	animateStep1Exit,
 	handleInvitedUser,
 	createAccountViaInvite = false,
+	createWorkspaceUsername = false,
 }) => {
 	const [info, setInfo] = useState({
 		isHovering: false,
 		enterPressed: false,
 	});
+	useEffect(() => {
+		if (usernameDivRef?.current && createWorkspaceUsername) {
+			gsap.to(usernameDivRef.current, {
+				opacity: 0,
+				duration: 0.5,
+				ease: 'power2.inOut',
+				onComplete: () => {
+					animateStep1Exit();
+				},
+			});
+		}
+	}, []);
 
 	const usernameDivRef = useRef(null);
 
@@ -32,6 +44,8 @@ const Username = ({
 		}));
 	};
 	const handleNext = () => {
+		if (info?.enterPressed) return;
+		setInfo((prev) => ({ ...prev, enterPressed: true }));
 		gsap.to(usernameDivRef.current, {
 			opacity: 0,
 			duration: 0.5,
@@ -46,10 +60,8 @@ const Username = ({
 	};
 
 	const handleKeyDown = (e) => {
-		if (info?.enterPressed) return;
 		if (e.key === 'Enter' && onboardingInfo?.username?.length > 0) {
 			handleNext();
-			setInfo((prev) => ({ ...prev, enterPressed: true }));
 		}
 	};
 
