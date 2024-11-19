@@ -1268,6 +1268,12 @@ export const Galleries = () => {
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/default-sort
 	const setDefaultSort = async (payload) => {
 		try {
+			dispatch({
+				type: Actions.GET_TENANT_GALLERIES,
+				payload: null,
+			});
+
+			console.log('payload==>setDefaultSort', state.tenantAlbums);
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchPut(

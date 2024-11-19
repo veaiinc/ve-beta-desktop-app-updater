@@ -111,6 +111,8 @@ const GalleryPage = () => {
 		activeAlbumId: tenantAlbums?.albums?.[0]?._id,
 		callToAction: tenantPreferences?.ctaPreferences,
 		timeout: null,
+		galleryDueDate: location?.state?.galleryData?.dueDateEpoch,
+		galleryCreatedAt: location?.state?.galleryData?.createdAt,
 		linkUpdateError: '',
 		gridStyle: layoutSettings?.gridStyle,
 		thumbnailSize: layoutSettings?.thumbnailSize,

@@ -70,9 +70,10 @@
         .aiPeople {
             display: flex;
             flex-wrap: wrap;
+            padding-bottom: 30px;
             gap: 16px;
-            height: 60vh;
-            overflow-y: scroll;
+            // height: 60vh;
+            // overflow-y: scroll;
             .aiPeople-person {
                 display: flex;
                 justify-content: space-between;
@@ -83,6 +84,7 @@
                 align-items: center;
                 border-radius: 16px;
                 border: 1px solid rgb(92, 13, 219);
+                cursor: pointer;
                 img {
                     width: 80px;
                     height: 80px;

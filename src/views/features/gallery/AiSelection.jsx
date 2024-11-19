@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import '../../../assets/scss/gallery/aiOption.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
+// import { ReactComponent as CopyIcon } from '../../../assets/svg/workflow/copy.svg';
 const aiOptions = [
 	{ name: 'AI People', value: 'AI People' },
 	{ name: 'AI Face Registration', value: 'AI Face Registration' },
@@ -394,6 +395,26 @@ const AiSelection = () => {
 								<p>{person.name}</p>
 							</div>
 						))}
+					</div>
+				</div>
+			)}
+			{info?.search === 'AI Face Registration' && (
+				<div className="aiFaceRegistration">
+					<p>All data from the client gallery, album and selection views</p>
+					<div>
+						<div>{/* <img src={} alt="select" /> */}</div>
+						<div>
+							<div>
+								<p>Select the images you want to register</p>
+								{/* <CopyIcon /> */}
+							</div>
+							<div>
+								<p>
+									Copy the code below and paste it in the client gallery, album or
+									selection view
+								</p>
+							</div>
+						</div>
 					</div>
 				</div>
 			)}

@@ -2,7 +2,8 @@ import React from 'react';
 import ToggleSlider from '../../../../views/components/input/slider';
 import { DatePicker } from 'antd';
 import { getInitials } from '../../../../helpers/index';
-
+import dayjs from 'dayjs';
+import moment from 'moment';
 const GalleryOverview = ({
 	info,
 	handleGalleryChange,
@@ -13,6 +14,15 @@ const GalleryOverview = ({
 	handleLinkChange,
 }) => {
 	const workspaceId = localStorage.getItem('workspaceId');
+	console.log(
+		'info==>GalleryOverview',
+		info?.galleryCreatedAt,
+		moment.unix(`${info?.galleryCreatedAt}`).format('DD-MM-YYYY'),
+	);
+	const handleGalleryDateChange = (date, dateString) => {
+		console.log('date==>handleGalleryDateChange', date, dateString);
+	};
+
 	return (
 		<div id="gallery-overview" className="settings-overview">
 			<p className="heading">Gallery overview</p>
@@ -42,7 +52,42 @@ const GalleryOverview = ({
 					<DatePicker
 						className="datePicker"
 						format="DD-MM-YYYY"
-						selected={convertEpochToDate(info.activeGallery?.dueDateEpoch)}
+						selected={
+							info?.galleryCreatedAt
+								? dayjs(
+										`${moment
+											.unix(`${info?.galleryCreatedAt}`)
+											.format('DD-MM-YYYY')}`,
+								  )
+								: ''
+						}
+						defaultValue={
+							info?.galleryCreatedAt
+								? dayjs(
+										`${moment
+											.unix(`${info?.galleryCreatedAt}`)
+											.format('DD-MM-YYYY')}`,
+										['DD-MM-YYYY'],
+								  )
+								: ''
+						}
+						// onChange={handleGalleryDateChange}
+					/>
+				</div>
+			</div>
+
+			<div className="galleryDate">
+				<p className="subHeading">Gallery Expiry Date </p>
+				<p className="subTitle">
+					Sort galleries by this date. Which is visible to the client
+				</p>
+				<div>
+					<DatePicker
+						className="datePicker"
+						format="DD-MM-YYYY"
+						value={dayjs(`${info?.galleryDueDate}`, 'DD-MM-YYYY')}
+						// onChange={handleGalleryDateChange}
+
 						// onChange={(date, dateString) =>
 						// 	handleAlbumNameChange(dateString, 'date')
 						// }

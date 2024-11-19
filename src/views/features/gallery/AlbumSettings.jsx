@@ -379,7 +379,7 @@ const AlbumSettings = () => {
 							<div className="hideOption">
 								{/* onChange={toggleEnable} value={userDetails?.is2FAEnabled}  */}
 								<ToggleSlider
-									value={info?.isPublished}
+									value={!info?.isPublished}
 									onChange={handleHideAlbum}
 								/>
 								<p className="subtitle">
