@@ -13,8 +13,8 @@ const events = [
 		categories: ['Conference', 'Business'],
 	},
 	{
-		start: moment('2024-11-18T10:00:00').toDate(),
-		end: moment('2024-11-18T15:00:00').toDate(),
+		start: moment('2024-11-18T03:00:00').toDate(),
+		end: moment('2024-11-18T07:00:00').toDate(),
 		title: 'MRI Registration',
 		description: 'Register for the MRI scan. Ensure all paperwork is complete.',
 		categories: ['Medical', 'Appointment'],
