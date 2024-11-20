@@ -152,9 +152,9 @@ export const AuthState = () => {
 
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
-			const hasWorkspaces = response?.[1]?.accessibleWorkspaces?.length > 0;
 			if (response[0] === true) {
 				const { accessToken, accessibleWorkspaces, region } = response?.[1] || {};
+				const hasWorkspaces = accessibleWorkspaces?.length > 0;
 
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
@@ -169,7 +169,8 @@ export const AuthState = () => {
 					});
 				}
 
-				if (!accessibleWorkspaces?.length) {
+				if (!hasWorkspaces) {
+					localStorage.setItem('isOnboard', false);
 					return [
 						true,
 						{
@@ -180,8 +181,8 @@ export const AuthState = () => {
 				}
 
 				const { isOnboard, workspaceId } = accessibleWorkspaces?.[0];
-				if (isOnboard) localStorage.setItem('isOnboard', isOnboard);
-				if (accessibleWorkspaces?.length)
+				if (isOnboard) localStorage.setItem('isOnboard', JSON.stringify(isOnboard));
+				if (hasWorkspaces)
 					localStorage.setItem(
 						'accessibleWorkspaces',
 						JSON.stringify(accessibleWorkspaces),
@@ -326,6 +327,8 @@ export const AuthState = () => {
 		try {
 			const response = await service?.fetchPost(path, body, token, 'auth');
 			if (response?.[0] === true) {
+				localStorage.setItem('isOnboard', JSON.stringify(response?.[1]?.isOnboard));
+				localStorage.setItem('workspaceId', JSON.stringify(response?.[1]?.workspaceId));
 				return [
 					true,
 					{

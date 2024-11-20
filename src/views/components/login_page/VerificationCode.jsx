@@ -32,7 +32,6 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 		const response = await verifyEmailVerificationCode(email, otp, emailVerified);
 		if (response[0] === true) {
-			localStorage.setItem('isOnboard', JSON.stringify(response?.[1]?.isOnboard));
 			if (emailVerified) {
 				if (response?.[1]?.hasWorkspaces) {
 					if (response?.[1]?.isOnboard) {

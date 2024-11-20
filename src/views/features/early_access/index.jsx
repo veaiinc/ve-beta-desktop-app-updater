@@ -11,7 +11,7 @@ import InitialPageLoader from '../../components/loaders/PageLoader';
 
 let isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
 const usertoken = localStorage.getItem('usertoken');
-const workspaceId = localStorage.getItem('workspaceId');
+const workspaceId = JSON.parse(localStorage.getItem('workspaceId'));
 
 const EarlyAccess = () => {
 	const navigate = useNavigate();
@@ -43,14 +43,17 @@ const EarlyAccess = () => {
 			(ele) => ele?.activeWorkspaceId === workspaceId,
 		);
 
-		if (currentWorkspaceData) {
+		if (currentWorkspaceData?.length > 0) {
 			isOnboard = currentWorkspaceData[0]?.isOnboard;
-			localStorage.setItem('isOnboard', JSON.stringify(isOnboard));
 			if (isOnboard) {
+				console.log('testing 1 isOnboard', isOnboard);
 				navigate('/home');
 			} else {
-				navigate('/onboarding');
+				console.log('testing 2 isOnboard', isOnboard);
+				navigate('/early-access');
 			}
+		} else {
+			navigate('/early-access');
 		}
 		setInfo({ loading: false });
 	}, [userWorkSpaceList]);

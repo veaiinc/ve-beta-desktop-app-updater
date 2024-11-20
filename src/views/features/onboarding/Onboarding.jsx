@@ -56,8 +56,8 @@ const Onboarding = () => {
 		}
 		if (!localStorage?.getItem('usertoken')) {
 			navigate('/');
-		} else if (localStorage?.getItem('isOnboard') && !createWorkspaceUsername) {
-			console.log(localStorage?.getItem('isOnboard') && !createWorkspaceUsername);
+		}
+		if (localStorage?.getItem('isOnboard') === 'true' && !createWorkspaceUsername) {
 			navigate('/home');
 		}
 	}, []);
@@ -119,20 +119,16 @@ const Onboarding = () => {
 				info?.businessName,
 			);
 			if (workspaceResponse[0] === true) {
-				setInfo((prev) => ({
-					...prev,
-					step: prev?.step + 1,
-					isOnboard: workspaceResponse?.[1]?.isOnboard,
-				}));
-				localStorage.setItem(
-					'isOnboard',
-					JSON.stringify(workspaceResponse?.[1]?.isOnboard),
-				);
-				localStorage.setItem('workspaceId', workspaceResponse?.[1]?.workspaceId);
-				if (!createWorkspaceUsername) {
-					window.location.reload();
+				// setInfo((prev) => ({
+				// 	...prev,
+				// 	step: prev?.step + 1,
+				// 	isOnboard: workspaceResponse?.[1]?.isOnboard,
+				// }));
+				if (workspaceResponse?.[1]?.isOnboard) {
+					navigate('/home');
+				} else {
+					navigate('/early-access');
 				}
-				navigate('/home');
 			} else {
 				message.error(workspaceResponse?.message);
 			}
