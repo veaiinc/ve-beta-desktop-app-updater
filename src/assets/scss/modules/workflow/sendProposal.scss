@@ -315,27 +315,42 @@
 				}
 			}
 		}
-		.aiSalesContainer {
-			display: flex;
-			align-self: stretch;
-			gap: 12px;
-			align-items: center;
-			padding-left: 7px;
-			.aiLabel {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				flex: 1;
 
-				.aiLabelText {
-					color: #e8e8e8;
-					text-align: center;
-					font-family: Inter;
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
+		.aiContentWrapper {
+			display: 'flex';
+			flex-direction: column;
+			gap: 4px;
+			.aiSalesContainer {
+				display: flex;
+				align-self: stretch;
+				gap: 12px;
+				align-items: center;
+				padding-left: 7px;
+				.aiLabel {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					flex: 1;
+
+					.aiLabelText {
+						color: #e8e8e8;
+						text-align: center;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
 				}
+			}
+			.assignedAssitant {
+				color: #797979;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 18px; /* 150% */
+				padding-left: 7px;
 			}
 		}
 
@@ -655,9 +670,18 @@
 .sendSmartFileupdatedContainer.showAccessSettings {
 	height: 503px;
 }
+.sendSmartFileupdatedContainer.showAccessSettingsWithAssistanceData {
+	height: 409px;
+}
+.sendSmartFileupdatedContainer.showAccessSettings.showAccessSettingsWithAssistanceData {
+	height: 557px;
+}
 
 .sendSmartFileupdatedContainer.showAccessSettings.enableLinkExpiry {
 	height: 557px;
+}
+.sendSmartFileupdatedContainer.showAccessSettings.enableLinkExpiry.showAccessSettingsWithAssistanceData {
+	height: 611px;
 }
 .sendSmartFileupdatedContainer.showEmail {
 	height: 797px !important;
