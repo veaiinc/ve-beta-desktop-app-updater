@@ -100,7 +100,7 @@ const GalleryViewer = () => {
 		}
 
 		const imageId = searchkeys.get('image');
-		// console.log(imageId);
+
 		if (imagesList && imageId) {
 			setInfo((prev) => ({
 				...prev,

@@ -34,8 +34,6 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 				...prev,
 				selectedGalleryTags,
 			}));
-
-			console.log(searchParams.get('tag'));
 		}
 	}, [tagsList, galleryId, albumId]);
 
