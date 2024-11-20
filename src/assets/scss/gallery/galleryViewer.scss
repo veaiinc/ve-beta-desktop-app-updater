@@ -199,6 +199,11 @@
 							height: 48px;
 							border-radius: 100px;
 							background-color: #111;
+							overflow: hidden;
+							position: relative;
+							img {
+								position: absolute;
+							}
 						}
 					}
 				}
@@ -300,4 +305,16 @@
 			}
 		}
 	}
+}
+
+.people-card {
+	width: 142px;
+	height: 192px;
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	justify-content: center;
+	background: none;
+	box-shadow: none;
+	position: relative;
 }

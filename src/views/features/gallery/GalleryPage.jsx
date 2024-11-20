@@ -8,11 +8,12 @@ import { ReactComponent as ExpandIcon } from '../../../assets/svg/gallery/expand
 import { ReactComponent as ForwardIcon } from '../../../assets/svg/gallery/forward.svg';
 import { ReactComponent as PinIcon } from '../../../assets/svg/gallery/pin.svg';
 import { ReactComponent as DragIcon } from '../../../assets/svg/gallery/drag.svg';
+import { ReactComponent as RotatingCircle } from '../../../assets/svg/gallery/rotating-circle.svg';
 import { ReactComponent as OptionsIcon } from '../../../assets/svg/gallery/dotsThree.svg';
 import { ReactComponent as CloudUpload } from '../../../assets/svg/Settings/CloudUpload.svg';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
-import { message, Result } from 'antd';
+import { message, Result, Tooltip } from 'antd';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
 import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPopup';
@@ -112,7 +113,7 @@ const GalleryPage = () => {
 		callToAction: tenantPreferences?.ctaPreferences,
 		timeout: null,
 		galleryDueDate: location?.state?.galleryData?.dueDateEpoch,
-		galleryCreatedAt: location?.state?.galleryData?.createdAt,
+		galleryCreatedAt: location?.state?.galleryData?.shotDuring,
 		linkUpdateError: '',
 		gridStyle: layoutSettings?.gridStyle,
 		thumbnailSize: layoutSettings?.thumbnailSize,
@@ -256,6 +257,8 @@ const GalleryPage = () => {
 			setInfo((prev) => ({
 				...prev,
 				activeGallery: albumImagesCount,
+				galleryDueDate: albumImagesCount?.dueDateEpoch,
+				galleryCreatedAt: albumImagesCount?.shotDuring,
 			}));
 		}
 	}, [albumImagesCount]);
@@ -593,11 +596,18 @@ const GalleryPage = () => {
 	const handleClearSelectedImages = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, selectedImages: [] }));
 	};
-	const handleExpandClick = () => {
-		navigate(
-			`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}&image=${info?.selectedImages?.[0]}`,
-		);
+	const handleExpandClick = (selectedImageId = null, type) => {
+		if (type === 'single') {
+			navigate(
+				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}&image=${selectedImageId}`,
+			);
+		} else {
+			navigate(
+				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}&image=${info?.selectedImages?.[0]}`,
+			);
+		}
 	};
+
 	const scrollToSection = (sectionId) => {
 		setInfo((prevInfo) => ({ ...prevInfo, activeLink: sectionId }));
 		const element = document.getElementById(sectionId);
@@ -631,17 +641,7 @@ const GalleryPage = () => {
 					`/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?tag=${info?.albumContains}`,
 			  );
 	};
-	const convertEpochToDate = (value) => {
-		if (!value) return null;
-		if (moment(value).isValid()) {
-			return moment.unix(value).format('DD-MM-YYYY');
-		}
-		// const epochDate = moment(parseInt(value));
-		// if (epochDate.isValid()) {
-		// 	return epochDate.toDate();
-		// }
-		return null;
-	};
+
 	const handleCallToAction = useCallback(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
@@ -782,6 +782,31 @@ const GalleryPage = () => {
 			...prev,
 			showCollaborators: !info?.showCollaborators,
 		}));
+	};
+
+	const handleGalleryDateChange = (dateString, date, type) => {
+		let payload = {};
+
+		if (type === 'createdAt') {
+			const formattedDate = moment(dateString, 'DD-MM-YYYY').format('YYYYMMDD');
+			setInfo((prev) => ({
+				...prev,
+				galleryCreatedAt: formattedDate,
+			}));
+			payload = {
+				shotDuring: formattedDate,
+			};
+		} else if (type === 'dueDate') {
+			const epochDate = moment(dateString, 'DD-MM-YYYY').valueOf();
+			setInfo((prev) => ({
+				...prev,
+				galleryDueDate: epochDate,
+			}));
+			payload = {
+				dueDateEpoch: epochDate,
+			};
+		}
+		postGallery(payload, galleryId);
 	};
 	const handleManageCollaborator = (data) => {
 		setInfo((prev) => ({
@@ -2258,6 +2283,25 @@ const GalleryPage = () => {
 																			{info.isMouseInGallery && (
 																				<div className="imageOverlay"></div>
 																			)}
+
+																			<div
+																				onClick={() =>
+																					handleExpandClick(
+																						image?._id,
+																						'single',
+																					)
+																				}
+																				style={{
+																					zIndex: 3,
+																				}}
+																			>
+																				<Tooltip
+																					title="Focus"
+																					placement="top"
+																				>
+																					<RotatingCircle className="rotating-circle" />
+																				</Tooltip>
+																			</div>
 																		</div>
 																	);
 																},
@@ -2481,7 +2525,11 @@ const GalleryPage = () => {
 											{!info.isRearranging && (
 												<div className="selectedImagesActions">
 													{info?.selectedImages?.length === 1 && (
-														<div onClick={handleExpandClick}>
+														<div
+															onClick={() =>
+																handleExpandClick(null, 'multiple')
+															}
+														>
 															<ExpandIcon />
 														</div>
 													)}
@@ -2905,8 +2953,8 @@ const GalleryPage = () => {
 								handleCallToAction={handleCallToAction}
 								handleClientSubscription={handleClientSubscription}
 								handleManageCollaboratorPopup={handleManageCollaboratorPopup}
-								convertEpochToDate={convertEpochToDate}
 								handleLinkChange={handleLinkChange}
+								handleGalleryDateChange={handleGalleryDateChange}
 							/>
 
 							<DesignOverviewComp info={info} handleLayoutType={handleLayoutType} />

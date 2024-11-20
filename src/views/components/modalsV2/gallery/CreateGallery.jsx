@@ -47,6 +47,7 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries, message 
 	}, []);
 
 	const handleInputChange = (e, name, test) => {
+		console.log('e==>handleInputChange', e, name, test);
 		if (name === 'title') {
 			if (e.target.value.trim().length > 50) {
 				return;

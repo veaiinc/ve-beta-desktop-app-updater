@@ -10,8 +10,8 @@ const GalleryOverview = ({
 	handleCallToAction,
 	handleClientSubscription,
 	handleManageCollaboratorPopup,
-	convertEpochToDate,
 	handleLinkChange,
+	handleGalleryDateChange,
 }) => {
 	const workspaceId = localStorage.getItem('workspaceId');
 	console.log(
@@ -19,9 +19,6 @@ const GalleryOverview = ({
 		info?.galleryCreatedAt,
 		moment.unix(`${info?.galleryCreatedAt}`).format('DD-MM-YYYY'),
 	);
-	const handleGalleryDateChange = (date, dateString) => {
-		console.log('date==>handleGalleryDateChange', date, dateString);
-	};
 
 	return (
 		<div id="gallery-overview" className="settings-overview">
@@ -49,29 +46,21 @@ const GalleryOverview = ({
 					Sort galleries by this date. Which is visible to the client
 				</p>
 				<div>
+					{console.log('info==>GalleryOverview', info)}
+
 					<DatePicker
 						className="datePicker"
 						format="DD-MM-YYYY"
-						selected={
-							info?.galleryCreatedAt
-								? dayjs(
-										`${moment
-											.unix(`${info?.galleryCreatedAt}`)
-											.format('DD-MM-YYYY')}`,
-								  )
-								: ''
-						}
 						defaultValue={
 							info?.galleryCreatedAt
-								? dayjs(
-										`${moment
-											.unix(`${info?.galleryCreatedAt}`)
-											.format('DD-MM-YYYY')}`,
-										['DD-MM-YYYY'],
-								  )
+								? dayjs(`${moment('20241121', 'YYYYMMDD').format('DD-MM-YYYY')}`, [
+										'DD-MM-YYYY',
+								  ])
 								: ''
 						}
-						// onChange={handleGalleryDateChange}
+						onChange={(e, dateString, date) =>
+							handleGalleryDateChange(dateString, date, 'createdAt')
+						}
 					/>
 				</div>
 			</div>
@@ -85,12 +74,28 @@ const GalleryOverview = ({
 					<DatePicker
 						className="datePicker"
 						format="DD-MM-YYYY"
-						value={dayjs(`${info?.galleryDueDate}`, 'DD-MM-YYYY')}
-						// onChange={handleGalleryDateChange}
-
-						// onChange={(date, dateString) =>
-						// 	handleAlbumNameChange(dateString, 'date')
-						// }
+						selected={
+							info?.galleryDueDate
+								? dayjs(
+										`${moment
+											.unix(`${info?.galleryDueDate}`)
+											.format('DD-MM-YYYY')}`,
+								  )
+								: ''
+						}
+						defaultValue={
+							info?.galleryDueDate
+								? dayjs(
+										`${moment
+											.unix(`${info?.galleryDueDate}`)
+											.format('DD-MM-YYYY')}`,
+										['DD-MM-YYYY'],
+								  )
+								: ''
+						}
+						onChange={(e, dateString, date) =>
+							handleGalleryDateChange(dateString, date, 'dueDate')
+						}
 					/>
 				</div>
 			</div>

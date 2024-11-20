@@ -767,6 +767,10 @@ export const Galleries = () => {
 
 	const getImageDetail = async (imageId) => {
 		try {
+			dispatch({
+				type: Actions.GET_IMAGE_DETAIL,
+				payload: null,
+			});
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(
@@ -1194,6 +1198,13 @@ export const Galleries = () => {
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/custom-sort-index
 	const updateAlbumOrder = async (payload, galleryId, albumId, sortedItems) => {
 		try {
+			dispatch({
+				type: Actions.GET_ALBUM_IMAGES_COUNT,
+				payload: {
+					...state.albumImagesCount,
+					albums: [...sortedItems],
+				},
+			});
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchPut(
@@ -1203,15 +1214,8 @@ export const Galleries = () => {
 				'galleries',
 			);
 
-			if (response[0] === true) {
-				dispatch({
-					type: Actions.GET_ALBUM_IMAGES_COUNT,
-					payload: {
-						...state.albumImagesCount,
-						albums: [...sortedItems],
-					},
-				});
-			}
+			// if (response[0] === true) {
+			// }
 
 			return response;
 		} catch (error) {
