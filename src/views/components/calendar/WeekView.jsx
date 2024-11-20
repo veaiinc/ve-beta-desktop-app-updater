@@ -1,7 +1,11 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useState, useCallback } from 'react';
 import '../../../assets/scss/calendar/weekView.scss';
 import CalendarWrapper from './CalendarWrapper';
 // import CalendarHeader from './CalendarHeader';
+import CustomTimeGutterHeader from './CustomTimeGutterHeader';
+import CustomEventCard from './CustomEventCard';
+import CustomEventWrapper from './CustomEventWrapper';
+// import CustomEventContainer from './CustomEventContainer';
 import moment from 'moment';
 
 const events = [
@@ -20,7 +24,7 @@ const events = [
 	{
 		start: moment('2024-11-18T03:00:00').toDate(),
 		end: moment('2024-11-18T07:00:00').toDate(),
-		title: 'MRI Registration',
+		title: 'MRI Registration ',
 		description: 'Register for the MRI scan. Ensure all paperwork is complete.',
 		categories: ['Medical', 'Appointment'],
 	},
@@ -57,8 +61,12 @@ const events = [
 const WeekView = ({ selectedDate, updateCalendarInfo }) => {
 	const components = useMemo(
 		() => ({
-			// toolbar: CalendarHeader,
-			timeGutterHeader: 'Hello',
+			timeGutterHeader: CustomTimeGutterHeader,
+			week: {
+				event: CustomEventCard,
+			},
+			eventWrapper: CustomEventWrapper,
+			// eventContainerWrapper: CustomEventContainer,
 		}),
 		[],
 	);
@@ -77,7 +85,7 @@ const WeekView = ({ selectedDate, updateCalendarInfo }) => {
 				onSelectEvent={(event) => alert(event.title)}
 				// date={moment('2024-12-05').toDate()} //for syncing with calendarSelector current date
 				date={selectedDate} //for syncing with calendarSelector current date
-				// popup //for monthview show +extra events
+				popup //for monthview show +extra events
 				components={components}
 			/>
 		</div>

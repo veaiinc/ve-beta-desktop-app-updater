@@ -76,26 +76,40 @@
 
 	.rbc-label {
 		padding: 0px;
+		// align-content: center; to center gutter header Text
 	}
 
 	.rbc-timeslot-group {
 		min-height: 60px;
 	}
 
-	.rbc-day-slot .rbc-event {
-		border: 1px solid #343333;
-		background-color: #2a2a2a;
-		display: flex;
-		padding: 10px;
-		max-height: 100%;
-		min-height: 20px;
-		flex-flow: column wrap;
-		align-items: flex-start;
-		overflow: hidden;
-		position: absolute;
-	}
+	// .rbc-day-slot .rbc-event {
+	// 	border: 1px solid #343333;
+	// 	background-color: #2a2a2a;
+	// 	display: flex;
+	// 	padding: 10px;
+	// 	max-height: 100%;
+	// 	min-height: 20px;
+	// 	flex-flow: column wrap;
+	// 	align-items: flex-start;
+	// 	overflow: hidden;
+	// 	position: absolute;
+	// }
 
-	.rbc-day-slot.rbc-selected {
-		border: none;
-	}
+	// .rbc-event {
+	// 	display: none;
+	// }
+
+	// .rbc-selected {
+	// 	border: none;
+	// }
+}
+
+.customGutterHeader {
+	width: 100%;
+	color: rgba(228, 229, 230, 0.48);
+	font-family: Inter;
+	font-size: 9px;
+	font-style: normal;
+	line-height: normal;
 }
