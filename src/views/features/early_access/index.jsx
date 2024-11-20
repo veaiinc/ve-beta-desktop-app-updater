@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import InitialPageLoader from '../../components/loaders/PageLoader';
 
-let isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
 const usertoken = localStorage.getItem('usertoken');
 const workspaceId = JSON.parse(localStorage.getItem('workspaceId'));
 
@@ -39,21 +38,20 @@ const EarlyAccess = () => {
 
 	const checkIsOnBoardUser = useCallback(() => {
 		setInfo({ loading: true });
-		const currentWorkspaceData = (userWorkSpaceList || [])?.filter(
+		if (userWorkSpaceList?.length === 0) {
+			navigate('/onboarding');
+		}
+		const currentWorkspaceData = userWorkSpaceList?.filter(
 			(ele) => ele?.activeWorkspaceId === workspaceId,
 		);
 
 		if (currentWorkspaceData?.length > 0) {
-			isOnboard = currentWorkspaceData[0]?.isOnboard;
+			const isOnboard = currentWorkspaceData[0]?.isOnboard;
 			if (isOnboard) {
-				console.log('testing 1 isOnboard', isOnboard);
 				navigate('/home');
 			} else {
-				console.log('testing 2 isOnboard', isOnboard);
 				navigate('/early-access');
 			}
-		} else {
-			navigate('/early-access');
 		}
 		setInfo({ loading: false });
 	}, [userWorkSpaceList]);

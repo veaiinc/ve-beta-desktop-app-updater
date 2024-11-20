@@ -50,19 +50,19 @@ const LandingPage = () => {
 		};
 	}, []);
 
-	// useEffect(() => {
-	// 	if (!isOnboard && tokenValid) {
-	// 		if (workspaceIds?.length >= 1) {
-	// 			navigate('/home');
-	// 		} else {
-	// 			navigate('/onboarding');
-	// 		}
-	// 	} else if (isOnboard && tokenValid) {
-	// 		navigate('/home');
-	// 	} else if (!tokenValid) {
-	// 		return;
-	// 	}
-	// }, [isOnboard, tokenValid, workspaceIds]);
+	useEffect(() => {
+		if (!isOnboard && tokenValid) {
+			if (workspaceIds?.length >= 1) {
+				navigate('/home');
+			} else {
+				navigate('/onboarding');
+			}
+		} else if (isOnboard && tokenValid) {
+			navigate('/home');
+		} else if (!tokenValid) {
+			return;
+		}
+	}, [isOnboard, tokenValid, workspaceIds]);
 
 	const handleAnimations = useCallback(() => {
 		const tl = gsap.timeline();
