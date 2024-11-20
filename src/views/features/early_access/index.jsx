@@ -9,11 +9,11 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import InitialPageLoader from '../../components/loaders/PageLoader';
 
-const usertoken = localStorage.getItem('usertoken');
-const workspaceId = JSON.parse(localStorage.getItem('workspaceId'));
-
 const EarlyAccess = () => {
+	const usertoken = localStorage.getItem('usertoken') ?? '';
+	const workspaceId = localStorage.getItem('workspaceId') ?? '';
 	const navigate = useNavigate();
+
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
 	} = useContext(Context);
@@ -23,35 +23,31 @@ const EarlyAccess = () => {
 	});
 
 	useEffect(() => {
-		if (!usertoken) {
-			navigate('/');
-		} else {
-			getUserWorkSpaceList();
-		}
+		getUserWorkSpaceList();
 	}, []);
 
 	useEffect(() => {
+		if (usertoken?.length === 0) {
+			navigate('/');
+		}
 		if (userWorkSpaceList) {
 			checkIsOnBoardUser();
 		}
 	}, [userWorkSpaceList]);
 
 	const checkIsOnBoardUser = useCallback(() => {
-		setInfo({ loading: true });
-		if (userWorkSpaceList?.length === 0) {
-			navigate('/onboarding');
-		}
-		const currentWorkspaceData = userWorkSpaceList?.filter(
+		let isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
+
+		const currentWorkspaceData = (userWorkSpaceList || [])?.filter(
 			(ele) => ele?.activeWorkspaceId === workspaceId,
 		);
 
-		if (currentWorkspaceData?.length > 0) {
-			const isOnboard = currentWorkspaceData[0]?.isOnboard;
-			if (isOnboard) {
-				navigate('/home');
-			} else {
-				navigate('/early-access');
-			}
+		if (currentWorkspaceData) {
+			isOnboard = currentWorkspaceData[0]?.isOnboard;
+		}
+		if (isOnboard) {
+			localStorage.setItem('isOnboard', true);
+			navigate('/home');
 		}
 		setInfo({ loading: false });
 	}, [userWorkSpaceList]);
