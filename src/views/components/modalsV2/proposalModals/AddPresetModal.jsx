@@ -20,6 +20,7 @@ const AddPresetModal = ({
 	mode,
 	selectedEventsPresetData,
 	updateEventspresetData,
+	refetchEventspresetData,
 }) => {
 	let {
 		templates: { addEventsPresets, editEventsPresets },
@@ -111,6 +112,7 @@ const AddPresetModal = ({
 
 		if (response?.[0]) {
 			updateEventspresetData(mode, response?.[1]);
+			refetchEventspresetData();
 			modifiedCloseModal();
 		}
 		setInfo((prev) => ({ ...prev, createPresetLoading: false }));
