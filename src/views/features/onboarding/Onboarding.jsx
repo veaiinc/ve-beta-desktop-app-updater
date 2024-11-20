@@ -335,7 +335,6 @@ const Onboarding = () => {
 	};
 
 	const animateStep6Enter = () => {
-		console.log(step6Ref?.current?.value);
 		tl2?.fromTo(
 			step6Ref?.current,
 			{
