@@ -80,9 +80,7 @@ function Peopleitem(props) {
 		difference = squareWidth - paddingWidth;
 		squareLeft = paddingLeft - difference / 2;
 		squareTop = paddingTop;
-		console.log(props.thumbwidth, squareHeight, 'squareWidth');
 		scaleRatio = parseFloat(props.thumbwidth / squareHeight);
-		console.log(scaleRatio, 'squareWidth');
 	} else if (paddingWidth >= paddingHeight) {
 		squareHeight = paddingWidth;
 		squareWidth = paddingWidth;

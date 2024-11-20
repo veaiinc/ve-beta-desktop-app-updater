@@ -888,7 +888,6 @@ const GalleryPage = () => {
 	};
 
 	const handleCopyGalleryLink = () => {
-		console.log(info, 'activeGallery');
 		const workspaceId = localStorage.getItem('workspaceId');
 		navigator.clipboard.writeText(
 			`https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`,
@@ -1167,15 +1166,6 @@ const GalleryPage = () => {
 		const cardsPerRow = Math.floor((containerWidth + gap) / (cardWidth + gap));
 		const totalRows = Math.ceil(numberOfCards / cardsPerRow);
 
-		console.log(
-			'numberOfCards',
-			numberOfCards,
-			'cardsPerRow',
-			cardsPerRow,
-			'totalRows',
-			totalRows,
-		);
-
 		const totalHeight = totalRows * (cardHeight + gap);
 
 		return totalHeight;
@@ -1252,7 +1242,6 @@ const GalleryPage = () => {
 			const payload = {
 				customSortIndex: changedItemIndex,
 			};
-			console.log(items);
 
 			updateAlbumOrder(payload, galleryId, albumID, items);
 		}
@@ -1407,7 +1396,6 @@ const GalleryPage = () => {
 					: tag,
 			),
 		}));
-		console.log(updatedImages, 'updatedImages');
 
 		remainingImages.splice(info.dropPlaceholder, 0, ...updatedImages);
 

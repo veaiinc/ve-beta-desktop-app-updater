@@ -156,7 +156,7 @@ const CollaboratorPopup = ({ open, closeModal, galleryId, setCollaborator }) => 
 								value={collaboratorInfo.searchTerm}
 							/>
 						</Tooltip>
-						{/* {console.log(tenantsUserList, 'tenantsUserList')} */}
+
 						{/* {collaboratorInfo?.showAllUsers && (
 							<div className="tenantUsers">
 								{tenantsUserList?.map((user, index) => (

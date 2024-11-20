@@ -145,15 +145,12 @@ const UploadPhotos = () => {
 
 	const getJsonFunction = (currentImage) => {
 		const imageKeysArray = Object.keys(info?.uploadImages || {});
-		console.log(imageKeysArray, 'imageKeysArray');
 
 		const imageKeyIndex =
 			recentImageInitiatedRef.current !== null
 				? imageKeysArray[imageKeysArray.indexOf(currentImage)]
 				: imageKeysArray[0];
 		const image = info?.uploadImages[imageKeyIndex];
-
-		console.log(currentImage, imageKeyIndex, image, 'image');
 
 		if (image && image?.isUploaded) return null;
 

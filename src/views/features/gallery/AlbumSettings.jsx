@@ -331,7 +331,6 @@ const AlbumSettings = () => {
 	};
 
 	const handleSetCoverPosition = async (focalPoint) => {
-		console.log(focalPoint, 'focalPoint');
 		const json = {
 			image_id: info?.uploadImageId || info?.coverImageDetails?._id,
 			xPosition: focalPoint?.x,

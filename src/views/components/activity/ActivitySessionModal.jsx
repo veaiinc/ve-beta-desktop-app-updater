@@ -60,7 +60,6 @@ const SessionActivityModal = ({
 	}, [info?.currentSessionId, workflowId]);
 
 	useEffect(() => {
-		console.log('Using current session===>,' + info.currentSessionId);
 		if (info?.currentSessionId) {
 			fetchViewersSessionDetails();
 		}

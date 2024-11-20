@@ -14,11 +14,6 @@ const GalleryOverview = ({
 	handleGalleryDateChange,
 }) => {
 	const workspaceId = localStorage.getItem('workspaceId');
-	console.log(
-		'info==>GalleryOverview',
-		info?.galleryCreatedAt,
-		moment.unix(`${info?.galleryCreatedAt}`).format('DD-MM-YYYY'),
-	);
 
 	return (
 		<div id="gallery-overview" className="settings-overview">
@@ -46,8 +41,6 @@ const GalleryOverview = ({
 					Sort galleries by this date. Which is visible to the client
 				</p>
 				<div>
-					{console.log('info==>GalleryOverview', info)}
-
 					<DatePicker
 						className="datePicker"
 						format="DD-MM-YYYY"

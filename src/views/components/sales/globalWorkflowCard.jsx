@@ -13,7 +13,7 @@ const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 	useEffect(() => {
 		if (data) {
 			const { moduleTemplates, templates } = data;
-			console.log('data==>', data);
+
 			let formData, formParsedContentHtml;
 			let publicModules = [],
 				privateModules = [];
