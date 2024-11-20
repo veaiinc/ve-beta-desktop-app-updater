@@ -3,7 +3,7 @@ import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSidebar from './CalendarSidebar';
 import CalendarView from './CalendarView';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
-import EventDetailsDrawer from '../../components/calendar/EventDetailsDrawer';
+
 import moment from 'moment';
 
 const Calendar = () => {
@@ -17,7 +17,7 @@ const Calendar = () => {
 		activeView: 'Month', // 'Week', 'Day'
 		loading: false,
 		isCreateEventOpen: false,
-		isCalendarDrawerOpen: false,
+		isEventSelected: false,
 	});
 
 	const updateCalendarInfo = useCallback((key, value) => {
@@ -69,15 +69,12 @@ const Calendar = () => {
 						selectedDate={info?.selectedDate}
 						selectedMonth={info?.selectedMonth}
 						selectedYear={info?.selectedYear}
+						isEventSelected={info?.isEventSelected}
 						getCurrentWeek={getCurrentWeek}
 						updateCalendarInfo={updateCalendarInfo}
 					/>
 				</div>
 			)}
-			{/* <EventDetailsDrawer
-				isCalendarDrawerOpen={info?.isCalendarDrawerOpen}
-				updateCalendarInfo={updateCalendarInfo}
-			/> */}
 		</>
 	);
 };

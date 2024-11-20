@@ -7,11 +7,18 @@ const CalendarViewType = ({
 	selectedDate,
 	selectedMonth,
 	selectedYear,
+	isEventSelected,
 	updateCalendarInfo,
 }) => {
 	const views = {
 		Month: <MonthView selectedMonth={selectedMonth} selectedYear={selectedYear} />,
-		Week: <WeekView selectedDate={selectedDate} updateCalendarInfo={updateCalendarInfo} />,
+		Week: (
+			<WeekView
+				selectedDate={selectedDate}
+				isEventSelected={isEventSelected}
+				updateCalendarInfo={updateCalendarInfo}
+			/>
+		),
 		Day: <DayView />,
 	};
 	return views[activeView] || '';

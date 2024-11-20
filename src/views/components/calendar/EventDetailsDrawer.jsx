@@ -3,18 +3,18 @@ import { Drawer } from 'antd';
 import '../../../assets/scss/calendar/eventDetailsDrawer.scss';
 import { ReactComponent as CategoryIcon } from '../../../assets/svg/calendar/category.svg';
 import { ReactComponent as ShareIcon } from '../../../assets/svg/calendar/shareWhite.svg';
-import { ReactComponent as HorizontalMoreIcon } from '../../../assets/svg/calendar/horizontalDots.svg';
+// import { ReactComponent as HorizontalMoreIcon } from '../../../assets/svg/calendar/horizontalDots.svg';
 import { ReactComponent as VerticalDots } from '../../../assets/svg/more-options-dots.svg';
 import { ReactComponent as NoteIcon } from '../../../assets/svg/calendar/note.svg';
 import { ReactComponent as RainbowRing } from '../../../assets/svg/calendar/rainbowRing.svg';
 import { ReactComponent as Close } from '../../../assets/svg/calendar/close.svg';
 
-const EventDetailsDrawer = ({ isCalendarDrawerOpen, updateCalendarInfo }) => {
+const EventDetailsDrawer = ({ isEventSelected, updateCalendarInfo }) => {
 	return (
 		<Drawer
-			onClose={() => updateCalendarInfo('isCalendarDrawerOpen', false)}
+			onClose={() => updateCalendarInfo('isEventSelected', false)}
 			width={500}
-			open={isCalendarDrawerOpen}
+			open={isEventSelected}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
@@ -35,7 +35,7 @@ const EventDetailsDrawer = ({ isCalendarDrawerOpen, updateCalendarInfo }) => {
 							</button>
 							<button
 								className=""
-								onClick={() => updateCalendarInfo('isCalendarDrawerOpen', false)}
+								onClick={() => updateCalendarInfo('isEventSelected', false)}
 							>
 								{/* <HorizontalMoreIcon /> */}
 								<Close />

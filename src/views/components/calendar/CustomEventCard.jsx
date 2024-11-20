@@ -15,7 +15,7 @@ const colorsArray = [
 	'#D76262',
 ];
 
-const CustomEventCard = ({ event, test = 'hello' }) => {
+const CustomEventCard = ({ event }) => {
 	return (
 		<div className="customEventCardParentContainer">
 			<div className="cardContainer">
@@ -24,7 +24,9 @@ const CustomEventCard = ({ event, test = 'hello' }) => {
 					<span
 						className="statusIndicator"
 						// style={{ backgroundColor: $color }}
-						onClick={() => {}}
+						onClick={(event) => {
+							event.stopPropagation();
+						}}
 					>
 						<span></span>
 					</span>

@@ -6,6 +6,7 @@ import CustomTimeGutterHeader from './CustomTimeGutterHeader';
 import CustomEventCard from './CustomEventCard';
 import CustomEventWrapper from './CustomEventWrapper';
 // import CustomEventContainer from './CustomEventContainer';
+import EventDetailsDrawer from './EventDetailsDrawer';
 import moment from 'moment';
 
 const events = [
@@ -58,7 +59,7 @@ const events = [
 	},
 ];
 
-const WeekView = ({ selectedDate, updateCalendarInfo }) => {
+const WeekView = ({ selectedDate, isEventSelected, updateCalendarInfo }) => {
 	const components = useMemo(
 		() => ({
 			timeGutterHeader: CustomTimeGutterHeader,
@@ -72,23 +73,29 @@ const WeekView = ({ selectedDate, updateCalendarInfo }) => {
 	);
 
 	return (
-		<div className="scheduler">
-			<CalendarWrapper
-				events={events}
-				// view={'month'} //if pased defaultview will not work
-				defaultView={'week'} //use active view state here to display views of calendar
-				views={['month', 'week', 'day']}
-				toolbar={false} //to hide inbuilt calendar header controls
-				className="custom"
-				selectable
-				onSelectSlot={() => updateCalendarInfo('isCreateEventOpen', true)}
-				onSelectEvent={(event) => alert(event.title)}
-				// date={moment('2024-12-05').toDate()} //for syncing with calendarSelector current date
-				date={selectedDate} //for syncing with calendarSelector current date
-				popup //for monthview show +extra events
-				components={components}
+		<>
+			<div className="scheduler">
+				<CalendarWrapper
+					events={events}
+					// view={'month'} //if pased defaultview will not work
+					defaultView={'week'} //use active view state here to display views of calendar
+					views={['month', 'week', 'day']}
+					toolbar={false} //to hide inbuilt calendar header controls
+					className="custom"
+					selectable
+					onSelectSlot={() => updateCalendarInfo('isCreateEventOpen', true)}
+					onSelectEvent={(event) => updateCalendarInfo('isEventSelected', true)}
+					// date={moment('2024-12-05').toDate()} //for syncing with calendarSelector current date
+					date={selectedDate} //for syncing with calendarSelector current date
+					popup //for monthview show +extra events
+					components={components}
+				/>
+			</div>
+			<EventDetailsDrawer
+				isEventSelected={isEventSelected}
+				updateCalendarInfo={updateCalendarInfo}
 			/>
-		</div>
+		</>
 	);
 };
 

@@ -10,6 +10,7 @@ const CalendarView = ({
 	getCurrentWeek,
 	selectedMonth,
 	selectedYear,
+	isEventSelected,
 	updateCalendarInfo,
 }) => {
 	return (
@@ -26,6 +27,7 @@ const CalendarView = ({
 				selectedDate={selectedDate}
 				selectedMonth={selectedMonth}
 				selectedYear={selectedYear}
+				isEventSelected={isEventSelected}
 				updateCalendarInfo={updateCalendarInfo}
 			/>
 		</div>
