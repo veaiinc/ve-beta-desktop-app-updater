@@ -11,8 +11,6 @@ import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 import debounce from 'lodash/debounce';
 
-const locationDetails = await getLocationsDetails();
-
 const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	const arrowRef = useRef(null);
 
@@ -48,6 +46,7 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	}, [loginPageInfo?.email]);
 
 	const handleCreateAccountWithEmail = async (email) => {
+		const locationDetails = await getLocationsDetails();
 		if (info?.enterPressed) return;
 		setInfo((prev) => ({ ...prev, isLoading: true, enterPressed: true }));
 		const response = await createAccountUsingEmail(email, locationDetails);
@@ -66,6 +65,7 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 	const debouncedCreateAccount = debounce(handleCreateAccountWithEmail, 1000);
 
 	const handleContinueWithGoogle = async () => {
+		const locationDetails = await getLocationsDetails();
 		setInfo((prev) => ({ ...prev, googleLoading: true }));
 		continueWithGoogle(locationDetails);
 	};
