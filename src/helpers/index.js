@@ -132,6 +132,8 @@ let hostNameMapper = {
 	localhost: 'localhost',
 	've.ai': 've.ai',
 	've.co': 've.co',
+	'www.ve.co': 've.co',
+	'www.ve.ai': 've.ai',
 };
 export const fetchOriginSelection = () => {
 	const hostname = window.location.hostname;
