@@ -18,7 +18,7 @@ const initialState = {
 	activeTemplateData: null,
 	loading: true,
 };
-let origin = fetchOriginSelection();
+
 const EntryPointCard = ({ publicData }) => {
 	const data = publicData?.moduleTemplates?.filter((e) => e?.isPublic);
 
@@ -229,6 +229,8 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 			if (info?.activeTab !== 'design') {
 				return navigate(`/workflow_builder/${response?.[1]?._id}`);
 			} else {
+				let origin = fetchOriginSelection();
+				console.log('origin', origin);
 				window.location.href = `${origin}/${response?.[1]?._id}`;
 				return;
 			}

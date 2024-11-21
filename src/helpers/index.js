@@ -126,6 +126,8 @@ export const fetchOriginSelection = () => {
 		localhost: 'localhost:3000',
 		've.ai': 'https://builder.ve.ai',
 		've.co': 'https://builder.ve.co',
+		'www.ve.ai': 'https://builder.ve.ai',
+		'www.ve.co': 'https://builder.ve.co',
 	};
-	return urlMapper[hostname];
+	return urlMapper?.[hostname];
 };
