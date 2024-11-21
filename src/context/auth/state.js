@@ -109,7 +109,6 @@ export const AuthState = () => {
 
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
-			console.log('response', response);
 			if (response?.[0] === true) {
 				const { accessToken, region } = response?.[1];
 				localStorage.setItem('usertoken', accessToken);
@@ -249,8 +248,6 @@ export const AuthState = () => {
 						hasWorkspaces: true,
 					},
 				];
-
-				console.log('reached here...');
 			}
 
 			return [true, { sessionStatus: false }];

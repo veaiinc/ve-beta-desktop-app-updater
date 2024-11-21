@@ -8,7 +8,7 @@ import Cookies from 'js-cookie';
 import Context from '../../../context/context';
 
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
-	const navigate = useNavigate();
+	// const navigate = useNavigate();
 
 	const {
 		profileInfo: { userDetailsData },
