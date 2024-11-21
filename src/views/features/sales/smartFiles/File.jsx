@@ -688,6 +688,8 @@ const File = ({
 		getEventsPresets(params);
 	}, []);
 
+	// ai prediction
+
 	const generatePridiction = useCallback(() => {
 		if (aiPredictedData && info?.eventsTableData && info?.proposal && !info?.gotGenerated) {
 			//storing current propsal data to disgard ai generated data
@@ -747,6 +749,7 @@ const File = ({
 				eventsTableData: updatedEventstabledata,
 				gotGenerated: true,
 				generatePredictionsLoading: false,
+				proposal: updatedProposal,
 			}));
 		}
 	}, [aiPredictedData, info?.eventsTableData, info?.proposal, info?.gotGenerated]);
@@ -764,9 +767,28 @@ const File = ({
 
 	const onAiGenerationRejection = useCallback(() => {
 		if (info?.storedPreviousProposalData) {
+			syncEventTableData(info?.storedPreviousProposalData);
+			setInfo((prev) => ({
+				...prev,
+				proposal: { ...(info?.storedPreviousProposalData || {}) },
+				gotGenerated: false,
+				generatePredictionsLoading: false,
+				useAiPredictions: false,
+			}));
+		}
+	}, [info?.storedPreviousProposalData, info?.eventsTableData]);
+
+	const acceptAigeneratedValues = useCallback(async () => {
+		const moduleData = info?.proposal || {};
+		handleDebounceUpdate('proposal', moduleData);
+		syncEventTableData(moduleData);
+	}, [info?.proposal]);
+
+	const syncEventTableData = useCallback(
+		(proposalData) => {
 			let updatedEventstabledata = { ...(info?.eventsTableData || {}) };
 			let eventsTable = [];
-			const updatedProposal = { ...(info?.storedPreviousProposalData || {}) };
+			const updatedProposal = { ...(proposalData || {}) };
 			for (let i = 0; i < updatedProposal?.tables?.length; i++) {
 				if (updatedProposal?.tables?.[i]?.type === 'events') {
 					eventsTable.push({
@@ -778,15 +800,12 @@ const File = ({
 			updatedEventstabledata.proposal = [...(eventsTable || [])];
 			setInfo((prev) => ({
 				...prev,
-				proposal: { ...(info?.storedPreviousProposalData || {}) },
 				eventsTableData: updatedEventstabledata,
 				storedPreviousProposalData: null,
-				gotGenerated: false,
-				generatePredictionsLoading: false,
-				useAiPredictions: false,
 			}));
-		}
-	}, [info?.storedPreviousProposalData, info?.eventsTableData]);
+		},
+		[info?.eventsTableData],
+	);
 
 	return (
 		<div className="fileParentContainer">
@@ -871,7 +890,12 @@ const File = ({
 										>
 											Reject
 										</div>
-										<div className="acceptAigeneration">Accept</div>
+										<div
+											className="acceptAigeneration"
+											onClick={acceptAigeneratedValues}
+										>
+											Accept
+										</div>
 									</div>
 								</div>
 							)}

@@ -393,7 +393,13 @@ const Events = ({ eventsData, eventsDataChange, editable, getEventsPresetsData }
 						{item?.roles?.map((x, lt) => (
 							<div className="serviceRoleContainer" key={lt}>
 								<input
-									className={`customInputWithoutLabel ${editable ? 'edit' : ''}`}
+									className={
+										ele?.ai_generated
+											? `customInputWithoutLabel ai_generated ${
+													editable ? 'edit' : ''
+											  }`
+											: `customInputWithoutLabel ${editable ? 'edit' : ''}`
+									}
 									value={x?.type}
 									onChange={(e) =>
 										localEventsOnchange(
@@ -406,7 +412,11 @@ const Events = ({ eventsData, eventsDataChange, editable, getEventsPresetsData }
 									}
 									readOnly={!editable}
 								/>
-								<div className="incrementDecrementContainer">
+								<div
+									className={`incrementDecrementContainer ${
+										ele?.ai_generated ? 'ai_generated' : ''
+									}`}
+								>
 									<span
 										className="incrementorBtns"
 										onClick={() =>
