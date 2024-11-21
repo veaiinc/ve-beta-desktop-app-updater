@@ -9,6 +9,7 @@ import Service from '../../services/index';
 export const intialState = {
 	subscriptionPlans: null,
 	coupons: null,
+	currentPlan: null,
 };
 
 export const SubscriptionState = (props) => {
@@ -86,6 +87,28 @@ export const SubscriptionState = (props) => {
 			console.log('error==>resetSubscriptionState', error);
 		}
 	};
+	const getCurrentSubscriptionPlan = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/subscription/${workspaceId}/get-current-subscription-plan`,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_ALL_CURRENT_PLAN_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				message.error('Unable to fetch subscription plans');
+				console.log('api failed ==>getCurrentSubscriptionPlan', response);
+			}
+		} catch (error) {
+			console.log('errror ==>getCurrentSubscriptionPlan', error);
+		}
+	};
 
 	return {
 		...state,
@@ -93,5 +116,6 @@ export const SubscriptionState = (props) => {
 		resetSubscriptionState,
 		getAllCoupons,
 		createStripeCheckoutSession,
+		getCurrentSubscriptionPlan,
 	};
 };

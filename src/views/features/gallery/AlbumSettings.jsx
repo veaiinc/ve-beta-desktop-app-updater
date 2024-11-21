@@ -331,7 +331,6 @@ const AlbumSettings = () => {
 	};
 
 	const handleSetCoverPosition = async (focalPoint) => {
-		console.log(focalPoint, 'focalPoint');
 		const json = {
 			image_id: info?.uploadImageId || info?.coverImageDetails?._id,
 			xPosition: focalPoint?.x,
@@ -379,7 +378,7 @@ const AlbumSettings = () => {
 							<div className="hideOption">
 								{/* onChange={toggleEnable} value={userDetails?.is2FAEnabled}  */}
 								<ToggleSlider
-									value={info?.isPublished}
+									value={!info?.isPublished}
 									onChange={handleHideAlbum}
 								/>
 								<p className="subtitle">

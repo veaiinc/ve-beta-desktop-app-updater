@@ -145,15 +145,12 @@ const UploadPhotos = () => {
 
 	const getJsonFunction = (currentImage) => {
 		const imageKeysArray = Object.keys(info?.uploadImages || {});
-		console.log(imageKeysArray, 'imageKeysArray');
 
 		const imageKeyIndex =
 			recentImageInitiatedRef.current !== null
 				? imageKeysArray[imageKeysArray.indexOf(currentImage)]
 				: imageKeysArray[0];
 		const image = info?.uploadImages[imageKeyIndex];
-
-		console.log(currentImage, imageKeyIndex, image, 'image');
 
 		if (image && image?.isUploaded) return null;
 
@@ -350,9 +347,9 @@ const UploadPhotos = () => {
 
 	return (
 		<div className="upload-gallery-container">
-			<Link to={`/galleries/${galleryId}`} className="backHeader">
+			<div onClick={() => navigate(-1)} className="backHeader">
 				<BackIcon /> <p>{info?.title}</p>
-			</Link>
+			</div>
 
 			<div className="options_upload_container">
 				<AddLables info={info} setinfo={setinfo} searchParams={searchParams} />

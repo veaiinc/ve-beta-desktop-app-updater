@@ -12,12 +12,19 @@ const Subscription = () => {
 	const navigate = useNavigate();
 
 	let {
-		subscriptionInfo: { getAllSubscriptionPlan, subscriptionPlans, getAllCoupons },
+		subscriptionInfo: {
+			getAllSubscriptionPlan,
+			subscriptionPlans,
+			getAllCoupons,
+			getCurrentSubscriptionPlan,
+			currentPlan,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		loading: true,
 		plans: null,
+		subscribedPlans: null,
 	});
 
 	//useEffects
@@ -25,6 +32,7 @@ const Subscription = () => {
 		checkAuth();
 		getAllSubscriptionPlan();
 		getAllCoupons();
+		getCurrentSubscriptionPlan();
 	}, []);
 
 	useEffect(() => {
@@ -32,6 +40,12 @@ const Subscription = () => {
 			setInfo((prev) => ({ ...prev, loading: false, plans: subscriptionPlans }));
 		}
 	}, [subscriptionPlans]);
+
+	useEffect(() => {
+		if (currentPlan) {
+			setInfo((prev) => ({ ...prev, subscribedPlans: currentPlan }));
+		}
+	}, [currentPlan]);
 
 	return (
 		<div className="subscriptionParentContainer">
@@ -51,7 +65,11 @@ const Subscription = () => {
 							</SkeletonTheme>
 					  ))
 					: info?.plans?.map((ele, index) => (
-							<SubscriptionCard key={index} planData={ele} />
+							<SubscriptionCard
+								key={index}
+								planData={ele}
+								subscribedPlans={info?.subscribedPlans}
+							/>
 					  ))}
 			</div>
 			<div className="gobackBtn" onClick={() => navigate(-1)}>
