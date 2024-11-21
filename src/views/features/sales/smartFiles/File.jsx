@@ -11,9 +11,10 @@ import { ReactComponent as EditSvg } from '../.././../../assets/svg/worflow_buil
 import Spinner from '../../../components/loaders/Spinner';
 import { useParams } from 'react-router-dom';
 import moment from 'moment';
+import { fetchOriginSelection } from '../../../../helpers';
 
-let origin =
-	window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://builder.ve.ai';
+let origin = fetchOriginSelection();
+// window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://builder.ve.ai';
 const File = ({
 	templateData,
 	workflowData,
