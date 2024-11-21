@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import '../../../assets/scss/gallery/aiOption.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
 // import { ReactComponent as CopyIcon } from '../../../assets/svg/workflow/copy.svg';
 import AiPeopleContainer from '../../components/gallery/aiSelections/AiPeopleContainer';
 import AiFaceRegistration from '../../components/gallery/aiSelections/AiFaceRegistration';
+import Insights from '../../components/gallery/aiSelections/Insights';
+
 const aiOptions = [
 	{ name: 'AI People', value: 'AI People' },
 	{ name: 'AI Face Registration', value: 'AI Face Registration' },
 	{ name: 'Insights', value: 'Insights' },
 ];
-const AiSelection = () => {
+const AiSelection = ({ galleryId, galleryCredentials }) => {
 	const [info, setInfo] = useState({
 		search: 'AI People',
 		showShearch: false,
@@ -27,6 +29,7 @@ const AiSelection = () => {
 			searchValue: value,
 		}));
 	};
+
 	return (
 		<div className="aiSelection-container">
 			<div className="aiOptions-navbar">
@@ -65,8 +68,11 @@ const AiSelection = () => {
 				</div>
 			</div>
 
-			{info?.search === 'AI People' && <AiPeopleContainer />}
+			{info?.search === 'AI People' && (
+				<AiPeopleContainer galleryId={galleryId} galleryCredentials={galleryCredentials} />
+			)}
 			{info?.search === 'AI Face Registration' && <AiFaceRegistration />}
+			{info?.search === 'Insights' && <Insights />}
 		</div>
 	);
 };

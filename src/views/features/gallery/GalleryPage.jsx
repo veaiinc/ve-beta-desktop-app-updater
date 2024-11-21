@@ -2983,7 +2983,9 @@ const GalleryPage = () => {
 						</div>
 					</div>
 				)}
-				{info.activeTab === 'AI' && <AiSelection />}
+				{info.activeTab === 'AI' && (
+					<AiSelection galleryId={galleryId} galleryCredentials={galleryCredentials} />
+				)}
 			</div>
 
 			<ShareModal
