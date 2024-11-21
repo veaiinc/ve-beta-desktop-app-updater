@@ -862,7 +862,7 @@ const File = ({
 							? `Please enter the following custom data to send this proposal`
 							: 'Smart File Details'}
 					</span>
-					{aiPredictedData ? (
+					{edit && aiPredictedData ? (
 						<>
 							{!info?.gotGenerated ? (
 								<div className="aiPredictionParentContainer">
