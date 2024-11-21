@@ -96,13 +96,12 @@ const AddNewUserModal = (props) => {
 		let isExisting = false;
 		let userType = '';
 		let userId = '';
-		console.log(state.tenantUser, 'this are the tenantUser');
+
 		const isUserExisting = state?.tenantUser.find(
 			(o) =>
 				(o.email && o.email === state?.emailID) ||
 				(o.inviteeEmail && o.inviteeEmail === state?.emailID),
 		);
-		console.log(isUserExisting, 'this are the isUserExit');
 
 		if (isUserExisting) {
 			userId = isUserExisting._id;
