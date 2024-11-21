@@ -8,10 +8,13 @@ import Variables from '../../../components/smartFileComponets/Variables';
 import Context from '../../../../context/context';
 import AcceptedStageSmartFileBlocks from '../../../components/smartFileComponets/AcceptedStageSmartFileBlocks';
 import { ReactComponent as EditSvg } from '../.././../../assets/svg/worflow_builder/edit.svg';
+import { ReactComponent as Ai } from '../.././../../assets/svg/sales/smartFile/coloredAi.svg';
 import Spinner from '../../../components/loaders/Spinner';
 import { useParams } from 'react-router-dom';
 import moment from 'moment';
-
+import ToggleSlider from '../../../components/input/slider';
+import { Spin } from 'antd';
+import _ from 'lodash';
 let origin =
 	window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://builder.ve.ai';
 const File = ({
@@ -22,6 +25,7 @@ const File = ({
 	expiresAt,
 	updateSendSmartFileExpiryData,
 	workflowStatus,
+	slug,
 }) => {
 	const { workflowId } = useParams();
 	const timeoutRef = useRef(null);
@@ -36,6 +40,8 @@ const File = ({
 			formResponseData,
 			updateSendSmartFileSettings,
 			getEventsPresets,
+			getAiPredictionForSmartFile,
+			aiPredictedData,
 		},
 	} = useContext(Context);
 
@@ -57,6 +63,10 @@ const File = ({
 		varibalesModified: false,
 		iframeReady: false,
 		variableInitialised: false,
+		useAiPredictions: false,
+		storedPreviousProposalData: null,
+		gotGenerated: false,
+		generatePredictionsLoading: false,
 	});
 
 	useEffect(() => {
@@ -228,6 +238,10 @@ const File = ({
 		info?.iframeReady,
 		info?.variableInitialised,
 	]);
+
+	useEffect(() => {
+		getAiPredictionForSmartFile(slug);
+	}, [slug]);
 
 	//function defination
 	//when the variable is clicked, autofocus the input
@@ -674,6 +688,106 @@ const File = ({
 		getEventsPresets(params);
 	}, []);
 
+	const generatePridiction = useCallback(() => {
+		if (aiPredictedData && info?.eventsTableData && info?.proposal && !info?.gotGenerated) {
+			//storing current propsal data to disgard ai generated data
+
+			setInfo((prev) => ({
+				...prev,
+				storedPreviousProposalData: _.cloneDeep(info?.proposal || {}),
+			}));
+
+			const updatedProposal = _.cloneDeep(info?.proposal || {});
+
+			let updatedEventstabledata = { ...(info?.eventsTableData || {}) };
+
+			//handling events
+			const eventsPredictions = aiPredictedData?.filter((ele) => ele?.type === 'events');
+			const eventsTableData = [];
+
+			let i = 0;
+			for (let m = 0; m < updatedProposal?.tables?.length; m++) {
+				if (updatedProposal?.tables?.[m]?.type === 'events') {
+					const proposalEventsTable = updatedProposal?.tables?.[m];
+					const { values = [] } = proposalEventsTable || {};
+					for (let j = 0; j < values?.length; j++) {
+						const predictedRoles = eventsPredictions?.[i]?.['events']?.[j]?.['output'];
+						const roles = [];
+						for (let k = 0; k < predictedRoles?.length; k++) {
+							roles?.push({
+								type: predictedRoles?.[k]?.type,
+								categories: [
+									{
+										category: 'candid',
+										quantity: predictedRoles?.[k]?.quantity || 0,
+									},
+									{
+										category: 'traditional',
+										quantity: 0,
+									},
+								],
+							});
+						}
+						values[j].roles = [...(roles || [])];
+					}
+					proposalEventsTable.values = [...values];
+					eventsTableData.push({
+						...(proposalEventsTable || {}),
+						moduleType: 'proposal',
+						ai_generated: true,
+					});
+					i++;
+				}
+			}
+
+			updatedEventstabledata.proposal = [...(eventsTableData || [])];
+
+			setInfo((prev) => ({
+				...prev,
+				eventsTableData: updatedEventstabledata,
+				gotGenerated: true,
+				generatePredictionsLoading: false,
+			}));
+		}
+	}, [aiPredictedData, info?.eventsTableData, info?.proposal, info?.gotGenerated]);
+
+	const onChangeAiPrediction = useCallback(
+		(value) => {
+			setInfo((prev) => ({ ...prev, useAiPredictions: value }));
+			if (value && aiPredictedData) {
+				generatePridiction();
+				setInfo((prev) => ({ ...prev, generatePredictionsLoading: true }));
+			}
+		},
+		[slug, aiPredictedData],
+	);
+
+	const onAiGenerationRejection = useCallback(() => {
+		if (info?.storedPreviousProposalData) {
+			let updatedEventstabledata = { ...(info?.eventsTableData || {}) };
+			let eventsTable = [];
+			const updatedProposal = { ...(info?.storedPreviousProposalData || {}) };
+			for (let i = 0; i < updatedProposal?.tables?.length; i++) {
+				if (updatedProposal?.tables?.[i]?.type === 'events') {
+					eventsTable.push({
+						...(updatedProposal?.tables?.[i] || {}),
+						moduleType: 'proposal',
+					});
+				}
+			}
+			updatedEventstabledata.proposal = [...(eventsTable || [])];
+			setInfo((prev) => ({
+				...prev,
+				proposal: { ...(info?.storedPreviousProposalData || {}) },
+				eventsTableData: updatedEventstabledata,
+				storedPreviousProposalData: null,
+				gotGenerated: false,
+				generatePredictionsLoading: false,
+				useAiPredictions: false,
+			}));
+		}
+	}, [info?.storedPreviousProposalData, info?.eventsTableData]);
+
 	return (
 		<div className="fileParentContainer">
 			<div className="previewContainer">
@@ -723,11 +837,49 @@ const File = ({
 					userSigned={userSigned}
 					workflowStatus={workflowStatus}
 				/>
-				<span className="editContainerHeader">
-					{edit
-						? `Please enter the following custom data to send this proposal`
-						: 'Smart File Details'}
-				</span>
+				<div className="editContainerHeaderWrapper">
+					<span className="editContainerHeader">
+						{edit
+							? `Please enter the following custom data to send this proposal`
+							: 'Smart File Details'}
+					</span>
+					{aiPredictedData ? (
+						<>
+							{!info?.gotGenerated ? (
+								<div className="aiPredictionParentContainer">
+									<Ai />
+									<span className="aiSuggestionstext">AI Suggestions</span>
+									{!info?.generatePredictionsLoading ? (
+										<ToggleSlider
+											value={info?.useAiPredictions}
+											onChange={(val) => onChangeAiPrediction(val)}
+										/>
+									) : (
+										<Spin />
+									)}
+								</div>
+							) : (
+								<div className="aiPredictionContainerForGeneratedData">
+									<div className="aiPredictionParentContainer">
+										<Ai />
+										<span className="aiSuggestionstext">AI Suggestions</span>
+									</div>
+									<div className="acceptRejectButtonContainer">
+										<div
+											className="rejectAiGeneration"
+											onClick={onAiGenerationRejection}
+										>
+											Reject
+										</div>
+										<div className="acceptAigeneration">Accept</div>
+									</div>
+								</div>
+							)}
+						</>
+					) : (
+						''
+					)}
+				</div>
 
 				<Variables
 					variablesData={info?.variablesData}
