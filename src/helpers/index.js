@@ -120,14 +120,25 @@ export const isURL = (url) => {
 	}
 };
 
+let urlMapper = {
+	localhost: 'localhost:3000',
+	've.ai': 'https://builder.ve.ai',
+	've.co': 'https://builder.ve.co',
+	'www.ve.ai': 'https://builder.ve.ai',
+	'www.ve.co': 'https://builder.ve.co',
+};
+
+let hostNameMapper = {
+	localhost: 'localhost',
+	've.ai': 've.ai',
+	've.co': 've.co',
+};
 export const fetchOriginSelection = () => {
 	const hostname = window.location.hostname;
-	let urlMapper = {
-		localhost: 'localhost:3000',
-		've.ai': 'https://builder.ve.ai',
-		've.co': 'https://builder.ve.co',
-		'www.ve.ai': 'https://builder.ve.ai',
-		'www.ve.co': 'https://builder.ve.co',
-	};
 	return urlMapper?.[hostname];
+};
+
+export const fetchDomainName = () => {
+	const hostname = window.location.hostname;
+	return hostNameMapper?.[hostname];
 };
