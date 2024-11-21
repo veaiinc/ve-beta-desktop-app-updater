@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, memo, useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/landingScreen/index.scss';
 import Navbar from '../../components/landing_screen/Navbar';
@@ -11,9 +11,13 @@ import { ReactComponent as Hamburger } from '../../../assets/svg/landingScreen/h
 import { gsap } from 'gsap';
 import PrivacyPolicyModal from '../../components/modalsV2/landingPage/PrivacyPolicyModal';
 import MobileNavSidebar from '../../components/modalsV2/landingPage/MobileNavSidebar';
+import Context from '../../../context/context';
 
 const LandingPage = () => {
 	const navigate = useNavigate();
+	const {
+		authInfo: { checkUserSessionStatus },
+	} = useContext(Context);
 	const [showMobielNavSidebar, setShowMobielNavSidebar] = useState(false);
 	const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 823);
 	const [togglePrivacyAndTermsModal, setTogglePrivacyAndTermsModal] = useState(false);
@@ -33,6 +37,7 @@ const LandingPage = () => {
 	useEffect(() => {
 		handleEvents();
 		handleAnimations();
+		checkUserSession();
 	}, []);
 
 	const handleEvents = useCallback(() => {
@@ -138,6 +143,29 @@ const LandingPage = () => {
 		}
 	};
 
+	const checkUserSession = async () => {
+		try {
+			const response = await checkUserSessionStatus();
+			if (response?.[0] === true) {
+				if (response?.[1]?.sessionStatus) {
+					if (response?.[1]?.isOnboard) {
+						if (response?.[1]?.hasWorkspaces) {
+							navigate('/home');
+						}
+					} else {
+						if (!response?.[1]?.hasWorkspaces) {
+							navigate('/onboarding');
+						} else {
+							navigate('/early-access');
+						}
+					}
+				}
+			}
+		} catch (error) {
+			console.error('Error checking user session status:', error);
+		}
+	};
+
 	return (
 		<div className={'landingPagecontainer'}>
 			<div className={'veLogoStyles'}>
@@ -180,7 +208,7 @@ const LandingPage = () => {
 										onKeyDown={handleEnterKey}
 										name="prompt"
 										placeholder="Hey, give me million dollar service business idea!"
-										autoFocus={true}
+										autoFocus={false}
 									></textarea>
 								</div>
 								<div className={'promptActions'}>
