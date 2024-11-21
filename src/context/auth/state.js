@@ -2,6 +2,7 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 import service from '../../services/';
 import Cookies from 'js-cookie';
+import { getLocationsDetails } from '../../helpers';
 const { auth_Api: authBaseUrl } = require('../../services/config.live');
 
 export const AuthState = () => {
@@ -217,47 +218,42 @@ export const AuthState = () => {
 
 	const checkUserSessionStatus = async () => {
 		const path = '/accessible-tenants';
-		const token = localStorage?.getItem('usertoken') || false;
-
+		const token = localStorage?.getItem('usertoken') ?? false;
+		const workspaceId = localStorage?.getItem('workspaceId') ?? false;
+		const locationDetails = localStorage?.getItem('locationDetails') ?? false;
 		try {
-			if (!token) {
-				return [
-					false,
-					{
-						tokenValid: false,
-					},
-				];
+			if (token?.length === 0 || token === false) {
+				return [false, { sessionStatus: false }];
 			}
-			const response = await service?.fetchGet(path, token, 'auth');
-			if (response?.[0] === true) {
-				if (!response?.[1]?.length) {
-					return [
-						true,
-						{
-							isOnboard: response?.[1]?.[0]?.isOnboard,
-							tokenValid: true,
-						},
-					];
-				} else {
-					const { isOnboard, workspaceIds } = response?.[1]?.[0];
-					return [
-						true,
-						{
-							isOnboard,
-							tokenValid: true,
-							workspaceIds,
-						},
-					];
+			if (workspaceId?.length === 0 || workspaceId === false) {
+				return [true, { sessionStatus: true, isOnboard: false, hasWorkspaces: false }];
+			}
+			const accessibleTenantsResponse = await service?.fetchGet(path, token, 'auth');
+			if (accessibleTenantsResponse?.[0] === true) {
+				if (!locationDetails) {
+					const locationDetails = await getLocationsDetails();
+					localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
 				}
-			} else {
+				if (accessibleTenantsResponse?.[1]?.length === 0) {
+					return [true, { sessionStatus: true, isOnboard: false, hasWorkspaces: false }];
+				}
+				const activeWorkspaceData = accessibleTenantsResponse?.[1]?.filter(
+					(workspaceData) => workspaceData?.activeWorkspaceId === workspaceId,
+				);
+
 				return [
-					false,
+					true,
 					{
-						message: response?.[1]?.message?.trim() + '. Please try again!',
-						tokenValid: false,
+						sessionStatus: true,
+						isOnboard: activeWorkspaceData?.[0]?.isOnboard,
+						hasWorkspaces: true,
 					},
 				];
+
+				console.log('reached here...');
 			}
+
+			return [true, { sessionStatus: false }];
 		} catch (error) {
 			console.error('Error checking user session status:', error);
 			throw error;
@@ -328,7 +324,7 @@ export const AuthState = () => {
 			const response = await service?.fetchPost(path, body, token, 'auth');
 			if (response?.[0] === true) {
 				localStorage.setItem('isOnboard', JSON.stringify(response?.[1]?.isOnboard));
-				localStorage.setItem('workspaceId', JSON.stringify(response?.[1]?.workspaceId));
+				localStorage.setItem('workspaceId', response?.[1]?.workspaceId);
 				return [
 					true,
 					{

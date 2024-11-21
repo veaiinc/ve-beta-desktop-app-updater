@@ -21,9 +21,7 @@ const LandingPage = () => {
 	const [showMobielNavSidebar, setShowMobielNavSidebar] = useState(false);
 	const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 823);
 	const [togglePrivacyAndTermsModal, setTogglePrivacyAndTermsModal] = useState(false);
-	const [isOnboard, setIsOnboard] = useState(false);
-	const [tokenValid, setTokenValid] = useState(false);
-	const [workspaceIds, setWorkspaceIds] = useState([]);
+
 	const h1Ref = useRef(null);
 	const h2Ref = useRef(null);
 	const h3Ref = useRef(null);
@@ -49,20 +47,6 @@ const LandingPage = () => {
 			window.removeEventListener('resize', handleResize);
 		};
 	}, []);
-
-	useEffect(() => {
-		if (!isOnboard && tokenValid) {
-			if (workspaceIds?.length >= 1) {
-				navigate('/home');
-			} else {
-				navigate('/onboarding');
-			}
-		} else if (isOnboard && tokenValid) {
-			navigate('/home');
-		} else if (!tokenValid) {
-			return;
-		}
-	}, [isOnboard, tokenValid, workspaceIds]);
 
 	const handleAnimations = useCallback(() => {
 		const tl = gsap.timeline();
@@ -162,10 +146,20 @@ const LandingPage = () => {
 	const checkUserSession = async () => {
 		try {
 			const response = await checkUserSessionStatus();
-			if (response[0] === true) {
-				setIsOnboard(response?.[1]?.isOnboard);
-				setTokenValid(response?.[1]?.tokenValid);
-				setWorkspaceIds(response?.[1]?.workspaceIds);
+			if (response?.[0] === true) {
+				if (response?.[1]?.sessionStatus) {
+					if (response?.[1]?.isOnboard) {
+						if (response?.[1]?.hasWorkspaces) {
+							navigate('/home');
+						}
+					} else {
+						if (!response?.[1]?.hasWorkspaces) {
+							navigate('/onboarding');
+						} else {
+							navigate('/early-access');
+						}
+					}
+				}
 			}
 		} catch (error) {
 			console.error('Error checking user session status:', error);

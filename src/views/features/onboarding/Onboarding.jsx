@@ -119,11 +119,6 @@ const Onboarding = () => {
 				info?.businessName,
 			);
 			if (workspaceResponse[0] === true) {
-				// setInfo((prev) => ({
-				// 	...prev,
-				// 	step: prev?.step + 1,
-				// 	isOnboard: workspaceResponse?.[1]?.isOnboard,
-				// }));
 				if (workspaceResponse?.[1]?.isOnboard) {
 					navigate('/home');
 				} else {
