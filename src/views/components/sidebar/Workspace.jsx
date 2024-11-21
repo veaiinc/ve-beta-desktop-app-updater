@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
@@ -7,7 +8,7 @@ import Cookies from 'js-cookie';
 import Context from '../../../context/context';
 
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
-	// const navigate = useNavigate();
+	const navigate = useNavigate();
 
 	const {
 		profileInfo: { userDetailsData },

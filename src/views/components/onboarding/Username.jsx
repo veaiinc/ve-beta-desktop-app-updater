@@ -10,14 +10,13 @@ const Username = ({
 	animateStep1Exit,
 	handleInvitedUser,
 	createAccountViaInvite = false,
-	createWorkspaceUsername = false,
 }) => {
 	const [info, setInfo] = useState({
 		isHovering: false,
 		enterPressed: false,
 	});
 	useEffect(() => {
-		if (usernameDivRef?.current && createWorkspaceUsername) {
+		if (usernameDivRef?.current) {
 			gsap.to(usernameDivRef.current, {
 				opacity: 0,
 				duration: 0.5,

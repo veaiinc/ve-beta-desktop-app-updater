@@ -269,6 +269,13 @@
 						line-height: normal;
 						text-align: right;
 					}
+
+					.otp-input-container {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						gap: 8px;
+					}
 				}
 
 				.verification-code-button {

@@ -16,6 +16,13 @@ const tl = gsap.timeline();
 const tl2 = gsap.timeline();
 
 const Onboarding = () => {
+	const navigate = useNavigate();
+	const location = useLocation();
+	const params = new URLSearchParams(location?.search);
+	const invitedWorkspaceId = params?.get('invitedWorkspaceId');
+	const invitedUserEmail = params?.get('inviteeEmail');
+	const createWorkspaceUsername = params?.get('username');
+
 	const {
 		authInfo: { updateUserDetails, createWorkspace, createAccountViaInvite },
 	} = useContext(Context);
@@ -33,9 +40,6 @@ const Onboarding = () => {
 		businessName: '',
 	});
 
-	const navigate = useNavigate();
-	const location = useLocation();
-
 	const aiIntroRef = useRef(null);
 	const step1Ref = useRef(null);
 	const step2Ref = useRef(null);
@@ -43,11 +47,6 @@ const Onboarding = () => {
 	const step5Ref = useRef(null);
 	const step6Ref = useRef(null);
 	const step7Ref = useRef(null);
-
-	const params = new URLSearchParams(location?.search);
-	const invitedWorkspaceId = params?.get('invitedWorkspaceId');
-	const invitedUserEmail = params?.get('inviteeEmail');
-	const createWorkspaceUsername = params?.get('username');
 
 	useEffect(() => {
 		if (invitedWorkspaceId && invitedUserEmail) {
@@ -61,17 +60,6 @@ const Onboarding = () => {
 			navigate('/home');
 		}
 	}, []);
-
-	useEffect(() => {
-		if (info?.step === 1 && info?.stage === 1) {
-			if (createWorkspaceUsername) {
-				setInfo((prev) => ({
-					...prev,
-					username: createWorkspaceUsername,
-				}));
-			}
-		}
-	}, [info?.step, info?.stage]);
 
 	useEffect(() => {
 		if (info?.step === 0 && aiIntroRef?.current) {
@@ -433,8 +421,20 @@ const Onboarding = () => {
 				<h2>Your AI companion</h2>
 			</>
 		),
-		1: <h1 ref={step1Ref}>What can I call you ?</h1>,
-		2: <h1 ref={step2Ref}>Hey {info?.username}, nice to meet you.</h1>,
+		1: (
+			<h1 ref={step1Ref}>
+				{createWorkspaceUsername
+					? `Welcome back ${createWorkspaceUsername}`
+					: 'What can I call you ?'}
+			</h1>
+		),
+		2: (
+			<h1 ref={step2Ref}>
+				{createWorkspaceUsername
+					? `Just a moment...`
+					: `Hey ${info?.username}, nice to meet you.`}
+			</h1>
+		),
 		3: (
 			<div style={{ position: 'relative' }}>
 				<h1>Let's setup your workspace handle</h1>
@@ -472,7 +472,6 @@ const Onboarding = () => {
 				animateStep1Exit={animateStep1Exit}
 				handleInvitedUser={handleInvitedUser}
 				createAccountViaInvite={invitedWorkspaceId && invitedUserEmail}
-				createWorkspaceUsername={createWorkspaceUsername}
 			/>
 		),
 		2: (
