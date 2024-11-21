@@ -1,406 +1,279 @@
-.landingPagecontainer {
+.landing-page-container {
 	width: 100vw;
 	height: 100vh;
-	background-color: var(--prim-bg-clr);
-	position: relative;
-	padding: 0 200px;
+	padding: 48px 120px;
+	background: linear-gradient(180deg, #0e0f0f 0%, #19191b 100%);
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 
-	.veLogoStyles {
-		position: fixed;
-		top: 36px;
-		left: 48px;
-		background-color: rgb(18, 18, 18);
-		z-index: 3;
+	.header-container {
+		width: 100%;
+		height: 100px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
 
-		svg {
+		.login-button {
+			color: #fff;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			border: none;
+			background: none;
 			cursor: pointer;
 		}
-
-		&:hover {
-			animation: rotateAnimation 2s infinite;
-		}
 	}
 
-	.hamburger {
-		position: absolute;
-		top: 24px;
-		right: 48px;
-		cursor: pointer;
-		z-index: 3;
-	}
-
-	@keyframes rotateAnimation {
-		0% {
-			transform: rotateY(0deg);
-		}
-		25% {
-			transform: rotateY(180deg);
-		}
-		50% {
-			transform: rotateY(180deg);
-		}
-		75% {
-			transform: rotateY(0deg);
-		}
-		100% {
-			transform: rotateY(0deg);
-		}
-	}
-
-	.mainContent {
+	.landing-page-content {
 		display: flex;
-		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		height: calc(100% - 90px);
+		width: 100%;
+		margin: 0 auto;
 
-		.mainBox {
-			width: fit-content;
-			height: calc(100vh - 90px);
+		.hero-section-1 {
+			width: 50%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 16px;
 
-			.title {
-				overflow: hidden;
-				position: relative;
-
-				h1 {
-					margin-top: 48px;
-					color: #e4e5e6;
-					font-family: Inter;
-					font-size: 30px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 42px;
-				}
-
-				h2 {
-					margin-top: 8px;
-					font-family: Inter;
-					font-size: 36px;
-					font-style: normal;
-					font-weight: 500;
-					background: linear-gradient(90deg, #98c1ffe5, #813fece5, #ff6ea2e5);
-					-webkit-background-clip: text;
-					background-clip: text;
-					color: transparent;
-					width: fit-content;
-				}
-
-				h3 {
-					margin-top: 8px;
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
-					font-size: 18px;
-					font-style: normal;
-					font-weight: 400;
-					line-height: 24px;
-				}
+			& > * {
+				max-width: 380px;
 			}
 
-			h4.gettingStarted {
-				color: rgba(228, 229, 230, 0.48);
-				text-align: left;
-				font-family: Inter;
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 400;
-				margin: 48px 0 16px;
-			}
-
-			.cardsContainer {
-				margin-top: 16px;
+			.veai-logo-container {
 				width: 100%;
-				max-width: 1240px; // 1440px - 200px of padding
-				display: flex;
-				justify-content: center;
-				flex-wrap: wrap;
-				gap: 18px;
-
-				.card {
-					position: relative;
-					padding: 16px;
-					width: 25%;
-					max-width: 245px;
-					min-width: 195px;
-					height: 165px;
-					// aspect-ratio: 245 / 166;
-					border-radius: 16px;
-					border: 0.5px solid rgba(100, 100, 100, 0.16);
-					background: linear-gradient(0deg, #121315, #121315);
-					transition: all 0.6s ease-out;
-					cursor: pointer;
-					// &:hover {
-					//     background: linear-gradient(
-					//         129deg,
-					//         #121315 27.84%,
-					//         #202328 131.68%
-					//     );
-					// }
-
-					svg.gradient {
-						position: absolute;
-						top: 0;
-						left: 0;
-						border-radius: 16px;
-					}
-
-					p.description {
-						color: rgba(228, 229, 230, 0.48);
-						font-family: Inter;
-						font-size: 12px;
-						font-style: normal;
-						font-weight: 400;
-						line-height: 16px;
-					}
-
-					nav {
-						position: absolute;
-						bottom: 16px;
-						display: flex;
-						align-items: center;
-
-						h3 {
-							color: #fff;
-							text-align: center;
-							font-family: Inter;
-							font-size: 13px;
-							font-style: normal;
-							font-weight: 400;
-							line-height: 18px;
-							margin-left: 6px;
-							cursor: pointer;
-						}
-					}
-				}
-			}
-
-			.refreshPrompts {
-				margin-top: 16px;
 				display: flex;
 				justify-content: flex-start;
 				align-items: center;
-				gap: 8px;
+				gap: 10px;
 
-				h4 {
-					color: rgba(228, 229, 230, 0.48);
+				.veai-logo-text {
+					color: rgba(255, 255, 255, 0.5);
 					font-family: Inter;
-					font-size: 12px;
+					font-size: 16px;
 					font-style: normal;
 					font-weight: 400;
-					line-height: 16px;
-					cursor: pointer;
-					transition: all 0.3s ease;
-
-					&:hover {
-						color: white;
-						text-shadow: 0px 0px 3px rgba(255, 255, 255, 0.8);
-					}
+					line-height: normal;
 				}
 			}
 
-			.promptContainer {
-				height: 40%;
-				// margin-top: 112px;
+			.heading {
+				color: #fff;
+				font-family: Brasley, sans-serif !important;
+				font-size: 36px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 44px;
+			}
+
+			.description {
+				color: rgba(255, 255, 255, 0.5);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 24px;
+			}
+
+			.cta-container {
+				display: flex;
+				gap: 8px;
+				width: 100%;
+
+				& > * {
+					padding: 14px 24px;
+					border: none;
+					cursor: pointer;
+					width: 50%;
+				}
+
+				.get-started-button {
+					border-radius: 59px;
+					background: #b89cf9;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					gap: 8px;
+					color: #000;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+
+				.request-demo-button {
+					border-radius: 59px;
+					background: transparent;
+					border: 1px solid #2c2d2e;
+					color: #e8e8e8;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+
+		.hero-section-2 {
+			width: 50%;
+			height: 95%;
+			border-radius: 40px;
+			background: #202123;
+			padding: 40px 60px;
+			margin: 20px auto;
+
+			.toggle-container {
 				width: 100%;
 				display: flex;
-				flex-direction: column;
-				align-items: center;
 				justify-content: center;
-				gap: 12px;
+				align-items: center;
+				flex-direction: column;
 
-				.box550px {
-					width: 550px;
+				.toggle-button {
+					display: flex;
+					gap: 8px;
+					border-radius: 30px;
+					background: #161718;
+					padding: 8px;
 
-					p.heading {
-						color: rgba(228, 229, 230, 0.48);
+					.toggle-text {
+						color: #939393;
 						font-family: Inter;
-						font-size: 12px;
+						font-size: 14px;
 						font-style: normal;
-						font-weight: 400;
-						line-height: 14px;
-						width: fit-content;
+						font-weight: 500;
+						line-height: normal;
+						cursor: pointer;
+						padding: 12px 16px;
+						transition: all 0.3s ease;
 					}
 
-					.promptInputDiv {
-						margin-top: 12px;
-						padding: 16px;
-						border-radius: 13.997px;
-						border: 1px solid rgba(100, 100, 100, 0.16);
-						background: #191b1e;
-						box-shadow: 0px -15.996px 99.975px 0px rgba(96, 85, 236, 0.12);
-						height: 104px;
-
-						.promptTextArea {
-							display: flex;
-							justify-content: flex-start;
-							align-items: flex-start;
-							gap: 8px;
-
-							textarea {
-								width: 100%;
-								height: 48px;
-								background-color: inherit;
-								color: white;
-								border: none;
-								outline: none;
-								resize: none;
-								line-height: 20px;
-
-								&::placeholder {
-									color: rgba(228, 229, 230, 0.48);
-									font-size: 12px;
-									font-style: normal;
-									font-weight: 500;
-									line-height: 18px;
-								}
-							}
-						}
-
-						.promptActions {
-							width: 100%;
-							display: flex;
-							justify-content: flex-end;
-							align-items: center;
-							gap: 16px;
-
-							svg {
-								cursor: pointer;
-							}
-						}
+					.active {
+						color: #e8e8e8;
+						border-radius: 51px;
+						background: #202123;
 					}
+				}
 
-					p.tagLine {
-						margin: 16px auto 20px;
-						text-align: center;
-						font-family: Inter;
-						font-size: 10px;
+				.content-container {
+					width: 100%;
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					align-items: flex-start;
+					gap: 16px;
+
+					.content-text {
+						color: rgba(255, 255, 255, 0.6);
+						font-family: Brasley, sans-serif !important;
+						font-size: 16px;
 						font-style: normal;
-						font-weight: 400;
-						line-height: 14px;
-						background: linear-gradient(90deg, #98c1ffe5, #813fece5, #ff6ea2e5);
-						-webkit-background-clip: text;
-						background-clip: text;
-						color: transparent;
-						width: fit-content;
+						font-weight: 500;
+						line-height: 22px;
 					}
 				}
 			}
 		}
 	}
-}
 
-.animatedLogoContainer {
-	svg {
-		position: absolute;
-		top: 0;
-		left: 0;
-		border-radius: 16px;
-	}
-}
-
-@media (max-width: 823px) {
-	.landingPagecontainer {
-		overflow-x: hidden;
-		padding: 0 !important;
-	}
-	.veLogoStyles {
-		left: 0 !important;
-		top: 0 !important;
-		width: 100vw;
-		height: 70px;
-
-		&:hover {
-			animation: none !important;
-		}
-
-		svg {
-			position: absolute;
-			top: 50%;
-			transform: translateY(-50%);
-			left: 32px;
-		}
-	}
-
-	.hamburger {
-		top: 40px !important;
-		right: 80px !important;
-	}
-
-	.title {
-		padding: 0 48px;
+	.footer-container {
 		width: 100%;
+		border-top: 1px solid #333334;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 24px 0;
 
-		h1 {
-			text-align: center;
-			margin-top: 64px !important;
-			font-size: 22px !important;
-			svg {
-				padding-top: 8px;
-				width: 24px !important;
+		nav {
+			ul {
+				display: flex;
+				gap: 40px;
+				list-style: none;
+
+				li {
+					color: #e8e8e8;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					cursor: pointer;
+				}
 			}
 		}
 
-		h2 {
-			width: 100% !important;
-			padding: 0 24px !important;
-			text-align: center !important;
-		}
-
-		h3 {
-			font-size: 12px !important;
-			text-align: center;
-			width: 100%;
-			font-size: 12px;
-		}
-	}
-
-	h4.gettingStarted {
-		width: 100vw;
-		padding: 0 48px;
-		color: rgba(228, 229, 230, 0.48);
-		text-align: center !important;
-		margin-left: 9px !important;
-		// margin-top: 4px !important;
-		font-family: Inter;
-		font-size: 10px;
-		font-style: normal;
-		font-weight: 400;
-		line-height: 14px;
-		text-align: center;
-	}
-	.refreshPrompts {
-		padding-left: 28px;
-	}
-	.promptContainer {
-		width: 100vw !important;
-		position: static !important;
-		margin-top: 36px !important;
-		margin-left: 4px !important;
-		padding: 0 24px !important;
-		justify-content: flex-start !important;
-		height: 20% !important;
-
-		.box550px {
-			width: 100% !important;
+		.copyright {
+			color: #333334;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
 		}
 	}
 }
 
-@media (min-width: 411px) and (max-width: 500px) {
-	.cardsContainer {
-		margin-left: 4px !important;
-		width: 100vw !important;
-		padding: 0 28px !important;
-		display: grid !important;
-		grid-template-columns: repeat(2, 1fr) !important;
-		grid-template-rows: auto !important;
-		gap: 8px !important;
-		justify-content: center !important;
+@media screen and (max-width: 400px) {
+	.copyright {
+		display: none;
+	}
+	.cta-container {
+		& > * {
+			font-size: 12px !important;
+		}
+	}
+}
+
+@media screen and (max-width: 566px) {
+	.landing-page-container {
+		padding: 24px !important;
 	}
 
-	.card {
+	.hero-section-1 {
+		zoom: 0.8;
+		padding: 36px !important;
+	}
+
+	.copyright {
+		display: none;
+	}
+}
+
+@media screen and (max-width: 700px) {
+	.copyright {
+		width: 30% !important;
+		text-align: right;
+	}
+}
+
+@media screen and (max-width: 950px) {
+	.hero-section-1 {
 		width: 100% !important;
-		max-width: none !important;
-		// height: 165px !important;
+	}
+}
+
+@media screen and (max-width: 1024px) {
+	.hero-section-2 {
+		display: none;
+	}
+}
+
+@media screen and (min-width: 1440px) {
+	.hero-section-1 {
+		transform: scale(1.3);
+		transform-origin: center center;
+	}
+
+	.content-text {
+		font-size: 20px !important;
 	}
 }
 
@@ -415,9 +288,7 @@
 		flex-direction: column;
 	}
 
-	.card {
-		width: 60% !important;
-		max-width: none !important;
-		height: 165px !important;
+	.content-text {
+		font-size: 20px !important;
 	}
 }
