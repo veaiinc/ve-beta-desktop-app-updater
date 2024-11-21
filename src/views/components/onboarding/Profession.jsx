@@ -39,7 +39,7 @@ const professions = {
 	},
 };
 
-const Profession = ({ onboardingInfo, setOnboardingInfo }) => {
+const Profession = ({ workspaceType, setProfession, incrementStep }) => {
 	const professionRef = useRef(null);
 	const [info, setInfo] = useState({
 		optionSelected: false,
@@ -66,11 +66,8 @@ const Profession = ({ onboardingInfo, setOnboardingInfo }) => {
 				duration: 1,
 				ease: 'power2.inOut',
 				onComplete: () => {
-					setOnboardingInfo((prev) => ({
-						...prev,
-						profession: profession,
-						step: prev?.step + 1,
-					}));
+					setProfession(profession);
+					incrementStep();
 				},
 			},
 		);
@@ -79,7 +76,7 @@ const Profession = ({ onboardingInfo, setOnboardingInfo }) => {
 	return (
 		<div ref={professionRef} className="profession-grid-container">
 			<div className="profession-grid">
-				{professions[onboardingInfo?.workspaceType]?.professions?.map((profession) => (
+				{professions[workspaceType]?.professions?.map((profession) => (
 					<div
 						key={profession?.id}
 						onClick={() => handleSelectProfession(profession?.value)}

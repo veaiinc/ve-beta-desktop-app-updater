@@ -132,6 +132,49 @@ const Onboarding = () => {
 		}
 	};
 
+	const setUsername = (username) => {
+		setInfo((prev) => ({
+			...prev,
+			username,
+		}));
+	};
+
+	const setWorkspaceHandleAndBusinessName = (workspaceHandle) => {
+		setInfo((prev) => ({
+			...prev,
+			workspaceHandle,
+			businessName: workspaceHandle,
+		}));
+	};
+
+	const setIsWorkspaceHandleAvailable = (isWorkspaceHandleAvailable) => {
+		setInfo((prev) => ({
+			...prev,
+			isWorkspaceHandleAvailable,
+		}));
+	};
+
+	const setWorkspaceType = (workspaceType) => {
+		setInfo((prev) => ({
+			...prev,
+			workspaceType,
+		}));
+	};
+
+	const setProfession = (profession) => {
+		setInfo((prev) => ({
+			...prev,
+			profession,
+		}));
+	};
+
+	const incrementStep = () => {
+		setInfo((prev) => ({
+			...prev,
+			step: prev?.step + 1,
+		}));
+	};
+
 	const animateAiIntro = () => {
 		tl?.fromTo(
 			aiIntroRef?.current,
@@ -424,8 +467,8 @@ const Onboarding = () => {
 	const onboardingStages = {
 		1: (
 			<Username
-				onboardingInfo={info}
-				setOnboardingInfo={setInfo}
+				username={info?.username}
+				setUsername={setUsername}
 				animateStep1Exit={animateStep1Exit}
 				handleInvitedUser={handleInvitedUser}
 				createAccountViaInvite={invitedWorkspaceId && invitedUserEmail}
@@ -434,13 +477,23 @@ const Onboarding = () => {
 		),
 		2: (
 			<WorkspaceHandleName
-				onboardingInfo={info}
-				setOnboardingInfo={setInfo}
+				workspaceHandle={info?.workspaceHandle}
+				isWorkspaceHandleAvailable={info?.isWorkspaceHandleAvailable}
+				setWorkspaceHandleAndBusinessName={setWorkspaceHandleAndBusinessName}
+				setIsWorkspaceHandleAvailable={setIsWorkspaceHandleAvailable}
+				incrementStep={incrementStep}
 				animateStep4Enter={animateStep4Enter}
 			/>
 		),
-		3: <WorkspaceType setOnboardingInfo={setInfo} />,
-		4: <Profession onboardingInfo={info} setOnboardingInfo={setInfo} step6Ref={step6Ref} />,
+		3: <WorkspaceType setWorkspaceType={setWorkspaceType} incrementStep={incrementStep} />,
+		4: (
+			<Profession
+				workspaceType={info?.workspaceType}
+				setProfession={setProfession}
+				incrementStep={incrementStep}
+				step6Ref={step6Ref}
+			/>
+		),
 		5: <CreatingNewWorkspace profession={info?.profession} />,
 	};
 

@@ -14,7 +14,7 @@ const businessTypes = [
 	},
 ];
 
-const WorkspaceType = ({ setOnboardingInfo }) => {
+const WorkspaceType = ({ setWorkspaceType, incrementStep }) => {
 	const businessTypeRef = useRef(null);
 	const [info, setInfo] = useState({
 		optionSelected: false,
@@ -40,11 +40,8 @@ const WorkspaceType = ({ setOnboardingInfo }) => {
 			duration: 1,
 			ease: 'power2.inOut',
 		});
-		setOnboardingInfo((prev) => ({
-			...prev,
-			workspaceType: type.value,
-			step: prev?.step + 1,
-		}));
+		setWorkspaceType(type.value);
+		incrementStep();
 	};
 
 	return (

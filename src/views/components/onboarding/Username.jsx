@@ -5,8 +5,8 @@ import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_p
 import '../../../assets/scss/onboarding/index.scss';
 
 const Username = ({
-	onboardingInfo,
-	setOnboardingInfo,
+	username,
+	setUsername,
 	animateStep1Exit,
 	handleInvitedUser,
 	createAccountViaInvite = false,
@@ -32,67 +32,52 @@ const Username = ({
 	const usernameDivRef = useRef(null);
 
 	const handleSetUsername = (e) => {
-		const value = e?.target?.value || '';
+		const value = e?.target?.value ?? '';
 		const firstName = value.split(' ')[0];
 		const capitalizedValue = firstName
 			? firstName.charAt(0).toUpperCase() + firstName.slice(1)
 			: '';
-
-		setOnboardingInfo((prev) => ({
-			...prev,
-			username: capitalizedValue,
-		}));
+		setUsername(capitalizedValue);
 	};
-	const handleNext = () => {
-		if (info?.enterPressed) return;
-		setInfo((prev) => ({ ...prev, enterPressed: true }));
-		gsap.to(usernameDivRef.current, {
-			opacity: 0,
-			duration: 0.5,
-			ease: 'power2.inOut',
-			onComplete: () => {
-				animateStep1Exit();
-				if (createAccountViaInvite) {
-					handleInvitedUser();
-				}
-			},
-		});
-	};
-
-	const handleKeyDown = (e) => {
-		if (e.key === 'Enter' && onboardingInfo?.username?.length > 0) {
-			handleNext();
+	const handleNext = (e, type) => {
+		if (e.key === 'Enter' && (username?.length || type === 'click')) {
+			if (info?.enterPressed) return;
+			setInfo((prev) => ({ ...prev, enterPressed: true }));
+			gsap.to(usernameDivRef.current, {
+				opacity: 0,
+				duration: 0.5,
+				ease: 'power2.inOut',
+				onComplete: () => {
+					animateStep1Exit();
+					if (createAccountViaInvite) {
+						handleInvitedUser();
+					}
+				},
+			});
 		}
 	};
 
 	return (
 		<div ref={usernameDivRef} className="username-input-container">
 			<input
-				value={onboardingInfo?.username}
+				value={username}
 				onChange={handleSetUsername}
-				onKeyDown={handleKeyDown}
+				onKeyDown={handleNext}
 				autoFocus={true}
 				type="text"
 				placeholder="Your first name"
 			/>
 			<button
-				disabled={onboardingInfo?.username?.length === 0}
+				disabled={!username?.length}
 				style={{
-					cursor: onboardingInfo?.username?.length === 0 ? 'not-allowed' : 'pointer',
-					background:
-						onboardingInfo?.username?.length === 0 ? 'rgba(255, 255, 255, 0.1)' : '',
+					cursor: !username?.length ? 'not-allowed' : 'pointer',
+					background: !username?.length ? 'rgba(255, 255, 255, 0.1)' : '',
 				}}
 				onMouseEnter={() => setInfo({ ...info, isHovering: true })}
 				onMouseLeave={() => setInfo({ ...info, isHovering: false })}
-				onClick={handleNext}
+				onClick={() => handleNext(null, 'click')}
 			>
-				{info?.isHovering ? (
-					<span>
-						<UpArrowBlackHover />
-					</span>
-				) : (
-					<UpArrowGrey />
-				)}
+				{info?.isHovering ? <UpArrowBlackHover /> : <UpArrowGrey />}
 			</button>
 		</div>
 	);
