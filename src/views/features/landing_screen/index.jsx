@@ -6,7 +6,11 @@ import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScree
 import { ReactComponent as ArrowUpBlack } from '../../../assets/svg/landingScreen/arrow-black.svg';
 import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen/double-quote.svg';
 
-const navItems = ['Privacy', 'Terms', 'Blogs'];
+const navItems = [
+	{ name: 'Privacy', route: '/privacy-policy' },
+	// { name: 'Terms', route: '/terms' },
+	// { name: 'Blogs', route: '/blogs' },
+];
 const currentYear = new Date()?.getFullYear();
 
 const LandingPage = () => {
@@ -104,7 +108,7 @@ const LandingPage = () => {
 				<nav>
 					<ul>
 						{navItems.map((item, i) => (
-							<li key={i}>{item}</li>
+							<li onClick={() => navigate(item.route)}>{item.name}</li>
 						))}
 					</ul>
 				</nav>
