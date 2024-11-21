@@ -27,7 +27,7 @@ const InviteMembersWorkspaceComponent = ({
 								<input
 									type="email"
 									className="textInput"
-									placeholder="Enter text here..."
+									placeholder="Type here..."
 									name="email"
 									onChange={(e) => handleChnage(e, index)}
 									value={singleUser?.email}

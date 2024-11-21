@@ -7,21 +7,24 @@ import { ReactComponent as LinkedIn } from '../../../assets/svg/earlyAccess/link
 import { ReactComponent as Instagram } from '../../../assets/svg/earlyAccess/instagram.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
+
 const EarlyAccess = () => {
+	const usertoken = localStorage.getItem('usertoken') ?? '';
+	const workspaceId = localStorage.getItem('workspaceId') ?? '';
 	const navigate = useNavigate();
+
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
 	} = useContext(Context);
-
-	const [info, setInfo] = useState({
-		loading: true,
-	});
 
 	useEffect(() => {
 		getUserWorkSpaceList();
 	}, []);
 
 	useEffect(() => {
+		if (usertoken?.length === 0) {
+			navigate('/');
+		}
 		if (userWorkSpaceList) {
 			checkIsOnBoardUser();
 		}
@@ -29,8 +32,7 @@ const EarlyAccess = () => {
 
 	const checkIsOnBoardUser = useCallback(() => {
 		let isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
-		const usertoken = localStorage.getItem('usertoken');
-		const workspaceId = localStorage.getItem('workspaceId');
+
 		const currentWorkspaceData = (userWorkSpaceList || [])?.filter(
 			(ele) => ele?.activeWorkspaceId === workspaceId,
 		);
@@ -38,11 +40,10 @@ const EarlyAccess = () => {
 		if (currentWorkspaceData) {
 			isOnboard = currentWorkspaceData[0]?.isOnboard;
 		}
-		if (isOnboard && usertoken) {
+		if (isOnboard) {
 			localStorage.setItem('isOnboard', true);
 			navigate('/home');
 		}
-		setInfo({ loading: false });
 	}, [userWorkSpaceList]);
 
 	return (
@@ -58,7 +59,6 @@ const EarlyAccess = () => {
 					You will receive an email once your request is approved!
 				</span>
 			</div>
-			{/* footer */}
 			<div className="earlyAccessFooter">
 				<span className="earlyAccessFooterText">Follow us for more updates</span>
 				<div className="earlyAccessFooterIconHolder">

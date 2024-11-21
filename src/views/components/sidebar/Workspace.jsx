@@ -1,10 +1,18 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useContext } from 'react';
 import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import Cookies from 'js-cookie';
+// import { useNavigate } from 'react-router-dom';
+import Context from '../../../context/context';
 
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
+	// const navigate = useNavigate();
+
+	const {
+		profileInfo: { userDetailsData },
+	} = useContext(Context);
+
 	const closeWorkspaceList = () => {
 		setsidebarStates({ ...sidebarStates, workSpaceOpen: false, navStyle: 'open' });
 	};
@@ -39,6 +47,11 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 		}
 		window.location.reload();
 	}, []);
+
+	const handleCreateWorkspace = () => {
+		const username = userDetailsData?.firstName ?? '';
+		window.location.href = `/onboarding?username=${username}`;
+	};
 
 	return (
 		<div className="workspaceListComponent">
@@ -79,10 +92,10 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 				))}
 
 				<div className="singleWorkspace">
-					<div className="workSpaceCircle">
+					<div className="workSpaceCircle" onClick={handleCreateWorkspace}>
 						<PlusSvg fill={'#5d43fb'} />
 					</div>
-					<h6>Add Workspace</h6>
+					<h6>Create Workspace</h6>
 				</div>
 			</div>
 		</div>
