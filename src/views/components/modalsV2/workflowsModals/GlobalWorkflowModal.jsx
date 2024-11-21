@@ -10,6 +10,7 @@ import Spinner from '../../../components/loaders/Spinner';
 import { Drawer } from 'antd';
 import GlobalWorkflowDesignModalLoader from './GlobalWorkflowDesignModalLoader';
 import GlobalWorkflowAutomationLoader from './GlobalWorkflowAutomationLoader';
+import { fetchOriginSelection } from '../../../../helpers';
 const initialState = {
 	activeTab: 'design', //design,automation
 	duplicateApiLoading: false,
@@ -17,7 +18,7 @@ const initialState = {
 	activeTemplateData: null,
 	loading: true,
 };
-
+let origin = fetchOriginSelection();
 const EntryPointCard = ({ publicData }) => {
 	const data = publicData?.moduleTemplates?.filter((e) => e?.isPublic);
 
@@ -228,7 +229,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 			if (info?.activeTab !== 'design') {
 				return navigate(`/workflow_builder/${response?.[1]?._id}`);
 			} else {
-				window.location.href = `https://builder.ve.ai/${response?.[1]?._id}`;
+				window.location.href = `${origin}/${response?.[1]?._id}`;
 				return;
 			}
 		}
