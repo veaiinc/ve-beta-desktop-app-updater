@@ -2512,15 +2512,14 @@ const GalleryPage = () => {
 											</div>
 											{!info.isRearranging && (
 												<div className="selectedImagesActions">
-													{info?.selectedImages?.length === 1 && (
-														<div
-															onClick={() =>
-																handleExpandClick(null, 'multiple')
-															}
-														>
-															<ExpandIcon />
-														</div>
-													)}
+													<div
+														onClick={() =>
+															handleExpandClick(null, 'multiple')
+														}
+													>
+														<ExpandIcon />
+													</div>
+
 													<div
 														style={{ position: 'relative' }}
 														ref={forwardIconRef}
