@@ -119,3 +119,13 @@ export const isURL = (url) => {
 		return false;
 	}
 };
+
+export const fetchOriginSelection = () => {
+	const hostname = window.location.hostname;
+	let urlMapper = {
+		localhost: 'localhost:3000',
+		've.ai': 'https://builder.ve.ai',
+		've.co': 'https://builder.ve.co',
+	};
+	return urlMapper[hostname];
+};
