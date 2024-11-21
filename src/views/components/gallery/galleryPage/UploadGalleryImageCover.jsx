@@ -3,6 +3,7 @@ import { ReactComponent as LaptopLogo } from '../../../../assets/svg/gallery/lap
 import mobile from '../../../../assets/svg/gallery/mobile.png';
 import Cropper from 'react-easy-crop';
 import { FocusedImage, FocusPicker } from 'image-focus';
+import '../../../../assets/scss/gallery/albumSettings.scss';
 
 const UploadGalleryImageCover = ({
 	info,
@@ -47,7 +48,6 @@ const UploadGalleryImageCover = ({
 					<div className="album-preview">
 						<div className="laptop-preview">
 							<div className="screen">
-								{console.log(focusInfo, 'focusInfoinsideDIv')}
 								<div
 									style={{
 										width: '100%',
@@ -101,7 +101,7 @@ const UploadGalleryImageCover = ({
 							}
 							onCropComplete={(croppedArea, croppedAreaPixels) => {
 								// You can store croppedAreaPixels if you need the final crop dimensions
-								// console.log('Cropped area:', croppedAreaPixels);
+							
 							}}
 							onZoomChange={(zoomValue) =>
 								setInfo((prev) => ({
@@ -143,6 +143,7 @@ const UploadGalleryImageCover = ({
 					ref={fileInputRef}
 					type="file"
 					onChange={uploadGalleryCoverChangeHandler}
+					accept={['image/png', 'image/jpeg']}
 					hidden
 					style={{ width: 0, visibility: 'hidden' }}
 					// style={{ visibility: 'hidden' }}

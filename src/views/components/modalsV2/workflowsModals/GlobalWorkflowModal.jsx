@@ -10,6 +10,7 @@ import Spinner from '../../../components/loaders/Spinner';
 import { Drawer } from 'antd';
 import GlobalWorkflowDesignModalLoader from './GlobalWorkflowDesignModalLoader';
 import GlobalWorkflowAutomationLoader from './GlobalWorkflowAutomationLoader';
+import { fetchOriginSelection } from '../../../../helpers';
 const initialState = {
 	activeTab: 'design', //design,automation
 	duplicateApiLoading: false,
@@ -154,6 +155,7 @@ const AutomationComponent = ({ activeTemplateData, loading }) => {
 
 const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 	const navigate = useNavigate();
+	let origin = fetchOriginSelection();
 	let {
 		templates: {
 			duplicateGlobalWorkflowTemplate,
@@ -228,12 +230,14 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 			if (info?.activeTab !== 'design') {
 				return navigate(`/workflow_builder/${response?.[1]?._id}`);
 			} else {
-				window.location.href = `https://builder.ve.ai/${response?.[1]?._id}`;
+				window.location.href = `${origin}/${response?.[1]?._id}`;
 				return;
 			}
 		}
 	}, [info?.activeTemplateData, info?.activeTab, info?.duplicateApiLoading]);
-
+	const onGenerateAIFunc = () => {
+		window.location.href = `${origin}/generate/${info?.activeTemplateData?._id}`;
+	};
 	return (
 		<Drawer
 			onClose={modifiedCloseModal}
@@ -282,6 +286,9 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 										''
 									)}
 								</div>
+								<div onClick={onGenerateAIFunc} className="svgContainer">
+									GenAI
+								</div>
 								{/* )} */}
 							</div>
 							<span className="svgContainer" onClick={modifiedCloseModal}>
@@ -307,11 +314,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 										<div className="imageContainer">
 											<div style={{ width: '100%', height: '100%' }}>
 												<iframe
-													src={
-														window.location.hostname === 'localhost'
-															? `http://localhost:3000/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`
-															: `https://builder.ve.ai/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`
-													}
+													src={`${origin}/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`}
 													title="Builder Preview"
 													width="100%"
 													height="100%"

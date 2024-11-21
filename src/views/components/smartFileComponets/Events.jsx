@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import _ from 'lodash';
 import EventsPresetsPopOverComponent from '../modalsV2/proposalModals/EventsPresetPopUp';
 
-const Events = ({ eventsData, eventsDataChange, editable }) => {
+const Events = ({ eventsData, eventsDataChange, editable, getEventsPresetsData }) => {
 	const [info, setInfo] = useState({
 		data: [],
 		calenderStartDate: '',
@@ -244,6 +244,10 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 		[info?.data],
 	);
 
+	const refetchEventspresetData = useCallback(() => {
+		getEventsPresetsData();
+	}, [getEventsPresetsData]);
+
 	return info?.data?.map((ele, index) => (
 		<div className="eventsParentContainer" key={index}>
 			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -354,6 +358,7 @@ const Events = ({ eventsData, eventsDataChange, editable }) => {
 										addServiceDataInEvents={addServiceDataInEvents}
 										outerIndex={index}
 										innerIndex={ind}
+										refetchEventspresetData={refetchEventspresetData}
 									/>
 								) : (
 									''

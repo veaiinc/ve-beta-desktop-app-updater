@@ -297,7 +297,7 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 						</span>
 					</div>
 					<div className="filterContainerWrapper">
-						<div className="filterContainer">
+						<div className="myWorkflowfilterContainer">
 							<HeadersDropDownComp
 								showIcon={false}
 								options={timeOptions}

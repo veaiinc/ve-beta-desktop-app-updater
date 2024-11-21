@@ -62,6 +62,7 @@ const SmartFile = () => {
 		isAlChatEnabled: false,
 		nameIdentification: false,
 		emailIdentification: false,
+		assisstanceData: null,
 	});
 
 	//useEffect
@@ -106,6 +107,8 @@ const SmartFile = () => {
 			const status = smartFileInfo?.status;
 			const edit = status === 'enquiry' ? true : false;
 			let contractExist = smartFileInfo?.modules?.filter((ele) => ele?.type === 'contract');
+			let assisstanceData = smartFileInfo?.aiAssistant || {};
+
 			if (!contractExist?.length) {
 				noContractTemplate = true;
 			}
@@ -125,6 +128,7 @@ const SmartFile = () => {
 				edit,
 				workflowExpiryAt: smartFileInfo?.expiresAt,
 				noContractTemplate,
+				assisstanceData,
 			}));
 		}
 	}, [smartFileInfo, workflowId]);
@@ -457,6 +461,7 @@ const SmartFile = () => {
 				nameIdentification={info?.nameIdentification}
 				emailIdentification={info?.emailIdentification}
 				updateIdentification={updateIdentification}
+				assisstanceData={info?.assisstanceData}
 			/>
 
 			<CopiedModal

@@ -98,7 +98,14 @@ const CollaboratorPopup = ({ open, closeModal, galleryId, setCollaborator }) => 
 	};
 
 	return (
-		<ReactModal isOpen={open} closeModal={closeModal}>
+		<ReactModal
+			isOpen={open}
+			closeModal={closeModal}
+			customStyles={{
+				content: { position: 'absolute', overflow: 'hidden' },
+				className: 'createAlbumModal',
+			}}
+		>
 			<div className="collaborator-main">
 				<div className="collaborator-title">
 					<p>Manage collaborators</p>
@@ -149,7 +156,7 @@ const CollaboratorPopup = ({ open, closeModal, galleryId, setCollaborator }) => 
 								value={collaboratorInfo.searchTerm}
 							/>
 						</Tooltip>
-						{/* {console.log(tenantsUserList, 'tenantsUserList')} */}
+
 						{/* {collaboratorInfo?.showAllUsers && (
 							<div className="tenantUsers">
 								{tenantsUserList?.map((user, index) => (

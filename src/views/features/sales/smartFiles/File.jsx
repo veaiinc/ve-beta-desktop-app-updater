@@ -61,6 +61,7 @@ const File = ({
 
 	useEffect(() => {
 		window.addEventListener('message', handleMessage);
+		getEventsPresetsData();
 		return () => {
 			window.removeEventListener('message', handleMessage);
 		};
@@ -109,7 +110,7 @@ const File = ({
 				}
 
 				let variables = activeVersionData?.variables?.filter((ele) => {
-					if (ele?.type !== 'workspace') {
+					if (ele?.type !== 'workspace' && !ele?.blockId) {
 						ele['moduleType'] = updatedModules?.[i];
 						return ele;
 					}
@@ -227,9 +228,6 @@ const File = ({
 		info?.iframeReady,
 		info?.variableInitialised,
 	]);
-	useEffect(() => {
-		getEventsPresetsData();
-	}, []);
 
 	//function defination
 	//when the variable is clicked, autofocus the input
@@ -745,6 +743,7 @@ const File = ({
 					eventsData={info?.eventsTableData}
 					eventsDataChange={eventsTableOnChangeFunc}
 					editable={edit}
+					getEventsPresetsData={getEventsPresetsData}
 				/>
 
 				<Services

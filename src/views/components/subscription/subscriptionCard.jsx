@@ -1,4 +1,5 @@
-import React, { memo } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/subscriptions/subscriptionsCard.scss';
 import { ReactComponent as Tasks } from '../../../assets/svg/subscription/tasks.svg';
 import { ReactComponent as Forms } from '../../../assets/svg/subscription/forms.svg';
@@ -6,6 +7,9 @@ import { ReactComponent as Invoices } from '../../../assets/svg/subscription/inv
 import { ReactComponent as Automation } from '../../../assets/svg/subscription/automation.svg';
 import { ReactComponent as Contracts } from '../../../assets/svg/subscription/contract.svg';
 import { ReactComponent as Proposals } from '../../../assets/svg/subscription/proposal.svg';
+import { ReactComponent as Tick } from '../../../assets/svg/subscription/tick.svg';
+import Context from '../../../context/context';
+import { Spin } from 'antd';
 const data = [
 	{
 		icon: <Automation />,
@@ -32,7 +36,33 @@ const data = [
 		title: 'Tasks',
 	},
 ];
-const subscriptionCard = () => {
+const SubscriptionCard = ({ planData, subscribedPlans }) => {
+	let {
+		subscriptionInfo: { createStripeCheckoutSession, coupons },
+	} = useContext(Context);
+	const [info, setInfo] = useState({
+		btnLoading: false,
+	});
+
+	const onSelectPlan = useCallback(async () => {
+		if (info?.btnLoading) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, btnLoading: true }));
+		const payload = {
+			subscriptionPlan_id: planData?._id,
+		};
+
+		if (coupons?.length) {
+			payload.couponId = coupons?.[0]?._id;
+		}
+		const response = await createStripeCheckoutSession(payload);
+		if (response?.[0]) {
+			window.location.href = response?.[1];
+		}
+		setInfo((prev) => ({ ...prev, btnLoading: false }));
+	}, [planData, info?.btnLoading, coupons]);
+
 	return (
 		<div className="subscriptionCardContainer">
 			<div className="subscriptionCardHeaderContainer">
@@ -43,11 +73,22 @@ const subscriptionCard = () => {
 					</span>
 				</div>
 				<div className="pricingContainer">
-					<span className="pricingText">$35</span>
-					<span className="monthText">/ month</span>
+					<span className="pricingText">
+						{planData?.currency === 'INR' ? '₹ ' : '$ '}
+						{planData?.totalPrice}
+					</span>
+					<span className="monthText">/ {planData?.subscriptionType}</span>
 				</div>
 			</div>
-			<div className="subscriptionChoosebtn">Choose plan</div>
+			{planData?._id === subscribedPlans?.currentSubscriptionPlan?._id ? (
+				<div className="currentPlanBtn">
+					Current Plan <Tick />
+				</div>
+			) : (
+				<div className="subscriptionChoosebtn" onClick={onSelectPlan}>
+					{info?.btnLoading ? <Spin size="small" /> : 'Choose plan'}
+				</div>
+			)}
 			<div className="subscriptionFooterContainer">
 				{data?.map((ele, index) => (
 					<div className="subscriptionfeaturesDiv" key={index}>
@@ -60,4 +101,4 @@ const subscriptionCard = () => {
 	);
 };
 
-export default memo(subscriptionCard);
+export default memo(SubscriptionCard);

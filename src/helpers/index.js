@@ -26,7 +26,9 @@ export const FetchMoreLoaderComp = () => {
 };
 
 export const getLocationsDetails = async () => {
-	const response = await axios.get('https://ipapi.co/json/');
+	const response = await axios.get(
+		'https://ipapi.co/json/?key=B17oRoM25399fyZGLiTtq5qbfNE2XaleKkzTmKdnPzGJfgo1UY',
+	);
 	const { country_code, region_code, region, country_name, city, timezone, postal, currency } =
 		response?.data;
 	const locationDetails = {
@@ -57,7 +59,7 @@ export const getLocationsDetails = async () => {
 	locationDetails.region = apiRegion;
 	localStorage.setItem('region', apiRegion);
 	localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
-	return JSON.stringify(locationDetails);
+	return locationDetails;
 };
 
 export const getInitials = (firstName, lastName) => {
@@ -116,4 +118,16 @@ export const isURL = (url) => {
 	} catch (error) {
 		return false;
 	}
+};
+
+export const fetchOriginSelection = () => {
+	const hostname = window.location.hostname;
+	let urlMapper = {
+		localhost: 'localhost:3000',
+		've.ai': 'https://builder.ve.ai',
+		've.co': 'https://builder.ve.co',
+		'www.ve.ai': 'https://builder.ve.ai',
+		'www.ve.co': 'https://builder.ve.co',
+	};
+	return urlMapper?.[hostname];
 };

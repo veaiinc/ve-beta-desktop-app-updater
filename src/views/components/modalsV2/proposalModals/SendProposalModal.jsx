@@ -21,6 +21,7 @@ import { Tooltip } from 'antd';
 import ToolTipContainer from '../../popover/ToolTipContainer';
 import jwtDecode from 'jwt-decode';
 import { getCurrentWorkspaceId } from '../../../../helpers';
+import AssignAssistantModal from './AssignAssistant';
 
 const initialState = {
 	subject: '',
@@ -46,6 +47,7 @@ const initialState = {
 	smartFileSettingsUpdate: false,
 	currentWorkspaceId: '',
 	toogleExpiryChnaged: false,
+	assignAssisstantModal: false,
 };
 
 const SendProposalModal = ({
@@ -71,6 +73,7 @@ const SendProposalModal = ({
 	nameIdentification,
 	emailIdentification,
 	updateIdentification,
+	assisstanceData,
 }) => {
 	const {
 		templates: {
@@ -473,6 +476,10 @@ const SendProposalModal = ({
 		info?.toogleExpiryChnaged,
 	]);
 
+	const closeAssignAssistantModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, assignAssisstantModal: false }));
+	}, [info?.assignAssisstantModal]);
+
 	return (
 		<ReactModal
 			isOpen={open}
@@ -483,7 +490,11 @@ const SendProposalModal = ({
 			<div
 				className={`sendSmartFileupdatedContainer ${info?.showEmail ? 'showEmail' : ''} ${
 					info?.enableLinkExpiry ? 'enableLinkExpiry' : ''
-				}    ${info?.showAccessSettings ? 'showAccessSettings' : ''}`}
+				}    ${info?.showAccessSettings ? 'showAccessSettings' : ''} ${
+					assisstanceData?._id && info?.isAlChatEnabled
+						? 'showAccessSettingsWithAssistanceData'
+						: ''
+				}`}
 				style={{ overflowY: info?.showEmail ? 'auto' : 'hidden' }}
 			>
 				{/* setting screen */}
@@ -736,21 +747,39 @@ const SendProposalModal = ({
 					</div>
 
 					{/* Ai AssistantContainer */}
-					<div className="aiSalesContainer">
-						<Ai />
-						<div className="aiLabel">
-							<span className="aiLabelText">AI Sales Assistant</span>
-							<ToggleSlider
-								value={info?.isAlChatEnabled}
-								onChange={(val) =>
-									setInfo((prev) => ({
-										...prev,
-										isAlChatEnabled: val,
-										smartFileSettingsUpdate: true,
-									}))
-								}
-							/>
+					<div
+						className="aiContentWrapper"
+						style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
+					>
+						<div className="aiSalesContainer">
+							<Ai />
+							<div className="aiLabel">
+								<span className="aiLabelText">AI Sales Assistant</span>
+								<ToggleSlider
+									value={info?.isAlChatEnabled}
+									onChange={(val) =>
+										setInfo((prev) => ({
+											...prev,
+											isAlChatEnabled: val,
+											smartFileSettingsUpdate: true,
+											assignAssisstantModal: assisstanceData?._id
+												? false
+												: val,
+										}))
+									}
+								/>
+							</div>
 						</div>
+						{info?.isAlChatEnabled && assisstanceData?._id ? (
+							<span className="assignedAssitant">
+								{assisstanceData?.name + ' '}
+								is assisting this sales.<br></br> AI Can make mistakes while turning
+								on AI Sales Assistant, VE AI is not responsible for any malfunction
+								that AI might make
+							</span>
+						) : (
+							''
+						)}
 					</div>
 
 					<div className="sendSmartFileBtnContainer">
@@ -824,6 +853,12 @@ const SendProposalModal = ({
 					''
 				)}
 			</div>
+
+			<AssignAssistantModal
+				modalIsOpen={info?.assignAssisstantModal}
+				closeModal={closeAssignAssistantModal}
+				selectedAssistant={assisstanceData}
+			/>
 		</ReactModal>
 	);
 };

@@ -34,8 +34,6 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 				...prev,
 				selectedGalleryTags,
 			}));
-
-			console.log(searchParams.get('tag'));
 		}
 	}, [tagsList, galleryId, albumId]);
 
@@ -161,28 +159,49 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 					onKeyDown={(e) => e.key === 'Enter' && addNewTagHandler()}
 					// dropdownStyle={{ backgroundColor: '#333', color: '#fff' }}
 				/> */}
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						gap: '10px',
+						width: '100%',
+						position: 'relative',
+					}}
+					className="headerLabels"
+				>
+					<Select
+						showSearch
+						value={inputTag}
+						placeholder="Add Label"
+						style={{ width: '100%', color: '#fff' }}
+						suffixIcon={null}
+						notFoundContent={null}
+						onSelect={onSelectTagFunc}
+						autoFocus
+						onSearch={(value) => setinputTag(value)}
+						optionFilterProp="label"
+						onKeyDown={(e) => e.key === 'Enter' && addNewTagHandler()}
+						options={(tagsList?.list || [])
+							?.filter(
+								(tag) =>
+									!info.selectedGalleryTags.some(
+										(selectedTag) => selectedTag._id === tag._id,
+									),
+							)
+							.map((d) => ({ value: d._id, label: d.displayName }))}
+					/>
 
-				<Select
-					showSearch
-					value={inputTag}
-					placeholder="Add Label"
-					style={{ width: '100%', color: '#fff' }}
-					suffixIcon={null}
-					notFoundContent={null}
-					onSelect={onSelectTagFunc}
-					autoFocus
-					onSearch={(value) => setinputTag(value)}
-					optionFilterProp="label"
-					onKeyDown={(e) => e.key === 'Enter' && addNewTagHandler()}
-					options={(tagsList?.list || [])
-						?.filter(
-							(tag) =>
-								!info.selectedGalleryTags.some(
-									(selectedTag) => selectedTag._id === tag._id,
-								),
-						)
-						.map((d) => ({ value: d._id, label: d.displayName }))}
-				/>
+					<p
+						style={{
+							fontSize: '10px',
+							color: '#ccc',
+							position: 'absolute',
+							bottom: '-20px',
+						}}
+					>
+						Press Enter to Add Tag
+					</p>
+				</div>
 			</div>
 		</div>
 	);

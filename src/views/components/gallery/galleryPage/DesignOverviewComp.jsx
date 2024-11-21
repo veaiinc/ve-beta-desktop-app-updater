@@ -11,10 +11,10 @@ const DesignOverviewComp = ({ info, handleLayoutType }) => {
 		<div id="design" className="settings-overview">
 			<div className="designaContainer">
 				<p className="heading">Design</p>
-				<div className="previewLayout">
+				{/* <div className="previewLayout">
 					<p className="subTitle">Preview layout</p>
 					<UpArrow />
-				</div>
+				</div> */}
 			</div>
 			{/* <div className="coverDesign">
 				<p className="subHeading">Select gallery cover design</p>
