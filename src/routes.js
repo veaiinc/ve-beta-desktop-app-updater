@@ -24,6 +24,7 @@ import GalleryViewLayout from './views/layouts/galleryViewLayout';
 import { Navigate } from 'react-router-dom';
 import Subscription from './views/features/subscription';
 
+import ShareAndEarn from './views/features/ShareAndEarn';
 const routes = [
 	{
 		path: '/',
@@ -90,6 +91,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Sales'}>
 				<GlobalWorkflows />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/share-and-earn',
+		component: (
+			<AuthWrapper title={'Share and Earn'}>
+				<ShareAndEarn />
 			</AuthWrapper>
 		),
 		exact: true,
