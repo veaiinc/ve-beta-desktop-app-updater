@@ -38,7 +38,6 @@ const WorkspaceHandleName = ({
 	}, []);
 
 	useEffect(() => {
-		console.log('workspaceHandle', workspaceHandle);
 		if (workspaceHandle?.length > 1) {
 			setInfo((prev) => ({ ...prev, isChecking: true }));
 			const timeout = setTimeout(async () => {
@@ -66,22 +65,19 @@ const WorkspaceHandleName = ({
 	};
 
 	const handleNext = async (e, type) => {
-		if (info?.enterPressed) return;
-		setInfo((prev) => ({ ...prev, enterPressed: true }));
-		if (
-			(e?.key === 'Enter' || type === 'click') &&
-			!info?.isChecking &&
-			workspaceHandle?.length > 1 &&
-			isWorkspaceHandleAvailable
-		) {
-			gsap.to(workspaceHandleNameRef.current, {
-				opacity: 0,
-				duration: 0.5,
-				ease: 'power2.inOut',
-				onComplete: () => {
-					incrementStep();
-				},
-			});
+		if (e?.key === 'Enter' && (workspaceHandle?.length || type === 'click')) {
+			if (info?.enterPressed) return;
+			setInfo((prev) => ({ ...prev, enterPressed: true }));
+			if (!info?.isChecking && workspaceHandle?.length > 1 && isWorkspaceHandleAvailable) {
+				gsap.to(workspaceHandleNameRef.current, {
+					opacity: 0,
+					duration: 0.5,
+					ease: 'power2.inOut',
+					onComplete: () => {
+						incrementStep();
+					},
+				});
+			}
 		}
 	};
 
