@@ -704,11 +704,7 @@ const File = ({
 					style={{ borderRadius: !edit ? '26px' : '', height: '100%' }}
 				>
 					<iframe
-						src={
-							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${workflowId}?workflow=true`
-								: `https://builder.ve.ai/preview/${workflowId}?workflow=true`
-						}
+						src={`${origin}/preview/${workflowId}?workflow=true`}
 						title="Builder Preview"
 						width="100%"
 						height="100%"
