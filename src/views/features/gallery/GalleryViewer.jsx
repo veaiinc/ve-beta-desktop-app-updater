@@ -11,6 +11,47 @@ import { ReactComponent as CrossWhite } from '../../../assets/svg/workspaceSetti
 import Skeleton from 'react-loading-skeleton';
 import gsap from 'gsap';
 
+const FakeLoadingComponent = () => {
+	return (
+		<div
+			className="galleryViewerCotnainer"
+			style={{ position: 'absolute', top: '80px', left: 0 }}
+		>
+			<div className="galleryThumbnails" id="galleryThumbnails-target">
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						gap: '24px',
+					}}
+				>
+					{[...Array(15)].map((_, index) => (
+						<div key={index} className="imageContainer">
+							<Skeleton width="79px" height="50px" />
+						</div>
+					))}
+				</div>
+			</div>
+
+			<div className="activeImageContainer">
+				<div className="activeImageWrapper" id="activeImageWrapper-target">
+					{[...Array(1)].map((_, index) => (
+						<div key={index} className="imageContainer" style={{ width: '800px' }}>
+							<Skeleton width="800px" height="900px" />
+						</div>
+					))}
+				</div>
+
+				<div className="galleryViewerNavbarContainer">
+					<div className="galleryViewerNavbar"></div>
+
+					<div className="gallerySelectionContainer"></div>
+				</div>
+			</div>
+		</div>
+	);
+};
+
 const GalleryViewer = () => {
 	const { galleryId, albumId } = useParams();
 	const [searchkeys, setsearchkeys] = useSearchParams();
@@ -59,6 +100,7 @@ const GalleryViewer = () => {
 		}
 
 		const imageId = searchkeys.get('image');
+
 		if (imagesList && imageId) {
 			setInfo((prev) => ({
 				...prev,
@@ -201,7 +243,7 @@ const GalleryViewer = () => {
 	};
 
 	const handleCloseGallery = () => {
-		navigate(`/gallery-page/${galleryId}`);
+		navigate(`/galleries/${galleryId}`);
 	};
 
 	const handleRotateImage = async (degree) => {
@@ -226,10 +268,7 @@ const GalleryViewer = () => {
 				)}
 			</div>
 
-			<div
-				className="galleryViewerCotnainer"
-				// style={{ display: info?.fakeLoading ? 'none' : 'flex' }}
-			>
+			<div className="galleryViewerCotnainer" style={{ opacity: info?.fakeLoading ? 0 : 1 }}>
 				<Thumbnails
 					galleryCredentials={galleryCredentials}
 					fetchMoreImages={fetchMoreImages}
@@ -278,39 +317,7 @@ const GalleryViewer = () => {
 				/>
 			</div>
 
-			{/* <div
-				className="galleryViewerCotnainer"
-				style={{
-					display: info?.fakeLoading ? 'flex' : 'none',
-					maxHeight: '80vh',
-					overflow: 'hidden',
-				}}
-			>
-				<div
-					className="galleryThumbnails"
-					style={{ display: 'flex', flexDirection: 'column' }}
-				>
-					{[...Array(15)].map((_, index) => (
-						<div key={index} className="imageContainer">
-							<Skeleton width="79px" height="50px" />
-						</div>
-					))}
-				</div>
-
-				<div
-					className="activeImageContainer"
-					style={{ display: 'flex', flexDirection: 'column', gap: '72px' }}
-				>
-					{[...Array(3)].map((_, index) => (
-						<div key={index} className="imageContainer" style={{ width: '500px' }}>
-							<Skeleton
-								width="100%"
-								height={`${Math.floor(Math.random() * 200) + 200}px`}
-							/>
-						</div>
-					))}
-				</div>
-			</div> */}
+			{info?.fakeLoading && <FakeLoadingComponent />}
 		</>
 	);
 };

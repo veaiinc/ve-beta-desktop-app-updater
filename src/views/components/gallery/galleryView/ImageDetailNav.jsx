@@ -9,6 +9,8 @@ import { ReactComponent as Pin } from '../../../../assets/svg/gallery/pin.svg';
 import { ReactComponent as Edit } from '../../../../assets/svg/gallery/editpen.svg';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/CrossWhite.svg';
 import { useNavigate } from 'react-router-dom';
+import slugify from 'slugify';
+import Peopleitem from './PeopleCard';
 
 const ImageDetailNav = ({
 	info,
@@ -66,9 +68,12 @@ const ImageDetailNav = ({
 			}));
 		},
 		Image: () => {
-			navigate(`/gallery/${galleryId}/album-settings?uploadImageId=${info?.imageDetailId}`, {
-				state: { activeAlbumId: albumId },
-			});
+			navigate(
+				`/galleries/${galleryId}/${albumId}/album-settings?uploadImageId=${info?.imageDetailId}`,
+				{
+					state: { activeAlbumId: albumId },
+				},
+			);
 		},
 		Rotate: () => {
 			let currentRotation = imageDetail?.rotation || 0;
@@ -90,21 +95,19 @@ const ImageDetailNav = ({
 
 		const json = {
 			displayName: navInfo.searchInput,
-			slug: navInfo.searchInput,
+			slug: slugify(navInfo.searchInput, { lower: true, strict: true }),
 		};
 
 		const response = await addGalleryTag(json, galleryId);
 		if (response?.[0] === true) {
 			setnavInfo((prev) => ({
 				...prev,
-				searchInput: '',
 			}));
 		}
 	};
 
 	const handleTagChange = (e, tagId, imageId) => {
 		const isTagSelected = e.target.checked;
-		console.log('isTagSelected', isTagSelected);
 		const payload = {
 			image_ids: [imageId],
 		};
@@ -115,7 +118,6 @@ const ImageDetailNav = ({
 		}
 	};
 
-	// console.log('imageDetail', imageDetail);
 	return (
 		<div className="galleryViewerNavbarContainer">
 			<div className="galleryViewerNavbar stagger_step_animation1">
@@ -125,6 +127,12 @@ const ImageDetailNav = ({
 						onClick={() =>
 							functionsList[option?.label] && functionsList[option?.label]()
 						}
+						style={{
+							cursor:
+								option?.label === 'Download' || option?.label === 'Share'
+									? 'not-allowed'
+									: '',
+						}}
 					>
 						{option.icon}
 					</div>
@@ -151,7 +159,7 @@ const ImageDetailNav = ({
 					</div>
 				</div>
 
-				<div className="peopleSelection stagger_step_animation3">
+				<div className="peopleSelection">
 					<div className="peopleHeader ">
 						<div className="personIcon">
 							<People />
@@ -159,14 +167,33 @@ const ImageDetailNav = ({
 						<p>People</p>
 					</div>
 					<div className="peopleSelectionImages ">
-						<div className="rounded"></div>
-						<div className="rounded"></div>
-						<div className="rounded"></div>
-						<div className="rounded"></div>
-						<div className="rounded"></div>
-						<div className="rounded"></div>
-						<div className="rounded"></div>
-						<div className="rounded"></div>
+						{imageDetail?.activeVersion?.faces?.map((face) => {
+							const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+							const src = `${galleryCredentials?.baseURL}/${imageDetail?.activeVersion?.s3_optimized?.key}?${params}`;
+							return (
+								// <div
+								// 	className="rounded"
+								// 	key={face?._id}
+								// 	style={{
+								// 		backgroundImage: `url(${src})`,
+								// 		backgroundSize: 'cover',
+								// 		backgroundRepeat: 'no-repeat',
+								// 	}}
+								// ></div>
+								<Peopleitem
+									url={src}
+									people={face}
+									thumbwidth={48}
+									thumbHeight={48}
+									key={face?._id}
+									match={{ params: { tenantID: imageDetail?.tenant_id } }}
+									originalWidth={imageDetail?.activeVersion?.originalWidth}
+									originalHeight={imageDetail?.activeVersion?.originalHeight}
+								/>
+							);
+						})}
+						{/* <div className="rounded"></div>  */}
+						{/* <div className="rounded"></div> */}
 					</div>
 				</div>
 

@@ -8,13 +8,14 @@ import UploadStatusComponent from '../../components/gallery/addGallery/UploadSta
 import randomize from 'randomatic';
 import moment from 'moment';
 import Context from '../../../context/context';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
 import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
 
 const UploadPhotos = () => {
 	const { galleryId, albumId } = useParams();
+	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
 
 	const {
@@ -144,15 +145,12 @@ const UploadPhotos = () => {
 
 	const getJsonFunction = (currentImage) => {
 		const imageKeysArray = Object.keys(info?.uploadImages || {});
-		console.log(imageKeysArray, 'imageKeysArray');
 
 		const imageKeyIndex =
 			recentImageInitiatedRef.current !== null
 				? imageKeysArray[imageKeysArray.indexOf(currentImage)]
 				: imageKeysArray[0];
 		const image = info?.uploadImages[imageKeyIndex];
-
-		console.log(currentImage, imageKeyIndex, image, 'image');
 
 		if (image && image?.isUploaded) return null;
 
@@ -254,33 +252,6 @@ const UploadPhotos = () => {
 		const interval = setInterval(async () => {
 			const response = await getImageUploadStatus(galleryId, albumId, info?.uploadBatchID);
 			const { processedCount, uploadedCount } = response[1];
-			// console.log(response[1]);
-			// const result =
-			// 	Object.values(info.uploadImages || {}).length ===
-			// 	Object.values(info.uploadImages || {}).filter((image) => image.isDuplicate).length
-			// 		? 100
-			// 		: parseInt(
-			// 				(Object.values(info?.uploadImages || {}).filter(
-			// 					(image) => image?.isUploaded,
-			// 				).length /
-			// 					(info?.uploadImages?.length -
-			// 						(info?.isSkipDuplicates
-			// 							? Object.values(info?.uploadImages).filter(
-			// 									(image) => image?.isDuplicate,
-			// 							  ).length
-			// 							: 0))) *
-			// 					50,
-			// 		  ) +
-			// 		  parseInt(
-			// 				(processedCount /
-			// 					(info?.uploadImages?.length -
-			// 						(info?.isSkipDuplicates
-			// 							? Object.values(info?.uploadImages || {}).filter(
-			// 									(image) => image?.isDuplicate,
-			// 							  )?.length
-			// 							: 0))) *
-			// 					50,
-			// 		  );
 
 			let result = 0,
 				uploaded75Percent = 0,
@@ -326,7 +297,6 @@ const UploadPhotos = () => {
 
 			const currentFile = queue.shift();
 			const json = getJsonFunction(currentFile);
-			// console.log(json, currentFile, '==>currentFile');
 
 			if (info.isSkipDuplicates && info.uploadImages[currentFile]?.isDuplicate) {
 				setinfo((prev) => {
@@ -345,7 +315,6 @@ const UploadPhotos = () => {
 			let attempts = 0;
 			let isSuccessUpload = false;
 			while (attempts < 3) {
-				// console.log(json, attempts, currentFile);
 				const signedURLUpload = await getUploadImageSignUrl(galleryId, albumId, json);
 				if (signedURLUpload[0] === true) {
 					const uploadPromise = uploadOnS3Function(
@@ -378,12 +347,12 @@ const UploadPhotos = () => {
 
 	return (
 		<div className="upload-gallery-container">
-			<Link to={`/gallery-page/${galleryId}`} className="backHeader">
+			<div onClick={() => navigate(-1)} className="backHeader">
 				<BackIcon /> <p>{info?.title}</p>
-			</Link>
+			</div>
 
 			<div className="options_upload_container">
-				<AddLables info={info} setinfo={setinfo} />
+				<AddLables info={info} setinfo={setinfo} searchParams={searchParams} />
 				<UploadInputComponent onDropFunction={onDropFunction} />
 			</div>
 

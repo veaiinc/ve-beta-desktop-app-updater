@@ -26,6 +26,7 @@ export const intialState = {
 	albumImagesCount: null,
 	clientSelectionsData: null,
 	clientSelectionImages: null,
+	galleryShareDetails: null,
 };
 
 export const Galleries = () => {
@@ -142,9 +143,12 @@ export const Galleries = () => {
 				'galleries',
 			);
 			if (response?.[0] === true) {
+				const sortedAlbums = response?.[1]?.albums?.sort(
+					(a, b) => a.customSortIndex - b.customSortIndex,
+				);
 				dispatch({
 					type: Actions.GET_TENANT_ALBUMS,
-					payload: response?.[1],
+					payload: { ...response?.[1], albums: sortedAlbums },
 				});
 			} else {
 				return response;
@@ -183,6 +187,9 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+			if (response?.[0]) {
+				getAlbumImagesCount(galleryId);
+			}
 		} catch (error) {
 			console.log('error==>getGallery', error);
 		}
@@ -246,6 +253,8 @@ export const Galleries = () => {
 					payload: payloadData,
 				});
 			}
+
+			return response;
 		} catch (error) {
 			console.log('error==>addGalleryTag', error);
 		}
@@ -758,6 +767,10 @@ export const Galleries = () => {
 
 	const getImageDetail = async (imageId) => {
 		try {
+			dispatch({
+				type: Actions.GET_IMAGE_DETAIL,
+				payload: null,
+			});
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(
@@ -874,6 +887,12 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_GALLERY_GUEST_ACCESS,
+					payload: response?.[1],
+				});
+			}
 		} catch (error) {
 			console.log('error==>editGalleryGuestAccess', error);
 		}
@@ -995,6 +1014,7 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+			return response;
 		} catch (error) {
 			console.log('error==>updateTagSortType', error);
 		}
@@ -1032,6 +1052,7 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+			return response;
 		} catch (error) {
 			console.log('error==>addTagToImage', error);
 		}
@@ -1047,6 +1068,7 @@ export const Galleries = () => {
 				payload,
 				'galleries',
 			);
+			return response;
 		} catch (error) {
 			console.log('error==>removeTagFromImage', error);
 		}
@@ -1122,6 +1144,156 @@ export const Galleries = () => {
 			console.log('error==>moveImagesToAlbum', error);
 		}
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}
+	const pubslishGallery = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>pubslishGallery', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/share-details
+	const getGalleryShareDetails = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/share-details`,
+				usertoken,
+				'galleries',
+			);
+			dispatch({
+				type: Actions.GET_GALLERY_SHARE_DETAILS,
+				payload: response?.[1],
+			});
+		} catch (error) {
+			console.log('error==>getGalleryShareDetails', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/change-master-access-pin.
+	const changeMasterAccessPin = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/change-master-access-pin`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>changeMasterAccessPin', error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/custom-sort-index
+	const updateAlbumOrder = async (payload, galleryId, albumId, sortedItems) => {
+		try {
+			dispatch({
+				type: Actions.GET_ALBUM_IMAGES_COUNT,
+				payload: {
+					...state.albumImagesCount,
+					albums: [...sortedItems],
+				},
+			});
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/custom-sort-index`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+
+			// if (response[0] === true) {
+			// }
+
+			return response;
+		} catch (error) {
+			console.log('error==>updateAlbumOrder', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/re-arrange-status
+
+	const getRearrangeStatus = async (galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/re-arrange-status?isSortRequired=true`,
+
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>updateTagRearrangeStatus', error);
+		}
+	};
+	const updateImageOrder = async (images) => {
+		try {
+			dispatch({
+				type: Actions.GET_IMAGES_LIST,
+				payload: {
+					...state.imagesList,
+					docs: images,
+				},
+			});
+		} catch (error) {
+			console.log('error==>updateImageOrder', error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/images
+	const changeImageOrder = async (payload, galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/images`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>changeImageOrder', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/default-sort
+	const setDefaultSort = async (payload) => {
+		try {
+			dispatch({
+				type: Actions.GET_TENANT_GALLERIES,
+				payload: null,
+			});
+
+			console.log('payload==>setDefaultSort', state.tenantAlbums);
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/default-sort`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			if (response[0] === true) {
+				getGalleries({ page: 1, limit: 15 }, true);
+			}
+		} catch (error) {
+			console.log('error==>setDefaultSort', error);
+		}
+	};
+
 	return {
 		...state,
 		getGalleries,
@@ -1178,5 +1350,13 @@ export const Galleries = () => {
 		getClientSelections,
 		getClientSelectionImages,
 		moveImagesToAlbum,
+		pubslishGallery,
+		getGalleryShareDetails,
+		changeMasterAccessPin,
+		updateAlbumOrder,
+		getRearrangeStatus,
+		updateImageOrder,
+		changeImageOrder,
+		setDefaultSort,
 	};
 };

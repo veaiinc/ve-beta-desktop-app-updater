@@ -233,7 +233,9 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 			}
 		}
 	}, [info?.activeTemplateData, info?.activeTab, info?.duplicateApiLoading]);
-
+	const onGenerateAIFunc = () => {
+		window.location.href = `https://builder.ve.ai/generate/${info?.activeTemplateData?._id}`;
+	};
 	return (
 		<Drawer
 			onClose={modifiedCloseModal}
@@ -281,6 +283,9 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 									) : (
 										''
 									)}
+								</div>
+								<div onClick={onGenerateAIFunc} className="svgContainer">
+									GenAI
 								</div>
 								{/* )} */}
 							</div>

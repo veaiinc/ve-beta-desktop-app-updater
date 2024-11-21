@@ -77,7 +77,7 @@ const SmartFileHeader = ({
 	useEffect(() => {
 		if (workflowStatus) {
 			let modifiedOptions = [...options];
-			if (workflowStatus === 'filesSent') {
+			if (workflowStatus === 'filesSent' || workflowStatus === 'filesViewed') {
 				modifiedOptions = [
 					{ label: 'Edit' },
 					{ label: 'Resend File' },
@@ -192,7 +192,8 @@ const SmartFileHeader = ({
 					''
 				)}
 				{/* //Accept button */}
-				{workflowStatus === 'filesSent' && !editable ? (
+				{(workflowStatus === 'filesSent' || workflowStatus === 'filesViewed') &&
+				!editable ? (
 					<div className="sendSmartFileBtn" onClick={modifiedAccetFunc}>
 						{info?.loading ? 'Accepting ....' : 'Accept'}
 					</div>

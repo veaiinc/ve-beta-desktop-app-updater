@@ -11,11 +11,7 @@ const FullImagesComponent = ({
 	setInfo,
 }) => {
 	return (
-		<div
-			className="activeImageWrapper"
-			id="activeImageWrapper-target"
-			// style={{ overflow: 'hidden' }}
-		>
+		<div className="activeImageWrapper" id="activeImageWrapper-target">
 			<InfiniteScroll
 				dataLength={imagesList?.docs?.length || 0}
 				next={fetchMoreImages}
@@ -41,25 +37,21 @@ const FullImagesComponent = ({
 											activeImageIndex: index,
 										}))
 									}
-									onClick={() => largeImageFunction(image?._id, index)}
 								>
 									<img
 										src={src}
 										alt={`Gallery image ${index}`}
 										style={{
-											cursor: 'pointer',
 											transform: `rotate(${image?.rotation || 0}deg)`,
 										}}
+										onClick={() => largeImageFunction(image?._id, index)}
 									/>
 								</div>
 							);
 					  })
 					: [...Array(5)].map((_, index) => (
 							<div key={index} className="imageContainer" style={{ width: '500px' }}>
-								<Skeleton
-									width="100%"
-									height={`${Math.floor(Math.random() * 200) + 200}px`}
-								/>
+								<Skeleton width="800px" height="900px" />
 							</div>
 					  ))}
 			</InfiniteScroll>

@@ -299,7 +299,7 @@
 					display: none;
 				}
 				.active {
-					border: 1px solid #6055ec;
+					border: 1px solid #b89cf9;
 				}
 				.create-album {
 					display: flex;
@@ -379,8 +379,7 @@
 						left: 0;
 						cursor: pointer;
 						// background-color: rgba(0, 0, 0, 0.3);
-						background: linear-gradient(rgba(0, 0, 0, 0) 6%, rgb(0, 0, 0) 100%),
-							rgba(196, 196, 196, 0);
+						background: linear-gradient(rgba(0, 0, 0, 0) 6%, rgb(0, 0, 0) 100%), rgba(196, 196, 196, 0);
 					}
 				}
 			}
@@ -613,10 +612,36 @@
 					}
 				}
 			}
+			.saveRearrange {
+				display: flex;
+				width: 100%;
+				justify-content: flex-end;
+				padding-right: 100px;
+				p {
+					display: flex;
+					width: 146px;
+					height: 36px;
+					padding: 12px 16px;
+					justify-content: center;
+					align-items: center;
+					overflow: hidden;
+					color: #e4e5e6;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+					font-size: 12px;
+					font-weight: 500;
+					line-height: 20px; /* 166.667% */
+					letter-spacing: -0.03px;
+					border-radius: 32px;
+					border: 1px solid rgba(228, 229, 230, 0.05);
+					background: #151515;
+					cursor: pointer;
+				}
+			}
 			.galleryImagesContainer {
 				width: 100%;
 				padding: 10px;
-				height: 70vh;
+				height: 58vh;
 				overflow: auto;
 				.imageUpload {
 					display: flex;
@@ -628,8 +653,7 @@
 					height: 160px;
 					border-radius: 8px;
 					border: 1px solid #2a2a2a;
-					background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%),
-						#1d1d1d;
+					background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%), #1d1d1d;
 					.uploadIcon {
 						width: 16px;
 						height: 11px;
@@ -662,10 +686,29 @@
 						background: rgba(0, 0, 0, 0.5); /* Adjust opacity as needed */
 						pointer-events: none;
 					}
+					.rotating-circle {
+						position: absolute;
+						top: 0px;
+						right: 0px;
+						z-index: 3;
+						filter: blur(2px);
+					}
+					@keyframes rotateCircle {
+						0% {
+							transform: rotate(0deg);
+						}
+						100% {
+							transform: rotate(360deg);
+						}
+					}
 					&:hover {
 						transform: scale(1.05);
 						.imageOverlay {
 							background: rgba(0, 0, 0, 0);
+						}
+						.rotating-circle {
+							animation: rotateCircle 2s linear infinite;
+							filter: blur(0px);
 						}
 						// img {
 
@@ -685,6 +728,7 @@
 					border-radius: 100px;
 					background: #1d1d1d;
 					position: fixed;
+					z-index: 5;
 					bottom: 0;
 					bottom: 20px; // Add some space from the bottom
 					left: 50%; // Position the left edge at 50% of the parent
@@ -708,7 +752,7 @@
 						align-items: center;
 						.forwardOptions {
 							position: absolute;
-							top: -130px;
+							top: -75px;
 							right: 0;
 							display: flex;
 							flex-direction: column;
@@ -747,7 +791,6 @@
 								padding: 8px;
 								width: 100%;
 								gap: 8px;
-
 								background: #1f1f1f;
 								p {
 									color: rgba(228, 229, 230, 0.48);
@@ -758,6 +801,9 @@
 								}
 								input {
 									width: 100%;
+									background: transparent;
+									border: none;
+									color: white;
 								}
 							}
 							.pinOptionsList {
@@ -831,11 +877,14 @@
 		justify-content: space-between;
 		padding: 40px;
 		width: 100%;
+		height: 100%;
+		overflow: auto;
 		.settingsContianer {
 			display: flex;
 			flex-direction: column;
 			gap: 24px;
 			width: 75%;
+			height: 60vh;
 			input {
 				display: flex;
 				width: 464px;
@@ -1201,13 +1250,15 @@
 					}
 				}
 				.album-cover-image {
-					width: 228px;
-					height: 370px;
-					border-radius: 24px;
-					border: 1px solid #eaeaea;
-					cursor: pointer;
+					width: 100%;
+					height: 100%;
 					position: relative;
-					overflow: hidden;
+					img {
+						border-radius: 24px;
+						border: 1px solid #eaeaea;
+						cursor: pointer;
+						overflow: hidden;
+					}
 				}
 			}
 			.upload-cover-photo {
@@ -1239,6 +1290,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: 16px;
+		position: sticky;
+		top: 10px;
 		li {
 			list-style: none;
 			color: #979797;
@@ -1255,21 +1308,43 @@
 	}
 }
 
-.rearrange-image-container {
-	border: 2px solid transparent;
-	transition: all 0.2s;
-	border-radius: 4px;
-	overflow: hidden;
+.rearrange-image-container-wrapper {
+	display: flex;
+	width: 100%;
+	// height: 60vh;
+	overflow: auto;
+	justify-content: center;
+	flex-wrap: wrap;
+	margin: auto;
+	.selected {
+		border-color: 1px solid #007bff;
+	}
+	.rearrange-image-container {
+		border: 2px solid transparent;
+		transition: all 0.2s;
+		border-radius: 4px;
+		overflow: hidden;
+	}
 }
 
-.rearrange-image-container.selected {
-	border-color: #007bff;
-}
+// .rearrange-image-container.selected {
+// 	border-color: #007bff;
+// }
 
-.rearrange-image-container:hover {
-	transform: scale(1.02);
-}
+// .rearrange-image-container:hover {
+// 	transform: scale(1.02);
+// }
 
-.rearrange-image-container.dragging {
-	opacity: 0.5;
-}
+// .rearrange-image-container.dragging {
+// 	opacity: 0.5;
+// }
+// .hideScrollBar {
+// 	::-webkit-scrollbar {
+// 		display: none;
+// 	}
+// }
+// .focus-picker-img {
+// 	img {
+// 		background-color: red;
+// 	}
+// }

@@ -2,22 +2,27 @@ import React from 'react';
 import ToggleSlider from '../../../../views/components/input/slider';
 import { DatePicker } from 'antd';
 import { getInitials } from '../../../../helpers/index';
-
+import dayjs from 'dayjs';
+import moment from 'moment';
 const GalleryOverview = ({
 	info,
 	handleGalleryChange,
 	handleCallToAction,
 	handleClientSubscription,
 	handleManageCollaboratorPopup,
-	convertEpochToDate,
 	handleLinkChange,
+	handleGalleryDateChange,
 }) => {
+	const workspaceId = localStorage.getItem('workspaceId');
+
 	return (
 		<div id="gallery-overview" className="settings-overview">
 			<p className="heading">Gallery overview</p>
 			<p className="subHeading">
-				Gallery URL
-				<span className="subTitle">- ankitttt.ve-s.../-my gallery</span>
+				Gallery URL&nbsp;
+				<span className="subTitle">
+					https://{workspaceId}.ve.ai/gallery/{info?.activeGallery?.slug}
+				</span>
 			</p>
 			<div className="renameGallery">
 				<p className="subHeading">Rename Gallery </p>
@@ -26,7 +31,7 @@ const GalleryOverview = ({
 				</p>
 				<input
 					placeholder="Hannef x Mahi"
-					value={info.activeGallery?.galleryData?.title}
+					value={info.activeGallery?.title}
 					onChange={handleGalleryChange}
 				/>
 			</div>
@@ -39,10 +44,51 @@ const GalleryOverview = ({
 					<DatePicker
 						className="datePicker"
 						format="DD-MM-YYYY"
-						selected={convertEpochToDate(info.activeGallery?.galleryData?.dueDateEpoch)}
-						// onChange={(date, dateString) =>
-						// 	handleAlbumNameChange(dateString, 'date')
-						// }
+						defaultValue={
+							info?.galleryCreatedAt
+								? dayjs(`${moment('20241121', 'YYYYMMDD').format('DD-MM-YYYY')}`, [
+										'DD-MM-YYYY',
+								  ])
+								: ''
+						}
+						onChange={(e, dateString, date) =>
+							handleGalleryDateChange(dateString, date, 'createdAt')
+						}
+					/>
+				</div>
+			</div>
+
+			<div className="galleryDate">
+				<p className="subHeading">Gallery Expiry Date </p>
+				<p className="subTitle">
+					Sort galleries by this date. Which is visible to the client
+				</p>
+				<div>
+					<DatePicker
+						className="datePicker"
+						format="DD-MM-YYYY"
+						selected={
+							info?.galleryDueDate
+								? dayjs(
+										`${moment
+											.unix(`${info?.galleryDueDate}`)
+											.format('DD-MM-YYYY')}`,
+								  )
+								: ''
+						}
+						defaultValue={
+							info?.galleryDueDate
+								? dayjs(
+										`${moment
+											.unix(`${info?.galleryDueDate}`)
+											.format('DD-MM-YYYY')}`,
+										['DD-MM-YYYY'],
+								  )
+								: ''
+						}
+						onChange={(e, dateString, date) =>
+							handleGalleryDateChange(dateString, date, 'dueDate')
+						}
 					/>
 				</div>
 			</div>
@@ -76,7 +122,9 @@ const GalleryOverview = ({
 			<div className="collaborators">
 				<div className="collaboratorsContainer">
 					<div>
-						<p className="subHeading">3 Collaborators</p>
+						<p className="subHeading">
+							{info?.collaboratorsData?.length} Collaborators
+						</p>
 						<p className="subTitle">
 							Collaborators are your team members that you want to add to or remove
 							from this gallery.
