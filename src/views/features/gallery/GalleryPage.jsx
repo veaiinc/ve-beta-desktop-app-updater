@@ -17,7 +17,7 @@ import { message, Result, Tooltip } from 'antd';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
 import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPopup';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -39,6 +39,7 @@ const GalleryPage = () => {
 	const { galleryId } = useParams();
 	const navigate = useNavigate();
 	const location = useLocation();
+	const [searchkeys, setsearchkeys] = useSearchParams();
 	const {
 		galleryInfo: {
 			getAlbums,
@@ -402,6 +403,9 @@ const GalleryPage = () => {
 	}, [albumDetails]);
 
 	useEffect(() => {
+		const imageSearchKey = searchkeys.get('uploadImageId') || null;
+		console.log(imageSearchKey);
+
 		// if image detail is upload image id
 		if (imageDetail?._id === info?.uploadImageId && galleryCredentials) {
 			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
@@ -412,7 +416,17 @@ const GalleryPage = () => {
 			}));
 		}
 
-		if (albumImagesCount?.coverImage?._id && galleryCredentials && !imageDetail) {
+		if (
+			albumImagesCount?.coverImage?._id &&
+			galleryCredentials &&
+			!imageDetail &&
+			!imageSearchKey
+		) {
+			console.log(
+				'albumImagesCount?.coverImage?._id',
+				albumImagesCount?.coverImage?._id,
+				imageDetail,
+			);
 			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 			const src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?${params}`;
 			setInfo((prev) => ({
@@ -631,9 +645,25 @@ const GalleryPage = () => {
 		}));
 	};
 	const handleClickContent = (name, count) => {
+		const searchKey = searchkeys.get('uploadImageId');
+		if (searchKey) {
+			setsearchkeys({});
+		}
+		getImageDetail(null, true, false);
+		console.log('calling ', name);
+
 		if (count === 0) return;
-		setInfo((prevInfo) => ({ ...prevInfo, activeTab: name, page: 1 }));
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			activeTab: name,
+			activeLink: 'gallery-overview',
+			page: 1,
+			uploadImageId: null,
+			// imageURL: searchKey ? null : prevInfo?.imageURL,
+		}));
 	};
+
+	console.log(imageDetail);
 	const handleNavigateUpload = () => {
 		info?.albumContains === 'All'
 			? navigate(`/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos`)
@@ -916,10 +946,12 @@ const GalleryPage = () => {
 
 	const uploadGalleryCoverChangeHandler = async (e) => {
 		const image = e.target.files[0];
-
 		if (!image) {
 			return;
 		}
+
+		getImageDetail(null, true, false);
+		setsearchkeys({ uploadImageId: 'image-uploading' });
 
 		message.open({
 			type: 'loading',
@@ -975,6 +1007,7 @@ const GalleryPage = () => {
 			setInfo((prev) => ({
 				...prev,
 				uploadImageId: signedURLUpload?.[1]?._id,
+				imageURL: '',
 				coverPhoto: true,
 			}));
 
@@ -1262,6 +1295,25 @@ const GalleryPage = () => {
 					},
 				},
 			);
+		} else {
+			message.error('Cant set album cover with more than 1 image');
+		}
+	};
+	const handleSetGalleryCover = async () => {
+		if (info?.selectedImages?.length < 2) {
+			setInfo((prev) => ({
+				...prev,
+				activeTab: 'Settings',
+				uploadImageId: info?.selectedImages[0],
+				coverPhoto: true,
+				coverImageDetails: null,
+			}));
+			getImageDetail(info?.selectedImages[0]);
+			setsearchkeys({ uploadImageId: info?.selectedImages[0] });
+
+			setTimeout(() => {
+				scrollToSection('upload-gallery-cover');
+			}, 500);
 		} else {
 			message.error('Cant set album cover with more than 1 image');
 		}
@@ -2512,15 +2564,14 @@ const GalleryPage = () => {
 											</div>
 											{!info.isRearranging && (
 												<div className="selectedImagesActions">
-													{info?.selectedImages?.length === 1 && (
-														<div
-															onClick={() =>
-																handleExpandClick(null, 'multiple')
-															}
-														>
-															<ExpandIcon />
-														</div>
-													)}
+													<div
+														onClick={() =>
+															handleExpandClick(null, 'multiple')
+														}
+													>
+														<ExpandIcon />
+													</div>
+
 													<div
 														style={{ position: 'relative' }}
 														ref={forwardIconRef}
@@ -2642,7 +2693,21 @@ const GalleryPage = () => {
 																		handleSetAlbumCover()
 																	}
 																>
-																	Set as cover
+																	Set Album cover
+																</li>
+																<li
+																	style={{
+																		cursor:
+																			info?.selectedImages
+																				.length === 1
+																				? 'pointer'
+																				: 'not-allowed',
+																	}}
+																	onClick={() =>
+																		handleSetGalleryCover()
+																	}
+																>
+																	Set Gallery cover
 																</li>
 																<li>Share</li>
 																<li
@@ -2976,6 +3041,14 @@ const GalleryPage = () => {
 								Design
 							</li>
 							<li
+								onClick={() => scrollToSection('upload-gallery-cover')}
+								className={
+									info.activeLink === 'upload-gallery-cover' ? 'active' : ''
+								}
+							>
+								Gallery over
+							</li>
+							<li
 								onClick={() => scrollToSection('delete')}
 								className={info.activeLink === 'delete' ? 'active' : ''}
 							>
@@ -2984,7 +3057,9 @@ const GalleryPage = () => {
 						</div>
 					</div>
 				)}
-				{info.activeTab === 'AI' && <AiSelection />}
+				{info.activeTab === 'AI' && (
+					<AiSelection galleryId={galleryId} galleryCredentials={galleryCredentials} />
+				)}
 			</div>
 
 			<ShareModal

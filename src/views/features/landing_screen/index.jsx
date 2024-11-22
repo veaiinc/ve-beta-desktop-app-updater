@@ -1,213 +1,121 @@
-import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/landingScreen/index.scss';
-import Navbar from '../../components/landing_screen/Navbar';
-import VeLogo from '../../../assets/svg/landingScreen/Velogo';
-import Cards from '../../components/landing_screen/Cards';
-import { ReactComponent as StarLogo } from '../../../assets/svg/landingScreen/starlogo.svg';
-import { ReactComponent as MicrophoneLogo } from '../../../assets/svg/landingScreen/microphoneLogo.svg';
-import { ReactComponent as RightArrowLogo } from '../../../assets/svg/landingScreen/rightArrowLogo.svg';
-import { ReactComponent as Hamburger } from '../../../assets/svg/landingScreen/hamburger.svg';
-import { gsap } from 'gsap';
-import PrivacyPolicyModal from '../../components/modalsV2/landingPage/PrivacyPolicyModal';
-import MobileNavSidebar from '../../components/modalsV2/landingPage/MobileNavSidebar';
+import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
+import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
+import { ReactComponent as ArrowUpBlack } from '../../../assets/svg/landingScreen/arrow-black.svg';
+import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen/double-quote.svg';
+
+const navItems = [
+	{ name: 'Privacy', route: '/privacy-policy' },
+	// { name: 'Terms', route: '/terms' },
+	// { name: 'Blogs', route: '/blogs' },
+];
+const currentYear = new Date()?.getFullYear();
 
 const LandingPage = () => {
 	const navigate = useNavigate();
-	const [showMobielNavSidebar, setShowMobielNavSidebar] = useState(false);
-	const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 823);
-	const [togglePrivacyAndTermsModal, setTogglePrivacyAndTermsModal] = useState(false);
+	const [info, setInfo] = useState({
+		activeToggle: 'Path',
+	});
 
-	const h1Ref = useRef(null);
-	const h2Ref = useRef(null);
-	const h3Ref = useRef(null);
-	const h4Ref = useRef(null);
-	const cardsRef = useRef(null);
-	const veLogoRef = useRef(null);
-	const promptContainerRef = useRef(null);
-
-	useEffect(() => {
-		handleResize();
-	}, [isLargeScreen]);
-
-	useEffect(() => {
-		handleEvents();
-		handleAnimations();
-	}, []);
-
-	const handleEvents = useCallback(() => {
-		window.addEventListener('resize', handleResize);
-
-		return () => {
-			window.removeEventListener('resize', handleResize);
-		};
-	}, []);
-
-	const handleAnimations = useCallback(() => {
-		const tl = gsap.timeline();
-		tl.fromTo(
-			h1Ref.current,
-			{ y: '100%', opacity: 0 },
-			{
-				y: '0%',
-				opacity: 1,
-				duration: 0.6,
-				ease: 'slow(0.7, 0.7, false)',
-			},
-		)
-			.fromTo(
-				[h2Ref.current, h3Ref.current],
-				{ y: '100%', opacity: 0 },
-				{
-					y: '0%',
-					opacity: 1,
-					duration: 0.6,
-					ease: 'slow(0.7, 0.7, false)',
-				},
-				'-=0.3',
-			)
-			.fromTo(
-				h4Ref.current,
-				{ y: '100%', opacity: 0 },
-				{
-					y: '0%',
-					opacity: 1,
-					duration: 0.6,
-					ease: 'slow(0.7, 0.7, false)',
-				},
-				'-=0.3',
-			)
-			.fromTo(
-				cardsRef.current,
-				{ y: '100%', opacity: 0 },
-				{
-					y: '0%',
-					opacity: 1,
-					duration: 0.6,
-					ease: 'slow(0.7, 0.7, false)',
-				},
-				'-=0.3',
-			)
-			.fromTo(
-				promptContainerRef.current,
-				{ y: '100%', opacity: 0 },
-				{
-					y: '0%',
-					opacity: 1,
-					duration: 0.6,
-					ease: 'slow(0.7, 0.7, false)',
-				},
-				'-=0.3',
-			)
-			.to(veLogoRef.current, {
-				scale: 0.5,
-				duration: 0.6,
-				ease: 'slow(0.7, 0.7, false)',
-			})
-			.to(veLogoRef.current, {
-				scale: 0.5,
-				duration: 0.6,
-				ease: 'none',
-			})
-			.to(veLogoRef.current, {
-				scale: 1,
-				duration: 0.6,
-				ease: 'slow(0.7, 0.7, false)',
-			});
-	}, []);
-
-	const handleResize = () => {
-		setIsLargeScreen(window.innerWidth >= 823);
+	const handleToggleClick = (toggleType) => {
+		setInfo({
+			...info,
+			activeToggle: toggleType,
+		});
 	};
 
-	const handleClosePrivacyAndTermsModal = () => {
-		setTogglePrivacyAndTermsModal(false);
-	};
-
-	const handleCloseMobileNavSidebar = () => {
-		setShowMobielNavSidebar(false);
-	};
-
-	const handleOpenMobileNavSidebar = () => {
-		setShowMobielNavSidebar(true);
-	};
-
-	const handleEnterKey = (e) => {
-		if (e.key === 'Enter') {
-			navigate('/verify-user');
-		}
+	const handleNavigation = () => {
+		navigate('/verify-user');
 	};
 
 	return (
-		<div className={'landingPagecontainer'}>
-			<div className={'veLogoStyles'}>
-				<VeLogo veLogoRef={veLogoRef} />
-				{!isLargeScreen && (
-					<div className={'hamburger'}>
-						<Hamburger onClick={handleOpenMobileNavSidebar} />
+		<div className="landing-page-container">
+			<header className="header-container">
+				<VeAiLogo aria-label="VeAi Logo" />
+				<button
+					onClick={handleNavigation}
+					className="login-button"
+					aria-label="Log in to VeAi"
+				>
+					Log in
+				</button>
+			</header>
+			<main className="landing-page-content">
+				<section aria-label="Main content" className="hero-section-1">
+					<div className="veai-logo-container">
+						<span className="veai-logo-text">Meet</span>
+						<VeAiLogoGrey aria-label="VeAi Logo in grey" />
 					</div>
-				)}
-			</div>
-			{isLargeScreen ? (
-				<Navbar openPrivacyAndTermsModal={() => setTogglePrivacyAndTermsModal(true)} />
-			) : (
-				''
-			)}
-
-			<div className={'mainContent'}>
-				<div className={'mainBox'}>
-					<div className={'title'}>
-						<h1 ref={h1Ref}>
-							Welcome to <VeLogo />
-						</h1>
-						<h2 ref={h2Ref}>AI that minds your business</h2>
-						<h3 ref={h3Ref}>
-							So you can run the world. The all-in-one tool for those who do it all.
-						</h3>
+					<h1 className="heading">AI team that minds your business!</h1>
+					<p className="description">
+						Launch Intelligent, enterprise-ready, and seamlessly embedded in your
+						operations—digital workers bring advanced AI technology to your team,
+						scaling effortlessly to drive outcomes and push productivity.
+					</p>
+					<div className="cta-container">
+						<button
+							onClick={handleNavigation}
+							className="get-started-button"
+							aria-label="Get started"
+						>
+							Get Started <ArrowUpBlack aria-label="Arrow up black" />
+						</button>
+						<button className="request-demo-button">Request a Demo</button>
 					</div>
-					<h4 ref={h4Ref} className={'gettingStarted'}>
-						Let’s get started with any of these actions!
-					</h4>
-					<Cards cardsRef={cardsRef} />
-
-					<div ref={promptContainerRef} className={'promptContainer'}>
-						<div className={'box550px'}>
-							<p className={'heading'}>Or Ask me anything about your business</p>
-							<div className={'promptInputDiv'}>
-								<div className={'promptTextArea'}>
-									<StarLogo />
-									<textarea
-										onKeyDown={handleEnterKey}
-										name="prompt"
-										placeholder="Hey, give me million dollar service business idea!"
-										autoFocus={true}
-									></textarea>
-								</div>
-								<div className={'promptActions'}>
-									<div onClick={() => navigate('/verify-user')}>
-										<MicrophoneLogo />
-									</div>
-									<div onClick={() => navigate('/verify-user')}>
-										<RightArrowLogo className={'rightArrowLogo'} />
-									</div>
-								</div>
-							</div>
-							<p className={'tagLine'}>Built by Professionals for Professionals</p>
+				</section>
+				<section className="hero-section-2">
+					<div className="toggle-container">
+						<div className="toggle-button">
+							<span
+								className={`toggle-text ${
+									info?.activeToggle === 'Path' ? 'active' : ''
+								}`}
+								onClick={() => handleToggleClick('Path')}
+							>
+								Path
+							</span>
+							<span
+								className={`toggle-text ${
+									info?.activeToggle === 'Story' ? 'active' : ''
+								}`}
+								onClick={() => handleToggleClick('Story')}
+							>
+								Story
+							</span>
+						</div>
+						<div className="content-container">
+							<DoubleQuote aria-label="Double quote" />
+							<p className="content-text">
+								The world is full of dreamers, Yet it's shaped by those who do.
+								<br />
+								<br />
+								we see ourselves as the blacksmiths of the future. whose purpose is
+								To forge simple and intuitive tools that awaken your chi (your vital
+								energy).
+								<br />
+								<br />
+								Those tools are - Our AI agents, whose sole existence is to help you
+								in your pursuit and do a lot of heavy lifting for you! So you can
+								focus on your vision and get there faster!
+							</p>
 						</div>
 					</div>
-				</div>
-			</div>
-			<PrivacyPolicyModal
-				isOpen={togglePrivacyAndTermsModal}
-				closeModal={handleClosePrivacyAndTermsModal}
-			/>
-			<MobileNavSidebar
-				isOpen={showMobielNavSidebar}
-				closeModal={handleCloseMobileNavSidebar}
-				openPrivacyAndTermsModal={() => setTogglePrivacyAndTermsModal(true)}
-			/>
+				</section>
+			</main>
+			<footer className="footer-container">
+				<nav>
+					<ul>
+						{navItems.map((item, i) => (
+							<li onClick={() => navigate(item.route)}>{item.name}</li>
+						))}
+					</ul>
+				</nav>
+				<p className="copyright">&copy; {currentYear} VeAI. All rights reserved.</p>
+			</footer>
 		</div>
 	);
 };
 
-export default memo(LandingPage);
+export default LandingPage;

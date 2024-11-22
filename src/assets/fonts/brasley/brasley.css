@@ -1,0 +1,42 @@
+@font-face {
+	font-family: 'Brasley';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('brasley-light.ttf') format('truetype'),
+		url('brasley-light-italic.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'Brasley';
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url('brasley-medium.ttf') format('truetype'),
+		url('brasley-medium-italic.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'Brasley';
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url('brasley-regular.ttf') format('truetype'),
+		url('brasley-regular-italic.ttf') format('truetype');
+}
+@font-face {
+	font-family: 'Brasley';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url('brasley-semi-bold.ttf') format('truetype'),
+		url('brasley-semi-bold-italic.ttf') format('truetype');
+}
+@font-face {
+	font-family: 'Brasley';
+	font-style: normal;
+	font-weight: 900;
+	font-display: swap;
+	src: url('brasley-bold.ttf') format('truetype'),
+		url('brasley-bold-italic.ttf') format('truetype');
+}
