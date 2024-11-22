@@ -1,0 +1,3 @@
+export const ACTIONS = {
+	GET_CALENDAR_CHAT: 'GET_CALENDAR_CHAT',
+};
