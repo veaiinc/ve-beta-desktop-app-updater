@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/calendar/createEvent.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as VerticalDots } from '../../../assets/svg/more-options-dots.svg';
@@ -6,11 +6,12 @@ import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg
 import { ReactComponent as Clock } from '../../../assets/svg/activity/duration.svg';
 import { ReactComponent as Category } from '../../../assets/svg/calendar/category.svg';
 
-const CreateEvent = ({ updateCalendarInfo }) => {
+const CreateEvent = ({ updateCalendarInfo, isCreateEventOpen }) => {
 	const [info, setInfo] = useState({
 		showCategory: false,
 		isAllDayEvent: false,
 	});
+
 	const handleCategoryToggle = () => {
 		setInfo((previnfo) => ({ ...previnfo, showCategory: !previnfo.showCategory }));
 	};
@@ -18,8 +19,28 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 		setInfo((previnfo) => ({ ...previnfo, isAllDayEvent: !previnfo.isAllDayEvent }));
 	};
 
+	const createEventRef = useRef(null);
+
+	useEffect(() => {
+		let timerId;
+		const handleClickOutside = (event) => {
+			if (createEventRef.current && !createEventRef.current.contains(event.target)) {
+				updateCalendarInfo('isCreateEventOpen', false);
+			}
+		};
+
+		timerId = setTimeout(() => {
+			document.addEventListener('click', handleClickOutside);
+		}, 0);
+
+		return () => {
+			clearTimeout(timerId);
+			document.removeEventListener('click', handleClickOutside);
+		};
+	}, []);
+
 	return (
-		<div className="createEventContainer">
+		<div className="createEventContainer" ref={createEventRef}>
 			<div className="eventDetailsContainer">
 				<div className="headerWrapper">
 					<span className="headerLabel">Create an event</span>
