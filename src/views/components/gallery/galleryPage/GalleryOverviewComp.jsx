@@ -136,7 +136,7 @@ const GalleryOverview = ({
 				</div>
 				<div className="collaboratorsList">
 					{info?.collaboratorsData?.map((ele, index) => (
-						<div className="collaboratorsContainer">
+						<div className="collaboratorsContainer" key={`collaborators-${index}`}>
 							<div className="collaboratorsImage">
 								<div className="tenantLogo">
 									<p>{getInitials(ele?.firstName, ele?.lastName)}</p>

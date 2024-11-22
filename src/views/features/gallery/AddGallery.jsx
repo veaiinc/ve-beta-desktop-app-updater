@@ -55,7 +55,7 @@ const filterOptions = [
 	{ name: 'Created Date (reverse)', value: '-createdAt' },
 	{ name: 'Updated Date', value: 'updatedAt' },
 	{ name: 'Updated Date (reverse)', value: '-updatedAt' },
-	{ name: 'Custom', value: 'custom' },
+	{ name: 'Custom', value: 'sortIndex' },
 ];
 const AddGallery = () => {
 	const {

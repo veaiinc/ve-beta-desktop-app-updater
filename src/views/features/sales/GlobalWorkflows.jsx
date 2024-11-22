@@ -123,6 +123,7 @@ const GlobalWorkflows = () => {
 	const closeModal = useCallback(() => {
 		setInfo((prev) => ({ ...prev, modalIsOpen: false, activeTemplateData: null }));
 	}, []);
+	console.log(fetchOriginSelection());
 
 	return (
 		<div className="globalWorkflowContainer">
