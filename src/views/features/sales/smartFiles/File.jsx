@@ -928,6 +928,11 @@ const File = ({
 		setInfo((prev) => ({ ...prev, acceptAiGeneratedModal: true }));
 	}, [info?.acceptAiGeneratedModal]);
 
+	const refetchAiPredictions = useCallback(() => {
+		setInfo((prev) => ({ ...prev, fetchingAiPredictionsLoading: true }));
+		getAiPredictionForSmartFile(slug);
+	}, [slug]);
+
 	return (
 		<div className="fileParentContainer">
 			<div className="previewContainer">
@@ -1055,6 +1060,7 @@ const File = ({
 					getEventsPresetsData={getEventsPresetsData}
 					gotUnacceptedAiGeneratedValue={info?.gotGenerated}
 					openAiGenerateModal={openAiGenerateModal}
+					refetchAiPredictions={refetchAiPredictions}
 				/>
 
 				<Services
