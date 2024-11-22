@@ -10,6 +10,7 @@ import { ReactComponent as Edit } from '../../../../assets/svg/gallery/editpen.s
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/CrossWhite.svg';
 import { useNavigate } from 'react-router-dom';
 import slugify from 'slugify';
+import Peopleitem from './PeopleCard';
 
 const ImageDetailNav = ({
 	info,
@@ -158,7 +159,7 @@ const ImageDetailNav = ({
 					</div>
 				</div>
 
-				<div className="peopleSelection stagger_step_animation3">
+				<div className="peopleSelection">
 					<div className="peopleHeader ">
 						<div className="personIcon">
 							<People />
@@ -166,14 +167,33 @@ const ImageDetailNav = ({
 						<p>People</p>
 					</div>
 					<div className="peopleSelectionImages ">
-						<div className="rounded"></div>
-						<div className="rounded"></div>
-						<div className="rounded"></div>
-						<div className="rounded"></div>
-						<div className="rounded"></div>
-						<div className="rounded"></div>
-						<div className="rounded"></div>
-						<div className="rounded"></div>
+						{imageDetail?.activeVersion?.faces?.map((face) => {
+							const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+							const src = `${galleryCredentials?.baseURL}/${imageDetail?.activeVersion?.s3_optimized?.key}?${params}`;
+							return (
+								// <div
+								// 	className="rounded"
+								// 	key={face?._id}
+								// 	style={{
+								// 		backgroundImage: `url(${src})`,
+								// 		backgroundSize: 'cover',
+								// 		backgroundRepeat: 'no-repeat',
+								// 	}}
+								// ></div>
+								<Peopleitem
+									url={src}
+									people={face}
+									thumbwidth={48}
+									thumbHeight={48}
+									key={face?._id}
+									match={{ params: { tenantID: imageDetail?.tenant_id } }}
+									originalWidth={imageDetail?.activeVersion?.originalWidth}
+									originalHeight={imageDetail?.activeVersion?.originalHeight}
+								/>
+							);
+						})}
+						{/* <div className="rounded"></div>  */}
+						{/* <div className="rounded"></div> */}
 					</div>
 				</div>
 

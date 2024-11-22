@@ -110,14 +110,14 @@ const TeamSettings = () => {
 
 	const handleChnage = (e, index) => {
 		const { name, value } = e.target;
-		console.log(name, value);
+
 		const update = [...sendRequestList];
 		update[index][name] = value;
 		if (update[index]['emailIDError']) {
 			update[index]['emailIDError'] = false;
 			update[index]['emailIDMessage'] = '';
 		}
-		console.log(update);
+
 		setsendRequestList(update);
 	};
 
