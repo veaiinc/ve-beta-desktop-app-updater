@@ -15,6 +15,7 @@ import moment from 'moment';
 import ToggleSlider from '../../../components/input/slider';
 import { Spin } from 'antd';
 import _ from 'lodash';
+import AccpetAiGeneratedValues from '../../../components/modalsV2/proposalModals/AccpetAiGeneratedValues';
 let origin =
 	window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://builder.ve.ai';
 const File = ({
@@ -68,6 +69,7 @@ const File = ({
 		gotGenerated: false,
 		generatePredictionsLoading: false,
 		fetchingAiPredictionsLoading: true,
+		acceptAiGeneratedModal: false,
 	});
 
 	useEffect(() => {
@@ -902,6 +904,14 @@ const File = ({
 		[info?.eventsTableData],
 	);
 
+	const closeAccpetAiGenerateModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, acceptAiGeneratedModal: false }));
+	}, [info?.acceptAiGeneratedModal]);
+
+	const openAiGenerateModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, acceptAiGeneratedModal: true }));
+	}, [info?.acceptAiGeneratedModal]);
+
 	return (
 		<div className="fileParentContainer">
 			<div className="previewContainer">
@@ -1019,19 +1029,32 @@ const File = ({
 					handleUpdateVaraiblesArray={handleUpdateVaraiblesArray}
 					expiresAt={expiresAt}
 					updateSmartFileExpiry={updateSmartFileExpiry}
+					gotUnacceptedAiGeneratedValue={info?.gotGenerated}
+					openAiGenerateModal={openAiGenerateModal}
 				/>
 				<Events
 					eventsData={info?.eventsTableData}
 					eventsDataChange={eventsTableOnChangeFunc}
 					editable={edit}
 					getEventsPresetsData={getEventsPresetsData}
+					gotUnacceptedAiGeneratedValue={info?.gotGenerated}
+					openAiGenerateModal={openAiGenerateModal}
 				/>
 
 				<Services
 					serviceData={info?.servicesTableData}
 					serviceOnChangeFunc={serviceTableOnChnageFunc}
 					editable={edit}
+					gotUnacceptedAiGeneratedValue={info?.gotGenerated}
+					openAiGenerateModal={openAiGenerateModal}
 				/>
+				<AccpetAiGeneratedValues
+					open={info?.acceptAiGeneratedModal}
+					closeModal={closeAccpetAiGenerateModal}
+					openAiGenerateModal={openAiGenerateModal}
+					acceptAiChanges={acceptAigeneratedValues}
+				/>
+
 				{/* <PaymentSchedule /> */}
 			</div>
 		</div>
