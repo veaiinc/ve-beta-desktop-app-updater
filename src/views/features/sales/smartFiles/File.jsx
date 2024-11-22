@@ -710,59 +710,15 @@ const File = ({
 			}));
 
 			let updatedProposal = _.cloneDeep(info?.proposal || {});
-
 			let updatedEventstabledata = { ...(info?.eventsTableData || {}) };
 
 			//handling events
-			const eventsPredictions = aiPredictedData?.filter((ele) => ele?.type === 'events');
-			if (!eventsPredictions?.length) {
-				setInfo((prev) => ({
-					...prev,
-					storedPreviousProposalData: null,
-				}));
-				return;
+			const response = generatePredictionsForEvents(updatedProposal, aiPredictedData);
+			if (response?.[0]) {
+				const eventsTableData = response?.[2];
+				updatedEventstabledata.proposal = [...(eventsTableData || [])];
+				updatedProposal = _.cloneDeep(response?.[1]);
 			}
-			const eventsTableData = [];
-
-			let i = 0;
-			for (let m = 0; m < updatedProposal?.tables?.length; m++) {
-				if (updatedProposal?.tables?.[m]?.type === 'events') {
-					const proposalEventsTable = updatedProposal?.tables?.[m];
-					const { values = [] } = proposalEventsTable || {};
-					for (let j = 0; j < values?.length; j++) {
-						if (i > eventsPredictions?.length) {
-							break;
-						}
-						const predictedRoles = eventsPredictions?.[i]?.['events']?.[j]?.['output'];
-						const roles = [];
-						for (let k = 0; k < predictedRoles?.length; k++) {
-							roles?.push({
-								type: predictedRoles?.[k]?.type,
-								categories: [
-									{
-										category: 'candid',
-										quantity: predictedRoles?.[k]?.quantity || 0,
-									},
-									{
-										category: 'traditional',
-										quantity: 0,
-									},
-								],
-							});
-						}
-						values[j].roles = [...(roles || [])];
-					}
-					proposalEventsTable.values = [...values];
-					eventsTableData.push({
-						...(proposalEventsTable || {}),
-						moduleType: 'proposal',
-						ai_generated: true,
-					});
-					i++;
-				}
-			}
-
-			updatedEventstabledata.proposal = [...(eventsTableData || [])];
 
 			//handling services
 			const updatedProposalObj = generatePredictionForService(
@@ -780,6 +736,56 @@ const File = ({
 			}));
 		}
 	}, [aiPredictedData, info?.eventsTableData, info?.proposal, info?.gotGenerated]);
+
+	const generatePredictionsForEvents = useCallback((updatedProposal, aiPredictedData) => {
+		const eventsPredictions = aiPredictedData?.filter((ele) => ele?.type === 'events');
+		if (!eventsPredictions?.length) {
+			setInfo((prev) => ({
+				...prev,
+				storedPreviousProposalData: null,
+			}));
+			return [false];
+		}
+		const eventsTableData = [];
+		let i = 0;
+		for (let m = 0; m < updatedProposal?.tables?.length; m++) {
+			if (updatedProposal?.tables?.[m]?.type === 'events') {
+				const proposalEventsTable = updatedProposal?.tables?.[m];
+				const { values = [] } = proposalEventsTable || {};
+				for (let j = 0; j < values?.length; j++) {
+					if (i > eventsPredictions?.length) {
+						break;
+					}
+					const predictedRoles = eventsPredictions?.[i]?.['events']?.[j]?.['output'];
+					const roles = [];
+					for (let k = 0; k < predictedRoles?.length; k++) {
+						roles?.push({
+							type: predictedRoles?.[k]?.type,
+							categories: [
+								{
+									category: 'candid',
+									quantity: predictedRoles?.[k]?.quantity || 0,
+								},
+								{
+									category: 'traditional',
+									quantity: 0,
+								},
+							],
+						});
+					}
+					values[j].roles = [...(roles || [])];
+				}
+				proposalEventsTable.values = [...values];
+				eventsTableData.push({
+					...(proposalEventsTable || {}),
+					moduleType: 'proposal',
+					ai_generated: true,
+				});
+				i++;
+			}
+		}
+		return [true, updatedProposal, eventsTableData];
+	}, []);
 
 	const generatePredictionForService = useCallback((proposaldata, aiPredictedData) => {
 		//prediction is one to one mapping from tables, so we need check its order from section
