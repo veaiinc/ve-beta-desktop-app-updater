@@ -766,12 +766,17 @@ export const Galleries = () => {
 		}
 	};
 
-	const getImageDetail = async (imageId) => {
+	const getImageDetail = async (imageId, reset = true, apiCall = true) => {
 		try {
-			dispatch({
-				type: Actions.GET_IMAGE_DETAIL,
-				payload: null,
-			});
+			if (reset) {
+				dispatch({
+					type: Actions.GET_IMAGE_DETAIL,
+					payload: null,
+				});
+			}
+
+			if (!apiCall) return;
+
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(
