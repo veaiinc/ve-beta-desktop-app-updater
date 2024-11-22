@@ -4,13 +4,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import '../../../assets/scss/onboarding/index.scss';
 import Username from '../../components/onboarding/Username';
 import WorkspaceHandleName from '../../components/onboarding/WorkspaceHandleName';
-import { useRef } from 'react';
 import WorkspaceType from '../../components/onboarding/WorkspaceType';
 import Profession from '../../components/onboarding/Profession';
 import Context from '../../../context/context';
 import { message } from 'antd';
 import CreatingNewWorkspace from '../../components/onboarding/CreatingNewWorkspace';
 import { getLocationsDetails } from '../../../helpers';
+import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/green-tick.svg';
 
 const tl1 = gsap.timeline();
 const tl2 = gsap.timeline();
@@ -67,6 +67,12 @@ const Onboarding = () => {
 			animateStep3Enter();
 		}
 	}, [info?.step]);
+
+	useEffect(() => {
+		if (info?.stage === 2) {
+			animateStage2Enter();
+		}
+	}, [info?.stage]);
 
 	const handleInvitedUser = async () => {
 		const locationDetails = await getLocationsDetails();
@@ -316,7 +322,7 @@ const Onboarding = () => {
 
 	const animateStep3Enter = () => {
 		console.log('animateStep3Enter');
-		tl2.fromTo(
+		tl2?.fromTo(
 			'.step3',
 			{
 				opacity: 0,
@@ -325,6 +331,28 @@ const Onboarding = () => {
 			{
 				opacity: 1,
 				y: 0,
+				duration: 1,
+				ease: 'power2.inOut',
+				onComplete: () => {
+					incrementStage(); // stage 2
+				},
+			},
+		);
+	};
+
+	const animateStage2Enter = () => {
+		console.log('animateStage2Enter');
+		tl2?.fromTo(
+			'.stage2',
+			{
+				opacity: 0,
+				bottom: 0,
+				scale: 1.5,
+			},
+			{
+				opacity: 1,
+				bottom: 120,
+				scale: 1,
 				duration: 1,
 				ease: 'power2.inOut',
 			},
@@ -351,24 +379,26 @@ const Onboarding = () => {
 		3: (
 			<div className="step3" style={{ position: 'relative' }}>
 				<h1>Let's setup your workspace handle</h1>
-				<h2>{info?.workspaceHandle || 'workspacename'}.ve.ai</h2>
-				{info?.workspaceHandle?.length > 1 && (
-					<span
-						style={{
-							position: 'absolute',
-							bottom: 0,
-							left: '34px',
-							fontSize: '12px',
-							color: info?.isWorkspaceHandleAvailable
-								? 'rgb(152, 255, 152)'
-								: 'rgb(255, 111, 97)',
-						}}
-					>
-						{info?.isWorkspaceHandleAvailable
-							? 'This handle is available'
-							: 'This handle is already taken'}
-					</span>
-				)}
+				<h2>
+					{info?.workspaceHandle || info?.isWorkspaceHandleAvailable ? (
+						'Your domain will be ' +
+						info?.workspaceHandle +
+						'.ve.ai' +
+						(info?.isWorkspaceHandleAvailable && <GreenTick />)
+					) : (
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								color: '#FF646B',
+							}}
+						>
+							This handle is already taken
+							<GreenTick />
+						</div>
+					)}
+				</h2>
 			</div>
 		),
 		4: <h1 className="step4">{info?.workspaceHandle}.ve.ai</h1>,
@@ -380,6 +410,7 @@ const Onboarding = () => {
 	const onboardingStages = {
 		1: (
 			<Username
+				step={info?.step}
 				username={info?.username}
 				setUsername={setUsername}
 				incrementStep={incrementStep}

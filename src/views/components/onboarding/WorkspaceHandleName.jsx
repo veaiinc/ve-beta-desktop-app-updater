@@ -18,24 +18,9 @@ const WorkspaceHandleName = ({
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		isHovering: false,
 		isChecking: false,
 		enterPressed: false,
 	});
-
-	const workspaceHandleNameRef = useRef(null);
-
-	useEffect(() => {
-		gsap.fromTo(
-			workspaceHandleNameRef?.current,
-			{ opacity: 0 },
-			{
-				opacity: 1,
-				duration: 0.5,
-				ease: 'power2.inOut',
-			},
-		);
-	}, []);
 
 	useEffect(() => {
 		if (workspaceHandle?.length > 1) {
@@ -47,6 +32,7 @@ const WorkspaceHandleName = ({
 
 			return () => clearTimeout(timeout);
 		}
+		setIsWorkspaceHandleAvailable(false);
 	}, [workspaceHandle]);
 
 	const handleCheckWorkspaceHandleAvailability = async (workspaceHandle) => {
@@ -65,27 +51,24 @@ const WorkspaceHandleName = ({
 	};
 
 	const handleNext = async (e, type) => {
-		if (e?.key === 'Enter' && (workspaceHandle?.length || type === 'click')) {
+		if ((e?.key === 'Enter' || type === 'click') && isWorkspaceHandleAvailable) {
 			if (info?.enterPressed) return;
 			setInfo((prev) => ({ ...prev, enterPressed: true }));
 			if (!info?.isChecking && workspaceHandle?.length > 1 && isWorkspaceHandleAvailable) {
-				gsap.to(workspaceHandleNameRef.current, {
-					opacity: 0,
-					duration: 0.5,
-					ease: 'power2.inOut',
-					onComplete: () => {
-						incrementStep();
-					},
-				});
+				console.log('handleNext');
 			}
 		}
 	};
 
+	useEffect(() => {
+		console.log(
+			'workspaceHandle',
+			info?.isChecking || workspaceHandle?.length > 1 || !isWorkspaceHandleAvailable,
+		);
+	}, [info?.isChecking, workspaceHandle?.length, isWorkspaceHandleAvailable]);
+
 	return (
-		<div
-			ref={workspaceHandleNameRef}
-			className="username-input-container workspace-handle-name-container"
-		>
+		<div className="username-input-container workspace-handle-name-container stage2">
 			<input
 				className="workspace-handle-name-input"
 				value={workspaceHandle}
@@ -96,30 +79,24 @@ const WorkspaceHandleName = ({
 				placeholder="workspace name"
 			/>
 			<button
-				disabled={
-					info?.isChecking || workspaceHandle?.length || !isWorkspaceHandleAvailable
-				}
+				className="next-button"
+				disabled={!isWorkspaceHandleAvailable}
 				style={{
-					cursor:
-						info?.isChecking || workspaceHandle?.length || !isWorkspaceHandleAvailable
-							? 'not-allowed'
-							: 'pointer',
-					background:
-						info?.isChecking || workspaceHandle?.length || !isWorkspaceHandleAvailable
-							? 'rgba(255, 255, 255, 0.1)'
-							: '',
+					cursor: !isWorkspaceHandleAvailable ? 'not-allowed' : 'pointer',
+					background: !isWorkspaceHandleAvailable ? 'rgba(255, 255, 255, 0.1)' : 'white',
+					transition: 'all 0.3s ease',
 				}}
-				onMouseEnter={() => setInfo({ ...info, isHovering: true })}
-				onMouseLeave={() => setInfo({ ...info, isHovering: false })}
 				onClick={() => handleNext(null, 'click')}
 			>
-				{info?.isHovering ? (
-					<span>
-						<UpArrowBlackHover />
-					</span>
-				) : (
-					<UpArrowGrey />
-				)}
+				<div
+					className="arrow-container"
+					style={{
+						transition: 'all 0.3s ease',
+						transform: isWorkspaceHandleAvailable ? 'rotate(90deg)' : 'rotate(0deg)',
+					}}
+				>
+					{isWorkspaceHandleAvailable ? <UpArrowBlackHover /> : <UpArrowGrey />}
+				</div>
 			</button>
 		</div>
 	);

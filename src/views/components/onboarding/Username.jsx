@@ -5,6 +5,7 @@ import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_p
 import '../../../assets/scss/onboarding/index.scss';
 
 const Username = ({
+	step,
 	username,
 	setUsername,
 	incrementStage,
@@ -18,6 +19,7 @@ const Username = ({
 	});
 
 	const handleSetUsername = (e) => {
+		if (step !== 1) return;
 		const value = e?.target?.value ?? '';
 		const firstName = value.split(' ')[0];
 		const capitalizedValue = firstName
