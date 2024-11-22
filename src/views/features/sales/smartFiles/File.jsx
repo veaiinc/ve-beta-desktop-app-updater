@@ -464,6 +464,8 @@ const File = ({
 
 	//proposalUpdate
 	const updateProposalFunc = useCallback(async (moduleData) => {
+		setInfo((prev) => ({ ...prev, proposal: _.cloneDeep(moduleData || {}) }));
+
 		const {
 			activeVersion,
 			_id,
@@ -474,7 +476,7 @@ const File = ({
 			expiryInDays,
 			sections,
 		} = moduleData || {};
-		setInfo((prev) => ({ ...prev, proposal: _.cloneDeep(moduleData || {}) }));
+
 		const payload = {
 			proposalId: _id,
 			workflowId,
@@ -699,7 +701,7 @@ const File = ({
 	}, []);
 
 	// ai prediction
-	const generatePridictions = useCallback(async () => {
+	const generatePridictions = useCallback(() => {
 		if (aiPredictedData && info?.eventsTableData && info?.proposal && !info?.gotGenerated) {
 			//storing current propsal data to disgard ai generated data
 
@@ -709,62 +711,18 @@ const File = ({
 			}));
 
 			let updatedProposal = _.cloneDeep(info?.proposal || {});
-
 			let updatedEventstabledata = { ...(info?.eventsTableData || {}) };
 
 			//handling events
-			const eventsPredictions = aiPredictedData?.filter((ele) => ele?.type === 'events');
-			if (!eventsPredictions?.length) {
-				setInfo((prev) => ({
-					...prev,
-					storedPreviousProposalData: null,
-				}));
-				return;
+			const response = generatePredictionsForEvents(updatedProposal, aiPredictedData);
+			if (response?.[0]) {
+				const eventsTableData = response?.[2];
+				updatedEventstabledata.proposal = [...(eventsTableData || [])];
+				updatedProposal = _.cloneDeep(response?.[1]);
 			}
-			const eventsTableData = [];
-
-			let i = 0;
-			for (let m = 0; m < updatedProposal?.tables?.length; m++) {
-				if (updatedProposal?.tables?.[m]?.type === 'events') {
-					const proposalEventsTable = updatedProposal?.tables?.[m];
-					const { values = [] } = proposalEventsTable || {};
-					for (let j = 0; j < values?.length; j++) {
-						if (i > eventsPredictions?.length) {
-							break;
-						}
-						const predictedRoles = eventsPredictions?.[i]?.['events']?.[j]?.['output'];
-						const roles = [];
-						for (let k = 0; k < predictedRoles?.length; k++) {
-							roles?.push({
-								type: predictedRoles?.[k]?.type,
-								categories: [
-									{
-										category: 'candid',
-										quantity: predictedRoles?.[k]?.quantity || 0,
-									},
-									{
-										category: 'traditional',
-										quantity: 0,
-									},
-								],
-							});
-						}
-						values[j].roles = [...(roles || [])];
-					}
-					proposalEventsTable.values = [...values];
-					eventsTableData.push({
-						...(proposalEventsTable || {}),
-						moduleType: 'proposal',
-						ai_generated: true,
-					});
-					i++;
-				}
-			}
-
-			updatedEventstabledata.proposal = [...(eventsTableData || [])];
 
 			//handling services
-			const updatedProposalObj = await generatePredictionForService(
+			const updatedProposalObj = generatePredictionForService(
 				updatedProposal,
 				aiPredictedData,
 			);
@@ -780,14 +738,64 @@ const File = ({
 		}
 	}, [aiPredictedData, info?.eventsTableData, info?.proposal, info?.gotGenerated]);
 
-	const generatePredictionForService = useCallback(async (proposaldata, aiPredictedData) => {
+	const generatePredictionsForEvents = useCallback((updatedProposal, aiPredictedData) => {
+		const eventsPredictions = aiPredictedData?.filter((ele) => ele?.type === 'events');
+		if (!eventsPredictions?.length) {
+			setInfo((prev) => ({
+				...prev,
+				storedPreviousProposalData: null,
+			}));
+			return [false];
+		}
+		const eventsTableData = [];
+		let i = 0;
+		for (let m = 0; m < updatedProposal?.tables?.length; m++) {
+			if (updatedProposal?.tables?.[m]?.type === 'events') {
+				const proposalEventsTable = updatedProposal?.tables?.[m];
+				const { values = [] } = proposalEventsTable || {};
+				for (let j = 0; j < values?.length; j++) {
+					if (i > eventsPredictions?.length) {
+						break;
+					}
+					const predictedRoles = eventsPredictions?.[i]?.['events']?.[j]?.['output'];
+					const roles = [];
+					for (let k = 0; k < predictedRoles?.length; k++) {
+						roles?.push({
+							type: predictedRoles?.[k]?.type,
+							categories: [
+								{
+									category: 'candid',
+									quantity: predictedRoles?.[k]?.quantity || 0,
+								},
+								{
+									category: 'traditional',
+									quantity: 0,
+								},
+							],
+						});
+					}
+					values[j].roles = [...(roles || [])];
+				}
+				proposalEventsTable.values = [...values];
+				eventsTableData.push({
+					...(proposalEventsTable || {}),
+					moduleType: 'proposal',
+					ai_generated: true,
+				});
+				i++;
+			}
+		}
+		return [true, updatedProposal, eventsTableData];
+	}, []);
+
+	const generatePredictionForService = useCallback((proposaldata, aiPredictedData) => {
 		//prediction is one to one mapping from tables, so we need check its order from section
 		const updatedProposal = _.cloneDeep(proposaldata);
 
 		//handling service prediction
 		const servicePrediction = aiPredictedData?.filter((ele) => ele?.type === 'services');
 		if (!servicePrediction?.length) {
-			return;
+			return updatedProposal;
 		}
 
 		const serviceTableMapper = {};
@@ -843,6 +851,7 @@ const File = ({
 				};
 			}
 		}
+
 		return updatedProposal;
 	}, []);
 
@@ -878,6 +887,7 @@ const File = ({
 				delete moduleData?.sections?.[i]?.ai_generated;
 			}
 		}
+
 		handleDebounceUpdate('proposal', moduleData);
 		syncEventTableData(moduleData);
 		setInfo((prev) => ({
@@ -918,6 +928,11 @@ const File = ({
 	const openAiGenerateModal = useCallback(() => {
 		setInfo((prev) => ({ ...prev, acceptAiGeneratedModal: true }));
 	}, [info?.acceptAiGeneratedModal]);
+
+	const refetchAiPredictions = useCallback(() => {
+		setInfo((prev) => ({ ...prev, fetchingAiPredictionsLoading: true }));
+		getAiPredictionForSmartFile(slug);
+	}, [slug]);
 
 	return (
 		<div className="fileParentContainer">
@@ -1042,6 +1057,7 @@ const File = ({
 					getEventsPresetsData={getEventsPresetsData}
 					gotUnacceptedAiGeneratedValue={info?.gotGenerated}
 					openAiGenerateModal={openAiGenerateModal}
+					refetchAiPredictions={refetchAiPredictions}
 				/>
 
 				<Services

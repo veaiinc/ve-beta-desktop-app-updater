@@ -79,6 +79,7 @@ const SmartFile = () => {
 				smartFileInfo: null,
 				specificTemplatesInfo: null,
 				formResponseData: null,
+				aiPredictedData: null,
 			});
 		};
 	}, []);
