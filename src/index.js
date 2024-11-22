@@ -9,6 +9,7 @@ import './assets/fonts/brasley/brasley.css';
 import './assets/fonts/brasley/brasley.css';
 import './assets/scss/global.scss';
 import './index.css';
+import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

@@ -42,51 +42,43 @@ const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 
 	return (
 		<div className="globalWorkflowCardContainer" onClick={() => onClickFunc(data)}>
-			<div className="labelContentWrapper">
-				<span className="globalWorkflowTitle">{data?.title}</span>
-				<span className="globalWorkflowSubTitle">
-					Ideal for wedding photography business with multiple events, selectable packages
-					and services, this workflow provides customisable design in enquiry forms,
-					proposals, invoices for multiple payment schedule and hassle contracts with
-					e-sign contracts
-				</span>
-				<div className="actionContainer">
-					<span className="actionsTitle">Actions</span>
-					<div className="actionBTnContainer">
-						{info?.publicModules?.map((ele, index) => (
-							<div className="actionBtnWrapper" key={index}>
-								<div className="actionBtn">
-									<Circled />
-									<span className="actionBtnTitlestyling">{ele?.module}</span>
-								</div>
-								{info?.privateModules?.length ? <RightArrow /> : ''}
-							</div>
-						))}
-						{info?.privateModules?.map((ele, index) => (
-							<div className="actionBtnWrapper" key={index}>
-								<div className="actionBtn">
-									<Circled />
-									<span className="actionBtnTitlestyling">{ele?.module}</span>
-								</div>
-								{index < info?.privateModules?.length - 1 ? <RightArrow /> : ''}
-							</div>
-						))}
+			<div className="newClassForImage">
+				<div className="imageContainer">
+					<iframe
+						src={
+							window.location.hostname === 'localhost'
+								? `http://localhost:3000/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`
+								: `https://builder.ve.ai/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`
+						}
+						title="Builder Preview"
+						width="100%"
+						height="100%"
+						style={{ zoom: 0.3 }}
+					/>
+				</div>
+				<div className="labelContentWrapper">
+					<span className="globalWorkflowTitle">{data?.title}</span>
+					<span className="globalWorkflowSubTitle">
+						Ideal for wedding photography business with multiple events, selectable
+						packages and services, this workflow provides customisable design in enquiry
+						forms, proposals, invoices for multiple payment schedule and hassle
+						contracts with e-sign contracts
+					</span>
+					<div className="actionContainer">
+						<span>Actions</span>
+						<div className="actionsBtnContainer">
+							{info?.publicModules?.map((ele, index) => {
+								<div className="actionBtnWrapper" key={index}>
+									<div className="actionsBtn">
+										<Circled />
+										<span className="actionBtnTitlestyling">{ele.module}</span>
+									</div>
+									{info?.privateModules?.length ? <RightArrow /> : ''}
+								</div>;
+							})}
+						</div>
 					</div>
 				</div>
-			</div>
-
-			<div className="imageContainer">
-				<iframe
-					src={
-						window.location.hostname === 'localhost'
-							? `http://localhost:3000/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`
-							: `https://builder.ve.ai/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`
-					}
-					title="Builder Preview"
-					width="100%"
-					height="100%"
-					style={{ zoom: 0.3 }}
-				/>
 			</div>
 		</div>
 	);
