@@ -690,10 +690,9 @@ const File = ({
 
 	// ai prediction
 
-	const generatePridiction = useCallback(() => {
+	const generatePridictionForEvents = useCallback(() => {
 		if (aiPredictedData && info?.eventsTableData && info?.proposal && !info?.gotGenerated) {
 			//storing current propsal data to disgard ai generated data
-
 			setInfo((prev) => ({
 				...prev,
 				storedPreviousProposalData: _.cloneDeep(info?.proposal || {}),
@@ -705,6 +704,13 @@ const File = ({
 
 			//handling events
 			const eventsPredictions = aiPredictedData?.filter((ele) => ele?.type === 'events');
+			if (!eventsPredictions?.length) {
+				setInfo((prev) => ({
+					...prev,
+					storedPreviousProposalData: null,
+				}));
+				return;
+			}
 			const eventsTableData = [];
 
 			let i = 0;
@@ -758,7 +764,7 @@ const File = ({
 		(value) => {
 			setInfo((prev) => ({ ...prev, useAiPredictions: value }));
 			if (value && aiPredictedData) {
-				generatePridiction();
+				generatePridictionForEvents();
 				setInfo((prev) => ({ ...prev, generatePredictionsLoading: true }));
 			}
 		},
@@ -782,6 +788,12 @@ const File = ({
 		const moduleData = info?.proposal || {};
 		handleDebounceUpdate('proposal', moduleData);
 		syncEventTableData(moduleData);
+		setInfo((prev) => ({
+			...prev,
+			gotGenerated: false,
+			useAiPredictions: false,
+			generatePredictionsLoading: false,
+		}));
 	}, [info?.proposal]);
 
 	const syncEventTableData = useCallback(
