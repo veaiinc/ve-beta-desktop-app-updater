@@ -7,7 +7,8 @@ import '../../../assets/scss/onboarding/index.scss';
 const Username = ({
 	username,
 	setUsername,
-	animateStep1Exit,
+	incrementStage,
+	animateStage1AndStep1Exit,
 	handleInvitedUser,
 	createAccountViaInvite = false,
 }) => {
@@ -15,20 +16,6 @@ const Username = ({
 		isHovering: false,
 		enterPressed: false,
 	});
-	useEffect(() => {
-		if (usernameDivRef?.current) {
-			gsap.to(usernameDivRef.current, {
-				opacity: 0,
-				duration: 0.5,
-				ease: 'power2.inOut',
-				onComplete: () => {
-					animateStep1Exit();
-				},
-			});
-		}
-	}, []);
-
-	const usernameDivRef = useRef(null);
 
 	const handleSetUsername = (e) => {
 		const value = e?.target?.value ?? '';
@@ -38,26 +25,17 @@ const Username = ({
 			: '';
 		setUsername(capitalizedValue);
 	};
+
 	const handleNext = (e, type) => {
-		if (e.key === 'Enter' && (username?.length || type === 'click')) {
-			if (info?.enterPressed) return;
+		if ((e?.key === 'Enter' || type === 'click') && !info?.enterPressed && username?.length) {
 			setInfo((prev) => ({ ...prev, enterPressed: true }));
-			gsap.to(usernameDivRef.current, {
-				opacity: 0,
-				duration: 0.5,
-				ease: 'power2.inOut',
-				onComplete: () => {
-					animateStep1Exit();
-					if (createAccountViaInvite) {
-						handleInvitedUser();
-					}
-				},
-			});
+			animateStage1AndStep1Exit();
+			// incrementStage();
 		}
 	};
 
 	return (
-		<div ref={usernameDivRef} className="username-input-container">
+		<div className="username-input-container stage1">
 			<input
 				value={username}
 				onChange={handleSetUsername}
@@ -67,16 +45,26 @@ const Username = ({
 				placeholder="Your first name"
 			/>
 			<button
+				className="next-button"
 				disabled={!username?.length}
 				style={{
 					cursor: !username?.length ? 'not-allowed' : 'pointer',
-					background: !username?.length ? 'rgba(255, 255, 255, 0.1)' : '',
+					background: !username?.length ? 'rgba(255, 255, 255, 0.1)' : 'white',
 				}}
 				onMouseEnter={() => setInfo({ ...info, isHovering: true })}
 				onMouseLeave={() => setInfo({ ...info, isHovering: false })}
 				onClick={() => handleNext(null, 'click')}
 			>
-				{info?.isHovering ? <UpArrowBlackHover /> : <UpArrowGrey />}
+				<span
+					className="arrow-icon"
+					style={{
+						display: 'inline-block',
+						transform: username?.length ? 'rotate(90deg)' : 'rotate(0deg)',
+						transition: 'transform 0.4s ease',
+					}}
+				>
+					{info?.isHovering || username?.length ? <UpArrowBlackHover /> : <UpArrowGrey />}
+				</span>
 			</button>
 		</div>
 	);

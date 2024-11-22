@@ -12,7 +12,7 @@ import { message } from 'antd';
 import CreatingNewWorkspace from '../../components/onboarding/CreatingNewWorkspace';
 import { getLocationsDetails } from '../../../helpers';
 
-const tl = gsap.timeline();
+const tl1 = gsap.timeline();
 const tl2 = gsap.timeline();
 
 const Onboarding = () => {
@@ -22,14 +22,17 @@ const Onboarding = () => {
 	const invitedWorkspaceId = params?.get('invitedWorkspaceId');
 	const invitedUserEmail = params?.get('inviteeEmail');
 	const createWorkspaceUsername = params?.get('username');
+	const progressBar = createWorkspaceUsername
+		? [{ id: 1 }, { id: 2 }, { id: 3 }]
+		: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }];
 
 	const {
 		authInfo: { updateUserDetails, createWorkspace, createAccountViaInvite },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		stage: 0,
-		step: 0,
+		stage: createWorkspaceUsername ? 2 : 1,
+		step: createWorkspaceUsername ? 2 : 1,
 		username: '',
 		workspaceHandle: '',
 		isWorkspaceHandleAvailable: false,
@@ -39,14 +42,6 @@ const Onboarding = () => {
 		isOnboard: false,
 		businessName: '',
 	});
-
-	const aiIntroRef = useRef(null);
-	const step1Ref = useRef(null);
-	const step2Ref = useRef(null);
-	const step4Ref = useRef(null);
-	const step5Ref = useRef(null);
-	const step6Ref = useRef(null);
-	const step7Ref = useRef(null);
 
 	useEffect(() => {
 		if (invitedWorkspaceId && invitedUserEmail) {
@@ -59,27 +54,19 @@ const Onboarding = () => {
 		if (localStorage?.getItem('isOnboard') === 'true' && !createWorkspaceUsername) {
 			navigate('/home');
 		}
+		createWorkspaceUsername ? animateAiIntroForExistingUser() : animateAiIntro();
 	}, []);
 
 	useEffect(() => {
-		if (info?.step === 0 && aiIntroRef?.current) {
-			animateAiIntro();
-		} else if (info?.step === 1 && aiIntroRef?.current) {
-			animateRightContainer();
-		} else if (info?.step === 2 && aiIntroRef?.current) {
-			animateStep2Enter();
-		} else if (info?.step === 3 && aiIntroRef?.current) {
-			animateStep3Enter();
-		} else if (info?.step === 4 && aiIntroRef?.current) {
-			animateStep4Enter();
-		} else if (info?.step === 5 && aiIntroRef?.current) {
-			animateStep5Enter();
-		} else if (info?.step === 6 && aiIntroRef?.current) {
-			animateStep6Enter();
-		} else if (info?.step === 7 && aiIntroRef?.current) {
-			animateStep7Enter();
+		if (info?.step === 2) {
+			if (!createWorkspaceUsername) {
+				animateStep2EnterAndExit();
+			}
 		}
-	}, [info?.step, aiIntroRef?.current]);
+		if (info?.step === 3) {
+			animateStep3Enter();
+		}
+	}, [info?.step]);
 
 	const handleInvitedUser = async () => {
 		const locationDetails = await getLocationsDetails();
@@ -163,280 +150,206 @@ const Onboarding = () => {
 		}));
 	};
 
+	const incrementStage = () => {
+		setInfo((prev) => ({
+			...prev,
+			stage: prev?.stage + 1,
+		}));
+	};
+
+	// Animations
 	const animateAiIntro = () => {
-		tl?.fromTo(
-			aiIntroRef?.current,
+		console.log('animateAiIntro');
+		tl1.fromTo(
+			'.onboarding-container',
 			{
-				zoom: 2,
 				opacity: 0,
 			},
 			{
-				zoom: 1,
 				opacity: 1,
 				duration: 1,
-				ease: 'power2.out',
-				delay: 1,
+				ease: 'power2.inOut',
 			},
-		);
-		tl?.to(aiIntroRef?.current, {
-			opacity: 0,
-			duration: 1,
-			ease: 'power2.out',
-			delay: 1,
-			onComplete: () => {
-				setTimeout(() => {
-					setInfo((prev) => ({
-						...prev,
-						step: prev?.step + 1,
-						stage: prev?.stage + 1,
-					}));
-				}, 500);
-			},
-		});
+		)
+			.fromTo(
+				'.step1',
+				{
+					opacity: 0,
+					y: 30,
+				},
+				{
+					opacity: 1,
+					y: 0,
+					duration: 1,
+					ease: 'power2.inOut',
+				},
+				'+=0',
+			)
+			.fromTo(
+				'.stage1',
+				{
+					opacity: 0,
+					bottom: 0,
+					scale: 1.5,
+				},
+				{
+					opacity: 1,
+					bottom: 120,
+					scale: 1,
+					duration: 1,
+					ease: 'power2.inOut',
+				},
+				'<',
+			)
+			.fromTo(
+				'.right-container',
+				{
+					opacity: 0,
+					scale: 1.5,
+				},
+				{
+					opacity: 1,
+					scale: 1,
+					duration: 1,
+					ease: 'power2.inOut',
+				},
+				'<',
+			)
+			.fromTo(
+				'.right-container-content',
+				{
+					opacity: 0,
+					scale: 0.1,
+				},
+				{
+					opacity: 1,
+					scale: 1,
+					duration: 1,
+					ease: 'power2.inOut',
+				},
+				'<',
+			)
+			.from('.progress-bar-container', {
+				top: -10,
+			});
 	};
 
-	const animateRightContainer = () => {
-		tl.fromTo(
-			[aiIntroRef?.current],
+	const animateAiIntroForExistingUser = () => {
+		console.log('animateAiIntroForExistingUser');
+		tl1.fromTo(
+			'.onboarding-container',
 			{
 				opacity: 0,
-				y: 20,
+			},
+			{
+				opacity: 1,
+				duration: 1,
+				ease: 'power2.inOut',
+			},
+		).fromTo(
+			'.step2',
+			{
+				opacity: 0,
+				y: 30,
 			},
 			{
 				opacity: 1,
 				y: 0,
 				duration: 1,
-				ease: 'power2.out',
+				ease: 'power2.inOut',
 			},
+			'+=0',
 		);
+	};
+
+	const animateStage1AndStep1Exit = () => {
+		console.log('animateStage1AndStep1Exit');
+		tl1.to('.stage1', {
+			opacity: 0,
+			duration: 1,
+			ease: 'power2.inOut',
+		});
+		tl2.to('.step1', {
+			opacity: 0,
+			x: -120,
+			y: -30,
+			scale: 0.5,
+			duration: 1,
+			ease: 'power2.inOut',
+			onComplete: () => {
+				incrementStep();
+			},
+		});
+	};
+
+	const animateStep2EnterAndExit = () => {
+		console.log('animateStep2EnterAndExit');
 		tl2.fromTo(
-			'.right-container-content',
+			'.step2',
 			{
-				zoom: 0,
-			},
-			{
-				zoom: 1,
-				duration: 1,
-				ease: 'power2.out',
-			},
-		);
-	};
-
-	const animateStep1Exit = () => {
-		tl.to(step1Ref?.current, {
-			zoom: 0.5,
-			color: 'rgba(255, 255, 255, 0.1)',
-			opacity: 0,
-			duration: 1,
-			ease: 'power2.out',
-			onComplete: () => {
-				setInfo((prev) => ({
-					...prev,
-					step: prev?.step + 1,
-				}));
-			},
-		});
-	};
-
-	const animateStep2Enter = () => {
-		tl2?.fromTo(
-			step2Ref?.current,
-			{
-				y: 20,
-				zoom: 0.5,
-				color: 'rgba(255, 255, 255, 0.1)',
 				opacity: 0,
+				x: -120,
+				y: -30,
+				scale: 0.5,
 			},
 			{
-				y: 0,
-				zoom: 1,
-				color: 'white',
 				opacity: 1,
+				x: 0,
+				y: 0,
+				scale: 1,
 				duration: 1,
-				delay: 1,
-				ease: 'power2.out',
+				ease: 'power2.inOut',
 			},
-		);
-		tl2?.to(step2Ref?.current, {
+		).to('.step2', {
 			opacity: 0,
+			x: -120,
+			y: -30,
+			scale: 0.5,
 			duration: 1,
-			ease: 'power2.out',
 			delay: 1,
+			ease: 'power2.inOut',
 			onComplete: () => {
-				setInfo((prev) => ({
-					...prev,
-					step: prev?.step + 1,
-				}));
+				incrementStep();
 			},
 		});
 	};
 
 	const animateStep3Enter = () => {
-		tl2?.fromTo(
-			aiIntroRef?.current,
+		console.log('animateStep3Enter');
+		tl2.fromTo(
+			'.step3',
 			{
-				y: 20,
-				zoom: 0.5,
 				opacity: 0,
+				y: 30,
 			},
 			{
+				opacity: 1,
 				y: 0,
-				zoom: 1,
-				opacity: 1,
 				duration: 1,
-				delay: 1,
-				ease: 'power2.out',
-				onComplete: () => {
-					tl2?.to(aiIntroRef?.current, {
-						opacity: 1,
-						duration: 1,
-						ease: 'power2.out',
-					});
-					setInfo((prev) => ({
-						...prev,
-						stage: prev?.stage + 1,
-					}));
-				},
-			},
-		);
-	};
-
-	const animateStep4Enter = () => {
-		tl2?.fromTo(
-			aiIntroRef?.current,
-			{
-				y: 20,
-				zoom: 0.5,
-				opacity: 0,
-			},
-			{
-				y: 0,
-				zoom: 1,
-				opacity: 1,
-				duration: 1,
-				delay: 1,
-				ease: 'power2.out',
-			},
-		);
-		tl2?.to(aiIntroRef?.current, {
-			opacity: 0,
-			duration: 1,
-			ease: 'power2.out',
-			delay: 1,
-			onComplete: () => {
-				setInfo((prev) => ({
-					...prev,
-					step: prev?.step + 1,
-				}));
-			},
-		});
-	};
-
-	const animateStep5Enter = () => {
-		tl2?.to(aiIntroRef?.current, {
-			opacity: 1,
-			duration: 0.5,
-			ease: 'power2.out',
-		});
-		tl2?.fromTo(
-			step5Ref?.current,
-			{
-				opacity: 0,
-				zoom: 0.5,
-			},
-			{
-				opacity: 1,
-				zoom: 1,
-				duration: 1,
-				delay: 1,
-				ease: 'power2.out',
-				onComplete: () => {
-					setInfo((prev) => ({
-						...prev,
-						stage: prev?.stage + 1,
-					}));
-				},
-			},
-		);
-	};
-
-	const animateStep6Enter = () => {
-		tl2?.fromTo(
-			step6Ref?.current,
-			{
-				y: 20,
-				zoom: 0.5,
-				color: 'rgba(255, 255, 255, 0.1)',
-				opacity: 0,
-			},
-			{
-				y: 0,
-				zoom: 1,
-				color: 'white',
-				opacity: 1,
-				duration: 1,
-				delay: 1,
-				ease: 'power2.out',
-				onComplete: () => {
-					setInfo((prev) => ({
-						...prev,
-						stage: prev?.stage + 1,
-					}));
-				},
-			},
-		);
-	};
-
-	const animateStep7Enter = () => {
-		tl2.to(step6Ref?.current, {
-			opacity: 0,
-			duration: 1,
-			ease: 'power2.out',
-		});
-		tl2?.fromTo(
-			aiIntroRef?.current,
-			{
-				opacity: 0,
-				zoom: 0.5,
-			},
-			{
-				opacity: 1,
-				zoom: 1,
-				duration: 1,
-				ease: 'power2.out',
-				onComplete: () => {
-					const timeout = setTimeout(() => {
-						handleOnboarding();
-					}, 500);
-					return () => clearTimeout(timeout);
-				},
+				ease: 'power2.inOut',
 			},
 		);
 	};
 
 	const AiIntro = {
-		0: (
-			<>
-				<h1>Hi! I am VE</h1>
-				<h2>Your AI companion</h2>
-			</>
-		),
 		1: (
-			<h1 ref={step1Ref}>
-				{createWorkspaceUsername
-					? `Welcome back ${createWorkspaceUsername}`
-					: 'What can I call you ?'}
+			<h1 className="step1">
+				<>
+					Hey there,
+					<br />
+					What can I call you ?
+				</>
 			</h1>
 		),
 		2: (
-			<h1 ref={step2Ref}>
+			<h2 className="step2">
 				{createWorkspaceUsername
-					? `Just a moment...`
+					? `Welcome back ${createWorkspaceUsername}`
 					: `Hey ${info?.username}, nice to meet you.`}
-			</h1>
+			</h2>
 		),
 		3: (
-			<div style={{ position: 'relative' }}>
+			<div className="step3" style={{ position: 'relative' }}>
 				<h1>Let's setup your workspace handle</h1>
 				<h2>{info?.workspaceHandle || 'workspacename'}.ve.ai</h2>
 				{info?.workspaceHandle?.length > 1 && (
@@ -458,10 +371,10 @@ const Onboarding = () => {
 				)}
 			</div>
 		),
-		4: <h1 ref={step4Ref}>{info?.workspaceHandle}.ve.ai</h1>,
-		5: <h1 ref={step5Ref}>What will be the workspace type ?</h1>,
-		6: <h1 ref={step6Ref}>What is your profession ?</h1>,
-		7: <h1 ref={step7Ref}>Setting up your workspace</h1>,
+		4: <h1 className="step4">{info?.workspaceHandle}.ve.ai</h1>,
+		5: <h1 className="step5">What will be the workspace type ?</h1>,
+		6: <h1 className="step6">What is your profession ?</h1>,
+		7: <h1 className="step7">Setting up your workspace</h1>,
 	};
 
 	const onboardingStages = {
@@ -469,9 +382,12 @@ const Onboarding = () => {
 			<Username
 				username={info?.username}
 				setUsername={setUsername}
-				animateStep1Exit={animateStep1Exit}
+				incrementStep={incrementStep}
+				incrementStage={incrementStage}
+				animateStage1AndStep1Exit={animateStage1AndStep1Exit}
 				handleInvitedUser={handleInvitedUser}
 				createAccountViaInvite={invitedWorkspaceId && invitedUserEmail}
+				createWorkspaceUsername={createWorkspaceUsername}
 			/>
 		),
 		2: (
@@ -481,7 +397,6 @@ const Onboarding = () => {
 				setWorkspaceHandleAndBusinessName={setWorkspaceHandleAndBusinessName}
 				setIsWorkspaceHandleAvailable={setIsWorkspaceHandleAvailable}
 				incrementStep={incrementStep}
-				animateStep4Enter={animateStep4Enter}
 			/>
 		),
 		3: <WorkspaceType setWorkspaceType={setWorkspaceType} incrementStep={incrementStep} />,
@@ -490,7 +405,6 @@ const Onboarding = () => {
 				workspaceType={info?.workspaceType}
 				setProfession={setProfession}
 				incrementStep={incrementStep}
-				step6Ref={step6Ref}
 			/>
 		),
 		5: <CreatingNewWorkspace profession={info?.profession} />,
@@ -499,7 +413,23 @@ const Onboarding = () => {
 	return (
 		<div className="onboarding-container">
 			<div className="left-container">
-				<div ref={aiIntroRef} className="ai-intro">
+				<div className="progress-bar-container">
+					{progressBar?.map((bar) => (
+						<div
+							style={{
+								background:
+									info?.stage - 1 === bar?.id
+										? 'white'
+										: 'rgba(255, 255, 255, 0.1)',
+								transition: 'background 0.4s ease',
+								width: `${100 / progressBar?.length}%`,
+							}}
+							className="progress-bar"
+							key={bar?.id}
+						></div>
+					))}
+				</div>
+				<div className="ai-intro">
 					{AiIntro[info?.step]}
 					{onboardingStages[info?.stage]}
 				</div>
