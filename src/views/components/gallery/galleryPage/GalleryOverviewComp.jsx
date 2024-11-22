@@ -46,9 +46,12 @@ const GalleryOverview = ({
 						format="DD-MM-YYYY"
 						defaultValue={
 							info?.galleryCreatedAt
-								? dayjs(`${moment('20241121', 'YYYYMMDD').format('DD-MM-YYYY')}`, [
-										'DD-MM-YYYY',
-								  ])
+								? dayjs(
+										`${moment(info?.galleryCreatedAt, 'YYYYMMDD').format(
+											'DD-MM-YYYY',
+										)}`,
+										['DD-MM-YYYY'],
+								  )
 								: ''
 						}
 						onChange={(e, dateString, date) =>
@@ -80,7 +83,7 @@ const GalleryOverview = ({
 							info?.galleryDueDate
 								? dayjs(
 										`${moment
-											.unix(`${info?.galleryDueDate}`)
+											.unix(`${info?.galleryDueDate / 1000}`)
 											.format('DD-MM-YYYY')}`,
 										['DD-MM-YYYY'],
 								  )

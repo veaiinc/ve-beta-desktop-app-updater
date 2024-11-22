@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { ReactComponent as CopyIcon } from '../../../../assets/svg/gallery/copy.svg';
 import { ReactComponent as DownloadIcon } from '../../../../assets/svg/gallery/download2.svg';
 import Table from './Table';
+import QRCode from 'react-qr-code';
 
 const tableData = [
 	{
@@ -76,18 +77,48 @@ const tableData = [
 	},
 ];
 
-const AiFaceRegistration = () => {
+const AiFaceRegistration = ({ link }) => {
+	const qrRef = useRef(null);
+
+	const downloadQR = () => {
+		const canvas = document.createElement('canvas');
+		const svg = qrRef.current.querySelector('svg');
+		const svgData = new XMLSerializer().serializeToString(svg);
+		const img = new Image();
+
+		img.onload = () => {
+			canvas.width = img.width;
+			canvas.height = img.height;
+			const ctx = canvas.getContext('2d');
+			ctx.drawImage(img, 0, 0);
+
+			const pngFile = canvas.toDataURL('image/png');
+			const downloadLink = document.createElement('a');
+			downloadLink.download = 'qr-code.png';
+			downloadLink.href = pngFile;
+			downloadLink.click();
+		};
+
+		img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+	};
+
 	return (
 		<div className="aiFaceRegistration">
 			<p className="heading">All data from the client gallery, album and selection views</p>
 			<div className="aiScannerContainer">
-				<div className="scanner">{/* <img src={} alt="select" /> */}</div>
+				<div className="scanner" ref={qrRef}>
+					<QRCode
+						value={link}
+						style={{ height: '90%', maxWidth: '90%', width: '90%' }}
+						size={120}
+					/>
+				</div>
 				<div className="aiScannerDetailsContainer">
 					<div className="aiScanLink">
-						<p>Select the images you want to register</p>
+						<p>{link ? link : ''}</p>
 						<CopyIcon className="copyIcon" />
 					</div>
-					<div className="downloadQR">
+					<div className="downloadQR" onClick={() => downloadQR()}>
 						<DownloadIcon className="downloadIcon" />
 						<p>Download QR</p>
 					</div>
