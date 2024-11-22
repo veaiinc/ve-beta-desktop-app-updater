@@ -3,12 +3,13 @@ import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/left
 import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import Cookies from 'js-cookie';
-
+import { useParams, useNavigate } from 'react-router-dom';
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
 	const closeWorkspaceList = () => {
 		setsidebarStates({ ...sidebarStates, workSpaceOpen: false, navStyle: 'open' });
 	};
-
+	const { galleryId } = useParams();
+	const navigate = useNavigate();
 	const handleSwitchWorkSpaceLogic = useCallback((data) => {
 		const { activeWorkspaceId, isOnboard } = data;
 		const workspaceId = localStorage.getItem('workspaceId');
@@ -37,6 +38,10 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 			});
 		}
+		if (galleryId) {
+			navigate(`/home`);
+		}
+
 		window.location.reload();
 	}, []);
 

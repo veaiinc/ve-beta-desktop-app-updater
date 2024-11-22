@@ -40,7 +40,15 @@ const MoveToAlbumPopup = ({ open, closeModal, galleryId, albums, albumName, move
 		});
 	};
 	return (
-		<ReactModal isOpen={open} closeModal={handleCloseModal} modalType={'center'}>
+		<ReactModal
+			isOpen={open}
+			closeModal={handleCloseModal}
+			modalType={'center'}
+			customStyles={{
+				content: { position: 'absolute', overflow: 'hidden' },
+				className: 'moveAlbumContainer',
+			}}
+		>
 			<div className="moveToAlbumPopupMainContainer">
 				<div className="headingContainer">
 					<p className="heading">Move to Other Albums</p>
