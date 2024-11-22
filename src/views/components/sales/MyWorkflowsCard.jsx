@@ -6,6 +6,8 @@ import { ReactComponent as ArrowSvg } from '../../../assets/svg/worflow_builder/
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
 import { fetchOriginSelection } from '../../../helpers';
 
+let origin = fetchOriginSelection();
+
 const generateCardsInfoData = (data, type, moduleWithoutContract = false) => {
 	if (type === 'actionCards') {
 		return [
@@ -106,7 +108,6 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 		formParsedContentHtml: '',
 		contractExist: true,
 	});
-	let origin = fetchOriginSelection();
 
 	//useEFFects
 	useEffect(() => {
