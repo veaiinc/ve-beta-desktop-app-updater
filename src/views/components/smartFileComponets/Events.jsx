@@ -18,6 +18,7 @@ const Events = ({
 	getEventsPresetsData,
 	openAiGenerateModal,
 	gotUnacceptedAiGeneratedValue,
+	refetchAiPredictions,
 }) => {
 	const [info, setInfo] = useState({
 		data: [],
@@ -209,6 +210,7 @@ const Events = ({
 			updatedData?.splice(outerIndex, 1, selectedEventsArray);
 			setInfo((prev) => ({ ...prev, data: updatedData }));
 			eventsDataChange(selectedEventsArray);
+			refetchAiPredictions();
 		},
 		[info?.data, editable, gotUnacceptedAiGeneratedValue],
 	);
@@ -228,6 +230,7 @@ const Events = ({
 			updatedData?.splice(outerIndex, 1, selectedEventsArray);
 			setInfo((prev) => ({ ...prev, data: updatedData }));
 			eventsDataChange(selectedEventsArray);
+			refetchAiPredictions();
 		},
 		[info?.data, editable, gotUnacceptedAiGeneratedValue],
 	);
