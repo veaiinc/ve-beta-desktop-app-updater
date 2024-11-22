@@ -7,23 +7,25 @@ import WeekDayHeader from './WeekDayHeader';
 import moment from 'moment';
 
 const CalendarHeader = ({
+	label,
+	onView,
+	view,
+	views,
 	activeView,
 	selectedWeek,
 	selectedDate,
 	getCurrentWeek,
-	updateCalendarInfo,
 }) => {
-	const views = {
-		Month: <WeekHeader />,
-		Week: (
+	const viewsHeaders = {
+		month: <WeekHeader />,
+		week: (
 			<WeekDayHeader
-				activeView={activeView}
 				selectedWeek={selectedWeek}
 				selectedDate={selectedDate}
 				getCurrentWeek={getCurrentWeek}
 			/>
 		),
-		Day: <DayHeader />,
+		day: <DayHeader />,
 	};
 	return (
 		<>
@@ -31,30 +33,22 @@ const CalendarHeader = ({
 			<div className="calendarHeaderParentContainer">
 				<div className="calendarHeaderContainer">
 					<div className="calendarControls">
-						<div className="calendarDate">
-							{activeView && selectedDate
-								? activeView === 'Month'
-									? moment(selectedDate).format('MMMM YYYY')
-									: activeView === 'Week'
-									? moment(selectedDate).format('MMMM') +
-									  ` ${selectedWeek[0]} - ${selectedWeek.at(-1)}`
-									: moment(selectedDate).format('dddd MMM DD')
-								: 'CALENDAR'}
-						</div>
+						<div className="calendarDate">{label}</div>
 						<div className="viewToggleWrapper">
 							<div className="viewToggle">
-								{/* map on views Object  */}
-								{Object.keys(views)?.map((view) => (
-									<span
-										key={view}
-										className={`toggleButton ${
-											activeView === view ? 'active' : ''
-										}`}
-										onClick={() => updateCalendarInfo('activeView', view)}
-									>
-										{view}
-									</span>
-								))}
+								{views?.length !== 0
+									? views.map((viewName) => (
+											<span
+												key={viewName}
+												className={`toggleButton ${
+													view === viewName ? 'active' : ''
+												}`}
+												onClick={() => onView(viewName)}
+											>
+												{viewName?.[0].toUpperCase() + viewName?.slice(1)}
+											</span>
+									  ))
+									: ''}
 							</div>
 						</div>
 						<div className="calendarHeaderRight">
@@ -70,7 +64,8 @@ const CalendarHeader = ({
 					</div>
 
 					{/* Render the active calendar day Header */}
-					{views[activeView]}
+					{/* {views[activeView]} */}
+					{viewsHeaders[view]}
 				</div>
 			</div>
 		</>

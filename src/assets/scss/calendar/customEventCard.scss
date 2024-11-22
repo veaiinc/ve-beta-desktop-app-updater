@@ -76,24 +76,19 @@
 		.userSvg {
 			display: flex;
 			justify-content: center;
-			align-items: center; 
-			background-color: rgb(147, 144, 144); 
-			border-radius: 50%; 
+			align-items: center;
+			background-color: rgb(147, 144, 144);
+			border-radius: 50%;
 			width: 15px;
-			height: 15px; 
+			height: 15px;
 		}
-		
 	}
 }
 
-// .customEventContainer {
-// 	border: 2px solid rgb(0, 255, 26);
-// 	background-color: rgb(55, 255, 0);
-// }
 
 .customEventWrapper {
 	// border: 2px solid red;
-	height: 100%;
+	height: fit-content;
 	color: #e4e5e6;
 	font-family: Inter;
 	font-size: 12px;

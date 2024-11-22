@@ -1,11 +1,11 @@
 import React, { memo, useMemo, useState, useCallback } from 'react';
 import '../../../assets/scss/calendar/weekView.scss';
 import CalendarWrapper from './CalendarWrapper';
-// import CalendarHeader from './CalendarHeader';
+import CalendarHeader from './CalendarHeader';
 import CustomTimeGutterHeader from './CustomTimeGutterHeader';
 import CustomEventCard from './CustomEventCard';
 import CustomEventWrapper from './CustomEventWrapper';
-// import CustomEventContainer from './CustomEventContainer';
+import CustomEventContainer from './CustomEventContainer';
 import EventDetailsDrawer from './EventDetailsDrawer';
 import moment from 'moment';
 
@@ -63,6 +63,7 @@ const WeekView = ({ selectedDate, isEventSelected, updateCalendarInfo }) => {
 	const components = useMemo(
 		() => ({
 			timeGutterHeader: CustomTimeGutterHeader,
+			toolbar: (props) => <CalendarHeader {...props} selectedDate={selectedDate} />,
 			week: {
 				event: CustomEventCard,
 			},
@@ -80,7 +81,7 @@ const WeekView = ({ selectedDate, isEventSelected, updateCalendarInfo }) => {
 					// view={'month'} //if pased defaultview will not work
 					defaultView={'week'} //use active view state here to display views of calendar
 					views={['month', 'week', 'day']}
-					toolbar={false} //to hide inbuilt calendar header controls
+					toolbar={true} //to hide inbuilt calendar header controls
 					className="custom"
 					selectable
 					onSelectSlot={() => updateCalendarInfo('isCreateEventOpen', true)}

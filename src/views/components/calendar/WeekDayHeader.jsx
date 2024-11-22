@@ -1,31 +1,23 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useMemo } from 'react';
 import '../../../assets/scss/calendar/calendarHeader.scss';
 
-const WeekDayHeader = ({ activeView, selectedWeek, selectedDate, getCurrentWeek }) => {
-	const [info, setInfo] = useState({
-		selectedWeek: [],
-		selectedWeekday: selectedDate,
-	});
-
-	const handleSelectedDay = useCallback((day) => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			selectedWeekday: day,
-		}));
-	}, []);
-
-	const days = [
-		{ name: 'Monday' },
-		{ name: 'Tuesday' },
-		{ name: 'Wednesday' },
-		{ name: 'Thursday' },
-		{ name: 'Friday' },
-		{ name: 'Saturday' },
-		{ name: 'Sunday' },
-	]?.map((day, index) => ({
-		...day,
-		date: selectedWeek[index],
-	}));
+const WeekDayHeader = ({ selectedWeek, selectedDate }) => {
+	const days = useMemo(
+		() =>
+			[
+				{ name: 'Monday' },
+				{ name: 'Tuesday' },
+				{ name: 'Wednesday' },
+				{ name: 'Thursday' },
+				{ name: 'Friday' },
+				{ name: 'Saturday' },
+				{ name: 'Sunday' },
+			]?.map((day, index) => ({
+				...day,
+				date: selectedWeek[index],
+			})),
+		[selectedWeek],
+	);
 
 	return (
 		<div className="weekDayHeaderContainer">
@@ -33,7 +25,6 @@ const WeekDayHeader = ({ activeView, selectedWeek, selectedDate, getCurrentWeek 
 				<div
 					key={index}
 					className={`weekDayBlock ${new Date().getDate() === day?.date ? 'active' : ''}`}
-					onClick={() => handleSelectedDay(index)}
 				>
 					<div className="weekDayWrapper">
 						<span style={{ color: 'rgba(228, 229, 230, 0.48)' }}>{day.name}</span>

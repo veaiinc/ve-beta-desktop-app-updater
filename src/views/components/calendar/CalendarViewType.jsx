@@ -10,18 +10,25 @@ const CalendarViewType = ({
 	isEventSelected,
 	updateCalendarInfo,
 }) => {
-	const views = {
-		Month: <MonthView selectedMonth={selectedMonth} selectedYear={selectedYear} />,
-		Week: (
-			<WeekView
-				selectedDate={selectedDate}
-				isEventSelected={isEventSelected}
-				updateCalendarInfo={updateCalendarInfo}
-			/>
-		),
-		Day: <DayView />,
-	};
-	return views[activeView] || '';
+	// const views = {
+	// 	Month: <MonthView selectedMonth={selectedMonth} selectedYear={selectedYear} />,
+	// 	Week: (
+	// 		<WeekView
+	// 			selectedDate={selectedDate}
+	// 			isEventSelected={isEventSelected}
+	// 			updateCalendarInfo={updateCalendarInfo}
+	// 		/>
+	// 	),
+	// 	Day: <DayView />,
+	// };
+	// return views[activeView] || '';
+	return (
+		<WeekView
+			selectedDate={selectedDate}
+			isEventSelected={isEventSelected}
+			updateCalendarInfo={updateCalendarInfo}
+		/>
+	);
 };
 
 export default memo(CalendarViewType);
