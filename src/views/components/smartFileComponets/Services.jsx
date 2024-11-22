@@ -17,7 +17,13 @@ const sericesContentMapper = {
 	2: 'This Table shows view only services that are mentioned in the smart file, Lead will only view this service details',
 };
 
-const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
+const Services = ({
+	serviceData,
+	serviceOnChangeFunc,
+	editable,
+	openAiGenerateModal,
+	gotUnacceptedAiGeneratedValue,
+}) => {
 	const [info, setInfo] = useState({
 		data: [],
 		subTotalValueMapper: {},
@@ -90,6 +96,10 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 	const onLocalServiceDataChange = useCallback(
 		async (innerIndex, outerIndex, type, val) => {
 			if (!editable) {
+				return;
+			}
+			if (gotUnacceptedAiGeneratedValue) {
+				openAiGenerateModal();
 				return;
 			}
 
@@ -171,7 +181,7 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 			setInfo((prev) => ({ ...prev, data: updatedData }));
 			serviceOnChangeFunc(selectedServiceTable, outerIndex);
 		},
-		[info?.data, editable, serviceOnChangeFunc],
+		[info?.data, editable, serviceOnChangeFunc, gotUnacceptedAiGeneratedValue],
 	);
 
 	return info?.data?.length ? (

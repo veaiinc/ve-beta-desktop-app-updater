@@ -11,7 +11,14 @@ import dayjs from 'dayjs';
 import _ from 'lodash';
 import EventsPresetsPopOverComponent from '../modalsV2/proposalModals/EventsPresetPopUp';
 
-const Events = ({ eventsData, eventsDataChange, editable, getEventsPresetsData }) => {
+const Events = ({
+	eventsData,
+	eventsDataChange,
+	editable,
+	getEventsPresetsData,
+	openAiGenerateModal,
+	gotUnacceptedAiGeneratedValue,
+}) => {
 	const [info, setInfo] = useState({
 		data: [],
 		calenderStartDate: '',
@@ -40,6 +47,10 @@ const Events = ({ eventsData, eventsDataChange, editable, getEventsPresetsData }
 	const localEventsOnchange = useCallback(
 		async (innerIndex, outerIndex, type, val, roleIndex) => {
 			if (!editable) {
+				return;
+			}
+			if (gotUnacceptedAiGeneratedValue) {
+				openAiGenerateModal();
 				return;
 			}
 			let updatedData = [...(info?.data || [])];
@@ -122,12 +133,22 @@ const Events = ({ eventsData, eventsDataChange, editable, getEventsPresetsData }
 			setInfo((prev) => ({ ...prev, data: updatedData, calenderStartDate }));
 			eventsDataChange(selectedEventsTable);
 		},
-		[info?.data, editable, info?.calenderStartDate, eventsDataChange],
+		[
+			info?.data,
+			editable,
+			info?.calenderStartDate,
+			eventsDataChange,
+			gotUnacceptedAiGeneratedValue,
+		],
 	);
 
 	const addMoreEventsValues = useCallback(
 		async (outerIndex) => {
 			if (!editable) {
+				return;
+			}
+			if (gotUnacceptedAiGeneratedValue) {
+				openAiGenerateModal();
 				return;
 			}
 			let updatedData = [...(info?.data || [])];
@@ -189,12 +210,16 @@ const Events = ({ eventsData, eventsDataChange, editable, getEventsPresetsData }
 			setInfo((prev) => ({ ...prev, data: updatedData }));
 			eventsDataChange(selectedEventsArray);
 		},
-		[info?.data, editable],
+		[info?.data, editable, gotUnacceptedAiGeneratedValue],
 	);
 
 	const deletEventsValues = useCallback(
 		async (innerIndex, outerIndex) => {
 			if (!editable) {
+				return;
+			}
+			if (gotUnacceptedAiGeneratedValue) {
+				openAiGenerateModal();
 				return;
 			}
 			let updatedData = [...(info?.data || [])];
@@ -204,7 +229,7 @@ const Events = ({ eventsData, eventsDataChange, editable, getEventsPresetsData }
 			setInfo((prev) => ({ ...prev, data: updatedData }));
 			eventsDataChange(selectedEventsArray);
 		},
-		[info?.data, editable],
+		[info?.data, editable, gotUnacceptedAiGeneratedValue],
 	);
 
 	const closePresetPopUp = useCallback((outerIndex, innerIndex) => {
@@ -219,12 +244,16 @@ const Events = ({ eventsData, eventsDataChange, editable, getEventsPresetsData }
 			if (!editable) {
 				return;
 			}
+			if (gotUnacceptedAiGeneratedValue) {
+				openAiGenerateModal();
+				return;
+			}
 			setInfo((prev) => ({
 				...prev,
 				presetPopUp: { ...prev.presetPopUp, [`events${outerIndex}${innerIndex}`]: true },
 			}));
 		},
-		[editable],
+		[editable, gotUnacceptedAiGeneratedValue],
 	);
 
 	const addServiceDataInEvents = useCallback(
