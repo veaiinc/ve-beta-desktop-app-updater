@@ -252,6 +252,7 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 						</div>
 
 						{/* //USE ,MAP HERE */}
+
 						{ele?.blocks?.map((val, ind) => (
 							<div className="serviceCard" key={ind}>
 								<div className="serviceTitleContainer">
@@ -271,7 +272,11 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 								</div>
 								<div className="serviceQuantityContainer">
 									<span className="quantityTitle">Quantity</span>
-									<div className="incrementDecrementContainer">
+									<div
+										className={`incrementDecrementContainer ${
+											ele?.ai_generated ? 'ai_generated' : ''
+										}`}
+									>
 										<span
 											className="incrementorBtns"
 											onClick={() =>

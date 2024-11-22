@@ -353,6 +353,9 @@
 						cursor: pointer;
 					}
 				}
+				.incrementDecrementContainer.ai_generated {
+					border: 1px solid var(--Color-Code-AI, #c39df8);
+				}
 			}
 		}
 	}

@@ -67,6 +67,7 @@ const File = ({
 		storedPreviousProposalData: null,
 		gotGenerated: false,
 		generatePredictionsLoading: false,
+		fetchingAiPredictionsLoading: true,
 	});
 
 	useEffect(() => {
@@ -242,6 +243,12 @@ const File = ({
 	useEffect(() => {
 		getAiPredictionForSmartFile(slug);
 	}, [slug]);
+
+	useEffect(() => {
+		if (aiPredictedData) {
+			setInfo((prev) => ({ ...prev, fetchingAiPredictionsLoading: false }));
+		}
+	}, [aiPredictedData]);
 
 	//function defination
 	//when the variable is clicked, autofocus the input
@@ -689,16 +696,16 @@ const File = ({
 	}, []);
 
 	// ai prediction
-
-	const generatePridictionForEvents = useCallback(() => {
+	const generatePridictions = useCallback(async () => {
 		if (aiPredictedData && info?.eventsTableData && info?.proposal && !info?.gotGenerated) {
 			//storing current propsal data to disgard ai generated data
+
 			setInfo((prev) => ({
 				...prev,
 				storedPreviousProposalData: _.cloneDeep(info?.proposal || {}),
 			}));
 
-			const updatedProposal = _.cloneDeep(info?.proposal || {});
+			let updatedProposal = _.cloneDeep(info?.proposal || {});
 
 			let updatedEventstabledata = { ...(info?.eventsTableData || {}) };
 
@@ -719,6 +726,9 @@ const File = ({
 					const proposalEventsTable = updatedProposal?.tables?.[m];
 					const { values = [] } = proposalEventsTable || {};
 					for (let j = 0; j < values?.length; j++) {
+						if (i > eventsPredictions?.length) {
+							break;
+						}
 						const predictedRoles = eventsPredictions?.[i]?.['events']?.[j]?.['output'];
 						const roles = [];
 						for (let k = 0; k < predictedRoles?.length; k++) {
@@ -750,6 +760,13 @@ const File = ({
 
 			updatedEventstabledata.proposal = [...(eventsTableData || [])];
 
+			//handling services
+			const updatedProposalObj = await generatePredictionForService(
+				updatedProposal,
+				aiPredictedData,
+			);
+			updatedProposal = _.cloneDeep(updatedProposalObj);
+
 			setInfo((prev) => ({
 				...prev,
 				eventsTableData: updatedEventstabledata,
@@ -760,11 +777,77 @@ const File = ({
 		}
 	}, [aiPredictedData, info?.eventsTableData, info?.proposal, info?.gotGenerated]);
 
+	const generatePredictionForService = useCallback(async (proposaldata, aiPredictedData) => {
+		//prediction is one to one mapping from tables, so we need check its order from section
+		const updatedProposal = _.cloneDeep(proposaldata);
+
+		//handling service prediction
+		const servicePrediction = aiPredictedData?.filter((ele) => ele?.type === 'services');
+		if (!servicePrediction?.length) {
+			return;
+		}
+
+		const serviceTableMapper = {};
+		let order = 1;
+		//adding values to mapper
+		for (let m = 0; m < updatedProposal?.tables?.length; m++) {
+			if (updatedProposal?.tables?.[m]?.type === 'services') {
+				serviceTableMapper[updatedProposal?.tables?.[m]?._id] = { order, data: null };
+				order++;
+			}
+		}
+		//extracting current data from sections and adding it in mapper
+		for (let i = 0; i < updatedProposal?.sections?.length; i++) {
+			if (
+				updatedProposal?.sections?.[i].type === 'services' &&
+				serviceTableMapper?.[updatedProposal?.sections?.[i]?._id]
+			) {
+				serviceTableMapper[updatedProposal?.sections?.[i]?._id]['data'] =
+					updatedProposal?.sections?.[i];
+			}
+		}
+		//fetch the values
+		let serviceDataMapped = Object.values(serviceTableMapper);
+		serviceDataMapped = serviceDataMapped?.sort((a, b) => a?.order - b?.order);
+
+		//iterating predictions and changing values
+
+		for (let i = 0; i < serviceDataMapped?.length; i++) {
+			const { blocks = [] } = serviceDataMapped?.[i]?.data || {};
+
+			for (let j = 0; j < blocks.length; j++) {
+				const { subBlocks } = blocks[j];
+				if (servicePrediction?.[i]?.['services']?.[j]?.['output']) {
+					const { quantity, isSelected } =
+						servicePrediction?.[i]?.['services']?.[j]?.['output'] || {};
+					subBlocks[0].quantity = quantity;
+					subBlocks[0].show = isSelected;
+					serviceDataMapped[i].data.ai_generated = true;
+				}
+				blocks[j].subBlocks = [...subBlocks];
+			}
+			serviceDataMapped[i].data.blocks = [...blocks];
+			serviceTableMapper[serviceDataMapped[i]?.data?._id] = serviceDataMapped[i]?.data;
+		}
+		//updating values in sections
+		for (let i = 0; i < updatedProposal?.sections?.length; i++) {
+			if (
+				updatedProposal?.sections?.[i].type === 'services' &&
+				serviceTableMapper?.[updatedProposal?.sections?.[i]?._id]
+			) {
+				updatedProposal.sections[i] = {
+					...serviceTableMapper?.[updatedProposal?.sections?.[i]?._id],
+				};
+			}
+		}
+		return updatedProposal;
+	}, []);
+
 	const onChangeAiPrediction = useCallback(
 		(value) => {
 			setInfo((prev) => ({ ...prev, useAiPredictions: value }));
 			if (value && aiPredictedData) {
-				generatePridictionForEvents();
+				generatePridictions();
 				setInfo((prev) => ({ ...prev, generatePredictionsLoading: true }));
 			}
 		},
@@ -874,44 +957,54 @@ const File = ({
 							? `Please enter the following custom data to send this proposal`
 							: 'Smart File Details'}
 					</span>
-					{edit && aiPredictedData ? (
-						<>
-							{!info?.gotGenerated ? (
-								<div className="aiPredictionParentContainer">
-									<Ai />
-									<span className="aiSuggestionstext">AI Suggestions</span>
-									{!info?.generatePredictionsLoading ? (
-										<ToggleSlider
-											value={info?.useAiPredictions}
-											onChange={(val) => onChangeAiPrediction(val)}
-										/>
-									) : (
-										<Spin />
-									)}
-								</div>
-							) : (
-								<div className="aiPredictionContainerForGeneratedData">
+					{edit ? (
+						info?.fetchingAiPredictionsLoading ? (
+							<div className="aiPredictionParentContainer">
+								<Ai />
+								<span className="aiSuggestionstext"> Fecthing AI Suggestions</span>
+								<Spin />
+							</div>
+						) : (
+							<>
+								{!info?.gotGenerated ? (
 									<div className="aiPredictionParentContainer">
 										<Ai />
 										<span className="aiSuggestionstext">AI Suggestions</span>
+										{!info?.generatePredictionsLoading ? (
+											<ToggleSlider
+												value={info?.useAiPredictions}
+												onChange={(val) => onChangeAiPrediction(val)}
+											/>
+										) : (
+											<Spin />
+										)}
 									</div>
-									<div className="acceptRejectButtonContainer">
-										<div
-											className="rejectAiGeneration"
-											onClick={onAiGenerationRejection}
-										>
-											Reject
+								) : (
+									<div className="aiPredictionContainerForGeneratedData">
+										<div className="aiPredictionParentContainer">
+											<Ai />
+											<span className="aiSuggestionstext">
+												AI Suggestions
+											</span>
 										</div>
-										<div
-											className="acceptAigeneration"
-											onClick={acceptAigeneratedValues}
-										>
-											Accept
+										<div className="acceptRejectButtonContainer">
+											<div
+												className="rejectAiGeneration"
+												onClick={onAiGenerationRejection}
+											>
+												Reject
+											</div>
+											<div
+												className="acceptAigeneration"
+												onClick={acceptAigeneratedValues}
+											>
+												Accept
+											</div>
 										</div>
 									</div>
-								</div>
-							)}
-						</>
+								)}
+							</>
+						)
 					) : (
 						''
 					)}
