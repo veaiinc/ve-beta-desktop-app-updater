@@ -36,7 +36,7 @@ export const veAiModulesItemsList = [
 	// 	icon: InsertLinkSvg,
 	// 	initialColor: '#7D7D7D',
 	// },
-	// { name: 'Calendar', moduleRoute: '/calendar', route: null, icon: CalendarSvg },
+	{ name: 'Calendar', moduleRoute: '/calendar', route: '/calendar', icon: CalendarSvg },
 	// { name: 'Inbox', moduleRoute: '/inbox', route: null, icon: MailOutlineSvg },
 	// { name: 'Clients', moduleRoute: '/clients', route: null, icon: LayoutSvg },
 	// { name: 'Finance', moduleRoute: '/finance', route: null, icon: AttachMoneySvg },
