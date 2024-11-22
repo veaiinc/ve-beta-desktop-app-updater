@@ -473,7 +473,7 @@ const File = ({
 			expiryInDays,
 			sections,
 		} = moduleData || {};
-
+		setInfo((prev) => ({ ...prev, proposal: _.cloneDeep(moduleData || {}) }));
 		const payload = {
 			proposalId: _id,
 			workflowId,
@@ -870,7 +870,13 @@ const File = ({
 	}, [info?.storedPreviousProposalData, info?.eventsTableData]);
 
 	const acceptAigeneratedValues = useCallback(async () => {
-		const moduleData = info?.proposal || {};
+		const moduleData = _.cloneDeep(info?.proposal || {});
+		//need to remove ai_generated keyword from the services sections
+		for (let i = 0; i < moduleData?.sections?.length; i++) {
+			if (moduleData?.sections?.[i]?.type === 'services') {
+				delete moduleData?.sections?.[i]?.ai_generated;
+			}
+		}
 		handleDebounceUpdate('proposal', moduleData);
 		syncEventTableData(moduleData);
 		setInfo((prev) => ({
