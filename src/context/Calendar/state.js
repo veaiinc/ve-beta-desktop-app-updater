@@ -4,12 +4,12 @@ import { Actions } from './action';
 import * as API from './actionTypes';
 import service from '../../services/index';
 
-export const intialState = {
+export const initialState = {
 	calendarChat: null,
 };
 
 export const Calendar = () => {
-	const [state, dispatch] = useReducer(Reducer, intialState);
+	const [state, dispatch] = useReducer(Reducer, initialState);
 
 	const getCalendarChat = async (sessionId, body) => {
 		try {

@@ -7,7 +7,7 @@ import { Galleries } from './Gallery/state';
 import { AiSetupState } from './aiSetup/state';
 import { ActivityState } from './Activity/state';
 import { SubscriptionState } from './subscription/state';
-import { CalendarState } from './Calendar/state';
+import { Calendar } from './Calendar/state';
 
 const CombineState = () => {
 	return {
@@ -20,7 +20,7 @@ const CombineState = () => {
 		aiSetup: AiSetupState(),
 		activityInfo: ActivityState(),
 		subscriptionInfo: SubscriptionState(),
-		calendarInfo: CalendarState(),
+		calendarInfo: Calendar(),
 	};
 };
 

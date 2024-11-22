@@ -1,5 +1,6 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useState, useCallback, useContext, useEffect } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
+import Context from '../../../context/context';
 import CalendarSelector from '../../components/calendar/CalendarSelector';
 import AskAI from '../../components/calendar/AskAI';
 import CalendarCategories from '../../components/calendar/CalendarCategories';
@@ -15,6 +16,10 @@ const CalendarSidebar = ({
 	isCreateEventOpen,
 	updateCalendarInfo,
 }) => {
+	const {
+		calendarInfo: { calendarChat, getCalendarChat },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		askAi: false,
 	});
