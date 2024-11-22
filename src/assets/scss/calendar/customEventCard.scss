@@ -6,6 +6,7 @@
 	border-radius: 8px;
 	background: #2a2a2a;
 	overflow-y: auto;
+	overflow-x: hidden;
 
 	color: #e4e5e6;
 	font-family: Inter;
@@ -31,17 +32,17 @@
 			align-self: stretch;
 
 			.eventTitle {
-				display: flex;
-				flex-direction: column;
-				align-items: flex-start;
-				align-self: stretch;
-				flex: 1 0 0;
+				display: block;
+				width: calc(100% - 15px);
+				overflow: hidden;
+				text-overflow: ellipsis;
+				text-align: start;
 			}
 
 			.statusIndicator {
 				width: 15px;
 				height: 15px;
-				margin-right: 2px;
+				// margin-right: 2px;
 				display: flex;
 				justify-content: center;
 				align-items: center;
@@ -64,7 +65,7 @@
 				}
 
 				span {
-					display: flex;
+					// display: flex;
 					width: 11px;
 					height: 11px;
 					background-color: rgb(54, 54, 54);
@@ -81,10 +82,10 @@
 			border-radius: 50%;
 			width: 15px;
 			height: 15px;
+			flex-shrink: 0;
 		}
 	}
 }
-
 
 .customEventWrapper {
 	// border: 2px solid red;

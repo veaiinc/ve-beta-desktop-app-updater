@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useState, useCallback, useEffect, useRef } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSelector from '../../components/calendar/CalendarSelector';
 import AskAI from '../../components/calendar/AskAI';
@@ -25,12 +25,16 @@ const CalendarSidebar = ({
 			askAi: !prevInfo.askAi,
 		}));
 	}, []);
+
 	return (
 		<>
 			{info?.askAi ? (
 				<CalendarAiChat toggleAskAi={toggleAskAi} />
 			) : isCreateEventOpen ? (
-				<CreateEvent updateCalendarInfo={updateCalendarInfo} />
+				<CreateEvent
+					updateCalendarInfo={updateCalendarInfo}
+					isCreateEventOpen={isCreateEventOpen}
+				/>
 			) : (
 				<div className="calendarSidebarContainer">
 					<CalendarSelector

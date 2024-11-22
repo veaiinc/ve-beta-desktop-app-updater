@@ -4,7 +4,7 @@ import { ReactComponent as PlusSvg } from '../../../assets/svg/calendar/plus.svg
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import { ReactComponent as UpSvg } from '../../../assets/svg/calendar/up.svg';
 import { ReactComponent as PencilSvg } from '../../../assets/svg/calendar/pencil.svg';
-import AddCategoryModal from './AddCategoryModal';
+import UpdateCategoryModal from '../modalsV2/calendar/UpdateCategoryModal';
 
 const CalendarCategories = () => {
 	const [info, setInfo] = useState({
@@ -56,36 +56,25 @@ const CalendarCategories = () => {
 		}));
 	}, []);
 
-	const handleCategoryModalToggle = useCallback((value) => {
-		if (value === true) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				categoryLabelData: { name: '', type: '', color: '' },
-			}));
-		}
-		setInfo((prevInfo) => ({ ...prevInfo, isCategoryModalOpen: value }));
-	}, []);
+	const categoryModalOpen = () => {
+		setInfo((prev) => ({ ...prev, isCategoryModalOpen: true }));
+	};
 
 	const handleAddCategoryClick = useCallback(() => {
 		setInfo((prevInfo) => ({ ...prevInfo, isCategoryEditable: false }));
-		handleCategoryModalToggle(true);
+		categoryModalOpen();
 	}, []);
 
 	const handleCategoryEditClick = useCallback(() => {
 		setInfo((prevInfo) => ({ ...prevInfo, isCategoryEditable: true }));
-		handleCategoryModalToggle(true);
+		categoryModalOpen();
 	}, []);
 
-	const handelCategoryLabelDataChange = useCallback((propertyName, value) => {
+	const handelCategoryLabelDataChange = useCallback((key, value) => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			categoryLabelData: { ...prevInfo.categoryLabelData, [propertyName]: value },
+			categoryLabelData: { ...prevInfo.categoryLabelData, [key]: value },
 		}));
-	}, []);
-
-	const handleModalActionClick = useCallback(() => {
-		// this function will run when the modal action button is pressed
-		handleCategoryModalToggle(false);
 	}, []);
 
 	return (
@@ -195,20 +184,17 @@ const CalendarCategories = () => {
 			) : (
 				''
 			)}
-			{info?.isCategoryModalOpen ? (
-				<AddCategoryModal
-					handleCategoryModalToggle={handleCategoryModalToggle}
-					isCategoryEditable={info?.isCategoryEditable}
-					name={info?.categoryLabelData?.name}
-					type={info?.categoryLabelData?.type}
-					color={info?.categoryLabelData?.color}
-					colorsArray={info?.colorsArray}
-					handelCategoryLabelDataChange={handelCategoryLabelDataChange}
-					handleModalActionClick={handleModalActionClick}
-				/>
-			) : (
-				''
-			)}
+
+			<UpdateCategoryModal
+				open={info?.isCategoryModalOpen}
+				closeModal={() => setInfo((prev) => ({ ...prev, isCategoryModalOpen: false }))}
+				isCategoryEditable={info?.isCategoryEditable}
+				name={info?.categoryLabelData?.name}
+				type={info?.categoryLabelData?.type}
+				color={info?.categoryLabelData?.color}
+				colorsArray={info?.colorsArray}
+				handelCategoryLabelDataChange={handelCategoryLabelDataChange}
+			/>
 		</div>
 	);
 };
