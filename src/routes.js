@@ -1,4 +1,6 @@
 import AuthWrapper from './views/layouts/authWrapper';
+import LoginPage from './views/features/login_page/LoginPage';
+import Onboarding from './views/features/onboarding/Onboarding';
 import LoginScreen from './views/features/signin';
 import ChatScreen from './views/features/meta_Integ/index';
 import OauthVerify from './views/features/signin/oauth';
@@ -19,16 +21,22 @@ import GalleryViewer from './views/features/gallery/GalleryViewer';
 import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
+import { Navigate } from 'react-router-dom';
 import Subscription from './views/features/subscription';
 
+import ShareAndEarn from './views/features/ShareAndEarn';
 const routes = [
 	{
 		path: '/',
 		component: <Landing_screen />,
 	},
 	{
+		path: '/onboarding',
+		component: <Onboarding />,
+	},
+	{
 		path: '/verify-user',
-		component: <LoginScreen stage={'verify-user'} />,
+		component: <LoginPage />,
 	},
 	{
 		path: '/login-with-password',
@@ -83,6 +91,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Sales'}>
 				<GlobalWorkflows />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/share-and-earn',
+		component: (
+			<AuthWrapper title={'Share and Earn'}>
+				<ShareAndEarn />
 			</AuthWrapper>
 		),
 		exact: true,
@@ -173,6 +190,10 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+	},
+	{
+		path: '*',
+		component: <Navigate to="/" />,
 	},
 	{
 		path: '/subscription',

@@ -11,9 +11,10 @@ import { ReactComponent as EditSvg } from '../.././../../assets/svg/worflow_buil
 import Spinner from '../../../components/loaders/Spinner';
 import { useParams } from 'react-router-dom';
 import moment from 'moment';
+import { fetchOriginSelection } from '../../../../helpers';
 
-let origin =
-	window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://builder.ve.ai';
+let origin = fetchOriginSelection();
+// window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://builder.ve.ai';
 const File = ({
 	templateData,
 	workflowData,
@@ -703,11 +704,7 @@ const File = ({
 					style={{ borderRadius: !edit ? '26px' : '', height: '100%' }}
 				>
 					<iframe
-						src={
-							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${workflowId}?workflow=true`
-								: `https://builder.ve.ai/preview/${workflowId}?workflow=true`
-						}
+						src={`${origin}/preview/${workflowId}?workflow=true`}
 						title="Builder Preview"
 						width="100%"
 						height="100%"
