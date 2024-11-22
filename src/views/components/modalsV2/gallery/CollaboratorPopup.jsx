@@ -8,19 +8,6 @@ import Context from '../../../../context/context';
 import { Tooltip } from 'antd';
 import { getInitials } from '../../../../helpers/index';
 
-const collaborators = [
-	{ name: 'Alice Johnson', canDownload: true },
-	{ name: 'Bob Smith', canDownload: false },
-	{ name: 'Charlie Brown', canDownload: true },
-	{ name: 'Diana Ross', canDownload: false },
-	{ name: 'Ethan Hunt', canDownload: true },
-	{ name: 'Fiona Apple', canDownload: false },
-	{ name: 'George Michael', canDownload: true },
-	{ name: 'Hannah Montana', canDownload: false },
-	{ name: 'Ian McKellen', canDownload: true },
-	{ name: 'Julia Roberts', canDownload: false },
-];
-const imageURL = 'https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg';
 const CollaboratorPopup = ({ open, closeModal, galleryId, setCollaborator }) => {
 	const {
 		companyInfo: { getTeamMembers, tenantsUserList },

@@ -349,10 +349,34 @@ const AlbumSettings = () => {
 			message.error('Something went wrong, please try again later');
 		}
 	};
-	const handleCopyAlbumLink = () => {
+	// const handleCopyAlbumLink = () => {
+	// 	const albumLink = `https://${workspaceId}.ve.ai/gallery/${galleryId}/${info?.activeAlbumSlug}`;
+	// 	navigator.clipboard.writeText(albumLink);
+	// 	message.success('Album link copied to clipboard');
+	// };
+	const handleCopyAlbumLink = async () => {
 		const albumLink = `https://${workspaceId}.ve.ai/gallery/${galleryId}/${info?.activeAlbumSlug}`;
-		navigator.clipboard.writeText(albumLink);
-		message.success('Album link copied to clipboard');
+
+		try {
+			// Try the modern clipboard API first
+			await navigator.clipboard.writeText(albumLink);
+			message.success('Album link copied to clipboard');
+		} catch (err) {
+			// Fallback for older browsers or when clipboard API fails
+			const textArea = document.createElement('textarea');
+			textArea.value = albumLink;
+			document.body.appendChild(textArea);
+			textArea.select();
+
+			try {
+				document.execCommand('copy');
+				message.success('Album link copied to clipboard');
+			} catch (err) {
+				message.error('Failed to copy link');
+			} finally {
+				document.body.removeChild(textArea);
+			}
+		}
 	};
 	const workspaceId = localStorage.getItem('workspaceId');
 	return (

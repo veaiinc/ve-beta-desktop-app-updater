@@ -11,7 +11,7 @@ const aiOptions = [
 	{ name: 'AI Face Registration', value: 'AI Face Registration' },
 	{ name: 'Insights', value: 'Insights' },
 ];
-const AiSelection = ({ galleryId, galleryCredentials }) => {
+const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 	const [info, setInfo] = useState({
 		search: 'AI People',
 		showShearch: false,
@@ -71,7 +71,7 @@ const AiSelection = ({ galleryId, galleryCredentials }) => {
 			{info?.search === 'AI People' && (
 				<AiPeopleContainer galleryId={galleryId} galleryCredentials={galleryCredentials} />
 			)}
-			{info?.search === 'AI Face Registration' && <AiFaceRegistration />}
+			{info?.search === 'AI Face Registration' && <AiFaceRegistration link={link} />}
 			{info?.search === 'Insights' && <Insights />}
 		</div>
 	);

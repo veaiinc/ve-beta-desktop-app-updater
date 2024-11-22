@@ -35,6 +35,7 @@ import Skeleton from 'react-loading-skeleton';
 import { gsap } from 'gsap';
 import slugify from 'slugify';
 
+const workspaceId = localStorage.getItem('workspaceId');
 const GalleryPage = () => {
 	const { galleryId } = useParams();
 	const navigate = useNavigate();
@@ -917,16 +918,29 @@ const GalleryPage = () => {
 		postGallery(payload, galleryId);
 	};
 
-	const handleCopyGalleryLink = () => {
-		const workspaceId = localStorage.getItem('workspaceId');
-		navigator.clipboard.writeText(
-			`https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`,
-		);
-		message.success('Gallery link copied to clipboard');
-		setInfo((prev) => ({
-			...prev,
-			showOptions: !prev.showOptions,
-		}));
+	const handleCopyGalleryLink = async () => {
+		const galleryLink = `https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`;
+
+		try {
+			// Try the modern clipboard API first
+			await navigator.clipboard.writeText(galleryLink);
+			message.success('Gallery link copied to clipboard');
+		} catch (err) {
+			// Fallback for older browsers or when clipboard API fails
+			const textArea = document.createElement('textarea');
+			textArea.value = galleryLink;
+			document.body.appendChild(textArea);
+			textArea.select();
+
+			try {
+				document.execCommand('copy');
+				message.success('Gallery link copied to clipboard');
+			} catch (err) {
+				message.error('Failed to copy link');
+			} finally {
+				document.body.removeChild(textArea);
+			}
+		}
 	};
 
 	const getImageDetails = async (imageId, batchId) => {
@@ -3058,7 +3072,11 @@ const GalleryPage = () => {
 					</div>
 				)}
 				{info.activeTab === 'AI' && (
-					<AiSelection galleryId={galleryId} galleryCredentials={galleryCredentials} />
+					<AiSelection
+						galleryId={galleryId}
+						galleryCredentials={galleryCredentials}
+						link={`https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}/pre-register`}
+					/>
 				)}
 			</div>
 

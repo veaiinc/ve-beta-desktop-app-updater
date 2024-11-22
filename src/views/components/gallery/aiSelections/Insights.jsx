@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import '../../../../assets/scss/gallery/insights.scss';
 import Table from './Table';
 import { ReactComponent as DownloadIcon } from '../../../../assets/svg/gallery/download2.svg';
 import { ReactComponent as SearchIcon } from '../../../../assets/svg/workflow/search.svg';
 import { ReactComponent as FilterIcon } from '../../../../assets/svg/chat/filter.svg';
+import Context from '../../../../context/context';
 const tableData = [
 	{
 		name: 'John Doe',
@@ -78,18 +79,27 @@ const tableData = [
 ];
 
 const Insights = () => {
+	const {
+		galleryInfo: { tenantAlbums, aiFace },
+	} = useContext(Context);
+
+	const bytesToGigabytes = (bytes) => {
+		const bytesPerGB = 1024 ** 3;
+		return (bytes / bytesPerGB).toFixed(2);
+	};
+
 	const data = [
 		{
 			name: 'Number of images',
-			count: 999,
+			count: tenantAlbums?.storageDetails?.imagesCountWithVersions,
 		},
 		{
 			name: 'People',
-			count: 999,
+			count: aiFace?.numberOfFaces,
 		},
 		{
 			name: 'Storage',
-			count: 72.5,
+			count: bytesToGigabytes(tenantAlbums?.storageDetails?.storage) || 0,
 		},
 	];
 	const details = [
@@ -110,6 +120,7 @@ const Insights = () => {
 			number: 11,
 		},
 	];
+
 	return (
 		<div className="insightsContainer">
 			<div className="insightsData">
@@ -148,7 +159,7 @@ const Insights = () => {
 					</div>
 				))}
 			</div>
-			<Table tableData={tableData} thead={'Register Stage'} />
+			<Table tableData={tableData} thead={'Category'} />
 		</div>
 	);
 };
