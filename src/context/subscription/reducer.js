@@ -12,6 +12,14 @@ const actionHandlers = {
 		...state,
 		currentPlan: action.payload,
 	}),
+	GET_SHARE_AND_EARN_SUCCESS: (state, action) => ({
+		...state,
+		shareAndEarnData: action.payload,
+	}),
+	GET_REFERRAL_DETAILS_SUCCESS: (state, action) => ({
+		...state,
+		referralDetails: action.payload,
+	}),
 
 	RESET_STATE: () => intialState,
 };

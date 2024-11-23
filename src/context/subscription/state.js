@@ -11,6 +11,7 @@ export const intialState = {
 	coupons: null,
 	currentPlan: null,
 	shareAndEarnData: null,
+	referralDetails: null,
 };
 
 export const SubscriptionState = (props) => {
@@ -110,6 +111,46 @@ export const SubscriptionState = (props) => {
 			console.log('errror ==>getCurrentSubscriptionPlan', error);
 		}
 	};
+	const getShareAndEarn = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/referral/${workspaceId}/get-active-referralCode`,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_SHARE_AND_EARN_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				console.log('api failed ==>getShareAndEarn', response);
+			}
+		} catch (error) {
+			console.log('errror ==>getShareAndEarn', error);
+		}
+	};
+	const getReferralDetails = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/referral/${workspaceId}/get-referral-details`,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_REFERRAL_DETAILS_SUCCESS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('errror ==>getReferralDetails', error);
+		}
+	};
 
 	return {
 		...state,
@@ -118,5 +159,7 @@ export const SubscriptionState = (props) => {
 		getAllCoupons,
 		createStripeCheckoutSession,
 		getCurrentSubscriptionPlan,
+		getShareAndEarn,
+		getReferralDetails,
 	};
 };
