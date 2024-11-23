@@ -25,9 +25,7 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 		...initialState,
 	});
 
-	console.log('errorMessage: ' + info?.errorMessage);
-
-	// Generate a unique session ID when the component mounts
+	const scrollRef = useRef(null);
 	useEffect(() => {
 		const sessionId = ObjectId().toString();
 		setInfo((prevInfo) => ({ ...prevInfo, sessionId }));
@@ -42,7 +40,11 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 		};
 	}, []);
 
-	console.log('CalendarAiChat: ' + JSON.stringify(info?.chatHistory, null, 2));
+	useEffect(() => {
+		if (scrollRef?.current) {
+			scrollRef?.current?.scrollIntoView();
+		}
+	}, [info.chatHistory]);
 
 	// Function to handle API call
 	const calendarAiChatRes = useCallback(
@@ -138,6 +140,7 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 						</div>
 					</div>
 				)}
+				<div className="forScrollToView" ref={scrollRef}></div>
 			</div>
 
 			<div className="aiInputContainer">

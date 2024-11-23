@@ -80,8 +80,9 @@
 		width: 272px;
 		margin: 0px 23px;
 		gap: 15px;
+		scroll-behavior: smooth;
 
-		.forScroll{
+		.forScroll {
 			flex-grow: 1; //nessary div to scroll from bottom to top
 		}
 
@@ -135,7 +136,8 @@
 
 		.userMessage {
 			display: flex;
-			width: 229px;
+			max-width: 229px;
+			width: fit-content;
 			padding: var(--Spacing-space-7, 12px);
 			justify-content: flex-end;
 			align-items: flex-end;
@@ -151,6 +153,16 @@
 			font-style: normal;
 			font-weight: 400;
 			line-height: normal;
+
+			div {
+				span {
+					overflow-wrap: break-word;
+					word-wrap: break-word;
+					white-space: normal;
+					hyphens: auto;
+				}
+				width: 100%;
+			}
 		}
 	}
 }
