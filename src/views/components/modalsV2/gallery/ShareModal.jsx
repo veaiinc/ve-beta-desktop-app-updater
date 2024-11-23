@@ -177,7 +177,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 				...prevInfo,
 				guestCannotDownload: !prevInfo?.guestCannotDownload,
 			}));
-			console.log(info?.guestCannotDownload, 'guestCannotDownload');
+
 			if (info?.guestCannotDownload) {
 				payload = {
 					canGuestDownloadOriginals: false,
@@ -318,7 +318,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 		const payload = {
 			accessibleTo: newAccessibleTo,
 		};
-		console.log(payload, 'payload');
+
 		editVisitorFormAccess(payload, galleryId);
 	};
 

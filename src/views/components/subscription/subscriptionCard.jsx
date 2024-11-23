@@ -7,6 +7,7 @@ import { ReactComponent as Invoices } from '../../../assets/svg/subscription/inv
 import { ReactComponent as Automation } from '../../../assets/svg/subscription/automation.svg';
 import { ReactComponent as Contracts } from '../../../assets/svg/subscription/contract.svg';
 import { ReactComponent as Proposals } from '../../../assets/svg/subscription/proposal.svg';
+import { ReactComponent as Tick } from '../../../assets/svg/subscription/tick.svg';
 import Context from '../../../context/context';
 import { Spin } from 'antd';
 const data = [
@@ -35,7 +36,7 @@ const data = [
 		title: 'Tasks',
 	},
 ];
-const SubscriptionCard = ({ planData }) => {
+const SubscriptionCard = ({ planData, subscribedPlans }) => {
 	let {
 		subscriptionInfo: { createStripeCheckoutSession, coupons },
 	} = useContext(Context);
@@ -79,9 +80,15 @@ const SubscriptionCard = ({ planData }) => {
 					<span className="monthText">/ {planData?.subscriptionType}</span>
 				</div>
 			</div>
-			<div className="subscriptionChoosebtn" onClick={onSelectPlan}>
-				{info?.btnLoading ? <Spin size="small" /> : 'Choose plan'}
-			</div>
+			{planData?._id === subscribedPlans?.currentSubscriptionPlan?._id ? (
+				<div className="currentPlanBtn">
+					Current Plan <Tick />
+				</div>
+			) : (
+				<div className="subscriptionChoosebtn" onClick={onSelectPlan}>
+					{info?.btnLoading ? <Spin size="small" /> : 'Choose plan'}
+				</div>
+			)}
 			<div className="subscriptionFooterContainer">
 				{data?.map((ele, index) => (
 					<div className="subscriptionfeaturesDiv" key={index}>

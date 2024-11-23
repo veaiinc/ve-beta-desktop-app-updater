@@ -1,5 +1,6 @@
 import React, { memo, useState, useCallback, useEffect, useRef } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
+import Context from '../../../context/context';
 import CalendarSelector from '../../components/calendar/CalendarSelector';
 import AskAI from '../../components/calendar/AskAI';
 import CalendarCategories from '../../components/calendar/CalendarCategories';

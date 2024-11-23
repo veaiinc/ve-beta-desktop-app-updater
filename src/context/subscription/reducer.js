@@ -8,6 +8,10 @@ const actionHandlers = {
 		...state,
 		coupons: action.payload,
 	}),
+	GET_ALL_CURRENT_PLAN_SUCCESS: (state, action) => ({
+		...state,
+		currentPlan: action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

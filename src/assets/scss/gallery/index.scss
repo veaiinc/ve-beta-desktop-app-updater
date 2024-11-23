@@ -686,10 +686,29 @@
 						background: rgba(0, 0, 0, 0.5); /* Adjust opacity as needed */
 						pointer-events: none;
 					}
+					.rotating-circle {
+						position: absolute;
+						top: 0px;
+						right: 0px;
+						z-index: 3;
+						filter: blur(2px);
+					}
+					@keyframes rotateCircle {
+						0% {
+							transform: rotate(0deg);
+						}
+						100% {
+							transform: rotate(360deg);
+						}
+					}
 					&:hover {
 						transform: scale(1.05);
 						.imageOverlay {
 							background: rgba(0, 0, 0, 0);
+						}
+						.rotating-circle {
+							animation: rotateCircle 2s linear infinite;
+							filter: blur(0px);
 						}
 						// img {
 
@@ -709,6 +728,7 @@
 					border-radius: 100px;
 					background: #1d1d1d;
 					position: fixed;
+					z-index: 5;
 					bottom: 0;
 					bottom: 20px; // Add some space from the bottom
 					left: 50%; // Position the left edge at 50% of the parent

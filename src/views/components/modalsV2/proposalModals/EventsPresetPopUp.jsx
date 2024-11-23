@@ -22,6 +22,7 @@ const EventsPresetsPopOverComponent = ({
 	addServiceDataInEvents,
 	outerIndex,
 	innerIndex,
+	refetchEventspresetData,
 }) => {
 	let {
 		templates: { eventsPresetData, deleteEventsPreset, addEventsPresets },
@@ -105,6 +106,7 @@ const EventsPresetsPopOverComponent = ({
 					updatePresetLoading: { ...prev.updatePresetLoading, [index]: false },
 				}));
 				message.success('Preset deleted successfully');
+				refetchEventspresetData();
 				return;
 			}
 			setInfo((prev) => ({
@@ -157,6 +159,7 @@ const EventsPresetsPopOverComponent = ({
 					updatePresetLoading: { ...prev.updatePresetLoading, [index]: false },
 				}));
 				message.success('Presets Updated successfully');
+				refetchEventspresetData();
 				return;
 			}
 			setInfo((prev) => ({
@@ -301,6 +304,7 @@ const EventsPresetsPopOverComponent = ({
 				mode={info?.mode}
 				selectedEventsPresetData={info?.selectedEventsPresetData}
 				updateEventspresetData={updateEventspresetData}
+				refetchEventspresetData={refetchEventspresetData}
 			/>
 		</div>
 	);
