@@ -20,6 +20,7 @@ import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
 import Subscription from './views/features/subscription';
+import Workflow_builder_updated from './views/features/workflow_builder_updated';
 
 const routes = [
 	{
@@ -90,6 +91,15 @@ const routes = [
 
 	{
 		path: '/workflow_builder/:templateId',
+		component: (
+			<WorkflowBuilderLayout title={'Workflow Builder'}>
+				<Workflow_builder_updated />
+			</WorkflowBuilderLayout>
+		),
+		exact: true,
+	},
+	{
+		path: '/workflow_builder-test/:templateId', //this is real one,
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
 				<Workflow_builder />
