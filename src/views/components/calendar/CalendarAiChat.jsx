@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as SendSvg } from '../../../assets/svg/calendar/send.svg';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
+import { useRef } from 'react';
 
 const initialState = {
 	sessionId: null,
@@ -23,54 +24,80 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 		...initialState,
 	});
 
+	const scrollRef = useRef(null);
+
+	// Generate a unique session ID when the component mounts
 	useEffect(() => {
 		const sessionId = uuidv4();
-		setInfo((prevInfo) => ({ ...prevInfo, sessionId: sessionId }));
-		return setInfo(initialState);
-	});
-
-	// Function to handle API call
-	const calendarAiChatRes = useCallback(async (sessionId, inputData) => {
-		try {
-			setInfo((prev) => ({ ...prev, isProcessing: true, errorMessage: null }));
-			const response = await getCalendarChat(sessionId, inputData); // Replace with actual API call
-			setInfo((prev) => ({
-				...prev,
+		setInfo((prevInfo) => ({ ...prevInfo, sessionId }));
+		return () => {
+			// Reset state on unmount
+			setInfo({
+				sessionId: null,
+				chatHistory: [],
+				userInput: '',
 				isProcessing: false,
-				chatHistory: [
-					...prev.chatHistory,
-					{ type: 'ai', message: response.data }, // Update based on API response structure
-				],
-			}));
-		} catch (error) {
-			setInfo((prev) => ({
-				...prev,
-				isProcessing: false,
-				errorMessage: 'Something went wrong. Please try again.',
-			}));
-		}
+				errorMessage: null,
+			});
+		};
 	}, []);
 
-	// Handle user input submission
-	const handleSendMessage = () => {
-		const { userInput, sessionId } = info;
-		if (!userInput.trim()) return; // Prevent empty submissions
+	useEffect(() => {
+		if (scrollRef?.current) {
+			scrollRef?.current?.scrollIntoView();
+		}
+	}, [info.chatHistory]);
 
-		setInfo((prev) => ({
-			...prev,
-			chatHistory: [...prev.chatHistory, { type: 'user', message: userInput }],
+	// Function to handle API call
+	const calendarAiChatRes = useCallback(
+		async (sessionId, inputData) => {
+			try {
+				setInfo((prevInfo) => ({ ...prevInfo, errorMessage: null, isProcessing: true }));
+				const response = await getCalendarChat(sessionId, inputData); // Replace with actual API call
+				console.log('Response==>' + JSON.stringify(response, null, 2));
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					isProcessing: false,
+					chatHistory: [
+						...prevInfo.chatHistory,
+						{ type: 'ai', message: response?.data }, // Update res datat with context data
+					],
+				}));
+			} catch (error) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					isProcessing: false,
+					errorMessage: 'Something went wrong. Please try again.',
+				}));
+			}
+			console.log('errorMessage' + info?.errorMessage);
+		},
+		[getCalendarChat],
+	);
+
+	// Handle user input submission
+	const handleSendMessage = (keyPressOrbuttonClick) => {
+		const { userInput, sessionId } = info;
+
+		const isEnterKeyPress = keyPressOrbuttonClick?.key === 'Enter' && !info?.isProcessing;
+		const isButtonClick = keyPressOrbuttonClick === 'click';
+
+		if (!userInput.trim() || info?.isProcessing || !(isEnterKeyPress || isButtonClick)) {
+			return;
+		}
+		// Update the chat history and clear input
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			chatHistory: [...prevInfo.chatHistory, { type: 'user', message: userInput }],
 			userInput: '',
 		}));
-
+		console.log('Prompt Executed===>' + userInput);
 		calendarAiChatRes(sessionId, userInput);
 	};
 
-	// Disable input while processing
-	const isInputDisabled = info.isProcessing;
-
 	// Handle user typing
 	const handleInputChange = (e) => {
-		setInfo((prev) => ({ ...prev, userInput: e.target.value }));
+		setInfo((prevInfo) => ({ ...prevInfo, userInput: e.target.value }));
 	};
 	return (
 		// <div className="calendarAiChatContainer">
@@ -124,21 +151,21 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 			</div>
 			<div className="chatContainer">
 				<div className="forScroll"></div>
-				<div className="chatDate">Today</div>
+				{/* <div className="chatDate">Today</div> */}
 
-				{info.chatHistory.map((chat, index) => (
+				{info?.chatHistory?.map((chat, index) => (
 					<div
 						key={index}
-						className={chat.type === 'user' ? 'userMessage' : 'aiMessageWrapper'}
+						className={chat?.type === 'user' ? 'userMessage' : 'aiMessageWrapper'}
 					>
-						{chat.type === 'ai' && <AiSparkel />}
-						<div className={chat.type === 'user' ? 'userMessage' : 'aiMessage'}>
-							<span>{chat.message}</span>
+						{chat?.type === 'ai' && <AiSparkel />}
+						<div className={chat?.type === 'user' ? '' : 'aiMessage'}>
+							<span>{chat?.message}</span>
 						</div>
 					</div>
 				))}
 
-				{info.isProcessing && (
+				{info?.isProcessing && (
 					<div className="aiMessageWrapper">
 						<AiSparkel />
 						<div className="aiMessage">
@@ -146,24 +173,33 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 						</div>
 					</div>
 				)}
+				{info?.errorMessage && (
+					<div className="aiMessageWrapper">
+						<AiSparkel />
+						<div className="aiMessage">
+							<span>{info?.errorMessage}</span>
+						</div>
+					</div>
+				)}
+				<div className="forScrollToView" ref={scrollRef}></div>
 			</div>
 
 			<div className="aiInputContainer">
 				<input
 					type="text"
 					placeholder="Ex: Schedule a meeting"
-					value={info.userInput}
+					value={info?.userInput}
 					onChange={handleInputChange}
-					onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-					disabled={isInputDisabled}
+					onKeyDown={handleSendMessage}
+					disabled={info?.isProcessing}
 				/>
 				<SendSvg
-					onClick={handleSendMessage}
-					style={{ cursor: isInputDisabled ? 'not-allowed' : 'pointer' }}
+					onClick={() => handleSendMessage('click')}
+					style={{ cursor: info?.isProcessing ? 'not-allowed' : 'pointer' }}
 				/>
 			</div>
 
-			{info.errorMessage && <div className="errorMessage">{info.errorMessage}</div>}
+			{/* {info?.errorMessage && <div className="errorMessage">{info?.errorMessage}</div>} */}
 		</div>
 	);
 };
