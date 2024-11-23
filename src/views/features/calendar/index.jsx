@@ -20,6 +20,12 @@ const Calendar = () => {
 		isEventSelected: false,
 	});
 
+	useEffect(() => {
+		getCurrentWeek();
+		updateCalendarInfo('selectedMonth', info?.selectedDate.getMonth());
+		updateCalendarInfo('selectedYear', info?.selectedDate.getFullYear());
+	}, [info.selectedDate]);
+
 	const updateCalendarInfo = useCallback((key, value) => {
 		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
 	}, []);
@@ -42,12 +48,6 @@ const Calendar = () => {
 			selectedWeek: weekDates,
 		}));
 	}, [info?.selectedDate]);
-
-	useEffect(() => {
-		getCurrentWeek();
-		updateCalendarInfo('selectedMonth', info?.selectedDate.getMonth());
-		updateCalendarInfo('selectedYear', info?.selectedDate.getFullYear());
-	}, [info.selectedDate]);
 
 	return (
 		<>

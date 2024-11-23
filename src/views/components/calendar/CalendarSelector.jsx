@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState, useEffect } from 'react';
+import React, { memo, useMemo, useState, useEffect, useCallback } from 'react';
 import moment from 'moment';
 import '../../../assets/scss/calendar/calendarSelector.scss';
 import { ReactComponent as LeftSvg } from '../../../assets/svg/activity/left.svg';
@@ -12,6 +12,11 @@ const CalendarSelector = ({
 	selectedDate,
 	updateCalendarInfo,
 }) => {
+	const [info, setInfo] = useState({
+		showMonths: false,
+		showYears: false,
+	});
+
 	// Memoized calendar information
 	const calendarInfo = useMemo(() => {
 		const minYear = 1990;
@@ -22,23 +27,6 @@ const CalendarSelector = ({
 		return { minYear, maxYear, months, years };
 	}, []);
 
-	const [showMonths, setShowMonths] = useState(false);
-	const [showYears, setShowYears] = useState(false);
-
-	const toggleMonthDropDown = () => {
-		if (showYears && !showMonths) {
-			setShowYears(false);
-		}
-		setShowMonths(!showMonths);
-	};
-
-	const toggleYearDropDown = () => {
-		if (showMonths && !showYears) {
-			setShowMonths(false);
-		}
-		setShowYears(!showYears);
-	};
-
 	// Sync calendar date on month or year change
 	useEffect(() => {
 		updateCalendarInfo(
@@ -46,6 +34,28 @@ const CalendarSelector = ({
 			moment({ year: selectedYear, month: selectedMonth }).toDate(),
 		);
 	}, [selectedMonth, selectedYear]);
+
+	const toggleMonthDropDown = useCallback(() => {
+		setInfo((prevInfo) => {
+			const { showYears, showMonths } = prevInfo;
+			return {
+				...prevInfo,
+				showYears: showYears && !showMonths ? false : showYears,
+				showMonths: !showMonths,
+			};
+		});
+	}, []);
+
+	const toggleYearDropDown = useCallback(() => {
+		setInfo((prevInfo) => {
+			const { showYears, showMonths } = prevInfo;
+			return {
+				...prevInfo,
+				showYears: !showYears,
+				showMonths: !showYears && showMonths ? false : showMonths,
+			};
+		});
+	}, []);
 
 	// Generate days for the calendar
 	const firstDayOfMonth = moment(currentCalendarDate)?.startOf('month');
@@ -96,7 +106,7 @@ const CalendarSelector = ({
 						<span className="captionDropDown">
 							<DownSvg />
 						</span>
-						{showMonths && (
+						{info?.showMonths && (
 							<div className={`monthSelectorContainer`}>
 								{calendarInfo?.months?.map((month, index) => (
 									<div
@@ -117,7 +127,7 @@ const CalendarSelector = ({
 						<span className="captionDropDown">
 							<DownSvg />
 						</span>
-						{showYears && (
+						{info?.showYears && (
 							<div className={`yearSelectorContainer`}>
 								{calendarInfo?.years?.map((year) => (
 									<div
