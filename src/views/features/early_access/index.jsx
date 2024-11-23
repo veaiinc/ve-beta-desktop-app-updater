@@ -14,12 +14,13 @@ import { ReactComponent as MailIcon } from '../../../assets/svg/footer/email.svg
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import { message } from 'antd';
+import jwtDecode from 'jwt-decode';
+
 const navItems = [
 	{ name: 'Privacy', route: '/privacy-policy' },
 	{ name: 'Terms', route: '/terms' },
 	{ name: 'Blogs', route: '/blogs' },
 ];
-const currentYear = new Date()?.getFullYear();
 const EarlyAccess = () => {
 	const usertoken = localStorage.getItem('usertoken') ?? '';
 	const workspaceId = localStorage.getItem('workspaceId') ?? '';
@@ -46,6 +47,8 @@ const EarlyAccess = () => {
 		shareAndEarnData?.referralDetails?.referralPlan?.referrerRewardInPercentage || 0;
 	const refereeReward =
 		shareAndEarnData?.referralDetails?.referralPlan?.refereeRewardInPercentage || 0;
+	const decodedToken = jwtDecode(usertoken);
+	const { userName } = decodedToken;
 
 	useEffect(() => {
 		getUserWorkSpaceList();
@@ -98,9 +101,9 @@ const EarlyAccess = () => {
 			</header>
 			<main className="landing-page-content2">
 				<section aria-label="Main content" className="hero-section-1">
-					<h1 className="heading">Almost a beta user, Avinash !</h1>
+					<h1 className="heading">Almost a beta user, {userName} !</h1>
 					<p className="description">
-						You are on waitlist now , If you want to escape this and get access faster
+						You are on waitlist now, If you want to escape this and get access faster
 						than anyone
 					</p>
 				</section>
@@ -119,7 +122,7 @@ const EarlyAccess = () => {
 										Get your friends to and earn while you're at it!
 									</div>
 									<div className="paragraph-container">
-										You get {referrerReward}% cash back and your friends receive
+										You get {referrerReward}% cash back and your friends receive{' '}
 										{refereeReward}% discount when you refer them
 									</div>
 								</div>
