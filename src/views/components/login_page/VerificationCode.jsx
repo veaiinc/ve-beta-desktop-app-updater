@@ -24,7 +24,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 	const [info, setInfo] = useState({
 		otp: '',
 		otpError: '',
-		isLoading: true,
+		isLoading: false,
 		canResend: true,
 	});
 	const otpContainerRef = useRef(null);

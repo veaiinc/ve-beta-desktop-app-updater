@@ -9,25 +9,26 @@ import Context from '../../../context/context';
 const WorkspaceHandleName = ({
 	workspaceHandle,
 	isWorkspaceHandleAvailable,
+	isCheckingWorkspaceHandle,
+	setIsCheckingWorkspaceHandle,
 	setWorkspaceHandleAndBusinessName,
 	setIsWorkspaceHandleAvailable,
-	incrementStep,
+	animateStage2AndStep3Exit,
 }) => {
 	const {
 		authInfo: { checkWorkspaceHandleAvailability },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		isChecking: false,
 		enterPressed: false,
 	});
 
 	useEffect(() => {
 		if (workspaceHandle?.length > 1) {
-			setInfo((prev) => ({ ...prev, isChecking: true }));
+			setIsCheckingWorkspaceHandle(true);
 			const timeout = setTimeout(async () => {
 				await handleCheckWorkspaceHandleAvailability(workspaceHandle);
-				setInfo((prev) => ({ ...prev, isChecking: false }));
+				setIsCheckingWorkspaceHandle(false);
 			}, 1000);
 
 			return () => clearTimeout(timeout);
@@ -46,7 +47,13 @@ const WorkspaceHandleName = ({
 	};
 
 	const handleSetWorkspaceHandle = (e) => {
-		const value = e?.target?.value?.toLowerCase() ?? '';
+		let value = e?.target?.value?.toLowerCase() ?? '';
+		value = value.replace(/[^a-z0-9]/g, '');
+		if (value.length > 20) {
+			value = value.substring(0, 20);
+			message.warning('Workspace handle cannot be longer than 20 characters', 1.5);
+			return;
+		}
 		setWorkspaceHandleAndBusinessName(value);
 	};
 
@@ -54,18 +61,15 @@ const WorkspaceHandleName = ({
 		if ((e?.key === 'Enter' || type === 'click') && isWorkspaceHandleAvailable) {
 			if (info?.enterPressed) return;
 			setInfo((prev) => ({ ...prev, enterPressed: true }));
-			if (!info?.isChecking && workspaceHandle?.length > 1 && isWorkspaceHandleAvailable) {
-				console.log('handleNext');
+			if (
+				!isCheckingWorkspaceHandle &&
+				workspaceHandle?.length > 1 &&
+				isWorkspaceHandleAvailable
+			) {
+				animateStage2AndStep3Exit();
 			}
 		}
 	};
-
-	useEffect(() => {
-		console.log(
-			'workspaceHandle',
-			info?.isChecking || workspaceHandle?.length > 1 || !isWorkspaceHandleAvailable,
-		);
-	}, [info?.isChecking, workspaceHandle?.length, isWorkspaceHandleAvailable]);
 
 	return (
 		<div className="username-input-container workspace-handle-name-container stage2">
@@ -76,14 +80,20 @@ const WorkspaceHandleName = ({
 				onKeyDown={handleNext}
 				autoFocus={true}
 				type="text"
-				placeholder="workspace name"
+				placeholder="workspace-name"
 			/>
 			<button
 				className="next-button"
-				disabled={!isWorkspaceHandleAvailable}
+				disabled={!isWorkspaceHandleAvailable || isCheckingWorkspaceHandle}
 				style={{
-					cursor: !isWorkspaceHandleAvailable ? 'not-allowed' : 'pointer',
-					background: !isWorkspaceHandleAvailable ? 'rgba(255, 255, 255, 0.1)' : 'white',
+					cursor:
+						!isWorkspaceHandleAvailable || isCheckingWorkspaceHandle
+							? 'not-allowed'
+							: 'pointer',
+					background:
+						!isWorkspaceHandleAvailable || isCheckingWorkspaceHandle
+							? 'rgba(255, 255, 255, 0.1)'
+							: 'white',
 					transition: 'all 0.3s ease',
 				}}
 				onClick={() => handleNext(null, 'click')}
@@ -92,10 +102,17 @@ const WorkspaceHandleName = ({
 					className="arrow-container"
 					style={{
 						transition: 'all 0.3s ease',
-						transform: isWorkspaceHandleAvailable ? 'rotate(90deg)' : 'rotate(0deg)',
+						transform:
+							isWorkspaceHandleAvailable && !isCheckingWorkspaceHandle
+								? 'rotate(90deg)'
+								: 'rotate(0deg)',
 					}}
 				>
-					{isWorkspaceHandleAvailable ? <UpArrowBlackHover /> : <UpArrowGrey />}
+					{isWorkspaceHandleAvailable && !isCheckingWorkspaceHandle ? (
+						<UpArrowBlackHover />
+					) : (
+						<UpArrowGrey />
+					)}
 				</div>
 			</button>
 		</div>

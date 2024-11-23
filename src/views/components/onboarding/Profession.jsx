@@ -1,8 +1,7 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
-import gsap from 'gsap';
+import React, { memo, useRef, useState } from 'react';
 
 const professions = {
-	professional: {
+	smallBusiness: {
 		id: 1,
 		professions: [
 			{
@@ -18,7 +17,7 @@ const professions = {
 			{
 				id: 3,
 				name: 'Interior Designing',
-				value: 'interior_designing',
+				value: 'interiorDesigning',
 			},
 		],
 	},
@@ -28,7 +27,7 @@ const professions = {
 			{
 				id: 1,
 				name: 'Information Technology',
-				value: 'information_technology',
+				value: 'informationTechnology',
 			},
 			{
 				id: 2,
@@ -39,42 +38,21 @@ const professions = {
 	},
 };
 
-const Profession = ({ workspaceType, setProfession, incrementStep }) => {
+const Profession = ({ workspaceType, setProfession, animateStep5AndStage4Exit }) => {
 	const professionRef = useRef(null);
 	const [info, setInfo] = useState({
 		optionSelected: false,
 	});
 
-	useEffect(() => {
-		gsap.fromTo(
-			professionRef.current,
-			{ opacity: 0 },
-			{ opacity: 1, duration: 1, delay: 0.5, ease: 'power2.inOut' },
-		);
-	}, []);
-
 	const handleSelectProfession = (profession) => {
 		if (info?.optionSelected) return;
 		setInfo((prev) => ({ ...prev, optionSelected: true }));
-		gsap.fromTo(
-			professionRef.current,
-			{
-				opacity: 1,
-			},
-			{
-				opacity: 0,
-				duration: 1,
-				ease: 'power2.inOut',
-				onComplete: () => {
-					setProfession(profession);
-					incrementStep();
-				},
-			},
-		);
+		setProfession(profession);
+		animateStep5AndStage4Exit();
 	};
 
 	return (
-		<div ref={professionRef} className="profession-grid-container">
+		<div ref={professionRef} className="profession-grid-container stage4">
 			<div className="profession-grid">
 				{professions[workspaceType]?.professions?.map((profession) => (
 					<div

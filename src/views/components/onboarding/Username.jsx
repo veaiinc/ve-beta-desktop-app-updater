@@ -1,18 +1,9 @@
-import React, { useState, memo, useRef, useEffect } from 'react';
-import gsap from 'gsap';
+import React, { useState, memo } from 'react';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import '../../../assets/scss/onboarding/index.scss';
 
-const Username = ({
-	step,
-	username,
-	setUsername,
-	incrementStage,
-	animateStage1AndStep1Exit,
-	handleInvitedUser,
-	createAccountViaInvite = false,
-}) => {
+const Username = ({ step, username, setUsername, animateStage1AndStep1Exit }) => {
 	const [info, setInfo] = useState({
 		isHovering: false,
 		enterPressed: false,
@@ -32,7 +23,6 @@ const Username = ({
 		if ((e?.key === 'Enter' || type === 'click') && !info?.enterPressed && username?.length) {
 			setInfo((prev) => ({ ...prev, enterPressed: true }));
 			animateStage1AndStep1Exit();
-			// incrementStage();
 		}
 	};
 
