@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/calendar/createEvent.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as VerticalDots } from '../../../assets/svg/more-options-dots.svg';
@@ -6,18 +6,11 @@ import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg
 import { ReactComponent as Clock } from '../../../assets/svg/activity/duration.svg';
 import { ReactComponent as Category } from '../../../assets/svg/calendar/category.svg';
 
-const CreateEvent = ({ updateCalendarInfo, isCreateEventOpen }) => {
+const CreateEvent = ({ updateCalendarInfo }) => {
 	const [info, setInfo] = useState({
 		showCategory: false,
 		isAllDayEvent: false,
 	});
-
-	const handleCategoryToggle = () => {
-		setInfo((previnfo) => ({ ...previnfo, showCategory: !previnfo.showCategory }));
-	};
-	const handleAllDayEventToggle = () => {
-		setInfo((previnfo) => ({ ...previnfo, isAllDayEvent: !previnfo.isAllDayEvent }));
-	};
 
 	const createEventRef = useRef(null);
 
@@ -37,6 +30,14 @@ const CreateEvent = ({ updateCalendarInfo, isCreateEventOpen }) => {
 			clearTimeout(timerId);
 			document.removeEventListener('click', handleClickOutside);
 		};
+	}, []);
+
+	const handleCategoryToggle = useCallback(() => {
+		setInfo((previnfo) => ({ ...previnfo, showCategory: !previnfo.showCategory }));
+	}, []);
+
+	const handleAllDayEventToggle = useCallback(() => {
+		setInfo((previnfo) => ({ ...previnfo, isAllDayEvent: !previnfo.isAllDayEvent }));
 	}, []);
 
 	return (
