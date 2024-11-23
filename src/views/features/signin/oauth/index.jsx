@@ -43,7 +43,7 @@ const OauthVerify = () => {
 				!accessibleWorkspaces.length
 			) {
 				localStorage.setItem('usertoken', accessToken);
-				navigate('/onboarding');
+				navigate('/verify-user');
 				return;
 			}
 		}

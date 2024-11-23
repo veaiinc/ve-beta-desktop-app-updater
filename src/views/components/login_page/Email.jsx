@@ -6,6 +6,7 @@ import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/up
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import Context from '../../../context/context';
 import { getLocationsDetails } from '../../../helpers';
+import { useLocation } from 'react-router-dom';
 import { message } from 'antd';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
@@ -22,6 +23,21 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 		isLoading: false,
 		googleLoading: false,
 	});
+
+	const location = useLocation();
+	const params = new URLSearchParams(location?.search);
+	const invitedWorkspaceId = params?.get('invitedWorkspaceId');
+	const invitedUserEmail = params?.get('inviteeEmail');
+
+	useEffect(() => {
+		if (invitedWorkspaceId && invitedUserEmail) {
+			localStorage?.clear();
+			localStorage?.setItem('invitedWorkspaceId', invitedWorkspaceId);
+			localStorage?.setItem('invitedUserEmail', invitedUserEmail);
+			handleSetEmail(invitedUserEmail);
+			handleContinueWithEmail(null, 'click');
+		}
+	}, [invitedWorkspaceId, invitedUserEmail]);
 
 	useEffect(() => {
 		if (arrowRef.current && info.isEmailValid) {
