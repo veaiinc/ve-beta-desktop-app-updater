@@ -48,7 +48,7 @@ const handleHeaders = (token, body, type) => {
 	const headers = { 'Content-Type': 'application/json' };
 	if (token) {
 		headers['x-access-token'] = token;
-		if (type === 'form' || type === 'ai_setup') {
+		if (type === 'form' || type === 'ai_setup' || type === 'calendar_chat') {
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 	}
@@ -75,10 +75,13 @@ const apiFetch = async (url, method, body, token, type) => {
 		body = JSON.stringify(body);
 	}
 	try {
+		// console.log('headers' + JSON.stringify(headers, null, 2));
+		console.log('endpoint: ' + endpoint);
 		const response = await fetch(endpoint, { method, headers, body });
 		return processResponse(response);
 	} catch (error) {
 		onFailure('network', url);
+		console.log('Api Failed: ' + error.message);
 		return [false];
 	}
 };

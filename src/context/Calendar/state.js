@@ -15,7 +15,7 @@ export const Calendar = () => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `${workspaceId}/${sessionId}${API.CALENDAR.calendarChat}`;
+			const url = `/${workspaceId}/${sessionId}${API.CALENDAR.calendarChat}`;
 
 			const response = await service.fetchPost(url, body, usertoken, 'calendar_chat');
 
