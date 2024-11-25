@@ -3,6 +3,7 @@ import { ReactComponent as CopyIcon } from '../../../../assets/svg/gallery/copy.
 import { ReactComponent as DownloadIcon } from '../../../../assets/svg/gallery/download2.svg';
 import Table from './Table';
 import QRCode from 'react-qr-code';
+import { message } from 'antd';
 
 const tableData = [
 	{
@@ -101,6 +102,24 @@ const AiFaceRegistration = ({ link }) => {
 
 		img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
 	};
+	const copyLink = async () => {
+		try {
+			await navigator.clipboard.writeText(link);
+			message.success('Link copied successfully!');
+		} catch (err) {
+			const textArea = document.createElement('textarea');
+			textArea.value = link;
+			document.body.appendChild(textArea);
+			textArea.select();
+			try {
+				document.execCommand('copy');
+				message.success('Link copied successfully!');
+			} catch (err) {
+				message.error('Failed to copy link:', err);
+			}
+			document.body.removeChild(textArea);
+		}
+	};
 
 	return (
 		<div className="aiFaceRegistration">
@@ -116,7 +135,7 @@ const AiFaceRegistration = ({ link }) => {
 				<div className="aiScannerDetailsContainer">
 					<div className="aiScanLink">
 						<p>{link ? link : ''}</p>
-						<CopyIcon className="copyIcon" />
+						<CopyIcon className="copyIcon" onClick={() => copyLink()} />
 					</div>
 					<div className="downloadQR" onClick={() => downloadQR()}>
 						<DownloadIcon className="downloadIcon" />
