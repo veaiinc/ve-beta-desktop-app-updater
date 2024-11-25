@@ -79,7 +79,12 @@ const ShareAndEarn = () => {
 							We made it super easy to earn money by referring Ve. Just use our kit—it
 							has everything you need to start making cash without any hassle.
 						</h3>
-						<button className="getKitButton">
+						<button
+							className="getKitButton"
+							onClick={() =>
+								window.open('https://veai.ve.ai/portal/affiliate', '_blank')
+							}
+						>
 							<span>Get the kit</span>
 						</button>
 					</div>
