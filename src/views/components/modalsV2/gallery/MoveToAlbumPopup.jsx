@@ -4,10 +4,11 @@ import '../../../../assets/scss/gallery/modals/moveToAlbumPopup.scss';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import { ReactComponent as BackArrow } from '../../../../assets/svg/gallery/backArrow.svg';
 import { ReactComponent as Circle } from '../../../../assets/svg/gallery/add-circle.svg';
-
-const MoveToAlbumPopup = ({ open, closeModal, albums, albumName, moveImageToAlbum }) => {
+import CreateAlbum from './CreateAlbum';
+const MoveToAlbumPopup = ({ open, closeModal, galleryId, albums, albumName, moveImageToAlbum }) => {
 	const [info, setInfo] = useState({
 		selectedAlbumId: null,
+		showAlbum: false,
 	});
 	const handleAlbumClick = (id) => {
 		setInfo({
@@ -39,7 +40,15 @@ const MoveToAlbumPopup = ({ open, closeModal, albums, albumName, moveImageToAlbu
 		});
 	};
 	return (
-		<ReactModal isOpen={open} closeModal={handleCloseModal} modalType={'center'}>
+		<ReactModal
+			isOpen={open}
+			closeModal={handleCloseModal}
+			modalType={'center'}
+			customStyles={{
+				content: { position: 'absolute', overflow: 'hidden' },
+				className: 'moveAlbumContainer',
+			}}
+		>
 			<div className="moveToAlbumPopupMainContainer">
 				<div className="headingContainer">
 					<p className="heading">Move to Other Albums</p>
@@ -65,7 +74,10 @@ const MoveToAlbumPopup = ({ open, closeModal, albums, albumName, moveImageToAlbu
 							))}
 						</div>
 					</div>
-					<div className="createNewAlbumContainer">
+					<div
+						className="createNewAlbumContainer"
+						onClick={() => setInfo((prev) => ({ ...prev, showAlbum: true }))}
+					>
 						<Circle />
 						<p>Create new album</p>
 					</div>
@@ -80,6 +92,11 @@ const MoveToAlbumPopup = ({ open, closeModal, albums, albumName, moveImageToAlbu
 					</div>
 				</div>
 			</div>
+			<CreateAlbum
+				open={info?.showAlbum}
+				closeModal={() => setInfo((prev) => ({ ...prev, showAlbum: false }))}
+				galleryId={galleryId}
+			/>
 		</ReactModal>
 	);
 };

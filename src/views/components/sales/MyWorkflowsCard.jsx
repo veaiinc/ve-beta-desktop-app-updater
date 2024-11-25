@@ -4,6 +4,9 @@ import ActionCards from './ActionCards';
 import StatsCard from './StatsCard';
 import { ReactComponent as ArrowSvg } from '../../../assets/svg/worflow_builder/smallArrow.svg';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
+import { fetchOriginSelection } from '../../../helpers';
+
+let origin = fetchOriginSelection();
 
 const generateCardsInfoData = (data, type, moduleWithoutContract = false) => {
 	if (type === 'actionCards') {
@@ -170,11 +173,7 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 							''
 						)}
 						<span onClick={() => navigateToWorkflowBuilder(data)}>Edit Workflow</span>
-						<span
-							onClick={() =>
-								(window.location.href = `https://builder.ve.ai/${data?._id} `)
-							}
-						>
+						<span onClick={() => (window.location.href = `${origin}/${data?._id} `)}>
 							Edit Design
 						</span>
 					</div>
@@ -182,11 +181,7 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 
 				<div className="coverImage">
 					<iframe
-						src={
-							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`
-								: `https://builder.ve.ai/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`
-						}
+						src={`${origin}/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
 						title="Builder Preview"
 						width="100%"
 						height="100%"

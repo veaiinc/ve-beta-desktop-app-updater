@@ -48,7 +48,6 @@ const UploadGalleryImageCover = ({
 					<div className="album-preview">
 						<div className="laptop-preview">
 							<div className="screen">
-								{console.log(focusInfo, 'focusInfoinsideDIv')}
 								<div
 									style={{
 										width: '100%',
@@ -102,7 +101,7 @@ const UploadGalleryImageCover = ({
 							}
 							onCropComplete={(croppedArea, croppedAreaPixels) => {
 								// You can store croppedAreaPixels if you need the final crop dimensions
-								// console.log('Cropped area:', croppedAreaPixels);
+							
 							}}
 							onZoomChange={(zoomValue) =>
 								setInfo((prev) => ({
@@ -133,6 +132,14 @@ const UploadGalleryImageCover = ({
 							message.error('Please create a album first');
 							return;
 						} else {
+							setInfo((prev) => ({
+								...prev,
+								coverPhoto: true,
+								coverImageDetails: null,
+								imageURL: '',
+								uploadImageId: null,
+							}));
+
 							fileInputRef.current.click();
 						}
 					}}

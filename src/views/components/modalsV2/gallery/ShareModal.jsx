@@ -177,7 +177,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 				...prevInfo,
 				guestCannotDownload: !prevInfo?.guestCannotDownload,
 			}));
-			console.log(info?.guestCannotDownload, 'guestCannotDownload');
+
 			if (info?.guestCannotDownload) {
 				payload = {
 					canGuestDownloadOriginals: false,
@@ -231,17 +231,31 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 			message.error('Failed to send email');
 		}
 	}, [info?.shareEmail]);
-	const handleCopyGalleryLink = useCallback(() => {
+
+	const handleCopyGalleryLink = async () => {
 		const galleryLink = `https://${workspaceId}.ve.ai/gallery/${activeGallery?.slug}`;
-		navigator.clipboard
-			.writeText(galleryLink)
-			.then(() => {
+
+		try {
+			// Try the modern clipboard API first
+			await navigator.clipboard.writeText(galleryLink);
+			message.success('Gallery link copied to clipboard');
+		} catch (err) {
+			// Fallback for older browsers or when clipboard API fails
+			const textArea = document.createElement('textarea');
+			textArea.value = galleryLink;
+			document.body.appendChild(textArea);
+			textArea.select();
+
+			try {
+				document.execCommand('copy');
 				message.success('Gallery link copied to clipboard');
-			})
-			.catch(() => {
-				message.error('Failed to copy gallery link');
-			});
-	}, [activeGallery?.slug]);
+			} catch (err) {
+				message.error('Failed to copy link');
+			} finally {
+				document.body.removeChild(textArea);
+			}
+		}
+	};
 
 	const handleEditPin = (e, type) => {
 		if (type === 'masterAccessPin') {
@@ -318,7 +332,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 		const payload = {
 			accessibleTo: newAccessibleTo,
 		};
-		console.log(payload, 'payload');
+
 		editVisitorFormAccess(payload, galleryId);
 	};
 

@@ -62,6 +62,7 @@ const AlbumSettings = () => {
 		imageURL: '',
 		coverImageDetails: null,
 		tenantAlbums: [],
+		activeAlbumSlug: '',
 		// activeAlbum: activeAlbum,
 	});
 
@@ -331,7 +332,6 @@ const AlbumSettings = () => {
 	};
 
 	const handleSetCoverPosition = async (focalPoint) => {
-		console.log(focalPoint, 'focalPoint');
 		const json = {
 			image_id: info?.uploadImageId || info?.coverImageDetails?._id,
 			xPosition: focalPoint?.x,
@@ -349,7 +349,36 @@ const AlbumSettings = () => {
 			message.error('Something went wrong, please try again later');
 		}
 	};
+	// const handleCopyAlbumLink = () => {
+	// 	const albumLink = `https://${workspaceId}.ve.ai/gallery/${galleryId}/${info?.activeAlbumSlug}`;
+	// 	navigator.clipboard.writeText(albumLink);
+	// 	message.success('Album link copied to clipboard');
+	// };
+	const handleCopyAlbumLink = async () => {
+		const albumLink = `https://${workspaceId}.ve.ai/gallery/${galleryId}/${info?.activeAlbumSlug}`;
 
+		try {
+			// Try the modern clipboard API first
+			await navigator.clipboard.writeText(albumLink);
+			message.success('Album link copied to clipboard');
+		} catch (err) {
+			// Fallback for older browsers or when clipboard API fails
+			const textArea = document.createElement('textarea');
+			textArea.value = albumLink;
+			document.body.appendChild(textArea);
+			textArea.select();
+
+			try {
+				document.execCommand('copy');
+				message.success('Album link copied to clipboard');
+			} catch (err) {
+				message.error('Failed to copy link');
+			} finally {
+				document.body.removeChild(textArea);
+			}
+		}
+	};
+	const workspaceId = localStorage.getItem('workspaceId');
 	return (
 		<div className="mainAlbumSettings">
 			<div className="exit-option-container">
@@ -379,7 +408,7 @@ const AlbumSettings = () => {
 							<div className="hideOption">
 								{/* onChange={toggleEnable} value={userDetails?.is2FAEnabled}  */}
 								<ToggleSlider
-									value={info?.isPublished}
+									value={!info?.isPublished}
 									onChange={handleHideAlbum}
 								/>
 								<p className="subtitle">
@@ -387,13 +416,15 @@ const AlbumSettings = () => {
 								</p>
 							</div>
 						</div>
-						{/* <div className="albumLink">
-							<p className="title">Album link</p>
-							<div className="inputContainer">
-								<input placeholder="Wedding" />
-								<CopyLogo className="copy-logo" />
+						{info?.isPublished && (
+							<div className="albumLink">
+								<p className="title">Album link</p>
+								<div className="inputContainer">
+									<p>{`https://${workspaceId}.ve.ai/gallery/${galleryId}/${info?.activeAlbumSlug}`}</p>
+									<CopyLogo className="copy-logo" onClick={handleCopyAlbumLink} />
+								</div>
 							</div>
-						</div> */}
+						)}
 						<div className="lockAlbum">
 							<p className="title">Lock Album</p>
 							<div className="lockOption">

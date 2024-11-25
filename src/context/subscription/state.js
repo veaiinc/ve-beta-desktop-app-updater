@@ -10,6 +10,7 @@ export const intialState = {
 	subscriptionPlans: null,
 	coupons: null,
 	currentPlan: null,
+	shareAndEarnData: null,
 };
 
 export const SubscriptionState = (props) => {
