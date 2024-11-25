@@ -2,18 +2,15 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/earlyAccess/earlyAccess.scss';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
-import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
-import { ReactComponent as ArrowUpBlack } from '../../../assets/svg/landingScreen/arrow-black.svg';
-import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen/double-quote.svg';
-import { ReactComponent as Facebook } from '../../../assets/svg/earlyAccess/facebook.svg';
 import { ReactComponent as LinkedIn } from '../../../assets/svg/earlyAccess/linkedIn.svg';
 import { ReactComponent as Instagram } from '../../../assets/svg/earlyAccess/instagram.svg';
 import { ReactComponent as Twitter } from '../../../assets/svg/earlyAccess/twitter.svg';
 import { ReactComponent as CopyIcon } from '../../../assets/svg/shareAndEarn/copy.svg';
 import { ReactComponent as MailIcon } from '../../../assets/svg/footer/email.svg';
+// import { ReactComponent as Copyright } from '../../../assets/svg/landingScreen/copyright.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import { message } from 'antd';
+import { message, Tag, Input } from 'antd';
 import jwtDecode from 'jwt-decode';
 
 const navItems = [
@@ -25,6 +22,10 @@ const EarlyAccess = () => {
 	const usertoken = localStorage.getItem('usertoken') ?? '';
 	const workspaceId = localStorage.getItem('workspaceId') ?? '';
 	const navigate = useNavigate();
+
+	const [showEmailInput, setShowEmailInput] = useState(false);
+	const [emails, setEmails] = useState([]);
+	const [inputValue, setInputValue] = useState('');
 
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
@@ -93,7 +94,44 @@ const EarlyAccess = () => {
 				message.error('Failed to copy:', err);
 			});
 	}, [shareAndEarnData]);
+	const handleSendInvitations = useCallback(() => {
+		if (emails.length === 0) {
+			message.error('Please enter at least one email');
+			return;
+		}
 
+		const referralCode = shareAndEarnData?.referralDetails?.referralCode;
+		const referralLink = `https://ve.ai/verify-user?ref=${referralCode}`;
+		const subject = 'Join me on Ve.ai!';
+		const body = `Hey! I'm using Ve.ai and thought you might be interested. Use my referral link to sign up and get ${refereeReward}% discount: ${referralLink}`;
+
+		window.location.href = `mailto:?bcc=${encodeURIComponent(
+			emails.join(','),
+		)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+		setShowEmailInput(false);
+		setEmails([]);
+		setInputValue('');
+		message.success('Invitation sent successfully!');
+	}, [emails, shareAndEarnData, refereeReward]);
+	const handleInputChange = (e) => {
+		setInputValue(e.target.value);
+	};
+
+	const handleInputKeyPress = (e) => {
+		if (e.key === 'Enter' && inputValue.trim()) {
+			setEmails((prevEmails) => [...prevEmails, inputValue.trim()]);
+			setInputValue('');
+		}
+	};
+
+	const handleDeleteEmail = (index) => {
+		// Changed parameter name from indexToDelete to index
+		setEmails((prevEmails) => {
+			console.log('Previous emails:', prevEmails); // Debug log
+			return prevEmails.filter((_, i) => i !== index);
+		});
+	};
 	return (
 		<div className="landing-page-container">
 			<header className="header-container">
@@ -122,7 +160,7 @@ const EarlyAccess = () => {
 										Get your friends to and earn while you're at it!
 									</div>
 									<div className="paragraph-container">
-										You get {referrerReward}% cash back and your friends receive{' '}
+										You get {referrerReward}% discount and your friends receive{' '}
 										{refereeReward}% discount when you refer them
 									</div>
 								</div>
@@ -162,20 +200,57 @@ const EarlyAccess = () => {
 							</div>
 							<div className="button-container">
 								<div className="share-text">Share on</div>
-								<div className="icons-container">
-									<div className="icon-button">
-										<Twitter />
+								{!showEmailInput ? (
+									<div className="icons-container">
+										<div className="icon-button">
+											<Twitter />
+										</div>
+										<div className="icon-button">
+											<LinkedIn />
+										</div>
+										<div className="icon-button">
+											<MailIcon onClick={() => setShowEmailInput(true)} />
+										</div>
+										<div className="icon-button">
+											<CopyIcon onClick={handleCopyReferralLink} />
+										</div>
 									</div>
-									<div className="icon-button">
-										<LinkedIn />
+								) : (
+									<div className="email-invitation-container">
+										<Input
+											className="email-input"
+											placeholder="Email ID"
+											value={inputValue}
+											onChange={handleInputChange}
+											onKeyPress={handleInputKeyPress}
+										/>
+										<div className="email-tags" style={{ marginTop: '10px' }}>
+											{emails.map((email, index) => (
+												<Tag
+													key={index}
+													closable
+													onClose={(e) => {
+														e.stopPropagation();
+														handleDeleteEmail(email, index);
+													}}
+													style={{
+														marginBottom: '8px',
+														marginRight: '8px',
+													}}
+												>
+													{email}
+												</Tag>
+											))}
+										</div>
+										<button
+											className="send-invitation-button"
+											onClick={handleSendInvitations}
+											disabled={emails.length === 0}
+										>
+											Send Invitation
+										</button>
 									</div>
-									<div className="icon-button">
-										<MailIcon />
-									</div>
-									<div className="icon-button">
-										<CopyIcon onClick={handleCopyReferralLink} />
-									</div>
-								</div>
+								)}
 							</div>
 						</div>
 					</div>
@@ -187,7 +262,15 @@ const EarlyAccess = () => {
 				<nav>
 					<ul>
 						{navItems.map((item, i) => (
-							<li onClick={() => navigate(item.route)}>{item.name}</li>
+							<li
+								key={i}
+								onClick={(e) => {
+									e.stopPropagation();
+									navigate(item.route);
+								}}
+							>
+								{item.name}
+							</li>
 						))}
 					</ul>
 				</nav>
@@ -196,7 +279,7 @@ const EarlyAccess = () => {
 					<LinkedIn style={{ width: '40px', height: '40px' }} />
 				</div>
 				<div>
-					<p className="copyright">2024 Ve.ai</p>
+					<p className="copyright"> 2024 Ve.ai</p>
 				</div>
 			</footer>
 		</div>
