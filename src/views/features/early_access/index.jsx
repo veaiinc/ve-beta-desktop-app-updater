@@ -60,7 +60,7 @@ const EarlyAccess = () => {
 
 	useEffect(() => {
 		if (usertoken?.length === 0) {
-			// navigate('/');
+			navigate('/');
 		}
 		if (userWorkSpaceList) {
 			checkIsOnBoardUser();
@@ -79,7 +79,7 @@ const EarlyAccess = () => {
 		}
 		if (isOnboard) {
 			localStorage.setItem('isOnboard', true);
-			// navigate('/home');
+			navigate('/home');
 		}
 	}, [userWorkSpaceList]);
 	const handleCopyReferralLink = useCallback(() => {
