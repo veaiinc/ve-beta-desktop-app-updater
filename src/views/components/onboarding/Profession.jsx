@@ -7,7 +7,7 @@ const professions = {
 			{
 				id: 1,
 				name: 'Photography',
-				value: 'photography',
+				value: 'photographer',
 			},
 			{
 				id: 2,
@@ -17,7 +17,7 @@ const professions = {
 			{
 				id: 3,
 				name: 'Interior Designing',
-				value: 'interiorDesigning',
+				value: 'interiorDesigner',
 			},
 		],
 	},
@@ -32,7 +32,7 @@ const professions = {
 			{
 				id: 2,
 				name: 'Healthcare',
-				value: 'healthcare',
+				value: 'healthCare',
 			},
 		],
 	},
