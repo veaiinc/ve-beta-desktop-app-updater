@@ -8,10 +8,10 @@ import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen
 
 const navItems = [
 	{ name: 'Privacy', route: '/privacy-policy' },
-	// { name: 'Terms', route: '/terms' },
-	// { name: 'Blogs', route: '/blogs' },
+	{ name: 'Terms', route: '/terms-of-service' },
+	{ name: 'Cookie Policy', route: '/cookie-policy' },
+	{ name: 'Blogs', route: '/' },
 ];
-const currentYear = new Date()?.getFullYear();
 
 const LandingPage = () => {
 	const navigate = useNavigate();
@@ -28,6 +28,10 @@ const LandingPage = () => {
 
 	const handleNavigation = () => {
 		navigate('/verify-user');
+	};
+
+	const handleRequestDemo = () => {
+		window.open('https://veai.ve.ai/get-ve-ai-demo', '_blank');
 	};
 
 	return (
@@ -62,7 +66,13 @@ const LandingPage = () => {
 						>
 							Get Started <ArrowUpBlack aria-label="Arrow up black" />
 						</button>
-						<button className="request-demo-button">Request a Demo</button>
+						<button
+							onClick={handleRequestDemo}
+							className="request-demo-button"
+							aria-label="Request a demo"
+						>
+							Request a Demo
+						</button>
 					</div>
 				</section>
 				<section className="hero-section-2">
@@ -108,11 +118,22 @@ const LandingPage = () => {
 				<nav>
 					<ul>
 						{navItems.map((item, i) => (
-							<li onClick={() => navigate(item.route)}>{item.name}</li>
+							<li
+								key={i}
+								onClick={(e) => {
+									e.stopPropagation();
+									navigate(item.route);
+								}}
+							>
+								{item.name}
+							</li>
 						))}
 					</ul>
 				</nav>
-				<p className="copyright">&copy; {currentYear} VeAI. All rights reserved.</p>
+
+				<div>
+					<p className="copyright"> &copy; 2024 Ve.ai</p>
+				</div>
 			</footer>
 		</div>
 	);
