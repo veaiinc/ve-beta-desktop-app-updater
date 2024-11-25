@@ -17,7 +17,13 @@ const sericesContentMapper = {
 	2: 'This Table shows view only services that are mentioned in the smart file, Lead will only view this service details',
 };
 
-const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
+const Services = ({
+	serviceData,
+	serviceOnChangeFunc,
+	editable,
+	openAiGenerateModal,
+	gotUnacceptedAiGeneratedValue,
+}) => {
 	const [info, setInfo] = useState({
 		data: [],
 		subTotalValueMapper: {},
@@ -90,6 +96,10 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 	const onLocalServiceDataChange = useCallback(
 		async (innerIndex, outerIndex, type, val) => {
 			if (!editable) {
+				return;
+			}
+			if (gotUnacceptedAiGeneratedValue) {
+				openAiGenerateModal();
 				return;
 			}
 
@@ -171,7 +181,7 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 			setInfo((prev) => ({ ...prev, data: updatedData }));
 			serviceOnChangeFunc(selectedServiceTable, outerIndex);
 		},
-		[info?.data, editable, serviceOnChangeFunc],
+		[info?.data, editable, serviceOnChangeFunc, gotUnacceptedAiGeneratedValue],
 	);
 
 	return info?.data?.length ? (
@@ -252,6 +262,7 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 						</div>
 
 						{/* //USE ,MAP HERE */}
+
 						{ele?.blocks?.map((val, ind) => (
 							<div className="serviceCard" key={ind}>
 								<div className="serviceTitleContainer">
@@ -271,7 +282,11 @@ const Services = ({ serviceData, serviceOnChangeFunc, editable }) => {
 								</div>
 								<div className="serviceQuantityContainer">
 									<span className="quantityTitle">Quantity</span>
-									<div className="incrementDecrementContainer">
+									<div
+										className={`incrementDecrementContainer ${
+											ele?.ai_generated ? 'ai_generated' : ''
+										}`}
+									>
 										<span
 											className="incrementorBtns"
 											onClick={() =>

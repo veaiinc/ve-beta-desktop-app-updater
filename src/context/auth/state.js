@@ -109,10 +109,9 @@ export const AuthState = () => {
 
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
-
+			console.log('response', response);
 			if (response?.[0] === true) {
 				const { accessToken, region } = response?.[1];
-				const host = fetchDomainName();
 				localStorage.setItem('usertoken', accessToken);
 				localStorage.setItem('workspaceId', workspaceId);
 				localStorage.setItem('region', region || 'ap-south-1');
@@ -125,6 +124,7 @@ export const AuthState = () => {
 					JSON.stringify(response?.[1]?.accessibleWorkspaces),
 				);
 				localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
+				const host = fetchDomainName();
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
 					domain: host,
@@ -261,9 +261,11 @@ export const AuthState = () => {
 		}
 	};
 
-	const updateUserDetails = async (firstName, phoneNumber = false) => {
+	const updateUserDetails = async (username, phoneNumber = false) => {
+		const firstName = username?.split(' ')[0];
+		const lastName = username?.split(' ')[1];
 		const path = '/tenant-user';
-		const body = phoneNumber ? { firstName, phoneNumber } : { firstName };
+		const body = phoneNumber ? { firstName, lastName, phoneNumber } : { firstName, lastName };
 		const token = localStorage?.getItem('usertoken') || '';
 
 		try {
@@ -363,6 +365,5 @@ export const AuthState = () => {
 		createWorkspace,
 		checkWorkspaceHandleAvailability,
 		updateUserDetails,
-		createAccountViaInvite,
 	};
 };

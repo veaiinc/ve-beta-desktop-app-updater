@@ -1,60 +1,45 @@
-import React, { memo, useRef, useEffect, useState } from 'react';
-import gsap from 'gsap';
+import React, { memo, useRef, useState } from 'react';
+import '../../../assets/scss/onboarding/index.scss';
+import { ReactComponent as SmallBusinessIcon } from '../../../assets/svg/onboarding/small-business.svg';
+import { ReactComponent as EnterpriseIcon } from '../../../assets/svg/onboarding/enterprise.svg';
 
 const businessTypes = [
 	{
 		id: 1,
-		name: 'Professional',
-		value: 'professional',
+		name: 'Small Business',
+		icon: <SmallBusinessIcon />,
+		value: 'smallBusiness',
 	},
 	{
 		id: 2,
 		name: 'Enterprise',
+		icon: <EnterpriseIcon />,
 		value: 'enterprise',
 	},
 ];
 
-const WorkspaceType = ({ setOnboardingInfo }) => {
+const WorkspaceType = ({ setWorkspaceType, animateStage3AndStep4Exit }) => {
 	const businessTypeRef = useRef(null);
 	const [info, setInfo] = useState({
 		optionSelected: false,
 	});
 
-	useEffect(() => {
-		gsap.fromTo(
-			businessTypeRef.current,
-			{ opacity: 0 },
-			{
-				opacity: 1,
-				duration: 1,
-				ease: 'power2.inOut',
-			},
-		);
-	}, []);
-
 	const handleSelectType = (type) => {
 		if (info?.optionSelected) return;
 		setInfo((prev) => ({ ...prev, optionSelected: true }));
-		gsap.to(businessTypeRef.current, {
-			opacity: 0,
-			duration: 1,
-			ease: 'power2.inOut',
-		});
-		setOnboardingInfo((prev) => ({
-			...prev,
-			workspaceType: type.value,
-			step: prev?.step + 1,
-		}));
+		setWorkspaceType(type.value);
+		animateStage3AndStep4Exit();
 	};
 
 	return (
-		<div ref={businessTypeRef} className="workspace-type-container">
+		<div ref={businessTypeRef} className="workspace-type-container stage3">
 			{businessTypes.map((type) => (
 				<div
 					key={type.id}
 					onClick={() => handleSelectType(type)}
 					className="workspace-type-option"
 				>
+					{type.icon}
 					<h1>{type.name}</h1>
 				</div>
 			))}
