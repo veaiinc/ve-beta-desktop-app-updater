@@ -6,9 +6,9 @@ import { ReactComponent as EnterpriseIcon } from '../../../assets/svg/onboarding
 const businessTypes = [
 	{
 		id: 1,
-		name: 'Small Business',
+		name: 'Professional',
 		icon: <SmallBusinessIcon />,
-		value: 'smallBusiness',
+		value: 'professional',
 	},
 	{
 		id: 2,
