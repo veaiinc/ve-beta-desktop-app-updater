@@ -1,6 +1,7 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/shareAndEarn/shareAndEarn.scss';
 import { ReactComponent as Copy } from '../../../assets/svg/shareAndEarn/copy.svg';
+import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import devices from '../../../assets/images/shareAndEarn/devices.png';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -10,11 +11,14 @@ const ShareAndEarn = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const navigate = useNavigate();
 
-	const { getShareAndEarn, referralData } = useContext(Context);
+	const {
+		subscriptionInfo: { getShareAndEarn, referralData },
+	} = useContext(Context);
 	const referralDetails = referralData?.referralDetails;
 	const referralLink = referralDetails?.referralCode
-		? `https://ve.ai?referralCode=${referralDetails.referralCode}`
+		? `https://ve.ai?ref=${referralDetails.referralCode}`
 		: '';
+	const displayValue = referralDetails?.referralCode || '';
 
 	useEffect(() => {
 		fetchData();
@@ -23,7 +27,8 @@ const ShareAndEarn = () => {
 	const fetchData = async () => {
 		try {
 			const response = await getShareAndEarn();
-			if (!response || !response.referralDetails) {
+
+			if (!response?.referralDetails) {
 				message.error('Invalid response received');
 				navigate('/home');
 				return;
@@ -41,7 +46,7 @@ const ShareAndEarn = () => {
 	return (
 		<>
 			{isLoading ? (
-				<div>Loading...</div>
+				<UpdatedPageLoader />
 			) : (
 				<div className="shareAndEarnParentContainer">
 					<div className="shareAndEarnTextContainer">
@@ -49,16 +54,16 @@ const ShareAndEarn = () => {
 							Get your friends to Ve and earn while you're at it!
 						</h1>
 						<h2 className="shareEarnSubText">
-							You get {referralDetails?.referralPlan?.refereeRewardInPercentage}% and
+							You get {referralDetails?.referralPlan?.referrerRewardInPercentage}% and
 							your friends receive{' '}
-							{referralDetails?.referralPlan?.referrerRewardInPercentage}% discount
+							{referralDetails?.referralPlan?.refereeRewardInPercentage}% discount
 							when you refer them
 						</h2>
 					</div>
 					<div className="refferalLinkContainer">
 						<h3 className="refferalLinkText">Your Affiliate Code</h3>
 						<div className="linkInputContainer">
-							<input type="text" defaultValue={referralLink} readOnly />
+							<input type="text" defaultValue={displayValue} readOnly />
 							<button className="linkCopyButton" onClick={handleCopyLink}>
 								<Copy />
 								<span>Copy</span>
@@ -74,7 +79,12 @@ const ShareAndEarn = () => {
 							We made it super easy to earn money by referring Ve. Just use our kit—it
 							has everything you need to start making cash without any hassle.
 						</h3>
-						<button className="getKitButton">
+						<button
+							className="getKitButton"
+							onClick={() =>
+								window.open('https://veai.ve.ai/portal/affiliate', '_blank')
+							}
+						>
 							<span>Get the kit</span>
 						</button>
 					</div>
