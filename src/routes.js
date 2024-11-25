@@ -23,6 +23,8 @@ import UploadPhotos from './views/features/gallery/UploadPhotos';
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
 import { Navigate } from 'react-router-dom';
 import Subscription from './views/features/subscription';
+import TermsOfService from './views/features/signin/TermsOfService';
+import CookiePolicy from './views/features/signin/CookiePolicy';
 
 const routes = [
 	{
@@ -64,6 +66,14 @@ const routes = [
 	{
 		path: '/privacy-policy',
 		component: <PrivacyPolicy />,
+	},
+	{
+		path: '/terms-of-service',
+		component: <TermsOfService />,
+	},
+	{
+		path: '/cookie-policy',
+		component: <CookiePolicy />,
 	},
 	// {
 	// 	path: '/inbox',

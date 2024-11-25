@@ -14,6 +14,121 @@ import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/gree
 const tl1 = gsap.timeline();
 const tl2 = gsap.timeline();
 
+const animateAiIntro = () => {
+	tl1.fromTo(
+		'.onboarding-container',
+		{
+			opacity: 0,
+		},
+		{
+			opacity: 1,
+			duration: 1,
+			ease: 'power2.inOut',
+		},
+	)
+		.fromTo(
+			'.step1',
+			{
+				opacity: 0,
+				y: 30,
+			},
+			{
+				opacity: 1,
+				y: 0,
+				duration: 1,
+				ease: 'power2.inOut',
+			},
+			'+=0',
+		)
+		.fromTo(
+			'.stage1',
+			{
+				opacity: 0,
+				bottom: 0,
+				scale: 1.5,
+			},
+			{
+				opacity: 1,
+				bottom: 120,
+				scale: 1,
+				duration: 1,
+				ease: 'power2.inOut',
+			},
+			'<',
+		)
+		.fromTo(
+			'.right-container',
+			{
+				opacity: 0,
+				scale: 1.5,
+			},
+			{
+				opacity: 1,
+				scale: 1,
+				duration: 1,
+				ease: 'power2.inOut',
+			},
+			'<',
+		)
+		.fromTo(
+			'.right-container-content',
+			{
+				opacity: 0,
+				scale: 0.1,
+			},
+			{
+				opacity: 1,
+				scale: 1,
+				duration: 1,
+				ease: 'power2.inOut',
+			},
+			'<',
+		)
+		.from('.progress-bar-container', {
+			top: -10,
+		});
+};
+
+const animateStage2EnterForExistingUser = () => {
+	tl2?.to('.stage2', {
+		opacity: 1,
+		bottom: 120,
+		scale: 1,
+	});
+};
+
+const animateStage3Enter = () => {
+	tl2?.fromTo(
+		'.stage3',
+		{
+			opacity: 0,
+			scale: 0.5,
+		},
+		{
+			opacity: 1,
+			scale: 1,
+			duration: 1,
+			ease: 'power2.inOut',
+		},
+	);
+};
+
+const animateStage4Enter = () => {
+	tl2?.fromTo(
+		'.stage4',
+		{
+			opacity: 0,
+			scale: 0.5,
+		},
+		{
+			opacity: 1,
+			scale: 1,
+			duration: 1,
+			ease: 'power2.inOut',
+		},
+	);
+};
+
 const Onboarding = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -26,7 +141,7 @@ const Onboarding = () => {
 		: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }];
 
 	const {
-		authInfo: { updateUserDetails, createWorkspace, createAccountViaInvite },
+		authInfo: { updateUserDetails, createWorkspace },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -89,6 +204,10 @@ const Onboarding = () => {
 			animateStage4Enter();
 		}
 	}, [info?.stage]);
+
+	useEffect(() => {
+		console.log('username', info?.username);
+	}, [info?.username]);
 
 	const handleInvitedUserUsername = async () => {
 		const userDetailsResponse = await updateUserDetails(info?.username);
@@ -177,82 +296,6 @@ const Onboarding = () => {
 			...prev,
 			stage: prev?.stage + 1,
 		}));
-	};
-
-	// Animations
-	const animateAiIntro = () => {
-		tl1.fromTo(
-			'.onboarding-container',
-			{
-				opacity: 0,
-			},
-			{
-				opacity: 1,
-				duration: 1,
-				ease: 'power2.inOut',
-			},
-		)
-			.fromTo(
-				'.step1',
-				{
-					opacity: 0,
-					y: 30,
-				},
-				{
-					opacity: 1,
-					y: 0,
-					duration: 1,
-					ease: 'power2.inOut',
-				},
-				'+=0',
-			)
-			.fromTo(
-				'.stage1',
-				{
-					opacity: 0,
-					bottom: 0,
-					scale: 1.5,
-				},
-				{
-					opacity: 1,
-					bottom: 120,
-					scale: 1,
-					duration: 1,
-					ease: 'power2.inOut',
-				},
-				'<',
-			)
-			.fromTo(
-				'.right-container',
-				{
-					opacity: 0,
-					scale: 1.5,
-				},
-				{
-					opacity: 1,
-					scale: 1,
-					duration: 1,
-					ease: 'power2.inOut',
-				},
-				'<',
-			)
-			.fromTo(
-				'.right-container-content',
-				{
-					opacity: 0,
-					scale: 0.1,
-				},
-				{
-					opacity: 1,
-					scale: 1,
-					duration: 1,
-					ease: 'power2.inOut',
-				},
-				'<',
-			)
-			.from('.progress-bar-container', {
-				top: -10,
-			});
 	};
 
 	const animateAiIntroForExistingUser = () => {
@@ -418,46 +461,6 @@ const Onboarding = () => {
 		);
 	};
 
-	const animateStage2EnterForExistingUser = () => {
-		tl2?.to('.stage2', {
-			opacity: 1,
-			bottom: 120,
-			scale: 1,
-		});
-	};
-
-	const animateStage3Enter = () => {
-		tl2?.fromTo(
-			'.stage3',
-			{
-				opacity: 0,
-				scale: 0.5,
-			},
-			{
-				opacity: 1,
-				scale: 1,
-				duration: 1,
-				ease: 'power2.inOut',
-			},
-		);
-	};
-
-	const animateStage4Enter = () => {
-		tl2?.fromTo(
-			'.stage4',
-			{
-				opacity: 0,
-				scale: 0.5,
-			},
-			{
-				opacity: 1,
-				scale: 1,
-				duration: 1,
-				ease: 'power2.inOut',
-			},
-		);
-	};
-
 	const animateStep3Enter = () => {
 		tl2?.fromTo(
 			'.step3',
@@ -582,9 +585,8 @@ const Onboarding = () => {
 					!info?.isCheckingWorkspaceHandle
 						? 'This domain is already taken '
 						: 'Your domain will be '}
-					<b className="workspace-handle">
-						{info?.workspaceHandle || 'workspace-name'}.ve.ai
-					</b>
+					<b className="workspace-handle">{info?.workspaceHandle || 'workspace-name'}</b>
+					<b className="workspace-handle">.ve.ai</b>
 					<span
 						style={{
 							opacity:

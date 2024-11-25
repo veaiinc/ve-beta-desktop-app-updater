@@ -103,49 +103,6 @@ export const AuthState = () => {
 		}
 	};
 
-	const createAccountViaInvite = async (firstName, email, workspaceId, locationDetails) => {
-		const path = '/signup-invited-user';
-		const body = { email, firstName, workspaceId, locationDetails };
-
-		try {
-			const response = await service?.fetchPost(path, body, null, 'auth');
-			if (response?.[0] === true) {
-				const { accessToken, region } = response?.[1];
-				localStorage.setItem('usertoken', accessToken);
-				localStorage.setItem('workspaceId', workspaceId);
-				localStorage.setItem('region', region || 'ap-south-1');
-				localStorage.setItem(
-					'isOnboard',
-					response?.[1]?.accessibleWorkspaces?.[0]?.isOnboard?.toString(),
-				);
-				localStorage.setItem(
-					'accessibleWorkspaces',
-					JSON.stringify(response?.[1]?.accessibleWorkspaces),
-				);
-				localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
-				Cookies.set('usertoken', accessToken, {
-					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
-				});
-				Cookies.set('region', region || 'ap-south-1', {
-					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
-				});
-				return [true];
-			} else {
-				return [
-					false,
-					{
-						message: response?.[1]?.message?.trim() + '. Please try again!',
-					},
-				];
-			}
-		} catch (error) {
-			console.error('Error creating account via invite:', error);
-			throw error;
-		}
-	};
-
 	const verifyEmailVerificationCode = async (email, verificationCode, emailVerified) => {
 		const path = emailVerified ? '/login-with-otp' : '/verify-signup-email';
 		const body = emailVerified ? { email, otp: verificationCode } : { email, verificationCode };
@@ -257,9 +214,11 @@ export const AuthState = () => {
 		}
 	};
 
-	const updateUserDetails = async (firstName, phoneNumber = false) => {
+	const updateUserDetails = async (username, phoneNumber = false) => {
+		const firstName = username?.split(' ')[0];
+		const lastName = username?.split(' ')[1];
 		const path = '/tenant-user';
-		const body = phoneNumber ? { firstName, phoneNumber } : { firstName };
+		const body = phoneNumber ? { firstName, lastName, phoneNumber } : { firstName, lastName };
 		const token = localStorage?.getItem('usertoken') || '';
 
 		try {
@@ -359,6 +318,5 @@ export const AuthState = () => {
 		createWorkspace,
 		checkWorkspaceHandleAvailability,
 		updateUserDetails,
-		createAccountViaInvite,
 	};
 };

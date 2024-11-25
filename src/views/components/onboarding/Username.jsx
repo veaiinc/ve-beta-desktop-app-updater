@@ -20,14 +20,27 @@ const Username = ({
 	const handleSetUsername = (e) => {
 		if (step !== 1) return;
 		const value = e?.target?.value ?? '';
-		const firstName = value.split(' ')[0];
-		const capitalizedValue = firstName
-			? firstName.charAt(0).toUpperCase() + firstName.slice(1)
+		setUsername(value);
+	};
+
+	const formatUsername = (username) => {
+		const firstName = username?.split(' ')[0];
+		const lastName = username?.split(' ')[1];
+		const capitalizedFirstName = firstName
+			? firstName?.charAt(0)?.toUpperCase() + firstName?.slice(1)
 			: '';
-		setUsername(capitalizedValue);
+		if (lastName) {
+			const capitalizedLastName = lastName
+				? lastName?.charAt(0)?.toUpperCase() + lastName?.slice(1)
+				: '';
+			setUsername(`${capitalizedFirstName} ${capitalizedLastName}`);
+		} else {
+			setUsername(capitalizedFirstName);
+		}
 	};
 
 	const handleNext = (e, type) => {
+		formatUsername(username);
 		if ((e?.key === 'Enter' || type === 'click') && !info?.enterPressed && username?.length) {
 			if (invitedWorkspaceId && invitedUserEmail) {
 				handleInvitedUserUsername();
@@ -40,12 +53,11 @@ const Username = ({
 	return (
 		<div className="username-input-container stage1">
 			<input
-				value={username}
 				onChange={handleSetUsername}
 				onKeyDown={handleNext}
 				autoFocus={true}
 				type="text"
-				placeholder="Your first name"
+				placeholder="Your Full Name"
 			/>
 			<button
 				className="next-button"

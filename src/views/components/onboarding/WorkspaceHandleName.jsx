@@ -50,9 +50,9 @@ const WorkspaceHandleName = ({
 	const handleSetWorkspaceHandle = (e) => {
 		let value = e?.target?.value?.toLowerCase() ?? '';
 		value = value.replace(/[^a-z0-9]/g, '');
-		if (value.length > 20) {
-			value = value.substring(0, 20);
-			message.warning('Workspace handle cannot be longer than 20 characters', 1.5);
+		if (value.length > 64) {
+			value = value.substring(0, 64);
+			message.warning('Workspace handle cannot be longer than 64 characters', 1.5);
 			return;
 		}
 		setWorkspaceHandleAndBusinessName(value);
