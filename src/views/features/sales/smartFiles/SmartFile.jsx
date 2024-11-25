@@ -79,6 +79,7 @@ const SmartFile = () => {
 				smartFileInfo: null,
 				specificTemplatesInfo: null,
 				formResponseData: null,
+				aiPredictedData: null,
 			});
 		};
 	}, []);
@@ -403,6 +404,7 @@ const SmartFile = () => {
 					expiresAt={info?.workflowExpiryAt || ''}
 					updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
 					workflowStatus={info?.workflowStatus}
+					slug={info?.workflowData?.slug}
 				/>
 			),
 			activity: <ActivityDashboard workflowData={info?.workflowData?.clientDetails} />,

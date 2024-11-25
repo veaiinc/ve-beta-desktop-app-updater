@@ -87,6 +87,10 @@ const actionHandlers = {
 		...state,
 		galleryShareDetails: action.payload,
 	}),
+	GET_AI_FACE: (state, action) => ({
+		...state,
+		aiFace: action.payload,
+	}),
 	RESET_IMAGES_LIST: (state) => ({ ...state, imagesList: null }),
 	RESET_STATE: () => ({ ...intialState }),
 };

@@ -2,7 +2,7 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 import service from '../../services/';
 import Cookies from 'js-cookie';
-import { getLocationsDetails } from '../../helpers';
+import { fetchDomainName, getLocationsDetails } from '../../helpers';
 const { auth_Api: authBaseUrl } = require('../../services/config.live');
 
 export const AuthState = () => {
@@ -109,9 +109,10 @@ export const AuthState = () => {
 
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
-			console.log('response', response);
+
 			if (response?.[0] === true) {
 				const { accessToken, region } = response?.[1];
+				const host = fetchDomainName();
 				localStorage.setItem('usertoken', accessToken);
 				localStorage.setItem('workspaceId', workspaceId);
 				localStorage.setItem('region', region || 'ap-south-1');
@@ -126,11 +127,11 @@ export const AuthState = () => {
 				localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: host,
 				});
 				Cookies.set('region', region || 'ap-south-1', {
 					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: host,
 				});
 				return [true];
 			} else {
@@ -153,6 +154,7 @@ export const AuthState = () => {
 
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
+			const host = fetchDomainName();
 			if (response[0] === true) {
 				const { accessToken, accessibleWorkspaces, region } = response?.[1] || {};
 				const hasWorkspaces = accessibleWorkspaces?.length > 0;
@@ -160,13 +162,14 @@ export const AuthState = () => {
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
 					localStorage.setItem('region', region || 'ap-south-1');
+
 					Cookies.set('usertoken', accessToken, {
 						sameSite: 'lax',
-						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+						domain: host,
 					});
 					Cookies.set('region', region || 'ap-south-1', {
 						sameSite: 'lax',
-						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+						domain: host,
 					});
 				}
 
@@ -191,7 +194,7 @@ export const AuthState = () => {
 				if (workspaceId) localStorage.setItem('workspaceId', workspaceId);
 				Cookies.set('workspaceID', workspaceId, {
 					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: host,
 				});
 
 				return [
@@ -249,8 +252,6 @@ export const AuthState = () => {
 						hasWorkspaces: true,
 					},
 				];
-
-				console.log('reached here...');
 			}
 
 			return [true, { sessionStatus: false }];

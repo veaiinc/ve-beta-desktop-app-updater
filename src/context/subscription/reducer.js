@@ -16,6 +16,7 @@ const actionHandlers = {
 		...state,
 		referralData: action?.payload,
 	}),
+
 	RESET_STATE: () => intialState,
 };
 

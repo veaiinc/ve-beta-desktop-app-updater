@@ -11,6 +11,7 @@ export const intialState = {
 	coupons: null,
 	currentPlan: null,
 	referralData: null,
+	shareAndEarnData: null,
 };
 
 export const SubscriptionState = (props) => {

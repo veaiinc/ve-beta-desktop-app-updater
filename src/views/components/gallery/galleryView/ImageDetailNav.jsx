@@ -170,6 +170,7 @@ const ImageDetailNav = ({
 						{imageDetail?.activeVersion?.faces?.map((face) => {
 							const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 							const src = `${galleryCredentials?.baseURL}/${imageDetail?.activeVersion?.s3_optimized?.key}?${params}`;
+
 							return (
 								// <div
 								// 	className="rounded"
@@ -186,7 +187,6 @@ const ImageDetailNav = ({
 									thumbwidth={48}
 									thumbHeight={48}
 									key={face?._id}
-									match={{ params: { tenantID: imageDetail?.tenant_id } }}
 									originalWidth={imageDetail?.activeVersion?.originalWidth}
 									originalHeight={imageDetail?.activeVersion?.originalHeight}
 								/>
