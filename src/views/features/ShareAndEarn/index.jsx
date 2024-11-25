@@ -30,7 +30,7 @@ const ShareAndEarn = () => {
 
 			if (!response?.referralDetails) {
 				message.error('Invalid response received');
-				// navigate('/home');
+				navigate('/home');
 				return;
 			}
 			setIsLoading(false);
