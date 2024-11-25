@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
-import '../../../assets/scss/workflowBuilder/workflowbuilder.scss';
+import '../../../assets/scss/workflowBuilder/workflowbuilderUpdated.scss';
 import { ReactComponent as BackArrow } from '../../../assets/svg/worflow_builder/BackArrow.svg';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
 import WorkflowBuilderCards from '../../components/workflowBuilderComponents/WorkflowBuilderCards';
@@ -17,6 +17,7 @@ import { ReactComponent as VE } from '../../../assets/svg/smallVe.svg';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
 import { message } from 'antd';
+import WorkflowNode from './WorkflowNode';
 const options = [
 	{ label: 'Rename Workflow' },
 	{ label: 'Duplicate Workflow' },
@@ -58,6 +59,8 @@ const WorkflowBuilder = () => {
 		loading: true,
 		deleteWorkflowModal: false,
 		deleteWorkflowLoader: false,
+		stepsMapper: {},
+		statrtNode: null,
 	});
 
 	useEffect(() => {
@@ -73,10 +76,21 @@ const WorkflowBuilder = () => {
 
 	useEffect(() => {
 		if (specificTemplatesInfo?.steps?.length) {
+			const steps = specificTemplatesInfo?.steps;
+			const stepsData = [];
+
+			//created a mapper for steps
+			const stepsMapper = {};
+			for (let i = 0; i < steps.length; i++) {
+				stepsMapper[steps?.[i]?._id] = { added: false, data: steps?.[i] };
+			}
+
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
 				incomingTemplateData: specificTemplatesInfo,
+				stepsMapper,
+				statrtNode: steps?.[0],
 			}));
 		}
 	}, [specificTemplatesInfo]);
@@ -141,21 +155,16 @@ const WorkflowBuilder = () => {
 				</div>
 			</div>
 			<div className="workflowBuilderSeperator"></div>
-			<div className="workflowBuilderContentContainer">
+			<div className="workflowBuilderContentContainerUpdated">
 				{info?.loading ? (
 					<UpdatedPageLoader />
 				) : (
-					info?.data?.map((ele, index) => (
-						<div
-							key={index}
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								alignItems: 'center',
-								gap: '10px',
-							}}
-						></div>
-					))
+					<div className="workflow-tree-container">
+						<WorkflowNode
+							nodeId={info?.statrtNode?._id}
+							stepsMapper={info?.stepsMapper}
+						/>
+					</div>
 				)}
 			</div>
 		</div>
