@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
@@ -8,7 +9,7 @@ import Context from '../../../context/context';
 import { fetchDomainName } from '../../../helpers';
 
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
-	// const navigate = useNavigate();
+	const navigate = useNavigate();
 
 	const {
 		profileInfo: { userDetailsData },
@@ -57,7 +58,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 
 	const handleCreateWorkspace = () => {
 		const username = userDetailsData?.firstName ?? '';
-		window.location.href = `/onboarding?username=${username}`;
+		navigate(`/onboarding?username=${username}`);
 	};
 
 	return (
