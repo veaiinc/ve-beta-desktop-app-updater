@@ -118,6 +118,10 @@ const ImageDetailNav = ({
 		}
 	};
 
+	const handlePeopleClick = () => {
+		navigate(-2, { state: { activePeopleState: 'AI' } });
+	};
+
 	return (
 		<div className="galleryViewerNavbarContainer">
 			<div className="galleryViewerNavbar stagger_step_animation1">
@@ -181,15 +185,17 @@ const ImageDetailNav = ({
 								// 		backgroundRepeat: 'no-repeat',
 								// 	}}
 								// ></div>
-								<Peopleitem
-									url={src}
-									people={face}
-									thumbwidth={48}
-									thumbHeight={48}
-									key={face?._id}
-									originalWidth={imageDetail?.activeVersion?.originalWidth}
-									originalHeight={imageDetail?.activeVersion?.originalHeight}
-								/>
+								<div onClick={handlePeopleClick} style={{ cursor: 'pointer' }}>
+									<Peopleitem
+										url={src}
+										people={face}
+										thumbwidth={48}
+										thumbHeight={48}
+										key={face?._id}
+										originalWidth={imageDetail?.activeVersion?.originalWidth}
+										originalHeight={imageDetail?.activeVersion?.originalHeight}
+									/>
+								</div>
 							);
 						})}
 						{/* <div className="rounded"></div>  */}
