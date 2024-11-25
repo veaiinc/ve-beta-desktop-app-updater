@@ -125,6 +125,7 @@ export const SubscriptionState = (props) => {
 					type: Actions.GET_SHARE_AND_EARN_SUCCESS,
 					payload: response?.[1],
 				});
+				return response?.[1];
 			} else {
 				console.log('api failed ==>getShareAndEarn', response);
 			}
@@ -146,6 +147,7 @@ export const SubscriptionState = (props) => {
 					type: Actions.GET_REFERRAL_DETAILS_SUCCESS,
 					payload: response?.[1],
 				});
+				return response?.[1];
 			}
 		} catch (error) {
 			console.log('errror ==>getReferralDetails', error);

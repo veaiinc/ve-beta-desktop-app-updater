@@ -15,7 +15,8 @@ import jwtDecode from 'jwt-decode';
 
 const navItems = [
 	{ name: 'Privacy', route: '/privacy-policy' },
-	{ name: 'Terms', route: '/terms' },
+	{ name: 'Terms', route: '/terms-of-service' },
+	{ name: 'Cookie Policy', route: '/cookie-policy' },
 	{ name: 'Blogs', route: '/blogs' },
 ];
 const EarlyAccess = () => {
@@ -78,7 +79,7 @@ const EarlyAccess = () => {
 		}
 		if (isOnboard) {
 			localStorage.setItem('isOnboard', true);
-			navigate('/home');
+			// navigate('/home');
 		}
 	}, [userWorkSpaceList]);
 	const handleCopyReferralLink = useCallback(() => {
@@ -94,44 +95,44 @@ const EarlyAccess = () => {
 				message.error('Failed to copy:', err);
 			});
 	}, [shareAndEarnData]);
-	const handleSendInvitations = useCallback(() => {
-		if (emails.length === 0) {
-			message.error('Please enter at least one email');
-			return;
-		}
+	// const handleSendInvitations = useCallback(() => {
+	// 	if (emails.length === 0) {
+	// 		message.error('Please enter at least one email');
+	// 		return;
+	// 	}
 
-		const referralCode = shareAndEarnData?.referralDetails?.referralCode;
-		const referralLink = `https://ve.ai/verify-user?ref=${referralCode}`;
-		const subject = 'Join me on Ve.ai!';
-		const body = `Hey! I'm using Ve.ai and thought you might be interested. Use my referral link to sign up and get ${refereeReward}% discount: ${referralLink}`;
+	// 	const referralCode = shareAndEarnData?.referralDetails?.referralCode;
+	// 	const referralLink = `https://ve.ai/verify-user?ref=${referralCode}`;
+	// 	const subject = 'Join me on Ve.ai!';
+	// 	const body = `Hey! I'm using Ve.ai and thought you might be interested. Use my referral link to sign up and get ${refereeReward}% discount: ${referralLink}`;
 
-		window.location.href = `mailto:?bcc=${encodeURIComponent(
-			emails.join(','),
-		)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+	// 	window.location.href = `mailto:?bcc=${encodeURIComponent(
+	// 		emails.join(','),
+	// 	)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-		setShowEmailInput(false);
-		setEmails([]);
-		setInputValue('');
-		message.success('Invitation sent successfully!');
-	}, [emails, shareAndEarnData, refereeReward]);
-	const handleInputChange = (e) => {
-		setInputValue(e.target.value);
-	};
+	// 	setShowEmailInput(false);
+	// 	setEmails([]);
+	// 	setInputValue('');
+	// 	message.success('Invitation sent successfully!');
+	// }, [emails, shareAndEarnData, refereeReward]);
+	// const handleInputChange = (e) => {
+	// 	setInputValue(e.target.value);
+	// };
 
-	const handleInputKeyPress = (e) => {
-		if (e.key === 'Enter' && inputValue.trim()) {
-			setEmails((prevEmails) => [...prevEmails, inputValue.trim()]);
-			setInputValue('');
-		}
-	};
+	// const handleInputKeyPress = (e) => {
+	// 	if (e.key === 'Enter' && inputValue.trim()) {
+	// 		setEmails((prevEmails) => [...prevEmails, inputValue.trim()]);
+	// 		setInputValue('');
+	// 	}
+	// };
 
-	const handleDeleteEmail = (index) => {
-		// Changed parameter name from indexToDelete to index
-		setEmails((prevEmails) => {
-			console.log('Previous emails:', prevEmails); // Debug log
-			return prevEmails.filter((_, i) => i !== index);
-		});
-	};
+	// const handleDeleteEmail = (index) => {
+	// 	// Changed parameter name from indexToDelete to index
+	// 	setEmails((prevEmails) => {
+	// 		console.log('Previous emails:', prevEmails); // Debug log
+	// 		return prevEmails.filter((_, i) => i !== index);
+	// 	});
+	// };
 	return (
 		<div className="landing-page-container">
 			<header className="header-container">
@@ -147,12 +148,12 @@ const EarlyAccess = () => {
 				</section>
 				<section className="hero-section-7">
 					<div className="content-container">
-						<div className="top-container">
+						{/* <div className="top-container">
 							<div>
 								<div className="top-container-text">Your place</div>
 								<div className="top-container-text2">#62382</div>
 							</div>
-						</div>
+						</div> */}
 						<div className="outer-main-content-container">
 							<div className="content-container-outer">
 								<div className="content-text-container">
@@ -208,11 +209,14 @@ const EarlyAccess = () => {
 										<div className="icon-button">
 											<LinkedIn />
 										</div>
-										<div className="icon-button">
+										{/* <div className="icon-button">
 											<MailIcon onClick={() => setShowEmailInput(true)} />
-										</div>
-										<div className="icon-button">
-											<CopyIcon onClick={handleCopyReferralLink} />
+										</div> */}
+										<div
+											className="icon-button"
+											onClick={handleCopyReferralLink}
+										>
+											<CopyIcon />
 										</div>
 									</div>
 								) : (
@@ -221,8 +225,8 @@ const EarlyAccess = () => {
 											className="email-input"
 											placeholder="Email ID"
 											value={inputValue}
-											onChange={handleInputChange}
-											onKeyPress={handleInputKeyPress}
+											// onChange={handleInputChange}
+											// onKeyPress={handleInputKeyPress}
 										/>
 										<div className="email-tags" style={{ marginTop: '10px' }}>
 											{emails.map((email, index) => (
@@ -231,7 +235,7 @@ const EarlyAccess = () => {
 													closable
 													onClose={(e) => {
 														e.stopPropagation();
-														handleDeleteEmail(email, index);
+														// handleDeleteEmail(email, index);
 													}}
 													style={{
 														marginBottom: '8px',
@@ -244,7 +248,7 @@ const EarlyAccess = () => {
 										</div>
 										<button
 											className="send-invitation-button"
-											onClick={handleSendInvitations}
+											// onClick={handleSendInvitations}
 											disabled={emails.length === 0}
 										>
 											Send Invitation
@@ -275,8 +279,16 @@ const EarlyAccess = () => {
 					</ul>
 				</nav>
 				<div className="icons-container">
-					<Instagram style={{ width: '40px', height: '40px' }} />
-					<LinkedIn style={{ width: '40px', height: '40px' }} />
+					<Instagram
+						style={{ width: '24px', height: '24px', cursor: 'pointer' }}
+						onClick={() => window.open('https://www.instagram.com/veaihq', '_blank')}
+					/>
+					<LinkedIn
+						style={{ width: '24px', height: '24px', cursor: 'pointer' }}
+						onClick={() =>
+							window.open('https://www.linkedin.com/company/veai', '_blank')
+						}
+					/>
 				</div>
 				<div>
 					<p className="copyright"> 2024 Ve.ai</p>
