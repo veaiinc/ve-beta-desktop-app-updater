@@ -4,11 +4,10 @@ import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/left
 import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import Cookies from 'js-cookie';
-// import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
-	// const navigate = useNavigate();
+	const navigate = useNavigate();
 
 	const {
 		profileInfo: { userDetailsData },
@@ -51,7 +50,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 
 	const handleCreateWorkspace = () => {
 		const username = userDetailsData?.firstName ?? '';
-		window.location.href = `/onboarding?username=${username}`;
+		navigate(`/onboarding?username=${username}`);
 	};
 
 	return (

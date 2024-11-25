@@ -34,8 +34,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 			localStorage?.clear();
 			localStorage?.setItem('invitedWorkspaceId', invitedWorkspaceId);
 			localStorage?.setItem('invitedUserEmail', invitedUserEmail);
-			handleSetEmail(invitedUserEmail);
-			handleContinueWithEmail(null, 'click');
+			handleSetEmail(null, invitedUserEmail);
 		}
 	}, [invitedWorkspaceId, invitedUserEmail]);
 
@@ -76,21 +75,27 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 		continueWithGoogle(locationDetails);
 	};
 
-	const handleSetEmail = (e) => {
-		const email = e?.target?.value;
+	const handleSetEmail = (e, invitedUserEmail = false) => {
+		const email = e?.target?.value ?? invitedUserEmail;
 		const isValid = validator?.isEmail(email);
 		setInfo((prev) => ({
 			...prev,
 			isEmailValid: isValid,
 		}));
 		setEmail(email);
+		if (invitedUserEmail && isValid) {
+			handleContinueWithEmail(null, 'click', email);
+		}
 	};
 
-	const handleContinueWithEmail = async (e, type) => {
-		if ((e?.key === 'Enter' || type === 'click') && info?.isEmailValid && !info?.isLoading) {
+	const handleContinueWithEmail = async (e, type, invitedUserEmail = false) => {
+		if (
+			((e?.key === 'Enter' || type === 'click') && info?.isEmailValid && !info?.isLoading) ||
+			invitedUserEmail
+		) {
 			setInfo((prev) => ({ ...prev, isLoading: true }));
 			try {
-				const response = await checkAccountExistsUsingEmail(email);
+				const response = await checkAccountExistsUsingEmail(email || invitedUserEmail);
 				if (response[0] === true) {
 					if (response?.[1]?.accountExists) {
 						if (response?.[1]?.emailVerified) {
@@ -101,7 +106,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 							setActiveStage('verificationCode');
 						}
 					} else {
-						await handleCreateAccountWithEmail(email);
+						await handleCreateAccountWithEmail(email || invitedUserEmail);
 					}
 				} else {
 					message?.error(response?.[1]?.message);

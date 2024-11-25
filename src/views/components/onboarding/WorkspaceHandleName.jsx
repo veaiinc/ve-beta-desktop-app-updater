@@ -34,6 +34,7 @@ const WorkspaceHandleName = ({
 			return () => clearTimeout(timeout);
 		}
 		setIsWorkspaceHandleAvailable(false);
+		setInfo((prev) => ({ ...prev, enterPressed: false }));
 	}, [workspaceHandle]);
 
 	const handleCheckWorkspaceHandleAvailability = async (workspaceHandle) => {

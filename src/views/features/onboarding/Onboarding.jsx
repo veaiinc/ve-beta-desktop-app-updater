@@ -9,7 +9,6 @@ import Profession from '../../components/onboarding/Profession';
 import Context from '../../../context/context';
 import { message } from 'antd';
 import CreatingNewWorkspace from '../../components/onboarding/CreatingNewWorkspace';
-import { getLocationsDetails } from '../../../helpers';
 import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/green-tick.svg';
 
 const tl1 = gsap.timeline();
@@ -45,14 +44,15 @@ const Onboarding = () => {
 	});
 
 	useEffect(() => {
-		if (invitedWorkspaceId && invitedUserEmail) {
-			localStorage.clear();
-			return;
-		}
 		if (!localStorage?.getItem('usertoken')) {
 			navigate('/');
 		}
-		if (localStorage?.getItem('isOnboard') === 'true' && !createWorkspaceUsername) {
+		if (
+			localStorage?.getItem('isOnboard') === 'true' &&
+			!createWorkspaceUsername &&
+			!invitedWorkspaceId &&
+			!invitedUserEmail
+		) {
 			navigate('/home');
 		}
 		createWorkspaceUsername ? animateAiIntroForExistingUser() : animateAiIntro();
@@ -90,19 +90,12 @@ const Onboarding = () => {
 		}
 	}, [info?.stage]);
 
-	const handleInvitedUser = async () => {
-		const locationDetails = await getLocationsDetails();
-		const response = await createAccountViaInvite(
-			info?.username,
-			invitedUserEmail,
-			invitedWorkspaceId,
-			locationDetails,
-		);
-		if (response?.[0] === true) {
+	const handleInvitedUserUsername = async () => {
+		const userDetailsResponse = await updateUserDetails(info?.username);
+		if (userDetailsResponse[0] === true) {
 			navigate('/home');
 		} else {
-			message.error(response?.message);
-			navigate('/');
+			message.error(userDetailsResponse?.message);
 		}
 	};
 
@@ -617,6 +610,9 @@ const Onboarding = () => {
 				username={info?.username}
 				setUsername={setUsername}
 				animateStage1AndStep1Exit={animateStage1AndStep1Exit}
+				invitedWorkspaceId={invitedWorkspaceId ?? false}
+				invitedUserEmail={invitedUserEmail ?? false}
+				handleInvitedUserUsername={handleInvitedUserUsername}
 			/>
 		),
 		2: (

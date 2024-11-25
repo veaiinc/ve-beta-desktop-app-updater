@@ -3,7 +3,15 @@ import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/up
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import '../../../assets/scss/onboarding/index.scss';
 
-const Username = ({ step, username, setUsername, animateStage1AndStep1Exit }) => {
+const Username = ({
+	step,
+	username,
+	setUsername,
+	animateStage1AndStep1Exit,
+	invitedWorkspaceId,
+	invitedUserEmail,
+	handleInvitedUserUsername,
+}) => {
 	const [info, setInfo] = useState({
 		isHovering: false,
 		enterPressed: false,
@@ -21,6 +29,9 @@ const Username = ({ step, username, setUsername, animateStage1AndStep1Exit }) =>
 
 	const handleNext = (e, type) => {
 		if ((e?.key === 'Enter' || type === 'click') && !info?.enterPressed && username?.length) {
+			if (invitedWorkspaceId && invitedUserEmail) {
+				handleInvitedUserUsername();
+			}
 			setInfo((prev) => ({ ...prev, enterPressed: true }));
 			animateStage1AndStep1Exit();
 		}

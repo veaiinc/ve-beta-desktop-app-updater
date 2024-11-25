@@ -32,23 +32,28 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		if (!userWorkSpaceList) {
 			getUserWorkSpaceList();
 		}
-
 		if (!userDetailsData) {
 			getUserDetails();
 		}
 	}, []);
 
 	useEffect(() => {
+		console.log(userDetailsData, 'userDetailsData');
+	}, [userDetailsData]);
+
+	useEffect(() => {
 		if (userDetailsData && info) {
 			Intercom({
 				app_id: 'vmvweabd',
-				user_id: userDetailsData._id,
-				name: userDetailsData.firstName + ' ' + userDetailsData.lastName,
-				email: userDetailsData.email,
+				user_id: userDetailsData?._id,
+				name: userDetailsData?.firstName + ' ' + userDetailsData?.lastName,
+				email: userDetailsData?.email,
 				company: {
-					name: info.activeBusniessName.activeWorkspaceId,
-					id: info.activeBusniessName.businessName,
-					region: info.activeBusniessName.region,
+					name:
+						info?.activeBusniessName?.activeWorkspaceId ??
+						localStorage?.getItem('workspaceId'),
+					id: info?.activeBusniessName?.businessName,
+					region: info?.activeBusniessName?.region,
 				},
 			});
 		}

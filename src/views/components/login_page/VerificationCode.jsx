@@ -10,6 +10,7 @@ import { getLocationsDetails } from '../../../helpers';
 import Context from '../../../context/context';
 import Spinner from '../loaders/Spinner';
 import debounce from 'lodash/debounce';
+import { useLocation } from 'react-router-dom';
 
 const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveStage }) => {
 	const navigate = useNavigate();
@@ -20,6 +21,11 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			verifyEmailVerificationCode,
 		},
 	} = useContext(Context);
+
+	const location = useLocation();
+	const params = new URLSearchParams(location?.search);
+	const invitedWorkspaceId = params?.get('invitedWorkspaceId');
+	const invitedUserEmail = params?.get('inviteeEmail');
 
 	const [info, setInfo] = useState({
 		otp: '',
@@ -46,8 +52,13 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 	const verifyCode = async (otp) => {
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 		const response = await verifyEmailVerificationCode(email, otp, emailVerified);
+
 		if (response[0] === true) {
-			if (emailVerified) {
+			if (invitedWorkspaceId && invitedUserEmail) {
+				navigate(
+					`/onboarding?invitedWorkspaceId=${invitedWorkspaceId}&inviteeEmail=${invitedUserEmail}`,
+				);
+			} else if (emailVerified) {
 				if (response?.[1]?.hasWorkspaces) {
 					if (response?.[1]?.isOnboard) {
 						navigate('/home');
