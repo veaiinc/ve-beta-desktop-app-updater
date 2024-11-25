@@ -9,7 +9,7 @@ import CalendarHeader from '../../components/calendar/CalendarHeader';
 import CustomTimeGutterHeader from '../../components/calendar/CustomTimeGutterHeader';
 import CustomEventCard from '../../components/calendar/CustomEventCard';
 import CustomEventWrapper from '../../components/calendar/CustomEventWrapper';
-import CustomEventContainer from '../../components/calendar/CustomEventContainer';
+// import CustomEventContainer from '../../components/calendar/CustomEventContainer';
 import EventDetailsDrawer from '../../components/calendar/EventDetailsDrawer';
 import moment from 'moment';
 import MonthEventWrapper from '../../components/calendar/MonthEventWrapper';
@@ -27,48 +27,7 @@ const events = [
 		description: 'Big conference for important people',
 		categories: ['Conference', 'Business'],
 	},
-	// {
-	// 	start: moment('2024-11-18T03:00:00').toDate(),
-	// 	end: moment('2024-11-18T07:00:00').toDate(),
-	// 	title: 'MRI Registration ',
-	// 	description: 'Register for the MRI scan. Ensure all paperwork is complete.',
-	// 	categories: ['Medical', 'Appointment'],
-	// },
-	// {
-	// 	start: moment('2024-11-18T03:00:00').toDate(),
-	// 	end: moment('2024-11-18T07:00:00').toDate(),
-	// 	title: 'MRI Registration ',
-	// 	description: 'Register for the MRI scan. Ensure all paperwork is complete.',
-	// 	categories: ['Medical', 'Appointment'],
-	// },
-	// {
-	// 	start: moment('2024-11-18T03:00:00').toDate(),
-	// 	end: moment('2024-11-18T07:00:00').toDate(),
-	// 	title: 'MRI Registration ',
-	// 	description: 'Register for the MRI scan. Ensure all paperwork is complete.',
-	// 	categories: ['Medical', 'Appointment'],
-	// },
-	// {
-	// 	start: moment('2024-11-18T03:00:00').toDate(),
-	// 	end: moment('2024-11-18T07:00:00').toDate(),
-	// 	title: 'MRI Registration ',
-	// 	description: 'Register for the MRI scan. Ensure all paperwork is complete.',
-	// 	categories: ['Medical', 'Appointment'],
-	// },
-	// {
-	// 	start: moment('2024-11-18T03:00:00').toDate(),
-	// 	end: moment('2024-11-18T07:00:00').toDate(),
-	// 	title: 'MRI Registration ',
-	// 	description: 'Register for the MRI scan. Ensure all paperwork is complete.',
-	// 	categories: ['Medical', 'Appointment'],
-	// },
-	// {
-	// 	start: moment('2024-11-18T03:00:00').toDate(),
-	// 	end: moment('2024-11-18T07:00:00').toDate(),
-	// 	title: 'MRI Registration ',
-	// 	description: 'Register for the MRI scan. Ensure all paperwork is complete.',
-	// 	categories: ['Medical', 'Appointment'],
-	// },
+
 	{
 		start: moment('2024-11-18T03:00:00').toDate(),
 		end: moment('2024-11-18T07:00:00').toDate(),
@@ -122,7 +81,6 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 			},
 			month: {
 				header: () => null,
-				// dateHeader: ({}) => <div style={{ backgroundColor: 'red' }}>jfdsjhfdsk</div>,
 				event: MonthEventWrapper,
 			},
 			eventWrapper: CustomEventWrapper,
@@ -135,17 +93,15 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 			<div className="scheduler">
 				<CalendarWrapper
 					events={events}
-					// view={'month'} //if pased defaultview will not work
-					defaultView={'month'} //use active view state here to display views of calendar
+					defaultView={'month'}
 					views={['month', 'week', 'day']}
-					toolbar={true} //to hide inbuilt calendar header controls
+					toolbar={true}
 					className="custom"
 					selectable
 					onSelectSlot={() => updateCalendarInfo('isCreateEventOpen', true)}
 					onSelectEvent={(event) => updateCalendarInfo('isEventSelected', true)}
-					// date={moment('2024-12-05').toDate()} //for syncing with calendarSelector current date
 					date={selectedDate} //for syncing with calendarSelector current date
-					popup //for monthview show +extra events
+					popup
 					components={components}
 				/>
 			</div>

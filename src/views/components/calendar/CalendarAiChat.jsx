@@ -44,7 +44,10 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 		if (scrollRef?.current) {
 			scrollRef?.current?.scrollIntoView();
 		}
-	}, [info.chatHistory]);
+		if (!info?.isProcessing) {
+			userTypingRef.current?.focus();
+		}
+	}, [info.chatHistory, info.isProcessing]);
 
 	// Function to handle API call
 	const calendarAiChatRes = useCallback(
