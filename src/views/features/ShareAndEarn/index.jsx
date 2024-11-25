@@ -1,6 +1,7 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/shareAndEarn/shareAndEarn.scss';
 import { ReactComponent as Copy } from '../../../assets/svg/shareAndEarn/copy.svg';
+import UpdatedPageLoader from '../../../components/UpdatedPageLoader';
 import devices from '../../../assets/images/shareAndEarn/devices.png';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -43,7 +44,7 @@ const ShareAndEarn = () => {
 	return (
 		<>
 			{isLoading ? (
-				<div>Loading...</div>
+				<UpdatedPageLoader />
 			) : (
 				<div className="shareAndEarnParentContainer">
 					<div className="shareAndEarnTextContainer">
