@@ -5,6 +5,7 @@ import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/searc
 import AiPeopleContainer from '../../components/gallery/aiSelections/AiPeopleContainer';
 import AiFaceRegistration from '../../components/gallery/aiSelections/AiFaceRegistration';
 import Insights from '../../components/gallery/aiSelections/Insights';
+import AiFacesContainer from '../../components/gallery/aiSelections/AiFacesContainer';
 
 const aiOptions = [
 	{ name: 'AI People', value: 'AI People' },
@@ -27,6 +28,12 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 		setInfo((prev) => ({
 			...prev,
 			searchValue: value,
+		}));
+	};
+	const handleFaceClick = (face) => {
+		setInfo((prev) => ({
+			...prev,
+			search: 'Ai Faces',
 		}));
 	};
 
@@ -69,10 +76,17 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 			</div>
 
 			{info?.search === 'AI People' && (
-				<AiPeopleContainer galleryId={galleryId} galleryCredentials={galleryCredentials} />
+				<AiPeopleContainer
+					galleryId={galleryId}
+					galleryCredentials={galleryCredentials}
+					handleFaceClick={(face) => handleFaceClick(face)}
+				/>
 			)}
 			{info?.search === 'AI Face Registration' && <AiFaceRegistration link={link} />}
 			{info?.search === 'Insights' && <Insights />}
+			{info?.search === 'Ai Faces' && (
+				<AiFacesContainer galleryId={galleryId} galleryCredentials={galleryCredentials} />
+			)}
 		</div>
 	);
 };

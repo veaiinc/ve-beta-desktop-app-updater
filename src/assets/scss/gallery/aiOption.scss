@@ -172,4 +172,33 @@
             }
         }
     }
+    .aiFaces-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        .aiFaces-header-back {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            p {
+                color: #979797;
+                font-size: 12px;
+                font-weight: 400;
+            }
+        }
+        .aiFaces-container-scroll {
+            width: 100%;
+            overflow: auto;
+            .aiPeople {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                gap: 16px;
+                padding: 16px;
+                .aiPeople-person {
+                    cursor: pointer;
+                }
+            }
+        }
+    }
 }
