@@ -215,8 +215,8 @@ export const AuthState = () => {
 	};
 
 	const updateUserDetails = async (username, phoneNumber = false) => {
-		const firstName = username?.split(' ')[0];
-		const lastName = username?.split(' ')[1];
+		const firstName = username?.split(' ')[0] || '';
+		const lastName = username?.split(' ')[1] || '';
 		const path = '/tenant-user';
 		const body = phoneNumber ? { firstName, lastName, phoneNumber } : { firstName, lastName };
 		const token = localStorage?.getItem('usertoken') || '';

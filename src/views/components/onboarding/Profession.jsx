@@ -1,7 +1,7 @@
 import React, { memo, useRef, useState } from 'react';
 
 const professions = {
-	smallBusiness: {
+	professional: {
 		id: 1,
 		professions: [
 			{
