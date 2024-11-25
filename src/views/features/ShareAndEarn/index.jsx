@@ -10,7 +10,9 @@ const ShareAndEarn = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const navigate = useNavigate();
 
-	const { getShareAndEarn, referralData } = useContext(Context);
+	const {
+		subscriptionInfo: { getShareAndEarn, referralData },
+	} = useContext(Context);
 	const referralDetails = referralData?.referralDetails;
 	const referralLink = referralDetails?.referralCode
 		? `https://ve.ai?ref=${referralDetails.referralCode}`
