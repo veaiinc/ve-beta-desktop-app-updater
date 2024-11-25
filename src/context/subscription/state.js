@@ -124,6 +124,7 @@ export const SubscriptionState = (props) => {
 					type: Actions.GET_SHARE_AND_EARN_SUCCESS,
 					payload: response?.[1],
 				});
+				return response?.[1];
 			} else {
 				console.log('api failed ==>getShareAndEarn', response);
 			}
