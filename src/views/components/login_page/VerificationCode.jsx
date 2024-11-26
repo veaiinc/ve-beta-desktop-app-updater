@@ -61,8 +61,16 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			} else if (emailVerified) {
 				if (response?.[1]?.hasWorkspaces) {
 					if (response?.[1]?.isOnboard) {
-						const locationDetails = await getLocationsDetails();
-						localStorage?.setItem('locationDetails', JSON.stringify(locationDetails));
+						const locationDetails = JSON.parse(
+							localStorage?.getItem('locationDetails'),
+						);
+						if (!locationDetails) {
+							const locationDetails = await getLocationsDetails();
+							localStorage?.setItem(
+								'locationDetails',
+								JSON.stringify(locationDetails),
+							);
+						}
 						navigate('/home');
 					} else {
 						navigate('/early-access');

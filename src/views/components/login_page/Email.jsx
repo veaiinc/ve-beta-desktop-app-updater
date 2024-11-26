@@ -57,7 +57,11 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	const handleCreateAccountWithEmail = async (email) => {
 		if (info?.isLoading) return;
 		setInfo((prev) => ({ ...prev, isLoading: true }));
-		const locationDetails = await getLocationsDetails();
+		let locationDetails = JSON.parse(localStorage?.getItem('locationDetails'));
+		if (!locationDetails) {
+			locationDetails = await getLocationsDetails();
+			localStorage?.setItem('locationDetails', JSON.stringify(locationDetails));
+		}
 		const response = await createAccountUsingEmail(email, locationDetails);
 		if (response[0] === true) {
 			setActiveStage('verificationCode');
@@ -70,7 +74,11 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	};
 
 	const handleContinueWithGoogle = async () => {
-		const locationDetails = await getLocationsDetails();
+		let locationDetails = JSON.parse(localStorage?.getItem('locationDetails'));
+		if (!locationDetails) {
+			locationDetails = await getLocationsDetails();
+			localStorage?.setItem('locationDetails', JSON.stringify(locationDetails));
+		}
 		setInfo((prev) => ({ ...prev, googleLoading: true }));
 		continueWithGoogle(locationDetails);
 	};
