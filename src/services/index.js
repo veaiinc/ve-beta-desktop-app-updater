@@ -18,6 +18,8 @@ const {
 	ai_assistant_api,
 	ai_assistant_api_US,
 	galleries_api_US,
+	ai_predictions_US,
+	ai_predictions,
 } = config || {};
 
 const apiEndpoints = {
@@ -28,6 +30,7 @@ const apiEndpoints = {
 	auth: auth_Api,
 	galleries: galleries,
 	ai_assistant_api,
+	ai_predictions,
 };
 const apiEndpointsUS = {
 	tenant_users_api: tenant_users_api_US,
@@ -37,13 +40,14 @@ const apiEndpointsUS = {
 	auth: auth_Api,
 	ai_assistant_api: ai_assistant_api_US,
 	galleries: galleries_api_US,
+	ai_predictions: ai_predictions_US,
 };
 
 const handleHeaders = (token, body, type) => {
 	const headers = { 'Content-Type': 'application/json' };
 	if (token) {
 		headers['x-access-token'] = token;
-		if (type === 'form' || type === 'ai_setup') {
+		if (type === 'form' || type === 'ai_setup' || type === 'ai_predictions') {
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 	}

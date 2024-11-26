@@ -11,6 +11,8 @@ import { Drawer } from 'antd';
 import GlobalWorkflowDesignModalLoader from './GlobalWorkflowDesignModalLoader';
 import GlobalWorkflowAutomationLoader from './GlobalWorkflowAutomationLoader';
 import { fetchOriginSelection } from '../../../../helpers';
+
+let origin = fetchOriginSelection();
 const initialState = {
 	activeTab: 'design', //design,automation
 	duplicateApiLoading: false,
@@ -155,7 +157,7 @@ const AutomationComponent = ({ activeTemplateData, loading }) => {
 
 const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 	const navigate = useNavigate();
-	let origin = fetchOriginSelection();
+
 	let {
 		templates: {
 			duplicateGlobalWorkflowTemplate,

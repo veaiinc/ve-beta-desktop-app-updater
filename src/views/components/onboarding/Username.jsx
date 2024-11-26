@@ -1,98 +1,85 @@
-import React, { useState, memo, useRef, useEffect } from 'react';
-import gsap from 'gsap';
+import React, { useState, memo } from 'react';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import '../../../assets/scss/onboarding/index.scss';
 
 const Username = ({
-	onboardingInfo,
-	setOnboardingInfo,
-	animateStep1Exit,
-	handleInvitedUser,
-	createAccountViaInvite = false,
-	createWorkspaceUsername = false,
+	step,
+	username,
+	setUsername,
+	animateStage1AndStep1Exit,
+	invitedWorkspaceId,
+	invitedUserEmail,
+	handleInvitedUserUsername,
 }) => {
 	const [info, setInfo] = useState({
 		isHovering: false,
 		enterPressed: false,
 	});
-	useEffect(() => {
-		if (usernameDivRef?.current && createWorkspaceUsername) {
-			gsap.to(usernameDivRef.current, {
-				opacity: 0,
-				duration: 0.5,
-				ease: 'power2.inOut',
-				onComplete: () => {
-					animateStep1Exit();
-				},
-			});
-		}
-	}, []);
-
-	const usernameDivRef = useRef(null);
 
 	const handleSetUsername = (e) => {
-		const value = e?.target?.value || '';
-		const firstName = value.split(' ')[0];
-		const capitalizedValue = firstName
-			? firstName.charAt(0).toUpperCase() + firstName.slice(1)
+		if (step !== 1) return;
+		const value = e?.target?.value ?? '';
+		setUsername(value);
+	};
+
+	const formatUsername = (username) => {
+		const firstName = username?.split(' ')[0];
+		const lastName = username?.split(' ')[1];
+		const capitalizedFirstName = firstName
+			? firstName?.charAt(0)?.toUpperCase() + firstName?.slice(1)
 			: '';
-
-		setOnboardingInfo((prev) => ({
-			...prev,
-			username: capitalizedValue,
-		}));
-	};
-	const handleNext = () => {
-		if (info?.enterPressed) return;
-		setInfo((prev) => ({ ...prev, enterPressed: true }));
-		gsap.to(usernameDivRef.current, {
-			opacity: 0,
-			duration: 0.5,
-			ease: 'power2.inOut',
-			onComplete: () => {
-				animateStep1Exit();
-				if (createAccountViaInvite) {
-					handleInvitedUser();
-				}
-			},
-		});
+		if (lastName) {
+			const capitalizedLastName = lastName
+				? lastName?.charAt(0)?.toUpperCase() + lastName?.slice(1)
+				: '';
+			setUsername(`${capitalizedFirstName} ${capitalizedLastName}`);
+		} else {
+			setUsername(capitalizedFirstName);
+		}
 	};
 
-	const handleKeyDown = (e) => {
-		if (e.key === 'Enter' && onboardingInfo?.username?.length > 0) {
-			handleNext();
+	const handleNext = (e, type) => {
+		formatUsername(username);
+		if ((e?.key === 'Enter' || type === 'click') && !info?.enterPressed && username?.length) {
+			if (invitedWorkspaceId && invitedUserEmail) {
+				handleInvitedUserUsername();
+			}
+			setInfo((prev) => ({ ...prev, enterPressed: true }));
+			animateStage1AndStep1Exit();
 		}
 	};
 
 	return (
-		<div ref={usernameDivRef} className="username-input-container">
+		<div className="username-input-container stage1">
 			<input
-				value={onboardingInfo?.username}
 				onChange={handleSetUsername}
-				onKeyDown={handleKeyDown}
+				onKeyDown={handleNext}
 				autoFocus={true}
 				type="text"
-				placeholder="Your first name"
+				placeholder="Your Full Name"
 			/>
 			<button
-				disabled={onboardingInfo?.username?.length === 0}
+				className="next-button"
+				disabled={!username?.length}
 				style={{
-					cursor: onboardingInfo?.username?.length === 0 ? 'not-allowed' : 'pointer',
-					background:
-						onboardingInfo?.username?.length === 0 ? 'rgba(255, 255, 255, 0.1)' : '',
+					cursor: !username?.length ? 'not-allowed' : 'pointer',
+					background: !username?.length ? 'rgba(255, 255, 255, 0.1)' : 'white',
 				}}
 				onMouseEnter={() => setInfo({ ...info, isHovering: true })}
 				onMouseLeave={() => setInfo({ ...info, isHovering: false })}
-				onClick={handleNext}
+				onClick={() => handleNext(null, 'click')}
 			>
-				{info?.isHovering ? (
-					<span>
-						<UpArrowBlackHover />
-					</span>
-				) : (
-					<UpArrowGrey />
-				)}
+				<span
+					className="arrow-icon"
+					style={{
+						display: 'inline-block',
+						transform: username?.length ? 'rotate(90deg)' : 'rotate(0deg)',
+						transition: 'transform 0.4s ease',
+					}}
+				>
+					{info?.isHovering || username?.length ? <UpArrowBlackHover /> : <UpArrowGrey />}
+				</span>
 			</button>
 		</div>
 	);

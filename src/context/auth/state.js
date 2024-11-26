@@ -2,7 +2,7 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 import service from '../../services/';
 import Cookies from 'js-cookie';
-import { getLocationsDetails } from '../../helpers';
+import { fetchDomainName, getLocationsDetails } from '../../helpers';
 const { auth_Api: authBaseUrl } = require('../../services/config.live');
 
 export const AuthState = () => {
@@ -124,13 +124,14 @@ export const AuthState = () => {
 					JSON.stringify(response?.[1]?.accessibleWorkspaces),
 				);
 				localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
+				const host = fetchDomainName();
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: host,
 				});
 				Cookies.set('region', region || 'ap-south-1', {
 					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: host,
 				});
 				return [true];
 			} else {
@@ -153,6 +154,7 @@ export const AuthState = () => {
 
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
+			const host = fetchDomainName();
 			if (response[0] === true) {
 				const { accessToken, accessibleWorkspaces, region } = response?.[1] || {};
 				const hasWorkspaces = accessibleWorkspaces?.length > 0;
@@ -160,13 +162,14 @@ export const AuthState = () => {
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
 					localStorage.setItem('region', region || 'ap-south-1');
+
 					Cookies.set('usertoken', accessToken, {
 						sameSite: 'lax',
-						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+						domain: host,
 					});
 					Cookies.set('region', region || 'ap-south-1', {
 						sameSite: 'lax',
-						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+						domain: host,
 					});
 				}
 
@@ -191,7 +194,7 @@ export const AuthState = () => {
 				if (workspaceId) localStorage.setItem('workspaceId', workspaceId);
 				Cookies.set('workspaceID', workspaceId, {
 					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: host,
 				});
 
 				return [
@@ -216,53 +219,15 @@ export const AuthState = () => {
 		}
 	};
 
-	const checkUserSessionStatus = async () => {
-		const path = '/accessible-tenants';
-		const token = localStorage?.getItem('usertoken') ?? false;
-		const workspaceId = localStorage?.getItem('workspaceId') ?? false;
-		const locationDetails = localStorage?.getItem('locationDetails') ?? false;
-		try {
-			if (token?.length === 0 || token === false) {
-				return [false, { sessionStatus: false }];
-			}
-			if (workspaceId?.length === 0 || workspaceId === false) {
-				return [true, { sessionStatus: true, isOnboard: false, hasWorkspaces: false }];
-			}
-			const accessibleTenantsResponse = await service?.fetchGet(path, token, 'auth');
-			if (accessibleTenantsResponse?.[0] === true) {
-				if (!locationDetails) {
-					const locationDetails = await getLocationsDetails();
-					localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
-				}
-				if (accessibleTenantsResponse?.[1]?.length === 0) {
-					return [true, { sessionStatus: true, isOnboard: false, hasWorkspaces: false }];
-				}
-				const activeWorkspaceData = accessibleTenantsResponse?.[1]?.filter(
-					(workspaceData) => workspaceData?.activeWorkspaceId === workspaceId,
-				);
-
-				return [
-					true,
-					{
-						sessionStatus: true,
-						isOnboard: activeWorkspaceData?.[0]?.isOnboard,
-						hasWorkspaces: true,
-					},
-				];
-
-				console.log('reached here...');
-			}
-
-			return [true, { sessionStatus: false }];
-		} catch (error) {
-			console.error('Error checking user session status:', error);
-			throw error;
-		}
-	};
-
-	const updateUserDetails = async (firstName, phoneNumber = false) => {
+	const updateUserDetails = async (username, phoneNumber = false) => {
+		const firstName = username?.split(' ')?.[0] || '';
+		const lastName = username?.split(' ')?.[1] || '';
 		const path = '/tenant-user';
-		const body = phoneNumber ? { firstName, phoneNumber } : { firstName };
+		const body = phoneNumber
+			? { firstName, lastName, phoneNumber }
+			: lastName?.length > 0
+			? { firstName, lastName }
+			: { firstName };
 		const token = localStorage?.getItem('usertoken') || '';
 
 		try {
@@ -358,10 +323,8 @@ export const AuthState = () => {
 		createAccountUsingEmail,
 		continueWithGoogle,
 		verifyEmailVerificationCode,
-		checkUserSessionStatus,
 		createWorkspace,
 		checkWorkspaceHandleAvailability,
 		updateUserDetails,
-		createAccountViaInvite,
 	};
 };

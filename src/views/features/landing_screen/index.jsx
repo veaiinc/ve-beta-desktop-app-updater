@@ -132,7 +132,7 @@ const LandingPage = () => {
 							<li
 								key={i}
 								onClick={(e) => {
-									e.stopPropagation();
+									// e.stopPropagation();
 									navigate(item.route);
 								}}
 							>

@@ -6,135 +6,115 @@ import '../../../assets/scss/onboarding/index.scss';
 import { message } from 'antd';
 import Context from '../../../context/context';
 
-const WorkspaceHandleName = ({ onboardingInfo, setOnboardingInfo }) => {
+const WorkspaceHandleName = ({
+	workspaceHandle,
+	isWorkspaceHandleAvailable,
+	isCheckingWorkspaceHandle,
+	setIsCheckingWorkspaceHandle,
+	setWorkspaceHandleAndBusinessName,
+	setIsWorkspaceHandleAvailable,
+	animateStage2AndStep3Exit,
+}) => {
 	const {
 		authInfo: { checkWorkspaceHandleAvailability },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		isHovering: false,
-		isChecking: false,
 		enterPressed: false,
 	});
 
-	const workspaceHandleNameRef = useRef(null);
-
 	useEffect(() => {
-		gsap.fromTo(
-			workspaceHandleNameRef?.current,
-			{ opacity: 0 },
-			{
-				opacity: 1,
-				duration: 0.5,
-				ease: 'power2.inOut',
-			},
-		);
-	}, []);
-
-	useEffect(() => {
-		if (onboardingInfo?.workspaceHandle?.length > 1) {
-			setInfo((prev) => ({ ...prev, isChecking: true }));
+		if (workspaceHandle?.length > 1) {
+			setIsCheckingWorkspaceHandle(true);
 			const timeout = setTimeout(async () => {
-				await handleCheckWorkspaceHandleAvailability(onboardingInfo?.workspaceHandle);
-				setInfo((prev) => ({ ...prev, isChecking: false }));
+				await handleCheckWorkspaceHandleAvailability(workspaceHandle);
+				setIsCheckingWorkspaceHandle(false);
 			}, 1000);
 
 			return () => clearTimeout(timeout);
 		}
-	}, [onboardingInfo?.workspaceHandle]);
+		setIsWorkspaceHandleAvailable(false);
+		setInfo((prev) => ({ ...prev, enterPressed: false }));
+	}, [workspaceHandle]);
 
 	const handleCheckWorkspaceHandleAvailability = async (workspaceHandle) => {
 		const response = await checkWorkspaceHandleAvailability(workspaceHandle);
 		if (response?.[0] === true) {
-			setOnboardingInfo((prev) => ({
-				...prev,
-				isWorkspaceHandleAvailable: response?.[1]?.available,
-			}));
+			const isAvailable = response?.[1]?.available;
+			setIsWorkspaceHandleAvailable(isAvailable);
 		} else {
 			message.error(response?.[1]?.message);
 		}
 	};
 
 	const handleSetWorkspaceHandle = (e) => {
-		setOnboardingInfo((prev) => ({
-			...prev,
-			workspaceHandle: e?.target?.value?.toLowerCase(),
-			businessName: e?.target?.value?.toLowerCase(),
-		}));
+		let value = e?.target?.value?.toLowerCase() ?? '';
+		value = value.replace(/[^a-z0-9]/g, '');
+		if (value.length > 64) {
+			value = value.substring(0, 64);
+			message.warning('Workspace handle cannot be longer than 64 characters', 1.5);
+			return;
+		}
+		setWorkspaceHandleAndBusinessName(value);
 	};
 
-	const handleNext = async () => {
-		gsap.to(workspaceHandleNameRef.current, {
-			opacity: 0,
-			duration: 0.5,
-			ease: 'power2.inOut',
-			onComplete: () => {
-				setOnboardingInfo((prev) => ({
-					...prev,
-					step: prev?.step + 1,
-				}));
-			},
-		});
-	};
-
-	const handleKeyDown = (e) => {
-		if (info?.enterPressed) return;
-		if (
-			e.key === 'Enter' &&
-			!info?.isChecking &&
-			onboardingInfo?.workspaceHandle?.length > 1 &&
-			onboardingInfo?.isWorkspaceHandleAvailable
-		) {
-			handleNext();
+	const handleNext = async (e, type) => {
+		if ((e?.key === 'Enter' || type === 'click') && isWorkspaceHandleAvailable) {
+			if (info?.enterPressed) return;
 			setInfo((prev) => ({ ...prev, enterPressed: true }));
+			if (
+				!isCheckingWorkspaceHandle &&
+				workspaceHandle?.length > 1 &&
+				isWorkspaceHandleAvailable
+			) {
+				animateStage2AndStep3Exit();
+			}
 		}
 	};
 
 	return (
-		<div
-			ref={workspaceHandleNameRef}
-			className="username-input-container workspace-handle-name-container"
-		>
+		<div className="username-input-container workspace-handle-name-container stage2">
 			<input
 				className="workspace-handle-name-input"
-				value={onboardingInfo?.workspaceHandle}
+				value={workspaceHandle}
 				onChange={handleSetWorkspaceHandle}
-				onKeyDown={handleKeyDown}
+				onKeyDown={handleNext}
 				autoFocus={true}
 				type="text"
-				placeholder="workspace name"
+				placeholder="workspace-name"
 			/>
 			<button
-				disabled={
-					info?.isChecking ||
-					onboardingInfo?.workspaceHandle?.length === 0 ||
-					!onboardingInfo?.isWorkspaceHandleAvailable
-				}
+				className="next-button"
+				disabled={!isWorkspaceHandleAvailable || isCheckingWorkspaceHandle}
 				style={{
 					cursor:
-						info?.isChecking ||
-						onboardingInfo?.workspaceHandle?.length === 0 ||
-						!onboardingInfo?.isWorkspaceHandleAvailable
+						!isWorkspaceHandleAvailable || isCheckingWorkspaceHandle
 							? 'not-allowed'
 							: 'pointer',
 					background:
-						info?.isChecking ||
-						onboardingInfo?.workspaceHandle?.length === 0 ||
-						!onboardingInfo?.isWorkspaceHandleAvailable
+						!isWorkspaceHandleAvailable || isCheckingWorkspaceHandle
 							? 'rgba(255, 255, 255, 0.1)'
-							: '',
+							: 'white',
+					transition: 'all 0.3s ease',
 				}}
-				onMouseEnter={() => setInfo({ ...info, isHovering: true })}
-				onMouseLeave={() => setInfo({ ...info, isHovering: false })}
-				onClick={handleNext}
+				onClick={() => handleNext(null, 'click')}
 			>
-				{info?.isHovering ? (
-					<span>
+				<div
+					className="arrow-container"
+					style={{
+						transition: 'all 0.3s ease',
+						transform:
+							isWorkspaceHandleAvailable && !isCheckingWorkspaceHandle
+								? 'rotate(90deg)'
+								: 'rotate(0deg)',
+					}}
+				>
+					{isWorkspaceHandleAvailable && !isCheckingWorkspaceHandle ? (
 						<UpArrowBlackHover />
-					</span>
-				) : (
-					<UpArrowGrey />
-				)}
+					) : (
+						<UpArrowGrey />
+					)}
+				</div>
 			</button>
 		</div>
 	);

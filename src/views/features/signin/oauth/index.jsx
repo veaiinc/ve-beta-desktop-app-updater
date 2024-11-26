@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { fetchDomainName } from '../../../../helpers';
 
 const OauthVerify = () => {
 	const navigate = useNavigate();
@@ -21,18 +22,18 @@ const OauthVerify = () => {
 				localStorage.setItem('usertoken', accessToken);
 				localStorage.setItem('region', region || 'ap-south-1');
 				localStorage.setItem('isOnboard', accessibleWorkspaces?.[0]?.isOnboard);
-
+				const host = fetchDomainName();
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: host,
 				});
 				Cookies.set('workspaceID', accessibleWorkspaces?.[0]?.workspaceId, {
 					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: host,
 				});
 				Cookies.set('region', region || 'ap-south-1', {
 					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: host,
 				});
 				// localStorage.removeItem('locationDetails');
 				return navigate('/home');
@@ -43,7 +44,7 @@ const OauthVerify = () => {
 				!accessibleWorkspaces.length
 			) {
 				localStorage.setItem('usertoken', accessToken);
-				navigate('/onboarding');
+				navigate('/verify-user');
 				return;
 			}
 		}

@@ -3,11 +3,13 @@ import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/left
 import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import Cookies from 'js-cookie';
-// import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
+import { fetchDomainName } from '../../../helpers';
 
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
-	// const navigate = useNavigate();
+	const navigate = useNavigate();
+	const { galleryId } = useParams();
 
 	const {
 		profileInfo: { userDetailsData },
@@ -23,11 +25,12 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 		if (workspaceId === activeWorkspaceId) {
 			return;
 		}
+		const host = fetchDomainName();
 		localStorage.setItem('workspaceId', activeWorkspaceId);
 		localStorage.setItem('isOnboard', isOnboard);
 		Cookies.set('workspaceID', activeWorkspaceId, {
 			sameSite: 'lax',
-			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+			domain: host,
 		});
 
 		const currentRegion = localStorage.getItem('region');
@@ -42,15 +45,19 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 			localStorage.setItem('region', newWorkspaceRegion);
 			Cookies.set('region', newWorkspaceRegion, {
 				sameSite: 'lax',
-				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				domain: host,
 			});
 		}
+		if (galleryId) {
+			navigate(`/home`);
+		}
+
 		window.location.reload();
 	}, []);
 
 	const handleCreateWorkspace = () => {
 		const username = userDetailsData?.firstName ?? '';
-		window.location.href = `/onboarding?username=${username}`;
+		navigate(`/onboarding?username=${username}`);
 	};
 
 	return (
