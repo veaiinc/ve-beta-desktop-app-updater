@@ -123,13 +123,12 @@
 
 		.hero-section-7 {
 			display: flex;
-			width: 65%;
 
 			padding: 110px 70px 70px 70px;
 			flex-direction: column;
 			align-items: center;
 			gap: 48px;
-			flex-shrink: 0;
+			flex-shrink: 1;
 
 			// .toggle-container1 {
 			// 	display: flex;
@@ -493,6 +492,7 @@
 @media screen and (max-width: 1024px) {
 	.hero-section-7 {
 		display: none;
+		width: 100%;
 	}
 }
 

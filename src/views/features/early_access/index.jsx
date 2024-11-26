@@ -31,10 +31,13 @@ const EarlyAccess = () => {
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
 		subscriptionInfo: {
+			sendCustomMailToClients,
 			shareAndEarnData,
 			referralDetails,
 			getShareAndEarn,
 			getReferralDetails,
+			onboardPosition,
+			getOnboardPosition,
 		},
 	} = useContext(Context);
 
@@ -56,6 +59,7 @@ const EarlyAccess = () => {
 		getUserWorkSpaceList();
 		getShareAndEarn();
 		getReferralDetails();
+		getOnboardPosition();
 	}, []);
 
 	useEffect(() => {
@@ -79,7 +83,7 @@ const EarlyAccess = () => {
 		}
 		if (isOnboard) {
 			localStorage.setItem('isOnboard', true);
-			navigate('/home');
+			// navigate('/home');
 		}
 	}, [userWorkSpaceList]);
 	const handleCopyReferralLink = useCallback(() => {
@@ -95,6 +99,58 @@ const EarlyAccess = () => {
 				message.error('Failed to copy:', err);
 			});
 	}, [shareAndEarnData]);
+	const handleInputChange = (e) => {
+		const value = e.target.value;
+		setInputValue(value);
+
+		// If user presses Enter or adds a comma
+		if (value.includes(',') || e.key === 'Enter') {
+			const newEmail = value.replace(',', '').trim();
+
+			// Basic email validation
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+			if (emailRegex.test(newEmail)) {
+				// Add email if it's not already in the list
+				if (!emails.includes(newEmail)) {
+					setEmails([...emails, newEmail]);
+				}
+				setInputValue(''); // Clear input after adding
+			} else {
+				message.error('Please enter a valid email address');
+			}
+		}
+	};
+
+	const handleSendInvitation = async () => {
+		try {
+			const referralCode = shareAndEarnData?.referralDetails?.referralCode;
+			const referralLink = `https://ve.ai/verify-user?ref=${referralCode}`;
+			const payload = {
+				clientEmail: emails, // array of emails collected from the input
+				mailContent: {
+					subject: 'Your Customised Proposal',
+					cc: [],
+					htmlBody:
+						'<p>\n\n    \n        <meta charset="UTF-8">\n        <meta name="viewport" content="width=device-width, initial-scale=1.0">\n        <meta content="IE=edge" http-equiv="X-UA-Compatible">\n        <meta name="x-apple-disable-message-reformatting">\n        <title>Your Customised Proposal</title>\n    \n    \n        </p><div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 16px; border-radius: 24px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.12);" bis_skin_checked="1">\n            <div style="font-size: 16px; line-height: 1.6; color: #333333;" bis_skin_checked="1">\n                <h2 style="color: #555555;">Dear Nandhu,</h2>\n                <p>\n                    We truly appreciate your interest in NanduDummy. After\n                    carefully considering your needs, we\'ve created a\n                    personalised proposal just for you. You can view your\n                    proposal using the exclusive link below:\n                </p>\n                <center>\n                    <a href="{workflowLink}" target="_blank" style="background-color: #4e73df; color: white; padding: 10px 20px; border: none; border-radius: 5px; text-decoration: none; display: inline-block;">\n                        <strong>View Proposal</strong> <span>➔</span>\n                    </a>\n                    <br>\n                </center>\n                <p>\n                    We\'ve designed this proposal to perfectly fit your\n                    requirements, but if you need any further customisations,\n                    please feel free to reach out.\n                </p>\n                <p>\n                    Our commitment is to ensure everything is exactly as you\n                    envision it. You deserve the best, and we\'re here to deliver\n                    it. We\'re excited to bring your vision to life and look\n                    forward to working with you.\n                </p>\n                <p>Best regards,<br>Nandhu Raj</p>\n            </div>\n            <div style="text-align: center; margin-top: 20px; font-size: 14px; color: #777777;" bis_skin_checked="1">\n                <a href="https://ve.ai" target="_blank" style="color: #6d6d6d; text-decoration: none;">\n                    Made with\n                    <img src="https://ap.assets.ve.ai/logo/veaiblack.png" alt="ve.ai logo" style="height: 9px; width: 32px;">\n                </a>\n            </div>\n        </div>\n    \n',
+				},
+			};
+
+			const [success, response] = await sendCustomMailToClients(payload);
+
+			if (success) {
+				message.success('Emails sent successfully!');
+				setShowEmailInput(false); // Hide the input after successful send
+				setEmails([]); // Clear the emails array if needed
+			} else {
+				message.error('Failed to send emails');
+			}
+		} catch (error) {
+			console.error('Error sending emails:', error);
+			message.error('Failed to send emails');
+		}
+	};
+
 	// const handleSendInvitations = useCallback(() => {
 	// 	if (emails.length === 0) {
 	// 		message.error('Please enter at least one email');
@@ -119,20 +175,20 @@ const EarlyAccess = () => {
 	// 	setInputValue(e.target.value);
 	// };
 
-	// const handleInputKeyPress = (e) => {
-	// 	if (e.key === 'Enter' && inputValue.trim()) {
-	// 		setEmails((prevEmails) => [...prevEmails, inputValue.trim()]);
-	// 		setInputValue('');
-	// 	}
-	// };
+	const handleInputKeyPress = (e) => {
+		if (e.key === 'Enter' && inputValue.trim()) {
+			setEmails((prevEmails) => [...prevEmails, inputValue.trim()]);
+			setInputValue('');
+		}
+	};
 
-	// const handleDeleteEmail = (index) => {
-	// 	// Changed parameter name from indexToDelete to index
-	// 	setEmails((prevEmails) => {
-	// 		console.log('Previous emails:', prevEmails); // Debug log
-	// 		return prevEmails.filter((_, i) => i !== index);
-	// 	});
-	// };
+	const handleDeleteEmail = (index) => {
+		// Changed parameter name from indexToDelete to index
+		setEmails((prevEmails) => {
+			console.log('Previous emails:', prevEmails); // Debug log
+			return prevEmails.filter((_, i) => i !== index);
+		});
+	};
 	return (
 		<div className="landing-page-container">
 			<header className="header-container">
@@ -148,12 +204,14 @@ const EarlyAccess = () => {
 				</section>
 				<section className="hero-section-7">
 					<div className="content-container">
-						{/* <div className="top-container">
+						<div className="top-container">
 							<div>
 								<div className="top-container-text">Your place</div>
-								<div className="top-container-text2">#62382</div>
+								<div className="top-container-text2">
+									#{onboardPosition?.onboardPosition}
+								</div>
 							</div>
-						</div> */}
+						</div>
 						<div className="outer-main-content-container">
 							<div className="content-container-outer">
 								<div className="content-text-container">
@@ -209,9 +267,9 @@ const EarlyAccess = () => {
 										<div className="icon-button">
 											<LinkedIn />
 										</div>
-										{/* <div className="icon-button">
+										<div className="icon-button">
 											<MailIcon onClick={() => setShowEmailInput(true)} />
-										</div> */}
+										</div>
 										<div
 											className="icon-button"
 											onClick={handleCopyReferralLink}
@@ -225,8 +283,8 @@ const EarlyAccess = () => {
 											className="email-input"
 											placeholder="Email ID"
 											value={inputValue}
-											// onChange={handleInputChange}
-											// onKeyPress={handleInputKeyPress}
+											onChange={handleInputChange}
+											onKeyPress={handleInputKeyPress}
 										/>
 										<div className="email-tags" style={{ marginTop: '10px' }}>
 											{emails.map((email, index) => (
@@ -248,7 +306,7 @@ const EarlyAccess = () => {
 										</div>
 										<button
 											className="send-invitation-button"
-											// onClick={handleSendInvitations}
+											onClick={handleSendInvitation}
 											disabled={emails.length === 0}
 										>
 											Send Invitation
