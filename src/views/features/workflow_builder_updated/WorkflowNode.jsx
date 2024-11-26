@@ -1,22 +1,57 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import './WorkflowNode.scss';
 
 const WorkflowNode = ({ nodeId, stepsMapper }) => {
-	if (!nodeId || !stepsMapper[nodeId]) {
-		return null;
-	}
+	const yesNodesContainerRef = useRef(null);
+	const noNodesContainerRef = useRef(null);
+	const [info, setInfo] = useState({
+		translateXForYes: 0,
+		translateForNo: 0,
+	});
 
-	const node = stepsMapper[nodeId].data;
+	useLayoutEffect(() => {
+		translatefunction(yesNodesContainerRef, 'Yes');
+	}, [yesNodesContainerRef?.current]);
 
-	const renderNodeContent = () => (
+	useLayoutEffect(() => {
+		translatefunction(noNodesContainerRef, 'No');
+	}, [noNodesContainerRef?.current]);
+
+	const translatefunction = (refData, type) => {
+		const width = refData?.current?.getBoundingClientRect().width;
+		if (width) {
+			const blockWidth = 350;
+			const leftOutSpaceOnEachSide = (width - blockWidth) / 2;
+			const yesBlockWidth = width - 150;
+
+			if (type === 'Yes') {
+				const requiredTransalation =
+					yesBlockWidth - (leftOutSpaceOnEachSide + blockWidth / 2);
+				setInfo((prev) => ({ ...prev, translateXForYes: requiredTransalation }));
+			} else {
+				const requiredTransalation = leftOutSpaceOnEachSide + blockWidth / 2 - 150;
+				setInfo((prev) => ({ ...prev, translateForNo: requiredTransalation }));
+			}
+		}
+	};
+
+	const renderNodeContent = (type = null) => (
 		<div className="workflow-node">
 			<div className="node-card">
 				<div className="node-content">
-					<div className="node-text">{node?._id}</div>
+					<div className="node-text" style={{ color: '#fff' }}>
+						{!type ? nodeId : 'Block Ends Here'}
+					</div>
 				</div>
 			</div>
 		</div>
 	);
+
+	if (!nodeId || !stepsMapper[nodeId]) {
+		return renderNodeContent('end-block');
+	}
+
+	const node = stepsMapper[nodeId].data;
 
 	if (node.type === 'condition') {
 		return (
@@ -32,7 +67,15 @@ const WorkflowNode = ({ nodeId, stepsMapper }) => {
 							</div>
 							<div className="connector" style={{ marginLeft: '40px' }}></div>
 						</div>
-						<div className="yes-nodes-container">
+						<div
+							className={`yes-nodes-container ${nodeId}`}
+							ref={yesNodesContainerRef}
+							style={{
+								translate: info?.translateXForYes
+									? `-${info?.translateXForYes}px`
+									: '', // Apply calculated translation
+							}}
+						>
 							<WorkflowNode
 								nodeId={node?.ifYes?.nextStepId}
 								stepsMapper={stepsMapper}
@@ -55,7 +98,13 @@ const WorkflowNode = ({ nodeId, stepsMapper }) => {
 								></div>
 							</div>
 						</div>
-						<div className="no-nodes-container">
+						<div
+							className="no-nodes-container"
+							ref={noNodesContainerRef}
+							style={{
+								translate: info?.translateForNo ? `${info?.translateForNo}px` : '', // Apply calculated translation
+							}}
+						>
 							<WorkflowNode
 								nodeId={node?.ifNo?.nextStepId}
 								stepsMapper={stepsMapper}
