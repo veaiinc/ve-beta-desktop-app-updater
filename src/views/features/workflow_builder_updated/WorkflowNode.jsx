@@ -12,7 +12,7 @@ const WorkflowNode = ({ nodeId, stepsMapper }) => {
 		<div className="workflow-node">
 			<div className="node-card">
 				<div className="node-content">
-					<div className="node-text"></div>
+					<div className="node-text">{node?._id}</div>
 				</div>
 			</div>
 		</div>
@@ -24,31 +24,45 @@ const WorkflowNode = ({ nodeId, stepsMapper }) => {
 				{renderNodeContent()}
 				<div className="conditionConnector"></div>
 				<div className="condition-branches">
-					<div className="left-branches">hello</div>
-					<div className="right-branches">there</div>
+					<div className="left-branches">
+						<div className="yes-branch-container">
+							<div className="yes-block-wrapper">
+								<div className="yes-block">Yes</div>
+								<div className="yes-right-seperator"></div>
+							</div>
+							<div className="connector" style={{ marginLeft: '40px' }}></div>
+						</div>
+						<div className="yes-nodes-container">
+							<WorkflowNode
+								nodeId={node?.ifYes?.nextStepId}
+								stepsMapper={stepsMapper}
+							/>
+						</div>
+					</div>
+					<div className="right-branches">
+						<div className="no-branch-container">
+							<div className="no-block-wrapper">
+								<div className="right-seperator"></div>
+								<div className="yes-block">No</div>
+							</div>
+							<div
+								className="no-block-wrapper"
+								style={{ justifyContent: 'flex-end' }}
+							>
+								<div
+									className="connector"
+									style={{ marginRight: '40px', alignSelf: 'baseline' }}
+								></div>
+							</div>
+						</div>
+						<div className="no-nodes-container">
+							<WorkflowNode
+								nodeId={node?.ifNo?.nextStepId}
+								stepsMapper={stepsMapper}
+							/>
+						</div>
+					</div>
 				</div>
-				{/* <div className="condition-branches">
-					<div className="branch-labels">
-						<span className="yes-label">Yes</span>
-						<span className="no-label">No</span>
-					</div>
-					<div className="branches">
-						<div className="branch left-branch">
-							<div className="branch-connector"></div>
-							<WorkflowNode
-								nodeId="66c46cb60d2024cacd650d9e"
-								stepsMapper={stepsMapper}
-							/>
-						</div>
-						<div className="branch right-branch">
-							<div className="branch-connector"></div>
-							<WorkflowNode
-								nodeId="66c46ccd0d2024cacd650da0"
-								stepsMapper={stepsMapper}
-							/>
-						</div>
-					</div>
-				</div> */}
 			</div>
 		);
 	}
