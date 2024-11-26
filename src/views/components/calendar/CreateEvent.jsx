@@ -42,14 +42,14 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 
 	return (
 		<div className="createEventContainer" ref={createEventRef}>
+			<div className="headerWrapper">
+				<span className="headerLabel">Create an event</span>
+				<CloseSvg
+					onClick={() => updateCalendarInfo('isCreateEventOpen', false)}
+					style={{ cursor: 'pointer' }}
+				/>
+			</div>
 			<div className="eventDetailsContainer">
-				<div className="headerWrapper">
-					<span className="headerLabel">Create an event</span>
-					<CloseSvg
-						onClick={() => updateCalendarInfo('isCreateEventOpen', false)}
-						style={{ cursor: 'pointer' }}
-					/>
-				</div>
 				<div className="agendaContainer">
 					<span className="agendaLabel">Agenda</span>
 					<input type="text" name="" id="" placeholder="E.g. Meeting" />

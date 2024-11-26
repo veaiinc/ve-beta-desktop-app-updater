@@ -10,26 +10,29 @@
 	border-radius: 24px;
 	border: 1px solid #272727;
 	background: #191919;
-	.eventDetailsContainer {
 
-		.headerWrapper {
-			display: flex;
-			width: 320px;
-			padding: 18px 24px;
-			justify-content: space-between;
-			align-items: center;
-			border-bottom: 0.5px solid #272727;
+	.headerWrapper {
+		display: flex;
+		width: 320px;
+		padding: 18px 24px;
+		justify-content: space-between;
+		align-items: center;
+		border-bottom: 0.5px solid #272727;
 
-			.headerLabel {
-				color: #e4e5e6;
-				text-align: center;
-				font-family: Inter;
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-			}
+		.headerLabel {
+			color: #e4e5e6;
+			text-align: center;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
 		}
+	}
+
+	.eventDetailsContainer {
+		flex-grow: 1;
+		overflow: auto;
 		.agendaContainer {
 			padding: 8px 24px;
 			display: flex;
@@ -309,6 +312,7 @@
 		background: #6055ec;
 		border: none;
 		margin: 24px;
+		margin-top: 0;
 		color: #e4e5e6;
 	}
 
