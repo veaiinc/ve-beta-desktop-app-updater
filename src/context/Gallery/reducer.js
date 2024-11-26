@@ -91,6 +91,10 @@ const actionHandlers = {
 		...state,
 		aiFace: action.payload,
 	}),
+	GET_AI_FACE_IMAGES: (state, action) => ({
+		...state,
+		aiFaceImages: action.payload,
+	}),
 	RESET_IMAGES_LIST: (state) => ({ ...state, imagesList: null }),
 	RESET_STATE: () => ({ ...intialState }),
 };

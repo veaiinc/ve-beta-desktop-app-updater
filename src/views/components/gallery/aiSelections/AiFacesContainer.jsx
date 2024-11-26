@@ -3,13 +3,16 @@ import Context from '../../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import PeopleCard from '../galleryView/PeopleCard';
 import { ReactComponent as BackIcon } from '../../../../assets/svg/gallery/back-gray.svg';
+import Skeleton from 'react-loading-skeleton';
+import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 
 const AiFacesContainer = ({ galleryId, galleryCredentials, handleBackClick }) => {
 	const {
-		galleryInfo: { getAiFace, aiFace, getAiFaceImages },
+		galleryInfo: { getAiFace, aiFace, getAiFaceImages, aiFaceImages },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		page: 1,
+		imagePage: 1,
 		activeFace: aiFace?.faces?.[0]?._id,
 	});
 	useEffect(() => {
@@ -18,8 +21,9 @@ const AiFacesContainer = ({ galleryId, galleryCredentials, handleBackClick }) =>
 		}
 	}, [aiFace]);
 	useEffect(() => {
-		getAiFaceImages(galleryId, info?.activeFace);
+		getAiFaceImages(galleryId, info?.activeFace, 1, 25, true);
 	}, [info?.activeFace]);
+
 	const fetchMoreFaces = () => {
 		const nextPage = info?.page + 1;
 		getAiFace(galleryId, nextPage).then(() => {
@@ -29,6 +33,16 @@ const AiFacesContainer = ({ galleryId, galleryCredentials, handleBackClick }) =>
 			}));
 		});
 	};
+	const fetchMoreImages = () => {
+		const nextPage = info?.imagePage + 1;
+		getAiFaceImages(galleryId, info?.activeFace, nextPage).then(() => {
+			setInfo((prev) => ({
+				...prev,
+				imagePage: nextPage,
+			}));
+		});
+	};
+
 	const handleFaceClick = (face) => {
 		setInfo((prev) => ({
 			...prev,
@@ -88,7 +102,52 @@ const AiFacesContainer = ({ galleryId, galleryCredentials, handleBackClick }) =>
 					</div>
 				</InfiniteScroll>
 			</div>
-			<div></div>
+			<div>
+				<div className="aiFaces-image-container" id="aiFaces-image-Trigger">
+					<InfiniteScroll
+						dataLength={aiFaceImages?.images?.length || 0}
+						next={fetchMoreImages}
+						hasMore={aiFaceImages?.hasNextPage || false}
+						scrollableTarget="aiFaces-image-Trigger"
+						scrollThreshold={0.8}
+					>
+						<ResponsiveMasonry
+							columnsCountBreakPoints={{
+								350: 1,
+								750: 2,
+								900: 3,
+								1200: 4,
+							}}
+						>
+							<Masonry gutter="10px">
+								{aiFaceImages?.images
+									? aiFaceImages?.images?.map((image, index) => {
+											const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+											const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+											return (
+												<div key={index}>
+													<img
+														src={src}
+														alt={`Gallery image ${index}`}
+														style={{
+															width: '100%',
+															display: 'block',
+														}}
+														draggable={false}
+													/>
+												</div>
+											);
+									  })
+									: [...Array(10)].map((_, index) => (
+											<div key={index} className="imageContainer">
+												<Skeleton width="100%" height="200px" />
+											</div>
+									  ))}
+							</Masonry>
+						</ResponsiveMasonry>
+					</InfiniteScroll>
+				</div>
+			</div>
 		</div>
 	);
 };
