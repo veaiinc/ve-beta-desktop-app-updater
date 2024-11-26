@@ -113,7 +113,7 @@
 			}
 			.rbc-row-content {
 				pointer-events: none;
-				z-index: 1;
+				// z-index: 0;
 				.rbc-row {
 					// padding: 2px;
 					.rbc-date-cell {
@@ -140,8 +140,8 @@
 					.rbc-row-segment {
 						padding-left: 5px;
 						.rbc-event {
-							background-color: none;
-							background: none;
+							// background-color: none;
+							// background: none; //to show months event bg
 
 							.monthEventWrapper {
 								display: flex;
@@ -175,6 +175,12 @@
 						}
 					}
 				}
+			}
+		}
+
+		.customEventWrapper {
+			.rbc-event {
+				border: none;
 			}
 		}
 	}
