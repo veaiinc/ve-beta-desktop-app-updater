@@ -21,6 +21,46 @@ const events = [
 		end: new Date(2024, 10, 17),
 	},
 	{
+		title: 'Long Event',
+		start: new Date(2024, 10, 15),
+		end: new Date(2024, 10, 17),
+	},
+	{
+		title: 'Long Event',
+		start: new Date(2024, 10, 15),
+		end: new Date(2024, 10, 17),
+	},
+	{
+		title: 'Long Event',
+		start: new Date(2024, 10, 15),
+		end: new Date(2024, 10, 17),
+	},
+	{
+		title: 'Long Event',
+		start: new Date(2024, 10, 15),
+		end: new Date(2024, 10, 17),
+	},
+	{
+		title: 'Long Event',
+		start: new Date(2024, 10, 15),
+		end: new Date(2024, 10, 17),
+	},
+	{
+		title: 'Long Event',
+		start: new Date(2024, 10, 15),
+		end: new Date(2024, 10, 17),
+	},
+	{
+		title: 'Long Event',
+		start: new Date(2024, 10, 15),
+		end: new Date(2024, 10, 17),
+	},
+	{
+		title: 'Long Event',
+		start: new Date(2024, 10, 15),
+		end: new Date(2024, 10, 17),
+	},
+	{
 		start: moment('2015-04-11').toDate(),
 		end: moment('2015-04-13').toDate(),
 		title: 'Conference',

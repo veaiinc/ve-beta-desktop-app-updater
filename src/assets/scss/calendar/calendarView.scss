@@ -26,12 +26,13 @@
 		padding-top: 18px;
 	}
 
-	.rbc-time-view .rbc-row {
+	.rbc-time-header-cell {
 		display: none;
 	}
 
 	.rbc-time-view .rbc-allday-cell {
-		height: 30px;
+		max-height: 80px;
+		overflow-y: auto;
 	}
 
 	.rbc-time-header.rbc-overflowing {
@@ -112,7 +113,7 @@
 			}
 			.rbc-row-content {
 				pointer-events: none;
-				z-index: 0;
+				z-index: 1;
 				.rbc-row {
 					// padding: 2px;
 					.rbc-date-cell {
