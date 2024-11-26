@@ -6,8 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 const CookiePolicy = () => {
 	const navigate = useNavigate();
-	const pdfUrl =
-		'https://drive.google.com/file/d/1O0mu1uW-KZkYfGFy1RgBAzDd55RigIRJ/view?usp=sharing';
+	const pdfUrl = 'https://drive.google.com/file/d/1O0mu1uW-KZkYfGFy1RgBAzDd55RigIRJ/preview';
 
 	return (
 		<div className="privacyPolicyMainContainer">
