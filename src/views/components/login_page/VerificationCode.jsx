@@ -94,15 +94,16 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 	};
 
 	const handleResendCode = async () => {
-		setInfo((prev) => ({ ...prev, isLoading: true, canResend: false }));
 		try {
 			if (!info?.canResend) {
 				message.info('Please wait 60 seconds before requesting another code');
 				return;
 			}
+			setInfo((prev) => ({ ...prev, isLoading: true, canResend: false }));
 			const response = await checkAccountExistsUsingEmail(email);
 			if (response[0] === true) {
 				message?.success('Code resent successfully! Check your email.');
+				setInfo((prev) => ({ ...prev, isLoading: false }));
 				if (response?.[1]?.accountExists) {
 					if (response?.[1]?.emailVerified) {
 						setEmailVerified(true);
@@ -118,13 +119,13 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 				message?.error(response?.[1]?.message);
 			}
 			const timeout = setTimeout(() => {
-				setInfo((prev) => ({ ...prev, canResend: true }));
+				setInfo((prev) => ({ ...prev, canResend: true, isLoading: false }));
 			}, 60000);
+			setInfo((prev) => ({ ...prev, isLoading: false }));
 			return () => clearTimeout(timeout);
 		} catch (error) {
 			console.error('Failed to check email:', error.message);
 		}
-		setInfo((prev) => ({ ...prev, isLoading: false }));
 	};
 
 	return (
