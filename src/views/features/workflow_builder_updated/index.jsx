@@ -77,6 +77,111 @@ const WorkflowBuilder = () => {
 	useEffect(() => {
 		if (specificTemplatesInfo?.steps?.length) {
 			const steps = specificTemplatesInfo?.steps;
+			// const steps = [
+			// 	{
+			// 		criteria: {
+			// 			formRespone: true,
+			// 		},
+			// 		module: 'form',
+			// 		order: 1,
+			// 		_id: '6687fcc3608c200da04032b0',
+			// 		nextStepId: '66c464100d2024cacd650d98',
+			// 		nextStepType: 'action',
+			// 		type: 'start-step',
+			// 	},
+			// 	{
+			// 		criteria: {
+			// 			formResponse: true,
+			// 		},
+			// 		_id: '66c464100d2024cacd650d98',
+			// 		module: 'form',
+			// 		sendAt: null,
+			// 		type: 'action',
+			// 		actionType: 'notification',
+			// 		channels: ['email'],
+			// 		isEnabled: true,
+			// 		emailTemplateId: '66f16770f8c689687ab6d2ce',
+			// 		emailTemplateTitle: 'Form Response Mail',
+			// 		emailTemplateSubject: 'Thank You for Your Enquiry',
+			// 		nextStepId: '66c464100d2024cacd650dcc',
+			// 		nextStepType: 'condition',
+			// 		order: 2,
+			// 	},
+			// 	{
+			// 		criteria: {
+			// 			status: 'proposalAccepted',
+			// 		},
+			// 		_id: '66c464100d2024cacd650dcc',
+			// 		module: 'proposal',
+			// 		sendAt: null,
+			// 		type: 'condition',
+			// 		isEnabled: true,
+			// 		ifYes: {
+			// 			nextStepId: '66c46cb60d2024cacd650d9e',
+			// 			nextStepType: 'action',
+			// 		},
+			// 		ifNo: {
+			// 			nextStepId: '66c46ccd0d2024cacd650da0',
+			// 			nextStepType: 'action',
+			// 		},
+			// 		order: 3,
+			// 	},
+			// 	{
+			// 		criteria: {
+			// 			status: 'confirmed',
+			// 		},
+			// 		_id: '66c46cc50d2024cacd650d9f',
+			// 		module: 'contract',
+			// 		sendAt: null,
+			// 		type: 'action',
+			// 		actionType: 'notification',
+			// 		channels: ['email'],
+			// 		isEnabled: true,
+			// 		emailTemplateId: '66f16770f8c689687ab6d2d0',
+			// 		emailTemplateTitle: 'All Signed',
+			// 		emailTemplateSubject:
+			// 			"Project Confirmation: We're Ready to Capture Your Big Day!",
+			// 		order: 4,
+			// 		nextStepId: null,
+			// 		nextStepType: null,
+			// 	},
+			// 	{
+			// 		criteria: {
+			// 			status: 'contractSigned',
+			// 		},
+			// 		_id: '66c46cb60d2024cacd650d9e',
+			// 		module: 'contract',
+			// 		sendAt: null,
+			// 		actionType: 'notification',
+			// 		channels: ['email'],
+			// 		type: 'action',
+			// 		isEnabled: true,
+			// 		emailTemplateId: '66f16770f8c689687ab6d2d1',
+			// 		emailTemplateTitle: 'Signed Contract',
+			// 		emailTemplateSubject: 'Confirmation of Signed Contract',
+			// 		nextStepId: '66c46cc50d2024cacd650d9f',
+			// 		nextStepType: 'action',
+			// 		order: 5,
+			// 	},
+			// 	{
+			// 		criteria: {
+			// 			status: 'filesSent',
+			// 		},
+			// 		_id: '66c46ccd0d2024cacd650da0',
+			// 		module: 'proposal',
+			// 		actionType: 'notification',
+			// 		channels: ['email'],
+			// 		isEnabled: true,
+			// 		sendAt: 259200,
+			// 		type: 'action',
+			// 		emailTemplateId: '66f16770f8c689687ab6d2d3',
+			// 		emailTemplateTitle: 'Unaccepted Proposals',
+			// 		emailTemplateSubject: "Don't Miss Out: Your Proposal Awaits!",
+			// 		nextStepId: null,
+			// 		nextStepType: null,
+			// 		order: 6,
+			// 	},
+			// ];
 			const stepsData = [];
 
 			//created a mapper for steps
