@@ -8,7 +8,7 @@ import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 
 const AiFacesContainer = ({ galleryId, galleryCredentials, handleBackClick }) => {
 	const {
-		galleryInfo: { getAiFace, aiFace, getAiFaceImages, aiFaceImages },
+		galleryInfo: { getAiFace, aiFace, getAiFaceImages, aiFaceImages, aiFaceImagesReset },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		page: 1,
@@ -21,7 +21,7 @@ const AiFacesContainer = ({ galleryId, galleryCredentials, handleBackClick }) =>
 		}
 	}, [aiFace]);
 	useEffect(() => {
-		getAiFaceImages(galleryId, info?.activeFace, 1, 25, true);
+		getAiFaceImages(galleryId, info?.activeFace, info?.imagePage, 25, true);
 	}, [info?.activeFace]);
 
 	const fetchMoreFaces = () => {
@@ -47,7 +47,9 @@ const AiFacesContainer = ({ galleryId, galleryCredentials, handleBackClick }) =>
 		setInfo((prev) => ({
 			...prev,
 			activeFace: face?._id,
+			imagePage: 1,
 		}));
+		aiFaceImagesReset();
 	};
 	return (
 		<div className="aiFaces-container">

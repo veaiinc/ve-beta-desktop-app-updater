@@ -1413,6 +1413,12 @@ export const Galleries = () => {
 			payload: null,
 		});
 	};
+	const aiFaceImagesReset = () => {
+		dispatch({
+			type: Actions.GET_AI_FACE_IMAGES,
+			payload: null,
+		});
+	};
 	return {
 		...state,
 		getGalleries,
@@ -1484,5 +1490,6 @@ export const Galleries = () => {
 		getZipDownloadUrl,
 		getAiFaceImages,
 		clearAiFace,
+		aiFaceImagesReset,
 	};
 };
