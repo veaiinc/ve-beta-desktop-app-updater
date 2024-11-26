@@ -41,22 +41,6 @@ export const getLocationsDetails = async () => {
 		postalCode: postal || '',
 		currency,
 	};
-
-	let apiRegion;
-	// Dynamic origin selection based on country/region
-	if (country_code === 'IN') {
-		// Route Indian traffic to ap-south-1
-		apiRegion = 'ap-south-1';
-	} else if (country_code === 'US') {
-		if (region_code === 'CA' || region_code === 'OR' || region_code === 'WA') {
-			apiRegion = 'us-east-1';
-		} else {
-			// Default to us-east-1
-			apiRegion = 'us-east-1';
-		}
-	}
-
-	localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
 	return locationDetails;
 };
 
