@@ -49,6 +49,12 @@ const CalendarCategories = () => {
 		}
 	}, [info?.expanded]);
 
+	useEffect(() => {
+		if (window.innerHeight >= 950) {
+			handleCategoryExpand();
+		}
+	}, []);
+
 	const handleCategoryExpand = useCallback(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
