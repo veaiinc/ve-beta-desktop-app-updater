@@ -829,10 +829,10 @@ const File = ({
 			for (let j = 0; j < blocks.length; j++) {
 				const { subBlocks } = blocks[j];
 				if (servicePrediction?.[i]?.['services']?.[j]?.['output']) {
-					const { quantity, isSelected } =
+					const { quantity, show } =
 						servicePrediction?.[i]?.['services']?.[j]?.['output'] || {};
 					subBlocks[0].quantity = quantity;
-					subBlocks[0].show = isSelected;
+					subBlocks[0].show = show;
 					serviceDataMapped[i].data.ai_generated = true;
 				}
 				blocks[j].subBlocks = [...subBlocks];
