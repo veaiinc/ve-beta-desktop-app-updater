@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useRef, useContext } from 'react';
+import React, { memo, useState, useEffect, useRef, useContext, useCallback } from 'react';
 import OtpInput from 'react-otp-input';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/login_page/index.scss';
@@ -32,8 +32,13 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 		otpError: '',
 		isLoading: false,
 		canResend: true,
+		locationDetails: null,
 	});
 	const otpContainerRef = useRef(null);
+
+	useEffect(() => {
+		handleLocationDetailsData();
+	}, []);
 
 	useEffect(() => {
 		if (info?.otp?.length !== 6) {
@@ -61,8 +66,6 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			} else if (emailVerified) {
 				if (response?.[1]?.hasWorkspaces) {
 					if (response?.[1]?.isOnboard) {
-						const locationDetails = await getLocationsDetails();
-						localStorage?.setItem('locationDetails', JSON.stringify(locationDetails));
 						navigate('/home');
 					} else {
 						navigate('/early-access');
@@ -84,8 +87,8 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 	const debouncedVerifyCode = debounce(verifyCode, 1500);
 
 	const handleCreateAccountWithEmail = async (email) => {
-		const locationDetails = await getLocationsDetails();
-		const response = await createAccountUsingEmail(email, locationDetails);
+		// const locationDetails = await getLocationsDetails();
+		const response = await createAccountUsingEmail(email, info?.locationDetails);
 		if (response[0] === true) {
 			setActiveStage('verificationCode');
 		} else {
@@ -126,6 +129,15 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 		}
 		setInfo((prev) => ({ ...prev, isLoading: false }));
 	};
+
+	const handleLocationDetailsData = useCallback(async () => {
+		let locationDetails;
+		locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
+		if (!locationDetails) {
+			locationDetails = await getLocationsDetails();
+		}
+		setInfo((prev) => ({ ...prev, locationDetails }));
+	}, []);
 
 	return (
 		<div className="verification-code-container">
