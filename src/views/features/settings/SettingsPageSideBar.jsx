@@ -1,13 +1,23 @@
-import React, { memo } from 'react';
+import React, { memo, useContext } from 'react';
 import '../../../assets/scss/settings/settingsPageSidebar.scss';
 import { useNavigate } from 'react-router-dom';
 import { menuItems } from './indexConstant';
+import Context from '../../../context/context';
 
 const SettingsPageSideBar = ({ type, setType1 }) => {
 	const navigate = useNavigate();
 
+	const {
+		profileInfo: { userDetailsData },
+	} = useContext(Context);
+
 	const changeRouteFunction = (route) => {
 		setType1(route);
+	};
+
+	const handleCreateWorkspace = () => {
+		const username = userDetailsData?.firstName ?? '';
+		navigate(`/onboarding?username=${username}`);
 	};
 
 	return (
@@ -32,7 +42,7 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 						animationDelay: `${menuItems?.length * 10}ms`,
 						animationName: 'fadeIn',
 					}}
-					onClick={() => navigate(`/create-workspace?authtenticated=true`)}
+					onClick={handleCreateWorkspace}
 				>
 					{' '}
 					+ Create Workspace

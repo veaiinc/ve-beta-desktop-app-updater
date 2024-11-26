@@ -12,6 +12,7 @@ const actionHandlers = {
 		...state,
 		currentPlan: action.payload,
 	}),
+
 	RESET_STATE: () => intialState,
 };
 

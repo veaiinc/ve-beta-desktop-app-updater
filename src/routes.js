@@ -1,5 +1,7 @@
 import AuthWrapper from './views/layouts/authWrapper';
-import LoginScreen from './views/features/signin';
+import LoginPage from './views/features/login_page/LoginPage';
+import Onboarding from './views/features/onboarding/Onboarding';
+// import LoginScreen from './views/features/signin';
 import ChatScreen from './views/features/meta_Integ/index';
 import OauthVerify from './views/features/signin/oauth';
 import Workflow_builder from './views/features/workflow_builder';
@@ -19,37 +21,45 @@ import GalleryViewer from './views/features/gallery/GalleryViewer';
 import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
+import { Navigate } from 'react-router-dom';
 import Subscription from './views/features/subscription';
+import TermsOfService from './views/features/signin/TermsOfService';
+import CookiePolicy from './views/features/signin/CookiePolicy';
 
+import ShareAndEarn from './views/features/ShareAndEarn';
 const routes = [
 	{
 		path: '/',
 		component: <Landing_screen />,
 	},
 	{
+		path: '/onboarding',
+		component: <Onboarding />,
+	},
+	{
 		path: '/verify-user',
-		component: <LoginScreen stage={'verify-user'} />,
+		component: <LoginPage />,
 	},
-	{
-		path: '/login-with-password',
-		component: <LoginScreen stage={'login-with-password'} />,
-	},
-	{
-		path: '/signup-user',
-		component: <LoginScreen stage={'signup-user'} />,
-	},
-	{
-		path: '/verify-email-code',
-		component: <LoginScreen stage={'verify-email-code'} />,
-	},
-	{
-		path: '/create-workspace',
-		component: <LoginScreen stage={'create-workspace'} />,
-	},
-	{
-		path: '/forgot-password',
-		component: <LoginScreen stage={'forgot-password'} />,
-	},
+	// {
+	// 	path: '/login-with-password',
+	// 	component: <LoginScreen stage={'login-with-password'} />,
+	// },
+	// {
+	// 	path: '/signup-user',
+	// 	component: <LoginScreen stage={'signup-user'} />,
+	// },
+	// {
+	// 	path: '/verify-email-code',
+	// 	component: <LoginScreen stage={'verify-email-code'} />,
+	// },
+	// {
+	// 	path: '/create-workspace',
+	// 	component: <LoginScreen stage={'create-workspace'} />,
+	// },
+	// {
+	// 	path: '/forgot-password',
+	// 	component: <LoginScreen stage={'forgot-password'} />,
+	// },
 	{
 		path: '/user/verify-oauth-user',
 		component: <OauthVerify />,
@@ -57,6 +67,14 @@ const routes = [
 	{
 		path: '/privacy-policy',
 		component: <PrivacyPolicy />,
+	},
+	{
+		path: '/terms-of-service',
+		component: <TermsOfService />,
+	},
+	{
+		path: '/cookie-policy',
+		component: <CookiePolicy />,
 	},
 	// {
 	// 	path: '/inbox',
@@ -83,6 +101,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Sales'}>
 				<GlobalWorkflows />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/share-and-earn',
+		component: (
+			<AuthWrapper title={'Share and Earn'}>
+				<ShareAndEarn />
 			</AuthWrapper>
 		),
 		exact: true,
@@ -132,7 +159,7 @@ const routes = [
 	{
 		path: '/galleries/:galleryId',
 		component: (
-			<AuthWrapper title={'Gallery'}>
+			<AuthWrapper title={'Gallery'} maxWidth={'1200px'}>
 				<GalleryPage />
 			</AuthWrapper>
 		),
@@ -173,6 +200,10 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+	},
+	{
+		path: '*',
+		component: <Navigate to="/" />,
 	},
 	{
 		path: '/subscription',

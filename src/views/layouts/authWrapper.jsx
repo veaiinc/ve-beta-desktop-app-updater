@@ -7,7 +7,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import Sidebar from '../components/sidebar/Sidebar';
 import useAuth from '../hooks/useAuth';
 
-const AuthWrapper = ({ title, children }) => {
+const AuthWrapper = ({ title, children, maxWidth = '' }) => {
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 
 	const checkAuth = useAuth();
@@ -40,7 +40,9 @@ const AuthWrapper = ({ title, children }) => {
 						style={{ flex: 1, overflowY: 'auto', maxHeight: '100%', height: '100%' }}
 						id="scrollableTarget"
 					>
-						<div className="childrenContainer">{children}</div>
+						<div className="childrenContainer" style={{ maxWidth: maxWidth || '' }}>
+							{children}
+						</div>
 					</div>
 				</SkeletonTheme>
 			</div>
