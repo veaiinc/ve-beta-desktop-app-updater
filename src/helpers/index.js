@@ -56,8 +56,6 @@ export const getLocationsDetails = async () => {
 		}
 	}
 
-	locationDetails.region = apiRegion;
-	localStorage.setItem('region', apiRegion);
 	localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
 	return locationDetails;
 };

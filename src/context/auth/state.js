@@ -77,7 +77,20 @@ export const AuthState = () => {
 
 	const createAccountUsingEmail = async (email, locationDetails) => {
 		const path = '/signup';
-		const body = { email, locationDetails };
+		const body = {
+			email,
+			locationDetails: {
+				countryCode: 'US',
+				countryRegionCode: 'CA',
+				countryRegion: 'California',
+				country: 'United States',
+				city: 'San Francisco',
+				timezone: 'America/Los_Angeles',
+				region: 'us-east-1',
+				postalCode: '94103',
+				currency: 'USD',
+			},
+		};
 
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
@@ -110,17 +123,12 @@ export const AuthState = () => {
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
 			if (response[0] === true) {
-				const { accessToken, accessibleWorkspaces, region } = response?.[1] || {};
+				const { accessToken, accessibleWorkspaces } = response?.[1] || {};
 				const hasWorkspaces = accessibleWorkspaces?.length > 0;
 
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
-					localStorage.setItem('region', region || 'ap-south-1');
 					Cookies.set('usertoken', accessToken, {
-						sameSite: 'lax',
-						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
-					});
-					Cookies.set('region', region || 'ap-south-1', {
 						sameSite: 'lax',
 						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 					});
@@ -137,7 +145,13 @@ export const AuthState = () => {
 					];
 				}
 
-				const { isOnboard, workspaceId } = accessibleWorkspaces?.[0];
+				const { isOnboard, workspaceId, region } = accessibleWorkspaces?.[0];
+				localStorage.setItem('region', region || 'ap-south-1');
+
+				Cookies.set('region', region || 'ap-south-1', {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				});
 				if (isOnboard) localStorage.setItem('isOnboard', JSON.stringify(isOnboard));
 				if (hasWorkspaces)
 					localStorage.setItem(
