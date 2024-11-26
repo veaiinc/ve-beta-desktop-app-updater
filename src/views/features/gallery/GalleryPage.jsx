@@ -619,13 +619,17 @@ const GalleryPage = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, selectedImages: [] }));
 	};
 	const handleExpandClick = (selectedImageId = null, type) => {
-		if (type === 'single') {
+		if (type === 'single' || info?.selectedImages?.length === 1) {
 			navigate(
-				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}&image=${selectedImageId}`,
+				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${
+					info?.albumTagId
+				}&image=${selectedImageId || info?.selectedImages?.[0]}`,
 			);
 		} else {
+			console.log(info.selectedImages);
 			navigate(
-				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}&image=${info?.selectedImages?.[0]}`,
+				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}`,
+				{ state: { selectedImages: info?.selectedImages } },
 			);
 		}
 	};

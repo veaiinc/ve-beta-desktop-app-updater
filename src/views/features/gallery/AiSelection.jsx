@@ -85,7 +85,11 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 			{info?.search === 'AI Face Registration' && <AiFaceRegistration link={link} />}
 			{info?.search === 'Insights' && <Insights />}
 			{info?.search === 'Ai Faces' && (
-				<AiFacesContainer galleryId={galleryId} galleryCredentials={galleryCredentials} />
+				<AiFacesContainer
+					galleryId={galleryId}
+					galleryCredentials={galleryCredentials}
+					handleBackClick={() => handleOptionClick('AI People')}
+				/>
 			)}
 		</div>
 	);
