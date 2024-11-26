@@ -15,6 +15,7 @@ const AiPeopleContainer = ({ galleryId, galleryCredentials, handleFaceClick }) =
 			getAiFace(galleryId, 1, 40, true);
 		}
 	}, [aiFace]);
+
 	const fetchMoreFaces = () => {
 		const nextPage = info?.page + 1;
 		getAiFace(galleryId, nextPage).then(() => {

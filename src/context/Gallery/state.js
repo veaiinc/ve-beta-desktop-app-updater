@@ -1394,6 +1394,12 @@ export const Galleries = () => {
 			console.log('error==>getAiFaceImages', error);
 		}
 	};
+	const clearAiFace = () => {
+		dispatch({
+			type: Actions.GET_AI_FACE,
+			payload: null,
+		});
+	};
 	return {
 		...state,
 		getGalleries,
@@ -1464,5 +1470,6 @@ export const Galleries = () => {
 		getDownloadLinkStatus,
 		getZipDownloadUrl,
 		getAiFaceImages,
+		clearAiFace,
 	};
 };

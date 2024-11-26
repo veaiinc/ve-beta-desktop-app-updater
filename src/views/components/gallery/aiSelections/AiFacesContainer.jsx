@@ -4,7 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import PeopleCard from '../galleryView/PeopleCard';
 import { ReactComponent as BackIcon } from '../../../../assets/svg/gallery/back-gray.svg';
 
-const AiFacesContainer = ({ galleryId, galleryCredentials }) => {
+const AiFacesContainer = ({ galleryId, galleryCredentials, handleBackClick }) => {
 	const {
 		galleryInfo: { getAiFace, aiFace, getAiFaceImages },
 	} = useContext(Context);
@@ -37,7 +37,7 @@ const AiFacesContainer = ({ galleryId, galleryCredentials }) => {
 	};
 	return (
 		<div className="aiFaces-container">
-			<div className="aiFaces-header-back">
+			<div className="aiFaces-header-back" onClick={handleBackClick}>
 				<BackIcon />
 				<p>Back</p>
 			</div>
