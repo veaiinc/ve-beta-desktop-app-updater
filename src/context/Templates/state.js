@@ -38,7 +38,6 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './Actions';
 import Service from '../../services/index';
-import { errorCodes } from '@apollo/client/invariantErrorCodes';
 
 export const intialState = {
 	workflowslist: null,
@@ -61,6 +60,7 @@ export const intialState = {
 	tabItemCount: null,
 	eventsPresetData: null,
 	sendSmartFileSettings: null,
+	aiPredictedData: null,
 };
 
 export const TemplatesState = (props) => {
@@ -978,6 +978,27 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	//Ai predictions
+	const getAiPredictionForSmartFile = async (workflowSlug) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/${workflowSlug}/predict`;
+			const response = await Service.fetchGet(url, usertoken, 'ai_predictions');
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_AI_PREDICTED_DATA_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				console.log('api failed==>getAiPredictionForSmartFile', response);
+			}
+		} catch (error) {
+			console.log('errror ==>getAiPredictionForSmartFile', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -1020,5 +1041,6 @@ export const TemplatesState = (props) => {
 		editEventsPresets,
 		deleteEventsPreset,
 		getLatestSendSmartFileSettings,
+		getAiPredictionForSmartFile,
 	};
 };

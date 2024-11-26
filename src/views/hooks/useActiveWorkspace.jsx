@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
+import { fetchDomainName } from '../../helpers';
 
 const useActiveWorkspace = () => {
 	const [workspaceId, setActiveWorkspaceId] = useState(() => {
@@ -9,9 +10,10 @@ const useActiveWorkspace = () => {
 	useEffect(() => {
 		if (workspaceId) {
 			localStorage.setItem('workspaceId', workspaceId);
+			const host = fetchDomainName();
 			Cookies.set('workspaceID', workspaceId, {
 				sameSite: 'lax',
-				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				domain: host,
 			});
 		}
 	}, [workspaceId]);

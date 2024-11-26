@@ -2,7 +2,7 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 import service from '../../services/';
 import Cookies from 'js-cookie';
-import { getLocationsDetails } from '../../helpers';
+import { fetchDomainName, getLocationsDetails } from '../../helpers';
 const { auth_Api: authBaseUrl } = require('../../services/config.live');
 
 export const AuthState = () => {
@@ -104,12 +104,58 @@ export const AuthState = () => {
 		}
 	};
 
+	const createAccountViaInvite = async (firstName, email, workspaceId, locationDetails) => {
+		const path = '/signup-invited-user';
+		const body = { email, firstName, workspaceId, locationDetails };
+
+		try {
+			const response = await service?.fetchPost(path, body, null, 'auth');
+			console.log('response', response);
+			if (response?.[0] === true) {
+				const { accessToken, region } = response?.[1];
+				localStorage.setItem('usertoken', accessToken);
+				localStorage.setItem('workspaceId', workspaceId);
+				localStorage.setItem('region', region || 'ap-south-1');
+				localStorage.setItem(
+					'isOnboard',
+					response?.[1]?.accessibleWorkspaces?.[0]?.isOnboard?.toString(),
+				);
+				localStorage.setItem(
+					'accessibleWorkspaces',
+					JSON.stringify(response?.[1]?.accessibleWorkspaces),
+				);
+				localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
+				const host = fetchDomainName();
+				Cookies.set('usertoken', accessToken, {
+					sameSite: 'lax',
+					domain: host,
+				});
+				Cookies.set('region', region || 'ap-south-1', {
+					sameSite: 'lax',
+					domain: host,
+				});
+				return [true];
+			} else {
+				return [
+					false,
+					{
+						message: response?.[1]?.message?.trim() + '. Please try again!',
+					},
+				];
+			}
+		} catch (error) {
+			console.error('Error creating account via invite:', error);
+			throw error;
+		}
+	};
+
 	const verifyEmailVerificationCode = async (email, verificationCode, emailVerified) => {
 		const path = emailVerified ? '/login-with-otp' : '/verify-signup-email';
 		const body = emailVerified ? { email, otp: verificationCode } : { email, verificationCode };
 
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
+			const host = fetchDomainName();
 			if (response[0] === true) {
 				const { accessToken, accessibleWorkspaces, region } = response?.[1] || {};
 				const hasWorkspaces = accessibleWorkspaces?.length > 0;
@@ -117,13 +163,14 @@ export const AuthState = () => {
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
 					localStorage.setItem('region', region || 'ap-south-1');
+
 					Cookies.set('usertoken', accessToken, {
 						sameSite: 'lax',
-						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+						domain: host,
 					});
 					Cookies.set('region', region || 'ap-south-1', {
 						sameSite: 'lax',
-						domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+						domain: host,
 					});
 				}
 
@@ -148,7 +195,7 @@ export const AuthState = () => {
 				if (workspaceId) localStorage.setItem('workspaceId', workspaceId);
 				Cookies.set('workspaceID', workspaceId, {
 					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: host,
 				});
 
 				return [
@@ -169,48 +216,6 @@ export const AuthState = () => {
 			}
 		} catch (error) {
 			console.error('Error verifying email verification code:', error);
-			throw error;
-		}
-	};
-
-	const checkUserSessionStatus = async () => {
-		const path = '/accessible-tenants';
-		const token = localStorage?.getItem('usertoken') ?? false;
-		const workspaceId = localStorage?.getItem('workspaceId') ?? false;
-		const locationDetails = localStorage?.getItem('locationDetails') ?? false;
-		try {
-			if (token?.length === 0 || token === false) {
-				return [false, { sessionStatus: false }];
-			}
-			if (workspaceId?.length === 0 || workspaceId === false) {
-				return [true, { sessionStatus: true, isOnboard: false, hasWorkspaces: false }];
-			}
-			const accessibleTenantsResponse = await service?.fetchGet(path, token, 'auth');
-			if (accessibleTenantsResponse?.[0] === true) {
-				if (!locationDetails) {
-					const locationDetails = await getLocationsDetails();
-					localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
-				}
-				if (accessibleTenantsResponse?.[1]?.length === 0) {
-					return [true, { sessionStatus: true, isOnboard: false, hasWorkspaces: false }];
-				}
-				const activeWorkspaceData = accessibleTenantsResponse?.[1]?.filter(
-					(workspaceData) => workspaceData?.activeWorkspaceId === workspaceId,
-				);
-
-				return [
-					true,
-					{
-						sessionStatus: true,
-						isOnboard: activeWorkspaceData?.[0]?.isOnboard,
-						hasWorkspaces: true,
-					},
-				];
-			}
-
-			return [true, { sessionStatus: false }];
-		} catch (error) {
-			console.error('Error checking user session status:', error);
 			throw error;
 		}
 	};
@@ -319,7 +324,6 @@ export const AuthState = () => {
 		createAccountUsingEmail,
 		continueWithGoogle,
 		verifyEmailVerificationCode,
-		checkUserSessionStatus,
 		createWorkspace,
 		checkWorkspaceHandleAvailability,
 		updateUserDetails,

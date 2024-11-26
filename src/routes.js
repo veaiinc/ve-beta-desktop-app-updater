@@ -26,6 +26,7 @@ import Subscription from './views/features/subscription';
 import TermsOfService from './views/features/signin/TermsOfService';
 import CookiePolicy from './views/features/signin/CookiePolicy';
 
+import ShareAndEarn from './views/features/ShareAndEarn';
 const routes = [
 	{
 		path: '/',
@@ -100,6 +101,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Sales'}>
 				<GlobalWorkflows />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/share-and-earn',
+		component: (
+			<AuthWrapper title={'Share and Earn'}>
+				<ShareAndEarn />
 			</AuthWrapper>
 		),
 		exact: true,

@@ -34,8 +34,6 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 				...prev,
 				selectedGalleryTags,
 			}));
-
-			console.log(searchParams.get('tag'));
 		}
 	}, [tagsList, galleryId, albumId]);
 
@@ -46,28 +44,20 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 			return;
 		}
 
-		if (tagsList?.list.find((tag) => tag.displayName === inputTag)) {
+		const slug = slugify(inputTag, { lower: true, strict: true });
+
+		if (tagsList?.list.find((tag) => tag.displayName === inputTag || tag.slug === slug)) {
 			if (info?.selectedGalleryTags?.find((tag) => tag.displayName === inputTag)) {
 				messageApi.warning('Tag already exists');
 				return;
 			} else {
 				return;
-				// setinfo((prev) => ({
-				// 	...prev,
-				// 	selectedGalleryTags: [
-				// 		...prev.selectedGalleryTags,
-				// 		tagsList?.list.find((tag) => tag.displayName === inputTag),
-				// 	],
-				// }));
-				// setinputTag('');
 			}
-
-			return;
 		}
 
 		const json = {
 			displayName: inputTag,
-			slug: slugify(inputTag, { lower: true, strict: true }),
+			slug,
 		};
 
 		const response = await addGalleryTag(json, galleryId);
@@ -125,42 +115,7 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 			<div className="add_label_div">
 				<div className="add_label_input">Label </div>
 				<div> :</div>
-				{/* <input
-					type="text"
-					placeholder="Add Label"
-					value={inputTag}
-					onChange={(e) => setinputTag(e.target.value)}
-					onKeyDown={(e) => e.key === 'Enter' && addNewTagHandler()}
-				/> */}
 
-				{/* <Select
-					showSearch
-					value={inputTag}
-					placeholder="Add Label"
-					style={{ width: '100%', color: '#fff' }}
-					defaultActiveFirstOption={false}
-					suffixIcon={null}
-					filterOption={true}
-					onSearch={(value) => setinputTag(value)}
-					// onChange={(value, v2) => console.log(value, v2)}
-					onSelect={onSelectTagFunc}
-					notFoundContent={null}
-					optionFilterProp="label"
-					// allowClear
-					options={(tagsList?.list || [])
-						?.filter(
-							(tag) =>
-								!info.selectedGalleryTags.some(
-									(selectedTag) => selectedTag._id === tag._id,
-								),
-						)
-						.map((d) => ({
-							value: d._id,
-							label: d.displayName,
-						}))}
-					onKeyDown={(e) => e.key === 'Enter' && addNewTagHandler()}
-					// dropdownStyle={{ backgroundColor: '#333', color: '#fff' }}
-				/> */}
 				<div
 					style={{
 						display: 'flex',
@@ -180,7 +135,13 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 						notFoundContent={null}
 						onSelect={onSelectTagFunc}
 						autoFocus
-						onSearch={(value) => setinputTag(value)}
+						onSearch={(value) => {
+							if (value === 'all') {
+								setinputTag('All');
+							} else {
+								setinputTag(value);
+							}
+						}}
 						optionFilterProp="label"
 						onKeyDown={(e) => e.key === 'Enter' && addNewTagHandler()}
 						options={(tagsList?.list || [])

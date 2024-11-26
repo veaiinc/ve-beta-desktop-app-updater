@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import validator from 'validator';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
@@ -22,6 +22,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 		isEmailValid: false,
 		isLoading: false,
 		googleLoading: false,
+		locationDetails: null,
 	});
 
 	const location = useLocation();
@@ -36,6 +37,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 			localStorage?.setItem('invitedUserEmail', invitedUserEmail);
 			handleSetEmail(null, invitedUserEmail);
 		}
+		handleLocationDetailsData();
 	}, [invitedWorkspaceId, invitedUserEmail]);
 
 	useEffect(() => {
@@ -53,6 +55,15 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 			});
 		}
 	}, [info?.isEmailValid]);
+
+	const handleLocationDetailsData = useCallback(async () => {
+		let locationDetails;
+		locationDetails = localStorage.getItem('locationDetails');
+		if (!locationDetails) {
+			locationDetails = await getLocationsDetails();
+		}
+		setInfo((prev) => ({ ...prev, locationDetails }));
+	}, []);
 
 	const handleCreateAccountWithEmail = async (email) => {
 		if (info?.isLoading) return;
@@ -74,13 +85,17 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	};
 
 	const handleContinueWithGoogle = async () => {
+		if (info?.googleLoading) {
+			return;
+		}
 		let locationDetails = JSON.parse(localStorage?.getItem('locationDetails'));
 		if (!locationDetails) {
 			locationDetails = await getLocationsDetails();
 			localStorage?.setItem('locationDetails', JSON.stringify(locationDetails));
 		}
+
 		setInfo((prev) => ({ ...prev, googleLoading: true }));
-		continueWithGoogle(locationDetails);
+		continueWithGoogle(info?.locationDetails);
 	};
 
 	const handleSetEmail = (e, invitedUserEmail = false) => {

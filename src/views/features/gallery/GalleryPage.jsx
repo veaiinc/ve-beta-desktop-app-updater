@@ -8,15 +8,16 @@ import { ReactComponent as ExpandIcon } from '../../../assets/svg/gallery/expand
 import { ReactComponent as ForwardIcon } from '../../../assets/svg/gallery/forward.svg';
 import { ReactComponent as PinIcon } from '../../../assets/svg/gallery/pin.svg';
 import { ReactComponent as DragIcon } from '../../../assets/svg/gallery/drag.svg';
+import { ReactComponent as RotatingCircle } from '../../../assets/svg/gallery/rotating-circle.svg';
 import { ReactComponent as OptionsIcon } from '../../../assets/svg/gallery/dotsThree.svg';
 import { ReactComponent as CloudUpload } from '../../../assets/svg/Settings/CloudUpload.svg';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
-import { message, Result } from 'antd';
+import { message, Result, Tooltip } from 'antd';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
 import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPopup';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -27,16 +28,19 @@ import GalleryOverview from '../../components/gallery/galleryPage/GalleryOvervie
 import DesignOverviewComp from '../../components/gallery/galleryPage/DesignOverviewComp';
 import UploadGalleryImageCover from '../../components/gallery/galleryPage/UploadGalleryImageCover';
 import MoveToAlbumPopup from '../../components/modalsV2/gallery/MoveToAlbumPopup';
+import AiSelection from './AiSelection';
 import randomize from 'randomatic';
 import axios from 'axios';
 import Skeleton from 'react-loading-skeleton';
 import { gsap } from 'gsap';
 import slugify from 'slugify';
 
+const workspaceId = localStorage.getItem('workspaceId');
 const GalleryPage = () => {
 	const { galleryId } = useParams();
 	const navigate = useNavigate();
 	const location = useLocation();
+	const [searchkeys, setsearchkeys] = useSearchParams();
 	const {
 		galleryInfo: {
 			getAlbums,
@@ -87,6 +91,9 @@ const GalleryPage = () => {
 			getRearrangeStatus,
 			updateImageOrder,
 			changeImageOrder,
+			getDownloadLink,
+			getDownloadLinkStatus,
+			getZipDownloadUrl,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -110,6 +117,8 @@ const GalleryPage = () => {
 		activeAlbumId: tenantAlbums?.albums?.[0]?._id,
 		callToAction: tenantPreferences?.ctaPreferences,
 		timeout: null,
+		galleryDueDate: location?.state?.galleryData?.dueDateEpoch,
+		galleryCreatedAt: location?.state?.galleryData?.shotDuring,
 		linkUpdateError: '',
 		gridStyle: layoutSettings?.gridStyle,
 		thumbnailSize: layoutSettings?.thumbnailSize,
@@ -253,6 +262,8 @@ const GalleryPage = () => {
 			setInfo((prev) => ({
 				...prev,
 				activeGallery: albumImagesCount,
+				galleryDueDate: albumImagesCount?.dueDateEpoch,
+				galleryCreatedAt: albumImagesCount?.shotDuring,
 			}));
 		}
 	}, [albumImagesCount]);
@@ -396,6 +407,9 @@ const GalleryPage = () => {
 	}, [albumDetails]);
 
 	useEffect(() => {
+		const imageSearchKey = searchkeys.get('uploadImageId') || null;
+		console.log(imageSearchKey);
+
 		// if image detail is upload image id
 		if (imageDetail?._id === info?.uploadImageId && galleryCredentials) {
 			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
@@ -406,7 +420,17 @@ const GalleryPage = () => {
 			}));
 		}
 
-		if (albumImagesCount?.coverImage?._id && galleryCredentials && !imageDetail) {
+		if (
+			albumImagesCount?.coverImage?._id &&
+			galleryCredentials &&
+			!imageDetail &&
+			!imageSearchKey
+		) {
+			console.log(
+				'albumImagesCount?.coverImage?._id',
+				albumImagesCount?.coverImage?._id,
+				imageDetail,
+			);
 			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 			const src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?${params}`;
 			setInfo((prev) => ({
@@ -522,13 +546,17 @@ const GalleryPage = () => {
 	};
 
 	const handleClickAlbum = (album, name) => {
-		if (album?.displayName !== info?.albumContains) {
+		const value =
+			name === 'albumName'
+				? album?.title !== info?.albumName
+				: album?.displayName !== info?.albumContains;
+		if (value) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				albumLoading: true,
 			}));
 		}
-		if (name === 'albumName') {
+		if (name === 'albumName' && album?.title !== info?.albumName) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				imagesList: {
@@ -590,11 +618,18 @@ const GalleryPage = () => {
 	const handleClearSelectedImages = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, selectedImages: [] }));
 	};
-	const handleExpandClick = () => {
-		navigate(
-			`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}&image=${info?.selectedImages?.[0]}`,
-		);
+	const handleExpandClick = (selectedImageId = null, type) => {
+		if (type === 'single') {
+			navigate(
+				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}&image=${selectedImageId}`,
+			);
+		} else {
+			navigate(
+				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}&image=${info?.selectedImages?.[0]}`,
+			);
+		}
 	};
+
 	const scrollToSection = (sectionId) => {
 		setInfo((prevInfo) => ({ ...prevInfo, activeLink: sectionId }));
 		const element = document.getElementById(sectionId);
@@ -618,9 +653,24 @@ const GalleryPage = () => {
 		}));
 	};
 	const handleClickContent = (name, count) => {
+		const searchKey = searchkeys.get('uploadImageId');
+		if (searchKey) {
+			setsearchkeys({});
+		}
+		getImageDetail(null, true, false);
+		console.log('calling ', name);
+
 		if (count === 0) return;
-		setInfo((prevInfo) => ({ ...prevInfo, activeTab: name, page: 1 }));
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			activeTab: name,
+			activeLink: 'gallery-overview',
+			page: 1,
+			uploadImageId: null,
+			// imageURL: searchKey ? null : prevInfo?.imageURL,
+		}));
 	};
+
 	const handleNavigateUpload = () => {
 		info?.albumContains === 'All'
 			? navigate(`/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos`)
@@ -628,17 +678,7 @@ const GalleryPage = () => {
 					`/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?tag=${info?.albumContains}`,
 			  );
 	};
-	const convertEpochToDate = (value) => {
-		if (!value) return null;
-		if (moment(value).isValid()) {
-			return moment.unix(value).format('DD-MM-YYYY');
-		}
-		// const epochDate = moment(parseInt(value));
-		// if (epochDate.isValid()) {
-		// 	return epochDate.toDate();
-		// }
-		return null;
-	};
+
 	const handleCallToAction = useCallback(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
@@ -780,6 +820,31 @@ const GalleryPage = () => {
 			showCollaborators: !info?.showCollaborators,
 		}));
 	};
+
+	const handleGalleryDateChange = (dateString, date, type) => {
+		let payload = {};
+
+		if (type === 'createdAt') {
+			const formattedDate = moment(dateString, 'DD-MM-YYYY').format('YYYYMMDD');
+			setInfo((prev) => ({
+				...prev,
+				galleryCreatedAt: formattedDate,
+			}));
+			payload = {
+				shotDuring: formattedDate,
+			};
+		} else if (type === 'dueDate') {
+			const epochDate = moment(dateString, 'DD-MM-YYYY').valueOf();
+			setInfo((prev) => ({
+				...prev,
+				galleryDueDate: epochDate,
+			}));
+			payload = {
+				dueDateEpoch: epochDate,
+			};
+		}
+		postGallery(payload, galleryId);
+	};
 	const handleManageCollaborator = (data) => {
 		setInfo((prev) => ({
 			...prev,
@@ -859,17 +924,29 @@ const GalleryPage = () => {
 		postGallery(payload, galleryId);
 	};
 
-	const handleCopyGalleryLink = () => {
-		console.log(info, 'activeGallery');
-		const workspaceId = localStorage.getItem('workspaceId');
-		navigator.clipboard.writeText(
-			`https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`,
-		);
-		message.success('Gallery link copied to clipboard');
-		setInfo((prev) => ({
-			...prev,
-			showOptions: !prev.showOptions,
-		}));
+	const handleCopyGalleryLink = async () => {
+		const galleryLink = `https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`;
+
+		try {
+			// Try the modern clipboard API first
+			await navigator.clipboard.writeText(galleryLink);
+			message.success('Gallery link copied to clipboard');
+		} catch (err) {
+			// Fallback for older browsers or when clipboard API fails
+			const textArea = document.createElement('textarea');
+			textArea.value = galleryLink;
+			document.body.appendChild(textArea);
+			textArea.select();
+
+			try {
+				document.execCommand('copy');
+				message.success('Gallery link copied to clipboard');
+			} catch (err) {
+				message.error('Failed to copy link');
+			} finally {
+				document.body.removeChild(textArea);
+			}
+		}
 	};
 
 	const getImageDetails = async (imageId, batchId) => {
@@ -889,10 +966,12 @@ const GalleryPage = () => {
 
 	const uploadGalleryCoverChangeHandler = async (e) => {
 		const image = e.target.files[0];
-
 		if (!image) {
 			return;
 		}
+
+		getImageDetail(null, true, false);
+		setsearchkeys({ uploadImageId: 'image-uploading' });
 
 		message.open({
 			type: 'loading',
@@ -948,6 +1027,7 @@ const GalleryPage = () => {
 			setInfo((prev) => ({
 				...prev,
 				uploadImageId: signedURLUpload?.[1]?._id,
+				imageURL: '',
 				coverPhoto: true,
 			}));
 
@@ -1000,6 +1080,7 @@ const GalleryPage = () => {
 				docs: updatedImages,
 			},
 			showDeleteAlbum: false,
+			selectedImages: [],
 		}));
 		message.success('Images deleted successfully');
 	};
@@ -1139,15 +1220,6 @@ const GalleryPage = () => {
 		const cardsPerRow = Math.floor((containerWidth + gap) / (cardWidth + gap));
 		const totalRows = Math.ceil(numberOfCards / cardsPerRow);
 
-		console.log(
-			'numberOfCards',
-			numberOfCards,
-			'cardsPerRow',
-			cardsPerRow,
-			'totalRows',
-			totalRows,
-		);
-
 		const totalHeight = totalRows * (cardHeight + gap);
 
 		return totalHeight;
@@ -1224,7 +1296,6 @@ const GalleryPage = () => {
 			const payload = {
 				customSortIndex: changedItemIndex,
 			};
-			console.log(items);
 
 			updateAlbumOrder(payload, galleryId, albumID, items);
 		}
@@ -1245,6 +1316,25 @@ const GalleryPage = () => {
 					},
 				},
 			);
+		} else {
+			message.error('Cant set album cover with more than 1 image');
+		}
+	};
+	const handleSetGalleryCover = async () => {
+		if (info?.selectedImages?.length < 2) {
+			setInfo((prev) => ({
+				...prev,
+				activeTab: 'Settings',
+				uploadImageId: info?.selectedImages[0],
+				coverPhoto: true,
+				coverImageDetails: null,
+			}));
+			getImageDetail(info?.selectedImages[0]);
+			setsearchkeys({ uploadImageId: info?.selectedImages[0] });
+
+			setTimeout(() => {
+				scrollToSection('upload-gallery-cover');
+			}, 500);
 		} else {
 			message.error('Cant set album cover with more than 1 image');
 		}
@@ -1379,7 +1469,6 @@ const GalleryPage = () => {
 					: tag,
 			),
 		}));
-		console.log(updatedImages, 'updatedImages');
 
 		remainingImages.splice(info.dropPlaceholder, 0, ...updatedImages);
 
@@ -1427,6 +1516,20 @@ const GalleryPage = () => {
 		if (!image) return 0;
 		const activeTag = image.galleryTags.find((tag) => tag._id === info.albumTagId);
 		return activeTag?.customSortIndex || 0;
+	};
+	const handleDownload = async () => {
+		const payload = {
+			imageType: 'optimized',
+		};
+		const response = await getDownloadLink(payload, galleryId, info.activeAlbumId);
+		if (response?.[0] === true) {
+			const downloadId = response?.[1]?.downloadId;
+			const response2 = await getDownloadLinkStatus(downloadId);
+			if (response2?.[0] === true) {
+				const fileID = response2?.[1]?.zipFiles?.[0]?.zipFileId;
+				const zipDownloadUrl = await getZipDownloadUrl(downloadId, fileID);
+			}
+		}
 	};
 
 	// Add this function to calculate drop position
@@ -2255,6 +2358,25 @@ const GalleryPage = () => {
 																			{info.isMouseInGallery && (
 																				<div className="imageOverlay"></div>
 																			)}
+
+																			<div
+																				onClick={() =>
+																					handleExpandClick(
+																						image?._id,
+																						'single',
+																					)
+																				}
+																				style={{
+																					zIndex: 3,
+																				}}
+																			>
+																				<Tooltip
+																					title="Focus"
+																					placement="top"
+																				>
+																					<RotatingCircle className="rotating-circle" />
+																				</Tooltip>
+																			</div>
 																		</div>
 																	);
 																},
@@ -2477,11 +2599,14 @@ const GalleryPage = () => {
 											</div>
 											{!info.isRearranging && (
 												<div className="selectedImagesActions">
-													{info?.selectedImages?.length === 1 && (
-														<div onClick={handleExpandClick}>
-															<ExpandIcon />
-														</div>
-													)}
+													<div
+														onClick={() =>
+															handleExpandClick(null, 'multiple')
+														}
+													>
+														<ExpandIcon />
+													</div>
+
 													<div
 														style={{ position: 'relative' }}
 														ref={forwardIconRef}
@@ -2590,7 +2715,9 @@ const GalleryPage = () => {
 																className="optionsContainer"
 																ref={optionsContainerRef}
 															>
-																<li>Download</li>
+																<li onClick={handleDownload}>
+																	Download
+																</li>
 																<li
 																	style={{
 																		cursor:
@@ -2603,7 +2730,21 @@ const GalleryPage = () => {
 																		handleSetAlbumCover()
 																	}
 																>
-																	Set as cover
+																	Set Album cover
+																</li>
+																<li
+																	style={{
+																		cursor:
+																			info?.selectedImages
+																				.length === 1
+																				? 'pointer'
+																				: 'not-allowed',
+																	}}
+																	onClick={() =>
+																		handleSetGalleryCover()
+																	}
+																>
+																	Set Gallery cover
 																</li>
 																<li>Share</li>
 																<li
@@ -2902,8 +3043,8 @@ const GalleryPage = () => {
 								handleCallToAction={handleCallToAction}
 								handleClientSubscription={handleClientSubscription}
 								handleManageCollaboratorPopup={handleManageCollaboratorPopup}
-								convertEpochToDate={convertEpochToDate}
 								handleLinkChange={handleLinkChange}
+								handleGalleryDateChange={handleGalleryDateChange}
 							/>
 
 							<DesignOverviewComp info={info} handleLayoutType={handleLayoutType} />
@@ -2937,6 +3078,14 @@ const GalleryPage = () => {
 								Design
 							</li>
 							<li
+								onClick={() => scrollToSection('upload-gallery-cover')}
+								className={
+									info.activeLink === 'upload-gallery-cover' ? 'active' : ''
+								}
+							>
+								Gallery over
+							</li>
+							<li
 								onClick={() => scrollToSection('delete')}
 								className={info.activeLink === 'delete' ? 'active' : ''}
 							>
@@ -2944,6 +3093,13 @@ const GalleryPage = () => {
 							</li>
 						</div>
 					</div>
+				)}
+				{info.activeTab === 'AI' && (
+					<AiSelection
+						galleryId={galleryId}
+						galleryCredentials={galleryCredentials}
+						link={`https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}/pre-register`}
+					/>
 				)}
 			</div>
 

@@ -27,6 +27,7 @@ export const intialState = {
 	clientSelectionsData: null,
 	clientSelectionImages: null,
 	galleryShareDetails: null,
+	aiFace: null,
 };
 
 export const Galleries = () => {
@@ -765,8 +766,17 @@ export const Galleries = () => {
 		}
 	};
 
-	const getImageDetail = async (imageId) => {
+	const getImageDetail = async (imageId, reset = true, apiCall = true) => {
 		try {
+			if (reset) {
+				dispatch({
+					type: Actions.GET_IMAGE_DETAIL,
+					payload: null,
+				});
+			}
+
+			if (!apiCall) return;
+
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(
@@ -1104,6 +1114,12 @@ export const Galleries = () => {
 			console.log('error==>getClientSelections', error);
 		}
 	};
+	const clearClientSelectionsData = () => {
+		dispatch({
+			type: Actions.GET_CLIENT_SELECTIONS,
+			payload: null,
+		});
+	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-collections/{{ _.collection_id }}/images
 	const getClientSelectionImages = async (collectionId) => {
 		try {
@@ -1194,6 +1210,13 @@ export const Galleries = () => {
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/custom-sort-index
 	const updateAlbumOrder = async (payload, galleryId, albumId, sortedItems) => {
 		try {
+			dispatch({
+				type: Actions.GET_ALBUM_IMAGES_COUNT,
+				payload: {
+					...state.albumImagesCount,
+					albums: [...sortedItems],
+				},
+			});
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchPut(
@@ -1203,15 +1226,8 @@ export const Galleries = () => {
 				'galleries',
 			);
 
-			if (response[0] === true) {
-				dispatch({
-					type: Actions.GET_ALBUM_IMAGES_COUNT,
-					payload: {
-						...state.albumImagesCount,
-						albums: [...sortedItems],
-					},
-				});
-			}
+			// if (response[0] === true) {
+			// }
 
 			return response;
 		} catch (error) {
@@ -1268,6 +1284,12 @@ export const Galleries = () => {
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/default-sort
 	const setDefaultSort = async (payload) => {
 		try {
+			dispatch({
+				type: Actions.GET_TENANT_GALLERIES,
+				payload: null,
+			});
+
+			console.log('payload==>setDefaultSort', state.tenantAlbums);
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchPut(
@@ -1283,7 +1305,95 @@ export const Galleries = () => {
 			console.log('error==>setDefaultSort', error);
 		}
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/face
+	const getAiFace = async (galleryId, page = 1, limit = 40, reset = false) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/faces?page=${page}&limit=${limit}`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				const data = reset
+					? response?.[1]
+					: {
+							...state.aiFace,
+							...response?.[1],
+							faces: [...state.aiFace?.faces, ...response?.[1]?.faces],
+					  };
+				dispatch({
+					type: Actions.GET_AI_FACE,
+					payload: data,
+				});
+			}
+		} catch (error) {
+			console.log('error==>getAiFace', error);
+		}
+	};
 
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/download
+	// 1
+	const getDownloadLink = async (payload, galleryId, albumId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/download`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>getDownloadLink', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/download/{{downloadId}}
+	const getDownloadLinkStatus = async (downloadId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/download/${downloadId}`,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>getDownloadLinkStatus', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/download/{{downloadId}}/{{fileId}}/zip-download-url
+	const getZipDownloadUrl = async (downloadId, fileId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.fetchGet(
+				`/download/${downloadId}/${fileId}/zip-download-url`,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>getZipDownloadUrl', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/faces/_.face_id/images
+	const getAiFaceImages = async (galleryId, faceId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/faces/${faceId}/images`,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>getAiFaceImages', error);
+		}
+	};
 	return {
 		...state,
 		getGalleries,
@@ -1348,5 +1458,11 @@ export const Galleries = () => {
 		updateImageOrder,
 		changeImageOrder,
 		setDefaultSort,
+		getAiFace,
+		clearClientSelectionsData,
+		getDownloadLink,
+		getDownloadLinkStatus,
+		getZipDownloadUrl,
+		getAiFaceImages,
 	};
 };

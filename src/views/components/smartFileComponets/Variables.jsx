@@ -10,6 +10,8 @@ const Variables = ({
 	handleUpdateVaraiblesArray,
 	expiresAt,
 	updateSmartFileExpiry,
+	gotUnacceptedAiGeneratedValue,
+	openAiGenerateModal,
 }) => {
 	const [info, setInfo] = useState({
 		data: [],
@@ -58,6 +60,10 @@ const Variables = ({
 
 	const onLocalVariableDataChange = useCallback(
 		async (e, index) => {
+			if (gotUnacceptedAiGeneratedValue) {
+				openAiGenerateModal();
+				return;
+			}
 			let updatedData = [...(info?.data || [])];
 			let variableElementToBeUpdated = updatedData?.[index];
 			variableElementToBeUpdated = { ...variableElementToBeUpdated, value: e.target.value };
@@ -67,7 +73,7 @@ const Variables = ({
 			variableOnChangeFunc(variableElementToBeUpdated);
 			return;
 		},
-		[info?.data, variableOnChangeFunc],
+		[info?.data, variableOnChangeFunc, gotUnacceptedAiGeneratedValue],
 	);
 	const updateDuplicatedVaribales = useCallback(
 		async (data) => {
@@ -111,6 +117,10 @@ const Variables = ({
 
 	const onChangeLocalWorkflowExpiry = useCallback(
 		async (e) => {
+			if (gotUnacceptedAiGeneratedValue) {
+				openAiGenerateModal();
+				return;
+			}
 			const value = e.target.value.replace(/[^0-9]/g, '');
 			if (+value === +info?.workflowexpiryInDays) {
 				return;
@@ -121,7 +131,7 @@ const Variables = ({
 				workflowexpiryInDaysChanged: true,
 			}));
 		},
-		[info?.workflowexpiryInDays],
+		[info?.workflowexpiryInDays, gotUnacceptedAiGeneratedValue],
 	);
 
 	const handleDebouceFunctionCall = useCallback(
@@ -157,7 +167,7 @@ const Variables = ({
 				))}
 				<div className="proposalContainer">
 					<div className="inputWithLabelContainer">
-						<span className="labelName">Worklow Validity</span>
+						<span className="labelName">Workflow Validity</span>
 						<div
 							style={{
 								display: 'flex',

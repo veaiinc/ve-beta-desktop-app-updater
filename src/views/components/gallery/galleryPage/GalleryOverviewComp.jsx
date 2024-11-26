@@ -2,17 +2,19 @@ import React from 'react';
 import ToggleSlider from '../../../../views/components/input/slider';
 import { DatePicker } from 'antd';
 import { getInitials } from '../../../../helpers/index';
-
+import dayjs from 'dayjs';
+import moment from 'moment';
 const GalleryOverview = ({
 	info,
 	handleGalleryChange,
 	handleCallToAction,
 	handleClientSubscription,
 	handleManageCollaboratorPopup,
-	convertEpochToDate,
 	handleLinkChange,
+	handleGalleryDateChange,
 }) => {
 	const workspaceId = localStorage.getItem('workspaceId');
+
 	return (
 		<div id="gallery-overview" className="settings-overview">
 			<p className="heading">Gallery overview</p>
@@ -42,10 +44,54 @@ const GalleryOverview = ({
 					<DatePicker
 						className="datePicker"
 						format="DD-MM-YYYY"
-						selected={convertEpochToDate(info.activeGallery?.dueDateEpoch)}
-						// onChange={(date, dateString) =>
-						// 	handleAlbumNameChange(dateString, 'date')
-						// }
+						defaultValue={
+							info?.galleryCreatedAt
+								? dayjs(
+										`${moment(info?.galleryCreatedAt, 'YYYYMMDD').format(
+											'DD-MM-YYYY',
+										)}`,
+										['DD-MM-YYYY'],
+								  )
+								: ''
+						}
+						onChange={(e, dateString, date) =>
+							handleGalleryDateChange(dateString, date, 'createdAt')
+						}
+					/>
+				</div>
+			</div>
+
+			<div className="galleryDate">
+				<p className="subHeading">Gallery Expiry Date </p>
+				<p className="subTitle">
+					Sort galleries by this date. Which is visible to the client
+				</p>
+				<div>
+					<DatePicker
+						className="datePicker"
+						format="DD-MM-YYYY"
+						selected={
+							info?.galleryDueDate
+								? dayjs(
+										`${moment
+											.unix(`${info?.galleryDueDate}`)
+											.format('DD-MM-YYYY')}`,
+								  )
+								: ''
+						}
+						defaultValue={
+							info?.galleryDueDate
+								? dayjs(
+										`${moment
+											.unix(`${info?.galleryDueDate / 1000}`)
+											.format('DD-MM-YYYY')}`,
+										['DD-MM-YYYY'],
+								  )
+								: ''
+						}
+						onChange={(e, dateString, date) =>
+							handleGalleryDateChange(dateString, date, 'dueDate')
+						}
 					/>
 				</div>
 			</div>
@@ -93,7 +139,7 @@ const GalleryOverview = ({
 				</div>
 				<div className="collaboratorsList">
 					{info?.collaboratorsData?.map((ele, index) => (
-						<div className="collaboratorsContainer">
+						<div className="collaboratorsContainer" key={`collaborators-${index}`}>
 							<div className="collaboratorsImage">
 								<div className="tenantLogo">
 									<p>{getInitials(ele?.firstName, ele?.lastName)}</p>
