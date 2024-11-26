@@ -219,48 +219,6 @@ export const AuthState = () => {
 		}
 	};
 
-	const checkUserSessionStatus = async () => {
-		const path = '/accessible-tenants';
-		const token = localStorage?.getItem('usertoken') ?? false;
-		const workspaceId = localStorage?.getItem('workspaceId') ?? false;
-		const locationDetails = localStorage?.getItem('locationDetails') ?? false;
-		try {
-			if (token?.length === 0 || token === false) {
-				return [false, { sessionStatus: false }];
-			}
-			if (workspaceId?.length === 0 || workspaceId === false) {
-				return [true, { sessionStatus: true, isOnboard: false, hasWorkspaces: false }];
-			}
-			const accessibleTenantsResponse = await service?.fetchGet(path, token, 'auth');
-			if (accessibleTenantsResponse?.[0] === true) {
-				if (!locationDetails) {
-					const locationDetails = await getLocationsDetails();
-					localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
-				}
-				if (accessibleTenantsResponse?.[1]?.length === 0) {
-					return [true, { sessionStatus: true, isOnboard: false, hasWorkspaces: false }];
-				}
-				const activeWorkspaceData = accessibleTenantsResponse?.[1]?.filter(
-					(workspaceData) => workspaceData?.activeWorkspaceId === workspaceId,
-				);
-
-				return [
-					true,
-					{
-						sessionStatus: true,
-						isOnboard: activeWorkspaceData?.[0]?.isOnboard,
-						hasWorkspaces: true,
-					},
-				];
-			}
-
-			return [true, { sessionStatus: false }];
-		} catch (error) {
-			console.error('Error checking user session status:', error);
-			throw error;
-		}
-	};
-
 	const updateUserDetails = async (username, phoneNumber = false) => {
 		const firstName = username?.split(' ')?.[0] || '';
 		const lastName = username?.split(' ')?.[1] || '';
@@ -365,7 +323,6 @@ export const AuthState = () => {
 		createAccountUsingEmail,
 		continueWithGoogle,
 		verifyEmailVerificationCode,
-		checkUserSessionStatus,
 		createWorkspace,
 		checkWorkspaceHandleAvailability,
 		updateUserDetails,

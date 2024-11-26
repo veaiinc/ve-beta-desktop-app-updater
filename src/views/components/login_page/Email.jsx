@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import validator from 'validator';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
@@ -22,6 +22,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 		isEmailValid: false,
 		isLoading: false,
 		googleLoading: false,
+		locationDetails: null,
 	});
 
 	const location = useLocation();
@@ -36,6 +37,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 			localStorage?.setItem('invitedUserEmail', invitedUserEmail);
 			handleSetEmail(null, invitedUserEmail);
 		}
+		handleLocationDetailsData();
 	}, [invitedWorkspaceId, invitedUserEmail]);
 
 	useEffect(() => {
@@ -54,11 +56,20 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 		}
 	}, [info?.isEmailValid]);
 
+	const handleLocationDetailsData = useCallback(async () => {
+		let locationDetails;
+		locationDetails = localStorage.getItem('locationDetails');
+		if (!locationDetails) {
+			locationDetails = await getLocationsDetails();
+		}
+		setInfo((prev) => ({ ...prev, locationDetails }));
+	}, []);
+
 	const handleCreateAccountWithEmail = async (email) => {
 		if (info?.isLoading) return;
 		setInfo((prev) => ({ ...prev, isLoading: true }));
-		const locationDetails = await getLocationsDetails();
-		const response = await createAccountUsingEmail(email, locationDetails);
+
+		const response = await createAccountUsingEmail(email, info?.locationDetails);
 		if (response[0] === true) {
 			setActiveStage('verificationCode');
 			setEmailVerified(false);
@@ -70,9 +81,11 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	};
 
 	const handleContinueWithGoogle = async () => {
-		const locationDetails = await getLocationsDetails();
+		if (info?.googleLoading) {
+			return;
+		}
 		setInfo((prev) => ({ ...prev, googleLoading: true }));
-		continueWithGoogle(locationDetails);
+		continueWithGoogle(info?.locationDetails);
 	};
 
 	const handleSetEmail = (e, invitedUserEmail = false) => {
