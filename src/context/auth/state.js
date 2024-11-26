@@ -82,6 +82,7 @@ export const AuthState = () => {
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
 			if (response[0] === true) {
+				localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
 				return [
 					true,
 					{
