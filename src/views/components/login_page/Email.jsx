@@ -58,7 +58,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 
 	const handleLocationDetailsData = useCallback(async () => {
 		let locationDetails;
-		locationDetails = localStorage.getItem('locationDetails');
+		locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
 		if (!locationDetails) {
 			locationDetails = await getLocationsDetails();
 		}
