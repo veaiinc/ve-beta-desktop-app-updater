@@ -132,7 +132,7 @@ const routes = [
 	{
 		path: '/galleries/:galleryId',
 		component: (
-			<AuthWrapper title={'Gallery'}>
+			<AuthWrapper title={'Gallery'} isFullScreen={true}>
 				<GalleryPage />
 			</AuthWrapper>
 		),
