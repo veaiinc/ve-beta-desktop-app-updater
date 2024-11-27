@@ -17,7 +17,11 @@ const OauthVerify = () => {
 		let region = params.get('region');
 
 		if (accessToken) {
-			if (accessibleWorkspaces && accessibleWorkspaces?.length) {
+			if (
+				accessibleWorkspaces &&
+				accessibleWorkspaces?.workspaceId &&
+				accessibleWorkspaces?.isOnboard !== undefined
+			) {
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
 				localStorage.setItem('workspaceId', accessibleWorkspaces?.workspaceId);
 				localStorage.setItem('usertoken', accessToken);
