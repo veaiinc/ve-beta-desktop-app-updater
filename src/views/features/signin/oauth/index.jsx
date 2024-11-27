@@ -12,7 +12,6 @@ const OauthVerify = () => {
 		let accessibleWorkspaces = params.get('workspaceId');
 		accessibleWorkspaces = decodeURIComponent(accessibleWorkspaces);
 		accessibleWorkspaces = JSON.parse(accessibleWorkspaces);
-		console.log('helloo therre==>', accessibleWorkspaces);
 
 		let region = params.get('region');
 
@@ -22,7 +21,6 @@ const OauthVerify = () => {
 				accessibleWorkspaces?.workspaceId &&
 				accessibleWorkspaces?.isOnboard !== undefined
 			) {
-				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
 				localStorage.setItem('workspaceId', accessibleWorkspaces?.workspaceId);
 				localStorage.setItem('usertoken', accessToken);
 				localStorage.setItem('region', region || 'ap-south-1');
