@@ -19,16 +19,16 @@ const OauthVerify = () => {
 		if (accessToken) {
 			if (accessibleWorkspaces && accessibleWorkspaces?.length) {
 				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
-				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]?.workspaceId);
+				localStorage.setItem('workspaceId', accessibleWorkspaces?.workspaceId);
 				localStorage.setItem('usertoken', accessToken);
 				localStorage.setItem('region', region || 'ap-south-1');
-				localStorage.setItem('isOnboard', accessibleWorkspaces?.[0]?.isOnboard);
+				localStorage.setItem('isOnboard', accessibleWorkspaces?.isOnboard);
 				const host = fetchDomainName();
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
 					domain: host,
 				});
-				Cookies.set('workspaceID', accessibleWorkspaces?.[0]?.workspaceId, {
+				Cookies.set('workspaceID', accessibleWorkspaces?.workspaceId, {
 					sameSite: 'lax',
 					domain: host,
 				});
@@ -36,7 +36,7 @@ const OauthVerify = () => {
 					sameSite: 'lax',
 					domain: host,
 				});
-				// localStorage.removeItem('locationDetails');
+
 				return navigate('/home');
 			}
 			if (
@@ -45,7 +45,7 @@ const OauthVerify = () => {
 				!accessibleWorkspaces.length
 			) {
 				localStorage.setItem('usertoken', accessToken);
-				// navigate('/verify-user');
+				navigate('/verify-user');
 				return;
 			}
 		}
