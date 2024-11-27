@@ -5,6 +5,12 @@ import { ReactComponent as TickSvg } from '../../../../assets/svg/tick.svg';
 import { ReactComponent as DownArrow } from '../../../../assets/svg/Settings/Downarrowwhite.svg';
 import { useState } from 'react';
 
+const rolesObject = {
+	admin: 'Admin',
+	default: 'Member',
+	remove: 'Remove',
+};
+
 const TeamAccessListComponent = ({
 	search,
 	handleInputChange,
@@ -81,7 +87,7 @@ const TeamAccessListComponent = ({
 												className="optionDiv"
 												onClick={() => toggleOption(user?._id, user?.role)}
 											>
-												<p>{user?.role}</p>
+												<p>{rolesObject[user?.role]}</p>
 												{info?.isOwner && <DownArrow />}
 											</div>
 
@@ -107,6 +113,17 @@ const TeamAccessListComponent = ({
 														>
 															<p>Member</p>{' '}
 															{selectedOption?.role === 'default' && (
+																<TickSvg />
+															)}{' '}
+														</div>
+														<div
+															className="option"
+															onClick={() =>
+																updateUserRoleFunction('remove')
+															}
+														>
+															<p>Remove</p>{' '}
+															{selectedOption?.role === 'remove' && (
 																<TickSvg />
 															)}{' '}
 														</div>

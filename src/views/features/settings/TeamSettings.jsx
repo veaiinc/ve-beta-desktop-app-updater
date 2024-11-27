@@ -12,7 +12,13 @@ const TeamSettings = () => {
 	// Contexts
 	const {
 		profileInfo: { tenantUserDetails },
-		companyInfo: { getTeamMembers, tenantsUserList, inviteNewuser, updateTenantRole },
+		companyInfo: {
+			getTeamMembers,
+			tenantsUserList,
+			inviteNewuser,
+			updateTenantRole,
+			removeTenantRole,
+		},
 	} = useContext(Context);
 
 	// useStates
@@ -324,9 +330,19 @@ const TeamSettings = () => {
 		}
 	};
 
-	const updateTenantRoleFunc = (_id, role) => {
-		updateTenantRole({ _id, role });
-		setselectedOption({ tenantid: '', role: '' });
+	const updateTenantRoleFunc = async (_id, role) => {
+		const json = {
+			role,
+		};
+
+		const response =
+			role === 'remove' ? await removeTenantRole(_id) : await updateTenantRole(_id, json);
+		if (response?.[0] === true) {
+			messageApi.success(response?.[1]?.message);
+			setselectedOption({ tenantid: '', role: '' });
+		} else {
+			messageApi.error(response?.[1]?.message);
+		}
 	};
 
 	return (
