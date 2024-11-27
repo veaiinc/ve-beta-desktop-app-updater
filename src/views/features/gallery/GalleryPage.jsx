@@ -2719,7 +2719,8 @@ const GalleryPage = () => {
 																className="optionsContainer"
 																ref={optionsContainerRef}
 															>
-																<li onClick={handleDownload}>
+																<li>
+																	{/* onClick={handleDownload} */}
 																	Download
 																</li>
 																<li

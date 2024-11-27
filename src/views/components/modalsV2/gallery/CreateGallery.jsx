@@ -21,6 +21,7 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries, message 
 		eventDateError: false,
 		gallerySlugError: false,
 		timeout: null,
+		isSubmitting: false,
 	});
 
 	useEffect(() => {
@@ -109,6 +110,7 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries, message 
 	};
 
 	const handleSubmit = async () => {
+		if (galleryData?.isSubmitting) return;
 		const galleryNameError = !galleryData.title;
 		const eventDateError = !galleryData.shotDuring;
 		const gallerySlugError = galleryData.gallerySlugError;
@@ -140,6 +142,7 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries, message 
 					},
 				],
 			};
+			setGalleryData((prev) => ({ ...prev, isSubmitting: true }));
 			let response = await createNewGallery(payload);
 
 			if (response?.[0] === true) {
@@ -151,6 +154,8 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries, message 
 			}
 		} catch (error) {
 			console.error('Error creating gallery:', error);
+		} finally {
+			setGalleryData((prev) => ({ ...prev, isSubmitting: false }));
 		}
 	};
 

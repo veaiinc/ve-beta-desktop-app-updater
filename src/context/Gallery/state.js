@@ -1419,6 +1419,22 @@ export const Galleries = () => {
 			payload: null,
 		});
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/download
+	const getDownloadLinkForTag = async (payload, galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/download`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>getDownloadLinkForTag', error);
+		}
+	};
 	return {
 		...state,
 		getGalleries,
@@ -1491,5 +1507,6 @@ export const Galleries = () => {
 		getAiFaceImages,
 		clearAiFace,
 		aiFaceImagesReset,
+		getDownloadLinkForTag,
 	};
 };
