@@ -2,7 +2,7 @@ import React, { useEffect, memo } from 'react';
 import '../../assets/scss/authWrapper.scss';
 import { Helmet } from 'react-helmet';
 import useActiveWorkspace from '../hooks/useActiveWorkspace';
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import Sidebar from '../components/sidebar/Sidebar';
 import useAuth from '../hooks/useAuth';
