@@ -309,6 +309,8 @@
 			display: flex;
 			flex-direction: column;
 			gap: 21px;
+			overflow-y: auto;
+			max-height: 92vh;
 
 			.backContinaer {
 				display: flex;
@@ -376,6 +378,10 @@
 						font-weight: 400;
 						line-height: normal;
 						letter-spacing: -0.22px;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: wrap;
+						max-width: 86px;
 					}
 				}
 
