@@ -71,6 +71,9 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	const handleCreateAccountWithEmail = async (email) => {
 		if (info?.isLoading) return;
 		setInfo((prev) => ({ ...prev, isLoading: true }));
+		if (!info?.locationDetails) {
+			await handleLocationDetailsData();
+		}
 
 		const response = await createAccountUsingEmail(email, info?.locationDetails);
 		if (response[0] === true) {
@@ -88,6 +91,9 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 			return;
 		}
 		setInfo((prev) => ({ ...prev, googleLoading: true }));
+		if (!info?.locationDetails) {
+			await handleLocationDetailsData();
+		}
 		continueWithGoogle(info?.locationDetails);
 	};
 

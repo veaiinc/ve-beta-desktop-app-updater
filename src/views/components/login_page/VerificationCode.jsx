@@ -88,6 +88,9 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 
 	const handleCreateAccountWithEmail = async (email) => {
 		// const locationDetails = await getLocationsDetails();
+		if (!info?.locationDetails) {
+			await handleLocationDetailsData();
+		}
 		const response = await createAccountUsingEmail(email, info?.locationDetails);
 		if (response[0] === true) {
 			setActiveStage('verificationCode');
