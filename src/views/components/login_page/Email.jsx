@@ -31,14 +31,17 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	const invitedUserEmail = params?.get('inviteeEmail');
 
 	useEffect(() => {
-		if (invitedWorkspaceId && invitedUserEmail) {
+		handleLocationDetailsData();
+	}, []);
+
+	useEffect(() => {
+		if (invitedWorkspaceId && invitedUserEmail && info?.locationDetails) {
 			localStorage?.clear();
 			localStorage?.setItem('invitedWorkspaceId', invitedWorkspaceId);
 			localStorage?.setItem('invitedUserEmail', invitedUserEmail);
 			handleSetEmail(null, invitedUserEmail);
 		}
-		handleLocationDetailsData();
-	}, [invitedWorkspaceId, invitedUserEmail]);
+	}, [invitedWorkspaceId, invitedUserEmail, info?.locationDetails]);
 
 	useEffect(() => {
 		if (arrowRef.current && info.isEmailValid) {
