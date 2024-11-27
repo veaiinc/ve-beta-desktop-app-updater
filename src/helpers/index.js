@@ -42,7 +42,7 @@ export const getLocationsDetails = async () => {
 		currency,
 	};
 
-	let apiRegion;
+	let apiRegion = 'ap-south-1';
 	// Dynamic origin selection based on country/region
 	if (country_code === 'IN') {
 		// Route Indian traffic to ap-south-1
