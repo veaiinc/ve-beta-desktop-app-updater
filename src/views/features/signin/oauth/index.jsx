@@ -12,6 +12,7 @@ const OauthVerify = () => {
 		let accessibleWorkspaces = params.get('workspaceId');
 		accessibleWorkspaces = decodeURIComponent(accessibleWorkspaces);
 		accessibleWorkspaces = JSON.parse(accessibleWorkspaces);
+		console.log('helloo therre==>', accessibleWorkspaces);
 
 		let region = params.get('region');
 
@@ -44,7 +45,7 @@ const OauthVerify = () => {
 				!accessibleWorkspaces.length
 			) {
 				localStorage.setItem('usertoken', accessToken);
-				navigate('/verify-user');
+				// navigate('/verify-user');
 				return;
 			}
 		}
