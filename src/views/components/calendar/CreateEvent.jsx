@@ -5,6 +5,7 @@ import { ReactComponent as VerticalDots } from '../../../assets/svg/more-options
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import { ReactComponent as Clock } from '../../../assets/svg/activity/duration.svg';
 import { ReactComponent as Category } from '../../../assets/svg/calendar/category.svg';
+import moment from 'moment/moment';
 
 const CreateEvent = ({ updateCalendarInfo }) => {
 	const [info, setInfo] = useState({
@@ -12,6 +13,12 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 		isAllDayEvent: false,
 		showInputSuggestions: false,
 		attendeesInputField: '',
+		startDateTime: null,
+		endDateTime: null,
+		startDate: '',
+		startTime: '',
+		endDate: '',
+		endTime: '',
 		attendeesList: [],
 		inputDropDownItems: [
 			{
@@ -61,6 +68,30 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 		};
 	}, []);
 
+	// Added to test the startDateTime and endDateTime. This can be removed when we add onClick event to'Add to calender' button.
+	useEffect(() => {
+		if (info?.startDate && info?.endDate) {
+			const startDateObject = moment(
+				`${info?.startDate}${info?.startTime ? `T${info?.startTime}` : ``}`,
+			)
+				.local()
+				.format('YYYY-MM-DDTHH:mm:ssZ');
+			const endDateObject = moment(
+				`${info?.startDate}${info?.startTime ? `T${info?.startTime}` : ``}`,
+			)
+				.local()
+				.format('YYYY-MM-DDTHH:mm:ssZ');
+
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				startDateTime: startDateObject,
+				endDateTime: endDateObject,
+			}));
+
+			console.log('start: ' + startDateObject, 'end: ' + endDateObject);
+		}
+	}, [info?.startDate, info?.startTime, info?.endDate, info?.endTime]);
+
 	const updateCreateEventInfo = useCallback((key, value) => {
 		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
 	}, []);
@@ -99,12 +130,44 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 						<span className="detailsLabel">Details</span>
 					</div>
 					<div className={`${info.isAllDayEvent ? `` : `eventTimeWrapper`}`}>
-						<input type="text" placeholder="Wed, September 22 2024" />
-						{info.isAllDayEvent ? '' : <input type="text" placeholder="12:00PM" />}
+						<input
+							type="date"
+							placeholder="Wed, September 22 2024"
+							className="dateInput"
+							value={info?.startDate}
+							onChange={(e) => updateCreateEventInfo('startDate', e.target.value)}
+						/>
+						{info.isAllDayEvent ? (
+							''
+						) : (
+							<input
+								type="time"
+								placeholder="12:00PM"
+								className="timeInput"
+								value={info?.startTime}
+								onChange={(e) => updateCreateEventInfo('startTime', e.target.value)}
+							/>
+						)}
 					</div>
 					<div className={`${info.isAllDayEvent ? `` : `eventTimeWrapper`}`}>
-						<input type="text" placeholder="Wed, September 22 2024" />
-						{info.isAllDayEvent ? '' : <input type="text" placeholder="12:30AM" />}
+						<input
+							type="date"
+							placeholder="Wed, September 22 2024"
+							className="dateInput"
+							value={info?.endDate}
+							onChange={(e) => updateCreateEventInfo('endDate', e.target.value)}
+						/>
+						{info.isAllDayEvent ? (
+							''
+						) : (
+							<input
+								type="time"
+								placeholder="12:30AM"
+								className="timeInput"
+								value={info?.endTime}
+								onChange={(e) => updateCreateEventInfo('endTime', e.target.value)}
+							/>
+						)}
 					</div>
 					<div className="allDayWrapper">
 						<span className="allDayLabel">All Day Event</span>

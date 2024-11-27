@@ -78,9 +78,17 @@
 			}
 
 			.eventTimeWrapper {
-				display: grid;
-				grid-template-columns: 2fr 1fr;
+				display: flex;
+				// display: grid;
+				// grid-template-columns: 2fr 1fr;
 				gap: 6px;
+
+				.dateInput {
+					flex-grow: 1;
+				}
+				input.timeInput {
+					width: 110px;
+				}
 			}
 			.allDayWrapper {
 				padding-top: 8px;
@@ -383,15 +391,18 @@
 		color: #e4e5e6;
 	}
 
-	input[type='text'] {
-		padding: 11px 14px;
+	input[type='text'],
+	input[type='time'],
+	input[type='date'] {
+		padding: 11px 12px;
 		align-items: center;
 		border-radius: 10px;
 		border: 1px solid #292929;
 		background-color: transparent;
 		color: #e4e5e6;
 		width: 100%;
-		font-size: 12px;
+		font-size: 11px;
 		flex-grow: 1;
+		font-family: Inter;
 	}
 }
