@@ -18,7 +18,7 @@ const navItems = [
 	{ name: 'Terms', route: '/terms-of-service' },
 	{ name: 'Cookies', route: '/cookie-policy' },
 	{ name: 'Blogs', route: '/blogs' },
-	{ name: 'Changelog', route: '/change-log' },
+	{ name: 'Changelog', route: 'https://veai.ve.ai/portal/changelog', isExternal: true },
 ];
 const EarlyAccess = () => {
 	const usertoken = localStorage.getItem('usertoken') ?? '';
@@ -330,7 +330,11 @@ const EarlyAccess = () => {
 								key={i}
 								onClick={(e) => {
 									e.stopPropagation();
-									navigate(item.route);
+									if (item.isExternal) {
+										window.open(item.route, '_blank');
+									} else {
+										navigate(item.route);
+									}
 								}}
 							>
 								{item.name}
