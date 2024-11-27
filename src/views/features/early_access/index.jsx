@@ -16,8 +16,9 @@ import jwtDecode from 'jwt-decode';
 const navItems = [
 	{ name: 'Privacy', route: '/privacy-policy' },
 	{ name: 'Terms', route: '/terms-of-service' },
-	{ name: 'Cookie Policy', route: '/cookie-policy' },
+	{ name: 'Cookies', route: '/cookie-policy' },
 	{ name: 'Blogs', route: '/blogs' },
+	{ name: 'Changelog', route: '/change-log' },
 ];
 const EarlyAccess = () => {
 	const usertoken = localStorage.getItem('usertoken') ?? '';
@@ -190,13 +191,13 @@ const EarlyAccess = () => {
 		});
 	};
 	return (
-		<div className="landing-page-container">
+		<div className="landing-page-container2">
 			<header className="header-container">
 				<VeAiLogo aria-label="VeAi Logo" />
 			</header>
 			<main className="landing-page-content2">
-				<section aria-label="Main content" className="hero-section-1">
-					<h1 className="heading">Almost a beta user, {userName} !</h1>
+				<section aria-label="Main content" className="hero-section-3">
+					<h1 className="heading">Almost a beta user {userName} !</h1>
 					<p className="description">
 						You are on waitlist now, If you want to escape this and get access faster
 						than anyone
@@ -216,7 +217,8 @@ const EarlyAccess = () => {
 							<div className="content-container-outer">
 								<div className="content-text-container">
 									<div className="heading-container">
-										Get your friends to and earn while you're at it!
+										Get your friends to <VeAiLogo />
+										and earn while you're at it!
 									</div>
 									<div className="paragraph-container">
 										You get {referrerReward}% discount and your friends receive{' '}
