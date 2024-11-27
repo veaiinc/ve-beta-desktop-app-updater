@@ -521,26 +521,21 @@
 	.landing-page-container2 {
 		display: flex;
 		flex-direction: column;
-
+		width: 100%;
 		margin: 0px !important;
 		gap: 0px !important;
-		justify-content: center !important;
-		// align-items: center !important;
+		justify-content: space-evenly !important;
 		align-content: space-evenly !important;
-
-		// padding: 40px 30px 40px 30px !important;
 		padding: 0px 30px 0px 30px !important;
 		.landing-page-content2 {
-			// padding: 0px 60px 0px 0px !important;
 			margin: 0px !important;
 			.hero-section-7 {
-				padding: 0px 0px 120px 0px !important;
+				padding: 0px 0px 20px 0px !important;
 			}
 			.header-container {
 				padding: 60px 120px 60px 120px !important;
 				width: 100%;
-				display: flex; // Changed from display: block
-				// Added to position logo
+				display: flex;
 				align-items: center;
 			}
 			.content-container {

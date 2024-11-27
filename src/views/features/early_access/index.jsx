@@ -217,8 +217,8 @@ const EarlyAccess = () => {
 							<div className="content-container-outer">
 								<div className="content-text-container">
 									<div className="heading-container">
-										Get your friends to <VeAiLogo />
-										and earn while you're at it!
+										Get your friends to <VeAiLogo /> {'  '}and earn while you're
+										at it!
 									</div>
 									<div className="paragraph-container">
 										You get {referrerReward}% discount and your friends receive{' '}
