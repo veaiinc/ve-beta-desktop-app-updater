@@ -53,7 +53,7 @@ const TeamAccessListComponent = ({
 			</div>
 			<div>
 				<div>
-					{filteredUsers.map((user, index) => (
+					{filteredUsers?.map((user, index) => (
 						<div className="tenantDetailsContainer" key={user?._id}>
 							<div className="tenantProfileContainer">
 								<div className="tenantLogo">
