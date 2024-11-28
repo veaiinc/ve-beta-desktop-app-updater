@@ -527,6 +527,9 @@
 		justify-content: space-evenly !important;
 		align-content: space-evenly !important;
 		padding: 0px 30px 0px 30px !important;
+		.header-container {
+			height: 50px;
+		}
 		.landing-page-content2 {
 			margin: 0px !important;
 			.hero-section-7 {
@@ -565,7 +568,7 @@
 		}
 	}
 }
-@media screen and (min-width: 375px) and (max-width: 550px) {
+@media screen and (min-width: 360px) and (max-width: 550px) {
 	.landing-page-container2 {
 		height: 100%;
 		background: none !important;
