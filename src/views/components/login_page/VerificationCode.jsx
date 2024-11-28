@@ -173,7 +173,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 				<div className="otp-input-container" ref={otpContainerRef}>
 					<OtpInput
 						value={info?.otp}
-						onChange={(otp) => setInfo({ ...info, otp })}
+						onChange={(otp) => setInfo((prev) => ({ ...prev, otp }))}
 						numInputs={6}
 						renderInput={(props) => {
 							return <input {...props} />;
@@ -194,7 +194,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 							userSelect: 'none',
 						}}
 						containerStyle={{ display: 'flex', gap: '6px' }}
-						isInputNum={true}
+						inputType="number"
 						placeholder="000000"
 						shouldAutoFocus={true}
 					/>
