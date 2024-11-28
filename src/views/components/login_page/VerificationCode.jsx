@@ -41,20 +41,15 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 	}, []);
 
 	useEffect(() => {
-		if (info?.otp?.length !== 6) {
-			setInfo((prev) => ({ ...prev, otpError: '', isLoading: false }));
-			debouncedVerifyCode.cancel();
+		if (info?.otp?.length === 6) {
+			verifyCode(info?.otp);
 		} else {
-			setInfo((prev) => ({ ...prev, isLoading: true }));
-			debouncedVerifyCode(info?.otp);
+			setInfo((prev) => ({ ...prev, otpError: '' }));
 		}
-
-		return () => {
-			debouncedVerifyCode.cancel();
-		};
 	}, [info?.otp]);
 
 	const verifyCode = async (otp) => {
+		if (info?.isLoading) return;
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 		const response = await verifyEmailVerificationCode(email, otp, emailVerified);
 
@@ -94,10 +89,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 		setInfo((prev) => ({ ...prev, isLoading: false }));
 	};
 
-	const debouncedVerifyCode = debounce(verifyCode, 1500);
-
 	const handleCreateAccountWithEmail = async (email) => {
-		// const locationDetails = await getLocationsDetails();
 		if (!info?.locationDetails) {
 			await handleLocationDetailsData();
 		}
