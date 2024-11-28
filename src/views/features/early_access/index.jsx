@@ -100,27 +100,10 @@ const EarlyAccess = () => {
 				message.error('Failed to copy:', err);
 			});
 	}, [shareAndEarnData]);
+
 	const handleInputChange = (e) => {
 		const value = e.target.value;
 		setInputValue(value);
-
-		// If user presses Enter or adds a comma
-		if (value.includes(',') || e.key === 'Enter') {
-			const newEmail = value.replace(',', '').trim();
-
-			// Basic email validation
-			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-			if (emailRegex.test(newEmail)) {
-				// Add email if it's not already in the list
-				if (!emails.includes(newEmail)) {
-					setEmails([...emails, newEmail]);
-				}
-				setInputValue(''); // Clear input after adding
-			} else {
-				message.error('Please enter a valid email address');
-			}
-		}
 	};
 
 	const handleSendInvitation = async () => {
@@ -152,34 +135,26 @@ const EarlyAccess = () => {
 		}
 	};
 
-	// const handleSendInvitations = useCallback(() => {
-	// 	if (emails.length === 0) {
-	// 		message.error('Please enter at least one email');
-	// 		return;
-	// 	}
-
-	// 	const referralCode = shareAndEarnData?.referralDetails?.referralCode;
-	// 	const referralLink = `https://ve.ai/verify-user?ref=${referralCode}`;
-	// 	const subject = 'Join me on Ve.ai!';
-	// 	const body = `Hey! I'm using Ve.ai and thought you might be interested. Use my referral link to sign up and get ${refereeReward}% discount: ${referralLink}`;
-
-	// 	window.location.href = `mailto:?bcc=${encodeURIComponent(
-	// 		emails.join(','),
-	// 	)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-	// 	setShowEmailInput(false);
-	// 	setEmails([]);
-	// 	setInputValue('');
-	// 	message.success('Invitation sent successfully!');
-	// }, [emails, shareAndEarnData, refereeReward]);
-	// const handleInputChange = (e) => {
-	// 	setInputValue(e.target.value);
-	// };
-
 	const handleInputKeyPress = (e) => {
 		if (e.key === 'Enter' && inputValue.trim()) {
-			setEmails((prevEmails) => [...prevEmails, inputValue.trim()]);
-			setInputValue('');
+			const newEmail = inputValue.trim();
+
+			// Basic email validation regex
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+			if (emailRegex.test(newEmail)) {
+				// Check if the email is already in the list
+				if (!emails.includes(newEmail)) {
+					setEmails((prevEmails) => [...prevEmails, newEmail]);
+					setInputValue(''); // Clear input after adding
+				} else {
+					message.error('This email is already added'); // Notify user
+					setInputValue(''); // Clear input if email is already added
+				}
+			} else {
+				message.error('Please enter a valid email address');
+				setInputValue(''); // Clear input if email is invalid
+			}
 		}
 	};
 
@@ -263,14 +238,33 @@ const EarlyAccess = () => {
 								<div className="share-text">Share on</div>
 								{!showEmailInput ? (
 									<div className="icons-container">
-										<div className="icon-button">
+										<div
+											className="icon-button"
+											onClick={() =>
+												window.open(
+													'https://twitter.com/your_twitter_handle',
+													'_blank',
+												)
+											}
+										>
 											<Twitter />
 										</div>
-										<div className="icon-button">
+										<div
+											className="icon-button"
+											onClick={() =>
+												window.open(
+													'https://www.linkedin.com/company/veai',
+													'_blank',
+												)
+											}
+										>
 											<LinkedIn />
 										</div>
-										<div className="icon-button">
-											<MailIcon onClick={() => setShowEmailInput(true)} />
+										<div
+											className="icon-button"
+											onClick={() => setShowEmailInput(true)}
+										>
+											<MailIcon />
 										</div>
 										<div
 											className="icon-button"
