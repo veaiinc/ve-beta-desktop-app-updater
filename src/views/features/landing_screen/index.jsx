@@ -5,11 +5,13 @@ import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/ve
 import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
 import { ReactComponent as ArrowUpBlack } from '../../../assets/svg/landingScreen/arrow-black.svg';
 import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen/double-quote.svg';
+import { ReactComponent as CookieIcon } from '../../../assets/svg/landingScreen/cookie.svg';
+import Cookies from 'js-cookie';
 
 const navItems = [
 	{ name: 'Privacy', route: '/privacy-policy' },
 	{ name: 'Terms', route: '/terms-of-service' },
-	{ name: 'Cookie Policy', route: '/cookie-policy' },
+	{ name: 'Cookies', route: '/cookie-policy' },
 	{ name: 'Blogs', route: '/' },
 ];
 
@@ -17,6 +19,7 @@ const LandingPage = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		activeToggle: 'Path',
+		cookiesAccepted: false,
 	});
 
 	useEffect(() => {
@@ -29,6 +32,21 @@ const LandingPage = () => {
 			if (isOnboard) return navigate('/home');
 		}
 	}, []);
+
+	useEffect(() => {
+		const cookiesAccepted = Cookies.get('cookiesAccepted');
+		if (cookiesAccepted === 'true') {
+			setInfo({ ...info, cookiesAccepted: true });
+		} else {
+			setInfo({ ...info, cookiesAccepted: false });
+			Cookies.set('cookiesAccepted', 'false');
+		}
+	}, [info?.cookiesAccepted]);
+
+	const handleAcceptCookies = () => {
+		setInfo({ ...info, cookiesAccepted: true });
+		Cookies.set('cookiesAccepted', 'true');
+	};
 
 	const handleToggleClick = (toggleType) => {
 		setInfo({
@@ -126,25 +144,38 @@ const LandingPage = () => {
 				</section>
 			</main>
 			<footer className="footer-container">
+				{!info?.cookiesAccepted && (
+					<div className="cookies-notice">
+						<div className="cookie-container">
+							<span className="cookie-icon">
+								<CookieIcon aria-label="Cookie icon" />
+							</span>
+							<p>
+								This site uses cookies to provide you with a personalized
+								experience.
+								<br />
+								Check our{' '}
+								<b onClick={() => navigate('/privacy-policy')}>
+									privacy policy
+								</b>{' '}
+								for more details.
+							</p>
+						</div>
+						<button className="accept-button" onClick={handleAcceptCookies}>
+							Accept
+						</button>
+					</div>
+				)}
 				<nav>
 					<ul>
 						{navItems.map((item, i) => (
-							<li
-								key={i}
-								onClick={(e) => {
-									// e.stopPropagation();
-									navigate(item.route);
-								}}
-							>
-								{item.name}
+							<li key={i} onClick={() => navigate(item?.route)}>
+								{item?.name}
 							</li>
 						))}
 					</ul>
 				</nav>
-
-				<div>
-					<p className="copyright"> &copy; 2024 Ve.ai</p>
-				</div>
+				<p className="copyright"> &copy; 2024 Ve.ai</p>
 			</footer>
 		</div>
 	);
