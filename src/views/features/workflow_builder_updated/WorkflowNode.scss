@@ -2,7 +2,6 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	position: relative;
 }
 
 .workflow-node {
@@ -155,59 +154,6 @@
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-		}
-	}
-	.branch-labels {
-		display: flex;
-		justify-content: center;
-		gap: 320px;
-		margin-bottom: 16px;
-
-		.yes-label,
-		.no-label {
-			padding: 8px 16px;
-			background: rgba(24, 24, 27, 0.4);
-			border: 1px solid rgba(39, 39, 42, 0.4);
-			border-radius: 8px;
-			color: rgba(255, 255, 255, 0.5);
-			font-size: 14px;
-		}
-	}
-
-	.branches {
-		display: flex;
-		justify-content: center;
-		gap: 320px;
-
-		.branch {
-			position: relative;
-
-			.branch-connector {
-				position: absolute;
-				top: -40px;
-				left: 50%;
-				width: 2px;
-				height: 40px;
-				background: #ef4444;
-				transform: translateX(-50%);
-
-				&::before {
-					content: '';
-					position: absolute;
-					top: -20px;
-					width: 160px;
-					height: 2px;
-					background: #ef4444;
-				}
-			}
-
-			&.left-branch .branch-connector::before {
-				right: 0;
-			}
-
-			&.right-branch .branch-connector::before {
-				left: 0;
-			}
 		}
 	}
 }

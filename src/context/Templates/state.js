@@ -33,6 +33,7 @@ import {
 	getRequiredActionDetailsQuery,
 	updateSendSmartFileSettingsMutation,
 	getLatestSendSmartFileSettingsQuery,
+	addNewStepsQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -63,7 +64,7 @@ export const intialState = {
 	sendSmartFileSettings: null,
 };
 
-export const TemplatesState = (props) => {
+export const TemplatesState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
 	const getMyWorkflows = async (payload, fetchMore = false) => {
@@ -978,6 +979,32 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	//updated steps functions
+	const addNewSteps = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				addNewStepsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				console.log('response==>', response);
+				// const dataResponse = response?.[1]?.data?.updateWorkflowTemplate;
+				// return [true, dataResponse];
+			} else {
+				console.log('Api failed ==>addEmailTriggersInWorkflow', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>addEmailTriggersInWorkflow', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -1020,5 +1047,6 @@ export const TemplatesState = (props) => {
 		editEventsPresets,
 		deleteEventsPreset,
 		getLatestSendSmartFileSettings,
+		addNewSteps,
 	};
 };

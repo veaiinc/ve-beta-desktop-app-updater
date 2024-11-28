@@ -106,30 +106,34 @@ const WorkflowBuilderCards = ({
 	openPreviewModal,
 	index,
 }) => {
-	const mapper = {
-		email: <EmailCards openModal={openModal} workflowdata={workflowdata} index={index} />,
-		theEnd: <EndPointViewCard />,
-		preview: <PreviewCard templateData={templateData} openPreviewModal={openPreviewModal} />,
-	};
-
 	const editOnClickHandler = useCallback(() => {
 		window.location.href = `https://builder.ve.ai/${templateData?._id}`;
 	}, [templateData]);
 
+	const mapper = {
+		email: <EmailCards openModal={openModal} workflowdata={workflowdata} index={index} />,
+		theEnd: <EndPointViewCard />,
+		preview: <PreviewCard templateData={templateData} openPreviewModal={openPreviewModal} />,
+		'start-step': (
+			<FirstWorkflowCard
+				openModal={openModal}
+				workflowdata={workflowdata}
+				index={index}
+				openPreviewModal={openPreviewModal}
+				editOnClickHandler={editOnClickHandler}
+				templateData={templateData}
+			/>
+		),
+		action: <EmailCards openModal={openModal} workflowdata={workflowdata} index={index} />,
+		condition: <EmailCards openModal={openModal} workflowdata={workflowdata} index={index} />,
+		notification: (
+			<EmailCards openModal={openModal} workflowdata={workflowdata} index={index} />
+		),
+	};
+
 	return (
 		<div className="WorkflowBuilderCardsParentContainer">
-			{mapper?.[workflowdata?.module] ? (
-				mapper?.[workflowdata?.module]
-			) : (
-				<FirstWorkflowCard
-					openModal={openModal}
-					workflowdata={workflowdata}
-					index={index}
-					openPreviewModal={openPreviewModal}
-					editOnClickHandler={editOnClickHandler}
-					templateData={templateData}
-				/>
-			)}
+			{mapper?.[workflowdata?.type] ? mapper?.[workflowdata?.type] : <EndPointViewCard />}
 		</div>
 	);
 };

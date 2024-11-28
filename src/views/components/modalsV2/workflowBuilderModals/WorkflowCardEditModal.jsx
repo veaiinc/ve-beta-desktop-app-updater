@@ -15,7 +15,7 @@ import {
 	returnDurationOption,
 	calculateTimeStamp,
 } from '../../../features/workflow_builder/workflowContantsHelpers';
-import { Drawer } from 'antd';
+import { Drawer, notification } from 'antd';
 import EditAndViewEmailTemplateModal from './EditAndViewEmailTemplateModal';
 
 const initialState = {
@@ -49,6 +49,9 @@ const WorkflowCardEditModal = ({
 	currentStepIndex,
 	editWorkflowStep,
 	templateId,
+	previousStepPath,
+	optionType,
+	newNodeType,
 }) => {
 	const {
 		templates: {
@@ -57,6 +60,7 @@ const WorkflowCardEditModal = ({
 			addEmailTriggersInWorkflow,
 			getSpecificWorkflowTemplateDetails,
 			updateWorkflowSteps,
+			addNewSteps,
 		},
 	} = useContext(Context);
 
@@ -194,7 +198,7 @@ const WorkflowCardEditModal = ({
 	}, [closeModalFunc, info?.emailTemplates]);
 
 	const saveChangesFunc = useCallback(async () => {
-		if (info?.info?.pageLoader) {
+		if (info?.pageLoader) {
 			return;
 		}
 		if (info?.editState) {
@@ -235,30 +239,49 @@ const WorkflowCardEditModal = ({
 
 		//save create stage
 		if (mode === 'create') {
-			const timeStamp = await calculateTimeStamp(
-				info?.selectedDuration?.value,
-				info?.noOfDays,
-			);
+			// const timeStamp = await calculateTimeStamp(
+			// 	info?.selectedDuration?.value,
+			// 	info?.noOfDays,
+			// );
+			// const payload = {
+			// 	templateId: templateId,
+			// 	updateObj: {
+			// 		addEmailTrigger: {
+			// 			approvalRequired: info?.requiredApproval,
+			// 			emailTemplateId: info?.selectedEmailTemplate?._id,
+			// 			previousStepId: previousStepId,
+			// 			sendAt: timeStamp,
+			// 			htmlBody: info?.emailBody,
+			// 			subject: info?.subject,
+			// 		},
+			// 	},
+			// };
+			// response = await addEmailTriggersInWorkflow(payload);
+			// setInfo((prev) => ({ ...prev, saveLoader: false }));
+			// if (response?.[0]) {
+			// 	const stepsData = response?.[1]?.steps;
+			// 	addorUpdateSteps(stepsData);
+			// 	closeModal();
+			// }
+			const type = newNodeType;
+			const previousType = previousStepPath?.includes('condition') ? 'condition' : 'action';
 			const payload = {
 				templateId: templateId,
-				updateObj: {
-					addEmailTrigger: {
-						approvalRequired: info?.requiredApproval,
-						emailTemplateId: info?.selectedEmailTemplate?._id,
-						previousStepId: previousStepId,
-						sendAt: timeStamp,
-						htmlBody: info?.emailBody,
-						subject: info?.subject,
-					},
+				stepInput: {
+					type,
+					previousStepId: previousStepId,
 				},
 			};
-			response = await addEmailTriggersInWorkflow(payload);
-			setInfo((prev) => ({ ...prev, saveLoader: false }));
-			if (response?.[0]) {
-				const stepsData = response?.[1]?.steps;
-				addorUpdateSteps(stepsData);
-				closeModal();
+			if (previousType === 'condition') {
+				const path = previousStepPath?.split('-')?.[1];
+				payload.stepInput.previousStepPath = path;
 			}
+			if (type === 'condition') {
+				payload.stepInput.moveTo = 'yes';
+			}
+			response = await addNewSteps(payload);
+			setInfo((prev) => ({ ...prev, saveLoader: false }));
+			closeModal();
 		}
 	}, [
 		info.editState,
@@ -328,6 +351,18 @@ const WorkflowCardEditModal = ({
 		[info],
 	);
 
+	///updated functions
+	const compMapper = useMemo(() => {
+		if (newNodeType) {
+			return {
+				action: <RenderActionUi />,
+				condition: <RenderConditionUi />,
+				notification: <RenderActionUi />,
+				pipeline: <RenderConditionUi />,
+			};
+		}
+	}, [newNodeType]);
+
 	return (
 		<Drawer
 			onClose={closeModal}
@@ -382,185 +417,186 @@ const WorkflowCardEditModal = ({
 							<span>Fetching details ....</span>
 						</div>
 					) : (
-						<div className="WorkFlowEditorBody">
-							{/* action typ */}
+						compMapper?.[newNodeType]
+						// <div className="WorkFlowEditorBody">
+						// 	{/* action typ */}
 
-							<div className="actionType">
-								<span className="actionTypeTitle">Action Type</span>
+						// 	<div className="actionType">
+						// 		<span className="actionTypeTitle">Action Type</span>
 
-								<div className="staticActionTitle">Send Email</div>
-							</div>
+						// 		<div className="staticActionTitle">Send Email</div>
+						// 	</div>
 
-							{/* email templates */}
-							<div className="actionType">
-								<div className="emailTemplateHeaderWrapper">
-									<span className="actionTypeTitle">Email Templates</span>
-									<span
-										className="previewAndEdit"
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												previewAndEdit: true,
-											}))
-										}
-									>
-										Preview & edit
-									</span>
-								</div>
+						// 	{/* email templates */}
+						// 	<div className="actionType">
+						// 		<div className="emailTemplateHeaderWrapper">
+						// 			<span className="actionTypeTitle">Email Templates</span>
+						// 			<span
+						// 				className="previewAndEdit"
+						// 				onClick={() =>
+						// 					setInfo((prev) => ({
+						// 						...prev,
+						// 						previewAndEdit: true,
+						// 					}))
+						// 				}
+						// 			>
+						// 				Preview & edit
+						// 			</span>
+						// 		</div>
 
-								{mode === 'create' ? (
-									<HeadersDropDownComp
-										showIcon={false}
-										options={info?.emailTemplates}
-										containerStyle={{
-											padding: '12px 24px',
-											height: '48px',
-											padding: '12px 24px',
-											color: '#e4e5e6',
-											// width: 'inherit',
-											flex: 1,
-											alignSelf: 'stretch',
-											borderRadius: '0.625rem',
-											border: '1px solid rgba(36, 36, 36, 0.64)',
-											backgroundColor: '#151515',
-											width: '100%',
-										}}
-										dropDownStyle={{
-											right: 0,
-											top: '60px',
-											maxHeight: '300px',
-										}}
-										selectedValue={info?.selectedEmailTemplate?.title}
-										onChangeFunc={(e) => onChangeEmailTemplates(e)}
-										outerContainerStyle={{ width: '100%' }}
-										showSelectedValueTick={true}
-										uniqueIdentifierForTickIcon={'_id'}
-										selectedValueObj={info?.selectedEmailTemplate}
-										dropDownTextStyling={{
-											color: 'var(--nav-bar-button-text, #FFF)',
-											fontFamily: 'Inter',
-											fontSize: '14px',
-											fontStyle: 'normal',
-											fontWeight: '400',
-											lineHeight: '26px' /* 185.714% */,
-											textTransform: 'capitalize',
-										}}
-									/>
-								) : (
-									<div className="staticActionTitle">{info?.title}</div>
-								)}
-							</div>
+						// 		{mode === 'create' ? (
+						// 			<HeadersDropDownComp
+						// 				showIcon={false}
+						// 				options={info?.emailTemplates}
+						// 				containerStyle={{
+						// 					padding: '12px 24px',
+						// 					height: '48px',
+						// 					padding: '12px 24px',
+						// 					color: '#e4e5e6',
+						// 					// width: 'inherit',
+						// 					flex: 1,
+						// 					alignSelf: 'stretch',
+						// 					borderRadius: '0.625rem',
+						// 					border: '1px solid rgba(36, 36, 36, 0.64)',
+						// 					backgroundColor: '#151515',
+						// 					width: '100%',
+						// 				}}
+						// 				dropDownStyle={{
+						// 					right: 0,
+						// 					top: '60px',
+						// 					maxHeight: '300px',
+						// 				}}
+						// 				selectedValue={info?.selectedEmailTemplate?.title}
+						// 				onChangeFunc={(e) => onChangeEmailTemplates(e)}
+						// 				outerContainerStyle={{ width: '100%' }}
+						// 				showSelectedValueTick={true}
+						// 				uniqueIdentifierForTickIcon={'_id'}
+						// 				selectedValueObj={info?.selectedEmailTemplate}
+						// 				dropDownTextStyling={{
+						// 					color: 'var(--nav-bar-button-text, #FFF)',
+						// 					fontFamily: 'Inter',
+						// 					fontSize: '14px',
+						// 					fontStyle: 'normal',
+						// 					fontWeight: '400',
+						// 					lineHeight: '26px' /* 185.714% */,
+						// 					textTransform: 'capitalize',
+						// 				}}
+						// 			/>
+						// 		) : (
+						// 			<div className="staticActionTitle">{info?.title}</div>
+						// 		)}
+						// 	</div>
 
-							<div className="emailScheduleTimingContainer">
-								<span className="emailScheduleTimingContainerheader">When?</span>
-								<div className="buttonContainer">
-									<div className="daysIncrementor">
-										<span
-											className="incrementorButtons"
-											onClick={() => incrementorDecrementorFunc('decrement')}
-										>
-											-
-										</span>
-										<input
-											type="number"
-											className="daysIncrementText"
-											value={info?.noOfDays}
-										/>
-										<span
-											className="incrementorButtons"
-											onClick={() => incrementorDecrementorFunc('increment')}
-										>
-											+
-										</span>
-									</div>
-									<HeadersDropDownComp
-										showIcon={false}
-										options={options}
-										containerStyle={{
-											padding: '12px 24px',
-											height: '48px',
-											padding: '12px 24px',
-											color: '#e4e5e6',
-											width: 'inherit',
-											flex: 1,
-											alignSelf: 'stretch',
-											borderRadius: '0.625rem',
-											border: '1px solid rgba(36, 36, 36, 0.64)',
-											backgroundColor: '#151515',
-										}}
-										dropDownStyle={{
-											right: 0,
-											top: '-170px',
-											maxHeight: '300px',
-										}}
-										selectedValue={info?.selectedDuration?.label}
-										onChangeFunc={(e) => onChangeDuration(e)}
-										outerContainerStyle={{ width: '100%' }}
-										showSelectedValueTick={true}
-										uniqueIdentifierForTickIcon={'value'}
-										selectedValueObj={info?.selectedDuration}
-										dropDownTextStyling={{
-											color: 'var(--nav-bar-button-text, #FFF)',
-											fontFamily: 'Inter',
-											fontSize: '14px',
-											fontStyle: 'normal',
-											fontWeight: '400',
-											lineHeight: '26px' /* 185.714% */,
-											textTransform: 'capitalize',
-										}}
-									/>
-								</div>
-								<HeadersDropDownComp
-									showIcon={false}
-									options={smartFileActions}
-									containerStyle={{
-										padding: '12px 24px',
-										height: '48px',
-										padding: '12px 24px',
-										color: '#e4e5e6',
-										width: 'inherit',
-										flex: 1,
-										alignSelf: 'stretch',
-										borderRadius: '0.625rem',
-										border: '1px solid rgba(36, 36, 36, 0.64)',
-										backgroundColor: '#151515',
-									}}
-									dropDownStyle={{
-										right: 0,
-										top: '-295px',
-										maxHeight: '300px',
-									}}
-									outerContainerStyle={{ width: '100%' }}
-								/>
-							</div>
-							<div className="approvalContainer">
-								<span className="approvalContainerHeader">
-									Require Approval before sending
-								</span>
-								<ToggleSlider
-									value={info?.requiredApproval}
-									onChange={approvalOnChange}
-								/>
-							</div>
-							<div className="editWorkflowBuilderModalFooterContainer">
-								<Ai />
-								<span className="editWorkflowBuilderModalFooterTextStyling">
-									If you need assistance, contact our support team at<br></br>
-									<span className="supportVeText">support@ve.ai</span>
-									<br></br>
-									Here’s to doing what you love! Let’s do this :)
-								</span>
-							</div>
-						</div>
+						// 	<div className="emailScheduleTimingContainer">
+						// 		<span className="emailScheduleTimingContainerheader">When?</span>
+						// 		<div className="buttonContainer">
+						// 			<div className="daysIncrementor">
+						// 				<span
+						// 					className="incrementorButtons"
+						// 					onClick={() => incrementorDecrementorFunc('decrement')}
+						// 				>
+						// 					-
+						// 				</span>
+						// 				<input
+						// 					type="number"
+						// 					className="daysIncrementText"
+						// 					value={info?.noOfDays}
+						// 				/>
+						// 				<span
+						// 					className="incrementorButtons"
+						// 					onClick={() => incrementorDecrementorFunc('increment')}
+						// 				>
+						// 					+
+						// 				</span>
+						// 			</div>
+						// 			<HeadersDropDownComp
+						// 				showIcon={false}
+						// 				options={options}
+						// 				containerStyle={{
+						// 					padding: '12px 24px',
+						// 					height: '48px',
+						// 					padding: '12px 24px',
+						// 					color: '#e4e5e6',
+						// 					width: 'inherit',
+						// 					flex: 1,
+						// 					alignSelf: 'stretch',
+						// 					borderRadius: '0.625rem',
+						// 					border: '1px solid rgba(36, 36, 36, 0.64)',
+						// 					backgroundColor: '#151515',
+						// 				}}
+						// 				dropDownStyle={{
+						// 					right: 0,
+						// 					top: '-170px',
+						// 					maxHeight: '300px',
+						// 				}}
+						// 				selectedValue={info?.selectedDuration?.label}
+						// 				onChangeFunc={(e) => onChangeDuration(e)}
+						// 				outerContainerStyle={{ width: '100%' }}
+						// 				showSelectedValueTick={true}
+						// 				uniqueIdentifierForTickIcon={'value'}
+						// 				selectedValueObj={info?.selectedDuration}
+						// 				dropDownTextStyling={{
+						// 					color: 'var(--nav-bar-button-text, #FFF)',
+						// 					fontFamily: 'Inter',
+						// 					fontSize: '14px',
+						// 					fontStyle: 'normal',
+						// 					fontWeight: '400',
+						// 					lineHeight: '26px' /* 185.714% */,
+						// 					textTransform: 'capitalize',
+						// 				}}
+						// 			/>
+						// 		</div>
+						// 		<HeadersDropDownComp
+						// 			showIcon={false}
+						// 			options={smartFileActions}
+						// 			containerStyle={{
+						// 				padding: '12px 24px',
+						// 				height: '48px',
+						// 				padding: '12px 24px',
+						// 				color: '#e4e5e6',
+						// 				width: 'inherit',
+						// 				flex: 1,
+						// 				alignSelf: 'stretch',
+						// 				borderRadius: '0.625rem',
+						// 				border: '1px solid rgba(36, 36, 36, 0.64)',
+						// 				backgroundColor: '#151515',
+						// 			}}
+						// 			dropDownStyle={{
+						// 				right: 0,
+						// 				top: '-295px',
+						// 				maxHeight: '300px',
+						// 			}}
+						// 			outerContainerStyle={{ width: '100%' }}
+						// 		/>
+						// 	</div>
+						// 	<div className="approvalContainer">
+						// 		<span className="approvalContainerHeader">
+						// 			Require Approval before sending
+						// 		</span>
+						// 		<ToggleSlider
+						// 			value={info?.requiredApproval}
+						// 			onChange={approvalOnChange}
+						// 		/>
+						// 	</div>
+						// 	<div className="editWorkflowBuilderModalFooterContainer">
+						// 		<Ai />
+						// 		<span className="editWorkflowBuilderModalFooterTextStyling">
+						// 			If you need assistance, contact our support team at<br></br>
+						// 			<span className="supportVeText">support@ve.ai</span>
+						// 			<br></br>
+						// 			Here’s to doing what you love! Let’s do this :)
+						// 		</span>
+						// 	</div>
+						// </div>
 					)}
 
 					{/* footer */}
-					<div className="workflowEditorFooter">
+					{/* <div className="workflowEditorFooter">
 						<div className="saveBtn" onClick={saveChangesFunc}>
 							{info?.saveLoader ? <Spinner width={'16px'} height={'16px'} /> : ''}
 							{info?.saveLoader ? 'Saving...' : 'Save Changes'}
 						</div>
-					</div>
+					</div> */}
 				</div>
 			</div>
 
@@ -582,3 +618,13 @@ const WorkflowCardEditModal = ({
 };
 
 export default memo(WorkflowCardEditModal);
+
+const RenderActionUi = () => {
+	return <div>hello</div>;
+};
+
+const RenderConditionUi = () => {};
+
+const RenderNotificationUi = () => {};
+
+const RenderPipelineUi = () => {};

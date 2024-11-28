@@ -6115,3 +6115,12 @@ input[type='number'] {
 .toolTipContainer .ant-tooltip-inner {
 	padding: 0 !important;
 }
+
+.toolTipContainerForBuilder {
+	.ant-tooltip-inner {
+		background-color: transparent !important;
+		position: relative;
+		top: 130px;
+		left: -250px;
+	}
+}

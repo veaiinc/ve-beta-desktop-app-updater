@@ -389,3 +389,9 @@ export const getLatestSendSmartFileSettingsQuery = gql`
 		getLatestWorkflowSettings
 	}
 `;
+
+export const addNewStepsQuery = gql`
+	mutation AddStep($templateId: ID!, $stepInput: StepInput!) {
+		addStep(templateId: $templateId, stepInput: $stepInput)
+	}
+`;

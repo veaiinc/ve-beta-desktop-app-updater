@@ -1,13 +1,30 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import './WorkflowNode.scss';
+import WorkflowBuilderCards from '../../components/workflowBuilderComponents/WorkflowBuilderCards';
+import WorkflowConnector from '../../components/workflowBuilderComponents/WorkflowConnector';
 
-const WorkflowNode = ({ nodeId, stepsMapper }) => {
+const WorkflowNode = ({
+	nodeId,
+	stepsMapper,
+	templateData,
+	openModal,
+	openPreviewModal,
+	alterData,
+	// handleNodesRedering,
+}) => {
 	const yesNodesContainerRef = useRef(null);
 	const noNodesContainerRef = useRef(null);
 	const [info, setInfo] = useState({
 		translateXForYes: 0,
 		translateForNo: 0,
 	});
+
+	// useEffect(() => {
+	// 	// return () => {
+	// 	// console.log('I am getting unmounted');
+	// 	handleNodesRedering(nodeId);
+	// 	// };
+	// }, []);
 
 	useLayoutEffect(() => {
 		translatefunction(yesNodesContainerRef, 'Yes');
@@ -20,7 +37,7 @@ const WorkflowNode = ({ nodeId, stepsMapper }) => {
 	const translatefunction = (refData, type) => {
 		const width = refData?.current?.getBoundingClientRect().width;
 		if (width) {
-			const blockWidth = 350;
+			const blockWidth = 300;
 			const leftOutSpaceOnEachSide = (width - blockWidth) / 2;
 			const yesBlockWidth = width - 150;
 
@@ -36,15 +53,13 @@ const WorkflowNode = ({ nodeId, stepsMapper }) => {
 	};
 
 	const renderNodeContent = (type = null) => (
-		<div className="workflow-node">
-			<div className="node-card">
-				<div className="node-content">
-					<div className="node-text" style={{ color: '#fff' }}>
-						{!type ? nodeId : 'Block Ends Here'}
-					</div>
-				</div>
-			</div>
-		</div>
+		<WorkflowBuilderCards
+			workflowdata={stepsMapper?.[nodeId]?.data}
+			openModal={openModal}
+			index={'sfsfs'}
+			templateData={templateData}
+			openPreviewModal={openPreviewModal}
+		/>
 	);
 
 	if (!nodeId || !stepsMapper[nodeId]) {
@@ -65,7 +80,13 @@ const WorkflowNode = ({ nodeId, stepsMapper }) => {
 								<div className="yes-block">Yes</div>
 								<div className="yes-right-seperator"></div>
 							</div>
-							<div className="connector" style={{ marginLeft: '40px' }}></div>
+
+							<WorkflowConnector
+								style={{ marginLeft: '40px' }}
+								alterData={alterData}
+								previousStepPath={'condition-yes'}
+								previousStepId={nodeId}
+							/>
 						</div>
 						<div
 							className={`yes-nodes-container ${nodeId}`}
@@ -79,6 +100,11 @@ const WorkflowNode = ({ nodeId, stepsMapper }) => {
 							<WorkflowNode
 								nodeId={node?.ifYes?.nextStepId}
 								stepsMapper={stepsMapper}
+								templateData={templateData}
+								openPreviewModal={openPreviewModal}
+								openModal={openModal}
+								alterData={alterData}
+								// handleNodesRedering={handleNodesRedering}
 							/>
 						</div>
 					</div>
@@ -92,10 +118,12 @@ const WorkflowNode = ({ nodeId, stepsMapper }) => {
 								className="no-block-wrapper"
 								style={{ justifyContent: 'flex-end' }}
 							>
-								<div
-									className="connector"
+								<WorkflowConnector
+									alterData={alterData}
+									previousStepPath={'condition-no'}
+									previousStepId={nodeId}
 									style={{ marginRight: '40px', alignSelf: 'baseline' }}
-								></div>
+								/>
 							</div>
 						</div>
 						<div
@@ -108,6 +136,11 @@ const WorkflowNode = ({ nodeId, stepsMapper }) => {
 							<WorkflowNode
 								nodeId={node?.ifNo?.nextStepId}
 								stepsMapper={stepsMapper}
+								templateData={templateData}
+								openPreviewModal={openPreviewModal}
+								openModal={openModal}
+								alterData={alterData}
+								// handleNodesRedering={handleNodesRedering}
 							/>
 						</div>
 					</div>
@@ -121,8 +154,20 @@ const WorkflowNode = ({ nodeId, stepsMapper }) => {
 			{renderNodeContent()}
 			{node.nextStepId && (
 				<>
-					<div className="connector"></div>
-					<WorkflowNode nodeId={node.nextStepId} stepsMapper={stepsMapper} />
+					<WorkflowConnector
+						alterData={alterData}
+						previousStepPath={'straight'}
+						previousStepId={nodeId}
+					/>
+					<WorkflowNode
+						nodeId={node.nextStepId}
+						stepsMapper={stepsMapper}
+						templateData={templateData}
+						openPreviewModal={openPreviewModal}
+						openModal={openModal}
+						alterData={alterData}
+						// handleNodesRedering={handleNodesRedering}
+					/>
 				</>
 			)}
 		</div>
