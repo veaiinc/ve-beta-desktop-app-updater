@@ -1,15 +1,11 @@
 .WorkflowCardEditModalParentContainer {
 	height: 100%;
-	width: 420px;
+	width: 360px;
 	display: flex;
-	padding: 10px;
 
 	.innerContainer {
 		flex: 1;
-		border-radius: 32px;
-		border: 1px solid #1f1f1f;
-		background: #151515;
-		padding: 24px 0px;
+		background: var(--ve-ai-dark-theme-pop-up-color, #202123);
 		display: flex;
 		flex-direction: column;
 		gap: 24px;
@@ -380,6 +376,58 @@
 				letter-spacing: 0.26px;
 				cursor: pointer;
 			}
+		}
+
+		.actionContainer {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+		}
+		.conditionContainer {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+		}
+		.notificationContainer {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+		}
+		.pipelineContainer {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+		}
+
+		.workflowUpdatedHeader {
+			display: flex;
+			height: 52px;
+			padding: 12px 24px 0px 24px;
+			justify-content: flex-start;
+			align-items: center;
+			gap: 12px;
+			flex-shrink: 0;
+			align-self: stretch;
+			background: var(--ve-ai-dark-theme-pop-up-color, #202123);
+			.headerTitle {
+				color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+
+				/* Body/Body Text - 14 Px */
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px; /* 142.857% */
+				padding-bottom: 6px;
+				border-bottom: 3px solid #e8e8e8;
+				margin: auto;
+			}
+		}
+		.workflowOptionContainer {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+			background: #131314;
 		}
 	}
 }

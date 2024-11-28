@@ -4,6 +4,7 @@ import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import { ReactComponent as Dustbin } from '../../../../assets/svg/worflow_builder/dustbin.svg';
 import { ReactComponent as Ai } from '../../../../assets/svg/workflow/ai.svg';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
+import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/doubleArrow.svg';
 import Context from '../../../../context/context';
 import ToggleSlider from '../../input/slider';
 import Spinner from '../../loaders/Spinner';
@@ -355,10 +356,10 @@ const WorkflowCardEditModal = ({
 	const compMapper = useMemo(() => {
 		if (newNodeType) {
 			return {
-				action: <RenderActionUi />,
-				condition: <RenderConditionUi />,
-				notification: <RenderActionUi />,
-				pipeline: <RenderConditionUi />,
+				action: <RenderActionUi closeModal={closeModal} />,
+				condition: <RenderConditionUi closeModal={closeModal} />,
+				notification: <RenderNotificationUi closeModal={closeModal} />,
+				pipeline: <RenderPipelineUi closeModal={closeModal} />,
 			};
 		}
 	}, [newNodeType]);
@@ -366,40 +367,15 @@ const WorkflowCardEditModal = ({
 	return (
 		<Drawer
 			onClose={closeModal}
-			width={420}
+			width={360}
 			open={modalIsOpen}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
+			zIndex={1500}
 		>
 			<div className="WorkflowCardEditModalParentContainer">
 				<div className="innerContainer">
-					{/* header */}
-					<div className="workflowHeader">
-						<span className="headerTitle">
-							{info?.editState ? 'Edit Email' : `Edit Action`}
-						</span>
-						<div className="closeDeleteContainer">
-							{!info?.editState && mode === 'edit' ? (
-								<div
-									style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
-									onClick={() =>
-										setInfo((prev) => ({ ...prev, deleteStepModal: true }))
-									}
-								>
-									<span className="closeBtn">
-										<Dustbin />
-									</span>
-									<div className="deleteBtn">Delete</div>
-								</div>
-							) : (
-								''
-							)}
-							<div className="closeBtn" onClick={closeModal}>
-								<Close />
-							</div>
-						</div>
-					</div>
 					{info?.pageLoader ? (
 						<div
 							className="loadingScreen"
@@ -619,12 +595,66 @@ const WorkflowCardEditModal = ({
 
 export default memo(WorkflowCardEditModal);
 
-const RenderActionUi = () => {
-	return <div>hello</div>;
+const RenderActionUi = ({ closeModal }) => {
+	return (
+		<div className="actionContainer">
+			{/* header */}
+			<div className="workflowUpdatedHeader">
+				<span onClick={closeModal}>
+					<DoubleArrow />
+				</span>
+
+				<span className="headerTitle">Edit</span>
+			</div>
+			<div className="workflowOptionContainer"></div>
+		</div>
+	);
 };
 
-const RenderConditionUi = () => {};
+const RenderConditionUi = ({ closeModal }) => {
+	return (
+		<div className="conditionContainer">
+			{/* header */}
+			<div className="workflowUpdatedHeader">
+				<span onClick={closeModal}>
+					<DoubleArrow />
+				</span>
 
-const RenderNotificationUi = () => {};
+				<span className="headerTitle">Edit</span>
+			</div>
+			<div className="workflowOptionContainer"></div>
+		</div>
+	);
+};
 
-const RenderPipelineUi = () => {};
+const RenderNotificationUi = ({ closeModal }) => {
+	return (
+		<div className="notificationContainer">
+			{/* header */}
+			<div className="workflowUpdatedHeader">
+				<span onClick={closeModal}>
+					<DoubleArrow />
+				</span>
+
+				<span className="headerTitle">Edit</span>
+			</div>
+			<div className="workflowOptionContainer"></div>
+		</div>
+	);
+};
+
+const RenderPipelineUi = ({ closeModal }) => {
+	return (
+		<div className="pipelineContainer">
+			{/* header */}
+			<div className="workflowUpdatedHeader">
+				<span onClick={closeModal}>
+					<DoubleArrow />
+				</span>
+
+				<span className="headerTitle">Edit</span>
+			</div>
+			<div className="workflowOptionContainer"></div>
+		</div>
+	);
+};
