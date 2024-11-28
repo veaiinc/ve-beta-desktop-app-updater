@@ -7,6 +7,7 @@ import { ReactComponent as Instagram } from '../../../assets/svg/earlyAccess/ins
 import { ReactComponent as Twitter } from '../../../assets/svg/earlyAccess/twitter.svg';
 import { ReactComponent as CopyIcon } from '../../../assets/svg/shareAndEarn/copy.svg';
 import { ReactComponent as MailIcon } from '../../../assets/svg/footer/email.svg';
+import { ReactComponent as ArrowBack } from '../../../assets/svg/left-arrow.svg';
 // import { ReactComponent as Copyright } from '../../../assets/svg/landingScreen/copyright.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
@@ -28,6 +29,7 @@ const EarlyAccess = () => {
 	const [showEmailInput, setShowEmailInput] = useState(false);
 	const [emails, setEmails] = useState([]);
 	const [inputValue, setInputValue] = useState('');
+	const [isCopied, setIsCopied] = useState(false);
 
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
@@ -95,6 +97,10 @@ const EarlyAccess = () => {
 			.writeText(referralLink)
 			.then(() => {
 				message.success('Referral link copied!');
+				setIsCopied(true); // Set copied status to true
+				setTimeout(() => {
+					setIsCopied(false); // Revert back after 10 seconds
+				}, 10000);
 			})
 			.catch((err) => {
 				message.error('Failed to copy:', err);
@@ -270,11 +276,19 @@ const EarlyAccess = () => {
 											className="icon-button"
 											onClick={handleCopyReferralLink}
 										>
-											<CopyIcon />
+											{isCopied ? (
+												<span style={{ color: 'white' }}>Copied!</span>
+											) : (
+												<CopyIcon />
+											)}
 										</div>
 									</div>
 								) : (
 									<div className="email-invitation-container">
+										<ArrowBack
+											className="back-arrow-icon"
+											onClick={() => setShowEmailInput(false)} // Click handler to hide email input
+										/>
 										<Input
 											className="email-input"
 											placeholder="Email ID"
@@ -282,6 +296,7 @@ const EarlyAccess = () => {
 											onChange={handleInputChange}
 											onKeyPress={handleInputKeyPress}
 										/>
+
 										<div className="email-tags" style={{ marginTop: '10px' }}>
 											{emails.map((email, index) => (
 												<Tag
@@ -300,6 +315,7 @@ const EarlyAccess = () => {
 												</Tag>
 											))}
 										</div>
+
 										<button
 											className="send-invitation-button"
 											onClick={handleSendInvitation}
