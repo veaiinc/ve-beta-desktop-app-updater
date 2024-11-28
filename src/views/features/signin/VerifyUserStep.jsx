@@ -31,11 +31,11 @@ const VerifyUserStep = ({
 		const region = localStorage.getItem('region');
 		const workspaceId = localStorage.getItem('workspaceId');
 		const isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
-
 		if (usertoken && region && workspaceId) {
 			if (isOnboard === false) return navigate('/early-access');
 			if (isOnboard) return navigate('/home');
 		}
+
 		return () => {
 			setInfo((prev) => ({ ...prev, googleLogin: false }));
 		};

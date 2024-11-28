@@ -6,8 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 const TermsOfService = () => {
 	const navigate = useNavigate();
-	const pdfUrl =
-		'https://drive.google.com/file/d/1eGn06UUp0CnLbBdL-KZDEB9S9dl0PBhJ/view?usp=drive_link';
+	const pdfUrl = 'https://drive.google.com/file/d/1eGn06UUp0CnLbBdL-KZDEB9S9dl0PBhJ/preview';
 
 	return (
 		<div className="privacyPolicyMainContainer">

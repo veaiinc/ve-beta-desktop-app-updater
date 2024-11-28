@@ -28,6 +28,7 @@ export const intialState = {
 	clientSelectionImages: null,
 	galleryShareDetails: null,
 	aiFace: null,
+	aiFaceImages: null,
 };
 
 export const Galleries = () => {
@@ -1380,19 +1381,43 @@ export const Galleries = () => {
 		}
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/faces/_.face_id/images
-	const getAiFaceImages = async (galleryId, faceId) => {
+	const getAiFaceImages = async (galleryId, faceId, page = 1, limit = 25, reset = false) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(
-				`/${workspaceId}/galleries/${galleryId}/faces/${faceId}/images`,
+				`/${workspaceId}/galleries/${galleryId}/faces/${faceId}/images?page=${page}&limit=${limit}`,
 				usertoken,
 				'galleries',
 			);
-			return response;
+			if (response[0]) {
+				const data = reset
+					? response?.[1]
+					: {
+							...state.aiFaceImages,
+							...response?.[1],
+							images: [...state.aiFaceImages?.images, ...response?.[1]?.images],
+					  };
+				dispatch({
+					type: Actions.GET_AI_FACE_IMAGES,
+					payload: data,
+				});
+			}
 		} catch (error) {
 			console.log('error==>getAiFaceImages', error);
 		}
+	};
+	const clearAiFace = () => {
+		dispatch({
+			type: Actions.GET_AI_FACE,
+			payload: null,
+		});
+	};
+	const aiFaceImagesReset = () => {
+		dispatch({
+			type: Actions.GET_AI_FACE_IMAGES,
+			payload: null,
+		});
 	};
 	return {
 		...state,
@@ -1464,5 +1489,7 @@ export const Galleries = () => {
 		getDownloadLinkStatus,
 		getZipDownloadUrl,
 		getAiFaceImages,
+		clearAiFace,
+		aiFaceImagesReset,
 	};
 };

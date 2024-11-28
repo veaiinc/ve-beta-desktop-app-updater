@@ -31,14 +31,17 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	const invitedUserEmail = params?.get('inviteeEmail');
 
 	useEffect(() => {
-		if (invitedWorkspaceId && invitedUserEmail) {
+		handleLocationDetailsData();
+	}, []);
+
+	useEffect(() => {
+		if (invitedWorkspaceId && invitedUserEmail && info?.locationDetails) {
 			localStorage?.clear();
 			localStorage?.setItem('invitedWorkspaceId', invitedWorkspaceId);
 			localStorage?.setItem('invitedUserEmail', invitedUserEmail);
 			handleSetEmail(null, invitedUserEmail);
 		}
-		handleLocationDetailsData();
-	}, [invitedWorkspaceId, invitedUserEmail]);
+	}, [invitedWorkspaceId, invitedUserEmail, info?.locationDetails]);
 
 	useEffect(() => {
 		if (arrowRef.current && info.isEmailValid) {
@@ -58,7 +61,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 
 	const handleLocationDetailsData = useCallback(async () => {
 		let locationDetails;
-		locationDetails = localStorage.getItem('locationDetails');
+		locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
 		if (!locationDetails) {
 			locationDetails = await getLocationsDetails();
 		}
@@ -68,12 +71,11 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	const handleCreateAccountWithEmail = async (email) => {
 		if (info?.isLoading) return;
 		setInfo((prev) => ({ ...prev, isLoading: true }));
-		let locationDetails = JSON.parse(localStorage?.getItem('locationDetails'));
-		if (!locationDetails) {
-			locationDetails = await getLocationsDetails();
-			localStorage?.setItem('locationDetails', JSON.stringify(locationDetails));
+		if (!info?.locationDetails) {
+			await handleLocationDetailsData();
 		}
-		const response = await createAccountUsingEmail(email, locationDetails);
+
+		const response = await createAccountUsingEmail(email, info?.locationDetails);
 		if (response[0] === true) {
 			setActiveStage('verificationCode');
 			setEmailVerified(false);
@@ -95,6 +97,9 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 		}
 
 		setInfo((prev) => ({ ...prev, googleLoading: true }));
+		if (!info?.locationDetails) {
+			await handleLocationDetailsData();
+		}
 		continueWithGoogle(info?.locationDetails);
 	};
 
