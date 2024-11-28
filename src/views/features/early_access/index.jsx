@@ -238,7 +238,7 @@ const EarlyAccess = () => {
 								<div className="share-text">Share on</div>
 								{!showEmailInput ? (
 									<div className="icons-container">
-										<div
+										{/* <div
 											className="icon-button"
 											onClick={() =>
 												window.open(
@@ -248,7 +248,7 @@ const EarlyAccess = () => {
 											}
 										>
 											<Twitter />
-										</div>
+										</div> */}
 										<div
 											className="icon-button"
 											onClick={() =>
