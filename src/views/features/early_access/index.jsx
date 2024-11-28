@@ -100,7 +100,7 @@ const EarlyAccess = () => {
 				setIsCopied(true); // Set copied status to true
 				setTimeout(() => {
 					setIsCopied(false); // Revert back after 10 seconds
-				}, 10000);
+				}, 5000);
 			})
 			.catch((err) => {
 				message.error('Failed to copy:', err);
