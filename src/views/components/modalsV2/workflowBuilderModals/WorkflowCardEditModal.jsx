@@ -611,7 +611,116 @@ const RenderActionUi = ({ closeModal }) => {
 
 				<span className="headerTitle">Edit</span>
 			</div>
-			<div className="workflowOptionContainer"></div>
+			<div className="workflowOptionContainer">
+				{/* //action */}
+				<div className="actionDropDownContainer">
+					<span className="actionTitle">Action</span>
+					<HeadersDropDownComp
+						options={actionOptions}
+						showIcon={false}
+						containerStyle={{
+							padding: '12px 24px',
+							height: '48px',
+							padding: '12px 24px',
+							color: '#e4e5e6',
+							width: '100%',
+							flex: 1,
+							alignSelf: 'stretch',
+							borderRadius: '0.625rem',
+							border: '1px solid rgba(36, 36, 36, 0.64)',
+							backgroundColor: '#151515',
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{
+							top: '55px',
+						}}
+					/>
+				</div>
+				<div className="workflow_builder_action_seperator"></div>
+				{/* //action type */}
+				<div className="actionDropDownContainer">
+					<span className="actionTitle">Action Type</span>
+					<HeadersDropDownComp
+						options={actionOptions}
+						showIcon={false}
+						containerStyle={{
+							padding: '12px 24px',
+							height: '48px',
+							padding: '12px 24px',
+							color: '#e4e5e6',
+							width: '100%',
+							flex: 1,
+							alignSelf: 'stretch',
+							borderRadius: '0.625rem',
+							border: '1px solid rgba(36, 36, 36, 0.64)',
+							backgroundColor: '#151515',
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{
+							top: '55px',
+						}}
+					/>
+				</div>
+				<div className="workflow_builder_action_seperator"></div>
+				{/* //notification type */}
+				<div className="notification_schedulingContainer">
+					<span className="actionTitle">When ?</span>
+					<div className="notificationDaysContainer">
+						{/* //incrementor */}
+						<div className="incrementorDecrementorContainer">
+							<div className="manualIncrementorButtons">-</div>
+							<input className="manualIncrementorInput" />
+							<div className="manualIncrementorButtons">+</div>
+						</div>
+						{/* //days */}
+						<HeadersDropDownComp
+							options={channelOptions}
+							showIcon={false}
+							containerStyle={{
+								padding: '12px 24px',
+								height: '48px',
+								padding: '12px 24px',
+								color: '#e4e5e6',
+								width: '100%',
+								flex: 1,
+								alignSelf: 'stretch',
+								borderRadius: '0.625rem',
+								border: '1px solid rgba(36, 36, 36, 0.64)',
+								backgroundColor: '#151515',
+							}}
+							outerContainerStyle={{ width: '100%' }}
+							dropDownStyle={{
+								top: '55px',
+							}}
+						/>
+					</div>
+					<HeadersDropDownComp
+						options={channelOptions}
+						showIcon={false}
+						containerStyle={{
+							padding: '12px 24px',
+							height: '48px',
+							padding: '12px 24px',
+							color: '#e4e5e6',
+							width: '100%',
+							flex: 1,
+							alignSelf: 'stretch',
+							borderRadius: '0.625rem',
+							border: '1px solid rgba(36, 36, 36, 0.64)',
+							backgroundColor: '#151515',
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{
+							top: '55px',
+						}}
+					/>
+				</div>
+				{/* //required approval */}
+				<div className="requiredApprovalContainer">
+					<span className="requiredApprovalText">Require Approval before sending</span>
+					<ToggleSlider />
+				</div>
+			</div>
 			<div className="workflowFooterContainer">
 				<div className="saveChangesButton">Save Changes</div>
 			</div>
@@ -630,7 +739,32 @@ const RenderConditionUi = ({ closeModal }) => {
 
 				<span className="headerTitle">Edit</span>
 			</div>
-			<div className="workflowOptionContainer"></div>
+			<div className="workflowOptionContainer">
+				{/* //action */}
+				<div className="actionDropDownContainer">
+					<span className="actionTitle">Take Action if</span>
+					<HeadersDropDownComp
+						options={actionOptions}
+						showIcon={false}
+						containerStyle={{
+							padding: '12px 24px',
+							height: '48px',
+							padding: '12px 24px',
+							color: '#e4e5e6',
+							width: '100%',
+							flex: 1,
+							alignSelf: 'stretch',
+							borderRadius: '0.625rem',
+							border: '1px solid rgba(36, 36, 36, 0.64)',
+							backgroundColor: '#151515',
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{
+							top: '55px',
+						}}
+					/>
+				</div>
+			</div>
 			<div className="workflowFooterContainer">
 				<div className="saveChangesButton">Save Changes</div>
 			</div>
@@ -806,7 +940,116 @@ const RenderPipelineUi = ({ closeModal }) => {
 
 				<span className="headerTitle">Edit</span>
 			</div>
-			<div className="workflowOptionContainer"></div>
+			<div className="workflowOptionContainer">
+				{/* //action */}
+				<div className="actionDropDownContainer">
+					<span className="actionTitle">Action</span>
+					<HeadersDropDownComp
+						options={actionOptions}
+						showIcon={false}
+						containerStyle={{
+							padding: '12px 24px',
+							height: '48px',
+							padding: '12px 24px',
+							color: '#e4e5e6',
+							width: '100%',
+							flex: 1,
+							alignSelf: 'stretch',
+							borderRadius: '0.625rem',
+							border: '1px solid rgba(36, 36, 36, 0.64)',
+							backgroundColor: '#151515',
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{
+							top: '55px',
+						}}
+					/>
+				</div>
+				<div className="workflow_builder_action_seperator"></div>
+				{/* //action type */}
+				<div className="actionDropDownContainer">
+					<span className="actionTitle">Move Stages to</span>
+					<HeadersDropDownComp
+						options={actionOptions}
+						showIcon={false}
+						containerStyle={{
+							padding: '12px 24px',
+							height: '48px',
+							padding: '12px 24px',
+							color: '#e4e5e6',
+							width: '100%',
+							flex: 1,
+							alignSelf: 'stretch',
+							borderRadius: '0.625rem',
+							border: '1px solid rgba(36, 36, 36, 0.64)',
+							backgroundColor: '#151515',
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{
+							top: '55px',
+						}}
+					/>
+				</div>
+				<div className="workflow_builder_action_seperator"></div>
+				{/* //notification type */}
+				<div className="notification_schedulingContainer">
+					<span className="actionTitle">When ?</span>
+					<div className="notificationDaysContainer">
+						{/* //incrementor */}
+						<div className="incrementorDecrementorContainer">
+							<div className="manualIncrementorButtons">-</div>
+							<input className="manualIncrementorInput" />
+							<div className="manualIncrementorButtons">+</div>
+						</div>
+						{/* //days */}
+						<HeadersDropDownComp
+							options={channelOptions}
+							showIcon={false}
+							containerStyle={{
+								padding: '12px 24px',
+								height: '48px',
+								padding: '12px 24px',
+								color: '#e4e5e6',
+								width: '100%',
+								flex: 1,
+								alignSelf: 'stretch',
+								borderRadius: '0.625rem',
+								border: '1px solid rgba(36, 36, 36, 0.64)',
+								backgroundColor: '#151515',
+							}}
+							outerContainerStyle={{ width: '100%' }}
+							dropDownStyle={{
+								top: '55px',
+							}}
+						/>
+					</div>
+					<HeadersDropDownComp
+						options={channelOptions}
+						showIcon={false}
+						containerStyle={{
+							padding: '12px 24px',
+							height: '48px',
+							padding: '12px 24px',
+							color: '#e4e5e6',
+							width: '100%',
+							flex: 1,
+							alignSelf: 'stretch',
+							borderRadius: '0.625rem',
+							border: '1px solid rgba(36, 36, 36, 0.64)',
+							backgroundColor: '#151515',
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{
+							top: '55px',
+						}}
+					/>
+				</div>
+				{/* //required approval */}
+				<div className="requiredApprovalContainer">
+					<span className="requiredApprovalText">Require Approval before sending</span>
+					<ToggleSlider />
+				</div>
+			</div>
 			<div className="workflowFooterContainer">
 				<div className="saveChangesButton">Save Changes</div>
 			</div>
