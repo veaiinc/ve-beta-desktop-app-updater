@@ -170,3 +170,50 @@ export const returnDurationOption = (type) => {
 	}
 	return selectedDuration;
 };
+export const conditionOptions = [
+	{
+		label: 'Contract Signed',
+		value: 'Contract Signed',
+	},
+
+	{
+		label: 'Accept proposal ',
+		value: 'Accept proposal ',
+	},
+	{
+		label: 'Payment is completed',
+		value: 'Payment is completed',
+	},
+];
+
+export const movePipeLineOptions = [
+	{
+		label: 'Pipeline name 1',
+		value: 'Pipeline name 1',
+	},
+
+	{
+		label: 'Pipeline name 2',
+		value: 'Pipeline name 2',
+	},
+	{
+		label: 'Pipeline name 3',
+		value: 'Pipeline name 3',
+	},
+];
+
+export const takeActionsOptions = [
+	{
+		label: 'Create Meeting',
+		value: 'Create Meeting',
+	},
+
+	{
+		label: 'Create task',
+		value: 'Create task',
+	},
+	{
+		label: 'Create Scheduler',
+		value: 'Create Scheduler',
+	},
+];

@@ -1,8 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
-import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
-import { ReactComponent as Dustbin } from '../../../../assets/svg/worflow_builder/dustbin.svg';
-import { ReactComponent as Ai } from '../../../../assets/svg/workflow/ai.svg';
 import { ReactComponent as Pen } from '../../../../assets/svg/worflow_builder/editPen.svg';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/doubleArrow.svg';
@@ -18,6 +15,9 @@ import {
 	calculateTimeStamp,
 	actionOptions,
 	channelOptions,
+	movePipeLineOptions,
+	conditionOptions,
+	takeActionsOptions,
 } from '../../../features/workflow_builder/workflowContantsHelpers';
 import { Drawer, notification } from 'antd';
 import EditAndViewEmailTemplateModal from './EditAndViewEmailTemplateModal';
@@ -641,7 +641,7 @@ const RenderActionUi = ({ closeModal }) => {
 				<div className="actionDropDownContainer">
 					<span className="actionTitle">Action Type</span>
 					<HeadersDropDownComp
-						options={actionOptions}
+						options={takeActionsOptions}
 						showIcon={false}
 						containerStyle={{
 							padding: '12px 24px',
@@ -742,9 +742,33 @@ const RenderConditionUi = ({ closeModal }) => {
 			<div className="workflowOptionContainer">
 				{/* //action */}
 				<div className="actionDropDownContainer">
-					<span className="actionTitle">Take Action if</span>
+					<span className="actionTitle"> Action</span>
 					<HeadersDropDownComp
 						options={actionOptions}
+						showIcon={false}
+						containerStyle={{
+							padding: '12px 24px',
+							height: '48px',
+							padding: '12px 24px',
+							color: '#e4e5e6',
+							width: '100%',
+							flex: 1,
+							alignSelf: 'stretch',
+							borderRadius: '0.625rem',
+							border: '1px solid rgba(36, 36, 36, 0.64)',
+							backgroundColor: '#151515',
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{
+							top: '55px',
+						}}
+					/>
+				</div>
+				{/* //action */}
+				<div className="actionDropDownContainer">
+					<span className="actionTitle">Take Action if</span>
+					<HeadersDropDownComp
+						options={conditionOptions}
 						showIcon={false}
 						containerStyle={{
 							padding: '12px 24px',
@@ -970,7 +994,7 @@ const RenderPipelineUi = ({ closeModal }) => {
 				<div className="actionDropDownContainer">
 					<span className="actionTitle">Move Stages to</span>
 					<HeadersDropDownComp
-						options={actionOptions}
+						options={movePipeLineOptions}
 						showIcon={false}
 						containerStyle={{
 							padding: '12px 24px',
