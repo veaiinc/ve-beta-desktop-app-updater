@@ -325,6 +325,10 @@
 @media screen and (max-width: 768px) {
 	.onboarding-container {
 		.left-container {
+			.progress-bar-container {
+				left: 0;
+			}
+
 			.ai-intro {
 				.profession-grid-container {
 					max-width: 100% !important;
