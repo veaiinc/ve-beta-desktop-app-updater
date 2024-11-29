@@ -8,7 +8,7 @@ import { ReactComponent as Twitter } from '../../../assets/svg/earlyAccess/twitt
 import { ReactComponent as CopyIcon } from '../../../assets/svg/shareAndEarn/copy.svg';
 import { ReactComponent as MailIcon } from '../../../assets/svg/footer/email.svg';
 import { ReactComponent as ArrowBack } from '../../../assets/svg/left-arrow.svg';
-// import { ReactComponent as Copyright } from '../../../assets/svg/landingScreen/copyright.svg';
+
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import { message, Tag, Input } from 'antd';
@@ -86,7 +86,7 @@ const EarlyAccess = () => {
 		}
 		if (isOnboard) {
 			localStorage.setItem('isOnboard', true);
-			// navigate('/home');
+			navigate('/home');
 		}
 	}, [userWorkSpaceList]);
 	const referralCode = shareAndEarnData?.referralDetails?.referralCode;
@@ -98,9 +98,9 @@ const EarlyAccess = () => {
 			.writeText(referralLink)
 			.then(() => {
 				message.success('Referral link copied!');
-				setIsCopied(true); // Set copied status to true
+				setIsCopied(true);
 				setTimeout(() => {
-					setIsCopied(false); // Revert back after 10 seconds
+					setIsCopied(false);
 				}, 5000);
 			})
 			.catch((err) => {
@@ -118,7 +118,7 @@ const EarlyAccess = () => {
 			const referralCode = shareAndEarnData?.referralDetails?.referralCode;
 			const referralLink = `https://ve.ai/verify-user?ref=${referralCode}`;
 			const payload = {
-				clientEmail: emails, // array of emails collected from the input
+				clientEmail: emails,
 				mailContent: {
 					subject: 'Your Customised Proposal',
 					cc: [],
@@ -131,8 +131,8 @@ const EarlyAccess = () => {
 
 			if (success) {
 				message.success('Emails sent successfully!');
-				setShowEmailInput(false); // Hide the input after successful send
-				setEmails([]); // Clear the emails array if needed
+				setShowEmailInput(false);
+				setEmails([]);
 			} else {
 				message.error('Failed to send emails');
 			}
@@ -146,29 +146,26 @@ const EarlyAccess = () => {
 		if (e.key === 'Enter' && inputValue.trim()) {
 			const newEmail = inputValue.trim();
 
-			// Basic email validation regex
 			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 			if (emailRegex.test(newEmail)) {
-				// Check if the email is already in the list
 				if (!emails.includes(newEmail)) {
 					setEmails((prevEmails) => [...prevEmails, newEmail]);
-					setInputValue(''); // Clear input after adding
+					setInputValue('');
 				} else {
-					message.error('This email is already added'); // Notify user
-					setInputValue(''); // Clear input if email is already added
+					message.error('This email is already added');
+					setInputValue('');
 				}
 			} else {
 				message.error('Please enter a valid email address');
-				setInputValue(''); // Clear input if email is invalid
+				setInputValue('');
 			}
 		}
 	};
 
-	const handleDeleteEmail = (index) => {
-		// Changed parameter name from indexToDelete to index
+	const handleDeleteEmail = (email, index) => {
 		setEmails((prevEmails) => {
-			console.log('Previous emails:', prevEmails); // Debug log
+			console.log('Previous emails:', prevEmails);
 			return prevEmails.filter((_, i) => i !== index);
 		});
 	};
@@ -295,7 +292,7 @@ const EarlyAccess = () => {
 										>
 											<ArrowBack
 												className="back-arrow-icon"
-												onClick={() => setShowEmailInput(false)} // Click handler to hide email input
+												onClick={() => setShowEmailInput(false)}
 											/>
 											<Input
 												className="email-input"
@@ -313,7 +310,7 @@ const EarlyAccess = () => {
 													closable
 													onClose={(e) => {
 														e.stopPropagation();
-														// handleDeleteEmail(email, index);
+														handleDeleteEmail(email, index);
 													}}
 													style={{
 														marginBottom: '8px',
