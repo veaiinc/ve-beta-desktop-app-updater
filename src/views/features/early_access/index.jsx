@@ -6,7 +6,7 @@ import { ReactComponent as LinkedIn } from '../../../assets/svg/earlyAccess/link
 import { ReactComponent as Instagram } from '../../../assets/svg/earlyAccess/instagram.svg';
 import { ReactComponent as Twitter } from '../../../assets/svg/earlyAccess/twitter.svg';
 import { ReactComponent as CopyIcon } from '../../../assets/svg/shareAndEarn/copy.svg';
-import { ReactComponent as MailIcon } from '../../../assets/svg/footer/email.svg';
+import { ReactComponent as MailIcon } from '../../../assets/svg/earlyAccess/Email.svg';
 import { ReactComponent as ArrowBack } from '../../../assets/svg/left-arrow.svg';
 
 import { useNavigate } from 'react-router-dom';
@@ -58,6 +58,10 @@ const EarlyAccess = () => {
 	const decodedToken = jwtDecode(usertoken);
 	const { userName } = decodedToken;
 
+	const referralLink = `https://ve.ai?referralCode=${shareAndEarnData?.referralDetails?.referrerCode}`;
+	const tweetText =
+		'Ve.Ai allows you to design stunning forms, proposals, invoices, contracts, I am referring you to join ve with me using my referral link and get 10% discount.';
+
 	useEffect(() => {
 		getUserWorkSpaceList();
 		getShareAndEarn();
@@ -86,27 +90,30 @@ const EarlyAccess = () => {
 		}
 		if (isOnboard) {
 			localStorage.setItem('isOnboard', true);
-			navigate('/home');
+			// navigate('/home');
 		}
 	}, [userWorkSpaceList]);
 	const referralCode = shareAndEarnData?.referralDetails?.referralCode;
+
 	const handleCopyReferralLink = useCallback(() => {
 		const referralCode = shareAndEarnData?.referralDetails?.referralCode;
-		const referralLink = `https://ve.ai/verify-user?ref=${referralCode}`;
+		const referralLink = `https://ve.ai?referralCode=${referralCode}`;
 
-		navigator.clipboard
-			.writeText(referralLink)
-			.then(() => {
-				message.success('Referral link copied!');
-				setIsCopied(true);
-				setTimeout(() => {
-					setIsCopied(false);
-				}, 5000);
-			})
-			.catch((err) => {
-				message.error('Failed to copy:', err);
-			});
-	}, [shareAndEarnData]);
+		if (!isCopied) {
+			navigator.clipboard
+				.writeText(referralLink)
+				.then(() => {
+					message.success('Referral link copied!');
+					setIsCopied(true);
+					setTimeout(() => {
+						setIsCopied(false);
+					}, 5000);
+				})
+				.catch((err) => {
+					message.error('Failed to copy:', err);
+				});
+		}
+	}, [shareAndEarnData, isCopied]);
 
 	const handleInputChange = (e) => {
 		const value = e.target.value;
@@ -122,8 +129,8 @@ const EarlyAccess = () => {
 				mailContent: {
 					subject: 'Your Customised Proposal',
 					cc: [],
-					// htmlBody:
-					// 	'<p>\n\n    \n        <meta charset="UTF-8">\n        <meta name="viewport" content="width=device-width, initial-scale=1.0">\n        <meta content="IE=edge" http-equiv="X-UA-Compatible">\n        <meta name="x-apple-disable-message-reformatting">\n        <title>Your Customised Proposal</title>\n    \n    \n        </p><div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 16px; border-radius: 24px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.12);" bis_skin_checked="1">\n            <div style="font-size: 16px; line-height: 1.6; color: #333333;" bis_skin_checked="1">\n                <h2 style="color: #555555;">Dear Nandhu,</h2>\n                <p>\n                    We truly appreciate your interest in NanduDummy. After\n                    carefully considering your needs, we\'ve created a\n                    personalised proposal just for you. You can view your\n                    proposal using the exclusive link below:\n                </p>\n                <center>\n                    <a href="{workflowLink}" target="_blank" style="background-color: #4e73df; color: white; padding: 10px 20px; border: none; border-radius: 5px; text-decoration: none; display: inline-block;">\n                        <strong>View Proposal</strong> <span>➔</span>\n                    </a>\n                    <br>\n                </center>\n                <p>\n                    We\'ve designed this proposal to perfectly fit your\n                    requirements, but if you need any further customisations,\n                    please feel free to reach out.\n                </p>\n                <p>\n                    Our commitment is to ensure everything is exactly as you\n                    envision it. You deserve the best, and we\'re here to deliver\n                    it. We\'re excited to bring your vision to life and look\n                    forward to working with you.\n                </p>\n                <p>Best regards,<br>Nandhu Raj</p>\n            </div>\n            <div style="text-align: center; margin-top: 20px; font-size: 14px; color: #777777;" bis_skin_checked="1">\n                <a href="https://ve.ai" target="_blank" style="color: #6d6d6d; text-decoration: none;">\n                    Made with\n                    <img src="https://ap.assets.ve.ai/logo/veaiblack.png" alt="ve.ai logo" style="height: 9px; width: 32px;">\n                </a>\n            </div>\n        </div>\n    \n',
+					htmlBody:
+						'<p>\n\n    \n        <meta charset="UTF-8">\n        <meta name="viewport" content="width=device-width, initial-scale=1.0">\n        <meta content="IE=edge" http-equiv="X-UA-Compatible">\n        <meta name="x-apple-disable-message-reformatting">\n        <title>Your Customised Proposal</title>\n    \n    \n        </p><div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 16px; border-radius: 24px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.12);" bis_skin_checked="1">\n            <div style="font-size: 16px; line-height: 1.6; color: #333333;" bis_skin_checked="1">\n                <h2 style="color: #555555;">Dear Nandhu,</h2>\n                <p>\n                    We truly appreciate your interest in NanduDummy. After\n                    carefully considering your needs, we\'ve created a\n                    personalised proposal just for you. You can view your\n                    proposal using the exclusive link below:\n                </p>\n                <center>\n                    <a href="{workflowLink}" target="_blank" style="background-color: #4e73df; color: white; padding: 10px 20px; border: none; border-radius: 5px; text-decoration: none; display: inline-block;">\n                        <strong>View Proposal</strong> <span>➔</span>\n                    </a>\n                    <br>\n                </center>\n                <p>\n                    We\'ve designed this proposal to perfectly fit your\n                    requirements, but if you need any further customisations,\n                    please feel free to reach out.\n                </p>\n                <p>\n                    Our commitment is to ensure everything is exactly as you\n                    envision it. You deserve the best, and we\'re here to deliver\n                    it. We\'re excited to bring your vision to life and look\n                    forward to working with you.\n                </p>\n                <p>Best regards,<br>Nandhu Raj</p>\n            </div>\n            <div style="text-align: center; margin-top: 20px; font-size: 14px; color: #777777;" bis_skin_checked="1">\n                <a href="https://ve.ai" target="_blank" style="color: #6d6d6d; text-decoration: none;">\n                    Made with\n                    <img src="https://ap.assets.ve.ai/logo/veaiblack.png" alt="ve.ai logo" style="height: 9px; width: 32px;">\n                </a>\n            </div>\n        </div>\n    \n',
 				},
 			};
 
@@ -242,22 +249,24 @@ const EarlyAccess = () => {
 								<div className="share-text">Share on</div>
 								{!showEmailInput ? (
 									<div className="icons-container">
-										{/* <div
+										<div
 											className="icon-button"
 											onClick={() =>
 												window.open(
-													'https://twitter.com/your_twitter_handle',
+													`https://x.com/intent/post?text=${encodeURIComponent(
+														tweetText,
+													)}&url=${encodeURIComponent(referralLink)}`,
 													'_blank',
 												)
 											}
 										>
 											<Twitter />
-										</div> */}
+										</div>
 										<div
 											className="icon-button"
 											onClick={() => {
 												window.open(
-													`https://www.linkedin.com/shareArticle?mini=true&url=https://ve.ai/a/${referralCode}`,
+													`https://www.linkedin.com/company/veai`,
 													'_blank',
 												);
 											}}
@@ -268,7 +277,7 @@ const EarlyAccess = () => {
 											className="icon-button"
 											onClick={() => setShowEmailInput(true)}
 										>
-											<MailIcon />
+											<MailIcon fill="white" />
 										</div>
 										<div
 											className="icon-button"
