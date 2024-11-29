@@ -286,17 +286,25 @@ const EarlyAccess = () => {
 									</div>
 								) : (
 									<div className="email-invitation-container">
-										<ArrowBack
-											className="back-arrow-icon"
-											onClick={() => setShowEmailInput(false)} // Click handler to hide email input
-										/>
-										<Input
-											className="email-input"
-											placeholder="Email ID"
-											value={inputValue}
-											onChange={handleInputChange}
-											onKeyPress={handleInputKeyPress}
-										/>
+										<div
+											style={{
+												display: 'flex',
+												flexDirection: 'row',
+												justifyContent: 'center',
+											}}
+										>
+											<ArrowBack
+												className="back-arrow-icon"
+												onClick={() => setShowEmailInput(false)} // Click handler to hide email input
+											/>
+											<Input
+												className="email-input"
+												placeholder="Email ID"
+												value={inputValue}
+												onChange={handleInputChange}
+												onKeyPress={handleInputKeyPress}
+											/>
+										</div>
 
 										<div className="email-tags" style={{ marginTop: '10px' }}>
 											{emails.map((email, index) => (
