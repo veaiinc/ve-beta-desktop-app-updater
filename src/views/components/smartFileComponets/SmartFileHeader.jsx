@@ -79,12 +79,13 @@ const SmartFileHeader = ({
 	useEffect(() => {
 		if (workflowStatus) {
 			let modifiedOptions = [...options];
-			if (workflowStatus === 'filesSent' || workflowStatus === 'filesViewed') {
+			if (workflowStatus === 'enquiry') {
+				modifiedOptions = [{ label: 'Delete Lead' }];
+			} else if (workflowStatus === 'filesSent' || workflowStatus === 'filesViewed') {
 				modifiedOptions = [
 					{ label: 'Edit' },
 					{ label: 'Resend File' },
 					{ label: 'Send Email' },
-					// { label: 'Delete File' },
 					{ label: 'Delete Lead' },
 				];
 			} else {
@@ -92,7 +93,6 @@ const SmartFileHeader = ({
 					{ label: 'Resend File' },
 					{ label: 'Send Email' },
 					{ label: 'Move Stage' },
-					// { label: 'Delete File' },
 					{ label: 'Delete Lead' },
 				];
 			}
@@ -238,42 +238,42 @@ const SmartFileHeader = ({
 						) : (
 							''
 						)}
-						<HeadersDropDownComp
-							showIcon={false}
-							options={info?.threeDotOptions}
-							containerStyle={{
-								padding: '4px 8px',
-								borderRadius: '100px',
-								border: '1px solid rgba(36, 36, 36, 0.64)',
-								background: 'rgba(42, 42, 42, 0.32)',
-								width: '8px',
-							}}
-							dropDownStyle={{
-								right: 0,
-								left: 'unset',
-								top: '55px',
-								maxHeight: '300px',
-								width: '200px',
-							}}
-							showArrow={false}
-							selectedValue={<ThreeDots />}
-							onChangeFunc={(e) => onOptionChangeFunc(e)}
-							dropDownTextStyling={{
-								overflow: 'hidden',
-								color: '#E4E5E6',
-								textOverflow: 'ellipsis',
-								fontFamily: 'Inter',
-								fontSize: '14px',
-								fontStyle: 'normal',
-								fontWeight: '400',
-								lineHeight: '16px' /* 114.286% */,
-								letterSpacing: '-0.3px',
-							}}
-						/>
 					</>
 				) : (
 					''
 				)}
+				<HeadersDropDownComp
+					showIcon={false}
+					options={info?.threeDotOptions}
+					containerStyle={{
+						padding: '4px 8px',
+						borderRadius: '100px',
+						border: '1px solid rgba(36, 36, 36, 0.64)',
+						background: 'rgba(42, 42, 42, 0.32)',
+						width: '8px',
+					}}
+					dropDownStyle={{
+						right: 0,
+						left: 'unset',
+						top: '55px',
+						maxHeight: '300px',
+						width: '200px',
+					}}
+					showArrow={false}
+					selectedValue={<ThreeDots />}
+					onChangeFunc={(e) => onOptionChangeFunc(e)}
+					dropDownTextStyling={{
+						overflow: 'hidden',
+						color: '#E4E5E6',
+						textOverflow: 'ellipsis',
+						fontFamily: 'Inter',
+						fontSize: '14px',
+						fontStyle: 'normal',
+						fontWeight: '400',
+						lineHeight: '16px' /* 114.286% */,
+						letterSpacing: '-0.3px',
+					}}
+				/>
 			</div>
 		</div>
 	);
