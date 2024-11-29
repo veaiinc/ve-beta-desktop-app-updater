@@ -7,6 +7,7 @@ import { ReactComponent as ArrowUpBlack } from '../../../assets/svg/landingScree
 import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen/double-quote.svg';
 import { ReactComponent as CookieIcon } from '../../../assets/svg/landingScreen/cookie.svg';
 import Cookies from 'js-cookie';
+import { message } from 'antd';
 
 const navItems = [
 	{ name: 'Privacy', route: '/privacy-policy' },
@@ -56,6 +57,10 @@ const LandingPage = () => {
 	};
 
 	const handleNavigation = () => {
+		if (!info?.cookiesAccepted) {
+			message?.info('Please accept cookies to continue');
+			return;
+		}
 		navigate('/verify-user');
 	};
 
