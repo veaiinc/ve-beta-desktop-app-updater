@@ -3,6 +3,7 @@ import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import { ReactComponent as Dustbin } from '../../../../assets/svg/worflow_builder/dustbin.svg';
 import { ReactComponent as Ai } from '../../../../assets/svg/workflow/ai.svg';
+import { ReactComponent as Pen } from '../../../../assets/svg/worflow_builder/editPen.svg';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/doubleArrow.svg';
 import Context from '../../../../context/context';
@@ -15,6 +16,8 @@ import {
 	options,
 	returnDurationOption,
 	calculateTimeStamp,
+	actionOptions,
+	channelOptions,
 } from '../../../features/workflow_builder/workflowContantsHelpers';
 import { Drawer, notification } from 'antd';
 import EditAndViewEmailTemplateModal from './EditAndViewEmailTemplateModal';
@@ -362,7 +365,9 @@ const WorkflowCardEditModal = ({
 				pipeline: <RenderPipelineUi closeModal={closeModal} />,
 			};
 		}
-	}, [newNodeType]);
+	}, [optionType]);
+
+	console.log('hello==>', optionType);
 
 	return (
 		<Drawer
@@ -393,7 +398,7 @@ const WorkflowCardEditModal = ({
 							<span>Fetching details ....</span>
 						</div>
 					) : (
-						compMapper?.[newNodeType]
+						compMapper?.[optionType]
 						// <div className="WorkFlowEditorBody">
 						// 	{/* action typ */}
 
@@ -607,6 +612,9 @@ const RenderActionUi = ({ closeModal }) => {
 				<span className="headerTitle">Edit</span>
 			</div>
 			<div className="workflowOptionContainer"></div>
+			<div className="workflowFooterContainer">
+				<div className="saveChangesButton">Save Changes</div>
+			</div>
 		</div>
 	);
 };
@@ -623,6 +631,9 @@ const RenderConditionUi = ({ closeModal }) => {
 				<span className="headerTitle">Edit</span>
 			</div>
 			<div className="workflowOptionContainer"></div>
+			<div className="workflowFooterContainer">
+				<div className="saveChangesButton">Save Changes</div>
+			</div>
 		</div>
 	);
 };
@@ -638,7 +649,148 @@ const RenderNotificationUi = ({ closeModal }) => {
 
 				<span className="headerTitle">Edit</span>
 			</div>
-			<div className="workflowOptionContainer"></div>
+			<div className="workflowOptionContainer">
+				{/* //action */}
+				<div className="actionDropDownContainer">
+					<span className="actionTitle">Action</span>
+					<HeadersDropDownComp
+						options={actionOptions}
+						showIcon={false}
+						containerStyle={{
+							padding: '12px 24px',
+							height: '48px',
+							padding: '12px 24px',
+							color: '#e4e5e6',
+							width: '100%',
+							flex: 1,
+							alignSelf: 'stretch',
+							borderRadius: '0.625rem',
+							border: '1px solid rgba(36, 36, 36, 0.64)',
+							backgroundColor: '#151515',
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{
+							top: '55px',
+						}}
+					/>
+				</div>
+				{/* //channel */}
+				<div className="actionDropDownContainer">
+					<span className="actionTitle">Channel</span>
+					<HeadersDropDownComp
+						options={channelOptions}
+						showIcon={false}
+						containerStyle={{
+							padding: '12px 24px',
+							height: '48px',
+							padding: '12px 24px',
+							color: '#e4e5e6',
+							width: '100%',
+							flex: 1,
+							alignSelf: 'stretch',
+							borderRadius: '0.625rem',
+							border: '1px solid rgba(36, 36, 36, 0.64)',
+							backgroundColor: '#151515',
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{
+							top: '55px',
+						}}
+					/>
+				</div>
+				<div className="workflow_builder_action_seperator"></div>
+				{/* //email template */}
+				<div className="emailTemplateContainer">
+					<HeadersDropDownComp
+						options={channelOptions}
+						showIcon={false}
+						containerStyle={{
+							padding: '12px 24px',
+							height: '48px',
+							padding: '12px 24px',
+							color: '#e4e5e6',
+							width: '100%',
+							flex: 1,
+							alignSelf: 'stretch',
+							borderRadius: '0.625rem',
+							border: '1px solid rgba(36, 36, 36, 0.64)',
+							backgroundColor: '#151515',
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{
+							top: '55px',
+						}}
+					/>
+					<div className="editContainer">
+						Edit <Pen />
+					</div>
+				</div>
+				<div className="workflow_builder_action_seperator"></div>
+
+				<div className="notification_schedulingContainer">
+					<span className="actionTitle">When ?</span>
+					<div className="notificationDaysContainer">
+						{/* //incrementor */}
+						<div className="incrementorDecrementorContainer">
+							<div className="manualIncrementorButtons">-</div>
+							<input className="manualIncrementorInput" />
+							<div className="manualIncrementorButtons">+</div>
+						</div>
+						{/* //days */}
+						<HeadersDropDownComp
+							options={channelOptions}
+							showIcon={false}
+							containerStyle={{
+								padding: '12px 24px',
+								height: '48px',
+								padding: '12px 24px',
+								color: '#e4e5e6',
+								width: '100%',
+								flex: 1,
+								alignSelf: 'stretch',
+								borderRadius: '0.625rem',
+								border: '1px solid rgba(36, 36, 36, 0.64)',
+								backgroundColor: '#151515',
+							}}
+							outerContainerStyle={{ width: '100%' }}
+							dropDownStyle={{
+								top: '55px',
+							}}
+						/>
+					</div>
+					<HeadersDropDownComp
+						options={channelOptions}
+						showIcon={false}
+						containerStyle={{
+							padding: '12px 24px',
+							height: '48px',
+							padding: '12px 24px',
+							color: '#e4e5e6',
+							width: '100%',
+							flex: 1,
+							alignSelf: 'stretch',
+							borderRadius: '0.625rem',
+							border: '1px solid rgba(36, 36, 36, 0.64)',
+							backgroundColor: '#151515',
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{
+							top: '55px',
+						}}
+					/>
+				</div>
+
+				<div className="workflow_builder_action_seperator"></div>
+
+				{/* //required approval */}
+				<div className="requiredApprovalContainer">
+					<span className="requiredApprovalText">Require Approval before sending</span>
+					<ToggleSlider />
+				</div>
+			</div>
+			<div className="workflowFooterContainer">
+				<div className="saveChangesButton">Save Changes</div>
+			</div>
 		</div>
 	);
 };
@@ -655,6 +807,9 @@ const RenderPipelineUi = ({ closeModal }) => {
 				<span className="headerTitle">Edit</span>
 			</div>
 			<div className="workflowOptionContainer"></div>
+			<div className="workflowFooterContainer">
+				<div className="saveChangesButton">Save Changes</div>
+			</div>
 		</div>
 	);
 };

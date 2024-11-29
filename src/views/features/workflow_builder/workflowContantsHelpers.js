@@ -55,6 +55,42 @@ export const smartFileActions = [
 		value: 'After Proposal accepted, Unsigned Contract',
 	},
 ];
+
+export const actionOptions = [
+	{
+		label: 'Send notification',
+		value: 'notification',
+	},
+
+	{
+		label: 'Actions',
+		value: 'actions',
+	},
+	{
+		label: 'Move pipeline stage',
+		value: 'pipeline',
+	},
+];
+
+export const channelOptions = [
+	{
+		label: 'Email',
+		value: 'email',
+	},
+
+	{
+		label: 'Whatsapp',
+		value: 'whatsapp',
+	},
+	{
+		label: 'Instagram',
+		value: 'instagram',
+	},
+	{
+		label: 'Facebook',
+		value: 'facebook',
+	},
+];
 export const calculateTimeStamp = async (selectedDuration, duration) => {
 	const now = moment();
 	if (selectedDuration === 'minutes') {
