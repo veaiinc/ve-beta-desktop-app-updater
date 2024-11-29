@@ -294,8 +294,20 @@
 	}
 
 	.hero-section-1 {
-		zoom: 0.8;
-		padding: 36px !important;
+		padding: 12px !important;
+
+		.heading {
+			font-size: 32px !important;
+		}
+
+		.cta-container {
+			margin-top: 36px;
+
+			& > * {
+				height: 48px !important;
+				padding: 14px 18px !important;
+			}
+		}
 	}
 
 	.copyright {
@@ -304,6 +316,13 @@
 }
 
 @media screen and (max-width: 581.34px) {
+	.landing-page-container {
+		height: 99dvh !important;
+
+		.header-container {
+			height: 50px !important;
+		}
+	}
 	.cookies-notice {
 		min-width: 100% !important;
 		min-height: 100px !important;

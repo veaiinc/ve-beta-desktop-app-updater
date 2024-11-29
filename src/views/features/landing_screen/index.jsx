@@ -160,9 +160,7 @@ const LandingPage = () => {
 								experience.
 								<br />
 								Check our{' '}
-								<b onClick={() => navigate('/privacy-policy')}>
-									privacy policy
-								</b>{' '}
+								<b onClick={() => navigate('/cookie-policy')}>cookie policy</b>
 								for more details.
 							</p>
 						</div>
