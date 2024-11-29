@@ -26,9 +26,11 @@ const SmartFileHeader = ({
 	changeEditStatus,
 	openMoveToStageModal,
 	openDeleteModal,
-	onPreviewClick,
+	// onPreviewClick,
 	noContractTemplate,
 	counterAccpetOnClick,
+	slug,
+	currentWorkspaceId,
 }) => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -101,8 +103,13 @@ const SmartFileHeader = ({
 
 	const modifiedPreviewClick = useCallback(() => {
 		setInfo((prev) => ({ ...prev, previewLoader: true }));
-		onPreviewClick();
-	}, []);
+		const usertoken = localStorage.getItem('usertoken');
+		const region = localStorage.getItem('region');
+		window.location.href = `https://${currentWorkspaceId}.ve.ai/portal/${slug}/${region}/${usertoken}`;
+		setTimeout(() => {
+			setInfo((prev) => ({ ...prev, previewLoader: false }));
+		}, 2000);
+	}, [slug, currentWorkspaceId]);
 
 	const onCounterAcceptClickFunc = useCallback(async () => {
 		if (info?.counterAccpetLoading) {
