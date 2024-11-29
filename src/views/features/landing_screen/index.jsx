@@ -157,10 +157,10 @@ const LandingPage = () => {
 							</span>
 							<p>
 								This site uses cookies to provide you with a personalized
-								experience.
-								<br />
-								Check our{' '}
-								<b onClick={() => navigate('/cookie-policy')}>cookie policy</b>
+								experience. Check our{' '}
+								<b onClick={() => navigate('/cookie-policy')}>
+									<u>cookie policy</u>
+								</b>{' '}
 								for more details.
 							</p>
 						</div>
