@@ -29,7 +29,7 @@ const File = ({
 	workflowStatus,
 	slug,
 }) => {
-	const { workflowId } = useParams();
+	const { workflowId, templateId } = useParams();
 	const timeoutRef = useRef(null);
 	let {
 		templates: {
@@ -602,8 +602,9 @@ const File = ({
 	);
 
 	const duplicateTemplateFromSmartFile = useCallback(async () => {
-		window.location.href = `${origin}/${workflowId}?workflow=true`;
-	}, [workflowData]);
+		console.log('I reached here');
+		window.location.href = `${origin}/${workflowId}?workflow=true&templateId=${templateId}`;
+	}, [workflowId, templateId]);
 
 	const handleUpdateVaraiblesArray = useCallback(
 		async (updatedDuplicateVariableArray) => {
