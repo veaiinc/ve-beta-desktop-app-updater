@@ -58,9 +58,9 @@ const EarlyAccess = () => {
 	const decodedToken = jwtDecode(usertoken);
 	const { userName } = decodedToken;
 
-	const referralLink = `https://ve.ai?referralCode=${shareAndEarnData?.referralDetails?.referrerCode}`;
+	const referralLink = `https://ve.ai?referralCode=${shareAndEarnData?.referralDetails?.referralCode}`;
 	const tweetText =
-		'Ve.Ai allows you to design stunning forms, proposals, invoices, contracts, I am referring you to join ve with me using my referral link and get 10% discount.';
+		'Ve.Ai allows you to design stunning forms, proposals, invoices, contracts, I am referring you to join ve with me using my referral link and get 20% discount.';
 
 	useEffect(() => {
 		getUserWorkSpaceList();
