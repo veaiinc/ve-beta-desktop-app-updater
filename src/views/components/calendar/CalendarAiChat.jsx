@@ -5,6 +5,7 @@ import Context from '../../../context/context';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as SendSvg } from '../../../assets/svg/calendar/send.svg';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
+import { message } from 'antd';
 
 const initialState = {
 	sessionId: null,
@@ -26,6 +27,8 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 	});
 
 	const scrollRef = useRef(null);
+
+	//useEffects
 	useEffect(() => {
 		const sessionId = ObjectId().toString();
 		setInfo((prevInfo) => ({ ...prevInfo, sessionId }));
@@ -49,34 +52,34 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 		}
 	}, [info.chatHistory, info.isProcessing]);
 
-	// Function to handle API call
-	const calendarAiChatRes = useCallback(
-		async (sessionId, inputData) => {
-			// let response;
-
-			setInfo((prevInfo) => ({ ...prevInfo, errorMessage: null, isProcessing: true }));
-			const response = await getCalendarChat(sessionId, { query: inputData });
-			console.log('response===>?' + JSON.stringify(response, null, 2));
-
-			if (response?.[0] === true) {
-				setInfo((prevInfo) => ({
+	useEffect(() => {
+		if (calendarChat) {
+			if (calendarChat?.error?.length) {
+				return setInfo((prevInfo) => ({
 					...prevInfo,
 					isProcessing: false,
-					chatHistory: [
-						...prevInfo.chatHistory,
-						{ type: 'ai', message: response[1]?.answer },
-					],
-				}));
-			} else {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					isProcessing: false,
-					errorMessage: 'Something went wrong. Please try again.',
+					errorMessage: calendarChat?.error,
 				}));
 			}
-		},
-		[getCalendarChat],
-	);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				isProcessing: false,
+				chatHistory: [
+					...prevInfo.chatHistory,
+					{
+						type: 'ai',
+						message: calendarChat?.answer,
+					},
+				],
+			}));
+		}
+	}, [calendarChat]);
+
+	// Function to handle API call
+	const calendarAiChatRes = useCallback(async (sessionId, inputData) => {
+		setInfo((prevInfo) => ({ ...prevInfo, errorMessage: null, isProcessing: true }));
+		await getCalendarChat(sessionId, { query: inputData });
+	}, []);
 
 	// Handle user input submission
 	const handleSendMessage = (keyPressOrbuttonClick) => {

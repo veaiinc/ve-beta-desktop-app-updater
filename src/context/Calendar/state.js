@@ -27,7 +27,7 @@ export const Calendar = () => {
 			} else {
 				dispatch({
 					type: Actions.GET_CALENDAR_CHAT,
-					payload: null, // Reset to null if response fails
+					payload: { error: 'Something went wrong. Please try again.' },
 				});
 			}
 
