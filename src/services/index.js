@@ -77,6 +77,7 @@ const apiFetch = async (url, method, body, token, type) => {
 		const response = await fetch(endpoint, { method, headers, body });
 		return processResponse(response);
 	} catch (error) {
+		console.log('error==>', error);
 		onFailure('network', url);
 		return [false];
 	}

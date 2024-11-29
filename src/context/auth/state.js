@@ -109,7 +109,7 @@ export const AuthState = () => {
 
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
-			console.log('response', response);
+
 			if (response?.[0] === true) {
 				const { accessToken, region } = response?.[1];
 				localStorage.setItem('usertoken', accessToken);
@@ -276,6 +276,7 @@ export const AuthState = () => {
 	};
 
 	const createWorkspace = async (workspaceHandle, workspaceType, profession, businessName) => {
+		console.log('I reached here==>');
 		const path = '/tenant/create-workspace';
 		const token = localStorage?.getItem('usertoken') || '';
 		const body = {
@@ -284,9 +285,11 @@ export const AuthState = () => {
 			category: workspaceType,
 			businessName,
 		};
+		console.log('I reached here==>body', body);
 
 		try {
 			const response = await service?.fetchPost(path, body, token, 'auth');
+			console.log('I reached here==>response', response);
 			if (response?.[0] === true) {
 				localStorage.setItem('isOnboard', JSON.stringify(response?.[1]?.isOnboard));
 				localStorage.setItem('workspaceId', response?.[1]?.workspaceId);
