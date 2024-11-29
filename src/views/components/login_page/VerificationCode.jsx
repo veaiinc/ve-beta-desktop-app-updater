@@ -32,6 +32,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 		otpError: '',
 		isLoading: false,
 		canResend: true,
+		resendTimer: 60,
 		locationDetails: null,
 	});
 	const otpContainerRef = useRef(null);
@@ -103,11 +104,8 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 
 	const handleResendCode = async () => {
 		try {
-			if (!info?.canResend) {
-				message.info('Please wait 60 seconds before requesting another code');
-				return;
-			}
-			setInfo((prev) => ({ ...prev, isLoading: true, canResend: false }));
+			if (!info?.canResend) return;
+			setInfo((prev) => ({ ...prev, isLoading: true, canResend: false, resendTimer: 60 }));
 			const response = await checkAccountExistsUsingEmail(email);
 			if (response[0] === true) {
 				message?.success('Code resent successfully! Check your email.');
@@ -129,8 +127,22 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			const timeout = setTimeout(() => {
 				setInfo((prev) => ({ ...prev, canResend: true, isLoading: false }));
 			}, 60000);
-			setInfo((prev) => ({ ...prev, isLoading: false }));
-			return () => clearTimeout(timeout);
+
+			const interval = setInterval(() => {
+				setInfo((prev) => {
+					if (prev.resendTimer > 0) {
+						return { ...prev, resendTimer: prev.resendTimer - 1 };
+					} else {
+						clearInterval(interval);
+						return prev;
+					}
+				});
+			}, 1000);
+
+			return () => {
+				clearTimeout(timeout);
+				clearInterval(interval);
+			};
 		} catch (error) {
 			console.error('Failed to check email:', error.message);
 		}
@@ -210,7 +222,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 					opacity: info?.canResend ? 1 : 0.5,
 				}}
 			>
-				Resend code
+				{!info?.canResend ? `Resend code in ${info?.resendTimer} seconds` : 'Resend code'}
 			</p>
 		</div>
 	);

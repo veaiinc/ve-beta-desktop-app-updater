@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../../../assets/scss/landingScreen/index.scss';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
 import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
@@ -23,7 +23,16 @@ const LandingPage = () => {
 		cookiesAccepted: false,
 	});
 
+	const location = useLocation();
+	const referralCode = location?.search?.split('=')?.[1] ?? false;
+
 	useEffect(() => {
+		if (referralCode) {
+			localStorage.clear();
+			Cookies?.remove('cookiesAccepted');
+			message?.success(`Referral code applied: ${referralCode}`);
+			localStorage.setItem('referralCode', referralCode);
+		}
 		const usertoken = localStorage.getItem('usertoken');
 		const region = localStorage.getItem('region');
 		const workspaceId = localStorage.getItem('workspaceId');
@@ -60,8 +69,11 @@ const LandingPage = () => {
 		if (!info?.cookiesAccepted) {
 			message?.info('Please accept cookies to continue');
 			return;
+		} else if (referralCode) {
+			navigate(`/referral/${referralCode}`);
+		} else {
+			navigate('/verify-user');
 		}
-		navigate('/verify-user');
 	};
 
 	const handleRequestDemo = () => {

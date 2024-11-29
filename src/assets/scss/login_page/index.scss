@@ -49,6 +49,21 @@
 					line-height: 30px;
 					text-align: left;
 					width: 100%;
+
+					.referrer-name {
+						background: var(
+							--Color-Code-AI,
+							linear-gradient(94deg, #ca9bfe -2.06%, #fd749d 95.85%)
+						);
+						background-clip: text;
+						-webkit-background-clip: text;
+						-webkit-text-fill-color: transparent;
+						font-family: Brasley;
+						font-size: 20px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 30px;
+					}
 				}
 
 				.login-page-title {

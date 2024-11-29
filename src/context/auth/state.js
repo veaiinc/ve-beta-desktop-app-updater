@@ -75,8 +75,8 @@ export const AuthState = () => {
 		}
 	};
 
-	const createAccountUsingEmail = async (email, locationDetails) => {
-		const path = '/signup';
+	const createAccountUsingEmail = async (email, locationDetails, referralCode) => {
+		const path = referralCode === false ? '/signup' : `/signup?referralCode=${referralCode}`;
 		const body = { email, locationDetails };
 
 		try {
@@ -319,6 +319,21 @@ export const AuthState = () => {
 		window.location.href = `${authBaseUrl}${path}?${params}`;
 	};
 
+	const getUsernameViaReferralCode = async (referralCode) => {
+		try {
+			const path = `/referral/get-referrer-name/${referralCode}`;
+			const response = await service?.fetchGet(path, null, 'auth');
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			} else {
+				return [false, { message: response?.[1]?.message?.trim() + '. Please try again!' }];
+			}
+		} catch (error) {
+			console.error('Error getting username via referral code:', error);
+			throw error;
+		}
+	};
+
 	return {
 		checkAccountExistsUsingEmail,
 		createAccountUsingEmail,
@@ -327,5 +342,6 @@ export const AuthState = () => {
 		createWorkspace,
 		checkWorkspaceHandleAvailability,
 		updateUserDetails,
+		getUsernameViaReferralCode,
 	};
 };
