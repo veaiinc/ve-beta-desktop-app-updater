@@ -11,14 +11,23 @@ import { ReactComponent as GlassMorphGrey2 } from '../../../assets/svg/login_pag
 import { ReactComponent as ShapeLemonYellow } from '../../../assets/svg/login_page/shape-lemon-yellow.svg';
 import { ReactComponent as PlusBlack } from '../../../assets/svg/login_page/plus-black.svg';
 import { ReactComponent as VeAiLogoLemonYellow } from '../../../assets/svg/login_page/ve-ai-logo-lemon-yellow.svg';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
+	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		activeStage: 'email',
 		email: '',
 		emailVerified: false,
 		accountExists: false,
 	});
+
+	useEffect(() => {
+		if (Cookies?.get('cookiesAccepted') === 'false') {
+			navigate('/');
+		}
+	}, []);
 
 	const setEmail = (email) => {
 		setInfo((prev) => ({ ...prev, email }));
