@@ -121,7 +121,7 @@ export const isURL = (url) => {
 };
 
 let urlMapper = {
-	localhost: 'localhost:3000',
+	localhost: 'http://localhost:3000',
 	've.ai': 'https://builder.ve.ai',
 	've.co': 'https://builder.ve.co',
 	'www.ve.ai': 'https://builder.ve.ai',
