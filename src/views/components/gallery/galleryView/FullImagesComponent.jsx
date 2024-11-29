@@ -11,7 +11,6 @@ const FullImagesComponent = ({
 	setInfo,
 	selectedImages,
 }) => {
-	console.log(selectedImages, 'selectedImages');
 	return (
 		<div className="activeImageWrapper" id="activeImageWrapper-target">
 			<InfiniteScroll

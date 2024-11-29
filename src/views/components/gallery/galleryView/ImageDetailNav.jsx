@@ -11,6 +11,7 @@ import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/Cr
 import { useNavigate } from 'react-router-dom';
 import slugify from 'slugify';
 import Peopleitem from './PeopleCard';
+import { message } from 'antd';
 
 const ImageDetailNav = ({
 	info,
@@ -25,6 +26,7 @@ const ImageDetailNav = ({
 	addGalleryTag,
 	addTagToImage,
 	removeTagFromImage,
+	getDownloadLinkForImage,
 }) => {
 	const navigate = useNavigate();
 	const [navInfo, setnavInfo] = useState({
@@ -83,6 +85,17 @@ const ImageDetailNav = ({
 			}
 			handleRotateImage(currentRotation);
 		},
+		Download: async () => {
+			message.loading('Downloading image...', 0);
+			const response = await getDownloadLinkForImage(info?.imageDetailId);
+
+			if (response?.[0] === true) {
+				message.destroy();
+				message.success('Download completed');
+			} else {
+				message.error('Failed to get download link');
+			}
+		},
 	};
 
 	const addTagHandler = async () => {
@@ -132,10 +145,7 @@ const ImageDetailNav = ({
 							functionsList[option?.label] && functionsList[option?.label]()
 						}
 						style={{
-							cursor:
-								option?.label === 'Download' || option?.label === 'Share'
-									? 'not-allowed'
-									: '',
+							cursor: option?.label === 'Share' ? 'not-allowed' : '',
 						}}
 					>
 						{option.icon}

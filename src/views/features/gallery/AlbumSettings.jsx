@@ -418,22 +418,7 @@ const AlbumSettings = () => {
 			info?.activeTagId,
 		);
 		if (response?.[0] === true) {
-			const downloadStatus = await getDownloadLinkStatus(response?.[1]?.downloadId);
-			if (downloadStatus?.[0] === true) {
-				const zipDownloadUrl = await getZipDownloadUrl(
-					downloadStatus?.[1]?.downloadId,
-					downloadStatus?.[1]?.zipFiles?.[0]?.zipFileId,
-				);
-				if (zipDownloadUrl?.[0] === true) {
-					window.open(zipDownloadUrl?.[1]?.signedUrl, '_blank');
-				} else {
-					message.destroy();
-					message.error('Something went wrong, please try again later');
-				}
-			} else {
-				message.destroy();
-				message.error('Something went wrong, please try again later');
-			}
+			window.open(`https://downloads.ve.ai/${response?.[1]?.downloadId}`, '_blank');
 		} else {
 			message.destroy();
 			message.error('Something went wrong, please try again later');
@@ -508,7 +493,6 @@ const AlbumSettings = () => {
 							<div className="select-labels">
 								<p className="title">Select labels to download</p>
 								<div className="labels-container">
-									{console.log(albumDetails, 'albumDetails')}
 									{albumDetails?.tags?.map((item) => (
 										<p
 											key={item?._id}

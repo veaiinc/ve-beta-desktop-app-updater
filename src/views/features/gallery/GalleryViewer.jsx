@@ -73,6 +73,7 @@ const GalleryViewer = () => {
 			addGalleryTag,
 			removeTagFromImage,
 			addTagToImage,
+			getDownloadLinkForImage,
 		},
 	} = useContext(Context);
 
@@ -309,6 +310,7 @@ const GalleryViewer = () => {
 							addGalleryTag={addGalleryTag}
 							addTagToImage={addTagToImage}
 							removeTagFromImage={removeTagFromImage}
+							getDownloadLinkForImage={getDownloadLinkForImage}
 						/>
 					)}
 				</div>

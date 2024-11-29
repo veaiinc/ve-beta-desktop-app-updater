@@ -91,9 +91,9 @@ const GalleryPage = () => {
 			getRearrangeStatus,
 			updateImageOrder,
 			changeImageOrder,
-			getDownloadLink,
 			getDownloadLinkStatus,
 			getZipDownloadUrl,
+			getDownloadLinkForImage,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -408,7 +408,6 @@ const GalleryPage = () => {
 
 	useEffect(() => {
 		const imageSearchKey = searchkeys.get('uploadImageId') || null;
-		console.log(imageSearchKey);
 
 		// if image detail is upload image id
 		if (imageDetail?._id === info?.uploadImageId && galleryCredentials) {
@@ -426,11 +425,6 @@ const GalleryPage = () => {
 			!imageDetail &&
 			!imageSearchKey
 		) {
-			console.log(
-				'albumImagesCount?.coverImage?._id',
-				albumImagesCount?.coverImage?._id,
-				imageDetail,
-			);
 			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 			const src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?${params}`;
 			setInfo((prev) => ({
@@ -626,7 +620,6 @@ const GalleryPage = () => {
 				}&image=${selectedImageId || info?.selectedImages?.[0]}`,
 			);
 		} else {
-			console.log(info.selectedImages);
 			navigate(
 				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}`,
 				{ state: { selectedImages: info?.selectedImages } },
@@ -662,7 +655,6 @@ const GalleryPage = () => {
 			setsearchkeys({});
 		}
 		getImageDetail(null, true, false);
-		console.log('calling ', name);
 
 		if (count === 0) return;
 		setInfo((prevInfo) => ({
@@ -1522,17 +1514,14 @@ const GalleryPage = () => {
 		return activeTag?.customSortIndex || 0;
 	};
 	const handleDownload = async () => {
-		const payload = {
-			imageType: 'optimized',
-		};
-		const response = await getDownloadLink(payload, galleryId, info.activeAlbumId);
+		message.loading('Downloading image...', 0);
+		const response = await getDownloadLinkForImage(info?.selectedImages[0]);
+
 		if (response?.[0] === true) {
-			const downloadId = response?.[1]?.downloadId;
-			const response2 = await getDownloadLinkStatus(downloadId);
-			if (response2?.[0] === true) {
-				const fileID = response2?.[1]?.zipFiles?.[0]?.zipFileId;
-				const zipDownloadUrl = await getZipDownloadUrl(downloadId, fileID);
-			}
+			message.destroy();
+			message.success('Download completed');
+		} else {
+			message.error('Failed to get download link');
 		}
 	};
 
@@ -2719,8 +2708,7 @@ const GalleryPage = () => {
 																className="optionsContainer"
 																ref={optionsContainerRef}
 															>
-																<li>
-																	{/* onClick={handleDownload} */}
+																<li onClick={handleDownload}>
 																	Download
 																</li>
 																<li

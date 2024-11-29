@@ -134,7 +134,11 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries, message 
 				slug: galleryData.slug,
 				category: 'wedding',
 				shotDuring: galleryData.shotDuring.replace(/-/g, ''),
-				dueDateEpoch: new Date(galleryData.shotDuring).getTime() / 1000,
+				dueDateEpoch: new Date(
+					new Date(galleryData.shotDuring).setMonth(
+						new Date(galleryData.shotDuring).getMonth() + 1,
+					),
+				).getTime(),
 				tenantUsers: [
 					{
 						_id: userID,
@@ -142,6 +146,7 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries, message 
 					},
 				],
 			};
+
 			setGalleryData((prev) => ({ ...prev, isSubmitting: true }));
 			let response = await createNewGallery(payload);
 
