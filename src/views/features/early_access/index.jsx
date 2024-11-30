@@ -235,7 +235,7 @@ const EarlyAccess = () => {
 		if (e.key === 'Enter' && inputValue.trim()) {
 			const newEmail = inputValue.trim();
 
-			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			const emailRegex = /^[^\s@!#$%&*]+@[^\s@]+\.[^\s@]+$/;
 
 			if (emailRegex.test(newEmail)) {
 				if (!emails.includes(newEmail)) {
@@ -273,14 +273,16 @@ const EarlyAccess = () => {
 				</section>
 				<section className="hero-section-7">
 					<div className="content-container">
-						<div className="top-container">
-							<div>
-								<div className="top-container-text">Your place</div>
-								<div className="top-container-text2">
-									#{onboardPosition?.onboardPosition}
+						{onboardPosition && (
+							<div className="top-container">
+								<div>
+									<div className="top-container-text">Your place</div>
+									<div className="top-container-text2">
+										#{onboardPosition?.onboardPosition}
+									</div>
 								</div>
 							</div>
-						</div>
+						)}
 						<div className="outer-main-content-container">
 							<div className="content-container-outer">
 								<div className="content-text-container">
@@ -402,6 +404,7 @@ const EarlyAccess = () => {
 										>
 											<Input
 												className="email-input"
+												// type="email"
 												placeholder="Email ID"
 												value={inputValue}
 												onChange={handleInputChange}
