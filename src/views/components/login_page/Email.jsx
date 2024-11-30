@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import validator from 'validator';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
@@ -6,12 +6,12 @@ import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/up
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import Context from '../../../context/context';
 import { getLocationsDetails } from '../../../helpers';
+import { useLocation } from 'react-router-dom';
 import { message } from 'antd';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
-import debounce from 'lodash/debounce';
 
-const Email = ({ loginPageInfo, setLoginPageInfo }) => {
+const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	const arrowRef = useRef(null);
 
 	let {
@@ -22,8 +22,26 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 		isEmailValid: false,
 		isLoading: false,
 		googleLoading: false,
-		enterPressed: false,
+		locationDetails: null,
 	});
+
+	const location = useLocation();
+	const params = new URLSearchParams(location?.search);
+	const invitedWorkspaceId = params?.get('invitedWorkspaceId');
+	const invitedUserEmail = params?.get('inviteeEmail');
+
+	useEffect(() => {
+		handleLocationDetailsData();
+	}, []);
+
+	useEffect(() => {
+		if (invitedWorkspaceId && invitedUserEmail && info?.locationDetails) {
+			localStorage?.clear();
+			localStorage?.setItem('invitedWorkspaceId', invitedWorkspaceId);
+			localStorage?.setItem('invitedUserEmail', invitedUserEmail);
+			handleSetEmail(null, invitedUserEmail);
+		}
+	}, [invitedWorkspaceId, invitedUserEmail, info?.locationDetails]);
 
 	useEffect(() => {
 		if (arrowRef.current && info.isEmailValid) {
@@ -39,22 +57,28 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 				ease: 'power2.out',
 			});
 		}
-	}, [info.isEmailValid]);
+	}, [info?.isEmailValid]);
 
-	useEffect(() => {
-		validateEmail(loginPageInfo?.email);
-	}, [loginPageInfo?.email]);
+	const handleLocationDetailsData = useCallback(async () => {
+		let locationDetails;
+		locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
+		if (!locationDetails) {
+			locationDetails = await getLocationsDetails();
+		}
+		setInfo((prev) => ({ ...prev, locationDetails }));
+	}, []);
 
 	const handleCreateAccountWithEmail = async (email) => {
-		const locationDetails = await getLocationsDetails();
-		if (info?.enterPressed) return;
-		setInfo((prev) => ({ ...prev, isLoading: true, enterPressed: true }));
-		const response = await createAccountUsingEmail(email, locationDetails);
+		if (info?.isLoading) return;
+		setInfo((prev) => ({ ...prev, isLoading: true }));
+		if (!info?.locationDetails) {
+			await handleLocationDetailsData();
+		}
+
+		const response = await createAccountUsingEmail(email, info?.locationDetails);
 		if (response[0] === true) {
-			setLoginPageInfo((prev) => ({
-				...prev,
-				activeStage: 'verificationCode',
-			}));
+			setActiveStage('verificationCode');
+			setEmailVerified(false);
 		} else {
 			message?.error(response?.[1]?.message);
 		}
@@ -62,65 +86,57 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 		return response;
 	};
 
-	const debouncedCreateAccount = debounce(handleCreateAccountWithEmail, 1000);
-
 	const handleContinueWithGoogle = async () => {
-		const locationDetails = await getLocationsDetails();
+		if (info?.googleLoading) {
+			return;
+		}
 		setInfo((prev) => ({ ...prev, googleLoading: true }));
-		continueWithGoogle(locationDetails);
+		if (!info?.locationDetails) {
+			await handleLocationDetailsData();
+		}
+		continueWithGoogle(info?.locationDetails);
 	};
 
-	const validateEmail = (email) => {
-		const isValid = validator.isEmail(email);
+	const handleSetEmail = (e, invitedUserEmail = false) => {
+		const email = e?.target?.value ?? invitedUserEmail;
+		const isValid = validator?.isEmail(email);
 		setInfo((prev) => ({
 			...prev,
 			isEmailValid: isValid,
 		}));
+		setEmail(email);
+		if (invitedUserEmail && isValid) {
+			handleContinueWithEmail(null, 'click', email);
+		}
 	};
 
-	const handleSetEmail = (e) => {
-		const email = e?.target?.value;
-		setLoginPageInfo((prev) => ({
-			...prev,
-			email: email,
-		}));
-	};
-
-	const handleContinueWithEmail = async () => {
-		if (info?.enterPressed) return;
-		setInfo((prev) => ({ ...prev, isLoading: true, enterPressed: true }));
-		try {
-			const response = await checkAccountExistsUsingEmail(loginPageInfo?.email);
-			if (response[0] === true) {
-				if (response?.[1]?.accountExists) {
-					if (response?.[1]?.emailVerified) {
-						setLoginPageInfo((prev) => ({
-							...prev,
-							emailVerified: true,
-							activeStage: 'verificationCode',
-						}));
+	const handleContinueWithEmail = async (e, type, invitedUserEmail = false) => {
+		if (
+			((e?.key === 'Enter' || type === 'click') && info?.isEmailValid && !info?.isLoading) ||
+			invitedUserEmail
+		) {
+			setInfo((prev) => ({ ...prev, isLoading: true }));
+			try {
+				const response = await checkAccountExistsUsingEmail(email || invitedUserEmail);
+				if (response[0] === true) {
+					if (response?.[1]?.accountExists) {
+						if (response?.[1]?.emailVerified) {
+							setEmailVerified(true);
+							setActiveStage('verificationCode');
+						} else {
+							setEmailVerified(false);
+							setActiveStage('verificationCode');
+						}
 					} else {
-						setLoginPageInfo((prev) => ({
-							...prev,
-							emailVerified: false,
-							activeStage: 'verificationCode',
-						}));
+						await handleCreateAccountWithEmail(email || invitedUserEmail);
 					}
 				} else {
-					await debouncedCreateAccount(loginPageInfo?.email);
+					message?.error(response?.[1]?.message);
 				}
-			} else {
-				message?.error(response?.[1]?.message);
+			} catch (error) {
+				console.error('Failed to check email:', error.message);
 			}
-		} catch (error) {
-			console.error('Failed to check email:', error.message);
-		}
-		setInfo((prev) => ({ ...prev, isLoading: false }));
-	};
-
-	const handleKeyDown = (e) => {
-		if (e.key === 'Enter' && info.isEmailValid && !info.isLoading) {
-			handleContinueWithEmail();
+			setInfo((prev) => ({ ...prev, isLoading: false }));
 		}
 	};
 
@@ -154,9 +170,9 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 				</div>
 				<div className="email-input-container">
 					<input
-						value={loginPageInfo?.email}
+						value={email}
 						onChange={handleSetEmail}
-						onKeyDown={handleKeyDown}
+						onKeyDown={handleContinueWithEmail}
 						autoFocus={true}
 						type="email"
 						placeholder="work@gmail.com"
@@ -168,7 +184,7 @@ const Email = ({ loginPageInfo, setLoginPageInfo }) => {
 								!info.isEmailValid || info.isLoading ? 'not-allowed' : 'pointer',
 							background: !info.isEmailValid ? 'rgba(255, 255, 255, 0.1)' : 'white',
 						}}
-						onClick={handleContinueWithEmail}
+						onClick={() => handleContinueWithEmail(null, 'click')}
 					>
 						{info.isLoading ? (
 							<Spinner

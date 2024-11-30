@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useRef, useContext } from 'react';
+import React, { memo, useState, useEffect, useRef, useContext, useCallback } from 'react';
 import OtpInput from 'react-otp-input';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/login_page/index.scss';
@@ -8,9 +8,11 @@ import { ReactComponent as GmailLogo } from '../../../assets/svg/login_page/gmai
 import { message } from 'antd';
 import { getLocationsDetails } from '../../../helpers';
 import Context from '../../../context/context';
+import Spinner from '../loaders/Spinner';
 import debounce from 'lodash/debounce';
+import { useLocation } from 'react-router-dom';
 
-const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
+const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveStage }) => {
 	const navigate = useNavigate();
 	const {
 		authInfo: {
@@ -20,19 +22,48 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 		},
 	} = useContext(Context);
 
+	const location = useLocation();
+	const params = new URLSearchParams(location?.search);
+	const invitedWorkspaceId = params?.get('invitedWorkspaceId');
+	const invitedUserEmail = params?.get('inviteeEmail');
+
 	const [info, setInfo] = useState({
 		otp: '',
 		otpError: '',
 		isLoading: false,
 		canResend: true,
+		locationDetails: null,
 	});
 	const otpContainerRef = useRef(null);
 
-	const debouncedVerifyCode = debounce(async (otp, email, emailVerified, setInfo, navigate) => {
+	useEffect(() => {
+		handleLocationDetailsData();
+	}, []);
+
+	useEffect(() => {
+		if (info?.otp?.length !== 6) {
+			setInfo((prev) => ({ ...prev, otpError: '', isLoading: false }));
+			debouncedVerifyCode.cancel();
+		} else {
+			setInfo((prev) => ({ ...prev, isLoading: true }));
+			debouncedVerifyCode(info?.otp);
+		}
+
+		return () => {
+			debouncedVerifyCode.cancel();
+		};
+	}, [info?.otp]);
+
+	const verifyCode = async (otp) => {
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 		const response = await verifyEmailVerificationCode(email, otp, emailVerified);
+
 		if (response[0] === true) {
-			if (emailVerified) {
+			if (invitedWorkspaceId && invitedUserEmail) {
+				navigate(
+					`/onboarding?invitedWorkspaceId=${invitedWorkspaceId}&inviteeEmail=${invitedUserEmail}`,
+				);
+			} else if (emailVerified) {
 				if (response?.[1]?.hasWorkspaces) {
 					if (response?.[1]?.isOnboard) {
 						navigate('/home');
@@ -51,79 +82,40 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 			setInfo((prev) => ({ ...prev, otpError: response?.[1]?.message }));
 		}
 		setInfo((prev) => ({ ...prev, isLoading: false }));
-	}, 1500);
-
-	useEffect(() => {
-		const container = otpContainerRef?.current;
-		if (container) {
-			container?.addEventListener('keydown', handleKeyDown);
-		}
-
-		return () => {
-			if (container) {
-				container?.removeEventListener('keydown', handleKeyDown);
-			}
-		};
-	}, [info?.otp, info?.isLoading]);
-
-	useEffect(() => {
-		if (info?.otp?.length === 6) {
-			debouncedVerifyCode(info.otp, email, emailVerified, setInfo, navigate);
-		} else {
-			setInfo((prev) => ({ ...prev, otpError: '' }));
-			debouncedVerifyCode.cancel();
-		}
-
-		return () => {
-			debouncedVerifyCode.cancel();
-		};
-	}, [info?.otp]);
-
-	const handleKeyDown = (e) => {
-		if (e?.key === 'Enter' && info?.otp?.length === 6 && !info?.isLoading) {
-			debouncedVerifyCode(info.otp, email, emailVerified, setInfo, navigate);
-		}
 	};
 
+	const debouncedVerifyCode = debounce(verifyCode, 1500);
+
 	const handleCreateAccountWithEmail = async (email) => {
-		const locationDetails = await getLocationsDetails();
-		const response = await createAccountUsingEmail(email, locationDetails);
+		// const locationDetails = await getLocationsDetails();
+		if (!info?.locationDetails) {
+			await handleLocationDetailsData();
+		}
+		const response = await createAccountUsingEmail(email, info?.locationDetails);
 		if (response[0] === true) {
-			setLoginPageInfo((prev) => ({
-				...prev,
-				activeStage: 'verificationCode',
-			}));
+			setActiveStage('verificationCode');
 		} else {
 			message?.error(response?.message);
 		}
 	};
 
 	const handleResendCode = async () => {
-		if (!info?.canResend) {
-			message.info('Please wait 60 seconds before requesting another code');
-			return;
-		}
-
-		setInfo((prev) => ({ ...prev, isLoading: true }));
-		setInfo((prev) => ({ ...prev, canResend: false }));
-
+		setInfo((prev) => ({ ...prev, isLoading: true, canResend: false }));
 		try {
+			if (!info?.canResend) {
+				message.info('Please wait 60 seconds before requesting another code');
+				return;
+			}
 			const response = await checkAccountExistsUsingEmail(email);
 			if (response[0] === true) {
 				message?.success('Code resent successfully! Check your email.');
 				if (response?.[1]?.accountExists) {
 					if (response?.[1]?.emailVerified) {
-						setLoginPageInfo((prev) => ({
-							...prev,
-							emailVerified: true,
-							activeStage: 'verificationCode',
-						}));
+						setEmailVerified(true);
+						setActiveStage('verificationCode');
 					} else {
-						setLoginPageInfo((prev) => ({
-							...prev,
-							emailVerified: false,
-							activeStage: 'verificationCode',
-						}));
+						setEmailVerified(false);
+						setActiveStage('verificationCode');
 					}
 				} else {
 					await handleCreateAccountWithEmail(email);
@@ -131,23 +123,29 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 			} else {
 				message?.error(response?.[1]?.message);
 			}
+			const timeout = setTimeout(() => {
+				setInfo((prev) => ({ ...prev, canResend: true }));
+			}, 60000);
+			return () => clearTimeout(timeout);
 		} catch (error) {
 			console.error('Failed to check email:', error.message);
 		}
-
 		setInfo((prev) => ({ ...prev, isLoading: false }));
-
-		setTimeout(() => {
-			setInfo((prev) => ({ ...prev, canResend: true }));
-		}, 60000);
 	};
+
+	const handleLocationDetailsData = useCallback(async () => {
+		let locationDetails;
+		locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
+		if (!locationDetails) {
+			locationDetails = await getLocationsDetails();
+		}
+		setInfo((prev) => ({ ...prev, locationDetails }));
+	}, []);
 
 	return (
 		<div className="verification-code-container">
 			<div className="back-btn-container">
-				<span
-					onClick={() => setLoginPageInfo((prev) => ({ ...prev, activeStage: 'email' }))}
-				>
+				<span onClick={() => setActiveStage('email')}>
 					<LeftArrowBackBtn />
 				</span>
 				<span>Back</span>
@@ -169,12 +167,14 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 				</div>
 			</div>
 			<div className="verification-code-input-container">
-				<div ref={otpContainerRef}>
+				<div className="otp-input-container" ref={otpContainerRef}>
 					<OtpInput
 						value={info?.otp}
 						onChange={(otp) => setInfo({ ...info, otp })}
 						numInputs={6}
-						renderInput={(props) => <input {...props} />}
+						renderInput={(props) => {
+							return <input {...props} />;
+						}}
 						inputStyle={{
 							display: 'flex',
 							width: '49px',
@@ -195,6 +195,7 @@ const VerificationCode = ({ email, emailVerified, setLoginPageInfo }) => {
 						placeholder="000000"
 						shouldAutoFocus={true}
 					/>
+					{info?.isLoading && <Spinner />}
 				</div>
 				<p className="otp-error-message">{info?.otpError}</p>
 			</div>

@@ -20,13 +20,33 @@ const LoginPage = () => {
 		accountExists: false,
 	});
 
+	const setEmail = (email) => {
+		setInfo((prev) => ({ ...prev, email }));
+	};
+
+	const setActiveStage = (activeStage) => {
+		setInfo((prev) => ({ ...prev, activeStage }));
+	};
+
+	const setEmailVerified = (emailVerified) => {
+		setInfo((prev) => ({ ...prev, emailVerified }));
+	};
+
 	const stages = {
-		email: <Email loginPageInfo={info} setLoginPageInfo={setInfo} />,
+		email: (
+			<Email
+				email={info?.email}
+				setEmail={setEmail}
+				setActiveStage={setActiveStage}
+				setEmailVerified={setEmailVerified}
+			/>
+		),
 		verificationCode: (
 			<VerificationCode
 				email={info?.email}
 				emailVerified={info?.emailVerified}
-				setLoginPageInfo={setInfo}
+				setEmailVerified={setEmailVerified}
+				setActiveStage={setActiveStage}
 			/>
 		),
 	};

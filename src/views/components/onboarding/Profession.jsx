@@ -1,5 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
-import gsap from 'gsap';
+import React, { memo, useRef, useState } from 'react';
 
 const professions = {
 	professional: {
@@ -8,7 +7,7 @@ const professions = {
 			{
 				id: 1,
 				name: 'Photography',
-				value: 'photography',
+				value: 'photographer',
 			},
 			{
 				id: 2,
@@ -18,7 +17,7 @@ const professions = {
 			{
 				id: 3,
 				name: 'Interior Designing',
-				value: 'interior_designing',
+				value: 'interiorDesigner',
 			},
 		],
 	},
@@ -28,58 +27,34 @@ const professions = {
 			{
 				id: 1,
 				name: 'Information Technology',
-				value: 'information_technology',
+				value: 'informationTechnology',
 			},
 			{
 				id: 2,
 				name: 'Healthcare',
-				value: 'healthcare',
+				value: 'healthCare',
 			},
 		],
 	},
 };
 
-const Profession = ({ onboardingInfo, setOnboardingInfo }) => {
+const Profession = ({ workspaceType, setProfession, animateStep5AndStage4Exit }) => {
 	const professionRef = useRef(null);
 	const [info, setInfo] = useState({
 		optionSelected: false,
 	});
 
-	useEffect(() => {
-		gsap.fromTo(
-			professionRef.current,
-			{ opacity: 0 },
-			{ opacity: 1, duration: 1, delay: 0.5, ease: 'power2.inOut' },
-		);
-	}, []);
-
 	const handleSelectProfession = (profession) => {
 		if (info?.optionSelected) return;
 		setInfo((prev) => ({ ...prev, optionSelected: true }));
-		gsap.fromTo(
-			professionRef.current,
-			{
-				opacity: 1,
-			},
-			{
-				opacity: 0,
-				duration: 1,
-				ease: 'power2.inOut',
-				onComplete: () => {
-					setOnboardingInfo((prev) => ({
-						...prev,
-						profession: profession,
-						step: prev?.step + 1,
-					}));
-				},
-			},
-		);
+		setProfession(profession);
+		animateStep5AndStage4Exit();
 	};
 
 	return (
-		<div ref={professionRef} className="profession-grid-container">
+		<div ref={professionRef} className="profession-grid-container stage4">
 			<div className="profession-grid">
-				{professions[onboardingInfo?.workspaceType]?.professions?.map((profession) => (
+				{professions[workspaceType]?.professions?.map((profession) => (
 					<div
 						key={profession?.id}
 						onClick={() => handleSelectProfession(profession?.value)}

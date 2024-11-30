@@ -91,6 +91,9 @@ const GalleryPage = () => {
 			getRearrangeStatus,
 			updateImageOrder,
 			changeImageOrder,
+			getDownloadLink,
+			getDownloadLinkStatus,
+			getZipDownloadUrl,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -543,13 +546,17 @@ const GalleryPage = () => {
 	};
 
 	const handleClickAlbum = (album, name) => {
-		if (album?.displayName !== info?.albumContains) {
+		const value =
+			name === 'albumName'
+				? album?.title !== info?.albumName
+				: album?.displayName !== info?.albumContains;
+		if (value) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				albumLoading: true,
 			}));
 		}
-		if (name === 'albumName') {
+		if (name === 'albumName' && album?.title !== info?.albumName) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				imagesList: {
@@ -612,13 +619,17 @@ const GalleryPage = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, selectedImages: [] }));
 	};
 	const handleExpandClick = (selectedImageId = null, type) => {
-		if (type === 'single') {
+		if (type === 'single' || info?.selectedImages?.length === 1) {
 			navigate(
-				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}&image=${selectedImageId}`,
+				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${
+					info?.albumTagId
+				}&image=${selectedImageId || info?.selectedImages?.[0]}`,
 			);
 		} else {
+			console.log(info.selectedImages);
 			navigate(
-				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}&image=${info?.selectedImages?.[0]}`,
+				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}`,
+				{ state: { selectedImages: info?.selectedImages } },
 			);
 		}
 	};
@@ -664,7 +675,6 @@ const GalleryPage = () => {
 		}));
 	};
 
-	console.log(imageDetail);
 	const handleNavigateUpload = () => {
 		info?.albumContains === 'All'
 			? navigate(`/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos`)
@@ -1074,6 +1084,7 @@ const GalleryPage = () => {
 				docs: updatedImages,
 			},
 			showDeleteAlbum: false,
+			selectedImages: [],
 		}));
 		message.success('Images deleted successfully');
 	};
@@ -1509,6 +1520,20 @@ const GalleryPage = () => {
 		if (!image) return 0;
 		const activeTag = image.galleryTags.find((tag) => tag._id === info.albumTagId);
 		return activeTag?.customSortIndex || 0;
+	};
+	const handleDownload = async () => {
+		const payload = {
+			imageType: 'optimized',
+		};
+		const response = await getDownloadLink(payload, galleryId, info.activeAlbumId);
+		if (response?.[0] === true) {
+			const downloadId = response?.[1]?.downloadId;
+			const response2 = await getDownloadLinkStatus(downloadId);
+			if (response2?.[0] === true) {
+				const fileID = response2?.[1]?.zipFiles?.[0]?.zipFileId;
+				const zipDownloadUrl = await getZipDownloadUrl(downloadId, fileID);
+			}
+		}
 	};
 
 	// Add this function to calculate drop position
@@ -2694,7 +2719,9 @@ const GalleryPage = () => {
 																className="optionsContainer"
 																ref={optionsContainerRef}
 															>
-																<li>Download</li>
+																<li onClick={handleDownload}>
+																	Download
+																</li>
 																<li
 																	style={{
 																		cursor:
