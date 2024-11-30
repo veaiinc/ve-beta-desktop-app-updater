@@ -82,14 +82,14 @@ export const channelOptions = [
 		label: 'Whatsapp',
 		value: 'whatsapp',
 	},
-	{
-		label: 'Instagram',
-		value: 'instagram',
-	},
-	{
-		label: 'Facebook',
-		value: 'facebook',
-	},
+	// {
+	// 	label: 'Instagram',
+	// 	value: 'instagram',
+	// },
+	// {
+	// 	label: 'Facebook',
+	// 	value: 'facebook',
+	// },
 ];
 export const calculateTimeStamp = async (selectedDuration, duration) => {
 	const now = moment();

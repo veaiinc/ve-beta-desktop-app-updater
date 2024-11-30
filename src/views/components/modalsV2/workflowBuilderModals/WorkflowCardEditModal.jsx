@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
 import { ReactComponent as Pen } from '../../../../assets/svg/worflow_builder/editPen.svg';
@@ -398,6 +399,9 @@ const WorkflowCardEditModal = ({
 						closeModal={closeModal}
 						changeLocalOptionType={changeLocalOptionType}
 						localOptionType={info?.localOptionType}
+						previousStepId={previousStepId}
+						templateId={templateId}
+						previousStepPath={previousStepPath}
 					/>
 				),
 				pipeline: (
@@ -1065,7 +1069,7 @@ const RenderNotificationUi = ({
 			return;
 		}
 		setInfo((prev) => ({ ...prev, saveLoader: true }));
-		const type = 'notification';
+		const type = 'action';
 		const previousType = previousStepPath?.includes('condition') ? 'condition' : 'action';
 		const timeStamp = await calculateTimeStamp(info?.selectedDuration?.value, info?.noOfDays);
 		const payload = {
@@ -1078,6 +1082,8 @@ const RenderNotificationUi = ({
 				htmlBody: info?.emailBody,
 				subject: info?.subject,
 				sendAt: timeStamp,
+				channels: info?.selectedChannel?.value,
+				actionType: 'notification',
 			},
 		};
 		if (previousType === 'condition') {
@@ -1099,6 +1105,7 @@ const RenderNotificationUi = ({
 		info?.selectedDuration,
 		info?.noOfDays,
 		info?.selectedEmailTemplate,
+		info?.selectedChannel,
 	]);
 
 	return (
