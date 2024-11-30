@@ -75,9 +75,11 @@ export const AuthState = () => {
 		}
 	};
 
-	const createAccountUsingEmail = async (email, locationDetails, referralCode) => {
-		const path = referralCode === false ? '/signup' : `/signup?referralCode=${referralCode}`;
-		const body = { email, locationDetails };
+	const createAccountUsingEmail = async (email, locationDetails, referralCode = false) => {
+		const path = '/signup';
+		const body = referralCode
+			? { email, locationDetails, referralCode }
+			: { email, locationDetails };
 
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
@@ -100,51 +102,6 @@ export const AuthState = () => {
 			}
 		} catch (error) {
 			console.error('Error creating account:', error);
-			throw error;
-		}
-	};
-
-	const createAccountViaInvite = async (firstName, email, workspaceId, locationDetails) => {
-		const path = '/signup-invited-user';
-		const body = { email, firstName, workspaceId, locationDetails };
-
-		try {
-			const response = await service?.fetchPost(path, body, null, 'auth');
-			console.log('response', response);
-			if (response?.[0] === true) {
-				const { accessToken, region } = response?.[1];
-				localStorage.setItem('usertoken', accessToken);
-				localStorage.setItem('workspaceId', workspaceId);
-				localStorage.setItem('region', region || 'ap-south-1');
-				localStorage.setItem(
-					'isOnboard',
-					response?.[1]?.accessibleWorkspaces?.[0]?.isOnboard?.toString(),
-				);
-				localStorage.setItem(
-					'accessibleWorkspaces',
-					JSON.stringify(response?.[1]?.accessibleWorkspaces),
-				);
-				localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
-				const host = fetchDomainName();
-				Cookies.set('usertoken', accessToken, {
-					sameSite: 'lax',
-					domain: host,
-				});
-				Cookies.set('region', region || 'ap-south-1', {
-					sameSite: 'lax',
-					domain: host,
-				});
-				return [true];
-			} else {
-				return [
-					false,
-					{
-						message: response?.[1]?.message?.trim() + '. Please try again!',
-					},
-				];
-			}
-		} catch (error) {
-			console.error('Error creating account via invite:', error);
 			throw error;
 		}
 	};
@@ -319,9 +276,9 @@ export const AuthState = () => {
 		window.location.href = `${authBaseUrl}${path}?${params}`;
 	};
 
-	const getUsernameViaReferralCode = async (referralCode) => {
+	const getUsernameDetailsViaReferralCode = async (referralCode) => {
 		try {
-			const path = `/referral/get-referrer-name/${referralCode}`;
+			const path = `/referral/get-referrer-details/${referralCode}`;
 			const response = await service?.fetchGet(path, null, 'auth');
 			if (response?.[0] === true) {
 				return [true, response?.[1]];
@@ -342,6 +299,6 @@ export const AuthState = () => {
 		createWorkspace,
 		checkWorkspaceHandleAvailability,
 		updateUserDetails,
-		getUsernameViaReferralCode,
+		getUsernameDetailsViaReferralCode,
 	};
 };
