@@ -18,6 +18,9 @@ import {
 	movePipeLineOptions,
 	conditionOptions,
 	takeActionsOptions,
+	dropDownTextStyling,
+	dropDownStyle,
+	containerStyle,
 } from '../../../features/workflow_builder/workflowContantsHelpers';
 import { Drawer, notification } from 'antd';
 import EditAndViewEmailTemplateModal from './EditAndViewEmailTemplateModal';
@@ -1020,6 +1023,29 @@ const RenderNotificationUi = ({ closeModal, changeLocalOptionType, localOptionTy
 		[info],
 	);
 
+	const onChangeDuration = useCallback(
+		(data) => {
+			if (info?.selectedDuration?.value === data?.value) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, selectedDuration: data }));
+		},
+		[info?.selectedDuration],
+	);
+	const incrementorDecrementorFunc = useCallback(
+		async (type) => {
+			if (type === 'increment') {
+				setInfo((prev) => ({ ...prev, noOfDays: prev?.noOfDays + 1 }));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					noOfDays: prev?.noOfDays - 1 >= 0 ? prev?.noOfDays - 1 : 1,
+				}));
+			}
+		},
+		[info?.noOfDays],
+	);
+
 	return (
 		<div className="notificationContainer">
 			{/* header */}
@@ -1040,33 +1066,11 @@ const RenderNotificationUi = ({ closeModal, changeLocalOptionType, localOptionTy
 						onChangeFunc={onOptionChangeFunc}
 						showIcon={false}
 						containerStyle={{
-							padding: '12px 24px',
-							height: '44px',
-							padding: '12px',
-							color: '#e4e5e6',
-							width: '100%',
-							flex: 1,
-							alignSelf: 'stretch',
-							backgroundColor: '#151515',
-							borderRadius: '14px',
-							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
+							...containerStyle,
 						}}
 						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{
-							top: '55px',
-							backgroundColor: 'red',
-							borderRadius: '14px',
-							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
-							backgroundColor: '#202123',
-						}}
-						dropDownTextStyling={{
-							color: 'var(--ve-ai-dark-theme-primary-font-color, #E8E8E8)',
-							fontFamily: 'Inter',
-							fontSize: '13px',
-							fontStyle: 'normal',
-							fontWeight: '400',
-							lineHeight: 'normal',
-						}}
+						dropDownStyle={{ ...dropDownStyle }}
+						dropDownTextStyling={{ ...dropDownTextStyling }}
 						showSelectedValueTick={true}
 						uniqueIdentifierForTickIcon={'value'}
 						selectedValueObj={info?.valueObjectMapper?.[localOptionType]}
@@ -1089,33 +1093,11 @@ const RenderNotificationUi = ({ closeModal, changeLocalOptionType, localOptionTy
 						onChangeFunc={onChannelSelectionChanges}
 						showIcon={false}
 						containerStyle={{
-							padding: '12px 24px',
-							height: '44px',
-							padding: '12px',
-							color: '#e4e5e6',
-							width: '100%',
-							flex: 1,
-							alignSelf: 'stretch',
-							backgroundColor: '#151515',
-							borderRadius: '14px',
-							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
+							...containerStyle,
 						}}
 						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{
-							top: '55px',
-							backgroundColor: 'red',
-							borderRadius: '14px',
-							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
-							backgroundColor: '#202123',
-						}}
-						dropDownTextStyling={{
-							color: 'var(--ve-ai-dark-theme-primary-font-color, #E8E8E8)',
-							fontFamily: 'Inter',
-							fontSize: '13px',
-							fontStyle: 'normal',
-							fontWeight: '400',
-							lineHeight: 'normal',
-						}}
+						dropDownStyle={{ ...dropDownStyle }}
+						dropDownTextStyling={{ ...dropDownTextStyling }}
 						showSelectedValueTick={true}
 						uniqueIdentifierForTickIcon={'value'}
 						selectedValueObj={info?.selectedChannel}
@@ -1136,33 +1118,11 @@ const RenderNotificationUi = ({ closeModal, changeLocalOptionType, localOptionTy
 						options={info?.emailTemplates}
 						showIcon={false}
 						containerStyle={{
-							padding: '12px 24px',
-							height: '44px',
-							padding: '12px',
-							color: '#e4e5e6',
-							width: '100%',
-							flex: 1,
-							alignSelf: 'stretch',
-							backgroundColor: '#151515',
-							borderRadius: '14px',
-							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
+							...containerStyle,
 						}}
 						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{
-							top: '55px',
-							backgroundColor: 'red',
-							borderRadius: '14px',
-							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
-							backgroundColor: '#202123',
-						}}
-						dropDownTextStyling={{
-							color: 'var(--ve-ai-dark-theme-primary-font-color, #E8E8E8)',
-							fontFamily: 'Inter',
-							fontSize: '13px',
-							fontStyle: 'normal',
-							fontWeight: '400',
-							lineHeight: 'normal',
-						}}
+						dropDownStyle={{ ...dropDownStyle }}
+						dropDownTextStyling={{ ...dropDownTextStyling }}
 						selectedValue={info?.selectedEmailTemplate?.title}
 						onChangeFunc={onChangeEmailTemplates}
 						showSelectedValueTick={true}
@@ -1183,51 +1143,46 @@ const RenderNotificationUi = ({ closeModal, changeLocalOptionType, localOptionTy
 					<div className="notificationDaysContainer">
 						{/* //incrementor */}
 						<div className="incrementorDecrementorContainer">
-							<div className="manualIncrementorButtons">-</div>
-							<input className="manualIncrementorInput" />
-							<div className="manualIncrementorButtons">+</div>
+							<div
+								className="manualIncrementorButtons"
+								onClick={() => incrementorDecrementorFunc('decrement')}
+							>
+								-
+							</div>
+							<input className="manualIncrementorInput" value={info?.noOfDays} />
+							<div
+								className="manualIncrementorButtons"
+								onClick={() => incrementorDecrementorFunc('increment')}
+							>
+								+
+							</div>
 						</div>
 						{/* //days */}
 						<HeadersDropDownComp
-							options={channelOptions}
+							options={options}
 							showIcon={false}
 							containerStyle={{
-								padding: '12px 24px',
-								height: '48px',
-								padding: '12px 24px',
-								color: '#e4e5e6',
-								width: '100%',
-								flex: 1,
-								alignSelf: 'stretch',
-								borderRadius: '0.625rem',
-								border: '1px solid rgba(36, 36, 36, 0.64)',
-								backgroundColor: '#151515',
+								...containerStyle,
 							}}
 							outerContainerStyle={{ width: '100%' }}
-							dropDownStyle={{
-								top: '55px',
-							}}
+							dropDownStyle={{ ...dropDownStyle }}
+							dropDownTextStyling={{ ...dropDownTextStyling }}
+							selectedValue={info?.selectedDuration?.label}
+							onChangeFunc={onChangeDuration}
+							showSelectedValueTick={true}
+							uniqueIdentifierForTickIcon={'value'}
+							selectedValueObj={info?.selectedDuration}
 						/>
 					</div>
 					<HeadersDropDownComp
-						options={channelOptions}
+						options={smartFileActions}
 						showIcon={false}
 						containerStyle={{
-							padding: '12px 24px',
-							height: '48px',
-							padding: '12px 24px',
-							color: '#e4e5e6',
-							width: '100%',
-							flex: 1,
-							alignSelf: 'stretch',
-							borderRadius: '0.625rem',
-							border: '1px solid rgba(36, 36, 36, 0.64)',
-							backgroundColor: '#151515',
+							...containerStyle,
 						}}
 						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{
-							top: '55px',
-						}}
+						dropDownStyle={{ ...dropDownStyle }}
+						dropDownTextStyling={{ ...dropDownTextStyling }}
 					/>
 				</div>
 
