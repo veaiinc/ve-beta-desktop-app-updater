@@ -367,8 +367,6 @@ const WorkflowCardEditModal = ({
 		}
 	}, [optionType]);
 
-	console.log('hello==>', optionType);
-
 	return (
 		<Drawer
 			onClose={closeModal}
