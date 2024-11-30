@@ -1,6 +1,6 @@
 .landing-page-container2 {
 	width: 100%;
-	min-height: 100dvh;
+	min-height: 100vh;
 	padding: 28px 120px;
 	background: linear-gradient(180deg, #0e0f0f 0%, #19191b 100%);
 	display: flex;
@@ -33,7 +33,7 @@
 		justify-content: center;
 		width: 100%;
 		flex-direction: row;
-		margin: 80px;
+		// margin: 80px;
 		.hero-section-3 {
 			display: flex;
 			flex-direction: column;
@@ -217,6 +217,7 @@
 								font-weight: 600;
 								line-height: normal;
 							}
+
 							.paragraph-container {
 								color: var(--ve-ai-dark-theme-secondary-color, #939393);
 								color: var(

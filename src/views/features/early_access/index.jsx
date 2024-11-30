@@ -92,7 +92,7 @@ const EarlyAccess = () => {
 		}
 		if (isOnboard) {
 			localStorage.setItem('isOnboard', true);
-			// navigate('/home');
+			navigate('/home');
 		}
 	}, [userWorkSpaceList]);
 	const referralCode = shareAndEarnData?.referralDetails?.referralCode;
@@ -252,7 +252,6 @@ const EarlyAccess = () => {
 
 	const handleDeleteEmail = (email, index) => {
 		setEmails((prevEmails) => {
-			console.log('Previous emails:', prevEmails);
 			return prevEmails.filter((_, i) => i !== index);
 		});
 	};
