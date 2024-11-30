@@ -11,15 +11,17 @@ const OauthVerify = () => {
 		const accessToken = params.get('accessToken');
 		let accessibleWorkspaces = params.get('workspaceId');
 		accessibleWorkspaces = decodeURIComponent(accessibleWorkspaces);
-		accessibleWorkspaces = JSON.parse(accessibleWorkspaces);
-
+		if (accessibleWorkspaces !== undefined || accessibleWorkspaces !== 'undefined') {
+			accessibleWorkspaces = JSON.parse(accessibleWorkspaces);
+		}
 		let region = params.get('region');
 
 		if (accessToken) {
 			if (
 				accessibleWorkspaces &&
 				accessibleWorkspaces?.workspaceId &&
-				accessibleWorkspaces?.isOnboard !== undefined
+				accessibleWorkspaces?.isOnboard !== undefined &&
+				accessibleWorkspaces?.workspaceId !== undefined
 			) {
 				localStorage.setItem('workspaceId', accessibleWorkspaces?.workspaceId);
 				localStorage.setItem('usertoken', accessToken);
@@ -44,10 +46,22 @@ const OauthVerify = () => {
 			if (
 				!accessibleWorkspaces ||
 				accessibleWorkspaces == null ||
-				!accessibleWorkspaces.length
+				!accessibleWorkspaces.length ||
+				accessibleWorkspaces === 'undefined'
 			) {
 				localStorage.setItem('usertoken', accessToken);
-				navigate('/verify-user');
+				localStorage.setItem('region', region || 'ap-south-1');
+				const host = fetchDomainName();
+				Cookies.set('usertoken', accessToken, {
+					sameSite: 'lax',
+					domain: host,
+				});
+				Cookies.set('region', region || 'ap-south-1', {
+					sameSite: 'lax',
+					domain: host,
+				});
+
+				navigate('/onboarding');
 				return;
 			}
 		}
