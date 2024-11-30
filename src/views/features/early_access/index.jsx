@@ -124,13 +124,87 @@ const EarlyAccess = () => {
 		try {
 			const referralCode = shareAndEarnData?.referralDetails?.referralCode;
 			const referralLink = `https://ve.ai/verify-user?ref=${referralCode}`;
+			const referrerDiscount =
+				shareAndEarnData?.referralDetails?.referralPlan?.refereeRewardInPercentage || 0; // Extract referrer discount
 			const payload = {
 				clientEmail: emails,
 				mailContent: {
 					subject: 'Your Customised Proposal',
 					cc: [],
-					htmlBody:
-						'<p>\n\n    \n        <meta charset="UTF-8">\n        <meta name="viewport" content="width=device-width, initial-scale=1.0">\n        <meta content="IE=edge" http-equiv="X-UA-Compatible">\n        <meta name="x-apple-disable-message-reformatting">\n        <title>Your Customised Proposal</title>\n    \n    \n        </p><div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 16px; border-radius: 24px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.12);" bis_skin_checked="1">\n            <div style="font-size: 16px; line-height: 1.6; color: #333333;" bis_skin_checked="1">\n                <h2 style="color: #555555;">Dear Nandhu,</h2>\n                <p>\n                    We truly appreciate your interest in NanduDummy. After\n                    carefully considering your needs, we\'ve created a\n                    personalised proposal just for you. You can view your\n                    proposal using the exclusive link below:\n                </p>\n                <center>\n                    <a href="{workflowLink}" target="_blank" style="background-color: #4e73df; color: white; padding: 10px 20px; border: none; border-radius: 5px; text-decoration: none; display: inline-block;">\n                        <strong>View Proposal</strong> <span>➔</span>\n                    </a>\n                    <br>\n                </center>\n                <p>\n                    We\'ve designed this proposal to perfectly fit your\n                    requirements, but if you need any further customisations,\n                    please feel free to reach out.\n                </p>\n                <p>\n                    Our commitment is to ensure everything is exactly as you\n                    envision it. You deserve the best, and we\'re here to deliver\n                    it. We\'re excited to bring your vision to life and look\n                    forward to working with you.\n                </p>\n                <p>Best regards,<br>Nandhu Raj</p>\n            </div>\n            <div style="text-align: center; margin-top: 20px; font-size: 14px; color: #777777;" bis_skin_checked="1">\n                <a href="https://ve.ai" target="_blank" style="color: #6d6d6d; text-decoration: none;">\n                    Made with\n                    <img src="https://ap.assets.ve.ai/logo/veaiblack.png" alt="ve.ai logo" style="height: 9px; width: 32px;">\n                </a>\n            </div>\n        </div>\n    \n',
+					htmlBody: `
+					<html>
+						<p>
+							<meta charset="UTF-8" />
+							<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+							<meta content="IE=edge" http-equiv="X-UA-Compatible" />
+							<meta name="x-apple-disable-message-reformatting" />
+						</p>
+						<div
+							style="
+								max-width: 600px;
+								min-width: 290px;
+								margin: auto;
+								background-color: #ffffff;
+								padding: 16px 24px;
+								border-radius: 24px;
+								box-shadow: 0 0 10px rgba(0, 0, 0, 0.12);
+							"
+						>
+							<div style="font-size: 16px; line-height: 1.6; color: #000">
+								<h3 style="color: #000">Explore Ve Ai with me,</h3>
+								<p>
+									Ve.Ai allows you to design stunning forms, proposals, invoices,
+									contracts, and more.
+								</p>
+								<p>
+									I am referring you to join ve with me using my referral link and
+									get ${referrerDiscount}% discount.
+								</p>
+								<center>
+									<a
+										href="${referralLink}"
+										target="_blank"
+										style="
+											background-color: #2383e2;
+											color: white;
+											padding: 10px 20px;
+											border: none;
+											border-radius: 5px;
+											text-decoration: none;
+											display: inline-block;
+											margin: 16px 0;
+										"
+									>
+										<strong>Explore Ve.ai</strong>
+									</a>
+									<br />
+								</center>
+								<div
+									style="
+										font-size: 12px;
+										margin-top: 32px;
+										color: #888;
+										padding-bottom: 16px;
+									"
+								></div>
+								<div>
+									<a
+										href="https://www.ve.ai/verify-user?n=email_footer"
+										style="color: inherit"
+										target="_blank"
+									>
+										<img
+											height="14.87px"
+											width="57px"
+											src="https://ap.assets.ve.ai/logo/veaiblack.png"
+											style="display: block; margin-bottom: 8px" />
+									</a>
+									AI workers who mind your business.
+								</div>
+							</div>
+						</div>
+					</html>
+				`,
 				},
 			};
 
