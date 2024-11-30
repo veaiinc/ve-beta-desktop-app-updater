@@ -264,7 +264,7 @@ const File = ({
 		}
 
 		if (event.data.type === 'CONSOLE_LOG') {
-			console.log('Log from iframe:', event.data);
+			console.log('Log from iframe:', event.data); //this console is mandatory
 		} else if (event.data.type === 'SPAN_CLICKED') {
 			scrollToElement(event?.data?.id);
 		}
@@ -602,7 +602,6 @@ const File = ({
 	);
 
 	const duplicateTemplateFromSmartFile = useCallback(async () => {
-		console.log('I reached here');
 		window.location.href = `${origin}/${workflowId}?workflow=true&templateId=${templateId}`;
 	}, [workflowId, templateId]);
 

@@ -205,10 +205,6 @@ const Onboarding = () => {
 		}
 	}, [info?.stage]);
 
-	useEffect(() => {
-		console.log('username', info?.username);
-	}, [info?.username]);
-
 	const handleInvitedUserUsername = async () => {
 		const userDetailsResponse = await updateUserDetails(info?.username);
 		if (userDetailsResponse[0] === true) {

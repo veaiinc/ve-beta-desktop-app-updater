@@ -177,7 +177,7 @@ export const AuthState = () => {
 		}
 	};
 
-	const updateUserDetails = async (username, phoneNumber = false) => {
+	const updateUserDetails = async (username = '', phoneNumber = false) => {
 		const firstName = username?.split(' ')?.[0] || '';
 		const lastName = username?.split(' ')?.[1] || '';
 		const path = '/tenant-user';
@@ -245,6 +245,7 @@ export const AuthState = () => {
 
 		try {
 			const response = await service?.fetchPost(path, body, token, 'auth');
+
 			if (response?.[0] === true) {
 				localStorage.setItem('isOnboard', JSON.stringify(response?.[1]?.isOnboard));
 				localStorage.setItem('workspaceId', response?.[1]?.workspaceId);

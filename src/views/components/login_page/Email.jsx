@@ -93,21 +93,19 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified, cookiesAccep
 			locationDetails = await getLocationsDetails();
 		}
 		setInfo((prev) => ({ ...prev, locationDetails }));
+		return locationDetails;
 	}, []);
 
 	const handleCreateAccountWithEmail = async (email) => {
 		if (info?.isLoading) return;
 		setInfo((prev) => ({ ...prev, isLoading: true }));
-		if (!info?.locationDetails) {
-			await handleLocationDetailsData();
+
+		let locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
+		if (!locationDetails) {
+			locationDetails = await handleLocationDetailsData();
 		}
 
-		const response = await createAccountUsingEmail(
-			email,
-			info?.locationDetails,
-			referralCode && info?.referrerUserDetails?.isValidReferralCode ? referralCode : false,
-		);
-
+		const response = await createAccountUsingEmail(email, info?.locationDetails);
 		if (response[0] === true) {
 			setActiveStage('verificationCode');
 			setEmailVerified(false);
@@ -133,10 +131,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified, cookiesAccep
 		}
 
 		setInfo((prev) => ({ ...prev, googleLoading: true }));
-		if (!info?.locationDetails) {
-			await handleLocationDetailsData();
-		}
-		continueWithGoogle(info?.locationDetails);
+		continueWithGoogle(locationDetails);
 	};
 
 	const handleSetEmail = (e, invitedUserEmail = false) => {
