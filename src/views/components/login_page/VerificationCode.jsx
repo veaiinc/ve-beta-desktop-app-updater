@@ -32,29 +32,30 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 		otpError: '',
 		isLoading: false,
 		canResend: true,
+		resendTimer: 60,
+		resendTimerInterval: null,
 		locationDetails: null,
 	});
 	const otpContainerRef = useRef(null);
 
 	useEffect(() => {
 		handleLocationDetailsData();
+
+		return () => {
+			clearInterval(info?.resendTimerInterval);
+		};
 	}, []);
 
 	useEffect(() => {
-		if (info?.otp?.length !== 6) {
-			setInfo((prev) => ({ ...prev, otpError: '', isLoading: false }));
-			debouncedVerifyCode.cancel();
+		if (info?.otp?.length === 6) {
+			verifyCode(info?.otp);
 		} else {
-			setInfo((prev) => ({ ...prev, isLoading: true }));
-			debouncedVerifyCode(info?.otp);
+			setInfo((prev) => ({ ...prev, otpError: '' }));
 		}
-
-		return () => {
-			debouncedVerifyCode.cancel();
-		};
 	}, [info?.otp]);
 
 	const verifyCode = async (otp) => {
+		if (info?.isLoading) return;
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 		const response = await verifyEmailVerificationCode(email, otp, emailVerified);
 
@@ -66,6 +67,12 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			} else if (emailVerified) {
 				if (response?.[1]?.hasWorkspaces) {
 					if (response?.[1]?.isOnboard) {
+						const locationDetails = JSON.parse(
+							localStorage?.getItem('locationDetails'),
+						);
+						if (!locationDetails) {
+							locationDetails = await getLocationsDetails();
+						}
 						navigate('/home');
 					} else {
 						navigate('/early-access');
@@ -84,10 +91,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 		setInfo((prev) => ({ ...prev, isLoading: false }));
 	};
 
-	const debouncedVerifyCode = debounce(verifyCode, 1500);
-
 	const handleCreateAccountWithEmail = async (email) => {
-		// const locationDetails = await getLocationsDetails();
 		if (!info?.locationDetails) {
 			await handleLocationDetailsData();
 		}
@@ -100,15 +104,13 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 	};
 
 	const handleResendCode = async () => {
-		setInfo((prev) => ({ ...prev, isLoading: true, canResend: false }));
 		try {
-			if (!info?.canResend) {
-				message.info('Please wait 60 seconds before requesting another code');
-				return;
-			}
+			if (!info?.canResend) return;
+			setInfo((prev) => ({ ...prev, isLoading: true, canResend: false, resendTimer: 60 }));
 			const response = await checkAccountExistsUsingEmail(email);
 			if (response[0] === true) {
 				message?.success('Code resent successfully! Check your email.');
+				setInfo((prev) => ({ ...prev, isLoading: false }));
 				if (response?.[1]?.accountExists) {
 					if (response?.[1]?.emailVerified) {
 						setEmailVerified(true);
@@ -123,14 +125,20 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			} else {
 				message?.error(response?.[1]?.message);
 			}
-			const timeout = setTimeout(() => {
-				setInfo((prev) => ({ ...prev, canResend: true }));
-			}, 60000);
-			return () => clearTimeout(timeout);
+			const interval = setInterval(() => {
+				setInfo((prev) => {
+					if (prev.resendTimer > 0) {
+						return { ...prev, resendTimer: prev.resendTimer - 1 };
+					} else {
+						clearInterval(interval);
+						setInfo((prev) => ({ ...prev, canResend: true, isLoading: false }));
+					}
+				});
+			}, 1000);
+			setInfo((prev) => ({ ...prev, resendTimerInterval: interval }));
 		} catch (error) {
 			console.error('Failed to check email:', error.message);
 		}
-		setInfo((prev) => ({ ...prev, isLoading: false }));
 	};
 
 	const handleLocationDetailsData = useCallback(async () => {
@@ -170,7 +178,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 				<div className="otp-input-container" ref={otpContainerRef}>
 					<OtpInput
 						value={info?.otp}
-						onChange={(otp) => setInfo({ ...info, otp })}
+						onChange={(otp) => setInfo((prev) => ({ ...prev, otp }))}
 						numInputs={6}
 						renderInput={(props) => {
 							return <input {...props} />;
@@ -191,7 +199,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 							userSelect: 'none',
 						}}
 						containerStyle={{ display: 'flex', gap: '6px' }}
-						isInputNum={true}
+						inputType="number"
 						placeholder="000000"
 						shouldAutoFocus={true}
 					/>
@@ -207,7 +215,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 					opacity: info?.canResend ? 1 : 0.5,
 				}}
 			>
-				Resend code
+				{!info?.canResend ? `Resend code in ${info?.resendTimer} seconds` : 'Resend code'}
 			</p>
 		</div>
 	);

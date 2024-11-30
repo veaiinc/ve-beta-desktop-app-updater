@@ -9,7 +9,7 @@ import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen
 const navItems = [
 	{ name: 'Privacy', route: '/privacy-policy' },
 	{ name: 'Terms', route: '/terms-of-service' },
-	{ name: 'Cookie Policy', route: '/cookie-policy' },
+	{ name: 'Cookies', route: '/cookie-policy' },
 	{ name: 'Blogs', route: '/' },
 ];
 
@@ -18,7 +18,6 @@ const LandingPage = () => {
 	const [info, setInfo] = useState({
 		activeToggle: 'Path',
 	});
-
 	useEffect(() => {
 		const usertoken = localStorage.getItem('usertoken');
 		const region = localStorage.getItem('region');
@@ -129,22 +128,13 @@ const LandingPage = () => {
 				<nav>
 					<ul>
 						{navItems.map((item, i) => (
-							<li
-								key={i}
-								onClick={(e) => {
-									// e.stopPropagation();
-									navigate(item.route);
-								}}
-							>
-								{item.name}
+							<li key={i} onClick={() => navigate(item?.route)}>
+								{item?.name}
 							</li>
 						))}
 					</ul>
 				</nav>
-
-				<div>
-					<p className="copyright"> &copy; 2024 Ve.ai</p>
-				</div>
+				<p className="copyright"> &copy; 2024 Ve.ai</p>
 			</footer>
 		</div>
 	);
