@@ -40,6 +40,7 @@ const initialState = {
 	title: null,
 	deleteLoader: false,
 	previewAndEdit: false,
+	localOptionType: null,
 };
 
 const WorkflowCardEditModal = ({
@@ -94,33 +95,39 @@ const WorkflowCardEditModal = ({
 		getEmailTemplates();
 	}, []);
 
-	useEffect(() => {
-		if (allEmailTemplates) {
-			const { data } = allEmailTemplates;
+	// useEffect(() => {
+	// 	if (allEmailTemplates) {
+	// 		const { data } = allEmailTemplates;
 
-			const options = [];
+	// 		const options = [];
 
-			for (let i = 0; i < data?.length; i++) {
-				let obj = {
-					label: data?.[i]?.title,
-					ele: data?.[i],
-					_id: data?.[i]?._id,
-				};
-				options?.push(obj);
-			}
-			setInfo((prev) => ({
-				...prev,
-				emailTemplates: options,
-				selectedEmailTemplate: data?.[0],
-				subject: data?.[0]?.subject,
-				emailBody: data?.[0]?.htmlBody,
-			}));
-		}
-	}, [allEmailTemplates]);
+	// 		for (let i = 0; i < data?.length; i++) {
+	// 			let obj = {
+	// 				label: data?.[i]?.title,
+	// 				ele: data?.[i],
+	// 				_id: data?.[i]?._id,
+	// 			};
+	// 			options?.push(obj);
+	// 		}
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			emailTemplates: options,
+	// 			selectedEmailTemplate: data?.[0],
+	// 			subject: data?.[0]?.subject,
+	// 			emailBody: data?.[0]?.htmlBody,
+	// 		}));
+	// 	}
+	// }, [allEmailTemplates]);
 
 	useEffect(() => {
 		getSpecifiTemplateDetails();
 	}, [modalIsOpen, mode, currentStepInfo]);
+
+	useEffect(() => {
+		if (optionType) {
+			setInfo((prev) => ({ localOptionType: optionType }));
+		}
+	}, [optionType]);
 
 	//function definations
 
@@ -355,17 +362,51 @@ const WorkflowCardEditModal = ({
 		[info],
 	);
 
+	const changeLocalOptionType = useCallback(
+		(data) => {
+			if (data === info?.localOptionType) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, localOptionType: data }));
+		},
+		[info?.localOptionType],
+	);
+
 	///updated functions
 	const compMapper = useMemo(() => {
-		if (newNodeType) {
+		if (info?.localOptionType) {
 			return {
-				action: <RenderActionUi closeModal={closeModal} />,
-				condition: <RenderConditionUi closeModal={closeModal} />,
-				notification: <RenderNotificationUi closeModal={closeModal} />,
-				pipeline: <RenderPipelineUi closeModal={closeModal} />,
+				action: (
+					<RenderActionUi
+						closeModal={closeModal}
+						changeLocalOptionType={changeLocalOptionType}
+						localOptionType={info?.localOptionType}
+					/>
+				),
+				condition: (
+					<RenderConditionUi
+						closeModal={closeModal}
+						changeLocalOptionType={changeLocalOptionType}
+						localOptionType={info?.localOptionType}
+					/>
+				),
+				notification: (
+					<RenderNotificationUi
+						closeModal={closeModal}
+						changeLocalOptionType={changeLocalOptionType}
+						localOptionType={info?.localOptionType}
+					/>
+				),
+				pipeline: (
+					<RenderPipelineUi
+						closeModal={closeModal}
+						changeLocalOptionType={changeLocalOptionType}
+						localOptionType={info?.localOptionType}
+					/>
+				),
 			};
 		}
-	}, [optionType]);
+	}, [info?.localOptionType]);
 
 	return (
 		<Drawer
@@ -396,7 +437,7 @@ const WorkflowCardEditModal = ({
 							<span>Fetching details ....</span>
 						</div>
 					) : (
-						compMapper?.[optionType]
+						compMapper?.[info?.localOptionType]
 						// <div className="WorkFlowEditorBody">
 						// 	{/* action typ */}
 
@@ -585,20 +626,56 @@ const WorkflowCardEditModal = ({
 				deleteWorkFlowStep={modifiedDeleteWorkflowStep}
 				deleteLoader={info?.deleteLoader}
 			/>
-			<EditAndViewEmailTemplateModal
+			{/* <EditAndViewEmailTemplateModal
 				open={info?.previewAndEdit}
 				closeModal={() => setInfo((prev) => ({ ...prev, previewAndEdit: false }))}
 				subject={info?.subject}
 				emailBody={info?.emailBody}
 				changeSubjectOrEmailBody={changeSubjectOrEmailBody}
-			/>
+			/> */}
 		</Drawer>
 	);
 };
 
 export default memo(WorkflowCardEditModal);
 
-const RenderActionUi = ({ closeModal }) => {
+const RenderActionUi = ({ closeModal, changeLocalOptionType, localOptionType }) => {
+	const [info, setInfo] = useState({
+		labelMapper: {
+			notification: 'Send Notification',
+			condition: 'Add Condition',
+			pipeline: 'Move pipeline stage ',
+			action: 'Actions',
+		},
+		valueObjectMapper: {
+			notification: {
+				label: 'Send notification',
+				value: 'notification',
+			},
+			condition: {
+				label: 'Condition',
+				value: 'condition',
+			},
+			pipeline: {
+				label: 'Move pipeline stage',
+				value: 'pipeline',
+			},
+			action: {
+				label: 'Actions',
+				value: 'action',
+			},
+		},
+	});
+
+	const onOptionChangeFunc = useCallback(
+		(data) => {
+			if (data === localOptionType) {
+				return;
+			}
+			changeLocalOptionType(data?.value);
+		},
+		[localOptionType],
+	);
 	return (
 		<div className="actionContainer">
 			{/* header */}
@@ -615,22 +692,47 @@ const RenderActionUi = ({ closeModal }) => {
 					<span className="actionTitle">Action</span>
 					<HeadersDropDownComp
 						options={actionOptions}
+						selectedValue={info?.labelMapper?.[localOptionType]}
+						onChangeFunc={(e) => onOptionChangeFunc(e)}
 						showIcon={false}
 						containerStyle={{
 							padding: '12px 24px',
-							height: '48px',
-							padding: '12px 24px',
+							height: '44px',
+							padding: '12px',
 							color: '#e4e5e6',
 							width: '100%',
 							flex: 1,
 							alignSelf: 'stretch',
-							borderRadius: '0.625rem',
-							border: '1px solid rgba(36, 36, 36, 0.64)',
 							backgroundColor: '#151515',
+							borderRadius: '14px',
+							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
 						}}
 						outerContainerStyle={{ width: '100%' }}
 						dropDownStyle={{
 							top: '55px',
+							backgroundColor: 'red',
+							borderRadius: '14px',
+							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
+							backgroundColor: '#202123',
+						}}
+						dropDownTextStyling={{
+							color: 'var(--ve-ai-dark-theme-primary-font-color, #E8E8E8)',
+							fontFamily: 'Inter',
+							fontSize: '13px',
+							fontStyle: 'normal',
+							fontWeight: '400',
+							lineHeight: 'normal',
+						}}
+						showSelectedValueTick={true}
+						uniqueIdentifierForTickIcon={'value'}
+						selectedValueObj={info?.valueObjectMapper?.[localOptionType]}
+						selectedValueStyle={{
+							color: 'var(--ve-ai-dark-theme-secondary-color, #939393)',
+							fontFamily: 'Inter',
+							fontSize: '12px',
+							fontStyle: 'normal',
+							fontWeight: '500',
+							lineHeight: 'normal',
 						}}
 					/>
 				</div>
@@ -726,7 +828,15 @@ const RenderActionUi = ({ closeModal }) => {
 	);
 };
 
-const RenderConditionUi = ({ closeModal }) => {
+const RenderConditionUi = ({ closeModal, changeLocalOptionType, localOptionType }) => {
+	const [info, setInfo] = useState({
+		labelMapper: {
+			notification: 'Send Notification',
+			condition: 'Add Condition',
+			pipeline: 'Move pipeline stage ',
+			actions: 'Actions',
+		},
+	});
 	return (
 		<div className="conditionContainer">
 			{/* header */}
@@ -739,10 +849,11 @@ const RenderConditionUi = ({ closeModal }) => {
 			</div>
 			<div className="workflowOptionContainer">
 				{/* //action */}
-				<div className="actionDropDownContainer">
+				{/* <div className="actionDropDownContainer">
 					<span className="actionTitle"> Action</span>
 					<HeadersDropDownComp
 						options={actionOptions}
+						selectedValue={info?.labelMapper?.[localOptionType]}
 						showIcon={false}
 						containerStyle={{
 							padding: '12px 24px',
@@ -761,7 +872,7 @@ const RenderConditionUi = ({ closeModal }) => {
 							top: '55px',
 						}}
 					/>
-				</div>
+				</div> */}
 				{/* //action */}
 				<div className="actionDropDownContainer">
 					<span className="actionTitle">Take Action if</span>
@@ -794,7 +905,121 @@ const RenderConditionUi = ({ closeModal }) => {
 	);
 };
 
-const RenderNotificationUi = ({ closeModal }) => {
+const RenderNotificationUi = ({ closeModal, changeLocalOptionType, localOptionType }) => {
+	const {
+		templates: { allEmailTemplates },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		labelMapper: {
+			notification: 'Send Notification',
+			condition: 'Add Condition',
+			pipeline: 'Move pipeline stage ',
+			actions: 'Actions',
+		},
+		valueObjectMapper: {
+			notification: {
+				label: 'Send notification',
+				value: 'notification',
+			},
+			condition: {
+				label: 'Condition',
+				value: 'condition',
+			},
+			pipeline: {
+				label: 'Move pipeline stage',
+				value: 'pipeline',
+			},
+			actions: {
+				label: 'Actions',
+				value: 'action',
+			},
+		},
+		selectedChannel: channelOptions?.[0] || {},
+		emailTemplates: null,
+		selectedEmailTemplate: null,
+		subject: '',
+		emailBody: '',
+		noOfDays: 1,
+		selectedDuration: {
+			label: 'Days',
+			value: 'days',
+		},
+		requiredApproval: false,
+		previewAndEdit: false,
+	});
+
+	//useEffects
+	useEffect(() => {
+		if (allEmailTemplates) {
+			const { data } = allEmailTemplates;
+
+			const options = [];
+
+			for (let i = 0; i < data?.length; i++) {
+				let obj = {
+					label: data?.[i]?.title,
+					ele: data?.[i],
+					_id: data?.[i]?._id,
+				};
+				options?.push(obj);
+			}
+			setInfo((prev) => ({
+				...prev,
+				emailTemplates: options,
+				selectedEmailTemplate: data?.[0],
+				subject: data?.[0]?.subject,
+				emailBody: data?.[0]?.htmlBody,
+			}));
+		}
+	}, [allEmailTemplates]);
+
+	//function defination
+	const onOptionChangeFunc = useCallback(
+		(data) => {
+			if (data === localOptionType) {
+				return;
+			}
+			changeLocalOptionType(data?.value);
+		},
+		[localOptionType],
+	);
+
+	const onChannelSelectionChanges = useCallback(
+		(data) => {
+			if (data?.value === info?.selectedChannel?.value) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, selectedChannel: data }));
+		},
+		[info?.selectedChannel],
+	);
+
+	const onChangeEmailTemplates = useCallback(
+		async (data) => {
+			const { ele } = data;
+
+			if (ele?._id === info?.selectedEmailTemplate?._id) {
+				return;
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				selectedEmailTemplate: ele,
+				subject: ele?.subject,
+				emailBody: ele?.htmlBody,
+			}));
+		},
+		[info?.emailTemplates, info?.selectedEmailTemplate],
+	);
+
+	const changeSubjectOrEmailBody = useCallback(
+		(updatedData) => {
+			setInfo((prev) => ({ ...prev, ...updatedData }));
+		},
+		[info],
+	);
+
 	return (
 		<div className="notificationContainer">
 			{/* header */}
@@ -811,22 +1036,47 @@ const RenderNotificationUi = ({ closeModal }) => {
 					<span className="actionTitle">Action</span>
 					<HeadersDropDownComp
 						options={actionOptions}
+						selectedValue={info?.labelMapper?.[localOptionType]}
+						onChangeFunc={onOptionChangeFunc}
 						showIcon={false}
 						containerStyle={{
 							padding: '12px 24px',
-							height: '48px',
-							padding: '12px 24px',
+							height: '44px',
+							padding: '12px',
 							color: '#e4e5e6',
 							width: '100%',
 							flex: 1,
 							alignSelf: 'stretch',
-							borderRadius: '0.625rem',
-							border: '1px solid rgba(36, 36, 36, 0.64)',
 							backgroundColor: '#151515',
+							borderRadius: '14px',
+							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
 						}}
 						outerContainerStyle={{ width: '100%' }}
 						dropDownStyle={{
 							top: '55px',
+							backgroundColor: 'red',
+							borderRadius: '14px',
+							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
+							backgroundColor: '#202123',
+						}}
+						dropDownTextStyling={{
+							color: 'var(--ve-ai-dark-theme-primary-font-color, #E8E8E8)',
+							fontFamily: 'Inter',
+							fontSize: '13px',
+							fontStyle: 'normal',
+							fontWeight: '400',
+							lineHeight: 'normal',
+						}}
+						showSelectedValueTick={true}
+						uniqueIdentifierForTickIcon={'value'}
+						selectedValueObj={info?.valueObjectMapper?.[localOptionType]}
+						selectedValueStyle={{
+							color: 'var(--ve-ai-dark-theme-secondary-color, #939393)',
+							fontFamily: 'Inter',
+							fontSize: '12px',
+							fontStyle: 'normal',
+							fontWeight: '500',
+							lineHeight: 'normal',
 						}}
 					/>
 				</div>
@@ -835,22 +1085,47 @@ const RenderNotificationUi = ({ closeModal }) => {
 					<span className="actionTitle">Channel</span>
 					<HeadersDropDownComp
 						options={channelOptions}
+						selectedValue={info?.selectedChannel?.label}
+						onChangeFunc={onChannelSelectionChanges}
 						showIcon={false}
 						containerStyle={{
 							padding: '12px 24px',
-							height: '48px',
-							padding: '12px 24px',
+							height: '44px',
+							padding: '12px',
 							color: '#e4e5e6',
 							width: '100%',
 							flex: 1,
 							alignSelf: 'stretch',
-							borderRadius: '0.625rem',
-							border: '1px solid rgba(36, 36, 36, 0.64)',
 							backgroundColor: '#151515',
+							borderRadius: '14px',
+							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
 						}}
 						outerContainerStyle={{ width: '100%' }}
 						dropDownStyle={{
 							top: '55px',
+							backgroundColor: 'red',
+							borderRadius: '14px',
+							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
+							backgroundColor: '#202123',
+						}}
+						dropDownTextStyling={{
+							color: 'var(--ve-ai-dark-theme-primary-font-color, #E8E8E8)',
+							fontFamily: 'Inter',
+							fontSize: '13px',
+							fontStyle: 'normal',
+							fontWeight: '400',
+							lineHeight: 'normal',
+						}}
+						showSelectedValueTick={true}
+						uniqueIdentifierForTickIcon={'value'}
+						selectedValueObj={info?.selectedChannel}
+						selectedValueStyle={{
+							color: 'var(--ve-ai-dark-theme-secondary-color, #939393)',
+							fontFamily: 'Inter',
+							fontSize: '12px',
+							fontStyle: 'normal',
+							fontWeight: '500',
+							lineHeight: 'normal',
 						}}
 					/>
 				</div>
@@ -858,26 +1133,46 @@ const RenderNotificationUi = ({ closeModal }) => {
 				{/* //email template */}
 				<div className="emailTemplateContainer">
 					<HeadersDropDownComp
-						options={channelOptions}
+						options={info?.emailTemplates}
 						showIcon={false}
 						containerStyle={{
 							padding: '12px 24px',
-							height: '48px',
-							padding: '12px 24px',
+							height: '44px',
+							padding: '12px',
 							color: '#e4e5e6',
 							width: '100%',
 							flex: 1,
 							alignSelf: 'stretch',
-							borderRadius: '0.625rem',
-							border: '1px solid rgba(36, 36, 36, 0.64)',
 							backgroundColor: '#151515',
+							borderRadius: '14px',
+							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
 						}}
 						outerContainerStyle={{ width: '100%' }}
 						dropDownStyle={{
 							top: '55px',
+							backgroundColor: 'red',
+							borderRadius: '14px',
+							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
+							backgroundColor: '#202123',
 						}}
+						dropDownTextStyling={{
+							color: 'var(--ve-ai-dark-theme-primary-font-color, #E8E8E8)',
+							fontFamily: 'Inter',
+							fontSize: '13px',
+							fontStyle: 'normal',
+							fontWeight: '400',
+							lineHeight: 'normal',
+						}}
+						selectedValue={info?.selectedEmailTemplate?.title}
+						onChangeFunc={onChangeEmailTemplates}
+						showSelectedValueTick={true}
+						uniqueIdentifierForTickIcon={'_id'}
+						selectedValueObj={info?.selectedEmailTemplate}
 					/>
-					<div className="editContainer">
+					<div
+						className="editContainer"
+						onClick={() => setInfo((prev) => ({ ...prev, previewAndEdit: true }))}
+					>
 						Edit <Pen />
 					</div>
 				</div>
@@ -947,11 +1242,54 @@ const RenderNotificationUi = ({ closeModal }) => {
 			<div className="workflowFooterContainer">
 				<div className="saveChangesButton">Save Changes</div>
 			</div>
+			<EditAndViewEmailTemplateModal
+				open={info?.previewAndEdit}
+				closeModal={() => setInfo((prev) => ({ ...prev, previewAndEdit: false }))}
+				subject={info?.subject}
+				emailBody={info?.emailBody}
+				changeSubjectOrEmailBody={changeSubjectOrEmailBody}
+			/>
 		</div>
 	);
 };
 
-const RenderPipelineUi = ({ closeModal }) => {
+const RenderPipelineUi = ({ closeModal, changeLocalOptionType, localOptionType }) => {
+	const [info, setInfo] = useState({
+		labelMapper: {
+			notification: 'Send Notification',
+			condition: 'Add Condition',
+			pipeline: 'Move pipeline stage ',
+			action: 'Actions',
+		},
+		valueObjectMapper: {
+			notification: {
+				label: 'Send notification',
+				value: 'notification',
+			},
+			condition: {
+				label: 'Condition',
+				value: 'condition',
+			},
+			pipeline: {
+				label: 'Move pipeline stage',
+				value: 'pipeline',
+			},
+			action: {
+				label: 'Actions',
+				value: 'action',
+			},
+		},
+	});
+
+	const onOptionChangeFunc = useCallback(
+		(data) => {
+			if (data === localOptionType) {
+				return;
+			}
+			changeLocalOptionType(data?.value);
+		},
+		[localOptionType],
+	);
 	return (
 		<div className="pipelineContainer">
 			{/* header */}
@@ -968,22 +1306,47 @@ const RenderPipelineUi = ({ closeModal }) => {
 					<span className="actionTitle">Action</span>
 					<HeadersDropDownComp
 						options={actionOptions}
+						selectedValue={info?.labelMapper?.[localOptionType]}
+						onChangeFunc={(e) => onOptionChangeFunc(e)}
 						showIcon={false}
 						containerStyle={{
 							padding: '12px 24px',
-							height: '48px',
-							padding: '12px 24px',
+							height: '44px',
+							padding: '12px',
 							color: '#e4e5e6',
 							width: '100%',
 							flex: 1,
 							alignSelf: 'stretch',
-							borderRadius: '0.625rem',
-							border: '1px solid rgba(36, 36, 36, 0.64)',
 							backgroundColor: '#151515',
+							borderRadius: '14px',
+							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
 						}}
 						outerContainerStyle={{ width: '100%' }}
 						dropDownStyle={{
 							top: '55px',
+							backgroundColor: 'red',
+							borderRadius: '14px',
+							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
+							backgroundColor: '#202123',
+						}}
+						dropDownTextStyling={{
+							color: 'var(--ve-ai-dark-theme-primary-font-color, #E8E8E8)',
+							fontFamily: 'Inter',
+							fontSize: '13px',
+							fontStyle: 'normal',
+							fontWeight: '400',
+							lineHeight: 'normal',
+						}}
+						showSelectedValueTick={true}
+						uniqueIdentifierForTickIcon={'value'}
+						selectedValueObj={info?.valueObjectMapper?.[localOptionType]}
+						selectedValueStyle={{
+							color: 'var(--ve-ai-dark-theme-secondary-color, #939393)',
+							fontFamily: 'Inter',
+							fontSize: '12px',
+							fontStyle: 'normal',
+							fontWeight: '500',
+							lineHeight: 'normal',
 						}}
 					/>
 				</div>

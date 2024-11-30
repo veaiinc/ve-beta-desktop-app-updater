@@ -64,7 +64,7 @@ export const actionOptions = [
 
 	{
 		label: 'Actions',
-		value: 'actions',
+		value: 'action',
 	},
 	{
 		label: 'Move pipeline stage',
