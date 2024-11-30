@@ -14,21 +14,9 @@ const actionHandlers = {
 	}),
 	GET_SHARE_AND_EARN_SUCCESS: (state, action) => ({
 		...state,
-		shareAndEarnData: action.payload,
+		referralData: action?.payload,
 	}),
-	GET_REFERRAL_DETAILS_SUCCESS: (state, action) => ({
-		...state,
-		referralDetails: action.payload,
-	}),
-	GET_ONBOARD_POSITION_SUCCESS: (state, action) => ({
-		...state,
-		onboardPosition: action.payload,
-	}),
-	// ... existing handlers ...
-	SEND_CUSTOM_MAIL_SUCCESS: (state, action) => ({
-		...state,
-		mailSendStatus: action.payload,
-	}),
+
 	RESET_STATE: () => intialState,
 };
 
