@@ -355,6 +355,7 @@ const Events = ({
 										? dayjs(`${info?.calenderStartDate}`, 'YYYY-MM-DD')
 										: ''
 								}
+								allowClear={false}
 							/>
 						</div>
 						<div className="inputWithLabelContainer">
