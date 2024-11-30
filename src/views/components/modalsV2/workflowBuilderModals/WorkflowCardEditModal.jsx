@@ -313,33 +313,33 @@ const WorkflowCardEditModal = ({
 		info?.pageLoader,
 	]);
 
-	const incrementorDecrementorFunc = useCallback(
-		async (type) => {
-			if (type === 'increment') {
-				setInfo((prev) => ({ ...prev, noOfDays: prev?.noOfDays + 1 }));
-			} else {
-				setInfo((prev) => ({
-					...prev,
-					noOfDays: prev?.noOfDays - 1 >= 0 ? prev?.noOfDays - 1 : 1,
-				}));
-			}
-		},
-		[info?.noOfDays],
-	);
+	// const incrementorDecrementorFunc = useCallback(
+	// 	async (type) => {
+	// 		if (type === 'increment') {
+	// 			setInfo((prev) => ({ ...prev, noOfDays: prev?.noOfDays + 1 }));
+	// 		} else {
+	// 			setInfo((prev) => ({
+	// 				...prev,
+	// 				noOfDays: prev?.noOfDays - 1 >= 0 ? prev?.noOfDays - 1 : 1,
+	// 			}));
+	// 		}
+	// 	},
+	// 	[info?.noOfDays],
+	// );
 
-	const onChangeDuration = useCallback(
-		(data) => {
-			if (info?.selectedDuration?.value === data?.value) {
-				return;
-			}
-			setInfo((prev) => ({ ...prev, selectedDuration: data }));
-		},
-		[info?.selectedDuration],
-	);
+	// const onChangeDuration = useCallback(
+	// 	(data) => {
+	// 		if (info?.selectedDuration?.value === data?.value) {
+	// 			return;
+	// 		}
+	// 		setInfo((prev) => ({ ...prev, selectedDuration: data }));
+	// 	},
+	// 	[info?.selectedDuration],
+	// );
 
-	const approvalOnChange = useCallback(async (data) => {
-		setInfo((prev) => ({ ...prev, requiredApproval: data }));
-	}, []);
+	// const approvalOnChange = useCallback(async (data) => {
+	// 	setInfo((prev) => ({ ...prev, requiredApproval: data }));
+	// }, []);
 
 	const closeDeleteStepModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, deleteStepModal: false }));
@@ -679,6 +679,7 @@ const RenderActionUi = ({ closeModal, changeLocalOptionType, localOptionType }) 
 		},
 		[localOptionType],
 	);
+
 	return (
 		<div className="actionContainer">
 			{/* header */}
@@ -908,9 +909,17 @@ const RenderConditionUi = ({ closeModal, changeLocalOptionType, localOptionType 
 	);
 };
 
-const RenderNotificationUi = ({ closeModal, changeLocalOptionType, localOptionType }) => {
+const RenderNotificationUi = ({
+	closeModal,
+	changeLocalOptionType,
+	localOptionType,
+	newNodeType,
+	previousStepPath,
+	templateId,
+	previousStepId,
+}) => {
 	const {
-		templates: { allEmailTemplates },
+		templates: { allEmailTemplates, addNewSteps },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -949,7 +958,8 @@ const RenderNotificationUi = ({ closeModal, changeLocalOptionType, localOptionTy
 			value: 'days',
 		},
 		requiredApproval: false,
-		previewAndEdit: false,
+		editEmailModal: false,
+		saveLoader: false,
 	});
 
 	//useEffects
@@ -1046,6 +1056,51 @@ const RenderNotificationUi = ({ closeModal, changeLocalOptionType, localOptionTy
 		[info?.noOfDays],
 	);
 
+	const approvalOnChange = useCallback(async (data) => {
+		setInfo((prev) => ({ ...prev, requiredApproval: data }));
+	}, []);
+
+	const addNotificationNode = useCallback(async () => {
+		if (info?.saveLoader) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, saveLoader: true }));
+		const type = 'notification';
+		const previousType = previousStepPath?.includes('condition') ? 'condition' : 'action';
+		const timeStamp = await calculateTimeStamp(info?.selectedDuration?.value, info?.noOfDays);
+		const payload = {
+			templateId: templateId,
+			stepInput: {
+				type,
+				previousStepId: previousStepId,
+				approvalRequired: info?.requiredApproval,
+				emailTemplateId: info?.selectedEmailTemplate?._id,
+				htmlBody: info?.emailBody,
+				subject: info?.subject,
+				sendAt: timeStamp,
+			},
+		};
+		if (previousType === 'condition') {
+			const path = previousStepPath?.split('-')?.[1];
+			payload.stepInput.previousStepPath = path;
+		}
+
+		const response = await addNewSteps(payload);
+		setInfo((prev) => ({ ...prev, saveLoader: false }));
+	}, [
+		info?.requiredApproval,
+		info?.saveLoader,
+		templateId,
+		previousStepPath,
+		previousStepId,
+		info?.requiredApproval,
+		info?.subject,
+		info?.emailBody,
+		info?.selectedDuration,
+		info?.noOfDays,
+		info?.selectedEmailTemplate,
+	]);
+
 	return (
 		<div className="notificationContainer">
 			{/* header */}
@@ -1131,7 +1186,7 @@ const RenderNotificationUi = ({ closeModal, changeLocalOptionType, localOptionTy
 					/>
 					<div
 						className="editContainer"
-						onClick={() => setInfo((prev) => ({ ...prev, previewAndEdit: true }))}
+						onClick={() => setInfo((prev) => ({ ...prev, editEmailModal: true }))}
 					>
 						Edit <Pen />
 					</div>
@@ -1191,15 +1246,18 @@ const RenderNotificationUi = ({ closeModal, changeLocalOptionType, localOptionTy
 				{/* //required approval */}
 				<div className="requiredApprovalContainer">
 					<span className="requiredApprovalText">Require Approval before sending</span>
-					<ToggleSlider />
+					<ToggleSlider value={info?.requiredApproval} onChange={approvalOnChange} />
 				</div>
 			</div>
 			<div className="workflowFooterContainer">
-				<div className="saveChangesButton">Save Changes</div>
+				<div className="saveChangesButton" onClick={addNotificationNode}>
+					{info?.saveLoader ? <Spinner width={'16px'} height={'16px'} /> : ''}
+					{info?.saveLoader ? 'Saving...' : 'Save Changes'}
+				</div>
 			</div>
 			<EditAndViewEmailTemplateModal
-				open={info?.previewAndEdit}
-				closeModal={() => setInfo((prev) => ({ ...prev, previewAndEdit: false }))}
+				open={info?.editEmailModal}
+				closeModal={() => setInfo((prev) => ({ ...prev, editEmailModal: false }))}
 				subject={info?.subject}
 				emailBody={info?.emailBody}
 				changeSubjectOrEmailBody={changeSubjectOrEmailBody}
