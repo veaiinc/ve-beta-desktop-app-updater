@@ -5,7 +5,6 @@ import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/ve
 import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
 import { ReactComponent as ArrowUpBlack } from '../../../assets/svg/landingScreen/arrow-black.svg';
 import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen/double-quote.svg';
-import { message } from 'antd';
 
 const navItems = [
 	{ name: 'Privacy', route: '/privacy-policy' },
@@ -38,12 +37,7 @@ const LandingPage = () => {
 	};
 
 	const handleNavigation = () => {
-		if (!info?.cookiesAccepted) {
-			message?.info('Please accept cookies to continue');
-			return;
-		} else {
-			navigate('/verify-user');
-		}
+		navigate('/verify-user');
 	};
 
 	const handleRequestDemo = () => {

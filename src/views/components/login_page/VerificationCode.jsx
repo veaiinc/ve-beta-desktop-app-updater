@@ -33,12 +33,17 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 		isLoading: false,
 		canResend: true,
 		resendTimer: 60,
+		resendTimerInterval: null,
 		locationDetails: null,
 	});
 	const otpContainerRef = useRef(null);
 
 	useEffect(() => {
 		handleLocationDetailsData();
+
+		return () => {
+			clearInterval(info?.resendTimerInterval);
+		};
 	}, []);
 
 	useEffect(() => {
@@ -66,11 +71,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 							localStorage?.getItem('locationDetails'),
 						);
 						if (!locationDetails) {
-							const locationDetails = await getLocationsDetails();
-							localStorage?.setItem(
-								'locationDetails',
-								JSON.stringify(locationDetails),
-							);
+							locationDetails = await getLocationsDetails();
 						}
 						navigate('/home');
 					} else {
@@ -124,25 +125,17 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			} else {
 				message?.error(response?.[1]?.message);
 			}
-			const timeout = setTimeout(() => {
-				setInfo((prev) => ({ ...prev, canResend: true, isLoading: false }));
-			}, 60000);
-
 			const interval = setInterval(() => {
 				setInfo((prev) => {
 					if (prev.resendTimer > 0) {
 						return { ...prev, resendTimer: prev.resendTimer - 1 };
 					} else {
 						clearInterval(interval);
-						return prev;
+						setInfo((prev) => ({ ...prev, canResend: true, isLoading: false }));
 					}
 				});
 			}, 1000);
-
-			return () => {
-				clearTimeout(timeout);
-				clearInterval(interval);
-			};
+			setInfo((prev) => ({ ...prev, resendTimerInterval: interval }));
 		} catch (error) {
 			console.error('Failed to check email:', error.message);
 		}

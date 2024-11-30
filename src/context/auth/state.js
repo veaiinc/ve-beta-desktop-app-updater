@@ -270,10 +270,16 @@ export const AuthState = () => {
 		}
 	};
 
-	const continueWithGoogle = async (locationDetails) => {
+	const continueWithGoogle = async (locationDetails, referralCode = false) => {
 		const encodedLocationDetails = encodeURIComponent(JSON.stringify(locationDetails));
+		const encodedReferralCode = referralCode ? encodeURIComponent(referralCode) : false;
 		const path = '/google/url';
-		const params = new URLSearchParams({ locationDetails: encodedLocationDetails })?.toString();
+		const params = referralCode
+			? new URLSearchParams({
+					locationDetails: encodedLocationDetails,
+					referralCode: encodedReferralCode,
+			  })?.toString()
+			: new URLSearchParams({ locationDetails: encodedLocationDetails })?.toString();
 		window.location.href = `${authBaseUrl}${path}?${params}`;
 	};
 

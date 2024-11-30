@@ -127,11 +127,14 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified, cookiesAccep
 		let locationDetails = JSON.parse(localStorage?.getItem('locationDetails'));
 		if (!locationDetails) {
 			locationDetails = await getLocationsDetails();
-			localStorage?.setItem('locationDetails', JSON.stringify(locationDetails));
 		}
 
 		setInfo((prev) => ({ ...prev, googleLoading: true }));
-		continueWithGoogle(locationDetails);
+		if (info?.referrerUserDetails?.isValidReferralCode) {
+			continueWithGoogle(locationDetails, referralCode);
+		} else {
+			continueWithGoogle(locationDetails);
+		}
 	};
 
 	const handleSetEmail = (e, invitedUserEmail = false) => {
