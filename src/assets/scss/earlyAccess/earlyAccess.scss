@@ -341,7 +341,7 @@
 							display: flex;
 
 							align-items: center;
-							gap: 16px;
+							gap: 10px;
 							align-self: stretch;
 							width: 100%;
 							cursor: pointer;
@@ -366,15 +366,13 @@
 						}
 						.email-invitation-container {
 							width: 100%;
-							padding: 10px;
+							// padding: 10px;
 							display: flex;
 							flex-direction: column;
 							gap: 20px;
-							.back-arrow-icon {
-								min-height: 60px;
-							}
+
 							.email-input {
-								width: 95%;
+								width: 100%;
 								min-height: 60px;
 								padding: 12px;
 								border: 0.1px solid #838181;
@@ -570,7 +568,7 @@
 		}
 	}
 }
-@media screen and (min-width: 360px) and (max-width: 550px) {
+@media screen and (min-width: 350px) and (max-width: 550px) {
 	.landing-page-container2 {
 		height: 100%;
 		background: none !important;
@@ -584,7 +582,7 @@
 			justify-content: center !important;
 			gap: 10px;
 			.hero-section-3 {
-				width: 360px !important;
+				width: 340px !important;
 				.heading {
 					font-size: 32px;
 					margin-left: 10px;
@@ -597,7 +595,7 @@
 			.hero-section-7 {
 				padding: 50px 24px 36px 24px !important;
 				.content-container {
-					width: 360px;
+					width: 340px;
 					padding: 70px 24px 24px 24px !important;
 				}
 			}

@@ -8,6 +8,7 @@ import { ReactComponent as Twitter } from '../../../assets/svg/earlyAccess/twitt
 import { ReactComponent as CopyIcon } from '../../../assets/svg/shareAndEarn/copy.svg';
 import { ReactComponent as MailIcon } from '../../../assets/svg/earlyAccess/Email.svg';
 import { ReactComponent as ArrowBack } from '../../../assets/svg/left-arrow.svg';
+import { ReactComponent as Arrowback } from '../../../assets/svg/gallery/back-gray.svg';
 
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
@@ -30,6 +31,7 @@ const EarlyAccess = () => {
 	const [emails, setEmails] = useState([]);
 	const [inputValue, setInputValue] = useState('');
 	const [isCopied, setIsCopied] = useState(false);
+	const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
@@ -121,6 +123,8 @@ const EarlyAccess = () => {
 	};
 
 	const handleSendInvitation = async () => {
+		if (isButtonDisabled) return;
+		setIsButtonDisabled(true);
 		try {
 			const referralCode = shareAndEarnData?.referralDetails?.referralCode;
 			const referralLink = `https://ve.ai/verify-user?ref=${referralCode}`;
@@ -129,7 +133,7 @@ const EarlyAccess = () => {
 			const payload = {
 				clientEmail: emails,
 				mailContent: {
-					subject: 'Your Customised Proposal',
+					subject: 'Join Ve.ai with me using my Referral',
 					cc: [],
 					htmlBody: `
 					<html>
@@ -220,6 +224,10 @@ const EarlyAccess = () => {
 		} catch (error) {
 			console.error('Error sending emails:', error);
 			message.error('Failed to send emails');
+		} finally {
+			setTimeout(() => {
+				setIsButtonDisabled(false); // Re-enable the button after 10 seconds
+			}, 5000);
 		}
 	};
 
@@ -239,7 +247,7 @@ const EarlyAccess = () => {
 				}
 			} else {
 				message.error('Please enter a valid email address');
-				setInputValue('');
+				// setInputValue('');
 			}
 		}
 	};
@@ -320,7 +328,26 @@ const EarlyAccess = () => {
 								</div>
 							</div>
 							<div className="button-container">
-								<div className="share-text">Share on</div>
+								<div
+									style={{
+										display: 'flex',
+										flexDirection: 'row',
+										gap: '20px',
+										justifyContent: 'center',
+										height: 'auto',
+									}}
+								>
+									{!showEmailInput ? (
+										''
+									) : (
+										<Arrowback
+											className="back-arrow-icon"
+											onClick={() => setShowEmailInput(false)}
+											style={{ marginTop: '4px', cursor: 'pointer' }}
+										/>
+									)}
+									<div className="share-text">Share on</div>
+								</div>
 								{!showEmailInput ? (
 									<div className="icons-container">
 										<div
@@ -373,10 +400,6 @@ const EarlyAccess = () => {
 												justifyContent: 'center',
 											}}
 										>
-											<ArrowBack
-												className="back-arrow-icon"
-												onClick={() => setShowEmailInput(false)}
-											/>
 											<Input
 												className="email-input"
 												placeholder="Email ID"
@@ -408,7 +431,7 @@ const EarlyAccess = () => {
 										<button
 											className="send-invitation-button"
 											onClick={handleSendInvitation}
-											disabled={emails.length === 0}
+											disabled={emails.length === 0 || isButtonDisabled}
 										>
 											Send Invitation
 										</button>
@@ -462,3 +485,11 @@ const EarlyAccess = () => {
 };
 
 export default memo(EarlyAccess);
+
+{
+	/* <Arrowback
+	className="back-arrow-icon"
+	onClick={() => setShowEmailInput(false)}
+	style={{ paddingRight: '20px' }}
+/>; */
+}
