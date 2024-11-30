@@ -65,6 +65,8 @@ const AddGallery = () => {
 			getGalleryCredentials,
 			galleryCredentials,
 			setDefaultSort,
+			clearClientSelectionsData,
+			clearAiFace,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -84,6 +86,8 @@ const AddGallery = () => {
 		if (!tenantGalleries) {
 			fetchGalleries(info.page);
 		}
+		clearClientSelectionsData();
+		clearAiFace();
 	}, []);
 	useEffect(() => {
 		if (tenantGalleries) {

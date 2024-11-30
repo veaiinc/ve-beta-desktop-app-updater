@@ -5,6 +5,64 @@
 	justify-content: center;
 	align-items: center;
 	background: linear-gradient(180deg, #0e0f0f 0%, #19191b 100%);
+	position: relative;
+
+	.cookies-notice {
+		min-width: 581.34px;
+		min-height: 80px;
+		max-height: 80px;
+		position: absolute;
+		bottom: 22px;
+		left: 50%;
+		transform: translateX(-50%);
+		border-radius: 14px;
+		border: 1px solid #333334;
+		background: #191a1b;
+		padding: 24px;
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		z-index: 1;
+
+		.cookie-container {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+
+			.cookie-icon {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			p {
+				color: #e8e8e8;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+
+				b {
+					cursor: pointer;
+				}
+			}
+		}
+
+		.accept-button {
+			outline: none;
+			border: none;
+			padding: 12px 18px;
+			border-radius: 50px;
+			background: #fff;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+		}
+	}
 
 	.left-container {
 		width: 45%;
@@ -47,6 +105,23 @@
 					font-style: normal;
 					font-weight: 500;
 					line-height: 30px;
+					text-align: left;
+					width: 100%;
+
+					.referrer-name {
+						background: var(
+							--Color-Code-AI,
+							linear-gradient(94deg, #ca9bfe -2.06%, #fd749d 95.85%)
+						);
+						background-clip: text;
+						-webkit-background-clip: text;
+						-webkit-text-fill-color: transparent;
+						font-family: Brasley;
+						font-size: 20px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 30px;
+					}
 				}
 
 				.login-page-title {
@@ -57,6 +132,8 @@
 					font-style: normal;
 					font-weight: 600;
 					line-height: 36px;
+					text-align: left;
+					width: 100%;
 				}
 			}
 
@@ -210,7 +287,7 @@
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
-					line-height: normal;
+					line-height: 22px;
 				}
 
 				.open-email-container {
@@ -260,7 +337,6 @@
 					.otp-error-message {
 						position: absolute;
 						top: -24px;
-						right: 28px;
 						color: #ff7070;
 						font-family: Brasley;
 						font-size: 12px;
@@ -268,6 +344,14 @@
 						font-weight: 500;
 						line-height: normal;
 						text-align: right;
+					}
+
+					.otp-input-container {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						flex-direction: column;
+						gap: 8px;
 					}
 				}
 
@@ -362,11 +446,15 @@
 						flex-direction: column;
 						justify-content: space-between;
 						align-items: flex-start;
-						padding: 28px 38px;
+						padding: 28px;
 
 						svg {
 							width: 24px;
 							height: 24px;
+						}
+
+						h1 {
+							font-size: 20px;
 						}
 					}
 
@@ -395,6 +483,15 @@
 	}
 }
 
+@media screen and (max-height: 760px) {
+	.login-page-container {
+		.left-container,
+		.right-container {
+			zoom: 0.8;
+		}
+	}
+}
+
 @media screen and (max-width: 960px) {
 	.login-page-container {
 		.left-container {
@@ -402,6 +499,19 @@
 		}
 		.right-container {
 			display: none;
+		}
+	}
+}
+
+@media screen and (max-width: 581.34px) {
+	.login-page-container {
+		.cookies-notice {
+			min-width: 90% !important;
+			min-height: 146px !important;
+			flex-direction: column;
+		}
+		.accept-button {
+			width: 100%;
 		}
 	}
 }

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/gallery/galleryViewer.scss';
-import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useParams, useNavigate, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
 import Thumbnails from '../../components/gallery/galleryView/Thumbnails';
 import FullImagesComponent from '../../components/gallery/galleryView/FullImagesComponent';
@@ -55,6 +55,8 @@ const FakeLoadingComponent = () => {
 const GalleryViewer = () => {
 	const { galleryId, albumId } = useParams();
 	const [searchkeys, setsearchkeys] = useSearchParams();
+	const location = useLocation();
+	const selectedImages = location.state?.selectedImages || null;
 
 	const {
 		galleryInfo: {
@@ -122,10 +124,14 @@ const GalleryViewer = () => {
 			}, 1500);
 		}
 
+		// if ( imagesList&& selectedImages) {
+
+		// }
+
 		if (!galleryCredentials) {
 			getGalleryCredentials(galleryId);
 		}
-	}, [imagesList]);
+	}, [imagesList, selectedImages]);
 
 	useEffect(() => {
 		if (info?.activeImage) {
@@ -275,6 +281,7 @@ const GalleryViewer = () => {
 					imagesList={imagesList}
 					activeThumbnailFunction={activeThumbnailFunction}
 					info={info}
+					selectedImages={selectedImages}
 				/>
 
 				<div className="activeImageContainer">
@@ -285,6 +292,7 @@ const GalleryViewer = () => {
 						largeImageFunction={largeImageFunction}
 						info={info}
 						setInfo={setInfo}
+						selectedImages={selectedImages}
 					/>
 
 					{info?.imageDetailId && (

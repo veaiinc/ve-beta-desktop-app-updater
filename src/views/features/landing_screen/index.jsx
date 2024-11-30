@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/landingScreen/index.scss';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
@@ -8,16 +8,26 @@ import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen
 
 const navItems = [
 	{ name: 'Privacy', route: '/privacy-policy' },
-	// { name: 'Terms', route: '/terms' },
-	// { name: 'Blogs', route: '/blogs' },
+	{ name: 'Terms', route: '/terms-of-service' },
+	{ name: 'Cookies', route: '/cookie-policy' },
+	{ name: 'Blogs', route: '/' },
 ];
-const currentYear = new Date()?.getFullYear();
 
 const LandingPage = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		activeToggle: 'Path',
 	});
+	useEffect(() => {
+		const usertoken = localStorage.getItem('usertoken');
+		const region = localStorage.getItem('region');
+		const workspaceId = localStorage.getItem('workspaceId');
+		const isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
+		if (usertoken && region && workspaceId) {
+			if (isOnboard === false) return navigate('/early-access');
+			if (isOnboard) return navigate('/home');
+		}
+	}, []);
 
 	const handleToggleClick = (toggleType) => {
 		setInfo({
@@ -28,6 +38,10 @@ const LandingPage = () => {
 
 	const handleNavigation = () => {
 		navigate('/verify-user');
+	};
+
+	const handleRequestDemo = () => {
+		window.open('https://veai.ve.ai/get-ve-ai-demo', '_blank');
 	};
 
 	return (
@@ -62,7 +76,13 @@ const LandingPage = () => {
 						>
 							Get Started <ArrowUpBlack aria-label="Arrow up black" />
 						</button>
-						<button className="request-demo-button">Request a Demo</button>
+						<button
+							onClick={handleRequestDemo}
+							className="request-demo-button"
+							aria-label="Request a demo"
+						>
+							Request a Demo
+						</button>
 					</div>
 				</section>
 				<section className="hero-section-2">
@@ -108,11 +128,13 @@ const LandingPage = () => {
 				<nav>
 					<ul>
 						{navItems.map((item, i) => (
-							<li onClick={() => navigate(item.route)}>{item.name}</li>
+							<li key={i} onClick={() => navigate(item?.route)}>
+								{item?.name}
+							</li>
 						))}
 					</ul>
 				</nav>
-				<p className="copyright">&copy; {currentYear} VeAI. All rights reserved.</p>
+				<p className="copyright"> &copy; 2024 Ve.ai</p>
 			</footer>
 		</div>
 	);

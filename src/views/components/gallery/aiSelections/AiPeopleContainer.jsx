@@ -3,7 +3,7 @@ import Context from '../../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import PeopleCard from '../galleryView/PeopleCard';
 
-const AiPeopleContainer = ({ galleryId, galleryCredentials }) => {
+const AiPeopleContainer = ({ galleryId, galleryCredentials, handleFaceClick }) => {
 	const {
 		galleryInfo: { getAiFace, aiFace },
 	} = useContext(Context);
@@ -12,9 +12,10 @@ const AiPeopleContainer = ({ galleryId, galleryCredentials }) => {
 	});
 	useEffect(() => {
 		if (!aiFace) {
-			getAiFace(galleryId, 1, 40, true);
+			getAiFace(galleryId, 1, 80, true);
 		}
 	}, [aiFace]);
+
 	const fetchMoreFaces = () => {
 		const nextPage = info?.page + 1;
 		getAiFace(galleryId, nextPage).then(() => {
@@ -41,7 +42,7 @@ const AiPeopleContainer = ({ galleryId, galleryCredentials }) => {
 						const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 						const src = `${galleryCredentials?.baseURL}/${face?.displayImage?.optimizedImageS3Key}?${params}`;
 						return (
-							<div className="aiPeople-person">
+							<div className="aiPeople-person" onClick={() => handleFaceClick(face)}>
 								<div className="aiPeople-person-image">
 									<PeopleCard
 										url={src}

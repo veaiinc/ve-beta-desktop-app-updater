@@ -29,7 +29,7 @@ const File = ({
 	workflowStatus,
 	slug,
 }) => {
-	const { workflowId } = useParams();
+	const { workflowId, templateId } = useParams();
 	const timeoutRef = useRef(null);
 	let {
 		templates: {
@@ -264,7 +264,7 @@ const File = ({
 		}
 
 		if (event.data.type === 'CONSOLE_LOG') {
-			console.log('Log from iframe:', event.data);
+			console.log('Log from iframe:', event.data); //this console is mandatory
 		} else if (event.data.type === 'SPAN_CLICKED') {
 			scrollToElement(event?.data?.id);
 		}
@@ -602,8 +602,8 @@ const File = ({
 	);
 
 	const duplicateTemplateFromSmartFile = useCallback(async () => {
-		window.location.href = `${origin}/${workflowId}?workflow=true`;
-	}, [workflowData]);
+		window.location.href = `${origin}/${workflowId}?workflow=true&templateId=${templateId}`;
+	}, [workflowId, templateId]);
 
 	const handleUpdateVaraiblesArray = useCallback(
 		async (updatedDuplicateVariableArray) => {
@@ -829,10 +829,10 @@ const File = ({
 			for (let j = 0; j < blocks.length; j++) {
 				const { subBlocks } = blocks[j];
 				if (servicePrediction?.[i]?.['services']?.[j]?.['output']) {
-					const { quantity, isSelected } =
+					const { quantity, show } =
 						servicePrediction?.[i]?.['services']?.[j]?.['output'] || {};
 					subBlocks[0].quantity = quantity;
-					subBlocks[0].show = isSelected;
+					subBlocks[0].show = show;
 					serviceDataMapped[i].data.ai_generated = true;
 				}
 				blocks[j].subBlocks = [...subBlocks];

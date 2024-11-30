@@ -4,28 +4,153 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import '../../../assets/scss/onboarding/index.scss';
 import Username from '../../components/onboarding/Username';
 import WorkspaceHandleName from '../../components/onboarding/WorkspaceHandleName';
-import { useRef } from 'react';
 import WorkspaceType from '../../components/onboarding/WorkspaceType';
 import Profession from '../../components/onboarding/Profession';
 import Context from '../../../context/context';
 import { message } from 'antd';
 import CreatingNewWorkspace from '../../components/onboarding/CreatingNewWorkspace';
-import { getLocationsDetails } from '../../../helpers';
+import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/green-tick.svg';
 
-const tl = gsap.timeline();
+const tl1 = gsap.timeline();
 const tl2 = gsap.timeline();
 
+const animateAiIntro = () => {
+	tl1.fromTo(
+		'.onboarding-container',
+		{
+			opacity: 0,
+		},
+		{
+			opacity: 1,
+			duration: 1,
+			ease: 'power2.inOut',
+		},
+	)
+		.fromTo(
+			'.step1',
+			{
+				opacity: 0,
+				y: 30,
+			},
+			{
+				opacity: 1,
+				y: 0,
+				duration: 1,
+				ease: 'power2.inOut',
+			},
+			'+=0',
+		)
+		.fromTo(
+			'.stage1',
+			{
+				opacity: 0,
+				bottom: 0,
+				scale: 1.5,
+			},
+			{
+				opacity: 1,
+				bottom: 120,
+				scale: 1,
+				duration: 1,
+				ease: 'power2.inOut',
+			},
+			'<',
+		)
+		.fromTo(
+			'.right-container',
+			{
+				opacity: 0,
+				scale: 1.5,
+			},
+			{
+				opacity: 1,
+				scale: 1,
+				duration: 1,
+				ease: 'power2.inOut',
+			},
+			'<',
+		)
+		.fromTo(
+			'.right-container-content',
+			{
+				opacity: 0,
+				scale: 0.1,
+			},
+			{
+				opacity: 1,
+				scale: 1,
+				duration: 1,
+				ease: 'power2.inOut',
+			},
+			'<',
+		)
+		.from('.progress-bar-container', {
+			top: -10,
+		});
+};
+
+const animateStage2EnterForExistingUser = () => {
+	tl2?.to('.stage2', {
+		opacity: 1,
+		bottom: 120,
+		scale: 1,
+	});
+};
+
+const animateStage3Enter = () => {
+	tl2?.fromTo(
+		'.stage3',
+		{
+			opacity: 0,
+			scale: 0.5,
+		},
+		{
+			opacity: 1,
+			scale: 1,
+			duration: 1,
+			ease: 'power2.inOut',
+		},
+	);
+};
+
+const animateStage4Enter = () => {
+	tl2?.fromTo(
+		'.stage4',
+		{
+			opacity: 0,
+			scale: 0.5,
+		},
+		{
+			opacity: 1,
+			scale: 1,
+			duration: 1,
+			ease: 'power2.inOut',
+		},
+	);
+};
+
 const Onboarding = () => {
+	const navigate = useNavigate();
+	const location = useLocation();
+	const params = new URLSearchParams(location?.search);
+	const invitedWorkspaceId = params?.get('invitedWorkspaceId');
+	const invitedUserEmail = params?.get('inviteeEmail');
+	const createWorkspaceUsername = params?.get('username');
+	const progressBar = createWorkspaceUsername
+		? [{ id: 1 }, { id: 2 }, { id: 3 }]
+		: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }];
+
 	const {
-		authInfo: { updateUserDetails, createWorkspace, createAccountViaInvite },
+		authInfo: { updateUserDetails, createWorkspace },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		stage: 0,
-		step: 0,
-		username: '',
+		stage: createWorkspaceUsername ? 2 : 1,
+		step: createWorkspaceUsername ? 2 : 1,
+		username: createWorkspaceUsername || '',
 		workspaceHandle: '',
 		isWorkspaceHandleAvailable: false,
+		isCheckingWorkspaceHandle: true,
 		workspaceType: '',
 		profession: '',
 		phoneNumber: '',
@@ -33,79 +158,59 @@ const Onboarding = () => {
 		businessName: '',
 	});
 
-	const navigate = useNavigate();
-	const location = useLocation();
-
-	const aiIntroRef = useRef(null);
-	const step1Ref = useRef(null);
-	const step2Ref = useRef(null);
-	const step4Ref = useRef(null);
-	const step5Ref = useRef(null);
-	const step6Ref = useRef(null);
-	const step7Ref = useRef(null);
-
-	const params = new URLSearchParams(location?.search);
-	const invitedWorkspaceId = params?.get('invitedWorkspaceId');
-	const invitedUserEmail = params?.get('inviteeEmail');
-	const createWorkspaceUsername = params?.get('username');
-
 	useEffect(() => {
-		if (invitedWorkspaceId && invitedUserEmail) {
-			localStorage.clear();
-			return;
-		}
 		if (!localStorage?.getItem('usertoken')) {
 			navigate('/');
 		}
-		if (localStorage?.getItem('isOnboard') === 'true' && !createWorkspaceUsername) {
+		if (
+			localStorage?.getItem('isOnboard') === 'true' &&
+			!createWorkspaceUsername &&
+			!invitedWorkspaceId &&
+			!invitedUserEmail
+		) {
 			navigate('/home');
 		}
+		createWorkspaceUsername ? animateAiIntroForExistingUser() : animateAiIntro();
 	}, []);
 
 	useEffect(() => {
-		if (info?.step === 1 && info?.stage === 1) {
-			if (createWorkspaceUsername) {
-				setInfo((prev) => ({
-					...prev,
-					username: createWorkspaceUsername,
-				}));
+		if (info?.step === 2) {
+			if (!createWorkspaceUsername) {
+				animateStep2EnterAndExit();
 			}
 		}
-	}, [info?.step, info?.stage]);
+		if (info?.step === 3) {
+			animateStep3Enter();
+		}
+		if (info?.step === 4) {
+			animateStep4Enter();
+		}
+		if (info?.step === 5) {
+			animateStep5Enter();
+		}
+		if (info?.step === 6) {
+			animateStep6Enter();
+		}
+	}, [info?.step]);
 
 	useEffect(() => {
-		if (info?.step === 0 && aiIntroRef?.current) {
-			animateAiIntro();
-		} else if (info?.step === 1 && aiIntroRef?.current) {
-			animateRightContainer();
-		} else if (info?.step === 2 && aiIntroRef?.current) {
-			animateStep2Enter();
-		} else if (info?.step === 3 && aiIntroRef?.current) {
-			animateStep3Enter();
-		} else if (info?.step === 4 && aiIntroRef?.current) {
-			animateStep4Enter();
-		} else if (info?.step === 5 && aiIntroRef?.current) {
-			animateStep5Enter();
-		} else if (info?.step === 6 && aiIntroRef?.current) {
-			animateStep6Enter();
-		} else if (info?.step === 7 && aiIntroRef?.current) {
-			animateStep7Enter();
+		if (info?.stage === 2) {
+			animateStage2Enter();
 		}
-	}, [info?.step, aiIntroRef?.current]);
+		if (info?.stage === 3) {
+			animateStage3Enter();
+		}
+		if (info?.stage === 4) {
+			animateStage4Enter();
+		}
+	}, [info?.stage]);
 
-	const handleInvitedUser = async () => {
-		const locationDetails = await getLocationsDetails();
-		const response = await createAccountViaInvite(
-			info?.username,
-			invitedUserEmail,
-			invitedWorkspaceId,
-			locationDetails,
-		);
-		if (response?.[0] === true) {
+	const handleInvitedUserUsername = async () => {
+		const userDetailsResponse = await updateUserDetails(info?.username);
+		if (userDetailsResponse[0] === true) {
 			navigate('/home');
 		} else {
-			message.error(response?.message);
-			navigate('/');
+			message.error(userDetailsResponse?.message);
 		}
 	};
 
@@ -132,139 +237,244 @@ const Onboarding = () => {
 		}
 	};
 
-	const animateAiIntro = () => {
-		tl?.fromTo(
-			aiIntroRef?.current,
-			{
-				zoom: 2,
-				opacity: 0,
-			},
-			{
-				zoom: 1,
-				opacity: 1,
-				duration: 1,
-				ease: 'power2.out',
-				delay: 1,
-			},
-		);
-		tl?.to(aiIntroRef?.current, {
-			opacity: 0,
-			duration: 1,
-			ease: 'power2.out',
-			delay: 1,
-			onComplete: () => {
-				setTimeout(() => {
-					setInfo((prev) => ({
-						...prev,
-						step: prev?.step + 1,
-						stage: prev?.stage + 1,
-					}));
-				}, 500);
-			},
-		});
+	const setUsername = (username) => {
+		setInfo((prev) => ({
+			...prev,
+			username,
+		}));
 	};
 
-	const animateRightContainer = () => {
-		tl.fromTo(
-			[aiIntroRef?.current],
+	const setWorkspaceHandleAndBusinessName = (workspaceHandle) => {
+		setInfo((prev) => ({
+			...prev,
+			workspaceHandle,
+			businessName: workspaceHandle,
+		}));
+	};
+
+	const setIsWorkspaceHandleAvailable = (isWorkspaceHandleAvailable) => {
+		setInfo((prev) => ({
+			...prev,
+			isWorkspaceHandleAvailable,
+		}));
+	};
+
+	const setIsCheckingWorkspaceHandle = (isCheckingWorkspaceHandle) => {
+		setInfo((prev) => ({
+			...prev,
+			isCheckingWorkspaceHandle,
+		}));
+	};
+
+	const setWorkspaceType = (workspaceType) => {
+		setInfo((prev) => ({
+			...prev,
+			workspaceType,
+		}));
+	};
+
+	const setProfession = (profession) => {
+		setInfo((prev) => ({
+			...prev,
+			profession,
+		}));
+	};
+
+	const incrementStep = () => {
+		setInfo((prev) => ({
+			...prev,
+			step: prev?.step + 1,
+		}));
+	};
+
+	const incrementStage = () => {
+		setInfo((prev) => ({
+			...prev,
+			stage: prev?.stage + 1,
+		}));
+	};
+
+	const animateAiIntroForExistingUser = () => {
+		tl1.fromTo(
+			'.onboarding-container',
 			{
 				opacity: 0,
-				y: 20,
+			},
+			{
+				opacity: 1,
+				duration: 1,
+				ease: 'power2.inOut',
+			},
+		).fromTo(
+			'.step2',
+			{
+				opacity: 0,
+				y: 30,
 			},
 			{
 				opacity: 1,
 				y: 0,
-				duration: 1,
-				ease: 'power2.out',
+				duration: 2,
+				ease: 'power2.inOut',
+				onComplete: () => {
+					incrementStep();
+				},
 			},
+			'+=0',
 		);
+	};
+
+	const animateStage1AndStep1Exit = () => {
+		tl1.to('.stage1', {
+			opacity: 0,
+			duration: 1,
+			ease: 'power2.inOut',
+		});
+		tl2.to('.step1', {
+			opacity: 0,
+			x: -120,
+			y: -30,
+			scale: 0.5,
+			duration: 1,
+			ease: 'power2.inOut',
+			onComplete: () => {
+				incrementStep();
+			},
+		});
+	};
+
+	const animateStage2AndStep3Exit = () => {
+		tl1.to('.stage2', {
+			opacity: 0,
+			duration: 1,
+			ease: 'power2.inOut',
+		});
+		tl2.to('.step3', {
+			opacity: 0,
+			x: -120,
+			y: -30,
+			scale: 0.5,
+			duration: 1,
+			ease: 'power2.inOut',
+			onComplete: () => {
+				incrementStep();
+			},
+		});
+	};
+
+	const animateStage3AndStep4Exit = () => {
+		tl1.to('.stage3 .workspace-type-option', {
+			opacity: 0,
+			duration: 1,
+			cursor: 'default',
+			ease: 'power2.inOut',
+		});
+		tl2.to('.step4', {
+			opacity: 0,
+			x: -120,
+			y: -30,
+			scale: 0.5,
+			duration: 1,
+			ease: 'power2.inOut',
+			onComplete: () => {
+				incrementStep();
+			},
+		});
+	};
+
+	const animateStep2EnterAndExit = () => {
 		tl2.fromTo(
-			'.right-container-content',
+			'.step2',
 			{
-				zoom: 0,
-			},
-			{
-				zoom: 1,
-				duration: 1,
-				ease: 'power2.out',
-			},
-		);
-	};
-
-	const animateStep1Exit = () => {
-		tl.to(step1Ref?.current, {
-			zoom: 0.5,
-			color: 'rgba(255, 255, 255, 0.1)',
-			opacity: 0,
-			duration: 1,
-			ease: 'power2.out',
-			onComplete: () => {
-				setInfo((prev) => ({
-					...prev,
-					step: prev?.step + 1,
-				}));
-			},
-		});
-	};
-
-	const animateStep2Enter = () => {
-		tl2?.fromTo(
-			step2Ref?.current,
-			{
-				y: 20,
-				zoom: 0.5,
-				color: 'rgba(255, 255, 255, 0.1)',
 				opacity: 0,
+				x: -120,
+				y: -30,
+				scale: 0.5,
 			},
 			{
-				y: 0,
-				zoom: 1,
-				color: 'white',
 				opacity: 1,
+				x: 0,
+				y: 0,
+				scale: 1,
 				duration: 1,
-				delay: 1,
-				ease: 'power2.out',
+				ease: 'power2.inOut',
 			},
-		);
-		tl2?.to(step2Ref?.current, {
+		).to('.step2', {
 			opacity: 0,
+			x: -120,
+			y: -30,
+			scale: 0.5,
 			duration: 1,
-			ease: 'power2.out',
 			delay: 1,
+			ease: 'power2.inOut',
 			onComplete: () => {
-				setInfo((prev) => ({
-					...prev,
-					step: prev?.step + 1,
-				}));
+				incrementStep();
 			},
 		});
+	};
+
+	const animateStep5AndStage4Exit = () => {
+		tl1.to('.step5', {
+			opacity: 0,
+			x: -120,
+			y: -30,
+			scale: 0.5,
+		});
+		tl2.to('.stage4 .profession-option', {
+			opacity: 0,
+			duration: 1,
+			cursor: 'default',
+			ease: 'power2.inOut',
+			onComplete: () => {
+				incrementStep();
+			},
+		});
+	};
+
+	const animateStage2Enter = () => {
+		if (createWorkspaceUsername) {
+			tl2?.to('.stage2', {
+				opacity: 0,
+				bottom: 0,
+				scale: 1.5,
+			});
+			return;
+		}
+		tl2?.fromTo(
+			'.stage2',
+			{
+				opacity: 0,
+				bottom: 0,
+				scale: 1.5,
+			},
+			{
+				opacity: 1,
+				bottom: 120,
+				scale: 1,
+				duration: 1,
+				ease: 'power2.inOut',
+			},
+		);
 	};
 
 	const animateStep3Enter = () => {
 		tl2?.fromTo(
-			aiIntroRef?.current,
+			'.step3',
 			{
-				y: 20,
-				zoom: 0.5,
 				opacity: 0,
+				y: 30,
 			},
 			{
-				y: 0,
-				zoom: 1,
 				opacity: 1,
+				y: 0,
 				duration: 1,
-				delay: 1,
-				ease: 'power2.out',
+				ease: 'power2.inOut',
 				onComplete: () => {
-					tl2?.to(aiIntroRef?.current, {
-						opacity: 1,
-						duration: 1,
-						ease: 'power2.out',
-					});
-					setInfo((prev) => ({
-						...prev,
-						stage: prev?.stage + 1,
-					}));
+					if (!createWorkspaceUsername) {
+						incrementStage(); // stage 2
+					} else {
+						animateStage2EnterForExistingUser();
+					}
 				},
 			},
 		);
@@ -272,58 +482,45 @@ const Onboarding = () => {
 
 	const animateStep4Enter = () => {
 		tl2?.fromTo(
-			aiIntroRef?.current,
+			'.step4',
 			{
-				y: 20,
-				zoom: 0.5,
 				opacity: 0,
+				x: -120,
+				y: -30,
+				scale: 0.5,
 			},
 			{
-				y: 0,
-				zoom: 1,
 				opacity: 1,
+				x: 0,
+				y: 0,
+				scale: 1,
 				duration: 1,
-				delay: 1,
-				ease: 'power2.out',
+				ease: 'power2.inOut',
+				onComplete: () => {
+					incrementStage(); // stage 3
+				},
 			},
 		);
-		tl2?.to(aiIntroRef?.current, {
-			opacity: 0,
-			duration: 1,
-			ease: 'power2.out',
-			delay: 1,
-			onComplete: () => {
-				setInfo((prev) => ({
-					...prev,
-					step: prev?.step + 1,
-				}));
-			},
-		});
 	};
 
 	const animateStep5Enter = () => {
-		tl2?.to(aiIntroRef?.current, {
-			opacity: 1,
-			duration: 0.5,
-			ease: 'power2.out',
-		});
 		tl2?.fromTo(
-			step5Ref?.current,
+			'.step5',
 			{
 				opacity: 0,
-				zoom: 0.5,
+				x: -120,
+				y: -30,
+				scale: 0.5,
 			},
 			{
 				opacity: 1,
-				zoom: 1,
+				x: 0,
+				y: 0,
+				scale: 1,
 				duration: 1,
-				delay: 1,
-				ease: 'power2.out',
+				ease: 'power2.inOut',
 				onComplete: () => {
-					setInfo((prev) => ({
-						...prev,
-						stage: prev?.stage + 1,
-					}));
+					incrementStage(); // stage 4
 				},
 			},
 		);
@@ -331,130 +528,156 @@ const Onboarding = () => {
 
 	const animateStep6Enter = () => {
 		tl2?.fromTo(
-			step6Ref?.current,
-			{
-				y: 20,
-				zoom: 0.5,
-				color: 'rgba(255, 255, 255, 0.1)',
-				opacity: 0,
-			},
-			{
-				y: 0,
-				zoom: 1,
-				color: 'white',
-				opacity: 1,
-				duration: 1,
-				delay: 1,
-				ease: 'power2.out',
-				onComplete: () => {
-					setInfo((prev) => ({
-						...prev,
-						stage: prev?.stage + 1,
-					}));
-				},
-			},
-		);
-	};
-
-	const animateStep7Enter = () => {
-		tl2.to(step6Ref?.current, {
-			opacity: 0,
-			duration: 1,
-			ease: 'power2.out',
-		});
-		tl2?.fromTo(
-			aiIntroRef?.current,
+			'.step6',
 			{
 				opacity: 0,
-				zoom: 0.5,
+				scale: 0.5,
 			},
 			{
 				opacity: 1,
-				zoom: 1,
+				scale: 1,
 				duration: 1,
-				ease: 'power2.out',
+				ease: 'power2.inOut',
 				onComplete: () => {
-					const timeout = setTimeout(() => {
-						handleOnboarding();
-					}, 500);
-					return () => clearTimeout(timeout);
+					handleOnboarding();
 				},
 			},
 		);
 	};
 
 	const AiIntro = {
-		0: (
-			<>
-				<h1>Hi! I am VE</h1>
-				<h2>Your AI companion</h2>
-			</>
+		1: (
+			<h1 className="step1">
+				<>
+					Hey there,
+					<br />
+					What can I call you ?
+				</>
+			</h1>
 		),
-		1: <h1 ref={step1Ref}>What can I call you ?</h1>,
-		2: <h1 ref={step2Ref}>Hey {info?.username}, nice to meet you.</h1>,
+		2: (
+			<h2 className="step2">
+				{createWorkspaceUsername
+					? `Welcome back ${createWorkspaceUsername}`
+					: `Hey ${info?.username}, nice to meet you.`}
+			</h2>
+		),
 		3: (
-			<div style={{ position: 'relative' }}>
+			<div className="step3" style={{ position: 'relative' }}>
 				<h1>Let's setup your workspace handle</h1>
-				<h2>{info?.workspaceHandle || 'workspacename'}.ve.ai</h2>
-				{info?.workspaceHandle?.length > 1 && (
+				<p
+					className="workspace-handle-text"
+					style={{
+						color:
+							info?.isWorkspaceHandleAvailable ||
+							info?.workspaceHandle?.length === 0 ||
+							info?.isCheckingWorkspaceHandle
+								? 'rgba(255, 255, 255, 0.5)'
+								: '#FF646B',
+					}}
+				>
+					{!info?.isWorkspaceHandleAvailable &&
+					info?.workspaceHandle?.length > 0 &&
+					!info?.isCheckingWorkspaceHandle
+						? 'This domain is already taken '
+						: 'Your domain will be '}
+					<b className="workspace-handle">{info?.workspaceHandle || 'workspace-name'}</b>
+					<b className="workspace-handle">.ve.ai</b>
 					<span
 						style={{
-							position: 'absolute',
-							bottom: 0,
-							left: '34px',
-							fontSize: '12px',
-							color: info?.isWorkspaceHandleAvailable
-								? 'rgb(152, 255, 152)'
-								: 'rgb(255, 111, 97)',
+							opacity:
+								info?.isWorkspaceHandleAvailable && !info?.isCheckingWorkspaceHandle
+									? 1
+									: 0,
+							transition: 'opacity 0.3s ease',
 						}}
 					>
-						{info?.isWorkspaceHandleAvailable
-							? 'This handle is available'
-							: 'This handle is already taken'}
+						<GreenTick />
 					</span>
-				)}
+				</p>
 			</div>
 		),
-		4: <h1 ref={step4Ref}>{info?.workspaceHandle}.ve.ai</h1>,
-		5: <h1 ref={step5Ref}>What will be the workspace type ?</h1>,
-		6: <h1 ref={step6Ref}>What is your profession ?</h1>,
-		7: <h1 ref={step7Ref}>Setting up your workspace</h1>,
+		4: <h1 className="step4">What will be your workspace type?</h1>,
+		5: <h1 className="step5">What is your profession?</h1>,
 	};
 
 	const onboardingStages = {
 		1: (
 			<Username
-				onboardingInfo={info}
-				setOnboardingInfo={setInfo}
-				animateStep1Exit={animateStep1Exit}
-				handleInvitedUser={handleInvitedUser}
-				createAccountViaInvite={invitedWorkspaceId && invitedUserEmail}
-				createWorkspaceUsername={createWorkspaceUsername}
+				step={info?.step}
+				username={info?.username}
+				setUsername={setUsername}
+				animateStage1AndStep1Exit={animateStage1AndStep1Exit}
+				invitedWorkspaceId={invitedWorkspaceId ?? false}
+				invitedUserEmail={invitedUserEmail ?? false}
+				handleInvitedUserUsername={handleInvitedUserUsername}
 			/>
 		),
 		2: (
 			<WorkspaceHandleName
-				onboardingInfo={info}
-				setOnboardingInfo={setInfo}
-				animateStep4Enter={animateStep4Enter}
+				workspaceHandle={info?.workspaceHandle}
+				isCheckingWorkspaceHandle={info?.isCheckingWorkspaceHandle}
+				setIsCheckingWorkspaceHandle={setIsCheckingWorkspaceHandle}
+				isWorkspaceHandleAvailable={info?.isWorkspaceHandleAvailable}
+				setWorkspaceHandleAndBusinessName={setWorkspaceHandleAndBusinessName}
+				setIsWorkspaceHandleAvailable={setIsWorkspaceHandleAvailable}
+				animateStage2AndStep3Exit={animateStage2AndStep3Exit}
 			/>
 		),
-		3: <WorkspaceType setOnboardingInfo={setInfo} />,
-		4: <Profession onboardingInfo={info} setOnboardingInfo={setInfo} step6Ref={step6Ref} />,
+		3: (
+			<WorkspaceType
+				setWorkspaceType={setWorkspaceType}
+				animateStage3AndStep4Exit={animateStage3AndStep4Exit}
+			/>
+		),
+		4: (
+			<Profession
+				workspaceType={info?.workspaceType}
+				setProfession={setProfession}
+				animateStep5AndStage4Exit={animateStep5AndStage4Exit}
+			/>
+		),
 		5: <CreatingNewWorkspace profession={info?.profession} />,
 	};
 
 	return (
 		<div className="onboarding-container">
-			<div className="left-container">
-				<div ref={aiIntroRef} className="ai-intro">
-					{AiIntro[info?.step]}
-					{onboardingStages[info?.stage]}
-				</div>
-			</div>
-			{info?.step >= 1 && (
-				<div className="right-container">
-					<div className="right-container-content"></div>
+			{info?.step !== 6 ? (
+				<>
+					<div className="left-container">
+						<div className="progress-bar-container">
+							{progressBar?.map((bar) => (
+								<div
+									style={{
+										background: createWorkspaceUsername
+											? info?.stage - 1 === bar?.id
+												? 'white'
+												: 'rgba(255, 255, 255, 0.1)'
+											: info?.stage === bar?.id
+											? 'white'
+											: 'rgba(255, 255, 255, 0.1)',
+										transition: 'background 0.4s ease',
+										width: `${100 / progressBar?.length}%`,
+									}}
+									className="progress-bar"
+									key={bar?.id}
+								></div>
+							))}
+						</div>
+						<div className="ai-intro">
+							{AiIntro[info?.step]}
+							{onboardingStages[info?.stage]}
+						</div>
+					</div>
+					{info?.step >= 1 && info?.step <= 5 && (
+						<div className="right-container">
+							<div className="right-container-content"></div>
+						</div>
+					)}
+				</>
+			) : (
+				<div className="ai-intro step6-container">
+					<h1 className="step6">Setting up your workspace</h1>
 				</div>
 			)}
 		</div>
