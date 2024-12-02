@@ -69,8 +69,6 @@ const TeamSettings = () => {
 		}
 	}, [tenantsUserList]);
 
-	console.log(tenantsUserList, filteredUsers);
-
 	useEffect(() => {
 		if (tenantUserDetails) {
 			setInfo((prev) => ({
