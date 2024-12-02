@@ -22,6 +22,7 @@ import {
 	dropDownTextStyling,
 	dropDownStyle,
 	containerStyle,
+	selectedValueStyling,
 } from '../../../features/workflow_builder/workflowContantsHelpers';
 import { Drawer } from 'antd';
 import EditAndViewEmailTemplateModal from './EditAndViewEmailTemplateModal';
@@ -61,6 +62,7 @@ const WorkflowCardEditModal = ({
 	previousStepPath,
 	optionType,
 	newNodeType,
+	moveToPath,
 }) => {
 	const {
 		templates: {
@@ -315,6 +317,10 @@ const WorkflowCardEditModal = ({
 						closeModal={closeModal}
 						changeLocalOptionType={changeLocalOptionType}
 						localOptionType={info?.localOptionType}
+						previousStepId={previousStepId}
+						templateId={templateId}
+						previousStepPath={previousStepPath}
+						moveToPath={moveToPath}
 					/>
 				),
 				notification: (
@@ -574,15 +580,58 @@ const RenderActionUi = ({ closeModal, changeLocalOptionType, localOptionType }) 
 	);
 };
 
-const RenderConditionUi = ({ closeModal, changeLocalOptionType, localOptionType }) => {
+const RenderConditionUi = ({
+	closeModal,
+	changeLocalOptionType,
+	localOptionType,
+	previousStepPath,
+	templateId,
+	previousStepId,
+	moveToPath,
+}) => {
 	const [info, setInfo] = useState({
 		labelMapper: {
 			notification: 'Send Notification',
 			condition: 'Add Condition',
 			pipeline: 'Move pipeline stage ',
 			actions: 'Actions',
+			saveLoader: false,
 		},
+		selectedCondition: null,
 	});
+
+	const addConditionalNodes = useCallback(() => {
+		if (info?.saveLoader) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, saveLoader: true }));
+		const type = 'condition';
+		const previousType = previousStepPath?.includes('condition') ? 'condition' : 'action';
+		const payload = {
+			stepInput: {
+				type,
+				moveTo: moveToPath,
+				previousStepId: previousStepId,
+			},
+		};
+		if (previousType === 'condition') {
+			const path = previousStepPath?.split('-')?.[1];
+			payload.stepInput.previousStepPath = path;
+		}
+		// const response = await addNewSteps(payload);
+		// setInfo((prev) => ({ ...prev, saveLoader: false }));
+	}, [info?.saveLoader, moveToPath, templateId, previousStepPath, previousStepId]);
+
+	const onConditionSelection = useCallback(
+		(data) => {
+			if (info?.selectedCondition?.value === data?.value) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, selectedCondition: data }));
+		},
+		[info?.selectedCondition],
+	);
+
 	return (
 		<div className="conditionContainer">
 			{/* header */}
@@ -594,58 +643,33 @@ const RenderConditionUi = ({ closeModal, changeLocalOptionType, localOptionType 
 				<span className="headerTitle">Edit</span>
 			</div>
 			<div className="workflowOptionContainer">
-				{/* //action */}
-				{/* <div className="actionDropDownContainer">
-					<span className="actionTitle"> Action</span>
-					<HeadersDropDownComp
-						options={actionOptions}
-						selectedValue={info?.labelMapper?.[localOptionType]}
-						showIcon={false}
-						containerStyle={{
-							padding: '12px 24px',
-							height: '48px',
-							padding: '12px 24px',
-							color: '#e4e5e6',
-							width: '100%',
-							flex: 1,
-							alignSelf: 'stretch',
-							borderRadius: '0.625rem',
-							border: '1px solid rgba(36, 36, 36, 0.64)',
-							backgroundColor: '#151515',
-						}}
-						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{
-							top: '55px',
-						}}
-					/>
-				</div> */}
-				{/* //action */}
 				<div className="actionDropDownContainer">
 					<span className="actionTitle">Take Action if</span>
 					<HeadersDropDownComp
 						options={conditionOptions}
 						showIcon={false}
 						containerStyle={{
-							padding: '12px 24px',
-							height: '48px',
-							padding: '12px 24px',
-							color: '#e4e5e6',
-							width: '100%',
-							flex: 1,
-							alignSelf: 'stretch',
-							borderRadius: '0.625rem',
-							border: '1px solid rgba(36, 36, 36, 0.64)',
-							backgroundColor: '#151515',
+							...containerStyle,
 						}}
 						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{
-							top: '55px',
+						dropDownStyle={{ ...dropDownStyle }}
+						dropDownTextStyling={{ ...dropDownTextStyling }}
+						showSelectedValueTick={true}
+						uniqueIdentifierForTickIcon={'value'}
+						selectedValueObj={info?.selectedCondition}
+						selectedValueStyle={{
+							...selectedValueStyling,
 						}}
+						selectedValue={info?.selectedCondition?.label || ''}
+						onChangeFunc={onConditionSelection}
 					/>
 				</div>
 			</div>
 			<div className="workflowFooterContainer">
-				<div className="saveChangesButton">Save Changes</div>
+				<div className="saveChangesButton" onClick={addConditionalNodes}>
+					{info?.saveLoader ? <Spinner width={'16px'} height={'16px'} /> : ''}
+					{info?.saveLoader ? 'Saving...' : 'Save Changes'}
+				</div>
 			</div>
 		</div>
 	);
@@ -902,12 +926,7 @@ const RenderNotificationUi = ({
 						uniqueIdentifierForTickIcon={'value'}
 						selectedValueObj={info?.selectedChannel}
 						selectedValueStyle={{
-							color: 'var(--ve-ai-dark-theme-secondary-color, #939393)',
-							fontFamily: 'Inter',
-							fontSize: '12px',
-							fontStyle: 'normal',
-							fontWeight: '500',
-							lineHeight: 'normal',
+							...selectedValueStyling,
 						}}
 					/>
 				</div>
@@ -928,6 +947,9 @@ const RenderNotificationUi = ({
 						showSelectedValueTick={true}
 						uniqueIdentifierForTickIcon={'_id'}
 						selectedValueObj={info?.selectedEmailTemplate}
+						selectedValueStyle={{
+							...selectedValueStyling,
+						}}
 					/>
 					<div
 						className="editContainer"
@@ -972,6 +994,9 @@ const RenderNotificationUi = ({
 							showSelectedValueTick={true}
 							uniqueIdentifierForTickIcon={'value'}
 							selectedValueObj={info?.selectedDuration}
+							selectedValueStyle={{
+								...selectedValueStyling,
+							}}
 						/>
 					</div>
 					<HeadersDropDownComp
@@ -983,6 +1008,9 @@ const RenderNotificationUi = ({
 						outerContainerStyle={{ width: '100%' }}
 						dropDownStyle={{ ...dropDownStyle }}
 						dropDownTextStyling={{ ...dropDownTextStyling }}
+						selectedValueStyle={{
+							...selectedValueStyling,
+						}}
 					/>
 				</div>
 

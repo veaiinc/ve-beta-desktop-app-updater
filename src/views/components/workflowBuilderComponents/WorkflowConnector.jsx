@@ -50,14 +50,14 @@ const WorkflowConnector = ({ alterData, index, style = {}, previousStepPath, pre
 	// 	}));
 	// }, [info?.buttonDisplay, info?.connectorHeight]);
 
-	const updatedButtonClick = useCallback((type, optionType) => {
+	const updatedButtonClick = useCallback((type, optionType, moveToPath = null) => {
 		alterData({
 			previousStepPath: previousStepPath,
 			previousStepId: previousStepId,
 			type,
 			optionType,
+			moveToPath,
 		});
-		// setInfo((prev) => ({ ...prev }));
 	}, []);
 
 	return (
@@ -160,12 +160,11 @@ const AddOptionsContainer = ({ updatedButtonClick, closeToolTipFunc }) => {
 		setInfo((prev) => ({ ...prev, moveStepsModal: false }));
 	}, [info?.moveStepsModal]);
 
-	// const updateStepsPath=useCallback(
-	//   (data) => {
-	// 	first
-	//   },
-	//   [second],
-	// )
+	const updateStepsPath = useCallback((data) => {
+		const type = 'condition';
+		const optionType = 'condition';
+		updatedButtonClick(type, optionType, data);
+	}, []);
 
 	return (
 		<div className="addOptionsContainer">
@@ -179,7 +178,11 @@ const AddOptionsContainer = ({ updatedButtonClick, closeToolTipFunc }) => {
 				</div>
 			))}
 
-			<MoveStepsModal modalIsOpen={info?.moveStepsModal} closeModal={closeMoveStepsModal} />
+			<MoveStepsModal
+				modalIsOpen={info?.moveStepsModal}
+				closeModal={closeMoveStepsModal}
+				updateStepsPath={updateStepsPath}
+			/>
 		</div>
 	);
 };

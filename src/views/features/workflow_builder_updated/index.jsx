@@ -76,6 +76,7 @@ const WorkflowBuilder = () => {
 		duplicateStepsMapper: {},
 		newNodeType: null,
 		optionType: null,
+		moveToPath: null,
 	});
 
 	useEffect(() => {
@@ -270,6 +271,7 @@ const WorkflowBuilder = () => {
 			previousStepPath: null,
 			optionType: null,
 			newNodeType: null,
+			moveToPath: null,
 		}));
 	}, []);
 
@@ -349,6 +351,7 @@ const WorkflowBuilder = () => {
 				previousStepPath: data?.previousStepPath,
 				newNodeType: data?.type,
 				optionType: data?.optionType,
+				moveToPath: data?.moveToPath,
 			}));
 		},
 		[info?.data],
@@ -486,6 +489,7 @@ const WorkflowBuilder = () => {
 				previousStepPath={info?.previousStepPath}
 				optionType={info?.optionType}
 				newNodeType={info?.newNodeType}
+				moveToPath={info?.moveToPath}
 			/>
 			<WorkflowPreviewModal
 				modalIsOpen={info?.previewModal}

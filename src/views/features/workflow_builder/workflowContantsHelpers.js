@@ -247,3 +247,11 @@ export const dropDownTextStyling = {
 	fontWeight: '400',
 	lineHeight: 'normal',
 };
+export const selectedValueStyling = {
+	color: 'var(--ve-ai-dark-theme-secondary-color, #939393)',
+	fontFamily: 'Inter',
+	fontSize: '12px',
+	fontStyle: 'normal',
+	fontWeight: '500',
+	lineHeight: 'normal',
+};
