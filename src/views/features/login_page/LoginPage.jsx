@@ -29,9 +29,6 @@ const LoginPage = () => {
 		const cookiesAccepted = Cookies?.get('cookiesAccepted');
 		if (cookiesAccepted === 'true') {
 			setInfo({ ...info, cookiesAccepted: true });
-		} else {
-			setInfo({ ...info, cookiesAccepted: false });
-			Cookies.set('cookiesAccepted', 'false');
 		}
 	}, [info?.cookiesAccepted]);
 
