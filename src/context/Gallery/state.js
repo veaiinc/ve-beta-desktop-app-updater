@@ -1334,23 +1334,6 @@ export const Galleries = () => {
 		}
 	};
 
-	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/download
-	// 1
-	const getDownloadLink = async (payload, galleryId, albumId) => {
-		try {
-			let usertoken = localStorage.getItem('usertoken');
-			let workspaceId = localStorage.getItem('workspaceId');
-			const response = await service.fetchPost(
-				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/download`,
-				payload,
-				usertoken,
-				'galleries',
-			);
-			return response;
-		} catch (error) {
-			console.log('error==>getDownloadLink', error);
-		}
-	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/download/{{downloadId}}
 	const getDownloadLinkStatus = async (downloadId) => {
 		try {
@@ -1419,6 +1402,100 @@ export const Galleries = () => {
 			payload: null,
 		});
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}/download
+	const getDownloadLinkForTag = async (payload, galleryId, albumId, tagId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/tags/${tagId}/download`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>getDownloadLinkForTag', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-images/{{ _.image_id }}/download
+	const getDownloadLinkForImage = async (imageId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/gallery-images/${imageId}/download`,
+				usertoken,
+				'galleries',
+			);
+			console.log('response==>getDownloadLinkForImage', response);
+			if (response[0] === true) {
+				console.log('this ios dsfdsfdsf');
+				const imageResponse = await fetch(response[1].signedUrl);
+				const blob = await imageResponse.blob();
+				const url = window.URL.createObjectURL(blob);
+				const link = document.createElement('a');
+				link.href = url;
+				link.download = response?.[1]?.fileName || 'image';
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				window.URL.revokeObjectURL(url);
+				console.log('this ios dsfdssdlfjhsdkjfsdkfj');
+			}
+
+			return response;
+		} catch (error) {
+			console.log('error==>getDownloadLinkForImage', error);
+		}
+	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/download-images
+	const getDownloadForMultipleImages = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}/galleries/${galleryId}/download-images`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			if (response?.[0] && Array.isArray(response?.[1]?.signedUrls)) {
+				for (let i = 0; i < response[1].signedUrls.length; i++) {
+					const signedUrl = response[1].signedUrls[i];
+					try {
+						const imageResponse = await fetch(signedUrl);
+						const blob = await imageResponse.blob();
+						const url = window.URL.createObjectURL(blob);
+						const link = document.createElement('a');
+						link.href = url;
+
+						const fileName =
+							signedUrl.split('/').pop().split('?')[0] || `image-${i + 1}.jpg`;
+						link.download = fileName;
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+						window.URL.revokeObjectURL(url);
+
+						await new Promise((resolve) => setTimeout(resolve, 500));
+					} catch (downloadError) {
+						console.log(`Error downloading image ${i + 1}:`, downloadError);
+					}
+				}
+			}
+			return response;
+		} catch (error) {
+			console.log('error==>getDownloadForMultipleImages', error);
+		}
+	};
+	const clearGalleryShareDetails = () => {
+		dispatch({
+			type: Actions.GET_GALLERY_SHARE_DETAILS,
+			payload: null,
+		});
+	};
+
 	return {
 		...state,
 		getGalleries,
@@ -1485,11 +1562,14 @@ export const Galleries = () => {
 		setDefaultSort,
 		getAiFace,
 		clearClientSelectionsData,
-		getDownloadLink,
 		getDownloadLinkStatus,
 		getZipDownloadUrl,
 		getAiFaceImages,
 		clearAiFace,
 		aiFaceImagesReset,
+		getDownloadLinkForTag,
+		getDownloadLinkForImage,
+		getDownloadForMultipleImages,
+		clearGalleryShareDetails,
 	};
 };
