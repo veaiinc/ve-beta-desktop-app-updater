@@ -94,6 +94,7 @@ const GalleryPage = () => {
 			getDownloadLinkStatus,
 			getZipDownloadUrl,
 			getDownloadLinkForImage,
+			getDownloadForMultipleImages,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -1515,14 +1516,32 @@ const GalleryPage = () => {
 	};
 	const handleDownload = async () => {
 		message.loading('Downloading image...', 0);
-		const response = await getDownloadLinkForImage(info?.selectedImages[0]);
+		if (info?.selectedImages?.length === 1) {
+			const response = await getDownloadLinkForImage(info?.selectedImages[0]);
 
-		if (response?.[0] === true) {
-			message.destroy();
-			message.success('Download completed');
+			if (response?.[0] === true) {
+				message.destroy();
+				message.success('Download completed');
+			} else {
+				message.error('Failed to get download link');
+			}
 		} else {
-			message.error('Failed to get download link');
+			const payload = {
+				image_ids: info?.selectedImages,
+				imageType: 'original',
+			};
+			const response = await getDownloadForMultipleImages(payload, galleryId);
+			if (response?.[0] === true) {
+				message.destroy();
+				message.success('Download completed');
+			} else {
+				message.error('Failed to get download link');
+			}
 		}
+		setInfo((prev) => ({
+			...prev,
+			selectedImages: [],
+		}));
 	};
 
 	// Add this function to calculate drop position

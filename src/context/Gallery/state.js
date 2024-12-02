@@ -1449,6 +1449,52 @@ export const Galleries = () => {
 			console.log('error==>getDownloadLinkForImage', error);
 		}
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/download-images
+	const getDownloadForMultipleImages = async (payload, galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}/galleries/${galleryId}/download-images`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			if (response?.[0] && Array.isArray(response?.[1]?.signedUrls)) {
+				for (let i = 0; i < response[1].signedUrls.length; i++) {
+					const signedUrl = response[1].signedUrls[i];
+					try {
+						const imageResponse = await fetch(signedUrl);
+						const blob = await imageResponse.blob();
+						const url = window.URL.createObjectURL(blob);
+						const link = document.createElement('a');
+						link.href = url;
+
+						const fileName =
+							signedUrl.split('/').pop().split('?')[0] || `image-${i + 1}.jpg`;
+						link.download = fileName;
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+						window.URL.revokeObjectURL(url);
+
+						await new Promise((resolve) => setTimeout(resolve, 500));
+					} catch (downloadError) {
+						console.log(`Error downloading image ${i + 1}:`, downloadError);
+					}
+				}
+			}
+			return response;
+		} catch (error) {
+			console.log('error==>getDownloadForMultipleImages', error);
+		}
+	};
+	const clearGalleryShareDetails = () => {
+		dispatch({
+			type: Actions.GET_GALLERY_SHARE_DETAILS,
+			payload: null,
+		});
+	};
 
 	return {
 		...state,
@@ -1523,5 +1569,7 @@ export const Galleries = () => {
 		aiFaceImagesReset,
 		getDownloadLinkForTag,
 		getDownloadLinkForImage,
+		getDownloadForMultipleImages,
+		clearGalleryShareDetails,
 	};
 };
