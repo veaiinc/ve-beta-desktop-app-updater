@@ -665,8 +665,10 @@ export const TemplatesState = () => {
 					type: Actions.GET_SPECIFIC_TEMPLATE_INFO_SUCCESS,
 					payload: response?.[1]?.data?.templateInfo,
 				});
+				return [true];
 			} else {
 				console.log('handle the error getSpecificTemplatesInfo', response);
+				return [false];
 			}
 		} catch (error) {
 			console.log('api failed ==>getSpecificTemplatesInfo', error);
@@ -993,9 +995,8 @@ export const TemplatesState = () => {
 			);
 
 			if (response?.[0]) {
-				console.log('response==>', response);
 				// const dataResponse = response?.[1]?.data?.updateWorkflowTemplate;
-				// return [true, dataResponse];
+				return [true];
 			} else {
 				console.log('Api failed ==>addEmailTriggersInWorkflow', response);
 				return [false];

@@ -49,6 +49,7 @@ const WorkflowCardEditModal = ({
 		templates: {
 			getAllEmailTemplates,
 			getSpecificWorkflowTemplateDetails,
+			getSpecificTemplatesInfo,
 			updateWorkflowSteps,
 		},
 	} = useContext(Context);
@@ -138,6 +139,12 @@ const WorkflowCardEditModal = ({
 		[info?.localOptionType],
 	);
 
+	const refetchWorkflowBuilderData = useCallback(async () => {
+		const response = await getSpecificTemplatesInfo({
+			templateInfoId: templateId,
+		});
+		return response;
+	}, [templateId]);
 	///updated functions
 	const compMapper = useMemo(() => {
 		if (info?.localOptionType) {
@@ -158,6 +165,7 @@ const WorkflowCardEditModal = ({
 						templateId={templateId}
 						previousStepPath={previousStepPath}
 						moveToPath={moveToPath}
+						refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 					/>
 				),
 				notification: (
@@ -168,6 +176,7 @@ const WorkflowCardEditModal = ({
 						previousStepId={previousStepId}
 						templateId={templateId}
 						previousStepPath={previousStepPath}
+						refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 					/>
 				),
 				pipeline: (
@@ -364,12 +373,11 @@ const RenderActionUi = ({ closeModal, changeLocalOptionType, localOptionType }) 
 
 const RenderConditionUi = ({
 	closeModal,
-	changeLocalOptionType,
-	localOptionType,
 	previousStepPath,
 	templateId,
 	previousStepId,
 	moveToPath,
+	refetchWorkflowBuilderData,
 }) => {
 	const {
 		templates: { addNewSteps },
@@ -407,6 +415,14 @@ const RenderConditionUi = ({
 			payload.stepInput.previousStepPath = path;
 		}
 		const response = await addNewSteps(payload);
+		if (response?.[0]) {
+			const refetchResponse = await refetchWorkflowBuilderData();
+			if (refetchResponse?.[0]) {
+				setInfo((prev) => ({ ...prev, saveLoader: false }));
+				closeModal();
+			}
+		}
+
 		setInfo((prev) => ({ ...prev, saveLoader: false }));
 	}, [
 		info?.saveLoader,
@@ -478,6 +494,7 @@ const RenderNotificationUi = ({
 	previousStepPath,
 	templateId,
 	previousStepId,
+	refetchWorkflowBuilderData,
 }) => {
 	const {
 		templates: { allEmailTemplates, addNewSteps },
@@ -660,6 +677,13 @@ const RenderNotificationUi = ({
 		}
 
 		const response = await addNewSteps(payload);
+		if (response?.[0]) {
+			const refetchResponse = await refetchWorkflowBuilderData();
+			if (refetchResponse?.[0]) {
+				setInfo((prev) => ({ ...prev, saveLoader: false }));
+				closeModal();
+			}
+		}
 		setInfo((prev) => ({ ...prev, saveLoader: false }));
 	}, [
 		info?.requiredApproval,

@@ -152,24 +152,24 @@ const WorkflowNode = ({
 	return (
 		<div className="workflow-step">
 			{renderNodeContent()}
-			{node.nextStepId && (
-				<>
-					<WorkflowConnector
-						alterData={alterData}
-						previousStepPath={'straight'}
-						previousStepId={nodeId}
-					/>
-					<WorkflowNode
-						nodeId={node.nextStepId}
-						stepsMapper={stepsMapper}
-						templateData={templateData}
-						openPreviewModal={openPreviewModal}
-						openModal={openModal}
-						alterData={alterData}
-						// handleNodesRedering={handleNodesRedering}
-					/>
-				</>
-			)}
+			{/* {node.nextStepId && ( */}
+			<>
+				<WorkflowConnector
+					alterData={alterData}
+					previousStepPath={'straight'}
+					previousStepId={nodeId}
+				/>
+				<WorkflowNode
+					nodeId={node.nextStepId}
+					stepsMapper={stepsMapper}
+					templateData={templateData}
+					openPreviewModal={openPreviewModal}
+					openModal={openModal}
+					alterData={alterData}
+					// handleNodesRedering={handleNodesRedering}
+				/>
+			</>
+			{/* )} */}
 		</div>
 	);
 };
