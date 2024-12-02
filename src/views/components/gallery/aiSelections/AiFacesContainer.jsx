@@ -69,7 +69,7 @@ const AiFacesContainer = ({ galleryId, galleryCredentials, handleBackClick }) =>
 						{aiFace?.faces?.map((face) => {
 							const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 							const src = `${galleryCredentials?.baseURL}/${face?.displayImage?.optimizedImageS3Key}?${params}`;
-							console.log(face, 'face');
+
 							return (
 								<div
 									className="aiPeople-person"

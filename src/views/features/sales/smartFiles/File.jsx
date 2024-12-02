@@ -29,7 +29,7 @@ const File = ({
 	workflowStatus,
 	slug,
 }) => {
-	const { workflowId } = useParams();
+	const { workflowId, templateId } = useParams();
 	const timeoutRef = useRef(null);
 	let {
 		templates: {
@@ -264,7 +264,7 @@ const File = ({
 		}
 
 		if (event.data.type === 'CONSOLE_LOG') {
-			console.log('Log from iframe:', event.data);
+			console.log('Log from iframe:', event.data); //this console is mandatory
 		} else if (event.data.type === 'SPAN_CLICKED') {
 			scrollToElement(event?.data?.id);
 		}
@@ -602,8 +602,8 @@ const File = ({
 	);
 
 	const duplicateTemplateFromSmartFile = useCallback(async () => {
-		window.location.href = `${origin}/${workflowId}?workflow=true`;
-	}, [workflowData]);
+		window.location.href = `${origin}/${workflowId}?workflow=true&templateId=${templateId}`;
+	}, [workflowId, templateId]);
 
 	const handleUpdateVaraiblesArray = useCallback(
 		async (updatedDuplicateVariableArray) => {

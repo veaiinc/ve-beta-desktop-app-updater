@@ -40,6 +40,10 @@ const routes = [
 		path: '/verify-user',
 		component: <LoginPage />,
 	},
+	{
+		path: '/referral/:referralCode',
+		component: <LoginPage />,
+	},
 	// {
 	// 	path: '/login-with-password',
 	// 	component: <LoginScreen stage={'login-with-password'} />,

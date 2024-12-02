@@ -10,6 +10,7 @@ export const intialState = {
 	subscriptionPlans: null,
 	coupons: null,
 	currentPlan: null,
+	referralData: null,
 	shareAndEarnData: null,
 };
 
@@ -110,6 +111,28 @@ export const SubscriptionState = (props) => {
 			console.log('errror ==>getCurrentSubscriptionPlan', error);
 		}
 	};
+	const getShareAndEarn = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/referral/${workspaceId}/get-active-referralCode`,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_SHARE_AND_EARN_SUCCESS,
+					payload: response?.[1],
+				});
+				return response?.[1];
+			} else {
+				console.log('api failed ==>getShareAndEarn', response);
+			}
+		} catch (error) {
+			console.log('errror ==>getShareAndEarn', error);
+		}
+	};
 
 	return {
 		...state,
@@ -118,5 +141,6 @@ export const SubscriptionState = (props) => {
 		getAllCoupons,
 		createStripeCheckoutSession,
 		getCurrentSubscriptionPlan,
+		getShareAndEarn,
 	};
 };

@@ -11,14 +11,34 @@ import { ReactComponent as GlassMorphGrey2 } from '../../../assets/svg/login_pag
 import { ReactComponent as ShapeLemonYellow } from '../../../assets/svg/login_page/shape-lemon-yellow.svg';
 import { ReactComponent as PlusBlack } from '../../../assets/svg/login_page/plus-black.svg';
 import { ReactComponent as VeAiLogoLemonYellow } from '../../../assets/svg/login_page/ve-ai-logo-lemon-yellow.svg';
+import { ReactComponent as CookieIcon } from '../../../assets/svg/landingScreen/cookie.svg';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
+	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		activeStage: 'email',
 		email: '',
 		emailVerified: false,
 		accountExists: false,
+		cookiesAccepted: false,
 	});
+
+	useEffect(() => {
+		const cookiesAccepted = Cookies?.get('cookiesAccepted');
+		if (cookiesAccepted === 'true') {
+			setInfo({ ...info, cookiesAccepted: true });
+		} else {
+			setInfo({ ...info, cookiesAccepted: false });
+			Cookies.set('cookiesAccepted', 'false');
+		}
+	}, [info?.cookiesAccepted]);
+
+	const handleAcceptCookies = () => {
+		setInfo({ ...info, cookiesAccepted: true });
+		Cookies?.set('cookiesAccepted', 'true');
+	};
 
 	const setEmail = (email) => {
 		setInfo((prev) => ({ ...prev, email }));
@@ -39,6 +59,7 @@ const LoginPage = () => {
 				setEmail={setEmail}
 				setActiveStage={setActiveStage}
 				setEmailVerified={setEmailVerified}
+				cookiesAccepted={info?.cookiesAccepted}
 			/>
 		),
 		verificationCode: (
@@ -53,6 +74,26 @@ const LoginPage = () => {
 
 	return (
 		<div className="login-page-container">
+			{!info?.cookiesAccepted && (
+				<div className="cookies-notice">
+					<div className="cookie-container">
+						<span className="cookie-icon">
+							<CookieIcon aria-label="Cookie icon" />
+						</span>
+						<p>
+							This site uses cookies to provide you with a personalized experience.
+							Check our{' '}
+							<b onClick={() => navigate('/cookie-policy')}>
+								<u>cookie policy</u>
+							</b>{' '}
+							for more details.
+						</p>
+					</div>
+					<button className="accept-button" onClick={handleAcceptCookies}>
+						Accept
+					</button>
+				</div>
+			)}
 			<div className="left-container">
 				<div className="stages-container">
 					<div className="logo-container">

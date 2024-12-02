@@ -42,7 +42,7 @@ export const getLocationsDetails = async () => {
 		currency,
 	};
 
-	let apiRegion;
+	let apiRegion = 'ap-south-1';
 	// Dynamic origin selection based on country/region
 	if (country_code === 'IN') {
 		// Route Indian traffic to ap-south-1
@@ -121,7 +121,7 @@ export const isURL = (url) => {
 };
 
 let urlMapper = {
-	localhost: 'localhost:3000',
+	localhost: 'http://localhost:3000',
 	've.ai': 'https://builder.ve.ai',
 	've.co': 'https://builder.ve.co',
 	'www.ve.ai': 'https://builder.ve.ai',
