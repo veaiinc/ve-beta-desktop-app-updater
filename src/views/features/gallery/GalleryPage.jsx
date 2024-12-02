@@ -489,7 +489,6 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [location?.state?.from]);
-
 	const fetchMoreImages = () => {
 		const nextPage = info.page + 1;
 		getGalleryImages(
@@ -1381,39 +1380,6 @@ const GalleryPage = () => {
 		}));
 	};
 
-	// const handleDragEnd = () => {
-	// 	if (!info.dropPlaceholder && info.dropPlaceholder !== 0) {
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			isDragging: false,
-	// 			selectedImages: [],
-	// 			dropPlaceholder: null,
-	// 		}));
-	// 		return;
-	// 	}
-
-	// 	const currentImages = [...info.imagesList.docs];
-	// 	const selectedImageObjects = currentImages.filter((img) =>
-	// 		info.selectedImages.includes(img._id),
-	// 	);
-	// 	const remainingImages = currentImages.filter(
-	// 		(img) => !info.selectedImages.includes(img._id),
-	// 	);
-	// 	remainingImages.splice(info.dropPlaceholder, 0, ...selectedImageObjects);
-	// 	setInfo((prev) => ({
-	// 		...prev,
-	// 		isDragging: false,
-	// 		selectedImages: [],
-	// 		dropPlaceholder: null,
-	// 	}));
-	// 	updateImageOrder(remainingImages);
-
-	// 	const imageIds = remainingImages.map((img) => img._id);
-	// 	// updateImageOrder(imageIds);
-	// };
-
-	// ... existing code ...
-
 	const handleDragEnd = () => {
 		if (!info.dropPlaceholder && info.dropPlaceholder !== 0) {
 			setInfo((prev) => ({
@@ -1583,23 +1549,7 @@ const GalleryPage = () => {
 	// Add container ref
 	const rearrangeContainerRef = useRef(null);
 	const galleryScrollTargetRef = useRef(null);
-	// useEffect(() => {
-	// 	const handleMouseMove = (e) => {
-	// 		const container = galleryScrollTargetRef.current;
-	// 		if (!container || !info.isDragging) return;
 
-	// 		const { top, bottom } = container.getBoundingClientRect();
-	// 		const scrollAmount = 10;
-
-	// 		if (e.clientY < top + 30) {
-	// 			container.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
-	// 		} else if (e.clientY > bottom - 150) {
-	// 			container.scrollBy({ top: scrollAmount, behavior: 'smooth' });
-	// 		}
-	// 	};
-	// 	document.addEventListener('mousemove', handleMouseMove);
-	// 	return () => document.removeEventListener('mousemove', handleMouseMove);
-	// }, [info.isDragging]);
 	let scrolling = false;
 
 	useEffect(() => {

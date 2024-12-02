@@ -68,6 +68,7 @@ const AddGallery = () => {
 			clearClientSelectionsData,
 			clearAiFace,
 			clearGalleryShareDetails,
+			clearGalleryState,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -83,6 +84,7 @@ const AddGallery = () => {
 		activeSort: tenantGalleries?.sort || '-createdAt',
 	});
 	const navigate = useNavigate();
+
 	useEffect(() => {
 		if (!tenantGalleries) {
 			fetchGalleries(info.page);
@@ -90,6 +92,7 @@ const AddGallery = () => {
 		clearClientSelectionsData();
 		clearAiFace();
 		clearGalleryShareDetails();
+		clearGalleryState();
 	}, []);
 	useEffect(() => {
 		if (tenantGalleries) {

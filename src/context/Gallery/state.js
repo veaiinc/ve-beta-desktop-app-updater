@@ -1495,6 +1495,12 @@ export const Galleries = () => {
 			payload: null,
 		});
 	};
+	const clearGalleryState = () => {
+		dispatch({
+			type: Actions.CLEAR_SPECIFIC_STATES,
+			payload: null,
+		});
+	};
 
 	return {
 		...state,
@@ -1571,5 +1577,6 @@ export const Galleries = () => {
 		getDownloadLinkForImage,
 		getDownloadForMultipleImages,
 		clearGalleryShareDetails,
+		clearGalleryState,
 	};
 };

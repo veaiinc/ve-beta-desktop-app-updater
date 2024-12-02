@@ -95,6 +95,23 @@ const actionHandlers = {
 		...state,
 		aiFaceImages: action.payload,
 	}),
+	CLEAR_SPECIFIC_STATES: (state) => ({
+		...state,
+		tenantAlbums: null,
+		tenantPreferences: null,
+		layoutSettings: null,
+		collaborators: null,
+		updateActiveAlbum: null,
+		galleryCredentials: null,
+		albumDetails: null,
+		imagesList: null,
+		imageDetail: null,
+		tagsList: null,
+		clientSelectionsData: null,
+		clientSelectionImages: null,
+		albumImagesCount: null,
+	}),
+
 	RESET_IMAGES_LIST: (state) => ({ ...state, imagesList: null }),
 	RESET_STATE: () => ({ ...intialState }),
 };
