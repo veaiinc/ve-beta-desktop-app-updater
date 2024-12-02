@@ -589,6 +589,10 @@ const RenderConditionUi = ({
 	previousStepId,
 	moveToPath,
 }) => {
+	const {
+		templates: { addNewSteps },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		labelMapper: {
 			notification: 'Send Notification',
@@ -600,7 +604,7 @@ const RenderConditionUi = ({
 		selectedCondition: null,
 	});
 
-	const addConditionalNodes = useCallback(() => {
+	const addConditionalNodes = useCallback(async () => {
 		if (info?.saveLoader) {
 			return;
 		}
@@ -612,15 +616,24 @@ const RenderConditionUi = ({
 				type,
 				moveTo: moveToPath,
 				previousStepId: previousStepId,
+				criteria: info?.selectedCondition?.value,
 			},
+			templateId: templateId,
 		};
 		if (previousType === 'condition') {
 			const path = previousStepPath?.split('-')?.[1];
 			payload.stepInput.previousStepPath = path;
 		}
-		// const response = await addNewSteps(payload);
-		// setInfo((prev) => ({ ...prev, saveLoader: false }));
-	}, [info?.saveLoader, moveToPath, templateId, previousStepPath, previousStepId]);
+		const response = await addNewSteps(payload);
+		setInfo((prev) => ({ ...prev, saveLoader: false }));
+	}, [
+		info?.saveLoader,
+		moveToPath,
+		templateId,
+		previousStepPath,
+		previousStepId,
+		info?.selectedCondition,
+	]);
 
 	const onConditionSelection = useCallback(
 		(data) => {

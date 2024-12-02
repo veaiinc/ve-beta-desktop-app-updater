@@ -173,17 +173,17 @@ export const returnDurationOption = (type) => {
 export const conditionOptions = [
 	{
 		label: 'Contract Signed',
-		value: 'Contract Signed',
+		value: 'contractSigned',
 	},
 
 	{
-		label: 'Accept proposal ',
-		value: 'Accept proposal ',
+		label: 'Proposal Accepted',
+		value: 'proposalAccepted',
 	},
-	{
-		label: 'Payment is completed',
-		value: 'Payment is completed',
-	},
+	// {
+	// 	label: 'Payment is completed',
+	// 	value: 'Payment is completed',
+	// },
 ];
 
 export const movePipeLineOptions = [
