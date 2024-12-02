@@ -98,3 +98,6 @@ export const createEmailBody = (referrerDiscount, referralLink) => `
     </div>
 </html>
 `;
+
+export const TWEET_TEXT =
+	'Ve.Ai allows you to design stunning forms, proposals, invoices, contracts, I am referring you to join ve with me using my referral link and get 20% discount.';

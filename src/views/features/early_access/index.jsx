@@ -15,6 +15,7 @@ import {
 	REFERRAL_BASE_URL,
 	createEmailBody,
 	TWITTER_POST_URL,
+	TWEET_TEXT,
 } from '../../../helpers/ConstantUrls';
 
 import { useNavigate } from 'react-router-dom';
@@ -68,9 +69,7 @@ const EarlyAccess = () => {
 	const decodedToken = jwtDecode(usertoken);
 	const { userName } = decodedToken;
 
-	const referralLink = `${REFERRAL_BASE_URL}?referralCode=${referralData?.referralDetails?.referralCode}`;
-	const tweetText =
-		'Ve.Ai allows you to design stunning forms, proposals, invoices, contracts, I am referring you to join ve with me using my referral link and get 20% discount.';
+	const referralLink = `${REFERRAL_BASE_URL}${referralData?.referralDetails?.referralCode}`;
 
 	useEffect(() => {
 		getUserWorkSpaceList();
@@ -294,7 +293,7 @@ const EarlyAccess = () => {
 											onClick={() =>
 												window.open(
 													`${TWITTER_POST_URL}${encodeURIComponent(
-														tweetText,
+														TWEET_TEXT,
 													)}&url=${encodeURIComponent(referralLink)}`,
 													'_blank',
 												)
