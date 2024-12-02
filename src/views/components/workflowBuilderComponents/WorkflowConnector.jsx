@@ -7,6 +7,7 @@ import { ReactComponent as Condition } from '../../../assets/svg/worflow_builder
 import { ReactComponent as Notification } from '../../../assets/svg/worflow_builder/notification.svg';
 import { ReactComponent as Pipeline } from '../../../assets/svg/worflow_builder/pipeline.svg';
 import { Tooltip } from 'antd';
+import MoveStepsModal from '../modalsV2/workflowBuilderModals/MoveStepsModal';
 const WorkflowConnector = ({ alterData, index, style = {}, previousStepPath, previousStepId }) => {
 	const [info, setInfo] = useState({
 		connectorHeight: 64,
@@ -71,7 +72,14 @@ const WorkflowConnector = ({ alterData, index, style = {}, previousStepPath, pre
 					<ConnectorSvg />
 					<Tooltip
 						// placement="bottomRight"
-						title={<AddOptionsContainer updatedButtonClick={updatedButtonClick} />}
+						title={
+							<AddOptionsContainer
+								updatedButtonClick={updatedButtonClick}
+								closeToolTipFunc={() =>
+									setInfo((prev) => ({ ...prev, addTypeModal: false }))
+								}
+							/>
+						}
 						color={'#202020'}
 						arrow={false}
 						trigger="click"
@@ -101,7 +109,7 @@ const WorkflowConnector = ({ alterData, index, style = {}, previousStepPath, pre
 
 export default memo(WorkflowConnector);
 
-const AddOptionsContainer = ({ updatedButtonClick }) => {
+const AddOptionsContainer = ({ updatedButtonClick, closeToolTipFunc }) => {
 	const [info, setInfo] = useState({
 		optionsData: [
 			{
@@ -111,14 +119,14 @@ const AddOptionsContainer = ({ updatedButtonClick }) => {
 				type: 'action',
 				optionType: 'notification',
 			},
-			{
-				title: 'Action',
-				subTitle:
-					'Write tasks for yourself or your team members so nothing will never be missed throughout a project.',
-				icons: <Action />,
-				type: 'action',
-				optionType: 'action',
-			},
+			// {
+			// 	title: 'Action',
+			// 	subTitle:
+			// 		'Write tasks for yourself or your team members so nothing will never be missed throughout a project.',
+			// 	icons: <Action />,
+			// 	type: 'action',
+			// 	optionType: 'action',
+			// },
 			{
 				title: 'Condition',
 				subTitle:
@@ -128,20 +136,36 @@ const AddOptionsContainer = ({ updatedButtonClick }) => {
 				optionType: 'condition',
 			},
 
-			{
-				title: 'Move Pipeline stage',
-				subTitle:
-					'Automate your workflow by moving your project to a specific pipeline stage.',
-				icons: <Pipeline />,
-				type: 'action',
-				optionType: 'pipeline',
-			},
+			// {
+			// 	title: 'Move Pipeline stage',
+			// 	subTitle:
+			// 		'Automate your workflow by moving your project to a specific pipeline stage.',
+			// 	icons: <Pipeline />,
+			// 	type: 'action',
+			// 	optionType: 'pipeline',
+			// },
 		],
+		moveStepsModal: false,
 	});
 
 	const onCardClick = useCallback((elementData) => {
+		if (elementData?.type === 'condition') {
+			return setInfo((prev) => ({ ...prev, moveStepsModal: true }));
+		}
 		updatedButtonClick(elementData?.type, elementData?.optionType);
 	}, []);
+
+	const closeMoveStepsModal = useCallback(() => {
+		closeToolTipFunc();
+		setInfo((prev) => ({ ...prev, moveStepsModal: false }));
+	}, [info?.moveStepsModal]);
+
+	// const updateStepsPath=useCallback(
+	//   (data) => {
+	// 	first
+	//   },
+	//   [second],
+	// )
 
 	return (
 		<div className="addOptionsContainer">
@@ -154,6 +178,8 @@ const AddOptionsContainer = ({ updatedButtonClick }) => {
 					<div className="optionsSubTitle">{ele?.subTitle}</div>
 				</div>
 			))}
+
+			<MoveStepsModal modalIsOpen={info?.moveStepsModal} closeModal={closeMoveStepsModal} />
 		</div>
 	);
 };

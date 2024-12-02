@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
 import { ReactComponent as Pen } from '../../../../assets/svg/worflow_builder/editPen.svg';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
@@ -23,7 +23,7 @@ import {
 	dropDownStyle,
 	containerStyle,
 } from '../../../features/workflow_builder/workflowContantsHelpers';
-import { Drawer, notification } from 'antd';
+import { Drawer } from 'antd';
 import EditAndViewEmailTemplateModal from './EditAndViewEmailTemplateModal';
 
 const initialState = {
@@ -99,30 +99,6 @@ const WorkflowCardEditModal = ({
 		getEmailTemplates();
 	}, []);
 
-	// useEffect(() => {
-	// 	if (allEmailTemplates) {
-	// 		const { data } = allEmailTemplates;
-
-	// 		const options = [];
-
-	// 		for (let i = 0; i < data?.length; i++) {
-	// 			let obj = {
-	// 				label: data?.[i]?.title,
-	// 				ele: data?.[i],
-	// 				_id: data?.[i]?._id,
-	// 			};
-	// 			options?.push(obj);
-	// 		}
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			emailTemplates: options,
-	// 			selectedEmailTemplate: data?.[0],
-	// 			subject: data?.[0]?.subject,
-	// 			emailBody: data?.[0]?.htmlBody,
-	// 		}));
-	// 	}
-	// }, [allEmailTemplates]);
-
 	useEffect(() => {
 		getSpecifiTemplateDetails();
 	}, [modalIsOpen, mode, currentStepInfo]);
@@ -180,24 +156,6 @@ const WorkflowCardEditModal = ({
 			setInfo((prev) => ({ ...prev, pageLoader: false }));
 		}
 	}, [modalIsOpen, mode, currentStepInfo]);
-
-	const onChangeEmailTemplates = useCallback(
-		async (data) => {
-			const { ele } = data;
-
-			if (ele?._id === info?.selectedEmailTemplate?._id) {
-				return;
-			}
-
-			setInfo((prev) => ({
-				...prev,
-				selectedEmailTemplate: ele,
-				subject: ele?.subject,
-				emailBody: ele?.htmlBody,
-			}));
-		},
-		[info?.emailTemplates, info?.selectedEmailTemplate],
-	);
 
 	const closeModal = useCallback(() => {
 		closeModalFunc();
@@ -314,34 +272,6 @@ const WorkflowCardEditModal = ({
 		info?.pageLoader,
 	]);
 
-	// const incrementorDecrementorFunc = useCallback(
-	// 	async (type) => {
-	// 		if (type === 'increment') {
-	// 			setInfo((prev) => ({ ...prev, noOfDays: prev?.noOfDays + 1 }));
-	// 		} else {
-	// 			setInfo((prev) => ({
-	// 				...prev,
-	// 				noOfDays: prev?.noOfDays - 1 >= 0 ? prev?.noOfDays - 1 : 1,
-	// 			}));
-	// 		}
-	// 	},
-	// 	[info?.noOfDays],
-	// );
-
-	// const onChangeDuration = useCallback(
-	// 	(data) => {
-	// 		if (info?.selectedDuration?.value === data?.value) {
-	// 			return;
-	// 		}
-	// 		setInfo((prev) => ({ ...prev, selectedDuration: data }));
-	// 	},
-	// 	[info?.selectedDuration],
-	// );
-
-	// const approvalOnChange = useCallback(async (data) => {
-	// 	setInfo((prev) => ({ ...prev, requiredApproval: data }));
-	// }, []);
-
 	const closeDeleteStepModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, deleteStepModal: false }));
 	}, []);
@@ -358,13 +288,6 @@ const WorkflowCardEditModal = ({
 			closeModal();
 		}
 	}, [deleteWorkFlowStep, info?.deleteLoader]);
-
-	const changeSubjectOrEmailBody = useCallback(
-		(updatedData) => {
-			setInfo((prev) => ({ ...prev, ...updatedData }));
-		},
-		[info],
-	);
 
 	const changeLocalOptionType = useCallback(
 		(data) => {
@@ -445,185 +368,7 @@ const WorkflowCardEditModal = ({
 						</div>
 					) : (
 						compMapper?.[info?.localOptionType]
-						// <div className="WorkFlowEditorBody">
-						// 	{/* action typ */}
-
-						// 	<div className="actionType">
-						// 		<span className="actionTypeTitle">Action Type</span>
-
-						// 		<div className="staticActionTitle">Send Email</div>
-						// 	</div>
-
-						// 	{/* email templates */}
-						// 	<div className="actionType">
-						// 		<div className="emailTemplateHeaderWrapper">
-						// 			<span className="actionTypeTitle">Email Templates</span>
-						// 			<span
-						// 				className="previewAndEdit"
-						// 				onClick={() =>
-						// 					setInfo((prev) => ({
-						// 						...prev,
-						// 						previewAndEdit: true,
-						// 					}))
-						// 				}
-						// 			>
-						// 				Preview & edit
-						// 			</span>
-						// 		</div>
-
-						// 		{mode === 'create' ? (
-						// 			<HeadersDropDownComp
-						// 				showIcon={false}
-						// 				options={info?.emailTemplates}
-						// 				containerStyle={{
-						// 					padding: '12px 24px',
-						// 					height: '48px',
-						// 					padding: '12px 24px',
-						// 					color: '#e4e5e6',
-						// 					// width: 'inherit',
-						// 					flex: 1,
-						// 					alignSelf: 'stretch',
-						// 					borderRadius: '0.625rem',
-						// 					border: '1px solid rgba(36, 36, 36, 0.64)',
-						// 					backgroundColor: '#151515',
-						// 					width: '100%',
-						// 				}}
-						// 				dropDownStyle={{
-						// 					right: 0,
-						// 					top: '60px',
-						// 					maxHeight: '300px',
-						// 				}}
-						// 				selectedValue={info?.selectedEmailTemplate?.title}
-						// 				onChangeFunc={(e) => onChangeEmailTemplates(e)}
-						// 				outerContainerStyle={{ width: '100%' }}
-						// 				showSelectedValueTick={true}
-						// 				uniqueIdentifierForTickIcon={'_id'}
-						// 				selectedValueObj={info?.selectedEmailTemplate}
-						// 				dropDownTextStyling={{
-						// 					color: 'var(--nav-bar-button-text, #FFF)',
-						// 					fontFamily: 'Inter',
-						// 					fontSize: '14px',
-						// 					fontStyle: 'normal',
-						// 					fontWeight: '400',
-						// 					lineHeight: '26px' /* 185.714% */,
-						// 					textTransform: 'capitalize',
-						// 				}}
-						// 			/>
-						// 		) : (
-						// 			<div className="staticActionTitle">{info?.title}</div>
-						// 		)}
-						// 	</div>
-
-						// 	<div className="emailScheduleTimingContainer">
-						// 		<span className="emailScheduleTimingContainerheader">When?</span>
-						// 		<div className="buttonContainer">
-						// 			<div className="daysIncrementor">
-						// 				<span
-						// 					className="incrementorButtons"
-						// 					onClick={() => incrementorDecrementorFunc('decrement')}
-						// 				>
-						// 					-
-						// 				</span>
-						// 				<input
-						// 					type="number"
-						// 					className="daysIncrementText"
-						// 					value={info?.noOfDays}
-						// 				/>
-						// 				<span
-						// 					className="incrementorButtons"
-						// 					onClick={() => incrementorDecrementorFunc('increment')}
-						// 				>
-						// 					+
-						// 				</span>
-						// 			</div>
-						// 			<HeadersDropDownComp
-						// 				showIcon={false}
-						// 				options={options}
-						// 				containerStyle={{
-						// 					padding: '12px 24px',
-						// 					height: '48px',
-						// 					padding: '12px 24px',
-						// 					color: '#e4e5e6',
-						// 					width: 'inherit',
-						// 					flex: 1,
-						// 					alignSelf: 'stretch',
-						// 					borderRadius: '0.625rem',
-						// 					border: '1px solid rgba(36, 36, 36, 0.64)',
-						// 					backgroundColor: '#151515',
-						// 				}}
-						// 				dropDownStyle={{
-						// 					right: 0,
-						// 					top: '-170px',
-						// 					maxHeight: '300px',
-						// 				}}
-						// 				selectedValue={info?.selectedDuration?.label}
-						// 				onChangeFunc={(e) => onChangeDuration(e)}
-						// 				outerContainerStyle={{ width: '100%' }}
-						// 				showSelectedValueTick={true}
-						// 				uniqueIdentifierForTickIcon={'value'}
-						// 				selectedValueObj={info?.selectedDuration}
-						// 				dropDownTextStyling={{
-						// 					color: 'var(--nav-bar-button-text, #FFF)',
-						// 					fontFamily: 'Inter',
-						// 					fontSize: '14px',
-						// 					fontStyle: 'normal',
-						// 					fontWeight: '400',
-						// 					lineHeight: '26px' /* 185.714% */,
-						// 					textTransform: 'capitalize',
-						// 				}}
-						// 			/>
-						// 		</div>
-						// 		<HeadersDropDownComp
-						// 			showIcon={false}
-						// 			options={smartFileActions}
-						// 			containerStyle={{
-						// 				padding: '12px 24px',
-						// 				height: '48px',
-						// 				padding: '12px 24px',
-						// 				color: '#e4e5e6',
-						// 				width: 'inherit',
-						// 				flex: 1,
-						// 				alignSelf: 'stretch',
-						// 				borderRadius: '0.625rem',
-						// 				border: '1px solid rgba(36, 36, 36, 0.64)',
-						// 				backgroundColor: '#151515',
-						// 			}}
-						// 			dropDownStyle={{
-						// 				right: 0,
-						// 				top: '-295px',
-						// 				maxHeight: '300px',
-						// 			}}
-						// 			outerContainerStyle={{ width: '100%' }}
-						// 		/>
-						// 	</div>
-						// 	<div className="approvalContainer">
-						// 		<span className="approvalContainerHeader">
-						// 			Require Approval before sending
-						// 		</span>
-						// 		<ToggleSlider
-						// 			value={info?.requiredApproval}
-						// 			onChange={approvalOnChange}
-						// 		/>
-						// 	</div>
-						// 	<div className="editWorkflowBuilderModalFooterContainer">
-						// 		<Ai />
-						// 		<span className="editWorkflowBuilderModalFooterTextStyling">
-						// 			If you need assistance, contact our support team at<br></br>
-						// 			<span className="supportVeText">support@ve.ai</span>
-						// 			<br></br>
-						// 			Here’s to doing what you love! Let’s do this :)
-						// 		</span>
-						// 	</div>
-						// </div>
 					)}
-
-					{/* footer */}
-					{/* <div className="workflowEditorFooter">
-						<div className="saveBtn" onClick={saveChangesFunc}>
-							{info?.saveLoader ? <Spinner width={'16px'} height={'16px'} /> : ''}
-							{info?.saveLoader ? 'Saving...' : 'Save Changes'}
-						</div>
-					</div> */}
 				</div>
 			</div>
 
@@ -633,13 +378,6 @@ const WorkflowCardEditModal = ({
 				deleteWorkFlowStep={modifiedDeleteWorkflowStep}
 				deleteLoader={info?.deleteLoader}
 			/>
-			{/* <EditAndViewEmailTemplateModal
-				open={info?.previewAndEdit}
-				closeModal={() => setInfo((prev) => ({ ...prev, previewAndEdit: false }))}
-				subject={info?.subject}
-				emailBody={info?.emailBody}
-				changeSubjectOrEmailBody={changeSubjectOrEmailBody}
-			/> */}
 		</Drawer>
 	);
 };
