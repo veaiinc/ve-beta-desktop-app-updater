@@ -26,6 +26,7 @@ import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
 import { message } from 'antd';
 import WorkflowNode from './WorkflowNode';
+import { wrap } from 'gsap';
 const options = [
 	{ label: 'Rename Workflow' },
 	{ label: 'Duplicate Workflow' },
@@ -120,11 +121,12 @@ const WorkflowBuilder = () => {
 			// Get the wrapper width dynamically
 			const wrapperWidth = wrapperRef.current.scrollWidth;
 			const containerWidth = wrapperRef.current.clientWidth;
-			setInfo((prev) => ({ ...prev, translateX: wrapperWidth }));
-			wrapperRef?.current?.scrollTo({
-				left: wrapperWidth,
-				behavior: 'smooth', // Optional: Smooth scrolling
-			});
+			console.log('wrapper width==>', wrapperWidth);
+			// setInfo((prev) => ({ ...prev, translateX: wrapperWidth }));
+			// wrapperRef?.current?.scrollTo({
+			// 	left: wrapperWidth,
+			// 	behavior: 'smooth', // Optional: Smooth scrolling
+			// });
 
 			// console.log('helo==>', wrapperWidth, containerWidth);
 

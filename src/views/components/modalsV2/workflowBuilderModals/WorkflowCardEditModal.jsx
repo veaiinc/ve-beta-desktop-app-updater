@@ -7,7 +7,7 @@ import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_bu
 import Context from '../../../../context/context';
 import ToggleSlider from '../../input/slider';
 import Spinner from '../../loaders/Spinner';
-import DeleteWorkflowStep from './DeleteWorkflowStep';
+
 import {
 	calculateTimeDifference,
 	smartFileActions,
@@ -29,22 +29,7 @@ import EditAndViewEmailTemplateModal from './EditAndViewEmailTemplateModal';
 
 const initialState = {
 	editState: false,
-	emailTemplates: null,
-	selectedEmailTemplate: null,
-	subject: '',
-	emailBody: '',
-	noOfDays: 1,
-	selectedDuration: {
-		label: 'Days',
-		value: 'days',
-	},
-	requiredApproval: false,
-	saveLoader: false,
 	pageLoader: true,
-	deleteStepModal: false,
-	title: null,
-	deleteLoader: false,
-	previewAndEdit: false,
 	localOptionType: null,
 };
 
@@ -52,12 +37,8 @@ const WorkflowCardEditModal = ({
 	modalIsOpen,
 	closeModalFunc,
 	previousStepId,
-	addorUpdateSteps,
 	mode,
-	deleteWorkFlowStep,
 	currentStepInfo,
-	currentStepIndex,
-	editWorkflowStep,
 	templateId,
 	previousStepPath,
 	optionType,
@@ -67,32 +48,14 @@ const WorkflowCardEditModal = ({
 	const {
 		templates: {
 			getAllEmailTemplates,
-			allEmailTemplates,
-			addEmailTriggersInWorkflow,
 			getSpecificWorkflowTemplateDetails,
 			updateWorkflowSteps,
-			addNewSteps,
 		},
 	} = useContext(Context);
 
 	//states
 	const [info, setInfo] = useState({
-		editState: false,
-		emailTemplates: null,
-		selectedEmailTemplate: null,
-		subject: '',
-		emailBody: '',
-		noOfDays: 1,
-		selectedDuration: {
-			label: 'Days',
-			value: 'days',
-		},
-		requiredApproval: false,
-		saveLoader: false,
-		pageLoader: true,
-		deleteStepModal: false,
-		title: null,
-		deleteLoader: false,
+		...initialState,
 	});
 
 	//useEFfects
@@ -162,134 +125,8 @@ const WorkflowCardEditModal = ({
 	const closeModal = useCallback(() => {
 		closeModalFunc();
 		let updatedData = { ...initialState };
-		if (info?.emailTemplates) {
-			updatedData.emailTemplates = [...(info?.emailTemplates || [])];
-			updatedData.selectedEmailTemplate = info?.emailTemplates?.[0]?.ele;
-			updatedData.subject = info?.emailTemplates?.[0]?.ele?.subject;
-			updatedData.emailBody = info?.emailTemplates?.[0]?.ele?.htmlBody;
-		}
-
 		setInfo(updatedData);
-	}, [closeModalFunc, info?.emailTemplates]);
-
-	const saveChangesFunc = useCallback(async () => {
-		if (info?.pageLoader) {
-			return;
-		}
-		if (info?.editState) {
-			return setInfo((prev) => ({ ...prev, editState: false }));
-		}
-		if (info?.saveLoader) {
-			return;
-		}
-
-		setInfo((prev) => ({ ...prev, saveLoader: true }));
-
-		let response;
-		//save edit stage
-		if (mode === 'edit') {
-			const timeStamp = await calculateTimeStamp(
-				info?.selectedDuration?.value,
-				info?.noOfDays,
-			);
-			const payload = {
-				updateEmailTemplateId: currentStepInfo?.emailTemplateId,
-				updateTemplateInput: {
-					approvalRequired: info?.requiredApproval,
-					htmlBody: info?.emailBody,
-					sendAt: timeStamp,
-					subject: info?.subject,
-				},
-			};
-
-			response = await updateWorkflowSteps(payload);
-			setInfo((prev) => ({ ...prev, saveLoader: false }));
-			if (response?.[0]) {
-				const selectedIndex = currentStepIndex;
-				closeModal();
-				const newData = { ...currentStepInfo, emailTemplateSubject: info?.subject };
-				editWorkflowStep(newData, selectedIndex);
-			}
-		}
-
-		//save create stage
-		if (mode === 'create') {
-			// const timeStamp = await calculateTimeStamp(
-			// 	info?.selectedDuration?.value,
-			// 	info?.noOfDays,
-			// );
-			// const payload = {
-			// 	templateId: templateId,
-			// 	updateObj: {
-			// 		addEmailTrigger: {
-			// 			approvalRequired: info?.requiredApproval,
-			// 			emailTemplateId: info?.selectedEmailTemplate?._id,
-			// 			previousStepId: previousStepId,
-			// 			sendAt: timeStamp,
-			// 			htmlBody: info?.emailBody,
-			// 			subject: info?.subject,
-			// 		},
-			// 	},
-			// };
-			// response = await addEmailTriggersInWorkflow(payload);
-			// setInfo((prev) => ({ ...prev, saveLoader: false }));
-			// if (response?.[0]) {
-			// 	const stepsData = response?.[1]?.steps;
-			// 	addorUpdateSteps(stepsData);
-			// 	closeModal();
-			// }
-			const type = newNodeType;
-			const previousType = previousStepPath?.includes('condition') ? 'condition' : 'action';
-			const payload = {
-				templateId: templateId,
-				stepInput: {
-					type,
-					previousStepId: previousStepId,
-				},
-			};
-			if (previousType === 'condition') {
-				const path = previousStepPath?.split('-')?.[1];
-				payload.stepInput.previousStepPath = path;
-			}
-			if (type === 'condition') {
-				payload.stepInput.moveTo = 'yes';
-			}
-			response = await addNewSteps(payload);
-			setInfo((prev) => ({ ...prev, saveLoader: false }));
-			closeModal();
-		}
-	}, [
-		info.editState,
-		info.saveLoader,
-		previousStepId,
-		info?.selectedEmailTemplate,
-		info?.noOfDays,
-		info?.selectedDuration,
-		info?.subject,
-		info?.emailBody,
-		info?.requiredApproval,
-		mode,
-		currentStepInfo,
-		currentStepIndex,
-		info?.pageLoader,
-	]);
-
-	const closeDeleteStepModal = useCallback(async () => {
-		setInfo((prev) => ({ ...prev, deleteStepModal: false }));
-	}, []);
-
-	const modifiedDeleteWorkflowStep = useCallback(async () => {
-		if (info?.deleteLoader) {
-			return;
-		}
-		setInfo((prev) => ({ ...prev, deleteLoader: true }));
-		const response = await deleteWorkFlowStep();
-		setInfo((prev) => ({ ...prev, deleteLoader: false }));
-		if (response) {
-			closeDeleteStepModal();
-			closeModal();
-		}
-	}, [deleteWorkFlowStep, info?.deleteLoader]);
+	}, [closeModalFunc]);
 
 	const changeLocalOptionType = useCallback(
 		(data) => {
@@ -377,13 +214,6 @@ const WorkflowCardEditModal = ({
 					)}
 				</div>
 			</div>
-
-			{/* <DeleteWorkflowStep
-				modalIsOpen={info?.deleteStepModal}
-				closeModal={closeDeleteStepModal}
-				deleteWorkFlowStep={modifiedDeleteWorkflowStep}
-				deleteLoader={info?.deleteLoader}
-			/> */}
 		</Drawer>
 	);
 };
@@ -448,43 +278,16 @@ const RenderActionUi = ({ closeModal, changeLocalOptionType, localOptionType }) 
 						onChangeFunc={(e) => onOptionChangeFunc(e)}
 						showIcon={false}
 						containerStyle={{
-							padding: '12px 24px',
-							height: '44px',
-							padding: '12px',
-							color: '#e4e5e6',
-							width: '100%',
-							flex: 1,
-							alignSelf: 'stretch',
-							backgroundColor: '#151515',
-							borderRadius: '14px',
-							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
+							...containerStyle,
 						}}
 						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{
-							top: '55px',
-							backgroundColor: 'red',
-							borderRadius: '14px',
-							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
-							backgroundColor: '#202123',
-						}}
-						dropDownTextStyling={{
-							color: 'var(--ve-ai-dark-theme-primary-font-color, #E8E8E8)',
-							fontFamily: 'Inter',
-							fontSize: '13px',
-							fontStyle: 'normal',
-							fontWeight: '400',
-							lineHeight: 'normal',
-						}}
+						dropDownStyle={{ ...dropDownStyle }}
+						dropDownTextStyling={{ ...dropDownTextStyling }}
 						showSelectedValueTick={true}
 						uniqueIdentifierForTickIcon={'value'}
 						selectedValueObj={info?.valueObjectMapper?.[localOptionType]}
 						selectedValueStyle={{
-							color: 'var(--ve-ai-dark-theme-secondary-color, #939393)',
-							fontFamily: 'Inter',
-							fontSize: '12px',
-							fontStyle: 'normal',
-							fontWeight: '500',
-							lineHeight: 'normal',
+							...selectedValueStyling,
 						}}
 					/>
 				</div>
@@ -496,20 +299,13 @@ const RenderActionUi = ({ closeModal, changeLocalOptionType, localOptionType }) 
 						options={takeActionsOptions}
 						showIcon={false}
 						containerStyle={{
-							padding: '12px 24px',
-							height: '48px',
-							padding: '12px 24px',
-							color: '#e4e5e6',
-							width: '100%',
-							flex: 1,
-							alignSelf: 'stretch',
-							borderRadius: '0.625rem',
-							border: '1px solid rgba(36, 36, 36, 0.64)',
-							backgroundColor: '#151515',
+							...containerStyle,
 						}}
 						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{
-							top: '55px',
+						dropDownStyle={{ ...dropDownStyle }}
+						dropDownTextStyling={{ ...dropDownTextStyling }}
+						selectedValueStyle={{
+							...selectedValueStyling,
 						}}
 					/>
 				</div>
@@ -529,20 +325,13 @@ const RenderActionUi = ({ closeModal, changeLocalOptionType, localOptionType }) 
 							options={channelOptions}
 							showIcon={false}
 							containerStyle={{
-								padding: '12px 24px',
-								height: '48px',
-								padding: '12px 24px',
-								color: '#e4e5e6',
-								width: '100%',
-								flex: 1,
-								alignSelf: 'stretch',
-								borderRadius: '0.625rem',
-								border: '1px solid rgba(36, 36, 36, 0.64)',
-								backgroundColor: '#151515',
+								...containerStyle,
 							}}
 							outerContainerStyle={{ width: '100%' }}
-							dropDownStyle={{
-								top: '55px',
+							dropDownStyle={{ ...dropDownStyle }}
+							dropDownTextStyling={{ ...dropDownTextStyling }}
+							selectedValueStyle={{
+								...selectedValueStyling,
 							}}
 						/>
 					</div>
@@ -550,20 +339,13 @@ const RenderActionUi = ({ closeModal, changeLocalOptionType, localOptionType }) 
 						options={channelOptions}
 						showIcon={false}
 						containerStyle={{
-							padding: '12px 24px',
-							height: '48px',
-							padding: '12px 24px',
-							color: '#e4e5e6',
-							width: '100%',
-							flex: 1,
-							alignSelf: 'stretch',
-							borderRadius: '0.625rem',
-							border: '1px solid rgba(36, 36, 36, 0.64)',
-							backgroundColor: '#151515',
+							...containerStyle,
 						}}
 						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{
-							top: '55px',
+						dropDownStyle={{ ...dropDownStyle }}
+						dropDownTextStyling={{ ...dropDownTextStyling }}
+						selectedValueStyle={{
+							...selectedValueStyling,
 						}}
 					/>
 				</div>
@@ -739,6 +521,7 @@ const RenderNotificationUi = ({
 		requiredApproval: false,
 		editEmailModal: false,
 		saveLoader: false,
+		selectedCriteria: smartFileActions?.[0],
 	});
 
 	//useEffects
@@ -821,6 +604,15 @@ const RenderNotificationUi = ({
 		},
 		[info?.selectedDuration],
 	);
+	const onChangeCriteria = useCallback(
+		(data) => {
+			if (info?.selectedCriteria?.value === data?.value) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, selectedCriteria: data }));
+		},
+		[info?.selectedDuration],
+	);
 	const incrementorDecrementorFunc = useCallback(
 		async (type) => {
 			if (type === 'increment') {
@@ -859,6 +651,7 @@ const RenderNotificationUi = ({
 				sendAt: timeStamp,
 				channels: info?.selectedChannel?.value,
 				actionType: 'notification',
+				criteria: info?.selectedCriteria?.value,
 			},
 		};
 		if (previousType === 'condition') {
@@ -881,6 +674,7 @@ const RenderNotificationUi = ({
 		info?.noOfDays,
 		info?.selectedEmailTemplate,
 		info?.selectedChannel,
+		info?.selectedCriteria,
 	]);
 
 	return (
@@ -1024,6 +818,10 @@ const RenderNotificationUi = ({
 						selectedValueStyle={{
 							...selectedValueStyling,
 						}}
+						selectedValue={info?.selectedCriteria?.label}
+						uniqueIdentifierForTickIcon={'value'}
+						selectedValueObj={info?.selectedCriteria}
+						onChangeFunc={onChangeCriteria}
 					/>
 				</div>
 
@@ -1109,43 +907,16 @@ const RenderPipelineUi = ({ closeModal, changeLocalOptionType, localOptionType }
 						onChangeFunc={(e) => onOptionChangeFunc(e)}
 						showIcon={false}
 						containerStyle={{
-							padding: '12px 24px',
-							height: '44px',
-							padding: '12px',
-							color: '#e4e5e6',
-							width: '100%',
-							flex: 1,
-							alignSelf: 'stretch',
-							backgroundColor: '#151515',
-							borderRadius: '14px',
-							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
+							...containerStyle,
 						}}
 						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{
-							top: '55px',
-							backgroundColor: 'red',
-							borderRadius: '14px',
-							border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
-							backgroundColor: '#202123',
-						}}
-						dropDownTextStyling={{
-							color: 'var(--ve-ai-dark-theme-primary-font-color, #E8E8E8)',
-							fontFamily: 'Inter',
-							fontSize: '13px',
-							fontStyle: 'normal',
-							fontWeight: '400',
-							lineHeight: 'normal',
-						}}
+						dropDownStyle={{ ...dropDownStyle }}
+						dropDownTextStyling={{ ...dropDownTextStyling }}
 						showSelectedValueTick={true}
 						uniqueIdentifierForTickIcon={'value'}
 						selectedValueObj={info?.valueObjectMapper?.[localOptionType]}
 						selectedValueStyle={{
-							color: 'var(--ve-ai-dark-theme-secondary-color, #939393)',
-							fontFamily: 'Inter',
-							fontSize: '12px',
-							fontStyle: 'normal',
-							fontWeight: '500',
-							lineHeight: 'normal',
+							...selectedValueStyling,
 						}}
 					/>
 				</div>
@@ -1157,20 +928,12 @@ const RenderPipelineUi = ({ closeModal, changeLocalOptionType, localOptionType }
 						options={movePipeLineOptions}
 						showIcon={false}
 						containerStyle={{
-							padding: '12px 24px',
-							height: '48px',
-							padding: '12px 24px',
-							color: '#e4e5e6',
-							width: '100%',
-							flex: 1,
-							alignSelf: 'stretch',
-							borderRadius: '0.625rem',
-							border: '1px solid rgba(36, 36, 36, 0.64)',
-							backgroundColor: '#151515',
+							...containerStyle,
 						}}
 						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{
-							top: '55px',
+						dropDownStyle={{ ...dropDownStyle }}
+						selectedValueStyle={{
+							...selectedValueStyling,
 						}}
 					/>
 				</div>
@@ -1190,20 +953,13 @@ const RenderPipelineUi = ({ closeModal, changeLocalOptionType, localOptionType }
 							options={channelOptions}
 							showIcon={false}
 							containerStyle={{
-								padding: '12px 24px',
-								height: '48px',
-								padding: '12px 24px',
-								color: '#e4e5e6',
-								width: '100%',
-								flex: 1,
-								alignSelf: 'stretch',
-								borderRadius: '0.625rem',
-								border: '1px solid rgba(36, 36, 36, 0.64)',
-								backgroundColor: '#151515',
+								...containerStyle,
 							}}
 							outerContainerStyle={{ width: '100%' }}
-							dropDownStyle={{
-								top: '55px',
+							dropDownStyle={{ ...dropDownStyle }}
+							dropDownTextStyling={{ ...dropDownTextStyling }}
+							selectedValueStyle={{
+								...selectedValueStyling,
 							}}
 						/>
 					</div>
@@ -1211,20 +967,13 @@ const RenderPipelineUi = ({ closeModal, changeLocalOptionType, localOptionType }
 						options={channelOptions}
 						showIcon={false}
 						containerStyle={{
-							padding: '12px 24px',
-							height: '48px',
-							padding: '12px 24px',
-							color: '#e4e5e6',
-							width: '100%',
-							flex: 1,
-							alignSelf: 'stretch',
-							borderRadius: '0.625rem',
-							border: '1px solid rgba(36, 36, 36, 0.64)',
-							backgroundColor: '#151515',
+							...containerStyle,
 						}}
 						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{
-							top: '55px',
+						dropDownStyle={{ ...dropDownStyle }}
+						dropDownTextStyling={{ ...dropDownTextStyling }}
+						selectedValueStyle={{
+							...selectedValueStyling,
 						}}
 					/>
 				</div>

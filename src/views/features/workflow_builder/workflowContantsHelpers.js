@@ -21,38 +21,30 @@ export const options = [
 
 export const smartFileActions = [
 	{
-		label: 'After Form response is submitted',
-		value: 'After Form response is submitted',
+		label: 'After Form is submitted',
+		value: 'enquiry',
 	},
 
 	{
-		label: 'After Smart file is sent for un Accepted Proposals',
-		value: 'After Smart file is sent for un Accepted Proposals',
+		label: 'After Smart file is sent ',
+		value: 'filesSent',
 	},
 	{
-		label: 'After Proposal accepted',
-		value: 'After Proposal accepted',
+		label: 'After Smart file is viewed',
+		value: 'filesViewed',
 	},
 	{
-		label: 'After Proposal accepted, Unsigned Contract',
-		value: 'After Proposal accepted, Unsigned Contract',
+		label: 'After Proposal is  accepted',
+		value: 'proposalAccepted',
 	},
 	{
-		label: 'After Form response is submitted',
-		value: 'After Form response is submitted',
+		label: 'After Contract is signed',
+		value: 'contractSigned',
 	},
 
 	{
-		label: 'After Smart file is sent for un Accepted Proposals',
-		value: 'After Smart file is sent for un Accepted Proposals',
-	},
-	{
-		label: 'After Proposal accepted',
-		value: 'After Proposal accepted',
-	},
-	{
-		label: 'After Proposal accepted, Unsigned Contract',
-		value: 'After Proposal accepted, Unsigned Contract',
+		label: 'After Smart file is confirmed',
+		value: 'confirmed',
 	},
 ];
 

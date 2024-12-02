@@ -18,46 +18,46 @@ const FirstWorkflowCard = ({
 }) => {
 	const data = templateData?.moduleTemplates?.filter((e) => e?.isPublic);
 	return (
-		<Popover
-			placement="right"
-			title={<HoverCards openDeleteModal={openDeleteModal} />}
-			arrow={false}
-			overlayClassName="workflowBuilderCardContainer"
-		>
-			<div className="previewCard" onClick={() => openPreviewModal('public')}>
-				<div className="htmlContentViewer">
-					<div className="coverImage" style={{ pointerEvents: 'none' }}>
-						<iframe
-							src={
-								window.location.hostname === 'localhost'
-									? `http://localhost:3000/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-									: `https://builder.ve.ai/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-							}
-							title="Builder Preview"
-							width="100%"
-							height="100%"
-							style={{ zoom: 0.2 }}
-						/>
-					</div>
+		// <Popover
+		// 	placement="right"
+		// 	title={<HoverCards openDeleteModal={openDeleteModal} />}
+		// 	arrow={false}
+		// 	overlayClassName="workflowBuilderCardContainer"
+		// >
+		<div className="previewCard" onClick={() => openPreviewModal('public')}>
+			<div className="htmlContentViewer">
+				<div className="coverImage" style={{ pointerEvents: 'none' }}>
+					<iframe
+						src={
+							window.location.hostname === 'localhost'
+								? `http://localhost:3000/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+								: `https://builder.ve.ai/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+						}
+						title="Builder Preview"
+						width="100%"
+						height="100%"
+						style={{ zoom: 0.2 }}
+					/>
 				</div>
-				<div className="previewLabelContent">
-					<span className="topLabelStyle">Workflow Start Point</span>
-					<span className="labelTitle">Enquiry Form</span>
-					<div className="actionContainer">
-						<div className="viewBtn">View</div>
-						<div
-							className="editBtn"
-							onClick={(e) => {
-								editOnClickHandler();
-								e.stopPropagation();
-							}}
-						>
-							Edit Form
-						</div>
+			</div>
+			<div className="previewLabelContent">
+				<span className="topLabelStyle">Workflow Start Point</span>
+				<span className="labelTitle">Enquiry Form</span>
+				<div className="actionContainer">
+					<div className="viewBtn">View</div>
+					<div
+						className="editBtn"
+						onClick={(e) => {
+							editOnClickHandler();
+							e.stopPropagation();
+						}}
+					>
+						Edit Form
 					</div>
 				</div>
 			</div>
-		</Popover>
+		</div>
+		// </Popover>
 	);
 };
 
