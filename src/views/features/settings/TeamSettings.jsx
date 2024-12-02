@@ -10,7 +10,7 @@ import { message } from 'antd';
 const TeamSettings = () => {
 	// Contexts
 	const {
-		profileInfo: { tenantUserDetails },
+		profileInfo: { tenantUserDetails, userDetailsData },
 		companyInfo: {
 			getTeamMembers,
 			tenantsUserList,
@@ -331,6 +331,9 @@ const TeamSettings = () => {
 			role === 'remove' ? await removeTenantRole(_id) : await updateTenantRole(_id, json);
 		if (response?.[0] === true) {
 			messageApi.success(response?.[1]?.message);
+			if (userDetailsData?._id === _id) {
+				window.location.reload();
+			}
 		} else {
 			messageApi.error(response?.[1]?.message);
 		}
