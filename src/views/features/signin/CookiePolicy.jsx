@@ -3,10 +3,10 @@ import '../../../assets/scss/privacyPolicy.scss';
 import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { ReactComponent as Back } from '../../../assets/svg/privacyPolicyBack.svg';
 import { useNavigate } from 'react-router-dom';
-
+import { COOKIE_POLICY_URL } from '../../../helpers/ConstantUrls';
 const CookiePolicy = () => {
 	const navigate = useNavigate();
-	const pdfUrl = 'https://drive.google.com/file/d/1O0mu1uW-KZkYfGFy1RgBAzDd55RigIRJ/preview';
+	const pdfUrl = COOKIE_POLICY_URL;
 
 	return (
 		<div className="privacyPolicyMainContainer">
