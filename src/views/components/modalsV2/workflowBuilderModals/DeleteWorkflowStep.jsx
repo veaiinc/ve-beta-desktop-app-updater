@@ -9,7 +9,14 @@ const customStyles = {
 	content: { zIndex: 99999 },
 	overlay: { zIndex: 99998 },
 };
-const DeleteWorkflowStep = ({ modalIsOpen, closeModal, templateId, stepId, workflowdata }) => {
+const DeleteWorkflowStep = ({
+	modalIsOpen,
+	closeModal,
+	templateId,
+	stepId,
+	workflowdata,
+	refetchWorkflowBuilderData,
+}) => {
 	const {
 		templates: { deleteWorkflowStep },
 	} = useContext(Context);
@@ -36,7 +43,10 @@ const DeleteWorkflowStep = ({ modalIsOpen, closeModal, templateId, stepId, workf
 			}
 			const response = await deleteWorkflowStep(payload);
 			if (response?.[0]) {
-				closeModal();
+				const refetchData = await refetchWorkflowBuilderData();
+				if (refetchData?.[0]) {
+					closeModal();
+				}
 			}
 			setInfo((prev) => ({ ...prev, deleteLoader: false }));
 		},

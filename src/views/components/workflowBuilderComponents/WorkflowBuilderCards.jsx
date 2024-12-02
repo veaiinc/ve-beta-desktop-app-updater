@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useMemo, useState } from 'react';
 import '../../../assets/scss/workflowBuilder/workflowBuilderCard.scss';
 import { ReactComponent as EmailSvg } from '../../../assets/svg/worflow_builder/email.svg';
 import { ReactComponent as Duplicate } from '../../../assets/svg/worflow_builder/buildercard/duplicate.svg';
@@ -7,6 +7,7 @@ import { ReactComponent as Edit } from '../../../assets/svg/worflow_builder/buil
 import { ReactComponent as Eye } from '../../../assets/svg/worflow_builder/buildercard/eye.svg';
 import { Popover, Tooltip } from 'antd';
 import DeleteWorkflowStep from '../modalsV2/workflowBuilderModals/DeleteWorkflowStep';
+import Context from '../../../context/context';
 
 // const text = <span>Title</span>;
 
@@ -186,6 +187,9 @@ const WorkflowBuilderCards = ({
 	openPreviewModal,
 	index,
 }) => {
+	const {
+		templates: { getSpecificTemplatesInfo },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
 		showDeleteStepModal: false,
 	});
@@ -198,6 +202,13 @@ const WorkflowBuilderCards = ({
 
 	const editOnClickHandler = useCallback(() => {
 		window.location.href = `https://builder.ve.ai/${templateData?._id}`;
+	}, [templateData]);
+
+	const refetchWorkflowBuilderData = useCallback(async () => {
+		const response = await getSpecificTemplatesInfo({
+			templateInfoId: templateData?._id,
+		});
+		return response;
 	}, [templateData]);
 
 	const mapper = {
@@ -263,6 +274,7 @@ const WorkflowBuilderCards = ({
 				stepId={workflowdata?._id}
 				templateId={templateData?._id}
 				workflowdata={workflowdata}
+				refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 			/>
 		</div>
 	);
