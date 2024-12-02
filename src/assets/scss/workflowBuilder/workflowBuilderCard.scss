@@ -222,3 +222,12 @@
 		}
 	}
 }
+.hoverCardsForExtraOptions {
+	display: inline-flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 16px;
+	background-color: transparent;
+	padding-left: 12px;
+}

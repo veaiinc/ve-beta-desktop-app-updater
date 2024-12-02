@@ -6124,3 +6124,9 @@ input[type='number'] {
 		left: -250px;
 	}
 }
+.workflowBuilderCardContainer {
+	.ant-popover-inner {
+		background-color: transparent !important;
+		padding: 0 !important;
+	}
+}
