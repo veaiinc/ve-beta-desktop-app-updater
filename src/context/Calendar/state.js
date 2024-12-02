@@ -6,6 +6,8 @@ import service from '../../services/index';
 
 export const initialState = {
 	calendarChat: null,
+	calendarEventsList: null,
+	calendarEvent: null,
 };
 
 export const Calendar = () => {
@@ -37,8 +39,33 @@ export const Calendar = () => {
 		}
 	};
 
+	const getCalendarEventsList = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/${API.CALENDAR.calendarEventsList}`;
+
+			const response = await service.fetchGet(url, usertoken, 'calendar_api`');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_CALENDAR_EVENTS_LIST,
+					payload: response?.[1],
+				});
+			} else {
+				dispatch({
+					type: Actions.GET_CALENDAR_EVENTS_LIST,
+					payload: { error: 'Something went wrong. Please try again.' },
+				});
+			}
+		} catch (error) {
+			console.log('error==>getCalendarEventsList', error);
+		}
+	};
+
 	return {
 		...state,
 		getCalendarChat,
+		getCalendarEventsList,
 	};
 };

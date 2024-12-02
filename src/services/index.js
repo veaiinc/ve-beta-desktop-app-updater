@@ -20,6 +20,8 @@ const {
 	galleries_api_US,
 	calendar_chat_api,
 	calendar_chat_api_US,
+	calendar_api,
+	calendar_api_US,
 } = config || {};
 
 const apiEndpoints = {
@@ -31,6 +33,7 @@ const apiEndpoints = {
 	galleries: galleries,
 	ai_assistant_api,
 	calendar_chat: calendar_chat_api,
+	calendar_api,
 };
 const apiEndpointsUS = {
 	tenant_users_api: tenant_users_api_US,
@@ -42,6 +45,7 @@ const apiEndpointsUS = {
 	ai_assistant_api: ai_assistant_api_US,
 	galleries: galleries_api_US,
 	calendar_chat: calendar_chat_api_US,
+	calendar_api: calendar_api_US,
 };
 
 const handleHeaders = (token, body, type) => {
