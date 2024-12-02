@@ -165,7 +165,7 @@ const EarlyAccess = () => {
 		}
 		if (isOnboard) {
 			localStorage.setItem('isOnboard', true);
-			// navigate('/home');
+			navigate('/home');
 		}
 	}, [userWorkSpaceList]);
 
