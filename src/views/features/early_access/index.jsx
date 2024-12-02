@@ -110,7 +110,7 @@ const EarlyAccess = () => {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
 		subscriptionInfo: {
 			sendCustomMailToClients,
-			shareAndEarnData,
+			referralData,
 			referralDetails,
 			getShareAndEarn,
 			getReferralDetails,
@@ -127,13 +127,13 @@ const EarlyAccess = () => {
 		: 0;
 
 	const referrerReward =
-		shareAndEarnData?.referralDetails?.referralPlan?.referrerRewardInPercentage || 0;
+		referralData?.referralDetails?.referralPlan?.referrerRewardInPercentage || 0;
 	const refereeReward =
-		shareAndEarnData?.referralDetails?.referralPlan?.refereeRewardInPercentage || 0;
+		referralData?.referralDetails?.referralPlan?.refereeRewardInPercentage || 0;
 	const decodedToken = jwtDecode(usertoken);
 	const { userName } = decodedToken;
 
-	const referralLink = `https://ve.ai?referralCode=${shareAndEarnData?.referralDetails?.referralCode}`;
+	const referralLink = `https://ve.ai?referralCode=${referralData?.referralDetails?.referralCode}`;
 	const tweetText =
 		'Ve.Ai allows you to design stunning forms, proposals, invoices, contracts, I am referring you to join ve with me using my referral link and get 20% discount.';
 
@@ -170,7 +170,7 @@ const EarlyAccess = () => {
 	}, [userWorkSpaceList]);
 
 	const handleCopyReferralLink = useCallback(() => {
-		const referralCode = shareAndEarnData?.referralDetails?.referralCode;
+		const referralCode = referralData?.referralDetails?.referralCode;
 		const referralLink = `https://ve.ai?referralCode=${referralCode}`;
 
 		if (!isCopied) {
@@ -187,7 +187,7 @@ const EarlyAccess = () => {
 					message.error('Failed to copy:', err);
 				});
 		}
-	}, [shareAndEarnData, isCopied]);
+	}, [referralData, isCopied]);
 
 	const handleInputChange = (e) => {
 		const value = e.target.value;
@@ -198,10 +198,10 @@ const EarlyAccess = () => {
 		if (isButtonDisabled) return;
 		setIsButtonDisabled(true);
 		try {
-			const referralCode = shareAndEarnData?.referralDetails?.referralCode;
+			const referralCode = referralData?.referralDetails?.referralCode;
 			const referralLink = `https://ve.ai/verify-user?ref=${referralCode}`;
 			const referrerDiscount =
-				shareAndEarnData?.referralDetails?.referralPlan?.refereeRewardInPercentage || 0;
+				referralData?.referralDetails?.referralPlan?.refereeRewardInPercentage || 0;
 
 			const payload = {
 				clientEmail: emails,
