@@ -221,6 +221,19 @@
 					justify-content: center;
 					position: relative;
 
+					.ant-select-selector {
+						color: #e4e5e6 !important;
+						background: none !important;
+					}
+
+					.ant-select-arrow {
+						color: #e4e5e6 !important;
+					}
+
+					.ant-select-selection-item {
+						color: #e4e5e6 !important;
+					}
+
 					.optionDiv {
 						display: flex;
 						gap: 10px;

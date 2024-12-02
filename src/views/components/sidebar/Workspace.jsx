@@ -82,10 +82,16 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 						}}
 					>
 						<div className="workSpaceCircle">
-							<img
-								src={singleWorkspace?.logo_s3_500w_key}
-								alt={singleWorkspace?.businessName}
-							/>
+							{singleWorkspace?.logo_s3_500w_key ? (
+								<img
+									src={singleWorkspace?.logo_s3_500w_key}
+									alt={singleWorkspace?.businessName}
+								/>
+							) : (
+								<div className="no-logo">
+									{singleWorkspace?.businessName?.slice(0, 2)}
+								</div>
+							)}
 						</div>
 						<h6>{singleWorkspace?.businessName}</h6>
 

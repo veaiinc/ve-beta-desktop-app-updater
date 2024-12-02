@@ -4,37 +4,17 @@ import { getInitials } from '../../../../helpers/index';
 import { ReactComponent as TickSvg } from '../../../../assets/svg/tick.svg';
 import { ReactComponent as DownArrow } from '../../../../assets/svg/Settings/Downarrowwhite.svg';
 import { useState } from 'react';
-
-const rolesObject = {
-	admin: 'Admin',
-	default: 'Member',
-	remove: 'Remove',
-};
+import { Select } from 'antd';
 
 const TeamAccessListComponent = ({
 	search,
 	handleInputChange,
 	info,
 	filteredUsers,
-	selectedOption,
-	setselectedOption,
 	updateTenantRoleFunc,
 }) => {
-	const toggleOption = (_id, role) => {
-		if (!info?.isOwner) return;
-		setselectedOption({
-			tenantid: selectedOption?.tenantid ? '' : _id,
-			role: selectedOption?.role ? '' : role,
-		});
-	};
-
-	const updateUserRoleFunction = (role) => {
-		setselectedOption((prev) => ({
-			...prev,
-			role: 'admin',
-		}));
-
-		updateTenantRoleFunc(selectedOption?.tenantid, role);
+	const updateUserRoleFunction = (tenantid, role) => {
+		updateTenantRoleFunc(tenantid, role);
 	};
 
 	return (
@@ -78,7 +58,7 @@ const TeamAccessListComponent = ({
 								</div>
 							</div>
 							<div>
-								<div className="AccessControl">
+								{/* <div className="AccessControl">
 									{user?.isOwner ? (
 										<p className="owner">Owner</p>
 									) : (
@@ -129,6 +109,39 @@ const TeamAccessListComponent = ({
 														</div>
 													</div>
 												)}
+										</div>
+									)}
+								</div> */}
+
+								<div className="AccessControl">
+									{user?.isOwner ? (
+										<p className="owner">Owner</p>
+									) : (
+										<div className="editAccessControl">
+											<Select
+												defaultValue={user?.role}
+												style={{
+													width: 120,
+												}}
+												onChange={(value) =>
+													updateUserRoleFunction(user?._id, value)
+												}
+												options={[
+													{
+														value: 'admin',
+														label: 'Admin',
+													},
+													{
+														value: 'default',
+														label: 'Member',
+													},
+													{
+														value: 'remove',
+														label: 'Remove',
+													},
+												]}
+												variant="borderless"
+											/>
 										</div>
 									)}
 								</div>

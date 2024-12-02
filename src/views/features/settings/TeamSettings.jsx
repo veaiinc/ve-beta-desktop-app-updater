@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, memo } from 'react';
+import React, { useContext, useEffect, useCallback, useState, memo } from 'react';
 import '../../../assets/scss/settings/teamMembers.scss';
 import search from '../../../assets/svg/workspaceSettings/searchSettings.svg';
 import validator from 'validator';
@@ -10,7 +10,7 @@ import { message } from 'antd';
 const TeamSettings = () => {
 	// Contexts
 	const {
-		profileInfo: { tenantUserDetails },
+		profileInfo: { tenantUserDetails, userDetailsData },
 		companyInfo: {
 			getTeamMembers,
 			tenantsUserList,
@@ -44,11 +44,6 @@ const TeamSettings = () => {
 			successTrue: false,
 		},
 	]);
-
-	const [selectedOption, setselectedOption] = useState({
-		tenantid: '',
-		role: '',
-	});
 
 	const [filteredUsers, setfilteredUsers] = useState([]);
 	const [messageApi, contextHolder] = message.useMessage();
@@ -336,7 +331,9 @@ const TeamSettings = () => {
 			role === 'remove' ? await removeTenantRole(_id) : await updateTenantRole(_id, json);
 		if (response?.[0] === true) {
 			messageApi.success(response?.[1]?.message);
-			setselectedOption({ tenantid: '', role: '' });
+			if (userDetailsData?._id === _id) {
+				window.location.reload();
+			}
 		} else {
 			messageApi.error(response?.[1]?.message);
 		}
@@ -363,8 +360,6 @@ const TeamSettings = () => {
 						handleInputChange={handleInputChange}
 						info={info}
 						filteredUsers={filteredUsers}
-						selectedOption={selectedOption}
-						setselectedOption={setselectedOption}
 						updateTenantRoleFunc={updateTenantRoleFunc}
 					/>
 				</div>
