@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useState, useContext, useEffect, useCallback } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
 // import CalendarHeader from '../../components/calendar/CalendarHeader';
 // import CalendarViewType from '../../components/calendar/CalendarViewType';
@@ -13,7 +13,7 @@ import CustomEventWrapper from '../../components/calendar/CustomEventWrapper';
 import EventDetailsDrawer from '../../components/calendar/EventDetailsDrawer';
 import moment from 'moment';
 import MonthEventWrapper from '../../components/calendar/MonthEventWrapper';
-
+import Context from '../../../context/context';
 const events = [
 	{
 		title: 'Long Event',
@@ -105,7 +105,55 @@ const events = [
 	},
 ];
 
+const initialState = {
+	eventsList: [],
+	eventListError: null,
+	isLoading: false,
+	updateEventsList: false,
+};
+
 const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalendarInfo }) => {
+	const {
+		calendarInfo: { calendarEventsList, getCalendarEventsList, resetCalendarState },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		...initialState,
+	});
+
+	useEffect(() => {
+		fetchEventsList();
+	}, [info?.updateEventsList]);
+
+	useEffect(() => {
+		return () => {
+			resetCalendarState();
+			setInfo({ ...initialState });
+		};
+	}, []);
+
+	useEffect(() => {
+		if (calendarEventsList) {
+			if (calendarEventsList?.error?.length) {
+				return setInfo((prevInfo) => ({
+					...prevInfo,
+					eventListError: calendarEventsList?.error,
+					isLoading: false,
+				}));
+			}
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				eventsList: calendarEventsList,
+				isLoading: false,
+			}));
+		}
+	}, [calendarEventsList]);
+
+	const fetchEventsList = useCallback(async () => {
+		setInfo((prevInfo) => ({ ...prevInfo, isLoading: true, eventListError: null }));
+		await getCalendarEventsList();
+	}, []);
+
 	const components = useMemo(
 		() => ({
 			timeGutterHeader: CustomTimeGutterHeader,
@@ -126,7 +174,7 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 			eventWrapper: CustomEventWrapper,
 			// eventContainerWrapper: CustomEventContainer,
 		}),
-		[selectedDate, selectedWeek, events],
+		[selectedDate, selectedWeek],
 	);
 	return (
 		<div className="calendarViewParentContainer">

@@ -79,7 +79,6 @@ const apiFetch = async (url, method, body, token, type) => {
 		body = JSON.stringify(body);
 	}
 	try {
-		// console.log('headers' + JSON.stringify(headers, null, 2));
 		console.log('endpoint: ' + endpoint);
 		const response = await fetch(endpoint, { method, headers, body });
 		return processResponse(response);

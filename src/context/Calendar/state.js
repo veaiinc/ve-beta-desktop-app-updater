@@ -43,9 +43,9 @@ export const Calendar = () => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}/${API.CALENDAR.calendarEventsList}`;
+			const url = `/${workspaceId}${API.CALENDAR.calendarEventsList}`;
 
-			const response = await service.fetchGet(url, usertoken, 'calendar_api`');
+			const response = await service.fetchGet(url, usertoken, 'calendar_api');
 
 			if (response?.[0] === true) {
 				dispatch({
@@ -63,9 +63,14 @@ export const Calendar = () => {
 		}
 	};
 
+	const resetCalendarState = () => {
+		dispatch({ type: Actions.RESET_CALENDAR_STATE });
+	};
+
 	return {
 		...state,
 		getCalendarChat,
 		getCalendarEventsList,
+		resetCalendarState,
 	};
 };

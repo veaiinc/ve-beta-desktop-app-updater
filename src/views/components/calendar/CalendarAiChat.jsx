@@ -5,7 +5,6 @@ import Context from '../../../context/context';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as SendSvg } from '../../../assets/svg/calendar/send.svg';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
-import { message } from 'antd';
 
 const initialState = {
 	sessionId: null,
