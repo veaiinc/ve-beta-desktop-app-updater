@@ -27,6 +27,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 	const navigate = useNavigate();
 	const [showRaindrop, setShowRaindrop] = useState(false);
 	const [selectedIcon, setSelectedIcon] = useState(null);
+	const [lastVisitedLocation, setLastVisitedLocation] = useState('');
 	const openModuleFunction = () => {
 		setsidebarStates({ ...sidebarStates, isOpen: true, navStyle: 'open' });
 	};
@@ -34,8 +35,10 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 	const openNewFeaturePlus = () => {
 		setInfo((prev) => ({ ...prev, isNewFeaturePlusOpen: !prev.isNewFeaturePlusOpen }));
 	};
-	const handleIconClick = (index) => {
+	const handleIconClick = (index, route) => {
 		setSelectedIcon(index);
+		const selectedIconName = closedSidebarIcons[index]?.name || 'Home';
+		setLastVisitedLocation(selectedIconName);
 	};
 	return (
 		<>
@@ -98,7 +101,11 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 					</div>
 				</div>
 			</div>
-			{showRaindrop && <div className="raindropEffect"></div>}
+			{showRaindrop && (
+				<div className="raindropEffect">
+					<h3 style={{ color: 'white' }}>{lastVisitedLocation}</h3>
+				</div>
+			)}
 		</>
 	);
 };

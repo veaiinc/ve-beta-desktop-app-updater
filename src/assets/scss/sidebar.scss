@@ -86,8 +86,7 @@
 			.ClosedIconsContainer {
 				display: flex;
 				flex-direction: column;
-				height: auto;
-				gap: 16px;
+				gap: 15px;
 
 				.iconContainer {
 					cursor: pointer; // Ensure the icon container is clickable
@@ -132,7 +131,7 @@
 
 			.dropDownMenuContainer {
 				position: absolute;
-				left: 35px;
+				left: 40px;
 				transform: translateY(-13px);
 
 				.closedDropDownMenu {

@@ -46,7 +46,8 @@ const OpenedSideBarHoverStateIcons = ({
 			onMouseLeave={onMoutseLeave}
 			onClick={redirectToFunction}
 		>
-			{isActive ? <Icon fill={'#FFF'} /> : <Icon fill={isHover ? '#FFF' : initialColor} />}
+			{/* {isActive ? <Icon fill={'#FFF'} /> : <Icon fill={'#FFF'} />} */}
+			<Icon fill={'none'} />
 			<p>{name}</p>
 			{name === 'Calendar' && (
 				<>
