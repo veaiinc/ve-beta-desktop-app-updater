@@ -144,3 +144,9 @@ export const fetchDomainName = () => {
 	const hostname = window.location.hostname;
 	return hostNameMapper?.[hostname];
 };
+
+export const isSafariBrowser = () => {
+	const userAgent = navigator.userAgent;
+	let check = /^((?!chrome|android).)*safari/i.test(userAgent);
+	return check;
+};

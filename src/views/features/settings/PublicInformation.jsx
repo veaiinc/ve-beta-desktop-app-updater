@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useEffect, useState, useCallback, memo } from 'react';
+import React, { useContext, useMemo, useEffect, useState, useCallback, memo, useRef } from 'react';
 import '../../../assets/scss/settings/publicinformation.scss';
 import InputForModules from '../../components/input/inputForModules';
 import Context from '../../../context/context';
@@ -47,6 +47,7 @@ const PublicInformation = () => {
 		businessLogo: '',
 	});
 	const [initialState, setInitialState] = useState({ ...overviewState });
+	const logoRef = useRef(null);
 
 	// useEffects
 	useEffect(() => {
@@ -292,8 +293,14 @@ const PublicInformation = () => {
 					// disabled={!isAdmin}
 				>
 					{({ getRootProps, getInputProps }) => (
-						<div className="upload-brand-embeded-btn" {...getRootProps()}>
-							<input {...getInputProps()} />
+						<div
+							className="upload-brand-embeded-btn"
+							{...getRootProps()}
+							onClick={() => {
+								logoRef?.current?.click();
+							}}
+						>
+							<input {...getInputProps()} ref={logoRef} />
 
 							<div className="imageCircleDiv">
 								<img src={logoUrl} alt="logo" />
