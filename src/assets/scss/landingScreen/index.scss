@@ -124,7 +124,7 @@
 
 		.hero-section-2 {
 			width: 50%;
-			height: 95%;
+			height: 70dvh;
 			border-radius: 40px;
 			background: #202123;
 			padding: 40px 60px;
@@ -191,6 +191,7 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 24px 0;
+		position: relative;
 
 		nav {
 			ul {
@@ -238,8 +239,20 @@
 	}
 
 	.hero-section-1 {
-		zoom: 0.8;
-		padding: 36px !important;
+		padding: 12px !important;
+
+		.heading {
+			font-size: 32px !important;
+		}
+
+		.cta-container {
+			margin-top: 36px;
+
+			& > * {
+				height: 48px !important;
+				padding: 14px 18px !important;
+			}
+		}
 	}
 
 	.copyright {
@@ -247,10 +260,28 @@
 	}
 }
 
+@media screen and (max-width: 581.34px) {
+	.landing-page-container {
+		height: 99dvh !important;
+
+		.header-container {
+			height: 50px !important;
+		}
+	}
+}
+
 @media screen and (max-width: 700px) {
+	.footer-container {
+		nav {
+			width: 100%;
+			ul {
+				justify-content: space-between;
+			}
+		}
+	}
+
 	.copyright {
-		width: 30% !important;
-		text-align: right;
+		display: none;
 	}
 }
 

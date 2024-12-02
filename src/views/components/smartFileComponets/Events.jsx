@@ -10,6 +10,7 @@ import ToolTipContainer from '../popover/ToolTipContainer';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import EventsPresetsPopOverComponent from '../modalsV2/proposalModals/EventsPresetPopUp';
+import moment from 'moment';
 
 const Events = ({
 	eventsData,
@@ -339,7 +340,12 @@ const Events = ({
 								}}
 								format={['YYYY-MM-DD', 'DD-MM-YYYY']}
 								value={
-									item?.date ? dayjs(`${item?.date}`, 'YYYY-MM-DD') : item?.date
+									item?.date
+										? dayjs(
+												`${moment(item?.date)?.format('YYYY-MM-DD')}`,
+												'YYYY-MM-DD',
+										  )
+										: item?.date
 								}
 								className={`custominputContainer ${editable ? 'edit' : ''}`}
 								style={{ height: '50px' }}
@@ -349,6 +355,7 @@ const Events = ({
 										? dayjs(`${info?.calenderStartDate}`, 'YYYY-MM-DD')
 										: ''
 								}
+								allowClear={false}
 							/>
 						</div>
 						<div className="inputWithLabelContainer">

@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState, memo } from 'react';
 import '../../../assets/scss/settings/teamMembers.scss';
-import _ from 'lodash';
 import search from '../../../assets/svg/workspaceSettings/searchSettings.svg';
 import validator from 'validator';
 import Context from '../../../context/context';
@@ -12,13 +11,18 @@ const TeamSettings = () => {
 	// Contexts
 	const {
 		profileInfo: { tenantUserDetails },
-		companyInfo: { getTeamMembers, tenantsUserList, inviteNewuser, updateTenantRole },
+		companyInfo: {
+			getTeamMembers,
+			tenantsUserList,
+			inviteNewuser,
+			updateTenantRole,
+			removeTenantRole,
+		},
 	} = useContext(Context);
 
 	// useStates
 	const [info, setInfo] = useState({
 		showAddTenantUserModal: false,
-		tenantUser: [],
 		activeUserId: '',
 		isOwner: '',
 		isAdmin: '',
@@ -56,15 +60,16 @@ const TeamSettings = () => {
 
 	useEffect(() => {
 		if (tenantsUserList) {
-			const findOwnerId = _.find(tenantsUserList, (item) => item.isOwner);
+			const findOwnerId = tenantsUserList?.find((item) => item.isOwner);
 			setInfo((prev) => ({
 				...prev,
 				isOwner: findOwnerId ? true : false,
-				tenantUser: tenantsUserList,
 			}));
 			setfilteredUsers(tenantsUserList);
 		}
 	}, [tenantsUserList]);
+
+	console.log(tenantsUserList, filteredUsers);
 
 	useEffect(() => {
 		if (tenantUserDetails) {
@@ -77,7 +82,7 @@ const TeamSettings = () => {
 	}, [tenantUserDetails]);
 
 	useEffect(() => {
-		const filtered = info.tenantUser
+		const filtered = tenantsUserList
 			?.filter((user) => {
 				const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.toLowerCase();
 				return (
@@ -189,7 +194,7 @@ const TeamSettings = () => {
 		let emailIDMessage = '';
 
 		// Check if the user already exists
-		const isAlreadyExist = info?.tenantUser?.find((item) => item?.email === email || null);
+		const isAlreadyExist = tenantsUserList?.find((item) => item?.email === email || null);
 		if (isAlreadyExist) {
 			emailError = true;
 			emailIDMessage = 'User already exists!';
@@ -285,7 +290,7 @@ const TeamSettings = () => {
 			let update = [...sendRequestList];
 			let completionCount = 0;
 			results?.forEach((singleResult, index) => {
-				if (!_.isBoolean(singleResult[0]) && singleResult[0] !== true) {
+				if (typeof singleResult[0] !== 'boolean' || singleResult[0] !== true) {
 					update[index].emailIDError = true;
 					update[index].emailIDMessage = singleResult[1]?.message;
 				} else {
@@ -324,9 +329,19 @@ const TeamSettings = () => {
 		}
 	};
 
-	const updateTenantRoleFunc = (_id, role) => {
-		updateTenantRole({ _id, role });
-		setselectedOption({ tenantid: '', role: '' });
+	const updateTenantRoleFunc = async (_id, role) => {
+		const json = {
+			role,
+		};
+
+		const response =
+			role === 'remove' ? await removeTenantRole(_id) : await updateTenantRole(_id, json);
+		if (response?.[0] === true) {
+			messageApi.success(response?.[1]?.message);
+			setselectedOption({ tenantid: '', role: '' });
+		} else {
+			messageApi.error(response?.[1]?.message);
+		}
 	};
 
 	return (

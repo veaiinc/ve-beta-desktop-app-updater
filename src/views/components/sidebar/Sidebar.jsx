@@ -38,10 +38,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	}, []);
 
 	useEffect(() => {
-		console.log(userDetailsData, 'userDetailsData');
-	}, [userDetailsData]);
-
-	useEffect(() => {
 		if (userDetailsData && info) {
 			Intercom({
 				app_id: 'vmvweabd',

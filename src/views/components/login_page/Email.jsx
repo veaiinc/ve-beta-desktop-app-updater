@@ -11,11 +11,16 @@ import { message } from 'antd';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 
-const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
+const Email = ({ email, setEmail, setActiveStage, setEmailVerified, cookiesAccepted }) => {
 	const arrowRef = useRef(null);
 
 	let {
-		authInfo: { checkAccountExistsUsingEmail, createAccountUsingEmail, continueWithGoogle },
+		authInfo: {
+			checkAccountExistsUsingEmail,
+			createAccountUsingEmail,
+			continueWithGoogle,
+			getUsernameDetailsViaReferralCode,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -23,22 +28,33 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 		isLoading: false,
 		googleLoading: false,
 		locationDetails: null,
+		referrerUserDetails: null,
 	});
 
 	const location = useLocation();
+
 	const params = new URLSearchParams(location?.search);
 	const invitedWorkspaceId = params?.get('invitedWorkspaceId');
 	const invitedUserEmail = params?.get('inviteeEmail');
+	const referralCode = location?.pathname?.startsWith('/referral/')
+		? location?.pathname?.split('/referral/')[1]
+		: false;
 
 	useEffect(() => {
-		if (invitedWorkspaceId && invitedUserEmail) {
+		if (referralCode) {
+			handleGetAndSetReferrerUserName();
+		}
+		handleLocationDetailsData();
+	}, []);
+
+	useEffect(() => {
+		if (invitedWorkspaceId && invitedUserEmail && info?.locationDetails) {
 			localStorage?.clear();
 			localStorage?.setItem('invitedWorkspaceId', invitedWorkspaceId);
 			localStorage?.setItem('invitedUserEmail', invitedUserEmail);
 			handleSetEmail(null, invitedUserEmail);
 		}
-		handleLocationDetailsData();
-	}, [invitedWorkspaceId, invitedUserEmail]);
+	}, [invitedWorkspaceId, invitedUserEmail, info?.locationDetails]);
 
 	useEffect(() => {
 		if (arrowRef.current && info.isEmailValid) {
@@ -56,6 +72,20 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 		}
 	}, [info?.isEmailValid]);
 
+	const handleGetAndSetReferrerUserName = async () => {
+		const response = await getUsernameDetailsViaReferralCode(referralCode);
+		if (response?.[0] === true) {
+			setInfo((prev) => ({ ...prev, referrerUserDetails: response?.[1] }));
+			if (response?.[1]?.isValidReferralCode) {
+				message?.success(`Referral code: ${referralCode} applied successfully`);
+			} else {
+				message?.error('Invalid referral code');
+			}
+		} else {
+			message?.error(response?.[1]?.message);
+		}
+	};
+
 	const handleLocationDetailsData = useCallback(async () => {
 		let locationDetails;
 		locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
@@ -63,11 +93,17 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 			locationDetails = await getLocationsDetails();
 		}
 		setInfo((prev) => ({ ...prev, locationDetails }));
+		return locationDetails;
 	}, []);
 
 	const handleCreateAccountWithEmail = async (email) => {
 		if (info?.isLoading) return;
 		setInfo((prev) => ({ ...prev, isLoading: true }));
+
+		let locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
+		if (!locationDetails) {
+			locationDetails = await handleLocationDetailsData();
+		}
 
 		const response = await createAccountUsingEmail(email, info?.locationDetails);
 		if (response[0] === true) {
@@ -81,11 +117,24 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	};
 
 	const handleContinueWithGoogle = async () => {
+		if (!cookiesAccepted) {
+			message?.info('Please accept cookies to continue');
+			return;
+		}
 		if (info?.googleLoading) {
 			return;
 		}
+		let locationDetails = JSON.parse(localStorage?.getItem('locationDetails'));
+		if (!locationDetails) {
+			locationDetails = await getLocationsDetails();
+		}
+
 		setInfo((prev) => ({ ...prev, googleLoading: true }));
-		continueWithGoogle(info?.locationDetails);
+		if (info?.referrerUserDetails?.isValidReferralCode) {
+			continueWithGoogle(locationDetails, referralCode);
+		} else {
+			continueWithGoogle(locationDetails);
+		}
 	};
 
 	const handleSetEmail = (e, invitedUserEmail = false) => {
@@ -106,12 +155,21 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 			((e?.key === 'Enter' || type === 'click') && info?.isEmailValid && !info?.isLoading) ||
 			invitedUserEmail
 		) {
+			if (!cookiesAccepted) {
+				message?.info('Please accept cookies to continue');
+				return;
+			}
 			setInfo((prev) => ({ ...prev, isLoading: true }));
 			try {
 				const response = await checkAccountExistsUsingEmail(email || invitedUserEmail);
 				if (response[0] === true) {
 					if (response?.[1]?.accountExists) {
 						if (response?.[1]?.emailVerified) {
+							if (referralCode && info?.referrerUserDetails?.isValidReferralCode) {
+								message?.info(
+									'An account with this email already exists. Referral cannot be applied.',
+								);
+							}
 							setEmailVerified(true);
 							setActiveStage('verificationCode');
 						} else {
@@ -134,7 +192,16 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	return (
 		<>
 			<div className="login-page-content">
-				<h2 className="login-page-subtitle">Welcome to the home of</h2>
+				<h2 className="login-page-subtitle">
+					{info?.referrerUserDetails?.isValidReferralCode ? (
+						<>
+							<span className="referrer-name">{`${info?.referrerUserDetails?.referrerName}`}</span>{' '}
+							invited you to the home of
+						</>
+					) : (
+						'Welcome to the home of'
+					)}
+				</h2>
 				<h1 className="login-page-title">AI workers who mind your business.</h1>
 			</div>
 			<div className="login-button-container">
