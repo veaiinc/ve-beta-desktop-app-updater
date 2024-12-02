@@ -81,7 +81,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 				style={{
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight:
-						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '250px') : '',
+						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '') : '',
 					minHeight:
 						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '250px') : '',
 				}}
