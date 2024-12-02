@@ -378,12 +378,12 @@ const WorkflowCardEditModal = ({
 				</div>
 			</div>
 
-			<DeleteWorkflowStep
+			{/* <DeleteWorkflowStep
 				modalIsOpen={info?.deleteStepModal}
 				closeModal={closeDeleteStepModal}
 				deleteWorkFlowStep={modifiedDeleteWorkflowStep}
 				deleteLoader={info?.deleteLoader}
-			/>
+			/> */}
 		</Drawer>
 	);
 };

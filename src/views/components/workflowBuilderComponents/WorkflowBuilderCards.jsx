@@ -6,15 +6,21 @@ import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/b
 import { ReactComponent as Edit } from '../../../assets/svg/worflow_builder/buildercard/edit.svg';
 import { ReactComponent as Eye } from '../../../assets/svg/worflow_builder/buildercard/eye.svg';
 import { Popover, Tooltip } from 'antd';
+import DeleteWorkflowStep from '../modalsV2/workflowBuilderModals/DeleteWorkflowStep';
 
 // const text = <span>Title</span>;
 
-const FirstWorkflowCard = ({ openPreviewModal, editOnClickHandler, templateData }) => {
+const FirstWorkflowCard = ({
+	openPreviewModal,
+	editOnClickHandler,
+	templateData,
+	openDeleteModal,
+}) => {
 	const data = templateData?.moduleTemplates?.filter((e) => e?.isPublic);
 	return (
 		<Popover
 			placement="right"
-			title={HoverCards}
+			title={<HoverCards openDeleteModal={openDeleteModal} />}
 			arrow={false}
 			overlayClassName="workflowBuilderCardContainer"
 		>
@@ -55,13 +61,14 @@ const FirstWorkflowCard = ({ openPreviewModal, editOnClickHandler, templateData 
 	);
 };
 
-const EmailCards = ({ openModal, workflowdata, index }) => {
+const EmailCards = ({ openModal, workflowdata, index, openDeleteModal }) => {
 	return (
 		<Popover
 			placement="right"
-			title={HoverCards}
+			title={<HoverCards openDeleteModal={openDeleteModal} />}
 			arrow={false}
 			overlayClassName="workflowBuilderCardContainer"
+			openDeleteModal={openDeleteModal}
 		>
 			<div className="cardContentContainer" onClick={() => openModal(workflowdata, index)}>
 				<div className="cardContentContainerfooter">
@@ -90,14 +97,15 @@ const EndPointViewCard = () => {
 	);
 };
 
-const PreviewCard = ({ templateData, openPreviewModal }) => {
+const PreviewCard = ({ templateData, openPreviewModal, openDeleteModal }) => {
 	const data = templateData?.moduleTemplates?.filter((e) => !e?.isPublic);
 	return (
 		<Popover
 			placement="right"
-			title={HoverCards}
+			title={<HoverCards openDeleteModal={openDeleteModal} />}
 			arrow={false}
 			overlayClassName="workflowBuilderCardContainer"
+			openDeleteModal={openDeleteModal}
 		>
 			<div className="previewCard" onClick={() => openPreviewModal('private')}>
 				<div className="htmlContentViewer">
@@ -127,7 +135,7 @@ const PreviewCard = ({ templateData, openPreviewModal }) => {
 	);
 };
 
-const HoverCards = () => {
+const HoverCards = ({ openDeleteModal }) => {
 	return (
 		<div className="hoverCardsForExtraOptions">
 			<Tooltip
@@ -135,6 +143,7 @@ const HoverCards = () => {
 				title={<span style={{ color: '#111' }}>Edit</span>}
 				arrow={false}
 				color={'#fff'}
+				style={{ cursor: 'pointer' }}
 			>
 				<Edit />
 			</Tooltip>
@@ -143,6 +152,7 @@ const HoverCards = () => {
 				title={<span style={{ color: '#111' }}>Show activity of action in pipeline</span>}
 				arrow={false}
 				color={'#fff'}
+				style={{ cursor: 'pointer' }}
 			>
 				<Eye />
 			</Tooltip>
@@ -151,6 +161,7 @@ const HoverCards = () => {
 				title={<span style={{ color: '#111' }}>Duplicate</span>}
 				arrow={false}
 				color={'#fff'}
+				style={{ cursor: 'pointer' }}
 			>
 				<Duplicate />
 			</Tooltip>
@@ -159,6 +170,8 @@ const HoverCards = () => {
 				title={<span style={{ color: '#111' }}>Delete Node</span>}
 				arrow={false}
 				color={'#fff'}
+				onClick={openDeleteModal}
+				style={{ cursor: 'pointer' }}
 			>
 				<Dustbin />
 			</Tooltip>
@@ -173,14 +186,37 @@ const WorkflowBuilderCards = ({
 	openPreviewModal,
 	index,
 }) => {
+	const [info, setInfo] = useState({
+		showDeleteStepModal: false,
+	});
+
+	//function defination
+
+	const openToggleDeleteModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, showDeleteStepModal: !prev.showDeleteStepModal }));
+	}, []);
+
 	const editOnClickHandler = useCallback(() => {
 		window.location.href = `https://builder.ve.ai/${templateData?._id}`;
 	}, [templateData]);
 
 	const mapper = {
-		email: <EmailCards openModal={openModal} workflowdata={workflowdata} index={index} />,
+		email: (
+			<EmailCards
+				openModal={openModal}
+				workflowdata={workflowdata}
+				index={index}
+				openDeleteModal={openToggleDeleteModal}
+			/>
+		),
 		theEnd: <EndPointViewCard />,
-		preview: <PreviewCard templateData={templateData} openPreviewModal={openPreviewModal} />,
+		preview: (
+			<PreviewCard
+				templateData={templateData}
+				openPreviewModal={openPreviewModal}
+				openDeleteModal={openToggleDeleteModal}
+			/>
+		),
 		'start-step': (
 			<FirstWorkflowCard
 				openModal={openModal}
@@ -189,18 +225,45 @@ const WorkflowBuilderCards = ({
 				openPreviewModal={openPreviewModal}
 				editOnClickHandler={editOnClickHandler}
 				templateData={templateData}
+				openDeleteModal={openToggleDeleteModal}
 			/>
 		),
-		action: <EmailCards openModal={openModal} workflowdata={workflowdata} index={index} />,
-		condition: <EmailCards openModal={openModal} workflowdata={workflowdata} index={index} />,
+		action: (
+			<EmailCards
+				openModal={openModal}
+				workflowdata={workflowdata}
+				index={index}
+				openDeleteModal={openToggleDeleteModal}
+			/>
+		),
+		condition: (
+			<EmailCards
+				openModal={openModal}
+				workflowdata={workflowdata}
+				index={index}
+				openDeleteModal={openToggleDeleteModal}
+			/>
+		),
 		notification: (
-			<EmailCards openModal={openModal} workflowdata={workflowdata} index={index} />
+			<EmailCards
+				openModal={openModal}
+				workflowdata={workflowdata}
+				index={index}
+				openDeleteModal={openToggleDeleteModal}
+			/>
 		),
 	};
 
 	return (
 		<div className="WorkflowBuilderCardsParentContainer">
 			{mapper?.[workflowdata?.type] ? mapper?.[workflowdata?.type] : <EndPointViewCard />}
+			<DeleteWorkflowStep
+				modalIsOpen={info?.showDeleteStepModal}
+				closeModal={openToggleDeleteModal}
+				stepId={workflowdata?._id}
+				templateId={templateData?._id}
+				workflowdata={workflowdata}
+			/>
 		</div>
 	);
 };
