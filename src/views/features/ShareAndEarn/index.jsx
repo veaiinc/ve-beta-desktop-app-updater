@@ -6,7 +6,7 @@ import devices from '../../../assets/images/shareAndEarn/devices.png';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-
+import { SHARE_AND_EARN_KIT_URL, REFERRAL_BASE_URL } from '../../../helpers/ConstantUrls';
 const ShareAndEarn = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const navigate = useNavigate();
@@ -16,7 +16,7 @@ const ShareAndEarn = () => {
 	} = useContext(Context);
 	const referralDetails = referralData?.referralDetails;
 	const referralLink = referralDetails?.referralCode
-		? `https://ve.ai?ref=${referralDetails.referralCode}`
+		? `${REFERRAL_BASE_URL}/${referralDetails.referralCode}`
 		: '';
 	const displayValue = referralDetails?.referralCode || '';
 
@@ -81,9 +81,7 @@ const ShareAndEarn = () => {
 						</h3>
 						<button
 							className="getKitButton"
-							onClick={() =>
-								window.open('https://veai.ve.ai/portal/affiliate', '_blank')
-							}
+							onClick={() => window.open(SHARE_AND_EARN_KIT_URL, '_blank')}
 						>
 							<span>Get the kit</span>
 						</button>

@@ -5,7 +5,7 @@ import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/ve
 import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
 import { ReactComponent as ArrowUpBlack } from '../../../assets/svg/landingScreen/arrow-black.svg';
 import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen/double-quote.svg';
-
+import { VEAI_URL } from '../../../helpers/ConstantUrls';
 const navItems = [
 	{ name: 'Privacy', route: '/privacy-policy' },
 	{ name: 'Terms', route: '/terms-of-service' },
@@ -41,7 +41,7 @@ const LandingPage = () => {
 	};
 
 	const handleRequestDemo = () => {
-		window.open('https://veai.ve.ai/get-ve-ai-demo', '_blank');
+		window.open(VEAI_URL, '_blank');
 	};
 
 	return (
