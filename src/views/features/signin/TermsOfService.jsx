@@ -3,10 +3,11 @@ import '../../../assets/scss/privacyPolicy.scss';
 import { ReactComponent as VE } from '../../../assets/svg/ve.svg';
 import { ReactComponent as Back } from '../../../assets/svg/privacyPolicyBack.svg';
 import { useNavigate } from 'react-router-dom';
+import { TERMS_OF_SERVICE_URL } from '../../../helpers/ConstantUrls';
 
 const TermsOfService = () => {
 	const navigate = useNavigate();
-	const pdfUrl = 'https://drive.google.com/file/d/1eGn06UUp0CnLbBdL-KZDEB9S9dl0PBhJ/preview';
+	const pdfUrl = TERMS_OF_SERVICE_URL;
 
 	return (
 		<div className="privacyPolicyMainContainer">

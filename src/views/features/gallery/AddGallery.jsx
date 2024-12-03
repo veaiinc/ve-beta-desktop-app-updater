@@ -67,6 +67,7 @@ const AddGallery = () => {
 			setDefaultSort,
 			clearClientSelectionsData,
 			clearAiFace,
+			clearGalleryShareDetails,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -88,6 +89,7 @@ const AddGallery = () => {
 		}
 		clearClientSelectionsData();
 		clearAiFace();
+		clearGalleryShareDetails();
 	}, []);
 	useEffect(() => {
 		if (tenantGalleries) {

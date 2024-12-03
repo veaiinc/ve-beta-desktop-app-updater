@@ -4,6 +4,7 @@ import '../../../../assets/scss/landingScreen/privacyModal.scss';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/close.svg';
 import { ReactComponent as DownloadIcon } from '../../../../assets/scss/landingScreen/downloadIcon.svg';
 import { useNavigate } from 'react-router-dom';
+import { PRIVACY_POLICY_URL_DIRECT_DOWNLOAD } from '../../../../helpers/ConstantUrls';
 const PrivacyPolicyModal = ({ isOpen, closeModal }) => {
 	const navigate = useNavigate();
 
@@ -13,8 +14,7 @@ const PrivacyPolicyModal = ({ isOpen, closeModal }) => {
 
 	const handleDownload = useCallback(() => {
 		// Google Drive direct download link
-		const downloadUrl =
-			'https://drive.google.com/uc?export=download&id=1ktST1T5uBCs-LlPvLTKmpVBKe09HhxOj';
+		const downloadUrl = PRIVACY_POLICY_URL_DIRECT_DOWNLOAD;
 
 		const link = document.createElement('a');
 		link.href = downloadUrl;

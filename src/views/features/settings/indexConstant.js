@@ -1,16 +1,29 @@
 import Theme1 from '../../../assets/images/settings/theme1.png';
 import Theme2 from '../../../assets/images/settings/theme2.png';
 
-export const menuItems = [
-	{ id: 'my-profile', label: 'My Profile' },
-	{ id: 'workspace', label: 'Workspace' },
-	{ id: 'public-information', label: 'Public Information' },
-	{ id: 'brand-setup', label: 'Brand Setup' },
-	{ id: 'team-settings', label: 'Team Settings' },
-	{ id: 'integrations', label: 'Integrations' },
-	{ id: 'plan-billing', label: 'Plan Billing' },
-	{ id: 'ai-setup', label: 'AI Setup' },
-];
+export const menuItems = {
+	default: [{ id: 'my-profile', label: 'My Profile' }],
+	admin: [
+		{ id: 'my-profile', label: 'My Profile' },
+		{ id: 'workspace', label: 'Workspace' },
+		{ id: 'public-information', label: 'Public Information' },
+		{ id: 'brand-setup', label: 'Brand Setup' },
+		{ id: 'team-settings', label: 'Team Settings' },
+		{ id: 'integrations', label: 'Integrations' },
+		{ id: 'plan-billing', label: 'Plan Billing' },
+		{ id: 'ai-setup', label: 'AI Setup' },
+	],
+	owner: [
+		{ id: 'my-profile', label: 'My Profile' },
+		{ id: 'workspace', label: 'Workspace' },
+		{ id: 'public-information', label: 'Public Information' },
+		{ id: 'brand-setup', label: 'Brand Setup' },
+		{ id: 'team-settings', label: 'Team Settings' },
+		{ id: 'integrations', label: 'Integrations' },
+		{ id: 'plan-billing', label: 'Plan Billing' },
+		{ id: 'ai-setup', label: 'AI Setup' },
+	],
+};
 
 export const businessTypesOptions = [
 	{ value: 'makeUpArtist', label: 'Make up Artist' },

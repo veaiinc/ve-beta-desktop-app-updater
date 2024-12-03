@@ -5,11 +5,13 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './Actions';
 import Service from '../../services/index';
+import { sendCustomMailMutation } from './graphqlFunctions';
 
 export const intialState = {
 	subscriptionPlans: null,
 	coupons: null,
 	currentPlan: null,
+	referralData: null,
 	shareAndEarnData: null,
 };
 
@@ -110,7 +112,111 @@ export const SubscriptionState = (props) => {
 			console.log('errror ==>getCurrentSubscriptionPlan', error);
 		}
 	};
+	const getShareAndEarn = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/referral/${workspaceId}/get-active-referralCode`,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_SHARE_AND_EARN_SUCCESS,
+					payload: response?.[1],
+				});
+				return response?.[1];
+			} else {
+				console.log('api failed ==>getShareAndEarn', response);
+			}
+		} catch (error) {
+			console.log('errror ==>getShareAndEarn', error);
+		}
+	};
+	const getReferralDetails = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/referral/${workspaceId}/get-referral-details`,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_REFERRAL_DETAILS_SUCCESS,
+					payload: response?.[1],
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('errror ==>getReferralDetails', error);
+		}
+	};
+	const getOnboardPosition = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/tenant/${workspaceId}/get-isOnboard-position`,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_ONBOARD_POSITION_SUCCESS,
+					payload: response?.[1],
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('errror ==>getOnboardPosition', error);
+		}
+	};
+	const sendCustomMailToClients = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			if (!workspaceId) {
+				message.error('Workspace ID not found');
+				return [false, null];
+			}
+			let usertoken = localStorage.getItem('usertoken');
+			if (!usertoken) {
+				message.error('User token not found');
+				return [false, null];
+			}
+			const response = await service.mutation(
+				sendCustomMailMutation,
+				{
+					clientEmail: payload.clientEmail,
+					mailContent: {
+						subject: payload.mailContent.subject,
+						cc: payload.mailContent.cc,
+						htmlBody: payload.mailContent.htmlBody,
+					},
+				},
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
 
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.SEND_CUSTOM_MAIL_SUCCESS,
+					payload: response?.[1],
+				});
+				return [true, response?.[1]];
+			} else {
+				message.error('Unable to send custom mail');
+				console.log('api failed ==>sendCustomMailToClients', response);
+				return [false, null];
+			}
+		} catch (error) {
+			console.log('error ==>sendCustomMailToClients', error);
+			return [false, error];
+		}
+	};
 	return {
 		...state,
 		getAllSubscriptionPlan,
@@ -118,5 +224,9 @@ export const SubscriptionState = (props) => {
 		getAllCoupons,
 		createStripeCheckoutSession,
 		getCurrentSubscriptionPlan,
+		getShareAndEarn,
+		getReferralDetails,
+		getOnboardPosition,
+		sendCustomMailToClients,
 	};
 };

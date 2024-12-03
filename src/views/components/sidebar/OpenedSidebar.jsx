@@ -78,10 +78,16 @@ const OpenedSideBarItemsComponent = ({
 			<div className="topOptionsList">
 				<div className="currentWorkspaceDiv" onClick={openWorkspacesFunction}>
 					<div className="detailsDiv">
-						<img
-							src={info?.activeBusniessName?.logo_s3_500w_key}
-							alt={info?.activeBusniessName?.activeWorkspaceId}
-						/>
+						{info?.activeBusniessName?.logo_s3_500w_key ? (
+							<img
+								src={info?.activeBusniessName?.logo_s3_500w_key}
+								alt={info?.activeBusniessName?.businessName}
+							/>
+						) : (
+							<div className="no-logo">
+								{info?.activeBusniessName?.businessName?.slice(0, 2)}
+							</div>
+						)}
 						<h6>{info?.activeBusniessName?.businessName}</h6>
 					</div>
 					<DownArrowSmallSvg />
