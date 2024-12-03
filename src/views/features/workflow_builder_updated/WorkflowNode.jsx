@@ -152,7 +152,7 @@ const WorkflowNode = ({
 	return (
 		<div className="workflow-step">
 			{renderNodeContent()}
-			{/* {node.nextStepId && ( */}
+
 			<>
 				<WorkflowConnector
 					alterData={alterData}
@@ -169,7 +169,6 @@ const WorkflowNode = ({
 					// handleNodesRedering={handleNodesRedering}
 				/>
 			</>
-			{/* )} */}
 		</div>
 	);
 };

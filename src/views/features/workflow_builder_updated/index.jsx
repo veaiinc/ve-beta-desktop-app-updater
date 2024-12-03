@@ -10,8 +10,6 @@ import React, {
 import '../../../assets/scss/workflowBuilder/workflowbuilderUpdated.scss';
 import { ReactComponent as BackArrow } from '../../../assets/svg/worflow_builder/BackArrow.svg';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
-// import WorkflowBuilderCards from '../../components/workflowBuilderComponents/WorkflowBuilderCards';
-// import WorkflowConnector from '../../components/workflowBuilderComponents/WorkflowConnector';
 import WorkflowCardEditModal from '../../components/modalsV2/workflowBuilderModals/WorkflowCardEditModal';
 import Context from '../../../context/context';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -21,7 +19,6 @@ import RenameWorkflow from '../../components/modalsV2/workflowBuilderModals/Rena
 import HeadersDropDownComp from '../../components/dropDown/HeadersDropDownComp';
 import DuplicateIndicatorModal from '../../components/modalsV2/workflowBuilderModals/DuplicateIndicatorModal';
 import ExitWithoutPublishingModal from '../../components/modalsV2/workflowBuilderModals/ExitWithoutPublishingModal';
-// import { ReactComponent as VE } from '../../../assets/svg/smallVe.svg';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
 import { message } from 'antd';
@@ -35,7 +32,6 @@ const options = [
 const WorkflowBuilder = () => {
 	const {
 		templates: {
-			deleteWorkflowStep,
 			addEmailTriggersInWorkflow,
 			updateStateValues,
 			getMyWorkflows,
@@ -95,8 +91,6 @@ const WorkflowBuilder = () => {
 		if (specificTemplatesInfo?.steps?.length) {
 			const steps = specificTemplatesInfo?.steps;
 
-			const stepsData = [];
-
 			//created a mapper for steps
 			const stepsMapper = {};
 			for (let i = 0; i < steps.length; i++) {
@@ -120,7 +114,7 @@ const WorkflowBuilder = () => {
 			// Get the wrapper width dynamically
 			const wrapperWidth = wrapperRef.current.scrollWidth;
 			const containerWidth = wrapperRef.current.clientWidth;
-			console.log('wrapper width==>', wrapperWidth);
+			// console.log('wrapper width==>', wrapperWidth);
 			// setInfo((prev) => ({ ...prev, translateX: wrapperWidth }));
 			// wrapperRef?.current?.scrollTo({
 			// 	left: wrapperWidth,
@@ -154,7 +148,6 @@ const WorkflowBuilder = () => {
 			modalIsOpen: true,
 			mode: 'edit',
 			currentStepInfo: data,
-			currentStepIndex: index,
 		}));
 	}, []);
 
@@ -217,49 +210,6 @@ const WorkflowBuilder = () => {
 	const closeRenameModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, renameModal: false }));
 	}, []);
-
-	const editWorkflowStep = useCallback(
-		async (newData, index) => {
-			const updatedData = [...(info?.data || [])];
-			updatedData.splice(index, 1, newData);
-			setInfo((prev) => ({ ...prev, data: updatedData }));
-		},
-		[info?.data],
-	);
-
-	const addorUpdateSteps = useCallback(
-		async (incoming) => {
-			const updatedData = [...(incoming || [])];
-			updatedData?.splice(1, 0, {
-				module: 'preview',
-				_id: updatedData?.[0]?._id,
-				parsedHtmlContent: info?.incomingTemplateData?.templates?.[0]?.parsedHtmlContent,
-			});
-			updatedData?.push({ module: 'theEnd' });
-			setInfo((prev) => ({ ...prev, data: updatedData }));
-		},
-		[info?.data, info?.incomingTemplateData],
-	);
-
-	const deleteWorkFlowStepFunc = useCallback(async () => {
-		const payload = {
-			templateId: info?.incomingTemplateData?._id,
-			stepId: info?.currentStepInfo?._id,
-		};
-		const response = await deleteWorkflowStep(payload);
-		if (response?.[0]) {
-			const updatedData = [...(info?.data || [])];
-			updatedData.splice(info?.currentStepIndex, 1);
-			setInfo((prev) => ({ ...prev, data: updatedData }));
-			return true;
-		}
-	}, [
-		deleteWorkflowStep,
-		info?.currentStepInfo,
-		info?.currentStepIndex,
-		info?.data,
-		info?.incomingTemplateData,
-	]);
 
 	const closeModalFunc = useCallback(() => {
 		setInfo((prev) => ({
@@ -481,11 +431,7 @@ const WorkflowBuilder = () => {
 				modalIsOpen={info?.modalIsOpen}
 				previousStepId={info?.previousStepId}
 				mode={info?.mode}
-				addorUpdateSteps={addorUpdateSteps}
-				deleteWorkFlowStep={deleteWorkFlowStepFunc}
 				currentStepInfo={info?.currentStepInfo}
-				currentStepIndex={info?.currentStepIndex}
-				editWorkflowStep={editWorkflowStep}
 				templateId={info?.incomingTemplateData?._id}
 				previousStepPath={info?.previousStepPath}
 				optionType={info?.optionType}
