@@ -2,7 +2,6 @@ import React, { useState, memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { veAiModulesItemsList, bottomOptionsList, veAiSubModulesItemsList } from './sidebarindex';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
-// import { ReactComponent as DownArrowSmallSvg } from '../../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as RefreshSvg } from '../../../assets/svg/sidebar/Refresh.svg';
 import { ReactComponent as VeAiSvg } from '../../../assets/svg/sidebar/VeAi.svg';
@@ -35,7 +34,9 @@ const OpenedSideBarHoverStateIcons = ({
 		if (!route) return;
 		navigateTo(route);
 	};
-	const toggleDropdown = () => {
+	const toggleDropdown = (e) => {
+		e.stopPropagation();
+		e.preventDefault();
 		setDropdownVisible(!isDropdownVisible);
 	};
 
@@ -48,18 +49,15 @@ const OpenedSideBarHoverStateIcons = ({
 			onMouseLeave={onMoutseLeave}
 			onClick={redirectToFunction}
 		>
-			{/* {isActive ? <Icon fill={'#FFF'} /> : <Icon fill={'#FFF'} />} */}
 			<Icon fill={'none'} />
 			<p>{name}</p>
 			{name === 'Calendar' ? (
 				<>
-					<div>
-						<span onClick={toggleDropdown} style={{ marginLeft: '35px' }}>
-							<DownArrowSmallSvg
-								className={`downArrow ${isDropdownVisible ? 'rotate' : ''}`}
-								style={{ height: '16px', width: '16px' }}
-							/>
-						</span>
+					<div onClick={toggleDropdown} style={{ marginLeft: '35px' }}>
+						<DownArrowSmallSvg
+							className={`downArrow ${isDropdownVisible ? 'rotate' : ''}`}
+							style={{ height: '16px', width: '16px' }}
+						/>
 					</div>
 					{isDropdownVisible && (
 						<div className={`dropdownMenu ${isDropdownVisible ? 'visible' : ''}`}>
@@ -146,10 +144,16 @@ const OpenedSideBarItemsComponent = ({
 		setsidebarStates({ ...sidebarStates, workSpaceOpen: true, navStyle: 'workspace' });
 	};
 
-	const handleNavigateFunction = (route, name) => {
-		setSelectedOption(name);
+	const handleNavigateFunction = (route, singleItems) => {
+		console.log(singleItems);
+		setSelectedOption(singleItems?.name);
 		navigate(route);
-		setsidebarStates({ ...sidebarStates, isOpen: false, navStyle: 'close' });
+		setsidebarStates({
+			...sidebarStates,
+			isOpen: false,
+			navStyle: 'close',
+			selectedModule: singleItems?.name,
+		});
 	};
 	const handleSidebarCollapse = () => {
 		setsidebarStates({ ...sidebarStates, isOpen: false, navStyle: 'close' });
@@ -167,7 +171,11 @@ const OpenedSideBarItemsComponent = ({
 			<div className="topOptionsList">
 				<div className="veAiLogoDiv">
 					<VeAiSvg />
-					<BackArrowSvg className="collapseArrow" onClick={handleSidebarCollapse} />
+					<BackArrowSvg
+						className="collapseArrow"
+						onClick={handleSidebarCollapse}
+						style={{ cursor: 'pointer' }}
+					/>
 				</div>
 				<div className="allmodulesList">
 					{veAiModulesItemsList?.map((singleItems, index) => (
@@ -178,7 +186,7 @@ const OpenedSideBarItemsComponent = ({
 								initialColor={singleItems.initialColor}
 								route={singleItems?.route}
 								navigateTo={(route) => {
-									handleNavigateFunction(route, singleItems?.name);
+									handleNavigateFunction(route, singleItems);
 								}}
 								key={singleItems?.name}
 								isSelected={selectedOption === singleItems?.name}

@@ -9,7 +9,7 @@
 	transition: all 0.5s;
 	z-index: 1000;
 	&.opened {
-		height: 100vh;
+		height: 100vh !important;
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -17,6 +17,12 @@
 		padding: 0;
 	}
 
+	&.no-submodules:not(.opened) {
+		height: 25dvh;
+	}
+	&.has-submodules {
+		height: 93dvh !important;
+	}
 	.sidebarComponent {
 		min-height: 100%;
 		border: 1px solid rgba(255, 255, 255, 0.1);
@@ -28,11 +34,12 @@
 		overflow-y: auto;
 		transition: all 0.5s ease-in-out;
 		z-index: 1;
-		// position: relative;
+
 		&.open {
 			border-top-left-radius: 0 !important;
 			border-bottom-left-radius: 0 !important;
 		}
+
 		.closedSideBarComponent {
 			display: flex;
 			flex-direction: column;
@@ -55,7 +62,7 @@
 					transition: all 0.5s;
 				}
 				&.selected {
-					background: #89ac4f; // Background color for the selected icon
+					background: #89ac4f;
 				}
 			}
 
@@ -98,20 +105,19 @@
 			.ClosedIconsContainer {
 				display: flex;
 				flex-direction: column;
-				gap: 15px;
+				gap: 10px;
 
 				.iconContainer {
-					cursor: pointer; // Ensure the icon container is clickable
+					cursor: pointer;
 					transition: background-color 0.3s;
 					text-align: center;
-					// Smooth transition for background color
+					height: 23px;
+					width: 23px;
 
 					&.selected {
 						background-color: #89ac4f !important;
 						border-radius: 50%;
-						height: 30px;
-						width: 30px;
-						padding: 4px; // Background color for the selected icon
+						padding: 12px;
 					}
 				}
 			}
@@ -257,10 +263,6 @@
 						left: 0;
 						transition: opacity 0.5s ease;
 
-						//  display: flex;
-						//  flex-direction: column;
-						//  opacity: 1;
-						// }
 						.subItem {
 							display: flex;
 							align-items: center;

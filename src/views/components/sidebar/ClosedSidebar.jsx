@@ -2,12 +2,9 @@ import React, { useState, memo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg';
-
+import { veAiModulesItemsList } from './sidebarindex';
 import DropDrownMenu from './DropDrownMenu';
-import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
-import CalendarSvg from '../../../assets/svg/sidebar/CalendarSvg';
-import TranscriptSvg from '../../../assets/svg/sidebar/TranscriptSvg';
-import SettingsSvg from '../../../assets/svg/sidebar/SettingsSvg';
+
 import { ReactComponent as TaskSvg } from '../../../assets/svg/sidebar/Task.svg';
 import { Tooltip } from 'antd';
 import { closedSidebarIcons } from './sidebarindex';
@@ -24,42 +21,58 @@ const ClosedSideBarHoverStateIcons = ({ Icon, initialColor = null, hoverClassNam
 	);
 };
 const getPathInfo = (path) => {
-	// Remove trailing slash and get the base path
 	const cleanPath = path.replace(/\/$/, '');
 
-	// Map of paths to their display names
 	const pathInfo = {
 		'/home': {
 			title: 'Home',
 			description: 'Your central dashboard for quick access to everything',
+			initial: 'H',
 		},
 		'/settings': {
 			title: 'Settings',
 			description: 'Configure your account preferences and system settings',
+			initial: 'S',
 		},
 		'/settings/my-profile': {
 			title: 'Settings',
 			description: 'Update your personal information and profile settings',
-		},
-		'/settings/billing': {
-			title: 'Settings',
-			description: 'Manage your subscription and billing information',
+			initial: 'S',
 		},
 		'/calendar': {
 			title: 'Calendar',
 			description: 'Schedule and manage your appointments and events',
+			initial: 'C',
 		},
 		'/transcript': {
 			title: 'Transcript',
 			description: 'Access and review your conversation history',
+			initial: 'TS',
 		},
 		'/galleries': {
 			title: 'Gallery',
 			description: 'Browse and organize your media collections',
+			initial: 'G',
 		},
 		'/playbook': {
 			title: 'Playbook',
 			description: 'Explore and manage your playbook content',
+			initial: 'P',
+		},
+		'/share-and-earn': {
+			title: 'Share and Earn',
+			description: 'Refer friends and earn rewards through our affiliate program',
+			initial: 'SE',
+		},
+		'/tasks': {
+			title: 'Tasks',
+			description: 'Manage and track your tasks and to-do list',
+			initial: 'T',
+		},
+		'/ai-assistant': {
+			title: 'AI Assistant',
+			description: 'Access and manage your AI assistant',
+			initial: 'AI',
 		},
 	};
 
@@ -71,12 +84,28 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 	const [showRaindrop, setShowRaindrop] = useState(false);
 	const [selectedIcon, setSelectedIcon] = useState(null);
 	const [lastVisitedLocation, setLastVisitedLocation] = useState('');
+	const [visibleIcons, setVisibleIcons] = useState([]);
 
 	useEffect(() => {
 		const currentPath = window.location.pathname;
 		const { title } = getPathInfo(currentPath);
 		setLastVisitedLocation(title);
 	}, [window.location.pathname]);
+
+	useEffect(() => {
+		const selectedModule = veAiModulesItemsList.find(
+			(module) => module.name === sidebarStates.selectedModule,
+		);
+
+		const iconsToShow =
+			selectedModule?.subModules?.map((subModule) => ({
+				icon: subModule.icon,
+				route: subModule.route || '#',
+				name: subModule.name,
+			})) || [];
+
+		setVisibleIcons(iconsToShow);
+	}, [sidebarStates.selectedModule]);
 
 	const openModuleFunction = () => {
 		setsidebarStates({ ...sidebarStates, isOpen: true, navStyle: 'open' });
@@ -92,7 +121,11 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 	};
 	return (
 		<>
-			<div className="closedSideBarComponent">
+			<div
+				className={`closedSideBarComponent ${
+					visibleIcons.length === 0 ? 'no-submodules' : ''
+				}`}
+			>
 				<Tooltip
 					title={
 						<div>
@@ -140,7 +173,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 						transformOrigin: 'left center',
 					}}
 					overlayStyle={{
-						paddingLeft: '12px', // adds some space between the circle and tooltip
+						paddingLeft: '12px',
 					}}
 				>
 					<div
@@ -159,18 +192,25 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 									color: 'white',
 								}}
 							>
-								C
+								{getPathInfo(window.location.pathname).initial}
 							</p>
 						</div>
 					</div>
 				</Tooltip>
 				<div className="ClosedIconsContainer">
-					{closedSidebarIcons?.map((singleItem, index) => (
+					{visibleIcons?.map((singleItem, index) => (
 						<div
+							key={index}
 							className={`iconContainer ${selectedIcon === index ? 'selected' : ''}`}
 							onClick={() => {
 								handleIconClick(index);
-								navigate(singleItem?.route);
+								navigate(singleItem?.route || '');
+							}}
+							style={{
+								position: 'relative',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
 							}}
 						>
 							<ClosedSideBarHoverStateIcons
@@ -202,11 +242,6 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 					</div>
 				</div>
 			</div>
-			{/* {showRaindrop && (
-				<div className="raindropEffect">
-					<h3 style={{ color: 'white' }}>{lastVisitedLocation}</h3>
-				</div>
-			)} */}
 		</>
 	);
 };

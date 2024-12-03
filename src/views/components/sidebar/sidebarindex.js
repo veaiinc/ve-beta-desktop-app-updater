@@ -27,11 +27,31 @@ import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/left
 import { useNavigate, useLocation } from 'react-router-dom';
 import TranscriptSvg from '../../../assets/svg/sidebar/TranscriptSvg.jsx';
 import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
-import { fill } from 'lodash';
 
 export const veAiModulesItemsList = [
-	{ name: 'Calendar', moduleRoute: '/calendar', route: null, icon: CalendarSvg },
-	{ name: 'Gallery', moduleRoute: '/galleries', route: '/galleries', icon: GallerySvg },
+	{
+		name: 'Calendar',
+		moduleRoute: 'calendar',
+		route: '/calendar',
+		icon: CalendarSvg,
+		subModules: [
+			{ icon: CalendarSvg, route: '', name: 'Calendar' },
+			{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
+			{ icon: TranscriptSvg, route: '', name: 'Transcript' },
+			{
+				icon: SettingsSvg,
+				route: '/settings/my-profile',
+				fill: 'white',
+				name: 'Settings',
+			},
+		],
+	},
+	{
+		name: 'Gallery',
+		moduleRoute: '/galleries',
+		route: '/galleries',
+		icon: GallerySvg,
+	},
 	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: TaskSvg },
 	{
 		name: 'AI Assistant',
@@ -45,22 +65,6 @@ export const veAiModulesItemsList = [
 		route: '/playbook',
 		icon: PlaybookSvg,
 	},
-	// { name: 'Workflow', moduleRoute: '/workflows', route: '/sales/workflows', icon: FlowArrowSvg },
-	// {
-	//  name: 'Linkin Bio',
-	//  moduleRoute: '/linkin-bio',
-	//  route: null,
-	//  icon: InsertLinkSvg,
-	//  initialColor: '#7D7D7D',
-	// },
-
-	// { name: 'Inbox', moduleRoute: '/inbox', route: null, icon: MailOutlineSvg },
-	// { name: 'Clients', moduleRoute: '/clients', route: null, icon: LayoutSvg },
-	// { name: 'Finance', moduleRoute: '/finance', route: null, icon: AttachMoneySvg },
-	// { name: 'Email', moduleRoute: '/email', route: null, icon: AtSignSvg },
-	// { name: 'HR', moduleRoute: '/hr', route: null, icon: FinanceSvg },
-	// { name: 'Inventory', moduleRoute: '/inventory', route: null, icon: LayoutSvg },
-	// { name: 'Team', moduleRoute: '/team', route: null, icon: LayoutSvg },
 ];
 
 export const veAiSubModulesItemsList = [
@@ -70,15 +74,6 @@ export const veAiSubModulesItemsList = [
 ];
 
 export const bottomOptionsList = [
-	// { name: 'Upgrade', moduleRoute: '/upgrade', route: null, icon: CrownSvg },
-	// { name: 'Playbook', moduleRoute: '/playbook', route: '/playbook', icon: BookSvg },
-	// {
-	//  name: 'App store',
-	//  moduleRoute: '/app-store',
-	//  route: null,
-	//  icon: SquareFour,
-	//  initialColor: '#7D7D7D',
-	// },
 	{
 		name: 'Share and Earn',
 		moduleRoute: '',
