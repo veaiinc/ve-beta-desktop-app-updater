@@ -50,7 +50,7 @@ const WorkflowCardEditModal = ({
 			getAllEmailTemplates,
 			getSpecificWorkflowTemplateDetails,
 			getSpecificTemplatesInfo,
-			updateWorkflowSteps,
+			// updateWorkflowSteps,
 		},
 	} = useContext(Context);
 

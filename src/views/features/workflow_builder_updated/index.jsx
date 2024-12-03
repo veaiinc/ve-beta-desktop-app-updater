@@ -10,8 +10,8 @@ import React, {
 import '../../../assets/scss/workflowBuilder/workflowbuilderUpdated.scss';
 import { ReactComponent as BackArrow } from '../../../assets/svg/worflow_builder/BackArrow.svg';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
-import WorkflowBuilderCards from '../../components/workflowBuilderComponents/WorkflowBuilderCards';
-import WorkflowConnector from '../../components/workflowBuilderComponents/WorkflowConnector';
+// import WorkflowBuilderCards from '../../components/workflowBuilderComponents/WorkflowBuilderCards';
+// import WorkflowConnector from '../../components/workflowBuilderComponents/WorkflowConnector';
 import WorkflowCardEditModal from '../../components/modalsV2/workflowBuilderModals/WorkflowCardEditModal';
 import Context from '../../../context/context';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -21,18 +21,17 @@ import RenameWorkflow from '../../components/modalsV2/workflowBuilderModals/Rena
 import HeadersDropDownComp from '../../components/dropDown/HeadersDropDownComp';
 import DuplicateIndicatorModal from '../../components/modalsV2/workflowBuilderModals/DuplicateIndicatorModal';
 import ExitWithoutPublishingModal from '../../components/modalsV2/workflowBuilderModals/ExitWithoutPublishingModal';
-import { ReactComponent as VE } from '../../../assets/svg/smallVe.svg';
+// import { ReactComponent as VE } from '../../../assets/svg/smallVe.svg';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
 import { message } from 'antd';
 import WorkflowNode from './WorkflowNode';
-import { wrap } from 'gsap';
 const options = [
 	{ label: 'Rename Workflow' },
 	{ label: 'Duplicate Workflow' },
 	{ label: 'Delete Worklfow' },
 ];
-// previousPath = null, //null,straight,condition-yes,condition-no
+
 const WorkflowBuilder = () => {
 	const {
 		templates: {
@@ -157,6 +156,8 @@ const WorkflowBuilder = () => {
 			currentStepInfo: data,
 			currentStepIndex: index,
 		}));
+
+		console.log('hello my frnd==>', data);
 	}, []);
 
 	const refreshSalesModuleData = useCallback(async () => {
