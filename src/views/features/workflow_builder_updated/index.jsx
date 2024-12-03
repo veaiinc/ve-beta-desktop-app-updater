@@ -111,10 +111,29 @@ const WorkflowBuilder = () => {
 	//uselayoutEffect
 	useEffect(() => {
 		if (wrapperRef.current && containerRef.current) {
-			console.log('Wrapper width:', wrapperRef.current.offsetWidth);
-			console.log('Container width:', containerRef.current.offsetWidth);
-			console.log('Scroll width:', wrapperRef.current.scrollWidth);
-			console.log('Current scroll position:', wrapperRef.current.scrollLeft);
+			const wrapper = wrapperRef.current;
+			const container = containerRef.current;
+
+			// console.log('Detailed dimensions:', {
+			// 	wrapperWidth: wrapper.clientWidth,
+			// 	containerWidth: container.clientWidth,
+			// 	scrollWidth: wrapper.scrollWidth,
+			// 	scrollLeft: wrapper.scrollLeft,
+			// 	containerOffsetLeft: container.offsetLeft,
+			// 	firstNodeOffsetLeft: container.firstChild?.offsetLeft || 0,
+			// });
+
+			// Calculate if we need more padding
+			const leftmostElement = container.getBoundingClientRect().left;
+			const rightmostElement = container.getBoundingClientRect().right;
+			const visibleWidth = rightmostElement - leftmostElement;
+
+			if (visibleWidth > wrapper.clientWidth) {
+				// Adjust padding dynamically if needed
+				const currentPadding = parseInt(container.style.padding.split(' ')[1]);
+				const newPadding = Math.max(currentPadding, visibleWidth);
+				container.style.padding = `40px ${newPadding}px`;
+			}
 		}
 	}, [info.stepsMapper]);
 
@@ -294,40 +313,6 @@ const WorkflowBuilder = () => {
 		},
 		[info?.data],
 	);
-
-	// const handleNodesRedering = useCallback(
-	// 	(nodeId) => {
-	// 		if (nodeId) {
-	// 			let stepsMapper = { ...info?.duplicateStepsMapper };
-	// 			console.log(stepsMapper[nodeId]);
-	// 			stepsMapper[nodeId].rendered = true;
-	// 			let count = 0,
-	// 				nullNodes = 0;
-	// 			const stepsDataObj = Object.values(stepsMapper);
-	// 			for (let i = 0; i < stepsDataObj?.length; i++) {
-	// 				if (stepsDataObj?.[i]?.rendered) {
-	// 					count++;
-	// 				}
-
-	// 				if (stepsDataObj?.[i]?.data?.type === 'condition') {
-	// 					if (!stepsDataObj?.[i]?.data?.ifNo?.nextStepId) {
-	// 						nullNodes++;
-	// 					}
-	// 					if (!stepsDataObj?.[i]?.data?.ifYes?.nextStepId) {
-	// 						nullNodes++;
-	// 					}
-	// 				} else {
-	// 					if (!stepsDataObj?.[i]?.data?.nextStepId) {
-	// 						nullNodes++;
-	// 					}
-	// 				}
-	// 			}
-	// 			setInfo((prev) => ({ ...prev, duplicateStepsMapper: stepsMapper }));
-	// 			console.log('render', count, nullNodes);
-	// 		}
-	// 	},
-	// 	[info?.stepsMapper],
-	// );
 
 	return (
 		<div className="workflowBuilderContainer">
