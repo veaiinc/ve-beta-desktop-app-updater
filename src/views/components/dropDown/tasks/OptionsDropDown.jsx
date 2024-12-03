@@ -5,9 +5,9 @@ import { ReactComponent as ListIcon } from '../../../../assets/svg/tasks/list.sv
 import { ReactComponent as BoardIcon } from '../../../../assets/svg/tasks/board.svg';
 import ToggleSlider from '../../input/slider';
 
-const OptionsDropDown = ({}) => {
+const OptionsDropDown = ({ properties, togglePropertyVisibility, open }) => {
 	return (
-		<div className="dropdown-container">
+		<div className={`dropdown-container ${open ? `` : `dropdown-hide`}`}>
 			<div className="view-selection-wrapper">
 				<input type="radio" name="view-type" defaultChecked id="list-view-radio" />
 				<label htmlFor="list-view-radio" className="view-selection">
@@ -41,15 +41,19 @@ const OptionsDropDown = ({}) => {
 			<div className="properties-container">
 				<span className="text-fade">Display properties</span>
 				<div className="properties-wrapper">
-					<div className="property-item text-fade selected">Priority</div>
-					<div className="property-item text-fade">Status</div>
-					<div className="property-item text-fade">ID</div>
-					<div className="property-item text-fade">Labels</div>
-					<div className="property-item text-fade">Checkbox</div>
-					<div className="property-item text-fade">Projects</div>
-					<div className="property-item text-fade">Due Date</div>
-					<div className="property-item text-fade">Name</div>
-					<div className="property-item text-fade ">Created</div>
+					{properties
+						? properties.map((property, index) => (
+								<div
+									className={`property-item text-fade ${
+										property.show ? `selected` : ``
+									}`}
+									onClick={() => togglePropertyVisibility(index)}
+									key={index}
+								>
+									{property.propName}
+								</div>
+						  ))
+						: ''}
 				</div>
 			</div>
 			<Divider style={{ backgroundColor: '#1D1D1D', margin: '0' }} />
