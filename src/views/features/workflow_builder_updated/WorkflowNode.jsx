@@ -1,8 +1,8 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import './WorkflowNode.scss';
 import WorkflowBuilderCards from '../../components/workflowBuilderComponents/WorkflowBuilderCards';
 import WorkflowConnector from '../../components/workflowBuilderComponents/WorkflowConnector';
-
+import debounce from 'lodash/debounce';
 const WorkflowNode = ({
 	nodeId,
 	stepsMapper,
@@ -19,22 +19,8 @@ const WorkflowNode = ({
 		translateForNo: 0,
 	});
 
-	// useEffect(() => {
-	// 	// return () => {
-	// 	// console.log('I am getting unmounted');
-	// 	handleNodesRedering(nodeId);
-	// 	// };
-	// }, []);
-
-	useLayoutEffect(() => {
-		translatefunction(yesNodesContainerRef, 'Yes');
-	}, [yesNodesContainerRef?.current]);
-
-	useLayoutEffect(() => {
-		translatefunction(noNodesContainerRef, 'No');
-	}, [noNodesContainerRef?.current]);
-
-	const translatefunction = (refData, type) => {
+	// Memoize the translate function
+	const translatefunction = useCallback((refData, type) => {
 		const width = refData?.current?.getBoundingClientRect().width;
 		if (width) {
 			const blockWidth = 300;
@@ -50,7 +36,41 @@ const WorkflowNode = ({
 				setInfo((prev) => ({ ...prev, translateForNo: requiredTransalation }));
 			}
 		}
-	};
+	}, []);
+
+	// Create a debounced version of the calculations
+	const debouncedTranslate = useCallback(
+		debounce(() => {
+			if (noNodesContainerRef.current) {
+				translatefunction(noNodesContainerRef, 'No');
+			}
+			if (yesNodesContainerRef.current) {
+				translatefunction(yesNodesContainerRef, 'Yes');
+			}
+		}, 150), // 150ms debounce time
+		[translatefunction],
+	);
+
+	// Set up observers for size changes
+	useEffect(() => {
+		if (!noNodesContainerRef.current || !yesNodesContainerRef.current) return;
+
+		// Create ResizeObserver
+		const resizeObserver = new ResizeObserver(debouncedTranslate);
+
+		// Observe both containers
+		resizeObserver.observe(noNodesContainerRef.current);
+		resizeObserver.observe(yesNodesContainerRef.current);
+
+		// Initial calculation
+		debouncedTranslate();
+
+		// Cleanup
+		return () => {
+			resizeObserver.disconnect();
+			debouncedTranslate.cancel();
+		};
+	}, [debouncedTranslate, nodeId, stepsMapper]);
 
 	const renderNodeContent = (type = null) => (
 		<WorkflowBuilderCards
