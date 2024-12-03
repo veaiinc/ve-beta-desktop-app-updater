@@ -1,0 +1,148 @@
+.dropdown-container {
+	position: absolute;
+	top: calc(100% + 15px);
+	display: flex;
+	width: 350px;
+	padding: 16px;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 16px;
+	border-radius: 16px;
+	border: 1px solid rgba(228, 229, 230, 0.05);
+	background: #151515;
+
+	.view-selection-wrapper {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		align-self: stretch;
+
+		input[type='radio'] {
+			display: none;
+		}
+		.view-selection {
+			display: flex;
+			padding: 8px 24px;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			border-radius: 8px;
+			border: 1px solid rgba(36, 36, 36, 0.64);
+			flex-grow: 1;
+
+			svg {
+				g {
+					path {
+						stroke-opacity: 0.48 !important;
+					}
+				}
+			}
+
+			.view-name {
+				color: rgba(228, 229, 230, 0.48);
+				text-align: center;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+
+			&:hover {
+				background-color: #1b1b1b;
+				svg {
+					g {
+						path {
+							stroke-opacity: 1 !important;
+						}
+					}
+				}
+				.view-name {
+					color: #e4e5e6;
+				}
+			}
+		}
+		/* When radio button is checked, target the label (parent) */
+		input[type='radio']:checked + .view-selection {
+			svg {
+				g {
+					path {
+						stroke-opacity: 1 !important;
+					}
+				}
+			}
+			.view-name {
+				color: #e4e5e6;
+			}
+		}
+	}
+
+	.sub-issues-container,
+	.empty-group-container {
+		display: flex;
+		width: 100%;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.properties-wrapper {
+		display: flex;
+		width: 100%;
+		flex-wrap: wrap;
+		margin-top: 8px;
+		gap: 6px;
+
+		.property-item {
+			display: flex;
+			padding: 4px 12px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 29px;
+			background: #1f1f1f;
+			&.selected {
+				color: #e4e5e6;
+				border: 1px solid rgba(228, 229, 230, 0.05);
+			}
+		}
+	}
+
+	.resent-btn-container {
+		display: flex;
+		justify-content: end;
+		width: 100%;
+
+		.btn-reset {
+			background-color: transparent;
+			border: none;
+			color: #6055ec;
+			text-align: center;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+		}
+	}
+
+	.text-bright {
+		color: #e4e5e6;
+		text-align: center;
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+	.text-fade {
+		color: rgba(228, 229, 230, 0.48);
+		text-align: center;
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+}
