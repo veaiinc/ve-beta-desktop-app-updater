@@ -55,11 +55,39 @@ export const Calendar = () => {
 			} else {
 				dispatch({
 					type: Actions.GET_CALENDAR_EVENTS_LIST,
-					payload: { error: 'Something went wrong. Please try again.' },
+					payload: {
+						error: 'Something went wrong while fetching events. Please try again.',
+					},
 				});
 			}
 		} catch (error) {
 			console.log('error==>getCalendarEventsList', error);
+		}
+	};
+
+	const createCalendarEvent = async (body) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.createCalendarEvent}`;
+
+			const response = await service.fetchPost(url, body, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.CREATE_CALENDAR_EVENT,
+					payload: response?.[1],
+				});
+			} else {
+				dispatch({
+					type: Actions.CREATE_CALENDAR_EVENT,
+					payload: {
+						error: 'Something went wrong while creating event. Please try again.',
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>createCalendarEvent', error);
 		}
 	};
 
@@ -71,6 +99,7 @@ export const Calendar = () => {
 		...state,
 		getCalendarChat,
 		getCalendarEventsList,
+		createCalendarEvent,
 		resetCalendarState,
 	};
 };

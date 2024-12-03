@@ -5,10 +5,17 @@ const actionHandlers = {
 		...state,
 		calendarChat: action.payload,
 	}),
+
 	GET_CALENDAR_EVENTS_LIST: (state, action) => ({
 		...state,
 		calendarEventsList: action.payload,
 	}),
+
+	CREATE_CALENDAR_EVENT: (state, action) => ({
+		...state,
+		calendarEvent: action.payload,
+	}),
+
 	RESET_CALENDAR_STATE: () => ({ ...initialState }),
 };
 
