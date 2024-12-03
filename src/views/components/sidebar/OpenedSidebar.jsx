@@ -5,7 +5,7 @@ import { veAiModulesItemsList, bottomOptionsList, veAiSubModulesItemsList } from
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as RefreshSvg } from '../../../assets/svg/sidebar/Refresh.svg';
 import { ReactComponent as VeAiSvg } from '../../../assets/svg/sidebar/VeAi.svg';
-
+import { ReactComponent as BackArrowSvg } from '../../../assets/svg/worflow_builder/BackArrow.svg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
@@ -133,6 +133,9 @@ const OpenedSideBarItemsComponent = ({
 		navigate(route);
 		setsidebarStates({ ...sidebarStates, isOpen: false, navStyle: 'close' });
 	};
+	const handleSidebarCollapse = () => {
+		setsidebarStates({ ...sidebarStates, isOpen: false, navStyle: 'close' });
+	};
 
 	return sidebarStates?.workSpaceOpen ? (
 		<WorkspaceListComponent
@@ -146,6 +149,7 @@ const OpenedSideBarItemsComponent = ({
 			<div className="topOptionsList">
 				<div className="veAiLogoDiv">
 					<VeAiSvg />
+					<BackArrowSvg className="collapseArrow" onClick={handleSidebarCollapse} />
 				</div>
 				<div className="allmodulesList">
 					{veAiModulesItemsList?.map((singleItems, index) => (

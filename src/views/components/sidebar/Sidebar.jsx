@@ -77,7 +77,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	return (
 		<>
 			<div
-				className="FullScreenSidebar"
+				className={`FullScreenSidebar ${sidebarStates?.isOpen ? 'opened' : ''}`}
 				style={{
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight:
@@ -86,7 +86,10 @@ const Sidebar = ({ activeWorkspaceId }) => {
 						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '250px') : '',
 				}}
 			>
-				<nav className="sidebarComponent" style={styles[sidebarStates?.navStyle]}>
+				<nav
+					className={`sidebarComponent ${sidebarStates?.isOpen ? 'open' : ''}`}
+					style={styles[sidebarStates?.navStyle]}
+				>
 					{sidebarStates?.isOpen ? (
 						<OpenedSideBarItemsComponent
 							setsidebarStates={setsidebarStates}
