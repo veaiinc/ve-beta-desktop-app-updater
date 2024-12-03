@@ -112,12 +112,13 @@ export const newBtnActions = [
 ];
 
 export const closedSidebarIcons = [
-	{ icon: CalendarSvg, route: '' },
-	{ icon: AddCalenderSvg, route: '' },
-	{ icon: TranscriptSvg, route: '' },
+	{ icon: CalendarSvg, route: '', name: 'Calendar' },
+	{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
+	{ icon: TranscriptSvg, route: '', name: 'Transcript' },
 	{
 		icon: SettingsSvg,
 		route: '/settings/my-profile',
 		fill: 'white',
+		name: 'Settings',
 	},
 ];

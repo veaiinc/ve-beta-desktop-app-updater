@@ -79,7 +79,8 @@
 					}
 
 					&:hover {
-						background: none;
+						background: #1d1d1d;
+						border: none;
 					}
 				}
 			}
@@ -394,7 +395,7 @@
 			flex-direction: column;
 			gap: 21px;
 			overflow-y: auto;
-			max-height: 92vh;
+			// max-height: 92vh;
 
 			.backContinaer {
 				display: flex;
