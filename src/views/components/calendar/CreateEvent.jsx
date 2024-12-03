@@ -1,25 +1,62 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState, useContext } from 'react';
 import '../../../assets/scss/calendar/createEvent.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
-import { ReactComponent as VerticalDots } from '../../../assets/svg/more-options-dots.svg';
+// import { ReactComponent as VerticalDots } from '../../../assets/svg/more-options-dots.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import { ReactComponent as Clock } from '../../../assets/svg/activity/duration.svg';
 import { ReactComponent as Category } from '../../../assets/svg/calendar/category.svg';
+import { ReactComponent as Location } from '../../../assets/svg/calendar/locationPin.svg';
+import { ReactComponent as Meeting } from '../../../assets/svg/calendar/meeting.svg';
+import { ReactComponent as Avtar } from '../../../assets/svg/calendar/calendarEllipse.svg';
+import { ReactComponent as Close } from '../../../assets/svg/activity/close.svg';
+import Spinner from '../../components/loaders/Spinner.jsx';
+import ToggleSwitch from '../../components/input/slider';
+import Context from '../../../context/context';
 import moment from 'moment/moment';
 
+const initialState = {
+	title: '',
+	description: '',
+	location: '',
+	startDateTime: '',
+	endDateTime: '',
+	timezone: 'Asia/Kolkata',
+	allDay: false,
+	attendees: [],
+	calendarCategory: 'Default',
+	meeting: '',
+	phone: '',
+
+	// Validation and submission states
+	isSubmitting: false,
+	submissionError: null,
+	selectedCategory: 'Default',
+};
+
 const CreateEvent = ({ updateCalendarInfo }) => {
+	const {
+		calendarInfo: {
+			calendarEvent, //state
+			createCalendarEvent, //function
+		},
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
+		...initialState,
+
+		// UI state
 		showCategory: false,
-		isAllDayEvent: false,
 		showInputSuggestions: false,
+		categories: ['Shoots', 'Sessions', 'Meetings'],
+
+		// Attendees management
 		attendeesInputField: '',
-		startDateTime: null,
-		endDateTime: null,
+
+		// Date and time details
 		startDate: '',
 		startTime: '',
 		endDate: '',
 		endTime: '',
-		attendeesList: [],
 		inputDropDownItems: [
 			{
 				_id: '66e8263c45a6222134432931',
@@ -53,15 +90,17 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 	useEffect(() => {
 		let timerId;
 		const handleClickOutside = (event) => {
-			if (createEventRef.current && !createEventRef.current.contains(event.target)) {
+			if (
+				createEventRef.current &&
+				!createEventRef.current.contains(event.target) &&
+				!event.target.closest('.attendeesDetails')
+			) {
 				updateCalendarInfo('isCreateEventOpen', false);
 			}
 		};
-
 		timerId = setTimeout(() => {
 			document.addEventListener('click', handleClickOutside);
 		}, 0);
-
 		return () => {
 			clearTimeout(timerId);
 			document.removeEventListener('click', handleClickOutside);
@@ -92,23 +131,145 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 		}
 	}, [info?.startDate, info?.startTime, info?.endDate, info?.endTime]);
 
-	const updateCreateEventInfo = useCallback((key, value) => {
+	// Optimize date and time conversion
+	const convertToISOString = useCallback((date, time) => {
+		if (!date) return null;
+
+		const combinedDateTime = time
+			? moment(`${date}T${time}`, 'YYYY-MM-DDTHH:mm')
+			: moment(date);
+
+		return combinedDateTime.format('YYYY-MM-DDTHH:mm:ssZ');
+	}, []);
+
+	const updateEventInfo = useCallback((key, value) => {
 		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
 	}, []);
 
+	// Prepare event payload for submission
+	const prepareEventPayload = useCallback(() => {
+		const {
+			title,
+			description,
+			startDate,
+			startTime,
+			endDate,
+			endTime,
+			allDay,
+			timezone,
+			location,
+			meeting,
+			attendees,
+			calendarCategory: selectedCategory,
+		} = info;
+
+		// Validate required fields
+		if (!title || !startDate || !endDate) {
+			setInfo((prev) => ({
+				...prev,
+				submissionError: 'Title and date are required',
+			}));
+			return null;
+		}
+
+		return {
+			title,
+			description: description || '',
+			location,
+			startDateTime: convertToISOString(startDate, startTime),
+			endDateTime: convertToISOString(endDate || startDate, endTime || startTime),
+			timezone,
+			allDay,
+			attendees: attendees?.map((attendee) => ({
+				tenantUserId: attendee.tenantUserId || '',
+				firstName: attendee.name || '',
+				lastName: '',
+				email: attendee.email,
+				responseStatus: 'confirmed',
+			})),
+			calendarCategory: selectedCategory,
+			meeting,
+			phone: '',
+		};
+	}, [info, convertToISOString]);
+
+	// Handle event creation submission
+	const handleEventSubmission = useCallback(async () => {
+		// Reset previous errors
+		setInfo((prev) => ({
+			...prev,
+			isSubmitting: true,
+			submissionError: null,
+		}));
+
+		try {
+			const eventPayload = prepareEventPayload();
+			if (!eventPayload) return;
+
+			await createCalendarEvent(eventPayload);
+			updateCalendarInfo('isCreateEventOpen', false);
+		} catch (error) {
+			setInfo((prev) => ({
+				...prev,
+				isSubmitting: false,
+				submissionError: error.message || 'Failed to create event',
+			}));
+		}
+	}, [prepareEventPayload, createCalendarEvent, updateCalendarInfo]);
+
 	const addAttendees = useCallback(
 		({ name = '', email = '', isWorkspaceUser = false, tenantUserId = '' }) => {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				attendeesInputField: '',
-				attendeesList: [
-					...prevInfo?.attendeesList,
+			// Validate email
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			if (!emailRegex.test(email)) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					submissionError: 'Invalid email address',
+				}));
+				return;
+			}
+
+			// Check for duplicate
+			const isDuplicate = info.attendees.some((attendee) => attendee.email === email);
+
+			if (isDuplicate) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					submissionError: 'Attendee already added',
+				}));
+				return;
+			}
+
+			setInfo((prevInfo) => {
+				const updatedAttendees = [
+					...prevInfo.attendees,
 					{ name, email, isWorkspaceUser, tenantUserId },
-				],
-			}));
+				];
+				return {
+					...prevInfo,
+					attendeesInputField: '',
+					attendees: updatedAttendees,
+					submissionError: null, // Clear any previous errors
+				};
+			});
 		},
-		[],
+		[info.attendees],
 	);
+
+	useEffect(() => {
+		if (info?.submissionError) {
+			alert(info?.submissionError);
+		}
+	}, [info?.submissionError]);
+
+	const removeAttendee = useCallback((id) => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			attendees: prevInfo.attendees.filter(
+				(attendee) => attendee.tenantUserId !== id && attendee.email !== id,
+			),
+		}));
+	}, []);
 
 	return (
 		<div className="createEventContainer" ref={createEventRef}>
@@ -119,25 +280,54 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 					style={{ cursor: 'pointer' }}
 				/>
 			</div>
+			{info?.submissionError && (
+				<div
+					style={{
+						color: 'red',
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+					}}
+				>
+					{info?.submissionError}
+				</div>
+			)}
 			<div className="eventDetailsContainer">
 				<div className="agendaContainer">
 					<span className="agendaLabel">Agenda</span>
-					<input type="text" name="" id="" placeholder="E.g. Meeting" />
+					<input
+						type="text"
+						name="title"
+						id="title"
+						placeholder="E.g. Meeting"
+						value={info?.title}
+						onChange={(e) => updateEventInfo('title', e.target.value)}
+					/>
+					<span className="agendaLabel">Description</span>
+					<input
+						type="text"
+						name="description"
+						id="description"
+						placeholder="Description of the event"
+						value={info?.description}
+						onChange={(e) => updateEventInfo('description', e.target.value)}
+					/>
 				</div>
+
 				<div className="detailsContainer">
 					<div className="detailsWrapper">
 						<Clock />
 						<span className="detailsLabel">Details</span>
 					</div>
-					<div className={`${info.isAllDayEvent ? `` : `eventTimeWrapper`}`}>
+					<div className={`${info?.allDay ? `` : `eventTimeWrapper`}`}>
 						<input
 							type="date"
 							placeholder="Wed, September 22 2024"
 							className="dateInput"
 							value={info?.startDate}
-							onChange={(e) => updateCreateEventInfo('startDate', e.target.value)}
+							onChange={(e) => updateEventInfo('startDate', e.target.value)}
 						/>
-						{info.isAllDayEvent ? (
+						{info?.allDay ? (
 							''
 						) : (
 							<input
@@ -145,19 +335,19 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 								placeholder="12:00PM"
 								className="timeInput"
 								value={info?.startTime}
-								onChange={(e) => updateCreateEventInfo('startTime', e.target.value)}
+								onChange={(e) => updateEventInfo('startTime', e.target.value)}
 							/>
 						)}
 					</div>
-					<div className={`${info.isAllDayEvent ? `` : `eventTimeWrapper`}`}>
+					<div className={`${info?.allDay ? `` : `eventTimeWrapper`}`}>
 						<input
 							type="date"
 							placeholder="Wed, September 22 2024"
 							className="dateInput"
 							value={info?.endDate}
-							onChange={(e) => updateCreateEventInfo('endDate', e.target.value)}
+							onChange={(e) => updateEventInfo('endDate', e.target.value)}
 						/>
-						{info.isAllDayEvent ? (
+						{info?.allDay ? (
 							''
 						) : (
 							<input
@@ -165,28 +355,16 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 								placeholder="12:30AM"
 								className="timeInput"
 								value={info?.endTime}
-								onChange={(e) => updateCreateEventInfo('endTime', e.target.value)}
+								onChange={(e) => updateEventInfo('endTime', e.target.value)}
 							/>
 						)}
 					</div>
 					<div className="allDayWrapper">
 						<span className="allDayLabel">All Day Event</span>
-						<div className="toggleSwitch">
-							<input
-								type="checkbox"
-								id="toggleSwitchCheckbox"
-								className="toggleSwitchCheckbox"
-								checked={info.isAllDayEvent}
-								onChange={() =>
-									updateCreateEventInfo('isAllDayEvent', !info?.isAllDayEvent)
-								}
-							/>
-							<label className="toggleSwitchLabel" htmlFor="toggleSwitchCheckbox">
-								<span className="toggleSwitchHandle"></span>
-							</label>
-						</div>
+						<ToggleSwitch onChange={() => updateEventInfo('allDay', !info?.allDay)} />
 					</div>
 				</div>
+
 				<div className="categoriesContainer">
 					<div className="categoriesWrapper">
 						<Category />
@@ -196,9 +374,7 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 						<input type="text" placeholder="Add to a category" />
 						<div
 							className="downArrow"
-							onClick={() =>
-								updateCreateEventInfo('showCategory', !info?.showCategory)
-							}
+							onClick={() => updateEventInfo('showCategory', !info?.showCategory)}
 						>
 							<DownSvg
 								style={{
@@ -217,30 +393,43 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 							''
 						)}
 					</div>
-					{/* <div className="optionsInput">
-						<input type="text" />
-						<input type="text" />
-					</div> */}
+					<div className="additionalOptions">
+						<input
+							type="text"
+							placeholder="Add location"
+							value={info?.location}
+							onChange={(e) => updateEventInfo('location', e.target.value)}
+						/>
+						<Location />
+					</div>
+					<div className="additionalOptions">
+						<Meeting />
+						<input
+							type="text"
+							placeholder="Add meeting link"
+							value={info?.meeting}
+							onChange={(e) => updateEventInfo('meeting', e.target.value)}
+						/>
+					</div>
 				</div>
+
 				<div className="attendeesContainer">
 					<div className="attendeesHeader">
 						<span className="attendiesLabel">Attendees</span>
-						<span className="attendeesCount">2</span>
+						<span className="attendeesCount">{info?.attendees.length + 1}</span>
 					</div>
 					<div className="attendeeInputWrapper">
 						<input
 							type="text"
-							placeholder="Add attendee"
-							onBlur={() => updateCreateEventInfo('showInputSuggestions', false)}
-							onFocus={() => updateCreateEventInfo('showInputSuggestions', true)}
+							placeholder="Add attendee or email"
+							onBlur={() => updateEventInfo('showInputSuggestions', false)}
+							onFocus={() => updateEventInfo('showInputSuggestions', true)}
 							value={info?.attendeesInputField}
-							onChange={(e) =>
-								updateCreateEventInfo('attendeesInputField', e.target.value)
-							}
+							onChange={(e) => updateEventInfo('attendeesInputField', e.target.value)}
 							onKeyDown={(e) => {
-								if (e.key === 'Enter') {
+								if (e.key === 'Enter' && info?.attendeesInputField) {
 									addAttendees({ email: info?.attendeesInputField });
-									updateCreateEventInfo('showInputSuggestions', false);
+									updateEventInfo('showInputSuggestions', false);
 								}
 							}}
 						/>
@@ -261,7 +450,9 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 												});
 											}}
 										>
-											<div className="avatar"></div>
+											<div className="avatar">
+												<Avtar />
+											</div>
 											<div className="details">
 												<div className="name">{`${item?.firstName} ${item?.lastName}`}</div>
 												<div className="email">{item?.email}</div>
@@ -275,16 +466,21 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 					</div>
 					<div className="attendeesList">
 						<div className="attendeesDetails">
-							<div className="avatar"></div>
+							<div className="avatar">
+								<Avtar />
+							</div>
 							<div className="nameWrapper">
 								<span className="name">Avinash</span>
-								<span className="role">Organzer</span>
+								<span className="role">Organizer</span>
 							</div>
 						</div>
-						{info?.attendeesList
-							? info?.attendeesList.map((item, index) => (
+						{info?.attendees
+							? info?.attendees?.map((item, index) => (
 									<div className="attendeesDetails" key={index}>
-										<div className="avatar"></div>
+										<div className="avatar">
+											<Avtar />
+										</div>
+
 										{item?.isWorkspaceUser ? (
 											<div className="nameWrapper">
 												<span className="name">{item?.name}</span>
@@ -295,14 +491,25 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 												<span className="name">{item?.email}</span>
 											</div>
 										)}
-										<VerticalDots />
+										<Close
+											onClick={() =>
+												removeAttendee(item?.tenantUserId || item?.email)
+											}
+											style={{ cursor: 'pointer' }}
+										/>
 									</div>
 							  ))
 							: ''}
 					</div>
 				</div>
 			</div>
-			<button className="addToCalendar">Add to calendar</button>
+			<button className="addToCalendar">
+				{info?.isSubmitting ? (
+					<Spinner width={'20px'} height={'20px'} />
+				) : (
+					'Add to calendar'
+				)}
+			</button>
 		</div>
 	);
 };

@@ -109,12 +109,19 @@ const initialState = {
 	eventsList: [],
 	eventListError: null,
 	isLoading: false,
+	isEventCreated: false,
 	updateEventsList: false,
 };
 
 const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalendarInfo }) => {
 	const {
-		calendarInfo: { calendarEventsList, getCalendarEventsList, resetCalendarState },
+		calendarInfo: {
+			calendarEventsList,
+			getCalendarEventsList,
+			calendarEvent, //state
+			createCalendarEvent, //function
+			resetCalendarState,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
