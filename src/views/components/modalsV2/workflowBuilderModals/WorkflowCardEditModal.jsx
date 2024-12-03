@@ -7,7 +7,7 @@ import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_bu
 import Context from '../../../../context/context';
 import ToggleSlider from '../../input/slider';
 import Spinner from '../../loaders/Spinner';
-
+import Skeleton from 'react-loading-skeleton';
 import {
 	calculateTimeDifference,
 	smartFileActions,
@@ -93,32 +93,6 @@ const WorkflowCardEditModal = ({
 			const { type, actionType } = currentStepInfo || {};
 			let finalisedOption = type === 'condition' ? type : actionType;
 			setInfo((prev) => ({ ...prev, localOptionType: finalisedOption, pageLoader: false }));
-			// const payload = {
-			// 	getEmailTemplateId: currentStepInfo?.emailTemplateId,
-			// };
-			// const response = await getSpecificWorkflowTemplateDetails(payload);
-			// const { approvalRequired, htmlBody, sendAt, subject, title } = response?.[1] || {};
-			// let timeStampData,
-			// 	noOfDays = 1,
-			// 	selectedDuration = {
-			// 		label: 'Days',
-			// 		value: 'days',
-			// 	};
-			// if (sendAt) {
-			// 	timeStampData = calculateTimeDifference(sendAt);
-			// 	noOfDays = +timeStampData?.[0];
-			// 	selectedDuration = returnDurationOption(timeStampData?.[1]);
-			// }
-			// setInfo((prev) => ({
-			// 	...prev,
-			// 	subject,
-			// 	emailBody: htmlBody,
-			// 	requiredApproval: approvalRequired,
-			// 	title,
-			// 	pageLoader: false,
-			// 	noOfDays,
-			// 	selectedDuration,
-			// }));
 		}
 		if (modalIsOpen && mode === 'create') {
 			setInfo((prev) => ({ ...prev, pageLoader: false }));
@@ -210,21 +184,7 @@ const WorkflowCardEditModal = ({
 			<div className="WorkflowCardEditModalParentContainer">
 				<div className="innerContainer">
 					{info?.pageLoader ? (
-						<div
-							className="loadingScreen"
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								justifyContent: 'center',
-								alignItems: 'center',
-								flex: 1,
-								gap: '24px',
-								color: '#fff',
-							}}
-						>
-							<Spinner />
-							<span>Fetching details ....</span>
-						</div>
+						<WorkflowBuilderLoader />
 					) : (
 						compMapper?.[info?.localOptionType]
 					)}
@@ -548,6 +508,7 @@ const RenderNotificationUi = ({
 		editEmailModal: false,
 		saveLoader: false,
 		selectedCriteria: smartFileActions?.[0],
+		contentLoader: true,
 	});
 
 	//useEffects
@@ -572,6 +533,7 @@ const RenderNotificationUi = ({
 							selectedEmailTemplate: data?.[0],
 							subject: data?.[0]?.subject,
 							emailBody: data?.[0]?.htmlBody,
+							contentLoader: false,
 					  };
 			setInfo((prev) => ({
 				...prev,
@@ -605,6 +567,7 @@ const RenderNotificationUi = ({
 			noOfDays = +timeStampData?.[0];
 			selectedDuration = returnDurationOption(timeStampData?.[1]);
 		}
+
 		let selectedEmailTemplate = null,
 			selectedCriteria = null,
 			selectedChannel = null;
@@ -642,6 +605,7 @@ const RenderNotificationUi = ({
 			selectedEmailTemplate,
 			selectedCriteria,
 			selectedChannel,
+			contentLoader: false,
 		}));
 	}, [mode, currentStepInfo, info?.emailTemplates]);
 
@@ -779,7 +743,9 @@ const RenderNotificationUi = ({
 		info?.selectedCriteria,
 	]);
 
-	return (
+	return info?.contentLoader ? (
+		<WorkflowBuilderLoader />
+	) : (
 		<div className="notificationContainer">
 			{/* header */}
 			<div className="workflowUpdatedHeader">
@@ -936,12 +902,16 @@ const RenderNotificationUi = ({
 					<ToggleSlider value={info?.requiredApproval} onChange={approvalOnChange} />
 				</div>
 			</div>
-			<div className="workflowFooterContainer">
-				<div className="saveChangesButton" onClick={addNotificationNode}>
-					{info?.saveLoader ? <Spinner width={'16px'} height={'16px'} /> : ''}
-					{info?.saveLoader ? 'Saving...' : 'Save Changes'}
+			{mode !== 'edit' ? (
+				<div className="workflowFooterContainer">
+					<div className="saveChangesButton" onClick={addNotificationNode}>
+						{info?.saveLoader ? <Spinner width={'16px'} height={'16px'} /> : ''}
+						{info?.saveLoader ? 'Saving...' : 'Save Changes'}
+					</div>
 				</div>
-			</div>
+			) : (
+				''
+			)}
 			<EditAndViewEmailTemplateModal
 				open={info?.editEmailModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, editEmailModal: false }))}
@@ -1089,6 +1059,31 @@ const RenderPipelineUi = ({ closeModal, changeLocalOptionType, localOptionType }
 			<div className="workflowFooterContainer">
 				<div className="saveChangesButton">Save Changes</div>
 			</div>
+		</div>
+	);
+};
+
+const WorkflowBuilderLoader = () => {
+	return (
+		<div
+			className="loadingScreen"
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+
+				alignItems: 'center',
+				flex: 1,
+				gap: '24px',
+				color: '#fff',
+				padding: '16px',
+			}}
+		>
+			<Skeleton width={'312px'} height={'44px'} style={{ borderRadius: '14px' }} />
+			<Skeleton count={5} width={'312px'} height={'12px'} />
+			<Skeleton width={'312px'} height={'44px'} style={{ borderRadius: '14px' }} />
+			<Skeleton count={5} width={'312px'} height={'12px'} />
+			<Skeleton width={'312px'} height={'44px'} style={{ borderRadius: '14px' }} />
+			<Skeleton count={5} width={'312px'} height={'12px'} />
 		</div>
 	);
 };

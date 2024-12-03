@@ -136,25 +136,25 @@ export const calculateTimeDifference = (targetTimestamp) => {
 
 export const returnDurationOption = (type) => {
 	let selectedDuration;
-	if (type === 'minutes') {
+	if (type === 'minutes' || type === 'minute') {
 		selectedDuration = {
 			label: 'Minutes',
 			value: 'minutes',
 		};
 	}
-	if (type === 'hours') {
+	if (type === 'hours' || type === 'hour') {
 		selectedDuration = {
 			label: 'Hours',
 			value: 'hours',
 		};
 	}
-	if (type === 'days') {
+	if (type === 'days' || type === 'day') {
 		selectedDuration = {
 			label: 'Days',
 			value: 'days',
 		};
 	}
-	if (type === 'weeks') {
+	if (type === 'weeks' || type === 'week') {
 		selectedDuration = {
 			label: 'Weeks',
 			value: 'weeks',
