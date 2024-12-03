@@ -46,7 +46,7 @@ const WorkflowBuilder = () => {
 	const navigate = useNavigate();
 	const { templateId } = useParams();
 	const wrapperRef = useRef(null);
-
+	const containerRef = useRef(null);
 	const [info, setInfo] = useState({
 		data: null,
 		modalIsOpen: false,
@@ -110,26 +110,13 @@ const WorkflowBuilder = () => {
 
 	//uselayoutEffect
 	useEffect(() => {
-		if (wrapperRef.current) {
-			// Get the wrapper width dynamically
-			const wrapperWidth = wrapperRef.current.scrollWidth;
-			const containerWidth = wrapperRef.current.clientWidth;
-			// console.log('wrapper width==>', wrapperWidth);
-			// setInfo((prev) => ({ ...prev, translateX: wrapperWidth }));
-			// wrapperRef?.current?.scrollTo({
-			// 	left: wrapperWidth,
-			// 	behavior: 'smooth', // Optional: Smooth scrolling
-			// });
-
-			// console.log('helo==>', wrapperWidth, containerWidth);
-
-			// Calculate the translate value to center content or adjust as needed
-			// const translateValue =
-			// 	wrapperWidth > containerWidth ? (wrapperWidth - containerWidth) / 2 : 0;
-
-			// setTranslateX(translateValue);
+		if (wrapperRef.current && containerRef.current) {
+			console.log('Wrapper width:', wrapperRef.current.offsetWidth);
+			console.log('Container width:', containerRef.current.offsetWidth);
+			console.log('Scroll width:', wrapperRef.current.scrollWidth);
+			console.log('Current scroll position:', wrapperRef.current.scrollLeft);
 		}
-	}, [info?.loading, wrapperRef]);
+	}, [info.stepsMapper]);
 
 	//function defination
 
@@ -405,24 +392,40 @@ const WorkflowBuilder = () => {
 			) : (
 				<div
 					className="workflow-tree-container"
+					ref={wrapperRef}
 					style={{
 						width: '100%',
-						height: '100%',
+						height: 'calc(100vh - 90px)',
 						overflow: 'auto',
-						margin: '0 auto',
+						position: 'relative',
 					}}
-					ref={wrapperRef}
 				>
-					<div style={{ translate: info?.translateX ? info?.translateX : '' }}>
-						<WorkflowNode
-							nodeId={info?.statrtNode?._id}
-							stepsMapper={info?.stepsMapper}
-							templateData={info?.incomingTemplateData}
-							openPreviewModal={openPreviewModal}
-							openModal={openModal}
-							alterData={alterData}
-							// handleNodesRedering={handleNodesRedering}
-						/>
+					<div
+						ref={containerRef}
+						style={{
+							minWidth: 'min-content',
+							display: 'flex',
+							justifyContent: 'center',
+							padding: '40px 100%', // Use 100% padding on both sides
+						}}
+					>
+						<div
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'center',
+								minWidth: 'min-content',
+							}}
+						>
+							<WorkflowNode
+								nodeId={info?.statrtNode?._id}
+								stepsMapper={info?.stepsMapper}
+								templateData={info?.incomingTemplateData}
+								openPreviewModal={openPreviewModal}
+								openModal={openModal}
+								alterData={alterData}
+							/>
+						</div>
 					</div>
 				</div>
 			)}

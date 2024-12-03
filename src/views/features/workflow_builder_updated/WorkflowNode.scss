@@ -60,15 +60,18 @@
 	background: #333334;
 }
 .condition-branches {
-	width: 100%;
+	width: max-content; // Changed from 100%
 	min-width: 800px;
 	display: flex;
-	translate: 0px -30px;
+	margin-top: -30px;
+	position: relative;
 
 	.left-branches {
-		flex: 1;
+		width: max-content; // Changed from flex: 1
 		display: flex;
 		flex-direction: column;
+		min-width: 400px;
+		position: relative;
 		.yes-branch-container {
 			display: flex;
 			padding-left: 110px;
@@ -106,16 +109,18 @@
 			}
 		}
 		.yes-nodes-container {
+			width: max-content; // Changed from 100%
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			// translate: -52px 0px;
 		}
 	}
 	.right-branches {
-		flex: 1;
+		width: max-content; // Changed from flex: 1
 		display: flex;
 		flex-direction: column;
+		min-width: 400px;
+		position: relative;
 		.no-branch-container {
 			display: flex;
 			padding-right: 110px;
@@ -151,20 +156,10 @@
 			}
 		}
 		.no-nodes-container {
+			width: max-content; // Changed from 100%
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 		}
 	}
-}
-
-// Container styles
-.workflow-tree-container {
-	display: flex;
-	justify-content: center;
-	padding: 40px;
-	min-height: 100vh;
-	background: #000000;
-	align-self: stretch;
-	height: 100%;
 }
