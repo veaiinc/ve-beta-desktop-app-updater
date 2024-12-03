@@ -90,33 +90,35 @@ const WorkflowCardEditModal = ({
 
 	const getSpecifiTemplateDetails = useCallback(async () => {
 		if (modalIsOpen && mode === 'edit') {
-			const payload = {
-				getEmailTemplateId: currentStepInfo?.emailTemplateId,
-			};
-			const response = await getSpecificWorkflowTemplateDetails(payload);
-			const { approvalRequired, htmlBody, sendAt, subject, title } = response?.[1] || {};
-			let timeStampData,
-				noOfDays = 1,
-				selectedDuration = {
-					label: 'Days',
-					value: 'days',
-				};
-			if (sendAt) {
-				timeStampData = calculateTimeDifference(sendAt);
-				noOfDays = +timeStampData?.[0];
-				selectedDuration = returnDurationOption(timeStampData?.[1]);
-			}
-
-			setInfo((prev) => ({
-				...prev,
-				subject,
-				emailBody: htmlBody,
-				requiredApproval: approvalRequired,
-				title,
-				pageLoader: false,
-				noOfDays,
-				selectedDuration,
-			}));
+			const { type, actionType } = currentStepInfo || {};
+			let finalisedOption = type === 'condition' ? type : actionType;
+			setInfo((prev) => ({ ...prev, localOptionType: finalisedOption, pageLoader: false }));
+			// const payload = {
+			// 	getEmailTemplateId: currentStepInfo?.emailTemplateId,
+			// };
+			// const response = await getSpecificWorkflowTemplateDetails(payload);
+			// const { approvalRequired, htmlBody, sendAt, subject, title } = response?.[1] || {};
+			// let timeStampData,
+			// 	noOfDays = 1,
+			// 	selectedDuration = {
+			// 		label: 'Days',
+			// 		value: 'days',
+			// 	};
+			// if (sendAt) {
+			// 	timeStampData = calculateTimeDifference(sendAt);
+			// 	noOfDays = +timeStampData?.[0];
+			// 	selectedDuration = returnDurationOption(timeStampData?.[1]);
+			// }
+			// setInfo((prev) => ({
+			// 	...prev,
+			// 	subject,
+			// 	emailBody: htmlBody,
+			// 	requiredApproval: approvalRequired,
+			// 	title,
+			// 	pageLoader: false,
+			// 	noOfDays,
+			// 	selectedDuration,
+			// }));
 		}
 		if (modalIsOpen && mode === 'create') {
 			setInfo((prev) => ({ ...prev, pageLoader: false }));
@@ -145,6 +147,7 @@ const WorkflowCardEditModal = ({
 		});
 		return response;
 	}, [templateId]);
+
 	///updated functions
 	const compMapper = useMemo(() => {
 		if (info?.localOptionType) {
@@ -166,6 +169,8 @@ const WorkflowCardEditModal = ({
 						previousStepPath={previousStepPath}
 						moveToPath={moveToPath}
 						refetchWorkflowBuilderData={refetchWorkflowBuilderData}
+						mode={mode}
+						currentStepInfo={currentStepInfo}
 					/>
 				),
 				notification: (
@@ -177,6 +182,8 @@ const WorkflowCardEditModal = ({
 						templateId={templateId}
 						previousStepPath={previousStepPath}
 						refetchWorkflowBuilderData={refetchWorkflowBuilderData}
+						mode={mode}
+						currentStepInfo={currentStepInfo}
 					/>
 				),
 				pipeline: (
@@ -495,9 +502,11 @@ const RenderNotificationUi = ({
 	templateId,
 	previousStepId,
 	refetchWorkflowBuilderData,
+	mode,
+	currentStepInfo,
 }) => {
 	const {
-		templates: { allEmailTemplates, addNewSteps },
+		templates: { allEmailTemplates, addNewSteps, getSpecificWorkflowTemplateDetails },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -556,17 +565,86 @@ const RenderNotificationUi = ({
 				};
 				options?.push(obj);
 			}
+			let obj =
+				mode === 'edit'
+					? {}
+					: {
+							selectedEmailTemplate: data?.[0],
+							subject: data?.[0]?.subject,
+							emailBody: data?.[0]?.htmlBody,
+					  };
 			setInfo((prev) => ({
 				...prev,
 				emailTemplates: options,
-				selectedEmailTemplate: data?.[0],
-				subject: data?.[0]?.subject,
-				emailBody: data?.[0]?.htmlBody,
+				...obj,
 			}));
 		}
-	}, [allEmailTemplates]);
+	}, [allEmailTemplates, mode]);
+
+	useEffect(() => {
+		if (mode === 'edit' && info?.emailTemplates) {
+			fetchSpecificTemplateData();
+		}
+	}, [mode, currentStepInfo, info?.emailTemplates]);
 
 	//function defination
+	const fetchSpecificTemplateData = useCallback(async () => {
+		const payload = {
+			getEmailTemplateId: currentStepInfo?.emailTemplateId,
+		};
+		const response = await getSpecificWorkflowTemplateDetails(payload);
+		const { approvalRequired, htmlBody, sendAt, subject, title } = response?.[1] || {};
+		let timeStampData,
+			noOfDays = 1,
+			selectedDuration = {
+				label: 'Days',
+				value: 'days',
+			};
+		if (sendAt) {
+			timeStampData = calculateTimeDifference(sendAt);
+			noOfDays = +timeStampData?.[0];
+			selectedDuration = returnDurationOption(timeStampData?.[1]);
+		}
+		let selectedEmailTemplate = null,
+			selectedCriteria = null,
+			selectedChannel = null;
+		const { channels, criteria } = currentStepInfo || {};
+
+		//fetching selected email template
+		for (let i = 0; i < info?.emailTemplates?.length; i++) {
+			if (info?.emailTemplates?.[i]?.label === title) {
+				selectedEmailTemplate = info?.emailTemplates?.[i]?.ele;
+			}
+		}
+
+		// fetching selected criteria
+		for (let i = 0; i < smartFileActions?.length; i++) {
+			if (smartFileActions?.[i]?.value === criteria) {
+				selectedCriteria = smartFileActions?.[i];
+			}
+		}
+
+		//fetching selected channel
+		for (let i = 0; i < channelOptions?.length; i++) {
+			if (channelOptions?.[i]?.value === channels?.[0]) {
+				selectedChannel = channelOptions?.[i];
+			}
+		}
+
+		setInfo((prev) => ({
+			...prev,
+			subject,
+			emailBody: htmlBody,
+			requiredApproval: approvalRequired,
+			title,
+			noOfDays,
+			selectedDuration,
+			selectedEmailTemplate,
+			selectedCriteria,
+			selectedChannel,
+		}));
+	}, [mode, currentStepInfo, info?.emailTemplates]);
+
 	const onOptionChangeFunc = useCallback(
 		(data) => {
 			if (data === localOptionType) {
@@ -846,6 +924,7 @@ const RenderNotificationUi = ({
 						uniqueIdentifierForTickIcon={'value'}
 						selectedValueObj={info?.selectedCriteria}
 						onChangeFunc={onChangeCriteria}
+						showSelectedValueTick={true}
 					/>
 				</div>
 

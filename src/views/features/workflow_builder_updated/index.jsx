@@ -156,8 +156,6 @@ const WorkflowBuilder = () => {
 			currentStepInfo: data,
 			currentStepIndex: index,
 		}));
-
-		console.log('hello my frnd==>', data);
 	}, []);
 
 	const refreshSalesModuleData = useCallback(async () => {
