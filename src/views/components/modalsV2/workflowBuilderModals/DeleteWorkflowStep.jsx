@@ -38,9 +38,10 @@ const DeleteWorkflowStep = ({
 				},
 			};
 
-			if (deleteOptions) {
+			if (deleteOptions && deleteOptions !== null) {
 				payload.removeStepInput.deleteBranch = deleteOptions;
 			}
+
 			const response = await deleteWorkflowStep(payload);
 			if (response?.[0]) {
 				const refetchData = await refetchWorkflowBuilderData();
@@ -73,7 +74,7 @@ const DeleteWorkflowStep = ({
 						<div className="cancelDeleteStep" onClick={closeModal}>
 							Cancel
 						</div>
-						<div className="deleteStepBtn" onClick={deleteWorkflowStepFunc}>
+						<div className="deleteStepBtn" onClick={() => deleteWorkflowStepFunc()}>
 							{info?.deleteLoader ? (
 								<>
 									{' '}
