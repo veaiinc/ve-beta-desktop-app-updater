@@ -1,6 +1,7 @@
 import React, { useState, memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { veAiModulesItemsList, bottomOptionsList, veAiSubModulesItemsList } from './sidebarindex';
+import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 // import { ReactComponent as DownArrowSmallSvg } from '../../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as RefreshSvg } from '../../../assets/svg/sidebar/Refresh.svg';
@@ -17,6 +18,7 @@ const OpenedSideBarHoverStateIcons = ({
 	initialColor = null,
 	isActive,
 	navigateTo,
+	isSelected,
 }) => {
 	const [isHover, setisHover] = useState(false);
 	const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -49,7 +51,7 @@ const OpenedSideBarHoverStateIcons = ({
 			{/* {isActive ? <Icon fill={'#FFF'} /> : <Icon fill={'#FFF'} />} */}
 			<Icon fill={'none'} />
 			<p>{name}</p>
-			{name === 'Calendar' && (
+			{name === 'Calendar' ? (
 				<>
 					<div>
 						<span onClick={toggleDropdown} style={{ marginLeft: '35px' }}>
@@ -63,14 +65,28 @@ const OpenedSideBarHoverStateIcons = ({
 						<div className={`dropdownMenu ${isDropdownVisible ? 'visible' : ''}`}>
 							{veAiSubModulesItemsList?.map((subItem, index) => (
 								<div key={subItem?.name} className="subItem">
-									{subItem.icon && <subItem.icon fill={'#FFF'} />}{' '}
-									{/* Render icon */}
-									<p>{subItem.name}</p> {/* Render title */}
+									{subItem.icon && <subItem.icon fill={'#FFF'} />}
+									<p>{subItem.name}</p>
 								</div>
 							))}
 						</div>
 					)}
 				</>
+			) : (
+				(isSelected || isActive) && (
+					<TickSvg
+						className="tick-icon"
+						// fill="#FFF"
+						style={{
+							width: '16px',
+							height: '16px',
+							position: 'absolute',
+							right: '16px',
+							top: '50%',
+							transform: 'translateY(-50%)',
+						}}
+					/>
+				)
 			)}
 		</div>
 	);
@@ -120,6 +136,7 @@ const OpenedSideBarItemsComponent = ({
 }) => {
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
+	const [selectedOption, setSelectedOption] = useState(null);
 
 	const handleLogout = useCallback(async () => {
 		logoutFunc();
@@ -129,7 +146,8 @@ const OpenedSideBarItemsComponent = ({
 		setsidebarStates({ ...sidebarStates, workSpaceOpen: true, navStyle: 'workspace' });
 	};
 
-	const handleNavigateFunction = (route) => {
+	const handleNavigateFunction = (route, name) => {
+		setSelectedOption(name);
 		navigate(route);
 		setsidebarStates({ ...sidebarStates, isOpen: false, navStyle: 'close' });
 	};
@@ -153,21 +171,26 @@ const OpenedSideBarItemsComponent = ({
 				</div>
 				<div className="allmodulesList">
 					{veAiModulesItemsList?.map((singleItems, index) => (
-						<OpenedSideBarHoverStateIcons
-							name={singleItems.name}
-							Icon={singleItems.icon}
-							initialColor={singleItems.initialColor}
-							route={singleItems?.route}
-							navigateTo={handleNavigateFunction}
-							key={singleItems?.name}
-							isActive={info?.activeRoute === singleItems?.moduleRoute}
-							style={{
-								fontSize: '14px',
-								fontStyle: 'normal',
-								fontWeight: '500',
-								fontFamily: 'Inter',
-							}}
-						/>
+						<div>
+							<OpenedSideBarHoverStateIcons
+								name={singleItems.name}
+								Icon={singleItems.icon}
+								initialColor={singleItems.initialColor}
+								route={singleItems?.route}
+								navigateTo={(route) => {
+									handleNavigateFunction(route, singleItems?.name);
+								}}
+								key={singleItems?.name}
+								isSelected={selectedOption === singleItems?.name}
+								isActive={info?.activeRoute === singleItems?.moduleRoute}
+								style={{
+									fontSize: '14px',
+									fontStyle: 'normal',
+									fontWeight: '500',
+									fontFamily: 'Inter',
+								}}
+							/>
+						</div>
 					))}
 				</div>
 				<hr style={{ border: '0.7px solid #333334' }} />

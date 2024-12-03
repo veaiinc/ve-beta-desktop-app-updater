@@ -79,7 +79,12 @@ export const bottomOptionsList = [
 	//  icon: SquareFour,
 	//  initialColor: '#7D7D7D',
 	// },
-	{ name: 'Share and Earn', moduleRoute: '/share-and-earn', route: null, icon: GiftSvg },
+	{
+		name: 'Share and Earn',
+		moduleRoute: '',
+		route: '/share-and-earn',
+		icon: GiftSvg,
+	},
 	{
 		name: 'Settings',
 		moduleRoute: '/settings',
