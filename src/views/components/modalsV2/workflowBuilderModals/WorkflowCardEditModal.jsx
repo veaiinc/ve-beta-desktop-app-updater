@@ -345,6 +345,8 @@ const RenderConditionUi = ({
 	previousStepId,
 	moveToPath,
 	refetchWorkflowBuilderData,
+	mode,
+	currentStepInfo,
 }) => {
 	const {
 		templates: { addNewSteps },
@@ -358,8 +360,25 @@ const RenderConditionUi = ({
 			actions: 'Actions',
 			saveLoader: false,
 		},
-		selectedCondition: null,
+		selectedCondition: conditionOptions?.[0],
+		contentLoader: true,
 	});
+
+	useEffect(() => {
+		if (mode === 'edit') {
+			const { criteria } = currentStepInfo || {};
+			let selectedCondition = null;
+			for (let i = 0; i < conditionOptions?.length; i++) {
+				if (conditionOptions?.[i]?.value === criteria) {
+					selectedCondition = conditionOptions?.[i];
+					setInfo((prev) => ({ ...prev, contentLoader: false, selectedCondition }));
+					break;
+				}
+			}
+		} else {
+			setInfo((prev) => ({ ...prev, contentLoader: false }));
+		}
+	}, [mode, currentStepInfo]);
 
 	const addConditionalNodes = useCallback(async () => {
 		if (info?.saveLoader) {
@@ -443,12 +462,16 @@ const RenderConditionUi = ({
 					/>
 				</div>
 			</div>
-			<div className="workflowFooterContainer">
-				<div className="saveChangesButton" onClick={addConditionalNodes}>
-					{info?.saveLoader ? <Spinner width={'16px'} height={'16px'} /> : ''}
-					{info?.saveLoader ? 'Saving...' : 'Save Changes'}
+			{mode !== 'edit' ? (
+				<div className="workflowFooterContainer">
+					<div className="saveChangesButton" onClick={addConditionalNodes}>
+						{info?.saveLoader ? <Spinner width={'16px'} height={'16px'} /> : ''}
+						{info?.saveLoader ? 'Saving...' : 'Save Changes'}
+					</div>
 				</div>
-			</div>
+			) : (
+				''
+			)}
 		</div>
 	);
 };
@@ -577,6 +600,7 @@ const RenderNotificationUi = ({
 		for (let i = 0; i < info?.emailTemplates?.length; i++) {
 			if (info?.emailTemplates?.[i]?.label === title) {
 				selectedEmailTemplate = info?.emailTemplates?.[i]?.ele;
+				break;
 			}
 		}
 
@@ -584,6 +608,7 @@ const RenderNotificationUi = ({
 		for (let i = 0; i < smartFileActions?.length; i++) {
 			if (smartFileActions?.[i]?.value === criteria) {
 				selectedCriteria = smartFileActions?.[i];
+				break;
 			}
 		}
 
@@ -591,6 +616,7 @@ const RenderNotificationUi = ({
 		for (let i = 0; i < channelOptions?.length; i++) {
 			if (channelOptions?.[i]?.value === channels?.[0]) {
 				selectedChannel = channelOptions?.[i];
+				break;
 			}
 		}
 
