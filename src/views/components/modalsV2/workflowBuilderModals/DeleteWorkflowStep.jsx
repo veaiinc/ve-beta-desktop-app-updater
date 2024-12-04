@@ -4,7 +4,7 @@ import '../../../../assets/scss/workflowBuilder/deleteWorkflowStep.scss';
 import Spinner from '../../loaders/Spinner';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import Context from '../../../../context/context';
-
+import { Spin } from 'antd';
 const customStyles = {
 	content: { zIndex: 99999 },
 	overlay: { zIndex: 99998 },
@@ -97,26 +97,32 @@ const DeleteWorkflowStep = ({
 					<span className="deleteHeaderSubtitle">
 						There are 6 steps after this condition. Where would you like to move them?
 					</span>
-					<div className="differentDeleteOptionsContainer">
-						<div
-							className="deleteCondtionStepOptions"
-							onClick={() => deleteWorkflowStepFunc('both')}
-						>
-							Delete both branch and all steps below
+					{!info?.deleteLoader ? (
+						<div className="differentDeleteOptionsContainer">
+							<div
+								className="deleteCondtionStepOptions"
+								onClick={() => deleteWorkflowStepFunc('both')}
+							>
+								Delete both branch and all steps below
+							</div>
+							<div
+								className="deleteCondtionStepOptions"
+								onClick={() => deleteWorkflowStepFunc('yes')}
+							>
+								Delete only yes branch and steps below
+							</div>
+							<div
+								className="deleteCondtionStepOptions"
+								onClick={() => deleteWorkflowStepFunc('no')}
+							>
+								Delete only no branch and steps below
+							</div>
 						</div>
-						<div
-							className="deleteCondtionStepOptions"
-							onClick={() => deleteWorkflowStepFunc('yes')}
-						>
-							Delete only yes branch and steps below
+					) : (
+						<div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+							<Spin />
 						</div>
-						<div
-							className="deleteCondtionStepOptions"
-							onClick={() => deleteWorkflowStepFunc('no')}
-						>
-							Delete only no branch and steps below
-						</div>
-					</div>
+					)}
 				</div>
 			)}
 		</ReactModal>
