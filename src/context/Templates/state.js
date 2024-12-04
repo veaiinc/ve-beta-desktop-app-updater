@@ -34,12 +34,12 @@ import {
 	updateSendSmartFileSettingsMutation,
 	getLatestSendSmartFileSettingsQuery,
 	addNewStepsQuery,
+	updateStepsQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './Actions';
 import Service from '../../services/index';
-import { errorCodes } from '@apollo/client/invariantErrorCodes';
 
 export const intialState = {
 	workflowslist: null,
@@ -998,11 +998,34 @@ export const TemplatesState = () => {
 				// const dataResponse = response?.[1]?.data?.updateWorkflowTemplate;
 				return [true];
 			} else {
-				console.log('Api failed ==>addEmailTriggersInWorkflow', response);
+				console.log('Api failed ==>addNewSteps', response);
 				return [false];
 			}
 		} catch (error) {
-			console.log('error==>addEmailTriggersInWorkflow', error);
+			console.log('error==>addNewSteps', error);
+		}
+	};
+
+	const updateSteps = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateStepsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				console.log('Api failed ==>updateSteps', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateSteps', error);
 		}
 	};
 
@@ -1049,5 +1072,6 @@ export const TemplatesState = () => {
 		deleteEventsPreset,
 		getLatestSendSmartFileSettings,
 		addNewSteps,
+		updateSteps,
 	};
 };

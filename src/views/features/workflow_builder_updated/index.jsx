@@ -1,12 +1,4 @@
-import React, {
-	memo,
-	useCallback,
-	useContext,
-	useEffect,
-	useLayoutEffect,
-	useRef,
-	useState,
-} from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/workflowBuilder/workflowbuilderUpdated.scss';
 import { ReactComponent as BackArrow } from '../../../assets/svg/worflow_builder/BackArrow.svg';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';

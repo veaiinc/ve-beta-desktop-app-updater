@@ -489,7 +489,12 @@ const RenderNotificationUi = ({
 	currentStepInfo,
 }) => {
 	const {
-		templates: { allEmailTemplates, addNewSteps, getSpecificWorkflowTemplateDetails },
+		templates: {
+			allEmailTemplates,
+			addNewSteps,
+			getSpecificWorkflowTemplateDetails,
+			updateSteps,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -532,6 +537,7 @@ const RenderNotificationUi = ({
 		saveLoader: false,
 		selectedCriteria: smartFileActions?.[0],
 		contentLoader: true,
+		madeEditChanges: false,
 	});
 
 	//useEffects
@@ -650,9 +656,13 @@ const RenderNotificationUi = ({
 			if (data?.value === info?.selectedChannel?.value) {
 				return;
 			}
-			setInfo((prev) => ({ ...prev, selectedChannel: data }));
+			let obj = {};
+			if (mode === 'edit') {
+				obj = { madeEditChanges: true };
+			}
+			setInfo((prev) => ({ ...prev, selectedChannel: data, ...obj }));
 		},
-		[info?.selectedChannel],
+		[info?.selectedChannel, mode],
 	);
 
 	const onChangeEmailTemplates = useCallback(
@@ -663,21 +673,31 @@ const RenderNotificationUi = ({
 				return;
 			}
 
+			let obj = {};
+			if (mode === 'edit') {
+				obj = { madeEditChanges: true };
+			}
+
 			setInfo((prev) => ({
 				...prev,
 				selectedEmailTemplate: ele,
 				subject: ele?.subject,
 				emailBody: ele?.htmlBody,
+				...obj,
 			}));
 		},
-		[info?.emailTemplates, info?.selectedEmailTemplate],
+		[info?.emailTemplates, info?.selectedEmailTemplate, mode],
 	);
 
 	const changeSubjectOrEmailBody = useCallback(
 		(updatedData) => {
-			setInfo((prev) => ({ ...prev, ...updatedData }));
+			let obj = {};
+			if (mode === 'edit') {
+				obj = { madeEditChanges: true };
+			}
+			setInfo((prev) => ({ ...prev, ...updatedData, ...obj }));
 		},
-		[info],
+		[info, mode],
 	);
 
 	const onChangeDuration = useCallback(
@@ -685,36 +705,56 @@ const RenderNotificationUi = ({
 			if (info?.selectedDuration?.value === data?.value) {
 				return;
 			}
-			setInfo((prev) => ({ ...prev, selectedDuration: data }));
+			let obj = {};
+			if (mode === 'edit') {
+				obj = { madeEditChanges: true };
+			}
+			setInfo((prev) => ({ ...prev, selectedDuration: data, ...obj }));
 		},
-		[info?.selectedDuration],
+		[info?.selectedDuration, mode],
 	);
 	const onChangeCriteria = useCallback(
 		(data) => {
 			if (info?.selectedCriteria?.value === data?.value) {
 				return;
 			}
-			setInfo((prev) => ({ ...prev, selectedCriteria: data }));
+			let obj = {};
+			if (mode === 'edit') {
+				obj = { madeEditChanges: true };
+			}
+			setInfo((prev) => ({ ...prev, selectedCriteria: data, ...obj }));
 		},
-		[info?.selectedDuration],
+		[info?.selectedDuration, mode],
 	);
 	const incrementorDecrementorFunc = useCallback(
 		async (type) => {
+			let obj = {};
+			if (mode === 'edit') {
+				obj = { madeEditChanges: true };
+			}
 			if (type === 'increment') {
-				setInfo((prev) => ({ ...prev, noOfDays: prev?.noOfDays + 1 }));
+				setInfo((prev) => ({ ...prev, noOfDays: prev?.noOfDays + 1, ...obj }));
 			} else {
 				setInfo((prev) => ({
 					...prev,
 					noOfDays: prev?.noOfDays - 1 >= 0 ? prev?.noOfDays - 1 : 1,
+					...obj,
 				}));
 			}
 		},
-		[info?.noOfDays],
+		[info?.noOfDays, mode],
 	);
 
-	const approvalOnChange = useCallback(async (data) => {
-		setInfo((prev) => ({ ...prev, requiredApproval: data }));
-	}, []);
+	const approvalOnChange = useCallback(
+		async (data) => {
+			let obj = {};
+			if (mode === 'edit') {
+				obj = { madeEditChanges: true };
+			}
+			setInfo((prev) => ({ ...prev, requiredApproval: data, ...obj }));
+		},
+		[mode],
+	);
 
 	const addNotificationNode = useCallback(async () => {
 		if (info?.saveLoader) {
@@ -767,6 +807,54 @@ const RenderNotificationUi = ({
 		info?.selectedEmailTemplate,
 		info?.selectedChannel,
 		info?.selectedCriteria,
+	]);
+
+	const editNotificationNode = useCallback(async () => {
+		if (info?.saveLoader) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, saveLoader: true }));
+		const type = 'action';
+		const timeStamp = await calculateTimeStamp(info?.selectedDuration?.value, info?.noOfDays);
+		const payload = {
+			templateId: templateId,
+			updateStepInput: {
+				type,
+				approvalRequired: info?.requiredApproval,
+
+				htmlBody: info?.emailBody,
+				subject: info?.subject,
+				sendAt: timeStamp,
+				channels: info?.selectedChannel?.value,
+				actionType: 'notification',
+				criteria: info?.selectedCriteria?.value,
+				stepId: currentStepInfo?._id,
+			},
+		};
+		const response = await updateSteps(payload);
+		if (response?.[0]) {
+			const refetchResponse = await refetchWorkflowBuilderData();
+			if (refetchResponse?.[0]) {
+				setInfo((prev) => ({ ...prev, saveLoader: false }));
+				closeModal();
+			}
+		}
+		setInfo((prev) => ({ ...prev, saveLoader: false }));
+	}, [
+		info?.requiredApproval,
+		info?.saveLoader,
+		templateId,
+		previousStepPath,
+		previousStepId,
+		info?.requiredApproval,
+		info?.subject,
+		info?.emailBody,
+		info?.selectedDuration,
+		info?.noOfDays,
+		info?.selectedEmailTemplate,
+		info?.selectedChannel,
+		info?.selectedCriteria,
+		currentStepInfo,
 	]);
 
 	return info?.contentLoader ? (
@@ -928,16 +1016,21 @@ const RenderNotificationUi = ({
 					<ToggleSlider value={info?.requiredApproval} onChange={approvalOnChange} />
 				</div>
 			</div>
-			{mode !== 'edit' ? (
+
+			{mode === 'edit' && !info?.madeEditChanges ? (
+				''
+			) : (
 				<div className="workflowFooterContainer">
-					<div className="saveChangesButton" onClick={addNotificationNode}>
+					<div
+						className="saveChangesButton"
+						onClick={mode !== 'edit' ? addNotificationNode : editNotificationNode}
+					>
 						{info?.saveLoader ? <Spinner width={'16px'} height={'16px'} /> : ''}
 						{info?.saveLoader ? 'Saving...' : 'Save Changes'}
 					</div>
 				</div>
-			) : (
-				''
 			)}
+
 			<EditAndViewEmailTemplateModal
 				open={info?.editEmailModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, editEmailModal: false }))}
