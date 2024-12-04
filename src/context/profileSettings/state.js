@@ -35,9 +35,9 @@ export const ProfileState = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			const userDetails = await service.fetchGet(
-				API.TENANTS.myProfile,
+				'/tenant-user/my-profile',
 				usertoken,
-				'tenant-users',
+				'auth',
 			);
 
 			if (userDetails?.[0]) {

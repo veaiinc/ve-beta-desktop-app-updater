@@ -132,6 +132,14 @@ const UploadGalleryImageCover = ({
 							message.error('Please create a album first');
 							return;
 						} else {
+							setInfo((prev) => ({
+								...prev,
+								coverPhoto: true,
+								coverImageDetails: null,
+								imageURL: '',
+								uploadImageId: null,
+							}));
+
 							fileInputRef.current.click();
 						}
 					}}

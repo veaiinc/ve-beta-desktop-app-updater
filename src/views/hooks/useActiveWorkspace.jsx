@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
+import { fetchDomainName } from '../../helpers';
 
 const useActiveWorkspace = () => {
 	const [workspaceId, setActiveWorkspaceId] = useState(() => {
-		return localStorage.getItem('workspaceId');
+		return localStorage.getItem('workspaceId') ?? false;
 	});
 
 	useEffect(() => {
-		localStorage.setItem('workspaceId', workspaceId);
-		Cookies.set('workspaceID', workspaceId, {
-			sameSite: 'lax',
-			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
-		});
+		if (workspaceId) {
+			localStorage.setItem('workspaceId', workspaceId);
+			const host = fetchDomainName();
+			Cookies.set('workspaceID', workspaceId, {
+				sameSite: 'lax',
+				domain: host,
+			});
+		}
 	}, [workspaceId]);
 
 	useEffect(() => {

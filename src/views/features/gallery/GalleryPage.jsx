@@ -17,7 +17,7 @@ import { message, Result, Tooltip } from 'antd';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
 import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPopup';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -35,10 +35,12 @@ import Skeleton from 'react-loading-skeleton';
 import { gsap } from 'gsap';
 import slugify from 'slugify';
 
+const workspaceId = localStorage.getItem('workspaceId');
 const GalleryPage = () => {
 	const { galleryId } = useParams();
 	const navigate = useNavigate();
 	const location = useLocation();
+	const [searchkeys, setsearchkeys] = useSearchParams();
 	const {
 		galleryInfo: {
 			getAlbums,
@@ -89,6 +91,10 @@ const GalleryPage = () => {
 			getRearrangeStatus,
 			updateImageOrder,
 			changeImageOrder,
+			getDownloadLinkStatus,
+			getZipDownloadUrl,
+			getDownloadLinkForImage,
+			getDownloadForMultipleImages,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -402,6 +408,8 @@ const GalleryPage = () => {
 	}, [albumDetails]);
 
 	useEffect(() => {
+		const imageSearchKey = searchkeys.get('uploadImageId') || null;
+
 		// if image detail is upload image id
 		if (imageDetail?._id === info?.uploadImageId && galleryCredentials) {
 			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
@@ -412,7 +420,12 @@ const GalleryPage = () => {
 			}));
 		}
 
-		if (albumImagesCount?.coverImage?._id && galleryCredentials && !imageDetail) {
+		if (
+			albumImagesCount?.coverImage?._id &&
+			galleryCredentials &&
+			!imageDetail &&
+			!imageSearchKey
+		) {
 			const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 			const src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?${params}`;
 			setInfo((prev) => ({
@@ -528,13 +541,17 @@ const GalleryPage = () => {
 	};
 
 	const handleClickAlbum = (album, name) => {
-		if (album?.displayName !== info?.albumContains) {
+		const value =
+			name === 'albumName'
+				? album?.title !== info?.albumName
+				: album?.displayName !== info?.albumContains;
+		if (value) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				albumLoading: true,
 			}));
 		}
-		if (name === 'albumName') {
+		if (name === 'albumName' && album?.title !== info?.albumName) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				imagesList: {
@@ -597,13 +614,16 @@ const GalleryPage = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, selectedImages: [] }));
 	};
 	const handleExpandClick = (selectedImageId = null, type) => {
-		if (type === 'single') {
+		if (type === 'single' || info?.selectedImages?.length === 1) {
 			navigate(
-				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}&image=${selectedImageId}`,
+				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${
+					info?.albumTagId
+				}&image=${selectedImageId || info?.selectedImages?.[0]}`,
 			);
 		} else {
 			navigate(
-				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}&image=${info?.selectedImages?.[0]}`,
+				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}`,
+				{ state: { selectedImages: info?.selectedImages } },
 			);
 		}
 	};
@@ -631,9 +651,23 @@ const GalleryPage = () => {
 		}));
 	};
 	const handleClickContent = (name, count) => {
+		const searchKey = searchkeys.get('uploadImageId');
+		if (searchKey) {
+			setsearchkeys({});
+		}
+		getImageDetail(null, true, false);
+
 		if (count === 0) return;
-		setInfo((prevInfo) => ({ ...prevInfo, activeTab: name, page: 1 }));
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			activeTab: name,
+			activeLink: 'gallery-overview',
+			page: 1,
+			uploadImageId: null,
+			// imageURL: searchKey ? null : prevInfo?.imageURL,
+		}));
 	};
+
 	const handleNavigateUpload = () => {
 		info?.albumContains === 'All'
 			? navigate(`/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos`)
@@ -887,16 +921,29 @@ const GalleryPage = () => {
 		postGallery(payload, galleryId);
 	};
 
-	const handleCopyGalleryLink = () => {
-		const workspaceId = localStorage.getItem('workspaceId');
-		navigator.clipboard.writeText(
-			`https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`,
-		);
-		message.success('Gallery link copied to clipboard');
-		setInfo((prev) => ({
-			...prev,
-			showOptions: !prev.showOptions,
-		}));
+	const handleCopyGalleryLink = async () => {
+		const galleryLink = `https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`;
+
+		try {
+			// Try the modern clipboard API first
+			await navigator.clipboard.writeText(galleryLink);
+			message.success('Gallery link copied to clipboard');
+		} catch (err) {
+			// Fallback for older browsers or when clipboard API fails
+			const textArea = document.createElement('textarea');
+			textArea.value = galleryLink;
+			document.body.appendChild(textArea);
+			textArea.select();
+
+			try {
+				document.execCommand('copy');
+				message.success('Gallery link copied to clipboard');
+			} catch (err) {
+				message.error('Failed to copy link');
+			} finally {
+				document.body.removeChild(textArea);
+			}
+		}
 	};
 
 	const getImageDetails = async (imageId, batchId) => {
@@ -916,10 +963,12 @@ const GalleryPage = () => {
 
 	const uploadGalleryCoverChangeHandler = async (e) => {
 		const image = e.target.files[0];
-
 		if (!image) {
 			return;
 		}
+
+		getImageDetail(null, true, false);
+		setsearchkeys({ uploadImageId: 'image-uploading' });
 
 		message.open({
 			type: 'loading',
@@ -975,6 +1024,7 @@ const GalleryPage = () => {
 			setInfo((prev) => ({
 				...prev,
 				uploadImageId: signedURLUpload?.[1]?._id,
+				imageURL: '',
 				coverPhoto: true,
 			}));
 
@@ -1027,6 +1077,7 @@ const GalleryPage = () => {
 				docs: updatedImages,
 			},
 			showDeleteAlbum: false,
+			selectedImages: [],
 		}));
 		message.success('Images deleted successfully');
 	};
@@ -1266,6 +1317,25 @@ const GalleryPage = () => {
 			message.error('Cant set album cover with more than 1 image');
 		}
 	};
+	const handleSetGalleryCover = async () => {
+		if (info?.selectedImages?.length < 2) {
+			setInfo((prev) => ({
+				...prev,
+				activeTab: 'Settings',
+				uploadImageId: info?.selectedImages[0],
+				coverPhoto: true,
+				coverImageDetails: null,
+			}));
+			getImageDetail(info?.selectedImages[0]);
+			setsearchkeys({ uploadImageId: info?.selectedImages[0] });
+
+			setTimeout(() => {
+				scrollToSection('upload-gallery-cover');
+			}, 500);
+		} else {
+			message.error('Cant set album cover with more than 1 image');
+		}
+	};
 
 	const sortByCustomIndex = (items) => {
 		const sortedItems = items?.sort((a, b) => a.customSortIndex - b.customSortIndex);
@@ -1443,6 +1513,35 @@ const GalleryPage = () => {
 		if (!image) return 0;
 		const activeTag = image.galleryTags.find((tag) => tag._id === info.albumTagId);
 		return activeTag?.customSortIndex || 0;
+	};
+	const handleDownload = async () => {
+		message.loading('Downloading image...', 0);
+		if (info?.selectedImages?.length === 1) {
+			const response = await getDownloadLinkForImage(info?.selectedImages[0]);
+
+			if (response?.[0] === true) {
+				message.destroy();
+				message.success('Download completed');
+			} else {
+				message.error('Failed to get download link');
+			}
+		} else {
+			const payload = {
+				image_ids: info?.selectedImages,
+				imageType: 'original',
+			};
+			const response = await getDownloadForMultipleImages(payload, galleryId);
+			if (response?.[0] === true) {
+				message.destroy();
+				message.success('Download completed');
+			} else {
+				message.error('Failed to get download link');
+			}
+		}
+		setInfo((prev) => ({
+			...prev,
+			selectedImages: [],
+		}));
 	};
 
 	// Add this function to calculate drop position
@@ -2512,15 +2611,14 @@ const GalleryPage = () => {
 											</div>
 											{!info.isRearranging && (
 												<div className="selectedImagesActions">
-													{info?.selectedImages?.length === 1 && (
-														<div
-															onClick={() =>
-																handleExpandClick(null, 'multiple')
-															}
-														>
-															<ExpandIcon />
-														</div>
-													)}
+													<div
+														onClick={() =>
+															handleExpandClick(null, 'multiple')
+														}
+													>
+														<ExpandIcon />
+													</div>
+
 													<div
 														style={{ position: 'relative' }}
 														ref={forwardIconRef}
@@ -2629,7 +2727,9 @@ const GalleryPage = () => {
 																className="optionsContainer"
 																ref={optionsContainerRef}
 															>
-																<li>Download</li>
+																<li onClick={handleDownload}>
+																	Download
+																</li>
 																<li
 																	style={{
 																		cursor:
@@ -2642,7 +2742,21 @@ const GalleryPage = () => {
 																		handleSetAlbumCover()
 																	}
 																>
-																	Set as cover
+																	Set Album cover
+																</li>
+																<li
+																	style={{
+																		cursor:
+																			info?.selectedImages
+																				.length === 1
+																				? 'pointer'
+																				: 'not-allowed',
+																	}}
+																	onClick={() =>
+																		handleSetGalleryCover()
+																	}
+																>
+																	Set Gallery cover
 																</li>
 																<li>Share</li>
 																<li
@@ -2976,6 +3090,14 @@ const GalleryPage = () => {
 								Design
 							</li>
 							<li
+								onClick={() => scrollToSection('upload-gallery-cover')}
+								className={
+									info.activeLink === 'upload-gallery-cover' ? 'active' : ''
+								}
+							>
+								Gallery over
+							</li>
+							<li
 								onClick={() => scrollToSection('delete')}
 								className={info.activeLink === 'delete' ? 'active' : ''}
 							>
@@ -2984,7 +3106,13 @@ const GalleryPage = () => {
 						</div>
 					</div>
 				)}
-				{info.activeTab === 'AI' && <AiSelection />}
+				{info.activeTab === 'AI' && (
+					<AiSelection
+						galleryId={galleryId}
+						galleryCredentials={galleryCredentials}
+						link={`https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}/pre-register`}
+					/>
+				)}
 			</div>
 
 			<ShareModal

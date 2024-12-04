@@ -2,12 +2,12 @@ import React, { useEffect, memo } from 'react';
 import '../../assets/scss/authWrapper.scss';
 import { Helmet } from 'react-helmet';
 import useActiveWorkspace from '../hooks/useActiveWorkspace';
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import Sidebar from '../components/sidebar/Sidebar';
 import useAuth from '../hooks/useAuth';
 
-const AuthWrapper = ({ title, children, calendarWidth }) => {
+const AuthWrapper = ({ title, children, maxWidth = '' }) => {
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 
 	const checkAuth = useAuth();
@@ -40,10 +40,7 @@ const AuthWrapper = ({ title, children, calendarWidth }) => {
 						style={{ flex: 1, overflowY: 'auto', maxHeight: '100%', height: '100%' }}
 						id="scrollableTarget"
 					>
-						<div
-							className="childrenContainer"
-							style={{ maxWidth: calendarWidth || '' }}
-						>
+						<div className="childrenContainer" style={{ maxWidth: maxWidth || '' }}>
 							{children}
 						</div>
 					</div>

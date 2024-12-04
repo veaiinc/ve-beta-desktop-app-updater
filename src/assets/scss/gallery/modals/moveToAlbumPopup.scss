@@ -104,3 +104,6 @@
         }
     }
 }
+.ReactModal__Overlay:has(> .moveAlbumContainer) {
+    z-index: 5;
+}

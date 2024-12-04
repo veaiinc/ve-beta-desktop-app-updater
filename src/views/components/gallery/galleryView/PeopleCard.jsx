@@ -4,38 +4,6 @@ import _ from 'lodash';
 function Peopleitem(props) {
 	const peopleCardOuterContainer = useRef();
 
-	// const handleClick = () => {
-	// 	if (_.has(props, 'type') && props.type === 'album') {
-	// 		if (_.has(props, 'page')) {
-	// 			localStorage.setItem(
-	// 				`${props.match.params.tenantID}::${props.match.params.projectID}::${props.match.params.albumID}::facesAlbumGallery::page`,
-	// 				props.page,
-	// 			);
-	// 			localStorage.setItem(
-	// 				`${props.match.params.tenantID}::${props.match.params.projectID}::${props.match.params.albumID}::facesAlbumGallery::faceId`,
-	// 				props.people._id,
-	// 			);
-	// 		}
-	// 		props.history.push(
-	// 			`/${props.match.params.tenantID}/${props.match.params.projectID}/albums/${props.match.params.albumID}/people/${props.people._id}`,
-	// 		);
-	// 	} else {
-	// 		if (_.has(props, 'page')) {
-	// 			localStorage.setItem(
-	// 				`${props.match.params.tenantID}::${props.match.params.projectID}::facesProjectGallery::page`,
-	// 				props.page,
-	// 			);
-	// 			localStorage.setItem(
-	// 				`${props.match.params.tenantID}::${props.match.params.projectID}::facesProjectGallery::faceId`,
-	// 				props.people._id,
-	// 			);
-	// 		}
-	// 		props.history.push(
-	// 			`/${props.match.params.tenantID}/${props.match.params.projectID}/people/${props.people._id}`,
-	// 		);
-	// 	}
-	// };
-
 	let url;
 	let maxWidth = 1920;
 	let maxHeight = 1080;

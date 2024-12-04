@@ -100,11 +100,9 @@
 						align-items: center;
 						border-radius: 10px;
 						border: 1px solid rgba(151, 151, 151, 0.2);
-						input {
-							width: 100%;
-							border: none;
-							outline: none;
-							background: transparent;
+						p {
+							overflow: hidden;
+							text-overflow: ellipsis;
 							color: #fafafa;
 							font-size: 14px;
 							font-weight: 400;
@@ -112,6 +110,7 @@
 						.copy-logo {
 							width: 16px;
 							height: 16px;
+							cursor: pointer;
 						}
 					}
 				}
@@ -128,13 +127,17 @@
 				.save-settings {
 					display: flex;
 					gap: 8px;
+					width: 100%;
 					.select-labels {
 						display: flex;
 						flex-direction: column;
 						gap: 16px;
+						width: 100%;
+
 						.labels-container {
 							display: flex;
 							gap: 6px;
+							flex-wrap: wrap;
 							p {
 								display: flex;
 								padding: 8px 16px;
@@ -146,9 +149,14 @@
 								font-size: 13px;
 								font-weight: 400;
 								line-height: 16px;
+								cursor: pointer;
 								span {
 									color: #6055ec;
 								}
+							}
+							.active-tag {
+								border: 1px solid #6055ec;
+								color: #6055ec;
 							}
 						}
 					}
@@ -194,6 +202,7 @@
 						font-size: 12px;
 						font-weight: 500;
 						line-height: 24px; /* 200% */
+						cursor: pointer;
 					}
 				}
 				.copy-button {

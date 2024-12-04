@@ -79,6 +79,7 @@ const SmartFile = () => {
 				smartFileInfo: null,
 				specificTemplatesInfo: null,
 				formResponseData: null,
+				aiPredictedData: null,
 			});
 		};
 	}, []);
@@ -370,12 +371,6 @@ const SmartFile = () => {
 		[info?.isAlChatEnabled],
 	);
 
-	const onPreviewClick = useCallback(() => {
-		const usertoken = localStorage.getItem('usertoken');
-		const region = localStorage.getItem('region');
-		window.location.href = `https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}/${region}/${usertoken}`;
-	}, [info?.workflowData, info?.currentWorkspaceId]);
-
 	const counterAccpetOnClick = useCallback(async () => {
 		const payloadForConfirming = {
 			updateWorkflowStatusId: info?.workflowData?._id,
@@ -403,6 +398,7 @@ const SmartFile = () => {
 					expiresAt={info?.workflowExpiryAt || ''}
 					updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
 					workflowStatus={info?.workflowStatus}
+					slug={info?.workflowData?.slug}
 				/>
 			),
 			activity: <ActivityDashboard workflowData={info?.workflowData?.clientDetails} />,
@@ -432,9 +428,10 @@ const SmartFile = () => {
 				changeEditStatus={changeEditStatus}
 				openMoveToStageModal={openMoveToStageModal}
 				openDeleteModal={openDeleteModal}
-				onPreviewClick={onPreviewClick}
 				noContractTemplate={info?.noContractTemplate}
 				counterAccpetOnClick={counterAccpetOnClick}
+				slug={info?.workflowData?.slug}
+				currentWorkspaceId={info?.currentWorkspaceId}
 			/>
 			<div className="mainContentContainer">{componentMapper?.[info?.activeTab]}</div>
 

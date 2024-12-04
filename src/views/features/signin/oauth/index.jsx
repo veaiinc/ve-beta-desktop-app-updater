@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { fetchDomainName } from '../../../../helpers';
 
 const OauthVerify = () => {
 	const navigate = useNavigate();
@@ -10,40 +11,57 @@ const OauthVerify = () => {
 		const accessToken = params.get('accessToken');
 		let accessibleWorkspaces = params.get('workspaceId');
 		accessibleWorkspaces = decodeURIComponent(accessibleWorkspaces);
-		accessibleWorkspaces = JSON.parse(accessibleWorkspaces);
-
+		if (accessibleWorkspaces !== undefined || accessibleWorkspaces !== 'undefined') {
+			accessibleWorkspaces = JSON.parse(accessibleWorkspaces);
+		}
 		let region = params.get('region');
 
 		if (accessToken) {
-			if (accessibleWorkspaces && accessibleWorkspaces?.length) {
-				localStorage.setItem('accessibleWorkspaces', JSON.stringify(accessibleWorkspaces));
-				localStorage.setItem('workspaceId', accessibleWorkspaces?.[0]?.workspaceId);
+			if (
+				accessibleWorkspaces &&
+				accessibleWorkspaces?.workspaceId &&
+				accessibleWorkspaces?.isOnboard !== undefined &&
+				accessibleWorkspaces?.workspaceId !== undefined
+			) {
+				localStorage.setItem('workspaceId', accessibleWorkspaces?.workspaceId);
 				localStorage.setItem('usertoken', accessToken);
 				localStorage.setItem('region', region || 'ap-south-1');
-				localStorage.setItem('isOnboard', accessibleWorkspaces?.[0]?.isOnboard);
-
+				localStorage.setItem('isOnboard', accessibleWorkspaces?.isOnboard);
+				const host = fetchDomainName();
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: host,
 				});
-				Cookies.set('workspaceID', accessibleWorkspaces?.[0]?.workspaceId, {
+				Cookies.set('workspaceID', accessibleWorkspaces?.workspaceId, {
 					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: host,
 				});
 				Cookies.set('region', region || 'ap-south-1', {
 					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: host,
 				});
-				// localStorage.removeItem('locationDetails');
+
 				return navigate('/home');
 			}
 			if (
 				!accessibleWorkspaces ||
 				accessibleWorkspaces == null ||
-				!accessibleWorkspaces.length
+				!accessibleWorkspaces.length ||
+				accessibleWorkspaces === 'undefined'
 			) {
 				localStorage.setItem('usertoken', accessToken);
-				navigate('/create-workspace');
+				localStorage.setItem('region', region || 'ap-south-1');
+				const host = fetchDomainName();
+				Cookies.set('usertoken', accessToken, {
+					sameSite: 'lax',
+					domain: host,
+				});
+				Cookies.set('region', region || 'ap-south-1', {
+					sameSite: 'lax',
+					domain: host,
+				});
+
+				navigate('/onboarding');
 				return;
 			}
 		}
