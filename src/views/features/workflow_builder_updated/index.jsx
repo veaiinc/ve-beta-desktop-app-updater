@@ -1,10 +1,10 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import '../../../assets/scss/workflowBuilder/workflowbuilderUpdated.scss';
 import { ReactComponent as BackArrow } from '../../../assets/svg/worflow_builder/BackArrow.svg';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
 import WorkflowCardEditModal from '../../components/modalsV2/workflowBuilderModals/WorkflowCardEditModal';
 import Context from '../../../context/context';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import WorkflowPreviewModal from '../../components/modalsV2/workflowBuilderModals/WorkflowPreviewModal';
 import Spinner from '../../components/loaders/Spinner';
 import RenameWorkflow from '../../components/modalsV2/workflowBuilderModals/RenameWorkflow';
@@ -15,6 +15,7 @@ import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
 import { message } from 'antd';
 import WorkflowNode from './WorkflowNode';
+
 const options = [
 	{ label: 'Rename Workflow' },
 	{ label: 'Duplicate Workflow' },
@@ -24,6 +25,20 @@ const options = [
 const MIN_ZOOM = 25; // 25% minimum zoom
 const MAX_ZOOM = 200; // 200% maximum zoom
 const ZOOM_STEP = 25; // Zoom in/out by 25% each time
+
+const useQueryParams = () => {
+	const { search } = useLocation();
+
+	const queryParams = useMemo(() => {
+		const params = new URLSearchParams(search);
+		return {
+			hideHeader: params.get('hideHeader') === 'true' ? true : false,
+			hideZoomPannel: params.get('hideZoomPannel') === 'true' ? true : false,
+		};
+	}, [search]);
+
+	return queryParams;
+};
 
 const WorkflowBuilder = () => {
 	const {
@@ -43,6 +58,7 @@ const WorkflowBuilder = () => {
 	const { templateId } = useParams();
 	const wrapperRef = useRef(null);
 	const containerRef = useRef(null);
+	const { hideHeader, hideZoomPannel } = useQueryParams();
 	const [info, setInfo] = useState({
 		data: null,
 		modalIsOpen: false,
@@ -383,59 +399,63 @@ const WorkflowBuilder = () => {
 	return (
 		<div className="workflowBuilderContainer">
 			{/* header */}
-			<div className="workflowBuilderHeader">
-				<div className="workflowBuilderNavigationContainer">
-					<div className="veIconHolder">
-						{/* <VE /> */}
-						<span
-							style={{
-								display: 'flex',
-								justifyContent: 'center',
-								alignItems: 'center',
-								cursor: 'pointer',
+			{!hideHeader ? (
+				<div className="workflowBuilderHeader">
+					<div className="workflowBuilderNavigationContainer">
+						<div className="veIconHolder">
+							{/* <VE /> */}
+							<span
+								style={{
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									cursor: 'pointer',
+								}}
+								onClick={() => setInfo((prev) => ({ ...prev, exitModal: true }))}
+							>
+								<BackArrow />
+							</span>
+						</div>
+						<div className="headerTextContainer">
+							<span className="builderHeaderText">
+								{info?.incomingTemplateData?.title}
+							</span>
+							<span className="headerSubText">
+								Customise your workflow as per your business process
+							</span>
+						</div>
+					</div>
+					<div className="discardSaveBtnGrp">
+						<div className="saveChangesbtn" onClick={publishWorkflow}>
+							{info?.publishLoading ? <Spinner width={'16px'} height={'16px'} /> : ''}
+							{info?.publishLoading ? 'Publishing...' : 'Publish'}
+						</div>
+						<HeadersDropDownComp
+							showIcon={false}
+							options={options}
+							containerStyle={{
+								padding: '4px 8px',
+								borderRadius: '100px',
+								border: '1px solid rgba(36, 36, 36, 0.64)',
+								background: 'rgba(42, 42, 42, 0.32)',
+								width: '8px',
 							}}
-							onClick={() => setInfo((prev) => ({ ...prev, exitModal: true }))}
-						>
-							<BackArrow />
-						</span>
-					</div>
-					<div className="headerTextContainer">
-						<span className="builderHeaderText">
-							{info?.incomingTemplateData?.title}
-						</span>
-						<span className="headerSubText">
-							Customise your workflow as per your business process
-						</span>
+							dropDownStyle={{
+								right: 0,
+								left: 'unset',
+								top: '45px',
+								maxHeight: '300px',
+								width: '200px',
+							}}
+							showArrow={false}
+							selectedValue={<ThreeDots />}
+							onChangeFunc={(e) => onOptionChangeFunc(e)}
+						/>
 					</div>
 				</div>
-				<div className="discardSaveBtnGrp">
-					<div className="saveChangesbtn" onClick={publishWorkflow}>
-						{info?.publishLoading ? <Spinner width={'16px'} height={'16px'} /> : ''}
-						{info?.publishLoading ? 'Publishing...' : 'Publish'}
-					</div>
-					<HeadersDropDownComp
-						showIcon={false}
-						options={options}
-						containerStyle={{
-							padding: '4px 8px',
-							borderRadius: '100px',
-							border: '1px solid rgba(36, 36, 36, 0.64)',
-							background: 'rgba(42, 42, 42, 0.32)',
-							width: '8px',
-						}}
-						dropDownStyle={{
-							right: 0,
-							left: 'unset',
-							top: '45px',
-							maxHeight: '300px',
-							width: '200px',
-						}}
-						showArrow={false}
-						selectedValue={<ThreeDots />}
-						onChangeFunc={(e) => onOptionChangeFunc(e)}
-					/>
-				</div>
-			</div>
+			) : (
+				''
+			)}
 			<div className="workflowBuilderSeperator"></div>
 
 			{info?.loading ? (
@@ -446,7 +466,7 @@ const WorkflowBuilder = () => {
 					ref={wrapperRef}
 					style={{
 						width: '100%',
-						height: 'calc(100vh - 90px)',
+						height: hideHeader ? '100vh' : 'calc(100vh - 90px)',
 						overflow: 'auto',
 						position: 'relative',
 					}}
@@ -485,15 +505,27 @@ const WorkflowBuilder = () => {
 					</div>
 				</div>
 			)}
-			<div className="zoom-controls-panel">
-				<button className="zoom-button" onClick={handleZoomIn} disabled={zoom >= MAX_ZOOM}>
-					+
-				</button>
-				<div className="zoom-level">{zoom}%</div>
-				<button className="zoom-button" onClick={handleZoomOut} disabled={zoom <= MIN_ZOOM}>
-					-
-				</button>
-			</div>
+			{!hideZoomPannel ? (
+				<div className="zoom-controls-panel">
+					<button
+						className="zoom-button"
+						onClick={handleZoomIn}
+						disabled={zoom >= MAX_ZOOM}
+					>
+						+
+					</button>
+					<div className="zoom-level">{zoom}%</div>
+					<button
+						className="zoom-button"
+						onClick={handleZoomOut}
+						disabled={zoom <= MIN_ZOOM}
+					>
+						-
+					</button>
+				</div>
+			) : (
+				''
+			)}
 			<WorkflowCardEditModal
 				closeModalFunc={closeModalFunc}
 				modalIsOpen={info?.modalIsOpen}
