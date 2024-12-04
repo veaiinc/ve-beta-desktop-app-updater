@@ -20,17 +20,15 @@ const initialState = {
 	location: '',
 	startDateTime: '',
 	endDateTime: '',
-	timezone: 'Asia/Kolkata',
+	timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 	allDay: false,
 	attendees: [],
-	calendarCategory: 'Default',
 	meeting: '',
 	phone: '',
 
 	// Validation and submission states
 	isSubmitting: false,
 	submissionError: null,
-	selectedCategory: 'Default',
 };
 
 const CreateEvent = ({ updateCalendarInfo }) => {
@@ -48,6 +46,7 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 		showCategory: false,
 		showInputSuggestions: false,
 		categories: ['Shoots', 'Sessions', 'Meetings'],
+		selectedCategory: 'default',
 
 		// Attendees management
 		attendeesInputField: '',
@@ -78,7 +77,7 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 				_id: '671a26ab0d6a528cf3c9fd9b',
 				firstName: 'Preetam',
 				lastName: 'Singh',
-				email: 'dheeraj@ve.ai',
+				email: 'preetam@ve.ai',
 				role: 'admin',
 				isOwner: false,
 			},
@@ -107,31 +106,7 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 		};
 	}, []);
 
-	// Added to test the startDateTime and endDateTime. This can be removed when we add onClick event to'Add to calender' button.
-	useEffect(() => {
-		if (info?.startDate && info?.endDate) {
-			const startDateObject = moment(
-				`${info?.startDate}${info?.startTime ? `T${info?.startTime}` : ``}`,
-			)
-				.local()
-				.format('YYYY-MM-DDTHH:mm:ssZ');
-			const endDateObject = moment(
-				`${info?.startDate}${info?.startTime ? `T${info?.startTime}` : ``}`,
-			)
-				.local()
-				.format('YYYY-MM-DDTHH:mm:ssZ');
-
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				startDateTime: startDateObject,
-				endDateTime: endDateObject,
-			}));
-
-			console.log('start: ' + startDateObject, 'end: ' + endDateObject);
-		}
-	}, [info?.startDate, info?.startTime, info?.endDate, info?.endTime]);
-
-	// Optimize date and time conversion
+	// Format date and time to ISO string
 	const convertToISOString = useCallback((date, time) => {
 		if (!date) return null;
 
@@ -160,14 +135,14 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 			location,
 			meeting,
 			attendees,
-			calendarCategory: selectedCategory,
+			selectedCategory,
 		} = info;
-
 		// Validate required fields
 		if (!title || !startDate || !endDate) {
 			setInfo((prev) => ({
 				...prev,
 				submissionError: 'Title and date are required',
+				isSubmitting: false,
 			}));
 			return null;
 		}
@@ -187,7 +162,7 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 				email: attendee.email,
 				responseStatus: 'confirmed',
 			})),
-			calendarCategory: selectedCategory,
+			calendarCategory: selectedCategory.toLowerCase(),
 			meeting,
 			phone: '',
 		};
@@ -205,6 +180,7 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 		try {
 			const eventPayload = prepareEventPayload();
 			if (!eventPayload) return;
+			console.log('Calling API with payload:', eventPayload);
 
 			await createCalendarEvent(eventPayload);
 			updateCalendarInfo('isCreateEventOpen', false);
@@ -256,15 +232,10 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 		[info.attendees],
 	);
 
-	useEffect(() => {
-		if (info?.submissionError) {
-			alert(info?.submissionError);
-		}
-	}, [info?.submissionError]);
-
 	const removeAttendee = useCallback((id) => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
+			submissionError: null,
 			attendees: prevInfo.attendees.filter(
 				(attendee) => attendee.tenantUserId !== id && attendee.email !== id,
 			),
@@ -423,7 +394,10 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 							type="text"
 							placeholder="Add attendee or email"
 							onBlur={() => updateEventInfo('showInputSuggestions', false)}
-							onFocus={() => updateEventInfo('showInputSuggestions', true)}
+							onFocus={() => {
+								updateEventInfo('showInputSuggestions', true);
+								updateEventInfo('submissionError', null);
+							}}
 							value={info?.attendeesInputField}
 							onChange={(e) => updateEventInfo('attendeesInputField', e.target.value)}
 							onKeyDown={(e) => {
@@ -503,7 +477,11 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 					</div>
 				</div>
 			</div>
-			<button className="addToCalendar">
+			<button
+				className="addToCalendar"
+				onClick={handleEventSubmission}
+				disabled={info?.isSubmitting}
+			>
 				{info?.isSubmitting ? (
 					<Spinner width={'20px'} height={'20px'} />
 				) : (
