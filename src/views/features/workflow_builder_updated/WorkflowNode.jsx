@@ -25,14 +25,14 @@ const WorkflowNode = ({
 		if (width) {
 			const blockWidth = 300;
 			const leftOutSpaceOnEachSide = (width - blockWidth) / 2;
-			const yesBlockWidth = width - 150;
+			const yesBlockWidth = width - 137; //initialy 150, if there is problem revert this to 150 and connetor width to 8px instead of current 20 px
 
 			if (type === 'Yes') {
 				const requiredTransalation =
 					yesBlockWidth - (leftOutSpaceOnEachSide + blockWidth / 2);
 				setInfo((prev) => ({ ...prev, translateXForYes: requiredTransalation }));
 			} else {
-				const requiredTransalation = leftOutSpaceOnEachSide + blockWidth / 2 - 150;
+				const requiredTransalation = leftOutSpaceOnEachSide + blockWidth / 2 - 137;
 				setInfo((prev) => ({ ...prev, translateForNo: requiredTransalation }));
 			}
 		}
@@ -92,7 +92,9 @@ const WorkflowNode = ({
 		return (
 			<div className="workflow-step" data-node-id={nodeId}>
 				{renderNodeContent()}
-				<div className="conditionConnector"></div>
+				<div style={{ display: 'flex', width: '20px', justifyContent: 'center' }}>
+					<div className="conditionConnector"></div>
+				</div>
 				<div className="condition-branches">
 					<div className="left-branches">
 						<div className="yes-branch-container">
@@ -102,7 +104,7 @@ const WorkflowNode = ({
 							</div>
 
 							<WorkflowConnector
-								style={{ marginLeft: '40px' }}
+								style={{ marginLeft: '27px' }}
 								alterData={alterData}
 								previousStepPath={'condition-yes'}
 								previousStepId={nodeId}
@@ -142,7 +144,7 @@ const WorkflowNode = ({
 									alterData={alterData}
 									previousStepPath={'condition-no'}
 									previousStepId={nodeId}
-									style={{ marginRight: '40px', alignSelf: 'baseline' }}
+									style={{ marginRight: '27px', alignSelf: 'baseline' }}
 								/>
 							</div>
 						</div>

@@ -35,21 +35,6 @@ const WorkflowConnector = ({ alterData, index, style = {}, previousStepPath, pre
 		}
 	}, []);
 
-	// const addNewCard = useCallback(() => {
-	// 	alterData(index + 1, {
-	// 		label: 'Reminder Email template',
-	// 		title: 'Send Reminder Email',
-	// 		actions: [{ name: 'Edit Email' }],
-	// 		subLabel: 'Wait for 2 hours after Proposal is sent and then wait for my approval',
-	// 	});
-	// 	setInfo((prev) => ({
-	// 		...prev,
-	// 		fillOpacity: '0.32',
-	// 		connectorHeight: 64,
-	// 		buttonDisplay: false,
-	// 	}));
-	// }, [info?.buttonDisplay, info?.connectorHeight]);
-
 	const updatedButtonClick = useCallback((type, optionType, moveToPath = null) => {
 		alterData({
 			previousStepPath: previousStepPath,
@@ -64,7 +49,7 @@ const WorkflowConnector = ({ alterData, index, style = {}, previousStepPath, pre
 		<div
 			className="workflowConnectorContainer"
 			onMouseEnter={containerMouseHover}
-			// onMouseLeave={containerMouseLeave}
+			onMouseLeave={containerMouseLeave}
 			style={{ ...style }}
 		>
 			{info?.buttonDisplay ? (
