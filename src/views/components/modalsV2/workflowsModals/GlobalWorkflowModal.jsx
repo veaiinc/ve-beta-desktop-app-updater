@@ -17,6 +17,15 @@ const initialState = {
 };
 
 const AutomationComponent = ({ globalTemplateId }) => {
+	let urlMapper = {
+		localhost: 'http://localhost:8000',
+		've.ai': 'https://ve.ai',
+		've.co': 'https://ve.co',
+		'www.ve.ai': 'https://ve.ai',
+		'www.ve.co': 'https://ve.co',
+	};
+
+	const hostname = window.location.hostname;
 	return (
 		<div className="autoMationDiv">
 			<div
@@ -26,7 +35,7 @@ const AutomationComponent = ({ globalTemplateId }) => {
 				}}
 			>
 				<iframe
-					src={`http://localhost:8000/workflow_builder/${globalTemplateId}?hideHeader=true&hideZoomPannel=true`}
+					src={`${urlMapper?.[hostname]}/workflow_builder/${globalTemplateId}?hideHeader=true&hideZoomPannel=true`}
 					title="Builder Preview"
 					width="100%"
 					height="100%"
