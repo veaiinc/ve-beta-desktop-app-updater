@@ -77,7 +77,10 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 	// Function to handle API call
 	const calendarAiChatRes = useCallback(async (sessionId, inputData) => {
 		setInfo((prevInfo) => ({ ...prevInfo, errorMessage: null, isProcessing: true }));
-		await getCalendarChat(sessionId, { query: inputData });
+		await getCalendarChat(sessionId, {
+			query: inputData,
+			timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+		});
 	}, []);
 
 	// Handle user input submission
