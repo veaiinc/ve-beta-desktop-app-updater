@@ -62,7 +62,10 @@ const LandingPage = () => {
 						<span className="veai-logo-text">Meet</span>
 						<VeAiLogoGrey aria-label="VeAi Logo in grey" />
 					</div>
-					<h1 className="heading">AI team that minds your business!</h1>
+					<h1 className="heading">
+						An AI orchestrator that creates digital employees and collaborates with
+						human teams to achieve any goal !
+					</h1>
 					<p className="description">
 						Launch Intelligent, enterprise-ready, and seamlessly embedded in your
 						operations—digital workers bring advanced AI technology to your team,
