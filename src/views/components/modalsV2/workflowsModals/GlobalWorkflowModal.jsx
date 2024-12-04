@@ -11,7 +11,7 @@ import GlobalWorkflowDesignModalLoader from './GlobalWorkflowDesignModalLoader';
 const initialState = {
 	activeTab: 'design', //design,automation
 	duplicateApiLoading: false,
-	templatesMapper: null,
+	// templatesMapper: null,
 	activeTemplateData: null,
 	loading: true,
 };
@@ -72,16 +72,16 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 		}
 	}, [specificTemplatesInfo]);
 
-	useEffect(() => {
-		if (info?.activeTemplateData) {
-			const { templates } = info?.activeTemplateData || {};
-			let obj = {};
-			for (let i = 0; i < templates?.length; i++) {
-				obj[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
-			}
-			setInfo((prev) => ({ ...prev, templatesMapper: obj }));
-		}
-	}, [info?.activeTemplateData]);
+	// useEffect(() => {
+	// 	if (info?.activeTemplateData) {
+	// 		const { templates } = info?.activeTemplateData || {};
+	// 		let obj = {};
+	// 		for (let i = 0; i < templates?.length; i++) {
+	// 			obj[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
+	// 		}
+	// 		setInfo((prev) => ({ ...prev, templatesMapper: obj }));
+	// 	}
+	// }, [info?.activeTemplateData]);
 
 	//function defination
 	const changeActiveTab = useCallback(
