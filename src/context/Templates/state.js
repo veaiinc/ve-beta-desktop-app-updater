@@ -995,8 +995,8 @@ export const TemplatesState = () => {
 			);
 
 			if (response?.[0]) {
-				// const dataResponse = response?.[1]?.data?.updateWorkflowTemplate;
-				return [true];
+				const dataResponse = response?.[1];
+				return [true, dataResponse?.data?.addStep];
 			} else {
 				console.log('Api failed ==>addNewSteps', response);
 				return [false];

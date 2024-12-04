@@ -44,14 +44,10 @@ const WorkflowCardEditModal = ({
 	optionType,
 	newNodeType,
 	moveToPath,
+	scrollToNewOrUpdatedNodes,
 }) => {
 	const {
-		templates: {
-			getAllEmailTemplates,
-			getSpecificWorkflowTemplateDetails,
-			getSpecificTemplatesInfo,
-			// updateWorkflowSteps,
-		},
+		templates: { getAllEmailTemplates, getSpecificTemplatesInfo },
 	} = useContext(Context);
 
 	//states
@@ -145,6 +141,7 @@ const WorkflowCardEditModal = ({
 						refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 						mode={mode}
 						currentStepInfo={currentStepInfo}
+						scrollToNewOrUpdatedNodes={scrollToNewOrUpdatedNodes}
 					/>
 				),
 				notification: (
@@ -158,6 +155,7 @@ const WorkflowCardEditModal = ({
 						refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 						mode={mode}
 						currentStepInfo={currentStepInfo}
+						scrollToNewOrUpdatedNodes={scrollToNewOrUpdatedNodes}
 					/>
 				),
 				pipeline: (
@@ -347,6 +345,7 @@ const RenderConditionUi = ({
 	refetchWorkflowBuilderData,
 	mode,
 	currentStepInfo,
+	scrollToNewOrUpdatedNodes,
 }) => {
 	const {
 		templates: { addNewSteps },
@@ -402,13 +401,9 @@ const RenderConditionUi = ({
 		}
 		const response = await addNewSteps(payload);
 		if (response?.[0]) {
-			const refetchResponse = await refetchWorkflowBuilderData();
-			if (refetchResponse?.[0]) {
-				setInfo((prev) => ({ ...prev, saveLoader: false }));
-				closeModal();
-			}
+			scrollToNewOrUpdatedNodes(response?.[1]?.newStep, response?.[1]?.steps);
+			closeModal();
 		}
-
 		setInfo((prev) => ({ ...prev, saveLoader: false }));
 	}, [
 		info?.saveLoader,
@@ -487,6 +482,7 @@ const RenderNotificationUi = ({
 	refetchWorkflowBuilderData,
 	mode,
 	currentStepInfo,
+	scrollToNewOrUpdatedNodes,
 }) => {
 	const {
 		templates: {
@@ -786,11 +782,8 @@ const RenderNotificationUi = ({
 
 		const response = await addNewSteps(payload);
 		if (response?.[0]) {
-			const refetchResponse = await refetchWorkflowBuilderData();
-			if (refetchResponse?.[0]) {
-				setInfo((prev) => ({ ...prev, saveLoader: false }));
-				closeModal();
-			}
+			scrollToNewOrUpdatedNodes(response?.[1]?.newStep, response?.[1]?.steps);
+			closeModal();
 		}
 		setInfo((prev) => ({ ...prev, saveLoader: false }));
 	}, [
@@ -821,7 +814,6 @@ const RenderNotificationUi = ({
 			updateStepInput: {
 				type,
 				approvalRequired: info?.requiredApproval,
-
 				htmlBody: info?.emailBody,
 				subject: info?.subject,
 				sendAt: timeStamp,

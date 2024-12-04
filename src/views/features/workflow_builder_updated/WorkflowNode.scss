@@ -2,6 +2,8 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	position: relative;
+	z-index: 2;
 }
 
 .workflow-node {
@@ -15,6 +17,8 @@
 		border-radius: var(--Spacing-m, 14px);
 		background: var(--ve-ai-dark-theme-pop-up-color, #202123);
 		height: 94px;
+		position: relative;
+		z-index: 8;
 
 		&:hover {
 			border-color: rgba(63, 63, 70, 0.6);

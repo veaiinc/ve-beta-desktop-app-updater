@@ -31,15 +31,14 @@
 }
 .addOptionsContainer {
 	display: flex;
-	width: 780px;
+	width: 400px;
 	height: 180px;
 	padding: 18px 0px 19px 0px;
 	justify-content: center;
 	align-items: flex-start;
-	gap: 24px;
+	gap: 12px;
 	flex-shrink: 0;
-	background-color: #000000;
-
+	background-color: transparent;
 	.optionsCards {
 		display: flex;
 		width: 177px;

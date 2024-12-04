@@ -122,7 +122,11 @@
 		);
 	}
 	.workflow-tree-container {
-		background: #000000;
+		background: #0e0f0f;
+		background-image: url('../../images//workflow_builder/dotgrid.png');
+		background-size: cover;
+		position: relative;
+		z-index: 1;
 		-webkit-overflow-scrolling: touch;
 
 		&::-webkit-scrollbar {
@@ -133,6 +137,11 @@
 		&::-webkit-scrollbar-thumb {
 			background: rgba(255, 255, 255, 0.2);
 			border-radius: 4px;
+		}
+
+		.containerRefDiv {
+			position: relative;
+			z-index: 2;
 		}
 	}
 }

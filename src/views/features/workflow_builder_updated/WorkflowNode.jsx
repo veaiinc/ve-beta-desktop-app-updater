@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import './WorkflowNode.scss';
 import WorkflowBuilderCards from '../../components/workflowBuilderComponents/WorkflowBuilderCards';
 import WorkflowConnector from '../../components/workflowBuilderComponents/WorkflowConnector';
@@ -90,7 +90,7 @@ const WorkflowNode = ({
 
 	if (node.type === 'condition') {
 		return (
-			<div className="workflow-step">
+			<div className="workflow-step" data-node-id={nodeId}>
 				{renderNodeContent()}
 				<div className="conditionConnector"></div>
 				<div className="condition-branches">
@@ -170,7 +170,7 @@ const WorkflowNode = ({
 	}
 
 	return (
-		<div className="workflow-step">
+		<div className="workflow-step" data-node-id={nodeId}>
 			{renderNodeContent()}
 
 			<>

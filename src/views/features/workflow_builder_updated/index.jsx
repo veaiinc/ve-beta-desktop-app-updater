@@ -100,7 +100,6 @@ const WorkflowBuilder = () => {
 		}
 	}, [specificTemplatesInfo]);
 
-	//uselayoutEffect
 	useEffect(() => {
 		if (wrapperRef.current && containerRef.current) {
 			const wrapper = wrapperRef.current;
@@ -129,7 +128,69 @@ const WorkflowBuilder = () => {
 		}
 	}, [info.stepsMapper]);
 
+	// For initial centering on mount
+	useEffect(() => {
+		if (wrapperRef.current && containerRef.current && !info.loading) {
+			// Get the first node element
+			const firstNode = containerRef.current.querySelector('.workflow-step');
+			if (firstNode) {
+				// Use 'auto' for instant scrolling on mount
+				scrollToElement(firstNode, 'auto');
+			}
+		}
+	}, [info.loading]); // Only run when loading state changes
+
 	//function defination
+
+	const scrollToElement = useCallback((element, behavior = 'smooth') => {
+		if (!element || !wrapperRef.current) return;
+
+		const wrapper = wrapperRef.current;
+		const elementRect = element.getBoundingClientRect();
+		const containerRect = wrapper.getBoundingClientRect();
+
+		const scrollTo =
+			wrapper.scrollLeft +
+			(elementRect.left - containerRect.left) -
+			containerRect.width / 2 +
+			elementRect.width / 2;
+
+		wrapper.scrollTo({
+			left: scrollTo,
+			behavior,
+		});
+	}, []);
+
+	const scrollToNewOrUpdatedNodes = useCallback(
+		(nodeId, stepsData) => {
+			const steps = stepsData;
+
+			//created a mapper for steps
+			const stepsMapper = {};
+			for (let i = 0; i < steps.length; i++) {
+				stepsMapper[steps?.[i]?._id] = { added: false, data: steps?.[i], rendered: false };
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				stepsMapper,
+				statrtNode: steps?.[0],
+				duplicateStepsMapper: stepsMapper,
+			}));
+			// Small timeout to ensure DOM is updated
+			// setTimeout(() => {
+			// 	const node = containerRef.current?.querySelector(
+			// 		`.workflow-step[data-node-id="${nodeId}"]`,
+			// 	);
+			// 	console.log('I am getting scrolled ttooo ==>', node);
+			// 	if (node) {
+			// 		console.log('I am getting scrolled==>');
+			// 		scrollToElement(node);
+			// 	}
+			// }, 10);
+		},
+		[containerRef],
+	);
 
 	const openPreviewModal = useCallback((type) => {
 		setInfo((prev) => ({ ...prev, previewModal: true, previewType: type }));
@@ -385,6 +446,7 @@ const WorkflowBuilder = () => {
 							justifyContent: 'center',
 							padding: '40px 100%', // Use 100% padding on both sides
 						}}
+						className="containerRefDiv"
 					>
 						<div
 							style={{
@@ -417,6 +479,7 @@ const WorkflowBuilder = () => {
 				optionType={info?.optionType}
 				newNodeType={info?.newNodeType}
 				moveToPath={info?.moveToPath}
+				scrollToNewOrUpdatedNodes={scrollToNewOrUpdatedNodes}
 			/>
 			<WorkflowPreviewModal
 				modalIsOpen={info?.previewModal}
