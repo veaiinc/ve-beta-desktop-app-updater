@@ -79,6 +79,7 @@ const WorkflowNode = ({
 			index={'sfsfs'}
 			templateData={templateData}
 			openPreviewModal={openPreviewModal}
+			stepsMapper={stepsMapper}
 		/>
 	);
 

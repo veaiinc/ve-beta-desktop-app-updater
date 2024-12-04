@@ -1,10 +1,11 @@
-import React, { memo, useCallback, useContext, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/workflowBuilder/deleteWorkflowStep.scss';
 import Spinner from '../../loaders/Spinner';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import Context from '../../../../context/context';
 import { Spin } from 'antd';
+import { getTotalNumnerofNodesRecursively } from '../../../features/workflow_builder/workflowContantsHelpers';
 const customStyles = {
 	content: { zIndex: 99999 },
 	overlay: { zIndex: 99998 },
@@ -16,6 +17,7 @@ const DeleteWorkflowStep = ({
 	stepId,
 	workflowdata,
 	refetchWorkflowBuilderData,
+	stepsMapper,
 }) => {
 	const {
 		templates: { deleteWorkflowStep },
@@ -23,6 +25,7 @@ const DeleteWorkflowStep = ({
 
 	const [info, setInfo] = useState({
 		deleteLoader: false,
+		calculatedSteps: null,
 	});
 
 	const deleteWorkflowStepFunc = useCallback(
@@ -53,6 +56,13 @@ const DeleteWorkflowStep = ({
 		},
 		[templateId, stepId, info?.deleteLoader],
 	);
+
+	useEffect(() => {
+		if (stepId && modalIsOpen && workflowdata?.type === 'condition') {
+			const count = getTotalNumnerofNodesRecursively(stepId, stepsMapper);
+			setInfo((prev) => ({ ...prev, calculatedSteps: count }));
+		}
+	}, [stepId, modalIsOpen, workflowdata]);
 
 	return (
 		<ReactModal isOpen={modalIsOpen} closeModal={closeModal} customStyles={customStyles}>
@@ -95,7 +105,8 @@ const DeleteWorkflowStep = ({
 						</span>
 					</div>
 					<span className="deleteHeaderSubtitle">
-						There are 6 steps after this condition. Where would you like to move them?
+						There are {info?.calculatedSteps || 0} steps after this condition. Where
+						would you like to move them?
 					</span>
 					{!info?.deleteLoader ? (
 						<div className="differentDeleteOptionsContainer">

@@ -247,3 +247,19 @@ export const selectedValueStyling = {
 	fontWeight: '500',
 	lineHeight: 'normal',
 };
+
+export const getTotalNumnerofNodesRecursively = (nodeId, stepsMapper) => {
+	if (!nodeId) {
+		return 0;
+	}
+
+	const count1 = getTotalNumnerofNodesRecursively(
+		stepsMapper?.[nodeId]?.data?.ifYes?.['nextStepId'],
+		stepsMapper,
+	);
+	const count2 = getTotalNumnerofNodesRecursively(
+		stepsMapper?.[nodeId]?.data?.ifNo?.['nextStepId'],
+		stepsMapper,
+	);
+	return count1 + count2 + 1;
+};

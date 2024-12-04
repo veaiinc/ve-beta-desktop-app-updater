@@ -182,6 +182,7 @@ const WorkflowBuilderCards = ({
 	openModal,
 	openPreviewModal,
 	index,
+	stepsMapper,
 }) => {
 	const {
 		templates: { getSpecificTemplatesInfo },
@@ -259,6 +260,14 @@ const WorkflowBuilderCards = ({
 				openDeleteModal={openToggleDeleteModal}
 			/>
 		),
+		trigger: (
+			<EmailCards
+				openModal={openModal}
+				workflowdata={workflowdata}
+				index={index}
+				openDeleteModal={openToggleDeleteModal}
+			/>
+		),
 	};
 
 	return (
@@ -271,6 +280,7 @@ const WorkflowBuilderCards = ({
 				templateId={templateData?._id}
 				workflowdata={workflowdata}
 				refetchWorkflowBuilderData={refetchWorkflowBuilderData}
+				stepsMapper={stepsMapper}
 			/>
 		</div>
 	);
