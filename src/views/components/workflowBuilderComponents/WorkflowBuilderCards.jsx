@@ -5,11 +5,20 @@ import { ReactComponent as Duplicate } from '../../../assets/svg/worflow_builder
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/buildercard/dustbin.svg';
 import { ReactComponent as Edit } from '../../../assets/svg/worflow_builder/buildercard/edit.svg';
 import { ReactComponent as Eye } from '../../../assets/svg/worflow_builder/buildercard/eye.svg';
+import { ReactComponent as Exit } from '../../../assets/svg/worflow_builder/buildercard/exit.svg';
 import { Popover, Tooltip } from 'antd';
 import DeleteWorkflowStep from '../modalsV2/workflowBuilderModals/DeleteWorkflowStep';
 import Context from '../../../context/context';
+import { ReactComponent as UpdatedEmail } from '../../../assets/svg/worflow_builder/buildercard/email.svg';
 
-// const text = <span>Title</span>;
+const labelMapper = {
+	enquiry: 'After Form is submitted',
+	filesSent: 'After Smart file is sent ',
+	filesViewed: 'After Smart file is viewed',
+	proposalAccepted: 'After Proposal is  accepted',
+	contractSigned: 'After Contract is signed',
+	confirmed: 'After Smart file is confirmed',
+};
 
 const FirstWorkflowCard = ({
 	openPreviewModal,
@@ -41,21 +50,9 @@ const FirstWorkflowCard = ({
 					/>
 				</div>
 			</div>
-			<div className="previewLabelContent">
-				<span className="topLabelStyle">Workflow Start Point</span>
-				<span className="labelTitle">Enquiry Form</span>
-				<div className="actionContainer">
-					<div className="viewBtn">View</div>
-					<div
-						className="editBtn"
-						onClick={(e) => {
-							editOnClickHandler();
-							e.stopPropagation();
-						}}
-					>
-						Edit Form
-					</div>
-				</div>
+			<div className="actualContaintContainer">
+				<span className="moduleText">Enquiry Form</span>
+				<span className="startPointText">Workflow Start Point</span>
 			</div>
 		</div>
 		// </Popover>
@@ -72,20 +69,12 @@ const EmailCards = ({ openModal, workflowdata, index, openDeleteModal }) => {
 			openDeleteModal={openDeleteModal}
 		>
 			<div className="cardContentContainer" onClick={() => openModal(workflowdata, index)}>
-				<div className="cardContentContainerfooter">
-					<div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-						{' '}
-						<EmailSvg />
-						<span className="cardContentContainerheaderSubTitle">Send Email</span>
-					</div>
-
-					<span className="cardContentContainerheaderTitle">
-						{workflowdata?.emailTemplateSubject}
-					</span>
-					<span className="cardContentContainerheaderSubTitle">
-						Immediately after Payment is made
-					</span>
+				<span className="criteria">{labelMapper?.[workflowdata?.criteria]}</span>
+				<div className="emailIconContainer">
+					{workflowdata?.type === 'condition' ? 'condition' : 'Send Email'}
+					<UpdatedEmail />
 				</div>
+				<span className="emailCardTitle">{workflowdata?.emailTemplateSubject}</span>
 			</div>
 		</Popover>
 	);
@@ -93,7 +82,14 @@ const EmailCards = ({ openModal, workflowdata, index, openDeleteModal }) => {
 const EndPointViewCard = () => {
 	return (
 		<div className="endViewCard">
-			<span className="subalabel">WorkFlow Ends Here </span>
+			<Exit />
+			<div className="envviewCardContainer">
+				<span className="subalabel">End the workflow for subscribers </span>
+				<span className="sublabelEnd">
+					Subscribers who reach this step will finish the workflow and be marked as
+					completed.
+				</span>
+			</div>
 		</div>
 	);
 };
