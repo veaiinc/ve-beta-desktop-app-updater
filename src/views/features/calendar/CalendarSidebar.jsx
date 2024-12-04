@@ -43,8 +43,8 @@ const CalendarSidebar = ({
 						updateCalendarInfo={updateCalendarInfo}
 					/>
 					<AskAI toggleAskAi={toggleAskAi} />
-					<CalendarCategories />
-					<MeetingDetails />
+					{/* <CalendarCategories />
+					<MeetingDetails /> */}
 				</div>
 			)}
 		</>

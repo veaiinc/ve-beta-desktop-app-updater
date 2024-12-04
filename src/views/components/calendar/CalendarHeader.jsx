@@ -44,7 +44,7 @@ const CalendarHeader = ({
 									: ''}
 							</div>
 						</div>
-						<div className="calendarHeaderRight">
+						{/* <div className="calendarHeaderRight">
 							<div className="dropDown">
 								<span>Workflow</span>
 								<Down />
@@ -53,7 +53,7 @@ const CalendarHeader = ({
 								<span>Team</span>
 								<Down />
 							</div>
-						</div>
+						</div> */}
 					</div>
 
 					{/* Render the active calendar day Header */}
