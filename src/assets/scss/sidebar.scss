@@ -576,6 +576,13 @@
 		}
 	}
 }
+@media screen and (min-width: 1024px) and (max-width: 1599px) {
+	.FullScreenSidebar {
+		&.no-submodules:not(.opened) {
+			height: 40dvh;
+		}
+	}
+}
 
 @media screen and (min-width: 1600px) and (max-width: 2280px) {
 	.FullScreenSidebar {
