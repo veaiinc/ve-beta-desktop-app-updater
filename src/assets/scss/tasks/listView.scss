@@ -1,0 +1,406 @@
+.listViewParentContainer {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+
+	button {
+		border: none;
+	}
+	.listHeader {
+		display: flex;
+		justify-content: flex-end;
+		gap: 14px;
+		position: relative;
+
+		.btn-stats,
+		.btn-options {
+			width: 48px;
+			height: 48px;
+			background-color: #1b1b1b;
+			border-radius: 100px;
+		}
+		.btn-createTask {
+			display: flex;
+			padding: 16px 24px;
+			justify-content: center;
+			align-items: center;
+			border-radius: 100px;
+			color: #e4e5e6;
+			background-color: #6055ec;
+		}
+	}
+
+	.listViewItemsContainer {
+		overflow-y: visible;
+		.group {
+			background-color: blue($color: #000000);
+			.groupHeader {
+				display: flex;
+				padding: 12px 24px;
+				gap: 10px;
+				border-radius: 8px;
+				background: #1d1d1d;
+				justify-content: space-between;
+				align-items: center;
+
+				.groupDetails {
+					display: flex;
+					align-items: center;
+					gap: 6px;
+
+					.text {
+						margin-left: 10px;
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+					.itemCount {
+						color: rgba(228, 229, 230, 0.48);
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+			}
+			.listContainer {
+				display: flex;
+				flex-direction: column;
+				.listItem {
+					display: flex;
+					padding: 12px 16px;
+					align-items: center;
+					justify-content: flex-start;
+					gap: 10px;
+					align-self: stretch;
+					width: fit-content;
+					* {
+						flex-shrink: 0;
+					}
+
+					.listItemBorder {
+						border-radius: 6px;
+						border: 1px solid #1d1d1d;
+						background: #111;
+						display: flex;
+						gap: 10px;
+						padding: 6px 12px;
+						justify-content: center;
+						align-items: center;
+						gap: 10px;
+
+						.label {
+							color: #e4e5e6;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+						}
+					}
+
+					.text {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+					.id {
+						color: rgba(228, 229, 230, 0.48);
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+					.select {
+						position: relative;
+						cursor: pointer;
+						.selectContainer {
+							cursor: pointer;
+							display: flex;
+							align-items: center;
+							span {
+								display: flex;
+								align-items: center;
+							}
+						}
+						.selectDropdown {
+							position: absolute;
+							width: 200px;
+							max-height: 291px;
+							height: fit-content;
+							padding: 4px;
+							border-radius: 12px;
+							border: 1px solid rgba(228, 229, 230, 0.05);
+							background: #151515;
+							z-index: 2;
+							h3 {
+								display: flex;
+								padding: 12px 16px;
+								align-items: center;
+								align-self: stretch;
+								color: rgba(228, 229, 230, 0.48);
+								text-align: center;
+								font-family: Inter;
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 600;
+								line-height: normal;
+							}
+							ul {
+								list-style: none;
+								display: flex;
+								flex-direction: column;
+								align-items: flex-start;
+								gap: 2px;
+								li {
+									display: flex;
+									padding: 12px 16px;
+									justify-content: space-between;
+									align-items: center;
+									align-self: stretch;
+									cursor: pointer;
+									.optionDetails {
+										display: flex;
+										align-items: center;
+										gap: 10px;
+										.icon {
+											display: flex;
+											align-items: center;
+										}
+										.labelText {
+											color: #e4e5e6 !important;
+											text-align: center;
+											font-family: Inter;
+											font-size: 12px;
+											font-style: normal;
+											font-weight: 400;
+											line-height: normal;
+										}
+									}
+									.check {
+										display: flex;
+										align-items: center;
+									}
+								}
+							}
+						}
+					}
+					.person {
+						display: flex;
+						gap: 5px;
+						align-items: center;
+						.avatar {
+							width: 20px;
+							height: 20px;
+							border-radius: 50px;
+							background-color: #1d1d1d;
+							img {
+								object-fit: cover;
+								width: 100%;
+								height: 100%;
+							}
+						}
+						.name {
+							color: #e4e5e6;
+							font-family: Inter;
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+					.multiSelect {
+						.multiSelectContainer {
+							display: flex;
+							gap: 5px;
+							align-items: center;
+							.multiListItem {
+								cursor: pointer;
+								.multiListDot {
+									width: 8px;
+									height: 8px;
+									border-radius: 10px;
+								}
+								border-radius: 6px;
+								border: 1px solid #1d1d1d;
+								background: #111;
+								display: flex;
+								gap: 10px;
+								padding: 6px 12px;
+								justify-content: center;
+								align-items: center;
+								gap: 10px;
+
+								color: #e4e5e6;
+								font-family: Inter;
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: normal;
+							}
+						}
+					}
+					.date {
+						display: flex;
+						padding: 0 12px;
+						justify-content: center;
+						align-items: center;
+						gap: 10px;
+						height: 32px;
+						color: rgba(228, 229, 230, 0.48);
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+					}
+					.dateBorder {
+						color: #e4e5e6;
+						border-radius: 6px;
+						border: 1px solid #1d1d1d;
+					}
+
+					.priority,
+					.status,
+					.multiSelect {
+						position: relative;
+						display: flex;
+						align-items: center;
+
+						.currentIcon {
+							cursor: pointer;
+							display: flex;
+							align-items: center;
+						}
+					}
+					.phone,
+					.url,
+					.email {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						text-decoration: underline;
+					}
+					.checkBox {
+						width: 28px;
+						height: 28px;
+						border-radius: 6px;
+						border: 2px solid #1d1d1d;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						cursor: pointer;
+					}
+
+					.dropdownContainer {
+						position: absolute;
+						top: calc(100% + 10px);
+						max-height: 291px;
+						height: fit-content;
+						padding: 4px;
+						border-radius: 12px;
+						border: 1px solid rgba(228, 229, 230, 0.05);
+						background: #151515;
+						z-index: 200;
+						width: 270px;
+
+						h3 {
+							display: flex;
+							padding: 12px 16px;
+							align-items: center;
+							align-self: stretch;
+							color: rgba(228, 229, 230, 0.48);
+							text-align: center;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 600;
+							line-height: normal;
+						}
+						ul {
+							list-style: none;
+							display: flex;
+							flex-direction: column;
+							align-items: flex-start;
+							gap: 2px;
+							li,
+							label {
+								display: flex;
+								padding: 12px 16px;
+								justify-content: space-between;
+								align-items: center;
+								align-self: stretch;
+								cursor: pointer;
+								.optionDetails {
+									display: flex;
+									align-items: center;
+									gap: 12px;
+									.icon {
+										display: flex;
+										align-items: center;
+									}
+									.multiListDot {
+										width: 8px;
+										height: 8px;
+										border-radius: 10px;
+									}
+									.labelText {
+										color: #e4e5e6 !important;
+										text-align: center;
+										font-family: Inter;
+										font-size: 12px;
+										font-style: normal;
+										font-weight: 400;
+										line-height: normal;
+									}
+								}
+								.check {
+									display: flex;
+									align-items: center;
+								}
+							}
+						}
+					}
+				}
+
+				.availabledbsContainer {
+					color: #e4e5e6;
+					width: 400px;
+					padding: 18px;
+					margin: 20px auto;
+					border-radius: 20px;
+					border: 3px dashed rgba(228, 229, 230, 0.05);
+					h3 {
+						text-align: center;
+						margin-bottom: 10px;
+					}
+
+					.dbItem {
+						padding: 10px;
+						cursor: pointer;
+					}
+				}
+			}
+		}
+	}
+
+	.avatar {
+		height: 20px;
+		width: 20px;
+		background-color: rgb(82, 82, 84);
+		overflow: hidden;
+		border-radius: 100px;
+	}
+}

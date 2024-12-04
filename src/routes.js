@@ -25,6 +25,7 @@ import { Navigate } from 'react-router-dom';
 import Subscription from './views/features/subscription';
 import TermsOfService from './views/features/signin/TermsOfService';
 import CookiePolicy from './views/features/signin/CookiePolicy';
+import Tasks from './views/features/tasks';
 
 import ShareAndEarn from './views/features/ShareAndEarn';
 const routes = [
@@ -201,6 +202,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'AI Setup'}>
 				<AiSetupPage />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/tasks',
+		component: (
+			<AuthWrapper title={'Tasks'}>
+				<Tasks />
 			</AuthWrapper>
 		),
 		exact: true,
