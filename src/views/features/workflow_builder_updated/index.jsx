@@ -21,6 +21,10 @@ const options = [
 	{ label: 'Delete Worklfow' },
 ];
 
+const MIN_ZOOM = 25; // 25% minimum zoom
+const MAX_ZOOM = 200; // 200% maximum zoom
+const ZOOM_STEP = 25; // Zoom in/out by 25% each time
+
 const WorkflowBuilder = () => {
 	const {
 		templates: {
@@ -66,6 +70,7 @@ const WorkflowBuilder = () => {
 		optionType: null,
 		moveToPath: null,
 	});
+	const [zoom, setZoom] = useState(100); // 100 means 100% zoom
 
 	useEffect(() => {
 		if (templateId) {
@@ -367,6 +372,14 @@ const WorkflowBuilder = () => {
 		[info?.data],
 	);
 
+	//zoom functionality
+	const handleZoomIn = useCallback(() => {
+		setZoom((prevZoom) => Math.min(prevZoom + ZOOM_STEP, MAX_ZOOM));
+	}, []);
+
+	const handleZoomOut = useCallback(() => {
+		setZoom((prevZoom) => Math.max(prevZoom - ZOOM_STEP, MIN_ZOOM));
+	}, []);
 	return (
 		<div className="workflowBuilderContainer">
 			{/* header */}
@@ -445,6 +458,10 @@ const WorkflowBuilder = () => {
 							display: 'flex',
 							justifyContent: 'center',
 							padding: '40px 100%', // Use 100% padding on both sides
+
+							transform: `scale(${zoom / 100})`,
+							transformOrigin: 'center center',
+							transition: 'transform 0.2s ease',
 						}}
 						className="containerRefDiv"
 					>
@@ -468,6 +485,15 @@ const WorkflowBuilder = () => {
 					</div>
 				</div>
 			)}
+			<div className="zoom-controls-panel">
+				<button className="zoom-button" onClick={handleZoomIn} disabled={zoom >= MAX_ZOOM}>
+					+
+				</button>
+				<div className="zoom-level">{zoom}%</div>
+				<button className="zoom-button" onClick={handleZoomOut} disabled={zoom <= MIN_ZOOM}>
+					-
+				</button>
+			</div>
 			<WorkflowCardEditModal
 				closeModalFunc={closeModalFunc}
 				modalIsOpen={info?.modalIsOpen}
