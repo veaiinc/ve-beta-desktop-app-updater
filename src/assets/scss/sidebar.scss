@@ -9,7 +9,7 @@
 	transition: all 0.5s;
 	z-index: 1000;
 	&.opened {
-		height: 100vh !important;
+		// height: 100dvh !important;
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -38,6 +38,7 @@
 		&.open {
 			border-top-left-radius: 0 !important;
 			border-bottom-left-radius: 0 !important;
+			height: 100dvh !important;
 		}
 
 		.closedSideBarComponent {
@@ -222,7 +223,7 @@
 			.allmodulesList,
 			.bottomOptionsList {
 				.singleModuleItem {
-					width: 194px;
+					width: 206px;
 					display: flex;
 					justify-content: space-between;
 					gap: 14px;
@@ -546,5 +547,29 @@
 	100% {
 		transform: translateY(0) rotate(0);
 		opacity: 1;
+	}
+}
+
+@media screen and (max-width: 500px) {
+	.FullScreenSidebar {
+		height: 25px !important;
+		border-radius: 0px !important;
+		border: none !important;
+		background-color: transparent !important;
+		padding: 0px !important;
+		margin: 0px !important;
+		.sidebarComponent {
+			background-color: transparent !important;
+			border: none !important;
+			padding: 0px !important;
+			margin: 0px !important;
+			&.open {
+				border-top-left-radius: 0 !important;
+				border-bottom-left-radius: 0 !important;
+				height: 100dvh !important;
+				border: 1px solid rgba(255, 255, 255, 0.1) !important;
+				background: #1d1d1d !important;
+			}
+		}
 	}
 }

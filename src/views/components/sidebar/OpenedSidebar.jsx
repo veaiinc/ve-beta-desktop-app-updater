@@ -7,6 +7,7 @@ import { ReactComponent as RefreshSvg } from '../../../assets/svg/sidebar/Refres
 import { ReactComponent as VeAiSvg } from '../../../assets/svg/sidebar/VeAi.svg';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/worflow_builder/BackArrow.svg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
+
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 
@@ -18,6 +19,7 @@ const OpenedSideBarHoverStateIcons = ({
 	isActive,
 	navigateTo,
 	isSelected,
+	subModules,
 }) => {
 	const [isHover, setisHover] = useState(false);
 	const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -41,50 +43,49 @@ const OpenedSideBarHoverStateIcons = ({
 	};
 
 	return (
-		<div
-			className={`singleModuleItem ${isActive ? 'activeListModule' : ''} ${
-				isDropdownVisible ? 'calendar-active' : ''
-			}`}
-			onMouseEnter={onMoutseEnter}
-			onMouseLeave={onMoutseLeave}
-			onClick={redirectToFunction}
-		>
-			<Icon fill={'none'} />
-			<p>{name}</p>
-			{name === 'Calendar' ? (
-				<>
-					<div onClick={toggleDropdown} style={{ marginLeft: '35px' }}>
-						<DownArrowSmallSvg
-							className={`downArrow ${isDropdownVisible ? 'rotate' : ''}`}
-							style={{ height: '16px', width: '16px' }}
-						/>
-					</div>
-					{isDropdownVisible && (
-						<div className={`dropdownMenu ${isDropdownVisible ? 'visible' : ''}`}>
-							{veAiSubModulesItemsList?.map((subItem, index) => (
-								<div key={subItem?.name} className="subItem">
-									{subItem.icon && <subItem.icon fill={'#FFF'} />}
-									<p>{subItem.name}</p>
-								</div>
-							))}
-						</div>
-					)}
-				</>
-			) : (
-				(isSelected || isActive) && (
+		<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+			<div
+				className={`singleModuleItem ${isActive ? 'activeListModule' : ''} ${
+					isDropdownVisible ? 'calendar-active' : ''
+				}`}
+				onMouseEnter={onMoutseEnter}
+				onMouseLeave={onMoutseLeave}
+				onClick={redirectToFunction}
+			>
+				<Icon fill={'none'} />
+				<p>{name}</p>
+
+				{(isSelected || isActive) && (
 					<TickSvg
 						className="tick-icon"
-						// fill="#FFF"
 						style={{
 							width: '16px',
 							height: '16px',
 							position: 'absolute',
-							right: '16px',
+							right: '10px',
 							top: '50%',
 							transform: 'translateY(-50%)',
 						}}
 					/>
-				)
+				)}
+				{isDropdownVisible && subModules?.length > 0 && (
+					<div className={`dropdownMenu ${isDropdownVisible ? 'visible' : ''}`}>
+						{subModules?.map((subItem, index) => (
+							<div key={subItem?.name} className="subItem">
+								{subItem.icon && <subItem.icon fill={'#FFF'} />}
+								<p>{subItem.name}</p>
+							</div>
+						))}
+					</div>
+				)}
+			</div>
+			{subModules?.length > 0 && (
+				<div onClick={toggleDropdown} style={{ marginTop: '14px' }}>
+					<DownArrowSmallSvg
+						className={`downArrow ${isDropdownVisible ? 'rotate' : ''}`}
+						style={{ height: '16px', width: '16px' }}
+					/>
+				</div>
 			)}
 		</div>
 	);
@@ -150,8 +151,8 @@ const OpenedSideBarItemsComponent = ({
 		navigate(route);
 		setsidebarStates({
 			...sidebarStates,
-			isOpen: false,
-			navStyle: 'close',
+			// isOpen: false,
+			// navStyle: 'close',
 			selectedModule: singleItems?.name,
 		});
 	};
@@ -191,6 +192,7 @@ const OpenedSideBarItemsComponent = ({
 								key={singleItems?.name}
 								isSelected={selectedOption === singleItems?.name}
 								isActive={info?.activeRoute === singleItems?.moduleRoute}
+								subModules={singleItems?.subModules}
 								style={{
 									fontSize: '14px',
 									fontStyle: 'normal',

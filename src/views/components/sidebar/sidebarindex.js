@@ -35,7 +35,6 @@ export const veAiModulesItemsList = [
 		route: '/calendar',
 		icon: CalendarSvg,
 		subModules: [
-			{ icon: CalendarSvg, route: '', name: 'Calendar' },
 			{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
 			{ icon: TranscriptSvg, route: '', name: 'Transcript' },
 			{
@@ -54,9 +53,9 @@ export const veAiModulesItemsList = [
 	},
 	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: TaskSvg },
 	{
-		name: 'AI Assistant',
-		moduleRoute: '/ai-assistant',
-		route: '/ai-assistant',
+		name: 'AI Agents',
+		moduleRoute: '/ai-agents',
+		route: '/ai-agents',
 		icon: AIAssistantSvg,
 	},
 	{
