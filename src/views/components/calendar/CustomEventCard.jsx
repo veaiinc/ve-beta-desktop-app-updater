@@ -32,7 +32,6 @@ const CustomEventCard = ({ event }) => {
 					<div className="eventStatusDiv">
 						<span
 							className="statusIndicator"
-							// style={{ backgroundColor: $color }}
 							onClick={(event) => {
 								event.stopPropagation();
 							}}

@@ -2,7 +2,6 @@ import React, { memo, useState, useCallback, useEffect } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSidebar from './CalendarSidebar';
 import CalendarView from './CalendarView';
-import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 
 import moment from 'moment';
 
@@ -14,8 +13,7 @@ const Calendar = () => {
 		selectedYear: new Date().getFullYear(),
 		selectedDate: new Date(),
 		selectedWeek: [],
-		activeView: 'Month', // 'Week', 'Day'
-		loading: false,
+		// loading: false,
 		isCreateEventOpen: false,
 		isEventSelected: false,
 	});
@@ -24,7 +22,7 @@ const Calendar = () => {
 		getCurrentWeek();
 		updateCalendarInfo('selectedMonth', info?.selectedDate.getMonth());
 		updateCalendarInfo('selectedYear', info?.selectedDate.getFullYear());
-	}, [info.selectedDate]);
+	}, [info?.selectedDate]);
 
 	const updateCalendarInfo = useCallback((key, value) => {
 		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
@@ -51,30 +49,25 @@ const Calendar = () => {
 
 	return (
 		<>
-			{info?.loading ? (
-				<UpdatedPageLoader />
-			) : (
-				<div className="calendarParentContainer">
-					<CalendarSidebar
-						currentCalendarDate={info?.currentCalendarDate}
-						selectedMonth={info?.selectedMonth}
-						selectedYear={info?.selectedYear}
-						selectedDate={info?.selectedDate}
-						isCreateEventOpen={info?.isCreateEventOpen}
-						updateCalendarInfo={updateCalendarInfo}
-					/>
-					<CalendarView
-						activeView={info?.activeView}
-						selectedWeek={info?.selectedWeek}
-						selectedDate={info?.selectedDate}
-						selectedMonth={info?.selectedMonth}
-						selectedYear={info?.selectedYear}
-						isEventSelected={info?.isEventSelected}
-						getCurrentWeek={getCurrentWeek}
-						updateCalendarInfo={updateCalendarInfo}
-					/>
-				</div>
-			)}
+			<div className="calendarParentContainer">
+				<CalendarSidebar
+					currentCalendarDate={info?.currentCalendarDate}
+					selectedMonth={info?.selectedMonth}
+					selectedYear={info?.selectedYear}
+					selectedDate={info?.selectedDate}
+					isCreateEventOpen={info?.isCreateEventOpen}
+					updateCalendarInfo={updateCalendarInfo}
+				/>
+				<CalendarView
+					selectedWeek={info?.selectedWeek}
+					selectedDate={info?.selectedDate}
+					selectedMonth={info?.selectedMonth}
+					selectedYear={info?.selectedYear}
+					isEventSelected={info?.isEventSelected}
+					getCurrentWeek={getCurrentWeek}
+					updateCalendarInfo={updateCalendarInfo}
+				/>
+			</div>
 		</>
 	);
 };

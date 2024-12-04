@@ -33,10 +33,7 @@ const initialState = {
 
 const CreateEvent = ({ updateCalendarInfo }) => {
 	const {
-		calendarInfo: {
-			calendarEvent, //state
-			createCalendarEvent, //function
-		},
+		calendarInfo: { calendarEvent, createCalendarEvent },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -44,14 +41,10 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 
 		// UI state
 		showCategory: false,
-		showInputSuggestions: false,
+		showAtendeeSuggestions: false,
 		categories: ['Shoots', 'Sessions', 'Meetings'],
 		selectedCategory: 'default',
-
-		// Attendees management
 		attendeesInputField: '',
-
-		// Date and time details
 		startDate: '',
 		startTime: '',
 		endDate: '',
@@ -103,6 +96,7 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 		return () => {
 			clearTimeout(timerId);
 			document.removeEventListener('click', handleClickOutside);
+			setInfo({ ...initialState });
 		};
 	}, []);
 
@@ -393,9 +387,9 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 						<input
 							type="text"
 							placeholder="Add attendee or email"
-							onBlur={() => updateEventInfo('showInputSuggestions', false)}
+							onBlur={() => updateEventInfo('showAtendeeSuggestions', false)}
 							onFocus={() => {
-								updateEventInfo('showInputSuggestions', true);
+								updateEventInfo('showAtendeeSuggestions', true);
 								updateEventInfo('submissionError', null);
 							}}
 							value={info?.attendeesInputField}
@@ -403,11 +397,11 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 							onKeyDown={(e) => {
 								if (e.key === 'Enter' && info?.attendeesInputField) {
 									addAttendees({ email: info?.attendeesInputField });
-									updateEventInfo('showInputSuggestions', false);
+									updateEventInfo('showAtendeeSuggestions', false);
 								}
 							}}
 						/>
-						{info?.showInputSuggestions ? (
+						{info?.showAtendeeSuggestions ? (
 							<div className="addAttendeeDropDown">
 								{info?.inputDropDownItems
 									?.filter((item) => !item?.isOwner)

@@ -1,30 +1,23 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo } from 'react';
 import '../../../assets/scss/calendar/calendarHeader.scss';
 import { ReactComponent as Down } from '../../../assets/svg/activity/down.svg';
 import WeekHeader from './WeekHeader';
 import DayHeader from './DaysHeader';
 import WeekDayHeader from './WeekDayHeader';
-import moment from 'moment';
 
 const CalendarHeader = ({
 	label,
 	onView,
 	view,
 	views,
-	activeView,
 	selectedWeek,
 	selectedDate,
-	getCurrentWeek,
+	userWorkSpaceList,
+	tenantsUserList,
 }) => {
 	const viewsHeaders = {
 		month: <WeekHeader />,
-		week: (
-			<WeekDayHeader
-				selectedWeek={selectedWeek}
-				selectedDate={selectedDate}
-				getCurrentWeek={getCurrentWeek}
-			/>
-		),
+		week: <WeekDayHeader selectedWeek={selectedWeek} selectedDate={selectedDate} />,
 		day: <DayHeader />,
 	};
 	return (
@@ -64,7 +57,6 @@ const CalendarHeader = ({
 					</div>
 
 					{/* Render the active calendar day Header */}
-					{/* {views[activeView]} */}
 					{viewsHeaders[view]}
 				</div>
 			</div>

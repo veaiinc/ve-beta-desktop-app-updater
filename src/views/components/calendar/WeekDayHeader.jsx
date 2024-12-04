@@ -1,7 +1,7 @@
 import React, { memo, useMemo } from 'react';
 import '../../../assets/scss/calendar/calendarHeader.scss';
 
-const WeekDayHeader = ({ selectedWeek, selectedDate }) => {
+const WeekDayHeader = ({ selectedWeek }) => {
 	const days = useMemo(
 		() =>
 			[

@@ -50,7 +50,7 @@ export const Calendar = () => {
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.GET_CALENDAR_EVENTS_LIST,
-					payload: response?.[1],
+					payload: response?.[1]?.data,
 				});
 			} else {
 				dispatch({
@@ -76,7 +76,7 @@ export const Calendar = () => {
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.CREATE_CALENDAR_EVENT,
-					payload: response?.[1],
+					payload: response?.[1]?.data,
 				});
 			} else {
 				dispatch({

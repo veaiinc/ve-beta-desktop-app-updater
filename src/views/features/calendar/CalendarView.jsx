@@ -11,104 +11,15 @@ import CustomEventCard from '../../components/calendar/CustomEventCard';
 import CustomEventWrapper from '../../components/calendar/CustomEventWrapper';
 // import CustomEventContainer from '../../components/calendar/CustomEventContainer';
 import EventDetailsDrawer from '../../components/calendar/EventDetailsDrawer';
-import moment from 'moment';
 import MonthEventWrapper from '../../components/calendar/MonthEventWrapper';
+import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import Context from '../../../context/context';
-const events = [
-	{
-		title: 'Long Event',
-		start: new Date(2024, 10, 15),
-		end: new Date(2024, 10, 17),
-	},
-	{
-		title: 'Long Event',
-		start: new Date(2024, 10, 15),
-		end: new Date(2024, 10, 17),
-	},
-	{
-		title: 'Long Event',
-		start: new Date(2024, 10, 15),
-		end: new Date(2024, 10, 17),
-	},
-	{
-		title: 'Long Event',
-		start: new Date(2024, 10, 15),
-		end: new Date(2024, 10, 17),
-	},
-	{
-		title: 'Long Event',
-		start: new Date(2024, 10, 15),
-		end: new Date(2024, 10, 17),
-	},
-	{
-		title: 'Long Event',
-		start: new Date(2024, 10, 15),
-		end: new Date(2024, 10, 17),
-	},
-	{
-		title: 'Long Event',
-		start: new Date(2024, 10, 15),
-		end: new Date(2024, 10, 17),
-	},
-	{
-		title: 'Long Event',
-		start: new Date(2024, 10, 15),
-		end: new Date(2024, 10, 17),
-	},
-	{
-		title: 'Long Event',
-		start: new Date(2024, 10, 15),
-		end: new Date(2024, 10, 17),
-	},
-	{
-		start: moment('2015-04-11').toDate(),
-		end: moment('2015-04-13').toDate(),
-		title: 'Conference',
-		description: 'Big conference for important people',
-		categories: ['Conference', 'Business'],
-	},
-
-	{
-		start: moment('2024-11-18T03:00:00').toDate(),
-		end: moment('2024-11-18T07:00:00').toDate(),
-		title: 'MRI Registration ',
-		description: 'Register for the MRI scan. Ensure all paperwork is complete.',
-		categories: ['Medical', 'Appointment'],
-	},
-	{
-		start: moment('2024-11-19T09:00:00').toDate(),
-		end: moment('2024-11-19T10:30:00').toDate(),
-		title: 'Team Meeting',
-		description: 'Discuss project updates and next sprint planning.',
-		categories: ['Work', 'Meeting'],
-	},
-	{
-		start: moment('2024-11-20T14:00:00').toDate(),
-		end: moment('2024-11-20T15:00:00').toDate(),
-		title: 'Dentist Appointment',
-		description: 'Routine dental check-up and cleaning.',
-		categories: ['Personal', 'Health'],
-	},
-	{
-		start: moment('2024-11-21T18:00:00').toDate(),
-		end: moment('2024-11-21T19:30:00').toDate(),
-		title: 'Yoga Class',
-		description: 'Evening yoga session for stress relief and flexibility.',
-		categories: ['Fitness', 'Personal'],
-	},
-	{
-		start: moment('2024-11-22T08:30:00').toDate(),
-		end: moment('2024-11-22T09:30:00').toDate(),
-		title: 'Breakfast with Clients',
-		description: 'Meet clients to discuss upcoming collaboration opportunities.',
-		categories: ['Business', 'Networking'],
-	},
-];
+import moment from 'moment';
 
 const initialState = {
 	eventsList: [],
 	eventListError: null,
-	isLoading: false,
+	isLoading: true,
 	isEventCreated: false,
 	updateEventsList: false,
 };
@@ -119,9 +30,10 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 			calendarEventsList,
 			getCalendarEventsList,
 			calendarEvent, //state
-			createCalendarEvent, //function
 			resetCalendarState,
 		},
+		// profileInfo: { userWorkSpaceList, userDetailsData },
+		companyInfo: { tenantsUserList, getTeamMembers },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -129,8 +41,14 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 	});
 
 	useEffect(() => {
+		if (!tenantsUserList || tenantsUserList.length === 0) {
+			getTeamMembers();
+		}
+	}, [tenantsUserList]);
+
+	useEffect(() => {
 		fetchEventsList();
-	}, [info?.updateEventsList]);
+	}, [calendarEvent]);
 
 	useEffect(() => {
 		return () => {
@@ -148,9 +66,19 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 					isLoading: false,
 				}));
 			}
+
+			// Map the calendarEventsList to the desired eventsList format
+			const mappedEventsList = calendarEventsList?.map((event) => ({
+				id: event?._id,
+				start: moment(event?.startDateTime).local().toDate(), // Convert to local time
+				end: moment(event?.endDateTime).local().toDate(), // Convert to local time
+				title: event?.title,
+				description: event?.description,
+			}));
+
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				eventsList: calendarEventsList,
+				eventsList: mappedEventsList,
 				isLoading: false,
 			}));
 		}
@@ -169,6 +97,8 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 					{...props}
 					selectedDate={selectedDate}
 					selectedWeek={selectedWeek}
+					// userWorkSpaceList={userWorkSpaceList}
+					tenantsUserList={tenantsUserList}
 				/>
 			),
 			week: {
@@ -181,30 +111,36 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 			eventWrapper: CustomEventWrapper,
 			// eventContainerWrapper: CustomEventContainer,
 		}),
-		[selectedDate, selectedWeek],
+		[selectedDate, selectedWeek, tenantsUserList],
 	);
 	return (
-		<div className="calendarViewParentContainer">
-			<div className="scheduler">
-				<CalendarWrapper
-					events={events}
-					defaultView={'month'}
-					views={['month', 'week', 'day']}
-					toolbar={true}
-					className="custom"
-					selectable
-					onSelectSlot={() => updateCalendarInfo('isCreateEventOpen', true)}
-					onSelectEvent={(event) => updateCalendarInfo('isEventSelected', true)}
-					date={selectedDate} //for syncing with calendarSelector current date
-					popup
-					components={components}
-				/>
-			</div>
-			<EventDetailsDrawer
-				isEventSelected={isEventSelected}
-				updateCalendarInfo={updateCalendarInfo}
-			/>
-		</div>
+		<>
+			{info?.isLoading ? (
+				<UpdatedPageLoader />
+			) : (
+				<div className="calendarViewParentContainer">
+					<div className="scheduler">
+						<CalendarWrapper
+							events={info?.eventsList || []}
+							defaultView={'month'}
+							views={['month', 'week', 'day']}
+							toolbar={true}
+							className="custom"
+							selectable
+							onSelectSlot={() => updateCalendarInfo('isCreateEventOpen', true)}
+							onSelectEvent={(event) => updateCalendarInfo('isEventSelected', true)}
+							date={selectedDate} //for syncing with calendarSelector current date
+							popup
+							components={components}
+						/>
+					</div>
+					<EventDetailsDrawer
+						isEventSelected={isEventSelected}
+						updateCalendarInfo={updateCalendarInfo}
+					/>
+				</div>
+			)}
+		</>
 	);
 };
 
