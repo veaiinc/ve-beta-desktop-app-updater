@@ -77,6 +77,34 @@
 			}
 		}
 	}
+	.group-container,
+	.order-container {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		.dropdown {
+			display: flex;
+			width: 153px;
+			padding: 11px 14px;
+			justify-content: space-between;
+			align-items: center;
+			gap: 10px;
+			border-radius: 8px;
+			border: 1px solid rgba(36, 36, 36, 0.64);
+			background: #1b1b1b;
+
+			.dropdown-text {
+				color: rgba(228, 229, 230, 0.8);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+	}
 
 	.sub-issues-container,
 	.empty-group-container {

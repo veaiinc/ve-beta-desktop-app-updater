@@ -1,11 +1,18 @@
 import { Divider } from 'antd';
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import '../../../../assets/scss/dropdown/tasks/optionsDropDown.scss';
 import { ReactComponent as ListIcon } from '../../../../assets/svg/tasks/list.svg';
 import { ReactComponent as BoardIcon } from '../../../../assets/svg/tasks/board.svg';
 import ToggleSlider from '../../input/slider';
+import { ReactComponent as DownArrow } from '../../../../assets/svg/Settings/Downarrowwhite.svg';
+import DropDown from './DropDown';
 
 const OptionsDropDown = ({ properties, togglePropertyVisibility, open }) => {
+	const [info, setInfo] = useState({ groupDropDownOpen: false, orderDropDownOpen: false });
+
+	const updateOptionDropDownInfo = (key, value) => {
+		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
+	};
 	return (
 		<div className={`dropdown-container ${open ? `` : `dropdown-hide`}`}>
 			<div className="view-selection-wrapper">
@@ -22,9 +29,60 @@ const OptionsDropDown = ({ properties, togglePropertyVisibility, open }) => {
 			</div>
 			<div className="group-container text-bright">
 				<span>Grouping</span>
+				<DropDown
+					containerStyles={{ right: '0', width: '153px' }}
+					options={properties}
+					valueSelector="propName"
+					selected="tags"
+					open={info?.groupDropDownOpen}
+					defaultValue={'No grouping'}
+					closeDropdown={() => updateOptionDropDownInfo('groupDropDownOpen', false)}
+				>
+					<div
+						className="dropdown"
+						onClick={() =>
+							updateOptionDropDownInfo('groupDropDownOpen', !info?.groupDropDownOpen)
+						}
+					>
+						<span className="dropdown-text">{'No grouping'}</span>
+						<DownArrow
+							style={{
+								transform: info?.groupDropDownOpen
+									? 'rotate(180deg)'
+									: 'rotate(0deg)',
+							}}
+							s
+						/>
+					</div>
+				</DropDown>
 			</div>
 			<div className="order-container text-bright">
 				<span>Ordering</span>
+				<DropDown
+					containerStyles={{ right: '0', width: '153px' }}
+					options={properties}
+					valueSelector="propName"
+					selected=""
+					open={info?.orderDropDownOpen}
+					defaultValue={'Manual'}
+					closeDropdown={() => updateOptionDropDownInfo('orderDropDownOpen', false)}
+				>
+					<div
+						className="dropdown"
+						onClick={() =>
+							updateOptionDropDownInfo('orderDropDownOpen', !info?.orderDropDownOpen)
+						}
+					>
+						<span className="dropdown-text">{'No ordering'}</span>
+						<DownArrow
+							style={{
+								transform: info?.orderDropDownOpen
+									? 'rotate(180deg)'
+									: 'rotate(0deg)',
+							}}
+						/>
+					</div>
+				</DropDown>
 			</div>
 			<Divider style={{ backgroundColor: '#1D1D1D', margin: '0' }} />
 			<div className="sub-issues-container">
