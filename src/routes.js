@@ -23,6 +23,7 @@ import UploadPhotos from './views/features/gallery/UploadPhotos';
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
 import { Navigate } from 'react-router-dom';
 import Subscription from './views/features/subscription';
+import Calendar from './views/features/calendar/index';
 import TermsOfService from './views/features/signin/TermsOfService';
 import CookiePolicy from './views/features/signin/CookiePolicy';
 import Workflow_builder_updated from './views/features/workflow_builder_updated';
