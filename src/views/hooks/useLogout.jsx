@@ -11,6 +11,7 @@ const useLogout = () => {
 		templates: { resetTemplateState },
 		galleryInfo: { resetGallleryState },
 		subscriptionInfo: { resetSubscriptionState },
+		tasks: { resetTasksState },
 	} = useContext(Context);
 
 	const resetApplications = useCallback(async () => {
@@ -25,6 +26,7 @@ const useLogout = () => {
 		resetTemplateState();
 		resetGallleryState();
 		resetSubscriptionState();
+		resetTasksState();
 	}, []);
 
 	return resetApplications;

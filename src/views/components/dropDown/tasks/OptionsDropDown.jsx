@@ -86,14 +86,14 @@ const OptionsDropDown = ({ properties, togglePropertyVisibility, open }) => {
 			<Divider style={{ backgroundColor: '#1D1D1D', margin: '0' }} />
 			<div className="sub-issues-container">
 				<span className="text-fade">Show sub-issues</span>
-				<ToggleSlider onChange={() => {}} />
+				<ToggleSlider onChange={() => {}} value={false} />
 			</div>
 			<Divider style={{ backgroundColor: '#1D1D1D', margin: '0' }} />
 
 			<span className="list-heading text-bright">List option</span>
 			<div className="empty-group-container">
 				<span className="text-fade">Show empty group</span>
-				<ToggleSlider onChange={() => {}} />
+				<ToggleSlider onChange={() => {}} value={false} />
 			</div>
 			<div className="properties-container">
 				<span className="text-fade">Display properties</span>
