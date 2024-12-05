@@ -13,6 +13,7 @@
 		padding: 0 !important;
 		margin-right: 10px !important;
 		transition: all 0.7s;
+		// border: 1px solid rgba(255, 255, 255, 0.1);
 	}
 
 	&.no-submodules:not(.opened) {
@@ -23,7 +24,7 @@
 	}
 	.sidebarComponent {
 		min-height: 100%;
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		// border: 1px solid rgba(255, 255, 255, 0.1);
 		background: #1d1d1d;
 		display: flex;
 		flex-direction: column;
@@ -34,8 +35,7 @@
 		z-index: 1;
 
 		&.open {
-			border-top-left-radius: 0 !important;
-			border-bottom-left-radius: 0 !important;
+			border-radius: 0px !important;
 			height: 100dvh !important;
 		}
 
@@ -48,6 +48,7 @@
 			padding: 10px 10px 18px 10px;
 			border-radius: inherit;
 			z-index: 1;
+			border: none !important;
 
 			.hoverStateIconsClosed {
 				display: flex;
@@ -88,7 +89,8 @@
 					align-items: center;
 					position: relative;
 					background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
-					mix-blend-mode: lighten;
+					// mix-blend-mode: lighten;
+					box-shadow: none;
 
 					.svgDiv {
 						position: absolute;
@@ -212,7 +214,7 @@
 			align-items: center;
 			justify-content: space-between;
 			height: 100vh;
-			width: inherit;
+			width: 238px;
 			padding: 18px 9px;
 			border-radius: inherit;
 			transition: height 0.8s ease;
