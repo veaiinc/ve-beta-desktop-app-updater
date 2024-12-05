@@ -3,161 +3,53 @@ import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import '../../../../assets/scss/sales/globalWorkflowModal.scss';
 import { ReactComponent as EditSvg } from '../../../../assets/svg/worflow_builder/edit.svg';
 import { useNavigate } from 'react-router-dom';
-import ConnectorSvg from '../../../../assets/svg/worflow_builder/connector';
-import { ReactComponent as EmailSvg } from '../../../../assets/svg/worflow_builder/email.svg';
 import Context from '../../../../context/context';
 import Spinner from '../../../components/loaders/Spinner';
 import { Drawer } from 'antd';
 import GlobalWorkflowDesignModalLoader from './GlobalWorkflowDesignModalLoader';
-import GlobalWorkflowAutomationLoader from './GlobalWorkflowAutomationLoader';
-import { fetchOriginSelection } from '../../../../helpers';
 
-let origin = fetchOriginSelection();
 const initialState = {
 	activeTab: 'design', //design,automation
 	duplicateApiLoading: false,
-	templatesMapper: null,
+	// templatesMapper: null,
 	activeTemplateData: null,
 	loading: true,
 };
 
-const EntryPointCard = ({ publicData }) => {
-	const data = publicData?.moduleTemplates?.filter((e) => e?.isPublic);
+const AutomationComponent = ({ globalTemplateId }) => {
+	let urlMapper = {
+		localhost: 'http://localhost:8000',
+		've.ai': 'https://ve.ai',
+		've.co': 'https://ve.co',
+		'www.ve.ai': 'https://ve.ai',
+		'www.ve.co': 'https://ve.co',
+	};
 
-	return (
-		<div className="previewCard" style={{ pointerEvents: 'none' }}>
-			<div className="htmlContentViewer">
-				<div className="coverImage">
-					<iframe
-						src={
-							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-								: `https://builder.ve.ai/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-						}
-						title="Builder Preview"
-						width="100%"
-						height="100%"
-						style={{ zoom: 0.2 }}
-					/>
-				</div>
-			</div>
-			<div className="previewLabelContent">
-				<span className="titleStyling">Workflow Start Point</span>
-				<span className="startingPointTitle">Enquiry form</span>
-			</div>
-		</div>
-	);
-};
-const EndPointViewCard = () => {
-	return (
-		<div className="endViewCard">
-			<span className="subalabel">WorkFlow Ends Here </span>
-		</div>
-	);
-};
-const OtherViewCard = ({ data }) => {
-	return (
-		<div className="otherViewCard">
-			<div className="sendEmailHeader">
-				<EmailSvg />
-				<span className="sendEmailText">Send Email</span>
-			</div>
-			<span className="emailSubjectText">{data?.emailTemplateSubject}</span>
-			<span className="subalabel">Immediately after enquiry form is submitted </span>
-		</div>
-	);
-};
-
-const PreviewCard = ({ privateData }) => {
-	const data = privateData?.moduleTemplates?.filter((e) => !e?.isPublic);
-	return (
-		<div className="previewCard" style={{ pointerEvents: 'none' }}>
-			<div className="htmlContentViewer">
-				<div className="coverImage">
-					<iframe
-						src={
-							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-								: `https://builder.ve.ai/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-						}
-						title="Builder Preview"
-						width="100%"
-						height="100%"
-						style={{ zoom: 0.2 }}
-					/>
-				</div>
-			</div>
-			<div className="previewLabelContent">
-				<span className="topLabelStyle">Timeless Touch of Beige</span>
-				<span className="labelTitle">All Files</span>
-				<span className="labelSubtitle">
-					Immediately after Form is submitted, wait for my approval
-				</span>
-			</div>
-		</div>
-	);
-};
-
-const AutomationComponent = ({ activeTemplateData, loading }) => {
-	const [data, setData] = useState({
-		stepsData: null,
-		componentmapper: {
-			theEnd: <EndPointViewCard />,
-			preview: <PreviewCard privateData={activeTemplateData} />,
-		},
-	});
-
-	useEffect(() => {
-		if (activeTemplateData?.steps?.length) {
-			const steps = [...(activeTemplateData?.steps || [])];
-
-			let stepsData = [];
-			stepsData?.push(steps?.[0]);
-			stepsData?.push({
-				module: 'preview',
-				_id: steps?.[0]?._id,
-				parsedHtmlContent: activeTemplateData?.templates?.[0]?.parsedHtmlContent,
-			});
-			steps.shift();
-			stepsData = stepsData?.concat(steps);
-			stepsData?.push({ module: 'theEnd' });
-			setData((prev) => ({ ...prev, stepsData }));
-		}
-	}, [activeTemplateData]);
-
+	const hostname = window.location.hostname;
 	return (
 		<div className="autoMationDiv">
-			{loading ? (
-				<GlobalWorkflowAutomationLoader />
-			) : (
-				data?.stepsData?.map((ele, index) => (
-					<div
-						key={index}
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'center',
-							justifyContent: 'center',
-						}}
-					>
-						{index === 0 ? (
-							<EntryPointCard publicData={activeTemplateData} />
-						) : data?.componentmapper?.[ele?.module] ? (
-							data?.componentmapper?.[ele?.module]
-						) : (
-							<OtherViewCard data={ele} />
-						)}
-						{index < data?.stepsData?.length - 1 ? <ConnectorSvg /> : ''}
-					</div>
-				))
-			)}
+			<div
+				style={{
+					width: '100%',
+					height: '100%',
+				}}
+			>
+				<iframe
+					src={`${urlMapper?.[hostname]}/workflow_builder/${globalTemplateId}?hideHeader=true&hideZoomPannel=true`}
+					title="Builder Preview"
+					width="100%"
+					height="100%"
+					style={{
+						pointerEvents: 'none', // Disables all pointer events on iframe
+					}}
+				/>
+			</div>
 		</div>
 	);
 };
 
 const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 	const navigate = useNavigate();
-
 	let {
 		templates: {
 			duplicateGlobalWorkflowTemplate,
@@ -189,16 +81,16 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 		}
 	}, [specificTemplatesInfo]);
 
-	useEffect(() => {
-		if (info?.activeTemplateData) {
-			const { templates } = info?.activeTemplateData || {};
-			let obj = {};
-			for (let i = 0; i < templates?.length; i++) {
-				obj[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
-			}
-			setInfo((prev) => ({ ...prev, templatesMapper: obj }));
-		}
-	}, [info?.activeTemplateData]);
+	// useEffect(() => {
+	// 	if (info?.activeTemplateData) {
+	// 		const { templates } = info?.activeTemplateData || {};
+	// 		let obj = {};
+	// 		for (let i = 0; i < templates?.length; i++) {
+	// 			obj[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
+	// 		}
+	// 		setInfo((prev) => ({ ...prev, templatesMapper: obj }));
+	// 	}
+	// }, [info?.activeTemplateData]);
 
 	//function defination
 	const changeActiveTab = useCallback(
@@ -232,14 +124,16 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 			if (info?.activeTab !== 'design') {
 				return navigate(`/workflow_builder/${response?.[1]?._id}`);
 			} else {
-				window.location.href = `${origin}/${response?.[1]?._id}`;
+				window.location.href = `https://builder.ve.ai/${response?.[1]?._id}`;
 				return;
 			}
 		}
 	}, [info?.activeTemplateData, info?.activeTab, info?.duplicateApiLoading]);
+
 	const onGenerateAIFunc = () => {
 		window.location.href = `${origin}/generate/${info?.activeTemplateData?._id}`;
 	};
+
 	return (
 		<Drawer
 			onClose={modifiedCloseModal}
@@ -288,7 +182,11 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 										''
 									)}
 								</div>
-								<div onClick={onGenerateAIFunc} className="svgContainer">
+								<div
+									onClick={onGenerateAIFunc}
+									className="svgContainer"
+									style={{ marginLeft: '12px' }}
+								>
 									GenAI
 								</div>
 								{/* )} */}
@@ -316,7 +214,11 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 										<div className="imageContainer">
 											<div style={{ width: '100%', height: '100%' }}>
 												<iframe
-													src={`${origin}/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`}
+													src={
+														window.location.hostname === 'localhost'
+															? `http://localhost:3000/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`
+															: `https://builder.ve.ai/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`
+													}
 													title="Builder Preview"
 													width="100%"
 													height="100%"
@@ -328,10 +230,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 							)}
 						</div>
 					) : (
-						<AutomationComponent
-							activeTemplateData={info?.activeTemplateData}
-							loading={info?.loading}
-						/>
+						<AutomationComponent globalTemplateId={globalTemplateId} />
 					)}
 				</div>
 			</div>

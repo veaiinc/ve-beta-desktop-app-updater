@@ -1,7 +1,7 @@
 import AuthWrapper from './views/layouts/authWrapper';
 import LoginPage from './views/features/login_page/LoginPage';
 import Onboarding from './views/features/onboarding/Onboarding';
-// import LoginScreen from './views/features/signin';
+import LoginScreen from './views/features/signin';
 import ChatScreen from './views/features/meta_Integ/index';
 import OauthVerify from './views/features/signin/oauth';
 import Workflow_builder from './views/features/workflow_builder';
@@ -20,20 +20,19 @@ import GalleryPage from './views/features/gallery/GalleryPage';
 import GalleryViewer from './views/features/gallery/GalleryViewer';
 import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
-import Calendar from './views/features/calendar/index';
-
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
 import { Navigate } from 'react-router-dom';
-import Subscription from './views/features/subscription';
-import TermsOfService from './views/features/signin/TermsOfService';
-import CookiePolicy from './views/features/signin/CookiePolicy';
+import Workflow_builder_updated from './views/features/workflow_builder_updated';
 
-import ShareAndEarn from './views/features/ShareAndEarn';
 const routes = [
 	{
 		path: '/',
 		component: <Landing_screen />,
 	},
+	// {
+	// 	path: '/verify-user',
+	// 	component: <LoginScreen stage={'verify-user'} />,
+	// },
 	{
 		path: '/onboarding',
 		component: <Onboarding />,
@@ -42,30 +41,30 @@ const routes = [
 		path: '/verify-user',
 		component: <LoginPage />,
 	},
+	// {
+	// 	path: '/verify-user',
+	// 	component: <LoginPage />,
+	// },
 	{
-		path: '/referral/:referralCode',
-		component: <LoginPage />,
+		path: '/login-with-password',
+		component: <LoginScreen stage={'login-with-password'} />,
 	},
-	// {
-	// 	path: '/login-with-password',
-	// 	component: <LoginScreen stage={'login-with-password'} />,
-	// },
-	// {
-	// 	path: '/signup-user',
-	// 	component: <LoginScreen stage={'signup-user'} />,
-	// },
-	// {
-	// 	path: '/verify-email-code',
-	// 	component: <LoginScreen stage={'verify-email-code'} />,
-	// },
-	// {
-	// 	path: '/create-workspace',
-	// 	component: <LoginScreen stage={'create-workspace'} />,
-	// },
-	// {
-	// 	path: '/forgot-password',
-	// 	component: <LoginScreen stage={'forgot-password'} />,
-	// },
+	{
+		path: '/signup-user',
+		component: <LoginScreen stage={'signup-user'} />,
+	},
+	{
+		path: '/verify-email-code',
+		component: <LoginScreen stage={'verify-email-code'} />,
+	},
+	{
+		path: '/create-workspace',
+		component: <LoginScreen stage={'create-workspace'} />,
+	},
+	{
+		path: '/forgot-password',
+		component: <LoginScreen stage={'forgot-password'} />,
+	},
 	{
 		path: '/user/verify-oauth-user',
 		component: <OauthVerify />,
@@ -73,14 +72,6 @@ const routes = [
 	{
 		path: '/privacy-policy',
 		component: <PrivacyPolicy />,
-	},
-	{
-		path: '/terms-of-service',
-		component: <TermsOfService />,
-	},
-	{
-		path: '/cookie-policy',
-		component: <CookiePolicy />,
 	},
 	// {
 	// 	path: '/inbox',
@@ -111,18 +102,18 @@ const routes = [
 		),
 		exact: true,
 	},
-	{
-		path: '/share-and-earn',
-		component: (
-			<AuthWrapper title={'Share and Earn'}>
-				<ShareAndEarn />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
 
 	{
 		path: '/workflow_builder/:templateId',
+		component: (
+			<WorkflowBuilderLayout title={'Workflow Builder'}>
+				<Workflow_builder_updated />
+			</WorkflowBuilderLayout>
+		),
+		exact: true,
+	},
+	{
+		path: '/workflow_builder-test/:templateId', //this is real one,
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
 				<Workflow_builder />
@@ -165,7 +156,7 @@ const routes = [
 	{
 		path: '/galleries/:galleryId',
 		component: (
-			<AuthWrapper title={'Gallery'} maxWidth={'1200px'}>
+			<AuthWrapper title={'Gallery'}>
 				<GalleryPage />
 			</AuthWrapper>
 		),
@@ -210,20 +201,6 @@ const routes = [
 	{
 		path: '*',
 		component: <Navigate to="/" />,
-	},
-	{
-		path: '/calendar',
-		component: (
-			<AuthWrapper title={'Calendar'} maxWidth={'1700px'}>
-				<Calendar />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
-	{
-		path: '/subscription',
-		component: <Subscription />,
-		exact: true,
 	},
 ];
 

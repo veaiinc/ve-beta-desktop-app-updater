@@ -18,19 +18,7 @@ export const getTemmplatesQuery = gql`
 				title
 				workflows
 				templates
-				steps {
-					_id
-					criteria
-					module
-					nextStepId
-					nextStepType
-					emailTemplateTitle
-					emailTemplateSubject
-					emailTemplateId
-					sendAt
-					order
-					type
-				}
+				steps
 				workflowStats
 				formResponses
 				filesSent
@@ -85,19 +73,7 @@ export const addEmailTriggersInWorkflowQuery = gql`
 	mutation UpdateWorkflowTemplate($templateId: ID!, $updateObj: TemplateUpdateObj!) {
 		updateWorkflowTemplate(templateId: $templateId, updateObj: $updateObj) {
 			_id
-			steps {
-				_id
-				criteria
-				module
-				nextStepId
-				nextStepType
-				emailTemplateTitle
-				emailTemplateSubject
-				emailTemplateId
-				sendAt
-				order
-				type
-			}
+			steps
 			slug
 			status
 			moduleTemplates {
@@ -121,8 +97,8 @@ export const getSpecificWorkflowTemplateDetailsQuery = gql`
 `;
 
 export const deleteWorkflowStepQuery = gql`
-	mutation DeleteStep($templateId: ID!, $stepId: ID!) {
-		deleteStep(templateId: $templateId, stepId: $stepId) {
+	mutation RemoveStep($removeStepInput: RemoveStepInput) {
+		removeStep(removeStepInput: $removeStepInput) {
 			message
 		}
 	}
@@ -331,19 +307,7 @@ export const getSpecifiTemplatesInfoQuery = gql`
 			tenantId
 			title
 			templates
-			steps {
-				_id
-				criteria
-				module
-				nextStepId
-				nextStepType
-				emailTemplateTitle
-				emailTemplateSubject
-				emailTemplateId
-				sendAt
-				order
-				type
-			}
+			steps
 			slug
 		}
 	}
@@ -423,5 +387,19 @@ export const updateSendSmartFileSettingsMutation = gql`
 export const getLatestSendSmartFileSettingsQuery = gql`
 	query Query {
 		getLatestWorkflowSettings
+	}
+`;
+
+export const addNewStepsQuery = gql`
+	mutation AddStep($templateId: ID!, $stepInput: StepInput!) {
+		addStep(templateId: $templateId, stepInput: $stepInput)
+	}
+`;
+
+export const updateStepsQuery = gql`
+	mutation UpdateStep($templateId: ID!, $updateStepInput: UpdateStepInput!) {
+		updateStep(templateId: $templateId, updateStepInput: $updateStepInput) {
+			message
+		}
 	}
 `;

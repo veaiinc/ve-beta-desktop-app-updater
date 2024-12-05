@@ -1,0 +1,92 @@
+.moveStepsConditionalModalParentContainer {
+	display: flex;
+	width: 520px;
+	padding: 36px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	border-radius: 32px;
+	background: #202123;
+	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+
+	.modalHeaderContainer {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		align-self: stretch;
+
+		.modalHeaderContainerText {
+			color: #e8e8e8;
+			font-family: Inter;
+			font-size: 20px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			flex: 1;
+		}
+		.closeBtnWrapper {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			cursor: pointer;
+		}
+	}
+
+	.subTitleTextStyling {
+		color: var(--ve-ai-dark-theme-secondary-color, #939393);
+
+		/* Body/Body Text - 14 Px */
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 20px; /* 142.857% */
+	}
+
+	.actionBtnContainerForMoveSteps {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		flex: 1 0 0;
+		align-self: stretch;
+
+		.moveToYesBtn {
+			display: flex;
+			padding: 16px 24px;
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+			flex: 1 0 0;
+			border-radius: 50px;
+			background: rgba(27, 152, 61, 0.06);
+			color: #1b983d;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+			align-self: stretch;
+		}
+
+		.moveToNoBtn {
+			display: flex;
+			padding: 16px 24px;
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+			flex: 1 0 0;
+			border-radius: 50px;
+			background: rgba(231, 72, 87, 0.06);
+			color: #e74857;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+			align-self: stretch;
+		}
+	}
+}
