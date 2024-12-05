@@ -3,8 +3,8 @@ import '../../../assets/scss/calendar/calendar.scss';
 import Context from '../../../context/context';
 import CalendarSelector from '../../components/calendar/CalendarSelector';
 import AskAI from '../../components/calendar/AskAI';
-import CalendarCategories from '../../components/calendar/CalendarCategories';
-import MeetingDetails from '../../components/calendar/MeetingDetails';
+// import CalendarCategories from '../../components/calendar/CalendarCategories';
+// import MeetingDetails from '../../components/calendar/MeetingDetails';
 import CalendarAiChat from '../../components/calendar/CalendarAiChat';
 import CreateEvent from '../../components/calendar/CreateEvent';
 
