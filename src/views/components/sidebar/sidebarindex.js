@@ -1,9 +1,5 @@
 import { ReactComponent as VELogo } from '../../../assets/svg/ve.svg';
-// import { ReactComponent as ProfileCircleSVG } from '../../assets/svg/linkin_bio/profile_circle.svg';
-// import { ReactComponent as CloseArrowSVG } from '../../assets/svg/linkin_bio/ArrowBackClose.svg';
-// import { ReactComponent as ArrowUpSVG } from '../../assets/svg/linkin_bio/Arrow_up.svg';
-// import { ReactComponent as TickSVG } from '../../assets/svg/linkin_bio/Correct_tick.svg';
-// import { ReactComponent as LeftArrowSVG } from '../../assets/svg/linkin_bio/left_arrow.svg';
+
 import CalendarSvg from '../../../assets/svg/sidebar/CalendarSvg.jsx';
 import LayoutSvg from '../../../assets/svg/sidebar/LayoutSvg.jsx';
 import AtSignSvg from '../../../assets/svg/sidebar/AtSignSvg.jsx';
@@ -19,46 +15,67 @@ import { ReactComponent as CrownSvg } from '../../../assets/svg/sidebar/Crown.sv
 import SquareFour from '../../../assets/svg/sidebar/SquareFour.jsx';
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
 import SettingsSvg from '../../../assets/svg/sidebar/SettingsSvg.jsx';
-import UploadSvg from '../../../assets/svg/sidebar/UploadSvg.jsx';
+import { ReactComponent as GallerySvg } from '../../../assets/svg/sidebar/Gallery.svg';
+import { ReactComponent as TaskSvg } from '../../../assets/svg/sidebar/Task.svg';
+import { ReactComponent as AIAssistantSvg } from '../../../assets/svg/sidebar/AiAssistant.svg';
+import { ReactComponent as PlaybookSvg } from '../../../assets/svg/sidebar/Playbook.svg';
+import SchedulerSvg from '../../../assets/svg/sidebar/SchedulerSvg.jsx';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
 import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { useNavigate, useLocation } from 'react-router-dom';
+import TranscriptSvg from '../../../assets/svg/sidebar/TranscriptSvg.jsx';
+import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
 
 export const veAiModulesItemsList = [
-	{ name: 'Gallery', moduleRoute: '/galleries', route: '/galleries', icon: UploadSvg },
-	// { name: 'Workflow', moduleRoute: '/workflows', route: '/sales/workflows', icon: FlowArrowSvg },
-	// {
-	// 	name: 'Linkin Bio',
-	// 	moduleRoute: '/linkin-bio',
-	// 	route: null,
-	// 	icon: InsertLinkSvg,
-	// 	initialColor: '#7D7D7D',
-	// },
-	// { name: 'Calendar', moduleRoute: '/calendar', route: null, icon: CalendarSvg },
-	// { name: 'Inbox', moduleRoute: '/inbox', route: null, icon: MailOutlineSvg },
-	// { name: 'Clients', moduleRoute: '/clients', route: null, icon: LayoutSvg },
-	// { name: 'Finance', moduleRoute: '/finance', route: null, icon: AttachMoneySvg },
-	// { name: 'Email', moduleRoute: '/email', route: null, icon: AtSignSvg },
-	// { name: 'HR', moduleRoute: '/hr', route: null, icon: FinanceSvg },
-	// { name: 'Inventory', moduleRoute: '/inventory', route: null, icon: LayoutSvg },
-	// { name: 'Team', moduleRoute: '/team', route: null, icon: LayoutSvg },
+	{
+		name: 'Calendar',
+		moduleRoute: 'calendar',
+		route: '/calendar',
+		icon: CalendarSvg,
+		subModules: [
+			{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
+			{ icon: TranscriptSvg, route: '', name: 'Transcript' },
+			{
+				icon: SettingsSvg,
+				route: '/settings/my-profile',
+				fill: 'white',
+				name: 'Settings',
+			},
+		],
+	},
+	{
+		name: 'Gallery',
+		moduleRoute: '/galleries',
+		route: '/galleries',
+		icon: GallerySvg,
+	},
+	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: TaskSvg },
+	{
+		name: 'AI Agents',
+		moduleRoute: '/ai-agents',
+		route: '/ai-agents',
+		icon: AIAssistantSvg,
+	},
+	{
+		name: 'Playbook',
+		moduleRoute: '/playbook',
+		route: '/playbook',
+		icon: PlaybookSvg,
+	},
+];
+
+export const veAiSubModulesItemsList = [
+	{ name: 'Scheduler', moduleRoute: '', route: null, icon: SchedulerSvg },
+	{ name: 'Transcript', moduleRoute: '', route: null, icon: TranscriptSvg },
+	{ name: 'Settings', moduleRoute: '', route: null, icon: SettingsSvg },
 ];
 
 export const bottomOptionsList = [
-	{ name: 'Upgrade', moduleRoute: '/upgrade', route: null, icon: CrownSvg },
-	{ name: 'Playbook', moduleRoute: '/playbook', route: '/playbook', icon: BookSvg },
-	{
-		name: 'App store',
-		moduleRoute: '/app-store',
-		route: null,
-		icon: SquareFour,
-		initialColor: '#7D7D7D',
-	},
 	{
 		name: 'Share and Earn',
-		moduleRoute: '/share-and-earn',
+		moduleRoute: '',
 		route: '/share-and-earn',
 		icon: GiftSvg,
 	},
@@ -93,13 +110,14 @@ export const newBtnActions = [
 	// { label: 'Smart File' },
 ];
 
-// const veSubModules = {
-// 	'linkin-bio': [
-// 		{ icon: ProfileCircleSVG, link: 'profile' },
-// 		{ icon: RadixstackSVG, link: 'mysection' },
-// 		{ icon: DropSVG, link: 'stylessection' },
-// 		{ icon: GraphSVG, link: 'analytics' },
-// 		{ icon: WalletSVG, link: 'payments' },
-// 		{ icon: UsersSVG, link: 'audience' },
-// 	],
-// };
+export const closedSidebarIcons = [
+	{ icon: CalendarSvg, route: '', name: 'Calendar' },
+	{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
+	{ icon: TranscriptSvg, route: '', name: 'Transcript' },
+	{
+		icon: SettingsSvg,
+		route: '/settings/my-profile',
+		fill: 'white',
+		name: 'Settings',
+	},
+];
