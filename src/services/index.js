@@ -20,8 +20,6 @@ const {
 	galleries_api_US,
 	ai_predictions_US,
 	ai_predictions,
-	calendar_chat_api,
-	calendar_chat_api_US,
 	calendar_api,
 	calendar_api_US,
 } = config || {};
@@ -35,7 +33,7 @@ const apiEndpoints = {
 	galleries: galleries,
 	ai_assistant_api,
 	ai_predictions,
-	calendar_chat: calendar_chat_api,
+	calendar_chat: ai_predictions,
 	calendar_api,
 };
 const apiEndpointsUS = {
@@ -44,11 +42,10 @@ const apiEndpointsUS = {
 	'tenant-users': tenant_users_api_US,
 	proposals_api: proposals_api_US,
 	auth: auth_Api,
-	calendar_chat_api: calendar_chat_api,
 	ai_assistant_api: ai_assistant_api_US,
 	galleries: galleries_api_US,
 	ai_predictions: ai_predictions_US,
-	calendar_chat: calendar_chat_api_US,
+	calendar_chat: ai_predictions_US,
 	calendar_api: calendar_api_US,
 };
 
@@ -88,11 +85,9 @@ const apiFetch = async (url, method, body, token, type) => {
 		body = JSON.stringify(body);
 	}
 	try {
-		console.log('endpoint: ' + endpoint);
 		const response = await fetch(endpoint, { method, headers, body });
 		return processResponse(response);
 	} catch (error) {
-		console.log('error==>', error);
 		onFailure('network', url);
 		console.log('Api Failed: ' + error.message);
 		return [false];

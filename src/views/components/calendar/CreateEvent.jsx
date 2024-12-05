@@ -79,27 +79,6 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 
 	const createEventRef = useRef(null);
 
-	useEffect(() => {
-		let timerId;
-		const handleClickOutside = (event) => {
-			if (
-				createEventRef.current &&
-				!createEventRef.current.contains(event.target) &&
-				!event.target.closest('.attendeesDetails')
-			) {
-				updateCalendarInfo('isCreateEventOpen', false);
-			}
-		};
-		timerId = setTimeout(() => {
-			document.addEventListener('click', handleClickOutside);
-		}, 0);
-		return () => {
-			clearTimeout(timerId);
-			document.removeEventListener('click', handleClickOutside);
-			setInfo({ ...initialState });
-		};
-	}, []);
-
 	// Format date and time to ISO string
 	const convertToISOString = useCallback((date, time) => {
 		if (!date) return null;
@@ -141,6 +120,25 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 			return null;
 		}
 
+		// Validate attendees
+		if (!attendees || attendees.length === 0) {
+			setInfo((prev) => ({
+				...prev,
+				submissionError: 'At least one attendee is required',
+				isSubmitting: false,
+			}));
+			return null;
+		}
+
+		// formate attendees
+		const processedAttendees = attendees.map((attendee) => ({
+			tenantUserId: attendee.tenantUserId || '',
+			firstName: attendee.name || '',
+			lastName: '',
+			email: attendee.email,
+			responseStatus: 'confirmed',
+		}));
+
 		return {
 			title,
 			description: description || '',
@@ -149,13 +147,7 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 			endDateTime: convertToISOString(endDate || startDate, endTime || startTime),
 			timezone,
 			allDay,
-			attendees: attendees?.map((attendee) => ({
-				tenantUserId: attendee.tenantUserId || '',
-				firstName: attendee.name || '',
-				lastName: '',
-				email: attendee.email,
-				responseStatus: 'confirmed',
-			})),
+			attendees: processedAttendees,
 			calendarCategory: selectedCategory.toLowerCase(),
 			meeting,
 			phone: '',
@@ -164,17 +156,14 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 
 	// Handle event creation submission
 	const handleEventSubmission = useCallback(async () => {
-		// Reset previous errors
-		setInfo((prev) => ({
-			...prev,
-			isSubmitting: true,
-			submissionError: null,
-		}));
-
 		try {
+			setInfo((prev) => ({
+				...prev,
+				isSubmitting: true,
+				submissionError: null,
+			}));
 			const eventPayload = prepareEventPayload();
 			if (!eventPayload) return;
-			console.log('Calling API with payload:', eventPayload);
 
 			await createCalendarEvent(eventPayload);
 			updateCalendarInfo('isCreateEventOpen', false);
@@ -187,10 +176,10 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 		}
 	}, [prepareEventPayload, createCalendarEvent, updateCalendarInfo]);
 
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	const addAttendees = useCallback(
 		({ name = '', email = '', isWorkspaceUser = false, tenantUserId = '' }) => {
 			// Validate email
-			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 			if (!emailRegex.test(email)) {
 				setInfo((prevInfo) => ({
 					...prevInfo,
@@ -200,41 +189,46 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 			}
 
 			// Check for duplicate
-			const isDuplicate = info.attendees.some((attendee) => attendee.email === email);
-
-			if (isDuplicate) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					submissionError: 'Attendee already added',
-				}));
-				return;
-			}
-
 			setInfo((prevInfo) => {
+				const isDuplicate = prevInfo.attendees.some((attendee) => attendee.email === email);
+
+				if (isDuplicate) {
+					return {
+						...prevInfo,
+						submissionError: 'Attendee already added',
+					};
+				}
+
 				const updatedAttendees = [
 					...prevInfo.attendees,
 					{ name, email, isWorkspaceUser, tenantUserId },
 				];
+
 				return {
 					...prevInfo,
 					attendeesInputField: '',
 					attendees: updatedAttendees,
-					submissionError: null, // Clear any previous errors
+					submissionError: null,
 				};
 			});
 		},
-		[info.attendees],
+		[],
 	);
 
-	const removeAttendee = useCallback((id) => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			submissionError: null,
-			attendees: prevInfo.attendees.filter(
+	const removeAttendee = useCallback(
+		(id) => {
+			const updatedAttendees = info.attendees.filter(
 				(attendee) => attendee.tenantUserId !== id && attendee.email !== id,
-			),
-		}));
-	}, []);
+			);
+
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				submissionError: null,
+				attendees: updatedAttendees,
+			}));
+		},
+		[info?.attendees],
+	);
 
 	return (
 		<div className="createEventContainer" ref={createEventRef}>

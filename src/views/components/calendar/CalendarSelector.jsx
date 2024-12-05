@@ -5,6 +5,11 @@ import { ReactComponent as LeftSvg } from '../../../assets/svg/activity/left.svg
 import { ReactComponent as RightSvg } from '../../../assets/svg/activity/right.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 
+const MIN_YEAR = 1990;
+const MAX_YEAR = 2050;
+const MONTHS = moment.months();
+const YEARS = Array.from({ length: MAX_YEAR - MIN_YEAR + 1 }, (_, i) => MIN_YEAR + i);
+
 const CalendarSelector = ({
 	currentCalendarDate,
 	selectedMonth,
@@ -13,19 +18,8 @@ const CalendarSelector = ({
 	updateCalendarInfo,
 }) => {
 	const [info, setInfo] = useState({
-		showMonths: false,
-		showYears: false,
+		activeDropdown: null, // 'months', 'years', or null
 	});
-
-	// Memoized calendar information
-	const calendarInfo = useMemo(() => {
-		const minYear = 1990;
-		const maxYear = 2050;
-		const months = moment.months(); // Get all month names
-		const years = Array.from({ length: maxYear - minYear + 1 }, (_, i) => minYear + i);
-
-		return { minYear, maxYear, months, years };
-	}, []);
 
 	// Sync calendar date on month or year change
 	useEffect(() => {
@@ -35,86 +29,87 @@ const CalendarSelector = ({
 		);
 	}, [selectedMonth, selectedYear]);
 
-	const toggleMonthDropDown = useCallback(() => {
-		setInfo((prevInfo) => {
-			const { showYears, showMonths } = prevInfo;
-			return {
-				...prevInfo,
-				showYears: showYears && !showMonths ? false : showYears,
-				showMonths: !showMonths,
-			};
-		});
+	// Memoized calendar computations
+	const daysInMonth = useMemo(() => {
+		const firstDayOfMonth = moment(currentCalendarDate).startOf('month');
+		const lastDayOfMonth = moment(currentCalendarDate).endOf('month');
+		const startOfCalendar = moment(firstDayOfMonth).startOf('isoWeek');
+		const endOfCalendar = moment(lastDayOfMonth).endOf('isoWeek');
+		const days = [];
+		let currentDay = startOfCalendar.clone();
+		while (
+			currentDay.isBefore(endOfCalendar, 'day') ||
+			currentDay.isSame(endOfCalendar, 'day')
+		) {
+			days.push(currentDay.clone());
+			currentDay.add(1, 'day');
+		}
+		return days;
+	}, [currentCalendarDate]);
+
+	// Toggle datedropdowns
+	const toggleDropdown = useCallback((dropdown) => {
+		setInfo((prevInfo) => ({
+			activeDropdown: prevInfo.activeDropdown === dropdown ? null : dropdown,
+		}));
 	}, []);
 
-	const toggleYearDropDown = useCallback(() => {
-		setInfo((prevInfo) => {
-			const { showYears, showMonths } = prevInfo;
-			return {
-				...prevInfo,
-				showYears: !showYears,
-				showMonths: !showYears && showMonths ? false : showMonths,
-			};
-		});
-	}, []);
-
-	// Generate days for the calendar
-	const firstDayOfMonth = moment(currentCalendarDate)?.startOf('month');
-	const lastDayOfMonth = moment(currentCalendarDate)?.endOf('month');
-
-	const startOfCalendar = moment(firstDayOfMonth)?.startOf('isoWeek'); // Start from Monday
-	const endOfCalendar = moment(lastDayOfMonth)?.endOf('isoWeek'); // Ends on the last Sunday of the week
-
-	const daysInMonth = [];
-	let currentDay = startOfCalendar?.clone();
-	while (currentDay?.isBefore(endOfCalendar, 'day') || currentDay?.isSame(endOfCalendar, 'day')) {
-		daysInMonth.push(currentDay?.clone());
-		currentDay?.add(1, 'day');
-	}
+	const toggleMonthDropDown = useCallback(() => toggleDropdown('months'), [toggleDropdown]);
+	const toggleYearDropDown = useCallback(() => toggleDropdown('years'), [toggleDropdown]);
 
 	// Navigate between months
-	const goToPreviousMonth = () => {
+	const goToPreviousMonth = useCallback(() => {
 		const previousMonth = moment(currentCalendarDate)?.subtract(1, 'month');
-		if (previousMonth?.year() >= calendarInfo?.minYear) {
+		if (previousMonth?.year() >= MIN_YEAR) {
 			updateCalendarInfo('currentCalendarDate', previousMonth?.toDate());
 		}
-	};
+	}, [currentCalendarDate, updateCalendarInfo]);
 
-	const goToNextMonth = () => {
+	const goToNextMonth = useCallback(() => {
 		const nextMonth = moment(currentCalendarDate)?.add(1, 'month');
-		if (nextMonth?.year() <= calendarInfo?.maxYear) {
+		if (nextMonth?.year() <= MAX_YEAR) {
 			updateCalendarInfo('currentCalendarDate', nextMonth?.toDate());
 		}
-	};
+	}, [currentCalendarDate, updateCalendarInfo]);
 
-	const chunkArray = (arr, size = 7) => {
+	// Utility function to chunk array
+	const chunkArray = useCallback((arr, size = 7) => {
 		const result = [];
 		for (let i = 0; i < arr.length; i += size) {
 			result.push(arr.slice(i, i + size));
 		}
 		return result;
-	};
+	}, []);
 
-	const monthName = moment(currentCalendarDate).format('MMMM');
-	const currentYear = moment(currentCalendarDate).year();
+	// Memoized values for month name and year
+	const monthName = useMemo(
+		() => moment(currentCalendarDate).format('MMMM'),
+		[currentCalendarDate],
+	);
+	const currentYear = useMemo(() => moment(currentCalendarDate).year(), [currentCalendarDate]);
 
 	return (
 		<div className="calendarContainer">
 			<header>
 				<div className="calendarCaption">
+					{/* Month Selector */}
 					<div className="captionMonth" onClick={toggleMonthDropDown}>
 						<span>{monthName}</span>
 						<span className="captionDropDown">
 							<DownSvg />
 						</span>
-						{info?.showMonths && (
-							<div className={`monthSelectorContainer`}>
-								{calendarInfo?.months?.map((month, index) => (
+						{info?.activeDropdown === 'months' && (
+							<div className="monthSelectorContainer">
+								{MONTHS?.map((month, index) => (
 									<div
 										key={`monthName-${index}`}
 										className={`monthName ${
 											index === selectedMonth ? 'selectedMonth' : ''
 										}`}
-										onClick={() => updateCalendarInfo('selectedMonth', index)}
+										onClick={() => {
+											updateCalendarInfo('selectedMonth', index);
+											setInfo({ activeDropdown: 'months' }); // Close the dropdown after selection
+										}}
 									>
 										{month}
 									</div>
@@ -122,20 +117,25 @@ const CalendarSelector = ({
 							</div>
 						)}
 					</div>
+
+					{/* Year Selector */}
 					<div className="captionYear" onClick={toggleYearDropDown}>
 						<span>{currentYear}</span>
 						<span className="captionDropDown">
 							<DownSvg />
 						</span>
-						{info?.showYears && (
-							<div className={`yearSelectorContainer`}>
-								{calendarInfo?.years?.map((year) => (
+						{info?.activeDropdown === 'years' && (
+							<div className="yearSelectorContainer">
+								{YEARS?.map((year) => (
 									<div
 										key={year}
 										className={`yearList ${
 											year === selectedYear ? 'selectedYear' : ''
 										}`}
-										onClick={() => updateCalendarInfo('selectedYear', year)}
+										onClick={() => {
+											updateCalendarInfo('selectedYear', year);
+											setInfo({ activeDropdown: 'years' }); // Close the dropdown after selection
+										}}
 									>
 										{year}
 									</div>
@@ -144,6 +144,8 @@ const CalendarSelector = ({
 						)}
 					</div>
 				</div>
+
+				{/* Navigation Buttons */}
 				<div className="calendarNav">
 					<button onClick={goToPreviousMonth}>
 						<LeftSvg />
@@ -154,6 +156,7 @@ const CalendarSelector = ({
 				</div>
 			</header>
 
+			{/* Day Names */}
 			<div className="calendarDayNameGrid">
 				{['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']?.map((day, index) => (
 					<div key={index} className="calendarDayName">
@@ -162,6 +165,7 @@ const CalendarSelector = ({
 				))}
 			</div>
 
+			{/* Date Grid */}
 			<div className="dateContainer">
 				{chunkArray(daysInMonth)?.map((week, weekIndex) => {
 					const isSelectedWeek = week?.some((date) =>
