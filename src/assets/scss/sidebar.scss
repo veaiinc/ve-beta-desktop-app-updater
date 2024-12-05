@@ -12,10 +12,11 @@
 		margin-left: -32px !important;
 		padding: 0 !important;
 		margin-right: 10px !important;
+		transition: all 0.7s;
 	}
 
 	&.no-submodules:not(.opened) {
-		height: 25dvh;
+		height: 25dvh !important;
 	}
 	&.has-submodules {
 		height: 93dvh !important;
@@ -214,6 +215,7 @@
 			width: inherit;
 			padding: 18px 9px;
 			border-radius: inherit;
+			transition: height 0.8s ease;
 			.allmodulesList,
 			.bottomOptionsList {
 				.singleModuleItem {
@@ -229,7 +231,7 @@
 						color: #e8e8e8;
 						text-align: right;
 						font-family: 'Inter';
-						font-size: 18px;
+						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
 						line-height: normal;
@@ -263,6 +265,7 @@
 							align-items: center;
 							gap: 10px;
 							width: 90%;
+							font-size: 14px;
 							margin-left: 30px;
 							margin-top: 2px;
 							color: white;
@@ -325,7 +328,7 @@
 						color: #e8e8e8;
 						text-align: right;
 						font-family: 'Inter';
-						font-size: 18px;
+						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
 						line-height: normal;

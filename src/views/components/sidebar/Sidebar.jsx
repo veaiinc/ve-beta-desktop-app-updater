@@ -137,19 +137,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 				/>
 			</div>
 
-			{sidebarStates?.isOpen && (
-				<div
-					className="sidebar__overlay"
-					onClick={() =>
-						setsidebarStates({
-							...sidebarStates,
-							isOpen: false,
-							navStyle: 'close',
-							workSpaceOpen: false,
-						})
-					}
-				></div>
-			)}
+			{sidebarStates?.isOpen && <div className="sidebar__overlay"></div>}
 		</>
 	);
 };
