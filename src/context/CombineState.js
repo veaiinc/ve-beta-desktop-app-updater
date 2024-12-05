@@ -7,6 +7,8 @@ import { AiSetupState } from './aiSetup/state';
 import { ActivityState } from './Activity/state';
 import { SubscriptionState } from './subscription/state';
 import { AuthState } from './auth/state';
+import { Calendar } from './Calendar/state';
+
 import { TasksState } from './tasks/state';
 const CombineState = () => {
 	return {
@@ -19,6 +21,7 @@ const CombineState = () => {
 		activityInfo: ActivityState(),
 		subscriptionInfo: SubscriptionState(),
 		authInfo: AuthState(),
+		calendarInfo: Calendar(),
 		tasks: TasksState(),
 	};
 };

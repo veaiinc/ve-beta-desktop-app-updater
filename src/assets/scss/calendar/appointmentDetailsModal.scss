@@ -1,0 +1,193 @@
+.calendarPopupContainer {
+	position: absolute;
+	background: #111;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	color: #e4e5e6;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000; //for hiding the desktop navbar
+
+	.backIcon {
+		position: absolute;
+		background-color: transparent;
+		top: 100px;
+		left: 100px;
+		display: flex;
+		width: 36px;
+		height: 36px;
+		justify-content: center;
+		align-items: center;
+		border-radius: 120px;
+		cursor: pointer;
+		border: 1.2px solid rgba(255, 255, 255, 0.1);
+		z-index: 100;
+	}
+
+	.svgContainer {
+		display: flex;
+		flex-direction: row;
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 200px;
+		pointer-events: none;
+
+		.bg1 {
+			position: absolute;
+			left: 0;
+			right: 33%;
+		}
+
+		.bg2 {
+			position: absolute;
+			left: 30%;
+			right: 20%;
+		}
+
+		.bg3 {
+			position: absolute;
+			right: 0;
+		}
+	}
+
+	.appointmentWrapper {
+		display: flex;
+		width: 412px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 27px;
+
+		.appointmentDetails {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			width: 100%;
+
+			h3 {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-transform: capitalize;
+				margin-bottom: 27px;
+			}
+
+			.appointmentInfo {
+				display: flex;
+				flex-direction: column;
+				gap: 7px;
+
+				.data {
+					display: grid;
+					grid-template-columns: 1fr 2fr;
+					gap: 32px;
+					align-content: center;
+
+					.title {
+						color: rgba(228, 229, 230, 0.48);
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+						text-transform: capitalize;
+						text-align: start;
+					}
+
+					.value {
+						overflow: hidden;
+						color: #e4e5e6;
+						text-overflow: ellipsis;
+						font-family: Inter;
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						text-align: start;
+					}
+				}
+			}
+		}
+
+		.line {
+			width: 100%;
+			height: 1px;
+			background-color: rgba(237, 237, 237, 0.2);
+			margin: 32px 0;
+		}
+
+		.teamMembers {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			width: 100%;
+			gap: 8px;
+
+			h3 {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 16px;
+				margin-bottom: 24px;
+			}
+
+			.data {
+				width: 100%;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+
+				.details {
+					display: flex;
+					align-items: center;
+					gap: 7px;
+
+					.avatar {
+						width: 24px;
+						height: 24px;
+						border-radius: 100px;
+						overflow: hidden;
+						background-color: rgb(48, 48, 48);
+					}
+
+					.name {
+						overflow: hidden;
+						color: #e4e5e6;
+						text-overflow: ellipsis;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+						text-transform: capitalize;
+					}
+				}
+
+				.role {
+					overflow: hidden;
+					color: #e4e5e6;
+					text-overflow: ellipsis;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+	}
+}
+
+img {
+	width: 100%;
+	height: 100%;
+}

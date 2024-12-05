@@ -25,6 +25,7 @@ import { Navigate } from 'react-router-dom';
 import Subscription from './views/features/subscription';
 import TermsOfService from './views/features/signin/TermsOfService';
 import CookiePolicy from './views/features/signin/CookiePolicy';
+import Workflow_builder_updated from './views/features/workflow_builder_updated';
 import Tasks from './views/features/tasks';
 
 import ShareAndEarn from './views/features/ShareAndEarn';
@@ -122,6 +123,15 @@ const routes = [
 
 	{
 		path: '/workflow_builder/:templateId',
+		component: (
+			<WorkflowBuilderLayout title={'Workflow Builder'}>
+				<Workflow_builder_updated />
+			</WorkflowBuilderLayout>
+		),
+		exact: true,
+	},
+	{
+		path: '/workflow_builder-test/:templateId', //this is real one,
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
 				<Workflow_builder />

@@ -11,6 +11,8 @@ const useLogout = () => {
 		templates: { resetTemplateState },
 		galleryInfo: { resetGallleryState },
 		subscriptionInfo: { resetSubscriptionState },
+		calendarInfo: { resetCalendarState },
+		activityInfo: { resetActivityState },
 		tasks: { resetTasksState },
 	} = useContext(Context);
 
@@ -26,6 +28,8 @@ const useLogout = () => {
 		resetTemplateState();
 		resetGallleryState();
 		resetSubscriptionState();
+		resetCalendarState();
+		resetActivityState();
 		resetTasksState();
 	}, []);
 
