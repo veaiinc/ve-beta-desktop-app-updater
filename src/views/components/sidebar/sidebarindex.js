@@ -1,18 +1,18 @@
-import { ReactComponent as VELogo } from '../../../assets/svg/ve.svg';
+// import { ReactComponent as VELogo } from '../../../assets/svg/ve.svg';
 
 import CalendarSvg from '../../../assets/svg/sidebar/CalendarSvg.jsx';
-import LayoutSvg from '../../../assets/svg/sidebar/LayoutSvg.jsx';
-import AtSignSvg from '../../../assets/svg/sidebar/AtSignSvg.jsx';
-import AttachMoneySvg from '../../../assets/svg/sidebar/AttachMoneySvg.jsx';
-import FinanceSvg from '../../../assets/svg/sidebar/FinanceSvg.jsx';
-import MailOutlineSvg from '../../../assets/svg/sidebar/MailOutlineSvg.jsx';
-import InsertLinkSvg from '../../../assets/svg/sidebar/InsertLinkSvg.jsx';
-import BookSvg from '../../../assets/svg/sidebar/BookSvg.jsx';
-import FlowArrowSvg from '../../../assets/svg/sidebar/FlowArrowSvg.jsx';
-import PlusSvg from '../../../assets/svg/sidebar/PlusSvg.jsx';
-import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg.jsx';
-import { ReactComponent as CrownSvg } from '../../../assets/svg/sidebar/Crown.svg';
-import SquareFour from '../../../assets/svg/sidebar/SquareFour.jsx';
+// import LayoutSvg from '../../../assets/svg/sidebar/LayoutSvg.jsx';
+// import AtSignSvg from '../../../assets/svg/sidebar/AtSignSvg.jsx';
+// import AttachMoneySvg from '../../../assets/svg/sidebar/AttachMoneySvg.jsx';
+// import FinanceSvg from '../../../assets/svg/sidebar/FinanceSvg.jsx';
+// import MailOutlineSvg from '../../../assets/svg/sidebar/MailOutlineSvg.jsx';
+// import InsertLinkSvg from '../../../assets/svg/sidebar/InsertLinkSvg.jsx';
+// import BookSvg from '../../../assets/svg/sidebar/BookSvg.jsx';
+// import FlowArrowSvg from '../../../assets/svg/sidebar/FlowArrowSvg.jsx';
+// import PlusSvg from '../../../assets/svg/sidebar/PlusSvg.jsx';
+// import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg.jsx';
+// import { ReactComponent as CrownSvg } from '../../../assets/svg/sidebar/Crown.svg';
+// import SquareFour from '../../../assets/svg/sidebar/SquareFour.jsx';
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
 import SettingsSvg from '../../../assets/svg/sidebar/SettingsSvg.jsx';
 import { ReactComponent as GallerySvg } from '../../../assets/svg/sidebar/Gallery.svg';
@@ -20,6 +20,11 @@ import { ReactComponent as TaskSvg } from '../../../assets/svg/sidebar/Task.svg'
 import { ReactComponent as AIAssistantSvg } from '../../../assets/svg/sidebar/AiAssistant.svg';
 import { ReactComponent as PlaybookSvg } from '../../../assets/svg/sidebar/Playbook.svg';
 import SchedulerSvg from '../../../assets/svg/sidebar/SchedulerSvg.jsx';
+// import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
+// import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
+// import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
+// import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
+// import { useNavigate, useLocation } from 'react-router-dom';
 import TranscriptSvg from '../../../assets/svg/sidebar/TranscriptSvg.jsx';
 import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
 
