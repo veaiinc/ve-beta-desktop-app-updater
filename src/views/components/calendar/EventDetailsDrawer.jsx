@@ -13,7 +13,7 @@ const EventDetailsDrawer = ({ isEventSelected, updateCalendarInfo }) => {
 	return (
 		<Drawer
 			onClose={() => updateCalendarInfo('isEventSelected', false)}
-			width={500}
+			width={450}
 			open={isEventSelected}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
@@ -96,7 +96,7 @@ const EventDetailsDrawer = ({ isEventSelected, updateCalendarInfo }) => {
 							metrics and key business indicators.
 						</p>
 					</div>
-					<div className="notesWrapper">
+					{/* <div className="notesWrapper">
 						<nav>
 							<ul>
 								<li className="active">Notes</li>
@@ -142,7 +142,9 @@ const EventDetailsDrawer = ({ isEventSelected, updateCalendarInfo }) => {
 								</textarea>
 							</div>
 						</div>
-					</div>
+					</div> */}
+
+					{/* Note part will be excluded from this component */}
 				</div>
 			</div>
 		</Drawer>

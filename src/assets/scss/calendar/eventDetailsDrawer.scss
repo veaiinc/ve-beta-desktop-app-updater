@@ -1,6 +1,6 @@
 .eventDetailsDrawerParentCOntainer {
 	height: 100%;
-	width: 500px;
+	// width: 500px;
 	display: flex;
 	padding: 10px;
 
@@ -264,7 +264,8 @@
 		}
 		.notesWrapper {
 			display: flex;
-			width: 416px;
+			// width: 416px;
+			width: 100%;
 			padding-bottom: 24px;
 			flex-direction: column;
 			align-items: flex-start;
@@ -305,15 +306,16 @@
 
 			.notesContainer {
 				display: flex;
+				flex-wrap: wrap;
 				align-items: flex-start;
-				gap: 16px;
+				gap: 10px;
 				width: 100%;
 				height: 100%;
 				overflow: scroll;
 
 				.note {
 					display: flex;
-					width: 200px;
+					// width: 200px;
 					min-height: 200px;
 					padding: 16px;
 					flex-direction: column;
