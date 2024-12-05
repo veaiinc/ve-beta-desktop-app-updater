@@ -1,10 +1,20 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useContext } from 'react';
 import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import Cookies from 'js-cookie';
+import { useParams, useNavigate } from 'react-router-dom';
+import Context from '../../../context/context';
+import { fetchDomainName } from '../../../helpers';
 
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
+	const navigate = useNavigate();
+	const { galleryId } = useParams();
+
+	const {
+		profileInfo: { userDetailsData },
+	} = useContext(Context);
+
 	const closeWorkspaceList = () => {
 		setsidebarStates({ ...sidebarStates, workSpaceOpen: false, navStyle: 'open' });
 	};
@@ -15,11 +25,12 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 		if (workspaceId === activeWorkspaceId) {
 			return;
 		}
+		const host = fetchDomainName();
 		localStorage.setItem('workspaceId', activeWorkspaceId);
 		localStorage.setItem('isOnboard', isOnboard);
 		Cookies.set('workspaceID', activeWorkspaceId, {
 			sameSite: 'lax',
-			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+			domain: host,
 		});
 
 		const currentRegion = localStorage.getItem('region');
@@ -34,11 +45,20 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 			localStorage.setItem('region', newWorkspaceRegion);
 			Cookies.set('region', newWorkspaceRegion, {
 				sameSite: 'lax',
-				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				domain: host,
 			});
 		}
+		if (galleryId) {
+			navigate(`/home`);
+		}
+
 		window.location.reload();
 	}, []);
+
+	const handleCreateWorkspace = () => {
+		const username = userDetailsData?.firstName ?? '';
+		navigate(`/onboarding?username=${username}`);
+	};
 
 	return (
 		<div className="workspaceListComponent">
@@ -62,10 +82,16 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 						}}
 					>
 						<div className="workSpaceCircle">
-							<img
-								src={singleWorkspace?.logo_s3_500w_key}
-								alt={singleWorkspace?.businessName}
-							/>
+							{singleWorkspace?.logo_s3_500w_key ? (
+								<img
+									src={singleWorkspace?.logo_s3_500w_key}
+									alt={singleWorkspace?.businessName}
+								/>
+							) : (
+								<div className="no-logo">
+									{singleWorkspace?.businessName?.slice(0, 2)}
+								</div>
+							)}
 						</div>
 						<h6>{singleWorkspace?.businessName}</h6>
 
@@ -79,10 +105,10 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 				))}
 
 				<div className="singleWorkspace">
-					<div className="workSpaceCircle">
+					<div className="workSpaceCircle" onClick={handleCreateWorkspace}>
 						<PlusSvg fill={'#5d43fb'} />
 					</div>
-					<h6>Add Workspace</h6>
+					<h6>Create Workspace</h6>
 				</div>
 			</div>
 		</div>

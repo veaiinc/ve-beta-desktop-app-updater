@@ -7,7 +7,7 @@ import ClosedSideBarItemsComponent from './ClosedSidebar';
 import Context from '../../../context/context';
 import { styles } from './sidebarindex';
 import CreateLeadModal from '../modalsV2/proposalModals/CreateLeadModal';
-
+import { veAiModulesItemsList } from './sidebarindex';
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
@@ -18,6 +18,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		isOpen: false,
 		workSpaceOpen: false,
 		navStyle: 'close',
+		selectedModule: null,
 	});
 
 	const [info, setInfo] = useState({
@@ -26,13 +27,13 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		createLeadModal: false,
 		isNewFeaturePlusOpen: false,
 		activeRoute: '/' + location.pathname.split('/')[1],
+		selectedModule: null,
 	});
 
 	useEffect(() => {
 		if (!userWorkSpaceList) {
 			getUserWorkSpaceList();
 		}
-
 		if (!userDetailsData) {
 			getUserDetails();
 		}
@@ -42,13 +43,15 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		if (userDetailsData && info) {
 			Intercom({
 				app_id: 'vmvweabd',
-				user_id: userDetailsData._id,
-				name: userDetailsData.firstName + ' ' + userDetailsData.lastName,
-				email: userDetailsData.email,
+				user_id: userDetailsData?._id,
+				name: userDetailsData?.firstName + ' ' + userDetailsData?.lastName,
+				email: userDetailsData?.email,
 				company: {
-					name: info.activeBusniessName.activeWorkspaceId,
-					id: info.activeBusniessName.businessName,
-					region: info.activeBusniessName.region,
+					name:
+						info?.activeBusniessName?.activeWorkspaceId ??
+						localStorage?.getItem('workspaceId'),
+					id: info?.activeBusniessName?.businessName,
+					region: info?.activeBusniessName?.region,
 				},
 			});
 		}
@@ -68,6 +71,20 @@ const Sidebar = ({ activeWorkspaceId }) => {
 			setInfo((prev) => ({ ...prev, activeRoute: '/' + location.pathname.split('/')[1] }));
 		}
 	}, [location?.pathname]);
+	useEffect(() => {
+		if (location?.pathname) {
+			const currentPath = '/' + location.pathname.split('/')[1];
+			const currentModule = veAiModulesItemsList.find(
+				(module) => module.moduleRoute === currentPath,
+			);
+			if (currentModule) {
+				setsidebarStates((prev) => ({
+					...prev,
+					selectedModule: currentModule.name,
+				}));
+			}
+		}
+	}, [location?.pathname]);
 
 	const closeCreateLeadModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, createLeadModal: false }));
@@ -76,16 +93,26 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	return (
 		<>
 			<div
-				className="FullScreenSidebar"
+				className={`FullScreenSidebar ${sidebarStates?.isOpen ? 'opened' : ''} ${
+					sidebarStates.selectedModule &&
+					veAiModulesItemsList.find(
+						(module) => module.name === sidebarStates.selectedModule,
+					)?.subModules?.length > 0
+						? 'has-submodules'
+						: 'no-submodules'
+				}`}
 				style={{
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight:
-						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '250px') : '',
+						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '') : '',
 					minHeight:
 						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '250px') : '',
 				}}
 			>
-				<nav className="sidebarComponent" style={styles[sidebarStates?.navStyle]}>
+				<nav
+					className={`sidebarComponent ${sidebarStates?.isOpen ? 'open' : ''}`}
+					style={styles[sidebarStates?.navStyle]}
+				>
 					{sidebarStates?.isOpen ? (
 						<OpenedSideBarItemsComponent
 							setsidebarStates={setsidebarStates}

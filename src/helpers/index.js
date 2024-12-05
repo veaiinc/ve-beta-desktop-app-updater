@@ -42,7 +42,7 @@ export const getLocationsDetails = async () => {
 		currency,
 	};
 
-	let apiRegion;
+	let apiRegion = 'ap-south-1';
 	// Dynamic origin selection based on country/region
 	if (country_code === 'IN') {
 		// Route Indian traffic to ap-south-1
@@ -59,7 +59,7 @@ export const getLocationsDetails = async () => {
 	locationDetails.region = apiRegion;
 	localStorage.setItem('region', apiRegion);
 	localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
-	return JSON.stringify(locationDetails);
+	return locationDetails;
 };
 
 export const getInitials = (firstName, lastName) => {
@@ -119,12 +119,34 @@ export const isURL = (url) => {
 		return false;
 	}
 };
+
+let urlMapper = {
+	localhost: 'http://localhost:3000',
+	've.ai': 'https://builder.ve.ai',
+	've.co': 'https://builder.ve.co',
+	'www.ve.ai': 'https://builder.ve.ai',
+	'www.ve.co': 'https://builder.ve.co',
+};
+
+let hostNameMapper = {
+	localhost: 'localhost',
+	've.ai': 've.ai',
+	've.co': 've.co',
+	'www.ve.co': 've.co',
+	'www.ve.ai': 've.ai',
+};
 export const fetchOriginSelection = () => {
 	const hostname = window.location.hostname;
-	let urlMapper = {
-		localhost: 'localhost:3000',
-		've.ai': 'https://builder.ve.ai',
-		've.co': 'https://builder.ve.co',
-	};
-	return urlMapper[hostname];
+	return urlMapper?.[hostname];
+};
+
+export const fetchDomainName = () => {
+	const hostname = window.location.hostname;
+	return hostNameMapper?.[hostname];
+};
+
+export const isSafariBrowser = () => {
+	const userAgent = navigator.userAgent;
+	let check = /^((?!chrome|android).)*safari/i.test(userAgent);
+	return check;
 };

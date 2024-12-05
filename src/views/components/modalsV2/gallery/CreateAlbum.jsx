@@ -19,6 +19,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 		eventDateError: false,
 		albumSlugError: false,
 		timeout: null,
+		isSubmitting: false,
 	});
 
 	const handleAlbumNameChange = (e, name) => {
@@ -49,6 +50,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 	};
 
 	const handleCreateAlbum = () => {
+		if (info?.isSubmitting) return;
 		const albumNameError = !info.albumName;
 		const eventDateError = !info.eventDate;
 
@@ -66,8 +68,10 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 			title: info.albumName,
 			eventDateEpoch: new Date(info.eventDate).getTime() / 1000,
 		};
+		setInfo((prev) => ({ ...prev, isSubmitting: true }));
 		createNewAlbum(payload, galleryId);
 		closeModelFunction();
+		setInfo((prev) => ({ ...prev, isSubmitting: false }));
 	};
 
 	const checkAlbumSlugAvailableFunc = async (slug) => {

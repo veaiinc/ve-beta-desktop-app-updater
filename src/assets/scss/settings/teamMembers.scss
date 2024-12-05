@@ -221,10 +221,24 @@
 					justify-content: center;
 					position: relative;
 
+					.ant-select-selector {
+						color: #e4e5e6 !important;
+						background: none !important;
+					}
+
+					.ant-select-arrow {
+						color: #e4e5e6 !important;
+					}
+
+					.ant-select-selection-item {
+						color: #e4e5e6 !important;
+					}
+
 					.optionDiv {
 						display: flex;
 						gap: 10px;
 						align-items: center;
+						cursor: pointer;
 						p {
 							color: #e4e5e6;
 							font-family: Inter;
@@ -233,7 +247,6 @@
 							font-weight: 400;
 							line-height: 20px; /* 142.857% */
 							text-transform: capitalize;
-							cursor: pointer;
 						}
 					}
 
@@ -249,7 +262,7 @@
 						background: #151515;
 						top: 29px;
 						right: 12px;
-						z-index: 10px;
+						z-index: 10;
 						border-radius: 15px;
 						overflow: hidden;
 

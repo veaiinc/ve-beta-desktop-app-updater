@@ -1,4 +1,6 @@
 import AuthWrapper from './views/layouts/authWrapper';
+import LoginPage from './views/features/login_page/LoginPage';
+import Onboarding from './views/features/onboarding/Onboarding';
 import LoginScreen from './views/features/signin';
 import ChatScreen from './views/features/meta_Integ/index';
 import OauthVerify from './views/features/signin/oauth';
@@ -19,7 +21,7 @@ import GalleryViewer from './views/features/gallery/GalleryViewer';
 import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
-import Subscription from './views/features/subscription';
+import { Navigate } from 'react-router-dom';
 import Workflow_builder_updated from './views/features/workflow_builder_updated';
 
 const routes = [
@@ -27,10 +29,22 @@ const routes = [
 		path: '/',
 		component: <Landing_screen />,
 	},
+	// {
+	// 	path: '/verify-user',
+	// 	component: <LoginScreen stage={'verify-user'} />,
+	// },
+	{
+		path: '/onboarding',
+		component: <Onboarding />,
+	},
 	{
 		path: '/verify-user',
-		component: <LoginScreen stage={'verify-user'} />,
+		component: <LoginPage />,
 	},
+	// {
+	// 	path: '/verify-user',
+	// 	component: <LoginPage />,
+	// },
 	{
 		path: '/login-with-password',
 		component: <LoginScreen stage={'login-with-password'} />,
@@ -185,9 +199,8 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/subscription',
-		component: <Subscription />,
-		exact: true,
+		path: '*',
+		component: <Navigate to="/" />,
 	},
 ];
 

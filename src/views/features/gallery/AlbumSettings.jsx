@@ -40,6 +40,12 @@ const AlbumSettings = () => {
 			updateAlbumCoverImage,
 			deleteAlbum,
 			getImageDuplicatesList,
+			tagsList,
+			getDownloadLinkForTag,
+			getDownloadLinkStatus,
+			getZipDownloadUrl,
+			albumDetails,
+			getAlbumCount,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -62,6 +68,10 @@ const AlbumSettings = () => {
 		imageURL: '',
 		coverImageDetails: null,
 		tenantAlbums: [],
+		activeAlbumSlug: '',
+		originalDownload: true,
+		webviewDownload: false,
+		activeTagId: null,
 		// activeAlbum: activeAlbum,
 	});
 
@@ -78,6 +88,7 @@ const AlbumSettings = () => {
 		setInfo((prev) => ({ ...prev, activeSetting: sectionId }));
 		scrollToSection(sectionId);
 	}, [sectionId]);
+
 	useEffect(() => {
 		getLightroomCopyList(galleryId, activeAlbumId);
 	}, [activeAlbumId]);
@@ -98,6 +109,17 @@ const AlbumSettings = () => {
 			}));
 		}
 	}, [tenantAlbums]);
+	useEffect(() => {
+		if (!albumDetails && info?.activeAlbumSlug) {
+			getAlbumCount(galleryId, info?.activeAlbumSlug);
+		}
+		if (albumDetails) {
+			setInfo((prev) => ({
+				...prev,
+				activeTagId: albumDetails?.tags?.[0]?._id,
+			}));
+		}
+	}, [albumDetails, info?.activeAlbumSlug]);
 
 	useEffect(() => {
 		const imageSearchKey = searchkeys.get('uploadImageId');
@@ -171,6 +193,13 @@ const AlbumSettings = () => {
 
 		editAlbum(payload, galleryId, info?.activeAlbumId);
 	}, [info?.isPublished]);
+	const handleDownload = useCallback((type, otherType) => {
+		setInfo((prev) => ({
+			...prev,
+			[type]: !prev[type],
+			[otherType]: !prev[otherType],
+		}));
+	}, []);
 
 	const handleAlbumChange = useCallback(
 		(e) => {
@@ -348,7 +377,54 @@ const AlbumSettings = () => {
 			message.error('Something went wrong, please try again later');
 		}
 	};
+	// const handleCopyAlbumLink = () => {
+	// 	const albumLink = `https://${workspaceId}.ve.ai/gallery/${galleryId}/${info?.activeAlbumSlug}`;
+	// 	navigator.clipboard.writeText(albumLink);
+	// 	message.success('Album link copied to clipboard');
+	// };
+	const handleCopyAlbumLink = async () => {
+		const albumLink = `https://${workspaceId}.ve.ai/gallery/${galleryId}/${info?.activeAlbumSlug}`;
 
+		try {
+			// Try the modern clipboard API first
+			await navigator.clipboard.writeText(albumLink);
+			message.success('Album link copied to clipboard');
+		} catch (err) {
+			// Fallback for older browsers or when clipboard API fails
+			const textArea = document.createElement('textarea');
+			textArea.value = albumLink;
+			document.body.appendChild(textArea);
+			textArea.select();
+
+			try {
+				document.execCommand('copy');
+				message.success('Album link copied to clipboard');
+			} catch (err) {
+				message.error('Failed to copy link');
+			} finally {
+				document.body.removeChild(textArea);
+			}
+		}
+	};
+	const handleDownloadAlbum = async () => {
+		message.loading('Downloading album...');
+		const payload = {
+			imageType: info?.originalDownload ? 'original' : 'optimized',
+		};
+		const response = await getDownloadLinkForTag(
+			payload,
+			galleryId,
+			info?.activeAlbumId,
+			info?.activeTagId,
+		);
+		if (response?.[0] === true) {
+			window.open(`https://downloads.ve.ai/${response?.[1]?.downloadId}`, '_blank');
+		} else {
+			message.destroy();
+			message.error('Something went wrong, please try again later');
+		}
+	};
+	const workspaceId = localStorage.getItem('workspaceId');
 	return (
 		<div className="mainAlbumSettings">
 			<div className="exit-option-container">
@@ -386,13 +462,15 @@ const AlbumSettings = () => {
 								</p>
 							</div>
 						</div>
-						{/* <div className="albumLink">
-							<p className="title">Album link</p>
-							<div className="inputContainer">
-								<input placeholder="Wedding" />
-								<CopyLogo className="copy-logo" />
+						{info?.isPublished && (
+							<div className="albumLink">
+								<p className="title">Album link</p>
+								<div className="inputContainer">
+									<p>{`https://${workspaceId}.ve.ai/gallery/${galleryId}/${info?.activeAlbumSlug}`}</p>
+									<CopyLogo className="copy-logo" onClick={handleCopyAlbumLink} />
+								</div>
 							</div>
-						</div> */}
+						)}
 						<div className="lockAlbum">
 							<p className="title">Lock Album</p>
 							<div className="lockOption">
@@ -406,7 +484,7 @@ const AlbumSettings = () => {
 						</div>
 					</div>
 
-					{/* <div id="download-album" className="settings-container">
+					<div id="download-album" className="settings-container">
 						<p className="title">Download Album</p>
 						<div className="save-settings">
 							<div style={{ padding: '4px' }}>
@@ -415,15 +493,22 @@ const AlbumSettings = () => {
 							<div className="select-labels">
 								<p className="title">Select labels to download</p>
 								<div className="labels-container">
-									<p className="subtitle">
-										All <span> X </span>
-									</p>
-									<p className="subtitle">
-										Portraits <span> X </span>
-									</p>
-									<p className="subtitle">
-										Documents <span> X </span>
-									</p>
+									{albumDetails?.tags?.map((item) => (
+										<p
+											key={item?._id}
+											onClick={() =>
+												setInfo((prev) => ({
+													...prev,
+													activeTagId: item?._id,
+												}))
+											}
+											className={
+												info?.activeTagId === item?._id ? 'active-tag' : ''
+											}
+										>
+											{item?.displayName}
+										</p>
+									))}
 								</div>
 							</div>
 						</div>
@@ -435,18 +520,36 @@ const AlbumSettings = () => {
 								<p className="title">Select labels to download</p>
 								<div className="image-type-container">
 									<div className="image-type-container-item">
-										<ToggleSlider /> <p>Original images</p>
+										<ToggleSlider
+											value={info?.originalDownload}
+											onChange={() =>
+												handleDownload(
+													'originalDownload',
+													'webviewDownload',
+												)
+											}
+										/>
+										<p>Original images</p>
 									</div>
 									<div className="image-type-container-item">
-										<ToggleSlider /> <p>Webview images</p>
+										<ToggleSlider
+											value={info?.webviewDownload}
+											onChange={() =>
+												handleDownload(
+													'webviewDownload',
+													'originalDownload',
+												)
+											}
+										/>
+										<p>Webview images</p>
 									</div>
 								</div>
 							</div>
 						</div>
 						<div className="download-button">
-							<p>Download</p>
+							<p onClick={handleDownloadAlbum}>Download</p>
 						</div>
-					</div> */}
+					</div>
 
 					<div id="lightroom-copy-list" className="settings-container">
 						<div className="lightroom-container">
@@ -515,12 +618,12 @@ const AlbumSettings = () => {
 					>
 						Album overview
 					</li>
-					{/* <li
+					<li
 						onClick={() => scrollToSection('download-album')}
 						className={info.activeSetting === 'download-album' ? 'activeLink' : ''}
 					>
 						Download album
-					</li> */}
+					</li>
 					<li
 						onClick={() => scrollToSection('lightroom-copy-list')}
 						className={info.activeSetting === 'lightroom-copy-list' ? 'activeLink' : ''}

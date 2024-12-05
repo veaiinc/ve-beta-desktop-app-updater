@@ -200,27 +200,51 @@ export const CompanySettingsState = () => {
 		}
 	};
 
-	const updateTenantRole = async (payload) => {
+	const updateTenantRole = async (tennatId, json) => {
 		try {
-			const json = {
-				role: payload?.role,
-			};
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			let response = await service.fetchPut(
-				'/' + workspaceId + API.TENANTS.tenantUsers + '/' + payload?._id + '/role',
+				'/tenant/' + workspaceId + API.TENANTS.tenantUsers + '/' + tennatId + '/role',
 				json,
 				usertoken,
-				'tenant',
+				'auth',
 			);
 
-			if (response?.[0]) {
+			if (response?.[0] === true) {
+				const updateData = state?.tenantsUserList?.map((user) =>
+					user?._id === tennatId ? { ...user, role: json?.role } : user,
+				);
+				dispatch({ type: Actions.GET_TENANTS_LIST, payload: updateData });
 				return [true, response[1]];
 			} else {
 				return [false, response[1]];
 			}
 		} catch (error) {
 			console.log('error => updatetennat role', error);
+		}
+	};
+
+	const removeTenantRole = async (tennatId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			let response = await service.fetchDelete(
+				'/tenant/' + workspaceId + API.TENANTS.tenantUsers + '/' + tennatId,
+				usertoken,
+				null,
+				'auth',
+			);
+
+			if (response?.[0] === true) {
+				const updateData = state?.tenantsUserList?.filter((user) => user?._id !== tennatId);
+				dispatch({ type: Actions.GET_TENANTS_LIST, payload: updateData });
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
+		} catch (error) {
+			console.log('error => removeTenantRole', error);
 		}
 	};
 
@@ -305,6 +329,7 @@ export const CompanySettingsState = () => {
 		resetCompanySettings,
 		inviteNewuser,
 		updateTenantRole,
+		removeTenantRole,
 		checkWorkspaceId,
 		getClientPortalPreference,
 		updateClientPortalPreference,

@@ -139,6 +139,9 @@
 				.customInputWithoutLabel.edit:hover {
 					border: 1px solid rgba(255, 255, 255, 0.2);
 				}
+				.customInputWithoutLabel.ai_generated {
+					border: 1px solid var(--Color-Code-AI, #c39df8);
+				}
 				.incrementDecrementContainer {
 					display: flex;
 					width: 100px;
@@ -173,6 +176,9 @@
 						line-height: 26px; /* 185.714% */
 						cursor: pointer;
 					}
+				}
+				.incrementDecrementContainer.ai_generated {
+					border: 1px solid var(--Color-Code-AI, #c39df8);
 				}
 				.removeRoleContainer {
 					display: flex;
@@ -346,6 +352,9 @@
 						line-height: 26px; /* 185.714% */
 						cursor: pointer;
 					}
+				}
+				.incrementDecrementContainer.ai_generated {
+					border: 1px solid var(--Color-Code-AI, #c39df8);
 				}
 			}
 		}

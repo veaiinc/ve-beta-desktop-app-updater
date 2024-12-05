@@ -129,9 +129,11 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 			}
 		}
 	}, [info?.activeTemplateData, info?.activeTab, info?.duplicateApiLoading]);
+
 	const onGenerateAIFunc = () => {
-		window.location.href = `https://builder.ve.ai/generate/${info?.activeTemplateData?._id}`;
+		window.location.href = `${origin}/generate/${info?.activeTemplateData?._id}`;
 	};
+
 	return (
 		<Drawer
 			onClose={modifiedCloseModal}
