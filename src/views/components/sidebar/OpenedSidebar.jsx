@@ -153,7 +153,8 @@ const OpenedSideBarItemsComponent = ({
 			selectedModule: singleItems?.name,
 		});
 	};
-	const handleSidebarCollapse = () => {
+	const handleSidebarCollapse = (e) => {
+		e.stopPropagation();
 		setsidebarStates({ ...sidebarStates, isOpen: false, navStyle: 'close' });
 	};
 
@@ -213,6 +214,7 @@ const OpenedSideBarItemsComponent = ({
 						navigateTo={handleNavigateFunction}
 						key={singleItems?.name}
 						isActive={info?.activeRoute === singleItems?.moduleRoute}
+						style={{ fontSize: '14px' }}
 					/>
 				))}
 

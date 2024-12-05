@@ -26,7 +26,7 @@ import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
 export const veAiModulesItemsList = [
 	{
 		name: 'Calendar',
-		moduleRoute: 'calendar',
+		moduleRoute: '/calendar',
 		route: '/calendar',
 		icon: CalendarSvg,
 		subModules: [
