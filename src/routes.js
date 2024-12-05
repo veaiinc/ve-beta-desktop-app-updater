@@ -20,14 +20,12 @@ import GalleryPage from './views/features/gallery/GalleryPage';
 import GalleryViewer from './views/features/gallery/GalleryViewer';
 import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
-import Calendar from './views/features/calendar/index';
-
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
 import { Navigate } from 'react-router-dom';
 import Subscription from './views/features/subscription';
 import TermsOfService from './views/features/signin/TermsOfService';
 import CookiePolicy from './views/features/signin/CookiePolicy';
-
+import Workflow_builder_updated from './views/features/workflow_builder_updated';
 import ShareAndEarn from './views/features/ShareAndEarn';
 const routes = [
 	{
@@ -125,6 +123,15 @@ const routes = [
 		path: '/workflow_builder/:templateId',
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
+				<Workflow_builder_updated />
+			</WorkflowBuilderLayout>
+		),
+		exact: true,
+	},
+	{
+		path: '/workflow_builder-test/:templateId', //this is real one,
+		component: (
+			<WorkflowBuilderLayout title={'Workflow Builder'}>
 				<Workflow_builder />
 			</WorkflowBuilderLayout>
 		),
@@ -210,15 +217,6 @@ const routes = [
 	{
 		path: '*',
 		component: <Navigate to="/" />,
-	},
-	{
-		path: '/calendar',
-		component: (
-			<AuthWrapper title={'Calendar'} maxWidth={'1700px'}>
-				<Calendar />
-			</AuthWrapper>
-		),
-		exact: true,
 	},
 	{
 		path: '/subscription',

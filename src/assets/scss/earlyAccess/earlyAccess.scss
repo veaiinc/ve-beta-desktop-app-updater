@@ -392,13 +392,7 @@
 	}
 }
 
-@media screen and (min-width: 1700px) {
-	.landing-page-container2 {
-		height: 100dvh;
-	}
-}
-
-@media screen and (min-width: 1051px) {
+@media screen and (min-width: 1051px) and (max-width: 1700px) {
 	.landing-page-container2 {
 		display: flex;
 		flex-direction: column;
