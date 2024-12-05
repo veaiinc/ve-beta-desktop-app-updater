@@ -11,23 +11,23 @@ const Priority = ({ value }) => {
 	const [info, setInfo] = useState({
 		options: [
 			{
-				label: 'No priority',
+				label: 'no priority',
 				icon: <Circle />,
 			},
 			{
-				label: 'Critical',
+				label: 'critical',
 				icon: <UpArrowDouble />,
 			},
 			{
-				label: 'High',
+				label: 'high',
 				icon: <UpArrow />,
 			},
 			{
-				label: 'Medium',
+				label: 'medium',
 				icon: <ParallelLines />,
 			},
 			{
-				label: 'Low',
+				label: 'low',
 				icon: <DownArrow />,
 			},
 		],

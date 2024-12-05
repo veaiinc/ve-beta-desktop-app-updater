@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/tasks/listView.scss';
 import { ReactComponent as ChartList } from '../../../../assets/svg/tasks/chartLine.svg';
 import { ReactComponent as OptionsLine } from '../../../../assets/svg/tasks/optionsLine.svg';
@@ -17,385 +17,87 @@ import Phone from './Phone';
 import CheckBox from './CheckBox';
 import OptionsDropDown from '../../dropDown/tasks/OptionsDropDown';
 import CreateTaskPopup from '../../modalsV2/tasks/CreateTaskPopup';
-import { Checkbox } from 'antd';
-
-const dbs = {
-	usersDatabase: {
-		// Centralized metadata defining the schema and formats for properties
-		metadata: {
-			properties: {
-				title: {
-					type: 'text',
-				},
-				email: {
-					type: 'email', // Email type, holds the value of the user's email
-				},
-				phone: {
-					type: 'phone', // Phone type, holds the user's phone number
-				},
-				isActive: {
-					type: 'checkbox', // Checkbox type, indicates whether the user is active or not
-				},
-				role: {
-					type: 'select', // A select field for user roles
-					options: [{ label: 'Admin' }, { label: 'Editor' }, { label: 'Viewer' }],
-				},
-				createdAt: {
-					type: 'date',
-					format: 'MMM DD, YYYY', // Date format for createdAt
-					timestamp: true, // Whether this field should store a timestamp
-				},
-				updatedAt: {
-					type: 'date',
-					format: 'MMM DD, YYYY',
-					timestamp: true,
-				},
-				createdBy: {
-					type: 'person',
-				},
-				lastEditedBy: {
-					type: 'person',
-				},
-				recordId: {
-					type: 'id', // Unique identifier for each user
-				},
-			},
-			viewMetadata: {
-				viewType: 'list',
-				filters: [
-					{ property: 'isActive', value: true }, // Filter to show only active users
-					{ property: 'role', value: 'Admin' }, // Filter to show only Admin role
-				],
-				sortOrder: [{ property: 'createdAt', order: 'ascending' }],
-			},
-		},
-
-		// Rows now only include selected values; metadata determines how they are formatted
-		rows: [
-			{
-				title: { type: 'text', value: 'John Doe' },
-				email: { type: 'email', value: 'john.doe@example.com' },
-				phone: { type: 'phone', value: '+1-800-555-0101' },
-				isActive: { type: 'checkbox', value: true },
-				role: { type: 'select', value: 'Admin' },
-				createdAt: {
-					type: 'date',
-					value: '2024-11-20',
-					format: 'MMM DD, YYYY',
-				},
-				updatedAt: {
-					type: 'date',
-					value: '2024-11-22',
-					format: 'MMM DD, YYYY',
-				},
-				createdBy: { type: 'person', name: 'Jane Smith' },
-				lastEditedBy: { type: 'person', name: 'John Doe' },
-				recordId: { type: 'id', value: 'U001' },
-			},
-			{
-				name: { type: 'text', value: 'Jane Smith' },
-				email: { type: 'email', value: 'jane.smith@example.com' },
-				phone: { type: 'phone', value: '+1-800-555-0102' },
-				isActive: { type: 'checkbox', value: false },
-				role: { type: 'select', value: 'Editor' },
-				createdAt: {
-					type: 'date',
-					value: '2024-11-18',
-					format: 'MMM DD, YYYY',
-				},
-				updatedAt: {
-					type: 'date',
-					value: '2024-11-19',
-					format: 'MMM DD, YYYY',
-				},
-				createdBy: { type: 'person', name: 'Mike Johnson' },
-				lastEditedBy: { type: 'person', name: 'Jane Smith' },
-				recordId: { type: 'id', value: 'U002' },
-			},
-			{
-				title: { type: 'text', value: 'Mike Johnson' },
-				email: { type: 'email', value: 'mike.johnson@example.com' },
-				phone: { type: 'phone', value: '+1-800-555-0103' },
-				isActive: { type: 'checkbox', value: true },
-				role: { type: 'select', value: 'Viewer' },
-				createdAt: {
-					type: 'date',
-					value: '2024-11-10',
-					format: 'MMM DD, YYYY',
-				},
-				updatedAt: {
-					type: 'date',
-					value: '2024-11-12',
-					format: 'MMM DD, YYYY',
-				},
-				createdBy: { type: 'person', name: 'John Doe' },
-				lastEditedBy: { type: 'person', name: 'Mike Johnson' },
-				recordId: { type: 'id', value: 'U003' },
-			},
-		],
-	},
-	tasksDatabase: {
-		// Centralized metadata defining the schema and formats for properties
-		metadata: {
-			properties: {
-				// Properties with select, multi-select, etc.
-				status: {
-					type: 'status',
-				},
-				priority: {
-					type: 'priority',
-				},
-				tags: {
-					type: 'multi-select',
-					options: [
-						{ label: 'Design' },
-						{ label: 'Development' },
-						{ label: 'Marketing' },
-						{ label: 'Branding' },
-					],
-				},
-				assignedTo: {
-					type: 'person',
-					options: ['John Doe', 'Jane Smith', 'Mike Johnson'],
-				},
-				project: {
-					type: 'relation',
-					linkedDatabase: 'projects',
-				},
-				subtasks: {
-					type: 'relation',
-					linkedDatabase: 'tasks',
-				},
-				// Metadata for date and other properties
-				createdAt: {
-					type: 'date',
-					format: 'MMM DD, YYYY', // Date format for createdAt
-					timestamp: true, // Whether this field should store a timestamp
-				},
-				updatedAt: {
-					type: 'date',
-					format: 'MMM DD, YYYY',
-					timestamp: true,
-				},
-				createdBy: {
-					type: 'person',
-					// No specific format needed, just person reference
-				},
-				lastEditedBy: {
-					type: 'person',
-				},
-				recordId: {
-					type: 'id',
-					// No specific format, just unique identifier
-				},
-			},
-			viewMetadata: {
-				viewType: 'list',
-				filters: [
-					{ property: 'status', value: 'In Progress' },
-					{ property: 'priority', value: 'High' },
-				],
-				sortOrder: [{ property: 'dueDate', order: 'ascending' }],
-				groupBy: 'status',
-			},
-		},
-
-		// Rows now only include selected values; metadata determines how they are formatted
-		rows: [
-			{
-				title: { type: 'text', value: 'Prepare Presentation' },
-				status: { type: 'status', value: 'In progress' },
-				priority: { type: 'priority', value: 'High' },
-				dueDate: { type: 'date', value: '2024-12-10', format: 'MMM DD' },
-				assignedTo: { type: 'person', name: 'Jane Smith' },
-				tags: { type: 'multi-select', value: [{ color: 'red', label: 'Marketing' }] },
-				createdAt: {
-					type: 'date',
-					value: '2024-11-30',
-					format: 'MMM DD, YYYY',
-				},
-				updatedAt: {
-					type: 'date',
-					value: '2024-12-01',
-					format: 'MMM DD, YYYY',
-				},
-				createdBy: { type: 'person', name: 'Mike Johnson' },
-				lastEditedBy: { type: 'person', name: 'Jane Smith' },
-				recordId: { type: 'id', value: 'VEAI-003' },
-				// project: { type: 'relation', value: { id: 'P002', name: 'Project B' } },
-				// subtasks: {
-				// 	type: 'relation',
-				// 	value: [
-				// 		{ id: 'T005', name: 'Create Slide Deck' },
-				// 		{ id: 'T006', name: 'Review Draft with Team' },
-				// 	],
-				// },
-			},
-			{
-				title: { type: 'text', value: 'Update Website Content' },
-				status: { type: 'status', value: 'Done' },
-				priority: { type: 'priority', value: 'Medium' },
-				dueDate: { type: 'date', value: '2024-12-05', format: 'MMM DD' },
-				assignedTo: { type: 'person', name: 'John Doe' },
-				tags: { type: 'multi-select', value: [{ color: 'green', label: 'Development' }] },
-				createdAt: {
-					type: 'date',
-					value: '2024-11-29',
-					format: 'MMM DD, YYYY',
-				},
-				updatedAt: {
-					type: 'date',
-					value: '2024-11-30',
-					format: 'MMM DD, YYYY',
-				},
-				createdBy: { type: 'person', name: 'Jane Smith' },
-				lastEditedBy: { type: 'person', name: 'John Doe' },
-				recordId: { type: 'id', value: 'VEAI-004' },
-				// project: { type: 'relation', value: { id: 'P001', name: 'Project A' } },
-				// subtasks: {
-				// 	type: 'relation',
-				// 	value: [
-				// 		{ id: 'T007', name: 'Draft New Content' },
-				// 		{ id: 'T008', name: 'Implement in CMS' },
-				// 	],
-				// },
-			},
-		],
-	},
-};
-
-const tasksDatabase = {
-	// Centralized metadata defining the schema and formats for properties
-	metadata: {
-		properties: {
-			// Properties with select, multi-select, etc.
-			status: {
-				type: 'status',
-			},
-			priority: {
-				type: 'priority',
-			},
-			tags: {
-				type: 'multi-select',
-				options: [
-					{ label: 'Design' },
-					{ label: 'Development' },
-					{ label: 'Marketing' },
-					{ label: 'Branding' },
-				],
-			},
-			assignedTo: {
-				type: 'person',
-				options: ['John Doe', 'Jane Smith', 'Mike Johnson'],
-			},
-			project: {
-				type: 'relation',
-				linkedDatabase: 'projects',
-			},
-			subtasks: {
-				type: 'relation',
-				linkedDatabase: 'tasks',
-			},
-			// Metadata for date and other properties
-			createdAt: {
-				type: 'date',
-				format: 'MMM DD, YYYY', // Date format for createdAt
-				timestamp: true, // Whether this field should store a timestamp
-			},
-			updatedAt: {
-				type: 'date',
-				format: 'MMM DD, YYYY',
-				timestamp: true,
-			},
-			createdBy: {
-				type: 'person',
-				// No specific format needed, just person reference
-			},
-			lastEditedBy: {
-				type: 'person',
-			},
-			recordId: {
-				type: 'id',
-				// No specific format, just unique identifier
-			},
-		},
-		viewMetadata: {
-			viewType: 'list',
-			filters: [
-				{ property: 'status', value: 'In Progress' },
-				{ property: 'priority', value: 'High' },
-			],
-			sortOrder: [{ property: 'dueDate', order: 'ascending' }],
-		},
-	},
-
-	// Rows now only include selected values; metadata determines how they are formatted
-	rows: [
-		{
-			title: { type: 'text', value: 'Prepare Presentation' },
-			status: { type: 'status', value: 'In progress' },
-			priority: { type: 'priority', value: 'High' },
-			dueDate: { type: 'date', value: '2024-12-10', format: 'MMM DD' },
-			assignedTo: { type: 'person', name: 'Jane Smith' },
-			tags: { type: 'multi-select', value: [{ color: 'red', label: 'Marketing' }] },
-			createdAt: {
-				type: 'date',
-				value: '2024-11-30',
-				format: 'MMM DD, YYYY',
-			},
-			updatedAt: {
-				type: 'date',
-				value: '2024-12-01',
-				format: 'MMM DD, YYYY',
-			},
-			createdBy: { type: 'person', name: 'Mike Johnson' },
-			lastEditedBy: { type: 'person', name: 'Jane Smith' },
-			recordId: { type: 'id', value: 'VEAI-003' },
-			project: { type: 'relation', value: { id: 'P002', name: 'Project B' } },
-			subtasks: {
-				type: 'relation',
-				value: [
-					{ id: 'T005', name: 'Create Slide Deck' },
-					{ id: 'T006', name: 'Review Draft with Team' },
-				],
-			},
-		},
-		{
-			title: { type: 'text', value: 'Update Website Content' },
-			status: { type: 'status', value: 'Done' },
-			priority: { type: 'priority', value: 'Medium' },
-			dueDate: { type: 'date', value: '2024-12-05', format: 'MMM DD' },
-			assignedTo: { type: 'person', name: 'John Doe' },
-			tags: { type: 'multi-select', value: [{ color: 'green', label: 'Development' }] },
-			createdAt: {
-				type: 'date',
-				value: '2024-11-29',
-				format: 'MMM DD, YYYY',
-			},
-			updatedAt: {
-				type: 'date',
-				value: '2024-11-30',
-				format: 'MMM DD, YYYY',
-			},
-			createdBy: { type: 'person', name: 'Jane Smith' },
-			lastEditedBy: { type: 'person', name: 'John Doe' },
-			recordId: { type: 'id', value: 'VEAI-004' },
-			project: { type: 'relation', value: { id: 'P001', name: 'Project A' } },
-			subtasks: {
-				type: 'relation',
-				value: [
-					{ id: 'T007', name: 'Draft New Content' },
-					{ id: 'T008', name: 'Implement in CMS' },
-				],
-			},
-		},
-	],
-};
 
 const ListView = () => {
 	const [info, setInfo] = useState({
-		selectedDatabase: dbs['tasksDatabase'],
-		availableDabatases: Object.keys(dbs),
+		listItems: [
+			{
+				_id: '675040179acebeb7cb6406a3',
+				title: ' test',
+				description: 'sdfgh rtyu ertyu',
+				status: 'todo',
+				priority: 'low',
+				workflowTemplateId: '674d4726a6197ccc17241b9b',
+				workflowId: '668fde44f6446e011c5d4354',
+				client: null,
+				assignedTo: null,
+				dueDate: 20241228,
+				assignedBy: null,
+				assignedAt: null,
+				completedAt: null,
+				createdAt: 1733312535,
+				updatedAt: 1733312535,
+				createdBy: '66e82e442c20e33a4f04f040',
+				updatedBy: '66e82e442c20e33a4f04f040',
+			},
+			{
+				_id: '67503fea9acebeb7cb6406a2',
+				title: ' sample title',
+				description: 'sdfgh rtyu ertyu',
+				status: 'todo',
+				priority: 'low',
+				workflowTemplateId: '674d4726a6197ccc17241b9b',
+				workflowId: '668fde44f6446e011c5d4354',
+				client: null,
+				assignedTo: null,
+				dueDate: 20241228,
+				assignedBy: null,
+				assignedAt: null,
+				completedAt: null,
+				createdAt: 1733312490,
+				updatedAt: 1733312490,
+				createdBy: '66e82e442c20e33a4f04f040',
+				updatedBy: '66e82e442c20e33a4f04f040',
+			},
+			{
+				_id: '6750041128f0e43b63a576b9',
+				title: 'sample title 2',
+				description: 'asdfgh werty',
+				status: 'completed',
+				priority: 'medium',
+				workflowTemplateId: '6704e431ae01f0dc8fc1eaa5',
+				workflowId: '66e7df2f079ca82993cd21f6',
+				client: '66e82e442c20e33a4f04f040',
+				assignedTo: null,
+				dueDate: 20241228,
+				assignedBy: null,
+				assignedAt: null,
+				completedAt: null,
+				createdAt: 1733297169,
+				updatedAt: 1733297169,
+				createdBy: '66e82e442c20e33a4f04f040',
+				updatedBy: '66e82e442c20e33a4f04f040',
+			},
+			{
+				_id: '674f0f09c0a47ecf542064bc',
+				title: 'updated title',
+				description: 'sample description',
+				status: 'todo',
+				priority: 'low',
+				workflowTemplateId: '6704e431ae01f0dc8fc1eaa5',
+				workflowId: '66e7df2f079ca82993cd21f6',
+				client: '66e7d9cc1319f53f63c506da',
+				assignedTo: null,
+				dueDate: 20241228,
+				assignedBy: null,
+				assignedAt: null,
+				completedAt: null,
+				createdAt: 1733234441,
+				updatedAt: 1733297542,
+				createdBy: '66e82e442c20e33a4f04f040',
+				updatedBy: '66e82e442c20e33a4f04f040',
+			},
+		],
 		isOptionsDropDownOpen: false,
 		properties: [],
 	});
@@ -412,8 +114,31 @@ const ListView = () => {
 		email: Email,
 		phone: Phone,
 		url: Url,
-		checkbox: Checkbox,
+		checkbox: CheckBox,
 	}));
+
+	const responseTypes = useMemo(
+		() => ({
+			_id: 'id',
+			title: 'text',
+			description: 'text',
+			status: 'status',
+			priority: 'priority',
+			workflowTemplateId: 'text',
+			workflowId: 'text',
+			client: 'text',
+			assignedTo: 'person',
+			dueDate: 'date',
+			assignedBy: 'person',
+			assignedAt: 'date',
+			completedAt: 'date',
+			createdAt: 'date',
+			updatedAt: 'date',
+			createdBy: 'person',
+			updatedBy: 'person',
+		}),
+		[],
+	);
 
 	useEffect(() => {
 		if (info?.selectedDatabase) {
@@ -439,28 +164,23 @@ const ListView = () => {
 		});
 	};
 
-	const generateRow = (row) => {
+	const generateRow = useCallback((row) => {
 		const rowItems = [];
-		const metadata = info?.selectedDatabase?.metadata?.properties;
 		for (let key in row) {
-			const property = row[key];
-			const showProperty = info?.properties.find(({ propName }) => propName === key)?.show;
-
-			if (!showProperty) {
-				continue;
-			}
-
-			const RowComponent = rowTypes[property.type] || null;
+			const value = row[key];
+			const componetType = responseTypes[key];
+			const RowComponent = rowTypes[componetType] || null;
 			rowItems.push(
 				RowComponent ? (
-					<RowComponent key={key} {...property} {...metadata[key]} title={key} />
+					<RowComponent key={key} value={value} title={key} isTitle={key === 'title'} />
 				) : (
-					<div key={key}>{property.type}</div>
+					<div key={key}>{value}</div>
 				),
 			);
 		}
+
 		return rowItems;
-	};
+	}, []);
 
 	return (
 		<div className="listViewParentContainer">
@@ -483,83 +203,14 @@ const ListView = () => {
 					open={info?.isOptionsDropDownOpen}
 				/>
 			</div>
-			<div className="listViewItemsContainer">
-				<div className="group">
-					<div className="groupHeader">
-						<div className="groupDetails">
-							<div className="icon">
-								<div className="avatar"></div>
+			<div className="listContainer">
+				{info?.listItems
+					? info?.listItems?.map((row, index) => (
+							<div className="listItem" key={index}>
+								{generateRow(row)}
 							</div>
-							<div className="text">Avinash</div>
-							<div className="itemCount">4</div>
-						</div>
-						<PlusSvg />
-					</div>
-					<div className="listContainer">
-						{info?.selectedDatabase ? (
-							info?.selectedDatabase?.rows?.map((row, index) => (
-								<div className="listItem" key={index}>
-									{generateRow(row)}
-									{generateRow(row)}
-								</div>
-							))
-						) : (
-							<div className="availabledbsContainer">
-								<h3>Connect Database</h3>
-								{info?.availableDabatases?.map((dbName) => (
-									<div
-										className="dbItem"
-										key={dbName}
-										onClick={() =>
-											updateListViewInfo('selectedDatabase', dbs[dbName])
-										}
-									>
-										{dbName}
-									</div>
-								))}
-							</div>
-						)}
-						{
-							// <div className="listItem">
-							// 	{/* {generateRow(row)} */}
-							// 	<CheckBox value={true} />
-							// 	<Priority value={'Critical'} />
-							// 	<Id value={'VEAI-001'} />
-							// 	<Text value={'Change color of something'} />
-							// 	<Status value={'Todo'} />
-							// 	<MultiSelect
-							// 		value={[
-							// 			{ color: 'green', label: 'Features' },
-							// 			{ color: 'red', label: 'Bugs' },
-							// 		]}
-							// 		options={[
-							// 			{ color: 'green', label: 'Features' },
-							// 			{ color: 'red', label: 'Bugs' },
-							// 			{ color: 'blue', label: 'Improments' },
-							// 		]}
-							// 	/>
-							// 	<DateView value={new Date()} format={'MMM DD'} title={'Due date'} />
-							// 	<DateView
-							// 		value={new Date()}
-							// 		format={'MMM DD'}
-							// 		timestamp
-							// 		title={'Created time'}
-							// 	/>
-							// 	<Person
-							// 		profile={
-							// 			'https://a.storyblok.com/f/191576/1200x800/a3640fdc4c/profile_picture_maker_before.webp'
-							// 		}
-							// 		name={'Prasanth'}
-							// 		showName={false}
-							// 		title={'Created by'}
-							// 	/>
-							// 	<Phone value={'5627177819'} />
-							// 	<Email value={'abbbc@ve.ai'} />
-							// 	<Url value={'http://google.com'} />
-							// </div>
-						}
-					</div>
-				</div>
+					  ))
+					: ''}
 			</div>
 			<CreateTaskPopup />
 		</div>

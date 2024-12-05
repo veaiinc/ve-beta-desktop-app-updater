@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const MultiSelect = ({ value, options }) => {
+const MultiSelect = ({ value, options = [] }) => {
 	const [info, setInfo] = useState({
 		selected: [...value],
 		options: [...options],

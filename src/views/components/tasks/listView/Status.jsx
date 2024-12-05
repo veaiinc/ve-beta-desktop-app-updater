@@ -1,33 +1,33 @@
 import React, { useState } from 'react';
 
-import { ReactComponent as Check } from '../../../../assets/svg/tasks/checkmark.svg';
-import { ReactComponent as CheckGreen } from '../../../../assets/svg/tasks/checkGreen.svg';
-import { ReactComponent as Timer } from '../../../../assets/svg/tasks/timer.svg';
-import { ReactComponent as Spinner } from '../../../../assets/svg/tasks/spinner.svg';
+import { ReactComponent as Check } from '../../../../assets//svg/tasks/checkmark.svg';
+import { ReactComponent as CheckGreen } from '../../../../assets//svg/tasks/checkGreen.svg';
+import { ReactComponent as Timer } from '../../../../assets//svg/tasks/timer.svg';
+import { ReactComponent as Spinner } from '../../../../assets//svg/tasks/spinner.svg';
 import { ReactComponent as CircleHollow } from '../../../../assets/svg/tasks/circleHollowThin.svg';
-import { ReactComponent as Cross } from '../../../../assets/svg/tasks/cross.svg';
+import { ReactComponent as Cross } from '../../../../assets//svg/tasks/cross.svg';
 
 const Status = ({ value }) => {
 	const [info, setInfo] = useState({
 		options: [
 			{
-				label: 'Backlog',
+				label: 'backlog',
 				icon: <Spinner />,
 			},
 			{
-				label: 'Todo',
+				label: 'todo',
 				icon: <CircleHollow />,
 			},
 			{
-				label: 'In progress',
+				label: 'in progress',
 				icon: <Timer />,
 			},
 			{
-				label: 'Done',
+				label: 'completed',
 				icon: <CheckGreen />,
 			},
 			{
-				label: 'Canceled',
+				label: 'canceled',
 				icon: <Cross />,
 			},
 		],
