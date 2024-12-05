@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import './WorkflowNode.scss';
 import WorkflowBuilderCards from '../../components/workflowBuilderComponents/WorkflowBuilderCards';
 import WorkflowConnector from '../../components/workflowBuilderComponents/WorkflowConnector';
@@ -109,6 +109,7 @@ const WorkflowNode = ({
 								alterData={alterData}
 								previousStepPath={'condition-yes'}
 								previousStepId={nodeId}
+								stepsMapper={stepsMapper}
 							/>
 						</div>
 						<div
@@ -146,6 +147,7 @@ const WorkflowNode = ({
 									previousStepPath={'condition-no'}
 									previousStepId={nodeId}
 									style={{ marginRight: '27px', alignSelf: 'baseline' }}
+									stepsMapper={stepsMapper}
 								/>
 							</div>
 						</div>
@@ -181,6 +183,7 @@ const WorkflowNode = ({
 					alterData={alterData}
 					previousStepPath={'straight'}
 					previousStepId={nodeId}
+					stepsMapper={stepsMapper}
 				/>
 				<WorkflowNode
 					nodeId={node.nextStepId}
@@ -196,4 +199,4 @@ const WorkflowNode = ({
 	);
 };
 
-export default WorkflowNode;
+export default memo(WorkflowNode);

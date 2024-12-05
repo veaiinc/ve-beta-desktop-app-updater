@@ -8,7 +8,14 @@ import { ReactComponent as Notification } from '../../../assets/svg/worflow_buil
 import { ReactComponent as Pipeline } from '../../../assets/svg/worflow_builder/pipeline.svg';
 import { Tooltip } from 'antd';
 import MoveStepsModal from '../modalsV2/workflowBuilderModals/MoveStepsModal';
-const WorkflowConnector = ({ alterData, index, style = {}, previousStepPath, previousStepId }) => {
+const WorkflowConnector = ({
+	alterData,
+	index,
+	style = {},
+	previousStepPath,
+	previousStepId,
+	stepsMapper,
+}) => {
 	const [info, setInfo] = useState({
 		connectorHeight: 64,
 		buttonDisplay: false,
@@ -63,6 +70,8 @@ const WorkflowConnector = ({ alterData, index, style = {}, previousStepPath, pre
 								closeToolTipFunc={() =>
 									setInfo((prev) => ({ ...prev, addTypeModal: false }))
 								}
+								stepsMapper={stepsMapper}
+								previousStepId={previousStepId}
 							/>
 						}
 						color={'#202020'}
@@ -94,7 +103,12 @@ const WorkflowConnector = ({ alterData, index, style = {}, previousStepPath, pre
 
 export default memo(WorkflowConnector);
 
-const AddOptionsContainer = ({ updatedButtonClick, closeToolTipFunc }) => {
+const AddOptionsContainer = ({
+	updatedButtonClick,
+	closeToolTipFunc,
+	stepsMapper,
+	previousStepId,
+}) => {
 	const [info, setInfo] = useState({
 		optionsData: [
 			{
@@ -167,6 +181,8 @@ const AddOptionsContainer = ({ updatedButtonClick, closeToolTipFunc }) => {
 				modalIsOpen={info?.moveStepsModal}
 				closeModal={closeMoveStepsModal}
 				updateStepsPath={updateStepsPath}
+				stepsMapper={stepsMapper}
+				previousStepId={previousStepId}
 			/>
 		</div>
 	);
