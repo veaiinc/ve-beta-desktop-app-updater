@@ -5,7 +5,7 @@ import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as RefreshSvg } from '../../../assets/svg/sidebar/Refresh.svg';
 import { ReactComponent as VeAiSvg } from '../../../assets/svg/sidebar/VeAi.svg';
-import { ReactComponent as BackArrowSvg } from '../../../assets/svg/worflow_builder/BackArrow.svg';
+import { ReactComponent as DoubleBackArrowSvg } from '../../../assets/svg/sidebar/DoubleBackArrow.svg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 
 import WorkspaceListComponent from './Workspace';
@@ -172,7 +172,7 @@ const OpenedSideBarItemsComponent = ({
 			<div className="topOptionsList">
 				<div className="veAiLogoDiv">
 					<VeAiSvg />
-					<BackArrowSvg
+					<DoubleBackArrowSvg
 						className="collapseArrow"
 						onClick={handleSidebarCollapse}
 						style={{ cursor: 'pointer' }}
