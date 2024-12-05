@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import '../../../assets/scss/tasks/listView.scss';
-import { ReactComponent as ChartList } from '../../../assets/svg/tasks/chartLine.svg';
-import { ReactComponent as OptionsLine } from '../../../assets/svg/tasks/optionsLine.svg';
-import { ReactComponent as PlusSvg } from '../../../assets/svg/tasks/plus.svg';
+import React, { useEffect, useMemo, useState } from 'react';
+import '../../../../assets/scss/tasks/listView.scss';
+import { ReactComponent as ChartList } from '../../../../assets/svg/tasks/chartLine.svg';
+import { ReactComponent as OptionsLine } from '../../../../assets/svg/tasks/optionsLine.svg';
+import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import Text from './Text';
 import Id from './Id';
 import Select from './Select';
@@ -15,7 +15,9 @@ import Email from './Email';
 import Url from './Url';
 import Phone from './Phone';
 import CheckBox from './CheckBox';
-import OptionsDropDown from '../dropDown/tasks/OptionsDropDown';
+import OptionsDropDown from '../../dropDown/tasks/OptionsDropDown';
+import CreateTaskPopup from '../../modalsV2/tasks/CreateTaskPopup';
+import { Checkbox } from 'antd';
 
 const dbs = {
 	usersDatabase: {
@@ -392,11 +394,26 @@ const tasksDatabase = {
 
 const ListView = () => {
 	const [info, setInfo] = useState({
-		selectedDatabase: null,
+		selectedDatabase: dbs['tasksDatabase'],
 		availableDabatases: Object.keys(dbs),
 		isOptionsDropDownOpen: false,
 		properties: [],
 	});
+
+	const rowTypes = useMemo(() => ({
+		text: Text,
+		select: Select,
+		person: Person,
+		'multi-select': MultiSelect,
+		date: DateView,
+		id: Id,
+		status: Status,
+		priority: Priority,
+		email: Email,
+		phone: Phone,
+		url: Url,
+		checkbox: Checkbox,
+	}));
 
 	useEffect(() => {
 		if (info?.selectedDatabase) {
@@ -433,46 +450,14 @@ const ListView = () => {
 				continue;
 			}
 
-			switch (property.type) {
-				case 'text':
-					rowItems.push(<Text {...property} {...metadata[key]} title={key} />);
-					break;
-				case 'select':
-					rowItems.push(<Select {...property} {...metadata[key]} title={key} />);
-					break;
-				case 'person':
-					rowItems.push(<Person {...property} {...metadata[key]} />);
-					break;
-				case 'multi-select':
-					rowItems.push(<MultiSelect {...property} {...metadata[key]} />);
-					break;
-				case 'date':
-					rowItems.push(<DateView {...property} {...metadata[key]} />);
-					break;
-				case 'id':
-					rowItems.push(<Id {...property} {...metadata[key]} />);
-					break;
-				case 'status':
-					rowItems.push(<Status {...property} {...metadata[key]} />);
-					break;
-				case 'priority':
-					rowItems.push(<Priority {...property} {...metadata[key]} />);
-					break;
-				case 'email':
-					rowItems.push(<Email {...property} {...metadata[key]} />);
-					break;
-				case 'phone':
-					rowItems.push(<Phone {...property} {...metadata[key]} />);
-					break;
-				case 'url':
-					rowItems.push(<Url {...property} {...metadata[key]} />);
-					break;
-				case 'checkbox':
-					rowItems.push(<CheckBox {...property} {...metadata[key]} />);
-					break;
-				default:
-					rowItems.push(<div>{property.type}</div>);
-			}
+			const RowComponent = rowTypes[property.type] || null;
+			rowItems.push(
+				RowComponent ? (
+					<RowComponent key={key} {...property} {...metadata[key]} title={key} />
+				) : (
+					<div key={key}>{property.type}</div>
+				),
+			);
 		}
 		return rowItems;
 	};
@@ -513,7 +498,10 @@ const ListView = () => {
 					<div className="listContainer">
 						{info?.selectedDatabase ? (
 							info?.selectedDatabase?.rows?.map((row, index) => (
-								<div className="listItem">{generateRow(row)}</div>
+								<div className="listItem" key={index}>
+									{generateRow(row)}
+									{generateRow(row)}
+								</div>
 							))
 						) : (
 							<div className="availabledbsContainer">
@@ -573,6 +561,7 @@ const ListView = () => {
 					</div>
 				</div>
 			</div>
+			<CreateTaskPopup />
 		</div>
 	);
 };

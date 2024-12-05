@@ -51,7 +51,6 @@ const OptionsDropDown = ({ properties, togglePropertyVisibility, open }) => {
 									? 'rotate(180deg)'
 									: 'rotate(0deg)',
 							}}
-							s
 						/>
 					</div>
 				</DropDown>

@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import ListView from '../../components/tasks/ListView';
+import ListView from '../../components/tasks/listView/ListView';
 
 const Tasks = () => {
 	return (

@@ -7,10 +7,10 @@
 		bottom: 0;
 		left: 0;
 		right: 0;
-		z-index: 2;
+		z-index: 5;
 	}
 	.dropdown-container {
-		z-index: 5;
+		z-index: 10;
 		position: absolute;
 		top: calc(100% + 10px);
 		display: flex;

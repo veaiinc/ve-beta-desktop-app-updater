@@ -16,8 +16,8 @@ const MultiSelect = ({ value, options }) => {
 				className="multiSelectContainer"
 				onClick={() => updateMultiSelectInfo('isDropdownOpen', !info?.isDropdownOpen)}
 			>
-				{info?.selected?.map((item) => (
-					<div className="multiListItem">
+				{info?.selected?.map((item, index) => (
+					<div className="multiListItem" key={index}>
 						<div
 							className="multiListDot"
 							style={{

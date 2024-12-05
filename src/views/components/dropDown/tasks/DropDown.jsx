@@ -20,7 +20,7 @@ const DropDown = ({
 			{children}
 			{open ? (
 				<>
-					<div className="modal-overlay" onClick={() => closeDropdown()}></div>
+					{/* <div className="modal-overlay" onClick={() => closeDropdown()}></div> */}
 					<div
 						className="dropdown-container"
 						style={containerStyles ? { ...containerStyles } : {}}

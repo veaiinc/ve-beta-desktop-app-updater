@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import DropDown from '../dropDown/tasks/DropDown';
+import DropDown from '../../dropDown/tasks/DropDown';
 
 const Select = ({ title, value, options = [], multi = false, showLabel = false }) => {
 	const [info, setInfo] = useState({

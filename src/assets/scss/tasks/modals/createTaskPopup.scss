@@ -1,0 +1,121 @@
+.createTask-container {
+	display: flex;
+	width: 600px;
+	padding: 24px;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 16px;
+	border-radius: 32px;
+	border: 1px solid rgba(228, 229, 230, 0.05);
+	background: #151515;
+	overflow: visible;
+
+	.header-wrapper {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+
+		.actions-wrapper {
+			display: flex;
+			align-items: center;
+			gap: 24px;
+			.expandSvg {
+				width: 12px !important;
+				height: 12px !important;
+			}
+			.crossSvg {
+				width: 20px !important;
+				height: 20px !important;
+			}
+		}
+	}
+
+	.text-wrapper {
+		display: flex;
+		height: 88px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		align-self: stretch;
+		input[type='text'] {
+			background-color: transparent;
+			border: none;
+			height: 24px;
+			flex-shrink: 0;
+			align-self: stretch;
+			font-family: Inter;
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			color: #e4e5e6;
+			&::placeholder {
+				color: rgba(228, 229, 230, 0.38);
+			}
+		}
+		textarea {
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+			width: 100%;
+			resize: vertical;
+			background-color: transparent;
+			color: #e4e5e6;
+			border: none;
+
+			&::placeholder {
+				color: rgba(228, 229, 230, 0.38);
+			}
+		}
+	}
+	.properties-wrapper {
+		display: flex;
+		align-items: center;
+		align-content: center;
+		gap: 4px;
+		align-self: stretch;
+		flex-wrap: wrap;
+		cursor: pointer;
+
+		.property {
+			display: flex;
+			height: 32px;
+			padding: 6px 8px;
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+			border-radius: 34px;
+			background: #1f1f1f;
+
+			.label {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+	}
+	.footer-wrapper {
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		gap: 24px;
+		align-self: stretch;
+		.btn-createIssue {
+			display: flex;
+			padding: 16px 24px;
+			justify-content: center;
+			align-items: center;
+			gap: 16px;
+			border-radius: 100px;
+			background: #6055ec;
+			border: none;
+			color: #e4e5e6;
+		}
+	}
+}

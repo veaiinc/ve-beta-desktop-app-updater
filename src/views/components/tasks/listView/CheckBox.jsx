@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ReactComponent as Check } from '../../../assets/svg/tasks/checkmark.svg';
+import { ReactComponent as Check } from '../../../../assets/svg/tasks/checkmark.svg';
 
 const CheckBox = ({ value }) => {
 	const [info, setInfo] = useState({ checked: value });
