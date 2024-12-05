@@ -146,13 +146,10 @@ const OpenedSideBarItemsComponent = ({
 	};
 
 	const handleNavigateFunction = (route, singleItems) => {
-		console.log(singleItems);
 		setSelectedOption(singleItems?.name);
 		navigate(route);
 		setsidebarStates({
 			...sidebarStates,
-			// isOpen: false,
-			// navStyle: 'close',
 			selectedModule: singleItems?.name,
 		});
 	};

@@ -218,13 +218,13 @@
 			flex-direction: column;
 			align-items: center;
 			justify-content: space-between;
-			// min-height: inherit;
+
 			height: 100vh;
 			width: inherit;
 			padding: 18px 9px;
 			border-radius: inherit;
 			transition: all 0.7s ease-in-out;
-			// common classess for both
+
 			.allmodulesList,
 			.bottomOptionsList {
 				.singleModuleItem {
@@ -278,7 +278,7 @@
 							margin-top: 2px;
 							color: white;
 							padding: 10px;
-							// gap: 5px;
+
 							&:hover {
 								background: var(
 									--ve-ai-dark-theme-text-field-stroke-pop-up,
@@ -291,8 +291,7 @@
 
 					.dropdownItem {
 						padding: 10px;
-						// gap: 5px;
-						// margin-left: 30px;
+
 						color: #e4e5e6;
 						cursor: pointer;
 
@@ -308,7 +307,6 @@
 
 				.activeListModule,
 				.activeListModule:hover {
-					// background: #6055ec;
 					cursor: pointer;
 					border-radius: 8px;
 					p {
@@ -397,7 +395,7 @@
 								font-style: normal;
 								font-weight: 400;
 								line-height: normal;
-								max-width: 120px; // Adjust this value as needed
+								max-width: 120px;
 								white-space: nowrap;
 								overflow: hidden;
 								text-overflow: ellipsis;
