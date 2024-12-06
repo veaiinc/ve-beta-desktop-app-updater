@@ -18,14 +18,50 @@ import CheckBox from './CheckBox';
 import OptionsDropDown from '../../dropDown/tasks/OptionsDropDown';
 import CreateTaskPopup from '../../modalsV2/tasks/CreateTaskPopup';
 import Context from '../../../../context/context';
+import { Tooltip } from 'antd';
+
+const rowTypes = {
+	text: Text,
+	select: Select,
+	person: Person,
+	'multi-select': MultiSelect,
+	date: DateView,
+	id: Id,
+	status: Status,
+	priority: Priority,
+	email: Email,
+	phone: Phone,
+	url: Url,
+	checkbox: CheckBox,
+};
+
+const responseTypes = {
+	_id: 'id',
+	title: 'text',
+	description: 'text',
+	status: 'status',
+	priority: 'priority',
+	workflowTemplateId: 'text',
+	workflowId: 'text',
+	client: 'text',
+	assignedTo: 'person',
+	dueDate: 'date',
+	assignedBy: 'person',
+	assignedAt: 'date',
+	completedAt: 'date',
+	createdAt: 'date',
+	updatedAt: 'date',
+	createdBy: 'person',
+	updatedBy: 'person',
+};
 
 const ListView = () => {
 	const {
-		tasks: { listTasks, getListItems },
+		tasks: { listTasks, getListItems, addListItem },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		listItems: null,
+		listItems: [],
 		isOptionsDropDownOpen: false,
 		isCreateModalOpen: false,
 		properties: [],
@@ -46,75 +82,17 @@ const ListView = () => {
 		}
 	}, [listTasks]);
 
-	useEffect(() => {
-		if (info?.selectedDatabase) {
-			const properties = Object.keys(info?.selectedDatabase.metadata.properties).map(
-				(propName) => ({ propName, show: true }),
-			);
-			setInfo((prevInfo) => ({ ...prevInfo, properties }));
-		}
-	}, [info?.selectedDatabase]);
-
-	const rowTypes = useMemo(
-		() => ({
-			text: Text,
-			select: Select,
-			person: Person,
-			'multi-select': MultiSelect,
-			date: DateView,
-			id: Id,
-			status: Status,
-			priority: Priority,
-			email: Email,
-			phone: Phone,
-			url: Url,
-			checkbox: CheckBox,
-		}),
-		[],
-	);
-
-	const responseTypes = useMemo(
-		() => ({
-			_id: 'id',
-			title: 'text',
-			description: 'text',
-			status: 'status',
-			priority: 'priority',
-			workflowTemplateId: 'text',
-			workflowId: 'text',
-			client: 'text',
-			assignedTo: 'person',
-			dueDate: 'date',
-			assignedBy: 'person',
-			assignedAt: 'date',
-			completedAt: 'date',
-			createdAt: 'date',
-			updatedAt: 'date',
-			createdBy: 'person',
-			updatedBy: 'person',
-		}),
-		[],
-	);
-
-	const updateListViewInfo = (key, value) => {
-		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
-	};
-
-	const togglePropertyVisibility = useCallback((index) => {
-		setInfo((prevInfo) => {
-			const newProperty = [...prevInfo?.properties];
-			newProperty[index] = {
-				...newProperty[index],
-				show: !newProperty[index].show,
-			};
-			return { ...prevInfo, properties: newProperty };
-		});
+	const updateListViewInfo = useCallback((key, value) => {
+		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
 	}, []);
 
 	const generateRow = useCallback((row) => {
 		const rowItems = [];
 		for (let key in row) {
 			const value = row[key];
+			if (!value || key == '__typename') {
+				continue;
+			}
 			const componetType = responseTypes[key];
 			const RowComponent = rowTypes[componetType] || null;
 			rowItems.push(
@@ -129,37 +107,61 @@ const ListView = () => {
 		return rowItems;
 	}, []);
 
+	const addNewTask = useCallback(async (payload) => {
+		const response = await addListItem({ input: payload });
+		if (response) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				listItems: [...prevInfo?.listItems, response?.createTask],
+			}));
+		}
+	}, []);
+
 	return (
 		<div className="listViewParentContainer">
 			<div className="listHeader">
-				<button className="btn-stats">
+				{/* <button className="btn-stats">
 					<ChartList />
-				</button>
-				<button
-					className="btn-options"
-					onClick={() =>
-						updateListViewInfo('isOptionsDropDownOpen', !info?.isOptionsDropDownOpen)
+				</button> */}
+
+				<Tooltip
+					placement="bottom"
+					title={
+						<OptionsDropDown
+							properties={info?.properties}
+							open={info?.isOptionsDropDownOpen}
+						/>
 					}
+					arrow={false}
+					trigger={'click'}
+					color={'transparent'}
+					overlayStyle={{ minWidth: 'fit-content' }}
 				>
-					<OptionsLine />
+					<button className="btn-options">
+						<OptionsLine />
+					</button>
+				</Tooltip>
+				<button
+					className="btn-createTask"
+					onClick={() => updateListViewInfo('isCreateModalOpen', true)}
+				>
+					Create new task
 				</button>
-				<button className="btn-createTask">Create new task</button>
-				<OptionsDropDown
-					properties={info?.properties}
-					togglePropertyVisibility={togglePropertyVisibility}
-					open={info?.isOptionsDropDownOpen}
-				/>
 			</div>
 			<div className="listContainer">
 				{info?.listItems
 					? info?.listItems?.map((row, index) => (
-							<div className="listItem" key={index}>
+							<div className="listItemRow" key={index}>
 								{generateRow(row)}
 							</div>
 					  ))
 					: ''}
 			</div>
-			<CreateTaskPopup />
+			<CreateTaskPopup
+				isOpen={info?.isCreateModalOpen}
+				closeModal={() => updateListViewInfo('isCreateModalOpen', false)}
+				addNewTask={addNewTask}
+			/>
 		</div>
 	);
 };

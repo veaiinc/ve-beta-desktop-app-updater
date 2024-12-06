@@ -1,7 +1,6 @@
-.dropdown-container {
-	position: absolute;
-	top: calc(100% + 15px);
+.listView-options-dropdown-container {
 	display: flex;
+	height: fit-content;
 	width: 350px;
 	padding: 16px;
 	flex-direction: column;

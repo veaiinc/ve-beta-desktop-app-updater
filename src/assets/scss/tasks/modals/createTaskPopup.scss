@@ -108,6 +108,7 @@
 		align-self: stretch;
 		.btn-createIssue {
 			display: flex;
+			min-width: 120px;
 			padding: 16px 24px;
 			justify-content: center;
 			align-items: center;
@@ -116,6 +117,7 @@
 			background: #6055ec;
 			border: none;
 			color: #e4e5e6;
+			cursor: pointer;
 		}
 	}
 }

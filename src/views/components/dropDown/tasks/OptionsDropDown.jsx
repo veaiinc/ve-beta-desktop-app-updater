@@ -6,6 +6,7 @@ import { ReactComponent as BoardIcon } from '../../../../assets/svg/tasks/board.
 import ToggleSlider from '../../input/slider';
 import { ReactComponent as DownArrow } from '../../../../assets/svg/Settings/Downarrowwhite.svg';
 import DropDown from './DropDown';
+import ToolTipContainer from '../../popover/ToolTipContainer';
 
 const OptionsDropDown = ({ properties, togglePropertyVisibility, open }) => {
 	const [info, setInfo] = useState({ groupDropDownOpen: false, orderDropDownOpen: false });
@@ -14,7 +15,7 @@ const OptionsDropDown = ({ properties, togglePropertyVisibility, open }) => {
 		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
 	};
 	return (
-		<div className={`dropdown-container ${open ? `` : `dropdown-hide`}`}>
+		<div className={`listView-options-dropdown-container`}>
 			<div className="view-selection-wrapper">
 				<input type="radio" name="view-type" defaultChecked id="list-view-radio" />
 				<label htmlFor="list-view-radio" className="view-selection">
