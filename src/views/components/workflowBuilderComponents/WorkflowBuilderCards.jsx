@@ -10,7 +10,8 @@ import { Popover, Tooltip } from 'antd';
 import DeleteWorkflowStep from '../modalsV2/workflowBuilderModals/DeleteWorkflowStep';
 import Context from '../../../context/context';
 import { ReactComponent as UpdatedEmail } from '../../../assets/svg/worflow_builder/buildercard/email.svg';
-
+import { fetchOriginSelection } from '../../../helpers';
+let origin = fetchOriginSelection();
 const labelMapper = {
 	enquiry: 'After Form is submitted',
 	filesSent: 'After Smart file is sent ',
@@ -38,11 +39,7 @@ const FirstWorkflowCard = ({
 			<div className="htmlContentViewer">
 				<div className="coverImage" style={{ pointerEvents: 'none' }}>
 					<iframe
-						src={
-							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-								: `https://builder.ve.ai/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-						}
+						src={`${origin}/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`}
 						title="Builder Preview"
 						width="100%"
 						height="100%"
@@ -108,11 +105,7 @@ const PreviewCard = ({ templateData, openPreviewModal, openDeleteModal }) => {
 				<div className="htmlContentViewer">
 					<div className="coverImage" style={{ pointerEvents: 'none' }}>
 						<iframe
-							src={
-								window.location.hostname === 'localhost'
-									? `http://localhost:3000/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-									: `https://builder.ve.ai/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-							}
+							src={`${origin}/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`}
 							title="Builder Preview"
 							width="100%"
 							height="100%"
@@ -198,7 +191,7 @@ const WorkflowBuilderCards = ({
 	}, []);
 
 	const editOnClickHandler = useCallback(() => {
-		window.location.href = `https://builder.ve.ai/${templateData?._id}`;
+		window.location.href = `${origin}/${templateData?._id}`;
 	}, [templateData]);
 
 	const refetchWorkflowBuilderData = useCallback(async () => {
