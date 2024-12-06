@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../../../../assets/scss/tasks/listItems.scss';
 
 import { ReactComponent as Check } from '../../../../assets//svg/tasks/checkmark.svg';
 import { ReactComponent as CheckGreen } from '../../../../assets//svg/tasks/checkGreen.svg';
@@ -6,8 +7,9 @@ import { ReactComponent as Timer } from '../../../../assets//svg/tasks/timer.svg
 import { ReactComponent as Spinner } from '../../../../assets//svg/tasks/spinner.svg';
 import { ReactComponent as CircleHollow } from '../../../../assets/svg/tasks/circleHollowThin.svg';
 import { ReactComponent as Cross } from '../../../../assets//svg/tasks/cross.svg';
+import DropDown from '../../dropDown/tasks/DropDown';
 
-const Status = ({ value }) => {
+const Status = ({ value = 'todo', showLabel = false, customListItemStyle = {} }) => {
 	const [info, setInfo] = useState({
 		options: [
 			{
@@ -39,36 +41,16 @@ const Status = ({ value }) => {
 	};
 
 	return (
-		<div className="status">
-			<div
-				className="currentIcon"
-				onClick={() => updateStatusInfo('isDropdownOpen', !info?.isDropdownOpen)}
-			>
-				{info?.options.find((item) => item.label === value)?.icon}
-			</div>
-			{info?.isDropdownOpen ? (
-				<div className="dropdownContainer">
-					<h3>Change status</h3>
-					<ul>
-						{info?.options?.map((option, index) => (
-							<li key={index}>
-								<div className="optionDetails">
-									<div className="icon">{option.icon}</div>
-									<div className="labelText">{option.label}</div>
-								</div>
-								{info?.options.find((item) => item.label === value)?.label ===
-								option?.label ? (
-									<Check />
-								) : (
-									''
-								)}
-							</li>
-						))}
-					</ul>
+		<div className="listItem-status">
+			<DropDown title={'Change status'} options={info?.options}>
+				<div
+					className={`currentIcon ${showLabel ? `listItem-border` : ``}`}
+					style={customListItemStyle}
+				>
+					{info?.options.find((item) => item.label === value)?.icon}
+					{showLabel ? <p className="listItem-label">{value}</p> : ''}
 				</div>
-			) : (
-				''
-			)}
+			</DropDown>
 		</div>
 	);
 };

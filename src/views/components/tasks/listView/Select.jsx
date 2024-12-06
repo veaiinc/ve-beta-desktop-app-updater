@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../../../../assets/scss/tasks/listItems.scss';
 import DropDown from '../../dropDown/tasks/DropDown';
 
 const Select = ({ title, value, options = [], multi = false, showLabel = false }) => {
@@ -10,17 +11,14 @@ const Select = ({ title, value, options = [], multi = false, showLabel = false }
 		setInfo((prevInfo) => ({ ...prevInfo, isDropdownOpen: !prevInfo.isDropdownOpen }));
 	};
 	return (
-		<div className="select">
+		<div className="listItem-select">
 			<DropDown
 				open={info?.isDropdownOpen}
 				options={options}
 				closeDropDown={() => updateSelectInfo('isDropdownOpen', false)}
 			>
-				<span
-					onClick={() => updateSelectInfo('isDropdownOpen', !info?.isDropdownOpen)}
-					className={`selectContainer ${showLabel ? `listItemBorder` : ``}`}
-				>
-					<span className="text">{value}</span>
+				<span className={`selectContainer ${showLabel ? `listItem-border` : ``}`}>
+					<span className="listItem-label">{value}</span>
 				</span>
 			</DropDown>
 		</div>

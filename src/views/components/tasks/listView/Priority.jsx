@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../../../../assets/scss/tasks/listItems.scss';
 import { ReactComponent as Circle } from '../../../../assets/svg/tasks/circleBigDash.svg';
 import { ReactComponent as UpArrowDouble } from '../../../../assets/svg/tasks/upArrowDouble.svg';
 import { ReactComponent as UpArrow } from '../../../../assets/svg/tasks/upArrowRed.svg';
@@ -7,7 +8,7 @@ import { ReactComponent as DownArrow } from '../../../../assets/svg/tasks/downAr
 import { ReactComponent as Check } from '../../../../assets/svg/tasks/checkmark.svg';
 import DropDown from '../../dropDown/tasks/DropDown';
 
-const Priority = ({ value }) => {
+const Priority = ({ value = 'low', showLabel = false, customListItemStyle = {} }) => {
 	const [info, setInfo] = useState({
 		options: [
 			{
@@ -39,13 +40,14 @@ const Priority = ({ value }) => {
 	};
 
 	return (
-		<div className="priority">
-			<DropDown title={'Change priority'} open={info?.isDropdownOpen} options={info?.options}>
+		<div className="listItem-priority">
+			<DropDown title={'Change priority'} options={info?.options}>
 				<div
-					className="currentIcon"
-					onClick={() => updatePropertyInfo('isDropdownOpen', !info?.isDropdownOpen)}
+					className={`currentIcon ${showLabel ? `listItem-border` : ``}`}
+					style={customListItemStyle}
 				>
 					{info?.options.find((item) => item?.label === value)?.icon}
+					{showLabel ? <p className="listItem-label">{value}</p> : ''}
 				</div>
 			</DropDown>
 		</div>

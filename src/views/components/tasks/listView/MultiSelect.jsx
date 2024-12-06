@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../../../../assets/scss/tasks/listItems.scss';
 
 const MultiSelect = ({ value, options = [] }) => {
 	const [info, setInfo] = useState({
@@ -11,7 +12,7 @@ const MultiSelect = ({ value, options = [] }) => {
 		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
 	};
 	return (
-		<div className="multiSelect">
+		<div className="listItem-multiSelect">
 			<div
 				className="multiSelectContainer"
 				onClick={() => updateMultiSelectInfo('isDropdownOpen', !info?.isDropdownOpen)}
