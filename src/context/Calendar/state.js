@@ -39,6 +39,18 @@ export const Calendar = () => {
 		}
 	};
 
+	const sendEventToAi = async (body) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.sendEventToAi}`;
+
+			await service.fetchPost(url, body, usertoken, 'calendar_chat');
+		} catch (error) {
+			console.log('error==>sendEventToAi', error);
+		}
+	};
+
 	const getCalendarEventsList = async () => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -101,5 +113,6 @@ export const Calendar = () => {
 		getCalendarEventsList,
 		createCalendarEvent,
 		resetCalendarState,
+		sendEventToAi,
 	};
 };
