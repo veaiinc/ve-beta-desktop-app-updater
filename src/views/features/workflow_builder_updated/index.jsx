@@ -15,7 +15,8 @@ import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
 import { message } from 'antd';
 import WorkflowNode from './WorkflowNode';
-
+import { fetchOriginSelection } from '../../../helpers';
+let origin = fetchOriginSelection();
 const options = [
 	{ label: 'Rename Workflow' },
 	{ label: 'Duplicate Workflow' },
@@ -349,7 +350,7 @@ const WorkflowBuilder = () => {
 		};
 		const response = await duplicateGlobalWorkflowTemplate(payload);
 		if (response?.[0]) {
-			window.location.href = `https://builder.ve.ai/${response?.[1]?._id}`;
+			window.location.href = `${origin}/${response?.[1]?._id}`;
 		}
 		closeDuplicateWorkflowModal();
 	}, [info?.incomingTemplateData, closeDuplicateWorkflowModal]);
