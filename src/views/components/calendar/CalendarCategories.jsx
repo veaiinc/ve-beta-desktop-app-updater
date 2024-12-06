@@ -110,18 +110,13 @@ const CalendarCategories = () => {
 						<div className="typeWrapper">
 							<input type="checkbox" className="checkBox" id="meeting-checkbox" />
 							<label htmlFor="meeting-checkbox" className="typeLabel">
-								Meeting
+								Default
 							</label>
 							<button className="editButton" onClick={handleCategoryEditClick}>
 								<PencilSvg />
 							</button>
 						</div>
 						<div className="statusWrapper" data-type="meeting">
-							<div className="statusCount">
-								<span className="activeCount">4</span>/
-								<span className="totalCount">15</span>
-							</div>
-
 							<span className="statusIndicator"></span>
 						</div>
 					</div>
@@ -136,52 +131,10 @@ const CalendarCategories = () => {
 							</button>
 						</div>
 						<div className="statusWrapper" data-type="task">
-							<div className="statusCount">
+							{/* <div className="statusCount">
 								<span className="activeCount">4</span>/
 								<span className="totalCount">15</span>
-							</div>
-
-							<span className="statusIndicator"></span>
-						</div>
-					</div>
-					<div className="categoryTypeContainer">
-						<div className="typeWrapper">
-							<input type="checkbox" className="checkBox" id="payment-checkbox" />
-							<label htmlFor="payment-checkbox" className="typeLabel">
-								Payments
-							</label>
-							<button className="editButton" onClick={handleCategoryEditClick}>
-								<PencilSvg />
-							</button>
-						</div>
-						<div className="statusWrapper" data-type="payments">
-							<div className="statusCount">
-								<span className="activeCount">4</span>/
-								<span className="totalCount">15</span>
-							</div>
-
-							<span className="statusIndicator"></span>
-						</div>
-					</div>
-					<div className="categoryTypeContainer">
-						<div className="typeWrapper">
-							<input
-								type="checkbox"
-								className="checkBox"
-								id="appointments-checkbox"
-							/>
-							<label htmlFor="appointments-checkbox" className="typeLabel">
-								Appointments
-							</label>
-							<button className="editButton" onClick={handleCategoryEditClick}>
-								<PencilSvg />
-							</button>
-						</div>
-						<div className="statusWrapper" data-type="appointments">
-							<div className="statusCount">
-								<span className="activeCount">4</span>/
-								<span className="totalCount">15</span>
-							</div>
+							</div> */}
 
 							<span className="statusIndicator"></span>
 						</div>

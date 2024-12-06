@@ -33,13 +33,18 @@ const MeetingDetails = () => {
 
 	const formatTimeRemaining = useCallback(
 		(eventstartDateTime) => {
-			if (!eventstartDateTime) return '00:00';
+			if (!eventstartDateTime) return '0 hr 0 min';
 
 			const diff = moment.duration(moment(eventstartDateTime).diff(currentTime));
 			const hours = Math.floor(diff.asHours());
 			const minutes = diff.minutes();
 
-			return `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
+			const hoursText = hours > 0 ? `${hours} hr` : '';
+			const minutesText = minutes > 0 ? `${minutes} min` : '';
+
+			const result = [hoursText, minutesText].filter(Boolean).join(' ');
+
+			return result || '0 hr 0 min';
 		},
 		[currentTime],
 	);
@@ -64,12 +69,14 @@ const MeetingDetails = () => {
 		<div className="meetingCardParentContainer">
 			<div className="meetingCard">
 				<div className="timeDurationWrapper">
-					<div style={{ fontSize: '16px' }}>
+					<div style={{ fontSize: '15px' }}>
 						{eventDetails?.start} - {eventDetails?.end}
 					</div>
 					<div className="durationBadge">
 						<MeetClock />
-						<span style={{ fontSize: '12px' }}>{eventDetails?.timeRemaining} min</span>
+						<span style={{ fontSize: '10px', fontWeight: '600' }}>
+							{eventDetails?.timeRemaining}
+						</span>
 						<span className="indicatorDot"></span>
 					</div>
 				</div>
