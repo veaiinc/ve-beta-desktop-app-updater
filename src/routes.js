@@ -1,8 +1,8 @@
 import AuthWrapper from './views/layouts/authWrapper';
 import LoginPage from './views/features/login_page/LoginPage';
 import Onboarding from './views/features/onboarding/Onboarding';
-// import LoginScreen from './views/features/signin';
-import ChatScreen from './views/features/meta_Integ/index';
+import Calendar from './views/features/calendar/index';
+// import ChatScreen from './views/features/meta_Integ/index';
 import OauthVerify from './views/features/signin/oauth';
 import Workflow_builder from './views/features/workflow_builder';
 import Sales from './views/features/sales/Sales';
@@ -221,6 +221,15 @@ const routes = [
 	{
 		path: '/subscription',
 		component: <Subscription />,
+		exact: true,
+	},
+	{
+		path: '/calendar',
+		component: (
+			<AuthWrapper title={'Calendar'} maxWidth={'1700px'}>
+				<Calendar />
+			</AuthWrapper>
+		),
 		exact: true,
 	},
 ];
