@@ -3,6 +3,8 @@ import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import '../../../../assets/scss/sales/globalWorkflowModal.scss';
 import { ReactComponent as EditSvg } from '../../../../assets/svg/worflow_builder/edit.svg';
 import { Drawer } from 'antd';
+import { fetchOriginSelection } from '../../../../helpers';
+let origin = fetchOriginSelection();
 const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData, previewType }) => {
 	const [info, setInfo] = useState({
 		templatesMapper: null,
@@ -49,7 +51,7 @@ const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData, p
 								</span>
 
 								<a
-									href={`https://builder.ve.ai/${incomingTemplateData?._id}`}
+									href={`${origin}/${incomingTemplateData?._id}`}
 									className="svgContainer"
 								>
 									<EditSvg /> Customise
@@ -71,11 +73,7 @@ const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData, p
 									<span>{e?.module}</span>
 									<div className="imageContainer">
 										<iframe
-											src={
-												window.location.hostname === 'localhost'
-													? `http://localhost:3000/preview/${incomingTemplateData?._id}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`
-													: `https://builder.ve.ai/preview/${incomingTemplateData?._id}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`
-											}
+											src={`${origin}/preview/${incomingTemplateData?._id}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`}
 											title="Builder Preview"
 											width="100%"
 											height="100%"

@@ -2,6 +2,8 @@ import React, { memo, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/globalWorkflowCard.scss';
 import { ReactComponent as Circled } from '../../../assets/svg/workflow/circled.svg';
 import { ReactComponent as RightArrow } from '../../../assets/svg/workflow/rightArrow.svg';
+import { fetchOriginSelection } from '../../../helpers';
+let origin = fetchOriginSelection();
 
 const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 	const [info, setInfo] = useState({
@@ -77,11 +79,7 @@ const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 
 			<div className="imageContainer">
 				<iframe
-					src={
-						window.location.hostname === 'localhost'
-							? `http://localhost:3000/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`
-							: `https://builder.ve.ai/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`
-					}
+					src={`${origin}/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
 					title="Builder Preview"
 					width="100%"
 					height="100%"
