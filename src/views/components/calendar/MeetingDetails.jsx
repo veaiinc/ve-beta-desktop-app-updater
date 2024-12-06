@@ -4,78 +4,38 @@ import { ReactComponent as MeetClock } from '../../../assets/svg/calendar/meetCl
 import { ReactComponent as Ellipse } from '../../../assets/svg/calendar/ellipseCircle.svg';
 import Meetwomen from '../../../assets/svg/calendar/meetwomen.png';
 import Context from '../../../context/context';
+import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
 
 const MeetingDetails = () => {
 	const {
-		calendarInfo: { calendarEventsList },
+		calendarInfo: { calendarEventsList = [] },
 	} = useContext(Context);
 	const [currentTime, setCurrentTime] = useState(moment());
 
-	// Memoized events list to prevent unnecessary re-renders
-	const events = useMemo(
-		() => [
-			{
-				id: '674d4aa49cc2a257c55d6ae6',
-				start: '2024-12-20T09:00:00.000Z',
-				end: '2024-12-20T11:30:00.000Z',
-				title: 'Hybrid Annual General Meeting',
-				description: 'Company-wide AGM with both physical and virtual attendance',
-			},
-			{
-				id: '674d4b399cc2a257c55d6ae9',
-				start: '2024-12-05T14:00:00.000Z',
-				end: '2024-12-05T16:00:00.000Z',
-				title: 'Social Media Strategies Workshop',
-				description:
-					'An interactive workshop on the latest trends in social media marketing.',
-			},
-			{
-				id: '674d4aa49cc2a257c55d6ae6',
-				start: '2024-12-20T17:00:00.000Z',
-				end: '2024-12-20T17:30:00.000Z',
-				title: 'Team Status Meeting',
-				description: 'Weekly team status update',
-			},
-			{
-				id: '674d4aa49cc2a257c55d6ae6',
-				start: '2024-12-20T18:00:00.000Z',
-				end: '2024-12-20T18:30:00.000Z',
-				title: 'Strategy Review',
-				description: 'Monthly strategy discussion',
-			},
-		],
-		[],
-	);
-
-	// Memoized function to find the upcoming event
-	const findUpcomingEvent = useCallback(() => {
-		// Sort events and find the next upcoming event
-		return [...events]
-			.sort((a, b) => moment(a.start).diff(moment(b.start)))
-			.find((event) => moment(event.start).isAfter(currentTime));
-	}, [events, currentTime]);
-
-	// Memoized upcoming event to reduce unnecessary re-renders
-	const upcomingEvent = useMemo(() => findUpcomingEvent(), [findUpcomingEvent]);
-
-	// Optimize time update with useEffect
 	useEffect(() => {
-		// Create a single interval to update time
 		const timer = setInterval(() => {
 			setCurrentTime(moment());
-		}, 60000); // Every minute
+		}, 60000);
 
-		// Clean up the interval
 		return () => clearInterval(timer);
-	}, []); // Empty dependency array ensures this runs only once
+	}, []);
 
-	// Format time remaining with memoization
+	const findUpcomingEvent = useCallback(() => {
+		if (!calendarEventsList || calendarEventsList.length === 0) return null;
+
+		return [...calendarEventsList]
+			?.sort((a, b) => moment(a?.startDateTime).diff(moment(b?.startDateTime)))
+			?.find((event) => moment(event?.startDateTime).isAfter(currentTime));
+	}, [calendarEventsList, currentTime]);
+
+	const upcomingEvent = useMemo(() => findUpcomingEvent(), [findUpcomingEvent]);
+
 	const formatTimeRemaining = useCallback(
-		(eventStart) => {
-			if (!eventStart) return '00:00';
+		(eventstartDateTime) => {
+			if (!eventstartDateTime) return '00:00';
 
-			const diff = moment.duration(moment(eventStart).diff(currentTime));
+			const diff = moment.duration(moment(eventstartDateTime).diff(currentTime));
 			const hours = Math.floor(diff.asHours());
 			const minutes = diff.minutes();
 
@@ -83,45 +43,40 @@ const MeetingDetails = () => {
 		},
 		[currentTime],
 	);
-	// Memoized event details to prevent unnecessary re-renders
+
 	const eventDetails = useMemo(
 		() => ({
-			start: moment(upcomingEvent.start).local(),
-			end: moment(upcomingEvent.end).local(),
-			timeRemaining: formatTimeRemaining(upcomingEvent.start),
+			start: moment(upcomingEvent?.startDateTime).local().format('hh:mm A'),
+			end: moment(upcomingEvent?.endDateTime).local().format('hh:mm A'),
+			timeRemaining: formatTimeRemaining(upcomingEvent?.startDateTime),
+			title: upcomingEvent?.title,
 		}),
 		[upcomingEvent, formatTimeRemaining],
 	);
 
-	// Render when no upcoming events
-	if (!upcomingEvent) {
-		return (
-			<div className="p-4 bg-gray-100 rounded-lg">
-				<p className="text-gray-500">No upcoming events</p>
-				<div className="mt-4 text-sm text-gray-500">
-					Current Time: {currentTime.format('MMMM D, YYYY h:mm A')}
-				</div>
-			</div>
-		);
-	}
-
-	return (
+	return !calendarEventsList ? (
+		calendarEventsList?.length === 0 ? (
+			<div className="meetingCardParentContainer">No upcoming events found.</div>
+		) : (
+			<Skeleton width={'320px'} height={'203px'} style={{ borderRadius: '16px' }} />
+		)
+	) : (
 		<div className="meetingCardParentContainer">
 			<div className="meetingCard">
 				<div className="timeDurationWrapper">
-					<div style={{ fontSize: '16px' }}>12:00PM - 1:30PM</div>
+					<div style={{ fontSize: '16px' }}>
+						{eventDetails?.start} - {eventDetails?.end}
+					</div>
 					<div className="durationBadge">
 						<MeetClock />
-						<span style={{ fontSize: '12px' }}>14 min</span>
-						{/* <span className="indicatorDot"></span> */}
+						<span style={{ fontSize: '12px' }}>{eventDetails?.timeRemaining} min</span>
+						<span className="indicatorDot"></span>
 					</div>
 				</div>
 
 				<div className="meetingDetailsWrapper">
-					<div style={{ color: 'rgba(228, 229, 230, 0.48)', fontSize: '12px' }}>
-						Meeting with
-					</div>
-					<div style={{ color: '#E4E5E6', fontSize: '18px' }}>Mr. Avinash</div>
+					<div>Upcoming event ...</div>
+					<div className="meetingTitle">{eventDetails?.title}</div>
 				</div>
 			</div>
 
