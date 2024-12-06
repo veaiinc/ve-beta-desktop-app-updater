@@ -38,3 +38,33 @@ export const getListItemsQuery = gql`
 		}
 	}
 `;
+
+export const addListItemMutation = gql`
+	mutation CreateTask($input: TaskInput!) {
+		createTask(input: $input) {
+			_id
+			title
+			description
+			status
+			priority
+			workflowTemplateId
+			workflowId
+			client
+			assignedTo {
+				_id
+				name
+			}
+			dueDate
+			assignedBy {
+				_id
+				name
+			}
+			assignedAt
+			completedAt
+			createdAt
+			updatedAt
+			createdBy
+			updatedBy
+		}
+	}
+`;
