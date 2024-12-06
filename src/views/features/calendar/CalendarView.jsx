@@ -29,8 +29,9 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 		calendarInfo: {
 			calendarEventsList,
 			getCalendarEventsList,
-			calendarEvent, //state
+			calendarEvent,
 			resetCalendarState,
+			sendEventToAi,
 		},
 		// profileInfo: { userWorkSpaceList, userDetailsData },
 		companyInfo: { tenantsUserList, getTeamMembers },
@@ -48,6 +49,7 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 
 	useEffect(() => {
 		fetchEventsList();
+		handleSendEventToAi();
 	}, [calendarEvent]);
 
 	useEffect(() => {
@@ -88,6 +90,15 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 		setInfo((prevInfo) => ({ ...prevInfo, isLoading: true, eventListError: null }));
 		await getCalendarEventsList();
 	}, []);
+
+	const handleSendEventToAi = useCallback(async () => {
+		if (calendarEvent) {
+			console.log('calling handleSendEventToAi');
+			await sendEventToAi({
+				event_id: calendarEvent?._id,
+			});
+		}
+	}, [calendarEvent]);
 
 	const components = useMemo(
 		() => ({
