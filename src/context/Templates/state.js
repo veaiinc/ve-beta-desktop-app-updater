@@ -999,6 +999,29 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	//leaveWorkspace
+	const leaveWorkspace = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchDelete(
+				`/tenant/${workspaceId}/tenant-users/leave-workspace`,
+				usertoken,
+				null,
+				'auth',
+			);
+			if (response?.[0] === 200 || response?.[0] === true) {
+				return [true];
+			} else {
+				console.log('api failed==>leaveWorkspace', response);
+				message.error(response?.[1]?.message || 'Unable to perform this operation');
+				return [false, response?.[1]?.message];
+			}
+		} catch (error) {
+			console.log('errror ==>getAiPredictionForSmartFile', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -1042,5 +1065,6 @@ export const TemplatesState = (props) => {
 		deleteEventsPreset,
 		getLatestSendSmartFileSettings,
 		getAiPredictionForSmartFile,
+		leaveWorkspace,
 	};
 };
