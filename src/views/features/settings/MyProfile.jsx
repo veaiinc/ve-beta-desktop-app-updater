@@ -298,9 +298,9 @@ const MyProfile = () => {
 				</div> */}
 
 				{/* Temporary Hide */}
-				{/* <div className={'accessSettingsContainer'} id="leaveworkspace">
+				<div className={'accessSettingsContainer'} id="leaveworkspace">
 					<LeaveWorkspaceComponent />
-				</div> */}
+				</div>
 			</div>
 		</div>
 	);
