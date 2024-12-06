@@ -58,13 +58,34 @@ const MeetingDetails = () => {
 		}),
 		[upcomingEvent, formatTimeRemaining],
 	);
+	console.log('Event Details:', JSON.stringify(eventDetails, null, 2));
+	console.log('Calendar Events List:', JSON.stringify(calendarEventsList, null, 2));
 
-	return !calendarEventsList ? (
-		calendarEventsList?.length === 0 ? (
-			<div className="meetingCardParentContainer">No upcoming events found.</div>
-		) : (
-			<Skeleton width={'320px'} height={'203px'} style={{ borderRadius: '16px' }} />
-		)
+	return !calendarEventsList || calendarEventsList?.length === 0 ? (
+		<div className="meetingCardParentContainer">
+			<div className="meetingCard">
+				<div className="timeDurationWrapper">
+					<div style={{ fontSize: '15px', width: '170px' }}>
+						No Upcoming Meetings are scheduled!
+					</div>
+					<div className="durationBadge">
+						<MeetClock />
+						<span style={{ fontSize: '10px', fontWeight: '600' }}>
+							{eventDetails?.timeRemaining}
+						</span>
+						<span className="indicatorDot"></span>
+					</div>
+				</div>
+				<div className="meetingDetailsWrapper">
+					<div>Latest Meeting will be shown here</div>
+				</div>
+			</div>
+
+			<div class="personImage">
+				<img src={Meetwomen} alt="Person working at laptop" />
+			</div>
+			<Ellipse className="ellipse" />
+		</div>
 	) : (
 		<div className="meetingCardParentContainer">
 			<div className="meetingCard">
