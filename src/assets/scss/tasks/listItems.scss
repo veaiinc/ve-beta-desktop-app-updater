@@ -1,5 +1,6 @@
 .listItem-border {
 	border-radius: 6px;
+	box-sizing: border-box;
 	border: 1px solid #1d1d1d;
 	background-color: #111;
 	display: flex;
@@ -27,6 +28,7 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
+	padding: 12px 0;
 }
 
 .listItem-id {
@@ -36,10 +38,12 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
+	padding: 12px 0;
 }
 .listItem-select {
 	position: relative;
 	cursor: pointer;
+	padding: 12px 0;
 	.selectContainer {
 		cursor: pointer;
 		display: flex;
@@ -54,6 +58,7 @@
 	display: flex;
 	gap: 5px;
 	align-items: center;
+	padding: 12px 0;
 	.avatar {
 		width: 20px;
 		height: 20px;
@@ -72,9 +77,11 @@
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
+		padding: 12px 0;
 	}
 }
 .listItem-multiSelect {
+	padding: 12px 0;
 	.multiSelectContainer {
 		display: flex;
 		gap: 5px;
@@ -106,6 +113,7 @@
 	}
 }
 .listItem-date {
+	padding: 12px 0;
 	display: flex;
 	padding: 0 12px;
 	justify-content: center;
@@ -141,6 +149,7 @@
 .listItem-phone,
 .listItem-url,
 .listItem-email {
+	padding: 12px 0;
 	color: #e4e5e6;
 	font-family: Inter;
 	font-size: 13px;
@@ -150,6 +159,7 @@
 	text-decoration: underline;
 }
 .listItem-checkBox {
+	padding: 12px 0;
 	width: 28px;
 	height: 28px;
 	border-radius: 6px;

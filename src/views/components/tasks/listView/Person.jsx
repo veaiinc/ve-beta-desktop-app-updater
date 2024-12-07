@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 
-const Person = ({ profile, name, showName = true, title }) => {
+const Person = ({ profile, name, showName = false, title }) => {
 	return (
 		<div className="listItem-person" title={title}>
 			<div className="avatar">

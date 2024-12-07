@@ -105,7 +105,7 @@ const OptionsDropDown = ({ properties, togglePropertyVisibility, open }) => {
 									className={`property-item text-fade ${
 										property.show ? `selected` : ``
 									}`}
-									onClick={() => togglePropertyVisibility(index)}
+									onClick={() => togglePropertyVisibility(index, !property.show)}
 									key={index}
 								>
 									{property.propName}
