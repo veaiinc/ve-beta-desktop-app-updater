@@ -37,7 +37,6 @@
 			border-radius: 0px !important;
 			height: 100dvh !important;
 			width: 250px !important;
-			padding: 32px 32px 32px 20px;
 		}
 
 		.closedSideBarComponent {
@@ -216,9 +215,9 @@
 			justify-content: space-between;
 			height: 100vh;
 			width: 250px;
-			// padding: 32px 32px 32px 20px;
 			border-radius: inherit;
 			transition: height 0.8s ease;
+			padding-bottom: 28px;
 			.allmodulesList,
 			.bottomOptionsList {
 				.creditsLeft {
@@ -227,10 +226,13 @@
 					display: flex;
 					justify-content: space-between;
 					align-items: center;
-				}
-				.creditsLeft:hover {
 					background: #2e2f33;
 					border-radius: 12px;
+					margin-top: 10px;
+					&:hover {
+						background: #2e2f33;
+						opacity: 0.5;
+					}
 				}
 				.singleModuleItem {
 					width: 218px;
@@ -291,6 +293,10 @@
 								);
 								border-radius: var(--Radius-lg, 24px);
 							}
+							&:active {
+								background: #2e2f33;
+								border-radius: 12px;
+							}
 						}
 					}
 
@@ -308,9 +314,9 @@
 
 				.activeListModule,
 				.activeListModule:hover {
-					// background: #6055ec;
+					border-radius: 100px;
+					background: #2e2f33;
 					cursor: pointer;
-					border-radius: 8px;
 					p {
 						color: #e4e5e6;
 					}
@@ -333,7 +339,7 @@
 				}
 				.subModule:hover {
 					background: #2e2f33;
-					border-radius: 12px;
+					border-radius: 100px;
 				}
 			}
 
@@ -403,6 +409,90 @@
 			}
 
 			.bottomOptionsList {
+				.planExpiresDiv {
+					display: flex;
+					width: 218px;
+					padding: 16px;
+					align-items: center;
+					gap: 136px;
+					border-radius: 12px;
+					background: #2e2f33;
+					.planExpiresTitle {
+						background: var(
+							--AI-Color-Code,
+							linear-gradient(
+								94deg,
+								rgba(195, 157, 248, 0) -2.07%,
+								#c39df8 -2.06%,
+								#ec7c9d 95.85%
+							)
+						);
+						background-clip: text;
+						-webkit-background-clip: text;
+						-webkit-text-fill-color: transparent;
+						font-size: 14px;
+						font-weight: 500;
+						line-height: normal;
+					}
+					&:hover {
+						background: #2e2f33;
+						opacity: 0.5;
+					}
+				}
+				.planExpiredDiv {
+					display: flex;
+					width: 218px;
+					height: 150px;
+					padding: 20px;
+					flex-direction: column;
+					justify-content: space-between;
+					align-items: flex-start;
+					flex-shrink: 0;
+					border-radius: 12px;
+					background: #2e2f33;
+					.planExpiredTitle {
+						font-family: Inter;
+						font-size: 20px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 22px;
+						background: var(
+							--AI-Color-Code,
+							linear-gradient(
+								94deg,
+								rgba(195, 157, 248, 0) -2.07%,
+								#c39df8 -2.06%,
+								#ec7c9d 95.85%
+							)
+						);
+						background-clip: text;
+						-webkit-background-clip: text;
+						-webkit-text-fill-color: transparent;
+					}
+					.renewNowDiv {
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+						background: var(
+							--AI-Color-Code,
+							linear-gradient(
+								94deg,
+								rgba(195, 157, 248, 0) -2.07%,
+								#c39df8 -2.06%,
+								#ec7c9d 95.85%
+							)
+						);
+						background-clip: text;
+						-webkit-background-clip: text;
+						-webkit-text-fill-color: transparent;
+					}
+					&:hover {
+						background: #2e2f33;
+						opacity: 0.5;
+					}
+				}
 				.logoutItem,
 				.logoutItem:hover {
 					p {
@@ -521,11 +611,6 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
-						// letter-spacing: -0.22px;
-						// overflow: hidden;
-						// text-overflow: ellipsis;
-						// white-space: wrap;
-						// max-width: 86px;
 					}
 					&:hover {
 						border-radius: var(--Radius-lg, 24px);
@@ -618,13 +703,16 @@
 				border: 1px solid rgba(255, 255, 255, 0.1) !important;
 				background: #1d1d1d !important;
 			}
+			.chatDetailPanel {
+				margin-left: 0px !important;
+			}
 		}
 	}
 }
 @media screen and (min-width: 1024px) and (max-width: 1599px) {
 	.FullScreenSidebar {
 		&.no-submodules:not(.opened) {
-			height: 40dvh;
+			height: 35dvh !important;
 		}
 	}
 }
@@ -632,7 +720,7 @@
 @media screen and (min-width: 1600px) and (max-width: 2280px) {
 	.FullScreenSidebar {
 		&.no-submodules:not(.opened) {
-			height: 30dvh;
+			height: 30dvh !important;
 		}
 	}
 }
