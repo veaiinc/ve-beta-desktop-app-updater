@@ -22,6 +22,8 @@ const {
 	ai_predictions,
 	calendar_api,
 	calendar_api_US,
+	third_party_integrations_api,
+	third_party_integrations_api_US,
 } = config || {};
 
 const apiEndpoints = {
@@ -35,6 +37,7 @@ const apiEndpoints = {
 	ai_predictions,
 	calendar_chat: ai_predictions,
 	calendar_api,
+	third_party_integrations_api,
 };
 const apiEndpointsUS = {
 	tenant_users_api: tenant_users_api_US,
@@ -47,6 +50,7 @@ const apiEndpointsUS = {
 	ai_predictions: ai_predictions_US,
 	calendar_chat: ai_predictions_US,
 	calendar_api: calendar_api_US,
+	third_party_integrations_api: third_party_integrations_api_US,
 };
 
 const handleHeaders = (token, body, type) => {
