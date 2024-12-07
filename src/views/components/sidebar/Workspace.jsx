@@ -81,6 +81,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 							handleSwitchWorkSpaceLogic(singleWorkspace);
 						}}
 					>
+						<h6>{singleWorkspace?.businessName}</h6>
 						<div className="workSpaceCircle">
 							{singleWorkspace?.logo_s3_500w_key ? (
 								<img
@@ -93,7 +94,6 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 								</div>
 							)}
 						</div>
-						<h6>{singleWorkspace?.businessName}</h6>
 
 						{singleWorkspace?.activeWorkspaceId ===
 							info?.activeBusniessName?.activeWorkspaceId && (

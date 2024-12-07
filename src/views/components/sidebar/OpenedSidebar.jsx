@@ -1,15 +1,57 @@
 import React, { useState, memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { veAiModulesItemsList, bottomOptionsList, veAiSubModulesItemsList } from './sidebarindex';
-import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as RefreshSvg } from '../../../assets/svg/sidebar/Refresh.svg';
-import { ReactComponent as VeAiSvg } from '../../../assets/svg/sidebar/VeAi.svg';
-import { ReactComponent as DoubleBackArrowSvg } from '../../../assets/svg/sidebar/DoubleBackArrow.svg';
+import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
+
+const CommonBottomSection = ({ handleLogout, openWorkspacesFunction }) => (
+	<>
+		<div
+			className="currentWorkspaceDiv"
+			onClick={openWorkspacesFunction}
+			style={{ cursor: 'pointer', width: '218px' }}
+		>
+			<div
+				className="detailsDiv"
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'space-between',
+					width: '218px',
+					padding: '12px 16px',
+					cursor: 'pointer',
+				}}
+			>
+				<div style={{ fontSize: '14px', fontWeight: '500', color: 'white' }}>
+					Switch Workspace
+				</div>
+				<div>
+					<RefreshSvg />
+				</div>
+			</div>
+		</div>
+		<div
+			className={'singleModuleItem logoutItem'}
+			onClick={handleLogout}
+			style={{
+				cursor: 'pointer',
+				display: 'flex',
+				flexDirection: 'row',
+				width: '218px',
+				justifyContent: 'space-between',
+				padding: '12px 16px',
+			}}
+		>
+			<p style={{ fontSize: '14px', fontWeight: '500', color: 'red' }}>Logout</p>
+			<LogoutRedSvg />
+		</div>
+	</>
+);
 
 const OpenedSideBarHoverStateIcons = ({
 	name,
@@ -43,7 +85,13 @@ const OpenedSideBarHoverStateIcons = ({
 	};
 
 	return (
-		<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+		<div
+			style={{
+				display: 'flex',
+				justifyContent: 'space-between',
+				alignItems: 'flex-start',
+			}}
+		>
 			<div
 				className={`singleModuleItem ${isActive ? 'activeListModule' : ''} ${
 					isDropdownVisible ? 'calendar-active' : ''
@@ -51,36 +99,27 @@ const OpenedSideBarHoverStateIcons = ({
 				onMouseEnter={onMoutseEnter}
 				onMouseLeave={onMoutseLeave}
 				onClick={redirectToFunction}
+				style={{
+					marginBottom:
+						isDropdownVisible && subModules?.length
+							? `${subModules.length * 40}px`
+							: '0',
+				}}
 			>
-				<Icon fill={'none'} />
 				<p>{name}</p>
-
-				{(isSelected || isActive) && (
-					<TickSvg
-						className="tick-icon"
-						style={{
-							width: '16px',
-							height: '16px',
-							position: 'absolute',
-							right: '10px',
-							top: '50%',
-							transform: 'translateY(-50%)',
-						}}
-					/>
-				)}
 				{isDropdownVisible && subModules?.length > 0 && (
 					<div className={`dropdownMenu ${isDropdownVisible ? 'visible' : ''}`}>
 						{subModules?.map((subItem, index) => (
 							<div key={subItem?.name} className="subItem">
-								{subItem.icon && <subItem.icon fill={'#FFF'} />}
 								<p>{subItem.name}</p>
+								{subItem.icon && <subItem.icon fill={'#FFF'} />}
 							</div>
 						))}
 					</div>
 				)}
 			</div>
 			{subModules?.length > 0 && (
-				<div onClick={toggleDropdown} style={{ marginTop: '14px' }}>
+				<div onClick={toggleDropdown} style={{ marginTop: '10px' }}>
 					<DownArrowSmallSvg
 						className={`downArrow ${isDropdownVisible ? 'rotate' : ''}`}
 						style={{ height: '16px', width: '16px' }}
@@ -136,6 +175,7 @@ const OpenedSideBarItemsComponent = ({
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
 	const [selectedOption, setSelectedOption] = useState(null);
+	const [aiChatsDropdownVisible, setAiChatsDropdownVisible] = useState(false);
 
 	const handleLogout = useCallback(async () => {
 		logoutFunc();
@@ -159,24 +199,36 @@ const OpenedSideBarItemsComponent = ({
 	};
 
 	return sidebarStates?.workSpaceOpen ? (
-		<WorkspaceListComponent
-			setsidebarStates={setsidebarStates}
-			sidebarStates={sidebarStates}
-			info={info}
-			userWorkSpaceList={userWorkSpaceList}
-		/>
+		<>
+			<WorkspaceListComponent
+				setsidebarStates={setsidebarStates}
+				sidebarStates={sidebarStates}
+				info={info}
+				userWorkSpaceList={userWorkSpaceList}
+			/>
+			<CommonBottomSection
+				handleLogout={handleLogout}
+				openWorkspacesFunction={openWorkspacesFunction}
+			/>
+		</>
 	) : (
 		<div className="openSideBarComponent">
 			<div className="topOptionsList">
 				<div className="veAiLogoDiv">
-					<VeAiSvg />
-					<DoubleBackArrowSvg
+					<div className="workspaceDetailsDiv">
+						<img
+							src={info?.activeBusniessName?.logo_s3_500w_key}
+							alt={info?.activeBusniessName?.activeWorkspaceId}
+						/>
+						<h6>{info?.activeBusniessName?.businessName}</h6>
+					</div>
+					<SidebarClosingSvg
 						className="collapseArrow"
 						onClick={handleSidebarCollapse}
 						style={{ cursor: 'pointer' }}
 					/>
 				</div>
-				<div className="allmodulesList">
+				<div className="allmodulesList" style={{ marginLeft: '16px' }}>
 					{veAiModulesItemsList?.map((singleItems, index) => (
 						<div>
 							<OpenedSideBarHoverStateIcons
@@ -187,7 +239,7 @@ const OpenedSideBarItemsComponent = ({
 								navigateTo={(route) => {
 									handleNavigateFunction(route, singleItems);
 								}}
-								key={singleItems?.name}
+								key={index}
 								isSelected={selectedOption === singleItems?.name}
 								isActive={info?.activeRoute === singleItems?.moduleRoute}
 								subModules={singleItems?.subModules}
@@ -202,9 +254,132 @@ const OpenedSideBarItemsComponent = ({
 					))}
 				</div>
 				<hr style={{ border: '0.7px solid #333334' }} />
+				<div
+					className="AichatDiv"
+					onClick={() => setAiChatsDropdownVisible(!aiChatsDropdownVisible)}
+				>
+					<div style={{ fontSize: '14px', fontWeight: '500', color: '#E8E8E8' }}>
+						Recent Ai chats
+					</div>
+					<DownArrowSmallSvg
+						className={`downArrow ${aiChatsDropdownVisible ? 'rotate' : ''}`}
+						style={{ height: '16px', width: '16px' }}
+					/>
+				</div>
+				{aiChatsDropdownVisible && (
+					<div className="aiChatsSubmodules">
+						<div
+							className="subModule"
+							style={{
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+								padding: '12px 16px',
+								cursor: 'pointer',
+							}}
+						>
+							<p
+								style={{
+									fontSize: '14px',
+									fontWeight: '500',
+									color: '#E8E8E8',
+								}}
+							>
+								Chat 1
+							</p>
+						</div>
+						<div
+							className="subModule"
+							style={{
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+								padding: '12px 16px',
+								cursor: 'pointer',
+							}}
+						>
+							<p
+								style={{
+									fontSize: '14px',
+									fontWeight: '500',
+									color: '#E8E8E8',
+								}}
+							>
+								Chat 2
+							</p>
+						</div>
+						<div
+							className="subModule"
+							style={{
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+								padding: '12px 16px',
+								cursor: 'pointer',
+							}}
+						>
+							<p
+								style={{
+									fontSize: '14px',
+									fontWeight: '500',
+									color: '#E8E8E8',
+								}}
+							>
+								Chat 3
+							</p>
+						</div>
+					</div>
+				)}
 			</div>
 
 			<div className="bottomOptionsList">
+				{/* <div></div> */}
+				<div className="creditsLeft">
+					<div>
+						<div style={{ fontSize: '14px', fontWeight: '500', color: '#E8E8E8' }}>
+							100
+						</div>
+						<div style={{ fontSize: '14px', fontWeight: '500', color: '#E8E8E8' }}>
+							Credit Left
+						</div>
+					</div>
+					<div className="creditSvg">
+						<svg width="30" height="30" viewBox="0 0 30 30">
+							<defs>
+								<linearGradient
+									id="paint0_linear_14532_74799"
+									x1="-0.661765"
+									y1="2.69729e-07"
+									x2="30.4666"
+									y2="1.98941"
+									gradientUnits="userSpaceOnUse"
+								>
+									<stop offset="0.000100017" stop-color="#C39DF8" />
+									<stop offset="1" stop-color="#EC7C9D" />
+								</linearGradient>
+							</defs>
+							<circle
+								cx="15"
+								cy="15"
+								r="12.5"
+								fill="none"
+								stroke="#333334"
+								strokeWidth="5"
+							/>
+							{/* Progress circle */}
+							<circle
+								cx="15"
+								cy="15"
+								r="12.5"
+								fill="none"
+								stroke="url(#paint0_linear_14532_74799)"
+								strokeWidth="5"
+								strokeDasharray={`${(100 / 100) * 78.54} 78.54`}
+								transform="rotate(-90 15 15)"
+							/>
+						</svg>
+					</div>
+				</div>
 				{bottomOptionsList?.map((singleItems, index) => (
 					<OpenedSideBarHoverStateIcons2
 						name={singleItems?.name}
@@ -214,28 +389,13 @@ const OpenedSideBarItemsComponent = ({
 						navigateTo={handleNavigateFunction}
 						key={singleItems?.name}
 						isActive={info?.activeRoute === singleItems?.moduleRoute}
-						style={{ fontSize: '14px' }}
+						style={{ fontSize: '14px', padding: '12px 16px' }}
 					/>
 				))}
-
-				<div className={'singleModuleItem logoutItem'} onClick={handleLogout}>
-					<p>Logout</p>
-					<LogoutRedSvg />
-				</div>
-				<div className="currentWorkspaceDiv" onClick={openWorkspacesFunction}>
-					<div className="detailsDiv">
-						<div className="workspaceDetailsDiv">
-							<img
-								src={info?.activeBusniessName?.logo_s3_500w_key}
-								alt={info?.activeBusniessName?.activeWorkspaceId}
-							/>
-							<h6>{info?.activeBusniessName?.businessName}</h6>
-						</div>
-						<div>
-							<RefreshSvg />
-						</div>
-					</div>
-				</div>
+				<CommonBottomSection
+					handleLogout={handleLogout}
+					openWorkspacesFunction={openWorkspacesFunction}
+				/>
 			</div>
 		</div>
 	);
