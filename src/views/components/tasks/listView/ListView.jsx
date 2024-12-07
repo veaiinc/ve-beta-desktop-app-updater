@@ -89,23 +89,26 @@ const ListView = () => {
 		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
 	}, []);
 
-	const mapPropertyType = (row) => {
-		let properties = [];
-		for (let key in row) {
-			if (key === '__typename' || key === '_id') {
-				continue;
+	const mapPropertyType = useCallback(
+		(row) => {
+			let properties = [];
+			for (let key in row) {
+				if (key === '__typename' || key === '_id') {
+					continue;
+				}
+
+				properties.push({
+					propName: key,
+					type: responseTypes[key],
+					show: true,
+				});
 			}
+			return properties;
+		},
+		[listTasks],
+	);
 
-			properties.push({
-				propName: key,
-				type: responseTypes[key],
-				show: true,
-			});
-		}
-		return properties;
-	};
-
-	const togglePropertyVisibility = (index, value) => {
+	const togglePropertyVisibility = useCallback((index, value) => {
 		setInfo((prevInfo) => {
 			const newProperties = [...prevInfo?.properties];
 			newProperties[index] = { ...newProperties[index], show: value };
@@ -114,73 +117,7 @@ const ListView = () => {
 				properties: newProperties,
 			};
 		});
-	};
-
-	// const generateRow = useCallback(
-	// 	(row) => {
-	// 		const leftPart = [];
-	// 		const rightPart = [];
-	// 		let titleReached = false;
-	// 		const rowItems = [];
-	// 		for (let key in row) {
-	// 			const value = row[key];
-	// 			if (!value || key == '__typename' || key == '_id') {
-	// 				continue;
-	// 			}
-	// 			const property = info?.properties?.find((item) => item.propName == key);
-	// 			if (property && !property?.show) {
-	// 				continue;
-	// 			}
-	// 			const componetType = responseTypes[key];
-	// 			const RowComponent = rowTypes[componetType] || null;
-	// 			if (titleReached) {
-	// 				rightPart.push(
-	// 					RowComponent ? (
-	// 						<RowComponent
-	// 							key={key}
-	// 							value={value}
-	// 							title={key}
-	// 							isTitle={key === 'title'}
-	// 						/>
-	// 					) : (
-	// 						<div key={key}>{value}</div>
-	// 					),
-	// 				);
-	// 			} else {
-	// 				rightPart.push(
-	// 					RowComponent ? (
-	// 						<RowComponent
-	// 							key={key}
-	// 							value={value}
-	// 							title={key}
-	// 							isTitle={key === 'title'}
-	// 						/>
-	// 					) : (
-	// 						<div key={key}>{value}</div>
-	// 					),
-	// 				);
-	// 			}
-	// 			if (key === 'title') {
-	// 				titleReached = true;
-	// 			}
-	// 			// rowItems.push(
-	// 			// 	RowComponent ? (
-	// 			// 		<RowComponent
-	// 			// 			key={key}
-	// 			// 			value={value}
-	// 			// 			title={key}
-	// 			// 			isTitle={key === 'title'}
-	// 			// 		/>
-	// 			// 	) : (
-	// 			// 		<div key={key}>{value}</div>
-	// 			// 	),
-	// 			// );
-	// 		}
-
-	// 		return [<div>{leftPart}</div>, <div>{rightPart}</div>];
-	// 	},
-	// 	[info?.listItems, info?.properties],
-	// );
+	}, []);
 
 	const generateRow = useCallback(
 		(row) => {
