@@ -48,7 +48,7 @@ const DropDown = ({
 								>
 									<div className="list-details">
 										{option?.icon ? option.icon : ''}
-										{option?.[valueSelector] ? (
+										{option?.[valueSelector] !== undefined ? (
 											<span className="listItem-label">
 												{option?.label
 													? option?.label

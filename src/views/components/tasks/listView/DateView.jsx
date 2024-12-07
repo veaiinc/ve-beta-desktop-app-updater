@@ -6,7 +6,7 @@ const Date = ({ value, format = 'MMM DD', timestamp = false, title = '' }) => {
 	return (
 		<div className={`listItem-date ${!timestamp ? 'listItem-dateBorder' : ''}`} title={title}>
 			{!timestamp ? <DateIcon /> : ''}
-			{moment(value).format(format)}
+			{moment.unix(value).format(format)}
 		</div>
 	);
 };

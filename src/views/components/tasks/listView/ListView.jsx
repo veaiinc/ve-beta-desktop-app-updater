@@ -146,7 +146,7 @@ const ListView = () => {
 			for (let key in row) {
 				const value = row[key];
 
-				if (!value || key === '__typename' || key === '_id') {
+				if (!value || key === '__typename' || key === '_id' || !value) {
 					continue;
 				}
 

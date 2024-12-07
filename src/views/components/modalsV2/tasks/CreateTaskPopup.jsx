@@ -8,12 +8,16 @@ import { ReactComponent as ParellalLines } from '../../../../assets/svg/tasks/pa
 import { ReactComponent as CircleHollow } from '../../../../assets/svg/tasks/circleHollowThin.svg';
 import { ReactComponent as Cube } from '../../../../assets/svg/tasks/cube.svg';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
+import { ReactComponent as PageIcon } from '../../../../assets/svg/tasks/pagePlus.svg';
+import { ReactComponent as CalendarIcon } from '../../../../assets/svg/calendar-icon.svg';
+import { ReactComponent as LinkIcon } from '../../../../assets/svg/activity/link.svg';
 
 import Priority from '../../tasks/listView/Priority';
 import DropDown from '../../dropDown/tasks/DropDown';
 import Status from '../../tasks/listView/Status';
-import { Tooltip } from 'antd';
+import { DatePicker, Tooltip } from 'antd';
 import Spinner from '../../loaders/Spinner';
+import moment from 'moment';
 
 const customListItemStyle = {
 	borderRadius: '34px',
@@ -42,6 +46,14 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask }) => {
 	const [info, setInfo] = useState({
 		...initialState,
 		isLoading: false,
+		datePickerModalOpen: false,
+		dateOptions: [
+			{ label: 'Remove date', value: null },
+			{ label: 'Custom', value: 'custom' },
+			{ label: 'Tomorrow', value: moment().add(1, 'days').unix() },
+			{ label: 'End of the week', value: moment().isoWeekday(7).unix() }, // End of the week (Sunday)
+			{ label: 'In one week', value: moment().add(1, 'weeks').unix() },
+		],
 	});
 
 	useEffect(() => {
@@ -50,7 +62,14 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask }) => {
 		};
 	}, []);
 
+	useEffect(() => {
+		console.log(info?.title, 'Title');
+	}, []);
+
 	const updateModalInfo = (key, value) => {
+		if (key === 'title') {
+			value = value?.trim();
+		}
 		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
 	};
 
@@ -88,6 +107,14 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask }) => {
 			}, {});
 	}, [info]);
 
+	const onOptionClick = (value) => {
+		if (value === 'custom') {
+			return;
+		}
+
+		updateModalInfo('dueDate', value);
+	};
+
 	const handleAddTask = useCallback(async () => {
 		setInfo((prevInfo) => ({ ...prevInfo, isLoading: true }));
 		const payload = preparePayload();
@@ -110,8 +137,8 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask }) => {
 					<input
 						type="text"
 						placeholder="Task title"
-						value={info?.title}
-						onChange={(e) => updateModalInfo('title', e.target.value)}
+						// value={info?.title}
+						onChange={(e) => updateModalInfo('title', e?.target?.value)}
 					/>
 					<textarea
 						name=""
@@ -138,7 +165,36 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask }) => {
 						customListItemStyle={customListItemStyle}
 						onOptionClick={(value) => updateModalInfo('priority', value)}
 					/>
-					<Tooltip title={<></>} arrow={false} placement="bottom" trigger={'click'}>
+					<Tooltip
+						overlayClassName="moreOptions-container"
+						placement={'bottomRight'}
+						title={
+							<div className="moreOptions-wrapper">
+								<DropDown
+									title={'Change due date'}
+									options={info?.dateOptions}
+									onOptionClick={onOptionClick}
+									selected={info?.dueDate}
+									valueSelector="value"
+								>
+									<div className="more-listItem">
+										<CalendarIcon />
+										<span>Set due date</span>
+									</div>
+								</DropDown>
+								<div className="more-listItem">
+									<LinkIcon /> <span>Add link</span>
+								</div>
+								<div className="more-listItem">
+									<PageIcon />
+									<span>Add sub-issue</span>
+								</div>
+							</div>
+						}
+						arrow={false}
+						trigger={'click'}
+						color="transparent"
+					>
 						<div className="more" style={customListItemStyle}>
 							<HorizontalMoreIcon />
 						</div>
@@ -149,7 +205,7 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask }) => {
 					<button
 						className="btn-createIssue"
 						onClick={handleAddTask}
-						disabled={info?.isLoading}
+						disabled={info?.isLoading || info?.title.trim() === ''}
 					>
 						{info?.isLoading ? (
 							<Spinner width={'20px'} height={'20px'} />

@@ -18,10 +18,12 @@ const Priority = ({
 		options: [
 			// {
 			// 	label: 'no priority',
+			// 	value: 'noPriority',
 			// 	icon: <Circle />,
 			// },
 			// {
-			// 	label: 'critical',
+			// 	label: 'Critical',
+			//	value:'critical
 			// 	icon: <UpArrowDouble />,
 			// },
 			{
@@ -39,10 +41,6 @@ const Priority = ({
 		],
 		isDropdownOpen: false,
 	});
-
-	const updatePropertyInfo = (key, value) => {
-		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
-	};
 
 	return (
 		<div className="listItem-priority">

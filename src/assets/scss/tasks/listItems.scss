@@ -69,6 +69,14 @@
 			width: 100%;
 			height: 100%;
 		}
+		.profile-name {
+			height: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			color: #e4e5e6;
+			font-size: small;
+		}
 	}
 	.name {
 		color: #e4e5e6;

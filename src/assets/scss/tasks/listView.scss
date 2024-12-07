@@ -60,10 +60,10 @@
 				display: flex;
 				display: flex;
 				align-items: center;
-				// justify-content: flex-start;
 				justify-content: space-between;
 				gap: 10px;
 				align-self: stretch;
+				min-width: fit-content;
 				* {
 					flex-shrink: 0;
 				}
@@ -74,11 +74,10 @@
 				justify-content: flex-end;
 				display: flex;
 				align-items: center;
-				// justify-content: flex-start;
 				justify-content: space-between;
 				gap: 10px;
 				align-self: stretch;
-				// width: fit-content;
+				min-width: fit-content;
 				* {
 					flex-shrink: 0;
 				}
