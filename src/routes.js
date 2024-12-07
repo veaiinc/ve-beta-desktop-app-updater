@@ -1,8 +1,8 @@
 import AuthWrapper from './views/layouts/authWrapper';
 import LoginPage from './views/features/login_page/LoginPage';
 import Onboarding from './views/features/onboarding/Onboarding';
-// import LoginScreen from './views/features/signin';
-import ChatScreen from './views/features/meta_Integ/index';
+import Calendar from './views/features/calendar/index';
+// import ChatScreen from './views/features/meta_Integ/index';
 import OauthVerify from './views/features/signin/oauth';
 import Workflow_builder from './views/features/workflow_builder';
 import Sales from './views/features/sales/Sales';
@@ -20,14 +20,12 @@ import GalleryPage from './views/features/gallery/GalleryPage';
 import GalleryViewer from './views/features/gallery/GalleryViewer';
 import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
-import Calendar from './views/features/calendar/index';
-
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
 import { Navigate } from 'react-router-dom';
 import Subscription from './views/features/subscription';
 import TermsOfService from './views/features/signin/TermsOfService';
 import CookiePolicy from './views/features/signin/CookiePolicy';
-
+import Workflow_builder_updated from './views/features/workflow_builder_updated';
 import ShareAndEarn from './views/features/ShareAndEarn';
 const routes = [
 	{
@@ -125,6 +123,15 @@ const routes = [
 		path: '/workflow_builder/:templateId',
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
+				<Workflow_builder_updated />
+			</WorkflowBuilderLayout>
+		),
+		exact: true,
+	},
+	{
+		path: '/workflow_builder-test/:templateId', //this is real one,
+		component: (
+			<WorkflowBuilderLayout title={'Workflow Builder'}>
 				<Workflow_builder />
 			</WorkflowBuilderLayout>
 		),
@@ -212,17 +219,17 @@ const routes = [
 		component: <Navigate to="/" />,
 	},
 	{
+		path: '/subscription',
+		component: <Subscription />,
+		exact: true,
+	},
+	{
 		path: '/calendar',
 		component: (
 			<AuthWrapper title={'Calendar'} maxWidth={'1700px'}>
 				<Calendar />
 			</AuthWrapper>
 		),
-		exact: true,
-	},
-	{
-		path: '/subscription',
-		component: <Subscription />,
 		exact: true,
 	},
 ];

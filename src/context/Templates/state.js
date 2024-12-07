@@ -33,6 +33,8 @@ import {
 	getRequiredActionDetailsQuery,
 	updateSendSmartFileSettingsMutation,
 	getLatestSendSmartFileSettingsQuery,
+	addNewStepsQuery,
+	updateStepsQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -664,8 +666,10 @@ export const TemplatesState = (props) => {
 					type: Actions.GET_SPECIFIC_TEMPLATE_INFO_SUCCESS,
 					payload: response?.[1]?.data?.templateInfo,
 				});
+				return [true];
 			} else {
 				console.log('handle the error getSpecificTemplatesInfo', response);
+				return [false];
 			}
 		} catch (error) {
 			console.log('api failed ==>getSpecificTemplatesInfo', error);
@@ -999,6 +1003,77 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	//leaveWorkspace
+	const leaveWorkspace = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchDelete(
+				`/tenant/${workspaceId}/tenant-users/leave-workspace`,
+				usertoken,
+				null,
+				'auth',
+			);
+			if (response?.[0] === 200 || response?.[0] === true) {
+				return [true];
+			} else {
+				console.log('api failed==>leaveWorkspace', response);
+				message.error(response?.[1]?.message || 'Unable to perform this operation');
+				return [false, response?.[1]?.message];
+			}
+		} catch (error) {
+			console.log('errror ==>getAiPredictionForSmartFile', error);
+		}
+	};
+
+	//updated steps functions
+	const addNewSteps = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				addNewStepsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const dataResponse = response?.[1];
+				return [true, dataResponse?.data?.addStep];
+			} else {
+				console.log('Api failed ==>addNewSteps', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>addNewSteps', error);
+		}
+	};
+
+	const updateSteps = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateStepsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				console.log('Api failed ==>updateSteps', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateSteps', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -1042,5 +1117,8 @@ export const TemplatesState = (props) => {
 		deleteEventsPreset,
 		getLatestSendSmartFileSettings,
 		getAiPredictionForSmartFile,
+		leaveWorkspace,
+		addNewSteps,
+		updateSteps,
 	};
 };
