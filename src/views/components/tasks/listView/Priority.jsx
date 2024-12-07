@@ -8,17 +8,22 @@ import { ReactComponent as DownArrow } from '../../../../assets/svg/tasks/downAr
 import { ReactComponent as Check } from '../../../../assets/svg/tasks/checkmark.svg';
 import DropDown from '../../dropDown/tasks/DropDown';
 
-const Priority = ({ value = 'low', showLabel = false, customListItemStyle = {} }) => {
+const Priority = ({
+	value = 'low',
+	showLabel = false,
+	onOptionClick,
+	customListItemStyle = {},
+}) => {
 	const [info, setInfo] = useState({
 		options: [
-			{
-				label: 'no priority',
-				icon: <Circle />,
-			},
-			{
-				label: 'critical',
-				icon: <UpArrowDouble />,
-			},
+			// {
+			// 	label: 'no priority',
+			// 	icon: <Circle />,
+			// },
+			// {
+			// 	label: 'critical',
+			// 	icon: <UpArrowDouble />,
+			// },
 			{
 				label: 'high',
 				icon: <UpArrow />,
@@ -41,7 +46,12 @@ const Priority = ({ value = 'low', showLabel = false, customListItemStyle = {} }
 
 	return (
 		<div className="listItem-priority">
-			<DropDown title={'Change priority'} options={info?.options}>
+			<DropDown
+				title={'Change priority'}
+				options={info?.options}
+				selected={value}
+				onOptionClick={onOptionClick}
+			>
 				<div
 					className={`currentIcon ${showLabel ? `listItem-border` : ``}`}
 					style={customListItemStyle}

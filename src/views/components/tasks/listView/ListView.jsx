@@ -119,6 +119,24 @@ const ListView = () => {
 		});
 	}, []);
 
+	const updatePropertyValue = (rowId, propName, value) => {
+		setInfo((prevInfo) => {
+			const newListItems = [...prevInfo?.listItems].map((row) => {
+				if (row._id === rowId) {
+					return {
+						...row,
+						[propName]: value,
+					};
+				}
+				return row;
+			});
+			return {
+				...prevInfo,
+				listItems: newListItems,
+			};
+		});
+	};
+
 	const generateRow = useCallback(
 		(row) => {
 			const leftPart = [];
@@ -143,7 +161,12 @@ const ListView = () => {
 				if (titleReached) {
 					rightPart.push(
 						RowComponent ? (
-							<RowComponent key={key} value={value} title={key} />
+							<RowComponent
+								key={key}
+								value={value}
+								title={key}
+								onOptionClick={(value) => updatePropertyValue(row._id, key, value)}
+							/>
 						) : (
 							<div key={key}>{value}</div>
 						),

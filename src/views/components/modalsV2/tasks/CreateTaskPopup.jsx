@@ -127,14 +127,16 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask }) => {
 						<span className="label">Project hunt</span>
 					</div>
 					<Status
-						value="todo"
+						value={info?.status}
 						showLabel={true}
 						customListItemStyle={customListItemStyle}
+						onOptionClick={(value) => updateModalInfo('status', value)}
 					/>
 					<Priority
-						value="low"
+						value={info?.priority}
 						showLabel={true}
 						customListItemStyle={customListItemStyle}
+						onOptionClick={(value) => updateModalInfo('priority', value)}
 					/>
 					<Tooltip title={<></>} arrow={false} placement="bottom" trigger={'click'}>
 						<div className="more" style={customListItemStyle}>

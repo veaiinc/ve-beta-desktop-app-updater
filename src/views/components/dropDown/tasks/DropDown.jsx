@@ -9,10 +9,10 @@ const DropDown = ({
 	options,
 	valueSelector = 'label',
 	selected,
-	defaultValue,
 	containerStyles,
 	listItemStyles,
 	titleStyles,
+	onOptionClick,
 }) => {
 	return (
 		<Tooltip
@@ -40,12 +40,19 @@ const DropDown = ({
 									key={index}
 									className="listItem"
 									style={listItemStyles ? { ...listItemStyles } : {}}
+									onClick={() => {
+										if (onOptionClick) {
+											onOptionClick(option?.[valueSelector]);
+										}
+									}}
 								>
 									<div className="list-details">
 										{option?.icon ? option.icon : ''}
 										{option?.[valueSelector] ? (
 											<span className="listItem-label">
-												{option?.[valueSelector]}
+												{option?.label
+													? option?.label
+													: option?.[valueSelector]}
 											</span>
 										) : (
 											''
@@ -54,16 +61,6 @@ const DropDown = ({
 									{selected === option?.[valueSelector] ? <Tick /> : ''}
 								</div>
 							))}
-							{defaultValue ? (
-								<div className="listItem" key={'default-value'}>
-									<div className="list-details">
-										<span className="listItem-label">{defaultValue}</span>
-									</div>
-									{selected === defaultValue || !selected ? <Tick /> : ''}
-								</div>
-							) : (
-								''
-							)}
 						</>
 					) : (
 						''

@@ -9,29 +9,29 @@ import { ReactComponent as CircleHollow } from '../../../../assets/svg/tasks/cir
 import { ReactComponent as Cross } from '../../../../assets//svg/tasks/cross.svg';
 import DropDown from '../../dropDown/tasks/DropDown';
 
-const Status = ({ value = 'todo', showLabel = false, customListItemStyle = {} }) => {
+const Status = ({ value = 'todo', showLabel = false, customListItemStyle = {}, onOptionClick }) => {
 	const [info, setInfo] = useState({
 		options: [
 			{
-				label: 'backlog',
+				label: 'On hold',
+				value: 'onHold',
 				icon: <Spinner />,
 			},
 			{
-				label: 'todo',
+				label: 'Todo',
+				value: 'todo',
 				icon: <CircleHollow />,
 			},
 			{
-				label: 'in progress',
+				label: 'In progress',
+				value: 'inProgress',
 				icon: <Timer />,
 			},
-			{
-				label: 'completed',
-				icon: <CheckGreen />,
-			},
-			{
-				label: 'canceled',
-				icon: <Cross />,
-			},
+			{ label: 'Completed', value: 'completed', icon: <CheckGreen /> },
+			// {
+			// 	label: 'canceled',
+			// 	icon: <Cross />,
+			// },
 		],
 		isDropdownOpen: false,
 	});
@@ -42,12 +42,18 @@ const Status = ({ value = 'todo', showLabel = false, customListItemStyle = {} })
 
 	return (
 		<div className="listItem-status">
-			<DropDown title={'Change status'} options={info?.options}>
+			<DropDown
+				title={'Change status'}
+				options={info?.options}
+				valueSelector="value"
+				selected={value}
+				onOptionClick={onOptionClick}
+			>
 				<div
 					className={`currentIcon ${showLabel ? `listItem-border` : ``}`}
 					style={customListItemStyle}
 				>
-					{info?.options.find((item) => item.label === value)?.icon}
+					{info?.options.find((item) => item.value === value)?.icon}
 					{showLabel ? <p className="listItem-label">{value}</p> : ''}
 				</div>
 			</DropDown>
