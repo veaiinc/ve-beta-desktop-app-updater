@@ -241,8 +241,9 @@ const OpenedSideBarItemsComponent = ({
 				height: '100vh',
 				display: 'flex',
 				flexDirection: 'column',
-				justifyContent: 'space-between',
+				justifyContent: 'flex-end',
 				alignItems: 'center',
+				gap: '16px',
 			}}
 		>
 			<WorkspaceListComponent
