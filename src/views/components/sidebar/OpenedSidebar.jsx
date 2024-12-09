@@ -291,7 +291,7 @@ const OpenedSideBarItemsComponent = ({
 								style={{ height: '16px', width: '16px' }}
 							/>
 						</div>
-						{aiChatsDropdownVisible && (
+						{/* {aiChatsDropdownVisible && (
 							<div
 								className="aiChatsSubmodules"
 								style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
@@ -325,14 +325,15 @@ const OpenedSideBarItemsComponent = ({
 									</div>
 								))}
 							</div>
-						)}
+						)} */}
 					</div>
 
 					<div className="bottomOptionsList">
-						{true ? (
+						{
 							<>
 								<div className="planExpiresDiv">
 									<div className="planExpiresTitle">Plan Expires in 7 days</div>
+									<button className="renewNowDiv">Renew Now</button>
 								</div>
 								<div className="creditsLeft">
 									<div>
@@ -395,21 +396,7 @@ const OpenedSideBarItemsComponent = ({
 									</div>
 								</div>
 							</>
-						) : (
-							<div className="planExpiredDiv">
-								<div className="planExpiredTitle">Your plan has been Expired</div>
-								<div
-									style={{
-										display: 'flex',
-										justifyContent: 'flex-end',
-										alignItems: 'center',
-										alignSelf: 'stretch',
-									}}
-								>
-									<button className="renewNowDiv">Renew Now</button>
-								</div>
-							</div>
-						)}
+						}
 						{bottomOptionsList?.map((singleItems, index) => (
 							<OpenedSideBarHoverStateIcons2
 								name={singleItems?.name}
