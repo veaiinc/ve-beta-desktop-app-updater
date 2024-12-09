@@ -3,5 +3,9 @@ export const CALENDAR = {
 	sendEventToAi: '/calendar_event_classify',
 	calendarEventsList: '/calendar/getEventsList',
 	createCalendarEvent: '/calendar/createEvent',
+	createCalendarCategory: '/calendar/createCalendarCategory',
+	updateCalendarCategory: '/calendar/updateCalendarCategory',
+	calendarCategories: '/calendar/getCalendarCategories',
+	deleteCalendarCategory: '/calendar/deleteCalendarCategory',
 	resetCalendarState: 'RESET_CALENDAR_STATE',
 };
