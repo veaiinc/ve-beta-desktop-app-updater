@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import '../../../../assets/scss/dropdown/tasks/dropDown.scss';
 import { ReactComponent as Tick } from '../../../../assets/svg/tasks/checkmark.svg';
 import { Tooltip } from 'antd';
@@ -14,6 +14,9 @@ const DropDown = ({
 	titleStyles,
 	onOptionClick,
 }) => {
+	const handlePropagation = useCallback((e) => {
+		e.stopPropagation();
+	}, []);
 	return (
 		<Tooltip
 			// className="dropdown-parent"
@@ -22,6 +25,7 @@ const DropDown = ({
 				<div
 					className="listView-dropdown-container"
 					style={containerStyles ? { ...containerStyles } : {}}
+					onClick={handlePropagation}
 				>
 					{title ? (
 						<div
@@ -72,7 +76,9 @@ const DropDown = ({
 			color={'transparent'}
 			overlayStyle={{ minWidth: 'fit-content' }}
 		>
-			{children}
+			<div className="" onClick={handlePropagation}>
+				{children}
+			</div>
 		</Tooltip>
 	);
 };

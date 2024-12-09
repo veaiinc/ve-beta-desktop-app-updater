@@ -2,7 +2,6 @@
 	border-radius: 6px;
 	box-sizing: border-box;
 	border: 1px solid #1d1d1d;
-	background-color: #111;
 	display: flex;
 	gap: 10px;
 	padding: 6px 12px;
@@ -58,7 +57,7 @@
 	display: flex;
 	gap: 5px;
 	align-items: center;
-	padding: 12px 0;
+	align-self: center;
 	.avatar {
 		width: 20px;
 		height: 20px;
@@ -71,11 +70,14 @@
 		}
 		.profile-name {
 			height: 100%;
+			width: 100%;
+			border-radius: 30px;
 			display: flex;
 			justify-content: center;
 			align-items: center;
 			color: #e4e5e6;
 			font-size: small;
+			border: 1px solid #2c2c2c;
 		}
 	}
 	.name {
@@ -134,6 +136,8 @@
 	font-style: normal;
 	font-weight: 400;
 	line-height: normal;
+	width: fit-content;
+	height: fit-content;
 }
 .listItem-dateBorder {
 	color: #e4e5e6;

@@ -19,6 +19,7 @@ import OptionsDropDown from '../../dropDown/tasks/OptionsDropDown';
 import CreateTaskPopup from '../../modalsV2/tasks/CreateTaskPopup';
 import Context from '../../../../context/context';
 import { Tooltip } from 'antd';
+import ListViewSidebar from '../../modalsV2/tasks/ListViewSidebar';
 
 const rowTypes = {
 	text: Text,
@@ -64,8 +65,9 @@ const ListView = () => {
 		isOptionsDropDownOpen: false,
 		isCreateModalOpen: false,
 		properties: [],
+		sidebarIsOpen: false,
+		selectedRow: null,
 	});
-
 	useEffect(() => {
 		getListItems({
 			filters: {
@@ -84,6 +86,15 @@ const ListView = () => {
 			}));
 		}
 	}, [listTasks]);
+
+	useEffect(() => {
+		if (info?.selectedRow) {
+			updateListViewInfo(
+				'selectedRow',
+				info?.listItems.find((item) => item._id === info?.selectedRow._id),
+			);
+		}
+	}, [info?.listItems]);
 
 	const updateListViewInfo = useCallback((key, value) => {
 		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
@@ -146,7 +157,7 @@ const ListView = () => {
 			for (let key in row) {
 				const value = row[key];
 
-				if (!value || key === '__typename' || key === '_id' || !value) {
+				if (!value || key === '__typename' || key === '_id') {
 					continue;
 				}
 
@@ -200,7 +211,7 @@ const ListView = () => {
 				</div>,
 			];
 		},
-		[info?.listItems, info?.properties, responseTypes, rowTypes],
+		[info?.listItems, info?.properties],
 	);
 
 	const addNewTask = useCallback(async (payload) => {
@@ -212,6 +223,17 @@ const ListView = () => {
 			}));
 		}
 	}, []);
+
+	const handleRowClick = useCallback(
+		(rowId) => {
+			const row = info?.listItems?.find((row) => row._id === rowId);
+			if (row) {
+				updateListViewInfo('selectedRow', row);
+				updateListViewInfo('sidebarIsOpen', true);
+			}
+		},
+		[info?.listItems],
+	);
 
 	return (
 		<div className="listViewParentContainer">
@@ -246,7 +268,11 @@ const ListView = () => {
 			<div className="listContainer">
 				{info?.listItems?.length !== 0
 					? info?.listItems?.map((row, index) => (
-							<div className="listItemRow" key={index}>
+							<div
+								className="listItemRow"
+								key={index}
+								onClick={() => handleRowClick(row._id)}
+							>
 								{generateRow(row)}
 							</div>
 					  ))
@@ -256,6 +282,12 @@ const ListView = () => {
 				isOpen={info?.isCreateModalOpen}
 				closeModal={() => updateListViewInfo('isCreateModalOpen', false)}
 				addNewTask={addNewTask}
+			/>
+			<ListViewSidebar
+				selectedRow={info?.selectedRow}
+				sidebarIsOpen={info?.sidebarIsOpen}
+				closeSidebar={() => updateListViewInfo('sidebarIsOpen', false)}
+				updatePropertyValue={updatePropertyValue}
 			/>
 		</div>
 	);
