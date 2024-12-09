@@ -32,7 +32,7 @@ const CommonBottomSection = ({ handleLogout, openWorkspacesFunction }) => (
 					Switch Workspace
 				</div>
 				<div>
-					<RefreshSvg />
+					<RefreshSvg style={{ width: '16px', height: '16px' }} />
 				</div>
 			</div>
 		</div>
@@ -240,7 +240,15 @@ const OpenedSideBarItemsComponent = ({
 							style={{ cursor: 'pointer' }}
 						/>
 					</div>
-					<div className="allmodulesList" style={{ marginLeft: '16px' }}>
+					<div
+						className="allmodulesList"
+						style={{
+							height: '100%',
+							gap: '4px',
+							display: 'flex',
+							flexDirection: 'column',
+						}}
+					>
 						{veAiModulesItemsList?.map((singleItems, index) => (
 							<div>
 								<OpenedSideBarHoverStateIcons
@@ -279,7 +287,10 @@ const OpenedSideBarItemsComponent = ({
 						/>
 					</div>
 					{aiChatsDropdownVisible && (
-						<div className="aiChatsSubmodules">
+						<div
+							className="aiChatsSubmodules"
+							style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
+						>
 							{['Chat 1', 'Chat 2', 'Chat 3'].map((chatName) => (
 								<div
 									key={chatName}
@@ -313,7 +324,7 @@ const OpenedSideBarItemsComponent = ({
 				</div>
 
 				<div className="bottomOptionsList">
-					{true ? (
+					{false ? (
 						<div className="planExpiresDiv">
 							<div className="planExpiresTitle">Plan Expires in 7 days</div>
 						</div>
