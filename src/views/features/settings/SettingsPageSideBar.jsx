@@ -29,8 +29,8 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 				tennatUserFromWorkspace: tennatUserFromWorkspace,
 			});
 
-			let isHavingAccess = menuItems?.[tennatUserFromWorkspace?.role || 'default']?.includes(
-				location.pathname.split('/')[2],
+			let isHavingAccess = menuItems?.[tennatUserFromWorkspace?.role || 'default']?.find(
+				(item) => location.pathname.split('/')[2] === item?.id,
 			);
 
 			!isHavingAccess &&
