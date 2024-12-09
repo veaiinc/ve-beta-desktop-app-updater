@@ -58,8 +58,6 @@ const MeetingDetails = () => {
 		}),
 		[upcomingEvent, formatTimeRemaining],
 	);
-	console.log('Event Details:', JSON.stringify(eventDetails, null, 2));
-	console.log('Calendar Events List:', JSON.stringify(calendarEventsList, null, 2));
 
 	return !calendarEventsList || calendarEventsList?.length === 0 ? (
 		<div className="meetingCardParentContainer">

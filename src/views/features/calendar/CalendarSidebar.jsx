@@ -13,6 +13,9 @@ const CalendarSidebar = ({
 	selectedYear,
 	selectedDate,
 	isCreateEventOpen,
+	categoryList,
+	selectedCategory,
+	categoryFilter,
 	updateCalendarInfo,
 }) => {
 	const [info, setInfo] = useState({
@@ -42,7 +45,12 @@ const CalendarSidebar = ({
 						updateCalendarInfo={updateCalendarInfo}
 					/>
 					<AskAI toggleAskAi={toggleAskAi} />
-					<CalendarCategories />
+					<CalendarCategories
+						categoryList={categoryList}
+						selectedCategory={selectedCategory}
+						categoryFilter={categoryFilter}
+						updateCalendarInfo={updateCalendarInfo}
+					/>
 					<MeetingDetails />
 				</div>
 			)}

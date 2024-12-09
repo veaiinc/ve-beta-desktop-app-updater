@@ -24,7 +24,15 @@ const initialState = {
 	updateEventsList: false,
 };
 
-const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalendarInfo }) => {
+const CalendarView = ({
+	selectedWeek,
+	selectedDate,
+	isEventSelected,
+	categoryList,
+	selectedCategory,
+	categoryFilter,
+	updateCalendarInfo,
+}) => {
 	const {
 		calendarInfo: {
 			calendarEventsList,
