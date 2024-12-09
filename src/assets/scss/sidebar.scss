@@ -217,6 +217,7 @@
 			border-radius: inherit;
 			transition: height 0.8s ease;
 			padding-bottom: 28px;
+			overflow-x: hidden;
 			.allmodulesList,
 			.bottomOptionsList {
 				.creditsLeft {
@@ -559,6 +560,7 @@
 			gap: 21px;
 			overflow-y: auto;
 			max-height: 94vh;
+			overflow-x: hidden;
 
 			.backContinaer {
 				display: flex;
