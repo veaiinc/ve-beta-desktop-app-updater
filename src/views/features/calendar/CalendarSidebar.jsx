@@ -2,7 +2,7 @@ import React, { memo, useState, useCallback } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSelector from '../../components/calendar/CalendarSelector';
 import AskAI from '../../components/calendar/AskAI';
-// import CalendarCategories from '../../components/calendar/CalendarCategories';
+import CalendarCategories from '../../components/calendar/CalendarCategories';
 import MeetingDetails from '../../components/calendar/MeetingDetails';
 import CalendarAiChat from '../../components/calendar/CalendarAiChat';
 import CreateEvent from '../../components/calendar/CreateEvent';
@@ -42,7 +42,7 @@ const CalendarSidebar = ({
 						updateCalendarInfo={updateCalendarInfo}
 					/>
 					<AskAI toggleAskAi={toggleAskAi} />
-					{/* <CalendarCategories /> */}
+					<CalendarCategories />
 					<MeetingDetails />
 				</div>
 			)}

@@ -16,6 +16,26 @@ const actionHandlers = {
 		calendarEvent: action.payload,
 	}),
 
+	CREATE_CALENDAR_CATEGORY: (state, action) => ({
+		...state,
+		calendarCategories: action.payload,
+	}),
+
+	UPDATE_CALENDAR_CATEGORY: (state, action) => ({
+		...state,
+		calendarCategories: action.payload,
+	}),
+
+	GET_CALENDAR_CATEGORIES: (state, action) => ({
+		...state,
+		calendarCategories: action.payload,
+	}),
+
+	DELETE_CALENDAR_CATEGORY: (state, action) => ({
+		...state,
+		calendarCategories: action.payload,
+	}),
+
 	RESET_CALENDAR_STATE: () => ({ ...initialState }),
 };
 
