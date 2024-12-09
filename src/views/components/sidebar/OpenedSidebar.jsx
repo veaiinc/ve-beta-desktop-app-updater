@@ -155,14 +155,25 @@ const OpenedSideBarHoverStateIcons2 = ({
 	};
 
 	return (
-		<div
-			className={`singleModuleItem ${isActive ? 'activeListModule' : ''}`}
-			onMouseEnter={onMoutseEnter}
-			onMouseLeave={onMoutseLeave}
-			onClick={redirectToFunction}
-		>
-			<p>{name}</p>
-			{isActive ? <Icon fill={'#FFF'} /> : <Icon fill={isHover ? '#FFF' : initialColor} />}
+		<div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '4px' }}>
+			<div
+				className={`singleModuleItem ${isActive ? 'activeListModule' : ''} ${
+					isHover ? 'hover' : ''
+				}`}
+				onMouseEnter={onMoutseEnter}
+				onMouseLeave={onMoutseLeave}
+				onClick={redirectToFunction}
+				style={{
+					backgroundColor: isActive ? '#2E2F33' : '',
+				}}
+			>
+				<p>{name}</p>
+				{isActive ? (
+					<Icon fill={'#FFF'} />
+				) : (
+					<Icon fill={isHover ? '#FFF' : initialColor} />
+				)}
+			</div>
 		</div>
 	);
 };
@@ -325,71 +336,85 @@ const OpenedSideBarItemsComponent = ({
 
 				<div className="bottomOptionsList">
 					{false ? (
-						<div className="planExpiresDiv">
-							<div className="planExpiresTitle">Plan Expires in 7 days</div>
-						</div>
+						<>
+							<div className="planExpiresDiv">
+								<div className="planExpiresTitle">Plan Expires in 7 days</div>
+							</div>
+							<div className="creditsLeft">
+								<div>
+									<div
+										style={{
+											fontSize: '14px',
+											fontWeight: '500',
+											color: '#E8E8E8',
+										}}
+									>
+										100
+									</div>
+									<div
+										style={{
+											fontSize: '14px',
+											fontWeight: '500',
+											color: '#939393',
+										}}
+									>
+										Credits Left This Month
+									</div>
+								</div>
+								<div className="creditSvg">
+									<svg width="30" height="30" viewBox="0 0 30 30">
+										<defs>
+											<linearGradient
+												id="paint0_linear_14532_74799"
+												x1="-0.661765"
+												y1="2.69729e-07"
+												x2="30.4666"
+												y2="1.98941"
+												gradientUnits="userSpaceOnUse"
+											>
+												<stop offset="0.000100017" stop-color="#C39DF8" />
+												<stop offset="1" stop-color="#EC7C9D" />
+											</linearGradient>
+										</defs>
+										<circle
+											cx="15"
+											cy="15"
+											r="12.5"
+											fill="none"
+											stroke="#333334"
+											strokeWidth="5"
+										/>
+										{/* Progress circle */}
+										<circle
+											cx="15"
+											cy="15"
+											r="12.5"
+											fill="none"
+											stroke="url(#paint0_linear_14532_74799)"
+											strokeWidth="5"
+											strokeDasharray={`${(25 / 100) * 78.54} 78.54`}
+											transform="rotate(-90 15 15)"
+										/>
+									</svg>
+								</div>
+							</div>
+						</>
 					) : (
 						<div className="planExpiredDiv">
-							<div className="planExpiredTitle">Your plan Expired</div>
+							<div className="planExpiredTitle">Your plan has been Expired</div>
 							<div
 								style={{
 									display: 'flex',
-									justifyContent: 'space-between',
+									justifyContent: 'flex-end',
 									alignItems: 'center',
 									alignSelf: 'stretch',
 								}}
 							>
-								<div className="renewNowDiv">Renew Now</div>
-								<RightArrowSvg />
+								<button className="renewNowDiv">Renew Now</button>
+								{/* <RightArrowSvg /> */}
 							</div>
 						</div>
 					)}
-					<div className="creditsLeft">
-						<div>
-							<div style={{ fontSize: '14px', fontWeight: '500', color: '#E8E8E8' }}>
-								100
-							</div>
-							<div style={{ fontSize: '14px', fontWeight: '500', color: '#939393' }}>
-								Credits Left Today
-							</div>
-						</div>
-						<div className="creditSvg">
-							<svg width="30" height="30" viewBox="0 0 30 30">
-								<defs>
-									<linearGradient
-										id="paint0_linear_14532_74799"
-										x1="-0.661765"
-										y1="2.69729e-07"
-										x2="30.4666"
-										y2="1.98941"
-										gradientUnits="userSpaceOnUse"
-									>
-										<stop offset="0.000100017" stop-color="#C39DF8" />
-										<stop offset="1" stop-color="#EC7C9D" />
-									</linearGradient>
-								</defs>
-								<circle
-									cx="15"
-									cy="15"
-									r="12.5"
-									fill="none"
-									stroke="#333334"
-									strokeWidth="5"
-								/>
-								{/* Progress circle */}
-								<circle
-									cx="15"
-									cy="15"
-									r="12.5"
-									fill="none"
-									stroke="url(#paint0_linear_14532_74799)"
-									strokeWidth="5"
-									strokeDasharray={`${(25 / 100) * 78.54} 78.54`}
-									transform="rotate(-90 15 15)"
-								/>
-							</svg>
-						</div>
-					</div>
 					{bottomOptionsList?.map((singleItems, index) => (
 						<OpenedSideBarHoverStateIcons2
 							name={singleItems?.name}
@@ -399,7 +424,10 @@ const OpenedSideBarItemsComponent = ({
 							navigateTo={handleNavigateFunction}
 							key={singleItems?.name}
 							isActive={info?.activeRoute === singleItems?.moduleRoute}
-							style={{ fontSize: '14px', padding: '12px 16px' }}
+							style={{
+								fontSize: '14px',
+								padding: '12px 16px',
+							}}
 						/>
 					))}
 					<CommonBottomSection
