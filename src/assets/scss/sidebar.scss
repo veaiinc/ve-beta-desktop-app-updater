@@ -590,8 +590,8 @@
 					width: 218px;
 					padding: 12px 16px;
 					.workSpaceCircle {
-						width: 18px;
-						height: 18px;
+						width: 24px;
+						height: 24px;
 						border-radius: 50%;
 						background: #1d1d1d;
 						display: flex;
@@ -618,20 +618,20 @@
 						}
 
 						.no-logo {
-							width: 18px;
-							height: 18px;
+							width: 24px;
+							height: 24px;
 							border-radius: 50%;
 							display: flex;
 							align-items: center;
 							justify-content: center;
-							color: #c3c0c0;
+							color: white;
 							font-family: Inter;
-							font-size: 10px;
+							font-size: 13px;
 							font-style: normal;
-							font-weight: 500;
+							font-weight: bolder;
 							line-height: normal;
 							text-transform: uppercase;
-							letter-spacing: 2px;
+							background-color: #f85d04;
 						}
 					}
 
