@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, memo } from 'react';
+import React, { useContext, useEffect, useState, memo, useCallback } from 'react';
 import '../../../assets/scss/settings/planBilling.scss';
 import ProgressBar from '../../components/settings/ProgressBar';
 import moment from 'moment';
@@ -9,6 +9,7 @@ import BillingHistoryComponent from '../../components/settings/planbilling/Billi
 import { ReactComponent as Tick } from '../../../assets/svg/tick.svg';
 import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
+import { Spin } from 'antd';
 //constants
 const noOfDay = 7;
 const period = 'On Trial Plan';
@@ -17,122 +18,13 @@ let progressBar = 30;
 const GB = 1;
 const usedGB = 3;
 
-// const Temp = () => {
-// 	const {
-// 		companyInfo: { getTenantSubscriptionDetails, tenantSubscriptionDetails },
-// 	} = useContext(Context);
-// 	const [info, setInfo] = useState({
-// 		expiresDate: '',
-// 	});
-
-// 	useEffect(() => {
-// 		if (!tenantSubscriptionDetails) {
-// 			getTenantSubscriptionDetails();
-// 		}
-// 	}, []);
-
-// 	useEffect(() => {
-// 		if (tenantSubscriptionDetails) {
-// 			setInfo((prev) => ({
-// 				...prev,
-// 				expiresDate: tenantSubscriptionDetails?.expiresAt || '',
-// 			}));
-// 		}
-// 	}, [tenantSubscriptionDetails]);
-
-// 	return (
-// 		<div className="companyPlanBillingContianer">
-// 			<div className="companyPlanBilling">
-// 				<div className="companyPlan">
-// 					<h1>Your Plan</h1>
-// 					<div className="expireDetailsContainer ">
-// 						<div className="expireDetails">
-// 							<p>
-// 								Trial Plan expires in {noOfDay} days on :
-// 								{moment.unix(info.expiresDate).format('Do MMMM YYYY')}
-// 							</p>
-// 							<button>Subscribe Now</button>
-// 						</div>
-// 						<div className="subscriptionDetailsContainer">
-// 							<h2>your subscription details:</h2>
-// 							<div className="subscriptionDetails">
-// 								<div className="CRMcontainer">
-// 									<p>CRM</p>
-// 									<div className="CRMstatusContainer">
-// 										<h3>
-// 											Unlimited number of Lead Forms, Proposals & Templates
-// 											and Projects. Manage Payments and Expenses and invite
-// 											Unlimited team members with access controls for each
-// 											team member.
-// 										</h3>
-// 										<p>
-// 											Status : <span>{period}</span>
-// 										</p>
-// 									</div>
-// 								</div>
-// 								<div className="GALLERIEScontainer">
-// 									<p>GALLERIES</p>
-// 									<div className="storageContainer">
-// 										<h3>
-// 											Unlimited number of Galleries, Face scans & Guest
-// 											registrations (with AI). No limit on number of Photos
-// 											uploaded or Albums created. Clients & photographer, both
-// 											can download original size photos, with no limit on
-// 											number of downloads.
-// 										</h3>
-// 										<p>
-// 											Storage : <span>{GB}</span> GB of <span>{usedGB}</span>{' '}
-// 											GB
-// 										</p>
-// 										<ProgressBar progress={progressBar} />
-// 									</div>
-// 								</div>
-// 								<div className="AIcontainer">
-// 									<p>AI CREDITS</p>
-// 									<div className="AiCredits">
-// 										<h3>
-// 											AI Credits enable you to use feature of face scans &
-// 											Guest registrations for quick photo delivery to your
-// 											event guests. AI Credits do not have a expiry date.
-// 										</h3>
-// 										<p>
-// 											AI Credits remaining : <span>{AiCredits}</span>
-// 										</p>
-// 									</div>
-// 								</div>
-// 							</div>
-// 						</div>
-// 					</div>
-// 				</div>
-// 				<div className="billingHistoryContainer">
-// 					<h1>Billing History</h1>
-// 					<div></div>
-// 				</div>
-// 			</div>
-// 		</div>
-// 	);
-// };
-
 const features = [
 	'Form Management Assistant',
 	'Proposal Builder',
 	'Sales Performance Tracker',
 	'Workflow Automation',
 	'Business Insights Dashboard',
-];
-const addOns = [
-	{
-		title: 'Credits',
-		price: '$16',
-		totalAvailable: '100',
-		used: '40',
-	},
-	{
-		title: 'Credits',
-		price: '$16',
-		totalAvailable: '100',
-		used: '40',
-	},
+	'10 Team Members',
 ];
 
 const updatePlans = [
@@ -163,13 +55,7 @@ const updatePlans = [
 ];
 const PlanBilling = () => {
 	let {
-		subscriptionInfo: {
-			// getAllSubscriptionPlan,
-			// subscriptionPlans,
-			// getAllCoupons,
-			getCurrentSubscriptionPlan,
-			currentPlan,
-		},
+		subscriptionInfo: { getCurrentSubscriptionPlan, currentPlan },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		loading: true,
@@ -197,7 +83,7 @@ const PlanBilling = () => {
 			{info?.loading ? (
 				<Skeleton height={'700px'} style={{ borderRadius: '32px' }} />
 			) : info?.plan ? (
-				<SubscribedUserPlanCard />
+				<SubscribedUserPlanCard data={info?.plan} expiresAt={info?.expiresAt} />
 			) : (
 				<FreeTierPlanCard />
 			)}
@@ -211,17 +97,60 @@ const PlanBilling = () => {
 
 export default memo(PlanBilling);
 
-const SubscribedUserPlanCard = () => {
+const SubscribedUserPlanCard = ({ data, expiresAt }) => {
+	const navigate = useNavigate();
+	let {
+		subscriptionInfo: { createManageSubscriptionLinkforExistingUsers },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		manageSubscriptionLoader: false,
+		features: features,
+	});
+
+	useEffect(() => {
+		if (data && info?.features?.length) {
+			let features = [...(info?.features || [])];
+			const users = data?.numberOfUsers;
+			features.pop();
+			features.push(`${users} Team Members`);
+			setInfo((prev) => ({ ...prev, features }));
+		}
+	}, [data, info?.features]);
+
+	const handleManageSubscriptionClick = useCallback(async () => {
+		if (!expiresAt) {
+		}
+		if (expiresAt) {
+			const expired = moment().unix() > +expiresAt;
+
+			if (expired) {
+				return navigate('/subscription');
+			}
+			setInfo((prev) => ({ ...prev, manageSubscriptionLoader: true }));
+			const response = await createManageSubscriptionLinkforExistingUsers();
+			if (response?.[0]) {
+				return (window.location.href = response?.[1]);
+			}
+			setInfo((prev) => ({ ...prev, manageSubscriptionLoader: false }));
+		}
+	}, [expiresAt]);
+
 	return (
 		<div className="subscriptionWrapperContainer">
 			<div className="subscriptionUpdatedPlanCard">
 				<span className="subscriptionPlanHeader">Current Plan</span>
 				<div className="subscriptionPlanContent">
 					<div className="subscriptionPlanPricingDetails">
-						<span className="subscriptionPlanPricing">$35</span>
-						<span className="subscritptionPlanPeriod">/ month</span>
+						<span className="subscriptionPlanPricing">
+							{data?.currency === 'INR' ? '₹ ' : '$ '}
+							{data?.totalPrice?.toLocaleString('en-IN', {
+								currency: data?.currency,
+							})}
+						</span>
+						<span className="subscritptionPlanPeriod">/ {data?.subscriptionType}</span>
 					</div>
-					<div className="subscriptionUsageContainer">
+					{/* <div className="subscriptionUsageContainer">
 						<div className="subscriptionUsageDeatails">
 							<span className="subscriptionUsageData">
 								<span style={{ color: '#fff' }}>150 of</span> 500 used
@@ -230,7 +159,7 @@ const SubscribedUserPlanCard = () => {
 						<div className="subscriptionPlanProgressBar">
 							<div className="subscriptionPlanProgressIndicator"></div>
 						</div>
-					</div>
+					</div> */}
 					<div className="subscritptionFeaturesContainer">
 						{features?.map((ele, index) => (
 							<div className="subscriptionFeature" key={index}>
@@ -239,37 +168,77 @@ const SubscribedUserPlanCard = () => {
 							</div>
 						))}
 					</div>
-					<div className="addOnContianer">
-						<span className="addOnStates">Current Add-on’s</span>
+					{data?.addOnPlan && Object.values(data?.addOnPlan)?.length ? (
+						<div className="addOnContianer">
+							<span className="addOnStates">Current Add-on’s</span>
 
-						<div className="addOnStuffsHolder">
-							{addOns?.map((ele, index) => (
-								<div className="addOnCards" key={index}>
-									<div className="addOnCardsHeaderChanges">
-										<span className="addOnCardsTitle">{ele?.title}</span>
-										<span className="addOnCardPriceContainer">
-											<span style={{ color: '#fff' }}>$16 /</span> month
-										</span>
-									</div>
-									<div className="addOnUsageDetails">
-										<div className="subscriptionUsageDeatails">
-											<span className="subscriptionUsageData">
-												150 of 500 used
+							<div className="addOnStuffsHolder">
+								{data?.addOnPlan?.storage ? (
+									<div className="addOnCards">
+										<div className="addOnCardsHeaderChanges">
+											<span className="addOnCardsTitle">Storage</span>
+											<span className="addOnCardPriceContainer">
+												<span style={{ color: '#fff' }}>$16 /</span> month
 											</span>
 										</div>
-										<div className="subscriptionPlanProgressBar">
-											<div className="subscriptionPlanProgressIndicator"></div>
-										</div>
+										{/* <div className="addOnUsageDetails">
+											<div className="subscriptionUsageDeatails">
+												<span className="subscriptionUsageData">
+													150 of 500 used
+												</span>
+											</div>
+											<div className="subscriptionPlanProgressBar">
+												<div className="subscriptionPlanProgressIndicator"></div>
+											</div>
+										</div> */}
 									</div>
-								</div>
-							))}
+								) : (
+									''
+								)}
+								{data?.addOnPlan?.aiCredits ? (
+									<div className="addOnCards">
+										<div className="addOnCardsHeaderChanges">
+											<span className="addOnCardsTitle">AI Credits</span>
+											<span className="addOnCardPriceContainer">
+												<span style={{ color: '#fff' }}>$16 /</span> month
+											</span>
+										</div>
+										{/* <div className="addOnUsageDetails">
+											<div className="subscriptionUsageDeatails">
+												<span className="subscriptionUsageData">
+													150 of 500 used
+												</span>
+											</div>
+											<div className="subscriptionPlanProgressBar">
+												<div className="subscriptionPlanProgressIndicator"></div>
+											</div>
+										</div> */}
+									</div>
+								) : (
+									''
+								)}
+							</div>
 						</div>
-					</div>
+					) : (
+						''
+					)}
 				</div>
-				<div className="subscriptionSeperator"></div>
+				{data?.addOnPlan && Object.values(data?.addOnPlan)?.length ? (
+					<div className="subscriptionSeperator"></div>
+				) : (
+					''
+				)}
 				<div className="subscriptionActionContainer">
-					<div className="manageSubscriptionButton">Manage Subscription</div>
-					<div className="expiringText">Expiring on 25th Dec 2024</div>
+					<div
+						className="manageSubscriptionButton"
+						onClick={handleManageSubscriptionClick}
+					>
+						{info?.manageSubscriptionLoader ? <Spin /> : `	Manage Subscription`}
+					</div>
+					<div className="expiringText">
+						{moment().unix() < +expiresAt ? 'Expiring' : 'Expired'} on{' '}
+						{moment.unix(`${expiresAt}`)?.format('DD MMM YYYY')}
+					</div>
 				</div>
 			</div>
 			{/* <div className="updateSubscriptionPlanContainer">
