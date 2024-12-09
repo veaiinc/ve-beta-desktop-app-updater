@@ -22,7 +22,6 @@ const LeaveWorkspaceModal = ({ isOpen, toggleModal }) => {
 		if (!userWorkSpaceList) {
 			getUserWorkSpaceList();
 		}
-		console.log(userWorkSpaceList);
 	}, [userWorkSpaceList]);
 
 	const leaveWorksapaceClickHanlder = useCallback(async () => {

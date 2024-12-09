@@ -217,6 +217,26 @@ export const SubscriptionState = (props) => {
 			return [false, error];
 		}
 	};
+
+	const createManageSubscriptionLinkforExistingUsers = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/subscription/${workspaceId}/billing`,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.customerPortalLink];
+			} else {
+				message.error('Unable to create  user stripe sessions');
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>createManageSubscriptionLinkforExistingUsers', error);
+		}
+	};
 	return {
 		...state,
 		getAllSubscriptionPlan,
@@ -228,5 +248,6 @@ export const SubscriptionState = (props) => {
 		getReferralDetails,
 		getOnboardPosition,
 		sendCustomMailToClients,
+		createManageSubscriptionLinkforExistingUsers,
 	};
 };
