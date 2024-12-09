@@ -230,10 +230,10 @@
 					border-radius: 12px;
 					margin-top: 10px;
 					margin-bottom: 10px;
-					&:hover {
-						background: #2e2f33;
-						opacity: 0.5;
-					}
+					// &:hover {
+					// 	background: #2e2f33;
+					// 	opacity: 0.5;
+					// }
 				}
 				.singleModuleItem {
 					width: 218px;
@@ -328,7 +328,7 @@
 				justify-content: space-between;
 				align-items: center;
 				width: 218px;
-				padding: 16px 12px;
+				padding: 8px 12px;
 				cursor: 'pointer';
 				.downArrow.rotate {
 					transform: rotate(180deg);
@@ -434,10 +434,10 @@
 						font-weight: 500;
 						line-height: normal;
 					}
-					&:hover {
-						background: #2e2f33;
-						opacity: 0.5;
-					}
+					// &:hover {
+					// 	background: #2e2f33;
+					// 	opacity: 0.5;
+					// }
 				}
 				.planExpiredDiv {
 					display: flex;
@@ -491,10 +491,10 @@
 						-webkit-background-clip: text;
 						-webkit-text-fill-color: transparent;
 					}
-					&:hover {
-						background: #2e2f33;
-						opacity: 0.5;
-					}
+					// &:hover {
+					// 	background: #2e2f33;
+					// 	opacity: 0.5;
+					// }
 				}
 				.logoutItem,
 				.logoutItem:hover {
