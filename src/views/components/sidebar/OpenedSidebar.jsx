@@ -11,9 +11,21 @@ import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 
 const CommonBottomSection = ({ handleLogout, openWorkspacesFunction }) => (
-	<>
+	<div className="commonBottomSection">
 		<div className="currentWorkspaceDiv" onClick={openWorkspacesFunction}>
-			<div className="detailsDiv">
+			<div
+				className="detailedDiv"
+				style={{
+					width: '218px',
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'space-between',
+					alignItems: 'flex-start',
+					alignSelf: 'stretch',
+					cursor: 'pointer',
+					padding: '12px 16px',
+				}}
+			>
 				<div style={{ fontSize: '14px', fontWeight: '500', color: 'white' }}>
 					Switch Workspace
 				</div>
@@ -22,11 +34,24 @@ const CommonBottomSection = ({ handleLogout, openWorkspacesFunction }) => (
 				</div>
 			</div>
 		</div>
-		<div className={'singleModuleItem logoutItem'} onClick={handleLogout}>
+		<div
+			className={'singleModuleItem logoutItem'}
+			onClick={handleLogout}
+			style={{
+				padding: '12px 16px',
+				display: 'flex',
+				flexDirection: 'row',
+				justifyContent: 'space-between',
+				alignItems: 'center',
+				alignSelf: 'stretch',
+				width: '218px',
+				cursor: 'pointer',
+			}}
+		>
 			<p style={{ fontSize: '14px', fontWeight: '500', color: '#D73A49' }}>Logout</p>
 			<LogoutRedSvg />
 		</div>
-	</>
+	</div>
 );
 
 const OpenedSideBarHoverStateIcons = ({
@@ -211,7 +236,15 @@ const OpenedSideBarItemsComponent = ({
 	};
 
 	return sidebarStates?.workSpaceOpen ? (
-		<>
+		<div
+			style={{
+				height: '100vh',
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'space-between',
+				alignItems: 'center',
+			}}
+		>
 			<WorkspaceListComponent
 				setsidebarStates={setsidebarStates}
 				sidebarStates={sidebarStates}
@@ -222,12 +255,28 @@ const OpenedSideBarItemsComponent = ({
 				handleLogout={handleLogout}
 				openWorkspacesFunction={openWorkspacesFunction}
 			/>
-		</>
+		</div>
 	) : (
 		<div style={{ display: 'flex' }}>
 			{(!isMobile || (isMobile && !selectedChat)) && (
-				<div className="openSideBarComponent">
-					<div className="topOptionsList">
+				<div
+					className="openSideBarComponent"
+					style={{
+						height: '100vh',
+						display: 'flex',
+						flexDirection: 'column',
+						justifyContent: 'space-between',
+					}}
+				>
+					<div
+						className="topOptionsList"
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							height: '60vh',
+							overflowY: 'scroll',
+						}}
+					>
 						<div
 							className="veAiLogoDiv"
 							style={{ cursor: 'pointer' }}
@@ -277,9 +326,9 @@ const OpenedSideBarItemsComponent = ({
 									/>
 								</div>
 							))}
-						</div>
-						<hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} />
-						<div
+
+							<hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} />
+							{/* <div
 							className="AichatDiv"
 							onClick={() => setAiChatsDropdownVisible(!aiChatsDropdownVisible)}
 						>
@@ -290,8 +339,8 @@ const OpenedSideBarItemsComponent = ({
 								className={`downArrow ${aiChatsDropdownVisible ? 'rotate' : ''}`}
 								style={{ height: '16px', width: '16px' }}
 							/>
-						</div>
-						{/* {aiChatsDropdownVisible && (
+						</div> */}
+							{/* {aiChatsDropdownVisible && (
 							<div
 								className="aiChatsSubmodules"
 								style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
@@ -326,6 +375,7 @@ const OpenedSideBarItemsComponent = ({
 								))}
 							</div>
 						)} */}
+						</div>
 					</div>
 
 					<div className="bottomOptionsList">
