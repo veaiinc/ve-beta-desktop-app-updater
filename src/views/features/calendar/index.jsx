@@ -1,22 +1,53 @@
-import React, { memo, useState, useCallback, useEffect } from 'react';
+import React, { memo, useState, useCallback, useEffect, useContext } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSidebar from './CalendarSidebar';
 import CalendarView from './CalendarView';
+import Context from '../../../context/context';
 
 import moment from 'moment';
 
 const Calendar = () => {
+	const {
+		calendarInfo: { calendarCategories, createCalendarCategory },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
-		// todaysDate: new Date(),
 		currentCalendarDate: new Date(),
 		selectedMonth: new Date().getMonth(),
 		selectedYear: new Date().getFullYear(),
 		selectedDate: new Date(),
 		selectedWeek: [],
-		// loading: false,
 		isCreateEventOpen: false,
 		isEventSelected: false,
+		categoryList: [],
+		selectedCategory: null,
 	});
+
+	useEffect(() => {
+		const payload = {
+			calendarCategory: 'default',
+			categoryColor: '#bf8bff',
+		};
+		createCalendarCategory(payload);
+	}, []);
+
+	useEffect(() => {
+		if (calendarCategories) {
+			updateCategoryList();
+		}
+	}, [calendarCategories]);
+
+	useEffect(() => {
+		if (info?.categoryList?.length > 0 && info?.selectedCategory === null) {
+			const defaultCategory = info?.categoryList?.find(
+				(category) => category?.name === 'default',
+			);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				selectedCategory: defaultCategory,
+			}));
+		}
+	}, [info?.categoryList, info?.selectedCategory]);
 
 	useEffect(() => {
 		getCurrentWeek();
@@ -27,6 +58,15 @@ const Calendar = () => {
 	const updateCalendarInfo = useCallback((key, value) => {
 		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
 	}, []);
+
+	const updateCategoryList = useCallback(() => {
+		if (calendarCategories) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				categoryList: [...calendarCategories],
+			}));
+		}
+	}, [calendarCategories]);
 
 	// Get Week Days array for <WeekDayHeader /> component
 	const getCurrentWeek = useCallback(() => {
@@ -56,6 +96,8 @@ const Calendar = () => {
 					selectedYear={info?.selectedYear}
 					selectedDate={info?.selectedDate}
 					isCreateEventOpen={info?.isCreateEventOpen}
+					categoryList={info?.categoryList}
+					selectedCategory={info?.selectedCategory}
 					updateCalendarInfo={updateCalendarInfo}
 				/>
 				<CalendarView
@@ -64,6 +106,8 @@ const Calendar = () => {
 					selectedMonth={info?.selectedMonth}
 					selectedYear={info?.selectedYear}
 					isEventSelected={info?.isEventSelected}
+					categoryList={info?.categoryList}
+					selectedCategory={info?.selectedCategory}
 					getCurrentWeek={getCurrentWeek}
 					updateCalendarInfo={updateCalendarInfo}
 				/>
