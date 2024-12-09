@@ -8,7 +8,23 @@ export const initialState = {
 	calendarChat: null,
 	calendarEventsList: null,
 	calendarEvent: null,
-	calendarCategories: null,
+	calendarCategories: [
+		{
+			_id: '67545979fff2778018662c04',
+			name: 'default',
+			color: '#FF5DFF',
+		},
+		{
+			_id: '6756bd034d270350621026e3',
+			name: 'meeting',
+			color: '#DFFF72',
+		},
+		{
+			_id: '6756d1512488f1e7592d7b33',
+			name: 'host',
+			color: '#6ff535',
+		},
+	],
 };
 
 export const Calendar = () => {

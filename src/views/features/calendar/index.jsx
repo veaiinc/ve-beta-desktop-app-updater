@@ -21,6 +21,7 @@ const Calendar = () => {
 		isEventSelected: false,
 		categoryList: [],
 		selectedCategory: null,
+		categoryFilter: [],
 	});
 
 	useEffect(() => {
@@ -45,6 +46,7 @@ const Calendar = () => {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				selectedCategory: defaultCategory,
+				categoryFilter: [defaultCategory?._id],
 			}));
 		}
 	}, [info?.categoryList, info?.selectedCategory]);
@@ -98,6 +100,7 @@ const Calendar = () => {
 					isCreateEventOpen={info?.isCreateEventOpen}
 					categoryList={info?.categoryList}
 					selectedCategory={info?.selectedCategory}
+					categoryFilter={info?.categoryFilter}
 					updateCalendarInfo={updateCalendarInfo}
 				/>
 				<CalendarView
@@ -108,6 +111,7 @@ const Calendar = () => {
 					isEventSelected={info?.isEventSelected}
 					categoryList={info?.categoryList}
 					selectedCategory={info?.selectedCategory}
+					categoryFilter={info?.categoryFilter}
 					getCurrentWeek={getCurrentWeek}
 					updateCalendarInfo={updateCalendarInfo}
 				/>

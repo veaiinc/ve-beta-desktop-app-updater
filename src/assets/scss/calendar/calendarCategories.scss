@@ -162,20 +162,6 @@
 					}
 				}
 
-				// Dynamic color for different types based on `data-type`
-				&[data-type='meeting'] .statusIndicator {
-					border-color: #5e8be2; // Color for "Meeting"
-				}
-				&[data-type='task'] .statusIndicator {
-					border-color: #cf4b92; // Color for "Task"
-				}
-				&[data-type='payments'] .statusIndicator {
-					border-color: #4caf50; // Color for "Payments"
-				}
-				&[data-type='appointments'] .statusIndicator {
-					border-color: #ff5252; // Color for "Appointments"
-				}
-
 				.statusIndicator {
 					width: 15px;
 					height: 15px;
