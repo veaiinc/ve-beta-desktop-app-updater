@@ -23,13 +23,21 @@ const Calendar = () => {
 		selectedCategory: null,
 		categoryFilter: [],
 	});
-	console.log('calendarCategories', calendarCategories);
 	useEffect(() => {
 		const payload = {
 			calendarCategory: 'default',
 			categoryColor: '#bf8bff',
 		};
 		createCalendarCategory(payload);
+		return setInfo((prevInfo) => ({
+			...prevInfo,
+			selectedWeek: [],
+			isCreateEventOpen: false,
+			isEventSelected: false,
+			categoryList: [],
+			selectedCategory: null,
+			categoryFilter: [],
+		}));
 	}, []);
 
 	useEffect(() => {

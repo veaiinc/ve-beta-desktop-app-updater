@@ -34,6 +34,7 @@ const initialState = {
 const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => {
 	const {
 		calendarInfo: { calendarEvent, createCalendarEvent },
+		profileInfo: { userDetailsData },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -76,9 +77,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 			},
 		],
 	});
-	console.log('selectedCategory', JSON.stringify(info?.selectedCategory));
 	const createEventRef = useRef(null);
-
 	// Format date and time to ISO string
 	const convertToISOString = useCallback((date, time) => {
 		if (!date) return null;
@@ -111,17 +110,44 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 			selectedCategory,
 		} = info;
 		// Validate required fields
-		if (!title || !startDate || !endDate) {
+		if (!title) {
 			setInfo((prev) => ({
 				...prev,
-				submissionError: 'Title and date are required',
+				submissionError: 'Agenda is required',
 				isSubmitting: false,
 			}));
 			return null;
 		}
 
+		if (!startDate) {
+			setInfo((prev) => ({
+				...prev,
+				submissionError: 'Start date is required',
+				isSubmitting: false,
+			}));
+			return null;
+		}
+
+		if (!endDate) {
+			setInfo((prev) => ({
+				...prev,
+				submissionError: 'End date is required',
+				isSubmitting: false,
+			}));
+			return null;
+		}
+
+		// Add organizer to attendees
+		// attendees.push({
+		// 	tenantUserId: userDetailsData?._id,
+		// 	firstName: userDetailsData?.firstName,
+		// 	lastName: userDetailsData?.lastName,
+		// 	email: userDetailsData?.email,
+		// 	responseStatus: 'confirmed',
+		// });
+
 		// Validate attendees
-		if (!attendees || attendees.length === 0) {
+		if (!attendees || attendees?.length === 0) {
 			setInfo((prev) => ({
 				...prev,
 				submissionError: 'At least one attendee is required',
@@ -131,7 +157,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 		}
 
 		// formate attendees
-		const processedAttendees = attendees.map((attendee) => ({
+		const processedAttendees = attendees?.map((attendee) => ({
 			tenantUserId: attendee.tenantUserId || '',
 			firstName: attendee.name || '',
 			lastName: '',
@@ -148,7 +174,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 			timezone,
 			allDay,
 			attendees: processedAttendees,
-			calendarCategory: selectedCategory?.id,
+			calendarCategory: selectedCategory?._id,
 			meeting,
 			phone: '',
 		};
@@ -446,7 +472,9 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 								<Avtar />
 							</div>
 							<div className="nameWrapper">
-								<span className="name">Avinash</span>
+								<span className="name">
+									{userDetailsData?.firstName} {userDetailsData?.lastName}
+								</span>
 								<span className="role">Organizer</span>
 							</div>
 						</div>
@@ -456,8 +484,14 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 										<div className="avatar">
 											<Avtar />
 										</div>
+										<div className="nameWrapper">
+											<span className="name">
+												{item?.firstName} {item?.lastName}
+											</span>
+											<span className="role">{item?.email}</span>
+										</div>
 
-										{item?.isWorkspaceUser ? (
+										{/* {item?.isWorkspaceUser ? (
 											<div className="nameWrapper">
 												<span className="name">{item?.name}</span>
 												<span className="role">{item?.email}</span>
@@ -466,7 +500,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 											<div className="nameWrapper">
 												<span className="name">{item?.email}</span>
 											</div>
-										)}
+										)} */}
 										<Close
 											onClick={() =>
 												removeAttendee(item?.tenantUserId || item?.email)
