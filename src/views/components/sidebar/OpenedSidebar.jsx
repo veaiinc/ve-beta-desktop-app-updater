@@ -259,7 +259,13 @@ const OpenedSideBarItemsComponent = ({
 					<div className="topOptionsList">
 						<div
 							className="veAiLogoDiv"
-							style={{ cursor: 'pointer' }}
+							style={{
+								cursor: 'pointer',
+								position: 'sticky',
+								top: '0',
+								backgroundColor: '#202123',
+								zIndex: '1000',
+							}}
 							onClick={() => navigate(`/home`)}
 						>
 							<div className="workspaceDetailsDiv">
@@ -362,8 +368,18 @@ const OpenedSideBarItemsComponent = ({
 						{
 							<>
 								<div className="planExpiresDiv">
-									<div className="planExpiresTitle">Plan Expires in 7 days</div>
-									<button className="renewNowDiv">Renew Now</button>
+									<div className="planExpiresTitle">
+										Your Plan has been Expired
+									</div>
+									<div
+										style={{
+											width: '100%',
+											display: 'flex',
+											justifyContent: 'end',
+										}}
+									>
+										<button className="renewNowDiv">Renew Now</button>
+									</div>
 								</div>
 								<div className="creditsLeft">
 									<div>
@@ -379,7 +395,7 @@ const OpenedSideBarItemsComponent = ({
 										<div
 											style={{
 												fontSize: '14px',
-												fontWeight: '500',
+												fontWeight: '400',
 												color: '#939393',
 											}}
 										>

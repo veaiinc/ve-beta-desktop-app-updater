@@ -197,6 +197,7 @@
 			flex-direction: column;
 			align-items: center;
 			justify-content: space-between;
+			background: #202123;
 			height: 100vh;
 			width: 250px;
 			border-radius: inherit;
@@ -226,7 +227,7 @@
 					justify-content: space-between;
 					gap: 14px;
 					align-items: center;
-					padding: 10px 16px;
+					padding: 12px 16px;
 					position: relative;
 					transition: margin 0.2s ease;
 					p {
@@ -241,7 +242,7 @@
 
 					&:hover {
 						border-radius: var(--Radius-lg, 24px);
-						background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
+						background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2e2f33);
 						cursor: pointer;
 						p {
 							color: #e4e5e6;
@@ -377,7 +378,7 @@
 					justify-content: flex-start;
 					gap: 14px;
 					align-items: center;
-					padding: 12px;
+					padding: 12px 16px;
 					p {
 						color: #e8e8e8;
 						text-align: right;
@@ -431,6 +432,7 @@
 						font-family: Inter;
 						font-size: 14px;
 						font-style: normal;
+						text-align: end;
 						font-weight: 400;
 						line-height: normal;
 						border-radius: 100px;
@@ -521,7 +523,7 @@
 					width: 218px;
 					display: flex;
 					flex-direction: column;
-					gap: 10px;
+					gap: 4px;
 					.currentWorkspaceDiv {
 						display: flex;
 						flex-direction: row;
@@ -583,6 +585,11 @@
 					justify-content: space-between;
 					width: 218px;
 					padding: 12px 16px;
+					.workspaceName {
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+					}
 					.workSpaceCircle {
 						width: 24px;
 						height: 24px;
