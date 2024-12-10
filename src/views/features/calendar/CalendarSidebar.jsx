@@ -34,7 +34,11 @@ const CalendarSidebar = ({
 			{info?.askAi ? (
 				<CalendarAiChat toggleAskAi={toggleAskAi} />
 			) : isCreateEventOpen ? (
-				<CreateEvent updateCalendarInfo={updateCalendarInfo} />
+				<CreateEvent
+					categoryList={categoryList}
+					selectedCategory={selectedCategory}
+					updateCalendarInfo={updateCalendarInfo}
+				/>
 			) : (
 				<div className="calendarSidebarContainer">
 					<CalendarSelector

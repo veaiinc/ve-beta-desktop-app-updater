@@ -31,7 +31,7 @@ const initialState = {
 	submissionError: null,
 };
 
-const CreateEvent = ({ updateCalendarInfo }) => {
+const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => {
 	const {
 		calendarInfo: { calendarEvent, createCalendarEvent },
 	} = useContext(Context);
@@ -42,8 +42,9 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 		// UI state
 		showCategory: false,
 		showAtendeeSuggestions: false,
+		showCategoryDropDown: false,
 		categories: ['Shoots', 'Sessions', 'Meetings'],
-		selectedCategory: 'default',
+		selectedCategory: selectedCategory?.id,
 		attendeesInputField: '',
 		startDate: '',
 		startTime: '',
@@ -76,7 +77,7 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 			},
 		],
 	});
-
+	console.log('selectedCategory', JSON.stringify(selectedCategory));
 	const createEventRef = useRef(null);
 
 	// Format date and time to ISO string
@@ -330,8 +331,15 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 						<div className="categoriesLabel">Categories</div>
 					</div>
 					<div className="categoriesSelector">
-						<input type="text" placeholder="Add to a category" />
-						<div
+						<input
+							type="text"
+							placeholder="Add to a category"
+							onBlur={() => updateEventInfo('showCategory', false)}
+							onFocus={() => {
+								updateEventInfo('showCategory', true);
+							}}
+						/>
+						{/* <div
 							className="downArrow"
 							onClick={() => updateEventInfo('showCategory', !info?.showCategory)}
 						>
@@ -340,16 +348,14 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 									transform: info?.showCategory ? `rotate(180deg)` : `rotate(0)`,
 								}}
 							/>
-						</div>
-						{info?.showCategory ? (
+						</div> */}
+						{info?.showCategory && (
 							<div className="categoryDropDown">
-								<div className="categoryDropDownItem">Shoots</div>
-								<div className="categoryDropDownItem">Sessions</div>
-								<div className="categoryDropDownItem">Meetings</div>
+								{categoryList?.map((item) => (
+									<div className="categoryDropDownItem">{item?.name}</div>
+								))}
 								<div className="categoryDropDownItem addCategory">+ Add new</div>
 							</div>
-						) : (
-							''
 						)}
 					</div>
 					<div className="additionalOptions">
@@ -375,7 +381,7 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 				<div className="attendeesContainer">
 					<div className="attendeesHeader">
 						<span className="attendiesLabel">Attendees</span>
-						<span className="attendeesCount">{info?.attendees.length + 1}</span>
+						<span className="attendeesCount">{info?.attendees?.length + 1}</span>
 					</div>
 					<div className="attendeeInputWrapper">
 						<input
