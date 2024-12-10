@@ -27,11 +27,19 @@ import SchedulerSvg from '../../../assets/svg/sidebar/SchedulerSvg.jsx';
 // import { useNavigate, useLocation } from 'react-router-dom';
 import TranscriptSvg from '../../../assets/svg/sidebar/TranscriptSvg.jsx';
 import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
+import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
+// import { subDays } from 'react-datepicker/dist/date_utils.js';
 
 export const veAiModulesItemsList = [
 	{
+		name: 'Home',
+		moduleRoute: '/home',
+		route: '/home',
+		icon: HomeSvg,
+	},
+	{
 		name: 'Calendar',
-		moduleRoute: 'calendar',
+		moduleRoute: '/calendar',
 		route: '/calendar',
 		icon: CalendarSvg,
 		subModules: [
@@ -107,7 +115,6 @@ export const styles = {
 export const newBtnActions = [
 	{ label: 'Lead', action: 'functionCall', funcName: 'openLeadPopup', redirect: null },
 	{ label: 'Workflow', action: 'redirect', funcName: null, redirect: '/playbook' },
-	// { label: 'Smart File' },
 ];
 
 export const closedSidebarIcons = [
