@@ -108,6 +108,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 			meeting,
 			attendees,
 			selectedCategory,
+			phone,
 		} = info;
 		// Validate required fields
 		if (!title) {
@@ -167,7 +168,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 			attendees: processedAttendees,
 			calendarCategory: selectedCategory?._id,
 			meeting,
-			phone: '',
+			phone,
 		};
 	}, [info, convertToISOString]);
 
