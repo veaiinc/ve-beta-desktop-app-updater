@@ -18,6 +18,7 @@ import Status from '../../tasks/listView/Status';
 import { DatePicker, Tooltip } from 'antd';
 import Spinner from '../../loaders/Spinner';
 import moment from 'moment';
+import WorkFlow from '../../tasks/listView/WorkFlow';
 
 const customListItemStyle = {
 	borderRadius: '34px',
@@ -42,7 +43,7 @@ const initialState = {
 	workflowTemplateId: '507f1f77bcf86cd799439011',
 };
 
-const CreateTaskPopup = ({ isOpen, closeModal, addNewTask }) => {
+const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows }) => {
 	const [info, setInfo] = useState({
 		...initialState,
 		isLoading: false,
@@ -149,10 +150,12 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask }) => {
 					></textarea>
 				</div>
 				<div className="properties-wrapper">
-					<div className="property">
-						<Cube />
-						<span className="label">Project hunt</span>
-					</div>
+					<WorkFlow
+						value={info?.workflowId}
+						workflows={workflows}
+						customListItemStyle={customListItemStyle}
+						onOptionClick={(value) => updateModalInfo('workflowId', value)}
+					/>
 					<Status
 						value={info?.status}
 						showLabel={true}

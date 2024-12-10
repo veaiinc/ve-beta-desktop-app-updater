@@ -37,7 +37,7 @@ const DropDown = ({
 					) : (
 						''
 					)}
-					{options ? (
+					{options?.length > 0 ? (
 						<>
 							{options?.map((option, index) => (
 								<div
@@ -67,7 +67,7 @@ const DropDown = ({
 							))}
 						</>
 					) : (
-						''
+						<div className="listItem">No options found</div>
 					)}
 				</div>
 			}
