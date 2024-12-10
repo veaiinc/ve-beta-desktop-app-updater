@@ -458,13 +458,29 @@
 						}
 					}
 
-					button {
-						height: fit-content;
-						padding: 16px 24px;
-						border-radius: 30px;
-						border: 1px solid rgba(36, 36, 36, 0.64);
-						background: rgba(42, 42, 42, 0.16);
-						color: #e4e5e6;
+					.button {
+						padding: 8px 16px;
+						border-radius: 6px;
+						font-size: 14px;
+						font-weight: 500;
+						cursor: pointer;
+						transition: background-color 0.2s ease;
+						border: none;
+						margin-top: 12px;
+
+						&:focus {
+							outline: 2px solid #4f46e5;
+							outline-offset: 2px;
+						}
+
+						&-cancel {
+							background-color: #3f3f46;
+							color: #ffffff;
+
+							&:hover {
+								background-color: #52525b;
+							}
+						}
 					}
 				}
 			}
