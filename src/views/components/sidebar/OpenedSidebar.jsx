@@ -204,7 +204,11 @@ const OpenedSideBarItemsComponent = ({
 	}, [logoutFunc]);
 
 	const openWorkspacesFunction = () => {
-		setsidebarStates({ ...sidebarStates, workSpaceOpen: true, navStyle: 'workspace' });
+		setsidebarStates((prevState) => ({
+			...prevState,
+			workSpaceOpen: !prevState.workSpaceOpen, // Toggle the state
+			navStyle: prevState.workSpaceOpen ? 'close' : 'workspace', // Adjust navStyle accordingly
+		}));
 	};
 
 	const handleNavigateFunction = (route, singleItems) => {
