@@ -16,15 +16,15 @@ import moment from 'moment/moment';
 
 const initialState = {
 	title: '',
-	description: '',
-	location: '',
+	description: null,
+	location: null,
 	startDateTime: '',
 	endDateTime: '',
 	timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 	allDay: false,
 	attendees: [],
-	meeting: '',
-	phone: '',
+	meeting: null,
+	phone: null,
 
 	// Validation and submission states
 	isSubmitting: false,
@@ -136,15 +136,6 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 			}));
 			return null;
 		}
-
-		// Add organizer to attendees
-		// attendees.push({
-		// 	tenantUserId: userDetailsData?._id,
-		// 	firstName: userDetailsData?.firstName,
-		// 	lastName: userDetailsData?.lastName,
-		// 	email: userDetailsData?.email,
-		// 	responseStatus: 'confirmed',
-		// });
 
 		// Validate attendees
 		if (!attendees || attendees?.length === 0) {
