@@ -77,11 +77,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 							handleSwitchWorkSpaceLogic(singleWorkspace);
 						}}
 					>
-						<h6>
-							{singleWorkspace?.businessName.length > 15
-								? `${singleWorkspace?.businessName.slice(0, 15)}...`
-								: singleWorkspace?.businessName}
-						</h6>
+						<h6 className="workspaceName">{singleWorkspace?.businessName}</h6>
 						<div className="workSpaceCircle">
 							{singleWorkspace?.logo_s3_500w_key ? (
 								<img
