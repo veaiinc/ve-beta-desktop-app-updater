@@ -17,6 +17,7 @@ import Phone from '../../tasks/listView/Phone';
 import Url from '../../tasks/listView/Url';
 import CheckBox from '../../tasks/listView/CheckBox';
 import DateView from '../../tasks/listView/DateView';
+import WorkFlow from '../../tasks/listView/WorkFlow';
 
 const rowTypes = {
 	text: Text,
@@ -31,6 +32,7 @@ const rowTypes = {
 	phone: Phone,
 	url: Url,
 	checkbox: CheckBox,
+	workflow: WorkFlow,
 };
 
 const responseTypes = {
@@ -39,7 +41,7 @@ const responseTypes = {
 	status: 'status',
 	priority: 'priority',
 	workflowTemplateId: 'text',
-	workflowId: 'text',
+	workflowId: 'workflow',
 	client: 'text',
 	assignedTo: 'person',
 	dueDate: 'date',
@@ -52,20 +54,27 @@ const responseTypes = {
 	updatedBy: 'person',
 };
 
-const ListViewSidebar = ({ selectedRow, sidebarIsOpen, closeSidebar, updatePropertyValue }) => {
+const ListViewSidebar = ({
+	selectedRow,
+	sidebarIsOpen,
+	closeSidebar,
+	updatePropertyValue,
+	workflows,
+	tenantUsers,
+}) => {
 	const generateRow = useCallback((row) => {
 		const listItems = [];
 		for (let key in row) {
 			const value = row[key];
 
-			if (['__typename', '_id', 'title', 'description'].includes(key)) {
+			if (['__typename', '_id', 'title', 'description', 'workflowTemplateId'].includes(key)) {
 				continue;
 			}
 
 			const componentType = responseTypes[key];
 			const RowComponent = rowTypes[componentType] || null;
 			listItems.push(
-				<div className="property-list">
+				<div className="property-list" key={key}>
 					<span className="property-title">{key}</span>
 					<span className={`property-value`}>
 						{RowComponent ? (
@@ -74,6 +83,8 @@ const ListViewSidebar = ({ selectedRow, sidebarIsOpen, closeSidebar, updatePrope
 								value={value}
 								title={key}
 								showLabel
+								{...(componentType === 'workflow' ? { workflows } : {})}
+								{...(key === 'updatedBy' ? { options: tenantUsers } : {})}
 								// onOptionClick={(value) => updatePropertyValue(row._id, key, value)}
 								onOptionClick={(value) => {
 									updatePropertyValue(row._id, key, value);

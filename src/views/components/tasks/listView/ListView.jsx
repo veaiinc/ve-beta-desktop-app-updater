@@ -59,7 +59,7 @@ const responseTypes = {
 
 const ListView = () => {
 	const {
-		tasks: { listTasks, getListItems, addListItem },
+		tasks: { listTasks, getListItems, addListItem, updateListItem },
 		templates: {
 			getTemplatesListForCreateLead,
 			templatesListForCreateLead,
@@ -83,7 +83,7 @@ const ListView = () => {
 	useEffect(() => {
 		getListItems({
 			filters: {
-				limit: 20,
+				limit: 30,
 				page: 1,
 				sortBy: 'createdAt',
 				sortType: 1,
@@ -114,9 +114,13 @@ const ListView = () => {
 
 	useEffect(() => {
 		if (tenantsUserList) {
+			const persons = tenantsUserList?.map((person) => ({
+				label: person.firstName + ' ' + person.lastName,
+				value: person._id,
+			}));
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				tenantUsers: tenantsUserList || [],
+				tenantUsers: persons,
 			}));
 		}
 	}, [tenantsUserList]);
@@ -137,7 +141,7 @@ const ListView = () => {
 	const mapPropertyType = useCallback((row) => {
 		let properties = [];
 		for (let key in row) {
-			if (key === '__typename' || key === '_id') {
+			if (key === '__typename' || key === '_id' || key === 'workflowTemplateId') {
 				continue;
 			}
 
@@ -162,6 +166,8 @@ const ListView = () => {
 	}, []);
 
 	const updatePropertyValue = useCallback(async (rowId, propName, value) => {
+		console.log(propName, value);
+
 		setInfo((prevInfo) => {
 			const newListItems = [...prevInfo?.listItems].map((row) => {
 				if (row._id === rowId) {
@@ -177,7 +183,15 @@ const ListView = () => {
 				listItems: newListItems,
 			};
 		});
-		console.log(value);
+		const response = await updateListItem({
+			taskId: rowId,
+			updateInput: {
+				[propName]: value,
+			},
+		});
+		if (response) {
+			console.log(response);
+		}
 	}, []);
 
 	const generateRow = useCallback(
@@ -189,7 +203,12 @@ const ListView = () => {
 			for (let key in row) {
 				const value = row[key];
 
-				if (!value || key === '__typename' || key === '_id') {
+				if (
+					!value ||
+					key === '__typename' ||
+					key === '_id' ||
+					key === 'workflowTemplateId'
+				) {
 					continue;
 				}
 
@@ -211,7 +230,7 @@ const ListView = () => {
 								{...(componentType === 'workflow'
 									? { workflows: info?.workflows }
 									: {})}
-								{...(key === 'updatedBy' ? { persons: info?.tenantUsers } : {})}
+								{...(key === 'assignedTo' ? { persons: info?.tenantUsers } : {})}
 								// {...(key === 'client' ? { options: info?.clients } : {})}
 							/>
 						) : (
@@ -330,6 +349,8 @@ const ListView = () => {
 				sidebarIsOpen={info?.sidebarIsOpen}
 				closeSidebar={() => updateListViewInfo('sidebarIsOpen', false)}
 				updatePropertyValue={updatePropertyValue}
+				workflows={info?.workflows}
+				tenantUsers={info?.tenantUsers}
 			/>
 		</div>
 	);

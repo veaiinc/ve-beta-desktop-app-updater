@@ -68,3 +68,12 @@ export const addListItemMutation = gql`
 		}
 	}
 `;
+
+export const updateListItemMutation = gql`
+	mutation UpdateTask($taskId: ID!, $updateInput: UpdateInput!) {
+		updateTask(taskId: $taskId, updateInput: $updateInput) {
+			_id
+			workflowId
+		}
+	}
+`;

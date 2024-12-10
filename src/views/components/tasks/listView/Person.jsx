@@ -10,47 +10,47 @@ const Person = ({
 	onOptionClick,
 	persons = [],
 }) => {
-	const [info, setInfo] = useState({
-		options: [],
-	});
+	// const [info, setInfo] = useState({
+	// 	options: persons,
+	// });
 
-	useEffect(() => {
-		const newOptions = persons.map((person) => ({
-			label: person.firstName + ' ' + person.lastName,
-			value: person._id,
-		}));
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			options: newOptions,
-		}));
-	}, []);
+	// useEffect(() => {
+	// 	setInfo((prevInfo) => ({
+	// 		...prevInfo,
+	// 		options: persons,
+	// 	}));
+	// }, []);
 
 	const updatedOnOptionClick = useCallback(
-		(option) => {
-			const value = persons.find((person) => person._id === option);
-			onOptionClick(
-				value ? { _id: value._id, name: value.firstName + ' ' + value.lastName } : null,
-			);
+		(value) => {
+			const data = persons?.find((person) => person.value === value);
+			onOptionClick({ ...data, name: data?.label });
 		},
-		[onOptionClick, persons],
+		[persons, onOptionClick],
 	);
 	return (
 		<DropDown
-			options={info?.options}
+			options={persons}
 			onOptionClick={updatedOnOptionClick}
 			selected={value?._id}
 			valueSelector="value"
 		>
 			<div className="listItem-person" title={title} style={customListItemStyle}>
-				<div className="avatar">
-					{/* <img src={profile || ''} alt="" /> */}
-					<div className="profile-name">
-						{typeof value == 'object' && value?.name
-							? value?.name[0].toUpperCase()
-							: ''}
-					</div>
-				</div>
-				{showName ? <div className="name">{value?.name}</div> : ''}
+				{value ? (
+					<>
+						<div className="avatar">
+							{/* <img src={profile || ''} alt="" /> */}
+							<div className="profile-name">
+								{typeof value == 'object' && value?.name
+									? value?.name[0].toUpperCase()
+									: ''}
+							</div>
+						</div>
+						{showName ? <div className="name">{value?.name}</div> : ''}
+					</>
+				) : (
+					<div className="listItem-text">Select Person</div>
+				)}
 			</div>
 		</DropDown>
 	);

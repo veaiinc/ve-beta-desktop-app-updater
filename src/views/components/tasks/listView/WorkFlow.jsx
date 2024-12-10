@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import DropDown from '../../dropDown/tasks/DropDown';
 import { ReactComponent as Cube } from '../../../../assets/svg/tasks/cube.svg';
 
-const WorkFlow = ({ value, title, workflows, onOptionClick, customListItemStyle = {} }) => {
+const WorkFlow = ({ value, title, workflows = [], onOptionClick, customListItemStyle = {} }) => {
 	const [info, setInfo] = useState({
 		options: [],
 		selectedLabel: '',

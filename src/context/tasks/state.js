@@ -1,6 +1,6 @@
 import service from '../../services/graphQlServices';
 import { message } from 'antd';
-import { getListItemsQuery, addListItemMutation } from './graphQlFunctions';
+import { getListItemsQuery, addListItemMutation, updateListItemMutation } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './actions';
@@ -57,6 +57,28 @@ export const TasksState = () => {
 		}
 	};
 
+	const updateListItem = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const response = await service.mutation(
+				updateListItemMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'tasks_api',
+			);
+			if (response?.[0]) {
+				return response?.[1]?.data;
+			} else {
+				console.log('API failed ==> updateListItem', response);
+			}
+		} catch (error) {
+			console.log('API failed ==> updateListItem', error);
+		}
+	};
+
 	const resetTasksState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -65,6 +87,7 @@ export const TasksState = () => {
 		...state,
 		getListItems,
 		addListItem,
+		updateListItem,
 		resetTasksState,
 	};
 };

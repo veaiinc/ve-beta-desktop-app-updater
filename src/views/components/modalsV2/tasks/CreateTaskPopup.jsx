@@ -20,6 +20,7 @@ import Spinner from '../../loaders/Spinner';
 import moment from 'moment';
 import WorkFlow from '../../tasks/listView/WorkFlow';
 import Person from '../../tasks/listView/Person';
+import DateView from '../../tasks/listView/DateView';
 
 const customListItemStyle = {
 	borderRadius: '34px',
@@ -64,10 +65,6 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 		};
 	}, []);
 
-	useEffect(() => {
-		console.log(info?.title, 'Title');
-	}, []);
-
 	const updateModalInfo = (key, value) => {
 		if (key === 'title') {
 			value = value?.trim();
@@ -93,7 +90,7 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 		console.log(assignedTo);
 
 		return Object.entries({
-			assignedTo: assignedTo ? { userId: assignedTo._id } : '',
+			assignedTo: assignedTo ? { userId: assignedTo?.value } : '',
 			clientId,
 			description,
 			dueDate,
@@ -176,6 +173,11 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 						customListItemStyle={customListItemStyle}
 						onOptionClick={(value) => updateModalInfo('assignedTo', value)}
 					/>
+					{info?.dueDate ? (
+						<DateView value={info?.dueDate} customListItemStyle={customListItemStyle} />
+					) : (
+						''
+					)}
 					<Tooltip
 						overlayClassName="moreOptions-container"
 						placement={'bottomRight'}
