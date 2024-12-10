@@ -81,7 +81,7 @@ const CalendarView = ({
 			const mappedEventsList = calendarEventsList?.map((event) => ({
 				id: event?._id,
 				start: moment(event?.startDateTime).local().toDate(), // Convert to local time
-				end: moment(event?.endDateTime).local().toDate(), // Convert to local time
+				end: moment(event?.endDateTime).local().toDate(),
 				title: event?.title,
 				description: event?.description,
 			}));

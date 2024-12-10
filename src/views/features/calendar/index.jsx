@@ -23,7 +23,7 @@ const Calendar = () => {
 		selectedCategory: null,
 		categoryFilter: [],
 	});
-
+	console.log('calendarCategories', calendarCategories);
 	useEffect(() => {
 		const payload = {
 			calendarCategory: 'default',
