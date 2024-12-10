@@ -101,7 +101,6 @@ const CalendarView = ({
 
 	const handleSendEventToAi = useCallback(async () => {
 		if (calendarEvent) {
-			console.log('calling handleSendEventToAi');
 			await sendEventToAi({
 				event_id: calendarEvent?._id,
 			});
