@@ -372,8 +372,16 @@ const OpenedSideBarItemsComponent = ({
 						{
 							<>
 								<div className="planExpiresDiv">
-									<div className="planExpiresTitle">
-										Your Plan has been Expired
+									<div
+										style={{
+											width: '100%',
+											display: 'flex',
+											justifyContent: 'start',
+										}}
+									>
+										<div className="planExpiresTitle">
+											Your Plan has been Expired
+										</div>
 									</div>
 									<div
 										style={{
