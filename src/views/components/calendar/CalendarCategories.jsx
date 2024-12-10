@@ -54,7 +54,7 @@ const CalendarCategories = ({
 		if (window.innerHeight >= 950) {
 			handleCategoryExpand();
 		}
-	}, []);
+	}, [categoryList]);
 
 	const handleCategoryExpand = useCallback(() => {
 		setInfo((prevInfo) => ({
