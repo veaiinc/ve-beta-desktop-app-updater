@@ -60,7 +60,12 @@ const responseTypes = {
 const ListView = () => {
 	const {
 		tasks: { listTasks, getListItems, addListItem },
-		templates: { getTemplatesListForCreateLead, templatesListForCreateLead },
+		templates: {
+			getTemplatesListForCreateLead,
+			templatesListForCreateLead,
+			clientList,
+			getClientList,
+		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 
@@ -73,12 +78,15 @@ const ListView = () => {
 		selectedRow: null,
 		workflows: [],
 		tenantUsers: [],
+		clients: [],
 	});
 	useEffect(() => {
 		getListItems({
 			filters: {
 				limit: 20,
 				page: 1,
+				sortBy: 'createdAt',
+				sortType: 1,
 			},
 		});
 		getTemplatesListForCreateLead();
@@ -153,7 +161,7 @@ const ListView = () => {
 		});
 	}, []);
 
-	const updatePropertyValue = useCallback((rowId, propName, value) => {
+	const updatePropertyValue = useCallback(async (rowId, propName, value) => {
 		setInfo((prevInfo) => {
 			const newListItems = [...prevInfo?.listItems].map((row) => {
 				if (row._id === rowId) {
@@ -169,6 +177,7 @@ const ListView = () => {
 				listItems: newListItems,
 			};
 		});
+		console.log(value);
 	}, []);
 
 	const generateRow = useCallback(
@@ -314,6 +323,7 @@ const ListView = () => {
 				closeModal={() => updateListViewInfo('isCreateModalOpen', false)}
 				addNewTask={addNewTask}
 				workflows={info?.workflows}
+				tenantUsers={info?.tenantUsers}
 			/>
 			<ListViewSidebar
 				selectedRow={info?.selectedRow}

@@ -19,6 +19,7 @@ import { DatePicker, Tooltip } from 'antd';
 import Spinner from '../../loaders/Spinner';
 import moment from 'moment';
 import WorkFlow from '../../tasks/listView/WorkFlow';
+import Person from '../../tasks/listView/Person';
 
 const customListItemStyle = {
 	borderRadius: '34px',
@@ -39,11 +40,11 @@ const initialState = {
 	priority: 'low',
 	status: 'todo',
 	title: '',
-	workflowId: '507f1f77bcf86cd799439011',
-	workflowTemplateId: '507f1f77bcf86cd799439011',
+	workflowId: '',
+	workflowTemplateId: '',
 };
 
-const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows }) => {
+const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUsers }) => {
 	const [info, setInfo] = useState({
 		...initialState,
 		isLoading: false,
@@ -89,9 +90,10 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows }) => {
 		if (!title.trim()) {
 			return;
 		}
+		console.log(assignedTo);
 
 		return Object.entries({
-			assignedTo,
+			assignedTo: assignedTo ? { userId: assignedTo._id } : '',
 			clientId,
 			description,
 			dueDate,
@@ -167,6 +169,12 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows }) => {
 						showLabel={true}
 						customListItemStyle={customListItemStyle}
 						onOptionClick={(value) => updateModalInfo('priority', value)}
+					/>
+					<Person
+						value={info?.assignedTo}
+						persons={tenantUsers}
+						customListItemStyle={customListItemStyle}
+						onOptionClick={(value) => updateModalInfo('assignedTo', value)}
 					/>
 					<Tooltip
 						overlayClassName="moreOptions-container"

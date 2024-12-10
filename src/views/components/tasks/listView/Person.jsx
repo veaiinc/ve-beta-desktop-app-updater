@@ -28,7 +28,9 @@ const Person = ({
 	const updatedOnOptionClick = useCallback(
 		(option) => {
 			const value = persons.find((person) => person._id === option);
-			onOptionClick({ _id: value._id, name: value.firstName + ' ' + value.lastName });
+			onOptionClick(
+				value ? { _id: value._id, name: value.firstName + ' ' + value.lastName } : null,
+			);
 		},
 		[onOptionClick, persons],
 	);
