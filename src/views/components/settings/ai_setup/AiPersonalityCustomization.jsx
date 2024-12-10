@@ -169,6 +169,70 @@ const AiPersonalityCustomization = () => {
 				)}
 				{/* </div> */}
 			</div>
+
+			<div className="ai-assistant-name-container">
+				<h1 className="ai-assistant-name">Embed AI Assistant in your website</h1>
+				{info?.isAiAssistantDetailsLoading ? (
+					<Skeleton width={'100%'} height={48} />
+				) : (
+					<div style={{ display: 'flex', gap: 16 }}>
+						<input
+							value={`<script src="https://widget.ve.ai/public.js" data-ai-assistant-id=${activeAiAssistantDetails?._id}  data-ai-assistant-name=${info?.aiAssistantName} data-nscript="afterInteractive"></script>`}
+							onInput={handleSetAiAssistantName}
+							className="ai-assistant-name-input"
+							type="text"
+							placeholder="Optimus"
+							readOnly
+							disabled
+						/>
+
+						<button
+							className="createBtn"
+							onClick={() => {
+								navigator.clipboard.writeText(
+									`<script src="https://widget.ve.ai/public.js" data-ai-assistant-id=${activeAiAssistantDetails?._id}  data-ai-assistant-name=${info?.aiAssistantName} data-nscript="afterInteractive"></script>`,
+								);
+								message.success('Script copied to clipboard!', 1.5);
+							}}
+							style={{
+								minWidth: '120px',
+								backgroundColor: '#202028',
+								color: '#FFFFFF',
+								borderRadius: '8px',
+								border: 'none',
+								padding: '12px 16px',
+								cursor: 'pointer',
+								fontWeight: '500',
+							}}
+						>
+							Copy Script
+						</button>
+					</div>
+				)}
+				{/* </div> */}
+			</div>
+			<div className="ai-assistant-name-container">
+				<h1 className="ai-assistant-name">Setup AI Assistant's Name</h1>
+				{/* <div
+					className={`ai-assistant-name-input-container ${
+						info.aiAssistantNameFocus ? 'ai-assistant-name-input-container-focus' : ''
+					}`}
+				> */}
+				{info?.isAiAssistantDetailsLoading ? (
+					<Skeleton width={'100%'} height={48} />
+				) : (
+					<input
+						value={info?.aiAssistantName}
+						onInput={handleSetAiAssistantName}
+						onFocus={() => handleSetAiAssistantNameFocus(true)}
+						onBlur={() => handleSetAiAssistantNameFocus(false)}
+						className="ai-assistant-name-input"
+						type="text"
+						placeholder="Optimus"
+					/>
+				)}
+				{/* </div> */}
+			</div>
 			<div className="ai-personality-description">
 				<h1>Personality</h1>
 				<h2>Add background, identity and expertise to your bot.</h2>
