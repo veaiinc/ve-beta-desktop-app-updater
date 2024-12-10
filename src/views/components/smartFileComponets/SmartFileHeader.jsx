@@ -31,6 +31,7 @@ const SmartFileHeader = ({
 	counterAccpetOnClick,
 	slug,
 	currentWorkspaceId,
+	toggleSendCustomEmailFunc,
 }) => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -64,7 +65,7 @@ const SmartFileHeader = ({
 				openMoveToStageModal();
 			}
 			if (data?.label === 'Send Email') {
-				openSendSmartFileModal();
+				toggleSendCustomEmailFunc();
 			}
 			if (data?.label === 'Resend File') {
 				openSendSmartFileModal();
