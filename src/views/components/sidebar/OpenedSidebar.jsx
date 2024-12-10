@@ -14,15 +14,11 @@ const CommonBottomSection = ({ handleLogout, openWorkspacesFunction }) => (
 	<div className="commonBottomSection">
 		<div className="currentWorkspaceDiv" onClick={openWorkspacesFunction}>
 			<div
-				className="detailedDiv"
+				className="currentWorkspaceDetails"
 				style={{
-					width: '218px',
 					display: 'flex',
-					flexDirection: 'row',
+					width: '218px',
 					justifyContent: 'space-between',
-					alignItems: 'flex-start',
-					alignSelf: 'stretch',
-					cursor: 'pointer',
 					padding: '12px 16px',
 				}}
 			>
@@ -236,16 +232,7 @@ const OpenedSideBarItemsComponent = ({
 	};
 
 	return sidebarStates?.workSpaceOpen ? (
-		<div
-			style={{
-				height: '100vh',
-				display: 'flex',
-				flexDirection: 'column',
-				justifyContent: 'flex-end',
-				alignItems: 'center',
-				gap: '16px',
-			}}
-		>
+		<div className="sidebarWorkspace">
 			<WorkspaceListComponent
 				setsidebarStates={setsidebarStates}
 				sidebarStates={sidebarStates}
@@ -269,15 +256,7 @@ const OpenedSideBarItemsComponent = ({
 						justifyContent: 'space-between',
 					}}
 				>
-					<div
-						className="topOptionsList"
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							height: '60vh',
-							overflowY: 'scroll',
-						}}
-					>
+					<div className="topOptionsList">
 						<div
 							className="veAiLogoDiv"
 							style={{ cursor: 'pointer' }}
