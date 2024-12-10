@@ -40,6 +40,7 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './Actions';
 import Service from '../../services/index';
+import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
 
 export const intialState = {
 	workflowslist: null,
@@ -1026,6 +1027,29 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const sendCustomEmailToClients = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				sendCustomMailMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				message.error('Error sending Email');
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>sendCustomEmailToClients', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -1073,5 +1097,6 @@ export const TemplatesState = (props) => {
 		addNewSteps,
 		updateSteps,
 		leaveWorkspace,
+		sendCustomEmailToClients,
 	};
 };
