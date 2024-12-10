@@ -42,9 +42,8 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 		// UI state
 		showCategory: false,
 		showAtendeeSuggestions: false,
-		showCategoryDropDown: false,
 		categories: ['Shoots', 'Sessions', 'Meetings'],
-		selectedCategory: selectedCategory?.id,
+		selectedCategory: selectedCategory || null,
 		attendeesInputField: '',
 		startDate: '',
 		startTime: '',
@@ -77,7 +76,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 			},
 		],
 	});
-	console.log('selectedCategory', JSON.stringify(selectedCategory));
+	console.log('selectedCategory', JSON.stringify(info?.selectedCategory));
 	const createEventRef = useRef(null);
 
 	// Format date and time to ISO string
@@ -149,7 +148,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 			timezone,
 			allDay,
 			attendees: processedAttendees,
-			calendarCategory: selectedCategory.toLowerCase(),
+			calendarCategory: selectedCategory?.id,
 			meeting,
 			phone: '',
 		};
@@ -338,8 +337,9 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 							onFocus={() => {
 								updateEventInfo('showCategory', true);
 							}}
+							value={info?.selectedCategory?.name}
 						/>
-						{/* <div
+						<div
 							className="downArrow"
 							onClick={() => updateEventInfo('showCategory', !info?.showCategory)}
 						>
@@ -348,11 +348,19 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 									transform: info?.showCategory ? `rotate(180deg)` : `rotate(0)`,
 								}}
 							/>
-						</div> */}
+						</div>
 						{info?.showCategory && (
 							<div className="categoryDropDown">
 								{categoryList?.map((item) => (
-									<div className="categoryDropDownItem">{item?.name}</div>
+									<div
+										className="categoryDropDownItem"
+										onMouseDown={() => {
+											updateEventInfo('selectedCategory', item);
+											updateEventInfo('showCategory', false);
+										}}
+									>
+										{item?.name}
+									</div>
 								))}
 								<div className="categoryDropDownItem addCategory">+ Add new</div>
 							</div>
