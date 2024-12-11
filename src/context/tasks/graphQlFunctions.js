@@ -78,3 +78,11 @@ export const updateListItemMutation = gql`
 		}
 	}
 `;
+
+export const deleteListItemMutation = gql`
+	mutation DeleteTask($deleteTaskTaskId2: ID!) {
+		deleteTask(taskId: $deleteTaskTaskId2) {
+			message
+		}
+	}
+`;

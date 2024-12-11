@@ -1,6 +1,11 @@
 import service from '../../services/graphQlServices';
 import { message } from 'antd';
-import { getListItemsQuery, addListItemMutation, updateListItemMutation } from './graphQlFunctions';
+import {
+	getListItemsQuery,
+	addListItemMutation,
+	updateListItemMutation,
+	deleteListItemMutation,
+} from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './actions';
@@ -79,6 +84,19 @@ export const TasksState = () => {
 		}
 	};
 
+	const deleteListItem = async (payload) => {
+		try {
+			const response = await service.mutation(deleteListItemMutation, payload);
+			if (response?.[0]) {
+				return response?.[1]?.data;
+			} else {
+				console.log('API failed ==> deleteListItem', response);
+			}
+		} catch (error) {
+			console.log('API failed ==> deleteListItem', error);
+		}
+	};
+
 	const resetTasksState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -88,6 +106,7 @@ export const TasksState = () => {
 		getListItems,
 		addListItem,
 		updateListItem,
+		deleteListItem,
 		resetTasksState,
 	};
 };

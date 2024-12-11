@@ -1,4 +1,4 @@
-import { Drawer, Progress } from 'antd';
+import { Drawer, Popconfirm, Progress, Tooltip } from 'antd';
 import React, { memo, useCallback } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
@@ -61,6 +61,7 @@ const ListViewSidebar = ({
 	updatePropertyValue,
 	workflows,
 	tenantUsers,
+	deleteTask,
 }) => {
 	const generateRow = useCallback((row) => {
 		const listItems = [];
@@ -147,7 +148,7 @@ const ListViewSidebar = ({
 
 					<div className="sidebar-image"></div>
 					<div className="sidebar-properties-container">{generateRow(selectedRow)}</div>
-					<div className="sidebar-subtasks-container">
+					{/* <div className="sidebar-subtasks-container">
 						<div className="subtask-header">
 							<DownArrow />
 							<span className="subtask-heading">Sub Tasks</span>
@@ -167,7 +168,46 @@ const ListViewSidebar = ({
 								<HorizontalMoreIcon className="cursor-pointer" />
 							</div>
 						</div>
-					</div>
+					</div> */}
+					<Popconfirm
+						title="Delete Task"
+						description="Are you sure you want to delete this task?"
+						okText="Yes"
+						cancelText="No"
+						okButtonProps={{
+							style: {
+								background: '#ff4d4d',
+								border: 'none',
+								borderRadius: '6px',
+								fontFamily: 'Inter',
+								fontWeight: 500,
+							},
+						}}
+						cancelButtonProps={{
+							style: {
+								background: '#1d1d1d',
+								border: '1px solid #1d1d1d',
+								borderRadius: '6px',
+								color: '#e4e5e6',
+								fontFamily: 'Inter',
+								fontWeight: 500,
+							},
+						}}
+						overlayStyle={{
+							background: '#151515',
+							border: '1px solid rgba(36, 36, 36, 0.64)',
+							borderRadius: '16px',
+						}}
+						overlayInnerStyle={{
+							color: '#e4e5e6',
+							fontFamily: 'Inter',
+						}}
+						onConfirm={() => {
+							deleteTask({ taskId: selectedRow?._id });
+						}}
+					>
+						<button className="deleteTask">Delete Task</button>
+					</Popconfirm>
 				</div>
 			</div>
 		</Drawer>

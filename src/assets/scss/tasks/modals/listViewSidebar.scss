@@ -147,6 +147,28 @@
 				}
 			}
 		}
+		.deleteTask {
+			background: #1d1d1d;
+			color: #ff4d4d;
+			border: 1px solid #ff4d4d;
+			padding: 10px 20px;
+			border-radius: 6px;
+			font-family: Inter;
+			font-size: 14px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			margin-top: 24px;
+
+			&:hover {
+				background: #ff4d4d;
+				color: #ffffff;
+			}
+
+			&:active {
+				transform: scale(0.98);
+			}
+		}
 	}
 	.cursor-ponter {
 		cursor: pointer;

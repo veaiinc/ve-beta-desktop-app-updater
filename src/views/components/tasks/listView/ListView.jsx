@@ -59,7 +59,7 @@ const responseTypes = {
 
 const ListView = () => {
 	const {
-		tasks: { listTasks, getListItems, addListItem, updateListItem },
+		tasks: { listTasks, getListItems, addListItem, updateListItem, deleteListItem },
 		templates: {
 			getTemplatesListForCreateLead,
 			templatesListForCreateLead,
@@ -67,6 +67,7 @@ const ListView = () => {
 			getClientList,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -170,6 +171,9 @@ const ListView = () => {
 
 	const updatePropertyValue = useCallback(
 		(rowId, propName, value) => {
+			if (validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
 			setInfo((prevInfo) => {
 				const updatedListItems = prevInfo.listItems.map((row) => {
 					if (row._id === rowId) {
@@ -304,6 +308,9 @@ const ListView = () => {
 	);
 
 	const addNewTask = useCallback(async (payload) => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		const response = await addListItem({ input: payload });
 		if (response) {
 			setInfo((prevInfo) => ({
@@ -312,6 +319,21 @@ const ListView = () => {
 			}));
 		} else {
 			throw new Error('Failed to add new task');
+		}
+	}, []);
+
+	const deleteTask = useCallback(async (payload) => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+		const response = await deleteListItem(payload);
+		if (response) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				listItems: prevInfo?.listItems?.filter((row) => row._id !== payload?.taskId),
+				sidebarIsOpen: false,
+				selectedRow: null,
+			}));
 		}
 	}, []);
 
@@ -385,6 +407,7 @@ const ListView = () => {
 				updatePropertyValue={updatePropertyValue}
 				workflows={info?.workflows}
 				tenantUsers={info?.tenantUsers}
+				deleteTask={deleteTask}
 			/>
 		</div>
 	);
