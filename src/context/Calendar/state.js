@@ -9,6 +9,7 @@ export const initialState = {
 	calendarEventsList: null,
 	calendarEvent: null,
 	calendarCategories: null,
+	calendarEventDetails: null,
 };
 
 export const Calendar = () => {
@@ -207,6 +208,31 @@ export const Calendar = () => {
 		}
 	};
 
+	const getCalendarEventDetails = async (eventId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.getCalendarEventDetails}/${eventId}`;
+			const response = await service.fetchGet(url, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_CALENDAR_EVENT_DETAILS,
+					payload: response?.[1]?.data,
+				});
+			} else {
+				dispatch({
+					type: Actions.GET_CALENDAR_EVENT_DETAILS,
+					payload: {
+						error: 'Something went wrong while fetching event details. Please try again.',
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>getCalendarEventDetails', error);
+		}
+	};
+
 	const resetCalendarState = () => {
 		dispatch({ type: Actions.RESET_CALENDAR_STATE });
 	};
@@ -222,5 +248,6 @@ export const Calendar = () => {
 		updateCalendarCategory,
 		getCalendarCategories,
 		deleteCalendarCategory,
+		getCalendarEventDetails,
 	};
 };

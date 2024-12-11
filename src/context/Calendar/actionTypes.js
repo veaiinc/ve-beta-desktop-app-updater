@@ -7,5 +7,6 @@ export const CALENDAR = {
 	updateCalendarCategory: '/calendar/updateCalendarCategory',
 	calendarCategories: '/calendar/getCalendarCategories',
 	deleteCalendarCategory: '/calendar/deleteCalendarCategory',
+	getCalendarEventDetails: '/calendar/getEvent',
 	resetCalendarState: 'RESET_CALENDAR_STATE',
 };

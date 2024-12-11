@@ -3,6 +3,8 @@
 	// width: 500px;
 	display: flex;
 	padding: 10px;
+	justify-content: center;
+	align-items: center;
 
 	.innerContainer {
 		display: flex;
@@ -17,6 +19,22 @@
 		background: #191919;
 		overflow-y: auto;
 		overflow-x: hidden;
+
+		// for spinner
+		.loadingContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			justify-content: center;
+			align-items: center;
+			height: 100%;
+			align-self: stretch;
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 600;
+		}
 
 		.headerWrapper {
 			display: flex;
