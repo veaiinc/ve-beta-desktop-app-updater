@@ -96,6 +96,7 @@ const GalleryPage = () => {
 			getDownloadLinkForImage,
 			getDownloadForMultipleImages,
 		},
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		albumName: '',
@@ -1481,6 +1482,10 @@ const GalleryPage = () => {
 		return activeTag?.customSortIndex || 0;
 	};
 	const handleDownload = async () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+
 		message.loading('Downloading image...', 0);
 		if (info?.selectedImages?.length === 1) {
 			const response = await getDownloadLinkForImage(info?.selectedImages[0]);
