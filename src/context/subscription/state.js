@@ -13,6 +13,8 @@ export const intialState = {
 	currentPlan: null,
 	referralData: null,
 	shareAndEarnData: null,
+	validateExpiryData: null,
+	expiredSubscriptionModal: false,
 };
 
 export const SubscriptionState = (props) => {
@@ -237,6 +239,17 @@ export const SubscriptionState = (props) => {
 			console.log('errror ==>createManageSubscriptionLinkforExistingUsers', error);
 		}
 	};
+
+	const updateSubscriptionState = async (payload) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_SUBSCRIPTION_STATE,
+				payload,
+			});
+		} catch (error) {
+			console.log('errror ==>updateSubscriptionState', error);
+		}
+	};
 	return {
 		...state,
 		getAllSubscriptionPlan,
@@ -249,5 +262,6 @@ export const SubscriptionState = (props) => {
 		getOnboardPosition,
 		sendCustomMailToClients,
 		createManageSubscriptionLinkforExistingUsers,
+		updateSubscriptionState,
 	};
 };

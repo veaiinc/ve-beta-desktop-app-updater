@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { useContext, useMemo } from 'react';
 import { newBtnActions } from './sidebarindex';
 import { useNavigate } from 'react-router-dom';
+import Context from '../../../context/context';
 
 const DropDrownMenu = ({ info, setInfo }) => {
 	const navigate = useNavigate();
-	const allFunctionsObject = {
-		openLeadPopup: () => {
-			setInfo((prev) => ({ ...prev, createLeadModal: true }));
-		},
-	};
+
+	let {
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+	} = useContext(Context);
+	const allFunctionsObject = useMemo(() => {
+		return {
+			openLeadPopup: () => {
+				if (validateExpiryData?.isExpired) {
+					return updateSubscriptionState({ expiredSubscriptionModal: true });
+				}
+				setInfo((prev) => ({ ...prev, createLeadModal: true }));
+			},
+		};
+	}, [validateExpiryData]);
 
 	const handleOptionClick = (option) => {
 		if (option?.action === 'functionCall') {
