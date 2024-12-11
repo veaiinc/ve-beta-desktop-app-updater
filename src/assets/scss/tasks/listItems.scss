@@ -184,3 +184,10 @@
 	align-items: center;
 	cursor: pointer;
 }
+
+.listItem-timeStamp {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	border: none;
+}

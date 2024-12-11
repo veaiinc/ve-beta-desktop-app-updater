@@ -84,7 +84,7 @@ const ListViewSidebar = ({
 								title={key}
 								showLabel
 								{...(componentType === 'workflow' ? { workflows } : {})}
-								{...(key === 'updatedBy' ? { options: tenantUsers } : {})}
+								{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
 								// onOptionClick={(value) => updatePropertyValue(row._id, key, value)}
 								onOptionClick={(value) => {
 									updatePropertyValue(row._id, key, value);
@@ -117,12 +117,32 @@ const ListViewSidebar = ({
 						<HorizontalMoreIcon className="cursor-pointer" />
 						<CloseArrow onClick={closeSidebar} className="cursor-pointer" />
 					</div>
-					<h2 className="sidebar-title">{selectedRow?.title}</h2>
-					{selectedRow?.description ? (
-						<p className="sidebar-description">{selectedRow?.description}</p>
-					) : (
-						''
-					)}
+
+					{/* Title input */}
+					<div className="sidebar-title">
+						<input
+							type="text"
+							className="sidebar-title-input"
+							value={selectedRow?.title || ''}
+							onChange={(e) =>
+								updatePropertyValue(selectedRow?._id, 'title', e.target.value)
+							}
+							placeholder="Enter title"
+						/>
+					</div>
+
+					{/* Description textarea */}
+					<div className="sidebar-description">
+						<textarea
+							className="sidebar-description-textarea"
+							value={selectedRow?.description || ''}
+							onChange={(e) =>
+								updatePropertyValue(selectedRow?._id, 'description', e.target.value)
+							}
+							placeholder="Enter description"
+						/>
+					</div>
+
 					<div className="sidebar-image"></div>
 					<div className="sidebar-properties-container">{generateRow(selectedRow)}</div>
 					<div className="sidebar-subtasks-container">

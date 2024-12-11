@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import '../../../../assets/scss/tasks/listView.scss';
 import { ReactComponent as ChartList } from '../../../../assets/svg/tasks/chartLine.svg';
 import { ReactComponent as OptionsLine } from '../../../../assets/svg/tasks/optionsLine.svg';
@@ -80,6 +80,9 @@ const ListView = () => {
 		tenantUsers: [],
 		clients: [],
 	});
+
+	const debounceTimeout = useRef(null);
+
 	useEffect(() => {
 		getListItems({
 			filters: {
@@ -165,34 +168,62 @@ const ListView = () => {
 		});
 	}, []);
 
-	const updatePropertyValue = useCallback(async (rowId, propName, value) => {
-		console.log(propName, value);
+	const updatePropertyValue = useCallback(
+		(rowId, propName, value) => {
+			console.log(`Updating ${propName} to`, value);
 
-		setInfo((prevInfo) => {
-			const newListItems = [...prevInfo?.listItems].map((row) => {
-				if (row._id === rowId) {
-					return {
-						...row,
-						[propName]: value,
-					};
-				}
-				return row;
+			// Optimistic UI update
+			setInfo((prevInfo) => {
+				const updatedListItems = prevInfo.listItems.map((row) => {
+					if (row._id === rowId) {
+						return { ...row, [propName]: value };
+					}
+					return row;
+				});
+
+				return {
+					...prevInfo,
+					listItems: updatedListItems,
+				};
 			});
-			return {
-				...prevInfo,
-				listItems: newListItems,
-			};
-		});
-		const response = await updateListItem({
-			taskId: rowId,
-			updateInput: {
-				[propName]: value,
-			},
-		});
-		if (response) {
-			console.log(response);
-		}
-	}, []);
+
+			// Debounce the API call
+			if (debounceTimeout.current) {
+				clearTimeout(debounceTimeout.current);
+			}
+
+			debounceTimeout.current = setTimeout(async () => {
+				try {
+					const response = await updateListItem({
+						taskId: rowId,
+						updateInput: { [propName]: value },
+					});
+
+					if (response) {
+						console.log('Update successful:', response);
+					}
+				} catch (error) {
+					console.error('Failed to update:', error);
+
+					// Rollback state if API fails
+					setInfo((prevInfo) => {
+						const rolledBackListItems = prevInfo.listItems.map((row) => {
+							if (row._id === rowId) {
+								return { ...row, [propName]: row[propName] }; // Reset to original value
+							}
+							return row;
+						});
+
+						return {
+							...prevInfo,
+							listItems: rolledBackListItems,
+						};
+					});
+				}
+			}, 800); // Adjust debounce delay as needed
+		},
+		[updateListItem],
+	);
 
 	const generateRow = useCallback(
 		(row) => {
@@ -231,6 +262,9 @@ const ListView = () => {
 									? { workflows: info?.workflows }
 									: {})}
 								{...(key === 'assignedTo' ? { persons: info?.tenantUsers } : {})}
+								{...(key === 'updatedAt' || key === 'createdAt'
+									? { showDropDown: false }
+									: {})}
 								// {...(key === 'client' ? { options: info?.clients } : {})}
 							/>
 						) : (
@@ -249,6 +283,9 @@ const ListView = () => {
 									? { workflows: info?.workflows }
 									: {})}
 								{...(key === 'updatedBy' ? { options: info?.tenantUsers } : {})}
+								{...(key === 'updatedAt' || key === 'createdAt'
+									? { showDropDown: false }
+									: {})}
 							/>
 						) : (
 							<div key={key}>{value}</div>

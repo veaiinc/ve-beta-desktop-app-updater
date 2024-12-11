@@ -76,7 +76,7 @@ const DropDown = ({
 			color={'transparent'}
 			overlayStyle={{ minWidth: 'fit-content' }}
 		>
-			<div className="" onClick={handlePropagation}>
+			<div className="" style={{ cursor: 'pointer' }} onClick={handlePropagation}>
 				{children}
 			</div>
 		</Tooltip>
