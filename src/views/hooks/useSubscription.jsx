@@ -55,23 +55,14 @@ const useSubscription = () => {
 				return cleanupTimers; // More than 24 hours - no timer needed
 			}
 			if (validateExpiryData?.hoursLeft > 6) {
-				timerRef.current.timer = setTimeout(checkExpiry, 6 * 60 * 60 * 1000); // Between 6 and 24 hours - check every 6 hours
+				timerRef.current.timer = setTimeout(handleExpiryCheckLogic, 6 * 60 * 60 * 1000); // Between 6 and 24 hours - check every 6 hours
 			} else if (validateExpiryData?.hoursLeft > 1) {
-				timerRef.current.interval = setInterval(checkExpiry, 60 * 60 * 1000); // Between 1 and 6 hours - check every hour
+				timerRef.current.interval = setInterval(handleExpiryCheckLogic, 60 * 60 * 1000); // Between 1 and 6 hours - check every hour
 			} else if (validateExpiryData?.secondsLeft > 60) {
-				timerRef.current.interval = setInterval(checkExpiry, 60 * 1000); // Between 1 minute and 1 hour - check every minute
+				timerRef.current.interval = setInterval(handleExpiryCheckLogic, 60 * 1000); // Between 1 minute and 1 hour - check every minute
 			} else {
-				timerRef.current.interval = setInterval(checkExpiry, 1000); // Less than 1 minute - check every second
+				timerRef.current.interval = setInterval(handleExpiryCheckLogic, 1000); // Less than 1 minute - check every second
 			}
-		}
-	}, [currentPlan]);
-
-	const checkExpiry = useCallback(() => {
-		if (currentPlan?.expiresAt) {
-			const validateExpiryData = calculateTimeLeft(currentPlan?.expiresAt || 0);
-			setInfo((prev) => ({ ...prev, ...(validateExpiryData || {}) }));
-			updateSubscriptionState({ validateExpiryData: { ...(validateExpiryData || {}) } });
-			console.log('validateExpiryData', validateExpiryData);
 		}
 	}, [currentPlan]);
 
