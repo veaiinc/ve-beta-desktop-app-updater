@@ -85,7 +85,9 @@ const ListViewSidebar = ({
 								showLabel
 								{...(componentType === 'workflow' ? { workflows } : {})}
 								{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
-								// onOptionClick={(value) => updatePropertyValue(row._id, key, value)}
+								{...(key === 'updatedAt' || key === 'createdAt'
+									? { showDropDown: false }
+									: {})}
 								onOptionClick={(value) => {
 									updatePropertyValue(row._id, key, value);
 								}}

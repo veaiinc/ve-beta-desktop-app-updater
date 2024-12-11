@@ -74,6 +74,7 @@ export const updateListItemMutation = gql`
 		updateTask(taskId: $taskId, updateInput: $updateInput) {
 			_id
 			workflowId
+			dueDate
 		}
 	}
 `;

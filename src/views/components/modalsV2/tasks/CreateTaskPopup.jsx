@@ -55,14 +55,14 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 	const [info, setInfo] = useState({
 		...initialState,
 		isLoading: false,
-		datePickerModalOpen: false,
-		dateOptions: [
-			{ label: 'Remove date', value: null },
-			{ label: 'Custom', value: 'custom' },
-			{ label: 'Tomorrow', value: moment().add(1, 'days').unix() },
-			{ label: 'End of the week', value: moment().isoWeekday(7).unix() }, // End of the week (Sunday)
-			{ label: 'In one week', value: moment().add(1, 'weeks').unix() },
-		],
+		// datePickerModalOpen: false,
+		// dateOptions: [
+		// 	{ label: 'Remove date', value: null },
+		// 	{ label: 'Custom', value: 'custom' },
+		// 	{ label: 'Tomorrow', value: moment().add(1, 'days').unix() },
+		// 	{ label: 'End of the week', value: moment().isoWeekday(7).unix() }, // End of the week (Sunday)
+		// 	{ label: 'In one week', value: moment().add(1, 'weeks').unix() },
+		// ],
 	});
 
 	useEffect(() => {
@@ -209,7 +209,11 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 						onOptionClick={(value) => updateModalInfo('assignedTo', value)}
 					/>
 					{info?.dueDate ? (
-						<DateView value={info?.dueDate} customListItemStyle={customListItemStyle} />
+						<DateView
+							value={info?.dueDate}
+							customListItemStyle={customListItemStyle}
+							onOptionClick={(value) => updateModalInfo('dueDate', value)}
+						/>
 					) : (
 						''
 					)}
@@ -218,18 +222,14 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 						placement={'bottomRight'}
 						title={
 							<div className="moreOptions-wrapper">
-								<DropDown
-									title={'Change due date'}
-									options={info?.dateOptions}
-									onOptionClick={onOptionClick}
-									selected={info?.dueDate}
-									valueSelector="value"
+								<div
+									className="more-listItem"
+									onClick={() => updateModalInfo('dueDate', moment().unix())}
 								>
-									<div className="more-listItem">
-										<CalendarIcon />
-										<span>Set due date</span>
-									</div>
-								</DropDown>
+									<CalendarIcon />
+									<span>Set due date</span>
+								</div>
+
 								<div className="more-listItem">
 									<LinkIcon /> <span>Add link</span>
 								</div>

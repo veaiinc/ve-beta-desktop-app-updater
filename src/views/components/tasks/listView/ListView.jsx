@@ -170,9 +170,6 @@ const ListView = () => {
 
 	const updatePropertyValue = useCallback(
 		(rowId, propName, value) => {
-			console.log(`Updating ${propName} to`, value);
-
-			// Optimistic UI update
 			setInfo((prevInfo) => {
 				const updatedListItems = prevInfo.listItems.map((row) => {
 					if (row._id === rowId) {
@@ -198,10 +195,6 @@ const ListView = () => {
 						taskId: rowId,
 						updateInput: { [propName]: value },
 					});
-
-					if (response) {
-						console.log('Update successful:', response);
-					}
 				} catch (error) {
 					console.error('Failed to update:', error);
 
