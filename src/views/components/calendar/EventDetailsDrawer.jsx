@@ -3,13 +3,11 @@ import { Drawer } from 'antd';
 import '../../../assets/scss/calendar/eventDetailsDrawer.scss';
 import { ReactComponent as CategoryIcon } from '../../../assets/svg/calendar/category.svg';
 import { ReactComponent as ShareIcon } from '../../../assets/svg/calendar/shareWhite.svg';
-// import { ReactComponent as HorizontalMoreIcon } from '../../../assets/svg/calendar/horizontalDots.svg';
 import { ReactComponent as VerticalDots } from '../../../assets/svg/more-options-dots.svg';
 import { ReactComponent as NoteIcon } from '../../../assets/svg/calendar/note.svg';
-import { ReactComponent as RainbowRing } from '../../../assets/svg/calendar/rainbowRing.svg';
 import { ReactComponent as Close } from '../../../assets/svg/calendar/close.svg';
 
-const EventDetailsDrawer = ({ isEventSelected, updateCalendarInfo }) => {
+const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo }) => {
 	return (
 		<Drawer
 			onClose={() => updateCalendarInfo('isEventSelected', false)}

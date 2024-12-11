@@ -1,7 +1,6 @@
-import React, { memo, useCallback, useEffect, useRef, useState, useContext } from 'react';
+import React, { memo, useCallback, useRef, useState, useContext } from 'react';
 import '../../../assets/scss/calendar/createEvent.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
-// import { ReactComponent as VerticalDots } from '../../../assets/svg/more-options-dots.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import { ReactComponent as Clock } from '../../../assets/svg/activity/duration.svg';
 import { ReactComponent as Category } from '../../../assets/svg/calendar/category.svg';
