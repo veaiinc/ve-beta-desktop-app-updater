@@ -22,6 +22,7 @@ const initialState = {
 	isLoading: true,
 	isEventCreated: false,
 	updateEventsList: false,
+	selectedEvent: null,
 };
 
 const CalendarView = ({
@@ -107,6 +108,17 @@ const CalendarView = ({
 		}
 	}, [calendarEvent]);
 
+	const handleSelectEvent = useCallback(
+		(event) => {
+			updateCalendarInfo('isEventSelected', true);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				selectedEvent: event,
+			}));
+		},
+		[info?.selectedEvent],
+	);
+
 	const components = useMemo(
 		() => ({
 			timeGutterHeader: CustomTimeGutterHeader,
@@ -146,13 +158,14 @@ const CalendarView = ({
 							className="custom"
 							selectable
 							onSelectSlot={() => updateCalendarInfo('isCreateEventOpen', true)}
-							onSelectEvent={(event) => updateCalendarInfo('isEventSelected', true)}
-							date={selectedDate} //for syncing with calendarSelector current date
+							onSelectEvent={(event) => handleSelectEvent(event)}
+							date={selectedDate}
 							popup
 							components={components}
 						/>
 					</div>
 					<EventDetailsDrawer
+						selectedEvent={info?.selectedEvent}
 						isEventSelected={isEventSelected}
 						updateCalendarInfo={updateCalendarInfo}
 					/>
