@@ -112,7 +112,7 @@
 				}
 			}
 			.rbc-row-content {
-				pointer-events: none;
+				// pointer-events: none;
 				z-index: 0;
 				.rbc-row {
 					// padding: 2px;
@@ -167,7 +167,7 @@
 						}
 						.rbc-show-more {
 							color: #e4e5e6;
-							pointer-events: auto;
+							// pointer-events: auto;
 							background: none;
 							&:hover {
 								color: #7d7d7d;
