@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/calendar/modal/updateCategoryModal.scss';
 
@@ -111,4 +111,4 @@ const updateCategoryModal = ({
 	);
 };
 
-export default updateCategoryModal;
+export default memo(updateCategoryModal);
