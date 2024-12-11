@@ -121,7 +121,6 @@ const RenderEventDetails = ({ info, updateCalendarInfo, formatEventTime }) => {
 					</div>
 					<input type="text" placeholder="add attendee" />
 					<div className="attendiesDetailsContainer">
-						{console.log('hey', JSON.stringify(attendees, null, 2))}
 						{attendees?.map((attendee, index) => (
 							<div key={index} className="attendeesDetailsWrapper">
 								<div className="avatar"></div>
