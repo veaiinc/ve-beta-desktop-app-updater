@@ -23,19 +23,16 @@ const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo
 						<div className="headerText">
 							<div className="categoryLabel">
 								<CategoryIcon />
-								<span className="categoryText">Meeting / Google meet</span>
+								<span className="categoryText">Event Details</span>
 							</div>
-							<div className="eventName">Virat Kohli & anushka</div>
+							{/* <div className="eventName">Virat Kohli & anushka</div> */}
 						</div>
 						<div className="headerIcons">
-							<button>
-								<ShareIcon />
-							</button>
+							<button>{/* <ShareIcon /> */}</button>
 							<button
 								className=""
 								onClick={() => updateCalendarInfo('isEventSelected', false)}
 							>
-								{/* <HorizontalMoreIcon /> */}
 								<Close />
 							</button>
 						</div>
@@ -45,17 +42,25 @@ const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo
 							<div className="detailsTitle">Agenda</div>
 							<div className="detailsValue">Meeting for sales</div>
 						</div>
-						<div className="detailsData">
+						{/* <div className="detailsData">
 							<div className="detailsTitle">Client name</div>
 							<div className="detailsValue">Virat Kohli & anushka</div>
-						</div>
+						</div> */}
 						<div className="detailsData">
-							<div className="detailsTitle">Date</div>
+							<div className="detailsTitle">Start Date</div>
 							<div className="detailsValue">Wed, September 22 2024</div>
 						</div>
 						<div className="detailsData">
-							<div className="detailsTitle">Time</div>
+							<div className="detailsTitle">End Date</div>
+							<div className="detailsValue">Wed, September 22 2024</div>
+						</div>
+						<div className="detailsData">
+							<div className="detailsTitle">Time Duration</div>
 							<div className="detailsValue">12:00PM - 12:30PM</div>
+						</div>
+						<div className="detailsData">
+							<div className="detailsTitle">All day event</div>
+							<div className="detailsValue">No</div>
 						</div>
 					</div>
 					<div className="attendeesWrapper">
