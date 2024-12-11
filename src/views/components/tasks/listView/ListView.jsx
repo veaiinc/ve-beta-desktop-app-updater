@@ -21,6 +21,7 @@ import Context from '../../../../context/context';
 import { Tooltip } from 'antd';
 import ListViewSidebar from '../../modalsV2/tasks/ListViewSidebar';
 import WorkFlow from './WorkFlow';
+import ListViewHeader from './ListViewHeader';
 
 const rowTypes = {
 	text: Text,
@@ -350,7 +351,7 @@ const ListView = () => {
 
 	return (
 		<div className="listViewParentContainer">
-			<div className="listHeader">
+			{/* <div className="listHeader">
 				<h2 className="listView-title">Tasks</h2>
 
 				<Tooltip
@@ -377,7 +378,8 @@ const ListView = () => {
 				>
 					Create new task
 				</button>
-			</div>
+			</div> */}
+			<ListViewHeader />
 			<div className="listContainer">
 				{info?.listItems?.length !== 0 ? (
 					info?.listItems?.map((row, index) => (
