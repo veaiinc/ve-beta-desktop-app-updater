@@ -38,7 +38,6 @@ const SmartFile = () => {
 			sendSmartFileSettings,
 		},
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -202,9 +201,6 @@ const SmartFile = () => {
 	);
 
 	const openSendSmartFileModal = useCallback(async () => {
-		if (validateExpiryData?.isExpired) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
-		}
 		if (info?.activeTab === 'form') {
 			return setInfo((prev) => ({ ...prev, activeTab: 'file' }));
 		}
@@ -213,18 +209,15 @@ const SmartFile = () => {
 		}
 
 		setInfo((prev) => ({ ...prev, sendSmartFileModal: true }));
-	}, [info?.sendSmartFileModal, info?.activeTab, info?.workspaceLogo, validateExpiryData]);
+	}, [info?.sendSmartFileModal, info?.activeTab, info?.workspaceLogo]);
 
 	const openCopyModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, copyModal: true }));
 	}, [info?.sendSmartFileModal]);
 
 	const openSignatureModal = useCallback(async () => {
-		if (validateExpiryData?.isExpired) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
-		}
 		setInfo((prev) => ({ ...prev, signatureModal: true }));
-	}, [info?.sendSmartFileModal, validateExpiryData]);
+	}, [info?.sendSmartFileModal]);
 
 	const acceptProposalFunc = useCallback(async () => {
 		//accept the proposal and also update workflow status

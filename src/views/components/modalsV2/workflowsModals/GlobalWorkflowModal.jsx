@@ -165,7 +165,6 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 			specificTemplatesInfo,
 			updateStateValues,
 		},
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	const [info, setInfo] = useState(initialState);
 
@@ -219,9 +218,6 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 	}, [closeModal]);
 
 	const onCustomiseFunc = useCallback(async () => {
-		if (validateExpiryData?.isExpired) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
-		}
 		if (info?.duplicateApiLoading) {
 			return;
 		}
@@ -242,9 +238,6 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 		}
 	}, [info?.activeTemplateData, info?.activeTab, info?.duplicateApiLoading]);
 	const onGenerateAIFunc = () => {
-		if (validateExpiryData?.isExpired) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
-		}
 		window.location.href = `${origin}/generate/${info?.activeTemplateData?._id}`;
 	};
 	return (
