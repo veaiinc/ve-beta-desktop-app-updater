@@ -1,13 +1,41 @@
-import React, { memo } from 'react';
+import React, { memo, useContext, useState, useCallback, useEffect } from 'react';
 import { Drawer } from 'antd';
 import '../../../assets/scss/calendar/eventDetailsDrawer.scss';
 import { ReactComponent as CategoryIcon } from '../../../assets/svg/calendar/category.svg';
-import { ReactComponent as ShareIcon } from '../../../assets/svg/calendar/shareWhite.svg';
+// import { ReactComponent as ShareIcon } from '../../../assets/svg/calendar/shareWhite.svg';
 import { ReactComponent as VerticalDots } from '../../../assets/svg/more-options-dots.svg';
 import { ReactComponent as NoteIcon } from '../../../assets/svg/calendar/note.svg';
 import { ReactComponent as Close } from '../../../assets/svg/calendar/close.svg';
+import Spinner from '../../components/loaders/Spinner';
+import Context from '../../../context/context';
 
 const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo }) => {
+	const {
+		calendarInfo: { calendarEventDetails, getCalendarEventDetails },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		loading: false,
+		eventDetails: null,
+	});
+	useEffect(() => {
+		getEventDetails();
+	}, [selectedEvent]);
+
+	useEffect(() => {
+		if (calendarEventDetails) {
+			setInfo({ ...info, eventDetails: calendarEventDetails });
+		}
+	}, [calendarEventDetails]);
+
+	const getEventDetails = useCallback(async () => {
+		setInfo({ ...info, loading: true });
+		await getCalendarEventDetails(selectedEvent?.id);
+		setInfo({ ...info, loading: false });
+	}, [selectedEvent]);
+
+	console.log('"selectedEvent==>', JSON.stringify(calendarEventDetails, null, 2));
+
 	return (
 		<Drawer
 			onClose={() => updateCalendarInfo('isEventSelected', false)}
@@ -17,89 +45,99 @@ const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
 		>
-			<div className="eventDetailsDrawerParentCOntainer">
-				<div className="innerContainer">
-					<div className="headerWrapper">
-						<div className="headerText">
-							<div className="categoryLabel">
-								<CategoryIcon />
-								<span className="categoryText">Event Details</span>
-							</div>
-							{/* <div className="eventName">Virat Kohli & anushka</div> */}
-						</div>
-						<div className="headerIcons">
-							<button>{/* <ShareIcon /> */}</button>
-							<button
-								className=""
-								onClick={() => updateCalendarInfo('isEventSelected', false)}
-							>
-								<Close />
-							</button>
+			{info?.loading ? (
+				<div className="eventDetailsDrawerParentCOntainer">
+					<div className="innerContainer">
+						<div className="loadingContainer">
+							<Spinner />
+							<div>Hang tight! Your event details are on their way...</div>
 						</div>
 					</div>
-					<div className="eventDetailsWrapper">
-						<div className="detailsData">
-							<div className="detailsTitle">Agenda</div>
-							<div className="detailsValue">Meeting for sales</div>
+				</div>
+			) : (
+				<div className="eventDetailsDrawerParentCOntainer">
+					<div className="innerContainer">
+						<div className="headerWrapper">
+							<div className="headerText">
+								<div className="categoryLabel">
+									<CategoryIcon />
+									<span className="categoryText">Event Details</span>
+								</div>
+								{/* <div className="eventName">Virat Kohli & anushka</div> */}
+							</div>
+							<div className="headerIcons">
+								<button>{/* <ShareIcon /> */}</button>
+								<button
+									className=""
+									onClick={() => updateCalendarInfo('isEventSelected', false)}
+								>
+									<Close />
+								</button>
+							</div>
 						</div>
-						{/* <div className="detailsData">
+						<div className="eventDetailsWrapper">
+							<div className="detailsData">
+								<div className="detailsTitle">Agenda</div>
+								<div className="detailsValue">Meeting for sales</div>
+							</div>
+							{/* <div className="detailsData">
 							<div className="detailsTitle">Client name</div>
 							<div className="detailsValue">Virat Kohli & anushka</div>
 						</div> */}
-						<div className="detailsData">
-							<div className="detailsTitle">Start Date</div>
-							<div className="detailsValue">Wed, September 22 2024</div>
+							<div className="detailsData">
+								<div className="detailsTitle">Start Date</div>
+								<div className="detailsValue">Wed, September 22 2024</div>
+							</div>
+							<div className="detailsData">
+								<div className="detailsTitle">End Date</div>
+								<div className="detailsValue">Wed, September 22 2024</div>
+							</div>
+							<div className="detailsData">
+								<div className="detailsTitle">Time Duration</div>
+								<div className="detailsValue">12:00PM - 12:30PM</div>
+							</div>
+							<div className="detailsData">
+								<div className="detailsTitle">All day event</div>
+								<div className="detailsValue">No</div>
+							</div>
 						</div>
-						<div className="detailsData">
-							<div className="detailsTitle">End Date</div>
-							<div className="detailsValue">Wed, September 22 2024</div>
-						</div>
-						<div className="detailsData">
-							<div className="detailsTitle">Time Duration</div>
-							<div className="detailsValue">12:00PM - 12:30PM</div>
-						</div>
-						<div className="detailsData">
-							<div className="detailsTitle">All day event</div>
-							<div className="detailsValue">No</div>
-						</div>
-					</div>
-					<div className="attendeesWrapper">
-						<div className="attendeesLabel">
-							<h3>Attendees</h3>
-							<div className="attendeesCount">2</div>
-						</div>
-						<input type="text" placeholder="add attendee" />
-						<div className="attendiesDetailsContainer">
-							<div className="attendeesDetailsWrapper">
-								<div className="avatar"></div>
+						<div className="attendeesWrapper">
+							<div className="attendeesLabel">
+								<h3>Attendees</h3>
+								<div className="attendeesCount">2</div>
+							</div>
+							<input type="text" placeholder="add attendee" />
+							<div className="attendiesDetailsContainer">
+								<div className="attendeesDetailsWrapper">
+									<div className="avatar"></div>
 
-								<div className="textWrapper">
-									<div className="name">Gretchen Culhane</div>
-									<div className="role"> Attendee</div>
+									<div className="textWrapper">
+										<div className="name">Gretchen Culhane</div>
+										<div className="role"> Attendee</div>
+									</div>
+									<VerticalDots />
 								</div>
-								<VerticalDots />
-							</div>
-							<div className="attendeesDetailsWrapper">
-								<div className="avatar"></div>
-								<div className="textWrapper">
-									<div className="name">Ann Siphron</div>
-									<div className="role">Attendee</div>
+								<div className="attendeesDetailsWrapper">
+									<div className="avatar"></div>
+									<div className="textWrapper">
+										<div className="name">Ann Siphron</div>
+										<div className="role">Attendee</div>
+									</div>
+									<VerticalDots />
 								</div>
-								<VerticalDots />
 							</div>
 						</div>
-					</div>
-					<div className="descriptionWrapper">
-						<div className="descriptionLabel">
-							<NoteIcon />
-							<h3>Description</h3>
+						<div className="descriptionWrapper">
+							<div className="descriptionLabel">
+								<NoteIcon />
+								<h3>Description</h3>
+							</div>
+							<p>
+								This page aims to provide real-time insights into employee
+								performance metrics and key business indicators.
+							</p>
 						</div>
-						<p>
-							This page aims to provide real-time insights into employee performance
-							metrics and key business indicators.
-						</p>
-					</div>
-					{/* <div className="notesWrapper">
+						{/* <div className="notesWrapper">
 						<nav>
 							<ul>
 								<li className="active">Notes</li>
@@ -147,9 +185,10 @@ const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo
 						</div>
 					</div> */}
 
-					{/* Note part will be excluded from this component */}
+						{/* Note part will be excluded from this component */}
+					</div>
 				</div>
-			</div>
+			)}
 		</Drawer>
 	);
 };
