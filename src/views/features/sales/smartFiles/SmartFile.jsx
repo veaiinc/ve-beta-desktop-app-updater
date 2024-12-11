@@ -12,9 +12,10 @@ import UploadSignature from '../../../components/modalsV2/workflowsModals/Upload
 import MoveStageModal from '../../../components/modalsV2/workflowsModals/moveStageModal';
 import UpdatedPageLoader from '../../../components/loaders/UpdatedPageLoader';
 import DeleteLeadModal from '../../../components/modalsV2/workflowsModals/DeleteLeadModal';
-import Notification from '../../../components/notification/Notification';
+// import Notification from '../../../components/notification/Notification';
 import UploadLogoNotification from '../../../components/notification/UploadLogoNotification';
 import { getCurrentWorkspaceId } from '../../../../helpers';
+import SendEmailModal from '../../../components/modalsV2/proposalModals/SendEmailModal';
 
 const SmartFile = () => {
 	const { templateId, workflowId } = useParams();
@@ -37,6 +38,7 @@ const SmartFile = () => {
 			sendSmartFileSettings,
 		},
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -63,6 +65,7 @@ const SmartFile = () => {
 		nameIdentification: false,
 		emailIdentification: false,
 		assisstanceData: null,
+		sendCustomEmailModal: false,
 	});
 
 	//useEffect
@@ -199,6 +202,9 @@ const SmartFile = () => {
 	);
 
 	const openSendSmartFileModal = useCallback(async () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		if (info?.activeTab === 'form') {
 			return setInfo((prev) => ({ ...prev, activeTab: 'file' }));
 		}
@@ -207,15 +213,18 @@ const SmartFile = () => {
 		}
 
 		setInfo((prev) => ({ ...prev, sendSmartFileModal: true }));
-	}, [info?.sendSmartFileModal, info?.activeTab, info?.workspaceLogo]);
+	}, [info?.sendSmartFileModal, info?.activeTab, info?.workspaceLogo, validateExpiryData]);
 
 	const openCopyModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, copyModal: true }));
 	}, [info?.sendSmartFileModal]);
 
 	const openSignatureModal = useCallback(async () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		setInfo((prev) => ({ ...prev, signatureModal: true }));
-	}, [info?.sendSmartFileModal]);
+	}, [info?.sendSmartFileModal, validateExpiryData]);
 
 	const acceptProposalFunc = useCallback(async () => {
 		//accept the proposal and also update workflow status
@@ -412,6 +421,11 @@ const SmartFile = () => {
 		info?.workflowStatus,
 	]);
 
+	//send Email functions
+	const toggleSendCustomEmailFunc = useCallback(() => {
+		setInfo((prev) => ({ ...prev, sendCustomEmailModal: !prev.sendCustomEmailModal }));
+	}, [info?.sendCustomEmailModal]);
+
 	return info?.loading ? (
 		<UpdatedPageLoader />
 	) : (
@@ -432,6 +446,7 @@ const SmartFile = () => {
 				counterAccpetOnClick={counterAccpetOnClick}
 				slug={info?.workflowData?.slug}
 				currentWorkspaceId={info?.currentWorkspaceId}
+				toggleSendCustomEmailFunc={toggleSendCustomEmailFunc}
 			/>
 			<div className="mainContentContainer">{componentMapper?.[info?.activeTab]}</div>
 
@@ -490,6 +505,11 @@ const SmartFile = () => {
 			<UploadLogoNotification
 				open={info?.showUploadLogoNotification}
 				onClose={() => setInfo((prev) => ({ ...prev, showUploadLogoNotification: false }))}
+			/>
+			<SendEmailModal
+				open={info?.sendCustomEmailModal}
+				closeModal={toggleSendCustomEmailFunc}
+				clientDetails={info?.workflowData?.clientDetails}
 			/>
 		</div>
 	);
