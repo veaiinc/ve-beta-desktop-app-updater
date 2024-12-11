@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/tasks/modals/createTaskPopup.scss';
 import { ReactComponent as ExpandIcon } from '../../../../assets/svg/gallery/expand.svg';
@@ -15,12 +15,13 @@ import { ReactComponent as LinkIcon } from '../../../../assets/svg/activity/link
 import Priority from '../../tasks/listView/Priority';
 import DropDown from '../../dropDown/tasks/DropDown';
 import Status from '../../tasks/listView/Status';
-import { DatePicker, Tooltip } from 'antd';
+import { DatePicker, message, Tooltip } from 'antd';
 import Spinner from '../../loaders/Spinner';
 import moment from 'moment';
 import WorkFlow from '../../tasks/listView/WorkFlow';
 import Person from '../../tasks/listView/Person';
 import DateView from '../../tasks/listView/DateView';
+import Context from '../../../../context/context';
 
 const customListItemStyle = {
 	borderRadius: '34px',
@@ -34,8 +35,8 @@ const customListItemStyle = {
 };
 
 const initialState = {
-	assignedTo: '',
-	clientId: '',
+	assignedTo: null,
+	client: null,
 	description: '',
 	dueDate: null,
 	priority: 'low',
@@ -43,9 +44,14 @@ const initialState = {
 	title: '',
 	workflowId: '',
 	workflowTemplateId: '',
+	clients: [],
 };
 
 const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUsers }) => {
+	const {
+		templates: { clientList, getClientList },
+	} = useContext(Context);
+	const [messageApi, contextHolder] = message.useMessage();
 	const [info, setInfo] = useState({
 		...initialState,
 		isLoading: false,
@@ -65,6 +71,19 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 		};
 	}, []);
 
+	useEffect(() => {
+		getClientList({ filters: { limit: 10, page: 1, workflowId: info?.workflowId } });
+	}, [info?.workflowId]);
+
+	useEffect(() => {
+		if (clientList) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				clients: clientList?.data?.map(({ name, _id }) => ({ label: name, value: _id })),
+			}));
+		}
+	}, [clientList]);
+
 	const updateModalInfo = (key, value) => {
 		if (key === 'title') {
 			value = value?.trim();
@@ -75,7 +94,7 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 	const preparePayload = useCallback(() => {
 		const {
 			assignedTo,
-			clientId,
+			client,
 			description,
 			dueDate,
 			priority,
@@ -91,7 +110,7 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 
 		return Object.entries({
 			assignedTo: assignedTo ? { userId: assignedTo?.value } : '',
-			clientId,
+			client: client ? client?.value : '',
 			description,
 			dueDate,
 			priority,
@@ -116,15 +135,24 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 	};
 
 	const handleAddTask = useCallback(async () => {
-		setInfo((prevInfo) => ({ ...prevInfo, isLoading: true }));
-		const payload = preparePayload();
-		await addNewTask(payload);
-		setInfo((prevInfo) => ({ ...prevInfo, isLoading: false, ...initialState }));
-		closeModal();
+		try {
+			setInfo((prevInfo) => ({ ...prevInfo, isLoading: true }));
+			const payload = preparePayload();
+			await addNewTask(payload);
+			setInfo((prevInfo) => ({ ...prevInfo, isLoading: false, ...initialState }));
+			closeModal();
+		} catch (error) {
+			messageApi.open({
+				type: 'error',
+				content: error?.message || 'Something went wrong! Please try again.',
+			});
+			setInfo((prevInfo) => ({ ...prevInfo, isLoading: false }));
+		}
 	}, [preparePayload]);
 
 	return (
 		<ReactModal isOpen={isOpen} closeModal={closeModal} modalType={'center'}>
+			{contextHolder}
 			<div className="createTask-container">
 				<div className="header-wrapper">
 					<div className="logo"></div>
@@ -154,6 +182,13 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 						workflows={workflows}
 						customListItemStyle={customListItemStyle}
 						onOptionClick={(value) => updateModalInfo('workflowId', value)}
+					/>
+					<Person
+						value={info?.client}
+						persons={info?.clients}
+						customListItemStyle={customListItemStyle}
+						onOptionClick={(value) => updateModalInfo('client', value)}
+						showName
 					/>
 					<Status
 						value={info?.status}

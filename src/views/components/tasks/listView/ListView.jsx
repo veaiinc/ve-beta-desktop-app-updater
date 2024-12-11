@@ -45,7 +45,7 @@ const responseTypes = {
 	priority: 'priority',
 	workflowTemplateId: 'text',
 	workflowId: 'workflow',
-	client: 'text',
+	client: 'person',
 	assignedTo: 'person',
 	dueDate: 'date',
 	assignedBy: 'person',
@@ -280,6 +280,8 @@ const ListView = () => {
 				...prevInfo,
 				listItems: [...prevInfo?.listItems, response?.createTask],
 			}));
+		} else {
+			throw new Error('Failed to add new task');
 		}
 	}, []);
 
@@ -325,17 +327,19 @@ const ListView = () => {
 				</button>
 			</div>
 			<div className="listContainer">
-				{info?.listItems?.length !== 0
-					? info?.listItems?.map((row, index) => (
-							<div
-								className="listItemRow"
-								key={index}
-								onClick={() => handleRowClick(row._id)}
-							>
-								{generateRow(row)}
-							</div>
-					  ))
-					: ''}
+				{info?.listItems?.length !== 0 ? (
+					info?.listItems?.map((row, index) => (
+						<div
+							className="listItemRow"
+							key={index}
+							onClick={() => handleRowClick(row._id)}
+						>
+							{generateRow(row)}
+						</div>
+					))
+				) : (
+					<span style={{ color: '#808080', margin: '10px auto' }}>No tasks found</span>
+				)}
 			</div>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}

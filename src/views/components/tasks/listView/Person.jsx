@@ -10,17 +10,6 @@ const Person = ({
 	onOptionClick,
 	persons = [],
 }) => {
-	// const [info, setInfo] = useState({
-	// 	options: persons,
-	// });
-
-	// useEffect(() => {
-	// 	setInfo((prevInfo) => ({
-	// 		...prevInfo,
-	// 		options: persons,
-	// 	}));
-	// }, []);
-
 	const updatedOnOptionClick = useCallback(
 		(value) => {
 			const data = persons?.find((person) => person.value === value);
