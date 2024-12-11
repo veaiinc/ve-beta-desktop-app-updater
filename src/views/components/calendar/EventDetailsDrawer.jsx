@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState, useCallback, useEffect } from 'react';
+import React, { memo, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { Drawer } from 'antd';
 import '../../../assets/scss/calendar/eventDetailsDrawer.scss';
 import { ReactComponent as CategoryIcon } from '../../../assets/svg/calendar/category.svg';
@@ -15,9 +15,13 @@ const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		loading: false,
+		loading: true,
 		eventDetails: null,
 	});
+
+	// Cache to store previously fetched event details
+	const eventCache = useRef(new Map());
+
 	useEffect(() => {
 		getEventDetails();
 	}, [selectedEvent]);
@@ -25,16 +29,40 @@ const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo
 	useEffect(() => {
 		if (calendarEventDetails) {
 			setInfo({ ...info, eventDetails: calendarEventDetails });
+			// Store the fetched details in cache
+			if (selectedEvent?.id) {
+				eventCache.current.set(selectedEvent.id, calendarEventDetails);
+			}
 		}
 	}, [calendarEventDetails]);
 
 	const getEventDetails = useCallback(async () => {
-		setInfo({ ...info, loading: true });
-		await getCalendarEventDetails(selectedEvent?.id);
-		setInfo({ ...info, loading: false });
+		if (selectedEvent?.id) {
+			// Check if we have cached data
+			const cachedEvent = eventCache.current.get(selectedEvent.id);
+
+			if (cachedEvent) {
+				// Use cached data
+				setInfo({
+					loading: false,
+					eventDetails: cachedEvent,
+				});
+				return;
+			}
+
+			// Fetch new data if not in cache
+			setInfo({ ...info, loading: true });
+			await getCalendarEventDetails(selectedEvent.id);
+			setInfo({ ...info, loading: false });
+		}
 	}, [selectedEvent]);
 
-	console.log('"selectedEvent==>', JSON.stringify(calendarEventDetails, null, 2));
+	useEffect(() => {
+		return () => {
+			setInfo((prev) => ({ ...prev, loading: true, eventDetails: null }));
+			eventCache.current.clear();
+		};
+	}, []);
 
 	return (
 		<Drawer
