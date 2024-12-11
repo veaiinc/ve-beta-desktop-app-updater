@@ -1,0 +1,77 @@
+.leaveWorkspaceParentContainer {
+	.dialog-content {
+		background-color: #18181b; // Dark background
+		border: 1px solid #27272a;
+		border-radius: 8px;
+		padding: 24px;
+		width: 100%;
+		max-width: 500px;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	}
+
+	.dialog-header {
+		margin-bottom: 24px;
+	}
+
+	.dialog-title {
+		color: #ffffff;
+		font-size: 18px;
+		font-weight: 600;
+		margin: 0 0 12px 0;
+	}
+
+	.dialog-description {
+		color: #a1a1aa;
+		font-size: 14px;
+		line-height: 1.5;
+		margin: 0;
+	}
+
+	.dialog-footer {
+		display: flex;
+		justify-content: flex-end;
+		gap: 12px;
+	}
+
+	.button {
+		padding: 8px 16px;
+		border-radius: 6px;
+		font-size: 14px;
+		font-weight: 500;
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+		border: none;
+
+		&:focus {
+			outline: 2px solid #4f46e5;
+			outline-offset: 2px;
+		}
+
+		&-cancel {
+			background-color: #3f3f46;
+			color: #ffffff;
+
+			&:hover {
+				background-color: #52525b;
+			}
+		}
+
+		&-new-action {
+			background-color: #2563eb;
+			color: #ffffff;
+
+			&:hover {
+				background-color: #1d4ed8;
+			}
+		}
+
+		&-leave {
+			background-color: #dc2626;
+			color: #ffffff;
+
+			&:hover {
+				background-color: #b91c1c;
+			}
+		}
+	}
+}

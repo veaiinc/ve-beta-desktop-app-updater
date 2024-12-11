@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Context from '../../../../context/context';
+import { useCallback } from 'react';
 
 const EventstypeFormResponses = ({ data, index }) => {
-	const answer = JSON.parse(data?.answer || '[]');
+	let answer = JSON.parse(data?.answer || '[]');
 
 	return (
 		<div className="eventsListCards" key={index}>
@@ -39,6 +40,32 @@ const EventstypeFormResponses = ({ data, index }) => {
 	);
 };
 
+const MultipleChoiceComponent = ({ data, index }) => {
+	let answer = JSON.parse(data?.answer || '[]');
+	answer = answer?.split(',');
+	return (
+		<div className="eventsListCards" key={index}>
+			<span className="eventTitle">{`Response ${index + 1}`}</span>
+
+			<div className="questionAndAnswerContainer">
+				<div className="questionBlock">
+					{data?.question
+						?.replace(/&nbsp;/g, ' ')
+						.replace(/<\/?[^>]+(>|$)/g, '')
+						.replace(/"/g, '')}
+				</div>
+				{answer?.map((item, ind) => (
+					<div className="eventsAnswersContainer" style={{ marginTop: '2px' }}>
+						<span className="eventValues" key={ind}>
+							{item?.trim()}
+						</span>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+};
+
 const FormResponses = ({ workflowData }) => {
 	let {
 		templates: { formResponseData },
@@ -53,6 +80,30 @@ const FormResponses = ({ workflowData }) => {
 			setInfo((prev) => ({ ...prev, formResponseResult: formResponseData }));
 		}
 	}, [formResponseData]);
+
+	const compMapper = useCallback((type, ele, index) => {
+		const mapper = {
+			events: <EventstypeFormResponses data={ele} index={index} />,
+			multipleChoice: <MultipleChoiceComponent data={ele} index={index} />,
+		};
+		return mapper?.[type] ? (
+			mapper?.[type]
+		) : (
+			<div className="eventsListCards" key={index}>
+				<span className="eventTitle">{`Response ${index + 1}`}</span>
+
+				<div className="questionAndAnswerContainer">
+					<div className="questionBlock">
+						{ele?.question
+							?.replace(/&nbsp;/g, ' ')
+							.replace(/<\/?[^>]+(>|$)/g, '')
+							.replace(/"/g, '')}
+					</div>
+					<span className="eventValues">{ele?.answer}</span>
+				</div>
+			</div>
+		);
+	}, []);
 
 	return (
 		<div className="formResponsesParentContainer">
@@ -70,23 +121,7 @@ const FormResponses = ({ workflowData }) => {
 			</div>
 			<div className="eventsList">
 				{info?.formResponseResult?.response?.map((ele, index) =>
-					ele?.type !== 'events' ? (
-						<div className="eventsListCards" key={index}>
-							<span className="eventTitle">{`Response ${index + 1}`}</span>
-
-							<div className="questionAndAnswerContainer">
-								<div className="questionBlock">
-									{ele?.question
-										?.replace(/&nbsp;/g, ' ')
-										.replace(/<\/?[^>]+(>|$)/g, '')
-										.replace(/"/g, '')}
-								</div>
-								<span className="eventValues">{ele?.answer}</span>
-							</div>
-						</div>
-					) : (
-						<EventstypeFormResponses data={ele} index={index} />
-					),
+					compMapper(ele?.type, ele, index),
 				)}
 			</div>
 			<div className="sourceContainer">
