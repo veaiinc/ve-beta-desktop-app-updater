@@ -102,7 +102,7 @@ const CalendarSelector = ({
 							<div
 								className="monthSelectorContainer"
 								onMouseLeave={() => {
-									setInfo({ activeDropdown: '' });
+									setInfo((prev) => ({ ...prev, activeDropdown: '' }));
 								}}
 							>
 								{MONTHS?.map((month, index) => (
@@ -113,7 +113,10 @@ const CalendarSelector = ({
 										}`}
 										onClick={() => {
 											updateCalendarInfo('selectedMonth', index);
-											setInfo({ activeDropdown: 'months' }); // Close the dropdown after selection
+											setInfo((prev) => ({
+												...prev,
+												activeDropdown: 'months',
+											})); // Close the dropdown after selection
 										}}
 									>
 										{month}
@@ -133,7 +136,7 @@ const CalendarSelector = ({
 							<div
 								className="yearSelectorContainer"
 								onMouseLeave={() => {
-									setInfo({ activeDropdown: '' });
+									setInfo((prev) => ({ ...prev, activeDropdown: '' }));
 								}}
 							>
 								{YEARS?.map((year) => (
@@ -144,7 +147,10 @@ const CalendarSelector = ({
 										}`}
 										onClick={() => {
 											updateCalendarInfo('selectedYear', year);
-											setInfo({ activeDropdown: 'years' }); // Close the dropdown after selection
+											setInfo((prev) => ({
+												...prev,
+												activeDropdown: 'years',
+											})); // Close the dropdown after selection
 										}}
 									>
 										{year}
