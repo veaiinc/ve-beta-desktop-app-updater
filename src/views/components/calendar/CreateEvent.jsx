@@ -34,6 +34,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 	const {
 		calendarInfo: { calendarEvent, createCalendarEvent },
 		profileInfo: { userDetailsData },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -174,6 +175,9 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 	// Handle event creation submission
 	const handleEventSubmission = useCallback(async () => {
 		try {
+			if (validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
 			setInfo((prev) => ({
 				...prev,
 				isSubmitting: true,
