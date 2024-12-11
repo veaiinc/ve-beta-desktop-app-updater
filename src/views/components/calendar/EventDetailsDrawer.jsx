@@ -6,8 +6,11 @@ import { ReactComponent as CategoryIcon } from '../../../assets/svg/calendar/cat
 import { ReactComponent as VerticalDots } from '../../../assets/svg/more-options-dots.svg';
 import { ReactComponent as NoteIcon } from '../../../assets/svg/calendar/note.svg';
 import { ReactComponent as Close } from '../../../assets/svg/calendar/close.svg';
+// import { ReactComponent as LocationIcon } from '../../../assets/svg/calendar/locationPin.svg';
+// import { ReactComponent as LinkIcon } from '../../../assets/svg/activity/link.svg';
 import Spinner from '../../components/loaders/Spinner';
 import Context from '../../../context/context';
+import moment from 'moment';
 
 const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo }) => {
 	const {
@@ -36,6 +39,13 @@ const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo
 		}
 	}, [calendarEventDetails]);
 
+	useEffect(() => {
+		return () => {
+			setInfo((prev) => ({ ...prev, loading: true, eventDetails: null }));
+			eventCache.current.clear();
+		};
+	}, []);
+
 	const getEventDetails = useCallback(async () => {
 		if (selectedEvent?.id) {
 			// Check if we have cached data
@@ -57,12 +67,158 @@ const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo
 		}
 	}, [selectedEvent]);
 
-	useEffect(() => {
-		return () => {
-			setInfo((prev) => ({ ...prev, loading: true, eventDetails: null }));
-			eventCache.current.clear();
-		};
+	const formatEventTime = useCallback((startDateTime, endDateTime) => {
+		const start = moment(startDateTime);
+		const end = moment(endDateTime);
+		return `${start.format('h:mmA')} - ${end.format('h:mmA')}`;
 	}, []);
+
+	const renderEventDetails = () => {
+		if (!info?.eventDetails) return null;
+
+		const {
+			title,
+			description,
+			location,
+			startDateTime,
+			endDateTime,
+			timezone,
+			allDay,
+			attendees,
+			meetingLink,
+			calendarCategory,
+			calendarMetaData,
+		} = info.eventDetails;
+
+		return (
+			<div className="eventDetailsDrawerParentCOntainer">
+				<div className="innerContainer">
+					<div className="headerWrapper">
+						<div className="headerText">
+							<div className="categoryLabel">
+								<CategoryIcon />
+								<span className="categoryText">Event Details</span>
+							</div>
+							{/* <div className="eventName">{title}</div> */}
+						</div>
+						<div className="headerIcons">
+							<button
+								className=""
+								onClick={() => updateCalendarInfo('isEventSelected', false)}
+							>
+								<Close />
+							</button>
+						</div>
+					</div>
+
+					<div className="eventDetailsWrapper">
+						<div className="detailsData">
+							<div className="detailsTitle">Agenda</div>
+							<div className="detailsValue">{title}</div>
+						</div>
+						<div className="detailsData">
+							<div className="detailsTitle">Start Date</div>
+							<div className="detailsValue">
+								{moment(startDateTime).format('ddd, MMMM D YYYY')}
+							</div>
+						</div>
+						<div className="detailsData">
+							<div className="detailsTitle">End Date</div>
+							<div className="detailsValue">
+								{moment(endDateTime).format('ddd, MMMM D YYYY')}
+							</div>
+						</div>
+						<div className="detailsData">
+							<div className="detailsTitle">Time Duration</div>
+							<div className="detailsValue">
+								{formatEventTime(startDateTime, endDateTime)}
+							</div>
+						</div>
+						<div className="detailsData">
+							<div className="detailsTitle">All day event</div>
+							<div className="detailsValue">{allDay ? 'Yes' : 'No'}</div>
+						</div>
+						{/* <div className="detailsData">
+							<div className="detailsTitle">Category</div>
+							<div className="detailsValue">{calendarCategory}</div>
+						</div>
+						{calendarMetaData?.subCategory && (
+							<div className="detailsData">
+								<div className="detailsTitle">Sub Category</div>
+								<div className="detailsValue">{calendarMetaData.subCategory}</div>
+							</div>
+						)} */}
+						{calendarMetaData?.priority && (
+							<div className="detailsData">
+								<div className="detailsTitle">Priority</div>
+								<div className="detailsValue">{calendarMetaData.priority}</div>
+							</div>
+						)}
+						{location && (
+							<div className="detailsData">
+								<div className="detailsTitle">Location</div>
+								<div className="detailsValue">{location}</div>
+							</div>
+						)}
+						{meetingLink && (
+							<div className="detailsData">
+								<div className="detailsTitle">
+									{/* <LinkIcon /> */}
+									Meeting Link
+								</div>
+								<div className="detailsValue">
+									<a href={meetingLink} target="_blank" rel="noopener noreferrer">
+										{meetingLink}
+									</a>
+								</div>
+							</div>
+						)}
+					</div>
+
+					<div className="attendeesWrapper">
+						<div className="attendeesLabel">
+							<h3>Attendees</h3>
+							<div className="attendeesCount">{attendees?.length || 0}</div>
+						</div>
+						<input type="text" placeholder="add attendee" />
+						<div className="attendiesDetailsContainer">
+							{console.log('hey', JSON.stringify(attendees, null, 2))}
+							{attendees?.map((attendee, index) => (
+								<div key={index} className="attendeesDetailsWrapper">
+									<div className="avatar"></div>
+									<div className="textWrapper">
+										<div className="name">
+											{attendee?.name === ''
+												? attendee?.email
+												: attendee?.name}
+										</div>
+										<div className="role">
+											{attendee?.isWorkspaceUser
+												? 'Workspace User'
+												: 'External'}
+											{attendee?.responseStatus &&
+												` • ${attendee?.responseStatus}`}
+										</div>
+									</div>
+									<VerticalDots />
+								</div>
+							))}
+						</div>
+					</div>
+
+					{description && (
+						<div className="descriptionWrapper">
+							<div className="descriptionLabel">
+								<NoteIcon />
+								<h3>Description</h3>
+							</div>
+							<p>{description}</p>
+						</div>
+					)}
+				</div>
+			</div>
+		);
+	};
 
 	return (
 		<Drawer
@@ -83,139 +239,7 @@ const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo
 					</div>
 				</div>
 			) : (
-				<div className="eventDetailsDrawerParentCOntainer">
-					<div className="innerContainer">
-						<div className="headerWrapper">
-							<div className="headerText">
-								<div className="categoryLabel">
-									<CategoryIcon />
-									<span className="categoryText">Event Details</span>
-								</div>
-								{/* <div className="eventName">Virat Kohli & anushka</div> */}
-							</div>
-							<div className="headerIcons">
-								<button>{/* <ShareIcon /> */}</button>
-								<button
-									className=""
-									onClick={() => updateCalendarInfo('isEventSelected', false)}
-								>
-									<Close />
-								</button>
-							</div>
-						</div>
-						<div className="eventDetailsWrapper">
-							<div className="detailsData">
-								<div className="detailsTitle">Agenda</div>
-								<div className="detailsValue">Meeting for sales</div>
-							</div>
-							{/* <div className="detailsData">
-							<div className="detailsTitle">Client name</div>
-							<div className="detailsValue">Virat Kohli & anushka</div>
-						</div> */}
-							<div className="detailsData">
-								<div className="detailsTitle">Start Date</div>
-								<div className="detailsValue">Wed, September 22 2024</div>
-							</div>
-							<div className="detailsData">
-								<div className="detailsTitle">End Date</div>
-								<div className="detailsValue">Wed, September 22 2024</div>
-							</div>
-							<div className="detailsData">
-								<div className="detailsTitle">Time Duration</div>
-								<div className="detailsValue">12:00PM - 12:30PM</div>
-							</div>
-							<div className="detailsData">
-								<div className="detailsTitle">All day event</div>
-								<div className="detailsValue">No</div>
-							</div>
-						</div>
-						<div className="attendeesWrapper">
-							<div className="attendeesLabel">
-								<h3>Attendees</h3>
-								<div className="attendeesCount">2</div>
-							</div>
-							<input type="text" placeholder="add attendee" />
-							<div className="attendiesDetailsContainer">
-								<div className="attendeesDetailsWrapper">
-									<div className="avatar"></div>
-
-									<div className="textWrapper">
-										<div className="name">Gretchen Culhane</div>
-										<div className="role"> Attendee</div>
-									</div>
-									<VerticalDots />
-								</div>
-								<div className="attendeesDetailsWrapper">
-									<div className="avatar"></div>
-									<div className="textWrapper">
-										<div className="name">Ann Siphron</div>
-										<div className="role">Attendee</div>
-									</div>
-									<VerticalDots />
-								</div>
-							</div>
-						</div>
-						<div className="descriptionWrapper">
-							<div className="descriptionLabel">
-								<NoteIcon />
-								<h3>Description</h3>
-							</div>
-							<p>
-								This page aims to provide real-time insights into employee
-								performance metrics and key business indicators.
-							</p>
-						</div>
-						{/* <div className="notesWrapper">
-						<nav>
-							<ul>
-								<li className="active">Notes</li>
-								<li>Activities</li>
-							</ul>
-						</nav>
-						<div className="notesContainer">
-							<div className="note">
-								<div className="focusContainer">
-									<RainbowRing />
-								</div>
-								<textarea className="notesTitle">
-									The sun set slowly over the horizon
-								</textarea>
-								<textarea className="notesDescription">
-									The sun set slowly over the horizon, casting a warm orange glow
-									across the landscape. Birds chirped softly in the distance as a
-									gentle breeze rustled the leaves of the trees. The sun set
-									slowly over the horizon, casting a warm orange glow across the
-									landscape. Birds chirped softly in the distance as a gentle
-									breeze rustled the leaves of the trees.The sun set slowly over
-									the horizon, casting a warm orange glow across the landscape.
-									Birds chirped softly in the distance as a gentle breeze rustled
-									the leaves of the trees.
-								</textarea>
-							</div>
-							<div className="note">
-								<textarea className="notesTitle">
-									The sun set slowly over the horizon
-								</textarea>
-
-								<textarea className="notesDescription">
-									Start typing here...
-								</textarea>
-							</div>
-							<div className="note">
-								<textarea className="notesTitle">
-									The sun set slowly over the horizon
-								</textarea>
-
-								<textarea className="notesDescription">
-									Start typing here...
-								</textarea>
-							</div>
-						</div>
-					</div> */}
-
-						{/* Note part will be excluded from this component */}
-					</div>
-				</div>
+				renderEventDetails()
 			)}
 		</Drawer>
 	);
