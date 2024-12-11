@@ -2,15 +2,17 @@ import React, { useEffect, memo } from 'react';
 import '../../assets/scss/authWrapper.scss';
 import { Helmet } from 'react-helmet';
 import useActiveWorkspace from '../hooks/useActiveWorkspace';
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import Sidebar from '../components/sidebar/Sidebar';
 import useAuth from '../hooks/useAuth';
+import useSubscription from '../hooks/useSubscription';
 
-const AuthWrapper = ({ title, children, isFullScreen = false, maxWidth = '90vw' }) => {
+const AuthWrapper = ({ title, children, maxWidth = '' }) => {
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 
 	const checkAuth = useAuth();
+	const data = useSubscription();
 
 	useEffect(() => {
 		checkAuth();
@@ -40,10 +42,7 @@ const AuthWrapper = ({ title, children, isFullScreen = false, maxWidth = '90vw' 
 						style={{ flex: 1, overflowY: 'auto', maxHeight: '100%', height: '100%' }}
 						id="scrollableTarget"
 					>
-						<div
-							className="childrenContainer"
-							style={{ maxWidth: isFullScreen ? maxWidth : '1200px' }}
-						>
+						<div className="childrenContainer" style={{ maxWidth: maxWidth || '' }}>
 							{children}
 						</div>
 					</div>

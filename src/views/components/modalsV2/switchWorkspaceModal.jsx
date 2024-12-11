@@ -7,7 +7,7 @@ import { ReactComponent as Unselected } from '../../../assets/svg/workspaceSetti
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import useLogout from '../../hooks/useLogout';
-import { getBuisnessName } from '../../../helpers/index';
+import { fetchDomainName, getBuisnessName } from '../../../helpers/index';
 import { useParams } from 'react-router-dom';
 const customStyles = {
 	content: {
@@ -55,11 +55,12 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 			return;
 		}
 		closeModal();
+		const host = fetchDomainName();
 		localStorage.setItem('workspaceId', activeWorkspaceId);
 		localStorage.setItem('isOnboard', isOnboard);
 		Cookies.set('workspaceID', activeWorkspaceId, {
 			sameSite: 'lax',
-			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+			domain: host,
 		});
 		if (salesId) {
 			navigate('/home');

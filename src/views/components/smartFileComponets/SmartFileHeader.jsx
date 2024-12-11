@@ -1,9 +1,10 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
 import { useNavigate } from 'react-router-dom';
 import HeadersDropDownComp from '../dropDown/HeadersDropDownComp';
 import Spinner from '../loaders/Spinner';
+import Context from '../../../context/context';
 
 const options = [
 	{ label: 'Edit' },
@@ -26,11 +27,19 @@ const SmartFileHeader = ({
 	changeEditStatus,
 	openMoveToStageModal,
 	openDeleteModal,
-	onPreviewClick,
+	// onPreviewClick,
 	noContractTemplate,
 	counterAccpetOnClick,
+	slug,
+	currentWorkspaceId,
+	toggleSendCustomEmailFunc,
 }) => {
 	const navigate = useNavigate();
+
+	let {
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		loading: false,
 		threeDotOptions: options,
@@ -39,6 +48,10 @@ const SmartFileHeader = ({
 	});
 
 	const modifiedAccetFunc = useCallback(async () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+
 		if (info?.loading) {
 			return;
 		}
@@ -47,10 +60,13 @@ const SmartFileHeader = ({
 		if (response?.[0]) {
 			setInfo((prev) => ({ ...prev, loading: false }));
 		}
-	}, []);
+	}, [validateExpiryData]);
 
 	const onOptionChangeFunc = useCallback(
 		async (data) => {
+			if (validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
 			if (data?.label === 'Edit') {
 				if (editable) {
 					return;
@@ -62,7 +78,7 @@ const SmartFileHeader = ({
 				openMoveToStageModal();
 			}
 			if (data?.label === 'Send Email') {
-				openSendSmartFileModal();
+				toggleSendCustomEmailFunc();
 			}
 			if (data?.label === 'Resend File') {
 				openSendSmartFileModal();
@@ -71,18 +87,19 @@ const SmartFileHeader = ({
 				openDeleteModal();
 			}
 		},
-		[editable],
+		[editable, validateExpiryData],
 	);
 
 	useEffect(() => {
 		if (workflowStatus) {
 			let modifiedOptions = [...options];
-			if (workflowStatus === 'filesSent' || workflowStatus === 'filesViewed') {
+			if (workflowStatus === 'enquiry') {
+				modifiedOptions = [{ label: 'Delete Lead' }];
+			} else if (workflowStatus === 'filesSent' || workflowStatus === 'filesViewed') {
 				modifiedOptions = [
 					{ label: 'Edit' },
 					{ label: 'Resend File' },
 					{ label: 'Send Email' },
-					// { label: 'Delete File' },
 					{ label: 'Delete Lead' },
 				];
 			} else {
@@ -90,7 +107,6 @@ const SmartFileHeader = ({
 					{ label: 'Resend File' },
 					{ label: 'Send Email' },
 					{ label: 'Move Stage' },
-					// { label: 'Delete File' },
 					{ label: 'Delete Lead' },
 				];
 			}
@@ -100,9 +116,17 @@ const SmartFileHeader = ({
 	}, [workflowStatus]);
 
 	const modifiedPreviewClick = useCallback(() => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		setInfo((prev) => ({ ...prev, previewLoader: true }));
-		onPreviewClick();
-	}, []);
+		const usertoken = localStorage.getItem('usertoken');
+		const region = localStorage.getItem('region');
+		window.location.href = `https://${currentWorkspaceId}.ve.ai/portal/${slug}/${region}/${usertoken}`;
+		setTimeout(() => {
+			setInfo((prev) => ({ ...prev, previewLoader: false }));
+		}, 2000);
+	}, [slug, currentWorkspaceId, validateExpiryData]);
 
 	const onCounterAcceptClickFunc = useCallback(async () => {
 		if (info?.counterAccpetLoading) {
@@ -231,42 +255,42 @@ const SmartFileHeader = ({
 						) : (
 							''
 						)}
-						<HeadersDropDownComp
-							showIcon={false}
-							options={info?.threeDotOptions}
-							containerStyle={{
-								padding: '4px 8px',
-								borderRadius: '100px',
-								border: '1px solid rgba(36, 36, 36, 0.64)',
-								background: 'rgba(42, 42, 42, 0.32)',
-								width: '8px',
-							}}
-							dropDownStyle={{
-								right: 0,
-								left: 'unset',
-								top: '55px',
-								maxHeight: '300px',
-								width: '200px',
-							}}
-							showArrow={false}
-							selectedValue={<ThreeDots />}
-							onChangeFunc={(e) => onOptionChangeFunc(e)}
-							dropDownTextStyling={{
-								overflow: 'hidden',
-								color: '#E4E5E6',
-								textOverflow: 'ellipsis',
-								fontFamily: 'Inter',
-								fontSize: '14px',
-								fontStyle: 'normal',
-								fontWeight: '400',
-								lineHeight: '16px' /* 114.286% */,
-								letterSpacing: '-0.3px',
-							}}
-						/>
 					</>
 				) : (
 					''
 				)}
+				<HeadersDropDownComp
+					showIcon={false}
+					options={info?.threeDotOptions}
+					containerStyle={{
+						padding: '4px 8px',
+						borderRadius: '100px',
+						border: '1px solid rgba(36, 36, 36, 0.64)',
+						background: 'rgba(42, 42, 42, 0.32)',
+						width: '8px',
+					}}
+					dropDownStyle={{
+						right: 0,
+						left: 'unset',
+						top: '55px',
+						maxHeight: '300px',
+						width: '200px',
+					}}
+					showArrow={false}
+					selectedValue={<ThreeDots />}
+					onChangeFunc={(e) => onOptionChangeFunc(e)}
+					dropDownTextStyling={{
+						overflow: 'hidden',
+						color: '#E4E5E6',
+						textOverflow: 'ellipsis',
+						fontFamily: 'Inter',
+						fontSize: '14px',
+						fontStyle: 'normal',
+						fontWeight: '400',
+						lineHeight: '16px' /* 114.286% */,
+						letterSpacing: '-0.3px',
+					}}
+				/>
 			</div>
 		</div>
 	);

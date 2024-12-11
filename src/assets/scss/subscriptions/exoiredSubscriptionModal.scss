@@ -1,0 +1,85 @@
+.expiredSubscriptionParentContainerModal {
+	display: inline-flex;
+	padding: 40px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 32px;
+	border-radius: 32px;
+	background: #1c1d1f;
+	width: 520px;
+
+	.expiredSubscriptionModalHeader {
+		display: flex;
+		align-items: flex-start;
+		align-self: stretch;
+		.expiredModalHeaderText {
+			color: var(--Dark-Theme-Primary-Font-Color, #e8e8e8);
+			font-family: Brasley;
+			font-size: 32px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 37px; /* 115.625% */
+			flex: 1;
+		}
+		.closeExpiredModalWrapper {
+			cursor: pointer;
+		}
+	}
+
+	.expiredSubText {
+		color: #939393;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+	}
+
+	.expiredActionBtnContainer {
+		display: flex;
+		flex: 1;
+		align-items: center;
+		gap: 6px;
+		width: 440px;
+
+		.renewSubscriptionContainer {
+			display: flex;
+			padding: 14px 24px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			flex: 1 0 0;
+			align-self: stretch;
+			border-radius: 59px;
+			background: var(--L-Primary-Color, #b89cf9);
+			color: var(--L-Primary-text, #0a1217);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+		}
+
+		.contactSupportButton {
+			display: flex;
+			padding: 16px 24px;
+			justify-content: center;
+			align-items: center;
+			gap: 16px;
+			flex: 1 0 0;
+			align-self: stretch;
+			border-radius: 50px;
+			border: 1px solid var(--dark-theme-text-field-stroke-pop-up, #2c2d2e);
+			cursor: pointer;
+			color: var(--Dark-Theme-Primary-Font-Color, #e8e8e8);
+
+			/* Body/Body Text - 14 Px */
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px; /* 142.857% */
+		}
+	}
+}

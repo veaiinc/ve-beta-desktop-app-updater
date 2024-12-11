@@ -276,31 +276,31 @@ const MyProfile = () => {
 				</div>
 
 				{/* Theme Preference */}
-				<div className="settingsTheme activeBackgroundColor" id="theme">
+				{/* <div className="settingsTheme activeBackgroundColor" id="theme">
 					<ThemePreferenceComponent
 						updateThemeSubmitHandler={updateThemeSubmitHandler}
 						activeTheme={activeTheme}
 					/>
-				</div>
+				</div> */}
 
 				{/* Access Settings */}
-				<div className={'accessSettingsContainer'} id="updatepassword">
+				{/* <div className={'accessSettingsContainer'} id="updatepassword">
 					<UpdatePasswordComponent handleFormPopUp={handleFormPopUp} />
-				</div>
+				</div> */}
 
 				{/* Settings Two Factor Authentication */}
-				<div className="settingsTwoFactorAuthentication" id="twoFactorAuth">
+				{/* <div className="settingsTwoFactorAuthentication" id="twoFactorAuth">
 					<TwoFactorAuthenticationComponent
 						toggleEnable={toggleEnable}
 						userDetails={userDetails}
 						qrcode={qrcode}
 					/>
-				</div>
+				</div> */}
 
 				{/* Temporary Hide */}
-				{/* <div className={'accessSettingsContainer'} id="leaveworkspace">
+				<div className={'accessSettingsContainer'} id="leaveworkspace">
 					<LeaveWorkspaceComponent />
-				</div> */}
+				</div>
 			</div>
 		</div>
 	);

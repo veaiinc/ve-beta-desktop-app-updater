@@ -59,6 +59,10 @@ const actionHandlers = {
 		...state,
 		sendSmartFileSettings: action.payload,
 	}),
+	GET_AI_PREDICTED_DATA_SUCCESS: (state, action) => ({
+		...state,
+		aiPredictedData: action.payload,
+	}),
 
 	RESET_STATE: () => intialState,
 };

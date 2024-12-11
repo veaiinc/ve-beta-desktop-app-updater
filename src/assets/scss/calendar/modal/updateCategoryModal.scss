@@ -1,0 +1,229 @@
+.modalContent {
+	width: 353px;
+	display: inline-flex;
+	padding: 32px;
+	align-items: center;
+	gap: 10px;
+	border-radius: 24px;
+	border: 1px solid #272727;
+	background: #212121;
+
+	.modalBody {
+		display: flex;
+		width: 289px;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 32px;
+
+		.warningContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+
+			h2 {
+				color: #e4e5e6;
+				text-align: center;
+				font-family: Inter;
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+
+			p {
+				color: rgba(228, 229, 230, 0.48);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+
+		.inputContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: var(--Spacing-space-7, 12px);
+			align-self: stretch;
+			width: 100%;
+			.inputWrapper {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+				width: 100%;
+
+				label {
+					display: flex;
+					padding: 0 14px;
+					align-items: flex-start;
+					gap: 10px;
+					align-self: stretch;
+					color: #b0b0b0;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 16px;
+				}
+				input {
+					display: flex;
+					padding: 11px 14px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					align-self: stretch;
+					border-radius: 10px;
+					border: 1px solid rgba(255, 255, 255, 0.05);
+					background-color: transparent;
+					width: 100%;
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 26px; /* 162.5% */
+					&::placeholder {
+						color: rgba(228, 229, 230, 0.48);
+					}
+
+					&:focus {
+						border: 1px solid rgba(228, 229, 230, 0.48);
+					}
+				}
+			}
+		}
+		.colorPickerContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 24px;
+			align-self: stretch;
+
+			.textWrapper {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+				h3 {
+					color: #e4e5e6;
+					text-align: center;
+					font-family: Inter;
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: normal;
+				}
+				p {
+					color: rgba(228, 229, 230, 0.48);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+			}
+			.colorPicker {
+				display: flex;
+				justify-content: center;
+				align-items: flex-start;
+				align-content: flex-start;
+				gap: 16px var(--Spacing-space-8, 16px);
+				align-self: stretch;
+				flex-wrap: wrap;
+				.colorCircle {
+					width: 32px;
+					height: 32px;
+					border-radius: 100px;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					position: relative;
+					cursor: pointer;
+
+					.innerCircle {
+						width: 24px;
+						height: 24px;
+						flex-shrink: 0;
+						background-color: #212121;
+						border-radius: 100px;
+						transition: all ease 0.5s;
+					}
+					input {
+						position: absolute;
+						top: 50%;
+						left: 50%;
+						transform: translate(-50%, -50%);
+						appearance: none; /* Removes default styling */
+						-webkit-appearance: none; /* For Safari and older browsers */
+						background-color: transparent; /* Ensure no background */
+						margin: 0;
+						cursor: pointer;
+						width: 16px;
+						height: 16px;
+						border-radius: 50%;
+						transition: all ease 0.5s;
+
+						&:checked {
+							background: rgba(228, 229, 230, 0.5);
+							&::before {
+								content: '✔'; // Unicode check mark
+								color: #ffffff;
+								font-size: 13px;
+								font-weight: 100;
+								display: flex;
+								justify-content: center;
+								align-items: center;
+							}
+							&:hover {
+								background: rgba(228, 229, 230, 0.5);
+							}
+						}
+					}
+					&:hover {
+						.innerCircle {
+							background-color: rgba(207, 208, 209, 0.912);
+						}
+						input {
+							background-color: white;
+						}
+					}
+					input:checked + .innerCircle {
+						background-color: #b0b0b000;
+					}
+				}
+			}
+		}
+		.actionsContainer {
+			display: flex;
+			gap: 8px;
+			button {
+				display: flex;
+				width: 100px;
+				padding: var(--Spacing-space-7, 12px);
+				justify-content: center;
+				align-items: center;
+				gap: var(--Spacing-space-3, 4px);
+				border-radius: 100px;
+				color: rgba(228, 229, 230, 0.48);
+				text-align: center;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				border: none;
+				background-color: transparent;
+				cursor: pointer;
+			}
+			.primaryButton {
+				background: #6055ec;
+				color: var(--Miscellaneous-Kit-Section-Fill, #f5f5f5);
+			}
+		}
+	}
+}

@@ -3,7 +3,7 @@ import '../../../assets/scss/landingScreen/navbar.scss';
 import { useNavigate } from 'react-router-dom';
 
 const navItems = ['Login', 'Signup', 'Privacy and Terms', 'Blog'];
-const Navbar = ({ openSignupModal, openLoginModal, openPrivacyAndTermsModal }) => {
+const Navbar = ({ openPrivacyAndTermsModal }) => {
 	const navigate = useNavigate();
 	const handleNavClick = (navItem) => {
 		if (navItem === 'Login') {

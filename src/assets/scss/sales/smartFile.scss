@@ -189,7 +189,7 @@
 						overflow: hidden;
 						color: #e4e5e6;
 						text-overflow: ellipsis;
-						white-space: nowrap;
+						white-space: pre-wrap;
 						font-family: Inter;
 						font-size: 14px;
 						font-style: normal;
@@ -358,13 +358,74 @@
 				max-height: calc(100vh - 58px - 54px - 24px - 60px);
 				overflow-y: auto;
 
-				.editContainerHeader {
-					color: #e4e5e6;
-					font-family: Inter;
-					font-size: 16px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 23px; /* 143.75% */
+				.editContainerHeaderWrapper {
+					display: flex;
+					justify-content: space-between;
+					.editContainerHeader {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 23px; /* 143.75% */
+					}
+					.aiPredictionParentContainer {
+						display: flex;
+						justify-content: flex-end;
+						align-items: center;
+						gap: 12px;
+						.aiSuggestionstext {
+							/* Body/Body - 12 px */
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							background: var(
+								--Color-Code-AI,
+								linear-gradient(94deg, #c39df8 -2.06%, #ec7c9d 95.85%)
+							);
+							background-clip: text;
+							-webkit-background-clip: text;
+							-webkit-text-fill-color: transparent;
+						}
+					}
+					.aiPredictionContainerForGeneratedData {
+						display: flex;
+						flex-direction: column;
+						justify-content: center;
+						align-items: flex-end;
+						gap: 12px;
+
+						.acceptRejectButtonContainer {
+							display: flex;
+							width: 97px;
+							justify-content: space-between;
+							align-items: center;
+							.rejectAiGeneration {
+								color: var(--ve-ai-dark-theme-secondary-color, #939393);
+
+								/* Body/Body - 12 px */
+								font-family: Inter;
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+								cursor: pointer;
+							}
+							.acceptAigeneration {
+								color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+
+								/* Body/Body - 12 px */
+								font-family: Inter;
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+								cursor: pointer;
+							}
+						}
+					}
 				}
 			}
 		}

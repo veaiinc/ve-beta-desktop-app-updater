@@ -18,6 +18,10 @@ const {
 	ai_assistant_api,
 	ai_assistant_api_US,
 	galleries_api_US,
+	ai_predictions_US,
+	ai_predictions,
+	calendar_api,
+	calendar_api_US,
 } = config || {};
 
 const apiEndpoints = {
@@ -28,6 +32,9 @@ const apiEndpoints = {
 	auth: auth_Api,
 	galleries: galleries,
 	ai_assistant_api,
+	ai_predictions,
+	calendar_chat: ai_predictions,
+	calendar_api,
 };
 const apiEndpointsUS = {
 	tenant_users_api: tenant_users_api_US,
@@ -37,13 +44,21 @@ const apiEndpointsUS = {
 	auth: auth_Api,
 	ai_assistant_api: ai_assistant_api_US,
 	galleries: galleries_api_US,
+	ai_predictions: ai_predictions_US,
+	calendar_chat: ai_predictions_US,
+	calendar_api: calendar_api_US,
 };
 
 const handleHeaders = (token, body, type) => {
 	const headers = { 'Content-Type': 'application/json' };
 	if (token) {
 		headers['x-access-token'] = token;
-		if (type === 'form' || type === 'ai_setup') {
+		if (
+			type === 'form' ||
+			type === 'ai_setup' ||
+			type === 'ai_predictions' ||
+			type === 'calendar_chat'
+		) {
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 	}
@@ -74,6 +89,7 @@ const apiFetch = async (url, method, body, token, type) => {
 		return processResponse(response);
 	} catch (error) {
 		onFailure('network', url);
+		console.log('Api Failed: ' + error.message);
 		return [false];
 	}
 };

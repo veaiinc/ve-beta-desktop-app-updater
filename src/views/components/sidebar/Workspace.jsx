@@ -1,26 +1,37 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useContext } from 'react';
 import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
+import { ReactComponent as DoubleBackArrowSvg } from '../../../assets/svg/sidebar/DoubleBackArrow.svg';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import Cookies from 'js-cookie';
 import { useParams, useNavigate } from 'react-router-dom';
+import Context from '../../../context/context';
+import { fetchDomainName } from '../../../helpers';
+
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
+	const navigate = useNavigate();
+	const { galleryId } = useParams();
+
+	const {
+		profileInfo: { userDetailsData },
+	} = useContext(Context);
+
 	const closeWorkspaceList = () => {
 		setsidebarStates({ ...sidebarStates, workSpaceOpen: false, navStyle: 'open' });
 	};
-	const { galleryId } = useParams();
-	const navigate = useNavigate();
+
 	const handleSwitchWorkSpaceLogic = useCallback((data) => {
 		const { activeWorkspaceId, isOnboard } = data;
 		const workspaceId = localStorage.getItem('workspaceId');
 		if (workspaceId === activeWorkspaceId) {
 			return;
 		}
+		const host = fetchDomainName();
 		localStorage.setItem('workspaceId', activeWorkspaceId);
 		localStorage.setItem('isOnboard', isOnboard);
 		Cookies.set('workspaceID', activeWorkspaceId, {
 			sameSite: 'lax',
-			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+			domain: host,
 		});
 
 		const currentRegion = localStorage.getItem('region');
@@ -35,7 +46,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 			localStorage.setItem('region', newWorkspaceRegion);
 			Cookies.set('region', newWorkspaceRegion, {
 				sameSite: 'lax',
-				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				domain: host,
 			});
 		}
 		if (galleryId) {
@@ -45,13 +56,13 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 		window.location.reload();
 	}, []);
 
+	const handleCreateWorkspace = () => {
+		const username = userDetailsData?.firstName ?? '';
+		navigate(`/onboarding?username=${username}`);
+	};
+
 	return (
 		<div className="workspaceListComponent">
-			<div className="backContinaer" onClick={closeWorkspaceList}>
-				<ArrowLeftSvg />
-				<h6>Switch Workspace</h6>
-			</div>
-
 			<div className="workspaceList">
 				{userWorkSpaceList.map((singleWorkspace, index) => (
 					<div
@@ -66,13 +77,19 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 							handleSwitchWorkSpaceLogic(singleWorkspace);
 						}}
 					>
+						<h6 className="workspaceName">{singleWorkspace?.businessName}</h6>
 						<div className="workSpaceCircle">
-							<img
-								src={singleWorkspace?.logo_s3_500w_key}
-								alt={singleWorkspace?.businessName}
-							/>
+							{singleWorkspace?.logo_s3_500w_key ? (
+								<img
+									src={singleWorkspace?.logo_s3_500w_key}
+									alt={singleWorkspace?.businessName}
+								/>
+							) : (
+								<div className="no-logo">
+									{singleWorkspace?.businessName?.slice(0, 2)}
+								</div>
+							)}
 						</div>
-						<h6>{singleWorkspace?.businessName}</h6>
 
 						{singleWorkspace?.activeWorkspaceId ===
 							info?.activeBusniessName?.activeWorkspaceId && (
@@ -84,11 +101,15 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 				))}
 
 				<div className="singleWorkspace">
-					<div className="workSpaceCircle">
+					<div className="workSpaceCircle" onClick={handleCreateWorkspace}>
 						<PlusSvg fill={'#5d43fb'} />
 					</div>
-					<h6>Add Workspace</h6>
+					<h6>Create Workspace</h6>
 				</div>
+			</div>
+			<div className="backContinaer" onClick={closeWorkspaceList}>
+				<DoubleBackArrowSvg />
+				<h6>Switch Workspace</h6>
 			</div>
 		</div>
 	);
