@@ -66,7 +66,9 @@ const EmailCards = ({ openModal, workflowdata, index, openDeleteModal }) => {
 			openDeleteModal={openDeleteModal}
 		>
 			<div className="cardContentContainer" onClick={() => openModal(workflowdata, index)}>
-				<span className="criteria">{labelMapper?.[workflowdata?.criteria]}</span>
+				<span className="criteria">
+					{labelMapper?.[workflowdata?.criteria?.status || workflowdata?.criteria]}
+				</span>
 				<div className="emailIconContainer">
 					{workflowdata?.type === 'condition' ? 'condition' : 'Send Email'}
 					<UpdatedEmail />
