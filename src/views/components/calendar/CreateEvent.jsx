@@ -253,7 +253,6 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 		[info?.attendees],
 	);
 
-	console.log('addCategory', info?.addCategory);
 	return (
 		<div className="createEventContainer" ref={createEventRef}>
 			<div className="headerWrapper">
