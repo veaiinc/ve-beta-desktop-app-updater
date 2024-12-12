@@ -42,6 +42,11 @@ const actionHandlers = {
 	}),
 
 	RESET_CALENDAR_STATE: () => ({ ...initialState }),
+
+	RESET_CALENDAR_AI_CHAT: (state) => ({
+		...state,
+		calendarChat: null,
+	}),
 };
 
 const Reducer = (state, action) => {

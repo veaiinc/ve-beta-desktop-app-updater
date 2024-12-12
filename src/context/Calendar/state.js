@@ -237,12 +237,17 @@ export const Calendar = () => {
 		dispatch({ type: Actions.RESET_CALENDAR_STATE });
 	};
 
+	const resetCalendarAiChat = () => {
+		dispatch({ type: Actions.RESET_CALENDAR_AI_CHAT });
+	};
+
 	return {
 		...state,
 		getCalendarChat,
 		getCalendarEventsList,
 		createCalendarEvent,
 		resetCalendarState,
+		resetCalendarAiChat,
 		sendEventToAi,
 		createCalendarCategory,
 		updateCalendarCategory,

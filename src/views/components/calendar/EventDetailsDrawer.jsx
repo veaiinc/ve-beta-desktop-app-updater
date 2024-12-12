@@ -212,7 +212,7 @@ const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo
 	const formatEventTime = useCallback((startDateTime, endDateTime) => {
 		const start = moment(startDateTime);
 		const end = moment(endDateTime);
-		return `${start.format('h:mmA')} - ${end.format('h:mmA')}`;
+		return `${start.format('h:mm A')} - ${end.format('h:mm A')}`;
 	}, []);
 
 	return (
