@@ -1,27 +1,34 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/calendar/modal/updateCategoryModal.scss';
 
-const updateCategoryModal = ({
-	open,
-	closeModal,
+const UpdateCategoryModal = ({
+	show,
+	handleClose,
 	isCategoryEditable,
-	colorsArray,
 	color,
 	name,
 	type,
 	handelCategoryLabelDataChange,
 }) => {
-	const customCloseModal = () => {
-		closeModal();
-		handelCategoryLabelDataChange('name', '');
-		handelCategoryLabelDataChange('type', '');
-		handelCategoryLabelDataChange('color', '');
-	};
+	const [info, setInfo] = useState({
+		colorsArray: [
+			'#CF824B',
+			'#89AC4F',
+			'#4F9BAC',
+			'#7E78C9',
+			'#C378C9',
+			'#5E8BE2',
+			'#CF4B92',
+			'#7A7A7A',
+			'#B08D8D',
+			'#D76262',
+		],
+	});
 	return (
 		<ReactModal
-			isOpen={open}
-			closeModal={customCloseModal}
+			isOpen={show}
+			closeModal={handleClose}
 			modalType={'center'}
 			customStyles={{ content: { borderRadius: '15px' } }}
 		>
@@ -72,8 +79,8 @@ const updateCategoryModal = ({
 							</p>
 						</div>
 						<div className="colorPicker">
-							{colorsArray
-								? colorsArray.map((colorCode) => (
+							{info?.colorsArray
+								? info?.colorsArray.map((colorCode) => (
 										<label
 											htmlFor={colorCode}
 											className="colorCircle"
@@ -100,8 +107,8 @@ const updateCategoryModal = ({
 						</div>
 					</div>
 					<div className="actionsContainer">
-						<button onClick={closeModal}>Go back</button>
-						<button className="primaryButton" onClick={customCloseModal}>
+						<button onClick={handleClose}>Go back</button>
+						<button className="primaryButton" onClick={handleClose}>
 							{isCategoryEditable ? 'Change' : 'Add'}
 						</button>
 					</div>
@@ -111,4 +118,4 @@ const updateCategoryModal = ({
 	);
 };
 
-export default memo(updateCategoryModal);
+export default memo(UpdateCategoryModal);
