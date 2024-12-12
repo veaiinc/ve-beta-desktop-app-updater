@@ -4,7 +4,6 @@ import Onboarding from './views/features/onboarding/Onboarding';
 import Calendar from './views/features/calendar/index';
 // import ChatScreen from './views/features/meta_Integ/index';
 import OauthVerify from './views/features/signin/oauth';
-import Workflow_builder from './views/features/workflow_builder';
 import Sales from './views/features/sales/Sales';
 import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
 import SmartFile from './views/features/sales/smartFiles/SmartFile';
@@ -25,9 +24,8 @@ import { Navigate } from 'react-router-dom';
 import Subscription from './views/features/subscription';
 import TermsOfService from './views/features/signin/TermsOfService';
 import CookiePolicy from './views/features/signin/CookiePolicy';
-import Workflow_builder_updated from './views/features/workflow_builder_updated';
+import WorkflowBuilder from './views/features/workflow_builder';
 import Tasks from './views/features/tasks';
-
 import ShareAndEarn from './views/features/ShareAndEarn';
 const routes = [
 	{
@@ -125,20 +123,12 @@ const routes = [
 		path: '/workflow_builder/:templateId',
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
-				<Workflow_builder_updated />
+				<WorkflowBuilder />
 			</WorkflowBuilderLayout>
 		),
 		exact: true,
 	},
-	{
-		path: '/workflow_builder-test/:templateId', //this is real one,
-		component: (
-			<WorkflowBuilderLayout title={'Workflow Builder'}>
-				<Workflow_builder />
-			</WorkflowBuilderLayout>
-		),
-		exact: true,
-	},
+
 	{
 		path: '/smart-file/:templateId/:workflowId',
 		component: (
