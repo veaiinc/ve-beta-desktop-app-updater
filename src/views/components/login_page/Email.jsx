@@ -11,7 +11,7 @@ import { message } from 'antd';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 
-const Email = ({ email, setEmail, setActiveStage, setEmailVerified, cookiesAccepted }) => {
+const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	const arrowRef = useRef(null);
 
 	let {
@@ -117,10 +117,6 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified, cookiesAccep
 	};
 
 	const handleContinueWithGoogle = async () => {
-		if (!cookiesAccepted) {
-			message?.info('Please accept cookies to continue');
-			return;
-		}
 		if (info?.googleLoading) {
 			return;
 		}
@@ -155,10 +151,6 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified, cookiesAccep
 			((e?.key === 'Enter' || type === 'click') && info?.isEmailValid && !info?.isLoading) ||
 			invitedUserEmail
 		) {
-			if (!cookiesAccepted) {
-				message?.info('Please accept cookies to continue');
-				return;
-			}
 			setInfo((prev) => ({ ...prev, isLoading: true }));
 			try {
 				const response = await checkAccountExistsUsingEmail(email || invitedUserEmail);

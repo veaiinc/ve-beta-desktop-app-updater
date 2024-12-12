@@ -45,6 +45,7 @@ const File = ({
 			getAiPredictionForSmartFile,
 			aiPredictedData,
 		},
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -602,8 +603,11 @@ const File = ({
 	);
 
 	const duplicateTemplateFromSmartFile = useCallback(async () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		window.location.href = `${origin}/${workflowId}?workflow=true&templateId=${templateId}`;
-	}, [workflowId, templateId]);
+	}, [workflowId, templateId, validateExpiryData]);
 
 	const handleUpdateVaraiblesArray = useCallback(
 		async (updatedDuplicateVariableArray) => {
@@ -857,13 +861,16 @@ const File = ({
 
 	const onChangeAiPrediction = useCallback(
 		(value) => {
+			if (validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
 			setInfo((prev) => ({ ...prev, useAiPredictions: value }));
 			if (value && aiPredictedData) {
 				generatePridictions();
 				setInfo((prev) => ({ ...prev, generatePredictionsLoading: true }));
 			}
 		},
-		[slug, aiPredictedData],
+		[slug, aiPredictedData, validateExpiryData],
 	);
 
 	const onAiGenerationRejection = useCallback(() => {

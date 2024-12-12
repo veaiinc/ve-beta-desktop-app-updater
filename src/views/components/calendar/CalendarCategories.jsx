@@ -6,7 +6,12 @@ import { ReactComponent as UpSvg } from '../../../assets/svg/calendar/up.svg';
 import { ReactComponent as PencilSvg } from '../../../assets/svg/calendar/pencil.svg';
 import UpdateCategoryModal from '../modalsV2/calendar/UpdateCategoryModal';
 
-const CalendarCategories = () => {
+const CalendarCategories = ({
+	categoryList,
+	selectedCategory,
+	categoryFilter,
+	updateCalendarInfo,
+}) => {
 	const [info, setInfo] = useState({
 		expanded: false,
 		height: '62px',
@@ -24,11 +29,7 @@ const CalendarCategories = () => {
 			'#B08D8D',
 			'#D76262',
 		],
-		categoryLabelData: {
-			name: '',
-			type: '',
-			color: '',
-		},
+		selectedCalendarCategory: [selectedCategory] || [],
 	});
 	const expandRef = useRef(null);
 
@@ -53,7 +54,7 @@ const CalendarCategories = () => {
 		if (window.innerHeight >= 950) {
 			handleCategoryExpand();
 		}
-	}, []);
+	}, [categoryList]);
 
 	const handleCategoryExpand = useCallback(() => {
 		setInfo((prevInfo) => ({
@@ -71,10 +72,18 @@ const CalendarCategories = () => {
 		categoryModalOpen();
 	}, []);
 
-	const handleCategoryEditClick = useCallback(() => {
+	const handleEditCategory = useCallback((selectedCategory) => {
 		setInfo((prevInfo) => ({ ...prevInfo, isCategoryEditable: true }));
+		updateCalendarInfo('selectedCategory', selectedCategory);
+
 		categoryModalOpen();
 	}, []);
+
+	useEffect(() => {
+		if (categoryFilter) {
+			console.log('categoryFilter:', JSON.stringify(categoryFilter, null, 2));
+		}
+	}, [categoryFilter]);
 
 	const handelCategoryLabelDataChange = useCallback((key, value) => {
 		setInfo((prevInfo) => ({
@@ -82,6 +91,22 @@ const CalendarCategories = () => {
 			categoryLabelData: { ...prevInfo.categoryLabelData, [key]: value },
 		}));
 	}, []);
+
+	// Handler for checkbox changes
+	const handleCheckboxChange = (categoryId) => {
+		let updatedFilter;
+
+		if (categoryFilter.includes(categoryId)) {
+			// Remove the category ID from the filter
+			updatedFilter = categoryFilter.filter((id) => id !== categoryId);
+		} else {
+			// Add the category ID to the filter
+			updatedFilter = [...categoryFilter, categoryId];
+		}
+
+		// Update the categoryFilter using the provided function
+		updateCalendarInfo('categoryFilter', updatedFilter);
+	};
 
 	return (
 		<div
@@ -104,91 +129,46 @@ const CalendarCategories = () => {
 				</div>
 			</div>
 
-			{info?.expanded ? (
+			{info?.expanded && (
 				<div className="categoriesContainer">
-					<div className="categoryTypeContainer">
-						<div className="typeWrapper">
-							<input type="checkbox" className="checkBox" id="meeting-checkbox" />
-							<label htmlFor="meeting-checkbox" className="typeLabel">
-								Meeting
-							</label>
-							<button className="editButton" onClick={handleCategoryEditClick}>
-								<PencilSvg />
-							</button>
-						</div>
-						<div className="statusWrapper" data-type="meeting">
-							<div className="statusCount">
-								<span className="activeCount">4</span>/
-								<span className="totalCount">15</span>
+					{categoryList?.map((category) => {
+						const isChecked = categoryFilter.includes(category._id);
+						return (
+							<div className="categoryTypeContainer" key={category?._id}>
+								<div className="typeWrapper">
+									<input
+										type="checkbox"
+										className="checkBox"
+										id={`${category?.name}-checkbox`}
+										checked={isChecked}
+										onChange={() => handleCheckboxChange(category._id)}
+										aria-checked={isChecked}
+										aria-label={`${category.name} category`}
+									/>
+									<label
+										htmlFor={`${category.name}-checkbox`}
+										className="typeLabel"
+									>
+										{category?.name?.charAt(0).toUpperCase() +
+											category?.name?.slice(1)}
+									</label>
+									<button
+										className="editButton"
+										onClick={() => handleEditCategory(category)}
+									>
+										<PencilSvg />
+									</button>
+								</div>
+								<div className="statusWrapper">
+									<span
+										className="statusIndicator"
+										style={{ borderColor: category?.color }}
+									></span>
+								</div>
 							</div>
-
-							<span className="statusIndicator"></span>
-						</div>
-					</div>
-					<div className="categoryTypeContainer">
-						<div className="typeWrapper">
-							<input type="checkbox" className="checkBox" id="task-checkbox" />
-							<label htmlFor="task-checkbox" className="typeLabel">
-								Task
-							</label>
-							<button className="editButton" onClick={handleCategoryEditClick}>
-								<PencilSvg />
-							</button>
-						</div>
-						<div className="statusWrapper" data-type="task">
-							<div className="statusCount">
-								<span className="activeCount">4</span>/
-								<span className="totalCount">15</span>
-							</div>
-
-							<span className="statusIndicator"></span>
-						</div>
-					</div>
-					<div className="categoryTypeContainer">
-						<div className="typeWrapper">
-							<input type="checkbox" className="checkBox" id="payment-checkbox" />
-							<label htmlFor="payment-checkbox" className="typeLabel">
-								Payments
-							</label>
-							<button className="editButton" onClick={handleCategoryEditClick}>
-								<PencilSvg />
-							</button>
-						</div>
-						<div className="statusWrapper" data-type="payments">
-							<div className="statusCount">
-								<span className="activeCount">4</span>/
-								<span className="totalCount">15</span>
-							</div>
-
-							<span className="statusIndicator"></span>
-						</div>
-					</div>
-					<div className="categoryTypeContainer">
-						<div className="typeWrapper">
-							<input
-								type="checkbox"
-								className="checkBox"
-								id="appointments-checkbox"
-							/>
-							<label htmlFor="appointments-checkbox" className="typeLabel">
-								Appointments
-							</label>
-							<button className="editButton" onClick={handleCategoryEditClick}>
-								<PencilSvg />
-							</button>
-						</div>
-						<div className="statusWrapper" data-type="appointments">
-							<div className="statusCount">
-								<span className="activeCount">4</span>/
-								<span className="totalCount">15</span>
-							</div>
-
-							<span className="statusIndicator"></span>
-						</div>
-					</div>
+						);
+					})}
 				</div>
-			) : (
-				''
 			)}
 
 			<UpdateCategoryModal
