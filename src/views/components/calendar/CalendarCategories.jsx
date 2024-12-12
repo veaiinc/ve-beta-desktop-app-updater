@@ -124,8 +124,7 @@ const CalendarCategories = ({
 										htmlFor={`${category.name}-checkbox`}
 										className="typeLabel"
 									>
-										{category?.name?.charAt(0).toUpperCase() +
-											category?.name?.slice(1)}
+										{category?.name}
 									</label>
 									<button
 										className="editButton"

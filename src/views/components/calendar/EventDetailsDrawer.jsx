@@ -156,7 +156,12 @@ const RenderEventDetails = ({ info, updateCalendarInfo, formatEventTime }) => {
 
 const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo }) => {
 	const {
-		calendarInfo: { calendarEventDetails, getCalendarEventDetails },
+		calendarInfo: {
+			calendarEventDetails,
+			getCalendarEventDetails,
+			calendarEvent,
+			updateCalendarEvent,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({

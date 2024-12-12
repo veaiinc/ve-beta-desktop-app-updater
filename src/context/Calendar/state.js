@@ -233,6 +233,32 @@ export const Calendar = () => {
 		}
 	};
 
+	const updateCalendarEvent = async (eventId, body) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.updateCalendarEvent}/${eventId}`;
+			const response = await service.fetchPost(url, body, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.UPDATE_CALENDAR_EVENT,
+					payload: response?.[1]?.data,
+				});
+			} else {
+				dispatch({
+					type: Actions.UPDATE_CALENDAR_EVENT,
+					payload: {
+						error: 'Something went wrong while updating event. Please try again.',
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>updateCalendarEvent', error);
+		}
+	};
+
+	// Calendar State Reset ================================>
 	const resetCalendarState = () => {
 		dispatch({ type: Actions.RESET_CALENDAR_STATE });
 	};
@@ -250,6 +276,7 @@ export const Calendar = () => {
 		resetCalendarAiChat,
 		sendEventToAi,
 		createCalendarCategory,
+		updateCalendarEvent,
 		updateCalendarCategory,
 		getCalendarCategories,
 		deleteCalendarCategory,

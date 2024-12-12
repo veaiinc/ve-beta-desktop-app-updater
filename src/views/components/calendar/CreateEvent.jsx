@@ -359,6 +359,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 								updateEventInfo('showCategory', true);
 							}}
 							value={info?.selectedCategory?.name}
+							style={{ textTransform: 'capitalize' }}
 						/>
 						<div
 							className="downArrow"
