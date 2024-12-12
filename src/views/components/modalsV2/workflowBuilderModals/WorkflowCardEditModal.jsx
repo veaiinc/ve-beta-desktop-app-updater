@@ -368,7 +368,7 @@ const RenderConditionUi = ({
 			const { criteria } = currentStepInfo || {};
 			let selectedCondition = null;
 			for (let i = 0; i < conditionOptions?.length; i++) {
-				if (conditionOptions?.[i]?.value === criteria) {
+				if (conditionOptions?.[i]?.value === criteria?.status || criteria) {
 					selectedCondition = conditionOptions?.[i];
 					setInfo((prev) => ({ ...prev, contentLoader: false, selectedCondition }));
 					break;
@@ -391,7 +391,7 @@ const RenderConditionUi = ({
 				type,
 				moveTo: moveToPath,
 				previousStepId: previousStepId,
-				criteria: info?.selectedCondition?.value,
+				criteria: { status: info?.selectedCondition?.value },
 			},
 			templateId: templateId,
 		};
@@ -608,7 +608,7 @@ const RenderNotificationUi = ({
 
 		// fetching selected criteria
 		for (let i = 0; i < smartFileActions?.length; i++) {
-			if (smartFileActions?.[i]?.value === criteria) {
+			if (smartFileActions?.[i]?.value === (criteria?.status || criteria)) {
 				selectedCriteria = smartFileActions?.[i];
 				break;
 			}
@@ -772,7 +772,7 @@ const RenderNotificationUi = ({
 				sendAt: timeStamp,
 				channels: info?.selectedChannel?.value,
 				actionType: 'notification',
-				criteria: info?.selectedCriteria?.value,
+				criteria: { status: info?.selectedCriteria?.value },
 			},
 		};
 		if (previousType === 'condition') {
@@ -819,7 +819,7 @@ const RenderNotificationUi = ({
 				sendAt: timeStamp,
 				channels: info?.selectedChannel?.value,
 				actionType: 'notification',
-				criteria: info?.selectedCriteria?.value,
+				criteria: { status: info?.selectedCriteria?.value },
 				stepId: currentStepInfo?._id,
 			},
 		};
