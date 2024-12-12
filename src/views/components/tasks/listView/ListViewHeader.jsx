@@ -5,14 +5,19 @@ import { ReactComponent as SearchSvg } from '../../../../assets/svg/tasks/search
 import { ReactComponent as ThunderSvg } from '../../../../assets/svg/tasks/thunder.svg';
 import { ReactComponent as FilterLinesSvg } from '../../../../assets/svg/tasks/filterLines.svg';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
+import { Tooltip } from 'antd';
+import OptionsDropDown from '../../dropDown/tasks/OptionsDropDown';
 
-const ListViewHeader = () => {
+const ListViewHeader = ({ updateListViewInfo, properties, togglePropertyVisibility }) => {
 	return (
 		<div className="listViewHeaderContainer">
 			<div className="listViewHeader">
 				<div className="listViewHeaderTitle">Tasks</div>
 				<div className="listViewHeaderActions">
-					<button className="listViewHeaderActionButton">
+					<button
+						className="listViewHeaderActionButton"
+						onClick={() => updateListViewInfo('isCreateModalOpen', true)}
+					>
 						<PlusSvg style={{ width: '20px', height: '20px' }} />
 					</button>
 					<button className="listViewHeaderActionButton">
@@ -24,9 +29,23 @@ const ListViewHeader = () => {
 					<button className="listViewHeaderActionButton">
 						<FilterLinesSvg />
 					</button>
-					<button className="listViewHeaderActionButton">
-						<HorizontalMoreIcon style={{ width: '20px', height: '20px' }} />
-					</button>
+					<Tooltip
+						placement="bottom"
+						title={
+							<OptionsDropDown
+								properties={properties}
+								togglePropertyVisibility={togglePropertyVisibility}
+							/>
+						}
+						arrow={false}
+						trigger={'click'}
+						color={'transparent'}
+						overlayStyle={{ minWidth: 'fit-content' }}
+					>
+						<button className="btn-options">
+							<HorizontalMoreIcon style={{ width: '20px', height: '20px' }} />
+						</button>
+					</Tooltip>
 				</div>
 			</div>
 		</div>

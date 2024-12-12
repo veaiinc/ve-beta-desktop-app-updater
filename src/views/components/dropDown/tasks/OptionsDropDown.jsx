@@ -6,9 +6,8 @@ import { ReactComponent as BoardIcon } from '../../../../assets/svg/tasks/board.
 import ToggleSlider from '../../input/slider';
 import { ReactComponent as DownArrow } from '../../../../assets/svg/Settings/Downarrowwhite.svg';
 import DropDown from './DropDown';
-import ToolTipContainer from '../../popover/ToolTipContainer';
 
-const OptionsDropDown = ({ properties, togglePropertyVisibility, open }) => {
+const OptionsDropDown = ({ properties, togglePropertyVisibility }) => {
 	const [info, setInfo] = useState({ groupDropDownOpen: false, orderDropDownOpen: false });
 
 	const updateOptionDropDownInfo = (key, value) => {

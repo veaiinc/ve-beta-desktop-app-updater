@@ -1,8 +1,5 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/tasks/listView.scss';
-import { ReactComponent as ChartList } from '../../../../assets/svg/tasks/chartLine.svg';
-import { ReactComponent as OptionsLine } from '../../../../assets/svg/tasks/optionsLine.svg';
-import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import Text from './Text';
 import Id from './Id';
 import Select from './Select';
@@ -15,13 +12,12 @@ import Email from './Email';
 import Url from './Url';
 import Phone from './Phone';
 import CheckBox from './CheckBox';
-import OptionsDropDown from '../../dropDown/tasks/OptionsDropDown';
 import CreateTaskPopup from '../../modalsV2/tasks/CreateTaskPopup';
 import Context from '../../../../context/context';
-import { Tooltip } from 'antd';
 import ListViewSidebar from '../../modalsV2/tasks/ListViewSidebar';
 import WorkFlow from './WorkFlow';
 import ListViewHeader from './ListViewHeader';
+import ListViewRow from './ListViewRow';
 
 const rowTypes = {
 	text: Text,
@@ -223,91 +219,6 @@ const ListView = () => {
 		[updateListItem],
 	);
 
-	const generateRow = useCallback(
-		(row) => {
-			const leftPart = [];
-			const rightPart = [];
-			let titleReached = false;
-
-			for (let key in row) {
-				const value = row[key];
-
-				if (
-					!value ||
-					key === '__typename' ||
-					key === '_id' ||
-					key === 'workflowTemplateId'
-				) {
-					continue;
-				}
-
-				const property = info?.properties?.find((item) => item.propName === key);
-				if (property && !property?.show) {
-					continue;
-				}
-
-				const componentType = responseTypes[key];
-				const RowComponent = rowTypes[componentType] || null;
-				if (titleReached) {
-					rightPart.push(
-						RowComponent ? (
-							<RowComponent
-								key={key}
-								value={value}
-								title={key}
-								onOptionClick={(value) => updatePropertyValue(row._id, key, value)}
-								{...(componentType === 'workflow'
-									? { workflows: info?.workflows }
-									: {})}
-								{...(key === 'assignedTo' ? { persons: info?.tenantUsers } : {})}
-								{...(key === 'updatedAt' || key === 'createdAt'
-									? { showDropDown: false }
-									: {})}
-								// {...(key === 'client' ? { options: info?.clients } : {})}
-							/>
-						) : (
-							<div key={key}>{value}</div>
-						),
-					);
-				} else {
-					leftPart.push(
-						RowComponent ? (
-							<RowComponent
-								key={key}
-								value={value}
-								title={key}
-								isTitle={key === 'title'}
-								{...(componentType === 'workflow'
-									? { workflows: info?.workflows }
-									: {})}
-								{...(key === 'updatedBy' ? { options: info?.tenantUsers } : {})}
-								{...(key === 'updatedAt' || key === 'createdAt'
-									? { showDropDown: false }
-									: {})}
-							/>
-						) : (
-							<div key={key}>{value}</div>
-						),
-					);
-				}
-
-				if (key === 'title') {
-					titleReached = true;
-				}
-			}
-
-			return [
-				<div key="leftPart" className="leftPart">
-					{leftPart}
-				</div>,
-				<div key="rightPart" className="rightPart">
-					{rightPart}
-				</div>,
-			];
-		},
-		[info?.properties, info?.workflows, info?.tenantUsers, updatePropertyValue],
-	);
-
 	const addNewTask = useCallback(async (payload) => {
 		if (validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
@@ -351,49 +262,33 @@ const ListView = () => {
 
 	return (
 		<div className="listViewParentContainer">
-			{/* <div className="listHeader">
-				<h2 className="listView-title">Tasks</h2>
-
-				<Tooltip
-					placement="bottom"
-					title={
-						<OptionsDropDown
-							properties={info?.properties}
-							togglePropertyVisibility={togglePropertyVisibility}
-							open={info?.isOptionsDropDownOpen}
-						/>
-					}
-					arrow={false}
-					trigger={'click'}
-					color={'transparent'}
-					overlayStyle={{ minWidth: 'fit-content' }}
-				>
-					<button className="btn-options">
-						<OptionsLine />
-					</button>
-				</Tooltip>
-				<button
-					className="btn-createTask"
-					onClick={() => updateListViewInfo('isCreateModalOpen', true)}
-				>
-					Create new task
-				</button>
-			</div> */}
-			<ListViewHeader />
+			<ListViewHeader
+				updateListViewInfo={updateListViewInfo}
+				properties={info?.properties}
+				togglePropertyVisibility={togglePropertyVisibility}
+			/>
 			<div className="listContainer">
-				{info?.listItems?.length !== 0 ? (
-					info?.listItems?.map((row, index) => (
-						<div
-							className="listItemRow"
-							key={index}
-							onClick={() => handleRowClick(row._id)}
-						>
-							{generateRow(row)}
-						</div>
-					))
-				) : (
-					<span style={{ color: '#808080', margin: '10px auto' }}>No tasks found</span>
-				)}
+				<div className="listInnerContainer">
+					{info?.listItems?.length !== 0 ? (
+						info?.listItems?.map((task, index) => (
+							<ListViewRow
+								task={task}
+								key={index}
+								properties={info?.properties}
+								responseTypes={responseTypes}
+								rowTypes={rowTypes}
+								updatePropertyValue={updatePropertyValue}
+								workflows={info?.workflows}
+								tenantUsers={info?.tenantUsers}
+								handleRowClick={handleRowClick}
+							/>
+						))
+					) : (
+						<span style={{ color: '#808080', margin: '10px auto' }}>
+							No tasks found
+						</span>
+					)}
+				</div>
 			</div>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
