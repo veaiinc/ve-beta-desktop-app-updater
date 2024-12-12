@@ -9,6 +9,7 @@ const Person = ({
 	customListItemStyle = {},
 	onOptionClick,
 	persons = [],
+	removeBtn = false,
 }) => {
 	const updatedOnOptionClick = useCallback(
 		(value) => {
@@ -36,6 +37,15 @@ const Person = ({
 							</div>
 						</div>
 						{showName ? <div className="name">{value?.name}</div> : ''}
+						{removeBtn && (
+							<div
+								className="remove-btn"
+								style={{ color: '#e74c3c', fontSize: '12px' }}
+								onClick={() => onOptionClick(null)}
+							>
+								&#10005;
+							</div>
+						)}
 					</>
 				) : (
 					<div className="listItem-text">Select Person</div>

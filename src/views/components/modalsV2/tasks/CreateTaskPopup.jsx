@@ -174,6 +174,7 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 						workflows={workflows}
 						customListItemStyle={customListItemStyle}
 						onOptionClick={(value) => updateModalInfo('workflowId', value)}
+						title={'Workflow'}
 					/>
 					<Person
 						value={info?.client}
@@ -181,30 +182,37 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 						customListItemStyle={customListItemStyle}
 						onOptionClick={(value) => updateModalInfo('client', value)}
 						showName
+						title={'Client'}
+						removeBtn={true}
 					/>
 					<Status
 						value={info?.status}
 						showLabel={true}
 						customListItemStyle={customListItemStyle}
 						onOptionClick={(value) => updateModalInfo('status', value)}
+						title={'Status'}
 					/>
 					<Priority
 						value={info?.priority}
 						showLabel={true}
 						customListItemStyle={customListItemStyle}
 						onOptionClick={(value) => updateModalInfo('priority', value)}
+						title={'Priority'}
 					/>
 					<Person
 						value={info?.assignedTo}
 						persons={tenantUsers}
 						customListItemStyle={customListItemStyle}
 						onOptionClick={(value) => updateModalInfo('assignedTo', value)}
+						title={'Assigned To'}
+						removeBtn={true}
 					/>
 					{info?.dueDate ? (
 						<DateView
 							value={info?.dueDate}
 							customListItemStyle={customListItemStyle}
 							onOptionClick={(value) => updateModalInfo('dueDate', value)}
+							title={'Due Date'}
 						/>
 					) : (
 						''
