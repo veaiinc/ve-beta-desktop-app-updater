@@ -1,6 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useContext, useEffect } from 'react';
 import { ReactComponent as CopyIcon } from '../../../../assets/svg/gallery/copy.svg';
 import { ReactComponent as DownloadIcon } from '../../../../assets/svg/gallery/download2.svg';
+import Context from '../../../../context/context';
+
 import Table from './Table';
 import QRCode from 'react-qr-code';
 import { message } from 'antd';
@@ -78,8 +80,28 @@ const tableData = [
 	},
 ];
 
-const AiFaceRegistration = ({ link }) => {
+const AiFaceRegistration = ({ link, galleryId }) => {
 	const qrRef = useRef(null);
+	const {
+		galleryInfo: {
+			getImagesReadyNotify,
+			preRegisteredUsers,
+			getPreRegisteredUsers,
+			tenantAlbums,
+		},
+	} = useContext(Context);
+
+	useEffect(() => {
+		console.log('===============>galleryId', galleryId);
+		console.log('===============>preRegisteredUsers', preRegisteredUsers);
+		if (galleryId) {
+			getPreRegisteredUsers(galleryId);
+		}
+	}, []);
+
+	const notifyUser = async () => {
+		await getImagesReadyNotify(galleryId);
+	};
 
 	const downloadQR = () => {
 		const canvas = document.createElement('canvas');
@@ -137,13 +159,18 @@ const AiFaceRegistration = ({ link }) => {
 						<p>{link ? link : ''}</p>
 						<CopyIcon className="copyIcon" onClick={() => copyLink()} />
 					</div>
-					<div className="downloadQR" onClick={() => downloadQR()}>
-						<DownloadIcon className="downloadIcon" />
-						<p>Download QR</p>
+					<div className="downloadNotifyContainer">
+						<div className="downloadQR" onClick={() => downloadQR()}>
+							<DownloadIcon className="downloadIcon" />
+							<p>Download QR</p>
+						</div>
+						<div className="notifyUser" onClick={() => notifyUser()}>
+							<span>Notify User</span>
+						</div>
 					</div>
 				</div>
 			</div>
-			<Table tableData={tableData} thead={'Register Stage'} />
+			<Table tableData={preRegisteredUsers} thead={'Register Stage'} />
 		</div>
 	);
 };

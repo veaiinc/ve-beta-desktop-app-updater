@@ -29,6 +29,7 @@ export const intialState = {
 	galleryShareDetails: null,
 	aiFace: null,
 	aiFaceImages: null,
+	preRegisteredUsers: null,
 };
 
 export const Galleries = () => {
@@ -1496,6 +1497,45 @@ export const Galleries = () => {
 		});
 	};
 
+	const getImagesReadyNotify = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/pre-registered-users/notify`,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>ImagesReadyNotify', error);
+		}
+	};
+
+	const getPreRegisteredUsers = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/pre-registered-users`,
+				usertoken,
+				'galleries',
+			);
+
+			if (response[0]) {
+				// Changed from response?.[0] === true to match other functions
+				dispatch({
+					type: Actions.GET_PRE_REGISTERED_USERS,
+					payload: response?.[1],
+				});
+				return response;
+			}
+			return [false, null];
+		} catch (error) {
+			console.log('error==>getPreRegisteredUsers', error);
+			return [false, error];
+		}
+	};
+
 	return {
 		...state,
 		getGalleries,
@@ -1571,5 +1611,7 @@ export const Galleries = () => {
 		getDownloadLinkForImage,
 		getDownloadForMultipleImages,
 		clearGalleryShareDetails,
+		getImagesReadyNotify,
+		getPreRegisteredUsers,
 	};
 };
