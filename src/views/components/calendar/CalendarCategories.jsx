@@ -67,12 +67,6 @@ const CalendarCategories = ({
 		categoryModalOpen();
 	}, []);
 
-	useEffect(() => {
-		if (categoryFilter) {
-			console.log('categoryFilter:', JSON.stringify(categoryFilter, null, 2));
-		}
-	}, [categoryFilter]);
-
 	// Handler for checkbox changes
 	const handleCheckboxChange = (categoryId) => {
 		let updatedFilter;
@@ -156,7 +150,7 @@ const CalendarCategories = ({
 				show={info?.isCategoryModalOpen}
 				handleClose={() => setInfo((prev) => ({ ...prev, isCategoryModalOpen: false }))}
 				isCategoryEditable={info?.isCategoryEditable}
-				colorsArray={info?.colorsArray}
+				selectedCategory={selectedCategory}
 			/>
 		</div>
 	);
