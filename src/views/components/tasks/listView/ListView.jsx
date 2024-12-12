@@ -52,17 +52,13 @@ const responseTypes = {
 	updatedAt: 'date',
 	createdBy: 'person',
 	updatedBy: 'person',
+	serialNumber: 'id',
 };
 
 const ListView = () => {
 	const {
-		tasks: { listTasks, getListItems, addListItem, updateListItem, deleteListItem },
-		templates: {
-			getTemplatesListForCreateLead,
-			templatesListForCreateLead,
-			clientList,
-			getClientList,
-		},
+		tasks: { listTasks, getListItems, addListItem, updateListItem, deleteListItem, getTask },
+		templates: { getTemplatesListForCreateLead, templatesListForCreateLead },
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
@@ -77,6 +73,8 @@ const ListView = () => {
 		workflows: [],
 		tenantUsers: [],
 		clients: [],
+		page: 1,
+		hasMore: false,
 	});
 
 	const debounceTimeout = useRef(null);
@@ -85,21 +83,29 @@ const ListView = () => {
 		getListItems({
 			filters: {
 				limit: 30,
-				page: 1,
+				page: info?.page,
 				sortBy: 'createdAt',
 				sortType: 1,
 			},
 		});
 		getTemplatesListForCreateLead();
 		getTeamMembers();
-	}, []);
+	}, [info?.page]);
 
 	useEffect(() => {
 		if (listTasks) {
+			// Get unique tasks by _id to avoid duplicates
+			const uniqueTasks = [
+				...new Map(
+					[...info.listItems, ...listTasks.data].map((task) => [task._id, task]),
+				).values(),
+			];
+
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				listItems: listTasks?.data || [],
+				listItems: uniqueTasks,
 				properties: mapPropertyType(listTasks?.data?.[0]),
+				hasMore: listTasks?.hasNextPage,
 			}));
 		}
 	}, [listTasks]);
@@ -170,82 +176,88 @@ const ListView = () => {
 		(rowId, propName, value) => {
 			if (validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
-			}
-			setInfo((prevInfo) => {
-				const updatedListItems = prevInfo.listItems.map((row) => {
-					if (row._id === rowId) {
-						return { ...row, [propName]: value };
-					}
-					return row;
+			} else {
+				setInfo((prevInfo) => {
+					const updatedListItems = prevInfo.listItems.map((row) => {
+						if (row._id === rowId) {
+							return { ...row, [propName]: value };
+						}
+						return row;
+					});
+
+					return {
+						...prevInfo,
+						listItems: updatedListItems,
+					};
 				});
 
-				return {
-					...prevInfo,
-					listItems: updatedListItems,
-				};
-			});
-
-			// Debounce the API call
-			if (debounceTimeout.current) {
-				clearTimeout(debounceTimeout.current);
-			}
-
-			debounceTimeout.current = setTimeout(async () => {
-				try {
-					const response = await updateListItem({
-						taskId: rowId,
-						updateInput: { [propName]: value },
-					});
-				} catch (error) {
-					console.error('Failed to update:', error);
-
-					// Rollback state if API fails
-					setInfo((prevInfo) => {
-						const rolledBackListItems = prevInfo.listItems.map((row) => {
-							if (row._id === rowId) {
-								return { ...row, [propName]: row[propName] }; // Reset to original value
-							}
-							return row;
-						});
-
-						return {
-							...prevInfo,
-							listItems: rolledBackListItems,
-						};
-					});
+				// Debounce the API call
+				if (debounceTimeout.current) {
+					clearTimeout(debounceTimeout.current);
 				}
-			}, 800); // Adjust debounce delay as needed
+
+				debounceTimeout.current = setTimeout(async () => {
+					try {
+						const response = await updateListItem({
+							taskId: rowId,
+							updateInput: { [propName]: value },
+						});
+					} catch (error) {
+						console.error('Failed to update:', error);
+
+						// Rollback state if API fails
+						setInfo((prevInfo) => {
+							const rolledBackListItems = prevInfo.listItems.map((row) => {
+								if (row._id === rowId) {
+									return { ...row, [propName]: row[propName] }; // Reset to original value
+								}
+								return row;
+							});
+
+							return {
+								...prevInfo,
+								listItems: rolledBackListItems,
+							};
+						});
+					}
+				}, 800); // Adjust debounce delay as needed
+			}
 		},
 		[updateListItem],
 	);
 
 	const addNewTask = useCallback(async (payload) => {
-		if (validateExpiryData?.isExpired) {
+		if (false) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
-		}
-		const response = await addListItem({ input: payload });
-		if (response) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				listItems: [...prevInfo?.listItems, response?.createTask],
-			}));
 		} else {
-			throw new Error('Failed to add new task');
+			const response = await addListItem({ input: payload });
+			if (response) {
+				const task = await getTask({ taskId: response?.createTask?._id });
+				if (task) {
+					setInfo((prevInfo) => ({
+						...prevInfo,
+						listItems: [...prevInfo?.listItems, task?.getTask],
+					}));
+				}
+			} else {
+				throw new Error('Failed to add new task');
+			}
 		}
 	}, []);
 
 	const deleteTask = useCallback(async (payload) => {
 		if (validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
-		}
-		const response = await deleteListItem(payload);
-		if (response) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				listItems: prevInfo?.listItems?.filter((row) => row._id !== payload?.taskId),
-				sidebarIsOpen: false,
-				selectedRow: null,
-			}));
+		} else {
+			const response = await deleteListItem(payload);
+			if (response) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					listItems: prevInfo?.listItems?.filter((row) => row._id !== payload?.taskId),
+					sidebarIsOpen: false,
+					selectedRow: null,
+				}));
+			}
 		}
 	}, []);
 
@@ -290,6 +302,13 @@ const ListView = () => {
 					)}
 				</div>
 			</div>
+			{info?.hasMore && (
+				<div className="loadMoreContainer">
+					<button onClick={() => updateListViewInfo('page', info?.page + 1)}>
+						Load More
+					</button>
+				</div>
+			)}
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
 				closeModal={() => updateListViewInfo('isCreateModalOpen', false)}
@@ -305,6 +324,8 @@ const ListView = () => {
 				workflows={info?.workflows}
 				tenantUsers={info?.tenantUsers}
 				deleteTask={deleteTask}
+				responseTypes={responseTypes}
+				rowTypes={rowTypes}
 			/>
 		</div>
 	);

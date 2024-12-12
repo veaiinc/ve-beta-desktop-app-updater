@@ -3,56 +3,6 @@ import React, { memo, useCallback } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import { ReactComponent as CloseArrow } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
-import { ReactComponent as PlusSvg } from '../../../../assets/svg/calendar/plus.svg';
-import { ReactComponent as DownArrow } from '../../../../assets/svg/workflow/downArrow.svg';
-import Text from '../../tasks/listView/Text';
-import Select from '../../tasks/listView/Select';
-import Person from '../../tasks/listView/Person';
-import MultiSelect from '../../tasks/listView/MultiSelect';
-import Id from '../../tasks/listView/Id';
-import Status from '../../tasks/listView/Status';
-import Priority from '../../tasks/listView/Priority';
-import Email from '../../tasks/listView/Email';
-import Phone from '../../tasks/listView/Phone';
-import Url from '../../tasks/listView/Url';
-import CheckBox from '../../tasks/listView/CheckBox';
-import DateView from '../../tasks/listView/DateView';
-import WorkFlow from '../../tasks/listView/WorkFlow';
-
-const rowTypes = {
-	text: Text,
-	select: Select,
-	person: Person,
-	'multi-select': MultiSelect,
-	date: DateView,
-	id: Id,
-	status: Status,
-	priority: Priority,
-	email: Email,
-	phone: Phone,
-	url: Url,
-	checkbox: CheckBox,
-	workflow: WorkFlow,
-};
-
-const responseTypes = {
-	title: 'text',
-	description: 'text',
-	status: 'status',
-	priority: 'priority',
-	workflowTemplateId: 'text',
-	workflowId: 'workflow',
-	client: 'text',
-	assignedTo: 'person',
-	dueDate: 'date',
-	assignedBy: 'person',
-	assignedAt: 'date',
-	completedAt: 'date',
-	createdAt: 'date',
-	updatedAt: 'date',
-	createdBy: 'person',
-	updatedBy: 'person',
-};
 
 const ListViewSidebar = ({
 	selectedRow,
@@ -62,6 +12,8 @@ const ListViewSidebar = ({
 	workflows,
 	tenantUsers,
 	deleteTask,
+	responseTypes,
+	rowTypes,
 }) => {
 	const generateRow = useCallback((row) => {
 		const listItems = [];
@@ -148,27 +100,7 @@ const ListViewSidebar = ({
 
 					<div className="sidebar-image"></div>
 					<div className="sidebar-properties-container">{generateRow(selectedRow)}</div>
-					{/* <div className="sidebar-subtasks-container">
-						<div className="subtask-header">
-							<DownArrow />
-							<span className="subtask-heading">Sub Tasks</span>
-							<div className="subtaskCount-container">
-								<Progress
-									type="circle"
-									percent={40}
-									size={18}
-									trailColor="#2F2F2F"
-									strokeColor="#6055EC"
-									strokeWidth="14"
-								/>
-								<span className="taskCount">1/3</span>
-							</div>
-							<div className="subTask-actions-wrapper">
-								<PlusSvg className="cursor-pointer" />
-								<HorizontalMoreIcon className="cursor-pointer" />
-							</div>
-						</div>
-					</div> */}
+
 					<Popconfirm
 						title="Delete Task"
 						description="Are you sure you want to delete this task?"

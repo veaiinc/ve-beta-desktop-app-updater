@@ -55,14 +55,6 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 	const [info, setInfo] = useState({
 		...initialState,
 		isLoading: false,
-		// datePickerModalOpen: false,
-		// dateOptions: [
-		// 	{ label: 'Remove date', value: null },
-		// 	{ label: 'Custom', value: 'custom' },
-		// 	{ label: 'Tomorrow', value: moment().add(1, 'days').unix() },
-		// 	{ label: 'End of the week', value: moment().isoWeekday(7).unix() }, // End of the week (Sunday)
-		// 	{ label: 'In one week', value: moment().add(1, 'weeks').unix() },
-		// ],
 	});
 
 	useEffect(() => {

@@ -12,13 +12,17 @@ export const getListItemsQuery = gql`
 			nextPage
 			data {
 				_id
+				serialNumber
 				title
 				description
 				status
 				priority
 				workflowTemplateId
 				workflowId
-				client
+				client {
+					_id
+					name
+				}
 				assignedTo {
 					_id
 					name
@@ -32,8 +36,14 @@ export const getListItemsQuery = gql`
 				completedAt
 				createdAt
 				updatedAt
-				createdBy
-				updatedBy
+				createdBy {
+					_id
+					name
+				}
+				updatedBy {
+					_id
+					name
+				}
 			}
 		}
 	}
@@ -49,7 +59,10 @@ export const addListItemMutation = gql`
 			priority
 			workflowTemplateId
 			workflowId
-			client
+			client {
+				_id
+				name
+			}
 			assignedTo {
 				_id
 				name
@@ -63,8 +76,14 @@ export const addListItemMutation = gql`
 			completedAt
 			createdAt
 			updatedAt
-			createdBy
-			updatedBy
+			createdBy {
+				_id
+				name
+			}
+			updatedBy {
+				_id
+				name
+			}
 		}
 	}
 `;
@@ -80,9 +99,49 @@ export const updateListItemMutation = gql`
 `;
 
 export const deleteListItemMutation = gql`
-	mutation DeleteTask($deleteTaskTaskId2: ID!) {
-		deleteTask(taskId: $deleteTaskTaskId2) {
+	mutation DeleteTask($taskId: ID!) {
+		deleteTask(taskId: $taskId) {
 			message
+		}
+	}
+`;
+
+export const getTaskQuery = gql`
+	query GetTask($taskId: ID!) {
+		getTask(taskId: $taskId) {
+			_id
+			serialNumber
+			title
+			description
+			status
+			priority
+			workflowTemplateId
+			workflowId
+			client {
+				_id
+				name
+			}
+			assignedTo {
+				_id
+				name
+			}
+			dueDate
+			assignedBy {
+				_id
+				name
+			}
+			assignedAt
+			completedAt
+			createdAt
+			updatedAt
+			createdBy {
+				_id
+				name
+			}
+			updatedBy {
+				_id
+				name
+			}
 		}
 	}
 `;

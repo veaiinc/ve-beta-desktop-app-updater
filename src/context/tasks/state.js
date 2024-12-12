@@ -5,6 +5,7 @@ import {
 	addListItemMutation,
 	updateListItemMutation,
 	deleteListItemMutation,
+	getTaskQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -84,9 +85,38 @@ export const TasksState = () => {
 		}
 	};
 
+	const getTask = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getTaskQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'tasks_api',
+			);
+			if (response?.[0]) {
+				return response?.[1]?.data;
+			} else {
+				console.log('API failed ==> getTask', response);
+			}
+		} catch (error) {
+			console.log('API failed ==> getTask', error);
+		}
+	};
+
 	const deleteListItem = async (payload) => {
 		try {
-			const response = await service.mutation(deleteListItemMutation, payload);
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				deleteListItemMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'tasks_api',
+			);
 			if (response?.[0]) {
 				return response?.[1]?.data;
 			} else {
@@ -107,6 +137,7 @@ export const TasksState = () => {
 		addListItem,
 		updateListItem,
 		deleteListItem,
+		getTask,
 		resetTasksState,
 	};
 };
