@@ -1506,34 +1506,50 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+			return response;
 		} catch (error) {
 			console.log('error==>ImagesReadyNotify', error);
+			throw error;
 		}
 	};
 
-	const getPreRegisteredUsers = async (galleryId) => {
+	const getPreRegisteredUsers = async (galleryId, page = 1, limit = 10) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(
-				`/${workspaceId}/galleries/${galleryId}/pre-registered-users`,
+				`/${workspaceId}/galleries/${galleryId}/pre-registered-users?page=${page}&limit=${limit}`,
 				usertoken,
 				'galleries',
 			);
 
 			if (response[0]) {
-				// Changed from response?.[0] === true to match other functions
 				dispatch({
 					type: Actions.GET_PRE_REGISTERED_USERS,
-					payload: response?.[1],
+					payload:
+						page === 1
+							? response?.[1]
+							: {
+									metadata: response?.[1].metadata,
+									data: [
+										...(state.preRegisteredUsers?.data || []),
+										...response?.[1].data,
+									],
+							  },
 				});
-				return response;
 			}
 			return [false, null];
 		} catch (error) {
 			console.log('error==>getPreRegisteredUsers', error);
 			return [false, error];
 		}
+	};
+
+	const clearPreRegisteredUsers = () => {
+		dispatch({
+			type: Actions.GET_PRE_REGISTERED_USERS,
+			payload: null,
+		});
 	};
 
 	return {
@@ -1613,5 +1629,6 @@ export const Galleries = () => {
 		clearGalleryShareDetails,
 		getImagesReadyNotify,
 		getPreRegisteredUsers,
+		clearPreRegisteredUsers,
 	};
 };
