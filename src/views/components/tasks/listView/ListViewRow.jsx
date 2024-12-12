@@ -104,8 +104,21 @@ const ListViewRow = ({
 							value={value}
 							title={key}
 							isTitle={key === 'title'}
+							onOptionClick={(value) => {
+								if (key === 'workflowId') {
+									customUpdateForWorkflow(value);
+								} else {
+									updatePropertyValue(task._id, key, value);
+								}
+							}}
 							{...(componentType === 'workflow' ? { workflows } : {})}
-							{...(key === 'updatedBy' ? { options: tenantUsers } : {})}
+							{...(key === 'client'
+								? {
+										persons: info?.clients,
+										showName: true,
+								  }
+								: {})}
+							{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
 							{...(key === 'updatedAt' || key === 'createdAt'
 								? { showDropDown: false }
 								: {})}

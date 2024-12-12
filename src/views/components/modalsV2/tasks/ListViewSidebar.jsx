@@ -1,8 +1,9 @@
 import { Drawer, Popconfirm, Progress, Tooltip } from 'antd';
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import { ReactComponent as CloseArrow } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
+import Context from '../../../../context/context';
 
 const ListViewSidebar = ({
 	selectedRow,
@@ -15,46 +16,95 @@ const ListViewSidebar = ({
 	responseTypes,
 	rowTypes,
 }) => {
-	const generateRow = useCallback((row) => {
-		const listItems = [];
-		for (let key in row) {
-			const value = row[key];
+	const {
+		templates: { clientList, getClientList },
+	} = useContext(Context);
 
-			if (['__typename', '_id', 'title', 'description', 'workflowTemplateId'].includes(key)) {
-				continue;
+	const [info, setInfo] = useState({
+		workflowId: selectedRow?.workflowId,
+		clients: clientList?.data?.map(({ name, _id }) => ({ label: name, value: _id })),
+	});
+
+	useEffect(() => {
+		getClientList({
+			filters: {
+				limit: 10,
+				page: 1,
+				workflowId: info?.workflowId,
+			},
+		});
+	}, [info?.workflowId]);
+
+	useEffect(() => {
+		if (clientList) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				clients: clientList?.data?.map(({ name, _id }) => ({
+					label: name,
+					value: _id,
+				})),
+			}));
+		}
+	}, [clientList]);
+
+	const generateRow = useCallback(
+		(row) => {
+			const listItems = [];
+			for (let key in row) {
+				const value = row[key];
+
+				if (
+					['__typename', '_id', 'title', 'description', 'workflowTemplateId'].includes(
+						key,
+					)
+				) {
+					continue;
+				}
+
+				const componentType = responseTypes[key];
+				const RowComponent = rowTypes[componentType] || null;
+				listItems.push(
+					<div className="property-list" key={key}>
+						<span className="property-title">{key}</span>
+						<span className={`property-value`}>
+							{RowComponent ? (
+								<RowComponent
+									key={key}
+									value={value}
+									title={key}
+									showLabel
+									{...(componentType === 'workflow' ? { workflows } : {})}
+									{...(key === 'client'
+										? {
+												persons: info?.clients,
+												showName: true,
+										  }
+										: {})}
+									{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
+									{...(key === 'updatedAt' || key === 'createdAt'
+										? { showDropDown: false }
+										: {})}
+									onOptionClick={(value) => {
+										if (key === 'workflowId') {
+											// Add custom workflow update handling if needed
+											updatePropertyValue(row._id, key, value);
+										} else {
+											updatePropertyValue(row._id, key, value);
+										}
+									}}
+								/>
+							) : (
+								<div key={key}>{value}</div>
+							)}
+						</span>
+					</div>,
+				);
 			}
 
-			const componentType = responseTypes[key];
-			const RowComponent = rowTypes[componentType] || null;
-			listItems.push(
-				<div className="property-list" key={key}>
-					<span className="property-title">{key}</span>
-					<span className={`property-value`}>
-						{RowComponent ? (
-							<RowComponent
-								key={key}
-								value={value}
-								title={key}
-								showLabel
-								{...(componentType === 'workflow' ? { workflows } : {})}
-								{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
-								{...(key === 'updatedAt' || key === 'createdAt'
-									? { showDropDown: false }
-									: {})}
-								onOptionClick={(value) => {
-									updatePropertyValue(row._id, key, value);
-								}}
-							/>
-						) : (
-							<div key={key}>{value}</div>
-						)}
-					</span>
-				</div>,
-			);
-		}
-
-		return listItems;
-	}, []);
+			return listItems;
+		},
+		[info?.clients],
+	);
 
 	return (
 		<Drawer
