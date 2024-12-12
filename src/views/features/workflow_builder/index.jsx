@@ -13,9 +13,10 @@ import DuplicateIndicatorModal from '../../components/modalsV2/workflowBuilderMo
 import ExitWithoutPublishingModal from '../../components/modalsV2/workflowBuilderModals/ExitWithoutPublishingModal';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
-import { message } from 'antd';
+import { message, Tooltip } from 'antd';
 import WorkflowNode from './WorkflowNode';
 import { fetchOriginSelection } from '../../../helpers';
+import { SyncOutlined } from '@ant-design/icons';
 let origin = fetchOriginSelection();
 const options = [
 	{ label: 'Rename Workflow' },
@@ -88,6 +89,7 @@ const WorkflowBuilder = () => {
 		moveToPath: null,
 	});
 	const [zoom, setZoom] = useState(100); // 100 means 100% zoom
+	const [arrow, setArrow] = useState('Show');
 
 	useEffect(() => {
 		if (templateId) {
@@ -397,6 +399,18 @@ const WorkflowBuilder = () => {
 	const handleZoomOut = useCallback(() => {
 		setZoom((prevZoom) => Math.max(prevZoom - ZOOM_STEP, MIN_ZOOM));
 	}, []);
+
+	const mergedArrow = useMemo(() => {
+		if (arrow === 'Hide') {
+			return false;
+		}
+		if (arrow === 'Show') {
+			return true;
+		}
+		return {
+			pointAtCenter: true,
+		};
+	}, [arrow]);
 	return (
 		<div className="workflowBuilderContainer">
 			{/* header */}
@@ -507,7 +521,16 @@ const WorkflowBuilder = () => {
 				</div>
 			)}
 			{!hideZoomPannel ? (
-				<div className="zoom-controls-panel">
+				<div className="zoom-controls-panel" style={{ color: '#fff' }}>
+					<Tooltip
+						placement="top"
+						title={'Reorganise'}
+						arrow={mergedArrow}
+						color={'blue'}
+					>
+						<SyncOutlined />
+					</Tooltip>
+
 					<button
 						className="zoom-button"
 						onClick={handleZoomIn}
