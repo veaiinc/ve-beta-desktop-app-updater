@@ -1,6 +1,7 @@
 .workflowConnectorContainer {
 	display: flex;
-	width: 480px;
+
+	width: 20px; //initlally 8px
 	flex-direction: column;
 	align-items: center;
 	position: relative;
@@ -26,5 +27,53 @@
 	.plusBtnContainer:hover {
 		border-radius: 100px;
 		background: rgba(176, 176, 176, 0.1);
+	}
+}
+.addOptionsContainer {
+	display: flex;
+	width: 400px;
+	height: 180px;
+	padding: 18px 0px 19px 0px;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 12px;
+	flex-shrink: 0;
+	background-color: transparent;
+	.optionsCards {
+		display: flex;
+		width: 177px;
+		height: 143px;
+		padding: 18px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		flex-shrink: 0;
+		border-radius: 14px;
+		background: var(--ve-ai-dark-theme-pop-up-color, #202123);
+
+		.optionsTitle {
+			display: flex;
+			// width: 94px;
+			align-items: center;
+			gap: 8px;
+			overflow: hidden;
+			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+			text-overflow: ellipsis;
+
+			/* Body/Body - 12 px */
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.optionsSubTitle {
+			color: var(--ve-ai-dark-theme-secondary-color, #939393);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+		}
 	}
 }

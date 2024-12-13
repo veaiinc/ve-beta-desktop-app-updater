@@ -63,6 +63,10 @@ const actionHandlers = {
 		...state,
 		aiPredictedData: action.payload,
 	}),
+	SET_CONNECT_URL: (state, action) => ({
+		...state,
+		connectUrl: action?.payload,
+	}),
 
 	RESET_STATE: () => intialState,
 };

@@ -33,12 +33,14 @@ import {
 	getRequiredActionDetailsQuery,
 	updateSendSmartFileSettingsMutation,
 	getLatestSendSmartFileSettingsQuery,
+	addNewStepsQuery,
+	updateStepsQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './Actions';
 import Service from '../../services/index';
-import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
+import { errorCodes } from '@apollo/client/invariantErrorCodes';
 
 export const intialState = {
 	workflowslist: null,
@@ -61,7 +63,7 @@ export const intialState = {
 	tabItemCount: null,
 	eventsPresetData: null,
 	sendSmartFileSettings: null,
-	aiPredictedData: null,
+	connectUrl: null,
 };
 
 export const TemplatesState = (props) => {
@@ -665,8 +667,10 @@ export const TemplatesState = (props) => {
 					type: Actions.GET_SPECIFIC_TEMPLATE_INFO_SUCCESS,
 					payload: response?.[1]?.data?.templateInfo,
 				});
+				return [true];
 			} else {
 				console.log('handle the error getSpecificTemplatesInfo', response);
+				return [false];
 			}
 		} catch (error) {
 			console.log('api failed ==>getSpecificTemplatesInfo', error);
@@ -1023,12 +1027,37 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const sendCustomEmailToClients = async (payload) => {
+	//updated steps functions
+	const addNewSteps = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
-				sendCustomMailMutation,
+				addNewStepsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const dataResponse = response?.[1];
+				return [true, dataResponse?.data?.addStep];
+			} else {
+				console.log('Api failed ==>addNewSteps', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>addNewSteps', error);
+		}
+	};
+
+	const updateSteps = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateStepsQuery,
 				payload,
 				workspaceId,
 				usertoken,
@@ -1038,11 +1067,46 @@ export const TemplatesState = (props) => {
 			if (response?.[0]) {
 				return [true];
 			} else {
-				message.error('Error sending Email');
+				console.log('Api failed ==>updateSteps', response);
 				return [false];
 			}
 		} catch (error) {
-			console.log('errror ==>sendCustomEmailToClients', error);
+			console.log('error==>updateSteps', error);
+		}
+	};
+
+	//integrations
+	const connectThirdParty = async (connectType) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const path = `${connectType}/${workspaceId}/auth`;
+
+			const response = await Service?.fetchGet(
+				path,
+				usertoken,
+				'third_party_integrations_api',
+			);
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions?.SET_CONNECT_URL,
+					payload: [true, response?.[1]?.connectUrl],
+				});
+			} else {
+				dispatch({
+					type: Actions?.SET_CONNECT_URL,
+					payload: [
+						false,
+						{
+							message: 'An unexpected error occured. Please try again!',
+							error: response?.[1],
+						},
+					],
+				});
+			}
+		} catch (error) {
+			console.log('error==>connectZoho', error);
 		}
 	};
 
@@ -1090,6 +1154,8 @@ export const TemplatesState = (props) => {
 		getLatestSendSmartFileSettings,
 		getAiPredictionForSmartFile,
 		leaveWorkspace,
-		sendCustomEmailToClients,
+		addNewSteps,
+		updateSteps,
+		connectThirdParty,
 	};
 };

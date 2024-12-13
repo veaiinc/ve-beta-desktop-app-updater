@@ -4,7 +4,7 @@ import '../../../assets/scss/loaders/updatedPageLoader.scss';
 
 const UpdatedPageLoader = () => {
 	return (
-		<div className="mainBodyNormal">
+		<div className="mainBodyNormal" style={{ width: '100%', height: '100%' }}>
 			<div className="mainDivNormal">
 				<div className="logoParentNormal">
 					<Logo className="logoDivNormal" />

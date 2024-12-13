@@ -1,0 +1,420 @@
+.eventDetailsDrawerParentCOntainer {
+	height: 100%;
+	// width: 500px;
+	display: flex;
+	padding: 10px;
+	justify-content: center;
+	align-items: center;
+
+	.innerContainer {
+		display: flex;
+		width: 480px;
+		padding: 24px 32px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		align-self: stretch;
+		border-radius: 16px;
+		border: 1px solid rgba(36, 36, 36, 0.64);
+		background: #191919;
+		overflow-y: auto;
+		overflow-x: hidden;
+
+		// for spinner
+		.loadingContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			justify-content: center;
+			align-items: center;
+			height: 100%;
+			align-self: stretch;
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 600;
+		}
+
+		.headerWrapper {
+			display: flex;
+			padding-bottom: 24px;
+			justify-content: space-between;
+			align-items: center;
+			align-self: stretch;
+			border-bottom: 1px solid #272727;
+
+			.headerText {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				gap: 4px;
+
+				.categoryLabel {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					align-self: stretch;
+
+					.categoryText {
+						color: #7d7d7d;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 16px; /* 133.333% */
+					}
+				}
+
+				.eventName {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 16px; /* 114.286% */
+				}
+			}
+
+			.headerIcons {
+				display: flex;
+				align-items: center;
+				gap: 15px;
+
+				button {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					padding: 0;
+					margin: 0;
+					background-color: transparent;
+					border: none;
+					cursor: pointer;
+				}
+			}
+		}
+
+		.eventDetailsWrapper {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+			padding-bottom: 24px;
+			border-bottom: 1px solid #272727;
+			.detailsData {
+				display: grid;
+				width: 100%;
+				grid-template-columns: 1fr 3fr;
+
+				.detailsTitle {
+					color: rgba(228, 229, 230, 0.48);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+					text-transform: capitalize;
+				}
+
+				.detailsValue {
+					overflow: hidden;
+					color: #e4e5e6;
+					text-overflow: ellipsis;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					text-align: start;
+					text-transform: capitalize;
+				}
+			}
+		}
+
+		.attendeesWrapper {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 16px;
+			align-self: stretch;
+			padding-bottom: 24px;
+			border-bottom: 1px solid #272727;
+
+			.attendeesLabel {
+				display: flex;
+				align-items: center;
+				gap: 16px;
+				align-self: stretch;
+				justify-content: space-between;
+
+				h3 {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+
+				.attendeesCount {
+					display: flex;
+					min-width: 28px;
+					padding: 2px 6px;
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					border-radius: 69px;
+					background: rgba(255, 255, 255, 0.05);
+					color: #ffffff;
+				}
+			}
+
+			input {
+				display: flex;
+				padding: 11px 14px;
+				align-items: center;
+				gap: 16px;
+				align-self: stretch;
+				border-radius: 10px;
+				border: 1px solid #292929;
+				color: #e4e5e6;
+				background-color: transparent;
+				white-space: nowrap;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 16px; /* 133.333% */
+
+				&::placeholder {
+					color: rgba(228, 229, 230, 0.48);
+				}
+			}
+
+			.attendiesDetailsContainer {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 16px;
+				align-self: stretch;
+
+				.attendeesDetailsWrapper {
+					display: flex;
+					align-items: center;
+					align-self: stretch;
+					gap: 16px;
+
+					.avatar {
+						width: 24px;
+						height: 24px;
+						flex-shrink: 0;
+						border-radius: 24px;
+						background: #303030;
+						overflow: hidden;
+					}
+					.textWrapper {
+						flex-grow: 1;
+
+						.name {
+							overflow: hidden;
+							color: #e4e5e6;
+							text-overflow: ellipsis;
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+
+						.role {
+							overflow: hidden;
+							color: rgba(228, 229, 230, 0.48);
+							text-overflow: ellipsis;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 16px; /* 133.333% */
+						}
+					}
+					svg {
+						width: 10px;
+						height: 10px;
+					}
+				}
+			}
+		}
+		.descriptionWrapper {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 16px;
+			align-self: stretch;
+
+			.descriptionLabel {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+
+				h3 {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+			p {
+				display: flex;
+				padding: 16px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				align-self: stretch;
+				border-radius: 8px;
+				border: 1px solid #292929;
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 21px; /* 175% */
+			}
+		}
+		.notesWrapper {
+			display: flex;
+			// width: 416px;
+			width: 100%;
+			padding-bottom: 24px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 16px;
+			height: 100%;
+
+			nav {
+				border-bottom: 1px solid #272727;
+				width: 100%;
+				ul {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					align-self: stretch;
+					list-style: none;
+
+					li {
+						display: flex;
+						padding: 10px;
+						justify-content: center;
+						align-items: center;
+						gap: 10px;
+						color: #7d7d7d;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 16px; /* 133.333% */
+						cursor: pointer;
+
+						&.active {
+							color: #e4e5e6;
+							border-bottom: 1px solid #e4e5e6;
+						}
+					}
+				}
+			}
+
+			.notesContainer {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: flex-start;
+				gap: 10px;
+				width: 100%;
+				height: 100%;
+				overflow: scroll;
+
+				.note {
+					display: flex;
+					// width: 200px;
+					min-height: 200px;
+					padding: 16px;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 12px;
+					border-radius: 16px;
+					background: #212121;
+					flex-shrink: 0;
+					cursor: pointer;
+
+					.focusContainer {
+						width: 100%;
+						display: flex;
+						height: 0;
+						justify-content: end;
+						overflow: hidden;
+						transition: height ease 1s; /* Transitioning height */
+						svg {
+							opacity: 0;
+							transition: opacity ease 1s;
+							g {
+								filter: blur(1.5px);
+							}
+							&:hover {
+								opacity: 1;
+								g {
+									opacity: 1;
+									filter: blur(0.2px);
+								}
+							}
+						}
+					}
+
+					&:hover {
+						.focusContainer {
+							height: auto; /* Use an explicit height value */
+							svg {
+								opacity: 1;
+							}
+						}
+					}
+
+					textarea {
+						width: 100%;
+						background-color: transparent;
+						border: none;
+						resize: none;
+						overflow: hidden;
+
+						&.notesTitle {
+							color: #e4e5e6;
+							text-align: justify;
+							text-overflow: ellipsis;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 600;
+							line-height: 16px; /* 133.333% */
+						}
+
+						&.notesDescription {
+							color: rgba(228, 229, 230, 0.48);
+							text-align: justify;
+							text-wrap: balance;
+							text-overflow: ellipsis;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 16px; /* 133.333% */
+							overflow-wrap: break-word;
+							flex-grow: 1;
+							overflow: scroll;
+						}
+					}
+				}
+			}
+		}
+	}
+}
