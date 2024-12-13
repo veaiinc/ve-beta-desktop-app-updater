@@ -74,10 +74,10 @@ export const channelOptions = [
 		label: 'Whatsapp',
 		value: 'whatsapp',
 	},
-	// {
-	// 	label: 'Instagram',
-	// 	value: 'instagram',
-	// },
+	{
+		label: 'Slack',
+		value: 'slack',
+	},
 	// {
 	// 	label: 'Facebook',
 	// 	value: 'facebook',
