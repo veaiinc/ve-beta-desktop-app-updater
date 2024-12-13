@@ -166,6 +166,14 @@ const WorkflowBuilder = () => {
 
 	//function defination
 
+	const scrollToFirstElement = useCallback(() => {
+		const firstNode = containerRef.current.querySelector('.workflow-step');
+		if (firstNode) {
+			// Use 'auto' for instant scrolling on mount
+			scrollToElement(firstNode, 'auto');
+		}
+	}, []);
+
 	const scrollToElement = useCallback((element, behavior = 'smooth') => {
 		if (!element || !wrapperRef.current) return;
 
@@ -528,7 +536,9 @@ const WorkflowBuilder = () => {
 						arrow={mergedArrow}
 						color={'blue'}
 					>
-						<SyncOutlined />
+						<span onClick={scrollToFirstElement} style={{ cursor: 'pointer' }}>
+							<SyncOutlined />
+						</span>
 					</Tooltip>
 
 					<button
