@@ -40,7 +40,6 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './Actions';
 import Service from '../../services/index';
-import { errorCodes } from '@apollo/client/invariantErrorCodes';
 
 export const intialState = {
 	workflowslist: null,
@@ -1080,7 +1079,7 @@ export const TemplatesState = (props) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			const path = `${connectType}/${workspaceId}/auth`;
+			const path = `/${connectType}/${workspaceId}/auth`;
 
 			const response = await Service?.fetchGet(
 				path,
@@ -1107,6 +1106,25 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.log('error==>connectZoho', error);
+		}
+	};
+
+	//slack Apis
+	const getAllSlackChannels = async (slackAccessToken) => {
+		try {
+			console.log('slack==>', slackAccessToken);
+			const response = await Service.fetchGet(
+				'/conversations.list',
+				slackAccessToken,
+				'slack_api',
+				{
+					exclude_archived: true,
+					limit: 1000,
+				},
+			);
+			console.log('response==>', response);
+		} catch (error) {
+			console.log('error==>getAllSlackChannels', error);
 		}
 	};
 
@@ -1157,5 +1175,6 @@ export const TemplatesState = (props) => {
 		addNewSteps,
 		updateSteps,
 		connectThirdParty,
+		getAllSlackChannels,
 	};
 };

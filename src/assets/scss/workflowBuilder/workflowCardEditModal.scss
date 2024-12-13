@@ -591,6 +591,25 @@
 					}
 				}
 			}
+
+			.slackIntegrateContainer {
+				display: flex;
+				justify-content: center;
+				align-self: stretch;
+				align-items: center;
+				margin-top: 48px;
+				flex-direction: column;
+				gap: 12px;
+
+				.slackSubtitle {
+					color: #fff;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
 		}
 		.workflowFooterContainer {
 			display: flex;

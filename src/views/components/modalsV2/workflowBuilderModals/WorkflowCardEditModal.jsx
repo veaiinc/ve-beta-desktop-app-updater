@@ -29,6 +29,7 @@ const WorkflowCardEditModal = ({
 }) => {
 	const {
 		templates: { getAllEmailTemplates, getSpecificTemplatesInfo },
+		profileInfo: { getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
 
 	//states
@@ -51,6 +52,12 @@ const WorkflowCardEditModal = ({
 			setInfo((prev) => ({ localOptionType: optionType }));
 		}
 	}, [optionType]);
+
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+	}, []);
 
 	//function definations
 
