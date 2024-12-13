@@ -13,6 +13,7 @@ const useLogout = () => {
 		subscriptionInfo: { resetSubscriptionState },
 		calendarInfo: { resetCalendarState },
 		activityInfo: { resetActivityState },
+		aiSetup: { resetAiSetupState },
 		tasks: { resetTasksState },
 	} = useContext(Context);
 
@@ -30,6 +31,7 @@ const useLogout = () => {
 		resetSubscriptionState();
 		resetCalendarState();
 		resetActivityState();
+		resetAiSetupState();
 		resetTasksState();
 	}, []);
 
