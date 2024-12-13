@@ -121,7 +121,6 @@ const RenderEventDetails = ({ info, updateCalendarInfo, formatEventTime }) => {
 					</div>
 					<input type="text" placeholder="add attendee" />
 					<div className="attendiesDetailsContainer">
-						{console.log('hey', JSON.stringify(attendees, null, 2))}
 						{attendees?.map((attendee, index) => (
 							<div key={index} className="attendeesDetailsWrapper">
 								<div className="avatar"></div>
@@ -157,7 +156,12 @@ const RenderEventDetails = ({ info, updateCalendarInfo, formatEventTime }) => {
 
 const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo }) => {
 	const {
-		calendarInfo: { calendarEventDetails, getCalendarEventDetails },
+		calendarInfo: {
+			calendarEventDetails,
+			getCalendarEventDetails,
+			calendarEvent,
+			updateCalendarEvent,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -213,7 +217,7 @@ const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo
 	const formatEventTime = useCallback((startDateTime, endDateTime) => {
 		const start = moment(startDateTime);
 		const end = moment(endDateTime);
-		return `${start.format('h:mmA')} - ${end.format('h:mmA')}`;
+		return `${start.format('h:mm A')} - ${end.format('h:mm A')}`;
 	}, []);
 
 	return (

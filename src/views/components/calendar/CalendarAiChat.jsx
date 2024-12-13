@@ -16,7 +16,7 @@ const initialState = {
 
 const CalendarAiChat = ({ toggleAskAi }) => {
 	const {
-		calendarInfo: { calendarChat, getCalendarChat },
+		calendarInfo: { calendarChat, getCalendarChat, resetCalendarAiChat },
 	} = useContext(Context);
 
 	const userTypingRef = useRef(null);
@@ -39,6 +39,7 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 				isProcessing: false,
 				errorMessage: null,
 			});
+			resetCalendarAiChat();
 		};
 	}, []);
 
@@ -49,7 +50,7 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 		if (!info?.isProcessing) {
 			userTypingRef.current?.focus();
 		}
-	}, [info.chatHistory, info.isProcessing]);
+	}, [info?.chatHistory, info?.isProcessing]);
 
 	useEffect(() => {
 		if (calendarChat) {

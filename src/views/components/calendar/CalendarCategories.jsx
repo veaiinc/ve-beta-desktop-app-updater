@@ -17,18 +17,6 @@ const CalendarCategories = ({
 		height: '62px',
 		isCategoryModalOpen: false,
 		isCategoryEditable: false,
-		colorsArray: [
-			'#CF824B',
-			'#89AC4F',
-			'#4F9BAC',
-			'#7E78C9',
-			'#C378C9',
-			'#5E8BE2',
-			'#CF4B92',
-			'#7A7A7A',
-			'#B08D8D',
-			'#D76262',
-		],
 		selectedCalendarCategory: [selectedCategory] || [],
 	});
 	const expandRef = useRef(null);
@@ -77,19 +65,6 @@ const CalendarCategories = ({
 		updateCalendarInfo('selectedCategory', selectedCategory);
 
 		categoryModalOpen();
-	}, []);
-
-	useEffect(() => {
-		if (categoryFilter) {
-			console.log('categoryFilter:', JSON.stringify(categoryFilter, null, 2));
-		}
-	}, [categoryFilter]);
-
-	const handelCategoryLabelDataChange = useCallback((key, value) => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			categoryLabelData: { ...prevInfo.categoryLabelData, [key]: value },
-		}));
 	}, []);
 
 	// Handler for checkbox changes
@@ -149,8 +124,7 @@ const CalendarCategories = ({
 										htmlFor={`${category.name}-checkbox`}
 										className="typeLabel"
 									>
-										{category?.name?.charAt(0).toUpperCase() +
-											category?.name?.slice(1)}
+										{category?.name}
 									</label>
 									<button
 										className="editButton"
@@ -172,14 +146,10 @@ const CalendarCategories = ({
 			)}
 
 			<UpdateCategoryModal
-				open={info?.isCategoryModalOpen}
-				closeModal={() => setInfo((prev) => ({ ...prev, isCategoryModalOpen: false }))}
+				show={info?.isCategoryModalOpen}
+				handleClose={() => setInfo((prev) => ({ ...prev, isCategoryModalOpen: false }))}
 				isCategoryEditable={info?.isCategoryEditable}
-				name={info?.categoryLabelData?.name}
-				type={info?.categoryLabelData?.type}
-				color={info?.categoryLabelData?.color}
-				colorsArray={info?.colorsArray}
-				handelCategoryLabelDataChange={handelCategoryLabelDataChange}
+				selectedCategory={selectedCategory}
 			/>
 		</div>
 	);

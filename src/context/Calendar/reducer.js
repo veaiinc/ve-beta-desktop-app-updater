@@ -41,7 +41,17 @@ const actionHandlers = {
 		calendarEventDetails: action.payload,
 	}),
 
+	UPDATE_CALENDAR_EVENT: (state, action) => ({
+		...state,
+		calendarEvent: action.payload,
+	}),
+
 	RESET_CALENDAR_STATE: () => ({ ...initialState }),
+
+	RESET_CALENDAR_AI_CHAT: (state) => ({
+		...state,
+		calendarChat: null,
+	}),
 };
 
 const Reducer = (state, action) => {

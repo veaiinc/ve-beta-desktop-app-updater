@@ -8,5 +8,7 @@ export const CALENDAR = {
 	calendarCategories: '/calendar/getCalendarCategories',
 	deleteCalendarCategory: '/calendar/deleteCalendarCategory',
 	getCalendarEventDetails: '/calendar/getEvent',
+	updateCalendarEvent: '/calendar/updateEvent',
 	resetCalendarState: 'RESET_CALENDAR_STATE',
+	resetCalendarAiChat: 'RESET_CALENDAR_AI_CHAT',
 };
