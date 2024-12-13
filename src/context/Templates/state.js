@@ -1112,11 +1112,12 @@ export const TemplatesState = (props) => {
 	//slack Apis
 	const getAllSlackChannels = async (slackAccessToken) => {
 		try {
-			console.log('slack==>', slackAccessToken);
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
 			const response = await Service.fetchGet(
-				'/conversations.list',
-				slackAccessToken,
-				'slack_api',
+				`/slack/${workspaceId}/channels`,
+				usertoken,
+				'third_party_integrations_api',
 				{
 					exclude_archived: true,
 					limit: 1000,
