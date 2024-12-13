@@ -243,7 +243,14 @@ const ListView = () => {
 					try {
 						const response = await updateListItem({
 							taskId: rowId,
-							updateInput: { [propName]: value },
+							updateInput: {
+								[propName]:
+									propName === 'assignedTo'
+										? typeof value === 'object'
+											? { userId: value.value }
+											: value
+										: value,
+							},
 						});
 					} catch (error) {
 						console.error('Failed to update:', error);
@@ -390,6 +397,7 @@ const ListView = () => {
 				deleteTask={deleteTask}
 				responseTypes={responseTypes}
 				rowTypes={rowTypes}
+				clients={info?.clients}
 			/>
 		</div>
 	);

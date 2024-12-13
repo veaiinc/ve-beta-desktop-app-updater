@@ -16,50 +16,59 @@ const ListViewSidebar = ({
 	rowTypes,
 	clients,
 }) => {
-	const generateRow = useCallback((row) => {
-		const listItems = [];
-		for (let key in row) {
-			const value = row[key];
+	const generateRow = useCallback(
+		(row) => {
+			const listItems = [];
+			for (let key in row) {
+				const value = row[key];
 
-			if (['__typename', '_id', 'title', 'description', 'workflowTemplateId'].includes(key)) {
-				continue;
+				if (
+					['__typename', '_id', 'title', 'description', 'workflowTemplateId'].includes(
+						key,
+					)
+				) {
+					continue;
+				}
+
+				const componentType = responseTypes[key];
+				const RowComponent = rowTypes[componentType] || null;
+				listItems.push(
+					<div className="property-list" key={key}>
+						<span className="property-title">{key}</span>
+						<span className={`property-value`}>
+							{RowComponent ? (
+								<RowComponent
+									key={key}
+									value={value}
+									title={key}
+									showLabel
+									{...(key === 'workflowId' ? { workflows } : {})}
+									{...(componentType === 'person' ? { showName: true } : {})}
+									{...(key === 'client'
+										? {
+												persons: clients,
+										  }
+										: {})}
+									{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
+									{...(key === 'updatedAt' || key === 'createdAt'
+										? { showDropDown: false }
+										: {})}
+									onOptionClick={(value) =>
+										updatePropertyValue(row._id, key, value)
+									}
+								/>
+							) : (
+								<div key={key}>{value}</div>
+							)}
+						</span>
+					</div>,
+				);
 			}
 
-			const componentType = responseTypes[key];
-			const RowComponent = rowTypes[componentType] || null;
-			listItems.push(
-				<div className="property-list" key={key}>
-					<span className="property-title">{key}</span>
-					<span className={`property-value`}>
-						{RowComponent ? (
-							<RowComponent
-								key={key}
-								value={value}
-								title={key}
-								showLabel
-								{...(key === 'workflowId' ? { workflows } : {})}
-								{...(key === 'client'
-									? {
-											persons: clients,
-											showName: true,
-									  }
-									: {})}
-								{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
-								{...(key === 'updatedAt' || key === 'createdAt'
-									? { showDropDown: false }
-									: {})}
-								onOptionClick={(value) => updatePropertyValue(row._id, key, value)}
-							/>
-						) : (
-							<div key={key}>{value}</div>
-						)}
-					</span>
-				</div>,
-			);
-		}
-
-		return listItems;
-	}, []);
+			return listItems;
+		},
+		[workflows, clients, tenantUsers],
+	);
 
 	return (
 		<Drawer

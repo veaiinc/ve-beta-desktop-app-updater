@@ -42,20 +42,18 @@ const initialState = {
 	title: '',
 	workflowId: '',
 	workflowTemplateId: '',
+	isLoading: false,
 };
 
 const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUsers, clients }) => {
 	const [messageApi, contextHolder] = message.useMessage();
 	const [info, setInfo] = useState({
 		...initialState,
-		isLoading: false,
 	});
 
 	useEffect(() => {
-		return () => {
-			setInfo((prevInfo) => ({ ...prevInfo, ...initialState }));
-		};
-	}, []);
+		setInfo({ ...initialState });
+	}, [isOpen]);
 
 	const updateModalInfo = (key, value) => {
 		if (key === 'title') {
@@ -124,14 +122,21 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 	}, [preparePayload]);
 
 	return (
-		<ReactModal isOpen={isOpen} closeModal={closeModal} modalType={'center'}>
+		<ReactModal
+			isOpen={isOpen}
+			closeModal={info?.isLoading ? null : closeModal}
+			modalType={'center'}
+		>
 			{contextHolder}
 			<div className="createTask-container">
 				<div className="header-wrapper">
 					<div className="logo"></div>
 					<div className="actions-wrapper">
 						<ExpandIcon className="expandsvg" />
-						<CrossWhite className="crossSvg" onClick={closeModal} />
+						<CrossWhite
+							className="crossSvg"
+							onClick={info?.isLoading ? null : closeModal}
+						/>
 					</div>
 				</div>
 				<div className="text-wrapper">

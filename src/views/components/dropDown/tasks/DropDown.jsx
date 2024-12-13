@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/dropdown/tasks/dropDown.scss';
 import { ReactComponent as Tick } from '../../../../assets/svg/tasks/checkmark.svg';
 import { Tooltip } from 'antd';
@@ -14,9 +14,20 @@ const DropDown = ({
 	titleStyles,
 	onOptionClick,
 }) => {
-	const handlePropagation = useCallback((e) => {
-		e.stopPropagation();
+	const [dropDownOpen, setDropDownOpen] = useState();
+
+	const updateDropDown = useCallback((value) => {
+		setDropDownOpen(value);
 	}, []);
+
+	const handleTrigger = useCallback(
+		(e) => {
+			e.stopPropagation();
+			updateDropDown(!dropDownOpen);
+		},
+		[dropDownOpen, updateDropDown],
+	);
+
 	return (
 		<Tooltip
 			// className="dropdown-parent"
@@ -25,7 +36,6 @@ const DropDown = ({
 				<div
 					className="listView-dropdown-container"
 					style={containerStyles ? { ...containerStyles } : {}}
-					onClick={handlePropagation}
 				>
 					{title ? (
 						<div
@@ -44,9 +54,11 @@ const DropDown = ({
 									key={index}
 									className="listItem"
 									style={listItemStyles ? { ...listItemStyles } : {}}
-									onClick={() => {
+									onClick={(e) => {
+										e.stopPropagation();
 										if (onOptionClick) {
 											onOptionClick(option?.[valueSelector]);
+											updateDropDown(false);
 										}
 									}}
 								>
@@ -76,7 +88,7 @@ const DropDown = ({
 			color={'transparent'}
 			overlayStyle={{ minWidth: 'fit-content' }}
 		>
-			<div className="" style={{ cursor: 'pointer' }} onClick={handlePropagation}>
+			<div className="" style={{ cursor: 'pointer' }} onClick={handleTrigger}>
 				{children}
 			</div>
 		</Tooltip>
