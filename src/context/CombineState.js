@@ -8,7 +8,6 @@ import { ActivityState } from './Activity/state';
 import { SubscriptionState } from './subscription/state';
 import { AuthState } from './auth/state';
 import { Calendar } from './Calendar/state';
-import { ThirdPartyIntegrationsState } from './thirdPartyIntegrations/state';
 
 const CombineState = () => {
 	return {
@@ -22,7 +21,6 @@ const CombineState = () => {
 		subscriptionInfo: SubscriptionState(),
 		authInfo: AuthState(),
 		calendarInfo: Calendar(),
-		ThirdPartyIntegrationsInfo: ThirdPartyIntegrationsState(),
 	};
 };
 

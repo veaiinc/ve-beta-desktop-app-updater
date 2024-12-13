@@ -12,7 +12,7 @@ import Context from '../../../context/context';
 import ReusableButtonSettings from '../../components/settings/ReusableButtonSettings';
 import { ve_conversations_api } from '../../../services/config.live';
 import axios from 'axios';
-import { message } from 'antd';
+import { message, Spin } from 'antd';
 
 const availableIntegrations = [
 	{
@@ -58,7 +58,7 @@ const upcommingIntegrations = [
 const Integrations = () => {
 	const {
 		chatInfo: { getPageInfo, pageInfoData },
-		ThirdPartyIntegrationsInfo: { connectUrl, connectThirdParty },
+		templates: { connectUrl, connectThirdParty },
 		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
 
@@ -67,13 +67,19 @@ const Integrations = () => {
 		openMoreFacebook: false,
 		loader: false,
 		connectedThirdParties: { google: false, zoho: false, hubspot: false, slack: false },
+		clickLoader: '',
 	});
 
 	useEffect(() => {
 		if (connectUrl?.[0] === true) {
 			window.location.href = connectUrl?.[1];
 		} else {
-			if (connectUrl !== null) message?.error(connectUrl?.[1]);
+			if (connectUrl !== null) {
+				message?.error(
+					connectUrl?.[1]?.message || `error connecting with ${info?.clickLoader}`,
+				);
+				setInfo((prev) => ({ ...prev, clickLoader: false }));
+			}
 		}
 	}, [connectUrl]);
 
@@ -88,10 +94,6 @@ const Integrations = () => {
 			}));
 		}
 	}, [tennantSettingsData]);
-
-	useEffect(() => {
-		console.log(info?.connectedThirdParties);
-	}, [info?.connectedThirdParties]);
 
 	useEffect(() => {
 		if (pageInfoData) {
@@ -247,12 +249,22 @@ const Integrations = () => {
 								) : (
 									<div className="connectButton">
 										<ReusableButtonSettings
-											text={'Connect'}
-											func={() =>
-												handleConnectThirdParty(
-													singleIntegration?.connect_type,
+											text={
+												info?.clickLoader === singleIntegration?.title ? (
+													<Spin />
+												) : (
+													'Connect'
 												)
 											}
+											func={() => {
+												setInfo((prev) => ({
+													...prev,
+													clickLoader: singleIntegration?.title,
+												}));
+												handleConnectThirdParty(
+													singleIntegration?.connect_type,
+												);
+											}}
 											// loader={info?.loader}
 										/>
 									</div>
