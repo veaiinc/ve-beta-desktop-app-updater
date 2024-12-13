@@ -40,7 +40,6 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './Actions';
 import Service from '../../services/index';
-import { errorCodes } from '@apollo/client/invariantErrorCodes';
 
 export const intialState = {
 	workflowslist: null,
@@ -64,6 +63,7 @@ export const intialState = {
 	eventsPresetData: null,
 	sendSmartFileSettings: null,
 	connectUrl: null,
+	slackChannels: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1080,7 +1080,7 @@ export const TemplatesState = (props) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			const path = `${connectType}/${workspaceId}/auth`;
+			const path = `/${connectType}/${workspaceId}/auth`;
 
 			const response = await Service?.fetchGet(
 				path,
@@ -1107,6 +1107,34 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.log('error==>connectZoho', error);
+		}
+	};
+
+	//slack Apis
+	const getAllSlackChannels = async (slackAccessToken) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/slack/${workspaceId}/channels`,
+				usertoken,
+				'third_party_integrations_api',
+				{
+					exclude_archived: true,
+					limit: 1000,
+				},
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SLACK_CHANNEL_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				message.error('Unable to fetch Slack Channels');
+			}
+		} catch (error) {
+			console.log('error==>getAllSlackChannels', error);
 		}
 	};
 
@@ -1157,5 +1185,6 @@ export const TemplatesState = (props) => {
 		addNewSteps,
 		updateSteps,
 		connectThirdParty,
+		getAllSlackChannels,
 	};
 };

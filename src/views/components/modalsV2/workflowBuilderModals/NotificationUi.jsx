@@ -22,6 +22,8 @@ import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
 import WorkflowBuilderLoader from '../../workflowBuilderComponents/WorkflowBuilderLoader';
 import ToggleSlider from '../../input/slider';
 import { ReactComponent as Pen } from '../../../../assets/svg/worflow_builder/editPen.svg';
+import { Button, Spin } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 const RenderNotificationUi = ({
 	closeModal,
@@ -422,6 +424,15 @@ const RenderNotificationUi = ({
 		},
 		[info?.slackMessage],
 	);
+	const onChangeSlackChannels = useCallback(
+		(data) => {
+			if (data?.value === info?.selectedSlackChannel?.value) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, selectedSlackChannel: data }));
+		},
+		[info?.selectedChannel],
+	);
 
 	const channelMapper = useMemo(() => {
 		return {
@@ -443,6 +454,7 @@ const RenderNotificationUi = ({
 					incrementorDecrementorFunc={incrementorDecrementorFunc}
 					onChangeDuration={onChangeDuration}
 					onSlackMessageChanges={onSlackMessageChanges}
+					onChangeSlackChannels={onChangeSlackChannels}
 				/>
 			),
 		};
@@ -659,13 +671,70 @@ const SendEmailTypeComponent = ({
 };
 const SendSlackTypeComponent = ({
 	info,
+	setInfo,
 	incrementorDecrementorFunc,
 	onChangeDuration,
 	onSlackMessageChanges,
+	onChangeSlackChannels,
 }) => {
-	return (
+	const {
+		profileInfo: { getTenantSettings, tennantSettingsData },
+		templates: { getAllSlackChannels, slackChannels },
+	} = useContext(Context);
+	const navigate = useNavigate();
+
+	const [localInfo, setLocalInfo] = useState({
+		slackConnectionCheckLoading: true,
+		slackConnected: false,
+		slackToken: null,
+		slackChannelsOptions: [],
+	});
+
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		} else {
+			const { slack } = tennantSettingsData || {};
+			if (slack?.accessToken) {
+				setLocalInfo((prev) => ({
+					...prev,
+					slackConnected: true,
+					slackConnectionCheckLoading: false,
+					slackToken: slack?.accessToken,
+				}));
+			}
+		}
+	}, [tennantSettingsData]);
+
+	useEffect(() => {
+		if (localInfo?.slackConnected && localInfo?.slackToken) {
+			getAllSlackChannels(localInfo?.slackToken);
+		}
+	}, [localInfo?.slackConnected, localInfo?.slackToken]);
+
+	useEffect(() => {
+		if (slackChannels) {
+			let options = [];
+			for (let i = 0; i < slackChannels?.length; i++) {
+				options?.push({
+					label: slackChannels?.[i]?.name,
+					value: slackChannels?.[i].id,
+				});
+			}
+
+			setLocalInfo((prev) => ({ ...prev, slackChannelsOptions: options }));
+			setInfo((prev) => ({ ...prev, selectedSlackChannel: options?.[0] }));
+		}
+	}, [slackChannels]);
+
+	return localInfo?.slackConnectionCheckLoading ? (
+		<div style={{ display: 'flex', justifyContent: 'center', flex: 1, alignItems: 'center' }}>
+			<Spin />
+		</div>
+	) : localInfo?.slackConnected ? (
 		<>
-			<div className="actionDropDownContainer">
+			{/* slack worksapce */}
+			{/* <div className="actionDropDownContainer">
 				<span className="actionTitle">Slack Workspace</span>
 				<HeadersDropDownComp
 					options={channelOptions}
@@ -685,14 +754,15 @@ const SendSlackTypeComponent = ({
 						...selectedValueStyling,
 					}}
 				/>
-			</div>
-			<div className="workflow_builder_action_seperator"></div>
+			</div> */}
+			{/* <div className="workflow_builder_action_seperator"></div> */}
+			{/* slack channel */}
 			<div className="actionDropDownContainer">
 				<span className="actionTitle">Slack Channel</span>
 				<HeadersDropDownComp
-					options={channelOptions}
-					// selectedValue={info?.selectedChannel?.label}
-					// onChangeFunc={onChannelSelectionChanges}
+					options={localInfo?.slackChannelsOptions}
+					selectedValue={info?.selectedSlackChannel?.label}
+					onChangeFunc={onChangeSlackChannels}
 					showIcon={false}
 					containerStyle={{
 						...containerStyle,
@@ -702,13 +772,15 @@ const SendSlackTypeComponent = ({
 					dropDownTextStyling={{ ...dropDownTextStyling }}
 					showSelectedValueTick={true}
 					uniqueIdentifierForTickIcon={'value'}
-					// selectedValueObj={info?.selectedChannel}
+					selectedValueObj={info?.selectedSlackChannel}
 					selectedValueStyle={{
 						...selectedValueStyling,
 					}}
 				/>
 			</div>
-			<div className="workflow_builder_action_seperator"></div>
+
+			{/* message */}
+			{/* <div className="workflow_builder_action_seperator"></div>
 			<div className="actionDropDownContainer">
 				<span className="actionTitle">Message</span>
 				<textarea
@@ -716,12 +788,11 @@ const SendSlackTypeComponent = ({
 					value={info?.slackMessage}
 					onChange={onSlackMessageChanges}
 				/>
-			</div>
-			<div className="workflow_builder_action_seperator"></div>
+			</div> */}
+			{/* <div className="workflow_builder_action_seperator"></div>
 			<div className="notification_schedulingContainer">
 				<span className="actionTitle">When ?</span>
 				<div className="notificationDaysContainer">
-					{/* //incrementor */}
 					<div className="incrementorDecrementorContainer">
 						<div
 							className="manualIncrementorButtons"
@@ -737,7 +808,7 @@ const SendSlackTypeComponent = ({
 							+
 						</div>
 					</div>
-					{/* //days */}
+
 					<HeadersDropDownComp
 						options={options}
 						showIcon={false}
@@ -757,7 +828,15 @@ const SendSlackTypeComponent = ({
 						}}
 					/>
 				</div>
-			</div>
+			</div> */}
 		</>
+	) : (
+		<div className="slackIntegrateContainer">
+			<span className="slackSubtitle">You have not authorised your slack account</span>
+			<span className="slackSubtitle">
+				Click this button to navigate to Integration Settings
+			</span>
+			<Button onClick={() => navigate('/settings/integrations')}>Go To Settings</Button>
+		</div>
 	);
 };
