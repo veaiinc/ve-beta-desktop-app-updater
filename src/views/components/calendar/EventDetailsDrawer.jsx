@@ -129,7 +129,9 @@ const RenderEventDetails = ({ info, updateCalendarInfo, formatEventTime }) => {
 										{attendee?.name === '' ? attendee?.email : attendee?.name}
 									</div>
 									<div className="role">
-										{attendee?.isWorkspaceUser ? 'Workspace User' : 'External'}
+										{attendee?.isWorkspaceUser
+											? attendee?.role || 'Workspace User'
+											: 'External'}
 										{attendee?.responseStatus &&
 											` • ${attendee?.responseStatus}`}
 									</div>
