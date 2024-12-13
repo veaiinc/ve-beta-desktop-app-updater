@@ -424,6 +424,15 @@ const RenderNotificationUi = ({
 		},
 		[info?.slackMessage],
 	);
+	const onChangeSlackChannels = useCallback(
+		(data) => {
+			if (data?.value === info?.selectedSlackChannel?.value) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, selectedSlackChannel: data }));
+		},
+		[info?.selectedChannel],
+	);
 
 	const channelMapper = useMemo(() => {
 		return {
@@ -445,6 +454,7 @@ const RenderNotificationUi = ({
 					incrementorDecrementorFunc={incrementorDecrementorFunc}
 					onChangeDuration={onChangeDuration}
 					onSlackMessageChanges={onSlackMessageChanges}
+					onChangeSlackChannels={onChangeSlackChannels}
 				/>
 			),
 		};
@@ -661,13 +671,15 @@ const SendEmailTypeComponent = ({
 };
 const SendSlackTypeComponent = ({
 	info,
+	setInfo,
 	incrementorDecrementorFunc,
 	onChangeDuration,
 	onSlackMessageChanges,
+	onChangeSlackChannels,
 }) => {
 	const {
 		profileInfo: { getTenantSettings, tennantSettingsData },
-		templates: { getAllSlackChannels },
+		templates: { getAllSlackChannels, slackChannels },
 	} = useContext(Context);
 	const navigate = useNavigate();
 
@@ -675,6 +687,7 @@ const SendSlackTypeComponent = ({
 		slackConnectionCheckLoading: true,
 		slackConnected: false,
 		slackToken: null,
+		slackChannelsOptions: [],
 	});
 
 	useEffect(() => {
@@ -698,6 +711,21 @@ const SendSlackTypeComponent = ({
 			getAllSlackChannels(localInfo?.slackToken);
 		}
 	}, [localInfo?.slackConnected, localInfo?.slackToken]);
+
+	useEffect(() => {
+		if (slackChannels) {
+			let options = [];
+			for (let i = 0; i < slackChannels?.length; i++) {
+				options?.push({
+					label: slackChannels?.[i]?.name,
+					value: slackChannels?.[i].id,
+				});
+			}
+
+			setLocalInfo((prev) => ({ ...prev, slackChannelsOptions: options }));
+			setInfo((prev) => ({ ...prev, selectedSlackChannel: options?.[0] }));
+		}
+	}, [slackChannels]);
 
 	return localInfo?.slackConnectionCheckLoading ? (
 		<div style={{ display: 'flex', justifyContent: 'center', flex: 1, alignItems: 'center' }}>
@@ -732,9 +760,9 @@ const SendSlackTypeComponent = ({
 			<div className="actionDropDownContainer">
 				<span className="actionTitle">Slack Channel</span>
 				<HeadersDropDownComp
-					options={channelOptions}
-					// selectedValue={info?.selectedChannel?.label}
-					// onChangeFunc={onChannelSelectionChanges}
+					options={localInfo?.slackChannelsOptions}
+					selectedValue={info?.selectedSlackChannel?.label}
+					onChangeFunc={onChangeSlackChannels}
 					showIcon={false}
 					containerStyle={{
 						...containerStyle,
@@ -744,7 +772,7 @@ const SendSlackTypeComponent = ({
 					dropDownTextStyling={{ ...dropDownTextStyling }}
 					showSelectedValueTick={true}
 					uniqueIdentifierForTickIcon={'value'}
-					// selectedValueObj={info?.selectedChannel}
+					selectedValueObj={info?.selectedSlackChannel}
 					selectedValueStyle={{
 						...selectedValueStyling,
 					}}

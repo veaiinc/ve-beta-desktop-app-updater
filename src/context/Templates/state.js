@@ -63,6 +63,7 @@ export const intialState = {
 	eventsPresetData: null,
 	sendSmartFileSettings: null,
 	connectUrl: null,
+	slackChannels: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1123,7 +1124,15 @@ export const TemplatesState = (props) => {
 					limit: 1000,
 				},
 			);
-			console.log('response==>', response);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SLACK_CHANNEL_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				message.error('Unable to fetch Slack Channels');
+			}
 		} catch (error) {
 			console.log('error==>getAllSlackChannels', error);
 		}
