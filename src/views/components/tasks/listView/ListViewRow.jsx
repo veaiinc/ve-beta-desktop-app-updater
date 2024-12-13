@@ -18,7 +18,13 @@ const ListViewRow = ({
 		for (let key in row) {
 			const value = row[key];
 
-			if (!value || key === '__typename' || key === '_id' || key === 'workflowTemplateId') {
+			if (
+				!value ||
+				key === '__typename' ||
+				key === '_id' ||
+				key === 'workflowTemplateId' ||
+				key === 'completedAt'
+			) {
 				continue;
 			}
 

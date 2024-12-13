@@ -23,9 +23,14 @@ const ListViewSidebar = ({
 				const value = row[key];
 
 				if (
-					['__typename', '_id', 'title', 'description', 'workflowTemplateId'].includes(
-						key,
-					)
+					[
+						'__typename',
+						'_id',
+						'title',
+						'description',
+						'workflowTemplateId',
+						'completedAt',
+					].includes(key)
 				) {
 					continue;
 				}
@@ -50,7 +55,9 @@ const ListViewSidebar = ({
 										  }
 										: {})}
 									{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
-									{...(key === 'updatedAt' || key === 'createdAt'
+									{...(key === 'updatedAt' ||
+									key === 'createdAt' ||
+									key === 'assignedAt'
 										? { showDropDown: false }
 										: {})}
 									onOptionClick={(value) =>
@@ -82,7 +89,7 @@ const ListViewSidebar = ({
 			<div className="listView-sidebar-container">
 				<div className="listView-sidebar-innerContainer">
 					<div className="sidebar-header">
-						<span className="sidebar-id">{selectedRow?.id || 'VEAI-302'}</span>
+						<span className="sidebar-id">{selectedRow?.taskNumber}</span>
 						<HorizontalMoreIcon className="cursor-pointer" />
 						<CloseArrow onClick={closeSidebar} className="cursor-pointer" />
 					</div>

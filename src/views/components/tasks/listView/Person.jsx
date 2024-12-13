@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 import DropDown from '../../dropDown/tasks/DropDown';
+import { Tooltip } from 'antd';
 
 const Person = ({
 	value,
@@ -25,32 +26,34 @@ const Person = ({
 			selected={value?._id}
 			valueSelector="value"
 		>
-			<div className="listItem-person" title={title} style={customListItemStyle}>
-				{value ? (
-					<>
-						<div className="avatar">
-							{/* <img src={profile || ''} alt="" /> */}
-							<div className="profile-name">
-								{typeof value == 'object' && value?.name
-									? value?.name[0].toUpperCase()
-									: ''}
+			<Tooltip title={title} placement="bottom">
+				<div className="listItem-person" style={customListItemStyle}>
+					{value ? (
+						<>
+							<div className="avatar">
+								{/* <img src={profile || ''} alt="" /> */}
+								<div className="profile-name">
+									{typeof value == 'object' && value?.name
+										? value?.name[0].toUpperCase()
+										: ''}
+								</div>
 							</div>
-						</div>
-						{showName ? <div className="name">{value?.name}</div> : ''}
-						{removeBtn && (
-							<div
-								className="remove-btn"
-								style={{ color: '#e74c3c', fontSize: '12px' }}
-								onClick={() => onOptionClick(null)}
-							>
-								&#10005;
-							</div>
-						)}
-					</>
-				) : (
-					<div className="listItem-text">Select Person</div>
-				)}
-			</div>
+							{showName ? <div className="name">{value?.name}</div> : ''}
+							{removeBtn && (
+								<div
+									className="remove-btn"
+									style={{ color: '#e74c3c', fontSize: '12px' }}
+									onClick={() => onOptionClick(null)}
+								>
+									&#10005;
+								</div>
+							)}
+						</>
+					) : (
+						<div className="listItem-text">Select Person</div>
+					)}
+				</div>
+			</Tooltip>
 		</DropDown>
 	);
 };

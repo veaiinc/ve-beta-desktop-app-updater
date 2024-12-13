@@ -14,28 +14,30 @@ const DropDown = ({
 	titleStyles,
 	onOptionClick,
 }) => {
-	const [dropDownOpen, setDropDownOpen] = useState();
-
-	const updateDropDown = useCallback((value) => {
-		setDropDownOpen(value);
+	const [info, setInfo] = useState({ isOpen: false });
+	const handlePropagation = useCallback((e) => {
+		e.stopPropagation();
 	}, []);
 
-	const handleTrigger = useCallback(
-		(e) => {
-			e.stopPropagation();
-			updateDropDown(!dropDownOpen);
-		},
-		[dropDownOpen, updateDropDown],
-	);
+	const handleDropDown = (value) => {
+		setInfo((prevInfo) => ({ ...prevInfo, isOpen: value }));
+	};
 
 	return (
 		<Tooltip
 			// className="dropdown-parent"
 			placement="bottom"
+			open={info?.isOpen}
+			onOpenChange={(open) => {
+				if (!open) {
+					handleDropDown(false);
+				}
+			}}
 			title={
 				<div
-					className="listView-dropdown-container"
+					className={options?.length === 0 ? '' : 'listView-dropdown-container'}
 					style={containerStyles ? { ...containerStyles } : {}}
+					onClick={handlePropagation}
 				>
 					{title ? (
 						<div
@@ -54,11 +56,10 @@ const DropDown = ({
 									key={index}
 									className="listItem"
 									style={listItemStyles ? { ...listItemStyles } : {}}
-									onClick={(e) => {
-										e.stopPropagation();
+									onClick={() => {
 										if (onOptionClick) {
 											onOptionClick(option?.[valueSelector]);
-											updateDropDown(false);
+											handleDropDown(false);
 										}
 									}}
 								>
@@ -79,16 +80,24 @@ const DropDown = ({
 							))}
 						</>
 					) : (
-						<div className="listItem">No options found</div>
+						''
+						// <div className="listItem">No options found</div>
 					)}
 				</div>
 			}
 			arrow={false}
 			trigger={'click'}
 			color={'transparent'}
-			overlayStyle={{ minWidth: 'fit-content' }}
+			overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
 		>
-			<div className="" style={{ cursor: 'pointer' }} onClick={handleTrigger}>
+			<div
+				className=""
+				style={{ cursor: 'pointer' }}
+				onClick={(e) => {
+					handlePropagation(e);
+					handleDropDown(true);
+				}}
+			>
 				{children}
 			</div>
 		</Tooltip>

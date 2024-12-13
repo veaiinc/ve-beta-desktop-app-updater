@@ -2,7 +2,7 @@ import moment from 'moment';
 import '../../../../assets/scss/tasks/listItems.scss';
 import { ReactComponent as DateIcon } from '../../../../assets/svg/tasks/date.svg';
 import DropDown from '../../dropDown/tasks/DropDown';
-import { DatePicker } from 'antd';
+import { DatePicker, Tooltip } from 'antd';
 import { useState } from 'react';
 
 const Date = ({
@@ -53,25 +53,27 @@ const Date = ({
 					selected={info?.dueDate}
 					valueSelector="value"
 				>
-					<div
-						className={`listItem-date ${!timestamp ? 'listItem-dateBorder' : ''}`}
-						title={title}
-						style={customListItemStyle}
-					>
-						<DateIcon />
-						{value ? moment.unix(value).format(format) : 'Not selected'}
-					</div>
+					<Tooltip title={title} placement="bottom">
+						<div
+							className={`listItem-date ${!timestamp ? 'listItem-dateBorder' : ''}`}
+							style={customListItemStyle}
+						>
+							<DateIcon />
+							{value ? moment.unix(value).format(format) : 'Not selected'}
+						</div>
+					</Tooltip>
 				</DropDown>
 			)}
 		</div>
 	) : (
-		<div
-			className={`listItem-date ${!showDropDown ? 'listItem-timeStamps' : ''}`}
-			title={title}
-			style={customListItemStyle}
-		>
-			{moment.unix(value).format(format)}
-		</div>
+		<Tooltip title={title} placement="bottom">
+			<div
+				className={`listItem-date ${!showDropDown ? 'listItem-timeStamps' : ''}`}
+				style={customListItemStyle}
+			>
+				{moment.unix(value).format(format)}
+			</div>
+		</Tooltip>
 	);
 };
 

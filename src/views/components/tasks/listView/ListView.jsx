@@ -191,7 +191,12 @@ const ListView = () => {
 	const mapPropertyType = useCallback((row) => {
 		let properties = [];
 		for (let key in row) {
-			if (key === '__typename' || key === '_id' || key === 'workflowTemplateId') {
+			if (
+				key === '__typename' ||
+				key === '_id' ||
+				key === 'workflowTemplateId' ||
+				key === 'completedAt'
+			) {
 				continue;
 			}
 

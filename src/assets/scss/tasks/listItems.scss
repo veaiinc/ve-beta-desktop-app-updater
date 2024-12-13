@@ -30,6 +30,16 @@
 	padding: 12px 0;
 }
 
+.listItem-title {
+	color: #e8e8e8;
+	text-overflow: ellipsis;
+	font-family: Inter;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+}
+
 .listItem-id {
 	color: rgba(228, 229, 230, 0.48);
 	font-family: Inter;
@@ -210,7 +220,7 @@
 	border: none;
 }
 
-.listItem-workflow {
-	background-color: red;
-	border: 2px solid blue;
-}
+// .listItem-workflow {
+// 	background-color: red;
+// 	border: 2px solid blue;
+// }
