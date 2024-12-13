@@ -13,9 +13,10 @@ import DuplicateIndicatorModal from '../../components/modalsV2/workflowBuilderMo
 import ExitWithoutPublishingModal from '../../components/modalsV2/workflowBuilderModals/ExitWithoutPublishingModal';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
-import { message } from 'antd';
+import { message, Tooltip } from 'antd';
 import WorkflowNode from './WorkflowNode';
 import { fetchOriginSelection } from '../../../helpers';
+import { SyncOutlined } from '@ant-design/icons';
 let origin = fetchOriginSelection();
 const options = [
 	{ label: 'Rename Workflow' },
@@ -88,6 +89,7 @@ const WorkflowBuilder = () => {
 		moveToPath: null,
 	});
 	const [zoom, setZoom] = useState(100); // 100 means 100% zoom
+	const [arrow, setArrow] = useState('Show');
 
 	useEffect(() => {
 		if (templateId) {
@@ -122,33 +124,33 @@ const WorkflowBuilder = () => {
 		}
 	}, [specificTemplatesInfo]);
 
-	useEffect(() => {
-		if (wrapperRef.current && containerRef.current) {
-			const wrapper = wrapperRef.current;
-			const container = containerRef.current;
+	// useEffect(() => {
+	// 	if (wrapperRef.current && containerRef.current) {
+	// 		const wrapper = wrapperRef.current;
+	// 		const container = containerRef.current;
 
-			// console.log('Detailed dimensions:', {
-			// 	wrapperWidth: wrapper.clientWidth,
-			// 	containerWidth: container.clientWidth,
-			// 	scrollWidth: wrapper.scrollWidth,
-			// 	scrollLeft: wrapper.scrollLeft,
-			// 	containerOffsetLeft: container.offsetLeft,
-			// 	firstNodeOffsetLeft: container.firstChild?.offsetLeft || 0,
-			// });
+	// 		// console.log('Detailed dimensions:', {
+	// 		// 	wrapperWidth: wrapper.clientWidth,
+	// 		// 	containerWidth: container.clientWidth,
+	// 		// 	scrollWidth: wrapper.scrollWidth,
+	// 		// 	scrollLeft: wrapper.scrollLeft,
+	// 		// 	containerOffsetLeft: container.offsetLeft,
+	// 		// 	firstNodeOffsetLeft: container.firstChild?.offsetLeft || 0,
+	// 		// });
 
-			// Calculate if we need more padding
-			const leftmostElement = container.getBoundingClientRect().left;
-			const rightmostElement = container.getBoundingClientRect().right;
-			const visibleWidth = rightmostElement - leftmostElement;
+	// 		// Calculate if we need more padding
+	// 		const leftmostElement = container.getBoundingClientRect().left;
+	// 		const rightmostElement = container.getBoundingClientRect().right;
+	// 		const visibleWidth = rightmostElement - leftmostElement;
 
-			if (visibleWidth > wrapper.clientWidth) {
-				// Adjust padding dynamically if needed
-				const currentPadding = parseInt(container.style.padding.split(' ')[1]);
-				const newPadding = Math.max(currentPadding, visibleWidth);
-				container.style.padding = `40px ${newPadding}px`;
-			}
-		}
-	}, [info.stepsMapper]);
+	// 		if (visibleWidth > wrapper.clientWidth) {
+	// 			// Adjust padding dynamically if needed
+	// 			const currentPadding = parseInt(container.style.padding.split(' ')[1]);
+	// 			const newPadding = Math.max(currentPadding, visibleWidth);
+	// 			container.style.padding = `40px ${newPadding}px`;
+	// 		}
+	// 	}
+	// }, [info.stepsMapper]);
 
 	// For initial centering on mount
 	useEffect(() => {
@@ -397,6 +399,18 @@ const WorkflowBuilder = () => {
 	const handleZoomOut = useCallback(() => {
 		setZoom((prevZoom) => Math.max(prevZoom - ZOOM_STEP, MIN_ZOOM));
 	}, []);
+
+	const mergedArrow = useMemo(() => {
+		if (arrow === 'Hide') {
+			return false;
+		}
+		if (arrow === 'Show') {
+			return true;
+		}
+		return {
+			pointAtCenter: true,
+		};
+	}, [arrow]);
 	return (
 		<div className="workflowBuilderContainer">
 			{/* header */}
@@ -478,7 +492,7 @@ const WorkflowBuilder = () => {
 							minWidth: 'min-content',
 							display: 'flex',
 							justifyContent: 'center',
-							padding: '40px 100%', // Use 100% padding on both sides
+							padding: '40px 50000vh', // Use 100% padding on both sides
 
 							transform: `scale(${zoom / 100})`,
 							transformOrigin: 'center center',
@@ -507,7 +521,16 @@ const WorkflowBuilder = () => {
 				</div>
 			)}
 			{!hideZoomPannel ? (
-				<div className="zoom-controls-panel">
+				<div className="zoom-controls-panel" style={{ color: '#fff' }}>
+					<Tooltip
+						placement="top"
+						title={'Reorganise'}
+						arrow={mergedArrow}
+						color={'blue'}
+					>
+						<SyncOutlined />
+					</Tooltip>
+
 					<button
 						className="zoom-button"
 						onClick={handleZoomIn}

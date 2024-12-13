@@ -118,14 +118,14 @@ const AddOptionsContainer = ({
 				type: 'action',
 				optionType: 'notification',
 			},
-			// {
-			// 	title: 'Action',
-			// 	subTitle:
-			// 		'Write tasks for yourself or your team members so nothing will never be missed throughout a project.',
-			// 	icons: <Action />,
-			// 	type: 'action',
-			// 	optionType: 'action',
-			// },
+			{
+				title: 'Action',
+				subTitle:
+					'Write tasks for yourself or your team members so nothing will never be missed throughout a project.',
+				icons: <Action />,
+				type: 'action',
+				optionType: 'action',
+			},
 			{
 				title: 'Condition',
 				subTitle:
