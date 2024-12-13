@@ -52,36 +52,9 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 		startTime: '',
 		endDate: '',
 		endTime: '',
-		inputDropDownItems: [
-			{
-				_id: '66e8263c45a6222134432931',
-				firstName: 'sankar',
-				lastName: 'josyula',
-				email: 'sankar@ve.ai',
-				role: 'admin',
-				isOwner: true,
-			},
-			{
-				_id: '671a26ab0d6a528cf2d8fd7a',
-				firstName: 'Dheeraj',
-				lastName: 'C Justin',
-				email: 'dheeraj@ve.ai',
-				role: 'admin',
-				isOwner: false,
-			},
-			{
-				_id: '671a26ab0d6a528cf3c9fd9b',
-				firstName: 'Preetam',
-				lastName: 'Singh',
-				email: 'preetam@ve.ai',
-				role: 'admin',
-				isOwner: false,
-			},
-		],
 		addCategory: false,
 	});
 
-	console.log('tenantsUserList', JSON.stringify(tenantsUserList, null, 2));
 	const createEventRef = useRef(null);
 	// Format date and time to ISO string
 	const convertToISOString = useCallback((date, time) => {
@@ -204,7 +177,13 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	const addAttendees = useCallback(
-		({ name = '', email = '', isWorkspaceUser = false, tenantUserId = '', role = '' }) => {
+		({
+			name = null,
+			email = null,
+			isWorkspaceUser = false,
+			tenantUserId = null,
+			role = null,
+		}) => {
 			// Validate email
 			if (!emailRegex.test(email)) {
 				setInfo((prevInfo) => ({
@@ -261,7 +240,11 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 			<div className="headerWrapper">
 				<span className="headerLabel">Create an event</span>
 				<CloseSvg
-					onClick={() => updateCalendarInfo('isCreateEventOpen', false)}
+					onClick={() => {
+						if (info?.isSubmitting) return;
+						updateCalendarInfo('isCreateEventOpen', false);
+						setInfo(initialState);
+					}}
 					style={{ cursor: 'pointer' }}
 				/>
 			</div>
@@ -497,17 +480,6 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 											<span className="name">{item?.name}</span>
 											<span className="role">{item?.email}</span>
 										</div>
-
-										{/* {item?.isWorkspaceUser ? (
-											<div className="nameWrapper">
-												<span className="name">{item?.name}</span>
-												<span className="role">{item?.email}</span>
-											</div>
-										) : (
-											<div className="nameWrapper">
-												<span className="name">{item?.email}</span>
-											</div>
-										)} */}
 										<Close
 											onClick={() =>
 												removeAttendee(item?.tenantUserId || item?.email)
