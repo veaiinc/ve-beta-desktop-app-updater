@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Context from '../../../../context/context';
 import {
 	actionOptions,
@@ -22,6 +22,7 @@ import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
 import WorkflowBuilderLoader from '../../workflowBuilderComponents/WorkflowBuilderLoader';
 import ToggleSlider from '../../input/slider';
 import { ReactComponent as Pen } from '../../../../assets/svg/worflow_builder/editPen.svg';
+
 const RenderNotificationUi = ({
 	closeModal,
 	changeLocalOptionType,
@@ -85,6 +86,9 @@ const RenderNotificationUi = ({
 		selectedCriteria: smartFileActions?.[0],
 		contentLoader: true,
 		madeEditChanges: false,
+		selectedSlackWorkspace: '',
+		selectedSlackChannel: '',
+		slackMessage: '',
 	});
 
 	//useEffects
@@ -316,19 +320,24 @@ const RenderNotificationUi = ({
 			stepInput: {
 				type,
 				previousStepId: previousStepId,
-				approvalRequired: info?.requiredApproval,
-				emailTemplateId: info?.selectedEmailTemplate?._id,
-				htmlBody: info?.emailBody,
-				subject: info?.subject,
-				sendAt: timeStamp,
 				channels: info?.selectedChannel?.value,
 				actionType: 'notification',
-				criteria: { status: info?.selectedCriteria?.value },
 			},
 		};
 		if (previousType === 'condition') {
 			const path = previousStepPath?.split('-')?.[1];
 			payload.stepInput.previousStepPath = path;
+		}
+		if (info?.selectedChannel?.value === 'email') {
+			payload.stepInput = {
+				...payload?.stepInput,
+				approvalRequired: info?.requiredApproval,
+				emailTemplateId: info?.selectedEmailTemplate?._id,
+				htmlBody: info?.emailBody,
+				subject: info?.subject,
+				criteria: { status: info?.selectedCriteria?.value },
+				sendAt: timeStamp,
+			};
 		}
 
 		const response = await addNewSteps(payload);
@@ -364,16 +373,22 @@ const RenderNotificationUi = ({
 			templateId: templateId,
 			updateStepInput: {
 				type,
+				channels: info?.selectedChannel?.value,
+				actionType: 'notification',
+				stepId: currentStepInfo?._id,
+			},
+		};
+
+		if (info?.selectedChannel?.value === 'email') {
+			payload.updateStepInput = {
+				...payload?.updateStepInput,
 				approvalRequired: info?.requiredApproval,
 				htmlBody: info?.emailBody,
 				subject: info?.subject,
 				sendAt: timeStamp,
-				channels: info?.selectedChannel?.value,
-				actionType: 'notification',
-				criteria: { status: info?.selectedCriteria?.value },
-				stepId: currentStepInfo?._id,
-			},
-		};
+				riteria: { status: info?.selectedCriteria?.value },
+			};
+		}
 		const response = await updateSteps(payload);
 		if (response?.[0]) {
 			const refetchResponse = await refetchWorkflowBuilderData();
@@ -398,6 +413,46 @@ const RenderNotificationUi = ({
 		info?.selectedChannel,
 		info?.selectedCriteria,
 		currentStepInfo,
+	]);
+
+	//slack functions
+	const onSlackMessageChanges = useCallback(
+		(e) => {
+			setInfo((prev) => ({ ...prev, slackMessage: e?.target?.value }));
+		},
+		[info?.slackMessage],
+	);
+
+	const channelMapper = useMemo(() => {
+		return {
+			email: (
+				<SendEmailTypeComponent
+					info={info}
+					setInfo={setInfo}
+					onChangeEmailTemplates={onChangeEmailTemplates}
+					incrementorDecrementorFunc={incrementorDecrementorFunc}
+					onChangeDuration={onChangeDuration}
+					onChangeCriteria={onChangeCriteria}
+					approvalOnChange={approvalOnChange}
+				/>
+			),
+			slack: (
+				<SendSlackTypeComponent
+					info={info}
+					setInfo={setInfo}
+					incrementorDecrementorFunc={incrementorDecrementorFunc}
+					onChangeDuration={onChangeDuration}
+					onSlackMessageChanges={onSlackMessageChanges}
+				/>
+			),
+		};
+	}, [
+		info,
+		onChangeEmailTemplates,
+		incrementorDecrementorFunc,
+		onChangeDuration,
+		onChangeCriteria,
+		approvalOnChange,
 	]);
 
 	return info?.contentLoader ? (
@@ -463,101 +518,7 @@ const RenderNotificationUi = ({
 					/>
 				</div>
 				<div className="workflow_builder_action_seperator"></div>
-				{/* //email template */}
-				<div className="emailTemplateContainer">
-					<HeadersDropDownComp
-						options={info?.emailTemplates}
-						showIcon={false}
-						containerStyle={{
-							...containerStyle,
-						}}
-						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{ ...dropDownStyle }}
-						dropDownTextStyling={{ ...dropDownTextStyling }}
-						selectedValue={info?.selectedEmailTemplate?.title}
-						onChangeFunc={onChangeEmailTemplates}
-						showSelectedValueTick={true}
-						uniqueIdentifierForTickIcon={'_id'}
-						selectedValueObj={info?.selectedEmailTemplate}
-						selectedValueStyle={{
-							...selectedValueStyling,
-						}}
-					/>
-					<div
-						className="editContainer"
-						onClick={() => setInfo((prev) => ({ ...prev, editEmailModal: true }))}
-					>
-						Edit <Pen />
-					</div>
-				</div>
-				<div className="workflow_builder_action_seperator"></div>
-
-				<div className="notification_schedulingContainer">
-					<span className="actionTitle">When ?</span>
-					<div className="notificationDaysContainer">
-						{/* //incrementor */}
-						<div className="incrementorDecrementorContainer">
-							<div
-								className="manualIncrementorButtons"
-								onClick={() => incrementorDecrementorFunc('decrement')}
-							>
-								-
-							</div>
-							<input className="manualIncrementorInput" value={info?.noOfDays} />
-							<div
-								className="manualIncrementorButtons"
-								onClick={() => incrementorDecrementorFunc('increment')}
-							>
-								+
-							</div>
-						</div>
-						{/* //days */}
-						<HeadersDropDownComp
-							options={options}
-							showIcon={false}
-							containerStyle={{
-								...containerStyle,
-							}}
-							outerContainerStyle={{ width: '100%' }}
-							dropDownStyle={{ ...dropDownStyle }}
-							dropDownTextStyling={{ ...dropDownTextStyling }}
-							selectedValue={info?.selectedDuration?.label}
-							onChangeFunc={onChangeDuration}
-							showSelectedValueTick={true}
-							uniqueIdentifierForTickIcon={'value'}
-							selectedValueObj={info?.selectedDuration}
-							selectedValueStyle={{
-								...selectedValueStyling,
-							}}
-						/>
-					</div>
-					<HeadersDropDownComp
-						options={smartFileActions}
-						showIcon={false}
-						containerStyle={{
-							...containerStyle,
-						}}
-						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{ ...dropDownStyle }}
-						dropDownTextStyling={{ ...dropDownTextStyling }}
-						selectedValueStyle={{
-							...selectedValueStyling,
-						}}
-						selectedValue={info?.selectedCriteria?.label}
-						uniqueIdentifierForTickIcon={'value'}
-						selectedValueObj={info?.selectedCriteria}
-						onChangeFunc={onChangeCriteria}
-						showSelectedValueTick={true}
-					/>
-				</div>
-
-				<div className="workflow_builder_action_seperator"></div>
-
-				{/* //required approval */}
-				<div className="requiredApprovalContainer">
-					<span className="requiredApprovalText">Require Approval before sending</span>
-					<ToggleSlider value={info?.requiredApproval} onChange={approvalOnChange} />
-				</div>
+				{channelMapper?.[info?.selectedChannel?.value]}
 			</div>
 
 			{mode === 'edit' && !info?.madeEditChanges ? (
@@ -586,3 +547,217 @@ const RenderNotificationUi = ({
 };
 
 export default memo(RenderNotificationUi);
+const SendEmailTypeComponent = ({
+	info,
+	setInfo,
+	onChangeEmailTemplates,
+	incrementorDecrementorFunc,
+	onChangeDuration,
+	onChangeCriteria,
+	approvalOnChange,
+}) => {
+	return (
+		<>
+			{/* {for email templates} */}
+			{/* //email template */}
+			<div className="emailTemplateContainer">
+				<HeadersDropDownComp
+					options={info?.emailTemplates}
+					showIcon={false}
+					containerStyle={{
+						...containerStyle,
+					}}
+					outerContainerStyle={{ width: '100%' }}
+					dropDownStyle={{ ...dropDownStyle }}
+					dropDownTextStyling={{ ...dropDownTextStyling }}
+					selectedValue={info?.selectedEmailTemplate?.title}
+					onChangeFunc={onChangeEmailTemplates}
+					showSelectedValueTick={true}
+					uniqueIdentifierForTickIcon={'_id'}
+					selectedValueObj={info?.selectedEmailTemplate}
+					selectedValueStyle={{
+						...selectedValueStyling,
+					}}
+				/>
+				<div
+					className="editContainer"
+					onClick={() => setInfo((prev) => ({ ...prev, editEmailModal: true }))}
+				>
+					Edit <Pen />
+				</div>
+			</div>
+			<div className="workflow_builder_action_seperator"></div>
+
+			<div className="notification_schedulingContainer">
+				<span className="actionTitle">When ?</span>
+				<div className="notificationDaysContainer">
+					{/* //incrementor */}
+					<div className="incrementorDecrementorContainer">
+						<div
+							className="manualIncrementorButtons"
+							onClick={() => incrementorDecrementorFunc('decrement')}
+						>
+							-
+						</div>
+						<input className="manualIncrementorInput" value={info?.noOfDays} />
+						<div
+							className="manualIncrementorButtons"
+							onClick={() => incrementorDecrementorFunc('increment')}
+						>
+							+
+						</div>
+					</div>
+					{/* //days */}
+					<HeadersDropDownComp
+						options={options}
+						showIcon={false}
+						containerStyle={{
+							...containerStyle,
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{ ...dropDownStyle }}
+						dropDownTextStyling={{ ...dropDownTextStyling }}
+						selectedValue={info?.selectedDuration?.label}
+						onChangeFunc={onChangeDuration}
+						showSelectedValueTick={true}
+						uniqueIdentifierForTickIcon={'value'}
+						selectedValueObj={info?.selectedDuration}
+						selectedValueStyle={{
+							...selectedValueStyling,
+						}}
+					/>
+				</div>
+				<HeadersDropDownComp
+					options={smartFileActions}
+					showIcon={false}
+					containerStyle={{
+						...containerStyle,
+					}}
+					outerContainerStyle={{ width: '100%' }}
+					dropDownStyle={{ ...dropDownStyle }}
+					dropDownTextStyling={{ ...dropDownTextStyling }}
+					selectedValueStyle={{
+						...selectedValueStyling,
+					}}
+					selectedValue={info?.selectedCriteria?.label}
+					uniqueIdentifierForTickIcon={'value'}
+					selectedValueObj={info?.selectedCriteria}
+					onChangeFunc={onChangeCriteria}
+					showSelectedValueTick={true}
+				/>
+			</div>
+
+			<div className="workflow_builder_action_seperator"></div>
+
+			{/* //required approval */}
+			<div className="requiredApprovalContainer">
+				<span className="requiredApprovalText">Require Approval before sending</span>
+				<ToggleSlider value={info?.requiredApproval} onChange={approvalOnChange} />
+			</div>
+		</>
+	);
+};
+const SendSlackTypeComponent = ({
+	info,
+	incrementorDecrementorFunc,
+	onChangeDuration,
+	onSlackMessageChanges,
+}) => {
+	return (
+		<>
+			<div className="actionDropDownContainer">
+				<span className="actionTitle">Slack Workspace</span>
+				<HeadersDropDownComp
+					options={channelOptions}
+					// selectedValue={info?.selectedChannel?.label}
+					// onChangeFunc={onChannelSelectionChanges}
+					showIcon={false}
+					containerStyle={{
+						...containerStyle,
+					}}
+					outerContainerStyle={{ width: '100%' }}
+					dropDownStyle={{ ...dropDownStyle }}
+					dropDownTextStyling={{ ...dropDownTextStyling }}
+					showSelectedValueTick={true}
+					uniqueIdentifierForTickIcon={'value'}
+					// selectedValueObj={info?.selectedChannel}
+					selectedValueStyle={{
+						...selectedValueStyling,
+					}}
+				/>
+			</div>
+			<div className="workflow_builder_action_seperator"></div>
+			<div className="actionDropDownContainer">
+				<span className="actionTitle">Slack Channel</span>
+				<HeadersDropDownComp
+					options={channelOptions}
+					// selectedValue={info?.selectedChannel?.label}
+					// onChangeFunc={onChannelSelectionChanges}
+					showIcon={false}
+					containerStyle={{
+						...containerStyle,
+					}}
+					outerContainerStyle={{ width: '100%' }}
+					dropDownStyle={{ ...dropDownStyle }}
+					dropDownTextStyling={{ ...dropDownTextStyling }}
+					showSelectedValueTick={true}
+					uniqueIdentifierForTickIcon={'value'}
+					// selectedValueObj={info?.selectedChannel}
+					selectedValueStyle={{
+						...selectedValueStyling,
+					}}
+				/>
+			</div>
+			<div className="workflow_builder_action_seperator"></div>
+			<div className="actionDropDownContainer">
+				<span className="actionTitle">Message</span>
+				<textarea
+					className="slackMessageInputBox"
+					value={info?.slackMessage}
+					onChange={onSlackMessageChanges}
+				/>
+			</div>
+			<div className="workflow_builder_action_seperator"></div>
+			<div className="notification_schedulingContainer">
+				<span className="actionTitle">When ?</span>
+				<div className="notificationDaysContainer">
+					{/* //incrementor */}
+					<div className="incrementorDecrementorContainer">
+						<div
+							className="manualIncrementorButtons"
+							onClick={() => incrementorDecrementorFunc('decrement')}
+						>
+							-
+						</div>
+						<input className="manualIncrementorInput" value={info?.noOfDays} />
+						<div
+							className="manualIncrementorButtons"
+							onClick={() => incrementorDecrementorFunc('increment')}
+						>
+							+
+						</div>
+					</div>
+					{/* //days */}
+					<HeadersDropDownComp
+						options={options}
+						showIcon={false}
+						containerStyle={{
+							...containerStyle,
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{ ...dropDownStyle }}
+						dropDownTextStyling={{ ...dropDownTextStyling }}
+						selectedValue={info?.selectedDuration?.label}
+						onChangeFunc={onChangeDuration}
+						showSelectedValueTick={true}
+						uniqueIdentifierForTickIcon={'value'}
+						selectedValueObj={info?.selectedDuration}
+						selectedValueStyle={{
+							...selectedValueStyling,
+						}}
+					/>
+				</div>
+			</div>
+		</>
+	);
+};
