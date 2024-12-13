@@ -124,33 +124,33 @@ const WorkflowBuilder = () => {
 		}
 	}, [specificTemplatesInfo]);
 
-	useEffect(() => {
-		if (wrapperRef.current && containerRef.current) {
-			const wrapper = wrapperRef.current;
-			const container = containerRef.current;
+	// useEffect(() => {
+	// 	if (wrapperRef.current && containerRef.current) {
+	// 		const wrapper = wrapperRef.current;
+	// 		const container = containerRef.current;
 
-			// console.log('Detailed dimensions:', {
-			// 	wrapperWidth: wrapper.clientWidth,
-			// 	containerWidth: container.clientWidth,
-			// 	scrollWidth: wrapper.scrollWidth,
-			// 	scrollLeft: wrapper.scrollLeft,
-			// 	containerOffsetLeft: container.offsetLeft,
-			// 	firstNodeOffsetLeft: container.firstChild?.offsetLeft || 0,
-			// });
+	// 		// console.log('Detailed dimensions:', {
+	// 		// 	wrapperWidth: wrapper.clientWidth,
+	// 		// 	containerWidth: container.clientWidth,
+	// 		// 	scrollWidth: wrapper.scrollWidth,
+	// 		// 	scrollLeft: wrapper.scrollLeft,
+	// 		// 	containerOffsetLeft: container.offsetLeft,
+	// 		// 	firstNodeOffsetLeft: container.firstChild?.offsetLeft || 0,
+	// 		// });
 
-			// Calculate if we need more padding
-			const leftmostElement = container.getBoundingClientRect().left;
-			const rightmostElement = container.getBoundingClientRect().right;
-			const visibleWidth = rightmostElement - leftmostElement;
+	// 		// Calculate if we need more padding
+	// 		const leftmostElement = container.getBoundingClientRect().left;
+	// 		const rightmostElement = container.getBoundingClientRect().right;
+	// 		const visibleWidth = rightmostElement - leftmostElement;
 
-			if (visibleWidth > wrapper.clientWidth) {
-				// Adjust padding dynamically if needed
-				const currentPadding = parseInt(container.style.padding.split(' ')[1]);
-				const newPadding = Math.max(currentPadding, visibleWidth);
-				container.style.padding = `40px ${newPadding}px`;
-			}
-		}
-	}, [info.stepsMapper]);
+	// 		if (visibleWidth > wrapper.clientWidth) {
+	// 			// Adjust padding dynamically if needed
+	// 			const currentPadding = parseInt(container.style.padding.split(' ')[1]);
+	// 			const newPadding = Math.max(currentPadding, visibleWidth);
+	// 			container.style.padding = `40px ${newPadding}px`;
+	// 		}
+	// 	}
+	// }, [info.stepsMapper]);
 
 	// For initial centering on mount
 	useEffect(() => {
@@ -492,7 +492,7 @@ const WorkflowBuilder = () => {
 							minWidth: 'min-content',
 							display: 'flex',
 							justifyContent: 'center',
-							padding: '40px 100%', // Use 100% padding on both sides
+							padding: '40px 50000vh', // Use 100% padding on both sides
 
 							transform: `scale(${zoom / 100})`,
 							transformOrigin: 'center center',
