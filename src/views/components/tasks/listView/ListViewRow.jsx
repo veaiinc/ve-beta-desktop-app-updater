@@ -1,6 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/listViewRow.scss';
-import Context from '../../../../context/context';
 const ListViewRow = ({
 	task,
 	properties,
@@ -10,43 +8,8 @@ const ListViewRow = ({
 	workflows,
 	tenantUsers,
 	handleRowClick,
+	clients,
 }) => {
-	const {
-		templates: { clientList, getClientList },
-	} = useContext(Context);
-
-	const [info, setInfo] = useState({
-		workflowId: task?.workflowId,
-		clients: clientList?.data?.map(({ name, _id }) => ({ label: name, value: _id })),
-	});
-
-	const [initialWorkflowId, setInitialWorkflowId] = useState(task?.workflowId?._id);
-
-	useEffect(() => {
-		getClientList({ filters: { limit: 10, page: 1, workflowId: info?.workflowId } });
-	}, [info?.workflowId]);
-
-	useEffect(() => {
-		// console.log(clientList);
-
-		if (clientList) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				clients: clientList?.data?.map(({ name, _id }) => ({ label: name, value: _id })),
-			}));
-		}
-	}, [clientList]);
-
-	useEffect(() => {
-		if (task?.workflowId?._id !== initialWorkflowId && info?.clients?.length > 0) {
-			updatePropertyValue(task._id, 'client', info?.clients[0]);
-		}
-	}, [task?.workflowId?._id, info?.clients]);
-
-	const customUpdateForWorkflow = (value) => {
-		setInfo((prevInfo) => ({ ...prevInfo, workflowId: value._id }));
-		updatePropertyValue(task._id, 'workflowId', value);
-	};
 	const generateRow = (row) => {
 		const leftPart = [];
 		const rightPart = [];
@@ -73,17 +36,11 @@ const ListViewRow = ({
 							key={key}
 							value={value}
 							title={key}
-							onOptionClick={(value) => {
-								if (key === 'workflowId') {
-									customUpdateForWorkflow(value);
-								} else {
-									updatePropertyValue(task._id, key, value);
-								}
-							}}
+							onOptionClick={(value) => updatePropertyValue(task._id, key, value)}
 							{...(componentType === 'workflow' ? { workflows } : {})}
 							{...(key === 'client'
 								? {
-										persons: info?.clients,
+										persons: clients,
 										showName: true,
 								  }
 								: {})}
@@ -104,17 +61,11 @@ const ListViewRow = ({
 							value={value}
 							title={key}
 							isTitle={key === 'title'}
-							onOptionClick={(value) => {
-								if (key === 'workflowId') {
-									customUpdateForWorkflow(value);
-								} else {
-									updatePropertyValue(task._id, key, value);
-								}
-							}}
+							onOptionClick={(value) => updatePropertyValue(task._id, key, value)}
 							{...(componentType === 'workflow' ? { workflows } : {})}
 							{...(key === 'client'
 								? {
-										persons: info?.clients,
+										persons: clients,
 										showName: true,
 								  }
 								: {})}

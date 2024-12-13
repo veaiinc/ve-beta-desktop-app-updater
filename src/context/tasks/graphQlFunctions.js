@@ -50,19 +50,17 @@ export const getListItemsQuery = gql`
 `;
 
 export const addListItemMutation = gql`
-	mutation CreateTask($input: TaskInput!) {
+	mutation Mutation($input: TaskInput!) {
 		createTask(input: $input) {
 			_id
+			serialNumber
 			title
 			description
 			status
 			priority
 			workflowTemplateId
 			workflowId
-			client {
-				_id
-				name
-			}
+			client
 			assignedTo {
 				_id
 				name
@@ -76,14 +74,8 @@ export const addListItemMutation = gql`
 			completedAt
 			createdAt
 			updatedAt
-			createdBy {
-				_id
-				name
-			}
-			updatedBy {
-				_id
-				name
-			}
+			createdBy
+			updatedBy
 		}
 	}
 `;

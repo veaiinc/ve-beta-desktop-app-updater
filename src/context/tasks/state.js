@@ -35,6 +35,10 @@ export const TasksState = () => {
 				dispatch({ type: Actions.SET_LIST_ITEMS, payload: response?.[1]?.data?.listTasks });
 			} else {
 				console.log('API failed ==> getListItems', response);
+				dispatch({
+					type: Actions.SET_LIST_ITEMS,
+					payload: { error: 'Failed to fetch tasks, try again' },
+				});
 			}
 		} catch (error) {
 			console.log('API failed ==> getListItems', error);

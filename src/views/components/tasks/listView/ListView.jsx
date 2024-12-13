@@ -18,6 +18,8 @@ import ListViewSidebar from '../../modalsV2/tasks/ListViewSidebar';
 import WorkFlow from './WorkFlow';
 import ListViewHeader from './ListViewHeader';
 import ListViewRow from './ListViewRow';
+import Skeleton from 'react-loading-skeleton';
+import jwtDecode from 'jwt-decode';
 
 const rowTypes = {
 	text: Text,
@@ -57,8 +59,13 @@ const responseTypes = {
 
 const ListView = () => {
 	const {
-		tasks: { listTasks, getListItems, addListItem, updateListItem, deleteListItem, getTask },
-		templates: { getTemplatesListForCreateLead, templatesListForCreateLead },
+		tasks: { listTasks, getListItems, addListItem, updateListItem, deleteListItem },
+		templates: {
+			getTemplatesListForCreateLead,
+			templatesListForCreateLead,
+			clientList,
+			getClientList,
+		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
@@ -75,6 +82,8 @@ const ListView = () => {
 		clients: [],
 		page: 1,
 		hasMore: false,
+		loadingSkeleton: true,
+		error: null,
 	});
 
 	const debounceTimeout = useRef(null);
@@ -88,49 +97,75 @@ const ListView = () => {
 				sortType: 1,
 			},
 		});
-		getTemplatesListForCreateLead();
-		getTeamMembers();
 	}, [info?.page]);
 
 	useEffect(() => {
-		if (listTasks) {
-			// Get unique tasks by _id to avoid duplicates
-			const uniqueTasks = [
-				...new Map(
-					[...info.listItems, ...listTasks.data].map((task) => [task._id, task]),
-				).values(),
-			];
-
+		if (!clientList) {
+			getClientList({ filters: { limit: 10, page: 1 } });
+			console.log('clientList');
+		} else {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				listItems: uniqueTasks,
-				properties: mapPropertyType(listTasks?.data?.[0]),
-				hasMore: listTasks?.hasNextPage,
+				clients: clientList?.data?.map(({ name, _id }) => ({ label: name, value: _id })),
 			}));
 		}
-	}, [listTasks]);
+	}, [clientList]);
 
 	useEffect(() => {
-		if (templatesListForCreateLead) {
+		if (!tenantsUserList) {
+			getTeamMembers();
+		} else {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				workflows: templatesListForCreateLead?.data || [],
+				tenantUsers: tenantsUserList?.map(({ firstName, lastName, _id }) => ({
+					label: `${firstName} ${lastName}`,
+					value: _id,
+				})),
+			}));
+		}
+	}, [tenantsUserList]);
+
+	useEffect(() => {
+		if (!templatesListForCreateLead) {
+			getTemplatesListForCreateLead();
+		} else {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				workflows: templatesListForCreateLead?.data?.map(({ title, _id }) => ({
+					label: title,
+					value: _id,
+				})),
 			}));
 		}
 	}, [templatesListForCreateLead]);
 
 	useEffect(() => {
-		if (tenantsUserList) {
-			const persons = tenantsUserList?.map((person) => ({
-				label: person.firstName + ' ' + person.lastName,
-				value: person._id,
-			}));
+		if (listTasks) {
+			if (listTasks?.data) {
+				// Get unique tasks by _id to avoid duplicates
+				const uniqueTasks = [
+					...new Map(
+						[...info?.listItems, ...listTasks.data].map((task) => [task._id, task]),
+					).values(),
+				];
+
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					listItems: uniqueTasks,
+					properties: mapPropertyType(listTasks?.data?.[0]),
+					hasMore: listTasks?.hasNextPage,
+					loadingSkeleton: false,
+				}));
+			}
+		}
+		if (listTasks?.error) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				tenantUsers: persons,
+				loadingSkeleton: false,
+				error: listTasks?.error,
 			}));
 		}
-	}, [tenantsUserList]);
+	}, [listTasks]);
 
 	useEffect(() => {
 		if (info?.selectedRow) {
@@ -143,6 +178,14 @@ const ListView = () => {
 
 	const updateListViewInfo = useCallback((key, value) => {
 		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
+	}, []);
+
+	const generateSkeleton = useCallback(() => {
+		return [...Array(6)].map((_, index) => (
+			<div className="listItemSkeleton" key={index}>
+				<Skeleton width="100%" height="38px" borderRadius="12px" />
+			</div>
+		));
 	}, []);
 
 	const mapPropertyType = useCallback((row) => {
@@ -226,24 +269,39 @@ const ListView = () => {
 		[updateListItem],
 	);
 
-	const addNewTask = useCallback(async (payload) => {
-		if (false) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
-		} else {
-			const response = await addListItem({ input: payload });
-			if (response) {
-				const task = await getTask({ taskId: response?.createTask?._id });
-				if (task) {
-					setInfo((prevInfo) => ({
-						...prevInfo,
-						listItems: [...prevInfo?.listItems, task?.getTask],
-					}));
-				}
+	const addNewTask = useCallback(
+		async (payload) => {
+			if (validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			} else {
-				throw new Error('Failed to add new task');
+				const response = await addListItem({ input: payload });
+				if (response) {
+					const task = response?.createTask;
+					console.log(task);
+
+					if (task) {
+						const token = localStorage.getItem('usertoken');
+						const { user_id, userName } = jwtDecode(token);
+						const client = info?.clients?.find(
+							(client) => client?.value === task?.client,
+						);
+
+						const newTask = { ...task };
+						newTask.client = client;
+						newTask.createdBy = { _id: user_id, name: userName };
+						newTask.updatedBy = { _id: user_id, name: userName };
+						setInfo((prevInfo) => ({
+							...prevInfo,
+							listItems: [...prevInfo?.listItems, newTask],
+						}));
+					}
+				} else {
+					throw new Error('Failed to add new task');
+				}
 			}
-		}
-	}, []);
+		},
+		[info?.clients],
+	);
 
 	const deleteTask = useCallback(async (payload) => {
 		if (validateExpiryData?.isExpired) {
@@ -281,7 +339,11 @@ const ListView = () => {
 			/>
 			<div className="listContainer">
 				<div className="listInnerContainer">
-					{info?.listItems?.length !== 0 ? (
+					{info?.loadingSkeleton ? (
+						generateSkeleton()
+					) : info?.error ? (
+						<span style={{ color: '#ff9b9b', margin: '10px auto' }}>{info?.error}</span>
+					) : info?.listItems?.length !== 0 ? (
 						info?.listItems?.map((task, index) => (
 							<ListViewRow
 								task={task}
@@ -293,6 +355,7 @@ const ListView = () => {
 								workflows={info?.workflows}
 								tenantUsers={info?.tenantUsers}
 								handleRowClick={handleRowClick}
+								clients={info?.clients}
 							/>
 						))
 					) : (
@@ -315,6 +378,7 @@ const ListView = () => {
 				addNewTask={addNewTask}
 				workflows={info?.workflows}
 				tenantUsers={info?.tenantUsers}
+				clients={info?.clients}
 			/>
 			<ListViewSidebar
 				selectedRow={info?.selectedRow}

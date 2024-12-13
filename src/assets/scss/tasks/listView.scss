@@ -19,6 +19,14 @@
 			min-width: 100%;
 			width: fit-content;
 			overflow-x: auto;
+
+			.listItemSkeleton {
+				// display: flex;
+				min-width: 100%;
+				width: fit-content;
+				padding: 8px 0;
+				border-bottom: 1px solid #171819;
+			}
 		}
 	}
 	.loadMoreContainer {

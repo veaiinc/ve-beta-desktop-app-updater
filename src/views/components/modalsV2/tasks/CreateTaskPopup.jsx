@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/tasks/modals/createTaskPopup.scss';
 import { ReactComponent as ExpandIcon } from '../../../../assets/svg/gallery/expand.svg';
@@ -13,15 +13,13 @@ import { ReactComponent as CalendarIcon } from '../../../../assets/svg/calendar-
 import { ReactComponent as LinkIcon } from '../../../../assets/svg/activity/link.svg';
 
 import Priority from '../../tasks/listView/Priority';
-import DropDown from '../../dropDown/tasks/DropDown';
 import Status from '../../tasks/listView/Status';
-import { DatePicker, message, Tooltip } from 'antd';
+import { message, Tooltip } from 'antd';
 import Spinner from '../../loaders/Spinner';
 import moment from 'moment';
 import WorkFlow from '../../tasks/listView/WorkFlow';
 import Person from '../../tasks/listView/Person';
 import DateView from '../../tasks/listView/DateView';
-import Context from '../../../../context/context';
 
 const customListItemStyle = {
 	borderRadius: '34px',
@@ -44,13 +42,9 @@ const initialState = {
 	title: '',
 	workflowId: '',
 	workflowTemplateId: '',
-	clients: [],
 };
 
-const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUsers }) => {
-	const {
-		templates: { clientList, getClientList },
-	} = useContext(Context);
+const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUsers, clients }) => {
 	const [messageApi, contextHolder] = message.useMessage();
 	const [info, setInfo] = useState({
 		...initialState,
@@ -62,19 +56,6 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 			setInfo((prevInfo) => ({ ...prevInfo, ...initialState }));
 		};
 	}, []);
-
-	useEffect(() => {
-		getClientList({ filters: { limit: 10, page: 1, workflowId: info?.workflowId } });
-	}, [info?.workflowId]);
-
-	useEffect(() => {
-		if (clientList) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				clients: clientList?.data?.map(({ name, _id }) => ({ label: name, value: _id })),
-			}));
-		}
-	}, [clientList]);
 
 	const updateModalInfo = (key, value) => {
 		if (key === 'title') {
@@ -178,7 +159,7 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 					/>
 					<Person
 						value={info?.client}
-						persons={info?.clients}
+						persons={clients}
 						customListItemStyle={customListItemStyle}
 						onOptionClick={(value) => updateModalInfo('client', value)}
 						showName

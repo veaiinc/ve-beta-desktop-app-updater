@@ -4,29 +4,20 @@ import { ReactComponent as Cube } from '../../../../assets/svg/tasks/cube.svg';
 
 const WorkFlow = ({ value, title, workflows = [], onOptionClick, customListItemStyle = {} }) => {
 	const [info, setInfo] = useState({
-		options: [],
 		selectedLabel: '',
 	});
 
 	useEffect(() => {
-		const newOptions = workflows.map((workflow) => ({
-			label: workflow.title,
-			value: workflow._id,
-		}));
-		setInfo((prevInfo) => ({ ...prevInfo, options: newOptions }));
-	}, [workflows]);
-
-	useEffect(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			selectedLabel: prevInfo.options.find((option) => option.value === value)?.label,
+			selectedLabel: workflows.find((option) => option.value === value)?.label,
 		}));
-	}, [value, info?.options]);
+	}, [value, workflows]);
 
 	return (
-		<div className="listItem-workflow">
+		<div className="listItem-workflow" title={title}>
 			<DropDown
-				options={info?.options}
+				options={workflows}
 				onOptionClick={onOptionClick}
 				selected={value}
 				valueSelector="value"
