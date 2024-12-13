@@ -7,7 +7,7 @@ import gqlService from '../../services/graphQlServices';
 import { generatePDFsBatchId } from '../../helpers';
 import { getTemmplatesQuery } from '../Templates/graphQlFunctions';
 
-export const intialState = {
+export const initialState = {
 	knowledgeBaseFiles: {
 		data: [],
 		areKnowledgeBaseFilesLoading: true,
@@ -27,7 +27,7 @@ export const intialState = {
 };
 
 export const AiSetupState = () => {
-	const [state, dispatch] = useReducer(Reducer, intialState);
+	const [state, dispatch] = useReducer(Reducer, initialState);
 
 	const getWorkflows = async (page = 1, limit = 10, reset = false) => {
 		let workspaceId = localStorage.getItem('workspaceId');
@@ -366,7 +366,7 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const resetState = () => {
+	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
 
@@ -383,7 +383,7 @@ export const AiSetupState = () => {
 		getAssignedWorkflowsToAiAssistant,
 		unassignWorkflowToAiAssistant,
 		getWorkflows,
-		resetState,
+		resetAiSetupState,
 		deleteKnowledge,
 	};
 };

@@ -1,4 +1,4 @@
-import { intialState } from './state';
+import { initialState } from './state';
 
 const actionHandlers = {
 	SET_KNOWLEDGE_BASE_FILES: (state, action) => ({
@@ -22,7 +22,7 @@ const actionHandlers = {
 		workflows: action?.payload,
 	}),
 
-	RESET_STATE: () => intialState,
+	RESET_STATE: () => initialState,
 };
 
 const Reducer = (state, action) => {

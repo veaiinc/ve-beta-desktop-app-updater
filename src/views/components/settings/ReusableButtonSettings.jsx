@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ReactComponent as DownArrow } from '../../../assets/svg/chat/downArrow.svg';
 import Spinner from '../../components/loaders/Spinner';
 
@@ -27,31 +27,34 @@ const ReusableButtonSettings = ({
 		}
 	};
 
-	const styles = {
-		base: {
-			border: active ? '1px solid #6055EC' : '1px solid #262626',
-			color: '#E4E5E6',
-			backgroundColor: active ? '#6055EC' : '#262626',
-			cursor: 'pointer',
-			borderRadius: '20px',
-			padding: '9px 16px',
-			height: '40px',
-			width: 'auto',
-			display: 'inline-block',
-			transition: 'color 0.3s ease-in, border 0.3s ease-in',
-		},
-		hover: {
-			color: '#fff',
-			background: 'rgba(176, 176, 176, 0.16)',
-		},
+	const handleConnectToThirdParty = async () => {
+		await func();
 	};
 
-	const combinedStyles = isHovered ? { ...styles.base, ...styles.hover } : styles.base;
+	// const styles = {
+	// 	base: {
+	// 		border: active ? '1px solid #6055EC' : '1px solid #262626',
+	// 		color: '#E4E5E6',
+	// 		backgroundColor: active ? '#6055EC' : '#262626',
+	// 		cursor: 'pointer',
+	// 		borderRadius: '20px',
+	// 		padding: '9px 16px',
+	// 		height: '40px',
+	// 		width: 'auto',
+	// 		display: 'inline-block',
+	// 		transition: 'color 0.3s ease-in, border 0.3s ease-in',
+	// 	},
+	// 	hover: {
+	// 		color: '#fff',
+	// 		background: 'rgba(176, 176, 176, 0.16)',
+	// 	},
+	// };
+	// const combinedStyles = isHovered ? { ...styles.base, ...styles.hover } : styles.base;
 
 	return (
 		<div
-			style={combinedStyles}
-			onClick={func}
+			className="reusableBtn"
+			onClick={handleConnectToThirdParty}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 		>

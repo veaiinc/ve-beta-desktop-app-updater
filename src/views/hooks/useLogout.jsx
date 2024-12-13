@@ -13,6 +13,7 @@ const useLogout = () => {
 		subscriptionInfo: { resetSubscriptionState },
 		calendarInfo: { resetCalendarState },
 		activityInfo: { resetActivityState },
+		aiSetup: { resetAiSetupState },
 	} = useContext(Context);
 
 	const resetApplications = useCallback(async () => {
@@ -29,6 +30,7 @@ const useLogout = () => {
 		resetSubscriptionState();
 		resetCalendarState();
 		resetActivityState();
+		resetAiSetupState();
 	}, []);
 
 	return resetApplications;
