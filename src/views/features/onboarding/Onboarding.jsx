@@ -10,6 +10,7 @@ import Context from '../../../context/context';
 import { message } from 'antd';
 import CreatingNewWorkspace from '../../components/onboarding/CreatingNewWorkspace';
 import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/green-tick.svg';
+import jwtDecode from 'jwt-decode';
 
 const tl1 = gsap.timeline();
 const tl2 = gsap.timeline();
@@ -135,7 +136,12 @@ const Onboarding = () => {
 	const params = new URLSearchParams(location?.search);
 	const invitedWorkspaceId = params?.get('invitedWorkspaceId');
 	const invitedUserEmail = params?.get('inviteeEmail');
-	const createWorkspaceUsername = params?.get('username');
+	const pathname = location?.pathname;
+	const usertoken = localStorage.getItem('usertoken');
+	let createWorkspaceUsername = '';
+	if (pathname === '/create-workspace') {
+		createWorkspaceUsername = jwtDecode(usertoken)?.userName;
+	}
 	const progressBar = createWorkspaceUsername
 		? [{ id: 1 }, { id: 2 }, { id: 3 }]
 		: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }];
@@ -159,7 +165,7 @@ const Onboarding = () => {
 	});
 
 	useEffect(() => {
-		if (!localStorage?.getItem('usertoken')) {
+		if (!usertoken) {
 			navigate('/');
 		}
 		if (
