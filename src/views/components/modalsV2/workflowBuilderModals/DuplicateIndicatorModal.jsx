@@ -4,8 +4,17 @@ import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import ReactModal from '../../modalsV2/index';
 import Spinner from '../../loaders/Spinner';
 const DuplicateIndicatorModal = ({ open, closeModal }) => {
+	const customStyles = {
+		content: { zIndex: 99999 },
+		overlay: { zIndex: 99998 },
+	};
 	return (
-		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
+		<ReactModal
+			isOpen={open}
+			closeModal={closeModal}
+			modalType={'center'}
+			customStyles={customStyles}
+		>
 			<div className="duplicateWorkflowContainer">
 				<Spinner />
 				<span className="duplicateWorkflowContainerHeader">Duplicating Your Template</span>

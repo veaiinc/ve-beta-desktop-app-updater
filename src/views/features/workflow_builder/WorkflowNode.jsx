@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import './WorkflowNode.scss';
+import '../../../assets/scss/workflowBuilder/WorkflowNode.scss';
 import WorkflowBuilderCards from '../../components/workflowBuilderComponents/WorkflowBuilderCards';
 import WorkflowConnector from '../../components/workflowBuilderComponents/WorkflowConnector';
 import debounce from 'lodash/debounce';

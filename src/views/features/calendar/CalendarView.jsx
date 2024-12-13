@@ -22,15 +22,25 @@ const initialState = {
 	isLoading: true,
 	isEventCreated: false,
 	updateEventsList: false,
+	selectedEvent: null,
 };
 
-const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalendarInfo }) => {
+const CalendarView = ({
+	selectedWeek,
+	selectedDate,
+	isEventSelected,
+	categoryList,
+	selectedCategory,
+	categoryFilter,
+	updateCalendarInfo,
+}) => {
 	const {
 		calendarInfo: {
 			calendarEventsList,
 			getCalendarEventsList,
-			calendarEvent, //state
+			calendarEvent,
 			resetCalendarState,
+			sendEventToAi,
 		},
 		// profileInfo: { userWorkSpaceList, userDetailsData },
 		companyInfo: { tenantsUserList, getTeamMembers },
@@ -48,6 +58,7 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 
 	useEffect(() => {
 		fetchEventsList();
+		handleSendEventToAi();
 	}, [calendarEvent]);
 
 	useEffect(() => {
@@ -71,7 +82,7 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 			const mappedEventsList = calendarEventsList?.map((event) => ({
 				id: event?._id,
 				start: moment(event?.startDateTime).local().toDate(), // Convert to local time
-				end: moment(event?.endDateTime).local().toDate(), // Convert to local time
+				end: moment(event?.endDateTime).local().toDate(),
 				title: event?.title,
 				description: event?.description,
 			}));
@@ -88,6 +99,25 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 		setInfo((prevInfo) => ({ ...prevInfo, isLoading: true, eventListError: null }));
 		await getCalendarEventsList();
 	}, []);
+
+	const handleSendEventToAi = useCallback(async () => {
+		if (calendarEvent) {
+			await sendEventToAi({
+				event_id: calendarEvent?._id,
+			});
+		}
+	}, [calendarEvent]);
+
+	const handleSelectEvent = useCallback(
+		(event) => {
+			updateCalendarInfo('isEventSelected', true);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				selectedEvent: event,
+			}));
+		},
+		[info?.selectedEvent],
+	);
 
 	const components = useMemo(
 		() => ({
@@ -128,13 +158,14 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 							className="custom"
 							selectable
 							onSelectSlot={() => updateCalendarInfo('isCreateEventOpen', true)}
-							onSelectEvent={(event) => updateCalendarInfo('isEventSelected', true)}
-							date={selectedDate} //for syncing with calendarSelector current date
+							onSelectEvent={(event) => handleSelectEvent(event)}
+							date={selectedDate}
 							popup
 							components={components}
 						/>
 					</div>
 					<EventDetailsDrawer
+						selectedEvent={info?.selectedEvent}
 						isEventSelected={isEventSelected}
 						updateCalendarInfo={updateCalendarInfo}
 					/>

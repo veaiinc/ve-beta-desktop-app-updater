@@ -4,10 +4,19 @@ import { ReactComponent as Warning } from '../../../../assets/svg/worflow_builde
 import ReactModal from '../../modalsV2/index';
 import '../../../../assets/scss/workflowBuilder/exitWithoutPublishingModal.scss';
 import { useNavigate } from 'react-router-dom';
+const customStyles = {
+	content: { zIndex: 99999 },
+	overlay: { zIndex: 99998 },
+};
 const ExitWithoutPublishingModal = ({ open, closeModal }) => {
 	const navigate = useNavigate();
 	return (
-		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
+		<ReactModal
+			isOpen={open}
+			closeModal={closeModal}
+			modalType={'center'}
+			customStyles={customStyles}
+		>
 			<div className="ExitWithoutPublishingModal">
 				<Warning />
 				<div className="modalSubTextContaiener">
