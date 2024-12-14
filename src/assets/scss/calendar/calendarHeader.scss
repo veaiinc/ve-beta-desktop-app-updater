@@ -2,7 +2,8 @@
 	display: flex;
 	// width: 989px;
 	width: 100%;
-	height: 200px;
+	// height: 200px;
+	max-height: 200px;
 	padding: 18px 34px;
 	flex-direction: column;
 	align-items: flex-start;
@@ -30,7 +31,9 @@
 			.calendarDate {
 				display: flex;
 				align-items: center;
-				gap: 109px;
+				gap: 5px;
+				width: 218px;
+				cursor: pointer;
 
 				color: #e4e5e6;
 				font-family: Inter;
@@ -43,7 +46,6 @@
 			.viewToggleWrapper {
 				display: flex;
 				padding: 5px;
-				// flex-direction: column;
 				align-items: flex-start;
 				gap: 10px;
 				border-radius: 8px;
@@ -53,6 +55,7 @@
 					display: flex;
 					width: 213px;
 					align-items: center;
+					text-transform: capitalize;
 
 					.toggleButton {
 						display: flex;
@@ -126,7 +129,6 @@
 
 			.dayHeader {
 				display: flex;
-				// padding: 0px 42.143px 0px 43px;
 				justify-content: center;
 				align-items: center;
 				flex: 1 0 0;
@@ -139,7 +141,7 @@
 				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;
-				font-weight: 400;
+				font-weight: 500;
 				line-height: normal;
 
 				&:hover {
@@ -165,9 +167,7 @@
 
 		.weekDayHeaderContainer {
 			display: flex;
-			// width: 857px;
 			align-items: center;
-			// gap: var(--Spacing-space-8, 16px);
 			gap: 5px;
 			margin-left: 50px;
 			flex: 1 0 0;
@@ -176,8 +176,8 @@
 
 			.weekDayBlock {
 				display: flex;
-				// padding: 21px 29px;
-				// width: 110px; //for responsive positioning
+				padding: 10px 0px;
+				min-height: 95px;
 				justify-content: center;
 				align-items: center;
 				flex: 1 0 0;
@@ -192,7 +192,6 @@
 					justify-content: center;
 					align-items: center;
 					gap: 4px;
-					// color: rgba(228, 229, 230, 0.48);
 					text-align: center;
 					font-family: Inter;
 					font-size: 12px;

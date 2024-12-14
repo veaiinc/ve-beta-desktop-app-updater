@@ -9,6 +9,7 @@ import moment from 'moment';
 const Calendar = () => {
 	const {
 		calendarInfo: { calendarCategories, createCalendarCategory },
+		companyInfo: { getTeamMembers },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -29,6 +30,7 @@ const Calendar = () => {
 			categoryColor: '#bf8bff',
 		};
 		createCalendarCategory(payload);
+		getTeamMembers();
 		return setInfo((prevInfo) => ({
 			...prevInfo,
 			selectedWeek: [],
@@ -112,6 +114,7 @@ const Calendar = () => {
 					updateCalendarInfo={updateCalendarInfo}
 				/>
 				<CalendarView
+					currentCalendarDate={info?.currentCalendarDate}
 					selectedWeek={info?.selectedWeek}
 					selectedDate={info?.selectedDate}
 					selectedMonth={info?.selectedMonth}
