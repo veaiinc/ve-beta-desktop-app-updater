@@ -3,7 +3,6 @@ import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSidebar from './CalendarSidebar';
 import CalendarView from './CalendarView';
 import Context from '../../../context/context';
-
 import moment from 'moment';
 
 const Calendar = () => {
