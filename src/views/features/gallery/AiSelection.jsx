@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import '../../../assets/scss/gallery/aiOption.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
 // import { ReactComponent as CopyIcon } from '../../../assets/svg/workflow/copy.svg';
@@ -82,8 +82,10 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 					handleFaceClick={(face) => handleFaceClick(face)}
 				/>
 			)}
-			{info?.search === 'AI Face Registration' && <AiFaceRegistration link={link} />}
-			{info?.search === 'Insights' && <Insights />}
+			{info?.search === 'AI Face Registration' && (
+				<AiFaceRegistration link={link} galleryId={galleryId} />
+			)}
+			{info?.search === 'Insights' && <Insights galleryId={galleryId} />}
 			{info?.search === 'Ai Faces' && (
 				<AiFacesContainer
 					galleryId={galleryId}
