@@ -70,14 +70,14 @@ export const channelOptions = [
 		value: 'email',
 	},
 
-	{
-		label: 'Whatsapp',
-		value: 'whatsapp',
-	},
 	// {
-	// 	label: 'Instagram',
-	// 	value: 'instagram',
+	// 	label: 'Whatsapp',
+	// 	value: 'whatsapp',
 	// },
+	{
+		label: 'Slack',
+		value: 'slack',
+	},
 	// {
 	// 	label: 'Facebook',
 	// 	value: 'facebook',

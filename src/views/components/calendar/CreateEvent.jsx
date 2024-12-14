@@ -8,6 +8,7 @@ import { ReactComponent as Location } from '../../../assets/svg/calendar/locatio
 import { ReactComponent as Meeting } from '../../../assets/svg/calendar/meeting.svg';
 import { ReactComponent as Avtar } from '../../../assets/svg/calendar/calendarEllipse.svg';
 import { ReactComponent as Close } from '../../../assets/svg/activity/close.svg';
+import UpdateCategoryModal from '../modalsV2/calendar/UpdateCategoryModal';
 import Spinner from '../../components/loaders/Spinner.jsx';
 import ToggleSwitch from '../../components/input/slider';
 import Context from '../../../context/context';
@@ -76,6 +77,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 				isOwner: false,
 			},
 		],
+		addCategory: false,
 	});
 	const createEventRef = useRef(null);
 	// Format date and time to ISO string
@@ -359,6 +361,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 								updateEventInfo('showCategory', true);
 							}}
 							value={info?.selectedCategory?.name}
+							style={{ textTransform: 'capitalize' }}
 						/>
 						<div
 							className="downArrow"
@@ -383,7 +386,14 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 										{item?.name}
 									</div>
 								))}
-								<div className="categoryDropDownItem addCategory">+ Add new</div>
+								<div
+									className="categoryDropDownItem addCategory"
+									onClick={() =>
+										setInfo((prev) => ({ ...prev, addCategory: true }))
+									}
+								>
+									+ Add new
+								</div>
 							</div>
 						)}
 					</div>
@@ -519,6 +529,11 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 					'Add to calendar'
 				)}
 			</button>
+			<UpdateCategoryModal
+				show={info?.addCategory}
+				handleClose={() => setInfo((prev) => ({ ...prev, addCategory: false }))}
+				selectedCategory={info?.selectedCategory}
+			/>
 		</div>
 	);
 };

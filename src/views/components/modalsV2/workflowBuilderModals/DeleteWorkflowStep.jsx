@@ -67,7 +67,7 @@ const DeleteWorkflowStep = ({
 	return (
 		<ReactModal isOpen={modalIsOpen} closeModal={closeModal} customStyles={customStyles}>
 			{workflowdata?.type === 'action' ? (
-				<div className="deleteWorkflowStepContainer">
+				<div className="deleteWorkflowStepsContainer">
 					<div className="deleteWorklfowHeaderParentContainer">
 						<div className="deleteWorklfowHeaderContainer">
 							Delete Step?

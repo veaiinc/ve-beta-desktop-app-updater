@@ -445,6 +445,34 @@
 					font-weight: 500;
 					line-height: 20px;
 				}
+
+				.slackMessageInputBox {
+					background-color: transparent;
+					resize: none;
+					outline: none;
+					width: 100%;
+					height: 80px;
+					color: var(--ve-ai-dark-theme-secondary-color, #939393);
+					color: var(
+						--ve-ai-dark-theme-secondary-color,
+						color(display-p3 0.5755 0.5755 0.5755)
+					);
+
+					/* Body/Body - 12 px */
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					border-radius: 14px;
+					border: 1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
+					border: 1px solid
+						var(
+							--ve-ai-dark-theme-text-field-stroke-pop-up,
+							color(display-p3 0.1719 0.1753 0.1787)
+						);
+					padding: 12px;
+				}
 			}
 			.emailTemplateContainer {
 				display: flex;
@@ -561,6 +589,25 @@
 							cursor: pointer;
 						}
 					}
+				}
+			}
+
+			.slackIntegrateContainer {
+				display: flex;
+				justify-content: center;
+				align-self: stretch;
+				align-items: center;
+				margin-top: 48px;
+				flex-direction: column;
+				gap: 12px;
+
+				.slackSubtitle {
+					color: #fff;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
 				}
 			}
 		}
