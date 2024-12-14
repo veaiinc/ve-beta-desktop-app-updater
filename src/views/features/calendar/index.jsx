@@ -114,6 +114,7 @@ const Calendar = () => {
 					updateCalendarInfo={updateCalendarInfo}
 				/>
 				<CalendarView
+					currentCalendarDate={info?.currentCalendarDate}
 					selectedWeek={info?.selectedWeek}
 					selectedDate={info?.selectedDate}
 					selectedMonth={info?.selectedMonth}
