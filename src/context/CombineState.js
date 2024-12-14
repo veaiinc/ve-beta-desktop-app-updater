@@ -9,6 +9,7 @@ import { SubscriptionState } from './subscription/state';
 import { AuthState } from './auth/state';
 import { Calendar } from './Calendar/state';
 
+import { TasksState } from './tasks/state';
 const CombineState = () => {
 	return {
 		chatInfo: ChatState(),
@@ -21,6 +22,7 @@ const CombineState = () => {
 		subscriptionInfo: SubscriptionState(),
 		authInfo: AuthState(),
 		calendarInfo: Calendar(),
+		tasks: TasksState(),
 	};
 };
 
