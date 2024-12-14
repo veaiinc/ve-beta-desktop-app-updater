@@ -298,6 +298,8 @@
 				display: flex;
 				flex-direction: column;
 				gap: 8px;
+				max-height: 290px;
+				overflow: auto;
 
 				.attendeesDetails {
 					display: flex;
