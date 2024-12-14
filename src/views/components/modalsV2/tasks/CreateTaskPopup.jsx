@@ -31,18 +31,16 @@ const customListItemStyle = {
 
 const initialState = {
 	assignedTo: null,
-	client: null,
 	description: '',
 	dueDate: null,
 	priority: 'low',
 	status: 'todo',
 	title: '',
 	workflowId: '',
-	workflowTemplateId: '',
 	isLoading: false,
 };
 
-const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUsers, clients }) => {
+const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUsers }) => {
 	const [messageApi, contextHolder] = message.useMessage();
 	const [info, setInfo] = useState({
 		...initialState,
@@ -60,31 +58,22 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 	};
 
 	const preparePayload = useCallback(() => {
-		const {
-			assignedTo,
-			client,
-			description,
-			dueDate,
-			priority,
-			status,
-			title,
-			workflowId,
-			workflowTemplateId,
-		} = info;
+		const { assignedTo, description, dueDate, priority, status, title, workflowId } = info;
 		if (!title.trim()) {
 			return;
 		}
 
 		return Object.entries({
 			assignedTo: assignedTo ? { userId: assignedTo?.value } : '',
-			client: client ? client?.value : '',
 			description,
 			dueDate,
 			priority,
 			status,
 			title,
 			workflowId,
-			workflowTemplateId,
+			workflowTemplateId: workflowId
+				? workflows?.find((workflow) => workflow.value === workflowId)?.templateId
+				: null,
 		})
 			.filter(([key, value]) => value != null && value !== '')
 			.reduce((acc, [key, value]) => {
@@ -144,20 +133,11 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 				</div>
 				<div className="properties-wrapper">
 					<WorkFlow
-						value={info?.workflowId}
+						val={info?.workflowId}
 						workflows={workflows}
 						customListItemStyle={customListItemStyle}
 						onOptionClick={(value) => updateModalInfo('workflowId', value)}
 						title={'Workflow'}
-					/>
-					<Person
-						value={info?.client}
-						persons={clients}
-						customListItemStyle={customListItemStyle}
-						onOptionClick={(value) => updateModalInfo('client', value)}
-						showName
-						title={'Client'}
-						removeBtn={true}
 					/>
 					<Status
 						value={info?.status}

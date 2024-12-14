@@ -44,9 +44,7 @@ const responseTypes = {
 	description: 'text',
 	status: 'status',
 	priority: 'priority',
-	workflowTemplateId: 'text',
-	workflowId: 'workflow',
-	client: 'person',
+	workflow: 'workflow',
 	assignedTo: 'person',
 	dueDate: 'date',
 	assignedBy: 'person',
@@ -62,12 +60,7 @@ const responseTypes = {
 const ListView = () => {
 	const {
 		tasks: { listTasks, getListItems, addListItem, updateListItem, deleteListItem },
-		templates: {
-			getTemplatesListForCreateLead,
-			templatesListForCreateLead,
-			clientList,
-			getClientList,
-		},
+		templates: { getWorkflowsList, workflowslist },
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
@@ -103,17 +96,6 @@ const ListView = () => {
 	}, [info?.page]);
 
 	useEffect(() => {
-		if (!clientList) {
-			getClientList({ filters: { limit: 10, page: 1 } });
-		} else {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				clients: clientList?.data?.map(({ name, _id }) => ({ label: name, value: _id })),
-			}));
-		}
-	}, [clientList]);
-
-	useEffect(() => {
 		if (!tenantsUserList) {
 			getTeamMembers();
 		} else {
@@ -128,18 +110,26 @@ const ListView = () => {
 	}, [tenantsUserList]);
 
 	useEffect(() => {
-		if (!templatesListForCreateLead) {
-			getTemplatesListForCreateLead();
+		console.log(workflowslist);
+
+		if (!workflowslist) {
+			getWorkflowsList({
+				filters: {
+					limit: 20,
+					page: 1,
+				},
+			});
 		} else {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				workflows: templatesListForCreateLead?.data?.map(({ title, _id }) => ({
+				workflows: workflowslist?.data?.map(({ title, _id, templateId }) => ({
 					label: title,
 					value: _id,
+					templateId,
 				})),
 			}));
 		}
-	}, [templatesListForCreateLead]);
+	}, [workflowslist]);
 
 	useEffect(() => {
 		if (listTasks) {
@@ -252,14 +242,23 @@ const ListView = () => {
 					try {
 						const response = await updateListItem({
 							taskId: rowId,
-							updateInput: {
-								[propName]:
-									propName === 'assignedTo'
-										? typeof value === 'object'
-											? { userId: value.value }
-											: value
-										: value,
-							},
+
+							updateInput:
+								propName === 'workflow'
+									? {
+											workflowId: value,
+											workflowTemplateId: info?.workflows?.find(
+												(workflow) => workflow?._id === value,
+											)?.templateId,
+									  }
+									: {
+											[propName]:
+												propName === 'assignedTo'
+													? typeof value === 'object'
+														? { userId: value.value }
+														: value
+													: value,
+									  },
 						});
 						if (response?.[0] === false) {
 							throw new Error('Failed to update, Try again later');
@@ -318,12 +317,18 @@ const ListView = () => {
 					if (task) {
 						const token = localStorage.getItem('usertoken');
 						const { user_id, userName } = jwtDecode(token);
-						const client = info?.clients?.find(
-							(client) => client?.value === task?.client,
-						);
 
 						const newTask = { ...task };
-						newTask.client = client;
+						const newWorkflow = info?.workflows?.find(
+							(workflow) => workflow.value === payload?.workflowId,
+						);
+
+						newTask.workflow = newWorkflow
+							? { _id: newWorkflow.value, title: newWorkflow.label }
+							: null;
+						console.log(newTask.workflow);
+
+						newTask.workflowId = null;
 						newTask.createdBy = { _id: user_id, name: userName };
 						newTask.updatedBy = { _id: user_id, name: userName };
 						setInfo((prevInfo) => ({

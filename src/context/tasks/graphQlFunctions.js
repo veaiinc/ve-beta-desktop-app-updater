@@ -17,12 +17,6 @@ export const getListItemsQuery = gql`
 				description
 				status
 				priority
-				workflowTemplateId
-				workflowId
-				client {
-					_id
-					name
-				}
 				assignedTo {
 					_id
 					name
@@ -44,6 +38,10 @@ export const getListItemsQuery = gql`
 					_id
 					name
 				}
+				workflow {
+					_id
+					title
+				}
 			}
 		}
 	}
@@ -58,9 +56,7 @@ export const addListItemMutation = gql`
 			description
 			status
 			priority
-			workflowTemplateId
 			workflowId
-			client
 			assignedTo {
 				_id
 				name
@@ -107,8 +103,10 @@ export const getTaskQuery = gql`
 			description
 			status
 			priority
-			workflowTemplateId
-			workflowId
+			workflow {
+				_id
+				title
+			}
 			client {
 				_id
 				name

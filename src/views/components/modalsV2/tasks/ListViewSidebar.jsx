@@ -47,7 +47,7 @@ const ListViewSidebar = ({
 									value={value}
 									title={key}
 									showLabel
-									{...(key === 'workflowId' ? { workflows } : {})}
+									{...(key === 'workflow' ? { workflows } : {})}
 									{...(componentType === 'person' ? { showName: true } : {})}
 									{...(key === 'client'
 										? {
@@ -89,7 +89,7 @@ const ListViewSidebar = ({
 			<div className="listView-sidebar-container">
 				<div className="listView-sidebar-innerContainer">
 					<div className="sidebar-header">
-						<span className="sidebar-id">{selectedRow?.taskNumber}</span>
+						<span className="sidebar-id">{selectedRow?.taskSlNo}</span>
 						<HorizontalMoreIcon className="cursor-pointer" />
 						<CloseArrow onClick={closeSidebar} className="cursor-pointer" />
 					</div>
