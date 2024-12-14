@@ -68,6 +68,7 @@ const AddGallery = () => {
 			clearClientSelectionsData,
 			clearAiFace,
 			clearGalleryShareDetails,
+			clearPreRegisteredUsers,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -90,6 +91,7 @@ const AddGallery = () => {
 		clearClientSelectionsData();
 		clearAiFace();
 		clearGalleryShareDetails();
+		clearPreRegisteredUsers();
 	}, []);
 	useEffect(() => {
 		if (tenantGalleries) {
