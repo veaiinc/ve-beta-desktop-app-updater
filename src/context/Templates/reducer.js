@@ -67,6 +67,10 @@ const actionHandlers = {
 		...state,
 		connectUrl: action?.payload,
 	}),
+	GET_SLACK_CHANNEL_SUCCESS: (state, action) => ({
+		...state,
+		slackChannels: action?.payload,
+	}),
 
 	RESET_STATE: () => intialState,
 };
