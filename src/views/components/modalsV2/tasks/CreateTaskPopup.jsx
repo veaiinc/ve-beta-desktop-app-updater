@@ -80,7 +80,7 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 				acc[key] = value;
 				return acc;
 			}, {});
-	}, [info]);
+	}, [info, workflows]);
 
 	const handleAddTask = useCallback(async () => {
 		try {
