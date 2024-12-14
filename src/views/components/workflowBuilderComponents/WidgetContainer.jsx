@@ -18,9 +18,18 @@ const WidgetContainer = () => {
 
 	const handleDragEnd = (result) => {
 		const { destination, source } = result;
-		if (!destination || source.index === 0) return;
+
+		// Return if there's no destination or trying to move "Add Stage"
+		if (!destination || source.index === info.stages.length - 1) return;
+
+		// Return if dropped in same position
 		if (destination.droppableId === source.droppableId && destination.index === source.index)
 			return;
+
+		// Prevent dropping after the "Add Stage" card
+		if (destination.index >= info.stages.length - 1) {
+			destination.index = info.stages.length - 2;
+		}
 
 		const newStages = Array.from(info.stages);
 		const [removed] = newStages.splice(source.index, 1);
@@ -39,7 +48,7 @@ const WidgetContainer = () => {
 		};
 
 		const stages = [...(info?.stages || [])];
-		stages.splice(stages?.length - 2, 0, newStage);
+		stages.splice(stages?.length - 1, 0, newStage);
 		setInfo((prev) => ({
 			...prev,
 			stages,
@@ -90,7 +99,6 @@ const WidgetContainer = () => {
 													...provided.draggableProps.style,
 													display: 'flex',
 													alignItems: 'center',
-													// gap: '8px',
 												}}
 											>
 												<div
@@ -105,7 +113,9 @@ const WidgetContainer = () => {
 															: undefined
 													}
 													style={{
-														cursor: stage.isAddButton ? 'pointer' : '',
+														cursor: stage.isAddButton
+															? 'pointer'
+															: 'grab',
 													}}
 												>
 													{stage.isAddButton ? (
