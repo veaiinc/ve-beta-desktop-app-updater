@@ -18,6 +18,7 @@ import WorkflowNode from './WorkflowNode';
 import { fetchOriginSelection } from '../../../helpers';
 import { SyncOutlined } from '@ant-design/icons';
 import WidgetContainer from '../../components/workflowBuilderComponents/WidgetContainer';
+import ToggleSlider from '../../components/input/slider';
 let origin = fetchOriginSelection();
 const options = [
 	{ label: 'Rename Workflow' },
@@ -88,6 +89,7 @@ const WorkflowBuilder = () => {
 		newNodeType: null,
 		optionType: null,
 		moveToPath: null,
+		stage: true,
 	});
 	const [zoom, setZoom] = useState(100); // 100 means 100% zoom
 	const [arrow, setArrow] = useState('Show');
@@ -420,6 +422,11 @@ const WorkflowBuilder = () => {
 			pointAtCenter: true,
 		};
 	}, [arrow]);
+
+	const toggleStage = useCallback(() => {
+		setInfo((prev) => ({ ...prev, stage: !prev?.stage }));
+	}, [info?.stage]);
+
 	return (
 		<div className="workflowBuilderContainer">
 			{/* header */}
@@ -450,6 +457,10 @@ const WorkflowBuilder = () => {
 						</div>
 					</div>
 					<div className="discardSaveBtnGrp">
+						<div className="saveChangesbtn">
+							Stage Visibility
+							<ToggleSlider value={info?.stage} onChange={toggleStage} />
+						</div>
 						<div className="saveChangesbtn" onClick={publishWorkflow}>
 							{info?.publishLoading ? <Spinner width={'16px'} height={'16px'} /> : ''}
 							{info?.publishLoading ? 'Publishing...' : 'Publish'}
@@ -486,7 +497,7 @@ const WorkflowBuilder = () => {
 				<UpdatedPageLoader />
 			) : (
 				<>
-					<WidgetContainer />
+					{info?.stage ? <WidgetContainer /> : ''}
 					<div
 						className="workflow-tree-container"
 						ref={wrapperRef}
@@ -495,6 +506,7 @@ const WorkflowBuilder = () => {
 							height: hideHeader ? '100vh' : 'calc(100vh - 90px)',
 							overflow: 'auto',
 							position: 'relative',
+							marginTop: '48px',
 						}}
 					>
 						<div
