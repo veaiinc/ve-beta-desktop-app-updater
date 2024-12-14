@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import DropDown from '../../dropDown/tasks/DropDown';
 import { ReactComponent as Cube } from '../../../../assets/svg/tasks/cube.svg';
