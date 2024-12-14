@@ -2,20 +2,19 @@ import React from 'react';
 import '../../../../assets/scss/gallery/table.scss';
 
 const Table = ({ tableData, thead }) => {
-	console.log('===============>tableData', tableData);
 	return (
 		<div className="tableContainer">
 			<table>
 				<thead>
 					<tr>
 						<th className="text-left">Name & Email</th>
-						{/* <th>Mobile Number</th> */}
+						<th>Mobile Number</th>
 						<th>{thead}</th>
 						<th>Date</th>
 					</tr>
 				</thead>
 				<tbody>
-					{tableData?.map((row, index) => (
+					{tableData.map((row, index) => (
 						<tr key={index}>
 							<td className="text-left">
 								<div
@@ -27,16 +26,12 @@ const Table = ({ tableData, thead }) => {
 									}}
 								></div>
 								<div className="details">
-									{/* <p>{row.name}</p> */}
-									<p>{row?.email || 'Anonimous'}</p>
+									<p>{row.name}</p>
+									<p>{row?.email}</p>
 								</div>
 							</td>
-							{/* <td>{row.mobileNumber}</td> */}
-							<td>
-								{row.registrationStage === 'registered'
-									? 'Registered'
-									: 'In Progress'}
-							</td>
+							<td>{row.mobileNumber}</td>
+							<td>{row.registerStage}</td>
 							<td>{row.date}</td>
 						</tr>
 					))}

@@ -1,106 +1,51 @@
-import React, { useRef, useContext, useEffect } from 'react';
+import React, { useState, useRef, useContext, useEffect, useCallback } from 'react';
 import { ReactComponent as CopyIcon } from '../../../../assets/svg/gallery/copy.svg';
 import { ReactComponent as DownloadIcon } from '../../../../assets/svg/gallery/download2.svg';
 import Context from '../../../../context/context';
-
-import Table from './Table';
+import Table from './RegisteredUsersTable';
 import QRCode from 'react-qr-code';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import { message } from 'antd';
-
-const tableData = [
-	{
-		name: 'John Doe',
-		email: 'john.doe@example.com',
-		mobileNumber: '+1 234-567-8901',
-		registerStage: 'Completed',
-		date: '2024-03-20',
-	},
-	{
-		name: 'Jane Smith',
-		email: 'jane.smith@example.com',
-		mobileNumber: '+1 345-678-9012',
-		registerStage: 'Pending',
-		date: '2024-03-19',
-	},
-	{
-		name: 'Mike Johnson',
-		email: 'mike.j@example.com',
-		mobileNumber: '+1 456-789-0123',
-		registerStage: 'In Progress',
-		date: '2024-03-18',
-	},
-	{
-		name: 'Sarah Williams',
-		email: 'sarah.w@example.com',
-		mobileNumber: '+1 567-890-1234',
-		registerStage: 'Completed',
-		date: '2024-03-17',
-	},
-	{
-		name: 'Robert Brown',
-		email: 'robert.b@example.com',
-		mobileNumber: '+1 678-901-2345',
-		registerStage: 'Pending',
-		date: '2024-03-16',
-	},
-	{
-		name: 'John Doe',
-		email: 'john.doe@example.com',
-		mobileNumber: '+1 234-567-8901',
-		registerStage: 'Completed',
-		date: '2024-03-20',
-	},
-	{
-		name: 'Jane Smith',
-		email: 'jane.smith@example.com',
-		mobileNumber: '+1 345-678-9012',
-		registerStage: 'Pending',
-		date: '2024-03-19',
-	},
-	{
-		name: 'Mike Johnson',
-		email: 'mike.j@example.com',
-		mobileNumber: '+1 456-789-0123',
-		registerStage: 'In Progress',
-		date: '2024-03-18',
-	},
-	{
-		name: 'Sarah Williams',
-		email: 'sarah.w@example.com',
-		mobileNumber: '+1 567-890-1234',
-		registerStage: 'Completed',
-		date: '2024-03-17',
-	},
-	{
-		name: 'Robert Brown',
-		email: 'robert.b@example.com',
-		mobileNumber: '+1 678-901-2345',
-		registerStage: 'Pending',
-		date: '2024-03-16',
-	},
-];
 
 const AiFaceRegistration = ({ link, galleryId }) => {
 	const qrRef = useRef(null);
+	const [loading, setLoading] = useState(false);
+	const [page, setPage] = useState(1);
+
 	const {
-		galleryInfo: {
-			getImagesReadyNotify,
-			preRegisteredUsers,
-			getPreRegisteredUsers,
-			tenantAlbums,
-		},
+		galleryInfo: { getImagesReadyNotify, preRegisteredUsers, getPreRegisteredUsers },
 	} = useContext(Context);
 
 	useEffect(() => {
-		console.log('===============>galleryId', galleryId);
-		console.log('===============>preRegisteredUsers', preRegisteredUsers);
-		if (galleryId) {
-			getPreRegisteredUsers(galleryId);
+		if (!preRegisteredUsers) {
+			setLoading(true);
+			getPreRegisteredUsers(galleryId, page).finally(() => setLoading(false));
 		}
-	}, []);
+	}, [preRegisteredUsers]);
+
+	const hasRegisteredUsers = preRegisteredUsers?.data?.length > 0;
+
+	const fetchMoreData = () => {
+		const nextPage = page + 1;
+		setLoading(true);
+		getPreRegisteredUsers(galleryId, nextPage)
+			.then(() => {
+				setPage(nextPage);
+			})
+			.finally(() => setLoading(false));
+	};
 
 	const notifyUser = async () => {
-		await getImagesReadyNotify(galleryId);
+		try {
+			const response = await getImagesReadyNotify(galleryId);
+			if (response?.[0]) {
+				message.success('Users notified successfully');
+			} else {
+				message.error('Failed to notify users');
+			}
+		} catch (error) {
+			message.error('Failed to notify users');
+		}
 	};
 
 	const downloadQR = () => {
@@ -164,13 +109,30 @@ const AiFaceRegistration = ({ link, galleryId }) => {
 							<DownloadIcon className="downloadIcon" />
 							<p>Download QR</p>
 						</div>
-						<div className="notifyUser" onClick={() => notifyUser()}>
-							<span>Notify User</span>
-						</div>
+						{hasRegisteredUsers && (
+							<div className="notifyUser" onClick={() => notifyUser()}>
+								<span>Notify User</span>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
-			<Table tableData={preRegisteredUsers} thead={'Register Stage'} />
+			<div className="tableWrapper">
+				<InfiniteScroll
+					dataLength={preRegisteredUsers?.data?.length || 0}
+					next={fetchMoreData}
+					hasMore={preRegisteredUsers?.metadata?.hasNextPage || false}
+					loader={null}
+					scrollableTarget="table-scroll-container"
+					style={{ overflow: 'visible' }} // Important!
+				>
+					<Table
+						tableData={preRegisteredUsers}
+						thead={'Register Stage'}
+						loading={loading && !preRegisteredUsers?.data?.length}
+					/>
+				</InfiniteScroll>
+			</div>
 		</div>
 	);
 };
