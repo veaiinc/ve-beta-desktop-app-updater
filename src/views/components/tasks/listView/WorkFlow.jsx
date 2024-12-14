@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import DropDown from '../../dropDown/tasks/DropDown';
 import { ReactComponent as Cube } from '../../../../assets/svg/tasks/cube.svg';
-import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import '../../../../assets/scss/tasks/listItems.scss';
 import { Tooltip } from 'antd';
 

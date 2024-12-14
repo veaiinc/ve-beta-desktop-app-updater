@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
-import { ReactComponent as Circle } from '../../../../assets/svg/tasks/circleBigDash.svg';
-import { ReactComponent as UpArrowDouble } from '../../../../assets/svg/tasks/upArrowDouble.svg';
 import { ReactComponent as UpArrow } from '../../../../assets/svg/tasks/upArrowRed.svg';
 import { ReactComponent as ParallelLines } from '../../../../assets/svg/tasks/parallelLines.svg';
 import { ReactComponent as DownArrow } from '../../../../assets/svg/tasks/downArrowGreen.svg';
-import { ReactComponent as Check } from '../../../../assets/svg/tasks/checkmark.svg';
 import DropDown from '../../dropDown/tasks/DropDown';
 
 const Priority = ({
@@ -14,18 +11,8 @@ const Priority = ({
 	onOptionClick,
 	customListItemStyle = {},
 }) => {
-	const [info, setInfo] = useState({
+	const [info] = useState({
 		options: [
-			// {
-			// 	label: 'no priority',
-			// 	value: 'noPriority',
-			// 	icon: <Circle />,
-			// },
-			// {
-			// 	label: 'Critical',
-			//	value:'critical
-			// 	icon: <UpArrowDouble />,
-			// },
 			{
 				label: 'high',
 				icon: <UpArrow />,

@@ -12,7 +12,7 @@ export const getListItemsQuery = gql`
 			nextPage
 			data {
 				_id
-				serialNumber
+				taskSlNo
 				title
 				description
 				status
@@ -53,7 +53,7 @@ export const addListItemMutation = gql`
 	mutation Mutation($input: TaskInput!) {
 		createTask(input: $input) {
 			_id
-			serialNumber
+			taskSlNo
 			title
 			description
 			status
@@ -102,7 +102,7 @@ export const getTaskQuery = gql`
 	query GetTask($taskId: ID!) {
 		getTask(taskId: $taskId) {
 			_id
-			serialNumber
+			taskSlNo
 			title
 			description
 			status

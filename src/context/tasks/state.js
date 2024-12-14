@@ -79,11 +79,7 @@ export const TasksState = () => {
 				usertoken,
 				'tasks_api',
 			);
-			if (response?.[0]) {
-				return response?.[1]?.data;
-			} else {
-				console.log('API failed ==> updateListItem', response);
-			}
+			return response;
 		} catch (error) {
 			console.log('API failed ==> updateListItem', error);
 		}

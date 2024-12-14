@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 import DropDown from '../../dropDown/tasks/DropDown';
 import { Tooltip } from 'antd';
@@ -50,7 +50,7 @@ const Person = ({
 							)}
 						</>
 					) : (
-						<div className="listItem-text">Select Person</div>
+						<div className="listItem-text">{`Select ${title}`}</div>
 					)}
 				</div>
 			</Tooltip>

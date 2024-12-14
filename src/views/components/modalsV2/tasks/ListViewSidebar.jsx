@@ -1,5 +1,5 @@
 import { Drawer, Popconfirm } from 'antd';
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import { ReactComponent as CloseArrow } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
@@ -74,7 +74,7 @@ const ListViewSidebar = ({
 
 			return listItems;
 		},
-		[workflows, clients, tenantUsers],
+		[responseTypes, rowTypes, workflows, clients, tenantUsers, updatePropertyValue],
 	);
 
 	return (

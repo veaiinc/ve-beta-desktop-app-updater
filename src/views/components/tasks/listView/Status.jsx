@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 
-import { ReactComponent as Check } from '../../../../assets//svg/tasks/checkmark.svg';
 import { ReactComponent as CheckGreen } from '../../../../assets//svg/tasks/checkGreen.svg';
 import { ReactComponent as Timer } from '../../../../assets//svg/tasks/timer.svg';
 import { ReactComponent as Spinner } from '../../../../assets//svg/tasks/spinner.svg';
 import { ReactComponent as CircleHollow } from '../../../../assets/svg/tasks/circleHollowThin.svg';
-import { ReactComponent as Cross } from '../../../../assets//svg/tasks/cross.svg';
 import DropDown from '../../dropDown/tasks/DropDown';
 
 const Status = ({ value = 'todo', showLabel = false, customListItemStyle = {}, onOptionClick }) => {
-	const [info, setInfo] = useState({
+	const [info] = useState({
 		options: [
 			{
 				label: 'On hold',
@@ -28,17 +26,9 @@ const Status = ({ value = 'todo', showLabel = false, customListItemStyle = {}, o
 				icon: <Timer />,
 			},
 			{ label: 'Completed', value: 'completed', icon: <CheckGreen /> },
-			// {
-			// 	label: 'canceled',
-			// 	icon: <Cross />,
-			// },
 		],
 		isDropdownOpen: false,
 	});
-
-	const updateStatusInfo = (key, value) => {
-		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
-	};
 
 	return (
 		<div className="listItem-status">

@@ -4,9 +4,6 @@ import '../../../../assets/scss/tasks/modals/createTaskPopup.scss';
 import { ReactComponent as ExpandIcon } from '../../../../assets/svg/gallery/expand.svg';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/CrossWhite.svg';
 import { ReactComponent as PaperClip } from '../../../../assets/svg/tasks/paperClip.svg';
-import { ReactComponent as ParellalLines } from '../../../../assets/svg/tasks/parallelLines.svg';
-import { ReactComponent as CircleHollow } from '../../../../assets/svg/tasks/circleHollowThin.svg';
-import { ReactComponent as Cube } from '../../../../assets/svg/tasks/cube.svg';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import { ReactComponent as PageIcon } from '../../../../assets/svg/tasks/pagePlus.svg';
 import { ReactComponent as CalendarIcon } from '../../../../assets/svg/calendar-icon.svg';
@@ -77,7 +74,6 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 		if (!title.trim()) {
 			return;
 		}
-		console.log(assignedTo);
 
 		return Object.entries({
 			assignedTo: assignedTo ? { userId: assignedTo?.value } : '',
@@ -97,14 +93,6 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 			}, {});
 	}, [info]);
 
-	const onOptionClick = (value) => {
-		if (value === 'custom') {
-			return;
-		}
-
-		updateModalInfo('dueDate', value);
-	};
-
 	const handleAddTask = useCallback(async () => {
 		try {
 			setInfo((prevInfo) => ({ ...prevInfo, isLoading: true }));
@@ -119,7 +107,7 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 			});
 			setInfo((prevInfo) => ({ ...prevInfo, isLoading: false }));
 		}
-	}, [preparePayload]);
+	}, [addNewTask, closeModal, messageApi, preparePayload]);
 
 	return (
 		<ReactModal

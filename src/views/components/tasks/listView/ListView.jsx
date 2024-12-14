@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/tasks/listView.scss';
 import Text from './Text';
@@ -20,6 +21,7 @@ import ListViewHeader from './ListViewHeader';
 import ListViewRow from './ListViewRow';
 import Skeleton from 'react-loading-skeleton';
 import jwtDecode from 'jwt-decode';
+import { message } from 'antd';
 
 const rowTypes = {
 	text: Text,
@@ -54,7 +56,7 @@ const responseTypes = {
 	updatedAt: 'date',
 	createdBy: 'person',
 	updatedBy: 'person',
-	serialNumber: 'id',
+	taskSlNo: 'id',
 };
 
 const ListView = () => {
@@ -69,6 +71,7 @@ const ListView = () => {
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
+	const [messageApi, contextHolder] = message.useMessage();
 
 	const [info, setInfo] = useState({
 		listItems: [],
@@ -102,7 +105,6 @@ const ListView = () => {
 	useEffect(() => {
 		if (!clientList) {
 			getClientList({ filters: { limit: 10, page: 1 } });
-			console.log('clientList');
 		} else {
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -225,9 +227,11 @@ const ListView = () => {
 			if (validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			} else {
+				let originalValue;
 				setInfo((prevInfo) => {
 					const updatedListItems = prevInfo.listItems.map((row) => {
 						if (row._id === rowId) {
+							originalValue = row[propName];
 							return { ...row, [propName]: value };
 						}
 						return row;
@@ -257,14 +261,35 @@ const ListView = () => {
 										: value,
 							},
 						});
-					} catch (error) {
-						console.error('Failed to update:', error);
+						if (response?.[0] === false) {
+							throw new Error('Failed to update, Try again later');
+						} else {
+							if (propName === 'assignedTo') {
+								setInfo((prevInfo) => {
+									const rolledBackListItems = prevInfo.listItems.map((row) => {
+										if (row._id === rowId) {
+											return { ...row, assignedBy: originalValue }; // Reset to original value
+										}
+										return row;
+									});
 
-						// Rollback state if API fails
+									return {
+										...prevInfo,
+										listItems: rolledBackListItems,
+									};
+								});
+							}
+						}
+					} catch (error) {
+						messageApi.open({
+							type: 'error',
+							content: error?.message || 'Something went wrong! Please try again.',
+						});
+
 						setInfo((prevInfo) => {
 							const rolledBackListItems = prevInfo.listItems.map((row) => {
 								if (row._id === rowId) {
-									return { ...row, [propName]: row[propName] }; // Reset to original value
+									return { ...row, [propName]: originalValue }; // Reset to original value
 								}
 								return row;
 							});
@@ -278,7 +303,7 @@ const ListView = () => {
 				}, 800); // Adjust debounce delay as needed
 			}
 		},
-		[updateListItem],
+		[messageApi, updateListItem, updateSubscriptionState, validateExpiryData?.isExpired],
 	);
 
 	const addNewTask = useCallback(
@@ -289,7 +314,6 @@ const ListView = () => {
 				const response = await addListItem({ input: payload });
 				if (response) {
 					const task = response?.createTask;
-					console.log(task);
 
 					if (task) {
 						const token = localStorage.getItem('usertoken');
@@ -344,6 +368,7 @@ const ListView = () => {
 
 	return (
 		<div className="listViewParentContainer">
+			{contextHolder}
 			<ListViewHeader
 				updateListViewInfo={updateListViewInfo}
 				properties={info?.properties}
