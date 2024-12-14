@@ -3,12 +3,12 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { ReactComponent as ArrowSvg } from '../../../assets/svg/worflow_builder/smallArrow.svg';
 
 const INITIAL_STAGES = [
-	{ id: 'add-stage', title: 'Add Stage', isAddButton: true },
 	{ id: 'enquiry', title: 'Enquiry' },
 	{ id: 'all-files', title: 'All files' },
 	{ id: 'smart-file', title: 'Smart file viewed' },
 	{ id: 'contract', title: 'Contract signed' },
 	{ id: 'booking', title: 'Booking confirmed' },
+	{ id: 'add-stage', title: 'Add Stage', isAddButton: true },
 ];
 
 const WidgetContainer = () => {
@@ -38,9 +38,11 @@ const WidgetContainer = () => {
 			title: `New Stage ${info.stages.length}`,
 		};
 
+		const stages = [...(info?.stages || [])];
+		stages.splice(stages?.length - 2, 0, newStage);
 		setInfo((prev) => ({
 			...prev,
-			stages: [...prev.stages, newStage],
+			stages,
 		}));
 	};
 
@@ -102,6 +104,9 @@ const WidgetContainer = () => {
 															? handleAddStage
 															: undefined
 													}
+													style={{
+														cursor: stage.isAddButton ? 'pointer' : '',
+													}}
 												>
 													{stage.isAddButton ? (
 														<div className="flex flex-col items-center text-gray-400">
