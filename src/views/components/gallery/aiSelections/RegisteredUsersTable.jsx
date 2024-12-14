@@ -15,9 +15,24 @@ const Table = ({ tableData, thead, loading }) => {
 			day: 'numeric',
 		});
 	};
+	const LoadingSkeleton = () =>
+		[...Array(5)].map((_, index) => (
+			<tr key={`skeleton-${index}`}>
+				<td style={{ display: 'flex', alignItems: 'center' }}>
+					<Skeleton circle width={36} height={36} />
+					<Skeleton width={150} />
+				</td>
+				<td>
+					<Skeleton width={80} />
+				</td>
+				<td>
+					<Skeleton width={100} />
+				</td>
+			</tr>
+		));
 
 	return (
-		<div className="tableContainer">
+		<div className="tableContainer" id="table-scroll-container">
 			<table>
 				<thead>
 					<tr>
@@ -27,25 +42,20 @@ const Table = ({ tableData, thead, loading }) => {
 					</tr>
 				</thead>
 				<tbody>
-					{loading
-						? [...Array(5)].map((_, index) => (
-								<tr key={index}>
-									<td className="text-left">
-										<Skeleton circle={true} height={36} width={36} />
-										<div className="details">
-											<Skeleton width={100} />
-										</div>
-									</td>
-									<td>
-										<Skeleton width={80} />
-									</td>
-									<td>
-										<Skeleton width={80} />
-									</td>
-								</tr>
-						  ))
-						: tableData?.map((row, index) => (
-								<tr key={index}>
+					{loading && !tableData?.data?.length ? (
+						<LoadingSkeleton />
+					) : tableData?.data?.length === 0 ? (
+						<tr>
+							<td colSpan="3" className="no-data">
+								<div className="no-data-content">
+									<p>No registered users yet</p>
+								</div>
+							</td>
+						</tr>
+					) : (
+						<>
+							{tableData?.data?.map((row, index) => (
+								<tr key={`row-${index}`}>
 									<td className="text-left">
 										<div
 											style={{
@@ -72,7 +82,10 @@ const Table = ({ tableData, thead, loading }) => {
 									</td>
 									<td>{formatDate(row.createdAt)}</td>
 								</tr>
-						  ))}
+							))}
+							{loading && <LoadingSkeleton />}
+						</>
+					)}
 				</tbody>
 			</table>
 		</div>

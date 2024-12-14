@@ -11,7 +11,7 @@ const AiFaceRegistration = ({ link, galleryId }) => {
 	const qrRef = useRef(null);
 	const [loading, setLoading] = useState(false);
 	const [page, setPage] = useState(1);
-	const observer = useRef();
+
 	const {
 		galleryInfo: { getImagesReadyNotify, preRegisteredUsers, getPreRegisteredUsers },
 	} = useContext(Context);
@@ -23,6 +23,8 @@ const AiFaceRegistration = ({ link, galleryId }) => {
 		}
 	}, [preRegisteredUsers]);
 
+	const hasRegisteredUsers = preRegisteredUsers?.data?.length > 0;
+
 	const fetchMoreData = () => {
 		const nextPage = page + 1;
 		setLoading(true);
@@ -32,22 +34,6 @@ const AiFaceRegistration = ({ link, galleryId }) => {
 			})
 			.finally(() => setLoading(false));
 	};
-
-	const lastElementRef = useCallback(
-		(node) => {
-			if (loading) return;
-			if (observer.current) observer.current.disconnect();
-
-			observer.current = new IntersectionObserver((entries) => {
-				if (entries[0].isIntersecting && preRegisteredUsers?.metadata?.hasNextPage) {
-					setPage((prevPage) => prevPage + 1);
-				}
-			});
-
-			if (node) observer.current.observe(node);
-		},
-		[loading, preRegisteredUsers?.metadata?.hasNextPage],
-	);
 
 	const notifyUser = async () => {
 		try {
@@ -123,20 +109,22 @@ const AiFaceRegistration = ({ link, galleryId }) => {
 							<DownloadIcon className="downloadIcon" />
 							<p>Download QR</p>
 						</div>
-						<div className="notifyUser" onClick={() => notifyUser()}>
-							<span>Notify User</span>
-						</div>
+						{hasRegisteredUsers && (
+							<div className="notifyUser" onClick={() => notifyUser()}>
+								<span>Notify User</span>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
-			<div className="tableContainer">
+			<div className="tableWrapper">
 				<InfiniteScroll
 					dataLength={preRegisteredUsers?.data?.length || 0}
 					next={fetchMoreData}
 					hasMore={preRegisteredUsers?.metadata?.hasNextPage || false}
-					loader={<Table loading={true} />}
-					scrollableTarget="registeredUsers-scroll"
-					scrollThreshold={0.8}
+					loader={null}
+					scrollableTarget="table-scroll-container"
+					style={{ overflow: 'visible' }} // Important!
 				>
 					<Table
 						tableData={preRegisteredUsers}
