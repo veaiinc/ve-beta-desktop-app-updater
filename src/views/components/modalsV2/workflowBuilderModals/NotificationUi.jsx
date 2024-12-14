@@ -696,13 +696,18 @@ const SendSlackTypeComponent = ({
 		} else {
 			const { slack } = tennantSettingsData || {};
 			if (slack?.accessToken) {
-				setLocalInfo((prev) => ({
+				return setLocalInfo((prev) => ({
 					...prev,
 					slackConnected: true,
 					slackConnectionCheckLoading: false,
 					slackToken: slack?.accessToken,
 				}));
 			}
+			setLocalInfo((prev) => ({
+				...prev,
+
+				slackConnectionCheckLoading: false,
+			}));
 		}
 	}, [tennantSettingsData]);
 

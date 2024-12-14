@@ -26,6 +26,7 @@ const initialState = {
 };
 
 const CalendarView = ({
+	currentCalendarDate,
 	selectedWeek,
 	selectedDate,
 	isEventSelected,
@@ -125,10 +126,12 @@ const CalendarView = ({
 			toolbar: (props) => (
 				<CalendarHeader
 					{...props}
+					currentCalendarDate={currentCalendarDate}
 					selectedDate={selectedDate}
 					selectedWeek={selectedWeek}
-					// userWorkSpaceList={userWorkSpaceList}
 					tenantsUserList={tenantsUserList}
+					updateCalendarInfo={updateCalendarInfo}
+					// userWorkSpaceList={userWorkSpaceList}
 				/>
 			),
 			week: {
@@ -141,7 +144,7 @@ const CalendarView = ({
 			eventWrapper: CustomEventWrapper,
 			// eventContainerWrapper: CustomEventContainer,
 		}),
-		[selectedDate, selectedWeek, tenantsUserList],
+		[selectedDate, selectedWeek, currentCalendarDate, tenantsUserList],
 	);
 	return (
 		<>
