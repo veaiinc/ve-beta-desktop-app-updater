@@ -15,7 +15,6 @@ module.exports = {
 	calendar_api: 'https://ap.api.ve.ai/google/1.0',
 	third_party_integrations_api: 'https://ap.api.ve.ai/third-party-integrations/1.0',
 	slack_api: 'https://slack.com/api',
-	tasks_api: 'https://ap.api.ve.co/workflows/dev',
 
 	//outside India
 	tenant_api_US: 'https://us.api.ve.ai/tenants/1.0',
@@ -30,5 +29,4 @@ module.exports = {
 	calendar_api_US: 'https://ap.api.ve.ai/google/1.0',
 	third_party_integrations_api_US: 'https://us.api.ve.ai/third-party-integrations/1.0',
 	slack_api_US: 'https://slack.com/api',
-	tasks_api_US: 'https://ap.api.ve.co/workflows/dev',
 };

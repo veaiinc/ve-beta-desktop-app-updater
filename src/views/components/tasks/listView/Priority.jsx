@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 import { ReactComponent as UpArrow } from '../../../../assets/svg/tasks/upArrowRed.svg';
 import { ReactComponent as ParallelLines } from '../../../../assets/svg/tasks/parallelLines.svg';
@@ -49,4 +49,4 @@ const Priority = ({
 	);
 };
 
-export default Priority;
+export default memo(Priority);

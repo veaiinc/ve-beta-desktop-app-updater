@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, memo } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 import DropDown from '../../dropDown/tasks/DropDown';
 import { Tooltip } from 'antd';
@@ -58,4 +58,4 @@ const Person = ({
 	);
 };
 
-export default Person;
+export default memo(Person);

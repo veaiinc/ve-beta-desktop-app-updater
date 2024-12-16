@@ -1,5 +1,4 @@
 import service from '../../services/graphQlServices';
-import { message } from 'antd';
 import {
 	getListItemsQuery,
 	addListItemMutation,
@@ -28,7 +27,7 @@ export const TasksState = () => {
 				payload,
 				workspaceId,
 				usertoken,
-				'tasks_api',
+				'workflows_Api',
 			);
 
 			if (response?.[0]) {
@@ -54,7 +53,7 @@ export const TasksState = () => {
 				payload,
 				workspaceId,
 				usertoken,
-				'tasks_api',
+				'workflows_Api',
 			);
 
 			if (response?.[0]) {
@@ -77,7 +76,7 @@ export const TasksState = () => {
 				payload,
 				workspaceId,
 				usertoken,
-				'tasks_api',
+				'workflows_Api',
 			);
 			return response;
 		} catch (error) {
@@ -94,7 +93,7 @@ export const TasksState = () => {
 				payload,
 				workspaceId,
 				usertoken,
-				'tasks_api',
+				'workflows_Api',
 			);
 			if (response?.[0]) {
 				return response?.[1]?.data;
@@ -115,7 +114,7 @@ export const TasksState = () => {
 				payload,
 				workspaceId,
 				usertoken,
-				'tasks_api',
+				'workflows_Api',
 			);
 			if (response?.[0]) {
 				return response?.[1]?.data;

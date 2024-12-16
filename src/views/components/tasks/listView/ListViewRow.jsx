@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import '../../../../assets/scss/tasks/listViewRow.scss';
 const ListViewRow = ({
 	task,
@@ -19,7 +20,7 @@ const ListViewRow = ({
 			const value = row[key];
 
 			if (
-				!value ||
+				(typeof value === 'object' ? !value?._id : !value) ||
 				key === '__typename' ||
 				key === '_id' ||
 				key === 'workflowTemplateId' ||
@@ -108,4 +109,4 @@ const ListViewRow = ({
 	);
 };
 
-export default ListViewRow;
+export default memo(ListViewRow);

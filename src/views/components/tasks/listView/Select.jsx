@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 import DropDown from '../../dropDown/tasks/DropDown';
 
@@ -14,4 +14,4 @@ const Select = ({ title, value, options = [], showLabel = false, onOptionClick }
 	);
 };
 
-export default Select;
+export default memo(Select);

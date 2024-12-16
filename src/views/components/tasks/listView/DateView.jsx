@@ -3,7 +3,7 @@ import '../../../../assets/scss/tasks/listItems.scss';
 import { ReactComponent as DateIcon } from '../../../../assets/svg/tasks/date.svg';
 import DropDown from '../../dropDown/tasks/DropDown';
 import { Tooltip } from 'antd';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 
 const Date = ({
 	value,
@@ -77,4 +77,4 @@ const Date = ({
 	);
 };
 
-export default Date;
+export default memo(Date);

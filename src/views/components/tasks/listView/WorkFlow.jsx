@@ -1,18 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import DropDown from '../../dropDown/tasks/DropDown';
 import { ReactComponent as Cube } from '../../../../assets/svg/tasks/cube.svg';
 import '../../../../assets/scss/tasks/listItems.scss';
 import { Tooltip } from 'antd';
 
-const WorkFlow = ({
-	value,
-	val,
-	title,
-	workflows = [],
-	onOptionClick,
-	customListItemStyle = {},
-}) => {
+const WorkFlow = ({ value, val, workflows = [], onOptionClick, customListItemStyle = {} }) => {
 	const [info, setInfo] = useState({
 		selectedLabel: '',
 	});
@@ -46,4 +39,4 @@ const WorkFlow = ({
 	);
 };
 
-export default WorkFlow;
+export default memo(WorkFlow);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 
 import { ReactComponent as CheckGreen } from '../../../../assets//svg/tasks/checkGreen.svg';
@@ -51,4 +51,4 @@ const Status = ({ value = 'todo', showLabel = false, customListItemStyle = {}, o
 	);
 };
 
-export default Status;
+export default memo(Status);

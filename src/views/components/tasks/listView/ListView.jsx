@@ -2,7 +2,6 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/tasks/listView.scss';
 import Text from './Text';
-import Id from './Id';
 import Select from './Select';
 import Person from './Person';
 import MultiSelect from './MultiSelect';
@@ -22,6 +21,7 @@ import ListViewRow from './ListViewRow';
 import Skeleton from 'react-loading-skeleton';
 import jwtDecode from 'jwt-decode';
 import { message } from 'antd';
+import TaskId from './TaskId';
 
 const rowTypes = {
 	text: Text,
@@ -29,7 +29,7 @@ const rowTypes = {
 	person: Person,
 	'multi-select': MultiSelect,
 	date: DateView,
-	id: Id,
+	id: TaskId,
 	status: Status,
 	priority: Priority,
 	email: Email,
@@ -75,7 +75,6 @@ const ListView = () => {
 		selectedRow: null,
 		workflows: [],
 		tenantUsers: [],
-		clients: [],
 		page: 1,
 		hasMore: false,
 		loadingSkeleton: true,
@@ -110,8 +109,6 @@ const ListView = () => {
 	}, [tenantsUserList]);
 
 	useEffect(() => {
-		console.log(workflowslist);
-
 		if (!workflowslist) {
 			getWorkflowsList({
 				filters: {
@@ -319,6 +316,7 @@ const ListView = () => {
 						const { user_id, userName } = jwtDecode(token);
 
 						const newTask = { ...task };
+						// console.log(payload?.workflowId, 'payload?.workflowId', info?.workflows);
 						const newWorkflow = info?.workflows?.find(
 							(workflow) => workflow.value === payload?.workflowId,
 						);
@@ -326,7 +324,6 @@ const ListView = () => {
 						newTask.workflow = newWorkflow
 							? { _id: newWorkflow.value, title: newWorkflow.label }
 							: null;
-						console.log(newTask.workflow);
 
 						newTask.workflowId = null;
 						newTask.createdBy = { _id: user_id, name: userName };
@@ -341,7 +338,7 @@ const ListView = () => {
 				}
 			}
 		},
-		[info?.clients],
+		[info?.workflows],
 	);
 
 	const deleteTask = useCallback(async (payload) => {
