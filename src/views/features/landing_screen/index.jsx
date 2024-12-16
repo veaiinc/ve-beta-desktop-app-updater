@@ -8,7 +8,7 @@ import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen
 import { ReactComponent as DownArrow } from '../../../assets/svg/gallery/arrow-down.svg';
 import { VEAI_URL } from '../../../helpers/ConstantUrls';
 import { endsWith } from 'lodash';
-import videoSource from '../../../assets/videos/landingPage.mp4';
+import videoSource from '../../../assets/videos/final-LandingVideo.mp4';
 
 const navItems = [
 	{ name: 'Privacy', route: '/privacy-policy' },
@@ -21,25 +21,25 @@ const videoSegments = [
 	{
 		id: 1,
 		startTime: 0,
-		endTime: 1,
-		title: 'Ve.ai',
-	},
-	{
-		id: 2,
-		startTime: 1,
 		endTime: 2,
 		title: 'Ve.ai',
 	},
 	{
+		id: 2,
+		startTime: 3,
+		endTime: 4,
+		title: 'Ve.ai',
+	},
+	{
 		id: 3,
-		startTime: 2,
-		endTime: 3,
+		startTime: 4,
+		endTime: 5,
 		title: 'Ve.ai',
 	},
 	{
 		id: 4,
-		startTime: 3,
-		endTime: 4,
+		startTime: 6,
+		endTime: 7,
 		title: 'Ve.ai',
 	},
 ];
