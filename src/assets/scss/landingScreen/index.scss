@@ -217,7 +217,7 @@
 	nav {
 		ul {
 			display: flex;
-			gap: 40px;
+			gap: 30px !important;
 			list-style: none;
 
 			li {
@@ -340,6 +340,13 @@
 	.copyright {
 		display: none;
 	}
+	.footer-container {
+		flex-direction: column !important;
+		gap: 24px !important;
+		nav {
+			width: 100vw;
+		}
+	}
 }
 
 @media screen and (max-width: 581.34px) {
@@ -381,9 +388,10 @@
 	}
 	.footer-container {
 		nav {
-			width: 100%;
+			width: 60vw;
 			ul {
 				justify-content: space-between;
+				gap: 10px !important;
 			}
 		}
 	}

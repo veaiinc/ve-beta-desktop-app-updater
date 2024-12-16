@@ -203,7 +203,7 @@ const LandingPage = () => {
 							style={{
 								// height: '70vh',
 								// width: '60vw',
-								height: '10ç0%',
+								height: '100%',
 								width: '100%',
 								cursor: 'pointer',
 								borderRadius: '25.625px !important',
@@ -231,7 +231,10 @@ const LandingPage = () => {
 				</section>
 			</main>
 			<footer className="footer-container">
-				<div className="footer-image-container">
+				<div
+					className="footer-image-container"
+					style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}
+				>
 					<img src={imageSource} alt="footer image" />
 					<span className="footer-image-text">Designed in San Francisco</span>
 				</div>
@@ -253,7 +256,10 @@ const LandingPage = () => {
 						))}
 					</ul>
 				</nav>
-				<div className="footer-image-container">
+				<div
+					className="footer-image-container"
+					style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}
+				>
 					<img
 						src={imageSource2}
 						alt="footer image"
