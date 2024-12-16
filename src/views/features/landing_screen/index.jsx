@@ -199,7 +199,9 @@ const LandingPage = () => {
 							// onClick={handleVideoClick}
 							autoPlay
 							// loop={isUserSelectedSegment}
-							src={'/final-LandingVideo.mp4'}
+							src={
+								'https://res.cloudinary.com/dir4wguav/video/upload/v1734362768/final-LandingVideo_lkhiti.mp4'
+							}
 							style={{
 								// height: '70vh',
 								// width: '60vw',
