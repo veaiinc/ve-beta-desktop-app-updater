@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 import DropDown from '../../dropDown/tasks/DropDown';
 

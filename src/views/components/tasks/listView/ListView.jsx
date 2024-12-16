@@ -209,97 +209,112 @@ const ListView = () => {
 		});
 	}, []);
 
-	const updatePropertyValue = useCallback(
-		(rowId, propName, value) => {
-			if (validateExpiryData?.isExpired) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
-			} else {
-				let originalValue;
-				setInfo((prevInfo) => {
-					const updatedListItems = prevInfo.listItems.map((row) => {
-						if (row._id === rowId) {
-							originalValue = row[propName];
-							return { ...row, [propName]: value };
-						}
-						return row;
-					});
-
-					return {
-						...prevInfo,
-						listItems: updatedListItems,
-					};
+	const debouncedUpdateTask = useCallback(
+		async (rowId, propName, value, originalValue) => {
+			try {
+				const response = await updateListItem({
+					taskId: rowId,
+					updateInput:
+						propName === 'workflow'
+							? {
+									workflowId: value,
+									workflowTemplateId: info?.workflows?.find(
+										(workflow) => workflow?._id === value,
+									)?.templateId,
+							  }
+							: {
+									[propName]:
+										propName === 'assignedTo'
+											? typeof value === 'object'
+												? { userId: value.value }
+												: value
+											: value,
+							  },
 				});
 
-				// Debounce the API call
-				if (debounceTimeout.current) {
-					clearTimeout(debounceTimeout.current);
-				}
-
-				debounceTimeout.current = setTimeout(async () => {
-					try {
-						const response = await updateListItem({
-							taskId: rowId,
-
-							updateInput:
-								propName === 'workflow'
-									? {
-											workflowId: value,
-											workflowTemplateId: info?.workflows?.find(
-												(workflow) => workflow?._id === value,
-											)?.templateId,
-									  }
-									: {
-											[propName]:
-												propName === 'assignedTo'
-													? typeof value === 'object'
-														? { userId: value.value }
-														: value
-													: value,
-									  },
-						});
-						if (response?.[0] === false) {
-							throw new Error('Failed to update, Try again later');
-						} else {
-							if (propName === 'assignedTo') {
-								setInfo((prevInfo) => {
-									const rolledBackListItems = prevInfo.listItems.map((row) => {
-										if (row._id === rowId) {
-											return { ...row, assignedBy: originalValue }; // Reset to original value
-										}
-										return row;
-									});
-
-									return {
-										...prevInfo,
-										listItems: rolledBackListItems,
-									};
-								});
-							}
-						}
-					} catch (error) {
-						messageApi.open({
-							type: 'error',
-							content: error?.message || 'Something went wrong! Please try again.',
-						});
-
+				if (response?.[0] === false) {
+					throw new Error('Failed to update, Try again later');
+				} else {
+					if (propName === 'assignedTo') {
 						setInfo((prevInfo) => {
-							const rolledBackListItems = prevInfo.listItems.map((row) => {
+							const token = localStorage.getItem('usertoken');
+							const { user_id, userName } = jwtDecode(token);
+							const newListItems = prevInfo.listItems.map((row) => {
 								if (row._id === rowId) {
-									return { ...row, [propName]: originalValue }; // Reset to original value
+									return { ...row, assignedBy: { _id: user_id, name: userName } };
 								}
 								return row;
 							});
 
 							return {
 								...prevInfo,
-								listItems: rolledBackListItems,
+								listItems: newListItems,
 							};
 						});
 					}
-				}, 800); // Adjust debounce delay as needed
+				}
+			} catch (error) {
+				messageApi.open({
+					type: 'error',
+					content: error?.message || 'Something went wrong! Please try again.',
+				});
+
+				setInfo((prevInfo) => {
+					const rolledBackListItems = prevInfo.listItems.map((row) => {
+						if (row._id === rowId) {
+							return { ...row, [propName]: originalValue };
+						}
+						return row;
+					});
+
+					return {
+						...prevInfo,
+						listItems: rolledBackListItems,
+					};
+				});
 			}
 		},
-		[messageApi, updateListItem, updateSubscriptionState, validateExpiryData?.isExpired],
+		[messageApi, updateListItem, info?.workflows],
+	);
+
+	const handleDebounceUpdate = useCallback(
+		(rowId, propName, value, originalValue) => {
+			if (debounceTimeout.current) {
+				clearTimeout(debounceTimeout.current);
+			}
+
+			debounceTimeout.current = setTimeout(() => {
+				debouncedUpdateTask(rowId, propName, value, originalValue);
+			}, 800);
+		},
+		[debouncedUpdateTask],
+	);
+
+	const updatePropertyValue = useCallback(
+		(rowId, propName, value) => {
+			if (validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
+
+			let originalValue;
+			setInfo((prevInfo) => {
+				const updatedListItems = prevInfo.listItems.map((row) => {
+					if (row._id === rowId) {
+						originalValue = row[propName];
+						return { ...row, [propName]: value };
+					}
+					return row;
+				});
+
+				return {
+					...prevInfo,
+					listItems: updatedListItems,
+				};
+			});
+
+			handleDebounceUpdate(rowId, propName, value, originalValue);
+		},
+		[validateExpiryData?.isExpired, updateSubscriptionState, debouncedUpdateTask],
 	);
 
 	const addNewTask = useCallback(
