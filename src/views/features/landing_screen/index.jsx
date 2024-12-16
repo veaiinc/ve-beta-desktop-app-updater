@@ -4,13 +4,13 @@ import '../../../assets/scss/landingScreen/index.scss';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
 import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
 import { ReactComponent as ArrowUpBlack } from '../../../assets/svg/landingScreen/arrow-black.svg';
-import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen/double-quote.svg';
+// import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen/double-quote.svg';
 import { ReactComponent as DownArrow } from '../../../assets/svg/gallery/arrow-down.svg';
 import { VEAI_URL } from '../../../helpers/ConstantUrls';
 import imageSource from '../../../assets/images/golden-gate-bridge (2) 1.png';
 import imageSource2 from '../../../assets/images/Frame 1618873932.png';
-import { endsWith } from 'lodash';
-import videoSource from '../../../assets/videos/final-LandingVideo.mp4';
+// import { endsWith } from 'lodash';
+// import videoSource from '../../../assets/videos/final-LandingVideo.mp4';
 import { CHANGELOG_URL } from '../../../helpers/ConstantUrls';
 import { BLOGS_URL } from '../../../helpers/ConstantUrls';
 
@@ -199,7 +199,7 @@ const LandingPage = () => {
 							// onClick={handleVideoClick}
 							autoPlay
 							// loop={isUserSelectedSegment}
-							src={videoSource}
+							src={'/final-LandingVideo.mp4'}
 							style={{
 								// height: '70vh',
 								// width: '60vw',
