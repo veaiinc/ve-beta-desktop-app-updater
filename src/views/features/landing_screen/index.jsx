@@ -7,14 +7,19 @@ import { ReactComponent as ArrowUpBlack } from '../../../assets/svg/landingScree
 import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen/double-quote.svg';
 import { ReactComponent as DownArrow } from '../../../assets/svg/gallery/arrow-down.svg';
 import { VEAI_URL } from '../../../helpers/ConstantUrls';
+import imageSource from '../../../assets/images/golden-gate-bridge (2) 1.png';
+import imageSource2 from '../../../assets/images/Frame 1618873932.png';
 import { endsWith } from 'lodash';
 import videoSource from '../../../assets/videos/final-LandingVideo.mp4';
+import { CHANGELOG_URL } from '../../../helpers/ConstantUrls';
+import { BLOGS_URL } from '../../../helpers/ConstantUrls';
 
 const navItems = [
 	{ name: 'Privacy', route: '/privacy-policy' },
 	{ name: 'Terms', route: '/terms-of-service' },
 	{ name: 'Cookies', route: '/cookie-policy' },
-	{ name: 'Blogs', route: '/' },
+	{ name: 'Blogs', route: BLOGS_URL },
+	{ name: 'Changelog', route: CHANGELOG_URL },
 ];
 
 const videoSegments = [
@@ -196,8 +201,10 @@ const LandingPage = () => {
 							// loop={isUserSelectedSegment}
 							src={videoSource}
 							style={{
-								height: '50vh',
-								width: '80%',
+								// height: '70vh',
+								// width: '60vw',
+								height: '10ç0%',
+								width: '100%',
 								cursor: 'pointer',
 								borderRadius: '25.625px !important',
 							}}
@@ -224,16 +231,36 @@ const LandingPage = () => {
 				</section>
 			</main>
 			<footer className="footer-container">
+				<div className="footer-image-container">
+					<img src={imageSource} alt="footer image" />
+					<span className="footer-image-text">Designed in San Francisco</span>
+				</div>
 				<nav>
 					<ul>
 						{navItems.map((item, i) => (
-							<li key={i} onClick={() => navigate(item?.route)}>
+							<li
+								key={i}
+								onClick={() => {
+									if (item.name === 'Blogs' || item.name === 'Changelog') {
+										window.open(item.route, '_blank');
+									} else {
+										navigate(item.route);
+									}
+								}}
+							>
 								{item?.name}
 							</li>
 						))}
 					</ul>
 				</nav>
-				<p className="copyright"> &copy; 2024 Ve.ai</p>
+				<div className="footer-image-container">
+					<img
+						src={imageSource2}
+						alt="footer image"
+						style={{ height: '26px', width: '26px' }}
+					/>
+					<span className="footer-image-text">Build in Hyderabad</span>
+				</div>
 			</footer>
 		</div>
 	);
