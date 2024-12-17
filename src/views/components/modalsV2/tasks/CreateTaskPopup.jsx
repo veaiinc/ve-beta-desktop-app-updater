@@ -1,9 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/tasks/modals/createTaskPopup.scss';
-import { ReactComponent as ExpandIcon } from '../../../../assets/svg/gallery/expand.svg';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/CrossWhite.svg';
-import { ReactComponent as PaperClip } from '../../../../assets/svg/tasks/paperClip.svg';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import { ReactComponent as PageIcon } from '../../../../assets/svg/tasks/pagePlus.svg';
 import { ReactComponent as CalendarIcon } from '../../../../assets/svg/calendar-icon.svg';

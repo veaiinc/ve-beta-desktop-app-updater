@@ -308,7 +308,6 @@ const ListView = () => {
 				let updatedValue = value;
 				if (propName === 'workflow') {
 					const workflow = info?.workflows?.find((workflow) => workflow._id === value);
-					console.log(workflow, 'workflow');
 					updatedValue = workflow;
 				}
 				const updatedListItems = prevInfo.listItems.map((row) => {

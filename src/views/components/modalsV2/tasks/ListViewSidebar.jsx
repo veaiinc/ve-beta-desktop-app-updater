@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Drawer, Progress } from 'antd';
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
@@ -20,9 +21,9 @@ const ListViewSidebar = ({
 	rowTypes,
 	handleCreateSubTaskClick,
 }) => {
-	const {
-		tasks: { subTasks, getSubTasks },
-	} = useContext(Context);
+	// const {
+	// 	tasks: { subTasks, getSubTasks },
+	// } = useContext(Context);
 	const [info, setInfo] = useState({
 		deleteLoading: false,
 	});
