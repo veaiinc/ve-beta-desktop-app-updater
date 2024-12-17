@@ -16,13 +16,13 @@ const WorkflowDropDown = ({ selectedWorkflowId, updateCalendarInfo }) => {
 		workflowOptions: [],
 	});
 
-	useEffect(() => {
-		getMyWorkflowTemplatesData(1);
-	}, []);
+	// useEffect(() => {}, []);
 
 	useEffect(() => {
 		if (myWorkflows) {
 			myWorkflowsDataParser(myWorkflows);
+		} else {
+			getMyWorkflowTemplatesData(1);
 		}
 	}, [myWorkflows]);
 
