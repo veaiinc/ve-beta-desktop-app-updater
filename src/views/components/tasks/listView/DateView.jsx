@@ -62,7 +62,7 @@ const Date = ({
 	) : (
 		<Tooltip title={title} placement="bottom">
 			<div className={`listItem-date`} style={customListItemStyle}>
-				{moment.unix(value).format(format)}
+				{value ? moment.unix(value).format(format) : 'No data'}
 			</div>
 		</Tooltip>
 	);

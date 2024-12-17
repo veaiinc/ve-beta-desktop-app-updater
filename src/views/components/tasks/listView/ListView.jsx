@@ -28,6 +28,7 @@ import { ReactComponent as PrioritySvg } from '../../../../assets/svg/tasks/roun
 import { ReactComponent as WorkflowSvg } from '../../../../assets/svg/tasks/workflow.svg';
 import { ReactComponent as PersonSvg } from '../../../../assets/svg/tasks/person.svg';
 import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
+import moment from 'moment';
 
 const rowTypes = {
 	text: Text,
@@ -248,7 +249,11 @@ const ListView = () => {
 							const { user_id, userName } = jwtDecode(token);
 							const newListItems = prevInfo.listItems.map((row) => {
 								if (row._id === rowId) {
-									return { ...row, assignedBy: { _id: user_id, name: userName } };
+									return {
+										...row,
+										assignedBy: { _id: user_id, name: userName },
+										assignedAt: moment().unix(),
+									};
 								}
 								return row;
 							});
