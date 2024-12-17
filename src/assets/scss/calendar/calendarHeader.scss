@@ -85,7 +85,7 @@
 			.calendarHeaderRight {
 				display: flex;
 				align-items: center;
-				gap: var(--Spacing-space-3, 4px);
+				gap: 4px;
 				position: relative;
 
 				.dropDown {
@@ -114,6 +114,54 @@
 
 					&:focus {
 						outline: none;
+					}
+				}
+
+				.ant-select-selector {
+					border-radius: 8px;
+					background: #1a1a1a;
+					box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+					border: none;
+
+					.ant-select-selection-search-input,
+					.ant-select-selection-placeholder,
+					.ant-select-selection-item {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+
+				.ant-select-arrow {
+					color: #e4e5e6;
+				}
+
+				.ant-select-dropdown {
+					border-radius: 8px;
+					background: #1a1a1a;
+					box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+					border: none;
+
+					.ant-select-item {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+
+					.ant-select-item-option-selected {
+						background: rgba(36, 36, 36, 0.64);
+					}
+
+					.ant-select-item-option-content {
+						display: flex;
+						align-items: center;
+						justify-content: flex-start;
 					}
 				}
 			}
