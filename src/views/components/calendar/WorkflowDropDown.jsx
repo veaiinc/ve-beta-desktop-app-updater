@@ -54,7 +54,6 @@ const WorkflowDropDown = () => {
 	}, [info?.myWorkflowData]);
 
 	const fetchMoreMyWorkflows = useCallback(() => {
-		console.log('fetchMoreMyWorkflows');
 		setInfo((prev) => ({ ...prev, loading: true }));
 		getMyWorkflowTemplatesData(info?.currentPage + 1, true);
 	}, [info?.hasNextPage, info?.currentPage]);
@@ -104,8 +103,6 @@ const WorkflowDropDown = () => {
 			}));
 		}
 	}, [info?.myWorkflowData]);
-
-	console.log('selectedWorkflowId', JSON.stringify(info?.selectedWorkflowId));
 
 	return (
 		<Select

@@ -236,8 +236,6 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 		[info?.attendees],
 	);
 
-	console.log('tenantsUserList', JSON.stringify(tenantsUserList, null, 2));
-
 	return (
 		<div className="createEventContainer" ref={createEventRef}>
 			<div className="headerWrapper">
