@@ -32,7 +32,6 @@
 				display: flex;
 				align-items: center;
 				gap: 5px;
-				width: 218px;
 				cursor: pointer;
 
 				color: #e4e5e6;
@@ -86,7 +85,8 @@
 			.calendarHeaderRight {
 				display: flex;
 				align-items: center;
-				gap: var(--Spacing-space-3, 4px);
+				gap: 4px;
+				position: relative;
 
 				.dropDown {
 					// Reset the default select styling for select tags.
@@ -114,6 +114,60 @@
 
 					&:focus {
 						outline: none;
+					}
+				}
+
+				.ant-select-selector {
+					border-radius: 8px;
+					background: #1a1a1a;
+					box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+					border: none;
+
+					.ant-select-selection-search-input,
+					.ant-select-selection-placeholder,
+					.ant-select-selection-item {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+
+					.ant-select-selection-placeholder {
+						color: #646567;
+					}
+				}
+
+				.ant-select-arrow {
+					color: #e4e5e6;
+				}
+
+				.ant-select-dropdown {
+					border-radius: 8px;
+					background: #1a1a1a;
+					box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+					border: none;
+
+					.ant-select-item {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+
+					.ant-select-item-option-selected {
+						background: rgba(176, 176, 176, 0.15);
+						box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
+							4px 4px 6px 0px rgba(17, 17, 17, 0.51) inset;
+					}
+
+					.ant-select-item-option-content {
+						display: flex;
+						align-items: center;
+						justify-content: flex-start;
 					}
 				}
 			}

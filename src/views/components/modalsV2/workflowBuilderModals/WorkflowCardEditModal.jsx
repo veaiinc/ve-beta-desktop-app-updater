@@ -28,7 +28,7 @@ const WorkflowCardEditModal = ({
 	scrollToNewOrUpdatedNodes,
 }) => {
 	const {
-		templates: { getAllEmailTemplates, getSpecificTemplatesInfo },
+		templates: { getAllEmailTemplates, getSpecificTemplatesInfo, getAllSlackChannels },
 		profileInfo: { getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
 
@@ -56,8 +56,13 @@ const WorkflowCardEditModal = ({
 	useEffect(() => {
 		if (!tennantSettingsData) {
 			getTenantSettings();
+		} else {
+			const { slack } = tennantSettingsData || {};
+			if (slack?.accessToken) {
+				getAllSlackChannels(slack?.accessToken);
+			}
 		}
-	}, []);
+	}, [tennantSettingsData]);
 
 	//function definations
 
