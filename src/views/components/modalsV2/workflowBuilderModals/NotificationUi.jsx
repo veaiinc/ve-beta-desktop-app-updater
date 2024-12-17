@@ -770,10 +770,10 @@ const SendSlackTypeComponent = ({
 	}, [tennantSettingsData]);
 
 	useEffect(() => {
-		if (localInfo?.slackConnected && localInfo?.slackToken) {
+		if (localInfo?.slackConnected && localInfo?.slackToken && !slackChannels) {
 			getAllSlackChannels(localInfo?.slackToken);
 		}
-	}, [localInfo?.slackConnected, localInfo?.slackToken]);
+	}, [localInfo?.slackConnected, localInfo?.slackToken, slackChannels]);
 
 	useEffect(() => {
 		if (slackChannels) {
