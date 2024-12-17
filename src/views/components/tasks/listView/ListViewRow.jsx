@@ -20,7 +20,7 @@ const ListViewRow = ({
 			const value = row[key];
 
 			if (
-				(typeof value === 'object' ? !value?._id : !value) ||
+				(typeof value === 'object' ? !value?._id : key === '!title' && !value) ||
 				key === '__typename' ||
 				key === '_id' ||
 				key === 'workflowTemplateId' ||

@@ -76,6 +76,7 @@ const ListView = () => {
 		listItems: [],
 		isOptionsDropDownOpen: false,
 		isCreateModalOpen: false,
+		isCreatingSubtask: true,
 		properties: [],
 		sidebarIsOpen: false,
 		selectedRow: null,
@@ -392,6 +393,19 @@ const ListView = () => {
 		[info?.listItems],
 	);
 
+	const handleCreateSubTaskClick = useCallback(() => {
+		updateListViewInfo('sidebarIsOpen', false);
+		updateListViewInfo('isCreatingSubtask', true);
+		updateListViewInfo('isCreateModalOpen', true);
+	}, []);
+
+	const handleCloseCreateModal = useCallback(() => {
+		if (info?.isCreatingSubtask) {
+			updateListViewInfo('sidebarIsOpen', true);
+		}
+		updateListViewInfo('isCreateModalOpen', false);
+	}, [info?.isCreatingSubtask]);
+
 	return (
 		<div className="listViewParentContainer">
 			{contextHolder}
@@ -437,11 +451,12 @@ const ListView = () => {
 			)}
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
-				closeModal={() => updateListViewInfo('isCreateModalOpen', false)}
+				closeModal={handleCloseCreateModal}
 				addNewTask={addNewTask}
 				workflows={info?.workflows}
 				tenantUsers={info?.tenantUsers}
 				clients={info?.clients}
+				isSubTask={info?.isCreatingSubtask}
 			/>
 			<ListViewSidebar
 				selectedRow={info?.selectedRow}
@@ -454,6 +469,7 @@ const ListView = () => {
 				responseTypes={responseTypes}
 				rowTypes={rowTypes}
 				clients={info?.clients}
+				handleCreateSubTaskClick={handleCreateSubTaskClick}
 			/>
 		</div>
 	);

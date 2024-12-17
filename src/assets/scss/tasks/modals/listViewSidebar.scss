@@ -35,6 +35,13 @@
 				background: transparent;
 				border: none;
 				cursor: pointer;
+				&:hover {
+					svg {
+						path {
+							stroke: #ff4d4d !important;
+						}
+					}
+				}
 			}
 		}
 

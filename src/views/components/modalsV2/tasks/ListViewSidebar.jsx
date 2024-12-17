@@ -1,5 +1,5 @@
 import { Drawer, Progress } from 'antd';
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
 import { ReactComponent as CloseArrow } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as DustBinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
@@ -7,6 +7,7 @@ import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/tasks/searchWhite.svg';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import Spinner from '../../loaders/Spinner';
+import Context from '../../../../context/context';
 const ListViewSidebar = ({
 	selectedRow,
 	sidebarIsOpen,
@@ -17,10 +18,22 @@ const ListViewSidebar = ({
 	deleteTask,
 	responseTypes,
 	rowTypes,
+	handleCreateSubTaskClick,
 }) => {
+	const {
+		tasks: { subTasks, getSubTasks },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
 		deleteLoading: false,
 	});
+
+	// useEffect(() => {
+	// 	if (!subTasks) {
+	// 		getSubTasks({ taskId: selectedRow?._id });
+	// 	} else {
+	// 		console.log('subTasks', subTasks);
+	// 	}
+	// }, [subTasks, selectedRow?._id]);
 
 	const handleDeleteTask = async () => {
 		setInfo({ deleteLoading: true });
@@ -156,7 +169,7 @@ const ListViewSidebar = ({
 							<div className="subtask-actions-wrapper">
 								<button
 									className="subtask-action-button"
-									// onClick={() => updateListViewInfo('isCreateModalOpen', true)}
+									onClick={handleCreateSubTaskClick}
 								>
 									<PlusSvg style={{ width: '20px', height: '20px' }} />
 								</button>
@@ -204,7 +217,7 @@ const ListViewSidebar = ({
 								updatePropertyValue(selectedRow?._id, 'description', e.target.value)
 							}
 							placeholder="Enter description"
-							maxRows={5}
+							rows={5}
 						/>
 					</div>
 				</div>

@@ -5,6 +5,10 @@ const actionHandlers = {
 		...state,
 		listTasks: action?.payload,
 	}),
+	SET_SUB_TASKS: (state, action) => ({
+		...state,
+		subTasks: action?.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

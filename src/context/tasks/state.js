@@ -5,6 +5,7 @@ import {
 	updateListItemMutation,
 	deleteListItemMutation,
 	getTaskQuery,
+	getSubTasksQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -13,6 +14,7 @@ import { Actions } from './actions';
 export const intialState = {
 	listTask: null,
 	newTask: null,
+	subTasks: null,
 };
 
 export const TasksState = () => {
@@ -126,6 +128,34 @@ export const TasksState = () => {
 		}
 	};
 
+	const getSubTasks = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getSubTasksQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_SUB_TASKS,
+					payload: response?.[1]?.data?.listChildTasks,
+				});
+			} else {
+				dispatch({
+					type: Actions.SET_SUB_TASKS,
+					payload: { error: 'Failed to fetch sub tasks, try again' },
+				});
+				console.log('API failed ==> getSubTasks', response);
+			}
+		} catch (error) {
+			console.log('API failed ==> getSubTasks', error);
+		}
+	};
+
 	const resetTasksState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -137,6 +167,7 @@ export const TasksState = () => {
 		updateListItem,
 		deleteListItem,
 		getTask,
+		getSubTasks,
 		resetTasksState,
 	};
 };

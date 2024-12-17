@@ -11,7 +11,7 @@ const Person = ({
 	onOptionClick,
 	persons = [],
 	removeBtn = false,
-	defaultLabel = 'Not selected',
+	defaultLabel,
 }) => {
 	const updatedOnOptionClick = useCallback(
 		(value) => {
