@@ -10,7 +10,6 @@ import { VEAI_URL } from '../../../helpers/ConstantUrls';
 import imageSource from '../../../assets/images/golden-gate-bridge (2) 1.png';
 import imageSource2 from '../../../assets/images/Frame 1618873932.png';
 // import { endsWith } from 'lodash';
-// import videoSource from '../../../assets/videos/final-LandingVideo.mp4';
 import { CHANGELOG_URL } from '../../../helpers/ConstantUrls';
 import { BLOGS_URL } from '../../../helpers/ConstantUrls';
 
