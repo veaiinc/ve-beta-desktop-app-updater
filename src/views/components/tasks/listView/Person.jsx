@@ -11,6 +11,7 @@ const Person = ({
 	onOptionClick,
 	persons = [],
 	removeBtn = false,
+	defaultLabel = 'Not selected',
 }) => {
 	const updatedOnOptionClick = useCallback(
 		(value) => {
@@ -50,7 +51,7 @@ const Person = ({
 							)}
 						</>
 					) : (
-						<div className="listItem-text">{`Select ${title}`}</div>
+						<div className="listItem-text">{defaultLabel || `Select ${title}`}</div>
 					)}
 				</div>
 			</Tooltip>

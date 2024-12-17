@@ -44,7 +44,7 @@ const ListViewRow = ({
 							value={value}
 							title={name}
 							onOptionClick={(value) => updatePropertyValue(task._id, key, value)}
-							{...(type === 'workflow' ? { workflows } : {})}
+							{...(key === 'workflow' ? { workflows } : {})}
 							{...(key === 'client'
 								? {
 										persons: clients,
@@ -53,7 +53,7 @@ const ListViewRow = ({
 								: {})}
 							{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
 							{...(key === 'updatedAt' || key === 'createdAt'
-								? { showDropDown: false }
+								? { timestamp: true }
 								: {})}
 						/>
 					) : (
@@ -69,7 +69,7 @@ const ListViewRow = ({
 							title={name}
 							isTitle={key === 'title'}
 							onOptionClick={(value) => updatePropertyValue(task._id, key, value)}
-							{...(type === 'workflow' ? { workflows } : {})}
+							{...(key === 'workflow' ? { options: workflows } : {})}
 							{...(key === 'client'
 								? {
 										persons: clients,
@@ -78,7 +78,7 @@ const ListViewRow = ({
 								: {})}
 							{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
 							{...(key === 'updatedAt' || key === 'createdAt'
-								? { showDropDown: false }
+								? { timestamp: true }
 								: {})}
 						/>
 					) : (

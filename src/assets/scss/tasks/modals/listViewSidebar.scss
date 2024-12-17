@@ -60,7 +60,7 @@
 		.sidebar-properties-container {
 			display: flex;
 			flex-direction: column;
-			gap: 12px;
+			gap: 8px;
 			border: 1px solid #424548;
 			border-left: none;
 			border-right: none;
@@ -83,16 +83,12 @@
 					gap: 8px;
 				}
 				.property-value {
-					border-radius: 6px;
-					border: 1px solid #2c2c2c;
-					background: #1d1d1d;
 					width: fit-content;
 					display: flex;
 					min-height: 32px;
-					padding: 0 3px;
 					min-width: 100px;
 					display: flex;
-					justify-content: center;
+					justify-content: flex-start;
 					align-items: center;
 				}
 			}

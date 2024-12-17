@@ -1,34 +1,44 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
-
-import { ReactComponent as CheckGreen } from '../../../../assets//svg/tasks/checkGreen.svg';
-import { ReactComponent as Timer } from '../../../../assets//svg/tasks/timer.svg';
-import { ReactComponent as Spinner } from '../../../../assets//svg/tasks/spinner.svg';
-import { ReactComponent as CircleHollow } from '../../../../assets/svg/tasks/circleHollowThin.svg';
 import DropDown from '../../dropDown/tasks/DropDown';
 
-const Status = ({ value = 'todo', showLabel = false, customListItemStyle = {}, onOptionClick }) => {
-	const [info] = useState({
+const Status = ({ value = 'todo', showLabel = true, customListItemStyle = {}, onOptionClick }) => {
+	const [info, setInfo] = useState({
 		options: [
 			{
 				label: 'On hold',
 				value: 'onHold',
-				icon: <Spinner />,
+				color: '#939393',
+				backgroundColor: '#373737',
 			},
 			{
 				label: 'Todo',
 				value: 'todo',
-				icon: <CircleHollow />,
+				color: '#939393',
+				backgroundColor: '#5A5A5A',
 			},
 			{
 				label: 'In progress',
 				value: 'inProgress',
-				icon: <Timer />,
+				color: '#3E70C7',
+				backgroundColor: '#2F4469',
 			},
-			{ label: 'Completed', value: 'completed', icon: <CheckGreen /> },
+			{
+				label: 'Completed',
+				value: 'completed',
+				color: '#3B9D59',
+				backgroundColor: '#375841',
+			},
 		],
 		isDropdownOpen: false,
+		selected: null,
 	});
+	useEffect(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			selected: prevInfo?.options.find((item) => item.value === value),
+		}));
+	}, [value]);
 
 	return (
 		<div className="listItem-status">
@@ -40,11 +50,22 @@ const Status = ({ value = 'todo', showLabel = false, customListItemStyle = {}, o
 				onOptionClick={onOptionClick}
 			>
 				<div
-					className={`currentIcon ${showLabel ? `listItem-border` : ``}`}
-					style={customListItemStyle}
+					className={`currentItem`}
+					style={{
+						...customListItemStyle,
+						backgroundColor: info?.selected?.backgroundColor,
+					}}
 				>
-					{info?.options.find((item) => item.value === value)?.icon}
-					{showLabel ? <p className="listItem-label">{value}</p> : ''}
+					{/* {info?.options.find((item) => item.value === value)?.icon} */}
+					<span
+						style={{
+							backgroundColor: info?.selected?.color,
+							width: '10px',
+							height: '10px',
+							borderRadius: '50%',
+						}}
+					></span>
+					{showLabel ? <p className="listItem-label">{info?.selected?.label}</p> : ''}
 				</div>
 			</DropDown>
 		</div>

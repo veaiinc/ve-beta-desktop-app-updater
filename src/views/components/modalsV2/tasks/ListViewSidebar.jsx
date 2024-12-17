@@ -1,12 +1,10 @@
-import { Drawer, Popconfirm, Progress } from 'antd';
+import { Drawer, Progress } from 'antd';
 import React, { memo, useCallback, useState } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
 import { ReactComponent as CloseArrow } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as DustBinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/tasks/searchWhite.svg';
-import { ReactComponent as ThunderSvg } from '../../../../assets/svg/tasks/thunder.svg';
-import { ReactComponent as FilterLinesSvg } from '../../../../assets/svg/tasks/filterLines.svg';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import Spinner from '../../loaders/Spinner';
 const ListViewSidebar = ({
@@ -45,12 +43,14 @@ const ListViewSidebar = ({
 						'workflowTemplateId',
 						'completedAt',
 						'taskSlNo',
+						'workflowId',
 					].includes(key)
 				) {
 					continue;
 				}
 
-				const { type, name, Icon } = responseTypes[key];
+				const { type = null, name = null, Icon = null } = responseTypes[key];
+
 				const RowComponent = rowTypes[type] || null;
 				listItems.push(
 					<div className="property-list" key={key}>
@@ -65,13 +65,15 @@ const ListViewSidebar = ({
 									value={value}
 									title={name}
 									showLabel
-									{...(type === 'workflow' ? { workflows } : {})}
+									defaultLabel={'Not selected'}
+									{...(type === 'date' ? { format: 'MMM DD, YYYY h:mm A' } : {})}
+									{...(key === 'workflow' ? { workflows } : {})}
 									{...(type === 'person' ? { showName: true } : {})}
 									{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
 									{...(key === 'updatedAt' ||
 									key === 'createdAt' ||
 									key === 'assignedAt'
-										? { showDropDown: false }
+										? { timestamp: true }
 										: {})}
 									onOptionClick={(value) =>
 										updatePropertyValue(row._id, key, value)

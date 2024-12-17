@@ -62,7 +62,6 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 		if (!title.trim()) {
 			return;
 		}
-
 		return Object.entries({
 			assignedTo: assignedTo ? { userId: assignedTo?.value } : '',
 			description,
@@ -72,7 +71,7 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 			title,
 			workflowId,
 			workflowTemplateId: workflowId
-				? workflows?.find((workflow) => workflow.value === workflowId)?.templateId
+				? workflows?.find((workflow) => workflow._id === workflowId)?.templateId
 				: null,
 		})
 			.filter(([key, value]) => value != null && value !== '')

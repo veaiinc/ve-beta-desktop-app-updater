@@ -1,19 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useEffect, useState } from 'react';
 import DropDown from '../../dropDown/tasks/DropDown';
-import { ReactComponent as Cube } from '../../../../assets/svg/tasks/cube.svg';
 import '../../../../assets/scss/tasks/listItems.scss';
 import { Tooltip } from 'antd';
 
 const WorkFlow = ({ value, val, workflows = [], onOptionClick, customListItemStyle = {} }) => {
 	const [info, setInfo] = useState({
-		selectedLabel: '',
+		selectedLabel: value?.label,
 	});
 
 	useEffect(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			selectedLabel: workflows.find((option) => option?.value === (value ? value?._id : val))
+			selectedLabel: workflows.find((option) => option?._id === (value ? value?._id : val))
 				?.label,
 		}));
 	}, [workflows, value?._id, val]);
@@ -25,10 +24,9 @@ const WorkFlow = ({ value, val, workflows = [], onOptionClick, customListItemSty
 					options={workflows}
 					onOptionClick={onOptionClick}
 					selected={value ? value._id : val}
-					valueSelector="value"
+					valueSelector="_id"
 				>
-					<span className={`selectContainer listItem-border`} style={customListItemStyle}>
-						<Cube />
+					<span className={`currentItem`} style={customListItemStyle}>
 						<span className="listItem-label">
 							{info?.selectedLabel || 'Select workflow'}
 						</span>

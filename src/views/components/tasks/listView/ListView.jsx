@@ -127,7 +127,7 @@ const ListView = () => {
 				...prevInfo,
 				workflows: workflowslist?.data?.map(({ title, _id, templateId }) => ({
 					label: title,
-					value: _id,
+					_id,
 					templateId,
 				})),
 			}));
@@ -304,10 +304,16 @@ const ListView = () => {
 
 			let originalValue;
 			setInfo((prevInfo) => {
+				let updatedValue = value;
+				if (propName === 'workflow') {
+					const workflow = info?.workflows?.find((workflow) => workflow._id === value);
+					console.log(workflow, 'workflow');
+					updatedValue = workflow;
+				}
 				const updatedListItems = prevInfo.listItems.map((row) => {
 					if (row._id === rowId) {
 						originalValue = row[propName];
-						return { ...row, [propName]: value };
+						return { ...row, [propName]: updatedValue };
 					}
 					return row;
 				});
@@ -337,15 +343,12 @@ const ListView = () => {
 						const { user_id, userName } = jwtDecode(token);
 
 						const newTask = { ...task };
-						// console.log(payload?.workflowId, 'payload?.workflowId', info?.workflows);
 						const newWorkflow = info?.workflows?.find(
-							(workflow) => workflow.value === payload?.workflowId,
+							(workflow) => workflow._id === payload?.workflowId,
 						);
-
 						newTask.workflow = newWorkflow
-							? { _id: newWorkflow.value, title: newWorkflow.label }
+							? { _id: newWorkflow._id, title: newWorkflow.label }
 							: null;
-
 						newTask.workflowId = null;
 						newTask.createdBy = { _id: user_id, name: userName };
 						newTask.updatedBy = { _id: user_id, name: userName };

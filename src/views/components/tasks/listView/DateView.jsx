@@ -1,6 +1,5 @@
 import moment from 'moment';
 import '../../../../assets/scss/tasks/listItems.scss';
-import { ReactComponent as DateIcon } from '../../../../assets/svg/tasks/date.svg';
 import DropDown from '../../dropDown/tasks/DropDown';
 import { Tooltip } from 'antd';
 import { memo, useState } from 'react';
@@ -12,7 +11,6 @@ const Date = ({
 	title = '',
 	customListItemStyle = {},
 	onOptionClick,
-	showDropDown = true,
 }) => {
 	const [info, setInfo] = useState({
 		showDatePicker: false,
@@ -33,7 +31,7 @@ const Date = ({
 		}
 	};
 
-	return showDropDown ? (
+	return !timestamp ? (
 		<div onClick={(e) => e.stopPropagation()}>
 			{info?.showDatePicker ? (
 				<input
@@ -54,11 +52,7 @@ const Date = ({
 					valueSelector="value"
 				>
 					<Tooltip title={title} placement="bottom">
-						<div
-							className={`listItem-date ${!timestamp ? 'listItem-dateBorder' : ''}`}
-							style={customListItemStyle}
-						>
-							<DateIcon />
+						<div className={`listItem-date`} style={customListItemStyle}>
 							{value ? moment.unix(value).format(format) : 'Not selected'}
 						</div>
 					</Tooltip>
@@ -67,10 +61,7 @@ const Date = ({
 		</div>
 	) : (
 		<Tooltip title={title} placement="bottom">
-			<div
-				className={`listItem-date ${!showDropDown ? 'listItem-timeStamps' : ''}`}
-				style={customListItemStyle}
-			>
+			<div className={`listItem-date`} style={customListItemStyle}>
 				{moment.unix(value).format(format)}
 			</div>
 		</Tooltip>
