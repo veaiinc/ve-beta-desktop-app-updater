@@ -69,8 +69,10 @@ const EmailCards = ({ openModal, workflowdata, index, openDeleteModal }) => {
 				<span className="criteria">
 					{labelMapper?.[workflowdata?.criteria?.status || workflowdata?.criteria]}
 				</span>
-				<div className="emailIconContainer">
-					{workflowdata?.type === 'condition' ? 'condition' : 'Send Email'}
+				<div className="emailIconContainer" style={{ textTransform: 'capitalize' }}>
+					{workflowdata?.type === 'condition'
+						? 'condition'
+						: `Send ${workflowdata?.channels?.[0]}`}
 					<UpdatedEmail />
 				</div>
 				<span className="emailCardTitle">{workflowdata?.emailTemplateSubject}</span>
