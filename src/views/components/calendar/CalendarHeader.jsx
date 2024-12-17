@@ -1,8 +1,9 @@
-import React, { memo, useCallback, useState, useEffect } from 'react';
+import React, { memo, useCallback } from 'react';
 import '../../../assets/scss/calendar/calendarHeader.scss';
-import { ReactComponent as Down } from '../../../assets/svg/activity/down.svg';
+// import { ReactComponent as Down } from '../../../assets/svg/activity/down.svg';
 import { ReactComponent as Right } from '../../../assets/svg/activity/right.svg';
 import { ReactComponent as Left } from '../../../assets/svg/activity/left.svg';
+import WorkflowDropDown from './WorkflowDropDown';
 import WeekHeader from './WeekHeader';
 import DayHeader from './DaysHeader';
 import WeekDayHeader from './WeekDayHeader';
@@ -22,6 +23,7 @@ const CalendarHeader = ({
 	tenantsUserList,
 	currentCalendarDate,
 	updateCalendarInfo,
+	selectedWorkflowId,
 }) => {
 	const viewsHeaders = {
 		month: <WeekHeader />,
@@ -118,15 +120,16 @@ const CalendarHeader = ({
 									: ''}
 							</div>
 						</div>
+						{/* wrokflow and team dropdown */}
 						<div className="calendarHeaderRight">
-							<div className="dropDown">
-								<span>Workflow</span>
-								<Down />
-							</div>
-							<div className="dropDown">
+							<WorkflowDropDown
+								selectedWorkflowId={selectedWorkflowId}
+								updateCalendarInfo={updateCalendarInfo}
+							/>
+							{/* <div className="dropDown">
 								<span>Team</span>
 								<Down />
-							</div>
+							</div> */}
 						</div>
 					</div>
 

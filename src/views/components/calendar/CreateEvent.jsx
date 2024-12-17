@@ -128,6 +128,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 
 		// formate attendees
 		const processedAttendees = attendees?.map((attendee) => ({
+			isWorkspaceUser: attendee?.tenantUserId ? true : false,
 			tenantUserId: attendee?.tenantUserId || null,
 			name: attendee?.name || null,
 			email: attendee?.email,
@@ -448,7 +449,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 												<Avtar />
 											</div>
 											<div className="details">
-												<div className="name">{`${item?.firstName} ${item?.lastName}`}</div>
+												<div className="name">{`${item?.firstName}`}</div>
 												<div className="email">{item?.email}</div>
 											</div>
 										</div>

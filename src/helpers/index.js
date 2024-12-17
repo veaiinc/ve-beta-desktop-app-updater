@@ -8,19 +8,46 @@ export const nameShortner = (name) => {
 	return str?.toUpperCase();
 };
 
-export const FetchMoreLoaderComp = () => {
+// export const FetchMoreLoaderComp = () => {
+// 	return (
+// 		<h4
+// 			style={{
+// 				display: 'flex',
+// 				gap: '12px',
+// 				color: '#fff',
+// 				justifyContent: 'center',
+// 				alignItems: 'center',
+// 			}}
+// 		>
+// 			<Spinner width={'12px'} height={'12px'} />
+// 			Fetching More...
+// 		</h4>
+// 	);
+// };
+
+export const FetchMoreLoaderComp = ({
+	wrapperStyle = {},
+	spinnerWidth = '12px',
+	spinnerHeight = '12px',
+	spinnerColor = '#fff',
+	text = 'Fetching More...',
+	gap = '12px',
+}) => {
+	const defaultStyles = {
+		display: 'flex',
+		gap,
+		color: spinnerColor,
+		justifyContent: 'center',
+		alignItems: 'center',
+	};
+
+	// Merge default styles with provided styles
+	const combinedStyles = { ...defaultStyles, ...wrapperStyle };
+
 	return (
-		<h4
-			style={{
-				display: 'flex',
-				gap: '12px',
-				color: '#fff',
-				justifyContent: 'center',
-				alignItems: 'center',
-			}}
-		>
-			<Spinner width={'12px'} height={'12px'} />
-			Fetching More...
+		<h4 style={combinedStyles}>
+			<Spinner width={spinnerWidth} height={spinnerHeight} color={spinnerColor} />
+			{text}
 		</h4>
 	);
 };

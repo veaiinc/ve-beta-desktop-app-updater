@@ -3,7 +3,6 @@ import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSidebar from './CalendarSidebar';
 import CalendarView from './CalendarView';
 import Context from '../../../context/context';
-
 import moment from 'moment';
 
 const Calendar = () => {
@@ -23,6 +22,7 @@ const Calendar = () => {
 		categoryList: [],
 		selectedCategory: null,
 		categoryFilter: [],
+		selectedWorkflowId: null,
 	});
 	useEffect(() => {
 		const payload = {
@@ -39,6 +39,7 @@ const Calendar = () => {
 			categoryList: [],
 			selectedCategory: null,
 			categoryFilter: [],
+			selectedWorkflowId: null,
 		}));
 	}, []);
 
@@ -112,6 +113,7 @@ const Calendar = () => {
 					selectedCategory={info?.selectedCategory}
 					categoryFilter={info?.categoryFilter}
 					updateCalendarInfo={updateCalendarInfo}
+					selectedWorkflowId={info?.selectedWorkflowId}
 				/>
 				<CalendarView
 					currentCalendarDate={info?.currentCalendarDate}
@@ -125,6 +127,7 @@ const Calendar = () => {
 					categoryFilter={info?.categoryFilter}
 					getCurrentWeek={getCurrentWeek}
 					updateCalendarInfo={updateCalendarInfo}
+					selectedWorkflowId={info?.selectedWorkflowId}
 				/>
 			</div>
 		</>
