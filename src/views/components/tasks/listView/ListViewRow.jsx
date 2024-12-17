@@ -34,17 +34,17 @@ const ListViewRow = ({
 				continue;
 			}
 
-			const componentType = responseTypes[key];
-			const RowComponent = rowTypes[componentType] || null;
+			const { type, name } = responseTypes[key];
+			const RowComponent = rowTypes[type] || null;
 			if (titleReached) {
 				rightPart.push(
 					RowComponent ? (
 						<RowComponent
 							key={key}
 							value={value}
-							title={key}
+							title={name}
 							onOptionClick={(value) => updatePropertyValue(task._id, key, value)}
-							{...(componentType === 'workflow' ? { workflows } : {})}
+							{...(type === 'workflow' ? { workflows } : {})}
 							{...(key === 'client'
 								? {
 										persons: clients,
@@ -66,10 +66,10 @@ const ListViewRow = ({
 						<RowComponent
 							key={key}
 							value={value}
-							title={key}
+							title={name}
 							isTitle={key === 'title'}
 							onOptionClick={(value) => updatePropertyValue(task._id, key, value)}
-							{...(componentType === 'workflow' ? { workflows } : {})}
+							{...(type === 'workflow' ? { workflows } : {})}
 							{...(key === 'client'
 								? {
 										persons: clients,
