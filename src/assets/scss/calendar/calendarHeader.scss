@@ -133,6 +133,10 @@
 						font-weight: 500;
 						line-height: normal;
 					}
+
+					.ant-select-selection-placeholder {
+						color: #646567;
+					}
 				}
 
 				.ant-select-arrow {
@@ -155,7 +159,9 @@
 					}
 
 					.ant-select-item-option-selected {
-						background: rgba(36, 36, 36, 0.64);
+						background: rgba(176, 176, 176, 0.15);
+						box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
+							4px 4px 6px 0px rgba(17, 17, 17, 0.51) inset;
 					}
 
 					.ant-select-item-option-content {

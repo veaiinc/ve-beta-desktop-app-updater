@@ -22,6 +22,7 @@ const Calendar = () => {
 		categoryList: [],
 		selectedCategory: null,
 		categoryFilter: [],
+		selectedWorkflowId: null,
 	});
 	useEffect(() => {
 		const payload = {
@@ -38,6 +39,7 @@ const Calendar = () => {
 			categoryList: [],
 			selectedCategory: null,
 			categoryFilter: [],
+			selectedWorkflowId: null,
 		}));
 	}, []);
 
@@ -111,6 +113,7 @@ const Calendar = () => {
 					selectedCategory={info?.selectedCategory}
 					categoryFilter={info?.categoryFilter}
 					updateCalendarInfo={updateCalendarInfo}
+					selectedWorkflowId={info?.selectedWorkflowId}
 				/>
 				<CalendarView
 					currentCalendarDate={info?.currentCalendarDate}
@@ -124,6 +127,7 @@ const Calendar = () => {
 					categoryFilter={info?.categoryFilter}
 					getCurrentWeek={getCurrentWeek}
 					updateCalendarInfo={updateCalendarInfo}
+					selectedWorkflowId={info?.selectedWorkflowId}
 				/>
 			</div>
 		</>

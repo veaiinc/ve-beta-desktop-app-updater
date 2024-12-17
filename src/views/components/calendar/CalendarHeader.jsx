@@ -23,6 +23,7 @@ const CalendarHeader = ({
 	tenantsUserList,
 	currentCalendarDate,
 	updateCalendarInfo,
+	selectedWorkflowId,
 }) => {
 	const viewsHeaders = {
 		month: <WeekHeader />,
@@ -121,7 +122,10 @@ const CalendarHeader = ({
 						</div>
 						{/* wrokflow and team dropdown */}
 						<div className="calendarHeaderRight">
-							<WorkflowDropDown />
+							<WorkflowDropDown
+								selectedWorkflowId={selectedWorkflowId}
+								updateCalendarInfo={updateCalendarInfo}
+							/>
 							{/* <div className="dropDown">
 								<span>Team</span>
 								<Down />

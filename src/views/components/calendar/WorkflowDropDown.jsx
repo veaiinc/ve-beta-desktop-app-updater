@@ -3,7 +3,7 @@ import { FetchMoreLoaderComp } from '../../../helpers/index';
 import Context from '../../../context/context';
 import { Select } from 'antd';
 
-const WorkflowDropDown = () => {
+const WorkflowDropDown = ({ selectedWorkflowId, updateCalendarInfo }) => {
 	const {
 		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows },
 	} = useContext(Context);
@@ -14,7 +14,6 @@ const WorkflowDropDown = () => {
 		hasNextPage: false,
 		currentPage: 1,
 		workflowOptions: [],
-		selectedWorkflowId: null,
 	});
 
 	useEffect(() => {
@@ -47,12 +46,6 @@ const WorkflowDropDown = () => {
 		getMyWorkflows(payload, fetchMore);
 	}, []);
 
-	useEffect(() => {
-		if (info?.myWorkflowData && info?.myWorkflowData?.length > 0) {
-			mapWorkflowOptions();
-		}
-	}, [info?.myWorkflowData]);
-
 	const fetchMoreMyWorkflows = useCallback(() => {
 		setInfo((prev) => ({ ...prev, loading: true }));
 		getMyWorkflowTemplatesData(info?.currentPage + 1, true);
@@ -62,7 +55,6 @@ const WorkflowDropDown = () => {
 		(dataToBeUsed, fetchMore = false) => {
 			let { data, currentPage, hasNextPage } = dataToBeUsed;
 			let myWorkflowData = [];
-			if (currentPage === 1 && !data?.length) return;
 
 			for (let i = 0; i < data?.length; i++) {
 				if (
@@ -77,42 +69,41 @@ const WorkflowDropDown = () => {
 			if (fetchMore) {
 				myWorkflowData = [...(info?.myWorkflowData || [])]?.concat(myWorkflowData);
 			}
+
+			const workflowOptions = mapWorkflowOptions([...(myWorkflowData || [])]);
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
 				myWorkflowData,
 				currentPage,
 				hasNextPage,
+				workflowOptions,
 			}));
 		},
 		[info?.myWorkflowData],
 	);
 
-	const mapWorkflowOptions = useCallback(() => {
-		if (info?.myWorkflowData && info?.myWorkflowData?.length > 0) {
-			let workflowOptions = [];
-			for (let i = 0; i < info?.myWorkflowData?.length; i++) {
-				workflowOptions?.push({
-					label: info?.myWorkflowData?.[i]?.title,
-					value: info?.myWorkflowData?.[i]?._id,
-				});
-			}
-			setInfo((prev) => ({
-				...prev,
-				workflowOptions,
-			}));
+	const mapWorkflowOptions = useCallback((data) => {
+		let workflowOptions = [];
+		for (let i = 0; i < data?.length; i++) {
+			workflowOptions?.push({
+				label: data?.[i]?.title,
+				value: data?.[i]?._id,
+			});
 		}
-	}, [info?.myWorkflowData]);
+		return workflowOptions;
+	}, []);
 
 	return (
 		<Select
+			// showSearch
 			allowClear
-			showSearch
 			loading={info?.loading}
-			style={{ width: 120, height: 35 }}
+			style={{ width: 250, height: 35 }}
 			placeholder="Workflows"
 			options={info?.workflowOptions || []}
 			optionFilterProp="label"
+			value={selectedWorkflowId}
 			dropdownRender={(menu) => (
 				<div>
 					{menu}
@@ -141,10 +132,11 @@ const WorkflowDropDown = () => {
 				}
 			}}
 			onChange={(workflowId) => {
-				setInfo((prev) => ({
-					...prev,
-					selectedWorkflowId: workflowId,
-				}));
+				if (workflowId) {
+					updateCalendarInfo('selectedWorkflowId', workflowId);
+				} else {
+					updateCalendarInfo('selectedWorkflowId', null);
+				}
 			}}
 			getPopupContainer={(trigger) => trigger.parentNode}
 		/>
