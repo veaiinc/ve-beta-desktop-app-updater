@@ -22,7 +22,7 @@ import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
 import WorkflowBuilderLoader from '../../workflowBuilderComponents/WorkflowBuilderLoader';
 import ToggleSlider from '../../input/slider';
 import { ReactComponent as Pen } from '../../../../assets/svg/worflow_builder/editPen.svg';
-import { Button, Spin } from 'antd';
+import { Button, message, Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 const RenderNotificationUi = ({
@@ -91,6 +91,7 @@ const RenderNotificationUi = ({
 		selectedSlackWorkspace: '',
 		selectedSlackChannel: '',
 		slackMessage: '',
+		slackChannelId: null, //only used as flag for edit mode,do not use this as a paylaod
 	});
 
 	//useEffects
@@ -133,36 +134,59 @@ const RenderNotificationUi = ({
 
 	//function defination
 	const fetchSpecificTemplateData = useCallback(async () => {
-		const payload = {
-			getEmailTemplateId: currentStepInfo?.emailTemplateId,
-		};
-		const response = await getSpecificWorkflowTemplateDetails(payload);
-		const { approvalRequired, htmlBody, sendAt, subject, title } = response?.[1] || {};
-		let timeStampData,
-			noOfDays = 1,
-			selectedDuration = {
-				label: 'Days',
-				value: 'days',
+		const { channels, criteria, emailTemplateId } = currentStepInfo || {};
+		//use it for udating state
+		let obj = {};
+
+		//slackChannel
+		if (channels?.[0] === 'slack') {
+			const { slackChannelId, slackMessage } = currentStepInfo || {};
+
+			obj = { ...obj, slackMessage, slackChannelId };
+		}
+
+		//for email channel
+		if (channels?.[0] === 'email') {
+			const payload = {
+				getEmailTemplateId: emailTemplateId,
 			};
-		if (sendAt) {
-			timeStampData = calculateTimeDifference(sendAt);
-			noOfDays = +timeStampData?.[0];
-			selectedDuration = returnDurationOption(timeStampData?.[1]);
-		}
-
-		let selectedEmailTemplate = null,
-			selectedCriteria = null,
-			selectedChannel = null;
-		const { channels, criteria } = currentStepInfo || {};
-
-		//fetching selected email template
-		for (let i = 0; i < info?.emailTemplates?.length; i++) {
-			if (info?.emailTemplates?.[i]?.label === title) {
-				selectedEmailTemplate = info?.emailTemplates?.[i]?.ele;
-				break;
+			const response = await getSpecificWorkflowTemplateDetails(payload);
+			const { approvalRequired, htmlBody, sendAt, subject, title } = response?.[1] || {};
+			let timeStampData,
+				noOfDays = 1,
+				selectedDuration = {
+					label: 'Days',
+					value: 'days',
+				};
+			if (sendAt) {
+				timeStampData = calculateTimeDifference(sendAt);
+				noOfDays = +timeStampData?.[0];
+				selectedDuration = returnDurationOption(timeStampData?.[1]);
 			}
+			let selectedEmailTemplate = null;
+
+			//fetching selected email template
+			for (let i = 0; i < info?.emailTemplates?.length; i++) {
+				if (info?.emailTemplates?.[i]?.label === title) {
+					selectedEmailTemplate = info?.emailTemplates?.[i]?.ele;
+					break;
+				}
+			}
+
+			obj = {
+				...obj,
+				noOfDays,
+				title,
+				selectedDuration,
+				selectedEmailTemplate,
+				emailBody: htmlBody,
+				subject,
+				requiredApproval: approvalRequired,
+			};
 		}
 
+		let selectedCriteria = null,
+			selectedChannel = null;
 		// fetching selected criteria
 		for (let i = 0; i < smartFileActions?.length; i++) {
 			if (smartFileActions?.[i]?.value === (criteria?.status || criteria)) {
@@ -181,13 +205,7 @@ const RenderNotificationUi = ({
 
 		setInfo((prev) => ({
 			...prev,
-			subject,
-			emailBody: htmlBody,
-			requiredApproval: approvalRequired,
-			title,
-			noOfDays,
-			selectedDuration,
-			selectedEmailTemplate,
+			...obj,
 			selectedCriteria,
 			selectedChannel,
 			contentLoader: false,
@@ -342,6 +360,17 @@ const RenderNotificationUi = ({
 			};
 		}
 
+		if (info?.selectedChannel?.value === 'slack') {
+			if (!info?.selectedSlackChannel?.value || !info?.slackMessage?.length) {
+				return message.error('SlackChannel and messgae both are mandatory fields');
+			}
+			payload.stepInput = {
+				...payload?.stepInput,
+				slackChannelId: info?.selectedSlackChannel?.value,
+				slackMessage: info?.slackMessage,
+				criteria: { status: info?.selectedCriteria?.value },
+			};
+		}
 		const response = await addNewSteps(payload);
 		if (response?.[0]) {
 			scrollToNewOrUpdatedNodes(response?.[1]?.newStep, response?.[1]?.steps);
@@ -362,6 +391,8 @@ const RenderNotificationUi = ({
 		info?.selectedEmailTemplate,
 		info?.selectedChannel,
 		info?.selectedCriteria,
+		info?.selectedSlackChannel,
+		info?.slackMessage,
 	]);
 
 	const editNotificationNode = useCallback(async () => {
@@ -388,9 +419,21 @@ const RenderNotificationUi = ({
 				htmlBody: info?.emailBody,
 				subject: info?.subject,
 				sendAt: timeStamp,
-				riteria: { status: info?.selectedCriteria?.value },
+				criteria: { status: info?.selectedCriteria?.value },
 			};
 		}
+		if (info?.selectedChannel?.value === 'slack') {
+			if (!info?.selectedSlackChannel?.value || !info?.slackMessage?.length) {
+				return message.error('SlackChannel and messgae both are mandatory fields');
+			}
+			payload.updateStepInput = {
+				...payload?.updateStepInput,
+				slackChannelId: info?.selectedSlackChannel?.value,
+				slackMessage: info?.slackMessage,
+				criteria: { status: info?.selectedCriteria?.value },
+			};
+		}
+
 		const response = await updateSteps(payload);
 		if (response?.[0]) {
 			const refetchResponse = await refetchWorkflowBuilderData();
@@ -415,21 +458,35 @@ const RenderNotificationUi = ({
 		info?.selectedChannel,
 		info?.selectedCriteria,
 		currentStepInfo,
+		info?.selectedSlackChannel,
+		info?.slackMessage,
 	]);
 
 	//slack functions
 	const onSlackMessageChanges = useCallback(
 		(e) => {
-			setInfo((prev) => ({ ...prev, slackMessage: e?.target?.value }));
+			let obj = {};
+			if (mode === 'edit') {
+				obj = { madeEditChanges: true };
+			}
+			setInfo((prev) => ({
+				...prev,
+				slackMessage: e?.target?.value,
+				...obj,
+			}));
 		},
-		[info?.slackMessage],
+		[info?.slackMessage, mode],
 	);
 	const onChangeSlackChannels = useCallback(
 		(data) => {
+			let obj = {};
+			if (mode === 'edit') {
+				obj = { madeEditChanges: true };
+			}
 			if (data?.value === info?.selectedSlackChannel?.value) {
 				return;
 			}
-			setInfo((prev) => ({ ...prev, selectedSlackChannel: data }));
+			setInfo((prev) => ({ ...prev, selectedSlackChannel: data, ...obj }));
 		},
 		[info?.selectedChannel],
 	);
@@ -455,6 +512,7 @@ const RenderNotificationUi = ({
 					onChangeDuration={onChangeDuration}
 					onSlackMessageChanges={onSlackMessageChanges}
 					onChangeSlackChannels={onChangeSlackChannels}
+					onChangeCriteria={onChangeCriteria}
 				/>
 			),
 		};
@@ -676,6 +734,7 @@ const SendSlackTypeComponent = ({
 	onChangeDuration,
 	onSlackMessageChanges,
 	onChangeSlackChannels,
+	onChangeCriteria,
 }) => {
 	const {
 		profileInfo: { getTenantSettings, tennantSettingsData },
@@ -705,21 +764,21 @@ const SendSlackTypeComponent = ({
 			}
 			setLocalInfo((prev) => ({
 				...prev,
-
 				slackConnectionCheckLoading: false,
 			}));
 		}
 	}, [tennantSettingsData]);
 
 	useEffect(() => {
-		if (localInfo?.slackConnected && localInfo?.slackToken) {
+		if (localInfo?.slackConnected && localInfo?.slackToken && !slackChannels) {
 			getAllSlackChannels(localInfo?.slackToken);
 		}
-	}, [localInfo?.slackConnected, localInfo?.slackToken]);
+	}, [localInfo?.slackConnected, localInfo?.slackToken, slackChannels]);
 
 	useEffect(() => {
 		if (slackChannels) {
 			let options = [];
+
 			for (let i = 0; i < slackChannels?.length; i++) {
 				options?.push({
 					label: slackChannels?.[i]?.name,
@@ -728,9 +787,27 @@ const SendSlackTypeComponent = ({
 			}
 
 			setLocalInfo((prev) => ({ ...prev, slackChannelsOptions: options }));
-			setInfo((prev) => ({ ...prev, selectedSlackChannel: options?.[0] }));
+			setInfo((prev) => ({
+				...prev,
+				selectedSlackChannel: options?.[0],
+			}));
 		}
 	}, [slackChannels]);
+
+	useEffect(() => {
+		if (info?.slackChannelId && localInfo?.slackChannelsOptions) {
+			const slackChannelsOptions = [...localInfo?.slackChannelsOptions];
+			for (let i = 0; i < slackChannelsOptions?.length; i++) {
+				if (slackChannelsOptions?.[i]?.value === info?.slackChannelId) {
+					setInfo((prev) => ({
+						...prev,
+						selectedSlackChannel: slackChannelsOptions?.[i],
+						slackChannelId: null,
+					}));
+				}
+			}
+		}
+	}, [info?.slackChannelId, localInfo?.slackChannelsOptions]);
 
 	return localInfo?.slackConnectionCheckLoading ? (
 		<div style={{ display: 'flex', justifyContent: 'center', flex: 1, alignItems: 'center' }}>
@@ -785,7 +862,7 @@ const SendSlackTypeComponent = ({
 			</div>
 
 			{/* message */}
-			{/* <div className="workflow_builder_action_seperator"></div>
+			<div className="workflow_builder_action_seperator"></div>
 			<div className="actionDropDownContainer">
 				<span className="actionTitle">Message</span>
 				<textarea
@@ -793,7 +870,7 @@ const SendSlackTypeComponent = ({
 					value={info?.slackMessage}
 					onChange={onSlackMessageChanges}
 				/>
-			</div> */}
+			</div>
 			{/* <div className="workflow_builder_action_seperator"></div>
 			<div className="notification_schedulingContainer">
 				<span className="actionTitle">When ?</span>
@@ -834,6 +911,27 @@ const SendSlackTypeComponent = ({
 					/>
 				</div>
 			</div> */}
+			<div className="workflow_builder_action_seperator"></div>
+			<div className="notification_schedulingContainer">
+				<HeadersDropDownComp
+					options={smartFileActions}
+					showIcon={false}
+					containerStyle={{
+						...containerStyle,
+					}}
+					outerContainerStyle={{ width: '100%' }}
+					dropDownStyle={{ ...dropDownStyle }}
+					dropDownTextStyling={{ ...dropDownTextStyling }}
+					selectedValueStyle={{
+						...selectedValueStyling,
+					}}
+					selectedValue={info?.selectedCriteria?.label}
+					uniqueIdentifierForTickIcon={'value'}
+					selectedValueObj={info?.selectedCriteria}
+					onChangeFunc={onChangeCriteria}
+					showSelectedValueTick={true}
+				/>
+			</div>
 		</>
 	) : (
 		<div className="slackIntegrateContainer">
