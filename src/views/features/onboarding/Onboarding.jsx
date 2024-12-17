@@ -11,6 +11,8 @@ import { message } from 'antd';
 import CreatingNewWorkspace from '../../components/onboarding/CreatingNewWorkspace';
 import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/green-tick.svg';
 import jwtDecode from 'jwt-decode';
+import PhoneNumber from '../../components/onboarding/PhoneNumber';
+import VerifyPhoneNumberViaOTP from '../../components/onboarding/VerifyPhoneNumberViaOTP';
 
 const tl1 = gsap.timeline();
 const tl2 = gsap.timeline();
@@ -144,7 +146,7 @@ const Onboarding = () => {
 	}
 	const progressBar = createWorkspaceUsername
 		? [{ id: 1 }, { id: 2 }, { id: 3 }]
-		: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }];
+		: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }, { id: 6 }];
 
 	const {
 		authInfo: { updateUserDetails, createWorkspace },
@@ -162,6 +164,8 @@ const Onboarding = () => {
 		phoneNumber: '',
 		isOnboard: false,
 		businessName: '',
+		phoneNumber: '',
+		phoneNumberError: '',
 	});
 
 	useEffect(() => {
@@ -197,6 +201,12 @@ const Onboarding = () => {
 		if (info?.step === 6) {
 			animateStep6Enter();
 		}
+		if (info?.step === 7) {
+			animateStep7Enter();
+		}
+		if (info?.step === 8) {
+			animateStep8Enter();
+		}
 	}, [info?.step]);
 
 	useEffect(() => {
@@ -221,8 +231,7 @@ const Onboarding = () => {
 	};
 
 	const handleOnboarding = async () => {
-		const userDetailsResponse = await updateUserDetails(info?.username);
-		if (userDetailsResponse[0] === true) {
+		try {
 			const workspaceResponse = await createWorkspace(
 				info?.workspaceHandle,
 				info?.workspaceType,
@@ -238,9 +247,30 @@ const Onboarding = () => {
 			} else {
 				message.error(workspaceResponse?.message);
 			}
-		} else {
-			message.error(userDetailsResponse?.message);
+		} catch (error) {
+			console.error('Error creating new workspace', error);
+			throw error;
 		}
+	};
+
+	const updateUserNameAndPhoneNumber = async () => {
+		const userDetailsResponse = await updateUserDetails(info?.username, info?.phoneNumber);
+		if (userDetailsResponse?.[0] === true) {
+			message?.success('Otp sent successfully to the entered mobile number!');
+			animateStage5AndStep6Exit();
+		} else {
+			message?.error(userDetailsResponse?.[1]?.message);
+			// remove later
+			animateStage5AndStep6Exit();
+		}
+	};
+
+	const handleSetPhoneNumber = (phoneNumber) => {
+		if (phoneNumber)
+			setInfo((prev) => ({
+				...prev,
+				phoneNumber,
+			}));
 	};
 
 	const setUsername = (username) => {
@@ -545,7 +575,70 @@ const Onboarding = () => {
 				duration: 1,
 				ease: 'power2.inOut',
 				onComplete: () => {
-					handleOnboarding();
+					incrementStage();
+				},
+			},
+		);
+	};
+
+	const animateStep7Enter = () => {
+		tl2?.fromTo(
+			'.step7',
+			{
+				opacity: 0,
+				scale: 0.5,
+			},
+			{
+				opacity: 1,
+				scale: 1,
+				duration: 1,
+				ease: 'power2.inOut',
+				onComplete: () => {
+					incrementStage();
+				},
+			},
+		);
+	};
+
+	const animateStep8Enter = () => {
+		tl2?.fromTo(
+			'.step8',
+			{
+				opacity: 0,
+				scale: 0.5,
+			},
+			{
+				opacity: 1,
+				scale: 1,
+				duration: 1,
+				ease: 'power2.inOut',
+				onComplete: () => {
+					// incrementStage();
+				},
+			},
+		);
+	};
+
+	const animateStage5AndStep6Exit = () => {
+		tl1?.to('.step6', {
+			opacity: 0,
+			scale: 0.5,
+			duration: 1,
+			ease: 'power2.inOut',
+		});
+		tl2?.fromTo(
+			'.stage5',
+			{
+				opacity: 1,
+				scale: 1,
+			},
+			{
+				opacity: 0,
+				scale: 0.5,
+				duration: 1,
+				ease: 'power2.inOut',
+				onComplete: () => {
+					incrementStep();
 				},
 			},
 		);
@@ -605,6 +698,24 @@ const Onboarding = () => {
 		),
 		4: <h1 className="step4">What will be your workspace type?</h1>,
 		5: <h1 className="step5">What is your profession?</h1>,
+		6: (
+			<div className="step6">
+				<h1>Enter your mobile number</h1>
+				<h2>
+					This will be a one time process. You can also change it later anytime. We will
+					reach out to you on this number.
+				</h2>
+			</div>
+		),
+		7: (
+			<div className="step7">
+				<h1>We Sent You a Code</h1>
+				<h2>
+					A 6-digit verification code has been sent to {info?.phoneNumber} Please enter it
+					to continue.
+				</h2>
+			</div>
+		),
 	};
 
 	const onboardingStages = {
@@ -643,12 +754,27 @@ const Onboarding = () => {
 				animateStep5AndStage4Exit={animateStep5AndStage4Exit}
 			/>
 		),
-		5: <CreatingNewWorkspace profession={info?.profession} />,
+		5: (
+			<PhoneNumber
+				phoneNumber={info?.phoneNumber}
+				handleSetPhoneNumber={handleSetPhoneNumber}
+				updateUserNameAndPhoneNumber={updateUserNameAndPhoneNumber}
+				animateStage5AndStep6Exit={animateStage5AndStep6Exit}
+			/>
+		),
+		6: (
+			<VerifyPhoneNumberViaOTP
+				phoneNumber={info?.phoneNumber}
+				incrementStep={incrementStep}
+				handleOnboarding={handleOnboarding}
+			/>
+		),
+		// 7: <CreatingNewWorkspace profession={info?.profession} />,
 	};
 
 	return (
 		<div className="onboarding-container">
-			{info?.step !== 6 ? (
+			{info?.step !== 8 ? (
 				<>
 					<div className="left-container">
 						<div className="progress-bar-container">
@@ -675,15 +801,15 @@ const Onboarding = () => {
 							{onboardingStages[info?.stage]}
 						</div>
 					</div>
-					{info?.step >= 1 && info?.step <= 5 && (
+					{info?.step >= 1 && info?.step <= 7 && (
 						<div className="right-container">
 							<div className="right-container-content"></div>
 						</div>
 					)}
 				</>
 			) : (
-				<div className="ai-intro step6-container">
-					<h1 className="step6">Setting up your workspace</h1>
+				<div className="ai-intro step8-container">
+					<h1 className="step8">Setting up your workspace</h1>
 				</div>
 			)}
 		</div>

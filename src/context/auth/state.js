@@ -206,6 +206,53 @@ export const AuthState = () => {
 		}
 	};
 
+	const verifyMobileOtpCode = async (phoneNumber, verificationCode) => {
+		const path = '/tenant-user/verify-phone-number';
+		const body = {
+			phoneNumber,
+			verificationCode,
+		};
+		const token = localStorage?.getItem('usertoken') || '';
+
+		try {
+			const response = await service?.fetchPut(path, body, token, 'auth');
+			if (response?.[0] === true) {
+				return [true];
+			} else {
+				return [
+					false,
+					{
+						message: response?.[1]?.message?.trim() + '. Please try again!',
+					},
+				];
+			}
+		} catch (error) {
+			console.error('Error verifying code via phone number', error);
+			throw error;
+		}
+	};
+
+	const requestResendOTPToMobile = async () => {
+		const path = '/tenant-user/request-phone-number-verification';
+		const token = localStorage?.getItem('usertoken') || '';
+		try {
+			const response = await service?.fetchGet(path, token, 'auth');
+			if (response?.[0] === true) {
+				return [true];
+			} else {
+				return [
+					false,
+					{
+						message: response?.[1]?.message?.trim() + '. Please try again!',
+					},
+				];
+			}
+		} catch (error) {
+			console.error('Error verifying code via phone number', error);
+			throw error;
+		}
+	};
+
 	const checkWorkspaceHandleAvailability = async (workspaceHandle) => {
 		const path = '/tenant/workspaceId-availability';
 		const params = { workspaceId: workspaceHandle };
@@ -307,5 +354,7 @@ export const AuthState = () => {
 		checkWorkspaceHandleAvailability,
 		updateUserDetails,
 		getUsernameDetailsViaReferralCode,
+		verifyMobileOtpCode,
+		requestResendOTPToMobile,
 	};
 };

@@ -6,14 +6,14 @@
 	will-change: transform, opacity;
 	opacity: 0;
 
-	.step6-container {
+	.step8-container {
 		width: 100%;
 		height: 100%;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 
-		.step6 {
+		.step8 {
 			color: #fff;
 			font-family: Brasley;
 			font-size: 24px;
@@ -79,6 +79,81 @@
 				text-align: center;
 			}
 
+			.step6,
+			.step7 {
+				h1 {
+					color: #fff;
+					font-family: Brasley;
+					font-size: 32px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+
+				h2 {
+					margin-top: 32px;
+					color: rgba(255, 255, 255, 0.5);
+					font-family: Brasley;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+
+			.verify-otp-container {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				flex-direction: column;
+				gap: 32px;
+
+				.verification-code-input-container {
+					margin-top: 72px;
+					width: 100%;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					position: relative;
+
+					input {
+						&::selection {
+							background-color: transparent;
+						}
+					}
+
+					.otp-error-message {
+						position: absolute;
+						top: -24px;
+						color: #ff7070;
+						font-family: Brasley;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						text-align: right;
+					}
+
+					.otp-input-container {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						flex-direction: column;
+						gap: 8px;
+					}
+				}
+
+				.resendCode {
+					color: rgba(255, 255, 255, 0.5);
+					font-family: Brasley;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					cursor: pointer;
+				}
+			}
+
 			.workspace-handle-text {
 				color: rgba(255, 255, 255, 0.5);
 				font-family: Brasley;
@@ -101,6 +176,38 @@
 					max-width: 200px;
 					text-overflow: ellipsis;
 					overflow-x: clip;
+				}
+			}
+
+			.phone-number-container {
+				margin-top: 44px;
+				border-radius: 60px;
+				background: rgba(255, 255, 255, 0.05);
+				padding: 16px 32px;
+				display: flex;
+				justify-content: flex-start;
+				position: relative;
+				width: 280px;
+
+				input[type='tel'] {
+					outline: none;
+					border: none;
+					background: inherit;
+					color: #fff;
+					font-family: 'Inter';
+					font-size: 14px;
+					font-weight: 400;
+					text-transform: capitalize;
+				}
+
+				.next-button {
+					border: none;
+					outline: none;
+					position: absolute;
+					right: 0;
+					top: 0px;
+					padding: 14px 24px;
+					border-radius: 60px;
 				}
 			}
 
