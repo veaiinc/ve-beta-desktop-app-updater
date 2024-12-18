@@ -80,7 +80,7 @@ const tableData = [
 
 const Insights = () => {
 	const {
-		galleryInfo: { tenantAlbums, aiFace },
+		galleryInfo: { tenantAlbums, aiFace, preRegisteredUsers },
 	} = useContext(Context);
 
 	const bytesToGigabytes = (bytes) => {

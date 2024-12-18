@@ -24,6 +24,8 @@ const {
 	calendar_api_US,
 	third_party_integrations_api,
 	third_party_integrations_api_US,
+	slack_api,
+	slack_api_US,
 } = config || {};
 
 const apiEndpoints = {
@@ -38,6 +40,7 @@ const apiEndpoints = {
 	calendar_chat: ai_predictions,
 	calendar_api,
 	third_party_integrations_api,
+	slack_api,
 };
 const apiEndpointsUS = {
 	tenant_users_api: tenant_users_api_US,
@@ -51,6 +54,7 @@ const apiEndpointsUS = {
 	calendar_chat: ai_predictions_US,
 	calendar_api: calendar_api_US,
 	third_party_integrations_api: third_party_integrations_api_US,
+	slack_api: slack_api_US,
 };
 
 const handleHeaders = (token, body, type) => {
@@ -61,7 +65,8 @@ const handleHeaders = (token, body, type) => {
 			type === 'form' ||
 			type === 'ai_setup' ||
 			type === 'ai_predictions' ||
-			type === 'calendar_chat'
+			type === 'calendar_chat' ||
+			type === 'slack_api'
 		) {
 			headers['Authorization'] = `Bearer ${token}`;
 		}

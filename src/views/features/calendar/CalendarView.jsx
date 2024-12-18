@@ -1,8 +1,5 @@
 import React, { memo, useMemo, useState, useContext, useEffect, useCallback } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
-// import CalendarHeader from '../../components/calendar/CalendarHeader';
-// import CalendarViewType from '../../components/calendar/CalendarViewType';
-
 import '../../../assets/scss/calendar/calendarView.scss';
 import CalendarWrapper from '../../components/calendar/CalendarWrapper';
 import CalendarHeader from '../../components/calendar/CalendarHeader';
@@ -26,6 +23,7 @@ const initialState = {
 };
 
 const CalendarView = ({
+	currentCalendarDate,
 	selectedWeek,
 	selectedDate,
 	isEventSelected,
@@ -33,6 +31,7 @@ const CalendarView = ({
 	selectedCategory,
 	categoryFilter,
 	updateCalendarInfo,
+	selectedWorkflowId,
 }) => {
 	const {
 		calendarInfo: {
@@ -125,10 +124,13 @@ const CalendarView = ({
 			toolbar: (props) => (
 				<CalendarHeader
 					{...props}
+					currentCalendarDate={currentCalendarDate}
 					selectedDate={selectedDate}
 					selectedWeek={selectedWeek}
-					// userWorkSpaceList={userWorkSpaceList}
 					tenantsUserList={tenantsUserList}
+					updateCalendarInfo={updateCalendarInfo}
+					selectedWorkflowId={selectedWorkflowId}
+					// userWorkSpaceList={userWorkSpaceList}
 				/>
 			),
 			week: {
@@ -141,7 +143,7 @@ const CalendarView = ({
 			eventWrapper: CustomEventWrapper,
 			// eventContainerWrapper: CustomEventContainer,
 		}),
-		[selectedDate, selectedWeek, tenantsUserList],
+		[selectedDate, selectedWeek, currentCalendarDate, selectedWorkflowId, tenantsUserList],
 	);
 	return (
 		<>

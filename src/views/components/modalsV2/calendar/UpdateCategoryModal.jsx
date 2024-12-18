@@ -133,7 +133,7 @@ const UpdateCategoryModal = ({ show, handleClose, isCategoryEditable, selectedCa
 	return (
 		<ReactModal
 			isOpen={show}
-			closeModal={handleClose}
+			closeModal={info?.submiting ? null : handleClose}
 			modalType={'center'}
 			customStyles={{ content: { borderRadius: '15px' } }}
 		>

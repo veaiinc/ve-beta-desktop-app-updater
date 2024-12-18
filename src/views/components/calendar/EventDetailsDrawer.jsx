@@ -126,10 +126,12 @@ const RenderEventDetails = ({ info, updateCalendarInfo, formatEventTime }) => {
 								<div className="avatar"></div>
 								<div className="textWrapper">
 									<div className="name">
-										{attendee?.name === '' ? attendee?.email : attendee?.name}
+										{attendee?.name === null ? attendee?.email : attendee?.name}
 									</div>
 									<div className="role">
-										{attendee?.isWorkspaceUser ? 'Workspace User' : 'External'}
+										{attendee?.isWorkspaceUser
+											? attendee?.role || 'Workspace User'
+											: 'External'}
 										{attendee?.responseStatus &&
 											` • ${attendee?.responseStatus}`}
 									</div>

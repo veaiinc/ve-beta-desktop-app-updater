@@ -17,6 +17,8 @@ import { message, Tooltip } from 'antd';
 import WorkflowNode from './WorkflowNode';
 import { fetchOriginSelection } from '../../../helpers';
 import { SyncOutlined } from '@ant-design/icons';
+import WidgetContainer from '../../components/workflowBuilderComponents/WidgetContainer';
+import ToggleSlider from '../../components/input/slider';
 let origin = fetchOriginSelection();
 const options = [
 	{ label: 'Rename Workflow' },
@@ -87,6 +89,7 @@ const WorkflowBuilder = () => {
 		newNodeType: null,
 		optionType: null,
 		moveToPath: null,
+		stage: true,
 	});
 	const [zoom, setZoom] = useState(100); // 100 means 100% zoom
 	const [arrow, setArrow] = useState('Show');
@@ -419,6 +422,11 @@ const WorkflowBuilder = () => {
 			pointAtCenter: true,
 		};
 	}, [arrow]);
+
+	const toggleStage = useCallback(() => {
+		setInfo((prev) => ({ ...prev, stage: !prev?.stage }));
+	}, [info?.stage]);
+
 	return (
 		<div className="workflowBuilderContainer">
 			{/* header */}
@@ -449,6 +457,10 @@ const WorkflowBuilder = () => {
 						</div>
 					</div>
 					<div className="discardSaveBtnGrp">
+						<div className="saveChangesbtn">
+							Stage Visibility
+							<ToggleSlider value={info?.stage} onChange={toggleStage} />
+						</div>
 						<div className="saveChangesbtn" onClick={publishWorkflow}>
 							{info?.publishLoading ? <Spinner width={'16px'} height={'16px'} /> : ''}
 							{info?.publishLoading ? 'Publishing...' : 'Publish'}
@@ -484,49 +496,53 @@ const WorkflowBuilder = () => {
 			{info?.loading ? (
 				<UpdatedPageLoader />
 			) : (
-				<div
-					className="workflow-tree-container"
-					ref={wrapperRef}
-					style={{
-						width: '100%',
-						height: hideHeader ? '100vh' : 'calc(100vh - 90px)',
-						overflow: 'auto',
-						position: 'relative',
-					}}
-				>
+				<>
+					{info?.stage ? <WidgetContainer /> : ''}
 					<div
-						ref={containerRef}
+						className="workflow-tree-container"
+						ref={wrapperRef}
 						style={{
-							minWidth: 'min-content',
-							display: 'flex',
-							justifyContent: 'center',
-							padding: '40px 50000vh', // Use 100% padding on both sides
-
-							transform: `scale(${zoom / 100})`,
-							transformOrigin: 'center center',
-							transition: 'transform 0.2s ease',
+							width: '100%',
+							height: hideHeader ? '100vh' : 'calc(100vh - 90px)',
+							overflow: 'auto',
+							position: 'relative',
+							marginTop: '48px',
 						}}
-						className="containerRefDiv"
 					>
 						<div
+							ref={containerRef}
 							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								alignItems: 'center',
 								minWidth: 'min-content',
+								display: 'flex',
+								justifyContent: 'center',
+								padding: '40px 50000vh', // Use 100% padding on both sides
+
+								transform: `scale(${zoom / 100})`,
+								transformOrigin: 'center center',
+								transition: 'transform 0.2s ease',
 							}}
+							className="containerRefDiv"
 						>
-							<WorkflowNode
-								nodeId={info?.statrtNode?._id}
-								stepsMapper={info?.stepsMapper}
-								templateData={info?.incomingTemplateData}
-								openPreviewModal={openPreviewModal}
-								openModal={openModal}
-								alterData={alterData}
-							/>
+							<div
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									alignItems: 'center',
+									minWidth: 'min-content',
+								}}
+							>
+								<WorkflowNode
+									nodeId={info?.statrtNode?._id}
+									stepsMapper={info?.stepsMapper}
+									templateData={info?.incomingTemplateData}
+									openPreviewModal={openPreviewModal}
+									openModal={openModal}
+									alterData={alterData}
+								/>
+							</div>
 						</div>
 					</div>
-				</div>
+				</>
 			)}
 			{!hideZoomPannel ? (
 				<div className="zoom-controls-panel" style={{ color: '#fff' }}>

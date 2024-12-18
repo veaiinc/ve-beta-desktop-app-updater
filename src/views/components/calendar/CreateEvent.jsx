@@ -36,6 +36,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 		calendarInfo: { calendarEvent, createCalendarEvent },
 		profileInfo: { userDetailsData },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		companyInfo: { tenantsUserList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -51,34 +52,9 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 		startTime: '',
 		endDate: '',
 		endTime: '',
-		inputDropDownItems: [
-			{
-				_id: '66e8263c45a6222134432931',
-				firstName: 'sankar',
-				lastName: 'josyula',
-				email: 'sankar@ve.ai',
-				role: 'admin',
-				isOwner: true,
-			},
-			{
-				_id: '671a26ab0d6a528cf2d8fd7a',
-				firstName: 'Dheeraj',
-				lastName: 'C Justin',
-				email: 'dheeraj@ve.ai',
-				role: 'admin',
-				isOwner: false,
-			},
-			{
-				_id: '671a26ab0d6a528cf3c9fd9b',
-				firstName: 'Preetam',
-				lastName: 'Singh',
-				email: 'preetam@ve.ai',
-				role: 'admin',
-				isOwner: false,
-			},
-		],
 		addCategory: false,
 	});
+
 	const createEventRef = useRef(null);
 	// Format date and time to ISO string
 	const convertToISOString = useCallback((date, time) => {
@@ -152,10 +128,11 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 
 		// formate attendees
 		const processedAttendees = attendees?.map((attendee) => ({
-			tenantUserId: attendee.tenantUserId || '',
-			firstName: attendee.name || '',
-			lastName: '',
-			email: attendee.email,
+			isWorkspaceUser: attendee?.tenantUserId ? true : false,
+			tenantUserId: attendee?.tenantUserId || null,
+			name: attendee?.name || null,
+			email: attendee?.email,
+			role: attendee?.role,
 			responseStatus: 'confirmed',
 		}));
 
@@ -201,7 +178,13 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	const addAttendees = useCallback(
-		({ name = '', email = '', isWorkspaceUser = false, tenantUserId = '' }) => {
+		({
+			name = null,
+			email = null,
+			isWorkspaceUser = false,
+			tenantUserId = null,
+			role = null,
+		}) => {
 			// Validate email
 			if (!emailRegex.test(email)) {
 				setInfo((prevInfo) => ({
@@ -224,7 +207,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 
 				const updatedAttendees = [
 					...prevInfo.attendees,
-					{ name, email, isWorkspaceUser, tenantUserId },
+					{ name, email, isWorkspaceUser, tenantUserId, role },
 				];
 
 				return {
@@ -258,7 +241,11 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 			<div className="headerWrapper">
 				<span className="headerLabel">Create an event</span>
 				<CloseSvg
-					onClick={() => updateCalendarInfo('isCreateEventOpen', false)}
+					onClick={() => {
+						if (info?.isSubmitting) return;
+						updateCalendarInfo('isCreateEventOpen', false);
+						setInfo(initialState);
+					}}
 					style={{ cursor: 'pointer' }}
 				/>
 			</div>
@@ -442,7 +429,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 						/>
 						{info?.showAtendeeSuggestions ? (
 							<div className="addAttendeeDropDown">
-								{info?.inputDropDownItems
+								{tenantsUserList
 									?.filter((item) => !item?.isOwner)
 									?.map((item) => (
 										<div
@@ -454,6 +441,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 													email: item?.email,
 													tenantUserId: item?._id,
 													isWorkspaceUser: true,
+													role: item?.role,
 												});
 											}}
 										>
@@ -461,7 +449,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 												<Avtar />
 											</div>
 											<div className="details">
-												<div className="name">{`${item?.firstName} ${item?.lastName}`}</div>
+												<div className="name">{`${item?.firstName}`}</div>
 												<div className="email">{item?.email}</div>
 											</div>
 										</div>
@@ -490,22 +478,9 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 											<Avtar />
 										</div>
 										<div className="nameWrapper">
-											<span className="name">
-												{item?.firstName} {item?.lastName}
-											</span>
+											<span className="name">{item?.name}</span>
 											<span className="role">{item?.email}</span>
 										</div>
-
-										{/* {item?.isWorkspaceUser ? (
-											<div className="nameWrapper">
-												<span className="name">{item?.name}</span>
-												<span className="role">{item?.email}</span>
-											</div>
-										) : (
-											<div className="nameWrapper">
-												<span className="name">{item?.email}</span>
-											</div>
-										)} */}
 										<Close
 											onClick={() =>
 												removeAttendee(item?.tenantUserId || item?.email)

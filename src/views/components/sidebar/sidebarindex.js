@@ -20,11 +20,6 @@ import { ReactComponent as TaskSvg } from '../../../assets/svg/sidebar/Task.svg'
 import { ReactComponent as AIAssistantSvg } from '../../../assets/svg/sidebar/AiAssistant.svg';
 import { ReactComponent as PlaybookSvg } from '../../../assets/svg/sidebar/Playbook.svg';
 import SchedulerSvg from '../../../assets/svg/sidebar/SchedulerSvg.jsx';
-// import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
-// import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
-// import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
-// import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
-// import { useNavigate, useLocation } from 'react-router-dom';
 import TranscriptSvg from '../../../assets/svg/sidebar/TranscriptSvg.jsx';
 import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';

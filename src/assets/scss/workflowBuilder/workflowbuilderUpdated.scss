@@ -121,6 +121,84 @@
 			rgba(255, 255, 255, 0) 100%
 		);
 	}
+
+	.workflowBuilderWidgetContainer {
+		display: flex;
+		flex-direction: column;
+		align-self: stretch;
+		height: 223px;
+		z-index: 2;
+		background: #0e0f0f;
+		background-image: url('../../images//workflow_builder/dotgrid.png');
+		background-size: cover;
+		margin-top: 46px;
+		align-items: center;
+		gap: 32px;
+		.workflowBuilderNameContainer {
+			color: #e8e8e8;
+			color: color(display-p3 0.9098 0.9098 0.9098);
+			text-align: center;
+			font-family: Inter;
+			font-size: 20px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.parentStagesContainer {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			gap: 12px;
+			align-self: stretch;
+
+			.stagesSubTextStyling {
+				color: var(--ve-ai-dark-theme-secondary-color, #939393);
+				color: var(
+					--ve-ai-dark-theme-secondary-color,
+					color(display-p3 0.5755 0.5755 0.5755)
+				);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.stagesCardHolderContainer {
+				display: flex;
+				align-items: center;
+
+				.workflowBuilderStages {
+					display: flex;
+					width: 120px;
+					height: 140px;
+					padding: 16px;
+					flex-direction: column;
+					justify-content: space-between;
+					align-items: flex-start;
+					border-radius: 14px;
+					background: var(--ve-ai-dark-theme-pop-up-color, #202123);
+					background: var(
+						--ve-ai-dark-theme-pop-up-color,
+						color(display-p3 0.1249 0.1304 0.1358)
+					);
+					color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+					color: var(
+						--ve-ai-dark-theme-primary-font-color,
+						color(display-p3 0.9098 0.9098 0.9098)
+					);
+
+					/* Body/Body - 12 px */
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+	}
 	.workflow-tree-container {
 		background: #0e0f0f;
 		background-image: url('../../images//workflow_builder/dotgrid.png');

@@ -199,6 +199,8 @@ export const getWorkflowListQuery = gql`
 			hasNextPage
 			data {
 				_id
+				templateId
+				title
 				clientDetails {
 					_id
 					email
