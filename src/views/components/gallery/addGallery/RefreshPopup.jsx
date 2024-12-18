@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, memo } from 'react';
 import ReactModal from '../../modalsV2';
 
 const RefreshPopup = ({ info, setinfo }) => {
@@ -41,4 +41,4 @@ const RefreshPopup = ({ info, setinfo }) => {
 	);
 };
 
-export default RefreshPopup;
+export default memo(RefreshPopup);

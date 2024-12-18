@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { ReactComponent as CloudFileUploadSvg } from '../../../../assets/svg/Settings/CloudUpload.svg';
 import Dropzone from 'react-dropzone';
 
@@ -51,4 +51,4 @@ const UploadInputComponent = ({ onDropFunction }) => {
 	);
 };
 
-export default UploadInputComponent;
+export default memo(UploadInputComponent);

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, memo } from 'react';
 import { ReactComponent as CopyIcon } from '../../../../assets/svg/gallery/copy.svg';
 import { ReactComponent as DownloadIcon } from '../../../../assets/svg/gallery/download2.svg';
 import Table from './Table';
@@ -148,4 +148,4 @@ const AiFaceRegistration = ({ link }) => {
 	);
 };
 
-export default AiFaceRegistration;
+export default memo(AiFaceRegistration);
