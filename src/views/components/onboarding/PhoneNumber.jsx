@@ -3,19 +3,26 @@ import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
 import '../../../assets/scss/onboarding/index.scss';
 import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/uparrow-grey.svg';
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
+import Spinner from '../loaders/Spinner';
 
 const PhoneNumber = ({ phoneNumber, handleSetPhoneNumber, updateUserNameAndPhoneNumber }) => {
 	const [info, setInfo] = useState({
+		isLoading: false,
 		isHovering: false,
 		enterPressed: false,
 	});
 
-	const handlePressEnter = (e) => {
+	const handlePressEnter = async (e) => {
 		if (e?.key === 'Enter' && isValidPhoneNumber(phoneNumber) && !info?.enterPressed) {
-			updateUserNameAndPhoneNumber();
+			setInfo((prev) => ({
+				...prev,
+				isLoading: true,
+			}));
+			await updateUserNameAndPhoneNumber();
 			setInfo((prev) => ({
 				...prev,
 				enterPressed: true,
+				isLoading: false,
 			}));
 		} else {
 			setInfo((prev) => ({
@@ -81,7 +88,14 @@ const PhoneNumber = ({ phoneNumber, handleSetPhoneNumber, updateUserNameAndPhone
 						transition: 'transform 0.4s ease',
 					}}
 				>
-					{info?.isHovering || isValidPhoneNumber(phoneNumber) ? (
+					{info?.isLoading ? (
+						<Spinner
+							width="18px"
+							height="18px"
+							borderTopColor="transparent"
+							color="black"
+						/>
+					) : info?.isHovering || isValidPhoneNumber(phoneNumber) ? (
 						<UpArrowBlackHover />
 					) : (
 						<UpArrowGrey />
