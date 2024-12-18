@@ -1,6 +1,7 @@
 import React from 'react';
 import { newBtnActions } from './sidebarindex';
 import { useNavigate } from 'react-router-dom';
+import '../../../assets/scss/sidebar.scss';
 
 const DropDrownMenu = ({ info, setInfo }) => {
 	const navigate = useNavigate();
@@ -16,26 +17,22 @@ const DropDrownMenu = ({ info, setInfo }) => {
 		} else if (option?.action === 'redirect') {
 			navigate(option?.redirect);
 		}
+
+		setInfo((prev) => ({ ...prev, isNewFeaturePlusOpen: false }));
 	};
 
 	return (
 		<div
+			className="closedDropDownMenu"
 			style={{
-				position: 'absolute',
-				top: info?.isNewFeaturePlusOpen ? '5px' : '0px',
-				left: info?.isNewFeaturePlusOpen ? '50px' : '0px',
-				width: info?.isNewFeaturePlusOpen ? '180px' : '0px',
-				transition: 'all 0.3s ease-in-out',
-				opacity: info?.isNewFeaturePlusOpen ? '1' : '0',
+				width: '180px',
 			}}
 		>
-			<div className="closedDropDownMenu">
-				{newBtnActions?.map((option, index) => (
-					<div key={option?.label} onClick={() => handleOptionClick(option)}>
-						{option?.label}
-					</div>
-				))}
-			</div>
+			{newBtnActions?.map((option, index) => (
+				<div key={option?.label} onClick={() => handleOptionClick(option)}>
+					{option?.label}
+				</div>
+			))}
 		</div>
 	);
 };
