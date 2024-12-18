@@ -25,9 +25,23 @@ import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar
 import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
 import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { useNavigate, useLocation } from 'react-router-dom';
-
+import { ReactComponent as TaskSvg } from '../../../assets/svg/sidebar/Task.svg';
+import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 export const veAiModulesItemsList = [
+	{
+		name: 'Home',
+		moduleRoute: '/home',
+		route: '/home',
+		icon: HomeSvg,
+	},
 	{ name: 'Gallery', moduleRoute: '/galleries', route: '/galleries', icon: UploadSvg },
+	{
+		name: 'Calendar',
+		moduleRoute: '/calendar',
+		route: '/calendar',
+		icon: CalendarSvg,
+	},
+	// { name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: TaskSvg },
 	// { name: 'Workflow', moduleRoute: '/workflows', route: '/sales/workflows', icon: FlowArrowSvg },
 	// {
 	// 	name: 'Linkin Bio',
