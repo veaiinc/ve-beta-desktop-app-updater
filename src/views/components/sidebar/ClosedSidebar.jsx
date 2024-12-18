@@ -5,6 +5,7 @@ import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg';
 import { ReactComponent as SvgGradient1 } from '../../../assets/svg/sidebar/svggradient1.svg';
 import { ReactComponent as SvgGradient2 } from '../../../assets/svg/sidebar/svggradient2.svg';
 import DropDrownMenu from './DropDrownMenu';
+import { Tooltip } from 'antd';
 
 const ClosedSideBarHoverStateIcons = ({ Icon, initialColor = null, hoverClassName = '' }) => {
 	const [isHover, setisHover] = useState(false);
@@ -46,13 +47,21 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 
 			<div className="TabOptions">
 				<div>
-					<div className="dropDownMenuContainer" onClick={openNewFeaturePlus}>
-						<ClosedSideBarHoverStateIcons
-							Icon={PlusSvg}
-							hoverClassName="plusIconHover"
-						/>
-						<DropDrownMenu info={info} setInfo={setInfo} />
-					</div>
+					<Tooltip
+						placement="rightTop"
+						title={<DropDrownMenu info={info} setInfo={setInfo} />}
+						color={'#151515'}
+						arrow={false}
+						trigger="click"
+						overlayClassName="sideBartoolTipContainer toolTipContainer"
+					>
+						<div onClick={openNewFeaturePlus}>
+							<ClosedSideBarHoverStateIcons
+								Icon={PlusSvg}
+								hoverClassName="plusIconHover"
+							/>
+						</div>
+					</Tooltip>
 				</div>
 
 				<div onClick={() => navigate('/home')}>

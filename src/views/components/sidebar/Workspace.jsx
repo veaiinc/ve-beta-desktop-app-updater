@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import { useParams, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import { fetchDomainName } from '../../../helpers';
-
+import Skeleton from 'react-loading-skeleton';
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
 	const navigate = useNavigate();
 	const { galleryId } = useParams();
@@ -67,50 +67,64 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 				<h6>Switch Workspace</h6>
 			</div>
 
-			<div className="workspaceList">
-				{userWorkSpaceList.map((singleWorkspace, index) => (
-					<div
-						key={singleWorkspace?.activeWorkspaceId}
-						className={`singleWorkspace ${
-							singleWorkspace?.activeWorkspaceId ===
-							info?.activeBusniessName?.activeWorkspaceId
-								? 'activeWorkspace'
-								: ''
-						}`}
-						onClick={() => {
-							handleSwitchWorkSpaceLogic(singleWorkspace);
-						}}
-					>
-						<div className="workSpaceCircle">
-							{singleWorkspace?.logo_s3_500w_key ? (
-								<img
-									src={singleWorkspace?.logo_s3_500w_key}
-									alt={singleWorkspace?.businessName}
-								/>
-							) : (
-								<div className="no-logo">
-									{singleWorkspace?.businessName?.slice(0, 2)}
+			{!userWorkSpaceList ? (
+				<div className="workspaceList">
+					{userWorkSpaceList?.map((singleWorkspace, index) => (
+						<div
+							key={singleWorkspace?.activeWorkspaceId}
+							className={`singleWorkspace ${
+								singleWorkspace?.activeWorkspaceId ===
+								info?.activeBusniessName?.activeWorkspaceId
+									? 'activeWorkspace'
+									: ''
+							}`}
+							onClick={() => {
+								handleSwitchWorkSpaceLogic(singleWorkspace);
+							}}
+						>
+							<div className="workSpaceCircle">
+								{singleWorkspace?.logo_s3_500w_key ? (
+									<img
+										src={singleWorkspace?.logo_s3_500w_key}
+										alt={singleWorkspace?.businessName}
+									/>
+								) : (
+									<div className="no-logo">
+										{singleWorkspace?.businessName?.slice(0, 2)}
+									</div>
+								)}
+							</div>
+							<h6>{singleWorkspace?.businessName}</h6>
+
+							{singleWorkspace?.activeWorkspaceId ===
+								info?.activeBusniessName?.activeWorkspaceId && (
+								<div className="activeWorkspaceCheck">
+									<CircletickwhiteSvg />
 								</div>
 							)}
 						</div>
-						<h6>{singleWorkspace?.businessName}</h6>
+					))}
 
-						{singleWorkspace?.activeWorkspaceId ===
-							info?.activeBusniessName?.activeWorkspaceId && (
-							<div className="activeWorkspaceCheck">
-								<CircletickwhiteSvg />
-							</div>
-						)}
+					<div className="singleWorkspace">
+						<div className="workSpaceCircle" onClick={handleCreateWorkspace}>
+							<PlusSvg fill={'#5d43fb'} />
+						</div>
+						<h6>Create Workspace</h6>
 					</div>
-				))}
-
-				<div className="singleWorkspace">
-					<div className="workSpaceCircle" onClick={handleCreateWorkspace}>
-						<PlusSvg fill={'#5d43fb'} />
-					</div>
-					<h6>Create Workspace</h6>
 				</div>
-			</div>
+			) : (
+				<div className="workspaceList">
+					{[1, 2, 3, 4].map((item) => (
+						<div key={item} className="singleWorkspace">
+							<div className="workSpaceCircle">
+								<Skeleton circle width={86} height={86} />
+							</div>
+
+							<h6>Workspace</h6>
+						</div>
+					))}
+				</div>
+			)}
 		</div>
 	);
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext, useCallback, Children } from 'react';
+import React, { useState, useEffect, useRef, useContext, useCallback, Children, memo } from 'react';
 import { ReactComponent as ShareIcon } from '../../../assets/svg/gallery/share.svg';
 import sixDots from '../../../assets/svg/gallery/sixdots.svg';
 import { ReactComponent as ThreeDotsIcon } from '../../../assets/svg/gallery/threeDots.svg';
@@ -3160,4 +3160,4 @@ const GalleryPage = () => {
 	);
 };
 
-export default GalleryPage;
+export default memo(GalleryPage);

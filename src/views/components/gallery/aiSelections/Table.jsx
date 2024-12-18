@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../../assets/scss/gallery/table.scss';
 
 const Table = ({ tableData, thead }) => {
@@ -41,4 +41,4 @@ const Table = ({ tableData, thead }) => {
 	);
 };
 
-export default Table;
+export default memo(Table);

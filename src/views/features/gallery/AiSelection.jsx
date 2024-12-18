@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, memo } from 'react';
 import '../../../assets/scss/gallery/aiOption.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
 // import { ReactComponent as CopyIcon } from '../../../assets/svg/workflow/copy.svg';
@@ -95,4 +95,4 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 	);
 };
 
-export default AiSelection;
+export default memo(AiSelection);
