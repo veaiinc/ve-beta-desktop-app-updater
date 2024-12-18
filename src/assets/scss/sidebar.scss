@@ -515,3 +515,10 @@
 		opacity: 1;
 	}
 }
+
+.sideBartoolTipContainer {
+	.ant-tooltip-content {
+		left: 20px;
+		background-color: transparent;
+	}
+}

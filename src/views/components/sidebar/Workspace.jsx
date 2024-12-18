@@ -67,7 +67,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 				<h6>Switch Workspace</h6>
 			</div>
 
-			{userWorkSpaceList ? (
+			{!userWorkSpaceList ? (
 				<div className="workspaceList">
 					{userWorkSpaceList?.map((singleWorkspace, index) => (
 						<div
@@ -117,14 +117,9 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 					{[1, 2, 3, 4].map((item) => (
 						<div key={item} className="singleWorkspace">
 							<div className="workSpaceCircle">
-								<Skeleton
-									circle
-									width={86}
-									height={86}
-									style={{ background: '#2b2b2b' }}
-								/>
+								<Skeleton circle width={86} height={86} />
 							</div>
-							{/* <Skeleton width={80} height={4} style={{ background: '#2b2b2b' }} /> */}
+
 							<h6>Workspace</h6>
 						</div>
 					))}
