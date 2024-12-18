@@ -126,7 +126,7 @@ const SmartFileHeader = ({
 		setTimeout(() => {
 			setInfo((prev) => ({ ...prev, previewLoader: false }));
 		}, 2000);
-	}, [slug, currentWorkspaceId]);
+	}, [slug, currentWorkspaceId, validateExpiryData]);
 
 	const onCounterAcceptClickFunc = useCallback(async () => {
 		if (info?.counterAccpetLoading) {
@@ -137,7 +137,7 @@ const SmartFileHeader = ({
 		if (respose?.[0]) {
 			setInfo((prev) => ({ ...prev, counterAccpetLoading: false }));
 		}
-	}, [slug, currentWorkspaceId, validateExpiryData]);
+	}, [info?.counterAccpetLoading]);
 
 	return (
 		<div className="smarFileHeader">
