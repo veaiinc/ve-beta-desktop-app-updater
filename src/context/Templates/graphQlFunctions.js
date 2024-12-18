@@ -18,7 +18,19 @@ export const getTemmplatesQuery = gql`
 				title
 				workflows
 				templates
-				steps
+				steps {
+					_id
+					criteria
+					module
+					nextStepId
+					nextStepType
+					emailTemplateTitle
+					emailTemplateSubject
+					emailTemplateId
+					sendAt
+					order
+					type
+				}
 				workflowStats
 				formResponses
 				filesSent
@@ -73,7 +85,19 @@ export const addEmailTriggersInWorkflowQuery = gql`
 	mutation UpdateWorkflowTemplate($templateId: ID!, $updateObj: TemplateUpdateObj!) {
 		updateWorkflowTemplate(templateId: $templateId, updateObj: $updateObj) {
 			_id
-			steps
+			steps {
+				_id
+				criteria
+				module
+				nextStepId
+				nextStepType
+				emailTemplateTitle
+				emailTemplateSubject
+				emailTemplateId
+				sendAt
+				order
+				type
+			}
 			slug
 			status
 			moduleTemplates {
@@ -97,8 +121,8 @@ export const getSpecificWorkflowTemplateDetailsQuery = gql`
 `;
 
 export const deleteWorkflowStepQuery = gql`
-	mutation RemoveStep($removeStepInput: RemoveStepInput) {
-		removeStep(removeStepInput: $removeStepInput) {
+	mutation DeleteStep($templateId: ID!, $stepId: ID!) {
+		deleteStep(templateId: $templateId, stepId: $stepId) {
 			message
 		}
 	}
@@ -199,8 +223,6 @@ export const getWorkflowListQuery = gql`
 			hasNextPage
 			data {
 				_id
-				templateId
-				title
 				clientDetails {
 					_id
 					email
@@ -309,7 +331,19 @@ export const getSpecifiTemplatesInfoQuery = gql`
 			tenantId
 			title
 			templates
-			steps
+			steps {
+				_id
+				criteria
+				module
+				nextStepId
+				nextStepType
+				emailTemplateTitle
+				emailTemplateSubject
+				emailTemplateId
+				sendAt
+				order
+				type
+			}
 			slug
 		}
 	}
@@ -389,19 +423,5 @@ export const updateSendSmartFileSettingsMutation = gql`
 export const getLatestSendSmartFileSettingsQuery = gql`
 	query Query {
 		getLatestWorkflowSettings
-	}
-`;
-
-export const addNewStepsQuery = gql`
-	mutation AddStep($templateId: ID!, $stepInput: StepInput!) {
-		addStep(templateId: $templateId, stepInput: $stepInput)
-	}
-`;
-
-export const updateStepsQuery = gql`
-	mutation UpdateStep($templateId: ID!, $updateStepInput: UpdateStepInput!) {
-		updateStep(templateId: $templateId, updateStepInput: $updateStepInput) {
-			message
-		}
 	}
 `;
