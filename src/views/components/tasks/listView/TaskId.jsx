@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 
-const Id = ({ value }) => {
+const TaskId = ({ value }) => {
 	return <div className="listItem-id">{value}</div>;
 };
 
-export default Id;
+export default memo(TaskId);

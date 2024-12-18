@@ -1,33 +1,35 @@
-import React, { useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
-import { ReactComponent as UpArrow } from '../../../../assets/svg/tasks/upArrowRed.svg';
-import { ReactComponent as ParallelLines } from '../../../../assets/svg/tasks/parallelLines.svg';
-import { ReactComponent as DownArrow } from '../../../../assets/svg/tasks/downArrowGreen.svg';
 import DropDown from '../../dropDown/tasks/DropDown';
 
-const Priority = ({
-	value = 'low',
-	showLabel = false,
-	onOptionClick,
-	customListItemStyle = {},
-}) => {
-	const [info] = useState({
+const Priority = ({ value = 'low', onOptionClick, customListItemStyle = {} }) => {
+	const [info, setInfo] = useState({
 		options: [
 			{
-				label: 'high',
-				icon: <UpArrow />,
+				value: 'high',
+				label: 'High',
+				color: '#673932',
 			},
 			{
-				label: 'medium',
-				icon: <ParallelLines />,
+				value: 'medium',
+				label: 'Medium',
+				color: '#2F4469',
 			},
 			{
-				label: 'low',
-				icon: <DownArrow />,
+				value: 'low',
+				label: 'Low',
+				color: '#373737',
 			},
 		],
 		isDropdownOpen: false,
+		selected: null,
 	});
+	useEffect(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			selected: prevInfo?.options.find((item) => item.value === value),
+		}));
+	}, [value]);
 
 	return (
 		<div className="listItem-priority">
@@ -36,17 +38,17 @@ const Priority = ({
 				options={info?.options}
 				selected={value}
 				onOptionClick={onOptionClick}
+				valueSelector="value"
 			>
 				<div
-					className={`currentIcon ${showLabel ? `listItem-border` : ``}`}
-					style={customListItemStyle}
+					className={`currentItem`}
+					style={{ ...customListItemStyle, backgroundColor: info?.selected?.color }}
 				>
-					{info?.options.find((item) => item?.label === value)?.icon}
-					{showLabel ? <p className="listItem-label">{value}</p> : ''}
+					<p className="listItem-label">{info?.selected?.label}</p>
 				</div>
 			</DropDown>
 		</div>
 	);
 };
 
-export default Priority;
+export default memo(Priority);

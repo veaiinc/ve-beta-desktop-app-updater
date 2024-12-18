@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 
 import { ReactComponent as Check } from '../../../../assets/svg/tasks/checkmark.svg';
@@ -18,4 +18,4 @@ const CheckBox = ({ value }) => {
 	);
 };
 
-export default CheckBox;
+export default memo(CheckBox);

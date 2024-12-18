@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 
 const Url = ({ value }) => {
@@ -9,4 +9,4 @@ const Url = ({ value }) => {
 	);
 };
 
-export default Url;
+export default memo(Url);

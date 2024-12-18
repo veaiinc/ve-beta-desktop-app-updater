@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import '../../../../assets/scss/tasks/listViewRow.scss';
 const ListViewRow = ({
 	task,
@@ -19,7 +20,7 @@ const ListViewRow = ({
 			const value = row[key];
 
 			if (
-				!value ||
+				(typeof value === 'object' ? !value?._id : key === '!title' && !value) ||
 				key === '__typename' ||
 				key === '_id' ||
 				key === 'workflowTemplateId' ||
@@ -33,17 +34,17 @@ const ListViewRow = ({
 				continue;
 			}
 
-			const componentType = responseTypes[key];
-			const RowComponent = rowTypes[componentType] || null;
+			const { type, name } = responseTypes[key];
+			const RowComponent = rowTypes[type] || null;
 			if (titleReached) {
 				rightPart.push(
 					RowComponent ? (
 						<RowComponent
 							key={key}
 							value={value}
-							title={key}
+							title={name}
 							onOptionClick={(value) => updatePropertyValue(task._id, key, value)}
-							{...(componentType === 'workflow' ? { workflows } : {})}
+							{...(key === 'workflow' ? { workflows } : {})}
 							{...(key === 'client'
 								? {
 										persons: clients,
@@ -52,7 +53,7 @@ const ListViewRow = ({
 								: {})}
 							{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
 							{...(key === 'updatedAt' || key === 'createdAt'
-								? { showDropDown: false }
+								? { timestamp: true }
 								: {})}
 						/>
 					) : (
@@ -65,10 +66,10 @@ const ListViewRow = ({
 						<RowComponent
 							key={key}
 							value={value}
-							title={key}
+							title={name}
 							isTitle={key === 'title'}
 							onOptionClick={(value) => updatePropertyValue(task._id, key, value)}
-							{...(componentType === 'workflow' ? { workflows } : {})}
+							{...(key === 'workflow' ? { options: workflows } : {})}
 							{...(key === 'client'
 								? {
 										persons: clients,
@@ -77,7 +78,7 @@ const ListViewRow = ({
 								: {})}
 							{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
 							{...(key === 'updatedAt' || key === 'createdAt'
-								? { showDropDown: false }
+								? { timestamp: true }
 								: {})}
 						/>
 					) : (
@@ -108,4 +109,4 @@ const ListViewRow = ({
 	);
 };
 
-export default ListViewRow;
+export default memo(ListViewRow);

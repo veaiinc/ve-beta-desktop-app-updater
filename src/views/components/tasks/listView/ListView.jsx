@@ -2,7 +2,6 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/tasks/listView.scss';
 import Text from './Text';
-import Id from './Id';
 import Select from './Select';
 import Person from './Person';
 import MultiSelect from './MultiSelect';
@@ -22,6 +21,14 @@ import ListViewRow from './ListViewRow';
 import Skeleton from 'react-loading-skeleton';
 import jwtDecode from 'jwt-decode';
 import { message } from 'antd';
+import TaskId from './TaskId';
+import { ReactComponent as ClockSvg } from '../../../../assets/svg/activity/clock.svg';
+import { ReactComponent as PieSvg } from '../../../../assets/svg/tasks/pieHollow.svg';
+import { ReactComponent as PrioritySvg } from '../../../../assets/svg/tasks/roundChevronRight.svg';
+import { ReactComponent as WorkflowSvg } from '../../../../assets/svg/tasks/workflow.svg';
+import { ReactComponent as PersonSvg } from '../../../../assets/svg/tasks/person.svg';
+import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
+import moment from 'moment';
 
 const rowTypes = {
 	text: Text,
@@ -29,7 +36,7 @@ const rowTypes = {
 	person: Person,
 	'multi-select': MultiSelect,
 	date: DateView,
-	id: Id,
+	id: TaskId,
 	status: Status,
 	priority: Priority,
 	email: Email,
@@ -40,21 +47,21 @@ const rowTypes = {
 };
 
 const responseTypes = {
-	title: 'text',
-	description: 'text',
-	status: 'status',
-	priority: 'priority',
-	workflow: 'workflow',
-	assignedTo: 'person',
-	dueDate: 'date',
-	assignedBy: 'person',
-	assignedAt: 'date',
-	completedAt: 'date',
-	createdAt: 'date',
-	updatedAt: 'date',
-	createdBy: 'person',
-	updatedBy: 'person',
-	taskSlNo: 'id',
+	title: { type: 'text', name: 'Title' },
+	description: { type: 'text', name: 'Description' },
+	status: { type: 'status', name: 'Status', Icon: PieSvg },
+	priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg },
+	workflow: { type: 'workflow', name: 'Workflow', Icon: WorkflowSvg },
+	assignedTo: { type: 'person', name: 'Assigned To', Icon: PersonSvg },
+	dueDate: { type: 'date', name: 'Due Date', Icon: ClockSvg },
+	assignedBy: { type: 'person', name: 'Assigned By', Icon: PersonSvg },
+	assignedAt: { type: 'date', name: 'Assigned At', Icon: ClockSvg },
+	completedAt: { type: 'date', name: 'Completed At', Icon: CalendarSvg },
+	createdAt: { type: 'date', name: 'Created At', Icon: CalendarSvg },
+	updatedAt: { type: 'date', name: 'Updated At', Icon: CalendarSvg },
+	createdBy: { type: 'person', name: 'Created By', Icon: PersonSvg },
+	updatedBy: { type: 'person', name: 'Updated By', Icon: PersonSvg },
+	taskSlNo: { type: 'id', name: 'Id' },
 };
 
 const ListView = () => {
@@ -70,12 +77,12 @@ const ListView = () => {
 		listItems: [],
 		isOptionsDropDownOpen: false,
 		isCreateModalOpen: false,
+		isCreatingSubtask: true,
 		properties: [],
 		sidebarIsOpen: false,
 		selectedRow: null,
 		workflows: [],
 		tenantUsers: [],
-		clients: [],
 		page: 1,
 		hasMore: false,
 		loadingSkeleton: true,
@@ -110,8 +117,6 @@ const ListView = () => {
 	}, [tenantsUserList]);
 
 	useEffect(() => {
-		console.log(workflowslist);
-
 		if (!workflowslist) {
 			getWorkflowsList({
 				filters: {
@@ -124,7 +129,7 @@ const ListView = () => {
 				...prevInfo,
 				workflows: workflowslist?.data?.map(({ title, _id, templateId }) => ({
 					label: title,
-					value: _id,
+					_id,
 					templateId,
 				})),
 			}));
@@ -212,97 +217,121 @@ const ListView = () => {
 		});
 	}, []);
 
-	const updatePropertyValue = useCallback(
-		(rowId, propName, value) => {
-			if (validateExpiryData?.isExpired) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
-			} else {
-				let originalValue;
-				setInfo((prevInfo) => {
-					const updatedListItems = prevInfo.listItems.map((row) => {
-						if (row._id === rowId) {
-							originalValue = row[propName];
-							return { ...row, [propName]: value };
-						}
-						return row;
-					});
-
-					return {
-						...prevInfo,
-						listItems: updatedListItems,
-					};
+	const debouncedUpdateTask = useCallback(
+		async (rowId, propName, value, originalValue) => {
+			try {
+				const response = await updateListItem({
+					taskId: rowId,
+					updateInput:
+						propName === 'workflow'
+							? {
+									workflowId: value,
+									workflowTemplateId: info?.workflows?.find(
+										(workflow) => workflow?._id === value,
+									)?.templateId,
+							  }
+							: {
+									[propName]:
+										propName === 'assignedTo'
+											? typeof value === 'object'
+												? { userId: value.value }
+												: value
+											: value,
+							  },
 				});
 
-				// Debounce the API call
-				if (debounceTimeout.current) {
-					clearTimeout(debounceTimeout.current);
-				}
-
-				debounceTimeout.current = setTimeout(async () => {
-					try {
-						const response = await updateListItem({
-							taskId: rowId,
-
-							updateInput:
-								propName === 'workflow'
-									? {
-											workflowId: value,
-											workflowTemplateId: info?.workflows?.find(
-												(workflow) => workflow?._id === value,
-											)?.templateId,
-									  }
-									: {
-											[propName]:
-												propName === 'assignedTo'
-													? typeof value === 'object'
-														? { userId: value.value }
-														: value
-													: value,
-									  },
-						});
-						if (response?.[0] === false) {
-							throw new Error('Failed to update, Try again later');
-						} else {
-							if (propName === 'assignedTo') {
-								setInfo((prevInfo) => {
-									const rolledBackListItems = prevInfo.listItems.map((row) => {
-										if (row._id === rowId) {
-											return { ...row, assignedBy: originalValue }; // Reset to original value
-										}
-										return row;
-									});
-
-									return {
-										...prevInfo,
-										listItems: rolledBackListItems,
-									};
-								});
-							}
-						}
-					} catch (error) {
-						messageApi.open({
-							type: 'error',
-							content: error?.message || 'Something went wrong! Please try again.',
-						});
-
+				if (response?.[0] === false) {
+					throw new Error('Failed to update, Try again later');
+				} else {
+					if (propName === 'assignedTo') {
 						setInfo((prevInfo) => {
-							const rolledBackListItems = prevInfo.listItems.map((row) => {
+							const token = localStorage.getItem('usertoken');
+							const { user_id, userName } = jwtDecode(token);
+							const newListItems = prevInfo.listItems.map((row) => {
 								if (row._id === rowId) {
-									return { ...row, [propName]: originalValue }; // Reset to original value
+									return {
+										...row,
+										assignedBy: { _id: user_id, name: userName },
+										assignedAt: moment().unix(),
+									};
 								}
 								return row;
 							});
 
 							return {
 								...prevInfo,
-								listItems: rolledBackListItems,
+								listItems: newListItems,
 							};
 						});
 					}
-				}, 800); // Adjust debounce delay as needed
+				}
+			} catch (error) {
+				messageApi.open({
+					type: 'error',
+					content: error?.message || 'Something went wrong! Please try again.',
+				});
+
+				setInfo((prevInfo) => {
+					const rolledBackListItems = prevInfo.listItems.map((row) => {
+						if (row._id === rowId) {
+							return { ...row, [propName]: originalValue };
+						}
+						return row;
+					});
+
+					return {
+						...prevInfo,
+						listItems: rolledBackListItems,
+					};
+				});
 			}
 		},
-		[messageApi, updateListItem, updateSubscriptionState, validateExpiryData?.isExpired],
+		[messageApi, updateListItem, info?.workflows],
+	);
+
+	const handleDebounceUpdate = useCallback(
+		(rowId, propName, value, originalValue) => {
+			if (debounceTimeout.current) {
+				clearTimeout(debounceTimeout.current);
+			}
+
+			debounceTimeout.current = setTimeout(() => {
+				debouncedUpdateTask(rowId, propName, value, originalValue);
+			}, 800);
+		},
+		[debouncedUpdateTask],
+	);
+
+	const updatePropertyValue = useCallback(
+		(rowId, propName, value) => {
+			if (validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
+
+			let originalValue;
+			setInfo((prevInfo) => {
+				let updatedValue = value;
+				if (propName === 'workflow') {
+					const workflow = info?.workflows?.find((workflow) => workflow._id === value);
+					updatedValue = workflow;
+				}
+				const updatedListItems = prevInfo.listItems.map((row) => {
+					if (row._id === rowId) {
+						originalValue = row[propName];
+						return { ...row, [propName]: updatedValue };
+					}
+					return row;
+				});
+
+				return {
+					...prevInfo,
+					listItems: updatedListItems,
+				};
+			});
+
+			handleDebounceUpdate(rowId, propName, value, originalValue);
+		},
+		[validateExpiryData?.isExpired, updateSubscriptionState, debouncedUpdateTask],
 	);
 
 	const addNewTask = useCallback(
@@ -320,14 +349,11 @@ const ListView = () => {
 
 						const newTask = { ...task };
 						const newWorkflow = info?.workflows?.find(
-							(workflow) => workflow.value === payload?.workflowId,
+							(workflow) => workflow._id === payload?.workflowId,
 						);
-
 						newTask.workflow = newWorkflow
-							? { _id: newWorkflow.value, title: newWorkflow.label }
+							? { _id: newWorkflow._id, title: newWorkflow.label }
 							: null;
-						console.log(newTask.workflow);
-
 						newTask.workflowId = null;
 						newTask.createdBy = { _id: user_id, name: userName };
 						newTask.updatedBy = { _id: user_id, name: userName };
@@ -341,7 +367,7 @@ const ListView = () => {
 				}
 			}
 		},
-		[info?.clients],
+		[info?.workflows],
 	);
 
 	const deleteTask = useCallback(async (payload) => {
@@ -370,6 +396,19 @@ const ListView = () => {
 		},
 		[info?.listItems],
 	);
+
+	const handleCreateSubTaskClick = useCallback(() => {
+		updateListViewInfo('sidebarIsOpen', false);
+		updateListViewInfo('isCreatingSubtask', true);
+		updateListViewInfo('isCreateModalOpen', true);
+	}, []);
+
+	const handleCloseCreateModal = useCallback(() => {
+		if (info?.isCreatingSubtask) {
+			updateListViewInfo('sidebarIsOpen', true);
+		}
+		updateListViewInfo('isCreateModalOpen', false);
+	}, [info?.isCreatingSubtask]);
 
 	return (
 		<div className="listViewParentContainer">
@@ -416,11 +455,12 @@ const ListView = () => {
 			)}
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
-				closeModal={() => updateListViewInfo('isCreateModalOpen', false)}
+				closeModal={handleCloseCreateModal}
 				addNewTask={addNewTask}
 				workflows={info?.workflows}
 				tenantUsers={info?.tenantUsers}
 				clients={info?.clients}
+				isSubTask={info?.isCreatingSubtask}
 			/>
 			<ListViewSidebar
 				selectedRow={info?.selectedRow}
@@ -433,6 +473,7 @@ const ListView = () => {
 				responseTypes={responseTypes}
 				rowTypes={rowTypes}
 				clients={info?.clients}
+				handleCreateSubTaskClick={handleCreateSubTaskClick}
 			/>
 		</div>
 	);

@@ -135,3 +135,36 @@ export const getTaskQuery = gql`
 		}
 	}
 `;
+export const getSubTasksQuery = gql`
+	query Query($taskId: ID!) {
+		listChildTasks(taskId: $taskId) {
+			_id
+			title
+			description
+			status
+			priority
+			assignedTo {
+				_id
+				name
+			}
+			dueDate
+			assignedAt
+			completedAt
+			createdAt
+			updatedAt
+			taskSlNo
+			createdBy {
+				_id
+				name
+			}
+			updatedBy {
+				_id
+				name
+			}
+			assignedBy {
+				_id
+				name
+			}
+		}
+	}
+`;

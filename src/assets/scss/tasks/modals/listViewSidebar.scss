@@ -1,26 +1,26 @@
 .listView-sidebar-container {
 	height: 100%;
-	width: 420px;
+	width: 480px;
 	display: flex;
 	padding: 10px;
 	.listView-sidebar-innerContainer {
 		display: flex;
 		align-self: stretch;
 		width: 100%;
-		padding: 24px 32px;
+		padding: 24px 36px;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 12px;
+		gap: 20px;
 		border-radius: 16px;
 		border-radius: 16px;
 		border: 1px solid rgba(36, 36, 36, 0.64);
-		background: #151515;
+		background: #202123;
 
 		.sidebar-header {
 			display: flex;
 			align-self: stretch;
 			align-items: center;
-			gap: 18px;
+			gap: 8px;
 
 			.sidebar-id {
 				color: #7d7d7d;
@@ -31,6 +31,18 @@
 				line-height: normal;
 				flex-grow: 1;
 			}
+			.sidebar-delete-button {
+				background: transparent;
+				border: none;
+				cursor: pointer;
+				&:hover {
+					svg {
+						path {
+							stroke: #ff4d4d !important;
+						}
+					}
+				}
+			}
 		}
 
 		.sidebar-title {
@@ -38,38 +50,29 @@
 			.sidebar-title-input {
 				border: none;
 				background: transparent;
-				color: #e4e5e6;
+				color: #e8e8e8;
 				font-family: Inter;
-				font-size: 22px;
 				font-style: normal;
-				font-weight: 600;
-				line-height: 28px; /* 127.273% */
 				outline: none;
 				width: 100%;
+				font-size: 20px;
+				font-weight: 500;
+				line-height: normal;
+				resize: none;
+				max-height: fit-content;
+				padding: 0;
 			}
 		}
 
-		.sidebar-description {
-			width: 100%;
-			.sidebar-description-textarea {
-				border: none;
-				background: transparent;
-				color: #e4e5e6;
-				font-family: Inter;
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: 18px; /* 150% */
-				outline: none;
-				width: 100%;
-				resize: none;
-			}
-		}
 		.sidebar-properties-container {
 			display: flex;
 			flex-direction: column;
-			gap: 12px;
-			margin: 24px 0;
+			gap: 8px;
+			border: 1px solid #424548;
+			border-left: none;
+			border-right: none;
+			padding: 18px 0;
+			width: 100%;
 			.property-list {
 				display: grid;
 				grid-template-columns: 1fr 1fr;
@@ -82,57 +85,53 @@
 					font-style: normal;
 					font-weight: 400;
 					line-height: 16px; /* 133.333% */
+					display: flex;
+					align-items: center;
+					gap: 8px;
 				}
 				.property-value {
-					border-radius: 6px;
-					border: 1px solid #2c2c2c;
-					background: #1d1d1d;
 					width: fit-content;
 					display: flex;
 					min-height: 32px;
-					padding: 0 3px;
 					min-width: 100px;
 					display: flex;
-					justify-content: center;
+					justify-content: flex-start;
 					align-items: center;
 				}
 			}
 		}
 
-		.sidebar-subtasks-container {
+		.sidebar-subtask-container {
 			width: 100%;
 			display: flex;
-			padding: 24px 0;
-			border: 1px solid #1d1d1d;
+			padding-bottom: 24px;
 			border-left: none;
 			border-right: none;
 			flex-direction: column;
+			border-bottom: 1px solid #424548;
 
-			.subtask-header {
+			.sidebar-subtask-header {
 				display: flex;
+				padding: 0px 8px;
+				justify-content: space-between;
 				align-items: center;
-				gap: 12px;
-				color: #e4e5e6;
-
-				.subtask-heading {
+				align-self: stretch;
+				gap: 16px;
+				.sidebar-subtask-header-title {
 					color: #e4e5e6;
 					font-family: Inter;
-					font-size: 12px;
+					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
-					line-height: normal;
+					line-height: 20px; /* 142.857% */
 				}
 
-				.subtaskCount-container {
+				.sidebar-subtask-header-count {
 					display: flex;
-					padding: 6px 6px 6px 10px;
 					align-items: center;
 					gap: 10px;
-					border-radius: 6px;
-					border: 1px solid #1d1d1d;
-					background: #1d1d1d;
 
-					.taskCount {
+					.task-count {
 						color: #e4e5e6;
 						font-family: Inter;
 						font-size: 12px;
@@ -141,12 +140,48 @@
 						line-height: normal;
 					}
 				}
-				.subTask-actions-wrapper {
+				.subtask-actions-wrapper {
 					display: flex;
-					justify-content: flex-end;
 					align-items: center;
 					flex-grow: 1;
-					gap: 16px;
+					justify-content: flex-end;
+					gap: 8px;
+					button {
+						border: none;
+						background: none;
+						width: 20px;
+						height: 20px;
+						cursor: pointer;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+					}
+				}
+			}
+			.subtask-list-container {
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+			}
+		}
+
+		.sidebar-description {
+			width: 100%;
+			.sidebar-description-textarea {
+				border: none;
+				background: transparent;
+				color: #e8e8e8;
+				font-style: normal;
+				outline: none;
+				width: 100%;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px;
+				resize: none;
+				&::placeholder {
+					color: #939393;
 				}
 			}
 		}

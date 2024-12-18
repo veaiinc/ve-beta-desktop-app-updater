@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 
 const Email = ({ value }) => {
@@ -9,4 +9,4 @@ const Email = ({ value }) => {
 	);
 };
 
-export default Email;
+export default memo(Email);

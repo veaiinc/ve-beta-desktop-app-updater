@@ -16,7 +16,10 @@ const ListViewHeader = ({ updateListViewInfo, properties, togglePropertyVisibili
 				<div className="listViewHeaderActions">
 					<button
 						className="listViewHeaderActionButton"
-						onClick={() => updateListViewInfo('isCreateModalOpen', true)}
+						onClick={() => {
+							updateListViewInfo('isCreatingSubtask', false);
+							updateListViewInfo('isCreateModalOpen', true);
+						}}
 					>
 						<PlusSvg style={{ width: '20px', height: '20px' }} />
 					</button>

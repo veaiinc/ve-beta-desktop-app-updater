@@ -1,4 +1,5 @@
 export const Actions = {
 	SET_LIST_ITEMS: 'SET_LIST_ITEMS',
+	SET_SUB_TASKS: 'SET_SUB_TASKS',
 	RESET_STATE: 'RESET_STATE',
 };
