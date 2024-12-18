@@ -5,7 +5,12 @@ import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/up
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import Spinner from '../loaders/Spinner';
 
-const PhoneNumber = ({ phoneNumber, handleSetPhoneNumber, updateUserNameAndPhoneNumber }) => {
+const PhoneNumber = ({
+	phoneNumber,
+	handleSetPhoneNumber,
+	updateUserNameAndPhoneNumber,
+	phoneNumberError,
+}) => {
 	const [info, setInfo] = useState({
 		isLoading: false,
 		isHovering: false,
@@ -102,6 +107,7 @@ const PhoneNumber = ({ phoneNumber, handleSetPhoneNumber, updateUserNameAndPhone
 					)}
 				</span>
 			</button>
+			<p className="phone-number-error-message">{phoneNumberError}</p>
 		</div>
 	);
 };

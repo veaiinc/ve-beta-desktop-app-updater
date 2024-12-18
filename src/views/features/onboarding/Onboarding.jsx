@@ -260,6 +260,10 @@ const Onboarding = () => {
 			animateStage5AndStep6Exit();
 		} else {
 			message?.error(userDetailsResponse?.[1]?.message);
+			setInfo((prev) => ({
+				...prev,
+				phoneNumberError: userDetailsResponse?.[1]?.message,
+			}));
 		}
 	};
 
@@ -829,6 +833,7 @@ const Onboarding = () => {
 				handleSetPhoneNumber={handleSetPhoneNumber}
 				updateUserNameAndPhoneNumber={updateUserNameAndPhoneNumber}
 				animateStage5AndStep6Exit={animateStage5AndStep6Exit}
+				phoneNumberError={info?.phoneNumberError}
 			/>
 		),
 		6: (

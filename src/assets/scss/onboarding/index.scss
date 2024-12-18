@@ -188,6 +188,7 @@
 				justify-content: flex-start;
 				position: relative;
 				width: 280px;
+				position: relative;
 
 				input[type='tel'] {
 					outline: none;
@@ -208,6 +209,15 @@
 					top: 0px;
 					padding: 14px 24px;
 					border-radius: 60px;
+				}
+
+				.phone-number-error-message {
+					position: absolute;
+					right: 0;
+					top: 70px;
+					font-size: 12px;
+					color: #d1243f;
+					text-transform: capitalize;
 				}
 			}
 
