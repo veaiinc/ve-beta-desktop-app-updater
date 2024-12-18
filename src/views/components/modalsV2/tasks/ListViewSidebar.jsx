@@ -23,6 +23,8 @@ const ListViewSidebar = ({
 	responseTypes,
 	rowTypes,
 	handleCreateSubTaskClick,
+	handleSubTaskClick,
+	isShowingSubTask,
 }) => {
 	const {
 		tasks: { subTasks, getSubTasks },
@@ -36,6 +38,9 @@ const ListViewSidebar = ({
 	});
 
 	useEffect(() => {
+		if (isShowingSubTask) {
+			return;
+		}
 		if (selectedRow?._id && !subTasks) {
 			setInfo({ subTaskLoading: true });
 			getSubTasks({ taskId: selectedRow?._id });
@@ -46,13 +51,21 @@ const ListViewSidebar = ({
 				setInfo({ subTaskError: subTasks?.error, subTaskLoading: false });
 			}
 		}
-	}, [subTasks, selectedRow?._id]);
+	}, [subTasks, selectedRow?._id, isShowingSubTask]);
 
-	const handleDeleteTask = async () => {
+	const handleDeleteTask = useCallback(async () => {
 		setInfo({ deleteLoading: true });
 		await deleteTask({ taskId: selectedRow?._id });
 		setInfo({ deleteLoading: false });
-	};
+	}, [deleteTask, selectedRow?._id]);
+
+	const onSubTaskClick = useCallback(
+		(taskId) => {
+			const task = info?.subTasks?.find((task) => task?._id === taskId);
+			handleSubTaskClick(task);
+		},
+		[info?.subTasks, handleSubTaskClick],
+	);
 
 	const generateRow = useCallback(
 		(row) => {
@@ -75,9 +88,9 @@ const ListViewSidebar = ({
 					continue;
 				}
 
-				const { type = null, name = null, Icon = null } = responseTypes[key];
+				const { type = null, name = null, Icon = null } = responseTypes?.[key] || {};
 
-				const RowComponent = rowTypes[type] || null;
+				const RowComponent = rowTypes?.[type] || null;
 				listItems.push(
 					<div className="property-list" key={key}>
 						<span className="property-title">
@@ -179,43 +192,45 @@ const ListViewSidebar = ({
 						<div className="sidebar-properties-container">
 							{generateRow(selectedRow)}
 						</div>
-
-						<div className="sidebar-subtask-container">
-							<div className="sidebar-subtask-header">
-								<span className="sidebar-subtask-header-title">Sub Tasks</span>
-								<span className="sidebar-subtask-header-count">
-									<Progress
-										type="circle"
-										percent={75}
-										size={16}
-										strokeColor={'#6055EC'}
-										trailColor={'#2F2F2F'}
-										strokeWidth={14}
-									/>
-									<span className="task-count">3/6</span>
-								</span>
-								<div className="subtask-actions-wrapper">
-									<button
-										className="subtask-action-button"
-										onClick={handleCreateSubTaskClick}
-									>
-										<PlusSvg style={{ width: '20px', height: '20px' }} />
-									</button>
-									<button className="subtask-action-button">
-										<SearchSvg />
-									</button>
-									{/* <button className="subtask-action-button">
+						{isShowingSubTask ? (
+							''
+						) : (
+							<div className="sidebar-subtask-container">
+								<div className="sidebar-subtask-header">
+									<span className="sidebar-subtask-header-title">Sub Tasks</span>
+									<span className="sidebar-subtask-header-count">
+										<Progress
+											type="circle"
+											percent={75}
+											size={16}
+											strokeColor={'#6055EC'}
+											trailColor={'#2F2F2F'}
+											strokeWidth={14}
+										/>
+										<span className="task-count">3/6</span>
+									</span>
+									<div className="subtask-actions-wrapper">
+										<button
+											className="subtask-action-button"
+											onClick={handleCreateSubTaskClick}
+										>
+											<PlusSvg style={{ width: '20px', height: '20px' }} />
+										</button>
+										<button className="subtask-action-button">
+											<SearchSvg />
+										</button>
+										{/* <button className="subtask-action-button">
 									<ThunderSvg />
 								</button>
 								<button className="subtask-action-button">
 									<FilterLinesSvg />
 								</button> */}
-									<button className="subtask-action-button">
-										<HorizontalMoreIcon
-											style={{ width: '20px', height: '20px' }}
-										/>
-									</button>
-									{/* <Tooltip
+										<button className="subtask-action-button">
+											<HorizontalMoreIcon
+												style={{ width: '20px', height: '20px' }}
+											/>
+										</button>
+										{/* <Tooltip
 									placement="bottom"
 									title={
 										<OptionsDropDown
@@ -234,31 +249,33 @@ const ListViewSidebar = ({
 										/>
 									</button>
 								</Tooltip> */}
+									</div>
+								</div>
+								<div className="subtask-list-container">
+									{info?.subTaskLoading ? (
+										generateSkeleton()
+									) : info?.subTaskError ? (
+										<span className="no-subtasks">{info?.subTaskError}</span>
+									) : info?.subTasks?.length !== 0 ? (
+										info?.subTasks?.map((subTask) => (
+											<ListViewRow
+												task={subTask}
+												key={subTask?._id}
+												rowTypes={rowTypes}
+												responseTypes={responseTypes}
+												workflows={workflows}
+												tenantUsers={tenantUsers}
+												updatePropertyValue={updatePropertyValue}
+												isSubTask={true}
+												handleRowClick={onSubTaskClick}
+											/>
+										))
+									) : (
+										<span className="no-subtasks">No subTasks</span>
+									)}
 								</div>
 							</div>
-							<div className="subtask-list-container">
-								{info?.subTaskLoading ? (
-									generateSkeleton()
-								) : info?.subTaskError ? (
-									<span className="no-subtasks">{info?.subTaskError}</span>
-								) : info?.subTasks?.length !== 0 ? (
-									info?.subTasks?.map((subTask) => (
-										<ListViewRow
-											task={subTask}
-											key={subTask?._id}
-											rowTypes={rowTypes}
-											responseTypes={responseTypes}
-											workflows={workflows}
-											tenantUsers={tenantUsers}
-											updatePropertyValue={updatePropertyValue}
-											isSubTask={true}
-										/>
-									))
-								) : (
-									<span className="no-subtasks">No subTasks</span>
-								)}
-							</div>
-						</div>
+						)}
 
 						<div className="sidebar-description">
 							<textarea

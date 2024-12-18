@@ -15,7 +15,11 @@ const actionHandlers = {
 	}),
 	ADD_SUB_TASK: (state, action) => ({
 		...state,
-		subTasks: [...state.subTasks, action?.payload],
+		subTasks: {
+			...state.subTasks,
+			data: [...state.subTasks?.data, action?.payload],
+			error: null,
+		},
 	}),
 	RESET_STATE: () => intialState,
 };

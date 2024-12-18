@@ -72,6 +72,7 @@ const ListView = () => {
 			addListItem,
 			updateListItem,
 			deleteListItem,
+			addSubTask,
 			resetSubTasks,
 		},
 		templates: { getWorkflowsList, workflowslist },
@@ -88,6 +89,7 @@ const ListView = () => {
 		properties: [],
 		sidebarIsOpen: false,
 		selectedRow: null,
+		selectedSubTask: null,
 		workflows: [],
 		tenantUsers: [],
 		page: 1,
@@ -346,7 +348,11 @@ const ListView = () => {
 			if (validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			} else {
+				if (info?.isCreatingSubtask) {
+					payload.parentTaskId = info?.selectedRow?._id;
+				}
 				const response = await addListItem({ input: payload });
+
 				if (response) {
 					const task = response?.createTask;
 
@@ -364,17 +370,21 @@ const ListView = () => {
 						newTask.workflowId = null;
 						newTask.createdBy = { _id: user_id, name: userName };
 						newTask.updatedBy = { _id: user_id, name: userName };
-						setInfo((prevInfo) => ({
-							...prevInfo,
-							listItems: [...prevInfo?.listItems, newTask],
-						}));
+						if (info?.isCreatingSubtask) {
+							addSubTask(newTask);
+						} else {
+							setInfo((prevInfo) => ({
+								...prevInfo,
+								listItems: [...prevInfo?.listItems, newTask],
+							}));
+						}
 					}
 				} else {
 					throw new Error('Failed to add new task');
 				}
 			}
 		},
-		[info?.workflows],
+		[info?.workflows, info?.isCreatingSubtask, info?.selectedRow?._id],
 	);
 
 	const deleteTask = useCallback(async (payload) => {
@@ -419,6 +429,15 @@ const ListView = () => {
 		}
 		updateListViewInfo('isCreateModalOpen', false);
 	}, [info?.isCreatingSubtask]);
+
+	const handleSubTaskClick = useCallback((task) => {
+		updateListViewInfo('selectedSubTask', task);
+	}, []);
+
+	const handleCloseSidebar = useCallback(() => {
+		updateListViewInfo('sidebarIsOpen', false);
+		updateListViewInfo('selectedSubTask', null);
+	}, []);
 
 	return (
 		<div className="listViewParentContainer">
@@ -473,16 +492,17 @@ const ListView = () => {
 				isSubTask={info?.isCreatingSubtask}
 			/>
 			<ListViewSidebar
-				selectedRow={info?.selectedRow}
+				selectedRow={info?.selectedSubTask || info?.selectedRow}
+				isShowingSubTask={info?.selectedSubTask !== null}
+				handleSubTaskClick={handleSubTaskClick}
 				sidebarIsOpen={info?.sidebarIsOpen}
-				closeSidebar={() => updateListViewInfo('sidebarIsOpen', false)}
+				closeSidebar={handleCloseSidebar}
 				updatePropertyValue={updatePropertyValue}
 				workflows={info?.workflows}
 				tenantUsers={info?.tenantUsers}
 				deleteTask={deleteTask}
 				responseTypes={responseTypes}
 				rowTypes={rowTypes}
-				clients={info?.clients}
 				handleCreateSubTaskClick={handleCreateSubTaskClick}
 			/>
 		</div>
