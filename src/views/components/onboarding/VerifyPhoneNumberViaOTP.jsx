@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useContext } from 'react';
+import React, { useRef, useState, useEffect, useContext, memo } from 'react';
 import OtpInput from 'react-otp-input';
 import '../../../assets/scss/onboarding/index.scss';
 import Spinner from '../loaders/Spinner';
@@ -102,4 +102,4 @@ const VerifyPhoneNumberViaOTP = ({ phoneNumber, incrementStep, handleOnboarding 
 	);
 };
 
-export default VerifyPhoneNumberViaOTP;
+export default memo(VerifyPhoneNumberViaOTP);
