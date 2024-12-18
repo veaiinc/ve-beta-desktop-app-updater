@@ -9,7 +9,7 @@ const ListViewRow = ({
 	workflows,
 	tenantUsers,
 	handleRowClick,
-	clients,
+	isSubTask = false,
 }) => {
 	const generateRow = (row) => {
 		const leftPart = [];
@@ -45,12 +45,6 @@ const ListViewRow = ({
 							title={name}
 							onOptionClick={(value) => updatePropertyValue(task._id, key, value)}
 							{...(key === 'workflow' ? { workflows } : {})}
-							{...(key === 'client'
-								? {
-										persons: clients,
-										showName: true,
-								  }
-								: {})}
 							{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
 							{...(key === 'updatedAt' || key === 'createdAt'
 								? { timestamp: true }
@@ -70,12 +64,6 @@ const ListViewRow = ({
 							isTitle={key === 'title'}
 							onOptionClick={(value) => updatePropertyValue(task._id, key, value)}
 							{...(key === 'workflow' ? { options: workflows } : {})}
-							{...(key === 'client'
-								? {
-										persons: clients,
-										showName: true,
-								  }
-								: {})}
 							{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
 							{...(key === 'updatedAt' || key === 'createdAt'
 								? { timestamp: true }
@@ -103,7 +91,10 @@ const ListViewRow = ({
 	};
 
 	return (
-		<div className="listItemRowContainer" onClick={() => handleRowClick(task._id)}>
+		<div
+			className={`listItemRowContainer ${isSubTask ? 'subTaskRowContainer' : ''}`}
+			onClick={() => handleRowClick(task._id)}
+		>
 			<div className="listItemRow">{generateRow(task)}</div>
 		</div>
 	);

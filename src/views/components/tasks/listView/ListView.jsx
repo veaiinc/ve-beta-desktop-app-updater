@@ -66,7 +66,14 @@ const responseTypes = {
 
 const ListView = () => {
 	const {
-		tasks: { listTasks, getListItems, addListItem, updateListItem, deleteListItem },
+		tasks: {
+			listTasks,
+			getListItems,
+			addListItem,
+			updateListItem,
+			deleteListItem,
+			resetSubTasks,
+		},
 		templates: { getWorkflowsList, workflowslist },
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -388,13 +395,16 @@ const ListView = () => {
 
 	const handleRowClick = useCallback(
 		(rowId) => {
+			if (info?.selectedRow?._id !== rowId) {
+				resetSubTasks();
+			}
 			const row = info?.listItems?.find((row) => row._id === rowId);
 			if (row) {
 				updateListViewInfo('selectedRow', row);
 				updateListViewInfo('sidebarIsOpen', true);
 			}
 		},
-		[info?.listItems],
+		[info?.listItems, resetSubTasks, info?.selectedRow?._id],
 	);
 
 	const handleCreateSubTaskClick = useCallback(() => {
