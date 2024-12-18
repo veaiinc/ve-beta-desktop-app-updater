@@ -11,15 +11,32 @@ const PhoneNumber = ({ phoneNumber, handleSetPhoneNumber, updateUserNameAndPhone
 	});
 
 	const handlePressEnter = (e) => {
-		if (e?.key === 'Enter' && isValidPhoneNumber(phoneNumber)) {
+		if (e?.key === 'Enter' && isValidPhoneNumber(phoneNumber) && !info?.enterPressed) {
 			updateUserNameAndPhoneNumber();
+			setInfo((prev) => ({
+				...prev,
+				enterPressed: true,
+			}));
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				enterPressed: false,
+			}));
 		}
 	};
 
 	const handleUpdateUserDetails = () => {
-		if (isValidPhoneNumber(phoneNumber)) {
+		if (isValidPhoneNumber(phoneNumber) && !info?.enterPressed) {
 			updateUserNameAndPhoneNumber();
-		}
+			setInfo((prev) => ({
+				...prev,
+				enterPressed: true,
+			}));
+		} else
+			setInfo((prev) => ({
+				...prev,
+				enterPressed: false,
+			}));
 	};
 
 	return (

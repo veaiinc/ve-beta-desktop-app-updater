@@ -27,7 +27,7 @@ const WorkspaceType = ({ setWorkspaceType, animateStage3AndStep4Exit }) => {
 	const handleSelectType = (type) => {
 		if (info?.optionSelected) return;
 		setInfo((prev) => ({ ...prev, optionSelected: true }));
-		setWorkspaceType(type.value);
+		setWorkspaceType(type?.value);
 		animateStage3AndStep4Exit();
 	};
 

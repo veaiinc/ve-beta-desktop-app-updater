@@ -181,11 +181,12 @@ export const AuthState = () => {
 		const firstName = username?.split(' ')?.[0] || '';
 		const lastName = username?.split(' ')?.[1] || '';
 		const path = '/tenant-user';
-		const body = phoneNumber
-			? { firstName, lastName, phoneNumber }
-			: lastName?.length > 0
-			? { firstName, lastName }
-			: { firstName };
+
+		const body = {};
+		if (firstName) body.firstName = firstName;
+		if (lastName) body.lastName = lastName;
+		if (phoneNumber) body.phoneNumber = phoneNumber;
+
 		const token = localStorage?.getItem('usertoken') || '';
 
 		try {

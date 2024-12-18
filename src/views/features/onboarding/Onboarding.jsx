@@ -260,8 +260,6 @@ const Onboarding = () => {
 			animateStage5AndStep6Exit();
 		} else {
 			message?.error(userDetailsResponse?.[1]?.message);
-			// remove later
-			animateStage5AndStep6Exit();
 		}
 	};
 
@@ -613,7 +611,7 @@ const Onboarding = () => {
 				duration: 1,
 				ease: 'power2.inOut',
 				onComplete: () => {
-					// incrementStage();
+					createWorkspaceUsername && handleOnboarding();
 				},
 			},
 		);
@@ -644,79 +642,148 @@ const Onboarding = () => {
 		);
 	};
 
-	const AiIntro = {
-		1: (
-			<h1 className="step1">
-				<>
-					Hey there,
-					<br />
-					What can I call you ?
-				</>
-			</h1>
-		),
-		2: (
-			<h2 className="step2">
-				{createWorkspaceUsername
-					? `Welcome back ${createWorkspaceUsername}`
-					: `Hey ${info?.username}, nice to meet you.`}
-			</h2>
-		),
-		3: (
-			<div className="step3" style={{ position: 'relative' }}>
-				<h1>Let's setup your workspace handle</h1>
-				<p
-					className="workspace-handle-text"
-					style={{
-						color:
-							info?.isWorkspaceHandleAvailable ||
-							info?.workspaceHandle?.length === 0 ||
-							info?.isCheckingWorkspaceHandle
-								? 'rgba(255, 255, 255, 0.5)'
-								: '#FF646B',
-					}}
-				>
-					{!info?.isWorkspaceHandleAvailable &&
-					info?.workspaceHandle?.length > 0 &&
-					!info?.isCheckingWorkspaceHandle
-						? 'This domain is already taken '
-						: 'Your domain will be '}
-					<b className="workspace-handle">{info?.workspaceHandle || 'workspace-name'}</b>
-					<b className="workspace-handle">.ve.ai</b>
-					<span
-						style={{
-							opacity:
-								info?.isWorkspaceHandleAvailable && !info?.isCheckingWorkspaceHandle
-									? 1
-									: 0,
-							transition: 'opacity 0.3s ease',
-						}}
-					>
-						<GreenTick />
-					</span>
-				</p>
-			</div>
-		),
-		4: <h1 className="step4">What will be your workspace type?</h1>,
-		5: <h1 className="step5">What is your profession?</h1>,
-		6: (
-			<div className="step6">
-				<h1>Enter your mobile number</h1>
-				<h2>
-					This will be a one time process. You can also change it later anytime. We will
-					reach out to you on this number.
-				</h2>
-			</div>
-		),
-		7: (
-			<div className="step7">
-				<h1>We Sent You a Code</h1>
-				<h2>
-					A 6-digit verification code has been sent to {info?.phoneNumber} Please enter it
-					to continue.
-				</h2>
-			</div>
-		),
+	const jumpToStep8AndHandleOnboarding = () => {
+		setInfo((prev) => ({
+			...prev,
+			step: 8,
+		}));
 	};
+
+	const AiIntro = createWorkspaceUsername
+		? {
+				1: (
+					<h1 className="step1">
+						<>
+							Hey there,
+							<br />
+							What can I call you ?
+						</>
+					</h1>
+				),
+				2: (
+					<h2 className="step2">
+						{createWorkspaceUsername
+							? `Welcome back ${createWorkspaceUsername}`
+							: `Hey ${info?.username}, nice to meet you.`}
+					</h2>
+				),
+				3: (
+					<div className="step3" style={{ position: 'relative' }}>
+						<h1>Let's setup your workspace handle</h1>
+						<p
+							className="workspace-handle-text"
+							style={{
+								color:
+									info?.isWorkspaceHandleAvailable ||
+									info?.workspaceHandle?.length === 0 ||
+									info?.isCheckingWorkspaceHandle
+										? 'rgba(255, 255, 255, 0.5)'
+										: '#FF646B',
+							}}
+						>
+							{!info?.isWorkspaceHandleAvailable &&
+							info?.workspaceHandle?.length > 0 &&
+							!info?.isCheckingWorkspaceHandle
+								? 'This domain is already taken '
+								: 'Your domain will be '}
+							<b className="workspace-handle">
+								{info?.workspaceHandle || 'workspace-name'}
+							</b>
+							<b className="workspace-handle">.ve.ai</b>
+							<span
+								style={{
+									opacity:
+										info?.isWorkspaceHandleAvailable &&
+										!info?.isCheckingWorkspaceHandle
+											? 1
+											: 0,
+									transition: 'opacity 0.3s ease',
+								}}
+							>
+								<GreenTick />
+							</span>
+						</p>
+					</div>
+				),
+				4: <h1 className="step4">What will be your workspace type?</h1>,
+				5: <h1 className="step5">What is your profession?</h1>,
+		  }
+		: {
+				1: (
+					<h1 className="step1">
+						<>
+							Hey there,
+							<br />
+							What can I call you ?
+						</>
+					</h1>
+				),
+				2: (
+					<h2 className="step2">
+						{createWorkspaceUsername
+							? `Welcome back ${createWorkspaceUsername}`
+							: `Hey ${info?.username}, nice to meet you.`}
+					</h2>
+				),
+				3: (
+					<div className="step3" style={{ position: 'relative' }}>
+						<h1>Let's setup your workspace handle</h1>
+						<p
+							className="workspace-handle-text"
+							style={{
+								color:
+									info?.isWorkspaceHandleAvailable ||
+									info?.workspaceHandle?.length === 0 ||
+									info?.isCheckingWorkspaceHandle
+										? 'rgba(255, 255, 255, 0.5)'
+										: '#FF646B',
+							}}
+						>
+							{!info?.isWorkspaceHandleAvailable &&
+							info?.workspaceHandle?.length > 0 &&
+							!info?.isCheckingWorkspaceHandle
+								? 'This domain is already taken '
+								: 'Your domain will be '}
+							<b className="workspace-handle">
+								{info?.workspaceHandle || 'workspace-name'}
+							</b>
+							<b className="workspace-handle">.ve.ai</b>
+							<span
+								style={{
+									opacity:
+										info?.isWorkspaceHandleAvailable &&
+										!info?.isCheckingWorkspaceHandle
+											? 1
+											: 0,
+									transition: 'opacity 0.3s ease',
+								}}
+							>
+								<GreenTick />
+							</span>
+						</p>
+					</div>
+				),
+				4: <h1 className="step4">What will be your workspace type?</h1>,
+				5: <h1 className="step5">What is your profession?</h1>,
+				6: (
+					<div className="step6">
+						<h1>Enter your mobile number</h1>
+						<h2>
+							This will be a one time process. You can also change it later anytime.
+							We will reach out to you on this number.
+						</h2>
+					</div>
+				),
+				7: (
+					<div className="step7">
+						<h1>We Sent You a Code</h1>
+						<h2>
+							A 6-digit verification code has been sent to {info?.phoneNumber} Please
+							enter it to continue.
+						</h2>
+					</div>
+				),
+		  };
 
 	const onboardingStages = {
 		1: (
@@ -752,6 +819,8 @@ const Onboarding = () => {
 				workspaceType={info?.workspaceType}
 				setProfession={setProfession}
 				animateStep5AndStage4Exit={animateStep5AndStage4Exit}
+				createWorkspaceUsername={createWorkspaceUsername}
+				jumpToStep8AndHandleOnboarding={jumpToStep8AndHandleOnboarding}
 			/>
 		),
 		5: (

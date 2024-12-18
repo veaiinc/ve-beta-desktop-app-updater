@@ -34,6 +34,7 @@ const VerifyPhoneNumberViaOTP = ({ phoneNumber, incrementStep, handleOnboarding 
 			message?.success('Mobile number verified successfully!');
 			setTimeout(() => {
 				incrementStep();
+				handleOnboarding();
 			}, 1000);
 		} else {
 			setInfo((prev) => ({
