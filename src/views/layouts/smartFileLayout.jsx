@@ -5,8 +5,10 @@ import { SkeletonTheme } from 'react-loading-skeleton';
 import { Helmet } from 'react-helmet';
 import { ReactComponent as VE } from '../../assets/svg/smallVe.svg';
 import useAuth from '../hooks/useAuth';
+import useSubscription from '../hooks/useSubscription';
 const SmartFileLayout = ({ title, children, hideQuickNav = false }) => {
 	const checkAuth = useAuth();
+	const data = useSubscription();
 	useEffect(() => {
 		checkAuth();
 	}, []);
