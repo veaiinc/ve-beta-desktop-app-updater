@@ -67,7 +67,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 				<h6>Switch Workspace</h6>
 			</div>
 
-			{!userWorkSpaceList ? (
+			{userWorkSpaceList ? (
 				<div className="workspaceList">
 					{userWorkSpaceList?.map((singleWorkspace, index) => (
 						<div
