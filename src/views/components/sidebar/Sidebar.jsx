@@ -7,7 +7,7 @@ import ClosedSideBarItemsComponent from './ClosedSidebar';
 import Context from '../../../context/context';
 import { styles } from './sidebarindex';
 import CreateLeadModal from '../modalsV2/proposalModals/CreateLeadModal';
-import { veAiModulesItemsList } from './sidebarindex';
+
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
@@ -18,7 +18,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		isOpen: false,
 		workSpaceOpen: false,
 		navStyle: 'close',
-		selectedModule: null,
 	});
 
 	const [info, setInfo] = useState({
@@ -27,7 +26,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		createLeadModal: false,
 		isNewFeaturePlusOpen: false,
 		activeRoute: '/' + location.pathname.split('/')[1],
-		selectedModule: null,
 	});
 
 	useEffect(() => {
@@ -71,20 +69,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 			setInfo((prev) => ({ ...prev, activeRoute: '/' + location.pathname.split('/')[1] }));
 		}
 	}, [location?.pathname]);
-	useEffect(() => {
-		if (location?.pathname) {
-			const currentPath = '/' + location.pathname.split('/')[1];
-			const currentModule = veAiModulesItemsList.find(
-				(module) => module.moduleRoute === currentPath,
-			);
-			if (currentModule) {
-				setsidebarStates((prev) => ({
-					...prev,
-					selectedModule: currentModule.name,
-				}));
-			}
-		}
-	}, [location?.pathname]);
 
 	const closeCreateLeadModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, createLeadModal: false }));
@@ -93,26 +77,16 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	return (
 		<>
 			<div
-				className={`FullScreenSidebar ${sidebarStates?.isOpen ? 'opened' : ''} ${
-					sidebarStates.selectedModule &&
-					veAiModulesItemsList.find(
-						(module) => module.name === sidebarStates.selectedModule,
-					)?.subModules?.length > 0
-						? 'has-submodules'
-						: 'no-submodules'
-				}`}
+				className="FullScreenSidebar"
 				style={{
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight:
-						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '') : '',
+						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '250px') : '',
 					minHeight:
 						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '250px') : '',
 				}}
 			>
-				<nav
-					className={`sidebarComponent ${sidebarStates?.isOpen ? 'open' : ''}`}
-					style={styles[sidebarStates?.navStyle]}
-				>
+				<nav className="sidebarComponent" style={styles[sidebarStates?.navStyle]}>
 					{sidebarStates?.isOpen ? (
 						<OpenedSideBarItemsComponent
 							setsidebarStates={setsidebarStates}
@@ -137,7 +111,19 @@ const Sidebar = ({ activeWorkspaceId }) => {
 				/>
 			</div>
 
-			{sidebarStates?.isOpen && <div className="sidebar__overlay"></div>}
+			{sidebarStates?.isOpen && (
+				<div
+					className="sidebar__overlay"
+					onClick={() =>
+						setsidebarStates({
+							...sidebarStates,
+							isOpen: false,
+							navStyle: 'close',
+							workSpaceOpen: false,
+						})
+					}
+				></div>
+			)}
 		</>
 	);
 };
