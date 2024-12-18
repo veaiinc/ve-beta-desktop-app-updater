@@ -1,0 +1,243 @@
+.scheduler {
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+	width: 100%;
+	height: 100%;
+
+	color: #e4e5e6;
+	font-family: Inter;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+
+	.rbc-day-bg + .rbc-day-bg {
+		border-left: none;
+	}
+	.rbc-event-label {
+		margin-bottom: 5px;
+	}
+
+	.rbc-time-view,
+	.rbc-month-view {
+		border: none;
+		padding: 34px;
+		padding-top: 18px;
+	}
+
+	.rbc-time-header-cell {
+		display: none;
+	}
+
+	.rbc-time-view .rbc-allday-cell {
+		max-height: 80px;
+		overflow-y: auto;
+	}
+
+	.rbc-time-header.rbc-overflowing {
+		border: none;
+	}
+
+	.rbc-time-header-content {
+		border: none;
+	}
+
+	.rbc-time-content {
+		border: none;
+	}
+
+	.rbc-timeslot-group {
+		border: none;
+	}
+
+	.rbc-day-slot .rbc-time-slot {
+		border-top: none;
+	}
+
+	.rbc-time-content > * + * > * {
+		border: none;
+	}
+
+	.rbc-day-slot .rbc-events-container {
+		margin: 2px;
+	}
+
+	.rbc-timeslot-group {
+		// border-top: 0.5px solid rgb(81, 78, 78);
+		border-top: 0.5px solid rgba(81, 78, 78, 0.3);
+	}
+
+	.rbc-label .rbc-time-header-gutter {
+		width: 64px;
+	}
+
+	.rbc-today {
+		background-color: #222222;
+	}
+
+	.rbc-time-view .rbc-time-gutter {
+		text-align: start;
+	}
+
+	.rbc-label {
+		padding: 0px;
+	}
+
+	.rbc-timeslot-group {
+		min-height: 60px;
+	}
+
+	.rbc-month-view {
+		gap: 5px;
+		.rbc-month-header {
+			border: none;
+			display: none;
+		}
+		.rbc-month-row {
+			border: none;
+			.rbc-row-bg {
+				gap: 5px;
+
+				.rbc-day-bg {
+					border-radius: 4px;
+					background: rgba(176, 176, 176, 0.05);
+					cursor: pointer;
+					&:hover {
+						background: rgba(176, 176, 176, 0.15);
+						box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
+							4px 4px 6px 0px rgba(17, 17, 17, 0.51) inset;
+					}
+				}
+				.rbc-today {
+					background: rgba(176, 176, 176, 0.15);
+						box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
+							4px 4px 6px 0px rgba(17, 17, 17, 0.51) inset;
+				}
+			}
+			.rbc-row-content {
+				// pointer-events: none;
+				z-index: 0;
+				.rbc-row {
+					// padding: 2px;
+					.rbc-date-cell {
+						.rbc-button-link {
+							justify-content: flex-start;
+							text-align: start;
+							display: flex;
+							padding: 5px 16px;
+							padding-bottom: 0;
+							color: #e0e0e0;
+							text-align: center;
+							font-family: Inter;
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 600;
+						}
+					}
+					.rbc-off-range {
+						.rbc-button-link {
+							color: #7d7d7d;
+							width: 100% !important;
+						}
+					}
+					.rbc-row-segment {
+						padding-left: 5px;
+						.rbc-event {
+							// background-color: none;
+							// background: none; //to show months event bg
+
+							.monthEventWrapper {
+								display: flex;
+								gap: 3px;
+								height: fit-content;
+								justify-content: flex-start;
+								text-overflow: ellipsis;
+
+								.leftColorBar {
+									display: inline-block;
+									width: 2px;
+									height: auto;
+									border-radius: 10px;
+									flex-shrink: 0;
+								}
+								.textContainer {
+									text-overflow: ellipsis;
+									width: calc(100% - 5px);
+									flex-shrink: 0;
+									overflow: hidden;
+								}
+							}
+						}
+						.rbc-show-more {
+							color: #e4e5e6;
+							// pointer-events: auto;
+							background: none;
+							&:hover {
+								color: #7d7d7d;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.customEventWrapper {
+			.rbc-event {
+				border: none;
+			}
+		}
+	}
+}
+
+body > .rbc-overlay {
+	background-color: #222222;
+	background: #222222;
+	border: none;
+	border-radius: 18px;
+	border: 1px solid #272727;
+	background: #1d1d1d;
+	padding: 15px;
+	display: flex;
+	flex-direction: column;
+	align-items: start;
+	.rbc-overlay-header {
+		color: #e4e5e6;
+		font-size: 13px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		padding: 5px 0;
+		border-bottom: 1px solid #272727;
+		text-align: center;
+		width: 100%;
+		align-self: center;
+	}
+	.customEventWrapper {
+		width: 100%;
+		.rbc-event {
+			background-color: none;
+			background: none;
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			padding: 0;
+			padding: 5px 0;
+			border-bottom: 1px solid #272727;
+			width: 100%;
+			border-radius: 0;
+		}
+	}
+}
+
+.customGutterHeader {
+	width: 100%;
+	color: rgba(228, 229, 230, 0.48);
+	font-family: Inter;
+	font-size: 9px;
+	font-style: normal;
+	line-height: normal;
+}

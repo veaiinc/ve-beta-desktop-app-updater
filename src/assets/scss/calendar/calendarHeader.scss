@@ -1,0 +1,267 @@
+.calendarHeaderParentContainer {
+	display: flex;
+	// width: 989px;
+	width: 100%;
+	// height: 200px;
+	max-height: 200px;
+	padding: 18px 34px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	flex-shrink: 0;
+
+	border-radius: 24px 24px var(--cartCount, 0px) var(--cartCount, 0px);
+	border-bottom: 1px solid #272727;
+	background: rgba(36, 36, 36, 0.64);
+
+	.calendarHeaderContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		align-items: flex-start;
+		align-self: stretch;
+		flex: 1 0 0;
+
+		.calendarControls {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			align-self: stretch;
+
+			.calendarDate {
+				display: flex;
+				align-items: center;
+				gap: 5px;
+				cursor: pointer;
+
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 18px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.viewToggleWrapper {
+				display: flex;
+				padding: 5px;
+				align-items: flex-start;
+				gap: 10px;
+				border-radius: 8px;
+				background: #1d1d1d;
+
+				.viewToggle {
+					display: flex;
+					width: 213px;
+					align-items: center;
+					text-transform: capitalize;
+
+					.toggleButton {
+						display: flex;
+						padding: 10px var(--Spacing-space-7, 12px);
+						justify-content: center;
+						align-items: center;
+						gap: 10px;
+						flex: 1 0 0;
+						cursor: pointer;
+
+						color: rgba(228, 229, 230, 0.48);
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+
+					.active {
+						border-radius: 4px;
+						background: rgba(36, 36, 36, 0.64);
+						color: #e4e5e6;
+						cursor: default;
+					}
+				}
+			}
+
+			.calendarHeaderRight {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+				position: relative;
+
+				.dropDown {
+					// Reset the default select styling for select tags.
+					appearance: none;
+					-webkit-appearance: none;
+					-moz-appearance: none;
+
+					display: flex;
+					height: 35px;
+					padding: 8px 10px;
+					justify-content: center;
+					align-items: center;
+					gap: var(--Spacing-space-7, 12px);
+					border-radius: 8px;
+					background: #1d1d1d;
+					box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+					cursor: pointer;
+
+					color: #e4e5e6;
+					font-family: Inter, sans-serif;
+					font-size: 12px;
+					font-weight: 500;
+					line-height: normal;
+					border: none;
+
+					&:focus {
+						outline: none;
+					}
+				}
+
+				.ant-select-selector {
+					border-radius: 8px;
+					background: #1a1a1a;
+					box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+					border: none;
+
+					.ant-select-selection-search-input,
+					.ant-select-selection-placeholder,
+					.ant-select-selection-item {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+
+					.ant-select-selection-placeholder {
+						color: #646567;
+					}
+				}
+
+				.ant-select-arrow {
+					color: #e4e5e6;
+				}
+
+				.ant-select-dropdown {
+					border-radius: 8px;
+					background: #1a1a1a;
+					box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+					border: none;
+
+					.ant-select-item {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+
+					.ant-select-item-option-selected {
+						background: rgba(176, 176, 176, 0.15);
+						box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
+							4px 4px 6px 0px rgba(17, 17, 17, 0.51) inset;
+					}
+
+					.ant-select-item-option-content {
+						display: flex;
+						align-items: center;
+						justify-content: flex-start;
+					}
+				}
+			}
+		}
+
+		.weekHeaderWrapper {
+			display: flex;
+			align-items: center;
+			gap: var(--Spacing-space-3, 4px);
+			flex: 1 0 0;
+			align-self: stretch;
+			cursor: default;
+
+			.dayHeader {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				flex: 1 0 0;
+				align-self: stretch;
+				border-radius: 8px;
+				background: #1d1d1d;
+				height: 95px;
+				color: rgba(228, 229, 230, 0.48);
+				text-align: center;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+
+				&:hover {
+					color: #e4e5e6;
+					border-radius: 8px;
+					background: #1d1d1d;
+					box-shadow: 0px 4px 4px 0px rgba(96, 96, 96, 0.25);
+				}
+
+				span {
+					display: flex;
+					// width: 43px;
+					width: auto;
+					max-width: 170px;
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
+					gap: var(--Spacing-space-3, 4px);
+					align-self: stretch;
+				}
+			}
+		}
+
+		.weekDayHeaderContainer {
+			display: flex;
+			align-items: center;
+			gap: 5px;
+			margin-left: 50px;
+			flex: 1 0 0;
+			align-self: stretch;
+			cursor: pointer;
+
+			.weekDayBlock {
+				display: flex;
+				padding: 10px 0px;
+				min-height: 95px;
+				justify-content: center;
+				align-items: center;
+				flex: 1 0 0;
+				align-self: stretch;
+				border-radius: 8px;
+				background: #1d1d1d;
+
+				.weekDayWrapper {
+					display: flex;
+					width: 43px;
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
+					gap: 4px;
+					text-align: center;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+			}
+			.active {
+				border-radius: 8px;
+				border: 1px solid #6055ec;
+				background: #1d1d1d;
+				box-shadow: 0px 8px 10px 0px rgba(17, 17, 17, 0.4),
+					0px 0px 40px 0px rgba(96, 85, 236, 0.15);
+				cursor: default;
+			}
+		}
+	}
+}

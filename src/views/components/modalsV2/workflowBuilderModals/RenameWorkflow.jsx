@@ -9,6 +9,11 @@ const initialState = {
 	error: false,
 	errorMessage: '',
 };
+
+const customStyles = {
+	content: { zIndex: 99999 },
+	overlay: { zIndex: 99998 },
+};
 const RenameWorkflow = ({ open, closeModal, title, renameWorkflowNameFunc }) => {
 	const [info, setInfo] = useState(initialState);
 
@@ -49,7 +54,12 @@ const RenameWorkflow = ({ open, closeModal, title, renameWorkflowNameFunc }) => 
 	}, [title]);
 
 	return (
-		<ReactModal isOpen={open} closeModal={modifiedCloseModal} modalType={'center'}>
+		<ReactModal
+			isOpen={open}
+			closeModal={modifiedCloseModal}
+			modalType={'center'}
+			customStyles={customStyles}
+		>
 			<div className="renameWorkflowModalParentContainer">
 				<div className="renameWorkflowModalHeader">
 					<span className="headerTitle">Rename Workflow</span>

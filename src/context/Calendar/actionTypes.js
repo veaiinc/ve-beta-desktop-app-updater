@@ -1,0 +1,14 @@
+export const CALENDAR = {
+	calendarChat: '/calendar_chat',
+	sendEventToAi: '/calendar_event_classify',
+	calendarEventsList: '/calendar/getEventsList',
+	createCalendarEvent: '/calendar/createEvent',
+	createCalendarCategory: '/calendar/createCalendarCategory',
+	updateCalendarCategory: '/calendar/updateCalendarCategory',
+	calendarCategories: '/calendar/getCalendarCategories',
+	deleteCalendarCategory: '/calendar/deleteCalendarCategory',
+	getCalendarEventDetails: '/calendar/getEvent',
+	updateCalendarEvent: '/calendar/updateEvent',
+	resetCalendarState: 'RESET_CALENDAR_STATE',
+	resetCalendarAiChat: 'RESET_CALENDAR_AI_CHAT',
+};

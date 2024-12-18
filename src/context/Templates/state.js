@@ -62,6 +62,7 @@ export const intialState = {
 	eventsPresetData: null,
 	sendSmartFileSettings: null,
 	aiPredictedData: null,
+	connectUrl: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1046,6 +1047,40 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const connectThirdParty = async (connectType) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${connectType}/${workspaceId}/auth`;
+
+			const response = await Service?.fetchGet(
+				path,
+				usertoken,
+				'third_party_integrations_api',
+			);
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions?.SET_CONNECT_URL,
+					payload: [true, response?.[1]?.connectUrl],
+				});
+			} else {
+				dispatch({
+					type: Actions?.SET_CONNECT_URL,
+					payload: [
+						false,
+						{
+							message: 'An unexpected error occured. Please try again!',
+							error: response?.[1],
+						},
+					],
+				});
+			}
+		} catch (error) {
+			console.log('error==>connectZoho', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -1091,5 +1126,6 @@ export const TemplatesState = (props) => {
 		getAiPredictionForSmartFile,
 		leaveWorkspace,
 		sendCustomEmailToClients,
+		connectThirdParty,
 	};
 };

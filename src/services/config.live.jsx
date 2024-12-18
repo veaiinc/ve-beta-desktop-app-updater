@@ -12,6 +12,10 @@ module.exports = {
 	galleries: 'https://ap.api.ve.ai/galleries/1.0',
 	ai_assistant_api: 'https://api.ap-south-1.ve.ai',
 	ai_predictions: 'https://ai.ap-south-1.ve.ai',
+	calendar_api: 'https://ap.api.ve.ai/google/1.0',
+	third_party_integrations_api: 'https://ap.api.ve.ai/third-party-integrations/1.0',
+	slack_api: 'https://slack.com/api',
+
 	//outside India
 	tenant_api_US: 'https://us.api.ve.ai/tenants/1.0',
 	tenant_users_api_US: 'https://us.api.ve.ai/tenant-users/1.0',
@@ -22,4 +26,7 @@ module.exports = {
 	activity_api_US: 'https://ap.api.ve.ai/workflow-user-analytics/1.0',
 	galleries_api_US: 'https://us.api.ve.ai/galleries/1.0',
 	ai_predictions_US: 'https://ai.ap-south-1.ve.ai',
+	calendar_api_US: 'https://ap.api.ve.ai/google/1.0',
+	third_party_integrations_api_US: 'https://us.api.ve.ai/third-party-integrations/1.0',
+	slack_api_US: 'https://slack.com/api',
 };

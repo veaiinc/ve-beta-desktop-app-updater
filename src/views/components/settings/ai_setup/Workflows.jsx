@@ -6,7 +6,8 @@ import { message } from 'antd';
 import Spinner from '../../loaders/Spinner';
 import Context from '../../../../context/context';
 import { ReactComponent as LinkWhite } from '../../../../assets/svg/Settings/link-white-color.svg';
-
+import { fetchOriginSelection } from '../../../../helpers';
+let origin = fetchOriginSelection();
 const Workflows = ({
 	renderAssignedWorkflows = false,
 	hideRemove = false,
@@ -159,11 +160,7 @@ const Workflows = ({
 									)}
 									<div className="template-preview">
 										<iframe
-											src={
-												window.location.hostname === 'localhost'
-													? `http://localhost:3000/preview/${workflow?._id}?module=${workflow?.moduleTemplates?.[0]?._id}&isPubic=${workflow?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`
-													: `https://builder.ve.ai/preview/${workflow?._id}?module=${workflow?.moduleTemplates?.[0]?._id}&isPubic=${workflow?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`
-											}
+											src={`${origin}/preview/${workflow?._id}?module=${workflow?.moduleTemplates?.[0]?._id}&isPubic=${workflow?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
 											title="Builder Preview"
 											style={{ zoom: 0.3 }}
 										/>
