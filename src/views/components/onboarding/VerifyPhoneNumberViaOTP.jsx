@@ -30,6 +30,7 @@ const VerifyPhoneNumberViaOTP = ({ phoneNumber, incrementStep, handleOnboarding 
 			isLoading: true,
 		}));
 		const response = await verifyMobileOtpCode(phoneNumber, info?.otp);
+		let otpErr = '';
 		if (response?.[0] === true) {
 			message?.success('Mobile number verified successfully!');
 			setTimeout(() => {
@@ -37,14 +38,12 @@ const VerifyPhoneNumberViaOTP = ({ phoneNumber, incrementStep, handleOnboarding 
 				handleOnboarding();
 			}, 1000);
 		} else {
-			setInfo((prev) => ({
-				...prev,
-				otpError: response?.[1]?.message,
-			}));
+			otpErr = response?.[1]?.message;
 		}
 		setInfo((prev) => ({
 			...prev,
 			isLoading: false,
+			otpError: otpErr,
 		}));
 	};
 
