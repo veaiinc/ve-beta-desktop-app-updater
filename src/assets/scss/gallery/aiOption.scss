@@ -151,49 +151,23 @@
 					cursor: pointer;
 				}
 			}
-			.downloadNotifyContainer {
+			.downloadQR {
 				display: flex;
-				width: 100%;
-				justify-content: space-between;
+				align-items: center;
+				width: fit-content;
 				gap: 10px;
-				.downloadQR {
-					display: flex;
-					align-items: center;
-					width: fit-content;
-					gap: 10px;
-					cursor: pointer;
-					p {
-						overflow: hidden;
-						color: #e0e0e0;
-						text-overflow: ellipsis;
-						font-size: 12px;
-						font-weight: 400;
-						line-height: 21px;
-						text-transform: capitalize;
-					}
-					.downloadIcon {
-						cursor: pointer;
-					}
+				cursor: pointer;
+				p {
+					overflow: hidden;
+					color: #e0e0e0;
+					text-overflow: ellipsis;
+					font-size: 12px;
+					font-weight: 400;
+					line-height: 21px;
+					text-transform: capitalize;
 				}
-				.notifyUser {
+				.downloadIcon {
 					cursor: pointer;
-					background-color: #151515;
-					padding: 10px 15px;
-					border-radius: 10px;
-					border: 1px solid #fff;
-					span {
-						color: #e0e0e0;
-						font-size: 12px;
-						font-weight: 400;
-						line-height: 21px;
-					}
-					&:hover {
-						background-color: #e8e8e8;
-						// border: 1px solid #fff;
-						span {
-							color: #000;
-						}
-					}
 				}
 			}
 		}
