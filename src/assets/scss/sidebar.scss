@@ -372,33 +372,6 @@
 						}
 					}
 				}
-				.singleModuleItem {
-					width: 218px;
-					display: flex;
-					justify-content: flex-start;
-					gap: 14px;
-					align-items: center;
-					padding: 12px 16px;
-					p {
-						color: #e8e8e8;
-						text-align: right;
-						font-family: 'Inter';
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						letter-spacing: -0.3px;
-					}
-
-					&.hover {
-						border-radius: var(--Radius-lg, 24px);
-						background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
-						cursor: pointer;
-						p {
-							color: #e4e5e6;
-						}
-					}
-				}
 			}
 
 			.bottomOptionsList {
@@ -552,9 +525,6 @@
 			display: flex;
 			flex-direction: column-reverse;
 			gap: 21px;
-			overflow-y: auto;
-			max-height: 94vh;
-			overflow-x: hidden;
 
 			.backContinaer {
 				display: flex;
@@ -581,15 +551,11 @@
 
 				.singleWorkspace {
 					display: flex;
-					flex-direction: row;
-					justify-content: space-between;
-					width: 218px;
-					padding: 12px 16px;
-					.workspaceName {
-						white-space: nowrap;
-						overflow: hidden;
-						text-overflow: ellipsis;
-					}
+					flex-direction: column;
+					align-items: center;
+					gap: 8px;
+					cursor: pointer;
+
 					.workSpaceCircle {
 						width: 24px;
 						height: 24px;
@@ -599,7 +565,6 @@
 						align-items: center;
 						justify-content: center;
 						background: #2b2b2b;
-						cursor: pointer;
 
 						p {
 							color: #e8e8e8;
@@ -617,23 +582,6 @@
 							height: 100%;
 							border-radius: 50%;
 						}
-
-						.no-logo {
-							width: 24px;
-							height: 24px;
-							border-radius: 50%;
-							display: flex;
-							align-items: center;
-							justify-content: center;
-							color: white;
-							font-family: Inter;
-							font-size: 13px;
-							font-style: normal;
-							font-weight: bolder;
-							line-height: normal;
-							text-transform: uppercase;
-							background-color: #f85d04;
-						}
 					}
 
 					h6 {
@@ -644,24 +592,7 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
-					}
-					&:hover {
-						border-radius: var(--Radius-lg, 24px);
-						background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
-						cursor: pointer;
-						p {
-							color: #e4e5e6;
-						}
-					}
-					.detailedDiv {
-						width: 218px;
-						display: flex;
-						flex-direction: row;
-						justify-content: space-between;
-						align-items: flex-start;
-						align-self: stretch;
-						cursor: pointer;
-						padding: 12px 16px;
+						letter-spacing: -0.22px;
 					}
 				}
 

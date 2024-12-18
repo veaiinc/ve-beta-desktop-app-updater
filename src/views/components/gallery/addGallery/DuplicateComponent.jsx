@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Switch } from 'antd';
 
 const DuplicateComponent = ({ info, setinfo }) => {
@@ -23,4 +23,4 @@ const DuplicateComponent = ({ info, setinfo }) => {
 	);
 };
 
-export default DuplicateComponent;
+export default memo(DuplicateComponent);

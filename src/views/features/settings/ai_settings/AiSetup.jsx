@@ -12,8 +12,7 @@ import ToolTipContainer from '../../../components/popover/ToolTipContainer';
 
 const AiSetup = () => {
 	const {
-		aiSetup: { existingAiAssistants, getExistingAiAssistants, resetAiSetupState },
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		aiSetup: { existingAiAssistants, getExistingAiAssistants, resetState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -23,7 +22,7 @@ const AiSetup = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		resetAiSetupState();
+		// resetAiSetupState();
 		getExistingAiAssistants();
 	}, []);
 
@@ -36,9 +35,6 @@ const AiSetup = () => {
 	}, [existingAiAssistants]);
 
 	const toggleModal = () => {
-		if (validateExpiryData?.isExpired) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
-		}
 		setInfo((prev) => ({
 			...prev,
 			isCreateAiModalOpen: !prev?.isCreateAiModalOpen,
