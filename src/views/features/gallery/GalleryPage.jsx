@@ -231,6 +231,7 @@ const GalleryPage = () => {
 		showGalleryStyles: false,
 		themeMode: 'dark',
 		showCoverButton: false,
+		showAlbumOptionsMenu: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -715,13 +716,12 @@ const GalleryPage = () => {
 		}
 	};
 
-	const handleLockAlbum = useCallback(() => {
+	const handleLockAlbum = useCallback(async () => {
 		const newGuestAccessState = !info?.activeAlbum?.guestAccess?.isEnabled;
 
-		// First update all relevant state immediately
+		// First update state optimistically
 		setInfo((prev) => ({
 			...prev,
-			// Update active album
 			activeAlbum: {
 				...prev.activeAlbum,
 				guestAccess: {
@@ -755,15 +755,37 @@ const GalleryPage = () => {
 				),
 			},
 		}));
-		const payload = {
-			isEnabled: newGuestAccessState,
-		};
-		editLockAlbum(payload, galleryId, info.activeAlbumId);
-		getAlbumImagesCount(galleryId);
-		getAlbums(galleryId);
-	}, [galleryId, info.activeAlbumId, info.activeAlbum?.guestAccess?.isEnabled]);
 
-	// ... existing code ...
+		try {
+			const payload = {
+				isEnabled: newGuestAccessState,
+			};
+
+			// Wait for the edit operation to complete
+			const response = await editLockAlbum(payload, galleryId, info.activeAlbumId);
+
+			if (response?.[0] === true) {
+				message.success('Album access updated successfully');
+			} else {
+				// If the update failed, revert the optimistic update
+				setInfo((prev) => ({
+					...prev,
+					activeAlbum: {
+						...prev.activeAlbum,
+						guestAccess: {
+							...prev.activeAlbum?.guestAccess,
+							isEnabled: !newGuestAccessState,
+						},
+					},
+					// ... similar reversions for tenantAlbums and albumImagesCount
+				}));
+				message.error('Failed to update album access');
+			}
+		} catch (error) {
+			console.error('Error updating album access:', error);
+			message.error('An error occurred while updating album access');
+		}
+	}, [galleryId, info.activeAlbumId, info.activeAlbum?.guestAccess?.isEnabled]);
 
 	const handleOnlineToggle = useCallback(async () => {
 		const newOnlineState = !info.isOnline;
@@ -1081,20 +1103,73 @@ const GalleryPage = () => {
 		},
 		[info?.callToAction?.link],
 	);
+	// ... existing code ...
+
 	const handleGalleryChange = useCallback(
-		(e) => {
-			const value = e.target.value;
-			setInfo((prev) => ({
-				...prev,
-				activeGallery: {
-					...prev?.activeGallery,
+		async (value) => {
+			// If already processing or no value change, return early
+			if (handleGalleryChange.isProcessing || value === info?.activeGallery?.title) {
+				return false;
+			}
+
+			// Validate input length
+			if (value.length > 255) {
+				message.warning('Gallery name is too long');
+				return false;
+			}
+
+			// Set processing flag
+			handleGalleryChange.isProcessing = true;
+
+			try {
+				message.loading({
+					content: 'Renaming gallery...',
+					key: 'renameGallery',
+				});
+
+				const payload = {
 					title: value,
-				},
-			}));
-			handleDebouceFunctionCall(updateGallery, value);
+				};
+
+				// Make single API call
+				const response = await postGallery(payload, galleryId);
+
+				if (response?.[0]) {
+					// Update UI state directly without additional API call
+					setInfo((prev) => ({
+						...prev,
+						activeGallery: {
+							...prev.activeGallery,
+							title: value,
+						},
+						showMainPopup: false,
+					}));
+
+					message.success({
+						content: 'Gallery renamed successfully',
+						key: 'renameGallery',
+					});
+				} else {
+					message.error({
+						content: response?.[1]?.message || 'Failed to rename gallery',
+						key: 'renameGallery',
+					});
+				}
+			} catch (error) {
+				console.error('Error renaming gallery:', error);
+				message.error({
+					content: 'An unexpected error occurred',
+					key: 'renameGallery',
+				});
+			} finally {
+				handleGalleryChange.isProcessing = false;
+			}
 		},
-		[info?.activeGallery?.title],
+		[galleryId, info.activeGallery?.title],
 	);
+
+	// Initialize the processing flag
+	handleGalleryChange.isProcessing = false;
 
 	const updateGallery = useCallback(async (value) => {
 		const payload = {
@@ -1167,14 +1242,22 @@ const GalleryPage = () => {
 
 	// ... existing code ...
 
+	// ... existing code ...
+
 	const albumChanges = useCallback(
 		async (value) => {
+			// Close popup immediately
+			setInfo((prev) => ({
+				...prev,
+				showMainPopup: false,
+				isAlbumRename: false,
+			}));
+
 			// If already processing or no value change, return early
 			if (albumChanges.isProcessing || value === info.activeAlbum.title) return false;
 
 			// Validate input length
 			if (value.length > 255) {
-				// You can adjust this limit as needed
 				message.warning('Album name is too long');
 				return false;
 			}
@@ -1183,6 +1266,11 @@ const GalleryPage = () => {
 			albumChanges.isProcessing = true;
 
 			try {
+				message.loading({
+					content: 'Renaming album...',
+					key: 'renameAlbum',
+				});
+
 				const payload = {
 					title: value,
 				};
@@ -1193,11 +1281,11 @@ const GalleryPage = () => {
 					title: value,
 				};
 
-				// Make the API call first
+				// Make the API call
 				const response = await editAlbumName(payload, galleryId, info.activeAlbumId);
 
 				if (response?.[0]) {
-					// Update UI state immediately
+					// Update UI state
 					setInfo((prev) => ({
 						...prev,
 						albumName: value,
@@ -1208,24 +1296,28 @@ const GalleryPage = () => {
 					}));
 
 					// Show success message
-					message.success('Album renamed successfully');
+					message.success({
+						content: 'Album renamed successfully',
+						key: 'renameAlbum',
+					});
 
 					// Refresh album data
 					await Promise.all([getAlbumImagesCount(galleryId), getAlbums(galleryId)]);
-
-					albumChanges.isProcessing = false;
-					return true;
 				} else {
 					// Show error message
-					message.error(response?.[1]?.message || 'Failed to rename album');
-					albumChanges.isProcessing = false;
-					return false;
+					message.error({
+						content: response?.[1]?.message || 'Failed to rename album',
+						key: 'renameAlbum',
+					});
 				}
 			} catch (error) {
 				console.error('Error renaming album:', error);
-				message.error('An unexpected error occurred');
+				message.error({
+					content: 'An unexpected error occurred',
+					key: 'renameAlbum',
+				});
+			} finally {
 				albumChanges.isProcessing = false;
-				return false;
 			}
 		},
 		[galleryId, info.activeAlbumId, info.activeAlbum],
@@ -1233,8 +1325,6 @@ const GalleryPage = () => {
 
 	// Initialize the processing flag
 	albumChanges.isProcessing = false;
-
-	// ... rest of the code ...
 
 	// ... rest of the code ...
 
@@ -1302,7 +1392,7 @@ const GalleryPage = () => {
 
 			if (response?.[0] === true && response?.[1]?.downloadId) {
 				const region = localStorage.getItem('region');
-				const regionPath = region === 'ap-south1' ? 'in' : 'us';
+				const regionPath = region === 'ap-south-1' ? 'in' : 'us';
 				const downloadUrl = `https://downloads.ve.ai/${regionPath}/${response?.[1]?.downloadId}`;
 				window.open(downloadUrl, '_blank');
 
@@ -2227,24 +2317,52 @@ const GalleryPage = () => {
 			message.error('Cant set album cover with more than 1 image');
 		}
 	};
-	const handleDeleteAlbum = async () => {
-		message.open({
-			type: 'loading',
-			content: 'Your album is being removed. Please wait...',
-			duration: 0,
-		});
-		const response = await deleteAlbum(galleryId, info?.activeAlbumId);
 
-		if (response[0] === true) {
-			message.destroy();
-			message.success('Album deleted successfully');
-			getAlbums(galleryId);
-			navigate(`/galleries/${galleryId}`);
-		} else {
-			message.destroy();
-			message.error(response[1].message);
+	// ... existing code ...
+
+	// ... existing code ...
+
+	const handleDeleteAlbum = useCallback(async () => {
+		// If already processing, return early
+		if (handleDeleteAlbum.isProcessing) return;
+
+		// Close popup immediately
+		setInfo((prev) => ({
+			...prev,
+			showDeleteAlbum: false,
+		}));
+
+		// Set processing flag
+		handleDeleteAlbum.isProcessing = true;
+
+		try {
+			message.open({
+				type: 'loading',
+				content: 'Your album is being removed. Please wait...',
+				duration: 0,
+				key: 'deleteAlbum',
+			});
+
+			const response = await deleteAlbum(galleryId, info?.activeAlbumId);
+
+			if (response[0] === true) {
+				message.destroy('deleteAlbum');
+				message.success('Album deleted successfully');
+				await getAlbums(galleryId);
+				navigate(`/galleries/${galleryId}`);
+			} else {
+				message.destroy('deleteAlbum');
+				message.error(response[1].message);
+			}
+		} catch (error) {
+			console.error('Error deleting album:', error);
+			message.destroy('deleteAlbum');
+			message.error('Failed to delete album');
+		} finally {
+			handleDeleteAlbum.isProcessing = false;
 		}
-	};
+	}, [galleryId, info.activeAlbumId]);
+	handleDeleteAlbum.isProcessing = false;
 
 	const sortByCustomIndex = (items) => {
 		const sortedItems = items?.sort((a, b) => a.customSortIndex - b.customSortIndex);
@@ -2565,8 +2683,8 @@ const GalleryPage = () => {
 							<div
 								style={{
 									position: 'absolute',
-									bottom: '30px',
-									left: '23px',
+									bottom: '10%',
+									left: '10%',
 									zIndex: 2,
 								}}
 							>
@@ -2582,6 +2700,7 @@ const GalleryPage = () => {
 										alignItems: 'center',
 										gap: '10px',
 										flexWrap: 'wrap',
+										flex: 1,
 									}}
 								>
 									{info?.showCoverButton ? (
@@ -2598,7 +2717,16 @@ const GalleryPage = () => {
 											Change Cover
 										</button>
 									) : (
-										info.activeGallery?.title || 'Untitled Gallery'
+										<p
+											style={{
+												overflow: 'hidden',
+												textOverflow: 'ellipsis',
+												whiteSpace: 'nowrap',
+												width: '124px',
+											}}
+										>
+											{info?.activeGallery?.title || 'Untitled Gallery'}
+										</p>
 									)}
 								</h5>
 							</div>
@@ -4029,7 +4157,7 @@ const GalleryPage = () => {
 														ref={optionsIconRef}
 													>
 														<OptionsIcon onClick={handleOptionsIcon} />
-														{info.showOptionsContainer && (
+														{info.showAlbumOptionsMenu && (
 															<div
 																className="optionsContainer"
 																ref={optionsContainerRef}

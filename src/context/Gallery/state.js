@@ -518,8 +518,17 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+
+			if (response?.[0]) {
+				// Refresh the album data after successful update
+				await getAlbums(galleryId);
+				await getAlbumImagesCount(galleryId);
+				return [true, response[1]];
+			}
+			return response; // Return the error response if not successful
 		} catch (error) {
-			console.log('error==>getLayoutSettings', error);
+			console.log('error==>editLockAlbum', error);
+			return [false, { message: 'Failed to update album access' }];
 		}
 	};
 
