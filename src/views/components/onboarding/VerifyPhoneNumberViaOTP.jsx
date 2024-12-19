@@ -4,8 +4,15 @@ import '../../../assets/scss/onboarding/index.scss';
 import Spinner from '../loaders/Spinner';
 import Context from '../../../context/context';
 import { message } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
-const VerifyPhoneNumberViaOTP = ({ phoneNumber, incrementStep, handleOnboarding }) => {
+const VerifyPhoneNumberViaOTP = ({
+	phoneNumber,
+	incrementStep,
+	handleOnboarding,
+	invitedOnboarding = false,
+}) => {
+	const navigate = useNavigate();
 	const {
 		authInfo: { verifyMobileOtpCode, requestResendOTPToMobile },
 	} = useContext(Context);
@@ -35,7 +42,9 @@ const VerifyPhoneNumberViaOTP = ({ phoneNumber, incrementStep, handleOnboarding 
 			message?.success('Mobile number verified successfully!');
 			setTimeout(() => {
 				incrementStep();
-				handleOnboarding();
+				if (invitedOnboarding) {
+					navigate('/home');
+				} else handleOnboarding();
 			}, 1000);
 		} else {
 			otpErr = response?.[1]?.message;

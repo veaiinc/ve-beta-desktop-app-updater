@@ -10,6 +10,7 @@ const PhoneNumber = ({
 	handleSetPhoneNumber,
 	updateUserNameAndPhoneNumber,
 	phoneNumberError,
+	invitedOnboarding = false,
 }) => {
 	const [info, setInfo] = useState({
 		isLoading: false,
@@ -52,7 +53,7 @@ const PhoneNumber = ({
 	};
 
 	return (
-		<div className="phone-number-container stage5">
+		<div className={`phone-number-container ${invitedOnboarding ? 'stage2' : 'stage5'}`}>
 			<PhoneInput
 				placeholder="Enter phone number"
 				value={phoneNumber}
