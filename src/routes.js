@@ -27,7 +27,7 @@ import CookiePolicy from './views/features/signin/CookiePolicy';
 import WorkflowBuilder from './views/features/workflow_builder';
 import Tasks from './views/features/tasks';
 import ShareAndEarn from './views/features/ShareAndEarn';
-import Notes from './views/features/Notes';
+import Notes from './views/features/notes';
 const routes = [
 	{
 		path: '/',
