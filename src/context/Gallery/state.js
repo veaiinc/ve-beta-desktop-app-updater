@@ -994,6 +994,14 @@ export const Galleries = () => {
 				null,
 				'galleries',
 			);
+			if (response[0] === true) {
+				let updateGallery = [...state.tenantGalleries?.galleries];
+				updateGallery = updateGallery.filter((item) => galleryId !== item._id);
+				dispatch({
+					type: Actions.GET_TENANT_GALLERIES,
+					payload: { ...state.tenantGalleries, galleries: updateGallery },
+				});
+			}
 			return response;
 		} catch (error) {
 			console.log('error==>deleteGallery', error);

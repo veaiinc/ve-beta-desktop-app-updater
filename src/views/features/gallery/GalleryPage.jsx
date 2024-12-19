@@ -1569,7 +1569,7 @@ const GalleryPage = () => {
 		if (response[0] === true) {
 			message.destroy();
 			message.success('Gallery deleted successfully');
-			getGalleries();
+			getGalleries({}, true);
 			navigate('/galleries');
 		} else {
 			message.destroy();
