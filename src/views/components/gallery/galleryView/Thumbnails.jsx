@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
 
@@ -66,4 +66,4 @@ const Thumbnails = ({
 	);
 };
 
-export default memo(Thumbnails);
+export default Thumbnails;

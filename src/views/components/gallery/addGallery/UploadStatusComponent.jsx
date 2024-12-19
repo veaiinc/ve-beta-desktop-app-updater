@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { ReactComponent as UploadButtonSvg } from '../../../../assets/svg/gallery/upload_gray.svg';
 import { ReactComponent as CancelUploadSvg } from '../../../../assets/svg/gallery/cancel-bold-gray.svg';
 import { Progress } from 'antd';
@@ -125,4 +125,4 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently }) => {
 	);
 };
 
-export default memo(UploadStatusComponent);
+export default UploadStatusComponent;

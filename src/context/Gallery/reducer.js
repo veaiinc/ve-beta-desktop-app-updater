@@ -95,7 +95,15 @@ const actionHandlers = {
 		...state,
 		aiFaceImages: action.payload,
 	}),
+	GET_DOWNLOAD_IMAGES: (state, action) => ({
+		...state,
+		downloadImages: action.payload,
+	}),
 	RESET_IMAGES_LIST: (state) => ({ ...state, imagesList: null }),
+	GET_INSIGHT_VISITORS: (state, action) => ({
+		...state,
+		insightsVisitors: action.payload,
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 	GET_PRE_REGISTERED_USERS: (state, action) => ({
 		...state,

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 const Gallerys = () => {
 	return (
@@ -26,4 +26,4 @@ const Gallerys = () => {
 	);
 };
 
-export default memo(Gallerys);
+export default Gallerys;

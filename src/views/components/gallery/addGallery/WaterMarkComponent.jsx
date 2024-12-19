@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext, memo } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { Switch } from 'antd';
 import { ReactComponent as DownArrowSvg } from '../../../../assets/svg/sidebar/downarrowsmall.svg';
 import Context from '../../../../context/context';
@@ -192,4 +192,4 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 	);
 };
 
-export default memo(WaterMarkComponent);
+export default WaterMarkComponent;

@@ -1,0 +1,18 @@
+import React, { memo } from 'react';
+const GridStyleVerticalSvg = (props) => {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="18"
+			height="18"
+			viewBox="0 0 18 18"
+			fill={props.fill}
+		>
+			<rect x="0.5" y="0.616943" width="8" height="11" fill={props.fill} />
+			<rect x="9.5" y="6.61694" width="8" height="11" fill={props.fill} />
+			<rect x="0.5" y="12.6169" width="8" height="5" fill={props.fill} />
+			<rect x="9.5" y="0.616943" width="8" height="5" fill={props.fill} />
+		</svg>
+	);
+};
+export default memo(GridStyleVerticalSvg);

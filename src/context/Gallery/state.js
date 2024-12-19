@@ -29,6 +29,8 @@ export const intialState = {
 	galleryShareDetails: null,
 	aiFace: null,
 	aiFaceImages: null,
+	insightsVisitors: null,
+	downloadImages: null,
 	preRegisteredUsers: null,
 };
 
@@ -192,9 +194,11 @@ export const Galleries = () => {
 			);
 			if (response?.[0]) {
 				getAlbumImagesCount(galleryId);
+				return [true, response[1]];
 			}
 		} catch (error) {
 			console.log('error==>getGallery', error);
+			return [false, { message: 'Failed to update gallery status' }];
 		}
 	};
 
@@ -347,27 +351,29 @@ export const Galleries = () => {
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_LAYOUT_SETTINGS,
-					payload: response?.[1]?.layoutSettings,
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
 			console.log('error==>getLayoutSettings', error);
 		}
 	};
-	const putLayoutSettings = async (payload, galleryId) => {
+	const putLayoutSettings = async (payload, galleryId, type = null) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
+			const json = type === 'theme' ? payload : { layoutSettings: { ...payload } };
+
 			const response = await service.fetchPut(
 				`/${workspaceId}/galleries/${galleryId}/layout-settings`,
-				payload,
+				json,
 				usertoken,
 				'galleries',
 			);
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_LAYOUT_SETTINGS,
-					payload: response?.[1]?.layoutSettings,
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
@@ -461,6 +467,26 @@ export const Galleries = () => {
 			);
 			if (response[0]) {
 				getAlbums(galleryId);
+			}
+		} catch (error) {
+			console.log('error==>getLayoutSettings', error);
+		}
+	};
+
+	const editAlbumName = async (payload, galleryId, albumID) => {
+		try {
+			console.log('editAlbumName called with:', { payload, galleryId, albumID });
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumID}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				getAlbums(galleryId);
+				return [true, response[1]];
 			}
 		} catch (error) {
 			console.log('error==>getLayoutSettings', error);
@@ -711,6 +737,7 @@ export const Galleries = () => {
 					type: Actions.GET_LIGHTROOM_COPY_LIST,
 					payload: response?.[1],
 				});
+				return response;
 			}
 		} catch (error) {
 			console.log('error==>getAlbumImageFileNames', error);
@@ -1450,6 +1477,53 @@ export const Galleries = () => {
 			console.log('error==>getDownloadLinkForImage', error);
 		}
 	};
+	//{{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/visitors
+	const getInsightVisitors = async (
+		galleryId,
+		page = 1,
+		limit = 20,
+		search = '',
+		dateRange = {},
+	) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+
+			const queryParams = {
+				page,
+				limit,
+				search,
+				startDate: dateRange?.startDate || '',
+				endDate: dateRange?.endDate || '',
+			};
+
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/visitors`,
+				usertoken,
+				'galleries',
+				queryParams,
+			);
+			if (response[0] === true) {
+				const newPayload =
+					page === 1
+						? response[1]
+						: {
+								...response[1],
+								docs: [
+									...(state.insightsVisitors?.docs || []),
+									...response[1].docs,
+								],
+						  };
+				dispatch({
+					type: Actions.GET_INSIGHT_VISITORS,
+					payload: newPayload,
+				});
+			}
+			return response;
+		} catch (error) {
+			console.log('error==>getInsightVisitors', error);
+		}
+	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/download-images
 	const getDownloadForMultipleImages = async (payload, galleryId) => {
 		try {
@@ -1490,6 +1564,37 @@ export const Galleries = () => {
 			console.log('error==>getDownloadForMultipleImages', error);
 		}
 	};
+
+	//{{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/download-images
+	const downloadImages = async (payload, galleryId, albumId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/download-images`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+
+			if (response?.[0] === true && response?.[1]?.downloadId) {
+				dispatch({
+					type: Actions.GET_DOWNLOAD_IMAGES,
+					payload: response?.[1],
+				});
+
+				const url = `https://downloads.ve.ai/${response[1].downloadId}`;
+				console.log('url==>downloadImages', url);
+				window.open(url, '_blank');
+				return [true, response?.[1]];
+			}
+			return [false, null];
+		} catch (error) {
+			console.log('error==>downloadImages', error);
+			return [false, error];
+		}
+	};
+
 	const clearGalleryShareDetails = () => {
 		dispatch({
 			type: Actions.GET_GALLERY_SHARE_DETAILS,
@@ -1579,7 +1684,7 @@ export const Galleries = () => {
 		getImageDuplicatesList,
 		getWaterMarks,
 		uploadWaterMark,
-		editAlbum,
+		editAlbumName,
 		editLockAlbum,
 		updatedAlbum,
 		checkAlbumSlugIsAvalible,
@@ -1627,8 +1732,11 @@ export const Galleries = () => {
 		getDownloadLinkForImage,
 		getDownloadForMultipleImages,
 		clearGalleryShareDetails,
+		getInsightVisitors,
+		downloadImages,
 		getImagesReadyNotify,
 		getPreRegisteredUsers,
 		clearPreRegisteredUsers,
+		editAlbum,
 	};
 };
