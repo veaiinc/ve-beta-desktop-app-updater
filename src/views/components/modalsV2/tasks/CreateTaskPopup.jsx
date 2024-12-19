@@ -55,12 +55,12 @@ const CreateTaskPopup = ({
 		setInfo({ ...initialState });
 	}, [isOpen]);
 
-	const updateModalInfo = (key, value) => {
+	const updateModalInfo = useCallback((key, value) => {
 		if (key === 'title') {
 			value = value?.trim();
 		}
 		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
-	};
+	}, []);
 
 	const preparePayload = useCallback(() => {
 		const { assignedTo, description, dueDate, priority, status, title, workflowId } = info;

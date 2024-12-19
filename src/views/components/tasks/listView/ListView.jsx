@@ -73,6 +73,7 @@ const ListView = () => {
 			updateListItem,
 			deleteListItem,
 			addSubTask,
+			removeSubTask,
 			resetSubTasks,
 		},
 		templates: { getWorkflowsList, workflowslist },
@@ -387,21 +388,31 @@ const ListView = () => {
 		[info?.workflows, info?.isCreatingSubtask, info?.selectedRow?._id],
 	);
 
-	const deleteTask = useCallback(async (payload) => {
-		if (validateExpiryData?.isExpired) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
-		} else {
-			const response = await deleteListItem(payload);
-			if (response) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					listItems: prevInfo?.listItems?.filter((row) => row._id !== payload?.taskId),
-					sidebarIsOpen: false,
-					selectedRow: null,
-				}));
+	const deleteTask = useCallback(
+		async (payload) => {
+			if (validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			} else {
+				const response = await deleteListItem(payload);
+				if (response) {
+					if (info?.selectedSubTask?._id === payload?.taskId) {
+						updateListViewInfo('selectedSubTask', null);
+						removeSubTask(payload?.taskId);
+					} else {
+						setInfo((prevInfo) => ({
+							...prevInfo,
+							listItems: prevInfo?.listItems?.filter(
+								(row) => row._id !== payload?.taskId,
+							),
+							sidebarIsOpen: false,
+							selectedRow: null,
+						}));
+					}
+				}
 			}
-		}
-	}, []);
+		},
+		[info?.selectedSubTask?._id, removeSubTask],
+	);
 
 	const handleRowClick = useCallback(
 		(rowId) => {
@@ -436,6 +447,10 @@ const ListView = () => {
 
 	const handleCloseSidebar = useCallback(() => {
 		updateListViewInfo('sidebarIsOpen', false);
+		updateListViewInfo('selectedSubTask', null);
+	}, []);
+
+	const handleChildTaskClose = useCallback(() => {
 		updateListViewInfo('selectedSubTask', null);
 	}, []);
 
@@ -494,6 +509,8 @@ const ListView = () => {
 			<ListViewSidebar
 				selectedRow={info?.selectedSubTask || info?.selectedRow}
 				isShowingSubTask={info?.selectedSubTask !== null}
+				parentTaskNo={info?.selectedRow?.taskSlNo}
+				handleChildTaskClose={handleChildTaskClose}
 				handleSubTaskClick={handleSubTaskClick}
 				sidebarIsOpen={info?.sidebarIsOpen}
 				closeSidebar={handleCloseSidebar}

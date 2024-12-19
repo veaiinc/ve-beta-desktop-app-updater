@@ -21,6 +21,13 @@ const actionHandlers = {
 			error: null,
 		},
 	}),
+	REMOVE_SUB_TASK: (state, action) => ({
+		...state,
+		subTasks: {
+			...state.subTasks,
+			data: state.subTasks?.data?.filter((item) => item._id !== action?.payload),
+		},
+	}),
 	RESET_STATE: () => intialState,
 };
 

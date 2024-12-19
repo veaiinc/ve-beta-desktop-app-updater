@@ -3,6 +3,7 @@ import { Drawer, Progress } from 'antd';
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
 import { ReactComponent as CloseArrow } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
+import { ReactComponent as RightSvg } from '../../../../assets/svg/activity/right.svg';
 import { ReactComponent as DustBinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/tasks/searchWhite.svg';
@@ -25,6 +26,8 @@ const ListViewSidebar = ({
 	handleCreateSubTaskClick,
 	handleSubTaskClick,
 	isShowingSubTask,
+	parentTaskNo,
+	handleChildTaskClose,
 }) => {
 	const {
 		tasks: { subTasks, getSubTasks },
@@ -35,6 +38,7 @@ const ListViewSidebar = ({
 		subTaskLoading: true,
 		subTaskError: null,
 		deleteLoading: false,
+		completedSubtaskCount: 0,
 	});
 
 	useEffect(() => {
@@ -42,21 +46,38 @@ const ListViewSidebar = ({
 			return;
 		}
 		if (selectedRow?._id && !subTasks) {
-			setInfo({ subTaskLoading: true });
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				subTaskLoading: true,
+			}));
 			getSubTasks({ taskId: selectedRow?._id });
 		} else {
 			if (subTasks?.data) {
-				setInfo({ subTasks: [...subTasks?.data], subTaskLoading: false });
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					subTasks: [...subTasks?.data],
+					subTaskLoading: false,
+				}));
 			} else {
-				setInfo({ subTaskError: subTasks?.error, subTaskLoading: false });
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					subTaskError: subTasks?.error,
+					subTaskLoading: false,
+				}));
 			}
 		}
 	}, [subTasks, selectedRow?._id, isShowingSubTask]);
 
 	const handleDeleteTask = useCallback(async () => {
-		setInfo({ deleteLoading: true });
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			deleteLoading: true,
+		}));
 		await deleteTask({ taskId: selectedRow?._id });
-		setInfo({ deleteLoading: false });
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			deleteLoading: false,
+		}));
 	}, [deleteTask, selectedRow?._id]);
 
 	const onSubTaskClick = useCallback(
@@ -158,7 +179,19 @@ const ListViewSidebar = ({
 								onClick={closeSidebar}
 								className="cursor-pointer"
 							/>
-							<span className="sidebar-id">{selectedRow?.taskSlNo}</span>
+							<div className="breadcrumbs">
+								{isShowingSubTask ? (
+									<span
+										className="breadcrumbs-item"
+										onClick={handleChildTaskClose}
+									>
+										{parentTaskNo} <RightSvg height={12} width={12} />
+									</span>
+								) : (
+									''
+								)}
+								<span className="breadcrumbs-item">{selectedRow?.taskSlNo}</span>
+							</div>
 							<button
 								className="sidebar-delete-button"
 								onClick={() => {
@@ -201,13 +234,20 @@ const ListViewSidebar = ({
 									<span className="sidebar-subtask-header-count">
 										<Progress
 											type="circle"
-											percent={75}
+											percent={
+												(info?.completedSubtaskCount /
+													info?.subTasks?.length) *
+												100
+											}
 											size={16}
 											strokeColor={'#6055EC'}
 											trailColor={'#2F2F2F'}
 											strokeWidth={14}
 										/>
-										<span className="task-count">3/6</span>
+										<span className="task-count">
+											{info?.completedSubtaskCount || 0}/
+											{info?.subTasks?.length || 0}
+										</span>
 									</span>
 									<div className="subtask-actions-wrapper">
 										<button

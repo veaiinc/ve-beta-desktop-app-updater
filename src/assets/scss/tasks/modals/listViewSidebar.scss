@@ -30,15 +30,35 @@
 				align-items: center;
 				gap: 8px;
 
-				.sidebar-id {
-					color: #7d7d7d;
-					font-family: Inter;
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
+				.breadcrumbs {
+					display: flex;
+					align-items: center;
+					gap: 4px;
 					flex-grow: 1;
+					justify-content: flex-start;
+					.breadcrumbs-item {
+						color: #7d7d7d;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						display: flex;
+						align-items: center;
+						gap: 2px;
+						cursor: pointer;
+						svg {
+							margin-top: 0;
+							path {
+								fill: #7d7d7d;
+							}
+						}
+						&:hover {
+							color: #e8e8e8;
+						}
+					}
 				}
+
 				.sidebar-delete-button {
 					background: transparent;
 					border: none;
