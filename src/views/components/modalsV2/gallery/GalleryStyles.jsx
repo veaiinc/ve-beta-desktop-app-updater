@@ -1,7 +1,7 @@
 import ReactModal from '../index';
 import React from 'react';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
-import VerticalAlignSvg from '../../../../assets/svg/gallery/VerticalAlignSvg.jsx';
+import VerticalAlignSvg from '../../../../assets/svg/gallery/verticalAlignSvg.jsx';
 import HorizontalAlignSvg from '../../../../assets/svg/gallery/gridStyleHorizontalSvg.jsx';
 import ThumbnailVerticalSvg from '../../../../assets/svg/gallery/thumbnailVerticalSvg.jsx';
 import ThumbnailHorizontalSvg from '../../../../assets/svg/gallery/thumbNailHorizontalSvg.jsx';
@@ -11,8 +11,18 @@ import GridSpacingHorizontalSvg from '../../../../assets/svg/gallery/gridSpacing
 const GalleryStyles = (props) => {
 	const { open, onClose, themeMode, handleLayoutType, gridStyle, thumbnailSize, gridSpacing } =
 		props;
+
+	const customStyles = {
+		content: { zIndex: 99999 },
+		overlay: { zIndex: 99998 },
+	};
 	return (
-		<ReactModal isOpen={open} onClose={onClose} modalType="center">
+		<ReactModal
+			isOpen={open}
+			closeModal={onClose}
+			modalType="center"
+			customStyles={customStyles}
+		>
 			<div className="galleryStylesContainer">
 				<div className="galleryStylesCloseButton">
 					<div className="galleryStylesHeading">Gallery Styles</div>

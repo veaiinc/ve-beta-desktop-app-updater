@@ -15,19 +15,19 @@ import axios from 'axios';
 import { message, Spin } from 'antd';
 
 const availableIntegrations = [
-	{
-		title: 'Google',
-		icon: google,
-		connect_type: 'google',
-		hasConfigure: true,
-	},
+	// {
+	// 	title: 'Google',
+	// 	icon: google,
+	// 	connect_type: 'google',
+	// 	hasConfigure: true,
+	// },
 	{ title: 'Zoho', icon: zoho, connect_type: 'zoho', hasConfigure: false },
-	{
-		title: 'Hubspot',
-		icon: hubspot,
-		connect_type: 'hubspot',
-		hasConfigure: false,
-	},
+	// {
+	// 	title: 'Hubspot',
+	// 	icon: hubspot,
+	// 	connect_type: 'hubspot',
+	// 	hasConfigure: false,
+	// },
 	{ title: 'Slack', icon: slack, connect_type: 'slack', hasConfigure: false },
 ];
 

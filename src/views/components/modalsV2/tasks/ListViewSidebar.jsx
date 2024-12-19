@@ -153,63 +153,6 @@ const ListViewSidebar = ({
 					</div>
 					<div className="sidebar-properties-container">{generateRow(selectedRow)}</div>
 
-					<div className="sidebar-subtask-container">
-						<div className="sidebar-subtask-header">
-							<span className="sidebar-subtask-header-title">Sub Tasks</span>
-							<span className="sidebar-subtask-header-count">
-								<Progress
-									type="circle"
-									percent={75}
-									size={16}
-									strokeColor={'#6055EC'}
-									trailColor={'#2F2F2F'}
-									strokeWidth={14}
-								/>
-								<span className="task-count">3/6</span>
-							</span>
-							<div className="subtask-actions-wrapper">
-								<button
-									className="subtask-action-button"
-									onClick={handleCreateSubTaskClick}
-								>
-									<PlusSvg style={{ width: '20px', height: '20px' }} />
-								</button>
-								<button className="subtask-action-button">
-									<SearchSvg />
-								</button>
-								{/* <button className="subtask-action-button">
-									<ThunderSvg />
-								</button>
-								<button className="subtask-action-button">
-									<FilterLinesSvg />
-								</button> */}
-								<button className="subtask-action-button">
-									<HorizontalMoreIcon style={{ width: '20px', height: '20px' }} />
-								</button>
-								{/* <Tooltip
-									placement="bottom"
-									title={
-										<OptionsDropDown
-											properties={properties}
-											togglePropertyVisibility={togglePropertyVisibility}
-										/>
-									}
-									arrow={false}
-									trigger={'click'}
-									color={'transparent'}
-									overlayStyle={{ minWidth: 'fit-content' }}
-								>
-									<button className="btn-options">
-										<HorizontalMoreIcon
-											style={{ width: '20px', height: '20px' }}
-										/>
-									</button>
-								</Tooltip> */}
-							</div>
-						</div>
-						<div className="subtask-list-container"></div>
-					</div>
-
 					<div className="sidebar-description">
 						<textarea
 							className="sidebar-description-textarea"

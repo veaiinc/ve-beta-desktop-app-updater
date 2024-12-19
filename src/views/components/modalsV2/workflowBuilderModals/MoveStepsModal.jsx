@@ -19,15 +19,15 @@ const MoveStepsModal = ({
 		calculatedNumberOfSteps: null,
 	});
 
-	// useEffect(() => {
-	// 	if (modalIsOpen && previousStepId) {
-	// 		const steps = getTotalNumnerofNodesRecursively(
-	// 			stepsMapper?.[stepsMapper?.[previousStepId]?.data?.nextStepId]?.data?._id,
-	// 			stepsMapper,
-	// 		);
-	// 		setInfo((prev) => ({ ...prev, calculatedNumberOfSteps: steps }));
-	// 	}
-	// }, [modalIsOpen, previousStepId]);
+	useEffect(() => {
+		if (modalIsOpen && previousStepId) {
+			const steps = getTotalNumnerofNodesRecursively(
+				stepsMapper?.[stepsMapper?.[previousStepId]?.data?.nextStepId]?.data?._id,
+				stepsMapper,
+			);
+			setInfo((prev) => ({ ...prev, calculatedNumberOfSteps: steps }));
+		}
+	}, [modalIsOpen, previousStepId]);
 
 	const actionClickHandler = useCallback((type) => {
 		updateStepsPath(type);

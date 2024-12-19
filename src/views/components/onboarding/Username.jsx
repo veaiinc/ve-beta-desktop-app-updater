@@ -19,7 +19,7 @@ const Username = ({
 
 	const handleSetUsername = (e) => {
 		if (step !== 1) return;
-		const value = e?.target?.value ?? '';
+		const value = e?.target?.value?.trim() ?? '';
 		setUsername(value);
 	};
 

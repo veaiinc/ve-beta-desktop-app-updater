@@ -41,7 +41,7 @@ export const veAiModulesItemsList = [
 		route: '/calendar',
 		icon: CalendarSvg,
 	},
-	// { name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: TaskSvg },
+	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: TaskSvg },
 	// { name: 'Workflow', moduleRoute: '/workflows', route: '/sales/workflows', icon: FlowArrowSvg },
 	// {
 	// 	name: 'Linkin Bio',

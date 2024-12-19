@@ -4,14 +4,18 @@ import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross
 const ShowLightRoomCopy = (props) => {
 	const { open, onClose, lightroomCopyList, onCopyList } = props;
 	return (
-		<ReactModal isOpen={open} onClose={onClose}>
+		<ReactModal isOpen={open} closeModal={onClose} modalType={'center'}>
 			<div className="lightRoomCopyContainer">
 				<div className="lightRoomCopyContent">
 					<div className="lightRoomCopyHeading">
 						<div className="lightRoomCopyHeadingText">Light Room Copy List</div>
 						<div
 							className="lightRoomCopyCloseButton"
-							onClick={onClose}
+							onClick={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								onClose();
+							}}
 							style={{ cursor: 'pointer' }}
 						>
 							<CrossSvg />
@@ -31,7 +35,11 @@ const ShowLightRoomCopy = (props) => {
 					))}
 				</div>
 				<div style={{ alignSelf: 'flex-end' }}>
-					<button className="lightRoomCopyListButton" onClick={onCopyList}>
+					<button
+						className="lightRoomCopyListButton"
+						onClick={onCopyList}
+						style={{ cursor: 'pointer' }}
+					>
 						Copy List
 					</button>
 				</div>

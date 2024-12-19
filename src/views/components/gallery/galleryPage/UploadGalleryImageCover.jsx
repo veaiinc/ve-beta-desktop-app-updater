@@ -49,7 +49,7 @@ const UploadGalleryImageCover = ({
 	return (
 		<ReactModal
 			isOpen={open}
-			onClose={onClose}
+			closeModal={onClose}
 			modalType="center"
 			customStyles={{ content: { top: '55%' } }}
 		>
@@ -159,6 +159,7 @@ const UploadGalleryImageCover = ({
 								fileInputRef.current.click();
 							}
 						}}
+						style={{ cursor: 'pointer' }}
 					>
 						Upload cover photo
 					</p>
@@ -177,6 +178,7 @@ const UploadGalleryImageCover = ({
 						<p
 							className="bt"
 							onClick={() => handleSetCoverPosition(focusInfo?.focalPoint)}
+							style={{ cursor: 'pointer' }}
 						>
 							Set cover position
 						</p>
