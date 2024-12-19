@@ -6,7 +6,6 @@ import AiPeopleContainer from '../../components/gallery/aiSelections/AiPeopleCon
 import AiFaceRegistration from '../../components/gallery/aiSelections/AiFaceRegistration';
 import Insights from '../../components/gallery/aiSelections/Insights';
 import AiFacesContainer from '../../components/gallery/aiSelections/AiFacesContainer';
-
 const aiOptions = [
 	{ name: 'AI People', value: 'AI People' },
 	{ name: 'AI Face Registration', value: 'AI Face Registration' },
@@ -36,7 +35,6 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 			search: 'Ai Faces',
 		}));
 	};
-
 	return (
 		<div className="aiSelection-container">
 			<div className="aiOptions-navbar">
@@ -64,7 +62,6 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 					}}
 				>
 					<SearchIcon />
-
 					<input
 						type="text"
 						placeholder="Search"
@@ -74,7 +71,6 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 					/>
 				</div>
 			</div>
-
 			{info?.search === 'AI People' && (
 				<AiPeopleContainer
 					galleryId={galleryId}
@@ -94,5 +90,4 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 		</div>
 	);
 };
-
 export default memo(AiSelection);
