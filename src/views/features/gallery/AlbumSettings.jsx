@@ -47,6 +47,7 @@ const AlbumSettings = () => {
 			albumDetails,
 			getAlbumCount,
 		},
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		activeSetting: 'album-overview,',
@@ -280,6 +281,9 @@ const AlbumSettings = () => {
 	};
 
 	const uploadAlbumCoverChangeHandler = async (e) => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		const image = e.target.files[0];
 
 		if (!image) {
@@ -407,6 +411,9 @@ const AlbumSettings = () => {
 		}
 	};
 	const handleDownloadAlbum = async () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		message.loading('Downloading album...');
 		const payload = {
 			imageType: info?.originalDownload ? 'original' : 'optimized',

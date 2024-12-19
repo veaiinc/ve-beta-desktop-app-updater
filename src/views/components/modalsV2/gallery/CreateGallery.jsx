@@ -10,6 +10,7 @@ import slugify from 'slugify';
 const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries, message }) => {
 	const {
 		galleryInfo: { createNewGallery, checkGallerySlugAvailable },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	const [galleryData, setGalleryData] = useState({
 		title: '',
@@ -110,6 +111,9 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries, message 
 	};
 
 	const handleSubmit = async () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		if (galleryData?.isSubmitting) return;
 		const galleryNameError = !galleryData.title;
 		const eventDateError = !galleryData.shotDuring;
