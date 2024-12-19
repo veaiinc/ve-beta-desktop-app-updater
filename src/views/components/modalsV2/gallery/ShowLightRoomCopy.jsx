@@ -35,7 +35,11 @@ const ShowLightRoomCopy = (props) => {
 					))}
 				</div>
 				<div style={{ alignSelf: 'flex-end' }}>
-					<button className="lightRoomCopyListButton" onClick={onCopyList}>
+					<button
+						className="lightRoomCopyListButton"
+						onClick={onCopyList}
+						style={{ cursor: 'pointer' }}
+					>
 						Copy List
 					</button>
 				</div>

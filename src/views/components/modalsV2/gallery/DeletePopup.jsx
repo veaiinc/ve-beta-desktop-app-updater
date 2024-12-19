@@ -21,7 +21,11 @@ const DeletePopup = ({ open, closeModal, title, paragraph, handleDelete }) => {
 					</div>
 				</div>
 				<div style={{ alignSelf: 'flex-end' }}>
-					<button className="deletePopupDeleteButton" onClick={handleDelete}>
+					<button
+						className="deletePopupDeleteButton"
+						onClick={handleDelete}
+						style={{ cursor: 'pointer' }}
+					>
 						Delete
 					</button>
 				</div>

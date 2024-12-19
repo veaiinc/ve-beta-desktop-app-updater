@@ -159,6 +159,7 @@ const UploadGalleryImageCover = ({
 								fileInputRef.current.click();
 							}
 						}}
+						style={{ cursor: 'pointer' }}
 					>
 						Upload cover photo
 					</p>
@@ -177,6 +178,7 @@ const UploadGalleryImageCover = ({
 						<p
 							className="bt"
 							onClick={() => handleSetCoverPosition(focusInfo?.focalPoint)}
+							style={{ cursor: 'pointer' }}
 						>
 							Set cover position
 						</p>
