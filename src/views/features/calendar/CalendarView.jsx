@@ -1,8 +1,5 @@
 import React, { memo, useMemo, useState, useContext, useEffect, useCallback } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
-// import CalendarHeader from '../../components/calendar/CalendarHeader';
-// import CalendarViewType from '../../components/calendar/CalendarViewType';
-
 import '../../../assets/scss/calendar/calendarView.scss';
 import CalendarWrapper from '../../components/calendar/CalendarWrapper';
 import CalendarHeader from '../../components/calendar/CalendarHeader';
@@ -22,15 +19,27 @@ const initialState = {
 	isLoading: true,
 	isEventCreated: false,
 	updateEventsList: false,
+	selectedEvent: null,
 };
 
-const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalendarInfo }) => {
+const CalendarView = ({
+	currentCalendarDate,
+	selectedWeek,
+	selectedDate,
+	isEventSelected,
+	categoryList,
+	selectedCategory,
+	categoryFilter,
+	updateCalendarInfo,
+	selectedWorkflowId,
+}) => {
 	const {
 		calendarInfo: {
 			calendarEventsList,
 			getCalendarEventsList,
-			calendarEvent, //state
+			calendarEvent,
 			resetCalendarState,
+			sendEventToAi,
 		},
 		// profileInfo: { userWorkSpaceList, userDetailsData },
 		companyInfo: { tenantsUserList, getTeamMembers },
@@ -48,6 +57,7 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 
 	useEffect(() => {
 		fetchEventsList();
+		handleSendEventToAi();
 	}, [calendarEvent]);
 
 	useEffect(() => {
@@ -71,7 +81,7 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 			const mappedEventsList = calendarEventsList?.map((event) => ({
 				id: event?._id,
 				start: moment(event?.startDateTime).local().toDate(), // Convert to local time
-				end: moment(event?.endDateTime).local().toDate(), // Convert to local time
+				end: moment(event?.endDateTime).local().toDate(),
 				title: event?.title,
 				description: event?.description,
 			}));
@@ -89,16 +99,38 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 		await getCalendarEventsList();
 	}, []);
 
+	const handleSendEventToAi = useCallback(async () => {
+		if (calendarEvent) {
+			await sendEventToAi({
+				event_id: calendarEvent?._id,
+			});
+		}
+	}, [calendarEvent]);
+
+	const handleSelectEvent = useCallback(
+		(event) => {
+			updateCalendarInfo('isEventSelected', true);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				selectedEvent: event,
+			}));
+		},
+		[info?.selectedEvent],
+	);
+
 	const components = useMemo(
 		() => ({
 			timeGutterHeader: CustomTimeGutterHeader,
 			toolbar: (props) => (
 				<CalendarHeader
 					{...props}
+					currentCalendarDate={currentCalendarDate}
 					selectedDate={selectedDate}
 					selectedWeek={selectedWeek}
-					// userWorkSpaceList={userWorkSpaceList}
 					tenantsUserList={tenantsUserList}
+					updateCalendarInfo={updateCalendarInfo}
+					selectedWorkflowId={selectedWorkflowId}
+					// userWorkSpaceList={userWorkSpaceList}
 				/>
 			),
 			week: {
@@ -111,7 +143,7 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 			eventWrapper: CustomEventWrapper,
 			// eventContainerWrapper: CustomEventContainer,
 		}),
-		[selectedDate, selectedWeek, tenantsUserList],
+		[selectedDate, selectedWeek, currentCalendarDate, selectedWorkflowId, tenantsUserList],
 	);
 	return (
 		<>
@@ -128,13 +160,14 @@ const CalendarView = ({ selectedWeek, selectedDate, isEventSelected, updateCalen
 							className="custom"
 							selectable
 							onSelectSlot={() => updateCalendarInfo('isCreateEventOpen', true)}
-							onSelectEvent={(event) => updateCalendarInfo('isEventSelected', true)}
-							date={selectedDate} //for syncing with calendarSelector current date
+							onSelectEvent={(event) => handleSelectEvent(event)}
+							date={selectedDate}
 							popup
 							components={components}
 						/>
 					</div>
 					<EventDetailsDrawer
+						selectedEvent={info?.selectedEvent}
 						isEventSelected={isEventSelected}
 						updateCalendarInfo={updateCalendarInfo}
 					/>

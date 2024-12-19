@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
 
@@ -64,4 +64,4 @@ const FullImagesComponent = ({
 	);
 };
 
-export default FullImagesComponent;
+export default memo(FullImagesComponent);

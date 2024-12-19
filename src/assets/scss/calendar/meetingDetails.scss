@@ -1,5 +1,7 @@
 .meetingCardParentContainer {
 	display: flex;
+	justify-content: center;
+	align-items: center;
 	position: relative;
 	height: 203px;
 	// min-height: 203px;
@@ -12,6 +14,7 @@
 	border-radius: 24px;
 	border: 1px solid #272727;
 	background: #1d1d1d;
+	cursor: default;
 	overflow: hidden; //to hide svg element overflow
 
 	.meetingCard {
@@ -24,7 +27,7 @@
 
 		.timeDurationWrapper {
 			display: flex;
-			padding: var(--cartCount, 0px) 14px;
+			// padding: 0px 5px;
 			justify-content: space-between;
 			align-items: center;
 			align-self: stretch;
@@ -37,6 +40,7 @@
 			line-height: normal;
 
 			.durationBadge {
+				position: relative;
 				display: flex;
 				padding: 11px 14px;
 				justify-content: center;
@@ -48,22 +52,42 @@
 				background: rgba(96, 85, 236, 0.2);
 				box-shadow: 0px 0px 40px 0px rgba(96, 85, 236, 0.15);
 				backdrop-filter: blur(50px);
+
+				.indicatorDot {
+					position: absolute;
+					top: 0px;
+					right: 0px;
+					width: 10px;
+					height: 10px;
+					background-color: #6055ec;
+					border-radius: 50%;
+				}
 			}
 		}
 
 		.meetingDetailsWrapper {
 			display: flex;
 			flex-direction: column;
-			padding: var(--cartCount, 0px) 14px;
+			padding: 0px 5px;
 			justify-content: center;
 			align-items: self-start;
-			gap: 10px;
+			gap: 7px;
 
 			font-family: Inter;
-			font-size: 12px;
+			font-size: 10px;
 			font-style: normal;
-			font-weight: 500;
+			font-weight: 600;
 			line-height: normal;
+			color: rgba(228, 229, 230, 0.48);
+
+			.meetingTitle {
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				max-width: 165px;
+				color: #e4e5e6;
+				font-size: 18px;
+			}
 		}
 	}
 

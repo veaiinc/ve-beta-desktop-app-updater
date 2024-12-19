@@ -30,11 +30,6 @@ const actionHandlers = {
 		mailSendStatus: action.payload,
 	}),
 
-	UPDATE_SUBSCRIPTION_STATE: (state, action) => ({
-		...state,
-		...action.payload,
-	}),
-
 	RESET_STATE: () => intialState,
 };
 

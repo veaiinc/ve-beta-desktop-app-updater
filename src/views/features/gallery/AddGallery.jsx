@@ -1,18 +1,14 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useCallback, memo } from 'react';
 import '../../../assets/scss/gallery/index.scss';
 import '../../../assets/scss/gallery/allGalleries.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
 import { useNavigate } from 'react-router-dom';
-import testImage from '../../../assets/svg/gallery/testing.png';
 import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/chat/filter.svg';
 import { Result, message, Tooltip } from 'antd';
-
-const noImage =
-	'https://png.pngtree.com/png-clipart/20230917/original/pngtree-no-image-available-icon-flatvector-illustration-thumbnail-graphic-illustration-vector-png-image_12323920.png';
 
 const LoadingSkeleton = () => {
 	return [...Array(10)].map((_, index) => (
@@ -68,6 +64,7 @@ const AddGallery = () => {
 			clearClientSelectionsData,
 			clearAiFace,
 			clearGalleryShareDetails,
+			clearPreRegisteredUsers,
 			clearGalleryState,
 		},
 	} = useContext(Context);
@@ -92,6 +89,7 @@ const AddGallery = () => {
 		clearClientSelectionsData();
 		clearAiFace();
 		clearGalleryShareDetails();
+		clearPreRegisteredUsers();
 		clearGalleryState();
 	}, []);
 	useEffect(() => {
@@ -182,7 +180,7 @@ const AddGallery = () => {
 	};
 
 	const copyGallerySlugFunction = (slug) => {
-		const galleryLink = `https://${info?.workspaceId}.ve.ai/galleries/${slug}`;
+		const galleryLink = `https://${info?.workspaceId}.ve.ai/gallery/${slug}`;
 		navigator?.clipboard
 			?.writeText(galleryLink)
 			.then(() => {
@@ -294,9 +292,6 @@ const AddGallery = () => {
 											{items?.coverImage?.thumbnailUrl ? (
 												<img
 													src={items?.coverImage?.thumbnailUrl}
-													// onError={(e) => {
-													// 	e.target.src = testImage;
-													// }}
 													alt={items?.title}
 												/>
 											) : (
@@ -372,4 +367,4 @@ const AddGallery = () => {
 	);
 };
 
-export default AddGallery;
+export default memo(AddGallery);

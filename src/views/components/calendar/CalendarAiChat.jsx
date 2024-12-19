@@ -2,6 +2,7 @@ import React, { memo, useState, useEffect, useCallback, useContext, useRef } fro
 import '../../../assets/scss/calendar/calendarAiChat.scss';
 import ObjectId from 'bson-objectid';
 import Context from '../../../context/context';
+import ReactMarkdown from 'react-markdown';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as SendSvg } from '../../../assets/svg/calendar/send.svg';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
@@ -16,7 +17,7 @@ const initialState = {
 
 const CalendarAiChat = ({ toggleAskAi }) => {
 	const {
-		calendarInfo: { calendarChat, getCalendarChat },
+		calendarInfo: { calendarChat, getCalendarChat, resetCalendarAiChat },
 	} = useContext(Context);
 
 	const userTypingRef = useRef(null);
@@ -39,6 +40,7 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 				isProcessing: false,
 				errorMessage: null,
 			});
+			resetCalendarAiChat();
 		};
 	}, []);
 
@@ -49,7 +51,7 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 		if (!info?.isProcessing) {
 			userTypingRef.current?.focus();
 		}
-	}, [info.chatHistory, info.isProcessing]);
+	}, [info?.chatHistory, info?.isProcessing]);
 
 	useEffect(() => {
 		if (calendarChat) {
@@ -127,7 +129,21 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 					>
 						{chat?.type === 'ai' && <AiSparkel />}
 						<div className={chat?.type === 'user' ? '' : 'aiMessage'}>
-							<span>{chat?.message}</span>
+							<span>
+								<ReactMarkdown
+									components={{
+										a: ({ node, ...props }) => (
+											<a
+												{...props}
+												target="_blank"
+												rel="noopener noreferrer"
+											/>
+										),
+									}}
+								>
+									{chat?.message}
+								</ReactMarkdown>
+							</span>
 						</div>
 					</div>
 				))}

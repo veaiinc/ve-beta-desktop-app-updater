@@ -17,13 +17,11 @@ import { ReactComponent as VE } from '../../../assets/svg/smallVe.svg';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
 import { message } from 'antd';
-import { fetchOriginSelection } from '../../../helpers';
 const options = [
 	{ label: 'Rename Workflow' },
 	{ label: 'Duplicate Workflow' },
 	{ label: 'Delete Worklfow' },
 ];
-let origin = fetchOriginSelection();
 
 const WorkflowBuilder = () => {
 	const {
@@ -267,7 +265,7 @@ const WorkflowBuilder = () => {
 		};
 		const response = await duplicateGlobalWorkflowTemplate(payload);
 		if (response?.[0]) {
-			window.location.href = `${origin}/${response?.[1]?._id}`;
+			window.location.href = `https://builder.ve.ai/${response?.[1]?._id}`;
 		}
 		closeDuplicateWorkflowModal();
 	}, [info?.incomingTemplateData, closeDuplicateWorkflowModal]);

@@ -1,7 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import routes from './routes';
-import React, { memo, useEffect } from 'react';
-import ExpiredSubscriptionModal from './views/components/modalsV2/subscription/ExpiredSubscriptionModal';
+import React, { useEffect } from 'react';
 
 function App() {
 	useEffect(() => {
@@ -25,9 +24,8 @@ function App() {
 					/>
 				))}
 			</Routes>
-			<ExpiredSubscriptionModal />
 		</>
 	);
 }
 
-export default memo(App);
+export default App;

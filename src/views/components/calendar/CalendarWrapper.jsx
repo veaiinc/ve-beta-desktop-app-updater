@@ -9,9 +9,10 @@ moment.locale('es', {
 });
 
 const localizer = momentLocalizer(moment);
+const minTime = moment().set({ hours: 6, minutes: 0, seconds: 0 }).toDate(); //set  time to 6am
 
 const Calendar = (props) => {
-	return <BigCalendar {...props} localizer={localizer} />;
+	return <BigCalendar {...props} localizer={localizer} min={minTime} />;
 };
 
 export default memo(Calendar);

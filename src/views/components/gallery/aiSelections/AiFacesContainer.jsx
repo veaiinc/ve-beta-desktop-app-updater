@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, memo } from 'react';
 import Context from '../../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import PeopleCard from '../galleryView/PeopleCard';
@@ -154,4 +154,4 @@ const AiFacesContainer = ({ galleryId, galleryCredentials, handleBackClick }) =>
 	);
 };
 
-export default AiFacesContainer;
+export default memo(AiFacesContainer);

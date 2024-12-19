@@ -1,7 +1,6 @@
-import React, { memo, useCallback, useEffect, useRef, useState, useContext } from 'react';
+import React, { memo, useCallback, useRef, useState, useContext } from 'react';
 import '../../../assets/scss/calendar/createEvent.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
-// import { ReactComponent as VerticalDots } from '../../../assets/svg/more-options-dots.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import { ReactComponent as Clock } from '../../../assets/svg/activity/duration.svg';
 import { ReactComponent as Category } from '../../../assets/svg/calendar/category.svg';
@@ -9,6 +8,7 @@ import { ReactComponent as Location } from '../../../assets/svg/calendar/locatio
 import { ReactComponent as Meeting } from '../../../assets/svg/calendar/meeting.svg';
 import { ReactComponent as Avtar } from '../../../assets/svg/calendar/calendarEllipse.svg';
 import { ReactComponent as Close } from '../../../assets/svg/activity/close.svg';
+import UpdateCategoryModal from '../modalsV2/calendar/UpdateCategoryModal';
 import Spinner from '../../components/loaders/Spinner.jsx';
 import ToggleSwitch from '../../components/input/slider';
 import Context from '../../../context/context';
@@ -16,24 +16,27 @@ import moment from 'moment/moment';
 
 const initialState = {
 	title: '',
-	description: '',
-	location: '',
+	description: null,
+	location: null,
 	startDateTime: '',
 	endDateTime: '',
 	timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 	allDay: false,
 	attendees: [],
-	meeting: '',
-	phone: '',
+	meeting: null,
+	phone: null,
 
 	// Validation and submission states
 	isSubmitting: false,
 	submissionError: null,
 };
 
-const CreateEvent = ({ updateCalendarInfo }) => {
+const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => {
 	const {
 		calendarInfo: { calendarEvent, createCalendarEvent },
+		profileInfo: { userDetailsData },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		companyInfo: { tenantsUserList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -43,42 +46,16 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 		showCategory: false,
 		showAtendeeSuggestions: false,
 		categories: ['Shoots', 'Sessions', 'Meetings'],
-		selectedCategory: 'default',
+		selectedCategory: selectedCategory || null,
 		attendeesInputField: '',
 		startDate: '',
 		startTime: '',
 		endDate: '',
 		endTime: '',
-		inputDropDownItems: [
-			{
-				_id: '66e8263c45a6222134432931',
-				firstName: 'sankar',
-				lastName: 'josyula',
-				email: 'sankar@ve.ai',
-				role: 'admin',
-				isOwner: true,
-			},
-			{
-				_id: '671a26ab0d6a528cf2d8fd7a',
-				firstName: 'Dheeraj',
-				lastName: 'C Justin',
-				email: 'dheeraj@ve.ai',
-				role: 'admin',
-				isOwner: false,
-			},
-			{
-				_id: '671a26ab0d6a528cf3c9fd9b',
-				firstName: 'Preetam',
-				lastName: 'Singh',
-				email: 'preetam@ve.ai',
-				role: 'admin',
-				isOwner: false,
-			},
-		],
+		addCategory: false,
 	});
 
 	const createEventRef = useRef(null);
-
 	// Format date and time to ISO string
 	const convertToISOString = useCallback((date, time) => {
 		if (!date) return null;
@@ -109,19 +86,38 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 			meeting,
 			attendees,
 			selectedCategory,
+			phone,
 		} = info;
 		// Validate required fields
-		if (!title || !startDate || !endDate) {
+		if (!title) {
 			setInfo((prev) => ({
 				...prev,
-				submissionError: 'Title and date are required',
+				submissionError: 'Agenda is required',
+				isSubmitting: false,
+			}));
+			return null;
+		}
+
+		if (!startDate) {
+			setInfo((prev) => ({
+				...prev,
+				submissionError: 'Start date is required',
+				isSubmitting: false,
+			}));
+			return null;
+		}
+
+		if (!endDate) {
+			setInfo((prev) => ({
+				...prev,
+				submissionError: 'End date is required',
 				isSubmitting: false,
 			}));
 			return null;
 		}
 
 		// Validate attendees
-		if (!attendees || attendees.length === 0) {
+		if (!attendees || attendees?.length === 0) {
 			setInfo((prev) => ({
 				...prev,
 				submissionError: 'At least one attendee is required',
@@ -131,11 +127,12 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 		}
 
 		// formate attendees
-		const processedAttendees = attendees.map((attendee) => ({
-			tenantUserId: attendee.tenantUserId || '',
-			firstName: attendee.name || '',
-			lastName: '',
-			email: attendee.email,
+		const processedAttendees = attendees?.map((attendee) => ({
+			isWorkspaceUser: attendee?.tenantUserId ? true : false,
+			tenantUserId: attendee?.tenantUserId || null,
+			name: attendee?.name || null,
+			email: attendee?.email,
+			role: attendee?.role,
 			responseStatus: 'confirmed',
 		}));
 
@@ -148,15 +145,18 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 			timezone,
 			allDay,
 			attendees: processedAttendees,
-			calendarCategory: selectedCategory.toLowerCase(),
+			calendarCategory: selectedCategory?._id,
 			meeting,
-			phone: '',
+			phone,
 		};
 	}, [info, convertToISOString]);
 
 	// Handle event creation submission
 	const handleEventSubmission = useCallback(async () => {
 		try {
+			if (validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
 			setInfo((prev) => ({
 				...prev,
 				isSubmitting: true,
@@ -178,7 +178,13 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	const addAttendees = useCallback(
-		({ name = '', email = '', isWorkspaceUser = false, tenantUserId = '' }) => {
+		({
+			name = null,
+			email = null,
+			isWorkspaceUser = false,
+			tenantUserId = null,
+			role = null,
+		}) => {
 			// Validate email
 			if (!emailRegex.test(email)) {
 				setInfo((prevInfo) => ({
@@ -201,7 +207,7 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 
 				const updatedAttendees = [
 					...prevInfo.attendees,
-					{ name, email, isWorkspaceUser, tenantUserId },
+					{ name, email, isWorkspaceUser, tenantUserId, role },
 				];
 
 				return {
@@ -235,7 +241,11 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 			<div className="headerWrapper">
 				<span className="headerLabel">Create an event</span>
 				<CloseSvg
-					onClick={() => updateCalendarInfo('isCreateEventOpen', false)}
+					onClick={() => {
+						if (info?.isSubmitting) return;
+						updateCalendarInfo('isCreateEventOpen', false);
+						setInfo(initialState);
+					}}
 					style={{ cursor: 'pointer' }}
 				/>
 			</div>
@@ -330,7 +340,16 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 						<div className="categoriesLabel">Categories</div>
 					</div>
 					<div className="categoriesSelector">
-						<input type="text" placeholder="Add to a category" />
+						<input
+							type="text"
+							placeholder="Add to a category"
+							onBlur={() => updateEventInfo('showCategory', false)}
+							onFocus={() => {
+								updateEventInfo('showCategory', true);
+							}}
+							value={info?.selectedCategory?.name}
+							style={{ textTransform: 'capitalize' }}
+						/>
 						<div
 							className="downArrow"
 							onClick={() => updateEventInfo('showCategory', !info?.showCategory)}
@@ -341,15 +360,28 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 								}}
 							/>
 						</div>
-						{info?.showCategory ? (
+						{info?.showCategory && (
 							<div className="categoryDropDown">
-								<div className="categoryDropDownItem">Shoots</div>
-								<div className="categoryDropDownItem">Sessions</div>
-								<div className="categoryDropDownItem">Meetings</div>
-								<div className="categoryDropDownItem addCategory">+ Add new</div>
+								{categoryList?.map((item) => (
+									<div
+										className="categoryDropDownItem"
+										onMouseDown={() => {
+											updateEventInfo('selectedCategory', item);
+											updateEventInfo('showCategory', false);
+										}}
+									>
+										{item?.name}
+									</div>
+								))}
+								<div
+									className="categoryDropDownItem addCategory"
+									onClick={() =>
+										setInfo((prev) => ({ ...prev, addCategory: true }))
+									}
+								>
+									+ Add new
+								</div>
 							</div>
-						) : (
-							''
 						)}
 					</div>
 					<div className="additionalOptions">
@@ -375,7 +407,7 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 				<div className="attendeesContainer">
 					<div className="attendeesHeader">
 						<span className="attendiesLabel">Attendees</span>
-						<span className="attendeesCount">{info?.attendees.length + 1}</span>
+						<span className="attendeesCount">{info?.attendees?.length + 1}</span>
 					</div>
 					<div className="attendeeInputWrapper">
 						<input
@@ -397,7 +429,7 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 						/>
 						{info?.showAtendeeSuggestions ? (
 							<div className="addAttendeeDropDown">
-								{info?.inputDropDownItems
+								{tenantsUserList
 									?.filter((item) => !item?.isOwner)
 									?.map((item) => (
 										<div
@@ -409,6 +441,7 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 													email: item?.email,
 													tenantUserId: item?._id,
 													isWorkspaceUser: true,
+													role: item?.role,
 												});
 											}}
 										>
@@ -416,7 +449,7 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 												<Avtar />
 											</div>
 											<div className="details">
-												<div className="name">{`${item?.firstName} ${item?.lastName}`}</div>
+												<div className="name">{`${item?.firstName}`}</div>
 												<div className="email">{item?.email}</div>
 											</div>
 										</div>
@@ -432,7 +465,9 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 								<Avtar />
 							</div>
 							<div className="nameWrapper">
-								<span className="name">Avinash</span>
+								<span className="name">
+									{userDetailsData?.firstName} {userDetailsData?.lastName}
+								</span>
 								<span className="role">Organizer</span>
 							</div>
 						</div>
@@ -442,17 +477,10 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 										<div className="avatar">
 											<Avtar />
 										</div>
-
-										{item?.isWorkspaceUser ? (
-											<div className="nameWrapper">
-												<span className="name">{item?.name}</span>
-												<span className="role">{item?.email}</span>
-											</div>
-										) : (
-											<div className="nameWrapper">
-												<span className="name">{item?.email}</span>
-											</div>
-										)}
+										<div className="nameWrapper">
+											<span className="name">{item?.name}</span>
+											<span className="role">{item?.email}</span>
+										</div>
 										<Close
 											onClick={() =>
 												removeAttendee(item?.tenantUserId || item?.email)
@@ -476,6 +504,11 @@ const CreateEvent = ({ updateCalendarInfo }) => {
 					'Add to calendar'
 				)}
 			</button>
+			<UpdateCategoryModal
+				show={info?.addCategory}
+				handleClose={() => setInfo((prev) => ({ ...prev, addCategory: false }))}
+				selectedCategory={info?.selectedCategory}
+			/>
 		</div>
 	);
 };

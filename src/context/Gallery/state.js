@@ -29,6 +29,7 @@ export const intialState = {
 	galleryShareDetails: null,
 	aiFace: null,
 	aiFaceImages: null,
+	preRegisteredUsers: null,
 };
 
 export const Galleries = () => {
@@ -1495,6 +1496,61 @@ export const Galleries = () => {
 			payload: null,
 		});
 	};
+
+	const getImagesReadyNotify = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/pre-registered-users/notify`,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>ImagesReadyNotify', error);
+			throw error;
+		}
+	};
+
+	const getPreRegisteredUsers = async (galleryId, page = 1, limit = 10) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/pre-registered-users?page=${page}&limit=${limit}`,
+				usertoken,
+				'galleries',
+			);
+
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_PRE_REGISTERED_USERS,
+					payload:
+						page === 1
+							? response?.[1]
+							: {
+									metadata: response?.[1].metadata,
+									data: [
+										...(state.preRegisteredUsers?.data || []),
+										...response?.[1].data,
+									],
+							  },
+				});
+			}
+			return [false, null];
+		} catch (error) {
+			console.log('error==>getPreRegisteredUsers', error);
+			return [false, error];
+		}
+	};
+
+	const clearPreRegisteredUsers = () => {
+		dispatch({
+			type: Actions.GET_PRE_REGISTERED_USERS,
+			payload: null,
+		});
+	};
 	const clearGalleryState = () => {
 		dispatch({
 			type: Actions.CLEAR_SPECIFIC_STATES,
@@ -1577,6 +1633,9 @@ export const Galleries = () => {
 		getDownloadLinkForImage,
 		getDownloadForMultipleImages,
 		clearGalleryShareDetails,
+		getImagesReadyNotify,
+		getPreRegisteredUsers,
+		clearPreRegisteredUsers,
 		clearGalleryState,
 	};
 };

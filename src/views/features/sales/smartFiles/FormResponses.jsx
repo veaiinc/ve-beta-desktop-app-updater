@@ -41,7 +41,7 @@ const EventstypeFormResponses = ({ data, index }) => {
 };
 
 const MultipleChoiceComponent = ({ data, index }) => {
-	let answer = JSON.parse(data?.answer || '[]');
+	let answer = data?.answer || '[]';
 	answer = answer?.split(',');
 	return (
 		<div className="eventsListCards" key={index}>

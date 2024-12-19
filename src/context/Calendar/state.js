@@ -8,11 +8,14 @@ export const initialState = {
 	calendarChat: null,
 	calendarEventsList: null,
 	calendarEvent: null,
+	calendarCategories: null,
+	calendarEventDetails: null,
 };
 
 export const Calendar = () => {
 	const [state, dispatch] = useReducer(Reducer, initialState);
 
+	// Calendar AI Apis ================================>
 	const getCalendarChat = async (sessionId, body) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -39,6 +42,120 @@ export const Calendar = () => {
 		}
 	};
 
+	const sendEventToAi = async (body) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.sendEventToAi}`;
+
+			await service.fetchPost(url, body, usertoken, 'calendar_chat');
+		} catch (error) {
+			console.log('error==>sendEventToAi', error);
+		}
+	};
+
+	// Calendar Categories Apis ================================>
+	const createCalendarCategory = async (body) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.createCalendarCategory}`;
+			const response = await service.fetchPost(url, body, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_CALENDAR_CATEGORIES,
+					payload: response?.[1]?.data,
+				});
+			} else {
+				dispatch({
+					type: Actions.CREATE_CALENDAR_CATEGORY,
+					payload: {
+						error: 'Something went wrong while creating category. Please try again.',
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>createCalendarCategory', error);
+		}
+	};
+
+	const updateCalendarCategory = async (categoryId, body) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.updateCalendarCategory}/${categoryId}`;
+			const response = await service.fetchPost(url, body, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.UPDATE_CALENDAR_CATEGORY,
+					payload: response?.[1]?.data,
+				});
+			} else {
+				dispatch({
+					type: Actions.UPDATE_CALENDAR_CATEGORY,
+					payload: {
+						error: 'Something went wrong while updating category. Please try again.',
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>updateCalendarCategory', error);
+		}
+	};
+
+	const getCalendarCategories = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.calendarCategories}`;
+			const response = await service.fetchGet(url, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_CALENDAR_CATEGORIES,
+					payload: response?.[1]?.data,
+				});
+			} else {
+				dispatch({
+					type: Actions.GET_CALENDAR_CATEGORIES,
+					payload: {
+						error: 'Something went wrong while fetching categories. Please try again.',
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>getCalendarCategories', error);
+		}
+	};
+
+	const deleteCalendarCategory = async (categoryId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.deleteCalendarCategory}/${categoryId}`;
+			const response = await service.fetchDelete(url, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.DELETE_CALENDAR_CATEGORY,
+					payload: response?.[1]?.data,
+				});
+			} else {
+				dispatch({
+					type: Actions.DELETE_CALENDAR_CATEGORY,
+					payload: {
+						error: 'Something went wrong while deleting category. Please try again.',
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>deleteCalendarCategory', error);
+		}
+	};
+
+	// Calendar Events Apis ================================>
 	const getCalendarEventsList = async () => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -91,8 +208,63 @@ export const Calendar = () => {
 		}
 	};
 
+	const getCalendarEventDetails = async (eventId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.getCalendarEventDetails}/${eventId}`;
+			const response = await service.fetchGet(url, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_CALENDAR_EVENT_DETAILS,
+					payload: response?.[1]?.data,
+				});
+			} else {
+				dispatch({
+					type: Actions.GET_CALENDAR_EVENT_DETAILS,
+					payload: {
+						error: 'Something went wrong while fetching event details. Please try again.',
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>getCalendarEventDetails', error);
+		}
+	};
+
+	const updateCalendarEvent = async (eventId, body) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.updateCalendarEvent}/${eventId}`;
+			const response = await service.fetchPost(url, body, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.UPDATE_CALENDAR_EVENT,
+					payload: response?.[1]?.data,
+				});
+			} else {
+				dispatch({
+					type: Actions.UPDATE_CALENDAR_EVENT,
+					payload: {
+						error: 'Something went wrong while updating event. Please try again.',
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>updateCalendarEvent', error);
+		}
+	};
+
+	// Calendar State Reset ================================>
 	const resetCalendarState = () => {
 		dispatch({ type: Actions.RESET_CALENDAR_STATE });
+	};
+
+	const resetCalendarAiChat = () => {
+		dispatch({ type: Actions.RESET_CALENDAR_AI_CHAT });
 	};
 
 	return {
@@ -101,5 +273,13 @@ export const Calendar = () => {
 		getCalendarEventsList,
 		createCalendarEvent,
 		resetCalendarState,
+		resetCalendarAiChat,
+		sendEventToAi,
+		createCalendarCategory,
+		updateCalendarEvent,
+		updateCalendarCategory,
+		getCalendarCategories,
+		deleteCalendarCategory,
+		getCalendarEventDetails,
 	};
 };

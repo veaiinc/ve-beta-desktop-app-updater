@@ -99,7 +99,12 @@ const CalendarSelector = ({
 							<DownSvg />
 						</span>
 						{info?.activeDropdown === 'months' && (
-							<div className="monthSelectorContainer">
+							<div
+								className="monthSelectorContainer"
+								onMouseLeave={() => {
+									setInfo((prev) => ({ ...prev, activeDropdown: '' }));
+								}}
+							>
 								{MONTHS?.map((month, index) => (
 									<div
 										key={`monthName-${index}`}
@@ -108,7 +113,10 @@ const CalendarSelector = ({
 										}`}
 										onClick={() => {
 											updateCalendarInfo('selectedMonth', index);
-											setInfo({ activeDropdown: 'months' }); // Close the dropdown after selection
+											setInfo((prev) => ({
+												...prev,
+												activeDropdown: 'months',
+											})); // Close the dropdown after selection
 										}}
 									>
 										{month}
@@ -125,7 +133,12 @@ const CalendarSelector = ({
 							<DownSvg />
 						</span>
 						{info?.activeDropdown === 'years' && (
-							<div className="yearSelectorContainer">
+							<div
+								className="yearSelectorContainer"
+								onMouseLeave={() => {
+									setInfo((prev) => ({ ...prev, activeDropdown: '' }));
+								}}
+							>
 								{YEARS?.map((year) => (
 									<div
 										key={year}
@@ -134,7 +147,10 @@ const CalendarSelector = ({
 										}`}
 										onClick={() => {
 											updateCalendarInfo('selectedYear', year);
-											setInfo({ activeDropdown: 'years' }); // Close the dropdown after selection
+											setInfo((prev) => ({
+												...prev,
+												activeDropdown: 'years',
+											})); // Close the dropdown after selection
 										}}
 									>
 										{year}

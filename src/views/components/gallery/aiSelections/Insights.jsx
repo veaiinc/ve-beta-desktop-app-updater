@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, memo } from 'react';
 import '../../../../assets/scss/gallery/insights.scss';
 import Table from './Table';
 import { ReactComponent as DownloadIcon } from '../../../../assets/svg/gallery/download2.svg';
@@ -80,7 +80,7 @@ const tableData = [
 
 const Insights = () => {
 	const {
-		galleryInfo: { tenantAlbums, aiFace },
+		galleryInfo: { tenantAlbums, aiFace, preRegisteredUsers },
 	} = useContext(Context);
 
 	const bytesToGigabytes = (bytes) => {
@@ -164,4 +164,4 @@ const Insights = () => {
 	);
 };
 
-export default Insights;
+export default memo(Insights);

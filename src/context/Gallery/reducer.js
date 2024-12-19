@@ -114,6 +114,10 @@ const actionHandlers = {
 
 	RESET_IMAGES_LIST: (state) => ({ ...state, imagesList: null }),
 	RESET_STATE: () => ({ ...intialState }),
+	GET_PRE_REGISTERED_USERS: (state, action) => ({
+		...state,
+		preRegisteredUsers: action.payload,
+	}),
 };
 
 const Reducer = (state, action) => {

@@ -1,10 +1,9 @@
-import React, { memo, useState, useCallback, useEffect, useRef } from 'react';
+import React, { memo, useState, useCallback } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
-import Context from '../../../context/context';
 import CalendarSelector from '../../components/calendar/CalendarSelector';
 import AskAI from '../../components/calendar/AskAI';
-// import CalendarCategories from '../../components/calendar/CalendarCategories';
-// import MeetingDetails from '../../components/calendar/MeetingDetails';
+import CalendarCategories from '../../components/calendar/CalendarCategories';
+import MeetingDetails from '../../components/calendar/MeetingDetails';
 import CalendarAiChat from '../../components/calendar/CalendarAiChat';
 import CreateEvent from '../../components/calendar/CreateEvent';
 
@@ -14,6 +13,9 @@ const CalendarSidebar = ({
 	selectedYear,
 	selectedDate,
 	isCreateEventOpen,
+	categoryList,
+	selectedCategory,
+	categoryFilter,
 	updateCalendarInfo,
 }) => {
 	const [info, setInfo] = useState({
@@ -32,7 +34,11 @@ const CalendarSidebar = ({
 			{info?.askAi ? (
 				<CalendarAiChat toggleAskAi={toggleAskAi} />
 			) : isCreateEventOpen ? (
-				<CreateEvent updateCalendarInfo={updateCalendarInfo} />
+				<CreateEvent
+					categoryList={categoryList}
+					selectedCategory={selectedCategory}
+					updateCalendarInfo={updateCalendarInfo}
+				/>
 			) : (
 				<div className="calendarSidebarContainer">
 					<CalendarSelector
@@ -43,8 +49,13 @@ const CalendarSidebar = ({
 						updateCalendarInfo={updateCalendarInfo}
 					/>
 					<AskAI toggleAskAi={toggleAskAi} />
-					{/* <CalendarCategories />
-					<MeetingDetails /> */}
+					<CalendarCategories
+						categoryList={categoryList}
+						selectedCategory={selectedCategory}
+						categoryFilter={categoryFilter}
+						updateCalendarInfo={updateCalendarInfo}
+					/>
+					<MeetingDetails />
 				</div>
 			)}
 		</>
