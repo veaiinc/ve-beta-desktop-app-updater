@@ -1,0 +1,81 @@
+.eventDetailsDrawerParentCOntainer {
+	height: 100%;
+	// width: 500px;
+	display: flex;
+	padding: 10px;
+	justify-content: center;
+	align-items: center;
+
+	.innerContainer {
+		display: flex;
+		width: 480px;
+		padding: 24px 32px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		align-self: stretch;
+		border-radius: 16px;
+		border: 1px solid rgba(36, 36, 36, 0.64);
+		background: #191919;
+		overflow-y: auto;
+		overflow-x: hidden;
+
+		// for spinner
+		.loadingContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			justify-content: center;
+			align-items: center;
+			height: 100%;
+			align-self: stretch;
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 600;
+		}
+
+		.eventDetailsWrapper {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+			padding-bottom: 24px;
+			border-bottom: 1px solid #272727;
+			.eventDetailsRow {
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				align-items: center;
+				width: 100%;
+				// display: grid;
+				// grid-template-columns: 1fr 3fr;
+
+				.eventKey {
+					color: rgba(228, 229, 230, 0.48);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+					text-transform: capitalize;
+				}
+
+				.eventValue {
+					overflow: hidden;
+					color: #0063c7;
+					text-overflow: ellipsis;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					text-align: start;
+					text-transform: capitalize;
+				}
+			}
+		}
+	}
+}

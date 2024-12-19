@@ -7,11 +7,12 @@ import CustomTimeGutterHeader from '../../components/calendar/CustomTimeGutterHe
 import CustomEventCard from '../../components/calendar/CustomEventCard';
 import CustomEventWrapper from '../../components/calendar/CustomEventWrapper';
 // import CustomEventContainer from '../../components/calendar/CustomEventContainer';
-import EventDetailsDrawer from '../../components/calendar/EventDetailsDrawer';
 import MonthEventWrapper from '../../components/calendar/MonthEventWrapper';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import Context from '../../../context/context';
 import moment from 'moment';
+// import EventDetailsDrawer from '../../components/calendar/EventDetailsDrawer';
+import EventDetailsModal from '../../components/modalsV2/calendar/EventDetailsModal';
 
 const initialState = {
 	eventsList: [],
@@ -166,7 +167,12 @@ const CalendarView = ({
 							components={components}
 						/>
 					</div>
-					<EventDetailsDrawer
+					{/* <EventDetailsDrawer
+						selectedEvent={info?.selectedEvent}
+						isEventSelected={isEventSelected}
+						updateCalendarInfo={updateCalendarInfo}
+					/> */}
+					<EventDetailsModal
 						selectedEvent={info?.selectedEvent}
 						isEventSelected={isEventSelected}
 						updateCalendarInfo={updateCalendarInfo}
