@@ -1,9 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/tasks/modals/createTaskPopup.scss';
-import { ReactComponent as ExpandIcon } from '../../../../assets/svg/gallery/expand.svg';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/CrossWhite.svg';
-import { ReactComponent as PaperClip } from '../../../../assets/svg/tasks/paperClip.svg';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import { ReactComponent as PageIcon } from '../../../../assets/svg/tasks/pagePlus.svg';
 import { ReactComponent as CalendarIcon } from '../../../../assets/svg/calendar-icon.svg';
@@ -40,7 +38,14 @@ const initialState = {
 	isLoading: false,
 };
 
-const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUsers }) => {
+const CreateTaskPopup = ({
+	isOpen,
+	closeModal,
+	addNewTask,
+	workflows,
+	tenantUsers,
+	isSubTask = false,
+}) => {
 	const [messageApi, contextHolder] = message.useMessage();
 	const [info, setInfo] = useState({
 		...initialState,
@@ -62,7 +67,6 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 		if (!title.trim()) {
 			return;
 		}
-
 		return Object.entries({
 			assignedTo: assignedTo ? { userId: assignedTo?.value } : '',
 			description,
@@ -72,7 +76,7 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 			title,
 			workflowId,
 			workflowTemplateId: workflowId
-				? workflows?.find((workflow) => workflow.value === workflowId)?.templateId
+				? workflows?.find((workflow) => workflow._id === workflowId)?.templateId
 				: null,
 		})
 			.filter(([key, value]) => value != null && value !== '')
@@ -103,13 +107,19 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 			isOpen={isOpen}
 			closeModal={info?.isLoading ? null : closeModal}
 			modalType={'center'}
+			customStyles={{
+				content: {
+					zIndex: 30000,
+				},
+			}}
 		>
 			{contextHolder}
 			<div className="createTask-container">
 				<div className="header-wrapper">
-					<div className="logo"></div>
+					<h2 className="createTask-title">
+						{isSubTask ? 'Create Sub Task' : 'Create Task'}
+					</h2>
 					<div className="actions-wrapper">
-						<ExpandIcon className="expandsvg" />
 						<CrossWhite
 							className="crossSvg"
 							onClick={info?.isLoading ? null : closeModal}
@@ -120,7 +130,6 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 					<input
 						type="text"
 						placeholder="Task title"
-						// value={info?.title}
 						onChange={(e) => updateModalInfo('title', e?.target?.value)}
 					/>
 					<textarea
@@ -132,42 +141,43 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 					></textarea>
 				</div>
 				<div className="properties-wrapper">
-					<WorkFlow
-						val={info?.workflowId}
-						workflows={workflows}
-						customListItemStyle={customListItemStyle}
-						onOptionClick={(value) => updateModalInfo('workflowId', value)}
-						title={'Workflow'}
-					/>
+					{!isSubTask ? (
+						<WorkFlow
+							val={info?.workflowId}
+							workflows={workflows}
+							onOptionClick={(value) => updateModalInfo('workflowId', value)}
+							title={'Workflow'}
+						/>
+					) : (
+						''
+					)}
 					<Status
 						value={info?.status}
 						showLabel={true}
-						customListItemStyle={customListItemStyle}
 						onOptionClick={(value) => updateModalInfo('status', value)}
 						title={'Status'}
 					/>
 					<Priority
 						value={info?.priority}
 						showLabel={true}
-						customListItemStyle={customListItemStyle}
 						onOptionClick={(value) => updateModalInfo('priority', value)}
 						title={'Priority'}
 					/>
 					<Person
 						value={info?.assignedTo}
 						persons={tenantUsers}
-						customListItemStyle={customListItemStyle}
 						onOptionClick={(value) => updateModalInfo('assignedTo', value)}
 						title={'Assigned To'}
 						removeBtn={true}
 					/>
 					{info?.dueDate ? (
-						<DateView
-							value={info?.dueDate}
-							customListItemStyle={customListItemStyle}
-							onOptionClick={(value) => updateModalInfo('dueDate', value)}
-							title={'Due Date'}
-						/>
+						<div className="dueDate-wrapper">
+							<DateView
+								value={info?.dueDate}
+								onOptionClick={(value) => updateModalInfo('dueDate', value)}
+								title={'Due Date'}
+							/>
+						</div>
 					) : (
 						''
 					)}
@@ -203,7 +213,6 @@ const CreateTaskPopup = ({ isOpen, closeModal, addNewTask, workflows, tenantUser
 					</Tooltip>
 				</div>
 				<div className="footer-wrapper">
-					<PaperClip />
 					<button
 						className="btn-createIssue"
 						onClick={handleAddTask}

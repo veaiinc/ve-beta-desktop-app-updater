@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 
 const Phone = ({ value }) => {
@@ -9,4 +9,4 @@ const Phone = ({ value }) => {
 	);
 };
 
-export default Phone;
+export default memo(Phone);

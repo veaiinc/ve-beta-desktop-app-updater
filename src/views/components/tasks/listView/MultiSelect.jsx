@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 
 const MultiSelect = ({ value, options = [] }) => {
@@ -59,4 +59,4 @@ const MultiSelect = ({ value, options = [] }) => {
 	);
 };
 
-export default MultiSelect;
+export default memo(MultiSelect);

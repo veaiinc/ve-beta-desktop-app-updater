@@ -1,9 +1,14 @@
-import { Drawer, Popconfirm } from 'antd';
-import React, { memo, useCallback } from 'react';
+/* eslint-disable no-unused-vars */
+import { Drawer, Progress } from 'antd';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
-import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import { ReactComponent as CloseArrow } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
-
+import { ReactComponent as DustBinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
+import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
+import { ReactComponent as SearchSvg } from '../../../../assets/svg/tasks/searchWhite.svg';
+import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
+import Spinner from '../../loaders/Spinner';
+import Context from '../../../../context/context';
 const ListViewSidebar = ({
 	selectedRow,
 	sidebarIsOpen,
@@ -14,8 +19,29 @@ const ListViewSidebar = ({
 	deleteTask,
 	responseTypes,
 	rowTypes,
-	clients,
+	handleCreateSubTaskClick,
 }) => {
+	// const {
+	// 	tasks: { subTasks, getSubTasks },
+	// } = useContext(Context);
+	const [info, setInfo] = useState({
+		deleteLoading: false,
+	});
+
+	// useEffect(() => {
+	// 	if (!subTasks) {
+	// 		getSubTasks({ taskId: selectedRow?._id });
+	// 	} else {
+	// 		console.log('subTasks', subTasks);
+	// 	}
+	// }, [subTasks, selectedRow?._id]);
+
+	const handleDeleteTask = async () => {
+		setInfo({ deleteLoading: true });
+		await deleteTask({ taskId: selectedRow?._id });
+		setInfo({ deleteLoading: false });
+	};
+
 	const generateRow = useCallback(
 		(row) => {
 			const listItems = [];
@@ -30,35 +56,38 @@ const ListViewSidebar = ({
 						'description',
 						'workflowTemplateId',
 						'completedAt',
+						'taskSlNo',
+						'workflowId',
 					].includes(key)
 				) {
 					continue;
 				}
 
-				const componentType = responseTypes[key];
-				const RowComponent = rowTypes[componentType] || null;
+				const { type = null, name = null, Icon = null } = responseTypes[key];
+
+				const RowComponent = rowTypes[type] || null;
 				listItems.push(
 					<div className="property-list" key={key}>
-						<span className="property-title">{key}</span>
+						<span className="property-title">
+							{Icon && <Icon width={16} height={16} />}
+							{name}
+						</span>
 						<span className={`property-value`}>
 							{RowComponent ? (
 								<RowComponent
 									key={key}
 									value={value}
-									title={key}
+									title={name}
 									showLabel
+									defaultLabel={'Not selected'}
+									{...(type === 'date' ? { format: 'MMM DD, YYYY h:mm A' } : {})}
 									{...(key === 'workflow' ? { workflows } : {})}
-									{...(componentType === 'person' ? { showName: true } : {})}
-									{...(key === 'client'
-										? {
-												persons: clients,
-										  }
-										: {})}
+									{...(type === 'person' ? { showName: true } : {})}
 									{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
 									{...(key === 'updatedAt' ||
 									key === 'createdAt' ||
 									key === 'assignedAt'
-										? { showDropDown: false }
+										? { timestamp: true }
 										: {})}
 									onOptionClick={(value) =>
 										updatePropertyValue(row._id, key, value)
@@ -74,13 +103,13 @@ const ListViewSidebar = ({
 
 			return listItems;
 		},
-		[responseTypes, rowTypes, workflows, clients, tenantUsers, updatePropertyValue],
+		[responseTypes, rowTypes, workflows, tenantUsers, updatePropertyValue],
 	);
 
 	return (
 		<Drawer
 			onClose={closeSidebar}
-			width={420}
+			width={480}
 			open={sidebarIsOpen}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
@@ -89,25 +118,98 @@ const ListViewSidebar = ({
 			<div className="listView-sidebar-container">
 				<div className="listView-sidebar-innerContainer">
 					<div className="sidebar-header">
+						<CloseArrow
+							width={16}
+							height={16}
+							onClick={closeSidebar}
+							className="cursor-pointer"
+						/>
 						<span className="sidebar-id">{selectedRow?.taskSlNo}</span>
-						<HorizontalMoreIcon className="cursor-pointer" />
-						<CloseArrow onClick={closeSidebar} className="cursor-pointer" />
+						<button
+							className="sidebar-delete-button"
+							onClick={() => {
+								handleDeleteTask();
+							}}
+							disabled={info?.deleteLoading}
+						>
+							{info?.deleteLoading ? (
+								<Spinner width={20} height={20} color="#7d7d7d" />
+							) : (
+								<DustBinIcon width={20} height={20} className="cursor-pointer" />
+							)}
+						</button>
 					</div>
 
-					{/* Title input */}
 					<div className="sidebar-title">
-						<input
-							type="text"
+						<textarea
 							className="sidebar-title-input"
 							value={selectedRow?.title || ''}
 							onChange={(e) =>
 								updatePropertyValue(selectedRow?._id, 'title', e.target.value)
 							}
 							placeholder="Enter title"
+							rows={1}
 						/>
 					</div>
+					<div className="sidebar-properties-container">{generateRow(selectedRow)}</div>
 
-					{/* Description textarea */}
+					<div className="sidebar-subtask-container">
+						<div className="sidebar-subtask-header">
+							<span className="sidebar-subtask-header-title">Sub Tasks</span>
+							<span className="sidebar-subtask-header-count">
+								<Progress
+									type="circle"
+									percent={75}
+									size={16}
+									strokeColor={'#6055EC'}
+									trailColor={'#2F2F2F'}
+									strokeWidth={14}
+								/>
+								<span className="task-count">3/6</span>
+							</span>
+							<div className="subtask-actions-wrapper">
+								<button
+									className="subtask-action-button"
+									onClick={handleCreateSubTaskClick}
+								>
+									<PlusSvg style={{ width: '20px', height: '20px' }} />
+								</button>
+								<button className="subtask-action-button">
+									<SearchSvg />
+								</button>
+								{/* <button className="subtask-action-button">
+									<ThunderSvg />
+								</button>
+								<button className="subtask-action-button">
+									<FilterLinesSvg />
+								</button> */}
+								<button className="subtask-action-button">
+									<HorizontalMoreIcon style={{ width: '20px', height: '20px' }} />
+								</button>
+								{/* <Tooltip
+									placement="bottom"
+									title={
+										<OptionsDropDown
+											properties={properties}
+											togglePropertyVisibility={togglePropertyVisibility}
+										/>
+									}
+									arrow={false}
+									trigger={'click'}
+									color={'transparent'}
+									overlayStyle={{ minWidth: 'fit-content' }}
+								>
+									<button className="btn-options">
+										<HorizontalMoreIcon
+											style={{ width: '20px', height: '20px' }}
+										/>
+									</button>
+								</Tooltip> */}
+							</div>
+						</div>
+						<div className="subtask-list-container"></div>
+					</div>
+
 					<div className="sidebar-description">
 						<textarea
 							className="sidebar-description-textarea"
@@ -116,51 +218,9 @@ const ListViewSidebar = ({
 								updatePropertyValue(selectedRow?._id, 'description', e.target.value)
 							}
 							placeholder="Enter description"
+							rows={5}
 						/>
 					</div>
-
-					<div className="sidebar-image"></div>
-					<div className="sidebar-properties-container">{generateRow(selectedRow)}</div>
-
-					<Popconfirm
-						title="Delete Task"
-						description="Are you sure you want to delete this task?"
-						okText="Yes"
-						cancelText="No"
-						okButtonProps={{
-							style: {
-								background: '#ff4d4d',
-								border: 'none',
-								borderRadius: '6px',
-								fontFamily: 'Inter',
-								fontWeight: 500,
-							},
-						}}
-						cancelButtonProps={{
-							style: {
-								background: '#1d1d1d',
-								border: '1px solid #1d1d1d',
-								borderRadius: '6px',
-								color: '#e4e5e6',
-								fontFamily: 'Inter',
-								fontWeight: 500,
-							},
-						}}
-						overlayStyle={{
-							background: '#151515',
-							border: '1px solid rgba(36, 36, 36, 0.64)',
-							borderRadius: '16px',
-						}}
-						overlayInnerStyle={{
-							color: '#e4e5e6',
-							fontFamily: 'Inter',
-						}}
-						onConfirm={() => {
-							deleteTask({ taskId: selectedRow?._id });
-						}}
-					>
-						<button className="deleteTask">Delete Task</button>
-					</Popconfirm>
 				</div>
 			</div>
 		</Drawer>

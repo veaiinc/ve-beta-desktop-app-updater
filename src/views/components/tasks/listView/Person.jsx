@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, memo } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 import DropDown from '../../dropDown/tasks/DropDown';
 import { Tooltip } from 'antd';
@@ -11,6 +11,7 @@ const Person = ({
 	onOptionClick,
 	persons = [],
 	removeBtn = false,
+	defaultLabel,
 }) => {
 	const updatedOnOptionClick = useCallback(
 		(value) => {
@@ -50,7 +51,7 @@ const Person = ({
 							)}
 						</>
 					) : (
-						<div className="listItem-text">{`Select ${title}`}</div>
+						<div className="listItem-text">{defaultLabel || `Select ${title}`}</div>
 					)}
 				</div>
 			</Tooltip>
@@ -58,4 +59,4 @@ const Person = ({
 	);
 };
 
-export default Person;
+export default memo(Person);
