@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, memo } from 'react';
 import '../../../assets/scss/gallery/aiOption.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
 // import { ReactComponent as CopyIcon } from '../../../assets/svg/workflow/copy.svg';
@@ -6,7 +6,6 @@ import AiPeopleContainer from '../../components/gallery/aiSelections/AiPeopleCon
 import AiFaceRegistration from '../../components/gallery/aiSelections/AiFaceRegistration';
 import Insights from '../../components/gallery/aiSelections/Insights';
 import AiFacesContainer from '../../components/gallery/aiSelections/AiFacesContainer';
-
 const aiOptions = [
 	{ name: 'AI People', value: 'AI People' },
 	{ name: 'AI Face Registration', value: 'AI Face Registration' },
@@ -36,7 +35,6 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 			search: 'Ai Faces',
 		}));
 	};
-
 	return (
 		<div className="aiSelection-container">
 			<div className="aiOptions-navbar">
@@ -64,7 +62,6 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 					}}
 				>
 					<SearchIcon />
-
 					<input
 						type="text"
 						placeholder="Search"
@@ -74,7 +71,6 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 					/>
 				</div>
 			</div>
-
 			{info?.search === 'AI People' && (
 				<AiPeopleContainer
 					galleryId={galleryId}
@@ -82,10 +78,8 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 					handleFaceClick={(face) => handleFaceClick(face)}
 				/>
 			)}
-			{info?.search === 'AI Face Registration' && (
-				<AiFaceRegistration link={link} galleryId={galleryId} />
-			)}
-			{info?.search === 'Insights' && <Insights galleryId={galleryId} />}
+			{info?.search === 'AI Face Registration' && <AiFaceRegistration link={link} />}
+			{info?.search === 'Insights' && <Insights />}
 			{info?.search === 'Ai Faces' && (
 				<AiFacesContainer
 					galleryId={galleryId}
@@ -96,5 +90,4 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 		</div>
 	);
 };
-
-export default AiSelection;
+export default memo(AiSelection);

@@ -1,20 +1,58 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/landingScreen/index.scss';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
 import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
 import { ReactComponent as ArrowUpBlack } from '../../../assets/svg/landingScreen/arrow-black.svg';
-import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen/double-quote.svg';
+// import { ReactComponent as DoubleQuote } from '../../../assets/svg/landingScreen/double-quote.svg';
+import { ReactComponent as DownArrow } from '../../../assets/svg/gallery/arrow-down.svg';
 import { VEAI_URL } from '../../../helpers/ConstantUrls';
+import imageSource from '../../../assets/images/golden-gate-bridge (2) 1.png';
+import imageSource2 from '../../../assets/images/Frame 1618873932.png';
+// import { endsWith } from 'lodash';
+import { CHANGELOG_URL } from '../../../helpers/ConstantUrls';
+import { BLOGS_URL } from '../../../helpers/ConstantUrls';
+
 const navItems = [
 	{ name: 'Privacy', route: '/privacy-policy' },
 	{ name: 'Terms', route: '/terms-of-service' },
 	{ name: 'Cookies', route: '/cookie-policy' },
-	{ name: 'Blogs', route: '/' },
+	{ name: 'Blogs', route: BLOGS_URL },
+	{ name: 'Changelog', route: CHANGELOG_URL },
+];
+
+const videoSegments = [
+	{
+		id: 1,
+		startTime: 0,
+		endTime: 2,
+		title: 'Ve.ai',
+	},
+	{
+		id: 2,
+		startTime: 3,
+		endTime: 4,
+		title: 'Ve.ai',
+	},
+	{
+		id: 3,
+		startTime: 4,
+		endTime: 5,
+		title: 'Ve.ai',
+	},
+	{
+		id: 4,
+		startTime: 6,
+		endTime: 7,
+		title: 'Ve.ai',
+	},
 ];
 
 const LandingPage = () => {
 	const navigate = useNavigate();
+	const [currentSegment, setCurrentSegment] = useState(0);
+	const [showScrollArrow, setShowScrollArrow] = useState(false);
+	const videoRef = useRef(null);
 	const [info, setInfo] = useState({
 		activeToggle: 'Path',
 	});
@@ -29,12 +67,62 @@ const LandingPage = () => {
 		}
 	}, []);
 
+	useEffect(() => {
+		if (videoRef.current) {
+			videoRef.current.muted = true;
+			videoRef.current.currentTime = videoSegments[currentSegment].startTime;
+			videoRef.current.play();
+		}
+	}, [currentSegment]);
+
+	useEffect(() => {
+		window.addEventListener('scroll', handleScroll);
+		// Check initial scroll position
+		handleScroll();
+
+		return () => {
+			window.removeEventListener('scroll', handleScroll);
+		};
+	}, []);
+
 	const handleToggleClick = (toggleType) => {
 		setInfo({
 			...info,
 			activeToggle: toggleType,
 		});
 	};
+
+	const handleScroll = () => {
+		const windowHeight = window.innerHeight;
+		const documentHeight = document.documentElement.scrollHeight;
+		const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+		// Hide arrow when near bottom (within 20px of bottom)
+		const isNearBottom = windowHeight + scrollTop >= documentHeight - 20;
+		setShowScrollArrow(!isNearBottom);
+	};
+
+	const handleTimeUpdate = () => {
+		const currentTime = videoRef?.current?.currentTime;
+		const currentSegmentData = videoSegments[currentSegment];
+		if (currentTime >= currentSegmentData.endTime) {
+			// Simply move to next segment
+			const nextSegment = (currentSegment + 1) % videoSegments.length;
+			setCurrentSegment(nextSegment);
+			videoRef.current.currentTime = videoSegments[nextSegment].startTime;
+		}
+	};
+
+	const handleSegmentChange = (index) => {
+		setCurrentSegment(index);
+		if (videoRef?.current) {
+			videoRef.current.currentTime = videoSegments[index].startTime;
+		}
+	};
+
+	// const handleVideoClick = () => {
+	// 	setIsUserSelectedSegment(false);
+	// };
 
 	const handleNavigation = () => {
 		navigate('/verify-user');
@@ -63,13 +151,12 @@ const LandingPage = () => {
 						<VeAiLogoGrey aria-label="VeAi Logo in grey" />
 					</div>
 					<h1 className="heading">
-						An AI orchestrator that creates digital employees and collaborates with
-						human teams to achieve any goal !
+						AI OS that,
+						<br /> minds your business !
 					</h1>
 					<p className="description">
-						Launch Intelligent, enterprise-ready, and seamlessly embedded in your
-						operations—digital workers bring advanced AI technology to your team,
-						scaling effortlessly to drive outcomes and push productivity.
+						VE AI is an os that creates ai workers and collaborates with your human
+						teams to achieve business goals.
 					</p>
 					<div className="cta-container">
 						<button
@@ -77,7 +164,7 @@ const LandingPage = () => {
 							className="get-started-button"
 							aria-label="Get started"
 						>
-							Get Started <ArrowUpBlack aria-label="Arrow up black" />
+							Hire Ve.ai <ArrowUpBlack aria-label="Arrow up black" />
 						</button>
 						<button
 							onClick={handleRequestDemo}
@@ -88,56 +175,100 @@ const LandingPage = () => {
 						</button>
 					</div>
 				</section>
+				{showScrollArrow && (
+					<div
+						className="scroll-arrow"
+						style={{
+							position: 'fixed',
+							bottom: '10%',
+							left: '5%',
+							transform: 'translateX(-50%)',
+							cursor: 'pointer',
+							zIndex: 1000,
+						}}
+					>
+						<DownArrow />
+					</div>
+				)}
 				<section className="hero-section-2">
-					<div className="toggle-container">
-						<div className="toggle-button">
-							<span
-								className={`toggle-text ${
-									info?.activeToggle === 'Path' ? 'active' : ''
-								}`}
-								onClick={() => handleToggleClick('Path')}
-							>
-								Path
-							</span>
-							<span
-								className={`toggle-text ${
-									info?.activeToggle === 'Story' ? 'active' : ''
-								}`}
-								onClick={() => handleToggleClick('Story')}
-							>
-								Story
-							</span>
-						</div>
-						<div className="content-container">
-							<DoubleQuote aria-label="Double quote" />
-							<p className="content-text">
-								The world is full of dreamers, Yet it's shaped by those who do.
-								<br />
-								<br />
-								we see ourselves as the blacksmiths of the future. whose purpose is
-								To forge simple and intuitive tools that awaken your chi (your vital
-								energy).
-								<br />
-								<br />
-								Those tools are - Our AI agents, whose sole existence is to help you
-								in your pursuit and do a lot of heavy lifting for you! So you can
-								focus on your vision and get there faster!
-							</p>
+					<div className="section-video-container">
+						<video
+							ref={videoRef}
+							onTimeUpdate={handleTimeUpdate}
+							// onClick={handleVideoClick}
+							autoPlay
+							// loop={isUserSelectedSegment}
+							src={
+								'https://ap.assets.ve.ai/logo/final-LandingVideo_lkhiti.mp4'
+								// 'https://res.cloudinary.com/dir4wguav/video/upload/v1734362768/final-LandingVideo_lkhiti.mp4'
+							}
+							style={{
+								// height: '70vh',
+								// width: '60vw',
+								height: '100%',
+								width: '100%',
+								cursor: 'pointer',
+								borderRadius: '25.625px !important',
+							}}
+						></video>
+						<div className="video-controls">
+							{/* {videoSegments.map((segment, index) => (
+								<label key={segment.id} className="radio-container">
+									<input
+										type="radio"
+										name="video-selector"
+										checked={currentSegment === index}
+										onChange={() => handleSegmentChange(index)}
+										style={{
+											width: '40px',
+											height: '40px',
+											accentColor: '#B8C5F1',
+										}}
+									/>
+									<span className="radio-custom"></span>
+								</label>
+							))} */}
 						</div>
 					</div>
 				</section>
 			</main>
 			<footer className="footer-container">
+				<div
+					className="footer-image-container"
+					style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}
+				>
+					<img src={imageSource} alt="footer image" />
+					<span className="footer-image-text">Designed in San Francisco</span>
+				</div>
 				<nav>
 					<ul>
 						{navItems.map((item, i) => (
-							<li key={i} onClick={() => navigate(item?.route)}>
+							<li
+								key={i}
+								onClick={() => {
+									if (item.name === 'Blogs' || item.name === 'Changelog') {
+										window.open(item.route, '_blank');
+									} else {
+										navigate(item.route);
+									}
+								}}
+							>
 								{item?.name}
 							</li>
 						))}
 					</ul>
 				</nav>
-				<p className="copyright"> &copy; 2024 Ve.ai</p>
+				<div
+					className="footer-image-container"
+					style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}
+				>
+					<img
+						src={imageSource2}
+						alt="footer image"
+						style={{ height: '26px', width: '26px' }}
+					/>
+					<span className="footer-image-text">Build in Hyderabad</span>
+				</div>
 			</footer>
 		</div>
 	);

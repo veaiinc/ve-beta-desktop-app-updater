@@ -31,8 +31,18 @@ const Table = ({ tableData, thead }) => {
 								</div>
 							</td>
 							<td>{row.mobileNumber}</td>
-							<td>{row.registerStage}</td>
-							<td>{row.date}</td>
+							<td>
+								<div>{row.visitorRole}</div>
+							</td>
+							<td>
+								{new Date(row.date)
+									.toLocaleDateString('en-US', {
+										month: 'long',
+										day: 'numeric',
+										year: 'numeric',
+									})
+									.replace(/,/g, ',')}
+							</td>
 						</tr>
 					))}
 				</tbody>

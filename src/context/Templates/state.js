@@ -33,13 +33,12 @@ import {
 	getRequiredActionDetailsQuery,
 	updateSendSmartFileSettingsMutation,
 	getLatestSendSmartFileSettingsQuery,
-	addNewStepsQuery,
-	updateStepsQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './Actions';
 import Service from '../../services/index';
+import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
 
 export const intialState = {
 	workflowslist: null,
@@ -62,8 +61,8 @@ export const intialState = {
 	tabItemCount: null,
 	eventsPresetData: null,
 	sendSmartFileSettings: null,
+	aiPredictedData: null,
 	connectUrl: null,
-	slackChannels: null,
 };
 
 export const TemplatesState = (props) => {
@@ -667,10 +666,8 @@ export const TemplatesState = (props) => {
 					type: Actions.GET_SPECIFIC_TEMPLATE_INFO_SUCCESS,
 					payload: response?.[1]?.data?.templateInfo,
 				});
-				return [true];
 			} else {
 				console.log('handle the error getSpecificTemplatesInfo', response);
-				return [false];
 			}
 		} catch (error) {
 			console.log('api failed ==>getSpecificTemplatesInfo', error);
@@ -1027,37 +1024,12 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	//updated steps functions
-	const addNewSteps = async (payload) => {
+	const sendCustomEmailToClients = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
-				addNewStepsQuery,
-				payload,
-				workspaceId,
-				usertoken,
-				'workflows_Api',
-			);
-
-			if (response?.[0]) {
-				const dataResponse = response?.[1];
-				return [true, dataResponse?.data?.addStep];
-			} else {
-				console.log('Api failed ==>addNewSteps', response);
-				return [false];
-			}
-		} catch (error) {
-			console.log('error==>addNewSteps', error);
-		}
-	};
-
-	const updateSteps = async (payload) => {
-		try {
-			let workspaceId = localStorage.getItem('workspaceId');
-			let usertoken = localStorage.getItem('usertoken');
-			const response = await service.query(
-				updateStepsQuery,
+				sendCustomMailMutation,
 				payload,
 				workspaceId,
 				usertoken,
@@ -1067,15 +1039,14 @@ export const TemplatesState = (props) => {
 			if (response?.[0]) {
 				return [true];
 			} else {
-				console.log('Api failed ==>updateSteps', response);
+				message.error('Error sending Email');
 				return [false];
 			}
 		} catch (error) {
-			console.log('error==>updateSteps', error);
+			console.log('errror ==>sendCustomEmailToClients', error);
 		}
 	};
 
-	//integrations
 	const connectThirdParty = async (connectType) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -1107,34 +1078,6 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.log('error==>connectZoho', error);
-		}
-	};
-
-	//slack Apis
-	const getAllSlackChannels = async (slackAccessToken) => {
-		try {
-			let workspaceId = localStorage.getItem('workspaceId');
-			let usertoken = localStorage.getItem('usertoken');
-			const response = await Service.fetchGet(
-				`/slack/${workspaceId}/channels`,
-				usertoken,
-				'third_party_integrations_api',
-				{
-					exclude_archived: true,
-					limit: 1000,
-				},
-			);
-
-			if (response?.[0]) {
-				dispatch({
-					type: Actions.GET_SLACK_CHANNEL_SUCCESS,
-					payload: response?.[1],
-				});
-			} else {
-				message.error('Unable to fetch Slack Channels');
-			}
-		} catch (error) {
-			console.log('error==>getAllSlackChannels', error);
 		}
 	};
 
@@ -1182,9 +1125,7 @@ export const TemplatesState = (props) => {
 		getLatestSendSmartFileSettings,
 		getAiPredictionForSmartFile,
 		leaveWorkspace,
-		addNewSteps,
-		updateSteps,
+		sendCustomEmailToClients,
 		connectThirdParty,
-		getAllSlackChannels,
 	};
 };

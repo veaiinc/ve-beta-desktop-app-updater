@@ -23,7 +23,7 @@ const ListViewHeader = ({ updateListViewInfo, properties, togglePropertyVisibili
 					>
 						<PlusSvg style={{ width: '20px', height: '20px' }} />
 					</button>
-					<button className="listViewHeaderActionButton">
+					{/* <button className="listViewHeaderActionButton">
 						<SearchSvg />
 					</button>
 					<button className="listViewHeaderActionButton">
@@ -31,7 +31,7 @@ const ListViewHeader = ({ updateListViewInfo, properties, togglePropertyVisibili
 					</button>
 					<button className="listViewHeaderActionButton">
 						<FilterLinesSvg />
-					</button>
+					</button> */}
 					<Tooltip
 						placement="bottom"
 						title={
