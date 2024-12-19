@@ -183,7 +183,15 @@ const ColorPicker = ({
 		closeModal();
 	};
 	return (
-		<ReactModal isOpen={isOpen} closeModal={closeModal}>
+		<ReactModal
+			isOpen={isOpen}
+			closeModal={closeModal}
+			customStyles={{
+				overlay: {
+					zIndex: 4,
+				},
+			}}
+		>
 			<div className="color-modal">
 				<div className="headerBody">
 					<div className="titleDiv">
