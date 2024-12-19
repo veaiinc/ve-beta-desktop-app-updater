@@ -1,7 +1,7 @@
-import React, { useRef, useEffect, memo } from 'react';
+import React, { useRef, useEffect } from 'react';
 import _ from 'lodash';
 
-const Peopleitem = (props) => {
+function Peopleitem(props) {
 	const peopleCardOuterContainer = useRef();
 
 	let url;
@@ -117,6 +117,6 @@ const Peopleitem = (props) => {
 			</div>
 		</div>
 	);
-};
+}
 
-export default memo(Peopleitem);
+export default Peopleitem;

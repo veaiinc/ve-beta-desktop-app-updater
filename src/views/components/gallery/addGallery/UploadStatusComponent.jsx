@@ -132,4 +132,4 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently }) => {
 	);
 };
 
-export default memo(UploadStatusComponent);
+export default UploadStatusComponent;
