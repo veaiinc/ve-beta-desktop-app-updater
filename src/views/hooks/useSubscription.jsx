@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Context from '../../context/context';
-
 const calculateTimeLeft = (expiryTimestamp) => {
 	const now = Date.now();
 	// Convert expiryTimestamp to milliseconds if it's in seconds
@@ -8,7 +7,6 @@ const calculateTimeLeft = (expiryTimestamp) => {
 	const timeLeftMs = expiryMs - now;
 	const secondsLeft = timeLeftMs / 1000;
 	const hoursLeft = timeLeftMs / (1000 * 60 * 60);
-
 	return {
 		isExpired: timeLeftMs <= 0,
 		timeLeftMs,
@@ -17,21 +15,18 @@ const calculateTimeLeft = (expiryTimestamp) => {
 		isExpiringSoon: hoursLeft <= 24,
 	};
 };
-
 const useSubscription = () => {
 	let {
 		subscriptionInfo: { currentPlan, getCurrentSubscriptionPlan, updateSubscriptionState },
 	} = useContext(Context);
 	const [info, setInfo] = useState({});
 	const timerRef = useRef({ timer: null, interval: null }); // Use ref for timers to prevent memory leaks
-
 	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
 			cleanupTimers();
 		};
 	}, []);
-
 	useEffect(() => {
 		if (!currentPlan) {
 			getCurrentSubscriptionPlan();
@@ -39,18 +34,15 @@ const useSubscription = () => {
 			handleExpiryCheckLogic();
 		}
 	}, [currentPlan]);
-
 	const handleExpiryCheckLogic = useCallback(() => {
 		if (currentPlan) {
 			const validateExpiryData = calculateTimeLeft(currentPlan?.expiresAt || 0);
 			setInfo((prev) => ({ ...prev, ...(validateExpiryData || {}) }));
 			updateSubscriptionState({ validateExpiryData: { ...(validateExpiryData || {}) } });
 			cleanupTimers();
-
 			if (validateExpiryData?.isExpired) {
 				return cleanupTimers;
 			}
-
 			if (validateExpiryData.hoursLeft > 24) {
 				return cleanupTimers; // More than 24 hours - no timer needed
 			}
@@ -65,7 +57,6 @@ const useSubscription = () => {
 			}
 		}
 	}, [currentPlan]);
-
 	const cleanupTimers = useCallback(() => {
 		if (timerRef.current.timer) {
 			clearTimeout(timerRef.current.timer);
@@ -78,5 +69,4 @@ const useSubscription = () => {
 	}, [timerRef]);
 	return { ...info };
 };
-
 export default useSubscription;
