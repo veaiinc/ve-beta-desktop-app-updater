@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef, memo } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import '../../../assets/scss/gallery/uploadGallery.scss';
 import AddLables from '../../components/gallery/addGallery/AddLablesComponent';
 import UploadInputComponent from '../../components/gallery/addGallery/UploadInputComponent';
@@ -8,10 +8,10 @@ import UploadStatusComponent from '../../components/gallery/addGallery/UploadSta
 import randomize from 'randomatic';
 import moment from 'moment';
 import Context from '../../../context/context';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
-// import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
+import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
 
 const UploadPhotos = () => {
 	const { galleryId, albumId } = useParams();
@@ -375,4 +375,4 @@ const UploadPhotos = () => {
 	);
 };
 
-export default memo(UploadPhotos);
+export default UploadPhotos;

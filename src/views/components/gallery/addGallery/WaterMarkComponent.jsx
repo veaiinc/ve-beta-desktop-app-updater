@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext, memo } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { Switch } from 'antd';
 import { ReactComponent as DownArrowSvg } from '../../../../assets/svg/sidebar/downarrowsmall.svg';
 import Context from '../../../../context/context';
@@ -25,6 +25,7 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 	// Context
 	const {
 		galleryInfo: { uploadWaterMark, getWaterMarks },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	// States
@@ -51,6 +52,9 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 	};
 
 	const uploadWaterMarkChangeHandler = async (e) => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		const response = await uploadWaterMark(e.target.files[0]);
 		if (response) {
 			setTimeout(() => {
@@ -192,4 +196,4 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 	);
 };
 
-export default memo(WaterMarkComponent);
+export default WaterMarkComponent;
