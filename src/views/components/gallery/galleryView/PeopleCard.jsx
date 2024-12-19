@@ -16,17 +16,17 @@ function Peopleitem(props) {
 			: Math.ceil((maxHeight / props.originalWidth) * props.originalHeight);
 
 	let imageOptimisedWidth = props.originalWidth > props.originalHeight ? maxWidth : maxHeight;
-	let top = _.has(props.people, 'boundingBox')
-		? props.people.boundingBox.Top * imageOptimisedheight
+	let top = _.has(props?.people, 'boundingBox')
+		? props?.people?.boundingBox?.Top * imageOptimisedheight
 		: 0;
 	let left = _.has(props.people, 'boundingBox')
-		? props.people.boundingBox.Left * imageOptimisedWidth
+		? props?.people?.boundingBox?.Left * imageOptimisedWidth
 		: 0;
 	let width = _.has(props.people, 'boundingBox')
-		? props.people.boundingBox.Width * imageOptimisedWidth
+		? props?.people?.boundingBox?.Width * imageOptimisedWidth
 		: imageOptimisedWidth;
 	let height = _.has(props.people, 'boundingBox')
-		? props.people.boundingBox.Height * imageOptimisedheight
+		? props?.people?.boundingBox?.Height * imageOptimisedheight
 		: imageOptimisedheight;
 
 	let paddingPercentage = 0;
