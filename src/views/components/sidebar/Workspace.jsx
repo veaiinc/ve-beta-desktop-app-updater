@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useContext } from 'react';
+import '../../../assets/scss/sidebar.scss';
 import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
 import { ReactComponent as DoubleBackArrowSvg } from '../../../assets/svg/sidebar/DoubleBackArrow.svg';
@@ -57,8 +58,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 	}, []);
 
 	const handleCreateWorkspace = () => {
-		const username = userDetailsData?.firstName ?? '';
-		navigate(`/onboarding?username=${username}`);
+		navigate(`/create-workspace`);
 	};
 
 	return (
@@ -100,8 +100,8 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 					</div>
 				))}
 
-				<div className="singleWorkspace">
-					<div className="workSpaceCircle" onClick={handleCreateWorkspace}>
+				<div className="singleWorkspace" onClick={handleCreateWorkspace}>
+					<div className="workSpaceCircle">
 						<PlusSvg fill={'#5d43fb'} />
 					</div>
 					<h6>Create Workspace</h6>

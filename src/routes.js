@@ -37,6 +37,10 @@ const routes = [
 		component: <Onboarding />,
 	},
 	{
+		path: '/create-workspace',
+		component: <Onboarding />,
+	},
+	{
 		path: '/verify-user',
 		component: <LoginPage />,
 	},

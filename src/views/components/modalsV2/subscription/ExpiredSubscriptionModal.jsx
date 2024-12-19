@@ -9,18 +9,14 @@ const ExpiredSubscriptionModal = () => {
 	let {
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState, expiredSubscriptionModal },
 	} = useContext(Context);
-
 	const navigate = useNavigate();
-
 	const closeModal = useCallback(() => {
 		updateSubscriptionState({ expiredSubscriptionModal: false });
 	}, []);
-
 	const handleRenewSubscirption = useCallback(() => {
 		navigate('/subscription');
 		closeModal();
 	}, []);
-
 	return (
 		<ReactModal
 			isOpen={expiredSubscriptionModal}
@@ -36,12 +32,10 @@ const ExpiredSubscriptionModal = () => {
 						<Close />
 					</span>
 				</div>
-
 				<span className="expiredSubText">
 					Renew now to continue enjoying uninterrupted access to premium features and
 					services.
 				</span>
-
 				<div className="expiredActionBtnContainer">
 					<div className="renewSubscriptionContainer" onClick={handleRenewSubscirption}>
 						Renew Now
@@ -59,5 +53,4 @@ const ExpiredSubscriptionModal = () => {
 		</ReactModal>
 	);
 };
-
 export default memo(ExpiredSubscriptionModal);
