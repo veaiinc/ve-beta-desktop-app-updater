@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import '../../../../assets/scss/gallery/insights.scss';
 import Table from './Table';
 import { ReactComponent as DownloadIcon } from '../../../../assets/svg/gallery/download2.svg';
@@ -7,7 +7,7 @@ import { ReactComponent as FilterIcon } from '../../../../assets/svg/chat/filter
 import Context from '../../../../context/context';
 import { ReactComponent as CloseIcon } from '../../../../assets/svg/sidebar/CrossSvg.svg';
 import { useInView } from 'react-intersection-observer';
-
+import { debounce } from 'lodash';
 const filterOptions = ['Today', 'Last Week', 'Last Month', 'Last Year'];
 
 const Insights = () => {
@@ -31,6 +31,20 @@ const Insights = () => {
 	const { ref, inView } = useInView({
 		threshold: 0.5,
 	});
+
+	const loadMore = async () => {
+		if (inView && !isLoading && insightsVisitors?.hasNextPage) {
+			setIsLoading(true);
+			const pathname = window.location.pathname;
+			const galleryId = pathname.split('/galleries/')[1];
+			const nextPage = currentPage + 1;
+			const dateRange = calculateDateRange(selectedFilter);
+
+			await getInsightVisitors(galleryId, nextPage, ITEMS_PER_PAGE, searchQuery, dateRange);
+			setCurrentPage(nextPage);
+			setIsLoading(false);
+		}
+	};
 
 	const calculateDateRange = (filter) => {
 		const now = new Date();
@@ -78,33 +92,12 @@ const Insights = () => {
 		if (galleryId) {
 			setCurrentPage(1);
 			const dateRange = calculateDateRange(selectedFilter);
-			if (!insightsVisitors?.docs || searchQuery || selectedFilter !== 'All Time') {
-				getInsightVisitors(galleryId, 1, ITEMS_PER_PAGE, searchQuery, dateRange);
-			}
+			// Always fetch data when filter/search changes or when resetting to show all data
+			getInsightVisitors(galleryId, 1, ITEMS_PER_PAGE, searchQuery, dateRange);
 		}
 	}, [searchQuery, selectedFilter]);
 
 	useEffect(() => {
-		const loadMore = async () => {
-			if (inView && !isLoading && insightsVisitors?.hasNextPage) {
-				setIsLoading(true);
-				const pathname = window.location.pathname;
-				const galleryId = pathname.split('/galleries/')[1];
-				const nextPage = currentPage + 1;
-				const dateRange = calculateDateRange(selectedFilter);
-
-				await getInsightVisitors(
-					galleryId,
-					nextPage,
-					ITEMS_PER_PAGE,
-					searchQuery,
-					dateRange,
-				);
-				setCurrentPage(nextPage);
-				setIsLoading(false);
-			}
-		};
-
 		loadMore();
 	}, [inView, isLoading, currentPage, insightsVisitors?.hasNextPage]);
 
@@ -201,6 +194,13 @@ const Insights = () => {
 		},
 	];
 
+	const debouncedSearch = useCallback(
+		debounce((value) => {
+			setSearchQuery(value);
+		}, 200),
+		[],
+	);
+
 	return (
 		<div className="insightsContainer">
 			<div className="insightsData">
@@ -226,10 +226,15 @@ const Insights = () => {
 								type="text"
 								placeholder=""
 								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
+								onChange={(e) => debouncedSearch(e.target.value)}
 								className="search-bar"
 							/>
-							<p onClick={() => setShowSearchBar(!showSearchBar)}>
+							<p
+								onClick={() => {
+									debouncedSearch('');
+									setShowSearchBar(!showSearchBar);
+								}}
+							>
 								<CloseIcon />
 							</p>
 						</div>

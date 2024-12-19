@@ -245,6 +245,10 @@ const GalleryPage = () => {
 	const optionsIconRef = useRef(null);
 	const optionsContainerRef = useRef(null);
 	const fileInputRef = useRef(null);
+	const galleryCoverRef = useRef(null);
+	const albumCoverRef = useRef(null);
+	const galleryStylesRef = useRef(null);
+	const lightRoomCopyRef = useRef(null);
 
 	const data = [
 		{ name: 'Albums', number: albumImagesCount?.albums?.length },
@@ -255,8 +259,17 @@ const GalleryPage = () => {
 		{ name: 'Insights', number: '' },
 	];
 
+	// ... existing code ...
+
 	const handleClickOutside = useCallback((event) => {
+		const isSwitch = event.target.closest('.ant-switch');
+		const isWithinAlbumOptions = event.target.closest('[data-album-options]');
+
 		const clickOutsideCheck = (ref, iconRef, stateName) => {
+			if (stateName === 'showOptions' && (isSwitch || isWithinAlbumOptions)) {
+				return;
+			}
+
 			if (
 				ref.current &&
 				!ref.current?.contains(event.target) &&
@@ -272,8 +285,20 @@ const GalleryPage = () => {
 		clickOutsideCheck(forwardOptionsRef, forwardIconRef, 'showForward');
 		clickOutsideCheck(pinSearchRef, pinIconRef, 'showPin');
 		clickOutsideCheck(optionsContainerRef, optionsIconRef, 'showOptionsContainer');
+
+		const simpleClickOutsideCheck = (ref, stateName) => {
+			// Don't close album options if clicking a switch within album options
+			if (stateName === 'showOptions' && (isSwitch || isWithinAlbumOptions)) {
+				return;
+			}
+
+			if (ref.current && !ref.current.contains(event.target)) {
+				setInfo((prevInfo) => ({ ...prevInfo, [stateName]: false }));
+			}
+		};
 	}, []);
 
+	// ... rest of the code ...
 	useEffect(() => {
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
@@ -330,6 +355,11 @@ const GalleryPage = () => {
 		}
 	}, [albumImagesCount]);
 
+	// temporary
+	useEffect(() => {
+		console.log('Enabled: ', info?.activeAlbum?.guestAccess?.isEnabled);
+	}, [info?.activeAlbum?.guestAccess?.isEnabled]);
+
 	useEffect(() => {
 		if (!tenantAlbums || tenantAlbums?._id !== galleryId) {
 			getAlbums(galleryId).then((response) => {
@@ -343,7 +373,8 @@ const GalleryPage = () => {
 			getEditPreferences(galleryId);
 		}
 
-		if (tenantAlbums) {
+		// Only set the active album if it's not already set
+		if (tenantAlbums && !info.activeAlbumId) {
 			setInfo((prev) => ({
 				...prev,
 				albumName: tenantAlbums?.albums?.[0]?.title,
@@ -355,13 +386,7 @@ const GalleryPage = () => {
 				isOnline: tenantAlbums?.isPublished,
 			}));
 		}
-		if (tenantPreferences) {
-			setInfo((prev) => ({
-				...prev,
-				callToAction: tenantPreferences?.ctaPreferences,
-				clientSubscription: tenantPreferences?.allowClientsToSubscribe || false,
-			}));
-		}
+		// ... rest of the effect
 	}, [tenantPreferences, tenantAlbums]);
 
 	useEffect(() => {
@@ -645,29 +670,48 @@ const GalleryPage = () => {
 	// 	}
 	// };
 	const handleHideAlbum = async () => {
-		const payload = {
-			isPublished: !info?.activeAlbum?.isPublished,
-		};
+		try {
+			// Store current active album details before making any changes
+			const currentAlbumId = info?.activeAlbumId;
+			const currentAlbum = info?.activeAlbum;
 
-		const response = await editAlbumName(payload, galleryId, info?.activeAlbumId);
+			const payload = {
+				isPublished: !currentAlbum?.isPublished,
+			};
 
-		if (response?.[0] === true) {
-			// Update the albums list and active album in local state
-			setInfo((prev) => ({
-				...prev,
-				activeAlbum: {
-					...prev.activeAlbum,
-					isPublished: !prev.activeAlbum?.isPublished,
-				},
-				showGalleryOptions: false,
-			}));
+			const response = await editAlbumName(payload, galleryId, currentAlbumId);
 
-			// Refresh the album count to get updated data
-			getAlbumImagesCount(galleryId);
+			if (response?.[0] === true) {
+				// Update state while preserving the active album
+				setInfo((prev) => ({
+					...prev,
+					activeAlbum: {
+						...currentAlbum,
+						isPublished: !currentAlbum?.isPublished,
+					},
+					activeAlbumId: currentAlbumId, // Ensure this stays the same
+					tenantAlbums: prev.tenantAlbums?.map((album) =>
+						album._id === currentAlbumId
+							? {
+									...album,
+									isPublished: !currentAlbum?.isPublished,
+							  }
+							: album,
+					),
+					showGalleryOptions: false,
+					showOptionsContainer: true,
+				}));
 
-			message.success('Album visibility updated successfully');
-		} else {
-			message.error('Failed to update album visibility');
+				// Refresh data without changing the active album
+				await Promise.all([getAlbumImagesCount(galleryId), getAlbums(galleryId)]);
+
+				message.success('Album visibility updated successfully');
+			} else {
+				message.error('Failed to update album visibility');
+			}
+		} catch (error) {
+			console.error('Error updating album visibility:', error);
+			message.error('An error occurred while updating album visibility');
 		}
 	};
 
@@ -685,7 +729,6 @@ const GalleryPage = () => {
 					isEnabled: newGuestAccessState,
 				},
 			},
-			// Update tenant albums
 			tenantAlbums: prev.tenantAlbums?.map((album) =>
 				album._id === prev.activeAlbumId
 					? {
@@ -697,7 +740,6 @@ const GalleryPage = () => {
 					  }
 					: album,
 			),
-			// Update albumImagesCount
 			albumImagesCount: {
 				...prev.albumImagesCount,
 				albums: prev.albumImagesCount?.albums?.map((album) =>
@@ -713,16 +755,12 @@ const GalleryPage = () => {
 				),
 			},
 		}));
-
-		// Trigger immediate re-fetch of album data
-		getAlbumImagesCount(galleryId);
-		getAlbums(galleryId);
-
-		// Make the API call
 		const payload = {
 			isEnabled: newGuestAccessState,
 		};
 		editLockAlbum(payload, galleryId, info.activeAlbumId);
+		getAlbumImagesCount(galleryId);
+		getAlbums(galleryId);
 	}, [galleryId, info.activeAlbumId, info.activeAlbum?.guestAccess?.isEnabled]);
 
 	// ... existing code ...
@@ -1125,39 +1163,80 @@ const GalleryPage = () => {
 		[info?.timeout],
 	);
 
+	// ... existing code ...
+
+	// ... existing code ...
+
 	const albumChanges = useCallback(
 		async (value) => {
+			// If already processing or no value change, return early
+			if (albumChanges.isProcessing || value === info.activeAlbum.title) return false;
+
+			// Validate input length
+			if (value.length > 255) {
+				// You can adjust this limit as needed
+				message.warning('Album name is too long');
+				return false;
+			}
+
+			// Set processing flag
+			albumChanges.isProcessing = true;
+
 			try {
 				const payload = {
 					title: value,
 				};
 
-				// Check availability first
-				const availabilityResponse = await checkAlbumSlugIsAvalible(
-					galleryId,
-					payload?.title,
-				);
+				// Create updated album object
+				const updatedAlbum = {
+					...info.activeAlbum,
+					title: value,
+				};
 
-				if (availabilityResponse?.[0]) {
-					// If available, try to rename
-					await editAlbumName(payload, galleryId, info.activeAlbumId);
+				// Make the API call first
+				const response = await editAlbumName(payload, galleryId, info.activeAlbumId);
 
-					// Since editAlbumName triggers a state update, we can consider it successful
-					// if it doesn't throw an error
+				if (response?.[0]) {
+					// Update UI state immediately
+					setInfo((prev) => ({
+						...prev,
+						albumName: value,
+						activeAlbum: updatedAlbum,
+						tenantAlbums: prev.tenantAlbums.map((album) =>
+							album._id === info.activeAlbumId ? updatedAlbum : album,
+						),
+					}));
+
+					// Show success message
 					message.success('Album renamed successfully');
+
+					// Refresh album data
+					await Promise.all([getAlbumImagesCount(galleryId), getAlbums(galleryId)]);
+
+					albumChanges.isProcessing = false;
 					return true;
 				} else {
-					message.error('Album name is not available');
+					// Show error message
+					message.error(response?.[1]?.message || 'Failed to rename album');
+					albumChanges.isProcessing = false;
 					return false;
 				}
 			} catch (error) {
 				console.error('Error renaming album:', error);
 				message.error('An unexpected error occurred');
+				albumChanges.isProcessing = false;
 				return false;
 			}
 		},
-		[galleryId, info.activeAlbumId],
+		[galleryId, info.activeAlbumId, info.activeAlbum],
 	);
+
+	// Initialize the processing flag
+	albumChanges.isProcessing = false;
+
+	// ... rest of the code ...
+
+	// ... rest of the code ...
 
 	const handleCopyAlbumLink = async () => {
 		const albumLink = `https://${workspaceId}.ve.ai/gallery/${galleryId}/${info?.albumSlug}`;
@@ -1199,12 +1278,21 @@ const GalleryPage = () => {
 	};
 
 	const handleDownloadAlbum = async () => {
-		message.loading('Downloading album...');
-		const payload = {
-			imageType: info?.originalDownload ? 'original' : 'optimized',
-		};
+		// If already downloading, return early
+		if (info.isDownloading) return;
 
 		try {
+			setInfo((prev) => ({
+				...prev,
+				isDownloading: true,
+			}));
+
+			message.loading('Downloading album...');
+
+			const payload = {
+				imageType: info?.originalDownload ? 'original' : 'optimized',
+			};
+
 			const response = await getDownloadLinkForTag(
 				payload,
 				galleryId,
@@ -1217,16 +1305,31 @@ const GalleryPage = () => {
 				const regionPath = region === 'ap-south1' ? 'in' : 'us';
 				const downloadUrl = `https://downloads.ve.ai/${regionPath}/${response?.[1]?.downloadId}`;
 				window.open(downloadUrl, '_blank');
+
 				message.destroy();
 				message.success('Download started');
+
+				setInfo((prev) => ({
+					...prev,
+					showDownloadAlbum: false,
+					isDownloading: false,
+				}));
 			} else {
 				message.destroy();
 				message.error('Failed to generate download link');
+				setInfo((prev) => ({
+					...prev,
+					isDownloading: false,
+				}));
 			}
 		} catch (error) {
 			console.error('Download error:', error);
 			message.destroy();
 			message.error('Something went wrong, please try again later');
+			setInfo((prev) => ({
+				...prev,
+				isDownloading: false,
+			}));
 		}
 	};
 	const handleLightRoomCopy = async () => {
@@ -1245,7 +1348,7 @@ const GalleryPage = () => {
 					showLightRoomCopy: true,
 					showOptionsContainer: false,
 				}));
-				message.success('Lightroom copy list fetched successfully');
+				// message.success('Lightroom copy list fetched successfully');
 			} else {
 				message.error('Failed to fetch lightroom copy list');
 			}
@@ -1262,6 +1365,11 @@ const GalleryPage = () => {
 				.writeText(textToCopy)
 				.then(() => {
 					message.success('Lightroom list copied successfully!');
+					setInfo((prev) => ({
+						...prev,
+						showLightRoomCopy: false,
+						showOptionsContainer: true,
+					}));
 				})
 				.catch(() => {
 					message.error('Failed to copy list');
@@ -2425,88 +2533,90 @@ const GalleryPage = () => {
 							<UpArrow className="upArrow" />
 							<p>{info?.activeGallery?.title || 'Untitled Gallery'}</p>
 						</div>
-						{albumImagesCount?.coverImage?.givenFileName && galleryCredentials && (
+						{/* {albumImagesCount?.coverImage?.givenFileName && galleryCredentials && ( */}
+						<div
+							className="imageContaienr"
+							style={{
+								background:
+									albumImagesCount?.coverImage?.givenFileName &&
+									galleryCredentials
+										? `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), url(${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}) lightgray 50% / cover no-repeat`
+										: '#000000',
+								backgroundSize: 'cover',
+								backgroundPosition: 'center',
+								backgroundRepeat: 'no-repeat',
+							}}
+							onMouseEnter={() =>
+								setInfo((prev) => ({ ...prev, showCoverButton: true }))
+							}
+							onMouseLeave={() =>
+								setInfo((prev) => ({ ...prev, showCoverButton: false }))
+							}
+						>
+							<div className="publishIndicator">
+								<div
+									className="liveIndicator"
+									style={{
+										backgroundColor: info?.isOnline ? '#368748' : ' #FFA500',
+									}}
+								></div>
+								<p>{info?.isOnline ? 'LIVE' : 'DRAFT'}</p>
+							</div>
 							<div
-								className="imageContaienr"
 								style={{
-									background: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), url(${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}) lightgray 50% / cover no-repeat`,
-									backgroundSize: 'cover',
-									backgroundPosition: 'center',
-									backgroundRepeat: 'no-repeat',
+									position: 'absolute',
+									bottom: '30px',
+									left: '23px',
+									zIndex: 2,
 								}}
-								onMouseEnter={() =>
-									setInfo((prev) => ({ ...prev, showCoverButton: true }))
-								}
-								onMouseLeave={() =>
-									setInfo((prev) => ({ ...prev, showCoverButton: false }))
-								}
 							>
-								<div className="publishIndicator">
-									<div
-										className="liveIndicator"
-										style={{
-											backgroundColor: info?.isOnline
-												? '#368748'
-												: ' #FFA500',
-										}}
-									></div>
-									<p>{info?.isOnline ? 'LIVE' : 'DRAFT'}</p>
-								</div>
+								<h5
+									style={{
+										color: '#FFFFFF',
+										margin: 0,
+										fontSize: '14px',
+										fontWeight: '500',
+										textOverflow: 'ellipsis',
+										overflow: 'hidden',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '10px',
+										flexWrap: 'wrap',
+									}}
+								>
+									{info?.showCoverButton ? (
+										<button
+											style={{
+												position: 'relative',
+												cursor: 'pointer',
+												padding: '4px 12px',
+												borderRadius: '32px',
+												border: 'none',
+											}}
+											onClick={() => handleUploadCoverOpen('gallery')}
+										>
+											Change Cover
+										</button>
+									) : (
+										info.activeGallery?.title || 'Untitled Gallery'
+									)}
+								</h5>
+							</div>
+							{!info?.isOnline && (
 								<div
 									style={{
 										position: 'absolute',
-										bottom: '30px',
-										left: '23px',
+										top: '50%',
+										left: '50%',
+										transform: 'translate(-50%, -50%)',
 										zIndex: 2,
 									}}
 								>
-									<h5
-										style={{
-											color: '#FFFFFF',
-											margin: 0,
-											fontSize: '14px',
-											fontWeight: '500',
-											textOverflow: 'ellipsis',
-											overflow: 'hidden',
-											display: 'flex',
-											alignItems: 'center',
-											gap: '10px',
-											flexWrap: 'wrap',
-										}}
-									>
-										{info?.showCoverButton ? (
-											<button
-												style={{
-													position: 'relative',
-													cursor: 'pointer',
-													padding: '4px 12px',
-													borderRadius: '32px',
-													border: 'none',
-												}}
-												onClick={() => handleUploadCoverOpen('gallery')}
-											>
-												Change Cover
-											</button>
-										) : (
-											info.activeGallery?.title || 'Untitled Gallery'
-										)}
-									</h5>
+									<CrossedOpenEye style={{ width: '30px', height: '30px' }} />
 								</div>
-								{!info?.isOnline && (
-									<div
-										style={{
-											position: 'absolute',
-											top: '50%',
-											left: '50%',
-											transform: 'translate(-50%, -50%)',
-											zIndex: 2,
-										}}
-									>
-										<CrossedOpenEye style={{ width: '30px', height: '30px' }} />
-									</div>
-								)}
-							</div>
-						)}
+							)}
+						</div>
+						{/* } */}
 					</div>
 
 					<div className="albumsContianer">
@@ -3135,7 +3245,7 @@ const GalleryPage = () => {
 										</div>
 										<div
 											style={{ position: 'relative' }}
-											ref={galleryIconRef}
+											ref={optionsIconRef}
 											onClick={() =>
 												setInfo((prevInfo) => ({
 													...prevInfo,
@@ -3152,7 +3262,7 @@ const GalleryPage = () => {
 											{info.showOptionsContainer && (
 												<div
 													className="galleryEditOptions"
-													ref={galleryOptionsRef}
+													ref={optionsRef}
 												>
 													<div
 														className="album-toggles"

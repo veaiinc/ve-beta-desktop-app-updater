@@ -475,7 +475,6 @@ export const Galleries = () => {
 
 	const editAlbumName = async (payload, galleryId, albumID) => {
 		try {
-			console.log('editAlbumName called with:', { payload, galleryId, albumID });
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchPut(

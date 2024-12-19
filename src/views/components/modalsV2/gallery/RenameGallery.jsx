@@ -28,6 +28,7 @@ const MainPopup = (props) => {
 								e.stopPropagation();
 								onClose();
 							}}
+							style={{ cursor: 'pointer' }}
 						>
 							<CrossSvg />
 						</div>

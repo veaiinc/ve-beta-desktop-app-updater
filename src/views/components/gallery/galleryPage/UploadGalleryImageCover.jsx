@@ -49,7 +49,7 @@ const UploadGalleryImageCover = ({
 	return (
 		<ReactModal
 			isOpen={open}
-			onClose={onClose}
+			closeModal={onClose}
 			modalType="center"
 			customStyles={{ content: { top: '55%' } }}
 		>

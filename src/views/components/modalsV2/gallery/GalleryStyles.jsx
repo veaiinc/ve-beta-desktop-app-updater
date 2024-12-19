@@ -1,7 +1,7 @@
 import ReactModal from '../index';
 import React from 'react';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
-import VerticalAlignSvg from '../../../../assets/svg/gallery/verticalAlignSvg.jsx';
+import VerticalAlignSvg from '../../../../assets/svg/gallery/VerticalAlignSvg.jsx';
 import HorizontalAlignSvg from '../../../../assets/svg/gallery/gridStyleHorizontalSvg.jsx';
 import ThumbnailVerticalSvg from '../../../../assets/svg/gallery/thumbnailVerticalSvg.jsx';
 import ThumbnailHorizontalSvg from '../../../../assets/svg/gallery/thumbNailHorizontalSvg.jsx';
@@ -17,7 +17,12 @@ const GalleryStyles = (props) => {
 		overlay: { zIndex: 99998 },
 	};
 	return (
-		<ReactModal isOpen={open} onClose={onClose} modalType="center" customStyles={customStyles}>
+		<ReactModal
+			isOpen={open}
+			closeModal={onClose}
+			modalType="center"
+			customStyles={customStyles}
+		>
 			<div className="galleryStylesContainer">
 				<div className="galleryStylesCloseButton">
 					<div className="galleryStylesHeading">Gallery Styles</div>
