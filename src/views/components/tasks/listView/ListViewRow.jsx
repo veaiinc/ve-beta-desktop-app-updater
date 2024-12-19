@@ -25,7 +25,8 @@ const ListViewRow = ({
 					key === '__typename' ||
 					key === '_id' ||
 					key === 'workflowTemplateId' ||
-					key === 'completedAt'
+					key === 'completedAt' ||
+					(isSubTask && key === 'workflow')
 				) {
 					continue;
 				}
@@ -37,45 +38,25 @@ const ListViewRow = ({
 
 				const { type, name } = responseTypes[key];
 				const RowComponent = rowTypes[type] || null;
-				if (titleReached) {
-					rightPart.push(
-						RowComponent ? (
-							<RowComponent
-								key={key}
-								value={value}
-								title={name}
-								onOptionClick={(value) => updatePropertyValue(task._id, key, value)}
-								{...(key === 'workflow' ? { workflows } : {})}
-								{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
-								{...(key === 'updatedAt' || key === 'createdAt'
-									? { timestamp: true }
-									: {})}
-							/>
-						) : (
-							<div key={key}>{value}</div>
-						),
-					);
-				} else {
-					leftPart.push(
-						RowComponent ? (
-							<RowComponent
-								key={key}
-								value={value}
-								title={name}
-								isTitle={key === 'title'}
-								onOptionClick={(value) => updatePropertyValue(task._id, key, value)}
-								{...(key === 'workflow' ? { options: workflows } : {})}
-								{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
-								{...(key === 'updatedAt' || key === 'createdAt'
-									? { timestamp: true }
-									: {})}
-							/>
-						) : (
-							<div key={key}>{value}</div>
-						),
-					);
-				}
 
+				const listItem = RowComponent ? (
+					<RowComponent
+						key={key}
+						value={value}
+						title={name}
+						onOptionClick={(value) =>
+							updatePropertyValue(task._id, key, value, isSubTask)
+						}
+						{...(key === 'workflow' ? { workflows } : {})}
+						{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
+						{...(key === 'updatedAt' || key === 'createdAt' ? { timestamp: true } : {})}
+					/>
+				) : null;
+				if (titleReached) {
+					rightPart.push(listItem);
+				} else {
+					leftPart.push(listItem);
+				}
 				if (key === 'title') {
 					titleReached = true;
 				}
@@ -90,7 +71,16 @@ const ListViewRow = ({
 				</div>,
 			];
 		},
-		[task, properties, responseTypes, rowTypes, updatePropertyValue, workflows, tenantUsers],
+		[
+			task,
+			properties,
+			responseTypes,
+			rowTypes,
+			updatePropertyValue,
+			workflows,
+			tenantUsers,
+			isSubTask,
+		],
 	);
 
 	return (

@@ -57,6 +57,9 @@ const ListViewSidebar = ({
 					...prevInfo,
 					subTasks: [...subTasks?.data],
 					subTaskLoading: false,
+					completedSubtaskCount: subTasks?.data?.filter(
+						(subTask) => subTask?.status === 'completed',
+					).length,
 				}));
 			} else {
 				setInfo((prevInfo) => ({
@@ -104,6 +107,7 @@ const ListViewSidebar = ({
 						'completedAt',
 						'taskSlNo',
 						'workflowId',
+						isShowingSubTask && 'workflow',
 					].includes(key)
 				) {
 					continue;
@@ -136,7 +140,7 @@ const ListViewSidebar = ({
 										? { timestamp: true }
 										: {})}
 									onOptionClick={(value) =>
-										updatePropertyValue(row._id, key, value)
+										updatePropertyValue(row._id, key, value, isShowingSubTask)
 									}
 								/>
 							) : (

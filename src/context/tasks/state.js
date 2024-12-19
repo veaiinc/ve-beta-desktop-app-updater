@@ -164,6 +164,10 @@ export const TasksState = () => {
 		dispatch({ type: Actions.REMOVE_SUB_TASK, payload });
 	};
 
+	const updateSubTask = (payload) => {
+		dispatch({ type: Actions.UPDATE_SUB_TASK, payload });
+	};
+
 	const resetSubTasks = () => {
 		dispatch({ type: Actions.RESET_SUB_TASKS });
 	};
@@ -182,6 +186,7 @@ export const TasksState = () => {
 		getSubTasks,
 		addSubTask,
 		removeSubTask,
+		updateSubTask,
 		resetSubTasks,
 		resetTasksState,
 	};

@@ -74,6 +74,7 @@ const ListView = () => {
 			deleteListItem,
 			addSubTask,
 			removeSubTask,
+			updateSubTask,
 			resetSubTasks,
 		},
 		templates: { getWorkflowsList, workflowslist },
@@ -228,7 +229,7 @@ const ListView = () => {
 	}, []);
 
 	const debouncedUpdateTask = useCallback(
-		async (rowId, propName, value, originalValue) => {
+		async (rowId, propName, value, originalValue, isUpdatingSubTask) => {
 			try {
 				const response = await updateListItem({
 					taskId: rowId,
@@ -254,25 +255,43 @@ const ListView = () => {
 					throw new Error('Failed to update, Try again later');
 				} else {
 					if (propName === 'assignedTo') {
-						setInfo((prevInfo) => {
-							const token = localStorage.getItem('usertoken');
-							const { user_id, userName } = jwtDecode(token);
-							const newListItems = prevInfo.listItems.map((row) => {
-								if (row._id === rowId) {
-									return {
-										...row,
-										assignedBy: { _id: user_id, name: userName },
-										assignedAt: moment().unix(),
-									};
-								}
-								return row;
-							});
-
-							return {
+						const token = localStorage.getItem('usertoken');
+						const { user_id, userName } = jwtDecode(token);
+						if (isUpdatingSubTask) {
+							setInfo((prevInfo) => ({
 								...prevInfo,
-								listItems: newListItems,
-							};
-						});
+								selectedSubTask: prevInfo?.selectedSubTask
+									? {
+											...info?.selectedSubTask,
+											assignedBy: { _id: user_id, name: userName },
+											assignedAt: moment().unix(),
+									  }
+									: null,
+							}));
+							updateSubTask({
+								_id: rowId,
+								assignedBy: { _id: user_id, name: userName },
+								assignedAt: moment().unix(),
+							});
+						} else {
+							setInfo((prevInfo) => {
+								const newListItems = prevInfo.listItems.map((row) => {
+									if (row._id === rowId) {
+										return {
+											...row,
+											assignedBy: { _id: user_id, name: userName },
+											assignedAt: moment().unix(),
+										};
+									}
+									return row;
+								});
+
+								return {
+									...prevInfo,
+									listItems: newListItems,
+								};
+							});
+						}
 					}
 				}
 			} catch (error) {
@@ -300,48 +319,69 @@ const ListView = () => {
 	);
 
 	const handleDebounceUpdate = useCallback(
-		(rowId, propName, value, originalValue) => {
+		(rowId, propName, value, originalValue, isSubTask) => {
 			if (debounceTimeout.current) {
 				clearTimeout(debounceTimeout.current);
 			}
 
 			debounceTimeout.current = setTimeout(() => {
-				debouncedUpdateTask(rowId, propName, value, originalValue);
+				debouncedUpdateTask(rowId, propName, value, originalValue, isSubTask);
 			}, 800);
 		},
 		[debouncedUpdateTask],
 	);
 
 	const updatePropertyValue = useCallback(
-		(rowId, propName, value) => {
+		(rowId, propName, value, isUpdatingSubTask) => {
 			if (validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
-
 			let originalValue;
-			setInfo((prevInfo) => {
-				let updatedValue = value;
-				if (propName === 'workflow') {
-					const workflow = info?.workflows?.find((workflow) => workflow._id === value);
-					updatedValue = workflow;
+			let updatedValue = value;
+			if (propName === 'workflow') {
+				const workflow = info?.workflows?.find((workflow) => workflow._id === value);
+				updatedValue = workflow;
+			}
+
+			if (info?.selectedSubTask || isUpdatingSubTask) {
+				if (info?.selectedSubTask) {
+					setInfo((prevInfo) => ({
+						...prevInfo,
+						selectedSubTask: { ...info?.selectedSubTask, [propName]: updatedValue },
+					}));
 				}
-				const updatedListItems = prevInfo.listItems.map((row) => {
-					if (row._id === rowId) {
-						originalValue = row[propName];
-						return { ...row, [propName]: updatedValue };
-					}
-					return row;
+				updateSubTask({ _id: rowId, [propName]: updatedValue });
+			} else {
+				setInfo((prevInfo) => {
+					const updatedListItems = prevInfo.listItems.map((row) => {
+						if (row._id === rowId) {
+							originalValue = row[propName];
+							return { ...row, [propName]: updatedValue };
+						}
+						return row;
+					});
+
+					return {
+						...prevInfo,
+						listItems: updatedListItems,
+					};
 				});
+			}
 
-				return {
-					...prevInfo,
-					listItems: updatedListItems,
-				};
-			});
-
-			handleDebounceUpdate(rowId, propName, value, originalValue);
+			handleDebounceUpdate(
+				rowId,
+				propName,
+				value,
+				originalValue,
+				isUpdatingSubTask || info?.selectedSubTask !== null,
+			);
 		},
-		[validateExpiryData?.isExpired, updateSubscriptionState, debouncedUpdateTask],
+		[
+			validateExpiryData?.isExpired,
+			updateSubscriptionState,
+			debouncedUpdateTask,
+			info?.selectedSubTask,
+		],
 	);
 
 	const addNewTask = useCallback(
