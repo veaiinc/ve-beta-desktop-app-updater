@@ -27,6 +27,7 @@ import CookiePolicy from './views/features/signin/CookiePolicy';
 import WorkflowBuilder from './views/features/workflow_builder';
 import Tasks from './views/features/tasks';
 import ShareAndEarn from './views/features/ShareAndEarn';
+import Notes from './views/features/Notes';
 const routes = [
 	{
 		path: '/',
@@ -229,6 +230,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Calendar'} maxWidth={'1700px'}>
 				<Calendar />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/notes',
+		component: (
+			<AuthWrapper title={'Notes'}>
+				<Notes />
 			</AuthWrapper>
 		),
 		exact: true,
