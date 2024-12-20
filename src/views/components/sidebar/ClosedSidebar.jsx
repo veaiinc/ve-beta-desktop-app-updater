@@ -54,6 +54,12 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 						arrow={false}
 						trigger="click"
 						overlayClassName="sideBartoolTipContainer toolTipContainer"
+						open={info?.isNewFeaturePlusOpen}
+						onOpenChange={(open) => {
+							if (!open) {
+								setInfo((prev) => ({ ...prev, isNewFeaturePlusOpen: false }));
+							}
+						}}
 					>
 						<div onClick={openNewFeaturePlus}>
 							<ClosedSideBarHoverStateIcons
