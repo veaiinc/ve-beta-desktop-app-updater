@@ -1,8 +1,6 @@
 .landing-page-container {
 	width: 100vw;
-	height: 125vh;
 	padding: 48px 120px;
-	padding-right: 0px !important;
 	background: #0f0f10;
 	display: flex;
 	flex-direction: column;
@@ -17,28 +15,22 @@
 		align-items: center;
 		position: fixed;
 		top: 20px;
-		left: 0;
+		left: 50%;
+		transform: translateX(-50%);
 		z-index: 100;
-		margin-left: 4%;
+
 		.login-button {
-			display: flex;
-			height: 52px;
 			padding: 14px 32px;
-			justify-content: center;
-			align-items: center;
-			gap: 6px;
-			cursor: pointer;
 			border-radius: 100px;
 			background: #f2f2f3;
-			background: color(display-p3 0.949 0.949 0.9529);
 			font-size: 14px;
 			color: #202123;
-			color: color(display-p3 0.1255 0.1294 0.1373);
 			font-family: Manrope;
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
-			line-height: normal;
+			border: none;
+			cursor: pointer;
 		}
 	}
 
@@ -49,6 +41,7 @@
 		justify-content: center;
 		width: 100%;
 		margin: 10% auto;
+
 		.hero-section-1 {
 			width: 50%;
 			display: flex;
@@ -56,7 +49,7 @@
 			align-items: center;
 			justify-content: center;
 			gap: 16px;
-			margin-top: -5%;
+
 			& > * {
 				max-width: 380px;
 			}
@@ -80,8 +73,7 @@
 
 			.heading {
 				color: #fff;
-				color: color(display-p3 1 1 1);
-				font-family: Inter !important;
+				font-family: Inter;
 				font-size: 32px;
 				font-style: normal;
 				font-weight: 500;
@@ -145,7 +137,7 @@
 		.hero-section-2 {
 			width: 50%;
 			height: 80vh !important;
-			border-radius: 40px 0px 0px 40px;
+			border-radius: 40px;
 			background: #131313;
 			padding: 40px 60px;
 			margin-top: 10px;
@@ -190,55 +182,198 @@
 			}
 		}
 	}
+
+	.caroursel-container {
+		width: 100vw;
+		// height: 100vh;
+		background-color: #141415;
+		padding: 48px 120px;
+		display: flex;
+		flex-direction: column;
+		gap: 50px;
+
+		.description-container {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+			gap: 24px;
+
+			.title {
+				color: #f2f2f3;
+				text-align: center;
+				font-family: Manrope;
+				font-size: 40px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: 47px;
+				margin-top: 52px;
+			}
+
+			.subtitle {
+				color: #797e86;
+				text-align: center;
+				font-family: Manrope;
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 24px;
+			}
+
+			.get-started {
+				border-radius: 100px;
+				background: #f2f2f3;
+				border: none;
+				color: #202123;
+				font-family: Manrope;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+				padding: 14px 24px;
+				cursor: pointer;
+			}
+		}
+
+		.carousel {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 24px;
+			height: 50%;
+		}
+	}
 }
 
 .footer-container {
 	width: 100%;
 	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 24px 0;
+	flex-direction: column;
 	position: relative;
-	.footer-image-container {
+
+	.main-content {
 		display: flex;
-		flex-direction: column;
-		justify-content: center;
+		margin: 100px auto;
+		gap: 50px;
+
+		.left-content {
+			display: flex;
+			flex-direction: column;
+			width: 50%;
+
+			.description {
+				color: #797e86;
+				font-family: Manrope;
+				font-size: 18px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				margin-top: 18px;
+			}
+
+			.subscribe-to-newsletter {
+				margin-top: 70px;
+				display: flex;
+				gap: 4px;
+				position: relative;
+
+				.email {
+					width: 90%;
+					border: none;
+					background-color: inherit;
+					border-bottom: 1px solid #797e86;
+					padding: 14px 0;
+					color: #f2f2f3;
+					font-family: Manrope;
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+
+					& > ::placeholder {
+						color: #797e86;
+						font-family: Manrope;
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+
+				.subscribe-btn {
+					border: none;
+					background-color: inherit;
+					position: absolute;
+					right: 10%;
+					top: 50%;
+					transform: translateY(-50%);
+					cursor: pointer;
+				}
+			}
+		}
+
+		.right-content {
+			display: flex;
+			gap: 24px;
+			width: 50%;
+			justify-content: space-around;
+			align-items: flex-start;
+
+			& > * {
+				list-style: none;
+			}
+
+			.title {
+				color: #f2f2f3;
+				font-family: Manrope;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+				padding: 10px 0;
+			}
+
+			.list-item {
+				color: #797e86;
+				font-family: Manrope;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				padding: 10px 0;
+				cursor: pointer;
+			}
+		}
+	}
+
+	.bottom-content {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
 		align-items: center;
-		.footer-image-text {
+		border-top: 1px solid #313235;
+		padding: 24px 0;
+
+		.left,
+		.middle,
+		.right {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 4px;
 			color: #797e86;
-			color: color(display-p3 0.4784 0.4941 0.5216);
 			font-family: Manrope;
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
 		}
-	}
-	nav {
-		ul {
-			display: flex;
-			gap: 30px !important;
+
+		.middle {
 			list-style: none;
-
-			li {
-				color: #e8e8e8;
-				font-family: Inter;
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				cursor: pointer;
-			}
+			cursor: pointer;
+			gap: 24px !important;
 		}
-	}
-
-	.copyright {
-		color: #333334;
-		font-family: Inter;
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
 	}
 }
 
@@ -385,19 +520,16 @@
 				margin-left: 0px !important;
 			}
 		}
-	}
-	.footer-container {
-		nav {
-			width: 60vw;
-			ul {
-				justify-content: space-between;
-				gap: 10px !important;
+		.footer-container {
+			padding: 36px !important;
+			.main-content {
+				flex-direction: column;
+				.left-content,
+				.right-content {
+					width: 100% !important;
+				}
 			}
 		}
-	}
-
-	.copyright {
-		display: none;
 	}
 }
 
