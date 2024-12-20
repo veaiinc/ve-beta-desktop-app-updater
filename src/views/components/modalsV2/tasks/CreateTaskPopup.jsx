@@ -2,30 +2,18 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/tasks/modals/createTaskPopup.scss';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/CrossWhite.svg';
-import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
-import { ReactComponent as PageIcon } from '../../../../assets/svg/tasks/pagePlus.svg';
-import { ReactComponent as CalendarIcon } from '../../../../assets/svg/calendar-icon.svg';
-import { ReactComponent as LinkIcon } from '../../../../assets/svg/activity/link.svg';
+// import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
+// import { ReactComponent as PageIcon } from '../../../../assets/svg/tasks/pagePlus.svg';
+// import { ReactComponent as CalendarIcon } from '../../../../assets/svg/calendar-icon.svg';
+// import { ReactComponent as LinkIcon } from '../../../../assets/svg/activity/link.svg';
 
 import Priority from '../../tasks/listView/Priority';
 import Status from '../../tasks/listView/Status';
-import { message, Tooltip } from 'antd';
+import { message } from 'antd';
 import Spinner from '../../loaders/Spinner';
-import moment from 'moment';
 import WorkFlow from '../../tasks/listView/WorkFlow';
 import Person from '../../tasks/listView/Person';
 import DateView from '../../tasks/listView/DateView';
-
-const customListItemStyle = {
-	borderRadius: '34px',
-	backgroundColor: '#1F1F1F',
-	minHeight: '34px',
-	padding: '6px 8px',
-	display: 'flex',
-	alignItems: 'center',
-	minWidth: '40px',
-	justifyContent: 'center',
-};
 
 const initialState = {
 	assignedTo: null,
@@ -55,12 +43,12 @@ const CreateTaskPopup = ({
 		setInfo({ ...initialState });
 	}, [isOpen]);
 
-	const updateModalInfo = (key, value) => {
+	const updateModalInfo = useCallback((key, value) => {
 		if (key === 'title') {
 			value = value?.trim();
 		}
 		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
-	};
+	}, []);
 
 	const preparePayload = useCallback(() => {
 		const { assignedTo, description, dueDate, priority, status, title, workflowId } = info;
@@ -170,7 +158,17 @@ const CreateTaskPopup = ({
 						title={'Assigned To'}
 						removeBtn={true}
 					/>
-					{info?.dueDate ? (
+					<div className="dateView-wrapper">
+						<DateView
+							value={info?.dueDate}
+							onOptionClick={(value) => updateModalInfo('dueDate', value)}
+							title={'Due Date'}
+							showIcon={true}
+							customListItemStyle={{ margin: '0 6px' }}
+						/>
+					</div>
+
+					{/* {info?.dueDate ? (
 						<div className="dueDate-wrapper">
 							<DateView
 								value={info?.dueDate}
@@ -180,8 +178,8 @@ const CreateTaskPopup = ({
 						</div>
 					) : (
 						''
-					)}
-					<Tooltip
+					)} */}
+					{/* <Tooltip
 						overlayClassName="moreOptions-container"
 						placement={'bottomRight'}
 						title={
@@ -210,7 +208,7 @@ const CreateTaskPopup = ({
 						<div className="more" style={customListItemStyle}>
 							<HorizontalMoreIcon />
 						</div>
-					</Tooltip>
+					</Tooltip> */}
 				</div>
 				<div className="footer-wrapper">
 					<button
