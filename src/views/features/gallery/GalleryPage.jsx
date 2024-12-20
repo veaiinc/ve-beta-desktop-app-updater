@@ -969,7 +969,11 @@ const GalleryPage = () => {
 		});
 	};
 	const openShareModal = () => {
-		setInfo((prevInfo) => ({ ...prevInfo, shareModal: !prevInfo.shareModal }));
+		if (info.isOnline) {
+			setInfo((prevInfo) => ({ ...prevInfo, shareModal: !prevInfo.shareModal }));
+		} else {
+			message.error('Publish the Gallery To Share');
+		}
 	};
 	const handleClearSelectedImages = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, selectedImages: [] }));
@@ -1304,7 +1308,7 @@ const GalleryPage = () => {
 
 			if (response?.[0] === true && response?.[1]?.downloadId) {
 				const region = localStorage.getItem('region');
-				const regionPath = region === 'ap-south1' ? 'in' : 'us';
+				const regionPath = region === 'ap-south-1' ? 'in' : 'us';
 				const downloadUrl = `https://downloads.ve.ai/${regionPath}/${response?.[1]?.downloadId}`;
 				window.open(downloadUrl, '_blank');
 

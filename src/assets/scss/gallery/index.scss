@@ -414,8 +414,7 @@
 						left: 0;
 						cursor: pointer;
 						// background-color: rgba(0, 0, 0, 0.3);
-						background: linear-gradient(rgba(0, 0, 0, 0) 6%, rgb(0, 0, 0) 100%),
-							rgba(196, 196, 196, 0);
+						background: linear-gradient(rgba(0, 0, 0, 0) 6%, rgb(0, 0, 0) 100%), rgba(196, 196, 196, 0);
 					}
 				}
 			}
@@ -677,7 +676,7 @@
 			.galleryImagesContainer {
 				width: 100%;
 				padding: 10px;
-				height: 58vh;
+				height: 80vh;
 				overflow: auto;
 				.imageUpload {
 					display: flex;
@@ -689,8 +688,7 @@
 					height: 160px;
 					border-radius: 8px;
 					border: 1px solid #2a2a2a;
-					background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%),
-						#1d1d1d;
+					background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%), #1d1d1d;
 					.uploadIcon {
 						width: 16px;
 						height: 11px;
