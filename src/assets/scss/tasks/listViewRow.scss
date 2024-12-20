@@ -47,9 +47,14 @@
 			}
 		}
 	}
+
 	&:hover {
 		.listItemRow {
 			background-color: #f5f5f508;
 		}
 	}
+}
+.subTaskRowContainer {
+	border: none;
+	padding: 0;
 }

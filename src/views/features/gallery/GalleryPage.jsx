@@ -52,6 +52,7 @@ import MainPopup from '../../components/modalsV2/gallery/RenameGallery';
 import ShareAlbum from '../../components/modalsV2/gallery/ShareAlbum';
 import GalleryStyles from '../../components/modalsV2/gallery/GalleryStyles';
 import DownloadAlbum from '../../components/modalsV2/gallery/DownloadAlbum';
+import DeleteAlbumImagesPopup from '../../components/modalsV2/gallery/DeleteAlbumImagesPopup';
 import ToggleSlider from '../../components/input/slider';
 import { Switch } from 'antd';
 import ShowLightRoomCopy from '../../components/modalsV2/gallery/ShowLightRoomCopy';
@@ -210,6 +211,7 @@ const GalleryPage = () => {
 		galleryName: '',
 		showMainPopup: false,
 		showDatePopup: false,
+		showImageDeletePopup: false,
 		dateType: '',
 		galleryDate: '',
 		expiryDate: '',
@@ -231,6 +233,7 @@ const GalleryPage = () => {
 		showGalleryStyles: false,
 		themeMode: 'dark',
 		showCoverButton: false,
+		showAlbumSettings: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -245,10 +248,8 @@ const GalleryPage = () => {
 	const optionsIconRef = useRef(null);
 	const optionsContainerRef = useRef(null);
 	const fileInputRef = useRef(null);
-	const galleryCoverRef = useRef(null);
-	const albumCoverRef = useRef(null);
-	const galleryStylesRef = useRef(null);
-	const lightRoomCopyRef = useRef(null);
+	const settingsRef = useRef(null);
+	const albumSettingsRef = useRef(null);
 
 	const data = [
 		{ name: 'Albums', number: albumImagesCount?.albums?.length },
@@ -285,6 +286,7 @@ const GalleryPage = () => {
 		clickOutsideCheck(forwardOptionsRef, forwardIconRef, 'showForward');
 		clickOutsideCheck(pinSearchRef, pinIconRef, 'showPin');
 		clickOutsideCheck(optionsContainerRef, optionsIconRef, 'showOptionsContainer');
+		clickOutsideCheck(albumSettingsRef, settingsRef, 'showAlbumSettings');
 
 		const simpleClickOutsideCheck = (ref, stateName) => {
 			// Don't close album options if clicking a switch within album options
@@ -967,7 +969,11 @@ const GalleryPage = () => {
 		});
 	};
 	const openShareModal = () => {
-		setInfo((prevInfo) => ({ ...prevInfo, shareModal: !prevInfo.shareModal }));
+		if (info.isOnline) {
+			setInfo((prevInfo) => ({ ...prevInfo, shareModal: !prevInfo.shareModal }));
+		} else {
+			message.error('Publish the Gallery To Share');
+		}
 	};
 	const handleClearSelectedImages = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, selectedImages: [] }));
@@ -1302,7 +1308,7 @@ const GalleryPage = () => {
 
 			if (response?.[0] === true && response?.[1]?.downloadId) {
 				const region = localStorage.getItem('region');
-				const regionPath = region === 'ap-south1' ? 'in' : 'us';
+				const regionPath = region === 'ap-south-1' ? 'in' : 'us';
 				const downloadUrl = `https://downloads.ve.ai/${regionPath}/${response?.[1]?.downloadId}`;
 				window.open(downloadUrl, '_blank');
 
@@ -1851,14 +1857,14 @@ const GalleryPage = () => {
 		let updatedImages = info?.imagesList?.docs?.filter((image) => {
 			return !info?.selectedImages?.includes(image?._id);
 		});
-		deleteAlbum(galleryId, info?.activeAlbumId);
+		deleteImages(payload, galleryId, info?.activeAlbumId);
 		setInfo((prev) => ({
 			...prev,
 			imagesList: {
 				...prev.imagesList,
 				docs: updatedImages,
 			},
-			showDeleteAlbum: false,
+			showImageDeletePopup: false,
 			selectedImages: [],
 		}));
 		message.success('Images deleted successfully');
@@ -3245,12 +3251,11 @@ const GalleryPage = () => {
 										</div>
 										<div
 											style={{ position: 'relative' }}
-											ref={optionsIconRef}
+											ref={settingsRef}
 											onClick={() =>
 												setInfo((prevInfo) => ({
 													...prevInfo,
-													showOptionsContainer:
-														!prevInfo.showOptionsContainer,
+													showAlbumSettings: !prevInfo.showAlbumSettings,
 												}))
 											}
 										>
@@ -3259,10 +3264,10 @@ const GalleryPage = () => {
 												style={{ cursor: 'pointer' }}
 											/> */}
 											<p style={{ cursor: 'pointer' }}>Album Settings</p>
-											{info.showOptionsContainer && (
+											{info.showAlbumSettings && (
 												<div
 													className="galleryEditOptions"
-													ref={optionsRef}
+													ref={albumSettingsRef}
 												>
 													<div
 														className="album-toggles"
@@ -4070,7 +4075,7 @@ const GalleryPage = () => {
 																	onClick={() =>
 																		setInfo((prev) => ({
 																			...prev,
-																			showDeleteAlbum: true,
+																			showImageDeletePopup: true,
 																		}))
 																	}
 																>
@@ -4589,6 +4594,7 @@ const GalleryPage = () => {
 				paragraph={'Albums'}
 				handleDelete={handleDeleteGallery}
 			/>
+
 			<ShareAlbum
 				open={info.showShareAlbum}
 				onClose={() => setInfo((prev) => ({ ...prev, showShareAlbum: false }))}
@@ -4627,6 +4633,16 @@ const GalleryPage = () => {
 				onClose={() => setInfo((prev) => ({ ...prev, showLightRoomCopy: false }))}
 				lightroomCopyList={info.lightroomCopyList}
 				onCopyList={handleCopyLightRoomList}
+			/>
+			<DeleteAlbumImagesPopup
+				open={info?.showImageDeletePopup}
+				closeModal={() => setInfo((prev) => ({ ...prev, showImageDeletePopup: false }))}
+				galleryId={galleryId}
+				title={'Permanently Delete All the selected images?'}
+				paragraph={
+					'You cannot undo this action.All your photos in this album lined to this label will be lost'
+				}
+				handleDeleteImages={handleAlbumDelete}
 			/>
 		</>
 	);
