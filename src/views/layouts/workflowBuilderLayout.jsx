@@ -4,8 +4,10 @@ import '../../assets/scss/workflowBuilder/workflowBuilderLayout.scss';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { Helmet } from 'react-helmet';
 import useAuth from '../hooks/useAuth';
+import useSubscription from '../hooks/useSubscription';
 const WorkflowBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 	const checkAuth = useAuth();
+	// const data = useSubscription();
 	useEffect(() => {
 		checkAuth();
 	}, []);

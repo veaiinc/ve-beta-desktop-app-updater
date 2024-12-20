@@ -18,6 +18,7 @@ const TeamSettings = () => {
 			updateTenantRole,
 			removeTenantRole,
 		},
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	// useStates
@@ -246,6 +247,9 @@ const TeamSettings = () => {
 
 	const handleSubmit = async () => {
 		try {
+			if (validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
 			if (info?.buttonLoading) return;
 
 			let isAllCorrect = true;

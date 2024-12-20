@@ -45,6 +45,11 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 			handleGetAndSetReferrerUserName();
 		}
 		handleLocationDetailsData();
+		const isValid = validator?.isEmail(email);
+		setInfo((prev) => ({
+			...prev,
+			isEmailValid: isValid,
+		}));
 	}, []);
 
 	useEffect(() => {

@@ -9,7 +9,6 @@ import { message } from 'antd';
 import { getLocationsDetails } from '../../../helpers';
 import Context from '../../../context/context';
 import Spinner from '../loaders/Spinner';
-import debounce from 'lodash/debounce';
 import { useLocation } from 'react-router-dom';
 
 const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveStage }) => {

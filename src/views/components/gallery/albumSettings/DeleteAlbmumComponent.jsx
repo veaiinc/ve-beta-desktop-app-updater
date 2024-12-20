@@ -1,4 +1,4 @@
-import React, { useState, useContext, memo } from 'react';
+import React, { useState, useContext } from 'react';
 import { ReactComponent as DeleteLogo } from '../../../../assets/svg/gallery/delete.svg';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
 import { message } from 'antd';
@@ -94,4 +94,4 @@ const DeleteAlbmumComponent = ({ albumName, galleryId, albumId }) => {
 	);
 };
 
-export default memo(DeleteAlbmumComponent);
+export default DeleteAlbmumComponent;

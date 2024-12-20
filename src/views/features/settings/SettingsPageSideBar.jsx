@@ -45,8 +45,7 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 	};
 
 	const handleCreateWorkspace = () => {
-		const username = userDetailsData?.firstName ?? '';
-		navigate(`/onboarding?username=${username}`);
+		navigate(`/create-workspace`);
 	};
 
 	return (

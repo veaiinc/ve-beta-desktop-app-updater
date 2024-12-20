@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext, useRef, memo } from 'react';
+import React, { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import '../../../assets/scss/gallery/albumSettings.scss';
 import ToggleSlider from '../../../views/components/input/slider';
 import { useNavigate, useLocation, useParams, useSearchParams } from 'react-router-dom';
@@ -47,6 +47,7 @@ const AlbumSettings = () => {
 			albumDetails,
 			getAlbumCount,
 		},
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		activeSetting: 'album-overview,',
@@ -280,6 +281,9 @@ const AlbumSettings = () => {
 	};
 
 	const uploadAlbumCoverChangeHandler = async (e) => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		const image = e.target.files[0];
 
 		if (!image) {
@@ -407,6 +411,9 @@ const AlbumSettings = () => {
 		}
 	};
 	const handleDownloadAlbum = async () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		message.loading('Downloading album...');
 		const payload = {
 			imageType: info?.originalDownload ? 'original' : 'optimized',
@@ -648,4 +655,4 @@ const AlbumSettings = () => {
 	);
 };
 
-export default memo(AlbumSettings);
+export default AlbumSettings;
