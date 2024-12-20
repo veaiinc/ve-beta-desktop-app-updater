@@ -2,6 +2,8 @@ export const VEAI_URL = 'https://https://veai.ve.ai/get-ve-ai-demo.ve.ai';
 
 export const CHANGELOG_URL = 'https://veai.ve.ai/portal/changelog';
 
+export const BLOGS_URL = 'https://ve.ai/blogs';
+
 export const LINKEDIN_URL = 'https://www.linkedin.com/company/veai';
 
 export const INSTAGRAM_URL = 'https://www.instagram.com/veaihq';

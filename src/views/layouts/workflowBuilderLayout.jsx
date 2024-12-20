@@ -7,7 +7,7 @@ import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 const WorkflowBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 	const checkAuth = useAuth();
-	const data = useSubscription();
+	// const data = useSubscription();
 	useEffect(() => {
 		checkAuth();
 	}, []);

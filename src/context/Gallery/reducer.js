@@ -95,7 +95,32 @@ const actionHandlers = {
 		...state,
 		aiFaceImages: action.payload,
 	}),
+	CLEAR_SPECIFIC_STATES: (state) => ({
+		...state,
+		tenantAlbums: null,
+		tenantPreferences: null,
+		layoutSettings: null,
+		collaborators: null,
+		updateActiveAlbum: null,
+		galleryCredentials: null,
+		albumDetails: null,
+		imagesList: null,
+		imageDetail: null,
+		tagsList: null,
+		clientSelectionsData: null,
+		clientSelectionImages: null,
+		albumImagesCount: null,
+	}),
+
+	GET_DOWNLOAD_IMAGES: (state, action) => ({
+		...state,
+		downloadImages: action.payload,
+	}),
 	RESET_IMAGES_LIST: (state) => ({ ...state, imagesList: null }),
+	GET_INSIGHT_VISITORS: (state, action) => ({
+		...state,
+		insightsVisitors: action.payload,
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 	GET_PRE_REGISTERED_USERS: (state, action) => ({
 		...state,

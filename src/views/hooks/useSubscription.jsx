@@ -44,10 +44,10 @@ const useSubscription = () => {
 				return cleanupTimers;
 			}
 			if (validateExpiryData.hoursLeft > 24) {
-				return cleanupTimers; // More than 24 hours - no timer needed
+				timerRef.current.timer = setTimeout(handleExpiryCheckLogic, 24 * 60 * 60 * 1000); //more than 24 hrs -check after 24 hrs
 			}
 			if (validateExpiryData?.hoursLeft > 6) {
-				timerRef.current.timer = setTimeout(handleExpiryCheckLogic, 6 * 60 * 60 * 1000); // Between 6 and 24 hours - check every 6 hours
+				timerRef.current.timer = setTimeout(handleExpiryCheckLogic, 6 * 60 * 60 * 1000); // Between 6 and 24 hours - check after 6 hours
 			} else if (validateExpiryData?.hoursLeft > 1) {
 				timerRef.current.interval = setInterval(handleExpiryCheckLogic, 60 * 60 * 1000); // Between 1 and 6 hours - check every hour
 			} else if (validateExpiryData?.secondsLeft > 60) {
