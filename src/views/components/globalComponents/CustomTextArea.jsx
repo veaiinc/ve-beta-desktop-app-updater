@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import '../../../assets/scss/globalComponents/customTextArea.scss';
 
 const CustomTextArea = ({
 	value,

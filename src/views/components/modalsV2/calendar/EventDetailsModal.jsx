@@ -169,7 +169,6 @@ const EventDetailsModal = ({ selectedEvent, isEventSelected, updateCalendarInfo 
 							onChange={(e) => {
 								updateEventDetails('title', e.target?.value);
 							}}
-							className="eventTitleInput"
 							autoResize={true}
 						/>
 
@@ -213,6 +212,16 @@ const EventDetailsModal = ({ selectedEvent, isEventSelected, updateCalendarInfo 
 								<span>{info?.detailsExpanded ? 'Show Less' : 'Show More'}</span>
 							</span>
 						</div>
+
+						{/* Event Description */}
+						<CustomTextArea
+							value={info?.eventDetails?.description}
+							onChange={(e) => {
+								updateEventDetails('description', e.target?.value);
+							}}
+							style={{ fontSize: 15 }}
+							autoResize={true}
+						/>
 					</div>
 				</div>
 			)}
