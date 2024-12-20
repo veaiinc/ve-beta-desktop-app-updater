@@ -121,6 +121,10 @@ const actionHandlers = {
 		...state,
 		insightsVisitors: action.payload,
 	}),
+	GET_IMAGE_PROCESSING_STATUS: (state, action) => ({
+		...state,
+		imageProcessingStatus: action.payload,
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 	GET_PRE_REGISTERED_USERS: (state, action) => ({
 		...state,
