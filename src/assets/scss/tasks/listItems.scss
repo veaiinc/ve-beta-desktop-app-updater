@@ -139,11 +139,11 @@
 	}
 }
 .listItem-date {
-	padding: 12px 0;
+	padding: 6px 0;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	gap: 10px;
+	gap: 3px;
 	// height: 32px;
 	color: #e4e5e6;
 	width: fit-content;
@@ -153,26 +153,28 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
+	// margin: 0 6px;
+	svg {
+		path {
+			stroke: #e4e5e6 !important;
+		}
+	}
 }
-.datePicker {
-	width: 100%;
-	height: 100%;
-	border: 1px solid #1d1d1d;
-	background: transparent;
-	color: #e4e5e6;
-	font-family: Inter;
-	font-size: 12px;
-	font-style: normal;
-	font-weight: 400;
-	line-height: normal;
-	border-radius: 6px;
-	padding: 6px 12px;
-}
-.listItem-dateBorder {
-	color: #e4e5e6;
-	border-radius: 6px;
-	border: 1px solid #1d1d1d;
-}
+// .datePicker {
+// 	width: 100%;
+// 	height: 100%;
+// 	border: 1px solid #1d1d1d;
+// 	background: transparent;
+// 	color: #e4e5e6;
+// 	font-family: Inter;
+// 	font-size: 12px;
+// 	font-style: normal;
+// 	font-weight: 400;
+// 	line-height: normal;
+// 	border-radius: 6px;
+// 	padding: 6px;
+// 	margin: 0 6px;
+// }
 
 .listItem-priority,
 .listItem-status,
@@ -271,5 +273,59 @@
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
+	}
+}
+
+.listItem-datePicker-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	overflow: hidden;
+	padding: 0 !important;
+}
+
+.dateView-datePicker {
+	border: none;
+	background-color: transparent !important;
+	color: #e4e5e6 !important;
+	border-radius: 36px;
+	font-family: Inter !important;
+	font-size: 12px !important;
+	font-style: normal !important;
+	font-weight: 400 !important;
+	line-height: normal !important;
+	padding: 4px 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	margin-right: 0;
+	border: 1px solid #424548 !important;
+	outline: none !important;
+	input {
+		color: #e4e5e6 !important;
+		background-color: transparent !important;
+		background: transparent !important;
+		font-size: 12px !important;
+		font-weight: 400 !important;
+		&::placeholder {
+			opacity: 1;
+			color: #e4e5e6 !important;
+		}
+	}
+	svg {
+		path {
+			stroke: #e4e5e6 !important;
+			fill: #e4e5e6 !important;
+		}
+	}
+	&:hover {
+		background-color: transparent;
+		color: #e4e5e6 !important;
+		border: 1px solid #424548;
+	}
+	&:placeholder {
+		color: #e4e5e6 !important;
+		opacity: 1;
 	}
 }

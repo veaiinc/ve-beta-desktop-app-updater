@@ -69,7 +69,7 @@ const ListViewSidebar = ({
 				}));
 			}
 		}
-	}, [subTasks, selectedRow?._id, isShowingSubTask]);
+	}, [subTasks, selectedRow?._id, isShowingSubTask, getSubTasks]);
 
 	const handleDeleteTask = useCallback(async () => {
 		setInfo((prevInfo) => ({
@@ -153,7 +153,7 @@ const ListViewSidebar = ({
 
 			return listItems;
 		},
-		[responseTypes, rowTypes, workflows, tenantUsers, updatePropertyValue],
+		[isShowingSubTask, responseTypes, rowTypes, workflows, tenantUsers, updatePropertyValue],
 	);
 
 	const generateSkeleton = useCallback(() => {
@@ -260,20 +260,20 @@ const ListViewSidebar = ({
 										>
 											<PlusSvg style={{ width: '20px', height: '20px' }} />
 										</button>
-										<button className="subtask-action-button">
+										{/* <button className="subtask-action-button">
 											<SearchSvg />
-										</button>
+										</button> */}
 										{/* <button className="subtask-action-button">
 									<ThunderSvg />
 								</button>
 								<button className="subtask-action-button">
 									<FilterLinesSvg />
 								</button> */}
-										<button className="subtask-action-button">
+										{/* <button className="subtask-action-button">
 											<HorizontalMoreIcon
 												style={{ width: '20px', height: '20px' }}
 											/>
-										</button>
+										</button> */}
 										{/* <Tooltip
 									placement="bottom"
 									title={
