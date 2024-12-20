@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext } from 'react';
+import React, { memo, useCallback, useContext, useState } from 'react';
 import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
@@ -10,7 +10,7 @@ import Skeleton from 'react-loading-skeleton';
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
 	const navigate = useNavigate();
 	const { galleryId } = useParams();
-
+	const [searchWorkspace, setSearchWorkspace] = useState('');
 	const {
 		profileInfo: { userDetailsData },
 	} = useContext(Context);
@@ -66,9 +66,18 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 				<ArrowLeftSvg />
 				<h6>Switch Workspace</h6>
 			</div>
-
+			{userWorkSpaceList?.length > 10 && (
+				<div>
+					<input
+						type="text"
+						placeholder="Search Workspace"
+						className="searchWorkspace"
+						onChange={(e) => setSearchWorkspace(e.target.value)}
+					/>
+				</div>
+			)}
 			{userWorkSpaceList ? (
-				<div className="workspaceList">
+				<div className="workspaceList overlay">
 					{userWorkSpaceList?.map((singleWorkspace, index) => (
 						<div
 							key={singleWorkspace?.activeWorkspaceId}
@@ -82,6 +91,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 								handleSwitchWorkSpaceLogic(singleWorkspace);
 							}}
 						>
+							<h6>{singleWorkspace?.businessName}</h6>
 							<div className="workSpaceCircle">
 								{singleWorkspace?.logo_s3_500w_key ? (
 									<img
@@ -94,7 +104,6 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 									</div>
 								)}
 							</div>
-							<h6>{singleWorkspace?.businessName}</h6>
 
 							{singleWorkspace?.activeWorkspaceId ===
 								info?.activeBusniessName?.activeWorkspaceId && (
