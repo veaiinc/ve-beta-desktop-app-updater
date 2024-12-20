@@ -92,28 +92,46 @@ const AiFaceRegistration = ({ link, galleryId }) => {
 		<div className="aiFaceRegistration">
 			<p className="heading">All data from the client gallery, album and selection views</p>
 			<div className="aiScannerContainer">
-				<div className="scanner" ref={qrRef}>
-					<QRCode
-						value={link}
-						style={{ height: '90%', maxWidth: '90%', width: '90%' }}
-						size={120}
-					/>
-				</div>
-				<div className="aiScannerDetailsContainer">
-					<div className="aiScanLink">
-						<p>{link ? link : ''}</p>
-						<CopyIcon className="copyIcon" onClick={() => copyLink()} />
+				<div style={{ display: 'flex', gap: '30px' }}>
+					<div className="scanner" ref={qrRef}>
+						<QRCode
+							value={link}
+							style={{ height: '90%', maxWidth: '90%', width: '90%' }}
+							size={120}
+						/>
 					</div>
-					<div className="downloadNotifyContainer">
-						<div className="downloadQR" onClick={() => downloadQR()}>
-							<DownloadIcon className="downloadIcon" />
-							<p>Download QR</p>
+					<div className="aiScannerDetailsContainer">
+						<div className="aiScanLink">
+							<p>{link ? link : ''}</p>
+							<CopyIcon className="copyIcon" onClick={() => copyLink()} />
 						</div>
-						{hasRegisteredUsers && (
-							<div className="notifyUser" onClick={() => notifyUser()}>
-								<span>Notify User</span>
+						<div className="downloadNotifyContainer">
+							<div className="downloadQR" onClick={() => downloadQR()}>
+								<DownloadIcon className="downloadIcon" />
+								<p>Download QR</p>
 							</div>
-						)}
+							{hasRegisteredUsers && (
+								<div className="notifyUser" onClick={() => notifyUser()}>
+									<span>Notify User</span>
+								</div>
+							)}
+						</div>
+					</div>
+				</div>
+				<div>
+					<div>
+						<div></div>
+						<div>
+							<p>AI still Processing your images </p>
+							<p>Its Usually take some time</p>
+						</div>
+						<div>
+							<p>300/2900</p>
+						</div>
+					</div>
+					<div>
+						<p>Notify Immediately </p>
+						<p>Notify all at once </p>
 					</div>
 				</div>
 			</div>
