@@ -7,6 +7,8 @@ const CustomInput = ({
 	type,
 	value,
 	onChange,
+	onBlur,
+	onFocus,
 	defaultValue,
 	placeholder,
 	name,
@@ -25,6 +27,8 @@ const CustomInput = ({
 			value={isControlled ? value : undefined}
 			defaultValue={!isControlled ? defaultValue : undefined}
 			onChange={isControlled ? onChange : undefined}
+			onBlur={onBlur}
+			onFocus={onFocus}
 			placeholder={placeholder}
 			name={name}
 			{...rest}
@@ -40,6 +44,8 @@ CustomInput.propTypes = {
 	type: PropTypes.string, // e.g., 'text', 'password', 'email'
 	value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 	onChange: PropTypes.func,
+	onBlur: PropTypes.func,
+	onFocus: PropTypes.func,
 	defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 	placeholder: PropTypes.string,
 	name: PropTypes.string,
@@ -60,6 +66,8 @@ CustomInput.defaultProps = {
 	value: undefined,
 	onChange: undefined,
 	defaultValue: undefined,
+	onBlur: undefined,
+	onFocus: undefined,
 };
 
 export default CustomInput;
