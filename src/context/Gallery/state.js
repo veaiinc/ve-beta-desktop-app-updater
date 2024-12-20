@@ -1459,6 +1459,7 @@ export const Galleries = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
+			let region = localStorage.getItem('region');
 			const response = await service.fetchGet(
 				`/${workspaceId}/gallery-images/${imageId}/download`,
 				usertoken,
@@ -1578,6 +1579,7 @@ export const Galleries = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
+			let region = localStorage.getItem('region');
 			const response = await service.fetchPost(
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/download-images`,
 				payload,
@@ -1590,8 +1592,9 @@ export const Galleries = () => {
 					type: Actions.GET_DOWNLOAD_IMAGES,
 					payload: response?.[1],
 				});
+				const regionPrefix = region === 'ap-south-1' ? 'in' : 'us';
 
-				const url = `https://downloads.ve.ai/${response[1].downloadId}`;
+				const url = `https://downloads.ve.ai/${regionPrefix}/${response[1].downloadId}`;
 				console.log('url==>downloadImages', url);
 				window.open(url, '_blank');
 				return [true, response?.[1]];
