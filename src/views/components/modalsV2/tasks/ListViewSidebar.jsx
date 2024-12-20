@@ -3,12 +3,16 @@ import { Drawer, Progress } from 'antd';
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
 import { ReactComponent as CloseArrow } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
+import { ReactComponent as RightSvg } from '../../../../assets/svg/activity/right.svg';
 import { ReactComponent as DustBinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/tasks/searchWhite.svg';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import Spinner from '../../loaders/Spinner';
 import Context from '../../../../context/context';
+import ListViewRow from '../../tasks/listView/ListViewRow';
+import Skeleton from 'react-loading-skeleton';
+
 const ListViewSidebar = ({
 	selectedRow,
 	sidebarIsOpen,
@@ -20,27 +24,72 @@ const ListViewSidebar = ({
 	responseTypes,
 	rowTypes,
 	handleCreateSubTaskClick,
+	handleSubTaskClick,
+	isShowingSubTask,
+	parentTaskNo,
+	handleChildTaskClose,
 }) => {
-	// const {
-	// 	tasks: { subTasks, getSubTasks },
-	// } = useContext(Context);
+	const {
+		tasks: { subTasks, getSubTasks },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
+		subTasks: [],
+		subTaskLoading: true,
+		subTaskError: null,
 		deleteLoading: false,
+		completedSubtaskCount: 0,
 	});
 
-	// useEffect(() => {
-	// 	if (!subTasks) {
-	// 		getSubTasks({ taskId: selectedRow?._id });
-	// 	} else {
-	// 		console.log('subTasks', subTasks);
-	// 	}
-	// }, [subTasks, selectedRow?._id]);
+	useEffect(() => {
+		if (isShowingSubTask) {
+			return;
+		}
+		if (selectedRow?._id && !subTasks) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				subTaskLoading: true,
+			}));
+			getSubTasks({ taskId: selectedRow?._id });
+		} else {
+			if (subTasks?.data) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					subTasks: [...subTasks?.data],
+					subTaskLoading: false,
+					completedSubtaskCount: subTasks?.data?.filter(
+						(subTask) => subTask?.status === 'completed',
+					).length,
+				}));
+			} else {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					subTaskError: subTasks?.error,
+					subTaskLoading: false,
+				}));
+			}
+		}
+	}, [subTasks, selectedRow?._id, isShowingSubTask, getSubTasks]);
 
-	const handleDeleteTask = async () => {
-		setInfo({ deleteLoading: true });
+	const handleDeleteTask = useCallback(async () => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			deleteLoading: true,
+		}));
 		await deleteTask({ taskId: selectedRow?._id });
-		setInfo({ deleteLoading: false });
-	};
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			deleteLoading: false,
+		}));
+	}, [deleteTask, selectedRow?._id]);
+
+	const onSubTaskClick = useCallback(
+		(taskId) => {
+			const task = info?.subTasks?.find((task) => task?._id === taskId);
+			handleSubTaskClick(task);
+		},
+		[info?.subTasks, handleSubTaskClick],
+	);
 
 	const generateRow = useCallback(
 		(row) => {
@@ -58,14 +107,15 @@ const ListViewSidebar = ({
 						'completedAt',
 						'taskSlNo',
 						'workflowId',
+						isShowingSubTask && 'workflow',
 					].includes(key)
 				) {
 					continue;
 				}
 
-				const { type = null, name = null, Icon = null } = responseTypes[key];
+				const { type = null, name = null, Icon = null } = responseTypes?.[key] || {};
 
-				const RowComponent = rowTypes[type] || null;
+				const RowComponent = rowTypes?.[type] || null;
 				listItems.push(
 					<div className="property-list" key={key}>
 						<span className="property-title">
@@ -90,7 +140,7 @@ const ListViewSidebar = ({
 										? { timestamp: true }
 										: {})}
 									onOptionClick={(value) =>
-										updatePropertyValue(row._id, key, value)
+										updatePropertyValue(row._id, key, value, isShowingSubTask)
 									}
 								/>
 							) : (
@@ -103,8 +153,16 @@ const ListViewSidebar = ({
 
 			return listItems;
 		},
-		[responseTypes, rowTypes, workflows, tenantUsers, updatePropertyValue],
+		[isShowingSubTask, responseTypes, rowTypes, workflows, tenantUsers, updatePropertyValue],
 	);
+
+	const generateSkeleton = useCallback(() => {
+		return [...Array(3)].map((_, index) => (
+			<div className="" key={index} style={{ marginBottom: '2px' }}>
+				<Skeleton width="100%" height="32px" borderRadius="12px" count={1} />
+			</div>
+		));
+	}, []);
 
 	return (
 		<Drawer
@@ -117,76 +175,106 @@ const ListViewSidebar = ({
 		>
 			<div className="listView-sidebar-container">
 				<div className="listView-sidebar-innerContainer">
-					<div className="sidebar-header">
-						<CloseArrow
-							width={16}
-							height={16}
-							onClick={closeSidebar}
-							className="cursor-pointer"
-						/>
-						<span className="sidebar-id">{selectedRow?.taskSlNo}</span>
-						<button
-							className="sidebar-delete-button"
-							onClick={() => {
-								handleDeleteTask();
-							}}
-							disabled={info?.deleteLoading}
-						>
-							{info?.deleteLoading ? (
-								<Spinner width={20} height={20} color="#7d7d7d" />
-							) : (
-								<DustBinIcon width={20} height={20} className="cursor-pointer" />
-							)}
-						</button>
-					</div>
+					<div className="listView-sidebar-wrapper">
+						<div className="sidebar-header">
+							<CloseArrow
+								width={16}
+								height={16}
+								onClick={closeSidebar}
+								className="cursor-pointer"
+							/>
+							<div className="breadcrumbs">
+								{isShowingSubTask ? (
+									<span
+										className="breadcrumbs-item"
+										onClick={handleChildTaskClose}
+									>
+										{parentTaskNo} <RightSvg height={12} width={12} />
+									</span>
+								) : (
+									''
+								)}
+								<span className="breadcrumbs-item">{selectedRow?.taskSlNo}</span>
+							</div>
+							<button
+								className="sidebar-delete-button"
+								onClick={() => {
+									handleDeleteTask();
+								}}
+								disabled={info?.deleteLoading}
+							>
+								{info?.deleteLoading ? (
+									<Spinner width={20} height={20} color="#7d7d7d" />
+								) : (
+									<DustBinIcon
+										width={20}
+										height={20}
+										className="cursor-pointer"
+									/>
+								)}
+							</button>
+						</div>
 
-					<div className="sidebar-title">
-						<textarea
-							className="sidebar-title-input"
-							value={selectedRow?.title || ''}
-							onChange={(e) =>
-								updatePropertyValue(selectedRow?._id, 'title', e.target.value)
-							}
-							placeholder="Enter title"
-							rows={1}
-						/>
-					</div>
-					<div className="sidebar-properties-container">{generateRow(selectedRow)}</div>
-
-					<div className="sidebar-subtask-container">
-						<div className="sidebar-subtask-header">
-							<span className="sidebar-subtask-header-title">Sub Tasks</span>
-							<span className="sidebar-subtask-header-count">
-								<Progress
-									type="circle"
-									percent={75}
-									size={16}
-									strokeColor={'#6055EC'}
-									trailColor={'#2F2F2F'}
-									strokeWidth={14}
-								/>
-								<span className="task-count">3/6</span>
-							</span>
-							<div className="subtask-actions-wrapper">
-								<button
-									className="subtask-action-button"
-									onClick={handleCreateSubTaskClick}
-								>
-									<PlusSvg style={{ width: '20px', height: '20px' }} />
-								</button>
-								<button className="subtask-action-button">
-									<SearchSvg />
-								</button>
-								{/* <button className="subtask-action-button">
+						<div className="sidebar-title">
+							<textarea
+								className="sidebar-title-input"
+								value={selectedRow?.title || ''}
+								onChange={(e) =>
+									updatePropertyValue(selectedRow?._id, 'title', e.target.value)
+								}
+								placeholder="Enter title"
+								rows={1}
+							/>
+						</div>
+						<div className="sidebar-properties-container">
+							{generateRow(selectedRow)}
+						</div>
+						{isShowingSubTask ? (
+							''
+						) : (
+							<div className="sidebar-subtask-container">
+								<div className="sidebar-subtask-header">
+									<span className="sidebar-subtask-header-title">Sub Tasks</span>
+									<span className="sidebar-subtask-header-count">
+										<Progress
+											type="circle"
+											percent={
+												(info?.completedSubtaskCount /
+													info?.subTasks?.length) *
+												100
+											}
+											size={16}
+											strokeColor={'#6055EC'}
+											trailColor={'#2F2F2F'}
+											strokeWidth={14}
+										/>
+										<span className="task-count">
+											{info?.completedSubtaskCount || 0}/
+											{info?.subTasks?.length || 0}
+										</span>
+									</span>
+									<div className="subtask-actions-wrapper">
+										<button
+											className="subtask-action-button"
+											onClick={handleCreateSubTaskClick}
+										>
+											<PlusSvg style={{ width: '20px', height: '20px' }} />
+										</button>
+										{/* <button className="subtask-action-button">
+											<SearchSvg />
+										</button> */}
+										{/* <button className="subtask-action-button">
 									<ThunderSvg />
 								</button>
 								<button className="subtask-action-button">
 									<FilterLinesSvg />
 								</button> */}
-								<button className="subtask-action-button">
-									<HorizontalMoreIcon style={{ width: '20px', height: '20px' }} />
-								</button>
-								{/* <Tooltip
+										{/* <button className="subtask-action-button">
+											<HorizontalMoreIcon
+												style={{ width: '20px', height: '20px' }}
+											/>
+										</button> */}
+										{/* <Tooltip
 									placement="bottom"
 									title={
 										<OptionsDropDown
@@ -205,21 +293,49 @@ const ListViewSidebar = ({
 										/>
 									</button>
 								</Tooltip> */}
+									</div>
+								</div>
+								<div className="subtask-list-container">
+									{info?.subTaskLoading ? (
+										generateSkeleton()
+									) : info?.subTaskError ? (
+										<span className="no-subtasks">{info?.subTaskError}</span>
+									) : info?.subTasks?.length !== 0 ? (
+										info?.subTasks?.map((subTask) => (
+											<ListViewRow
+												task={subTask}
+												key={subTask?._id}
+												rowTypes={rowTypes}
+												responseTypes={responseTypes}
+												workflows={workflows}
+												tenantUsers={tenantUsers}
+												updatePropertyValue={updatePropertyValue}
+												isSubTask={true}
+												handleRowClick={onSubTaskClick}
+											/>
+										))
+									) : (
+										<span className="no-subtasks">No subTasks</span>
+									)}
+								</div>
 							</div>
-						</div>
-						<div className="subtask-list-container"></div>
-					</div>
+						)}
 
-					<div className="sidebar-description">
-						<textarea
-							className="sidebar-description-textarea"
-							value={selectedRow?.description || ''}
-							onChange={(e) =>
-								updatePropertyValue(selectedRow?._id, 'description', e.target.value)
-							}
-							placeholder="Enter description"
-							rows={5}
-						/>
+						<div className="sidebar-description">
+							<textarea
+								className="sidebar-description-textarea"
+								value={selectedRow?.description || ''}
+								onChange={(e) =>
+									updatePropertyValue(
+										selectedRow?._id,
+										'description',
+										e.target.value,
+									)
+								}
+								placeholder="Enter description"
+								rows={5}
+							/>
+						</div>
 					</div>
 				</div>
 			</div>

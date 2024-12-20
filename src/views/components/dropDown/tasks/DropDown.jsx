@@ -95,7 +95,7 @@ const DropDown = ({
 				style={{ cursor: 'pointer' }}
 				onClick={(e) => {
 					handlePropagation(e);
-					handleDropDown(true);
+					handleDropDown(!info?.isOpen);
 				}}
 			>
 				{children}

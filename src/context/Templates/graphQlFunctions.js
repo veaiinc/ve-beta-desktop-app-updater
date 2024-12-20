@@ -233,6 +233,8 @@ export const getWorkflowListQuery = gql`
 				modules
 				formResponse
 				requiredAction
+				title
+				templateId
 			}
 		}
 	}

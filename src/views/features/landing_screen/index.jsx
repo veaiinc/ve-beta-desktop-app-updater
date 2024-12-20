@@ -199,7 +199,8 @@ const LandingPage = () => {
 							autoPlay
 							// loop={isUserSelectedSegment}
 							src={
-								'https://res.cloudinary.com/dir4wguav/video/upload/v1734362768/final-LandingVideo_lkhiti.mp4'
+								'https://ap.assets.ve.ai/logo/final-LandingVideo_lkhiti.mp4'
+								// 'https://res.cloudinary.com/dir4wguav/video/upload/v1734362768/final-LandingVideo_lkhiti.mp4'
 							}
 							style={{
 								// height: '70vh',
