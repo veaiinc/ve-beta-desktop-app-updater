@@ -1,10 +1,14 @@
-import React, { memo } from 'react';
+import React, { memo, useContext } from 'react';
 import { ReactComponent as UploadButtonSvg } from '../../../../assets/svg/gallery/upload_gray.svg';
 import { ReactComponent as CancelUploadSvg } from '../../../../assets/svg/gallery/cancel-bold-gray.svg';
 import { Progress } from 'antd';
 import DuplicateComponent from './DuplicateComponent';
+import Context from '../../../../context/context';
 
 const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently }) => {
+	const {
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+	} = useContext(Context);
 	// func for removing the image
 	const deleteFromUploads = (fileName) => {
 		const update = { ...info };
@@ -18,6 +22,9 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently }) => {
 	};
 
 	const uploadPhotosSubmitHandler = (e) => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		e.preventDefault();
 		let imageCount = Object.keys(info?.uploadImages || {}).length;
 		if (imageCount <= 0) return;
@@ -125,4 +132,4 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently }) => {
 	);
 };
 
-export default memo(UploadStatusComponent);
+export default UploadStatusComponent;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ReactComponent as LaptopLogo } from '../../../../assets/svg/gallery/laptop.svg';
 import mobile from '../../../../assets/svg/gallery/mobile.png';
 import Cropper from 'react-easy-crop';
@@ -151,4 +151,4 @@ const UploadCoverImage = ({
 	);
 };
 
-export default memo(UploadCoverImage);
+export default UploadCoverImage;

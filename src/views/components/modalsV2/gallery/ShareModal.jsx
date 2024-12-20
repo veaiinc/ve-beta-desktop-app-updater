@@ -369,7 +369,8 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 								/>
 							</div>
 						</div>
-						<div className="shareViaMail">
+						{/* share email  */}
+						{/* <div className="shareViaMail">
 							<input
 								placeholder="Share via mail"
 								value={info?.shareEmail}
@@ -380,7 +381,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 							<div onClick={handleShareViaEmail} style={{ cursor: 'pointer' }}>
 								<Mail />
 							</div>
-						</div>
+						</div> */}
 					</div>
 				</div>
 				<p className="line"></p>
@@ -473,7 +474,16 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 											className="dropdown"
 											onClick={() => handleOpenDownloadOptions('Client')}
 										>
-											<p></p>
+											<p>
+												{info?.canClientDownloadOriginals &&
+												info?.canClientDownloadOptimized
+													? 'Client Download Originals , Client Download Optimized'
+													: info?.canClientDownloadOriginals
+													? 'Client Download Originals'
+													: info?.canClientDownloadOptimized
+													? 'Client Download Optimized'
+													: ''}
+											</p>
 											<UpArrow className="rotate" />
 										</div>
 
@@ -483,7 +493,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 											}`}
 										>
 											<div className="downloadOptions">
-												<p>Can Download Originals Images</p>
+												<p>Can Download Original Images</p>
 												<input
 													type="checkbox"
 													checked={info?.canClientDownloadOriginals}
@@ -518,7 +528,16 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 											className="dropdown"
 											onClick={() => handleOpenDownloadOptions('Guest')}
 										>
-											<p></p>
+											<p>
+												{info?.canGuestDownloadOriginals &&
+												info?.canGuestDownloadOptimized
+													? 'Guest Download Originals , Guest Download Optimized'
+													: info?.canGuestDownloadOriginals
+													? 'Guest Download Originals'
+													: info?.canGuestDownloadOptimized
+													? 'Guest Download Optimized'
+													: ''}
+											</p>
 											<UpArrow className="rotate" />
 										</div>
 

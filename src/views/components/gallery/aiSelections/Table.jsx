@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import '../../../../assets/scss/gallery/table.scss';
 
 const Table = ({ tableData, thead }) => {
@@ -31,8 +31,18 @@ const Table = ({ tableData, thead }) => {
 								</div>
 							</td>
 							<td>{row.mobileNumber}</td>
-							<td>{row.registerStage}</td>
-							<td>{row.date}</td>
+							<td>
+								<div>{row.visitorRole}</div>
+							</td>
+							<td>
+								{new Date(row.date)
+									.toLocaleDateString('en-US', {
+										month: 'long',
+										day: 'numeric',
+										year: 'numeric',
+									})
+									.replace(/,/g, ',')}
+							</td>
 						</tr>
 					))}
 				</tbody>
@@ -41,4 +51,4 @@ const Table = ({ tableData, thead }) => {
 	);
 };
 
-export default memo(Table);
+export default Table;
