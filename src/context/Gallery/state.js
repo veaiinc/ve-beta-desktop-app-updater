@@ -32,6 +32,11 @@ export const intialState = {
 	insightsVisitors: null,
 	downloadImages: null,
 	preRegisteredUsers: null,
+	imageProcessingStatus: {
+		numberOfImagesGroupedFaces: 0,
+		numberOfImagesPeoples: 0,
+		imagesCount: 0,
+	},
 };
 
 export const Galleries = () => {
@@ -1669,6 +1674,34 @@ export const Galleries = () => {
 		}
 	};
 
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/face-grouping-status
+	const getImageProcessingStatus = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/face-grouping-status`,
+				usertoken,
+				'galleries',
+			);
+			// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/pre-registered-users/status
+			const response2 = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/pre-registered-users/status`,
+				usertoken,
+				'galleries',
+			);
+			console.log('response2==>getImageProcessingStatus', response2);
+			if (response[0] === true) {
+				dispatch({
+					type: Actions.GET_IMAGE_PROCESSING_STATUS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getFaceGroupingStatus', error);
+		}
+	};
+
 	const clearPreRegisteredUsers = () => {
 		dispatch({
 			type: Actions.GET_PRE_REGISTERED_USERS,
@@ -1764,5 +1797,6 @@ export const Galleries = () => {
 		clearPreRegisteredUsers,
 		clearGalleryState,
 		editAlbum,
+		getImageProcessingStatus,
 	};
 };
