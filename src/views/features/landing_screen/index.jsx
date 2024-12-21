@@ -156,16 +156,20 @@ const LandingPage = () => {
 	}, []);
 
 	useEffect(() => {
-		if (videoRef.current) {
-			videoRef.current.muted = true;
-			videoRef.current.currentTime = videoSegments[currentSegment].startTime;
-			videoRef.current.play();
+		const playVideo = async () => {
+			try {
+				await videoRef?.current?.play();
+			} catch (error) {
+				console.error('Autoplay failed:', error?.message);
+			}
+		};
+		if (videoRef?.current) {
+			playVideo();
 		}
-	}, [currentSegment]);
+	}, []);
 
 	useEffect(() => {
 		window.addEventListener('scroll', handleScroll);
-		// Check initial scroll position
 		handleScroll();
 
 		return () => {
@@ -224,19 +228,64 @@ const LandingPage = () => {
 					Log in
 				</button>
 			</header>
-			<main className="landing-page-content">
-				<section aria-label="Main content" className="hero-section-1">
-					<div className="veai-logo-container">
-						<span className="veai-logo-text">Meet</span>
-						<VeAiLogoGrey aria-label="VeAi Logo in grey" />
+			<div className="landing-page-content">
+				<div className="section-1">
+					<div className="container">
+						<h1 className="heading">
+							AI OS that
+							<br /> minds your business !
+						</h1>
+						<p className="description">
+							<VeAiLogoGrey aria-label="VeAi Logo in grey" /> is an os that creates ai
+							workers and collaborates with your human teams to achieve business
+							goals.
+						</p>
+						<div className="cta-container">
+							<button
+								onClick={handleNavigationToVerifyUser}
+								className="get-started-button"
+								aria-label="Get started"
+							>
+								Hire Ve.ai <ArrowUpBlack aria-label="Arrow up black" />
+							</button>
+							<button
+								onClick={handleRequestDemo}
+								className="request-demo-button"
+								aria-label="Request a demo"
+							>
+								Request a Demo
+							</button>
+						</div>
 					</div>
+				</div>
+				<div className="section-2">
+					<div className="section-video-container">
+						<div className="video-container">
+							<video
+								className="video"
+								ref={videoRef}
+								onTimeUpdate={handleTimeUpdate}
+								muted
+								autoPlay
+								loop
+								playsInline
+								src={'https://ap.assets.ve.ai/logo/final-LandingVideo_lkhiti.mp4'}
+							></video>
+						</div>
+
+						<div className="video-controls"></div>
+					</div>
+				</div>
+			</div>
+			{/* <div className="landing-page-content">
+				<div aria-label="Main content" className="hero-section-1">
 					<h1 className="heading">
-						AI OS that,
+						AI OS that
 						<br /> minds your business !
 					</h1>
 					<p className="description">
-						VE AI is an os that creates ai workers and collaborates with your human
-						teams to achieve business goals.
+						<VeAiLogoGrey aria-label="VeAi Logo in grey" /> is an os that creates ai
+						workers and collaborates with your human teams to achieve business goals.
 					</p>
 					<div className="cta-container">
 						<button
@@ -254,23 +303,8 @@ const LandingPage = () => {
 							Request a Demo
 						</button>
 					</div>
-				</section>
-				{showScrollArrow && (
-					<div
-						className="scroll-arrow"
-						style={{
-							position: 'fixed',
-							bottom: '10%',
-							left: '5%',
-							transform: 'translateX(-50%)',
-							cursor: 'pointer',
-							zIndex: 1000,
-						}}
-					>
-						<DownArrow />
-					</div>
-				)}
-				<section className="hero-section-2">
+				</div>
+				<div className="hero-section-2">
 					<div className="section-video-container">
 						<video
 							ref={videoRef}
@@ -289,8 +323,23 @@ const LandingPage = () => {
 						></video>
 						<div className="video-controls"></div>
 					</div>
-				</section>
-			</main>
+				</div>
+			</div> */}
+			{showScrollArrow && (
+				<div
+					className="scroll-arrow"
+					style={{
+						position: 'fixed',
+						bottom: '10%',
+						left: '5%',
+						transform: 'translateX(-50%)',
+						cursor: 'pointer',
+						zIndex: 1000,
+					}}
+				>
+					<DownArrow />
+				</div>
+			)}
 			<div className="caroursel-container">
 				<div className="description-container">
 					<h1 className="title">
