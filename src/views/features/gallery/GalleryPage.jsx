@@ -432,11 +432,6 @@ const GalleryPage = () => {
 		}
 	}, [albumImagesCount]);
 
-	// temporary
-	useEffect(() => {
-		console.log('Enabled: ', info?.activeAlbum?.guestAccess?.isEnabled);
-	}, [info?.activeAlbum?.guestAccess?.isEnabled]);
-
 	useEffect(() => {
 		if (!tenantAlbums || tenantAlbums?._id !== galleryId) {
 			getAlbums(galleryId).then((response) => {
@@ -1108,7 +1103,7 @@ const GalleryPage = () => {
 	const handleOptionsIcon = () => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			showAlbumOptionsMenu: !prevInfo.showAlbumOptionsMenu,
+			showAlbumOptionsMenu: !prevInfo?.showAlbumOptionsMenu,
 		}));
 	};
 	const handleClickContent = (name, count) => {
@@ -2482,11 +2477,6 @@ const GalleryPage = () => {
 	};
 
 	const handleSetGalleryCover = async () => {
-		console.log('handleSetGalleryCover triggered', {
-			selectedImagesCount: info?.selectedImages?.length,
-			selectedImages: info?.selectedImages,
-		});
-
 		if (info?.selectedImages?.length === 1) {
 			const selectedImageId = info?.selectedImages[0];
 			const selectedImage = info?.imagesList?.docs?.find(
@@ -2522,7 +2512,6 @@ const GalleryPage = () => {
 				message.error('Unable to set selected image as gallery cover');
 			}
 		} else {
-			console.log('Invalid selection count:', info?.selectedImages?.length);
 			message.error('Please select only one image to set as gallery cover');
 		}
 	};
