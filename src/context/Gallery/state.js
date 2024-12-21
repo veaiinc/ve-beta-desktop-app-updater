@@ -1472,7 +1472,6 @@ export const Galleries = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
-			let region = localStorage.getItem('region');
 			const response = await service.fetchGet(
 				`/${workspaceId}/gallery-images/${imageId}/download`,
 				usertoken,
@@ -1480,7 +1479,6 @@ export const Galleries = () => {
 			);
 			console.log('response==>getDownloadLinkForImage', response);
 			if (response[0] === true) {
-				console.log('this ios dsfdsfdsf');
 				const imageResponse = await fetch(response[1].signedUrl);
 				const blob = await imageResponse.blob();
 				const url = window.URL.createObjectURL(blob);
@@ -1491,7 +1489,6 @@ export const Galleries = () => {
 				link.click();
 				document.body.removeChild(link);
 				window.URL.revokeObjectURL(url);
-				console.log('this ios dsfdssdlfjhsdkjfsdkfj');
 			}
 
 			return response;

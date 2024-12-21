@@ -2494,17 +2494,8 @@ const GalleryPage = () => {
 				(img) => img._id === selectedImageId,
 			);
 
-			console.log('Selected image details:', {
-				selectedImageId,
-				selectedImage,
-				galleryCredentials,
-				tenantAlbums,
-			});
-
 			if (selectedImage?.activeVersion?.givenFileName && galleryCredentials) {
 				const imageURL = `${galleryCredentials.baseURL}/${tenantAlbums.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials['Key-Pair-Id']}&Signature=${galleryCredentials.Signature}&Policy=${galleryCredentials.Policy}`;
-
-				console.log('Constructed image URL:', imageURL);
 
 				setInfo((prev) => {
 					const newState = {
@@ -2521,7 +2512,7 @@ const GalleryPage = () => {
 						},
 						zoom: selectedImage?.zoom || 1,
 					};
-					console.log('New state being set:', newState);
+
 					return newState;
 				});
 			} else {
