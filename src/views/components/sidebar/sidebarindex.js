@@ -87,15 +87,15 @@ export const veAiModules = [
 		subModules: [
 			{ icon: '', name: 'MyProfile', route: '/settings/my-profile' },
 			{ icon: '', name: 'Workspace', route: '/settings/workspace' },
-			{ icon: '', name: 'Public Information', route: '/settings/notifications' },
+			{ icon: '', name: 'Public Information', route: '/settings/public-information' },
 			{
 				icon: '',
 				name: 'Brand Setup',
-				route: '/settings/notifications',
+				route: '/settings/brand-setup',
 			},
-			{ icon: '', name: 'Team Settings', route: '/settings/notifications' },
-			{ icon: '', name: 'Integration', route: '/settings/notifications' },
-			{ icon: '', name: 'Plan Billing', route: '/settings/notifications' },
+			{ icon: '', name: 'Team Settings', route: '/settings/team-settings' },
+			{ icon: '', name: 'Integration', route: '/settings/integrations' },
+			{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
 		],
 	},
 ];

@@ -87,6 +87,13 @@ const OpenedSideBarHoverStateIcons = ({
 		if (!route) return;
 		navigateTo(route);
 	};
+
+	const handleSubModuleClick = (e, subModule) => {
+		e.stopPropagation();
+		if (subModule.route) {
+			navigateTo(subModule.route);
+		}
+	};
 	const toggleDropdown = (e) => {
 		e.stopPropagation();
 		e.preventDefault();
@@ -153,7 +160,12 @@ const OpenedSideBarHoverStateIcons = ({
 								/>
 							)}
 							{subModules?.map((subItem, index) => (
-								<div key={subItem?.name} className="subItem">
+								<div
+									key={subItem?.name}
+									className="subItem"
+									onClick={(e) => handleSubModuleClick(e, subItem)}
+									style={{ cursor: 'pointer' }}
+								>
 									<div className="subitem-content">
 										<p>{subItem.name}</p>
 									</div>

@@ -21,7 +21,6 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 	const filteredWorkspaces = userWorkSpaceList?.filter((workspace) =>
 		workspace.businessName.toLowerCase().includes(searchWorkspace.toLowerCase()),
 	);
-
 	const handleSwitchWorkSpaceLogic = useCallback((data) => {
 		const { activeWorkspaceId, isOnboard } = data;
 		const workspaceId = localStorage.getItem('workspaceId');
