@@ -261,14 +261,85 @@ const GalleryPage = () => {
 		{ name: 'Insights', number: '' },
 	];
 
-	// ... existing code ...
+	const galleryOptions = [
+		{
+			icon: <EditPen />,
+			label: 'Rename Gallery',
+			onClick: () =>
+				setInfo((prev) => ({
+					...prev,
+					showOptions: false,
+					showMainPopup: true,
+					galleryName: info?.activeGallery?.title || '',
+				})),
+		},
+		{
+			icon: <ChangeCalender />,
+			label: 'Change Gallery Date',
+			onClick: () =>
+				setInfo((prev) => ({
+					...prev,
+					showOptions: false,
+					isDatePopup: true,
+					dateType: 'galleryDate',
+					showMainPopup: true,
+					galleryDate:
+						moment(prev.galleryCreatedAt, 'YYYYMMDD').format('YYYY-MM-DD') || '',
+				})),
+		},
+		{
+			icon: <ChangeCalender />,
+			label: 'Change Expiry Date',
+			onClick: () =>
+				setInfo((prev) => ({
+					...prev,
+					showOptions: false,
+					isDatePopup: true,
+					dateType: 'expiryDate',
+					showMainPopup: true,
+					expiryDate: moment(prev.galleryDueDate).format('YYYY-MM-DD') || '',
+				})),
+		},
+		{
+			icon: <BrushIcon />,
+			label: 'Change Gallery Cover',
+			onClick: () => handleUploadCoverOpen('gallery'),
+		},
+		{
+			icon: <BrushIcon />,
+			label: 'Change Gallery Style',
+			onClick: () =>
+				setInfo((prev) => ({
+					...prev,
+					showGalleryStyles: true,
+				})),
+		},
+		{
+			divider: true,
+		},
+		{
+			icon: <TrashIcon />,
+			label: 'Move to Trash',
+			onClick: () =>
+				setInfo((prev) => ({
+					...prev,
+					showDeletePopup: true,
+					showOptions: false,
+				})),
+			className: 'delete-option',
+		},
+	];
 
 	const handleClickOutside = useCallback((event) => {
 		const isSwitch = event.target.closest('.ant-switch');
 		const isWithinAlbumOptions = event.target.closest('[data-album-options]');
 
 		const clickOutsideCheck = (ref, iconRef, stateName) => {
-			if (stateName === 'showOptions' && (isSwitch || isWithinAlbumOptions)) {
+			// Don't close options if clicking a switch or within album options
+			if (
+				(stateName === 'showOptionsContainer' || stateName === 'showOptions') &&
+				(isSwitch || isWithinAlbumOptions)
+			) {
 				return;
 			}
 
@@ -291,7 +362,10 @@ const GalleryPage = () => {
 
 		const simpleClickOutsideCheck = (ref, stateName) => {
 			// Don't close album options if clicking a switch within album options
-			if (stateName === 'showOptions' && (isSwitch || isWithinAlbumOptions)) {
+			if (
+				(stateName === 'showOptionsContainer' || stateName === 'showOptions') &&
+				(isSwitch || isWithinAlbumOptions)
+			) {
 				return;
 			}
 
@@ -998,7 +1072,7 @@ const GalleryPage = () => {
 		}
 	};
 	const handleClearSelectedImages = () => {
-		setInfo((prevInfo) => ({ ...prevInfo, selectedImages: [] }));
+		setInfo((prevInfo) => ({ ...prevInfo, selectedImages: [], showAlbumOptionsMenu: false }));
 	};
 	const handleExpandClick = (selectedImageId = null, type) => {
 		if (type === 'single' || info?.selectedImages?.length === 1) {
@@ -1177,20 +1251,34 @@ const GalleryPage = () => {
 	// Initialize the processing flag
 	handleGalleryChange.isProcessing = false;
 
-	const updateGallery = useCallback(async (value) => {
-		const payload = {
-			title: value,
-		};
-		const response = await postGallery(payload, galleryId);
-		if (response?.[0]) {
-			message.success('galleryUpdated');
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				linkUpdateError: 'Error while updatating the gallery',
-			}));
+	const updateGallery = async (name) => {
+		// If already processing, return early
+		if (updateGallery.isProcessing) return;
+
+		// Set processing flag
+		updateGallery.isProcessing = true;
+
+		try {
+			const response = await postGallery({ title: name }, galleryId);
+
+			if (response?.[0] === true) {
+				message.success('Gallery renamed successfully');
+				await getGalleries({}, true);
+			} else {
+				message.error('Failed to rename gallery');
+			}
+			return response;
+		} catch (error) {
+			console.error('Error updating gallery:', error);
+			message.error('Failed to rename gallery');
+		} finally {
+			// Reset processing flag
+			updateGallery.isProcessing = false;
 		}
-	}, []);
+	};
+	// Initialize the flag
+	updateGallery.isProcessing = false;
+	// Initialize the flag
 
 	const updatePreferences = useCallback(
 		async (value) => {
@@ -1476,17 +1564,15 @@ const GalleryPage = () => {
 	};
 	const uploadAlbumCoverChangeHandler = async (e) => {
 		const image = e.target.files[0];
-
 		if (!image) return;
 
-		message.open({
-			type: 'loading',
+		message.loading({
 			content: 'Uploading album cover image..',
-			duration: 0,
+			key: 'coverUpload',
 		});
 
-		// Reset existing image data if any
-		if (info?.imageURL) {
+		try {
+			// Reset existing image data
 			setInfo((prev) => ({
 				...prev,
 				crop: { x: 0, y: 0 },
@@ -1494,13 +1580,13 @@ const GalleryPage = () => {
 				uploadImageId: null,
 				imageURL: '',
 				coverImageDetails: null,
+				coverPhoto: true,
+				isLoadingCover: true,
 			}));
-		}
 
-		const batchId = randomize('Aa0', 10);
+			const batchId = randomize('Aa0', 10);
 
-		try {
-			// Check for duplicate images
+			// Check for duplicate images first
 			const duplicateImage = await getImageDuplicatesList(galleryId, info.activeAlbumId);
 			const isHavingDuplicateImage = duplicateImage?.[1]?.find(
 				(item) => item?.displayName === image?.name,
@@ -1511,53 +1597,95 @@ const GalleryPage = () => {
 				setInfo((prev) => ({
 					...prev,
 					uploadImageId: isHavingDuplicateImage?._id,
+					isLoadingCover: false,
 				}));
-				message.destroy();
+				message.destroy('coverUpload');
 				return;
 			}
 
 			// Get gallery tags and upload image
 			const responseGalleryTags = await getGalleryTagsList(galleryId);
-			if (responseGalleryTags?.[0] === true) {
-				const allTagId = responseGalleryTags?.[1]?.find(
-					(item) => item.displayName === 'All',
-				);
+			if (!responseGalleryTags?.[0]) {
+				throw new Error('Failed to get gallery tags');
+			}
 
-				const uploadPayload = {
-					originalFileName: image?.name,
-					originalDateTime: moment(image?.['originalDate']).unix() || 0,
-					uploadBatchId: batchId,
-					tag_ids: [allTagId?._id],
-					isAIFacesEnabled: true,
-				};
+			const allTagId = responseGalleryTags?.[1]?.find(
+				(item) => item.displayName === 'All',
+			)?._id;
 
-				const signedURLUpload = await getUploadImageSignUrl(
+			if (!allTagId) {
+				throw new Error('All tag not found');
+			}
+
+			const uploadPayload = {
+				originalFileName: image?.name,
+				originalDateTime: moment(image?.['originalDate']).unix() || 0,
+				uploadBatchId: batchId,
+				tag_ids: [allTagId],
+				isAIFacesEnabled: true,
+			};
+
+			const signedURLUpload = await getUploadImageSignUrl(
+				galleryId,
+				info.activeAlbumId,
+				uploadPayload,
+			);
+
+			if (!signedURLUpload?.[0]) {
+				throw new Error('Failed to get signed URL');
+			}
+
+			// Upload the image
+			await axios.put(signedURLUpload[1]['signedUrl'], image, {
+				headers: {
+					'Content-Type': image?.type,
+				},
+			});
+
+			setInfo((prev) => ({
+				...prev,
+				uploadImageId: signedURLUpload?.[1]?._id,
+				coverPhoto: true,
+			}));
+
+			// Wait for image processing
+			let attempts = 0;
+			const maxAttempts = 10;
+			while (attempts < maxAttempts) {
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+				const imageStatus = await getImageUploadStatus(
 					galleryId,
 					info.activeAlbumId,
-					uploadPayload,
+					batchId,
 				);
-
-				if (signedURLUpload?.[0] === true) {
-					const uploadResponse = await axios.put(signedURLUpload[1]['signedUrl'], image, {
-						headers: {
-							'Content-Type': image?.type,
-						},
-					});
-
-					setInfo((prev) => ({
-						...prev,
-						uploadImageId: signedURLUpload?.[1]?._id,
-						coverPhoto: true,
-					}));
-
-					if (uploadResponse.status === 200) {
-						getImageDetails(signedURLUpload?.[1]?._id, batchId);
+				if (imageStatus?.[0] && imageStatus?.[1]?.processedCount === 1) {
+					const imageDetails = await getImageDetail(signedURLUpload?.[1]?._id);
+					if (imageDetails?.[0]) {
+						setInfo((prev) => ({
+							...prev,
+							coverImageDetails: imageDetails[1],
+							isLoadingCover: false,
+						}));
+						message.success({
+							content: 'Image uploaded successfully',
+							key: 'coverUpload',
+						});
+						return;
 					}
 				}
+				attempts++;
 			}
+			throw new Error('Image processing timed out');
 		} catch (error) {
-			message.destroy();
-			message.error('Something went wrong, please try again later');
+			console.error('Error uploading cover image:', error);
+			message.error({
+				content: error.message || 'Failed to upload cover image',
+				key: 'coverUpload',
+			});
+			setInfo((prev) => ({
+				...prev,
+				isLoadingCover: false,
+			}));
 		}
 	};
 	// const handleSetCoverPosition = async (focalPoint) => {
@@ -1632,6 +1760,7 @@ const GalleryPage = () => {
 			const formattedDate = moment(dateString).format('YYYYMMDD');
 			setInfo((prev) => ({
 				...prev,
+
 				galleryCreatedAt: formattedDate,
 			}));
 			payload = {
@@ -1868,7 +1997,13 @@ const GalleryPage = () => {
 	};
 
 	const handleSetCoverPosition = async (focalPoint) => {
+		// If already processing, return early
+		if (handleSetCoverPosition.isProcessing) return;
+
 		try {
+			// Set processing flag
+			handleSetCoverPosition.isProcessing = true;
+
 			message.loading({
 				content: `Setting ${info.coverType === 'gallery' ? 'gallery' : 'album'} cover...`,
 				key: 'coverUpdate',
@@ -1878,11 +2013,18 @@ const GalleryPage = () => {
 				image_id: info?.uploadImageId || info?.coverImageDetails?._id,
 				xPosition: focalPoint?.x,
 				yPosition: focalPoint?.y,
-				givenFileName: info?.coverImageDetails?.activeVersion?.givenFileName,
+				givenFileName:
+					info?.coverImageDetails?.activeVersion?.givenFileName ||
+					imageDetail?.activeVersion?.givenFileName,
 				width: 100,
 				height: 100,
 				zoom: info?.zoom || 1,
 			};
+
+			// Ensure we have the required data
+			if (!payload.image_id || !payload.givenFileName) {
+				throw new Error('Missing required image data');
+			}
 
 			let response;
 			if (info.coverType === 'gallery') {
@@ -1893,59 +2035,14 @@ const GalleryPage = () => {
 
 			if (response?.[0]) {
 				// Update local state immediately for optimistic UI update
-				setInfo((prev) => {
-					const newState = {
-						...prev,
-						showUploadCover: false,
-						uploadImageId: null,
-						imageURL: '',
-						coverImageDetails: null,
-						selectedImages: [], // Clear selection
-					};
-
-					if (info.coverType === 'gallery') {
-						newState.activeGallery = {
-							...prev.activeGallery,
-							coverImage: {
-								...payload,
-								givenFileName:
-									info?.coverImageDetails?.activeVersion?.givenFileName,
-							},
-						};
-					} else {
-						// Update both activeAlbum and the album in albumImagesCount
-						newState.activeAlbum = {
-							...prev.activeAlbum,
-							coverImage: {
-								...payload,
-								givenFileName:
-									info?.coverImageDetails?.activeVersion?.givenFileName,
-							},
-						};
-
-						// Update the album in the albums list
-						if (prev.albumImagesCount?.albums) {
-							newState.albumImagesCount = {
-								...prev.albumImagesCount,
-								albums: prev.albumImagesCount.albums.map((album) =>
-									album._id === info.activeAlbumId
-										? {
-												...album,
-												coverImage: {
-													...payload,
-													givenFileName:
-														info?.coverImageDetails?.activeVersion
-															?.givenFileName,
-												},
-										  }
-										: album,
-								),
-							};
-						}
-					}
-
-					return newState;
-				});
+				setInfo((prev) => ({
+					...prev,
+					showUploadCover: false,
+					uploadImageId: null,
+					imageURL: '',
+					coverImageDetails: null,
+					selectedImages: [],
+				}));
 
 				// Refresh data
 				await Promise.all([
@@ -1961,19 +2058,24 @@ const GalleryPage = () => {
 					key: 'coverUpdate',
 				});
 			} else {
-				message.error({
-					content: 'Failed to update cover position',
-					key: 'coverUpdate',
-				});
+				throw new Error('Failed to update cover position');
 			}
 		} catch (error) {
 			console.error('Error updating cover:', error);
 			message.error({
-				content: 'An error occurred while updating cover',
+				content: error.message || 'An error occurred while updating cover',
 				key: 'coverUpdate',
 			});
+		} finally {
+			// Reset processing flag after a delay to prevent rapid re-clicks
+			setTimeout(() => {
+				handleSetCoverPosition.isProcessing = false;
+			}, 1000);
 		}
 	};
+
+	// Initialize the processing flag
+	handleSetCoverPosition.isProcessing = false;
 
 	const handleAlbumDelete = () => {
 		const payload = {
@@ -2621,6 +2723,16 @@ const GalleryPage = () => {
 		const activeTag = image.galleryTags.find((tag) => tag._id === info.albumTagId);
 		return activeTag?.customSortIndex || 0;
 	};
+
+	// const handleRenameGallery = () => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		showOptions: false,
+	// 		showMainPopup: true,
+	// 		galleryName: info?.activeGallery?.title || '',
+	// 	}));
+	// };
+
 	const handleDownload = async () => {
 		if (validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
@@ -2918,91 +3030,27 @@ const GalleryPage = () => {
 												<GalleryPreview />
 												<span>Preview Gallery</span>
 											</li> */}
-											<li
-												onClick={() => {
-													setInfo((prev) => ({
-														...prev,
-														showOptions: false,
-														showMainPopup: true,
-														galleryName:
-															info?.activeGallery?.title || '',
-													}));
-												}}
-											>
-												<EditPen />
-												<span>Rename Gallery</span>
-											</li>
-											<li
-												onClick={() => {
-													setInfo((prev) => ({
-														...prev,
-														showOptions: false,
-														isDatePopup: true,
-														dateType: 'galleryDate',
-														showMainPopup: true,
-														galleryDate:
-															moment(
-																prev.galleryCreatedAt,
-																'YYYYMMDD',
-															).format('YYYY-MM-DD') || '',
-													}));
-												}}
-											>
-												<ChangeCalender />
-												<span>Change Gallery Date</span>
-											</li>
-											<li
-												onClick={() => {
-													setInfo((prev) => ({
-														...prev,
-														showOptions: false,
-														isDatePopup: true,
-														dateType: 'expiryDate',
-														showMainPopup: true,
-														expiryDate:
-															moment(prev.galleryDueDate).format(
-																'YYYY-MM-DD',
-															) || '',
-													}));
-												}}
-											>
-												<ChangeCalender />
-												<span>Change Expiry Date</span>
-											</li>
-											<li onClick={() => handleUploadCoverOpen('gallery')}>
-												<BrushIcon />
-												<span>Change Gallery Cover</span>
-											</li>
-											<li
-												onClick={() =>
-													setInfo((prev) => ({
-														...prev,
-														showGalleryStyles: true,
-													}))
-												}
-											>
-												<BrushIcon />
-												<span>Change Gallery Style</span>
-											</li>
-											<hr
-												style={{
-													border: '1px solid #424548',
-													opacity: '0.2',
-													width: '100%',
-												}}
-											/>
-											<li
-												onClick={() => {
-													setInfo((prev) => ({
-														...prev,
-														showDeletePopup: true,
-														showOptions: false,
-													}));
-												}}
-											>
-												<TrashIcon />
-												<span>Move to Trash</span>
-											</li>
+											{galleryOptions.map((option, index) =>
+												option.divider ? (
+													<hr
+														key={`divider-${index}`}
+														style={{
+															border: '1px solid #424548',
+															opacity: '0.2',
+															width: '100%',
+														}}
+													/>
+												) : (
+													<li
+														key={option.label}
+														onClick={option.onClick}
+														className={option.className}
+													>
+														{option.icon}
+														<span>{option.label}</span>
+													</li>
+												),
+											)}
 										</div>
 									)}
 								</div>
