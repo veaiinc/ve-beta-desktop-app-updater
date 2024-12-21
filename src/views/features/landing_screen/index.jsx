@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/landingScreen/index.scss';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
@@ -108,41 +108,41 @@ const resources = [
 	},
 ];
 
-const videoSegments = [
-	{
-		id: 1,
-		startTime: 0,
-		endTime: 2,
-		title: 'Ve.ai',
-	},
-	{
-		id: 2,
-		startTime: 3,
-		endTime: 4,
-		title: 'Ve.ai',
-	},
-	{
-		id: 3,
-		startTime: 4,
-		endTime: 5,
-		title: 'Ve.ai',
-	},
-	{
-		id: 4,
-		startTime: 6,
-		endTime: 7,
-		title: 'Ve.ai',
-	},
-];
+// const videoSegments = [
+// 	{
+// 		id: 1,
+// 		startTime: 0,
+// 		endTime: 2,
+// 		title: 'Ve.ai',
+// 	},
+// 	{
+// 		id: 2,
+// 		startTime: 3,
+// 		endTime: 4,
+// 		title: 'Ve.ai',
+// 	},
+// 	{
+// 		id: 3,
+// 		startTime: 4,
+// 		endTime: 5,
+// 		title: 'Ve.ai',
+// 	},
+// 	{
+// 		id: 4,
+// 		startTime: 6,
+// 		endTime: 7,
+// 		title: 'Ve.ai',
+// 	},
+// ];
 
 const LandingPage = () => {
 	const navigate = useNavigate();
-	const [currentSegment, setCurrentSegment] = useState(0);
+	// const [currentSegment, setCurrentSegment] = useState(0);
 	const [showScrollArrow, setShowScrollArrow] = useState(false);
 	const videoRef = useRef(null);
-	const [info, setInfo] = useState({
-		activeToggle: 'Path',
-	});
+	// const [info, setInfo] = useState({
+	// 	activeToggle: 'Path',
+	// });
 	const [email, setEmail] = useState('');
 	useEffect(() => {
 		const usertoken = localStorage.getItem('usertoken');
@@ -177,12 +177,12 @@ const LandingPage = () => {
 		};
 	}, []);
 
-	const handleToggleClick = (toggleType) => {
-		setInfo({
-			...info,
-			activeToggle: toggleType,
-		});
-	};
+	// const handleToggleClick = (toggleType) => {
+	// 	setInfo({
+	// 		...info,
+	// 		activeToggle: toggleType,
+	// 	});
+	// };
 
 	const handleScroll = () => {
 		const windowHeight = window.innerHeight;
@@ -194,15 +194,15 @@ const LandingPage = () => {
 		setShowScrollArrow(!isNearBottom);
 	};
 
-	const handleTimeUpdate = () => {
-		const currentTime = videoRef?.current?.currentTime;
-		const currentSegmentData = videoSegments[currentSegment];
-		if (currentTime >= currentSegmentData.endTime) {
-			const nextSegment = (currentSegment + 1) % videoSegments.length;
-			setCurrentSegment(nextSegment);
-			videoRef.current.currentTime = videoSegments[nextSegment].startTime;
-		}
-	};
+	// const handleTimeUpdate = () => {
+	// 	const currentTime = videoRef?.current?.currentTime;
+	// 	const currentSegmentData = videoSegments[currentSegment];
+	// 	if (currentTime >= currentSegmentData.endTime) {
+	// 		const nextSegment = (currentSegment + 1) % videoSegments.length;
+	// 		setCurrentSegment(nextSegment);
+	// 		videoRef.current.currentTime = videoSegments[nextSegment].startTime;
+	// 	}
+	// };
 
 	const handleNavigationToVerifyUser = () => {
 		navigate('/verify-user');
@@ -264,7 +264,7 @@ const LandingPage = () => {
 							<video
 								className="video"
 								ref={videoRef}
-								onTimeUpdate={handleTimeUpdate}
+								// onTimeUpdate={handleTimeUpdate}
 								muted
 								autoPlay
 								loop
@@ -437,4 +437,4 @@ const LandingPage = () => {
 	);
 };
 
-export default LandingPage;
+export default memo(LandingPage);
