@@ -5,11 +5,16 @@ import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/ve
 import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
 import { ReactComponent as ArrowUpBlack } from '../../../assets/svg/landingScreen/arrow-black.svg';
 import { ReactComponent as DownArrow } from '../../../assets/svg/gallery/arrow-down.svg';
-import { VEAI_URL } from '../../../helpers/ConstantUrls';
+import {
+	BLOGS_URL,
+	CHANGELOG_URL,
+	COOKIE_POLICY_URL,
+	VEAI_URL,
+	LINKEDIN_URL,
+	INSTAGRAM_URL,
+} from '../../../helpers/ConstantUrls';
 import { ReactComponent as GoldenBridge } from '../../../assets/images/landingPage/golden-gate-bridge.svg';
 import Charminar from '../../../assets/images/Frame 1618873932.png';
-import { CHANGELOG_URL } from '../../../helpers/ConstantUrls';
-import { BLOGS_URL } from '../../../helpers/ConstantUrls';
 import { ReactComponent as CarouselDisplayPic1 } from '../../../assets/svg/landingScreen/carousel-display-pic-1.svg';
 import { ReactComponent as RightArrowGrey } from '../../../assets/svg/landingScreen/right-arrow-grey.svg';
 
@@ -60,26 +65,26 @@ const carourselData = [
 ];
 
 const socials = [
-	{
-		id: 1,
-		title: 'X',
-		url: 'https://x.com/veai',
-	},
+	// {
+	// 	id: 1,
+	// 	title: 'X',
+	// 	url: 'https://x.com/veai',
+	// },
 	{
 		id: 2,
 		title: 'Linkedin',
-		url: 'https://linkedin.com/veai',
+		url: LINKEDIN_URL,
 	},
 	{
 		id: 3,
 		title: 'Instagram',
-		url: 'https://instagram.com/veai',
+		url: INSTAGRAM_URL,
 	},
-	{
-		id: 4,
-		title: 'YouTube',
-		url: 'https://youtube.com/veai',
-	},
+	// {
+	// 	id: 4,
+	// 	title: 'YouTube',
+	// 	url: 'https://youtube.com/veai',
+	// },
 ];
 
 const agents = [
@@ -105,45 +110,26 @@ const resources = [
 	{
 		id: 1,
 		title: 'Blogs',
+		url: BLOGS_URL,
+	},
+	{
+		id: 2,
+		title: 'Cookies',
+		url: COOKIE_POLICY_URL,
+	},
+	{
+		id: 3,
+		title: 'Changelog',
+		url: CHANGELOG_URL,
 	},
 ];
 
-// const videoSegments = [
-// 	{
-// 		id: 1,
-// 		startTime: 0,
-// 		endTime: 2,
-// 		title: 'Ve.ai',
-// 	},
-// 	{
-// 		id: 2,
-// 		startTime: 3,
-// 		endTime: 4,
-// 		title: 'Ve.ai',
-// 	},
-// 	{
-// 		id: 3,
-// 		startTime: 4,
-// 		endTime: 5,
-// 		title: 'Ve.ai',
-// 	},
-// 	{
-// 		id: 4,
-// 		startTime: 6,
-// 		endTime: 7,
-// 		title: 'Ve.ai',
-// 	},
-// ];
-
 const LandingPage = () => {
 	const navigate = useNavigate();
-	// const [currentSegment, setCurrentSegment] = useState(0);
 	const [showScrollArrow, setShowScrollArrow] = useState(false);
 	const videoRef = useRef(null);
-	// const [info, setInfo] = useState({
-	// 	activeToggle: 'Path',
-	// });
 	const [email, setEmail] = useState('');
+
 	useEffect(() => {
 		const usertoken = localStorage.getItem('usertoken');
 		const region = localStorage.getItem('region');
@@ -177,32 +163,14 @@ const LandingPage = () => {
 		};
 	}, []);
 
-	// const handleToggleClick = (toggleType) => {
-	// 	setInfo({
-	// 		...info,
-	// 		activeToggle: toggleType,
-	// 	});
-	// };
-
 	const handleScroll = () => {
 		const windowHeight = window.innerHeight;
 		const documentHeight = document.documentElement.scrollHeight;
 		const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-		// Hide arrow when near bottom (within 20px of bottom)
 		const isNearBottom = windowHeight + scrollTop >= documentHeight - 20;
 		setShowScrollArrow(!isNearBottom);
 	};
-
-	// const handleTimeUpdate = () => {
-	// 	const currentTime = videoRef?.current?.currentTime;
-	// 	const currentSegmentData = videoSegments[currentSegment];
-	// 	if (currentTime >= currentSegmentData.endTime) {
-	// 		const nextSegment = (currentSegment + 1) % videoSegments.length;
-	// 		setCurrentSegment(nextSegment);
-	// 		videoRef.current.currentTime = videoSegments[nextSegment].startTime;
-	// 	}
-	// };
 
 	const handleNavigationToVerifyUser = () => {
 		navigate('/verify-user');
@@ -277,54 +245,6 @@ const LandingPage = () => {
 					</div>
 				</div>
 			</div>
-			{/* <div className="landing-page-content">
-				<div aria-label="Main content" className="hero-section-1">
-					<h1 className="heading">
-						AI OS that
-						<br /> minds your business !
-					</h1>
-					<p className="description">
-						<VeAiLogoGrey aria-label="VeAi Logo in grey" /> is an os that creates ai
-						workers and collaborates with your human teams to achieve business goals.
-					</p>
-					<div className="cta-container">
-						<button
-							onClick={handleNavigationToVerifyUser}
-							className="get-started-button"
-							aria-label="Get started"
-						>
-							Hire Ve.ai <ArrowUpBlack aria-label="Arrow up black" />
-						</button>
-						<button
-							onClick={handleRequestDemo}
-							className="request-demo-button"
-							aria-label="Request a demo"
-						>
-							Request a Demo
-						</button>
-					</div>
-				</div>
-				<div className="hero-section-2">
-					<div className="section-video-container">
-						<video
-							ref={videoRef}
-							onTimeUpdate={handleTimeUpdate}
-							muted
-							autoPlay
-							loop
-							playsInline
-							src={'https://ap.assets.ve.ai/logo/final-LandingVideo_lkhiti.mp4'}
-							style={{
-								height: '100%',
-								width: '100%',
-								cursor: 'pointer',
-								borderRadius: '25.625px !important',
-							}}
-						></video>
-						<div className="video-controls"></div>
-					</div>
-				</div>
-			</div> */}
 			{showScrollArrow && (
 				<div
 					className="scroll-arrow"
@@ -408,7 +328,11 @@ const LandingPage = () => {
 						<ul className="resources">
 							<li className="title">Resources</li>
 							{resources?.map((resourceData) => (
-								<li className="list-item" key={resourceData?.id}>
+								<li
+									onClick={() => window?.open(resourceData?.url, '_blank')}
+									className="list-item"
+									key={resourceData?.id}
+								>
 									{resourceData?.title}
 								</li>
 							))}
