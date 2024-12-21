@@ -3,7 +3,7 @@ import '../../../assets/scss/ai_agents/home.scss';
 import { ReactComponent as CircledCross } from '../../../assets/svg/ai_agents/cross.svg';
 import { ReactComponent as Search } from '../../../assets/svg/ai_agents/search.svg';
 import AiAgentsCards from '../../components/ai_agents/AiAgentsCards';
-import CreateCards from '../../components/ai_agents/CreateCards';
+import CreateCards, { Activity, Drafts } from '../../components/ai_agents/CreateCards';
 const tabs = ['all', 'guidence', 'approval', 'suggestions'];
 const cards = [
 	{ cardType: 'workflow', title: 'Workflow Name - 1', type: 'guidance' },
@@ -112,7 +112,12 @@ const AiAgent = () => {
 					))}
 				</div>
 			</div>
-			<CreateCards />
+
+			<div className="aiagentsCustomCardHolder">
+				<CreateCards />
+				<Activity />
+				<Drafts />
+			</div>
 		</div>
 	);
 };

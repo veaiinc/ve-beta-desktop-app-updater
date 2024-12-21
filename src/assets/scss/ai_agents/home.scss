@@ -121,4 +121,13 @@
 			max-height: 304px;
 		}
 	}
+
+	.aiagentsCustomCardHolder {
+		display: flex;
+		align-self: stretch;
+		height: 418px;
+		align-items: flex-start;
+		gap: 18px;
+		overflow-x: auto;
+	}
 }
