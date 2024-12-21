@@ -19,6 +19,10 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 		setsidebarStates({ ...sidebarStates, workSpaceOpen: false, navStyle: 'open' });
 	};
 
+	const filteredWorkspaces = userWorkSpaceList?.filter((workspace) =>
+		workspace.businessName.toLowerCase().includes(searchWorkspace.toLowerCase()),
+	);
+
 	const handleSwitchWorkSpaceLogic = useCallback((data) => {
 		const { activeWorkspaceId, isOnboard } = data;
 		const workspaceId = localStorage.getItem('workspaceId');
@@ -78,7 +82,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 			)}
 			{userWorkSpaceList ? (
 				<div className="workspaceList overlay">
-					{userWorkSpaceList?.map((singleWorkspace, index) => (
+					{filteredWorkspaces?.map((singleWorkspace, index) => (
 						<div
 							key={singleWorkspace?.activeWorkspaceId}
 							className={`singleWorkspace ${
@@ -105,12 +109,12 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 								)}
 							</div>
 
-							{singleWorkspace?.activeWorkspaceId ===
+							{/* {singleWorkspace?.activeWorkspaceId ===
 								info?.activeBusniessName?.activeWorkspaceId && (
 								<div className="activeWorkspaceCheck">
 									<CircletickwhiteSvg />
 								</div>
-							)}
+							)} */}
 						</div>
 					))}
 

@@ -33,7 +33,11 @@
 		overflow-y: auto;
 		transition: all 0.5s ease-in-out;
 		z-index: 1;
-
+		scrollbar-width: none; // Hide Firefox scrollbar
+		-ms-overflow-style: none; // Hide IE scrollbar
+		&::-webkit-scrollbar {
+			display: none; // Hide Chrome/Safari/Opera scrollbar
+		}
 		&.open {
 			border-radius: 0px !important;
 			height: 100dvh !important;
@@ -284,14 +288,11 @@
 
 							// gap: 5px;
 							&:hover {
-								background: var(
-									--ve-ai-dark-theme-text-field-stroke-pop-up,
-									#2c2d2e
-								);
+								background: #2c2d2e;
 								border-radius: var(--Radius-lg, 24px);
 							}
 							&:active {
-								background: #2e2f33;
+								background: #2c2d2e;
 								border-radius: 24px;
 							}
 							.subitem-content {
@@ -363,6 +364,9 @@
 				overflow-y: scroll;
 				-ms-overflow-style: none;
 				scrollbar-width: none;
+				&::-webkit-scrollbar {
+					display: none;
+				}
 				.topOptionsList::-webkit-scrollbar {
 					display: none;
 				}
@@ -570,7 +574,7 @@
 					}
 					.logoutItem:hover,
 					.workspace-active .logoutItem:hover {
-						background-color: #2e2f33;
+						background-color: #2c2d2e;
 						border-radius: 100px;
 					}
 				}
@@ -585,7 +589,13 @@
 			overflow-y: auto;
 			max-height: 94vh;
 			overflow-x: hidden;
-
+			margin-right: 10px;
+			width: 238px;
+			-ms-overflow-style: none; // Hide scrollbar IE
+			scrollbar-width: none; // Hide scrollbar Firefox
+			&::-webkit-scrollbar {
+				display: none; // Hide scrollbar Chrome/Safari/Opera
+			}
 			.backContinaer {
 				display: flex;
 				align-items: center;
@@ -622,8 +632,8 @@
 					flex-direction: row;
 					justify-content: space-between;
 					align-items: center;
-					width: 218px;
-					padding: 12px 16px;
+					width: 208px;
+					padding: 12px;
 					align-items: center;
 					.workspaceName {
 						white-space: nowrap;
@@ -686,7 +696,7 @@
 						line-height: normal;
 					}
 					&:hover {
-						border-radius: var(--Radius-lg, 24px);
+						border-radius: var(--Radius-lg, 12px);
 						background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
 						cursor: pointer;
 						p {
@@ -707,6 +717,8 @@
 
 				.activeWorkspace {
 					position: relative;
+					background-color: #2c2d2e; /* Or your preferred color */
+					border-radius: 12px;
 					.workSpaceCircle {
 						background: #6055ec;
 
