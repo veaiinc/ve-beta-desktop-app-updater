@@ -27,6 +27,9 @@ import CookiePolicy from './views/features/signin/CookiePolicy';
 import WorkflowBuilder from './views/features/workflow_builder';
 import Tasks from './views/features/tasks';
 import ShareAndEarn from './views/features/ShareAndEarn';
+import Notes from './views/features/Notes';
+import Ai_agent from './views/features/ai_agent';
+import AgentsJobs from './views/features/ai_agent/AgentsJobs';
 const routes = [
 	{
 		path: '/',
@@ -34,6 +37,10 @@ const routes = [
 	},
 	{
 		path: '/onboarding',
+		component: <Onboarding />,
+	},
+	{
+		path: '/create-workspace',
 		component: <Onboarding />,
 	},
 	{
@@ -233,6 +240,44 @@ const routes = [
 		),
 		exact: true,
 	},
+	{
+		path: '/notes',
+		component: (
+			<AuthWrapper title={'Notes'}>
+				<Notes />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+
+	//ai agents
+	{
+		path: '/ai-agents/home/:agent-name',
+		component: (
+			<AuthWrapper title={'AI Agents'}>
+				<Ai_agent />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/ai-agents/jobs/:agent-name',
+		component: (
+			<AuthWrapper title={'Notes'}>
+				<AgentsJobs />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	// {
+	// 	path: '/ai-agents/setup/:agent-name',
+	// 	component: (
+	// 		<AuthWrapper title={'Notes'}>
+	// 			<Ai_agent />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 ];
 
 export default routes;

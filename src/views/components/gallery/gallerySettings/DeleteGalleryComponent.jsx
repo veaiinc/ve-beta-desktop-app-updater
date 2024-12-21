@@ -1,4 +1,4 @@
-import React, { useState, useContext, memo } from 'react';
+import React, { useState, useContext } from 'react';
 import { ReactComponent as DeleteLogo } from '../../../../assets/svg/gallery/delete.svg';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
 import { message } from 'antd';
@@ -29,7 +29,6 @@ const DeleteGalleryComponent = ({ galleryName, galleryId }) => {
 		if (response[0] === true) {
 			message.destroy();
 			message.success('Gallery deleted successfully');
-			getGalleries();
 			navigate('/galleries');
 		} else {
 			message.destroy();
@@ -99,4 +98,4 @@ const DeleteGalleryComponent = ({ galleryName, galleryId }) => {
 	);
 };
 
-export default memo(DeleteGalleryComponent);
+export default DeleteGalleryComponent;

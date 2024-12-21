@@ -142,7 +142,7 @@ export const TasksState = () => {
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.SET_SUB_TASKS,
-					payload: response?.[1]?.data?.listChildTasks,
+					payload: { data: response?.[1]?.data?.listChildTasks },
 				});
 			} else {
 				dispatch({
@@ -154,6 +154,22 @@ export const TasksState = () => {
 		} catch (error) {
 			console.log('API failed ==> getSubTasks', error);
 		}
+	};
+
+	const addSubTask = (payload) => {
+		dispatch({ type: Actions.ADD_SUB_TASK, payload });
+	};
+
+	const removeSubTask = (payload) => {
+		dispatch({ type: Actions.REMOVE_SUB_TASK, payload });
+	};
+
+	const updateSubTask = (payload) => {
+		dispatch({ type: Actions.UPDATE_SUB_TASK, payload });
+	};
+
+	const resetSubTasks = () => {
+		dispatch({ type: Actions.RESET_SUB_TASKS });
 	};
 
 	const resetTasksState = () => {
@@ -168,6 +184,10 @@ export const TasksState = () => {
 		deleteListItem,
 		getTask,
 		getSubTasks,
+		addSubTask,
+		removeSubTask,
+		updateSubTask,
+		resetSubTasks,
 		resetTasksState,
 	};
 };

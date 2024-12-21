@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import ToggleSlider from '../../../../views/components/input/slider';
 import { DatePicker } from 'antd';
 import { getInitials } from '../../../../helpers/index';
@@ -154,4 +154,4 @@ const GalleryOverview = ({
 	);
 };
 
-export default memo(GalleryOverview);
+export default GalleryOverview;

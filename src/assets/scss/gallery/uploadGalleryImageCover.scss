@@ -1,0 +1,136 @@
+.settings-overview {
+	display: flex;
+	width: 1011px;
+	padding: 36px;
+	flex-direction: column;
+	align-items: center;
+	gap: 24px;
+	border-radius: 32px;
+	background: #202123;
+	box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+	.title {
+		color: var(--darkTheme-Primary-font, #e8e8e8);
+		font-family: Inter;
+		font-size: 20px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		align-self: flex-start;
+	}
+	.album-cover-container {
+		display: flex;
+		gap: 28px;
+		height: 550px;
+		justify-content: center;
+		.album-preview {
+			display: flex;
+			width: 939px;
+			height: 453px;
+			position: relative;
+			align-items: center;
+			.laptop-preview {
+				display: flex;
+				align-items: end;
+				justify-content: center;
+				flex-direction: column;
+				width: 685px;
+				height: 404px !important;
+				border-radius: 2.846px;
+				position: relative;
+				.screen {
+					width: 570px;
+					height: 336px;
+					background: #000;
+					padding: 16px;
+					border-top-left-radius: 16px;
+					border-top-right-radius: 16px;
+					border-radius: 2.846px;
+
+					img {
+						width: 100%;
+						height: 100%;
+						object-fit: cover;
+					}
+				}
+				button {
+					position: absolute;
+					bottom: 10%;
+					right: 45%;
+					color: #fff;
+					border: none;
+					border-radius: 100px;
+					display: flex;
+					width: 133px;
+					height: 39px;
+					padding: 12px 24px;
+					justify-content: center;
+					align-items: center;
+					gap: 16px;
+					color: #000;
+					font-family: Inter;
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+			}
+			.mobile-preview {
+				display: flex;
+				padding: 1px;
+				position: absolute;
+				bottom: -94px;
+				left: 41px;
+				z-index: 100;
+				.mobile-preview-container {
+					width: 153px;
+					height: 291px;
+					border-radius: 24px;
+					overflow: hidden;
+					img {
+						width: 100%;
+						height: 100%;
+						object-fit: cover;
+					}
+				}
+				.mobile-logo {
+					position: absolute;
+					height: 100%;
+					width: 100%;
+					bottom: 0;
+					right: 0;
+				}
+			}
+		}
+		.album-cover-image {
+			width: 100%;
+			height: 100%;
+			margin-top: 100px;
+
+			position: relative;
+
+			img {
+				border-radius: 24px;
+				border: 1px solid #eaeaea;
+				cursor: pointer;
+				overflow: hidden;
+			}
+		}
+	}
+	.upload-cover-photo {
+		display: flex;
+		gap: 26px;
+		width: 100%;
+		justify-content: center;
+		.bt {
+			display: flex;
+			width: 177px;
+			padding: 12px;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			gap: 10px;
+			border-radius: 33px;
+			background: #e8e8e8;
+		}
+	}
+}

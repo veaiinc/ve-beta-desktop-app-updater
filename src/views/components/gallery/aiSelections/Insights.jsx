@@ -1,87 +1,159 @@
-import React, { useContext, memo } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import '../../../../assets/scss/gallery/insights.scss';
 import Table from './Table';
 import { ReactComponent as DownloadIcon } from '../../../../assets/svg/gallery/download2.svg';
 import { ReactComponent as SearchIcon } from '../../../../assets/svg/workflow/search.svg';
 import { ReactComponent as FilterIcon } from '../../../../assets/svg/chat/filter.svg';
 import Context from '../../../../context/context';
-const tableData = [
-	{
-		name: 'John Doe',
-		email: 'john.doe@example.com',
-		mobileNumber: '+1 234-567-8901',
-		registerStage: 'Completed',
-		date: '2024-03-20',
-	},
-	{
-		name: 'Jane Smith',
-		email: 'jane.smith@example.com',
-		mobileNumber: '+1 345-678-9012',
-		registerStage: 'Pending',
-		date: '2024-03-19',
-	},
-	{
-		name: 'Mike Johnson',
-		email: 'mike.j@example.com',
-		mobileNumber: '+1 456-789-0123',
-		registerStage: 'In Progress',
-		date: '2024-03-18',
-	},
-	{
-		name: 'Sarah Williams',
-		email: 'sarah.w@example.com',
-		mobileNumber: '+1 567-890-1234',
-		registerStage: 'Completed',
-		date: '2024-03-17',
-	},
-	{
-		name: 'Robert Brown',
-		email: 'robert.b@example.com',
-		mobileNumber: '+1 678-901-2345',
-		registerStage: 'Pending',
-		date: '2024-03-16',
-	},
-	{
-		name: 'John Doe',
-		email: 'john.doe@example.com',
-		mobileNumber: '+1 234-567-8901',
-		registerStage: 'Completed',
-		date: '2024-03-20',
-	},
-	{
-		name: 'Jane Smith',
-		email: 'jane.smith@example.com',
-		mobileNumber: '+1 345-678-9012',
-		registerStage: 'Pending',
-		date: '2024-03-19',
-	},
-	{
-		name: 'Mike Johnson',
-		email: 'mike.j@example.com',
-		mobileNumber: '+1 456-789-0123',
-		registerStage: 'In Progress',
-		date: '2024-03-18',
-	},
-	{
-		name: 'Sarah Williams',
-		email: 'sarah.w@example.com',
-		mobileNumber: '+1 567-890-1234',
-		registerStage: 'Completed',
-		date: '2024-03-17',
-	},
-	{
-		name: 'Robert Brown',
-		email: 'robert.b@example.com',
-		mobileNumber: '+1 678-901-2345',
-		registerStage: 'Pending',
-		date: '2024-03-16',
-	},
-];
+import { ReactComponent as CloseIcon } from '../../../../assets/svg/sidebar/CrossSvg.svg';
+import { useInView } from 'react-intersection-observer';
+import { debounce } from 'lodash';
+const filterOptions = ['Today', 'Last Week', 'Last Month', 'Last Year'];
 
 const Insights = () => {
 	const {
-		galleryInfo: { tenantAlbums, aiFace, preRegisteredUsers },
+		galleryInfo: {
+			tenantAlbums,
+			aiFace,
+			preRegisteredUsers,
+			insightsVisitors,
+			getInsightVisitors,
+		},
 	} = useContext(Context);
+	const [showFilter, setShowFilter] = useState(false);
+	const [selectedFilter, setSelectedFilter] = useState('All Time');
+	const [currentPage, setCurrentPage] = useState(1);
+	const [searchQuery, setSearchQuery] = useState('');
+	const [showSearchBar, setShowSearchBar] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const ITEMS_PER_PAGE = 20;
+
+	const { ref, inView } = useInView({
+		threshold: 0.5,
+	});
+
+	const loadMore = async () => {
+		if (inView && !isLoading && insightsVisitors?.hasNextPage) {
+			setIsLoading(true);
+			const pathname = window.location.pathname;
+			const galleryId = pathname.split('/galleries/')[1];
+			const nextPage = currentPage + 1;
+			const dateRange = calculateDateRange(selectedFilter);
+
+			await getInsightVisitors(galleryId, nextPage, ITEMS_PER_PAGE, searchQuery, dateRange);
+			setCurrentPage(nextPage);
+			setIsLoading(false);
+		}
+	};
+
+	const calculateDateRange = (filter) => {
+		const now = new Date();
+		const endDate = new Date(now.setHours(23, 59, 59, 999));
+		let startDate;
+
+		switch (filter) {
+			case 'Today':
+				startDate = new Date();
+				startDate.setHours(0, 0, 0, 0);
+				break;
+
+			case 'Last Week':
+				startDate = new Date();
+				startDate.setDate(startDate.getDate() - 7);
+				startDate.setHours(0, 0, 0, 0);
+				break;
+
+			case 'Last Month':
+				startDate = new Date();
+				startDate.setMonth(startDate.getMonth() - 1);
+				startDate.setHours(0, 0, 0, 0);
+				break;
+
+			case 'Last Year':
+				startDate = new Date();
+				startDate.setFullYear(startDate.getFullYear() - 1);
+				startDate.setHours(0, 0, 0, 0);
+				break;
+
+			default:
+				startDate = new Date(2000, 0, 1);
+				startDate.setHours(0, 0, 0, 0);
+		}
+
+		return {
+			startDate: Math.floor(startDate.getTime() / 1000),
+			endDate: Math.floor(endDate.getTime() / 1000),
+		};
+	};
+
+	useEffect(() => {
+		const pathname = window.location.pathname;
+		const galleryId = pathname.split('/galleries/')[1];
+		if (galleryId) {
+			setCurrentPage(1);
+			const dateRange = calculateDateRange(selectedFilter);
+			// Always fetch data when filter/search changes or when resetting to show all data
+			getInsightVisitors(galleryId, 1, ITEMS_PER_PAGE, searchQuery, dateRange);
+		}
+	}, [searchQuery, selectedFilter]);
+
+	useEffect(() => {
+		loadMore();
+	}, [inView, isLoading, currentPage, insightsVisitors?.hasNextPage]);
+
+	const downloadCSV = (data) => {
+		const headerMapping = {
+			name: 'Name',
+			email: 'Email',
+			mobileNumber: 'Mobile Number',
+			visitorRole: 'Login Type',
+			date: 'Date and Time',
+		};
+		const csvRows = [];
+		const headers = Object.keys(headerMapping);
+
+		csvRows.push(Object.values(headerMapping).join(','));
+		for (const row of data) {
+			const values = headers.map((header) =>
+				JSON.stringify(row[header], (key, value) => (value === null ? '' : value)),
+			);
+			csvRows.push(values.join(','));
+		}
+
+		const csvString = csvRows.join('\n');
+		const blob = new Blob([csvString], { type: 'text/csv' });
+		const url = window.URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.setAttribute('hidden', '');
+		a.setAttribute('href', url);
+		a.setAttribute('download', 'insights.csv');
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+	};
+
+	const visitorData =
+		insightsVisitors?.docs?.map((visitor) => {
+			const date = new Date(visitor.createdAt * 1000);
+			const formattedDate = date.toLocaleString('en-US', {
+				year: 'numeric',
+				month: 'short',
+				day: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit',
+				hour12: true,
+			});
+
+			return {
+				email: visitor.email || '-',
+				name: `${visitor.firstName} ${visitor.lastName}`,
+				mobileNumber: visitor.phoneNumber || '-',
+				registerStage: visitor.category || '-',
+				visitorRole: visitor.visitorRole || '-',
+				date: formattedDate,
+				galleryTitle: visitor.galleryTitle || '-',
+			};
+		}) || [];
 
 	const bytesToGigabytes = (bytes) => {
 		const bytesPerGB = 1024 ** 3;
@@ -102,24 +174,32 @@ const Insights = () => {
 			count: bytesToGigabytes(tenantAlbums?.storageDetails?.storage) || 0,
 		},
 	];
+
 	const details = [
 		{
 			name: 'All Views',
-			number: 33,
+			number: visitorData.length || 0,
 		},
 		{
 			name: 'Face Scan',
-			number: 22,
+			number: visitorData.filter((visitor) => visitor.visitorRole === 'face').length || 0,
 		},
 		{
 			name: 'Guest views',
-			number: 11,
+			number: visitorData.filter((visitor) => visitor.visitorRole === 'guest').length || 0,
 		},
 		{
 			name: 'Client views',
-			number: 11,
+			number: visitorData.filter((visitor) => visitor.visitorRole === 'master').length || 0,
 		},
 	];
+
+	const debouncedSearch = useCallback(
+		debounce((value) => {
+			setSearchQuery(value);
+		}, 200),
+		[],
+	);
 
 	return (
 		<div className="insightsContainer">
@@ -140,28 +220,129 @@ const Insights = () => {
 					<p className="subHeading">People who open with gallery link</p>
 				</div>
 				<div className="insightsHeader-icons">
-					<p>
-						<SearchIcon />
-					</p>
-					<p>
-						<FilterIcon />
-					</p>
-					<p>
+					{showSearchBar ? (
+						<div className="search-container">
+							<input
+								type="text"
+								placeholder=""
+								value={searchQuery}
+								onChange={(e) => debouncedSearch(e.target.value)}
+								className="search-bar"
+							/>
+							<p
+								onClick={() => {
+									debouncedSearch('');
+									setShowSearchBar(!showSearchBar);
+								}}
+							>
+								<CloseIcon />
+							</p>
+						</div>
+					) : (
+						<p onClick={() => setShowSearchBar(!showSearchBar)}>
+							<SearchIcon />
+						</p>
+					)}
+					<p onClick={() => downloadCSV(visitorData)}>
 						<DownloadIcon />
+					</p>
+					<p className="filter-container" onClick={() => setShowFilter(!showFilter)}>
+						<FilterIcon />
+
+						{showFilter && (
+							<div className="filter-dropdown">
+								<div className="filter-option">Filter by</div>
+								<hr
+									style={{
+										width: '100%',
+										border: '1px solid rgba(255, 255, 255, 0.1)',
+									}}
+								/>
+								{filterOptions.map((option, index) => (
+									<div
+										key={index}
+										className="filter-option"
+										onClick={() => {
+											setSelectedFilter(option);
+											setShowFilter(false);
+										}}
+									>
+										{option}
+									</div>
+								))}
+								<hr
+									style={{
+										width: '100%',
+										border: '1px solid rgba(255, 255, 255, 0.1)',
+									}}
+								/>
+								<div className="filter-option">Custom Date</div>
+							</div>
+						)}
 					</p>
 				</div>
 			</div>
-			<div className="insightsDetails">
-				{details.map((ele, index) => (
-					<div key={index} className="insightsDetails-item">
-						<p className="itemName">{ele.name}</p>
-						<p className="count">{ele.number}</p>
-					</div>
-				))}
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					marginRight: '10px',
+				}}
+			>
+				<div className="insightsDetails">
+					{details.map((ele, index) => (
+						<div key={index} className="insightsDetails-item">
+							<p className="itemName">{ele.name}</p>
+							<p className="count">{ele.number}</p>
+						</div>
+					))}
+				</div>
+				<div className="filtersDiv">
+					{selectedFilter !== 'All Time' && (
+						<div
+							className="selected-filter"
+							style={{
+								display: 'flex',
+								flexDirection: 'row',
+								width: '215px',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+							}}
+						>
+							<div style={{ color: '#fff', display: 'flex', alignItems: 'center' }}>
+								Filtered By
+							</div>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									border: '1px solid rgba(255, 255, 255, 0.1)',
+									borderRadius: '16px',
+									padding: '10px',
+								}}
+							>
+								<span style={{ color: '#fff' }}>{selectedFilter}</span>
+								<CloseIcon
+									onClick={() => setSelectedFilter('All Time')}
+									style={{
+										cursor: 'pointer',
+										width: '12px',
+										height: '12px',
+										marginLeft: '8px',
+									}}
+								/>
+							</div>
+						</div>
+					)}
+				</div>
 			</div>
-			<Table tableData={tableData} thead={'Category'} />
+			<div ref={ref}>
+				<Table tableData={visitorData} thead={'Category'} />
+			</div>
 		</div>
 	);
 };
 
-export default memo(Insights);
+export default Insights;
