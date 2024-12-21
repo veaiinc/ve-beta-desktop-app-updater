@@ -16,8 +16,17 @@ const DownloadAlbum = (props) => {
 		webviewDownload,
 		albumDetails,
 	} = props;
+	const customStyles = {
+		content: { zIndex: 99999 },
+		overlay: { zIndex: 99998 },
+	};
 	return (
-		<ReactModal isOpen={open} closeModal={onClose} modalType={'center'}>
+		<ReactModal
+			isOpen={open}
+			closeModal={onClose}
+			modalType={'center'}
+			customStyles={customStyles}
+		>
 			<div className="downloadAlbumPopupContainer">
 				<div className="downloadAlbumPopupCloseButton">
 					<div className="downloadAlbumPopupHeading">Download Album</div>
