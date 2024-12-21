@@ -189,14 +189,15 @@ const LandingPage = () => {
 	};
 
 	const handleSubscribeToNewsletter = async (e, type) => {
-		if (e?.key === 'Enter' || (type === 'click' && email)) {
-			const response = await subscribeToNewsletter(email);
-			if (response?.[0] === true) {
-				message?.success('Subscribed to ve.ai newsletters successfully!');
-			} else {
-				message?.error('An unexpected error occured. Please try again!');
-			}
-		}
+		// Uncomment when API works...
+		// if (e?.key === 'Enter' || (type === 'click' && email)) {
+		// 	const response = await subscribeToNewsletter(email);
+		// 	if (response?.[0] === true) {
+		// 		message?.success('Subscribed to ve.ai newsletters successfully!');
+		// 	} else {
+		// 		message?.error('An unexpected error occured. Please try again!');
+		// 	}
+		// }
 	};
 
 	const handleSetEmail = (e) => {
