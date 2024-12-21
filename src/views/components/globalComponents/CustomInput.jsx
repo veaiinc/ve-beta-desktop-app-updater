@@ -1,7 +1,6 @@
-// CustomInput.jsx
 import React from 'react';
 import PropTypes from 'prop-types';
-// import './CustomInput.css'; // Optional: Import CSS for default styling
+import '../../../assets/scss/globalComponents/customInput.scss';
 
 const CustomInput = ({
 	type,

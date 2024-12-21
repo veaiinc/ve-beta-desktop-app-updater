@@ -5,6 +5,7 @@ import CustomTextArea from '../../../components/globalComponents/CustomTextArea'
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as Arrow } from '../../../../assets/svg/calendar/down.svg';
 import { ReactComponent as Delete } from '../../../../assets/svg/tasks/dustBin.svg';
+import DateView from '../../tasks/listView/DateView.jsx';
 import Spinner from '../../../components/loaders/Spinner';
 import Context from '../../../../context/context';
 import { Drawer } from 'antd';
@@ -13,8 +14,9 @@ import moment from 'moment';
 const initialState = {
 	loading: true,
 	deleting: false,
+	detailsExpanded: false,
 	eventDetails: null,
-	eventKeys: [],
+	eventKeys: ['locationAdrress', 'locationPincode'],
 };
 
 const EventDetailsModal = ({ selectedEvent, isEventSelected, updateCalendarInfo }) => {
@@ -29,14 +31,11 @@ const EventDetailsModal = ({ selectedEvent, isEventSelected, updateCalendarInfo 
 
 	const [info, setInfo] = useState({
 		...initialState,
-		detailsExpanded: false,
 	});
-	const visibleKeys = info?.detailsExpanded ? info?.eventKeys : info?.eventKeys?.slice(0, 6);
+	const visibleKeys = info?.detailsExpanded ? info?.eventKeys : info?.eventKeys?.slice(0, 10);
 
 	// Cache to store previously fetched event details
 	const eventCache = useRef(new Map());
-
-	// console.log('eventDetails', info?.eventDetails);
 
 	useEffect(() => {
 		getEventDetails();
@@ -47,11 +46,11 @@ const EventDetailsModal = ({ selectedEvent, isEventSelected, updateCalendarInfo 
 			setInfo((prev) => ({
 				...prev,
 				eventDetails: calendarEventDetails,
-				eventKeys: Object.keys(calendarEventDetails),
+				eventKeys: [...initialState?.eventKeys, ...Object?.keys(calendarEventDetails)],
 			}));
 			// Store the fetched details in cache
 			if (selectedEvent?.id) {
-				eventCache.current.set(selectedEvent.id, calendarEventDetails);
+				eventCache?.current?.set(selectedEvent?.id, calendarEventDetails);
 			}
 		}
 	}, [calendarEventDetails]);
@@ -69,7 +68,7 @@ const EventDetailsModal = ({ selectedEvent, isEventSelected, updateCalendarInfo 
 	const getEventDetails = useCallback(async () => {
 		if (selectedEvent?.id) {
 			// Check if we have cached data
-			const cachedEvent = eventCache.current.get(selectedEvent.id);
+			const cachedEvent = eventCache?.current?.get(selectedEvent?.id);
 
 			if (cachedEvent) {
 				// Use cached data
@@ -77,39 +76,62 @@ const EventDetailsModal = ({ selectedEvent, isEventSelected, updateCalendarInfo 
 					...prev,
 					loading: false,
 					eventDetails: cachedEvent,
-					eventKeys: Object.keys(cachedEvent),
+					eventKeys: [...initialState?.eventKeys, ...Object?.keys(cachedEvent)],
 				}));
 				return;
 			}
 
 			// Fetch new data if not in cache
-			setInfo((prev) => ({ ...prev, loading: true }));
+			setInfo((prev) => ({ ...prev, loading: true, eventKeys: initialState?.eventKeys }));
 			await getCalendarEventDetails(selectedEvent.id);
 			setInfo((prev) => ({ ...prev, loading: false }));
 		}
 	}, [selectedEvent]);
 
-	const formatEventTime = useCallback((startDateTime, endDateTime) => {
-		const start = moment(startDateTime);
-		const end = moment(endDateTime);
-		return `${start.format('h:mm A')} - ${end.format('h:mm A')}`;
-	}, []);
-
 	const componentMapper = useMemo(
 		() => ({
-			title: (value) => (
-				<CustomInput
-					value={value}
-					onChange={(e) => updateEventDetails('title', e.target?.value)}
-					className="eventTitle"
-					placeholder="Event Title"
+			location: (value) => <CustomInput value={value} className="inputFeilds" />,
+			// locationAdrress: (value) => <CustomInput value={value?.} className="inputFeilds" />,
+			startDateTime: (value) => (
+				<DateView
+					value={moment(value).unix()}
+					showTime={true}
+					onOptionClick={(value) => {
+						updateEventDetails('startDateTime', moment.unix(value).toISOString());
+					}}
+					className="dateInput"
+					format="MMMM DD, YYYY hh:mm A"
 				/>
 			),
-			description: (value) => <CustomInput value={value} />,
-			location: (value) => <CustomInput value={value} />,
-			startDateTime: (value) => <CustomInput type="datetime-local" value={moment(value)} />,
-			endDateTime: (value) => <CustomInput type="datetime-local" value={moment(value)} />,
-			meetingLink: (value) => <CustomInput type="url" value={value} />,
+			endDateTime: (value) => (
+				<DateView
+					value={moment(value).unix()}
+					showTime={true}
+					onOptionClick={(value) => {
+						updateEventDetails('endDateTime', moment.unix(value).toISOString());
+					}}
+					className="dateInput"
+					format="MMMM DD, YYYY hh:mm A"
+				/>
+			),
+			meetingLink: (value) =>
+				value ? (
+					<a
+						href={value}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="meetingLink"
+					>
+						{value}
+					</a>
+				) : (
+					<CustomInput
+						type="url"
+						value={value}
+						placeholder="Add meeting link"
+						className="inputFeilds"
+					/>
+				),
 		}),
 		[],
 	);
@@ -126,7 +148,13 @@ const EventDetailsModal = ({ selectedEvent, isEventSelected, updateCalendarInfo 
 
 	return (
 		<Drawer
-			onClose={() => updateCalendarInfo('isEventSelected', false)}
+			onClose={() => {
+				updateCalendarInfo('isEventSelected', false);
+				setInfo((prev) => ({
+					...prev,
+					detailsExpanded: false,
+				}));
+			}}
 			width={450}
 			open={isEventSelected}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
@@ -150,7 +178,13 @@ const EventDetailsModal = ({ selectedEvent, isEventSelected, updateCalendarInfo 
 							<CloseSvg
 								width={16}
 								height={16}
-								onClick={() => updateCalendarInfo('isEventSelected', false)}
+								onClick={() => {
+									updateCalendarInfo('isEventSelected', false);
+									setInfo((prev) => ({
+										...prev,
+										detailsExpanded: false,
+									}));
+								}}
 								style={{ cursor: 'pointer' }}
 							/>
 
@@ -221,6 +255,7 @@ const EventDetailsModal = ({ selectedEvent, isEventSelected, updateCalendarInfo 
 							}}
 							style={{ fontSize: 15 }}
 							autoResize={true}
+							placeholder="Description..."
 						/>
 					</div>
 				</div>

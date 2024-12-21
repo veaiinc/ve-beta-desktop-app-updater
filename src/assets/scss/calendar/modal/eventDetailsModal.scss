@@ -80,6 +80,7 @@
 			border-bottom: 1px solid #272727;
 
 			.eventDetailsRow {
+				height: 31px;
 				width: 100%;
 				display: grid;
 				grid-template-columns: 1fr 2fr;
@@ -126,4 +127,27 @@
 			font-weight: 500;
 		}
 	}
+}
+
+.inputFeilds {
+	height: 31px;
+	padding: 4px;
+}
+
+.dateInput {
+	height: 31px;
+	&:hover {
+		cursor: pointer;
+		// background: #1e1e1e;
+		background: #1c1c1c;
+	}
+}
+
+.meetingLink {
+	text-transform: none;
+	padding: 0px;
+	font-size: 12px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
