@@ -523,8 +523,17 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+
+			if (response?.[0]) {
+				// Refresh the album data after successful update
+				await getAlbums(galleryId);
+				await getAlbumImagesCount(galleryId);
+				return [true, response[1]];
+			}
+			return response; // Return the error response if not successful
 		} catch (error) {
-			console.log('error==>getLayoutSettings', error);
+			console.log('error==>editLockAlbum', error);
+			return [false, { message: 'Failed to update album access' }];
 		}
 	};
 
@@ -1470,7 +1479,6 @@ export const Galleries = () => {
 			);
 			console.log('response==>getDownloadLinkForImage', response);
 			if (response[0] === true) {
-				console.log('this ios dsfdsfdsf');
 				const imageResponse = await fetch(response[1].signedUrl);
 				const blob = await imageResponse.blob();
 				const url = window.URL.createObjectURL(blob);
@@ -1481,7 +1489,6 @@ export const Galleries = () => {
 				link.click();
 				document.body.removeChild(link);
 				window.URL.revokeObjectURL(url);
-				console.log('this ios dsfdssdlfjhsdkjfsdkfj');
 			}
 
 			return response;
@@ -1582,6 +1589,7 @@ export const Galleries = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
+			let region = localStorage.getItem('region');
 			const response = await service.fetchPost(
 				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/download-images`,
 				payload,
@@ -1594,8 +1602,9 @@ export const Galleries = () => {
 					type: Actions.GET_DOWNLOAD_IMAGES,
 					payload: response?.[1],
 				});
+				const regionPrefix = region === 'ap-south-1' ? 'in' : 'us';
 
-				const url = `https://downloads.ve.ai/${response[1].downloadId}`;
+				const url = `https://downloads.ve.ai/${regionPrefix}/${response[1].downloadId}`;
 				console.log('url==>downloadImages', url);
 				window.open(url, '_blank');
 				return [true, response?.[1]];

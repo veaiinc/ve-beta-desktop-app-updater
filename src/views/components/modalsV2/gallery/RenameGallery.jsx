@@ -14,9 +14,18 @@ const MainPopup = (props) => {
 		inputType = 'text',
 		open,
 	} = props;
+	const customStyles = {
+		content: { zIndex: 99999 },
+		overlay: { zIndex: 99998 },
+	};
 
 	return (
-		<ReactModal isOpen={open} closeModal={onClose} modalType={'center'}>
+		<ReactModal
+			isOpen={open}
+			closeModal={onClose}
+			modalType={'center'}
+			customStyles={customStyles}
+		>
 			<div className="mainPopupContainer">
 				<div className="mainPopupContent">
 					<div className="mainPopupHeading">
