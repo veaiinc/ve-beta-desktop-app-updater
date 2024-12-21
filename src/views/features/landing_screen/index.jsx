@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
+import React, { useState, useEffect, useRef, memo, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import validator from 'validator';
 import '../../../assets/scss/landingScreen/index.scss';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
 import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
@@ -17,6 +18,8 @@ import { ReactComponent as GoldenBridge } from '../../../assets/images/landingPa
 import Charminar from '../../../assets/images/Frame 1618873932.png';
 import { ReactComponent as CarouselDisplayPic1 } from '../../../assets/svg/landingScreen/carousel-display-pic-1.svg';
 import { ReactComponent as RightArrowGrey } from '../../../assets/svg/landingScreen/right-arrow-grey.svg';
+import Context from '../../../context/context';
+import { message } from 'antd';
 
 const navItems = [
 	{ id: 1, name: 'Privacy', route: '/privacy-policy' },
@@ -126,6 +129,11 @@ const resources = [
 
 const LandingPage = () => {
 	const navigate = useNavigate();
+
+	let {
+		authInfo: { subscribeToNewsletter },
+	} = useContext(Context);
+
 	const [showScrollArrow, setShowScrollArrow] = useState(false);
 	const videoRef = useRef(null);
 	const [email, setEmail] = useState('');
@@ -180,8 +188,23 @@ const LandingPage = () => {
 		window.open(VEAI_URL, '_blank');
 	};
 
-	const handleSubscribeToNewsletter = () => {
-		// need to update after api is ready...
+	const handleSubscribeToNewsletter = async (e, type) => {
+		if (e?.key === 'Enter' || (type === 'click' && email)) {
+			const response = await subscribeToNewsletter(email);
+			if (response?.[0] === true) {
+				message?.success('Subscribed to ve.ai newsletters successfully!');
+			} else {
+				message?.error('An unexpected error occured. Please try again!');
+			}
+		}
+	};
+
+	const handleSetEmail = (e) => {
+		const email = e?.target?.value?.trim() ?? '';
+		const isValid = validator?.isEmail(email);
+		if (isValid) {
+			setEmail(email);
+		}
 	};
 
 	return (
@@ -294,12 +317,16 @@ const LandingPage = () => {
 						</h2>
 						<div className="subscribe-to-newsletter">
 							<input
-								onChange={(e) => setEmail(e?.target?.value)}
+								onChange={handleSetEmail}
 								className="email"
 								type="email"
 								placeholder="Email Address"
+								onKeyDown={handleSubscribeToNewsletter}
 							/>
-							<button onClick={handleSubscribeToNewsletter} className="subscribe-btn">
+							<button
+								onClick={() => handleSubscribeToNewsletter(null, 'click')}
+								className="subscribe-btn"
+							>
 								<RightArrowGrey />
 							</button>
 						</div>
