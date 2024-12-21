@@ -338,7 +338,7 @@ const LandingPage = () => {
 							{socials?.map((socialData) => (
 								<li
 									className="list-item"
-									onClick={() => navigate(socialData?.url)}
+									onClick={() => (window.location.href = socialData?.url)}
 									key={socialData?.id}
 								>
 									{socialData?.title}
