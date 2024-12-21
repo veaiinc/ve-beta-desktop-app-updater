@@ -1,0 +1,92 @@
+.aiAgentsCreatecards {
+	display: flex;
+	width: 393px;
+	height: 418px;
+	padding: 20px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	flex-shrink: 0;
+	border-radius: 32px;
+	background: linear-gradient(135deg, #191a1b 0.86%, #171718 70.68%);
+	background: linear-gradient(
+		135deg,
+		color(display-p3 0.0971 0.101 0.1049) 0.86%,
+		color(display-p3 0.0893 0.0893 0.0949) 70.68%
+	);
+
+	.createCardsHeader {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+
+		.createCardsHeaderTexct {
+			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+			color: var(
+				--ve-ai-dark-theme-primary-font-color,
+				color(display-p3 0.9098 0.9098 0.9098)
+			);
+
+			/* Body/Body Text - 16 */
+			font-family: Inter;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.createCardsHolderContainer {
+		display: flex;
+		align-items: flex-start;
+		align-content: flex-start;
+		gap: 8px;
+		align-self: stretch;
+		flex-wrap: wrap;
+		max-height: 343px;
+		overflow-y: auto;
+
+		.createSubCardOptionsdcards {
+			display: flex;
+			height: 109px;
+			padding: 10px 20px;
+			flex-direction: column;
+			justify-content: flex-end;
+			align-items: flex-start;
+			gap: 12px;
+			flex: 1 0 0;
+			border-radius: 16px;
+			background: #202123;
+			background: color(display-p3 0.1249 0.1304 0.1358);
+
+			.createSubCardOptionsdcardsHeader {
+				display: flex;
+				height: 20px;
+				align-items: center;
+				gap: 5px;
+				flex-shrink: 0;
+				align-self: stretch;
+
+				.createOptionsCardDotContainer {
+					width: 6px;
+					height: 6px;
+					border-radius: 100%;
+					background-color: #fff;
+				}
+
+				.createcardOprtionsTitle {
+					color: #fff;
+					color: color(display-p3 1 1 1);
+
+					/* Body/Body Text - 14 Px */
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 20px; /* 142.857% */
+					flex: 1;
+				}
+			}
+		}
+	}
+}
