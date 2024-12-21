@@ -2407,6 +2407,12 @@ const GalleryPage = () => {
 		return null;
 	};
 	const handleUploadCoverOpen = async (coverType) => {
+		// First, check if there's a selected image
+		const hasSelectedImage = info?.selectedImages?.length === 1;
+		const selectedImage = hasSelectedImage
+			? info?.imagesList?.docs?.find((img) => img._id === info?.selectedImages[0])
+			: null;
+
 		setInfo((prev) => ({
 			...prev,
 			showUploadCover: true,
@@ -2415,36 +2421,29 @@ const GalleryPage = () => {
 			coverType: coverType,
 			isLoadingCover: true,
 			coverPhoto: true,
-			selectedImages: [], // Clear any existing selections
 		}));
 
 		try {
-			// If there's exactly one selected image, use its details
-			if (info?.selectedImages?.length === 1) {
-				const selectedImage = info?.imagesList?.docs?.find(
-					(img) => img._id === info.selectedImages[0],
-				);
+			// If there's a selected image, use it immediately
+			if (selectedImage?.activeVersion?.givenFileName) {
+				const imageURL = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 
-				if (selectedImage?.activeVersion?.givenFileName) {
-					const imageURL = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-
-					setInfo((prev) => ({
-						...prev,
-						isLoadingCover: false,
-						uploadImageId: selectedImage._id,
-						imageURL: imageURL,
-						coverImageDetails: selectedImage,
-						crop: {
-							x: selectedImage?.xPosition || 0,
-							y: selectedImage?.yPosition || 0,
-						},
-						zoom: selectedImage?.zoom || 1,
-					}));
-					return;
-				}
+				setInfo((prev) => ({
+					...prev,
+					isLoadingCover: false,
+					uploadImageId: selectedImage._id,
+					imageURL: imageURL,
+					coverImageDetails: selectedImage,
+					crop: {
+						x: selectedImage?.xPosition || 0,
+						y: selectedImage?.yPosition || 0,
+					},
+					zoom: selectedImage?.zoom || 1,
+				}));
+				return;
 			}
 
-			// If no selected image, use existing cover
+			// If no selected image or multiple selections, fall back to current cover
 			const coverImage =
 				coverType === 'gallery'
 					? info?.activeGallery?.coverImage
