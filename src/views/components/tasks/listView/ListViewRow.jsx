@@ -31,7 +31,7 @@ const ListViewRow = ({
 					continue;
 				}
 
-				const property = properties?.find((item) => item.propName === key);
+				const property = properties?.find((item) => item?.value === key);
 				if (property && !property?.show) {
 					continue;
 				}

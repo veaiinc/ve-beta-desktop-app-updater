@@ -12,6 +12,7 @@ const DateView = ({
 	customListItemStyle = {},
 	onOptionClick,
 	showIcon = false,
+	showTime = false,
 }) => {
 	const [info, setInfo] = useState({
 		showDatePicker: false,
@@ -42,8 +43,9 @@ const DateView = ({
 					<DatePicker
 						className="dateView-datePicker"
 						ghost
-						format="MMM DD"
+						format={format}
 						allowClear
+						showTime={showTime}
 						onChange={({ $d }) => {
 							setInfo((prevInfo) => ({ ...prevInfo, showDatePicker: false }));
 							onOptionClick($d ? moment($d).unix() : null);

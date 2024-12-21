@@ -28,6 +28,7 @@ import { ReactComponent as PrioritySvg } from '../../../../assets/svg/tasks/roun
 import { ReactComponent as WorkflowSvg } from '../../../../assets/svg/tasks/workflow.svg';
 import { ReactComponent as PersonSvg } from '../../../../assets/svg/tasks/person.svg';
 import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
+import { ReactComponent as textSvg } from '../../../../assets/svg/tasks/letterA.svg';
 import moment from 'moment';
 
 const rowTypes = {
@@ -47,8 +48,8 @@ const rowTypes = {
 };
 
 const responseTypes = {
-	title: { type: 'text', name: 'Title' },
-	description: { type: 'text', name: 'Description' },
+	title: { type: 'text', name: 'Title', Icon: textSvg },
+	description: { type: 'text', name: 'Description', Icon: textSvg },
 	status: { type: 'status', name: 'Status', Icon: PieSvg },
 	priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg },
 	workflow: { type: 'workflow', name: 'Workflow', Icon: WorkflowSvg },
@@ -61,7 +62,7 @@ const responseTypes = {
 	updatedAt: { type: 'date', name: 'Updated At', Icon: CalendarSvg },
 	createdBy: { type: 'person', name: 'Created By', Icon: PersonSvg },
 	updatedBy: { type: 'person', name: 'Updated By', Icon: PersonSvg },
-	taskSlNo: { type: 'id', name: 'Id' },
+	taskSlNo: { type: 'id', name: 'Id', Icon: textSvg },
 };
 
 const ListView = () => {
@@ -98,20 +99,24 @@ const ListView = () => {
 		hasMore: false,
 		loadingSkeleton: true,
 		error: null,
+		sort: [],
 	});
 
 	const debounceTimeout = useRef(null);
 
-	useEffect(() => {
+	const fetchListItems = useCallback(() => {
 		getListItems({
 			filters: {
 				limit: 30,
 				page: info?.page,
-				sortBy: 'createdAt',
-				sortType: 1,
+				sort: info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
 			},
 		});
-	}, [info?.page]);
+	}, [info?.page, info?.sort]);
+
+	useEffect(() => {
+		fetchListItems();
+	}, [info?.page, info?.sort]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -150,16 +155,12 @@ const ListView = () => {
 	useEffect(() => {
 		if (listTasks) {
 			if (listTasks?.data) {
-				// Get unique tasks by _id to avoid duplicates
-				const uniqueTasks = [
-					...new Map(
-						[...info?.listItems, ...listTasks.data].map((task) => [task._id, task]),
-					).values(),
-				];
-
 				setInfo((prevInfo) => ({
 					...prevInfo,
-					listItems: uniqueTasks,
+					listItems:
+						info?.page === 1
+							? listTasks?.data
+							: [...prevInfo?.listItems, ...listTasks?.data],
 					properties: mapPropertyType(listTasks?.data?.[0]),
 					hasMore: listTasks?.hasNextPage,
 					loadingSkeleton: false,
@@ -208,9 +209,13 @@ const ListView = () => {
 				continue;
 			}
 
+			const { type = null, name = null, Icon = null } = responseTypes[key];
+
 			properties.push({
-				propName: key,
-				type: responseTypes[key],
+				value: key,
+				type,
+				label: name,
+				Icon,
 				show: true,
 			});
 		}
@@ -501,6 +506,8 @@ const ListView = () => {
 				updateListViewInfo={updateListViewInfo}
 				properties={info?.properties}
 				togglePropertyVisibility={togglePropertyVisibility}
+				sort={info?.sort}
+				responseTypes={responseTypes}
 			/>
 			<div className="listContainer">
 				<div className="listInnerContainer">

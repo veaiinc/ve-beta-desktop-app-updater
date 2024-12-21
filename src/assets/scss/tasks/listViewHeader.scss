@@ -28,7 +28,147 @@
 				display: flex;
 				align-items: center;
 				justify-content: center;
+
+				svg {
+					path {
+						stroke: #e8e8e8 !important;
+					}
+				}
 			}
+		}
+	}
+
+	.listViewOptionsContainer {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		padding-top: 16px;
+
+		.listView-sortContainer {
+			border-right: 1px solid #171819;
+			padding-right: 16px;
+
+			svg {
+				path {
+					stroke: #6254f5 !important;
+				}
+			}
+
+			.listView-sortWrapper {
+				display: flex;
+				padding: 8px;
+				justify-content: center;
+				align-items: center;
+				gap: 8px;
+				width: fit-content;
+				border-radius: 42px;
+				border: 1px solid rgba(98, 84, 245, 0.09);
+				background-color: rgba(82, 128, 255, 0.05);
+				color: #6254f5;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px; /* 142.857% */
+
+				.listView-sortField {
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 20px; /* 142.857% */
+					display: flex;
+					align-items: center;
+				}
+			}
+		}
+		.listView-filterContainer {
+			padding-left: 16px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+
+			.listView-filterWrapper {
+				display: flex;
+				padding: 8px;
+				justify-content: center;
+				align-items: center;
+				gap: 8px;
+				width: fit-content;
+				border-radius: 42px;
+				border: 1px solid rgba(98, 84, 245, 0.09);
+				background: rgba(82, 128, 255, 0.05);
+				color: #6254f5;
+
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px; /* 142.857% */
+			}
+		}
+	}
+}
+
+.listView-sortTooltip {
+	min-width: 300px;
+	max-width: fit-content;
+	padding: 8px;
+	border-radius: 8px;
+	background-color: #323232;
+	gap: 8px;
+	.listView-sortItemContainer {
+		margin-bottom: 8px;
+		.listView-sortItem {
+			display: flex;
+			align-items: center;
+			flex-direction: row;
+			gap: 8px;
+			select {
+				width: 120px;
+				height: 32px;
+				border-radius: 4px;
+				border: 1px solid #434546;
+				background-color: transparent;
+				color: #e8e8e8;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px; /* 142.857% */
+				text-indent: 8px;
+			}
+
+			.listView-sortItemRemoveButton {
+				width: 20px;
+				height: 20px;
+				border: none;
+				background: none;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				svg {
+					path {
+						stroke: #e8e8e8 !important;
+					}
+				}
+			}
+		}
+	}
+	.listView-sortItemAddButton {
+		display: flex;
+		align-items: center;
+		justify-content: start;
+		gap: 8px;
+		cursor: pointer;
+		span {
+			color: #e8e8e8;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px; /* 142.857% */
 		}
 	}
 }
