@@ -81,22 +81,22 @@ export const veAiModules = [
 	{ icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
 	{ icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
 	{
-		icon: '',
+		icon: SettingsSvg,
 		name: 'Settings',
 		route: '/settings/my-profile',
-		subModules: [
-			{ icon: '', name: 'MyProfile', route: '/settings/my-profile' },
-			{ icon: '', name: 'Workspace', route: '/settings/workspace' },
-			{ icon: '', name: 'Public Information', route: '/settings/public-information' },
-			{
-				icon: '',
-				name: 'Brand Setup',
-				route: '/settings/brand-setup',
-			},
-			{ icon: '', name: 'Team Settings', route: '/settings/team-settings' },
-			{ icon: '', name: 'Integration', route: '/settings/integrations' },
-			{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
-		],
+		// subModules: [
+		// 	{ icon: '', name: 'MyProfile', route: '/settings/my-profile' },
+		// 	{ icon: '', name: 'Workspace', route: '/settings/workspace' },
+		// 	{ icon: '', name: 'Public Information', route: '/settings/public-information' },
+		// 	{
+		// 		icon: '',
+		// 		name: 'Brand Setup',
+		// 		route: '/settings/brand-setup',
+		// 	},
+		// 	{ icon: '', name: 'Team Settings', route: '/settings/team-settings' },
+		// 	{ icon: '', name: 'Integration', route: '/settings/integrations' },
+		// 	{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
+		// ],
 	},
 ];
 

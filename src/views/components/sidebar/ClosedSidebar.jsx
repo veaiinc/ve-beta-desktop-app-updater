@@ -240,15 +240,32 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 							))}
 						</div>
 						<div className="TabOptions">
-							{/* <div>
-								<div className="dropDownMenuContainer" onClick={openNewFeaturePlus}>
-									<ClosedSideBarHoverStateIcons
-										Icon={PlusSvg}
-										hoverClassName="plusIconHover"
-									/>
-									<DropDrownMenu info={info} setInfo={setInfo} />
-								</div>
-							</div> */}
+							<div>
+								<Tooltip
+									placement="rightTop"
+									title={<DropDrownMenu info={info} setInfo={setInfo} />}
+									color={'#151515'}
+									arrow={false}
+									trigger="click"
+									overlayClassName="sideBartoolTipContainer toolTipContainer"
+									open={info?.isNewFeaturePlusOpen}
+									onOpenChange={(open) => {
+										if (!open) {
+											setInfo((prev) => ({
+												...prev,
+												isNewFeaturePlusOpen: false,
+											}));
+										}
+									}}
+								>
+									<div onClick={openNewFeaturePlus}>
+										<ClosedSideBarHoverStateIcons
+											Icon={PlusSvg}
+											hoverClassName="plusIconHover"
+										/>
+									</div>
+								</Tooltip>
+							</div>
 
 							<div onClick={() => navigate('/home')}>
 								<ClosedSideBarHoverStateIcons Icon={AppartmentHomeSvg} />

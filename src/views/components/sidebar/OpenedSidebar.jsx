@@ -345,7 +345,9 @@ const OpenedSideBarItemsComponent = ({
 									src={info?.activeBusniessName?.logo_s3_500w_key}
 									alt={info?.activeBusniessName?.activeWorkspaceId}
 								/>
-								<h6>{info?.activeBusniessName?.businessName}</h6>
+								<h6 style={{ maxWidth: '100px' }}>
+									{info?.activeBusniessName?.businessName}
+								</h6>
 								<DownArrowSmallSvg style={{ height: '16px', width: '16px' }} />
 							</div>
 							{/* <NotificationSvg /> */}
