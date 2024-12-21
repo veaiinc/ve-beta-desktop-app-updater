@@ -335,20 +335,20 @@ const OpenedSideBarItemsComponent = ({
 								backgroundColor: '#202123',
 								zIndex: '1000',
 							}}
-							onClick={() => navigate(`/home`)}
 						>
-							<div className="workspaceDetailsDiv">
+							<div
+								className="workspaceDetailsDiv"
+								onClick={openWorkspacesFunction}
+								style={{ cursor: 'pointer' }}
+							>
 								<img
 									src={info?.activeBusniessName?.logo_s3_500w_key}
 									alt={info?.activeBusniessName?.activeWorkspaceId}
 								/>
 								<h6>{info?.activeBusniessName?.businessName}</h6>
-								<DownArrowSmallSvg
-									onClick={openWorkspacesFunction}
-									style={{ height: '16px', width: '16px' }}
-								/>
+								<DownArrowSmallSvg style={{ height: '16px', width: '16px' }} />
 							</div>
-							<NotificationSvg />
+							{/* <NotificationSvg /> */}
 							<SidebarClosingSvg
 								className="collapseArrow"
 								onClick={handleSidebarCollapse}
@@ -473,7 +473,7 @@ const OpenedSideBarItemsComponent = ({
 										</button>
 									</div>
 								</div> */}
-								<div className="creditsLeft">
+								{/* <div className="creditsLeft">
 									<div>
 										<div
 											style={{
@@ -532,7 +532,7 @@ const OpenedSideBarItemsComponent = ({
 											/>
 										</svg>
 									</div>
-								</div>
+								</div> */}
 							</>
 						}
 						{bottomOptionsList?.map((singleItems, index) => (

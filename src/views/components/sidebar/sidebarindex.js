@@ -45,16 +45,16 @@ export const veAiModulesItemsList = [
 		moduleRoute: '/calendar',
 		route: '/calendar',
 		icon: '',
-		subModules: [
-			{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
-			{ icon: TranscriptSvg, route: '', name: 'Transcript' },
-			{
-				icon: SettingsSvg,
-				route: '/settings/my-profile',
-				fill: 'white',
-				name: 'Settings',
-			},
-		],
+		// subModules: [
+		// 	{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
+		// 	{ icon: TranscriptSvg, route: '', name: 'Transcript' },
+		// 	{
+		// 		icon: SettingsSvg,
+		// 		route: '/settings/my-profile',
+		// 		fill: 'white',
+		// 		name: 'Settings',
+		// 	},
+		// ],
 	},
 
 	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
@@ -70,14 +70,14 @@ export const veAiModulesItemsList = [
 	// 	route: '/playbook',
 	// 	icon: PlaybookSvg,
 	// },
-	{ name: 'Contacts', moduleRoute: '/contact', route: '/contact' },
-	{ name: 'Teams', moduleRoute: '/teams', route: '/teams' },
+	// { name: 'Contacts', moduleRoute: '/contact', route: '/contact' },
+	// { name: 'Teams', moduleRoute: '/teams', route: '/teams' },
 ];
 
 //
 
 export const veAiModules = [
-	{ icon: OrchestratorSvg, name: 'Orchestrator', route: '/orchestrator' },
+	// { icon: OrchestratorSvg, name: 'Orchestrator', route: '/orchestrator' },
 	{ icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
 	{ icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
 	{
