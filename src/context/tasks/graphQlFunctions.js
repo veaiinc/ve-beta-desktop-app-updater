@@ -139,6 +139,7 @@ export const getSubTasksQuery = gql`
 	query Query($taskId: ID!) {
 		listChildTasks(taskId: $taskId) {
 			_id
+			taskSlNo
 			title
 			description
 			status
@@ -148,11 +149,14 @@ export const getSubTasksQuery = gql`
 				name
 			}
 			dueDate
+			assignedBy {
+				_id
+				name
+			}
 			assignedAt
 			completedAt
 			createdAt
 			updatedAt
-			taskSlNo
 			createdBy {
 				_id
 				name
@@ -161,9 +165,9 @@ export const getSubTasksQuery = gql`
 				_id
 				name
 			}
-			assignedBy {
+			workflow {
 				_id
-				name
+				title
 			}
 		}
 	}

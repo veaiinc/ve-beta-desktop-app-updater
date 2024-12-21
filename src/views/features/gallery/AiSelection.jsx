@@ -1,7 +1,6 @@
 import React, { useState, useContext, memo } from 'react';
 import '../../../assets/scss/gallery/aiOption.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
-// import { ReactComponent as CopyIcon } from '../../../assets/svg/workflow/copy.svg';
 import AiPeopleContainer from '../../components/gallery/aiSelections/AiPeopleContainer';
 import AiFaceRegistration from '../../components/gallery/aiSelections/AiFaceRegistration';
 import Insights from '../../components/gallery/aiSelections/Insights';
@@ -9,7 +8,6 @@ import AiFacesContainer from '../../components/gallery/aiSelections/AiFacesConta
 const aiOptions = [
 	{ name: 'AI People', value: 'AI People' },
 	{ name: 'AI Face Registration', value: 'AI Face Registration' },
-	{ name: 'Insights', value: 'Insights' },
 ];
 const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 	const [info, setInfo] = useState({

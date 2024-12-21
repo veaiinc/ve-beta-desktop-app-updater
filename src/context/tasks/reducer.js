@@ -9,6 +9,37 @@ const actionHandlers = {
 		...state,
 		subTasks: action?.payload,
 	}),
+	RESET_SUB_TASKS: (state) => ({
+		...state,
+		subTasks: null,
+	}),
+	ADD_SUB_TASK: (state, action) => ({
+		...state,
+		subTasks: {
+			...state.subTasks,
+			data: [...state.subTasks?.data, action?.payload],
+			error: null,
+		},
+	}),
+	REMOVE_SUB_TASK: (state, action) => ({
+		...state,
+		subTasks: {
+			...state.subTasks,
+			data: state.subTasks?.data?.filter((item) => item._id !== action?.payload),
+		},
+	}),
+	UPDATE_SUB_TASK: (state, action) => {
+		const { _id, ...rest } = action?.payload;
+		return {
+			...state,
+			subTasks: {
+				...state.subTasks,
+				data: state.subTasks?.data?.map((item) =>
+					item._id === _id ? { ...item, ...rest } : item,
+				),
+			},
+		};
+	},
 	RESET_STATE: () => intialState,
 };
 

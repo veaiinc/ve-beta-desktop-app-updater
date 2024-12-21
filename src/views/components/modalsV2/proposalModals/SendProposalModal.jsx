@@ -74,6 +74,7 @@ const SendProposalModal = ({
 	emailIdentification,
 	updateIdentification,
 	assisstanceData,
+	updateVariablesInAllModules,
 }) => {
 	const {
 		templates: {
@@ -226,6 +227,9 @@ const SendProposalModal = ({
 			});
 			changelocalWorflowStatus('filesSent');
 			changeEditStatus(false);
+
+			//need to update workspace variables , they might have old data
+			updateVariablesInAllModules();
 		}
 	}, [
 		clientDetails,
@@ -273,6 +277,9 @@ const SendProposalModal = ({
 				});
 				changelocalWorflowStatus('filesSent');
 				changeEditStatus(false);
+
+				//need to update workspace variables , they might have old data
+				updateVariablesInAllModules();
 			}
 		} catch (err) {
 			console.log('Failed to copy text');
