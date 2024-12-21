@@ -233,6 +233,7 @@ const GalleryPage = () => {
 		showGalleryStyles: false,
 		themeMode: 'dark',
 		showCoverButton: false,
+		showAlbumOptionsMenu: false,
 		showAlbumSettings: false,
 	});
 	const optionsRef = useRef(null);
@@ -260,14 +261,85 @@ const GalleryPage = () => {
 		{ name: 'Insights', number: '' },
 	];
 
-	// ... existing code ...
+	const galleryOptions = [
+		{
+			icon: <EditPen />,
+			label: 'Rename Gallery',
+			onClick: () =>
+				setInfo((prev) => ({
+					...prev,
+					showOptions: false,
+					showMainPopup: true,
+					galleryName: info?.activeGallery?.title || '',
+				})),
+		},
+		{
+			icon: <ChangeCalender />,
+			label: 'Change Gallery Date',
+			onClick: () =>
+				setInfo((prev) => ({
+					...prev,
+					showOptions: false,
+					isDatePopup: true,
+					dateType: 'galleryDate',
+					showMainPopup: true,
+					galleryDate:
+						moment(prev.galleryCreatedAt, 'YYYYMMDD').format('YYYY-MM-DD') || '',
+				})),
+		},
+		{
+			icon: <ChangeCalender />,
+			label: 'Change Expiry Date',
+			onClick: () =>
+				setInfo((prev) => ({
+					...prev,
+					showOptions: false,
+					isDatePopup: true,
+					dateType: 'expiryDate',
+					showMainPopup: true,
+					expiryDate: moment(prev.galleryDueDate).format('YYYY-MM-DD') || '',
+				})),
+		},
+		{
+			icon: <BrushIcon />,
+			label: 'Change Gallery Cover',
+			onClick: () => handleUploadCoverOpen('gallery'),
+		},
+		{
+			icon: <BrushIcon />,
+			label: 'Change Gallery Style',
+			onClick: () =>
+				setInfo((prev) => ({
+					...prev,
+					showGalleryStyles: true,
+				})),
+		},
+		{
+			divider: true,
+		},
+		{
+			icon: <TrashIcon />,
+			label: 'Move to Trash',
+			onClick: () =>
+				setInfo((prev) => ({
+					...prev,
+					showDeletePopup: true,
+					showOptions: false,
+				})),
+			className: 'delete-option',
+		},
+	];
 
 	const handleClickOutside = useCallback((event) => {
 		const isSwitch = event.target.closest('.ant-switch');
 		const isWithinAlbumOptions = event.target.closest('[data-album-options]');
 
 		const clickOutsideCheck = (ref, iconRef, stateName) => {
-			if (stateName === 'showOptions' && (isSwitch || isWithinAlbumOptions)) {
+			// Don't close options if clicking a switch or within album options
+			if (
+				(stateName === 'showOptionsContainer' || stateName === 'showOptions') &&
+				(isSwitch || isWithinAlbumOptions)
+			) {
 				return;
 			}
 
@@ -290,7 +362,10 @@ const GalleryPage = () => {
 
 		const simpleClickOutsideCheck = (ref, stateName) => {
 			// Don't close album options if clicking a switch within album options
-			if (stateName === 'showOptions' && (isSwitch || isWithinAlbumOptions)) {
+			if (
+				(stateName === 'showOptionsContainer' || stateName === 'showOptions') &&
+				(isSwitch || isWithinAlbumOptions)
+			) {
 				return;
 			}
 
@@ -356,11 +431,6 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [albumImagesCount]);
-
-	// temporary
-	useEffect(() => {
-		console.log('Enabled: ', info?.activeAlbum?.guestAccess?.isEnabled);
-	}, [info?.activeAlbum?.guestAccess?.isEnabled]);
 
 	useEffect(() => {
 		if (!tenantAlbums || tenantAlbums?._id !== galleryId) {
@@ -717,13 +787,12 @@ const GalleryPage = () => {
 		}
 	};
 
-	const handleLockAlbum = useCallback(() => {
+	const handleLockAlbum = useCallback(async () => {
 		const newGuestAccessState = !info?.activeAlbum?.guestAccess?.isEnabled;
 
-		// First update all relevant state immediately
+		// First update state optimistically
 		setInfo((prev) => ({
 			...prev,
-			// Update active album
 			activeAlbum: {
 				...prev.activeAlbum,
 				guestAccess: {
@@ -757,15 +826,37 @@ const GalleryPage = () => {
 				),
 			},
 		}));
-		const payload = {
-			isEnabled: newGuestAccessState,
-		};
-		editLockAlbum(payload, galleryId, info.activeAlbumId);
-		getAlbumImagesCount(galleryId);
-		getAlbums(galleryId);
-	}, [galleryId, info.activeAlbumId, info.activeAlbum?.guestAccess?.isEnabled]);
 
-	// ... existing code ...
+		try {
+			const payload = {
+				isEnabled: newGuestAccessState,
+			};
+
+			// Wait for the edit operation to complete
+			const response = await editLockAlbum(payload, galleryId, info.activeAlbumId);
+
+			if (response?.[0] === true) {
+				message.success('Album access updated successfully');
+			} else {
+				// If the update failed, revert the optimistic update
+				setInfo((prev) => ({
+					...prev,
+					activeAlbum: {
+						...prev.activeAlbum,
+						guestAccess: {
+							...prev.activeAlbum?.guestAccess,
+							isEnabled: !newGuestAccessState,
+						},
+					},
+					// ... similar reversions for tenantAlbums and albumImagesCount
+				}));
+				message.error('Failed to update album access');
+			}
+		} catch (error) {
+			console.error('Error updating album access:', error);
+			message.error('An error occurred while updating album access');
+		}
+	}, [galleryId, info.activeAlbumId, info.activeAlbum?.guestAccess?.isEnabled]);
 
 	const handleOnlineToggle = useCallback(async () => {
 		const newOnlineState = !info.isOnline;
@@ -976,7 +1067,7 @@ const GalleryPage = () => {
 		}
 	};
 	const handleClearSelectedImages = () => {
-		setInfo((prevInfo) => ({ ...prevInfo, selectedImages: [] }));
+		setInfo((prevInfo) => ({ ...prevInfo, selectedImages: [], showAlbumOptionsMenu: false }));
 	};
 	const handleExpandClick = (selectedImageId = null, type) => {
 		if (type === 'single' || info?.selectedImages?.length === 1) {
@@ -1012,7 +1103,7 @@ const GalleryPage = () => {
 	const handleOptionsIcon = () => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			showOptionsContainer: !prevInfo.showOptionsContainer,
+			showAlbumOptionsMenu: !prevInfo?.showAlbumOptionsMenu,
 		}));
 	};
 	const handleClickContent = (name, count) => {
@@ -1087,35 +1178,102 @@ const GalleryPage = () => {
 		},
 		[info?.callToAction?.link],
 	);
+	// ... existing code ...
+
 	const handleGalleryChange = useCallback(
-		(e) => {
-			const value = e.target.value;
-			setInfo((prev) => ({
-				...prev,
-				activeGallery: {
-					...prev?.activeGallery,
+		async (value) => {
+			// If already processing or no value change, return early
+			if (handleGalleryChange.isProcessing || value === info?.activeGallery?.title) {
+				return false;
+			}
+
+			// Validate input length
+			if (value.length > 255) {
+				message.warning('Gallery name is too long');
+				return false;
+			}
+
+			// Set processing flag
+			handleGalleryChange.isProcessing = true;
+
+			try {
+				message.loading({
+					content: 'Renaming gallery...',
+					key: 'renameGallery',
+				});
+
+				const payload = {
 					title: value,
-				},
-			}));
-			handleDebouceFunctionCall(updateGallery, value);
+				};
+
+				// Make single API call
+				const response = await postGallery(payload, galleryId);
+
+				if (response?.[0]) {
+					// Update UI state directly without additional API call
+					setInfo((prev) => ({
+						...prev,
+						activeGallery: {
+							...prev.activeGallery,
+							title: value,
+						},
+						showMainPopup: false,
+					}));
+
+					message.success({
+						content: 'Gallery renamed successfully',
+						key: 'renameGallery',
+					});
+				} else {
+					message.error({
+						content: response?.[1]?.message || 'Failed to rename gallery',
+						key: 'renameGallery',
+					});
+				}
+			} catch (error) {
+				console.error('Error renaming gallery:', error);
+				message.error({
+					content: 'An unexpected error occurred',
+					key: 'renameGallery',
+				});
+			} finally {
+				handleGalleryChange.isProcessing = false;
+			}
 		},
-		[info?.activeGallery?.title],
+		[galleryId, info.activeGallery?.title],
 	);
 
-	const updateGallery = useCallback(async (value) => {
-		const payload = {
-			title: value,
-		};
-		const response = await postGallery(payload, galleryId);
-		if (response?.[0]) {
-			message.success('galleryUpdated');
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				linkUpdateError: 'Error while updatating the gallery',
-			}));
+	// Initialize the processing flag
+	handleGalleryChange.isProcessing = false;
+
+	const updateGallery = async (name) => {
+		// If already processing, return early
+		if (updateGallery.isProcessing) return;
+
+		// Set processing flag
+		updateGallery.isProcessing = true;
+
+		try {
+			const response = await postGallery({ title: name }, galleryId);
+
+			if (response?.[0] === true) {
+				message.success('Gallery renamed successfully');
+				await getGalleries({}, true);
+			} else {
+				message.error('Failed to rename gallery');
+			}
+			return response;
+		} catch (error) {
+			console.error('Error updating gallery:', error);
+			message.error('Failed to rename gallery');
+		} finally {
+			// Reset processing flag
+			updateGallery.isProcessing = false;
 		}
-	}, []);
+	};
+	// Initialize the flag
+	updateGallery.isProcessing = false;
+	// Initialize the flag
 
 	const updatePreferences = useCallback(
 		async (value) => {
@@ -1173,14 +1331,22 @@ const GalleryPage = () => {
 
 	// ... existing code ...
 
+	// ... existing code ...
+
 	const albumChanges = useCallback(
 		async (value) => {
+			// Close popup immediately
+			setInfo((prev) => ({
+				...prev,
+				showMainPopup: false,
+				isAlbumRename: false,
+			}));
+
 			// If already processing or no value change, return early
 			if (albumChanges.isProcessing || value === info.activeAlbum.title) return false;
 
 			// Validate input length
 			if (value.length > 255) {
-				// You can adjust this limit as needed
 				message.warning('Album name is too long');
 				return false;
 			}
@@ -1189,6 +1355,11 @@ const GalleryPage = () => {
 			albumChanges.isProcessing = true;
 
 			try {
+				message.loading({
+					content: 'Renaming album...',
+					key: 'renameAlbum',
+				});
+
 				const payload = {
 					title: value,
 				};
@@ -1199,11 +1370,11 @@ const GalleryPage = () => {
 					title: value,
 				};
 
-				// Make the API call first
+				// Make the API call
 				const response = await editAlbumName(payload, galleryId, info.activeAlbumId);
 
 				if (response?.[0]) {
-					// Update UI state immediately
+					// Update UI state
 					setInfo((prev) => ({
 						...prev,
 						albumName: value,
@@ -1214,24 +1385,28 @@ const GalleryPage = () => {
 					}));
 
 					// Show success message
-					message.success('Album renamed successfully');
+					message.success({
+						content: 'Album renamed successfully',
+						key: 'renameAlbum',
+					});
 
 					// Refresh album data
 					await Promise.all([getAlbumImagesCount(galleryId), getAlbums(galleryId)]);
-
-					albumChanges.isProcessing = false;
-					return true;
 				} else {
 					// Show error message
-					message.error(response?.[1]?.message || 'Failed to rename album');
-					albumChanges.isProcessing = false;
-					return false;
+					message.error({
+						content: response?.[1]?.message || 'Failed to rename album',
+						key: 'renameAlbum',
+					});
 				}
 			} catch (error) {
 				console.error('Error renaming album:', error);
-				message.error('An unexpected error occurred');
+				message.error({
+					content: 'An unexpected error occurred',
+					key: 'renameAlbum',
+				});
+			} finally {
 				albumChanges.isProcessing = false;
-				return false;
 			}
 		},
 		[galleryId, info.activeAlbumId, info.activeAlbum],
@@ -1239,8 +1414,6 @@ const GalleryPage = () => {
 
 	// Initialize the processing flag
 	albumChanges.isProcessing = false;
-
-	// ... rest of the code ...
 
 	// ... rest of the code ...
 
@@ -1386,17 +1559,15 @@ const GalleryPage = () => {
 	};
 	const uploadAlbumCoverChangeHandler = async (e) => {
 		const image = e.target.files[0];
-
 		if (!image) return;
 
-		message.open({
-			type: 'loading',
+		message.loading({
 			content: 'Uploading album cover image..',
-			duration: 0,
+			key: 'coverUpload',
 		});
 
-		// Reset existing image data if any
-		if (info?.imageURL) {
+		try {
+			// Reset existing image data
 			setInfo((prev) => ({
 				...prev,
 				crop: { x: 0, y: 0 },
@@ -1404,13 +1575,13 @@ const GalleryPage = () => {
 				uploadImageId: null,
 				imageURL: '',
 				coverImageDetails: null,
+				coverPhoto: true,
+				isLoadingCover: true,
 			}));
-		}
 
-		const batchId = randomize('Aa0', 10);
+			const batchId = randomize('Aa0', 10);
 
-		try {
-			// Check for duplicate images
+			// Check for duplicate images first
 			const duplicateImage = await getImageDuplicatesList(galleryId, info.activeAlbumId);
 			const isHavingDuplicateImage = duplicateImage?.[1]?.find(
 				(item) => item?.displayName === image?.name,
@@ -1421,53 +1592,95 @@ const GalleryPage = () => {
 				setInfo((prev) => ({
 					...prev,
 					uploadImageId: isHavingDuplicateImage?._id,
+					isLoadingCover: false,
 				}));
-				message.destroy();
+				message.destroy('coverUpload');
 				return;
 			}
 
 			// Get gallery tags and upload image
 			const responseGalleryTags = await getGalleryTagsList(galleryId);
-			if (responseGalleryTags?.[0] === true) {
-				const allTagId = responseGalleryTags?.[1]?.find(
-					(item) => item.displayName === 'All',
-				);
+			if (!responseGalleryTags?.[0]) {
+				throw new Error('Failed to get gallery tags');
+			}
 
-				const uploadPayload = {
-					originalFileName: image?.name,
-					originalDateTime: moment(image?.['originalDate']).unix() || 0,
-					uploadBatchId: batchId,
-					tag_ids: [allTagId?._id],
-					isAIFacesEnabled: true,
-				};
+			const allTagId = responseGalleryTags?.[1]?.find(
+				(item) => item.displayName === 'All',
+			)?._id;
 
-				const signedURLUpload = await getUploadImageSignUrl(
+			if (!allTagId) {
+				throw new Error('All tag not found');
+			}
+
+			const uploadPayload = {
+				originalFileName: image?.name,
+				originalDateTime: moment(image?.['originalDate']).unix() || 0,
+				uploadBatchId: batchId,
+				tag_ids: [allTagId],
+				isAIFacesEnabled: true,
+			};
+
+			const signedURLUpload = await getUploadImageSignUrl(
+				galleryId,
+				info.activeAlbumId,
+				uploadPayload,
+			);
+
+			if (!signedURLUpload?.[0]) {
+				throw new Error('Failed to get signed URL');
+			}
+
+			// Upload the image
+			await axios.put(signedURLUpload[1]['signedUrl'], image, {
+				headers: {
+					'Content-Type': image?.type,
+				},
+			});
+
+			setInfo((prev) => ({
+				...prev,
+				uploadImageId: signedURLUpload?.[1]?._id,
+				coverPhoto: true,
+			}));
+
+			// Wait for image processing
+			let attempts = 0;
+			const maxAttempts = 10;
+			while (attempts < maxAttempts) {
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+				const imageStatus = await getImageUploadStatus(
 					galleryId,
 					info.activeAlbumId,
-					uploadPayload,
+					batchId,
 				);
-
-				if (signedURLUpload?.[0] === true) {
-					const uploadResponse = await axios.put(signedURLUpload[1]['signedUrl'], image, {
-						headers: {
-							'Content-Type': image?.type,
-						},
-					});
-
-					setInfo((prev) => ({
-						...prev,
-						uploadImageId: signedURLUpload?.[1]?._id,
-						coverPhoto: true,
-					}));
-
-					if (uploadResponse.status === 200) {
-						getImageDetails(signedURLUpload?.[1]?._id, batchId);
+				if (imageStatus?.[0] && imageStatus?.[1]?.processedCount === 1) {
+					const imageDetails = await getImageDetail(signedURLUpload?.[1]?._id);
+					if (imageDetails?.[0]) {
+						setInfo((prev) => ({
+							...prev,
+							coverImageDetails: imageDetails[1],
+							isLoadingCover: false,
+						}));
+						message.success({
+							content: 'Image uploaded successfully',
+							key: 'coverUpload',
+						});
+						return;
 					}
 				}
+				attempts++;
 			}
+			throw new Error('Image processing timed out');
 		} catch (error) {
-			message.destroy();
-			message.error('Something went wrong, please try again later');
+			console.error('Error uploading cover image:', error);
+			message.error({
+				content: error.message || 'Failed to upload cover image',
+				key: 'coverUpload',
+			});
+			setInfo((prev) => ({
+				...prev,
+				isLoadingCover: false,
+			}));
 		}
 	};
 	// const handleSetCoverPosition = async (focalPoint) => {
@@ -1542,6 +1755,7 @@ const GalleryPage = () => {
 			const formattedDate = moment(dateString).format('YYYYMMDD');
 			setInfo((prev) => ({
 				...prev,
+
 				galleryCreatedAt: formattedDate,
 			}));
 			payload = {
@@ -1778,77 +1992,85 @@ const GalleryPage = () => {
 	};
 
 	const handleSetCoverPosition = async (focalPoint) => {
-		// Determine if we're setting album or gallery cover
-		const isGalleryCover = info.coverType === 'gallery';
-
-		// Construct the base payload
-		const payload = {
-			image_id:
-				info.uploadImageId ||
-				(isGalleryCover ? albumImagesCount?.coverImage?._id : info.coverImageDetails?._id),
-			xPosition: focalPoint?.x,
-			yPosition: focalPoint?.y,
-			givenFileName: isGalleryCover
-				? imageDetail?.activeVersion?.givenFileName ||
-				  albumImagesCount?.coverImage?.givenFileName
-				: imageDetail?.activeVersion?.givenFileName ||
-				  info.coverImageDetails?.givenFileName,
-			width: 100,
-			height: 100,
-			zoom: info?.zoom || 1,
-		};
+		// If already processing, return early
+		if (handleSetCoverPosition.isProcessing) return;
 
 		try {
+			// Set processing flag
+			handleSetCoverPosition.isProcessing = true;
+
 			message.loading({
-				content: `Setting ${isGalleryCover ? 'gallery' : 'album'} cover...`,
+				content: `Setting ${info.coverType === 'gallery' ? 'gallery' : 'album'} cover...`,
 				key: 'coverUpdate',
 			});
 
+			const payload = {
+				image_id: info?.uploadImageId || info?.coverImageDetails?._id,
+				xPosition: focalPoint?.x,
+				yPosition: focalPoint?.y,
+				givenFileName:
+					info?.coverImageDetails?.activeVersion?.givenFileName ||
+					imageDetail?.activeVersion?.givenFileName,
+				width: 100,
+				height: 100,
+				zoom: info?.zoom || 1,
+			};
+
+			// Ensure we have the required data
+			if (!payload.image_id || !payload.givenFileName) {
+				throw new Error('Missing required image data');
+			}
+
 			let response;
-			if (isGalleryCover) {
-				// Update gallery cover
+			if (info.coverType === 'gallery') {
 				response = await updateGalleryCoverImage(payload, galleryId);
 			} else {
-				// Update album cover
 				response = await updateAlbumCoverImage(payload, galleryId, info.activeAlbumId);
 			}
 
-			if (response?.[0] === true) {
-				message.success({
-					content: `${isGalleryCover ? 'Gallery' : 'Album'} cover updated successfully!`,
-					key: 'coverUpdate',
-				});
-
-				// Refresh data to get updated cover
-				await getAlbumImagesCount(galleryId);
-
-				// Update state
+			if (response?.[0]) {
+				// Update local state immediately for optimistic UI update
 				setInfo((prev) => ({
 					...prev,
-					crop: {
-						x: focalPoint.x,
-						y: focalPoint.y,
-					},
-					zoom: payload.zoom,
-					coverPhoto: true,
-					uploadImageId: null,
-					imageURL: null,
 					showUploadCover: false,
+					uploadImageId: null,
+					imageURL: '',
+					coverImageDetails: null,
+					selectedImages: [],
 				}));
-			} else {
-				message.error({
-					content: 'Failed to update cover position',
+
+				// Refresh data
+				await Promise.all([
+					getAlbumImagesCount(galleryId),
+					getAlbums(galleryId),
+					info.coverType === 'gallery' && getGalleries(),
+				]);
+
+				message.success({
+					content: `${
+						info.coverType === 'gallery' ? 'Gallery' : 'Album'
+					} cover updated successfully!`,
 					key: 'coverUpdate',
 				});
+			} else {
+				throw new Error('Failed to update cover position');
 			}
 		} catch (error) {
-			console.error('Cover position update error:', error);
+			console.error('Error updating cover:', error);
 			message.error({
-				content: 'Something went wrong, please try again later',
+				content: error.message || 'An error occurred while updating cover',
 				key: 'coverUpdate',
 			});
+		} finally {
+			// Reset processing flag after a delay to prevent rapid re-clicks
+			setTimeout(() => {
+				handleSetCoverPosition.isProcessing = false;
+			}, 1000);
 		}
 	};
+
+	// Initialize the processing flag
+	handleSetCoverPosition.isProcessing = false;
 
 	const handleAlbumDelete = () => {
 		const payload = {
@@ -2119,25 +2341,34 @@ const GalleryPage = () => {
 	// };
 
 	const handleSetAlbumCover = async () => {
-		if (info?.selectedImages?.length < 2) {
-			setInfo((prev) => ({
-				...prev,
-				coverType: 'album',
-				uploadImageId: info?.selectedImages[0],
-				coverPhoto: true,
-				coverImageDetails: null,
-			}));
-			getImageDetail(info?.selectedImages[0]);
-			navigate(
-				`/galleries/${galleryId}/${info?.activeAlbumId}/album-settings?uploadImageId=${info?.selectedImages[0]}`,
-				{
-					state: {
-						activeAlbumId: info?.activeAlbumId,
-					},
-				},
+		if (info?.selectedImages?.length === 1) {
+			const selectedImageId = info?.selectedImages[0];
+			const selectedImage = info?.imagesList?.docs?.find(
+				(img) => img._id === selectedImageId,
 			);
+
+			if (selectedImage?.activeVersion?.givenFileName && galleryCredentials) {
+				const imageURL = `${galleryCredentials.baseURL}/${tenantAlbums.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials['Key-Pair-Id']}&Signature=${galleryCredentials.Signature}&Policy=${galleryCredentials.Policy}`;
+
+				setInfo((prev) => ({
+					...prev,
+					showUploadCover: true,
+					showOptionsContainer: false,
+					coverType: 'album',
+					uploadImageId: selectedImageId,
+					imageURL: imageURL,
+					coverImageDetails: selectedImage,
+					crop: {
+						x: selectedImage?.xPosition || 0,
+						y: selectedImage?.yPosition || 0,
+					},
+					zoom: selectedImage?.zoom || 1,
+				}));
+			} else {
+				message.error('Unable to set selected image as album cover');
+			}
 		} else {
-			message.error('Cant set album cover with more than 1 image');
+			message.error('Please select only one image to set as album cover');
 		}
 	};
 
@@ -2146,111 +2377,186 @@ const GalleryPage = () => {
 
 		const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 
+		// If there's exactly one selected image, use that for preview
+		if (info?.selectedImages?.length === 1) {
+			const selectedImage = info?.imagesList?.docs?.find(
+				(img) => img._id === info.selectedImages[0],
+			);
+			if (selectedImage?.activeVersion?.givenFileName) {
+				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?${params}`;
+			}
+		}
+
+		// If no selected images, show the existing cover based on type
 		if (info.coverType === 'gallery') {
-			// For gallery cover
-			if (info.uploadImageId && imageDetail?.activeVersion?.givenFileName) {
-				// If a new image is being uploaded
-				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${imageDetail.activeVersion.givenFileName}?${params}`;
-			} else if (albumImagesCount?.coverImage?.givenFileName) {
-				// Return existing gallery cover
-				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?${params}`;
+			// Use gallery cover
+			if (info?.activeGallery?.coverImage?.givenFileName) {
+				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info.activeGallery.coverImage.givenFileName}?${params}`;
 			}
 		} else if (info.coverType === 'album') {
-			// For album cover
-			if (info.uploadImageId && imageDetail?.activeVersion?.givenFileName) {
-				// If a new image is being uploaded
-				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${imageDetail.activeVersion.givenFileName}?${params}`;
-			} else if (info?.activeAlbum?.coverImage?.givenFileName) {
-				// Return existing album cover
+			// Use album cover
+			if (info?.activeAlbum?.coverImage?.givenFileName) {
 				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info?.activeAlbum?.coverImage?.givenFileName}?${params}`;
 			}
 		}
 		return null;
 	};
 	const handleUploadCoverOpen = async (coverType) => {
-		// First set loading state
+		// First, check if there's a selected image
+		const hasSelectedImage = info?.selectedImages?.length === 1;
+		const selectedImage = hasSelectedImage
+			? info?.imagesList?.docs?.find((img) => img._id === info?.selectedImages[0])
+			: null;
+
 		setInfo((prev) => ({
 			...prev,
 			showUploadCover: true,
 			showOptions: coverType === 'gallery' ? false : prev.showOptions,
+			showOptionsContainer: false,
 			coverType: coverType,
-			isLoadingCover: true, // Add loading state
+			isLoadingCover: true,
 			coverPhoto: true,
 		}));
 
-		// Wait for credentials and other necessary data
-		if (!galleryCredentials || !tenantAlbums?.tenant_id) {
-			message.error('Unable to load cover image. Missing credentials.');
-			return;
+		try {
+			// If there's a selected image, use it immediately
+			if (selectedImage?.activeVersion?.givenFileName) {
+				const imageURL = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+
+				setInfo((prev) => ({
+					...prev,
+					isLoadingCover: false,
+					uploadImageId: selectedImage._id,
+					imageURL: imageURL,
+					coverImageDetails: selectedImage,
+					crop: {
+						x: selectedImage?.xPosition || 0,
+						y: selectedImage?.yPosition || 0,
+					},
+					zoom: selectedImage?.zoom || 1,
+				}));
+				return;
+			}
+
+			// If no selected image or multiple selections, fall back to current cover
+			const coverImage =
+				coverType === 'gallery'
+					? info?.activeGallery?.coverImage
+					: info?.activeAlbum?.coverImage;
+
+			if (coverImage?.givenFileName) {
+				setInfo((prev) => ({
+					...prev,
+					isLoadingCover: false,
+					imageURL: `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${coverImage.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`,
+					coverImageDetails: coverImage,
+					crop: {
+						x: coverImage?.xPosition || 0,
+						y: coverImage?.yPosition || 0,
+					},
+					zoom: coverImage?.zoom || 1,
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					isLoadingCover: false,
+					imageURL: '',
+					coverImageDetails: null,
+					crop: { x: 0, y: 0 },
+					zoom: 1,
+				}));
+			}
+		} catch (error) {
+			console.error('Error opening cover upload:', error);
+			message.error('Failed to open cover upload');
+			setInfo((prev) => ({
+				...prev,
+				isLoadingCover: false,
+			}));
 		}
-
-		// Get the appropriate cover image details
-		const coverImage =
-			coverType === 'gallery' ? albumImagesCount?.coverImage : info?.activeAlbum?.coverImage;
-
-		// Get the current image being uploaded (if any)
-		const uploadImage = info.uploadImageId && imageDetail?.activeVersion;
-
-		// Construct the image URL
-		let imageURL = null;
-		const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-
-		if (uploadImage?.givenFileName) {
-			imageURL = `${galleryCredentials.baseURL}/${tenantAlbums.tenant_id}/${galleryId}/optimized/${uploadImage.givenFileName}?${params}`;
-		} else if (coverImage?.givenFileName) {
-			imageURL = `${galleryCredentials.baseURL}/${tenantAlbums.tenant_id}/${galleryId}/optimized/${coverImage.givenFileName}?${params}`;
-		}
-
-		// Update state with all necessary information
-		setInfo((prev) => ({
-			...prev,
-			imageURL,
-			isLoadingCover: false,
-			crop: {
-				x: coverImage?.xPosition || 0,
-				y: coverImage?.yPosition || 0,
-			},
-			zoom: coverImage?.zoom || 1,
-		}));
 	};
 
 	const handleSetGalleryCover = async () => {
-		if (info?.selectedImages?.length < 2) {
-			setInfo((prev) => ({
-				...prev,
-				activeTab: 'Settings',
-				uploadImageId: info?.selectedImages[0],
-				coverPhoto: true,
-				coverImageDetails: null,
-			}));
-			getImageDetail(info?.selectedImages[0]);
-			setsearchkeys({ uploadImageId: info?.selectedImages[0] });
+		if (info?.selectedImages?.length === 1) {
+			const selectedImageId = info?.selectedImages[0];
+			const selectedImage = info?.imagesList?.docs?.find(
+				(img) => img._id === selectedImageId,
+			);
 
-			setTimeout(() => {
-				scrollToSection('upload-gallery-cover');
-			}, 500);
+			if (selectedImage?.activeVersion?.givenFileName && galleryCredentials) {
+				const imageURL = `${galleryCredentials.baseURL}/${tenantAlbums.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials['Key-Pair-Id']}&Signature=${galleryCredentials.Signature}&Policy=${galleryCredentials.Policy}`;
+
+				setInfo((prev) => {
+					const newState = {
+						...prev,
+						showUploadCover: true,
+						showOptionsContainer: false,
+						coverType: 'gallery',
+						uploadImageId: selectedImageId,
+						imageURL: imageURL,
+						coverImageDetails: selectedImage,
+						crop: {
+							x: selectedImage?.xPosition || 0,
+							y: selectedImage?.yPosition || 0,
+						},
+						zoom: selectedImage?.zoom || 1,
+					};
+
+					return newState;
+				});
+			} else {
+				console.error('Missing required data:', {
+					hasFileName: !!selectedImage?.activeVersion?.givenFileName,
+					hasCredentials: !!galleryCredentials,
+				});
+				message.error('Unable to set selected image as gallery cover');
+			}
 		} else {
-			message.error('Cant set album cover with more than 1 image');
+			message.error('Please select only one image to set as gallery cover');
 		}
 	};
-	const handleDeleteAlbum = async () => {
-		message.open({
-			type: 'loading',
-			content: 'Your album is being removed. Please wait...',
-			duration: 0,
-		});
-		const response = await deleteAlbum(galleryId, info?.activeAlbumId);
 
-		if (response[0] === true) {
-			message.destroy();
-			message.success('Album deleted successfully');
-			getAlbums(galleryId);
-			navigate(`/galleries/${galleryId}`);
-		} else {
-			message.destroy();
-			message.error(response[1].message);
+	const handleDeleteAlbum = useCallback(async () => {
+		// If already processing, return early
+		if (handleDeleteAlbum.isProcessing) return;
+
+		// Close popup immediately
+		setInfo((prev) => ({
+			...prev,
+			showDeleteAlbum: false,
+		}));
+
+		// Set processing flag
+		handleDeleteAlbum.isProcessing = true;
+
+		try {
+			message.open({
+				type: 'loading',
+				content: 'Your album is being removed. Please wait...',
+				duration: 0,
+				key: 'deleteAlbum',
+			});
+
+			const response = await deleteAlbum(galleryId, info?.activeAlbumId);
+
+			if (response[0] === true) {
+				message.destroy('deleteAlbum');
+				message.success('Album deleted successfully');
+				await getAlbums(galleryId);
+				navigate(`/galleries/${galleryId}`);
+			} else {
+				message.destroy('deleteAlbum');
+				message.error(response[1].message);
+			}
+		} catch (error) {
+			console.error('Error deleting album:', error);
+			message.destroy('deleteAlbum');
+			message.error('Failed to delete album');
+		} finally {
+			handleDeleteAlbum.isProcessing = false;
 		}
-	};
+	}, [galleryId, info.activeAlbumId]);
+	handleDeleteAlbum.isProcessing = false;
 
 	const sortByCustomIndex = (items) => {
 		const sortedItems = items?.sort((a, b) => a.customSortIndex - b.customSortIndex);
@@ -2396,6 +2702,16 @@ const GalleryPage = () => {
 		const activeTag = image.galleryTags.find((tag) => tag._id === info.albumTagId);
 		return activeTag?.customSortIndex || 0;
 	};
+
+	// const handleRenameGallery = () => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		showOptions: false,
+	// 		showMainPopup: true,
+	// 		galleryName: info?.activeGallery?.title || '',
+	// 	}));
+	// };
+
 	const handleDownload = async () => {
 		if (validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
@@ -2571,8 +2887,8 @@ const GalleryPage = () => {
 							<div
 								style={{
 									position: 'absolute',
-									bottom: '30px',
-									left: '23px',
+									bottom: '10%',
+									left: '10%',
 									zIndex: 2,
 								}}
 							>
@@ -2588,6 +2904,7 @@ const GalleryPage = () => {
 										alignItems: 'center',
 										gap: '10px',
 										flexWrap: 'wrap',
+										flex: 1,
 									}}
 								>
 									{info?.showCoverButton ? (
@@ -2604,7 +2921,16 @@ const GalleryPage = () => {
 											Change Cover
 										</button>
 									) : (
-										info.activeGallery?.title || 'Untitled Gallery'
+										<p
+											style={{
+												overflow: 'hidden',
+												textOverflow: 'ellipsis',
+												whiteSpace: 'nowrap',
+												width: '124px',
+											}}
+										>
+											{info?.activeGallery?.title || 'Untitled Gallery'}
+										</p>
 									)}
 								</h5>
 							</div>
@@ -2683,91 +3009,27 @@ const GalleryPage = () => {
 												<GalleryPreview />
 												<span>Preview Gallery</span>
 											</li> */}
-											<li
-												onClick={() => {
-													setInfo((prev) => ({
-														...prev,
-														showOptions: false,
-														showMainPopup: true,
-														galleryName:
-															info?.activeGallery?.title || '',
-													}));
-												}}
-											>
-												<EditPen />
-												<span>Rename Gallery</span>
-											</li>
-											<li
-												onClick={() => {
-													setInfo((prev) => ({
-														...prev,
-														showOptions: false,
-														isDatePopup: true,
-														dateType: 'galleryDate',
-														showMainPopup: true,
-														galleryDate:
-															moment(
-																prev.galleryCreatedAt,
-																'YYYYMMDD',
-															).format('YYYY-MM-DD') || '',
-													}));
-												}}
-											>
-												<ChangeCalender />
-												<span>Change Gallery Date</span>
-											</li>
-											<li
-												onClick={() => {
-													setInfo((prev) => ({
-														...prev,
-														showOptions: false,
-														isDatePopup: true,
-														dateType: 'expiryDate',
-														showMainPopup: true,
-														expiryDate:
-															moment(prev.galleryDueDate).format(
-																'YYYY-MM-DD',
-															) || '',
-													}));
-												}}
-											>
-												<ChangeCalender />
-												<span>Change Expiry Date</span>
-											</li>
-											<li onClick={() => handleUploadCoverOpen('gallery')}>
-												<BrushIcon />
-												<span>Change Gallery Cover</span>
-											</li>
-											<li
-												onClick={() =>
-													setInfo((prev) => ({
-														...prev,
-														showGalleryStyles: true,
-													}))
-												}
-											>
-												<BrushIcon />
-												<span>Change Gallery Style</span>
-											</li>
-											<hr
-												style={{
-													border: '1px solid #424548',
-													opacity: '0.2',
-													width: '100%',
-												}}
-											/>
-											<li
-												onClick={() => {
-													setInfo((prev) => ({
-														...prev,
-														showDeletePopup: true,
-														showOptions: false,
-													}));
-												}}
-											>
-												<TrashIcon />
-												<span>Move to Trash</span>
-											</li>
+											{galleryOptions.map((option, index) =>
+												option.divider ? (
+													<hr
+														key={`divider-${index}`}
+														style={{
+															border: '1px solid #424548',
+															opacity: '0.2',
+															width: '100%',
+														}}
+													/>
+												) : (
+													<li
+														key={option.label}
+														onClick={option.onClick}
+														className={option.className}
+													>
+														{option.icon}
+														<span>{option.label}</span>
+													</li>
+												),
+											)}
 										</div>
 									)}
 								</div>
@@ -3119,20 +3381,6 @@ const GalleryPage = () => {
 									<div className="albumName"></div>
 									<div className="albumSearchCotainer">
 										<div
-											style={{
-												cursor: 'pointer',
-												color: '#E4E5E6',
-												fontFamily: 'Inter',
-												fontSize: '14px',
-												fontWeight: '400',
-												lineHeight: '16px',
-												textTransform: 'capitalize',
-											}}
-											onClick={handleRearrange}
-										>
-											Rearrange Manually
-										</div>
-										<div
 											onClick={() =>
 												setInfo((prevInfo) => ({
 													...prevInfo,
@@ -3154,6 +3402,7 @@ const GalleryPage = () => {
 												style={{ display: info?.searchValue && 'block' }}
 											/>
 										</div>
+
 										<div style={{ position: 'relative' }}>
 											<div
 												onClick={() =>
@@ -3248,6 +3497,20 @@ const GalleryPage = () => {
 													</li>
 												</div>
 											)}
+										</div>
+										<div
+											style={{
+												cursor: 'pointer',
+												color: '#E4E5E6',
+												fontFamily: 'Inter',
+												fontSize: '14px',
+												fontWeight: '400',
+												lineHeight: '16px',
+												textTransform: 'capitalize',
+											}}
+											onClick={handleRearrange}
+										>
+											Rearrange Manually
 										</div>
 										<div
 											style={{ position: 'relative' }}
@@ -3368,7 +3631,7 @@ const GalleryPage = () => {
 														<EditPen />
 														Rename Album
 													</li>
-													{/* <li
+													<li
 														onClick={() => {
 															setInfo((prev) => ({
 																...prev,
@@ -3385,7 +3648,7 @@ const GalleryPage = () => {
 													>
 														<ShareIcon />
 														Share Album
-													</li> */}
+													</li>
 													<li
 														onClick={() =>
 															setInfo((prev) => ({
@@ -4034,7 +4297,7 @@ const GalleryPage = () => {
 														ref={optionsIconRef}
 													>
 														<OptionsIcon onClick={handleOptionsIcon} />
-														{info.showOptionsContainer && (
+														{info.showAlbumOptionsMenu && (
 															<div
 																className="optionsContainer"
 																ref={optionsContainerRef}
@@ -4122,13 +4385,13 @@ const GalleryPage = () => {
 										<p>{info?.clientSelectionName}</p>
 										<div
 											style={{ position: 'relative' }}
-											onClick={() =>
-												setInfo((prevInfo) => ({
-													...prevInfo,
-													showGalleryOptions:
-														!prevInfo.showGalleryOptions,
-												}))
-											}
+											// onClick={() =>
+											// 	setInfo((prevInfo) => ({
+											// 		...prevInfo,
+											// 		showGalleryOptions:
+											// 			!prevInfo.showGalleryOptions,
+											// 	}))
+											// }
 										>
 											<ThreeDotsIcon
 												className="threeDotsIcon"

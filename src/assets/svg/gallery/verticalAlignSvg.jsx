@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+
 const VerticalAlignSvg = (props) => {
 	return (
 		<svg
@@ -15,4 +16,5 @@ const VerticalAlignSvg = (props) => {
 		</svg>
 	);
 };
+
 export default memo(VerticalAlignSvg);

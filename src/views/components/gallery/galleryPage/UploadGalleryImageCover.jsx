@@ -22,6 +22,10 @@ const UploadGalleryImageCover = ({
 	const [focusInfo, setFocusInfo] = useState({
 		focalPoint: { x: 0, y: 0 },
 	});
+	const customStyles = {
+		content: { zIndex: 99999 },
+		overlay: { zIndex: 99998 },
+	};
 	useEffect(() => {
 		setCoverPosition();
 	}, [info]);
@@ -51,7 +55,7 @@ const UploadGalleryImageCover = ({
 			isOpen={open}
 			closeModal={onClose}
 			modalType="center"
-			customStyles={{ content: { top: '55%' } }}
+			customStyles={customStyles}
 		>
 			<div div id="upload-gallery-cover" className="settings-overview">
 				<div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
