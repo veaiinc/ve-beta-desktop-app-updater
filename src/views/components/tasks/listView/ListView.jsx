@@ -106,7 +106,7 @@ const ListView = () => {
 
 	const fetchListItems = useCallback(() => {
 		getListItems({
-			filters: {
+			taskFilterInput: {
 				limit: 30,
 				page: info?.page,
 				sort: info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],

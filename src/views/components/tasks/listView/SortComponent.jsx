@@ -1,6 +1,6 @@
 import { Tooltip } from 'antd';
 import React, { memo, useCallback } from 'react';
-import { ReactComponent as DownArrow } from '../../../../assets/svg/workflow/downArrow.svg';
+import { ReactComponent as DownArrow } from '../../../../assets/svg/tasks/downArrow.svg';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/Settings/CrossWhite.svg';
 import { ReactComponent as ArrowUpAndDown } from '../../../../assets/svg/tasks/arrowUpAndDown.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';

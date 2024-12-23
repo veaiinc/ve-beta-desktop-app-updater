@@ -88,23 +88,33 @@
 			align-items: center;
 			gap: 8px;
 
-			.listView-filterWrapper {
+			.listView-addFilterButton {
+				all: unset;
 				display: flex;
-				padding: 8px;
+				padding: 10px 12px;
 				justify-content: center;
 				align-items: center;
 				gap: 8px;
-				width: fit-content;
-				border-radius: 42px;
-				border: 1px solid rgba(98, 84, 245, 0.09);
-				background: rgba(82, 128, 255, 0.05);
-				color: #6254f5;
+				border-radius: 22px;
 
-				font-family: Inter;
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 20px; /* 142.857% */
+				svg {
+					path {
+						stroke: #939393 !important;
+					}
+				}
+
+				.listView-addFilterButtonText {
+					color: #939393;
+					font-family: Inter;
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+
+				&:hover {
+					background-color: #171819;
+				}
 			}
 		}
 	}

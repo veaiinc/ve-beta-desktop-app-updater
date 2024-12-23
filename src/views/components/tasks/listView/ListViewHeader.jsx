@@ -10,6 +10,7 @@ import { Tooltip } from 'antd';
 import OptionsDropDown from '../../dropDown/tasks/OptionsDropDown';
 import DropDown from '../../dropDown/tasks/DropDown';
 import SortComponent from './SortComponent';
+import FilterComponent from './FilterComponent';
 
 const ListViewHeader = ({
 	updateListViewInfo,
@@ -92,27 +93,12 @@ const ListViewHeader = ({
 					handelSortClick={handelSortClick}
 				/>
 				<div className="listView-filterContainer">
-					<div className="listView-filterWrapper">
-						<div className="listView-filterTitle">Filter</div>
-						<div className="listView-filterOptions">
-							<span className="listView-filterOption">Name</span>
-							<span className="listView-filterOption">Name</span>
-						</div>
-					</div>
-					<div className="listView-filterWrapper">
-						<div className="listView-filterTitle">Filter</div>
-						<div className="listView-filterOptions">
-							<span className="listView-filterOption">Name</span>
-							<span className="listView-filterOption">Name</span>
-						</div>
-					</div>
-					<div className="listView-filterWrapper">
-						<div className="listView-filterTitle">Filter</div>
-						<div className="listView-filterOptions">
-							<span className="listView-filterOption">Name</span>
-							<span className="listView-filterOption">Name</span>
-						</div>
-					</div>
+					<FilterComponent Icon={FilterLinesSvg} title="Assigned to" value="sabith" />
+					<FilterComponent Icon={FilterLinesSvg} title="Title" value="abbbc" />
+					<button className="listView-addFilterButton">
+						<PlusSvg />
+						<span className="listView-addFilterButtonText">Add Filter</span>
+					</button>
 				</div>
 			</div>
 		</div>
