@@ -84,6 +84,8 @@ const Insights = () => {
 			case 'Custom Date':
 				startDate = new Date(date);
 				startDate.setHours(0, 0, 0, 0);
+				endDate.setTime(startDate.getTime());
+				endDate.setHours(23, 59, 59, 999);
 				break;
 
 			default:
