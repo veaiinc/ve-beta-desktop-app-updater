@@ -11,6 +11,7 @@ function App() {
 			document.getElementsByTagName('html')[0].classList.add('otheros');
 		}
 		document.getElementsByTagName('html')[0].classList.add('theme-dark');
+		document.documentElement.setAttribute('theme', 'dark');
 	}, []);
 
 	return (
