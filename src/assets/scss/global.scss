@@ -1,5 +1,6 @@
 @import './variables.scss';
 @import './mixins.scss';
+@import './globalColorsAndTheme.scss';
 
 // @import '../../../node_modules/bootstrap/scss/bootstrap';
 * {
@@ -8,32 +9,6 @@
 }
 *:focus {
 	outline: none;
-}
-
-// Global css variables
-:root {
-	// fallback colors if theme attribute is not set
-	--background-color: linear-gradient(180deg, #0e0f0f 0%, #131315 100%);
-	--accent-color: #6254f5;
-	--black-shade-1: #091215;
-	--black-shade-2: #171819;
-	--black-shade-3: #202123;
-	--black-shade-4: #1c1d1f;
-	--primary-font-color: #e8e8e8;
-	--secondary-font-color: #7c7c84;
-	--success-green: #009c2e;
-	--error-red: #d1243f;
-	--pending-orange: #fa9d27;
-}
-
-// dark theme global css variables
-[theme='dark'] {
-	--background-color: linear-gradient(180deg, #0e0f0f 0%, #131315 100%);
-}
-
-// light theme global css variables
-[theme='light'] {
-	--background-color: white;
 }
 
 a {
