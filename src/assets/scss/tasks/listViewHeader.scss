@@ -43,10 +43,11 @@
 		align-items: center;
 		width: 100%;
 		padding-top: 16px;
-
+		gap: 16px;
 		.listView-sortContainer {
 			border-right: 1px solid #171819;
 			padding-right: 16px;
+			flex-shrink: 0;
 
 			svg {
 				path {
@@ -61,6 +62,7 @@
 				align-items: center;
 				gap: 8px;
 				width: fit-content;
+				overflow: hidden;
 				border-radius: 42px;
 				border: 1px solid rgba(98, 84, 245, 0.09);
 				background-color: rgba(82, 128, 255, 0.05);
@@ -83,17 +85,21 @@
 			}
 		}
 		.listView-filterContainer {
-			padding-left: 16px;
 			display: flex;
+			flex-grow: 1;
 			align-items: center;
 			gap: 8px;
-
+			width: fit-content;
+			overflow: auto;
 			.listView-addFilterButton {
 				all: unset;
+				flex-shrink: 0;
 				display: flex;
 				padding: 10px 12px;
 				justify-content: center;
 				align-items: center;
+				cursor: pointer;
+				transition: all 0.3s ease-in-out;
 				gap: 8px;
 				border-radius: 22px;
 
@@ -113,7 +119,7 @@
 				}
 
 				&:hover {
-					background-color: #171819;
+					background: #29292a;
 				}
 			}
 		}

@@ -2,15 +2,17 @@
 	display: flex;
 	padding: 8px;
 	justify-content: center;
+	flex-shrink: 0;
 	align-items: center;
 	gap: 8px;
 	border-radius: 42px;
 	border: 1px solid rgba(98, 84, 245, 0.09);
 	background: rgba(82, 128, 255, 0.05);
+	cursor: pointer;
 
 	.filterComponent-icon {
 		path {
-			stroke: #6254f5 !important;
+			fill: #6254f5 !important;
 		}
 	}
 
@@ -22,5 +24,105 @@
 		font-style: normal;
 		font-weight: 500;
 		line-height: 20px; /* 142.857% */
+	}
+}
+
+.filterComponent-tooltip {
+	background-color: transparent;
+	border: none;
+	box-shadow: none;
+	min-width: fit-content;
+
+	.filterComponent-container {
+		display: flex;
+		width: 220px;
+		padding: 12px 6px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		border-radius: 14px;
+		background: #202123;
+		box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
+
+		.filterComponent-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			width: 100%;
+			display: flex;
+			padding: 0px 8px;
+			gap: 8px;
+			align-self: stretch;
+
+			.filterComponent-header-title {
+				flex: 1 0 0;
+				color: #e8e8e8;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px;
+			}
+
+			.filterComponent-header-remove {
+				all: unset;
+				cursor: pointer;
+			}
+		}
+		.filterComponent-field {
+			display: flex;
+			padding: 0px 8px;
+			align-items: center;
+			align-self: stretch;
+
+			.filterComponent-field-title {
+				color: #939393;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.filterComponent-field-is {
+				display: flex;
+				height: 18px;
+				padding: 8px;
+				justify-content: center;
+				align-items: center;
+				gap: 4px;
+				border-radius: 5px;
+				color: #939393;
+				font-family: Inter;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 13px; /* 100% */
+				cursor: pointer;
+			}
+		}
+		.filterComponent-field-input {
+			background-color: transparent;
+			display: flex;
+			width: 100%;
+			height: 32.039px;
+			transform: rotate(-0.037deg);
+			padding: 6px;
+			justify-content: space-between;
+			align-items: center;
+			border-radius: 8px;
+			border: 1px solid #939393;
+
+			color: #e8e8e8;
+			font-family: Inter;
+			font-size: 11px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.cursor-pointer {
+		cursor: pointer;
 	}
 }

@@ -100,23 +100,14 @@ const ListView = () => {
 		loadingSkeleton: true,
 		error: null,
 		sort: [],
+		filters: [{ key: 'title', value: '' }],
 	});
 
 	const debounceTimeout = useRef(null);
 
-	const fetchListItems = useCallback(() => {
-		getListItems({
-			taskFilterInput: {
-				limit: 30,
-				page: info?.page,
-				sort: info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
-			},
-		});
-	}, [info?.page, info?.sort]);
-
 	useEffect(() => {
 		fetchListItems();
-	}, [info?.page, info?.sort]);
+	}, [info?.page, info?.sort, info?.filters]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -151,7 +142,6 @@ const ListView = () => {
 			}));
 		}
 	}, [workflowslist]);
-
 	useEffect(() => {
 		if (listTasks) {
 			if (listTasks?.data) {
@@ -161,7 +151,6 @@ const ListView = () => {
 						info?.page === 1
 							? listTasks?.data
 							: [...prevInfo?.listItems, ...listTasks?.data],
-					properties: mapPropertyType(listTasks?.data?.[0]),
 					hasMore: listTasks?.hasNextPage,
 					loadingSkeleton: false,
 				}));
@@ -177,6 +166,13 @@ const ListView = () => {
 	}, [listTasks]);
 
 	useEffect(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			properties: mapPropertyType(),
+		}));
+	}, []);
+
+	useEffect(() => {
 		if (info?.selectedRow) {
 			updateListViewInfo(
 				'selectedRow',
@@ -184,6 +180,17 @@ const ListView = () => {
 			);
 		}
 	}, [info?.listItems, info?.selectedRow]);
+
+	const fetchListItems = useCallback(() => {
+		getListItems({
+			taskFilterInput: {
+				limit: 30,
+				page: info?.page,
+				sort: info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
+				filters: info?.filters,
+			},
+		});
+	}, [info?.page, info?.sort, info?.filters]);
 
 	const updateListViewInfo = useCallback((key, value) => {
 		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
@@ -197,9 +204,9 @@ const ListView = () => {
 		));
 	}, []);
 
-	const mapPropertyType = useCallback((row) => {
+	const mapPropertyType = useCallback(() => {
 		let properties = [];
-		for (let key in row) {
+		for (let key in responseTypes) {
 			if (
 				key === '__typename' ||
 				key === '_id' ||
@@ -507,7 +514,10 @@ const ListView = () => {
 				properties={info?.properties}
 				togglePropertyVisibility={togglePropertyVisibility}
 				sort={info?.sort}
+				filters={info?.filters}
 				responseTypes={responseTypes}
+				workflows={info?.workflows}
+				tenantUsers={info?.tenantUsers}
 			/>
 			<div className="listContainer">
 				<div className="listInnerContainer">
