@@ -2,7 +2,6 @@ import React from 'react';
 import ReactModal from '../index';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import '../../../../assets/scss/gallery/reusablePopups.scss';
-
 const MainPopup = (props) => {
 	const {
 		heading,
@@ -50,6 +49,7 @@ const MainPopup = (props) => {
 							className="mainPopupInput"
 							placeholder=""
 							{...(inputType === 'date' ? { 'data-placeholder': placeholder } : {})}
+							style={inputType === 'date' ? { colorScheme: 'dark' } : {}}
 						/>
 						<label className="floating-label">{placeholder}</label>
 					</div>

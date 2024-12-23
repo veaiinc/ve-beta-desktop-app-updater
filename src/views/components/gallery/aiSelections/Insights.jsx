@@ -240,29 +240,21 @@ const Insights = () => {
 					<p className="subHeading">People who open with gallery link</p>
 				</div>
 				<div className="insightsHeader-icons">
-					{showSearchBar ? (
-						<div className="search-container">
-							<input
-								type="text"
-								placeholder=""
-								value={searchQuery}
-								onChange={(e) => debouncedSearch(e.target.value)}
-								className="search-bar"
+					<div className={`search-container ${searchQuery ? 'expanded' : ''}`}>
+						<SearchIcon />
+						<input
+							type="text"
+							placeholder="Search"
+							value={searchQuery}
+							onChange={(e) => debouncedSearch(e.target.value)}
+						/>
+						{searchQuery && (
+							<CloseIcon
+								onClick={() => debouncedSearch('')}
+								style={{ cursor: 'pointer' }}
 							/>
-							<p
-								onClick={() => {
-									debouncedSearch('');
-									setShowSearchBar(!showSearchBar);
-								}}
-							>
-								<CloseIcon />
-							</p>
-						</div>
-					) : (
-						<p onClick={() => setShowSearchBar(!showSearchBar)}>
-							<SearchIcon />
-						</p>
-					)}
+						)}
+					</div>
 					<p onClick={() => downloadCSV(visitorData)}>
 						<DownloadIcon />
 					</p>

@@ -2094,86 +2094,113 @@ const GalleryPage = () => {
 		}
 	};
 
+	// ... existing code ...
+
+	// ... existing code ...
+
 	const handleSetCoverPosition = async (focalPoint) => {
-		// If already processing, return early
 		if (handleSetCoverPosition.isProcessing) return;
 
 		try {
-			// Set processing flag
 			handleSetCoverPosition.isProcessing = true;
 
 			message.loading({
-				content: `Setting ${info.coverType === 'gallery' ? 'gallery' : 'album'} cover...`,
+				content: 'Updating cover position...',
 				key: 'coverUpdate',
 			});
 
+			// Get the current image details
+			const currentImage = info?.coverImageDetails;
+
+			if (!currentImage?._id || !currentImage?.activeVersion?.givenFileName) {
+				throw new Error('Invalid image details for cover update');
+			}
+
 			const payload = {
-				image_id: info?.uploadImageId || info?.coverImageDetails?._id,
-				xPosition: focalPoint?.x,
-				yPosition: focalPoint?.y,
-				givenFileName:
-					info?.coverImageDetails?.activeVersion?.givenFileName ||
-					imageDetail?.activeVersion?.givenFileName,
+				image_id: currentImage._id,
+				xPosition: focalPoint?.x || 0,
+				yPosition: focalPoint?.y || 0,
+				givenFileName: currentImage.activeVersion.givenFileName,
 				width: 100,
 				height: 100,
 				zoom: info?.zoom || 1,
 			};
 
-			// Ensure we have the required data
-			if (!payload.image_id || !payload.givenFileName) {
-				throw new Error('Missing required image data');
-			}
+			// Log the payload for debugging
+			console.log('Cover update payload:', payload);
 
-			let response;
-			if (info.coverType === 'gallery') {
-				response = await updateGalleryCoverImage(payload, galleryId);
-			} else {
-				response = await updateAlbumCoverImage(payload, galleryId, info.activeAlbumId);
-			}
+			const response =
+				info.coverType === 'gallery'
+					? await updateGalleryCoverImage(payload, galleryId)
+					: await updateAlbumCoverImage(payload, galleryId, info.activeAlbumId);
 
 			if (response?.[0]) {
-				// Update local state immediately for optimistic UI update
-				setInfo((prev) => ({
-					...prev,
-					showUploadCover: false,
-					uploadImageId: null,
-					imageURL: '',
-					coverImageDetails: null,
-					selectedImages: [],
-				}));
+				// Create updated cover image object
+				const updatedCoverImage = {
+					...currentImage,
+					xPosition: focalPoint?.x || 0,
+					yPosition: focalPoint?.y || 0,
+					zoom: info?.zoom || 1,
+				};
+
+				// Update state
+				setInfo((prev) => {
+					const updates = {
+						showUploadCover: false,
+						uploadImageId: null,
+						imageURL: '',
+						coverImageDetails: updatedCoverImage,
+						crop: {
+							x: focalPoint?.x || 0,
+							y: focalPoint?.y || 0,
+						},
+						zoom: info?.zoom || 1,
+					};
+
+					// Update the appropriate cover
+					if (info.coverType === 'gallery') {
+						updates.activeGallery = {
+							...prev.activeGallery,
+							coverImage: updatedCoverImage,
+						};
+					} else {
+						updates.activeAlbum = {
+							...prev.activeAlbum,
+							coverImage: updatedCoverImage,
+						};
+					}
+
+					return { ...prev, ...updates };
+				});
 
 				// Refresh data
-				await Promise.all([
-					getAlbumImagesCount(galleryId),
-					getAlbums(galleryId),
-					info.coverType === 'gallery' && getGalleries(),
-				]);
+				await Promise.all(
+					[
+						getAlbumImagesCount(galleryId),
+						getAlbums(galleryId),
+						info.coverType === 'gallery' && getGalleries({}, true),
+					].filter(Boolean),
+				);
 
 				message.success({
-					content: `${
-						info.coverType === 'gallery' ? 'Gallery' : 'Album'
-					} cover updated successfully!`,
+					content: 'Cover position updated successfully',
 					key: 'coverUpdate',
 				});
 			} else {
 				throw new Error('Failed to update cover position');
 			}
 		} catch (error) {
-			console.error('Error updating cover:', error);
+			console.error('Error updating cover position:', error);
 			message.error({
-				content: error.message || 'An error occurred while updating cover',
+				content: error.message || 'Failed to update cover position',
 				key: 'coverUpdate',
 			});
 		} finally {
-			// Reset processing flag after a delay to prevent rapid re-clicks
 			setTimeout(() => {
 				handleSetCoverPosition.isProcessing = false;
 			}, 1000);
 		}
 	};
-
-	// Initialize the processing flag
-	handleSetCoverPosition.isProcessing = false;
 
 	const handleAlbumDelete = () => {
 		const payload = {
@@ -2505,66 +2532,78 @@ const GalleryPage = () => {
 		return null;
 	};
 	const handleUploadCoverOpen = async (coverType) => {
-		// First, check if there's a selected image
-		const hasSelectedImage = info?.selectedImages?.length === 1;
-		const selectedImage = hasSelectedImage
-			? info?.imagesList?.docs?.find((img) => img._id === info?.selectedImages[0])
-			: null;
-
-		setInfo((prev) => ({
-			...prev,
-			showUploadCover: true,
-			showOptions: coverType === 'gallery' ? false : prev.showOptions,
-			showOptionsContainer: false,
-			coverType: coverType,
-			isLoadingCover: true,
-			coverPhoto: true,
-		}));
-
 		try {
-			// If there's a selected image, use it immediately
-			if (selectedImage?.activeVersion?.givenFileName) {
-				const imageURL = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+			// Set initial loading state
+			setInfo((prev) => ({
+				...prev,
+				showUploadCover: true,
+				showOptions: coverType === 'gallery' ? false : prev.showOptions,
+				showOptionsContainer: false,
+				coverType: coverType,
+				isLoadingCover: true,
+				coverPhoto: true,
+			}));
 
-				setInfo((prev) => ({
-					...prev,
-					isLoadingCover: false,
-					uploadImageId: selectedImage._id,
-					imageURL: imageURL,
-					coverImageDetails: selectedImage,
-					crop: {
-						x: selectedImage?.xPosition || 0,
-						y: selectedImage?.yPosition || 0,
-					},
-					zoom: selectedImage?.zoom || 1,
-				}));
-				return;
-			}
-
-			// If no selected image or multiple selections, fall back to current cover
-			const coverImage =
+			// Get the current cover based on type
+			const currentCover =
 				coverType === 'gallery'
 					? info?.activeGallery?.coverImage
 					: info?.activeAlbum?.coverImage;
 
-			if (coverImage?.givenFileName) {
+			// If we have a selected image, use that
+			if (info?.selectedImages?.length === 1) {
+				const selectedImage = info?.imagesList?.docs?.find(
+					(img) => img._id === info?.selectedImages[0],
+				);
+
+				if (selectedImage?.activeVersion?.givenFileName) {
+					const imageURL = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+
+					setInfo((prev) => ({
+						...prev,
+						isLoadingCover: false,
+						uploadImageId: selectedImage._id,
+						imageURL: imageURL,
+						coverImageDetails: selectedImage,
+						crop: {
+							x: selectedImage?.xPosition || 0,
+							y: selectedImage?.yPosition || 0,
+						},
+						zoom: selectedImage?.zoom || 1,
+					}));
+					return;
+				}
+			}
+
+			// If no selected image but we have a current cover, use that
+			if (currentCover?._id && currentCover?.givenFileName) {
+				const imageURL = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${currentCover.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+
 				setInfo((prev) => ({
 					...prev,
 					isLoadingCover: false,
-					imageURL: `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${coverImage.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`,
-					coverImageDetails: coverImage,
-					crop: {
-						x: coverImage?.xPosition || 0,
-						y: coverImage?.yPosition || 0,
+					uploadImageId: currentCover._id,
+					imageURL: imageURL,
+					coverImageDetails: {
+						...currentCover,
+						activeVersion: {
+							givenFileName: currentCover.givenFileName,
+						},
 					},
-					zoom: coverImage?.zoom || 1,
+					crop: {
+						x: currentCover?.xPosition || 0,
+						y: currentCover?.yPosition || 0,
+					},
+					zoom: currentCover?.zoom || 1,
 				}));
 			} else {
+				// No cover image exists yet
 				setInfo((prev) => ({
 					...prev,
 					isLoadingCover: false,
 					imageURL: '',
 					coverImageDetails: null,
+					uploadImageId: null,
 					crop: { x: 0, y: 0 },
 					zoom: 1,
 				}));
@@ -2578,7 +2617,6 @@ const GalleryPage = () => {
 			}));
 		}
 	};
-
 	const handleSetGalleryCover = async () => {
 		if (info?.selectedImages?.length === 1) {
 			const selectedImageId = info?.selectedImages[0];
