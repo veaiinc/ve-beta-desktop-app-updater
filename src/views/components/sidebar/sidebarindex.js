@@ -68,7 +68,7 @@ export const veAiModulesItemsList = [
 			{ icon: TranscriptSvg, route: '/ai-agents/jobs/:agent-name', name: 'Jobs' },
 			{
 				icon: SettingsSvg,
-				route: '/ai-agents/home/da-vinici',
+				route: '/ai-agents/setup/da-vinici',
 				fill: 'white',
 				name: 'Setup',
 			},
