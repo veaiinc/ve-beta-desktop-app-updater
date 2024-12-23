@@ -16,6 +16,11 @@ const actionHandlers = {
 		calendarEvent: action.payload,
 	}),
 
+	DELETE_CALENDAR_EVENT: (state, action) => ({
+		...state,
+		calendarEvent: action.payload,
+	}),
+
 	CREATE_CALENDAR_CATEGORY: (state, action) => ({
 		...state,
 		calendarCategories: action.payload,

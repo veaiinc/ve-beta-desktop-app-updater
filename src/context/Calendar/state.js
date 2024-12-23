@@ -8,8 +8,8 @@ export const initialState = {
 	calendarChat: null,
 	calendarEventsList: null,
 	calendarEvent: null,
-	calendarCategories: null,
 	calendarEventDetails: null,
+	calendarCategories: null,
 };
 
 export const Calendar = () => {
@@ -208,6 +208,31 @@ export const Calendar = () => {
 		}
 	};
 
+	const deleteCalendarEvent = async (eventId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.deleteCalendarEvent}/${eventId}`;
+			const response = await service.fetchDelete(url, usertoken, null, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.DELETE_CALENDAR_EVENT,
+					payload: response?.[1]?.data,
+				});
+			} else {
+				dispatch({
+					type: Actions.DELETE_CALENDAR_EVENT,
+					payload: {
+						error: 'Something went wrong while deleting event. Please try again.',
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>deleteCalendarEvent', error);
+		}
+	};
+
 	const getCalendarEventDetails = async (eventId) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -277,6 +302,7 @@ export const Calendar = () => {
 		sendEventToAi,
 		createCalendarCategory,
 		updateCalendarEvent,
+		deleteCalendarEvent,
 		updateCalendarCategory,
 		getCalendarCategories,
 		deleteCalendarCategory,

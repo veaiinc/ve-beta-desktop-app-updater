@@ -145,7 +145,8 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 			timezone,
 			allDay,
 			attendees: processedAttendees,
-			calendarCategory: selectedCategory?._id,
+			// calendarCategory: selectedCategory?._id,
+			calendarCategory: selectedCategory,
 			meeting,
 			phone,
 		};

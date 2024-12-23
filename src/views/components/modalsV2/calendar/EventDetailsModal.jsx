@@ -19,20 +19,26 @@ const initialState = {
 	eventKeys: ['locationAdrress', 'locationPincode'],
 };
 
-const EventDetailsModal = ({ selectedEvent, isEventSelected, updateCalendarInfo }) => {
+const EventDetailsModal = ({
+	selectedEvent,
+	isEventSelected,
+	updateCalendarInfo,
+	handleSelectEvent,
+}) => {
 	const {
 		calendarInfo: {
 			calendarEventDetails,
 			getCalendarEventDetails,
 			calendarEvent,
 			updateCalendarEvent,
+			deleteCalendarEvent,
 		},
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		...initialState,
 	});
-	const visibleKeys = info?.detailsExpanded ? info?.eventKeys : info?.eventKeys?.slice(0, 10);
 
 	// Cache to store previously fetched event details
 	const eventCache = useRef(new Map());
@@ -83,15 +89,35 @@ const EventDetailsModal = ({ selectedEvent, isEventSelected, updateCalendarInfo 
 
 			// Fetch new data if not in cache
 			setInfo((prev) => ({ ...prev, loading: true, eventKeys: initialState?.eventKeys }));
-			await getCalendarEventDetails(selectedEvent.id);
+			await getCalendarEventDetails(selectedEvent?.id);
 			setInfo((prev) => ({ ...prev, loading: false }));
 		}
 	}, [selectedEvent]);
 
+	const deleteEvent = useCallback(async () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+		if (selectedEvent?.id) {
+			setInfo((prev) => ({ ...prev, deleting: true }));
+			await deleteCalendarEvent(selectedEvent?.id);
+			setInfo((prev) => ({ ...prev, deleting: false }));
+		}
+		updateCalendarInfo('isEventSelected', false);
+		handleSelectEvent((prev) => ({ ...prev, selectedEvent: null }));
+	}, [selectedEvent]);
+
 	const componentMapper = useMemo(
 		() => ({
-			location: (value) => <CustomInput value={value} className="inputFeilds" />,
-			// locationAdrress: (value) => <CustomInput value={value?.} className="inputFeilds" />,
+			location: (value) => (
+				<CustomInput
+					value={value}
+					className="inputFeilds"
+					onChange={(e) => {
+						updateEventDetails('location', e.target?.value);
+					}}
+				/>
+			),
 			startDateTime: (value) => (
 				<DateView
 					value={moment(value).unix()}
@@ -132,9 +158,59 @@ const EventDetailsModal = ({ selectedEvent, isEventSelected, updateCalendarInfo 
 						className="inputFeilds"
 					/>
 				),
+			calendarCategory: (value) => (
+				<CustomInput
+					value={value?.name || 'default'}
+					className="inputFeilds"
+					onChange={() => {}}
+				/>
+			),
+			status: (value) => (
+				<CustomInput
+					value={value}
+					className="inputFeilds"
+					readOnly={true}
+					onChange={() => {}}
+				/>
+			),
+			source: (value) => (
+				<CustomInput
+					value={value?.type}
+					className="inputFeilds"
+					readOnly={true}
+					onChange={() => {}}
+				/>
+			),
+			phone: (value) => (
+				<CustomInput
+					type="tel"
+					value={value}
+					className="inputFeilds"
+					onChange={(e) => {
+						updateEventDetails('phone', e.target?.value);
+					}}
+				/>
+			),
+			organizer: (value) => (
+				<CustomInput defaultValue={value} className="inputFeilds" readOnly={true} />
+			),
+			createdAt: (value) => {
+				const createdAt = moment.unix(value).format('DD-MM-YYYY hh:mm A').toString();
+				return (
+					<CustomInput defaultValue={createdAt} className="inputFeilds" readOnly={true} />
+				);
+			},
+			updatedAt: (value) => {
+				const updatedAt = moment.unix(value).format('DD-MM-YYYY hh:mm A').toString();
+				return (
+					<CustomInput defaultValue={updatedAt} className="inputFeilds" readOnly={true} />
+				);
+			},
 		}),
 		[],
 	);
+	const validKeys = info?.eventKeys?.filter((key) => componentMapper[key]) || [];
+	const visibleKeys = info?.detailsExpanded ? validKeys : validKeys.slice(0, 5);
 
 	const updateEventDetails = useCallback((field, value) => {
 		setInfo((prev) => ({
@@ -193,7 +269,12 @@ const EventDetailsModal = ({ selectedEvent, isEventSelected, updateCalendarInfo 
 							{info?.deleting ? (
 								<Spinner width={18} height={18} color="#7d7d7d" />
 							) : (
-								<Delete width={20} height={20} className="deleteIcon" />
+								<Delete
+									width={20}
+									height={20}
+									className="deleteIcon"
+									onClick={deleteEvent}
+								/>
 							)}
 						</div>
 
@@ -208,21 +289,19 @@ const EventDetailsModal = ({ selectedEvent, isEventSelected, updateCalendarInfo 
 
 						{/* Event Details */}
 						<div className="eventDetailsWrapper">
-							{info?.eventKeys
-								?.filter((key) => componentMapper[key])
-								.map((key) => (
-									<div
-										className={`eventDetailsRow ${
-											visibleKeys.includes(key) ? 'visible' : 'hidden'
-										}`}
-										key={key}
-									>
-										<span className="eventKey">{key}</span>
-										<span className="eventValue">
-											{componentMapper[key](info?.eventDetails[key])}
-										</span>
-									</div>
-								))}
+							{validKeys?.map((key) => (
+								<div
+									className={`eventDetailsRow ${
+										visibleKeys.includes(key) ? 'visible' : 'hidden'
+									}`}
+									key={key}
+								>
+									<span className="eventKey">{key}</span>
+									<span className="eventValue">
+										{componentMapper[key](info?.eventDetails[key])}
+									</span>
+								</div>
+							))}
 
 							<span
 								onClick={() =>

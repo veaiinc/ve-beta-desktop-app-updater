@@ -58,7 +58,9 @@ const CalendarView = ({
 
 	useEffect(() => {
 		fetchEventsList();
-		handleSendEventToAi();
+		if (calendarEvent?._id) {
+			handleSendEventToAi();
+		}
 	}, [calendarEvent]);
 
 	useEffect(() => {
@@ -101,7 +103,7 @@ const CalendarView = ({
 	}, []);
 
 	const handleSendEventToAi = useCallback(async () => {
-		if (calendarEvent) {
+		if (calendarEvent?._id) {
 			await sendEventToAi({
 				event_id: calendarEvent?._id,
 			});
@@ -176,6 +178,7 @@ const CalendarView = ({
 						selectedEvent={info?.selectedEvent}
 						isEventSelected={isEventSelected}
 						updateCalendarInfo={updateCalendarInfo}
+						handleSelectEvent={setInfo}
 					/>
 				</div>
 			)}

@@ -1,0 +1,84 @@
+.parent-select {
+	position: relative;
+	width: 100%;
+	.select-bar {
+		min-height: 40px;
+		padding: 0.5rem;
+		border: 1px solid;
+		border-radius: 0.375rem;
+		&.disabled {
+			background-color: #f3f4f6;
+			cursor: not-allowed;
+		}
+		&.enabled {
+			cursor: pointer;
+			&:hover {
+				border-color: #6e04ef;
+			}
+		}
+		&.open {
+			border-color: #6e04ef;
+			box-shadow: 0 0 0 2px #c284e3;
+		}
+		&.closed {
+			border-color: #d1d5db;
+		}
+	}
+
+	.tags-container {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 2rem;
+
+		.tag-item {
+			background-color: #ebf8ff;
+			color: #2b6cb0;
+			padding: 0.5rem 1rem;
+			border-radius: 0.375rem;
+			font-size: 0.875rem;
+			display: flex;
+			align-items: center;
+			gap: 0.25rem;
+
+			.remove-button {
+				&:hover {
+					color: #f56565;
+				}
+			}
+		}
+	}
+
+	.hidden-tags-container {
+		position: relative;
+
+		.more-tags {
+			background-color: #f7fafc; // Equivalent to bg-gray-100
+			padding: 0.5rem 1rem; // Equivalent to px-2 py-1
+			border-radius: 0.375rem; // Equivalent to rounded-md
+			font-size: 0.875rem; // Equivalent to text-sm
+		}
+
+		.hidden-tags-dropdown {
+			position: absolute;
+			z-index: 50;
+			background-color: #ffffff; // Equivalent to bg-white
+			border: 1px solid #e2e8f0; // Equivalent to border
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); // Equivalent to shadow-lg
+			border-radius: 0.375rem; // Equivalent to rounded-md
+			padding: 0.5rem; // Equivalent to p-2
+			margin-top: 0.25rem; // Equivalent to mt-1
+			width: 12rem; // Equivalent to w-48
+
+			.hidden-tag-item {
+				padding: 0.25rem 0.5rem;
+				&:hover {
+					background-color: #f7fafc;
+				}
+			}
+		}
+	}
+
+	.placeholder-text {
+		color: #cbd5e0; // Equivalent to text-gray-400
+	}
+}
