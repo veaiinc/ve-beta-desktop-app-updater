@@ -1557,6 +1557,10 @@ const GalleryPage = () => {
 			message.warning('No items to copy');
 		}
 	};
+	// ... existing code ...
+
+	// ... existing code ...
+
 	const uploadAlbumCoverChangeHandler = async (e) => {
 		const image = e.target.files[0];
 		if (!image) return;
@@ -1637,9 +1641,11 @@ const GalleryPage = () => {
 				},
 			});
 
+			const uploadedImageId = signedURLUpload?.[1]?._id;
+
 			setInfo((prev) => ({
 				...prev,
-				uploadImageId: signedURLUpload?.[1]?._id,
+				uploadImageId: uploadedImageId,
 				coverPhoto: true,
 			}));
 
@@ -1654,13 +1660,53 @@ const GalleryPage = () => {
 					batchId,
 				);
 				if (imageStatus?.[0] && imageStatus?.[1]?.processedCount === 1) {
-					const imageDetails = await getImageDetail(signedURLUpload?.[1]?._id);
+					const imageDetails = await getImageDetail(uploadedImageId);
 					if (imageDetails?.[0]) {
+						// Check if gallery or album has no cover image and set this as cover
+						const shouldSetGalleryCover = !info?.activeGallery?.coverImage;
+						const shouldSetAlbumCover = !info?.activeAlbum?.coverImage;
+
+						if (shouldSetGalleryCover || shouldSetAlbumCover) {
+							const coverPayload = {
+								image_id: uploadedImageId,
+								xPosition: 0,
+								yPosition: 0,
+								givenFileName: imageDetails[1]?.activeVersion?.givenFileName,
+								width: 100,
+								height: 100,
+								zoom: 1,
+							};
+
+							// Set as gallery cover if needed
+							if (shouldSetGalleryCover) {
+								await updateGalleryCoverImage(coverPayload, galleryId);
+							}
+
+							// Set as album cover if needed
+							if (shouldSetAlbumCover) {
+								await updateAlbumCoverImage(
+									coverPayload,
+									galleryId,
+									info.activeAlbumId,
+								);
+							}
+
+							// Refresh data to show new covers
+							await Promise.all([
+								getAlbumImagesCount(galleryId),
+								getAlbums(galleryId),
+								getGalleries(),
+							]);
+
+							message.success('Cover images set automatically');
+						}
+
 						setInfo((prev) => ({
 							...prev,
 							coverImageDetails: imageDetails[1],
 							isLoadingCover: false,
 						}));
+
 						message.success({
 							content: 'Image uploaded successfully',
 							key: 'coverUpload',
@@ -1683,6 +1729,8 @@ const GalleryPage = () => {
 			}));
 		}
 	};
+
+	// ... rest of the code ...
 	// const handleSetCoverPosition = async (focalPoint) => {
 	// 	const payload = {
 	// 		image_id: info?.uploadImageId || info?.coverImageDetails?._id,
@@ -1789,8 +1837,9 @@ const GalleryPage = () => {
 		if (response[0] === true) {
 			message.destroy();
 			message.success('Gallery deleted successfully');
-			getGalleries({}, true);
+
 			navigate('/galleries');
+			getGalleries({}, true);
 		} else {
 			message.destroy();
 			message.error(response[1].message);
@@ -1924,70 +1973,124 @@ const GalleryPage = () => {
 		getImageDetail(null, true, false);
 		setsearchkeys({ uploadImageId: 'image-uploading' });
 
-		message.open({
-			type: 'loading',
+		message.loading({
 			content: 'Uploading Gallery cover image..',
 			duration: 0,
 		});
+
+		// Reset existing image data
 		if (info?.imageURL) {
 			setInfo((prev) => ({
 				...prev,
-				crop: {
-					x: 0,
-					y: 0,
-				},
+				crop: { x: 0, y: 0 },
 				zoom: 1,
 				uploadImageId: null,
 				imageURL: '',
 				coverImageDetails: null,
 			}));
 		}
+
 		const batchId = randomize('Aa0', 10);
 
-		const duplicateImage = await getImageDuplicatesList(galleryId, info?.activeAlbumId);
-		const isHavingDuplicateImage = duplicateImage?.[1]?.find(
-			(item) => item?.displayName === image?.name,
-		);
+		try {
+			// Check for duplicate images
+			const duplicateImage = await getImageDuplicatesList(galleryId, info?.activeAlbumId);
+			const isHavingDuplicateImage = duplicateImage?.[1]?.find(
+				(item) => item?.displayName === image?.name,
+			);
 
-		if (isHavingDuplicateImage) {
-			getImageDetail(isHavingDuplicateImage?._id);
-			setInfo((prev) => ({
-				...prev,
-				uploadImageId: isHavingDuplicateImage?._id,
-			}));
-			message.destroy();
-			return;
-		}
-
-		const allTagId = info?.albumTags?.find((item) => item?.displayName === 'All');
-		let json = {
-			originalFileName: image?.name,
-			originalDateTime: moment(image?.['originalDate']).unix() || 0,
-			uploadBatchId: batchId,
-			tag_ids: [allTagId?._id],
-			isAIFacesEnabled: true,
-		};
-
-		const signedURLUpload = await getUploadImageSignUrl(galleryId, info?.activeAlbumId, json);
-		if (signedURLUpload?.[0] === true) {
-			const uploadResponse = await axios.put(signedURLUpload[1]['signedUrl'], image, {
-				headers: {
-					'Content-Type': image?.type,
-				},
-			});
-			setInfo((prev) => ({
-				...prev,
-				uploadImageId: signedURLUpload?.[1]?._id,
-				imageURL: '',
-				coverPhoto: true,
-			}));
-
-			if (uploadResponse.status === 200) {
-				getImageDetails(signedURLUpload?.[1]?._id, batchId);
+			if (isHavingDuplicateImage) {
+				getImageDetail(isHavingDuplicateImage?._id);
+				setInfo((prev) => ({
+					...prev,
+					uploadImageId: isHavingDuplicateImage?._id,
+				}));
+				message.destroy();
+				return;
 			}
-		} else {
+
+			// Get All tag ID
+			const allTagId = info?.albumTags?.find((item) => item?.displayName === 'All');
+
+			const uploadPayload = {
+				originalFileName: image?.name,
+				originalDateTime: moment(image?.['originalDate']).unix() || 0,
+				uploadBatchId: batchId,
+				tag_ids: [allTagId?._id],
+				isAIFacesEnabled: true,
+			};
+
+			const signedURLUpload = await getUploadImageSignUrl(
+				galleryId,
+				info?.activeAlbumId,
+				uploadPayload,
+			);
+
+			if (signedURLUpload?.[0]) {
+				const uploadResponse = await axios.put(signedURLUpload[1]['signedUrl'], image, {
+					headers: {
+						'Content-Type': image?.type,
+					},
+				});
+
+				const uploadedImageId = signedURLUpload?.[1]?._id;
+
+				// Check if this is the first image or if covers are not set
+				const isFirstImage = !info?.imagesList?.docs?.length;
+				const shouldSetGalleryCover = !info?.activeGallery?.coverImage || isFirstImage;
+				const shouldSetAlbumCover = !info?.activeAlbum?.coverImage || isFirstImage;
+
+				setInfo((prev) => ({
+					...prev,
+					uploadImageId: uploadedImageId,
+					imageURL: '',
+					coverPhoto: true,
+				}));
+
+				if (uploadResponse.status === 200) {
+					// Wait briefly for image processing
+					await new Promise((resolve) => setTimeout(resolve, 2000));
+
+					const imageDetails = await getImageDetail(uploadedImageId);
+
+					if (imageDetails?.[0] && (shouldSetGalleryCover || shouldSetAlbumCover)) {
+						const coverPayload = {
+							image_id: uploadedImageId,
+							xPosition: 0,
+							yPosition: 0,
+							givenFileName: imageDetails[1]?.activeVersion?.givenFileName,
+							width: 100,
+							height: 100,
+							zoom: 1,
+						};
+
+						// Set covers in parallel if needed
+						await Promise.all([
+							shouldSetGalleryCover &&
+								updateGalleryCoverImage(coverPayload, galleryId),
+							shouldSetAlbumCover &&
+								updateAlbumCoverImage(coverPayload, galleryId, info.activeAlbumId),
+						]);
+
+						// Refresh data
+						await Promise.all([
+							getAlbumImagesCount(galleryId),
+							getAlbums(galleryId),
+							getGalleries(),
+						]);
+
+						message.destroy();
+						message.success('Cover images set automatically');
+					}
+				}
+			} else {
+				message.destroy();
+				message.error('Something went wrong, please try again later');
+			}
+		} catch (error) {
+			console.error('Error uploading gallery cover:', error);
 			message.destroy();
-			message.error('Something went wrong, please try again later');
+			message.error('Failed to upload gallery cover');
 		}
 	};
 
