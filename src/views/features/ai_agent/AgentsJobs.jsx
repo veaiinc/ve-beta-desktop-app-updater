@@ -1,8 +1,10 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import '../../../assets/scss/ai_agents/jobs.scss';
 import { ReactComponent as CircledCross } from '../../../assets/svg/ai_agents/cross.svg';
 import { ReactComponent as Search } from '../../../assets/svg/ai_agents/search.svg';
 import AgentsWorkflows from '../../components/ai_agents/ai_agents_jobs/AgentsWorkflows';
+import AgentsTask from '../../components/ai_agents/ai_agents_jobs/AgentsTask';
+import AgentsActions from '../../components/ai_agents/ai_agents_jobs/AgentsActions';
 const AgentsJobs = () => {
 	const [info, setInfo] = useState({
 		search: '',
@@ -23,6 +25,14 @@ const AgentsJobs = () => {
 		},
 		[info?.activeTab],
 	);
+
+	const compMapper = useMemo(() => {
+		return {
+			workflows: <AgentsWorkflows />,
+			tasks: <AgentsTask />,
+			actions: <AgentsActions />,
+		};
+	}, []);
 	return (
 		<div className="aiAgentsJobsParentContainer">
 			{/* header */}
@@ -106,7 +116,7 @@ const AgentsJobs = () => {
 				</div>
 			</div>
 
-			<AgentsWorkflows />
+			{compMapper?.[info?.activeTab]}
 		</div>
 	);
 };
