@@ -100,14 +100,32 @@ const ListView = () => {
 		loadingSkeleton: true,
 		error: null,
 		sort: [],
-		filters: [{ key: 'title', value: '' }],
+		filters: [],
+		searchValue: '',
 	});
 
 	const debounceTimeout = useRef(null);
+	const filterDebounceTimeout = useRef(null);
 
 	useEffect(() => {
-		fetchListItems();
-	}, [info?.page, info?.sort, info?.filters]);
+		if (filterDebounceTimeout.current) {
+			clearTimeout(filterDebounceTimeout.current);
+		}
+
+		if (info?.filters || info?.searchValue) {
+			filterDebounceTimeout.current = setTimeout(() => {
+				fetchListItems();
+			}, 800);
+		} else {
+			fetchListItems();
+		}
+
+		return () => {
+			if (filterDebounceTimeout.current) {
+				clearTimeout(filterDebounceTimeout.current);
+			}
+		};
+	}, [info?.page, info?.sort, info?.filters, info?.searchValue]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -188,9 +206,10 @@ const ListView = () => {
 				page: info?.page,
 				sort: info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
 				filters: info?.filters,
+				search: info?.searchValue,
 			},
 		});
-	}, [info?.page, info?.sort, info?.filters]);
+	}, [info?.page, info?.sort, info?.filters, info?.searchValue]);
 
 	const updateListViewInfo = useCallback((key, value) => {
 		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
@@ -518,6 +537,7 @@ const ListView = () => {
 				responseTypes={responseTypes}
 				workflows={info?.workflows}
 				tenantUsers={info?.tenantUsers}
+				searchValue={info?.searchValue}
 			/>
 			<div className="listContainer">
 				<div className="listInnerContainer">

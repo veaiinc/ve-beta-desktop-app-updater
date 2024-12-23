@@ -1,11 +1,12 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/listViewHeader.scss';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
-// import { ReactComponent as SearchSvg } from '../../../../assets/svg/tasks/searchWhite.svg';
+import { ReactComponent as SearchSvg } from '../../../../assets/svg/tasks/searchWhite.svg';
 // import { ReactComponent as ThunderSvg } from '../../../../assets/svg/tasks/thunder.svg';
 import { ReactComponent as FilterLinesSvg } from '../../../../assets/svg/tasks/filterLines.svg';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import { ReactComponent as ArrowUpAndDown } from '../../../../assets/svg/tasks/arrowUpAndDown.svg';
+import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import { Tooltip } from 'antd';
 import OptionsDropDown from '../../dropDown/tasks/OptionsDropDown';
 import DropDown from '../../dropDown/tasks/DropDown';
@@ -36,7 +37,16 @@ const ListViewHeader = ({
 	responseTypes,
 	workflows,
 	tenantUsers,
+	searchValue,
 }) => {
+	const [info, setInfo] = useState({
+		showSearchInput: false,
+		searchInputWidth: '140px',
+	});
+	useEffect(() => {
+		console.log(searchValue);
+	}, [searchValue]);
+
 	const handelSortClick = useCallback(
 		(value) => {
 			const newSort = sort.some((item) => item.sortBy === value)
@@ -72,10 +82,33 @@ const ListViewHeader = ({
 					>
 						<PlusSvg style={{ width: '20px', height: '20px' }} />
 					</button>
+					<div className="listView-searchContainer">
+						<button
+							className="listViewHeaderActionButton"
+							onClick={() => setInfo({ ...info, showSearchInput: true })}
+						>
+							<SearchSvg />
+						</button>
+						<div
+							className="listView-searchInputContainer"
+							style={{ width: info?.showSearchInput ? '160px' : '0px' }}
+						>
+							<input
+								type="text"
+								className="listView-searchInput"
+								value={searchValue}
+								onChange={(e) => updateListViewInfo('searchValue', e.target.value)}
+							/>
+							<button
+								className="listView-searchClearButton"
+								style={{ opacity: info?.showSearchInput ? 1 : 0 }}
+								onClick={() => setInfo({ ...info, showSearchInput: false })}
+							>
+								<CrossIcon />
+							</button>
+						</div>
+					</div>
 					{
-						// 	<button className="listViewHeaderActionButton">
-						// 	<SearchSvg />
-						// </button>
 						// <button className="listViewHeaderActionButton">
 						// 	<ThunderSvg />
 						// </button>

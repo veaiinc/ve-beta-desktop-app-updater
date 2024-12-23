@@ -114,6 +114,7 @@ const FilterComponent = ({
 			<div className="filterComponent">
 				{Icon && <Icon className="filterComponent-icon" />}
 				<span className="filterComponent-title">{title}</span>
+				{/* <span className="filterComponent-value">: {value}</span> */}
 				<DownArrow />
 			</div>
 		</Tooltip>
