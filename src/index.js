@@ -7,6 +7,7 @@ import ContextState from './context/ContextStates';
 import './assets/fonts/Inter/inter.css';
 import './assets/fonts/brasley/brasley.css';
 import './assets/fonts/brasley/brasley.css';
+import './assets/fonts/Manrope/manrope.css';
 import './assets/scss/global.scss';
 import './index.css';
 

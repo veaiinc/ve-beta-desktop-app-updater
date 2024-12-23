@@ -26,6 +26,8 @@ const {
 	third_party_integrations_api_US,
 	slack_api,
 	slack_api_US,
+	workflows_Api,
+	workflows_Api_US,
 } = config || {};
 
 const apiEndpoints = {
@@ -41,6 +43,7 @@ const apiEndpoints = {
 	calendar_api,
 	third_party_integrations_api,
 	slack_api,
+	workflow: workflows_Api,
 };
 const apiEndpointsUS = {
 	tenant_users_api: tenant_users_api_US,
@@ -55,6 +58,7 @@ const apiEndpointsUS = {
 	calendar_api: calendar_api_US,
 	third_party_integrations_api: third_party_integrations_api_US,
 	slack_api: slack_api_US,
+	workflow: workflows_Api_US,
 };
 
 const handleHeaders = (token, body, type) => {
