@@ -10,7 +10,7 @@ import {
 	BLOGS_URL,
 	CHANGELOG_URL,
 	COOKIE_POLICY_URL,
-	VEAI_URL,
+	DEMO_FORM_URL,
 	LINKEDIN_URL,
 	INSTAGRAM_URL,
 } from '../../../helpers/ConstantUrls';
@@ -185,7 +185,7 @@ const LandingPage = () => {
 	};
 
 	const handleRequestDemo = () => {
-		window.open(VEAI_URL, '_blank');
+		window.open(DEMO_FORM_URL, '_blank');
 	};
 
 	const handleSubscribeToNewsletter = async (e, type) => {
@@ -210,6 +210,7 @@ const LandingPage = () => {
 
 	return (
 		<div className="landing-page-container">
+			<div className="dark-gradient-top"></div>
 			<header className="header-container">
 				<VeAiLogo aria-label="VeAi Logo" />
 				<button
@@ -228,9 +229,9 @@ const LandingPage = () => {
 							<br /> minds your business !
 						</h1>
 						<p className="description">
-							<VeAiLogoGrey aria-label="VeAi Logo in grey" /> is an os that creates ai
-							workers and collaborates with your human teams to achieve business
-							goals.
+							<VeAiLogoGrey aria-label="VeAi Logo in grey" />
+							&nbsp; is an os that creates ai workers and collaborates with your human
+							teams to achieve business goals.
 						</p>
 						<div className="cta-container">
 							<button
@@ -238,7 +239,7 @@ const LandingPage = () => {
 								className="get-started-button"
 								aria-label="Get started"
 							>
-								Hire Ve.ai <ArrowUpBlack aria-label="Arrow up black" />
+								Hire Ve.ai
 							</button>
 							<button
 								onClick={handleRequestDemo}
