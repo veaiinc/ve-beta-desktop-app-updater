@@ -263,7 +263,7 @@ const routes = [
 	{
 		path: '/ai-agents/jobs/:agent-name',
 		component: (
-			<AuthWrapper title={'Notes'}>
+			<AuthWrapper title={'AI Agents'}>
 				<AgentsJobs />
 			</AuthWrapper>
 		),
