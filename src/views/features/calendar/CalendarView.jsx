@@ -179,6 +179,7 @@ const CalendarView = ({
 						isEventSelected={isEventSelected}
 						updateCalendarInfo={updateCalendarInfo}
 						handleSelectEvent={setInfo}
+						categoryList={categoryList}
 					/>
 				</div>
 			)}

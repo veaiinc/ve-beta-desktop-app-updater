@@ -1,14 +1,34 @@
 import React, { useState, useRef, useEffect, memo } from 'react';
 import '../../../assets/scss/globalComponents/customSelect.scss';
 
+// Standard format for internal use
+const standardizeOption = (option, formatConfig) => {
+	const { valueKey = 'value', labelKey = 'label', ...restConfig } = formatConfig;
+
+	return {
+		value: option[valueKey],
+		label: option[labelKey],
+		originalData: option,
+		...Object.keys(restConfig).reduce((acc, key) => {
+			acc[key] = option[restConfig[key]];
+			return acc;
+		}, {}),
+	};
+};
+
+// CustomSelect component
 const CustomSelect = ({
 	value,
 	onChange,
 	options = [],
+	isMulti = false,
 	disabled = false,
 	maxTagCount = 3,
 	placeholder = 'Select Item...',
-	style,
+	formatConfig = {
+		valueKey: 'value',
+		labelKey: 'label',
+	},
 	className = '',
 	containerClassName = '',
 	dropdownClassName = '',
@@ -17,26 +37,53 @@ const CustomSelect = ({
 	selectedOptionClassName = '',
 	moreTagClassName = '',
 	placeholderClassName = '',
-	...rest
 }) => {
 	const selectRef = useRef(null);
+
+	// Standardize options
+	const standardizedOptions = options?.map((opt) => standardizeOption(opt, formatConfig));
+
+	// Handle both single and multi-select values
+	const standardizeValue = (val) => {
+		if (!val) return isMulti ? [] : null;
+		if (isMulti) {
+			return Array.isArray(val)
+				? val.map((v) => standardizeOption(v, formatConfig))
+				: [standardizeOption(val, formatConfig)];
+		}
+		return standardizeOption(val, formatConfig);
+	};
+
+	// Standardize the initial value
+	const standardizedValue = standardizeValue(value);
+
 	const [info, setInfo] = useState({
 		isOpen: false,
 		hoveredItem: null,
-		selectedItems: options.filter((opt) => value.includes(opt.value)),
-		displayedTags: options.filter((opt) => value.includes(opt.value)).slice(0, maxTagCount),
-		hiddenTags: options.filter((opt) => value.includes(opt.value)).slice(maxTagCount),
+		selectedItems: standardizedOptions.filter((opt) =>
+			isMulti
+				? (standardizedValue || []).some((v) => v.value === opt.value)
+				: standardizedValue?.value === opt.value,
+		),
+		displayedTags: [],
+		hiddenTags: [],
 	});
 
 	useEffect(() => {
-		const selectedItems = options.filter((opt) => value.includes(opt.value));
+		const standardizedValue = standardizeValue(value);
+		const selectedItems = standardizedOptions.filter((opt) =>
+			isMulti
+				? (standardizedValue || []).some((v) => v.value === opt.value)
+				: standardizedValue?.value === opt.value,
+		);
+
 		setInfo((prev) => ({
 			...prev,
 			selectedItems,
 			displayedTags: selectedItems.slice(0, maxTagCount),
 			hiddenTags: selectedItems.slice(maxTagCount),
 		}));
-	}, [value, maxTagCount, options]);
+	}, [value, maxTagCount, options, isMulti, formatConfig]);
 
 	useEffect(() => {
 		const handleClickOutside = (event) => {
@@ -51,96 +98,107 @@ const CustomSelect = ({
 	const handleToggleOpen = () =>
 		!disabled && setInfo((prev) => ({ ...prev, isOpen: !prev.isOpen }));
 
-	const handleRemoveItem = (itemValue) => onChange(value.filter((v) => v !== itemValue));
+	const handleRemoveItem = (itemValue) => {
+		const newValue = isMulti
+			? info.selectedItems
+					.filter((item) => item.value !== itemValue)
+					.map((item) => item.originalData)
+			: null;
+		onChange(newValue);
+	};
 
 	const handleHover = (hoveredItem) => setInfo((prev) => ({ ...prev, hoveredItem }));
 
-	const handleOptionSelect = (optionValue) => {
-		const newValue = value.includes(optionValue)
-			? value.filter((v) => v !== optionValue)
-			: [...value, optionValue];
+	const handleOptionSelect = (option) => {
+		let newValue;
+		if (isMulti) {
+			const isSelected = info.selectedItems.some((item) => item.value === option.value);
+			newValue = isSelected
+				? info.selectedItems
+						.filter((item) => item.value !== option.value)
+						.map((item) => item.originalData)
+				: [...info.selectedItems.map((item) => item.originalData), option.originalData];
+		} else {
+			newValue = option.originalData;
+			setInfo((prev) => ({ ...prev, isOpen: false }));
+		}
 		onChange(newValue);
-		setInfo((prev) => ({ ...prev, isOpen: false }));
 	};
 
 	return (
-		<>
-			<div className={`parent-select ${containerClassName}`} ref={selectRef}>
-				<div
-					className={`select-bar ${disabled ? 'disabled' : 'enabled'} ${
-						info.isOpen ? 'open' : 'closed'
-					} ${className}`}
-					onClick={handleToggleOpen}
-				>
-					<div className="flex flex-wrap gap-2">
-						{info?.displayedTags?.map((item) => (
-							<span key={item?.value} className={`tag-item ${tagClassName}`}>
-								{item?.label}
-								{!disabled && (
-									<button
-										onClick={(e) => {
-											e.stopPropagation();
-											handleRemoveItem(item?.value);
-										}}
-										className="remove-button"
-									>
-										×
-									</button>
-								)}
+		<div className={`select-container ${containerClassName}`} ref={selectRef}>
+			<div
+				className={`select-input ${disabled ? 'select-disabled' : ''} ${
+					info.isOpen ? 'select-open' : ''
+				} ${className}`}
+				onClick={handleToggleOpen}
+			>
+				<div className="select-values">
+					{info.displayedTags.map((item) => (
+						<span key={item.value} className={`select-tag ${tagClassName}`}>
+							{item.label}
+							{!disabled && (
+								<button
+									onClick={(e) => {
+										e.stopPropagation();
+										handleRemoveItem(item.value);
+									}}
+									className="select-remove"
+								>
+									×
+								</button>
+							)}
+						</span>
+					))}
+					{info.hiddenTags.length > 0 && (
+						<div
+							className="select-more"
+							onMouseEnter={() => handleHover('hidden')}
+							onMouseLeave={() => handleHover(null)}
+						>
+							<span className={`select-more-tag ${moreTagClassName}`}>
+								+{info.hiddenTags.length} more
 							</span>
-						))}
-						{info?.hiddenTags?.length > 0 && (
-							<div
-								className="hidden-tags-container"
-								onMouseEnter={() => handleHover('hidden')}
-								onMouseLeave={() => handleHover(null)}
-							>
-								<span className={`more-tags ${moreTagClassName}`}>
-									+{info?.hiddenTags?.length} more
-								</span>
-								{info.hoveredItem === 'hidden' && (
-									<div className={`hidden-tags-dropdown ${dropdownClassName}`}>
-										{info?.hiddenTags?.map((item) => (
-											<div
-												key={item?.value}
-												className={`hidden-tag-item ${optionClassName}`}
-											>
-												{item?.label}
-											</div>
-										))}
-									</div>
-								)}
-							</div>
-						)}
-						{info?.selectedItems?.length === 0 && (
-							<span className={`placeholder-text ${placeholderClassName}`}>
-								{placeholder}
-							</span>
-						)}
-					</div>
+							{info.hoveredItem === 'hidden' && (
+								<div className={`select-dropdown ${dropdownClassName}`}>
+									{info.hiddenTags.map((item) => (
+										<div
+											key={item.value}
+											className={`select-option ${optionClassName}`}
+										>
+											{item.label}
+										</div>
+									))}
+								</div>
+							)}
+						</div>
+					)}
+					{info.selectedItems.length === 0 && (
+						<span className={`select-placeholder ${placeholderClassName}`}>
+							{placeholder}
+						</span>
+					)}
 				</div>
-
-				{info.isOpen && !disabled && (
-					<div
-						className={`absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto ${dropdownClassName}`}
-					>
-						{options.map((option) => (
-							<div
-								key={option.value}
-								className={`px-4 py-2 cursor-pointer ${
-									value.includes(option.value)
-										? `bg-blue-50 text-blue-800 ${selectedOptionClassName}`
-										: `hover:bg-gray-50 ${optionClassName}`
-								}`}
-								onClick={() => handleOptionSelect(option.value)}
-							>
-								{option.label}
-							</div>
-						))}
-					</div>
-				)}
 			</div>
-		</>
+
+			{info.isOpen && !disabled && (
+				<div className={`select-dropdown ${dropdownClassName}`}>
+					{standardizedOptions.map((option) => (
+						<div
+							key={option.value}
+							className={`select-option ${
+								info.selectedItems.some((item) => item.value === option.value)
+									? `select-option-selected ${selectedOptionClassName}`
+									: optionClassName
+							}`}
+							onClick={() => handleOptionSelect(option)}
+						>
+							{option.label}
+						</div>
+					))}
+				</div>
+			)}
+		</div>
 	);
 };
 export default memo(CustomSelect);

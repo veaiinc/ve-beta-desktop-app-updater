@@ -2,6 +2,7 @@ import React, { memo, useContext, useState, useCallback, useEffect, useRef, useM
 import '../../../../assets/scss/calendar/modal/eventDetailsModal.scss';
 import CustomInput from '../../../components/globalComponents/CustomInput';
 import CustomTextArea from '../../../components/globalComponents/CustomTextArea';
+import CustomSelect from '../../../components/globalComponents/CustomSelect';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as Arrow } from '../../../../assets/svg/calendar/down.svg';
 import { ReactComponent as Delete } from '../../../../assets/svg/tasks/dustBin.svg';
@@ -24,6 +25,7 @@ const EventDetailsModal = ({
 	isEventSelected,
 	updateCalendarInfo,
 	handleSelectEvent,
+	categoryList,
 }) => {
 	const {
 		calendarInfo: {
@@ -158,13 +160,26 @@ const EventDetailsModal = ({
 						className="inputFeilds"
 					/>
 				),
-			calendarCategory: (value) => (
-				<CustomInput
-					value={value?.name || 'default'}
-					className="inputFeilds"
-					onChange={() => {}}
-				/>
-			),
+			calendarCategory: (value) => {
+				console.log('value', JSON.stringify(value));
+				console.log('categoryList', JSON.stringify(categoryList));
+				return (
+					<CustomSelect
+						value={value}
+						options={categoryList}
+						onChange={(value) => {
+							updateEventDetails('calendarCategory', value);
+						}}
+						isMulti={true}
+						formatConfig={{
+							valueKey: '_id',
+							labelKey: 'name',
+							colorKey: 'color',
+						}}
+						maxTagCount={2}
+					/>
+				);
+			},
 			status: (value) => (
 				<CustomInput
 					value={value}
