@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect, useState, useCallback } from 'react';
+import React, { useContext, useRef, useEffect, useState, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import { ReactComponent as Gradient } from '../../../assets/svg/sales/gradient.svg';
@@ -7,13 +7,14 @@ import HeaderImage from '../../../assets/images/sales/header-image.png';
 import moment from 'moment';
 import HeaderInfo from './HeaderInfo';
 import RequiredActionsLoader from '../../components/sales/RequiredActionsLoader';
+import FilterCheckBox from '../../components/sales/FilterCheckBox';
 
 const tabItems = [
-	{ id: 'all', label: 'All' },
-	{ id: 'enquiry', label: 'Enquires' },
-	{ id: 'counterSign', label: 'Counter Sign' },
-	{ id: 'emailApproval', label: 'Email Approvals' },
-	{ id: 'expiresInThreeDays', label: 'Expiring in 3 days' },
+	{ id: 'all', label: 'All', checkBoxBorder: null },
+	{ id: 'enquiry', label: 'Enquires', checkBoxBorder: '#FFB621' },
+	{ id: 'counterSign', label: 'Counter Sign', checkBoxBorder: '#34908E' },
+	{ id: 'emailApproval', label: 'Email Approvals', checkBoxBorder: '#004F65' },
+	{ id: 'expiresInThreeDays', label: 'Expiring in 3 days', checkBoxBorder: '#FFD59E' },
 ];
 
 const SalesInfo = () => {
@@ -129,10 +130,17 @@ const SalesInfo = () => {
 									userSelect: 'none',
 								}}
 								key={item.id}
-								className={activeTab === item.id ? 'active' : ''}
+								className={`${
+									activeTab === item.id ? 'active' : ''
+								} salesFilterButtons`}
 								onClick={() => handleTabClick(item.id)}
 							>
-								{item.label} ({tabItemCount?.[item.id]})
+								{item.label} {tabItemCount?.[item.id]}
+								{item?.checkBoxBorder ? (
+									<FilterCheckBox borderColor={item?.checkBoxBorder} />
+								) : (
+									''
+								)}
 							</button>
 						))}
 					</ul>
@@ -192,4 +200,4 @@ const SalesInfo = () => {
 	);
 };
 
-export default SalesInfo;
+export default memo(SalesInfo);

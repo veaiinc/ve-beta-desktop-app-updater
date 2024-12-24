@@ -206,19 +206,26 @@
 			list-style: none;
 
 			button {
+				transition: all 0.3s ease;
 				color: rgba(228, 229, 230, 0.48);
+				color: color(display-p3 0.8941 0.898 0.902 / 0.48);
+				cursor: pointer;
 				font-family: Inter;
-				font-size: 11px;
+				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: 15px;
-				cursor: pointer;
+				line-height: normal;
+				display: flex;
+				height: 32px;
+				padding: 8px 12px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
 				border-radius: 100px;
-				border: 1px solid #242424;
-				background: #191919;
-				padding: 8px 16px;
-				transition: all 0.3s ease;
-				min-width: max-content;
+				border: 1px solid #202020;
+				border: 1px solid color(display-p3 0.1255 0.1255 0.1255);
+				background: #202123;
+				background: color(display-p3 0.1255 0.1294 0.1373);
 
 				&.active {
 					color: #fff;
