@@ -4,6 +4,7 @@ export const getListItemsQuery = gql`
 		listTasks(taskFilterInput: $taskFilterInput) {
 			data {
 				_id
+				taskSlNo
 				title
 				description
 				status
@@ -21,7 +22,6 @@ export const getListItemsQuery = gql`
 				completedAt
 				createdAt
 				updatedAt
-				taskSlNo
 				createdBy {
 					_id
 					name

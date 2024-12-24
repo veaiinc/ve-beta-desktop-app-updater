@@ -40,8 +40,7 @@ const ListViewHeader = ({
 	searchValue,
 }) => {
 	const [info, setInfo] = useState({
-		showSearchInput: false,
-		searchInputWidth: '140px',
+		searchExpand: false,
 	});
 	useEffect(() => {
 		console.log(searchValue);
@@ -82,30 +81,57 @@ const ListViewHeader = ({
 					>
 						<PlusSvg style={{ width: '20px', height: '20px' }} />
 					</button>
-					<div className="listView-searchContainer">
-						<button
-							className="listViewHeaderActionButton"
-							onClick={() => setInfo({ ...info, showSearchInput: true })}
-						>
-							<SearchSvg />
-						</button>
-						<div
-							className="listView-searchInputContainer"
-							style={{ width: info?.showSearchInput ? '160px' : '0px' }}
-						>
-							<input
-								type="text"
-								className="listView-searchInput"
-								value={searchValue}
-								onChange={(e) => updateListViewInfo('searchValue', e.target.value)}
-							/>
-							<button
-								className="listView-searchClearButton"
-								style={{ opacity: info?.showSearchInput ? 1 : 0 }}
-								onClick={() => setInfo({ ...info, showSearchInput: false })}
+					<div
+						className="searchContainer"
+						style={{
+							width: info?.searchExpand ? '140px' : '16px',
+						}}
+					>
+						<div className={`searchBtn ${info?.searchExpand ? 'searchExpand' : ''}`}>
+							<span
+								style={{
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									cursor: 'pointer',
+								}}
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										searchExpand: true,
+									}))
+								}
 							>
-								<CrossIcon />
-							</button>
+								<SearchSvg />
+							</span>
+
+							<div className="inputAndCloseContainer">
+								<input
+									className="searchInputTag"
+									placeholder="Search"
+									value={info?.searchValue}
+									onChange={(e) =>
+										updateListViewInfo('searchValue', e.target?.value)
+									}
+								/>
+								<span
+									style={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+										cursor: 'pointer',
+									}}
+									onClick={() => {
+										setInfo((prev) => ({
+											...prev,
+											searchExpand: false,
+										}));
+										updateListViewInfo('searchValue', '');
+									}}
+								>
+									<CrossIcon style={{ width: '20px', height: '20px' }} />
+								</span>
+							</div>
 						</div>
 					</div>
 					{
