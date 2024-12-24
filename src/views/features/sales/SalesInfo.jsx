@@ -8,6 +8,7 @@ import moment from 'moment';
 import HeaderInfo from './HeaderInfo';
 import RequiredActionsLoader from '../../components/sales/RequiredActionsLoader';
 import FilterCheckBox from '../../components/sales/FilterCheckBox';
+import CreateCards, { Activity, Drafts } from '../../components/ai_agents/CreateCards';
 
 const tabItems = [
 	{ id: 'all', label: 'All', checkBoxBorder: null },
@@ -194,46 +195,15 @@ const SalesInfo = () => {
 										</span>
 									</div>
 								</div>
-								// <div
-								// 	onClick={() =>
-								// 		handleActionNavigation(
-								// 			actionItem?.templateId,
-								// 			actionItem?._id,
-								// 		)
-								// 	}
-								// 	className="card"
-								// 	key={index}
-								// >
-								// 	<div className="card-content">
-								// 		<span className="card-title">
-								// 			{actionItem?.status === 'enquiry' &&
-								// 			actionItem?.action === 'sendProposal'
-								// 				? 'Enquiry'
-								// 				: actionItem?.approvalRequired &&
-								// 				  actionItem?.action !== 'counterSign'
-								// 				? 'Email Approval'
-								// 				: actionItem?.action === 'counterSign'
-								// 				? 'Counter Sign'
-								// 				: 'Expiry In 3 Days'}
-								// 		</span>
-								// 		<h1>{actionItem?.clientName}</h1>
-								// 	</div>
-								// 	<div className="card-footer">
-								// 		<div className="card-footer-left">
-								// 			<p>{actionItem?.title}</p>
-								// 		</div>
-								// 		<div className="line"></div>
-								// 		<div className="card-footer-time">
-								// 			<span>
-								// 				{moment.unix(actionItem?.createdAt).fromNow()}
-								// 			</span>
-								// 		</div>
-								// 	</div>
-								// </div>
 							))
 						)}
-						{/* <div className="card-div-end-black-shadow"></div> */}
 					</div>
+					<div className="card-div-end-black-shadow"></div>
+				</div>
+				<div className="aiagentsCustomCardHolder">
+					<CreateCards />
+					<Activity />
+					<Drafts />
 				</div>
 			</div>
 		</>
