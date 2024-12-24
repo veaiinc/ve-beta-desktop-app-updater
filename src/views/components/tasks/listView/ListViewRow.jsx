@@ -19,9 +19,11 @@ const ListViewRow = ({
 
 			for (let key in row) {
 				const value = row[key];
-
 				if (
-					(typeof value === 'object' ? !value?._id : key === '!title' && !value) ||
+					(typeof value === 'object' && !Array.isArray(value)
+						? !value?._id
+						: key === '!title' && !value) ||
+					(Array.isArray(value) && value.length === 0) ||
 					key === '__typename' ||
 					key === '_id' ||
 					key === 'workflowTemplateId' ||
@@ -43,12 +45,18 @@ const ListViewRow = ({
 					<RowComponent
 						key={key}
 						value={value}
+						parseValue={type === 'person'}
 						title={name}
 						onOptionClick={(value) =>
 							updatePropertyValue(task._id, key, value, isSubTask)
 						}
 						{...(key === 'workflow' ? { workflows } : {})}
-						{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
+						{...(key === 'assignedTo'
+							? { persons: tenantUsers, multiSelect: true }
+							: {})}
+						{...(key === 'createdBy' || key === 'updatedBy' || key === 'assignedBy'
+							? { disabled: true }
+							: {})}
 						{...(key === 'updatedAt' || key === 'createdAt' ? { timestamp: true } : {})}
 					/>
 				) : null;

@@ -127,17 +127,25 @@ const ListViewSidebar = ({
 								<RowComponent
 									key={key}
 									value={value}
+									parseValue={type === 'person'}
 									title={name}
 									showLabel
 									defaultLabel={'Not selected'}
 									{...(type === 'date' ? { format: 'MMM DD, YYYY h:mm A' } : {})}
 									{...(key === 'workflow' ? { workflows } : {})}
 									{...(type === 'person' ? { showName: true } : {})}
-									{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
+									{...(key === 'assignedTo'
+										? { persons: tenantUsers, multiSelect: true }
+										: {})}
 									{...(key === 'updatedAt' ||
 									key === 'createdAt' ||
 									key === 'assignedAt'
 										? { timestamp: true }
+										: {})}
+									{...(key === 'createdBy' ||
+									key === 'updatedBy' ||
+									key === 'assignedBy'
+										? { disabled: true }
 										: {})}
 									onOptionClick={(value) =>
 										updatePropertyValue(row._id, key, value, isShowingSubTask)

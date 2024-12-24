@@ -274,11 +274,7 @@ const ListView = () => {
 							  }
 							: {
 									[propName]:
-										propName === 'assignedTo'
-											? typeof value === 'object'
-												? { userId: value.value }
-												: value
-											: value,
+										propName === 'assignedTo' ? { tenantUsers: value } : value,
 							  },
 				});
 

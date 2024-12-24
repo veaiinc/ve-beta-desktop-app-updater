@@ -1,61 +1,131 @@
-import React, { useCallback, memo } from 'react';
+import React, { useCallback, memo, useState, useEffect } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
+import '../../../../assets/scss/tasks/person.scss';
 import DropDown from '../../dropDown/tasks/DropDown';
-import { Tooltip } from 'antd';
+import { Select, Tooltip } from 'antd';
 
 const Person = ({
 	value,
+	parseValue = false,
 	showName = false,
 	title,
 	customListItemStyle = {},
 	onOptionClick,
 	persons = [],
-	removeBtn = false,
+	multiSelect = false,
+	disabled = false,
 	defaultLabel,
 }) => {
-	const updatedOnOptionClick = useCallback(
-		(value) => {
-			const data = persons?.find((person) => person.value === value);
-			onOptionClick({ ...data, name: data?.label });
+	const [info, setInfo] = useState({
+		value: null,
+	});
+
+	useEffect(() => {
+		if (parseValue && value) {
+			const valueArray = Array.isArray(value) ? value : [value];
+			setInfo({ value: parsedValueAndLabel(valueArray) });
+		}
+	}, [parseValue, value]);
+
+	const parsedValueAndLabel = useCallback(
+		(value, type) => {
+			if (type === 'reverse') {
+				const parsed = value?.map((item) => ({ _id: item?.value, name: item?.label }));
+				return multiSelect ? parsed : parsed[0];
+			} else {
+				const parsed = value?.map((item) => ({ value: item?._id, label: item?.name }));
+				return multiSelect ? parsed : parsed[0];
+			}
 		},
-		[persons, onOptionClick],
+		[multiSelect],
 	);
+
+	const customOnOptionClick = (value) => {
+		const valueArray = Array.isArray(value) ? value : [value];
+
+		if (parseValue) {
+			const parsed = parsedValueAndLabel(valueArray, 'reverse');
+			onOptionClick(parsed);
+			return;
+		}
+		onOptionClick(multiSelect ? valueArray : valueArray[0]);
+	};
+
 	return (
-		<DropDown
-			options={persons}
-			onOptionClick={updatedOnOptionClick}
-			selected={value?._id}
-			valueSelector="value"
-		>
-			<Tooltip title={title} placement="bottom">
-				<div className="listItem-person" style={customListItemStyle}>
-					{value ? (
-						<>
-							<div className="avatar">
+		<Tooltip title={title} placement="bottom">
+			<Select
+				placeholder={`Select ${title || ''}`}
+				options={persons}
+				variant="borderless"
+				labelInValue
+				showSearch={false}
+				disabled={disabled}
+				onClick={(e) => {
+					if (!disabled) {
+						e.stopPropagation();
+					}
+				}}
+				style={{
+					width: value?.length === 0 ? '180px' : 'fit-content',
+					color: '#e5e5e5',
+				}}
+				className="person-select"
+				dropdownStyle={{ backgroundColor: 'transparent', width: '220px' }}
+				tagRender={(option) => {
+					return (
+						<div className="person-tag" style={customListItemStyle}>
+							<div
+								className="person-tag-avatar"
+								style={{ display: 'flex', flexShrink: 0 }}
+							>
 								{/* <img src={profile || ''} alt="" /> */}
-								<div className="profile-name">
-									{typeof value == 'object' && value?.name
-										? value?.name[0].toUpperCase()
-										: ''}
+								<div
+									className="person-tag-avatar-icon"
+									style={{ flexShrink: 0, width: '20px', height: '20px' }}
+								>
+									{option?.label?.[0].toUpperCase()}
 								</div>
 							</div>
-							{showName ? <div className="name">{value?.name}</div> : ''}
-							{removeBtn && (
-								<div
-									className="remove-btn"
-									style={{ color: '#e74c3c', fontSize: '12px' }}
-									onClick={() => onOptionClick(null)}
-								>
-									&#10005;
-								</div>
+							{showName ? (
+								<div className="person-tag-label">{option?.label}</div>
+							) : (
+								''
 							)}
-						</>
-					) : (
-						<div className="listItem-text">{defaultLabel || `Select ${title}`}</div>
-					)}
-				</div>
-			</Tooltip>
-		</DropDown>
+						</div>
+					);
+				}}
+				dropdownRender={(menu) => {
+					return (
+						<div className="person-dropdown-menu">
+							<div className="person-dropdown-menu-header">
+								<div className="person-dropdown-menu-header-title">{title}</div>
+							</div>
+							<div className="person-dropdown-menu-body">{menu}</div>
+						</div>
+					);
+				}}
+				optionRender={(option) => {
+					return (
+						<div className="person-dropdown-menu-option">
+							<div className="person-dropdown-menu-option-avatar">
+								{option?.image ? (
+									<img src={option?.image} alt="" />
+								) : (
+									<div className="person-dropdown-menu-option-avatar-icon">
+										{option?.label?.[0].toUpperCase()}
+									</div>
+								)}
+							</div>
+							<div className="person-dropdown-menu-option-label">{option?.label}</div>
+						</div>
+					);
+				}}
+				suffixIcon={<></>}
+				mode={'multiple'}
+				onChange={customOnOptionClick}
+				value={info?.value}
+			/>
+		</Tooltip>
 	);
 };
 

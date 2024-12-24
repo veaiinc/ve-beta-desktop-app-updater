@@ -16,7 +16,7 @@ import Person from '../../tasks/listView/Person';
 import DateView from '../../tasks/listView/DateView';
 
 const initialState = {
-	assignedTo: null,
+	assignedTo: [],
 	description: '',
 	dueDate: null,
 	priority: 'low',
@@ -56,7 +56,15 @@ const CreateTaskPopup = ({
 			return;
 		}
 		return Object.entries({
-			assignedTo: assignedTo ? { userId: assignedTo?.value } : '',
+			assignedTo:
+				assignedTo.length > 0
+					? {
+							tenantUsers: assignedTo.map((user) => ({
+								_id: user.value,
+								name: user.label,
+							})),
+					  }
+					: '',
 			description,
 			dueDate,
 			priority,
@@ -151,13 +159,6 @@ const CreateTaskPopup = ({
 						onOptionClick={(value) => updateModalInfo('priority', value)}
 						title={'Priority'}
 					/>
-					<Person
-						value={info?.assignedTo}
-						persons={tenantUsers}
-						onOptionClick={(value) => updateModalInfo('assignedTo', value)}
-						title={'Assigned To'}
-						removeBtn={true}
-					/>
 					<div className="dateView-wrapper">
 						<DateView
 							value={info?.dueDate}
@@ -167,6 +168,13 @@ const CreateTaskPopup = ({
 							customListItemStyle={{ margin: '0 6px' }}
 						/>
 					</div>
+					<Person
+						value={info?.assignedTo}
+						persons={tenantUsers}
+						onOptionClick={(value) => updateModalInfo('assignedTo', value)}
+						title={'Assigned To'}
+						removeBtn={true}
+					/>
 
 					{/* {info?.dueDate ? (
 						<div className="dueDate-wrapper">
