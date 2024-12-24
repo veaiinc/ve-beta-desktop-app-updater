@@ -34,6 +34,10 @@ const actionHandlers = {
 		...state,
 		...action.payload,
 	}),
+	UPDATE_TOKEN_EXPIRY_STATE: (state, action) => ({
+		...state,
+		...action.payload,
+	}),
 
 	RESET_STATE: () => intialState,
 };
