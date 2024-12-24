@@ -152,20 +152,32 @@ const SalesInfo = () => {
 						) : (
 							requiredActions?.actions?.map((actionItem, index) => (
 								<div
+									className="requiredSalesPendingCard"
+									key={index}
 									onClick={() =>
 										handleActionNavigation(
 											actionItem?.templateId,
 											actionItem?._id,
 										)
 									}
-									className="card"
-									key={index}
 								>
-									<span className="card-svg">
-										<CardDiv />
-									</span>
-									<div className="card-content">
-										<span className="card-title">
+									<div className="agentsWorkflowJobCards">
+										<div className="agentsWorkflowJobCardsContent">
+											<span className="agentsWorkflowJobCardsTitle">
+												{actionItem?.clientName}
+											</span>
+											<span className="agentsWorkflowJobCardsSubTitle">
+												{actionItem?.title}
+											</span>
+										</div>
+										<span
+											className="agentsTabType"
+											style={{
+												display: 'flex',
+												justifyContent: 'space-between',
+												alignSelf: 'stretch',
+											}}
+										>
 											{actionItem?.status === 'enquiry' &&
 											actionItem?.action === 'sendProposal'
 												? 'Enquiry'
@@ -175,24 +187,52 @@ const SalesInfo = () => {
 												: actionItem?.action === 'counterSign'
 												? 'Counter Sign'
 												: 'Expiry In 3 Days'}
-										</span>
-										<h1>{actionItem?.clientName}</h1>
-									</div>
-									<div className="card-footer">
-										<div className="card-footer-left">
-											<p>{actionItem?.title}</p>
-										</div>
-										<div className="line"></div>
-										<div className="card-footer-time">
-											<span>
+
+											<span className="agentsWorkflowJobCardsSubTitle">
 												{moment.unix(actionItem?.createdAt).fromNow()}
 											</span>
-										</div>
+										</span>
 									</div>
 								</div>
+								// <div
+								// 	onClick={() =>
+								// 		handleActionNavigation(
+								// 			actionItem?.templateId,
+								// 			actionItem?._id,
+								// 		)
+								// 	}
+								// 	className="card"
+								// 	key={index}
+								// >
+								// 	<div className="card-content">
+								// 		<span className="card-title">
+								// 			{actionItem?.status === 'enquiry' &&
+								// 			actionItem?.action === 'sendProposal'
+								// 				? 'Enquiry'
+								// 				: actionItem?.approvalRequired &&
+								// 				  actionItem?.action !== 'counterSign'
+								// 				? 'Email Approval'
+								// 				: actionItem?.action === 'counterSign'
+								// 				? 'Counter Sign'
+								// 				: 'Expiry In 3 Days'}
+								// 		</span>
+								// 		<h1>{actionItem?.clientName}</h1>
+								// 	</div>
+								// 	<div className="card-footer">
+								// 		<div className="card-footer-left">
+								// 			<p>{actionItem?.title}</p>
+								// 		</div>
+								// 		<div className="line"></div>
+								// 		<div className="card-footer-time">
+								// 			<span>
+								// 				{moment.unix(actionItem?.createdAt).fromNow()}
+								// 			</span>
+								// 		</div>
+								// 	</div>
+								// </div>
 							))
 						)}
-						<div className="card-div-end-black-shadow"></div>
+						{/* <div className="card-div-end-black-shadow"></div> */}
 					</div>
 				</div>
 			</div>

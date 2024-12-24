@@ -248,6 +248,85 @@
 			overflow-x: auto;
 			padding: 12px;
 
+			.requiredSalesPendingCard {
+				display: flex;
+				width: 285px;
+				height: 304px;
+				padding: 32px;
+				flex-direction: column;
+				// justify-content: space-between;
+				align-items: flex-start;
+				border-radius: 24px;
+				background: #171819;
+				background: color(display-p3 0.0902 0.0941 0.098);
+				cursor: pointer;
+				flex-shrink: 0;
+				.agentsWorkflowJobCards {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 12px;
+					align-self: stretch;
+					flex: 1;
+
+					.agentsWorkflowJobCardsContent {
+						display: flex;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: 12px;
+						align-self: stretch;
+						flex: 1;
+						.agentsWorkflowJobCardsTitle {
+							color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+							color: var(
+								--ve-ai-dark-theme-primary-font-color,
+								color(display-p3 0.9098 0.9098 0.9098)
+							);
+							font-family: Inter;
+							font-size: 18px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+
+						.agentsWorkflowJobCardsSubTitle {
+							color: var(--ve-ai-dark-theme-secondary-color, #939393);
+							color: var(
+								--ve-ai-dark-theme-secondary-color,
+								color(display-p3 0.5755 0.5755 0.5755)
+							);
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 20px; /* 142.857% */
+						}
+					}
+					.agentsTabType {
+						color: #e8e8e8;
+						color: color(display-p3 0.9098 0.9098 0.9098);
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						text-transform: capitalize;
+						.agentsWorkflowJobCardsSubTitle {
+							color: var(--ve-ai-dark-theme-secondary-color, #939393);
+							color: var(
+								--ve-ai-dark-theme-secondary-color,
+								color(display-p3 0.5755 0.5755 0.5755)
+							);
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 20px; /* 142.857% */
+						}
+					}
+				}
+			}
+
 			.card-div-end-black-shadow {
 				background: linear-gradient(270deg, #111 6.77%, rgba(17, 17, 17, 0) 112.5%);
 				position: absolute;
