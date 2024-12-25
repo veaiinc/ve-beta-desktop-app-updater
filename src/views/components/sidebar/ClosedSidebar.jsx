@@ -131,6 +131,10 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 		const selectedIconName = closedSidebarIcons[index]?.name || 'Home';
 		setLastVisitedLocation(selectedIconName);
 	};
+	const getFilteredAiOptions = () => {
+		const currentPath = window.location.pathname;
+		return AiOptions.filter((option) => !currentPath.includes(option.route));
+	};
 	return (
 		<>
 			{isMobile ? (
@@ -174,20 +178,32 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 												lineHeight: '20px',
 											}}
 										>
-											<TaskSvg style={{ height: '20px', width: '20px' }} />
-											{getPathInfo(window.location.pathname).title}
+											{!AiOptions.find((option) =>
+												window.location.pathname.includes(option.route),
+											) && (
+												<TaskSvg
+													style={{ height: '20px', width: '20px' }}
+												/>
+											)}
+											{AiOptions.find((option) =>
+												window.location.pathname.includes(option.route),
+											)?.name || getPathInfo(window.location.pathname).title}
 										</h3>
-										<p
-											style={{
-												margin: 0,
-												fontSize: '12px',
-												fontWeight: '500',
-												fontFamily: 'Inter',
-												fontStyle: 'normal',
-											}}
-										>
-											{getPathInfo(window.location.pathname).description}
-										</p>
+										{!AiOptions.find((option) =>
+											window.location.pathname.includes(option.route),
+										) && (
+											<p
+												style={{
+													margin: 0,
+													fontSize: '12px',
+													fontWeight: '500',
+													fontFamily: 'Inter',
+													fontStyle: 'normal',
+												}}
+											>
+												{getPathInfo(window.location.pathname).description}
+											</p>
+										)}
 									</div>
 								}
 								open={showRaindrop}
@@ -200,11 +216,13 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 									backgroundColor: '#1f1f1f',
 									color: 'white',
 									width: '220px',
-									height: '145px',
+									height: AiOptions.find((option) =>
+										window.location.pathname.includes(option.route),
+									)
+										? '60px'
+										: '145px', // Reduced height for AI options
 									transformOrigin: 'left center',
-								}}
-								overlayStyle={{
-									paddingLeft: '12px',
+									marginLeft: '12px',
 								}}
 							>
 								<div
@@ -214,17 +232,38 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 									onMouseLeave={() => setShowRaindrop(false)}
 								>
 									<div className="gradientCirlce">
-										<p
-											style={{
-												textTransform: 'capitalize',
-												fontSize: '20px',
-												fontFamily: 'Inter',
-												fontWeight: '500',
-												color: 'white',
-											}}
-										>
-											{getPathInfo(window.location.pathname).initial}
-										</p>
+										{AiOptions.find((option) =>
+											window.location.pathname.includes(option.route),
+										)?.image ? (
+											<img
+												src={
+													AiOptions.find((option) =>
+														window.location.pathname.includes(
+															option.route,
+														),
+													)?.image
+												}
+												alt="AI Option"
+												style={{
+													height: '40px',
+													width: '40px',
+													borderRadius: '24px',
+													padding: '0px',
+												}}
+											/>
+										) : (
+											<p
+												style={{
+													textTransform: 'capitalize',
+													fontSize: '20px',
+													fontFamily: 'Inter',
+													fontWeight: '500',
+													color: 'white',
+												}}
+											>
+												{getPathInfo(window.location.pathname).initial}
+											</p>
+										)}
 									</div>
 								</div>
 							</Tooltip>
@@ -303,8 +342,12 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 								}}
 							>
 								<hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} />
-								{AiOptions.map((item) => (
-									<div>
+								{getFilteredAiOptions().map((item) => (
+									<div
+										key={item.route}
+										style={{ cursor: 'pointer' }}
+										onClick={() => navigate(item.route)}
+									>
 										<img
 											src={item.image}
 											alt={item.name}

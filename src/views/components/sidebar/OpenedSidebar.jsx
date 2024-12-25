@@ -247,7 +247,7 @@ const AiModulesList = ({ image, name, route, navigateTo }) => {
 		navigateTo(route);
 	};
 	return (
-		<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+		<div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
 			<img
 				src={image}
 				alt={name}
@@ -431,6 +431,7 @@ const OpenedSideBarItemsComponent = ({
 											navigateTo={(route) => {
 												handleNavigateFunction(route, singleItem);
 											}}
+											isSelected={selectedOption === singleItem?.name}
 										/>
 									</div>
 								);

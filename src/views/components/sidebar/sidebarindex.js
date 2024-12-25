@@ -156,7 +156,7 @@ export const AiOptions = [
 	{
 		icon: '',
 		name: 'Da Vinci',
-		route: '/da-vinci',
+		route: '/ai-agents/home/da-vinci',
 		image: DaVinci,
 	},
 	{ icon: '', name: 'Jarvis', route: '/jarvis', image: Jarvis },
