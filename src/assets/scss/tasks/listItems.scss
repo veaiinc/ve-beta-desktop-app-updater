@@ -28,6 +28,10 @@
 	font-weight: 500;
 	line-height: normal;
 	padding: 12px 0;
+	max-width: 200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .listItem-title {

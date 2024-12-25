@@ -18,16 +18,14 @@ const ListViewSidebar = ({
 	sidebarIsOpen,
 	closeSidebar,
 	updatePropertyValue,
-	workflows,
-	tenantUsers,
 	deleteTask,
-	responseTypes,
 	rowTypes,
 	handleCreateSubTaskClick,
 	handleSubTaskClick,
 	isShowingSubTask,
 	parentTaskNo,
 	handleChildTaskClose,
+	responseMetadata,
 }) => {
 	const {
 		tasks: { subTasks, getSubTasks },
@@ -112,8 +110,7 @@ const ListViewSidebar = ({
 				) {
 					continue;
 				}
-
-				const { type = null, name = null, Icon = null } = responseTypes?.[key] || {};
+				const { type = null, name = null, Icon = null, props } = responseMetadata[key];
 
 				const RowComponent = rowTypes?.[type] || null;
 				listItems.push(
@@ -127,26 +124,11 @@ const ListViewSidebar = ({
 								<RowComponent
 									key={key}
 									value={value}
-									parseValue={type === 'person'}
 									title={name}
 									showLabel
 									defaultLabel={'Not selected'}
 									{...(type === 'date' ? { format: 'MMM DD, YYYY h:mm A' } : {})}
-									{...(key === 'workflow' ? { workflows } : {})}
-									{...(type === 'person' ? { showName: true } : {})}
-									{...(key === 'assignedTo'
-										? { persons: tenantUsers, multiSelect: true }
-										: {})}
-									{...(key === 'updatedAt' ||
-									key === 'createdAt' ||
-									key === 'assignedAt'
-										? { timestamp: true }
-										: {})}
-									{...(key === 'createdBy' ||
-									key === 'updatedBy' ||
-									key === 'assignedBy'
-										? { disabled: true }
-										: {})}
+									{...props}
 									onOptionClick={(value) =>
 										updatePropertyValue(row._id, key, value, isShowingSubTask)
 									}
@@ -161,7 +143,7 @@ const ListViewSidebar = ({
 
 			return listItems;
 		},
-		[isShowingSubTask, responseTypes, rowTypes, workflows, tenantUsers, updatePropertyValue],
+		[isShowingSubTask, responseMetadata, rowTypes, updatePropertyValue],
 	);
 
 	const generateSkeleton = useCallback(() => {
@@ -227,9 +209,13 @@ const ListViewSidebar = ({
 							<textarea
 								className="sidebar-title-input"
 								value={selectedRow?.title || ''}
-								onChange={(e) =>
-									updatePropertyValue(selectedRow?._id, 'title', e.target.value)
-								}
+								onChange={(e) => {
+									updatePropertyValue(
+										selectedRow?._id,
+										'title',
+										e?.target?.value,
+									);
+								}}
 								placeholder="Enter title"
 								rows={1}
 							/>
@@ -314,9 +300,7 @@ const ListViewSidebar = ({
 												task={subTask}
 												key={subTask?._id}
 												rowTypes={rowTypes}
-												responseTypes={responseTypes}
-												workflows={workflows}
-												tenantUsers={tenantUsers}
+												responseMetadata={responseMetadata}
 												updatePropertyValue={updatePropertyValue}
 												isSubTask={true}
 												handleRowClick={onSubTaskClick}

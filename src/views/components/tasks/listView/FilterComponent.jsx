@@ -17,11 +17,10 @@ const FilterComponent = ({
 	fieldName,
 	filters,
 	updateListViewInfo,
-	workflows,
-	tenantUsers,
 	isPending,
 	onConfirm,
 	setPendingFilters,
+	props,
 }) => {
 	const handleFilterChange = useCallback(
 		(key, value) => {
@@ -36,7 +35,6 @@ const FilterComponent = ({
 		},
 		[filters, updateListViewInfo, isPending, onConfirm],
 	);
-
 	const removeFilter = useCallback(() => {
 		if (isPending) {
 			setPendingFilters((prev) => prev.filter((f) => f.key !== fieldName));
@@ -48,23 +46,22 @@ const FilterComponent = ({
 	const componentOptionsMapper = {
 		workflow: (value) => (
 			<WorkFlow
-				val={value}
-				workflows={workflows}
+				value={value}
+				{...props}
 				onOptionClick={(value) => {
-					const workflow = workflows.find((workflow) => workflow._id === value);
+					const workflow = props?.options?.find((workflow) => workflow._id === value);
 					handleFilterChange('workflow', workflow);
 				}}
 			/>
 		),
 		person: (value) => (
 			<Person
-				value={value}
-				persons={tenantUsers}
+				value={value?.value}
 				title={title}
 				onOptionClick={(value) => handleFilterChange(fieldName, value)}
-				parseValue={true}
-				showName={true}
+				showLabel={true}
 				defaultLabel={'hiiii'}
+				{...props}
 			/>
 		),
 		status: (value) => (

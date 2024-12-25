@@ -38,6 +38,7 @@ const ListViewHeader = ({
 	workflows,
 	tenantUsers,
 	searchValue,
+	responseMetadata,
 	// setPendingFilters,
 }) => {
 	const [info, setInfo] = useState({
@@ -116,7 +117,7 @@ const ListViewHeader = ({
 								<input
 									className="searchInputTag"
 									placeholder="Search"
-									value={info?.searchValue}
+									value={searchValue}
 									onChange={(e) =>
 										updateListViewInfo('searchValue', e.target?.value)
 									}
@@ -199,26 +200,38 @@ const ListViewHeader = ({
 				)}
 				{filters.length > 0 || pendingFilters.length > 0 ? (
 					<div className="listView-filterContainer">
-						{[...filters, ...pendingFilters].map((filter) => (
-							<FilterComponent
-								key={filter?.key}
-								Icon={responseTypes[filter?.key]?.Icon}
-								title={responseTypes[filter?.key]?.name}
-								fieldName={filter?.key}
-								value={filter?.value}
-								updateListViewInfo={updateListViewInfo}
-								filters={filters}
-								workflows={workflows}
-								tenantUsers={tenantUsers}
-								type={responseTypes[filter?.key]?.type}
-								isPending={!filters.includes(filter)}
-								onConfirm={(key, value) => {
-									setPendingFilters((prev) => prev.filter((f) => f.key !== key));
-									updateListViewInfo('filters', [...filters, { key, value }]);
-								}}
-								setPendingFilters={setPendingFilters}
-							/>
-						))}
+						{[...filters, ...pendingFilters].map((filter) => {
+							const {
+								Icon = null,
+								name = null,
+								props = {},
+								type = null,
+							} = responseMetadata?.[filter?.key];
+							return (
+								<FilterComponent
+									key={filter?.key}
+									Icon={Icon}
+									title={name}
+									fieldName={filter?.key}
+									value={filter?.value}
+									updateListViewInfo={updateListViewInfo}
+									filters={filters}
+									workflows={workflows}
+									props={props}
+									tenantUsers={tenantUsers}
+									type={type}
+									isPending={!filters.includes(filter)}
+									onConfirm={(key, value) => {
+										setPendingFilters((prev) =>
+											prev.filter((f) => f.key !== key),
+										);
+										updateListViewInfo('filters', [...filters, { key, value }]);
+									}}
+									setPendingFilters={setPendingFilters}
+									responseMetadata
+								/>
+							);
+						})}
 						<DropDown
 							title="Add Filter"
 							options={properties?.filter(

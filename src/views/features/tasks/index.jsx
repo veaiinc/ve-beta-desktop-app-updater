@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ListView from '../../components/tasks/listView/ListView';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
@@ -14,21 +14,21 @@ import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 
 const responseTypes = {
-	title: { type: 'text', name: 'Title', Icon: textSvg },
-	description: { type: 'text', name: 'Description', Icon: textSvg },
-	status: { type: 'status', name: 'Status', Icon: PieSvg },
-	priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg },
-	workflow: { type: 'workflow', name: 'Workflow', Icon: WorkflowSvg },
-	assignedTo: { type: 'person', name: 'Assigned To', Icon: PersonSvg },
-	dueDate: { type: 'date', name: 'Due Date', Icon: ClockSvg },
-	assignedBy: { type: 'person', name: 'Assigned By', Icon: PersonSvg },
-	assignedAt: { type: 'date', name: 'Assigned At', Icon: ClockSvg },
-	completedAt: { type: 'date', name: 'Completed At', Icon: CalendarSvg },
-	createdAt: { type: 'date', name: 'Created At', Icon: CalendarSvg },
-	updatedAt: { type: 'date', name: 'Updated At', Icon: CalendarSvg },
-	createdBy: { type: 'person', name: 'Created By', Icon: PersonSvg },
-	updatedBy: { type: 'person', name: 'Updated By', Icon: PersonSvg },
-	taskSlNo: { type: 'id', name: 'Id', Icon: textSvg },
+	title: { type: 'text', name: 'Title', Icon: textSvg, props: {} },
+	description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
+	status: { type: 'status', name: 'Status', Icon: PieSvg, props: {} },
+	priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg, props: {} },
+	workflow: { type: 'workflow', name: 'Workflow', Icon: WorkflowSvg, props: {} },
+	assignedTo: { type: 'person', name: 'Assigned To', Icon: PersonSvg, props: {} },
+	dueDate: { type: 'date', name: 'Due Date', Icon: ClockSvg, props: {} },
+	assignedBy: { type: 'person', name: 'Assigned By', Icon: PersonSvg, props: {} },
+	assignedAt: { type: 'date', name: 'Assigned At', Icon: ClockSvg, props: {} },
+	completedAt: { type: 'date', name: 'Completed At', Icon: CalendarSvg, props: {} },
+	createdAt: { type: 'date', name: 'Created At', Icon: CalendarSvg, props: {} },
+	updatedAt: { type: 'date', name: 'Updated At', Icon: CalendarSvg, props: {} },
+	createdBy: { type: 'person', name: 'Created By', Icon: PersonSvg, props: {} },
+	updatedBy: { type: 'person', name: 'Updated By', Icon: PersonSvg, props: {} },
+	taskSlNo: { type: 'id', name: 'Id', Icon: textSvg, props: {} },
 };
 
 const Tasks = () => {
@@ -69,6 +69,67 @@ const Tasks = () => {
 		filters: [],
 		searchValue: '',
 	});
+
+	const responseMetadata = useMemo(
+		() => ({
+			title: { type: 'text', name: 'Title', Icon: textSvg, props: {} },
+			description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
+			status: { type: 'status', name: 'Status', Icon: PieSvg, props: {} },
+			priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg, props: {} },
+			workflow: {
+				type: 'workflow',
+				name: 'Workflow',
+				Icon: WorkflowSvg,
+				props: { options: info?.workflows },
+			},
+			assignedTo: {
+				type: 'person',
+				name: 'Assigned To',
+				Icon: PersonSvg,
+				props: { options: info?.tenantUsers, multiSelect: true, parseValue: true },
+			},
+			dueDate: { type: 'date', name: 'Due Date', Icon: ClockSvg, props: {} },
+			assignedBy: {
+				type: 'person',
+				name: 'Assigned By',
+				Icon: PersonSvg,
+				props: { disabled: true, parseValue: true },
+			},
+			assignedAt: {
+				type: 'date',
+				name: 'Assigned At',
+				Icon: ClockSvg,
+				props: { timestamp: true },
+			},
+			completedAt: { type: 'date', name: 'Completed At', Icon: CalendarSvg, props: {} },
+			createdAt: {
+				type: 'date',
+				name: 'Created At',
+				Icon: CalendarSvg,
+				props: { timestamps: true },
+			},
+			updatedAt: {
+				type: 'date',
+				name: 'Updated At',
+				Icon: CalendarSvg,
+				props: { timestamp: true },
+			},
+			createdBy: {
+				type: 'person',
+				name: 'Created By',
+				Icon: PersonSvg,
+				props: { disabled: true, parseValue: true },
+			},
+			updatedBy: {
+				type: 'person',
+				name: 'Updated By',
+				Icon: PersonSvg,
+				props: { disabled: true, parseValue: true },
+			},
+			taskSlNo: { type: 'id', name: 'Id', Icon: textSvg, props: {} },
+		}),
+		[info?.workflows, info?.tenantUsers],
+	);
 
 	const debounceTimeout = useRef(null);
 	const filterDebounceTimeout = useRef(null);
@@ -462,6 +523,7 @@ const Tasks = () => {
 				updatePropertyValue={updatePropertyValue}
 				deleteTask={deleteTask}
 				addNewTask={addNewTask}
+				responseMetadata={responseMetadata}
 			/>
 		</div>
 	);

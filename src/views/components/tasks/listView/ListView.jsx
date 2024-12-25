@@ -45,6 +45,7 @@ const ListView = ({
 	updatePropertyValue,
 	deleteTask,
 	addNewTask,
+	responseMetadata,
 }) => {
 	const handleRowClick = useCallback(
 		(rowId) => {
@@ -105,6 +106,7 @@ const ListView = ({
 				workflows={info?.workflows}
 				tenantUsers={info?.tenantUsers}
 				searchValue={info?.searchValue}
+				responseMetadata={responseMetadata}
 			/>
 			<div className="listContainer">
 				<div className="listInnerContainer">
@@ -118,13 +120,13 @@ const ListView = ({
 								task={task}
 								key={index}
 								properties={info?.properties}
-								responseTypes={responseTypes}
 								rowTypes={rowTypes}
 								updatePropertyValue={updatePropertyValue}
 								workflows={info?.workflows}
 								tenantUsers={info?.tenantUsers}
 								handleRowClick={handleRowClick}
 								clients={info?.clients}
+								responseMetadata={responseMetadata}
 							/>
 						))
 					) : (
@@ -149,6 +151,7 @@ const ListView = ({
 				tenantUsers={info?.tenantUsers}
 				clients={info?.clients}
 				isSubTask={info?.isCreatingSubtask}
+				responseMetadata={responseMetadata}
 			/>
 			<ListViewSidebar
 				selectedRow={info?.selectedSubTask || info?.selectedRow}
@@ -159,12 +162,10 @@ const ListView = ({
 				sidebarIsOpen={info?.sidebarIsOpen}
 				closeSidebar={handleCloseSidebar}
 				updatePropertyValue={updatePropertyValue}
-				workflows={info?.workflows}
-				tenantUsers={info?.tenantUsers}
 				deleteTask={deleteTask}
-				responseTypes={responseTypes}
 				rowTypes={rowTypes}
 				handleCreateSubTaskClick={handleCreateSubTaskClick}
+				responseMetadata={responseMetadata}
 			/>
 		</div>
 	);

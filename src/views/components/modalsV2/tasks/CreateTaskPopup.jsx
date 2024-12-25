@@ -31,8 +31,8 @@ const CreateTaskPopup = ({
 	closeModal,
 	addNewTask,
 	workflows,
-	tenantUsers,
 	isSubTask = false,
+	responseMetadata,
 }) => {
 	const [messageApi, contextHolder] = message.useMessage();
 	const [info, setInfo] = useState({
@@ -69,7 +69,9 @@ const CreateTaskPopup = ({
 			title,
 			workflowId,
 			workflowTemplateId: workflowId
-				? workflows?.find((workflow) => workflow._id === workflowId)?.templateId
+				? responseMetadata?.['workflow']?.props?.options?.find(
+						(workflow) => workflow._id === workflowId,
+				  )?.templateId
 				: null,
 		})
 			.filter(([key, value]) => value != null && value !== '')
@@ -77,7 +79,7 @@ const CreateTaskPopup = ({
 				acc[key] = value;
 				return acc;
 			}, {});
-	}, [info, workflows]);
+	}, [info, responseMetadata]);
 
 	const handleAddTask = useCallback(async () => {
 		try {
@@ -137,9 +139,9 @@ const CreateTaskPopup = ({
 					{!isSubTask ? (
 						<WorkFlow
 							val={info?.workflowId}
-							workflows={workflows}
 							onOptionClick={(value) => updateModalInfo('workflowId', value)}
 							title={'Workflow'}
+							{...responseMetadata?.['workflow']?.props}
 						/>
 					) : (
 						''
@@ -167,7 +169,7 @@ const CreateTaskPopup = ({
 					</div>
 					<Person
 						value={info?.assignedTo}
-						persons={tenantUsers}
+						{...responseMetadata?.['assignedTo']?.props}
 						onOptionClick={(value) => updateModalInfo('assignedTo', value)}
 						title={'Assigned To'}
 						multiSelect={true}

@@ -3,13 +3,11 @@ import '../../../../assets/scss/tasks/listViewRow.scss';
 const ListViewRow = ({
 	task,
 	properties,
-	responseTypes,
 	rowTypes,
 	updatePropertyValue,
-	workflows,
-	tenantUsers,
 	handleRowClick,
 	isSubTask = false,
+	responseMetadata,
 }) => {
 	const generateRow = useCallback(
 		(row) => {
@@ -38,26 +36,18 @@ const ListViewRow = ({
 					continue;
 				}
 
-				const { type, name } = responseTypes[key];
+				const { type, name, props } = responseMetadata[key];
 				const RowComponent = rowTypes[type] || null;
 
 				const listItem = RowComponent ? (
 					<RowComponent
 						key={key}
 						value={value}
-						parseValue={type === 'person'}
 						title={name}
 						onOptionClick={(value) =>
 							updatePropertyValue(task._id, key, value, isSubTask)
 						}
-						{...(key === 'workflow' ? { workflows } : {})}
-						{...(key === 'assignedTo'
-							? { persons: tenantUsers, multiSelect: true }
-							: {})}
-						{...(key === 'createdBy' || key === 'updatedBy' || key === 'assignedBy'
-							? { disabled: true }
-							: {})}
-						{...(key === 'updatedAt' || key === 'createdAt' ? { timestamp: true } : {})}
+						{...props}
 					/>
 				) : null;
 				if (titleReached) {
@@ -79,16 +69,7 @@ const ListViewRow = ({
 				</div>,
 			];
 		},
-		[
-			task,
-			properties,
-			responseTypes,
-			rowTypes,
-			updatePropertyValue,
-			workflows,
-			tenantUsers,
-			isSubTask,
-		],
+		[task, properties, rowTypes, updatePropertyValue, isSubTask, responseMetadata],
 	);
 
 	return (

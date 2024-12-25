@@ -7,11 +7,11 @@ import { Select, Tooltip } from 'antd';
 const Person = ({
 	value,
 	parseValue = false,
-	showName = false,
+	showLabel = false,
 	title,
 	customListItemStyle = {},
 	onOptionClick,
-	persons = [],
+	options = [],
 	multiSelect = false,
 	disabled = false,
 }) => {
@@ -56,7 +56,7 @@ const Person = ({
 		<Tooltip title={title} placement="bottom">
 			<Select
 				placeholder={`Select ${title || 'person'}`}
-				options={persons}
+				options={options}
 				variant="borderless"
 				labelInValue
 				showSearch={false}
@@ -87,7 +87,7 @@ const Person = ({
 									{option?.label?.[0].toUpperCase()}
 								</div>
 							</div>
-							{showName ? (
+							{showLabel ? (
 								<div className="person-tag-label">{option?.label}</div>
 							) : (
 								''
