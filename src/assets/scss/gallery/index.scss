@@ -414,7 +414,8 @@
 						left: 0;
 						cursor: pointer;
 						// background-color: rgba(0, 0, 0, 0.3);
-						background: linear-gradient(rgba(0, 0, 0, 0) 6%, rgb(0, 0, 0) 100%), rgba(196, 196, 196, 0);
+						background: linear-gradient(rgba(0, 0, 0, 0) 6%, rgb(0, 0, 0) 100%),
+							rgba(196, 196, 196, 0);
 					}
 				}
 			}
@@ -481,6 +482,31 @@
 						font-weight: 500;
 						line-height: 38.4px; /* 160% */
 						text-transform: capitalize;
+					}
+					.galleryEditOptions {
+						display: flex;
+						position: absolute;
+						z-index: 2;
+						top: 40px;
+						right: 0;
+						gap: 16px;
+						flex-direction: column;
+						width: 204px;
+						padding: 16px;
+						border-radius: 16px;
+						background: #151515;
+						li {
+							cursor: pointer;
+							list-style: none;
+							color: #e4e5e6;
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 16px; /* 114.286% */
+							letter-spacing: -0.42px;
+							text-transform: capitalize;
+						}
 					}
 				}
 				.albumSearchCotainer {
@@ -688,7 +714,8 @@
 					height: 160px;
 					border-radius: 8px;
 					border: 1px solid #2a2a2a;
-					background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%), #1d1d1d;
+					background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%),
+						#1d1d1d;
 					.uploadIcon {
 						width: 16px;
 						height: 11px;
@@ -755,142 +782,6 @@
 				.selected {
 					border: 2px solid #6055ec;
 					border-radius: 8px;
-				}
-				.selectedImagesCotainer {
-					display: flex;
-					justify-content: space-between;
-					width: 486px;
-					height: 48px;
-					padding: 12px 24px;
-					border-radius: 100px;
-					background: #1d1d1d;
-					position: fixed;
-					z-index: 5;
-					bottom: 0;
-					bottom: 20px; // Add some space from the bottom
-					left: 50%; // Position the left edge at 50% of the parent
-					transform: translateX(-50%);
-					.selectedImagesCounter {
-						display: flex;
-						gap: 11px;
-
-						p {
-							color: #fff;
-							font-size: 14px;
-							font-weight: 500;
-							line-height: 22.5px; /* 160.714% */
-						}
-					}
-					.selectedImagesActions {
-						display: flex;
-						gap: 16px;
-						cursor: pointer;
-						justify-content: center;
-						align-items: center;
-						.forwardOptions {
-							position: absolute;
-							top: -75px;
-							right: 0;
-							display: flex;
-							flex-direction: column;
-							gap: 8px;
-							border-radius: 16px;
-							background: #151515;
-							width: 200px;
-							padding: 12px 16px;
-							li {
-								color: #e4e5e6;
-								font-size: 14px;
-								font-weight: 400;
-								line-height: 16px;
-								letter-spacing: -0.42px;
-								text-transform: capitalize;
-								list-style: none;
-								padding: 8px 0px;
-							}
-						}
-						.pinOptions {
-							position: absolute;
-							top: -150px;
-							right: 0;
-							display: flex;
-							flex-direction: column;
-							gap: 12px;
-							border-radius: 16px;
-							background: #151515;
-							width: 200px;
-							height: 130px;
-							overflow: scroll;
-							.pinSearchContainer {
-								display: flex;
-								justify-content: space-between;
-								align-items: center;
-								padding: 8px;
-								width: 100%;
-								gap: 8px;
-								background: #1f1f1f;
-								p {
-									color: rgba(228, 229, 230, 0.48);
-									font-size: 12px;
-									font-weight: 500;
-									line-height: 16px; /* 133.333% */
-									text-transform: capitalize;
-								}
-								input {
-									width: 100%;
-									background: transparent;
-									border: none;
-									color: white;
-								}
-							}
-							.pinOptionsList {
-								display: flex;
-								flex-direction: column;
-								gap: 3px;
-								width: 100%;
-								padding: 2px 8px;
-								.checkboxLabel {
-									display: flex;
-									gap: 8px;
-
-									span {
-										overflow: hidden;
-										color: #e4e5e6;
-										text-overflow: ellipsis;
-										white-space: nowrap;
-										font-family: Inter;
-										font-size: 12px;
-										font-style: normal;
-										font-weight: 400;
-										line-height: 16px; /* 133.333% */
-										letter-spacing: -0.3px;
-									}
-								}
-							}
-						}
-						.optionsContainer {
-							display: flex;
-							flex-direction: column;
-							gap: 10px;
-							border-radius: 16px;
-							background: #151515;
-							width: 150px;
-							padding: 12px 16px;
-							position: absolute;
-							top: -230px;
-							right: 0;
-							li {
-								color: #e4e5e6;
-								font-size: 14px;
-								font-weight: 400;
-								line-height: 16px;
-								letter-spacing: -0.42px;
-								text-transform: capitalize;
-								list-style: none;
-								padding: 8px 0px;
-							}
-						}
-					}
 				}
 			}
 			.clientSelectionImagesContainer {
@@ -1408,3 +1299,139 @@
 // 		background-color: red;
 // 	}
 // }
+.selectedImagesCotainer {
+	display: flex;
+	justify-content: space-between;
+	width: 486px;
+	height: 48px;
+	padding: 12px 24px;
+	border-radius: 100px;
+	background: #1d1d1d;
+	position: fixed;
+	z-index: 5;
+	bottom: 0;
+	bottom: 20px; // Add some space from the bottom
+	left: 50%; // Position the left edge at 50% of the parent
+	transform: translateX(-50%);
+	.selectedImagesCounter {
+		display: flex;
+		gap: 11px;
+
+		p {
+			color: #fff;
+			font-size: 14px;
+			font-weight: 500;
+			line-height: 22.5px; /* 160.714% */
+		}
+	}
+	.selectedImagesActions {
+		display: flex;
+		gap: 16px;
+		cursor: pointer;
+		justify-content: center;
+		align-items: center;
+		.forwardOptions {
+			position: absolute;
+			top: -75px;
+			right: 0;
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			border-radius: 16px;
+			background: #151515;
+			width: 200px;
+			padding: 12px 16px;
+			li {
+				color: #e4e5e6;
+				font-size: 14px;
+				font-weight: 400;
+				line-height: 16px;
+				letter-spacing: -0.42px;
+				text-transform: capitalize;
+				list-style: none;
+				padding: 8px 0px;
+			}
+		}
+		.pinOptions {
+			position: absolute;
+			top: -150px;
+			right: 0;
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			border-radius: 16px;
+			background: #151515;
+			width: 200px;
+			height: 130px;
+			overflow: scroll;
+			.pinSearchContainer {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 8px;
+				width: 100%;
+				gap: 8px;
+				background: #1f1f1f;
+				p {
+					color: rgba(228, 229, 230, 0.48);
+					font-size: 12px;
+					font-weight: 500;
+					line-height: 16px; /* 133.333% */
+					text-transform: capitalize;
+				}
+				input {
+					width: 100%;
+					background: transparent;
+					border: none;
+					color: white;
+				}
+			}
+			.pinOptionsList {
+				display: flex;
+				flex-direction: column;
+				gap: 3px;
+				width: 100%;
+				padding: 2px 8px;
+				.checkboxLabel {
+					display: flex;
+					gap: 8px;
+
+					span {
+						overflow: hidden;
+						color: #e4e5e6;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 16px; /* 133.333% */
+						letter-spacing: -0.3px;
+					}
+				}
+			}
+		}
+		.optionsContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			border-radius: 16px;
+			background: #151515;
+			width: 150px;
+			padding: 12px 16px;
+			position: absolute;
+			top: -230px;
+			right: 0;
+			li {
+				color: #e4e5e6;
+				font-size: 14px;
+				font-weight: 400;
+				line-height: 16px;
+				letter-spacing: -0.42px;
+				text-transform: capitalize;
+				list-style: none;
+				padding: 8px 0px;
+			}
+		}
+	}
+}

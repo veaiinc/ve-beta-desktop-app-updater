@@ -235,6 +235,7 @@ const GalleryPage = () => {
 		showCoverButton: false,
 		showAlbumOptionsMenu: false,
 		showAlbumSettings: false,
+		clientSubscriptionOptions: false,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -331,18 +332,7 @@ const GalleryPage = () => {
 	];
 
 	const handleClickOutside = useCallback((event) => {
-		const isSwitch = event.target.closest('.ant-switch');
-		const isWithinAlbumOptions = event.target.closest('[data-album-options]');
-
 		const clickOutsideCheck = (ref, iconRef, stateName) => {
-			// Don't close options if clicking a switch or within album options
-			if (
-				(stateName === 'showOptionsContainer' || stateName === 'showOptions') &&
-				(isSwitch || isWithinAlbumOptions)
-			) {
-				return;
-			}
-
 			if (
 				ref.current &&
 				!ref.current?.contains(event.target) &&
@@ -358,21 +348,6 @@ const GalleryPage = () => {
 		clickOutsideCheck(forwardOptionsRef, forwardIconRef, 'showForward');
 		clickOutsideCheck(pinSearchRef, pinIconRef, 'showPin');
 		clickOutsideCheck(optionsContainerRef, optionsIconRef, 'showOptionsContainer');
-		clickOutsideCheck(albumSettingsRef, settingsRef, 'showAlbumSettings');
-
-		const simpleClickOutsideCheck = (ref, stateName) => {
-			// Don't close album options if clicking a switch within album options
-			if (
-				(stateName === 'showOptionsContainer' || stateName === 'showOptions') &&
-				(isSwitch || isWithinAlbumOptions)
-			) {
-				return;
-			}
-
-			if (ref.current && !ref.current.contains(event.target)) {
-				setInfo((prevInfo) => ({ ...prevInfo, [stateName]: false }));
-			}
-		};
 	}, []);
 
 	// ... rest of the code ...
@@ -943,23 +918,34 @@ const GalleryPage = () => {
 			const newSelectedImages = isDeselecting
 				? prevInfo.selectedImages.filter((i) => i !== images?._id)
 				: [...prevInfo.selectedImages, images?._id];
+
+			// Handle tags differently for client selections vs regular albums
 			let newSelectedImagesTags;
-			if (isDeselecting) {
-				const remainingImages = info?.imagesList?.docs.filter(
-					(img) => newSelectedImages.includes(img._id) && img._id !== images?._id,
-				);
-				newSelectedImagesTags = [
-					...new Set(
-						remainingImages.flatMap((img) => img.galleryTags).map((tag) => tag._id),
-					),
-				];
+			if (info.activeTab === 'Client Selections') {
+				// For client selections, don't process tags
+				newSelectedImagesTags = prevInfo.selectedImagesTags || [];
 			} else {
-				newSelectedImagesTags = [
-					...new Set([
-						...(prevInfo.selectedImagesTags || []),
-						...images?.galleryTags.map((tag) => tag._id),
-					]),
-				];
+				// For regular albums, process tags as before
+				if (isDeselecting) {
+					const remainingImages = info?.imagesList?.docs.filter(
+						(img) => newSelectedImages.includes(img._id) && img._id !== images?._id,
+					);
+					newSelectedImagesTags = [
+						...new Set(
+							remainingImages
+								.filter((img) => img.galleryTags) // Add null check
+								.flatMap((img) => img.galleryTags)
+								.map((tag) => tag._id),
+						),
+					];
+				} else {
+					newSelectedImagesTags = [
+						...new Set([
+							...(prevInfo.selectedImagesTags || []),
+							...(images?.galleryTags?.map((tag) => tag._id) || []), // Add null check
+						]),
+					];
+				}
 			}
 
 			return {
@@ -1511,31 +1497,81 @@ const GalleryPage = () => {
 			}));
 		}
 	};
-	const handleLightRoomCopy = async () => {
-		if (!info.activeAlbumId) {
-			message.error('No active album selected');
-			return;
-		}
+	// ... existing code ...
 
+	const handleLightRoomCopy = async () => {
 		try {
-			const response = await getLightroomCopyList(galleryId, info.activeAlbumId);
+			// Show loading message
+			message.loading({
+				content: 'Fetching image list...',
+				key: 'lightroomCopy',
+			});
+
+			let response;
+			if (info.activeTab === 'Client Selections' && info.clientSelectionID) {
+				// Check if we have client selection images
+				if (!info.clientSelectionImages?.docs?.length) {
+					message.destroy('lightroomCopy');
+					message.info('No images found in this client selection');
+					return;
+				}
+
+				// Create a list of filenames from client selection images
+				const clientSelectionFileNames = info.clientSelectionImages.docs
+					.filter((img) => img.activeVersion?.givenFileName) // Filter out any images without filenames
+					.map((img) => img.activeVersion.givenFileName);
+
+				// If no valid filenames found
+				if (!clientSelectionFileNames.length) {
+					message.destroy('lightroomCopy');
+					message.info('No valid images found in this client selection');
+					return;
+				}
+
+				// Set the lightroom copy list directly from client selection images
+				setInfo((prev) => ({
+					...prev,
+					lightroomCopyList: clientSelectionFileNames,
+					showLightRoomCopy: true,
+					showOptionsContainer: false,
+				}));
+
+				message.destroy('lightroomCopy');
+				message.success('Image list fetched successfully');
+				return;
+			}
+
+			// Handle regular album case
+			if (!info.activeAlbumId) {
+				message.destroy('lightroomCopy');
+				message.error('No active album selected');
+				return;
+			}
+
+			// Get lightroom copy list for regular albums
+			response = await getLightroomCopyList(galleryId, info.activeAlbumId);
 
 			if (response?.[0] === true) {
 				setInfo((prev) => ({
 					...prev,
-					lightroomCopyList: response[1], // Store the list in state
+					lightroomCopyList: response[1],
 					showLightRoomCopy: true,
 					showOptionsContainer: false,
 				}));
-				// message.success('Lightroom copy list fetched successfully');
+				message.destroy('lightroomCopy');
+				message.success('Image list fetched successfully');
 			} else {
+				message.destroy('lightroomCopy');
 				message.error('Failed to fetch lightroom copy list');
 			}
 		} catch (error) {
 			console.error('Error fetching lightroom copy list:', error);
+			message.destroy('lightroomCopy');
 			message.error('Failed to fetch lightroom copy list');
 		}
 	};
+
+	// ... rest of the code ...
 	const handleCopyLightRoomList = () => {
 		if (info.lightroomCopyList?.length) {
 			const textToCopy = info.lightroomCopyList.join(',');
@@ -2853,60 +2889,140 @@ const GalleryPage = () => {
 	// 	}));
 	// };
 
+	// ... existing code ...
+
 	const handleDownload = async () => {
 		if (validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 
-		message.loading('Downloading images...', 0);
-		if (info?.selectedImages?.length === 1) {
-			const response = await getDownloadLinkForImage(info?.selectedImages[0]);
+		try {
+			// Start with loading message
+			message.loading({
+				content: 'Preparing download...',
+				key: 'downloadMessage',
+				duration: 0,
+			});
 
-			if (response?.[0] === true) {
-				message.destroy();
-				message.success('Download completed');
-			} else {
-				message.error('Failed to get download link');
-			}
-		} else if (info?.selectedImages?.length <= 10) {
-			const payload = {
-				image_ids: info?.selectedImages,
-				imageType: 'original',
-			};
-			const response = await getDownloadForMultipleImages(payload, galleryId);
-			if (response?.[0] === true) {
-				message.destroy();
-				message.success('Download completed');
-			} else {
-				message.error('Failed to get download link');
-			}
-		} else {
-			const payload = {
-				image_ids: info?.selectedImages,
-				imageType: 'optimized',
-			};
-			const response = await downloadImages(payload, galleryId, info?.activeAlbumId);
-			if (response?.[0] === true && response?.[1]?.signedUrl) {
-				// Create a temporary link element and trigger download
-				const link = document.createElement('a');
-				link.href = response[1].signedUrl;
-				link.setAttribute('download', `gallery-images-${Date.now()}.zip`);
-				document.body.appendChild(link);
-				link.click();
-				document.body.removeChild(link);
+			// Single image download handling
+			if (info?.selectedImages?.length === 1) {
+				const selectedImageId = info.selectedImages[0];
 
-				message.destroy();
-				message.success('Download started');
-			} else {
-				message.destroy();
-				message.error('Failed to prepare download');
+				// Get single image download link
+				const response = await getDownloadLinkForImage(selectedImageId);
+
+				if (response?.[0] === true) {
+					// Create link and trigger download
+					const link = document.createElement('a');
+					link.href = response[1]?.url;
+					link.download = response[1]?.fileName || `image-${Date.now()}`;
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+
+					message.success({
+						content: 'Download started',
+						key: 'downloadMessage',
+					});
+				} else {
+					throw new Error('Failed to get download link');
+				}
+
+				// Clear selection
+				setInfo((prev) => ({
+					...prev,
+					selectedImages: [],
+				}));
+				return;
 			}
+
+			// Handle Client Selections tab with no specific selections
+			if (
+				info.activeTab === 'Client Selections' &&
+				info.clientSelectionID &&
+				info.selectedImages.length === 0
+			) {
+				const payload = {
+					image_ids: info.clientSelectionImages.docs.map((img) => img._id),
+					imageType: 'optimized',
+				};
+
+				const response = await downloadImages(payload, galleryId, info.activeAlbumId);
+
+				if (response?.[0] && response?.[1]?.signedUrl) {
+					const link = document.createElement('a');
+					link.href = response[1].signedUrl;
+					link.setAttribute('download', `client-selection-${Date.now()}.zip`);
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+
+					message.success({
+						content: 'Download started',
+						key: 'downloadMessage',
+					});
+				} else {
+					throw new Error('Failed to prepare download');
+				}
+				return;
+			}
+
+			// Handle multiple images (2-10)
+			if (info?.selectedImages?.length <= 10) {
+				const payload = {
+					image_ids: info?.selectedImages,
+					imageType: 'original',
+				};
+				const response = await getDownloadForMultipleImages(payload, galleryId);
+
+				if (response?.[0] === true) {
+					message.success({
+						content: 'Download completed',
+						key: 'downloadMessage',
+					});
+				} else {
+					throw new Error('Failed to get download links');
+				}
+			} else {
+				// Handle bulk download (more than 10 images)
+				const payload = {
+					image_ids: info?.selectedImages,
+					imageType: 'optimized',
+				};
+				const response = await downloadImages(payload, galleryId, info?.activeAlbumId);
+
+				if (response?.[0] === true && response?.[1]?.signedUrl) {
+					const link = document.createElement('a');
+					link.href = response[1].signedUrl;
+					link.setAttribute('download', `gallery-images-${Date.now()}.zip`);
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+
+					message.success({
+						content: 'Download started',
+						key: 'downloadMessage',
+					});
+				} else {
+					throw new Error('Failed to prepare download');
+				}
+			}
+
+			// Clear selection after successful download
+			setInfo((prev) => ({
+				...prev,
+				selectedImages: [],
+			}));
+		} catch (error) {
+			console.error('Download error:', error);
+			message.error({
+				content: error.message || 'An error occurred during download',
+				key: 'downloadMessage',
+			});
 		}
-		setInfo((prev) => ({
-			...prev,
-			selectedImages: [],
-		}));
 	};
+
+	// ... rest of the code ...
 
 	// Add this function to calculate drop position
 	const calculateDropPosition = (e, containerRef) => {
@@ -4313,185 +4429,6 @@ const GalleryPage = () => {
 											</>
 										)}
 									</InfiniteScroll>
-
-									{info.selectedImages.length > 0 && (
-										<div className="selectedImagesCotainer">
-											<div className="selectedImagesCounter">
-												<p
-													onClick={() => handleClearSelectedImages()}
-													style={{ cursor: 'pointer' }}
-												>
-													X
-												</p>
-												<p>{info.selectedImages.length} selected</p>
-											</div>
-											{!info.isRearranging && (
-												<div className="selectedImagesActions">
-													<div
-														onClick={() =>
-															handleExpandClick(null, 'multiple')
-														}
-													>
-														<ExpandIcon />
-													</div>
-
-													<div
-														style={{ position: 'relative' }}
-														ref={forwardIconRef}
-													>
-														<ForwardIcon onClick={handleForwardIcon} />
-
-														{info.showForward && (
-															<div
-																className="forwardOptions"
-																ref={forwardOptionsRef}
-															>
-																{/* <li style={{ cursor: 'not-allowed' }}>
-																Copy to client selection
-															</li> */}
-																<li
-																	onClick={() =>
-																		setInfo((prev) => ({
-																			...prev,
-																			showMoveToAlbum: true,
-																		}))
-																	}
-																>
-																	Move to Other Albums
-																</li>
-															</div>
-														)}
-													</div>
-													<div
-														style={{ position: 'relative' }}
-														ref={pinIconRef}
-													>
-														<PinIcon onClick={handlePinIcon} />
-														{info.showPin && (
-															<div
-																className="pinOptions"
-																ref={pinSearchRef}
-															>
-																<div className="pinSearchContainer">
-																	<input
-																		type="text"
-																		placeholder="type to Search or create"
-																		value={info.tagSearchValue}
-																		onChange={(e) =>
-																			setInfo((prev) => ({
-																				...prev,
-																				tagSearchValue:
-																					e.target.value,
-																			}))
-																		}
-																		onKeyDown={(e) => {
-																			if (e.key === 'Enter') {
-																				addTagHandlerFunction();
-																			}
-																		}}
-																	/>
-																	<p
-																		style={{
-																			cursor: 'pointer',
-																			marginRight: '5px',
-																		}}
-																		onClick={handlePinIcon}
-																	>
-																		X
-																	</p>
-																</div>
-																{tagsList?.list
-																	?.filter((tag) =>
-																		tag?.displayName
-																			?.toLowerCase()
-																			.includes(
-																				info.tagSearchValue.toLowerCase(),
-																			),
-																	)
-																	.map((tag) => (
-																		<div className="pinOptionsList">
-																			<label className="checkboxLabel">
-																				<input
-																					type="checkbox"
-																					checked={info?.selectedImagesTags?.includes(
-																						tag?._id,
-																					)}
-																					onChange={() =>
-																						handleTagChange(
-																							tag?._id,
-																						)
-																					}
-																				/>
-																				<span className="checkboxText">
-																					{
-																						tag?.displayName
-																					}
-																				</span>
-																			</label>
-																		</div>
-																	))}
-															</div>
-														)}
-													</div>
-													<div
-														style={{ position: 'relative' }}
-														ref={optionsIconRef}
-													>
-														<OptionsIcon onClick={handleOptionsIcon} />
-														{info.showAlbumOptionsMenu && (
-															<div
-																className="optionsContainer"
-																ref={optionsContainerRef}
-															>
-																<li onClick={handleDownload}>
-																	Download
-																</li>
-																<li
-																	style={{
-																		cursor:
-																			info?.selectedImages
-																				.length === 1
-																				? 'pointer'
-																				: 'not-allowed',
-																	}}
-																	onClick={() =>
-																		handleSetAlbumCover()
-																	}
-																>
-																	Set Album cover
-																</li>
-																<li
-																	style={{
-																		cursor:
-																			info?.selectedImages
-																				.length === 1
-																				? 'pointer'
-																				: 'not-allowed',
-																	}}
-																	onClick={() =>
-																		handleSetGalleryCover()
-																	}
-																>
-																	Set Gallery cover
-																</li>
-																<li>Share</li>
-																<li
-																	onClick={() =>
-																		setInfo((prev) => ({
-																			...prev,
-																			showImageDeletePopup: true,
-																		}))
-																	}
-																>
-																	Delete
-																</li>
-															</div>
-														)}
-													</div>
-												</div>
-											)}
-										</div>
-									)}
 								</div>
 							</div>
 						</div>
@@ -4537,7 +4474,61 @@ const GalleryPage = () => {
 											<ThreeDotsIcon
 												className="threeDotsIcon"
 												style={{ cursor: 'pointer' }}
+												onClick={() =>
+													setInfo((prev) => ({
+														...prev,
+														clientSubscriptionOptions:
+															!prev.clientSubscriptionOptions,
+													}))
+												}
 											/>
+
+											{info.clientSubscriptionOptions && (
+												<div
+													className="galleryEditOptions"
+													ref={optionsContainerRef}
+													style={{
+														position: 'absolute',
+														left: '20%',
+														top: '100%',
+														zIndex: 100,
+														width: '200px',
+													}}
+												>
+													<li
+														onClick={handleLightRoomCopy}
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															gap: '4px',
+														}}
+													>
+														<LightRoomIcon />
+														<span>Light Room Copy</span>
+													</li>
+													<li
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															gap: '4px',
+														}}
+													>
+														<ShareIcon />
+														<span>Share</span>
+													</li>
+													<li
+														onClick={handleDownload}
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															gap: '4px',
+														}}
+													>
+														<DownloadIcon />
+														<span>Download</span>
+													</li>
+												</div>
+											)}
 
 											<div></div>
 										</div>
@@ -4619,12 +4610,12 @@ const GalleryPage = () => {
 																				? 'selected'
 																				: ''
 																		}`}
-																		// onClick={() =>
-																		// 	handleImageSelect(
-																		// 		index,
-																		// 		image,
-																		// 	)
-																		// }
+																		onClick={() =>
+																			handleImageSelect(
+																				index,
+																				image,
+																			)
+																		}
 																	>
 																		<img
 																			src={src}
@@ -4656,7 +4647,7 @@ const GalleryPage = () => {
 										</ResponsiveMasonry>
 									</InfiniteScroll>
 
-									{/* {info.selectedImages.length > 0 && (
+									{/* {info.selectedImages?.length > 0 && (
 										<div className="selectedImagesCotainer">
 											<div className="selectedImagesCounter">
 												<p
@@ -4713,18 +4704,18 @@ const GalleryPage = () => {
 																<div className="pinOptionsList">
 																	<label className="checkboxLabel">
 																		<input
-																				type="checkbox"
-																				checked={info?.selectedImagesTags?.includes(
-																						tag?._id,
-																				)}
-																				onChange={() =>
-																						handleTagChange(
-																								tag?._id,
-																						)
-																				}
+																			type="checkbox"
+																			checked={info?.selectedImagesTags?.includes(
+																				tag?._id,
+																			)}
+																			onChange={() =>
+																				handleTagChange(
+																					tag?._id,
+																				)
+																			}
 																		/>
 																		<span className="checkboxText">
-																				{tag?.displayName}
+																			{tag?.displayName}
 																		</span>
 																	</label>
 																</div>
@@ -4765,6 +4756,149 @@ const GalleryPage = () => {
 							</div>
 						</div>
 					))}
+				{info.selectedImages.length > 0 && (
+					<div className="selectedImagesCotainer">
+						<div className="selectedImagesCounter">
+							<p
+								onClick={() => handleClearSelectedImages()}
+								style={{ cursor: 'pointer' }}
+							>
+								X
+							</p>
+							<p>{info.selectedImages.length} selected</p>
+						</div>
+						{!info.isRearranging && (
+							<div className="selectedImagesActions">
+								<div onClick={() => handleExpandClick(null, 'multiple')}>
+									<ExpandIcon />
+								</div>
+
+								<div style={{ position: 'relative' }} ref={forwardIconRef}>
+									<ForwardIcon onClick={handleForwardIcon} />
+
+									{info.showForward && (
+										<div className="forwardOptions" ref={forwardOptionsRef}>
+											{/* <li style={{ cursor: 'not-allowed' }}>
+																Copy to client selection
+															</li> */}
+											<li
+												onClick={() =>
+													setInfo((prev) => ({
+														...prev,
+														showMoveToAlbum: true,
+													}))
+												}
+											>
+												Move to Other Albums
+											</li>
+										</div>
+									)}
+								</div>
+								<div style={{ position: 'relative' }} ref={pinIconRef}>
+									<PinIcon onClick={handlePinIcon} />
+									{info.showPin && (
+										<div className="pinOptions" ref={pinSearchRef}>
+											<div className="pinSearchContainer">
+												<input
+													type="text"
+													placeholder="type to Search or create"
+													value={info.tagSearchValue}
+													onChange={(e) =>
+														setInfo((prev) => ({
+															...prev,
+															tagSearchValue: e.target.value,
+														}))
+													}
+													onKeyDown={(e) => {
+														if (e.key === 'Enter') {
+															addTagHandlerFunction();
+														}
+													}}
+												/>
+												<p
+													style={{
+														cursor: 'pointer',
+														marginRight: '5px',
+													}}
+													onClick={handlePinIcon}
+												>
+													X
+												</p>
+											</div>
+											{tagsList?.list
+												?.filter((tag) =>
+													tag?.displayName
+														?.toLowerCase()
+														.includes(
+															info.tagSearchValue.toLowerCase(),
+														),
+												)
+												.map((tag) => (
+													<div className="pinOptionsList">
+														<label className="checkboxLabel">
+															<input
+																type="checkbox"
+																checked={info?.selectedImagesTags?.includes(
+																	tag?._id,
+																)}
+																onChange={() =>
+																	handleTagChange(tag?._id)
+																}
+															/>
+															<span className="checkboxText">
+																{tag?.displayName}
+															</span>
+														</label>
+													</div>
+												))}
+										</div>
+									)}
+								</div>
+								<div style={{ position: 'relative' }} ref={optionsIconRef}>
+									<OptionsIcon onClick={handleOptionsIcon} />
+									{info.showAlbumOptionsMenu && (
+										<div className="optionsContainer" ref={optionsContainerRef}>
+											<li onClick={handleDownload}>Download</li>
+											<li
+												style={{
+													cursor:
+														info?.selectedImages.length === 1
+															? 'pointer'
+															: 'not-allowed',
+												}}
+												onClick={() => handleSetAlbumCover()}
+											>
+												Set Album cover
+											</li>
+											<li
+												style={{
+													cursor:
+														info?.selectedImages.length === 1
+															? 'pointer'
+															: 'not-allowed',
+												}}
+												onClick={() => handleSetGalleryCover()}
+											>
+												Set Gallery cover
+											</li>
+											<li>Share</li>
+											<li
+												onClick={() =>
+													setInfo((prev) => ({
+														...prev,
+														showImageDeletePopup: true,
+													}))
+												}
+											>
+												Delete
+											</li>
+										</div>
+									)}
+								</div>
+							</div>
+						)}
+					</div>
+				)}
 
 				{info.activeTab === 'Settings' && (
 					<div className="settingsMainContainer">
