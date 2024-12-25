@@ -815,6 +815,7 @@ const GalleryPage = () => {
 		setInfo((prev) => ({
 			...prev,
 			showCollaborators: !info?.showCollaborators,
+			shareModal: !info?.shareModal,
 		}));
 	};
 
@@ -3120,6 +3121,11 @@ const GalleryPage = () => {
 				closeModal={openShareModal}
 				galleryId={galleryId}
 				activeGallery={info?.activeGallery}
+				handleCallToAction={handleCallToAction}
+				handleClientSubscription={handleClientSubscription}
+				handleManageCollaboratorPopup={handleManageCollaboratorPopup}
+				handleLinkChange={handleLinkChange}
+				data={info}
 			/>
 			<CreateAlbum
 				open={info.showCreateAlbum}

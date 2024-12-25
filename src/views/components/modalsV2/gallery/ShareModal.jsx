@@ -6,12 +6,23 @@ import { ReactComponent as Mail } from '../../../../assets/svg/gallery/mail.svg'
 import { ReactComponent as UpArrow } from '../../../../assets/svg/workflow/downArrow.svg';
 import ToggleSlider from '../../input/slider';
 import Context from '../../../../context/context';
+import { getInitials } from '../../../../helpers/index';
 import { message, Drawer, Select } from 'antd';
 import _ from 'lodash';
 
 const workspaceId = localStorage.getItem('workspaceId');
 
-const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
+const ShareModal = ({
+	open,
+	closeModal,
+	galleryId,
+	activeGallery,
+	handleCallToAction,
+	handleClientSubscription,
+	handleManageCollaboratorPopup,
+	handleLinkChange,
+	data,
+}) => {
 	const {
 		galleryInfo: {
 			visitorFormAccess,
@@ -577,7 +588,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 					<div className="toggleContainer">
 						<div style={{ width: '32px' }}>
 							<ToggleSlider
-								value={info?.visitorFormAccess?.isEnabled}
+								value={data?.visitorFormAccess?.isEnabled}
 								onChange={handleVisitorFormAccess}
 							/>
 						</div>
@@ -596,7 +607,7 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 								<div key={item.label} className="visitorFormAccessItem">
 									<input
 										type="checkbox"
-										checked={info?.visitorFormAccess?.accessibleTo?.includes(
+										checked={data?.visitorFormAccess?.accessibleTo?.includes(
 											item.apiKey,
 										)}
 										onChange={() => handleVisitorForm(item.apiKey)}
@@ -606,6 +617,64 @@ const ShareModal = ({ open, closeModal, galleryId, activeGallery }) => {
 							))}
 						</div>
 					)}
+				</div>
+				<div className="callToAction">
+					<p className="subHeading">Call to Action (CTA)</p>
+					<div className="callToActionToggle">
+						<ToggleSlider
+							value={data?.callToAction?.isEnabled}
+							onChange={handleCallToAction}
+						/>
+						<p className="subTitle">Enable to display CTA for the gallery.</p>
+					</div>
+					<input
+						placeholder="https://Instagtagram/sam/9tbevccxggvcxg"
+						value={data?.callToAction?.link}
+						onChange={handleLinkChange}
+					/>
+				</div>
+				<div className="clientSubscription">
+					<p className="subHeading">Client Subscription</p>
+					<div className="clientSubscriptionToggle">
+						<ToggleSlider
+							value={data?.clientSubscription}
+							onChange={handleClientSubscription}
+						/>
+						<p className="subTitle">
+							Allow clients to subscribe and take ownership after expiry.
+						</p>
+					</div>
+				</div>
+				<div className="collaborators">
+					<div className="collaboratorsContainer">
+						<div>
+							<p className="subTitle">
+								Collaborators are your team members that you want to add to or
+								remove from this gallery.
+							</p>
+							<p className="subHeading">
+								{data?.collaboratorsData?.length} Collaborators
+							</p>
+						</div>
+						<p
+							className="subHeading manageButton"
+							onClick={handleManageCollaboratorPopup}
+						>
+							+ Manage Collaborators
+						</p>
+					</div>
+					<div className="collaboratorsList">
+						{data?.collaboratorsData?.map((ele, index) => (
+							<div className="collaboratorsContainer" key={`collaborators-${index}`}>
+								<div className="collaboratorsImage">
+									<div className="tenantLogo">
+										<p>{getInitials(ele?.firstName, ele?.lastName)}</p>
+									</div>
+								</div>
+								<p>{ele?.firstName}</p>
+							</div>
+						))}
+					</div>
 				</div>
 			</div>
 		</Drawer>
