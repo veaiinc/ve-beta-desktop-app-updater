@@ -5,8 +5,17 @@ import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross
 import { ReactComponent as WarningSvg } from '../../../../assets/svg/gallery/warning.svg';
 
 const DeletePopup = ({ open, closeModal, title, paragraph, handleDelete }) => {
+	const customStyles = {
+		content: { zIndex: 99999 },
+		overlay: { zIndex: 99998 },
+	};
 	return (
-		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
+		<ReactModal
+			isOpen={open}
+			closeModal={closeModal}
+			modalType={'center'}
+			customStyles={customStyles}
+		>
 			<div className="deletePopupContainer">
 				<div className="deletePopupCloseButton" onClick={closeModal}>
 					<CrossSvg style={{ cursor: 'pointer' }} />

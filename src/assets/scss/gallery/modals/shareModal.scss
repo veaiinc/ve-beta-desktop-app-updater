@@ -204,6 +204,131 @@
 			}
 		}
 	}
+	.callToAction {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		p {
+			color: #979797;
+			font-size: 13px;
+			font-weight: 500;
+			line-height: 22px;
+		}
+		.callToActionToggle {
+			display: flex;
+			gap: 8px;
+		}
+		input {
+			display: flex;
+			width: 464px;
+			height: 40px;
+			padding: 11px 14px;
+			gap: 10px;
+			background: transparent;
+			border-radius: 10px;
+			border: 1px solid rgba(151, 151, 151, 0.2);
+			color: white;
+		}
+	}
+	.clientSubscription {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		p {
+			color: #979797;
+			font-size: 13px;
+			font-weight: 500;
+			line-height: 22px;
+		}
+		.clientSubscriptionToggle {
+			display: flex;
+			gap: 8px;
+		}
+	}
+	.collaborators {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+
+		.collaboratorsContainer {
+			display: flex;
+			justify-content: space-between;
+			.subHeading {
+				color: #979797;
+				font-size: 13px;
+				font-weight: 500;
+				line-height: 22px;
+			}
+			.subTitle {
+				color: #979797;
+				font-size: 13px;
+				font-weight: 400;
+				line-height: 22px;
+				width: 300px;
+			}
+			.manageButton {
+				display: flex;
+				padding: 4px 12px;
+				flex-direction: column;
+				justify-content: center;
+				align-items: flex-start;
+				gap: 10px;
+				height: 40px;
+				border-radius: 47px;
+				background: #9747ff;
+				cursor: pointer;
+				color: #fafafa;
+			}
+		}
+		.collaboratorsList {
+			display: flex;
+			padding: 8px 12px;
+			gap: 10px;
+			.collaboratorsContainer {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 8px;
+				p {
+					color: #979797;
+					font-size: 12.888px;
+					font-weight: 500;
+					line-height: 22.093px;
+					text-transform: capitalize;
+				}
+			}
+			.collaboratorsImage {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				width: 115px;
+				height: 115px;
+				flex-shrink: 0;
+				border-radius: 4.517px;
+				border: 0.565px solid rgba(234, 234, 234, 0.46);
+				background: rgba(176, 176, 176, 0.16);
+				box-shadow: 0px 3.682px 27.617px 0px rgba(0, 0, 0, 0.03);
+				.tenantLogo {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					width: 48px;
+					height: 48px;
+					border-radius: 100%;
+					border: 1px solid #979797;
+				}
+				p {
+					overflow: hidden;
+					color: #979797;
+					text-overflow: ellipsis;
+					font-size: 20px;
+					font-weight: 500;
+					line-height: 24px;
+					letter-spacing: -0.4px;
+				}
+			}
+		}
+	}
 }
 .editPinContainer {
 	display: flex;
