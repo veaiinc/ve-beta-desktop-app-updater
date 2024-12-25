@@ -184,7 +184,7 @@ const AddGallery = () => {
 	};
 
 	const copyGallerySlugFunction = (slug) => {
-		const galleryLink = `https://${info?.workspaceId}.ve.ai/galleries/${slug}`;
+		const galleryLink = `https://${info?.workspaceId}.ve.ai/gallery/${slug}`;
 		navigator?.clipboard
 			?.writeText(galleryLink)
 			.then(() => {
@@ -319,13 +319,13 @@ const AddGallery = () => {
 												>
 													Share
 												</li>
-												<li
+												{/* <li
 													onClick={() =>
 														handleNavigateSettings(items._id)
 													}
 												>
 													settings
-												</li>
+												</li> */}
 											</div>
 											<div className="album-full-details">
 												<div className="album-details">
