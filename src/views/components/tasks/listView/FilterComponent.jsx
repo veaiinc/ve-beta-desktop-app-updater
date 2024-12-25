@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import '../../../../assets/scss/tasks/filterComponent.scss';
 import { ReactComponent as DownArrow } from '../../../../assets/svg/tasks/downArrow.svg';
 import { ReactComponent as BackArrow } from '../../../../assets/svg/gallery/backArrow.svg';
@@ -9,6 +9,7 @@ import WorkFlow from './WorkFlow';
 import Status from './Status';
 import Priority from './Priority';
 import DateView from './DateView';
+import { filter } from 'lodash';
 const FilterComponent = ({
 	Icon,
 	title,
@@ -23,12 +24,10 @@ const FilterComponent = ({
 }) => {
 	const handleFilterChange = useCallback(
 		(key, value) => {
-			console.log(key, typeof value);
+			console.log(key, typeof value, value);
 
 			const newFilters = filters.map((item) =>
-				item.key === key
-					? { ...item, value: typeof value === 'object' ? value?.value : value }
-					: item,
+				item.key === key ? { ...item, value } : item,
 			);
 			updateListViewInfo('filters', newFilters);
 		},
@@ -40,12 +39,19 @@ const FilterComponent = ({
 		updateListViewInfo('filters', newFilters);
 	}, [fieldName, filters, updateListViewInfo]);
 
+	useEffect(() => {
+		console.log(filters);
+	}, [filters]);
+
 	const componentOptionsMapper = {
 		workflow: (value) => (
 			<WorkFlow
 				val={value}
 				workflows={workflows}
-				onOptionClick={(value) => handleFilterChange('workflow', value)}
+				onOptionClick={(value) => {
+					const workflow = workflows.find((workflow) => workflow._id === value);
+					handleFilterChange('workflow', workflow);
+				}}
 			/>
 		),
 		person: (value) => (
@@ -54,7 +60,9 @@ const FilterComponent = ({
 				persons={tenantUsers}
 				title={title}
 				onOptionClick={(value) => handleFilterChange(fieldName, value)}
+				parseValue={true}
 				showName={true}
+				defaultLabel={'hiiii'}
 			/>
 		),
 		status: (value) => (
@@ -114,7 +122,12 @@ const FilterComponent = ({
 			<div className="filterComponent">
 				{Icon && <Icon className="filterComponent-icon" />}
 				<span className="filterComponent-title">{title}</span>
-				{/* <span className="filterComponent-value">: {value}</span> */}
+				<span className="filterComponent-value">
+					:{' '}
+					{typeof value === 'object'
+						? value?.title || value?.name || value?.label
+						: value}
+				</span>
 				<DownArrow />
 			</div>
 		</Tooltip>

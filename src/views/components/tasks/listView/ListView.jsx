@@ -205,11 +205,21 @@ const ListView = () => {
 				limit: 30,
 				page: info?.page,
 				sort: info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
-				filters: info?.filters,
+				filters: mapFiltersPayload(info?.filters),
 				search: info?.searchValue,
 			},
 		});
 	}, [info?.page, info?.sort, info?.filters, info?.searchValue]);
+
+	const mapFiltersPayload = useCallback((filters) => {
+		return filters.map((filter) => ({
+			key: filter.key,
+			value:
+				typeof filter.value === 'object'
+					? filter?.value?._id || filter?.value?.value
+					: filter?.value,
+		}));
+	}, []);
 
 	const updateListViewInfo = useCallback((key, value) => {
 		setInfo((previnfo) => ({ ...previnfo, [key]: value }));

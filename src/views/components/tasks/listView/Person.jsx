@@ -14,16 +14,17 @@ const Person = ({
 	persons = [],
 	multiSelect = false,
 	disabled = false,
-	defaultLabel,
 }) => {
 	const [info, setInfo] = useState({
-		value: null,
+		value: [],
 	});
 
 	useEffect(() => {
 		if (parseValue && value) {
-			const valueArray = Array.isArray(value) ? value : [value];
-			setInfo({ value: parsedValueAndLabel(valueArray) });
+			const valueArray = Array.isArray(value) ? value : value ? [value] : [];
+			setInfo({
+				value: valueArray?.length > 0 ? parsedValueAndLabel(valueArray) : valueArray,
+			});
 		}
 	}, [parseValue, value]);
 
@@ -54,7 +55,7 @@ const Person = ({
 	return (
 		<Tooltip title={title} placement="bottom">
 			<Select
-				placeholder={`Select ${title || ''}`}
+				placeholder={`Select ${title || 'person'}`}
 				options={persons}
 				variant="borderless"
 				labelInValue
@@ -66,7 +67,7 @@ const Person = ({
 					}
 				}}
 				style={{
-					width: value?.length === 0 ? '180px' : 'fit-content',
+					width: info?.value?.length === 0 ? '180px' : 'fit-content',
 					color: '#e5e5e5',
 				}}
 				className="person-select"
