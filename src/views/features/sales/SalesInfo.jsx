@@ -200,7 +200,7 @@ const SalesInfo = () => {
 					</div>
 					<div className="card-div-end-black-shadow"></div>
 				</div>
-				<div className="aiagentsCustomCardHolder">
+				<div className="salesExtraContentCards">
 					<CreateCards />
 					<Activity />
 					<Drafts />

@@ -1,6 +1,7 @@
 .aiAgentsCreatecards {
 	display: flex;
-	width: 393px;
+	// width: 393px;
+	flex: 1;
 	height: 418px;
 	padding: 20px;
 	flex-direction: column;
@@ -58,8 +59,9 @@
 			border-radius: 16px;
 			background: #202123;
 			background: color(display-p3 0.1249 0.1304 0.1358);
-			max-width: 170px;
-			width: 170px;
+			// max-width: 170px;
+			// width: 170px;
+			width: calc(50% - 8px);
 
 			.createSubCardOptionsdcardsHeader {
 				display: flex;
@@ -104,7 +106,7 @@
 
 .aiAgentsAcitivityContainer {
 	display: flex;
-	width: 393px;
+	flex: 1;
 	height: 418px;
 	padding: 20px;
 	flex-direction: column;
