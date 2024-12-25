@@ -154,7 +154,9 @@ const Variables = ({
 			<div className="variableListHolder">
 				{info?.data?.map((ele, index) => (
 					<div className="inputWithLabelContainer" key={index}>
-						<span className="labelName">{ele?.code}</span>
+						<span className="labelName">
+							{ele?.displayName?.length ? ele?.displayName : ele?.code || ''}
+						</span>
 						<input
 							className={`custominputContainer ${editable ? 'edit' : ''}`}
 							value={ele?.value || ''}
