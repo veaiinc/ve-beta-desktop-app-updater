@@ -4,12 +4,14 @@ import * as API from './actionTypes';
 import service from '../../services';
 import { Actions } from './actions';
 import axios from 'axios';
+import cookie from 'js-cookie';
 export const intialState = {
 	tenantsUserList: null,
 	tenantPreferenceData: null,
 	tenantSubscriptionDetails: null,
 	clientPortalPreferences: null,
 };
+
 export const CompanySettingsState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 	const updateTenantContactDetails = async (contactJosn) => {
@@ -114,6 +116,8 @@ export const CompanySettingsState = () => {
 			);
 
 			if (response?.[0] === true) {
+				cookie.set('theme', json?.theme, { expires: 365 });
+				localStorage.setItem('theme', json?.theme);
 				return [true, response[1]];
 			} else {
 				return [false, response[1]];

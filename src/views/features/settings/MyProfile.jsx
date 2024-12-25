@@ -7,6 +7,7 @@ import ThemePreferenceComponent from '../../components/settings/profile/ThemePre
 import UpdatePasswordComponent from '../../components/settings/profile/UpdatePassword';
 import TwoFactorAuthenticationComponent from '../../components/settings/profile/TwoFactorAuthentication';
 import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWorkspace';
+import Cookies from 'js-cookie';
 
 const MyProfile = () => {
 	// # Context
@@ -30,7 +31,11 @@ const MyProfile = () => {
 	const [showForm, setShowForm] = useState(false);
 	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [errors, setErrors] = useState({});
-	const [activeTheme, setActiveTheme] = useState('dark');
+	const [activeTheme, setActiveTheme] = useState(() => {
+		const theme = localStorage.getItem('theme') || Cookies.get('theme') || 'dark';
+		document.documentElement.setAttribute('theme', theme);
+		return theme;
+	});
 	const [userDetails, setUserDetails] = useState({
 		fullName: '',
 		email: '',
@@ -250,6 +255,7 @@ const MyProfile = () => {
 		const response = await updatePrefernces(json);
 		if (response[0]) {
 			setActiveTheme(mode);
+			document.documentElement.setAttribute('theme', mode);
 		}
 	};
 
@@ -276,12 +282,12 @@ const MyProfile = () => {
 				</div>
 
 				{/* Theme Preference */}
-				{/* <div className="settingsTheme activeBackgroundColor" id="theme">
+				<div className="settingsTheme activeBackgroundColor" id="theme">
 					<ThemePreferenceComponent
 						updateThemeSubmitHandler={updateThemeSubmitHandler}
 						activeTheme={activeTheme}
 					/>
-				</div> */}
+				</div>
 
 				{/* Access Settings */}
 				{/* <div className={'accessSettingsContainer'} id="updatepassword">

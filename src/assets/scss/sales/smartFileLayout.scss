@@ -1,7 +1,7 @@
 .smartFileLayoutParentContainer {
 	width: 100vw;
 	height: 100vh;
-	background: #111;
+	background: var(--background-color);
 	display: flex;
 	flex-direction: column;
 

@@ -8,7 +8,7 @@
 		cursor: pointer;
 	}
 	p {
-		color: #fff;
+		color: var(--white);
 		font-size: 14px;
 		font-weight: 500;
 		line-height: 17px;
@@ -50,7 +50,7 @@
 				cursor: pointer;
 			}
 			&.active {
-				border: 2px solid #6055ec;
+				border: 2px solid var(--accent-color);
 				border-radius: 8px;
 				padding: 2px;
 			}
@@ -120,7 +120,7 @@
 				flex-direction: column;
 				gap: 22px;
 				p {
-					color: #fff;
+					color: var(--white);
 					font-size: 11px;
 					font-weight: 500;
 					line-height: 14px;
@@ -154,7 +154,7 @@
 							}
 							p {
 								overflow: hidden;
-								color: #979797;
+								color: var(--secondary-font-color);
 								text-align: center;
 								text-overflow: ellipsis;
 								white-space: nowrap;
@@ -184,7 +184,7 @@
 							width: 24px;
 							height: 24px;
 							border-radius: 100px;
-							background-color: #111;
+							background-color: var(--background-color);
 							display: flex;
 							justify-content: center;
 							align-items: center;
@@ -198,7 +198,7 @@
 							width: 48px;
 							height: 48px;
 							border-radius: 100px;
-							background-color: #111;
+							background-color: var(--background-color);
 							overflow: hidden;
 							position: relative;
 							img {
@@ -233,7 +233,7 @@
 								width: 24px;
 								height: 24px;
 								border-radius: 100px;
-								background-color: #111;
+								background-color: var(--background-color);
 								svg {
 									width: 13px;
 								}
@@ -257,7 +257,7 @@
 								border: none;
 								outline: none;
 								background-color: transparent;
-								color: #fff;
+								color: var(--white);
 							}
 
 							svg {
@@ -268,7 +268,7 @@
 						.line {
 							width: 100%;
 							height: 1px;
-							background-color: gray;
+							background-color: var(--secondary-font-color);
 						}
 
 						.labelsList {
@@ -282,7 +282,7 @@
 								padding: 10px 16px;
 
 								.checkboxText {
-									color: #fff;
+									color: var(--white);
 									overflow: hidden;
 									text-overflow: ellipsis;
 									white-space: nowrap;
@@ -300,7 +300,7 @@
 			}
 			.shareIcon {
 				path {
-					fill: #fff;
+					fill: var(--white);
 				}
 			}
 		}

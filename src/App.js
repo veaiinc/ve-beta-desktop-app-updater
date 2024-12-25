@@ -3,6 +3,7 @@ import routes from './routes';
 import React, { memo, useEffect } from 'react';
 import ExpiredSubscriptionModal from './views/components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from './views/components/modalsV2/subscription/ExpiredTokenModal';
+import Cookies from 'js-cookie';
 
 function App() {
 	useEffect(() => {
@@ -12,7 +13,8 @@ function App() {
 			document.getElementsByTagName('html')[0].classList.add('otheros');
 		}
 		document.getElementsByTagName('html')[0].classList.add('theme-dark');
-		document.documentElement.setAttribute('theme', 'dark');
+		const theme = localStorage.getItem('theme') || Cookies.get('theme') || 'dark';
+		document.documentElement.setAttribute('theme', theme);
 	}, []);
 
 	return (
