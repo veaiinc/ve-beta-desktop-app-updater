@@ -275,7 +275,7 @@ const LandingPage = () => {
 								autoPlay
 								loop
 								playsInline
-								src={'https://ap.assets.ve.ai/logo/login-page-video-v2.mp4'}
+								src={'https://ap.assets.ve.ai/logo/login-page-video-v3.mp4'}
 							></video>
 						</div>
 
