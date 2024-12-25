@@ -184,7 +184,7 @@ const AddGallery = () => {
 	};
 
 	const copyGallerySlugFunction = (slug) => {
-		const galleryLink = `https://${info?.workspaceId}.ve.ai/galleries/${slug}`;
+		const galleryLink = `https://${info?.workspaceId}.ve.ai/gallery/${slug}`;
 		navigator?.clipboard
 			?.writeText(galleryLink)
 			.then(() => {
