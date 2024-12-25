@@ -25,6 +25,7 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 	// Context
 	const {
 		galleryInfo: { uploadWaterMark, getWaterMarks },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	// States
@@ -51,6 +52,9 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 	};
 
 	const uploadWaterMarkChangeHandler = async (e) => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		const response = await uploadWaterMark(e.target.files[0]);
 		if (response) {
 			setTimeout(() => {

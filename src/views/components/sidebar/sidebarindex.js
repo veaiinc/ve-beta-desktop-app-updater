@@ -23,6 +23,8 @@ import SchedulerSvg from '../../../assets/svg/sidebar/SchedulerSvg.jsx';
 import TranscriptSvg from '../../../assets/svg/sidebar/TranscriptSvg.jsx';
 import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
+import { ReactComponent as OrchestratorSvg } from '../../../assets/svg/sidebar/Orchestrator.svg';
+import { ReactComponent as TemplatesSvg } from '../../../assets/svg/sidebar/Templates.svg';
 // import { subDays } from 'react-datepicker/dist/date_utils.js';
 
 export const veAiModulesItemsList = [
@@ -30,64 +32,87 @@ export const veAiModulesItemsList = [
 		name: 'Home',
 		moduleRoute: '/home',
 		route: '/home',
-		icon: HomeSvg,
-	},
-	{
-		name: 'Calendar',
-		moduleRoute: '/calendar',
-		route: '/calendar',
-		icon: CalendarSvg,
-		subModules: [
-			{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
-			{ icon: TranscriptSvg, route: '', name: 'Transcript' },
-			{
-				icon: SettingsSvg,
-				route: '/settings/my-profile',
-				fill: 'white',
-				name: 'Settings',
-			},
-		],
+		icon: '',
 	},
 	{
 		name: 'Gallery',
 		moduleRoute: '/galleries',
 		route: '/galleries',
-		icon: GallerySvg,
-	},
-	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: TaskSvg },
-	{
-		name: 'AI Agents',
-		moduleRoute: '/ai-agents',
-		route: '/ai-agents',
-		icon: AIAssistantSvg,
+		icon: '',
 	},
 	{
-		name: 'Playbook',
-		moduleRoute: '/playbook',
-		route: '/playbook',
-		icon: PlaybookSvg,
+		name: 'Calendar',
+		moduleRoute: '/calendar',
+		route: '/calendar',
+		icon: '',
+		// subModules: [
+		// 	{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
+		// 	{ icon: TranscriptSvg, route: '', name: 'Transcript' },
+		// 	{
+		// 		icon: SettingsSvg,
+		// 		route: '/settings/my-profile',
+		// 		fill: 'white',
+		// 		name: 'Settings',
+		// 	},
+		// ],
 	},
+
+	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
+	// {
+	// 	name: 'AI Agents',
+	// 	moduleRoute: '/ai-agents',
+	// 	route: '/ai-agents',
+	// 	icon: AIAssistantSvg,
+	// },
+	// {
+	// 	name: 'Playbook',
+	// 	moduleRoute: '/playbook',
+	// 	route: '/playbook',
+	// 	icon: PlaybookSvg,
+	// },
+	// { name: 'Contacts', moduleRoute: '/contact', route: '/contact' },
+	// { name: 'Teams', moduleRoute: '/teams', route: '/teams' },
 ];
 
-export const veAiSubModulesItemsList = [
-	{ name: 'Scheduler', moduleRoute: '', route: null, icon: SchedulerSvg },
-	{ name: 'Transcript', moduleRoute: '', route: null, icon: TranscriptSvg },
-	{ name: 'Settings', moduleRoute: '', route: null, icon: SettingsSvg },
+//
+
+export const veAiModules = [
+	// { icon: OrchestratorSvg, name: 'Orchestrator', route: '/orchestrator' },
+	{ icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
+	{ icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
+	{
+		icon: SettingsSvg,
+		name: 'Settings',
+		route: '/settings/my-profile',
+		// subModules: [
+		// 	{ icon: '', name: 'MyProfile', route: '/settings/my-profile' },
+		// 	{ icon: '', name: 'Workspace', route: '/settings/workspace' },
+		// 	{ icon: '', name: 'Public Information', route: '/settings/public-information' },
+		// 	{
+		// 		icon: '',
+		// 		name: 'Brand Setup',
+		// 		route: '/settings/brand-setup',
+		// 	},
+		// 	{ icon: '', name: 'Team Settings', route: '/settings/team-settings' },
+		// 	{ icon: '', name: 'Integration', route: '/settings/integrations' },
+		// 	{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
+		// ],
+	},
 ];
 
 export const bottomOptionsList = [
-	{
-		name: 'Share and Earn',
-		moduleRoute: '',
-		route: '/share-and-earn',
-		icon: GiftSvg,
-	},
-	{
-		name: 'Settings',
-		moduleRoute: '/settings',
-		route: '/settings/my-profile',
-		icon: SettingsSvg,
-	},
+	// {
+	// 	name: 'Share and Earn',
+	// 	moduleRoute: '',
+	// 	route: '/share-and-earn',
+	// 	icon: GiftSvg,
+	// },
+	// {
+	// 	name: 'Settings',
+	// 	moduleRoute: '/settings',
+	// 	route: '/settings/my-profile',
+	// 	icon: SettingsSvg,
+	// },
 ];
 
 export const styles = {

@@ -490,6 +490,9 @@
 		.anticon-calendar svg {
 			fill: #fff;
 		}
+		input::placeholder {
+			color: #fff;
+		}
 	}
 	.custominputContainer.ant-picker-disabled .ant-picker-input input {
 		color: #e4e5e6 !important;

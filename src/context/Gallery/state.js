@@ -29,7 +29,14 @@ export const intialState = {
 	galleryShareDetails: null,
 	aiFace: null,
 	aiFaceImages: null,
+	insightsVisitors: null,
+	downloadImages: null,
 	preRegisteredUsers: null,
+	imageProcessingStatus: {
+		numberOfImagesGroupedFaces: 0,
+		numberOfImagesPeoples: 0,
+		imagesCount: 0,
+	},
 };
 
 export const Galleries = () => {
@@ -192,9 +199,11 @@ export const Galleries = () => {
 			);
 			if (response?.[0]) {
 				getAlbumImagesCount(galleryId);
+				return [true, response[1]];
 			}
 		} catch (error) {
 			console.log('error==>getGallery', error);
+			return [false, { message: 'Failed to update gallery status' }];
 		}
 	};
 
@@ -347,27 +356,29 @@ export const Galleries = () => {
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_LAYOUT_SETTINGS,
-					payload: response?.[1]?.layoutSettings,
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
 			console.log('error==>getLayoutSettings', error);
 		}
 	};
-	const putLayoutSettings = async (payload, galleryId) => {
+	const putLayoutSettings = async (payload, galleryId, type = null) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
+			const json = type === 'theme' ? payload : { layoutSettings: { ...payload } };
+
 			const response = await service.fetchPut(
 				`/${workspaceId}/galleries/${galleryId}/layout-settings`,
-				payload,
+				json,
 				usertoken,
 				'galleries',
 			);
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_LAYOUT_SETTINGS,
-					payload: response?.[1]?.layoutSettings,
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
@@ -466,6 +477,25 @@ export const Galleries = () => {
 			console.log('error==>getLayoutSettings', error);
 		}
 	};
+
+	const editAlbumName = async (payload, galleryId, albumID) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumID}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				getAlbums(galleryId);
+				return [true, response[1]];
+			}
+		} catch (error) {
+			console.log('error==>getLayoutSettings', error);
+		}
+	};
 	// /{{galleryId}}/album-slug-availability/{{slug}}
 	const checkAlbumSlugIsAvalible = async (galleryId, slugName) => {
 		try {
@@ -493,8 +523,17 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
+
+			if (response?.[0]) {
+				// Refresh the album data after successful update
+				await getAlbums(galleryId);
+				await getAlbumImagesCount(galleryId);
+				return [true, response[1]];
+			}
+			return response; // Return the error response if not successful
 		} catch (error) {
-			console.log('error==>getLayoutSettings', error);
+			console.log('error==>editLockAlbum', error);
+			return [false, { message: 'Failed to update album access' }];
 		}
 	};
 
@@ -711,6 +750,7 @@ export const Galleries = () => {
 					type: Actions.GET_LIGHTROOM_COPY_LIST,
 					payload: response?.[1],
 				});
+				return response;
 			}
 		} catch (error) {
 			console.log('error==>getAlbumImageFileNames', error);
@@ -968,6 +1008,14 @@ export const Galleries = () => {
 				null,
 				'galleries',
 			);
+			if (response[0] === true) {
+				let updateGallery = [...state.tenantGalleries?.galleries];
+				updateGallery = updateGallery.filter((item) => galleryId !== item._id);
+				dispatch({
+					type: Actions.GET_TENANT_GALLERIES,
+					payload: { ...state.tenantGalleries, galleries: updateGallery },
+				});
+			}
 			return response;
 		} catch (error) {
 			console.log('error==>deleteGallery', error);
@@ -1431,7 +1479,6 @@ export const Galleries = () => {
 			);
 			console.log('response==>getDownloadLinkForImage', response);
 			if (response[0] === true) {
-				console.log('this ios dsfdsfdsf');
 				const imageResponse = await fetch(response[1].signedUrl);
 				const blob = await imageResponse.blob();
 				const url = window.URL.createObjectURL(blob);
@@ -1442,12 +1489,58 @@ export const Galleries = () => {
 				link.click();
 				document.body.removeChild(link);
 				window.URL.revokeObjectURL(url);
-				console.log('this ios dsfdssdlfjhsdkjfsdkfj');
 			}
 
 			return response;
 		} catch (error) {
 			console.log('error==>getDownloadLinkForImage', error);
+		}
+	};
+	//{{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/visitors
+	const getInsightVisitors = async (
+		galleryId,
+		page = 1,
+		limit = 20,
+		search = '',
+		dateRange = {},
+	) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+
+			const queryParams = {
+				page,
+				limit,
+				search,
+				startDate: dateRange?.startDate || '',
+				endDate: dateRange?.endDate || '',
+			};
+
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/visitors`,
+				usertoken,
+				'galleries',
+				queryParams,
+			);
+			if (response[0] === true) {
+				const newPayload =
+					page === 1
+						? response[1]
+						: {
+								...response[1],
+								docs: [
+									...(state.insightsVisitors?.docs || []),
+									...response[1].docs,
+								],
+						  };
+				dispatch({
+					type: Actions.GET_INSIGHT_VISITORS,
+					payload: newPayload,
+				});
+			}
+			return response;
+		} catch (error) {
+			console.log('error==>getInsightVisitors', error);
 		}
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/download-images
@@ -1490,6 +1583,39 @@ export const Galleries = () => {
 			console.log('error==>getDownloadForMultipleImages', error);
 		}
 	};
+
+	//{{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/download-images
+	const downloadImages = async (payload, galleryId, albumId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			let region = localStorage.getItem('region');
+			const response = await service.fetchPost(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumId}/download-images`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+
+			if (response?.[0] === true && response?.[1]?.downloadId) {
+				dispatch({
+					type: Actions.GET_DOWNLOAD_IMAGES,
+					payload: response?.[1],
+				});
+				const regionPrefix = region === 'ap-south-1' ? 'in' : 'us';
+
+				const url = `https://downloads.ve.ai/${regionPrefix}/${response[1].downloadId}`;
+				console.log('url==>downloadImages', url);
+				window.open(url, '_blank');
+				return [true, response?.[1]];
+			}
+			return [false, null];
+		} catch (error) {
+			console.log('error==>downloadImages', error);
+			return [false, error];
+		}
+	};
+
 	const clearGalleryShareDetails = () => {
 		dispatch({
 			type: Actions.GET_GALLERY_SHARE_DETAILS,
@@ -1545,9 +1671,43 @@ export const Galleries = () => {
 		}
 	};
 
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/face-grouping-status
+	const getImageProcessingStatus = async (galleryId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/face-grouping-status`,
+				usertoken,
+				'galleries',
+			);
+			// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/pre-registered-users/status
+			const response2 = await service.fetchGet(
+				`/${workspaceId}/galleries/${galleryId}/pre-registered-users/status`,
+				usertoken,
+				'galleries',
+			);
+			console.log('response2==>getImageProcessingStatus', response2);
+			if (response[0] === true) {
+				dispatch({
+					type: Actions.GET_IMAGE_PROCESSING_STATUS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getFaceGroupingStatus', error);
+		}
+	};
+
 	const clearPreRegisteredUsers = () => {
 		dispatch({
 			type: Actions.GET_PRE_REGISTERED_USERS,
+			payload: null,
+		});
+	};
+	const clearGalleryState = () => {
+		dispatch({
+			type: Actions.CLEAR_SPECIFIC_STATES,
 			payload: null,
 		});
 	};
@@ -1579,7 +1739,7 @@ export const Galleries = () => {
 		getImageDuplicatesList,
 		getWaterMarks,
 		uploadWaterMark,
-		editAlbum,
+		editAlbumName,
 		editLockAlbum,
 		updatedAlbum,
 		checkAlbumSlugIsAvalible,
@@ -1627,8 +1787,13 @@ export const Galleries = () => {
 		getDownloadLinkForImage,
 		getDownloadForMultipleImages,
 		clearGalleryShareDetails,
+		getInsightVisitors,
+		downloadImages,
 		getImagesReadyNotify,
 		getPreRegisteredUsers,
 		clearPreRegisteredUsers,
+		clearGalleryState,
+		editAlbum,
+		getImageProcessingStatus,
 	};
 };

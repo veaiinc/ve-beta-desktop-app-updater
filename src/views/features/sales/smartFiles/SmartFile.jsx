@@ -36,8 +36,17 @@ const SmartFile = () => {
 			deleteLead,
 			getLatestSendSmartFileSettings,
 			sendSmartFileSettings,
+			updateInvoice,
+			updateForm,
+			updateThankyou,
 		},
-		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
+
+		profileInfo: {
+			userWorkSpaceList,
+			getUserWorkSpaceList,
+			tennantSettingsData,
+			getTenantSettings,
+		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
@@ -159,6 +168,12 @@ const SmartFile = () => {
 			}));
 		}
 	}, [sendSmartFileSettings]);
+
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+	}, [tennantSettingsData]);
 
 	//function defination
 
@@ -426,6 +441,97 @@ const SmartFile = () => {
 		setInfo((prev) => ({ ...prev, sendCustomEmailModal: !prev.sendCustomEmailModal }));
 	}, [info?.sendCustomEmailModal]);
 
+	//update workspace variable in all modules
+
+	const updateWorkspaceVariablesFunc = useCallback(
+		async (data, type) => {
+			//returning false means no changes needee
+
+			if (!tennantSettingsData) {
+				return [false];
+			}
+			const updatedVariablesdata = [...(data || [])];
+			let changed = false;
+
+			for (let i = 0; i < updatedVariablesdata?.length; i++) {
+				if (
+					updatedVariablesdata?.[i]?.type === 'workspace' &&
+					tennantSettingsData?.[updatedVariablesdata?.[i]?.code]
+				) {
+					const currentVariableValue =
+						updatedVariablesdata?.[i]?.value || updatedVariablesdata?.[i]?.defaultValue;
+					const incomingValue = tennantSettingsData?.[updatedVariablesdata?.[i]?.code];
+
+					if (currentVariableValue !== incomingValue) {
+						updatedVariablesdata[i].value = incomingValue;
+						updatedVariablesdata[i].defaultValue = incomingValue;
+						changed = true;
+					}
+				}
+			}
+
+			return [changed, updatedVariablesdata, type];
+		},
+		[tennantSettingsData],
+	);
+
+	const updateVariablesInAllModules = useCallback(async () => {
+		if (smartFileInfo) {
+			const { contract, form, proposal, thankyou, thankyou2, invoice } = smartFileInfo || {};
+
+			//contract
+			const { variables: contractVariable } = contract?.versions?.[0] || {};
+
+			//invoice
+			const { variables: invoiceVariable } = invoice?.versions?.[0] || {};
+
+			//proposal
+			const { variables: proposalVariables } = proposal?.versions?.[0] || {};
+
+			//form
+			const { variables: formVariables } = form?.versions?.[0] || {};
+			//thankyou
+			const { variables: thankyouVariables } = thankyou?.versions?.[0] || {};
+			const { variables: thankyou2Variables } = thankyou2?.versions?.[0] || {};
+
+			const mapper = {
+				contract: { data: contract, func: updateContracts },
+				invoice: { data: invoice, func: updateInvoice },
+				proposal: { data: proposal, func: updateProposal },
+				form: { data: form, func: updateForm },
+				thankyou: { data: thankyou, func: updateThankyou },
+				thankyou2: { data: thankyou2, func: updateThankyou },
+			};
+
+			const response = await Promise.all([
+				updateWorkspaceVariablesFunc(contractVariable || [], 'contract'),
+				updateWorkspaceVariablesFunc(invoiceVariable || [], 'invoice'),
+				updateWorkspaceVariablesFunc(proposalVariables || [], 'proposal'),
+				updateWorkspaceVariablesFunc(formVariables || [], 'form'),
+				updateWorkspaceVariablesFunc(thankyouVariables || [], 'thankyou'),
+				updateWorkspaceVariablesFunc(thankyou2Variables || [], 'thankyou2'),
+			]);
+
+			for (let i = 0; i < response?.length; i++) {
+				if (response?.[i]?.[0]) {
+					const moduleType = response?.[i]?.[2];
+
+					const payload = {
+						[moduleType + 'Id']: mapper?.[moduleType]?.data?._id,
+						workflowId: info?.workflowData?._id,
+						[moduleType + 'Input']: {
+							versions: {
+								variables: response?.[i]?.[1],
+							},
+						},
+						versionId: mapper?.[moduleType]?.data?.activeVersion,
+					};
+					mapper?.[moduleType]?.func(payload);
+				}
+			}
+		}
+	}, [smartFileInfo, updateWorkspaceVariablesFunc, info?.workflowData]);
+
 	return info?.loading ? (
 		<UpdatedPageLoader />
 	) : (
@@ -474,6 +580,7 @@ const SmartFile = () => {
 				emailIdentification={info?.emailIdentification}
 				updateIdentification={updateIdentification}
 				assisstanceData={info?.assisstanceData}
+				updateVariablesInAllModules={updateVariablesInAllModules}
 			/>
 
 			<CopiedModal
