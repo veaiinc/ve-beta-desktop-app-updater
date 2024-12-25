@@ -435,6 +435,7 @@ const ListView = () => {
 						newTask.workflow = newWorkflow
 							? { _id: newWorkflow._id, title: newWorkflow.label }
 							: null;
+						newTask.assignedTo = payload?.assignedTo?.tenantUsers;
 						newTask.workflowId = null;
 						newTask.createdBy = { _id: user_id, name: userName };
 						newTask.updatedBy = { _id: user_id, name: userName };

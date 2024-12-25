@@ -31,10 +31,10 @@ const Person = ({
 		(value, type) => {
 			if (type === 'reverse') {
 				const parsed = value?.map((item) => ({ _id: item?.value, name: item?.label }));
-				return multiSelect ? parsed : parsed[0];
+				return multiSelect ? parsed : parsed.at(-1);
 			} else {
 				const parsed = value?.map((item) => ({ value: item?._id, label: item?.name }));
-				return multiSelect ? parsed : parsed[0];
+				return multiSelect ? parsed : parsed.at(-1);
 			}
 		},
 		[multiSelect],

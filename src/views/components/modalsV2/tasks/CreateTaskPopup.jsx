@@ -59,10 +59,7 @@ const CreateTaskPopup = ({
 			assignedTo:
 				assignedTo.length > 0
 					? {
-							tenantUsers: assignedTo.map((user) => ({
-								_id: user.value,
-								name: user.label,
-							})),
+							tenantUsers: assignedTo,
 					  }
 					: '',
 			description,
@@ -173,50 +170,10 @@ const CreateTaskPopup = ({
 						persons={tenantUsers}
 						onOptionClick={(value) => updateModalInfo('assignedTo', value)}
 						title={'Assigned To'}
+						multiSelect={true}
+						parseValue={true}
 						removeBtn={true}
 					/>
-
-					{/* {info?.dueDate ? (
-						<div className="dueDate-wrapper">
-							<DateView
-								value={info?.dueDate}
-								onOptionClick={(value) => updateModalInfo('dueDate', value)}
-								title={'Due Date'}
-							/>
-						</div>
-					) : (
-						''
-					)} */}
-					{/* <Tooltip
-						overlayClassName="moreOptions-container"
-						placement={'bottomRight'}
-						title={
-							<div className="moreOptions-wrapper">
-								<div
-									className="more-listItem"
-									onClick={() => updateModalInfo('dueDate', moment().unix())}
-								>
-									<CalendarIcon />
-									<span>Set due date</span>
-								</div>
-
-								<div className="more-listItem">
-									<LinkIcon /> <span>Add link</span>
-								</div>
-								<div className="more-listItem">
-									<PageIcon />
-									<span>Add sub-issue</span>
-								</div>
-							</div>
-						}
-						arrow={false}
-						trigger={'click'}
-						color="transparent"
-					>
-						<div className="more" style={customListItemStyle}>
-							<HorizontalMoreIcon />
-						</div>
-					</Tooltip> */}
 				</div>
 				<div className="footer-wrapper">
 					<button
