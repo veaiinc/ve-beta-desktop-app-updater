@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { memo, useCallback } from 'react';
 import '../../../../assets/scss/tasks/filterComponent.scss';
 import { ReactComponent as DownArrow } from '../../../../assets/svg/tasks/downArrow.svg';
-import { ReactComponent as BackArrow } from '../../../../assets/svg/gallery/backArrow.svg';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import { Tooltip } from 'antd';
 import Person from './Person';
@@ -9,40 +8,43 @@ import WorkFlow from './WorkFlow';
 import Status from './Status';
 import Priority from './Priority';
 import DateView from './DateView';
-import { filter } from 'lodash';
+import moment from 'moment';
 const FilterComponent = ({
 	Icon,
 	title,
 	type,
 	value,
-	handleOnChange,
 	fieldName,
 	filters,
 	updateListViewInfo,
 	workflows,
 	tenantUsers,
+	isPending,
+	onConfirm,
+	setPendingFilters,
 }) => {
 	const handleFilterChange = useCallback(
 		(key, value) => {
-			console.log(key, typeof value, value);
-
-			const newFilters = filters.map((item) =>
-				item.key === key ? { ...item, value } : item,
-			);
-			updateListViewInfo('filters', newFilters);
+			if (isPending) {
+				onConfirm(key, value);
+			} else {
+				const newFilters = filters.map((item) =>
+					item.key === key ? { ...item, value } : item,
+				);
+				updateListViewInfo('filters', newFilters);
+			}
 		},
-		[filters, updateListViewInfo],
+		[filters, updateListViewInfo, isPending, onConfirm],
 	);
 
 	const removeFilter = useCallback(() => {
-		const newFilters = filters.filter((item) => item.key !== fieldName);
-		updateListViewInfo('filters', newFilters);
-	}, [fieldName, filters, updateListViewInfo]);
-
-	useEffect(() => {
-		console.log(filters);
-	}, [filters]);
-
+		if (isPending) {
+			setPendingFilters((prev) => prev.filter((f) => f.key !== fieldName));
+		} else {
+			const newFilters = filters.filter((item) => item.key !== fieldName);
+			updateListViewInfo('filters', newFilters);
+		}
+	}, [fieldName, filters, updateListViewInfo, isPending, setPendingFilters]);
 	const componentOptionsMapper = {
 		workflow: (value) => (
 			<WorkFlow
@@ -67,14 +69,16 @@ const FilterComponent = ({
 		),
 		status: (value) => (
 			<Status
-				value={value || 'todo'}
+				value={value}
 				onOptionClick={(value) => handleFilterChange(fieldName, value)}
+				setDefault={false}
 			/>
 		),
 		priority: (value) => (
 			<Priority
-				value={value || 'low'}
+				value={value}
 				onOptionClick={(value) => handleFilterChange(fieldName, value)}
+				setDefault={false}
 			/>
 		),
 		date: (value) => (
@@ -124,7 +128,9 @@ const FilterComponent = ({
 				<span className="filterComponent-title">{title}</span>
 				<span className="filterComponent-value">
 					:{' '}
-					{typeof value === 'object'
+					{type === 'date' && value
+						? moment.unix(value).format('MMM DD')
+						: typeof value === 'object'
 						? value?.title || value?.name || value?.label
 						: value}
 				</span>
@@ -134,4 +140,4 @@ const FilterComponent = ({
 	);
 };
 
-export default FilterComponent;
+export default memo(FilterComponent);

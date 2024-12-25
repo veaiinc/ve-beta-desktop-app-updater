@@ -2,7 +2,7 @@ import React, { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 import DropDown from '../../dropDown/tasks/DropDown';
 
-const Priority = ({ value = 'low', onOptionClick, customListItemStyle = {} }) => {
+const Priority = ({ value, onOptionClick, customListItemStyle = {}, setDefault = true }) => {
 	const [info, setInfo] = useState({
 		options: [
 			{
@@ -27,9 +27,11 @@ const Priority = ({ value = 'low', onOptionClick, customListItemStyle = {} }) =>
 	useEffect(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			selected: prevInfo?.options.find((item) => item.value === value),
+			selected: prevInfo?.options.find(
+				(item) => item.value === (value ? value : setDefault ? 'low' : null),
+			),
 		}));
-	}, [value]);
+	}, [value, setDefault]);
 
 	return (
 		<div className="listItem-priority">
@@ -44,7 +46,7 @@ const Priority = ({ value = 'low', onOptionClick, customListItemStyle = {} }) =>
 					className={`currentItem`}
 					style={{ ...customListItemStyle, backgroundColor: info?.selected?.color }}
 				>
-					<p className="listItem-label">{info?.selected?.label}</p>
+					<p className="listItem-label">{info?.selected?.label || 'Select priority'}</p>
 				</div>
 			</DropDown>
 		</div>

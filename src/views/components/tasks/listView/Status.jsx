@@ -2,7 +2,13 @@ import React, { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 import DropDown from '../../dropDown/tasks/DropDown';
 
-const Status = ({ value = 'todo', showLabel = true, customListItemStyle = {}, onOptionClick }) => {
+const Status = ({
+	value,
+	showLabel = true,
+	customListItemStyle = {},
+	onOptionClick,
+	setDefault = true,
+}) => {
 	const [info, setInfo] = useState({
 		options: [
 			{
@@ -36,9 +42,11 @@ const Status = ({ value = 'todo', showLabel = true, customListItemStyle = {}, on
 	useEffect(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			selected: prevInfo?.options.find((item) => item.value === value),
+			selected: prevInfo?.options.find(
+				(item) => item.value === (value ? value : setDefault ? 'todo' : null),
+			),
 		}));
-	}, [value]);
+	}, [value, setDefault]);
 
 	return (
 		<div className="listItem-status">
@@ -65,7 +73,11 @@ const Status = ({ value = 'todo', showLabel = true, customListItemStyle = {}, on
 							borderRadius: '50%',
 						}}
 					></span>
-					{showLabel ? <p className="listItem-label">{info?.selected?.label}</p> : ''}
+					{showLabel ? (
+						<p className="listItem-label">{info?.selected?.label || 'Select status'}</p>
+					) : (
+						''
+					)}
 				</div>
 			</DropDown>
 		</div>

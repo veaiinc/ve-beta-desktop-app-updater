@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import '../../../../assets/scss/tasks/listViewHeader.scss';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/tasks/searchWhite.svg';
@@ -15,8 +15,8 @@ import FilterComponent from './FilterComponent';
 
 const defaultFilterValue = {
 	workflow: null,
-	status: 'todo',
-	priority: 'low',
+	status: null,
+	priority: null,
 	title: '',
 	description: '',
 	dueDate: null,
@@ -38,13 +38,12 @@ const ListViewHeader = ({
 	workflows,
 	tenantUsers,
 	searchValue,
+	// setPendingFilters,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
 	});
-	useEffect(() => {
-		console.log(searchValue);
-	}, [searchValue]);
+	const [pendingFilters, setPendingFilters] = useState([]);
 
 	const handelSortClick = useCallback(
 		(value) => {
@@ -59,12 +58,20 @@ const ListViewHeader = ({
 
 	const handelFilterClick = useCallback(
 		(value) => {
-			const newFilters = filters.some((item) => item.key === value)
-				? filters
-				: [...filters, { key: value, value: defaultFilterValue[value] }];
-			updateListViewInfo('filters', newFilters);
+			if (
+				!filters.some((item) => item.key === value) &&
+				!pendingFilters.some((item) => item.key === value)
+			) {
+				setPendingFilters((prev) => [
+					...prev,
+					{
+						key: value,
+						value: defaultFilterValue[value],
+					},
+				]);
+			}
 		},
-		[filters, updateListViewInfo],
+		[filters, pendingFilters],
 	);
 
 	return (
@@ -190,9 +197,9 @@ const ListViewHeader = ({
 				) : (
 					''
 				)}
-				{filters.length > 0 ? (
+				{filters.length > 0 || pendingFilters.length > 0 ? (
 					<div className="listView-filterContainer">
-						{filters.map((filter) => (
+						{[...filters, ...pendingFilters].map((filter) => (
 							<FilterComponent
 								key={filter?.key}
 								Icon={responseTypes[filter?.key]?.Icon}
@@ -204,6 +211,12 @@ const ListViewHeader = ({
 								workflows={workflows}
 								tenantUsers={tenantUsers}
 								type={responseTypes[filter?.key]?.type}
+								isPending={!filters.includes(filter)}
+								onConfirm={(key, value) => {
+									setPendingFilters((prev) => prev.filter((f) => f.key !== key));
+									updateListViewInfo('filters', [...filters, { key, value }]);
+								}}
+								setPendingFilters={setPendingFilters}
 							/>
 						))}
 						<DropDown
@@ -220,9 +233,7 @@ const ListViewHeader = ({
 							</button>
 						</DropDown>
 					</div>
-				) : (
-					''
-				)}
+				) : null}
 			</div>
 		</div>
 	);
