@@ -25,6 +25,9 @@ import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 import { ReactComponent as OrchestratorSvg } from '../../../assets/svg/sidebar/Orchestrator.svg';
 import { ReactComponent as TemplatesSvg } from '../../../assets/svg/sidebar/Templates.svg';
+import DaVinci from '../../../assets/images/Da Vinci.jpeg';
+import Jarvis from '../../../assets/images/Jarvis.jpeg';
+import Ari from '../../../assets/images/Ari.jpeg';
 // import { subDays } from 'react-datepicker/dist/date_utils.js';
 
 export const veAiModulesItemsList = [
@@ -45,16 +48,16 @@ export const veAiModulesItemsList = [
 		moduleRoute: '/calendar',
 		route: '/calendar',
 		icon: '',
-		// subModules: [
-		// 	{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
-		// 	{ icon: TranscriptSvg, route: '', name: 'Transcript' },
-		// 	{
-		// 		icon: SettingsSvg,
-		// 		route: '/settings/my-profile',
-		// 		fill: 'white',
-		// 		name: 'Settings',
-		// 	},
-		// ],
+		subModules: [
+			{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
+			{ icon: TranscriptSvg, route: '', name: 'Transcript' },
+			{
+				icon: SettingsSvg,
+				route: '/settings/my-profile',
+				fill: 'white',
+				name: 'Settings',
+			},
+		],
 	},
 
 	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
@@ -147,4 +150,15 @@ export const closedSidebarIcons = [
 		fill: 'white',
 		name: 'Settings',
 	},
+];
+
+export const AiOptions = [
+	{
+		icon: '',
+		name: 'Da Vinci',
+		route: '/da-vinci',
+		image: DaVinci,
+	},
+	{ icon: '', name: 'Jarvis', route: '/jarvis', image: Jarvis },
+	{ icon: '', name: 'Ari', route: '/ari', image: Ari },
 ];

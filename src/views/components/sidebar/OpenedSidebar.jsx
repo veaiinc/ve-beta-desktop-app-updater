@@ -5,6 +5,7 @@ import {
 	bottomOptionsList,
 	veAiSubModulesItemsList,
 	veAiModules,
+	AiOptions,
 } from './sidebarindex';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/notification.svg';
@@ -240,6 +241,35 @@ const OpenedSideBarHoverStateIcons2 = ({
 	);
 };
 
+const AiModulesList = ({ image, name, route, navigateTo }) => {
+	const redirectToFunction = () => {
+		if (!route) return;
+		navigateTo(route);
+	};
+	return (
+		<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+			<img
+				src={image}
+				alt={name}
+				style={{ width: '24px', height: '24px', borderRadius: '50%' }}
+			/>
+			<p
+				onClick={redirectToFunction}
+				style={{
+					color: '#E8E8E8',
+					fontFamily: 'Inter',
+					fontSize: '14px',
+					fontStyle: 'normal',
+					fontWeight: '500',
+					lineHeight: 'normal',
+				}}
+			>
+				{name}
+			</p>
+		</div>
+	);
+};
+
 const OpenedSideBarItemsComponent = ({
 	sidebarStates,
 	setsidebarStates,
@@ -391,6 +421,21 @@ const OpenedSideBarItemsComponent = ({
 									/>
 								</div>
 							)}
+							{AiOptions.map((singleItem, index) => {
+								return (
+									<div key={index} style={{ padding: '8px 16px' }}>
+										<AiModulesList
+											image={singleItem.image}
+											name={singleItem.name}
+											route={singleItem.route}
+											navigateTo={(route) => {
+												handleNavigateFunction(route, singleItem);
+											}}
+										/>
+									</div>
+								);
+							})}
+							<hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} />
 							{veAiModulesItemsList?.map((singleItems, index) => (
 								<div key={index}>
 									<OpenedSideBarHoverStateIcons
