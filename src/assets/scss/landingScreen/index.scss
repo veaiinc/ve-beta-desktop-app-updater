@@ -640,6 +640,11 @@
 
 		.footer-container {
 			background: #0c0d0d !important;
+
+			.banner,
+			.main-content {
+				margin: 50px 0 !important;
+			}
 		}
 	}
 
