@@ -30,6 +30,7 @@ import ShareAndEarn from './views/features/ShareAndEarn';
 import Notes from './views/features/Notes';
 import Ai_agent from './views/features/ai_agent';
 import AgentsJobs from './views/features/ai_agent/AgentsJobs';
+import Docs from './views/features/docs';
 const routes = [
 	{
 		path: '/',
@@ -265,6 +266,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Notes'}>
 				<AgentsJobs />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/docs',
+		component: (
+			<AuthWrapper title={'Docs'}>
+				<Docs />
 			</AuthWrapper>
 		),
 		exact: true,
