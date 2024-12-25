@@ -3,6 +3,7 @@ import Reducer from './reducer';
 import service from '../../services/';
 import Cookies from 'js-cookie';
 import { fetchDomainName, getLocationsDetails } from '../../helpers';
+import { message } from 'antd';
 const { auth_Api: authBaseUrl } = require('../../services/config.live');
 
 export const AuthState = () => {
@@ -318,6 +319,37 @@ export const AuthState = () => {
 		}
 	};
 
+	const subscribeToNewsletter = async (email) => {
+		const path = '/veai/6766b701c7f27153c1b42cbe/6766b701c7f27153c1b42cc3';
+		const body = {
+			responseInput: {
+				response: [
+					{
+						_id: '66accb967410edda114c1a05',
+						question:
+							'<p><span style="font-family: Poppins, sans-serif;">Email?</span></p>',
+						order: 1,
+						type: 'email',
+						variableId: '6311efc4911e0f82be7e2b2d',
+						answer: email,
+					},
+				],
+			},
+		};
+
+		try {
+			const response = await service?.fetchPost(path, body, null, 'workflow');
+			if (response?.[0] === true) {
+				return [true];
+			} else {
+				return [false, { message: response?.[1] }];
+			}
+		} catch (error) {
+			console.error('Error subscribing to email newsletter', error);
+			throw error;
+		}
+	};
+
 	const continueWithGoogle = async (locationDetails, referralCode = false) => {
 		const encodedLocationDetails = encodeURIComponent(JSON.stringify(locationDetails));
 		const encodedReferralCode = referralCode ? encodeURIComponent(referralCode) : false;
@@ -357,5 +389,6 @@ export const AuthState = () => {
 		getUsernameDetailsViaReferralCode,
 		verifyMobileOtpCode,
 		requestResendOTPToMobile,
+		subscribeToNewsletter,
 	};
 };

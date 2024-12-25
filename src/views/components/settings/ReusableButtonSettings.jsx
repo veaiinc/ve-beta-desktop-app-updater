@@ -57,8 +57,21 @@ const ReusableButtonSettings = ({
 			onClick={handleConnectToThirdParty}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
+			style={{ width: '100%' }}
 		>
-			<div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+			<div
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					gap: '10px',
+					backgroundColor: '#3f3f46',
+					padding: '8px 16px',
+					borderRadius: '6px',
+					justifyContent: 'center',
+					cursor: 'pointer',
+					minWidth: '150px',
+				}}
+			>
 				{icon && <span style={{ display: 'flex', alignItems: 'center' }}>{icon}</span>}
 				<span
 					style={{
@@ -66,6 +79,7 @@ const ReusableButtonSettings = ({
 						fontStyle: 'normal',
 						fontWeight: '400',
 						lineHeight: '22px',
+						color: '#fff',
 					}}
 				>
 					{text}

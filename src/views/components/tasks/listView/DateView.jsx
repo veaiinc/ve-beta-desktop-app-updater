@@ -1,16 +1,17 @@
+import { memo, useCallback, useState } from 'react';
 import moment from 'moment';
 import '../../../../assets/scss/tasks/listItems.scss';
 import DropDown from '../../dropDown/tasks/DropDown';
-import { Tooltip } from 'antd';
-import { memo, useState } from 'react';
-
-const Date = ({
+import { DatePicker, Tooltip } from 'antd';
+import { ReactComponent as CalendarIcon } from '../../../../assets/svg/tasks/calendar.svg';
+const DateView = ({
 	value,
 	format = 'MMM DD',
 	timestamp = false,
 	title = '',
 	customListItemStyle = {},
 	onOptionClick,
+	showIcon = false,
 }) => {
 	const [info, setInfo] = useState({
 		showDatePicker: false,
@@ -23,26 +24,32 @@ const Date = ({
 		],
 	});
 
-	const updatedOnOptionClick = (value) => {
-		if (value === 'custom') {
-			setInfo((prevInfo) => ({ ...prevInfo, showDatePicker: true }));
-		} else {
-			onOptionClick(value);
-		}
-	};
+	const updatedOnOptionClick = useCallback(
+		(value) => {
+			if (value === 'custom') {
+				setInfo((prevInfo) => ({ ...prevInfo, showDatePicker: true }));
+			} else {
+				onOptionClick(value);
+			}
+		},
+		[onOptionClick],
+	);
 
 	return !timestamp ? (
 		<div onClick={(e) => e.stopPropagation()}>
 			{info?.showDatePicker ? (
-				<input
-					type="date"
-					value={value ? moment.unix(value).format('YYYY-MM-DD') : ''}
-					className="datePicker"
-					onChange={(e) => {
-						setInfo((prevInfo) => ({ ...prevInfo, showDatePicker: false }));
-						onOptionClick(moment(e.target.value).unix());
-					}}
-				/>
+				<div className="listItem-datePicker-wrapper">
+					<DatePicker
+						className="dateView-datePicker"
+						ghost
+						format="MMM DD"
+						allowClear
+						onChange={({ $d }) => {
+							setInfo((prevInfo) => ({ ...prevInfo, showDatePicker: false }));
+							onOptionClick($d ? moment($d).unix() : null);
+						}}
+					/>
+				</div>
 			) : (
 				<DropDown
 					title={'Change due date'}
@@ -53,7 +60,12 @@ const Date = ({
 				>
 					<Tooltip title={title} placement="bottom">
 						<div className={`listItem-date`} style={customListItemStyle}>
-							{value ? moment.unix(value).format(format) : 'Not selected'}
+							{showIcon && <CalendarIcon />}
+							{value
+								? moment.unix(value).format(format)
+								: showIcon
+								? ''
+								: 'Not selected'}
 						</div>
 					</Tooltip>
 				</DropDown>
@@ -68,4 +80,4 @@ const Date = ({
 	);
 };
 
-export default memo(Date);
+export default memo(DateView);

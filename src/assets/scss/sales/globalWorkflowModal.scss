@@ -18,7 +18,7 @@
 			align-items: flex-start;
 			gap: 1px;
 			align-self: stretch;
-			padding: 24px 12px 8px 12px;
+			padding: 24px 24px 8px 24px;
 			border-bottom: 1px solid rgba(40, 39, 40, 0.48);
 
 			.headerBtnContainer {
@@ -31,7 +31,7 @@
 				.tabBtnContainer {
 					display: flex;
 					align-items: center;
-					// gap: 24px;
+					gap: 24px;
 					.tabBtns {
 						display: flex;
 						width: 200px;
@@ -81,7 +81,6 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: 18px; /* 150% */
-				margin-left: 12px;
 			}
 		}
 
@@ -160,10 +159,6 @@
 			color: #fff;
 			margin-bottom: 24px;
 			overflow-y: auto;
-
-			iframe {
-				border: none;
-			}
 
 			.startingPoint {
 				display: flex;

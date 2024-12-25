@@ -9,6 +9,7 @@ import slugify from 'slugify';
 const CreateAlbum = ({ open, closeModal, galleryId }) => {
 	const {
 		galleryInfo: { createNewAlbum, checkAlbumSlugIsAvalible },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	const location = useLocation();
 	const [info, setInfo] = useState({
@@ -50,6 +51,9 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 	};
 
 	const handleCreateAlbum = () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		if (info?.isSubmitting) return;
 		const albumNameError = !info.albumName;
 		const eventDateError = !info.eventDate;

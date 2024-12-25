@@ -7,12 +7,14 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import Sidebar from '../components/sidebar/Sidebar';
 import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
+import useTokenExpiry from '../hooks/useTokenExpiry';
 
 const AuthWrapper = ({ title, children, maxWidth = '' }) => {
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 
 	const checkAuth = useAuth();
-	const data = useSubscription();
+	// const data = useSubscription();
+	const tokenData = useTokenExpiry();
 
 	useEffect(() => {
 		checkAuth();
@@ -32,12 +34,12 @@ const AuthWrapper = ({ title, children, maxWidth = '' }) => {
 					padding: '60px 0 0 32px',
 				}}
 			>
-				<Sidebar
-					setActiveWorkspaceId={setActiveWorkspaceId}
-					activeWorkspaceId={workspaceId}
-				/>
-
 				<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>
+					<Sidebar
+						setActiveWorkspaceId={setActiveWorkspaceId}
+						activeWorkspaceId={workspaceId}
+					/>
+
 					<div
 						style={{ flex: 1, overflowY: 'auto', maxHeight: '100%', height: '100%' }}
 						id="scrollableTarget"

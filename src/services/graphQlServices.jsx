@@ -15,16 +15,13 @@ const {
 	workflows_Api_US,
 	activity_api,
 	activity_api_US,
-	tasks_api,
-	tasks_api_US,
 } = config || {};
 
-const graphQLAPICall = { ve_conversations_api, workflows_Api, activity_api, tasks_api };
+const graphQLAPICall = { ve_conversations_api, workflows_Api, activity_api };
 const graphQLAPICallUS = {
 	ve_conversations_api: ve_conversations_api_US,
 	workflows_Api: workflows_Api_US,
 	activity_api: activity_api_US,
-	tasks_api: tasks_api_US,
 };
 
 const defaultOptions = {

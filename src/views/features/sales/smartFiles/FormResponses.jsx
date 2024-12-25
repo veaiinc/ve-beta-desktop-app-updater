@@ -8,7 +8,6 @@ const EventstypeFormResponses = ({ data, index }) => {
 	return (
 		<div className="eventsListCards" key={index}>
 			<span className="eventTitle">{`Response ${index + 1}`}</span>
-
 			<div className="questionAndAnswerContainer">
 				<div className="questionBlock">
 					{data?.question
@@ -16,23 +15,26 @@ const EventstypeFormResponses = ({ data, index }) => {
 						.replace(/<\/?[^>]+(>|$)/g, '')
 						.replace(/"/g, '')}
 				</div>
-
 				{answer?.map((item, ind) => (
-					<div className="eventsAnswersContainer" style={{ marginTop: '24px' }}>
-						{Object.keys(item)?.map((lowerItem, lowerIndex) => (
-							<div style={{ display: 'flex' }}>
-								<span
-									className="eventValues"
-									key={lowerIndex}
-									style={{ textTransform: 'capitalize' }}
-								>
-									{lowerItem + ' :'}
-								</span>
-								<span className="eventValues" key={lowerIndex}>
-									{item?.[lowerItem]}
-								</span>
-							</div>
-						))}
+					<div className="eventsAnswersContainer" style={{ marginTop: '24px' }} key={ind}>
+						{Object.keys(item)?.map((lowerItem, lowerIndex) => {
+							if (lowerItem !== 'nameReactSelect') {
+								return (
+									<div style={{ display: 'flex' }} key={lowerIndex}>
+										<span
+											className="eventValues"
+											key={lowerIndex}
+											style={{ textTransform: 'capitalize' }}
+										>
+											{lowerItem + ' :'}
+										</span>
+										<span className="eventValues" key={lowerIndex}>
+											{item?.[lowerItem]}
+										</span>
+									</div>
+								);
+							}
+						})}
 					</div>
 				))}
 			</div>
@@ -41,12 +43,11 @@ const EventstypeFormResponses = ({ data, index }) => {
 };
 
 const MultipleChoiceComponent = ({ data, index }) => {
-	let answer = JSON.parse(data?.answer || '[]');
+	let answer = data?.answer || '[]';
 	answer = answer?.split(',');
 	return (
 		<div className="eventsListCards" key={index}>
 			<span className="eventTitle">{`Response ${index + 1}`}</span>
-
 			<div className="questionAndAnswerContainer">
 				<div className="questionBlock">
 					{data?.question
@@ -55,7 +56,7 @@ const MultipleChoiceComponent = ({ data, index }) => {
 						.replace(/"/g, '')}
 				</div>
 				{answer?.map((item, ind) => (
-					<div className="eventsAnswersContainer" style={{ marginTop: '2px' }}>
+					<div className="eventsAnswersContainer" style={{ marginTop: '2px' }} key={ind}>
 						<span className="eventValues" key={ind}>
 							{item?.trim()}
 						</span>
