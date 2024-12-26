@@ -103,7 +103,10 @@ const Person = ({
 					e.stopPropagation();
 				}}
 				style={{
-					width: !info?.value && !value ? '180px' : 'fit-content',
+					width:
+						(!info?.value && !value) || (Array.isArray(value) && value.length === 0)
+							? '180px'
+							: 'fit-content',
 					color: disabled ? '#8c8c8c' : '#e5e5e5',
 				}}
 				className={`person-select ${disabled ? 'disabled' : ''}`}

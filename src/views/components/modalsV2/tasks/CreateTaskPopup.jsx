@@ -106,6 +106,9 @@ const CreateTaskPopup = ({
 				content: {
 					zIndex: 30000,
 				},
+				overlay: {
+					zIndex: 2,
+				},
 			}}
 		>
 			{contextHolder}
@@ -168,7 +171,7 @@ const CreateTaskPopup = ({
 						/>
 					</div>
 					<Person
-						value={info?.assignedTo}
+						value={info?.assignedTo || []}
 						{...responseMetadata?.['assignedTo']?.props}
 						onOptionClick={(value) => updateModalInfo('assignedTo', value)}
 						title={'Assigned To'}
