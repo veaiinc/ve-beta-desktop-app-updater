@@ -1,4 +1,8 @@
 .listViewHeaderContainer {
+	background-color: rgb(17 17 17);
+	position: sticky;
+	top: 0;
+	z-index: 10;
 	.listViewHeader {
 		display: flex;
 		align-items: center;

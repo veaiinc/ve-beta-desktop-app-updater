@@ -87,7 +87,7 @@ const Person = ({
 				variant="borderless"
 				labelInValue
 				showSearch={false}
-				disabled={false}
+				disabled={disabled}
 				onClick={(e) => {
 					if (!disabled) {
 						e.stopPropagation();

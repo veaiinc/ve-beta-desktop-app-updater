@@ -13,24 +13,6 @@ import { message } from 'antd';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 
-const responseTypes = {
-	title: { type: 'text', name: 'Title', Icon: textSvg, props: {} },
-	description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
-	status: { type: 'status', name: 'Status', Icon: PieSvg, props: {} },
-	priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg, props: {} },
-	workflow: { type: 'workflow', name: 'Workflow', Icon: WorkflowSvg, props: {} },
-	assignedTo: { type: 'person', name: 'Assigned To', Icon: PersonSvg, props: {} },
-	dueDate: { type: 'date', name: 'Due Date', Icon: ClockSvg, props: {} },
-	assignedBy: { type: 'person', name: 'Assigned By', Icon: PersonSvg, props: {} },
-	assignedAt: { type: 'date', name: 'Assigned At', Icon: ClockSvg, props: {} },
-	completedAt: { type: 'date', name: 'Completed At', Icon: CalendarSvg, props: {} },
-	createdAt: { type: 'date', name: 'Created At', Icon: CalendarSvg, props: {} },
-	updatedAt: { type: 'date', name: 'Updated At', Icon: CalendarSvg, props: {} },
-	createdBy: { type: 'person', name: 'Created By', Icon: PersonSvg, props: {} },
-	updatedBy: { type: 'person', name: 'Updated By', Icon: PersonSvg, props: {} },
-	taskSlNo: { type: 'id', name: 'Id', Icon: textSvg, props: {} },
-};
-
 const Tasks = () => {
 	const {
 		tasks: {
@@ -254,7 +236,7 @@ const Tasks = () => {
 
 	const mapPropertyType = useCallback(() => {
 		let properties = [];
-		for (let key in responseTypes) {
+		for (let key in responseMetadata) {
 			if (
 				key === '__typename' ||
 				key === '_id' ||
@@ -264,7 +246,7 @@ const Tasks = () => {
 				continue;
 			}
 
-			const { type = null, name = null, Icon = null } = responseTypes[key];
+			const { type = null, name = null, Icon = null } = responseMetadata[key];
 
 			properties.push({
 				value: key,
@@ -464,7 +446,7 @@ const Tasks = () => {
 						newTask.workflow = newWorkflow
 							? { _id: newWorkflow._id, title: newWorkflow.label }
 							: null;
-						newTask.assignedTo = payload?.assignedTo?.tenantUsers;
+						// newTask.assignedTo = payloadpayload?.assignedTo?.tenantUsers;
 						newTask.workflowId = null;
 						newTask.createdBy = { _id: user_id, name: userName };
 						newTask.updatedBy = { _id: user_id, name: userName };
@@ -515,7 +497,6 @@ const Tasks = () => {
 		<div>
 			{contextHolder}
 			<ListView
-				responseTypes={responseTypes}
 				info={info}
 				updateListViewInfo={updateListViewInfo}
 				resetSubTasks={resetSubTasks}

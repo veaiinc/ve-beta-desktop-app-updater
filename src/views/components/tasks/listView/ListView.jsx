@@ -37,7 +37,6 @@ const rowTypes = {
 };
 
 const ListView = ({
-	responseTypes,
 	info,
 	updateListViewInfo,
 	resetSubTasks,
@@ -102,7 +101,6 @@ const ListView = ({
 				togglePropertyVisibility={togglePropertyVisibility}
 				sort={info?.sort}
 				filters={info?.filters}
-				responseTypes={responseTypes}
 				workflows={info?.workflows}
 				tenantUsers={info?.tenantUsers}
 				searchValue={info?.searchValue}
