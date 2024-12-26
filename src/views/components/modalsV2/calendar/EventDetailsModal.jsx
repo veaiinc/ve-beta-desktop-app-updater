@@ -6,6 +6,7 @@ import CustomSelect from '../../../components/globalComponents/CustomSelect';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as Arrow } from '../../../../assets/svg/calendar/down.svg';
 import { ReactComponent as Delete } from '../../../../assets/svg/tasks/dustBin.svg';
+import CategorySelector from '../../calendar/CategorySelector';
 import DateView from '../../tasks/listView/DateView.jsx';
 import Spinner from '../../../components/loaders/Spinner';
 import Context from '../../../../context/context';
@@ -64,12 +65,12 @@ const EventDetailsModal = ({
 	}, [calendarEventDetails]);
 
 	useEffect(() => {
-		const currentEventCache = eventCache.current;
+		const currentEventCache = eventCache?.current;
 		return () => {
 			setInfo({
 				...initialState,
 			});
-			currentEventCache.clear();
+			currentEventCache?.clear();
 		};
 	}, []);
 
@@ -109,8 +110,19 @@ const EventDetailsModal = ({
 		handleSelectEvent((prev) => ({ ...prev, selectedEvent: null }));
 	}, [selectedEvent]);
 
-	const componentMapper = useMemo(
-		() => ({
+	const updateEventDetails = useCallback((field, value) => {
+		setInfo((prev) => ({
+			...prev,
+			eventDetails: {
+				...prev.eventDetails,
+				[field]: value,
+			},
+		}));
+	}, []);
+
+	const componentMapper = useMemo(() => {
+		console.log('Component mapper re-rendered');
+		return {
 			location: (value) => (
 				<CustomInput
 					value={value}
@@ -162,21 +174,16 @@ const EventDetailsModal = ({
 				),
 			calendarCategory: (value) => {
 				console.log('value', JSON.stringify(value));
-				console.log('categoryList', JSON.stringify(categoryList));
+				// console.log('categoryList', JSON.stringify(categoryList));
 				return (
-					<CustomSelect
+					<CategorySelector
 						value={value}
 						options={categoryList}
 						onChange={(value) => {
+							console.log('onChange value', JSON.stringify(value));
 							updateEventDetails('calendarCategory', value);
 						}}
-						isMulti={true}
-						formatConfig={{
-							valueKey: '_id',
-							labelKey: 'name',
-							colorKey: 'color',
-						}}
-						maxTagCount={2}
+						className="categorySelector"
 					/>
 				);
 			},
@@ -221,21 +228,11 @@ const EventDetailsModal = ({
 					<CustomInput defaultValue={updatedAt} className="inputFeilds" readOnly={true} />
 				);
 			},
-		}),
-		[],
-	);
-	const validKeys = info?.eventKeys?.filter((key) => componentMapper[key]) || [];
-	const visibleKeys = info?.detailsExpanded ? validKeys : validKeys.slice(0, 5);
+		};
+	}, [categoryList, updateEventDetails, info?.eventDetails]);
 
-	const updateEventDetails = useCallback((field, value) => {
-		setInfo((prev) => ({
-			...prev,
-			eventDetails: {
-				...prev.eventDetails,
-				[field]: value,
-			},
-		}));
-	}, []);
+	const validKeys = info?.eventKeys?.filter((key) => componentMapper[key]) || [];
+	const visibleKeys = info?.detailsExpanded ? validKeys : validKeys?.slice(0, 5);
 
 	return (
 		<Drawer
