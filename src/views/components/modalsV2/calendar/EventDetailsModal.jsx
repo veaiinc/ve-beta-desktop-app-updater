@@ -110,18 +110,20 @@ const EventDetailsModal = ({
 		handleSelectEvent((prev) => ({ ...prev, selectedEvent: null }));
 	}, [selectedEvent]);
 
-	const updateEventDetails = useCallback((field, value) => {
-		setInfo((prev) => ({
-			...prev,
-			eventDetails: {
-				...prev.eventDetails,
-				[field]: value,
-			},
-		}));
-	}, []);
+	const updateEventDetails = useCallback(
+		(field, value) => {
+			setInfo((prev) => ({
+				...prev,
+				eventDetails: {
+					...prev.eventDetails,
+					[field]: value,
+				},
+			}));
+		},
+		[info],
+	);
 
 	const componentMapper = useMemo(() => {
-		console.log('Component mapper re-rendered');
 		return {
 			location: (value) => (
 				<CustomInput
@@ -180,7 +182,6 @@ const EventDetailsModal = ({
 						value={value}
 						options={categoryList}
 						onChange={(value) => {
-							console.log('onChange value', JSON.stringify(value));
 							updateEventDetails('calendarCategory', value);
 						}}
 						className="categorySelector"
@@ -229,7 +230,7 @@ const EventDetailsModal = ({
 				);
 			},
 		};
-	}, [categoryList, updateEventDetails, info?.eventDetails]);
+	}, [categoryList, updateEventDetails, info?.eventDetails, updateEventDetails]);
 
 	const validKeys = info?.eventKeys?.filter((key) => componentMapper[key]) || [];
 	const visibleKeys = info?.detailsExpanded ? validKeys : validKeys?.slice(0, 5);
