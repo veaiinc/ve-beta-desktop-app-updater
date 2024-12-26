@@ -87,7 +87,13 @@ const Person = ({
 	return (
 		<Tooltip title={title} placement="bottom">
 			<Select
-				placeholder={disabled ? 'No data' : `Select ${title || 'person'}`}
+				placeholder={
+					!value || (Array.isArray(value) && value.length === 0)
+						? disabled
+							? 'No data'
+							: `Select ${title || 'person'}`
+						: undefined
+				}
 				options={options}
 				variant="borderless"
 				labelInValue
