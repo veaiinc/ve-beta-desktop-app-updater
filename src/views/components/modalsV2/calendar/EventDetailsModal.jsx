@@ -16,7 +16,7 @@ import moment from 'moment';
 const initialState = {
 	loading: true,
 	deleting: false,
-	detailsExpanded: false,
+	detailsExpanded: true,
 	eventDetails: null,
 	eventKeys: ['locationAdrress', 'locationPincode'],
 };
@@ -174,20 +174,16 @@ const EventDetailsModal = ({
 						className="inputFeilds"
 					/>
 				),
-			calendarCategory: (value) => {
-				console.log('value', JSON.stringify(value));
-				// console.log('categoryList', JSON.stringify(categoryList));
-				return (
-					<CategorySelector
-						value={value}
-						options={categoryList}
-						onChange={(value) => {
-							updateEventDetails('calendarCategory', value);
-						}}
-						className="categorySelector"
-					/>
-				);
-			},
+			calendarCategory: (value) => (
+				<CategorySelector
+					value={value}
+					options={categoryList}
+					onChange={(value) => {
+						updateEventDetails('calendarCategory', value);
+					}}
+					className="categorySelector"
+				/>
+			),
 			status: (value) => (
 				<CustomInput
 					value={value}
@@ -241,7 +237,7 @@ const EventDetailsModal = ({
 				updateCalendarInfo('isEventSelected', false);
 				setInfo((prev) => ({
 					...prev,
-					detailsExpanded: false,
+					// detailsExpanded: false,
 				}));
 			}}
 			width={450}
