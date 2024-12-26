@@ -107,6 +107,16 @@
 
 		.PhoneInput {
 			width: 100%;
+
+			select {
+				color: #000000;
+				background-color: #ffffff;
+
+				option {
+					color: #000000;
+					background-color: #ffffff;
+				}
+			}
 		}
 	}
 

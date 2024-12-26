@@ -73,7 +73,8 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 					},
 				],
 			}));
-			if (calendarChat?.answer?.includes('successfully')) {
+
+			if (calendarChat?.db_update) {
 				getCalendarEventsList();
 			}
 		}
