@@ -71,45 +71,7 @@
 		}
 	}
 }
-.listItem-person {
-	display: flex;
-	gap: 5px;
-	align-items: center;
-	align-self: center;
-	cursor: pointer;
-	max-height: 32px;
-	.avatar {
-		width: 20px;
-		height: 20px;
-		border-radius: 50px;
-		background-color: #1d1d1d;
-		img {
-			object-fit: cover;
-			width: 100%;
-			height: 100%;
-		}
-		.profile-name {
-			height: 100%;
-			width: 100%;
-			border-radius: 30px;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			color: #e4e5e6;
-			font-size: small;
-			border: 1px solid #2c2c2c;
-		}
-	}
-	.name {
-		color: #e4e5e6;
-		font-family: Inter;
-		font-size: 13px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
-		padding: 12px 0;
-	}
-}
+
 .listItem-multiSelect {
 	padding: 12px 0;
 	.multiSelectContainer {
@@ -148,7 +110,6 @@
 	justify-content: center;
 	align-items: center;
 	gap: 3px;
-	// height: 32px;
 	color: #e4e5e6;
 	width: fit-content;
 	height: fit-content;
@@ -157,28 +118,12 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
-	// margin: 0 6px;
 	svg {
 		path {
 			stroke: #e4e5e6 !important;
 		}
 	}
 }
-// .datePicker {
-// 	width: 100%;
-// 	height: 100%;
-// 	border: 1px solid #1d1d1d;
-// 	background: transparent;
-// 	color: #e4e5e6;
-// 	font-family: Inter;
-// 	font-size: 12px;
-// 	font-style: normal;
-// 	font-weight: 400;
-// 	line-height: normal;
-// 	border-radius: 6px;
-// 	padding: 6px;
-// 	margin: 0 6px;
-// }
 
 .listItem-priority,
 .listItem-status,
@@ -219,11 +164,6 @@
 	gap: 5px;
 	border: none;
 }
-
-// .listItem-status{
-// 	background-color: red;
-
-// }
 .listItem-status {
 	.currentItem {
 		display: flex;

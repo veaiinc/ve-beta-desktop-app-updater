@@ -164,6 +164,10 @@
 	}
 }
 
+.ant-select-selection-item {
+	padding: 0 !important;
+}
+
 .person-tag {
 	display: flex;
 	align-items: center;
@@ -174,6 +178,8 @@
 		height: 20px;
 		border-radius: 50%;
 		background-color: #2b2b2c;
+		justify-content: center;
+		align-items: center;
 		flex-shrink: 0;
 		margin-right: 4px;
 

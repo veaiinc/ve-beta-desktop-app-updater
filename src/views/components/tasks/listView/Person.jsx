@@ -1,7 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, memo, useState, useEffect } from 'react';
-import '../../../../assets/scss/tasks/listItems.scss';
 import '../../../../assets/scss/tasks/person.scss';
-import DropDown from '../../dropDown/tasks/DropDown';
 import { Select, Tooltip } from 'antd';
 
 const Person = ({
@@ -16,14 +15,17 @@ const Person = ({
 	disabled = false,
 }) => {
 	const [info, setInfo] = useState({
-		value: [],
+		value: null,
 	});
 
 	useEffect(() => {
-		if (parseValue && value) {
-			const valueArray = Array.isArray(value) ? value : value ? [value] : [];
+		if (value) {
+			let newVal = value;
+			if (parseValue) {
+				newVal = parsedValueAndLabel(value);
+			}
 			setInfo({
-				value: valueArray?.length > 0 ? parsedValueAndLabel(valueArray) : valueArray,
+				value: newVal,
 			});
 		}
 	}, [parseValue, value]);
@@ -31,25 +33,50 @@ const Person = ({
 	const parsedValueAndLabel = useCallback(
 		(value, type) => {
 			if (type === 'reverse') {
-				const parsed = value?.map((item) => ({ _id: item?.value, name: item?.label }));
-				return multiSelect ? parsed : parsed.at(-1);
+				let parsed = null;
+				if (multiSelect) {
+					parsed = value?.map((item) => ({ _id: item?.value, name: item?.label }));
+				} else {
+					parsed = value ? { _id: value?.value, name: value?.label } : null;
+				}
+				return parsed;
 			} else {
-				const parsed = value?.map((item) => ({ value: item?._id, label: item?.name }));
-				return multiSelect ? parsed : parsed.at(-1);
+				let parsed = null;
+				if (multiSelect) {
+					parsed = value?.map((item) => ({ value: item?._id, label: item?.name }));
+				} else {
+					parsed = value ? { value: value?._id, label: value?.name } : null;
+				}
+				return parsed;
 			}
 		},
 		[multiSelect],
 	);
 
-	const customOnOptionClick = (value) => {
-		const valueArray = Array.isArray(value) ? value : [value];
+	const renderPerson = (option) => {
+		return (
+			<div className="person-tag" style={customListItemStyle}>
+				<div className="person-tag-avatar" style={{ display: 'flex', flexShrink: 0 }}>
+					{/* <img src={profile || ''} alt="" /> */}
+					<div
+						className="person-tag-avatar-icon"
+						style={{ flexShrink: 0, width: '20px', height: '20px' }}
+					>
+						{option?.label?.[0]?.toUpperCase()}
+					</div>
+				</div>
+				{showLabel ? <div className="person-tag-label">{option?.label}</div> : ''}
+			</div>
+		);
+	};
 
+	const customOnOptionClick = (value) => {
 		if (parseValue) {
-			const parsed = parsedValueAndLabel(valueArray, 'reverse');
+			const parsed = parsedValueAndLabel(value, 'reverse');
 			onOptionClick(parsed);
 			return;
 		}
-		onOptionClick(multiSelect ? valueArray : valueArray[0]);
+		onOptionClick(value);
 	};
 
 	return (
@@ -60,7 +87,7 @@ const Person = ({
 				variant="borderless"
 				labelInValue
 				showSearch={false}
-				disabled={disabled}
+				disabled={false}
 				onClick={(e) => {
 					if (!disabled) {
 						e.stopPropagation();
@@ -72,29 +99,7 @@ const Person = ({
 				}}
 				className="person-select"
 				dropdownStyle={{ backgroundColor: 'transparent', width: '220px' }}
-				tagRender={(option) => {
-					return (
-						<div className="person-tag" style={customListItemStyle}>
-							<div
-								className="person-tag-avatar"
-								style={{ display: 'flex', flexShrink: 0 }}
-							>
-								{/* <img src={profile || ''} alt="" /> */}
-								<div
-									className="person-tag-avatar-icon"
-									style={{ flexShrink: 0, width: '20px', height: '20px' }}
-								>
-									{option?.label?.[0].toUpperCase()}
-								</div>
-							</div>
-							{showLabel ? (
-								<div className="person-tag-label">{option?.label}</div>
-							) : (
-								''
-							)}
-						</div>
-					);
-				}}
+				{...(multiSelect ? { tagRender: renderPerson } : { labelRender: renderPerson })}
 				dropdownRender={(menu) => {
 					return (
 						<div className="person-dropdown-menu">
@@ -113,7 +118,7 @@ const Person = ({
 									<img src={option?.image} alt="" />
 								) : (
 									<div className="person-dropdown-menu-option-avatar-icon">
-										{option?.label?.[0].toUpperCase()}
+										{option?.label?.[0]?.toUpperCase()}
 									</div>
 								)}
 							</div>
@@ -122,7 +127,7 @@ const Person = ({
 					);
 				}}
 				suffixIcon={<></>}
-				mode={'multiple'}
+				mode={multiSelect ? 'multiple' : 'default'}
 				onChange={customOnOptionClick}
 				value={info?.value}
 			/>

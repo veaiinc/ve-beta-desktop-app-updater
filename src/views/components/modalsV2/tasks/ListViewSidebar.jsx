@@ -147,7 +147,7 @@ const ListViewSidebar = ({
 	);
 
 	const generateSkeleton = useCallback(() => {
-		return [...Array(3)].map((_, index) => (
+		return [...Array(3)]?.map((_, index) => (
 			<div className="" key={index} style={{ marginBottom: '2px' }}>
 				<Skeleton width="100%" height="32px" borderRadius="12px" count={1} />
 			</div>
