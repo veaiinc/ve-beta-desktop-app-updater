@@ -50,16 +50,16 @@ export const veAiModulesItemsList = [
 		moduleRoute: '/calendar',
 		route: '/calendar',
 		icon: '',
-		subModules: [
-			{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
-			{ icon: TranscriptSvg, route: '', name: 'Transcript' },
-			{
-				icon: SettingsSvg,
-				route: '/settings/my-profile',
-				fill: 'white',
-				name: 'Settings',
-			},
-		],
+		// subModules: [
+		// 	{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
+		// 	{ icon: TranscriptSvg, route: '', name: 'Transcript' },
+		// 	{
+		// 		icon: SettingsSvg,
+		// 		route: '/settings/my-profile',
+		// 		fill: 'white',
+		// 		name: 'Settings',
+		// 	},
+		// ],
 	},
 
 	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
