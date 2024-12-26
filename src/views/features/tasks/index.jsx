@@ -54,7 +54,7 @@ const Tasks = () => {
 
 	const responseMetadata = useMemo(
 		() => ({
-			title: { type: 'text', name: 'Title', Icon: textSvg, props: {} },
+			title: { isTitle: true, type: 'text', name: 'Title', Icon: textSvg, props: {} },
 			description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
 			status: { type: 'status', name: 'Status', Icon: PieSvg, props: {} },
 			priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg, props: {} },

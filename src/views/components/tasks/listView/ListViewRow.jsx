@@ -36,7 +36,12 @@ const ListViewRow = ({
 					continue;
 				}
 
-				const { type, name, props } = responseMetadata[key];
+				const {
+					type = null,
+					name = null,
+					props = {},
+					isTitle = false,
+				} = responseMetadata[key];
 				const RowComponent = rowTypes[type] || null;
 
 				const listItem = RowComponent ? (
@@ -55,7 +60,7 @@ const ListViewRow = ({
 				} else {
 					leftPart.push(listItem);
 				}
-				if (key === 'title') {
+				if (isTitle) {
 					titleReached = true;
 				}
 			}

@@ -39,7 +39,6 @@ const ListViewHeader = ({
 	tenantUsers,
 	searchValue,
 	responseMetadata,
-	// setPendingFilters,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
