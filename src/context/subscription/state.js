@@ -15,6 +15,8 @@ export const intialState = {
 	shareAndEarnData: null,
 	validateExpiryData: null,
 	expiredSubscriptionModal: false,
+	tokenExpiryData: null,
+	expiredTokenModal: false,
 };
 
 export const SubscriptionState = (props) => {
@@ -251,6 +253,16 @@ export const SubscriptionState = (props) => {
 		}
 	};
 
+	const updateTokenExpiryState = async (payload) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_TOKEN_EXPIRY_STATE,
+				payload,
+			});
+		} catch (error) {
+			console.log('errror ==>updateTokenExpiryState', error);
+		}
+	};
 	return {
 		...state,
 		getAllSubscriptionPlan,
@@ -264,5 +276,6 @@ export const SubscriptionState = (props) => {
 		sendCustomMailToClients,
 		createManageSubscriptionLinkforExistingUsers,
 		updateSubscriptionState,
+		updateTokenExpiryState,
 	};
 };
