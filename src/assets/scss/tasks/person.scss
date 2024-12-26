@@ -1,0 +1,225 @@
+.person-dropdown-menu {
+	display: flex;
+	width: 100%;
+	padding: 12px 0px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	border-radius: 10px;
+	background: #202123;
+	box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
+	box-shadow: 0px 2px 44px 0px color(display-p3 0 0 0 / 0.25);
+
+	.person-dropdown-menu-header {
+		display: flex;
+		padding: 0px 8px;
+		margin: 0px 10px;
+		align-items: center;
+		gap: 12px;
+		align-self: stretch;
+		padding-bottom: 12px;
+		border-bottom: 1px solid #2b2b2c;
+
+		.person-dropdown-menu-header-title {
+			color: #e8e8e8;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px;
+		}
+	}
+	.person-dropdown-menu-body {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		.person-dropdown-menu-option {
+			display: flex;
+			align-items: center;
+			.person-dropdown-menu-option-avatar {
+				width: 20px;
+				height: 20px;
+				border-radius: 50%;
+				background-color: #2b2b2c;
+				flex-shrink: 0;
+
+				.person-dropdown-menu-option-avatar-icon {
+					width: 100%;
+					height: 100%;
+					display: flex;
+					border-radius: 50px;
+					border: 1px solid #3c3c3c;
+					align-items: center;
+					justify-content: center;
+					color: #a1a1a1;
+					font-family: Inter;
+					font-size: 11px;
+					font-style: normal;
+					font-weight: 400;
+				}
+			}
+
+			.person-dropdown-menu-option-label {
+				padding: 0px 6px;
+				color: #e4e5e6;
+				flex-grow: 1;
+				max-width: 154px;
+				word-break: break-word;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				overflow: hidden;
+				text-align: left;
+				color: color(display-p3 0.8941 0.898 0.902);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+	}
+
+	.ant-select-item-option-selected {
+		background: #202123 !important;
+		.ant-select-item-option-state {
+			color: #e8e8e8 !important;
+		}
+	}
+}
+
+.listItem-person {
+	display: flex;
+	gap: 5px;
+	align-items: center;
+	align-self: center;
+	cursor: pointer;
+	max-height: 32px;
+	margin-right: 4px;
+	.avatar {
+		width: 20px;
+		height: 20px;
+		border-radius: 50px;
+		background-color: #1d1d1d;
+		img {
+			object-fit: cover;
+			width: 100%;
+			height: 100%;
+		}
+		.profile-name {
+			height: 100%;
+			width: 100%;
+			border-radius: 30px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			color: #e4e5e6;
+			font-size: small;
+			border: 1px solid #2c2c2c;
+		}
+	}
+	.name {
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 13px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		padding: 12px 0;
+	}
+}
+
+.ant-select-selection-overflow-item.ant-select-selection-overflow-item-suffix {
+	display: none !important;
+}
+.ant-select-selector {
+	padding: 0px !important;
+}
+
+.person-select {
+	padding: 0px !important;
+	.ant-select-selection-placeholder {
+		padding: 0px !important;
+		display: flex;
+		align-items: center;
+		text-align: center;
+		color: #e4e5e6;
+		width: fit-content;
+		padding: 6px 0 !important;
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		gap: 3px;
+		color: #e4e5e6;
+		width: -moz-fit-content;
+		width: fit-content;
+		height: -moz-fit-content;
+		height: fit-content;
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	&.disabled {
+		.ant-select-selection-placeholder {
+			color: #8c8c8c !important;
+			padding: 0px !important;
+		}
+	}
+}
+
+.ant-select-selection-item {
+	padding: 0 !important;
+}
+
+.person-tag {
+	display: flex;
+	align-items: center;
+	padding: 2px 0px;
+
+	.person-tag-avatar {
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		background-color: #2b2b2c;
+		justify-content: center;
+		align-items: center;
+		flex-shrink: 0;
+		margin-right: 4px;
+
+		.person-tag-avatar-icon {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			border-radius: 50px;
+			border: 1px solid #3c3c3c;
+			align-items: center;
+			justify-content: center;
+			color: #a1a1a1;
+			font-family: Inter;
+			font-size: 11px;
+			font-style: normal;
+			font-weight: 400;
+		}
+	}
+
+	.person-tag-label {
+		padding: 0px 6px;
+		color: #e4e5e6;
+		flex-grow: 1;
+		max-width: 154px;
+		word-break: break-word;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		overflow: hidden;
+		text-align: left;
+		color: color(display-p3 0.8941 0.898 0.902);
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+}

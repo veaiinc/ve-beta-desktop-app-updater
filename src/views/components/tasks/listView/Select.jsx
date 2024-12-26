@@ -10,7 +10,6 @@ const Select = ({ title, value, val, options = [], onOptionClick, customListItem
 	});
 
 	useEffect(() => {
-		console.log(value);
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			selectedLabel: options.find((option) => option?.value === (value ? value?._id : val))
