@@ -28,6 +28,8 @@ import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
 import DaVinci from '../../../assets/images/Da Vinci.jpeg';
 import Jarvis from '../../../assets/images/Jarvis.jpeg';
 import Ari from '../../../assets/images/Ari.jpeg';
+import DaVinciJobsSvg from '../../../assets/svg/sidebar/DaVinciJobsSvg.jsx';
+import DaVinciSetupSvg from '../../../assets/svg/sidebar/DaVinciSetupSvg.jsx';
 // import { subDays } from 'react-datepicker/dist/date_utils.js';
 
 export const veAiModulesItemsList = [
@@ -158,6 +160,15 @@ export const AiOptions = [
 		name: 'Da Vinci',
 		route: '/ai-agents/home/da-vinci',
 		image: DaVinci,
+		subModules: [
+			{ icon: AddCalenderSvg, route: '/ai-agents/home/da-vinici', name: 'Home' },
+			{ icon: DaVinciJobsSvg, route: '/ai-agents/jobs/:agent-name', name: 'Jobs' },
+			{
+				icon: DaVinciSetupSvg,
+				route: '/ai-agents/setup/da-vinici',
+				name: 'Setup',
+			},
+		],
 	},
 	{ icon: '', name: 'Jarvis', route: '/jarvis', image: Jarvis },
 	{ icon: '', name: 'Ari', route: '/ari', image: Ari },

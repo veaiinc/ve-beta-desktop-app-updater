@@ -116,6 +116,28 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 	}, [sidebarStates.selectedModule]);
 
 	useEffect(() => {
+		const currentPath = window.location.pathname;
+		const selectedAiOption = AiOptions.find((option) => currentPath.startsWith(option.route));
+
+		const iconsToShow =
+			selectedAiOption?.subModules?.map((subModule) => ({
+				icon: subModule.icon,
+				route: subModule.route || '#',
+				name: subModule.name,
+			})) ||
+			veAiModulesItemsList
+				.find((module) => module.name === sidebarStates.selectedModule)
+				?.subModules?.map((subModule) => ({
+					icon: subModule.icon,
+					route: subModule.route || '#',
+					name: subModule.name,
+				})) ||
+			[];
+
+		setVisibleIcons(iconsToShow);
+	}, [sidebarStates.selectedModule, window.location.pathname]);
+
+	useEffect(() => {
 		const handleResize = () => {
 			setIsMobile(window.innerWidth <= 500);
 		};
@@ -138,7 +160,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 	};
 	const getFilteredAiOptions = () => {
 		const currentPath = window.location.pathname;
-		return AiOptions.filter((option) => !currentPath.includes(option.route));
+		return AiOptions.filter((option) => !currentPath.startsWith(option.route));
 	};
 	return (
 		<>
