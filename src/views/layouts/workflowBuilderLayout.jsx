@@ -5,9 +5,11 @@ import { SkeletonTheme } from 'react-loading-skeleton';
 import { Helmet } from 'react-helmet';
 import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
+import useTokenExpiry from '../hooks/useTokenExpiry';
 const WorkflowBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 	const checkAuth = useAuth();
 	// const data = useSubscription();
+	const tokenData = useTokenExpiry();
 	useEffect(() => {
 		checkAuth();
 	}, []);
