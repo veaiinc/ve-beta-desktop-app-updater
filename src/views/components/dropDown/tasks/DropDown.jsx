@@ -64,7 +64,13 @@ const DropDown = ({
 									}}
 								>
 									<div className="list-details">
-										{option?.icon ? option.icon : ''}
+										{option?.Icon ? (
+											<option.Icon
+												style={{ width: '14px', height: '14px' }}
+											/>
+										) : (
+											''
+										)}
 										{option?.[valueSelector] !== undefined ? (
 											<span className="listItem-label">
 												{option?.label
