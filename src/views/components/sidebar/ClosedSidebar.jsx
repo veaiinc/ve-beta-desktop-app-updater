@@ -10,15 +10,20 @@ import { ReactComponent as HamburgerSvg } from '../../../assets/svg/sidebar/Hamb
 import { Tooltip } from 'antd';
 import { closedSidebarIcons } from './sidebarindex';
 import { AiOptions } from './sidebarindex';
-const ClosedSideBarHoverStateIcons = ({ Icon, initialColor = null, hoverClassName = '' }) => {
+const ClosedSideBarHoverStateIcons = ({
+	Icon,
+	initialColor = null,
+	hoverClassName = '',
+	isActive = false,
+}) => {
 	const [isHover, setisHover] = useState(false);
 	return (
 		<div
-			onMouseEnter={() => setisHover(true)}
-			onMouseLeave={() => setisHover(false)}
-			className={`hoverStateIconsClosed ${isHover ? hoverClassName : ''}`}
+		// onMouseEnter={() => setisHover(true)}
+		// onMouseLeave={() => setisHover(false)}
+		// className={`hoverStateIconsClosed ${isHover ? hoverClassName : ''}`}
 		>
-			{Icon && <Icon fill={isHover ? '#FFF' : initialColor} />}
+			{Icon && <Icon fill={isActive ? '#FFF' : '#7A7E85'} />}
 		</div>
 	);
 };
@@ -167,7 +172,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 										<h3
 											style={{
 												margin: 0,
-												marginBottom: '8px',
+												// marginBottom: '8px',
 												display: 'flex',
 												alignItems: 'center',
 												gap: '12px',
@@ -175,53 +180,43 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 												fontWeight: '500',
 												fontFamily: 'Inter',
 												fontStyle: 'normal',
-												lineHeight: '20px',
+												// lineHeight: '20px',
 											}}
 										>
-											{!AiOptions.find((option) =>
+											{/* {!AiOptions.find((option) =>
 												window.location.pathname.includes(option.route),
 											) && (
-												<TaskSvg
-													style={{ height: '20px', width: '20px' }}
-												/>
-											)}
+												// <TaskSvg
+												// 	style={{ height: '20px', width: '20px' }}
+												// />
+											)} */}
 											{AiOptions.find((option) =>
 												window.location.pathname.includes(option.route),
 											)?.name || getPathInfo(window.location.pathname).title}
 										</h3>
-										{!AiOptions.find((option) =>
-											window.location.pathname.includes(option.route),
-										) && (
-											<p
-												style={{
-													margin: 0,
-													fontSize: '12px',
-													fontWeight: '500',
-													fontFamily: 'Inter',
-													fontStyle: 'normal',
-												}}
-											>
-												{getPathInfo(window.location.pathname).description}
-											</p>
-										)}
+										{
+											!AiOptions.find((option) =>
+												window.location.pathname.includes(option.route),
+											)
+										}
 									</div>
 								}
 								open={showRaindrop}
 								placement="rightTop"
 								arrow={false}
 								overlayInnerStyle={{
-									padding: '20px 25px',
-									borderRadius: '24px',
+									padding: '6px 10px',
+									borderRadius: '10px',
 									fontSize: '14px',
-									backgroundColor: '#1f1f1f',
-									color: 'white',
-									width: '220px',
-									height: AiOptions.find((option) =>
-										window.location.pathname.includes(option.route),
-									)
-										? '60px'
-										: '145px', // Reduced height for AI options
-									transformOrigin: 'left center',
+									background: '#E8E8E8',
+									color: '#202123',
+									// width: '220px',
+									// height: AiOptions.find((option) =>
+									// 	window.location.pathname.includes(option.route),
+									// )
+									// 	? '60px'
+									// 	: '60px', // Reduced height for AI options
+									textAlign: 'center',
 									marginLeft: '12px',
 								}}
 							>
@@ -267,33 +262,86 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 									</div>
 								</div>
 							</Tooltip>
-							<hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} />
+							{visibleIcons?.length > 0 && (
+								<hr
+									style={{
+										border: '0.7px solid #333334',
+										width: '70%',
+										alignSelf: 'center',
+									}}
+								/>
+							)}
 							<div className="ClosedIconsContainer">
-								{visibleIcons?.map((singleItem, index) => (
-									<div
-										key={index}
-										className={`iconContainer ${
-											selectedIcon === index ? 'selected' : ''
-										}`}
-										onClick={() => {
-											handleIconClick(index);
-											navigate(singleItem?.route || '');
-										}}
-										style={{
-											position: 'relative',
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: 'center',
-										}}
-									>
-										<ClosedSideBarHoverStateIcons
-											Icon={singleItem?.icon}
-											initialColor={singleItem?.initialColor}
-										/>
-									</div>
-								))}
-								<hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} />
+								{visibleIcons?.length > 0 && (
+									<>
+										{visibleIcons?.map((singleItem, index) => (
+											<Tooltip
+												key={index}
+												title={singleItem.name}
+												placement="right"
+												arrow={false}
+												overlayInnerStyle={{
+													padding: '6px 10px',
+													borderRadius: '10px',
+													fontSize: '14px',
+													fontWeight: '500',
+													fontFamily: 'Inter',
+													fontStyle: 'normal',
+													background: '#E8E8E8',
+													color: '#202123',
+													textAlign: 'center',
+													marginLeft: '20px',
+												}}
+											>
+												<div
+													className={`iconContainer ${
+														selectedIcon === index ? 'selected' : ''
+													}`}
+													onClick={() => {
+														handleIconClick(index);
+														navigate(singleItem?.route || '');
+													}}
+													style={{
+														position: 'relative',
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'center',
+													}}
+												>
+													{selectedIcon === index && (
+														<div
+															style={{
+																position: 'absolute',
+																left: '-65%',
+																top: '50%',
+																transform: 'translateY(-50%)',
+																width: '3px',
+																height: '24px',
+																background: 'white',
+																borderRadius: '0 2px 2px 0',
+															}}
+														/>
+													)}
+													<ClosedSideBarHoverStateIcons
+														Icon={singleItem?.icon}
+														initialColor={singleItem?.initialColor}
+														isActive={selectedIcon === index}
+													/>
+												</div>
+											</Tooltip>
+										))}
+									</>
+								)}
 							</div>
+							{visibleIcons?.length > 0 && (
+								<hr
+									style={{
+										border: '0.7px solid #333334',
+										width: '70%',
+										alignSelf: 'center',
+									}}
+								/>
+							)}
 						</div>
 						<div className="TabOptions">
 							{/* <div>
@@ -337,66 +385,122 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 								style={{
 									display: 'flex',
 									flexDirection: 'column',
-									gap: '12px',
-									padding: '0px',
+									gap: '18px',
+									padding: '18px 0px',
 								}}
 							>
-								<hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} />
+								<hr
+									style={{
+										border: '0.7px solid #333334',
+										width: '70%',
+										alignSelf: 'center',
+									}}
+								/>
 								{getFilteredAiOptions().map((item) => (
-									<div
+									<Tooltip
 										key={item.route}
-										style={{ cursor: 'pointer' }}
-										onClick={() => navigate(item.route)}
+										title={item.name}
+										placement="rightBottom"
+										arrow={false}
+										overlayInnerStyle={{
+											padding: '6px 10px',
+											borderRadius: '10px',
+											// width: '80px',
+											fontSize: '14px',
+											fontWeight: '500',
+											fontFamily: 'Inter',
+											fontStyle: 'normal',
+											background: '#E8E8E8',
+											color: '#202123',
+											textAlign: 'center',
+											marginLeft: '20px',
+										}}
 									>
-										<img
-											src={item.image}
-											alt={item.name}
-											style={{
-												height: '24px',
-												width: '24px',
-												borderRadius: '24px',
-											}}
-										/>
-									</div>
+										<div
+											style={{ cursor: 'pointer', alignSelf: 'center' }}
+											onClick={() => navigate(item.route)}
+										>
+											<img
+												src={item.image}
+												alt={item.name}
+												style={{
+													height: '24px',
+													width: '24px',
+													borderRadius: '24px',
+												}}
+											/>
+										</div>
+									</Tooltip>
 								))}
 							</div>
-							<div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-								<hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} />
-								<div className="creditSvg">
-									<svg width="30" height="30" viewBox="0 0 30 30">
-										<defs>
-											<linearGradient
-												id="paint0_linear_14532_74799"
-												x1="-0.661765"
-												y1="2.69729e-07"
-												x2="30.4666"
-												y2="1.98941"
-												gradientUnits="userSpaceOnUse"
-											>
-												<stop offset="0.000100017" stop-color="#C39DF8" />
-												<stop offset="1" stop-color="#EC7C9D" />
-											</linearGradient>
-										</defs>
-										<circle
-											cx="15"
-											cy="15"
-											r="12.5"
-											fill="none"
-											stroke="#333334"
-											strokeWidth="5"
-										/>
-										<circle
-											cx="15"
-											cy="15"
-											r="12.5"
-											fill="none"
-											stroke="url(#paint0_linear_14532_74799)"
-											strokeWidth="5"
-											strokeDasharray={`${(100 / 100) * 78.54} 78.54`}
-											transform="rotate(-90 15 15)"
-										/>
-									</svg>
-								</div>
+
+							<div
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '18px',
+								}}
+							>
+								<hr
+									style={{
+										border: '0.7px solid #333334',
+										width: '70%',
+										alignSelf: 'center',
+									}}
+								/>
+								<Tooltip
+									title="Credit"
+									placement="left"
+									arrow={false}
+									overlayInnerStyle={{
+										padding: '6px 10px',
+										borderRadius: '10px',
+										fontSize: '14px',
+										background: '#E8E8E8',
+										color: '#202123',
+										textAlign: 'center',
+										marginLeft: '24px',
+									}}
+								>
+									<div className="creditSvg" style={{ alignSelf: 'center' }}>
+										<svg width="30" height="30" viewBox="0 0 30 30">
+											<defs>
+												<linearGradient
+													id="paint0_linear_14532_74799"
+													x1="-0.661765"
+													y1="2.69729e-07"
+													x2="30.4666"
+													y2="1.98941"
+													gradientUnits="userSpaceOnUse"
+												>
+													<stop
+														offset="0.000100017"
+														stop-color="#C39DF8"
+													/>
+													<stop offset="1" stop-color="#EC7C9D" />
+												</linearGradient>
+											</defs>
+											<circle
+												cx="15"
+												cy="15"
+												r="12.5"
+												fill="none"
+												stroke="#333334"
+												strokeWidth="5"
+											/>
+											<circle
+												cx="15"
+												cy="15"
+												r="12.5"
+												fill="none"
+												stroke="url(#paint0_linear_14532_74799)"
+												strokeWidth="5"
+												strokeDasharray={`${(100 / 100) * 78.54} 78.54`}
+												transform="rotate(-90 15 15)"
+											/>
+										</svg>
+									</div>
+								</Tooltip>
 								{/* <hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} /> */}
 								<div
 									style={{
@@ -410,13 +514,16 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 										placement="left"
 										arrow={false}
 										overlayInnerStyle={{
-											padding: '20px 25px',
-											borderRadius: '24px',
+											padding: '6px 10px',
+											borderRadius: '10px',
 											fontSize: '14px',
-											backgroundColor: '#1f1f1f',
-											color: 'white',
-											transformOrigin: 'left center',
-											marginLeft: '20px',
+											fontWeight: '500',
+											fontFamily: 'Inter',
+											fontStyle: 'normal',
+											background: '#E8E8E8',
+											color: '#202123',
+											textAlign: 'center',
+											marginLeft: '24px',
 										}}
 									>
 										<SidebarClosingSvg

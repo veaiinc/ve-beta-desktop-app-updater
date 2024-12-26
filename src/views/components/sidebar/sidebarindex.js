@@ -24,7 +24,7 @@ import TranscriptSvg from '../../../assets/svg/sidebar/TranscriptSvg.jsx';
 import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 import { ReactComponent as OrchestratorSvg } from '../../../assets/svg/sidebar/Orchestrator.svg';
-import { ReactComponent as TemplatesSvg } from '../../../assets/svg/sidebar/Templates.svg';
+import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
 import DaVinci from '../../../assets/images/Da Vinci.jpeg';
 import Jarvis from '../../../assets/images/Jarvis.jpeg';
 import Ari from '../../../assets/images/Ari.jpeg';
