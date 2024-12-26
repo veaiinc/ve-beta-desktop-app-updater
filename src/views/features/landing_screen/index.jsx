@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, memo, useContext } from 'react';
 import gsap from 'gsap';
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
+import LandingPageVideo from '../../../assets/video/12345.webm';
 import '../../../assets/scss/landingScreen/index.scss';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
 import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
@@ -240,6 +241,7 @@ const LandingPage = () => {
 				<div className="section-1">
 					<div className="container">
 						<h1 className="heading">
+							<div className="heading-animation-container"></div>
 							AI OS that
 							<br /> minds your business !
 						</h1>
@@ -275,7 +277,8 @@ const LandingPage = () => {
 								autoPlay
 								loop
 								playsInline
-								src={'https://ap.assets.ve.ai/logo/login-page-video-v3.mp4'}
+								// src={'https://ap.assets.ve.ai/logo/login-page-video-v3.mp4'}
+								src={LandingPageVideo}
 							></video>
 						</div>
 
