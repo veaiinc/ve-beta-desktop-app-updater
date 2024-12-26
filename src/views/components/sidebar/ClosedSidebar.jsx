@@ -5,7 +5,6 @@ import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg';
 import { veAiModulesItemsList } from './sidebarindex';
 import DropDrownMenu from './DropDrownMenu';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
-import { ReactComponent as TaskSvg } from '../../../assets/svg/sidebar/Task.svg';
 import { ReactComponent as HamburgerSvg } from '../../../assets/svg/sidebar/Hamburger.svg';
 import { Tooltip } from 'antd';
 import { closedSidebarIcons } from './sidebarindex';

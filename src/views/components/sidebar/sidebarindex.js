@@ -16,7 +16,7 @@ import CalendarSvg from '../../../assets/svg/sidebar/CalendarSvg.jsx';
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
 import SettingsSvg from '../../../assets/svg/sidebar/SettingsSvg.jsx';
 import { ReactComponent as GallerySvg } from '../../../assets/svg/sidebar/Gallery.svg';
-import { ReactComponent as TaskSvg } from '../../../assets/svg/sidebar/Task.svg';
+import TaskSvg from '../../../assets/svg/sidebar/TaskSvg.jsx';
 import { ReactComponent as AIAssistantSvg } from '../../../assets/svg/sidebar/AiAssistant.svg';
 import { ReactComponent as PlaybookSvg } from '../../../assets/svg/sidebar/Playbook.svg';
 import SchedulerSvg from '../../../assets/svg/sidebar/SchedulerSvg.jsx';
@@ -161,7 +161,7 @@ export const AiOptions = [
 		route: '/ai-agents/home/da-vinci',
 		image: DaVinci,
 		subModules: [
-			{ icon: AddCalenderSvg, route: '/ai-agents/home/da-vinici', name: 'Home' },
+			{ icon: TaskSvg, route: '/ai-agents/home/da-vinici', name: 'Home' },
 			{ icon: DaVinciJobsSvg, route: '/ai-agents/jobs/:agent-name', name: 'Jobs' },
 			{
 				icon: DaVinciSetupSvg,
