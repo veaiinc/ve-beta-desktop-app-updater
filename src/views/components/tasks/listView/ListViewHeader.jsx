@@ -190,7 +190,7 @@ const ListViewHeader = ({
 					<SortComponent
 						sort={sort}
 						properties={properties}
-						responseTypes={responseTypes}
+						responseMetadata={responseMetadata}
 						updateListViewInfo={updateListViewInfo}
 						handelSortClick={handelSortClick}
 					/>

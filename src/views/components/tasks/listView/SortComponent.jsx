@@ -9,7 +9,7 @@ import DropDown from '../../dropDown/tasks/DropDown';
 const SortComponent = ({
 	sort,
 	properties,
-	responseTypes,
+	responseMetadata,
 	updateListViewInfo,
 	handelSortClick,
 }) => {
@@ -78,7 +78,7 @@ const SortComponent = ({
 												);
 											})}
 											<option value={sortItem?.sortBy}>
-												{responseTypes?.[sortItem?.sortBy]?.name}
+												{responseMetadata?.[sortItem?.sortBy]?.name}
 											</option>
 										</select>
 										<select
