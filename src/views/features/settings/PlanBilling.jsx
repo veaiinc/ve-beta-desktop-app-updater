@@ -106,17 +106,18 @@ const SubscribedUserPlanCard = ({ data, expiresAt }) => {
 	const [info, setInfo] = useState({
 		manageSubscriptionLoader: false,
 		features: features,
+		featureChanged: false,
 	});
 
 	useEffect(() => {
-		if (data && info?.features?.length) {
+		if (data && info?.features?.length && data?.numberOfUsers && !info?.featureChanged) {
 			let features = [...(info?.features || [])];
 			const users = data?.numberOfUsers;
 			features.pop();
 			features.push(`${users} Team Members`);
-			setInfo((prev) => ({ ...prev, features }));
+			setInfo((prev) => ({ ...prev, features, featureChanged: true }));
 		}
-	}, [data, info?.features]);
+	}, [data, info?.features, info?.featureChanged]);
 
 	const handleManageSubscriptionClick = useCallback(async () => {
 		if (!expiresAt) {
@@ -161,7 +162,7 @@ const SubscribedUserPlanCard = ({ data, expiresAt }) => {
 						</div>
 					</div> */}
 					<div className="subscritptionFeaturesContainer">
-						{features?.map((ele, index) => (
+						{info?.features?.map((ele, index) => (
 							<div className="subscriptionFeature" key={index}>
 								<Tick />
 								<span className="subscriptionFeatureContent">{ele}</span>
