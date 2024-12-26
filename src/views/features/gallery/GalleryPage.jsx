@@ -128,6 +128,8 @@ const GalleryPage = () => {
 			deleteAlbum,
 			editLockAlbum,
 			editAlbum,
+			getImageProcessingStatus,
+			imageProcessingStatus,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
@@ -236,6 +238,10 @@ const GalleryPage = () => {
 		showAlbumOptionsMenu: false,
 		showAlbumSettings: false,
 		clientSubscriptionOptions: false,
+		imageProcessingStatus: {
+			numberOfImagesGroupedFaces: 0,
+			numberOfImagesPeoples: 0,
+		},
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -252,14 +258,33 @@ const GalleryPage = () => {
 	const fileInputRef = useRef(null);
 	const settingsRef = useRef(null);
 	const albumSettingsRef = useRef(null);
+	useEffect(() => {
+		if (galleryId) {
+			getImageProcessingStatus(galleryId);
+		}
+	}, []);
 
 	const data = [
 		{ name: 'Albums', number: albumImagesCount?.albums?.length },
 		// { name: 'Videos', number: 2 },
 		// { name: 'Slide Show', number: 1 },
 		{ name: 'Client Selections', number: clientSelectionsData?.totalDocs },
-		{ name: 'AI', number: '' },
-		{ name: 'Insights', number: '' },
+		{
+			name: 'AI',
+			number:
+				imageProcessingStatus?.numberOfImagesPeoples > 0
+					? parseInt(
+							(imageProcessingStatus?.numberOfImagesGroupedFaces /
+								imageProcessingStatus?.numberOfImagesPeoples) *
+								100,
+							0,
+					  ) + '%'
+					: '',
+		},
+		{
+			name: 'Insights',
+			number: '',
+		},
 	];
 
 	const galleryOptions = [
@@ -1092,23 +1117,33 @@ const GalleryPage = () => {
 			showAlbumOptionsMenu: !prevInfo?.showAlbumOptionsMenu,
 		}));
 	};
-	const handleClickContent = (name, count) => {
+	// ... existing code ...
+
+	const handleClickContent = (name) => {
+		// Clear search params and image details
 		const searchKey = searchkeys.get('uploadImageId');
 		if (searchKey) {
 			setsearchkeys({});
 		}
 		getImageDetail(null, true, false);
 
-		if (count === 0) return;
+		// Update state with new tab
+		// if (count === 0) return;
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			activeTab: name,
 			activeLink: 'gallery-overview',
 			page: 1,
 			uploadImageId: null,
-			// imageURL: searchKey ? null : prevInfo?.imageURL,
+			selectedImages: [],
+			imagesList: {
+				...prevInfo.imagesList,
+				docs: [],
+			},
 		}));
 	};
+
+	// ... rest of the code ...
 
 	const handleNavigateUpload = () => {
 		const uploadUrl =
@@ -3291,8 +3326,8 @@ const GalleryPage = () => {
 									)}
 								</div>
 							</div>
-						</div>
-						{info.activeTab !== 'Insights' && (
+						</div>{' '}
+						{info.activeTab !== 'Insights' && info.activeTab !== 'AI' && (
 							<div
 								style={{
 									display: 'flex',
