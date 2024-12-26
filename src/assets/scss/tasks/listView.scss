@@ -59,3 +59,24 @@
 	border-radius: 100px;
 }
 // }
+
+.date-picker {
+	&.disabled {
+		.ant-picker-input {
+			input {
+				color: #8c8c8c !important;
+				&::placeholder {
+					color: #8c8c8c !important;
+				}
+			}
+		}
+	}
+}
+
+.listItem-date {
+	// ... existing styles
+
+	&.disabled {
+		color: #8c8c8c !important;
+	}
+}

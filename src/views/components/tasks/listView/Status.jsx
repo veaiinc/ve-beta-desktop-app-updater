@@ -37,7 +37,7 @@ const Status = ({
 			},
 		],
 		isDropdownOpen: false,
-		selected: null,
+		selected: setDefault ? 'todo' : null,
 	});
 	useEffect(() => {
 		setInfo((prevInfo) => ({
@@ -74,7 +74,9 @@ const Status = ({
 						}}
 					></span>
 					{showLabel ? (
-						<p className="listItem-label">{info?.selected?.label || 'Select status'}</p>
+						<p className="listItem-label">
+							{info?.selected?.label || (!value ? 'Select status' : '')}
+						</p>
 					) : (
 						''
 					)}

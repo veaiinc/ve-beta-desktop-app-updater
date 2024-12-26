@@ -19,15 +19,20 @@ const Person = ({
 	});
 
 	useEffect(() => {
-		if (value) {
-			let newVal = value;
-			if (parseValue) {
-				newVal = parsedValueAndLabel(value);
-			}
-			setInfo({
-				value: newVal,
-			});
+		if (!value || (Array.isArray(value) && value.length === 0)) {
+			setInfo({ value: null });
+			return;
 		}
+
+		let newVal = value;
+		if (parseValue) {
+			newVal = Array.isArray(value)
+				? value.map((v) => ({ value: v?._id, label: v?.name }))
+				: { value: value?._id, label: value?.name };
+		}
+		setInfo({
+			value: newVal,
+		});
 	}, [parseValue, value]);
 
 	const parsedValueAndLabel = useCallback(
@@ -82,22 +87,20 @@ const Person = ({
 	return (
 		<Tooltip title={title} placement="bottom">
 			<Select
-				placeholder={`Select ${title || 'person'}`}
+				placeholder={disabled ? 'No data' : `Select ${title || 'person'}`}
 				options={options}
 				variant="borderless"
 				labelInValue
 				showSearch={false}
 				disabled={disabled}
 				onClick={(e) => {
-					if (!disabled) {
-						e.stopPropagation();
-					}
+					e.stopPropagation();
 				}}
 				style={{
-					width: info?.value?.length === 0 ? '180px' : 'fit-content',
-					color: '#e5e5e5',
+					width: !info?.value && !value ? '180px' : 'fit-content',
+					color: disabled ? '#8c8c8c' : '#e5e5e5',
 				}}
-				className="person-select"
+				className={`person-select ${disabled ? 'disabled' : ''}`}
 				dropdownStyle={{ backgroundColor: 'transparent', width: '220px' }}
 				{...(multiSelect ? { tagRender: renderPerson } : { labelRender: renderPerson })}
 				dropdownRender={(menu) => {
@@ -127,7 +130,7 @@ const Person = ({
 					);
 				}}
 				suffixIcon={<></>}
-				mode={multiSelect ? 'multiple' : 'default'}
+				mode={multiSelect ? 'multiple' : undefined}
 				onChange={customOnOptionClick}
 				value={info?.value}
 			/>

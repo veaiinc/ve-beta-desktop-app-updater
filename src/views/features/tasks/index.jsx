@@ -30,7 +30,6 @@ const Tasks = () => {
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
-	const [messageApi, contextHolder] = message.useMessage();
 
 	const [info, setInfo] = useState({
 		listItems: [],
@@ -50,6 +49,7 @@ const Tasks = () => {
 		sort: [],
 		filters: [],
 		searchValue: '',
+		updated: false,
 	});
 
 	const responseMetadata = useMemo(
@@ -88,7 +88,7 @@ const Tasks = () => {
 				type: 'date',
 				name: 'Created At',
 				Icon: CalendarSvg,
-				props: { timestamps: true },
+				props: { timestamp: true },
 			},
 			updatedAt: {
 				type: 'date',
@@ -123,9 +123,11 @@ const Tasks = () => {
 
 		if (info?.filters || info?.searchValue) {
 			filterDebounceTimeout.current = setTimeout(() => {
+				updateListViewInfo('loadingSkeleton', true);
 				fetchListItems();
 			}, 800);
 		} else {
+			updateListViewInfo('loadingSkeleton', true);
 			fetchListItems();
 		}
 
@@ -333,10 +335,7 @@ const Tasks = () => {
 					}
 				}
 			} catch (error) {
-				messageApi.open({
-					type: 'error',
-					content: error?.message || 'Something went wrong! Please try again.',
-				});
+				message.error(error?.message || 'Something went wrong! Please try again.');
 
 				setInfo((prevInfo) => {
 					const rolledBackListItems = prevInfo.listItems.map((row) => {
@@ -353,7 +352,7 @@ const Tasks = () => {
 				});
 			}
 		},
-		[messageApi, updateListItem, info?.workflows],
+		[updateListItem, info?.workflows],
 	);
 
 	const handleDebounceUpdate = useCallback(
@@ -401,6 +400,7 @@ const Tasks = () => {
 
 					return {
 						...prevInfo,
+						updated: true,
 						listItems: updatedListItems,
 					};
 				});
@@ -446,17 +446,15 @@ const Tasks = () => {
 						newTask.workflow = newWorkflow
 							? { _id: newWorkflow._id, title: newWorkflow.label }
 							: null;
-						// newTask.assignedTo = payloadpayload?.assignedTo?.tenantUsers;
 						newTask.workflowId = null;
 						newTask.createdBy = { _id: user_id, name: userName };
 						newTask.updatedBy = { _id: user_id, name: userName };
 						if (info?.isCreatingSubtask) {
 							addSubTask(newTask);
 						} else {
-							setInfo((prevInfo) => ({
-								...prevInfo,
-								listItems: [...prevInfo?.listItems, newTask],
-							}));
+							message.success('Task added successfully');
+							// updateListViewInfo('loadingSkeleton', true);
+							fetchListItems();
 						}
 					}
 				} else {
@@ -495,7 +493,6 @@ const Tasks = () => {
 
 	return (
 		<div>
-			{contextHolder}
 			<ListView
 				info={info}
 				updateListViewInfo={updateListViewInfo}
@@ -505,6 +502,7 @@ const Tasks = () => {
 				deleteTask={deleteTask}
 				addNewTask={addNewTask}
 				responseMetadata={responseMetadata}
+				fetchListItems={fetchListItems}
 			/>
 		</div>
 	);

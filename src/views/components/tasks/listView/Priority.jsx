@@ -22,7 +22,7 @@ const Priority = ({ value, onOptionClick, customListItemStyle = {}, setDefault =
 			},
 		],
 		isDropdownOpen: false,
-		selected: null,
+		selected: setDefault ? 'low' : null,
 	});
 	useEffect(() => {
 		setInfo((prevInfo) => ({
@@ -46,7 +46,11 @@ const Priority = ({ value, onOptionClick, customListItemStyle = {}, setDefault =
 					className={`currentItem`}
 					style={{ ...customListItemStyle, backgroundColor: info?.selected?.color }}
 				>
-					<p className="listItem-label">{info?.selected?.label || 'Select priority'}</p>
+					{value ? (
+						<p className="listItem-label">{info?.selected?.label}</p>
+					) : (
+						<p className="listItem-label">Select priority</p>
+					)}
 				</div>
 			</DropDown>
 		</div>

@@ -142,13 +142,12 @@
 		padding: 0px !important;
 		display: flex;
 		align-items: center;
-		// justify-content: center;
 		text-align: center;
 		color: #e4e5e6;
 		width: fit-content;
-		padding: 6px 0;
+		padding: 6px 0 !important;
 		display: flex;
-		justify-content: center;
+		justify-content: flex-start;
 		align-items: center;
 		gap: 3px;
 		color: #e4e5e6;
@@ -161,6 +160,13 @@
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
+	}
+
+	&.disabled {
+		.ant-select-selection-placeholder {
+			color: #8c8c8c !important;
+			padding: 0px !important;
+		}
 	}
 }
 

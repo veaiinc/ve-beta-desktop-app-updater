@@ -45,6 +45,7 @@ const ListView = ({
 	deleteTask,
 	addNewTask,
 	responseMetadata,
+	fetchListItems,
 }) => {
 	const handleRowClick = useCallback(
 		(rowId) => {
@@ -78,9 +79,14 @@ const ListView = ({
 	}, []);
 
 	const handleCloseSidebar = useCallback(() => {
+		if (info?.updated && info?.filters?.length !== 0) {
+			updateListViewInfo('loadingSkeleton', true);
+			fetchListItems();
+			updateListViewInfo('updated', false);
+		}
 		updateListViewInfo('sidebarIsOpen', false);
 		updateListViewInfo('selectedSubTask', null);
-	}, []);
+	}, [info?.updated]);
 
 	const handleChildTaskClose = useCallback(() => {
 		updateListViewInfo('selectedSubTask', null);

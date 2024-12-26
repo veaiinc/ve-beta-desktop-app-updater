@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import '../../../../assets/scss/tasks/filterComponent.scss';
 import { ReactComponent as DownArrow } from '../../../../assets/svg/tasks/downArrow.svg';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
@@ -22,6 +22,8 @@ const FilterComponent = ({
 	setPendingFilters,
 	props,
 }) => {
+	const [isVisible, setIsVisible] = useState(false);
+
 	const handleFilterChange = useCallback(
 		(key, value) => {
 			if (isPending) {
@@ -35,6 +37,13 @@ const FilterComponent = ({
 		},
 		[filters, updateListViewInfo, isPending, onConfirm],
 	);
+
+	const handleInputKeyDown = (e) => {
+		if (e.key === 'Enter') {
+			setIsVisible(false);
+		}
+	};
+
 	const removeFilter = useCallback(() => {
 		if (isPending) {
 			setPendingFilters((prev) => prev.filter((f) => f.key !== fieldName));
@@ -56,12 +65,12 @@ const FilterComponent = ({
 		),
 		person: (value) => (
 			<Person
-				value={value?.value}
+				value={value}
 				title={title}
 				onOptionClick={(value) => handleFilterChange(fieldName, value)}
 				showLabel={true}
-				defaultLabel={'hiiii'}
 				{...props}
+				multiSelect={false}
 			/>
 		),
 		status: (value) => (
@@ -93,12 +102,19 @@ const FilterComponent = ({
 			arrow={false}
 			trigger={'click'}
 			style={{ padding: 0 }}
+			open={isVisible}
+			onOpenChange={setIsVisible}
 			title={
 				<div className="filterComponent-container">
 					<div className="filterComponent-header">
-						{/* <BackArrow width={16} height={16} className="cursor-pointer" /> */}
 						<span className="filterComponent-header-title">Add Filter</span>
-						<button onClick={removeFilter} className="filterComponent-header-remove">
+						<button
+							onClick={() => {
+								removeFilter();
+								setIsVisible(false);
+							}}
+							className="filterComponent-header-remove"
+						>
 							<CrossIcon width={24} height={24} className="cursor-pointer" />
 						</button>
 					</div>
@@ -114,6 +130,7 @@ const FilterComponent = ({
 							className="filterComponent-field-input"
 							value={value}
 							onChange={(e) => handleFilterChange(fieldName, e.target.value)}
+							onKeyDown={handleInputKeyDown}
 						/>
 					)}
 				</div>

@@ -50,6 +50,7 @@ const DateView = ({
 							setInfo((prevInfo) => ({ ...prevInfo, showDatePicker: false }));
 							onOptionClick($d ? moment($d).unix() : null);
 						}}
+						placeholder={title ? `Select ${title}` : 'Select date'}
 					/>
 				</div>
 			) : (
@@ -75,7 +76,10 @@ const DateView = ({
 		</div>
 	) : (
 		<Tooltip title={title} placement="bottom">
-			<div className={`listItem-date`} style={customListItemStyle}>
+			<div
+				className={`listItem-date ${timestamp && !value ? 'disabled' : ''}`}
+				style={customListItemStyle}
+			>
 				{value ? moment.unix(value).format(format) : 'No data'}
 			</div>
 		</Tooltip>
