@@ -19,9 +19,9 @@ const ClosedSideBarHoverStateIcons = ({
 	const [isHover, setisHover] = useState(false);
 	return (
 		<div
-		// onMouseEnter={() => setisHover(true)}
-		// onMouseLeave={() => setisHover(false)}
-		// className={`hoverStateIconsClosed ${isHover ? hoverClassName : ''}`}
+			onMouseEnter={() => setisHover(true)}
+			onMouseLeave={() => setisHover(false)}
+			className={`hoverStateIconsClosed ${isHover ? hoverClassName : ''}`}
 		>
 			{Icon && <Icon fill={isActive ? '#FFF' : '#7A7E85'} />}
 		</div>
@@ -294,7 +294,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 										}
 									</div>
 								}
-								open={showRaindrop}
+								// open={showRaindrop}
 								placement="rightTop"
 								arrow={false}
 								overlayInnerStyle={{
@@ -557,40 +557,40 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 										alignSelf: 'center',
 									}}
 								/>
-								<div>
-									<Tooltip
-										placement="right"
-										title={<DropDrownMenu info={info} setInfo={setInfo} />}
-										color={'#151515'}
-										arrow={false}
-										overlayClassName="sideBartoolTipContainer toolTipContainer"
-										// open={info?.isNewFeaturePlusOpen}
-										// onOpenChange={(open) => {
-										// 	if (!open) {
-										// 		setInfo((prev) => ({
-										// 			...prev,
-										// 			isNewFeaturePlusOpen: false,
-										// 		}));
-										// 	}
-										// }}
-									>
-										<div
-											onClick={openNewFeaturePlus}
-											style={{
-												display: 'flex',
-												justifyContent: 'center',
-												alignItems: 'center',
+								<div
+									style={{
+										display: 'flex',
+										flexDirection: 'column',
+										alignItems: 'center',
+									}}
+								>
+									<div>
+										<Tooltip
+											placement="right"
+											title={<DropDrownMenu info={info} setInfo={setInfo} />}
+											color={'#151515'}
+											arrow={false}
+											trigger="click"
+											overlayClassName="sideBartoolTipContainer toolTipContainer"
+											open={info?.isNewFeaturePlusOpen}
+											onOpenChange={(open) => {
+												if (!open) {
+													setInfo((prev) => ({
+														...prev,
+														isNewFeaturePlusOpen: false,
+													}));
+												}
 											}}
 										>
-											<LeadPlusSvg
-												style={{
-													height: '20px',
-													width: '20px',
-													alignSelf: 'center',
-												}}
-											/>
-										</div>
-									</Tooltip>
+											<div onClick={openNewFeaturePlus}>
+												<ClosedSideBarHoverStateIcons
+													style={{ alignSelf: 'center' }}
+													Icon={LeadPlusSvg}
+													hoverClassName="plusIconHover"
+												/>
+											</div>
+										</Tooltip>
+									</div>
 								</div>
 								<Tooltip
 									title="Home"
