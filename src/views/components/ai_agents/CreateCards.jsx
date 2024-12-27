@@ -7,15 +7,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import moment from 'moment';
 import Skeleton from 'react-loading-skeleton';
+import { useNavigate } from 'react-router-dom';
 let origin = fetchOriginSelection();
-const createCardsOptions = [
-	{ title: 'Proposal', subText: 'Create a Proposal ', dotColor: '#EDA145' },
-	{ title: 'Pitch Deck', subText: 'Create your Brand Pitch Deck ', dotColor: '#F95A2C' },
-	{ title: 'Workflow', subText: 'Create a Workflow ', dotColor: '#07982F' },
-	{ title: 'Notes', subText: 'Create a Note ', dotColor: '#6055EC' },
-	{ title: 'Schedule', subText: 'Check the Schedule ', dotColor: '#FCD7A5' },
-	{ title: 'New Design', subText: 'Check New Designs for and templates ', dotColor: '#4F8E8D' },
-];
 
 const actionMapper = {
 	update: 'Updated',
@@ -29,6 +22,46 @@ const actionMapper = {
 };
 
 const CreateCards = () => {
+	const navigate = useNavigate();
+	let {
+		templates: { toggleCreateLeadModal },
+	} = useContext(Context);
+	const createCardsOptions = [
+		{
+			title: 'Lead',
+			subText: 'Create a Lead ',
+			dotColor: '#EDA145',
+			onClick: () => {
+				toggleCreateLeadModal({ createLeadModalContextState: true });
+			},
+		},
+		{
+			title: 'Meeting',
+			subText: 'Create Meeting ',
+			dotColor: '#F95A2C',
+			onClick: () => {
+				navigate('/calendar');
+			},
+		},
+		{
+			title: 'Workflow',
+			subText: 'Create a Workflow ',
+			dotColor: '#07982F',
+			onClick: () => {
+				navigate('/playbook');
+			},
+		},
+		{
+			title: 'Task',
+			subText: 'Create a Task ',
+			dotColor: '#6055EC',
+			onClick: () => {
+				navigate('/tasks');
+			},
+		},
+		// { title: 'Schedule', subText: 'Check the Schedule ', dotColor: '#FCD7A5' },
+		// { title: 'New Design', subText: 'Check New Designs for and templates ', dotColor: '#4F8E8D' },
+	];
 	return (
 		<div className="aiAgentsCreatecards">
 			<div className="createCardsHeader" style={{ alignSelf: 'stretch' }}>
@@ -37,7 +70,12 @@ const CreateCards = () => {
 
 			<div className="createCardsHolderContainer">
 				{createCardsOptions?.map((ele, index) => (
-					<div className="createSubCardOptionsdcards" key={index}>
+					<div
+						className="createSubCardOptionsdcards"
+						key={index}
+						onClick={ele?.onClick}
+						style={{ cursor: 'pointer' }}
+					>
 						<div className="createSubCardOptionsdcardsHeader">
 							<div
 								className="createOptionsCardDotContainer"

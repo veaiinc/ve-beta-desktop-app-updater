@@ -17,6 +17,8 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 			templatesListForCreateLead,
 			createLeadfromTemplates,
 			updateStateValues,
+			toggleCreateLeadModal,
+			createLeadModalContextState,
 		},
 	} = useContext(Context);
 
@@ -136,6 +138,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 		setLeadDetails({ name: '', emailId: '', source: 'instagram' });
 		setCreateButtonActiveState(false);
 		closeModal();
+		toggleCreateLeadModal({ createLeadModalContextState: false });
 	};
 	const handleInputChange = (e) => {
 		let { name, value } = e.target;
@@ -250,7 +253,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	}, [info?.selectedTemplate, leadDetails, createButtonActiveState, isLoading]);
 
 	return (
-		<ReactModal isOpen={modalIsOpen} closeModal={closeModalFunc}>
+		<ReactModal isOpen={modalIsOpen || createLeadModalContextState} closeModal={closeModalFunc}>
 			<div className="modifiedCreateLeadModal" style={{ minHeight: '400px' }}>
 				<div className="modalHeading">
 					<p className="title">What lead is this proposal for?</p>

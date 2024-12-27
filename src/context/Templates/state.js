@@ -68,6 +68,7 @@ export const intialState = {
 	moreActivityLogs: null,
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
+	createLeadModalContextState: false,
 };
 
 export const TemplatesState = (props) => {
@@ -1142,6 +1143,10 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const toggleCreateLeadModal = (payload) => {
+		dispatch({ type: Actions.TOGGLE_CREATE_LEAD_MODAL_SUCCESS, payload });
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -1190,5 +1195,6 @@ export const TemplatesState = (props) => {
 		connectThirdParty,
 		getActivityLogs,
 		getDrafStateWorkflowtemplates,
+		toggleCreateLeadModal,
 	};
 };

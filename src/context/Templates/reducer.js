@@ -85,6 +85,10 @@ const actionHandlers = {
 		...state,
 		moreDraftStateWorkflowtemplates: action?.payload,
 	}),
+	TOGGLE_CREATE_LEAD_MODAL_SUCCESS: (state, action) => ({
+		...state,
+		...action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 
