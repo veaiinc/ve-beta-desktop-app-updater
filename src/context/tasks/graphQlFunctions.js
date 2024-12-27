@@ -1,15 +1,7 @@
 import { gql } from '@apollo/client';
 export const getListItemsQuery = gql`
-	query Lists($filters: TaskFilterInput) {
-		listTasks(filters: $filters) {
-			totalPages
-			totalDocs
-			limit
-			currentPage
-			hasNextPage
-			hasPrevPage
-			prevPage
-			nextPage
+	query Query($taskFilterInput: TaskFilterInput) {
+		listTasks(taskFilterInput: $taskFilterInput) {
 			data {
 				_id
 				taskSlNo

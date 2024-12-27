@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, memo, useContext } from 'react';
+import gsap from 'gsap';
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
+
 import '../../../assets/scss/landingScreen/index.scss';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
 import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
@@ -10,23 +12,22 @@ import {
 	BLOGS_URL,
 	CHANGELOG_URL,
 	COOKIE_POLICY_URL,
-	VEAI_URL,
+	DEMO_FORM_URL,
 	LINKEDIN_URL,
 	INSTAGRAM_URL,
 } from '../../../helpers/ConstantUrls';
 import { ReactComponent as GoldenBridge } from '../../../assets/images/landingPage/golden-gate-bridge.svg';
 import Charminar from '../../../assets/images/Frame 1618873932.png';
 import { ReactComponent as CarouselDisplayPic1 } from '../../../assets/svg/landingScreen/carousel-display-pic-1.svg';
+import { ReactComponent as RightArrowWhite } from '../../../assets/svg/landingScreen/right-arrow-white.svg';
 import { ReactComponent as RightArrowGrey } from '../../../assets/svg/landingScreen/right-arrow-grey.svg';
 import Context from '../../../context/context';
 import { message } from 'antd';
+import { debounce } from 'lodash';
 
 const navItems = [
 	{ id: 1, name: 'Privacy', route: '/privacy-policy' },
 	{ id: 2, name: 'Terms', route: '/terms-of-service' },
-	// { name: 'Cookies', route: '/cookie-policy' },
-	// { name: 'Blogs', route: BLOGS_URL },
-	// { name: 'Changelog', route: CHANGELOG_URL },
 ];
 
 const carourselData = [
@@ -68,26 +69,16 @@ const carourselData = [
 ];
 
 const socials = [
-	// {
-	// 	id: 1,
-	// 	title: 'X',
-	// 	url: 'https://x.com/veai',
-	// },
 	{
-		id: 2,
+		id: 1,
 		title: 'Linkedin',
 		url: LINKEDIN_URL,
 	},
 	{
-		id: 3,
+		id: 2,
 		title: 'Instagram',
 		url: INSTAGRAM_URL,
 	},
-	// {
-	// 	id: 4,
-	// 	title: 'YouTube',
-	// 	url: 'https://youtube.com/veai',
-	// },
 ];
 
 const agents = [
@@ -127,16 +118,39 @@ const resources = [
 	},
 ];
 
+const animateButtonEnter = (selector) => {
+	gsap.to(selector, {
+		left: '50%',
+		x: '-50%',
+		duration: 0.3,
+		ease: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)',
+	});
+};
+
+const animateButtonLeave = (selector) => {
+	gsap.to(selector, {
+		left: '150%',
+		duration: 0.3,
+		ease: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)',
+		onComplete: () => {
+			gsap.set(selector, {
+				left: selector === '.login-line' ? '-22px' : '-28px',
+			});
+		},
+	});
+};
+
 const LandingPage = () => {
 	const navigate = useNavigate();
+	const emailRef = useRef();
 
 	let {
 		authInfo: { subscribeToNewsletter },
 	} = useContext(Context);
 
 	const [showScrollArrow, setShowScrollArrow] = useState(false);
-	const videoRef = useRef(null);
-	const [email, setEmail] = useState('');
+	const [newsletterHover, setNewsletterHover] = useState(false);
+	const [isEmailSubscribed, setIsEmailSubscribed] = useState(false);
 
 	useEffect(() => {
 		const usertoken = localStorage.getItem('usertoken');
@@ -146,19 +160,6 @@ const LandingPage = () => {
 		if (usertoken && region && workspaceId) {
 			if (isOnboard === false) return navigate('/early-access');
 			if (isOnboard) return navigate('/home');
-		}
-	}, []);
-
-	useEffect(() => {
-		const playVideo = async () => {
-			try {
-				await videoRef?.current?.play();
-			} catch (error) {
-				console.error('Autoplay failed:', error?.message);
-			}
-		};
-		if (videoRef?.current) {
-			playVideo();
 		}
 	}, []);
 
@@ -185,52 +186,69 @@ const LandingPage = () => {
 	};
 
 	const handleRequestDemo = () => {
-		window.open(VEAI_URL, '_blank');
+		window.open(DEMO_FORM_URL, '_blank');
 	};
 
-	const handleSubscribeToNewsletter = async (e, type) => {
+	const handleSubscribeToNewsletter = debounce(async (e, type) => {
 		// Uncomment when API works...
-		// if (e?.key === 'Enter' || (type === 'click' && email)) {
-		// 	const response = await subscribeToNewsletter(email);
-		// 	if (response?.[0] === true) {
-		// 		message?.success('Subscribed to ve.ai newsletters successfully!');
-		// 	} else {
-		// 		message?.error('An unexpected error occured. Please try again!');
+		// if (!isEmailSubscribed) {
+		// 	if (e?.key === 'Enter' || type === 'click') {
+		// 		const email = emailRef?.current?.value?.trim() || false;
+		// 		const isEmailValid = validator.isEmail(email);
+		// 		if (isEmailValid) {
+		// 			const response = await subscribeToNewsletter(email);
+		// 			if (response?.[0] === true) {
+		// 				message?.success('Subscribed to ve.ai newsletters successfully!');
+		// 				setIsEmailSubscribed(true);
+		// 			} else {
+		// 				message?.error('An unexpected error occured. Please try again!');
+		// 				setIsEmailSubscribed(false);
+		// 			}
+		// 		}
 		// 	}
 		// }
-	};
-
-	const handleSetEmail = (e) => {
-		const email = e?.target?.value?.trim() ?? '';
-		const isValid = validator?.isEmail(email);
-		if (isValid) {
-			setEmail(email);
-		}
-	};
+	}, 1000);
 
 	return (
 		<div className="landing-page-container">
+			<div className="dark-gradient-top"></div>
 			<header className="header-container">
 				<VeAiLogo aria-label="VeAi Logo" />
-				<button
-					onClick={handleNavigationToVerifyUser}
-					className="login-button"
-					aria-label="Log in to VeAi"
-				>
-					Log in
-				</button>
+				<div className="btns-container">
+					<button
+						onClick={handleNavigationToVerifyUser}
+						className="signup-button"
+						aria-label="Sign up to VeAi"
+						onMouseEnter={() => animateButtonEnter('.signup-line')}
+						onMouseLeave={() => animateButtonLeave('.signup-line')}
+					>
+						Sign Up
+						<div className="signup-line"></div>
+					</button>
+					<button
+						onClick={handleNavigationToVerifyUser}
+						onMouseEnter={() => animateButtonEnter('.login-line')}
+						onMouseLeave={() => animateButtonLeave('.login-line')}
+						className="login-button"
+						aria-label="Log in to VeAi"
+					>
+						Log In
+						<div className="login-line"></div>
+					</button>
+				</div>
 			</header>
 			<div className="landing-page-content">
 				<div className="section-1">
 					<div className="container">
 						<h1 className="heading">
+							<div className="heading-animation-container"></div>
 							AI OS that
 							<br /> minds your business !
 						</h1>
 						<p className="description">
-							<VeAiLogoGrey aria-label="VeAi Logo in grey" /> is an os that creates ai
-							workers and collaborates with your human teams to achieve business
-							goals.
+							<VeAiLogoGrey aria-label="VeAi Logo in grey" />
+							&nbsp; is an os that creates ai workers and collaborates with your human
+							teams to achieve business goals.
 						</p>
 						<div className="cta-container">
 							<button
@@ -238,7 +256,7 @@ const LandingPage = () => {
 								className="get-started-button"
 								aria-label="Get started"
 							>
-								Hire Ve.ai <ArrowUpBlack aria-label="Arrow up black" />
+								Hire Ve.ai
 							</button>
 							<button
 								onClick={handleRequestDemo}
@@ -255,13 +273,11 @@ const LandingPage = () => {
 						<div className="video-container">
 							<video
 								className="video"
-								ref={videoRef}
-								// onTimeUpdate={handleTimeUpdate}
 								muted
 								autoPlay
 								loop
 								playsInline
-								src={'https://ap.assets.ve.ai/logo/final-LandingVideo_lkhiti.mp4'}
+								src={'https://ap.assets.ve.ai/logo/login-page-final.webm'}
 							></video>
 						</div>
 
@@ -309,6 +325,12 @@ const LandingPage = () => {
 				</div> */}
 			</div>
 			<footer className="footer-container">
+				<div className="banner">
+					<h1 className="title">AI that minds your business</h1>
+					<button onClick={handleRequestDemo} className="get-demo-btn">
+						Get Demo
+					</button>
+				</div>
 				<div className="main-content">
 					<div className="left-content">
 						<VeAiLogo />
@@ -316,9 +338,13 @@ const LandingPage = () => {
 							Stay ahead with the future of AI! Subscribe to get the latest updates,
 							innovations, and insights delivered straight to your inbox.
 						</h2>
-						<div className="subscribe-to-newsletter">
+						<div
+							onMouseEnter={() => setNewsletterHover(true)}
+							onMouseLeave={() => setNewsletterHover(false)}
+							className="subscribe-to-newsletter"
+						>
 							<input
-								onChange={handleSetEmail}
+								ref={emailRef}
 								className="email"
 								type="email"
 								placeholder="Email Address"
@@ -328,7 +354,7 @@ const LandingPage = () => {
 								onClick={() => handleSubscribeToNewsletter(null, 'click')}
 								className="subscribe-btn"
 							>
-								<RightArrowGrey />
+								{newsletterHover ? <RightArrowWhite /> : <RightArrowGrey />}
 							</button>
 						</div>
 					</div>
@@ -374,7 +400,11 @@ const LandingPage = () => {
 					</div>
 					<ul className="middle">
 						{navItems?.map((navItemData) => (
-							<li onClick={() => navigate(navItemData?.route)} key={navItemData?.id}>
+							<li
+								className="nav-item"
+								onClick={() => navigate(navItemData?.route)}
+								key={navItemData?.id}
+							>
 								{navItemData?.name}
 							</li>
 						))}

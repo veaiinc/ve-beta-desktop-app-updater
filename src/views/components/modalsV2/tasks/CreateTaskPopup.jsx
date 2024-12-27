@@ -16,7 +16,7 @@ import Person from '../../tasks/listView/Person';
 import DateView from '../../tasks/listView/DateView';
 
 const initialState = {
-	assignedTo: null,
+	assignedTo: [],
 	description: '',
 	dueDate: null,
 	priority: 'low',
@@ -31,8 +31,8 @@ const CreateTaskPopup = ({
 	closeModal,
 	addNewTask,
 	workflows,
-	tenantUsers,
 	isSubTask = false,
+	responseMetadata,
 }) => {
 	const [messageApi, contextHolder] = message.useMessage();
 	const [info, setInfo] = useState({
@@ -56,7 +56,12 @@ const CreateTaskPopup = ({
 			return;
 		}
 		return Object.entries({
-			assignedTo: assignedTo ? { userId: assignedTo?.value } : '',
+			assignedTo:
+				assignedTo.length > 0
+					? {
+							tenantUsers: assignedTo,
+					  }
+					: '',
 			description,
 			dueDate,
 			priority,
@@ -64,7 +69,9 @@ const CreateTaskPopup = ({
 			title,
 			workflowId,
 			workflowTemplateId: workflowId
-				? workflows?.find((workflow) => workflow._id === workflowId)?.templateId
+				? responseMetadata?.['workflow']?.props?.options?.find(
+						(workflow) => workflow._id === workflowId,
+				  )?.templateId
 				: null,
 		})
 			.filter(([key, value]) => value != null && value !== '')
@@ -72,7 +79,7 @@ const CreateTaskPopup = ({
 				acc[key] = value;
 				return acc;
 			}, {});
-	}, [info, workflows]);
+	}, [info, responseMetadata]);
 
 	const handleAddTask = useCallback(async () => {
 		try {
@@ -98,6 +105,9 @@ const CreateTaskPopup = ({
 			customStyles={{
 				content: {
 					zIndex: 30000,
+				},
+				overlay: {
+					zIndex: 2,
 				},
 			}}
 		>
@@ -132,9 +142,9 @@ const CreateTaskPopup = ({
 					{!isSubTask ? (
 						<WorkFlow
 							val={info?.workflowId}
-							workflows={workflows}
 							onOptionClick={(value) => updateModalInfo('workflowId', value)}
 							title={'Workflow'}
+							{...responseMetadata?.['workflow']?.props}
 						/>
 					) : (
 						''
@@ -151,13 +161,6 @@ const CreateTaskPopup = ({
 						onOptionClick={(value) => updateModalInfo('priority', value)}
 						title={'Priority'}
 					/>
-					<Person
-						value={info?.assignedTo}
-						persons={tenantUsers}
-						onOptionClick={(value) => updateModalInfo('assignedTo', value)}
-						title={'Assigned To'}
-						removeBtn={true}
-					/>
 					<div className="dateView-wrapper">
 						<DateView
 							value={info?.dueDate}
@@ -167,48 +170,15 @@ const CreateTaskPopup = ({
 							customListItemStyle={{ margin: '0 6px' }}
 						/>
 					</div>
-
-					{/* {info?.dueDate ? (
-						<div className="dueDate-wrapper">
-							<DateView
-								value={info?.dueDate}
-								onOptionClick={(value) => updateModalInfo('dueDate', value)}
-								title={'Due Date'}
-							/>
-						</div>
-					) : (
-						''
-					)} */}
-					{/* <Tooltip
-						overlayClassName="moreOptions-container"
-						placement={'bottomRight'}
-						title={
-							<div className="moreOptions-wrapper">
-								<div
-									className="more-listItem"
-									onClick={() => updateModalInfo('dueDate', moment().unix())}
-								>
-									<CalendarIcon />
-									<span>Set due date</span>
-								</div>
-
-								<div className="more-listItem">
-									<LinkIcon /> <span>Add link</span>
-								</div>
-								<div className="more-listItem">
-									<PageIcon />
-									<span>Add sub-issue</span>
-								</div>
-							</div>
-						}
-						arrow={false}
-						trigger={'click'}
-						color="transparent"
-					>
-						<div className="more" style={customListItemStyle}>
-							<HorizontalMoreIcon />
-						</div>
-					</Tooltip> */}
+					<Person
+						value={info?.assignedTo || []}
+						{...responseMetadata?.['assignedTo']?.props}
+						onOptionClick={(value) => updateModalInfo('assignedTo', value)}
+						title={'Assigned To'}
+						multiSelect={true}
+						parseValue={true}
+						removeBtn={true}
+					/>
 				</div>
 				<div className="footer-wrapper">
 					<button

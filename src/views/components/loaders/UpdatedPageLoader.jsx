@@ -9,7 +9,7 @@ const UpdatedPageLoader = () => {
 				<div className="logoParentNormal">
 					<Logo className="logoDivNormal" />
 				</div>
-				<div className="textNormal">Own Your Future</div>
+				<div className="textNormal">Home of AI Workers</div>
 			</div>
 		</div>
 	);
