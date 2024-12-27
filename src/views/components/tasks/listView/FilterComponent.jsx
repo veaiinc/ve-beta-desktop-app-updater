@@ -71,6 +71,7 @@ const FilterComponent = ({
 				showLabel={true}
 				{...props}
 				multiSelect={false}
+				disabled={false}
 			/>
 		),
 		status: (value) => (

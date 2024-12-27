@@ -100,13 +100,13 @@ const Tasks = () => {
 				type: 'person',
 				name: 'Created By',
 				Icon: PersonSvg,
-				props: { disabled: true, parseValue: true },
+				props: { options: info?.tenantUsers, disabled: true, parseValue: true },
 			},
 			updatedBy: {
 				type: 'person',
 				name: 'Updated By',
 				Icon: PersonSvg,
-				props: { disabled: true, parseValue: true },
+				props: { options: info?.tenantUsers, disabled: true, parseValue: true },
 			},
 			taskSlNo: { type: 'id', name: 'Id', Icon: textSvg, props: {} },
 		}),
@@ -294,6 +294,7 @@ const Tasks = () => {
 				if (response?.[0] === false) {
 					throw new Error('Failed to update, Try again later');
 				} else {
+					// Handle assignedTo special case
 					if (propName === 'assignedTo') {
 						const token = localStorage.getItem('usertoken');
 						const { user_id, userName } = jwtDecode(token);
@@ -333,6 +334,27 @@ const Tasks = () => {
 							});
 						}
 					}
+
+					// Update updatedBy for any successful update
+					const token = localStorage.getItem('usertoken');
+					const { user_id, userName } = jwtDecode(token);
+
+					setInfo((prevInfo) => {
+						const newListItems = prevInfo.listItems.map((row) => {
+							if (row._id === rowId) {
+								return {
+									...row,
+									updatedBy: { _id: user_id, name: userName },
+								};
+							}
+							return row;
+						});
+
+						return {
+							...prevInfo,
+							listItems: newListItems,
+						};
+					});
 				}
 			} catch (error) {
 				message.error(error?.message || 'Something went wrong! Please try again.');
@@ -352,7 +374,7 @@ const Tasks = () => {
 				});
 			}
 		},
-		[updateListItem, info?.workflows],
+		[updateListItem, info?.workflows, info?.selectedSubTask],
 	);
 
 	const handleDebounceUpdate = useCallback(

@@ -107,8 +107,6 @@ const ListView = ({
 				togglePropertyVisibility={togglePropertyVisibility}
 				sort={info?.sort}
 				filters={info?.filters}
-				workflows={info?.workflows}
-				tenantUsers={info?.tenantUsers}
 				searchValue={info?.searchValue}
 				responseMetadata={responseMetadata}
 			/>
@@ -126,10 +124,7 @@ const ListView = ({
 								properties={info?.properties}
 								rowTypes={rowTypes}
 								updatePropertyValue={updatePropertyValue}
-								workflows={info?.workflows}
-								tenantUsers={info?.tenantUsers}
 								handleRowClick={handleRowClick}
-								clients={info?.clients}
 								responseMetadata={responseMetadata}
 							/>
 						))

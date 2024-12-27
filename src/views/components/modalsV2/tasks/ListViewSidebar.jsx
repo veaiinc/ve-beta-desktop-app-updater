@@ -10,6 +10,7 @@ import Spinner from '../../loaders/Spinner';
 import Context from '../../../../context/context';
 import ListViewRow from '../../tasks/listView/ListViewRow';
 import Skeleton from 'react-loading-skeleton';
+import CustomTextArea from '../../globalComponents/CusomTextArea';
 
 const ListViewSidebar = ({
 	selectedRow,
@@ -267,12 +268,12 @@ const ListViewSidebar = ({
 						</div>
 
 						<div className="sidebar-title">
-							<textarea
-								className="sidebar-title-input"
+							<CustomTextArea
 								value={localTitle}
 								onChange={handleTitleChange}
 								placeholder="Enter title"
-								rows={1}
+								className="sidebar-title-input"
+								autoResize={true}
 							/>
 						</div>
 						<div className="sidebar-properties-container">
@@ -336,12 +337,12 @@ const ListViewSidebar = ({
 						)}
 
 						<div className="sidebar-description">
-							<textarea
-								className="sidebar-description-textarea"
+							<CustomTextArea
 								value={localDescription}
 								onChange={handleDescriptionChange}
 								placeholder="Enter description"
-								rows={5}
+								className="sidebar-description-textarea"
+								autoResize={true}
 							/>
 						</div>
 					</div>

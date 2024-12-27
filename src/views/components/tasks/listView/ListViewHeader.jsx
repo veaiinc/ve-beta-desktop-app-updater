@@ -34,9 +34,6 @@ const ListViewHeader = ({
 	togglePropertyVisibility,
 	sort,
 	filters,
-	responseTypes,
-	workflows,
-	tenantUsers,
 	searchValue,
 	responseMetadata,
 }) => {
@@ -215,9 +212,7 @@ const ListViewHeader = ({
 									value={filter?.value}
 									updateListViewInfo={updateListViewInfo}
 									filters={filters}
-									workflows={workflows}
 									props={props}
-									tenantUsers={tenantUsers}
 									type={type}
 									isPending={!filters.includes(filter)}
 									onConfirm={(key, value) => {
