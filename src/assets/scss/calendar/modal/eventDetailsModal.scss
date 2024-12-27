@@ -80,13 +80,12 @@
 			border-bottom: 1px solid #272727;
 
 			.eventDetailsRow {
-				height: 31px;
+				min-height: 31px;
 				width: 100%;
 				display: grid;
 				grid-template-columns: 1fr 2fr;
 				gap: 15px;
 				align-items: center;
-
 				&.hidden {
 					display: none;
 				}

@@ -2,11 +2,11 @@ import React, { memo, useContext, useState, useCallback, useEffect, useRef, useM
 import '../../../../assets/scss/calendar/modal/eventDetailsModal.scss';
 import CustomInput from '../../../components/globalComponents/CustomInput';
 import CustomTextArea from '../../../components/globalComponents/CustomTextArea';
-import CustomSelect from '../../../components/globalComponents/CustomSelect';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as Arrow } from '../../../../assets/svg/calendar/down.svg';
 import { ReactComponent as Delete } from '../../../../assets/svg/tasks/dustBin.svg';
 import CategorySelector from '../../calendar/CategorySelector';
+import AttendeeSelector from '../../calendar/AttendeeSelector';
 import DateView from '../../tasks/listView/DateView.jsx';
 import Spinner from '../../../components/loaders/Spinner';
 import Context from '../../../../context/context';
@@ -37,6 +37,7 @@ const EventDetailsModal = ({
 			deleteCalendarEvent,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		companyInfo: { tenantsUserList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -184,6 +185,16 @@ const EventDetailsModal = ({
 					className="categorySelector"
 				/>
 			),
+			attendees: (value) => (
+				<AttendeeSelector
+					className="attendeeSelector"
+					value={value}
+					options={tenantsUserList}
+					onChange={(value) => {
+						updateEventDetails('attendees', value);
+					}}
+				/>
+			),
 			status: (value) => (
 				<CustomInput
 					value={value}
@@ -228,8 +239,11 @@ const EventDetailsModal = ({
 		};
 	}, [categoryList, updateEventDetails, info?.eventDetails, updateEventDetails]);
 
-	const validKeys = info?.eventKeys?.filter((key) => componentMapper[key]) || [];
-	const visibleKeys = info?.detailsExpanded ? validKeys : validKeys?.slice(0, 5);
+	const { validKeys, visibleKeys } = useMemo(() => {
+		const validKeys = info?.eventKeys?.filter((key) => componentMapper[key]) || [];
+		const visibleKeys = info?.detailsExpanded ? validKeys : validKeys?.slice(0, 5);
+		return { validKeys, visibleKeys };
+	}, [info?.eventKeys, info?.detailsExpanded, componentMapper]);
 
 	return (
 		<Drawer
