@@ -1,6 +1,7 @@
 import React, { useState, memo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
+// import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
+import LeadPlusSvg from '../../../assets/svg/sidebar/  LeadPlusSvg.jsx';
 import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg';
 import { veAiModulesItemsList } from './sidebarindex';
 import DropDrownMenu from './DropDrownMenu';
@@ -114,27 +115,66 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 		setVisibleIcons(iconsToShow);
 	}, [sidebarStates.selectedModule]);
 
+	// ... existing code ...
+
 	useEffect(() => {
 		const currentPath = window.location.pathname;
-		const selectedAiOption = AiOptions.find((option) => currentPath.startsWith(option.route));
+		const selectedAiOption = AiOptions.find(
+			(option) =>
+				currentPath === option.route ||
+				currentPath.startsWith(option.route + '/') ||
+				option.subModules?.some(
+					(subModule) =>
+						currentPath === subModule.route ||
+						currentPath.startsWith(subModule.route + '/'),
+				),
+		);
 
-		const iconsToShow =
-			selectedAiOption?.subModules?.map((subModule) => ({
-				icon: subModule.icon,
-				route: subModule.route || '#',
-				name: subModule.name,
-			})) ||
-			veAiModulesItemsList
-				.find((module) => module.name === sidebarStates.selectedModule)
-				?.subModules?.map((subModule) => ({
+		// If we found an AI option, use its submodules
+		if (selectedAiOption) {
+			const iconsToShow =
+				selectedAiOption.subModules?.map((subModule) => ({
 					icon: subModule.icon,
 					route: subModule.route || '#',
 					name: subModule.name,
-				})) ||
-			[];
+				})) || [];
 
-		setVisibleIcons(iconsToShow);
-	}, [sidebarStates.selectedModule, window.location.pathname]);
+			setVisibleIcons(iconsToShow);
+			return;
+		}
+
+		// If not an AI route, check regular modules
+		const selectedModule = veAiModulesItemsList.find((module) =>
+			module.subModules?.some(
+				(subModule) =>
+					currentPath === subModule.route ||
+					currentPath.startsWith(subModule.route + '/'),
+			),
+		);
+
+		if (selectedModule) {
+			const iconsToShow =
+				selectedModule.subModules?.map((subModule) => ({
+					icon: subModule.icon,
+					route: subModule.route || '#',
+					name: subModule.name,
+				})) || [];
+
+			setVisibleIcons(iconsToShow);
+
+			// Update selected module if different from current
+			if (selectedModule.name !== sidebarStates.selectedModule) {
+				setsidebarStates((prev) => ({
+					...prev,
+					selectedModule: selectedModule.name,
+				}));
+			}
+		} else {
+			setVisibleIcons([]); // Clear icons if no matching route found
+		}
+	}, [window.location.pathname, sidebarStates.selectedModule]);
+
+	// ... existing code ...
 
 	useEffect(() => {
 		const handleResize = () => {
@@ -159,7 +199,33 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 	};
 	const getFilteredAiOptions = () => {
 		const currentPath = window.location.pathname;
-		return AiOptions.filter((option) => !currentPath.startsWith(option.route));
+
+		// Find parent module if we're in a submodule
+		const parentModule = AiOptions.find((option) =>
+			option.subModules?.some(
+				(subModule) =>
+					currentPath === subModule.route ||
+					currentPath.startsWith(subModule.route + '/'),
+			),
+		);
+
+		return AiOptions.filter(
+			(option) =>
+				// Exclude if it's the current direct route
+				!currentPath.startsWith(option.route) &&
+				// Exclude if it's the parent module of current submodule
+				option.route !== parentModule?.route,
+		);
+	};
+
+	const getParentAiModuleImage = (pathname) => {
+		const parentModule = AiOptions.find((option) =>
+			option.subModules?.some(
+				(subModule) =>
+					pathname === subModule.route || pathname.startsWith(subModule.route + '/'),
+			),
+		);
+		return parentModule?.image;
 	};
 	return (
 		<>
@@ -204,16 +270,17 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 												// lineHeight: '20px',
 											}}
 										>
-											{/* {!AiOptions.find((option) =>
-												window.location.pathname.includes(option.route),
-											) && (
-												// <TaskSvg
-												// 	style={{ height: '20px', width: '20px' }}
-												// />
-											)} */}
 											{AiOptions.find((option) =>
 												window.location.pathname.includes(option.route),
-											)?.name || getPathInfo(window.location.pathname).title}
+											)?.name ||
+												AiOptions.find((option) =>
+													option.subModules?.some((subModule) =>
+														window.location.pathname.startsWith(
+															subModule.route,
+														),
+													),
+												)?.name ||
+												getPathInfo(window.location.pathname).title}
 										</h3>
 										{
 											!AiOptions.find((option) =>
@@ -250,14 +317,16 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 									<div className="gradientCirlce">
 										{AiOptions.find((option) =>
 											window.location.pathname.includes(option.route),
-										)?.image ? (
+										)?.image ||
+										getParentAiModuleImage(window.location.pathname) ? (
 											<img
 												src={
 													AiOptions.find((option) =>
 														window.location.pathname.includes(
 															option.route,
 														),
-													)?.image
+													)?.image ||
+													getParentAiModuleImage(window.location.pathname)
 												}
 												alt="AI Option"
 												style={{
@@ -406,7 +475,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 								style={{
 									display: 'flex',
 									flexDirection: 'column',
-									gap: '18px',
+									gap: '21px',
 									padding: '18px 0px',
 								}}
 							>
@@ -459,7 +528,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 								style={{
 									display: 'flex',
 									flexDirection: 'column',
-									gap: '18px',
+									gap: '24px',
 								}}
 							>
 								<hr
@@ -469,6 +538,94 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 										alignSelf: 'center',
 									}}
 								/>
+								<div>
+									<Tooltip
+										placement="rightTop"
+										title={<DropDrownMenu info={info} setInfo={setInfo} />}
+										color={'#151515'}
+										arrow={false}
+										trigger="click"
+										overlayClassName="sideBartoolTipContainer toolTipContainer"
+										open={info?.isNewFeaturePlusOpen}
+										onOpenChange={(open) => {
+											if (!open) {
+												setInfo((prev) => ({
+													...prev,
+													isNewFeaturePlusOpen: false,
+												}));
+											}
+										}}
+									>
+										<div
+											onClick={openNewFeaturePlus}
+											style={{
+												display: 'flex',
+												justifyContent: 'center',
+												alignItems: 'center',
+											}}
+										>
+											<LeadPlusSvg
+												style={{
+													height: '20px',
+													width: '20px',
+													alignSelf: 'center',
+												}}
+											/>
+										</div>
+									</Tooltip>
+								</div>
+								<Tooltip
+									title="Home"
+									placement="left"
+									arrow={false}
+									overlayInnerStyle={{
+										padding: '6px 10px',
+										borderRadius: '10px',
+										fontSize: '14px',
+										background: '#E8E8E8',
+										color: '#202123',
+										textAlign: 'center',
+										marginLeft: '24px',
+									}}
+								>
+									<div
+										onClick={() => navigate('/home')}
+										style={{ alignSelf: 'center' }}
+									>
+										<ClosedSideBarHoverStateIcons Icon={AppartmentHomeSvg} />
+									</div>
+								</Tooltip>
+
+								<div
+									style={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+									}}
+								>
+									<Tooltip
+										title="Open the sidebar"
+										placement="left"
+										arrow={false}
+										overlayInnerStyle={{
+											padding: '6px 10px',
+											borderRadius: '10px',
+											fontSize: '14px',
+											fontWeight: '500',
+											fontFamily: 'Inter',
+											fontStyle: 'normal',
+											background: '#E8E8E8',
+											color: '#202123',
+											textAlign: 'center',
+											marginLeft: '24px',
+										}}
+									>
+										<SidebarClosingSvg
+											onClick={openModuleFunction}
+											className="sidebarClosingSvg"
+										/>
+									</Tooltip>
+								</div>
 								<Tooltip
 									title="Credit"
 									placement="left"
@@ -523,36 +680,6 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 									</div>
 								</Tooltip>
 								{/* <hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} /> */}
-								<div
-									style={{
-										display: 'flex',
-										justifyContent: 'center',
-										alignItems: 'center',
-									}}
-								>
-									<Tooltip
-										title="Open the sidebar"
-										placement="left"
-										arrow={false}
-										overlayInnerStyle={{
-											padding: '6px 10px',
-											borderRadius: '10px',
-											fontSize: '14px',
-											fontWeight: '500',
-											fontFamily: 'Inter',
-											fontStyle: 'normal',
-											background: '#E8E8E8',
-											color: '#202123',
-											textAlign: 'center',
-											marginLeft: '24px',
-										}}
-									>
-										<SidebarClosingSvg
-											onClick={openModuleFunction}
-											className="sidebarClosingSvg"
-										/>
-									</Tooltip>
-								</div>
 							</div>
 						</div>
 					</div>

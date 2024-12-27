@@ -16,7 +16,7 @@ import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg
 import { ReactComponent as RightArrowSvg } from '../../../assets/svg/sidebar/RightArrow.svg';
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
-
+import { Tooltip } from 'antd';
 const CommonBottomSection = ({ handleLogout, openWorkspacesFunction, workSpaceOpen }) => (
 	<div
 		className="commonBottomSection"
@@ -384,11 +384,26 @@ const OpenedSideBarItemsComponent = ({
 									<DownArrowSmallSvg style={{ height: '16px', width: '16px' }} />
 								</div>
 								{/* <NotificationSvg /> */}
-								<SidebarClosingSvg
-									className="collapseArrow"
-									onClick={handleSidebarCollapse}
-									style={{ cursor: 'pointer' }}
-								/>
+								<Tooltip
+									title="Close Sidebar"
+									placement="right"
+									arrow={false}
+									overlayInnerStyle={{
+										padding: '6px 10px',
+										borderRadius: '10px',
+										fontSize: '14px',
+										background: '#E8E8E8',
+										color: '#202123',
+										textAlign: 'center',
+										marginLeft: '12px',
+									}}
+								>
+									<SidebarClosingSvg
+										className="collapseArrow"
+										onClick={handleSidebarCollapse}
+										style={{ cursor: 'pointer' }}
+									/>
+								</Tooltip>
 							</div>
 
 							<div
