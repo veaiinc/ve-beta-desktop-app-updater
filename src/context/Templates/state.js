@@ -33,6 +33,7 @@ import {
 	getRequiredActionDetailsQuery,
 	updateSendSmartFileSettingsMutation,
 	getLatestSendSmartFileSettingsQuery,
+	getActivityLogsQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -63,6 +64,11 @@ export const intialState = {
 	sendSmartFileSettings: null,
 	aiPredictedData: null,
 	connectUrl: null,
+	activityLogs: null,
+	moreActivityLogs: null,
+	draftStateWorkflowtemplates: null,
+	moreDraftStateWorkflowtemplates: null,
+	createLeadModalContextState: false,
 };
 
 export const TemplatesState = (props) => {
@@ -1081,6 +1087,66 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getActivityLogs = async (payload, fetchMore = false) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getActivityLogsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: fetchMore
+						? Actions.GET_MORE_ACTIVITY_LOGS_SUCCESS
+						: Actions.GET_ACTIVITY_LOGS_SUCCESS,
+					payload: response?.[1]?.data?.activityLogs,
+				});
+			} else {
+				message.error('Error fetching activity logs');
+			}
+		} catch (error) {
+			console.log('errror ==>getActivityLogs', error);
+		}
+	};
+
+	const getDrafStateWorkflowtemplates = async (payload, fetchMore = false) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getTemmplatesQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			// console.log('response==>getDrafStateWorkflowtemplates', response);
+
+			if (response?.[0]) {
+				dispatch({
+					type: fetchMore
+						? Actions.GET_MORE_DRAFT_STATE_WORKFLOW_TEMPLATE_SUCCESS
+						: Actions.GET_DRAFT_STATE_WORKFLOW_TEMPLATE_SUCCESS,
+					payload: response?.[1]?.data?.templates,
+				});
+			} else {
+				message.error('Error fetching activity logs');
+			}
+		} catch (error) {
+			console.log('errror ==>getDrafStateWorkflowtemplates', error);
+		}
+	};
+
+	const toggleCreateLeadModal = (payload) => {
+		dispatch({ type: Actions.TOGGLE_CREATE_LEAD_MODAL_SUCCESS, payload });
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -1127,5 +1193,8 @@ export const TemplatesState = (props) => {
 		leaveWorkspace,
 		sendCustomEmailToClients,
 		connectThirdParty,
+		getActivityLogs,
+		getDrafStateWorkflowtemplates,
+		toggleCreateLeadModal,
 	};
 };

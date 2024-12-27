@@ -58,6 +58,22 @@ export const veAiModulesItemsList = [
 	},
 
 	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
+	{
+		name: 'Da-Vinci',
+		moduleRoute: '/ai-agents/home/da-vinici',
+		route: '/ai-agents/home/da-vinici',
+		icon: '',
+		subModules: [
+			{ icon: AddCalenderSvg, route: '/ai-agents/home/da-vinici', name: 'Home' },
+			{ icon: TranscriptSvg, route: '/ai-agents/jobs/:agent-name', name: 'Jobs' },
+			{
+				icon: SettingsSvg,
+				route: '/ai-agents/setup/da-vinici',
+				fill: 'white',
+				name: 'Setup',
+			},
+		],
+	},
 	// {
 	// 	name: 'AI Agents',
 	// 	moduleRoute: '/ai-agents',
