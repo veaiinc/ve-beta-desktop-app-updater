@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef, memo, useContext } from 'react';
 import gsap from 'gsap';
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
+import Lenis from 'lenis';
 
 import '../../../assets/scss/landingScreen/index.scss';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
 import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
-import { ReactComponent as ArrowUpBlack } from '../../../assets/svg/landingScreen/arrow-black.svg';
+import { ReactComponent as ArrowUpGrey } from '../../../assets/svg/landingScreen/arrow-up-grey.svg';
+import { ReactComponent as ArrowUpWhite } from '../../../assets/svg/landingScreen/arrow-up-white.svg';
 import { ReactComponent as DownArrow } from '../../../assets/svg/gallery/arrow-down.svg';
 import {
 	BLOGS_URL,
@@ -150,7 +152,9 @@ const LandingPage = () => {
 
 	const [showScrollArrow, setShowScrollArrow] = useState(false);
 	const [newsletterHover, setNewsletterHover] = useState(false);
+	const [isBackToTopBtnHover, setIsBackToTopBtnHover] = useState(false);
 	const [isEmailSubscribed, setIsEmailSubscribed] = useState(false);
+	const [playVideo, setPlayVideo] = useState(false);
 
 	useEffect(() => {
 		const usertoken = localStorage.getItem('usertoken');
@@ -161,9 +165,28 @@ const LandingPage = () => {
 			if (isOnboard === false) return navigate('/early-access');
 			if (isOnboard) return navigate('/home');
 		}
+
+		const lenis = new Lenis({
+			duration: 0.3,
+			easing: (t) => 1 - (1 - t) * (1 - t),
+			direction: 'vertical',
+			smooth: true,
+			smoothTouch: false,
+		});
+
+		const raf = (time) => {
+			lenis.raf(time);
+			requestAnimationFrame(raf);
+		};
+		requestAnimationFrame(raf);
+
+		return () => {
+			lenis?.destroy();
+		};
 	}, []);
 
 	useEffect(() => {
+		pageLoadAnimation();
 		window.addEventListener('scroll', handleScroll);
 		handleScroll();
 
@@ -172,13 +195,45 @@ const LandingPage = () => {
 		};
 	}, []);
 
+	const pageLoadAnimation = () => {
+		gsap.fromTo(
+			['.header-container', '.heading', '.description', '.cta-container', '.video'],
+			{
+				y: (index) => {
+					if (index === 0) return 0;
+					if (index === 1) return 50;
+					if (index === 2) return 100;
+					if (index === 3) return 150;
+					if (index === 4) return 150;
+					return 0;
+				},
+			},
+			{
+				y: 0,
+				duration: 0.7,
+				ease: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)',
+			},
+		);
+		gsap.to('.landing-page-container', {
+			opacity: 1,
+			duration: 0.7,
+			ease: 'power1.inOut',
+			onComplete: () => {
+				setPlayVideo(true);
+			},
+		});
+	};
+
 	const handleScroll = () => {
 		const windowHeight = window.innerHeight;
-		const documentHeight = document.documentElement.scrollHeight;
-		const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-		const isNearBottom = windowHeight + scrollTop >= documentHeight - 20;
+		const scrollTop = document.documentElement.scrollTop;
+		const threshold = windowHeight + 150;
+		const isNearBottom = windowHeight + scrollTop >= threshold;
 		setShowScrollArrow(!isNearBottom);
+	};
+
+	const handleScrollBackToTop = () => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
 	};
 
 	const handleNavigationToVerifyUser = () => {
@@ -191,22 +246,22 @@ const LandingPage = () => {
 
 	const handleSubscribeToNewsletter = debounce(async (e, type) => {
 		// Uncomment when API works...
-		// if (!isEmailSubscribed) {
-		// 	if (e?.key === 'Enter' || type === 'click') {
-		// 		const email = emailRef?.current?.value?.trim() || false;
-		// 		const isEmailValid = validator.isEmail(email);
-		// 		if (isEmailValid) {
-		// 			const response = await subscribeToNewsletter(email);
-		// 			if (response?.[0] === true) {
-		// 				message?.success('Subscribed to ve.ai newsletters successfully!');
-		// 				setIsEmailSubscribed(true);
-		// 			} else {
-		// 				message?.error('An unexpected error occured. Please try again!');
-		// 				setIsEmailSubscribed(false);
-		// 			}
-		// 		}
-		// 	}
-		// }
+		if (!isEmailSubscribed) {
+			if (e?.key === 'Enter' || type === 'click') {
+				const email = emailRef?.current?.value?.trim() || false;
+				const isEmailValid = validator.isEmail(email);
+				if (isEmailValid) {
+					const response = await subscribeToNewsletter(email);
+					if (response?.[0] === true) {
+						message?.success('Subscribed to ve.ai newsletters successfully!');
+						setIsEmailSubscribed(true);
+					} else {
+						message?.error('An unexpected error occured. Please try again!');
+						setIsEmailSubscribed(false);
+					}
+				}
+			}
+		}
 	}, 1000);
 
 	return (
@@ -241,7 +296,6 @@ const LandingPage = () => {
 				<div className="section-1">
 					<div className="container">
 						<h1 className="heading">
-							<div className="heading-animation-container"></div>
 							AI OS that
 							<br /> minds your business !
 						</h1>
@@ -258,27 +312,31 @@ const LandingPage = () => {
 							>
 								Hire Ve.ai
 							</button>
-							<button
+							{/* <button
 								onClick={handleRequestDemo}
 								className="request-demo-button"
 								aria-label="Request a demo"
 							>
 								Request a Demo
-							</button>
+							</button> */}
 						</div>
 					</div>
 				</div>
 				<div className="section-2">
 					<div className="section-video-container">
 						<div className="video-container">
-							<video
-								className="video"
-								muted
-								autoPlay
-								loop
-								playsInline
-								src={'https://ap.assets.ve.ai/logo/login-page-final.webm'}
-							></video>
+							{playVideo && (
+								<video
+									className="video"
+									muted
+									autoPlay
+									loop
+									playsInline
+									src={
+										'https://ap.assets.ve.ai/logo/login-page-landing-video.webm'
+									}
+								></video>
+							)}
 						</div>
 
 						<div className="video-controls"></div>
@@ -326,6 +384,7 @@ const LandingPage = () => {
 			</div>
 			<footer className="footer-container">
 				<div className="banner">
+					<div className="glow-bg"></div>
 					<h1 className="title">AI that minds your business</h1>
 					<button onClick={handleRequestDemo} className="get-demo-btn">
 						Get Demo
@@ -413,6 +472,14 @@ const LandingPage = () => {
 						<img width={24} height={24} src={Charminar} alt="Charminar" />
 						<span>Built in Hyderabad</span>
 					</div>
+					<button
+						onMouseEnter={() => setIsBackToTopBtnHover(true)}
+						onMouseLeave={() => setIsBackToTopBtnHover(false)}
+						onClick={handleScrollBackToTop}
+						className="back-to-top-btn"
+					>
+						Back to top {isBackToTopBtnHover ? <ArrowUpWhite /> : <ArrowUpGrey />}
+					</button>
 				</div>
 			</footer>
 		</div>

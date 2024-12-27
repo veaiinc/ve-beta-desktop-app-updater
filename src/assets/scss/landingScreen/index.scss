@@ -8,6 +8,7 @@
 	justify-content: space-between;
 	align-items: center;
 	position: relative;
+	opacity: 0;
 
 	.dark-gradient-top {
 		position: fixed;
@@ -96,20 +97,16 @@
 				justify-content: center;
 				align-items: flex-start;
 				flex-direction: column;
-				max-width: 442px;
+				max-width: 460px;
 				gap: 24px;
 
 				.heading {
 					color: #fff;
 					font-family: Manrope;
-					font-size: 40px;
+					font-size: 45px;
 					font-style: normal;
-					font-weight: 500;
-					line-height: 45px;
-
-					.heading-animation-container {
-						width: 100%;
-					}
+					font-weight: 600;
+					line-height: 50px;
 				}
 
 				.description {
@@ -118,7 +115,7 @@
 					font-size: 20px;
 					font-style: normal;
 					font-weight: 400;
-					line-height: 28px;
+					line-height: 30px;
 				}
 
 				.cta-container {
@@ -134,6 +131,7 @@
 					}
 
 					.get-started-button {
+						width: 135px;
 						border-radius: 59px;
 						background: #f2f2f3;
 						display: flex;
@@ -232,6 +230,7 @@
 				font-weight: 600;
 				line-height: 47px;
 				margin-top: 52px;
+				max-width: 900px;
 			}
 
 			.subtitle {
@@ -242,6 +241,7 @@
 				font-style: normal;
 				font-weight: 400;
 				line-height: 24px;
+				max-width: 900px;
 			}
 
 			.get-started {
@@ -293,8 +293,7 @@
 			position: relative;
 			z-index: 1;
 
-			::after {
-				content: '';
+			.glow-bg {
 				position: absolute;
 				top: 0;
 				left: 0;
@@ -308,7 +307,6 @@
 				);
 				filter: blur(50px);
 				z-index: -1;
-				opacity: 0.5;
 			}
 
 			.title {
@@ -457,10 +455,11 @@
 			align-items: center;
 			border-top: 1px solid #313235;
 			padding: 24px 0;
+			position: relative;
 
 			.left,
 			.right {
-				background: linear-gradient(90deg, #b07df2 0%, #ff92c2 100%);
+				background: linear-gradient(98deg, #e9ccf2 0%, #a6bcdd 47.5%, #cfecd7 100%);
 				background-clip: text;
 				-webkit-background-clip: text;
 				-webkit-text-fill-color: transparent;
@@ -492,6 +491,29 @@
 					&:hover {
 						color: #f2f2f3;
 					}
+				}
+			}
+
+			.back-to-top-btn {
+				position: absolute;
+				top: -36px;
+				right: 0;
+				color: #797e86;
+				font-family: Manrope;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				cursor: pointer;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 12px;
+				border: none;
+				background-color: transparent;
+
+				&:hover {
+					color: #f2f2f3;
 				}
 			}
 		}
@@ -901,7 +923,7 @@
 @media screen and (max-height: 852px) {
 	.landing-page-container {
 		.video {
-			width: 370px !important;
+			width: 550px !important;
 		}
 	}
 }
