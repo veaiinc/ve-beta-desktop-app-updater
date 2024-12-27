@@ -1,6 +1,8 @@
-import React, { memo } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_agents/customCards.scss';
 import { ReactComponent as Loader } from '../../../assets/svg/ai_agents/loader.svg';
+import Context from '../../../context/context';
 const createCardsOptions = [
 	{ title: 'Proposal', subText: 'Create a Proposal ', dotColor: '#EDA145' },
 	{ title: 'Pitch Deck', subText: 'Create your Brand Pitch Deck ', dotColor: '#F95A2C' },
@@ -93,6 +95,52 @@ const CreateCards = () => {
 export default memo(CreateCards);
 
 const Activity = memo(() => {
+	let {
+		templates: { getActivityLogs, activityLogs, moreActivityLogs },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		loading: false,
+		activityLogsData: [],
+		page: 1,
+		hasNextPage: false,
+	});
+
+	useEffect(() => {
+		getActivityLogsData(1);
+	}, []);
+
+	useEffect(() => {
+		if (activityLogs) {
+			handleActivityLogsData(activityCards);
+		}
+	}, [activityLogs]);
+
+	const handleActivityLogsData = useCallback((incomingData, fetchMore = false) => {
+		const { currentPage, data, hasNextPage } = incomingData;
+		setInfo((prev) => ({
+			...prev,
+			loading: false,
+			activityLogsData: data,
+			hasNextPage,
+			currentPage,
+		}));
+	}, []);
+
+	const getActivityLogsData = useCallback(
+		(page, fetchMore = false) => {
+			const payload = {
+				filters: {
+					limit: 30,
+					page: page,
+				},
+			};
+
+			getActivityLogs(payload);
+		},
+		[info?.hasNextPage, info?.loading],
+	);
+
 	return (
 		<div className="aiAgentsAcitivityContainer">
 			<div className="createCardsHeader">

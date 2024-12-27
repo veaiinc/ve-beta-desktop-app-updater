@@ -71,7 +71,11 @@ const actionHandlers = {
 		...state,
 		slackChannels: action?.payload,
 	}),
-
+	GET_ACTIVITY_LOGS_SUCCESS: (state, action) => ({ ...state, activityLogs: action?.payload }),
+	GET_MORE_ACTIVITY_LOGS_SUCCESS: (state, action) => ({
+		...state,
+		moreActivityLogs: action?.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

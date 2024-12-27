@@ -427,3 +427,22 @@ export const getLatestSendSmartFileSettingsQuery = gql`
 		getLatestWorkflowSettings
 	}
 `;
+
+export const getActivityLogsQuery = gql`
+	query ActivityLogs($filters: ActivityLogsFilterInput) {
+		activityLogs(filters: $filters) {
+			currentPage
+			data {
+				_id
+				changes
+				entity
+				timestamp
+				userId
+				userName
+				action
+				entityType
+			}
+			hasNextPage
+		}
+	}
+`;
