@@ -31,7 +31,7 @@ const actionMapper = {
 const CreateCards = () => {
 	return (
 		<div className="aiAgentsCreatecards">
-			<div className="createCardsHeader">
+			<div className="createCardsHeader" style={{ alignSelf: 'stretch' }}>
 				<span className="createCardsHeaderTexct">Create</span>+
 			</div>
 
