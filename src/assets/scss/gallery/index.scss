@@ -2,6 +2,11 @@
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
+	.authParentContainer {
+		.childrenContainer {
+			max-width: 80vw !important;
+		}
+	}
 	.analytic-container {
 		display: flex;
 		height: 250px;

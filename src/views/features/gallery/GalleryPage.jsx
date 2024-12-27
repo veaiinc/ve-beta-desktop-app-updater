@@ -376,7 +376,17 @@ const GalleryPage = () => {
 		clickOutsideCheck(optionsContainerRef, optionsIconRef, 'showOptionsContainer');
 	}, []);
 
-	// ... rest of the code ...
+	useEffect(() => {
+		const childrenContainer = document.querySelector('.childrenContainer');
+		if (childrenContainer) {
+			const originalWidth = childrenContainer.style.maxWidth;
+			childrenContainer.style.maxWidth = '80vw';
+			return () => {
+				childrenContainer.style.maxWidth = originalWidth;
+			};
+		}
+	}, []);
+
 	useEffect(() => {
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
@@ -1633,174 +1643,174 @@ const GalleryPage = () => {
 
 	// ... existing code ...
 
-	const uploadAlbumCoverChangeHandler = async (e) => {
-		const image = e.target.files[0];
-		if (!image) return;
+	// const uploadAlbumCoverChangeHandler = async (e) => {
+	// 	const image = e.target.files[0];
+	// 	if (!image) return;
 
-		message.loading({
-			content: 'Uploading album cover image..',
-			key: 'coverUpload',
-		});
+	// 	message.loading({
+	// 		content: 'Uploading album cover image..',
+	// 		key: 'coverUpload',
+	// 	});
 
-		try {
-			// Reset existing image data
-			setInfo((prev) => ({
-				...prev,
-				crop: { x: 0, y: 0 },
-				zoom: 1,
-				uploadImageId: null,
-				imageURL: '',
-				coverImageDetails: null,
-				coverPhoto: true,
-				isLoadingCover: true,
-			}));
+	// 	try {
+	// 		// Reset existing image data
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			crop: { x: 0, y: 0 },
+	// 			zoom: 1,
+	// 			uploadImageId: null,
+	// 			imageURL: '',
+	// 			coverImageDetails: null,
+	// 			coverPhoto: true,
+	// 			isLoadingCover: true,
+	// 		}));
 
-			const batchId = randomize('Aa0', 10);
+	// 		const batchId = randomize('Aa0', 10);
 
-			// Check for duplicate images first
-			const duplicateImage = await getImageDuplicatesList(galleryId, info.activeAlbumId);
-			const isHavingDuplicateImage = duplicateImage?.[1]?.find(
-				(item) => item?.displayName === image?.name,
-			);
+	// 		// Check for duplicate images first
+	// 		const duplicateImage = await getImageDuplicatesList(galleryId, info.activeAlbumId);
+	// 		const isHavingDuplicateImage = duplicateImage?.[1]?.find(
+	// 			(item) => item?.displayName === image?.name,
+	// 		);
 
-			if (isHavingDuplicateImage) {
-				getImageDetail(isHavingDuplicateImage?._id);
-				setInfo((prev) => ({
-					...prev,
-					uploadImageId: isHavingDuplicateImage?._id,
-					isLoadingCover: false,
-				}));
-				message.destroy('coverUpload');
-				return;
-			}
+	// 		if (isHavingDuplicateImage) {
+	// 			getImageDetail(isHavingDuplicateImage?._id);
+	// 			setInfo((prev) => ({
+	// 				...prev,
+	// 				uploadImageId: isHavingDuplicateImage?._id,
+	// 				isLoadingCover: false,
+	// 			}));
+	// 			message.destroy('coverUpload');
+	// 			return;
+	// 		}
 
-			// Get gallery tags and upload image
-			const responseGalleryTags = await getGalleryTagsList(galleryId);
-			if (!responseGalleryTags?.[0]) {
-				throw new Error('Failed to get gallery tags');
-			}
+	// 		// Get gallery tags and upload image
+	// 		const responseGalleryTags = await getGalleryTagsList(galleryId);
+	// 		if (!responseGalleryTags?.[0]) {
+	// 			throw new Error('Failed to get gallery tags');
+	// 		}
 
-			const allTagId = responseGalleryTags?.[1]?.find(
-				(item) => item.displayName === 'All',
-			)?._id;
+	// 		const allTagId = responseGalleryTags?.[1]?.find(
+	// 			(item) => item.displayName === 'All',
+	// 		)?._id;
 
-			if (!allTagId) {
-				throw new Error('All tag not found');
-			}
+	// 		if (!allTagId) {
+	// 			throw new Error('All tag not found');
+	// 		}
 
-			const uploadPayload = {
-				originalFileName: image?.name,
-				originalDateTime: moment(image?.['originalDate']).unix() || 0,
-				uploadBatchId: batchId,
-				tag_ids: [allTagId],
-				isAIFacesEnabled: true,
-			};
+	// 		const uploadPayload = {
+	// 			originalFileName: image?.name,
+	// 			originalDateTime: moment(image?.['originalDate']).unix() || 0,
+	// 			uploadBatchId: batchId,
+	// 			tag_ids: [allTagId],
+	// 			isAIFacesEnabled: true,
+	// 		};
 
-			const signedURLUpload = await getUploadImageSignUrl(
-				galleryId,
-				info.activeAlbumId,
-				uploadPayload,
-			);
+	// 		const signedURLUpload = await getUploadImageSignUrl(
+	// 			galleryId,
+	// 			info.activeAlbumId,
+	// 			uploadPayload,
+	// 		);
 
-			if (!signedURLUpload?.[0]) {
-				throw new Error('Failed to get signed URL');
-			}
+	// 		if (!signedURLUpload?.[0]) {
+	// 			throw new Error('Failed to get signed URL');
+	// 		}
 
-			// Upload the image
-			await axios.put(signedURLUpload[1]['signedUrl'], image, {
-				headers: {
-					'Content-Type': image?.type,
-				},
-			});
+	// 		// Upload the image
+	// 		await axios.put(signedURLUpload[1]['signedUrl'], image, {
+	// 			headers: {
+	// 				'Content-Type': image?.type,
+	// 			},
+	// 		});
 
-			const uploadedImageId = signedURLUpload?.[1]?._id;
+	// 		const uploadedImageId = signedURLUpload?.[1]?._id;
 
-			setInfo((prev) => ({
-				...prev,
-				uploadImageId: uploadedImageId,
-				coverPhoto: true,
-			}));
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			uploadImageId: uploadedImageId,
+	// 			coverPhoto: true,
+	// 		}));
 
-			// Wait for image processing
-			let attempts = 0;
-			const maxAttempts = 10;
-			while (attempts < maxAttempts) {
-				await new Promise((resolve) => setTimeout(resolve, 2000));
-				const imageStatus = await getImageUploadStatus(
-					galleryId,
-					info.activeAlbumId,
-					batchId,
-				);
-				if (imageStatus?.[0] && imageStatus?.[1]?.processedCount === 1) {
-					const imageDetails = await getImageDetail(uploadedImageId);
-					if (imageDetails?.[0]) {
-						// Check if gallery or album has no cover image and set this as cover
-						const shouldSetGalleryCover = !info?.activeGallery?.coverImage;
-						const shouldSetAlbumCover = !info?.activeAlbum?.coverImage;
+	// 		// Wait for image processing
+	// 		let attempts = 0;
+	// 		const maxAttempts = 10;
+	// 		while (attempts < maxAttempts) {
+	// 			await new Promise((resolve) => setTimeout(resolve, 2000));
+	// 			const imageStatus = await getImageUploadStatus(
+	// 				galleryId,
+	// 				info.activeAlbumId,
+	// 				batchId,
+	// 			);
+	// 			if (imageStatus?.[0] && imageStatus?.[1]?.processedCount === 1) {
+	// 				const imageDetails = await getImageDetail(uploadedImageId);
+	// 				if (imageDetails?.[0]) {
+	// 					// Check if gallery or album has no cover image and set this as cover
+	// 					const shouldSetGalleryCover = !info?.activeGallery?.coverImage;
+	// 					const shouldSetAlbumCover = !info?.activeAlbum?.coverImage;
 
-						if (shouldSetGalleryCover || shouldSetAlbumCover) {
-							const coverPayload = {
-								image_id: uploadedImageId,
-								xPosition: 0,
-								yPosition: 0,
-								givenFileName: imageDetails[1]?.activeVersion?.givenFileName,
-								width: 100,
-								height: 100,
-								zoom: 1,
-							};
+	// 					if (shouldSetGalleryCover || shouldSetAlbumCover) {
+	// 						const coverPayload = {
+	// 							image_id: uploadedImageId,
+	// 							xPosition: 0,
+	// 							yPosition: 0,
+	// 							givenFileName: imageDetails[1]?.activeVersion?.givenFileName,
+	// 							width: 100,
+	// 							height: 100,
+	// 							zoom: 1,
+	// 						};
 
-							// Set as gallery cover if needed
-							if (shouldSetGalleryCover) {
-								await updateGalleryCoverImage(coverPayload, galleryId);
-							}
+	// 						// Set as gallery cover if needed
+	// 						if (shouldSetGalleryCover) {
+	// 							await updateGalleryCoverImage(coverPayload, galleryId);
+	// 						}
 
-							// Set as album cover if needed
-							if (shouldSetAlbumCover) {
-								await updateAlbumCoverImage(
-									coverPayload,
-									galleryId,
-									info.activeAlbumId,
-								);
-							}
+	// 						// Set as album cover if needed
+	// 						if (shouldSetAlbumCover) {
+	// 							await updateAlbumCoverImage(
+	// 								coverPayload,
+	// 								galleryId,
+	// 								info.activeAlbumId,
+	// 							);
+	// 						}
 
-							// Refresh data to show new covers
-							await Promise.all([
-								getAlbumImagesCount(galleryId),
-								getAlbums(galleryId),
-								getGalleries(),
-							]);
+	// 						// Refresh data to show new covers
+	// 						await Promise.all([
+	// 							getAlbumImagesCount(galleryId),
+	// 							getAlbums(galleryId),
+	// 							getGalleries(),
+	// 						]);
 
-							message.success('Cover images set automatically');
-						}
+	// 						message.success('Cover images set automatically');
+	// 					}
 
-						setInfo((prev) => ({
-							...prev,
-							coverImageDetails: imageDetails[1],
-							isLoadingCover: false,
-						}));
+	// 					setInfo((prev) => ({
+	// 						...prev,
+	// 						coverImageDetails: imageDetails[1],
+	// 						isLoadingCover: false,
+	// 					}));
 
-						message.success({
-							content: 'Image uploaded successfully',
-							key: 'coverUpload',
-						});
-						return;
-					}
-				}
-				attempts++;
-			}
-			throw new Error('Image processing timed out');
-		} catch (error) {
-			console.error('Error uploading cover image:', error);
-			message.error({
-				content: error.message || 'Failed to upload cover image',
-				key: 'coverUpload',
-			});
-			setInfo((prev) => ({
-				...prev,
-				isLoadingCover: false,
-			}));
-		}
-	};
+	// 					message.success({
+	// 						content: 'Image uploaded successfully',
+	// 						key: 'coverUpload',
+	// 					});
+	// 					return;
+	// 				}
+	// 			}
+	// 			attempts++;
+	// 		}
+	// 		throw new Error('Image processing timed out');
+	// 	} catch (error) {
+	// 		console.error('Error uploading cover image:', error);
+	// 		message.error({
+	// 			content: error.message || 'Failed to upload cover image',
+	// 			key: 'coverUpload',
+	// 		});
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			isLoadingCover: false,
+	// 		}));
+	// 	}
+	// };
 
 	// ... rest of the code ...
 	// const handleSetCoverPosition = async (focalPoint) => {
@@ -2046,126 +2056,74 @@ const GalleryPage = () => {
 		getImageDetail(null, true, false);
 		setsearchkeys({ uploadImageId: 'image-uploading' });
 
-		message.loading({
+		message.open({
+			type: 'loading',
 			content: 'Uploading Gallery cover image..',
 			duration: 0,
 		});
-
-		// Reset existing image data
 		if (info?.imageURL) {
 			setInfo((prev) => ({
 				...prev,
-				crop: { x: 0, y: 0 },
+				crop: {
+					x: 0,
+					y: 0,
+				},
 				zoom: 1,
 				uploadImageId: null,
 				imageURL: '',
 				coverImageDetails: null,
 			}));
 		}
-
 		const batchId = randomize('Aa0', 10);
 
-		try {
-			// Check for duplicate images
-			const duplicateImage = await getImageDuplicatesList(galleryId, info?.activeAlbumId);
-			const isHavingDuplicateImage = duplicateImage?.[1]?.find(
-				(item) => item?.displayName === image?.name,
-			);
+		const duplicateImage = await getImageDuplicatesList(galleryId, info?.activeAlbumId);
+		const isHavingDuplicateImage = duplicateImage?.[1]?.find(
+			(item) => item?.displayName === image?.name,
+		);
 
-			if (isHavingDuplicateImage) {
-				getImageDetail(isHavingDuplicateImage?._id);
-				setInfo((prev) => ({
-					...prev,
-					uploadImageId: isHavingDuplicateImage?._id,
-				}));
-				message.destroy();
-				return;
-			}
-
-			// Get All tag ID
-			const allTagId = info?.albumTags?.find((item) => item?.displayName === 'All');
-
-			const uploadPayload = {
-				originalFileName: image?.name,
-				originalDateTime: moment(image?.['originalDate']).unix() || 0,
-				uploadBatchId: batchId,
-				tag_ids: [allTagId?._id],
-				isAIFacesEnabled: true,
-			};
-
-			const signedURLUpload = await getUploadImageSignUrl(
-				galleryId,
-				info?.activeAlbumId,
-				uploadPayload,
-			);
-
-			if (signedURLUpload?.[0]) {
-				const uploadResponse = await axios.put(signedURLUpload[1]['signedUrl'], image, {
-					headers: {
-						'Content-Type': image?.type,
-					},
-				});
-
-				const uploadedImageId = signedURLUpload?.[1]?._id;
-
-				// Check if this is the first image or if covers are not set
-				const isFirstImage = !info?.imagesList?.docs?.length;
-				const shouldSetGalleryCover = !info?.activeGallery?.coverImage || isFirstImage;
-				const shouldSetAlbumCover = !info?.activeAlbum?.coverImage || isFirstImage;
-
-				setInfo((prev) => ({
-					...prev,
-					uploadImageId: uploadedImageId,
-					imageURL: '',
-					coverPhoto: true,
-				}));
-
-				if (uploadResponse.status === 200) {
-					// Wait briefly for image processing
-					await new Promise((resolve) => setTimeout(resolve, 2000));
-
-					const imageDetails = await getImageDetail(uploadedImageId);
-
-					if (imageDetails?.[0] && (shouldSetGalleryCover || shouldSetAlbumCover)) {
-						const coverPayload = {
-							image_id: uploadedImageId,
-							xPosition: 0,
-							yPosition: 0,
-							givenFileName: imageDetails[1]?.activeVersion?.givenFileName,
-							width: 100,
-							height: 100,
-							zoom: 1,
-						};
-
-						// Set covers in parallel if needed
-						await Promise.all([
-							shouldSetGalleryCover &&
-								updateGalleryCoverImage(coverPayload, galleryId),
-							shouldSetAlbumCover &&
-								updateAlbumCoverImage(coverPayload, galleryId, info.activeAlbumId),
-						]);
-
-						// Refresh data
-						await Promise.all([
-							getAlbumImagesCount(galleryId),
-							getAlbums(galleryId),
-							getGalleries(),
-						]);
-
-						message.destroy();
-						message.success('Cover images set automatically');
-					}
-				}
-			} else {
-				message.destroy();
-				message.error('Something went wrong, please try again later');
-			}
-		} catch (error) {
-			console.error('Error uploading gallery cover:', error);
+		if (isHavingDuplicateImage) {
+			getImageDetail(isHavingDuplicateImage?._id);
+			setInfo((prev) => ({
+				...prev,
+				uploadImageId: isHavingDuplicateImage?._id,
+			}));
 			message.destroy();
-			message.error('Failed to upload gallery cover');
+			return;
+		}
+
+		const allTagId = info?.albumTags?.find((item) => item?.displayName === 'All');
+		let json = {
+			originalFileName: image?.name,
+			originalDateTime: moment(image?.['originalDate']).unix() || 0,
+			uploadBatchId: batchId,
+			tag_ids: [allTagId?._id],
+			isAIFacesEnabled: true,
+		};
+
+		const signedURLUpload = await getUploadImageSignUrl(galleryId, info?.activeAlbumId, json);
+		if (signedURLUpload?.[0] === true) {
+			const uploadResponse = await axios.put(signedURLUpload[1]['signedUrl'], image, {
+				headers: {
+					'Content-Type': image?.type,
+				},
+			});
+			setInfo((prev) => ({
+				...prev,
+				uploadImageId: signedURLUpload?.[1]?._id,
+				imageURL: '',
+				coverPhoto: true,
+			}));
+
+			if (uploadResponse.status === 200) {
+				getImageDetails(signedURLUpload?.[1]?._id, batchId);
+			}
+		} else {
+			message.destroy();
+			message.error('Something went wrong, please try again later');
 		}
 	};
+
+	// ... existing code ...
 
 	// ... existing code ...
 
@@ -2182,8 +2140,20 @@ const GalleryPage = () => {
 				key: 'coverUpdate',
 			});
 
-			// Get the current image details
-			const currentImage = info?.coverImageDetails;
+			// Determine the current image based on different scenarios
+			let currentImage;
+			if (info?.selectedImages?.length === 1) {
+				// Case 1: Selected image from gallery
+				currentImage = info?.imagesList?.docs?.find(
+					(img) => img._id === info.selectedImages[0],
+				);
+			} else if (info?.uploadImageId) {
+				// Case 2: Newly uploaded image
+				currentImage = imageDetail;
+			} else {
+				// Case 3: Existing cover image
+				currentImage = info?.coverImageDetails;
+			}
 
 			if (!currentImage?._id || !currentImage?.activeVersion?.givenFileName) {
 				throw new Error('Invalid image details for cover update');
@@ -2199,9 +2169,7 @@ const GalleryPage = () => {
 				zoom: info?.zoom || 1,
 			};
 
-			// Log the payload for debugging
-			console.log('Cover update payload:', payload);
-
+			// Make the appropriate API call based on cover type
 			const response =
 				info.coverType === 'gallery'
 					? await updateGalleryCoverImage(payload, galleryId)
@@ -2217,34 +2185,33 @@ const GalleryPage = () => {
 				};
 
 				// Update state
-				setInfo((prev) => {
-					const updates = {
-						showUploadCover: false,
-						uploadImageId: null,
-						imageURL: '',
-						coverImageDetails: updatedCoverImage,
-						crop: {
-							x: focalPoint?.x || 0,
-							y: focalPoint?.y || 0,
-						},
-						zoom: info?.zoom || 1,
-					};
-
+				setInfo((prev) => ({
+					...prev,
+					showUploadCover: false,
+					uploadImageId: null,
+					imageURL: '',
+					coverImageDetails: updatedCoverImage,
+					selectedImages: [], // Clear selected images
+					crop: {
+						x: focalPoint?.x || 0,
+						y: focalPoint?.y || 0,
+					},
+					zoom: info?.zoom || 1,
 					// Update the appropriate cover
-					if (info.coverType === 'gallery') {
-						updates.activeGallery = {
-							...prev.activeGallery,
-							coverImage: updatedCoverImage,
-						};
-					} else {
-						updates.activeAlbum = {
-							...prev.activeAlbum,
-							coverImage: updatedCoverImage,
-						};
-					}
-
-					return { ...prev, ...updates };
-				});
+					...(info.coverType === 'gallery'
+						? {
+								activeGallery: {
+									...prev.activeGallery,
+									coverImage: updatedCoverImage,
+								},
+						  }
+						: {
+								activeAlbum: {
+									...prev.activeAlbum,
+									coverImage: updatedCoverImage,
+								},
+						  }),
+				}));
 
 				// Refresh data
 				await Promise.all(
@@ -2256,7 +2223,9 @@ const GalleryPage = () => {
 				);
 
 				message.success({
-					content: 'Cover position updated successfully',
+					content: `${
+						info.coverType === 'gallery' ? 'Gallery' : 'Album'
+					} cover updated successfully`,
 					key: 'coverUpdate',
 				});
 			} else {
@@ -2274,6 +2243,9 @@ const GalleryPage = () => {
 			}, 1000);
 		}
 	};
+
+	// Initialize the processing flag
+	handleSetCoverPosition.isProcessing = false;
 
 	const handleAlbumDelete = () => {
 		const payload = {
@@ -2596,13 +2568,11 @@ const GalleryPage = () => {
 			if (info?.activeGallery?.coverImage?.givenFileName) {
 				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info.activeGallery.coverImage.givenFileName}?${params}`;
 			}
-			return GridImage;
 		} else if (info.coverType === 'album') {
 			// Use album cover
 			if (info?.activeAlbum?.coverImage?.givenFileName) {
 				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info?.activeAlbum?.coverImage?.givenFileName}?${params}`;
 			}
-			return GridImage;
 		}
 		return null;
 	};
@@ -2625,34 +2595,9 @@ const GalleryPage = () => {
 					? info?.activeGallery?.coverImage
 					: info?.activeAlbum?.coverImage;
 
-			// If we have a selected image, use that
-			if (info?.selectedImages?.length === 1) {
-				const selectedImage = info?.imagesList?.docs?.find(
-					(img) => img._id === info?.selectedImages[0],
-				);
-
-				if (selectedImage?.activeVersion?.givenFileName) {
-					const imageURL = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-
-					setInfo((prev) => ({
-						...prev,
-						isLoadingCover: false,
-						uploadImageId: selectedImage._id,
-						imageURL: imageURL,
-						coverImageDetails: selectedImage,
-						crop: {
-							x: selectedImage?.xPosition || 0,
-							y: selectedImage?.yPosition || 0,
-						},
-						zoom: selectedImage?.zoom || 1,
-					}));
-					return;
-				}
-			}
-
-			// If no selected image but we have a current cover, use that
-			if (currentCover?._id && currentCover?.givenFileName) {
-				const imageURL = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${currentCover.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+			// If we have a current cover and credentials, set up the preview
+			if (currentCover?.givenFileName && galleryCredentials) {
+				const imageURL = `${galleryCredentials.baseURL}/${tenantAlbums.tenant_id}/${galleryId}/optimized/${currentCover.givenFileName}?Key-Pair-Id=${galleryCredentials['Key-Pair-Id']}&Signature=${galleryCredentials.Signature}&Policy=${galleryCredentials.Policy}`;
 
 				setInfo((prev) => ({
 					...prev,
@@ -2682,6 +2627,30 @@ const GalleryPage = () => {
 					crop: { x: 0, y: 0 },
 					zoom: 1,
 				}));
+			}
+
+			// If we have a selected image, use that instead
+			if (info?.selectedImages?.length === 1) {
+				const selectedImage = info?.imagesList?.docs?.find(
+					(img) => img._id === info?.selectedImages[0],
+				);
+
+				if (selectedImage?.activeVersion?.givenFileName && galleryCredentials) {
+					const imageURL = `${galleryCredentials.baseURL}/${tenantAlbums.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials['Key-Pair-Id']}&Signature=${galleryCredentials.Signature}&Policy=${galleryCredentials.Policy}`;
+
+					setInfo((prev) => ({
+						...prev,
+						isLoadingCover: false,
+						uploadImageId: selectedImage._id,
+						imageURL: imageURL,
+						coverImageDetails: selectedImage,
+						crop: {
+							x: selectedImage?.xPosition || 0,
+							y: selectedImage?.yPosition || 0,
+						},
+						zoom: selectedImage?.zoom || 1,
+					}));
+				}
 			}
 		} catch (error) {
 			console.error('Error opening cover upload:', error);
