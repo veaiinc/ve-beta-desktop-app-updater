@@ -25,7 +25,7 @@ const DropDrownMenu = ({ info, setInfo }) => {
 		<div
 			className="closedDropDownMenu"
 			style={{
-				width: '180px',
+				width: '228px',
 			}}
 		>
 			{newBtnActions?.map((option, index) => (
