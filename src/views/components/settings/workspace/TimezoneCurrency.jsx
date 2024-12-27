@@ -2,7 +2,7 @@ import { useState, memo } from 'react';
 import ReusableButtonSettings from '../ReusableButtonSettings';
 import { ReactComponent as GlobeSettings } from '../../../../assets/svg/workspaceSettings/globeSettings.svg';
 import TimezoneCurrencypopups from './TimezoneCurrencypopups';
-
+import getSymbolFromCurrency from 'currency-symbol-map';
 const TimeZoneCurrencyComponent = ({ overviewState }) => {
 	const [openPopup, setopenPopup] = useState(false);
 	const [popupType, setpopupType] = useState(null);
@@ -41,9 +41,14 @@ const TimeZoneCurrencyComponent = ({ overviewState }) => {
 					</p>
 				</div>
 				<div>
+					{console.log('overviewState?.currency', overviewState?.currency)}
 					<ReusableButtonSettings
-						text={overviewState?.currency}
-						icon={'₹'}
+						text={
+							getSymbolFromCurrency(overviewState?.currency) +
+							' ' +
+							overviewState?.currency
+						}
+						// icon={getSymbolFromCurrency(overviewState?.currency)}
 						downArrow={false}
 						disableHover={true}
 						// func={() => {
