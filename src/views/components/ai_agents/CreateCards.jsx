@@ -3,6 +3,10 @@ import React, { memo, useCallback, useContext, useEffect, useState } from 'react
 import '../../../assets/scss/ai_agents/customCards.scss';
 import { ReactComponent as Loader } from '../../../assets/svg/ai_agents/loader.svg';
 import Context from '../../../context/context';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { FetchMoreLoaderComp } from '../../../helpers';
+import moment from 'moment';
+
 const createCardsOptions = [
 	{ title: 'Proposal', subText: 'Create a Proposal ', dotColor: '#EDA145' },
 	{ title: 'Pitch Deck', subText: 'Create your Brand Pitch Deck ', dotColor: '#F95A2C' },
@@ -67,6 +71,17 @@ const activityCards = [
 	},
 ];
 
+const actionMapper = {
+	update: 'Updated',
+	create: 'Created',
+	upload: 'Uploaded',
+	download: 'Downloaded',
+	view: 'Viewed',
+	share: 'Shared',
+	send: 'Sent',
+	insert: 'Inserted',
+};
+
 const CreateCards = () => {
 	return (
 		<div className="aiAgentsCreatecards">
@@ -112,20 +127,34 @@ const Activity = memo(() => {
 
 	useEffect(() => {
 		if (activityLogs) {
-			handleActivityLogsData(activityCards);
+			handleActivityLogsData(activityLogs);
 		}
 	}, [activityLogs]);
 
-	const handleActivityLogsData = useCallback((incomingData, fetchMore = false) => {
-		const { currentPage, data, hasNextPage } = incomingData;
-		setInfo((prev) => ({
-			...prev,
-			loading: false,
-			activityLogsData: data,
-			hasNextPage,
-			currentPage,
-		}));
-	}, []);
+	useEffect(() => {
+		if (moreActivityLogs) {
+			handleActivityLogsData(moreActivityLogs, true);
+		}
+	}, [moreActivityLogs]);
+
+	const handleActivityLogsData = useCallback(
+		(incomingData, fetchMore = false) => {
+			const { currentPage, data, hasNextPage } = incomingData;
+			let activityLogsData = data;
+			if (fetchMore) {
+				activityLogsData = [...info?.activityLogsData, ...data];
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				loading: false,
+				activityLogsData: activityLogsData,
+				hasNextPage,
+				currentPage,
+			}));
+		},
+		[info],
+	);
 
 	const getActivityLogsData = useCallback(
 		(page, fetchMore = false) => {
@@ -136,10 +165,20 @@ const Activity = memo(() => {
 				},
 			};
 
-			getActivityLogs(payload);
+			getActivityLogs(payload, fetchMore);
 		},
 		[info?.hasNextPage, info?.loading],
 	);
+
+	const fetchMoreActivityLogs = useCallback(() => {
+		if (info?.hasNextPage) {
+			getActivityLogsData(info?.page + 1, true);
+		}
+	}, [info?.page, info?.hasNextPage]);
+
+	const formatTimestamp = (timestamp) => {
+		return moment.unix(timestamp).fromNow();
+	};
 
 	return (
 		<div className="aiAgentsAcitivityContainer">
@@ -148,18 +187,40 @@ const Activity = memo(() => {
 				<Loader />
 			</div>
 
-			<div className="aiAgentsactivityCardsholder">
-				{activityCards?.map((ele, index) => (
-					<div className="aiAgentsActivityCards" key={index}>
-						<span className="aiAgentsActivityCardsHeaderText">{ele?.title}</span>
-						<div className="aiAgentsActivityCardsSubTextHolder">
-							<span className="aiAgentsActivityCardssubTextStyling">
-								{ele?.subtext}
+			<div style={{ width: '100%' }}>
+				<InfiniteScroll
+					dataLength={info?.activityLogsData?.length || 0}
+					next={fetchMoreActivityLogs}
+					hasMore={info?.hasNextPage}
+					loader={<FetchMoreLoaderComp />}
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						gap: '8px',
+						width: '100%',
+					}}
+					height={'340px'}
+					className="activityLogsInifiniteScroll"
+				>
+					{info?.activityLogsData?.map((ele, index) => (
+						<div className="aiAgentsActivityCards" key={index}>
+							<span
+								className="aiAgentsActivityCardsHeaderText"
+								style={{ textTransform: 'capitalize' }}
+							>
+								{`${actionMapper?.[ele?.action] || ele?.action} ${ele?.entity}`}
 							</span>
-							<span className="aiAgentsActivityCardTime">{ele?.time}</span>
+							<div className="aiAgentsActivityCardsSubTextHolder">
+								<span className="aiAgentsActivityCardssubTextStyling">
+									{ele?.userName}
+								</span>
+								<span className="aiAgentsActivityCardTime">
+									{formatTimestamp(ele?.timestamp)}
+								</span>
+							</div>
 						</div>
-					</div>
-				))}
+					))}
+				</InfiniteScroll>
 			</div>
 		</div>
 	);
