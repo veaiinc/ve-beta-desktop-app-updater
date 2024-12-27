@@ -161,12 +161,23 @@ export const AiOptions = [
 		route: '/ai-agents/home/da-vinci',
 		image: DaVinci,
 		subModules: [
-			{ icon: TaskSvg, route: '/ai-agents/home/da-vinici', name: 'Home' },
-			{ icon: DaVinciJobsSvg, route: '/ai-agents/jobs/:agent-name', name: 'Jobs' },
+			{
+				icon: TaskSvg,
+				route: '/ai-agents/home/da-vinici',
+				name: 'Home',
+				description: 'Da Vinci',
+			},
+			{
+				icon: DaVinciJobsSvg,
+				route: '/ai-agents/jobs/:agent-name',
+				name: 'Jobs',
+				description: 'Da Vinci',
+			},
 			{
 				icon: DaVinciSetupSvg,
 				route: '/ai-agents/setup/da-vinici',
 				name: 'Setup',
+				description: 'Da Vinci',
 			},
 		],
 	},
