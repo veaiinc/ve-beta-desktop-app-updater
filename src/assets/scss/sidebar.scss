@@ -3,8 +3,8 @@
 	display: flex;
 	height: 93vh;
 	position: relative;
-	transition: all 0.5s;
 	z-index: 1000;
+	transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 	&.opened {
 		height: 100dvh !important;
 		position: relative;
@@ -12,12 +12,12 @@
 		margin-left: -32px !important;
 		padding: 0 !important;
 		margin-right: 10px !important;
-		transition: all 0.7s;
+		transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 		// border: 1px solid rgba(255, 255, 255, 0.1);
 	}
 
 	&.no-submodules:not(.opened) {
-		height: 25dvh !important;
+		height: 93dvh !important;
 	}
 	&.has-submodules {
 		height: 93dvh !important;
@@ -29,12 +29,11 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		transition: width 0.5s;
 		overflow-y: auto;
-		transition: all 0.5s ease-in-out;
+		transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 		z-index: 1;
 		scrollbar-width: none; // Hide Firefox scrollbar
-		-ms-overflow-style: none; // Hide IE scrollbar
+		-ms-overflow-style: none; // Hide IE scrollbarf
 		&::-webkit-scrollbar {
 			display: none; // Hide Chrome/Safari/Opera scrollbar
 		}
@@ -42,6 +41,7 @@
 			border-radius: 0px !important;
 			height: 100dvh !important;
 			width: 250px !important;
+			transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 		}
 		.closedSideBarComponent {
 			display: flex;
@@ -49,7 +49,8 @@
 			justify-content: space-between;
 			align-items: center;
 			min-height: inherit;
-			padding: 10px 10px 18px 10px;
+			width: 56px;
+			padding: 7px 7px 24px 7px;
 			border-radius: inherit;
 			z-index: 1;
 			border: none !important;
@@ -61,6 +62,12 @@
 				align-items: center;
 				justify-content: center;
 				cursor: pointer;
+				transform: rotate(0deg); // Initial state
+				transition: transform 0.4s ease; // Smooth transition for both directions
+
+				&.plusIconHover {
+					transform: rotate(180deg);
+				}
 
 				svg {
 					transition: all 0.5s;
@@ -79,8 +86,8 @@
 					rgba(255, 255, 255, 0.11) -9.68%,
 					rgba(0, 0, 0, 0.05) 98.65%
 				);
-				box-shadow: 2px 2px 4px 0px #151515 inset, -2px -2px 4px 0px #212121 inset;
-				filter: drop-shadow(1px 1px 2px rgba(14, 14, 14, 0.7));
+				// box-shadow: 2px 2px 4px 0px #151515 inset, -2px -2px 4px 0px #212121 inset;
+				// filter: drop-shadow(1px 1px 2px rgba(14, 14, 14, 0.7));
 				position: relative;
 				cursor: pointer;
 
@@ -94,15 +101,15 @@
 					position: relative;
 					background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
 					// mix-blend-mode: lighten;
-					box-shadow: none;
+					// box-shadow: none;
 
-					.svgDiv {
-						position: absolute;
-						inset: 0;
-					}
+					// .svgDiv {
+					// 	position: absolute;
+					// 	inset: 0;
+					// }
 
 					&:hover {
-						background: #1d1d1d;
+						background: #202123;
 						border: none;
 					}
 				}
@@ -110,7 +117,9 @@
 			.ClosedIconsContainer {
 				display: flex;
 				flex-direction: column;
-				gap: 10px;
+				justify-content: center;
+				align-items: center;
+				gap: 24px;
 
 				.iconContainer {
 					cursor: pointer;
@@ -119,23 +128,19 @@
 					height: 23px;
 					width: 23px;
 
-					&.selected {
-						background-color: #89ac4f !important;
-						border-radius: 50%;
-						padding: 12px;
-					}
+					// &.selected {
+					// 	background-color: #89ac4f !important;
+					// 	border-radius: 50%;
+					// 	padding: 12px;
+					// }
 				}
 			}
 
 			.TabOptions {
 				display: flex;
 				flex-direction: column;
-				gap: 24px;
-				.plusIconHover {
-					svg {
-						rotate: 180deg;
-					}
-				}
+				width: 100%;
+				// align-items: center;
 
 				.activeWorkspaceDiv {
 					width: 30px;
@@ -149,6 +154,13 @@
 						height: 100%;
 						border-radius: 100px;
 					}
+				}
+				.sidebarClosingSvg {
+					cursor: pointer;
+					align-self: center;
+					justify-self: center;
+					height: 20px;
+					width: 20px;
 				}
 			}
 		}
@@ -180,9 +192,9 @@
 			height: 100vh;
 			width: 250px;
 			border-radius: inherit;
-			transition: height 0.8s ease;
+			transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 			padding-bottom: 28px;
-			overflow-x: hidden;
+			overflow-x: hidden !important;
 			.allmodulesList,
 			.bottomOptionsList {
 				.creditsLeft {
@@ -195,6 +207,7 @@
 					border-radius: 12px;
 					margin-top: 10px;
 					margin-bottom: 10px;
+					overflow-x: hidden !important;
 					// &:hover {
 					//  background: #2e2f33;
 					//  opacity: 0.5;
@@ -251,14 +264,14 @@
 							margin-top: 2px;
 							color: #e8e8e8;
 							padding: 10px 10px 10px 24px;
-
+							overflow-x: hidden;
 							// gap: 5px;
 							&:hover {
-								background: #2c2d2e;
+								background: #2e2f33;
 								border-radius: var(--Radius-lg, 24px);
 							}
 							&:active {
-								background: #2c2d2e;
+								background: #2e2f33;
 								border-radius: 24px;
 							}
 							.subitem-content {
@@ -323,11 +336,13 @@
 			}
 
 			.topOptionsList {
-				width: 218px;
+				width: 238px;
 				display: flex;
 				flex-direction: column;
+				align-items: center;
 				height: 90vh !important;
 				overflow-y: scroll;
+				overflow-x: hidden !important;
 				-ms-overflow-style: none;
 				scrollbar-width: none;
 				&::-webkit-scrollbar {
@@ -340,8 +355,9 @@
 					display: flex;
 					justify-content: space-between;
 					align-items: center;
-					width: 218px;
-					padding: 32px 8px;
+					width: 240px;
+					margin-left: 0px;
+					padding: 24px 16px;
 					.workspaceDetailsDiv {
 						display: flex;
 						align-items: center;
@@ -545,61 +561,103 @@
 					}
 				}
 			}
+			.openSideBarComponent::-webkit-scrollbar {
+				display: none; /* Chrome, Safari and Opera */
+				width: 0;
+			}
 		}
 
 		.workspaceListComponent {
-			padding: 24px 12px;
+			padding: 8px;
 			display: flex;
 			flex-direction: column;
-			gap: 21px;
+			gap: 4px;
 			overflow-y: auto;
-			max-height: 94vh;
+			max-height: 95vh;
 			overflow-x: hidden;
 			margin-right: 10px;
-			width: 238px;
+			width: 228px;
+			background: #202123;
+			border: none;
+			position: relative;
+			z-index: 999;
+			border-radius: 16px;
 			-ms-overflow-style: none; // Hide scrollbar IE
 			scrollbar-width: none; // Hide scrollbar Firefox
 			&::-webkit-scrollbar {
 				display: none; // Hide scrollbar Chrome/Safari/Opera
+			}
+			.workspaceListHeader {
+				position: sticky;
+				top: 0;
+				gap: 4px;
+				z-index: 2;
+				display: flex;
+				flex-direction: column;
+				.searchContainer {
+					display: flex;
+					position: relative;
+					align-items: center;
+					padding-left: 12px;
+					border-radius: 12px;
+					background: #2e2f33;
+					border: none;
+				}
 			}
 			.backContinaer {
 				display: flex;
 				align-items: center;
 				gap: 10px;
 				cursor: pointer;
+				padding: 12px;
 				h6 {
 					color: #e8e8e8;
 					text-align: right;
 					font-family: Inter;
-					font-size: 12px;
+					font-size: 14px;
 					font-style: normal;
-					font-weight: 400;
+					font-weight: 500;
 					line-height: normal;
-					letter-spacing: -0.3px;
 				}
 			}
 			.searchWorkspace {
 				width: 100%;
-				padding: 12px 16px;
-				border-radius: 100px;
+				padding: 12px;
+				border-radius: 12px;
 				background: #2e2f33;
-				border: 1px solid #3a3b3d;
-				color: #e8e8e8;
+				border: none;
+				color: #939393;
+				font-size: 14px;
+				font-weight: 500;
+				line-height: normal;
 			}
 
 			.workspaceList {
 				display: flex;
 				flex-direction: column;
+				justify-content: center;
+				align-items: center;
 				gap: 4px;
 				width: 100%;
+				overflow-y: auto;
+				overflow-x: hidden;
+				-ms-overflow-style: none;
+				scrollbar-width: none;
 
+				&::-webkit-scrollbar {
+					display: none !important;
+					scrollbar-width: none !important;
+				}
+				.singleWorkspace:first-child {
+					margin-top: 12px;
+				}
 				.singleWorkspace {
 					display: flex;
 					flex-direction: row;
 					justify-content: space-between;
 					align-items: center;
-					width: 208px;
-					padding: 12px;
+					width: 212px;
+					padding: 8px 12px;
 					align-items: center;
 					.workspaceName {
 						white-space: nowrap;
@@ -610,11 +668,11 @@
 						width: 24px;
 						height: 24px;
 						border-radius: 50%;
-						background: #1d1d1d;
+						// background: #1d1d1d;
 						display: flex;
 						align-items: center;
 						justify-content: center;
-						background: #2b2b2b;
+						// background: #2b2b2b;
 						cursor: pointer;
 
 						p {
@@ -625,7 +683,6 @@
 							font-style: normal;
 							font-weight: 500;
 							line-height: normal;
-							letter-spacing: -0.3px;
 						}
 
 						img {
@@ -648,12 +705,12 @@
 							font-weight: bolder;
 							line-height: normal;
 							text-transform: uppercase;
-							background-color: #f85d04;
+							background-color: #38393e;
 						}
 					}
 
 					h6 {
-						color: #7d7d7d;
+						color: #e8e8e8;
 						text-align: flex-start;
 						font-family: Inter;
 						font-size: 14px;
@@ -663,7 +720,7 @@
 					}
 					&:hover {
 						border-radius: var(--Radius-lg, 12px);
-						background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
+						background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2e2f33);
 						cursor: pointer;
 						p {
 							color: #e4e5e6;
@@ -683,10 +740,10 @@
 
 				.activeWorkspace {
 					position: relative;
-					background-color: #2c2d2e; /* Or your preferred color */
+					background-color: #2e2f33; /* Or your preferred color */
 					border-radius: 12px;
 					.workSpaceCircle {
-						background: #6055ec;
+						// background: #6055ec;
 
 						p {
 							color: #e4e5e6;
@@ -702,22 +759,34 @@
 						right: 0;
 					}
 				}
+				.workspaceListFooter {
+					position: sticky;
+					bottom: -0%;
+					width: 100%;
+					background: #202123;
+					z-index: 2;
+					padding: 0px;
+					display: flex;
+					flex-direction: column;
+					gap: 4px;
+				}
 			}
 		}
 	}
 }
 
-// .sidebar__overlay {
-//  position: absolute;
-//  top: 0;
-//  left: 0;
-//  right: 0;
-//  bottom: 0;
-//  background-color: transparent;
-//  width: 100%;
-//  height: 100%;
-//  cursor: pointer;
-//  z-index: 500;
+// .workSpaceOverlay {
+// 	position: absolute;
+// 	top: 0;
+// 	left: 0;
+// 	right: 0;
+// 	bottom: 0;
+// 	background-color: #0a0a0b;
+// 	opacity: 0.5;
+// 	width: 100%;
+// 	height: 100%
+// 	cursor: pointer;
+// 	z-index: 500;
 // }
 
 @keyframes sidebarEntrance {
@@ -768,14 +837,14 @@
 			.openSideBarComponent {
 				width: 100vw !important;
 				.topOptionsList {
-					width: 90vw !important;
+					width: 100vw !important;
 					.veAiLogoDiv {
-						width: 100% !important;
+						width: 100vw !important;
 						padding: 32px 32px 32px 20px;
 					}
 				}
 				.singleModuleItem {
-					width: 100% !important;
+					width: 100vw !important;
 				}
 				.bottomOptionsList {
 					width: 90vw !important;
@@ -840,7 +909,7 @@
 @media screen and (min-width: 1024px) and (max-width: 1599px) {
 	.FullScreenSidebar {
 		&.no-submodules:not(.opened) {
-			height: 30dvh !important;
+			height: 93dvh !important;
 		}
 	}
 }
@@ -848,7 +917,7 @@
 @media screen and (min-width: 1600px) and (max-width: 2280px) {
 	.FullScreenSidebar {
 		&.no-submodules:not(.opened) {
-			height: 30dvh !important;
+			height: 93dvh !important;
 		}
 	}
 }
@@ -868,26 +937,25 @@
 	display: flex;
 	flex-direction: column;
 	width: inherit;
-	border-radius: 10px;
-	border: 1px solid rgba(100, 100, 100, 0.16);
-	background: #151515;
-	padding: 0px 0px;
+	border-radius: 16px;
+	background: #202123;
+	align-items: flex-start;
+	// padding: 8px;
 	overflow: hidden;
-
+	gap: 4px;
 	> div {
 		color: #e4e5e6;
 		text-overflow: ellipsis;
 		font-family: Inter;
 		font-size: 14px;
 		font-style: normal;
-		font-weight: 400;
-		line-height: 16px;
-		letter-spacing: -0.3px;
-		padding: 12px 24px;
+		font-weight: 500;
+		padding: 20px;
+		align-self: stretch;
 		cursor: pointer;
 		transition: all 0.3s;
 		&:hover {
-			background: #5d43fb;
+			background: #6055ec;
 		}
 	}
 }

@@ -4,5 +4,101 @@
 	height: calc(100vh - 110px);
 	display: flex;
 	flex-direction: column;
-	gap: 36px;
+	gap: 24px;
+
+	.aiAgentsJobHeaderContainer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+
+		.aiAgentsJobsTitle {
+			color: #e8e8e8;
+			color: color(display-p3 0.9098 0.9098 0.9098);
+			font-family: Inter;
+			font-size: 24px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.searchBtn {
+			display: flex;
+			width: 36px;
+			transform: rotate(-0.037deg);
+			padding: 10px;
+			align-items: center;
+			gap: 10px;
+			flex-shrink: 0;
+			border-radius: 100px;
+			background: rgba(36, 36, 36, 0.64);
+			cursor: pointer;
+			transition: all 0.3s ease;
+			// position: absolute;
+			// right: 16px;
+
+			.inputAndCloseContainer {
+				display: none;
+				transition: all 0.3s ease;
+				.searchInputTag {
+					flex: 1;
+					background-color: transparent;
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 16px; /* 123.077% */
+					letter-spacing: 0.26px;
+					transition: all 0.3s ease;
+					border: none;
+				}
+			}
+		}
+
+		.searchExpand {
+			display: flex;
+			width: 366px;
+			opacity: 1;
+			z-index: 99;
+
+			.inputAndCloseContainer {
+				display: flex;
+				flex: 1;
+				gap: 10px;
+				align-items: center;
+			}
+		}
+	}
+
+	.aiAgentsJobsTabContainer {
+		display: flex;
+		align-items: flex-start;
+		gap: 24px;
+		align-self: stretch;
+
+		.aiAgentsJobsTabButtons {
+			display: flex;
+			padding: 12px 0px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			// border-radius: 3px;
+			// border-bottom: 2px solid var(--Primary-Font-Color, #e8e8e8);
+			// border-bottom: 2px solid
+			// 	var(--Primary-Font-Color, color(display-p3 0.9098 0.9098 0.9098));
+			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+			color: var(
+				--ve-ai-dark-theme-primary-font-color,
+				color(display-p3 0.9098 0.9098 0.9098)
+			);
+
+			/* Body/Body Text - 16 */
+			font-family: Inter;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+		}
+	}
 }
