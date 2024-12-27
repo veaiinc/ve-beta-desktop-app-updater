@@ -940,7 +940,7 @@
 	border-radius: 16px;
 	background: #202123;
 	align-items: flex-start;
-	padding: 8px;
+	// padding: 8px;
 	overflow: hidden;
 	gap: 4px;
 	> div {
@@ -950,12 +950,12 @@
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
-		padding: 12px;
+		padding: 20px;
 		align-self: stretch;
 		cursor: pointer;
 		transition: all 0.3s;
 		&:hover {
-			background: #2e2f33;
+			background: #6055ec;
 		}
 	}
 }

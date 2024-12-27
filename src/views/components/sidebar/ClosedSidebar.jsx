@@ -490,7 +490,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 								/>
 							</div> */}
 
-							<div
+							{/* <div
 								style={{
 									display: 'flex',
 									flexDirection: 'column',
@@ -541,7 +541,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 										</div>
 									</Tooltip>
 								))}
-							</div>
+							</div> */}
 
 							<div
 								style={{

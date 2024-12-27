@@ -439,7 +439,7 @@ const OpenedSideBarItemsComponent = ({
 										/>
 									</div>
 								)}
-								{AiOptions.map((singleItem, index) => {
+								{/* {AiOptions.map((singleItem, index) => {
 									return (
 										<div key={index} style={{ padding: '8px 16px' }}>
 											<AiModulesList
@@ -453,7 +453,7 @@ const OpenedSideBarItemsComponent = ({
 											/>
 										</div>
 									);
-								})}
+								})} */}
 								<hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} />
 								{veAiModulesItemsList?.map((singleItems, index) => (
 									<div key={index}>
