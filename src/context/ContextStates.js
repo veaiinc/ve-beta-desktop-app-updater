@@ -1,16 +1,11 @@
-import React from 'react';
+import React, { memo } from 'react';
 import Context from './context';
-import CombineState from './CombineState';
+import useCombineState from './CombineState';
+
 const ContextState = (props) => {
-	return (
-		<Context.Provider
-			value={{
-				...CombineState(),
-			}}
-		>
-			{props.children}
-		</Context.Provider>
-	);
+	const combinedState = useCombineState();
+
+	return <Context.Provider value={combinedState}>{props.children}</Context.Provider>;
 };
 
-export default ContextState;
+export default memo(ContextState);
