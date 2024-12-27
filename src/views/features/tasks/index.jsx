@@ -54,7 +54,7 @@ const Tasks = () => {
 
 	const responseMetadata = useMemo(
 		() => ({
-			title: { isTitle: true, type: 'text', name: 'Title', Icon: textSvg, props: {} },
+			title: { type: 'text', name: 'Title', Icon: textSvg, props: {} },
 			description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
 			status: { type: 'status', name: 'Status', Icon: PieSvg, props: {} },
 			priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg, props: {} },
@@ -63,6 +63,19 @@ const Tasks = () => {
 				name: 'Workflow',
 				Icon: WorkflowSvg,
 				props: { options: info?.workflows },
+			},
+			parentTask: {
+				type: 'parentTask',
+				name: 'Parent Task',
+				Icon: WorkflowSvg,
+				props: { options: info?.parentTasks },
+			},
+			childTasks: {
+				type: 'childTasks',
+				name: 'Sub Tasks',
+				Icon: WorkflowSvg,
+				doSplit: true,
+				props: {},
 			},
 			assignedTo: {
 				type: 'person',
@@ -209,6 +222,13 @@ const Tasks = () => {
 			);
 		}
 	}, [info?.listItems, info?.selectedRow]);
+
+	// useEffect(() => {
+	// 	if (info.updated && !info.sidebarIsOpen) {
+	// 		fetchListItems();
+	// 		setInfo((prev) => ({ ...prev, updated: false }));
+	// 	}
+	// }, [info.sidebarIsOpen, info.updated]);
 
 	const fetchListItems = useCallback(() => {
 		getListItems({
@@ -359,6 +379,9 @@ const Tasks = () => {
 						};
 					});
 				}
+				if (!info?.sidebarIsOpen) {
+					fetchListItems();
+				}
 			} catch (error) {
 				message.error(error?.message || 'Something went wrong! Please try again.');
 
@@ -377,7 +400,7 @@ const Tasks = () => {
 				});
 			}
 		},
-		[updateListItem, info?.workflows, info?.selectedSubTask],
+		[updateListItem, info?.workflows, info?.selectedSubTask, info?.sidebarIsOpen],
 	);
 
 	const handleDebounceUpdate = useCallback(
@@ -409,9 +432,14 @@ const Tasks = () => {
 				if (info?.selectedSubTask) {
 					setInfo((prevInfo) => ({
 						...prevInfo,
+						updated: true,
 						selectedSubTask: { ...info?.selectedSubTask, [propName]: updatedValue },
 					}));
 				}
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					updated: true,
+				}));
 				updateSubTask({ _id: rowId, [propName]: updatedValue });
 			} else {
 				setInfo((prevInfo) => {
@@ -477,11 +505,9 @@ const Tasks = () => {
 						newTask.updatedBy = { _id: user_id, name: userName };
 						if (info?.isCreatingSubtask) {
 							addSubTask(newTask);
-						} else {
-							message.success('Task added successfully');
-							// updateListViewInfo('loadingSkeleton', true);
-							fetchListItems();
 						}
+						message.success('Task added successfully');
+						fetchListItems();
 					}
 				} else {
 					throw new Error('Failed to add new task');

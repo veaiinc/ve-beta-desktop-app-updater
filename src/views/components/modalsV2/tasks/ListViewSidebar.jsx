@@ -38,10 +38,19 @@ const ListViewSidebar = ({
 		completedSubtaskCount: 0,
 	});
 
-	const [localTitle, setLocalTitle] = useState(selectedRow?.title || '');
-	const [localDescription, setLocalDescription] = useState(selectedRow?.description || '');
+	const [localTitle, setLocalTitle] = useState('');
+	const [localDescription, setLocalDescription] = useState('');
 	const titleDebounceRef = useRef(null);
 	const descriptionDebounceRef = useRef(null);
+
+	useEffect(() => {
+		if (selectedRow?.title !== localTitle) {
+			setLocalTitle(selectedRow?.title || '');
+		}
+		if (selectedRow?.description !== localDescription) {
+			setLocalDescription(selectedRow?.description || '');
+		}
+	}, [selectedRow?._id]);
 
 	const debouncedTitleUpdate = useCallback(
 		(value) => {
@@ -166,6 +175,8 @@ const ListViewSidebar = ({
 						'completedAt',
 						'taskSlNo',
 						'workflowId',
+						'parentTask',
+						'childTasks',
 						isShowingSubTask && 'workflow',
 					].includes(key)
 				) {

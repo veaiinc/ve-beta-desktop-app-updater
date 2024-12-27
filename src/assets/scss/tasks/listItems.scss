@@ -23,7 +23,7 @@
 .listItem-text {
 	color: #e4e5e6;
 	font-family: Inter;
-	font-size: 13px;
+	font-size: 14px;
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
@@ -271,5 +271,39 @@
 	&:placeholder {
 		color: #e4e5e6 !important;
 		opacity: 1;
+	}
+}
+
+.parent-task-component {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	.parent-task-title {
+		overflow: hidden;
+		color: #939393;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		max-width: 350px;
+	}
+}
+
+.child-task-progress {
+	display: flex;
+	padding: 4px 6px;
+	align-items: center;
+	gap: 6px;
+
+	.child-task-progress-count {
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
 	}
 }

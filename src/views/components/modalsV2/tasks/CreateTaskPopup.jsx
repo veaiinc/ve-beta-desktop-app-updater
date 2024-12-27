@@ -189,7 +189,7 @@ const CreateTaskPopup = ({
 						{info?.isLoading ? (
 							<Spinner width={'20px'} height={'20px'} />
 						) : (
-							'Create issue'
+							'Create Task'
 						)}
 					</button>
 				</div>
