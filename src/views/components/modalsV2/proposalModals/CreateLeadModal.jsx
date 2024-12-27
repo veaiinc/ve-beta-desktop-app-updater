@@ -105,19 +105,27 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	}, [templatesListForCreateLead]);
 
 	useEffect(() => {
-		if (info?.clientData?.length && info?.existingLeadSource && modalIsOpen) {
+		if (
+			info?.clientData?.length &&
+			info?.existingLeadSource &&
+			(modalIsOpen || createLeadModalContextState)
+		) {
 			setExistingLeadData();
 		}
-	}, [info?.clientData, info?.existingLeadSource, modalIsOpen]);
+	}, [info?.clientData, info?.existingLeadSource, modalIsOpen, createLeadModalContextState]);
 
 	const setExistingLeadData = useCallback(() => {
-		if (info?.clientData?.length && info?.existingLeadSource && modalIsOpen) {
+		if (
+			info?.clientData?.length &&
+			info?.existingLeadSource &&
+			(modalIsOpen || createLeadModalContextState)
+		) {
 			let { value } = info?.clientData?.[0] || {};
 			value = JSON.parse(value);
 			setSelectedLead(value);
 			handleSelectedLead(value);
 		}
-	}, [info?.clientData, info?.existingLeadSource, modalIsOpen]);
+	}, [info?.clientData, info?.existingLeadSource, modalIsOpen, createLeadModalContextState]);
 
 	const getClientListData = useCallback(() => {
 		const payload = {
