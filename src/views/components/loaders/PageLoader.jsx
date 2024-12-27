@@ -10,7 +10,7 @@ const InitialPageLoader = () => {
 					<Logo className="logoDiv" />
 					<Stick className="stickDiv" />
 				</div>
-				<div className="text">Own Your Future</div>
+				<div className="text">Home of AI Workers</div>
 			</div>
 		</div>
 	);
