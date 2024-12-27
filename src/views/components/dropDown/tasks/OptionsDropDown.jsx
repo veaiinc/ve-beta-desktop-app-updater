@@ -107,7 +107,7 @@ const OptionsDropDown = ({ properties, togglePropertyVisibility }) => {
 									onClick={() => togglePropertyVisibility(index, !property.show)}
 									key={index}
 								>
-									{property.propName}
+									{property?.label}
 								</div>
 						  ))
 						: ''}
