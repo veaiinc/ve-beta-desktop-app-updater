@@ -1,0 +1,68 @@
+.bottomToolbar {
+	width: 231px;
+	height: 48px;
+	flex-shrink: 0;
+	border-radius: 100px;
+	background: #202123;
+	background: color(display-p3 0.1255 0.1294 0.1373);
+	position: absolute;
+	bottom: 44px;
+	left: 50%;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px;
+	transition: width 0.3s ease;
+
+	.bottomToolbarInputs {
+		width: 79px;
+		height: 40px;
+		flex-shrink: 0;
+		border-radius: 100px;
+		background: #161718;
+		background: color(display-p3 0.0863 0.0902 0.0941);
+		outline: none;
+		border: none;
+		padding: 12px;
+		transition: width 0.3s ease;
+		color: #fff;
+		&:focus {
+			width: 160px; // Increased width when focused
+		}
+
+		&::placeholder {
+			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+			color: var(
+				--ve-ai-dark-theme-primary-font-color,
+				color(display-p3 0.9098 0.9098 0.9098)
+			);
+
+			/* Body/Body - 12 px */
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	// When input is focused, increase parent container width
+	&:has(.bottomToolbarInputs:focus) {
+		width: 312px; // Increased width for parent
+	}
+	.quickActionsButtons {
+		width: 40px;
+		height: 40px;
+		flex-shrink: 0;
+		border-radius: 100px;
+		background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
+		background: var(
+			--ve-ai-dark-theme-text-field-stroke-pop-up,
+			color(display-p3 0.1719 0.1753 0.1787)
+		);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		cursor: pointer;
+	}
+}

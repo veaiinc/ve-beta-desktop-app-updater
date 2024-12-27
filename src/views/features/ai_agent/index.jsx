@@ -4,6 +4,7 @@ import { ReactComponent as CircledCross } from '../../../assets/svg/ai_agents/cr
 import { ReactComponent as Search } from '../../../assets/svg/ai_agents/search.svg';
 import AiAgentsCards from '../../components/ai_agents/AiAgentsCards';
 import CreateCards, { Activity, Drafts } from '../../components/ai_agents/CreateCards';
+import BottomToolbar from '../../components/ai_agents/BottomToolbar';
 const tabs = ['all', 'guidence', 'approval', 'suggestions'];
 const cards = [
 	{ cardType: 'workflow', title: 'Workflow Name - 1', type: 'guidance' },
@@ -118,6 +119,7 @@ const AiAgent = () => {
 				<Activity />
 				<Drafts />
 			</div>
+			<BottomToolbar />
 		</div>
 	);
 };
