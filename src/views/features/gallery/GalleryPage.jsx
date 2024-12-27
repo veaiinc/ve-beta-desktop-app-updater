@@ -56,6 +56,7 @@ import DeleteAlbumImagesPopup from '../../components/modalsV2/gallery/DeleteAlbu
 import ToggleSlider from '../../components/input/slider';
 import { Switch } from 'antd';
 import ShowLightRoomCopy from '../../components/modalsV2/gallery/ShowLightRoomCopy';
+import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
 
 const workspaceId = localStorage.getItem('workspaceId');
 const GalleryPage = () => {
@@ -2595,11 +2596,13 @@ const GalleryPage = () => {
 			if (info?.activeGallery?.coverImage?.givenFileName) {
 				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info.activeGallery.coverImage.givenFileName}?${params}`;
 			}
+			return GridImage;
 		} else if (info.coverType === 'album') {
 			// Use album cover
 			if (info?.activeAlbum?.coverImage?.givenFileName) {
 				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info?.activeAlbum?.coverImage?.givenFileName}?${params}`;
 			}
+			return GridImage;
 		}
 		return null;
 	};
@@ -3671,7 +3674,9 @@ const GalleryPage = () => {
 						<div className="galleryViewer">
 							<div className="galleryNavbar">
 								<div className="aboutAlbum">
-									<div className="albumName"></div>
+									<div className="albumName">
+										<p>{info?.activeAlbum?.title}</p>
+									</div>
 									<div className="albumSearchCotainer">
 										<div
 											onClick={() =>
