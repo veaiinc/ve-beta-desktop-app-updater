@@ -76,6 +76,15 @@ const actionHandlers = {
 		...state,
 		moreActivityLogs: action?.payload,
 	}),
+
+	GET_DRAFT_STATE_WORKFLOW_TEMPLATE_SUCCESS: (state, action) => ({
+		...state,
+		draftStateWorkflowtemplates: action?.payload,
+	}),
+	GET_MORE_DRAFT_STATE_WORKFLOW_TEMPLATE_SUCCESS: (state, action) => ({
+		...state,
+		moreDraftStateWorkflowtemplates: action?.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

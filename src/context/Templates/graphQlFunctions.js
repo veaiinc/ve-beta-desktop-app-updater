@@ -36,6 +36,7 @@ export const getTemmplatesQuery = gql`
 				filesSent
 				slug
 				actionRequired
+				createdAt
 			}
 		}
 	}

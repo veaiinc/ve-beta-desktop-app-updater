@@ -108,7 +108,7 @@
 	display: flex;
 	flex: 1;
 	height: 418px;
-	padding: 20px;
+	// padding: 20px;
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 10px;
@@ -125,6 +125,9 @@
 		align-items: center;
 		justify-content: space-between;
 		align-self: stretch;
+		padding-top: 20px;
+		padding-left: 20px;
+		padding-right: 20px;
 
 		.createCardsHeaderTexct {
 			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
@@ -216,5 +219,15 @@
 				line-height: normal;
 			}
 		}
+	}
+	.drafLoaderContainer {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		// background-color: red;
+		align-self: stretch;
+		height: 340px;
+		padding: 0px 20px 0px 20px;
+		gap: 10px;
 	}
 }

@@ -4,9 +4,10 @@ import '../../../assets/scss/ai_agents/customCards.scss';
 import { ReactComponent as Loader } from '../../../assets/svg/ai_agents/loader.svg';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { FetchMoreLoaderComp } from '../../../helpers';
+import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import moment from 'moment';
-
+import Skeleton from 'react-loading-skeleton';
+let origin = fetchOriginSelection();
 const createCardsOptions = [
 	{ title: 'Proposal', subText: 'Create a Proposal ', dotColor: '#EDA145' },
 	{ title: 'Pitch Deck', subText: 'Create your Brand Pitch Deck ', dotColor: '#F95A2C' },
@@ -14,61 +15,6 @@ const createCardsOptions = [
 	{ title: 'Notes', subText: 'Create a Note ', dotColor: '#6055EC' },
 	{ title: 'Schedule', subText: 'Check the Schedule ', dotColor: '#FCD7A5' },
 	{ title: 'New Design', subText: 'Check New Designs for and templates ', dotColor: '#4F8E8D' },
-];
-
-const activityCards = [
-	{
-		title: 'Contract Signed',
-		subtext: 'I am testing',
-		time: '1d ago',
-	},
-	{
-		title: 'Contract Signed',
-		subtext: 'I am testing',
-		time: '1d ago',
-	},
-	{
-		title: 'Contract Signed',
-		subtext: 'I am testing',
-		time: '1d ago',
-	},
-
-	{
-		title: 'Contract Signed',
-		subtext: 'I am testing',
-		time: '1d ago',
-	},
-	{
-		title: 'Contract Signed',
-		subtext: 'I am testing',
-		time: '1d ago',
-	},
-	{
-		title: 'Contract Signed',
-		subtext: 'I am testing',
-		time: '1d ago',
-	},
-	{
-		title: 'Contract Signed',
-		subtext: 'I am testing',
-		time: '1d ago',
-	},
-	{
-		title: 'Contract Signed',
-		subtext: 'I am testing',
-		time: '1d ago',
-	},
-
-	{
-		title: 'Contract Signed',
-		subtext: 'I am testing',
-		time: '1d ago',
-	},
-	{
-		title: 'Contract Signed',
-		subtext: 'I am testing',
-		time: '1d ago',
-	},
 ];
 
 const actionMapper = {
@@ -198,9 +144,9 @@ const Activity = memo(() => {
 						flexDirection: 'column',
 						gap: '8px',
 						width: '100%',
+						padding: '0px 20px 0px 20px',
 					}}
 					height={'340px'}
-					className="activityLogsInifiniteScroll"
 				>
 					{info?.activityLogsData?.map((ele, index) => (
 						<div className="aiAgentsActivityCards" key={index}>
@@ -215,7 +161,7 @@ const Activity = memo(() => {
 									{ele?.userName}
 								</span>
 								<span className="aiAgentsActivityCardTime">
-									{formatTimestamp(ele?.timestamp)}
+									{ele?.timestamp ? formatTimestamp(ele?.timestamp) : ''}
 								</span>
 							</div>
 						</div>
@@ -227,38 +173,152 @@ const Activity = memo(() => {
 });
 
 const Drafts = memo(() => {
+	let {
+		templates: {
+			getDrafStateWorkflowtemplates,
+			draftStateWorkflowtemplates,
+			moreDraftStateWorkflowtemplates,
+		},
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		loading: true,
+		draftData: [],
+		page: 1,
+		hasNextPage: false,
+	});
+
+	useEffect(() => {
+		getDraftStateWorflowTemplateData(1);
+	}, []);
+
+	useEffect(() => {
+		if (draftStateWorkflowtemplates) {
+			handleDraftData(draftStateWorkflowtemplates);
+		}
+	}, [draftStateWorkflowtemplates]);
+
+	useEffect(() => {
+		if (moreDraftStateWorkflowtemplates) {
+			handleDraftData(moreDraftStateWorkflowtemplates, true);
+		}
+	}, [moreDraftStateWorkflowtemplates]);
+
+	const handleDraftData = useCallback(
+		(incomingData, fetchMore = false) => {
+			const { currentPage, data, hasNextPage } = incomingData;
+			let draftData = data;
+			if (fetchMore) {
+				draftData = [...info?.draftData, ...data];
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				loading: false,
+				draftData: draftData,
+				hasNextPage,
+				currentPage,
+			}));
+		},
+		[info],
+	);
+
+	const getDraftStateWorflowTemplateData = useCallback(
+		(page, fetchMore = false) => {
+			const payload = {
+				filters: {
+					limit: 10,
+					page: page,
+					type: 'workspace',
+					status: 'draft',
+					sortBy: 'createdAt',
+					sortType: -1,
+				},
+			};
+
+			getDrafStateWorkflowtemplates(payload, fetchMore);
+		},
+		[info?.hasNextPage, info?.loading],
+	);
+
+	const fetchMoreDraftsData = useCallback(() => {
+		if (info?.hasNextPage) {
+			getDraftStateWorflowTemplateData(info?.page + 1, true);
+		}
+	}, [info?.page, info?.hasNextPage]);
+
+	const formatTimestamp = (timestamp) => {
+		return moment.unix(timestamp).fromNow();
+	};
+
+	const onDraftClick = useCallback((id) => {
+		window.location.href = `${origin}/${id}`;
+	}, []);
+
 	return (
 		<div className="aiAgentsAcitivityContainer">
 			<div className="createCardsHeader">
 				<span className="createCardsHeaderTexct">Drafts</span>
 			</div>
 
-			<div className="aiAgentsactivityCardsholder">
-				{activityCards?.map((ele, index) => (
-					<div
-						className="aiAgentsActivityCards"
-						key={index}
-						style={{ justifyContent: 'center' }}
-					>
-						{/* <span className="aiAgentsActivityCardsHeaderText">{ele?.title}</span> */}
-						<div className="aiAgentsActivityCardsSubTextHolder">
-							<span
-								className="aiAgentsActivityCardssubTextStyling"
-								style={{
-									fontFamily: 'Inter',
-									fontSize: '12px',
-									fontStyle: 'normal',
-									fontWeight: '500',
-									lineHeight: 'normal',
-									color: '#E8E8E8',
-								}}
-							>
-								{ele?.subtext}
-							</span>
-							<span className="aiAgentsActivityCardTime">{ele?.time}</span>
-						</div>
+			<div style={{ width: '100%' }}>
+				{info?.loading ? (
+					<div className="drafLoaderContainer">
+						{[{}, {}, {}, {}]?.map((ele, index) => (
+							<Skeleton
+								style={{ height: '63px', borderRadius: '10px' }}
+								key={index}
+							/>
+						))}
 					</div>
-				))}
+				) : (
+					<InfiniteScroll
+						dataLength={info?.draftData?.length || 0}
+						next={fetchMoreDraftsData}
+						hasMore={info?.hasNextPage}
+						loader={<FetchMoreLoaderComp />}
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							gap: '8px',
+							width: '100%',
+							padding: '0px 20px 0px 20px',
+						}}
+						height={'340px'}
+					>
+						{info?.draftData?.map((ele, index) => (
+							<div
+								className="aiAgentsActivityCards"
+								key={index}
+								style={{
+									justifyContent: 'center',
+									minHeight: '63px',
+									cursor: 'pointer',
+								}}
+								onClick={() => onDraftClick(ele?._id)}
+							>
+								<div className="aiAgentsActivityCardsSubTextHolder">
+									<span
+										className="aiAgentsActivityCardssubTextStyling"
+										style={{
+											fontFamily: 'Inter',
+											fontSize: '12px',
+											fontStyle: 'normal',
+											fontWeight: '500',
+											lineHeight: 'normal',
+											color: '#E8E8E8',
+										}}
+									>
+										{ele?.title}
+									</span>
+									<span className="aiAgentsActivityCardTime">
+										{ele?.createdAt ? formatTimestamp(ele?.createdAt) : ''}
+									</span>
+								</div>
+							</div>
+						))}
+					</InfiniteScroll>
+				)}
 			</div>
 		</div>
 	);
