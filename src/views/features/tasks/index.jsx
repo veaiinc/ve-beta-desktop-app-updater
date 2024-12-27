@@ -273,7 +273,7 @@ const Tasks = () => {
 	}, []);
 
 	const debouncedUpdateTask = useCallback(
-		async (rowId, propName, value, originalValue, isUpdatingSubTask) => {
+		async (rowId, propName, value, originalValue, isUpdatingSubTask, onSuccess) => {
 			try {
 				const response = await updateListItem({
 					taskId: rowId,
@@ -294,6 +294,9 @@ const Tasks = () => {
 				if (response?.[0] === false) {
 					throw new Error('Failed to update, Try again later');
 				} else {
+					// Update state only after successful API call
+					if (onSuccess) onSuccess();
+
 					// Handle assignedTo special case
 					if (propName === 'assignedTo') {
 						const token = localStorage.getItem('usertoken');
@@ -378,20 +381,20 @@ const Tasks = () => {
 	);
 
 	const handleDebounceUpdate = useCallback(
-		(rowId, propName, value, originalValue, isSubTask) => {
+		(rowId, propName, value, originalValue, isSubTask, onSuccess) => {
 			if (debounceTimeout.current) {
 				clearTimeout(debounceTimeout.current);
 			}
 
 			debounceTimeout.current = setTimeout(() => {
-				debouncedUpdateTask(rowId, propName, value, originalValue, isSubTask);
+				debouncedUpdateTask(rowId, propName, value, originalValue, isSubTask, onSuccess);
 			}, 800);
 		},
 		[debouncedUpdateTask],
 	);
 
 	const updatePropertyValue = useCallback(
-		(rowId, propName, value, isUpdatingSubTask) => {
+		(rowId, propName, value, isUpdatingSubTask, onSuccess) => {
 			if (validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
@@ -434,6 +437,7 @@ const Tasks = () => {
 				value,
 				originalValue,
 				isUpdatingSubTask || info?.selectedSubTask !== null,
+				onSuccess,
 			);
 		},
 		[

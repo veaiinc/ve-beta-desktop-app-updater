@@ -43,18 +43,15 @@ const ListViewSidebar = ({
 	const titleDebounceRef = useRef(null);
 	const descriptionDebounceRef = useRef(null);
 
-	useEffect(() => {
-		setLocalTitle(selectedRow?.title || '');
-		setLocalDescription(selectedRow?.description || '');
-	}, [selectedRow]);
-
 	const debouncedTitleUpdate = useCallback(
 		(value) => {
 			if (titleDebounceRef.current) {
 				clearTimeout(titleDebounceRef.current);
 			}
 			titleDebounceRef.current = setTimeout(() => {
-				updatePropertyValue(selectedRow?._id, 'title', value);
+				updatePropertyValue(selectedRow?._id, 'title', value, null, null, () => {
+					setLocalTitle(value);
+				});
 			}, 800);
 		},
 		[selectedRow?._id, updatePropertyValue],
@@ -66,7 +63,9 @@ const ListViewSidebar = ({
 				clearTimeout(descriptionDebounceRef.current);
 			}
 			descriptionDebounceRef.current = setTimeout(() => {
-				updatePropertyValue(selectedRow?._id, 'description', value);
+				updatePropertyValue(selectedRow?._id, 'description', value, null, null, () => {
+					setLocalDescription(value);
+				});
 			}, 800);
 		},
 		[selectedRow?._id, updatePropertyValue],
