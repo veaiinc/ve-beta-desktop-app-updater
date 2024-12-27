@@ -1,4 +1,4 @@
-export const VEAI_URL = 'https://https://veai.ve.ai/get-ve-ai-demo.ve.ai';
+export const DEMO_FORM_URL = 'https://veai.ve.ai/get-ve-ai-demo';
 
 export const CHANGELOG_URL = 'https://veai.ve.ai/portal/changelog';
 
