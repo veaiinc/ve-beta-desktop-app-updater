@@ -28,6 +28,7 @@ import WorkflowBuilder from './views/features/workflow_builder';
 import Tasks from './views/features/tasks';
 import ShareAndEarn from './views/features/ShareAndEarn';
 import Notes from './views/features/Notes';
+import Contacts from './views/features/contacts';
 import Ai_agent from './views/features/ai_agent';
 import AgentsJobs from './views/features/ai_agent/AgentsJobs';
 import AgentsSetup from './views/features/ai_agent/AgentsSetup';
@@ -246,6 +247,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Notes'}>
 				<Notes />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/contacts',
+		component: (
+			<AuthWrapper title={'Contacts'}>
+				<Contacts />
 			</AuthWrapper>
 		),
 		exact: true,

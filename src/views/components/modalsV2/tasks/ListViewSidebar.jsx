@@ -1,13 +1,11 @@
 /* eslint-disable no-unused-vars */
 import { Drawer, Progress } from 'antd';
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
 import { ReactComponent as CloseArrow } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as RightSvg } from '../../../../assets/svg/activity/right.svg';
 import { ReactComponent as DustBinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
-import { ReactComponent as SearchSvg } from '../../../../assets/svg/tasks/searchWhite.svg';
-import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import Spinner from '../../loaders/Spinner';
 import Context from '../../../../context/context';
 import ListViewRow from '../../tasks/listView/ListViewRow';
@@ -18,16 +16,14 @@ const ListViewSidebar = ({
 	sidebarIsOpen,
 	closeSidebar,
 	updatePropertyValue,
-	workflows,
-	tenantUsers,
 	deleteTask,
-	responseTypes,
 	rowTypes,
 	handleCreateSubTaskClick,
 	handleSubTaskClick,
 	isShowingSubTask,
 	parentTaskNo,
 	handleChildTaskClose,
+	responseMetadata,
 }) => {
 	const {
 		tasks: { subTasks, getSubTasks },
@@ -40,6 +36,69 @@ const ListViewSidebar = ({
 		deleteLoading: false,
 		completedSubtaskCount: 0,
 	});
+
+	const [localTitle, setLocalTitle] = useState(selectedRow?.title || '');
+	const [localDescription, setLocalDescription] = useState(selectedRow?.description || '');
+	const titleDebounceRef = useRef(null);
+	const descriptionDebounceRef = useRef(null);
+
+	useEffect(() => {
+		setLocalTitle(selectedRow?.title || '');
+		setLocalDescription(selectedRow?.description || '');
+	}, [selectedRow]);
+
+	const debouncedTitleUpdate = useCallback(
+		(value) => {
+			if (titleDebounceRef.current) {
+				clearTimeout(titleDebounceRef.current);
+			}
+			titleDebounceRef.current = setTimeout(() => {
+				updatePropertyValue(selectedRow?._id, 'title', value);
+			}, 800);
+		},
+		[selectedRow?._id, updatePropertyValue],
+	);
+
+	const debouncedDescriptionUpdate = useCallback(
+		(value) => {
+			if (descriptionDebounceRef.current) {
+				clearTimeout(descriptionDebounceRef.current);
+			}
+			descriptionDebounceRef.current = setTimeout(() => {
+				updatePropertyValue(selectedRow?._id, 'description', value);
+			}, 800);
+		},
+		[selectedRow?._id, updatePropertyValue],
+	);
+
+	const handleTitleChange = useCallback(
+		(e) => {
+			const newTitle = e.target.value;
+			setLocalTitle(newTitle);
+			debouncedTitleUpdate(newTitle);
+		},
+		[debouncedTitleUpdate],
+	);
+
+	const handleDescriptionChange = useCallback(
+		(e) => {
+			const newDescription = e.target.value;
+			setLocalDescription(newDescription);
+			debouncedDescriptionUpdate(newDescription);
+		},
+		[debouncedDescriptionUpdate],
+	);
+
+	useEffect(() => {
+		return () => {
+			if (titleDebounceRef.current) {
+				clearTimeout(titleDebounceRef.current);
+			}
+			if (descriptionDebounceRef.current) {
+				clearTimeout(descriptionDebounceRef.current);
+			}
+		};
+	}, []);
 
 	useEffect(() => {
 		if (isShowingSubTask) {
@@ -112,8 +171,7 @@ const ListViewSidebar = ({
 				) {
 					continue;
 				}
-
-				const { type = null, name = null, Icon = null } = responseTypes?.[key] || {};
+				const { type = null, name = null, Icon = null, props } = responseMetadata[key];
 
 				const RowComponent = rowTypes?.[type] || null;
 				listItems.push(
@@ -131,14 +189,7 @@ const ListViewSidebar = ({
 									showLabel
 									defaultLabel={'Not selected'}
 									{...(type === 'date' ? { format: 'MMM DD, YYYY h:mm A' } : {})}
-									{...(key === 'workflow' ? { workflows } : {})}
-									{...(type === 'person' ? { showName: true } : {})}
-									{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
-									{...(key === 'updatedAt' ||
-									key === 'createdAt' ||
-									key === 'assignedAt'
-										? { timestamp: true }
-										: {})}
+									{...props}
 									onOptionClick={(value) =>
 										updatePropertyValue(row._id, key, value, isShowingSubTask)
 									}
@@ -153,11 +204,11 @@ const ListViewSidebar = ({
 
 			return listItems;
 		},
-		[isShowingSubTask, responseTypes, rowTypes, workflows, tenantUsers, updatePropertyValue],
+		[isShowingSubTask, responseMetadata, rowTypes, updatePropertyValue],
 	);
 
 	const generateSkeleton = useCallback(() => {
-		return [...Array(3)].map((_, index) => (
+		return [...Array(3)]?.map((_, index) => (
 			<div className="" key={index} style={{ marginBottom: '2px' }}>
 				<Skeleton width="100%" height="32px" borderRadius="12px" count={1} />
 			</div>
@@ -218,10 +269,8 @@ const ListViewSidebar = ({
 						<div className="sidebar-title">
 							<textarea
 								className="sidebar-title-input"
-								value={selectedRow?.title || ''}
-								onChange={(e) =>
-									updatePropertyValue(selectedRow?._id, 'title', e.target.value)
-								}
+								value={localTitle}
+								onChange={handleTitleChange}
 								placeholder="Enter title"
 								rows={1}
 							/>
@@ -260,39 +309,6 @@ const ListViewSidebar = ({
 										>
 											<PlusSvg style={{ width: '20px', height: '20px' }} />
 										</button>
-										{/* <button className="subtask-action-button">
-											<SearchSvg />
-										</button> */}
-										{/* <button className="subtask-action-button">
-									<ThunderSvg />
-								</button>
-								<button className="subtask-action-button">
-									<FilterLinesSvg />
-								</button> */}
-										{/* <button className="subtask-action-button">
-											<HorizontalMoreIcon
-												style={{ width: '20px', height: '20px' }}
-											/>
-										</button> */}
-										{/* <Tooltip
-									placement="bottom"
-									title={
-										<OptionsDropDown
-											properties={properties}
-											togglePropertyVisibility={togglePropertyVisibility}
-										/>
-									}
-									arrow={false}
-									trigger={'click'}
-									color={'transparent'}
-									overlayStyle={{ minWidth: 'fit-content' }}
-								>
-									<button className="btn-options">
-										<HorizontalMoreIcon
-											style={{ width: '20px', height: '20px' }}
-										/>
-									</button>
-								</Tooltip> */}
 									</div>
 								</div>
 								<div className="subtask-list-container">
@@ -306,9 +322,7 @@ const ListViewSidebar = ({
 												task={subTask}
 												key={subTask?._id}
 												rowTypes={rowTypes}
-												responseTypes={responseTypes}
-												workflows={workflows}
-												tenantUsers={tenantUsers}
+												responseMetadata={responseMetadata}
 												updatePropertyValue={updatePropertyValue}
 												isSubTask={true}
 												handleRowClick={onSubTaskClick}
@@ -324,14 +338,8 @@ const ListViewSidebar = ({
 						<div className="sidebar-description">
 							<textarea
 								className="sidebar-description-textarea"
-								value={selectedRow?.description || ''}
-								onChange={(e) =>
-									updatePropertyValue(
-										selectedRow?._id,
-										'description',
-										e.target.value,
-									)
-								}
+								value={localDescription}
+								onChange={handleDescriptionChange}
 								placeholder="Enter description"
 								rows={5}
 							/>
