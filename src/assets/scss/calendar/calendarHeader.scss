@@ -131,6 +131,10 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+						padding: 0px 8px;
+					}
+					.ant-select-selection-item {
+						margin: 0px 8px;
 					}
 
 					.ant-select-selection-placeholder {
@@ -139,7 +143,7 @@
 				}
 
 				.ant-select-arrow {
-					color: #e4e5e6;
+					color: #818285;
 				}
 
 				.ant-select-dropdown {

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useRef, useState, useContext } from 'react';
+import React, { memo, useCallback, useRef, useState, useContext, useEffect } from 'react';
 import '../../../assets/scss/calendar/createEvent.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
@@ -56,6 +56,23 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 	});
 
 	const createEventRef = useRef(null);
+
+	useEffect(() => {
+		//for closing the create event modal when clicking outside
+		let timerId;
+		const handleClickOutside = (event) => {
+			if (createEventRef.current && !createEventRef.current.contains(event.target)) {
+				updateCalendarInfo('isCreateEventOpen', false);
+			}
+		};
+		timerId = setTimeout(() => {
+			document.addEventListener('click', handleClickOutside);
+		}, 0);
+		return () => {
+			clearTimeout(timerId);
+			document.removeEventListener('click', handleClickOutside);
+		};
+	}, []);
 	// Format date and time to ISO string
 	const convertToISOString = useCallback((date, time) => {
 		if (!date) return null;
