@@ -120,7 +120,7 @@ const UploadSignature = ({ open, closeModal, uploadSignatureFunc, changelocalWor
 								className: 'signatareCanvas',
 							}}
 							ref={ref}
-							penColor="#fff"
+							penColor="#111"
 						/>
 					)}
 				</div>

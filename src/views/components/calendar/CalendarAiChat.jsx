@@ -17,7 +17,7 @@ const initialState = {
 
 const CalendarAiChat = ({ toggleAskAi }) => {
 	const {
-		calendarInfo: { calendarChat, getCalendarChat, resetCalendarAiChat },
+		calendarInfo: { calendarChat, getCalendarChat, resetCalendarAiChat, getCalendarEventsList },
 	} = useContext(Context);
 
 	const userTypingRef = useRef(null);
@@ -73,6 +73,10 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 					},
 				],
 			}));
+
+			if (calendarChat?.db_update) {
+				getCalendarEventsList();
+			}
 		}
 	}, [calendarChat]);
 

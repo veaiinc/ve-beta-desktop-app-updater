@@ -1,5 +1,4 @@
 import React, { memo, useContext, useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
 import { ReactComponent as Checked } from '../../../../assets/svg/workflow/checked.svg';
 import { ReactComponent as Unchecked } from '../../../../assets/svg/workflow/unchecked.svg';
@@ -18,9 +17,11 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 			templatesListForCreateLead,
 			createLeadfromTemplates,
 			updateStateValues,
+			toggleCreateLeadModal,
+			createLeadModalContextState,
 		},
 	} = useContext(Context);
-	const navigate = useNavigate();
+
 	const [info, setInfo] = useState({
 		existingLeadSource: true,
 		currentPage: 1,
@@ -72,6 +73,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 
 				clientData.push(obj);
 			}
+
 			setInfo((prev) => ({ ...prev, currentPage, hasNextPage, clientData }));
 		}
 	}, [clientList]);
@@ -103,19 +105,27 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	}, [templatesListForCreateLead]);
 
 	useEffect(() => {
-		if (info?.clientData?.length && info?.existingLeadSource && modalIsOpen) {
+		if (
+			info?.clientData?.length &&
+			info?.existingLeadSource &&
+			(modalIsOpen || createLeadModalContextState)
+		) {
 			setExistingLeadData();
 		}
-	}, [info?.clientData, info?.existingLeadSource, modalIsOpen]);
+	}, [info?.clientData, info?.existingLeadSource, modalIsOpen, createLeadModalContextState]);
 
 	const setExistingLeadData = useCallback(() => {
-		if (info?.clientData?.length && info?.existingLeadSource && modalIsOpen) {
+		if (
+			info?.clientData?.length &&
+			info?.existingLeadSource &&
+			(modalIsOpen || createLeadModalContextState)
+		) {
 			let { value } = info?.clientData?.[0] || {};
 			value = JSON.parse(value);
 			setSelectedLead(value);
 			handleSelectedLead(value);
 		}
-	}, [info?.clientData, info?.existingLeadSource, modalIsOpen]);
+	}, [info?.clientData, info?.existingLeadSource, modalIsOpen, createLeadModalContextState]);
 
 	const getClientListData = useCallback(() => {
 		const payload = {
@@ -136,6 +146,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 		setLeadDetails({ name: '', emailId: '', source: 'instagram' });
 		setCreateButtonActiveState(false);
 		closeModal();
+		toggleCreateLeadModal({ createLeadModalContextState: false });
 	};
 	const handleInputChange = (e) => {
 		let { name, value } = e.target;
@@ -154,43 +165,15 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 		}));
 	};
 
-	const validateCreateProposalPayload = async () => {
-		const isValidEmail = leadDetails['emailId'] && validator.isEmail(leadDetails['emailId']);
-		const isValidName = leadDetails['name'].trim().length > 0;
-		const isValidSource = leadDetails['source'].trim().length > 0;
-
-		if (!isValidName) {
-			setErrorState((prevState) => ({
-				...prevState,
-				isnameError: true,
-				nameErrorMessage: 'Required Field',
-			}));
-		}
-		if (!isValidEmail) {
-			setErrorState((prevState) => ({
-				...prevState,
-				isemailError: true,
-				emailErrorMessage: 'Enter Valid Email Id',
-			}));
-		}
-		if (!isValidSource) {
-			setErrorState((prevState) => ({
-				...prevState,
-				issourceError: true,
-				sourceErrorMessage: 'Required Field',
-			}));
-		}
-		setCreateButtonActiveState(isValidEmail && isValidName && isValidSource);
-	};
-
-	const handleSelectedLead = async (val) => {
+	const handleSelectedLead = useCallback(async (val) => {
 		setLeadDetails((prev) => ({
 			...prev,
 			emailId: val?.email,
 			name: val?.name,
+			phoneNumber: val?.phoneNumber,
 		}));
 		setCreateButtonActiveState(true);
-	};
+	}, []);
 
 	const onChangeClientLists = useCallback(
 		async (data) => {
@@ -278,7 +261,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	}, [info?.selectedTemplate, leadDetails, createButtonActiveState, isLoading]);
 
 	return (
-		<ReactModal isOpen={modalIsOpen} closeModal={closeModalFunc}>
+		<ReactModal isOpen={modalIsOpen || createLeadModalContextState} closeModal={closeModalFunc}>
 			<div className="modifiedCreateLeadModal" style={{ minHeight: '400px' }}>
 				<div className="modalHeading">
 					<p className="title">What lead is this proposal for?</p>

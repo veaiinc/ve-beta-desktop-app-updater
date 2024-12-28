@@ -71,7 +71,24 @@ const actionHandlers = {
 		...state,
 		slackChannels: action?.payload,
 	}),
+	GET_ACTIVITY_LOGS_SUCCESS: (state, action) => ({ ...state, activityLogs: action?.payload }),
+	GET_MORE_ACTIVITY_LOGS_SUCCESS: (state, action) => ({
+		...state,
+		moreActivityLogs: action?.payload,
+	}),
 
+	GET_DRAFT_STATE_WORKFLOW_TEMPLATE_SUCCESS: (state, action) => ({
+		...state,
+		draftStateWorkflowtemplates: action?.payload,
+	}),
+	GET_MORE_DRAFT_STATE_WORKFLOW_TEMPLATE_SUCCESS: (state, action) => ({
+		...state,
+		moreDraftStateWorkflowtemplates: action?.payload,
+	}),
+	TOGGLE_CREATE_LEAD_MODAL_SUCCESS: (state, action) => ({
+		...state,
+		...action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 
