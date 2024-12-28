@@ -25,20 +25,39 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 	const filteredWorkspaces = userWorkSpaceList?.filter((workspace) =>
 		workspace?.businessName?.toLowerCase().includes(searchWorkspace.toLowerCase()),
 	);
-	const handleSwitchWorkSpaceLogic = useCallback((data) => {
-		const { activeWorkspaceId, isOnboard } = data;
-		const workspaceId = localStorage.getItem('workspaceId');
-		if (workspaceId === data) {
-			return;
-		}
-		localStorage.setItem('workspaceId', activeWorkspaceId);
-		localStorage.setItem('isOnboard', isOnboard);
-		Cookies.set('workspaceID', activeWorkspaceId, {
-			sameSite: 'lax',
-			domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
-		});
-		window.location.reload();
-	}, []);
+	const handleSwitchWorkSpaceLogic = useCallback(
+		(data) => {
+			const { activeWorkspaceId, isOnboard } = data;
+			const workspaceId = localStorage.getItem('workspaceId');
+			if (workspaceId === activeWorkspaceId) {
+				return;
+			}
+			localStorage.setItem('workspaceId', activeWorkspaceId);
+			localStorage.setItem('isOnboard', isOnboard);
+			Cookies.set('workspaceID', activeWorkspaceId, {
+				sameSite: 'lax',
+				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+			});
+
+			const currentRegion = localStorage.getItem('region');
+			let newWorkspaceRegion;
+			for (let i = 0; i < userWorkSpaceList?.length; i++) {
+				if (userWorkSpaceList?.[i]?.activeWorkspaceId === activeWorkspaceId) {
+					newWorkspaceRegion = userWorkSpaceList?.[i]?.region;
+					break;
+				}
+			}
+			if (newWorkspaceRegion !== currentRegion) {
+				localStorage.setItem('region', newWorkspaceRegion);
+				Cookies.set('region', newWorkspaceRegion, {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				});
+			}
+			window.location.reload();
+		},
+		[userWorkSpaceList],
+	);
 
 	const handleCreateWorkspace = () => {
 		navigate(`/create-workspace`);
