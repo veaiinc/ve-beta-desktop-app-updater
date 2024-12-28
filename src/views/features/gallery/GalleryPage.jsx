@@ -2127,12 +2127,6 @@ const GalleryPage = () => {
 		}
 	};
 
-	// ... existing code ...
-
-	// ... existing code ...
-
-	// ... existing code ...
-
 	const handleSetCoverPosition = async (focalPoint) => {
 		if (handleSetCoverPosition.isProcessing) return;
 
@@ -4489,15 +4483,15 @@ const GalleryPage = () => {
 								<div className="aboutAlbum">
 									<div className="albumName">
 										<p>{info?.clientSelectionName}</p>
-										<div
+										{/* <div
 											style={{ position: 'relative' }}
-											// onClick={() =>
-											// 	setInfo((prevInfo) => ({
-											// 		...prevInfo,
-											// 		showGalleryOptions:
-											// 			!prevInfo.showGalleryOptions,
-											// 	}))
-											// }
+											onClick={() =>
+												setInfo((prevInfo) => ({
+													...prevInfo,
+													showGalleryOptions:
+														!prevInfo.showGalleryOptions,
+												}))
+											}
 										>
 											<ThreeDotsIcon
 												className="threeDotsIcon"
@@ -4511,13 +4505,30 @@ const GalleryPage = () => {
 												}
 											/>
 
+											<div></div>
+										</div> */}
+									</div>
+
+									<div className="albumSearchCotainer">
+										<div
+											style={{ position: 'relative' }}
+											ref={settingsRef}
+											onClick={() =>
+												setInfo((prev) => ({
+													...prev,
+													clientSubscriptionOptions:
+														!prev.clientSubscriptionOptions,
+												}))
+											}
+										>
+											<p style={{ cursor: 'pointer' }}>Selection Settings</p>
 											{info.clientSubscriptionOptions && (
 												<div
 													className="galleryEditOptions"
 													ref={optionsContainerRef}
 													style={{
 														position: 'absolute',
-														left: '20%',
+														right: '0',
 														top: '100%',
 														zIndex: 100,
 														width: '200px',
@@ -4562,13 +4573,46 @@ const GalleryPage = () => {
 														<DownloadIcon />
 														<span>Download</span>
 													</li>
+													<li
+														onClick={() =>
+															handleUploadCoverOpen('album')
+														}
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															gap: '4px',
+														}}
+													>
+														<AlbumCoverIcon />
+														Album Cover
+													</li>
+													<div
+														onClick={() => {
+															setInfo((prev) => ({
+																...prev,
+																showDeleteAlbum: true,
+																showOptionsContainer: false, // Close options menu if it exists
+															}));
+														}}
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															gap: '4px',
+														}}
+													>
+														<DeleteIcon />
+														<span
+															style={{
+																color: '#A74A49',
+																cursor: 'pointer',
+															}}
+														>
+															Delete Album
+														</span>
+													</div>
 												</div>
 											)}
-
-											<div></div>
 										</div>
-									</div>
-									<div className="albumSearchCotainer">
 										<div
 											onClick={() =>
 												setInfo((prevInfo) => ({
@@ -4916,7 +4960,7 @@ const GalleryPage = () => {
 											>
 												Set Gallery cover
 											</li>
-											<li>Share</li>
+											{/* <li>Share</li> */}
 											<li
 												onClick={() =>
 													setInfo((prev) => ({
