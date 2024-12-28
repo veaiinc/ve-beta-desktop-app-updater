@@ -56,6 +56,7 @@ import DeleteAlbumImagesPopup from '../../components/modalsV2/gallery/DeleteAlbu
 import ToggleSlider from '../../components/input/slider';
 import { Switch } from 'antd';
 import ShowLightRoomCopy from '../../components/modalsV2/gallery/ShowLightRoomCopy';
+import { getCurrentWorkspaceId } from '../../../helpers';
 import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
 
 const workspaceId = localStorage.getItem('workspaceId');
@@ -133,6 +134,7 @@ const GalleryPage = () => {
 			imageProcessingStatus,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		albumName: '',
@@ -238,6 +240,8 @@ const GalleryPage = () => {
 		showCoverButton: false,
 		showAlbumOptionsMenu: false,
 		showAlbumSettings: false,
+		currentWorkspaceId: null,
+		galleryLink: null,
 		clientSubscriptionOptions: false,
 		imageProcessingStatus: {
 			numberOfImagesGroupedFaces: 0,
@@ -712,6 +716,28 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [info.showUploadCover, info.coverType]);
+
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
+			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
+		}
+	}, [userWorkSpaceList]);
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+	}, [tennantSettingsData]);
+
+	useEffect(() => {
+		if (info?.currentWorkspaceId && tennantSettingsData) {
+			let galleryLink = `https://${info?.currentWorkspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`;
+			if (tennantSettingsData?.customDomain) {
+				galleryLink = `https://${tennantSettingsData?.customDomain}/gallery/${info?.activeGallery?.slug}`;
+			}
+			setInfo((prev) => ({ ...prev, galleryLink }));
+		}
+	}, [info?.currentWorkspaceId, tennantSettingsData, info?.activeGallery]);
 
 	const fetchMoreImages = () => {
 		const nextPage = info.page + 1;
@@ -1451,7 +1477,7 @@ const GalleryPage = () => {
 	// ... rest of the code ...
 
 	const handleCopyAlbumLink = async () => {
-		const albumLink = `https://${workspaceId}.ve.ai/gallery/${galleryId}/${info?.albumSlug}`;
+		const albumLink = info?.galleryLink;
 
 		try {
 			// Try the modern clipboard API first

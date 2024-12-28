@@ -41,7 +41,6 @@ const TimeZoneCurrencyComponent = ({ overviewState }) => {
 					</p>
 				</div>
 				<div>
-					{console.log('overviewState?.currency', overviewState?.currency)}
 					<ReusableButtonSettings
 						text={
 							getSymbolFromCurrency(overviewState?.currency) +
