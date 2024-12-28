@@ -296,7 +296,7 @@ const AddGallery = () => {
 
 							{tenantGalleries ? (
 								tenantGalleries?.galleries?.length > 0 ? (
-									tenantGalleries?.galleries.map((items, index) => (
+									tenantGalleries?.galleries?.map((items, index) => (
 										<div
 											className="add-gallery-image"
 											onClick={() => handleNavigateGallery(items)}

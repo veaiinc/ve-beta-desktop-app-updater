@@ -2572,7 +2572,7 @@ const GalleryPage = () => {
 				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info?.activeAlbum?.coverImage?.givenFileName}?${params}`;
 			}
 		}
-		return null;
+		return GridImage;
 	};
 	const handleUploadCoverOpen = async (coverType) => {
 		try {
