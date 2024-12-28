@@ -43,7 +43,7 @@
 				list-style: none;
 
 				.nav-item {
-					color: var(--secondary-font-color);
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 15px;
 					font-style: normal;
@@ -71,7 +71,7 @@
 			border: 1px solid rgba(100, 100, 100, 0.16);
 
 			.description {
-				color: var(--secondary-font-color);
+				color: var(--secondary-font);
 				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;
@@ -85,7 +85,7 @@
 				gap: 8px;
 
 				.ai-assistant-name {
-					color: var(--secondary-font-color);
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
@@ -134,7 +134,7 @@
 				}
 
 				h2 {
-					color: var(--secondary-font-color);
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
@@ -188,7 +188,7 @@
 				}
 
 				h2 {
-					color: var(--secondary-font-color);
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
@@ -228,7 +228,7 @@
 						align-items: center;
 						width: 50%;
 						height: 40px;
-						color: var(--secondary-font-color);
+						color: var(--secondary-font);
 						font-family: Inter;
 						font-size: 12px;
 						font-style: normal;
@@ -339,7 +339,7 @@
 					height: 292px;
 
 					p {
-						color: var(--secondary-font-color);
+						color: var(--secondary-font);
 						font-family: Inter;
 						font-size: 13px;
 
@@ -405,7 +405,7 @@
 										gap: 4px;
 
 										span {
-											color: var(--secondary-font-color);
+											color: var(--secondary-font);
 											text-align: justify;
 											font-family: Inter;
 											font-size: 11px;
@@ -421,7 +421,7 @@
 									display: flex;
 									align-items: center;
 									gap: 4px;
-									color: var(--secondary-font-color);
+									color: var(--secondary-font);
 									font-family: Inter;
 									font-size: 13px;
 									font-style: normal;
@@ -532,7 +532,7 @@
 						overflow: auto !important;
 
 						.no-knowledge-files-found {
-							color: var(--secondary-font-color);
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 13px;
 							font-style: normal;
@@ -553,7 +553,7 @@
 							gap: 12px;
 							width: 70%;
 							height: auto;
-							color: var(--secondary-font-color);
+							color: var(--secondary-font);
 							text-overflow: ellipsis;
 							font-family: Inter;
 							font-size: 13px;
@@ -578,7 +578,7 @@
 							align-items: center;
 
 							.notStarted {
-								color: var(--secondary-font-color);
+								color: var(--secondary-font);
 								font-family: Inter;
 								font-size: 13px;
 								font-style: normal;
@@ -643,7 +643,7 @@
 							}
 
 							.time {
-								color: var(--secondary-font-color);
+								color: var(--secondary-font);
 								font-family: Inter;
 								font-size: 11px;
 								font-style: normal;
@@ -668,7 +668,7 @@
 			border-bottom: 1.196px solid rgba(100, 100, 100, 0.16);
 
 			h1 {
-				color: var(--secondary-font-color);
+				color: var(--secondary-font);
 				font-family: Inter;
 				font-size: 13px;
 				font-style: normal;
@@ -688,7 +688,7 @@
 				gap: 8px;
 
 				.test-case-number {
-					color: var(--secondary-font-color);
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 13px;
 					font-style: normal;
@@ -709,7 +709,7 @@
 					background: #1d1d1d;
 
 					.test-case-query {
-						color: var(--secondary-font-color);
+						color: var(--secondary-font);
 						font-family: Inter;
 						font-size: 10px;
 						font-style: normal;
@@ -730,7 +730,7 @@
 							border: none;
 							outline: none;
 							background: #1d1d1d;
-							color: var(--secondary-font-color);
+							color: var(--secondary-font);
 							display: flex;
 							align-items: center;
 							justify-content: center;
@@ -743,7 +743,7 @@
 						justify-content: flex-start;
 						align-items: center;
 						gap: 4px;
-						color: var(--secondary-font-color);
+						color: var(--secondary-font);
 						font-family: Inter;
 						font-size: 10px;
 						font-style: normal;
@@ -848,7 +848,7 @@
 					border-radius: 100px;
 					border: 1px solid rgba(100, 100, 100, 0.16);
 					background: transparent;
-					color: var(--secondary-font-color);
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 13px;
 					font-style: normal;

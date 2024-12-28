@@ -24,7 +24,7 @@
 	}
 	.sidebarComponent {
 		min-height: 100%;
-		background: #202123;
+		background: var(--navbar);
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
@@ -73,7 +73,7 @@
 					transition: all 0.5s;
 				}
 				&.selected {
-					background: #89ac4f;
+					background: var(--primary-button-active);
 				}
 			}
 
@@ -99,7 +99,7 @@
 					justify-content: center;
 					align-items: center;
 					position: relative;
-					background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
+					background: var(--stroke);
 					// mix-blend-mode: lighten;
 					// box-shadow: none;
 
@@ -109,7 +109,7 @@
 					// }
 
 					&:hover {
-						background: #202123;
+						background: var(--card);
 						border: none;
 					}
 				}
@@ -146,7 +146,7 @@
 					width: 30px;
 					height: 30px;
 					border-radius: 100px;
-					background: #cdc29d;
+					background: var(--primary-button-active);
 					cursor: pointer;
 
 					img {

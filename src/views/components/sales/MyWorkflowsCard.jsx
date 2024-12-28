@@ -226,9 +226,9 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 						))}
 					</div>
 				</div>
-				<div className="percentageSeperator">
+				{/* <div className="percentageSeperator">
 					<div className="percentageCovered"></div>
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);

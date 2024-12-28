@@ -16,7 +16,7 @@
 
 .sales-page {
 	background-color: inherit;
-	color: var(--primary-font-color);
+	color: var(--primary-font);
 	padding: 20px;
 	font-family: 'Arial, sans-serif';
 
@@ -40,7 +40,7 @@
 			padding: 6px 24px;
 
 			p {
-				color: var(--primary-font-color);
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 16px;
 				font-style: normal;
@@ -50,7 +50,7 @@
 			}
 
 			h1 {
-				color: var(--primary-font-color);
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 32px;
 				font-style: normal;
@@ -70,7 +70,7 @@
 			padding: 16px 24px;
 
 			p {
-				color: var(--secondary-font-color);
+				color: var(--secondary-font);
 				text-align: right;
 				font-family: Inter;
 				font-size: 13px;
@@ -81,7 +81,7 @@
 			}
 
 			h1 {
-				color: var(--primary-font-color);
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 36px;
 				font-style: normal;
@@ -103,8 +103,7 @@
 
 			button {
 				transition: all 0.3s ease;
-				color: rgba(228, 229, 230, 0.48);
-				color: color(display-p3 0.8941 0.898 0.902 / 0.48);
+				color: var(--secondary-font);
 				cursor: pointer;
 				font-family: Inter;
 				font-size: 12px;
@@ -118,15 +117,13 @@
 				align-items: center;
 				gap: 10px;
 				border-radius: 100px;
-				border: 1px solid #202020;
-				border: 1px solid color(display-p3 0.1255 0.1255 0.1255);
-				background: #202123;
-				background: color(display-p3 0.1255 0.1294 0.1373);
+				border: 1px solid var(--stroke);
+				background: var(--card-hover);
 
 				&.active {
-					color: var(--primary-font-color);
-					box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.5) inset;
-					background-color: #242424;
+					color: var(--primary-font);
+					box-shadow: 0px 2px 4px 0px var(--stroke) inset;
+					background-color: var(--card-hover);
 				}
 			}
 		}
@@ -153,8 +150,7 @@
 				// justify-content: space-between;
 				align-items: flex-start;
 				border-radius: 24px;
-				background: #171819;
-				background: color(display-p3 0.0902 0.0941 0.098);
+				background: var(--card);
 				cursor: pointer;
 				flex-shrink: 0;
 				.agentsWorkflowJobCards {
@@ -173,11 +169,7 @@
 						align-self: stretch;
 						flex: 1;
 						.agentsWorkflowJobCardsTitle {
-							color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-							color: var(
-								--ve-ai-dark-theme-primary-font-color,
-								color(display-p3 0.9098 0.9098 0.9098)
-							);
+							color: var(--primary-font);
 							font-family: Inter;
 							font-size: 18px;
 							font-style: normal;
@@ -186,11 +178,7 @@
 						}
 
 						.agentsWorkflowJobCardsSubTitle {
-							color: var(--ve-ai-dark-theme-secondary-color, #939393);
-							color: var(
-								--ve-ai-dark-theme-secondary-color,
-								color(display-p3 0.5755 0.5755 0.5755)
-							);
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 14px;
 							font-style: normal;
@@ -199,8 +187,7 @@
 						}
 					}
 					.agentsTabType {
-						color: #e8e8e8;
-						color: color(display-p3 0.9098 0.9098 0.9098);
+						color: var(--primary-font);
 						font-family: Inter;
 						font-size: 14px;
 						font-style: normal;
@@ -208,11 +195,7 @@
 						line-height: normal;
 						text-transform: capitalize;
 						.agentsWorkflowJobCardsSubTitle {
-							color: var(--ve-ai-dark-theme-secondary-color, #939393);
-							color: var(
-								--ve-ai-dark-theme-secondary-color,
-								color(display-p3 0.5755 0.5755 0.5755)
-							);
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 14px;
 							font-style: normal;
@@ -224,7 +207,7 @@
 			}
 		}
 		.card-div-end-black-shadow {
-			background: linear-gradient(270deg, #111 6.77%, rgba(17, 17, 17, 0) 112.5%);
+			// background: linear-gradient(270deg, #111 6.77%, rgba(17, 17, 17, 0) 112.5%);
 			position: absolute;
 			top: 0;
 			right: 0;

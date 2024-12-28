@@ -83,15 +83,10 @@
 			align-items: center;
 			gap: 10px;
 			// border-radius: 3px;
-			// border-bottom: 2px solid var(--Primary-Font-Color, #e8e8e8);
+			// border-bottom: 2px solid var(--primary-font);
 			// border-bottom: 2px solid
-			// 	var(--Primary-Font-Color, color(display-p3 0.9098 0.9098 0.9098));
-			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-			color: var(
-				--ve-ai-dark-theme-primary-font-color,
-				color(display-p3 0.9098 0.9098 0.9098)
-			);
-
+			// 	var(--primary-font, color(display-p3 0.9098 0.9098 0.9098));
+			color: var(--primary-font);
 			/* Body/Body Text - 16 */
 			font-family: Inter;
 			font-size: 16px;

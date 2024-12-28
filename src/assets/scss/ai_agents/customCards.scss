@@ -9,12 +9,7 @@
 	gap: 10px;
 	flex-shrink: 0;
 	border-radius: 32px;
-	background: linear-gradient(135deg, #191a1b 0.86%, #171718 70.68%);
-	background: linear-gradient(
-		135deg,
-		color(display-p3 0.0971 0.101 0.1049) 0.86%,
-		color(display-p3 0.0893 0.0893 0.0949) 70.68%
-	);
+	background: var(--card);
 
 	.createCardsHeader {
 		display: flex;
@@ -22,11 +17,7 @@
 		justify-content: space-between;
 
 		.createCardsHeaderTexct {
-			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-			color: var(
-				--ve-ai-dark-theme-primary-font-color,
-				color(display-p3 0.9098 0.9098 0.9098)
-			);
+			color: var(--primary-font);
 
 			/* Body/Body Text - 16 */
 			font-family: Inter;
@@ -57,8 +48,7 @@
 			gap: 12px;
 			// flex: 1 0 0;
 			border-radius: 16px;
-			background: #202123;
-			background: color(display-p3 0.1249 0.1304 0.1358);
+			background: var(--card-over-card);
 			// max-width: 170px;
 			// width: 170px;
 			width: calc(50% - 8px);
@@ -75,12 +65,11 @@
 					width: 6px;
 					height: 6px;
 					border-radius: 100%;
-					background-color: #fff;
+					background-color: transparent;
 				}
 
 				.createcardOprtionsTitle {
-					color: #fff;
-					color: color(display-p3 1 1 1);
+					color: var(--primary-font);
 
 					/* Body/Body Text - 14 Px */
 					font-family: Inter;
@@ -92,8 +81,7 @@
 				}
 			}
 			.createOptionsSubTextStyling {
-				color: var(--Dark-Theme-Secondary-Color, #939393);
-				color: var(--Dark-Theme-Secondary-Color, color(display-p3 0.5755 0.5755 0.5755));
+				color: var(--secondary-font);
 				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;
@@ -114,12 +102,8 @@
 	gap: 10px;
 	flex-shrink: 0;
 	border-radius: 32px;
-	background: linear-gradient(135deg, #191a1b 0.86%, #171718 70.68%);
-	background: linear-gradient(
-		135deg,
-		color(display-p3 0.0971 0.101 0.1049) 0.86%,
-		color(display-p3 0.0893 0.0893 0.0949) 70.68%
-	);
+	background: var(--card);
+
 	.createCardsHeader {
 		display: flex;
 		align-items: center;
@@ -130,11 +114,7 @@
 		padding-right: 20px;
 
 		.createCardsHeaderTexct {
-			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-			color: var(
-				--ve-ai-dark-theme-primary-font-color,
-				color(display-p3 0.9098 0.9098 0.9098)
-			);
+			color: var(--primary-font);
 
 			/* Body/Body Text - 16 */
 			font-family: Inter;
@@ -166,15 +146,10 @@
 		height: auto;
 		// min-height: 63px;
 		border-radius: 10px;
-		background: var(--ve-ai-dark-theme-pop-up-color, #202123);
-		background: var(--ve-ai-dark-theme-pop-up-color, color(display-p3 0.1249 0.1304 0.1358));
+		background: var(--card-over-card);
 		gap: 4px;
 		.aiAgentsActivityCardsHeaderText {
-			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-			color: var(
-				--ve-ai-dark-theme-primary-font-color,
-				color(display-p3 0.9098 0.9098 0.9098)
-			);
+			color: var(--primary-font);
 
 			/* Body/Body Text - 14 Px */
 			font-family: Inter;
@@ -192,11 +167,7 @@
 
 			.aiAgentsActivityCardssubTextStyling {
 				overflow: hidden;
-				color: var(--ve-ai-dark-theme-secondary-color, #939393);
-				color: var(
-					--ve-ai-dark-theme-secondary-color,
-					color(display-p3 0.5755 0.5755 0.5755)
-				);
+				color: var(--secondary-font);
 				text-overflow: ellipsis;
 				font-family: Inter;
 				font-size: 12px;
@@ -207,11 +178,7 @@
 			}
 
 			.aiAgentsActivityCardTime {
-				color: var(--ve-ai-dark-theme-secondary-color, #939393);
-				color: var(
-					--ve-ai-dark-theme-secondary-color,
-					color(display-p3 0.5755 0.5755 0.5755)
-				);
+				color: var(--secondary-font);
 				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;

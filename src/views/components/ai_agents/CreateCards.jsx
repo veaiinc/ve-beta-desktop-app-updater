@@ -344,7 +344,7 @@ const Drafts = memo(() => {
 											fontStyle: 'normal',
 											fontWeight: '500',
 											lineHeight: 'normal',
-											color: '#E8E8E8',
+											color: 'var(--primary-font)',
 										}}
 									>
 										{ele?.title}
