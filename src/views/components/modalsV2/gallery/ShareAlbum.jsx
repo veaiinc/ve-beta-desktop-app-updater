@@ -8,7 +8,7 @@ const ShareAlbum = (props) => {
 		content: { zIndex: 99999 },
 		overlay: { zIndex: 99998 },
 	};
-	const { open, onClose, onCopyLink, link, pin } = props;
+	const { open, onClose, onCopyLink, link } = props;
 	return (
 		<ReactModal isOpen={open} onClose={onClose} customStyles={customStyles}>
 			<div className="shareAlbumPopupContainer">
@@ -18,7 +18,7 @@ const ShareAlbum = (props) => {
 						<CrossSvg onClick={onClose} style={{ cursor: 'pointer' }} />
 					</div>
 					<div className="shareAlbumPopupInputContainer">
-						<p className="shareAlbumPopupInputText">{link}</p>
+						<p className="shareAlbumPopupInputText">{link?.url}</p>
 					</div>
 				</div>
 				<div className="shareAlbumPopupFooter">
@@ -26,8 +26,8 @@ const ShareAlbum = (props) => {
 					<div className="shareAlbumPopupPinInputContainer">
 						<input
 							type="text"
-							value={pin}
-							placeholder="5555"
+							value={link?.pin}
+							placeholder={link?.pin}
 							className="shareAlbumPopupPinInput"
 							style={{ color: '#939393' }}
 						/>

@@ -988,6 +988,7 @@ const GalleryPage = () => {
 				...prevInfo,
 				selectedImages: newSelectedImages,
 				selectedImagesTags: newSelectedImagesTags,
+				coverPhoto: newSelectedImages.length > 0 ? newSelectedImages[0] : null,
 			};
 		});
 	};
@@ -1876,6 +1877,7 @@ const GalleryPage = () => {
 			...prev,
 			showCollaborators: !info?.showCollaborators,
 			shareModal: !info?.shareModal,
+			collaboratorsData: prev.collaboratorsData || [],
 		}));
 	};
 	const handleGalleryDateChange = (dateString, date, type) => {
@@ -1922,16 +1924,17 @@ const GalleryPage = () => {
 			message.success('Gallery deleted successfully');
 
 			navigate('/galleries');
-			getGalleries({}, true);
+			await getGalleries({}, true);
 		} else {
 			message.destroy();
 			message.error(response[1].message);
 		}
 	};
 	const handleManageCollaborator = (data) => {
+		const collaboratorsArray = Array.isArray(data) ? data : [];
 		setInfo((prev) => ({
 			...prev,
-			collaboratorsData: data,
+			collaboratorsData: collaboratorsArray,
 		}));
 	};
 	const onDragEnd = (result) => {
@@ -2064,6 +2067,7 @@ const GalleryPage = () => {
 			duration: 0,
 		});
 		if (info?.imageURL) {
+			console.log('info?.imageURL3', info?.imageURL);
 			setInfo((prev) => ({
 				...prev,
 				crop: {
@@ -2072,7 +2076,7 @@ const GalleryPage = () => {
 				},
 				zoom: 1,
 				uploadImageId: null,
-				imageURL: '',
+				imageURL: info?.imageURL,
 				coverImageDetails: null,
 				coverType: prev.coverType,
 			}));
@@ -2568,7 +2572,6 @@ const GalleryPage = () => {
 			}
 			return GridImage;
 		} else if (info.coverType === 'album') {
-			// Use album cover
 			if (info?.activeAlbum?.coverImage?.givenFileName) {
 				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info?.activeAlbum?.coverImage?.givenFileName}?${params}`;
 			}
@@ -2578,7 +2581,6 @@ const GalleryPage = () => {
 	};
 	const handleUploadCoverOpen = async (coverType) => {
 		try {
-			// Set initial loading state
 			setInfo((prev) => ({
 				...prev,
 				showUploadCover: true,
@@ -2594,7 +2596,6 @@ const GalleryPage = () => {
 				coverType === 'gallery'
 					? info?.activeGallery?.coverImage
 					: info?.activeAlbum?.coverImage;
-
 			// If we have a current cover and credentials, set up the preview
 			if (currentCover?.givenFileName && galleryCredentials) {
 				const imageURL = `${galleryCredentials.baseURL}/${tenantAlbums.tenant_id}/${galleryId}/optimized/${currentCover.givenFileName}?Key-Pair-Id=${galleryCredentials['Key-Pair-Id']}&Signature=${galleryCredentials.Signature}&Policy=${galleryCredentials.Policy}`;
@@ -3109,16 +3110,32 @@ const GalleryPage = () => {
 
 	const getShareLink = () => {
 		const baseUrl = `https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`;
-
-		if (info.activeTab === 'Client Selections' && info?.clientSelectionName) {
-			// Client Selection link format
-			return `${baseUrl}/selection/${info?.activeClientSelection}`;
-		} else if (info?.activeAlbum?.slug) {
-			// Album link format
-			return `${baseUrl}/${info?.activeAlbum?.slug}`;
+		let pin = '';
+		if (info.activeTab === 'Client Selections' && info?.clientSelectionID) {
+			const selection = clientSelectionsData?.data?.find(
+				(sel) => sel._id === info?.clientSelectionID,
+			);
+			pin = selection?.pin || '';
+		} else if (info?.activeAlbum?._id) {
+			pin = info?.activeAlbum?.guestAccess?.pin || '';
+		} else {
+			pin = info?.activeGallery?.guestAccess?.pin || '';
 		}
-		// Default gallery link format
-		return baseUrl;
+		if (info.activeTab === 'Client Selections' && info?.clientSelectionName) {
+			return {
+				url: `${baseUrl}/selection/${info?.activeClientSelection}`,
+				pin: pin,
+			};
+		} else if (info?.activeAlbum?.slug) {
+			return {
+				url: `${baseUrl}/${info?.activeAlbum?.slug}`,
+				pin: pin,
+			};
+		}
+		return {
+			url: baseUrl,
+			pin: pin,
+		};
 	};
 	return (
 		<>
@@ -5223,7 +5240,6 @@ const GalleryPage = () => {
 				open={info.showShareAlbum}
 				onClose={() => setInfo((prev) => ({ ...prev, showShareAlbum: false }))}
 				link={getShareLink()}
-				pin="5555"
 				onCopyLink={handleCopyAlbumLink}
 			/>
 
