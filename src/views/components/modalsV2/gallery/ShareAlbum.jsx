@@ -4,9 +4,13 @@ import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross
 import { ReactComponent as RefreshSvg } from '../../../../assets/svg/sidebar/Refresh.svg';
 
 const ShareAlbum = (props) => {
+	const customStyles = {
+		content: { zIndex: 99999 },
+		overlay: { zIndex: 99998 },
+	};
 	const { open, onClose, onCopyLink, link, pin } = props;
 	return (
-		<ReactModal isOpen={open} onClose={onClose}>
+		<ReactModal isOpen={open} onClose={onClose} customStyles={customStyles}>
 			<div className="shareAlbumPopupContainer">
 				<div className="shareAlbumPopupContent">
 					<div className="shareAlbumPopupCloseButton">

@@ -2058,7 +2058,9 @@ const GalleryPage = () => {
 
 		message.open({
 			type: 'loading',
-			content: 'Uploading Gallery cover image..',
+			content: `Uploading ${
+				info.coverType === 'gallery' ? 'Gallery' : 'Album'
+			} cover image..`,
 			duration: 0,
 		});
 		if (info?.imageURL) {
@@ -2072,6 +2074,7 @@ const GalleryPage = () => {
 				uploadImageId: null,
 				imageURL: '',
 				coverImageDetails: null,
+				coverType: prev.coverType,
 			}));
 		}
 		const batchId = randomize('Aa0', 10);
@@ -2112,6 +2115,7 @@ const GalleryPage = () => {
 				uploadImageId: signedURLUpload?.[1]?._id,
 				imageURL: '',
 				coverPhoto: true,
+				coverType: prev.coverType,
 			}));
 
 			if (uploadResponse.status === 200) {
@@ -3106,6 +3110,20 @@ const GalleryPage = () => {
 		// Clean up event listener on component unmount
 		return () => document.removeEventListener('mousemove', handleMouseMove);
 	}, [info.isDragging]);
+
+	const getShareLink = () => {
+		const baseUrl = `https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`;
+
+		if (info.activeTab === 'Client Selections' && info?.clientSelectionName) {
+			// Client Selection link format
+			return `${baseUrl}/selection/${info?.activeClientSelection}`;
+		} else if (info?.activeAlbum?.slug) {
+			// Album link format
+			return `${baseUrl}/${info?.activeAlbum?.slug}`;
+		}
+		// Default gallery link format
+		return baseUrl;
+	};
 	return (
 		<>
 			<div className="galleryContainer">
@@ -4517,6 +4535,13 @@ const GalleryPage = () => {
 														<span>Light Room Copy</span>
 													</li>
 													<li
+														onClick={() => {
+															setInfo((prev) => ({
+																...prev,
+																showShareAlbum: true,
+																clientSubscriptionOptions: false,
+															}));
+														}}
 														style={{
 															display: 'flex',
 															alignItems: 'center',
@@ -5151,7 +5176,7 @@ const GalleryPage = () => {
 			<ShareAlbum
 				open={info.showShareAlbum}
 				onClose={() => setInfo((prev) => ({ ...prev, showShareAlbum: false }))}
-				link={`https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`}
+				link={getShareLink()}
 				pin="5555"
 				onCopyLink={handleCopyAlbumLink}
 			/>
