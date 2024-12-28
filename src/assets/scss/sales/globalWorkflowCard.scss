@@ -20,7 +20,7 @@
 
 		.globalWorkflowTitle {
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -28,7 +28,7 @@
 		}
 		.globalWorkflowSubTitle {
 			color: rgba(228, 229, 230, 0.48);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -44,7 +44,7 @@
 			.actionsTitle {
 				color: #e4e5e6;
 				text-align: justify;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -73,7 +73,7 @@
 						.actionBtnTitlestyling {
 							color: rgba(228, 229, 230, 0.7);
 							text-align: justify;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 11px;
 							font-style: normal;
 							font-weight: 400;

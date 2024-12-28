@@ -13,7 +13,7 @@
 		.inviteMemberText {
 			h1 {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -24,7 +24,7 @@
 
 			p {
 				color: #666;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
@@ -71,7 +71,7 @@
 
 			.addmore {
 				color: #666;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
@@ -113,7 +113,7 @@
 
 			h1 {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -167,7 +167,7 @@
 					p {
 						width: 100%;
 						color: #666;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 400;
@@ -181,7 +181,7 @@
 					h1 {
 						margin: 0px;
 						color: #e4e5e6;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -189,7 +189,7 @@
 					}
 					p {
 						color: #666;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 400;
@@ -241,7 +241,7 @@
 						cursor: pointer;
 						p {
 							color: #e4e5e6;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 400;
@@ -274,7 +274,7 @@
 							padding: 16px 24px;
 							p {
 								color: #fff;
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 400;

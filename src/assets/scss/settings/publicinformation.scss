@@ -11,7 +11,7 @@
 		justify-content: center;
 		h1 {
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -46,7 +46,7 @@
 			font-size: 24px;
 			color: #e4e5e6;
 			font-weight: bold;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			padding: 0px;
 		}
 
@@ -127,7 +127,7 @@
 
 			.label {
 				color: #b0b0b0;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -152,7 +152,7 @@
 
 				input {
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 400;

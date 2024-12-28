@@ -18,7 +18,7 @@
 
 		.headerTitle {
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -44,7 +44,7 @@
 		align-self: stretch;
 		.inputActionContainerLabel {
 			color: #b0b0b0;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
 			font-weight: 400;
@@ -62,7 +62,7 @@
 			border: 1px solid rgba(36, 36, 36, 0.64);
 			background-color: transparent;
 			color: rgba(228, 229, 230, 0.8);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -72,7 +72,7 @@
 			overflow: hidden;
 			color: rgba(204, 87, 86, 0.8);
 			text-overflow: ellipsis;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -94,7 +94,7 @@
 			border-radius: 100px;
 			background-color: #6055ec;
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 500;
@@ -105,7 +105,7 @@
 
 		.cancelBtn {
 			color: rgba(228, 229, 230, 0.64);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 500;

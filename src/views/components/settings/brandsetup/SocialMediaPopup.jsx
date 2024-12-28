@@ -110,7 +110,7 @@ const SocialMediaPopup = ({
 				>
 					<span
 						style={{
-							fontFamily: 'Inter',
+							fontFamily: 'var(--primary-font-family)',
 							fontSize: '16px',
 							color: '#e4e5e6',
 							lineHeight: '24px',
@@ -125,7 +125,7 @@ const SocialMediaPopup = ({
 				<div style={{ width: '100%', padding: '24px 0 0 0' }}>
 					<div
 						style={{
-							fontFamily: 'Inter',
+							fontFamily: 'var(--primary-font-family)',
 							fontSize: '11px',
 							color: '#b0b0b0',
 							lineHeight: '16px',
@@ -146,7 +146,7 @@ const SocialMediaPopup = ({
 								backgroundColor: '#151515',
 								color: '#E4E5E63D',
 								fontSize: '16px',
-								fontFamily: 'Inter',
+								fontFamily: 'var(--primary-font-family)',
 							}}
 							placeholder="Type here.."
 							onChange={handleInputChange}
@@ -189,7 +189,7 @@ const SocialMediaPopup = ({
 								padding: '16px 24px',
 								height: '48px',
 								fontSize: '13px',
-								fontFamily: 'Inter',
+								fontFamily: 'var(--primary-font-family)',
 								textAlign: 'center',
 							}}
 							onClick={handleSaveLinkChanges}

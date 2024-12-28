@@ -20,7 +20,7 @@
 		align-self: stretch;
 		color: rgba(228, 229, 230, 0.48);
 		text-align: center;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 600;
@@ -42,7 +42,7 @@
 			.listItem-label {
 				color: #e4e5e6;
 				text-align: left;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;

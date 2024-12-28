@@ -136,7 +136,7 @@ const Drafts = memo(() => {
 							<span
 								className="aiAgentsActivityCardssubTextStyling"
 								style={{
-									fontFamily: 'Inter',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '12px',
 									fontStyle: 'normal',
 									fontWeight: '500',

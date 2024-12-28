@@ -16,7 +16,7 @@
 		align-self: stretch;
 		.headerTitle {
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -42,7 +42,7 @@
 
 		.dropDownLabel {
 			color: #b0b0b0;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
 			font-weight: 400;
@@ -65,7 +65,7 @@
 			border: 1px solid rgba(36, 36, 36, 0.64);
 			background: rgba(42, 42, 42, 0.16);
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 500;
@@ -80,7 +80,7 @@
 			padding-right: 4px;
 			align-items: center;
 			color: rgba(228, 229, 230, 0.64);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 500;

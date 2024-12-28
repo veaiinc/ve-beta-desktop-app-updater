@@ -228,7 +228,7 @@
 					border: none;
 					background: inherit;
 					color: #fff;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-weight: 400;
 					text-transform: capitalize;
@@ -272,7 +272,7 @@
 					border: none;
 					background-color: transparent;
 					color: #fff;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-weight: 400;
 					text-transform: capitalize;

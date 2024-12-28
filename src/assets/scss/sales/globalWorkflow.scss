@@ -28,7 +28,7 @@
 
 			.gloablHeaderTitle {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 22px;
 				font-style: normal;
 				font-weight: 500;
@@ -57,7 +57,7 @@
 			overflow: hidden;
 			color: rgba(228, 229, 230, 0.32);
 			text-overflow: ellipsis;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;

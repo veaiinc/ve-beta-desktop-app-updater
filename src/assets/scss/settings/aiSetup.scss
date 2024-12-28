@@ -13,7 +13,7 @@
 
 	.no-ai-assistants-found {
 		color: rgba(228, 229, 230, 0.48);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 400;
@@ -39,7 +39,7 @@
 			align-items: center;
 			gap: 8px;
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -68,7 +68,7 @@
 
 				p {
 					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -84,7 +84,7 @@
 			align-items: center;
 			gap: 2px;
 			color: #6055ec;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -104,7 +104,7 @@
 
 		h1 {
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 400;
@@ -154,7 +154,7 @@
 				h1 {
 					color: #e4e5e6;
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -165,7 +165,7 @@
 				h2 {
 					color: rgba(228, 229, 230, 0.48);
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -189,7 +189,7 @@
 				}
 				h1 {
 					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -227,7 +227,7 @@
 			justify-content: space-between;
 			align-items: center;
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -240,7 +240,7 @@
 
 		h2 {
 			color: rgba(228, 229, 230, 0.48);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
@@ -257,7 +257,7 @@
 
 		h1 {
 			color: #b0b0b0;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
 			font-weight: 400;
@@ -304,7 +304,7 @@
 		background: #1e1e1f;
 		cursor: pointer;
 		color: #e4e5e6;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;
@@ -340,7 +340,7 @@
 			justify-content: space-between;
 			align-items: center;
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -353,7 +353,7 @@
 
 		h2 {
 			color: rgba(228, 229, 230, 0.48);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
@@ -393,7 +393,7 @@
 			span {
 				color: rgba(228, 229, 230, 0.48);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 11px;
 				font-style: normal;
 				font-weight: 400;
@@ -455,7 +455,7 @@
 					overflow: hidden;
 					white-space: nowrap;
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -511,7 +511,7 @@
 					overflow: hidden;
 					white-space: nowrap;
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -570,7 +570,7 @@
 				justify-content: center;
 				align-items: center;
 				color: rgba(228, 229, 230, 0.48);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				cursor: pointer;
 			}
@@ -592,7 +592,7 @@
 				text-align: center;
 				color: rgba(228, 229, 230, 0.48);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -661,7 +661,7 @@
 		gap: 16px;
 		align-self: stretch;
 		color: #e4e5e6;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;
@@ -702,7 +702,7 @@
 			justify-content: space-between;
 			align-items: center;
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -727,7 +727,7 @@
 
 			p {
 				color: rgba(228, 229, 230, 0.48);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
@@ -773,7 +773,7 @@
 						overflow: hidden;
 						color: #e4e5e6;
 						text-overflow: ellipsis;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 400;
@@ -792,7 +792,7 @@
 							span {
 								color: rgba(228, 229, 230, 0.7);
 								text-align: justify;
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 11px;
 								font-style: normal;
 								font-weight: 400;
@@ -807,7 +807,7 @@
 						align-items: center;
 						gap: 4px;
 						color: rgba(228, 229, 230, 0.48);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 400;
@@ -824,7 +824,7 @@
 
 			.template-remove {
 				color: #e46b64;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -849,7 +849,7 @@
 		gap: 16px;
 		align-self: stretch;
 		color: #e4e5e6;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;

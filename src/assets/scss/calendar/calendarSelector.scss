@@ -113,7 +113,7 @@
 //Upper scss has been deprecated since using custom calendar; uncomment the upper scss if react-day-picker calendar component is used!!
 
 .calendarContainer {
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	color: #e4e5e6;
 	width: 320px;
 	text-align: center;
@@ -221,7 +221,7 @@
 
 		.calendarDayName {
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -248,7 +248,7 @@
 
 			.calendarDay {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;

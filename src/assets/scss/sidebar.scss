@@ -212,7 +212,7 @@
 					p {
 						color: #e8e8e8;
 						text-align: right;
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -355,7 +355,7 @@
 						h6 {
 							color: #e8e8e8;
 							text-align: right;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -377,7 +377,7 @@
 					p {
 						color: #e8e8e8;
 						text-align: right;
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -424,7 +424,7 @@
 						line-height: normal;
 					}
 					.renewNowDiv {
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						text-align: end;
@@ -463,7 +463,7 @@
 					border-radius: 12px;
 					background: #2e2f33;
 					.planExpiredTitle {
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -482,7 +482,7 @@
 						-webkit-text-fill-color: transparent;
 					}
 					.renewNowDiv {
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -570,7 +570,7 @@
 				h6 {
 					color: #e8e8e8;
 					text-align: right;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -620,7 +620,7 @@
 						p {
 							color: #e8e8e8;
 							text-align: flex-start;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -642,7 +642,7 @@
 							align-items: center;
 							justify-content: center;
 							color: white;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: bolder;
@@ -655,7 +655,7 @@
 					h6 {
 						color: #7d7d7d;
 						text-align: flex-start;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -877,7 +877,7 @@
 	> div {
 		color: #e4e5e6;
 		text-overflow: ellipsis;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 400;

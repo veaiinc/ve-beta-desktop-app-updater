@@ -45,7 +45,7 @@
 				display: none;
 				transition: transform 1s ease-out;
 				color: #fff;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -115,7 +115,7 @@
 			overflow: hidden;
 			color: #e4e5e6;
 			text-overflow: ellipsis;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -201,7 +201,7 @@
 	transition: all 0.24s ease-in-out;
 	.headerStyling {
 		color: rgba(228, 229, 230, 0.48);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -211,7 +211,7 @@
 	}
 	.textStyling {
 		color: #e4e5e6;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 16px;
 		font-style: normal;
 		font-weight: 500;
@@ -238,7 +238,7 @@
 
 	.headerStyling {
 		color: rgba(174, 160, 82, 0.8);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -249,7 +249,7 @@
 
 	.textStyling {
 		color: rgba(174, 160, 82, 0.8);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 24px;
 		font-style: normal;
 		font-weight: 500;
@@ -282,7 +282,7 @@
 
 		.dotText {
 			color: rgba(228, 229, 230, 0.48);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 10px;
 			font-style: normal;
 			font-weight: 500;
@@ -299,7 +299,7 @@
 
 		.titletextStyling {
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 32px;
 			font-style: normal;
 			font-weight: 600;
@@ -307,7 +307,7 @@
 		}
 		.enquiryText {
 			color: rgba(228, 229, 230, 0.6);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;

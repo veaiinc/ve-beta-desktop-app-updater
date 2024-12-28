@@ -223,7 +223,7 @@
 						}
 						.count {
 							color: #e4e5e6;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 16px;
 							font-style: normal;
 							font-weight: 500;
@@ -252,7 +252,7 @@
 						background: var(--ve-ai-dark-theme-pop-up-color, #202123);
 						.onlineText {
 							color: var(--dark-mode-tect-secondary-daark, #939393);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 400;
@@ -304,7 +304,7 @@
 								align-self: stretch;
 								span {
 									color: var(--darkTheme-Primary-font, #e8e8e8);
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 14px;
 									font-style: normal;
 									font-weight: 500;
@@ -414,7 +414,8 @@
 						left: 0;
 						cursor: pointer;
 						// background-color: rgba(0, 0, 0, 0.3);
-						background: linear-gradient(rgba(0, 0, 0, 0) 6%, rgb(0, 0, 0) 100%), rgba(196, 196, 196, 0);
+						background: linear-gradient(rgba(0, 0, 0, 0) 6%, rgb(0, 0, 0) 100%),
+							rgba(196, 196, 196, 0);
 					}
 				}
 			}
@@ -527,7 +528,7 @@
 							cursor: pointer;
 							list-style: none;
 							color: #e4e5e6;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 400;
@@ -688,7 +689,8 @@
 					height: 160px;
 					border-radius: 8px;
 					border: 1px solid #2a2a2a;
-					background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%), #1d1d1d;
+					background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%),
+						#1d1d1d;
 					.uploadIcon {
 						width: 16px;
 						height: 11px;
@@ -858,7 +860,7 @@
 										color: #e4e5e6;
 										text-overflow: ellipsis;
 										white-space: nowrap;
-										font-family: Inter;
+										font-family: var(--primary-font-family);
 										font-size: 12px;
 										font-style: normal;
 										font-weight: 400;
@@ -1283,7 +1285,7 @@
 							align-items: center;
 							gap: 16px;
 							color: #000;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 400;

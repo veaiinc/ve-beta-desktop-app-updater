@@ -112,9 +112,7 @@
 						height: 70%;
 						position: relative;
 						object-fit: cover;
-						transition:
-							width 0.5s ease-in-out,
-							height 0.5s ease-in-out;
+						transition: width 0.5s ease-in-out, height 0.5s ease-in-out;
 						cursor: pointer;
 					}
 					.no-image {
@@ -133,7 +131,7 @@
 						li {
 							list-style: none;
 							color: rgba(228, 229, 230, 0.48);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;

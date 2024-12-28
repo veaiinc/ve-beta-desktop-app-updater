@@ -44,7 +44,7 @@
 
 				.blockTitle {
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -75,7 +75,7 @@
 
 				.blockKey {
 					color: #929292;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -83,7 +83,7 @@
 				}
 				.blockValue {
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -124,7 +124,7 @@
 							overflow: hidden;
 							color: #e4e5e6;
 							text-overflow: ellipsis;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -136,7 +136,7 @@
 							-webkit-line-clamp: 1;
 							color: #929292;
 							text-overflow: ellipsis;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -199,7 +199,7 @@
 
 			span {
 				color: #d3d3d3;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
@@ -229,7 +229,7 @@
 				transition: background-color 0.3s ease;
 
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -356,7 +356,7 @@
 
 					.chatMessageUsername {
 						color: #e4e5e6;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 10px;
 						font-style: normal;
 						font-weight: 400;
@@ -366,7 +366,7 @@
 
 				.chatMessageTimestamp {
 					color: rgba(100, 100, 100, 0.6);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 10px;
 					font-style: normal;
 					font-weight: 400;
@@ -386,7 +386,7 @@
 
 				.textByAi {
 					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -396,7 +396,7 @@
 				.textByUser {
 					color: #e4e5e6;
 					text-align: start;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;

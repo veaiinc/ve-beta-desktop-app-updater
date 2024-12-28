@@ -32,7 +32,7 @@
 				width: 350px;
 				h1 {
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -61,7 +61,7 @@
 					gap: 16px;
 					h3 {
 						color: #6055ec;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -72,7 +72,7 @@
 
 					h1 {
 						color: #e4e5e6;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 24px;
 						font-style: normal;
 						font-weight: 500;
@@ -80,7 +80,7 @@
 						margin: 0;
 						p {
 							color: rgba(208, 207, 229, 0.5);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -107,7 +107,7 @@
 						align-items: center;
 						p {
 							color: #d0cfe5;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -133,7 +133,7 @@
 
 					p {
 						color: #e4e5e6;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -161,7 +161,7 @@
 			.details {
 				h1 {
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -190,7 +190,7 @@
 					div {
 						width: 100%;
 						color: #e4e5e6;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 400;
@@ -212,7 +212,7 @@
 			th {
 				padding-bottom: 16px;
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
@@ -226,7 +226,7 @@
 			border-top: 1px solid rgba(100, 100, 100, 0.16);
 			td {
 				padding: 16px 0;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
@@ -239,7 +239,7 @@
 				.viewDetails {
 					cursor: pointer;
 					color: #6055ec;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -288,7 +288,7 @@
 				color: #e8e8e8;
 
 				/* Heading/H2 - 24 px */
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 24px;
 				font-style: normal;
 				font-weight: 600;
@@ -310,7 +310,7 @@
 
 					.subscriptionPlanPricing {
 						color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 40px;
 						font-style: normal;
 						font-weight: 500;
@@ -320,7 +320,7 @@
 						color: var(--ve-ai-dark-theme-secondary-color, #939393);
 
 						/* Body/Body Text - 16 */
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 500;
@@ -343,7 +343,7 @@
 
 						.subscriptionUsageData {
 							color: var(--ve-ai-dark-theme-secondary-color, #939393);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 11px;
 							font-style: normal;
 							font-weight: 400;
@@ -383,7 +383,7 @@
 
 						.subscriptionFeatureContent {
 							color: var(--ve-ai-dark-theme-secondary-color, #939393);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 400;
@@ -403,7 +403,7 @@
 						color: #e8e8e8;
 
 						/* Body/Body Text - 14 Px */
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -434,7 +434,7 @@
 								gap: 16px;
 								.addOnCardsTitle {
 									color: #fff;
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 11px;
 									font-style: normal;
 									font-weight: 500;
@@ -442,7 +442,7 @@
 								}
 								.addOnCardPriceContainer {
 									color: var(--ve-ai-dark-theme-secondary-color, #939393);
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 12px;
 									font-style: normal;
 									font-weight: 500;
@@ -465,7 +465,7 @@
 
 									.subscriptionUsageData {
 										color: var(--ve-ai-dark-theme-secondary-color, #939393);
-										font-family: Inter;
+										font-family: var(--primary-font-family);
 										font-size: 11px;
 										font-style: normal;
 										font-weight: 400;
@@ -513,7 +513,7 @@
 					background: #e8e8e8;
 					cursor: pointer;
 					color: #000;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -521,7 +521,7 @@
 				}
 				.expiringText {
 					color: var(--ve-ai-dark-theme-secondary-color, #939393);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 400;
@@ -541,7 +541,7 @@
 				color: #e8e8e8;
 
 				/* Body/Body Text - 16 */
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -578,7 +578,7 @@
 						.updatePlansHeader {
 							.updatePlansHeaderTextStyling {
 								color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 500;
@@ -588,7 +588,7 @@
 
 						.randomUpdatePlans {
 							color: var(--ve-ai-dark-theme-secondary-color, #939393);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -605,7 +605,7 @@
 						border: 1px solid #333334;
 						cursor: pointer;
 						color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -630,7 +630,7 @@
 			color: #e8e8e8;
 
 			/* Heading/H2 - 24 px */
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 24px;
 			font-style: normal;
 			font-weight: 600;
@@ -651,7 +651,7 @@
 
 				.subscriptionPlanPricing {
 					color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 40px;
 					font-style: normal;
 					font-weight: 500;
@@ -677,7 +677,7 @@
 
 					.subscriptionFeatureContent {
 						color: var(--ve-ai-dark-theme-secondary-color, #939393);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -696,7 +696,7 @@
 			.freeTrialText {
 				color: var(--ve-ai-dark-theme-secondary-color, #939393);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
@@ -712,7 +712,7 @@
 				background: #e8e8e8;
 				cursor: pointer;
 				color: #000;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;

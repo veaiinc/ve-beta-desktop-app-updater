@@ -26,7 +26,7 @@
 
 			h1 {
 				color: var(--white);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 20px;
 				font-style: normal;
 				font-weight: 500;
@@ -44,7 +44,7 @@
 
 				.nav-item {
 					color: var(--secondary-font-color);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 15px;
 					font-style: normal;
 					font-weight: 500;
@@ -72,7 +72,7 @@
 
 			.description {
 				color: var(--secondary-font-color);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -86,7 +86,7 @@
 
 				.ai-assistant-name {
 					color: var(--secondary-font-color);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -125,7 +125,7 @@
 
 				h1 {
 					color: var(--white);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -135,7 +135,7 @@
 
 				h2 {
 					color: var(--secondary-font-color);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -149,7 +149,7 @@
 				padding: 14px;
 				resize: none;
 				color: var(--white);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -180,7 +180,7 @@
 
 				h1 {
 					color: var(--white);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -189,7 +189,7 @@
 
 				h2 {
 					color: var(--secondary-font-color);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -229,7 +229,7 @@
 						width: 50%;
 						height: 40px;
 						color: var(--secondary-font-color);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -261,7 +261,7 @@
 				background: var(--background-color);
 				cursor: pointer;
 				color: var(--white);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -299,7 +299,7 @@
 
 					h1 {
 						color: var(--white);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 500;
@@ -314,7 +314,7 @@
 						border-radius: 100px;
 						border: 1px solid var(accent-color);
 						color: var(--accent-color);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -340,7 +340,7 @@
 
 					p {
 						color: var(--secondary-font-color);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 
 						span {
@@ -388,7 +388,7 @@
 									overflow: hidden;
 									color: var(--white);
 									text-overflow: ellipsis;
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 13px;
 									font-style: normal;
 									font-weight: 400;
@@ -407,7 +407,7 @@
 										span {
 											color: var(--secondary-font-color);
 											text-align: justify;
-											font-family: Inter;
+											font-family: var(--primary-font-family);
 											font-size: 11px;
 											font-style: normal;
 											font-weight: 400;
@@ -422,7 +422,7 @@
 									align-items: center;
 									gap: 4px;
 									color: var(--secondary-font-color);
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 13px;
 									font-style: normal;
 									font-weight: 400;
@@ -441,7 +441,7 @@
 							border: none;
 							background: transparent;
 							color: var(--error-red);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -469,7 +469,7 @@
 
 					h1 {
 						color: var(--white);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 500;
@@ -484,7 +484,7 @@
 						border-radius: 100px;
 						border: 1px solid var(--accent-color);
 						color: var(--accent-color);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -506,7 +506,7 @@
 
 					li {
 						color: var(--white);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 400;
@@ -533,7 +533,7 @@
 
 						.no-knowledge-files-found {
 							color: var(--secondary-font-color);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 400;
@@ -555,7 +555,7 @@
 							height: auto;
 							color: var(--secondary-font-color);
 							text-overflow: ellipsis;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 400;
@@ -579,7 +579,7 @@
 
 							.notStarted {
 								color: var(--secondary-font-color);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 400;
@@ -588,7 +588,7 @@
 
 							.processing {
 								color: var(--accent-color);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 400;
@@ -635,7 +635,7 @@
 
 							.ready {
 								color: var(--success-green);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 400;
@@ -644,7 +644,7 @@
 
 							.time {
 								color: var(--secondary-font-color);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 11px;
 								font-style: normal;
 								font-weight: 400;
@@ -669,7 +669,7 @@
 
 			h1 {
 				color: var(--secondary-font-color);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
@@ -689,7 +689,7 @@
 
 				.test-case-number {
 					color: var(--secondary-font-color);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -710,7 +710,7 @@
 
 					.test-case-query {
 						color: var(--secondary-font-color);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 10px;
 						font-style: normal;
 						font-weight: 400;
@@ -744,7 +744,7 @@
 						align-items: center;
 						gap: 4px;
 						color: var(--secondary-font-color);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 10px;
 						font-style: normal;
 						font-weight: 400;
@@ -760,7 +760,7 @@
 
 						.ai-name {
 							color: var(--white);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 10px;
 							font-style: normal;
 							font-weight: 400;
@@ -778,7 +778,7 @@
 							border: 0.598px solid rgba(100, 100, 100, 0.48);
 							background: rgba(100, 100, 100, 0.16);
 							color: var(--white);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 10px;
 							font-style: normal;
 							font-weight: 400;
@@ -809,7 +809,7 @@
 					.response-container {
 						p {
 							color: var(--white);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 400;
@@ -849,7 +849,7 @@
 					border: 1px solid rgba(100, 100, 100, 0.16);
 					background: transparent;
 					color: var(--secondary-font-color);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;

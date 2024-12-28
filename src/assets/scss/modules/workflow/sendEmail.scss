@@ -21,7 +21,7 @@
 			flex: 1 0 0;
 			align-self: stretch;
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -53,7 +53,7 @@
 
 			.sendCustomEmailUserTextStyling {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -61,7 +61,7 @@
 			}
 			.sendCustomEmailIdTextStyling {
 				color: rgba(228, 229, 230, 0.48);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 11px;
 				font-style: normal;
 				font-weight: 500;
@@ -75,7 +75,7 @@
 			align-items: center;
 			gap: 13px;
 			color: rgba(228, 229, 230, 0.48);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
 			font-weight: 500;
@@ -94,7 +94,7 @@
 
 		.siubjectLableTextStyling {
 			color: #b0b0b0;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
 			font-weight: 400;
@@ -115,7 +115,7 @@
 			border: 1px solid rgba(36, 36, 36, 0.64);
 			resize: none;
 			color: rgba(228, 229, 230, 0.8);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -143,7 +143,7 @@
 		background: rgba(42, 42, 42, 0.16);
 		cursor: pointer;
 		color: #e4e5e6;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;

@@ -155,7 +155,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 											gap: '12px',
 											fontSize: '14px',
 											fontWeight: '500',
-											fontFamily: 'Inter',
+											fontFamily: 'var(--primary-font-family)',
 											fontStyle: 'normal',
 											lineHeight: '20px',
 										}}
@@ -168,7 +168,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 											margin: 0,
 											fontSize: '12px',
 											fontWeight: '500',
-											fontFamily: 'Inter',
+											fontFamily: 'var(--primary-font-family)',
 											fontStyle: 'normal',
 										}}
 									>
@@ -204,7 +204,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 										style={{
 											textTransform: 'capitalize',
 											fontSize: '20px',
-											fontFamily: 'Inter',
+											fontFamily: 'var(--primary-font-family)',
 											fontWeight: '500',
 											color: 'white',
 										}}

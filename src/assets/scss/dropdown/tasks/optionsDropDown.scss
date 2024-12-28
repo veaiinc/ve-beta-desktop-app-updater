@@ -41,7 +41,7 @@
 			.view-name {
 				color: rgba(228, 229, 230, 0.48);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -96,7 +96,7 @@
 
 			.dropdown-text {
 				color: rgba(228, 229, 230, 0.8);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -147,7 +147,7 @@
 			border: none;
 			color: #6055ec;
 			text-align: center;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -159,7 +159,7 @@
 	.text-bright {
 		color: #e4e5e6;
 		text-align: center;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -168,7 +168,7 @@
 	.text-fade {
 		color: rgba(228, 229, 230, 0.48);
 		text-align: center;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;

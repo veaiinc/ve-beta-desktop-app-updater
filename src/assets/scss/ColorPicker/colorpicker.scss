@@ -21,7 +21,7 @@
 		.titleDiv {
 			h1 {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -81,7 +81,7 @@
 		}
 		p {
 			color: rgba(228, 229, 230, 0.24);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
 			font-weight: 400;
@@ -108,7 +108,7 @@
 
 		input {
 			color: rgba(228, 229, 230, 0.24);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 400;
@@ -129,7 +129,7 @@
 			background: #1e1e1f;
 			width: 100%;
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 500;
@@ -152,7 +152,7 @@
 // 	width: 70px;
 // 	border: none;
 // 	color: #9b9290;
-// 	font-family: 'Inter';
+// 	font-family: var(--primary-font-family);
 // 	font-size: 12px;
 // 	font-style: normal;
 // 	font-weight: 400;
@@ -174,7 +174,7 @@
 // 	flex: 1 0 0;
 // 	outline: none;
 // 	color: #4e4441;
-// 	font-family: 'Inter';
+// 	font-family: var(--primary-font-family);
 // 	font-size: 14px;
 // 	font-style: normal;
 // 	font-weight: 400;

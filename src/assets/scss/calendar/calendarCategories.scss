@@ -28,7 +28,7 @@
 
 			.headLabel {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -110,7 +110,7 @@
 
 				.typeLabel {
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -138,7 +138,7 @@
 
 				.statusCount {
 					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -146,7 +146,7 @@
 
 					.activeCount {
 						color: #e4e5e6;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -155,7 +155,7 @@
 
 					.totalCount {
 						color: rgba(228, 229, 230, 0.48);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;

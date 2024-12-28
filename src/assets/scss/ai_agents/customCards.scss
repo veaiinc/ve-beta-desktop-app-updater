@@ -28,7 +28,7 @@
 			);
 
 			/* Body/Body Text - 16 */
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -81,7 +81,7 @@
 					color: color(display-p3 1 1 1);
 
 					/* Body/Body Text - 14 Px */
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -92,7 +92,7 @@
 			.createOptionsSubTextStyling {
 				color: var(--Dark-Theme-Secondary-Color, #939393);
 				color: var(--Dark-Theme-Secondary-Color, color(display-p3 0.5755 0.5755 0.5755));
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -132,7 +132,7 @@
 			);
 
 			/* Body/Body Text - 16 */
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -174,7 +174,7 @@
 				);
 
 				/* Body/Body Text - 14 Px */
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -195,7 +195,7 @@
 						color(display-p3 0.5755 0.5755 0.5755)
 					);
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -209,7 +209,7 @@
 						--ve-ai-dark-theme-secondary-color,
 						color(display-p3 0.5755 0.5755 0.5755)
 					);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
