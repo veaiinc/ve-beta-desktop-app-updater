@@ -10,19 +10,9 @@
 	position: relative;
 	opacity: 0;
 
-	.dark-gradient-top {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		height: 92px;
-		background: linear-gradient(180deg, #0f0f10 0%, rgba(15, 15, 16, 0) 100%);
-		z-index: 10;
-	}
-
 	.header-container {
 		width: 100%;
-		height: 100px;
+		height: 80px;
 		padding: 0 120px;
 		display: flex;
 		justify-content: space-between;
@@ -32,6 +22,7 @@
 		left: 50%;
 		transform: translateX(-50%);
 		z-index: 100;
+		background: inherit;
 
 		.btns-container {
 			display: flex;

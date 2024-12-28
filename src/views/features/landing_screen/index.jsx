@@ -3,8 +3,8 @@ import gsap from 'gsap';
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
 import Lenis from 'lenis';
-
 import '../../../assets/scss/landingScreen/index.scss';
+import Navbar from '../../components/landing_screen/Navbar';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
 import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
 import { ReactComponent as ArrowUpGrey } from '../../../assets/svg/landingScreen/arrow-up-grey.svg';
@@ -120,28 +120,6 @@ const resources = [
 	},
 ];
 
-const animateButtonEnter = (selector) => {
-	gsap.to(selector, {
-		left: '50%',
-		x: '-50%',
-		duration: 0.3,
-		ease: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)',
-	});
-};
-
-const animateButtonLeave = (selector) => {
-	gsap.to(selector, {
-		left: '150%',
-		duration: 0.3,
-		ease: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)',
-		onComplete: () => {
-			gsap.set(selector, {
-				left: selector === '.login-line' ? '-22px' : '-28px',
-			});
-		},
-	});
-};
-
 const LandingPage = () => {
 	const navigate = useNavigate();
 	const emailRef = useRef();
@@ -246,52 +224,27 @@ const LandingPage = () => {
 
 	const handleSubscribeToNewsletter = debounce(async (e, type) => {
 		// Uncomment when API works...
-		if (!isEmailSubscribed) {
-			if (e?.key === 'Enter' || type === 'click') {
-				const email = emailRef?.current?.value?.trim() || false;
-				const isEmailValid = validator.isEmail(email);
-				if (isEmailValid) {
-					const response = await subscribeToNewsletter(email);
-					if (response?.[0] === true) {
-						message?.success('Subscribed to ve.ai newsletters successfully!');
-						setIsEmailSubscribed(true);
-					} else {
-						message?.error('An unexpected error occured. Please try again!');
-						setIsEmailSubscribed(false);
-					}
-				}
-			}
-		}
+		// if (!isEmailSubscribed) {
+		// 	if (e?.key === 'Enter' || type === 'click') {
+		// 		const email = emailRef?.current?.value?.trim() || false;
+		// 		const isEmailValid = validator.isEmail(email);
+		// 		if (isEmailValid) {
+		// 			const response = await subscribeToNewsletter(email);
+		// 			if (response?.[0] === true) {
+		// 				message?.success('Subscribed to ve.ai newsletters successfully!');
+		// 				setIsEmailSubscribed(true);
+		// 			} else {
+		// 				message?.error('An unexpected error occured. Please try again!');
+		// 				setIsEmailSubscribed(false);
+		// 			}
+		// 		}
+		// 	}
+		// }
 	}, 1000);
 
 	return (
 		<div className="landing-page-container">
-			<div className="dark-gradient-top"></div>
-			<header className="header-container">
-				<VeAiLogo aria-label="VeAi Logo" />
-				<div className="btns-container">
-					<button
-						onClick={handleNavigationToVerifyUser}
-						className="signup-button"
-						aria-label="Sign up to VeAi"
-						onMouseEnter={() => animateButtonEnter('.signup-line')}
-						onMouseLeave={() => animateButtonLeave('.signup-line')}
-					>
-						Sign Up
-						<div className="signup-line"></div>
-					</button>
-					<button
-						onClick={handleNavigationToVerifyUser}
-						onMouseEnter={() => animateButtonEnter('.login-line')}
-						onMouseLeave={() => animateButtonLeave('.login-line')}
-						className="login-button"
-						aria-label="Log in to VeAi"
-					>
-						Log In
-						<div className="login-line"></div>
-					</button>
-				</div>
-			</header>
+			<Navbar handleNavigationToVerifyUser={handleNavigationToVerifyUser} />
 			<div className="landing-page-content">
 				<div className="section-1">
 					<div className="container">
