@@ -145,7 +145,9 @@ const ListViewHeader = ({
 					}
 					<DropDown
 						title="Sort"
-						options={properties}
+						options={properties.filter(
+							(item) => !['childTasks', 'parentTask']?.includes(item.value),
+						)}
 						onOptionClick={handelSortClick}
 						valueSelector="value"
 					>
@@ -155,7 +157,9 @@ const ListViewHeader = ({
 					</DropDown>
 					<DropDown
 						title="Filter"
-						options={properties}
+						options={properties.filter(
+							(item) => !['childTasks', 'parentTask']?.includes(item.value),
+						)}
 						onOptionClick={handelFilterClick}
 						valueSelector="value"
 					>
@@ -186,7 +190,9 @@ const ListViewHeader = ({
 				{sort.length > 0 ? (
 					<SortComponent
 						sort={sort}
-						properties={properties}
+						options={properties.filter(
+							(item) => !['childTasks', 'parentTask']?.includes(item.value),
+						)}
 						responseMetadata={responseMetadata}
 						updateListViewInfo={updateListViewInfo}
 						handelSortClick={handelSortClick}
@@ -229,7 +235,9 @@ const ListViewHeader = ({
 						<DropDown
 							title="Add Filter"
 							options={properties?.filter(
-								(item) => !filters.some((filter) => filter.key === item.value),
+								(item) =>
+									!filters.some((filter) => filter.key === item.value) &&
+									!['childTasks', 'parentTask']?.includes(item.value),
 							)}
 							onOptionClick={handelFilterClick}
 							valueSelector="value"

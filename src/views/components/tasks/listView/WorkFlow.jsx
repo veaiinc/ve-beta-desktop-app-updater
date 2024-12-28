@@ -28,7 +28,7 @@ const WorkFlow = ({ value, val, options = [], onOptionClick, customListItemStyle
 				>
 					<span className={`currentItem`} style={customListItemStyle}>
 						<span className="listItem-label">
-							{info?.selectedLabel || 'Select workflow'}
+							{info?.selectedLabel || 'Select project'}
 						</span>
 					</span>
 				</DropDown>

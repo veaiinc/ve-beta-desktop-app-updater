@@ -60,7 +60,7 @@ const Tasks = () => {
 			priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg, props: {} },
 			workflow: {
 				type: 'workflow',
-				name: 'Workflow',
+				name: 'Project',
 				Icon: WorkflowSvg,
 				props: { options: info?.workflows },
 			},
