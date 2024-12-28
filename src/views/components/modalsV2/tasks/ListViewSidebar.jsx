@@ -52,6 +52,47 @@ const ListViewSidebar = ({
 		}
 	}, [selectedRow?._id]);
 
+	useEffect(() => {
+		return () => {
+			if (titleDebounceRef.current) {
+				clearTimeout(titleDebounceRef.current);
+			}
+			if (descriptionDebounceRef.current) {
+				clearTimeout(descriptionDebounceRef.current);
+			}
+		};
+	}, []);
+
+	useEffect(() => {
+		if (isShowingSubTask) {
+			return;
+		}
+		if (selectedRow?._id && !subTasks) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				subTaskLoading: true,
+			}));
+			getSubTasks({ taskId: selectedRow?._id });
+		} else {
+			if (subTasks?.data) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					subTasks: [...subTasks?.data],
+					subTaskLoading: false,
+					completedSubtaskCount: subTasks?.data?.filter(
+						(subTask) => subTask?.status === 'completed',
+					).length,
+				}));
+			} else {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					subTaskError: subTasks?.error,
+					subTaskLoading: false,
+				}));
+			}
+		}
+	}, [subTasks, selectedRow?._id, isShowingSubTask, getSubTasks]);
+
 	const debouncedTitleUpdate = useCallback(
 		(value) => {
 			if (titleDebounceRef.current) {
@@ -97,47 +138,6 @@ const ListViewSidebar = ({
 		},
 		[debouncedDescriptionUpdate],
 	);
-
-	useEffect(() => {
-		return () => {
-			if (titleDebounceRef.current) {
-				clearTimeout(titleDebounceRef.current);
-			}
-			if (descriptionDebounceRef.current) {
-				clearTimeout(descriptionDebounceRef.current);
-			}
-		};
-	}, []);
-
-	useEffect(() => {
-		if (isShowingSubTask) {
-			return;
-		}
-		if (selectedRow?._id && !subTasks) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				subTaskLoading: true,
-			}));
-			getSubTasks({ taskId: selectedRow?._id });
-		} else {
-			if (subTasks?.data) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					subTasks: [...subTasks?.data],
-					subTaskLoading: false,
-					completedSubtaskCount: subTasks?.data?.filter(
-						(subTask) => subTask?.status === 'completed',
-					).length,
-				}));
-			} else {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					subTaskError: subTasks?.error,
-					subTaskLoading: false,
-				}));
-			}
-		}
-	}, [subTasks, selectedRow?._id, isShowingSubTask, getSubTasks]);
 
 	const handleDeleteTask = useCallback(async () => {
 		setInfo((prevInfo) => ({
