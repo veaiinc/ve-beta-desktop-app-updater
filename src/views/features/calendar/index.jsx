@@ -28,6 +28,7 @@ const Calendar = () => {
 		const payload = {
 			calendarCategory: 'default',
 			categoryColor: '#bf8bff',
+			categoryType: 'default',
 		};
 		createCalendarCategory(payload);
 		getTeamMembers();

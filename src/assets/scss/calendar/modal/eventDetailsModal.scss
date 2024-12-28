@@ -101,7 +101,6 @@
 				}
 
 				.eventValue {
-					overflow: hidden;
 					color: #dee0e2;
 					text-overflow: ellipsis;
 					font-family: Inter;
@@ -111,6 +110,51 @@
 					line-height: normal;
 					text-align: start;
 					text-transform: capitalize;
+
+					.attendeeSelector {
+						//custom tag for selected attendees
+						.custom-tag {
+							display: flex;
+							align-items: center;
+							justify-content: space-between;
+							width: fit-content;
+							gap: 4px;
+							padding: 4px 6px;
+							margin: 2px;
+							border-radius: 8px;
+							font-size: 12px;
+							font-weight: 500;
+							color: #e4e5e6;
+							background-color: #202121;
+
+							.profile-icon {
+								display: flex;
+								width: 16px;
+								height: 16px;
+								justify-content: center;
+								align-items: center;
+								font-size: 10px;
+								background-color: #2e2f36;
+								border-radius: 50%;
+							}
+
+							.tag-name {
+								font-weight: 500;
+								line-height: 16px;
+								color: #e4e5e6;
+								width: 120px;
+								white-space: nowrap;
+								overflow: hidden;
+								text-overflow: ellipsis;
+							}
+						}
+
+						//overflow the attendees list
+						.ant-select-selection-overflow {
+							overflow-y: scroll;
+							max-height: 100px;
+						}
+					}
 				}
 			}
 		}

@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/calendar/attendeeSelector.scss';
 import { Select } from 'antd';
 
@@ -8,7 +8,7 @@ const MultiCategorySelector = ({ options, value = [], onChange, className }) => 
 		formattedValues: [],
 	});
 
-	// Format options similar to CategorySelector
+	// Format options
 	useEffect(() => {
 		const formattedOptions = options?.map((option) => ({
 			value: option?._id,
@@ -21,48 +21,76 @@ const MultiCategorySelector = ({ options, value = [], onChange, className }) => 
 
 	// Format values for multiple selections
 	useEffect(() => {
-		const formattedValues = value?.map((item) => item?.tenantUserId || '');
+		const formattedValues = value?.map((item) => item?.tenantUserId || item?.email || '');
 		setInfo((prev) => ({ ...prev, formattedValues }));
 	}, [value]);
 
-	// Custom tag render for selected items
-	const tagRender = ({ label, value: tagValue, closable, onClose }) => {
-		const option = info?.formattedOptions?.find((opt) => opt?.value === tagValue);
-		const firstLetter = option?.label?.charAt(0).toUpperCase() || '';
-		return (
-			<div className="custom-tag">
-				<span className="profile-icon">{firstLetter}</span>
-				<span className="tag-name">{label}</span>
-				{closable && (
-					<span className="tag-close" onClick={onClose}>
-						×
-					</span>
-				)}
-			</div>
-		);
-	};
+	// Memoize tagRender since it depends on info.formattedOptions
+	const tagRender = useCallback(
+		({ label, value: tagValue, closable, onClose }) => {
+			const option = info?.formattedOptions?.find((opt) => opt?.value === tagValue);
+			const firstLetter = option?.label?.charAt(0).toUpperCase() || '';
+			return (
+				<div className="custom-tag">
+					<span className="profile-icon">{firstLetter || '👤'}</span>
+					<span className="tag-name">{label}</span>
+					{closable && (
+						<span className="tag-close" onClick={onClose}>
+							×
+						</span>
+					)}
+				</div>
+			);
+		},
+		[info?.formattedOptions],
+	);
 
 	// Custom render for dropdown options
 	const optionRender = (option) => {
+		const firstLetter = option?.label?.charAt(0).toUpperCase() || '';
 		return (
 			<div className="option-container">
-				<div className="option-name">{option?.label}</div>
-				{/* <div className="option-email">{option?.data?.email}</div> */}
+				<span className="option-icon">{firstLetter || '👤'}</span>
+				<span className="option-name">{option?.label}</span>
 			</div>
 		);
 	};
 
-	// Handle max tag display
+	// Handle max tag display : not using
 	const maxTagPlaceholder = (omittedValues) => {
 		return <span>+ {omittedValues?.length || 0}...</span>;
 	};
 
-	useEffect(() => {
-		console.log('info.formattedOptions===>', JSON.stringify(info?.formattedOptions, null, 2));
-		console.log('info.formattedValues===>', JSON.stringify(info?.formattedValues, null, 2));
-		console.log('options===>', JSON.stringify(options, null, 2));
-		console.log('value===>', JSON.stringify(value, null, 2));
-	}, [info, options, value]);
+	const handleChange = useCallback(
+		(selectedValues) => {
+			const selectedOptions = selectedValues?.map((selectedValue) => {
+				const option = options?.find(
+					(opt) =>
+						// Match by either tenantUserId or email
+						opt?._id === selectedValue || opt?.email === selectedValue,
+				);
+				return {
+					tenantUserId: option?._id || null,
+					email: option?.email || selectedValue,
+					isWorkspaceUser: Boolean(option?._id),
+					responseStatus: 'confirmed',
+					name: option
+						? `${option?.firstName || ''} ${option?.lastName || ''}`.trim()
+						: null,
+					role: option?.role || null,
+				};
+			});
+			onChange(selectedOptions);
+		},
+		[options, onChange],
+	);
+
+	// useEffect(() => {
+	// 	console.log('info.formattedOptions===>', JSON.stringify(info?.formattedOptions, null, 2));
+	// 	console.log('info.formattedValues===>', JSON.stringify(info?.formattedValues, null, 2));
+	// 	console.log('options===>', JSON.stringify(options, null, 2));
+	// 	console.log('value===>', JSON.stringify(value, null, 2));
+	// }, [info, options, value]);
 
 	return (
 		<div className={`multi-category-selector ${className}`}>
@@ -71,21 +99,8 @@ const MultiCategorySelector = ({ options, value = [], onChange, className }) => 
 				variant="borderless"
 				value={info?.formattedValues}
 				options={info?.formattedOptions || []}
-				onChange={(selectedValues) => {
-					const selectedOptions = selectedValues?.map((selectedValue) => {
-						const option = options?.find((opt) => opt?._id === selectedValue);
-						return {
-							tenantUserId: option?._id || null,
-							email: option?.email || null,
-							isWorkspaceUser: true,
-							responseStatus: 'confirmed',
-							name: `${option?.firstName || ''} ${option?.lastName || ''}`.trim(),
-							role: option?.role || null,
-						};
-					});
-					onChange(selectedOptions);
-				}}
-				placeholder="Select users"
+				onChange={handleChange}
+				placeholder="Add attendees"
 				// maxTagCount={1}
 				maxTagPlaceholder={maxTagPlaceholder}
 				tagRender={tagRender}

@@ -11,8 +11,8 @@ const CustomInput = ({
 	defaultValue,
 	placeholder,
 	name,
-	className, // Accept custom class names
-	style, // Accept inline styles
+	className,
+	style,
 	readOnly,
 	disabled,
 	...rest

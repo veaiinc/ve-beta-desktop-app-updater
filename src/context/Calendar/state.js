@@ -263,7 +263,7 @@ export const Calendar = () => {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const url = `/${workspaceId}${API.CALENDAR.updateCalendarEvent}/${eventId}`;
-			const response = await service.fetchPost(url, body, usertoken, 'calendar_api');
+			const response = await service.fetchPut(url, body, usertoken, 'calendar_api');
 
 			if (response?.[0] === true) {
 				dispatch({

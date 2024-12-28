@@ -214,7 +214,9 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 
 			// Check for duplicate
 			setInfo((prevInfo) => {
-				const isDuplicate = prevInfo.attendees.some((attendee) => attendee.email === email);
+				const isDuplicate = prevInfo?.attendees?.some(
+					(attendee) => attendee?.email === email,
+				);
 
 				if (isDuplicate) {
 					return {
@@ -241,8 +243,8 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 
 	const removeAttendee = useCallback(
 		(id) => {
-			const updatedAttendees = info.attendees.filter(
-				(attendee) => attendee.tenantUserId !== id && attendee.email !== id,
+			const updatedAttendees = info?.attendees?.filter(
+				(attendee) => attendee?.tenantUserId !== id && attendee?.email !== id,
 			);
 
 			setInfo((prevInfo) => ({

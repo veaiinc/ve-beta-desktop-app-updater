@@ -5,42 +5,6 @@
 	width: 100%;
 	cursor: pointer;
 
-	.custom-tag {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		width: fit-content;
-		gap: 4px;
-		padding: 4px 6px;
-		margin: 2px;
-		border-radius: 8px;
-		font-size: 11px;
-		font-weight: 500;
-		color: #e4e5e6;
-		background-color: #1c1d1d;
-
-		.profile-icon {
-			display: flex;
-			width: 16px;
-			height: 16px;
-			justify-content: center;
-			align-items: center;
-			font-size: 10px;
-			background-color: #2e2f36;
-			border-radius: 50%;
-		}
-
-		.tag-name {
-			font-weight: 500;
-			line-height: 16px;
-			color: #e4e5e6;
-			width: 100px;
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-		}
-	}
-
 	.ant-select {
 		width: 100%;
 		border-radius: 4px;
@@ -100,10 +64,43 @@
 			justify-content: space-between;
 			gap: 5px;
 			font-size: 12px;
+
+			.ant-select-item-option-state {
+				color: #91969d; //option tick color
+			}
+		}
+		.ant-select-item-option-content {
+			display: flex;
+			align-items: center;
 		}
 	}
 
+	//custom option render list of attendees
 	.option-container {
 		color: #e4e5e6;
+
+		display: flex;
+		align-items: center;
+		gap: 3px;
+
+		.option-icon {
+			display: flex;
+			width: 16px;
+			height: 16px;
+			justify-content: center;
+			align-items: center;
+			font-size: 9px;
+			background-color: #2e2f36;
+			border-radius: 50%;
+		}
+		.option-name {
+			font-weight: 500;
+			line-height: 16px;
+			color: #e4e5e6;
+			width: 200px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
 	}
 }

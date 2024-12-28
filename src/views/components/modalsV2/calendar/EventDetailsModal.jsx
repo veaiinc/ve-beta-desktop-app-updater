@@ -47,6 +47,47 @@ const EventDetailsModal = ({
 	// Cache to store previously fetched event details
 	const eventCache = useRef(new Map());
 
+	// Add debounce ref
+	const updateEventDebounceRef = useRef(null);
+
+	const debouncedUpdateEvent = useCallback(
+		(eventData) => {
+			if (updateEventDebounceRef.current) {
+				clearTimeout(updateEventDebounceRef.current);
+			}
+
+			updateEventDebounceRef.current = setTimeout(async () => {
+				if (validateExpiryData?.isExpired) {
+					return updateSubscriptionState({ expiredSubscriptionModal: true });
+				}
+				try {
+					const { eventId, field, value } = eventData;
+					console.log('eventData===>calling api with eventId and field', field);
+
+					// Create an object with only the changed field
+					const updateBody = {
+						[field]: value,
+					};
+
+					console.log('updateBody===>', JSON.stringify(updateBody, null, 2));
+					await updateCalendarEvent(eventId, updateBody);
+				} catch (error) {
+					console.error('Failed to update event:', error);
+				}
+			}, 800);
+		},
+		[updateCalendarEvent, validateExpiryData?.isExpired, updateSubscriptionState],
+	);
+
+	// Cleanup timeout on unmount
+	useEffect(() => {
+		return () => {
+			if (updateEventDebounceRef.current) {
+				clearTimeout(updateEventDebounceRef.current);
+			}
+		};
+	}, []);
+
 	useEffect(() => {
 		getEventDetails();
 	}, [selectedEvent]);
@@ -113,15 +154,24 @@ const EventDetailsModal = ({
 
 	const updateEventDetails = useCallback(
 		(field, value) => {
+			const updatedDetails = {
+				...info.eventDetails,
+				[field]: value,
+			};
+
 			setInfo((prev) => ({
 				...prev,
-				eventDetails: {
-					...prev.eventDetails,
-					[field]: value,
-				},
+				eventDetails: updatedDetails,
 			}));
+
+			// Call the debounced update function with only the changed field
+			debouncedUpdateEvent({
+				eventId: selectedEvent?.id,
+				field,
+				value,
+			});
 		},
-		[info],
+		[info.eventDetails, selectedEvent?.id, debouncedUpdateEvent],
 	);
 
 	const componentMapper = useMemo(() => {
