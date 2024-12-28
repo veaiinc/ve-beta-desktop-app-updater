@@ -743,16 +743,16 @@
 					img {
 						border-radius: 8px;
 					}
-					.imageOverlay {
-						position: absolute;
-						top: 0;
-						left: 0;
-						width: 100%;
-						height: 100%;
-						border-radius: 8px;
-						background: rgba(0, 0, 0, 0.5); /* Adjust opacity as needed */
-						pointer-events: none;
-					}
+					// .imageOverlay {
+					// 	position: absolute;
+					// 	top: 0;
+					// 	left: 0;
+					// 	width: 100%;
+					// 	height: 100%;
+					// 	border-radius: 8px;
+					// 	background: rgba(0, 0, 0, 0.5); /* Adjust opacity as needed */
+					// 	pointer-events: none;
+					// }
 					.rotating-circle {
 						position: absolute;
 						top: 0px;

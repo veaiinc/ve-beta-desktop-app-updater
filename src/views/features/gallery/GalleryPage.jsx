@@ -3899,7 +3899,7 @@ const GalleryPage = () => {
 																}}
 															/>
 														</div>
-														<div
+														{/* <div
 															className="toggle-option"
 															style={{
 																display: 'flex',
@@ -3933,7 +3933,7 @@ const GalleryPage = () => {
 																		: '#575858',
 																}}
 															/>
-														</div>
+														</div> */}
 													</div>
 													<li
 														onClick={() => {
@@ -3955,7 +3955,7 @@ const GalleryPage = () => {
 														<EditPen />
 														Rename Album
 													</li>
-													<li
+													{/* <li
 														onClick={() => {
 															setInfo((prev) => ({
 																...prev,
@@ -3972,7 +3972,7 @@ const GalleryPage = () => {
 													>
 														<ShareIcon />
 														Share Album
-													</li>
+													</li> */}
 													<li
 														onClick={() =>
 															setInfo((prev) => ({
@@ -4590,7 +4590,7 @@ const GalleryPage = () => {
 														<LightRoomIcon />
 														<span>Light Room Copy</span>
 													</li>
-													<li
+													{/* <li
 														onClick={() => {
 															setInfo((prev) => ({
 																...prev,
@@ -4606,7 +4606,7 @@ const GalleryPage = () => {
 													>
 														<ShareIcon />
 														<span>Share</span>
-													</li>
+													</li> */}
 													<li
 														onClick={handleDownload}
 														style={{
