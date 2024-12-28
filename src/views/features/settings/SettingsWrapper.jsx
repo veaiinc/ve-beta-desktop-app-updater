@@ -41,7 +41,7 @@ const SettingsWrapper = (props) => {
 		if (!tennantSettingsData) {
 			getTenantSettings();
 		}
-	}, []);
+	}, [tennantSettingsData]);
 
 	return (
 		<div className="accountSettingsMainWrapper">

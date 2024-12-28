@@ -16,6 +16,7 @@ import DeleteLeadModal from '../../../components/modalsV2/workflowsModals/Delete
 import UploadLogoNotification from '../../../components/notification/UploadLogoNotification';
 import { getCurrentWorkspaceId } from '../../../../helpers';
 import SendEmailModal from '../../../components/modalsV2/proposalModals/SendEmailModal';
+import { Spin } from 'antd';
 
 const SmartFile = () => {
 	const { templateId, workflowId } = useParams();
@@ -75,6 +76,7 @@ const SmartFile = () => {
 		emailIdentification: false,
 		assisstanceData: null,
 		sendCustomEmailModal: false,
+		copyLink: null,
 	});
 
 	//useEffect
@@ -174,6 +176,19 @@ const SmartFile = () => {
 			getTenantSettings();
 		}
 	}, [tennantSettingsData]);
+
+	useEffect(() => {
+		if (tennantSettingsData && info?.currentWorkspaceId) {
+			let link;
+			if (tennantSettingsData?.customDomain?.length) {
+				link = `https://${tennantSettingsData?.customDomain}/portal/${info?.workflowData?.slug}`;
+			} else {
+				link = `https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}`;
+			}
+
+			setInfo((prev) => ({ ...prev, copyLink: link }));
+		}
+	}, [tennantSettingsData, info?.currentWorkspaceId, info?.workflowData]);
 
 	//function defination
 
@@ -581,13 +596,22 @@ const SmartFile = () => {
 				updateIdentification={updateIdentification}
 				assisstanceData={info?.assisstanceData}
 				updateVariablesInAllModules={updateVariablesInAllModules}
+				copyLink={info?.copyLink}
 			/>
 
 			<CopiedModal
 				open={info?.copyModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
 				modules={info?.workflowData?.modules?.filter((e) => e?.type !== 'form')}
-				copyLink={`https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}`}
+				copyLink={
+					info?.copyLink || (
+						<span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+							Generating Link ...
+							<Spin />
+						</span>
+					)
+				}
+				// {`https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}`}
 				pin={smartFileInfo?.access?.pin}
 			/>
 			<UploadSignature
