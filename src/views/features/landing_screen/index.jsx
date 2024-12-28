@@ -167,8 +167,8 @@ const LandingPage = () => {
 		}
 
 		const lenis = new Lenis({
-			duration: 0.3,
-			easing: (t) => 1 - (1 - t) * (1 - t),
+			duration: 0.5,
+			easing: (t) => 1 - Math.pow(1 - t, 3),
 			direction: 'vertical',
 			smooth: true,
 			smoothTouch: false,
