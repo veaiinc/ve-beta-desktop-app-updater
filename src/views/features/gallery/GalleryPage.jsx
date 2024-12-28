@@ -2566,11 +2566,13 @@ const GalleryPage = () => {
 			if (info?.activeGallery?.coverImage?.givenFileName) {
 				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info.activeGallery.coverImage.givenFileName}?${params}`;
 			}
+			return GridImage;
 		} else if (info.coverType === 'album') {
 			// Use album cover
 			if (info?.activeAlbum?.coverImage?.givenFileName) {
 				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info?.activeAlbum?.coverImage?.givenFileName}?${params}`;
 			}
+			return GridImage;
 		}
 		return null;
 	};
