@@ -79,7 +79,6 @@ const ListView = ({
 	}, []);
 
 	const handleCloseSidebar = useCallback(() => {
-		console.log('info?.updated', info?.updated);
 		if (info?.updated) {
 			updateListViewInfo('loadingSkeleton', true);
 			fetchListItems();

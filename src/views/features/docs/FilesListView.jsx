@@ -258,9 +258,7 @@ const FilesListView = () => {
 				addNewTask={addNewTask}
 				responseMetadata={responseMetadata}
 				fetchListItems={fetchListItems}
-				addButtonOnClick={() => {
-					console.log('addButtonOnClick');
-				}}
+				addButtonOnClick={() => {}}
 				headerTitle={'Files'}
 			/>
 		</div>
