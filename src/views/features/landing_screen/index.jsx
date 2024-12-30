@@ -26,6 +26,7 @@ import { ReactComponent as RightArrowGrey } from '../../../assets/svg/landingScr
 import Context from '../../../context/context';
 import { message } from 'antd';
 import { debounce } from 'lodash';
+import IntegrationsVideo from './integrations.mp4';
 
 const navItems = [
 	{ id: 1, name: 'Privacy', route: '/privacy-policy' },
@@ -122,6 +123,7 @@ const resources = [
 
 const LandingPage = () => {
 	const navigate = useNavigate();
+	const landingPageContentRef = useRef();
 	const emailRef = useRef();
 
 	let {
@@ -208,6 +210,15 @@ const LandingPage = () => {
 		const threshold = windowHeight + 150;
 		const isNearBottom = windowHeight + scrollTop >= threshold;
 		setShowScrollArrow(!isNearBottom);
+		if (window.innerWidth > 800) {
+			const opacityPercentage = Math.min((2 * scrollTop) / windowHeight, 1);
+			if (landingPageContentRef?.current) {
+				landingPageContentRef.current.style.setProperty(
+					'opacity',
+					`${1 - opacityPercentage}`,
+				);
+			}
+		}
 	};
 
 	const handleScrollBackToTop = () => {
@@ -245,7 +256,7 @@ const LandingPage = () => {
 	return (
 		<div className="landing-page-container">
 			<Navbar handleNavigationToVerifyUser={handleNavigationToVerifyUser} />
-			<div className="landing-page-content">
+			<div ref={landingPageContentRef} className="landing-page-content">
 				<div className="section-1">
 					<div className="container">
 						<h1 className="heading">
@@ -311,6 +322,34 @@ const LandingPage = () => {
 					<DownArrow />
 				</div>
 			)}
+			<div className="integration-section-container">
+				<div className="left-div">
+					<div className="integrations-content-container">
+						<h2 className="integration-title">INTEGRATION</h2>
+						<h1 className="integration-heading">
+							Ve works where <br /> you work.
+						</h1>
+						<p className="integration-description">
+							Connect all your existing applications. Experience the power of your
+							company's collective knowledge all in one place.
+						</p>
+						<button className="integration-button">Get Demo</button>
+					</div>
+				</div>
+				<div className="right-div">
+					<div className="integrations-video-container">
+						<video
+							className="integrations-video"
+							muted
+							autoPlay
+							loop
+							playsInline
+							// src="https://ap.assets.ve.ai/logo/login-page-integrations-video.webm"
+							src={IntegrationsVideo}
+						></video>
+					</div>
+				</div>
+			</div>
 			<div className="caroursel-container">
 				<div className="description-container">
 					<h1 className="title">
@@ -376,7 +415,13 @@ const LandingPage = () => {
 							{socials?.map((socialData) => (
 								<li
 									className="list-item"
-									onClick={() => (window.location.href = socialData?.url)}
+									onClick={() =>
+										window.open(
+											socialData?.url,
+											'_blank',
+											'noopener,noreferrer',
+										)
+									}
 									key={socialData?.id}
 								>
 									{socialData?.title}
@@ -423,7 +468,7 @@ const LandingPage = () => {
 					</ul>
 					<div className="right">
 						<img width={24} height={24} src={Charminar} alt="Charminar" />
-						<span>Built in Hyderabad</span>
+						<span>Coded in Hyderabad</span>
 					</div>
 					<button
 						onMouseEnter={() => setIsBackToTopBtnHover(true)}
