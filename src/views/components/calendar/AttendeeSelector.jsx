@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/calendar/attendeeSelector.scss';
 import { Select } from 'antd';
 
-const MultiCategorySelector = ({ options, value = [], onChange, className }) => {
+const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 	const [info, setInfo] = useState({
 		formattedOptions: [],
 		formattedValues: [],
@@ -21,7 +21,20 @@ const MultiCategorySelector = ({ options, value = [], onChange, className }) => 
 
 	// Format values for multiple selections
 	useEffect(() => {
-		const formattedValues = value?.map((item) => item?.tenantUserId || item?.email || '');
+		const formattedValues = value.map((item) => {
+			// If there's a tenantUserId, use it as value and show name/email as label
+			if (item.tenantUserId) {
+				return {
+					value: item.tenantUserId,
+					label: item.name || item.email,
+				};
+			}
+			// If no tenantUserId, use email for both value and label
+			return {
+				value: item.email,
+				label: item.email,
+			};
+		});
 		setInfo((prev) => ({ ...prev, formattedValues }));
 	}, [value]);
 
@@ -85,12 +98,12 @@ const MultiCategorySelector = ({ options, value = [], onChange, className }) => 
 		[options, onChange],
 	);
 
-	// useEffect(() => {
-	// 	console.log('info.formattedOptions===>', JSON.stringify(info?.formattedOptions, null, 2));
-	// 	console.log('info.formattedValues===>', JSON.stringify(info?.formattedValues, null, 2));
-	// 	console.log('options===>', JSON.stringify(options, null, 2));
-	// 	console.log('value===>', JSON.stringify(value, null, 2));
-	// }, [info, options, value]);
+	useEffect(() => {
+		// console.log('info.formattedOptions===>', JSON.stringify(info?.formattedOptions, null, 2));
+		// console.log('info.formattedValues===>', JSON.stringify(info?.formattedValues, null, 2));
+		// console.log('options===>', JSON.stringify(options, null, 2));
+		// console.log('value===>', JSON.stringify(value, null, 2));
+	}, [info, options, value]);
 
 	return (
 		<div className={`multi-category-selector ${className}`}>
@@ -116,4 +129,4 @@ const MultiCategorySelector = ({ options, value = [], onChange, className }) => 
 	);
 };
 
-export default memo(MultiCategorySelector);
+export default memo(AttendeeSelector);

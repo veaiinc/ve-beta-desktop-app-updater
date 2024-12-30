@@ -287,7 +287,7 @@ const EventDetailsModal = ({
 				);
 			},
 		};
-	}, [categoryList, updateEventDetails, info?.eventDetails, updateEventDetails]);
+	}, [categoryList, updateEventDetails, tenantsUserList]);
 
 	const { validKeys, visibleKeys } = useMemo(() => {
 		const validKeys = info?.eventKeys?.filter((key) => componentMapper[key]) || [];

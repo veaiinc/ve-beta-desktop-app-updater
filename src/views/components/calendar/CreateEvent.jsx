@@ -102,7 +102,6 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 			location,
 			meeting,
 			attendees,
-			selectedCategory,
 			phone,
 		} = info;
 		// Validate required fields
@@ -153,7 +152,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 			responseStatus: 'confirmed',
 		}));
 
-		return {
+		const eventPayload = {
 			title,
 			description: description || '',
 			location,
@@ -162,11 +161,11 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 			timezone,
 			allDay,
 			attendees: processedAttendees,
-			// calendarCategory: selectedCategory?._id,
-			calendarCategory: selectedCategory,
+			calendarCategory: info?.selectedCategory,
 			meeting,
 			phone,
 		};
+		return eventPayload;
 	}, [info, convertToISOString]);
 
 	// Handle event creation submission
