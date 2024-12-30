@@ -798,7 +798,7 @@ const GalleryPage = () => {
 						isPublished: !currentAlbum?.isPublished,
 					},
 					activeAlbumId: currentAlbumId, // Ensure this stays the same
-					tenantAlbums: prev.tenantAlbums?.map((album) =>
+					tenantAlbums: prev?.tenantAlbums?.map((album) =>
 						album._id === currentAlbumId
 							? {
 									...album,
