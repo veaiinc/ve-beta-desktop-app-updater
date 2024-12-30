@@ -121,7 +121,6 @@ const CreateTaskPopup = ({
 
 	const handleMoreOptionClick = useCallback(
 		(value) => {
-			console.log(value);
 			if (value === 'addSubTask') {
 				updateModalInfo('showSubTaskCreate', true);
 			}

@@ -49,46 +49,48 @@ const DropDown = ({
 					) : (
 						''
 					)}
-					{options?.length > 0 ? (
-						<>
-							{options?.map((option, index) => (
-								<div
-									key={index}
-									className="listItem"
-									style={listItemStyles ? { ...listItemStyles } : {}}
-									onClick={() => {
-										if (onOptionClick) {
-											onOptionClick(option?.[valueSelector]);
-											handleDropDown(false);
-										}
-									}}
-								>
-									<div className="list-details">
-										{option?.Icon ? (
-											<option.Icon
-												style={{ width: '14px', height: '14px' }}
-											/>
-										) : (
-											''
-										)}
-										{option?.[valueSelector] !== undefined ? (
-											<span className="listItem-label">
-												{option?.label
-													? option?.label
-													: option?.[valueSelector]}
-											</span>
-										) : (
-											''
-										)}
+					<div className="dropdown-options">
+						{options?.length > 0 ? (
+							<>
+								{options?.map((option, index) => (
+									<div
+										key={index}
+										className="listItem"
+										style={listItemStyles ? { ...listItemStyles } : {}}
+										onClick={() => {
+											if (onOptionClick) {
+												onOptionClick(option?.[valueSelector]);
+												handleDropDown(false);
+											}
+										}}
+									>
+										<div className="list-details">
+											{option?.Icon ? (
+												<option.Icon
+													style={{ width: '14px', height: '14px' }}
+												/>
+											) : (
+												''
+											)}
+											{option?.[valueSelector] !== undefined ? (
+												<span className="listItem-label">
+													{option?.label
+														? option?.label
+														: option?.[valueSelector]}
+												</span>
+											) : (
+												''
+											)}
+										</div>
+										{selected === option?.[valueSelector] ? <Tick /> : ''}
 									</div>
-									{selected === option?.[valueSelector] ? <Tick /> : ''}
-								</div>
-							))}
-						</>
-					) : (
-						''
-						// <div className="listItem">No options found</div>
-					)}
+								))}
+							</>
+						) : (
+							''
+							// <div className="listItem">No options found</div>
+						)}
+					</div>
 				</div>
 			}
 			arrow={false}
