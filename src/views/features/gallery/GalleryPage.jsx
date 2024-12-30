@@ -3899,7 +3899,7 @@ const GalleryPage = () => {
 																}}
 															/>
 														</div>
-														{/* <div
+														<div
 															className="toggle-option"
 															style={{
 																display: 'flex',
@@ -3933,7 +3933,7 @@ const GalleryPage = () => {
 																		: '#575858',
 																}}
 															/>
-														</div> */}
+														</div>
 													</div>
 													<li
 														onClick={() => {
