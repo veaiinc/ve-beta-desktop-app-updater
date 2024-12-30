@@ -7,11 +7,12 @@ import CustomTimeGutterHeader from '../../components/calendar/CustomTimeGutterHe
 import CustomEventCard from '../../components/calendar/CustomEventCard';
 import CustomEventWrapper from '../../components/calendar/CustomEventWrapper';
 // import CustomEventContainer from '../../components/calendar/CustomEventContainer';
-import EventDetailsDrawer from '../../components/calendar/EventDetailsDrawer';
 import MonthEventWrapper from '../../components/calendar/MonthEventWrapper';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import Context from '../../../context/context';
 import moment from 'moment';
+// import EventDetailsDrawer from '../../components/calendar/EventDetailsDrawer';
+import EventDetailsModal from '../../components/modalsV2/calendar/EventDetailsModal';
 
 const initialState = {
 	eventsList: [],
@@ -57,7 +58,9 @@ const CalendarView = ({
 
 	useEffect(() => {
 		fetchEventsList();
-		handleSendEventToAi();
+		if (calendarEvent?._id) {
+			handleSendEventToAi();
+		}
 	}, [calendarEvent]);
 
 	useEffect(() => {
@@ -84,6 +87,7 @@ const CalendarView = ({
 				end: moment(event?.endDateTime).local().toDate(),
 				title: event?.title,
 				description: event?.description,
+				...(event || {}),
 			}));
 
 			setInfo((prevInfo) => ({
@@ -100,7 +104,7 @@ const CalendarView = ({
 	}, []);
 
 	const handleSendEventToAi = useCallback(async () => {
-		if (calendarEvent) {
+		if (calendarEvent?._id) {
 			await sendEventToAi({
 				event_id: calendarEvent?._id,
 			});
@@ -145,6 +149,33 @@ const CalendarView = ({
 		}),
 		[selectedDate, selectedWeek, currentCalendarDate, selectedWorkflowId, tenantsUserList],
 	);
+
+	const updateCalenderEventsList = useCallback(
+		(eventId, data = {}) => {
+			const updatedEventsList = [...(info?.eventsList || [])];
+			for (let i = 0; i < updatedEventsList?.length; i++) {
+				if (updatedEventsList?.[i]?.id === eventId) {
+					updatedEventsList[i] = { ...updatedEventsList[i], ...data };
+				}
+			}
+			setInfo((prev) => ({ ...prev, eventsList: updatedEventsList }));
+		},
+		[info?.eventsList],
+	);
+
+	const filterDeletedEvent = useCallback(
+		(eventId) => {
+			const filteredEventsList = info?.eventsList?.filter((event) => event?.id !== eventId);
+			setInfo((prev) => ({ ...prev, eventsList: filteredEventsList }));
+		},
+		[info?.eventsList],
+	);
+
+	const onClose = useCallback(() => {
+		updateCalendarInfo('isEventSelected', false);
+		setInfo((prev) => ({ ...prev, selectedEvent: null }));
+	}, [info, updateCalendarInfo]);
+
 	return (
 		<>
 			{info?.isLoading ? (
@@ -166,10 +197,20 @@ const CalendarView = ({
 							components={components}
 						/>
 					</div>
-					<EventDetailsDrawer
+					{/* <EventDetailsDrawer
 						selectedEvent={info?.selectedEvent}
 						isEventSelected={isEventSelected}
 						updateCalendarInfo={updateCalendarInfo}
+					/> */}
+					<EventDetailsModal
+						selectedEvent={info?.selectedEvent}
+						isEventSelected={isEventSelected}
+						updateCalendarInfo={updateCalendarInfo}
+						handleSelectEvent={setInfo}
+						categoryList={categoryList}
+						updateCalenderEventsList={updateCalenderEventsList}
+						filterDeletedEvent={filterDeletedEvent}
+						onClose={onClose}
 					/>
 				</div>
 			)}
