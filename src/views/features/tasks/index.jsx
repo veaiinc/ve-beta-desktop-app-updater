@@ -54,15 +54,28 @@ const Tasks = () => {
 
 	const responseMetadata = useMemo(
 		() => ({
-			title: { isTitle: true, type: 'text', name: 'Title', Icon: textSvg, props: {} },
+			title: { type: 'text', name: 'Title', Icon: textSvg, props: {} },
 			description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
 			status: { type: 'status', name: 'Status', Icon: PieSvg, props: {} },
 			priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg, props: {} },
 			workflow: {
 				type: 'workflow',
-				name: 'Workflow',
+				name: 'Project',
 				Icon: WorkflowSvg,
 				props: { options: info?.workflows },
+			},
+			parentTask: {
+				type: 'parentTask',
+				name: 'Parent Task',
+				Icon: WorkflowSvg,
+				props: { options: info?.parentTasks },
+			},
+			childTasks: {
+				type: 'childTasks',
+				name: 'Sub Tasks',
+				Icon: WorkflowSvg,
+				doSplit: true,
+				props: {},
 			},
 			assignedTo: {
 				type: 'person',
@@ -100,13 +113,13 @@ const Tasks = () => {
 				type: 'person',
 				name: 'Created By',
 				Icon: PersonSvg,
-				props: { disabled: true, parseValue: true },
+				props: { options: info?.tenantUsers, disabled: true, parseValue: true },
 			},
 			updatedBy: {
 				type: 'person',
 				name: 'Updated By',
 				Icon: PersonSvg,
-				props: { disabled: true, parseValue: true },
+				props: { options: info?.tenantUsers, disabled: true, parseValue: true },
 			},
 			taskSlNo: { type: 'id', name: 'Id', Icon: textSvg, props: {} },
 		}),
@@ -210,6 +223,13 @@ const Tasks = () => {
 		}
 	}, [info?.listItems, info?.selectedRow]);
 
+	// useEffect(() => {
+	// 	if (info.updated && !info.sidebarIsOpen) {
+	// 		fetchListItems();
+	// 		setInfo((prev) => ({ ...prev, updated: false }));
+	// 	}
+	// }, [info.sidebarIsOpen, info.updated]);
+
 	const fetchListItems = useCallback(() => {
 		getListItems({
 			taskFilterInput: {
@@ -273,7 +293,7 @@ const Tasks = () => {
 	}, []);
 
 	const debouncedUpdateTask = useCallback(
-		async (rowId, propName, value, originalValue, isUpdatingSubTask) => {
+		async (rowId, propName, value, originalValue, isUpdatingSubTask, onSuccess) => {
 			try {
 				const response = await updateListItem({
 					taskId: rowId,
@@ -294,6 +314,10 @@ const Tasks = () => {
 				if (response?.[0] === false) {
 					throw new Error('Failed to update, Try again later');
 				} else {
+					// Update state only after successful API call
+					if (onSuccess) onSuccess();
+
+					// Handle assignedTo special case
 					if (propName === 'assignedTo') {
 						const token = localStorage.getItem('usertoken');
 						const { user_id, userName } = jwtDecode(token);
@@ -333,6 +357,30 @@ const Tasks = () => {
 							});
 						}
 					}
+
+					// Update updatedBy for any successful update
+					const token = localStorage.getItem('usertoken');
+					const { user_id, userName } = jwtDecode(token);
+
+					setInfo((prevInfo) => {
+						const newListItems = prevInfo.listItems.map((row) => {
+							if (row._id === rowId) {
+								return {
+									...row,
+									updatedBy: { _id: user_id, name: userName },
+								};
+							}
+							return row;
+						});
+
+						return {
+							...prevInfo,
+							listItems: newListItems,
+						};
+					});
+				}
+				if (!info?.sidebarIsOpen) {
+					fetchListItems();
 				}
 			} catch (error) {
 				message.error(error?.message || 'Something went wrong! Please try again.');
@@ -352,24 +400,24 @@ const Tasks = () => {
 				});
 			}
 		},
-		[updateListItem, info?.workflows],
+		[updateListItem, info?.workflows, info?.selectedSubTask, info?.sidebarIsOpen],
 	);
 
 	const handleDebounceUpdate = useCallback(
-		(rowId, propName, value, originalValue, isSubTask) => {
+		(rowId, propName, value, originalValue, isSubTask, onSuccess) => {
 			if (debounceTimeout.current) {
 				clearTimeout(debounceTimeout.current);
 			}
 
 			debounceTimeout.current = setTimeout(() => {
-				debouncedUpdateTask(rowId, propName, value, originalValue, isSubTask);
+				debouncedUpdateTask(rowId, propName, value, originalValue, isSubTask, onSuccess);
 			}, 800);
 		},
 		[debouncedUpdateTask],
 	);
 
 	const updatePropertyValue = useCallback(
-		(rowId, propName, value, isUpdatingSubTask) => {
+		(rowId, propName, value, isUpdatingSubTask, onSuccess) => {
 			if (validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
@@ -384,9 +432,14 @@ const Tasks = () => {
 				if (info?.selectedSubTask) {
 					setInfo((prevInfo) => ({
 						...prevInfo,
+						updated: true,
 						selectedSubTask: { ...info?.selectedSubTask, [propName]: updatedValue },
 					}));
 				}
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					updated: true,
+				}));
 				updateSubTask({ _id: rowId, [propName]: updatedValue });
 			} else {
 				setInfo((prevInfo) => {
@@ -412,6 +465,7 @@ const Tasks = () => {
 				value,
 				originalValue,
 				isUpdatingSubTask || info?.selectedSubTask !== null,
+				onSuccess,
 			);
 		},
 		[
@@ -451,11 +505,9 @@ const Tasks = () => {
 						newTask.updatedBy = { _id: user_id, name: userName };
 						if (info?.isCreatingSubtask) {
 							addSubTask(newTask);
-						} else {
-							message.success('Task added successfully');
-							// updateListViewInfo('loadingSkeleton', true);
-							fetchListItems();
 						}
+						message.success('Task added successfully');
+						fetchListItems();
 					}
 				} else {
 					throw new Error('Failed to add new task');

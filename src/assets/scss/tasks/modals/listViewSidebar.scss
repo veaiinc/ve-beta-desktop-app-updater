@@ -11,7 +11,7 @@
 		border-radius: 16px;
 		border-radius: 16px;
 		border: 1px solid rgba(36, 36, 36, 0.64);
-		background: #202123;
+		background: #171819;
 		.listView-sidebar-wrapper {
 			display: flex;
 			align-self: stretch;
@@ -30,12 +30,17 @@
 				align-items: center;
 				gap: 8px;
 
+				svg {
+					flex-shrink: 0;
+				}
+
 				.breadcrumbs {
 					display: flex;
 					align-items: center;
 					gap: 4px;
 					flex-grow: 1;
 					justify-content: flex-start;
+					overflow: auto;
 					.breadcrumbs-item {
 						color: #7d7d7d;
 						font-family: Inter;
@@ -47,6 +52,7 @@
 						align-items: center;
 						gap: 2px;
 						cursor: pointer;
+						flex-shrink: 0;
 						svg {
 							margin-top: 0;
 							path {
@@ -68,6 +74,7 @@
 							path {
 								stroke: #ff4d4d !important;
 							}
+							filter: drop-shadow(0 0 2px #ff4d4d);
 						}
 					}
 				}
@@ -87,7 +94,7 @@
 					font-weight: 500;
 					line-height: normal;
 					resize: none;
-					max-height: fit-content;
+					// max-height: fit-content;
 					padding: 0;
 				}
 			}
