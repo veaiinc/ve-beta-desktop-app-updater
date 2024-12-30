@@ -55,25 +55,6 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 		addCategory: false,
 	});
 
-	const createEventRef = useRef(null);
-
-	useEffect(() => {
-		//for closing the create event modal when clicking outside
-		let timerId;
-		const handleClickOutside = (event) => {
-			if (createEventRef.current && !createEventRef.current.contains(event.target)) {
-				updateCalendarInfo('isCreateEventOpen', false);
-			}
-		};
-		timerId = setTimeout(() => {
-			document.addEventListener('click', handleClickOutside);
-		}, 0);
-		return () => {
-			clearTimeout(timerId);
-			document.removeEventListener('click', handleClickOutside);
-		};
-	}, []);
-	// Format date and time to ISO string
 	const convertToISOString = useCallback((date, time) => {
 		if (!date) return null;
 
@@ -256,278 +237,300 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 	);
 
 	return (
-		<div className="createEventContainer" ref={createEventRef}>
-			<div className="headerWrapper">
-				<span className="headerLabel">Create an event</span>
-				<CloseSvg
-					onClick={() => {
-						if (info?.isSubmitting) return;
-						updateCalendarInfo('isCreateEventOpen', false);
-						setInfo(initialState);
-					}}
-					style={{ cursor: 'pointer' }}
-				/>
-			</div>
-			{info?.submissionError && (
-				<div
-					style={{
-						color: 'red',
-						display: 'flex',
-						justifyContent: 'center',
-						alignItems: 'center',
-					}}
-				>
-					{info?.submissionError}
-				</div>
-			)}
-			<div className="eventDetailsContainer">
-				<div className="agendaContainer">
-					<span className="agendaLabel">Agenda</span>
-					<input
-						type="text"
-						name="title"
-						id="title"
-						placeholder="E.g. Meeting"
-						value={info?.title}
-						onChange={(e) => updateEventInfo('title', e.target.value)}
-					/>
-					<span className="agendaLabel">Description</span>
-					<input
-						type="text"
-						name="description"
-						id="description"
-						placeholder="Description of the event"
-						value={info?.description}
-						onChange={(e) => updateEventInfo('description', e.target.value)}
+		<div className="createEventContainer">
+			<div
+				style={{
+					position: 'absolute',
+					width: '100vw',
+					height: '100vh',
+					backgroundColor: 'transparent',
+					left: 0,
+					top: 0,
+					zIndex: 1000,
+				}}
+				onClick={() => updateCalendarInfo('isCreateEventOpen', false)}
+			></div>
+			<div style={{ zIndex: 1001 }} className="createEventContainer">
+				<div className="headerWrapper">
+					<span className="headerLabel">Create an event</span>
+					<CloseSvg
+						onClick={() => {
+							if (info?.isSubmitting) return;
+							updateCalendarInfo('isCreateEventOpen', false);
+							setInfo(initialState);
+						}}
+						style={{ cursor: 'pointer' }}
 					/>
 				</div>
-
-				<div className="detailsContainer">
-					<div className="detailsWrapper">
-						<Clock />
-						<span className="detailsLabel">Details</span>
+				{info?.submissionError && (
+					<div
+						style={{
+							color: 'red',
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+						}}
+					>
+						{info?.submissionError}
 					</div>
-					<div className={`${info?.allDay ? `` : `eventTimeWrapper`}`}>
-						<input
-							type="date"
-							placeholder="Wed, September 22 2024"
-							className="dateInput"
-							value={info?.startDate}
-							onChange={(e) => updateEventInfo('startDate', e.target.value)}
-						/>
-						{info?.allDay ? (
-							''
-						) : (
-							<input
-								type="time"
-								placeholder="12:00PM"
-								className="timeInput"
-								value={info?.startTime}
-								onChange={(e) => updateEventInfo('startTime', e.target.value)}
-							/>
-						)}
-					</div>
-					<div className={`${info?.allDay ? `` : `eventTimeWrapper`}`}>
-						<input
-							type="date"
-							placeholder="Wed, September 22 2024"
-							className="dateInput"
-							value={info?.endDate}
-							onChange={(e) => updateEventInfo('endDate', e.target.value)}
-						/>
-						{info?.allDay ? (
-							''
-						) : (
-							<input
-								type="time"
-								placeholder="12:30AM"
-								className="timeInput"
-								value={info?.endTime}
-								onChange={(e) => updateEventInfo('endTime', e.target.value)}
-							/>
-						)}
-					</div>
-					<div className="allDayWrapper">
-						<span className="allDayLabel">All Day Event</span>
-						<ToggleSwitch onChange={() => updateEventInfo('allDay', !info?.allDay)} />
-					</div>
-				</div>
-
-				<div className="categoriesContainer">
-					<div className="categoriesWrapper">
-						<Category />
-						<div className="categoriesLabel">Categories</div>
-					</div>
-					<div className="categoriesSelector">
+				)}
+				<div className="eventDetailsContainer">
+					<div className="agendaContainer">
+						<span className="agendaLabel">Agenda</span>
 						<input
 							type="text"
-							placeholder="Add to a category"
-							onBlur={() => updateEventInfo('showCategory', false)}
-							onFocus={() => {
-								updateEventInfo('showCategory', true);
-							}}
-							value={info?.selectedCategory?.name}
-							style={{ textTransform: 'capitalize' }}
+							name="title"
+							id="title"
+							placeholder="E.g. Meeting"
+							value={info?.title}
+							onChange={(e) => updateEventInfo('title', e.target.value)}
 						/>
-						<div
-							className="downArrow"
-							onClick={() => updateEventInfo('showCategory', !info?.showCategory)}
-						>
-							<DownSvg
-								style={{
-									transform: info?.showCategory ? `rotate(180deg)` : `rotate(0)`,
-								}}
+						<span className="agendaLabel">Description</span>
+						<input
+							type="text"
+							name="description"
+							id="description"
+							placeholder="Description of the event"
+							value={info?.description}
+							onChange={(e) => updateEventInfo('description', e.target.value)}
+						/>
+					</div>
+
+					<div className="detailsContainer">
+						<div className="detailsWrapper">
+							<Clock />
+							<span className="detailsLabel">Details</span>
+						</div>
+						<div className={`${info?.allDay ? `` : `eventTimeWrapper`}`}>
+							<input
+								type="date"
+								placeholder="Wed, September 22 2024"
+								className="dateInput"
+								value={info?.startDate}
+								onChange={(e) => updateEventInfo('startDate', e.target.value)}
+							/>
+							{info?.allDay ? (
+								''
+							) : (
+								<input
+									type="time"
+									placeholder="12:00PM"
+									className="timeInput"
+									value={info?.startTime}
+									onChange={(e) => updateEventInfo('startTime', e.target.value)}
+								/>
+							)}
+						</div>
+						<div className={`${info?.allDay ? `` : `eventTimeWrapper`}`}>
+							<input
+								type="date"
+								placeholder="Wed, September 22 2024"
+								className="dateInput"
+								value={info?.endDate}
+								onChange={(e) => updateEventInfo('endDate', e.target.value)}
+							/>
+							{info?.allDay ? (
+								''
+							) : (
+								<input
+									type="time"
+									placeholder="12:30AM"
+									className="timeInput"
+									value={info?.endTime}
+									onChange={(e) => updateEventInfo('endTime', e.target.value)}
+								/>
+							)}
+						</div>
+						<div className="allDayWrapper">
+							<span className="allDayLabel">All Day Event</span>
+							<ToggleSwitch
+								onChange={() => updateEventInfo('allDay', !info?.allDay)}
 							/>
 						</div>
-						{info?.showCategory && (
-							<div className="categoryDropDown">
-								{categoryList?.map((item) => (
-									<div
-										className="categoryDropDownItem"
-										onMouseDown={() => {
-											updateEventInfo('selectedCategory', item);
-											updateEventInfo('showCategory', false);
-										}}
-									>
-										{item?.name}
-									</div>
-								))}
-								<div
-									className="categoryDropDownItem addCategory"
-									onClick={() =>
-										setInfo((prev) => ({ ...prev, addCategory: true }))
-									}
-								>
-									+ Add new
-								</div>
-							</div>
-						)}
 					</div>
-					<div className="additionalOptions">
-						<input
-							type="text"
-							placeholder="Add location"
-							value={info?.location}
-							onChange={(e) => updateEventInfo('location', e.target.value)}
-						/>
-						<Location />
-					</div>
-					<div className="additionalOptions">
-						<Meeting />
-						<input
-							type="text"
-							placeholder="Add meeting link"
-							value={info?.meeting}
-							onChange={(e) => updateEventInfo('meeting', e.target.value)}
-						/>
-					</div>
-				</div>
 
-				<div className="attendeesContainer">
-					<div className="attendeesHeader">
-						<span className="attendiesLabel">Attendees</span>
-						<span className="attendeesCount">{info?.attendees?.length + 1}</span>
-					</div>
-					<div className="attendeeInputWrapper">
-						<input
-							type="text"
-							placeholder="Add attendee or email"
-							onBlur={() => updateEventInfo('showAtendeeSuggestions', false)}
-							onFocus={() => {
-								updateEventInfo('showAtendeeSuggestions', true);
-								updateEventInfo('submissionError', null);
-							}}
-							value={info?.attendeesInputField}
-							onChange={(e) => updateEventInfo('attendeesInputField', e.target.value)}
-							onKeyDown={(e) => {
-								if (e.key === 'Enter' && info?.attendeesInputField) {
-									addAttendees({ email: info?.attendeesInputField });
-									updateEventInfo('showAtendeeSuggestions', false);
-								}
-							}}
-						/>
-						{info?.showAtendeeSuggestions ? (
-							<div className="addAttendeeDropDown">
-								{tenantsUserList
-									?.filter((item) => !item?.isOwner)
-									?.map((item) => (
+					<div className="categoriesContainer">
+						<div className="categoriesWrapper">
+							<Category />
+							<div className="categoriesLabel">Categories</div>
+						</div>
+						<div className="categoriesSelector">
+							<input
+								type="text"
+								placeholder="Add to a category"
+								onBlur={() => updateEventInfo('showCategory', false)}
+								onFocus={() => {
+									updateEventInfo('showCategory', true);
+								}}
+								value={info?.selectedCategory?.name}
+								style={{ textTransform: 'capitalize' }}
+							/>
+							<div
+								className="downArrow"
+								onClick={() => updateEventInfo('showCategory', !info?.showCategory)}
+							>
+								<DownSvg
+									style={{
+										transform: info?.showCategory
+											? `rotate(180deg)`
+											: `rotate(0)`,
+									}}
+								/>
+							</div>
+							{info?.showCategory && (
+								<div className="categoryDropDown">
+									{categoryList?.map((item) => (
 										<div
-											className="dropDownList"
-											key={item?._id}
+											className="categoryDropDownItem"
 											onMouseDown={() => {
-												addAttendees({
-													name: item?.firstName,
-													email: item?.email,
-													tenantUserId: item?._id,
-													isWorkspaceUser: true,
-													role: item?.role,
-												});
+												updateEventInfo('selectedCategory', item);
+												updateEventInfo('showCategory', false);
 											}}
 										>
+											{item?.name}
+										</div>
+									))}
+									<div
+										className="categoryDropDownItem addCategory"
+										onClick={() =>
+											setInfo((prev) => ({ ...prev, addCategory: true }))
+										}
+									>
+										+ Add new
+									</div>
+								</div>
+							)}
+						</div>
+						<div className="additionalOptions">
+							<input
+								type="text"
+								placeholder="Add location"
+								value={info?.location}
+								onChange={(e) => updateEventInfo('location', e.target.value)}
+							/>
+							<Location />
+						</div>
+						<div className="additionalOptions">
+							<Meeting />
+							<input
+								type="text"
+								placeholder="Add meeting link"
+								value={info?.meeting}
+								onChange={(e) => updateEventInfo('meeting', e.target.value)}
+							/>
+						</div>
+					</div>
+
+					<div className="attendeesContainer">
+						<div className="attendeesHeader">
+							<span className="attendiesLabel">Attendees</span>
+							<span className="attendeesCount">{info?.attendees?.length + 1}</span>
+						</div>
+						<div className="attendeeInputWrapper">
+							<input
+								type="text"
+								placeholder="Add attendee or email"
+								onBlur={() => updateEventInfo('showAtendeeSuggestions', false)}
+								onFocus={() => {
+									updateEventInfo('showAtendeeSuggestions', true);
+									updateEventInfo('submissionError', null);
+								}}
+								value={info?.attendeesInputField}
+								onChange={(e) =>
+									updateEventInfo('attendeesInputField', e.target.value)
+								}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' && info?.attendeesInputField) {
+										addAttendees({ email: info?.attendeesInputField });
+										updateEventInfo('showAtendeeSuggestions', false);
+									}
+								}}
+							/>
+							{info?.showAtendeeSuggestions ? (
+								<div className="addAttendeeDropDown">
+									{tenantsUserList
+										?.filter((item) => !item?.isOwner)
+										?.map((item) => (
+											<div
+												className="dropDownList"
+												key={item?._id}
+												onMouseDown={() => {
+													addAttendees({
+														name: item?.firstName,
+														email: item?.email,
+														tenantUserId: item?._id,
+														isWorkspaceUser: true,
+														role: item?.role,
+													});
+												}}
+											>
+												<div className="avatar">
+													<Avtar />
+												</div>
+												<div className="details">
+													<div className="name">{`${item?.firstName}`}</div>
+													<div className="email">{item?.email}</div>
+												</div>
+											</div>
+										))}
+								</div>
+							) : (
+								''
+							)}
+						</div>
+						<div className="attendeesList">
+							<div className="attendeesDetails">
+								<div className="avatar">
+									<Avtar />
+								</div>
+								<div className="nameWrapper">
+									<span className="name">
+										{userDetailsData?.firstName} {userDetailsData?.lastName}
+									</span>
+									<span className="role">Organizer</span>
+								</div>
+							</div>
+							{info?.attendees
+								? info?.attendees?.map((item, index) => (
+										<div className="attendeesDetails" key={index}>
 											<div className="avatar">
 												<Avtar />
 											</div>
-											<div className="details">
-												<div className="name">{`${item?.firstName}`}</div>
-												<div className="email">{item?.email}</div>
+											<div className="nameWrapper">
+												<span className="name">{item?.name}</span>
+												<span className="role">{item?.email}</span>
 											</div>
+											<Close
+												onClick={() =>
+													removeAttendee(
+														item?.tenantUserId || item?.email,
+													)
+												}
+												style={{ cursor: 'pointer' }}
+											/>
 										</div>
-									))}
-							</div>
-						) : (
-							''
-						)}
-					</div>
-					<div className="attendeesList">
-						<div className="attendeesDetails">
-							<div className="avatar">
-								<Avtar />
-							</div>
-							<div className="nameWrapper">
-								<span className="name">
-									{userDetailsData?.firstName} {userDetailsData?.lastName}
-								</span>
-								<span className="role">Organizer</span>
-							</div>
+								  ))
+								: ''}
 						</div>
-						{info?.attendees
-							? info?.attendees?.map((item, index) => (
-									<div className="attendeesDetails" key={index}>
-										<div className="avatar">
-											<Avtar />
-										</div>
-										<div className="nameWrapper">
-											<span className="name">{item?.name}</span>
-											<span className="role">{item?.email}</span>
-										</div>
-										<Close
-											onClick={() =>
-												removeAttendee(item?.tenantUserId || item?.email)
-											}
-											style={{ cursor: 'pointer' }}
-										/>
-									</div>
-							  ))
-							: ''}
 					</div>
 				</div>
+				<button
+					className="addToCalendar"
+					onClick={handleEventSubmission}
+					disabled={info?.isSubmitting}
+				>
+					{info?.isSubmitting ? (
+						<Spinner width={'20px'} height={'20px'} />
+					) : (
+						'Add to calendar'
+					)}
+				</button>
+				<UpdateCategoryModal
+					show={info?.addCategory}
+					handleClose={() => setInfo((prev) => ({ ...prev, addCategory: false }))}
+					selectedCategory={info?.selectedCategory}
+				/>
 			</div>
-			<button
-				className="addToCalendar"
-				onClick={handleEventSubmission}
-				disabled={info?.isSubmitting}
-			>
-				{info?.isSubmitting ? (
-					<Spinner width={'20px'} height={'20px'} />
-				) : (
-					'Add to calendar'
-				)}
-			</button>
-			<UpdateCategoryModal
-				show={info?.addCategory}
-				handleClose={() => setInfo((prev) => ({ ...prev, addCategory: false }))}
-				selectedCategory={info?.selectedCategory}
-			/>
 		</div>
 	);
 };
