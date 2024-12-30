@@ -9,7 +9,7 @@ import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tas
 // import { ReactComponent as CalendarIcon } from '../../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as TaskIcon } from '../../../../assets/svg/tasks/taskIcon.svg';
 import { ReactComponent as DustbinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
-
+import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import Priority from '../../tasks/listView/Priority';
 import Status from '../../tasks/listView/Status';
 import { message } from 'antd';
@@ -421,7 +421,9 @@ const CreateTaskPopup = ({
 								<div className="subtask-list-header">
 									<h2 className="subtask-list-title">Sub Tasks</h2>
 									<span className="subtask-list-count">
-										{info?.childTasks?.length}
+										{info?.childTasks?.length < 10
+											? `0${info?.childTasks?.length}`
+											: info?.childTasks?.length}
 									</span>
 								</div>
 								<div className="subtask-list-container">
@@ -446,7 +448,9 @@ const CreateTaskPopup = ({
 									className="subtask-list-footer"
 									onClick={() => updateModalInfo('showSubTaskCreate', true)}
 								>
-									<button className="btn-addSubTask">Add Sub Task</button>
+									<button className="btn-addSubTask">
+										<PlusSvg /> Add Sub Task
+									</button>
 								</div>
 							</div>
 						)}
