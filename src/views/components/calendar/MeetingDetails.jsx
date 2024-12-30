@@ -4,14 +4,19 @@ import { ReactComponent as MeetClock } from '../../../assets/svg/calendar/meetCl
 import { ReactComponent as Ellipse } from '../../../assets/svg/calendar/ellipseCircle.svg';
 import Meetwomen from '../../../assets/svg/calendar/meetwomen.png';
 import Context from '../../../context/context';
-import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
 
 const MeetingDetails = () => {
 	const {
-		calendarInfo: { calendarEventsList = [] },
+		calendarInfo: { calendarEventsList = [], deletedEvent, getCalendarEventsList },
 	} = useContext(Context);
 	const [currentTime, setCurrentTime] = useState(moment());
+
+	useEffect(() => {
+		if (deletedEvent) {
+			getCalendarEventsList();
+		}
+	}, [deletedEvent]);
 
 	useEffect(() => {
 		const timer = setInterval(() => {
@@ -21,7 +26,7 @@ const MeetingDetails = () => {
 		return () => clearInterval(timer);
 	}, []);
 
-	const findUpcomingEvent = useCallback(() => {
+	const upcomingEvent = useMemo(() => {
 		if (!calendarEventsList || calendarEventsList.length === 0) return null;
 
 		return [...calendarEventsList]
@@ -29,7 +34,7 @@ const MeetingDetails = () => {
 			?.find((event) => moment(event?.startDateTime).isAfter(currentTime));
 	}, [calendarEventsList, currentTime]);
 
-	const upcomingEvent = useMemo(() => findUpcomingEvent(), [findUpcomingEvent]);
+	console.log('upcomingEvent===>', JSON.stringify(upcomingEvent, null, 2));
 
 	const formatTimeRemaining = useCallback(
 		(eventstartDateTime) => {
@@ -59,7 +64,7 @@ const MeetingDetails = () => {
 		[upcomingEvent, formatTimeRemaining],
 	);
 
-	return !calendarEventsList || calendarEventsList?.length === 0 ? (
+	return !upcomingEvent ? (
 		<div className="meetingCardParentContainer">
 			<div className="meetingCard">
 				<div className="timeDurationWrapper">
@@ -68,9 +73,7 @@ const MeetingDetails = () => {
 					</div>
 					<div className="durationBadge">
 						<MeetClock />
-						<span style={{ fontSize: '10px', fontWeight: '600' }}>
-							{eventDetails?.timeRemaining}
-						</span>
+						<span style={{ fontSize: '10px', fontWeight: '600' }}>00:00</span>
 						<span className="indicatorDot"></span>
 					</div>
 				</div>
