@@ -90,6 +90,7 @@ const AddGallery = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
+		const childrenContainer = document.querySelector('.childrenContainer');
 		if (!tenantGalleries) {
 			fetchGalleries(info.page);
 		}
@@ -98,7 +99,15 @@ const AddGallery = () => {
 		clearGalleryShareDetails();
 		clearPreRegisteredUsers();
 		clearGalleryState();
+		if (childrenContainer) {
+			const originalWidth = childrenContainer.style.maxWidth;
+			childrenContainer.style.maxWidth = '80vw';
+			return () => {
+				childrenContainer.style.maxWidth = originalWidth;
+			};
+		}
 	}, []);
+
 	useEffect(() => {
 		if (tenantGalleries) {
 			setInfo((prev) => ({ ...prev, activeSort: tenantGalleries?.sort }));
@@ -305,7 +314,7 @@ const AddGallery = () => {
 
 							{tenantGalleries ? (
 								tenantGalleries?.galleries?.length > 0 ? (
-									tenantGalleries?.galleries.map((items, index) => (
+									tenantGalleries?.galleries?.map((items, index) => (
 										<div
 											className="add-gallery-image"
 											onClick={() => handleNavigateGallery(items)}

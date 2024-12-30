@@ -1,9 +1,11 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import '../../../../assets/scss/gallery/insights.scss';
+import { message } from 'antd';
 import Table from './Table';
 import { ReactComponent as DownloadIcon } from '../../../../assets/svg/gallery/download2.svg';
 import { ReactComponent as SearchIcon } from '../../../../assets/svg/workflow/search.svg';
 import { ReactComponent as FilterIcon } from '../../../../assets/svg/chat/filter.svg';
+import MainPopup from '../../modalsV2/gallery/RenameGallery';
 import Context from '../../../../context/context';
 import { ReactComponent as CloseIcon } from '../../../../assets/svg/sidebar/CrossSvg.svg';
 import { useInView } from 'react-intersection-observer';
@@ -18,6 +20,8 @@ const Insights = () => {
 			preRegisteredUsers,
 			insightsVisitors,
 			getInsightVisitors,
+			getAiFace,
+			getAiFaceCount,
 		},
 	} = useContext(Context);
 	const [showFilter, setShowFilter] = useState(false);
@@ -26,6 +30,8 @@ const Insights = () => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [showSearchBar, setShowSearchBar] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [showDatePicker, setShowDatePicker] = useState(false);
+	const [date, setDate] = useState('');
 	const ITEMS_PER_PAGE = 20;
 
 	const { ref, inView } = useInView({
@@ -75,6 +81,13 @@ const Insights = () => {
 				startDate.setHours(0, 0, 0, 0);
 				break;
 
+			case 'Custom Date':
+				startDate = new Date(date);
+				startDate.setHours(0, 0, 0, 0);
+				endDate.setTime(startDate.getTime());
+				endDate.setHours(23, 59, 59, 999);
+				break;
+
 			default:
 				startDate = new Date(2000, 0, 1);
 				startDate.setHours(0, 0, 0, 0);
@@ -90,6 +103,9 @@ const Insights = () => {
 		const pathname = window.location.pathname;
 		const galleryId = pathname.split('/galleries/')[1];
 		if (galleryId) {
+			if (!aiFace) {
+				getAiFace?.(galleryId, 1, 40, true);
+			}
 			setCurrentPage(1);
 			const dateRange = calculateDateRange(selectedFilter);
 			// Always fetch data when filter/search changes or when resetting to show all data
@@ -102,6 +118,10 @@ const Insights = () => {
 	}, [inView, isLoading, currentPage, insightsVisitors?.hasNextPage]);
 
 	const downloadCSV = (data) => {
+		if (!data || data.length === 0) {
+			message.error('No data available to download');
+			return;
+		}
 		const headerMapping = {
 			name: 'Name',
 			email: 'Email',
@@ -167,11 +187,11 @@ const Insights = () => {
 		},
 		{
 			name: 'People',
-			count: aiFace?.numberOfFaces,
+			count: aiFace?.numberOfFaces || 0,
 		},
 		{
 			name: 'Storage',
-			count: bytesToGigabytes(tenantAlbums?.storageDetails?.storage) || 0,
+			count: bytesToGigabytes(tenantAlbums?.storageDetails?.storage),
 		},
 	];
 
@@ -220,29 +240,21 @@ const Insights = () => {
 					<p className="subHeading">People who open with gallery link</p>
 				</div>
 				<div className="insightsHeader-icons">
-					{showSearchBar ? (
-						<div className="search-container">
-							<input
-								type="text"
-								placeholder=""
-								value={searchQuery}
-								onChange={(e) => debouncedSearch(e.target.value)}
-								className="search-bar"
+					<div className={`search-container ${searchQuery ? 'expanded' : ''}`}>
+						<SearchIcon />
+						<input
+							type="text"
+							placeholder="Search"
+							value={searchQuery}
+							onChange={(e) => debouncedSearch(e.target.value)}
+						/>
+						{searchQuery && (
+							<CloseIcon
+								onClick={() => debouncedSearch('')}
+								style={{ cursor: 'pointer' }}
 							/>
-							<p
-								onClick={() => {
-									debouncedSearch('');
-									setShowSearchBar(!showSearchBar);
-								}}
-							>
-								<CloseIcon />
-							</p>
-						</div>
-					) : (
-						<p onClick={() => setShowSearchBar(!showSearchBar)}>
-							<SearchIcon />
-						</p>
-					)}
+						)}
+					</div>
 					<p onClick={() => downloadCSV(visitorData)}>
 						<DownloadIcon />
 					</p>
@@ -276,10 +288,28 @@ const Insights = () => {
 										border: '1px solid rgba(255, 255, 255, 0.1)',
 									}}
 								/>
-								<div className="filter-option">Custom Date</div>
+								<div
+									className="filter-option"
+									onClick={() => setShowDatePicker(!showDatePicker)}
+								>
+									Custom Date
+								</div>
 							</div>
 						)}
 					</p>
+					<MainPopup
+						open={showDatePicker}
+						onClose={() => setShowDatePicker(false)}
+						heading="Custom Date"
+						inputType="date"
+						placeholder="Select Date"
+						value={date}
+						onChange={(e) => setDate(e.target.value)}
+						onSubmit={() => {
+							setSelectedFilter('Custom Date');
+							setShowDatePicker(false);
+						}}
+					/>
 				</div>
 			</div>
 			<div
