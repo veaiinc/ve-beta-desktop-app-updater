@@ -16,6 +16,7 @@ const CalendarSidebar = ({
 	categoryList,
 	selectedCategory,
 	categoryFilter,
+	selectedSlot,
 	updateCalendarInfo,
 }) => {
 	const [info, setInfo] = useState({
@@ -37,6 +38,7 @@ const CalendarSidebar = ({
 				<CreateEvent
 					categoryList={categoryList}
 					selectedCategory={selectedCategory}
+					selectedSlot={selectedSlot}
 					updateCalendarInfo={updateCalendarInfo}
 				/>
 			) : (

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useRef, useState, useContext, useEffect } from 'react';
+import React, { memo, useCallback, useState, useContext, useEffect } from 'react';
 import '../../../assets/scss/calendar/createEvent.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
@@ -31,7 +31,15 @@ const initialState = {
 	submissionError: null,
 };
 
-const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => {
+const formatTimeAndDateForInput = (timeObj) => {
+	if (!timeObj) return { date: '', time: '' };
+	if (typeof timeObj === 'string') return { date: timeObj, time: '' };
+	const date = moment(timeObj).format('YYYY-MM-DD');
+	const time = moment(timeObj).format('HH:mm');
+	return { date, time };
+};
+
+const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selectedSlot }) => {
 	const {
 		calendarInfo: { calendarEvent, createCalendarEvent },
 		profileInfo: { userDetailsData },
@@ -54,6 +62,17 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 		endTime: '',
 		addCategory: false,
 	});
+
+	useEffect(() => {
+		if (selectedSlot) {
+			const { date, time } = formatTimeAndDateForInput(selectedSlot);
+			setInfo((prev) => ({
+				...prev,
+				startDate: date,
+				startTime: time,
+			}));
+		}
+	}, [selectedSlot]);
 
 	const convertToISOString = useCallback((date, time) => {
 		if (!date) return null;
@@ -326,7 +345,8 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 								type="date"
 								placeholder="Wed, September 22 2024"
 								className="dateInput"
-								value={info?.endDate}
+								// value={info?.endDate}
+								value={info?.startDate}
 								onChange={(e) => updateEventInfo('endDate', e.target.value)}
 							/>
 							{info?.allDay ? (
@@ -336,7 +356,8 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo }) => 
 									type="time"
 									placeholder="12:30AM"
 									className="timeInput"
-									value={info?.endTime}
+									// value={info?.endTime}
+									value={info?.startTime}
 									onChange={(e) => updateEventInfo('endTime', e.target.value)}
 								/>
 							)}

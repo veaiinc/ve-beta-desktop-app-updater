@@ -34,8 +34,6 @@ const MeetingDetails = () => {
 			?.find((event) => moment(event?.startDateTime).isAfter(currentTime));
 	}, [calendarEventsList, currentTime]);
 
-	console.log('upcomingEvent===>', JSON.stringify(upcomingEvent, null, 2));
-
 	const formatTimeRemaining = useCallback(
 		(eventstartDateTime) => {
 			if (!eventstartDateTime) return '0 hr 0 min';

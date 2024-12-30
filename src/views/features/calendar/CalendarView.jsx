@@ -171,6 +171,11 @@ const CalendarView = ({
 		[info?.eventsList],
 	);
 
+	const onSelectSlot = useCallback((event) => {
+		updateCalendarInfo('isCreateEventOpen', true);
+		updateCalendarInfo('selectedSlot', event?.start);
+	}, []);
+
 	const onClose = useCallback(() => {
 		updateCalendarInfo('isEventSelected', false);
 		setInfo((prev) => ({ ...prev, selectedEvent: null }));
@@ -190,7 +195,7 @@ const CalendarView = ({
 							toolbar={true}
 							className="custom"
 							selectable
-							onSelectSlot={() => updateCalendarInfo('isCreateEventOpen', true)}
+							onSelectSlot={(event) => onSelectSlot(event)}
 							onSelectEvent={(event) => handleSelectEvent(event)}
 							date={selectedDate}
 							popup
