@@ -88,13 +88,6 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 		[options, onChange],
 	);
 
-	useEffect(() => {
-		// console.log('info.formattedOptions===>', JSON.stringify(info?.formattedOptions, null, 2));
-		// console.log('info.formattedValues===>', JSON.stringify(info?.formattedValues, null, 2));
-		// console.log('options===>', JSON.stringify(options, null, 2));
-		// console.log('value===>', JSON.stringify(value, null, 2));
-	}, [info, options, value]);
-
 	return (
 		<div className={`multi-category-selector ${className}`}>
 			<Select
