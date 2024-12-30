@@ -17,6 +17,7 @@ import UploadLogoNotification from '../../../components/notification/UploadLogoN
 import { getCurrentWorkspaceId } from '../../../../helpers';
 import SendEmailModal from '../../../components/modalsV2/proposalModals/SendEmailModal';
 import { Spin } from 'antd';
+import BottomToolbar from '../../../components/ai_agents/BottomToolbar';
 
 const SmartFile = () => {
 	const { templateId, workflowId } = useParams();
@@ -642,6 +643,7 @@ const SmartFile = () => {
 				closeModal={toggleSendCustomEmailFunc}
 				clientDetails={info?.workflowData?.clientDetails}
 			/>
+			<BottomToolbar outerContainerStyle={{ bottom: '10px' }} />
 		</div>
 	);
 };
