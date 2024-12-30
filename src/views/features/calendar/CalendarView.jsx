@@ -163,6 +163,14 @@ const CalendarView = ({
 		[info?.eventsList],
 	);
 
+	const filterDeletedEvent = useCallback(
+		(eventId) => {
+			const filteredEventsList = info?.eventsList?.filter((event) => event?.id !== eventId);
+			setInfo((prev) => ({ ...prev, eventsList: filteredEventsList }));
+		},
+		[info?.eventsList],
+	);
+
 	const onClose = useCallback(() => {
 		updateCalendarInfo('isEventSelected', false);
 		setInfo((prev) => ({ ...prev, selectedEvent: null }));
@@ -201,6 +209,7 @@ const CalendarView = ({
 						handleSelectEvent={setInfo}
 						categoryList={categoryList}
 						updateCalenderEventsList={updateCalenderEventsList}
+						filterDeletedEvent={filterDeletedEvent}
 						onClose={onClose}
 					/>
 				</div>

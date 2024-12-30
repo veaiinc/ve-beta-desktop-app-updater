@@ -10,6 +10,7 @@ export const initialState = {
 	calendarEvent: null,
 	calendarEventDetails: null,
 	calendarCategories: null,
+	deletedEvent: null,
 };
 
 export const Calendar = () => {

@@ -14,7 +14,7 @@ import { Drawer } from 'antd';
 import moment from 'moment';
 
 const initialState = {
-	loading: false,
+	loading: false, // TODO: use on fetching event details
 	deleting: false,
 	detailsExpanded: true,
 	eventDetails: null,
@@ -24,19 +24,13 @@ const initialState = {
 const EventDetailsModal = ({
 	selectedEvent,
 	isEventSelected,
-	updateCalendarInfo,
-	handleSelectEvent,
 	categoryList,
 	updateCalenderEventsList,
+	filterDeletedEvent,
 	onClose,
 }) => {
 	const {
-		calendarInfo: {
-			calendarEventDetails,
-			getCalendarEventDetails,
-			updateCalendarEvent,
-			deleteCalendarEvent,
-		},
+		calendarInfo: { updateCalendarEvent, deleteCalendarEvent },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		companyInfo: { tenantsUserList },
 	} = useContext(Context);
@@ -44,9 +38,6 @@ const EventDetailsModal = ({
 	const [info, setInfo] = useState({
 		...initialState,
 	});
-
-	// Cache to store previously fetched event details
-	const eventCache = useRef(new Map());
 
 	// Add debounce ref
 	const updateEventDebounceRef = useRef(null);
@@ -78,19 +69,6 @@ const EventDetailsModal = ({
 		[updateCalendarEvent, validateExpiryData?.isExpired, updateSubscriptionState],
 	);
 
-	// Cleanup timeout on unmount
-	useEffect(() => {
-		return () => {
-			if (updateEventDebounceRef.current) {
-				clearTimeout(updateEventDebounceRef.current);
-			}
-		};
-	}, []);
-
-	// useEffect(() => {
-	// 	getEventDetails();
-	// }, [selectedEvent]);
-
 	useEffect(() => {
 		if (selectedEvent) {
 			setInfo((prev) => ({
@@ -98,45 +76,16 @@ const EventDetailsModal = ({
 				eventDetails: selectedEvent,
 				eventKeys: [...initialState?.eventKeys, ...Object?.keys(selectedEvent)],
 			}));
-			// Store the fetched details in cache
-			if (selectedEvent?.id) {
-				eventCache?.current?.set(selectedEvent?.id, selectedEvent);
-			}
 		}
 	}, [selectedEvent]);
 
 	useEffect(() => {
-		const currentEventCache = eventCache?.current;
 		return () => {
 			setInfo({
 				...initialState,
 			});
-			currentEventCache?.clear();
 		};
 	}, []);
-
-	const getEventDetails = useCallback(async () => {
-		if (selectedEvent?.id) {
-			// Check if we have cached data
-			const cachedEvent = eventCache?.current?.get(selectedEvent?.id);
-
-			if (cachedEvent) {
-				// Use cached data
-				setInfo((prev) => ({
-					...prev,
-					loading: false,
-					eventDetails: cachedEvent,
-					eventKeys: [...initialState?.eventKeys, ...Object?.keys(cachedEvent)],
-				}));
-				return;
-			}
-
-			// Fetch new data if not in cache
-			setInfo((prev) => ({ ...prev, loading: true, eventKeys: initialState?.eventKeys }));
-			await getCalendarEventDetails(selectedEvent?.id);
-			setInfo((prev) => ({ ...prev, loading: false }));
-		}
-	}, [selectedEvent]);
 
 	const deleteEvent = useCallback(async () => {
 		if (validateExpiryData?.isExpired) {
@@ -146,14 +95,10 @@ const EventDetailsModal = ({
 			setInfo((prev) => ({ ...prev, deleting: true }));
 			await deleteCalendarEvent(selectedEvent?.id);
 			setInfo((prev) => ({ ...prev, deleting: false }));
+
+			filterDeletedEvent(selectedEvent?.id);
+			modifiedOnClose();
 		}
-		updateCalendarInfo('isEventSelected', false);
-
-		//modified close
-		///delerte event list
-
-		//remove this
-		handleSelectEvent((prev) => ({ ...prev, selectedEvent: null }));
 	}, [selectedEvent]);
 
 	const updateEventDetails = useCallback(
@@ -167,7 +112,6 @@ const EventDetailsModal = ({
 				...prev,
 				eventDetails: updatedDetails,
 			}));
-
 			// Call the debounced update function with only the changed field
 			debouncedUpdateEvent({
 				eventId: selectedEvent?.id,

@@ -18,7 +18,7 @@ const actionHandlers = {
 
 	DELETE_CALENDAR_EVENT: (state, action) => ({
 		...state,
-		calendarEvent: action.payload,
+		deletedEvent: action.payload,
 	}),
 
 	CREATE_CALENDAR_CATEGORY: (state, action) => ({
