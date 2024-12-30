@@ -1477,7 +1477,7 @@ const GalleryPage = () => {
 	// ... rest of the code ...
 
 	const handleCopyAlbumLink = async () => {
-		const albumLink = info?.galleryLink;
+		const albumLink = `https://${info?.currentWorkspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}/${info?.activeAlbumId}`;
 
 		try {
 			// Try the modern clipboard API first
@@ -3955,7 +3955,7 @@ const GalleryPage = () => {
 														<EditPen />
 														Rename Album
 													</li>
-													{/* <li
+													<li
 														onClick={() => {
 															setInfo((prev) => ({
 																...prev,
@@ -3972,7 +3972,7 @@ const GalleryPage = () => {
 													>
 														<ShareIcon />
 														Share Album
-													</li> */}
+													</li>
 													<li
 														onClick={() =>
 															setInfo((prev) => ({
