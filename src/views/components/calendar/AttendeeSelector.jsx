@@ -8,7 +8,7 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 		formattedValues: [],
 	});
 
-	// Format options
+	// Format options and values
 	useEffect(() => {
 		const formattedOptions = options?.map((option) => ({
 			value: option?._id,
@@ -16,27 +16,17 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 			email: option?.email,
 			role: option?.role,
 		}));
-		setInfo((prev) => ({ ...prev, formattedOptions }));
-	}, [options]);
 
-	// Format values for multiple selections
-	useEffect(() => {
-		const formattedValues = value.map((item) => {
-			// If there's a tenantUserId, use it as value and show name/email as label
-			if (item.tenantUserId) {
-				return {
-					value: item.tenantUserId,
-					label: item.name || item.email,
-				};
-			}
-			// If no tenantUserId, use email for both value and label
-			return {
-				value: item.email,
-				label: item.email,
-			};
+		const formattedValues = value?.map((item) => ({
+			value: item?.tenantUserId || item?.email,
+			label: item?.name || item?.email,
+		}));
+
+		setInfo({
+			formattedOptions: formattedOptions || [],
+			formattedValues: formattedValues || [],
 		});
-		setInfo((prev) => ({ ...prev, formattedValues }));
-	}, [value]);
+	}, [options, value]);
 
 	// Memoize tagRender since it depends on info.formattedOptions
 	const tagRender = useCallback(
@@ -55,7 +45,7 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 				</div>
 			);
 		},
-		[info?.formattedOptions],
+		[info.formattedOptions],
 	);
 
 	// Custom render for dropdown options
@@ -110,8 +100,8 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 			<Select
 				mode="multiple"
 				variant="borderless"
-				value={info?.formattedValues}
-				options={info?.formattedOptions || []}
+				value={info.formattedValues}
+				options={info.formattedOptions}
 				onChange={handleChange}
 				placeholder="Add attendees"
 				// maxTagCount={1}

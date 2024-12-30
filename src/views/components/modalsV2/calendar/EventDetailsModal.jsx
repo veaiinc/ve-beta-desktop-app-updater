@@ -32,7 +32,6 @@ const EventDetailsModal = ({
 		calendarInfo: {
 			calendarEventDetails,
 			getCalendarEventDetails,
-			calendarEvent,
 			updateCalendarEvent,
 			deleteCalendarEvent,
 		},
@@ -62,8 +61,6 @@ const EventDetailsModal = ({
 				}
 				try {
 					const { eventId, field, value } = eventData;
-					console.log('eventData===>calling api with eventId and field', field);
-
 					// Create an object with only the changed field
 					const updateBody = {
 						[field]: value,
@@ -104,7 +101,7 @@ const EventDetailsModal = ({
 				eventCache?.current?.set(selectedEvent?.id, calendarEventDetails);
 			}
 		}
-	}, [calendarEventDetails]);
+	}, [calendarEventDetails, selectedEvent]);
 
 	useEffect(() => {
 		const currentEventCache = eventCache?.current;
@@ -365,13 +362,13 @@ const EventDetailsModal = ({
 							{validKeys?.map((key) => (
 								<div
 									className={`eventDetailsRow ${
-										visibleKeys.includes(key) ? 'visible' : 'hidden'
+										visibleKeys?.includes(key) ? 'visible' : 'hidden'
 									}`}
 									key={key}
 								>
 									<span className="eventKey">{key}</span>
 									<span className="eventValue">
-										{componentMapper[key](info?.eventDetails[key])}
+										{componentMapper?.[key](info?.eventDetails?.[key])}
 									</span>
 								</div>
 							))}
@@ -380,7 +377,7 @@ const EventDetailsModal = ({
 								onClick={() =>
 									setInfo((prev) => ({
 										...prev,
-										detailsExpanded: !prev.detailsExpanded,
+										detailsExpanded: !prev?.detailsExpanded,
 									}))
 								}
 								className="expandBtn"

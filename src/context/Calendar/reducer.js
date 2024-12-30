@@ -48,7 +48,7 @@ const actionHandlers = {
 
 	UPDATE_CALENDAR_EVENT: (state, action) => ({
 		...state,
-		calendarEvent: action.payload,
+		calendarEventDetails: action.payload,
 	}),
 
 	RESET_CALENDAR_STATE: () => ({ ...initialState }),
