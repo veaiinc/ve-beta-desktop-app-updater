@@ -23,8 +23,8 @@
 			align-items: center;
 			gap: 9px;
 			border-radius: 89.1px;
-			border: 1px solid #535298;
-			background: #2e2b44;
+			border: 1px solid var(--stroke);
+			background: var(--card);
 		}
 
 		.blockContentContainer {
@@ -43,7 +43,7 @@
 				align-self: stretch;
 
 				.blockTitle {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
@@ -61,7 +61,7 @@
 					align-items: center;
 					gap: 6.667px;
 					border-radius: 66px;
-					background: #4a4c4d;
+					background: var(--card);
 					margin-right: 10px; //Just to show scrollbar - can be removed
 				}
 			}
@@ -69,12 +69,12 @@
 			.blockDescription {
 				display: flex;
 				gap: 4px;
-				border-bottom: 1px solid #222;
+				border-bottom: 1px solid var(--stroke);
 				align-self: stretch;
 				padding-bottom: 8px;
 
 				.blockKey {
-					color: #929292;
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
@@ -82,7 +82,7 @@
 					line-height: 16px;
 				}
 				.blockValue {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
@@ -111,7 +111,7 @@
 						align-items: center;
 						gap: 10px;
 						border-radius: 5px;
-						background: #1f1f1f;
+						background: var(--card);
 					}
 
 					.blockElementInfo {
@@ -122,7 +122,7 @@
 
 						.elementTitle {
 							overflow: hidden;
-							color: #e4e5e6;
+							color: var(--primary-font);
 							text-overflow: ellipsis;
 							font-family: Inter;
 							font-size: 12px;
@@ -134,7 +134,7 @@
 							overflow: hidden;
 							-webkit-box-orient: vertical;
 							-webkit-line-clamp: 1;
-							color: #929292;
+							color: var(--secondary-font);
 							text-overflow: ellipsis;
 							font-family: Inter;
 							font-size: 12px;
@@ -195,10 +195,10 @@
 			align-items: center;
 			align-self: stretch;
 			justify-content: space-between;
-			border-bottom: 1px solid #222222;
+			border-bottom: 1px solid var(--stroke);
 
 			span {
-				color: #d3d3d3;
+				color: var(--secondary-font);
 				font-family: Inter;
 				font-size: 14px;
 				font-style: normal;
@@ -215,7 +215,7 @@
 			overflow-y: auto;
 
 			.selectedLabelItem {
-				background: #262626;
+				background: var(--card);
 			}
 
 			.lableItemRow {
@@ -228,7 +228,7 @@
 				border-radius: 14px;
 				transition: background-color 0.3s ease;
 
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 14px;
 				font-style: normal;

@@ -23,7 +23,7 @@
 				display: flex;
 				align-items: center;
 				gap: 18px;
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 16px;
 				font-style: normal;
@@ -46,7 +46,7 @@
 				gap: 12px;
 
 				.tabBtns {
-					color: rgba(228, 229, 230, 0.48);
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 16px;
 					font-style: normal;
@@ -57,7 +57,7 @@
 					transition: all 0.3s ease-in-out;
 				}
 				.tabBtns:hover {
-					color: #e4e5e6;
+					color: var(--primary-font);
 				}
 			}
 		}
@@ -73,9 +73,9 @@
 				align-items: center;
 				gap: var(--Spacing-space-8, 16px);
 				border-radius: 100px;
-				border: 1px solid #373737;
+				border: 1px solid var(--stroke);
 				cursor: pointer;
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 13px;
 				font-style: normal;
@@ -89,8 +89,8 @@
 				align-items: center;
 				gap: 16px;
 				border-radius: 100px;
-				background: #6055ec;
-				color: #e4e5e6;
+				background: var(--primary-button);
+				color: var(--primary-button-font);
 				font-family: Inter;
 				font-size: 13px;
 				font-style: normal;
@@ -116,8 +116,8 @@
 			height: 100%;
 			align-self: stretch;
 			border-radius: 24px;
-			border: 1px solid #242424;
-			background: rgba(42, 42, 42, 0.16);
+			border: 1px solid var(--stroke);
+			background: var(--card);
 
 			.formResponsesDetails {
 				display: flex;
@@ -125,11 +125,11 @@
 				gap: 24px;
 				align-self: stretch;
 				padding-bottom: 8px;
-				border-bottom: 1px solid rgba(40, 39, 40, 0.48);
+				border-bottom: 1px solid var(--stroke);
 
 				.labelContainer {
 					width: 100px;
-					color: rgba(228, 229, 230, 0.48);
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
@@ -141,7 +141,7 @@
 				.labelValues {
 					flex: 1;
 					overflow: hidden;
-					color: #e4e5e6;
+					color: var(--primary-font);
 					text-overflow: ellipsis;
 					white-space: nowrap;
 					font-family: Inter;
@@ -160,7 +160,7 @@
 				align-self: stretch;
 				flex-wrap: wrap;
 				padding-bottom: 16px;
-				border-bottom: 1px solid rgba(40, 39, 40, 0.48);
+				border-bottom: 1px solid var(--stroke);
 
 				.eventsListCards {
 					display: flex;
@@ -170,13 +170,13 @@
 					align-items: flex-start;
 					gap: 4px;
 					border-radius: 8px;
-					border: 1px solid #242424;
-					background: #171717;
+					border: 1px solid var(--stroke);
+					background: var(--card-over-card);
 					min-width: 300px;
 					width: auto;
 					max-width: 500px;
 					.eventTitle {
-						color: rgba(228, 229, 230, 0.48);
+						color: var(--secondary-font);
 						font-family: Inter;
 						font-size: 12px;
 						font-style: normal;
@@ -187,7 +187,7 @@
 					}
 					.eventValues {
 						overflow: hidden;
-						color: #e4e5e6;
+						color: var(--primary-font);
 						text-overflow: ellipsis;
 						white-space: pre-wrap;
 						font-family: Inter;
@@ -203,7 +203,7 @@
 						gap: 4px;
 						align-self: stretch;
 						.questionBlock {
-							color: rgba(228, 229, 230, 0.48);
+							color: var(--secondary-font);
 						}
 
 						.eventsAnswersContainer {
@@ -225,7 +225,7 @@
 				align-self: stretch;
 
 				.sourceLabel {
-					color: rgba(228, 229, 230, 0.48);
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
@@ -236,7 +236,7 @@
 				}
 				.sourceValues {
 					overflow: hidden;
-					color: #e4e5e6;
+					color: var(--primary-font);
 					text-overflow: ellipsis;
 					white-space: nowrap;
 					font-family: Inter;
@@ -262,15 +262,15 @@
 				width: 393px;
 				display: flex;
 				flex-direction: column;
-				color: #fff;
+				color: var(--primary-font);
 				// max-height: 700px;
 				max-height: calc(100vh - 58px - 54px - 24px - 60px);
 				height: calc(100vh - 58px - 54px - 24px - 60px);
 				border-radius: 24px;
 				border-radius: 27px;
-				border: 3px solid #545454;
+				border: 3px solid var(--stroke);
 				opacity: 0.8;
-				background: rgba(42, 42, 42, 0.16);
+				background: var(--card);
 
 				.previewHeader {
 					display: flex;
@@ -280,7 +280,7 @@
 					align-self: stretch;
 
 					.previewHeaderText {
-						color: #e4e5e6;
+						color: var(--secondary-font);
 						font-family: Inter;
 						font-size: 12px;
 						font-style: normal;
@@ -296,7 +296,7 @@
 						cursor: pointer;
 
 						.editText {
-							color: #6055ec;
+							color: var(--primary-button);
 							font-family: Inter;
 							font-size: 13px;
 							font-style: normal;
@@ -321,7 +321,7 @@
 						width: 100%;
 
 						.coverImage {
-							background: #fcfaf7;
+							background: var(--card);
 							// min-height: 700px;
 							height: auto;
 							overflow: scroll;
@@ -333,11 +333,11 @@
 									width: 100%;
 
 									p {
-										color: rgb(56, 56, 56);
+										color: var(--primary-font);
 									}
 
 									p span {
-										color: rgb(56, 56, 56);
+										color: var(--primary-font);
 									}
 									.PhoneInputCountrySelectArrow {
 										display: none;
@@ -362,7 +362,7 @@
 					display: flex;
 					justify-content: space-between;
 					.editContainerHeader {
-						color: #e4e5e6;
+						color: var(--primary-font);
 						font-family: Inter;
 						font-size: 16px;
 						font-style: normal;
@@ -381,10 +381,7 @@
 							font-style: normal;
 							font-weight: 500;
 							line-height: normal;
-							background: var(
-								--Color-Code-AI,
-								linear-gradient(94deg, #c39df8 -2.06%, #ec7c9d 95.85%)
-							);
+							background: var(--AI-Color-Code);
 							background-clip: text;
 							-webkit-background-clip: text;
 							-webkit-text-fill-color: transparent;
@@ -403,7 +400,7 @@
 							justify-content: space-between;
 							align-items: center;
 							.rejectAiGeneration {
-								color: var(--ve-ai-dark-theme-secondary-color, #939393);
+								color: var(--secondary-font);
 
 								/* Body/Body - 12 px */
 								font-family: Inter;
@@ -414,7 +411,7 @@
 								cursor: pointer;
 							}
 							.acceptAigeneration {
-								color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+								color: var(--primary-font);
 
 								/* Body/Body - 12 px */
 								font-family: Inter;

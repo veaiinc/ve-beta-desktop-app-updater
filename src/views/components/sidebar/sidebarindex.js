@@ -50,74 +50,74 @@ export const veAiModulesItemsList = [
 		moduleRoute: '/calendar',
 		route: '/calendar',
 		icon: '',
-		// subModules: [
-		// 	{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
-		// 	{ icon: TranscriptSvg, route: '', name: 'Transcript' },
-		// 	{
-		// 		icon: SettingsSvg,
-		// 		route: '/settings/my-profile',
-		// 		fill: 'white',
-		// 		name: 'Settings',
-		// 	},
-		// ],
+		subModules: [
+			{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
+			{ icon: TranscriptSvg, route: '', name: 'Transcript' },
+			{
+				icon: SettingsSvg,
+				route: '/settings/my-profile',
+				fill: 'white',
+				name: 'Settings',
+			},
+		],
 	},
 
 	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
-	// {
-	// 	name: 'Da-Vinci',
-	// 	moduleRoute: '/ai-agents/home/da-vinici',
-	// 	route: '/ai-agents/home/da-vinici',
-	// 	icon: '',
-	// 	subModules: [
-	// 		{ icon: AddCalenderSvg, route: '/ai-agents/home/da-vinici', name: 'Home' },
-	// 		{ icon: TranscriptSvg, route: '/ai-agents/jobs/:agent-name', name: 'Jobs' },
-	// 		{
-	// 			icon: SettingsSvg,
-	// 			route: '/ai-agents/setup/da-vinici',
-	// 			fill: 'white',
-	// 			name: 'Setup',
-	// 		},
-	// 	],
-	// },
-	// {
-	// 	name: 'AI Agents',
-	// 	moduleRoute: '/ai-agents',
-	// 	route: '/ai-agents',
-	// 	icon: AIAssistantSvg,
-	// },
-	// {
-	// 	name: 'Playbook',
-	// 	moduleRoute: '/playbook',
-	// 	route: '/playbook',
-	// 	icon: PlaybookSvg,
-	// },
-	// { name: 'Contacts', moduleRoute: '/contact', route: '/contact' },
-	// { name: 'Teams', moduleRoute: '/teams', route: '/teams' },
+	{
+		name: 'Da-Vinci',
+		moduleRoute: '/ai-agents/home/da-vinici',
+		route: '/ai-agents/home/da-vinici',
+		icon: '',
+		subModules: [
+			{ icon: AddCalenderSvg, route: '/ai-agents/home/da-vinici', name: 'Home' },
+			{ icon: TranscriptSvg, route: '/ai-agents/jobs/:agent-name', name: 'Jobs' },
+			{
+				icon: SettingsSvg,
+				route: '/ai-agents/setup/da-vinici',
+				fill: 'white',
+				name: 'Setup',
+			},
+		],
+	},
+	{
+		name: 'AI Agents',
+		moduleRoute: '/ai-agents',
+		route: '/ai-agents',
+		icon: AIAssistantSvg,
+	},
+	{
+		name: 'Playbook',
+		moduleRoute: '/playbook',
+		route: '/playbook',
+		icon: PlaybookSvg,
+	},
+	{ name: 'Contacts', moduleRoute: '/contact', route: '/contact' },
+	{ name: 'Teams', moduleRoute: '/teams', route: '/teams' },
 ];
 
 //
 
 export const veAiModules = [
-	// { icon: OrchestratorSvg, name: 'Orchestrator', route: '/orchestrator' },
+	{ icon: OrchestratorSvg, name: 'Orchestrator', route: '/orchestrator' },
 	{ icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
 	{ icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
 	{
 		icon: SettingsSvg,
 		name: 'Settings',
 		route: '/settings/my-profile',
-		// subModules: [
-		// 	{ icon: '', name: 'MyProfile', route: '/settings/my-profile' },
-		// 	{ icon: '', name: 'Workspace', route: '/settings/workspace' },
-		// 	{ icon: '', name: 'Public Information', route: '/settings/public-information' },
-		// 	{
-		// 		icon: '',
-		// 		name: 'Brand Setup',
-		// 		route: '/settings/brand-setup',
-		// 	},
-		// 	{ icon: '', name: 'Team Settings', route: '/settings/team-settings' },
-		// 	{ icon: '', name: 'Integration', route: '/settings/integrations' },
-		// 	{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
-		// ],
+		subModules: [
+			{ icon: '', name: 'MyProfile', route: '/settings/my-profile' },
+			{ icon: '', name: 'Workspace', route: '/settings/workspace' },
+			{ icon: '', name: 'Public Information', route: '/settings/public-information' },
+			{
+				icon: '',
+				name: 'Brand Setup',
+				route: '/settings/brand-setup',
+			},
+			{ icon: '', name: 'Team Settings', route: '/settings/team-settings' },
+			{ icon: '', name: 'Integration', route: '/settings/integrations' },
+			{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
+		],
 	},
 ];
 

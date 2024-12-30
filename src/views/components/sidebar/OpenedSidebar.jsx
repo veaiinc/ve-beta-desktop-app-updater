@@ -122,7 +122,11 @@ const OpenedSideBarHoverStateIcons = ({
 							? `${subModules.length * 40}px`
 							: '0',
 					justifyContent: 'space-between',
-					backgroundColor: isActive ? '#2E2F33' : isHover ? '#2E2F33' : 'transparent',
+					backgroundColor: isActive
+						? 'var(--card-over-card-hover)'
+						: isHover
+						? 'var(--card-hover)'
+						: 'transparent',
 				}}
 			>
 				<div
@@ -134,7 +138,17 @@ const OpenedSideBarHoverStateIcons = ({
 					}}
 				>
 					<p>{name}</p>
-					{Icon && <Icon fill={isActive ? '#FFF' : isHover ? '#FFF' : '#FFF'} />}
+					{Icon && (
+						<Icon
+							fill={
+								isActive
+									? 'var(--primary-font)'
+									: isHover
+									? 'var(--secondary-font)'
+									: 'var(--primary-font)'
+							}
+						/>
+					)}
 				</div>
 				{isDropdownVisible && subModules?.length > 0 && (
 					<div>
@@ -256,7 +270,7 @@ const AiModulesList = ({ image, name, route, navigateTo }) => {
 			<p
 				onClick={redirectToFunction}
 				style={{
-					color: '#E8E8E8',
+					color: 'var(--primary-font)',
 					fontFamily: 'Inter',
 					fontSize: '14px',
 					fontStyle: 'normal',
@@ -362,8 +376,8 @@ const OpenedSideBarItemsComponent = ({
 								style={{
 									cursor: 'pointer',
 									position: 'sticky',
+									backgroundColor: 'var(--navbar)',
 									top: '0',
-									backgroundColor: '#202123',
 									zIndex: '1000',
 								}}
 							>
@@ -383,7 +397,7 @@ const OpenedSideBarItemsComponent = ({
 									</h6>
 									<DownArrowSmallSvg style={{ height: '16px', width: '16px' }} />
 								</div>
-								{/* <NotificationSvg /> */}
+								<NotificationSvg />
 								<Tooltip
 									title="Close Sidebar"
 									placement="right"
@@ -392,8 +406,8 @@ const OpenedSideBarItemsComponent = ({
 										padding: '6px 10px',
 										borderRadius: '10px',
 										fontSize: '14px',
-										background: '#E8E8E8',
-										color: '#202123',
+										background: 'var(--primary-font)',
+										color: 'var(--background-color)',
 										textAlign: 'center',
 										marginLeft: '12px',
 									}}
@@ -425,7 +439,7 @@ const OpenedSideBarItemsComponent = ({
 											marginLeft: '10px',
 											border: 'none',
 											zIndex: '1000',
-											background: '#202123',
+											background: 'var(--card-hover)',
 											borderRadius: '16px',
 											animation: 'slideDown 0.3s ease-out',
 											transformOrigin: 'top',
@@ -439,7 +453,7 @@ const OpenedSideBarItemsComponent = ({
 										/>
 									</div>
 								)}
-								{/* {AiOptions.map((singleItem, index) => {
+								{AiOptions.map((singleItem, index) => {
 									return (
 										<div key={index} style={{ padding: '8px 16px' }}>
 											<AiModulesList
@@ -453,7 +467,7 @@ const OpenedSideBarItemsComponent = ({
 											/>
 										</div>
 									);
-								})} */}
+								})}
 								<hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} />
 								{veAiModulesItemsList?.map((singleItems, index) => (
 									<div key={index}>
@@ -511,98 +525,98 @@ const OpenedSideBarItemsComponent = ({
 						<div className="bottomOptionsList">
 							{
 								<>
-									{/* <div className="planExpiresDiv">
-									<div
-										style={{
-											width: '100%',
-											display: 'flex',
-											justifyContent: 'start',
-										}}
-									>
-										<div className="planExpiresTitle">
-											Your Plan has been Expired
-										</div>
-									</div>
-									<div
-										style={{
-											width: '100%',
-											display: 'flex',
-											justifyContent: 'end',
-										}}
-									>
-										<button
-											className="renewNowDiv"
-											onClick={() => {
-												navigate('/subscription');
-											}}
-											style={{
-												cursor: 'pointer',
-											}}
-										>
-											Renew Now
-										</button>
-									</div>
-								</div> */}
-									{/* <div className="creditsLeft">
-									<div>
+									<div className="planExpiresDiv">
 										<div
 											style={{
-												fontSize: '14px',
-												fontWeight: '500',
-												color: '#E8E8E8',
+												width: '100%',
+												display: 'flex',
+												justifyContent: 'start',
 											}}
 										>
-											100
+											<div className="planExpiresTitle">
+												Your Plan has been Expired
+											</div>
 										</div>
 										<div
 											style={{
-												fontSize: '14px',
-												fontWeight: '400',
-												color: '#939393',
+												width: '100%',
+												display: 'flex',
+												justifyContent: 'end',
 											}}
 										>
-											Credits Left This Month
+											<button
+												className="renewNowDiv"
+												onClick={() => {
+													navigate('/subscription');
+												}}
+												style={{
+													cursor: 'pointer',
+												}}
+											>
+												Renew Now
+											</button>
 										</div>
 									</div>
-									<div className="creditSvg">
-										<svg width="30" height="30" viewBox="0 0 30 30">
-											<defs>
-												<linearGradient
-													id="paint0_linear_14532_74799"
-													x1="-0.661765"
-													y1="2.69729e-07"
-													x2="30.4666"
-													y2="1.98941"
-													gradientUnits="userSpaceOnUse"
-												>
-													<stop
-														offset="0.000100017"
-														stop-color="#C39DF8"
-													/>
-													<stop offset="1" stop-color="#EC7C9D" />
-												</linearGradient>
-											</defs>
-											<circle
-												cx="15"
-												cy="15"
-												r="12.5"
-												fill="none"
-												stroke="#333334"
-												strokeWidth="5"
-											/>
-											<circle
-												cx="15"
-												cy="15"
-												r="12.5"
-												fill="none"
-												stroke="url(#paint0_linear_14532_74799)"
-												strokeWidth="5"
-												strokeDasharray={`${(100 / 100) * 78.54} 78.54`}
-												transform="rotate(-90 15 15)"
-											/>
-										</svg>
+									<div className="creditsLeft">
+										<div>
+											<div
+												style={{
+													fontSize: '14px',
+													fontWeight: '500',
+													color: 'var(--primary-font)',
+												}}
+											>
+												100 Credits
+											</div>
+											<div
+												style={{
+													fontSize: '14px',
+													fontWeight: '400',
+													color: 'var(--secondary-font)',
+												}}
+											>
+												Left This Month
+											</div>
+										</div>
+										<div className="creditSvg">
+											<svg width="30" height="30" viewBox="0 0 30 30">
+												<defs>
+													<linearGradient
+														id="paint0_linear_14532_74799"
+														x1="-0.661765"
+														y1="2.69729e-07"
+														x2="30.4666"
+														y2="1.98941"
+														gradientUnits="userSpaceOnUse"
+													>
+														<stop
+															offset="0.000100017"
+															stop-color="#C39DF8"
+														/>
+														<stop offset="1" stop-color="#EC7C9D" />
+													</linearGradient>
+												</defs>
+												<circle
+													cx="15"
+													cy="15"
+													r="12.5"
+													fill="none"
+													stroke="#333334"
+													strokeWidth="5"
+												/>
+												<circle
+													cx="15"
+													cy="15"
+													r="12.5"
+													fill="none"
+													stroke="url(#paint0_linear_14532_74799)"
+													strokeWidth="5"
+													strokeDasharray={`${(100 / 100) * 78.54} 78.54`}
+													transform="rotate(-90 15 15)"
+												/>
+											</svg>
+										</div>
 									</div>
-								</div> */}
 								</>
 							}
 							{bottomOptionsList?.map((singleItems, index) => (

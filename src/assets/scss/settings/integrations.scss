@@ -3,14 +3,14 @@
 	flex-direction: column;
 	gap: 24px;
 	border-radius: 32px;
-	border: 1px solid #7871c030;
-	background: rgba(29, 29, 35, 0.24);
-	box-shadow: 2px 2px 8px 0px rgba(74, 40, 210, 0.06),
-		4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
+	border: 1px solid var(--stroke);
+	background: var(--card);
+	// box-shadow: 2px 2px 8px 0px rgba(74, 40, 210, 0.06),
+	// 	4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
 	backdrop-filter: blur(8px);
 	padding: 32px;
 	.title {
-		color: #e4e5e6;
+		color: var(--primary-font);
 		font-size: 16px;
 		font-weight: 500;
 		line-height: 24px;
@@ -28,12 +28,11 @@
 			padding: 16px;
 			flex-direction: column;
 			align-items: flex-start;
-
 			gap: 10px;
 			flex-shrink: 0;
 			border-radius: 24px;
-			border: 1px solid rgba(102, 68, 102, 0.16);
-			background: rgba(32, 32, 33, 0.24);
+			border: 1px solid var(--stroke);
+			background: var(--card-over-card);
 			position: relative;
 
 			.imageContainer {
@@ -51,7 +50,7 @@
 				}
 
 				h1 {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					text-align: center;
 					font-family: Inter;
 					font-size: 13px;
@@ -69,23 +68,23 @@
 
 				.connectButton {
 					// padding: 8px 18px;
-					color: white;
+					color: var(--primary-font);
 					cursor: pointer;
 					border-radius: 100px;
-					background: #242424;
+					background: var(--card-hover);
 					transition: all 0.3s ease-in;
 
 					&:hover {
-						background: white;
-						color: black;
+						background: var(--card-over-card-hover);
+						color: var(--primary-font);
 					}
 				}
 
 				.disconnectButton {
 					> div {
-						border: 1px solid rgb(38, 38, 38);
-						color: rgb(228, 229, 230);
-						background-color: rgb(38, 38, 38);
+						border: 1px solid var(--card-hover);
+						color: var(--primary-font);
+						background-color: var(--card-hover);
 						cursor: pointer;
 						border-radius: 20px;
 						padding: 14px;
@@ -105,7 +104,7 @@
 				top: 16px;
 				width: 10px;
 				height: 10px;
-				background-color: #13d548;
+				background-color: var(--success);
 				border-radius: 100%;
 			}
 		}

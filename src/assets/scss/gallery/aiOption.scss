@@ -12,10 +12,10 @@
 			align-items: center;
 			gap: 28px;
 			border-radius: 100px;
-			border: 1px solid rgba(36, 36, 36, 0.64);
-			background: rgba(42, 42, 42, 0.16);
+			border: 1px solid var(--stroke);
+			background: var(--card);
 			p {
-				color: rgba(228, 229, 230, 0.48);
+				color: var(--secondary-font);
 				cursor: pointer;
 				font-size: 15px;
 				font-style: normal;
@@ -23,7 +23,7 @@
 				line-height: 16px;
 			}
 			.active {
-				color: #e4e5e6;
+				color: var(--primary-font);
 			}
 		}
 	}
@@ -35,8 +35,8 @@
 		padding: 10px;
 		align-items: center;
 		border-radius: 100px;
-		border: 1px solid rgba(228, 229, 230, 0.05);
-		background: #151515;
+		border: 1px solid var(--stroke);
+		background: var(--card);
 		transition: width 0.3s ease;
 		overflow: hidden;
 		cursor: pointer;
@@ -44,11 +44,11 @@
 			display: none;
 			background: transparent;
 			border: none;
-			color: white;
+			color: var(--primary-font);
 		}
 		svg {
 			path {
-				fill: #e4e5e6;
+				fill: var(--primary-font);
 			}
 		}
 		&:hover {
@@ -65,7 +65,7 @@
 
 		overflow: auto;
 		p {
-			color: #979797;
+			color: var(--secondary-font);
 			font-size: 12px;
 			font-weight: 400;
 		}
@@ -86,7 +86,7 @@
 				flex-direction: column;
 				align-items: center;
 				border-radius: 16px;
-				border: 1px solid rgb(92, 13, 219);
+				border: 1px solid var(--primary-button-font);
 				cursor: pointer;
 				img {
 					width: 80px;
@@ -102,13 +102,13 @@
 		gap: 24px;
 		padding: 40px;
 		border-radius: 24px;
-		background: #151515;
+		background: var(--card);
 		height: 80vh;
 		overflow: scroll;
 		box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
 
 		.heading {
-			color: #979797;
+			color: var(--secondary-font);
 			font-size: 12px;
 			font-weight: 400;
 		}
@@ -117,7 +117,7 @@
 			justify-content: space-between;
 			gap: 24px;
 			padding-bottom: 24px;
-			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+			border-bottom: 1px solid var(--stroke);
 			width: 100%;
 
 			.scanner {
@@ -126,12 +126,12 @@
 				display: flex;
 				justify-content: center;
 				align-items: center;
-				background-color: #e4e5e6;
+				background-color: var(--primary-font);
 			}
 			.aiScannerDetailsContainer {
 				display: flex;
 				flex-direction: column;
-				justify-content: space-between;
+				justify-content: flex-start;
 			}
 			.aiScanLink {
 				display: flex;
@@ -141,10 +141,10 @@
 				justify-content: space-between;
 				align-items: center;
 				border-radius: 10px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
+				border: 1px solid var(--stroke);
 				p {
 					overflow: hidden;
-					color: #e0e0e0;
+					color: var(--secondary-font);
 					text-overflow: ellipsis;
 					font-size: 12px;
 					font-weight: 400;
@@ -167,7 +167,7 @@
 					cursor: pointer;
 					p {
 						overflow: hidden;
-						color: #e0e0e0;
+						color: var(--secondary-font);
 						text-overflow: ellipsis;
 						font-size: 12px;
 						font-weight: 400;
@@ -180,21 +180,20 @@
 				}
 				.notifyUser {
 					cursor: pointer;
-					background-color: #151515;
+					background-color: var(--card);
 					padding: 10px 15px;
 					border-radius: 10px;
-					border: 1px solid #fff;
+					border: 1px solid var(--stroke);
 					span {
-						color: #e0e0e0;
+						color: var(--secondary-font);
 						font-size: 12px;
 						font-weight: 400;
 						line-height: 21px;
 					}
 					&:hover {
-						background-color: #e8e8e8;
-						// border: 1px solid #fff;
+						background-color: var(--primary-button);
 						span {
-							color: #000;
+							color: var(--primary-font);
 						}
 					}
 				}
@@ -206,9 +205,13 @@
 				flex-direction: column;
 				justify-content: space-between;
 				border-radius: 8px;
-				background: #1a1a1a;
+				background: var(--card-over-card);
 				width: 459px;
 				position: relative;
+
+				.p {
+					color: var(--primary-font);
+				}
 
 				.close-button {
 					position: absolute;
@@ -218,7 +221,7 @@
 				}
 
 				.aiProcessingTotalImages {
-					color: #939393;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 16px;
 					font-style: normal;
@@ -233,7 +236,7 @@
 
 					.progress-bar {
 						.ant-progress-text {
-							color: #e8e8e8 !important;
+							color: var(--primary-font) !important;
 							font-size: 12px !important;
 							font-weight: 500 !important;
 							line-height: 15px !important;
@@ -242,13 +245,13 @@
 						svg {
 							// transform: rotate(235deg) !important;
 							circle:first-child {
-								stroke: #939393 !important;
+								stroke: var(--primary-font) !important;
 							}
 						}
 					}
 
 					.aiProcessingText {
-						color: #939393;
+						color: var(--primary-font);
 						font-family: Inter;
 						font-size: 16px;
 						font-style: normal;
@@ -257,7 +260,7 @@
 					}
 
 					.aiProcessingText-count {
-						color: #e8e8e8;
+						color: var(--primary-font);
 						font-family: Inter;
 						font-size: 16px;
 						font-style: normal;
@@ -266,6 +269,7 @@
 
 						span {
 							cursor: pointer;
+							color: var(--primary-font);
 						}
 					}
 				}
@@ -275,7 +279,7 @@
 					gap: 24px;
 					justify-content: center;
 					.notify-immediately-button {
-						color: #939393;
+						color: var(--primary-font);
 						font-size: 16px;
 						font-weight: 500;
 						line-height: 19px;
@@ -284,13 +288,13 @@
 						align-items: center;
 						gap: 14px;
 						border-radius: 100px;
-						border: 1px solid #939393;
+						border: 1px solid var(--stroke);
 						background: none;
 						cursor: pointer;
 						outline: none;
 					}
 					.notify-all-button {
-						color: #111;
+						color: var(--primary-font);
 						font-family: Inter;
 						font-size: 16px;
 						font-style: normal;
@@ -301,7 +305,7 @@
 						align-items: center;
 						gap: 14px;
 						border-radius: 100px;
-						background: #fff;
+						background: var(--primary-button);
 						cursor: pointer;
 						outline: none;
 						border: none;
@@ -321,7 +325,7 @@
 			width: fit-content;
 			cursor: pointer;
 			p {
-				color: #979797;
+				color: var(--primary-font);
 				font-size: 12px;
 				font-weight: 400;
 			}
@@ -371,13 +375,13 @@
 	align-items: center;
 	gap: 16px;
 	border-radius: 24px;
-	border: 1px solid #2b2b2b;
-	background: #151515;
+	border: 1px solid var(--stroke);
+	background: var(--card);
 	box-shadow: 0px 4px 30px 0px rgba(17, 17, 17, 0.6);
 	z-index: 1000;
 
 	h1 {
-		color: #e4e5e6;
+		color: var(--secondary-font);
 		text-align: center;
 		font-family: Inter;
 		font-size: 20px;

@@ -21,7 +21,8 @@
 			.settingsBoxContainer {
 				padding: 32px;
 				border-radius: 40px;
-				background: rgba(29, 29, 35, 0.24);
+				background: var(--card);
+				border: 1px solid var(--stroke);
 				display: flex;
 				flex-direction: column;
 				gap: 24px;

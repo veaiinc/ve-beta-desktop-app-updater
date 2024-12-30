@@ -6,7 +6,7 @@
 	.socialLinkContainer {
 		.socialLinkTextContainer {
 			h1 {
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 16px;
 				font-style: normal;
@@ -22,7 +22,7 @@
 			.logoContainer {
 				width: 64px;
 				height: 64px;
-				border: 1px solid #555555;
+				border: 1px solid var(--stroke);
 				border-radius: 100%;
 				display: flex;
 				justify-content: center;
@@ -52,7 +52,7 @@
 
 		.title {
 			h1 {
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 16px;
 				font-style: normal;
@@ -75,7 +75,7 @@
 				flex-direction: column;
 				align-items: center;
 				gap: 16.148px;
-				background: #bbebff;
+				background: var(--primary-button);
 				width: 253px;
 				height: 452px;
 				border-radius: 30px;
@@ -92,7 +92,7 @@
 				flex-shrink: 0;
 
 				h3 {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 16px;
 					font-style: normal;
@@ -139,10 +139,10 @@
 						gap: 6px;
 						flex: 1 0 0;
 						width: 100%;
-						border-bottom: 1px solid rgba(100, 100, 100, 0.16);
+						border-bottom: 1px solid var(--stroke);
 						padding-bottom: 8px;
 						h6 {
-							color: #b0b0b0;
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
@@ -160,12 +160,12 @@
 								width: 30px;
 								height: 30px;
 								border-radius: 50%;
-								background-color: #0057ff;
+								background-color: var(--primary-button);
 								cursor: pointer;
 							}
 							input {
 								width: 70px;
-								color: rgba(228, 229, 230, 0.48);
+								color: var(--primary-font);
 								font-family: Inter;
 								font-size: 15px;
 								font-style: normal;
@@ -188,7 +188,7 @@
 			justify-content: center;
 
 			.buttonApplyTheme {
-				color: #6055ec;
+				color: var(--primary-button-font);
 				font-family: Inter;
 				font-size: 14px;
 				font-style: normal;
@@ -196,8 +196,8 @@
 				line-height: 22px; /* 157.143% */
 				letter-spacing: -0.28px;
 				border-radius: 20px;
-				border: 1px solid #6055ec;
-				background: rgba(28, 28, 32, 0.9);
+				border: 1px solid var(--stroke);
+				background: var(--primary-button);
 				padding: 9px 16px;
 				cursor: pointer;
 			}
@@ -207,7 +207,7 @@
 	.brandingContainer {
 		.brandingTextContainer {
 			h1 {
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 16px;
 				font-style: normal;
@@ -233,12 +233,12 @@
 					gap: 16px;
 					padding: 6px 11px 6px 6px;
 					border-radius: 100px;
-					background: #181819;
+					background: var(--card);
 					position: relative;
 					cursor: pointer;
 					z-index: 2;
 					.hashColor {
-						color: rgba(228, 229, 230, 0.48);
+						color: var(--primary-font);
 						font-size: 16px;
 						line-height: 26px;
 					}
@@ -246,7 +246,7 @@
 						width: 36px;
 						height: 36px;
 						border-radius: 100%;
-						background-color: #6055ec;
+						background-color: var(--primary-button);
 					}
 				}
 
@@ -263,7 +263,7 @@
 					align-items: center;
 					flex-shrink: 0;
 					border-radius: 100px;
-					background: #28282a;
+					background: var(--card-hover);
 					transition: all 1s ease;
 					cursor: pointer;
 				}
@@ -274,7 +274,7 @@
 	.brandFontContainer {
 		.brandTextContainer {
 			h1 {
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 16px;
 				font-style: normal;
@@ -293,11 +293,11 @@
 				.fontName {
 					font-weight: 400;
 					font-size: 20px;
-					color: #fff;
+					color: var(--primary-font);
 				}
 
 				.fontType {
-					color: #e4e5e67a;
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 11px;
 				}
@@ -318,10 +318,10 @@
 		align-self: stretch;
 		border-radius: 40px;
 		border: 1px solid rgba(36, 36, 36, 0.64);
-		background: #1e1e1f;
+		background: var(--card);
 		.logoTextContainer {
 			h1 {
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 16px;
 				font-style: normal;
@@ -330,7 +330,7 @@
 				/* 150% */
 			}
 			p {
-				color: rgba(228, 229, 230, 0.48);
+				color: var(--secondary-font);
 				font-family: Inter;
 				font-size: 13px;
 				font-style: normal;
@@ -348,10 +348,10 @@
 					align-items: center;
 					width: 100%;
 					height: 100px;
-					border: 1px dashed #242424a3;
+					border: 1px dashed var(--stroke);
 					border-radius: 10px;
-					background-color: #151515;
-					color: #ccc;
+					background-color: var(--card);
+					color: var(--secondary-font);
 					cursor: pointer;
 					position: relative;
 
@@ -369,10 +369,10 @@
 				align-items: center;
 				width: 100%;
 				height: 100px;
-				border: 2px dashed #333;
+				border: 2px dashed var(--stroke);
 				border-radius: 10px;
-				background-color: #1c1c1c;
-				color: #ccc;
+				background-color: var(--card);
+				color: var(--secondary-font);
 				cursor: pointer;
 				position: relative;
 			}
@@ -388,13 +388,13 @@
 		align-self: stretch;
 		border-radius: 40px;
 		border: 1px solid rgba(36, 36, 36, 0.64);
-		background: #1e1e1f;
+		background: var(--card);
 		.footerToggle {
 			width: 100%;
 			display: flex;
 			gap: 16px;
 			p {
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-size: 13px;
 				font-weight: 400;
 				line-height: 24px;
@@ -402,7 +402,7 @@
 		}
 		.footerTextContainer {
 			h1 {
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 16px;
 				font-style: normal;
@@ -411,7 +411,7 @@
 			}
 
 			p {
-				color: rgba(228, 229, 230, 0.48);
+				color: var(--secondary-font);
 				font-family: Inter;
 				font-size: 13px;
 				font-style: normal;

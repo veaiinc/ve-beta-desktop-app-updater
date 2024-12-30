@@ -11,10 +11,10 @@
 		position: relative;
 		overflow: hidden;
 		border-radius: 32px;
-		border: 1px solid #7871c030;
-		background: rgba(29, 29, 35, 0.24);
-		box-shadow: 2px 2px 8px 0px rgba(74, 40, 210, 0.06),
-			4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
+		border: 1px solid var(--stroke);
+		background: var(--card);
+		// box-shadow: 2px 2px 8px 0px rgba(74, 40, 210, 0.06),
+		// 	4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
 		backdrop-filter: blur(8px);
 
 		.backgroundDesingDiv {
@@ -31,7 +31,7 @@
 			.title {
 				width: 350px;
 				h1 {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
@@ -60,7 +60,7 @@
 					align-items: flex-start;
 					gap: 16px;
 					h3 {
-						color: #6055ec;
+						color: var(--primary-button);
 						font-family: Inter;
 						font-size: 12px;
 						font-style: normal;
@@ -71,7 +71,7 @@
 					}
 
 					h1 {
-						color: #e4e5e6;
+						color: var(--primary-font);
 						font-family: Inter;
 						font-size: 24px;
 						font-style: normal;
@@ -79,7 +79,7 @@
 						line-height: normal;
 						margin: 0;
 						p {
-							color: rgba(208, 207, 229, 0.5);
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
@@ -90,7 +90,7 @@
 				}
 
 				.lineDiv {
-					background: rgba(100, 100, 100, 0.16);
+					background: var(--stroke);
 					height: 1px;
 					width: 100%;
 				}
@@ -106,7 +106,7 @@
 						gap: 10px;
 						align-items: center;
 						p {
-							color: #d0cfe5;
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
@@ -125,14 +125,14 @@
 					align-items: center;
 					gap: 8px;
 					border-radius: 100px;
-					border: 1px solid #323148;
-					background: rgba(37, 37, 41, 0.86);
-					box-shadow: 0px 4px 4.6px 0px rgba(0, 0, 0, 0.15) inset,
-						0px 2px 4px 0px rgba(0, 0, 0, 0.18);
+					border: 1px solid var(--stroke);
+					background: var(--card-over-card);
+					// box-shadow: 0px 4px 4.6px 0px rgba(0, 0, 0, 0.15) inset,
+					// 	0px 2px 4px 0px rgba(0, 0, 0, 0.18);
 					cursor: pointer;
 
 					p {
-						color: #e4e5e6;
+						color: var(--primary-button-font);
 						font-family: Inter;
 						font-size: 14px;
 						font-style: normal;
@@ -149,7 +149,7 @@
 						align-items: center;
 						gap: 10px;
 						border-radius: 100px;
-						background: #e4e5e6;
+						background: var(--primary-button-font);
 					}
 				}
 			}
@@ -160,7 +160,7 @@
 		.historyHeader {
 			.details {
 				h1 {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 16px;
 					font-style: normal;
@@ -189,7 +189,7 @@
 					justify-content: space-between;
 					div {
 						width: 100%;
-						color: #e4e5e6;
+						color: var(--card);
 						font-family: Inter;
 						font-size: 13px;
 						font-style: normal;
@@ -211,7 +211,7 @@
 		thead tr {
 			th {
 				padding-bottom: 16px;
-				color: #e4e5e6;
+				color: var(--card);
 				font-family: Inter;
 				font-size: 13px;
 				font-style: normal;
@@ -223,7 +223,7 @@
 
 		tbody tr {
 			height: 40px;
-			border-top: 1px solid rgba(100, 100, 100, 0.16);
+			border-top: 1px solid var(--stroke);
 			td {
 				padding: 16px 0;
 				font-family: Inter;
@@ -231,14 +231,14 @@
 				font-style: normal;
 				font-weight: 400;
 				line-height: 18px;
-				color: #808080; /* Gray text color for tbody */
+				color: var(--secondary-font); /* Gray text color for tbody */
 				text-align: start;
 			}
 
 			.subscription {
 				.viewDetails {
 					cursor: pointer;
-					color: #6055ec;
+					color: var(--primary-button-font);
 					font-family: Inter;
 					font-size: 13px;
 					font-style: normal;
@@ -261,7 +261,7 @@
 
 			.amount {
 				font-weight: 500;
-				color: #e4e5e6;
+				color: var(--primary-font);
 			}
 		}
 	}
@@ -282,10 +282,10 @@
 			// align-items: center;
 			gap: 36px;
 			border-radius: 32px;
-			background: #171819;
+			background: var(--card);
 
 			.subscriptionPlanHeader {
-				color: #e8e8e8;
+				color: var(--primary-font);
 
 				/* Heading/H2 - 24 px */
 				font-family: Inter;
@@ -309,7 +309,7 @@
 					align-self: stretch;
 
 					.subscriptionPlanPricing {
-						color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+						color: var(--primary-font);
 						font-family: Inter;
 						font-size: 40px;
 						font-style: normal;
@@ -317,7 +317,7 @@
 						line-height: 34px; /* 85% */
 					}
 					.subscritptionPlanPeriod {
-						color: var(--ve-ai-dark-theme-secondary-color, #939393);
+						color: var(--secondary-font);
 
 						/* Body/Body Text - 16 */
 						font-family: Inter;
@@ -342,7 +342,7 @@
 						gap: 8px;
 
 						.subscriptionUsageData {
-							color: var(--ve-ai-dark-theme-secondary-color, #939393);
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 11px;
 							font-style: normal;
@@ -353,13 +353,13 @@
 
 					.subscriptionPlanProgressBar {
 						width: 100%;
-						background-color: #2c2d2e;
+						background-color: var(--card-over-card);
 						height: 3px;
 						border-radius: 24px;
 
 						.subscriptionPlanProgressIndicator {
 							width: 50%;
-							background-color: #e8e8e8;
+							background-color: var(--primary-font);
 							height: 3px;
 							border-radius: 24px;
 						}
@@ -372,7 +372,7 @@
 					gap: 8px;
 					align-self: stretch;
 					padding-bottom: 16px;
-					border-bottom: 1px solid #333334;
+					border-bottom: 1px solid var(--stroke);
 					margin-bottom: 8px;
 
 					.subscriptionFeature {
@@ -382,7 +382,7 @@
 						align-self: stretch;
 
 						.subscriptionFeatureContent {
-							color: var(--ve-ai-dark-theme-secondary-color, #939393);
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 14px;
 							font-style: normal;
@@ -400,7 +400,7 @@
 					align-self: stretch;
 
 					.addOnStates {
-						color: #e8e8e8;
+						color: var(--primary-font);
 
 						/* Body/Body Text - 14 Px */
 						font-family: Inter;
@@ -433,7 +433,7 @@
 								align-items: flex-start;
 								gap: 16px;
 								.addOnCardsTitle {
-									color: #fff;
+									color: var(--primary-font);
 									font-family: Inter;
 									font-size: 11px;
 									font-style: normal;
@@ -441,7 +441,7 @@
 									line-height: normal;
 								}
 								.addOnCardPriceContainer {
-									color: var(--ve-ai-dark-theme-secondary-color, #939393);
+									color: var(--secondary-font);
 									font-family: Inter;
 									font-size: 12px;
 									font-style: normal;
@@ -464,7 +464,7 @@
 									gap: 8px;
 
 									.subscriptionUsageData {
-										color: var(--ve-ai-dark-theme-secondary-color, #939393);
+										color: var(--secondary-font);
 										font-family: Inter;
 										font-size: 11px;
 										font-style: normal;
@@ -474,13 +474,13 @@
 								}
 								.subscriptionPlanProgressBar {
 									width: 100%;
-									background-color: #2c2d2e;
+									background-color: var(--card-over-card);
 									height: 3px;
 									border-radius: 24px;
 
 									.subscriptionPlanProgressIndicator {
 										width: 50%;
-										background-color: #e8e8e8;
+										background-color: var(--primary-font);
 										height: 3px;
 										border-radius: 24px;
 									}
@@ -494,7 +494,7 @@
 			.subscriptionSeperator {
 				width: 100%;
 				height: 1px;
-				background: #333334;
+				background: var(--stroke);
 			}
 
 			.subscriptionActionContainer {
@@ -510,9 +510,9 @@
 					align-items: center;
 					gap: 6px;
 					border-radius: 59px;
-					background: #e8e8e8;
+					background: var(--primary-font);
 					cursor: pointer;
-					color: #000;
+					color: var(--background-color);
 					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
@@ -520,7 +520,7 @@
 					line-height: normal;
 				}
 				.expiringText {
-					color: var(--ve-ai-dark-theme-secondary-color, #939393);
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 11px;
 					font-style: normal;
@@ -538,7 +538,7 @@
 			gap: 16px;
 
 			.updatePlansTextStyling {
-				color: #e8e8e8;
+				color: var(--primary-font);
 
 				/* Body/Body Text - 16 */
 				font-family: Inter;
@@ -562,7 +562,7 @@
 					gap: 32px;
 					flex: 1;
 					border-radius: 32px;
-					background: #171819;
+					background: var(--card);
 					backdrop-filter: blur(8px);
 
 					flex: 1 1 calc(50% - 10px); // 50% width minus half of the gap
@@ -577,7 +577,7 @@
 
 						.updatePlansHeader {
 							.updatePlansHeaderTextStyling {
-								color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+								color: var(--primary-font);
 								font-family: Inter;
 								font-size: 12px;
 								font-style: normal;
@@ -587,7 +587,7 @@
 						}
 
 						.randomUpdatePlans {
-							color: var(--ve-ai-dark-theme-secondary-color, #939393);
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
@@ -602,9 +602,9 @@
 						align-items: center;
 						gap: 16px;
 						border-radius: 100px;
-						border: 1px solid #333334;
+						border: 1px solid var(--stroke);
 						cursor: pointer;
-						color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+						color: var(--primary-font);
 						font-family: Inter;
 						font-size: 14px;
 						font-style: normal;
@@ -620,14 +620,15 @@
 		width: 100%;
 		padding: 56px;
 		border-radius: 32px;
-		background: #171819;
+		background: var(--card);
+		border: 1px solid var(--stroke);
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 24px;
 		align-self: stretch;
 		.subscriptionPlanHeader {
-			color: #e8e8e8;
+			color: var(--primary-font);
 
 			/* Heading/H2 - 24 px */
 			font-family: Inter;
@@ -650,7 +651,7 @@
 				align-self: stretch;
 
 				.subscriptionPlanPricing {
-					color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 40px;
 					font-style: normal;
@@ -666,7 +667,7 @@
 				gap: 8px;
 				align-self: stretch;
 				padding-bottom: 48px;
-				border-bottom: 1px solid #333334;
+				border-bottom: 1px solid var(--stroke);
 				margin-bottom: 24px;
 
 				.subscriptionFeature {
@@ -676,7 +677,7 @@
 					align-self: stretch;
 
 					.subscriptionFeatureContent {
-						color: var(--ve-ai-dark-theme-secondary-color, #939393);
+						color: var(--secondary-font);
 						font-family: Inter;
 						font-size: 14px;
 						font-style: normal;
@@ -694,7 +695,7 @@
 			align-self: stretch;
 
 			.freeTrialText {
-				color: var(--ve-ai-dark-theme-secondary-color, #939393);
+				color: var(--secondary-font);
 				text-align: center;
 				font-family: Inter;
 				font-size: 14px;
@@ -709,9 +710,9 @@
 				align-items: center;
 				gap: 6px;
 				border-radius: 59px;
-				background: #e8e8e8;
+				background: var(--primary-button);
 				cursor: pointer;
-				color: #000;
+				color: var(--primary-button-font);
 				font-family: Inter;
 				font-size: 14px;
 				font-style: normal;

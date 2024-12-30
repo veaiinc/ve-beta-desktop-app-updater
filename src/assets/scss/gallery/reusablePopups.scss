@@ -7,7 +7,7 @@
 	align-items: flex-end;
 	gap: 24px;
 	border-radius: 32px;
-	background: var(--ve-ai-dark-theme-pop-up-color, #202123);
+	background: var(--popup);
 
 	.mainPopupContent {
 		display: flex;
@@ -23,7 +23,7 @@
 			gap: 4px;
 			align-self: stretch;
 			.mainPopupHeadingText {
-				color: var(--darkTheme-Primary-font, #e8e8e8);
+				color: var(--primary-font);
 				align-self: stretch;
 				font-family: Inter;
 				font-size: 20px;
@@ -39,11 +39,11 @@
 			padding: 14px;
 			flex-direction: column;
 			align-items: flex-start;
-			color: white;
+			color: var(--primary-font);
 			gap: 5px;
 			border-radius: 14px;
-			border: 1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #939393);
-			background: #202123;
+			border: 1px solid var(--stroke);
+			background: transparent;
 			&:focus {
 				outline: none;
 			}
@@ -53,11 +53,11 @@
 			left: 14px;
 			top: 50%;
 			transform: translateY(-50%);
-			color: #939393;
+			color: var(--secondary-font);
 			pointer-events: none;
 			transition: 0.2s ease all;
 			background: transparent;
-			background: #202123;
+			background: var(--popup);
 		}
 
 		.mainPopupInput:focus + label,
@@ -65,7 +65,7 @@
 			top: 0;
 			transform: translateY(-60%);
 			font-size: 14px;
-			color: #939393;
+			color: var(--secondary-font);
 			padding: 0 5px;
 		}
 	}
@@ -78,8 +78,15 @@
 		align-items: center;
 		gap: 16px;
 		border-radius: 50px;
-		background: #e8e8e8;
+		border: 1px solid var(--stroke);
+		background: var(--primary-button);
 		cursor: pointer;
+		p {
+			color: var(--primary-button-font);
+			font-size: 14px;
+			font-weight: 500;
+			line-height: 21px;
+		}
 	}
 }
 
@@ -92,7 +99,7 @@
 	align-items: flex-end;
 	gap: 24px;
 	border-radius: 32px;
-	background: var(--ve-ai-dark-theme-pop-up-color, #202123);
+	background: var(--popup);
 	position: relative;
 	.deletePopupContent {
 		display: flex;
@@ -101,7 +108,7 @@
 		gap: 8px;
 		align-self: stretch;
 		.deletePopupHeading {
-			color: var(--darkTheme-Primary-font, #e8e8e8);
+			color: var(--primary-font);
 			text-align: center;
 
 			/* Heading/H3 - 20 Px */
@@ -113,7 +120,7 @@
 			align-self: stretch;
 		}
 		.deletePopupParagraph {
-			color: var(--darkTheme-Secondary-font, #939393);
+			color: var(--secondary-font);
 			text-align: center;
 			font-family: Inter;
 			font-size: 13px;
@@ -131,7 +138,7 @@
 		align-items: center;
 		gap: 16px;
 		border-radius: 50px;
-		background: #e8e8e8;
+		background: var(--primary-button-font);
 	}
 }
 
@@ -143,14 +150,14 @@
 	align-items: flex-start;
 	gap: 24px;
 	border-radius: 32px;
-	background: var(--ve-ai-dark-theme-pop-up-color, #202123);
+	background: var(--popup);
 	.downloadAlbumPopupCloseButton {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		align-self: stretch;
 		.downloadAlbumPopupHeading {
-			color: var(--darkTheme-Primary-font, #e8e8e8);
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 20px;
 			font-style: normal;
@@ -171,7 +178,7 @@
 			gap: 16px;
 			flex: 1 0 0;
 			.downloadAlbumPopupHeading {
-				color: #e8e8e8;
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 14px;
 				font-style: normal;
@@ -193,7 +200,7 @@
 					align-items: center;
 					gap: 8px;
 					border-radius: 50px;
-					background: #e8e8e8;
+					background: var(--primary-button-font);
 				}
 			}
 		}
@@ -207,7 +214,7 @@
 		align-items: center;
 		gap: 16px;
 		border-radius: 50px;
-		background: #e8e8e8;
+		background: var(--primary-button-font);
 	}
 }
 
@@ -219,7 +226,7 @@
 	align-items: center;
 	gap: 24px;
 	border-radius: 32px;
-	background: var(--ve-ai-dark-theme-pop-up-color, #202123);
+	background: var(--popup);
 	.shareAlbumPopupContent {
 		display: flex;
 		flex-direction: column;
@@ -233,7 +240,7 @@
 			gap: 4px;
 			align-self: stretch;
 			.shareAlbumPopupHeading {
-				color: var(--darkTheme-Primary-font, #e8e8e8);
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 20px;
 				font-style: normal;
@@ -250,9 +257,9 @@
 			justify-content: flex-start;
 			align-items: center;
 			border-radius: 14px;
-			border: 1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
+			border: 1px solid var(--stroke);
 			.shareAlbumPopupInputText {
-				color: var(--ve-ai-dark-theme-secondary-color, #939393);
+				color: var(--secondary-font);
 				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;
@@ -272,7 +279,7 @@
 		gap: 4px;
 		align-self: stretch;
 		.shareAlbumPopupFooterPin {
-			color: var(--darkTheme-Secondary-font, #939393);
+			color: var(--secondary-font);
 			font-family: Inter;
 			font-size: 12px;
 			font-style: normal;
@@ -294,7 +301,7 @@
 				justify-content: center;
 				align-items: center;
 				border-radius: 14px;
-				border: 1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
+				border: 1px solid var(--stroke);
 				background: transparent;
 			}
 		}
@@ -308,7 +315,7 @@
 		align-items: center;
 		gap: 16px;
 		border-radius: 50px;
-		background: #e8e8e8;
+		background: var(--primary-button-font);
 	}
 }
 
@@ -322,8 +329,8 @@
 	align-items: flex-start;
 	gap: 24px;
 	border-radius: 32px;
-	border: 1px solid #808080;
-	background: var(--ve-ai-dark-theme-pop-up-color, #202123);
+	border: 1px solid var(--stroke);
+	background: var(--popup);
 	box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
 	.lightRoomCopyContent {
 		display: flex;
@@ -338,7 +345,7 @@
 			gap: 4px;
 			align-self: stretch;
 			.lightRoomCopyHeadingText {
-				color: var(--darkTheme-Primary-font, #e8e8e8);
+				color: var(--primary-font);
 
 				/* Heading/H3 - 20 Px */
 				font-family: Inter;
@@ -350,7 +357,7 @@
 			}
 		}
 		.lightRoomCopySubHeading {
-			color: var(--darkTheme-Secondary-font, #939393);
+			color: var(--secondary-font);
 			font-family: Inter;
 			font-size: 14px;
 			font-style: normal;
@@ -368,10 +375,10 @@
 		flex: 1 0 0;
 		align-self: stretch;
 		border-radius: 16px;
-		background: rgba(21, 21, 21, 0.2);
+		background: var(--popup);
 		flex-wrap: wrap;
 		overflow-y: scroll;
-		color: #939393;
+		color: var(--secondary-font);
 	}
 	.lightRoomCopyListButton {
 		display: flex;
@@ -382,7 +389,7 @@
 		align-items: center;
 		gap: 16px;
 		border-radius: 50px;
-		background: #e8e8e8;
+		background: var(--primary-button-font);
 	}
 }
 
@@ -395,7 +402,7 @@
 	align-items: flex-start;
 	gap: 24px;
 	border-radius: 32px;
-	background: #202123;
+	background: var(--popup);
 	box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
 	.galleryStylesCloseButton {
 		display: flex;
@@ -404,7 +411,7 @@
 		gap: 4px;
 		align-self: stretch;
 		.galleryStylesHeading {
-			color: var(--darkTheme-Primary-font, #e8e8e8);
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 20px;
 			font-style: normal;
@@ -419,7 +426,7 @@
 		gap: 14px;
 		align-self: stretch;
 		.galleryStylesThemeHeading {
-			color: var(--t1, #e8e8e8);
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 13px;
 			font-style: normal;
@@ -441,11 +448,11 @@
 				align-items: center;
 				gap: 8px;
 				border-radius: 8px;
-				border: 2px solid #424548;
+				border: 2px solid var(--stroke);
 				overflow: hidden;
 				cursor: pointer;
 				p {
-					color: #424548;
+					color: var(--secondary-font);
 					text-overflow: ellipsis;
 					font-family: Inter;
 					font-size: 13px;
@@ -464,7 +471,7 @@
 		gap: 14px;
 		align-self: stretch;
 		.galleryStylesGridStylesHeading {
-			color: var(--t1, #e8e8e8);
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 13px;
 			font-style: normal;
@@ -490,10 +497,10 @@
 				width: 118px;
 				padding: 8px 20px;
 				gap: 8px;
-				border: 2px solid #424548;
+				border: 2px solid var(--stroke);
 				cursor: pointer;
 				p {
-					color: #424548;
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 13px;
 					font-style: normal;
@@ -503,7 +510,7 @@
 				}
 				svg {
 					rect {
-						fill: #424548;
+						fill: var(--stroke);
 					}
 				}
 			}
@@ -516,7 +523,7 @@
 		gap: 14px;
 		align-self: stretch;
 		.galleryThumbnailSizeHeading {
-			color: var(--t1, #e8e8e8);
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 13px;
 			font-style: normal;
@@ -538,11 +545,11 @@
 				width: 118px;
 				padding: 8px 20px;
 				gap: 8px;
-				border: 2px solid #424548;
+				border: 2px solid var(--stroke);
 				border-radius: 8px;
 				cursor: pointer;
 				p {
-					color: #424548;
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 13px;
 					font-style: normal;
@@ -552,7 +559,7 @@
 				}
 				svg {
 					rect {
-						fill: #424548;
+						fill: var(--stroke);
 					}
 				}
 			}
@@ -565,7 +572,7 @@
 		gap: 14px;
 		align-self: stretch;
 		.galleryGridSpacingHeading {
-			color: var(--t1, #e8e8e8);
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 13px;
 			font-style: normal;
@@ -588,11 +595,11 @@
 				width: 118px;
 				padding: 8px 20px;
 				gap: 8px;
-				border: 2px solid #424548;
+				border: 2px solid var(--stroke);
 				border-radius: 8px;
 				cursor: pointer;
 				p {
-					color: #424548;
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 13px;
 					font-style: normal;
@@ -602,7 +609,7 @@
 				}
 				svg {
 					rect {
-						fill: #424548;
+						fill: var(--stroke);
 					}
 				}
 			}
@@ -610,10 +617,10 @@
 	}
 	.activeGrids {
 		border-radius: 8px;
-		border: 2px solid #e8e8e8 !important;
+		border: 2px solid var(--primary-font) !important;
 		p {
 			overflow: hidden;
-			color: #e8e8e8 !important;
+			color: var(--primary-font) !important;
 			text-overflow: ellipsis;
 			white-space: nowrap;
 			font-family: Inter;
@@ -625,7 +632,7 @@
 		}
 		svg {
 			rect {
-				fill: #e8e8e8 !important;
+				fill: var(--primary-font) !important;
 			}
 		}
 	}

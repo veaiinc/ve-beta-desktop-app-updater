@@ -56,7 +56,7 @@ const MainPopup = (props) => {
 				</div>
 				<div style={{ alignSelf: 'flex-end' }}>
 					<button className="mainPopupSaveButton" onClick={onSubmit}>
-						Save
+						<p>Save</p>
 					</button>
 				</div>
 			</div>

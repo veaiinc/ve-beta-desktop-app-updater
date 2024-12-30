@@ -1,5 +1,5 @@
 .activityParentContainer {
-	color: white; //remove text color
+	color: var(--primary-font); //remove text color
 
 	display: flex;
 	flex-direction: column;
@@ -24,11 +24,11 @@
 			justify-content: space-between;
 			align-items: flex-start;
 			border-radius: 14px;
-			border: 1px solid #212121;
-			background: rgba(42, 42, 42, 0.16);
+			border: 1px solid var(--stroke);
+			background: var(--card);
 
 			.summaryTitle {
-				color: rgba(228, 229, 230, 0.48);
+				color: var(--secondary-font);
 				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;
@@ -49,7 +49,7 @@
 				}
 
 				.summaryValue {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 20px;
 					font-style: normal;
@@ -82,7 +82,7 @@
 				align-self: stretch;
 
 				.timelineHeaderText {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
@@ -117,8 +117,8 @@
 				justify-content: center;
 				align-items: center;
 				border-radius: 24px;
-				border: 1px solid #212121;
-				background: rgba(36, 36, 36, 0.1);
+				border: 1px solid var(--stroke);
+				background: var(--card);
 				overflow-y: auto;
 
 				.timelineEventContainer {
@@ -162,13 +162,13 @@
 								}
 
 								.dateLable {
-									color: #d3d3d3;
+									color: var(--secondary-font);
 									font-size: 12px;
 									font-weight: 500;
 								}
 
 								.timeLable {
-									color: #6f6f6f;
+									color: var(--secondary-font);
 									font-size: 11px;
 									font-weight: 400;
 								}
@@ -203,8 +203,8 @@
 										align-items: center;
 										gap: 9px;
 										border-radius: 89.1px;
-										border: 1px solid #535298;
-										background: #2e2b44;
+										border: 1px solid var(--primary-button);
+										background: var(--card);
 									}
 								}
 
@@ -220,7 +220,7 @@
 									height: 100%;
 
 									.eventType {
-										color: #e4e5e6;
+										color: var(--primary-font);
 										align-self: stretch;
 										font-family: Inter;
 										font-size: 14px;
@@ -256,7 +256,7 @@
 												gap: 2px;
 
 												.labelKey {
-													color: #929292;
+													color: var(--secondary-font);
 													font-family: Inter;
 													font-size: 12px;
 													font-style: normal;
@@ -265,7 +265,7 @@
 												}
 
 												.labelValue {
-													color: #e4e5e6;
+													color: var(--primary-font);
 													font-family: Inter;
 													font-size: 12px;
 													font-style: normal;
@@ -284,14 +284,14 @@
 									align-items: center;
 									gap: 10px;
 									border-radius: 4px;
-									border: 1px solid #212121;
-									background: #131313;
+									border: 1px solid var(--stroke);
+									background: var(--card);
 									min-width: 108px;
 									width: auto;
 
 									cursor: pointer;
 
-									color: #e4e5e6;
+									color: var(--primary-font);
 									font-family: Inter;
 									font-size: 12px;
 									font-style: normal;
@@ -299,7 +299,7 @@
 									line-height: normal;
 
 									span {
-										color: #e4e5e6;
+										color: var(--primary-font);
 										font-family: Inter;
 										font-size: 12px;
 										font-style: normal;
@@ -330,7 +330,7 @@
 				padding: 0px 8px;
 
 				.viewersHeaderText {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
@@ -364,7 +364,7 @@
 				height: auto;
 				max-height: 497px;
 				padding: 10px 2px;
-				border-top: 1px solid #212121;
+				border-top: 1px solid var(--stroke);
 				overflow-y: auto;
 
 				.viewersListItemWrapper {
@@ -377,7 +377,7 @@
 					transition: background-color 0.1s ease;
 
 					&:hover {
-						background: #262626;
+						background: var(--card);
 						cursor: pointer;
 					}
 
@@ -416,7 +416,7 @@
 							gap: 4px;
 
 							.viewerName {
-								color: #e4e5e6;
+								color: var(--primary-font);
 								font-family: Inter;
 								font-size: 16px;
 								font-style: normal;
@@ -425,7 +425,7 @@
 							}
 
 							.viewerEmail {
-								color: #929292;
+								color: var(--secondary-font);
 								font-family: Inter;
 								font-size: 12px;
 								font-style: normal;
@@ -444,7 +444,7 @@
 						gap: 4px;
 
 						.viewerSessions {
-							color: #e4e5e6;
+							color: var(--primary-font);
 							font-family: Inter;
 							font-size: 14px;
 							font-style: normal;
@@ -455,7 +455,7 @@
 						}
 
 						.viewerTime {
-							color: #929292;
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
@@ -478,7 +478,7 @@
 		align-self: stretch;
 
 		.metricsTitle {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 16px;
 			font-style: normal;
@@ -494,8 +494,8 @@
 			gap: 10px;
 			align-self: stretch;
 			border-radius: 24px;
-			border: 1px solid #212121;
-			background: rgba(36, 36, 36, 0.16);
+			border: 1px solid var(--stroke);
+			background: var(--card);
 
 			.metricsContentContainer {
 				display: flex;
@@ -520,10 +520,10 @@
 						gap: 12px;
 						align-self: stretch;
 						justify-content: space-between;
-						border-bottom: 1px solid #222222;
+						border-bottom: 1px solid var(--stroke);
 
 						span {
-							color: #d3d3d3;
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 14px;
 							font-style: normal;
@@ -549,7 +549,7 @@
 							border-radius: 14px;
 							transition: background-color 0.3s ease;
 
-							color: #e4e5e6;
+							color: var(--primary-font);
 							font-family: Inter;
 							font-size: 14px;
 							font-style: normal;
@@ -620,12 +620,12 @@
 									opacity: 1;
 								}
 								cursor: pointer;
-								background: #262626;
+								background: var(--card);
 							}
 						}
 
 						.selectedLabelItem {
-							background: #262626;
+							background: var(--card);
 						}
 					}
 				}

@@ -2971,7 +2971,13 @@ const GalleryPage = () => {
 										zIndex: 2,
 									}}
 								>
-									<CrossedOpenEye style={{ width: '30px', height: '30px' }} />
+									<CrossedOpenEye
+										style={{
+											width: '30px',
+											height: '30px',
+											fill: 'var(--background-color)',
+										}}
+									/>
 								</div>
 							)}
 						</div>
@@ -3002,12 +3008,14 @@ const GalleryPage = () => {
 								>
 									{info.isOnline ? (
 										<>
-											<OpenEye />
+											<OpenEye style={{ fill: 'var(--primary-font)' }} />
 											<p className="onlineText">Online</p>
 										</>
 									) : (
 										<>
-											<CrossedOpenEye />
+											<CrossedOpenEye
+												style={{ fill: 'var(--primary-font)' }}
+											/>
 											<p className="onlineText">Offline</p>
 										</>
 									)}
@@ -3211,6 +3219,7 @@ const GalleryPage = () => {
 																					style={{
 																						width: '30px',
 																						height: '30px',
+																						fill: 'var(--primary-font)',
 																					}}
 																				/>
 																			</div>
@@ -3528,7 +3537,7 @@ const GalleryPage = () => {
 										<div
 											style={{
 												cursor: 'pointer',
-												color: '#E4E5E6',
+												color: 'var(--primary-font)',
 												fontFamily: 'Inter',
 												fontSize: '14px',
 												fontWeight: '400',
@@ -3578,7 +3587,7 @@ const GalleryPage = () => {
 														>
 															<span
 																style={{
-																	color: '#E4E5E6',
+																	color: 'var(--primary-font)',
 																	fontFamily: 'Inter',
 																	fontSize: '14px',
 																	fontWeight: '400',
@@ -3597,8 +3606,8 @@ const GalleryPage = () => {
 																style={{
 																	backgroundColor:
 																		info?.isPublished
-																			? '#575858'
-																			: '#575858',
+																			? 'var(--background-color)'
+																			: 'var(--primary-button)',
 																}}
 															/>
 														</div>
@@ -3613,7 +3622,7 @@ const GalleryPage = () => {
 														>
 															<span
 																style={{
-																	color: '#E4E5E6',
+																	color: 'var(--primary-font)',
 																	fontFamily: 'Inter',
 																	fontSize: '14px',
 																	fontWeight: '400',
@@ -3632,8 +3641,8 @@ const GalleryPage = () => {
 																size="medium"
 																style={{
 																	backgroundColor: !info.isEnabled
-																		? '#575858'
-																		: '#575858',
+																		? 'var(--background-color)'
+																		: 'var(--primary-button)',
 																}}
 															/>
 														</div>
@@ -3732,7 +3741,7 @@ const GalleryPage = () => {
 
 													<hr
 														style={{
-															border: '1px solid #1F1F1F',
+															border: '1px solid var(--stroke)',
 															width: '100%',
 															margin: '0px',
 															opacity: 0.5,
@@ -3756,7 +3765,7 @@ const GalleryPage = () => {
 														<DeleteIcon />
 														<span
 															style={{
-																color: '#A74A49',
+																color: 'var(--error)',
 																cursor: 'pointer',
 															}}
 														>
@@ -3908,7 +3917,12 @@ const GalleryPage = () => {
 										next={fetchMoreImages}
 										hasMore={imagesList?.hasNextPage || false}
 										loader={
-											<p style={{ textAlign: 'center', color: '#fff' }}>
+											<p
+												style={{
+													textAlign: 'center',
+													color: 'var(--primary-font)',
+												}}
+											>
 												Loading
 											</p>
 										}
@@ -4043,12 +4057,12 @@ const GalleryPage = () => {
 																					style={{
 																						width: '200px',
 																						height: '200px',
-																						border: '2px dashed #fff',
+																						border: '2px dashed var(--stroke)',
 																						borderRadius:
 																							'4px',
 																						margin: '5px',
 																						backgroundColor:
-																							'rgba(255,255,255,0.1)',
+																							'var(--card)',
 																					}}
 																				/>
 																			)}
@@ -4142,7 +4156,7 @@ const GalleryPage = () => {
 																						borderRadius:
 																							'4px',
 																						backgroundColor:
-																							'#fff',
+																							'var(--card)',
 																						boxShadow:
 																							'0 2px 4px rgba(0,0,0,0.2)',
 																						transform: `translate(${
@@ -4177,8 +4191,9 @@ const GalleryPage = () => {
 																				right: '-20px',
 																				transform:
 																					'translateY(-50%)',
-																				background: '#666',
-																				color: '#fff',
+																				background:
+																					'var(--card)',
+																				color: 'var(--primary-font)',
 																				padding: '2px 6px',
 																				borderRadius:
 																					'10px',
@@ -4218,14 +4233,19 @@ const GalleryPage = () => {
 															handleExpandClick(null, 'multiple')
 														}
 													>
-														<ExpandIcon />
+														<ExpandIcon
+															style={{ color: 'var(--primary-font)' }}
+														/>
 													</div>
 
 													<div
 														style={{ position: 'relative' }}
 														ref={forwardIconRef}
 													>
-														<ForwardIcon onClick={handleForwardIcon} />
+														<ForwardIcon
+															style={{ color: 'var(--primary-font)' }}
+															onClick={handleForwardIcon}
+														/>
 
 														{info.showForward && (
 															<div

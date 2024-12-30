@@ -4,7 +4,7 @@
 	align-items: flex-start;
 	gap: var(--Spacing-space-8, 16px);
 	.eventsTitle {
-		color: #e4e5e6;
+		color: var(--primary-font);
 		font-family: Inter;
 		font-size: 16px;
 		font-style: normal;
@@ -19,9 +19,9 @@
 		gap: 10px;
 		align-self: stretch;
 		border-radius: 8px;
-		border: 1px dashed rgba(36, 36, 36, 0.64);
-		background: rgba(42, 42, 42, 0.2);
-		color: rgba(228, 229, 230, 0.48);
+		border: 1px dashed var(--stroke);
+		background: var(--card);
+		color: var(--secondary-font);
 		font-family: Inter;
 		font-size: 14px;
 		font-style: normal;
@@ -38,8 +38,8 @@
 		gap: 24px;
 		align-self: stretch;
 		border-radius: 16px;
-		border: 1px solid #242424;
-		background: rgba(42, 42, 42, 0.16);
+		border: 1px solid var(--stroke);
+		background: var(--card);
 
 		.deleteEventsContainer {
 			display: flex;
@@ -52,9 +52,9 @@
 			gap: 9px;
 			border-radius: 8px;
 			opacity: 0.5;
-			background: rgba(204, 87, 86, 0);
+			background: var(--card);
 			cursor: pointer;
-			color: #cc5756;
+			color: var(--error);
 			font-family: Inter;
 			font-size: 14px;
 			font-style: normal;
@@ -85,7 +85,7 @@
 				gap: 12px;
 
 				.serviceContainerTitleStyling {
-					color: rgba(228, 229, 230, 0.48);
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 10px;
 					font-style: normal;
@@ -100,7 +100,7 @@
 					gap: 6px;
 					cursor: pointer;
 					.eventsPresetsStyling {
-						color: #6055ec;
+						color: var(--primary-button);
 						font-family: Inter;
 						font-size: 12px;
 						font-style: normal;
@@ -124,9 +124,9 @@
 					flex: 1 0 0;
 					align-self: stretch;
 					border-radius: 10px;
-					border: 1px solid rgba(255, 255, 255, 0.05);
+					border: 1px solid var(--stroke);
 					background-color: transparent;
-					color: #b0b0b0;
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 11px;
 					font-style: normal;
@@ -134,13 +134,13 @@
 					line-height: 16px; /* 145.455% */
 				}
 				.customInputWithoutLabel.edit:focus {
-					border: 1px solid rgba(255, 255, 255, 0.4);
+					border: 1px solid var(--stroke);
 				}
 				.customInputWithoutLabel.edit:hover {
-					border: 1px solid rgba(255, 255, 255, 0.2);
+					border: 1px solid var(--stroke-hover);
 				}
 				.customInputWithoutLabel.ai_generated {
-					border: 1px solid var(--Color-Code-AI, #c39df8);
+					border: 1px solid var(--AI-Color-Code);
 				}
 				.incrementDecrementContainer {
 					display: flex;
@@ -149,11 +149,11 @@
 					gap: 4px;
 					align-items: center;
 					border-radius: 10px;
-					border: 1px solid rgba(36, 36, 36, 0.64);
+					border: 1px solid var(--stroke);
 
 					.incrementDecrementinput {
 						flex: 1;
-						color: #e4e5e6;
+						color: var(--secondary-font);
 						font-family: Inter;
 						font-size: 14px;
 						font-style: normal;
@@ -168,7 +168,7 @@
 						display: flex;
 						justify-content: center;
 						align-items: center;
-						color: #6055ec;
+						color: var(--primary-button);
 						font-family: Inter;
 						font-size: 14px;
 						font-style: normal;
@@ -178,7 +178,7 @@
 					}
 				}
 				.incrementDecrementContainer.ai_generated {
-					border: 1px solid var(--Color-Code-AI, #c39df8);
+					border: 1px solid var(--AI-Color-Code);
 				}
 				.removeRoleContainer {
 					display: flex;
@@ -188,7 +188,7 @@
 				}
 			}
 			.addMoreRoleBtn {
-				color: #6055ec;
+				color: var(--primary-button);
 				font-family: Inter;
 				font-size: 11px;
 				font-style: normal;
@@ -208,7 +208,7 @@
 	align-self: stretch;
 
 	.servicesHeader {
-		color: #e4e5e6;
+		color: var(--primary-font);
 		font-family: Inter;
 		font-size: 15px;
 		font-style: normal;
@@ -223,8 +223,8 @@
 		gap: 32px;
 		align-self: stretch;
 		border-radius: 16px;
-		border: 1px solid #242424;
-		background: rgba(42, 42, 42, 0.16);
+		border: 1px solid var(--stroke);
+		background: var(--card);
 
 		.serviceCardHeaderBlock {
 			display: flex;
@@ -232,7 +232,7 @@
 			align-items: center;
 
 			.serviceSubTitle {
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 16px;
 				font-style: normal;
@@ -245,7 +245,7 @@
 				align-items: center;
 				gap: 8px;
 				.subTotalValueTitle {
-					color: #b0b0b0;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
@@ -261,9 +261,9 @@
 					gap: 10px;
 					flex-shrink: 0;
 					border-radius: 10px;
-					border: 1px solid rgba(255, 255, 255, 0.05);
+					border: 1px solid var(--stroke);
 					outline: none;
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
@@ -271,7 +271,7 @@
 					line-height: 26px; /* 185.714% */
 				}
 				.ServiceSubTotalValue {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
@@ -295,7 +295,7 @@
 				flex: 1;
 
 				.serviceCardTitle {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
@@ -311,7 +311,7 @@
 				gap: 16px;
 
 				.quantityTitle {
-					color: #b0b0b0;
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 11px;
 					font-style: normal;
@@ -325,11 +325,11 @@
 					gap: 4px;
 					align-items: center;
 					border-radius: 10px;
-					border: 1px solid rgba(36, 36, 36, 0.64);
+					border: 1px solid var(--stroke);
 
 					.incrementDecrementinput {
 						flex: 1;
-						color: #e4e5e6;
+						color: var(--primary-font);
 						font-family: Inter;
 						font-size: 14px;
 						font-style: normal;
@@ -344,7 +344,7 @@
 						display: flex;
 						justify-content: center;
 						align-items: center;
-						color: #6055ec;
+						color: var(--primary-button);
 						font-family: Inter;
 						font-size: 14px;
 						font-style: normal;
@@ -354,7 +354,7 @@
 					}
 				}
 				.incrementDecrementContainer.ai_generated {
-					border: 1px solid var(--Color-Code-AI, #c39df8);
+					border: 1px solid var(--AI-Color-Code);
 				}
 			}
 		}
@@ -374,7 +374,7 @@
 		align-items: flex-end;
 		align-self: stretch;
 		.paymentScheduleTitle {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 15px;
 			font-style: normal;
@@ -390,8 +390,8 @@
 		gap: 16px;
 		align-self: stretch;
 		border-radius: 16px;
-		border: 1px solid #242424;
-		background: rgba(42, 42, 42, 0.16);
+		border: 1px solid var(--stroke);
+		background: var(--card);
 
 		.paymentScheduleContentWrapper {
 			display: flex;
@@ -411,8 +411,8 @@
 	gap: 16px;
 	align-self: stretch;
 	border-radius: 16px;
-	border: 1px solid #242424;
-	background: rgba(42, 42, 42, 0.16);
+	border: 1px solid var(--stroke);
+	background: var(--card);
 
 	.variableListHolder {
 		align-self: stretch;
@@ -432,7 +432,7 @@
 	gap: 6px;
 	flex: 1 0 0;
 	.labelName {
-		color: #b0b0b0;
+		color: var(--secondary-font);
 		font-family: Inter;
 		font-size: 11px;
 		font-style: normal;
@@ -442,9 +442,9 @@
 		text-transform: capitalize;
 	}
 	.customproposalInputContainer {
-		border: 1px solid rgba(255, 255, 255, 0.05);
+		border: 1px solid var(--stroke);
 		span {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 14px;
 			font-style: normal;
@@ -453,10 +453,10 @@
 		}
 	}
 	.customproposalInputContainer.edit:focus {
-		border: 1px solid rgba(255, 255, 255, 0.4);
+		border: 1px solid var(--stroke);
 	}
 	.customproposalInputContainer.edit:hover {
-		border: 1px solid rgba(255, 255, 255, 0.2);
+		border: 1px solid var(--stroke-hover);
 	}
 	.proposalInputCustomContainer {
 		padding: 11px 14px;
@@ -465,7 +465,7 @@
 		border-radius: 10px;
 		border: none;
 		// border: 1px solid rgba(255, 255, 255, 0.05);
-		color: #e4e5e6;
+		color: var(--primary-font);
 		font-family: Inter;
 		font-size: 14px;
 		font-style: normal;
@@ -478,8 +478,8 @@
 		gap: 10px;
 		align-self: stretch;
 		border-radius: 10px;
-		border: 1px solid rgba(255, 255, 255, 0.05);
-		color: #e4e5e6;
+		border: 1px solid var(--stroke);
+		color: var(--primary-font);
 		font-family: Inter;
 		font-size: 14px;
 		font-style: normal;
@@ -488,25 +488,25 @@
 		background-color: transparent;
 		box-shadow: none !important;
 		.anticon-calendar svg {
-			fill: #fff;
+			fill: var(--primary-font);
 		}
 		input::placeholder {
-			color: #fff;
+			color: var(--primary-font);
 		}
 	}
 	.custominputContainer.ant-picker-disabled .ant-picker-input input {
-		color: #e4e5e6 !important;
+		color: var(--primary-font) !important;
 	}
 	.custominputContainer.edit:focus {
-		border: 1px solid rgba(255, 255, 255, 0.4);
+		border: 1px solid var(--stroke-hover);
 	}
 	.custominputContainer.edit.ant-picker-focused {
 		.anticon-calendar svg {
-			fill: #fff;
+			fill: var(--primary-font);
 		}
 	}
 	.custominputContainer.edit:hover {
-		border: 1px solid rgba(255, 255, 255, 0.2);
+		border: 1px solid var(--stroke-hover);
 	}
 
 	.inputwithSumbols {
@@ -514,9 +514,9 @@
 		flex: 1;
 		align-items: center;
 		border-radius: 10px;
-		border: 1px solid rgba(36, 36, 36, 0.64);
+		border: 1px solid var(--stroke);
 		padding-left: 11px;
-		color: rgba(228, 229, 230, 0.48);
+		color: var(--secondary-font);
 		font-family: Inter;
 		font-size: 14px;
 		font-style: normal;
@@ -551,14 +551,14 @@
 			flex: 1 0 0;
 			align-self: stretch;
 			border-radius: 16px;
-			border: 1px solid #242424;
-			background: rgba(42, 42, 42, 0.16);
+			border: 1px solid var(--stroke);
+			background: var(--card);
 			max-width: 50%;
 			.acceptedBlockHeader {
 				display: flex;
 				justify-content: space-between;
 				.acceptedBlockHeaderTextStyling {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
@@ -575,7 +575,7 @@
 				.seperator {
 					width: 100%;
 					height: 1px;
-					background: #242424;
+					background: var(--stroke);
 				}
 				.propsalServices {
 					display: flex;
@@ -591,7 +591,7 @@
 						flex: 1;
 						align-self: stretch;
 						.keyValuepairs {
-							color: #b0b0b0;
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
@@ -625,8 +625,8 @@
 						align-items: center;
 						gap: 10px;
 						border-radius: 100px;
-						background: rgba(42, 42, 42, 0.64);
-						color: #e4e5e6;
+						background: var(--stroke);
+						color: var(--primary-font);
 						text-align: center;
 						font-family: Inter;
 						font-size: 13px;
@@ -643,7 +643,7 @@
 						flex: 1;
 
 						.clientNameStyling {
-							color: #e4e5e6;
+							color: var(--primary-font);
 							font-family: Inter;
 							font-size: 13px;
 							font-style: normal;
@@ -651,7 +651,7 @@
 							line-height: 21px; /* 161.538% */
 						}
 						.clientEmailStyling {
-							color: rgba(228, 229, 230, 0.48);
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 11px;
 							font-style: normal;
@@ -678,12 +678,12 @@
 						gap: 10px;
 						align-self: stretch;
 						border-radius: 10px;
-						border: 1px solid rgba(36, 36, 36, 0.64);
-						color: #fff;
-						background-color: #fff;
+						border: 1px solid var(--stroke);
+						color: var(--primary-font);
+						background-color: var(--card);
 					}
 					.dateData {
-						color: #b0b0b0;
+						color: var(--secondary-font);
 						font-family: Inter;
 						font-size: 11px;
 						font-style: normal;
@@ -714,7 +714,7 @@
 						gap: 4px;
 						flex: 1 0 0;
 						.infoBlocksHeader {
-							color: #b0b0b0;
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 11px;
 							font-style: normal;
@@ -729,8 +729,8 @@
 							gap: 10px;
 							align-self: stretch;
 							border-radius: 10px;
-							border: 1px solid rgba(36, 36, 36, 0.64);
-							color: rgba(228, 229, 230, 0.5);
+							border: 1px solid var(--stroke);
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 14px;
 							font-style: normal;
@@ -747,7 +747,7 @@
 					flex: 1 0 0;
 					align-self: stretch;
 					.infoBlocksHeader {
-						color: #b0b0b0;
+						color: var(--secondary-font);
 						font-family: Inter;
 						font-size: 11px;
 						font-style: normal;
@@ -762,8 +762,8 @@
 						gap: 10px;
 						align-self: stretch;
 						border-radius: 10px;
-						border: 1px solid rgba(36, 36, 36, 0.64);
-						color: rgba(228, 229, 230, 0.5);
+						border: 1px solid var(--stroke);
+						color: var(--secondary-font);
 						font-family: Inter;
 						font-size: 14px;
 						font-style: normal;
@@ -786,8 +786,8 @@
 	align-items: flex-start;
 	gap: 2px;
 	border-radius: 12px;
-	border: 1px solid rgba(228, 229, 230, 0.05);
-	background: #151515;
+	border: 1px solid var(--stroke);
+	background: var(--card);
 	max-height: 240px;
 	// overflow-y: auto;
 
@@ -797,7 +797,7 @@
 		align-items: center;
 		gap: var(--Spacing-space-7, 12px);
 		align-self: stretch;
-		color: #6055ec;
+		color: var(--primary-button);
 		text-align: center;
 		font-family: Inter;
 		font-size: 12px;
@@ -829,7 +829,7 @@
 				gap: 12px;
 				flex: 1;
 				.presetTitle {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
@@ -837,7 +837,7 @@
 					line-height: normal;
 				}
 				.presetSubTitle {
-					color: rgba(228, 229, 230, 0.48);
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
@@ -865,8 +865,8 @@
 	align-items: flex-start;
 	gap: 2px;
 	border-radius: 12px;
-	border: 1px solid rgba(228, 229, 230, 0.05);
-	background: #151515;
+	border: 1px solid var(--stroke);
+	background: var(--card);
 
 	.threeDotOptionsContainer {
 		display: flex;
@@ -876,7 +876,7 @@
 		align-self: stretch;
 
 		.optionsStyling {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			text-align: center;
 			font-family: Inter;
 			font-size: 12px;
@@ -886,7 +886,7 @@
 			cursor: pointer;
 		}
 		.deleteStyling {
-			color: #cc5756;
+			color: var(--error);
 			text-align: center;
 			font-family: Inter;
 			font-size: 12px;

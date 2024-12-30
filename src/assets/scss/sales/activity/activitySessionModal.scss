@@ -2,7 +2,7 @@
 	height: 100%;
 	display: flex;
 	padding: 10px;
-	color: #e4e5e6;
+	color: var(--primary-font);
 
 	.innerContainer {
 		display: flex;
@@ -13,8 +13,8 @@
 		align-self: stretch;
 		padding: 20px;
 		border-radius: 32px;
-		border: 1px solid #1f1f1f;
-		background: #151515;
+		border: 1px solid var(--stroke);
+		background: var(--navbar);
 
 		.headParentContianer {
 			display: flex;
@@ -45,7 +45,7 @@
 						align-self: stretch;
 
 						.logoText {
-							color: #7d7d7d;
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
@@ -54,7 +54,7 @@
 						}
 
 						.headerTitle {
-							color: #e4e5e6;
+							color: var(--primary-font);
 							font-family: Inter;
 							font-size: 14px;
 							font-style: normal;
@@ -117,8 +117,8 @@
 					align-items: center;
 					gap: 10px;
 					border-radius: 99px;
-					background: #2e2f36;
-					color: #6c83ff;
+					background: var(--primary-button);
+					color: var(--primary-button-text);
 					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
@@ -141,7 +141,7 @@
 						align-self: stretch;
 
 						.titleName {
-							color: #e4e5e6;
+							color: var(--primary-font);
 							font-family: Inter;
 							font-size: 16px;
 							font-style: normal;
@@ -172,7 +172,7 @@
 						align-self: stretch;
 
 						p {
-							color: #929292;
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
@@ -206,10 +206,10 @@
 						align-items: center;
 						flex: 1 0 0;
 						border-radius: 100px;
-						border: 1px solid rgba(228, 229, 230, 0.1);
+						border: 1px solid var(--stroke);
 
 						span {
-							color: #e4e5e6;
+							color: var(--primary-font);
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
@@ -228,7 +228,7 @@
 						.textContainer {
 							position: relative;
 							display: inline-block;
-							color: #e4e5e6;
+							color: var(--primary-font);
 							font-family: Inter, sans-serif;
 							font-size: 12px;
 							font-weight: 500;
@@ -278,7 +278,7 @@
 
 						.labelKey {
 							width: 76px;
-							color: #929292;
+							color: var(--secondary-font);
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
@@ -293,7 +293,7 @@
 							flex: 1 0 0;
 
 							.labelDescription {
-								color: #e4e5e6;
+								color: var(--primary-font);
 								font-family: Inter;
 								font-size: 12px;
 								font-style: normal;
@@ -321,7 +321,7 @@
 				align-items: flex-start;
 				align-self: stretch;
 				gap: 8px;
-				border-bottom: 1px solid #272727;
+				border-bottom: 1px solid var(--stroke);
 
 				.sessionTab {
 					display: flex;
@@ -330,7 +330,7 @@
 					align-items: center;
 					gap: 10px;
 
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
@@ -343,7 +343,7 @@
 
 					&.sessionTabActive {
 						font-weight: 500;
-						border-bottom: 2px solid white;
+						border-bottom: 2px solid var(--stroke);
 					}
 				}
 			}

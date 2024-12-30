@@ -138,6 +138,7 @@ const AiFaceRegistration = ({ link }) => {
 							<p>{link ? link : ''}</p>
 							<CopyIcon className="copyIcon" onClick={() => copyLink()} />
 						</div>
+
 						<div className="downloadNotifyContainer">
 							<div className="downloadQR" onClick={() => downloadQR()}>
 								<DownloadIcon className="downloadIcon" />
@@ -171,11 +172,11 @@ const AiFaceRegistration = ({ link }) => {
 										)}
 										type="circle"
 										size={46}
-										strokeColor="#E8E8E8"
+										strokeColor="var(--stroke)"
 										strokeWidth={12}
 										trailWidth={12}
-										trailColor="##939393"
-										textStyle={{ color: '#fff' }}
+										trailColor="var(--secondary-font)"
+										textStyle={{ color: 'var(--primary-font)' }}
 									/>
 								</div>
 							)}
@@ -189,12 +190,12 @@ const AiFaceRegistration = ({ link }) => {
 							{imageProcessingStatus?.numberOfImagesPeoples !== 0 && (
 								<p className="aiProcessingText-count">
 									<Tooltip title="no of processed images">
-										<span style={{ color: '#E8E8E8' }}>
+										<span style={{ color: 'var(--primary-font)' }}>
 											{imageProcessingStatus?.numberOfImagesGroupedFaces}{' '}
 										</span>
 									</Tooltip>
 									<Tooltip title="no of images with people">
-										<span style={{ color: '#939393' }}>
+										<span style={{ color: 'var(--secondary-font)' }}>
 											/{imageProcessingStatus?.numberOfImagesPeoples}
 										</span>
 									</Tooltip>
