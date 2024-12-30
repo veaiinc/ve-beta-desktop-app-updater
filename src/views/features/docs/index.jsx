@@ -1,11 +1,67 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/docs/index.scss';
 import { ReactComponent as Files } from '../../../assets/svg/docs/files.svg';
 import { fetchOriginSelection } from '../../../helpers';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
 import FilesListView from './FilesListView';
+import Context from '../../../context/context';
 let origin = fetchOriginSelection();
 const Docs = () => {
+	let {
+		templates: {
+			getMyWorkflows,
+			myWorkflows,
+			myMoreWorkflows,
+			salePageRefresh,
+			updateStateValues,
+			generatePublicLinkData,
+		},
+		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		loading: true,
+		myWorkflowData: null,
+		hasNextPage: false,
+		currentPage: 1,
+		myWorkflowModal: false,
+		activeTemplateData: null,
+		activeCardsData: null,
+		copyModal: false,
+		showGeneratedLinkModalData: null,
+		testingDrawerModal: false,
+		shownInitialLoader: localStorage.getItem('showInitialLoader'),
+		currentWorkspaceId: null,
+		pendingCopyAction: null,
+		copyLink: null,
+	});
+
+	useEffect(() => {
+		getMyWorkflowTemplatesData(1);
+	}, []);
+
+	useEffect(() => {
+		setInfo((prev) => ({ ...prev, myWorkflowData: myWorkflows?.data }));
+	}, [myWorkflows]);
+
+	useEffect(() => {
+		console.log('state', info?.myWorkflowData);
+	}, [info?.myWorkflowData]);
+
+	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
+		const payload = {
+			filters: {
+				limit: 10,
+				page: page,
+				type: 'workspace',
+				status: 'published',
+				sortBy: 'createdAt',
+				sortType: -1,
+			},
+		};
+		getMyWorkflows(payload, fetchMore);
+	}, []);
+
 	const onGenerateAIFunc = () => {
 		window.location.href = `${origin}/generate`;
 	};
@@ -41,7 +97,7 @@ const Docs = () => {
 				</div>
 
 				<div className="docsTemplateContainer">
-					{[{}, {}, {}, {}, {}, {}, {}, {}]?.map((ele, index) => (
+					{info?.myWorkflowData?.map((workflow, index) => (
 						<div key={index} className="docsTemplateCard">
 							<div className="docsTemplateImageContainer">
 								<div className="docsTemplateHoverContentContainer">
@@ -55,15 +111,18 @@ const Docs = () => {
 										<span className="docsHoverOptionsStyling">Delete</span>
 									</div>
 								</div>
-								<img
-									src="https://s3-alpha-sig.figma.com/img/d123/7039/e9657c701b29d41ded85c753bf7bb901?Expires=1736121600&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=Nh1szCywYF9uaxvrAlbwwEW7iKRl51m66dYFTwTnpwooc0ui7rZ6PgxjDHCpLGjP38fK1WErgeG9LxVxcRibSZpcm6No9vI-XpkdEmFvvctLsA6M9O1TJJi917wgV91FO8Io30dAQg1GCjUmzOmY5F1Ci8BzkMuTlO9M72c0BP3Z4CSum6QPEJm4GVhFYF-D-nEfl6jYu3X9xzYEf7f4SeRYBRRO~PS5zOKYrhVENZmiKcmnCfRPgNsmHQPPjBSO1Bhq3ba-lS0GQLNF9T~R-zppNvYKJYnPn6BEFVtHB7KAg4YirBdtqrTJMGx356~Hy3t4qg-oY5J7b0WqZ7D1sQ__"
-									alt="Template preview"
-								/>
+								<div className="coverImage">
+									<iframe
+										src={`${origin}/preview/${workflow?._id}?module=${workflow?.moduleTemplates?.[0]?._id}&isPubic=${workflow?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
+										title="Builder Preview"
+										width="100%"
+										height="100%"
+										style={{ zoom: 0.3 }}
+									/>
+								</div>
 							</div>
 							<div className="docsFooterContent">
-								<span className="docsFooterContentTitle">
-									Jaylon Korsgaard Wedding Proposal
-								</span>
+								<span className="docsFooterContentTitle">{workflow?.title}</span>
 								<span className="docsFooterContentSubTitle">created 14 files</span>
 							</div>
 						</div>

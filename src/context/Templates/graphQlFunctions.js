@@ -225,7 +225,6 @@ export const getWorkflowListQuery = gql`
 			data {
 				_id
 				title
-				description
 				status
 				clientDetails {
 					_id
@@ -237,8 +236,6 @@ export const getWorkflowListQuery = gql`
 				formResponse
 				requiredAction
 				templateId
-				updatedAt
-				createdAt
 			}
 		}
 	}

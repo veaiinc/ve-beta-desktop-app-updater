@@ -115,7 +115,7 @@
 			.docsTemplateCard {
 				display: flex;
 				width: 232px;
-
+				height: 258px;
 				flex-direction: column;
 				align-items: flex-start;
 
@@ -173,17 +173,16 @@
 						}
 					}
 
-					img {
+					.coverImage {
 						width: 100%;
 						height: 100%;
-						object-fit: cover;
-						object-position: center;
 						display: block;
 						border-top-left-radius: 14px;
 						border-top-right-radius: 14px;
 						transition: height 0.3s ease-in-out;
 						position: absolute;
 						bottom: 0;
+						overflow: hidden;
 					}
 
 					&:hover {
@@ -193,7 +192,7 @@
 							flex-direction: column;
 						}
 
-						img {
+						.coverImage {
 							height: 20%;
 						}
 					}
@@ -209,6 +208,8 @@
 					background: #121315;
 					padding-bottom: 16px;
 					padding-top: 12px;
+					flex-grow: 1;
+
 					.docsFooterContentTitle {
 						color: #e4e5e6;
 						color: color(display-p3 0.8941 0.898 0.902);
@@ -216,7 +217,16 @@
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
-						line-height: normal;
+						line-height: 17px;
+						max-height: 34px;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						width: 100%;
+						white-space: normal;
+						display: -webkit-box;
+						-webkit-line-clamp: 2;
+						-webkit-box-orient: vertical;
+						word-break: break-word;
 					}
 
 					.docsFooterContentSubTitle {
