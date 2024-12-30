@@ -79,24 +79,48 @@
 					}
 				}
 			}
+			// Add these styles for the search container
 			.search-container {
-				width: 200px;
 				display: flex;
-				flex-direction: row;
-				justify-content: space-between;
+				width: 40px;
+				gap: 10px;
+				padding: 10px;
 				align-items: center;
-				border: 1px solid rgba(151, 151, 151, 0.2);
 				border-radius: 100px;
-				.search-bar {
-					width: 80%;
-					border: none;
-					outline: none;
+				border: 1px solid rgba(228, 229, 230, 0.05);
+				background: #1e1e1e;
+				transition: width 0.3s ease;
+				overflow: hidden;
+				cursor: pointer;
+
+				input {
+					display: none;
 					background: transparent;
-					padding: 12px;
-					color: #979797;
-					font-size: 14px;
-					font-weight: 400;
-					line-height: 16px;
+					border: none;
+					color: white;
+					outline: none;
+					width: 100%;
+				}
+
+				svg {
+					path {
+						fill: #e4e5e6;
+					}
+				}
+
+				&:hover {
+					width: 200px;
+					input {
+						display: block;
+					}
+				}
+
+				// When expanded
+				&.expanded {
+					width: 200px;
+					input {
+						display: block;
+					}
 				}
 			}
 			.filter-container {

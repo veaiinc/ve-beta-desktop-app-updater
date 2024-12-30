@@ -782,7 +782,6 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			console.log(response, 'response');
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_VISITOR_FORM_ACCESS,
@@ -1687,7 +1686,6 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			console.log('response2==>getImageProcessingStatus', response2);
 			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_IMAGE_PROCESSING_STATUS,
