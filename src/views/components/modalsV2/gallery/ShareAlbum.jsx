@@ -10,7 +10,7 @@ const ShareAlbum = (props) => {
 	};
 	const { open, onClose, onCopyLink, link } = props;
 	return (
-		<ReactModal isOpen={open} onClose={onClose} customStyles={customStyles}>
+		<ReactModal isOpen={open} closeModal={onClose} customStyles={customStyles}>
 			<div className="shareAlbumPopupContainer">
 				<div className="shareAlbumPopupContent">
 					<div className="shareAlbumPopupCloseButton">

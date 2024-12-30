@@ -262,6 +262,7 @@ const GalleryPage = () => {
 	const optionsContainerRef = useRef(null);
 	const fileInputRef = useRef(null);
 	const settingsRef = useRef(null);
+	const albumSettingsIconRef = useRef(null);
 	const albumSettingsRef = useRef(null);
 	useEffect(() => {
 		if (galleryId) {
@@ -378,6 +379,8 @@ const GalleryPage = () => {
 		clickOutsideCheck(forwardOptionsRef, forwardIconRef, 'showForward');
 		clickOutsideCheck(pinSearchRef, pinIconRef, 'showPin');
 		clickOutsideCheck(optionsContainerRef, optionsIconRef, 'showOptionsContainer');
+		clickOutsideCheck(albumSettingsRef, albumSettingsIconRef, 'showAlbumSettings');
+		clickOutsideCheck(optionsContainerRef, optionsIconRef, 'showAlbumOptionsMenu');
 	}, []);
 
 	useEffect(() => {
@@ -3837,7 +3840,7 @@ const GalleryPage = () => {
 										</div>
 										<div
 											style={{ position: 'relative' }}
-											ref={settingsRef}
+											ref={albumSettingsIconRef}
 											onClick={() =>
 												setInfo((prevInfo) => ({
 													...prevInfo,
