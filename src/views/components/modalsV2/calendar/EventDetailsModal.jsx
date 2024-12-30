@@ -14,7 +14,7 @@ import { Drawer } from 'antd';
 import moment from 'moment';
 
 const initialState = {
-	loading: true,
+	loading: false,
 	deleting: false,
 	detailsExpanded: true,
 	eventDetails: null,
@@ -27,6 +27,8 @@ const EventDetailsModal = ({
 	updateCalendarInfo,
 	handleSelectEvent,
 	categoryList,
+	updateCalenderEventsList,
+	onClose,
 }) => {
 	const {
 		calendarInfo: {
@@ -66,8 +68,8 @@ const EventDetailsModal = ({
 						[field]: value,
 					};
 
-					console.log('updateBody===>', JSON.stringify(updateBody, null, 2));
 					await updateCalendarEvent(eventId, updateBody);
+					updateCalenderEventsList(eventId, updateBody);
 				} catch (error) {
 					console.error('Failed to update event:', error);
 				}
@@ -85,23 +87,23 @@ const EventDetailsModal = ({
 		};
 	}, []);
 
-	useEffect(() => {
-		getEventDetails();
-	}, [selectedEvent]);
+	// useEffect(() => {
+	// 	getEventDetails();
+	// }, [selectedEvent]);
 
 	useEffect(() => {
-		if (calendarEventDetails) {
+		if (selectedEvent) {
 			setInfo((prev) => ({
 				...prev,
-				eventDetails: calendarEventDetails,
-				eventKeys: [...initialState?.eventKeys, ...Object?.keys(calendarEventDetails)],
+				eventDetails: selectedEvent,
+				eventKeys: [...initialState?.eventKeys, ...Object?.keys(selectedEvent)],
 			}));
 			// Store the fetched details in cache
 			if (selectedEvent?.id) {
-				eventCache?.current?.set(selectedEvent?.id, calendarEventDetails);
+				eventCache?.current?.set(selectedEvent?.id, selectedEvent);
 			}
 		}
-	}, [calendarEventDetails, selectedEvent]);
+	}, [selectedEvent]);
 
 	useEffect(() => {
 		const currentEventCache = eventCache?.current;
@@ -146,6 +148,11 @@ const EventDetailsModal = ({
 			setInfo((prev) => ({ ...prev, deleting: false }));
 		}
 		updateCalendarInfo('isEventSelected', false);
+
+		//modified close
+		///delerte event list
+
+		//remove this
 		handleSelectEvent((prev) => ({ ...prev, selectedEvent: null }));
 	}, [selectedEvent]);
 
@@ -292,15 +299,17 @@ const EventDetailsModal = ({
 		return { validKeys, visibleKeys };
 	}, [info?.eventKeys, info?.detailsExpanded, componentMapper]);
 
+	const modifiedOnClose = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			...initialState,
+		}));
+		onClose();
+	}, [onClose]);
+
 	return (
 		<Drawer
-			onClose={() => {
-				updateCalendarInfo('isEventSelected', false);
-				setInfo((prev) => ({
-					...prev,
-					// detailsExpanded: false,
-				}));
-			}}
+			onClose={modifiedOnClose}
 			width={450}
 			open={isEventSelected}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
@@ -325,7 +334,7 @@ const EventDetailsModal = ({
 								width={16}
 								height={16}
 								onClick={() => {
-									updateCalendarInfo('isEventSelected', false);
+									modifiedOnClose();
 									setInfo((prev) => ({
 										...prev,
 										detailsExpanded: false,

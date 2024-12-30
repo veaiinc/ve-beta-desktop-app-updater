@@ -87,6 +87,7 @@ const CalendarView = ({
 				end: moment(event?.endDateTime).local().toDate(),
 				title: event?.title,
 				description: event?.description,
+				...(event || {}),
 			}));
 
 			setInfo((prevInfo) => ({
@@ -148,6 +149,25 @@ const CalendarView = ({
 		}),
 		[selectedDate, selectedWeek, currentCalendarDate, selectedWorkflowId, tenantsUserList],
 	);
+
+	const updateCalenderEventsList = useCallback(
+		(eventId, data = {}) => {
+			const updatedEventsList = [...(info?.eventsList || [])];
+			for (let i = 0; i < updatedEventsList?.length; i++) {
+				if (updatedEventsList?.[i]?.id === eventId) {
+					updatedEventsList[i] = { ...updatedEventsList[i], ...data };
+				}
+			}
+			setInfo((prev) => ({ ...prev, eventsList: updatedEventsList }));
+		},
+		[info?.eventsList],
+	);
+
+	const onClose = useCallback(() => {
+		updateCalendarInfo('isEventSelected', false);
+		setInfo((prev) => ({ ...prev, selectedEvent: null }));
+	}, [info, updateCalendarInfo]);
+
 	return (
 		<>
 			{info?.isLoading ? (
@@ -180,6 +200,8 @@ const CalendarView = ({
 						updateCalendarInfo={updateCalendarInfo}
 						handleSelectEvent={setInfo}
 						categoryList={categoryList}
+						updateCalenderEventsList={updateCalenderEventsList}
+						onClose={onClose}
 					/>
 				</div>
 			)}
