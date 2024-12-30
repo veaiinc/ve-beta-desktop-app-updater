@@ -6,7 +6,7 @@ import { ReactComponent as Mail } from '../../../../assets/svg/gallery/mail.svg'
 import { ReactComponent as UpArrow } from '../../../../assets/svg/workflow/downArrow.svg';
 import ToggleSlider from '../../input/slider';
 import Context from '../../../../context/context';
-import { getInitials } from '../../../../helpers/index';
+import { getCurrentWorkspaceId, getInitials } from '../../../../helpers/index';
 import { message, Drawer, Select } from 'antd';
 import _ from 'lodash';
 
@@ -39,6 +39,7 @@ const ShareModal = ({
 			galleryShareDetails,
 			changeMasterAccessPin,
 		},
+		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		visitorFormAccess: visitorFormAccess,
@@ -62,6 +63,8 @@ const ShareModal = ({
 		galleryShareDetails: galleryShareDetails,
 		canGuestDownloadOptimized: tenantPreferences?.canGuestDownloadOptimized || false,
 		canGuestDownloadOriginals: tenantPreferences?.canGuestDownloadOriginals || false,
+		currentWorkspaceId: null,
+		galleryLink: null,
 	});
 	useEffect(() => {
 		if (!galleryShareDetails) {
@@ -130,6 +133,29 @@ const ShareModal = ({
 		info?.canGuestDownloadOptimized,
 		info?.canGuestDownloadOriginals,
 	]);
+
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
+			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
+		}
+	}, [userWorkSpaceList]);
+
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+	}, [tennantSettingsData]);
+
+	useEffect(() => {
+		if (info?.currentWorkspaceId && tennantSettingsData) {
+			let galleryLink = `https://${info?.currentWorkspaceId}.ve.ai/gallery/${activeGallery?.slug}`;
+			if (tennantSettingsData?.customDomain) {
+				galleryLink = `https://${tennantSettingsData?.customDomain}/gallery/${activeGallery?.slug}`;
+			}
+			setInfo((prev) => ({ ...prev, galleryLink }));
+		}
+	}, [info?.currentWorkspaceId, tennantSettingsData, activeGallery]);
 
 	const handleDownloadOptions = () => {
 		setInfo((prevInfo) => ({
@@ -244,8 +270,12 @@ const ShareModal = ({
 	}, [info?.shareEmail]);
 
 	const handleCopyGalleryLink = async () => {
-		const galleryLink = `https://${workspaceId}.ve.ai/gallery/${activeGallery?.slug}`;
+		// const galleryLink = `https://${workspaceId}.ve.ai/gallery/${activeGallery?.slug}`;
 
+		let galleryLink = `https://${info?.currentWorkspaceId}.ve.ai/gallery/${activeGallery?.slug}`;
+		if (tennantSettingsData?.customDomain) {
+			galleryLink = `https://${tennantSettingsData?.customDomain}/gallery/${activeGallery?.slug}`;
+		}
 		try {
 			// Try the modern clipboard API first
 			await navigator.clipboard.writeText(galleryLink);
@@ -371,7 +401,8 @@ const ShareModal = ({
 							<input
 								placeholder="tussgabscgausgcharxyz//ail.com"
 								disabled
-								value={`https://${workspaceId}.ve.ai/gallery/${activeGallery?.slug}`}
+								value={info?.galleryLink}
+								// value={`https://${workspaceId}.ve.ai/gallery/${activeGallery?.slug}`}
 							/>
 							<div>
 								<Copy

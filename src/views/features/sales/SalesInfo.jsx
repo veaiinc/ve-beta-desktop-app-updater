@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect, useState, useCallback } from 'react';
+import React, { useContext, useRef, useEffect, useState, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import { ReactComponent as Gradient } from '../../../assets/svg/sales/gradient.svg';
@@ -7,13 +7,15 @@ import HeaderImage from '../../../assets/images/sales/header-image.png';
 import moment from 'moment';
 import HeaderInfo from './HeaderInfo';
 import RequiredActionsLoader from '../../components/sales/RequiredActionsLoader';
+import FilterCheckBox from '../../components/sales/FilterCheckBox';
+import CreateCards, { Activity, Drafts } from '../../components/ai_agents/CreateCards';
 
 const tabItems = [
-	{ id: 'all', label: 'All' },
-	{ id: 'enquiry', label: 'Enquires' },
-	{ id: 'counterSign', label: 'Counter Sign' },
-	{ id: 'emailApproval', label: 'Email Approvals' },
-	{ id: 'expiresInThreeDays', label: 'Expiring in 3 days' },
+	{ id: 'all', label: 'All', checkBoxBorder: null },
+	{ id: 'enquiry', label: 'Enquires', checkBoxBorder: '#FFB621' },
+	{ id: 'counterSign', label: 'Counter Sign', checkBoxBorder: '#34908E' },
+	{ id: 'emailApproval', label: 'Email Approvals', checkBoxBorder: '#004F65' },
+	{ id: 'expiresInThreeDays', label: 'Expiring in 3 days', checkBoxBorder: '#FFD59E' },
 ];
 
 const SalesInfo = () => {
@@ -129,10 +131,17 @@ const SalesInfo = () => {
 									userSelect: 'none',
 								}}
 								key={item.id}
-								className={activeTab === item.id ? 'active' : ''}
+								className={`${
+									activeTab === item.id ? 'active' : ''
+								} salesFilterButtons`}
 								onClick={() => handleTabClick(item.id)}
 							>
-								{item.label} ({tabItemCount?.[item.id]})
+								{item.label} {tabItemCount?.[item.id]}
+								{item?.checkBoxBorder ? (
+									<FilterCheckBox borderColor={item?.checkBoxBorder} />
+								) : (
+									''
+								)}
 							</button>
 						))}
 					</ul>
@@ -144,20 +153,32 @@ const SalesInfo = () => {
 						) : (
 							requiredActions?.actions?.map((actionItem, index) => (
 								<div
+									className="requiredSalesPendingCard"
+									key={index}
 									onClick={() =>
 										handleActionNavigation(
 											actionItem?.templateId,
 											actionItem?._id,
 										)
 									}
-									className="card"
-									key={index}
 								>
-									<span className="card-svg">
-										<CardDiv />
-									</span>
-									<div className="card-content">
-										<span className="card-title">
+									<div className="agentsWorkflowJobCards">
+										<div className="agentsWorkflowJobCardsContent">
+											<span className="agentsWorkflowJobCardsTitle">
+												{actionItem?.clientName}
+											</span>
+											<span className="agentsWorkflowJobCardsSubTitle">
+												{actionItem?.title}
+											</span>
+										</div>
+										<span
+											className="agentsTabType"
+											style={{
+												display: 'flex',
+												justifyContent: 'space-between',
+												alignSelf: 'stretch',
+											}}
+										>
 											{actionItem?.status === 'enquiry' &&
 											actionItem?.action === 'sendProposal'
 												? 'Enquiry'
@@ -167,29 +188,26 @@ const SalesInfo = () => {
 												: actionItem?.action === 'counterSign'
 												? 'Counter Sign'
 												: 'Expiry In 3 Days'}
-										</span>
-										<h1>{actionItem?.clientName}</h1>
-									</div>
-									<div className="card-footer">
-										<div className="card-footer-left">
-											<p>{actionItem?.title}</p>
-										</div>
-										<div className="line"></div>
-										<div className="card-footer-time">
-											<span>
+
+											<span className="agentsWorkflowJobCardsSubTitle">
 												{moment.unix(actionItem?.createdAt).fromNow()}
 											</span>
-										</div>
+										</span>
 									</div>
 								</div>
 							))
 						)}
-						<div className="card-div-end-black-shadow"></div>
 					</div>
+					<div className="card-div-end-black-shadow"></div>
+				</div>
+				<div className="salesExtraContentCards">
+					<CreateCards />
+					<Activity />
+					<Drafts />
 				</div>
 			</div>
 		</>
 	);
 };
 
-export default SalesInfo;
+export default memo(SalesInfo);

@@ -3,13 +3,11 @@ import '../../../../assets/scss/tasks/listViewRow.scss';
 const ListViewRow = ({
 	task,
 	properties,
-	responseTypes,
 	rowTypes,
 	updatePropertyValue,
-	workflows,
-	tenantUsers,
 	handleRowClick,
 	isSubTask = false,
+	responseMetadata,
 }) => {
 	const generateRow = useCallback(
 		(row) => {
@@ -19,9 +17,11 @@ const ListViewRow = ({
 
 			for (let key in row) {
 				const value = row[key];
-
 				if (
-					(typeof value === 'object' ? !value?._id : key === '!title' && !value) ||
+					(typeof value === 'object' && !Array.isArray(value)
+						? !value?._id
+						: key === '!title' && !value) ||
+					(Array.isArray(value) && value.length === 0) ||
 					key === '__typename' ||
 					key === '_id' ||
 					key === 'workflowTemplateId' ||
@@ -31,12 +31,17 @@ const ListViewRow = ({
 					continue;
 				}
 
-				const property = properties?.find((item) => item.propName === key);
+				const property = properties?.find((item) => item?.value === key);
 				if (property && !property?.show) {
 					continue;
 				}
 
-				const { type, name } = responseTypes[key];
+				const {
+					type = null,
+					name = null,
+					props = {},
+					isTitle = false,
+				} = responseMetadata[key];
 				const RowComponent = rowTypes[type] || null;
 
 				const listItem = RowComponent ? (
@@ -47,9 +52,7 @@ const ListViewRow = ({
 						onOptionClick={(value) =>
 							updatePropertyValue(task._id, key, value, isSubTask)
 						}
-						{...(key === 'workflow' ? { workflows } : {})}
-						{...(key === 'assignedTo' ? { persons: tenantUsers } : {})}
-						{...(key === 'updatedAt' || key === 'createdAt' ? { timestamp: true } : {})}
+						{...props}
 					/>
 				) : null;
 				if (titleReached) {
@@ -57,7 +60,7 @@ const ListViewRow = ({
 				} else {
 					leftPart.push(listItem);
 				}
-				if (key === 'title') {
+				if (isTitle) {
 					titleReached = true;
 				}
 			}
@@ -71,16 +74,7 @@ const ListViewRow = ({
 				</div>,
 			];
 		},
-		[
-			task,
-			properties,
-			responseTypes,
-			rowTypes,
-			updatePropertyValue,
-			workflows,
-			tenantUsers,
-			isSubTask,
-		],
+		[task, properties, rowTypes, updatePropertyValue, isSubTask, responseMetadata],
 	);
 
 	return (
