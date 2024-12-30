@@ -36,6 +36,8 @@ const ListViewHeader = ({
 	filters,
 	searchValue,
 	responseMetadata,
+	headerTitle,
+	addButtonOnClick,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -74,15 +76,9 @@ const ListViewHeader = ({
 	return (
 		<div className="listViewHeaderContainer">
 			<div className="listViewHeader">
-				<div className="listViewHeaderTitle">Tasks</div>
+				<div className="listViewHeaderTitle">{headerTitle}</div>
 				<div className="listViewHeaderActions">
-					<button
-						className="listViewHeaderActionButton"
-						onClick={() => {
-							updateListViewInfo('isCreatingSubtask', false);
-							updateListViewInfo('isCreateModalOpen', true);
-						}}
-					>
+					<button className="listViewHeaderActionButton" onClick={addButtonOnClick}>
 						<PlusSvg style={{ width: '20px', height: '20px' }} />
 					</button>
 					<div

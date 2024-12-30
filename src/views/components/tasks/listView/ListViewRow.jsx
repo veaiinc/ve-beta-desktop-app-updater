@@ -24,6 +24,9 @@ const ListViewRow = ({
 					props = {},
 					doSplit = false,
 				} = responseMetadata?.[key] || {};
+				if (type === null) {
+					continue;
+				}
 				const RowComponent = rowTypes?.[type] || null;
 
 				if (doSplit) {

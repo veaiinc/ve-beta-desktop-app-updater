@@ -8,52 +8,31 @@ const Status = ({
 	customListItemStyle = {},
 	onOptionClick,
 	setDefault = true,
+	defaultValue = 'todo',
+	options = [],
+	labelField = 'label',
+	valueField = 'value',
 }) => {
 	const [info, setInfo] = useState({
-		options: [
-			{
-				label: 'On hold',
-				value: 'onHold',
-				color: '#939393',
-				backgroundColor: '#373737',
-			},
-			{
-				label: 'Todo',
-				value: 'todo',
-				color: '#939393',
-				backgroundColor: '#5A5A5A',
-			},
-			{
-				label: 'In progress',
-				value: 'inProgress',
-				color: '#3E70C7',
-				backgroundColor: '#2F4469',
-			},
-			{
-				label: 'Completed',
-				value: 'completed',
-				color: '#3B9D59',
-				backgroundColor: '#375841',
-			},
-		],
+		options,
 		isDropdownOpen: false,
-		selected: setDefault ? 'todo' : null,
+		selected: setDefault ? defaultValue : null,
 	});
 	useEffect(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			selected: prevInfo?.options.find(
-				(item) => item.value === (value ? value : setDefault ? 'todo' : null),
+				(item) => item[valueField] === (value ? value : setDefault ? defaultValue : null),
 			),
 		}));
-	}, [value, setDefault]);
+	}, [value, setDefault, valueField, defaultValue]);
 
 	return (
 		<div className="listItem-status">
 			<DropDown
 				title={'Change status'}
 				options={info?.options}
-				valueSelector="value"
+				valueSelector={valueField}
 				selected={value}
 				onOptionClick={onOptionClick}
 			>
@@ -64,7 +43,6 @@ const Status = ({
 						backgroundColor: info?.selected?.backgroundColor,
 					}}
 				>
-					{/* {info?.options.find((item) => item.value === value)?.icon} */}
 					<span
 						style={{
 							backgroundColor: info?.selected?.color,
@@ -75,7 +53,7 @@ const Status = ({
 					></span>
 					{showLabel ? (
 						<p className="listItem-label">
-							{info?.selected?.label || (!value ? 'Select status' : '')}
+							{info?.selected?.[labelField] || (!value ? 'Select status' : '')}
 						</p>
 					) : (
 						''

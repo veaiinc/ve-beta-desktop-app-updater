@@ -79,6 +79,7 @@ const FilterComponent = ({
 				value={value}
 				onOptionClick={(value) => handleFilterChange(fieldName, value)}
 				setDefault={false}
+				{...props}
 			/>
 		),
 		priority: (value) => (

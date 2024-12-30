@@ -12,6 +12,7 @@ import Context from '../../../context/context';
 import { message } from 'antd';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
+import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
 
 const Tasks = () => {
 	const {
@@ -56,7 +57,39 @@ const Tasks = () => {
 		() => ({
 			title: { type: 'text', name: 'Title', Icon: textSvg, props: {} },
 			description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
-			status: { type: 'status', name: 'Status', Icon: PieSvg, props: {} },
+			status: {
+				type: 'status',
+				name: 'Status',
+				Icon: PieSvg,
+				props: {
+					options: [
+						{
+							label: 'On hold',
+							value: 'onHold',
+							color: '#939393',
+							backgroundColor: '#373737',
+						},
+						{
+							label: 'Todo',
+							value: 'todo',
+							color: '#939393',
+							backgroundColor: '#5A5A5A',
+						},
+						{
+							label: 'In progress',
+							value: 'inProgress',
+							color: '#3E70C7',
+							backgroundColor: '#2F4469',
+						},
+						{
+							label: 'Completed',
+							value: 'completed',
+							color: '#3B9D59',
+							backgroundColor: '#375841',
+						},
+					],
+				},
+			},
 			priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg, props: {} },
 			workflow: {
 				type: 'workflow',
@@ -222,13 +255,6 @@ const Tasks = () => {
 			);
 		}
 	}, [info?.listItems, info?.selectedRow]);
-
-	// useEffect(() => {
-	// 	if (info.updated && !info.sidebarIsOpen) {
-	// 		fetchListItems();
-	// 		setInfo((prev) => ({ ...prev, updated: false }));
-	// 	}
-	// }, [info.sidebarIsOpen, info.updated]);
 
 	const fetchListItems = useCallback(() => {
 		getListItems({
@@ -543,6 +569,18 @@ const Tasks = () => {
 		[info?.selectedSubTask?._id, removeSubTask],
 	);
 
+	const handleAddButtonOnClick = () => {
+		updateListViewInfo('isCreatingSubtask', false);
+		updateListViewInfo('isCreateModalOpen', true);
+	};
+
+	const handleCloseCreateModal = useCallback(() => {
+		if (info?.isCreatingSubtask) {
+			updateListViewInfo('sidebarIsOpen', true);
+		}
+		updateListViewInfo('isCreateModalOpen', false);
+	}, [info?.isCreatingSubtask]);
+
 	return (
 		<div>
 			<ListView
@@ -555,6 +593,18 @@ const Tasks = () => {
 				addNewTask={addNewTask}
 				responseMetadata={responseMetadata}
 				fetchListItems={fetchListItems}
+				addButtonOnClick={handleAddButtonOnClick}
+				haveSubTask={true}
+			/>
+			<CreateTaskPopup
+				isOpen={info?.isCreateModalOpen}
+				closeModal={handleCloseCreateModal}
+				addNewTask={addNewTask}
+				workflows={info?.workflows}
+				tenantUsers={info?.tenantUsers}
+				clients={info?.clients}
+				isSubTask={info?.isCreatingSubtask}
+				responseMetadata={responseMetadata}
 			/>
 		</div>
 	);

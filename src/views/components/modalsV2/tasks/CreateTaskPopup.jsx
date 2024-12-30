@@ -247,6 +247,7 @@ const CreateTaskPopup = ({
 						showLabel={true}
 						onOptionClick={(value) => updateModalInfo('status', value)}
 						title={'Status'}
+						options={responseMetadata?.status?.props?.options}
 					/>
 					<Priority
 						value={info?.priority}

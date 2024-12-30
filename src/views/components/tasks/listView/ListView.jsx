@@ -12,7 +12,6 @@ import Email from './Email';
 import Url from './Url';
 import Phone from './Phone';
 import CheckBox from './CheckBox';
-import CreateTaskPopup from '../../modalsV2/tasks/CreateTaskPopup';
 import ListViewSidebar from '../../modalsV2/tasks/ListViewSidebar';
 import WorkFlow from './WorkFlow';
 import ListViewHeader from './ListViewHeader';
@@ -47,14 +46,18 @@ const ListView = ({
 	togglePropertyVisibility,
 	updatePropertyValue,
 	deleteTask,
-	addNewTask,
 	responseMetadata,
 	fetchListItems,
+	headerTitle = 'Tasks',
+	addButtonOnClick,
+	haveSubTask = false,
 }) => {
 	const handleRowClick = useCallback(
 		(rowId) => {
-			if (info?.selectedRow?._id !== rowId) {
-				resetSubTasks();
+			if (haveSubTask) {
+				if (info?.selectedRow?._id !== rowId) {
+					resetSubTasks();
+				}
 			}
 			const row = info?.listItems?.find((row) => row._id === rowId);
 			if (row) {
@@ -70,13 +73,6 @@ const ListView = ({
 		updateListViewInfo('isCreatingSubtask', true);
 		updateListViewInfo('isCreateModalOpen', true);
 	}, []);
-
-	const handleCloseCreateModal = useCallback(() => {
-		if (info?.isCreatingSubtask) {
-			updateListViewInfo('sidebarIsOpen', true);
-		}
-		updateListViewInfo('isCreateModalOpen', false);
-	}, [info?.isCreatingSubtask]);
 
 	const handleSubTaskClick = useCallback((task) => {
 		updateListViewInfo('selectedSubTask', task);
@@ -114,6 +110,8 @@ const ListView = ({
 				filters={info?.filters}
 				searchValue={info?.searchValue}
 				responseMetadata={responseMetadata}
+				headerTitle={headerTitle}
+				addButtonOnClick={addButtonOnClick}
 			/>
 			<div className="listContainer">
 				<div className="listInnerContainer">
@@ -147,16 +145,6 @@ const ListView = ({
 					</button>
 				</div>
 			)}
-			<CreateTaskPopup
-				isOpen={info?.isCreateModalOpen}
-				closeModal={handleCloseCreateModal}
-				addNewTask={addNewTask}
-				workflows={info?.workflows}
-				tenantUsers={info?.tenantUsers}
-				clients={info?.clients}
-				isSubTask={info?.isCreatingSubtask}
-				responseMetadata={responseMetadata}
-			/>
 			<ListViewSidebar
 				selectedRow={info?.selectedSubTask || info?.selectedRow}
 				isShowingSubTask={info?.selectedSubTask !== null}
@@ -170,6 +158,7 @@ const ListView = ({
 				rowTypes={rowTypes}
 				handleCreateSubTaskClick={handleCreateSubTaskClick}
 				responseMetadata={responseMetadata}
+				haveSubTask={haveSubTask}
 			/>
 		</div>
 	);

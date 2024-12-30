@@ -25,6 +25,7 @@ const ListViewSidebar = ({
 	parentTaskNo,
 	handleChildTaskClose,
 	responseMetadata,
+	haveSubTask,
 }) => {
 	const {
 		tasks: { subTasks, getSubTasks },
@@ -182,7 +183,16 @@ const ListViewSidebar = ({
 				) {
 					continue;
 				}
-				const { type = null, name = null, Icon = null, props } = responseMetadata[key];
+				const {
+					type = null,
+					name = null,
+					Icon = null,
+					props,
+				} = responseMetadata[key] || {};
+
+				if (type === null) {
+					continue;
+				}
 
 				const RowComponent = rowTypes?.[type] || null;
 				listItems.push(
@@ -289,9 +299,7 @@ const ListViewSidebar = ({
 						<div className="sidebar-properties-container">
 							{generateRow(selectedRow)}
 						</div>
-						{isShowingSubTask ? (
-							''
-						) : (
+						{haveSubTask && !isShowingSubTask ? (
 							<div className="sidebar-subtask-container">
 								<div className="sidebar-subtask-header">
 									<span className="sidebar-subtask-header-title">Sub Tasks</span>
@@ -344,6 +352,8 @@ const ListViewSidebar = ({
 									)}
 								</div>
 							</div>
+						) : (
+							''
 						)}
 
 						<div className="sidebar-description">

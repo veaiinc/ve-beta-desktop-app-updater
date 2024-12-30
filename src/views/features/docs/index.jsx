@@ -3,6 +3,7 @@ import '../../../assets/scss/docs/index.scss';
 import { ReactComponent as Files } from '../../../assets/svg/docs/files.svg';
 import { fetchOriginSelection } from '../../../helpers';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
+import FilesListView from './FilesListView';
 let origin = fetchOriginSelection();
 const Docs = () => {
 	const onGenerateAIFunc = () => {
@@ -68,6 +69,9 @@ const Docs = () => {
 						</div>
 					))}
 				</div>
+			</div>
+			<div className="docsFooterContainer">
+				<FilesListView />
 			</div>
 		</div>
 	);
