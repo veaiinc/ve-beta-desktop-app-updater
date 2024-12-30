@@ -728,7 +728,6 @@ const GalleryPage = () => {
 			getTenantSettings();
 		}
 	}, [tennantSettingsData]);
-
 	useEffect(() => {
 		if (info?.currentWorkspaceId && tennantSettingsData) {
 			let galleryLink = `https://${info?.currentWorkspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`;
@@ -1477,7 +1476,7 @@ const GalleryPage = () => {
 	// ... rest of the code ...
 
 	const handleCopyAlbumLink = async () => {
-		const albumLink = `https://${info?.currentWorkspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}/${info?.activeAlbumId}`;
+		const albumLink = `${info?.galleryLink}/${info?.activeAlbumId}`;
 
 		try {
 			// Try the modern clipboard API first
@@ -3135,7 +3134,7 @@ const GalleryPage = () => {
 	}, [info.isDragging]);
 
 	const getShareLink = () => {
-		const baseUrl = `https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`;
+		const baseUrl = `${info?.galleryLink}`;
 		let pin = '';
 		if (info.activeTab === 'Client Selections' && info?.clientSelectionID) {
 			const selection = clientSelectionsData?.data?.find(
@@ -3154,7 +3153,7 @@ const GalleryPage = () => {
 			};
 		} else if (info?.activeAlbum?.slug) {
 			return {
-				url: `${baseUrl}/${info?.activeAlbum?.slug}`,
+				url: `${baseUrl}/${info?.activeAlbum?._id}`,
 				pin: pin,
 			};
 		}
