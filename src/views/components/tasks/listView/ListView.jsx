@@ -19,6 +19,8 @@ import ListViewHeader from './ListViewHeader';
 import ListViewRow from './ListViewRow';
 import TaskId from './TaskId';
 import Skeleton from 'react-loading-skeleton';
+import ParentTaskComponent from './ParentTaskComponent';
+import ChildTaskProgress from './ChildTaskProgress';
 
 const rowTypes = {
 	text: Text,
@@ -34,6 +36,8 @@ const rowTypes = {
 	url: Url,
 	checkbox: CheckBox,
 	workflow: WorkFlow,
+	parentTask: ParentTaskComponent,
+	childTasks: ChildTaskProgress,
 };
 
 const ListView = ({
@@ -79,7 +83,8 @@ const ListView = ({
 	}, []);
 
 	const handleCloseSidebar = useCallback(() => {
-		if (info?.updated && info?.filters?.length !== 0) {
+		console.log('info?.updated', info?.updated);
+		if (info?.updated) {
 			updateListViewInfo('loadingSkeleton', true);
 			fetchListItems();
 			updateListViewInfo('updated', false);
@@ -107,8 +112,6 @@ const ListView = ({
 				togglePropertyVisibility={togglePropertyVisibility}
 				sort={info?.sort}
 				filters={info?.filters}
-				workflows={info?.workflows}
-				tenantUsers={info?.tenantUsers}
 				searchValue={info?.searchValue}
 				responseMetadata={responseMetadata}
 			/>
@@ -126,10 +129,7 @@ const ListView = ({
 								properties={info?.properties}
 								rowTypes={rowTypes}
 								updatePropertyValue={updatePropertyValue}
-								workflows={info?.workflows}
-								tenantUsers={info?.tenantUsers}
 								handleRowClick={handleRowClick}
-								clients={info?.clients}
 								responseMetadata={responseMetadata}
 							/>
 						))

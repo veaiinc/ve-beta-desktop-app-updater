@@ -13,6 +13,7 @@ import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import InitialPageLoader from '../../components/loaders/PageLoader';
 import SalesInfo from './SalesInfo';
 import { getCurrentWorkspaceId } from '../../../helpers';
+import { Spin } from 'antd';
 
 const Sales = () => {
 	let {
@@ -24,7 +25,7 @@ const Sales = () => {
 			updateStateValues,
 			generatePublicLinkData,
 		},
-		profileInfo: { userWorkSpaceList },
+		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
 	const navigate = useNavigate();
 
@@ -40,7 +41,9 @@ const Sales = () => {
 		showGeneratedLinkModalData: null,
 		testingDrawerModal: false,
 		shownInitialLoader: localStorage.getItem('showInitialLoader'),
-		currentWorkspaceId: '',
+		currentWorkspaceId: null,
+		pendingCopyAction: null,
+		copyLink: null,
 	});
 
 	useEffect(() => {
@@ -83,11 +86,31 @@ const Sales = () => {
 	useEffect(() => {
 		if (userWorkSpaceList) {
 			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
-			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
+			performExtraCheck(currentWorkspaceId);
 		}
-	}, [userWorkSpaceList]);
+	}, [userWorkSpaceList, info?.pendingCopyAction]);
+
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+	}, [tennantSettingsData]);
+
+	// useEffect(() => {}, []);
 
 	//function definations
+
+	const performExtraCheck = useCallback(
+		async (currentWorkspaceId) => {
+			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
+			if (info?.pendingCopyAction) {
+				let link = `https://${currentWorkspaceId}.ve.ai/${info?.pendingCopyAction}`;
+				await navigator.clipboard.writeText(link);
+				setInfo((prev) => ({ ...prev, pendingCopyAction: null, copyLink: link }));
+			}
+		},
+		[info?.pendingCopyAction, info],
+	);
 
 	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
 		const payload = {
@@ -176,19 +199,41 @@ const Sales = () => {
 	const openCopyLinkModal = useCallback(
 		async (data) => {
 			try {
-				await navigator.clipboard.writeText(
-					`https://${info?.currentWorkspaceId}.ve.ai/${data?.slug}`,
-				);
 				setInfo((prev) => ({ ...prev, copyModal: true, activeTemplateData: data }));
+				if (!tennantSettingsData) {
+					await getTenantSettings();
+				}
+
+				let link;
+				if (tennantSettingsData?.customDomain?.length) {
+					link = `https://${tennantSettingsData?.customDomain}/${data?.slug}`;
+					setInfo((prev) => ({ ...prev, copyLink: link }));
+					await navigator.clipboard.writeText(link);
+					return;
+				} else {
+					if (!info?.currentWorkspaceId) {
+						setInfo((prev) => ({ ...prev, pendingCopyAction: data?.slug }));
+						return;
+					}
+					link = `https://${info?.currentWorkspaceId}.ve.ai/${data?.slug}`;
+					setInfo((prev) => ({ ...prev, copyLink: link }));
+					await navigator.clipboard.writeText(link);
+					return;
+				}
 			} catch (err) {
 				console.log('Failed to copy text');
 			}
 		},
-		[info?.currentWorkspaceId],
+		[info?.currentWorkspaceId, tennantSettingsData],
 	);
 
 	const closeCopyLinkModal = useCallback(async () => {
-		setInfo((prev) => ({ ...prev, copyModal: false, activeTemplateData: null }));
+		setInfo((prev) => ({
+			...prev,
+			copyModal: false,
+			activeTemplateData: null,
+			copyLink: null,
+		}));
 	}, []);
 
 	const navigateToWorkflowBuilder = useCallback(
@@ -240,14 +285,26 @@ const Sales = () => {
 				closeModal={closeCopyLinkModal}
 				slug={info?.activeTemplateData?.slug}
 				modules={info?.activeTemplateData?.moduleTemplates?.filter((ele) => ele?.isPublic)}
-				copyLink={`https://${info?.currentWorkspaceId}.ve.ai/${info?.activeTemplateData?.slug}`}
+				copyLink={
+					info?.currentWorkspaceId || info?.copyLink ? (
+						info?.copyLink
+					) : (
+						<span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+							Generating Link ...
+							<Spin />
+						</span>
+					)
+				}
 			/>
 			<PublicLinkGeneratedModal
 				open={info?.showGeneratedLinkModalData ? true : false}
 				closeModal={closeGeneratedLinkModal}
 				copyLink={
 					info?.showGeneratedLinkModalData
-						? `https://${info?.currentWorkspaceId}.ve.ai/${info?.showGeneratedLinkModalData?.slug}`
+						? `https://${
+								tennantSettingsData?.customDomain ||
+								`${info?.currentWorkspaceId}.ve.ai`
+						  }/${info?.showGeneratedLinkModalData?.slug}`
 						: ''
 				}
 				modules={info?.showGeneratedLinkModalData?.moduleTemplates}

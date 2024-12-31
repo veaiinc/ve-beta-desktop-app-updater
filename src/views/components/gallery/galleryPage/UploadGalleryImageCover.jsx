@@ -151,19 +151,11 @@ const UploadGalleryImageCover = ({
 								message.destroy();
 								message.error('Please create a album first');
 								return;
-							} else {
-								setInfo((prev) => ({
-									...prev,
-									coverPhoto: true,
-									coverImageDetails: null,
-									imageURL: '',
-									uploadImageId: null,
-								}));
-
-								fileInputRef.current.click();
 							}
+
+							fileInputRef.current.click();
 						}}
-						style={{ cursor: 'pointer' }}
+						style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
 					>
 						Upload cover photo
 					</p>
@@ -171,7 +163,7 @@ const UploadGalleryImageCover = ({
 					<input
 						ref={fileInputRef}
 						type="file"
-						onChange={uploadGalleryCoverChangeHandler}
+						onChange={(e) => uploadGalleryCoverChangeHandler(e, info?.imageURL)}
 						accept={['image/png', 'image/jpeg']}
 						hidden
 						style={{ width: 0, visibility: 'hidden' }}
@@ -182,9 +174,9 @@ const UploadGalleryImageCover = ({
 						<p
 							className="bt"
 							onClick={() => handleSetCoverPosition(focusInfo?.focalPoint)}
-							style={{ cursor: 'pointer' }}
+							style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
 						>
-							Set cover position
+							Set cover photo
 						</p>
 					)}
 				</div>

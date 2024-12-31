@@ -1,23 +1,30 @@
 import React, { useState, memo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
+import { useNavigate, useLocation } from 'react-router-dom';
+// import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
+import LeadPlusSvg from '../../../assets/svg/sidebar/  LeadPlusSvg.jsx';
 import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg';
 import { veAiModulesItemsList } from './sidebarindex';
 import DropDrownMenu from './DropDrownMenu';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
-import { ReactComponent as TaskSvg } from '../../../assets/svg/sidebar/Task.svg';
 import { ReactComponent as HamburgerSvg } from '../../../assets/svg/sidebar/Hamburger.svg';
 import { Tooltip } from 'antd';
 import { closedSidebarIcons } from './sidebarindex';
-const ClosedSideBarHoverStateIcons = ({ Icon, initialColor = null, hoverClassName = '' }) => {
+import { AiOptions } from './sidebarindex';
+const ClosedSideBarHoverStateIcons = ({
+	Icon,
+	initialColor = null,
+	hoverClassName = '',
+	isActive = false,
+}) => {
 	const [isHover, setisHover] = useState(false);
+
 	return (
 		<div
 			onMouseEnter={() => setisHover(true)}
 			onMouseLeave={() => setisHover(false)}
 			className={`hoverStateIconsClosed ${isHover ? hoverClassName : ''}`}
 		>
-			{Icon && <Icon fill={isHover ? '#FFF' : initialColor} />}
+			{Icon && <Icon fill={isActive ? '#FFF' : '#7A7E85'} />}
 		</div>
 	);
 };
@@ -87,11 +94,15 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 	const [lastVisitedLocation, setLastVisitedLocation] = useState('');
 	const [visibleIcons, setVisibleIcons] = useState([]);
 	const [isMobile, setIsMobile] = useState(window.innerWidth <= 500);
+	const [isThisEarlyAccessPage, setIsThisEarlyAccessPage] = useState(false);
 
 	useEffect(() => {
 		const currentPath = window.location.pathname;
 		const { title } = getPathInfo(currentPath);
 		setLastVisitedLocation(title);
+		if (currentPath.includes('/early-access')) {
+			setIsThisEarlyAccessPage(true);
+		}
 	}, [window.location.pathname]);
 
 	useEffect(() => {
@@ -108,6 +119,72 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 
 		setVisibleIcons(iconsToShow);
 	}, [sidebarStates.selectedModule]);
+
+	// ... existing code ...
+
+	useEffect(() => {
+		const currentPath = window.location.pathname;
+		const selectedAiOption = AiOptions.find(
+			(option) =>
+				currentPath === option.route ||
+				currentPath.startsWith(option.route + '/') ||
+				option.subModules?.some(
+					(subModule) =>
+						currentPath === subModule.route ||
+						currentPath.startsWith(subModule.route + '/'),
+				),
+		);
+
+		// If we found an AI option, use its submodules
+		if (selectedAiOption) {
+			const iconsToShow =
+				selectedAiOption.subModules?.map((subModule) => ({
+					icon: subModule.icon,
+					route: subModule.route || '#',
+					name: subModule.name,
+					description: subModule.description,
+				})) || [];
+
+			setVisibleIcons(iconsToShow);
+			const activeIndex = iconsToShow.findIndex(
+				(icon) => currentPath === icon.route || currentPath.startsWith(icon.route + '/'),
+			);
+
+			// Set the found index or default to 0 if no match
+			setSelectedIcon(activeIndex !== -1 ? activeIndex : 0);
+			return;
+		}
+
+		// If not an AI route, check regular modules
+		const selectedModule = veAiModulesItemsList.find((module) =>
+			module.subModules?.some(
+				(subModule) =>
+					currentPath === subModule.route ||
+					currentPath.startsWith(subModule.route + '/'),
+			),
+		);
+
+		if (selectedModule) {
+			const iconsToShow =
+				selectedModule.subModules?.map((subModule) => ({
+					icon: subModule.icon,
+					route: subModule.route || '#',
+					name: subModule.name,
+				})) || [];
+
+			setVisibleIcons(iconsToShow);
+
+			// Update selected module if different from current
+			if (selectedModule.name !== sidebarStates.selectedModule) {
+				setsidebarStates((prev) => ({
+					...prev,
+					selectedModule: selectedModule.name,
+				}));
+			}
+		} else {
+			setVisibleIcons([]);
+		}
+	}, [window.location.pathname, sidebarStates.selectedModule]);
 
 	useEffect(() => {
 		const handleResize = () => {
@@ -130,10 +207,45 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 		const selectedIconName = closedSidebarIcons[index]?.name || 'Home';
 		setLastVisitedLocation(selectedIconName);
 	};
+	const getFilteredAiOptions = () => {
+		const currentPath = window.location.pathname;
+
+		// Find parent module if we're in a submodule
+		const parentModule = AiOptions.find((option) =>
+			option.subModules?.some(
+				(subModule) =>
+					currentPath === subModule.route ||
+					currentPath.startsWith(subModule.route + '/'),
+			),
+		);
+
+		return AiOptions.filter(
+			(option) =>
+				// Exclude if it's the current direct route
+				!currentPath.startsWith(option.route) &&
+				// Exclude if it's the parent module of current submodule
+				option.route !== parentModule?.route,
+		);
+	};
+
+	const getParentAiModuleImage = (pathname) => {
+		const parentModule = AiOptions.find((option) =>
+			option.subModules?.some(
+				(subModule) =>
+					pathname === subModule.route || pathname.startsWith(subModule.route + '/'),
+			),
+		);
+		return parentModule?.image;
+	};
+
 	return (
 		<>
 			{isMobile ? (
-				<div className="hamburgerIconContainer" onClick={openModuleFunction}>
+				<div
+					className="hamburgerIconContainer"
+					onClick={openModuleFunction}
+					style={{ position: 'absolute', top: '0%' }}
+				>
 					<SidebarClosingSvg />
 				</div>
 			) : (
@@ -143,104 +255,211 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 							visibleIcons.length === 0 ? 'no-submodules' : ''
 						}`}
 					>
-						<Tooltip
-							title={
-								<div>
-									<h3
-										style={{
-											margin: 0,
-											marginBottom: '8px',
-											display: 'flex',
-											alignItems: 'center',
-											gap: '12px',
-											fontSize: '14px',
-											fontWeight: '500',
-											fontFamily: 'Inter',
-											fontStyle: 'normal',
-											lineHeight: '20px',
-										}}
-									>
-										<TaskSvg style={{ height: '20px', width: '20px' }} />
-										{getPathInfo(window.location.pathname).title}
-									</h3>
-									<p
-										style={{
-											margin: 0,
-											fontSize: '12px',
-											fontWeight: '500',
-											fontFamily: 'Inter',
-											fontStyle: 'normal',
-										}}
-									>
-										{getPathInfo(window.location.pathname).description}
-									</p>
-								</div>
-							}
-							open={showRaindrop}
-							placement="rightTop"
-							arrow={false}
-							overlayInnerStyle={{
-								padding: '20px 25px',
-								borderRadius: '24px',
-								fontSize: '14px',
-								backgroundColor: '#1f1f1f',
-								color: 'white',
-								width: '220px',
-								height: '145px',
-								transformOrigin: 'left center',
-							}}
-							overlayStyle={{
-								paddingLeft: '12px',
+						<div
+							className="closedSideBarComponentContainer"
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								justifyContent: 'space-between',
+								gap: '20px',
 							}}
 						>
-							<div
-								className="openWorkFlowContainer"
-								onClick={openModuleFunction}
-								onMouseEnter={() => setShowRaindrop(true)}
-								onMouseLeave={() => setShowRaindrop(false)}
+							<Tooltip
+								title={
+									<div>
+										<h3
+											style={{
+												margin: 0,
+												// marginBottom: '8px',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '12px',
+												fontSize: '14px',
+												fontWeight: '500',
+												fontFamily: 'Inter',
+												fontStyle: 'normal',
+												// lineHeight: '20px',
+											}}
+										>
+											{AiOptions.find((option) =>
+												window.location.pathname.includes(option.route),
+											)?.name ||
+												AiOptions.find((option) =>
+													option.subModules?.some((subModule) =>
+														window.location.pathname.startsWith(
+															subModule.route,
+														),
+													),
+												)?.name ||
+												getPathInfo(window.location.pathname).title}
+										</h3>
+										{
+											!AiOptions.find((option) =>
+												window.location.pathname.includes(option.route),
+											)
+										}
+									</div>
+								}
+								// open={showRaindrop}
+								placement="rightTop"
+								arrow={false}
+								overlayInnerStyle={{
+									padding: '6px 10px',
+									borderRadius: '10px',
+									fontSize: '14px',
+									background: '#E8E8E8',
+									color: '#202123',
+									textAlign: 'center',
+									marginLeft: '12px',
+								}}
 							>
-								<div className="gradientCirlce">
-									<p
-										style={{
-											textTransform: 'capitalize',
-											fontSize: '20px',
-											fontFamily: 'Inter',
-											fontWeight: '500',
-											color: 'white',
-										}}
-									>
-										{getPathInfo(window.location.pathname).initial}
-									</p>
-								</div>
-							</div>
-						</Tooltip>
-						<div className="ClosedIconsContainer">
-							{visibleIcons?.map((singleItem, index) => (
 								<div
-									key={index}
-									className={`iconContainer ${
-										selectedIcon === index ? 'selected' : ''
-									}`}
-									onClick={() => {
-										handleIconClick(index);
-										navigate(singleItem?.route || '');
-									}}
-									style={{
-										position: 'relative',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-									}}
+									className="openWorkFlowContainer"
+									onClick={openModuleFunction}
+									onMouseEnter={() => setShowRaindrop(true)}
+									onMouseLeave={() => setShowRaindrop(false)}
 								>
-									<ClosedSideBarHoverStateIcons
-										Icon={singleItem?.icon}
-										initialColor={singleItem?.initialColor}
-									/>
+									<div className="gradientCirlce">
+										{AiOptions.find((option) =>
+											window.location.pathname.includes(option.route),
+										)?.image ||
+										getParentAiModuleImage(window.location.pathname) ? (
+											<img
+												src={
+													AiOptions.find((option) =>
+														window.location.pathname.includes(
+															option.route,
+														),
+													)?.image ||
+													getParentAiModuleImage(window.location.pathname)
+												}
+												alt="AI Option"
+												style={{
+													height: '40px',
+													width: '40px',
+													borderRadius: '24px',
+													padding: '0px',
+												}}
+											/>
+										) : (
+											<p
+												style={{
+													textTransform: 'capitalize',
+													fontSize: '20px',
+													fontFamily: 'Inter',
+													fontWeight: '500',
+													color: 'white',
+												}}
+											>
+												{getPathInfo(window.location.pathname).initial}
+											</p>
+										)}
+									</div>
 								</div>
-							))}
+							</Tooltip>
+							{visibleIcons?.length > 0 && (
+								<hr
+									style={{
+										border: '0.7px solid #333334',
+										width: '70%',
+										alignSelf: 'center',
+									}}
+								/>
+							)}
+							<div className="ClosedIconsContainer">
+								{visibleIcons?.length > 0 && (
+									<>
+										{visibleIcons?.map((singleItem, index) => {
+											return (
+												<Tooltip
+													key={index}
+													title={
+														<div>
+															<div
+																style={{
+																	color: '#939393',
+																	fontFamily: 'Inter',
+																	fontSize: '13px',
+																	fontStyle: 'normal',
+																	fontWeight: '500',
+																	lineHeight: 'normal',
+																	letterSpacing: '-0.26px',
+																}}
+															>
+																{singleItem.description}
+															</div>
+															<div>{singleItem.name}</div>
+														</div>
+													}
+													placement="right"
+													arrow={false}
+													overlayInnerStyle={{
+														padding: '6px 10px',
+														borderRadius: '10px',
+														fontSize: '13px',
+														fontWeight: '500',
+														fontFamily: 'Inter',
+														fontStyle: 'normal',
+														lineHeight: 'normal',
+														background: '#E8E8E8',
+														color: '#202123',
+														textAlign: 'left',
+														marginLeft: '20px',
+													}}
+												>
+													<div
+														className={`iconContainer ${
+															selectedIcon === index ? 'selected' : ''
+														}`}
+														onClick={() => {
+															handleIconClick(index);
+															navigate(singleItem?.route || '');
+														}}
+														style={{
+															position: 'relative',
+															display: 'flex',
+															alignItems: 'center',
+															justifyContent: 'center',
+														}}
+													>
+														{selectedIcon === index && (
+															<div
+																style={{
+																	position: 'absolute',
+																	left: '-65%',
+																	top: '50%',
+																	transform: 'translateY(-50%)',
+																	width: '3px',
+																	height: '24px',
+																	background: 'white',
+																	borderRadius: '0 2px 2px 0',
+																}}
+															/>
+														)}
+														<ClosedSideBarHoverStateIcons
+															Icon={singleItem?.icon}
+															initialColor={singleItem?.initialColor}
+															isActive={selectedIcon === index}
+														/>
+													</div>
+												</Tooltip>
+											);
+										})}
+									</>
+								)}
+							</div>
+							{visibleIcons?.length > 0 && (
+								<hr
+									style={{
+										border: '0.7px solid #333334',
+										width: '70%',
+										alignSelf: 'center',
+									}}
+								/>
+							)}
 						</div>
 						<div className="TabOptions">
-							<div>
+							{/* <div>
 								<Tooltip
 									placement="rightTop"
 									title={<DropDrownMenu info={info} setInfo={setInfo} />}
@@ -265,9 +484,9 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 										/>
 									</div>
 								</Tooltip>
-							</div>
+							</div> */}
 
-							<div onClick={() => navigate('/home')}>
+							{/* <div onClick={() => navigate('/home')}>
 								<ClosedSideBarHoverStateIcons Icon={AppartmentHomeSvg} />
 							</div>
 							<div className="activeWorkspaceDiv" onClick={openModuleFunction}>
@@ -275,6 +494,268 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 									src={info?.activeBusniessName?.logo_s3_500w_key}
 									alt={info?.activeBusniessName?.activeWorkspaceId}
 								/>
+							</div> */}
+
+							{/* <div
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '21px',
+									padding: '18px 0px',
+								}}
+							>
+								<hr
+									style={{
+										border: '0.7px solid #333334',
+										width: '70%',
+										alignSelf: 'center',
+									}}
+								/>
+								{getFilteredAiOptions().map((item) => (
+									<Tooltip
+										key={item.route}
+										title={item.name}
+										placement="rightBottom"
+										arrow={false}
+										overlayInnerStyle={{
+											padding: '6px 10px',
+											borderRadius: '10px',
+											// width: '80px',
+											fontSize: '14px',
+											fontWeight: '500',
+											fontFamily: 'Inter',
+											fontStyle: 'normal',
+											background: '#E8E8E8',
+											color: '#202123',
+											textAlign: 'center',
+											marginLeft: '20px',
+										}}
+									>
+										<div
+											style={{ cursor: 'pointer', alignSelf: 'center' }}
+											onClick={() => navigate(item.route)}
+										>
+											<img
+												src={item.image}
+												alt={item.name}
+												style={{
+													height: '24px',
+													width: '24px',
+													borderRadius: '24px',
+												}}
+											/>
+										</div>
+									</Tooltip>
+								))}
+							</div> */}
+							<div
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '24px',
+								}}
+							>
+								{!isThisEarlyAccessPage && (
+									<>
+										<hr
+											style={{
+												border: '0.7px solid #333334',
+												width: '70%',
+												alignSelf: 'center',
+											}}
+										/>
+										<div
+											style={{
+												display: 'flex',
+												flexDirection: 'column',
+												alignItems: 'center',
+											}}
+										>
+											<div>
+												<Tooltip
+													placement="right"
+													title={
+														<DropDrownMenu
+															info={info}
+															setInfo={setInfo}
+														/>
+													}
+													color={'#151515'}
+													arrow={false}
+													trigger="click"
+													overlayClassName="sideBartoolTipContainer toolTipContainer"
+													open={info?.isNewFeaturePlusOpen}
+													onOpenChange={(open) => {
+														if (!open) {
+															setInfo((prev) => ({
+																...prev,
+																isNewFeaturePlusOpen: false,
+															}));
+														}
+													}}
+												>
+													<div onClick={openNewFeaturePlus}>
+														<ClosedSideBarHoverStateIcons
+															style={{ alignSelf: 'center' }}
+															Icon={LeadPlusSvg}
+															hoverClassName="plusIconHover"
+														/>
+													</div>
+												</Tooltip>
+											</div>
+										</div>
+
+										<Tooltip
+											title="Home"
+											placement="left"
+											arrow={false}
+											overlayInnerStyle={{
+												padding: '6px 10px',
+												borderRadius: '10px',
+												fontSize: '14px',
+												background: '#E8E8E8',
+												color: '#202123',
+												textAlign: 'center',
+												marginLeft: '24px',
+											}}
+										>
+											<div
+												onClick={() => navigate('/home')}
+												style={{ alignSelf: 'center' }}
+											>
+												<ClosedSideBarHoverStateIcons
+													Icon={AppartmentHomeSvg}
+												/>
+											</div>
+										</Tooltip>
+									</>
+								)}
+
+								<div
+									style={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+									}}
+								>
+									<Tooltip
+										title="Open the sidebar"
+										placement="left"
+										arrow={false}
+										overlayInnerStyle={{
+											padding: '6px 10px',
+											borderRadius: '10px',
+											fontSize: '14px',
+											fontWeight: '500',
+											fontFamily: 'Inter',
+											fontStyle: 'normal',
+											background: '#E8E8E8',
+											color: '#202123',
+											textAlign: 'center',
+											marginLeft: '24px',
+										}}
+									>
+										<SidebarClosingSvg
+											onClick={openModuleFunction}
+											className="sidebarClosingSvg"
+										/>
+									</Tooltip>
+								</div>
+								{!isThisEarlyAccessPage ? (
+									<Tooltip
+										title="Credit"
+										placement="left"
+										arrow={false}
+										overlayInnerStyle={{
+											padding: '6px 10px',
+											borderRadius: '10px',
+											fontSize: '14px',
+											background: '#E8E8E8',
+											color: '#202123',
+											textAlign: 'center',
+											marginLeft: '24px',
+										}}
+									>
+										<div className="creditSvg" style={{ alignSelf: 'center' }}>
+											<svg width="30" height="30" viewBox="0 0 30 30">
+												<defs>
+													<linearGradient
+														id="paint0_linear_14532_74799"
+														x1="-0.661765"
+														y1="2.69729e-07"
+														x2="30.4666"
+														y2="1.98941"
+														gradientUnits="userSpaceOnUse"
+													>
+														<stop
+															offset="0.000100017"
+															stop-color="#C39DF8"
+														/>
+														<stop offset="1" stop-color="#EC7C9D" />
+													</linearGradient>
+												</defs>
+												<circle
+													cx="15"
+													cy="15"
+													r="12.5"
+													fill="none"
+													stroke="#333334"
+													strokeWidth="5"
+												/>
+												<circle
+													cx="15"
+													cy="15"
+													r="12.5"
+													fill="none"
+													stroke="url(#paint0_linear_14532_74799)"
+													strokeWidth="5"
+													strokeDasharray={`${(100 / 100) * 78.54} 78.54`}
+													transform="rotate(-90 15 15)"
+												/>
+											</svg>
+										</div>
+									</Tooltip>
+								) : (
+									<div className="creditSvg" style={{ alignSelf: 'center' }}>
+										<svg width="30" height="30" viewBox="0 0 30 30">
+											<defs>
+												<linearGradient
+													id="paint0_linear_14532_74799"
+													x1="-0.661765"
+													y1="2.69729e-07"
+													x2="30.4666"
+													y2="1.98941"
+													gradientUnits="userSpaceOnUse"
+												>
+													<stop
+														offset="0.000100017"
+														stop-color="#C39DF8"
+													/>
+													<stop offset="1" stop-color="#EC7C9D" />
+												</linearGradient>
+											</defs>
+											<circle
+												cx="15"
+												cy="15"
+												r="12.5"
+												fill="none"
+												stroke="#333334"
+												strokeWidth="5"
+											/>
+											<circle
+												cx="15"
+												cy="15"
+												r="12.5"
+												fill="none"
+												stroke="url(#paint0_linear_14532_74799)"
+												strokeWidth="5"
+												strokeDasharray={`${(100 / 100) * 78.54} 78.54`}
+												transform="rotate(-90 15 15)"
+											/>
+										</svg>
+									</div>
+								)}
+								{/* <hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} /> */}
 							</div>
 						</div>
 					</div>

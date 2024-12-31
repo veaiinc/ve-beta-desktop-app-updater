@@ -105,7 +105,7 @@ const Person = ({
 				style={{
 					width:
 						(!info?.value && !value) || (Array.isArray(value) && value.length === 0)
-							? '180px'
+							? '130px'
 							: 'fit-content',
 					color: disabled ? '#8c8c8c' : '#e5e5e5',
 				}}

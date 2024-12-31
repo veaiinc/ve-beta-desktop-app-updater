@@ -211,7 +211,7 @@ const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo
 
 			// Fetch new data if not in cache
 			setInfo({ ...info, loading: true });
-			await getCalendarEventDetails(selectedEvent.id);
+			await getCalendarEventDetails(selectedEvent?.id);
 			setInfo({ ...info, loading: false });
 		}
 	}, [selectedEvent]);
