@@ -48,7 +48,7 @@ const GlobalWorkflowCard = ({ data, onClickFunc, isSelected }) => {
 			onClick={() => onClickFunc(data)}
 		>
 			<div className="imageContainer">
-				<div className="imageContainer">
+				<div className="imageContainer2">
 					<iframe
 						src={`${origin}/preview/${data?._id}?module=${data?.moduleTemplates?.[0]?._id}&isPubic=${data?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
 						title="Builder Preview"

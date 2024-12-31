@@ -9,7 +9,7 @@
 	color: #000;
 	transition: all 0.3s ease-out;
 	background: rgba(255, 255, 255, 0.1);
-	box-shadow: -6px 6px 40px 0px rgba(0, 0, 0, 0.05);
+	// box-shadow: -6px 6px 40px 0px rgba(0, 0, 0, 0.05);
 	backdrop-filter: blur(50px);
 	width: 100%;
 	cursor: pointer;
@@ -21,20 +21,25 @@
 		justify-content: center;
 		gap: 60px;
 
-		.imageContainer {
+		.imageContainer2 {
 			display: flex;
 			flex-direction: column;
 			border-radius: 20px;
-			width: 300px;
-			height: 291px;
+			width: 221px;
+			height: 238px;
 			background-color: #fff;
 			overflow-y: auto;
+
 			iframe {
 				border-radius: 20px;
+				box-shadow: -77px 98px 35px 0px rgba(0, 0, 0, 0),
+					-49px 63px 32px 0px rgba(0, 0, 0, 0.02), -28px 35px 27px 0px rgba(0, 0, 0, 0.08),
+					-12px 16px 20px 0px rgba(0, 0, 0, 0.13), -3px 4px 11px 0px rgba(0, 0, 0, 0.15);
 			}
 		}
 		.labelContentWrapper {
 			display: flex;
+			flex: 1 0 0;
 			flex-direction: column;
 			flex-wrap: wrap;
 			align-items: flex-start;
@@ -132,7 +137,7 @@
 		justify-content: center;
 		.imageContainer {
 			gap: 14px;
-			.imageContainer {
+			.imageContainer2 {
 				width: 221px;
 				height: 238px;
 			}
@@ -193,7 +198,7 @@
 
 		.imageContainer {
 			gap: 14px;
-			.imageContainer {
+			.imageContainer2 {
 				width: 221px;
 				height: 238px;
 			}
@@ -252,7 +257,7 @@
 			flex-direction: column;
 			gap: 20px;
 
-			.imageContainer {
+			.imageContainer2 {
 				display: none;
 			}
 
@@ -273,7 +278,7 @@
 	.globalWorkflowCardContainer {
 		width: 360px;
 		.imageContainer {
-			.imageContainer {
+			.imageContainer2 {
 				display: none;
 			}
 		}

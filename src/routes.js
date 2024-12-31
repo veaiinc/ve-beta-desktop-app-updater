@@ -6,6 +6,7 @@ import Calendar from './views/features/calendar/index';
 import OauthVerify from './views/features/signin/oauth';
 import Sales from './views/features/sales/Sales';
 import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
+import MyTemplates from './views/features/sales/MyTemplates';
 import SmartFile from './views/features/sales/smartFiles/SmartFile';
 import WorkflowBuilderLayout from './views/layouts/workflowBuilderLayout';
 import SmartFileLayout from './views/layouts/smartFileLayout';
@@ -114,6 +115,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Sales'}>
 				<GlobalWorkflows />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/my-templates',
+		component: (
+			<AuthWrapper title={'My Templates'}>
+				<MyTemplates />
 			</AuthWrapper>
 		),
 		exact: true,

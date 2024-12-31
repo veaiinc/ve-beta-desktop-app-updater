@@ -29,7 +29,7 @@ const options = ['Workflow', 'Proposal', 'Form', 'Invoice', 'Contract'];
 
 const GlobalWorkflows = () => {
 	const location = useLocation();
-	const isPlaybookRoute = location.pathname === '/playbook';
+	const isPlaybookRoute = location.pathname === '/playbook' || '/my-templates';
 	const [selectedOption, setSelectedOption] = useState('Workflow');
 	const [moduleTemplateData, setModuleTemplateData] = useState(null);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -71,7 +71,7 @@ const GlobalWorkflows = () => {
 			const payload = {
 				page: 1,
 				limit: 10,
-				type: 'global',
+				type: 'workspace',
 				module: option.toLowerCase(),
 			};
 			const [success, response] = await getModuleTemplate(payload);
@@ -88,7 +88,7 @@ const GlobalWorkflows = () => {
 			filters: {
 				limit: 10,
 				page: page,
-				type: 'global',
+				type: 'workspace',
 				sortBy: 'createdAt',
 				sortType: -1,
 			},

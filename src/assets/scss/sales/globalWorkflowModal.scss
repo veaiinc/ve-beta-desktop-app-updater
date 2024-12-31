@@ -1,313 +1,179 @@
-.GlobalWorkflowModalParentContainer {
-	height: 100%;
-	width: 420px;
-	display: flex;
-	padding: 10px;
-	.innerContainer {
+.ant-drawer-content-wrapper {
+	width: 420px !important;
+	box-shadow: none !important;
+	.GlobalWorkflowModalParentContainer {
+		height: 100%;
+		width: 420px;
 		display: flex;
-		flex-direction: column;
-		flex: 1;
-		align-self: stretch;
-		border-radius: 32px;
-		border: 1px solid #1f1f1f;
-		background: #151515;
-
-		.innerContainerHeader {
+		padding: 10px;
+		border: none;
+		.innerContainer {
 			display: flex;
 			flex-direction: column;
-			align-items: flex-start;
-			gap: 1px;
+			flex: 1;
 			align-self: stretch;
-			padding: 24px 24px 8px 24px;
-			border-bottom: 1px solid rgba(40, 39, 40, 0.48);
-
-			.headerBtnContainer {
+			border-radius: 32px;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			background: #151515;
+			backdrop-filter: blur(10px);
+			.innerContainerHeader {
 				display: flex;
-				padding: 8px 0px;
-				justify-content: space-between;
-				align-items: center;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 1px;
 				align-self: stretch;
-
-				.tabBtnContainer {
+				padding: 24px 24px 8px 24px;
+				border-bottom: 1px solid rgba(40, 39, 40, 0.48);
+				.headerBtnContainer {
 					display: flex;
+					padding: 8px 0px;
+					justify-content: space-between;
 					align-items: center;
-					gap: 24px;
-					.tabBtns {
-						display: flex;
-						width: 200px;
-						height: 48px;
-						transform: rotate(-0.037deg);
-						padding: var(--Spacing-space-8, 16px) 24px;
-						justify-content: space-between;
-						align-items: center;
-						border-radius: 100px;
-						border: 1px solid rgba(36, 36, 36, 0.64);
-						background: rgba(42, 42, 42, 0.16);
-						span {
-							color: rgba(224, 224, 224, 0.48);
-							font-family: Inter;
-							font-size: 15px;
-							font-style: normal;
-							font-weight: 500;
-							line-height: 16px; /* 106.667% */
-							cursor: pointer;
-							transition: all 0.3s ease-in;
-						}
-					}
-					.tabBtns span:hover {
-						color: #e0e0e0;
-					}
-				}
-
-				.svgContainer {
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					cursor: pointer;
-					gap: 3px;
-					color: #6055ec;
-					font-family: Inter;
-					font-size: 13px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 16px; /* 123.077% */
-					letter-spacing: 0.26px;
-				}
-			}
-			.customiseText {
-				color: rgba(228, 229, 230, 0.48);
-				font-family: Inter;
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 18px; /* 150% */
-			}
-		}
-
-		.innerMainContent {
-			flex: 1;
-			padding: 16px;
-			overflow-y: auto;
-			display: flex;
-			flex-direction: column;
-			gap: 50px;
-			color: #fff;
-			margin-bottom: 20px;
-
-			.modulesViewer {
-				display: flex;
-				width: 368px;
-				flex-direction: column;
-				align-items: flex-start;
-				gap: 8px;
-				flex: 1 0 0;
-				border-radius: 18px;
-				span {
-					color: #fff;
-					font-family: Inter;
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-					text-transform: capitalize;
-				}
-
-				.imageContainer {
-					display: flex;
-					flex-direction: column;
-					width: 100%;
-					border-radius: 24px;
-					height: 700px;
-					overflow-y: auto;
-					background-color: #fff;
-
-					// .coverImage {
-					// 	background: #fcfaf7;
-					// 	border-radius: 24px;
-					// 	// min-height: 700px;
-					// 	height: auto;
-					// 	overflow: scroll;
-
-					// 	.builder {
-					// 		zoom: 0.15;
-
-					// 		div {
-					// 			width: 100%;
-					// 			p {
-					// 				color: rgb(56, 56, 56);
-					// 			}
-
-					// 			p span {
-					// 				color: rgb(56, 56, 56);
-					// 			}
-					// 			.PhoneInputCountrySelectArrow {
-					// 				display: none;
-					// 			}
-					// 		}
-					// 	}
-					// }
-				}
-			}
-		}
-		.autoMationDiv {
-			flex: 1;
-			align-self: stretch;
-			display: flex;
-			flex-direction: column;
-			padding: 24px 0px;
-			align-items: center;
-			color: #fff;
-			margin-bottom: 24px;
-			overflow-y: auto;
-
-			.startingPoint {
-				display: flex;
-				padding: 26.667px 20px;
-				flex-direction: column;
-				align-items: flex-start;
-				gap: 3.333px;
-				border-radius: 33.333px;
-				border: 0.833px solid rgba(36, 36, 36, 0.48);
-				background: rgba(42, 42, 42, 0.16);
-				width: 250px;
-				.titleStyling {
-					overflow: hidden;
-					color: rgba(228, 229, 230, 0.48);
-					text-overflow: ellipsis;
-					font-family: Inter;
-					font-size: 10px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 11.667px; /* 116.667% */
-					letter-spacing: 0.2px;
-					text-transform: capitalize;
-				}
-
-				.startingPointTitle {
-					color: #e4e5e6;
-					font-family: Inter;
-					font-size: 15px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 21.667px; /* 144.444% */
-				}
-			}
-			.otherViewCard {
-				display: flex;
-				width: 250px;
-				padding: 26.667px 20px;
-				flex-direction: column;
-				align-items: flex-start;
-				gap: 3.333px;
-				border-radius: 33.333px;
-				border: 0.833px solid rgba(36, 36, 36, 0.48);
-				background: rgba(42, 42, 42, 0.16);
-
-				.sendEmailHeader {
-					display: flex;
 					align-self: stretch;
-					gap: 8px;
-					align-items: center;
 
-					.sendEmailText {
-						overflow: hidden;
-						color: rgba(228, 229, 230, 0.48);
-						text-overflow: ellipsis;
-						font-family: Inter;
-						font-size: 10px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 11.667px; /* 116.667% */
-						letter-spacing: 0.2px;
-						text-transform: capitalize;
-					}
-				}
-
-				.emailSubjectText {
-					color: #e4e5e6;
-					font-family: Inter;
-					font-size: 15px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 21.667px; /* 144.444% */
-				}
-				.subalabel {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
-					font-size: 10px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 11.667px; /* 116.667% */
-					letter-spacing: 0.2px;
-				}
-			}
-
-			.endViewCard {
-				display: flex;
-				padding: 12.667px 20px;
-				flex-direction: column;
-				align-items: flex-start;
-				gap: 3.333px;
-				border-radius: 33.333px;
-				border: 0.833px solid rgba(36, 36, 36, 0.48);
-				background: rgba(42, 42, 42, 0.16);
-				width: auto;
-				.subalabel {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
-					font-size: 10px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 11.667px; /* 116.667% */
-					letter-spacing: 0.2px;
-				}
-			}
-			.previewCard {
-				display: flex;
-				flex-direction: column;
-				height: auto;
-				border-radius: 33.333px;
-				border: 0.833px solid rgba(36, 36, 36, 0.48);
-				background: rgba(42, 42, 42, 0.16);
-				border-top-left-radius: 0px;
-				border-top-right-radius: 0px;
-
-				.htmlContentViewer {
-					display: flex;
-					flex-direction: column;
-					width: 250px;
-					height: 116px;
-					.coverImage {
-						background: #fcfaf7;
-						border-top-left-radius: 33.333px;
-						border-top-right-radius: 33.333px;
-						height: 116px;
-						overflow: hidden;
-
-						.builder {
-							zoom: 0.15;
-							overflow-y: hidden;
-
-							div {
-								width: 100%;
-								.PhoneInputCountrySelectArrow {
-									display: none;
-								}
+					.tabBtnContainer {
+						display: flex;
+						align-items: center;
+						gap: 24px;
+						.tabBtns {
+							display: flex;
+							width: 200px;
+							height: 48px;
+							transform: rotate(-0.037deg);
+							padding: var(--Spacing-space-8, 16px) 24px;
+							justify-content: space-between;
+							align-items: center;
+							border-radius: 100px;
+							border: 1px solid rgba(255, 255, 255, 0.2);
+							background: rgba(255, 255, 255, 0.05);
+							span {
+								color: rgba(224, 224, 224, 0.48);
+								font-family: Inter;
+								font-size: 15px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: 16px; /* 106.667% */
+								cursor: pointer;
+								transition: all 0.3s ease-in;
 							}
 						}
+						.tabBtns span:hover {
+							color: #e0e0e0;
+						}
+					}
+
+					.svgContainer {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						cursor: pointer;
+						gap: 3px;
+						color: #6055ec;
+						font-family: Inter;
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 16px; /* 123.077% */
+						letter-spacing: 0.26px;
 					}
 				}
+				.customiseText {
+					color: rgba(228, 229, 230, 0.48);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 18px; /* 150% */
+				}
+			}
 
-				.previewLabelContent {
+			.innerMainContent {
+				flex: 1;
+				padding: 16px;
+				overflow-y: auto;
+				display: flex;
+				flex-direction: column;
+				gap: 50px;
+				color: #fff;
+				margin-bottom: 20px;
+
+				.modulesViewer {
+					display: flex;
+					width: 368px;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 8px;
+					flex: 1 0 0;
+					border-radius: 18px;
+					span {
+						color: #fff;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						text-transform: capitalize;
+					}
+
+					.imageContainer {
+						display: flex;
+						flex-direction: column;
+						width: 100%;
+						border-radius: 24px;
+						height: 700px;
+						overflow-y: auto;
+						background-color: #fff;
+
+						// .coverImage {
+						// 	background: #fcfaf7;
+						// 	border-radius: 24px;
+						// 	// min-height: 700px;
+						// 	height: auto;
+						// 	overflow: scroll;
+
+						// 	.builder {
+						// 		zoom: 0.15;
+
+						// 		div {
+						// 			width: 100%;
+						// 			p {
+						// 				color: rgb(56, 56, 56);
+						// 			}
+
+						// 			p span {
+						// 				color: rgb(56, 56, 56);
+						// 			}
+						// 			.PhoneInputCountrySelectArrow {
+						// 				display: none;
+						// 			}
+						// 		}
+						// 	}
+						// }
+					}
+				}
+			}
+			.autoMationDiv {
+				flex: 1;
+				align-self: stretch;
+				display: flex;
+				flex-direction: column;
+				padding: 24px 0px;
+				align-items: center;
+				color: #fff;
+				margin-bottom: 24px;
+				overflow-y: auto;
+
+				.startingPoint {
 					display: flex;
 					padding: 26.667px 20px;
 					flex-direction: column;
 					align-items: flex-start;
 					gap: 3.333px;
-					align-self: stretch;
+					border-radius: 33.333px;
+					border: 0.833px solid rgba(36, 36, 36, 0.48);
+					background: rgba(42, 42, 42, 0.16);
 					width: 250px;
-
-					.topLabelStyle {
+					.titleStyling {
 						overflow: hidden;
 						color: rgba(228, 229, 230, 0.48);
 						text-overflow: ellipsis;
@@ -319,7 +185,8 @@
 						letter-spacing: 0.2px;
 						text-transform: capitalize;
 					}
-					.labelTitle {
+
+					.startingPointTitle {
 						color: #e4e5e6;
 						font-family: Inter;
 						font-size: 15px;
@@ -327,7 +194,47 @@
 						font-weight: 500;
 						line-height: 21.667px; /* 144.444% */
 					}
-					.labelSubtitle {
+				}
+				.otherViewCard {
+					display: flex;
+					width: 250px;
+					padding: 26.667px 20px;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 3.333px;
+					border-radius: 33.333px;
+					border: 0.833px solid rgba(36, 36, 36, 0.48);
+					background: rgba(42, 42, 42, 0.16);
+
+					.sendEmailHeader {
+						display: flex;
+						align-self: stretch;
+						gap: 8px;
+						align-items: center;
+
+						.sendEmailText {
+							overflow: hidden;
+							color: rgba(228, 229, 230, 0.48);
+							text-overflow: ellipsis;
+							font-family: Inter;
+							font-size: 10px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 11.667px; /* 116.667% */
+							letter-spacing: 0.2px;
+							text-transform: capitalize;
+						}
+					}
+
+					.emailSubjectText {
+						color: #e4e5e6;
+						font-family: Inter;
+						font-size: 15px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 21.667px; /* 144.444% */
+					}
+					.subalabel {
 						color: rgba(228, 229, 230, 0.48);
 						font-family: Inter;
 						font-size: 10px;
@@ -335,6 +242,103 @@
 						font-weight: 500;
 						line-height: 11.667px; /* 116.667% */
 						letter-spacing: 0.2px;
+					}
+				}
+
+				.endViewCard {
+					display: flex;
+					padding: 12.667px 20px;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 3.333px;
+					border-radius: 33.333px;
+					border: 0.833px solid rgba(36, 36, 36, 0.48);
+					background: rgba(42, 42, 42, 0.16);
+					width: auto;
+					.subalabel {
+						color: rgba(228, 229, 230, 0.48);
+						font-family: Inter;
+						font-size: 10px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 11.667px; /* 116.667% */
+						letter-spacing: 0.2px;
+					}
+				}
+				.previewCard {
+					display: flex;
+					flex-direction: column;
+					height: auto;
+					border-radius: 33.333px;
+					border: 0.833px solid rgba(36, 36, 36, 0.48);
+					background: rgba(42, 42, 42, 0.16);
+					border-top-left-radius: 0px;
+					border-top-right-radius: 0px;
+
+					.htmlContentViewer {
+						display: flex;
+						flex-direction: column;
+						width: 250px;
+						height: 116px;
+						.coverImage {
+							background: #fcfaf7;
+							border-top-left-radius: 33.333px;
+							border-top-right-radius: 33.333px;
+							height: 116px;
+							overflow: hidden;
+
+							.builder {
+								zoom: 0.15;
+								overflow-y: hidden;
+
+								div {
+									width: 100%;
+									.PhoneInputCountrySelectArrow {
+										display: none;
+									}
+								}
+							}
+						}
+					}
+
+					.previewLabelContent {
+						display: flex;
+						padding: 26.667px 20px;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: 3.333px;
+						align-self: stretch;
+						width: 250px;
+
+						.topLabelStyle {
+							overflow: hidden;
+							color: rgba(228, 229, 230, 0.48);
+							text-overflow: ellipsis;
+							font-family: Inter;
+							font-size: 10px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 11.667px; /* 116.667% */
+							letter-spacing: 0.2px;
+							text-transform: capitalize;
+						}
+						.labelTitle {
+							color: #e4e5e6;
+							font-family: Inter;
+							font-size: 15px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 21.667px; /* 144.444% */
+						}
+						.labelSubtitle {
+							color: rgba(228, 229, 230, 0.48);
+							font-family: Inter;
+							font-size: 10px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 11.667px; /* 116.667% */
+							letter-spacing: 0.2px;
+						}
 					}
 				}
 			}
