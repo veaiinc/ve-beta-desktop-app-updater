@@ -274,12 +274,24 @@
 	}
 }
 
-@media screen and (min-width: 375px) and (max-width: 500px) {
+@media screen and (min-width: 375px) and (max-width: 700px) {
 	.globalWorkflowCardContainer {
-		width: 360px;
 		.imageContainer {
+			flex-direction: column;
+			gap: 20px;
+
 			.imageContainer2 {
 				display: none;
+			}
+
+			.labelContentWrapper {
+				width: 100%;
+
+				.labelContent {
+					.globalWorkflowSubTitle {
+						width: 100%;
+					}
+				}
 			}
 		}
 	}

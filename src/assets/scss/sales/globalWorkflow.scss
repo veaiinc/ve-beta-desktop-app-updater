@@ -499,7 +499,7 @@
 	}
 }
 
-@media screen and (min-width: 500px) and (max-width: 1110px) {
+@media screen and (min-width: 700px) and (max-width: 1110px) {
 	.playbook-wrapper {
 		.globalWorkflowContainer {
 			display: flex;
@@ -509,20 +509,66 @@
 			height: auto;
 			gap: 20px;
 			.left_div {
-				margin-top: 0px;
+				margin-left: 12%;
+				margin-top: -5%;
 				width: 90%;
+				&.modal-open {
+					transform: translateX(0%);
+					visibility: visible;
+				}
 				.left_child_div {
-					width: 100%;
+					width: 70%;
 				}
 				.options_div {
-					width: 100%;
+					width: 70%;
+					.search_bar {
+						display: flex;
+						align-self: flex-end;
+					}
+					.options {
+						flex-direction: row;
+						align-items: flex-start;
+						gap: 10px;
+					}
 				}
 			}
 			.mainContentContainer {
-				margin-left: 20%;
+				margin-left: 10%;
 				width: 90%;
 				&.modal-open {
-					transform: translateX(-35%);
+					transform: translateX(0%);
+				}
+			}
+		}
+	}
+}
+
+@media screen and (min-width: 500px) and (max-width: 700px) {
+	.playbook-wrapper {
+		height: 100dvh; // Add this to ensure full height
+		overflow-y: auto;
+		.globalWorkflowContainer {
+			flex-direction: column;
+			margin: 0px;
+			padding: 0px !important;
+			align-content: center;
+			height: auto; // Add this to allow content to expand
+			min-height: 100%; // Add this to ensure minimum full height
+			overflow-y: visible; // Ch
+			.left_div {
+				margin-left: 18%;
+				width: 80%;
+				.left_child_div {
+					.side_text {
+						width: 100%;
+					}
+				}
+			}
+			.mainContentContainer {
+				width: 80%;
+				margin-left: 18%;
+				.scrollableTarget {
+					width: 100%;
 				}
 			}
 		}
@@ -542,28 +588,20 @@
 			min-height: 100%; // Add this to ensure minimum full height
 			overflow-y: visible; // Ch
 			.left_div {
-				margin: 0px;
+				width: 80%;
+				.left_child_div {
+					.side_text {
+						width: 100%;
+					}
+				}
 			}
 			.mainContentContainer {
-				width: 360px !important;
+				width: 80%;
+				margin-left: 8%;
+				.scrollableTarget {
+					width: 100%;
+				}
 			}
 		}
 	}
 }
-
-// @media screen and (min-width: 1040px) and (max-width: 1500px) {
-//  .playbook-wrapper {
-//      .globalWorkflowContainer {
-//          display: flex;
-//          flex-direction: row;
-//          // align-items: center;
-//          margin-top: -10%;
-//          justify-content: center;
-//          gap: 10px;
-//          margin-left: 8%;
-//          .mainContentContainer {
-//              width: 70% !important;
-//          }
-//      }
-//  }
-// }
