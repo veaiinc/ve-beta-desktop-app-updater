@@ -258,14 +258,13 @@ const GlobalWorkflows = () => {
 							globalTemplateId={info?.activeTemplateData?._id}
 						/>
 					) : (
-						// <GlobalProposalModal
-						// 	modalIsOpen={info?.modalIsOpen}
-						// 	closeModal={closeModal}
-						// 	templateId={info?.activeTemplateData?._id}
-						// 	moduleName={info?.selectedModule}
-						// 	templateTitle={info?.activeTemplateData?.title}
-						// />
-						''
+						<GlobalWorkflowModal
+							modalIsOpen={info?.modalIsOpen}
+							closeModal={closeModal}
+							globalTemplateId={info?.activeTemplateData?._id}
+							moduleName={info?.selectedModule}
+							templateTitle={info?.activeTemplateData?.title}
+						/>
 					))}
 			</div>
 		</div>
