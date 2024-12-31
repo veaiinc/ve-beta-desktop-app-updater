@@ -25,6 +25,7 @@ import { ReactComponent as RightArrowGrey } from '../../../assets/svg/landingScr
 import Context from '../../../context/context';
 import { message } from 'antd';
 import { debounce } from 'lodash';
+import Spinner from '../../components/loaders/Spinner';
 
 const navItems = [
 	{ id: 1, name: 'Privacy', route: '/privacy-policy' },
@@ -132,6 +133,7 @@ const LandingPage = () => {
 	const [newsletterHover, setNewsletterHover] = useState(false);
 	const [isBackToTopBtnHover, setIsBackToTopBtnHover] = useState(false);
 	const [isEmailSubscribed, setIsEmailSubscribed] = useState(false);
+	const [emailSubscriptionLoader, setEmailSubscriptionLoader] = useState(false);
 	const [playVideo, setPlayVideo] = useState(false);
 
 	useEffect(() => {
@@ -213,25 +215,31 @@ const LandingPage = () => {
 		window.open(DEMO_FORM_URL, '_blank');
 	};
 
-	const handleSubscribeToNewsletter = debounce(async (e, type) => {
-		// Uncomment when API works...
-		// if (!isEmailSubscribed) {
-		// 	if (e?.key === 'Enter' || type === 'click') {
-		// 		const email = emailRef?.current?.value?.trim() || false;
-		// 		const isEmailValid = validator.isEmail(email);
-		// 		if (isEmailValid) {
-		// 			const response = await subscribeToNewsletter(email);
-		// 			if (response?.[0] === true) {
-		// 				message?.success('Subscribed to ve.ai newsletters successfully!');
-		// 				setIsEmailSubscribed(true);
-		// 			} else {
-		// 				message?.error('An unexpected error occured. Please try again!');
-		// 				setIsEmailSubscribed(false);
-		// 			}
-		// 		}
-		// 	}
-		// }
-	}, 1000);
+	const handleSubscribeToNewsletter = async (e, type) => {
+		if (emailSubscriptionLoader) return;
+		if (!isEmailSubscribed) {
+			if (e?.key === 'Enter' || type === 'click') {
+				const email = emailRef?.current?.value?.trim() || false;
+				const isEmailValid = validator.isEmail(email);
+				if (isEmailValid) {
+					setEmailSubscriptionLoader(true);
+					const response = await subscribeToNewsletter(email);
+					if (response?.[0] === true) {
+						message?.success('Subscribed to ve.ai newsletters successfully!');
+						setIsEmailSubscribed(true);
+						emailRef.current.value = '';
+						setEmailSubscriptionLoader(false);
+						return;
+					} else {
+						message?.error('An unexpected error occured. Please try again!');
+						setIsEmailSubscribed(false);
+					}
+				}
+				message?.error('Please enter a valid email address');
+				setEmailSubscriptionLoader(false);
+			}
+		}
+	};
 
 	return (
 		<div className="landing-page-container">
@@ -375,19 +383,33 @@ const LandingPage = () => {
 							onMouseLeave={() => setNewsletterHover(false)}
 							className="subscribe-to-newsletter"
 						>
-							<input
-								ref={emailRef}
-								className="email"
-								type="email"
-								placeholder="Email Address"
-								onKeyDown={handleSubscribeToNewsletter}
-							/>
-							<button
-								onClick={() => handleSubscribeToNewsletter(null, 'click')}
-								className="subscribe-btn"
-							>
-								{newsletterHover ? <RightArrowWhite /> : <RightArrowGrey />}
-							</button>
+							{!isEmailSubscribed ? (
+								<input
+									ref={emailRef}
+									className="email"
+									type="email"
+									placeholder="Email Address"
+									onKeyDown={handleSubscribeToNewsletter}
+								/>
+							) : (
+								<p className="subscribed-text">
+									Subscribed to ve.ai newsletters successfully!
+								</p>
+							)}
+							{!isEmailSubscribed && (
+								<button
+									onClick={() => handleSubscribeToNewsletter(null, 'click')}
+									className="subscribe-btn"
+								>
+									{emailSubscriptionLoader ? (
+										<Spinner size="small" />
+									) : newsletterHover ? (
+										<RightArrowWhite />
+									) : (
+										<RightArrowGrey />
+									)}
+								</button>
+							)}
 						</div>
 					</div>
 					<div className="right-content">

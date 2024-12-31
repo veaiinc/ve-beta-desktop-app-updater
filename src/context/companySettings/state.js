@@ -306,6 +306,16 @@ export const CompanySettingsState = () => {
 		}
 	};
 
+	const getAICreditsUsed = async () => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const path = '/businessconsultant/ai-credits';
+			const response = await service.fetchGet('/tenant/ai-credits-used', null, 'auth');
+		} catch (error) {
+			console.log('error ==> getAICreditsUsed', error);
+		}
+	};
+
 	const resetCompanySettings = async () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
