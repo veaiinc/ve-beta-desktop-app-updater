@@ -333,10 +333,7 @@ const LandingPage = () => {
 							Connect all your existing applications. Experience the power of your
 							company's collective knowledge all in one place.
 						</p>
-						<button
-							onClick={handleNavigationToVerifyUser}
-							className="integration-button"
-						>
+						<button onClick={handleRequestDemo} className="integration-button">
 							Get Demo
 						</button>
 					</div>
