@@ -78,6 +78,13 @@ const SmartFile = () => {
 		assisstanceData: null,
 		sendCustomEmailModal: false,
 		copyLink: null,
+		chatList: [
+			{ type: 'AI', message: 'Hello, how can I help you today?' },
+			{
+				type: 'user',
+				message: 'I need help with my smart file',
+			},
+		],
 	});
 
 	//useEffect
@@ -643,7 +650,7 @@ const SmartFile = () => {
 				closeModal={toggleSendCustomEmailFunc}
 				clientDetails={info?.workflowData?.clientDetails}
 			/>
-			<BottomToolbar outerContainerStyle={{ bottom: '10px' }} />
+			<BottomToolbar outerContainerStyle={{ bottom: '10px' }} chatList={info?.chatList} />
 		</div>
 	);
 };

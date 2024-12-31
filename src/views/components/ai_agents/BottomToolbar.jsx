@@ -6,7 +6,7 @@ import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settin
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
-const BottomToolbar = ({ outerContainerStyle = {} }) => {
+const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend }) => {
 	const [info, setInfo] = useState({
 		expanded: false,
 		inputExpanded: false,
@@ -60,7 +60,16 @@ const BottomToolbar = ({ outerContainerStyle = {} }) => {
 						</button>
 					</div>
 				</div>
-				<div className="chatContent">{/* Chat content goes here */}</div>
+				<div className="chatContent">
+					{chatList.map((chat, index) => (
+						<div
+							key={index}
+							className={`chat-message ${chat.type.toLowerCase()}-message`}
+						>
+							<div className="message-content">{chat.message}</div>
+						</div>
+					))}
+				</div>
 			</div>
 
 			{/* bottom toolBarContent */}
@@ -87,6 +96,8 @@ const BottomToolbar = ({ outerContainerStyle = {} }) => {
 			<ToolBarChatContainerModal
 				onClose={handleCloseChatModal}
 				modalIsOpen={info?.chatModalIsOpen}
+				chatList={chatList}
+				onSend={onSend}
 			/>
 		</div>
 	);
