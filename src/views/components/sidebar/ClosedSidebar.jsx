@@ -1,5 +1,5 @@
 import React, { useState, memo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 // import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import LeadPlusSvg from '../../../assets/svg/sidebar/  LeadPlusSvg.jsx';
 import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg';
@@ -17,6 +17,7 @@ const ClosedSideBarHoverStateIcons = ({
 	isActive = false,
 }) => {
 	const [isHover, setisHover] = useState(false);
+
 	return (
 		<div
 			onMouseEnter={() => setisHover(true)}
@@ -93,11 +94,15 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 	const [lastVisitedLocation, setLastVisitedLocation] = useState('');
 	const [visibleIcons, setVisibleIcons] = useState([]);
 	const [isMobile, setIsMobile] = useState(window.innerWidth <= 500);
+	const [isThisEarlyAccessPage, setIsThisEarlyAccessPage] = useState(false);
 
 	useEffect(() => {
 		const currentPath = window.location.pathname;
 		const { title } = getPathInfo(currentPath);
 		setLastVisitedLocation(title);
+		if (currentPath.includes('/early-access')) {
+			setIsThisEarlyAccessPage(true);
+		}
 	}, [window.location.pathname]);
 
 	useEffect(() => {
@@ -232,6 +237,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 		);
 		return parentModule?.image;
 	};
+
 	return (
 		<>
 			{isMobile ? (
@@ -542,7 +548,6 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 									</Tooltip>
 								))}
 							</div> */}
-
 							<div
 								style={{
 									display: 'flex',
@@ -550,69 +555,81 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 									gap: '24px',
 								}}
 							>
-								<hr
-									style={{
-										border: '0.7px solid #333334',
-										width: '70%',
-										alignSelf: 'center',
-									}}
-								/>
-								<div
-									style={{
-										display: 'flex',
-										flexDirection: 'column',
-										alignItems: 'center',
-									}}
-								>
-									<div>
-										<Tooltip
-											placement="right"
-											title={<DropDrownMenu info={info} setInfo={setInfo} />}
-											color={'#151515'}
-											arrow={false}
-											trigger="click"
-											overlayClassName="sideBartoolTipContainer toolTipContainer"
-											open={info?.isNewFeaturePlusOpen}
-											onOpenChange={(open) => {
-												if (!open) {
-													setInfo((prev) => ({
-														...prev,
-														isNewFeaturePlusOpen: false,
-													}));
-												}
+								{!isThisEarlyAccessPage && (
+									<>
+										<hr
+											style={{
+												border: '0.7px solid #333334',
+												width: '70%',
+												alignSelf: 'center',
+											}}
+										/>
+										<div
+											style={{
+												display: 'flex',
+												flexDirection: 'column',
+												alignItems: 'center',
 											}}
 										>
-											<div onClick={openNewFeaturePlus}>
+											<div>
+												<Tooltip
+													placement="right"
+													title={
+														<DropDrownMenu
+															info={info}
+															setInfo={setInfo}
+														/>
+													}
+													color={'#151515'}
+													arrow={false}
+													trigger="click"
+													overlayClassName="sideBartoolTipContainer toolTipContainer"
+													open={info?.isNewFeaturePlusOpen}
+													onOpenChange={(open) => {
+														if (!open) {
+															setInfo((prev) => ({
+																...prev,
+																isNewFeaturePlusOpen: false,
+															}));
+														}
+													}}
+												>
+													<div onClick={openNewFeaturePlus}>
+														<ClosedSideBarHoverStateIcons
+															style={{ alignSelf: 'center' }}
+															Icon={LeadPlusSvg}
+															hoverClassName="plusIconHover"
+														/>
+													</div>
+												</Tooltip>
+											</div>
+										</div>
+
+										<Tooltip
+											title="Home"
+											placement="left"
+											arrow={false}
+											overlayInnerStyle={{
+												padding: '6px 10px',
+												borderRadius: '10px',
+												fontSize: '14px',
+												background: '#E8E8E8',
+												color: '#202123',
+												textAlign: 'center',
+												marginLeft: '24px',
+											}}
+										>
+											<div
+												onClick={() => navigate('/home')}
+												style={{ alignSelf: 'center' }}
+											>
 												<ClosedSideBarHoverStateIcons
-													style={{ alignSelf: 'center' }}
-													Icon={LeadPlusSvg}
-													hoverClassName="plusIconHover"
+													Icon={AppartmentHomeSvg}
 												/>
 											</div>
 										</Tooltip>
-									</div>
-								</div>
-								<Tooltip
-									title="Home"
-									placement="left"
-									arrow={false}
-									overlayInnerStyle={{
-										padding: '6px 10px',
-										borderRadius: '10px',
-										fontSize: '14px',
-										background: '#E8E8E8',
-										color: '#202123',
-										textAlign: 'center',
-										marginLeft: '24px',
-									}}
-								>
-									<div
-										onClick={() => navigate('/home')}
-										style={{ alignSelf: 'center' }}
-									>
-										<ClosedSideBarHoverStateIcons Icon={AppartmentHomeSvg} />
-									</div>
-								</Tooltip>
+									</>
+								)}
 
 								<div
 									style={{
@@ -644,20 +661,61 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 										/>
 									</Tooltip>
 								</div>
-								<Tooltip
-									title="Credit"
-									placement="left"
-									arrow={false}
-									overlayInnerStyle={{
-										padding: '6px 10px',
-										borderRadius: '10px',
-										fontSize: '14px',
-										background: '#E8E8E8',
-										color: '#202123',
-										textAlign: 'center',
-										marginLeft: '24px',
-									}}
-								>
+								{!isThisEarlyAccessPage ? (
+									<Tooltip
+										title="Credit"
+										placement="left"
+										arrow={false}
+										overlayInnerStyle={{
+											padding: '6px 10px',
+											borderRadius: '10px',
+											fontSize: '14px',
+											background: '#E8E8E8',
+											color: '#202123',
+											textAlign: 'center',
+											marginLeft: '24px',
+										}}
+									>
+										<div className="creditSvg" style={{ alignSelf: 'center' }}>
+											<svg width="30" height="30" viewBox="0 0 30 30">
+												<defs>
+													<linearGradient
+														id="paint0_linear_14532_74799"
+														x1="-0.661765"
+														y1="2.69729e-07"
+														x2="30.4666"
+														y2="1.98941"
+														gradientUnits="userSpaceOnUse"
+													>
+														<stop
+															offset="0.000100017"
+															stop-color="#C39DF8"
+														/>
+														<stop offset="1" stop-color="#EC7C9D" />
+													</linearGradient>
+												</defs>
+												<circle
+													cx="15"
+													cy="15"
+													r="12.5"
+													fill="none"
+													stroke="#333334"
+													strokeWidth="5"
+												/>
+												<circle
+													cx="15"
+													cy="15"
+													r="12.5"
+													fill="none"
+													stroke="url(#paint0_linear_14532_74799)"
+													strokeWidth="5"
+													strokeDasharray={`${(100 / 100) * 78.54} 78.54`}
+													transform="rotate(-90 15 15)"
+												/>
+											</svg>
+										</div>
+									</Tooltip>
+								) : (
 									<div className="creditSvg" style={{ alignSelf: 'center' }}>
 										<svg width="30" height="30" viewBox="0 0 30 30">
 											<defs>
@@ -696,7 +754,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 											/>
 										</svg>
 									</div>
-								</Tooltip>
+								)}
 								{/* <hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} /> */}
 							</div>
 						</div>
