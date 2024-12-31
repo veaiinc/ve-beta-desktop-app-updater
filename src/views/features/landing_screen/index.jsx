@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, memo, useContext } from 'react';
 import gsap from 'gsap';
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
-import Lenis from 'lenis';
+// import Lenis from 'lenis';
 import '../../../assets/scss/landingScreen/index.scss';
 import Navbar from '../../components/landing_screen/Navbar';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
@@ -146,23 +146,23 @@ const LandingPage = () => {
 			if (isOnboard) return navigate('/home');
 		}
 
-		const lenis = new Lenis({
-			duration: 0.5,
-			easing: (t) => 1 - Math.pow(1 - t, 3),
-			direction: 'vertical',
-			smooth: true,
-			smoothTouch: false,
-		});
+		// const lenis = new Lenis({
+		// 	duration: 0.5,
+		// 	easing: (t) => 1 - Math.pow(1 - t, 3),
+		// 	direction: 'vertical',
+		// 	smooth: true,
+		// 	smoothTouch: false,
+		// });
 
-		const raf = (time) => {
-			lenis.raf(time);
-			requestAnimationFrame(raf);
-		};
-		requestAnimationFrame(raf);
+		// const raf = (time) => {
+		// 	lenis.raf(time);
+		// 	requestAnimationFrame(raf);
+		// };
+		// requestAnimationFrame(raf);
 
-		return () => {
-			lenis?.destroy();
-		};
+		// return () => {
+		// 	lenis?.destroy();
+		// };
 	}, []);
 
 	useEffect(() => {
