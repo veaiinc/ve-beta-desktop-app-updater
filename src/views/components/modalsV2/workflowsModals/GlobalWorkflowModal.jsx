@@ -449,7 +449,6 @@ const GlobalWorkflowModal = ({
 					onClose={modifiedCloseModal}
 					mask={false}
 					width={isExpanded ? 760 : 420}
-					maskClosable={true}
 					open={modalIsOpen}
 					style={{
 						padding: '0px',
@@ -457,6 +456,7 @@ const GlobalWorkflowModal = ({
 						height: '100dvh',
 						borderRadius: '32px',
 						position: 'fixed',
+						right: '60',
 						transform: isExpanded ? 'translateX(-360px)' : 'translateX(0)',
 						transition: 'transform 0.8s ease',
 					}}
@@ -485,7 +485,7 @@ const GlobalWorkflowModal = ({
 								className="innerMainContent"
 								style={{
 									height: '100%',
-									width: isExpanded ? '780px' : '420px',
+									// width: isExpanded ? '780px' : '420px',
 									transition: 'width 0.8s ease',
 									gap: '24px',
 									display: 'flex',

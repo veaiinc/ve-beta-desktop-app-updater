@@ -234,24 +234,21 @@ const GlobalWorkflows = () => {
 							}}
 						>
 							<div>
-								<span className="dior-studio-text">By dior studios</span>
+								<span className="dior-studio-text">By Ve.ai</span>
 							</div>
 							<div className="workflow-title-container">
 								<div className="workflow-title">
-									Wedding photography business solution
+									{info?.activeTemplateData?.title}
 								</div>
 								<div className="workflow-description">
-									Ideal for wedding photography business with multiple events,
-									selectable packages and services, this workflow provides
-									customisable design in enquiry forms, proposals, invoices for
-									multiple payment schedule and hassle contracts with e-sign
-									contracts
+									{info?.activeTemplateData?.description ||
+										'Ideal for wedding photography business with multiple events, selectable packages and services, this workflow provides customisable design in enquiry forms, proposals, invoices for multiple payment schedule and hassle contracts with e-sign contracts'}
 								</div>
 								<div>
-									<span className="active-users-text">12k active users</span>
+									{/* <span className="active-users-text">12k active users</span> */}
 								</div>
 								<div>
-									<button className="buy-button">Buy for $124</button>
+									<button className="buy-button">Add to workspace</button>
 								</div>
 							</div>
 						</div>
