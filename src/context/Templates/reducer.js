@@ -59,9 +59,9 @@ const actionHandlers = {
 		...state,
 		sendSmartFileSettings: action.payload,
 	}),
-	GET_AI_PREDICTED_DATA_SUCCESS: (state, action) => ({
+	GET_MODULE_TEMPLATE_SUCCESS: (state, action) => ({
 		...state,
-		aiPredictedData: action.payload,
+		moduleTemplateData: action.payload,
 	}),
 	SET_CONNECT_URL: (state, action) => ({
 		...state,

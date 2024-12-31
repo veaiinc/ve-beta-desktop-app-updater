@@ -39,6 +39,7 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './Actions';
 import Service from '../../services/index';
+import { errorCodes } from '@apollo/client/invariantErrorCodes';
 import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
 
 export const intialState = {
@@ -62,7 +63,7 @@ export const intialState = {
 	tabItemCount: null,
 	eventsPresetData: null,
 	sendSmartFileSettings: null,
-	aiPredictedData: null,
+	moduleTemplateData: null,
 	connectUrl: null,
 	activityLogs: null,
 	moreActivityLogs: null,
@@ -986,24 +987,25 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	//Ai predictions
-	const getAiPredictionForSmartFile = async (workflowSlug) => {
+	const getModuleTemplate = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}/${workflowSlug}/predict`;
-			const response = await Service.fetchGet(url, usertoken, 'ai_predictions');
-
-			if (response?.[0]) {
-				dispatch({
-					type: Actions.GET_AI_PREDICTED_DATA_SUCCESS,
-					payload: response?.[1],
-				});
+			const response = await Service.fetchPost(
+				`/${workspaceId}/templates/templates-list`,
+				payload,
+				usertoken,
+				'proposals_api',
+			);
+			if (response?.[0] === true) {
+				dispatch({ type: Actions.GET_MODULE_TEMPLATE_SUCCESS, payload: response?.[1] });
+				return [true, response?.[1]];
 			} else {
-				console.log('api failed==>getAiPredictionForSmartFile', response);
+				return [false, response?.[1]?.message];
 			}
 		} catch (error) {
-			console.log('errror ==>getAiPredictionForSmartFile', error);
+			console.log('errror ==>getModuleTemplate', error);
+			return [false, error?.message];
 		}
 	};
 
@@ -1189,7 +1191,7 @@ export const TemplatesState = (props) => {
 		editEventsPresets,
 		deleteEventsPreset,
 		getLatestSendSmartFileSettings,
-		getAiPredictionForSmartFile,
+		getModuleTemplate,
 		leaveWorkspace,
 		sendCustomEmailToClients,
 		connectThirdParty,
