@@ -1,0 +1,76 @@
+.agentsActionsParentContainer {
+	display: flex;
+	align-items: flex-start;
+	gap: 24px;
+	align-self: stretch;
+	overflow-y: auto;
+
+	.agentsTaskCards {
+		display: flex;
+		width: 285px;
+		height: 304px;
+		padding: 32px;
+		flex-direction: column;
+		gap: 12px;
+		align-items: flex-start;
+		border-radius: 24px;
+		background: #171819;
+		background: color(display-p3 0.0902 0.0941 0.098);
+		cursor: pointer;
+		position: relative;
+
+		.agentsTaskCardContent {
+			flex: 1;
+			align-self: stretch;
+			display: flex;
+			flex-direction: column;
+
+			.agentsTaskCardTitle {
+				color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+				color: var(
+					--ve-ai-dark-theme-primary-font-color,
+					color(display-p3 0.9098 0.9098 0.9098)
+				);
+				font-family: Inter;
+				font-size: 18px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		.agentsTaskCardFooterStyling {
+			color: #e8e8e8;
+			color: color(display-p3 0.9098 0.9098 0.9098);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.agentsTaskStausIndicatorContainer {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			position: absolute;
+			right: 14px;
+			top: 14px;
+			color: #00959b;
+			color: color(display-p3 0.1098 0.5725 0.6);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 14px; /* 116.667% */
+			text-transform: uppercase;
+
+			.agentsTaskStausIndicator {
+				width: 4px;
+				height: 4px;
+				background-color: #00959b;
+				border-radius: 100%;
+			}
+		}
+	}
+}

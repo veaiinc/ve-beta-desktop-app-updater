@@ -16,7 +16,7 @@ import CalendarSvg from '../../../assets/svg/sidebar/CalendarSvg.jsx';
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
 import SettingsSvg from '../../../assets/svg/sidebar/SettingsSvg.jsx';
 import { ReactComponent as GallerySvg } from '../../../assets/svg/sidebar/Gallery.svg';
-import { ReactComponent as TaskSvg } from '../../../assets/svg/sidebar/Task.svg';
+import TaskSvg from '../../../assets/svg/sidebar/TaskSvg.jsx';
 import { ReactComponent as AIAssistantSvg } from '../../../assets/svg/sidebar/AiAssistant.svg';
 import { ReactComponent as PlaybookSvg } from '../../../assets/svg/sidebar/Playbook.svg';
 import SchedulerSvg from '../../../assets/svg/sidebar/SchedulerSvg.jsx';
@@ -24,7 +24,12 @@ import TranscriptSvg from '../../../assets/svg/sidebar/TranscriptSvg.jsx';
 import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 import { ReactComponent as OrchestratorSvg } from '../../../assets/svg/sidebar/Orchestrator.svg';
-import { ReactComponent as TemplatesSvg } from '../../../assets/svg/sidebar/Templates.svg';
+import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
+import DaVinci from '../../../assets/images/Da Vinci.jpeg';
+import Jarvis from '../../../assets/images/Jarvis.jpeg';
+import Ari from '../../../assets/images/Ari.jpeg';
+import DaVinciJobsSvg from '../../../assets/svg/sidebar/DaVinciJobsSvg.jsx';
+import DaVinciSetupSvg from '../../../assets/svg/sidebar/DaVinciSetupSvg.jsx';
 // import { subDays } from 'react-datepicker/dist/date_utils.js';
 
 export const veAiModulesItemsList = [
@@ -58,6 +63,22 @@ export const veAiModulesItemsList = [
 	},
 
 	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
+	// {
+	// 	name: 'Da-Vinci',
+	// 	moduleRoute: '/ai-agents/home/da-vinici',
+	// 	route: '/ai-agents/home/da-vinici',
+	// 	icon: '',
+	// 	subModules: [
+	// 		{ icon: AddCalenderSvg, route: '/ai-agents/home/da-vinici', name: 'Home' },
+	// 		{ icon: TranscriptSvg, route: '/ai-agents/jobs/:agent-name', name: 'Jobs' },
+	// 		{
+	// 			icon: SettingsSvg,
+	// 			route: '/ai-agents/setup/da-vinici',
+	// 			fill: 'white',
+	// 			name: 'Setup',
+	// 		},
+	// 	],
+	// },
 	// {
 	// 	name: 'AI Agents',
 	// 	moduleRoute: '/ai-agents',
@@ -147,4 +168,35 @@ export const closedSidebarIcons = [
 		fill: 'white',
 		name: 'Settings',
 	},
+];
+
+export const AiOptions = [
+	{
+		icon: '',
+		name: 'Da Vinci',
+		route: '/ai-agents/home/da-vinci',
+		image: DaVinci,
+		subModules: [
+			{
+				icon: TaskSvg,
+				route: '/ai-agents/home/da-vinici',
+				name: 'Home',
+				description: 'Da Vinci',
+			},
+			{
+				icon: DaVinciJobsSvg,
+				route: '/ai-agents/jobs/:agent-name',
+				name: 'Jobs',
+				description: 'Da Vinci',
+			},
+			{
+				icon: DaVinciSetupSvg,
+				route: '/ai-agents/setup/da-vinici',
+				name: 'Setup',
+				description: 'Da Vinci',
+			},
+		],
+	},
+	{ icon: '', name: 'Jarvis', route: '/jarvis', image: Jarvis },
+	{ icon: '', name: 'Ari', route: '/ari', image: Ari },
 ];

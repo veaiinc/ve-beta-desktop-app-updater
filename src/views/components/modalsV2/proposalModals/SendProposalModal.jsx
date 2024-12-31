@@ -75,6 +75,7 @@ const SendProposalModal = ({
 	updateIdentification,
 	assisstanceData,
 	updateVariablesInAllModules,
+	copyLink,
 }) => {
 	const {
 		templates: {
@@ -265,9 +266,10 @@ const SendProposalModal = ({
 
 	const handleCopy = useCallback(async () => {
 		try {
-			await navigator.clipboard.writeText(
-				`https://${info?.currentWorkspaceId}.ve.ai/portal/${workflowSlug}`,
-			);
+			if (copyLink) {
+				await navigator.clipboard.writeText(copyLink);
+			}
+
 			modifiedCloseModal();
 			openCopyModal();
 
@@ -284,7 +286,7 @@ const SendProposalModal = ({
 		} catch (err) {
 			console.log('Failed to copy text');
 		}
-	}, [workflowSlug, workflowStatus, modifiedCloseModal, info?.currentWorkspaceId]);
+	}, [workflowSlug, workflowStatus, modifiedCloseModal, info?.currentWorkspaceId, copyLink]);
 
 	const incrementDecrementExpiry = useCallback(
 		(type) => {

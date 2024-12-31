@@ -23,12 +23,12 @@
 .listItem-text {
 	color: #e4e5e6;
 	font-family: Inter;
-	font-size: 13px;
+	font-size: 14px;
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
-	padding: 12px 0;
-	max-width: 200px;
+	padding: 10px 0;
+	max-width: 400px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -55,7 +55,7 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	padding: 12px 0;
+	padding: 10px 0;
 }
 .listItem-select {
 	position: relative;
@@ -271,5 +271,39 @@
 	&:placeholder {
 		color: #e4e5e6 !important;
 		opacity: 1;
+	}
+}
+
+.parent-task-component {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	.parent-task-title {
+		overflow: hidden;
+		color: #939393;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		max-width: 350px;
+	}
+}
+
+.child-task-progress {
+	display: flex;
+	padding: 4px 6px;
+	align-items: center;
+	gap: 6px;
+
+	.child-task-progress-count {
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
 	}
 }

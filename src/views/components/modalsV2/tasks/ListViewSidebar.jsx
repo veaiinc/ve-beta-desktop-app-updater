@@ -10,6 +10,7 @@ import Spinner from '../../loaders/Spinner';
 import Context from '../../../../context/context';
 import ListViewRow from '../../tasks/listView/ListViewRow';
 import Skeleton from 'react-loading-skeleton';
+import CustomTextArea from '../../globalComponents/CusomTextArea';
 
 const ListViewSidebar = ({
 	selectedRow,
@@ -37,57 +38,19 @@ const ListViewSidebar = ({
 		completedSubtaskCount: 0,
 	});
 
-	const [localTitle, setLocalTitle] = useState(selectedRow?.title || '');
-	const [localDescription, setLocalDescription] = useState(selectedRow?.description || '');
+	const [localTitle, setLocalTitle] = useState('');
+	const [localDescription, setLocalDescription] = useState('');
 	const titleDebounceRef = useRef(null);
 	const descriptionDebounceRef = useRef(null);
 
 	useEffect(() => {
-		setLocalTitle(selectedRow?.title || '');
-		setLocalDescription(selectedRow?.description || '');
-	}, [selectedRow]);
-
-	const debouncedTitleUpdate = useCallback(
-		(value) => {
-			if (titleDebounceRef.current) {
-				clearTimeout(titleDebounceRef.current);
-			}
-			titleDebounceRef.current = setTimeout(() => {
-				updatePropertyValue(selectedRow?._id, 'title', value);
-			}, 800);
-		},
-		[selectedRow?._id, updatePropertyValue],
-	);
-
-	const debouncedDescriptionUpdate = useCallback(
-		(value) => {
-			if (descriptionDebounceRef.current) {
-				clearTimeout(descriptionDebounceRef.current);
-			}
-			descriptionDebounceRef.current = setTimeout(() => {
-				updatePropertyValue(selectedRow?._id, 'description', value);
-			}, 800);
-		},
-		[selectedRow?._id, updatePropertyValue],
-	);
-
-	const handleTitleChange = useCallback(
-		(e) => {
-			const newTitle = e.target.value;
-			setLocalTitle(newTitle);
-			debouncedTitleUpdate(newTitle);
-		},
-		[debouncedTitleUpdate],
-	);
-
-	const handleDescriptionChange = useCallback(
-		(e) => {
-			const newDescription = e.target.value;
-			setLocalDescription(newDescription);
-			debouncedDescriptionUpdate(newDescription);
-		},
-		[debouncedDescriptionUpdate],
-	);
+		if (selectedRow?.title !== localTitle) {
+			setLocalTitle(selectedRow?.title || '');
+		}
+		if (selectedRow?.description !== localDescription) {
+			setLocalDescription(selectedRow?.description || '');
+		}
+	}, [selectedRow?._id]);
 
 	useEffect(() => {
 		return () => {
@@ -130,6 +93,52 @@ const ListViewSidebar = ({
 		}
 	}, [subTasks, selectedRow?._id, isShowingSubTask, getSubTasks]);
 
+	const debouncedTitleUpdate = useCallback(
+		(value) => {
+			if (titleDebounceRef.current) {
+				clearTimeout(titleDebounceRef.current);
+			}
+			titleDebounceRef.current = setTimeout(() => {
+				updatePropertyValue(selectedRow?._id, 'title', value, null, null, () => {
+					setLocalTitle(value);
+				});
+			}, 800);
+		},
+		[selectedRow?._id, updatePropertyValue],
+	);
+
+	const debouncedDescriptionUpdate = useCallback(
+		(value) => {
+			if (descriptionDebounceRef.current) {
+				clearTimeout(descriptionDebounceRef.current);
+			}
+			descriptionDebounceRef.current = setTimeout(() => {
+				updatePropertyValue(selectedRow?._id, 'description', value, null, null, () => {
+					setLocalDescription(value);
+				});
+			}, 800);
+		},
+		[selectedRow?._id, updatePropertyValue],
+	);
+
+	const handleTitleChange = useCallback(
+		(e) => {
+			const newTitle = e.target.value;
+			setLocalTitle(newTitle);
+			debouncedTitleUpdate(newTitle);
+		},
+		[debouncedTitleUpdate],
+	);
+
+	const handleDescriptionChange = useCallback(
+		(e) => {
+			const newDescription = e.target.value;
+			setLocalDescription(newDescription);
+			debouncedDescriptionUpdate(newDescription);
+		},
+		[debouncedDescriptionUpdate],
+	);
+
 	const handleDeleteTask = useCallback(async () => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
@@ -166,6 +175,8 @@ const ListViewSidebar = ({
 						'completedAt',
 						'taskSlNo',
 						'workflowId',
+						'parentTask',
+						'childTasks',
 						isShowingSubTask && 'workflow',
 					].includes(key)
 				) {
@@ -267,12 +278,12 @@ const ListViewSidebar = ({
 						</div>
 
 						<div className="sidebar-title">
-							<textarea
-								className="sidebar-title-input"
+							<CustomTextArea
 								value={localTitle}
 								onChange={handleTitleChange}
 								placeholder="Enter title"
-								rows={1}
+								className="sidebar-title-input"
+								autoResize={true}
 							/>
 						</div>
 						<div className="sidebar-properties-container">
@@ -336,12 +347,12 @@ const ListViewSidebar = ({
 						)}
 
 						<div className="sidebar-description">
-							<textarea
-								className="sidebar-description-textarea"
+							<CustomTextArea
 								value={localDescription}
 								onChange={handleDescriptionChange}
 								placeholder="Enter description"
-								rows={5}
+								className="sidebar-description-textarea"
+								autoResize={true}
 							/>
 						</div>
 					</div>

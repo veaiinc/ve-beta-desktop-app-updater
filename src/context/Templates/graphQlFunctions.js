@@ -36,6 +36,7 @@ export const getTemmplatesQuery = gql`
 				filesSent
 				slug
 				actionRequired
+				createdAt
 			}
 		}
 	}
@@ -425,5 +426,24 @@ export const updateSendSmartFileSettingsMutation = gql`
 export const getLatestSendSmartFileSettingsQuery = gql`
 	query Query {
 		getLatestWorkflowSettings
+	}
+`;
+
+export const getActivityLogsQuery = gql`
+	query ActivityLogs($filters: ActivityLogsFilterInput) {
+		activityLogs(filters: $filters) {
+			currentPage
+			data {
+				_id
+				changes
+				entity
+				timestamp
+				userId
+				userName
+				action
+				entityType
+			}
+			hasNextPage
+		}
 	}
 `;

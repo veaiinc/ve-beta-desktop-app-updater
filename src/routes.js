@@ -31,6 +31,7 @@ import Notes from './views/features/Notes';
 import Contacts from './views/features/contacts';
 import Ai_agent from './views/features/ai_agent';
 import AgentsJobs from './views/features/ai_agent/AgentsJobs';
+import AgentsSetup from './views/features/ai_agent/AgentsSetup';
 const routes = [
 	{
 		path: '/',
@@ -273,21 +274,21 @@ const routes = [
 	{
 		path: '/ai-agents/jobs/:agent-name',
 		component: (
-			<AuthWrapper title={'Notes'}>
+			<AuthWrapper title={'AI Agents'}>
 				<AgentsJobs />
 			</AuthWrapper>
 		),
 		exact: true,
 	},
-	// {
-	// 	path: '/ai-agents/setup/:agent-name',
-	// 	component: (
-	// 		<AuthWrapper title={'Notes'}>
-	// 			<Ai_agent />
-	// 		</AuthWrapper>
-	// 	),
-	// 	exact: true,
-	// },
+	{
+		path: '/ai-agents/setup/:agent-name',
+		component: (
+			<AuthWrapper title={'AI Agents'}>
+				<AgentsSetup />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
 ];
 
 export default routes;

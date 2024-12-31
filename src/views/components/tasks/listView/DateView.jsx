@@ -9,6 +9,7 @@ const DateView = ({
 	format = 'MMM DD',
 	timestamp = false,
 	title = '',
+	className = '',
 	customListItemStyle = {},
 	onOptionClick,
 	showIcon = false,
@@ -37,7 +38,7 @@ const DateView = ({
 	);
 
 	return !timestamp ? (
-		<div onClick={(e) => e.stopPropagation()}>
+		<div onClick={(e) => e.stopPropagation()} className={className}>
 			{info?.showDatePicker ? (
 				<div className="listItem-datePicker-wrapper">
 					<DatePicker
@@ -62,7 +63,7 @@ const DateView = ({
 					valueSelector="value"
 				>
 					<Tooltip title={title} placement="bottom">
-						<div className={`listItem-date`} style={customListItemStyle}>
+						<div className={`listItem-date ${className}`} style={customListItemStyle}>
 							{showIcon && <CalendarIcon />}
 							{value
 								? moment.unix(value).format(format)
