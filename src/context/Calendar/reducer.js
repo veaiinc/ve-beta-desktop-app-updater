@@ -16,6 +16,11 @@ const actionHandlers = {
 		calendarEvent: action.payload,
 	}),
 
+	DELETE_CALENDAR_EVENT: (state, action) => ({
+		...state,
+		deletedEvent: action.payload,
+	}),
+
 	CREATE_CALENDAR_CATEGORY: (state, action) => ({
 		...state,
 		calendarCategories: action.payload,
@@ -43,7 +48,7 @@ const actionHandlers = {
 
 	UPDATE_CALENDAR_EVENT: (state, action) => ({
 		...state,
-		calendarEvent: action.payload,
+		calendarEventDetails: action.payload,
 	}),
 
 	RESET_CALENDAR_STATE: () => ({ ...initialState }),
