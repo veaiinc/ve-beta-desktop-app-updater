@@ -8,7 +8,7 @@ import Spinner from '../../components/loaders/Spinner';
 import GlobalWorkflowModal from '../../components/modalsV2/workflowsModals/GlobalWorkflowModal';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import GlobalProposalsCard from '../../components/sales/globalProposalsCard';
-import GlobalProposalModal from '../../components/modalsV2/workflowsModals/GlobalProposalModal';
+// import GlobalProposalModal from '../../components/modalsV2/workflowsModals/GlobalProposalModal';
 const FetchMoreLoaderComp = () => {
 	return (
 		<h4
@@ -258,13 +258,14 @@ const GlobalWorkflows = () => {
 							globalTemplateId={info?.activeTemplateData?._id}
 						/>
 					) : (
-						<GlobalProposalModal
-							modalIsOpen={info?.modalIsOpen}
-							closeModal={closeModal}
-							templateId={info?.activeTemplateData?._id}
-							moduleName={info?.selectedModule}
-							templateTitle={info?.activeTemplateData?.title}
-						/>
+						// <GlobalProposalModal
+						// 	modalIsOpen={info?.modalIsOpen}
+						// 	closeModal={closeModal}
+						// 	templateId={info?.activeTemplateData?._id}
+						// 	moduleName={info?.selectedModule}
+						// 	templateTitle={info?.activeTemplateData?.title}
+						// />
+						''
 					))}
 			</div>
 		</div>
