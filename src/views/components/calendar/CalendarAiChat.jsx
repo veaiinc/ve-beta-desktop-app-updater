@@ -86,6 +86,8 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 		await getCalendarChat(sessionId, {
 			query: inputData,
 			timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+			// module: 'calendar',
+			// workflow_slug: null,
 		});
 	}, []);
 
