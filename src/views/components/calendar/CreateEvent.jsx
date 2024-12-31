@@ -70,6 +70,8 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 				...prev,
 				startDate: date,
 				startTime: time,
+				endDate: date,
+				endTime: time,
 			}));
 		}
 	}, [selectedSlot]);
@@ -345,8 +347,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 								type="date"
 								placeholder="Wed, September 22 2024"
 								className="dateInput"
-								// value={info?.endDate}
-								value={info?.startDate}
+								value={info?.endDate}
 								onChange={(e) => updateEventInfo('endDate', e.target.value)}
 							/>
 							{info?.allDay ? (
@@ -356,8 +357,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 									type="time"
 									placeholder="12:30AM"
 									className="timeInput"
-									// value={info?.endTime}
-									value={info?.startTime}
+									value={info?.endTime}
 									onChange={(e) => updateEventInfo('endTime', e.target.value)}
 								/>
 							)}

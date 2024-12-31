@@ -151,11 +151,11 @@ const CalendarView = ({
 	);
 
 	const updateCalenderEventsList = useCallback(
-		(eventId, data = {}) => {
+		(eventId, updateBody = {}) => {
 			const updatedEventsList = [...(info?.eventsList || [])];
 			for (let i = 0; i < updatedEventsList?.length; i++) {
 				if (updatedEventsList?.[i]?.id === eventId) {
-					updatedEventsList[i] = { ...updatedEventsList[i], ...data };
+					updatedEventsList[i] = { ...updatedEventsList[i], ...updateBody };
 				}
 			}
 			setInfo((prev) => ({ ...prev, eventsList: updatedEventsList }));

@@ -42,6 +42,24 @@ const EventDetailsModal = ({
 	// Add debounce ref
 	const updateEventDebounceRef = useRef(null);
 
+	useEffect(() => {
+		if (selectedEvent) {
+			setInfo((prev) => ({
+				...prev,
+				eventDetails: selectedEvent,
+				eventKeys: [...initialState?.eventKeys, ...Object?.keys(selectedEvent)],
+			}));
+		}
+	}, [selectedEvent]);
+
+	useEffect(() => {
+		return () => {
+			setInfo({
+				...initialState,
+			});
+		};
+	}, []);
+
 	const debouncedUpdateEvent = useCallback(
 		(eventData) => {
 			if (updateEventDebounceRef.current) {
@@ -68,24 +86,6 @@ const EventDetailsModal = ({
 		},
 		[updateCalendarEvent, validateExpiryData?.isExpired, updateSubscriptionState],
 	);
-
-	useEffect(() => {
-		if (selectedEvent) {
-			setInfo((prev) => ({
-				...prev,
-				eventDetails: selectedEvent,
-				eventKeys: [...initialState?.eventKeys, ...Object?.keys(selectedEvent)],
-			}));
-		}
-	}, [selectedEvent]);
-
-	useEffect(() => {
-		return () => {
-			setInfo({
-				...initialState,
-			});
-		};
-	}, []);
 
 	const deleteEvent = useCallback(async () => {
 		if (validateExpiryData?.isExpired) {

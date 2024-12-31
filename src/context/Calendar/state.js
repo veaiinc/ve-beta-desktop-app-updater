@@ -3,6 +3,7 @@ import Reducer from './reducer';
 import { Actions } from './action';
 import * as API from './actionTypes';
 import service from '../../services/index';
+import moment from 'moment';
 
 export const initialState = {
 	calendarChat: null,
@@ -157,11 +158,14 @@ export const Calendar = () => {
 	};
 
 	// Calendar Events Apis ================================>
-	const getCalendarEventsList = async () => {
+	const getCalendarEventsList = async (fetchDate = moment().format('YYYY-MM-DD')) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const url = `/${workspaceId}${API.CALENDAR.calendarEventsList}`;
+
+			// const date = moment(fetchDate).format('YYYY-MM-DD');
+			// const url = `/${workspaceId}${API.CALENDAR.calendarEventsList}?date=${date}`;
 
 			const response = await service.fetchGet(url, usertoken, 'calendar_api');
 
