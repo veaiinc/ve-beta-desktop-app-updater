@@ -25,7 +25,6 @@
 		"jodit-react": "^4.1.2",
 		"js-cookie": "^3.0.5",
 		"jwt-decode": "^3.1.2",
-		"lenis": "^1.1.18",
 		"lodash": "^4.17.21",
 		"moment": "^2.30.1",
 		"pretty-bytes": "^6.1.1",

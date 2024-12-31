@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, memo, useContext } from 'react';
 import gsap from 'gsap';
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
-// import Lenis from 'lenis';
 import '../../../assets/scss/landingScreen/index.scss';
 import Navbar from '../../components/landing_screen/Navbar';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
@@ -26,7 +25,6 @@ import { ReactComponent as RightArrowGrey } from '../../../assets/svg/landingScr
 import Context from '../../../context/context';
 import { message } from 'antd';
 import { debounce } from 'lodash';
-import IntegrationsVideo from './integrations.mp4';
 
 const navItems = [
 	{ id: 1, name: 'Privacy', route: '/privacy-policy' },
@@ -145,24 +143,6 @@ const LandingPage = () => {
 			if (isOnboard === false) return navigate('/early-access');
 			if (isOnboard) return navigate('/home');
 		}
-
-		// const lenis = new Lenis({
-		// 	duration: 0.5,
-		// 	easing: (t) => 1 - Math.pow(1 - t, 3),
-		// 	direction: 'vertical',
-		// 	smooth: true,
-		// 	smoothTouch: false,
-		// });
-
-		// const raf = (time) => {
-		// 	lenis.raf(time);
-		// 	requestAnimationFrame(raf);
-		// };
-		// requestAnimationFrame(raf);
-
-		// return () => {
-		// 	lenis?.destroy();
-		// };
 	}, []);
 
 	useEffect(() => {
@@ -346,8 +326,7 @@ const LandingPage = () => {
 							autoPlay
 							loop
 							playsInline
-							// src="https://ap.assets.ve.ai/logo/login-page-integrations-video.webm"
-							src={IntegrationsVideo}
+							src="https://ap.assets.ve.ai/logo/login-page-integrations-video.webm"
 						></video>
 					</div>
 				</div>
