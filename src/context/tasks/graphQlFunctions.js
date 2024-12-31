@@ -16,13 +16,17 @@ export const getListItemsQuery = gql`
 					status
 				}
 				description
-				status
-				priority
 				assignedTo {
 					_id
 					name
 				}
+				status
 				dueDate
+				priority
+				workflow {
+					_id
+					title
+				}
 				assignedBy {
 					_id
 					name
@@ -38,10 +42,6 @@ export const getListItemsQuery = gql`
 				updatedBy {
 					_id
 					name
-				}
-				workflow {
-					_id
-					title
 				}
 			}
 		}
@@ -111,6 +111,11 @@ export const getTaskQuery = gql`
 				status
 			}
 			description
+			assignedTo {
+				_id
+				name
+			}
+			dueDate
 			status
 			priority
 			workflow {
@@ -121,11 +126,6 @@ export const getTaskQuery = gql`
 				_id
 				name
 			}
-			assignedTo {
-				_id
-				name
-			}
-			dueDate
 			assignedBy {
 				_id
 				name

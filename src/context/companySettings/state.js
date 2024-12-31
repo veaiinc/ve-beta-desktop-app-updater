@@ -9,6 +9,7 @@ export const intialState = {
 	tenantPreferenceData: null,
 	tenantSubscriptionDetails: null,
 	clientPortalPreferences: null,
+	taskPreferences: null,
 };
 export const CompanySettingsState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -306,6 +307,26 @@ export const CompanySettingsState = () => {
 		}
 	};
 
+	const getTaskPreferences = async () => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.fetchGet(
+				API.TENANTS.taskPreferences,
+				usertoken,
+				'tenant-users',
+			);
+			console.log('response ==> getTaskPreferences', response);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_TASK_PREFERENCES,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error ==> getTaskPreferences', error);
+		}
+	};
+
 	const resetCompanySettings = async () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
@@ -333,5 +354,6 @@ export const CompanySettingsState = () => {
 		checkWorkspaceId,
 		getClientPortalPreference,
 		updateClientPortalPreference,
+		getTaskPreferences,
 	};
 };

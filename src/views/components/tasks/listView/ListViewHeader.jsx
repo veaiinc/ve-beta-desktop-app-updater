@@ -163,7 +163,11 @@ const ListViewHeader = ({
 							<FilterLinesSvg />
 						</button>
 					</DropDown>
-					<Tooltip
+					<OptionsDropDown
+						properties={properties}
+						togglePropertyVisibility={togglePropertyVisibility}
+					/>
+					{/* <Tooltip
 						placement="bottom"
 						title={
 							<OptionsDropDown
@@ -179,7 +183,7 @@ const ListViewHeader = ({
 						<button className="btn-options">
 							<HorizontalMoreIcon style={{ width: '20px', height: '20px' }} />
 						</button>
-					</Tooltip>
+					</Tooltip> */}
 				</div>
 			</div>
 			<div className="listViewOptionsContainer">

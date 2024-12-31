@@ -15,6 +15,7 @@ export const intialState = {
 	listTask: null,
 	newTask: null,
 	subTasks: null,
+	preferences: null,
 };
 
 export const TasksState = () => {

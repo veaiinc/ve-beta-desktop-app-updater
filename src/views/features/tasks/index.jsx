@@ -14,6 +14,24 @@ import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
 
+const defaultPreference = {
+	taskSlNo: { show: false, order: 1 },
+	title: { show: true, order: 2 },
+	parentTask: { show: false, order: 3 },
+	childTasks: { show: false, order: 4 },
+	description: { show: false, order: 5 },
+	status: { show: true, order: 6 },
+	priority: { show: true, order: 7 },
+	workflow: { show: true, order: 8 },
+	assignedTo: { show: true, order: 9 },
+	dueDate: { show: true, order: 10 },
+	assignedBy: { show: true, order: 11 },
+	assignedAt: { show: false, order: 12 },
+	completedAt: { show: false, order: 13 },
+	createdAt: { show: false, order: 14 },
+	updatedAt: { show: false, order: 15 },
+};
+
 const Tasks = () => {
 	const {
 		tasks: {
@@ -28,7 +46,7 @@ const Tasks = () => {
 			resetSubTasks,
 		},
 		templates: { getWorkflowsList, workflowslist },
-		companyInfo: { getTeamMembers, tenantsUserList },
+		companyInfo: { getTeamMembers, tenantsUserList, getTaskPreferences, taskPreferences },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
@@ -199,6 +217,12 @@ const Tasks = () => {
 	}, [tenantsUserList]);
 
 	useEffect(() => {
+		if (!taskPreferences) {
+			getTaskPreferences();
+		}
+	}, [taskPreferences]);
+
+	useEffect(() => {
 		if (!workflowslist) {
 			getWorkflowsList({
 				filters: {
@@ -239,6 +263,13 @@ const Tasks = () => {
 			}));
 		}
 	}, [listTasks]);
+
+	// useEffect(() => {
+	// 	setInfo((prevInfo) => ({
+	// 		...prevInfo,
+	// 		properties: mapPropertyType(),
+	// 	}));
+	// }, []);
 
 	useEffect(() => {
 		setInfo((prevInfo) => ({
@@ -295,13 +326,15 @@ const Tasks = () => {
 			}
 
 			const { type = null, name = null, Icon = null } = responseMetadata[key];
+			const { show, order } = defaultPreference[key] || { show: false, order: 0 };
 
 			properties.push({
 				value: key,
 				type,
 				label: name,
 				Icon,
-				show: true,
+				show,
+				order,
 			});
 		}
 		return properties;
