@@ -1,11 +1,13 @@
 .bottomToolbarParentWrapper {
-	position: absolute;
+	position: fixed;
 	bottom: 44px;
 	left: 50%;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
 	gap: 4px;
+	z-index: 1000;
+	user-select: none;
 
 	.bottomToolbarChatContainer {
 		height: 0;
@@ -189,6 +191,12 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
+			cursor: pointer;
+		}
+
+		.quickActionsButtons,
+		input,
+		button {
 			cursor: pointer;
 		}
 	}

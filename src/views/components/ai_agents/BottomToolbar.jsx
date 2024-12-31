@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useState, useRef } from 'react';
 import '../../../assets/scss/ai_agents/bottomToolbar.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/ai_agents/Plus.svg';
 import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
@@ -12,7 +12,52 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend }) => {
 		inputExpanded: false,
 		chatModalIsOpen: false,
 		chatQuery: '',
+		position: { x: 0, y: 0 },
 	});
+
+	const toolbarRef = useRef(null);
+	const isDraggingRef = useRef(false);
+	const startPosRef = useRef({ x: 0, y: 0 });
+
+	const handleMouseDown = useCallback(
+		(e) => {
+			if (e.target.closest('.quickActionsButtons, input, button')) return;
+
+			isDraggingRef.current = true;
+			startPosRef.current = {
+				x: e.clientX - info.position.x,
+				y: e.clientY - info.position.y,
+			};
+		},
+		[info.position],
+	);
+
+	const handleMouseMove = useCallback((e) => {
+		if (!isDraggingRef.current) return;
+
+		const newX = e.clientX - startPosRef.current.x;
+		const newY = e.clientY - startPosRef.current.y;
+
+		setInfo((prev) => ({
+			...prev,
+			position: { x: newX, y: newY },
+		}));
+	}, []);
+
+	const handleMouseUp = useCallback(() => {
+		isDraggingRef.current = false;
+	}, []);
+
+	// Add and remove event listeners
+	React.useEffect(() => {
+		document.addEventListener('mousemove', handleMouseMove);
+		document.addEventListener('mouseup', handleMouseUp);
+
+		return () => {
+			document.removeEventListener('mousemove', handleMouseMove);
+			document.removeEventListener('mouseup', handleMouseUp);
+		};
+	}, [handleMouseMove, handleMouseUp]);
 
 	//function definitions
 	const handleInputFocus = useCallback(() => {
@@ -56,7 +101,17 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend }) => {
 	);
 
 	return (
-		<div className="bottomToolbarParentWrapper" style={{ ...outerContainerStyle }}>
+		<div
+			ref={toolbarRef}
+			className="bottomToolbarParentWrapper"
+			style={{
+				...outerContainerStyle,
+				position: 'fixed',
+				transform: `translate(${info.position.x}px, ${info.position.y}px)`,
+				cursor: isDraggingRef.current ? 'grabbing' : 'grab',
+			}}
+			onMouseDown={handleMouseDown}
+		>
 			<div
 				className={`${
 					info?.expanded ? 'expandedChatContainer' : ''
