@@ -182,7 +182,6 @@ const GlobalWorkflowModal = ({
 	useEffect(() => {
 		if (isProposal) {
 			if (globalTemplateId !== 'undefined') {
-				console.log('Making API call with templateId:', globalTemplateId);
 				getSpecificTemplatesInfo({
 					templateInfoId: globalTemplateId,
 				});

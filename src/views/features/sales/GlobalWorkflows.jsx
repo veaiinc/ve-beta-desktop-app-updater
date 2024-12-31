@@ -140,7 +140,6 @@ const GlobalWorkflows = () => {
 
 	const openModal = useCallback(
 		(data, module) => {
-			console.log('openModal received:', { data, module }); // Add this log
 			if (!data) {
 				console.error('No template data provided');
 				return;
