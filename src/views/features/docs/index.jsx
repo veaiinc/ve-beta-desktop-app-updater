@@ -5,6 +5,7 @@ import { fetchOriginSelection } from '../../../helpers';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
 import FilesListView from './FilesListView';
 import Context from '../../../context/context';
+import moment from 'moment';
 let origin = fetchOriginSelection();
 const Docs = () => {
 	let {
@@ -16,7 +17,6 @@ const Docs = () => {
 			updateStateValues,
 			generatePublicLinkData,
 		},
-		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -43,10 +43,6 @@ const Docs = () => {
 	useEffect(() => {
 		setInfo((prev) => ({ ...prev, myWorkflowData: myWorkflows?.data }));
 	}, [myWorkflows]);
-
-	useEffect(() => {
-		console.log('state', info?.myWorkflowData);
-	}, [info?.myWorkflowData]);
 
 	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
 		const payload = {
@@ -106,7 +102,14 @@ const Docs = () => {
 									</div>
 									<div className="docsHoverOptionsContainer">
 										<span className="docsHoverOptionsStyling">Create File</span>
-										<span className="docsHoverOptionsStyling">Edit Design</span>
+										<span
+											className="docsHoverOptionsStyling"
+											onClick={() =>
+												(window.location.href = `${origin}/${workflow?._id} `)
+											}
+										>
+											Edit Design
+										</span>
 										<span className="docsHoverOptionsStyling">Duplicate</span>
 										<span className="docsHoverOptionsStyling">Delete</span>
 									</div>
@@ -124,6 +127,12 @@ const Docs = () => {
 							<div className="docsFooterContent">
 								<span className="docsFooterContentTitle">{workflow?.title}</span>
 								<span className="docsFooterContentSubTitle">created 14 files</span>
+								<span className="docsFooterContentHoverContainer">
+									<span className="docsFooterContentHoverCreatedAt">
+										Created on{' '}
+										{moment.unix(workflow?.createdAt).format('DD MMM YYYY')}
+									</span>
+								</span>
 							</div>
 						</div>
 					))}

@@ -184,18 +184,6 @@
 						bottom: 0;
 						overflow: hidden;
 					}
-
-					&:hover {
-						.docsTemplateHoverContentContainer {
-							opacity: 1;
-							display: flex;
-							flex-direction: column;
-						}
-
-						.coverImage {
-							height: 20%;
-						}
-					}
 				}
 
 				.docsFooterContent {
@@ -237,6 +225,40 @@
 						font-style: normal;
 						font-weight: 400;
 						line-height: normal;
+					}
+
+					.docsFooterContentHoverContainer {
+						display: none;
+						align-items: center;
+						justify-content: space-between;
+						width: 100%;
+						.docsFooterContentHoverCreatedAt {
+							color: rgba(228, 229, 230, 0.48);
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+						}
+					}
+				}
+
+				&:hover {
+					.docsTemplateHoverContentContainer {
+						opacity: 1;
+						display: flex;
+						flex-direction: column;
+					}
+
+					.coverImage {
+						height: 20%;
+					}
+					.docsFooterContentSubTitle {
+						display: none;
+					}
+
+					.docsFooterContentHoverContainer {
+						display: flex;
 					}
 				}
 			}
