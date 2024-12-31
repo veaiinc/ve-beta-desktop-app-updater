@@ -732,6 +732,8 @@
 		}
 
 		.caroursel-container {
+			background: #0c0d0d !important;
+
 			.description-container {
 				.title {
 					color: #f2f2f3;
@@ -831,6 +833,7 @@
 		.integration-section-container {
 			flex-direction: column !important;
 			align-items: center !important;
+			padding: 50px 36px !important;
 
 			.right-div {
 				width: 100% !important;
@@ -855,6 +858,12 @@
 		.left-div {
 			width: 100% !important;
 			justify-content: center !important;
+
+			.integrations-content-container {
+				.integration-button {
+					width: 100% !important;
+				}
+			}
 		}
 
 		.right-div {
@@ -1040,7 +1049,7 @@
 @media screen and (max-height: 1124px) {
 	.landing-page-container {
 		.video {
-			width: 750px !important;
+			width: 600px !important;
 		}
 	}
 }
