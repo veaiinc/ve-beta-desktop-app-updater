@@ -11,6 +11,7 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend }) => {
 		expanded: false,
 		inputExpanded: false,
 		chatModalIsOpen: false,
+		chatQuery: '',
 	});
 
 	//function definitions
@@ -41,6 +42,18 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend }) => {
 	const handleCloseChatModal = useCallback(() => {
 		setInfo((prev) => ({ ...prev, chatModalIsOpen: false }));
 	}, [info]);
+
+	const handleSendMessageFunc = useCallback(
+		(e, click) => {
+			if (click || e.key === 'Enter') {
+				if (info?.chatQuery?.length) {
+					onSend(info?.chatQuery);
+					setInfo((prev) => ({ ...prev, chatQuery: '' }));
+				}
+			}
+		},
+		[info?.chatQuery],
+	);
 
 	return (
 		<div className="bottomToolbarParentWrapper" style={{ ...outerContainerStyle }}>
@@ -79,6 +92,11 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend }) => {
 						className={`bottomToolbarInputs ${info.inputExpanded ? 'expanded' : ''}`}
 						placeholder="Ask AI"
 						onFocus={handleInputFocus}
+						value={info?.chatQuery}
+						onChange={(e) =>
+							setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
+						}
+						onKeyDown={handleSendMessageFunc}
 					/>
 					<div className="quickActionsButtons">
 						<Home />
@@ -98,6 +116,9 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend }) => {
 				modalIsOpen={info?.chatModalIsOpen}
 				chatList={chatList}
 				onSend={onSend}
+				chatQuery={info?.chatQuery}
+				onChange={(e) => setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))}
+				onKeyDown={handleSendMessageFunc}
 			/>
 		</div>
 	);

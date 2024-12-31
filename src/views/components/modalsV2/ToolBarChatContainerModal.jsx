@@ -1,10 +1,17 @@
+/* eslint-disable react/jsx-no-duplicate-props */
 import { Drawer } from 'antd';
 import React, { memo, useState } from 'react';
 import '../../../assets/scss/ai_agents/bottomToolbarChatContainer.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as SendSvg } from '../../../assets/svg/calendar/send.svg';
-
-const ToolBarChatContainerModal = ({ onClose, modalIsOpen, chatList = [] }) => {
+const ToolBarChatContainerModal = ({
+	onClose,
+	modalIsOpen,
+	chatList = [],
+	onChange,
+	onKeyDown,
+	chatQuery,
+}) => {
 	const [info, setInfo] = useState({});
 	return (
 		<Drawer
@@ -40,15 +47,14 @@ const ToolBarChatContainerModal = ({ onClose, modalIsOpen, chatList = [] }) => {
 				<div className="toolBarExpandedChatInputParentContainer">
 					<textarea
 						type="text"
-						// ref={userTypingRef}
 						placeholder="Ex: Schedule a meeting"
-						value={info?.userInput}
-						// onChange={handleInputChange}
-						// onKeyDown={handleSendMessage}
+						value={chatQuery}
+						onChange={onChange}
+						onKeyDown={onKeyDown}
 						disabled={info?.isProcessing}
 						className="toolBarExpandedTextArea"
 					/>
-					<SendSvg style={{ cursor: 'pointer' }} />
+					<SendSvg style={{ cursor: 'pointer' }} onClick={() => onKeyDown(null, 'key')} />
 				</div>
 			</div>
 		</Drawer>

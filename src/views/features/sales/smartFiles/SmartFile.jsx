@@ -16,7 +16,7 @@ import DeleteLeadModal from '../../../components/modalsV2/workflowsModals/Delete
 import UploadLogoNotification from '../../../components/notification/UploadLogoNotification';
 import { getCurrentWorkspaceId } from '../../../../helpers';
 import SendEmailModal from '../../../components/modalsV2/proposalModals/SendEmailModal';
-import { Spin } from 'antd';
+import { message, Spin } from 'antd';
 import BottomToolbar from '../../../components/ai_agents/BottomToolbar';
 
 const SmartFile = () => {
@@ -555,6 +555,17 @@ const SmartFile = () => {
 		}
 	}, [smartFileInfo, updateWorkspaceVariablesFunc, info?.workflowData]);
 
+	const handleSendMessage = useCallback(
+		(data) => {
+			let obj = {
+				type: 'user',
+				message: data,
+			};
+			setInfo((prev) => ({ ...prev, chatList: [...prev?.chatList, obj] }));
+		},
+		[info?.chatList],
+	);
+
 	return info?.loading ? (
 		<UpdatedPageLoader />
 	) : (
@@ -650,7 +661,11 @@ const SmartFile = () => {
 				closeModal={toggleSendCustomEmailFunc}
 				clientDetails={info?.workflowData?.clientDetails}
 			/>
-			<BottomToolbar outerContainerStyle={{ bottom: '10px' }} chatList={info?.chatList} />
+			<BottomToolbar
+				outerContainerStyle={{ bottom: '10px' }}
+				chatList={info?.chatList}
+				onSend={handleSendMessage}
+			/>
 		</div>
 	);
 };
