@@ -1,5 +1,5 @@
 import React, { useState, memo, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
 	veAiModulesItemsList,
 	bottomOptionsList,
@@ -284,6 +284,13 @@ const OpenedSideBarItemsComponent = ({
 	const [activeChat, setActiveChat] = useState(false);
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 500);
 
+	const location = useLocation();
+
+	const [isThisEarlyAccessPage, setIsThisEarlyAccessPage] = useState(false);
+	useEffect(() => {
+		setIsThisEarlyAccessPage(location?.pathname?.includes('/early-access'));
+	}, [location?.pathname]);
+
 	useEffect(() => {
 		const handleResize = () => {
 			setIsMobile(window.innerWidth < 500);
@@ -454,57 +461,73 @@ const OpenedSideBarItemsComponent = ({
 										</div>
 									);
 								})} */}
-								<hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} />
-								{veAiModulesItemsList?.map((singleItems, index) => (
-									<div key={index}>
-										<OpenedSideBarHoverStateIcons
-											name={singleItems.name}
-											Icon={singleItems.icon}
-											initialColor={singleItems.initialColor}
-											route={singleItems?.route}
-											navigateTo={(route) => {
-												handleNavigateFunction(route, singleItems);
-											}}
-											isSelected={selectedOption === singleItems?.name}
-											isActive={
-												info?.activeRoute === singleItems?.moduleRoute
-											}
-											subModules={singleItems?.subModules}
-											style={{
-												fontSize: '14px',
-												fontStyle: 'normal',
-												fontWeight: '500',
-												fontFamily: 'Inter',
-											}}
-										/>
-									</div>
-								))}
+								{!isThisEarlyAccessPage && (
+									<hr
+										style={{
+											border: '0.7px solid #333334',
+											margin: '16px 0px',
+										}}
+									/>
+								)}
+								{!isThisEarlyAccessPage &&
+									veAiModulesItemsList?.map((singleItems, index) => (
+										<div key={index}>
+											<OpenedSideBarHoverStateIcons
+												name={singleItems.name}
+												Icon={singleItems.icon}
+												initialColor={singleItems.initialColor}
+												route={singleItems?.route}
+												navigateTo={(route) => {
+													handleNavigateFunction(route, singleItems);
+												}}
+												isSelected={selectedOption === singleItems?.name}
+												isActive={
+													info?.activeRoute === singleItems?.moduleRoute
+												}
+												subModules={singleItems?.subModules}
+												style={{
+													fontSize: '14px',
+													fontStyle: 'normal',
+													fontWeight: '500',
+													fontFamily: 'Inter',
+												}}
+											/>
+										</div>
+									))}
 
-								<hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} />
-								{veAiModules?.map((singleItems, index) => (
-									<div key={index}>
-										<OpenedSideBarHoverStateIcons
-											name={singleItems.name}
-											Icon={singleItems.icon}
-											initialColor={singleItems.initialColor}
-											route={singleItems?.route}
-											navigateTo={(route) => {
-												handleNavigateFunction(route, singleItems);
-											}}
-											isSelected={selectedOption === singleItems?.name}
-											isActive={
-												info?.activeRoute === singleItems?.moduleRoute
-											}
-											subModules={singleItems?.subModules}
-											style={{
-												fontSize: '14px',
-												fontStyle: 'normal',
-												fontWeight: '500',
-												fontFamily: 'Inter',
-											}}
-										/>
-									</div>
-								))}
+								{!isThisEarlyAccessPage && (
+									<hr
+										style={{
+											border: '0.7px solid #333334',
+											margin: '16px 0px',
+										}}
+									/>
+								)}
+								{!isThisEarlyAccessPage &&
+									veAiModules?.map((singleItems, index) => (
+										<div key={index}>
+											<OpenedSideBarHoverStateIcons
+												name={singleItems.name}
+												Icon={singleItems.icon}
+												initialColor={singleItems.initialColor}
+												route={singleItems?.route}
+												navigateTo={(route) => {
+													handleNavigateFunction(route, singleItems);
+												}}
+												isSelected={selectedOption === singleItems?.name}
+												isActive={
+													info?.activeRoute === singleItems?.moduleRoute
+												}
+												subModules={singleItems?.subModules}
+												style={{
+													fontSize: '14px',
+													fontStyle: 'normal',
+													fontWeight: '500',
+													fontFamily: 'Inter',
+												}}
+											/>
+										</div>
+									))}
 							</div>
 						</div>
 
