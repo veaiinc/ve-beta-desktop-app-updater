@@ -540,6 +540,21 @@ export const Galleries = () => {
 	const resetGallleryState = async () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/set-up-image-upload
+	const setUpImageUpload = async (galleryId, payload) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPost(
+				`/${workspaceId}/galleries/${galleryId}/set-up-image-upload`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+		} catch (error) {
+			console.log('error==>setUpImageUpload', error);
+		}
+	};
 
 	const getUploadImageSignUrl = async (galleryId, albumId, payload) => {
 		try {
@@ -1793,5 +1808,6 @@ export const Galleries = () => {
 		clearGalleryState,
 		editAlbum,
 		getImageProcessingStatus,
+		setUpImageUpload,
 	};
 };

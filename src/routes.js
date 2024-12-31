@@ -150,7 +150,11 @@ const routes = [
 	},
 	{
 		path: '/early-access',
-		component: <EarlyAccess />,
+		component: (
+			<AuthWrapper title={'Early Access'}>
+				<EarlyAccess />
+			</AuthWrapper>
+		),
 		exact: true,
 	},
 	{

@@ -362,6 +362,7 @@ const UploadPhotos = () => {
 					info={info}
 					setinfo={setinfo}
 					uploadFilesConcurrently={uploadFilesConcurrently}
+					galleryId={galleryId}
 				/>
 			</div>
 
