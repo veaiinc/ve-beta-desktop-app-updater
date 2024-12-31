@@ -1,14 +1,14 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/globalWorkflow.scss';
-import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import GlobalWorkflowCard from '../../components/sales/globalWorkflowCard';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Spinner from '../../components/loaders/Spinner';
 import GlobalWorkflowModal from '../../components/modalsV2/workflowsModals/GlobalWorkflowModal';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
-
+import GlobalProposalsCard from '../../components/sales/globalProposalsCard';
+import GlobalProposalModal from '../../components/modalsV2/workflowsModals/GlobalProposalModal';
 const FetchMoreLoaderComp = () => {
 	return (
 		<h4
@@ -26,18 +26,16 @@ const FetchMoreLoaderComp = () => {
 	);
 };
 
-const servicesList = [
-	'Sell a Service',
-	'Weddings',
-	'Events',
-	'Parties',
-	'Sell a Session',
-	'Sell a Digital Product',
-];
+const options = ['Workflow', 'Proposal', 'Form', 'Invoice', 'Contract'];
+
 const GlobalWorkflows = () => {
-	const navigate = useNavigate();
+	const location = useLocation();
+	const isPlaybookRoute = location.pathname === '/playbook';
+	const [selectedOption, setSelectedOption] = useState('Workflow');
+	const [moduleTemplateData, setModuleTemplateData] = useState(null);
+	const [searchQuery, setSearchQuery] = useState('');
 	let {
-		templates: { getGlobalWorkflows, globalMoreWorkflows, globalWorkflows },
+		templates: { getGlobalWorkflows, globalMoreWorkflows, globalWorkflows, getModuleTemplate },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -47,9 +45,10 @@ const GlobalWorkflows = () => {
 		currentPage: 1,
 		modalIsOpen: false,
 		activeTemplateData: null,
+		selectedModule: null,
+		selectedWorkflowId: null,
 	});
 
-	//useEffects
 	useEffect(() => {
 		getGlobalWorkflowTemplatesData(1);
 	}, []);
@@ -66,7 +65,23 @@ const GlobalWorkflows = () => {
 		}
 	}, [globalMoreWorkflows]);
 
-	//function definations
+	const handleOptionSelect = useCallback(
+		async (option) => {
+			setSelectedOption(option);
+			const payload = {
+				page: 1,
+				limit: 10,
+				type: 'global',
+				module: option.toLowerCase(),
+			};
+			const [success, response] = await getModuleTemplate(payload);
+			if (success) {
+				console.log('Module templates loaded:', response.templates);
+				setModuleTemplateData(response.templates);
+			}
+		},
+		[getModuleTemplate],
+	);
 
 	const getGlobalWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
 		const payload = {
@@ -115,51 +130,143 @@ const GlobalWorkflows = () => {
 		getGlobalWorkflowTemplatesData(info?.currentPage + 1, true);
 	}, [info?.hasNextPage, info?.currentPage]);
 
-	const openModal = useCallback((data) => {
-		setInfo((prev) => ({ ...prev, modalIsOpen: true, activeTemplateData: data }));
-	}, []);
+	const openModal = useCallback(
+		(data, module) => {
+			console.log('openModal received:', { data, module }); // Add this log
+			if (!data) {
+				console.error('No template data provided');
+				return;
+			}
+			const templateData = typeof data === 'string' ? { _id: data } : data;
+			setInfo((prev) => ({
+				...prev,
+				modalIsOpen: true,
+				activeTemplateData: templateData,
+				selectedOption: selectedOption,
+				selectedModule: module,
+			}));
+		},
+		[selectedOption],
+	);
 
 	const closeModal = useCallback(() => {
 		setInfo((prev) => ({ ...prev, modalIsOpen: false, activeTemplateData: null }));
 	}, []);
 
-	return (
-		<div className="globalWorkflowContainer">
-			<div className="mainContentContainer">
-				<div className="gloablWorkflowHeader">
-					<span className="backArrowBtn" onClick={() => navigate(-1)}>
-						<BackArrowSvg />
-					</span>
-					<span className="gloablHeaderTitle">Choose a Workflow</span>
-				</div>
-				<InfiniteScroll
-					dataLength={info?.globalWorkflowData?.length || 0}
-					next={fetchMoreGlobalWorkflows}
-					hasMore={info?.hasNextPage}
-					loader={<FetchMoreLoaderComp />}
-					scrollableTarget={'scrollableTarget'}
-				>
-					<div className="globalWorkflowParentCardContainer">
-						{info?.loading ? (
-							<UpdatedPageLoader />
-						) : (
-							info?.globalWorkflowData?.map((ele, index) => (
-								<GlobalWorkflowCard
-									key={index}
-									data={ele}
-									onClickFunc={openModal}
-								/>
-							))
-						)}
-					</div>
-				</InfiniteScroll>
-			</div>
+	const getFilteredData = useCallback(
+		(data) => {
+			if (!searchQuery.trim()) return data;
+			return data?.filter((item) =>
+				item.title?.toLowerCase().includes(searchQuery.toLowerCase()),
+			);
+		},
+		[searchQuery],
+	);
+	const handleSearch = useCallback((e) => {
+		setSearchQuery(e.target.value);
+	}, []);
 
-			<GlobalWorkflowModal
-				modalIsOpen={info?.modalIsOpen}
-				closeModal={closeModal}
-				globalTemplateId={info?.activeTemplateData?._id}
-			/>
+	return (
+		<div className={`playbook-wrapper ${isPlaybookRoute ? 'with-background' : ''}`}>
+			<div className={`globalWorkflowContainer`}>
+				<div className={`left_div  ${info.modalIsOpen ? 'modal-open' : ''}`}>
+					<div className="left_child_div">
+						<h2 className="side_heading">Templates</h2>
+						<p className="side_text">
+							We have specially curated best workflows and designs that suit your
+							business
+						</p>
+					</div>
+
+					<div className="options_div">
+						<input
+							type="text"
+							placeholder="search"
+							className="search_bar"
+							style={{ color: 'white' }}
+							value={searchQuery}
+							onChange={handleSearch}
+						/>
+						<h2
+							style={{
+								fontSize: '18px',
+								paddingBottom: '30px',
+								color: 'white',
+								fontWeight: '400',
+							}}
+						>
+							What are you Offering?
+						</h2>
+						<div className="options">
+							{options.map((each, index) => (
+								<div key={index}>
+									<li
+										className={`options_style ${
+											selectedOption === each ? 'selected' : ''
+										}`}
+										onClick={() => handleOptionSelect(each)}
+									>
+										{each}
+									</li>
+								</div>
+							))}
+						</div>
+					</div>
+				</div>
+				<div className={`mainContentContainer  ${info.modalIsOpen ? 'modal-open' : ''}`}>
+					{/* <div className="gloablWorkflowHeader">Choose a Workflow</div> */}
+					<div>
+						<InfiniteScroll
+							dataLength={info?.globalWorkflowData?.length || 0}
+							next={fetchMoreGlobalWorkflows}
+							hasMore={info?.hasNextPage}
+							loader={<FetchMoreLoaderComp />}
+							scrollableTarget={'scrollableTarget'}
+							className="scrollableTarget"
+						>
+							<div className="globalWorkflowParentCardContainer">
+								{info?.loading ? (
+									<UpdatedPageLoader />
+								) : selectedOption !== 'Workflow' ? (
+									<GlobalProposalsCard
+										data={getFilteredData(moduleTemplateData)}
+										onClickFunc={(data, module) => {
+											openModal(data, module);
+										}}
+										modalIsOpen={info.modalIsOpen}
+									/>
+								) : (
+									getFilteredData(info?.globalWorkflowData)?.map((ele, index) => (
+										<GlobalWorkflowCard
+											key={index}
+											data={ele}
+											onClickFunc={openModal}
+											isSelected={ele?._id === info?.selectedWorkflowId}
+										/>
+									))
+								)}
+							</div>
+						</InfiniteScroll>
+					</div>
+				</div>
+
+				{info?.modalIsOpen &&
+					(selectedOption === 'Workflow' ? (
+						<GlobalWorkflowModal
+							modalIsOpen={info?.modalIsOpen}
+							closeModal={closeModal}
+							globalTemplateId={info?.activeTemplateData?._id}
+						/>
+					) : (
+						<GlobalProposalModal
+							modalIsOpen={info?.modalIsOpen}
+							closeModal={closeModal}
+							templateId={info?.activeTemplateData?._id}
+							moduleName={info?.selectedModule}
+							templateTitle={info?.activeTemplateData?.title}
+						/>
+					))}
+			</div>
 		</div>
 	);
 };
