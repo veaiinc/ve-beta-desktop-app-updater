@@ -7,7 +7,7 @@
 	.workspaceHandleComponent {
 		h1 {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -18,7 +18,7 @@
 			margin-top: 24px;
 			h2 {
 				color: var(--secondary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -42,7 +42,7 @@
 
 					input {
 						color: var(--primary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 400;
@@ -55,7 +55,7 @@
 
 					.domainName {
 						color: var(--secondary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 400;
@@ -69,7 +69,7 @@
 					justify-content: center;
 					align-items: center;
 					color: var(--success);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 400;
@@ -84,7 +84,7 @@
 					border: 1px solid var(--stroke);
 					background: var(--card);
 					color: var(--secondary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -95,7 +95,7 @@
 		}
 
 		.messsageShow {
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 400;
@@ -115,7 +115,7 @@
 			.currencyheadding {
 				h1 {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -124,7 +124,7 @@
 
 				p {
 					color: var(--secondary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -137,7 +137,7 @@
 	.deleteWorkpsaceComponent {
 		h1 {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -147,7 +147,7 @@
 
 		p {
 			color: var(--secondary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 400;
@@ -176,7 +176,7 @@
 
 		h1 {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -200,7 +200,7 @@
 
 		input {
 			color: var(--secondary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 400;
@@ -246,7 +246,7 @@
 
 				label {
 					color: var(--secondary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -258,7 +258,7 @@
 				p {
 					color: var(--secondary-font);
 					text-align: right;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -287,7 +287,7 @@
 		align-items: center;
 		h1 {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -309,7 +309,7 @@
 			margin: 0;
 			padding: 0;
 			color: var(--secondary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
 			font-weight: 400;
@@ -323,7 +323,7 @@
 			align-items: center;
 			gap: 10px;
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 400;
@@ -340,7 +340,7 @@
 		align-items: center;
 		p {
 			color: var(--secondary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 400;
@@ -355,7 +355,7 @@
 		background: var(--card);
 		padding: 16px 24px;
 		color: var(--primary-font);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;

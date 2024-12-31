@@ -3538,7 +3538,7 @@ const GalleryPage = () => {
 											style={{
 												cursor: 'pointer',
 												color: 'var(--primary-font)',
-												fontFamily: 'Inter',
+												fontFamily: 'var(--primary-font-family)',
 												fontSize: '14px',
 												fontWeight: '400',
 												lineHeight: '16px',
@@ -3588,7 +3588,8 @@ const GalleryPage = () => {
 															<span
 																style={{
 																	color: 'var(--primary-font)',
-																	fontFamily: 'Inter',
+																	fontFamily:
+																		'var(--primary-font-family)',
 																	fontSize: '14px',
 																	fontWeight: '400',
 																	lineHeight: '16px',
@@ -3623,7 +3624,8 @@ const GalleryPage = () => {
 															<span
 																style={{
 																	color: 'var(--primary-font)',
-																	fontFamily: 'Inter',
+																	fontFamily:
+																		'var(--primary-font-family)',
 																	fontSize: '14px',
 																	fontWeight: '400',
 																	lineHeight: '16px',

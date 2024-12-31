@@ -26,7 +26,7 @@
 	}
 	.expiredSubText {
 		color: #939393;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 400;
@@ -49,7 +49,7 @@
 			border-radius: 59px;
 			background: var(--L-Primary-Color, #b89cf9);
 			color: var(--L-Primary-text, #0a1217);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -69,7 +69,7 @@
 			cursor: pointer;
 			color: var(--Dark-Theme-Primary-Font-Color, #e8e8e8);
 			/* Body/Body Text - 14 Px */
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;

@@ -28,7 +28,7 @@
 		.headLabel {
 			text-align: center;
 			text-shadow: 0px 0px 20px rgba(233, 126, 114, 0.4);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
@@ -62,7 +62,7 @@
 			outline: none;
 			background: transparent;
 			color: white;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
@@ -92,7 +92,7 @@
 			align-items: stretch;
 
 			color: rgba(228, 229, 230, 0.48);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
@@ -125,7 +125,7 @@
 					width: 100%;
 
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -136,7 +136,7 @@
 				p,
 				li,
 				ul {
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -145,7 +145,7 @@
 				}
 
 				h1 {
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 600;
@@ -153,7 +153,7 @@
 				}
 
 				h2 {
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 600;
@@ -161,7 +161,7 @@
 				}
 
 				h3 {
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 600;
@@ -169,7 +169,7 @@
 				}
 
 				strong {
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 900;
@@ -193,7 +193,7 @@
 			background: #212121;
 
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;

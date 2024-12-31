@@ -13,7 +13,7 @@
 	.tooltipHeadertext {
 		color: #e8e8e8;
 		text-align: center;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 11px;
 		font-style: normal;
 		font-weight: 500;
@@ -21,7 +21,7 @@
 	}
 	.tooltipHeaderSubtext {
 		color: #797979;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 10px;
 		font-style: normal;
 		font-weight: 400;

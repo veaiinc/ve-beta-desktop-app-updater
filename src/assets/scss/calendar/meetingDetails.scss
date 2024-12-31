@@ -33,7 +33,7 @@
 			align-self: stretch;
 
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			// font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -73,7 +73,7 @@
 			align-items: self-start;
 			gap: 7px;
 
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 10px;
 			font-style: normal;
 			font-weight: 600;

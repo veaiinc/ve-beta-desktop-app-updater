@@ -369,7 +369,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								onChangeFunc={(e) => onChangeSelectedSource(e)}
 								dropDownTextStyling={{
 									color: 'var(--nav-bar-button-text, #FFF)',
-									fontFamily: 'Inter',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '12px',
 									fontStyle: 'normal',
 									fontWeight: '400',
@@ -409,7 +409,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								onChangeFunc={(e) => onChangeSelectedTemplate(e)}
 								dropDownTextStyling={{
 									color: 'var(--nav-bar-button-text, #FFF)',
-									fontFamily: 'Inter',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '12px',
 									fontStyle: 'normal',
 									fontWeight: '400',
@@ -456,7 +456,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								onChangeFunc={(e) => onChangeClientLists(e)}
 								dropDownTextStyling={{
 									color: 'var(--nav-bar-button-text, #FFF)',
-									fontFamily: 'Inter',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '12px',
 									fontStyle: 'normal',
 									fontWeight: '400',
@@ -496,7 +496,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								onChangeFunc={(e) => onChangeSelectedTemplate(e)}
 								dropDownTextStyling={{
 									color: 'var(--nav-bar-button-text, #FFF)',
-									fontFamily: 'Inter',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '12px',
 									fontStyle: 'normal',
 									fontWeight: '400',

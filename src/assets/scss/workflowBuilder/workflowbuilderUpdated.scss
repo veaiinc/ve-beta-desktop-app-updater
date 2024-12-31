@@ -34,7 +34,7 @@
 				flex: 1;
 				.builderHeaderText {
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -42,7 +42,7 @@
 				}
 				.headerSubText {
 					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -58,7 +58,7 @@
 				border-radius: 4px;
 				background: rgba(176, 176, 176, 0.16);
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 10px;
 				font-style: normal;
 				font-weight: 500;
@@ -79,7 +79,7 @@
 				justify-content: center;
 				align-items: center;
 				color: rgba(228, 229, 230, 0.64);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -101,7 +101,7 @@
 				border: 1px solid rgba(36, 36, 36, 0.64);
 				background: rgba(42, 42, 42, 0.16);
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -138,7 +138,7 @@
 			color: #e8e8e8;
 			color: color(display-p3 0.9098 0.9098 0.9098);
 			text-align: center;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 500;
@@ -158,7 +158,7 @@
 					--ve-ai-dark-theme-secondary-color,
 					color(display-p3 0.5755 0.5755 0.5755)
 				);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -190,7 +190,7 @@
 					);
 
 					/* Body/Body - 12 px */
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;

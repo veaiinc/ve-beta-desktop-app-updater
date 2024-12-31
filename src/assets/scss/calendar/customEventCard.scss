@@ -9,7 +9,7 @@
 	overflow-x: hidden;
 
 	color: #e4e5e6;
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
@@ -35,7 +35,7 @@
 
 				.title {
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -48,7 +48,7 @@
 				}
 				.subText {
 					color: rgba(228, 229, 230, 0.5);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 9px;
 					font-style: bold;
 					font-weight: 400;
@@ -125,7 +125,7 @@
 	// border: 2px solid red;
 	height: fit-content;
 	color: #e4e5e6;
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
@@ -146,7 +146,7 @@
 			display: none;
 			margin-left: 5px;
 			color: rgba(228, 229, 230, 0.5);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-weight: 400;
 			line-height: normal;

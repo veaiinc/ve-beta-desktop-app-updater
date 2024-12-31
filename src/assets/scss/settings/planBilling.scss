@@ -32,7 +32,7 @@
 				width: 350px;
 				h1 {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -61,7 +61,7 @@
 					gap: 16px;
 					h3 {
 						color: var(--primary-button);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -72,7 +72,7 @@
 
 					h1 {
 						color: var(--primary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 24px;
 						font-style: normal;
 						font-weight: 500;
@@ -80,7 +80,7 @@
 						margin: 0;
 						p {
 							color: var(--secondary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -107,7 +107,7 @@
 						align-items: center;
 						p {
 							color: var(--secondary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -133,7 +133,7 @@
 
 					p {
 						color: var(--primary-button-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -161,7 +161,7 @@
 			.details {
 				h1 {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -190,7 +190,7 @@
 					div {
 						width: 100%;
 						color: var(--card);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 400;
@@ -212,7 +212,7 @@
 			th {
 				padding-bottom: 16px;
 				color: var(--card);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
@@ -226,7 +226,7 @@
 			border-top: 1px solid var(--stroke);
 			td {
 				padding: 16px 0;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
@@ -239,7 +239,7 @@
 				.viewDetails {
 					cursor: pointer;
 					color: var(--primary-button-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -288,7 +288,7 @@
 				color: var(--primary-font);
 
 				/* Heading/H2 - 24 px */
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 24px;
 				font-style: normal;
 				font-weight: 600;
@@ -310,7 +310,7 @@
 
 					.subscriptionPlanPricing {
 						color: var(--primary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 40px;
 						font-style: normal;
 						font-weight: 500;
@@ -320,7 +320,7 @@
 						color: var(--secondary-font);
 
 						/* Body/Body Text - 16 */
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 500;
@@ -343,7 +343,7 @@
 
 						.subscriptionUsageData {
 							color: var(--secondary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 11px;
 							font-style: normal;
 							font-weight: 400;
@@ -383,7 +383,7 @@
 
 						.subscriptionFeatureContent {
 							color: var(--secondary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 400;
@@ -403,7 +403,7 @@
 						color: var(--primary-font);
 
 						/* Body/Body Text - 14 Px */
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -434,7 +434,7 @@
 								gap: 16px;
 								.addOnCardsTitle {
 									color: var(--primary-font);
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 11px;
 									font-style: normal;
 									font-weight: 500;
@@ -442,7 +442,7 @@
 								}
 								.addOnCardPriceContainer {
 									color: var(--secondary-font);
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 12px;
 									font-style: normal;
 									font-weight: 500;
@@ -465,7 +465,7 @@
 
 									.subscriptionUsageData {
 										color: var(--secondary-font);
-										font-family: Inter;
+										font-family: var(--primary-font-family);
 										font-size: 11px;
 										font-style: normal;
 										font-weight: 400;
@@ -513,7 +513,7 @@
 					background: var(--primary-font);
 					cursor: pointer;
 					color: var(--background-color);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -521,7 +521,7 @@
 				}
 				.expiringText {
 					color: var(--secondary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 400;
@@ -541,7 +541,7 @@
 				color: var(--primary-font);
 
 				/* Body/Body Text - 16 */
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -578,7 +578,7 @@
 						.updatePlansHeader {
 							.updatePlansHeaderTextStyling {
 								color: var(--primary-font);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 500;
@@ -588,7 +588,7 @@
 
 						.randomUpdatePlans {
 							color: var(--secondary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -605,7 +605,7 @@
 						border: 1px solid var(--stroke);
 						cursor: pointer;
 						color: var(--primary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -631,7 +631,7 @@
 			color: var(--primary-font);
 
 			/* Heading/H2 - 24 px */
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 24px;
 			font-style: normal;
 			font-weight: 600;
@@ -652,7 +652,7 @@
 
 				.subscriptionPlanPricing {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 40px;
 					font-style: normal;
 					font-weight: 500;
@@ -678,7 +678,7 @@
 
 					.subscriptionFeatureContent {
 						color: var(--secondary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -697,7 +697,7 @@
 			.freeTrialText {
 				color: var(--secondary-font);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
@@ -713,7 +713,7 @@
 				background: var(--primary-button);
 				cursor: pointer;
 				color: var(--primary-button-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;

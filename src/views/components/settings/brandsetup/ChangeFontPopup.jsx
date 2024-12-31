@@ -52,7 +52,7 @@ const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 					>
 						<span
 							style={{
-								fontFamily: 'Inter',
+								fontFamily: 'var(--primary-font-family)',
 								fontSize: '16px',
 								color: 'var(--primary-font)',
 								lineHeight: '24px',
@@ -66,7 +66,7 @@ const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 					</div>
 					<span
 						style={{
-							fontFamily: 'Inter',
+							fontFamily: 'var(--primary-font-family)',
 							fontSize: '12px',
 							color: 'var(--secondary-font)',
 							lineHeight: '20px',
@@ -99,7 +99,7 @@ const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 									<div
 										style={{
 											color: 'var(--secondary-font)',
-											fontFamily: 'Inter',
+											fontFamily: 'var(--primary-font-family)',
 											fontSize: '11px',
 										}}
 									>
@@ -163,7 +163,7 @@ const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 							</Dropzone>
 							<div
 								style={{
-									fontFamily: 'Inter',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '11px',
 									lineHeight: '16px',
 									color: 'var(--secondary-font)',
@@ -193,7 +193,7 @@ const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 								padding: '16px 24px',
 								height: '48px',
 								fontSize: '13px',
-								fontFamily: 'Inter',
+								fontFamily: 'var(--primary-font-family)',
 								textAlign: 'center',
 							}}
 							onClick={handleStepChange}

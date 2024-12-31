@@ -38,7 +38,7 @@
 					justify-content: flex-start;
 					.breadcrumbs-item {
 						color: #7d7d7d;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -79,7 +79,7 @@
 					border: none;
 					background: transparent;
 					color: #e8e8e8;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-style: normal;
 					outline: none;
 					width: 100%;
@@ -108,7 +108,7 @@
 
 					.property-title {
 						color: #7d7d7d;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -148,7 +148,7 @@
 					padding-bottom: 12px;
 					.sidebar-subtask-header-title {
 						color: #e4e5e6;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -162,7 +162,7 @@
 
 						.task-count {
 							color: #e4e5e6;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -195,7 +195,7 @@
 
 					.no-subtasks {
 						color: #7d7d7d;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -215,7 +215,7 @@
 					font-style: normal;
 					outline: none;
 					width: 100%;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;

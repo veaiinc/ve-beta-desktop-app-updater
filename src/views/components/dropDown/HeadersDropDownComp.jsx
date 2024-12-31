@@ -146,7 +146,7 @@ const HeadersDropDownComp = ({
 									onClick={handleLogout}
 									style={{
 										color: 'var(--secondary-button)',
-										fontFamily: 'Inter',
+										fontFamily: 'var(--primary-font-family)',
 										fontSize: '14px',
 										fontStyle: 'normal',
 										fontWeight: '400',

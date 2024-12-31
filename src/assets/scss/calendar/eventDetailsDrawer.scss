@@ -30,7 +30,7 @@
 			height: 100%;
 			align-self: stretch;
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 600;
@@ -58,7 +58,7 @@
 
 					.categoryText {
 						color: #7d7d7d;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -68,7 +68,7 @@
 
 				.eventName {
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -109,7 +109,7 @@
 
 				.detailsTitle {
 					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -121,7 +121,7 @@
 					overflow: hidden;
 					color: #e4e5e6;
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -150,7 +150,7 @@
 
 				h3 {
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -182,7 +182,7 @@
 				color: #e4e5e6;
 				background-color: transparent;
 				white-space: nowrap;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -221,7 +221,7 @@
 							overflow: hidden;
 							color: #e4e5e6;
 							text-overflow: ellipsis;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -232,7 +232,7 @@
 							overflow: hidden;
 							color: rgba(228, 229, 230, 0.48);
 							text-overflow: ellipsis;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -260,7 +260,7 @@
 
 				h3 {
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -277,7 +277,7 @@
 				border-radius: 8px;
 				border: 1px solid #292929;
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -311,7 +311,7 @@
 						align-items: center;
 						gap: 10px;
 						color: #7d7d7d;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -391,7 +391,7 @@
 							color: #e4e5e6;
 							text-align: justify;
 							text-overflow: ellipsis;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 600;
@@ -403,7 +403,7 @@
 							text-align: justify;
 							text-wrap: balance;
 							text-overflow: ellipsis;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;

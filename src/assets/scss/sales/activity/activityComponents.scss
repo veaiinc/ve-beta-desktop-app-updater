@@ -29,7 +29,7 @@
 
 			.summaryTitle {
 				color: var(--secondary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -50,7 +50,7 @@
 
 				.summaryValue {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 20px;
 					font-style: normal;
 					font-weight: 600;
@@ -83,7 +83,7 @@
 
 				.timelineHeaderText {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -155,7 +155,7 @@
 
 								p {
 									text-align: right;
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-style: normal;
 									line-height: normal;
 									align-self: stretch;
@@ -222,7 +222,7 @@
 									.eventType {
 										color: var(--primary-font);
 										align-self: stretch;
-										font-family: Inter;
+										font-family: var(--primary-font-family);
 										font-size: 14px;
 										font-style: normal;
 										font-weight: 500;
@@ -257,7 +257,7 @@
 
 												.labelKey {
 													color: var(--secondary-font);
-													font-family: Inter;
+													font-family: var(--primary-font-family);
 													font-size: 12px;
 													font-style: normal;
 													font-weight: 400;
@@ -266,7 +266,7 @@
 
 												.labelValue {
 													color: var(--primary-font);
-													font-family: Inter;
+													font-family: var(--primary-font-family);
 													font-size: 12px;
 													font-style: normal;
 													font-weight: 400;
@@ -292,7 +292,7 @@
 									cursor: pointer;
 
 									color: var(--primary-font);
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 12px;
 									font-style: normal;
 									font-weight: 500;
@@ -300,7 +300,7 @@
 
 									span {
 										color: var(--primary-font);
-										font-family: Inter;
+										font-family: var(--primary-font-family);
 										font-size: 12px;
 										font-style: normal;
 										font-weight: 500;
@@ -331,7 +331,7 @@
 
 				.viewersHeaderText {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -400,7 +400,7 @@
 
 							span {
 								// color: #6c83ff;
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12.372px;
 								font-style: normal;
 								font-weight: 500;
@@ -417,7 +417,7 @@
 
 							.viewerName {
 								color: var(--primary-font);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 16px;
 								font-style: normal;
 								font-weight: 500;
@@ -426,7 +426,7 @@
 
 							.viewerEmail {
 								color: var(--secondary-font);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 400;
@@ -445,7 +445,7 @@
 
 						.viewerSessions {
 							color: var(--primary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -456,7 +456,7 @@
 
 						.viewerTime {
 							color: var(--secondary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -479,7 +479,7 @@
 
 		.metricsTitle {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -524,7 +524,7 @@
 
 						span {
 							color: var(--secondary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 400;
@@ -550,7 +550,7 @@
 							transition: background-color 0.3s ease;
 
 							color: var(--primary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;

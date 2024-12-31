@@ -5,7 +5,7 @@
 	gap: var(--Spacing-space-8, 16px);
 	.eventsTitle {
 		color: var(--primary-font);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 16px;
 		font-style: normal;
 		font-weight: 500;
@@ -22,7 +22,7 @@
 		border: 1px dashed var(--stroke);
 		background: var(--card);
 		color: var(--secondary-font);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 400;
@@ -55,7 +55,7 @@
 			background: var(--card);
 			cursor: pointer;
 			color: var(--error);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -86,7 +86,7 @@
 
 				.serviceContainerTitleStyling {
 					color: var(--secondary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 10px;
 					font-style: normal;
 					font-weight: 500;
@@ -101,7 +101,7 @@
 					cursor: pointer;
 					.eventsPresetsStyling {
 						color: var(--primary-button);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -127,7 +127,7 @@
 					border: 1px solid var(--stroke);
 					background-color: transparent;
 					color: var(--secondary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 400;
@@ -154,7 +154,7 @@
 					.incrementDecrementinput {
 						flex: 1;
 						color: var(--secondary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -169,7 +169,7 @@
 						justify-content: center;
 						align-items: center;
 						color: var(--primary-button);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -189,7 +189,7 @@
 			}
 			.addMoreRoleBtn {
 				color: var(--primary-button);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 11px;
 				font-style: normal;
 				font-weight: 500;
@@ -209,7 +209,7 @@
 
 	.servicesHeader {
 		color: var(--primary-font);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 15px;
 		font-style: normal;
 		font-weight: 500;
@@ -233,7 +233,7 @@
 
 			.serviceSubTitle {
 				color: var(--primary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -246,7 +246,7 @@
 				gap: 8px;
 				.subTotalValueTitle {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -264,7 +264,7 @@
 					border: 1px solid var(--stroke);
 					outline: none;
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -272,7 +272,7 @@
 				}
 				.ServiceSubTotalValue {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -296,7 +296,7 @@
 
 				.serviceCardTitle {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -312,7 +312,7 @@
 
 				.quantityTitle {
 					color: var(--secondary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 400;
@@ -330,7 +330,7 @@
 					.incrementDecrementinput {
 						flex: 1;
 						color: var(--primary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -345,7 +345,7 @@
 						justify-content: center;
 						align-items: center;
 						color: var(--primary-button);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -375,7 +375,7 @@
 		align-self: stretch;
 		.paymentScheduleTitle {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 15px;
 			font-style: normal;
 			font-weight: 500;
@@ -433,7 +433,7 @@
 	flex: 1 0 0;
 	.labelName {
 		color: var(--secondary-font);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 11px;
 		font-style: normal;
 		font-weight: 400;
@@ -445,7 +445,7 @@
 		border: 1px solid var(--stroke);
 		span {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -466,7 +466,7 @@
 		border: none;
 		// border: 1px solid rgba(255, 255, 255, 0.05);
 		color: var(--primary-font);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 400;
@@ -480,7 +480,7 @@
 		border-radius: 10px;
 		border: 1px solid var(--stroke);
 		color: var(--primary-font);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 400;
@@ -517,7 +517,7 @@
 		border: 1px solid var(--stroke);
 		padding-left: 11px;
 		color: var(--secondary-font);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 400;
@@ -559,7 +559,7 @@
 				justify-content: space-between;
 				.acceptedBlockHeaderTextStyling {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 600;
@@ -592,7 +592,7 @@
 						align-self: stretch;
 						.keyValuepairs {
 							color: var(--secondary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -628,7 +628,7 @@
 						background: var(--stroke);
 						color: var(--primary-font);
 						text-align: center;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 500;
@@ -644,7 +644,7 @@
 
 						.clientNameStyling {
 							color: var(--primary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 500;
@@ -652,7 +652,7 @@
 						}
 						.clientEmailStyling {
 							color: var(--secondary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 11px;
 							font-style: normal;
 							font-weight: 500;
@@ -684,7 +684,7 @@
 					}
 					.dateData {
 						color: var(--secondary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 11px;
 						font-style: normal;
 						font-weight: 400;
@@ -715,7 +715,7 @@
 						flex: 1 0 0;
 						.infoBlocksHeader {
 							color: var(--secondary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 11px;
 							font-style: normal;
 							font-weight: 400;
@@ -731,7 +731,7 @@
 							border-radius: 10px;
 							border: 1px solid var(--stroke);
 							color: var(--secondary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 400;
@@ -748,7 +748,7 @@
 					align-self: stretch;
 					.infoBlocksHeader {
 						color: var(--secondary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 11px;
 						font-style: normal;
 						font-weight: 400;
@@ -764,7 +764,7 @@
 						border-radius: 10px;
 						border: 1px solid var(--stroke);
 						color: var(--secondary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -799,7 +799,7 @@
 		align-self: stretch;
 		color: var(--primary-button);
 		text-align: center;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 400;
@@ -830,7 +830,7 @@
 				flex: 1;
 				.presetTitle {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -838,7 +838,7 @@
 				}
 				.presetSubTitle {
 					color: var(--secondary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -878,7 +878,7 @@
 		.optionsStyling {
 			color: var(--primary-font);
 			text-align: center;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
@@ -888,7 +888,7 @@
 		.deleteStyling {
 			color: var(--error);
 			text-align: center;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;

@@ -488,7 +488,7 @@ const OpenedSideBarItemsComponent = ({
 												fontSize: '14px',
 												fontStyle: 'normal',
 												fontWeight: '500',
-												fontFamily: 'Inter',
+												fontFamily: 'var(--primary-font-family)',
 											}}
 										/>
 									</div>
@@ -514,7 +514,7 @@ const OpenedSideBarItemsComponent = ({
 												fontSize: '14px',
 												fontStyle: 'normal',
 												fontWeight: '500',
-												fontFamily: 'Inter',
+												fontFamily: 'var(--primary-font-family)',
 											}}
 										/>
 									</div>

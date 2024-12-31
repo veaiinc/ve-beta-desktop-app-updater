@@ -15,7 +15,7 @@
 
 			p {
 				color: #e4e5e6;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-size: 0.875rem;
 				font-style: normal;
 				font-weight: 500;
@@ -25,7 +25,7 @@
 				span {
 					color: #6055ec;
 					text-align: right;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 0.875rem;
 					font-style: normal;
 					font-weight: 500;
@@ -58,7 +58,7 @@
 				background: rgba(42, 42, 42, 0.16);
 
 				color: #e4e5e6;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-size: 0.9375rem;
 				font-style: normal;
 				font-weight: 500;
@@ -98,7 +98,7 @@
 			.mainText {
 				color: #e4e5e6;
 				text-align: center;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-size: 1.125rem;
 				font-style: normal;
 				font-weight: 500;
@@ -108,7 +108,7 @@
 			.subText {
 				color: #b0b0b0;
 				text-align: center;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-size: 0.8125rem;
 				font-style: normal;
 				font-weight: 400;
@@ -156,7 +156,7 @@
 					align-items: center;
 					justify-items: center;
 					color: rgba(228, 229, 230, 0.64);
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 0.8125rem;
 					font-style: normal;
 					font-weight: 500;
@@ -209,7 +209,7 @@
 				p {
 					color: #e4e5e6;
 					text-align: center;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 0.8125rem;
 					font-style: normal;
 					font-weight: 500;
@@ -226,7 +226,7 @@
 
 				.fullName {
 					color: #e4e5e6;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 0.8125rem;
 					font-style: normal;
 					font-weight: 500;
@@ -234,7 +234,7 @@
 				}
 				.username {
 					color: rgba(228, 229, 230, 0.48);
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 0.6875rem;
 					font-style: normal;
 					font-weight: 500;
@@ -245,7 +245,7 @@
 			.cost {
 				p {
 					color: #e4e5e6;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 0.9375rem;
 					font-style: normal;
 					font-weight: 500;
@@ -282,7 +282,7 @@
 
 				color: #e4e5e6;
 				text-align: center;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-size: 0.5rem;
 				font-style: normal;
 				font-weight: 500;
@@ -291,7 +291,7 @@
 
 			.fullName {
 				color: rgba(228, 229, 230, 0.64);
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-size: 0.75rem;
 				font-style: normal;
 				font-weight: 400;
@@ -308,7 +308,7 @@
 			p {
 				color: #6055ec;
 				text-align: right;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-size: 0.75rem;
 				font-style: normal;
 				font-weight: 500;
@@ -350,7 +350,7 @@
 			overflow: hidden;
 			color: #e4e5e6;
 			text-overflow: ellipsis;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 0.875rem;
 			font-style: normal;
 			font-weight: 400;
@@ -384,7 +384,7 @@
 
 		.title {
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 1.125rem;
 			font-style: normal;
 			font-weight: 500;
@@ -403,7 +403,7 @@
 
 	.modalDescription {
 		color: rgba(228, 229, 230, 0.48);
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 0.75rem;
 		font-style: normal;
 		font-weight: 500;
@@ -433,7 +433,7 @@
 
 			p {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 0.6875rem;
 				font-style: normal;
 				font-weight: 500;
@@ -456,7 +456,7 @@
 
 			p {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 0.75rem;
 				font-style: normal;
 				font-weight: 500;
@@ -488,7 +488,7 @@
 		.headingText {
 			width: 95%;
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 1.125rem;
 			font-style: normal;
 			font-weight: 500;
@@ -520,7 +520,7 @@
 
 			p {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 0.8125rem;
 				font-style: normal;
 				font-weight: 500;
@@ -531,7 +531,7 @@
 
 		.cancelText {
 			color: rgba(228, 229, 230, 0.64);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 0.8125rem;
 			font-style: normal;
 			font-weight: 500;

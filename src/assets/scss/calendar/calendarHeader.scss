@@ -35,7 +35,7 @@
 				cursor: pointer;
 
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 18px;
 				font-style: normal;
 				font-weight: 500;
@@ -66,7 +66,7 @@
 						cursor: pointer;
 
 						color: rgba(228, 229, 230, 0.48);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -106,7 +106,7 @@
 					cursor: pointer;
 
 					color: #e4e5e6;
-					font-family: Inter, sans-serif;
+					font-family: var(--primary-font-family), sans-serif;
 					font-size: 12px;
 					font-weight: 500;
 					line-height: normal;
@@ -127,7 +127,7 @@
 					.ant-select-selection-placeholder,
 					.ant-select-selection-item {
 						color: #e4e5e6;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -151,7 +151,7 @@
 
 					.ant-select-item {
 						color: #e4e5e6;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -192,7 +192,7 @@
 				height: 95px;
 				color: rgba(228, 229, 230, 0.48);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -247,7 +247,7 @@
 					align-items: center;
 					gap: 4px;
 					text-align: center;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;

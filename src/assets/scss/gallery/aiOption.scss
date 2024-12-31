@@ -222,7 +222,7 @@
 
 				.aiProcessingTotalImages {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -252,7 +252,7 @@
 
 					.aiProcessingText {
 						color: var(--primary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 500;
@@ -261,7 +261,7 @@
 
 					.aiProcessingText-count {
 						color: var(--primary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 600;
@@ -295,7 +295,7 @@
 					}
 					.notify-all-button {
 						color: var(--primary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 500;
@@ -383,7 +383,7 @@
 	h1 {
 		color: var(--secondary-font);
 		text-align: center;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 20px;
 		font-style: normal;
 		font-weight: 500;

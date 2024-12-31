@@ -29,7 +29,7 @@
 					overflow: hidden;
 					color: var(--primary-font);
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -43,7 +43,7 @@
 						background-color: transparent;
 						border: none;
 						color: var(--primary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 400;
@@ -64,7 +64,7 @@
 				align-items: center;
 				align-self: stretch;
 				color: var(--error);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -108,7 +108,7 @@
 						.settingsLabelText {
 							color: var(--secondary-font);
 							// text-align: center;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -137,7 +137,7 @@
 						flex: 1;
 						.expiryHeadingLabel {
 							color: var(--secondary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -145,7 +145,7 @@
 						}
 						.expirySubLabel {
 							color: var(--secondary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 9px;
 							font-style: normal;
 							font-weight: 400;
@@ -165,7 +165,7 @@
 							border: 1px solid var(--secondary-font);
 							color: var(--secondary-font);
 							text-align: center;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 9px;
 							font-style: normal;
 							font-weight: 500;
@@ -189,7 +189,7 @@
 
 							.incrementFontstyling {
 								color: var(--secondary-font);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 14px;
 								font-style: normal;
 								font-weight: 400;
@@ -200,7 +200,7 @@
 						.customDateButton {
 							color: var(--secondary-font);
 							cursor: pointer;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -235,7 +235,7 @@
 							gap: var(--Spacing-space-3, 4px);
 							.headingLabel {
 								color: var(--secondary-font);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 14px;
 								font-style: normal;
 								font-weight: 500;
@@ -258,7 +258,7 @@
 								.checkboxLabel {
 									color: var(--secondary-font);
 									text-align: center;
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 11px;
 									font-style: normal;
 									font-weight: 400;
@@ -280,7 +280,7 @@
 							gap: var(--Spacing-space-3, 4px);
 							.headingLabel {
 								color: var(--secondary-font);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 14px;
 								font-style: normal;
 								font-weight: 500;
@@ -302,7 +302,7 @@
 								.checkboxLabel {
 									color: var(--secondary-font);
 									text-align: center;
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 11px;
 									font-style: normal;
 									font-weight: 400;
@@ -335,7 +335,7 @@
 					.aiLabelText {
 						color: var(--secondary-font);
 						text-align: center;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -345,7 +345,7 @@
 			}
 			.assignedAssitant {
 				color: var(--secondary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -375,7 +375,7 @@
 				background: var(--primary-button);
 				color: var(--primary-font);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -385,7 +385,7 @@
 			.orText {
 				color: var(--secondary-font);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 9px;
 				font-style: normal;
 				font-weight: 400;
@@ -400,7 +400,7 @@
 				.copyLinkText {
 					color: var(--primary-button);
 					text-align: center;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;
@@ -433,7 +433,7 @@
 				align-self: stretch;
 				.sendSmartFileHeaderTitle {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -474,7 +474,7 @@
 
 					.clientContentLabel {
 						color: var(--primary-font);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -496,7 +496,7 @@
 					gap: 10px;
 					align-self: stretch;
 					color: var(--secondary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -511,7 +511,7 @@
 					border-radius: 10px;
 					border: 1px solid var(--stroke);
 					color: var(--secondary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -528,7 +528,7 @@
 
 			.modalHeader {
 				color: var(--primary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 18px;
 				font-style: normal;
 				font-weight: 500;
@@ -544,7 +544,7 @@
 				border: 1px solid var(--stroke);
 				background: var(--primary-button);
 				color: var(--primary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -561,7 +561,7 @@
 				align-self: stretch;
 				.labelStyling {
 					color: var(--secondary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 400;
@@ -579,7 +579,7 @@
 					border: 1px solid var(--stroke);
 					background-color: transparent;
 					color: var(--secondary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -598,7 +598,7 @@
 					border: 1px solid var(--stroke);
 					background-color: transparent;
 					color: var(--secondary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -624,7 +624,7 @@
 
 				.mainfooterTitle {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -632,7 +632,7 @@
 				}
 				.mainFooterSubTitle {
 					color: var(--secondary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -652,7 +652,7 @@
 				border: 1px solid var(--stroke);
 				background: var(--card);
 				color: var(--primary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;

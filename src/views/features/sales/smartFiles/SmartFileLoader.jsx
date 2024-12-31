@@ -28,7 +28,7 @@ const SmartFileLoader = () => {
 						alignItems: 'center',
 						gap: '18px',
 						color: '#e4e5e6',
-						fontFamily: 'Inter',
+						fontFamily: 'var(--primary-font-family)',
 						fontSize: '16px',
 						fontStyle: 'normal',
 						fontWeight: '500',
@@ -51,7 +51,7 @@ const SmartFileLoader = () => {
 					<span
 						style={{
 							color: 'rgba(228, 229, 230, 0.48)',
-							fontFamily: 'Inter',
+							fontFamily: 'var(--primary-font-family)',
 							fontSize: '16px',
 							fontStyle: 'normal',
 							fontWeight: '500',
@@ -66,7 +66,7 @@ const SmartFileLoader = () => {
 					<span
 						style={{
 							color: 'rgba(228, 229, 230, 0.48)',
-							fontFamily: 'Inter',
+							fontFamily: 'var(--primary-font-family)',
 							fontSize: '16px',
 							fontStyle: 'normal',
 							fontWeight: '500',

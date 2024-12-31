@@ -22,7 +22,7 @@
 		.deleteStepHeading {
 			color: #e4e5e6;
 			text-align: center;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -31,7 +31,7 @@
 		.deleteStepSubText {
 			color: rgba(228, 229, 230, 0.48);
 			text-align: center;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -60,7 +60,7 @@
 			background: rgba(42, 42, 42, 0.16);
 			cursor: pointer;
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 500;
@@ -69,7 +69,7 @@
 		}
 		.deleteWorkflowStepBtn {
 			color: rgba(228, 229, 230, 0.64);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 500;

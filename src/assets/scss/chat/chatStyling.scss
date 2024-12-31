@@ -38,7 +38,7 @@
 		gap: 4.2px;
 		border-radius: 100px;
 		color: #e4e5e6;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -49,7 +49,7 @@
 		transition: all 1s;
 		span {
 			color: rgba(228, 229, 230, 0.48);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -74,7 +74,7 @@
 
 		input {
 			color: rgba(224, 224, 224, 0.32);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 15px;
 			font-style: normal;
 			font-weight: 500;
@@ -147,7 +147,7 @@
 
 			.channelName {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -159,7 +159,7 @@
 
 				.channelSubMessage {
 					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
@@ -187,7 +187,7 @@
 					border-radius: 100px;
 					background: #3f8ae2;
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
@@ -227,7 +227,7 @@
 				.label {
 					color: #e4e5e6;
 					text-align: center;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 18px;
 					font-style: normal;
 					font-weight: 500;
@@ -236,7 +236,7 @@
 				.subLabel {
 					color: #b0b0b0;
 					text-align: center;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -270,7 +270,7 @@
 					overflow: hidden;
 					color: #e4e5e6;
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -279,7 +279,7 @@
 				}
 				.channelSubMessage {
 					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
@@ -315,7 +315,7 @@
 				outline: none;
 				background-color: transparent;
 				color: rgba(224, 224, 224, 0.32);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 15px;
 				font-style: normal;
 				font-weight: 500;
@@ -349,7 +349,7 @@
 
 				.userName {
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
@@ -363,7 +363,7 @@
 				}
 				.timing {
 					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
