@@ -84,7 +84,6 @@ const GlobalWorkflows = () => {
 			};
 			const [success, response] = await getModuleTemplate(payload);
 			if (success) {
-				console.log('Module templates loaded:', response.templates);
 				setModuleTemplateData(response.templates);
 			}
 		},
