@@ -33,8 +33,16 @@ const GlobalWorkflows = () => {
 	const [selectedOption, setSelectedOption] = useState('Workflow');
 	const [moduleTemplateData, setModuleTemplateData] = useState(null);
 	const [searchQuery, setSearchQuery] = useState('');
+	const navigate = useNavigate();
 	let {
-		templates: { getGlobalWorkflows, globalMoreWorkflows, globalWorkflows, getModuleTemplate },
+		templates: {
+			getGlobalWorkflows,
+			globalMoreWorkflows,
+			globalWorkflows,
+			getModuleTemplate,
+			duplicateGlobalWorkflowTemplate,
+		},
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -171,162 +179,203 @@ const GlobalWorkflows = () => {
 		setSearchQuery(e.target.value);
 	}, []);
 
+	const onCustomiseFunc = useCallback(async () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+		if (info?.duplicateApiLoading) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, duplicateApiLoading: true }));
+		const payload = {
+			templateId: info?.activeTemplateData?._id,
+			title: info?.activeTemplateData?.title,
+		};
+		const response = await duplicateGlobalWorkflowTemplate(payload);
+		setInfo((prev) => ({ ...prev, duplicateApiLoading: false }));
+		if (response?.[0]) {
+			if (info?.activeTab !== 'design') {
+				return navigate(`/workflow_builder/${response?.[1]?._id}`);
+			} else {
+				window.location.href = `${origin}/${response?.[1]?._id}`;
+				return;
+			}
+		}
+	}, [info?.activeTemplateData, info?.duplicateApiLoading, selectedOption]);
+
 	return (
-		<div className={`playbook-wrapper ${isPlaybookRoute ? 'with-background' : ''}`}>
-			<div className={`globalWorkflowContainer`}>
-				<div className={`left_div  ${info.modalIsOpen ? 'modal-open' : ''}`}>
-					<div className="left_child_div">
-						<h2 className="side_heading">Templates</h2>
-						<p className="side_text">
-							We have specially curated best workflows and designs that suit your
-							business
-						</p>
-					</div>
+		<>
+			{info?.isLoading ? (
+				<UpdatedPageLoader />
+			) : (
+				<div className={`playbook-wrapper ${isPlaybookRoute ? 'with-background' : ''}`}>
+					<div className={`globalWorkflowContainer`}>
+						<div className={`left_div  ${info.modalIsOpen ? 'modal-open' : ''}`}>
+							<div className="left_child_div">
+								<h2 className="side_heading">Templates</h2>
+								<p className="side_text">
+									We have specially curated best workflows and designs that suit
+									your business
+								</p>
+							</div>
 
-					<div className="options_div">
-						<input
-							type="text"
-							placeholder="search"
-							className="search_bar"
-							style={{ color: 'white' }}
-							value={searchQuery}
-							onChange={handleSearch}
-						/>
-						<h2
-							style={{
-								fontSize: '18px',
-								paddingBottom: '30px',
-								color: 'white',
-								fontWeight: '400',
-							}}
+							<div className="options_div">
+								<input
+									type="text"
+									placeholder="search"
+									className="search_bar"
+									style={{ color: 'white' }}
+									value={searchQuery}
+									onChange={handleSearch}
+								/>
+								<h2
+									style={{
+										fontSize: '18px',
+										paddingBottom: '30px',
+										color: 'white',
+										fontWeight: '400',
+									}}
+								>
+									What are you Offering?
+								</h2>
+								<div className="options">
+									{options.map((each, index) => (
+										<div key={index}>
+											<li
+												className={`options_style ${
+													selectedOption === each ? 'selected' : ''
+												}`}
+												onClick={() => handleOptionSelect(each)}
+											>
+												{each}
+											</li>
+										</div>
+									))}
+								</div>
+							</div>
+						</div>
+						<div
+							className={`mainContentContainer  ${
+								info.modalIsOpen ? 'modal-open' : ''
+							}`}
 						>
-							What are you Offering?
-						</h2>
-						<div className="options">
-							{options.map((each, index) => (
-								<div key={index}>
-									<li
-										className={`options_style ${
-											selectedOption === each ? 'selected' : ''
-										}`}
-										onClick={() => handleOptionSelect(each)}
+							{/* <div className="gloablWorkflowHeader">Choose a Workflow</div> */}
+							{info?.isExpanded ? (
+								<div
+									style={{
+										width: '420px',
+										display: 'flex',
+										flexDirection: 'column',
+										alignItems: 'flex-start',
+										gap: '32px',
+										marginTop: '20%',
+										marginLeft: '10%',
+										transition: 'transform 0.3s ease-out',
+									}}
+								>
+									<div>
+										<span className="dior-studio-text">By Ve.ai</span>
+									</div>
+									<div className="workflow-title-container">
+										<div className="workflow-title">
+											{info?.activeTemplateData?.title}
+										</div>
+										<div className="workflow-description">
+											{info?.activeTemplateData?.description ||
+												'Ideal for wedding photography business with multiple events, selectable packages and services, this workflow provides customisable design in enquiry forms, proposals, invoices for multiple payment schedule and hassle contracts with e-sign contracts'}
+										</div>
+										<div>
+											{/* <span className="active-users-text">12k active users</span> */}
+										</div>
+										<div>
+											<button
+												className="buy-button"
+												onClick={onCustomiseFunc}
+												style={{ cursor: 'pointer' }}
+											>
+												Add to workspace
+											</button>
+										</div>
+									</div>
+								</div>
+							) : (
+								<div
+									style={{
+										transform: info?.isExpanded
+											? 'translateX(-100%)'
+											: 'translateX(0)',
+										transition: 'transform 0.3s ease-out',
+										width: '100%',
+									}}
+								>
+									<InfiniteScroll
+										dataLength={info?.globalWorkflowData?.length || 0}
+										next={fetchMoreGlobalWorkflows}
+										hasMore={info?.hasNextPage}
+										loader={<FetchMoreLoaderComp />}
+										scrollableTarget={'scrollableTarget'}
+										className="scrollableTarget"
 									>
-										{each}
-									</li>
+										<div className="globalWorkflowParentCardContainer">
+											{selectedOption !== 'Workflow' ? (
+												<GlobalProposalsCard
+													data={getFilteredData(moduleTemplateData)}
+													onClickFunc={(data, module) => {
+														openModal(data, module);
+													}}
+													modalIsOpen={info.modalIsOpen}
+												/>
+											) : (
+												getFilteredData(info?.globalWorkflowData)?.map(
+													(ele, index) => (
+														<GlobalWorkflowCard
+															key={index}
+															data={ele}
+															onClickFunc={openModal}
+															isSelected={
+																ele?._id ===
+																info?.selectedWorkflowId
+															}
+														/>
+													),
+												)
+											)}
+										</div>
+									</InfiniteScroll>
 								</div>
-							))}
+							)}
 						</div>
+
+						{info?.modalIsOpen &&
+							(selectedOption === 'Workflow' ? (
+								<GlobalWorkflowModal
+									modalIsOpen={info?.modalIsOpen}
+									closeModal={closeModal}
+									globalTemplateId={info?.activeTemplateData?._id}
+									isProposal={false}
+									isExpanded={info?.isExpanded}
+									setIsExpanded={(value) => {
+										setInfo((prev) => ({ ...prev, isExpanded: value }));
+									}}
+								/>
+							) : (
+								<GlobalWorkflowModal
+									modalIsOpen={info?.modalIsOpen}
+									closeModal={closeModal}
+									globalTemplateId={info?.activeTemplateData?._id}
+									moduleName={info?.selectedModule}
+									templateTitle={info?.activeTemplateData?.title}
+									isProposal={true}
+									isExpanded={info?.isExpanded}
+									setIsExpanded={(value) => {
+										setInfo((prev) => ({ ...prev, isExpanded: value }));
+									}}
+								/>
+							))}
 					</div>
 				</div>
-				<div className={`mainContentContainer  ${info.modalIsOpen ? 'modal-open' : ''}`}>
-					{/* <div className="gloablWorkflowHeader">Choose a Workflow</div> */}
-					{info?.isExpanded ? (
-						<div
-							style={{
-								width: '420px',
-								display: 'flex',
-								flexDirection: 'column',
-								alignItems: 'flex-start',
-								gap: '32px',
-								marginTop: '20%',
-								marginLeft: '10%',
-								transition: 'transform 0.3s ease-out',
-							}}
-						>
-							<div>
-								<span className="dior-studio-text">By Ve.ai</span>
-							</div>
-							<div className="workflow-title-container">
-								<div className="workflow-title">
-									{info?.activeTemplateData?.title}
-								</div>
-								<div className="workflow-description">
-									{info?.activeTemplateData?.description ||
-										'Ideal for wedding photography business with multiple events, selectable packages and services, this workflow provides customisable design in enquiry forms, proposals, invoices for multiple payment schedule and hassle contracts with e-sign contracts'}
-								</div>
-								<div>
-									{/* <span className="active-users-text">12k active users</span> */}
-								</div>
-								<div>
-									<button className="buy-button">Add to workspace</button>
-								</div>
-							</div>
-						</div>
-					) : (
-						<div
-							style={{
-								transform: info?.isExpanded ? 'translateX(-100%)' : 'translateX(0)',
-								transition: 'transform 0.3s ease-out',
-								width: '100%',
-							}}
-						>
-							<InfiniteScroll
-								dataLength={info?.globalWorkflowData?.length || 0}
-								next={fetchMoreGlobalWorkflows}
-								hasMore={info?.hasNextPage}
-								loader={<FetchMoreLoaderComp />}
-								scrollableTarget={'scrollableTarget'}
-								className="scrollableTarget"
-							>
-								<div className="globalWorkflowParentCardContainer">
-									{info?.loading ? (
-										<UpdatedPageLoader />
-									) : selectedOption !== 'Workflow' ? (
-										<GlobalProposalsCard
-											data={getFilteredData(moduleTemplateData)}
-											onClickFunc={(data, module) => {
-												openModal(data, module);
-											}}
-											modalIsOpen={info.modalIsOpen}
-										/>
-									) : (
-										getFilteredData(info?.globalWorkflowData)?.map(
-											(ele, index) => (
-												<GlobalWorkflowCard
-													key={index}
-													data={ele}
-													onClickFunc={openModal}
-													isSelected={
-														ele?._id === info?.selectedWorkflowId
-													}
-												/>
-											),
-										)
-									)}
-								</div>
-							</InfiniteScroll>
-						</div>
-					)}
-				</div>
-
-				{info?.modalIsOpen &&
-					(selectedOption === 'Workflow' ? (
-						<GlobalWorkflowModal
-							modalIsOpen={info?.modalIsOpen}
-							closeModal={closeModal}
-							globalTemplateId={info?.activeTemplateData?._id}
-							isProposal={false}
-							isExpanded={info?.isExpanded}
-							setIsExpanded={(value) => {
-								setInfo((prev) => ({ ...prev, isExpanded: value }));
-							}}
-						/>
-					) : (
-						<GlobalWorkflowModal
-							modalIsOpen={info?.modalIsOpen}
-							closeModal={closeModal}
-							globalTemplateId={info?.activeTemplateData?._id}
-							moduleName={info?.selectedModule}
-							templateTitle={info?.activeTemplateData?.title}
-							isProposal={true}
-							isExpanded={info?.isExpanded}
-							setIsExpanded={(value) => {
-								setInfo((prev) => ({ ...prev, isExpanded: value }));
-							}}
-						/>
-					))}
-			</div>
-		</div>
+			)}
+		</>
 	);
 };
 
