@@ -42,11 +42,37 @@ body,
 	box-sizing: border-box;
 }
 body {
+	// font-family: 'Inter', sans-serif !important;
+	// font-style: normal;
+	// -webkit-font-smoothing: antialiased;
+	// margin: 0;
+	// scroll-behavior: smooth;
+	// overscroll-behavior: none;
+
 	font-family: var(--primary-font-family), sans-serif !important;
 	font-style: normal;
 	-webkit-font-smoothing: antialiased;
 	margin: 0;
 	scroll-behavior: smooth;
+	overscroll-behavior: none;
+
+	/* Enhanced smooth scrolling */
+	scroll-snap-type: y proximity;
+	-webkit-overflow-scrolling: touch;
+
+	/* Customize scrolling physics */
+	scroll-timeline: none;
+	scroll-timeline-axis: block;
+	scroll-timeline-name: none;
+
+	/* Optional: Add momentum-based scrolling for iOS */
+	-webkit-overflow-scrolling: touch;
+
+	/* Optional: Add custom scroll timing */
+	scroll-timeline-attachment: scroll;
+	scroll-timeline-axis: block;
+	scroll-timeline-name: none;
+	scroll-behavior-timeline: smooth;
 }
 html {
 	background-color: #121212;

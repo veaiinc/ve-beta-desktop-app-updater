@@ -6,6 +6,15 @@ export const getListItemsQuery = gql`
 				_id
 				taskSlNo
 				title
+				parentTask {
+					_id
+					title
+				}
+				childTasks {
+					_id
+					title
+					status
+				}
 				description
 				status
 				priority
@@ -92,6 +101,15 @@ export const getTaskQuery = gql`
 			_id
 			taskSlNo
 			title
+			parentTask {
+				_id
+				title
+			}
+			childTasks {
+				_id
+				title
+				status
+			}
 			description
 			status
 			priority
@@ -135,6 +153,15 @@ export const getSubTasksQuery = gql`
 			title
 			description
 			status
+			parentTask {
+				_id
+				title
+			}
+			childTasks {
+				_id
+				title
+				status
+			}
 			priority
 			assignedTo {
 				_id

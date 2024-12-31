@@ -138,7 +138,7 @@ const WorkflowDropDown = ({ selectedWorkflowId, updateCalendarInfo }) => {
 					updateCalendarInfo('selectedWorkflowId', null);
 				}
 			}}
-			getPopupContainer={(trigger) => trigger.parentNode}
+			getPopupContainer={(trigger) => trigger?.parentNode}
 		/>
 	);
 };

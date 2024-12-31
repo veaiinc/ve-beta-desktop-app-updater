@@ -13,17 +13,32 @@ const ListViewRow = ({
 		(row) => {
 			const leftPart = [];
 			const rightPart = [];
-			let titleReached = false;
+			let split = false;
 
 			for (let key in row) {
 				const value = row[key];
+
+				const {
+					type = null,
+					name = null,
+					props = {},
+					doSplit = false,
+				} = responseMetadata?.[key] || {};
+				const RowComponent = rowTypes?.[type] || null;
+
+				if (doSplit) {
+					split = true;
+				}
+
 				if (
 					(typeof value === 'object' && !Array.isArray(value)
 						? !value?._id
 						: key === '!title' && !value) ||
-					(Array.isArray(value) && value.length === 0) ||
+					(Array?.isArray(value) && value?.length === 0) ||
 					key === '__typename' ||
 					key === '_id' ||
+					key === 'parentTaskId' ||
+					key === 'description' ||
 					key === 'workflowTemplateId' ||
 					key === 'completedAt' ||
 					(isSubTask && key === 'workflow')
@@ -36,14 +51,6 @@ const ListViewRow = ({
 					continue;
 				}
 
-				const {
-					type = null,
-					name = null,
-					props = {},
-					isTitle = false,
-				} = responseMetadata[key];
-				const RowComponent = rowTypes[type] || null;
-
 				const listItem = RowComponent ? (
 					<RowComponent
 						key={key}
@@ -55,13 +62,10 @@ const ListViewRow = ({
 						{...props}
 					/>
 				) : null;
-				if (titleReached) {
+				if (split && !doSplit) {
 					rightPart.push(listItem);
 				} else {
 					leftPart.push(listItem);
-				}
-				if (isTitle) {
-					titleReached = true;
 				}
 			}
 

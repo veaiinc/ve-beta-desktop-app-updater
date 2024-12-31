@@ -57,6 +57,7 @@ import ToggleSlider from '../../components/input/slider';
 import { Switch } from 'antd';
 import ShowLightRoomCopy from '../../components/modalsV2/gallery/ShowLightRoomCopy';
 import { getCurrentWorkspaceId } from '../../../helpers';
+import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
 
 const workspaceId = localStorage.getItem('workspaceId');
 const GalleryPage = () => {
@@ -129,6 +130,8 @@ const GalleryPage = () => {
 			deleteAlbum,
 			editLockAlbum,
 			editAlbum,
+			getImageProcessingStatus,
+			imageProcessingStatus,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -239,6 +242,11 @@ const GalleryPage = () => {
 		showAlbumSettings: false,
 		currentWorkspaceId: null,
 		galleryLink: null,
+		clientSubscriptionOptions: false,
+		imageProcessingStatus: {
+			numberOfImagesGroupedFaces: 0,
+			numberOfImagesPeoples: 0,
+		},
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -254,15 +262,35 @@ const GalleryPage = () => {
 	const optionsContainerRef = useRef(null);
 	const fileInputRef = useRef(null);
 	const settingsRef = useRef(null);
+	const albumSettingsIconRef = useRef(null);
 	const albumSettingsRef = useRef(null);
+	useEffect(() => {
+		if (galleryId) {
+			getImageProcessingStatus(galleryId);
+		}
+	}, []);
 
 	const data = [
 		{ name: 'Albums', number: albumImagesCount?.albums?.length },
 		// { name: 'Videos', number: 2 },
 		// { name: 'Slide Show', number: 1 },
 		{ name: 'Client Selections', number: clientSelectionsData?.totalDocs },
-		{ name: 'AI', number: '' },
-		{ name: 'Insights', number: '' },
+		{
+			name: 'AI',
+			number:
+				imageProcessingStatus?.numberOfImagesPeoples > 0
+					? parseInt(
+							(imageProcessingStatus?.numberOfImagesGroupedFaces /
+								imageProcessingStatus?.numberOfImagesPeoples) *
+								100,
+							0,
+					  ) + '%'
+					: '',
+		},
+		{
+			name: 'Insights',
+			number: '',
+		},
 	];
 
 	const galleryOptions = [
@@ -335,18 +363,7 @@ const GalleryPage = () => {
 	];
 
 	const handleClickOutside = useCallback((event) => {
-		const isSwitch = event.target.closest('.ant-switch');
-		const isWithinAlbumOptions = event.target.closest('[data-album-options]');
-
 		const clickOutsideCheck = (ref, iconRef, stateName) => {
-			// Don't close options if clicking a switch or within album options
-			if (
-				(stateName === 'showOptionsContainer' || stateName === 'showOptions') &&
-				(isSwitch || isWithinAlbumOptions)
-			) {
-				return;
-			}
-
 			if (
 				ref.current &&
 				!ref.current?.contains(event.target) &&
@@ -362,24 +379,21 @@ const GalleryPage = () => {
 		clickOutsideCheck(forwardOptionsRef, forwardIconRef, 'showForward');
 		clickOutsideCheck(pinSearchRef, pinIconRef, 'showPin');
 		clickOutsideCheck(optionsContainerRef, optionsIconRef, 'showOptionsContainer');
-		clickOutsideCheck(albumSettingsRef, settingsRef, 'showAlbumSettings');
-
-		const simpleClickOutsideCheck = (ref, stateName) => {
-			// Don't close album options if clicking a switch within album options
-			if (
-				(stateName === 'showOptionsContainer' || stateName === 'showOptions') &&
-				(isSwitch || isWithinAlbumOptions)
-			) {
-				return;
-			}
-
-			if (ref.current && !ref.current.contains(event.target)) {
-				setInfo((prevInfo) => ({ ...prevInfo, [stateName]: false }));
-			}
-		};
+		clickOutsideCheck(albumSettingsRef, albumSettingsIconRef, 'showAlbumSettings');
+		clickOutsideCheck(optionsContainerRef, optionsIconRef, 'showAlbumOptionsMenu');
 	}, []);
 
-	// ... rest of the code ...
+	useEffect(() => {
+		const childrenContainer = document.querySelector('.childrenContainer');
+		if (childrenContainer) {
+			const originalWidth = childrenContainer.style.maxWidth;
+			childrenContainer.style.maxWidth = '80vw';
+			return () => {
+				childrenContainer.style.maxWidth = originalWidth;
+			};
+		}
+	}, []);
+
 	useEffect(() => {
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => {
@@ -717,7 +731,6 @@ const GalleryPage = () => {
 			getTenantSettings();
 		}
 	}, [tennantSettingsData]);
-
 	useEffect(() => {
 		if (info?.currentWorkspaceId && tennantSettingsData) {
 			let galleryLink = `https://${info?.currentWorkspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`;
@@ -788,7 +801,7 @@ const GalleryPage = () => {
 						isPublished: !currentAlbum?.isPublished,
 					},
 					activeAlbumId: currentAlbumId, // Ensure this stays the same
-					tenantAlbums: prev.tenantAlbums?.map((album) =>
+					tenantAlbums: prev?.tenantAlbums?.map((album) =>
 						album._id === currentAlbumId
 							? {
 									...album,
@@ -969,29 +982,41 @@ const GalleryPage = () => {
 			const newSelectedImages = isDeselecting
 				? prevInfo.selectedImages.filter((i) => i !== images?._id)
 				: [...prevInfo.selectedImages, images?._id];
+
+			// Handle tags differently for client selections vs regular albums
 			let newSelectedImagesTags;
-			if (isDeselecting) {
-				const remainingImages = info?.imagesList?.docs.filter(
-					(img) => newSelectedImages.includes(img._id) && img._id !== images?._id,
-				);
-				newSelectedImagesTags = [
-					...new Set(
-						remainingImages.flatMap((img) => img.galleryTags).map((tag) => tag._id),
-					),
-				];
+			if (info.activeTab === 'Client Selections') {
+				// For client selections, don't process tags
+				newSelectedImagesTags = prevInfo.selectedImagesTags || [];
 			} else {
-				newSelectedImagesTags = [
-					...new Set([
-						...(prevInfo.selectedImagesTags || []),
-						...images?.galleryTags.map((tag) => tag._id),
-					]),
-				];
+				// For regular albums, process tags as before
+				if (isDeselecting) {
+					const remainingImages = info?.imagesList?.docs.filter(
+						(img) => newSelectedImages.includes(img._id) && img._id !== images?._id,
+					);
+					newSelectedImagesTags = [
+						...new Set(
+							remainingImages
+								.filter((img) => img.galleryTags) // Add null check
+								.flatMap((img) => img.galleryTags)
+								.map((tag) => tag._id),
+						),
+					];
+				} else {
+					newSelectedImagesTags = [
+						...new Set([
+							...(prevInfo.selectedImagesTags || []),
+							...(images?.galleryTags?.map((tag) => tag._id) || []), // Add null check
+						]),
+					];
+				}
 			}
 
 			return {
 				...prevInfo,
 				selectedImages: newSelectedImages,
 				selectedImagesTags: newSelectedImagesTags,
+				coverPhoto: newSelectedImages.length > 0 ? newSelectedImages[0] : null,
 			};
 		});
 	};
@@ -1132,23 +1157,33 @@ const GalleryPage = () => {
 			showAlbumOptionsMenu: !prevInfo?.showAlbumOptionsMenu,
 		}));
 	};
-	const handleClickContent = (name, count) => {
+	// ... existing code ...
+
+	const handleClickContent = (name) => {
+		// Clear search params and image details
 		const searchKey = searchkeys.get('uploadImageId');
 		if (searchKey) {
 			setsearchkeys({});
 		}
 		getImageDetail(null, true, false);
 
-		if (count === 0) return;
+		// Update state with new tab
+		// if (count === 0) return;
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			activeTab: name,
 			activeLink: 'gallery-overview',
 			page: 1,
 			uploadImageId: null,
-			// imageURL: searchKey ? null : prevInfo?.imageURL,
+			selectedImages: [],
+			imagesList: {
+				...prevInfo.imagesList,
+				docs: [],
+			},
 		}));
 	};
+
+	// ... rest of the code ...
 
 	const handleNavigateUpload = () => {
 		const uploadUrl =
@@ -1444,7 +1479,7 @@ const GalleryPage = () => {
 	// ... rest of the code ...
 
 	const handleCopyAlbumLink = async () => {
-		const albumLink = info?.galleryLink;
+		const albumLink = `${info?.galleryLink}/${info?.activeAlbumId}`;
 
 		try {
 			// Try the modern clipboard API first
@@ -1537,31 +1572,81 @@ const GalleryPage = () => {
 			}));
 		}
 	};
-	const handleLightRoomCopy = async () => {
-		if (!info.activeAlbumId) {
-			message.error('No active album selected');
-			return;
-		}
+	// ... existing code ...
 
+	const handleLightRoomCopy = async () => {
 		try {
-			const response = await getLightroomCopyList(galleryId, info.activeAlbumId);
+			// Show loading message
+			message.loading({
+				content: 'Fetching image list...',
+				key: 'lightroomCopy',
+			});
+
+			let response;
+			if (info.activeTab === 'Client Selections' && info.clientSelectionID) {
+				// Check if we have client selection images
+				if (!info.clientSelectionImages?.docs?.length) {
+					message.destroy('lightroomCopy');
+					message.info('No images found in this client selection');
+					return;
+				}
+
+				// Create a list of filenames from client selection images
+				const clientSelectionFileNames = info.clientSelectionImages.docs
+					.filter((img) => img.activeVersion?.givenFileName) // Filter out any images without filenames
+					.map((img) => img.activeVersion.givenFileName);
+
+				// If no valid filenames found
+				if (!clientSelectionFileNames.length) {
+					message.destroy('lightroomCopy');
+					message.info('No valid images found in this client selection');
+					return;
+				}
+
+				// Set the lightroom copy list directly from client selection images
+				setInfo((prev) => ({
+					...prev,
+					lightroomCopyList: clientSelectionFileNames,
+					showLightRoomCopy: true,
+					showOptionsContainer: false,
+				}));
+
+				message.destroy('lightroomCopy');
+				message.success('Image list fetched successfully');
+				return;
+			}
+
+			// Handle regular album case
+			if (!info.activeAlbumId) {
+				message.destroy('lightroomCopy');
+				message.error('No active album selected');
+				return;
+			}
+
+			// Get lightroom copy list for regular albums
+			response = await getLightroomCopyList(galleryId, info.activeAlbumId);
 
 			if (response?.[0] === true) {
 				setInfo((prev) => ({
 					...prev,
-					lightroomCopyList: response[1], // Store the list in state
+					lightroomCopyList: response[1],
 					showLightRoomCopy: true,
 					showOptionsContainer: false,
 				}));
-				// message.success('Lightroom copy list fetched successfully');
+				message.destroy('lightroomCopy');
+				message.success('Image list fetched successfully');
 			} else {
+				message.destroy('lightroomCopy');
 				message.error('Failed to fetch lightroom copy list');
 			}
 		} catch (error) {
 			console.error('Error fetching lightroom copy list:', error);
+			message.destroy('lightroomCopy');
 			message.error('Failed to fetch lightroom copy list');
 		}
 	};
+
+	// ... rest of the code ...
 	const handleCopyLightRoomList = () => {
 		if (info.lightroomCopyList?.length) {
 			const textToCopy = info.lightroomCopyList.join(',');
@@ -1583,132 +1668,180 @@ const GalleryPage = () => {
 			message.warning('No items to copy');
 		}
 	};
-	const uploadAlbumCoverChangeHandler = async (e) => {
-		const image = e.target.files[0];
-		if (!image) return;
+	// ... existing code ...
 
-		message.loading({
-			content: 'Uploading album cover image..',
-			key: 'coverUpload',
-		});
+	// ... existing code ...
 
-		try {
-			// Reset existing image data
-			setInfo((prev) => ({
-				...prev,
-				crop: { x: 0, y: 0 },
-				zoom: 1,
-				uploadImageId: null,
-				imageURL: '',
-				coverImageDetails: null,
-				coverPhoto: true,
-				isLoadingCover: true,
-			}));
+	// const uploadAlbumCoverChangeHandler = async (e) => {
+	// 	const image = e.target.files[0];
+	// 	if (!image) return;
 
-			const batchId = randomize('Aa0', 10);
+	// 	message.loading({
+	// 		content: 'Uploading album cover image..',
+	// 		key: 'coverUpload',
+	// 	});
 
-			// Check for duplicate images first
-			const duplicateImage = await getImageDuplicatesList(galleryId, info.activeAlbumId);
-			const isHavingDuplicateImage = duplicateImage?.[1]?.find(
-				(item) => item?.displayName === image?.name,
-			);
+	// 	try {
+	// 		// Reset existing image data
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			crop: { x: 0, y: 0 },
+	// 			zoom: 1,
+	// 			uploadImageId: null,
+	// 			imageURL: '',
+	// 			coverImageDetails: null,
+	// 			coverPhoto: true,
+	// 			isLoadingCover: true,
+	// 		}));
 
-			if (isHavingDuplicateImage) {
-				getImageDetail(isHavingDuplicateImage?._id);
-				setInfo((prev) => ({
-					...prev,
-					uploadImageId: isHavingDuplicateImage?._id,
-					isLoadingCover: false,
-				}));
-				message.destroy('coverUpload');
-				return;
-			}
+	// 		const batchId = randomize('Aa0', 10);
 
-			// Get gallery tags and upload image
-			const responseGalleryTags = await getGalleryTagsList(galleryId);
-			if (!responseGalleryTags?.[0]) {
-				throw new Error('Failed to get gallery tags');
-			}
+	// 		// Check for duplicate images first
+	// 		const duplicateImage = await getImageDuplicatesList(galleryId, info.activeAlbumId);
+	// 		const isHavingDuplicateImage = duplicateImage?.[1]?.find(
+	// 			(item) => item?.displayName === image?.name,
+	// 		);
 
-			const allTagId = responseGalleryTags?.[1]?.find(
-				(item) => item.displayName === 'All',
-			)?._id;
+	// 		if (isHavingDuplicateImage) {
+	// 			getImageDetail(isHavingDuplicateImage?._id);
+	// 			setInfo((prev) => ({
+	// 				...prev,
+	// 				uploadImageId: isHavingDuplicateImage?._id,
+	// 				isLoadingCover: false,
+	// 			}));
+	// 			message.destroy('coverUpload');
+	// 			return;
+	// 		}
 
-			if (!allTagId) {
-				throw new Error('All tag not found');
-			}
+	// 		// Get gallery tags and upload image
+	// 		const responseGalleryTags = await getGalleryTagsList(galleryId);
+	// 		if (!responseGalleryTags?.[0]) {
+	// 			throw new Error('Failed to get gallery tags');
+	// 		}
 
-			const uploadPayload = {
-				originalFileName: image?.name,
-				originalDateTime: moment(image?.['originalDate']).unix() || 0,
-				uploadBatchId: batchId,
-				tag_ids: [allTagId],
-				isAIFacesEnabled: true,
-			};
+	// 		const allTagId = responseGalleryTags?.[1]?.find(
+	// 			(item) => item.displayName === 'All',
+	// 		)?._id;
 
-			const signedURLUpload = await getUploadImageSignUrl(
-				galleryId,
-				info.activeAlbumId,
-				uploadPayload,
-			);
+	// 		if (!allTagId) {
+	// 			throw new Error('All tag not found');
+	// 		}
 
-			if (!signedURLUpload?.[0]) {
-				throw new Error('Failed to get signed URL');
-			}
+	// 		const uploadPayload = {
+	// 			originalFileName: image?.name,
+	// 			originalDateTime: moment(image?.['originalDate']).unix() || 0,
+	// 			uploadBatchId: batchId,
+	// 			tag_ids: [allTagId],
+	// 			isAIFacesEnabled: true,
+	// 		};
 
-			// Upload the image
-			await axios.put(signedURLUpload[1]['signedUrl'], image, {
-				headers: {
-					'Content-Type': image?.type,
-				},
-			});
+	// 		const signedURLUpload = await getUploadImageSignUrl(
+	// 			galleryId,
+	// 			info.activeAlbumId,
+	// 			uploadPayload,
+	// 		);
 
-			setInfo((prev) => ({
-				...prev,
-				uploadImageId: signedURLUpload?.[1]?._id,
-				coverPhoto: true,
-			}));
+	// 		if (!signedURLUpload?.[0]) {
+	// 			throw new Error('Failed to get signed URL');
+	// 		}
 
-			// Wait for image processing
-			let attempts = 0;
-			const maxAttempts = 10;
-			while (attempts < maxAttempts) {
-				await new Promise((resolve) => setTimeout(resolve, 2000));
-				const imageStatus = await getImageUploadStatus(
-					galleryId,
-					info.activeAlbumId,
-					batchId,
-				);
-				if (imageStatus?.[0] && imageStatus?.[1]?.processedCount === 1) {
-					const imageDetails = await getImageDetail(signedURLUpload?.[1]?._id);
-					if (imageDetails?.[0]) {
-						setInfo((prev) => ({
-							...prev,
-							coverImageDetails: imageDetails[1],
-							isLoadingCover: false,
-						}));
-						message.success({
-							content: 'Image uploaded successfully',
-							key: 'coverUpload',
-						});
-						return;
-					}
-				}
-				attempts++;
-			}
-			throw new Error('Image processing timed out');
-		} catch (error) {
-			console.error('Error uploading cover image:', error);
-			message.error({
-				content: error.message || 'Failed to upload cover image',
-				key: 'coverUpload',
-			});
-			setInfo((prev) => ({
-				...prev,
-				isLoadingCover: false,
-			}));
-		}
-	};
+	// 		// Upload the image
+	// 		await axios.put(signedURLUpload[1]['signedUrl'], image, {
+	// 			headers: {
+	// 				'Content-Type': image?.type,
+	// 			},
+	// 		});
+
+	// 		const uploadedImageId = signedURLUpload?.[1]?._id;
+
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			uploadImageId: uploadedImageId,
+	// 			coverPhoto: true,
+	// 		}));
+
+	// 		// Wait for image processing
+	// 		let attempts = 0;
+	// 		const maxAttempts = 10;
+	// 		while (attempts < maxAttempts) {
+	// 			await new Promise((resolve) => setTimeout(resolve, 2000));
+	// 			const imageStatus = await getImageUploadStatus(
+	// 				galleryId,
+	// 				info.activeAlbumId,
+	// 				batchId,
+	// 			);
+	// 			if (imageStatus?.[0] && imageStatus?.[1]?.processedCount === 1) {
+	// 				const imageDetails = await getImageDetail(uploadedImageId);
+	// 				if (imageDetails?.[0]) {
+	// 					// Check if gallery or album has no cover image and set this as cover
+	// 					const shouldSetGalleryCover = !info?.activeGallery?.coverImage;
+	// 					const shouldSetAlbumCover = !info?.activeAlbum?.coverImage;
+
+	// 					if (shouldSetGalleryCover || shouldSetAlbumCover) {
+	// 						const coverPayload = {
+	// 							image_id: uploadedImageId,
+	// 							xPosition: 0,
+	// 							yPosition: 0,
+	// 							givenFileName: imageDetails[1]?.activeVersion?.givenFileName,
+	// 							width: 100,
+	// 							height: 100,
+	// 							zoom: 1,
+	// 						};
+
+	// 						// Set as gallery cover if needed
+	// 						if (shouldSetGalleryCover) {
+	// 							await updateGalleryCoverImage(coverPayload, galleryId);
+	// 						}
+
+	// 						// Set as album cover if needed
+	// 						if (shouldSetAlbumCover) {
+	// 							await updateAlbumCoverImage(
+	// 								coverPayload,
+	// 								galleryId,
+	// 								info.activeAlbumId,
+	// 							);
+	// 						}
+
+	// 						// Refresh data to show new covers
+	// 						await Promise.all([
+	// 							getAlbumImagesCount(galleryId),
+	// 							getAlbums(galleryId),
+	// 							getGalleries(),
+	// 						]);
+
+	// 						message.success('Cover images set automatically');
+	// 					}
+
+	// 					setInfo((prev) => ({
+	// 						...prev,
+	// 						coverImageDetails: imageDetails[1],
+	// 						isLoadingCover: false,
+	// 					}));
+
+	// 					message.success({
+	// 						content: 'Image uploaded successfully',
+	// 						key: 'coverUpload',
+	// 					});
+	// 					return;
+	// 				}
+	// 			}
+	// 			attempts++;
+	// 		}
+	// 		throw new Error('Image processing timed out');
+	// 	} catch (error) {
+	// 		console.error('Error uploading cover image:', error);
+	// 		message.error({
+	// 			content: error.message || 'Failed to upload cover image',
+	// 			key: 'coverUpload',
+	// 		});
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			isLoadingCover: false,
+	// 		}));
+	// 	}
+	// };
+
+	// ... rest of the code ...
 	// const handleSetCoverPosition = async (focalPoint) => {
 	// 	const payload = {
 	// 		image_id: info?.uploadImageId || info?.coverImageDetails?._id,
@@ -1772,6 +1905,7 @@ const GalleryPage = () => {
 			...prev,
 			showCollaborators: !info?.showCollaborators,
 			shareModal: !info?.shareModal,
+			collaboratorsData: prev.collaboratorsData || [],
 		}));
 	};
 	const handleGalleryDateChange = (dateString, date, type) => {
@@ -1816,17 +1950,19 @@ const GalleryPage = () => {
 		if (response[0] === true) {
 			message.destroy();
 			message.success('Gallery deleted successfully');
-			getGalleries({}, true);
+
 			navigate('/galleries');
+			await getGalleries({}, true);
 		} else {
 			message.destroy();
 			message.error(response[1].message);
 		}
 	};
 	const handleManageCollaborator = (data) => {
+		const collaboratorsArray = Array.isArray(data) ? data : [];
 		setInfo((prev) => ({
 			...prev,
-			collaboratorsData: data,
+			collaboratorsData: collaboratorsArray,
 		}));
 	};
 	const onDragEnd = (result) => {
@@ -1953,10 +2089,13 @@ const GalleryPage = () => {
 
 		message.open({
 			type: 'loading',
-			content: 'Uploading Gallery cover image..',
+			content: `Uploading ${
+				info.coverType === 'gallery' ? 'Gallery' : 'Album'
+			} cover image..`,
 			duration: 0,
 		});
 		if (info?.imageURL) {
+			console.log('info?.imageURL3', info?.imageURL);
 			setInfo((prev) => ({
 				...prev,
 				crop: {
@@ -1965,8 +2104,9 @@ const GalleryPage = () => {
 				},
 				zoom: 1,
 				uploadImageId: null,
-				imageURL: '',
+				imageURL: info?.imageURL,
 				coverImageDetails: null,
+				coverType: prev.coverType,
 			}));
 		}
 		const batchId = randomize('Aa0', 10);
@@ -2007,6 +2147,7 @@ const GalleryPage = () => {
 				uploadImageId: signedURLUpload?.[1]?._id,
 				imageURL: '',
 				coverPhoto: true,
+				coverType: prev.coverType,
 			}));
 
 			if (uploadResponse.status === 200) {
@@ -2019,77 +2160,114 @@ const GalleryPage = () => {
 	};
 
 	const handleSetCoverPosition = async (focalPoint) => {
-		// If already processing, return early
 		if (handleSetCoverPosition.isProcessing) return;
 
 		try {
-			// Set processing flag
 			handleSetCoverPosition.isProcessing = true;
 
 			message.loading({
-				content: `Setting ${info.coverType === 'gallery' ? 'gallery' : 'album'} cover...`,
+				content: 'Updating cover position...',
 				key: 'coverUpdate',
 			});
 
+			// Determine the current image based on different scenarios
+			let currentImage;
+			if (info?.selectedImages?.length === 1) {
+				// Case 1: Selected image from gallery
+				currentImage = info?.imagesList?.docs?.find(
+					(img) => img._id === info.selectedImages[0],
+				);
+			} else if (info?.uploadImageId) {
+				// Case 2: Newly uploaded image
+				currentImage = imageDetail;
+			} else {
+				// Case 3: Existing cover image
+				currentImage = info?.coverImageDetails;
+			}
+
+			if (!currentImage?._id || !currentImage?.activeVersion?.givenFileName) {
+				throw new Error('Invalid image details for cover update');
+			}
+
 			const payload = {
-				image_id: info?.uploadImageId || info?.coverImageDetails?._id,
-				xPosition: focalPoint?.x,
-				yPosition: focalPoint?.y,
-				givenFileName:
-					info?.coverImageDetails?.activeVersion?.givenFileName ||
-					imageDetail?.activeVersion?.givenFileName,
+				image_id: currentImage._id,
+				xPosition: focalPoint?.x || 0,
+				yPosition: focalPoint?.y || 0,
+				givenFileName: currentImage.activeVersion.givenFileName,
 				width: 100,
 				height: 100,
 				zoom: info?.zoom || 1,
 			};
 
-			// Ensure we have the required data
-			if (!payload.image_id || !payload.givenFileName) {
-				throw new Error('Missing required image data');
-			}
-
-			let response;
-			if (info.coverType === 'gallery') {
-				response = await updateGalleryCoverImage(payload, galleryId);
-			} else {
-				response = await updateAlbumCoverImage(payload, galleryId, info.activeAlbumId);
-			}
+			// Make the appropriate API call based on cover type
+			const response =
+				info.coverType === 'gallery'
+					? await updateGalleryCoverImage(payload, galleryId)
+					: await updateAlbumCoverImage(payload, galleryId, info.activeAlbumId);
 
 			if (response?.[0]) {
-				// Update local state immediately for optimistic UI update
+				// Create updated cover image object
+				const updatedCoverImage = {
+					...currentImage,
+					xPosition: focalPoint?.x || 0,
+					yPosition: focalPoint?.y || 0,
+					zoom: info?.zoom || 1,
+				};
+
+				// Update state
 				setInfo((prev) => ({
 					...prev,
 					showUploadCover: false,
 					uploadImageId: null,
 					imageURL: '',
-					coverImageDetails: null,
-					selectedImages: [],
+					coverImageDetails: updatedCoverImage,
+					selectedImages: [], // Clear selected images
+					crop: {
+						x: focalPoint?.x || 0,
+						y: focalPoint?.y || 0,
+					},
+					zoom: info?.zoom || 1,
+					// Update the appropriate cover
+					...(info.coverType === 'gallery'
+						? {
+								activeGallery: {
+									...prev.activeGallery,
+									coverImage: updatedCoverImage,
+								},
+						  }
+						: {
+								activeAlbum: {
+									...prev.activeAlbum,
+									coverImage: updatedCoverImage,
+								},
+						  }),
 				}));
 
 				// Refresh data
-				await Promise.all([
-					getAlbumImagesCount(galleryId),
-					getAlbums(galleryId),
-					info.coverType === 'gallery' && getGalleries(),
-				]);
+				await Promise.all(
+					[
+						getAlbumImagesCount(galleryId),
+						getAlbums(galleryId),
+						info.coverType === 'gallery' && getGalleries({}, true),
+					].filter(Boolean),
+				);
 
 				message.success({
 					content: `${
 						info.coverType === 'gallery' ? 'Gallery' : 'Album'
-					} cover updated successfully!`,
+					} cover updated successfully`,
 					key: 'coverUpdate',
 				});
 			} else {
 				throw new Error('Failed to update cover position');
 			}
 		} catch (error) {
-			console.error('Error updating cover:', error);
+			console.error('Error updating cover position:', error);
 			message.error({
-				content: error.message || 'An error occurred while updating cover',
+				content: error.message || 'Failed to update cover position',
 				key: 'coverUpdate',
 			});
 		} finally {
-			// Reset processing flag after a delay to prevent rapid re-clicks
 			setTimeout(() => {
 				handleSetCoverPosition.isProcessing = false;
 			}, 1000);
@@ -2420,78 +2598,88 @@ const GalleryPage = () => {
 			if (info?.activeGallery?.coverImage?.givenFileName) {
 				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info.activeGallery.coverImage.givenFileName}?${params}`;
 			}
+			return GridImage;
 		} else if (info.coverType === 'album') {
-			// Use album cover
 			if (info?.activeAlbum?.coverImage?.givenFileName) {
 				return `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${info?.activeAlbum?.coverImage?.givenFileName}?${params}`;
 			}
+			return GridImage;
 		}
-		return null;
+		return GridImage;
 	};
 	const handleUploadCoverOpen = async (coverType) => {
-		// First, check if there's a selected image
-		const hasSelectedImage = info?.selectedImages?.length === 1;
-		const selectedImage = hasSelectedImage
-			? info?.imagesList?.docs?.find((img) => img._id === info?.selectedImages[0])
-			: null;
-
-		setInfo((prev) => ({
-			...prev,
-			showUploadCover: true,
-			showOptions: coverType === 'gallery' ? false : prev.showOptions,
-			showOptionsContainer: false,
-			coverType: coverType,
-			isLoadingCover: true,
-			coverPhoto: true,
-		}));
-
 		try {
-			// If there's a selected image, use it immediately
-			if (selectedImage?.activeVersion?.givenFileName) {
-				const imageURL = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+			setInfo((prev) => ({
+				...prev,
+				showUploadCover: true,
+				showOptions: coverType === 'gallery' ? false : prev.showOptions,
+				showOptionsContainer: false,
+				coverType: coverType,
+				isLoadingCover: true,
+				coverPhoto: true,
+			}));
 
-				setInfo((prev) => ({
-					...prev,
-					isLoadingCover: false,
-					uploadImageId: selectedImage._id,
-					imageURL: imageURL,
-					coverImageDetails: selectedImage,
-					crop: {
-						x: selectedImage?.xPosition || 0,
-						y: selectedImage?.yPosition || 0,
-					},
-					zoom: selectedImage?.zoom || 1,
-				}));
-				return;
-			}
-
-			// If no selected image or multiple selections, fall back to current cover
-			const coverImage =
+			// Get the current cover based on type
+			const currentCover =
 				coverType === 'gallery'
 					? info?.activeGallery?.coverImage
 					: info?.activeAlbum?.coverImage;
+			// If we have a current cover and credentials, set up the preview
+			if (currentCover?.givenFileName && galleryCredentials) {
+				const imageURL = `${galleryCredentials.baseURL}/${tenantAlbums.tenant_id}/${galleryId}/optimized/${currentCover.givenFileName}?Key-Pair-Id=${galleryCredentials['Key-Pair-Id']}&Signature=${galleryCredentials.Signature}&Policy=${galleryCredentials.Policy}`;
 
-			if (coverImage?.givenFileName) {
 				setInfo((prev) => ({
 					...prev,
 					isLoadingCover: false,
-					imageURL: `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${coverImage.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`,
-					coverImageDetails: coverImage,
-					crop: {
-						x: coverImage?.xPosition || 0,
-						y: coverImage?.yPosition || 0,
+					uploadImageId: currentCover._id,
+					imageURL: imageURL,
+					coverImageDetails: {
+						...currentCover,
+						activeVersion: {
+							givenFileName: currentCover.givenFileName,
+						},
 					},
-					zoom: coverImage?.zoom || 1,
+					crop: {
+						x: currentCover?.xPosition || 0,
+						y: currentCover?.yPosition || 0,
+					},
+					zoom: currentCover?.zoom || 1,
 				}));
 			} else {
+				// No cover image exists yet
 				setInfo((prev) => ({
 					...prev,
 					isLoadingCover: false,
 					imageURL: '',
 					coverImageDetails: null,
+					uploadImageId: null,
 					crop: { x: 0, y: 0 },
 					zoom: 1,
 				}));
+			}
+
+			// If we have a selected image, use that instead
+			if (info?.selectedImages?.length === 1) {
+				const selectedImage = info?.imagesList?.docs?.find(
+					(img) => img._id === info?.selectedImages[0],
+				);
+
+				if (selectedImage?.activeVersion?.givenFileName && galleryCredentials) {
+					const imageURL = `${galleryCredentials.baseURL}/${tenantAlbums.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials['Key-Pair-Id']}&Signature=${galleryCredentials.Signature}&Policy=${galleryCredentials.Policy}`;
+
+					setInfo((prev) => ({
+						...prev,
+						isLoadingCover: false,
+						uploadImageId: selectedImage._id,
+						imageURL: imageURL,
+						coverImageDetails: selectedImage,
+						crop: {
+							x: selectedImage?.xPosition || 0,
+							y: selectedImage?.yPosition || 0,
+						},
+						zoom: selectedImage?.zoom || 1,
+					}));
+				}
 			}
 		} catch (error) {
 			console.error('Error opening cover upload:', error);
@@ -2502,7 +2690,6 @@ const GalleryPage = () => {
 			}));
 		}
 	};
-
 	const handleSetGalleryCover = async () => {
 		if (info?.selectedImages?.length === 1) {
 			const selectedImageId = info?.selectedImages[0];
@@ -2739,60 +2926,140 @@ const GalleryPage = () => {
 	// 	}));
 	// };
 
+	// ... existing code ...
+
 	const handleDownload = async () => {
 		if (validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 
-		message.loading('Downloading images...', 0);
-		if (info?.selectedImages?.length === 1) {
-			const response = await getDownloadLinkForImage(info?.selectedImages[0]);
+		try {
+			// Start with loading message
+			message.loading({
+				content: 'Preparing download...',
+				key: 'downloadMessage',
+				duration: 0,
+			});
 
-			if (response?.[0] === true) {
-				message.destroy();
-				message.success('Download completed');
-			} else {
-				message.error('Failed to get download link');
-			}
-		} else if (info?.selectedImages?.length <= 10) {
-			const payload = {
-				image_ids: info?.selectedImages,
-				imageType: 'original',
-			};
-			const response = await getDownloadForMultipleImages(payload, galleryId);
-			if (response?.[0] === true) {
-				message.destroy();
-				message.success('Download completed');
-			} else {
-				message.error('Failed to get download link');
-			}
-		} else {
-			const payload = {
-				image_ids: info?.selectedImages,
-				imageType: 'optimized',
-			};
-			const response = await downloadImages(payload, galleryId, info?.activeAlbumId);
-			if (response?.[0] === true && response?.[1]?.signedUrl) {
-				// Create a temporary link element and trigger download
-				const link = document.createElement('a');
-				link.href = response[1].signedUrl;
-				link.setAttribute('download', `gallery-images-${Date.now()}.zip`);
-				document.body.appendChild(link);
-				link.click();
-				document.body.removeChild(link);
+			// Single image download handling
+			if (info?.selectedImages?.length === 1) {
+				const selectedImageId = info.selectedImages[0];
 
-				message.destroy();
-				message.success('Download started');
-			} else {
-				message.destroy();
-				message.error('Failed to prepare download');
+				// Get single image download link
+				const response = await getDownloadLinkForImage(selectedImageId);
+
+				if (response?.[0] === true) {
+					// Create link and trigger download
+					const link = document.createElement('a');
+					link.href = response[1]?.url;
+					link.download = response[1]?.fileName || `image-${Date.now()}`;
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+
+					message.success({
+						content: 'Download started',
+						key: 'downloadMessage',
+					});
+				} else {
+					throw new Error('Failed to get download link');
+				}
+
+				// Clear selection
+				setInfo((prev) => ({
+					...prev,
+					selectedImages: [],
+				}));
+				return;
 			}
+
+			// Handle Client Selections tab with no specific selections
+			if (
+				info.activeTab === 'Client Selections' &&
+				info.clientSelectionID &&
+				info.selectedImages.length === 0
+			) {
+				const payload = {
+					image_ids: info.clientSelectionImages.docs.map((img) => img._id),
+					imageType: 'optimized',
+				};
+
+				const response = await downloadImages(payload, galleryId, info.activeAlbumId);
+
+				if (response?.[0] && response?.[1]?.signedUrl) {
+					const link = document.createElement('a');
+					link.href = response[1].signedUrl;
+					link.setAttribute('download', `client-selection-${Date.now()}.zip`);
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+
+					message.success({
+						content: 'Download started',
+						key: 'downloadMessage',
+					});
+				} else {
+					throw new Error('Failed to prepare download');
+				}
+				return;
+			}
+
+			// Handle multiple images (2-10)
+			if (info?.selectedImages?.length <= 10) {
+				const payload = {
+					image_ids: info?.selectedImages,
+					imageType: 'original',
+				};
+				const response = await getDownloadForMultipleImages(payload, galleryId);
+
+				if (response?.[0] === true) {
+					message.success({
+						content: 'Download completed',
+						key: 'downloadMessage',
+					});
+				} else {
+					throw new Error('Failed to get download links');
+				}
+			} else {
+				// Handle bulk download (more than 10 images)
+				const payload = {
+					image_ids: info?.selectedImages,
+					imageType: 'optimized',
+				};
+				const response = await downloadImages(payload, galleryId, info?.activeAlbumId);
+
+				if (response?.[0] === true && response?.[1]?.signedUrl) {
+					const link = document.createElement('a');
+					link.href = response[1].signedUrl;
+					link.setAttribute('download', `gallery-images-${Date.now()}.zip`);
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+
+					message.success({
+						content: 'Download started',
+						key: 'downloadMessage',
+					});
+				} else {
+					throw new Error('Failed to prepare download');
+				}
+			}
+
+			// Clear selection after successful download
+			setInfo((prev) => ({
+				...prev,
+				selectedImages: [],
+			}));
+		} catch (error) {
+			console.error('Download error:', error);
+			message.error({
+				content: error.message || 'An error occurred during download',
+				key: 'downloadMessage',
+			});
 		}
-		setInfo((prev) => ({
-			...prev,
-			selectedImages: [],
-		}));
 	};
+
+	// ... rest of the code ...
 
 	// Add this function to calculate drop position
 	const calculateDropPosition = (e, containerRef) => {
@@ -2868,6 +3135,36 @@ const GalleryPage = () => {
 		// Clean up event listener on component unmount
 		return () => document.removeEventListener('mousemove', handleMouseMove);
 	}, [info.isDragging]);
+
+	const getShareLink = () => {
+		const baseUrl = `${info?.galleryLink}`;
+		let pin = '';
+		if (info.activeTab === 'Client Selections' && info?.clientSelectionID) {
+			const selection = clientSelectionsData?.data?.find(
+				(sel) => sel._id === info?.clientSelectionID,
+			);
+			pin = selection?.pin || '';
+		} else if (info?.activeAlbum?._id) {
+			pin = info?.activeAlbum?.guestAccess?.pin || '';
+		} else {
+			pin = info?.activeGallery?.guestAccess?.pin || '';
+		}
+		if (info.activeTab === 'Client Selections' && info?.clientSelectionName) {
+			return {
+				url: `${baseUrl}/selection/${info?.activeClientSelection}`,
+				pin: pin,
+			};
+		} else if (info?.activeAlbum?.slug) {
+			return {
+				url: `${baseUrl}/${info?.activeAlbum?._id}`,
+				pin: pin,
+			};
+		}
+		return {
+			url: baseUrl,
+			pin: pin,
+		};
+	};
 	return (
 		<>
 			<div className="galleryContainer">
@@ -3069,8 +3366,8 @@ const GalleryPage = () => {
 									)}
 								</div>
 							</div>
-						</div>
-						{info.activeTab !== 'Insights' && (
+						</div>{' '}
+						{info.activeTab !== 'Insights' && info.activeTab !== 'AI' && (
 							<div
 								style={{
 									display: 'flex',
@@ -3414,7 +3711,9 @@ const GalleryPage = () => {
 						<div className="galleryViewer">
 							<div className="galleryNavbar">
 								<div className="aboutAlbum">
-									<div className="albumName"></div>
+									<div className="albumName">
+										<p>{info?.activeAlbum?.title}</p>
+									</div>
 									<div className="albumSearchCotainer">
 										<div
 											onClick={() =>
@@ -3550,7 +3849,7 @@ const GalleryPage = () => {
 										</div>
 										<div
 											style={{ position: 'relative' }}
-											ref={settingsRef}
+											ref={albumSettingsIconRef}
 											onClick={() =>
 												setInfo((prevInfo) => ({
 													...prevInfo,
@@ -4216,190 +4515,6 @@ const GalleryPage = () => {
 											</>
 										)}
 									</InfiniteScroll>
-
-									{info.selectedImages.length > 0 && (
-										<div className="selectedImagesCotainer">
-											<div className="selectedImagesCounter">
-												<p
-													onClick={() => handleClearSelectedImages()}
-													style={{ cursor: 'pointer' }}
-												>
-													X
-												</p>
-												<p>{info.selectedImages.length} selected</p>
-											</div>
-											{!info.isRearranging && (
-												<div className="selectedImagesActions">
-													<div
-														onClick={() =>
-															handleExpandClick(null, 'multiple')
-														}
-													>
-														<ExpandIcon
-															style={{ color: 'var(--primary-font)' }}
-														/>
-													</div>
-
-													<div
-														style={{ position: 'relative' }}
-														ref={forwardIconRef}
-													>
-														<ForwardIcon
-															style={{ color: 'var(--primary-font)' }}
-															onClick={handleForwardIcon}
-														/>
-
-														{info.showForward && (
-															<div
-																className="forwardOptions"
-																ref={forwardOptionsRef}
-															>
-																{/* <li style={{ cursor: 'not-allowed' }}>
-																Copy to client selection
-															</li> */}
-																<li
-																	onClick={() =>
-																		setInfo((prev) => ({
-																			...prev,
-																			showMoveToAlbum: true,
-																		}))
-																	}
-																>
-																	Move to Other Albums
-																</li>
-															</div>
-														)}
-													</div>
-													<div
-														style={{ position: 'relative' }}
-														ref={pinIconRef}
-													>
-														<PinIcon onClick={handlePinIcon} />
-														{info.showPin && (
-															<div
-																className="pinOptions"
-																ref={pinSearchRef}
-															>
-																<div className="pinSearchContainer">
-																	<input
-																		type="text"
-																		placeholder="type to Search or create"
-																		value={info.tagSearchValue}
-																		onChange={(e) =>
-																			setInfo((prev) => ({
-																				...prev,
-																				tagSearchValue:
-																					e.target.value,
-																			}))
-																		}
-																		onKeyDown={(e) => {
-																			if (e.key === 'Enter') {
-																				addTagHandlerFunction();
-																			}
-																		}}
-																	/>
-																	<p
-																		style={{
-																			cursor: 'pointer',
-																			marginRight: '5px',
-																		}}
-																		onClick={handlePinIcon}
-																	>
-																		X
-																	</p>
-																</div>
-																{tagsList?.list
-																	?.filter((tag) =>
-																		tag?.displayName
-																			?.toLowerCase()
-																			.includes(
-																				info.tagSearchValue.toLowerCase(),
-																			),
-																	)
-																	.map((tag) => (
-																		<div className="pinOptionsList">
-																			<label className="checkboxLabel">
-																				<input
-																					type="checkbox"
-																					checked={info?.selectedImagesTags?.includes(
-																						tag?._id,
-																					)}
-																					onChange={() =>
-																						handleTagChange(
-																							tag?._id,
-																						)
-																					}
-																				/>
-																				<span className="checkboxText">
-																					{
-																						tag?.displayName
-																					}
-																				</span>
-																			</label>
-																		</div>
-																	))}
-															</div>
-														)}
-													</div>
-													<div
-														style={{ position: 'relative' }}
-														ref={optionsIconRef}
-													>
-														<OptionsIcon onClick={handleOptionsIcon} />
-														{info.showAlbumOptionsMenu && (
-															<div
-																className="optionsContainer"
-																ref={optionsContainerRef}
-															>
-																<li onClick={handleDownload}>
-																	Download
-																</li>
-																<li
-																	style={{
-																		cursor:
-																			info?.selectedImages
-																				.length === 1
-																				? 'pointer'
-																				: 'not-allowed',
-																	}}
-																	onClick={() =>
-																		handleSetAlbumCover()
-																	}
-																>
-																	Set Album cover
-																</li>
-																<li
-																	style={{
-																		cursor:
-																			info?.selectedImages
-																				.length === 1
-																				? 'pointer'
-																				: 'not-allowed',
-																	}}
-																	onClick={() =>
-																		handleSetGalleryCover()
-																	}
-																>
-																	Set Gallery cover
-																</li>
-																<li>Share</li>
-																<li
-																	onClick={() =>
-																		setInfo((prev) => ({
-																			...prev,
-																			showImageDeletePopup: true,
-																		}))
-																	}
-																>
-																	Delete
-																</li>
-															</div>
-														)}
-													</div>
-												</div>
-											)}
-										</div>
-									)}
 								</div>
 							</div>
 						</div>
@@ -4432,25 +4547,136 @@ const GalleryPage = () => {
 								<div className="aboutAlbum">
 									<div className="albumName">
 										<p>{info?.clientSelectionName}</p>
-										<div
+										{/* <div
 											style={{ position: 'relative' }}
-											// onClick={() =>
-											// 	setInfo((prevInfo) => ({
-											// 		...prevInfo,
-											// 		showGalleryOptions:
-											// 			!prevInfo.showGalleryOptions,
-											// 	}))
-											// }
+											onClick={() =>
+												setInfo((prevInfo) => ({
+													...prevInfo,
+													showGalleryOptions:
+														!prevInfo.showGalleryOptions,
+												}))
+											}
 										>
 											<ThreeDotsIcon
 												className="threeDotsIcon"
 												style={{ cursor: 'pointer' }}
+												onClick={() =>
+													setInfo((prev) => ({
+														...prev,
+														clientSubscriptionOptions:
+															!prev.clientSubscriptionOptions,
+													}))
+												}
 											/>
 
 											<div></div>
-										</div>
+										</div> */}
 									</div>
+
 									<div className="albumSearchCotainer">
+										<div
+											style={{ position: 'relative' }}
+											ref={settingsRef}
+											onClick={() =>
+												setInfo((prev) => ({
+													...prev,
+													clientSubscriptionOptions:
+														!prev.clientSubscriptionOptions,
+												}))
+											}
+										>
+											<p style={{ cursor: 'pointer' }}>Selection Settings</p>
+											{info.clientSubscriptionOptions && (
+												<div
+													className="galleryEditOptions"
+													ref={optionsContainerRef}
+													style={{
+														position: 'absolute',
+														right: '0',
+														top: '100%',
+														zIndex: 100,
+														width: '200px',
+													}}
+												>
+													<li
+														onClick={handleLightRoomCopy}
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															gap: '4px',
+														}}
+													>
+														<LightRoomIcon />
+														<span>Light Room Copy</span>
+													</li>
+													{/* <li
+														onClick={() => {
+															setInfo((prev) => ({
+																...prev,
+																showShareAlbum: true,
+																clientSubscriptionOptions: false,
+															}));
+														}}
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															gap: '4px',
+														}}
+													>
+														<ShareIcon />
+														<span>Share</span>
+													</li> */}
+													<li
+														onClick={handleDownload}
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															gap: '4px',
+														}}
+													>
+														<DownloadIcon />
+														<span>Download</span>
+													</li>
+													<li
+														onClick={() =>
+															handleUploadCoverOpen('album')
+														}
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															gap: '4px',
+														}}
+													>
+														<AlbumCoverIcon />
+														Album Cover
+													</li>
+													<div
+														onClick={() => {
+															setInfo((prev) => ({
+																...prev,
+																showDeleteAlbum: true,
+																showOptionsContainer: false, // Close options menu if it exists
+															}));
+														}}
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															gap: '4px',
+														}}
+													>
+														<DeleteIcon />
+														<span
+															style={{
+																color: '#A74A49',
+																cursor: 'pointer',
+															}}
+														>
+															Delete Album
+														</span>
+													</div>
+												</div>
+											)}
+										</div>
 										<div
 											onClick={() =>
 												setInfo((prevInfo) => ({
@@ -4527,12 +4753,12 @@ const GalleryPage = () => {
 																				? 'selected'
 																				: ''
 																		}`}
-																		// onClick={() =>
-																		// 	handleImageSelect(
-																		// 		index,
-																		// 		image,
-																		// 	)
-																		// }
+																		onClick={() =>
+																			handleImageSelect(
+																				index,
+																				image,
+																			)
+																		}
 																	>
 																		<img
 																			src={src}
@@ -4564,7 +4790,7 @@ const GalleryPage = () => {
 										</ResponsiveMasonry>
 									</InfiniteScroll>
 
-									{/* {info.selectedImages.length > 0 && (
+									{/* {info.selectedImages?.length > 0 && (
 										<div className="selectedImagesCotainer">
 											<div className="selectedImagesCounter">
 												<p
@@ -4621,18 +4847,18 @@ const GalleryPage = () => {
 																<div className="pinOptionsList">
 																	<label className="checkboxLabel">
 																		<input
-																				type="checkbox"
-																				checked={info?.selectedImagesTags?.includes(
-																						tag?._id,
-																				)}
-																				onChange={() =>
-																						handleTagChange(
-																								tag?._id,
-																						)
-																				}
+																			type="checkbox"
+																			checked={info?.selectedImagesTags?.includes(
+																				tag?._id,
+																			)}
+																			onChange={() =>
+																				handleTagChange(
+																					tag?._id,
+																				)
+																			}
 																		/>
 																		<span className="checkboxText">
-																				{tag?.displayName}
+																			{tag?.displayName}
 																		</span>
 																	</label>
 																</div>
@@ -4673,6 +4899,149 @@ const GalleryPage = () => {
 							</div>
 						</div>
 					))}
+				{info.selectedImages.length > 0 && (
+					<div className="selectedImagesCotainer">
+						<div className="selectedImagesCounter">
+							<p
+								onClick={() => handleClearSelectedImages()}
+								style={{ cursor: 'pointer' }}
+							>
+								X
+							</p>
+							<p>{info.selectedImages.length} selected</p>
+						</div>
+						{!info.isRearranging && (
+							<div className="selectedImagesActions">
+								<div onClick={() => handleExpandClick(null, 'multiple')}>
+									<ExpandIcon />
+								</div>
+
+								<div style={{ position: 'relative' }} ref={forwardIconRef}>
+									<ForwardIcon onClick={handleForwardIcon} />
+
+									{info.showForward && (
+										<div className="forwardOptions" ref={forwardOptionsRef}>
+											{/* <li style={{ cursor: 'not-allowed' }}>
+																Copy to client selection
+															</li> */}
+											<li
+												onClick={() =>
+													setInfo((prev) => ({
+														...prev,
+														showMoveToAlbum: true,
+													}))
+												}
+											>
+												Move to Other Albums
+											</li>
+										</div>
+									)}
+								</div>
+								<div style={{ position: 'relative' }} ref={pinIconRef}>
+									<PinIcon onClick={handlePinIcon} />
+									{info.showPin && (
+										<div className="pinOptions" ref={pinSearchRef}>
+											<div className="pinSearchContainer">
+												<input
+													type="text"
+													placeholder="type to Search or create"
+													value={info.tagSearchValue}
+													onChange={(e) =>
+														setInfo((prev) => ({
+															...prev,
+															tagSearchValue: e.target.value,
+														}))
+													}
+													onKeyDown={(e) => {
+														if (e.key === 'Enter') {
+															addTagHandlerFunction();
+														}
+													}}
+												/>
+												<p
+													style={{
+														cursor: 'pointer',
+														marginRight: '5px',
+													}}
+													onClick={handlePinIcon}
+												>
+													X
+												</p>
+											</div>
+											{tagsList?.list
+												?.filter((tag) =>
+													tag?.displayName
+														?.toLowerCase()
+														.includes(
+															info.tagSearchValue.toLowerCase(),
+														),
+												)
+												.map((tag) => (
+													<div className="pinOptionsList">
+														<label className="checkboxLabel">
+															<input
+																type="checkbox"
+																checked={info?.selectedImagesTags?.includes(
+																	tag?._id,
+																)}
+																onChange={() =>
+																	handleTagChange(tag?._id)
+																}
+															/>
+															<span className="checkboxText">
+																{tag?.displayName}
+															</span>
+														</label>
+													</div>
+												))}
+										</div>
+									)}
+								</div>
+								<div style={{ position: 'relative' }} ref={optionsIconRef}>
+									<OptionsIcon onClick={handleOptionsIcon} />
+									{info.showAlbumOptionsMenu && (
+										<div className="optionsContainer" ref={optionsContainerRef}>
+											<li onClick={handleDownload}>Download</li>
+											<li
+												style={{
+													cursor:
+														info?.selectedImages.length === 1
+															? 'pointer'
+															: 'not-allowed',
+												}}
+												onClick={() => handleSetAlbumCover()}
+											>
+												Set Album cover
+											</li>
+											<li
+												style={{
+													cursor:
+														info?.selectedImages.length === 1
+															? 'pointer'
+															: 'not-allowed',
+												}}
+												onClick={() => handleSetGalleryCover()}
+											>
+												Set Gallery cover
+											</li>
+											{/* <li>Share</li> */}
+											<li
+												onClick={() =>
+													setInfo((prev) => ({
+														...prev,
+														showImageDeletePopup: true,
+													}))
+												}
+											>
+												Delete
+											</li>
+										</div>
+									)}
+								</div>
+							</div>
+						)}
+					</div>
+				)}
 
 				{info.activeTab === 'Settings' && (
 					<div className="settingsMainContainer">
@@ -4915,9 +5284,7 @@ const GalleryPage = () => {
 			<ShareAlbum
 				open={info.showShareAlbum}
 				onClose={() => setInfo((prev) => ({ ...prev, showShareAlbum: false }))}
-				link={info?.galleryLink}
-				// link={`https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`}
-				pin="5555"
+				link={getShareLink()}
 				onCopyLink={handleCopyAlbumLink}
 			/>
 

@@ -5,8 +5,9 @@ import { Progress } from 'antd';
 import DuplicateComponent from './DuplicateComponent';
 import Context from '../../../../context/context';
 
-const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently }) => {
+const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, galleryId }) => {
 	const {
+		galleryInfo: { setUpImageUpload },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	// func for removing the image
@@ -28,6 +29,13 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently }) => {
 		e.preventDefault();
 		let imageCount = Object.keys(info?.uploadImages || {}).length;
 		if (imageCount <= 0) return;
+
+		const payload = {
+			expectedImages: imageCount,
+			uploadBatchId: info?.uploadBatchID,
+		};
+
+		setUpImageUpload(galleryId, payload);
 
 		uploadFilesConcurrently();
 	};

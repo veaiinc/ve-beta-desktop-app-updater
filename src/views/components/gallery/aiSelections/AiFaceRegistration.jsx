@@ -17,9 +17,9 @@ const AiFaceRegistration = ({ link }) => {
 	const [info, setinfo] = useState({
 		isNotifyPopupOpen: false,
 		notifyType: null,
-		numberOfImagesGroupedFaces: 108,
-		numberOfImagesPeoples: 123,
-		imagesCount: 1178,
+		numberOfImagesGroupedFaces: 0,
+		numberOfImagesPeoples: 0,
+		imagesCount: 0,
 	});
 
 	const {
@@ -46,8 +46,6 @@ const AiFaceRegistration = ({ link }) => {
 	}, []);
 
 	const hasRegisteredUsers = preRegisteredUsers?.data?.length > 0;
-
-	console.log('imageProcessingStatus', imageProcessingStatus);
 
 	const fetchMoreData = () => {
 		const nextPage = page + 1;

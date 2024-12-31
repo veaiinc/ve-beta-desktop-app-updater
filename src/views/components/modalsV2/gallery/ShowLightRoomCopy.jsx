@@ -2,9 +2,18 @@ import ReactModal from '../index';
 import React from 'react';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 const ShowLightRoomCopy = (props) => {
+	const customStyles = {
+		content: { zIndex: 99999 },
+		overlay: { zIndex: 99998 },
+	};
 	const { open, onClose, lightroomCopyList, onCopyList } = props;
 	return (
-		<ReactModal isOpen={open} closeModal={onClose} modalType={'center'}>
+		<ReactModal
+			isOpen={open}
+			closeModal={onClose}
+			modalType={'center'}
+			customStyles={customStyles}
+		>
 			<div className="lightRoomCopyContainer">
 				<div className="lightRoomCopyContent">
 					<div className="lightRoomCopyHeading">
