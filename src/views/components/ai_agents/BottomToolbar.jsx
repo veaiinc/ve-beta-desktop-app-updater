@@ -6,7 +6,7 @@ import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settin
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
-import { message } from 'antd';
+import { message, Tooltip } from 'antd';
 import ReactMarkdown from 'react-markdown';
 
 const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChatLoading }) => {
@@ -187,7 +187,29 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 						<Home />
 					</div>
 					<div className="quickActionsButtons">
-						<Plus />
+						<Tooltip
+							placement="top"
+							title={
+								<QuickActionsPlusParentContainer />
+								// <ThreeDotsPopUp
+								// 	data={ele}
+								// 	setSelectedEventsPreset={setSelectedEventsPreset}
+								// 	index={index}
+								// />
+							}
+							color={'#202020'}
+							arrow={true}
+							trigger="click"
+							overlayClassName="quickActionsTooltipContainer"
+							// open={info?.threeDotsPopUp?.[index]}
+							// onOpenChange={(open) => {
+							// 	if (!open) {
+							// 		closeThreeDotsPopup(index);
+							// 	}
+							// }}
+						>
+							<Plus />
+						</Tooltip>
 					</div>
 					<div className="quickActionsButtons">
 						<Settings />
@@ -211,3 +233,7 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 };
 
 export default memo(BottomToolbar);
+
+const QuickActionsPlusParentContainer = () => {
+	return <div className="QuickActionsPlusParentContainer"></div>;
+};
