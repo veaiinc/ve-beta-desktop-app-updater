@@ -157,20 +157,34 @@ const EventDetailsModal = ({
 			),
 			meetingLink: (value) =>
 				value ? (
-					<a
-						href={value}
-						target="_blank"
-						rel="noopener noreferrer"
-						className="meetingLink"
-					>
-						{value}
-					</a>
+					<span className="meetingLink">
+						<CustomInput
+							type="url"
+							value={value}
+							placeholder="Edit meeting link"
+							className="inputFields"
+							onChange={(e) => {
+								updateEventDetails('meetingLink', e.target?.value);
+							}}
+						/>
+						<a
+							href={value}
+							target="_blank"
+							rel="noopener noreferrer"
+							style={{ cursor: 'pointer', fontSize: 7 }}
+						>
+							🔗
+						</a>
+					</span>
 				) : (
 					<CustomInput
 						type="url"
 						value={value}
 						placeholder="Add meeting link"
-						className="inputFeilds"
+						className="inputFields"
+						onChange={(e) => {
+							updateEventDetails('meetingLink', e.target?.value);
+						}}
 					/>
 				),
 			calendarCategory: (value) => (

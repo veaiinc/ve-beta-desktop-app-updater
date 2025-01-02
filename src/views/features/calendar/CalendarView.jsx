@@ -57,7 +57,8 @@ const CalendarView = ({
 	}, [tenantsUserList]);
 
 	useEffect(() => {
-		fetchEventsList();
+		// fetchEventsList();
+		getCalendarEventsList();
 		if (calendarEvent?._id) {
 			handleSendEventToAi();
 		}
@@ -73,6 +74,7 @@ const CalendarView = ({
 	useEffect(() => {
 		if (calendarEventsList) {
 			if (calendarEventsList?.error?.length) {
+				console.log('Error While Fetching Events: ', calendarEventsList);
 				return setInfo((prevInfo) => ({
 					...prevInfo,
 					eventListError: calendarEventsList?.error,
@@ -83,7 +85,7 @@ const CalendarView = ({
 			// Map the calendarEventsList to the desired eventsList format
 			const mappedEventsList = calendarEventsList?.map((event) => ({
 				id: event?._id,
-				start: moment(event?.startDateTime).local().toDate(), // Convert to local time
+				start: moment(event?.startDateTime).local().toDate(),
 				end: moment(event?.endDateTime).local().toDate(),
 				title: event?.title,
 				description: event?.description,
@@ -98,10 +100,10 @@ const CalendarView = ({
 		}
 	}, [calendarEventsList]);
 
-	const fetchEventsList = useCallback(async () => {
-		setInfo((prevInfo) => ({ ...prevInfo, isLoading: true, eventListError: null }));
-		await getCalendarEventsList();
-	}, []);
+	// const fetchEventsList = useCallback(async () => {
+	// 	setInfo((prevInfo) => ({ ...prevInfo, isLoading: true, eventListError: null }));
+	// 	await getCalendarEventsList();
+	// }, []);
 
 	const handleSendEventToAi = useCallback(async () => {
 		if (calendarEvent?._id) {
