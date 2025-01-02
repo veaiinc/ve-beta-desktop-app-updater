@@ -178,6 +178,7 @@ const GlobalWorkflowModal = ({
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	const [info, setInfo] = useState(initialState);
+	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
 	useEffect(() => {
 		if (isProposal) {
@@ -289,9 +290,24 @@ const GlobalWorkflowModal = ({
 		}
 		window.location.href = `${origin}/generate/${info?.activeTemplateData?._id}`;
 	};
+	useEffect(() => {
+		const handleResize = () => {
+			setScreenWidth(window.innerWidth);
+			// If screen becomes too small while expanded, collapse it
+			if (window.innerWidth < 500 && isExpanded) {
+				setIsExpanded(false);
+			}
+		};
+
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	}, [isExpanded, setIsExpanded]);
 
 	const toggleExpand = () => {
-		setIsExpanded(!isExpanded);
+		// Only allow expansion if screen is wide enough
+		if (screenWidth >= 500) {
+			setIsExpanded(!isExpanded);
+		}
 	};
 
 	return (
@@ -299,7 +315,7 @@ const GlobalWorkflowModal = ({
 			{!isProposal ? (
 				<Drawer
 					onClose={modifiedCloseModal}
-					width={isExpanded ? 760 : 420}
+					width={screenWidth < 500 ? 420 : isExpanded ? 760 : 420}
 					style={{
 						padding: '0px',
 						backgroundColor: 'transparent',
@@ -307,7 +323,12 @@ const GlobalWorkflowModal = ({
 						borderRadius: '32px',
 						position: 'fixed',
 						right: '60',
-						transform: isExpanded ? 'translateX(-360px)' : 'translateX(0)',
+						transform:
+							screenWidth < 500
+								? 'translateX(0)'
+								: isExpanded
+								? 'translateX(-360px)'
+								: 'translateX(0)',
 						transition: 'all 0.8s ease',
 					}}
 					open={modalIsOpen}
@@ -384,7 +405,13 @@ const GlobalWorkflowModal = ({
 											gap: '24px',
 										}}
 									>
-										<span className="svgContainer" onClick={toggleExpand}>
+										<span
+											className="svgContainer"
+											onClick={toggleExpand}
+											style={{
+												display: screenWidth < 500 ? 'none' : 'inline-flex',
+											}}
+										>
 											<ArrowsOut />
 										</span>
 										<span className="svgContainer" onClick={modifiedCloseModal}>
@@ -447,7 +474,7 @@ const GlobalWorkflowModal = ({
 				<Drawer
 					onClose={modifiedCloseModal}
 					mask={false}
-					width={isExpanded ? 760 : 420}
+					width={screenWidth < 500 ? 420 : isExpanded ? 760 : 420}
 					open={modalIsOpen}
 					style={{
 						padding: '0px',
@@ -456,7 +483,12 @@ const GlobalWorkflowModal = ({
 						borderRadius: '32px',
 						position: 'fixed',
 						right: '60',
-						transform: isExpanded ? 'translateX(-360px)' : 'translateX(0)',
+						transform:
+							screenWidth < 500
+								? 'translateX(0)'
+								: isExpanded
+								? 'translateX(-360px)'
+								: 'translateX(0)',
 						transition: 'transform 0.8s ease',
 					}}
 					headerStyle={{ display: 'none' }}
@@ -534,6 +566,7 @@ const GlobalWorkflowModal = ({
 										<span
 											className="svgContainer"
 											style={{
+												display: screenWidth < 500 ? 'none' : 'inline-flex',
 												cursor: 'pointer',
 												alignSelf: 'center',
 											}}

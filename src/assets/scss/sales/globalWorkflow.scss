@@ -129,7 +129,7 @@
 			flex-direction: column;
 			justify-content: flex-start;
 			gap: 24px;
-			height: 90vh;
+			height: 100vh;
 			overflow-y: auto;
 			width: 70%;
 			transition: transform 0.3s ease, opacity 0.3s ease;
@@ -584,12 +584,14 @@
 			margin: 0px;
 			padding: 0px !important;
 			align-content: center;
-			height: auto; // Add this to allow content to expand
-			min-height: 100%; // Add this to ensure minimum full height
-			overflow-y: visible; // Ch
+			height: auto;
+			min-height: 100%;
+			overflow-y: visible;
+			gap: 10px;
 			.left_div {
 				width: 80%;
 				.left_child_div {
+					width: 100%;
 					.side_text {
 						width: 100%;
 					}
