@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, useRef } from 'react';
+import React, { memo, useCallback, useState, useRef, useEffect } from 'react';
 import '../../../assets/scss/ai_agents/bottomToolbar.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/ai_agents/Plus.svg';
 import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
@@ -6,7 +6,9 @@ import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settin
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
-const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend }) => {
+import { message } from 'antd';
+
+const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChatLoading }) => {
 	const [info, setInfo] = useState({
 		expanded: false,
 		inputExpanded: false,
@@ -18,6 +20,7 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend }) => {
 	const toolbarRef = useRef(null);
 	const isDraggingRef = useRef(false);
 	const startPosRef = useRef({ x: 0, y: 0 });
+	const chatContentRef = useRef(null);
 
 	const handleMouseDown = useCallback(
 		(e) => {
@@ -90,6 +93,8 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend }) => {
 
 	const handleSendMessageFunc = useCallback(
 		(e, click) => {
+			if (aiChatLoading && info?.chatQuery?.length)
+				return message.error('Please wait for the AI response');
 			if (click || e.key === 'Enter') {
 				if (info?.chatQuery?.length) {
 					onSend(info?.chatQuery);
@@ -97,8 +102,15 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend }) => {
 				}
 			}
 		},
-		[info?.chatQuery],
+		[info?.chatQuery, aiChatLoading],
 	);
+
+	// Add this useEffect for auto-scrolling
+	useEffect(() => {
+		if (chatContentRef.current) {
+			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+		}
+	}, [chatList]); // Scroll whenever chatList changes
 
 	return (
 		<div
@@ -128,15 +140,19 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend }) => {
 						</button>
 					</div>
 				</div>
-				<div className="chatContent">
-					{chatList.map((chat, index) => (
-						<div
-							key={index}
-							className={`chat-message ${chat.type.toLowerCase()}-message`}
-						>
-							<div className="message-content">{chat.message}</div>
-						</div>
-					))}
+				<div className="chatContent" ref={chatContentRef}>
+					{chatList.map((chat, index) =>
+						chat?.content ? (
+							chat?.content
+						) : (
+							<div
+								key={index}
+								className={`chat-message ${chat.type.toLowerCase()}-message`}
+							>
+								<div className="message-content">{chat.message}</div>
+							</div>
+						),
+					)}
 				</div>
 			</div>
 
@@ -174,6 +190,7 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend }) => {
 				chatQuery={info?.chatQuery}
 				onChange={(e) => setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))}
 				onKeyDown={handleSendMessageFunc}
+				aiChatLoading={aiChatLoading}
 			/>
 		</div>
 	);

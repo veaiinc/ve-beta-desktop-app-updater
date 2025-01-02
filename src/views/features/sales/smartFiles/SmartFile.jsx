@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../.././../../assets/scss/sales/smartFile.scss';
 import SmartFileHeader from '../../../components/smartFileComponets/SmartFileHeader';
@@ -19,7 +20,7 @@ import SendEmailModal from '../../../components/modalsV2/proposalModals/SendEmai
 import { message, Spin } from 'antd';
 import BottomToolbar from '../../../components/ai_agents/BottomToolbar';
 import ObjectID from 'bson-objectid';
-
+import { ReactComponent as AiSparkel } from '../.././../../assets/svg/calendar/aiSparkel.svg';
 const SmartFile = () => {
 	const { templateId, workflowId } = useParams();
 	const navigate = useNavigate();
@@ -82,6 +83,7 @@ const SmartFile = () => {
 		copyLink: null,
 		chatList: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
 		chatSessionId: null,
+		aiChatLoading: false,
 	});
 
 	//useEffect
@@ -560,7 +562,21 @@ const SmartFile = () => {
 				type: 'user',
 				message: data,
 			};
-			setInfo((prev) => ({ ...prev, chatList: [...prev?.chatList, obj] }));
+			let loadingObj = {
+				type: 'AI',
+				message: 'loading....',
+				content: (
+					<div className="aiMessageWrapper">
+						<AiSparkel />
+						<div className="aiMessage">
+							<span>Thinking...</span>
+						</div>
+					</div>
+				),
+			};
+			let chatlist = [...(info?.chatList || [])];
+			chatlist = [...chatlist, obj, loadingObj];
+			setInfo((prev) => ({ ...prev, chatList: chatlist, aiChatLoading: true }));
 			const payload = {
 				query: data,
 				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -568,16 +584,24 @@ const SmartFile = () => {
 				workflow_slug: info?.workflowData?.slug,
 			};
 			const response = await smartFileAiChat(payload, info?.chatSessionId);
+			chatlist.pop();
 			if (response?.[0]) {
 				let obj = {
 					type: 'AI',
 					message: response?.[1],
 				};
-				setInfo((prev) => ({ ...prev, chatList: [...prev?.chatList, obj] }));
+				chatlist = [...chatlist, obj];
 			}
+			setInfo((prev) => ({
+				...prev,
+				chatList: chatlist,
+				aiChatLoading: false,
+			}));
 		},
-		[info?.chatList, info?.chatSessionId, info?.workflowData],
+		[info?.chatList, info?.chatSessionId, info?.workflowData, info?.aiChatLoading, info],
 	);
+
+	const refetchSmartFiledata = useCallback(() => {}, []);
 
 	return info?.loading ? (
 		<UpdatedPageLoader />
@@ -678,6 +702,7 @@ const SmartFile = () => {
 				outerContainerStyle={{ bottom: '10px' }}
 				chatList={info?.chatList}
 				onSend={handleSendMessage}
+				aiChatLoading={info?.aiChatLoading}
 			/>
 		</div>
 	);

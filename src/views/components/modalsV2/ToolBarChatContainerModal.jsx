@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-duplicate-props */
 import { Drawer } from 'antd';
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useRef, useEffect } from 'react';
 import '../../../assets/scss/ai_agents/bottomToolbarChatContainer.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as SendSvg } from '../../../assets/svg/calendar/send.svg';
@@ -11,8 +11,18 @@ const ToolBarChatContainerModal = ({
 	onChange,
 	onKeyDown,
 	chatQuery,
+	aiChatLoading,
 }) => {
 	const [info, setInfo] = useState({});
+	const chatContentRef = useRef(null);
+
+	// Add this useEffect for auto-scrolling
+	useEffect(() => {
+		if (chatContentRef.current) {
+			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+		}
+	}, [chatList]); // Scroll whenever chatList changes
+
 	return (
 		<Drawer
 			onClose={onClose}
@@ -30,16 +40,20 @@ const ToolBarChatContainerModal = ({
 				</div>
 
 				{/* chat body */}
-				<div className="toolBarchatBodyParentContainer">
+				<div className="toolBarchatBodyParentContainer" ref={chatContentRef}>
 					<div className="chatContent">
-						{chatList.map((chat, index) => (
-							<div
-								key={index}
-								className={`chat-message ${chat.type.toLowerCase()}-message`}
-							>
-								<div className="message-content">{chat.message}</div>
-							</div>
-						))}
+						{chatList.map((chat, index) =>
+							chat?.content ? (
+								chat?.content
+							) : (
+								<div
+									key={index}
+									className={`chat-message ${chat.type.toLowerCase()}-message`}
+								>
+									<div className="message-content">{chat.message}</div>
+								</div>
+							),
+						)}
 					</div>
 				</div>
 
@@ -51,10 +65,15 @@ const ToolBarChatContainerModal = ({
 						value={chatQuery}
 						onChange={onChange}
 						onKeyDown={onKeyDown}
-						disabled={info?.isProcessing}
 						className="toolBarExpandedTextArea"
 					/>
-					<SendSvg style={{ cursor: 'pointer' }} onClick={() => onKeyDown(null, 'key')} />
+					<SendSvg
+						style={{
+							cursor: aiChatLoading ? 'not-allowed' : 'pointer',
+							opacity: aiChatLoading ? 0.5 : 1,
+						}}
+						onClick={() => !aiChatLoading && onKeyDown(null, 'key')}
+					/>
 				</div>
 			</div>
 		</Drawer>
