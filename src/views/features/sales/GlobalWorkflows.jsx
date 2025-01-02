@@ -261,7 +261,7 @@ const GlobalWorkflows = () => {
 							{info?.isExpanded ? (
 								<div
 									style={{
-										position: 'absolute', // Add this
+										position: 'absolute',
 										width: '420px',
 										opacity: info?.isExpanded ? 1 : 0,
 										transform: info?.isExpanded
@@ -305,11 +305,16 @@ const GlobalWorkflows = () => {
 							) : (
 								<div
 									style={{
+										position: 'relative',
+										opacity: info?.isExpanded ? 0 : 1,
 										transform: info?.isExpanded
 											? 'translateX(-100%)'
 											: 'translateX(0)',
-										transition: 'transform 0.7s ease-out',
+										transition:
+											'opacity 0.3s ease-out, transform 0.3s ease-out',
 										width: '100%',
+										visibility: info?.isExpanded ? 'hidden' : 'visible',
+										pointerEvents: info?.isExpanded ? 'none' : 'auto',
 									}}
 								>
 									<InfiniteScroll

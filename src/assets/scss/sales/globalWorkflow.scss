@@ -22,14 +22,14 @@
 		gap: 150px;
 		padding-top: 100px;
 		margin-left: 10%;
-		transition: transform 0.5s ease-out, visibility 0.5s ease-out;
+		transition: transform 0.7s ease-out, visibility 0.7s ease-out;
 
 		.left_div {
 			display: flex;
 			flex-direction: column;
 			height: auto;
 			align-items: space-evenly;
-			transition: transform 0.3s ease, opacity 0.3s ease;
+			transition: transform 0.7s ease, opacity 0.7s ease;
 			padding-left: 15px;
 			border-radius: 30px;
 			gap: 80px;
@@ -125,6 +125,7 @@
 		}
 		.mainContentContainer {
 			// flex: 1;
+			position: relative;
 			display: flex;
 			flex-direction: column;
 			justify-content: flex-start;
@@ -132,7 +133,7 @@
 			height: 100vh;
 			overflow-y: auto;
 			width: 70%;
-			transition: transform 0.3s ease, opacity 0.3s ease;
+			transition: transform 0.8s ease, opacity 0.8s ease;
 			scrollbar-width: none !important; /* Firefox */
 			-ms-overflow-style: none !important; /* IE and Edge */
 			&::-webkit-scrollbar {
@@ -140,6 +141,7 @@
 			}
 			&.modal-open {
 				transform: translateX(-35%);
+				transition: transform 0.3s ease-out, opacity 0.3s ease-out;
 			}
 			.dior-studio-text {
 				color: #fff;
