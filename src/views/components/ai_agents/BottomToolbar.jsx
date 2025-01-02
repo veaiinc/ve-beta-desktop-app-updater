@@ -7,6 +7,7 @@ import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
 import { message } from 'antd';
+import ReactMarkdown from 'react-markdown';
 
 const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChatLoading }) => {
 	const [info, setInfo] = useState({
@@ -149,7 +150,9 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 								key={index}
 								className={`chat-message ${chat.type.toLowerCase()}-message`}
 							>
-								<div className="message-content">{chat.message}</div>
+								<div className="message-content">
+									<ReactMarkdown>{chat.message}</ReactMarkdown>
+								</div>
 							</div>
 						),
 					)}

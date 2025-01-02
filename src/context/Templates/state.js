@@ -1156,7 +1156,7 @@ export const TemplatesState = (props) => {
 			const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
 			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
 			if (response?.[0]) {
-				return [true, response?.[1]?.answer];
+				return [true, response?.[1]];
 			}
 			console.log('response==>smartFileAiChat', response);
 		} catch (error) {

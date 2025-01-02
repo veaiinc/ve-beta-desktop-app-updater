@@ -4,6 +4,7 @@ import React, { memo, useState, useRef, useEffect } from 'react';
 import '../../../assets/scss/ai_agents/bottomToolbarChatContainer.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as SendSvg } from '../../../assets/svg/calendar/send.svg';
+import ReactMarkdown from 'react-markdown';
 const ToolBarChatContainerModal = ({
 	onClose,
 	modalIsOpen,
@@ -50,7 +51,9 @@ const ToolBarChatContainerModal = ({
 									key={index}
 									className={`chat-message ${chat.type.toLowerCase()}-message`}
 								>
-									<div className="message-content">{chat.message}</div>
+									<div className="message-content">
+										<ReactMarkdown>{chat.message}</ReactMarkdown>
+									</div>
 								</div>
 							),
 						)}

@@ -115,7 +115,7 @@ const SmartFile = () => {
 
 	useEffect(() => {
 		if (smartFileInfo && specificTemplatesInfo) {
-			setInfo((prev) => ({ ...prev, loading: false }));
+			setInfo((prev) => ({ ...prev, loading: false, aiChatLoading: false }));
 		}
 	}, [smartFileInfo, specificTemplatesInfo]);
 
@@ -588,9 +588,12 @@ const SmartFile = () => {
 			if (response?.[0]) {
 				let obj = {
 					type: 'AI',
-					message: response?.[1],
+					message: response?.[1]?.answer || '',
 				};
 				chatlist = [...chatlist, obj];
+				if (response?.[1]?.db_updates?.proposal_db_update) {
+					refetchSmartFiledata();
+				}
 			}
 			setInfo((prev) => ({
 				...prev,
@@ -601,7 +604,26 @@ const SmartFile = () => {
 		[info?.chatList, info?.chatSessionId, info?.workflowData, info?.aiChatLoading, info],
 	);
 
-	const refetchSmartFiledata = useCallback(() => {}, []);
+	const refetchSmartFiledata = useCallback(() => {
+		getSmartFileInfo();
+		let loadingObj = {
+			type: 'AI',
+			message: 'loading....',
+			content: (
+				<div className="aiMessageWrapper">
+					<AiSparkel />
+					<div className="aiMessage">
+						<span>We are adjusting changes...</span>
+					</div>
+				</div>
+			),
+		};
+		setInfo((prev) => ({
+			...prev,
+			chatList: [...prev?.chatList, loadingObj],
+			aiChatLoading: true,
+		}));
+	}, [info]);
 
 	return info?.loading ? (
 		<UpdatedPageLoader />
