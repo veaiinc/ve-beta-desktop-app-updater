@@ -247,10 +247,7 @@ const LandingPage = () => {
 			<div ref={landingPageContentRef} className="landing-page-content">
 				<div className="section-1">
 					<div className="container">
-						<h1 className="heading">
-							AI OS that
-							<br /> minds your business !
-						</h1>
+						<h1 className="heading">A new era of getting work done</h1>
 						<p className="description">
 							<VeAiLogoGrey aria-label="VeAi Logo in grey" />
 							&nbsp; is an os that creates ai workers and collaborates with your human

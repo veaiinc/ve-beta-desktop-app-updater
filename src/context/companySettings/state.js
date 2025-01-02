@@ -9,6 +9,7 @@ export const intialState = {
 	tenantPreferenceData: null,
 	tenantSubscriptionDetails: null,
 	clientPortalPreferences: null,
+	AICreditsData: null,
 };
 export const CompanySettingsState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -306,20 +307,32 @@ export const CompanySettingsState = () => {
 		}
 	};
 
-	const getAICreditsUsed = async () => {
+	const getAICreditsUsedData = async (page = 1, limit = 10) => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
 			const path = `/${workspaceId}/ai-credits`;
 			const params = {
-				page: 1,
-				limit: 10,
+				page,
+				limit,
 				sort: '-createdAt',
 			};
 			const response = await service.fetchGet(path, usertoken, 'tenant', params);
-			console.log('response ==> ', response);
+			const AICreditsData = {
+				data: [...(state?.AICreditsData?.data ?? []), ...response?.[1]?.data],
+				hasNextPage: response?.[1]?.hasNextPage,
+				nextPage: response?.[1]?.nextPage,
+			};
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_AI_CREDITS_USED,
+					payload: AICreditsData,
+				});
+			} else {
+				return [false, response[1]];
+			}
 		} catch (error) {
-			console.log('error ==> getAICreditsUsed', error);
+			console.log('error ==> getAICreditsUsedData', error);
 		}
 	};
 
@@ -350,6 +363,6 @@ export const CompanySettingsState = () => {
 		checkWorkspaceId,
 		getClientPortalPreference,
 		updateClientPortalPreference,
-		getAICreditsUsed,
+		getAICreditsUsedData,
 	};
 };
