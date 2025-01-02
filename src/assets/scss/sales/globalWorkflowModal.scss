@@ -1,6 +1,8 @@
 .ant-drawer-content-wrapper {
 	width: 428px !important;
 	box-shadow: none !important;
+	transition: all 0.5s ease !important;
+	transform-origin: right !important;
 	.GlobalWorkflowModalParentContainer {
 		height: 100%;
 		width: 420px;

@@ -261,14 +261,20 @@ const GlobalWorkflows = () => {
 							{info?.isExpanded ? (
 								<div
 									style={{
+										position: 'absolute', // Add this
 										width: '420px',
+										opacity: info?.isExpanded ? 1 : 0,
+										transform: info?.isExpanded
+											? 'translateX(0)'
+											: 'translateX(-100%)',
+										transition:
+											'opacity 0.3s ease-out, transform 0.3s ease-out',
 										display: 'flex',
 										flexDirection: 'column',
 										alignItems: 'flex-start',
 										gap: '32px',
 										marginTop: '20%',
 										marginLeft: '10%',
-										transition: 'transform 0.3s ease-out',
 									}}
 								>
 									<div>
@@ -302,7 +308,7 @@ const GlobalWorkflows = () => {
 										transform: info?.isExpanded
 											? 'translateX(-100%)'
 											: 'translateX(0)',
-										transition: 'transform 0.3s ease-out',
+										transition: 'transform 0.7s ease-out',
 										width: '100%',
 									}}
 								>

@@ -70,6 +70,7 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
+	aiPredictedData: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1008,6 +1009,26 @@ export const TemplatesState = (props) => {
 			return [false, error?.message];
 		}
 	};
+	//Ai Predictions
+	const getAiPredictionForSmartFile = async (workflowSlug) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/${workflowSlug}/predict`;
+			const response = await Service.fetchGet(url, usertoken, 'ai_predictions');
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_AI_PREDICTED_DATA_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				console.log('api failed==>getAiPredictionForSmartFile', response);
+			}
+		} catch (error) {
+			console.log('errror ==>getAiPredictionForSmartFile', error);
+		}
+	};
 
 	//leaveWorkspace
 	const leaveWorkspace = async () => {
@@ -1198,5 +1219,6 @@ export const TemplatesState = (props) => {
 		getActivityLogs,
 		getDrafStateWorkflowtemplates,
 		toggleCreateLeadModal,
+		getAiPredictionForSmartFile,
 	};
 };

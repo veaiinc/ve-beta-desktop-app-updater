@@ -321,15 +321,6 @@ const GlobalWorkflowModal = ({
 						backgroundColor: 'transparent',
 						height: '100dvh',
 						borderRadius: '32px',
-						position: 'fixed',
-						right: '60',
-						transform:
-							screenWidth < 500
-								? 'translateX(0)'
-								: isExpanded
-								? 'translateX(-360px)'
-								: 'translateX(0)',
-						transition: 'all 0.8s ease',
 					}}
 					open={modalIsOpen}
 					mask={false}
@@ -340,14 +331,16 @@ const GlobalWorkflowModal = ({
 						className="GlobalWorkflowModalParentContainer"
 						style={{
 							width: isExpanded ? '780px' : '420px',
-							transition: 'width 0.8s ease',
+							position: 'fixed',
+							right: '10px',
+							transition: 'width 0.7s ease',
 						}}
 					>
 						<div
 							className="innerContainer"
 							style={{
 								width: isExpanded ? '780px' : '420px',
-								transition: 'width 0.8s ease',
+								transition: 'width 0.7s ease',
 								background: 'transparent',
 							}}
 						>
@@ -436,7 +429,7 @@ const GlobalWorkflowModal = ({
 													style={{
 														alignSelf: 'center',
 														width: isExpanded ? '640px' : '368px',
-														transition: 'width 0.8s ease',
+														transition: 'width 0.7s ease',
 													}}
 												>
 													<span>{e?.module}</span>
@@ -481,15 +474,6 @@ const GlobalWorkflowModal = ({
 						backgroundColor: 'transparent',
 						height: '100dvh',
 						borderRadius: '32px',
-						position: 'fixed',
-						right: '60',
-						transform:
-							screenWidth < 500
-								? 'translateX(0)'
-								: isExpanded
-								? 'translateX(-360px)'
-								: 'translateX(0)',
-						transition: 'transform 0.8s ease',
 					}}
 					headerStyle={{ display: 'none' }}
 					bodyStyle={{ padding: '0px' }}
@@ -499,6 +483,8 @@ const GlobalWorkflowModal = ({
 						style={{
 							height: '99dvh',
 							width: isExpanded ? '780px' : '420px',
+							position: 'fixed',
+							right: '60',
 							transition: 'width 0.8s ease',
 						}}
 					>

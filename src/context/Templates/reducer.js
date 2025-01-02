@@ -63,6 +63,10 @@ const actionHandlers = {
 		...state,
 		moduleTemplateData: action.payload,
 	}),
+	GET_AI_PREDICTED_DATA_SUCCESS: (state, action) => ({
+		...state,
+		aiPredictedData: action.payload,
+	}),
 	SET_CONNECT_URL: (state, action) => ({
 		...state,
 		connectUrl: action?.payload,
