@@ -187,7 +187,7 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 						<Home />
 					</div>
 					<div className="quickActionsButtons">
-						<Tooltip
+						{/* <Tooltip
 							placement="top"
 							title={
 								<QuickActionsPlusParentContainer />
@@ -207,9 +207,9 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 							// 		closeThreeDotsPopup(index);
 							// 	}
 							// }}
-						>
-							<Plus />
-						</Tooltip>
+						> */}
+						<Plus />
+						{/* </Tooltip> */}
 					</div>
 					<div className="quickActionsButtons">
 						<Settings />
