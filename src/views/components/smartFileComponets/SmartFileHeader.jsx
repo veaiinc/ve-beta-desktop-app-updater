@@ -142,7 +142,7 @@ const SmartFileHeader = ({
 	return (
 		<div className="smarFileHeader">
 			<div className="HeaderContentContainer">
-				<div className="BackBtnContainer" onClick={() => navigate(-1)}>
+				<div className="BackBtnContainer" onClick={() => navigate('/home')}>
 					{' '}
 					<span className="svgWrapper">
 						<BackArrowSvg />
