@@ -398,16 +398,25 @@ const GlobalWorkflowModal = ({
 											gap: '24px',
 										}}
 									>
+										{!isExpanded && (
+											<span
+												className="svgContainer"
+												onClick={toggleExpand}
+												style={{
+													display:
+														screenWidth < 500 ? 'none' : 'inline-flex',
+													cursor: 'pointer',
+													alignSelf: 'center',
+												}}
+											>
+												<ArrowsOut />
+											</span>
+										)}
 										<span
 											className="svgContainer"
-											onClick={toggleExpand}
-											style={{
-												display: screenWidth < 500 ? 'none' : 'inline-flex',
-											}}
+											onClick={isExpanded ? toggleExpand : modifiedCloseModal}
+											style={{ alignSelf: 'center', cursor: 'pointer' }}
 										>
-											<ArrowsOut />
-										</span>
-										<span className="svgContainer" onClick={modifiedCloseModal}>
 											<DoubleBackArrow />
 										</span>
 									</div>
@@ -549,20 +558,23 @@ const GlobalWorkflowModal = ({
 											gap: '24px',
 										}}
 									>
+										{!isExpanded && (
+											<span
+												className="svgContainer"
+												onClick={toggleExpand}
+												style={{
+													display:
+														screenWidth < 500 ? 'none' : 'inline-flex',
+													cursor: 'pointer',
+													alignSelf: 'center',
+												}}
+											>
+												<ArrowsOut />
+											</span>
+										)}
 										<span
 											className="svgContainer"
-											style={{
-												display: screenWidth < 500 ? 'none' : 'inline-flex',
-												cursor: 'pointer',
-												alignSelf: 'center',
-											}}
-											onClick={toggleExpand}
-										>
-											<ArrowsOut />
-										</span>
-										<span
-											className="svgContainer"
-											onClick={modifiedCloseModal}
+											onClick={isExpanded ? toggleExpand : modifiedCloseModal}
 											style={{ alignSelf: 'center', cursor: 'pointer' }}
 										>
 											<DoubleBackArrow />
