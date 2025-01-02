@@ -398,16 +398,22 @@ const GlobalWorkflowModal = ({
 											gap: '24px',
 										}}
 									>
+										{!isExpanded && (
+											<span
+												className="svgContainer"
+												onClick={toggleExpand}
+												style={{
+													display:
+														screenWidth < 500 ? 'none' : 'inline-flex',
+												}}
+											>
+												<ArrowsOut />
+											</span>
+										)}
 										<span
 											className="svgContainer"
-											onClick={toggleExpand}
-											style={{
-												display: screenWidth < 500 ? 'none' : 'inline-flex',
-											}}
+											onClick={isExpanded ? toggleExpand : modifiedCloseModal}
 										>
-											<ArrowsOut />
-										</span>
-										<span className="svgContainer" onClick={modifiedCloseModal}>
 											<DoubleBackArrow />
 										</span>
 									</div>
@@ -459,9 +465,60 @@ const GlobalWorkflowModal = ({
 									loading={info?.loading}
 								/>
 							)}
+							<div
+								className="innerContainerHeader"
+								style={{
+									borderBottom: 'none',
+									marginTop: 'auto',
+									paddingTop: '0px',
+								}}
+							>
+								<div
+									className="headerBtnContainer"
+									style={{ justifyContent: 'center', alignItems: 'center' }}
+								>
+									<div className="tabBtnContainer">
+										<div
+											onClick={onCustomiseFunc}
+											className="svgContainer"
+											style={{
+												display: 'flex',
+												width: '368px',
+												padding: '16px 32px',
+												justifyContent: 'center',
+												alignItems: 'center',
+												gap: '16px',
+												borderRadius: '23px',
+												background: '#FAFAFA',
+												cursor: 'pointer',
+											}}
+										>
+											<span
+												style={{
+													color: '#3F3F3F',
+													fontFamily: 'Inter',
+													fontSize: '12px',
+													fontStyle: 'normal',
+													fontWeight: '500',
+													lineHeight: 'normal',
+												}}
+											>
+												Add to workspace
+											</span>
+											{info?.duplicateApiLoading && (
+												<Spinner
+													width={'16px'}
+													height="16px"
+													color={'#6055ec'}
+													borderTopColor="#111"
+												/>
+											)}
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
-					;
 				</Drawer>
 			) : (
 				<Drawer
@@ -484,8 +541,8 @@ const GlobalWorkflowModal = ({
 							height: '99dvh',
 							width: isExpanded ? '780px' : '420px',
 							position: 'fixed',
-							right: '60',
-							transition: 'width 0.8s ease',
+							right: '10px',
+							transition: 'width 0.7s ease',
 						}}
 					>
 						<div
