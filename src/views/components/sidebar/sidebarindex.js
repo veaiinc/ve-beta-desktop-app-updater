@@ -100,7 +100,12 @@ export const veAiModulesItemsList = [
 export const veAiModules = [
 	// { icon: OrchestratorSvg, name: 'Orchestrator', route: '/orchestrator' },
 	{ icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
-	{ icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
+	{
+		icon: TemplatesSvg,
+		name: 'Templates',
+		route: '/playbook',
+		subModules: [{ icon: '', name: 'MyTemplates', route: '/my-templates' }],
+	},
 	{
 		icon: SettingsSvg,
 		name: 'Settings',

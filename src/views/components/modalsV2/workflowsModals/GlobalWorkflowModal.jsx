@@ -544,7 +544,7 @@ const GlobalWorkflowModal = ({
 						style={{
 							height: '99dvh',
 							position: 'fixed',
-							right: '60',
+							right: '10px',
 							width: isExpanded ? '780px' : '420px',
 							transition: 'width 0.8s ease',
 						}}
