@@ -23,6 +23,7 @@
 			flex-direction: row;
 			justify-content: space-between;
 			align-items: center;
+			overflow-x: scroll;
 
 			.column {
 				display: flex;
@@ -35,6 +36,10 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+			}
+
+			w-20p {
+				width: 20%;
 			}
 		}
 

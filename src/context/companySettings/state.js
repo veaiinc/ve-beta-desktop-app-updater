@@ -309,8 +309,15 @@ export const CompanySettingsState = () => {
 	const getAICreditsUsed = async () => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
-			const path = '/businessconsultant/ai-credits';
-			const response = await service.fetchGet('/tenant/ai-credits-used', null, 'auth');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${workspaceId}/ai-credits`;
+			const params = {
+				page: 1,
+				limit: 10,
+				sort: '-createdAt',
+			};
+			const response = await service.fetchGet(path, usertoken, 'tenant', params);
+			console.log('response ==> ', response);
 		} catch (error) {
 			console.log('error ==> getAICreditsUsed', error);
 		}
@@ -343,5 +350,6 @@ export const CompanySettingsState = () => {
 		checkWorkspaceId,
 		getClientPortalPreference,
 		updateClientPortalPreference,
+		getAICreditsUsed,
 	};
 };
