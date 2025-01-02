@@ -48,6 +48,7 @@ const GlobalWorkflows = () => {
 
 	const [info, setInfo] = useState({
 		loading: true,
+		isLoading: false,
 		globalWorkflowData: null,
 		hasNextPage: false,
 		currentPage: 1,
@@ -76,6 +77,7 @@ const GlobalWorkflows = () => {
 
 	const handleOptionSelect = useCallback(
 		async (option) => {
+			setInfo((prev) => ({ ...prev, isLoading: true }));
 			setSelectedOption(option);
 			const payload = {
 				page: 1,
@@ -87,6 +89,7 @@ const GlobalWorkflows = () => {
 			if (success) {
 				setModuleTemplateData(response.templates);
 			}
+			setInfo((prev) => ({ ...prev, isLoading: true }));
 		},
 		[getModuleTemplate],
 	);
@@ -334,30 +337,30 @@ const GlobalWorkflows = () => {
 														openModal(data, module);
 													}}
 													modalIsOpen={info.modalIsOpen}
+													isLoading={info.isLoading}
 												/>
-											) : !info?.globalWorkflowData ? (
-												// Show skeleton loaders when workflow data is loading
-												[...Array(6)].map((_, index) => (
-													<Skeleton
-														key={index}
-														className="workflow-card-skeleton"
-														width={300}
-														height={200}
-													/>
-												))
 											) : (
 												getFilteredData(info?.globalWorkflowData)?.map(
-													(ele, index) => (
-														<GlobalWorkflowCard
-															key={index}
-															data={ele}
-															onClickFunc={openModal}
-															isSelected={
-																ele?._id ===
-																info?.selectedWorkflowId
-															}
-														/>
-													),
+													(ele, index) =>
+														!info.globalWorkflowData ? (
+															<Skeleton
+																width={'100%'}
+																height={'300px'}
+																baseColor="transparent"
+																highlightColor="rgba(255, 255, 255, 0.20)"
+																opacity={0.5}
+															/>
+														) : (
+															<GlobalWorkflowCard
+																key={index}
+																data={ele}
+																onClickFunc={openModal}
+																isSelected={
+																	ele?._id ===
+																	info?.selectedWorkflowId
+																}
+															/>
+														),
 												)
 											)}
 										</div>
