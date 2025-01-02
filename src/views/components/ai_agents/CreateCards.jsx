@@ -10,17 +10,6 @@ import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
 let origin = fetchOriginSelection();
 
-const actionMapper = {
-	update: 'Updated',
-	create: 'Created',
-	upload: 'Uploaded',
-	download: 'Downloaded',
-	view: 'Viewed',
-	share: 'Shared',
-	send: 'Sent',
-	insert: 'Inserted',
-};
-
 const CreateCards = () => {
 	const navigate = useNavigate();
 	let {
@@ -192,12 +181,9 @@ const Activity = memo(() => {
 								className="aiAgentsActivityCardsHeaderText"
 								style={{ textTransform: 'capitalize' }}
 							>
-								{`${actionMapper?.[ele?.action] || ele?.action} ${ele?.entity}`}
+								{ele?.summary || ''}
 							</span>
 							<div className="aiAgentsActivityCardsSubTextHolder">
-								<span className="aiAgentsActivityCardssubTextStyling">
-									{ele?.userName}
-								</span>
 								<span className="aiAgentsActivityCardTime">
 									{ele?.timestamp ? formatTimestamp(ele?.timestamp) : ''}
 								</span>
