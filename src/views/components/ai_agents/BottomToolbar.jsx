@@ -93,17 +93,27 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 	}, [info]);
 
 	const handleSendMessageFunc = useCallback(
-		(e, click) => {
-			if (aiChatLoading && info?.chatQuery?.length)
-				return message.error('Please wait for the AI response');
-			if (click || e.key === 'Enter') {
-				if (info?.chatQuery?.length) {
+		(e) => {
+			if (e.key === 'Enter') {
+				// If Shift+Enter, allow new line
+				if (e.shiftKey) {
+					return;
+				}
+
+				// Prevent default to avoid unwanted new line
+				e.preventDefault();
+
+				if (aiChatLoading && info?.chatQuery?.length) {
+					return message.error('Please wait for the AI response');
+				}
+
+				if (info?.chatQuery?.trim().length) {
 					onSend(info?.chatQuery);
 					setInfo((prev) => ({ ...prev, chatQuery: '' }));
 				}
 			}
 		},
-		[info?.chatQuery, aiChatLoading],
+		[info?.chatQuery, aiChatLoading, onSend],
 	);
 
 	// Add this useEffect for auto-scrolling
@@ -116,7 +126,7 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 	return (
 		<div
 			ref={toolbarRef}
-			className="bottomToolbarParentWrapper"
+			className={`bottomToolbarParentWrapper ${info.inputExpanded ? 'expanded' : ''}`}
 			style={{
 				...outerContainerStyle,
 				position: 'fixed',
@@ -162,7 +172,7 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 			{/* bottom toolBarContent */}
 			{!info?.chatModalIsOpen ? (
 				<div className="bottomToolbar">
-					<input
+					<textarea
 						className={`bottomToolbarInputs ${info.inputExpanded ? 'expanded' : ''}`}
 						placeholder="Ask AI"
 						onFocus={handleInputFocus}
@@ -171,6 +181,8 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 							setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
 						}
 						onKeyDown={handleSendMessageFunc}
+						style={{ resize: 'none' }}
+						// rows={1}
 					/>
 					<div className="quickActionsButtons">
 						<Home />

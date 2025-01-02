@@ -69,6 +69,7 @@ const ToolBarChatContainerModal = ({
 						onChange={onChange}
 						onKeyDown={onKeyDown}
 						className="toolBarExpandedTextArea"
+						// rows={1}
 					/>
 					<SendSvg
 						style={{

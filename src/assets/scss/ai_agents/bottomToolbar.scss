@@ -8,6 +8,12 @@
 	gap: 4px;
 	z-index: 1000;
 	user-select: none;
+	width: 231px;
+	transition: width 0.3s ease;
+
+	&.expanded {
+		width: 312px;
+	}
 
 	.bottomToolbarChatContainer {
 		height: 0;
@@ -159,38 +165,31 @@
 	}
 
 	.bottomToolbar {
-		width: 231px;
+		width: 100%;
 		height: 48px;
 		flex-shrink: 0;
 		border-radius: 100px;
 		background: #202123;
-		background: color(display-p3 0.1255 0.1294 0.1373);
 		display: flex;
 		align-items: center;
 		gap: 8px;
 		padding: 4px;
-		transition: width 0.3s ease;
 
 		.bottomToolbarInputs {
 			width: 79px;
 			height: 40px;
-			flex-shrink: 0;
+			flex: 1;
 			border-radius: 100px;
 			background: #161718;
-			background: color(display-p3 0.0863 0.0902 0.0941);
 			outline: none;
 			border: none;
 			padding: 12px;
-			transition: width 0.3s ease;
+			transition: all 0.3s ease;
 			color: #fff;
-
-			&:focus {
-				width: 160px;
-			}
 
 			&:focus,
 			&.expanded {
-				width: 160px;
+				flex: 2;
 			}
 
 			&::placeholder {
@@ -214,13 +213,7 @@
 			}
 		}
 
-		&:has(.bottomToolbarInputs:focus),
-		&:has(.bottomToolbarInputs.expanded) {
-			width: 312px;
-		}
 		.quickActionsButtons {
-			width: 40px;
-			height: 40px;
 			flex-shrink: 0;
 			border-radius: 100px;
 			background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
