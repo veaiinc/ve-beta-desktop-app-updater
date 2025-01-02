@@ -53,7 +53,7 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 	}, []);
 
 	// Add and remove event listeners
-	React.useEffect(() => {
+	useEffect(() => {
 		document.addEventListener('mousemove', handleMouseMove);
 		document.addEventListener('mouseup', handleMouseUp);
 
@@ -182,7 +182,6 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 						}
 						onKeyDown={handleSendMessageFunc}
 						style={{ resize: 'none' }}
-						// rows={1}
 					/>
 					<div className="quickActionsButtons">
 						<Home />
