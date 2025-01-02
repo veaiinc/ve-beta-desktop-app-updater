@@ -8,6 +8,7 @@ import Spinner from '../../components/loaders/Spinner';
 import GlobalWorkflowModal from '../../components/modalsV2/workflowsModals/GlobalWorkflowModal';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import GlobalProposalsCard from '../../components/sales/globalProposalsCard';
+import Skeleton from 'react-loading-skeleton';
 const FetchMoreLoaderComp = () => {
 	return (
 		<h4
@@ -203,7 +204,7 @@ const GlobalWorkflows = () => {
 
 	return (
 		<>
-			{info?.isLoading ? (
+			{info?.loading ? (
 				<UpdatedPageLoader />
 			) : (
 				<div className={`playbook-wrapper ${isPlaybookRoute ? 'with-background' : ''}`}>
@@ -334,6 +335,16 @@ const GlobalWorkflows = () => {
 													}}
 													modalIsOpen={info.modalIsOpen}
 												/>
+											) : !info?.globalWorkflowData ? (
+												// Show skeleton loaders when workflow data is loading
+												[...Array(6)].map((_, index) => (
+													<Skeleton
+														key={index}
+														className="workflow-card-skeleton"
+														width={300}
+														height={200}
+													/>
+												))
 											) : (
 												getFilteredData(info?.globalWorkflowData)?.map(
 													(ele, index) => (
