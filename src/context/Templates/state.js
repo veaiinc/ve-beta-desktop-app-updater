@@ -602,10 +602,10 @@ export const TemplatesState = (props) => {
 		const byteString = atob(dataURL.split(',')[1]);
 		const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
 
-		const buffer = new ArrayBuffer(byteString?.length);
+		const buffer = new ArrayBuffer(byteString.length);
 		const dataView = new Uint8Array(buffer);
 
-		for (let i = 0; i < byteString?.length; i++) {
+		for (let i = 0; i < byteString.length; i++) {
 			dataView[i] = byteString.charCodeAt(i);
 		}
 
