@@ -85,10 +85,17 @@
 				svg {
 					width: 16px;
 					height: 16px;
+					align-self: center;
 				}
 
 				* {
 					flex-shrink: 0;
+				}
+
+				.drag-handle-icon {
+					display: flex;
+					align-items: center;
+					justify-content: center;	
 				}
 
 				.property-listItem-title {
@@ -104,6 +111,7 @@
 					overflow: hidden;
 					text-overflow: ellipsis;
 					white-space: nowrap;
+					user-select: none;
 				}
 
 				.crossed-eye-icon {

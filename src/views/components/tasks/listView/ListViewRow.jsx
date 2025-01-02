@@ -15,8 +15,15 @@ const ListViewRow = ({
 			const rightPart = [];
 			let split = false;
 
-			for (let key in row) {
-				const value = row[key];
+			// Sort properties by order
+			const sortedProperties = [...(properties || [])]
+				?.sort((a, b) => (a?.order || 0) - (b?.order || 0))
+				?.filter((property) => property?.show);
+
+			// Loop through sorted properties instead of row keys
+			sortedProperties?.forEach((property) => {
+				const key = property?.value;
+				const value = row?.[key];
 
 				const {
 					type = null,
@@ -24,9 +31,11 @@ const ListViewRow = ({
 					props = {},
 					doSplit = false,
 				} = responseMetadata?.[key] || {};
+
 				if (type === null) {
-					continue;
+					return;
 				}
+
 				const RowComponent = rowTypes?.[type] || null;
 
 				if (doSplit) {
@@ -45,12 +54,7 @@ const ListViewRow = ({
 					key === 'completedAt' ||
 					(isSubTask && key === 'workflow')
 				) {
-					continue;
-				}
-
-				const property = properties?.find((item) => item?.value === key);
-				if (property && !property?.show) {
-					continue;
+					return;
 				}
 
 				const listItem = RowComponent ? (
@@ -59,17 +63,18 @@ const ListViewRow = ({
 						value={value}
 						title={name}
 						onOptionClick={(value) =>
-							updatePropertyValue(task._id, key, value, isSubTask)
+							updatePropertyValue(task?._id, key, value, isSubTask)
 						}
 						{...props}
 					/>
 				) : null;
+
 				if (split && !doSplit) {
-					rightPart.push(listItem);
+					rightPart?.push(listItem);
 				} else {
-					leftPart.push(listItem);
+					leftPart?.push(listItem);
 				}
-			}
+			});
 
 			return [
 				<div key="listItemRowLeft" className="leftPart">
@@ -86,7 +91,7 @@ const ListViewRow = ({
 	return (
 		<div
 			className={`listItemRowContainer ${isSubTask ? 'subTaskRowContainer' : ''}`}
-			onClick={() => handleRowClick(task._id)}
+			onClick={() => handleRowClick(task?._id)}
 		>
 			<div className="listItemRow">{generateRow(task)}</div>
 		</div>

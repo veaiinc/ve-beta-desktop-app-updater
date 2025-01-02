@@ -2,12 +2,11 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/tasks/modals/createTaskPopup.scss';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/CrossWhite.svg';
-import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
+// import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 // import { ReactComponent as PageIcon } from '../../../../assets/svg/tasks/pagePlus.svg';
 // import { ReactComponent as CalendarIcon } from '../../../../assets/svg/calendar-icon.svg';
 // import { ReactComponent as LinkIcon } from '../../../../assets/svg/activity/link.svg';
 // import { ReactComponent as CalendarIcon } from '../../../../assets/svg/tasks/calendar.svg';
-import { ReactComponent as TaskIcon } from '../../../../assets/svg/tasks/taskIcon.svg';
 import { ReactComponent as DustbinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import Priority from '../../tasks/listView/Priority';
@@ -17,7 +16,6 @@ import Spinner from '../../loaders/Spinner';
 import WorkFlow from '../../tasks/listView/WorkFlow';
 import Person from '../../tasks/listView/Person';
 import DateView from '../../tasks/listView/DateView';
-import DropDown from '../../dropDown/tasks/DropDown';
 
 const initialState = {
 	assignedTo: [],

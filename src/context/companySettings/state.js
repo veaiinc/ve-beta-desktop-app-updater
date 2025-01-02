@@ -315,7 +315,6 @@ export const CompanySettingsState = () => {
 				usertoken,
 				'tenant-users',
 			);
-			console.log('response ==> getTaskPreferences', response);
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.GET_TASK_PREFERENCES,

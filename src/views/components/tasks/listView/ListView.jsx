@@ -157,6 +157,7 @@ const ListView = ({
 				handleCreateSubTaskClick={handleCreateSubTaskClick}
 				responseMetadata={responseMetadata}
 				haveSubTask={haveSubTask}
+				properties={info?.properties}
 			/>
 		</div>
 	);

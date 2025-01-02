@@ -2,12 +2,9 @@ import React, { memo, useCallback, useState } from 'react';
 import '../../../../assets/scss/tasks/listViewHeader.scss';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/tasks/searchWhite.svg';
-// import { ReactComponent as ThunderSvg } from '../../../../assets/svg/tasks/thunder.svg';
 import { ReactComponent as FilterLinesSvg } from '../../../../assets/svg/tasks/filterLines.svg';
-import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import { ReactComponent as ArrowUpAndDown } from '../../../../assets/svg/tasks/arrowUpAndDown.svg';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
-import { Tooltip } from 'antd';
 import OptionsDropDown from '../../dropDown/tasks/OptionsDropDown';
 import DropDown from '../../dropDown/tasks/DropDown';
 import SortComponent from './SortComponent';
@@ -168,23 +165,6 @@ const ListViewHeader = ({
 						updateListViewInfo={updateListViewInfo}
 						taskPreferences={taskPreferences}
 					/>
-					{/* <Tooltip
-						placement="bottom"
-						title={
-							<OptionsDropDown
-								properties={properties}
-								togglePropertyVisibility={togglePropertyVisibility}
-							/>
-						}
-						arrow={false}
-						trigger={'click'}
-						color={'transparent'}
-						overlayStyle={{ minWidth: 'fit-content' }}
-					>
-						<button className="btn-options">
-							<HorizontalMoreIcon style={{ width: '20px', height: '20px' }} />
-						</button>
-					</Tooltip> */}
 				</div>
 			</div>
 			<div className="listViewOptionsContainer">
