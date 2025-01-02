@@ -41,7 +41,6 @@ const ListViewRow = ({
 					key === '__typename' ||
 					key === '_id' ||
 					key === 'parentTaskId' ||
-					key === 'description' ||
 					key === 'workflowTemplateId' ||
 					key === 'completedAt' ||
 					(isSubTask && key === 'workflow')

@@ -43,7 +43,6 @@ const ListView = ({
 	info,
 	updateListViewInfo,
 	resetSubTasks,
-	togglePropertyVisibility,
 	updatePropertyValue,
 	deleteTask,
 	responseMetadata,
@@ -104,7 +103,7 @@ const ListView = ({
 			<ListViewHeader
 				updateListViewInfo={updateListViewInfo}
 				properties={info?.properties}
-				togglePropertyVisibility={togglePropertyVisibility}
+				taskPreferences={info?.taskPreferences}
 				sort={info?.sort}
 				filters={info?.filters}
 				searchValue={info?.searchValue}

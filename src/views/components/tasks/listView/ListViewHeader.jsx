@@ -31,13 +31,13 @@ const defaultFilterValue = {
 const ListViewHeader = ({
 	updateListViewInfo,
 	properties,
-	togglePropertyVisibility,
 	sort,
 	filters,
 	searchValue,
 	responseMetadata,
 	headerTitle,
 	addButtonOnClick,
+	taskPreferences,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -78,8 +78,8 @@ const ListViewHeader = ({
 			<div className="listViewHeader">
 				<div className="listViewHeaderTitle">{headerTitle}</div>
 				<div className="listViewHeaderActions">
-					<button className="listViewHeaderActionButton" onClick={addButtonOnClick}>
-						<PlusSvg style={{ width: '20px', height: '20px' }} />
+					<button className="listViewHeaderAddTaskButton" onClick={addButtonOnClick}>
+						Create Task
 					</button>
 					<div
 						className="searchContainer"
@@ -165,7 +165,8 @@ const ListViewHeader = ({
 					</DropDown>
 					<OptionsDropDown
 						properties={properties}
-						togglePropertyVisibility={togglePropertyVisibility}
+						updateListViewInfo={updateListViewInfo}
+						taskPreferences={taskPreferences}
 					/>
 					{/* <Tooltip
 						placement="bottom"

@@ -46,7 +46,13 @@ const Tasks = () => {
 			resetSubTasks,
 		},
 		templates: { getWorkflowsList, workflowslist },
-		companyInfo: { getTeamMembers, tenantsUserList, getTaskPreferences, taskPreferences },
+		companyInfo: {
+			getTeamMembers,
+			tenantsUserList,
+			getTaskPreferences,
+			taskPreferences,
+			updateTaskPreferences,
+		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
@@ -56,6 +62,7 @@ const Tasks = () => {
 		isCreateModalOpen: false,
 		isCreatingSubtask: true,
 		properties: [],
+		taskPreferences: null,
 		sidebarIsOpen: false,
 		selectedRow: null,
 		selectedSubTask: null,
@@ -217,8 +224,19 @@ const Tasks = () => {
 	}, [tenantsUserList]);
 
 	useEffect(() => {
-		if (!taskPreferences) {
+		if (taskPreferences === null) {
 			getTaskPreferences();
+		} else if (taskPreferences === false) {
+			updateTaskPreferences(defaultPreference);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: defaultPreference,
+			}));
+		} else {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: taskPreferences,
+			}));
 		}
 	}, [taskPreferences]);
 
@@ -264,19 +282,14 @@ const Tasks = () => {
 		}
 	}, [listTasks]);
 
-	// useEffect(() => {
-	// 	setInfo((prevInfo) => ({
-	// 		...prevInfo,
-	// 		properties: mapPropertyType(),
-	// 	}));
-	// }, []);
-
 	useEffect(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			properties: mapPropertyType(),
-		}));
-	}, []);
+		if (info?.taskPreferences) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				properties: mapPropertyType(),
+			}));
+		}
+	}, [info?.taskPreferences]);
 
 	useEffect(() => {
 		if (info?.selectedRow) {
@@ -325,8 +338,8 @@ const Tasks = () => {
 				continue;
 			}
 
-			const { type = null, name = null, Icon = null } = responseMetadata[key];
-			const { show, order } = defaultPreference[key] || { show: false, order: 0 };
+			const { type = null, name = null, Icon = null } = responseMetadata[key] || {};
+			const { show, order } = info?.taskPreferences[key] || { show: false, order: 0 };
 
 			properties.push({
 				value: key,
@@ -338,18 +351,7 @@ const Tasks = () => {
 			});
 		}
 		return properties;
-	}, []);
-
-	const togglePropertyVisibility = useCallback((index, value) => {
-		setInfo((prevInfo) => {
-			const newProperties = [...prevInfo?.properties];
-			newProperties[index] = { ...newProperties[index], show: value };
-			return {
-				...prevInfo,
-				properties: newProperties,
-			};
-		});
-	}, []);
+	}, [info?.taskPreferences]);
 
 	const debouncedUpdateTask = useCallback(
 		async (rowId, propName, value, originalValue, isUpdatingSubTask, onSuccess) => {
@@ -620,7 +622,6 @@ const Tasks = () => {
 				info={info}
 				updateListViewInfo={updateListViewInfo}
 				resetSubTasks={resetSubTasks}
-				togglePropertyVisibility={togglePropertyVisibility}
 				updatePropertyValue={updatePropertyValue}
 				deleteTask={deleteTask}
 				addNewTask={addNewTask}

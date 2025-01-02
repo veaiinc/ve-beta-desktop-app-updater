@@ -119,15 +119,6 @@ const CreateTaskPopup = ({
 		}
 	}, [addNewTask, closeModal, info, preparePayload]);
 
-	const handleMoreOptionClick = useCallback(
-		(value) => {
-			if (value === 'addSubTask') {
-				updateModalInfo('showSubTaskCreate', true);
-			}
-		},
-		[updateModalInfo],
-	);
-
 	const handleAddSubTask = useCallback(() => {
 		const payload = preparePayload({
 			title: info?.subTaskTitle,
@@ -255,17 +246,12 @@ const CreateTaskPopup = ({
 						onOptionClick={(value) => updateModalInfo('priority', value)}
 						title={'Priority'}
 					/>
-					{!isSubTask ? (
-						<WorkFlow
-							val={info?.workflowId}
-							onOptionClick={(value) => updateModalInfo('workflowId', value)}
-							title={'Workflow'}
-							{...responseMetadata?.['workflow']?.props}
-						/>
-					) : (
-						''
-					)}
-
+					<WorkFlow
+						val={info?.workflowId}
+						onOptionClick={(value) => updateModalInfo('workflowId', value)}
+						title={'Workflow'}
+						{...responseMetadata?.['workflow']?.props}
+					/>
 					<div className="dateView-wrapper">
 						<DateView
 							value={info?.dueDate}
@@ -285,26 +271,13 @@ const CreateTaskPopup = ({
 						removeBtn={true}
 					/>
 					{!isSubTask ? (
-						<DropDown
-							value={null}
-							valueSelector={'value'}
-							options={[
-								// {
-								// 	Icon: () => <CalendarIcon className="dropdown-icon" />,
-								// 	label: 'Set Due date',
-								// },
-								{
-									Icon: () => <TaskIcon />,
-									label: 'Add Sub Task',
-									value: 'addSubTask',
-								},
-							]}
-							onOptionClick={handleMoreOptionClick}
+						<div
+							className="task-icon-wrapper"
+							onClick={() => updateModalInfo('showSubTaskCreate', true)}
 						>
-							<div className="dropdown-item">
-								<HorizontalMoreIcon />
-							</div>
-						</DropDown>
+							<PlusSvg />
+							<span className="task-icon-title">Add Sub Task</span>
+						</div>
 					) : (
 						''
 					)}
@@ -338,6 +311,7 @@ const CreateTaskPopup = ({
 							<Status
 								value={info?.subTaskStatus}
 								showLabel={true}
+								options={responseMetadata?.status?.props?.options}
 								onOptionClick={(value) => updateModalInfo('subTaskStatus', value)}
 								title={'Status'}
 							/>
@@ -463,6 +437,8 @@ const CreateTaskPopup = ({
 							>
 								{info?.isLoading ? (
 									<Spinner width={'20px'} height={'20px'} />
+								) : isSubTask ? (
+									'Create Sub Task'
 								) : (
 									'Create Task'
 								)}

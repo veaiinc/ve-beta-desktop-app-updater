@@ -327,6 +327,25 @@ export const CompanySettingsState = () => {
 		}
 	};
 
+	const updateTaskPreferences = async (json) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.fetchPut(
+				API.TENANTS.taskPreferences,
+				json,
+				usertoken,
+				'tenant-users',
+			);
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
+		} catch (error) {
+			console.log('error ==> updateTaskPreferences', error);
+		}
+	};
+
 	const resetCompanySettings = async () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
@@ -355,5 +374,6 @@ export const CompanySettingsState = () => {
 		getClientPortalPreference,
 		updateClientPortalPreference,
 		getTaskPreferences,
+		updateTaskPreferences,
 	};
 };
