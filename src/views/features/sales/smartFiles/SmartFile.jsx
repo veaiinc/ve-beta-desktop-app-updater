@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../.././../../assets/scss/sales/smartFile.scss';
 import SmartFileHeader from '../../../components/smartFileComponets/SmartFileHeader';
@@ -16,8 +17,10 @@ import DeleteLeadModal from '../../../components/modalsV2/workflowsModals/Delete
 import UploadLogoNotification from '../../../components/notification/UploadLogoNotification';
 import { getCurrentWorkspaceId } from '../../../../helpers';
 import SendEmailModal from '../../../components/modalsV2/proposalModals/SendEmailModal';
-import { Spin } from 'antd';
-
+import { message, Spin } from 'antd';
+import BottomToolbar from '../../../components/ai_agents/BottomToolbar';
+import ObjectID from 'bson-objectid';
+import { ReactComponent as AiSparkel } from '../.././../../assets/svg/calendar/aiSparkel.svg';
 const SmartFile = () => {
 	const { templateId, workflowId } = useParams();
 	const navigate = useNavigate();
@@ -40,6 +43,7 @@ const SmartFile = () => {
 			updateInvoice,
 			updateForm,
 			updateThankyou,
+			smartFileAiChat,
 		},
 
 		profileInfo: {
@@ -77,6 +81,9 @@ const SmartFile = () => {
 		assisstanceData: null,
 		sendCustomEmailModal: false,
 		copyLink: null,
+		chatList: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
+		chatSessionId: null,
+		aiChatLoading: false,
 	});
 
 	//useEffect
@@ -88,6 +95,8 @@ const SmartFile = () => {
 				templateInfoId: templateId,
 			});
 		}
+		const sessionId = ObjectID().toString();
+		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
 		return () => {
 			updateStateValues({
 				smartFileInfo: null,
@@ -106,7 +115,7 @@ const SmartFile = () => {
 
 	useEffect(() => {
 		if (smartFileInfo && specificTemplatesInfo) {
-			setInfo((prev) => ({ ...prev, loading: false }));
+			setInfo((prev) => ({ ...prev, loading: false, aiChatLoading: false }));
 		}
 	}, [smartFileInfo, specificTemplatesInfo]);
 
@@ -547,6 +556,75 @@ const SmartFile = () => {
 		}
 	}, [smartFileInfo, updateWorkspaceVariablesFunc, info?.workflowData]);
 
+	const handleSendMessage = useCallback(
+		async (data) => {
+			let obj = {
+				type: 'user',
+				message: data,
+			};
+			let loadingObj = {
+				type: 'AI',
+				message: 'loading....',
+				content: (
+					<div className="aiMessageWrapper">
+						<AiSparkel />
+						<div className="aiMessage">
+							<span>Thinking...</span>
+						</div>
+					</div>
+				),
+			};
+			let chatlist = [...(info?.chatList || [])];
+			chatlist = [...chatlist, obj, loadingObj];
+			setInfo((prev) => ({ ...prev, chatList: chatlist, aiChatLoading: true }));
+			const payload = {
+				query: data,
+				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+				module: 'proposal_form_filling',
+				workflow_slug: info?.workflowData?.slug,
+			};
+			const response = await smartFileAiChat(payload, info?.chatSessionId);
+			chatlist.pop();
+			if (response?.[0]) {
+				let obj = {
+					type: 'AI',
+					message: response?.[1]?.answer || '',
+				};
+				chatlist = [...chatlist, obj];
+				if (response?.[1]?.db_updates?.proposal_db_update) {
+					refetchSmartFiledata();
+				}
+			}
+			setInfo((prev) => ({
+				...prev,
+				chatList: chatlist,
+				aiChatLoading: false,
+			}));
+		},
+		[info?.chatList, info?.chatSessionId, info?.workflowData, info?.aiChatLoading, info],
+	);
+
+	const refetchSmartFiledata = useCallback(() => {
+		getSmartFileInfo();
+		let loadingObj = {
+			type: 'AI',
+			message: 'loading....',
+			content: (
+				<div className="aiMessageWrapper">
+					<AiSparkel />
+					<div className="aiMessage">
+						<span>We are adjusting changes...</span>
+					</div>
+				</div>
+			),
+		};
+		setInfo((prev) => ({
+			...prev,
+			chatList: [...prev?.chatList, loadingObj],
+			aiChatLoading: true,
+		}));
+	}, [info]);
+
 	return info?.loading ? (
 		<UpdatedPageLoader />
 	) : (
@@ -641,6 +719,12 @@ const SmartFile = () => {
 				open={info?.sendCustomEmailModal}
 				closeModal={toggleSendCustomEmailFunc}
 				clientDetails={info?.workflowData?.clientDetails}
+			/>
+			<BottomToolbar
+				outerContainerStyle={{ bottom: '10px' }}
+				chatList={info?.chatList}
+				onSend={handleSendMessage}
+				aiChatLoading={info?.aiChatLoading}
 			/>
 		</div>
 	);
