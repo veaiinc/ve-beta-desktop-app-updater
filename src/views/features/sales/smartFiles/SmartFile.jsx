@@ -18,6 +18,7 @@ import { getCurrentWorkspaceId } from '../../../../helpers';
 import SendEmailModal from '../../../components/modalsV2/proposalModals/SendEmailModal';
 import { message, Spin } from 'antd';
 import BottomToolbar from '../../../components/ai_agents/BottomToolbar';
+import ObjectID from 'bson-objectid';
 
 const SmartFile = () => {
 	const { templateId, workflowId } = useParams();
@@ -41,6 +42,7 @@ const SmartFile = () => {
 			updateInvoice,
 			updateForm,
 			updateThankyou,
+			smartFileAiChat,
 		},
 
 		profileInfo: {
@@ -78,13 +80,8 @@ const SmartFile = () => {
 		assisstanceData: null,
 		sendCustomEmailModal: false,
 		copyLink: null,
-		chatList: [
-			{ type: 'AI', message: 'Hello, how can I help you today?' },
-			{
-				type: 'user',
-				message: 'I need help with my smart file',
-			},
-		],
+		chatList: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
+		chatSessionId: null,
 	});
 
 	//useEffect
@@ -96,6 +93,8 @@ const SmartFile = () => {
 				templateInfoId: templateId,
 			});
 		}
+		const sessionId = ObjectID().toString();
+		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
 		return () => {
 			updateStateValues({
 				smartFileInfo: null,
@@ -556,14 +555,28 @@ const SmartFile = () => {
 	}, [smartFileInfo, updateWorkspaceVariablesFunc, info?.workflowData]);
 
 	const handleSendMessage = useCallback(
-		(data) => {
+		async (data) => {
 			let obj = {
 				type: 'user',
 				message: data,
 			};
 			setInfo((prev) => ({ ...prev, chatList: [...prev?.chatList, obj] }));
+			const payload = {
+				query: data,
+				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+				module: 'proposal_form_filling',
+				workflow_slug: info?.workflowData?.slug,
+			};
+			const response = await smartFileAiChat(payload, info?.chatSessionId);
+			if (response?.[0]) {
+				let obj = {
+					type: 'AI',
+					message: response?.[1],
+				};
+				setInfo((prev) => ({ ...prev, chatList: [...prev?.chatList, obj] }));
+			}
 		},
-		[info?.chatList],
+		[info?.chatList, info?.chatSessionId, info?.workflowData],
 	);
 
 	return info?.loading ? (
