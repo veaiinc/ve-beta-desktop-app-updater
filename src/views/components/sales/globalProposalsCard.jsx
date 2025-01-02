@@ -31,7 +31,7 @@ const GlobalProposalsCard = ({ data, onClickFunc, modalIsOpen, isLoading }) => {
 		<div>
 			<div className={`mainProposalsCard ${modalInfo.isOpen ? 'modal-open' : ''}`}>
 				{data?.map((template, index) =>
-					!isLoading ? (
+					isLoading ? (
 						<Skeleton
 							marginTop={'40px'}
 							width={'340px'}

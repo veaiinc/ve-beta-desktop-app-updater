@@ -30,6 +30,21 @@ const FetchMoreLoaderComp = ({ dataLength, hasMore, filter }) => {
 };
 
 const options = ['Workflow', 'Proposal', 'Form', 'Invoice', 'Contract'];
+const useDebounce = (value) => {
+	const [debouncedValue, setDebouncedValue] = useState(value);
+
+	useEffect(() => {
+		const handler = setTimeout(() => {
+			setDebouncedValue(value);
+		}, 500);
+
+		return () => {
+			clearTimeout(handler);
+		};
+	}, [value]);
+
+	return debouncedValue;
+};
 
 const GlobalMyTemplates = () => {
 	const location = useLocation();
@@ -38,6 +53,7 @@ const GlobalMyTemplates = () => {
 	const [selectedOption, setSelectedOption] = useState('Workflow');
 	const [moduleTemplateData, setModuleTemplateData] = useState(null);
 	const [searchQuery, setSearchQuery] = useState('');
+	const debouncedSearchQuery = useDebounce(searchQuery, 500);
 	const [moduleInfo, setModuleInfo] = useState({
 		currentPage: 1,
 		hasNextPage: false,
@@ -49,6 +65,7 @@ const GlobalMyTemplates = () => {
 
 	const [info, setInfo] = useState({
 		loading: true,
+		searchLoading: false,
 		globalWorkflowData: null,
 		hasNextPage: false,
 		currentPage: 1,
@@ -57,10 +74,6 @@ const GlobalMyTemplates = () => {
 		isLoading: false,
 		isExpanded: false,
 	});
-
-	useEffect(() => {
-		getGlobalWorkflowTemplatesData(1);
-	}, []);
 
 	useEffect(() => {
 		if (globalWorkflows) {
@@ -73,6 +86,46 @@ const GlobalMyTemplates = () => {
 			globalWorkflowsDataParser(globalMoreWorkflows, true);
 		}
 	}, [globalMoreWorkflows]);
+	useEffect(() => {
+		if (selectedOption === 'Workflow') {
+			const payload = {
+				filters: {
+					limit: 10,
+					page: 1,
+					type: 'workspace',
+					sortBy: 'createdAt',
+					sortType: -1,
+					title: debouncedSearchQuery,
+				},
+			};
+			setInfo((prev) => ({ ...prev, searchLoading: true }));
+			getGlobalWorkflows(payload, false);
+		} else {
+			// Handle other modules search
+			const payload = {
+				page: 1,
+				limit: 10,
+				type: 'workspace',
+				module: selectedOption.toLowerCase(), // Only include title if there's a search query
+			};
+
+			if (debouncedSearchQuery.trim()) {
+				payload.title = debouncedSearchQuery.trim();
+			}
+
+			setModuleTemplateData(null); // Clear existing data while loading
+			getModuleTemplate(payload).then(([success, response]) => {
+				if (success) {
+					setModuleTemplateData(response.templates);
+					setModuleInfo({
+						currentPage: 1,
+						hasNextPage: response.hasNextPage,
+					});
+				}
+				setInfo((prev) => ({ ...prev, searchLoading: false }));
+			});
+		}
+	}, [debouncedSearchQuery, selectedOption]);
 
 	const handleOptionSelect = useCallback(
 		async (option) => {
@@ -118,7 +171,9 @@ const GlobalMyTemplates = () => {
 	}, [moduleInfo, selectedOption, getModuleTemplate]);
 
 	const getGlobalWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
-		setInfo((prev) => ({ ...prev, loading: true }));
+		if (page === 1 && !fetchMore && !debouncedSearchQuery) {
+			setInfo((prev) => ({ ...prev, loading: true }));
+		}
 		const payload = {
 			filters: {
 				limit: 10,
@@ -126,7 +181,7 @@ const GlobalMyTemplates = () => {
 				type: 'workspace',
 				sortBy: 'createdAt',
 				sortType: -1,
-				title: searchQuery,
+				title: debouncedSearchQuery,
 			},
 		};
 		getGlobalWorkflows(payload, fetchMore);
@@ -135,23 +190,14 @@ const GlobalMyTemplates = () => {
 	const globalWorkflowsDataParser = useCallback((dataToBeUsed, fetchMore = false) => {
 		let { data, currentPage, hasNextPage } = dataToBeUsed;
 		// Simplified data handling
-		if (fetchMore) {
-			setInfo((prev) => ({
-				...prev,
-				loading: false,
-				globalWorkflowData: [...(prev.globalWorkflowData || []), ...data],
-				currentPage,
-				hasNextPage,
-			}));
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				loading: false,
-				globalWorkflowData: data,
-				currentPage,
-				hasNextPage,
-			}));
-		}
+		setInfo((prev) => ({
+			...prev,
+			loading: false,
+			searchLoading: false, // Reset search loading here too
+			globalWorkflowData: fetchMore ? [...(prev.globalWorkflowData || []), ...data] : data,
+			currentPage,
+			hasNextPage,
+		}));
 	}, []);
 	const fetchMoreGlobalWorkflows = useCallback(() => {
 		if (info?.hasNextPage) {
@@ -184,62 +230,17 @@ const GlobalMyTemplates = () => {
 		const dataToFilter =
 			selectedOption === 'Workflow' ? info?.globalWorkflowData : moduleTemplateData;
 		if (!dataToFilter) return [];
-		if (!searchQuery.trim()) return dataToFilter;
+		if (!debouncedSearchQuery.trim()) return dataToFilter;
 
 		return dataToFilter?.filter((item) =>
-			item.title?.toLowerCase().includes(searchQuery.toLowerCase()),
+			item.title?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
 		);
-	}, [searchQuery, selectedOption, info?.globalWorkflowData, moduleTemplateData]);
+	}, [debouncedSearchQuery, selectedOption, info?.globalWorkflowData, moduleTemplateData]);
 
-	const handleSearch = useCallback(
-		throttle((e) => {
-			const newSearchQuery = e.target.value;
-			setSearchQuery(newSearchQuery);
-
-			if (selectedOption === 'Workflow') {
-				if (!newSearchQuery.trim()) {
-					getGlobalWorkflowTemplatesData(1, false);
-				} else {
-					const payload = {
-						filters: {
-							limit: 10,
-							page: 1,
-							type: 'workspace',
-							sortBy: 'createdAt',
-							sortType: -1,
-							title: newSearchQuery,
-						},
-					};
-					getGlobalWorkflows(payload, false);
-				}
-			} else {
-				// Handle other modules search
-				const payload = {
-					page: 1,
-					limit: 10,
-					type: 'workspace',
-					module: selectedOption.toLowerCase(),
-					title: newSearchQuery.trim(), // Only include title if there's a search query
-				};
-
-				// If search is empty, remove the title field
-				if (!newSearchQuery.trim()) {
-					delete payload.title;
-				}
-
-				getModuleTemplate(payload).then(([success, response]) => {
-					if (success) {
-						setModuleTemplateData(response.templates);
-						setModuleInfo({
-							currentPage: 1,
-							hasNextPage: response.hasNextPage,
-						});
-					}
-				});
-			}
-		}, 200),
-		[getGlobalWorkflowTemplatesData, getGlobalWorkflows, getModuleTemplate, selectedOption],
-	);
+	const handleSearch = useCallback((e) => {
+		const newSearchQuery = e.target.value;
+		setSearchQuery(newSearchQuery);
+	}, []);
 
 	return (
 		<>
@@ -250,7 +251,7 @@ const GlobalMyTemplates = () => {
 					<div className={`globalWorkflowContainer`}>
 						<div className={`left_div  ${info.modalIsOpen ? 'modal-open' : ''}`}>
 							<div className="left_child_div">
-								<h2 className="side_heading">Templates</h2>
+								<h2 className="side_heading">MyTemplates</h2>
 								<p className="side_text">
 									We have specially curated best workflows and designs that suit
 									your business
@@ -366,37 +367,44 @@ const GlobalMyTemplates = () => {
 										className="scrollableTarget"
 									>
 										<div className="globalWorkflowParentCardContainer">
-											{selectedOption !== 'Workflow' ? (
+											{info.searchLoading ? (
+												<Skeleton
+													width={'100%'}
+													height={'300px'}
+													baseColor="transparent"
+													highlightColor="rgba(255, 255, 255, 0.20)"
+													opacity={0.7}
+												/>
+											) : selectedOption !== 'Workflow' ? (
 												<GlobalProposalsCard
-													data={getFilteredData(moduleTemplateData)}
+													data={moduleTemplateData}
 													onClickFunc={(data, module) => {
 														openModal(data, module);
 													}}
 													modalIsOpen={info.modalIsOpen}
-													isLoading={!info.isLoading}
+													isLoading={info.isLoading}
 												/>
 											) : (
-												getFilteredData(info?.globalWorkflowData)?.map(
-													(ele, index) =>
-														!info.globalWorkflowData ? (
-															<Skeleton
-																width={'100%'}
-																height={'300px'}
-																baseColor="transparent"
-																highlightColor="rgba(255, 255, 255, 0.20)"
-																opacity={0.5}
-															/>
-														) : (
-															<GlobalWorkflowCard
-																key={index}
-																data={ele}
-																onClickFunc={openModal}
-																isSelected={
-																	ele?._id ===
-																	info?.selectedWorkflowId
-																}
-															/>
-														),
+												info?.globalWorkflowData?.map((ele, index) =>
+													!info.globalWorkflowData ? (
+														<Skeleton
+															width={'100%'}
+															height={'300px'}
+															baseColor="transparent"
+															highlightColor="rgba(255, 255, 255, 0.20)"
+															opacity={0.7}
+														/>
+													) : (
+														<GlobalWorkflowCard
+															key={index}
+															data={ele}
+															onClickFunc={openModal}
+															isSelected={
+																ele?._id ===
+																info?.selectedWorkflowId
+															}
+														/>
+													),
 												)
 											)}
 										</div>

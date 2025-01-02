@@ -26,7 +26,7 @@ const EntryPointCard = ({ publicData }) => {
 	const data = publicData?.moduleTemplates?.filter((e) => e?.isPublic);
 
 	return (
-		<div className="previewCard" style={{ pointerEvents: 'none' }}>
+		<div className="previewCard" style={{ pointerEvents: 'none', borderRadius: '32px' }}>
 			<div className="htmlContentViewer">
 				<div className="coverImage">
 					<iframe
@@ -72,7 +72,7 @@ const OtherViewCard = ({ data }) => {
 const PreviewCard = ({ privateData }) => {
 	const data = privateData?.moduleTemplates?.filter((e) => !e?.isPublic);
 	return (
-		<div className="previewCard" style={{ pointerEvents: 'none' }}>
+		<div className="previewCard" style={{ pointerEvents: 'none', borderRadius: '32px' }}>
 			<div className="htmlContentViewer">
 				<div className="coverImage">
 					<iframe
@@ -139,6 +139,7 @@ const AutomationComponent = ({ activeTemplateData, loading }) => {
 							flexDirection: 'column',
 							alignItems: 'center',
 							justifyContent: 'center',
+							borderRadius: '24px',
 						}}
 					>
 						{index === 0 ? (
