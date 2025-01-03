@@ -41,7 +41,6 @@ import { Actions } from './Actions';
 import Service from '../../services/index';
 import { errorCodes } from '@apollo/client/invariantErrorCodes';
 import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
-
 export const intialState = {
 	workflowslist: null,
 	moreWorkList: null,
@@ -63,14 +62,6 @@ export const intialState = {
 	tabItemCount: null,
 	eventsPresetData: null,
 	sendSmartFileSettings: null,
-	moduleTemplateData: null,
-	connectUrl: null,
-	activityLogs: null,
-	moreActivityLogs: null,
-	draftStateWorkflowtemplates: null,
-	moreDraftStateWorkflowtemplates: null,
-	createLeadModalContextState: false,
-	aiPredictedData: null,
 };
 
 export const TemplatesState = (props) => {
@@ -602,10 +593,10 @@ export const TemplatesState = (props) => {
 		const byteString = atob(dataURL.split(',')[1]);
 		const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
 
-		const buffer = new ArrayBuffer(byteString?.length);
+		const buffer = new ArrayBuffer(byteString.length);
 		const dataView = new Uint8Array(buffer);
 
-		for (let i = 0; i < byteString?.length; i++) {
+		for (let i = 0; i < byteString.length; i++) {
 			dataView[i] = byteString.charCodeAt(i);
 		}
 
@@ -1170,23 +1161,6 @@ export const TemplatesState = (props) => {
 		dispatch({ type: Actions.TOGGLE_CREATE_LEAD_MODAL_SUCCESS, payload });
 	};
 
-	//AI chat in smart file
-
-	const smartFileAiChat = async (payload, sessionId) => {
-		try {
-			let workspaceId = localStorage.getItem('workspaceId');
-			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
-			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
-			if (response?.[0]) {
-				return [true, response?.[1]];
-			}
-			console.log('response==>smartFileAiChat', response);
-		} catch (error) {
-			console.log('errror ==>smartFileAiChat', error);
-		}
-	};
-
 	return {
 		...state,
 		getMyWorkflows,
@@ -1236,7 +1210,6 @@ export const TemplatesState = (props) => {
 		getActivityLogs,
 		getDrafStateWorkflowtemplates,
 		toggleCreateLeadModal,
-		smartFileAiChat,
 		getAiPredictionForSmartFile,
 	};
 };
