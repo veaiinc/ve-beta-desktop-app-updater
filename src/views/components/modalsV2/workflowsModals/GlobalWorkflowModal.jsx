@@ -26,7 +26,7 @@ const EntryPointCard = ({ publicData }) => {
 	const data = publicData?.moduleTemplates?.filter((e) => e?.isPublic);
 
 	return (
-		<div className="previewCard" style={{ pointerEvents: 'none' }}>
+		<div className="previewCard" style={{ pointerEvents: 'none', borderRadius: '32px' }}>
 			<div className="htmlContentViewer">
 				<div className="coverImage">
 					<iframe
@@ -72,7 +72,7 @@ const OtherViewCard = ({ data }) => {
 const PreviewCard = ({ privateData }) => {
 	const data = privateData?.moduleTemplates?.filter((e) => !e?.isPublic);
 	return (
-		<div className="previewCard" style={{ pointerEvents: 'none' }}>
+		<div className="previewCard" style={{ pointerEvents: 'none', borderRadius: '32px' }}>
 			<div className="htmlContentViewer">
 				<div className="coverImage">
 					<iframe
@@ -139,6 +139,7 @@ const AutomationComponent = ({ activeTemplateData, loading }) => {
 							flexDirection: 'column',
 							alignItems: 'center',
 							justifyContent: 'center',
+							borderRadius: '24px',
 						}}
 					>
 						{index === 0 ? (
@@ -237,6 +238,9 @@ const GlobalWorkflowModal = ({
 		},
 		[info?.activeTab],
 	);
+	const getExpandedWidth = useCallback(() => {
+		return screenWidth < 1200 ? '650px' : '780px';
+	}, [screenWidth]);
 
 	const modifiedCloseModal = useCallback(async () => {
 		setInfo(initialState);
@@ -304,8 +308,7 @@ const GlobalWorkflowModal = ({
 	}, [isExpanded, setIsExpanded]);
 
 	const toggleExpand = () => {
-		// Only allow expansion if screen is wide enough
-		if (screenWidth >= 500) {
+		if (screenWidth >= 1200) {
 			setIsExpanded(!isExpanded);
 		}
 	};
@@ -315,22 +318,30 @@ const GlobalWorkflowModal = ({
 			{!isProposal ? (
 				<Drawer
 					onClose={modifiedCloseModal}
-					width={screenWidth < 500 ? 420 : isExpanded ? 760 : 420}
+					width={
+						screenWidth < 1200
+							? 420
+							: isExpanded
+							? screenWidth < 1200
+								? 650
+								: 760
+							: 420
+					}
 					style={{
 						padding: '0px',
 						backgroundColor: 'transparent',
 						height: '100dvh',
 						borderRadius: '32px',
 					}}
+					mask={true}
 					open={modalIsOpen}
-					mask={false}
 					headerStyle={{ display: 'none' }}
 					bodyStyle={{ padding: '0px' }}
 				>
 					<div
 						className="GlobalWorkflowModalParentContainer"
 						style={{
-							width: isExpanded ? '780px' : '420px',
+							width: isExpanded ? getExpandedWidth() : '420px',
 							transition: 'width 0.7s ease',
 							position: 'fixed',
 							right: '10px',
@@ -339,7 +350,7 @@ const GlobalWorkflowModal = ({
 						<div
 							className="innerContainer"
 							style={{
-								width: isExpanded ? '780px' : '420px',
+								width: isExpanded ? getExpandedWidth() : '420px',
 								transition: 'width 0.7s ease',
 								background: 'transparent',
 							}}
@@ -404,7 +415,7 @@ const GlobalWorkflowModal = ({
 												onClick={toggleExpand}
 												style={{
 													display:
-														screenWidth < 500 ? 'none' : 'inline-flex',
+														screenWidth < 1200 ? 'none' : 'inline-flex',
 													cursor: 'pointer',
 													alignSelf: 'center',
 												}}
@@ -437,7 +448,11 @@ const GlobalWorkflowModal = ({
 													key={index}
 													style={{
 														alignSelf: 'center',
-														width: isExpanded ? '640px' : '368px',
+														width: isExpanded
+															? screenWidth < 1200
+																? '520px'
+																: '640px'
+															: '368px',
 														transition: 'width 0.7s ease',
 													}}
 												>
@@ -527,9 +542,17 @@ const GlobalWorkflowModal = ({
 			) : (
 				<Drawer
 					onClose={modifiedCloseModal}
-					mask={false}
-					width={screenWidth < 500 ? 420 : isExpanded ? 760 : 420}
+					width={
+						screenWidth < 1200
+							? 420
+							: isExpanded
+							? screenWidth < 1200
+								? 650
+								: 760
+							: 420
+					}
 					open={modalIsOpen}
+					mask={true}
 					style={{
 						padding: '0px',
 						backgroundColor: 'transparent',
@@ -545,7 +568,7 @@ const GlobalWorkflowModal = ({
 							height: '99dvh',
 							position: 'fixed',
 							right: '10px',
-							width: isExpanded ? '780px' : '420px',
+							width: isExpanded ? getExpandedWidth() : '420px',
 							transition: 'width 0.8s ease',
 						}}
 					>
@@ -555,7 +578,7 @@ const GlobalWorkflowModal = ({
 								height: '100%',
 								background: 'transparent',
 								gap: '24px',
-								width: isExpanded ? '780px' : '420px',
+								width: isExpanded ? getExpandedWidth() : '420px',
 								transition: 'width 0.8s ease',
 							}}
 						>
@@ -616,7 +639,7 @@ const GlobalWorkflowModal = ({
 												onClick={toggleExpand}
 												style={{
 													display:
-														screenWidth < 500 ? 'none' : 'inline-flex',
+														screenWidth < 1200 ? 'none' : 'inline-flex',
 													cursor: 'pointer',
 													alignSelf: 'center',
 												}}
@@ -663,7 +686,11 @@ const GlobalWorkflowModal = ({
 										height: '97vh',
 										overflow: 'hidden',
 										alignSelf: 'center',
-										width: isExpanded ? '640px' : '368px',
+										width: isExpanded
+											? screenWidth < 1200
+												? '520px'
+												: '640px'
+											: '368px',
 										transition: 'width 0.8s ease',
 									}}
 								>

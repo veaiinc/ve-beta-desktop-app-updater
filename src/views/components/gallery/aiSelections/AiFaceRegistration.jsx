@@ -20,6 +20,8 @@ const AiFaceRegistration = ({ link }) => {
 		numberOfImagesGroupedFaces: 0,
 		numberOfImagesPeoples: 0,
 		imagesCount: 0,
+		initialLoading: false,
+		scrollLoading: false,
 	});
 
 	const {
@@ -34,8 +36,10 @@ const AiFaceRegistration = ({ link }) => {
 	const { galleryId } = useParams();
 	useEffect(() => {
 		if (!preRegisteredUsers) {
-			setLoading(true);
-			getPreRegisteredUsers(galleryId, page).finally(() => setLoading(false));
+			setinfo((prev) => ({ ...prev, initialLoading: true }));
+			getPreRegisteredUsers(galleryId, page).finally(() =>
+				setinfo((prev) => ({ ...prev, initialLoading: false })),
+			);
 		}
 	}, [preRegisteredUsers]);
 
@@ -45,16 +49,12 @@ const AiFaceRegistration = ({ link }) => {
 		}
 	}, []);
 
-	const hasRegisteredUsers = preRegisteredUsers?.data?.length > 0;
-
-	const fetchMoreData = () => {
+	const fetchMoreData = async () => {
 		const nextPage = page + 1;
-		setLoading(true);
-		getPreRegisteredUsers(galleryId, nextPage)
-			.then(() => {
-				setPage(nextPage);
-			})
-			.finally(() => setLoading(false));
+		setinfo((prev) => ({ ...prev, scrollLoading: true }));
+		await getPreRegisteredUsers(galleryId, nextPage);
+		setPage(nextPage);
+		setinfo((prev) => ({ ...prev, scrollLoading: false }));
 	};
 
 	const notifyUser = async () => {
@@ -219,7 +219,11 @@ const AiFaceRegistration = ({ link }) => {
 					</div>
 				)}
 			</div>
-			<div className="tableWrapper">
+			<div
+				className="tableWrapper"
+				style={{ flex: 1, overflowY: 'auto', maxHeight: '100%', height: '100%' }}
+				id="table-scroll-container"
+			>
 				<InfiniteScroll
 					dataLength={preRegisteredUsers?.data?.length || 0}
 					next={fetchMoreData}
@@ -231,7 +235,8 @@ const AiFaceRegistration = ({ link }) => {
 					<Table
 						tableData={preRegisteredUsers}
 						thead={'Register Stage'}
-						loading={loading && !preRegisteredUsers?.data?.length}
+						loading={info.initialLoading}
+						scrollLoading={info.scrollLoading}
 					/>
 				</InfiniteScroll>
 			</div>

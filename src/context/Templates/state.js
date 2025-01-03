@@ -41,7 +41,6 @@ import { Actions } from './Actions';
 import Service from '../../services/index';
 import { errorCodes } from '@apollo/client/invariantErrorCodes';
 import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
-
 export const intialState = {
 	workflowslist: null,
 	moreWorkList: null,
@@ -63,14 +62,6 @@ export const intialState = {
 	tabItemCount: null,
 	eventsPresetData: null,
 	sendSmartFileSettings: null,
-	moduleTemplateData: null,
-	connectUrl: null,
-	activityLogs: null,
-	moreActivityLogs: null,
-	draftStateWorkflowtemplates: null,
-	moreDraftStateWorkflowtemplates: null,
-	createLeadModalContextState: false,
-	aiPredictedData: null,
 };
 
 export const TemplatesState = (props) => {

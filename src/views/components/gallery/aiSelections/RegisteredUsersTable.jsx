@@ -3,7 +3,7 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../../../assets/scss/gallery/table.scss';
 
-const Table = ({ tableData, thead, loading }) => {
+const Table = ({ tableData, thead, loading, scrollLoading }) => {
 	const formatDate = (timestamp) => {
 		if (!timestamp) return '';
 
@@ -32,7 +32,7 @@ const Table = ({ tableData, thead, loading }) => {
 		));
 
 	return (
-		<div className="tableContainer" id="table-scroll-container">
+		<div className="tableContainer">
 			<table>
 				<thead>
 					<tr>
@@ -83,7 +83,7 @@ const Table = ({ tableData, thead, loading }) => {
 									<td>{formatDate(row.createdAt)}</td>
 								</tr>
 							))}
-							{loading && <LoadingSkeleton />}
+							{scrollLoading && <LoadingSkeleton />}
 						</>
 					)}
 				</tbody>
