@@ -2,20 +2,25 @@ import { intialState } from './state';
 const actionHandlers = {
 	GET_TENANTS_LIST: (state, action) => ({
 		...state,
-		tenantsUserList: action.payload,
+		tenantsUserList: action?.payload,
 	}),
 	GET_TENANTS_PREFERENCES: (state, action) => ({
 		...state,
-		tenantPreferenceData: action.payload,
+		tenantPreferenceData: action?.payload,
 	}),
 	GET_TENANTS_SUBSCRIPTION_DETAILS: (state, action) => ({
 		...state,
-		tenantSubscriptionDetails: action.payload,
+		tenantSubscriptionDetails: action?.payload,
 	}),
 
 	GET_CLIENT_PORTAL_PREFERENCES: (state, action) => ({
 		...state,
-		clientPortalPreferences: action.payload,
+		clientPortalPreferences: action?.payload,
+	}),
+
+	GET_AI_CREDITS_USED: (state, action) => ({
+		...state,
+		AICreditsData: action?.payload,
 	}),
 	GET_TASK_PREFERENCES: (state, action) => ({
 		...state,
