@@ -21,6 +21,7 @@ import { message, Spin } from 'antd';
 import BottomToolbar from '../../../components/ai_agents/BottomToolbar';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as AiSparkel } from '../.././../../assets/svg/calendar/aiSparkel.svg';
+import { Image } from 'antd';
 const SmartFile = () => {
 	const { templateId, workflowId } = useParams();
 	const navigate = useNavigate();
@@ -85,7 +86,8 @@ const SmartFile = () => {
 		chatSessionId: null,
 		aiChatLoading: false,
 	});
-
+	const [previewOpen, setPreviewOpen] = useState(false);
+	const [previewImage, setPreviewImage] = useState('');
 	//useEffect
 	useEffect(() => {
 		getSmartFileInfo();
@@ -603,6 +605,31 @@ const SmartFile = () => {
 		},
 		[info?.chatList, info?.chatSessionId, info?.workflowData, info?.aiChatLoading, info],
 	);
+	const getBase64 = (file) =>
+		new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.readAsDataURL(file);
+			reader.onload = () => resolve(reader.result);
+			reader.onerror = (error) => reject(error);
+		});
+	const handleAiUploadImage = useCallback(async (file) => {
+		console.log('file==>', file);
+		if (!file.url && !file.preview) {
+			file.preview = await getBase64(file.originFileObj);
+		}
+		let obj = {
+			type: 'user',
+			content: (
+				<img
+					src={file.preview}
+					alt="ai-image"
+					width={'50px'}
+					onClick={() => handlePreview(file)}
+				/>
+			),
+		};
+		setInfo((prev) => ({ ...prev, chatList: [...prev?.chatList, obj] }));
+	}, []);
 
 	const refetchSmartFiledata = useCallback(() => {
 		getSmartFileInfo();
@@ -624,6 +651,13 @@ const SmartFile = () => {
 			aiChatLoading: true,
 		}));
 	}, [info]);
+	const handlePreview = async (file) => {
+		if (!file.url && !file.preview) {
+			file.preview = await getBase64(file.originFileObj);
+		}
+		setPreviewImage(file.url || file.preview);
+		setPreviewOpen(true);
+	};
 
 	return info?.loading ? (
 		<UpdatedPageLoader />
@@ -725,7 +759,21 @@ const SmartFile = () => {
 				chatList={info?.chatList}
 				onSend={handleSendMessage}
 				aiChatLoading={info?.aiChatLoading}
+				handleAiUploadImage={handleAiUploadImage}
 			/>
+			{previewImage && (
+				<Image
+					wrapperStyle={{
+						display: 'none',
+					}}
+					preview={{
+						visible: previewOpen,
+						onVisibleChange: (visible) => setPreviewOpen(visible),
+						afterOpenChange: (visible) => !visible && setPreviewImage(''),
+					}}
+					src={previewImage}
+				/>
+			)}
 		</div>
 	);
 };

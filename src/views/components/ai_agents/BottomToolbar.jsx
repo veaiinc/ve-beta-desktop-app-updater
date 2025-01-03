@@ -9,8 +9,22 @@ import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
 import { message, Tooltip } from 'antd';
 import ReactMarkdown from 'react-markdown';
 import { UploadOutlined } from '@ant-design/icons';
+import { Image, Upload } from 'antd';
 
-const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChatLoading }) => {
+const getBase64 = (file) =>
+	new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.readAsDataURL(file);
+		reader.onload = () => resolve(reader.result);
+		reader.onerror = (error) => reject(error);
+	});
+const BottomToolbar = ({
+	outerContainerStyle = {},
+	chatList = [],
+	onSend,
+	aiChatLoading,
+	handleAiUploadImage,
+}) => {
 	const [info, setInfo] = useState({
 		expanded: false,
 		inputExpanded: false,
@@ -18,11 +32,30 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 		chatQuery: '',
 		position: { x: 0, y: 0 },
 	});
-
+	const [previewOpen, setPreviewOpen] = useState(false);
+	const [fileList, setFileList] = useState([]);
+	const [previewImage, setPreviewImage] = useState('');
 	const toolbarRef = useRef(null);
 	const isDraggingRef = useRef(false);
 	const startPosRef = useRef({ x: 0, y: 0 });
 	const chatContentRef = useRef(null);
+
+	// Add and remove event listeners
+	useEffect(() => {
+		document.addEventListener('mousemove', handleMouseMove);
+		document.addEventListener('mouseup', handleMouseUp);
+
+		return () => {
+			document.removeEventListener('mousemove', handleMouseMove);
+			document.removeEventListener('mouseup', handleMouseUp);
+		};
+	}, []);
+	// Add this useEffect for auto-scrolling
+	useEffect(() => {
+		if (chatContentRef.current) {
+			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+		}
+	}, [chatList]); // Scroll whenever chatList changes
 
 	const handleMouseDown = useCallback(
 		(e) => {
@@ -52,17 +85,6 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 	const handleMouseUp = useCallback(() => {
 		isDraggingRef.current = false;
 	}, []);
-
-	// Add and remove event listeners
-	useEffect(() => {
-		document.addEventListener('mousemove', handleMouseMove);
-		document.addEventListener('mouseup', handleMouseUp);
-
-		return () => {
-			document.removeEventListener('mousemove', handleMouseMove);
-			document.removeEventListener('mouseup', handleMouseUp);
-		};
-	}, [handleMouseMove, handleMouseUp]);
 
 	//function definitions
 	const handleInputFocus = useCallback(() => {
@@ -117,12 +139,9 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 		[info?.chatQuery, aiChatLoading, onSend],
 	);
 
-	// Add this useEffect for auto-scrolling
-	useEffect(() => {
-		if (chatContentRef.current) {
-			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
-		}
-	}, [chatList]); // Scroll whenever chatList changes
+	const handleChange = ({ fileList: newFileList }) => {
+		handleAiUploadImage(newFileList?.[0]);
+	};
 
 	return (
 		<div
@@ -155,7 +174,9 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 				<div className="chatContent" ref={chatContentRef}>
 					{chatList.map((chat, index) =>
 						chat?.content ? (
-							chat?.content
+							<div className={`chat-message ${chat.type.toLowerCase()}-message`}>
+								{chat?.content}
+							</div>
 						) : (
 							<div
 								key={index}
@@ -188,16 +209,9 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 						<Home />
 					</div>
 					<div className="quickActionsButtons">
-						{/* <Tooltip
+						<Tooltip
 							placement="top"
-							title={
-								<QuickActionsPlusParentContainer />
-								// <ThreeDotsPopUp
-								// 	data={ele}
-								// 	setSelectedEventsPreset={setSelectedEventsPreset}
-								// 	index={index}
-								// />
-							}
+							title={<QuickActionsPlusParentContainer handleChange={handleChange} />}
 							color={'#202020'}
 							arrow={true}
 							trigger="click"
@@ -208,9 +222,9 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 							// 		closeThreeDotsPopup(index);
 							// 	}
 							// }}
-						> */}
-						<Plus />
-						{/* </Tooltip> */}
+						>
+							<Plus />
+						</Tooltip>
 					</div>
 					<div className="quickActionsButtons">
 						<Settings />
@@ -235,12 +249,18 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 
 export default memo(BottomToolbar);
 
-const QuickActionsPlusParentContainer = () => {
+const QuickActionsPlusParentContainer = ({ handleChange }) => {
 	return (
 		<div className="QuickActionsPlusParentContainer">
-			<button className="quick-action-upload-button">
-				<UploadOutlined /> Upload Images
-			</button>
+			<Upload
+				// action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
+				onChange={handleChange}
+				showUploadList={false}
+			>
+				<button className="quick-action-upload-button">
+					<UploadOutlined /> Upload Images
+				</button>
+			</Upload>
 		</div>
 	);
 };
