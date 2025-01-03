@@ -93,7 +93,6 @@ const CalendarHeader = ({
 
 	const goToPrevious = useCallback(
 		(label) => {
-			console.log('label==>', label);
 			handleNavigation('prev');
 		},
 		[handleNavigation],
@@ -101,7 +100,6 @@ const CalendarHeader = ({
 
 	const goToNext = useCallback(
 		(label) => {
-			console.log('label==>', label);
 			handleNavigation('next');
 		},
 		[handleNavigation],

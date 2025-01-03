@@ -11,7 +11,6 @@ import MonthEventWrapper from '../../components/calendar/MonthEventWrapper';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import Context from '../../../context/context';
 import moment from 'moment';
-// import EventDetailsDrawer from '../../components/calendar/EventDetailsDrawer';
 import EventDetailsModal from '../../components/modalsV2/calendar/EventDetailsModal';
 
 const initialState = {
@@ -58,16 +57,13 @@ const CalendarView = ({
 	}, [tenantsUserList]);
 
 	useEffect(() => {
-		// fetchEventsList();
 		if (calendarEvent?._id) {
 			handleSendEventToAi();
-			console.log('calling getCalendarEventsList due to event creation: ', selectedDate);
 			getCalendarEventsList(selectedDate);
 		}
 	}, [calendarEvent]);
 
 	useEffect(() => {
-		console.log('calling getCalendarEventsList due to month change: ', selectedDate);
 		getCalendarEventsList(selectedDate);
 	}, [selectedMonth]);
 
@@ -81,7 +77,6 @@ const CalendarView = ({
 	useEffect(() => {
 		if (calendarEventsList) {
 			if (calendarEventsList?.error?.length) {
-				console.log('Error While Fetching Events: ', calendarEventsList);
 				return setInfo((prevInfo) => ({
 					...prevInfo,
 					eventListError: calendarEventsList?.error,
@@ -106,11 +101,6 @@ const CalendarView = ({
 			}));
 		}
 	}, [calendarEventsList]);
-
-	// const fetchEventsList = useCallback(async () => {
-	// 	setInfo((prevInfo) => ({ ...prevInfo, isLoading: true, eventListError: null }));
-	// 	await getCalendarEventsList();
-	// }, []);
 
 	const handleSendEventToAi = useCallback(async () => {
 		if (calendarEvent?._id) {
@@ -213,11 +203,6 @@ const CalendarView = ({
 							components={components}
 						/>
 					</div>
-					{/* <EventDetailsDrawer
-						selectedEvent={info?.selectedEvent}
-						isEventSelected={isEventSelected}
-						updateCalendarInfo={updateCalendarInfo}
-					/> */}
 					<EventDetailsModal
 						selectedEvent={info?.selectedEvent}
 						isEventSelected={isEventSelected}
