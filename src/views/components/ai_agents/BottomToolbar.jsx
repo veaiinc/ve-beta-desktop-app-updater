@@ -11,13 +11,6 @@ import ReactMarkdown from 'react-markdown';
 import { UploadOutlined } from '@ant-design/icons';
 import { Image, Upload } from 'antd';
 
-const getBase64 = (file) =>
-	new Promise((resolve, reject) => {
-		const reader = new FileReader();
-		reader.readAsDataURL(file);
-		reader.onload = () => resolve(reader.result);
-		reader.onerror = (error) => reject(error);
-	});
 const BottomToolbar = ({
 	outerContainerStyle = {},
 	chatList = [],
@@ -168,7 +161,7 @@ const BottomToolbar = ({
 					info?.expanded ? 'expandedChatContainer' : ''
 				} bottomToolbarChatContainer`}
 			>
-				<div className="bottomToolBarChatHeader">
+				<div className="bottomToolBarChatHeader dragHandle">
 					<span>AI Assistant</span>
 					<div style={{ display: 'flex', alignItems: 'center' }}>
 						<button className="closeButton" onClick={handleChatExpand}>
@@ -182,13 +175,18 @@ const BottomToolbar = ({
 				<div className="chatContent" ref={chatContentRef}>
 					{chatList.map((chat, index) =>
 						chat?.content ? (
-							<div className={`chat-message ${chat.type.toLowerCase()}-message`}>
+							<div
+								key={index}
+								className={`chat-message ${chat.type.toLowerCase()}-message`}
+								style={{ cursor: 'default' }}
+							>
 								{chat?.content}
 							</div>
 						) : (
 							<div
 								key={index}
 								className={`chat-message ${chat.type.toLowerCase()}-message`}
+								style={{ cursor: 'default' }}
 							>
 								<div className="message-content">
 									<ReactMarkdown>{chat.message}</ReactMarkdown>
