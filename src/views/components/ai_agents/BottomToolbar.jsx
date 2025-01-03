@@ -31,10 +31,9 @@ const BottomToolbar = ({
 		chatModalIsOpen: false,
 		chatQuery: '',
 		position: { x: 0, y: 0 },
+		addQuickAction: false,
 	});
-	const [previewOpen, setPreviewOpen] = useState(false);
-	const [fileList, setFileList] = useState([]);
-	const [previewImage, setPreviewImage] = useState('');
+
 	const toolbarRef = useRef(null);
 	const isDraggingRef = useRef(false);
 	const startPosRef = useRef({ x: 0, y: 0 });
@@ -142,6 +141,12 @@ const BottomToolbar = ({
 	const handleChange = useCallback(
 		({ file }) => {
 			handleAiUploadImage(file);
+			setInfo((prev) => ({
+				...prev,
+				addQuickAction: false,
+				expanded: true,
+				inputExpanded: true,
+			}));
 		},
 		[handleAiUploadImage],
 	);
@@ -219,12 +224,12 @@ const BottomToolbar = ({
 							arrow={true}
 							trigger="click"
 							overlayClassName="quickActionsTooltipContainer"
-							// open={info?.threeDotsPopUp?.[index]}
-							// onOpenChange={(open) => {
-							// 	if (!open) {
-							// 		closeThreeDotsPopup(index);
-							// 	}
-							// }}
+							open={info?.addQuickAction}
+							onOpenChange={(open) => {
+								// if (!open) {
+								setInfo((prev) => ({ ...prev, addQuickAction: open }));
+								// }
+							}}
 						>
 							<Plus />
 						</Tooltip>
