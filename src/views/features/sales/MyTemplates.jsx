@@ -211,7 +211,9 @@ const GlobalMyTemplates = () => {
 				...prev,
 				modalIsOpen: true,
 				activeTemplateData: data,
-				selectedOption: selectedOption,
+				selectedModule: module || selectedOption.toLowerCase(),
+				isExpanded: false,
+				selectedWorkflowId: data?._id,
 			}));
 		},
 		[selectedOption],
@@ -314,8 +316,8 @@ const GlobalMyTemplates = () => {
 										flexDirection: 'column',
 										alignItems: 'flex-start',
 										gap: '32px',
-										marginTop: '20%',
-										marginLeft: '10%',
+										marginTop: '30%',
+										marginLeft: '0',
 									}}
 								>
 									<div>
@@ -362,7 +364,12 @@ const GlobalMyTemplates = () => {
 										dataLength={info?.globalWorkflowData?.length || 0}
 										next={fetchMoreGlobalWorkflows}
 										hasMore={info?.hasNextPage}
-										loader={<FetchMoreLoaderComp />}
+										loader={
+											<FetchMoreLoaderComp
+												dataLength={info?.globalWorkflowData?.length || 0}
+												hasMore={info?.hasNextPage}
+											/>
+										}
 										scrollableTarget={'scrollableTarget'}
 										className="scrollableTarget"
 									>
@@ -430,7 +437,7 @@ const GlobalMyTemplates = () => {
 									modalIsOpen={info?.modalIsOpen}
 									closeModal={closeModal}
 									globalTemplateId={info?.activeTemplateData?._id}
-									moduleName={info?.selectedModule}
+									moduleName={selectedOption.toLowerCase()}
 									templateTitle={info?.activeTemplateData?.title}
 									isProposal={true}
 									isExpanded={info?.isExpanded}

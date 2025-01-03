@@ -238,6 +238,9 @@ const GlobalWorkflowModal = ({
 		},
 		[info?.activeTab],
 	);
+	const getExpandedWidth = useCallback(() => {
+		return screenWidth < 1200 ? '650px' : '780px';
+	}, [screenWidth]);
 
 	const modifiedCloseModal = useCallback(async () => {
 		setInfo(initialState);
@@ -305,7 +308,6 @@ const GlobalWorkflowModal = ({
 	}, [isExpanded, setIsExpanded]);
 
 	const toggleExpand = () => {
-		// Only allow expansion if screen is wide enough
 		if (screenWidth >= 500) {
 			setIsExpanded(!isExpanded);
 		}
@@ -316,7 +318,15 @@ const GlobalWorkflowModal = ({
 			{!isProposal ? (
 				<Drawer
 					onClose={modifiedCloseModal}
-					width={screenWidth < 500 ? 420 : isExpanded ? 760 : 420}
+					width={
+						screenWidth < 500
+							? 420
+							: isExpanded
+							? screenWidth < 1200
+								? 650
+								: 760
+							: 420
+					}
 					style={{
 						padding: '0px',
 						backgroundColor: 'transparent',
@@ -331,7 +341,7 @@ const GlobalWorkflowModal = ({
 					<div
 						className="GlobalWorkflowModalParentContainer"
 						style={{
-							width: isExpanded ? '780px' : '420px',
+							width: isExpanded ? getExpandedWidth() : '420px',
 							transition: 'width 0.7s ease',
 							position: 'fixed',
 							right: '10px',
@@ -340,7 +350,7 @@ const GlobalWorkflowModal = ({
 						<div
 							className="innerContainer"
 							style={{
-								width: isExpanded ? '780px' : '420px',
+								width: isExpanded ? getExpandedWidth() : '420px',
 								transition: 'width 0.7s ease',
 								background: 'transparent',
 							}}
@@ -438,7 +448,11 @@ const GlobalWorkflowModal = ({
 													key={index}
 													style={{
 														alignSelf: 'center',
-														width: isExpanded ? '640px' : '368px',
+														width: isExpanded
+															? screenWidth < 1200
+																? '520px'
+																: '640px'
+															: '368px',
 														transition: 'width 0.7s ease',
 													}}
 												>
@@ -529,7 +543,15 @@ const GlobalWorkflowModal = ({
 				<Drawer
 					onClose={modifiedCloseModal}
 					mask={false}
-					width={screenWidth < 500 ? 420 : isExpanded ? 760 : 420}
+					width={
+						screenWidth < 500
+							? 420
+							: isExpanded
+							? screenWidth < 1200
+								? 650
+								: 760
+							: 420
+					}
 					open={modalIsOpen}
 					style={{
 						padding: '0px',
@@ -546,7 +568,7 @@ const GlobalWorkflowModal = ({
 							height: '99dvh',
 							position: 'fixed',
 							right: '10px',
-							width: isExpanded ? '780px' : '420px',
+							width: isExpanded ? getExpandedWidth() : '420px',
 							transition: 'width 0.8s ease',
 						}}
 					>
@@ -556,7 +578,7 @@ const GlobalWorkflowModal = ({
 								height: '100%',
 								background: 'transparent',
 								gap: '24px',
-								width: isExpanded ? '780px' : '420px',
+								width: isExpanded ? getExpandedWidth() : '420px',
 								transition: 'width 0.8s ease',
 							}}
 						>
@@ -664,7 +686,11 @@ const GlobalWorkflowModal = ({
 										height: '97vh',
 										overflow: 'hidden',
 										alignSelf: 'center',
-										width: isExpanded ? '640px' : '368px',
+										width: isExpanded
+											? screenWidth < 1200
+												? '520px'
+												: '640px'
+											: '368px',
 										transition: 'width 0.8s ease',
 									}}
 								>

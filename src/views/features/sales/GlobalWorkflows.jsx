@@ -320,7 +320,7 @@ const GlobalWorkflows = () => {
 										flexDirection: 'column',
 										alignItems: 'flex-start',
 										gap: '32px',
-										marginTop: '20%',
+										marginTop: '25%',
 										marginLeft: '10%',
 									}}
 								>
