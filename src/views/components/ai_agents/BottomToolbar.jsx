@@ -139,9 +139,12 @@ const BottomToolbar = ({
 		[info?.chatQuery, aiChatLoading, onSend],
 	);
 
-	const handleChange = ({ fileList: newFileList }) => {
-		handleAiUploadImage(newFileList?.[0]);
-	};
+	const handleChange = useCallback(
+		({ file }) => {
+			handleAiUploadImage(file);
+		},
+		[handleAiUploadImage],
+	);
 
 	return (
 		<div
@@ -253,9 +256,11 @@ const QuickActionsPlusParentContainer = ({ handleChange }) => {
 	return (
 		<div className="QuickActionsPlusParentContainer">
 			<Upload
-				// action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
 				onChange={handleChange}
 				showUploadList={false}
+				beforeUpload={() => false} // Prevent default upload behavior
+				maxCount={1} // Allow only one file at a time
+				accept="image/*" // Accept only images
 			>
 				<button className="quick-action-upload-button">
 					<UploadOutlined /> Upload Images

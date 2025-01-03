@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/img-redundant-alt */
 /* eslint-disable no-undef */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../.././../../assets/scss/sales/smartFile.scss';
@@ -15,7 +16,7 @@ import UpdatedPageLoader from '../../../components/loaders/UpdatedPageLoader';
 import DeleteLeadModal from '../../../components/modalsV2/workflowsModals/DeleteLeadModal';
 // import Notification from '../../../components/notification/Notification';
 import UploadLogoNotification from '../../../components/notification/UploadLogoNotification';
-import { getCurrentWorkspaceId } from '../../../../helpers';
+import { getBase64, getCurrentWorkspaceId } from '../../../../helpers';
 import SendEmailModal from '../../../components/modalsV2/proposalModals/SendEmailModal';
 import { message, Spin } from 'antd';
 import BottomToolbar from '../../../components/ai_agents/BottomToolbar';
@@ -45,6 +46,7 @@ const SmartFile = () => {
 			updateForm,
 			updateThankyou,
 			smartFileAiChat,
+			uploadImageInSmartFileAi,
 		},
 
 		profileInfo: {
@@ -605,31 +607,56 @@ const SmartFile = () => {
 		},
 		[info?.chatList, info?.chatSessionId, info?.workflowData, info?.aiChatLoading, info],
 	);
-	const getBase64 = (file) =>
-		new Promise((resolve, reject) => {
-			const reader = new FileReader();
-			reader.readAsDataURL(file);
-			reader.onload = () => resolve(reader.result);
-			reader.onerror = (error) => reject(error);
-		});
-	const handleAiUploadImage = useCallback(async (file) => {
-		console.log('file==>', file);
-		if (!file.url && !file.preview) {
-			file.preview = await getBase64(file.originFileObj);
-		}
-		let obj = {
-			type: 'user',
-			content: (
-				<img
-					src={file.preview}
-					alt="ai-image"
-					width={'50px'}
-					onClick={() => handlePreview(file)}
-				/>
-			),
-		};
-		setInfo((prev) => ({ ...prev, chatList: [...prev?.chatList, obj] }));
-	}, []);
+
+	const handleAiUploadImage = useCallback(
+		async (file) => {
+			if (!file.url && !file.preview) {
+				file.preview = await getBase64(file);
+			}
+			let obj = {
+				type: 'user',
+				content: (
+					<img
+						src={file.preview}
+						alt="ai-image"
+						width={'50px'}
+						onClick={() => handlePreview(file)}
+					/>
+				),
+			};
+			let loadingObj = {
+				type: 'AI',
+				message: 'loading....',
+				content: (
+					<div className="aiMessageWrapper">
+						<AiSparkel />
+						<div className="aiMessage">
+							<span>Thinking...</span>
+						</div>
+					</div>
+				),
+			};
+			let chatlist = [...(info?.chatList || [])];
+			chatlist = [...chatlist, obj, loadingObj];
+			setInfo((prev) => ({ ...prev, chatList: chatlist, aiChatLoading: true }));
+			const response = await uploadImageInSmartFileAi(file, info?.workflowData?.slug);
+			chatlist.pop();
+			let newobj = {
+				type: 'AI',
+				message: response?.[1],
+			};
+			chatlist = [...chatlist, newobj];
+			if (response?.[0]) {
+				refetchSmartFiledata();
+			}
+			setInfo((prev) => ({
+				...prev,
+				chatList: chatlist,
+				aiChatLoading: false,
+			}));
+		},
+		[info?.workflowData, info?.chatList, info],
+	);
 
 	const refetchSmartFiledata = useCallback(() => {
 		getSmartFileInfo();
