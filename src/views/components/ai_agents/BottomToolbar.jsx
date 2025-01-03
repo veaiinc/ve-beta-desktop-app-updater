@@ -8,6 +8,7 @@ import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expa
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
 import { message, Tooltip } from 'antd';
 import ReactMarkdown from 'react-markdown';
+import { UploadOutlined } from '@ant-design/icons';
 
 const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChatLoading }) => {
 	const [info, setInfo] = useState({
@@ -187,7 +188,7 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 						<Home />
 					</div>
 					<div className="quickActionsButtons">
-						{/* <Tooltip
+						<Tooltip
 							placement="top"
 							title={
 								<QuickActionsPlusParentContainer />
@@ -207,9 +208,9 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 							// 		closeThreeDotsPopup(index);
 							// 	}
 							// }}
-						> */}
-						<Plus />
-						{/* </Tooltip> */}
+						>
+							<Plus />
+						</Tooltip>
 					</div>
 					<div className="quickActionsButtons">
 						<Settings />
@@ -235,5 +236,11 @@ const BottomToolbar = ({ outerContainerStyle = {}, chatList = [], onSend, aiChat
 export default memo(BottomToolbar);
 
 const QuickActionsPlusParentContainer = () => {
-	return <div className="QuickActionsPlusParentContainer"></div>;
+	return (
+		<div className="QuickActionsPlusParentContainer">
+			<button className="quick-action-upload-button">
+				<UploadOutlined /> Upload Images
+			</button>
+		</div>
+	);
 };
