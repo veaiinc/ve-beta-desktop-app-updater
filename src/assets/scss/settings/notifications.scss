@@ -1,0 +1,103 @@
+.notifications-main-container {
+	display: flex;
+	flex-direction: column;
+	gap: 36px;
+
+	.notifications-container {
+		padding: 36px;
+		border-radius: 32px;
+		background: #171819;
+
+		.notifications-header-title {
+			color: #fff;
+			font-family: Inter;
+			font-size: 24px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.row {
+			margin-top: 32px;
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+
+			.column {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 4px;
+				color: var(--secondary-font-color-grey, #7c7c83);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		.credits-table-container {
+			width: 100%;
+			overflow-x: scroll;
+			position: relative;
+
+			.table {
+				display: flex;
+				align-items: center;
+				color: white;
+
+				.table-header {
+					margin-top: 32px;
+					color: var(--secondary-font-color-grey, #7c7c83);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+
+			.w-1200px {
+				width: 1200px;
+			}
+
+			.ai-credits-data-container {
+				display: flex;
+				flex-direction: column;
+				gap: 4px;
+			}
+		}
+
+		.divider {
+			height: 0.5px;
+			background: var(--Card-Hover-State-Color, #202123);
+			margin: 20px 0;
+		}
+
+		.menu-items {
+			list-style: none;
+			padding: 0;
+
+			.row {
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				align-items: center;
+
+				.column {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					color: var(--Primary-Font-Color, #e8e8e8);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+	}
+}
