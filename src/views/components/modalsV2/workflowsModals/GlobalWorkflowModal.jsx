@@ -315,75 +315,70 @@ const GlobalWorkflowModal = ({
 
 	return (
 		<>
-			{!isProposal ? (
-				<Drawer
-					onClose={modifiedCloseModal}
-					width={
-						screenWidth < 1200
-							? 420
-							: isExpanded
-							? screenWidth < 1200
-								? 650
-								: 760
-							: 420
-					}
+			<Drawer
+				onClose={modifiedCloseModal}
+				width={
+					screenWidth < 1200 ? 420 : isExpanded ? (screenWidth < 1200 ? 650 : 760) : 420
+				}
+				style={{
+					padding: '0px',
+					backgroundColor: 'transparent',
+					height: '100dvh',
+					borderRadius: '32px',
+				}}
+				mask={true}
+				open={modalIsOpen}
+				headerStyle={{ display: 'none' }}
+				bodyStyle={{ padding: '0px' }}
+			>
+				<div
+					className="GlobalWorkflowModalParentContainer"
 					style={{
-						padding: '0px',
-						backgroundColor: 'transparent',
-						height: '100dvh',
-						borderRadius: '32px',
+						width: isExpanded ? getExpandedWidth() : '420px',
+						transition: 'width 0.7s ease',
+						position: 'fixed',
+						right: '10px',
 					}}
-					mask={true}
-					open={modalIsOpen}
-					headerStyle={{ display: 'none' }}
-					bodyStyle={{ padding: '0px' }}
 				>
 					<div
-						className="GlobalWorkflowModalParentContainer"
+						className="innerContainer"
 						style={{
 							width: isExpanded ? getExpandedWidth() : '420px',
 							transition: 'width 0.7s ease',
-							position: 'fixed',
-							right: '10px',
+							background: 'transparent',
 						}}
 					>
-						<div
-							className="innerContainer"
-							style={{
-								width: isExpanded ? getExpandedWidth() : '420px',
-								transition: 'width 0.7s ease',
-								background: 'transparent',
-							}}
-						>
-							<div className="innerContainerHeader">
-								<div className="headerBtnContainer">
-									<div className="tabBtnContainer">
-										<div className="tabBtns">
-											<span
-												onClick={() => changeActiveTab('design')}
-												style={{
-													color:
-														info?.activeTab === 'design'
-															? ' #e0e0e0'
-															: '',
-												}}
-											>
-												Design
-											</span>
-											<span
-												onClick={() => changeActiveTab('automation')}
-												style={{
-													color:
-														info?.activeTab === 'automation'
-															? ' #e0e0e0'
-															: '',
-												}}
-											>
-												Automation
-											</span>
-										</div>
+						{!isProposal ? (
+							<>
+								<div className="innerContainerHeader">
+									<div className="headerBtnContainer">
+										<div className="tabBtnContainer">
+											<div className="tabBtns">
+												<span
+													onClick={() => changeActiveTab('design')}
+													style={{
+														color:
+															info?.activeTab === 'design'
+																? ' #e0e0e0'
+																: '',
+													}}
+												>
+													Design
+												</span>
+												<span
+													onClick={() => changeActiveTab('automation')}
+													style={{
+														color:
+															info?.activeTab === 'automation'
+																? ' #e0e0e0'
+																: '',
+													}}
+												>
+													Automation
+												</span>
+											</div>
 
-										{/* <div onClick={onCustomiseFunc} className="svgContainer">
+											{/* <div onClick={onCustomiseFunc} className="svgContainer">
 											<EditSvg />
 											Customise
 											{info?.duplicateApiLoading ? (
@@ -400,334 +395,104 @@ const GlobalWorkflowModal = ({
 										<div onClick={onGenerateAIFunc} className="svgContainer">
 											GenAI
 										</div> */}
-										{/* )} */}
-									</div>
-									<div
-										style={{
-											display: 'flex',
-											flexDirection: 'row',
-											gap: '24px',
-										}}
-									>
-										{!isExpanded && (
-											<span
-												className="svgContainer"
-												onClick={toggleExpand}
-												style={{
-													display:
-														screenWidth < 1200 ? 'none' : 'inline-flex',
-													cursor: 'pointer',
-													alignSelf: 'center',
-												}}
-											>
-												<ArrowsOut />
-											</span>
-										)}
-										<span
-											className="svgContainer"
-											onClick={isExpanded ? toggleExpand : modifiedCloseModal}
-											style={{ alignSelf: 'center', cursor: 'pointer' }}
-										>
-											<DoubleBackArrow />
-										</span>
-									</div>
-								</div>
-								<span className="customiseText">
-									Customise your design as per your business
-								</span>
-							</div>
-							{info?.activeTab === 'design' ? (
-								<div className="innerMainContent">
-									{info?.loading ? (
-										<GlobalWorkflowDesignModalLoader />
-									) : (
-										info?.activeTemplateData?.moduleTemplates?.map(
-											(e, index) => (
-												<div
-													className="modulesViewer"
-													key={index}
-													style={{
-														alignSelf: 'center',
-														width: isExpanded
-															? screenWidth < 1200
-																? '520px'
-																: '640px'
-															: '368px',
-														transition: 'width 0.7s ease',
-													}}
-												>
-													<span>{e?.module}</span>
-													<div className="imageContainer">
-														<div
-															style={{
-																width: '100%',
-																height: '100%',
-															}}
-														>
-															<iframe
-																src={`${origin}/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`}
-																title="Builder Preview"
-																width="100%"
-																height="100%"
-															/>
-														</div>
-													</div>
-												</div>
-											),
-										)
-									)}
-								</div>
-							) : (
-								<AutomationComponent
-									activeTemplateData={info?.activeTemplateData}
-									loading={info?.loading}
-								/>
-							)}
-							<div
-								className="innerContainerHeader"
-								style={{
-									borderBottom: 'none',
-									marginTop: 'auto',
-									paddingTop: '0px',
-								}}
-							>
-								<div
-									className="headerBtnContainer"
-									style={{ justifyContent: 'center', alignItems: 'center' }}
-								>
-									<div className="tabBtnContainer">
+											{/* )} */}
+										</div>
 										<div
-											onClick={onCustomiseFunc}
-											className="svgContainer"
 											style={{
 												display: 'flex',
-												width: '368px',
-												padding: '16px 32px',
-												justifyContent: 'center',
-												alignItems: 'center',
-												gap: '16px',
-												borderRadius: '23px',
-												background: '#FAFAFA',
-												cursor: 'pointer',
+												flexDirection: 'row',
+												gap: '24px',
 											}}
 										>
-											<span
-												style={{
-													color: '#3F3F3F',
-													fontFamily: 'Inter',
-													fontSize: '12px',
-													fontStyle: 'normal',
-													fontWeight: '500',
-													lineHeight: 'normal',
-												}}
-											>
-												Add to workspace
-											</span>
-											{info?.duplicateApiLoading && (
-												<Spinner
-													width={'16px'}
-													height="16px"
-													color={'#6055ec'}
-													borderTopColor="#111"
-												/>
+											{!isExpanded && (
+												<span
+													className="svgContainer"
+													onClick={toggleExpand}
+													style={{
+														display:
+															screenWidth < 1200
+																? 'none'
+																: 'inline-flex',
+														cursor: 'pointer',
+														alignSelf: 'center',
+													}}
+												>
+													<ArrowsOut />
+												</span>
 											)}
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					;
-				</Drawer>
-			) : (
-				<Drawer
-					onClose={modifiedCloseModal}
-					width={
-						screenWidth < 1200
-							? 420
-							: isExpanded
-							? screenWidth < 1200
-								? 650
-								: 760
-							: 420
-					}
-					open={modalIsOpen}
-					mask={true}
-					style={{
-						padding: '0px',
-						backgroundColor: 'transparent',
-						height: '100dvh',
-						borderRadius: '32px',
-					}}
-					headerStyle={{ display: 'none' }}
-					bodyStyle={{ padding: '0px' }}
-				>
-					<div
-						className="GlobalWorkflowModalParentContainer"
-						style={{
-							height: '99dvh',
-							position: 'fixed',
-							right: '10px',
-							width: isExpanded ? getExpandedWidth() : '420px',
-							transition: 'width 0.8s ease',
-						}}
-					>
-						<div
-							className="innerContainer"
-							style={{
-								height: '100%',
-								background: 'transparent',
-								gap: '24px',
-								width: isExpanded ? getExpandedWidth() : '420px',
-								transition: 'width 0.8s ease',
-							}}
-						>
-							<div
-								className="innerMainContent"
-								style={{
-									height: '100%',
-									// width: isExpanded ? '780px' : '420px',
-									transition: 'width 0.8s ease',
-									gap: '24px',
-									display: 'flex',
-									flexDirection: 'column',
-									justifyContent: 'center',
-									alignItems: 'center',
-								}}
-							>
-								<div
-									className="headerTitle"
-									style={{
-										fontSize: '18px',
-										textTransform: 'capitalize',
-										color: '#fff',
-										// marginTop: '20px',
-										display: 'flex',
-										flexDirection: 'row',
-										justifyContent: 'space-between',
-										padding: '0px 24px',
-										width: '100%',
-									}}
-								>
-									<div
-										style={{
-											display: 'flex',
-											width: '200px',
-											height: '48px',
-											transform: 'rotate(-0.037deg)',
-											padding: '16px 24px',
-											justifyContent: 'center ',
-											textAlign: 'center',
-											alignItems: 'center',
-											borderRadius: '100px',
-											border: '1px solid rgba(255, 255, 255, 0.20)',
-											background: 'rgba(255, 255, 255, 0.05)',
-										}}
-									>
-										{moduleName}
-									</div>
-									<div
-										style={{
-											display: 'flex',
-											flexDirection: 'row',
-											gap: '24px',
-										}}
-									>
-										{!isExpanded && (
 											<span
 												className="svgContainer"
-												onClick={toggleExpand}
-												style={{
-													display:
-														screenWidth < 1200 ? 'none' : 'inline-flex',
-													cursor: 'pointer',
-													alignSelf: 'center',
-												}}
+												onClick={
+													isExpanded ? toggleExpand : modifiedCloseModal
+												}
+												style={{ alignSelf: 'center', cursor: 'pointer' }}
 											>
-												<ArrowsOut />
+												<DoubleBackArrow />
 											</span>
-										)}
-										<span
-											className="svgContainer"
-											onClick={isExpanded ? toggleExpand : modifiedCloseModal}
-											style={{ alignSelf: 'center', cursor: 'pointer' }}
-										>
-											<DoubleBackArrow />
-										</span>
-									</div>
-								</div>
-								<hr
-									style={{
-										width: '100%',
-										padding: '0px !important',
-										border: '0.1px solid rgba(255, 255, 255, 0.20)',
-									}}
-								/>
-								<div
-									style={{
-										color: '#FFF',
-										fontFamily: 'Inter',
-										fontSize: '14px',
-										fontStyle: 'normal',
-										fontWeight: '500',
-										lineHeight: 'normal',
-										display: 'flex',
-										flexDirection: 'row',
-										alignSelf: 'flex-start',
-										padding: '0px 20px',
-									}}
-								>
-									{templateTitle}
-								</div>
-								<div
-									className="modulesViewer"
-									style={{
-										backgroundColor: 'white',
-										height: '97vh',
-										overflow: 'hidden',
-										alignSelf: 'center',
-										width: isExpanded
-											? screenWidth < 1200
-												? '520px'
-												: '640px'
-											: '368px',
-										transition: 'width 0.8s ease',
-									}}
-								>
-									<div
-										className="imageContainer"
-										style={{
-											height: '95vh',
-											width: '100%',
-											backgroundColor: 'white !important',
-											position: 'relative',
-											display: 'block',
-										}}
-									>
-										<div
-											style={{
-												height: '100%',
-												width: '100%',
-												backgroundColor: 'white',
-											}}
-										>
-											<iframe
-												height="100%"
-												src={`${origin}/preview/${globalTemplateId}?module=true&moduleType=${info?.templateData?.module}`}
-												title="Builder Preview"
-												width="100%"
-											/>
 										</div>
 									</div>
+									<span className="customiseText">
+										Customise your design as per your business
+									</span>
 								</div>
-								{/* )} */}
+								{info?.activeTab === 'design' ? (
+									<div className="innerMainContent">
+										{info?.loading ? (
+											<GlobalWorkflowDesignModalLoader />
+										) : (
+											info?.activeTemplateData?.moduleTemplates?.map(
+												(e, index) => (
+													<div
+														className="modulesViewer"
+														key={index}
+														style={{
+															alignSelf: 'center',
+															width: isExpanded
+																? screenWidth < 1200
+																	? '520px'
+																	: '640px'
+																: '368px',
+															transition: 'width 0.7s ease',
+														}}
+													>
+														<span>{e?.module}</span>
+														<div className="imageContainer">
+															<div
+																style={{
+																	width: '100%',
+																	height: '100%',
+																}}
+															>
+																<iframe
+																	src={`${origin}/preview/${globalTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`}
+																	title="Builder Preview"
+																	width="100%"
+																	height="100%"
+																/>
+															</div>
+														</div>
+													</div>
+												),
+											)
+										)}
+									</div>
+								) : (
+									<AutomationComponent
+										activeTemplateData={info?.activeTemplateData}
+										loading={info?.loading}
+									/>
+								)}
 								<div
 									className="innerContainerHeader"
-									style={{ borderBottom: 'none' }}
+									style={{
+										borderBottom: 'none',
+										marginTop: 'auto',
+										paddingTop: '0px',
+									}}
 								>
 									<div
 										className="headerBtnContainer"
-										style={{ justifyContent: 'center' }}
+										style={{ justifyContent: 'center', alignItems: 'center' }}
 									>
 										<div className="tabBtnContainer">
 											<div
@@ -742,6 +507,7 @@ const GlobalWorkflowModal = ({
 													gap: '16px',
 													borderRadius: '23px',
 													background: '#FAFAFA',
+													cursor: 'pointer',
 												}}
 											>
 												<span
@@ -756,23 +522,218 @@ const GlobalWorkflowModal = ({
 												>
 													Add to workspace
 												</span>
-												{/* {info?.duplicateApiLoading && (
-											<Spinner
-												width={'16px'}
-												height="16px"
-												color={'#6055ec'}
-												borderTopColor="#111"
-											/>
-										)} */}
+												{info?.duplicateApiLoading && (
+													<Spinner
+														width={'16px'}
+														height="16px"
+														color={'#6055ec'}
+														borderTopColor="#111"
+													/>
+												)}
 											</div>
 										</div>
 									</div>
 								</div>
-							</div>
-						</div>
+							</>
+						) : (
+							<>
+								<div
+									className="innerMainContent"
+									style={{
+										height: '100%',
+										// width: isExpanded ? '780px' : '420px',
+										transition: 'width 0.8s ease',
+										gap: '24px',
+										display: 'flex',
+										flexDirection: 'column',
+										justifyContent: 'center',
+										alignItems: 'center',
+									}}
+								>
+									<div
+										className="headerTitle"
+										style={{
+											fontSize: '18px',
+											textTransform: 'capitalize',
+											color: '#fff',
+											// marginTop: '20px',
+											display: 'flex',
+											flexDirection: 'row',
+											justifyContent: 'space-between',
+											padding: '0px 24px',
+											width: '100%',
+										}}
+									>
+										<div
+											style={{
+												display: 'flex',
+												width: '200px',
+												height: '48px',
+												transform: 'rotate(-0.037deg)',
+												padding: '16px 24px',
+												justifyContent: 'center ',
+												textAlign: 'center',
+												alignItems: 'center',
+												borderRadius: '100px',
+												border: '1px solid rgba(255, 255, 255, 0.20)',
+												background: 'rgba(255, 255, 255, 0.05)',
+											}}
+										>
+											{moduleName}
+										</div>
+										<div
+											style={{
+												display: 'flex',
+												flexDirection: 'row',
+												gap: '24px',
+											}}
+										>
+											{!isExpanded && (
+												<span
+													className="svgContainer"
+													onClick={toggleExpand}
+													style={{
+														display:
+															screenWidth < 1200
+																? 'none'
+																: 'inline-flex',
+														cursor: 'pointer',
+														alignSelf: 'center',
+													}}
+												>
+													<ArrowsOut />
+												</span>
+											)}
+											<span
+												className="svgContainer"
+												onClick={
+													isExpanded ? toggleExpand : modifiedCloseModal
+												}
+												style={{ alignSelf: 'center', cursor: 'pointer' }}
+											>
+												<DoubleBackArrow />
+											</span>
+										</div>
+									</div>
+									<hr
+										style={{
+											width: '100%',
+											padding: '0px !important',
+											border: '0.1px solid rgba(255, 255, 255, 0.20)',
+										}}
+									/>
+									<div
+										style={{
+											color: '#FFF',
+											fontFamily: 'Inter',
+											fontSize: '14px',
+											fontStyle: 'normal',
+											fontWeight: '500',
+											lineHeight: 'normal',
+											display: 'flex',
+											flexDirection: 'row',
+											alignSelf: 'flex-start',
+											padding: '0px 20px',
+										}}
+									>
+										{templateTitle}
+									</div>
+									<div
+										className="modulesViewer"
+										style={{
+											backgroundColor: 'white',
+											height: '97vh',
+											overflow: 'hidden',
+											alignSelf: 'center',
+											width: isExpanded
+												? screenWidth < 1200
+													? '520px'
+													: '640px'
+												: '368px',
+											transition: 'width 0.8s ease',
+										}}
+									>
+										<div
+											className="imageContainer"
+											style={{
+												height: '95vh',
+												width: '100%',
+												backgroundColor: 'white !important',
+												position: 'relative',
+												display: 'block',
+											}}
+										>
+											<div
+												style={{
+													height: '100%',
+													width: '100%',
+													backgroundColor: 'white',
+												}}
+											>
+												<iframe
+													height="100%"
+													src={`${origin}/preview/${globalTemplateId}?module=true&moduleType=${info?.templateData?.module}`}
+													title="Builder Preview"
+													width="100%"
+												/>
+											</div>
+										</div>
+									</div>
+									{/* )} */}
+									<div
+										className="innerContainerHeader"
+										style={{ borderBottom: 'none' }}
+									>
+										<div
+											className="headerBtnContainer"
+											style={{ justifyContent: 'center' }}
+										>
+											<div className="tabBtnContainer">
+												<div
+													onClick={onCustomiseFunc}
+													className="svgContainer"
+													style={{
+														display: 'flex',
+														width: '368px',
+														padding: '16px 32px',
+														justifyContent: 'center',
+														alignItems: 'center',
+														gap: '16px',
+														borderRadius: '23px',
+														background: '#FAFAFA',
+													}}
+												>
+													<span
+														style={{
+															color: '#3F3F3F',
+															fontFamily: 'Inter',
+															fontSize: '12px',
+															fontStyle: 'normal',
+															fontWeight: '500',
+															lineHeight: 'normal',
+														}}
+													>
+														Add to workspace
+													</span>
+													{/* {info?.duplicateApiLoading && (
+										<Spinner
+											width={'16px'}
+											height="16px"
+											color={'#6055ec'}
+											borderTopColor="#111"
+										/>
+									)} */}
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</>
+						)}
 					</div>
-				</Drawer>
-			)}
+				</div>
+				;
+			</Drawer>
 		</>
 	);
 };
