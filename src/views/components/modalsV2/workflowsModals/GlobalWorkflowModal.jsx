@@ -308,7 +308,7 @@ const GlobalWorkflowModal = ({
 	}, [isExpanded, setIsExpanded]);
 
 	const toggleExpand = () => {
-		if (screenWidth >= 500) {
+		if (screenWidth >= 1200) {
 			setIsExpanded(!isExpanded);
 		}
 	};
@@ -319,7 +319,7 @@ const GlobalWorkflowModal = ({
 				<Drawer
 					onClose={modifiedCloseModal}
 					width={
-						screenWidth < 500
+						screenWidth < 1200
 							? 420
 							: isExpanded
 							? screenWidth < 1200
@@ -333,8 +333,8 @@ const GlobalWorkflowModal = ({
 						height: '100dvh',
 						borderRadius: '32px',
 					}}
+					mask={true}
 					open={modalIsOpen}
-					mask={false}
 					headerStyle={{ display: 'none' }}
 					bodyStyle={{ padding: '0px' }}
 				>
@@ -415,7 +415,7 @@ const GlobalWorkflowModal = ({
 												onClick={toggleExpand}
 												style={{
 													display:
-														screenWidth < 500 ? 'none' : 'inline-flex',
+														screenWidth < 1200 ? 'none' : 'inline-flex',
 													cursor: 'pointer',
 													alignSelf: 'center',
 												}}
@@ -542,9 +542,8 @@ const GlobalWorkflowModal = ({
 			) : (
 				<Drawer
 					onClose={modifiedCloseModal}
-					mask={false}
 					width={
-						screenWidth < 500
+						screenWidth < 1200
 							? 420
 							: isExpanded
 							? screenWidth < 1200
@@ -553,6 +552,7 @@ const GlobalWorkflowModal = ({
 							: 420
 					}
 					open={modalIsOpen}
+					mask={true}
 					style={{
 						padding: '0px',
 						backgroundColor: 'transparent',
@@ -639,7 +639,7 @@ const GlobalWorkflowModal = ({
 												onClick={toggleExpand}
 												style={{
 													display:
-														screenWidth < 500 ? 'none' : 'inline-flex',
+														screenWidth < 1200 ? 'none' : 'inline-flex',
 													cursor: 'pointer',
 													alignSelf: 'center',
 												}}
