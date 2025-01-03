@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import '../../../../assets/scss/tasks/listView.scss';
 import Text from './Text';
 import Select from './Select';
@@ -51,6 +51,14 @@ const ListView = ({
 	addButtonOnClick,
 	haveSubTask = false,
 }) => {
+	const [listViewState, setListViewState] = useState({
+		editingProperty: null,
+	});
+
+	const handleEditPropertyChange = useCallback((value) => {
+		setListViewState((prevState) => ({ ...prevState, editingProperty: value }));
+	}, []);
+
 	const handleRowClick = useCallback(
 		(rowId) => {
 			if (haveSubTask) {
@@ -110,6 +118,8 @@ const ListView = ({
 				responseMetadata={responseMetadata}
 				headerTitle={headerTitle}
 				addButtonOnClick={addButtonOnClick}
+				editingProperty={listViewState?.editingProperty}
+				handleEditPropertyChange={handleEditPropertyChange}
 			/>
 			<div className="listContainer">
 				<div className="listInnerContainer">
@@ -127,6 +137,7 @@ const ListView = ({
 								updatePropertyValue={updatePropertyValue}
 								handleRowClick={handleRowClick}
 								responseMetadata={responseMetadata}
+								handleEditPropertyChange={handleEditPropertyChange}
 							/>
 						))
 					) : (

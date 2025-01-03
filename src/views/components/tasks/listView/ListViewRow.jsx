@@ -8,6 +8,7 @@ const ListViewRow = ({
 	handleRowClick,
 	isSubTask = false,
 	responseMetadata,
+	handleEditPropertyChange,
 }) => {
 	const generateRow = useCallback(
 		(row) => {
@@ -66,6 +67,7 @@ const ListViewRow = ({
 							updatePropertyValue(task?._id, key, value, isSubTask)
 						}
 						{...props}
+						handleEditPropertyChange={handleEditPropertyChange}
 					/>
 				) : null;
 

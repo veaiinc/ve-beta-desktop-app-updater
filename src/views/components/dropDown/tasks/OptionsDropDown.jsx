@@ -8,20 +8,31 @@ import { ReactComponent as CrossedOpenEye } from '../../../../assets/svg/gallery
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as SixDotsSvg } from '../../../../assets/svg/tasks/sixDots.svg';
-// import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
+import { ReactComponent as ArrowLeftSvg } from '../../../../assets/svg/tasks/arrowLeft.svg';
 import Context from '../../../../context/context';
+import StatusEditDropDown from './StatusEditDropDown';
 
-const OptionsDropDown = ({ properties, updateListViewInfo, taskPreferences }) => {
+const OptionsDropDown = ({
+	properties,
+	updateListViewInfo,
+	taskPreferences,
+	editingProperty,
+	handleEditPropertyChange,
+}) => {
 	const {
 		companyInfo: { updateTaskPreferences },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		groupDropDownOpen: false,
-		orderDropDownOpen: false,
 		selected: null,
 		hiddenProperties: [],
 		shownProperties: [],
 		isOpen: false,
+
+		addNewProperty: {
+			show: false,
+			group: null,
+			label: '',
+		},
 	});
 
 	useEffect(() => {
@@ -43,6 +54,15 @@ const OptionsDropDown = ({ properties, updateListViewInfo, taskPreferences }) =>
 			hiddenProperties: hiddenArray,
 		}));
 	}, [properties]);
+
+	useEffect(() => {
+		if (editingProperty) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				isOpen: true,
+			}));
+		}
+	}, [editingProperty]);
 
 	const updatePropertyPreference = useCallback(
 		(propName, value) => {
@@ -235,13 +255,20 @@ const OptionsDropDown = ({ properties, updateListViewInfo, taskPreferences }) =>
 		updateTaskPreferences(newTaskPreferences);
 	}, [properties, updateListViewInfo, taskPreferences, updateTaskPreferences]);
 
-	const handleDropdownVisibility = useCallback((visible) => {
-		setInfo((prev) => ({ ...prev, isOpen: visible }));
-	}, []);
+	const handleDropdownVisibility = useCallback(
+		(visible) => {
+			setInfo((prev) => ({ ...prev, isOpen: visible }));
+			if (!visible) {
+				handleEditPropertyChange(null);
+			}
+		},
+		[handleEditPropertyChange],
+	);
 
 	const handleClose = useCallback(() => {
 		setInfo((prev) => ({ ...prev, isOpen: false }));
-	}, []);
+		handleEditPropertyChange(null);
+	}, [handleEditPropertyChange]);
 
 	const PropertyList = ({ items, droppableId }) => (
 		<Droppable droppableId={droppableId}>
@@ -260,6 +287,13 @@ const OptionsDropDown = ({ properties, updateListViewInfo, taskPreferences }) =>
 									className={`property-listItem ${
 										snapshot.isDragging ? 'dragging' : ''
 									}`}
+									onClick={() => {
+										if (value === 'status') {
+											handleEditPropertyChange({
+												propName: 'status',
+											});
+										}
+									}}
 								>
 									<div {...provided.dragHandleProps} className="drag-handle-icon">
 										<SixDotsSvg />
@@ -284,7 +318,11 @@ const OptionsDropDown = ({ properties, updateListViewInfo, taskPreferences }) =>
 											}
 										/>
 									)}
-									<ChevronRightThinSvg />
+									{value === 'status' ? (
+										<ChevronRightThinSvg />
+									) : (
+										<div style={{ width: '16px' }}></div>
+									)}
 								</div>
 							)}
 						</Draggable>
@@ -297,52 +335,60 @@ const OptionsDropDown = ({ properties, updateListViewInfo, taskPreferences }) =>
 
 	return (
 		<Tooltip
-			placement="bottomLeft"
+			placement="bottomRight"
 			open={info.isOpen}
 			onOpenChange={handleDropdownVisibility}
 			title={
-				<div className="options-dropdown-container">
-					<div className="options-dropdown-header">
-						<span className="options-dropdown-header-title-wrapper">
-							<span className="options-dropdown-header-title">Properties</span>
-						</span>
-						<CrossSvg className="cursor-pointer" onClick={handleClose} />
-					</div>
-					<DragDropContext onDragEnd={handleDragEnd}>
-						{info?.shownProperties?.length > 0 && (
-							<div className="options-dropdown-body-show-container-header">
-								<span className="section-title">Shown in List</span>
-								<button
-									className="btn-show-all"
-									onClick={handleHideAll}
-									disabled={info?.shownProperties?.length <= 1}
-								>
-									Hide all
-								</button>
-							</div>
-						)}
-						<PropertyList items={info.shownProperties} droppableId="shown" />
+				!editingProperty ? (
+					<div className="options-dropdown-container">
+						<div className="options-dropdown-header">
+							<span className="options-dropdown-header-title-wrapper">
+								<ArrowLeftSvg className="cursor-pointer" onClick={handleClose} />
+								<span className="options-dropdown-header-title">Properties</span>
+							</span>
+							<CrossSvg className="cursor-pointer" onClick={handleClose} />
+						</div>
+						<DragDropContext onDragEnd={handleDragEnd}>
+							{info?.shownProperties?.length > 0 && (
+								<div className="options-dropdown-body-show-container-header">
+									<span className="section-title">Shown in List</span>
+									<button
+										className="btn-show-all"
+										onClick={handleHideAll}
+										disabled={info?.shownProperties?.length <= 1}
+									>
+										Hide all
+									</button>
+								</div>
+							)}
+							<PropertyList items={info.shownProperties} droppableId="shown" />
 
-						{info?.hiddenProperties?.length > 0 && (
-							<div className="options-dropdown-body-hide-container-header">
-								<span className="section-title">Hidden in List</span>
-								<button
-									className="btn-show-all"
-									onClick={handleShowAll}
-									disabled={info?.hiddenProperties?.length === 0}
-								>
-									Show all
-								</button>
-							</div>
-						)}
-						<PropertyList items={info.hiddenProperties} droppableId="hidden" />
-					</DragDropContext>
-					{/* <div className="options-dropdown-footer">
+							{info?.hiddenProperties?.length > 0 && (
+								<div className="options-dropdown-body-hide-container-header">
+									<span className="section-title">Hidden in List</span>
+									<button
+										className="btn-show-all"
+										onClick={handleShowAll}
+										disabled={info?.hiddenProperties?.length === 0}
+									>
+										Show all
+									</button>
+								</div>
+							)}
+							<PropertyList items={info.hiddenProperties} droppableId="hidden" />
+						</DragDropContext>
+						{/* <div className="options-dropdown-footer">
 						<PlusSvg className="add-new-property-icon" />
 						<span className="add-new-property-title">Add new property</span>
 						<ChevronRightThinSvg />
 					</div> */}
-				</div>
+					</div>
+				) : (
+					<StatusEditDropDown
+						handleEditPropertyChange={handleEditPropertyChange}
+						handleClose={handleClose}
+					/>
+				)
 			}
 			arrow={false}
 			trigger={'click'}

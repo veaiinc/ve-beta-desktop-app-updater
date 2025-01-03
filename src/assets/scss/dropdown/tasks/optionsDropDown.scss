@@ -6,7 +6,7 @@
 		align-items: flex-start;
 		gap: 12px;
 		width: 220px;
-		border-radius: 14px;
+		border-radius: 8px;
 		background: #202123;
 		box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
 
@@ -27,10 +27,11 @@
 				.options-dropdown-header-title {
 					color: #f2f2f3;
 					font-family: Inter;
-					font-size: 14px;
+					font-size: 12px;
 					font-style: normal;
+					text-align: left;
 					font-weight: 500;
-					line-height: 20px; /* 142.857% */
+					line-height: normal; /* 142.857% */
 				}
 			}
 		}
@@ -95,7 +96,7 @@
 				.drag-handle-icon {
 					display: flex;
 					align-items: center;
-					justify-content: center;	
+					justify-content: center;
 				}
 
 				.property-listItem-title {
@@ -151,5 +152,10 @@
 		.cursor-pointer {
 			cursor: pointer;
 		}
+	}
+
+	
+	.cursor-pointer {
+		cursor: pointer;
 	}
 }

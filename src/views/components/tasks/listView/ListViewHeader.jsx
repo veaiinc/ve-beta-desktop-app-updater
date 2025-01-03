@@ -35,6 +35,8 @@ const ListViewHeader = ({
 	headerTitle,
 	addButtonOnClick,
 	taskPreferences,
+	editingProperty,
+	handleEditPropertyChange,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -164,6 +166,8 @@ const ListViewHeader = ({
 						properties={properties}
 						updateListViewInfo={updateListViewInfo}
 						taskPreferences={taskPreferences}
+						editingProperty={editingProperty}
+						handleEditPropertyChange={handleEditPropertyChange}
 					/>
 				</div>
 			</div>

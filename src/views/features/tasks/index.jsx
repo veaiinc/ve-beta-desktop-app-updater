@@ -32,6 +32,26 @@ const defaultPreference = {
 	updatedAt: { show: false, order: 15 },
 };
 
+const defaultTaskMetadata = {
+	status: [
+		{
+			group: 'todo',
+			color: 1,
+			label: 'To-do',
+		},
+		{
+			group: 'inProgress',
+			color: 2,
+			label: 'In Progress',
+		},
+		{
+			group: 'completed',
+			color: 3,
+			label: 'Completed',
+		},
+	],
+};
+
 const Tasks = () => {
 	const {
 		tasks: {
@@ -62,7 +82,7 @@ const Tasks = () => {
 		isCreateModalOpen: false,
 		isCreatingSubtask: true,
 		properties: [],
-		taskPreferences: null,
+		taskPreferences: defaultPreference,
 		sidebarIsOpen: false,
 		selectedRow: null,
 		selectedSubTask: null,
@@ -89,28 +109,28 @@ const Tasks = () => {
 				props: {
 					options: [
 						{
+							group: 'todo',
 							label: 'On hold',
-							value: 'onHold',
-							color: '#939393',
-							backgroundColor: '#373737',
+							_id: 'onHold',
+							color: 1,
 						},
 						{
+							group: 'todo',
 							label: 'Todo',
-							value: 'todo',
-							color: '#939393',
-							backgroundColor: '#5A5A5A',
+							_id: 'todo',
+							color: 2,
 						},
 						{
+							group: 'inProgress',
 							label: 'In progress',
-							value: 'inProgress',
-							color: '#3E70C7',
-							backgroundColor: '#2F4469',
+							_id: 'inProgress',
+							color: 3,
 						},
 						{
+							group: 'completed',
 							label: 'Completed',
-							value: 'completed',
-							color: '#3B9D59',
-							backgroundColor: '#375841',
+							_id: 'completed',
+							color: 4,
 						},
 					],
 				},
@@ -226,8 +246,13 @@ const Tasks = () => {
 	useEffect(() => {
 		if (taskPreferences === null) {
 			getTaskPreferences();
-		} else if (taskPreferences === false) {
+		} else if (taskPreferences?.data === false) {
 			updateTaskPreferences(defaultPreference);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: defaultPreference,
+			}));
+		} else if (taskPreferences?.error) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				taskPreferences: defaultPreference,
@@ -235,7 +260,7 @@ const Tasks = () => {
 		} else {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				taskPreferences: taskPreferences,
+				taskPreferences: taskPreferences?.data,
 			}));
 		}
 	}, [taskPreferences]);

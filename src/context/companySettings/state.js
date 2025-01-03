@@ -318,11 +318,20 @@ export const CompanySettingsState = () => {
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.GET_TASK_PREFERENCES,
-					payload: response?.[1],
+					payload: { data: response?.[1] },
+				});
+			} else {
+				dispatch({
+					type: Actions.GET_TASK_PREFERENCES,
+					payload: { error: response?.[1] },
 				});
 			}
 		} catch (error) {
 			console.log('error ==> getTaskPreferences', error);
+			dispatch({
+				type: Actions.GET_TASK_PREFERENCES,
+				payload: { error: error },
+			});
 		}
 	};
 
