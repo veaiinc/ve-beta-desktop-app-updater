@@ -4,6 +4,7 @@ import Context from '../../../context/context';
 import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Spinner from '../../components/loaders/Spinner';
+import { FetchMoreLoaderComp } from '../../../helpers';
 
 const menuItems = [
 	{
@@ -121,23 +122,7 @@ const Notifications = () => {
 							scrollableTarget="AICreditsContainer"
 							hasMore={AICreditsData?.hasNextPage}
 							next={fetchMoreAICredits}
-							loader={
-								<div
-									style={{
-										color: 'white',
-										textAlign: 'center',
-										fontSize: '10px',
-										padding: '4px',
-										display: 'flex',
-										justifyContent: 'center',
-										alignItems: 'center',
-										gap: '4px',
-									}}
-								>
-									<span>Fetching More Files...</span>
-									<Spinner width={'12px'} height={'12px'} />
-								</div>
-							}
+							loader={<FetchMoreLoaderComp />}
 						>
 							<div className="table w-1200px">
 								{AICreditsUsedRowData?.map((item) => (
@@ -166,8 +151,8 @@ const Notifications = () => {
 										<div className="column" style={{ width: '240px' }}>
 											{UnitAICreditsData?.createdAt
 												? moment
-														.unix(UnitAICreditsData.createdAt)
-														.format('MMMM D, YYYY h:mm A')
+														?.unix(UnitAICreditsData.createdAt)
+														?.format('MMMM D, YYYY h:mm A')
 												: ''}
 										</div>
 										<div className="column" style={{ width: '240px' }}>
