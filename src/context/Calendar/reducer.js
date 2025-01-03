@@ -6,10 +6,30 @@ const actionHandlers = {
 		calendarChat: action.payload,
 	}),
 
-	GET_CALENDAR_EVENTS_LIST: (state, action) => ({
+	GET_CALENDAR_ALL_EVENTS: (state, action) => ({
 		...state,
 		calendarEventsList: action.payload,
 	}),
+
+	GET_CALENDAR_EVENTS_LIST: (state, action) => {
+		const existingEvents = Array.isArray(state.calendarEventsList)
+			? state.calendarEventsList
+			: [];
+		const newEvents = Array.isArray(action.payload) ? action.payload : [];
+
+		// Create a map of existing events by ID
+		const existingEventsMap = new Map(existingEvents.map((event) => [event._id, event]));
+
+		// Add or update events from the new payload
+		newEvents.forEach((event) => {
+			existingEventsMap.set(event._id, event);
+		});
+
+		return {
+			...state,
+			calendarEventsList: Array.from(existingEventsMap.values()),
+		};
+	},
 
 	CREATE_CALENDAR_EVENT: (state, action) => ({
 		...state,

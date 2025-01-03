@@ -19,6 +19,7 @@ const CalendarHeader = ({
 	views,
 	selectedWeek,
 	selectedDate,
+	selectedMonth,
 	userWorkSpaceList,
 	tenantsUserList,
 	currentCalendarDate,
@@ -79,18 +80,32 @@ const CalendarHeader = ({
 				// Update both currentCalendarDate and selectedDate
 				updateCalendarInfo('currentCalendarDate', newDate.toDate());
 				updateCalendarInfo('selectedDate', newDate.toDate());
+				// If the month has changed while navigating, update the selectedMonth in the calendar info
+				const currentMonth = moment().month(selectedMonth).format('MMMM');
+				const newMonth = moment().month(newDate.month()).format('MMMM');
+				if (currentMonth !== newMonth) {
+					updateCalendarInfo('selectedMonth', newDate.month());
+				}
 			}
 		},
-		[view, selectedDate, currentCalendarDate],
+		[view, selectedDate, currentCalendarDate, selectedMonth],
 	);
 
-	const goToPrevious = useCallback(() => {
-		handleNavigation('prev');
-	}, [handleNavigation]);
+	const goToPrevious = useCallback(
+		(label) => {
+			console.log('label==>', label);
+			handleNavigation('prev');
+		},
+		[handleNavigation],
+	);
 
-	const goToNext = useCallback(() => {
-		handleNavigation('next');
-	}, [handleNavigation]);
+	const goToNext = useCallback(
+		(label) => {
+			console.log('label==>', label);
+			handleNavigation('next');
+		},
+		[handleNavigation],
+	);
 
 	return (
 		<>
@@ -99,9 +114,9 @@ const CalendarHeader = ({
 				<div className="calendarHeaderContainer">
 					<div className="calendarControls">
 						<div className="calendarDate">
-							<Left onClick={goToPrevious} />
+							<Left onClick={() => goToPrevious(label)} />
 							{label}
-							<Right onClick={goToNext} />
+							<Right onClick={() => goToNext(label)} />
 						</div>
 						<div className="viewToggleWrapper">
 							<div className="viewToggle">

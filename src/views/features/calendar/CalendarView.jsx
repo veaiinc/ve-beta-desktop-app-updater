@@ -27,6 +27,7 @@ const CalendarView = ({
 	currentCalendarDate,
 	selectedWeek,
 	selectedDate,
+	selectedMonth,
 	isEventSelected,
 	categoryList,
 	selectedCategory,
@@ -58,11 +59,17 @@ const CalendarView = ({
 
 	useEffect(() => {
 		// fetchEventsList();
-		getCalendarEventsList();
 		if (calendarEvent?._id) {
 			handleSendEventToAi();
+			console.log('calling getCalendarEventsList due to event creation: ', selectedDate);
+			getCalendarEventsList(selectedDate);
 		}
 	}, [calendarEvent]);
+
+	useEffect(() => {
+		console.log('calling getCalendarEventsList due to month change: ', selectedDate);
+		getCalendarEventsList(selectedDate);
+	}, [selectedMonth]);
 
 	useEffect(() => {
 		return () => {
@@ -133,6 +140,7 @@ const CalendarView = ({
 					currentCalendarDate={currentCalendarDate}
 					selectedDate={selectedDate}
 					selectedWeek={selectedWeek}
+					selectedMonth={selectedMonth}
 					tenantsUserList={tenantsUserList}
 					updateCalendarInfo={updateCalendarInfo}
 					selectedWorkflowId={selectedWorkflowId}
@@ -175,6 +183,7 @@ const CalendarView = ({
 
 	const onSelectSlot = useCallback((event) => {
 		updateCalendarInfo('isCreateEventOpen', true);
+		updateCalendarInfo('selectedDate', event?.start);
 		updateCalendarInfo('selectedSlot', event?.start);
 	}, []);
 

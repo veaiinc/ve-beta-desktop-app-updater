@@ -25,6 +25,7 @@ const Calendar = () => {
 		selectedWorkflowId: null,
 		selectedSlot: null,
 	});
+
 	useEffect(() => {
 		const payload = {
 			calendarCategory: 'default',

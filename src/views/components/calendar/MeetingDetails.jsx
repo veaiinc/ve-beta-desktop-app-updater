@@ -6,7 +6,7 @@ import Meetwomen from '../../../assets/svg/calendar/meetwomen.png';
 import Context from '../../../context/context';
 import moment from 'moment';
 
-const MeetingDetails = () => {
+const MeetingDetails = ({ selectedDate }) => {
 	const {
 		calendarInfo: { calendarEventsList = [], deletedEvent, getCalendarEventsList },
 	} = useContext(Context);
@@ -14,7 +14,8 @@ const MeetingDetails = () => {
 
 	useEffect(() => {
 		if (deletedEvent) {
-			getCalendarEventsList();
+			// Refresh the event list to display the latest event if the previous latest event was deleted
+			getCalendarEventsList(selectedDate);
 		}
 	}, [deletedEvent]);
 

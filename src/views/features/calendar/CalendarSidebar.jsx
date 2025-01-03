@@ -33,7 +33,7 @@ const CalendarSidebar = ({
 	return (
 		<>
 			{info?.askAi ? (
-				<CalendarAiChat toggleAskAi={toggleAskAi} />
+				<CalendarAiChat toggleAskAi={toggleAskAi} selectedDate={selectedDate} />
 			) : isCreateEventOpen ? (
 				<CreateEvent
 					categoryList={categoryList}
@@ -57,7 +57,7 @@ const CalendarSidebar = ({
 						categoryFilter={categoryFilter}
 						updateCalendarInfo={updateCalendarInfo}
 					/>
-					<MeetingDetails />
+					<MeetingDetails selectedDate={selectedDate} />
 				</div>
 			)}
 		</>
