@@ -23,11 +23,13 @@ const Calendar = () => {
 		selectedCategory: null,
 		categoryFilter: [],
 		selectedWorkflowId: null,
+		selectedSlot: null,
 	});
+
 	useEffect(() => {
 		const payload = {
 			calendarCategory: 'default',
-			categoryColor: '#bf8bff',
+			categoryColor: '#b977ff',
 			categoryType: 'default',
 		};
 		createCalendarCategory(payload);
@@ -115,6 +117,7 @@ const Calendar = () => {
 					categoryFilter={info?.categoryFilter}
 					updateCalendarInfo={updateCalendarInfo}
 					selectedWorkflowId={info?.selectedWorkflowId}
+					selectedSlot={info?.selectedSlot}
 				/>
 				<CalendarView
 					currentCalendarDate={info?.currentCalendarDate}
@@ -129,6 +132,7 @@ const Calendar = () => {
 					getCurrentWeek={getCurrentWeek}
 					updateCalendarInfo={updateCalendarInfo}
 					selectedWorkflowId={info?.selectedWorkflowId}
+					selectedSlot={info?.selectedSlot}
 				/>
 			</div>
 		</>

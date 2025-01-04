@@ -16,8 +16,6 @@ const WorkflowDropDown = ({ selectedWorkflowId, updateCalendarInfo }) => {
 		workflowOptions: [],
 	});
 
-	// useEffect(() => {}, []);
-
 	useEffect(() => {
 		if (myWorkflows) {
 			myWorkflowsDataParser(myWorkflows);
