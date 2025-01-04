@@ -85,62 +85,30 @@ const GlobalMyTemplates = () => {
 		}
 	}, [globalMoreWorkflows]);
 	useEffect(() => {
-		if (selectedOption === 'Workflow') {
-			const payload = {
-				filters: {
-					limit: 10,
-					page: 1,
-					type: 'workspace',
-					sortBy: 'createdAt',
-					sortType: -1,
-					title: debouncedSearchQuery,
-				},
-			};
-			setInfo((prev) => ({ ...prev, searchLoading: true }));
-			getGlobalWorkflows(payload, false);
-		} else {
-			// Handle other modules search
-			const payload = {
-				page: 1,
-				limit: 10,
-				type: 'workspace',
-				module: selectedOption.toLowerCase(), // Only include title if there's a search query
-			};
-
-			if (debouncedSearchQuery.trim()) {
-				payload.title = debouncedSearchQuery.trim();
-			}
-
-			setModuleTemplateData(null); // Clear existing data while loading
-			getModuleTemplate(payload).then(([success, response]) => {
-				if (success) {
-					setModuleTemplateData(response.templates);
-					setModuleInfo({
-						currentPage: 1,
-						hasNextPage: response.hasNextPage,
-					});
-				}
-				setInfo((prev) => ({ ...prev, searchLoading: false }));
-			});
-		}
-	}, [debouncedSearchQuery, selectedOption]);
-
-	const handleOptionSelect = useCallback(
-		async (option) => {
-			if (option === selectedOption) return;
-
-			setSelectedOption(option);
-			setModuleTemplateData(null);
-			setModuleInfo({ currentPage: 1, hasNextPage: false });
-			setSearchQuery('');
-
-			if (option !== 'Workflow') {
+		const fetchData = async () => {
+			if (selectedOption === 'Workflow') {
+				const payload = {
+					filters: {
+						limit: 10,
+						page: 1,
+						type: 'workspace',
+						sortBy: 'createdAt',
+						sortType: -1,
+						title: debouncedSearchQuery,
+					},
+				};
+				setInfo((prev) => ({ ...prev, searchLoading: true }));
+				getGlobalWorkflows(payload, false);
+			} else {
 				const payload = {
 					page: 1,
 					limit: 10,
 					type: 'workspace',
-					module: option.toLowerCase(),
+					module: selectedOption.toLowerCase(),
+					...(debouncedSearchQuery && { title: debouncedSearchQuery }),
 				};
+
+				setModuleTemplateData(null);
 				const [success, response] = await getModuleTemplate(payload);
 				if (success) {
 					setModuleTemplateData(response.templates);
@@ -149,7 +117,20 @@ const GlobalMyTemplates = () => {
 						hasNextPage: response.hasNextPage,
 					});
 				}
+				setInfo((prev) => ({ ...prev, searchLoading: false }));
 			}
+		};
+
+		fetchData();
+	}, [debouncedSearchQuery, selectedOption]);
+
+	const handleOptionSelect = useCallback(
+		(option) => {
+			if (option === selectedOption) return;
+			setSelectedOption(option);
+			setModuleTemplateData(null);
+			setModuleInfo({ currentPage: 1, hasNextPage: false });
+			setSearchQuery('');
 		},
 		[selectedOption],
 	);

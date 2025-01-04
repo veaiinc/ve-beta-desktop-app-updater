@@ -182,28 +182,29 @@ const GlobalWorkflowModal = ({
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
 	useEffect(() => {
-		if (globalTemplateId && globalTemplateId !== 'undefined') {
-			if (!specificTemplatesInfo || specificTemplatesInfo._id !== globalTemplateId) {
-				getSpecificTemplatesInfo({
-					templateInfoId: globalTemplateId,
-				});
-			}
+		if (modalIsOpen && globalTemplateId && globalTemplateId !== 'undefined') {
+			getSpecificTemplatesInfo({
+				templateInfoId: globalTemplateId,
+			});
 		}
 
 		return () => {
-			updateStateValues({ specificTemplatesInfo: null });
+			if (!modalIsOpen) {
+				updateStateValues({ specificTemplatesInfo: null });
+				setInfo(initialState);
+			}
 		};
-	}, [globalTemplateId, specificTemplatesInfo]);
+	}, [globalTemplateId, modalIsOpen]);
 
 	useEffect(() => {
-		if (specificTemplatesInfo) {
+		if (specificTemplatesInfo && modalIsOpen) {
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
 				activeTemplateData: specificTemplatesInfo,
 			}));
 		}
-	}, [specificTemplatesInfo]);
+	}, [specificTemplatesInfo, modalIsOpen]);
 
 	useEffect(() => {
 		if (info?.activeTemplateData) {
@@ -230,10 +231,9 @@ const GlobalWorkflowModal = ({
 		return screenWidth < 1200 ? '650px' : '780px';
 	}, [screenWidth]);
 
-	const modifiedCloseModal = useCallback(async () => {
+	const modifiedCloseModal = useCallback(() => {
 		setInfo(initialState);
 		closeModal();
-		updateStateValues({ specificTemplatesInfo: null });
 	}, [closeModal]);
 
 	const onCustomiseFunc = useCallback(async () => {
