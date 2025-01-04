@@ -318,6 +318,7 @@ const GlobalWorkflowModal = ({
 				open={modalIsOpen}
 				headerStyle={{ display: 'none' }}
 				bodyStyle={{ padding: '0px' }}
+				maskClassName="globalContainerMaskclassName"
 			>
 				<div
 					className="GlobalWorkflowModalParentContainer"
@@ -720,7 +721,6 @@ const GlobalWorkflowModal = ({
 						)}
 					</div>
 				</div>
-				;
 			</Drawer>
 		</>
 	);
