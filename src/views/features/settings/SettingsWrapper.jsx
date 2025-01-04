@@ -11,13 +11,14 @@ import Integrations from './Integrations';
 import TeamSettings from './TeamSettings';
 import PlanBilling from './PlanBilling';
 import AiSetup from './ai_settings/AiSetup';
-
+import Notifications from './Notifications';
 const mapper = {
 	'my-profile': <MyProfile />,
 	workspace: <SettingsWorkspace />,
 	'public-information': <PublicInformation />,
 	'brand-setup': <BrandingSetup />,
 	integrations: <Integrations />,
+	notifications: <Notifications />,
 	'team-settings': <TeamSettings />,
 	'plan-billing': <PlanBilling />,
 	'ai-setup': <AiSetup />,

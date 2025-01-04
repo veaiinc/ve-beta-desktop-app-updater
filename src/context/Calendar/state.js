@@ -3,6 +3,7 @@ import Reducer from './reducer';
 import { Actions } from './action';
 import * as API from './actionTypes';
 import service from '../../services/index';
+import moment from 'moment';
 
 export const initialState = {
 	calendarChat: null,
@@ -157,11 +158,39 @@ export const Calendar = () => {
 	};
 
 	// Calendar Events Apis ================================>
-	const getCalendarEventsList = async () => {
+	const getCalendarAllEvents = async () => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}${API.CALENDAR.calendarEventsList}`;
+			const url = `/${workspaceId}${API.CALENDAR.calendarAllEvents}`;
+
+			const response = await service.fetchGet(url, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_CALENDAR_ALL_EVENTS,
+					payload: response?.[1]?.data,
+				});
+			} else {
+				dispatch({
+					type: Actions.GET_CALENDAR_EVENTS_LIST,
+					payload: {
+						error: 'Something went wrong while fetching events. Please try again.',
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>getCalendarEventsList', error);
+		}
+	};
+
+	const getCalendarEventsList = async (fetchDate = moment().format('YYYY-MM-DD')) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const date = moment(fetchDate).format('YYYY-MM-DD');
+			const url = `/${workspaceId}${API.CALENDAR.calendarEventsList}?date=${date}`;
 
 			const response = await service.fetchGet(url, usertoken, 'calendar_api');
 
@@ -308,5 +337,6 @@ export const Calendar = () => {
 		getCalendarCategories,
 		deleteCalendarCategory,
 		getCalendarEventDetails,
+		getCalendarAllEvents,
 	};
 };

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import '../../../../assets/scss/tasks/listView.scss';
 import Text from './Text';
 import Select from './Select';
@@ -12,7 +12,6 @@ import Email from './Email';
 import Url from './Url';
 import Phone from './Phone';
 import CheckBox from './CheckBox';
-import CreateTaskPopup from '../../modalsV2/tasks/CreateTaskPopup';
 import ListViewSidebar from '../../modalsV2/tasks/ListViewSidebar';
 import WorkFlow from './WorkFlow';
 import ListViewHeader from './ListViewHeader';
@@ -44,17 +43,29 @@ const ListView = ({
 	info,
 	updateListViewInfo,
 	resetSubTasks,
-	togglePropertyVisibility,
 	updatePropertyValue,
 	deleteTask,
-	addNewTask,
 	responseMetadata,
 	fetchListItems,
+	headerTitle = 'Tasks',
+	addButtonOnClick,
+	haveSubTask = false,
+	colors,
 }) => {
+	const [listViewState, setListViewState] = useState({
+		editingProperty: null,
+	});
+
+	const handleEditPropertyChange = useCallback((value) => {
+		setListViewState((prevState) => ({ ...prevState, editingProperty: value }));
+	}, []);
+
 	const handleRowClick = useCallback(
 		(rowId) => {
-			if (info?.selectedRow?._id !== rowId) {
-				resetSubTasks();
+			if (haveSubTask) {
+				if (info?.selectedRow?._id !== rowId) {
+					resetSubTasks();
+				}
 			}
 			const row = info?.listItems?.find((row) => row._id === rowId);
 			if (row) {
@@ -71,19 +82,11 @@ const ListView = ({
 		updateListViewInfo('isCreateModalOpen', true);
 	}, []);
 
-	const handleCloseCreateModal = useCallback(() => {
-		if (info?.isCreatingSubtask) {
-			updateListViewInfo('sidebarIsOpen', true);
-		}
-		updateListViewInfo('isCreateModalOpen', false);
-	}, [info?.isCreatingSubtask]);
-
 	const handleSubTaskClick = useCallback((task) => {
 		updateListViewInfo('selectedSubTask', task);
 	}, []);
 
 	const handleCloseSidebar = useCallback(() => {
-		console.log('info?.updated', info?.updated);
 		if (info?.updated) {
 			updateListViewInfo('loadingSkeleton', true);
 			fetchListItems();
@@ -109,11 +112,16 @@ const ListView = ({
 			<ListViewHeader
 				updateListViewInfo={updateListViewInfo}
 				properties={info?.properties}
-				togglePropertyVisibility={togglePropertyVisibility}
+				taskPreferences={info?.taskPreferences}
 				sort={info?.sort}
 				filters={info?.filters}
 				searchValue={info?.searchValue}
 				responseMetadata={responseMetadata}
+				headerTitle={headerTitle}
+				addButtonOnClick={addButtonOnClick}
+				editingProperty={listViewState?.editingProperty}
+				handleEditPropertyChange={handleEditPropertyChange}
+				colors={colors}
 			/>
 			<div className="listContainer">
 				<div className="listInnerContainer">
@@ -133,6 +141,8 @@ const ListView = ({
 								updatePropertyValue={updatePropertyValue}
 								handleRowClick={handleRowClick}
 								responseMetadata={responseMetadata}
+								handleEditPropertyChange={handleEditPropertyChange}
+								colors={colors}
 							/>
 						))
 					) : (
@@ -149,16 +159,6 @@ const ListView = ({
 					</button>
 				</div>
 			)}
-			<CreateTaskPopup
-				isOpen={info?.isCreateModalOpen}
-				closeModal={handleCloseCreateModal}
-				addNewTask={addNewTask}
-				workflows={info?.workflows}
-				tenantUsers={info?.tenantUsers}
-				clients={info?.clients}
-				isSubTask={info?.isCreatingSubtask}
-				responseMetadata={responseMetadata}
-			/>
 			<ListViewSidebar
 				selectedRow={info?.selectedSubTask || info?.selectedRow}
 				isShowingSubTask={info?.selectedSubTask !== null}
@@ -172,6 +172,9 @@ const ListView = ({
 				rowTypes={rowTypes}
 				handleCreateSubTaskClick={handleCreateSubTaskClick}
 				responseMetadata={responseMetadata}
+				haveSubTask={haveSubTask}
+				properties={info?.properties}
+				colors={colors}
 			/>
 		</div>
 	);
