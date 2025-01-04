@@ -58,7 +58,7 @@ const CalendarSidebar = ({
 						categoryFilter={categoryFilter}
 						updateCalendarInfo={updateCalendarInfo}
 					/>
-					<GoogleCalendar />
+					{/* <GoogleCalendar /> */}
 					<MeetingDetails selectedDate={selectedDate} />
 				</div>
 			)}

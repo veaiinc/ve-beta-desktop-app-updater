@@ -29,7 +29,7 @@ const Calendar = () => {
 	useEffect(() => {
 		const payload = {
 			calendarCategory: 'default',
-			categoryColor: '#bf8bff',
+			categoryColor: '#b977ff',
 			categoryType: 'default',
 		};
 		createCalendarCategory(payload);

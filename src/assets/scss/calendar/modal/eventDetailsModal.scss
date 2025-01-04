@@ -44,6 +44,15 @@
 			align-self: stretch;
 			gap: 10px;
 
+			> svg {
+				opacity: 0.7;
+				transition: opacity 0.3s ease;
+				&:hover {
+					opacity: 1;
+					filter: drop-shadow(0 0 8px #c8c4c4);
+				}
+			}
+
 			.eventTitle {
 				color: #939393;
 				font-family: Inter;
@@ -168,6 +177,11 @@
 			font-family: Inter;
 			font-size: 10px;
 			font-weight: 500;
+			opacity: 0.7;
+			transition: opacity 0.3s ease;
+			&:hover {
+				opacity: 1;
+			}
 		}
 	}
 }

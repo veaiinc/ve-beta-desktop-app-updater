@@ -359,7 +359,9 @@ const EventDetailsModal = ({
 										transition: 'transform 0.4s ease',
 									}}
 								/>
-								<span>{info?.detailsExpanded ? 'Show Less' : 'Show More'}</span>
+								<span className="show">
+									{info?.detailsExpanded ? 'Show Less' : 'Show More'}
+								</span>
 							</span>
 						</div>
 

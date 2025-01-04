@@ -201,6 +201,7 @@ const CalendarView = ({
 							date={selectedDate}
 							popup
 							components={components}
+							// showAllEvents={true}
 						/>
 					</div>
 					<EventDetailsModal

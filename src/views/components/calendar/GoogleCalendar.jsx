@@ -1,7 +1,7 @@
 import React, { memo, useState } from 'react';
+import '../../../assets/scss/calendar/googleCalendar.scss';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import { ReactComponent as Setting } from '../../../assets/svg/ai_agents/settings.svg';
-import '../../../assets/scss/calendar/googleCalendar.scss';
 
 const GoogleCalendar = () => {
 	const [info, setInfo] = useState({
@@ -16,15 +16,14 @@ const GoogleCalendar = () => {
 
 	return (
 		<div className={`google-bar ${info?.expanded ? 'expanded' : ''}`}>
-			<div class="header">
-				<div class="google-logo">Google</div>
-				<div class="controls">
-					<Setting class="settings-icon" />
-
+			<div className="header">
+				<div className="google-logo">Google</div>
+				<div className="controls">
+					<Setting className="settings-icon" />
 					<span
 						className="expand-icon"
 						onClick={() =>
-							setInfo((prevInfo) => ({ ...prevInfo, expanded: !prevInfo.expanded }))
+							setInfo((prevInfo) => ({ ...prevInfo, expanded: !prevInfo?.expanded }))
 						}
 					>
 						<DownSvg />
@@ -32,14 +31,25 @@ const GoogleCalendar = () => {
 				</div>
 			</div>
 			<div className="content">
-				{categories.map((category) => (
-					<div key={category.id} className="item">
+				{categories?.map((category) => (
+					<div key={category?.id} className="item">
 						<div className="item-left">
-							<div className="checkbox"></div>
-							<span>{category.name}</span>
+							<input
+								type="checkbox"
+								className="checkbox"
+								id={`google-${category?.name}-checkbox`}
+								aria-checked="false"
+								aria-label={`${category?.name} category`}
+							/>
+							<label
+								htmlFor={`google-${category?.name}-checkbox`}
+								className="typeLabel"
+							>
+								{category?.name}
+							</label>
 						</div>
 						<div className="progress">
-							<div className="circle" style={{ borderColor: category.color }}></div>
+							<div className="circle" style={{ borderColor: category?.color }}></div>
 						</div>
 					</div>
 				))}
