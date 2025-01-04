@@ -15,7 +15,7 @@ const initialState = {
 	errorMessage: null,
 };
 
-const CalendarAiChat = ({ toggleAskAi }) => {
+const CalendarAiChat = ({ toggleAskAi, selectedDate }) => {
 	const {
 		calendarInfo: { calendarChat, getCalendarChat, resetCalendarAiChat, getCalendarEventsList },
 	} = useContext(Context);
@@ -75,7 +75,7 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 			}));
 
 			if (calendarChat?.db_update) {
-				getCalendarEventsList();
+				getCalendarEventsList(selectedDate);
 			}
 		}
 	}, [calendarChat]);

@@ -6,6 +6,7 @@ import CalendarCategories from '../../components/calendar/CalendarCategories';
 import MeetingDetails from '../../components/calendar/MeetingDetails';
 import CalendarAiChat from '../../components/calendar/CalendarAiChat';
 import CreateEvent from '../../components/calendar/CreateEvent';
+import GoogleCalendar from '../../components/calendar/GoogleCalendar';
 
 const CalendarSidebar = ({
 	currentCalendarDate,
@@ -16,6 +17,7 @@ const CalendarSidebar = ({
 	categoryList,
 	selectedCategory,
 	categoryFilter,
+	selectedSlot,
 	updateCalendarInfo,
 }) => {
 	const [info, setInfo] = useState({
@@ -32,11 +34,12 @@ const CalendarSidebar = ({
 	return (
 		<>
 			{info?.askAi ? (
-				<CalendarAiChat toggleAskAi={toggleAskAi} />
+				<CalendarAiChat toggleAskAi={toggleAskAi} selectedDate={selectedDate} />
 			) : isCreateEventOpen ? (
 				<CreateEvent
 					categoryList={categoryList}
 					selectedCategory={selectedCategory}
+					selectedSlot={selectedSlot}
 					updateCalendarInfo={updateCalendarInfo}
 				/>
 			) : (
@@ -55,7 +58,8 @@ const CalendarSidebar = ({
 						categoryFilter={categoryFilter}
 						updateCalendarInfo={updateCalendarInfo}
 					/>
-					<MeetingDetails />
+					{/* <GoogleCalendar /> */}
+					<MeetingDetails selectedDate={selectedDate} />
 				</div>
 			)}
 		</>

@@ -3,52 +3,57 @@ import { initialState } from './state';
 const actionHandlers = {
 	GET_CALENDAR_CHAT: (state, action) => ({
 		...state,
-		calendarChat: action.payload,
+		calendarChat: action?.payload,
+	}),
+
+	GET_CALENDAR_ALL_EVENTS: (state, action) => ({
+		...state,
+		calendarEventsList: action?.payload,
 	}),
 
 	GET_CALENDAR_EVENTS_LIST: (state, action) => ({
 		...state,
-		calendarEventsList: action.payload,
+		calendarEventsList: action?.payload,
 	}),
 
 	CREATE_CALENDAR_EVENT: (state, action) => ({
 		...state,
-		calendarEvent: action.payload,
+		calendarEvent: action?.payload,
 	}),
 
 	DELETE_CALENDAR_EVENT: (state, action) => ({
 		...state,
-		deletedEvent: action.payload,
+		deletedEvent: action?.payload,
 	}),
 
 	CREATE_CALENDAR_CATEGORY: (state, action) => ({
 		...state,
-		calendarCategories: action.payload,
+		calendarCategories: action?.payload,
 	}),
 
 	UPDATE_CALENDAR_CATEGORY: (state, action) => ({
 		...state,
-		calendarCategories: action.payload,
+		calendarCategories: action?.payload,
 	}),
 
 	GET_CALENDAR_CATEGORIES: (state, action) => ({
 		...state,
-		calendarCategories: action.payload,
+		calendarCategories: action?.payload,
 	}),
 
 	DELETE_CALENDAR_CATEGORY: (state, action) => ({
 		...state,
-		calendarCategories: action.payload,
+		calendarCategories: action?.payload,
 	}),
 
 	GET_CALENDAR_EVENT_DETAILS: (state, action) => ({
 		...state,
-		calendarEventDetails: action.payload,
+		calendarEventDetails: action?.payload,
 	}),
 
 	UPDATE_CALENDAR_EVENT: (state, action) => ({
 		...state,
-		calendarEventDetails: action.payload,
+		calendarEventDetails: action?.payload,
 	}),
 
 	RESET_CALENDAR_STATE: () => ({ ...initialState }),
