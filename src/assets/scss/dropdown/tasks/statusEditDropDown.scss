@@ -6,7 +6,7 @@
 	align-items: flex-start;
 	gap: 12px;
 	border-radius: 8px;
-	background: #202123;
+	background: var(--popup);
 	box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
 
 	.options-property-edit-header {
@@ -14,12 +14,12 @@
 		width: 100%;
 		justify-content: space-between;
 		align-items: center;
-		border-bottom: 1px solid #333334;
+		border-bottom: 1px solid var(--stroke);
 		padding: 0 8px;
 		padding-bottom: 12px;
 		gap: 8px;
 		.options-property-edit-header-title {
-			color: #f2f2f3;
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 12px;
 			font-style: normal;
@@ -32,7 +32,7 @@
 	.property-edit-section {
 		padding-bottom: 12px;
 		width: 100%;
-		border-bottom: 1px solid #333334;
+		border-bottom: 1px solid var(--stroke);
 		display: flex;
 		flex-direction: column;
 		gap: 12px;
@@ -47,8 +47,7 @@
 			justify-content: space-between;
 			align-items: center;
 			.property-edit-section-title {
-				color: var(--Secondary-Font, #787e87);
-				color: var(--Secondary-Font, color(display-p3 0.4784 0.4941 0.5216));
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;
@@ -74,9 +73,9 @@
 			gap: 10px;
 			align-self: stretch;
 			border-radius: 8px;
-			border: 1px solid var(--Primary-Font-Color, #f2f2f3);
+			border: 1px solid var(--primary-font);
 			background: transparent;
-			color: #f2f2f3;
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 11px;
 			font-style: normal;
@@ -84,7 +83,7 @@
 			line-height: normal;
 
 			&::placeholder {
-				color: var(--Secondary-Font, color(display-p3 0.4784 0.4941 0.5216));
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 11px;
 				font-style: normal;
@@ -106,7 +105,7 @@
 				align-self: stretch;
 
 				.property-edit-section-body-item-title {
-					color: #787e87;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 11px;
 					font-style: normal;
@@ -115,7 +114,7 @@
 				}
 
 				.property-edit-section-body-item-value {
-					color: #f2f2f3;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 11px;
 					font-style: normal;
@@ -154,18 +153,18 @@
 						align-items: center;
 						gap: 4px;
 						border-radius: 35px;
-						background-color: #29456c;
+						background-color: var(--card);
 
 						.status-option-dot {
 							width: 6px;
 							height: 6px;
 							border-radius: 50%;
-							background-color: #2a71cd;
+							background-color: var(--card);
 							flex-shrink: 0;
 						}
 
 						.status-option-label {
-							color: #f2f2f3;
+							color: var(--primary-font);
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
@@ -180,7 +179,7 @@
 				}
 
 				&:hover {
-					background-color: #292b2d;
+					background-color: var(--card-over-card);
 				}
 			}
 		}
@@ -199,7 +198,7 @@
 
 		&-option-item {
 			&.dragging {
-				background: #2c2e30;
+				background: var(--card-over-card);
 				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 			}
 		}
@@ -212,7 +211,7 @@
 		gap: 8px;
 
 		.property-edit-footer-title {
-			color: #e8e8e8;
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 12px;
 			font-style: normal;

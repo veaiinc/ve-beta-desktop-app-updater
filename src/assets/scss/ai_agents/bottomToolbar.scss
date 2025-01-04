@@ -20,25 +20,26 @@
 		opacity: 0;
 		overflow: hidden;
 		transition: all 0.3s ease;
-		background: #202123;
+		background: var(--card-over-card);
 		border-radius: 16px;
 		width: 100%;
 		display: flex;
 		flex-direction: column;
 		cursor: default;
+		border: 1px solid var(--stroke);
 
 		.bottomToolBarChatHeader {
 			padding: 12px 16px;
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+			border-bottom: 1px solid var(--stroke);
 			cursor: grab;
 			user-select: none;
 
 			span {
-				color: #e8e8e8;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-weight: 500;
 			}
@@ -53,7 +54,7 @@
 				border: none;
 				cursor: pointer;
 				padding: 0;
-				color: #e8e8e8;
+				color: var(--primary-font);
 
 				&:hover {
 					opacity: 0.8;
@@ -93,8 +94,8 @@
 					justify-content: flex-start;
 
 					.message-content {
-						background: #2c2d2e;
-						color: #e8e8e8;
+						background: var(--stroke);
+						color: var(--primary-font);
 						border-bottom-left-radius: 4px;
 					}
 				}
@@ -103,8 +104,8 @@
 					justify-content: flex-end;
 
 					.message-content {
-						background: #2b6eff;
-						color: white;
+						background: var(--card-hover);
+						color: var(--primary-font);
 						border-bottom-right-radius: 4px;
 					}
 				}
@@ -130,17 +131,17 @@
 
 					border-radius: 8px;
 					border: 0.5px solid #b47171;
-					background: linear-gradient(270deg, #4569ad 10%, #f5895c 46.5%, #b34ecc 100%);
+					background: var(--ai-color-code);
 					box-shadow: 0px 0px 20px 0px rgba(96, 85, 236, 0.1);
 
 					span {
-						background: #222;
+						background: var(--stroke);
 						padding: 12px;
 						border-radius: 8px;
 						width: 100%;
 
-						color: #e4e5e6;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -159,12 +160,12 @@
 				}
 
 				&::-webkit-scrollbar-thumb {
-					background: rgba(255, 255, 255, 0.2);
+					background: var(--stroke);
 					border-radius: 3px;
 				}
 
 				&::-webkit-scrollbar-thumb:hover {
-					background: rgba(255, 255, 255, 0.3);
+					background: var(--stroke-hover);
 				}
 			}
 		}
@@ -182,7 +183,7 @@
 		height: 48px;
 		flex-shrink: 0;
 		border-radius: 100px;
-		background: #202123;
+		background: var(--navbar);
 		display: flex;
 		align-items: center;
 		gap: 8px;
@@ -193,12 +194,12 @@
 			height: 40px;
 			flex: 1;
 			border-radius: 100px;
-			background: #161718;
+			background: var(--stroke);
 			outline: none;
 			border: none;
 			padding: 12px;
 			transition: all 0.3s ease;
-			color: #fff;
+			color: var(--primary-font);
 
 			&:focus,
 			&.expanded {
@@ -206,11 +207,7 @@
 			}
 
 			&::placeholder {
-				color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-				color: var(
-					--ve-ai-dark-theme-primary-font-color,
-					color(display-p3 0.9098 0.9098 0.9098)
-				);
+				color: var(--primary-font);
 
 				/* Body/Body - 12 px */
 				font-family: Inter;
@@ -229,11 +226,7 @@
 		.quickActionsButtons {
 			flex-shrink: 0;
 			border-radius: 100px;
-			background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
-			background: var(
-				--ve-ai-dark-theme-text-field-stroke-pop-up,
-				color(display-p3 0.1719 0.1753 0.1787)
-			);
+			background: var(--card-over-card);
 			display: flex;
 			justify-content: center;
 			align-items: center;
@@ -251,7 +244,7 @@
 .QuickActionsPlusParentContainer {
 	display: flex;
 	flex-direction: column;
-	background: #1a1a1a;
+	background: var(--card-over-card);
 	width: 200px;
 	height: auto;
 	min-height: 150px;
@@ -260,14 +253,14 @@
 	right: 174px;
 	border-radius: 12px;
 	padding: 16px;
-	border: 1px solid rgba(255, 255, 255, 0.1);
+	border: 1px solid var(--stroke);
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 
 	.quick-action-upload-button {
 		width: 100%;
 		padding: 12px 16px;
-		background: #2b2b2b;
-		border: 1px solid rgba(255, 255, 255, 0.15);
+		background: var(--card-over-card);
+		border: 1px solid var(--stroke);
 		border-radius: 8px;
 		cursor: pointer;
 		display: flex;
@@ -275,18 +268,18 @@
 		justify-content: center;
 		gap: 10px;
 		transition: all 0.2s ease;
-		color: #ffffff;
+		color: var(--primary-font);
 		font-size: 14px;
 		font-weight: 500;
 
 		.anticon {
 			font-size: 18px;
-			color: #4b9eff;
+			color: var(--info);
 		}
 
 		&:hover {
-			background: #363636;
-			border-color: rgba(255, 255, 255, 0.25);
+			background: var(--card-over-card-hover);
+			border-color: var(--stroke);
 			transform: translateY(-1px);
 		}
 

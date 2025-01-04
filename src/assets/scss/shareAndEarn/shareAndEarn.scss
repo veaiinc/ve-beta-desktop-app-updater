@@ -6,7 +6,7 @@
 	.shareAndEarnTextContainer {
 		gap: 8px;
 		h1 {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			text-align: center;
 			font-size: 28px;
 			font-style: normal;
@@ -14,7 +14,7 @@
 			line-height: 40px; /* 142.857% */
 		}
 		h2 {
-			color: #979797;
+			color: var(--primary-font);
 			text-align: center;
 			font-size: 13px;
 			font-style: normal;
@@ -28,7 +28,7 @@
 		align-items: center;
 		padding: 36px 0;
 		h3 {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			text-align: center;
 			font-size: 12px;
 			font-style: normal;
@@ -48,9 +48,9 @@
 				align-items: center;
 				gap: 10px;
 				border-radius: 20px;
-				border: 1px solid rgba(151, 151, 151, 0.08);
-				background: #1b1b1b;
-				color: #b0b0b0;
+				border: 1px solid var(--stroke);
+				background: var(--card-over-card);
+				color: var(--primary-font);
 			}
 			.linkCopyButton {
 				display: flex;
@@ -61,8 +61,8 @@
 				gap: 4px;
 				border-radius: 20px;
 				border-style: none;
-				background: #6055ec;
-				color: #ffffff;
+				background: var(--primary-button);
+				color: var(--primary-button-font);
 
 				/* shadow */
 				box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.05);
@@ -80,7 +80,7 @@
 		flex: 1 0 0;
 		// align-self: stretch;
 		border-radius: 20px;
-		border: 1px solid rgba(36, 36, 36, 0.64);
+		border: 1px solid var(--stroke);
 
 		/* shadow */
 		box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.05);
@@ -94,7 +94,7 @@
 			}
 		}
 		.imageTitle {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			text-align: center;
 			font-family: var(--primary-font-family);
 			font-size: 18px;
@@ -103,7 +103,7 @@
 			line-height: 28px; /* 155.556% */
 		}
 		.imageSubText {
-			color: #979797;
+			color: var(--primary-font);
 			text-align: center;
 			font-family: var(--primary-font-family);
 			font-size: 13px;
@@ -120,8 +120,8 @@
 			gap: 10px;
 			border-radius: 20px;
 			border: 1px solid #212121;
-			background: #6055ec;
-			color: #ffffff;
+			background: var(--primary-button);
+			color: var(--primary-button-font);
 			span {
 				text-align: center;
 				white-space: nowrap;
