@@ -18,7 +18,7 @@ import { ReactComponent as Signature } from '../../../../assets/svg/smartFiles/f
 import { ReactComponent as Star } from '../../../../assets/svg/smartFiles/formResponse/star.svg';
 import { ReactComponent as TimeDivider } from '../../../../assets/svg/smartFiles/formResponse/time-divider.svg';
 
-const IconsForQuestions = {
+const iconsForQuestions = {
 	shortText: <BiDash />,
 	longText: <Hamburger />,
 	email: <Email />,
@@ -36,7 +36,7 @@ const IconsForQuestions = {
 	number: <Hash />,
 };
 
-const EventsTableHeaderData = [
+const eventsTableHeaderData = [
 	{
 		id: 1,
 		label: 'Event Name',
@@ -79,14 +79,14 @@ const EventsAnswer = ({ answer }) => {
 			<table className="eventsContainer">
 				<thead className="eventsTableHeader">
 					<tr className="eventsTableHeaderRow">
-						{EventsTableHeaderData?.map((headerData) => (
+						{eventsTableHeaderData?.map((headerData) => (
 							<th key={headerData?.id} className="eventsTableHeaderLabel">
 								{headerData?.label}
 							</th>
 						))}
 					</tr>
 				</thead>
-				{JSON.parse(answer)?.map((event, index) => (
+				{JSON?.parse(answer)?.map((event, index) => (
 					<tbody key={index} className="eventCard">
 						<tr>
 							<td className="eventName">{event?.name}</td>
@@ -142,7 +142,11 @@ const SingleChoiceAnswer = ({ answer }) => {
 const LinkAnswer = ({ answer }) => {
 	return (
 		<>
-			<p className="answer link">{removeQuotes(answer) ?? 'No answer'}</p>
+			<p className="answer link">
+				<a href={removeQuotes(answer)} target="_blank" rel="noopener noreferrer">
+					{removeQuotes(answer) ?? 'No answer'}
+				</a>
+			</p>
 			<div className="divider"></div>
 		</>
 	);
@@ -162,7 +166,7 @@ const FormResponses = ({ workflowData }) => {
 	});
 
 	const FormAnswer = (type, answer) => {
-		const AnswerComponentMapper = {
+		const answerComponentMapper = {
 			dropdown: <DropdownAnswer answer={answer} />,
 			events: <EventsAnswer answer={answer} />,
 			rating: <RatingAnswer answer={answer} />,
@@ -171,7 +175,7 @@ const FormResponses = ({ workflowData }) => {
 			link: <LinkAnswer answer={answer} />,
 		};
 		return (
-			AnswerComponentMapper[type] ?? (
+			answerComponentMapper[type] ?? (
 				<>
 					<p className="answer">{removeQuotes(answer) ?? 'No answer'}</p>
 					<div className="divider"></div>
@@ -184,7 +188,6 @@ const FormResponses = ({ workflowData }) => {
 		if (formResponseData) {
 			const sortedResponse = formResponseData?.response?.sort((a, b) => a?.order - b?.order);
 			setInfo((prev) => ({ ...prev, formResponse: sortedResponse }));
-			console.log(sortedResponse);
 		}
 	}, [formResponseData]);
 
@@ -222,19 +225,17 @@ const FormResponses = ({ workflowData }) => {
 			)}
 			{info?.formResponse?.map(
 				(formData) =>
-					formData?.type !== 'signature' &&
-					formData?.type !== 'fileUpload' &&
 					formData?.type !== 'email' &&
 					formData?.type !== 'phoneNumber' && (
-						<>
+						<div key={formData?.id}>
 							<div className="questionContainer">
-								{IconsForQuestions[formData?.type]}
+								{iconsForQuestions[formData?.type]}
 								<p className="question">
 									{removeHTMLTagsAndnbsp(formData?.question)}
 								</p>
 							</div>
 							{FormAnswer(formData?.type, formData?.answer)}
-						</>
+						</div>
 					),
 			)}
 		</div>
