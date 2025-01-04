@@ -165,7 +165,7 @@ const FormResponses = ({ workflowData }) => {
 		formResponse: null,
 	});
 
-	const FormAnswer = (type, answer) => {
+	const formAnswer = (type, answer) => {
 		const answerComponentMapper = {
 			dropdown: <DropdownAnswer answer={answer} />,
 			events: <EventsAnswer answer={answer} />,
@@ -225,16 +225,16 @@ const FormResponses = ({ workflowData }) => {
 			)}
 			{info?.formResponse?.map(
 				(formData) =>
-					formData?.type !== 'email' &&
-					formData?.type !== 'phoneNumber' && (
-						<div key={formData?.id}>
+					formData?.type !== 'signature' &&
+					formData?.type !== 'fileUpload' && (
+						<div className="formResponseContainer" key={formData?.id}>
 							<div className="questionContainer">
 								{iconsForQuestions[formData?.type]}
 								<p className="question">
 									{removeHTMLTagsAndnbsp(formData?.question)}
 								</p>
 							</div>
-							{FormAnswer(formData?.type, formData?.answer)}
+							{formAnswer(formData?.type, formData?.answer)}
 						</div>
 					),
 			)}
