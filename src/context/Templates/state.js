@@ -40,6 +40,7 @@ import Reducer from './reducer';
 import { Actions } from './Actions';
 import Service from '../../services/index';
 import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
+import { getBase64 } from '../../helpers';
 
 export const intialState = {
 	workflowslist: null,
@@ -1068,7 +1069,7 @@ export const TemplatesState = (props) => {
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions?.SET_CONNECT_URL,
-					payload: [true, response?.[1]?.connectUrl],
+					payload: [true, response?.[1]?.connectUrl || response?.[1]?.url],
 				});
 			} else {
 				dispatch({
@@ -1164,6 +1165,36 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const uploadImageInSmartFileAi = async (file, slug) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `https://ai.ap-south-1.ve.ai/${workspaceId}/${slug}/data_extraction`;
+
+			const base64 = await getBase64(file);
+			// Convert base64 to blob
+			const response = await fetch(base64);
+			const blob = await response.blob();
+
+			const formData = new FormData();
+			formData.append('file', blob, file.name);
+
+			const result = await fetch(url, {
+				method: 'POST',
+				body: formData,
+				headers: {
+					Authorization: `Bearer ${usertoken}`,
+				},
+			});
+
+			if (!result.ok) {
+				return [false, `Failed to upload: ${result.statusText}`];
+			}
+
+			return [true, 'We made the changes accordingly'];
+		} catch (error) {}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -1214,5 +1245,6 @@ export const TemplatesState = (props) => {
 		getDrafStateWorkflowtemplates,
 		toggleCreateLeadModal,
 		smartFileAiChat,
+		uploadImageInSmartFileAi,
 	};
 };
