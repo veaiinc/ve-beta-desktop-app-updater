@@ -55,7 +55,77 @@ const EventsTableHeaderData = [
 	},
 ];
 
-const FormResponses = ({ workflowData }) => {
+const removeHTMLTagsAndnbsp = (text) =>
+	text?.replace(/<\/?[^>]+(>|$)/g, '')?.replace(/&nbsp;/g, ' ');
+
+const removeQuotes = (text) => text?.replace(/^["']|["']$/g, '');
+
+const DropdownAnswer = ({ answer }) => {
+	return (
+		<p className={`answer`}>
+			<span className="selectedOption">{JSON?.parse(answer || '[]')[0] || 'No answer'}</span>
+		</p>
+	);
+};
+
+const EventsAnswer = ({ answer }) => {
+	return (
+		<table className="eventsContainer">
+			<thead className="eventsTableHeader">
+				<tr className="eventsTableHeaderRow">
+					{EventsTableHeaderData?.map((headerData) => (
+						<th key={headerData?.id} className="eventsTableHeaderLabel">
+							{headerData?.label}
+						</th>
+					))}
+				</tr>
+			</thead>
+			{JSON.parse(answer)?.map((event, index) => (
+				<tbody key={index} className="eventCard">
+					<tr>
+						<td className="eventName">{event?.name}</td>
+						<td className="eventDate">{event?.date}</td>
+						<td className="eventLocation">{event?.location}</td>
+						<td className="eventGuests">{event?.noOfGuests}</td>
+					</tr>
+				</tbody>
+			))}
+		</table>
+	);
+};
+
+const RatingAnswer = ({ answer }) => {
+	return (
+		<Flex gap="middle" vertical>
+			<Rate className="rating-from-form-response" disabled defaultValue={answer} />
+		</Flex>
+	);
+};
+
+const TimeAnswer = ({ answer }) => {
+	return (
+		<p className={`answer timeContainer`}>
+			<span className="time">{JSON.parse(answer)?.hours}</span>
+			<TimeDivider />
+			<span className="time">{JSON.parse(answer)?.minutes}</span>
+			<span className="time-division">{JSON.parse(answer)?.timeDivision}</span>
+		</p>
+	);
+};
+
+const SingleChoiceAnswer = ({ answer }) => {
+	return (
+		<p className="answer">
+			<span className="selectedOption">{JSON.parse(answer || '[]')[0] || 'No answer'}</span>
+		</p>
+	);
+};
+
+const LinkAnswer = ({ answer }) => {
+	return <p className="answer link">{removeQuotes(answer) ?? 'No answer'}</p>;
+};
+
+const FormResponses = () => {
 	let {
 		templates: { formResponseData },
 	} = useContext(Context);
@@ -64,87 +134,20 @@ const FormResponses = ({ workflowData }) => {
 		formResponse: null,
 	});
 
-	const removeHTMLTagsAndnbsp = (text) =>
-		text?.replace(/<\/?[^>]+(>|$)/g, '')?.replace(/&nbsp;/g, ' ');
-
-	const removeQuotes = (text) => text?.replace(/^["']|["']$/g, '');
-
-	const FormAnswer = ({ type, answer }) => {
-		if (type === 'dropdown') {
-			return (
-				<p className={`answer`}>
-					<span className="selectedOption">
-						{JSON.parse(answer || '[]')[0] || 'No answer'}
-					</span>
-				</p>
-			);
-		}
-		if (type === 'events') {
-			return (
-				<table className="eventsContainer">
-					<thead className="eventsTableHeader">
-						<tr className="eventsTableHeaderRow">
-							{EventsTableHeaderData?.map((headerData) => (
-								<th key={headerData?.id} className="eventsTableHeaderLabel">
-									{headerData?.label}
-								</th>
-							))}
-						</tr>
-					</thead>
-					{JSON.parse(answer)?.map((event, index) => (
-						<tbody key={index} className="eventCard">
-							<tr>
-								<td className="eventName">{event?.name}</td>
-								<td className="eventDate">{event?.date}</td>
-								<td className="eventLocation">{event?.location}</td>
-								<td className="eventGuests">{event?.noOfGuests}</td>
-							</tr>
-						</tbody>
-					))}
-				</table>
-			);
-		}
-		if (type === 'rating') {
-			return (
-				<Flex gap="middle" vertical>
-					<Rate className="rating-from-form-response" disabled defaultValue={answer} />
-				</Flex>
-			);
-		}
-		if (type === 'time') {
-			return (
-				<p className={`answer timeContainer`}>
-					<span className="time">{JSON.parse(answer)?.hours}</span>
-					<TimeDivider />
-					<span className="time">{JSON.parse(answer)?.minutes}</span>
-					<span className="time-division">{JSON.parse(answer)?.timeDivision}</span>
-				</p>
-			);
-		}
-		if (type === 'singleChoice') {
-			console.log('answer', JSON.parse(answer || '[]')[0] || 'No answer');
-			return (
-				<p className="answer">
-					<span className="selectedOption">
-						{JSON.parse(answer || '[]')[0] || 'No answer'}
-					</span>
-				</p>
-			);
-		}
-		if (type === 'link') {
-			return <p className={`answer link`}>{removeQuotes(answer) ?? 'No answer'}</p>;
-		}
-		if (
-			type === 'shortText' ||
-			type === 'longText' ||
-			type === 'number' ||
-			type === 'email' ||
-			type === 'phoneNumber' ||
-			type === 'multipleChoice' ||
-			type === 'date'
-		) {
-			return <p className={`answer`}>{removeQuotes(answer) ?? 'No answer'}</p>;
-		}
+	const FormAnswer = (type, answer) => {
+		const AnswerComponentMapper = {
+			dropdown: <DropdownAnswer answer={answer} />,
+			events: <EventsAnswer answer={answer} />,
+			rating: <RatingAnswer answer={answer} />,
+			time: <TimeAnswer answer={answer} />,
+			singleChoice: <SingleChoiceAnswer answer={answer} />,
+			link: <LinkAnswer answer={answer} />,
+		};
+		return (
+			AnswerComponentMapper[type] ?? (
+				<p className="answer">{removeQuotes(answer) ?? 'No answer'}</p>
+			)
+		);
 	};
 
 	useEffect(() => {
@@ -167,7 +170,7 @@ const FormResponses = ({ workflowData }) => {
 									{removeHTMLTagsAndnbsp(formData?.question)}
 								</p>
 							</div>
-							{FormAnswer({ type: formData?.type, answer: formData?.answer })}
+							{FormAnswer(formData?.type, formData?.answer)}
 						</>
 					),
 			)}
