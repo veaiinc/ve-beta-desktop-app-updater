@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { ReactComponent as ArrowLeftSvg } from '../../../../assets/svg/tasks/arrowLeft.svg';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
@@ -8,8 +8,14 @@ import { ReactComponent as SixDotsSvg } from '../../../../assets/svg/tasks/sixDo
 import { ReactComponent as OpenEye } from '../../../../assets/svg/gallery/open-eye.svg';
 import '../../../../assets/scss/dropdown/tasks/statusEditDropDown.scss';
 import PropertyEditDropDown from './PropertyEditDropDown';
+import Context from '../../../../context/context';
+import { message } from 'antd';
 
 const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, colors }) => {
+	const {
+		tasks: { addNewStatusLabel, deleteStatusLabel, updateStatusLabel },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
 		todoOptions: [],
 		inProgressOptions: [],
@@ -44,7 +50,7 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 		}));
 	}, [options]);
 
-	const handleDragEnd = (result) => {
+	const handleDragEnd = async (result) => {
 		if (!result?.destination) return;
 
 		const sourceId = result?.source?.droppableId;
@@ -52,36 +58,65 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 		const sourceIndex = result?.source?.index;
 		const destinationIndex = result?.destination?.index;
 
-		setInfo((prevInfo) => {
-			const newInfo = { ...prevInfo };
+		try {
+			// Update local state first for immediate feedback
+			setInfo((prevInfo) => {
+				const newInfo = { ...prevInfo };
+				const sourcePropName = `${sourceId}Options`;
+				const destPropName = `${destinationId}Options`;
 
-			// Get source and destination lists
-			const sourcePropName = `${sourceId}Options`;
-			const destPropName = `${destinationId}Options`;
+				if (sourceId === destinationId) {
+					const list = [...newInfo[sourcePropName]];
+					const [removed] = list.splice(sourceIndex, 1);
+					list.splice(destinationIndex, 0, removed);
 
-			// Handle same list reordering
-			if (sourceId === destinationId) {
-				const list = [...newInfo[sourcePropName]];
-				const [removed] = list.splice(sourceIndex, 1);
-				list.splice(destinationIndex, 0, removed);
-				newInfo[sourcePropName] = list;
-			}
-			// Handle moving between lists
-			else {
-				const sourceList = [...newInfo[sourcePropName]];
-				const destList = [...newInfo[destPropName]];
-				const [removed] = sourceList.splice(sourceIndex, 1);
+					// Update orders in the list
+					list.forEach((item, index) => {
+						item.order = index + 1;
+					});
 
-				// Update the group when moving between lists
-				removed.group = destinationId;
-				destList.splice(destinationIndex, 0, removed);
+					newInfo[sourcePropName] = list;
+				} else {
+					const sourceList = [...newInfo[sourcePropName]];
+					const destList = [...newInfo[destPropName]];
+					const [removed] = sourceList.splice(sourceIndex, 1);
 
-				newInfo[sourcePropName] = sourceList;
-				newInfo[destPropName] = destList;
-			}
+					// Update group when moving between lists
+					removed.group = destinationId;
+					destList.splice(destinationIndex, 0, removed);
 
-			return newInfo;
-		});
+					// Update orders in both lists
+					sourceList.forEach((item, index) => {
+						item.order = index + 1;
+					});
+					destList.forEach((item, index) => {
+						item.order = index + 1;
+					});
+
+					newInfo[sourcePropName] = sourceList;
+					newInfo[destPropName] = destList;
+				}
+
+				return newInfo;
+			});
+
+			// Get the destination list and calculate new order
+			const destList = info[`${destinationId}Options`];
+			const newOrder = destinationIndex + 1;
+
+			// Call API to update the dragged item
+			const draggedItem = info[`${sourceId}Options`][sourceIndex];
+			await updateStatusLabel({
+				labelId: draggedItem._id,
+				input: {
+					group: destinationId,
+					order: newOrder,
+				},
+			});
+		} catch (error) {
+			message.error('Failed to update status order');
+			console.error('Failed to update status order:', error);
+		}
 	};
 
 	const handleAddClick = (group) => {
@@ -106,28 +141,75 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 		}));
 	};
 
-	const handleInputKeyDown = (e) => {
+	const handleInputKeyDown = async (e) => {
 		if (e.key === 'Enter' && info.addNewProperty.label.trim()) {
-			// Add new status
-			const newStatus = {
-				_id: `temp_${Date.now()}`,
-				group: info.addNewProperty.group,
-				label: info.addNewProperty.label.trim(),
-				color: 6,
-			};
+			if (validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
 
-			// Update the appropriate list based on group
-			setInfo((prev) => ({
-				...prev,
-				[`${info.addNewProperty.group}Options`]: [
-					...prev[`${info.addNewProperty.group}Options`],
-					newStatus,
-				],
-				addNewProperty: {
-					...prev.addNewProperty,
-					label: '',
-				},
-			}));
+			const newLabel = info.addNewProperty.label.trim();
+
+			// Check if label already exists in any group
+			const labelExists = [
+				...(info.todoOptions || []),
+				...(info.inProgressOptions || []),
+				...(info.completedOptions || []),
+			].some((status) => status.label.toLowerCase() === newLabel.toLowerCase());
+
+			if (labelExists) {
+				message.error('Status with this label already exists');
+				return;
+			}
+
+			// Get the order based on current list length
+			const currentList = info[`${info.addNewProperty.group}Options`] || [];
+			const order = currentList.length + 1;
+
+			try {
+				// Create temporary object for immediate feedback
+				const tempStatus = {
+					_id: newLabel, // Use label as temporary id
+					group: info.addNewProperty.group,
+					label: newLabel,
+					color: 6,
+					order: order,
+				};
+
+				// Update local state immediately for better UX
+				setInfo((prev) => ({
+					...prev,
+					[`${info.addNewProperty.group}Options`]: [
+						...prev[`${info.addNewProperty.group}Options`],
+						tempStatus,
+					],
+					addNewProperty: {
+						...prev.addNewProperty,
+						label: '',
+					},
+				}));
+
+				// Call API to add new status label
+				await addNewStatusLabel({
+					input: {
+						color: '6',
+						group: info.addNewProperty.group,
+						label: newLabel,
+						order: order,
+					},
+				});
+
+				// Don't need to update state here as context will trigger a re-render
+			} catch (error) {
+				// Revert the local state if API call fails
+				setInfo((prev) => ({
+					...prev,
+					[`${info.addNewProperty.group}Options`]: prev[
+						`${info.addNewProperty.group}Options`
+					].filter((status) => status._id !== newLabel),
+				}));
+				message.error('Failed to add new status label');
+				console.error('Failed to add new status label:', error);
+			}
 		} else if (e.key === 'Escape') {
 			setInfo((prev) => ({
 				...prev,
@@ -137,6 +219,74 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 					label: '',
 				},
 			}));
+		}
+	};
+
+	const handleDeleteStatus = async (status) => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+
+		// Check if it's the last status in its group
+		const groupOptions = info[`${status.group}Options`] || [];
+		if (groupOptions.length <= 1) {
+			message.error('Cannot delete the last status in a group');
+			return;
+		}
+
+		try {
+			// Remove from local state first for immediate feedback
+			setInfo((prev) => ({
+				...prev,
+				[`${status.group}Options`]: prev[`${status.group}Options`].filter(
+					(item) => item._id !== status._id,
+				),
+			}));
+
+			// Call API to delete status
+			await deleteStatusLabel({
+				labelId: status._id,
+			});
+
+			message.success('Status deleted successfully');
+		} catch (error) {
+			// Revert the local state if API call fails
+			setInfo((prev) => ({
+				...prev,
+				[`${status.group}Options`]: [...prev[`${status.group}Options`], status],
+			}));
+			message.error('Failed to delete status');
+			console.error('Failed to delete status:', error);
+		}
+	};
+
+	const handleStatusUpdate = async (status, updates) => {
+		try {
+			// Update local state first for immediate feedback
+			setInfo((prev) => ({
+				...prev,
+				[`${status.group}Options`]: prev[`${status.group}Options`].map((item) =>
+					item._id === status._id ? { ...item, ...updates } : item,
+				),
+			}));
+
+			// Call API to update the status
+			await updateStatusLabel({
+				labelId: status._id,
+				input: updates,
+			});
+
+			message.success('Status updated successfully');
+		} catch (error) {
+			// Revert local state on error
+			setInfo((prev) => ({
+				...prev,
+				[`${status.group}Options`]: prev[`${status.group}Options`].map((item) =>
+					item._id === status._id ? status : item,
+				),
+			}));
+			message.error('Failed to update status');
+			console.error('Failed to update status:', error);
 		}
 	};
 
@@ -178,7 +328,12 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 						{items?.map((option, index) => (
 							<Draggable key={option?._id} draggableId={option?._id} index={index}>
 								{(provided, snapshot) => (
-									<PropertyEditDropDown>
+									<PropertyEditDropDown
+										colors={colors}
+										value={option}
+										onDelete={() => handleDeleteStatus(option)}
+										onUpdate={(updates) => handleStatusUpdate(option, updates)}
+									>
 										<div
 											ref={provided.innerRef}
 											{...provided.draggableProps}

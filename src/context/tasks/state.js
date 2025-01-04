@@ -6,6 +6,11 @@ import {
 	deleteListItemMutation,
 	getTaskQuery,
 	getSubTasksQuery,
+	getTaskStatusLabelQuery,
+	getTaskStatusDefaultLabelQuery,
+	createTaskStatusLabelMutation,
+	updateTaskStatusLabelMutation,
+	deleteTaskStatusLabelMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -173,6 +178,127 @@ export const TasksState = () => {
 		dispatch({ type: Actions.RESET_SUB_TASKS });
 	};
 
+	const getTaskStatusLabels = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getTaskStatusLabelQuery,
+				{},
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_TASK_METADATA,
+					payload: { status: response?.[1]?.data?.listTaskLabels },
+				});
+			} else {
+				console.log('API failed ==> getTaskStatusLabel', response);
+			}
+		} catch (error) {
+			console.log('API failed ==> getTaskStatusLabel', error);
+		}
+	};
+
+	const getTaskStatusDefaultLabel = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getTaskStatusDefaultLabelQuery,
+				{},
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_TASK_METADATA,
+					payload: { status: response?.[1]?.data?.listTaskLabels },
+				});
+			} else {
+				console.log('API failed ==> getTaskStatusDefaultLabel', response);
+			}
+		} catch (error) {
+			console.log('API failed ==> getTaskStatusDefaultLabel', error);
+		}
+	};
+
+	const addNewStatusLabel = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				createTaskStatusLabelMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.ADD_NEW_STATUS_LABEL,
+					payload: response?.[1]?.data?.createTaskLabel,
+				});
+			} else {
+				console.log('API failed ==> addNewStatus', response);
+			}
+		} catch (error) {
+			console.log('API failed ==> addNewStatus', error);
+		}
+	};
+
+	const updateStatusLabel = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateTaskStatusLabelMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_STATUS_LABEL,
+					payload: response?.[1]?.data?.updateTaskLabel,
+				});
+			} else {
+				console.log('API failed ==> updateStatusLabel', response);
+			}
+		} catch (error) {
+			console.log('API failed ==> updateStatusLabel', error);
+		}
+	};
+
+	const deleteStatusLabel = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				deleteTaskStatusLabelMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.DELETE_STATUS_LABEL,
+					payload: { _id: payload.labelId },
+				});
+			} else {
+				console.log('API failed ==> deleteStatusLabel', response);
+			}
+		} catch (error) {
+			console.log('API failed ==> deleteStatusLabel', error);
+			throw error;
+		}
+	};
+
 	const resetTasksState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -189,6 +315,11 @@ export const TasksState = () => {
 		removeSubTask,
 		updateSubTask,
 		resetSubTasks,
+		getTaskStatusLabels,
+		getTaskStatusDefaultLabel,
+		addNewStatusLabel,
+		updateStatusLabel,
+		deleteStatusLabel,
 		resetTasksState,
 	};
 };

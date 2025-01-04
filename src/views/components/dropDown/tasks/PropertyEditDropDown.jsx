@@ -1,16 +1,127 @@
 import { Tooltip } from 'antd';
-import React, { memo } from 'react';
+import React, { memo, useState, useCallback, useRef, useEffect } from 'react';
+import { ReactComponent as DustbinOutlined } from '../../../../assets/svg/tasks/dustBin.svg';
+import '../../../../assets/scss/dropdown/tasks/propertyEditDropDown.scss';
 
-const PropertyEditDropDown = ({ children }) => {
+const PropertyEditDropDown = ({ children, colors, value, onDelete, onUpdate }) => {
+	const [info, setInfo] = useState({
+		selectedColor: value?.color || null,
+		label: value?.label || '',
+		isOpen: false,
+	});
+	const debounceTimeout = useRef(null);
+
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			selectedColor: value?.color,
+			label: value?.label,
+		}));
+	}, [value?.color, value?.label]);
+
+	const handleVisibleChange = useCallback((visible) => {
+		setInfo((prev) => ({
+			...prev,
+			isOpen: visible,
+		}));
+	}, []);
+
+	// Debounced label update
+	const handleLabelChange = useCallback(
+		(e) => {
+			e.stopPropagation();
+			const newLabel = e.target.value;
+			setInfo((prev) => ({
+				...prev,
+				label: newLabel,
+			}));
+
+			if (debounceTimeout.current) {
+				clearTimeout(debounceTimeout.current);
+			}
+
+			debounceTimeout.current = setTimeout(() => {
+				if (newLabel.trim() && newLabel !== value.label) {
+					onUpdate({ label: newLabel.trim() });
+				}
+			}, 500);
+		},
+		[value.label, onUpdate],
+	);
+
+	// Handle color selection
+	const handleColorSelect = useCallback(
+		(e, colorId) => {
+			e.stopPropagation();
+			if (colorId !== info.selectedColor) {
+				setInfo((prev) => ({
+					...prev,
+					selectedColor: colorId,
+				}));
+				onUpdate({ color: colorId });
+			}
+		},
+		[info.selectedColor, onUpdate],
+	);
+
+	const handleDelete = useCallback(
+		(e) => {
+			e.stopPropagation();
+			onDelete();
+		},
+		[onDelete],
+	);
+
 	return (
 		<Tooltip
-			title={<div className="property-edit-dropdown-wrapper">Edit Property</div>}
-			trigger="click"
+			title={
+				<div
+					className="property-edit-dropdown-wrapper"
+					onClick={(e) => e.stopPropagation()}
+				>
+					<input
+						type="text"
+						className="property-edit-dropdown-input"
+						placeholder="Enter new property name"
+						value={info.label}
+						onChange={handleLabelChange}
+						onClick={(e) => e.stopPropagation()}
+					/>
+					<button className="delete-button option-item" onClick={handleDelete}>
+						<DustbinOutlined height={16} width={16} className="delete-icon" />
+						<span className="option-text">Delete</span>
+					</button>
+					{/* <span className="change-group option-item">Change Group</span> */}
+					<div className="colors-wrapper">
+						<span className="colors-title">Colors</span>
+						<div className="colors-list">
+							{Object.entries(colors)?.map(([key, color]) => (
+								<span
+									key={key}
+									className="color-item"
+									style={{
+										backgroundColor: color?.backgroundColor,
+										borderColor:
+											info.selectedColor === Number(key)
+												? '#F2F2F3'
+												: color?.backgroundColor,
+									}}
+									onClick={(e) => handleColorSelect(e, Number(key))}
+								/>
+							))}
+						</div>
+					</div>
+				</div>
+			}
+			trigger={[]}
 			placement="bottomRight"
 			overlayClassName="property-edit-dropdown-container"
 			color="transparent"
+			destroyTooltipOnHide={false}
+			open={info.isOpen}
+			onOpenChange={handleVisibleChange}
 		>
-			{children}
+			<div onClick={() => handleVisibleChange(!info.isOpen)}>{children}</div>
 		</Tooltip>
 	);
 };

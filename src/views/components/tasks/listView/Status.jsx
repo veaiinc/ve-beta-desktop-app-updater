@@ -22,17 +22,27 @@ const Status = ({
 		inProgressOptions: [],
 		completedOptions: [],
 		open: false,
-		selected: setDefault ? defaultValue : null,
+		selected: null,
 	});
 
 	useEffect(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			selected: prevInfo?.options?.find(
-				(item) => item?._id === (value || (setDefault ? defaultValue : null)),
-			),
-		}));
-	}, [value, setDefault, defaultValue]);
+		setInfo((prevInfo) => {
+			// Try to find the selected option
+			let selectedOption = prevInfo?.options?.find((item) => item?._id === value);
+
+			// If no match found and setDefault is true, use first option
+			if (!selectedOption && setDefault && prevInfo?.options?.length > 0) {
+				selectedOption = prevInfo.options[0];
+				// Update parent with new default value
+				onOptionClick?.(selectedOption?._id);
+			}
+
+			return {
+				...prevInfo,
+				selected: selectedOption,
+			};
+		});
+	}, [value, setDefault, options, onOptionClick]);
 
 	useEffect(() => {
 		const todoOptions = [];
@@ -113,12 +123,13 @@ const Status = ({
 								group: 'Completed',
 								options: info?.completedOptions,
 							},
-						].map((item) => (
-							<div className="status-option-container">
+						]?.map((item) => (
+							<div className="status-option-container" key={item?.group}>
 								<div className="option-heading">{item?.group}</div>
 								<div className="option-list">
-									{item?.options.map((option) => (
+									{item?.options?.map((option) => (
 										<span
+											key={option?._id}
 											className="select-listItem"
 											style={{
 												backgroundColor:

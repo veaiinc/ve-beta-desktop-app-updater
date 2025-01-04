@@ -74,6 +74,9 @@ const Tasks = () => {
 			removeSubTask,
 			updateSubTask,
 			resetSubTasks,
+			getTaskStatusLabels,
+			taskMetadata,
+			getTaskStatusDefaultLabel,
 		},
 		templates: { getWorkflowsList, workflowslist },
 		companyInfo: {
@@ -96,6 +99,7 @@ const Tasks = () => {
 		sidebarIsOpen: false,
 		selectedRow: null,
 		selectedSubTask: null,
+		taskMetadata: null,
 		workflows: [],
 		tenantUsers: [],
 		page: 1,
@@ -117,32 +121,7 @@ const Tasks = () => {
 				name: 'Status',
 				Icon: PieSvg,
 				props: {
-					options: [
-						{
-							group: 'todo',
-							label: 'On hold',
-							_id: 'onHold',
-							color: 1,
-						},
-						{
-							group: 'todo',
-							label: 'Todo',
-							_id: 'todo',
-							color: 2,
-						},
-						{
-							group: 'inProgress',
-							label: 'In progress',
-							_id: 'inProgress',
-							color: 3,
-						},
-						{
-							group: 'completed',
-							label: 'Completed',
-							_id: 'completed',
-							color: 4,
-						},
-					],
+					options: info?.taskMetadata?.status || [],
 				},
 			},
 			priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg, props: {} },
@@ -211,7 +190,7 @@ const Tasks = () => {
 			},
 			taskSlNo: { type: 'id', name: 'Id', Icon: textSvg, props: {} },
 		}),
-		[info?.workflows, info?.tenantUsers],
+		[info?.workflows, info?.tenantUsers, info?.taskMetadata],
 	);
 
 	const debounceTimeout = useRef(null);
@@ -334,6 +313,19 @@ const Tasks = () => {
 			);
 		}
 	}, [info?.listItems, info?.selectedRow]);
+
+	useEffect(() => {
+		if (!taskMetadata) {
+			getTaskStatusLabels();
+		} else if (taskMetadata?.status?.length === 0) {
+			getTaskStatusDefaultLabel();
+		} else {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskMetadata: taskMetadata,
+			}));
+		}
+	}, [taskMetadata]);
 
 	const fetchListItems = useCallback(() => {
 		getListItems({
