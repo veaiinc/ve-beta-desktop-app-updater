@@ -227,7 +227,15 @@ const FormResponses = ({ workflowData }) => {
 				(formData) =>
 					formData?.type !== 'email' &&
 					formData?.type !== 'phoneNumber' && (
-						<div key={formData?.id}>
+						<div
+							key={formData?.id}
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignSelf: 'stretch',
+								alignItems: 'flex-start',
+							}}
+						>
 							<div className="questionContainer">
 								{iconsForQuestions[formData?.type]}
 								<p className="question">
