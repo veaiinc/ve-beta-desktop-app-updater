@@ -137,30 +137,6 @@ const GlobalWorkflows = () => {
 			};
 			fetchFilteredTemplates();
 		}
-	}, [selectedOption]);
-
-	useEffect(() => {
-		if (selectedOption !== 'Workflow' && debouncedSearchQuery) {
-			const fetchFilteredTemplates = async () => {
-				setInfo((prev) => ({ ...prev, isLoading: true }));
-				setModuleTemplateData(null);
-
-				const payload = {
-					page: 1,
-					limit: 10,
-					type: 'global',
-					module: selectedOption.toLowerCase(),
-					title: debouncedSearchQuery,
-				};
-
-				const [success, response] = await getModuleTemplate(payload);
-				if (success) {
-					setModuleTemplateData(response.templates);
-				}
-				setInfo((prev) => ({ ...prev, isLoading: false }));
-			};
-			fetchFilteredTemplates();
-		}
 	}, [debouncedSearchQuery, selectedOption]);
 
 	const handleOptionSelect = useCallback(
@@ -250,7 +226,8 @@ const GlobalWorkflows = () => {
 	}, []);
 
 	const handleSearch = useCallback((e) => {
-		setSearchQuery(e.target.value);
+		const newSearchQuery = e.target.value;
+		setSearchQuery(newSearchQuery);
 	}, []);
 
 	const onCustomiseFunc = useCallback(async () => {
@@ -444,7 +421,7 @@ const GlobalWorkflows = () => {
 												/>
 											) : (
 												info?.globalWorkflowData?.map((ele, index) =>
-													info.searchLoading ? (
+													info.searchLoading || info.isLoading ? (
 														<Skeleton
 															width={'100%'}
 															height={'300px'}

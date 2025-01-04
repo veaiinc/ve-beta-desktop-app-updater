@@ -420,7 +420,7 @@ const GlobalMyTemplates = () => {
 												/>
 											) : (
 												info?.globalWorkflowData?.map((ele, index) =>
-													info.searchLoading ? (
+													info.searchLoading || info.isLoading ? (
 														<Skeleton
 															width={'100%'}
 															height={'300px'}
