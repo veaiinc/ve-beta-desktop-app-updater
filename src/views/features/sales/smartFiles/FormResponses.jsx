@@ -68,7 +68,7 @@ const DropdownAnswer = ({ answer }) => {
 					{JSON?.parse(answer || '[]')[0] || 'No answer'}
 				</span>
 			</p>
-			<Divider />
+			<div className="divider"></div>
 		</>
 	);
 };
@@ -97,7 +97,7 @@ const EventsAnswer = ({ answer }) => {
 					</tbody>
 				))}
 			</table>
-			<Divider />
+			<div className="divider"></div>
 		</>
 	);
 };
@@ -108,7 +108,7 @@ const RatingAnswer = ({ answer }) => {
 			<Flex gap="middle" vertical>
 				<Rate className="rating-from-form-response" disabled defaultValue={answer} />
 			</Flex>
-			<Divider />
+			<div className="divider"></div>
 		</>
 	);
 };
@@ -122,7 +122,7 @@ const TimeAnswer = ({ answer }) => {
 				<span className="time">{JSON?.parse(answer)?.minutes}</span>
 				<span className="time-division">{JSON?.parse(answer)?.timeDivision}</span>
 			</p>
-			<Divider />
+			<div className="divider"></div>
 		</>
 	);
 };
@@ -135,7 +135,6 @@ const SingleChoiceAnswer = ({ answer }) => {
 					{JSON.parse(answer || '[]')[0] || 'No answer'}
 				</span>
 			</p>
-			<Divider />
 		</>
 	);
 };
@@ -144,13 +143,9 @@ const LinkAnswer = ({ answer }) => {
 	return (
 		<>
 			<p className="answer link">{removeQuotes(answer) ?? 'No answer'}</p>
-			<Divider />
+			<div className="divider"></div>
 		</>
 	);
-};
-
-const Divider = () => {
-	return <div className="divider"></div>;
 };
 
 const FormResponses = ({ workflowData }) => {
@@ -179,7 +174,7 @@ const FormResponses = ({ workflowData }) => {
 			AnswerComponentMapper[type] ?? (
 				<>
 					<p className="answer">{removeQuotes(answer) ?? 'No answer'}</p>
-					<Divider />
+					<div className="divider"></div>
 				</>
 			)
 		);
@@ -202,7 +197,7 @@ const FormResponses = ({ workflowData }) => {
 						<p className="question">Client Name</p>
 					</div>
 					<p className="answer">{clientName}</p>
-					<Divider />
+					<div className="divider"></div>
 				</>
 			)}
 			{clientEmail && (
@@ -212,7 +207,7 @@ const FormResponses = ({ workflowData }) => {
 						<p className="question">Client Email</p>
 					</div>
 					<p className="answer">{clientEmail}</p>
-					<Divider />
+					<div className="divider"></div>
 				</>
 			)}
 			{clientPhone && (
@@ -222,7 +217,7 @@ const FormResponses = ({ workflowData }) => {
 						<p className="question">Client Phone</p>
 					</div>
 					<p className="answer">{clientPhone}</p>
-					<Divider />
+					<div className="divider"></div>
 				</>
 			)}
 			{info?.formResponse?.map(
