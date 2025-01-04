@@ -62,73 +62,105 @@ const removeQuotes = (text) => text?.replace(/^["']|["']$/g, '');
 
 const DropdownAnswer = ({ answer }) => {
 	return (
-		<p className={`answer`}>
-			<span className="selectedOption">{JSON?.parse(answer || '[]')[0] || 'No answer'}</span>
-		</p>
+		<>
+			<p className={`answer`}>
+				<span className="selectedOption">
+					{JSON?.parse(answer || '[]')[0] || 'No answer'}
+				</span>
+			</p>
+			<Divider />
+		</>
 	);
 };
 
 const EventsAnswer = ({ answer }) => {
 	return (
-		<table className="eventsContainer">
-			<thead className="eventsTableHeader">
-				<tr className="eventsTableHeaderRow">
-					{EventsTableHeaderData?.map((headerData) => (
-						<th key={headerData?.id} className="eventsTableHeaderLabel">
-							{headerData?.label}
-						</th>
-					))}
-				</tr>
-			</thead>
-			{JSON.parse(answer)?.map((event, index) => (
-				<tbody key={index} className="eventCard">
-					<tr>
-						<td className="eventName">{event?.name}</td>
-						<td className="eventDate">{event?.date}</td>
-						<td className="eventLocation">{event?.location}</td>
-						<td className="eventGuests">{event?.noOfGuests}</td>
+		<>
+			<table className="eventsContainer">
+				<thead className="eventsTableHeader">
+					<tr className="eventsTableHeaderRow">
+						{EventsTableHeaderData?.map((headerData) => (
+							<th key={headerData?.id} className="eventsTableHeaderLabel">
+								{headerData?.label}
+							</th>
+						))}
 					</tr>
-				</tbody>
-			))}
-		</table>
+				</thead>
+				{JSON.parse(answer)?.map((event, index) => (
+					<tbody key={index} className="eventCard">
+						<tr>
+							<td className="eventName">{event?.name}</td>
+							<td className="eventDate">{event?.date}</td>
+							<td className="eventLocation">{event?.location}</td>
+							<td className="eventGuests">{event?.noOfGuests}</td>
+						</tr>
+					</tbody>
+				))}
+			</table>
+			<Divider />
+		</>
 	);
 };
 
 const RatingAnswer = ({ answer }) => {
 	return (
-		<Flex gap="middle" vertical>
-			<Rate className="rating-from-form-response" disabled defaultValue={answer} />
-		</Flex>
+		<>
+			<Flex gap="middle" vertical>
+				<Rate className="rating-from-form-response" disabled defaultValue={answer} />
+			</Flex>
+			<Divider />
+		</>
 	);
 };
 
 const TimeAnswer = ({ answer }) => {
 	return (
-		<p className={`answer timeContainer`}>
-			<span className="time">{JSON.parse(answer)?.hours}</span>
-			<TimeDivider />
-			<span className="time">{JSON.parse(answer)?.minutes}</span>
-			<span className="time-division">{JSON.parse(answer)?.timeDivision}</span>
-		</p>
+		<>
+			<p className={`answer timeContainer`}>
+				<span className="time">{JSON?.parse(answer)?.hours}</span>
+				<TimeDivider />
+				<span className="time">{JSON?.parse(answer)?.minutes}</span>
+				<span className="time-division">{JSON?.parse(answer)?.timeDivision}</span>
+			</p>
+			<Divider />
+		</>
 	);
 };
 
 const SingleChoiceAnswer = ({ answer }) => {
 	return (
-		<p className="answer">
-			<span className="selectedOption">{JSON.parse(answer || '[]')[0] || 'No answer'}</span>
-		</p>
+		<>
+			<p className="answer">
+				<span className="selectedOption">
+					{JSON.parse(answer || '[]')[0] || 'No answer'}
+				</span>
+			</p>
+			<Divider />
+		</>
 	);
 };
 
 const LinkAnswer = ({ answer }) => {
-	return <p className="answer link">{removeQuotes(answer) ?? 'No answer'}</p>;
+	return (
+		<>
+			<p className="answer link">{removeQuotes(answer) ?? 'No answer'}</p>
+			<Divider />
+		</>
+	);
 };
 
-const FormResponses = () => {
+const Divider = () => {
+	return <div className="divider"></div>;
+};
+
+const FormResponses = ({ workflowData }) => {
 	let {
 		templates: { formResponseData },
 	} = useContext(Context);
+
+	const clientName = workflowData?.clientDetails?.name ?? '';
+	const clientEmail = workflowData?.clientDetails?.email ?? '';
+	const clientPhone = workflowData?.clientDetails?.phone ?? '';
 
 	const [info, setInfo] = useState({
 		formResponse: null,
@@ -145,7 +177,10 @@ const FormResponses = () => {
 		};
 		return (
 			AnswerComponentMapper[type] ?? (
-				<p className="answer">{removeQuotes(answer) ?? 'No answer'}</p>
+				<>
+					<p className="answer">{removeQuotes(answer) ?? 'No answer'}</p>
+					<Divider />
+				</>
 			)
 		);
 	};
@@ -154,15 +189,48 @@ const FormResponses = () => {
 		if (formResponseData) {
 			const sortedResponse = formResponseData?.response?.sort((a, b) => a?.order - b?.order);
 			setInfo((prev) => ({ ...prev, formResponse: sortedResponse }));
+			console.log(sortedResponse);
 		}
 	}, [formResponseData]);
 
 	return (
 		<div className="formResponsesParentContainer">
+			{clientName && (
+				<>
+					<div className="questionContainer">
+						<BiDash />
+						<p className="question">Client Name</p>
+					</div>
+					<p className="answer">{clientName}</p>
+					<Divider />
+				</>
+			)}
+			{clientEmail && (
+				<>
+					<div className="questionContainer">
+						<Email />
+						<p className="question">Client Email</p>
+					</div>
+					<p className="answer">{clientEmail}</p>
+					<Divider />
+				</>
+			)}
+			{clientPhone && (
+				<>
+					<div className="questionContainer">
+						<Phone />
+						<p className="question">Client Phone</p>
+					</div>
+					<p className="answer">{clientPhone}</p>
+					<Divider />
+				</>
+			)}
 			{info?.formResponse?.map(
 				(formData) =>
 					formData?.type !== 'signature' &&
-					formData?.type !== 'fileUpload' && (
+					formData?.type !== 'fileUpload' &&
+					formData?.type !== 'email' &&
+					formData?.type !== 'phoneNumber' && (
 						<>
 							<div className="questionContainer">
 								{IconsForQuestions[formData?.type]}

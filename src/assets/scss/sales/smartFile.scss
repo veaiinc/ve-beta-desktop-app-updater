@@ -118,6 +118,13 @@
 			background: #161718;
 			margin-bottom: 32px;
 
+			.divider {
+				width: 100%;
+				height: 1px;
+				background: #202123;
+				margin: 10px 0;
+			}
+
 			.questionContainer {
 				display: flex;
 				align-items: center;
