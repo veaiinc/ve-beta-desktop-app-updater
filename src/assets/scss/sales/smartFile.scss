@@ -143,6 +143,39 @@
 				line-height: normal;
 			}
 
+			.timeContainer {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 10px;
+
+				.time {
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					border-radius: 4px;
+					background: #27282b;
+					backdrop-filter: blur(20px);
+					padding: 12px 16px;
+				}
+
+				.time-division {
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					border-radius: 4px;
+					border: 1px solid #333334;
+					backdrop-filter: blur(20px);
+					padding: 12px 16px;
+				}
+			}
+
 			.link {
 				color: #5089f9;
 				font-family: Inter;

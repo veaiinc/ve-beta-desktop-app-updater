@@ -437,7 +437,7 @@ const SmartFile = () => {
 
 	const componentMapper = useMemo(() => {
 		return {
-			form: <FormResponses workflowData={info?.workflowData} />,
+			form: <FormResponses />,
 			file: (
 				<File
 					templateData={info?.incomingData}
