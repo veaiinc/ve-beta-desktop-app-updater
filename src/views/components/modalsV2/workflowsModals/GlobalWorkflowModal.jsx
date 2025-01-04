@@ -264,8 +264,8 @@ const GlobalWorkflowModal = ({
 
 			setInfo((prev) => ({ ...prev, duplicateApiLoading: true }));
 			const payload = {
-				templateId: info?.templateData?._id,
-				title: info?.templateData?.title,
+				templateId: info?.activeTemplateData?._id,
+				title: info?.activeTemplateData?.title,
 			};
 			const response = await duplicateGlobalWorkflowTemplate(payload);
 			setInfo((prev) => ({ ...prev, duplicateApiLoading: false }));
@@ -660,7 +660,7 @@ const GlobalWorkflowModal = ({
 											>
 												<iframe
 													height="100%"
-													src={`${origin}/preview/${globalTemplateId}?module=true&moduleType=${info?.templateData?.module}`}
+													src={`${origin}/preview/${globalTemplateId}?module=true&moduleType=${info?.activeTemplateData?.module}`}
 													title="Builder Preview"
 													width="100%"
 												/>
@@ -670,11 +670,18 @@ const GlobalWorkflowModal = ({
 									{/* )} */}
 									<div
 										className="innerContainerHeader"
-										style={{ borderBottom: 'none' }}
+										style={{
+											borderBottom: 'none',
+											marginTop: 'auto',
+											paddingTop: '0px',
+										}}
 									>
 										<div
 											className="headerBtnContainer"
-											style={{ justifyContent: 'center' }}
+											style={{
+												justifyContent: 'center',
+												alignItems: 'center',
+											}}
 										>
 											<div className="tabBtnContainer">
 												<div
@@ -689,6 +696,7 @@ const GlobalWorkflowModal = ({
 														gap: '16px',
 														borderRadius: '23px',
 														background: '#FAFAFA',
+														cursor: 'pointer',
 													}}
 												>
 													<span
@@ -703,14 +711,14 @@ const GlobalWorkflowModal = ({
 													>
 														Add to workspace
 													</span>
-													{/* {info?.duplicateApiLoading && (
-										<Spinner
-											width={'16px'}
-											height="16px"
-											color={'#6055ec'}
-											borderTopColor="#111"
-										/>
-									)} */}
+													{info?.duplicateApiLoading && (
+														<Spinner
+															width={'16px'}
+															height="16px"
+															color={'#6055ec'}
+															borderTopColor="#111"
+														/>
+													)}
 												</div>
 											</div>
 										</div>

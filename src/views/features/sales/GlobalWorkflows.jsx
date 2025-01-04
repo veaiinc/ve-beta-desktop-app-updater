@@ -44,6 +44,26 @@ const useDebounce = (value, delay) => {
 	return debouncedValue;
 };
 
+const NoResultsFound = ({ searchQuery }) => (
+	<div
+		style={{
+			display: 'flex',
+			flexDirection: 'column',
+			alignItems: 'center',
+			justifyContent: 'center',
+			width: '100%',
+			padding: '40px',
+			color: '#fff',
+			textAlign: 'center',
+		}}
+	>
+		<h3 style={{ fontSize: '18px', marginBottom: '8px' }}>No results found</h3>
+		<p style={{ color: 'white', fontSize: '14px' }}>
+			We couldn't find any matches for "{searchQuery}"
+		</p>
+	</div>
+);
+
 const GlobalWorkflows = () => {
 	const location = useLocation();
 	const [selectedOption, setSelectedOption] = useState('Workflow');
@@ -65,6 +85,7 @@ const GlobalWorkflows = () => {
 	const [info, setInfo] = useState({
 		loading: true,
 		isLoading: false,
+		searchLoading: false,
 		globalWorkflowData: null,
 		hasNextPage: false,
 		currentPage: 1,
@@ -77,6 +98,7 @@ const GlobalWorkflows = () => {
 
 	useEffect(() => {
 		if (selectedOption === 'Workflow') {
+			setInfo((prev) => ({ ...prev, searchLoading: true }));
 			getGlobalWorkflowTemplatesData(1);
 		}
 	}, [debouncedSearchQuery]);
@@ -191,6 +213,7 @@ const GlobalWorkflows = () => {
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
+				searchLoading: false,
 				globalWorkflowData,
 				currentPage,
 				hasNextPage,
@@ -380,7 +403,7 @@ const GlobalWorkflows = () => {
 									>
 										<div className="globalWorkflowParentCardContainer">
 											{selectedOption !== 'Workflow' ? (
-												info.isLoading ? (
+												info.isLoading || info.searchLoading ? (
 													<div
 														style={{
 															display: 'grid',
@@ -401,6 +424,11 @@ const GlobalWorkflows = () => {
 															/>
 														))}
 													</div>
+												) : moduleTemplateData?.length === 0 &&
+												  debouncedSearchQuery ? (
+													<NoResultsFound
+														searchQuery={debouncedSearchQuery}
+													/>
 												) : (
 													<GlobalProposalsCard
 														data={moduleTemplateData || []}
@@ -409,9 +437,14 @@ const GlobalWorkflows = () => {
 														isLoading={info.isLoading}
 													/>
 												)
+											) : info?.globalWorkflowData?.length === 0 &&
+											  debouncedSearchQuery ? (
+												<NoResultsFound
+													searchQuery={debouncedSearchQuery}
+												/>
 											) : (
 												info?.globalWorkflowData?.map((ele, index) =>
-													!info.globalWorkflowData ? (
+													info.searchLoading ? (
 														<Skeleton
 															width={'100%'}
 															height={'300px'}
