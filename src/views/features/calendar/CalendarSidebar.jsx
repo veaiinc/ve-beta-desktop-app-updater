@@ -6,6 +6,7 @@ import CalendarCategories from '../../components/calendar/CalendarCategories';
 import MeetingDetails from '../../components/calendar/MeetingDetails';
 import CalendarAiChat from '../../components/calendar/CalendarAiChat';
 import CreateEvent from '../../components/calendar/CreateEvent';
+import GoogleCalendar from '../../components/calendar/GoogleCalendar';
 
 const CalendarSidebar = ({
 	currentCalendarDate,
@@ -57,6 +58,7 @@ const CalendarSidebar = ({
 						categoryFilter={categoryFilter}
 						updateCalendarInfo={updateCalendarInfo}
 					/>
+					<GoogleCalendar />
 					<MeetingDetails selectedDate={selectedDate} />
 				</div>
 			)}
