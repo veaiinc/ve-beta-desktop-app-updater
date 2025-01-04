@@ -4,6 +4,7 @@ import service from '../../services/';
 import Cookies from 'js-cookie';
 import { fetchDomainName, getLocationsDetails } from '../../helpers';
 import { message } from 'antd';
+import { NEWSLETTER_SUBSCRIPTION_URL } from '../../helpers/ConstantUrls';
 const { auth_Api: authBaseUrl } = require('../../services/config.live');
 
 export const AuthState = () => {
@@ -320,29 +321,18 @@ export const AuthState = () => {
 	};
 
 	const subscribeToNewsletter = async (email) => {
-		const path = '/veai/6766b701c7f27153c1b42cbe/6766b701c7f27153c1b42cc3';
-		const body = {
-			responseInput: {
-				response: [
-					{
-						_id: '66accb967410edda114c1a05',
-						question:
-							'<p><span style="font-family: Poppins, sans-serif;">Email?</span></p>',
-						order: 1,
-						type: 'email',
-						variableId: '6311efc4911e0f82be7e2b2d',
-						answer: email,
-					},
-				],
-			},
-		};
-
 		try {
-			const response = await service?.fetchPost(path, body, null, 'workflow');
-			if (response?.[0] === true) {
+			const url = NEWSLETTER_SUBSCRIPTION_URL;
+			const locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
+
+			const response = await fetch(url, {
+				method: 'POST',
+				body: JSON.stringify({ email, source: 've.ai', location: locationDetails }),
+			});
+			if (response?.ok === true && response?.status === 200) {
 				return [true];
 			} else {
-				return [false, { message: response?.[1] }];
+				return [false, { message: 'An unexpected error occurred. Please try again!' }];
 			}
 		} catch (error) {
 			console.error('Error subscribing to email newsletter', error);

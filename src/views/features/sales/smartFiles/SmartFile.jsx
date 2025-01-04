@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/img-redundant-alt */
 /* eslint-disable no-undef */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../.././../../assets/scss/sales/smartFile.scss';
@@ -15,12 +16,13 @@ import UpdatedPageLoader from '../../../components/loaders/UpdatedPageLoader';
 import DeleteLeadModal from '../../../components/modalsV2/workflowsModals/DeleteLeadModal';
 // import Notification from '../../../components/notification/Notification';
 import UploadLogoNotification from '../../../components/notification/UploadLogoNotification';
-import { getCurrentWorkspaceId } from '../../../../helpers';
+import { getBase64, getCurrentWorkspaceId } from '../../../../helpers';
 import SendEmailModal from '../../../components/modalsV2/proposalModals/SendEmailModal';
 import { message, Spin } from 'antd';
 import BottomToolbar from '../../../components/ai_agents/BottomToolbar';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as AiSparkel } from '../.././../../assets/svg/calendar/aiSparkel.svg';
+import { Image } from 'antd';
 const SmartFile = () => {
 	const { templateId, workflowId } = useParams();
 	const navigate = useNavigate();
@@ -44,6 +46,7 @@ const SmartFile = () => {
 			updateForm,
 			updateThankyou,
 			smartFileAiChat,
+			uploadImageInSmartFileAi,
 		},
 
 		profileInfo: {
@@ -85,7 +88,8 @@ const SmartFile = () => {
 		chatSessionId: null,
 		aiChatLoading: false,
 	});
-
+	const [previewOpen, setPreviewOpen] = useState(false);
+	const [previewImage, setPreviewImage] = useState('');
 	//useEffect
 	useEffect(() => {
 		getSmartFileInfo();
@@ -604,6 +608,56 @@ const SmartFile = () => {
 		[info?.chatList, info?.chatSessionId, info?.workflowData, info?.aiChatLoading, info],
 	);
 
+	const handleAiUploadImage = useCallback(
+		async (file) => {
+			if (!file.url && !file.preview) {
+				file.preview = await getBase64(file);
+			}
+			let obj = {
+				type: 'user',
+				content: (
+					<img
+						src={file.preview}
+						alt="ai-image"
+						width={'50px'}
+						onClick={() => handlePreview(file)}
+					/>
+				),
+			};
+			let loadingObj = {
+				type: 'AI',
+				message: 'loading....',
+				content: (
+					<div className="aiMessageWrapper">
+						<AiSparkel />
+						<div className="aiMessage">
+							<span>Thinking...</span>
+						</div>
+					</div>
+				),
+			};
+			let chatlist = [...(info?.chatList || [])];
+			chatlist = [...chatlist, obj, loadingObj];
+			setInfo((prev) => ({ ...prev, chatList: chatlist, aiChatLoading: true }));
+			const response = await uploadImageInSmartFileAi(file, info?.workflowData?.slug);
+			chatlist.pop();
+			let newobj = {
+				type: 'AI',
+				message: response?.[1],
+			};
+			chatlist = [...chatlist, newobj];
+			if (response?.[0]) {
+				refetchSmartFiledata();
+			}
+			setInfo((prev) => ({
+				...prev,
+				chatList: chatlist,
+				aiChatLoading: false,
+			}));
+		},
+		[info?.workflowData, info?.chatList, info],
+	);
+
 	const refetchSmartFiledata = useCallback(() => {
 		getSmartFileInfo();
 		let loadingObj = {
@@ -624,6 +678,13 @@ const SmartFile = () => {
 			aiChatLoading: true,
 		}));
 	}, [info]);
+	const handlePreview = async (file) => {
+		if (!file.url && !file.preview) {
+			file.preview = await getBase64(file.originFileObj);
+		}
+		setPreviewImage(file.url || file.preview);
+		setPreviewOpen(true);
+	};
 
 	return info?.loading ? (
 		<UpdatedPageLoader />
@@ -725,7 +786,21 @@ const SmartFile = () => {
 				chatList={info?.chatList}
 				onSend={handleSendMessage}
 				aiChatLoading={info?.aiChatLoading}
+				handleAiUploadImage={handleAiUploadImage}
 			/>
+			{previewImage && (
+				<Image
+					wrapperStyle={{
+						display: 'none',
+					}}
+					preview={{
+						visible: previewOpen,
+						onVisibleChange: (visible) => setPreviewOpen(visible),
+						afterOpenChange: (visible) => !visible && setPreviewImage(''),
+					}}
+					src={previewImage}
+				/>
+			)}
 		</div>
 	);
 };
