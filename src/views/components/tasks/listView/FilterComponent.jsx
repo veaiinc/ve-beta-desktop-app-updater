@@ -21,6 +21,7 @@ const FilterComponent = ({
 	onConfirm,
 	setPendingFilters,
 	props,
+	colors,
 }) => {
 	const [isVisible, setIsVisible] = useState(false);
 
@@ -80,6 +81,7 @@ const FilterComponent = ({
 				onOptionClick={(value) => handleFilterChange(fieldName, value)}
 				setDefault={false}
 				{...props}
+				colors={colors}
 			/>
 		),
 		priority: (value) => (

@@ -18,6 +18,8 @@ const OptionsDropDown = ({
 	taskPreferences,
 	editingProperty,
 	handleEditPropertyChange,
+	responseMetadata,
+	colors,
 }) => {
 	const {
 		companyInfo: { updateTaskPreferences },
@@ -387,6 +389,8 @@ const OptionsDropDown = ({
 					<StatusEditDropDown
 						handleEditPropertyChange={handleEditPropertyChange}
 						handleClose={handleClose}
+						options={responseMetadata?.[editingProperty?.propName]?.props?.options}
+						colors={colors}
 					/>
 				)
 			}

@@ -28,6 +28,7 @@ const ListViewSidebar = ({
 	responseMetadata,
 	haveSubTask,
 	properties,
+	colors,
 }) => {
 	const {
 		tasks: { subTasks, getSubTasks },
@@ -216,6 +217,7 @@ const ListViewSidebar = ({
 									onOptionClick={(value) =>
 										updatePropertyValue(row._id, key, value, isShowingSubTask)
 									}
+									colors={colors}
 								/>
 							) : (
 								<div key={key}>{value}</div>

@@ -50,6 +50,7 @@ const ListView = ({
 	headerTitle = 'Tasks',
 	addButtonOnClick,
 	haveSubTask = false,
+	colors,
 }) => {
 	const [listViewState, setListViewState] = useState({
 		editingProperty: null,
@@ -120,6 +121,7 @@ const ListView = ({
 				addButtonOnClick={addButtonOnClick}
 				editingProperty={listViewState?.editingProperty}
 				handleEditPropertyChange={handleEditPropertyChange}
+				colors={colors}
 			/>
 			<div className="listContainer">
 				<div className="listInnerContainer">
@@ -138,6 +140,7 @@ const ListView = ({
 								handleRowClick={handleRowClick}
 								responseMetadata={responseMetadata}
 								handleEditPropertyChange={handleEditPropertyChange}
+								colors={colors}
 							/>
 						))
 					) : (
@@ -169,6 +172,7 @@ const ListView = ({
 				responseMetadata={responseMetadata}
 				haveSubTask={haveSubTask}
 				properties={info?.properties}
+				colors={colors}
 			/>
 		</div>
 	);

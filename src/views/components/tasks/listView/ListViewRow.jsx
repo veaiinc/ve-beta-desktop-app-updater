@@ -9,6 +9,7 @@ const ListViewRow = ({
 	isSubTask = false,
 	responseMetadata,
 	handleEditPropertyChange,
+	colors,
 }) => {
 	const generateRow = useCallback(
 		(row) => {
@@ -68,6 +69,7 @@ const ListViewRow = ({
 						}
 						{...props}
 						handleEditPropertyChange={handleEditPropertyChange}
+						colors={colors}
 					/>
 				) : null;
 

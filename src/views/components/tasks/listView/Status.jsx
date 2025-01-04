@@ -3,16 +3,6 @@ import '../../../../assets/scss/tasks/status.scss';
 import { ReactComponent as PencilWithLine } from '../../../../assets/svg/tasks/pencilWithLine.svg';
 import { Tooltip } from 'antd';
 
-const colors = {
-	1: { backgroundColor: '#62344B', color: '#A35A7E' },
-	2: { backgroundColor: '#373737', color: '#707070' },
-	3: { backgroundColor: '#5B3D2F', color: '#8F614B' },
-	4: { backgroundColor: '#7D4F27', color: '#B37339' },
-	5: { backgroundColor: '#375841', color: '#588F69' },
-	6: { backgroundColor: '#2F4469', color: '#4F71B3' },
-	7: { backgroundColor: '#453061', color: '#6F4C99' },
-};
-
 const Status = ({
 	value,
 	showLabel = true,
@@ -24,6 +14,7 @@ const Status = ({
 	labelField = 'label',
 	valueField = 'value',
 	handleEditPropertyChange,
+	colors,
 }) => {
 	const [info, setInfo] = useState({
 		options,
@@ -96,12 +87,12 @@ const Status = ({
 						<span
 							className="select-listItem"
 							style={{
-								backgroundColor: colors[info?.selected?.color]?.backgroundColor,
+								backgroundColor: colors?.[info?.selected?.color]?.backgroundColor,
 							}}
 						>
 							<span
 								className="select-listItem-color"
-								style={{ backgroundColor: colors[info?.selected?.color]?.color }}
+								style={{ backgroundColor: colors?.[info?.selected?.color]?.color }}
 							></span>
 							<span className="select-listItem-label">
 								{info?.selected?.[labelField] || (!value ? 'Select status' : '')}
@@ -131,7 +122,7 @@ const Status = ({
 											className="select-listItem"
 											style={{
 												backgroundColor:
-													colors[option?.color]?.backgroundColor,
+													colors?.[option?.color]?.backgroundColor,
 											}}
 											onClick={() => {
 												customOnOptionClick(option?._id);
@@ -140,7 +131,7 @@ const Status = ({
 											<span
 												className="select-listItem-color"
 												style={{
-													backgroundColor: colors[option?.color]?.color,
+													backgroundColor: colors?.[option?.color]?.color,
 												}}
 											></span>
 											<span className="select-listItem-label">
@@ -177,7 +168,7 @@ const Status = ({
 					className={`select-listItem`}
 					style={{
 						...customListItemStyle,
-						backgroundColor: colors[info?.selected?.color]?.backgroundColor,
+						backgroundColor: colors?.[info?.selected?.color]?.backgroundColor,
 					}}
 					onClick={() => {
 						handleDropdown(true);
@@ -186,7 +177,7 @@ const Status = ({
 					<span
 						className="select-listItem-color"
 						style={{
-							backgroundColor: colors[info?.selected?.color]?.color,
+							backgroundColor: colors?.[info?.selected?.color]?.color,
 						}}
 					></span>
 					{showLabel ? (

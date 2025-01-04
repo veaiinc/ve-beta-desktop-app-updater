@@ -37,6 +37,10 @@
 		flex-direction: column;
 		gap: 12px;
 		user-select: none;
+		min-height: 50px;
+		max-height: 220px;
+		overflow-y: auto;
+		// background-color: red;
 
 		.property-edit-section-title-wrapper {
 			display: flex;
@@ -134,13 +138,18 @@
 					align-items: center;
 					justify-content: center;
 				}
+				* {
+					flex-shrink: 0;
+				}
 
 				.property-edit-section-body-option-wrapper {
 					flex-grow: 1;
+					overflow: hidden;
 
 					.status-option-container {
 						display: flex;
 						width: fit-content;
+						max-width: 150px;
 						padding: 4px 6px;
 						align-items: center;
 						gap: 4px;
@@ -152,6 +161,7 @@
 							height: 6px;
 							border-radius: 50%;
 							background-color: #2a71cd;
+							flex-shrink: 0;
 						}
 
 						.status-option-label {
@@ -161,6 +171,10 @@
 							font-style: normal;
 							font-weight: 500;
 							line-height: normal;
+							white-space: nowrap;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							width: 100%;
 						}
 					}
 				}
@@ -170,6 +184,25 @@
 				}
 			}
 		}
+
+		&-body {
+			min-height: 40px;
+			padding: 4px;
+
+			&.empty {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 4px;
+			}
+		}
+
+		&-option-item {
+			&.dragging {
+				background: #2c2e30;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+			}
+		}
 	}
 
 	.property-edit-footer {
@@ -177,7 +210,6 @@
 		padding: 0 6px;
 		align-items: center;
 		gap: 8px;
-		align-self: stretch;
 
 		.property-edit-footer-title {
 			color: #e8e8e8;

@@ -37,6 +37,7 @@ const ListViewHeader = ({
 	taskPreferences,
 	editingProperty,
 	handleEditPropertyChange,
+	colors,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -168,6 +169,8 @@ const ListViewHeader = ({
 						taskPreferences={taskPreferences}
 						editingProperty={editingProperty}
 						handleEditPropertyChange={handleEditPropertyChange}
+						responseMetadata={responseMetadata}
+						colors={colors}
 					/>
 				</div>
 			</div>
@@ -205,6 +208,7 @@ const ListViewHeader = ({
 									filters={filters}
 									props={props}
 									type={type}
+									colors={colors}
 									isPending={!filters.includes(filter)}
 									onConfirm={(key, value) => {
 										setPendingFilters((prev) =>
