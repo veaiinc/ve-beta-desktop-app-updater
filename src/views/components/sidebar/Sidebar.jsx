@@ -8,7 +8,7 @@ import Context from '../../../context/context';
 import { styles } from './sidebarindex';
 import CreateLeadModal from '../modalsV2/proposalModals/CreateLeadModal';
 import { veAiModulesItemsList } from './sidebarindex';
-const Sidebar = ({ activeWorkspaceId }) => {
+const Sidebar = ({ activeWorkspaceId, customStyles }) => {
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
 	} = useContext(Context);
@@ -111,7 +111,10 @@ const Sidebar = ({ activeWorkspaceId }) => {
 			>
 				<nav
 					className={`sidebarComponent ${sidebarStates?.isOpen ? 'open' : ''}`}
-					style={styles[sidebarStates?.navStyle]}
+					style={{
+						...styles[sidebarStates?.navStyle],
+						...customStyles,
+					}}
 				>
 					{sidebarStates?.isOpen ? (
 						<OpenedSideBarItemsComponent
@@ -120,6 +123,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							info={info}
 							setInfo={setInfo}
 							userWorkSpaceList={userWorkSpaceList}
+							customStyles={customStyles}
 						/>
 					) : (
 						<ClosedSideBarItemsComponent
@@ -127,6 +131,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							sidebarStates={sidebarStates}
 							info={info}
 							setInfo={setInfo}
+							customStyles={customStyles}
 						/>
 					)}
 				</nav>

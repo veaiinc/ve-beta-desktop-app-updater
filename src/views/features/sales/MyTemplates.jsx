@@ -48,8 +48,6 @@ const useDebounce = (value) => {
 
 const GlobalMyTemplates = () => {
 	const location = useLocation();
-	const isPlaybookRoute =
-		location.pathname === '/playbook' || location.pathname === '/my-templates';
 	const [selectedOption, setSelectedOption] = useState('Workflow');
 	const [moduleTemplateData, setModuleTemplateData] = useState(null);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -129,26 +127,31 @@ const GlobalMyTemplates = () => {
 
 	const handleOptionSelect = useCallback(
 		async (option) => {
+			if (option === selectedOption) return;
+
 			setSelectedOption(option);
 			setModuleTemplateData(null);
 			setModuleInfo({ currentPage: 1, hasNextPage: false });
+			setSearchQuery('');
 
-			const payload = {
-				page: 1,
-				limit: 10,
-				type: 'workspace',
-				module: option.toLowerCase(),
-			};
-			const [success, response] = await getModuleTemplate(payload);
-			if (success) {
-				setModuleTemplateData(response.templates);
-				setModuleInfo({
-					currentPage: 1,
-					hasNextPage: response.hasNextPage,
-				});
+			if (option !== 'Workflow') {
+				const payload = {
+					page: 1,
+					limit: 10,
+					type: 'workspace',
+					module: option.toLowerCase(),
+				};
+				const [success, response] = await getModuleTemplate(payload);
+				if (success) {
+					setModuleTemplateData(response.templates);
+					setModuleInfo({
+						currentPage: 1,
+						hasNextPage: response.hasNextPage,
+					});
+				}
 			}
 		},
-		[getModuleTemplate],
+		[selectedOption],
 	);
 
 	const fetchMoreModuleTemplates = useCallback(async () => {
@@ -249,7 +252,7 @@ const GlobalMyTemplates = () => {
 			{info?.loading ? (
 				<UpdatedPageLoader />
 			) : (
-				<div className={`playbook-wrapper ${isPlaybookRoute ? 'with-background' : ''}`}>
+				<div className={`playbook-wrapper`}>
 					<div className={`globalWorkflowContainer`}>
 						<div className={`left_div  ${info.modalIsOpen ? 'modal-open' : ''}`}>
 							<div className="left_child_div">
@@ -374,23 +377,35 @@ const GlobalMyTemplates = () => {
 										className="scrollableTarget"
 									>
 										<div className="globalWorkflowParentCardContainer">
-											{info.searchLoading ? (
-												<Skeleton
-													width={'100%'}
-													height={'300px'}
-													baseColor="transparent"
-													highlightColor="rgba(255, 255, 255, 0.20)"
-													opacity={0.7}
-												/>
-											) : selectedOption !== 'Workflow' ? (
-												<GlobalProposalsCard
-													data={moduleTemplateData}
-													onClickFunc={(data, module) => {
-														openModal(data, module);
-													}}
-													modalIsOpen={info.modalIsOpen}
-													isLoading={info.isLoading}
-												/>
+											{selectedOption !== 'Workflow' ? (
+												info.isLoading ? (
+													<div
+														style={{
+															display: 'grid',
+															gridTemplateColumns: 'repeat(2, 1fr)',
+															gap: '16px',
+															width: '100%',
+															maxWidth: '100%',
+														}}
+													>
+														{[...Array(6)].map((_, index) => (
+															<Skeleton
+																key={index}
+																width="100%"
+																height={'268px'}
+																baseColor="transparent"
+																highlightColor="rgba(255, 255, 255, 0.20)"
+																opacity={0.5}
+															/>
+														))}
+													</div>
+												) : (
+													<GlobalProposalsCard
+														data={moduleTemplateData || []}
+														onClickFunc={openModal}
+														modalIsOpen={info.modalIsOpen}
+													/>
+												)
 											) : (
 												info?.globalWorkflowData?.map((ele, index) =>
 													!info.globalWorkflowData ? (
@@ -399,7 +414,7 @@ const GlobalMyTemplates = () => {
 															height={'300px'}
 															baseColor="transparent"
 															highlightColor="rgba(255, 255, 255, 0.20)"
-															opacity={0.7}
+															opacity={0.5}
 														/>
 													) : (
 														<GlobalWorkflowCard
@@ -420,32 +435,26 @@ const GlobalMyTemplates = () => {
 							)}
 						</div>
 
-						{info?.modalIsOpen &&
-							(selectedOption === 'Workflow' ? (
-								<GlobalWorkflowModal
-									modalIsOpen={info?.modalIsOpen}
-									closeModal={closeModal}
-									globalTemplateId={info?.activeTemplateData?._id}
-									isProposal={false}
-									isExpanded={info?.isExpanded}
-									setIsExpanded={(value) => {
-										setInfo((prev) => ({ ...prev, isExpanded: value }));
-									}}
-								/>
-							) : (
-								<GlobalWorkflowModal
-									modalIsOpen={info?.modalIsOpen}
-									closeModal={closeModal}
-									globalTemplateId={info?.activeTemplateData?._id}
-									moduleName={selectedOption.toLowerCase()}
-									templateTitle={info?.activeTemplateData?.title}
-									isProposal={true}
-									isExpanded={info?.isExpanded}
-									setIsExpanded={(value) => {
-										setInfo((prev) => ({ ...prev, isExpanded: value }));
-									}}
-								/>
-							))}
+						<GlobalWorkflowModal
+							modalIsOpen={info?.modalIsOpen}
+							closeModal={closeModal}
+							globalTemplateId={info?.activeTemplateData?._id}
+							isProposal={selectedOption !== 'Workflow'}
+							moduleName={
+								selectedOption !== 'Workflow'
+									? selectedOption.toLowerCase()
+									: undefined
+							}
+							templateTitle={
+								selectedOption !== 'Workflow'
+									? info?.activeTemplateData?.title
+									: undefined
+							}
+							isExpanded={info?.isExpanded}
+							setIsExpanded={(value) => {
+								setInfo((prev) => ({ ...prev, isExpanded: value }));
+							}}
+						/>
 					</div>
 				</div>
 			)}

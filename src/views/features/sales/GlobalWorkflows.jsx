@@ -46,7 +46,6 @@ const useDebounce = (value, delay) => {
 
 const GlobalWorkflows = () => {
 	const location = useLocation();
-	const isPlaybookRoute = location.pathname === '/playbook';
 	const [selectedOption, setSelectedOption] = useState('Workflow');
 	const [moduleTemplateData, setModuleTemplateData] = useState(null);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -77,7 +76,9 @@ const GlobalWorkflows = () => {
 	});
 
 	useEffect(() => {
-		getGlobalWorkflowTemplatesData(1);
+		if (selectedOption === 'Workflow') {
+			getGlobalWorkflowTemplatesData(1);
+		}
 	}, [debouncedSearchQuery]);
 
 	useEffect(() => {
@@ -96,14 +97,40 @@ const GlobalWorkflows = () => {
 		if (selectedOption !== 'Workflow') {
 			const fetchFilteredTemplates = async () => {
 				setInfo((prev) => ({ ...prev, isLoading: true }));
+				setModuleTemplateData(null);
+
 				const payload = {
 					page: 1,
 					limit: 10,
 					type: 'global',
 					module: selectedOption.toLowerCase(),
-					// Only include title in payload if search query exists
 					...(debouncedSearchQuery && { title: debouncedSearchQuery }),
 				};
+
+				const [success, response] = await getModuleTemplate(payload);
+				if (success) {
+					setModuleTemplateData(response.templates);
+				}
+				setInfo((prev) => ({ ...prev, isLoading: false }));
+			};
+			fetchFilteredTemplates();
+		}
+	}, [selectedOption]);
+
+	useEffect(() => {
+		if (selectedOption !== 'Workflow' && debouncedSearchQuery) {
+			const fetchFilteredTemplates = async () => {
+				setInfo((prev) => ({ ...prev, isLoading: true }));
+				setModuleTemplateData(null);
+
+				const payload = {
+					page: 1,
+					limit: 10,
+					type: 'global',
+					module: selectedOption.toLowerCase(),
+					title: debouncedSearchQuery,
+				};
+
 				const [success, response] = await getModuleTemplate(payload);
 				if (success) {
 					setModuleTemplateData(response.templates);
@@ -115,31 +142,14 @@ const GlobalWorkflows = () => {
 	}, [debouncedSearchQuery, selectedOption]);
 
 	const handleOptionSelect = useCallback(
-		async (option) => {
+		(option) => {
+			if (option === selectedOption) return;
 			setInfo((prev) => ({ ...prev, isLoading: true }));
 			setSelectedOption(option);
 			setSearchQuery('');
-			const payload = debouncedSearchQuery
-				? {
-						page: 1,
-						limit: 10,
-						type: 'global',
-						module: option.toLowerCase(),
-						title: debouncedSearchQuery,
-				  }
-				: {
-						page: 1,
-						limit: 10,
-						type: 'global',
-						module: option.toLowerCase(),
-				  };
-			const [success, response] = await getModuleTemplate(payload);
-			if (success) {
-				setModuleTemplateData(response.templates);
-			}
-			setInfo((prev) => ({ ...prev, isLoading: false }));
+			setModuleTemplateData(null);
 		},
-		[getModuleTemplate],
+		[selectedOption],
 	);
 
 	const getGlobalWorkflowTemplatesData = useCallback(
@@ -193,23 +203,19 @@ const GlobalWorkflows = () => {
 		getGlobalWorkflowTemplatesData(info?.currentPage + 1, true);
 	}, [info?.hasNextPage, info?.currentPage]);
 
-	const openModal = useCallback(
-		(data, module) => {
-			if (!data) {
-				console.error('No template data provided');
-				return;
-			}
-			const templateData = typeof data === 'string' ? { _id: data } : data;
-			setInfo((prev) => ({
-				...prev,
-				modalIsOpen: true,
-				activeTemplateData: templateData,
-				selectedOption: selectedOption,
-				selectedModule: module,
-			}));
-		},
-		[selectedOption],
-	);
+	const openModal = useCallback((data, module) => {
+		if (!data) {
+			console.error('No template data provided');
+			return;
+		}
+		const templateData = typeof data === 'string' ? { _id: data } : data;
+		setInfo((prev) => ({
+			...prev,
+			modalIsOpen: true,
+			activeTemplateData: templateData,
+			selectedModule: module,
+		}));
+	}, []);
 
 	const closeModal = useCallback(() => {
 		setInfo((prev) => ({
@@ -253,7 +259,7 @@ const GlobalWorkflows = () => {
 			{info?.loading ? (
 				<UpdatedPageLoader />
 			) : (
-				<div className={`playbook-wrapper ${isPlaybookRoute ? 'with-background' : ''}`}>
+				<div className={`playbook-wrapper`}>
 					<div className={`globalWorkflowContainer`}>
 						<div className={`left_div  ${info.modalIsOpen ? 'modal-open' : ''}`}>
 							<div className="left_child_div">
@@ -374,14 +380,35 @@ const GlobalWorkflows = () => {
 									>
 										<div className="globalWorkflowParentCardContainer">
 											{selectedOption !== 'Workflow' ? (
-												<GlobalProposalsCard
-													data={moduleTemplateData}
-													onClickFunc={(data, module) => {
-														openModal(data, module);
-													}}
-													modalIsOpen={info.modalIsOpen}
-													isLoading={info.isLoading}
-												/>
+												info.isLoading ? (
+													<div
+														style={{
+															display: 'grid',
+															gridTemplateColumns: 'repeat(2, 1fr)',
+															gap: '16px',
+															width: '100%',
+															maxWidth: '100%',
+														}}
+													>
+														{[...Array(6)].map((_, index) => (
+															<Skeleton
+																key={index}
+																width="100%"
+																height={'268px'}
+																baseColor="transparent"
+																highlightColor="rgba(255, 255, 255, 0.20)"
+																opacity={0.5}
+															/>
+														))}
+													</div>
+												) : (
+													<GlobalProposalsCard
+														data={moduleTemplateData || []}
+														onClickFunc={openModal}
+														modalIsOpen={info.modalIsOpen}
+														isLoading={info.isLoading}
+													/>
+												)
 											) : (
 												info?.globalWorkflowData?.map((ele, index) =>
 													!info.globalWorkflowData ? (
@@ -411,32 +438,21 @@ const GlobalWorkflows = () => {
 							)}
 						</div>
 
-						{info?.modalIsOpen &&
-							(selectedOption === 'Workflow' ? (
-								<GlobalWorkflowModal
-									modalIsOpen={info?.modalIsOpen}
-									closeModal={closeModal}
-									globalTemplateId={info?.activeTemplateData?._id}
-									isProposal={false}
-									isExpanded={info?.isExpanded}
-									setIsExpanded={(value) => {
-										setInfo((prev) => ({ ...prev, isExpanded: value }));
-									}}
-								/>
-							) : (
-								<GlobalWorkflowModal
-									modalIsOpen={info?.modalIsOpen}
-									closeModal={closeModal}
-									globalTemplateId={info?.activeTemplateData?._id}
-									moduleName={info?.selectedModule}
-									templateTitle={info?.activeTemplateData?.title}
-									isProposal={true}
-									isExpanded={info?.isExpanded}
-									setIsExpanded={(value) => {
-										setInfo((prev) => ({ ...prev, isExpanded: value }));
-									}}
-								/>
-							))}
+						<GlobalWorkflowModal
+							modalIsOpen={info?.modalIsOpen}
+							closeModal={closeModal}
+							globalTemplateId={info?.activeTemplateData?._id}
+							templateData={info?.activeTemplateData}
+							isProposal={selectedOption !== 'Workflow'}
+							isExpanded={info?.isExpanded}
+							setIsExpanded={(value) => {
+								setInfo((prev) => ({ ...prev, isExpanded: value }));
+							}}
+							{...(selectedOption !== 'Workflow' && {
+								moduleName: info?.selectedModule,
+								templateTitle: info?.activeTemplateData?.title,
+							})}
+						/>
 					</div>
 				</div>
 			)}

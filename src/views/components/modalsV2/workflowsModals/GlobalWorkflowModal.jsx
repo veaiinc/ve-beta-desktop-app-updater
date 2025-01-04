@@ -182,30 +182,18 @@ const GlobalWorkflowModal = ({
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
 	useEffect(() => {
-		if (isProposal) {
-			if (globalTemplateId !== 'undefined') {
+		if (globalTemplateId && globalTemplateId !== 'undefined') {
+			if (!specificTemplatesInfo || specificTemplatesInfo._id !== globalTemplateId) {
 				getSpecificTemplatesInfo({
 					templateInfoId: globalTemplateId,
 				});
-			} else {
-				console.warn('Invalid templateId:', globalTemplateId);
 			}
-			return () => {
-				updateStateValues({ specificTemplatesInfo: null });
-			};
 		}
-	}, [globalTemplateId, isProposal]);
 
-	useEffect(() => {
-		if (globalTemplateId) {
-			getSpecificTemplatesInfo({
-				templateInfoId: globalTemplateId,
-			});
-		}
 		return () => {
 			updateStateValues({ specificTemplatesInfo: null });
 		};
-	}, [globalTemplateId]);
+	}, [globalTemplateId, specificTemplatesInfo]);
 
 	useEffect(() => {
 		if (specificTemplatesInfo) {

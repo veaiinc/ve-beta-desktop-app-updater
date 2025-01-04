@@ -1,4 +1,5 @@
 import AuthWrapper from './views/layouts/authWrapper';
+import TemplatesWrapper from './views/layouts/templatesWrapper';
 import LoginPage from './views/features/login_page/LoginPage';
 import Onboarding from './views/features/onboarding/Onboarding';
 import Calendar from './views/features/calendar/index';
@@ -113,18 +114,18 @@ const routes = [
 	{
 		path: '/playbook',
 		component: (
-			<AuthWrapper title={'Sales'}>
+			<TemplatesWrapper title={'Sales'}>
 				<GlobalWorkflows />
-			</AuthWrapper>
+			</TemplatesWrapper>
 		),
 		exact: true,
 	},
 	{
 		path: '/my-templates',
 		component: (
-			<AuthWrapper title={'My Templates'}>
+			<TemplatesWrapper title={'My Templates'}>
 				<MyTemplates />
-			</AuthWrapper>
+			</TemplatesWrapper>
 		),
 		exact: true,
 	},

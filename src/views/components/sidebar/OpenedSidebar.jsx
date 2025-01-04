@@ -275,6 +275,7 @@ const OpenedSideBarItemsComponent = ({
 	setsidebarStates,
 	info,
 	userWorkSpaceList,
+	customStyles,
 }) => {
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
@@ -357,6 +358,7 @@ const OpenedSideBarItemsComponent = ({
 					<div
 						className="openSideBarComponent"
 						style={{
+							...customStyles,
 							height: '100vh',
 							display: 'flex',
 							flexDirection: 'column',
@@ -372,6 +374,7 @@ const OpenedSideBarItemsComponent = ({
 									top: '0',
 									backgroundColor: '#202123',
 									zIndex: '1000',
+									...customStyles,
 								}}
 							>
 								<div
@@ -436,6 +439,7 @@ const OpenedSideBarItemsComponent = ({
 											borderRadius: '16px',
 											animation: 'slideDown 0.3s ease-out',
 											transformOrigin: 'top',
+											...customStyles,
 										}}
 									>
 										<WorkspaceListComponent
@@ -443,6 +447,7 @@ const OpenedSideBarItemsComponent = ({
 											sidebarStates={sidebarStates}
 											info={info}
 											userWorkSpaceList={userWorkSpaceList}
+											customStyles={customStyles}
 										/>
 									</div>
 								)}

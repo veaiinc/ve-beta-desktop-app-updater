@@ -6,12 +6,6 @@
 	left: 0;
 	overflow-y: scroll;
 
-	&.with-background {
-		background-image: url('../../svg/sales/start.jpg');
-		background-size: cover;
-		background-position: center;
-	}
-
 	.globalWorkflowContainer {
 		// height: 100vh;
 		flex: 1;

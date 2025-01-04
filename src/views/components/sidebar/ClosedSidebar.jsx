@@ -87,7 +87,13 @@ const getPathInfo = (path) => {
 	return pathInfo[cleanPath] || { title: 'Home', description: 'Your workspace dashboard' };
 };
 
-const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, setInfo }) => {
+const ClosedSideBarItemsComponent = ({
+	sidebarStates,
+	setsidebarStates,
+	info,
+	setInfo,
+	customStyles,
+}) => {
 	const navigate = useNavigate();
 	const [showRaindrop, setShowRaindrop] = useState(false);
 	const [selectedIcon, setSelectedIcon] = useState(null);
@@ -254,6 +260,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 						className={`closedSideBarComponent ${
 							visibleIcons.length === 0 ? 'no-submodules' : ''
 						}`}
+						style={{ ...customStyles }}
 					>
 						<div
 							className="closedSideBarComponentContainer"
@@ -319,7 +326,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 									onMouseEnter={() => setShowRaindrop(true)}
 									onMouseLeave={() => setShowRaindrop(false)}
 								>
-									<div className="gradientCirlce">
+									<div className="gradientCirlce" style={{ ...customStyles }}>
 										{AiOptions.find((option) =>
 											window.location.pathname.includes(option.route),
 										)?.image ||
@@ -335,6 +342,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 												}
 												alt="AI Option"
 												style={{
+													...customStyles,
 													height: '40px',
 													width: '40px',
 													borderRadius: '24px',

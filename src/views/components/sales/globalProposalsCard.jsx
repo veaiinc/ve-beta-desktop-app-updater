@@ -11,14 +11,6 @@ const GlobalProposalsCard = ({ data, onClickFunc, modalIsOpen, isLoading }) => {
 		isOpen: false,
 		selectedTemplateId: null,
 	});
-	// const handleTemplateClick = (templateId, module) => {
-	//  setModalInfo({
-	//      isOpen: true,
-	//      selectedTemplateId: templateId,
-	//      selectedModule: module,
-	//  });
-	//  // onClickFunc(templateId, module);
-	// };
 
 	const closeModal = () => {
 		setModalInfo({
@@ -38,7 +30,6 @@ const GlobalProposalsCard = ({ data, onClickFunc, modalIsOpen, isLoading }) => {
 							height={'263px'}
 							baseColor="transparent"
 							highlightColor="rgba(255, 255, 255, 0.20)"
-							opacity={0.5}
 						/>
 					) : (
 						<div
