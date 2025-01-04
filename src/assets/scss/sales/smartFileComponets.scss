@@ -140,7 +140,7 @@
 					border: 1px solid var(--stroke-hover);
 				}
 				.customInputWithoutLabel.ai_generated {
-					border: 1px solid var(--AI-Color-Code);
+					border: 1px solid var(--ai-color-code);
 				}
 				.incrementDecrementContainer {
 					display: flex;
@@ -178,7 +178,7 @@
 					}
 				}
 				.incrementDecrementContainer.ai_generated {
-					border: 1px solid var(--AI-Color-Code);
+					border: 1px solid var(--ai-color-code);
 				}
 				.removeRoleContainer {
 					display: flex;
@@ -354,7 +354,7 @@
 					}
 				}
 				.incrementDecrementContainer.ai_generated {
-					border: 1px solid var(--AI-Color-Code);
+					border: 1px solid var(--ai-color-code);
 				}
 			}
 		}

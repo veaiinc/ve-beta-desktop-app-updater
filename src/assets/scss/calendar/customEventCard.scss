@@ -4,11 +4,11 @@
 	padding: 3px;
 	gap: 10px;
 	border-radius: 8px;
-	background: #2a2a2a;
+	background: var(--card-over-card-hover);
 	overflow-y: auto;
 	overflow-x: hidden;
 
-	color: #e4e5e6;
+	color: var(--primary-font);
 	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
@@ -34,7 +34,7 @@
 				padding-bottom: 25px;
 
 				.title {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
@@ -47,7 +47,7 @@
 					// max-height: ;
 				}
 				.subText {
-					color: rgba(228, 229, 230, 0.5);
+					color: rgba(var(--primary-font), 0.5);
 					font-family: var(--primary-font-family);
 					font-size: 9px;
 					font-style: bold;
@@ -79,14 +79,8 @@
 					cursor: pointer;
 
 					&:hover {
-						background: rgb(255, 180, 67);
-						background: linear-gradient(
-							90deg,
-							rgba(255, 180, 67, 1) 0%,
-							rgba(139, 234, 255, 1) 26%,
-							rgba(255, 123, 242, 1) 67%,
-							rgba(255, 255, 255, 1) 99%
-						);
+						background: var(--primary-button);
+						background: var(--ai-color-code);
 						filter: blur(0.5px);
 						// border: 2px solid green
 					}
@@ -95,7 +89,7 @@
 						// display: flex;
 						width: 11px;
 						height: 11px;
-						background-color: rgb(54, 54, 54);
+						background-color: var(--card-over-card-hover);
 						border-radius: 100%;
 					}
 				}
@@ -107,7 +101,7 @@
 				display: flex;
 				justify-content: center;
 				align-items: center;
-				background-color: rgb(147, 144, 144);
+				background-color: var(--primary-font);
 				border-radius: 50%;
 				width: 15px;
 				height: 15px;
@@ -124,7 +118,7 @@
 .customEventWrapper {
 	// border: 2px solid red;
 	height: fit-content;
-	color: #e4e5e6;
+	color: var(--primary-font);
 	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
@@ -136,16 +130,16 @@
 	.rbc-event {
 		border-radius: 8px;
 		border: none;
-		background: #2a2a2a;
+		background: var(--card-over-card-hover);
 		padding: 5px;
-		border: 1px solid #202020;
+		border: 1px solid var(--stroke);
 		min-width: 100%;
 
 		// Target .rbc-event-label inside .rbc-event
 		.rbc-event-label {
 			display: none;
 			margin-left: 5px;
-			color: rgba(228, 229, 230, 0.5);
+			color: rgba(var(--primary-font), 0.5);
 			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-weight: 400;

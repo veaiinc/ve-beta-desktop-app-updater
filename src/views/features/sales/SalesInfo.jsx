@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import { ReactComponent as Gradient } from '../../../assets/svg/sales/gradient.svg';
 import { ReactComponent as CardDiv } from '../../../assets/svg/sales/card-div.svg';
-import HeaderImage from '../../../assets/svg/sales/welcomeHeader.svg';
+import { ReactComponent as HeaderImage } from '../../../assets/svg/sales/welcomeHeader.svg';
 import moment from 'moment';
 import HeaderInfo from './HeaderInfo';
 import RequiredActionsLoader from '../../components/sales/RequiredActionsLoader';
@@ -111,12 +111,12 @@ const SalesInfo = () => {
 
 	return (
 		<>
-			<div className="gradient-container">
+			{/* <div className="gradient-container">
 				<Gradient />
-			</div>
+			</div> */}
 			<div className="sales-page">
 				<div className="header-image">
-					<img src={HeaderImage} alt="Header" />
+					<HeaderImage style={{ fill: 'var(--card)' }} />
 					<HeaderInfo />
 				</div>
 				<div className="sales-page-filter">

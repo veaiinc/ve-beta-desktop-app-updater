@@ -120,7 +120,9 @@ const ListView = ({
 					{info?.loadingSkeleton ? (
 						generateSkeleton()
 					) : info?.error ? (
-						<span style={{ color: '#ff9b9b', margin: '10px auto' }}>{info?.error}</span>
+						<span style={{ color: 'var(--error)', margin: '10px auto' }}>
+							{info?.error}
+						</span>
 					) : info?.listItems?.length !== 0 ? (
 						info?.listItems?.map((task, index) => (
 							<ListViewRow
@@ -134,7 +136,7 @@ const ListView = ({
 							/>
 						))
 					) : (
-						<span style={{ color: '#808080', margin: '10px auto' }}>
+						<span style={{ color: 'var(--secondary-font)', margin: '10px auto' }}>
 							No tasks found
 						</span>
 					)}

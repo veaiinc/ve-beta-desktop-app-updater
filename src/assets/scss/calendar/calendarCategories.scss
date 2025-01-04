@@ -10,8 +10,8 @@
 	flex-shrink: 0;
 	align-self: stretch;
 	border-radius: 24px;
-	border: 1px solid #272727;
-	background: #1d1d1d;
+	border: 1px solid var(--stroke);
+	background: var(--card);
 	transition: height 0.3s ease;
 
 	.categoriesHeadWrapper {
@@ -27,7 +27,7 @@
 			gap: 12px;
 
 			.headLabel {
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
@@ -46,7 +46,7 @@
 				cursor: pointer;
 
 				border-radius: 69px;
-				background: rgba(255, 255, 255, 0.1);
+				background: var(--card-over-card);
 			}
 		}
 
@@ -90,16 +90,16 @@
 					cursor: pointer;
 					gap: 10px;
 					border-radius: 2px;
-					border: 1px solid rgba(255, 255, 255, 0.16);
-					background: rgba(217, 217, 217, 0.22);
+					border: 1px solid var(--stroke);
+					background: var(--card-over-card);
 
 					&:checked {
-						background-color: rgba(217, 217, 217, 0.22);
+						background-color: var(--card-over-card);
 						border: none;
 
 						&::before {
 							content: '✔'; // Unicode check mark
-							color: #ffffff;
+							color: var(--primary-font);
 							font-size: 14px;
 							position: absolute;
 							top: 0;
@@ -109,7 +109,7 @@
 				}
 
 				.typeLabel {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
@@ -137,7 +137,7 @@
 				gap: var(--Spacing-space-7, 12px);
 
 				.statusCount {
-					color: rgba(228, 229, 230, 0.48);
+					color: rgba(var(--primary-font), 0.48);
 					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
@@ -145,7 +145,7 @@
 					line-height: normal;
 
 					.activeCount {
-						color: #e4e5e6;
+						color: var(--primary-font);
 						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
@@ -154,7 +154,7 @@
 					}
 
 					.totalCount {
-						color: rgba(228, 229, 230, 0.48);
+						color: rgba(var(--primary-font), 0.48);
 						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;

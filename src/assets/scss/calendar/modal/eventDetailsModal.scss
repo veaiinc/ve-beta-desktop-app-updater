@@ -15,8 +15,8 @@
 		gap: 20px;
 		align-self: stretch;
 		border-radius: 16px;
-		border: 1px solid rgba(36, 36, 36, 0.64);
-		background: #191919;
+		border: 1px solid var(--stroke);
+		background: var(--navbar);
 		overflow-y: auto;
 		overflow-x: hidden;
 		cursor: default;
@@ -45,7 +45,7 @@
 			gap: 10px;
 
 			.eventTitle {
-				color: #939393;
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 14px;
 				font-style: normal;
@@ -60,11 +60,11 @@
 				transition: color 0.3s ease, box-shadow 0.3s ease;
 
 				&:hover path {
-					stroke: #ff4d4d !important;
+					stroke: var(--error) !important;
 				}
 
 				&:hover {
-					filter: drop-shadow(0 0 8px #ff4d4d);
+					filter: drop-shadow(0 0 8px var(--error));
 				}
 			}
 		}
@@ -76,8 +76,8 @@
 			gap: 12px;
 			align-self: stretch;
 			padding: 20px 0px;
-			border-top: 1px solid #272727;
-			border-bottom: 1px solid #272727;
+			border-top: 1px solid var(--stroke);
+			border-bottom: 1px solid var(--stroke);
 
 			.eventDetailsRow {
 				min-height: 31px;
@@ -91,7 +91,7 @@
 				}
 
 				.eventKey {
-					color: rgba(228, 229, 230, 0.48);
+					color: rgba(var(--primary-font), 0.48);
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
@@ -101,7 +101,7 @@
 				}
 
 				.eventValue {
-					color: #dee0e2;
+					color: var(--primary-font);
 					text-overflow: ellipsis;
 					font-family: Inter;
 					font-size: 14px;
@@ -124,8 +124,8 @@
 							border-radius: 8px;
 							font-size: 12px;
 							font-weight: 500;
-							color: #e4e5e6;
-							background-color: #202121;
+							color: var(--primary-font);
+							background-color: var(--card-over-card-hover);
 
 							.profile-icon {
 								display: flex;
@@ -134,14 +134,14 @@
 								justify-content: center;
 								align-items: center;
 								font-size: 10px;
-								background-color: #2e2f36;
+								background-color: var(--card-over-card-hover);
 								border-radius: 50%;
 							}
 
 							.tag-name {
 								font-weight: 500;
 								line-height: 16px;
-								color: #e4e5e6;
+								color: var(--primary-font);
 								width: 120px;
 								white-space: nowrap;
 								overflow: hidden;
@@ -164,7 +164,7 @@
 			align-items: center;
 			gap: 5px;
 			cursor: pointer;
-			color: #939393;
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 10px;
 			font-weight: 500;
@@ -182,7 +182,7 @@
 	&:hover {
 		cursor: pointer;
 		// background: #1e1e1e;
-		background: #1c1c1c;
+		background: var(--card-over-card-hover);
 	}
 }
 

@@ -6,9 +6,8 @@
 	align-items: flex-start;
 	gap: 12px;
 	border-radius: 10px;
-	background: #202123;
-	box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
-	box-shadow: 0px 2px 44px 0px color(display-p3 0 0 0 / 0.25);
+	background: var(--card);
+	box-shadow: 0px 2px 44px 0px var(--stroke);
 
 	.person-dropdown-menu-header {
 		display: flex;
@@ -18,10 +17,10 @@
 		gap: 12px;
 		align-self: stretch;
 		padding-bottom: 12px;
-		border-bottom: 1px solid #2b2b2c;
+		border-bottom: 1px solid var(--stroke);
 
 		.person-dropdown-menu-header-title {
-			color: #e8e8e8;
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 14px;
 			font-style: normal;
@@ -41,7 +40,7 @@
 				width: 20px;
 				height: 20px;
 				border-radius: 50%;
-				background-color: #2b2b2c;
+				background-color: var(--card);
 				flex-shrink: 0;
 
 				.person-dropdown-menu-option-avatar-icon {
@@ -49,10 +48,10 @@
 					height: 100%;
 					display: flex;
 					border-radius: 50px;
-					border: 1px solid #3c3c3c;
+					border: 1px solid var(--stroke);
 					align-items: center;
 					justify-content: center;
-					color: #a1a1a1;
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 11px;
 					font-style: normal;
@@ -62,7 +61,7 @@
 
 			.person-dropdown-menu-option-label {
 				padding: 0px 6px;
-				color: #e4e5e6;
+				color: var(--primary-font);
 				flex-grow: 1;
 				max-width: 154px;
 				word-break: break-word;
@@ -70,7 +69,6 @@
 				white-space: nowrap;
 				overflow: hidden;
 				text-align: left;
-				color: color(display-p3 0.8941 0.898 0.902);
 				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;
@@ -81,9 +79,9 @@
 	}
 
 	.ant-select-item-option-selected {
-		background: #202123 !important;
+		background: var(--card) !important;
 		.ant-select-item-option-state {
-			color: #e8e8e8 !important;
+			color: var(--primary-font) !important;
 		}
 	}
 }
@@ -100,7 +98,7 @@
 		width: 20px;
 		height: 20px;
 		border-radius: 50px;
-		background-color: #1d1d1d;
+		background-color: var(--card);
 		img {
 			object-fit: cover;
 			width: 100%;
@@ -113,13 +111,13 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			color: #e4e5e6;
+			color: var(--primary-font);
 			font-size: small;
-			border: 1px solid #2c2c2c;
+			border: 1px solid var(--stroke);
 		}
 	}
 	.name {
-		color: #e4e5e6;
+		color: var(--primary-font);
 		font-family: Inter;
 		font-size: 13px;
 		font-style: normal;
@@ -143,14 +141,13 @@
 		display: flex;
 		align-items: center;
 		text-align: center;
-		color: #e4e5e6;
+		color: var(--primary-font);
 		width: fit-content;
 		padding: 6px 0 !important;
 		display: flex;
 		justify-content: flex-start;
 		align-items: center;
 		gap: 3px;
-		color: #e4e5e6;
 		width: -moz-fit-content;
 		width: fit-content;
 		height: -moz-fit-content;
@@ -164,7 +161,7 @@
 
 	&.disabled {
 		.ant-select-selection-placeholder {
-			color: #8c8c8c !important;
+			color: var(--secondary-font) !important;
 			padding: 0px !important;
 		}
 	}
@@ -183,7 +180,7 @@
 		width: 20px;
 		height: 20px;
 		border-radius: 50%;
-		background-color: #2b2b2c;
+		background-color: var(--card);
 		justify-content: center;
 		align-items: center;
 		flex-shrink: 0;
@@ -194,10 +191,10 @@
 			height: 100%;
 			display: flex;
 			border-radius: 50px;
-			border: 1px solid #3c3c3c;
+			border: 1px solid var(--stroke);
 			align-items: center;
 			justify-content: center;
-			color: #a1a1a1;
+			color: var(--secondary-font);
 			font-family: Inter;
 			font-size: 11px;
 			font-style: normal;
@@ -207,7 +204,7 @@
 
 	.person-tag-label {
 		padding: 0px 6px;
-		color: #e4e5e6;
+		color: var(--primary-font);
 		flex-grow: 1;
 		max-width: 154px;
 		word-break: break-word;
@@ -215,7 +212,6 @@
 		white-space: nowrap;
 		overflow: hidden;
 		text-align: left;
-		color: color(display-p3 0.8941 0.898 0.902);
 		font-family: Inter;
 		font-size: 12px;
 		font-style: normal;
