@@ -41,7 +41,7 @@ const MyProfile = () => {
 		logoURL: '',
 		cropSettings: { crop: { x: 0, y: 0 }, zoom: 1 },
 	});
-
+	const [usernameUpdateLoader, setUsernameUpdateLoader] = useState(false);
 	const [initialState, setInitialState] = useState({ ...userDetails });
 
 	const [logoFile, setlogoFile] = useState(null);
@@ -198,6 +198,20 @@ const MyProfile = () => {
 			return formattedName;
 		}
 	};
+	const updateUserName = async (formattedName) => {
+		if (usernameUpdateLoader) return;
+		setUsernameUpdateLoader(true);
+		try {
+			const response = await updateUserDetails(formattedName);
+			if (response?.[0] === true) {
+				message?.success('Name updated successfully');
+			}
+		} catch (error) {
+			message?.error('Name update failed');
+		} finally {
+			setUsernameUpdateLoader(false);
+		}
+	};
 
 	const handleUsernameAndPhoneNumberUpdate = async ({ type, value }) => {
 		if (type === 'fullName') {
@@ -207,10 +221,7 @@ const MyProfile = () => {
 				return;
 			}
 			const formattedName = formatUsername(fullNameRef?.current?.value);
-			const response = await updateUserDetails(formattedName);
-			if (response[0] === true) {
-				message.success('Name updated successfully');
-			}
+			updateUserName(formattedName);
 		}
 
 		if (type === 'phoneNumber') {
@@ -222,20 +233,6 @@ const MyProfile = () => {
 				message.success('Phone Number updated successfully');
 			}
 		}
-
-		// if (!isEditMode?.isValueChanged)
-		// 	setIsEditMode((prev) => ({ ...prev, isValueChanged: true }));
-		// const { name, value } = e.target;
-		// setUserDetails((prevDetails) => ({
-		// 	...prevDetails,
-		// 	[name]: value,
-		// }));
-
-		// const error = validateField(name, value);
-		// setErrors({
-		// 	...errors,
-		// 	[name]: error,
-		// });
 	};
 
 	const updateProfileImage = async (settings) => {
