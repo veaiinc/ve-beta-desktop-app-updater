@@ -1,5 +1,6 @@
 import service from '../../services/graphQlServices';
 import { message } from 'antd';
+import { ReactComponent as AiSparkel } from '../../assets/svg/calendar/aiSparkel.svg';
 import {
 	getTemmplatesQuery,
 	duplicateTemplateQuery,
@@ -70,6 +71,7 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
+	globalChatMessages: [],
 };
 
 export const TemplatesState = (props) => {
@@ -1195,6 +1197,48 @@ export const TemplatesState = (props) => {
 		} catch (error) {}
 	};
 
+	const handleGlobalChatMessages = async (payload, sessionId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
+			const updatedGlobalChatMessages = [
+				{ type: 'user', message: payload?.query || '' },
+				{
+					type: 'AI',
+					message: 'loading....',
+					content: (
+						<div className="aiMessageWrapper">
+							<AiSparkel />
+							<div className="aiMessage">
+								<span>Thinking...</span>
+							</div>
+						</div>
+					),
+					contentType: 'loading',
+				},
+			];
+			dispatch({
+				type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
+				payload: updatedGlobalChatMessages,
+			});
+			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
+			if (response?.[0]) {
+				const updatedGlobalChatMessages = {
+					type: 'AI',
+					message: response?.[1]?.answer,
+				};
+				dispatch({
+					type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,
+					payload: updatedGlobalChatMessages,
+				});
+				return [true, response?.[1]];
+			}
+		} catch (error) {
+			console.log('errror ==>handleGlobalChatMessages', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -1246,5 +1290,6 @@ export const TemplatesState = (props) => {
 		toggleCreateLeadModal,
 		smartFileAiChat,
 		uploadImageInSmartFileAi,
+		handleGlobalChatMessages,
 	};
 };
