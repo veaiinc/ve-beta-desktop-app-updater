@@ -787,6 +787,7 @@ const SmartFile = () => {
 				onSend={handleSendMessage}
 				aiChatLoading={info?.aiChatLoading}
 				handleAiUploadImage={handleAiUploadImage}
+				customChatActions={true}
 			/>
 			{previewImage && (
 				<Image

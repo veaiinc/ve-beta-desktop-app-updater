@@ -8,8 +8,9 @@ import Sidebar from '../components/sidebar/Sidebar';
 import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
+import BottomToolbar from '../components/ai_agents/BottomToolbar';
 
-const AuthWrapper = ({ title, children, maxWidth = '' }) => {
+const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true }) => {
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 
 	const checkAuth = useAuth();
@@ -50,6 +51,17 @@ const AuthWrapper = ({ title, children, maxWidth = '' }) => {
 					</div>
 				</SkeletonTheme>
 			</div>
+			{showBottomToolbar ? (
+				<BottomToolbar
+					outerContainerStyle={{ bottom: '10px' }}
+					// chatList={info?.chatList}
+					// onSend={handleSendMessage}
+					// aiChatLoading={info?.aiChatLoading}
+					// handleAiUploadImage={handleAiUploadImage}
+				/>
+			) : (
+				''
+			)}
 		</div>
 	);
 };

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, useRef, useEffect } from 'react';
+import React, { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
 import '../../../assets/scss/ai_agents/bottomToolbar.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/ai_agents/Plus.svg';
 import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
@@ -9,22 +9,21 @@ import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
 import { message, Tooltip } from 'antd';
 import ReactMarkdown from 'react-markdown';
 import { UploadOutlined } from '@ant-design/icons';
-import { Image, Upload } from 'antd';
-
-const getBase64 = (file) =>
-	new Promise((resolve, reject) => {
-		const reader = new FileReader();
-		reader.readAsDataURL(file);
-		reader.onload = () => resolve(reader.result);
-		reader.onerror = (error) => reject(error);
-	});
+import { Upload } from 'antd';
+import Context from '../../../context/context';
+import ObjectID from 'bson-objectid';
 const BottomToolbar = ({
 	outerContainerStyle = {},
 	chatList = [],
 	onSend,
 	aiChatLoading,
 	handleAiUploadImage,
+	customChatActions = false,
 }) => {
+	const {
+		templates: { handleGlobalChatMessages, globalChatMessages, updateStateValues },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		expanded: false,
 		inputExpanded: false,
@@ -32,6 +31,7 @@ const BottomToolbar = ({
 		chatQuery: '',
 		position: { x: 0, y: 0 },
 		addQuickAction: false,
+		chatSessionId: ObjectID().toString(),
 	});
 
 	const toolbarRef = useRef(null);
@@ -130,12 +130,22 @@ const BottomToolbar = ({
 				}
 
 				if (info?.chatQuery?.trim().length) {
-					onSend(info?.chatQuery);
+					if (customChatActions) {
+						onSend(info?.chatQuery);
+					} else {
+						const payload = {
+							query: info?.chatQuery,
+							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+							module: 'proposal_form_filling',
+						};
+						handleGlobalChatMessages(payload, info?.chatSessionId);
+					}
+
 					setInfo((prev) => ({ ...prev, chatQuery: '' }));
 				}
 			}
 		},
-		[info?.chatQuery, aiChatLoading, onSend],
+		[info?.chatQuery, aiChatLoading, onSend, customChatActions, info?.chatSessionId],
 	);
 
 	const handleChange = useCallback(
@@ -180,7 +190,7 @@ const BottomToolbar = ({
 					</div>
 				</div>
 				<div className="chatContent" ref={chatContentRef}>
-					{chatList.map((chat, index) =>
+					{(!customChatActions ? globalChatMessages : chatList).map((chat, index) =>
 						chat?.content ? (
 							<div className={`chat-message ${chat.type.toLowerCase()}-message`}>
 								{chat?.content}
@@ -244,7 +254,7 @@ const BottomToolbar = ({
 			<ToolBarChatContainerModal
 				onClose={handleCloseChatModal}
 				modalIsOpen={info?.chatModalIsOpen}
-				chatList={chatList}
+				chatList={!customChatActions ? globalChatMessages : chatList}
 				onSend={onSend}
 				chatQuery={info?.chatQuery}
 				onChange={(e) => setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))}
