@@ -71,7 +71,7 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
-	globalChatMessages: [],
+	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
 };
 
 export const TemplatesState = (props) => {
