@@ -7,7 +7,7 @@ const ParentTaskComponent = ({ value }) => {
 	return (
 		<div className="parent-task-component">
 			<ChevronRightThinSvg />
-			<span className="parent-task-title">{value.title}</span>
+			<span className="parent-task-title">{value?.title || ''}</span>
 		</div>
 	);
 };
