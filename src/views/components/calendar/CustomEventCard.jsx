@@ -30,11 +30,11 @@ const CustomEventCard = ({ event }) => {
 						</span>
 					</div>
 				</div>
-				<div className="eventFooter">
+				{/* <div className="eventFooter">
 					<div className="userSvg">
 						<User />
 					</div>
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);
