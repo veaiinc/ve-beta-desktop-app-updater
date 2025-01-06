@@ -577,6 +577,7 @@ const SmartFile = () => {
 						</div>
 					</div>
 				),
+				contentType: 'loading',
 			};
 			let chatlist = [...(info?.chatList || [])];
 			chatlist = [...chatlist, obj, loadingObj];
@@ -787,6 +788,7 @@ const SmartFile = () => {
 				onSend={handleSendMessage}
 				aiChatLoading={info?.aiChatLoading}
 				handleAiUploadImage={handleAiUploadImage}
+				customChatActions={true}
 			/>
 			{previewImage && (
 				<Image
