@@ -136,7 +136,6 @@ const BottomToolbar = ({
 						const payload = {
 							query: info?.chatQuery,
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-							module: 'proposal_form_filling',
 						};
 						handleGlobalChatMessages(payload, info?.chatSessionId);
 					}
