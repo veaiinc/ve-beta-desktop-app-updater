@@ -3,19 +3,6 @@ import '../../../assets/scss/calendar/customEventCard.scss';
 import { ReactComponent as User } from '../../../assets/svg/calendar/calendarEllipse.svg';
 import moment from 'moment';
 
-const colorsArray = [
-	'#CF824B',
-	'#89AC4F',
-	'#4F9BAC',
-	'#7E78C9',
-	'#C378C9',
-	'#5E8BE2',
-	'#CF4B92',
-	'#7A7A7A',
-	'#B08D8D',
-	'#D76262',
-];
-
 const CustomEventCard = ({ event }) => {
 	const startTime = moment(event.start).format('h:mm A');
 	const endTime = moment(event.end).format('h:mm A');
@@ -34,6 +21,9 @@ const CustomEventCard = ({ event }) => {
 							className="statusIndicator"
 							onClick={(event) => {
 								event.stopPropagation();
+							}}
+							style={{
+								backgroundColor: event?.calendarCategory?.color,
 							}}
 						>
 							<span></span>
