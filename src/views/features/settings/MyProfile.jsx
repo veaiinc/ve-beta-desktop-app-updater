@@ -110,7 +110,7 @@ const MyProfile = () => {
 		(typeCall = '') => {
 			clearInterval(isEditMode?.timeout);
 			const timeout = setTimeout(() => {
-				if (isEditMode?.isValueChanged) {
+				if (isEditMode?.isValueChanged || typeCall === 'name') {
 					handleSubmit(typeCall);
 				}
 				setIsEditMode((prev) => ({ ...prev, timeout: null }));
@@ -188,14 +188,12 @@ const MyProfile = () => {
 				...prevDetails,
 				fullName: formattedName,
 			}));
-			return formattedName;
 		} else {
 			const formattedName = capitalizedFirstName;
 			setUserDetails((prevDetails) => ({
 				...prevDetails,
 				fullName: firstNameWithSpace ? username : formattedName,
 			}));
-			return formattedName;
 		}
 	};
 	const updateUserName = async (formattedName) => {
@@ -220,8 +218,7 @@ const MyProfile = () => {
 				setUserDetails((prev) => ({ ...prev, fullName: '' }));
 				return;
 			}
-			const formattedName = formatUsername(fullNameRef?.current?.value);
-			updateUserName(formattedName);
+			formatUsername(fullNameRef?.current?.value);
 		}
 
 		if (type === 'phoneNumber') {
@@ -276,17 +273,13 @@ const MyProfile = () => {
 	};
 
 	const handleSubmit = async (nameApi = 'name') => {
-		if (nameApi === 'name' && !validateField('fullName', userDetails?.fullName)) {
-			let json = {
-				firstName: userDetails.fullName,
-				lastName: userDetails.fullName,
-			};
-			const response = await updateUserDetails(json);
+		if (nameApi === 'name') {
+			const response = await updateUserDetails(userDetails?.fullName);
 
 			if (response[0] !== true)
 				return setErrors((prev) => ({ ...prev, fullName: response[1]?.message }));
-
-			updateUserDetailsState(json);
+			message?.success('Username Updated');
+			// updateUserDetailsState(json);
 		} else if (nameApi === 'phone' && !validateField('phoneNumber', userDetails?.phoneNumber)) {
 			let json = {
 				phoneNumber: userDetails?.phoneNumber,
