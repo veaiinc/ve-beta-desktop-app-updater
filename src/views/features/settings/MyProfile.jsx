@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback, memo } from 'react';
+import React, { useState, useEffect, useContext, useCallback, memo, useRef } from 'react';
 import '../../../assets/scss/settings/myProfile.scss';
 import Context from '../../../context/context';
 import validator from 'validator';
@@ -7,15 +7,16 @@ import ThemePreferenceComponent from '../../components/settings/profile/ThemePre
 import UpdatePasswordComponent from '../../components/settings/profile/UpdatePassword';
 import TwoFactorAuthenticationComponent from '../../components/settings/profile/TwoFactorAuthentication';
 import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWorkspace';
+import { message } from 'antd';
 
 const MyProfile = () => {
+	const fullNameRef = useRef(null);
 	// # Context
 	const {
 		profileInfo: {
 			get2FAQrCode,
 			set2FASettings,
 			userDetailsData,
-			updateUserDetails,
 			updateUserPhoneNumber,
 			qrcode,
 			updateUserLogo,
@@ -24,6 +25,7 @@ const MyProfile = () => {
 			updateUserDetailsState,
 		},
 		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
+		authInfo: { updateUserDetails },
 	} = useContext(Context);
 
 	// # States
@@ -56,9 +58,11 @@ const MyProfile = () => {
 
 	useEffect(() => {
 		if (userDetailsData) {
+			const firstName = userDetailsData?.firstName || '';
+			const lastName = userDetailsData?.lastName || '';
 			setUserDetails((prev) => ({
 				...prev,
-				fullName: userDetailsData?.firstName || '',
+				fullName: firstName + ' ' + lastName,
 				email: userDetailsData?.email || '',
 				phoneNumber: userDetailsData?.phoneNumber || '',
 				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
@@ -67,7 +71,7 @@ const MyProfile = () => {
 			}));
 			setInitialState((prev) => ({
 				...prev,
-				fullName: userDetailsData?.firstName || '',
+				fullName: firstName + ' ' + lastName,
 				email: userDetailsData?.email || '',
 				phoneNumber: userDetailsData?.phoneNumber || '',
 				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
@@ -162,20 +166,76 @@ const MyProfile = () => {
 		return error;
 	};
 
-	const handleChange = (e) => {
-		if (!isEditMode?.isValueChanged)
-			setIsEditMode((prev) => ({ ...prev, isValueChanged: true }));
-		const { name, value } = e.target;
-		setUserDetails((prevDetails) => ({
-			...prevDetails,
-			[name]: value,
-		}));
+	const formatUsername = (username) => {
+		let firstNameWithSpace = false;
+		if (username?.includes(' ') && username?.split(' ')[1]?.length === 0) {
+			firstNameWithSpace = true;
+		}
 
-		const error = validateField(name, value);
-		setErrors({
-			...errors,
-			[name]: error,
-		});
+		const firstName = username?.split(' ')[0];
+		const lastName = username?.split(' ')[1];
+		const capitalizedFirstName = firstName
+			? firstName?.charAt(0)?.toUpperCase() + firstName?.slice(1)
+			: '';
+		if (lastName) {
+			const capitalizedLastName = lastName
+				? lastName?.charAt(0)?.toUpperCase() + lastName?.slice(1)
+				: '';
+
+			const formattedName = `${capitalizedFirstName} ${capitalizedLastName}`;
+
+			setUserDetails((prevDetails) => ({
+				...prevDetails,
+				fullName: formattedName,
+			}));
+			return formattedName;
+		} else {
+			const formattedName = capitalizedFirstName;
+			setUserDetails((prevDetails) => ({
+				...prevDetails,
+				fullName: firstNameWithSpace ? username : formattedName,
+			}));
+			return formattedName;
+		}
+	};
+
+	const handleUsernameAndPhoneNumberUpdate = async ({ type, value }) => {
+		if (type === 'fullName') {
+			if (value === '') {
+				message.error('Name cannot be empty');
+				setUserDetails((prev) => ({ ...prev, fullName: '' }));
+				return;
+			}
+			const formattedName = formatUsername(fullNameRef?.current?.value);
+			const response = await updateUserDetails(formattedName);
+			if (response[0] === true) {
+				message.success('Name updated successfully');
+			}
+		}
+
+		if (type === 'phoneNumber') {
+			if (!validator.isMobilePhone(value, 'any', { strictMode: true })) {
+				return setErrors((prev) => ({ ...prev, phoneNumber: 'Phone Number is invalid' }));
+			}
+			const response = await updateUserDetails('', value);
+			if (response[0] === true) {
+				message.success('Phone Number updated successfully');
+			}
+		}
+
+		// if (!isEditMode?.isValueChanged)
+		// 	setIsEditMode((prev) => ({ ...prev, isValueChanged: true }));
+		// const { name, value } = e.target;
+		// setUserDetails((prevDetails) => ({
+		// 	...prevDetails,
+		// 	[name]: value,
+		// }));
+
+		// const error = validateField(name, value);
+		// setErrors({
+		// 	...errors,
+		// 	[name]: error,
+		// });
 	};
 
 	const updateProfileImage = async (settings) => {
@@ -260,10 +320,11 @@ const MyProfile = () => {
 
 				<div className="ProfileDetailsComponent activeBackgroundColor" id="profile">
 					<ProfileDetailsComponent
+						fullNameRef={fullNameRef}
 						handleSubmit={handleSubmit}
 						userDetails={userDetails}
 						errors={errors}
-						handleChange={handleChange}
+						handleUsernameAndPhoneNumberUpdate={handleUsernameAndPhoneNumberUpdate}
 						userDetailsData={userDetailsData}
 						showForm={showForm}
 						updateProfileImage={updateProfileImage}
