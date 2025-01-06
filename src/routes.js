@@ -32,6 +32,7 @@ import Contacts from './views/features/contacts';
 import Ai_agent from './views/features/ai_agent';
 import AgentsJobs from './views/features/ai_agent/AgentsJobs';
 import AgentsSetup from './views/features/ai_agent/AgentsSetup';
+import Docs from './views/features/docs';
 const routes = [
 	{
 		path: '/',
@@ -240,7 +241,7 @@ const routes = [
 	{
 		path: '/calendar',
 		component: (
-			<AuthWrapper title={'Calendar'} maxWidth={'1700px'}>
+			<AuthWrapper title={'Calendar'} maxWidth={'1700px'} showBottomToolbar={false}>
 				<Calendar />
 			</AuthWrapper>
 		),
@@ -289,6 +290,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'AI Agents'}>
 				<AgentsSetup />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/docs',
+		component: (
+			<AuthWrapper title={'Docs'}>
+				<Docs />
 			</AuthWrapper>
 		),
 		exact: true,
