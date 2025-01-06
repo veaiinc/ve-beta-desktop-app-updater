@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 
 const MonthEventWrapper = ({ event }) => {
-	console.log('event data==> ', JSON.stringify(event, null, 2));
 	return (
 		<div className="monthEventWrapper">
 			<span
