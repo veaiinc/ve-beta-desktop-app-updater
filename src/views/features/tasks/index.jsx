@@ -12,6 +12,55 @@ import Context from '../../../context/context';
 import { message } from 'antd';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
+import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
+
+const defaultPreference = {
+	taskSlNo: { show: false, order: 1 },
+	title: { show: true, order: 2 },
+	parentTask: { show: false, order: 3 },
+	childTasks: { show: false, order: 4 },
+	description: { show: false, order: 5 },
+	status: { show: true, order: 6 },
+	priority: { show: true, order: 7 },
+	workflow: { show: true, order: 8 },
+	assignedTo: { show: true, order: 9 },
+	dueDate: { show: true, order: 10 },
+	assignedBy: { show: true, order: 11 },
+	assignedAt: { show: false, order: 12 },
+	completedAt: { show: false, order: 13 },
+	createdAt: { show: false, order: 14 },
+	updatedAt: { show: false, order: 15 },
+};
+
+const colors = {
+	1: { backgroundColor: '#62344B', color: '#A35A7E' },
+	2: { backgroundColor: '#373737', color: '#707070' },
+	3: { backgroundColor: '#5B3D2F', color: '#8F614B' },
+	4: { backgroundColor: '#7D4F27', color: '#B37339' },
+	5: { backgroundColor: '#375841', color: '#588F69' },
+	6: { backgroundColor: '#2F4469', color: '#4F71B3' },
+	7: { backgroundColor: '#453061', color: '#6F4C99' },
+};
+
+const defaultTaskMetadata = {
+	status: [
+		{
+			group: 'todo',
+			color: 1,
+			label: 'To-do',
+		},
+		{
+			group: 'inProgress',
+			color: 2,
+			label: 'In Progress',
+		},
+		{
+			group: 'completed',
+			color: 3,
+			label: 'Completed',
+		},
+	],
+};
 
 const Tasks = () => {
 	const {
@@ -25,9 +74,18 @@ const Tasks = () => {
 			removeSubTask,
 			updateSubTask,
 			resetSubTasks,
+			getTaskStatusLabels,
+			taskMetadata,
+			getTaskStatusDefaultLabel,
 		},
 		templates: { getWorkflowsList, workflowslist },
-		companyInfo: { getTeamMembers, tenantsUserList },
+		companyInfo: {
+			getTeamMembers,
+			tenantsUserList,
+			getTaskPreferences,
+			taskPreferences,
+			updateTaskPreferences,
+		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
@@ -37,9 +95,11 @@ const Tasks = () => {
 		isCreateModalOpen: false,
 		isCreatingSubtask: true,
 		properties: [],
+		taskPreferences: defaultPreference,
 		sidebarIsOpen: false,
 		selectedRow: null,
 		selectedSubTask: null,
+		taskMetadata: null,
 		workflows: [],
 		tenantUsers: [],
 		page: 1,
@@ -56,7 +116,14 @@ const Tasks = () => {
 		() => ({
 			title: { type: 'text', name: 'Title', Icon: textSvg, props: {} },
 			description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
-			status: { type: 'status', name: 'Status', Icon: PieSvg, props: {} },
+			status: {
+				type: 'status',
+				name: 'Status',
+				Icon: PieSvg,
+				props: {
+					options: info?.taskMetadata?.status || [],
+				},
+			},
 			priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg, props: {} },
 			workflow: {
 				type: 'workflow',
@@ -123,7 +190,7 @@ const Tasks = () => {
 			},
 			taskSlNo: { type: 'id', name: 'Id', Icon: textSvg, props: {} },
 		}),
-		[info?.workflows, info?.tenantUsers],
+		[info?.workflows, info?.tenantUsers, info?.taskMetadata],
 	);
 
 	const debounceTimeout = useRef(null);
@@ -164,6 +231,28 @@ const Tasks = () => {
 			}));
 		}
 	}, [tenantsUserList]);
+
+	useEffect(() => {
+		if (taskPreferences === null) {
+			getTaskPreferences();
+		} else if (taskPreferences?.data === false) {
+			updateTaskPreferences(defaultPreference);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: defaultPreference,
+			}));
+		} else if (taskPreferences?.error) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: defaultPreference,
+			}));
+		} else {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: taskPreferences?.data,
+			}));
+		}
+	}, [taskPreferences]);
 
 	useEffect(() => {
 		if (!workflowslist) {
@@ -208,11 +297,13 @@ const Tasks = () => {
 	}, [listTasks]);
 
 	useEffect(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			properties: mapPropertyType(),
-		}));
-	}, []);
+		if (info?.taskPreferences) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				properties: mapPropertyType(),
+			}));
+		}
+	}, [info?.taskPreferences]);
 
 	useEffect(() => {
 		if (info?.selectedRow) {
@@ -223,12 +314,18 @@ const Tasks = () => {
 		}
 	}, [info?.listItems, info?.selectedRow]);
 
-	// useEffect(() => {
-	// 	if (info.updated && !info.sidebarIsOpen) {
-	// 		fetchListItems();
-	// 		setInfo((prev) => ({ ...prev, updated: false }));
-	// 	}
-	// }, [info.sidebarIsOpen, info.updated]);
+	useEffect(() => {
+		if (!taskMetadata) {
+			getTaskStatusLabels();
+		} else if (taskMetadata?.status?.length === 0) {
+			getTaskStatusDefaultLabel();
+		} else {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskMetadata: taskMetadata,
+			}));
+		}
+	}, [taskMetadata]);
 
 	const fetchListItems = useCallback(() => {
 		getListItems({
@@ -268,29 +365,20 @@ const Tasks = () => {
 				continue;
 			}
 
-			const { type = null, name = null, Icon = null } = responseMetadata[key];
+			const { type = null, name = null, Icon = null } = responseMetadata[key] || {};
+			const { show, order } = info?.taskPreferences[key] || { show: false, order: 0 };
 
 			properties.push({
 				value: key,
 				type,
 				label: name,
 				Icon,
-				show: true,
+				show,
+				order,
 			});
 		}
 		return properties;
-	}, []);
-
-	const togglePropertyVisibility = useCallback((index, value) => {
-		setInfo((prevInfo) => {
-			const newProperties = [...prevInfo?.properties];
-			newProperties[index] = { ...newProperties[index], show: value };
-			return {
-				...prevInfo,
-				properties: newProperties,
-			};
-		});
-	}, []);
+	}, [info?.taskPreferences]);
 
 	const debouncedUpdateTask = useCallback(
 		async (rowId, propName, value, originalValue, isUpdatingSubTask, onSuccess) => {
@@ -543,18 +631,43 @@ const Tasks = () => {
 		[info?.selectedSubTask?._id, removeSubTask],
 	);
 
+	const handleAddButtonOnClick = () => {
+		updateListViewInfo('isCreatingSubtask', false);
+		updateListViewInfo('isCreateModalOpen', true);
+	};
+
+	const handleCloseCreateModal = useCallback(() => {
+		if (info?.isCreatingSubtask) {
+			updateListViewInfo('sidebarIsOpen', true);
+		}
+		updateListViewInfo('isCreateModalOpen', false);
+	}, [info?.isCreatingSubtask]);
+
 	return (
 		<div>
 			<ListView
 				info={info}
 				updateListViewInfo={updateListViewInfo}
 				resetSubTasks={resetSubTasks}
-				togglePropertyVisibility={togglePropertyVisibility}
 				updatePropertyValue={updatePropertyValue}
 				deleteTask={deleteTask}
 				addNewTask={addNewTask}
 				responseMetadata={responseMetadata}
 				fetchListItems={fetchListItems}
+				addButtonOnClick={handleAddButtonOnClick}
+				haveSubTask={true}
+				colors={colors}
+			/>
+			<CreateTaskPopup
+				isOpen={info?.isCreateModalOpen}
+				closeModal={handleCloseCreateModal}
+				addNewTask={addNewTask}
+				workflows={info?.workflows}
+				tenantUsers={info?.tenantUsers}
+				clients={info?.clients}
+				isSubTask={info?.isCreatingSubtask}
+				responseMetadata={responseMetadata}
+				colors={colors}
 			/>
 		</div>
 	);

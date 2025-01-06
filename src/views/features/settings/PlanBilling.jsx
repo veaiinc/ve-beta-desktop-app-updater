@@ -1,5 +1,7 @@
 import React, { useContext, useEffect, useState, memo, useCallback } from 'react';
 import '../../../assets/scss/settings/planBilling.scss';
+import '../../../assets/scss/settings/notifications.scss';
+
 import ProgressBar from '../../components/settings/ProgressBar';
 import moment from 'moment';
 import Context from '../../../context/context';
@@ -53,6 +55,41 @@ const updatePlans = [
 		used: '40',
 	},
 ];
+
+const menuItems = [
+	{
+		id: 1,
+		label: 'Proposal creation',
+		approximateCredits: 120,
+	},
+	{
+		id: 2,
+		label: 'Calendar event creation',
+		approximateCredits: 7,
+	},
+	{
+		id: 3,
+		label: 'Smart file AI prediction',
+		approximateCredits: 5,
+	},
+	{
+		id: 4,
+		label: 'When workflow is created',
+		approximateCredits: 250,
+	},
+];
+
+const ApproximateCreditsRowData = [
+	{
+		id: 1,
+		label: 'Type',
+	},
+	{
+		id: 2,
+		label: 'Approximate Credits',
+	},
+];
+
 const PlanBilling = () => {
 	let {
 		subscriptionInfo: { getCurrentSubscriptionPlan, currentPlan },
@@ -95,6 +132,30 @@ const PlanBilling = () => {
 			) : (
 				<FreeTierPlanCard expiresAt={info?.expiresAt} />
 			)}
+
+			<div className="notifications-main-container">
+				<div className="notifications-container">
+					<h1 className="notifications-header-title">Approximate Credit Charges Menu</h1>
+					<div className="row">
+						{ApproximateCreditsRowData?.map((item) => (
+							<div key={item?.id} className="column">
+								{item?.label}
+							</div>
+						))}
+					</div>
+					<div className="divider"></div>
+					<ul className="menu-items">
+						{menuItems?.map((item) => (
+							<li key={item?.id}>
+								<div className="row">
+									<div className="column">{item?.label}</div>
+									<div className="column">{item?.approximateCredits}</div>
+								</div>
+							</li>
+						))}
+					</ul>
+				</div>
+			</div>
 
 			{/* <div className="settingsBoxContainer billingHinstoryComponent">
 				<BillingHistoryComponent />

@@ -91,7 +91,7 @@ const Person = ({
 					!value || (Array.isArray(value) && value.length === 0)
 						? disabled
 							? 'No data'
-							: `Select ${title || 'person'}`
+							: `${title || 'person'}`
 						: undefined
 				}
 				options={options}
@@ -105,7 +105,7 @@ const Person = ({
 				style={{
 					width:
 						(!info?.value && !value) || (Array.isArray(value) && value.length === 0)
-							? '130px'
+							? '100px'
 							: 'fit-content',
 					color: disabled ? '#8c8c8c' : '#e5e5e5',
 				}}
