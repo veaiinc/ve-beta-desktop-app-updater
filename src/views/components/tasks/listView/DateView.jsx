@@ -14,6 +14,7 @@ const DateView = ({
 	onOptionClick,
 	showIcon = false,
 	showTime = false,
+	showTitle = false,
 }) => {
 	const [info, setInfo] = useState({
 		showDatePicker: false,
@@ -62,7 +63,12 @@ const DateView = ({
 					selected={info?.dueDate}
 					valueSelector="value"
 				>
-					<Tooltip title={title} placement="bottom">
+					<Tooltip
+						title={<div className="tooltip-inner">{title}</div>}
+						placement="bottom"
+						overlayClassName="tooltip-overlay-container"
+						color="transparent"
+					>
 						<div className={`listItem-date ${className}`} style={customListItemStyle}>
 							{showIcon && <CalendarIcon />}
 							{value
@@ -76,7 +82,12 @@ const DateView = ({
 			)}
 		</div>
 	) : (
-		<Tooltip title={title} placement="bottom">
+		<Tooltip
+			title={showTitle ? <div className="tooltip-inner">{title}</div> : ''}
+			placement="bottom"
+			overlayClassName="tooltip-overlay-container"
+			color="transparent"
+		>
 			<div
 				className={`listItem-date ${timestamp && !value ? 'disabled' : ''}`}
 				style={customListItemStyle}

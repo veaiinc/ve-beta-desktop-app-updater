@@ -148,6 +148,8 @@ const FilterComponent = ({
 					:{' '}
 					{type === 'date' && value
 						? moment.unix(value).format('MMM DD')
+						: type === 'status' && value
+						? props?.options?.find((option) => option._id === value)?.label
 						: typeof value === 'object'
 						? value?.title || value?.name || value?.label
 						: value}

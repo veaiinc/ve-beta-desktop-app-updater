@@ -350,6 +350,7 @@ const ListViewSidebar = ({
 												isSubTask={true}
 												handleRowClick={onSubTaskClick}
 												properties={properties}
+												colors={colors}
 											/>
 										))
 									) : (
