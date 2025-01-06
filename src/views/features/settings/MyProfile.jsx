@@ -196,20 +196,6 @@ const MyProfile = () => {
 			}));
 		}
 	};
-	const updateUserName = async (formattedName) => {
-		if (usernameUpdateLoader) return;
-		setUsernameUpdateLoader(true);
-		try {
-			const response = await updateUserDetails(formattedName);
-			if (response?.[0] === true) {
-				message?.success('Name updated successfully');
-			}
-		} catch (error) {
-			message?.error('Name update failed');
-		} finally {
-			setUsernameUpdateLoader(false);
-		}
-	};
 
 	const handleUsernameAndPhoneNumberUpdate = async ({ type, value }) => {
 		if (type === 'fullName') {
@@ -273,13 +259,11 @@ const MyProfile = () => {
 	};
 
 	const handleSubmit = async (nameApi = 'name') => {
+		console.log('handleSubmit');
 		if (nameApi === 'name') {
 			const response = await updateUserDetails(userDetails?.fullName);
-
 			if (response[0] !== true)
 				return setErrors((prev) => ({ ...prev, fullName: response[1]?.message }));
-			message?.success('Username Updated');
-			// updateUserDetailsState(json);
 		} else if (nameApi === 'phone' && !validateField('phoneNumber', userDetails?.phoneNumber)) {
 			let json = {
 				phoneNumber: userDetails?.phoneNumber,
