@@ -77,10 +77,19 @@ const Services = ({
 							.replace(/<\/?[^>]+(>|$)/g, '')
 							.replace(/"/g, '') || ''
 					) || 0;
+
+				let ai_generated_subtotal_Flag = false;
+				if (serviceData?.[i]?.ai_generated_subtotal && editable) {
+					subTotalValue =
+						serviceData?.[i]?.ai_generated_subtotal ||
+						serviceData?.[i]?.ai_generated_subtotal;
+					ai_generated_subtotal_Flag = true;
+				}
 				let obj = {
 					subTotalValue,
 					editable,
 					itsHtmlTags: serviceData?.[i]?.style?.subTotalValue + '',
+					ai_generated_subtotal_Flag,
 				};
 				setInfo((prev) => ({
 					...prev,
@@ -183,7 +192,7 @@ const Services = ({
 		},
 		[info?.data, editable, serviceOnChangeFunc, gotUnacceptedAiGeneratedValue],
 	);
-
+	console.log('info?.data==>', info?.data);
 	return info?.data?.length ? (
 		<div className="servicesParentContainer">
 			{info?.data?.map((ele, index) => (
@@ -249,7 +258,12 @@ const Services = ({
 												e.target.value,
 											)
 										}
-										className="serviceSubtotalValueInput"
+										className={`serviceSubtotalValueInput ${
+											info?.subTotalValueMapper?.[index]
+												?.ai_generated_subtotal_Flag
+												? 'ai_generated'
+												: ''
+										}`}
 										readOnly={!editable}
 										type="text"
 									/>
