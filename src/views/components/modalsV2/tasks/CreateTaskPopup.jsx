@@ -2,12 +2,11 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/tasks/modals/createTaskPopup.scss';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/CrossWhite.svg';
-import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
+// import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 // import { ReactComponent as PageIcon } from '../../../../assets/svg/tasks/pagePlus.svg';
 // import { ReactComponent as CalendarIcon } from '../../../../assets/svg/calendar-icon.svg';
 // import { ReactComponent as LinkIcon } from '../../../../assets/svg/activity/link.svg';
 // import { ReactComponent as CalendarIcon } from '../../../../assets/svg/tasks/calendar.svg';
-import { ReactComponent as TaskIcon } from '../../../../assets/svg/tasks/taskIcon.svg';
 import { ReactComponent as DustbinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import Priority from '../../tasks/listView/Priority';
@@ -17,7 +16,6 @@ import Spinner from '../../loaders/Spinner';
 import WorkFlow from '../../tasks/listView/WorkFlow';
 import Person from '../../tasks/listView/Person';
 import DateView from '../../tasks/listView/DateView';
-import DropDown from '../../dropDown/tasks/DropDown';
 
 const initialState = {
 	assignedTo: [],
@@ -118,15 +116,6 @@ const CreateTaskPopup = ({
 			setInfo((prevInfo) => ({ ...prevInfo, isLoading: false }));
 		}
 	}, [addNewTask, closeModal, info, preparePayload]);
-
-	const handleMoreOptionClick = useCallback(
-		(value) => {
-			if (value === 'addSubTask') {
-				updateModalInfo('showSubTaskCreate', true);
-			}
-		},
-		[updateModalInfo],
-	);
 
 	const handleAddSubTask = useCallback(() => {
 		const payload = preparePayload({
@@ -247,6 +236,7 @@ const CreateTaskPopup = ({
 						showLabel={true}
 						onOptionClick={(value) => updateModalInfo('status', value)}
 						title={'Status'}
+						options={responseMetadata?.status?.props?.options}
 					/>
 					<Priority
 						value={info?.priority}
@@ -254,17 +244,12 @@ const CreateTaskPopup = ({
 						onOptionClick={(value) => updateModalInfo('priority', value)}
 						title={'Priority'}
 					/>
-					{!isSubTask ? (
-						<WorkFlow
-							val={info?.workflowId}
-							onOptionClick={(value) => updateModalInfo('workflowId', value)}
-							title={'Workflow'}
-							{...responseMetadata?.['workflow']?.props}
-						/>
-					) : (
-						''
-					)}
-
+					<WorkFlow
+						val={info?.workflowId}
+						onOptionClick={(value) => updateModalInfo('workflowId', value)}
+						title={'Workflow'}
+						{...responseMetadata?.['workflow']?.props}
+					/>
 					<div className="dateView-wrapper">
 						<DateView
 							value={info?.dueDate}
@@ -284,26 +269,13 @@ const CreateTaskPopup = ({
 						removeBtn={true}
 					/>
 					{!isSubTask ? (
-						<DropDown
-							value={null}
-							valueSelector={'value'}
-							options={[
-								// {
-								// 	Icon: () => <CalendarIcon className="dropdown-icon" />,
-								// 	label: 'Set Due date',
-								// },
-								{
-									Icon: () => <TaskIcon />,
-									label: 'Add Sub Task',
-									value: 'addSubTask',
-								},
-							]}
-							onOptionClick={handleMoreOptionClick}
+						<div
+							className="task-icon-wrapper"
+							onClick={() => updateModalInfo('showSubTaskCreate', true)}
 						>
-							<div className="dropdown-item">
-								<HorizontalMoreIcon />
-							</div>
-						</DropDown>
+							<PlusSvg />
+							<span className="task-icon-title">Add Sub Task</span>
+						</div>
 					) : (
 						''
 					)}
@@ -337,6 +309,7 @@ const CreateTaskPopup = ({
 							<Status
 								value={info?.subTaskStatus}
 								showLabel={true}
+								options={responseMetadata?.status?.props?.options}
 								onOptionClick={(value) => updateModalInfo('subTaskStatus', value)}
 								title={'Status'}
 							/>
@@ -462,6 +435,8 @@ const CreateTaskPopup = ({
 							>
 								{info?.isLoading ? (
 									<Spinner width={'20px'} height={'20px'} />
+								) : isSubTask ? (
+									'Create Sub Task'
 								) : (
 									'Create Task'
 								)}

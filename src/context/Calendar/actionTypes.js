@@ -3,6 +3,7 @@ export const CALENDAR = {
 	// calendarChat: '/multi_agent_chat',
 	sendEventToAi: '/calendar_event_classify',
 	calendarEventsList: '/calendar/getEventsList',
+	calendarAllEvents: '/calendar/getAllEvents',
 	createCalendarEvent: '/calendar/createEvent',
 	createCalendarCategory: '/calendar/createCalendarCategory',
 	updateCalendarCategory: '/calendar/updateCalendarCategory',

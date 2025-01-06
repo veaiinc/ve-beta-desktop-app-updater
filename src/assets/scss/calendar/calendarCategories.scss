@@ -1,9 +1,7 @@
 .categoriesParentContainer {
 	display: flex;
-	// height: auto;
-	// min-height: 62px;
 	width: 100%;
-	padding: 16px 24px;
+	padding: 16px 16px;
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 20px;
@@ -56,6 +54,12 @@
 			align-items: center;
 			gap: 8.544px;
 			cursor: pointer;
+			opacity: 0.7;
+			transition: opacity 0.3s;
+
+			&:hover {
+				opacity: 1;
+			}
 		}
 	}
 
@@ -106,6 +110,10 @@
 							left: 2px;
 						}
 					}
+
+					&:hover {
+						background: rgba(255, 255, 255, 0.1);
+					}
 				}
 
 				.typeLabel {
@@ -136,45 +144,21 @@
 				align-items: center;
 				gap: var(--Spacing-space-7, 12px);
 
-				.statusCount {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-
-					.activeCount {
-						color: #e4e5e6;
-						font-family: Inter;
-						font-size: 12px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-					}
-
-					.totalCount {
-						color: rgba(228, 229, 230, 0.48);
-						font-family: Inter;
-						font-size: 12px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-					}
-				}
-
 				.statusIndicator {
 					width: 15px;
 					height: 15px;
-					margin-right: 2px;
 					padding: 4px;
-
+					margin-right: 5px;
 					display: flex;
 					align-items: center;
 					gap: 10px;
-
 					border-radius: 100px;
-					border: 2px solid rgb(249, 241, 10);
+					border: 2px solid;
+					transition: all 0.2s ease;
+
+					&:hover {
+						background: rgba(255, 255, 255, 0.1);
+					}
 				}
 			}
 			&:hover {

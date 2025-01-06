@@ -1071,7 +1071,7 @@ export const TemplatesState = (props) => {
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions?.SET_CONNECT_URL,
-					payload: [true, response?.[1]?.connectUrl],
+					payload: [true, response?.[1]?.connectUrl || response?.[1]?.url],
 				});
 			} else {
 				dispatch({
