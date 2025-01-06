@@ -98,6 +98,13 @@ const GlobalWorkflows = () => {
 
 	useEffect(() => {
 		if (selectedOption === 'Workflow') {
+			setInfo((prev) => ({ ...prev, isLoading: true }));
+			getGlobalWorkflowTemplatesData(1);
+		}
+	}, [selectedOption]);
+
+	useEffect(() => {
+		if (selectedOption === 'Workflow') {
 			setInfo((prev) => ({ ...prev, searchLoading: true }));
 			getGlobalWorkflowTemplatesData(1);
 		}
@@ -421,8 +428,9 @@ const GlobalWorkflows = () => {
 												/>
 											) : (
 												info?.globalWorkflowData?.map((ele, index) =>
-													info.searchLoading || info.isLoading ? (
+													info.searchLoading ? (
 														<Skeleton
+															key={index}
 															width={'100%'}
 															height={'300px'}
 															baseColor="transparent"
