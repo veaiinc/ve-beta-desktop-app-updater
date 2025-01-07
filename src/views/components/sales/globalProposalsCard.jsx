@@ -43,7 +43,6 @@ const GlobalProposalsCard = ({ data, onClickFunc, modalIsOpen, isLoading }) => {
 										className="iframeContainer"
 										onClick={() => {
 											if (!template?._id) {
-												console.error('Template ID missing:', template);
 												return;
 											}
 											onClickFunc(template, template.module);

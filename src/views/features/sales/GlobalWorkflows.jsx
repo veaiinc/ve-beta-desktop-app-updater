@@ -316,6 +316,7 @@ const GlobalWorkflows = () => {
 							className={`mainContentContainer  ${
 								info.modalIsOpen ? 'modal-open' : ''
 							}`}
+							id="templatesScrollableTarget"
 						>
 							{/* <div className="gloablWorkflowHeader">Choose a Workflow</div> */}
 							{info?.isExpanded ? (
@@ -382,7 +383,7 @@ const GlobalWorkflows = () => {
 										next={fetchMoreGlobalWorkflows}
 										hasMore={info?.hasNextPage}
 										loader={<FetchMoreLoaderComp />}
-										scrollableTarget={'scrollableTarget'}
+										scrollableTarget={'templatesScrollableTarget'}
 										className="scrollableTarget"
 									>
 										<div className="globalWorkflowParentCardContainer">
