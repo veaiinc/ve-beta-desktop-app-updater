@@ -185,8 +185,10 @@ export const AuthState = () => {
 		const path = '/tenant-user';
 
 		const body = {};
-		if (firstName) body.firstName = firstName;
-		if (lastName) body.lastName = lastName;
+		if (firstName) {
+			body.firstName = firstName;
+			body.lastName = lastName || '';
+		}
 		if (phoneNumber) body.phoneNumber = phoneNumber;
 
 		const token = localStorage?.getItem('usertoken') || '';
