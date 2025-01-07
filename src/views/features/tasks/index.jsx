@@ -57,6 +57,8 @@ const Tasks = () => {
 			getTaskStatusLabels,
 			taskMetadata,
 			getTaskStatusDefaultLabel,
+			refetchTasks,
+			updateTaskState,
 		},
 		templates: { getWorkflowsList, workflowslist },
 		companyInfo: {
@@ -305,6 +307,14 @@ const Tasks = () => {
 			}));
 		}
 	}, [taskMetadata]);
+
+	useEffect(() => {
+		if (refetchTasks) {
+			//call refetchTasks function here
+			fetchListItems();
+			updateTaskState({ refetchTasks: false });
+		}
+	}, [refetchTasks]);
 
 	const fetchListItems = useCallback(() => {
 		getListItems({
