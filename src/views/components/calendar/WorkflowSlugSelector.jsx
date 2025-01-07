@@ -23,36 +23,37 @@ const WorkflowSlugList = ({
 				placeholder="Workflows"
 				options={workflowOptions || []}
 				optionFilterProp="label"
-				value={workflowSlug}
+				value={workflowSlug || null}
 				dropdownRender={(menu) => (
 					<div>
 						{menu}
 						{fetching && (
 							<FetchMoreLoaderComp
 								wrapperStyle={{
-									fontSize: '10px',
+									fontSize: '8px',
 									fontWeight: '500',
 								}}
-								spinnerWidth="10px"
-								spinnerHeight="10px"
+								spinnerWidth="8px"
+								spinnerHeight="8px"
 								spinnerColor="white"
 								gap="8px"
 							/>
 						)}
 					</div>
 				)}
-				listHeight={100}
+				listHeight={90}
 				onPopupScroll={(e) => {
 					const target = e.target;
 					const isBottom =
 						Math.abs(target?.scrollHeight - target?.scrollTop - target?.clientHeight) <
 						1;
-					if (fetching && hasNextPage && isBottom) {
+					if (!fetching && hasNextPage && isBottom) {
 						console.log('calling fetch more workflow slugs');
 						fetchMoreWorkflows();
 					}
 				}}
 				onChange={(workflowSlug) => {
+					console.log('Selected value:', workflowSlug);
 					if (workflowSlug) {
 						updateCalendarInfo('workflowSlug', workflowSlug);
 					} else {
@@ -80,8 +81,8 @@ const WorkflowSlugSelector = ({ updateCalendarInfo, workflowSlug }) => {
 	});
 
 	useEffect(() => {
-		console.log('workflowslist==>', info?.workflowOptions);
-	}, [info?.workflowOptions]);
+		console.log('info?.fetching==>', info?.fetching);
+	}, [info?.fetching]);
 
 	useEffect(() => {
 		if (workflowslist) {
@@ -120,6 +121,7 @@ const WorkflowSlugSelector = ({ updateCalendarInfo, workflowSlug }) => {
 				value: data?.[i]?.slug,
 			});
 		}
+		console.log('Mapped options:', workflowOptions);
 		return workflowOptions;
 	}, []);
 

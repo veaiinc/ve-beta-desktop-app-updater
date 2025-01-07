@@ -67,64 +67,64 @@
 			display: flex;
 		}
 	}
-}
 
-.workflowSlugList {
-	.ant-select-selector {
-		border-radius: 8px;
-		background: #1a1a1a;
-		box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
-		border: none;
+	.workflowSlugList {
+		.ant-select-selector {
+			border-radius: 8px;
+			background: #1a1a1a;
+			box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+			border: none;
 
-		.ant-select-selection-search-input,
-		.ant-select-selection-placeholder,
-		.ant-select-selection-item {
-			color: #e4e5e6;
-			font-family: Inter;
-			font-size: 12px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			padding: 0px 8px;
-		}
-		.ant-select-selection-item {
-			margin: 0px 8px;
-		}
+			.ant-select-selection-search-input,
+			.ant-select-selection-placeholder,
+			.ant-select-selection-item {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				padding: 0px 8px;
+			}
+			.ant-select-selection-item {
+				margin: 0px 8px;
+			}
 
-		.ant-select-selection-placeholder {
-			color: #646567;
-		}
-	}
-
-	.ant-select-arrow {
-		color: #818285;
-	}
-
-	.ant-select-dropdown {
-		border-radius: 8px;
-		background: #1a1a1a;
-		box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
-		border: none;
-
-		.ant-select-item {
-			color: #e4e5e6;
-			font-family: Inter;
-			font-size: 12px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
+			.ant-select-selection-placeholder {
+				color: #646567;
+			}
 		}
 
-		.ant-select-item-option-selected {
-			background: rgba(176, 176, 176, 0.15);
-			box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
-				4px 4px 6px 0px rgba(17, 17, 17, 0.51) inset;
+		.ant-select-arrow {
+			color: #818285;
 		}
 
-		.ant-select-item-option-content {
-			display: flex;
-			align-items: center;
-			justify-content: flex-start;
+		.ant-select-dropdown {
+			border-radius: 8px;
+			background: #1a1a1a;
+			box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+			border: none;
+
+			.ant-select-item {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.ant-select-item-option-selected {
+				background: rgba(169, 24, 24, 0.15);
+				box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
+					4px 4px 6px 0px rgba(17, 17, 17, 0.51) inset;
+			}
+
+			.ant-select-item-option-content {
+				display: flex;
+				align-items: center;
+				justify-content: flex-start;
+			}
 		}
 	}
 }

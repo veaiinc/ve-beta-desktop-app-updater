@@ -162,7 +162,7 @@ const Calendar = () => {
 					content: (
 						<WorkflowSlugSelector
 							updateCalendarInfo={updateCalendarInfo}
-							workflowSlug={info?.workflowSlug}
+							workflowSlug={info?.workflowSlug || null}
 						/>
 					),
 				};
