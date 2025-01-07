@@ -259,21 +259,14 @@ const MyProfile = () => {
 	};
 
 	const handleSubmit = async (nameApi = 'name') => {
-		console.log('handleSubmit');
 		if (nameApi === 'name') {
 			const response = await updateUserDetails(userDetails?.fullName);
 			if (response[0] !== true)
 				return setErrors((prev) => ({ ...prev, fullName: response[1]?.message }));
 		} else if (nameApi === 'phone' && !validateField('phoneNumber', userDetails?.phoneNumber)) {
-			let json = {
-				phoneNumber: userDetails?.phoneNumber,
-			};
-			const response = await updateUserPhoneNumber(json);
-
+			const response = await updateUserDetails('', userDetails?.phoneNumber);
 			if (response[0] !== true)
 				return setErrors((prev) => ({ ...prev, phoneNumber: response[1]?.message }));
-
-			updateUserDetailsState(json);
 		}
 	};
 
@@ -295,7 +288,6 @@ const MyProfile = () => {
 				<div className="ProfileDetailsComponent activeBackgroundColor" id="profile">
 					<ProfileDetailsComponent
 						fullNameRef={fullNameRef}
-						handleSubmit={handleSubmit}
 						userDetails={userDetails}
 						errors={errors}
 						handleUsernameAndPhoneNumberUpdate={handleUsernameAndPhoneNumberUpdate}
