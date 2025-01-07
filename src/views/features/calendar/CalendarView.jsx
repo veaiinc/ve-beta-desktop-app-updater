@@ -201,6 +201,7 @@ const CalendarView = ({
 							date={selectedDate}
 							popup
 							components={components}
+							allDayMaxRows={1}
 							// showAllEvents={true}
 						/>
 					</div>

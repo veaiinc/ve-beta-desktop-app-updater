@@ -203,7 +203,10 @@ const BottomToolbar = ({
 				<div className="chatContent" ref={chatContentRef}>
 					{(!customChatActions ? globalChatMessages : chatList).map((chat, index) =>
 						chat?.content ? (
-							<div className={`chat-message ${chat.type.toLowerCase()}-message`}>
+							<div
+								className={`chat-message ${chat.type.toLowerCase()}-message`}
+								key={index}
+							>
 								{chat?.content}
 							</div>
 						) : (
