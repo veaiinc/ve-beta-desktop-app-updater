@@ -127,12 +127,12 @@ const Calendar = () => {
 	useEffect(() => {
 		if (info?.workflowSlug) {
 			console.log('calling handleSendMessage when workflowSlug changes');
-			handleSendMessage(info?.chatQuery);
+			handleSendMessage(info?.chatQuery, true);
 		}
 	}, [info?.workflowSlug]);
 
 	const handleSendMessage = useCallback(
-		async (data) => {
+		async (data, sendingSlug = false) => {
 			let obj = {
 				type: 'user',
 				message: data,
@@ -150,7 +150,12 @@ const Calendar = () => {
 				),
 			};
 			let chatlist = [...(info?.chatList || [])];
-			chatlist = [...chatlist, obj, loadingObj];
+			if (!sendingSlug) {
+				chatlist = [...chatlist, obj, loadingObj];
+			} else {
+				chatlist = [...chatlist, loadingObj];
+			}
+
 			setInfo((prev) => ({
 				...prev,
 				chatList: chatlist,
@@ -168,11 +173,13 @@ const Calendar = () => {
 			const response = await getCalendarChat(info?.chatSessionId, chatPayload);
 			chatlist.pop();
 			if (response?.[0]) {
-				let obj = {
-					type: 'AI',
-					message: response?.[1]?.answer || '',
-				};
-				chatlist = [...chatlist, obj];
+				if (response?.[1]?.answer?.length) {
+					let obj = {
+						type: 'AI',
+						message: response?.[1]?.answer || '',
+					};
+					chatlist = [...chatlist, obj];
+				}
 
 				if (response?.[1]?.db_updates?.calendar_db_update) {
 					//refetch the calendar eventList data

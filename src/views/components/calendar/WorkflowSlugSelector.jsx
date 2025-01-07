@@ -13,6 +13,15 @@ const WorkflowSlugList = ({
 	fetchMoreWorkflows,
 	hasNextPage,
 }) => {
+	const [info, setInfo] = useState({
+		value: workflowSlug || null,
+	});
+
+	useEffect(() => {
+		if (workflowSlug) {
+			setInfo((prev) => ({ ...prev, value: workflowSlug || '' }));
+		}
+	}, [workflowSlug]);
 	return (
 		<div className="workflowSlugList">
 			<Select
@@ -23,7 +32,7 @@ const WorkflowSlugList = ({
 				placeholder="Workflows"
 				options={workflowOptions || []}
 				optionFilterProp="label"
-				value={workflowSlug || null}
+				value={info?.value}
 				dropdownRender={(menu) => (
 					<div>
 						{menu}
@@ -53,7 +62,7 @@ const WorkflowSlugList = ({
 					}
 				}}
 				onChange={(workflowSlug) => {
-					console.log('Selected value:', workflowSlug);
+					setInfo((prev) => ({ ...prev, value: workflowSlug || '' }));
 					if (workflowSlug) {
 						updateCalendarInfo('workflowSlug', workflowSlug);
 					} else {
