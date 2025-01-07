@@ -44,6 +44,26 @@ const useDebounce = (value, delay) => {
 	return debouncedValue;
 };
 
+const NoResultsFound = ({ searchQuery }) => (
+	<div
+		style={{
+			display: 'flex',
+			flexDirection: 'column',
+			alignItems: 'center',
+			justifyContent: 'center',
+			width: '100%',
+			padding: '40px',
+			color: '#fff',
+			textAlign: 'center',
+		}}
+	>
+		<h3 style={{ fontSize: '18px', marginBottom: '8px' }}>No results found</h3>
+		<p style={{ color: 'white', fontSize: '14px' }}>
+			We couldn't find any matches for "{searchQuery}"
+		</p>
+	</div>
+);
+
 const GlobalWorkflows = () => {
 	const location = useLocation();
 	const [selectedOption, setSelectedOption] = useState('Workflow');
@@ -65,6 +85,7 @@ const GlobalWorkflows = () => {
 	const [info, setInfo] = useState({
 		loading: true,
 		isLoading: false,
+		searchLoading: false,
 		globalWorkflowData: null,
 		hasNextPage: false,
 		currentPage: 1,
@@ -77,6 +98,7 @@ const GlobalWorkflows = () => {
 
 	useEffect(() => {
 		if (selectedOption === 'Workflow') {
+			setInfo((prev) => ({ ...prev, searchLoading: true }));
 			getGlobalWorkflowTemplatesData(1);
 		}
 	}, [debouncedSearchQuery]);
@@ -105,30 +127,6 @@ const GlobalWorkflows = () => {
 					type: 'global',
 					module: selectedOption.toLowerCase(),
 					...(debouncedSearchQuery && { title: debouncedSearchQuery }),
-				};
-
-				const [success, response] = await getModuleTemplate(payload);
-				if (success) {
-					setModuleTemplateData(response.templates);
-				}
-				setInfo((prev) => ({ ...prev, isLoading: false }));
-			};
-			fetchFilteredTemplates();
-		}
-	}, [selectedOption]);
-
-	useEffect(() => {
-		if (selectedOption !== 'Workflow' && debouncedSearchQuery) {
-			const fetchFilteredTemplates = async () => {
-				setInfo((prev) => ({ ...prev, isLoading: true }));
-				setModuleTemplateData(null);
-
-				const payload = {
-					page: 1,
-					limit: 10,
-					type: 'global',
-					module: selectedOption.toLowerCase(),
-					title: debouncedSearchQuery,
 				};
 
 				const [success, response] = await getModuleTemplate(payload);
@@ -191,6 +189,7 @@ const GlobalWorkflows = () => {
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
+				searchLoading: false,
 				globalWorkflowData,
 				currentPage,
 				hasNextPage,
@@ -227,7 +226,8 @@ const GlobalWorkflows = () => {
 	}, []);
 
 	const handleSearch = useCallback((e) => {
-		setSearchQuery(e.target.value);
+		const newSearchQuery = e.target.value;
+		setSearchQuery(newSearchQuery);
 	}, []);
 
 	const onCustomiseFunc = useCallback(async () => {
@@ -380,7 +380,7 @@ const GlobalWorkflows = () => {
 									>
 										<div className="globalWorkflowParentCardContainer">
 											{selectedOption !== 'Workflow' ? (
-												info.isLoading ? (
+												info.isLoading || info.searchLoading ? (
 													<div
 														style={{
 															display: 'grid',
@@ -401,6 +401,11 @@ const GlobalWorkflows = () => {
 															/>
 														))}
 													</div>
+												) : moduleTemplateData?.length === 0 &&
+												  debouncedSearchQuery ? (
+													<NoResultsFound
+														searchQuery={debouncedSearchQuery}
+													/>
 												) : (
 													<GlobalProposalsCard
 														data={moduleTemplateData || []}
@@ -409,9 +414,14 @@ const GlobalWorkflows = () => {
 														isLoading={info.isLoading}
 													/>
 												)
+											) : info?.globalWorkflowData?.length === 0 &&
+											  debouncedSearchQuery ? (
+												<NoResultsFound
+													searchQuery={debouncedSearchQuery}
+												/>
 											) : (
 												info?.globalWorkflowData?.map((ele, index) =>
-													!info.globalWorkflowData ? (
+													info.searchLoading || info.isLoading ? (
 														<Skeleton
 															width={'100%'}
 															height={'300px'}

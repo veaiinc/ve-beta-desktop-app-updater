@@ -10,9 +10,7 @@ import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import GlobalProposalsCard from '../../components/sales/globalProposalsCard';
 import { throttle } from 'lodash';
 import Skeleton from 'react-loading-skeleton';
-const FetchMoreLoaderComp = ({ dataLength, hasMore, filter }) => {
-	if (dataLength === 0 || !hasMore) return null;
-
+const FetchMoreLoaderComp = () => {
 	return (
 		<h4
 			style={{
@@ -45,6 +43,26 @@ const useDebounce = (value) => {
 
 	return debouncedValue;
 };
+
+const NoResultsFound = ({ searchQuery }) => (
+	<div
+		style={{
+			display: 'flex',
+			flexDirection: 'column',
+			alignItems: 'center',
+			justifyContent: 'center',
+			width: '100%',
+			padding: '40px',
+			color: '#fff',
+			textAlign: 'center',
+		}}
+	>
+		<h3 style={{ fontSize: '18px', marginBottom: '8px' }}>No results found</h3>
+		<p style={{ color: 'white', fontSize: '14px' }}>
+			We couldn't find any matches for "{searchQuery}"
+		</p>
+	</div>
+);
 
 const GlobalMyTemplates = () => {
 	const location = useLocation();
@@ -85,62 +103,32 @@ const GlobalMyTemplates = () => {
 		}
 	}, [globalMoreWorkflows]);
 	useEffect(() => {
-		if (selectedOption === 'Workflow') {
-			const payload = {
-				filters: {
-					limit: 10,
-					page: 1,
-					type: 'workspace',
-					sortBy: 'createdAt',
-					sortType: -1,
-					title: debouncedSearchQuery,
-				},
-			};
-			setInfo((prev) => ({ ...prev, searchLoading: true }));
-			getGlobalWorkflows(payload, false);
-		} else {
-			// Handle other modules search
-			const payload = {
-				page: 1,
-				limit: 10,
-				type: 'workspace',
-				module: selectedOption.toLowerCase(), // Only include title if there's a search query
-			};
+		const fetchData = async () => {
+			setInfo((prev) => ({ ...prev, isLoading: true }));
 
-			if (debouncedSearchQuery.trim()) {
-				payload.title = debouncedSearchQuery.trim();
-			}
-
-			setModuleTemplateData(null); // Clear existing data while loading
-			getModuleTemplate(payload).then(([success, response]) => {
-				if (success) {
-					setModuleTemplateData(response.templates);
-					setModuleInfo({
-						currentPage: 1,
-						hasNextPage: response.hasNextPage,
-					});
-				}
-				setInfo((prev) => ({ ...prev, searchLoading: false }));
-			});
-		}
-	}, [debouncedSearchQuery, selectedOption]);
-
-	const handleOptionSelect = useCallback(
-		async (option) => {
-			if (option === selectedOption) return;
-
-			setSelectedOption(option);
-			setModuleTemplateData(null);
-			setModuleInfo({ currentPage: 1, hasNextPage: false });
-			setSearchQuery('');
-
-			if (option !== 'Workflow') {
+			if (selectedOption === 'Workflow') {
+				const payload = {
+					filters: {
+						limit: 10,
+						page: 1,
+						type: 'workspace',
+						sortBy: 'createdAt',
+						sortType: -1,
+						title: debouncedSearchQuery,
+					},
+				};
+				setInfo((prev) => ({ ...prev, searchLoading: true }));
+				getGlobalWorkflows(payload, false);
+			} else {
 				const payload = {
 					page: 1,
 					limit: 10,
 					type: 'workspace',
-					module: option.toLowerCase(),
+					module: selectedOption.toLowerCase(),
+					...(debouncedSearchQuery && { title: debouncedSearchQuery }),
 				};
+
+				setModuleTemplateData(null);
 				const [success, response] = await getModuleTemplate(payload);
 				if (success) {
 					setModuleTemplateData(response.templates);
@@ -149,7 +137,20 @@ const GlobalMyTemplates = () => {
 						hasNextPage: response.hasNextPage,
 					});
 				}
+				setInfo((prev) => ({ ...prev, searchLoading: false, isLoading: false }));
 			}
+		};
+
+		fetchData();
+	}, [debouncedSearchQuery, selectedOption]);
+
+	const handleOptionSelect = useCallback(
+		(option) => {
+			if (option === selectedOption) return;
+			setSelectedOption(option);
+			setModuleTemplateData(null);
+			setModuleInfo({ currentPage: 1, hasNextPage: false });
+			setSearchQuery('');
 		},
 		[selectedOption],
 	);
@@ -192,11 +193,11 @@ const GlobalMyTemplates = () => {
 
 	const globalWorkflowsDataParser = useCallback((dataToBeUsed, fetchMore = false) => {
 		let { data, currentPage, hasNextPage } = dataToBeUsed;
-		// Simplified data handling
 		setInfo((prev) => ({
 			...prev,
 			loading: false,
-			searchLoading: false, // Reset search loading here too
+			searchLoading: false,
+			isLoading: false,
 			globalWorkflowData: fetchMore ? [...(prev.globalWorkflowData || []), ...data] : data,
 			currentPage,
 			hasNextPage,
@@ -378,7 +379,7 @@ const GlobalMyTemplates = () => {
 									>
 										<div className="globalWorkflowParentCardContainer">
 											{selectedOption !== 'Workflow' ? (
-												info.isLoading ? (
+												info.isLoading || info.searchLoading ? (
 													<div
 														style={{
 															display: 'grid',
@@ -399,6 +400,11 @@ const GlobalMyTemplates = () => {
 															/>
 														))}
 													</div>
+												) : moduleTemplateData?.length === 0 &&
+												  debouncedSearchQuery ? (
+													<NoResultsFound
+														searchQuery={debouncedSearchQuery}
+													/>
 												) : (
 													<GlobalProposalsCard
 														data={moduleTemplateData || []}
@@ -406,9 +412,15 @@ const GlobalMyTemplates = () => {
 														modalIsOpen={info.modalIsOpen}
 													/>
 												)
+											) : (!info.globalWorkflowData ||
+													info.globalWorkflowData.length === 0) &&
+											  debouncedSearchQuery ? (
+												<NoResultsFound
+													searchQuery={debouncedSearchQuery}
+												/>
 											) : (
 												info?.globalWorkflowData?.map((ele, index) =>
-													!info.globalWorkflowData ? (
+													info.searchLoading || info.isLoading ? (
 														<Skeleton
 															width={'100%'}
 															height={'300px'}
