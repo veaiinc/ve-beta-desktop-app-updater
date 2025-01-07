@@ -1,6 +1,6 @@
 import { Tooltip } from 'antd';
 import React from 'react';
-
+console.log('LinkText');
 const typeMapper = {
 	link: '',
 	email: 'mailto:',
