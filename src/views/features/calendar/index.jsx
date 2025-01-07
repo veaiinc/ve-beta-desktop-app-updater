@@ -5,6 +5,7 @@ import CalendarView from './CalendarView';
 import Context from '../../../context/context';
 import BottomToolbar from '../../components/ai_agents/BottomToolbar';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
+import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
 import ObjectId from 'bson-objectid';
 import moment from 'moment';
 
@@ -122,9 +123,8 @@ const Calendar = () => {
 		}));
 	}, [info?.selectedDate]);
 
-	const handleSendMessageFunc = useCallback(
+	const handleSendMessage = useCallback(
 		async (data) => {
-			console.log('handleSendMessageFunc');
 			let obj = {
 				type: 'user',
 				message: data,
@@ -151,7 +151,7 @@ const Calendar = () => {
 				module: 'calendar',
 				workflow_slug: info?.workflowSlug || null,
 			};
-			console.log('chatPayload==>', info?.chatSessionId);
+
 			const response = await getCalendarChat(info?.chatSessionId, chatPayload);
 			console.log('response==>', response);
 			chatlist.pop();
@@ -159,11 +159,36 @@ const Calendar = () => {
 				let obj = {
 					type: 'AI',
 					message: response?.[1]?.answer || '',
+					content: (
+						<WorkflowSlugSelector
+							updateCalendarInfo={updateCalendarInfo}
+							workflowSlug={info?.workflowSlug}
+						/>
+					),
 				};
 				chatlist = [...chatlist, obj];
+
 				if (response?.[1]?.db_updates?.calendar_db_update) {
 					//refetch the calendar eventList data
 					getCalendarEventsList(info?.selectedDate);
+				}
+
+				if (response?.[1]?.variables_required?.includes('workflow_slug')) {
+					//show the workflow slug selector
+					let workflowSlug = {
+						type: 'AI',
+						message: 'Please select a workflow to continue',
+						content: (
+							<div className="aiMessageWrapper">
+								<AiSparkel />
+								<div className="aiMessage">
+									<span>Please select a workflow to continue</span>
+								</div>
+							</div>
+						),
+						// content: <WorkflowSlugSelector />,
+					};
+					chatlist = [...chatlist, workflowSlug];
 				}
 			}
 			setInfo((prev) => ({ ...prev, chatList: chatlist, aiChatLoading: false }));
@@ -206,8 +231,9 @@ const Calendar = () => {
 				<BottomToolbar
 					outerContainerStyle={{ bottom: '5px' }}
 					chatList={info?.chatList}
-					onSend={handleSendMessageFunc}
+					onSend={handleSendMessage}
 					aiChatLoading={info?.aiChatLoading}
+					customChatActions={true}
 				/>
 			</div>
 		</>
