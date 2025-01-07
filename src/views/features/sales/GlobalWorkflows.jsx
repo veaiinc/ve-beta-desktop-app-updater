@@ -98,6 +98,13 @@ const GlobalWorkflows = () => {
 
 	useEffect(() => {
 		if (selectedOption === 'Workflow') {
+			setInfo((prev) => ({ ...prev, isLoading: true }));
+			getGlobalWorkflowTemplatesData(1);
+		}
+	}, [selectedOption]);
+
+	useEffect(() => {
+		if (selectedOption === 'Workflow') {
 			setInfo((prev) => ({ ...prev, searchLoading: true }));
 			getGlobalWorkflowTemplatesData(1);
 		}
@@ -309,6 +316,7 @@ const GlobalWorkflows = () => {
 							className={`mainContentContainer  ${
 								info.modalIsOpen ? 'modal-open' : ''
 							}`}
+							id="templatesScrollableTarget"
 						>
 							{/* <div className="gloablWorkflowHeader">Choose a Workflow</div> */}
 							{info?.isExpanded ? (
@@ -375,7 +383,7 @@ const GlobalWorkflows = () => {
 										next={fetchMoreGlobalWorkflows}
 										hasMore={info?.hasNextPage}
 										loader={<FetchMoreLoaderComp />}
-										scrollableTarget={'scrollableTarget'}
+										scrollableTarget={'templatesScrollableTarget'}
 										className="scrollableTarget"
 									>
 										<div className="globalWorkflowParentCardContainer">
@@ -421,8 +429,9 @@ const GlobalWorkflows = () => {
 												/>
 											) : (
 												info?.globalWorkflowData?.map((ele, index) =>
-													info.searchLoading || info.isLoading ? (
+													info.searchLoading ? (
 														<Skeleton
+															key={index}
 															width={'100%'}
 															height={'300px'}
 															baseColor="transparent"
