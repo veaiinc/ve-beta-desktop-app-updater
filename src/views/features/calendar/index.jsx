@@ -22,6 +22,7 @@ const initialState = {
 	chatSessionId: null,
 	aiChatLoading: false,
 	workflowSlug: null,
+	chatQuery: '',
 };
 
 const Calendar = () => {
@@ -123,6 +124,13 @@ const Calendar = () => {
 		}));
 	}, [info?.selectedDate]);
 
+	useEffect(() => {
+		if (info?.workflowSlug) {
+			console.log('calling handleSendMessage when workflowSlug changes');
+			handleSendMessage(info?.chatQuery);
+		}
+	}, [info?.workflowSlug]);
+
 	const handleSendMessage = useCallback(
 		async (data) => {
 			let obj = {
@@ -143,7 +151,12 @@ const Calendar = () => {
 			};
 			let chatlist = [...(info?.chatList || [])];
 			chatlist = [...chatlist, obj, loadingObj];
-			setInfo((prev) => ({ ...prev, chatList: chatlist, aiChatLoading: true }));
+			setInfo((prev) => ({
+				...prev,
+				chatList: chatlist,
+				aiChatLoading: true,
+				chatQuery: data,
+			}));
 
 			const chatPayload = {
 				query: data,
@@ -153,18 +166,11 @@ const Calendar = () => {
 			};
 
 			const response = await getCalendarChat(info?.chatSessionId, chatPayload);
-			console.log('response==>', response);
 			chatlist.pop();
 			if (response?.[0]) {
 				let obj = {
 					type: 'AI',
 					message: response?.[1]?.answer || '',
-					content: (
-						<WorkflowSlugSelector
-							updateCalendarInfo={updateCalendarInfo}
-							workflowSlug={info?.workflowSlug || null}
-						/>
-					),
 				};
 				chatlist = [...chatlist, obj];
 
@@ -179,14 +185,11 @@ const Calendar = () => {
 						type: 'AI',
 						message: 'Please select a workflow to continue',
 						content: (
-							<div className="aiMessageWrapper">
-								<AiSparkel />
-								<div className="aiMessage">
-									<span>Please select a workflow to continue</span>
-								</div>
-							</div>
+							<WorkflowSlugSelector
+								updateCalendarInfo={updateCalendarInfo}
+								workflowSlug={info?.workflowSlug || null}
+							/>
 						),
-						// content: <WorkflowSlugSelector />,
 					};
 					chatlist = [...chatlist, workflowSlug];
 				}
