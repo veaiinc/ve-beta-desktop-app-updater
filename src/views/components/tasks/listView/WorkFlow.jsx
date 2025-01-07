@@ -4,7 +4,14 @@ import DropDown from '../../dropDown/tasks/DropDown';
 import '../../../../assets/scss/tasks/listItems.scss';
 import { Tooltip } from 'antd';
 
-const WorkFlow = ({ value, val, options = [], onOptionClick, customListItemStyle = {} }) => {
+const WorkFlow = ({
+	value,
+	val,
+	options = [],
+	onOptionClick,
+	customListItemStyle = {},
+	title = 'Workflow',
+}) => {
 	const [info, setInfo] = useState({
 		selectedLabel: value?.label,
 	});
@@ -18,7 +25,12 @@ const WorkFlow = ({ value, val, options = [], onOptionClick, customListItemStyle
 	}, [options, value?._id, val]);
 
 	return (
-		<Tooltip title={'Workflow'} placement="bottom">
+		<Tooltip
+			title={<div className="tooltip-inner">{title}</div>}
+			placement="bottom"
+			overlayClassName="tooltip-overlay-container"
+			color="transparent"
+		>
 			<div className="listItem-workflow">
 				<DropDown
 					options={options}

@@ -15,6 +15,8 @@ const Status = ({
 	valueField = 'value',
 	handleEditPropertyChange,
 	colors,
+	title = 'Status',
+	showTitle = false,
 }) => {
 	const [info, setInfo] = useState({
 		options,
@@ -24,49 +26,45 @@ const Status = ({
 		open: false,
 		selected: null,
 	});
-
 	useEffect(() => {
 		setInfo((prevInfo) => {
-			// Try to find the selected option
-			let selectedOption = prevInfo?.options?.find((item) => item?._id === value);
+			// Find the selected option from updated options
+			const selectedOption = options?.find((item) => item?._id === value);
 
-			// If no match found and setDefault is true, use first option
-			if (!selectedOption && setDefault && prevInfo?.options?.length > 0) {
-				selectedOption = prevInfo.options[0];
-				// Update parent with new default value
-				onOptionClick?.(selectedOption?._id);
+			// If setDefault is true and no value is selected, use first option
+			const finalSelectedOption =
+				!selectedOption && setDefault && options?.length > 0 ? options[0] : selectedOption;
+
+			// If we're using a default value, notify parent
+			if (finalSelectedOption && !value && setDefault) {
+				onOptionClick?.(finalSelectedOption._id);
 			}
+
+			// Group options
+			const todoOptions = [];
+			const inProgressOptions = [];
+			const completedOptions = [];
+
+			options?.forEach((item) => {
+				if (item?.group === 'todo') {
+					todoOptions?.push(item);
+				} else if (item?.group === 'inProgress') {
+					inProgressOptions?.push(item);
+				} else {
+					completedOptions?.push(item);
+				}
+			});
 
 			return {
 				...prevInfo,
-				selected: selectedOption,
+				options,
+				todoOptions,
+				inProgressOptions,
+				completedOptions,
+				selected: finalSelectedOption || prevInfo.selected,
 			};
 		});
-	}, [value, setDefault, options, onOptionClick]);
-
-	useEffect(() => {
-		const todoOptions = [];
-		const inProgressOptions = [];
-		const completedOptions = [];
-
-		options?.forEach((item) => {
-			if (item?.group === 'todo') {
-				todoOptions?.push(item);
-			} else if (item?.group === 'inProgress') {
-				inProgressOptions?.push(item);
-			} else {
-				completedOptions?.push(item);
-			}
-		});
-
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			todoOptions,
-			inProgressOptions,
-			completedOptions,
-			options,
-		}));
-	}, [options]);
+	}, [value, options, setDefault, onOptionClick]);
 
 	const customOnOptionClick = (value) => {
 		setInfo((prevInfo) => ({
@@ -174,32 +172,39 @@ const Status = ({
 				e?.stopPropagation();
 			}}
 		>
-			<div className="listItem-status">
-				<div
-					className={`select-listItem`}
-					style={{
-						...customListItemStyle,
-						backgroundColor: colors?.[info?.selected?.color]?.backgroundColor,
-					}}
-					onClick={() => {
-						handleDropdown(true);
-					}}
-				>
-					<span
-						className="select-listItem-color"
+			<Tooltip
+				title={showTitle ? <div className="tooltip-inner">{title}</div> : ''}
+				placement="bottom"
+				overlayClassName="tooltip-overlay-container"
+				color="transparent"
+			>
+				<div className="listItem-status">
+					<div
+						className={`select-listItem`}
 						style={{
-							backgroundColor: colors?.[info?.selected?.color]?.color,
+							...customListItemStyle,
+							backgroundColor: colors?.[info?.selected?.color]?.backgroundColor,
 						}}
-					></span>
-					{showLabel ? (
-						<p className="select-listItem-label">
-							{info?.selected?.[labelField] || (!value ? 'Select status' : '')}
-						</p>
-					) : (
-						''
-					)}
+						onClick={() => {
+							handleDropdown(true);
+						}}
+					>
+						<span
+							className="select-listItem-color"
+							style={{
+								backgroundColor: colors?.[info?.selected?.color]?.color,
+							}}
+						></span>
+						{showLabel ? (
+							<p className="select-listItem-label">
+								{info?.selected?.[labelField] || (!value ? 'Select status' : '')}
+							</p>
+						) : (
+							''
+						)}
+					</div>
 				</div>
-			</div>
+			</Tooltip>
 		</Tooltip>
 	);
 };

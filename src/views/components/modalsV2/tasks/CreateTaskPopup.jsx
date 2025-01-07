@@ -22,7 +22,7 @@ const initialState = {
 	description: '',
 	dueDate: null,
 	priority: 'low',
-	status: 'todo',
+	status: '',
 	title: '',
 	workflowId: '',
 	isLoading: false,
@@ -32,7 +32,7 @@ const initialState = {
 	subTaskAssignedTo: [],
 	subTaskDueDate: null,
 	subTaskPriority: 'low',
-	subTaskStatus: 'todo',
+	subTaskStatus: '',
 	subTaskWorkflowId: '',
 	childTasks: [],
 	isSubTaskEditing: false,
@@ -44,14 +44,19 @@ const CreateTaskPopup = ({
 	addNewTask,
 	isSubTask = false,
 	responseMetadata,
+	colors,
 }) => {
 	const [info, setInfo] = useState({
 		...initialState,
 	});
 
 	useEffect(() => {
-		setInfo({ ...initialState });
-	}, [isOpen]);
+		setInfo({
+			...initialState,
+			status: responseMetadata?.status?.props?.options?.[0]?._id,
+			subTaskStatus: responseMetadata?.status?.props?.options?.[0]?._id,
+		});
+	}, [isOpen, responseMetadata]);
 
 	const updateModalInfo = useCallback((key, value) => {
 		if (key === 'title') {
@@ -151,7 +156,7 @@ const CreateTaskPopup = ({
 				subTaskAssignedTo: [],
 				subTaskDueDate: null,
 				subTaskPriority: 'low',
-				subTaskStatus: 'todo',
+				subTaskStatus: responseMetadata?.status?.props?.options?.[0]?._id,
 				subTaskWorkflowId: '',
 			};
 		});
@@ -165,6 +170,7 @@ const CreateTaskPopup = ({
 		info?.subTaskStatus,
 		info?.subTaskWorkflowId,
 		info?.isSubTaskEditing,
+		responseMetadata,
 	]);
 
 	const handleDeleteSubTask = useCallback((index) => {
@@ -237,6 +243,7 @@ const CreateTaskPopup = ({
 						onOptionClick={(value) => updateModalInfo('status', value)}
 						title={'Status'}
 						options={responseMetadata?.status?.props?.options}
+						colors={colors}
 					/>
 					<Priority
 						value={info?.priority}
@@ -312,6 +319,7 @@ const CreateTaskPopup = ({
 								options={responseMetadata?.status?.props?.options}
 								onOptionClick={(value) => updateModalInfo('subTaskStatus', value)}
 								title={'Status'}
+								colors={colors}
 							/>
 							<Priority
 								value={info?.subTaskPriority}
