@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import '../../../../assets/scss/tasks/listView.scss';
 import Text from './Text';
 import Select from './Select';
@@ -43,7 +43,6 @@ const ListView = ({
 	info,
 	updateListViewInfo,
 	resetSubTasks,
-	togglePropertyVisibility,
 	updatePropertyValue,
 	deleteTask,
 	responseMetadata,
@@ -51,7 +50,16 @@ const ListView = ({
 	headerTitle = 'Tasks',
 	addButtonOnClick,
 	haveSubTask = false,
+	colors,
 }) => {
+	const [listViewState, setListViewState] = useState({
+		editingProperty: null,
+	});
+
+	const handleEditPropertyChange = useCallback((value) => {
+		setListViewState((prevState) => ({ ...prevState, editingProperty: value }));
+	}, []);
+
 	const handleRowClick = useCallback(
 		(rowId) => {
 			if (haveSubTask) {
@@ -104,13 +112,16 @@ const ListView = ({
 			<ListViewHeader
 				updateListViewInfo={updateListViewInfo}
 				properties={info?.properties}
-				togglePropertyVisibility={togglePropertyVisibility}
+				taskPreferences={info?.taskPreferences}
 				sort={info?.sort}
 				filters={info?.filters}
 				searchValue={info?.searchValue}
 				responseMetadata={responseMetadata}
 				headerTitle={headerTitle}
 				addButtonOnClick={addButtonOnClick}
+				editingProperty={listViewState?.editingProperty}
+				handleEditPropertyChange={handleEditPropertyChange}
+				colors={colors}
 			/>
 			<div className="listContainer">
 				<div className="listInnerContainer">
@@ -128,6 +139,8 @@ const ListView = ({
 								updatePropertyValue={updatePropertyValue}
 								handleRowClick={handleRowClick}
 								responseMetadata={responseMetadata}
+								handleEditPropertyChange={handleEditPropertyChange}
+								colors={colors}
 							/>
 						))
 					) : (
@@ -158,6 +171,8 @@ const ListView = ({
 				handleCreateSubTaskClick={handleCreateSubTaskClick}
 				responseMetadata={responseMetadata}
 				haveSubTask={haveSubTask}
+				properties={info?.properties}
+				colors={colors}
 			/>
 		</div>
 	);

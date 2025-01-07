@@ -116,7 +116,7 @@ const CalendarSelector = ({
 											setInfo((prev) => ({
 												...prev,
 												activeDropdown: 'months',
-											})); // Close the dropdown after selection
+											}));
 										}}
 									>
 										{month}

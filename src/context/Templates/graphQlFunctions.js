@@ -435,13 +435,10 @@ export const getActivityLogsQuery = gql`
 			currentPage
 			data {
 				_id
-				changes
-				entity
+
 				timestamp
-				userId
-				userName
-				action
-				entityType
+
+				summary
 			}
 			hasNextPage
 		}

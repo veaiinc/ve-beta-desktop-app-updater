@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef, memo, useContext } from 'react';
 import gsap from 'gsap';
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
-
 import '../../../assets/scss/landingScreen/index.scss';
+import Navbar from '../../components/landing_screen/Navbar';
 import { ReactComponent as VeAiLogo } from '../../../assets/svg/landingScreen/veai-logo.svg';
 import { ReactComponent as VeAiLogoGrey } from '../../../assets/svg/landingScreen/veai-logo-grey.svg';
-import { ReactComponent as ArrowUpBlack } from '../../../assets/svg/landingScreen/arrow-black.svg';
+import { ReactComponent as ArrowUpGrey } from '../../../assets/svg/landingScreen/arrow-up-grey.svg';
+import { ReactComponent as ArrowUpWhite } from '../../../assets/svg/landingScreen/arrow-up-white.svg';
 import { ReactComponent as DownArrow } from '../../../assets/svg/gallery/arrow-down.svg';
 import {
 	BLOGS_URL,
@@ -24,6 +25,7 @@ import { ReactComponent as RightArrowGrey } from '../../../assets/svg/landingScr
 import Context from '../../../context/context';
 import { message } from 'antd';
 import { debounce } from 'lodash';
+import Spinner from '../../components/loaders/Spinner';
 
 const navItems = [
 	{ id: 1, name: 'Privacy', route: '/privacy-policy' },
@@ -118,30 +120,9 @@ const resources = [
 	},
 ];
 
-const animateButtonEnter = (selector) => {
-	gsap.to(selector, {
-		left: '50%',
-		x: '-50%',
-		duration: 0.3,
-		ease: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)',
-	});
-};
-
-const animateButtonLeave = (selector) => {
-	gsap.to(selector, {
-		left: '150%',
-		duration: 0.3,
-		ease: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)',
-		onComplete: () => {
-			gsap.set(selector, {
-				left: selector === '.login-line' ? '-22px' : '-28px',
-			});
-		},
-	});
-};
-
 const LandingPage = () => {
 	const navigate = useNavigate();
+	const landingPageContentRef = useRef();
 	const emailRef = useRef();
 
 	let {
@@ -150,7 +131,10 @@ const LandingPage = () => {
 
 	const [showScrollArrow, setShowScrollArrow] = useState(false);
 	const [newsletterHover, setNewsletterHover] = useState(false);
+	const [isBackToTopBtnHover, setIsBackToTopBtnHover] = useState(false);
 	const [isEmailSubscribed, setIsEmailSubscribed] = useState(false);
+	const [emailSubscriptionLoader, setEmailSubscriptionLoader] = useState(false);
+	const [playVideo, setPlayVideo] = useState(false);
 
 	useEffect(() => {
 		const usertoken = localStorage.getItem('usertoken');
@@ -164,6 +148,7 @@ const LandingPage = () => {
 	}, []);
 
 	useEffect(() => {
+		pageLoadAnimation();
 		window.addEventListener('scroll', handleScroll);
 		handleScroll();
 
@@ -172,13 +157,54 @@ const LandingPage = () => {
 		};
 	}, []);
 
+	const pageLoadAnimation = () => {
+		gsap.fromTo(
+			['.header-container', '.heading', '.description', '.cta-container', '.video'],
+			{
+				y: (index) => {
+					if (index === 0) return 0;
+					if (index === 1) return 50;
+					if (index === 2) return 100;
+					if (index === 3) return 150;
+					if (index === 4) return 150;
+					return 0;
+				},
+			},
+			{
+				y: 0,
+				duration: 0.7,
+				ease: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)',
+			},
+		);
+		gsap.to('.landing-page-container', {
+			opacity: 1,
+			duration: 0.7,
+			ease: 'power1.inOut',
+			onComplete: () => {
+				setPlayVideo(true);
+			},
+		});
+	};
+
 	const handleScroll = () => {
 		const windowHeight = window.innerHeight;
-		const documentHeight = document.documentElement.scrollHeight;
-		const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-		const isNearBottom = windowHeight + scrollTop >= documentHeight - 20;
+		const scrollTop = document.documentElement.scrollTop;
+		const threshold = windowHeight + 150;
+		const isNearBottom = windowHeight + scrollTop >= threshold;
 		setShowScrollArrow(!isNearBottom);
+		if (window.innerWidth > 800) {
+			const opacityPercentage = Math.min((2 * scrollTop) / windowHeight, 1);
+			if (landingPageContentRef?.current) {
+				landingPageContentRef.current.style.setProperty(
+					'opacity',
+					`${1 - opacityPercentage}`,
+				);
+			}
+		}
+	};
+
+	const handleScrollBackToTop = () => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
 	};
 
 	const handleNavigationToVerifyUser = () => {
@@ -189,62 +215,39 @@ const LandingPage = () => {
 		window.open(DEMO_FORM_URL, '_blank');
 	};
 
-	const handleSubscribeToNewsletter = debounce(async (e, type) => {
-		// Uncomment when API works...
-		// if (!isEmailSubscribed) {
-		// 	if (e?.key === 'Enter' || type === 'click') {
-		// 		const email = emailRef?.current?.value?.trim() || false;
-		// 		const isEmailValid = validator.isEmail(email);
-		// 		if (isEmailValid) {
-		// 			const response = await subscribeToNewsletter(email);
-		// 			if (response?.[0] === true) {
-		// 				message?.success('Subscribed to ve.ai newsletters successfully!');
-		// 				setIsEmailSubscribed(true);
-		// 			} else {
-		// 				message?.error('An unexpected error occured. Please try again!');
-		// 				setIsEmailSubscribed(false);
-		// 			}
-		// 		}
-		// 	}
-		// }
-	}, 1000);
+	const handleSubscribeToNewsletter = async (e, type) => {
+		if (emailSubscriptionLoader) return;
+		if (!isEmailSubscribed) {
+			if (e?.key === 'Enter' || type === 'click') {
+				const email = emailRef?.current?.value?.trim() || false;
+				const isEmailValid = validator.isEmail(email);
+				if (isEmailValid) {
+					setEmailSubscriptionLoader(true);
+					const response = await subscribeToNewsletter(email);
+					if (response?.[0] === true) {
+						message?.success('Subscribed to ve.ai newsletters successfully!');
+						setIsEmailSubscribed(true);
+						emailRef.current.value = '';
+						setEmailSubscriptionLoader(false);
+						return;
+					} else {
+						message?.error('An unexpected error occured. Please try again!');
+						setIsEmailSubscribed(false);
+					}
+				}
+				message?.error('Please enter a valid email address');
+				setEmailSubscriptionLoader(false);
+			}
+		}
+	};
 
 	return (
 		<div className="landing-page-container">
-			<div className="dark-gradient-top"></div>
-			<header className="header-container">
-				<VeAiLogo aria-label="VeAi Logo" />
-				<div className="btns-container">
-					<button
-						onClick={handleNavigationToVerifyUser}
-						className="signup-button"
-						aria-label="Sign up to VeAi"
-						onMouseEnter={() => animateButtonEnter('.signup-line')}
-						onMouseLeave={() => animateButtonLeave('.signup-line')}
-					>
-						Sign Up
-						<div className="signup-line"></div>
-					</button>
-					<button
-						onClick={handleNavigationToVerifyUser}
-						onMouseEnter={() => animateButtonEnter('.login-line')}
-						onMouseLeave={() => animateButtonLeave('.login-line')}
-						className="login-button"
-						aria-label="Log in to VeAi"
-					>
-						Log In
-						<div className="login-line"></div>
-					</button>
-				</div>
-			</header>
-			<div className="landing-page-content">
+			<Navbar handleNavigationToVerifyUser={handleNavigationToVerifyUser} />
+			<div ref={landingPageContentRef} className="landing-page-content">
 				<div className="section-1">
 					<div className="container">
-						<h1 className="heading">
-							<div className="heading-animation-container"></div>
-							AI OS that
-							<br /> minds your business !
-						</h1>
+						<h1 className="heading">A new era of getting work done</h1>
 						<p className="description">
 							<VeAiLogoGrey aria-label="VeAi Logo in grey" />
 							&nbsp; is an os that creates ai workers and collaborates with your human
@@ -258,27 +261,31 @@ const LandingPage = () => {
 							>
 								Hire Ve.ai
 							</button>
-							<button
+							{/* <button
 								onClick={handleRequestDemo}
 								className="request-demo-button"
 								aria-label="Request a demo"
 							>
 								Request a Demo
-							</button>
+							</button> */}
 						</div>
 					</div>
 				</div>
 				<div className="section-2">
 					<div className="section-video-container">
 						<div className="video-container">
-							<video
-								className="video"
-								muted
-								autoPlay
-								loop
-								playsInline
-								src={'https://ap.assets.ve.ai/logo/login-page-final.webm'}
-							></video>
+							{playVideo && (
+								<video
+									className="video"
+									muted
+									autoPlay
+									loop
+									playsInline
+									src={
+										'https://ap.assets.ve.ai/logo/login-page-landing-video.webm'
+									}
+								></video>
+							)}
 						</div>
 
 						<div className="video-controls"></div>
@@ -300,6 +307,35 @@ const LandingPage = () => {
 					<DownArrow />
 				</div>
 			)}
+			<div className="integration-section-container">
+				<div className="left-div">
+					<div className="integrations-content-container">
+						<h2 className="integration-title">INTEGRATION</h2>
+						<h1 className="integration-heading">
+							Ve works where <br /> you work.
+						</h1>
+						<p className="integration-description">
+							Connect all your existing applications. Experience the power of your
+							company's collective knowledge all in one place.
+						</p>
+						<button onClick={handleRequestDemo} className="integration-button">
+							Get Demo
+						</button>
+					</div>
+				</div>
+				<div className="right-div">
+					<div className="integrations-video-container">
+						<video
+							className="integrations-video"
+							muted
+							autoPlay
+							loop
+							playsInline
+							src="https://ap.assets.ve.ai/logo/login-page-integrations-video.webm"
+						></video>
+					</div>
+				</div>
+			</div>
 			<div className="caroursel-container">
 				<div className="description-container">
 					<h1 className="title">
@@ -326,6 +362,7 @@ const LandingPage = () => {
 			</div>
 			<footer className="footer-container">
 				<div className="banner">
+					<div className="glow-bg"></div>
 					<h1 className="title">AI that minds your business</h1>
 					<button onClick={handleRequestDemo} className="get-demo-btn">
 						Get Demo
@@ -343,19 +380,33 @@ const LandingPage = () => {
 							onMouseLeave={() => setNewsletterHover(false)}
 							className="subscribe-to-newsletter"
 						>
-							<input
-								ref={emailRef}
-								className="email"
-								type="email"
-								placeholder="Email Address"
-								onKeyDown={handleSubscribeToNewsletter}
-							/>
-							<button
-								onClick={() => handleSubscribeToNewsletter(null, 'click')}
-								className="subscribe-btn"
-							>
-								{newsletterHover ? <RightArrowWhite /> : <RightArrowGrey />}
-							</button>
+							{!isEmailSubscribed ? (
+								<input
+									ref={emailRef}
+									className="email"
+									type="email"
+									placeholder="Email Address"
+									onKeyDown={handleSubscribeToNewsletter}
+								/>
+							) : (
+								<p className="subscribed-text">
+									Subscribed to ve.ai newsletters successfully!
+								</p>
+							)}
+							{!isEmailSubscribed && (
+								<button
+									onClick={() => handleSubscribeToNewsletter(null, 'click')}
+									className="subscribe-btn"
+								>
+									{emailSubscriptionLoader ? (
+										<Spinner size="small" />
+									) : newsletterHover ? (
+										<RightArrowWhite />
+									) : (
+										<RightArrowGrey />
+									)}
+								</button>
+							)}
 						</div>
 					</div>
 					<div className="right-content">
@@ -364,7 +415,13 @@ const LandingPage = () => {
 							{socials?.map((socialData) => (
 								<li
 									className="list-item"
-									onClick={() => (window.location.href = socialData?.url)}
+									onClick={() =>
+										window.open(
+											socialData?.url,
+											'_blank',
+											'noopener,noreferrer',
+										)
+									}
 									key={socialData?.id}
 								>
 									{socialData?.title}
@@ -411,8 +468,16 @@ const LandingPage = () => {
 					</ul>
 					<div className="right">
 						<img width={24} height={24} src={Charminar} alt="Charminar" />
-						<span>Built in Hyderabad</span>
+						<span>Coded in Hyderabad</span>
 					</div>
+					<button
+						onMouseEnter={() => setIsBackToTopBtnHover(true)}
+						onMouseLeave={() => setIsBackToTopBtnHover(false)}
+						onClick={handleScrollBackToTop}
+						className="back-to-top-btn"
+					>
+						Back to top {isBackToTopBtnHover ? <ArrowUpWhite /> : <ArrowUpGrey />}
+					</button>
 				</div>
 			</footer>
 		</div>

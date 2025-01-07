@@ -14,6 +14,34 @@ import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
 
+const defaultPreference = {
+	taskSlNo: { show: false, order: 1 },
+	title: { show: true, order: 2 },
+	parentTask: { show: false, order: 3 },
+	childTasks: { show: false, order: 4 },
+	description: { show: false, order: 5 },
+	status: { show: true, order: 6 },
+	priority: { show: true, order: 7 },
+	workflow: { show: true, order: 8 },
+	assignedTo: { show: true, order: 9 },
+	dueDate: { show: true, order: 10 },
+	assignedBy: { show: true, order: 11 },
+	assignedAt: { show: false, order: 12 },
+	completedAt: { show: false, order: 13 },
+	createdAt: { show: false, order: 14 },
+	updatedAt: { show: false, order: 15 },
+};
+
+const colors = {
+	1: { backgroundColor: '#62344B', color: '#A35A7E' },
+	2: { backgroundColor: '#373737', color: '#707070' },
+	3: { backgroundColor: '#5B3D2F', color: '#8F614B' },
+	4: { backgroundColor: '#7D4F27', color: '#B37339' },
+	5: { backgroundColor: '#375841', color: '#588F69' },
+	6: { backgroundColor: '#2F4469', color: '#4F71B3' },
+	7: { backgroundColor: '#453061', color: '#6F4C99' },
+};
+
 const Tasks = () => {
 	const {
 		tasks: {
@@ -26,9 +54,18 @@ const Tasks = () => {
 			removeSubTask,
 			updateSubTask,
 			resetSubTasks,
+			getTaskStatusLabels,
+			taskMetadata,
+			getTaskStatusDefaultLabel,
 		},
 		templates: { getWorkflowsList, workflowslist },
-		companyInfo: { getTeamMembers, tenantsUserList },
+		companyInfo: {
+			getTeamMembers,
+			tenantsUserList,
+			getTaskPreferences,
+			taskPreferences,
+			updateTaskPreferences,
+		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
@@ -38,9 +75,11 @@ const Tasks = () => {
 		isCreateModalOpen: false,
 		isCreatingSubtask: true,
 		properties: [],
+		taskPreferences: defaultPreference,
 		sidebarIsOpen: false,
 		selectedRow: null,
 		selectedSubTask: null,
+		taskMetadata: null,
 		workflows: [],
 		tenantUsers: [],
 		page: 1,
@@ -55,39 +94,14 @@ const Tasks = () => {
 
 	const responseMetadata = useMemo(
 		() => ({
-			title: { type: 'text', name: 'Title', Icon: textSvg, props: {} },
+			title: { type: 'text', name: 'Title', Icon: textSvg, props: {}, doSplit: true },
 			description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
 			status: {
 				type: 'status',
 				name: 'Status',
 				Icon: PieSvg,
 				props: {
-					options: [
-						{
-							label: 'On hold',
-							value: 'onHold',
-							color: '#939393',
-							backgroundColor: '#373737',
-						},
-						{
-							label: 'Todo',
-							value: 'todo',
-							color: '#939393',
-							backgroundColor: '#5A5A5A',
-						},
-						{
-							label: 'In progress',
-							value: 'inProgress',
-							color: '#3E70C7',
-							backgroundColor: '#2F4469',
-						},
-						{
-							label: 'Completed',
-							value: 'completed',
-							color: '#3B9D59',
-							backgroundColor: '#375841',
-						},
-					],
+					options: info?.taskMetadata?.status?.sort((a, b) => a.order - b.order) || [],
 				},
 			},
 			priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg, props: {} },
@@ -107,7 +121,6 @@ const Tasks = () => {
 				type: 'childTasks',
 				name: 'Sub Tasks',
 				Icon: WorkflowSvg,
-				doSplit: true,
 				props: {},
 			},
 			assignedTo: {
@@ -156,7 +169,7 @@ const Tasks = () => {
 			},
 			taskSlNo: { type: 'id', name: 'Id', Icon: textSvg, props: {} },
 		}),
-		[info?.workflows, info?.tenantUsers],
+		[info?.workflows, info?.tenantUsers, info?.taskMetadata],
 	);
 
 	const debounceTimeout = useRef(null);
@@ -197,6 +210,28 @@ const Tasks = () => {
 			}));
 		}
 	}, [tenantsUserList]);
+
+	useEffect(() => {
+		if (taskPreferences === null) {
+			getTaskPreferences();
+		} else if (taskPreferences?.data === false) {
+			updateTaskPreferences(defaultPreference);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: defaultPreference,
+			}));
+		} else if (taskPreferences?.error) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: defaultPreference,
+			}));
+		} else {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: taskPreferences?.data,
+			}));
+		}
+	}, [taskPreferences]);
 
 	useEffect(() => {
 		if (!workflowslist) {
@@ -241,11 +276,13 @@ const Tasks = () => {
 	}, [listTasks]);
 
 	useEffect(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			properties: mapPropertyType(),
-		}));
-	}, []);
+		if (info?.taskPreferences) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				properties: mapPropertyType(),
+			}));
+		}
+	}, [info?.taskPreferences]);
 
 	useEffect(() => {
 		if (info?.selectedRow) {
@@ -255,6 +292,19 @@ const Tasks = () => {
 			);
 		}
 	}, [info?.listItems, info?.selectedRow]);
+
+	useEffect(() => {
+		if (!taskMetadata) {
+			getTaskStatusLabels();
+		} else if (taskMetadata?.status?.length === 0) {
+			getTaskStatusDefaultLabel();
+		} else {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskMetadata: taskMetadata,
+			}));
+		}
+	}, [taskMetadata]);
 
 	const fetchListItems = useCallback(() => {
 		getListItems({
@@ -294,29 +344,20 @@ const Tasks = () => {
 				continue;
 			}
 
-			const { type = null, name = null, Icon = null } = responseMetadata[key];
+			const { type = null, name = null, Icon = null } = responseMetadata[key] || {};
+			const { show, order } = info?.taskPreferences[key] || { show: false, order: 0 };
 
 			properties.push({
 				value: key,
 				type,
 				label: name,
 				Icon,
-				show: true,
+				show,
+				order,
 			});
 		}
 		return properties;
-	}, []);
-
-	const togglePropertyVisibility = useCallback((index, value) => {
-		setInfo((prevInfo) => {
-			const newProperties = [...prevInfo?.properties];
-			newProperties[index] = { ...newProperties[index], show: value };
-			return {
-				...prevInfo,
-				properties: newProperties,
-			};
-		});
-	}, []);
+	}, [info?.taskPreferences]);
 
 	const debouncedUpdateTask = useCallback(
 		async (rowId, propName, value, originalValue, isUpdatingSubTask, onSuccess) => {
@@ -530,6 +571,10 @@ const Tasks = () => {
 						newTask.createdBy = { _id: user_id, name: userName };
 						newTask.updatedBy = { _id: user_id, name: userName };
 						if (info?.isCreatingSubtask) {
+							newTask.parentTask = {
+								title: info?.selectedRow?.title,
+								_id: info?.selectedRow?._id,
+							};
 							addSubTask(newTask);
 						}
 						message.success('Task added successfully');
@@ -587,7 +632,6 @@ const Tasks = () => {
 				info={info}
 				updateListViewInfo={updateListViewInfo}
 				resetSubTasks={resetSubTasks}
-				togglePropertyVisibility={togglePropertyVisibility}
 				updatePropertyValue={updatePropertyValue}
 				deleteTask={deleteTask}
 				addNewTask={addNewTask}
@@ -595,6 +639,7 @@ const Tasks = () => {
 				fetchListItems={fetchListItems}
 				addButtonOnClick={handleAddButtonOnClick}
 				haveSubTask={true}
+				colors={colors}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
@@ -605,6 +650,7 @@ const Tasks = () => {
 				clients={info?.clients}
 				isSubTask={info?.isCreatingSubtask}
 				responseMetadata={responseMetadata}
+				colors={colors}
 			/>
 		</div>
 	);

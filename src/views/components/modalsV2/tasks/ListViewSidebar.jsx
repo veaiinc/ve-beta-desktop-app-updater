@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import { Drawer, Progress } from 'antd';
 import React, { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
@@ -26,6 +27,8 @@ const ListViewSidebar = ({
 	handleChildTaskClose,
 	responseMetadata,
 	haveSubTask,
+	properties,
+	colors,
 }) => {
 	const {
 		tasks: { subTasks, getSubTasks },
@@ -214,6 +217,7 @@ const ListViewSidebar = ({
 									onOptionClick={(value) =>
 										updatePropertyValue(row._id, key, value, isShowingSubTask)
 									}
+									colors={colors}
 								/>
 							) : (
 								<div key={key}>{value}</div>
@@ -345,6 +349,8 @@ const ListViewSidebar = ({
 												updatePropertyValue={updatePropertyValue}
 												isSubTask={true}
 												handleRowClick={onSubTaskClick}
+												properties={properties}
+												colors={colors}
 											/>
 										))
 									) : (

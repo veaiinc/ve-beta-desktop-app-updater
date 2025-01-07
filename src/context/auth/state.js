@@ -4,6 +4,7 @@ import service from '../../services/';
 import Cookies from 'js-cookie';
 import { fetchDomainName, getLocationsDetails } from '../../helpers';
 import { message } from 'antd';
+import { NEWSLETTER_SUBSCRIPTION_URL } from '../../helpers/ConstantUrls';
 const { auth_Api: authBaseUrl } = require('../../services/config.live');
 
 export const AuthState = () => {
@@ -320,73 +321,18 @@ export const AuthState = () => {
 	};
 
 	const subscribeToNewsletter = async (email) => {
-		const path = '/veai/6766b701c7f27153c1b42cbe/6766b701c7f27153c1b42cc3';
-		const body = {
-			responseInput: {
-				response: [
-					{
-						_id: '668b9627f5c8218aa5db1176',
-						question: '<p><strong>Your name?</strong></p>',
-						order: 1,
-						type: 'shortText',
-						answerOptions: {
-							countryCode: '',
-							range: '',
-							rangeIcon: '',
-							opinionLabel: '',
-							name: '',
-							date: '',
-							location: '',
-							guestsCount: '',
-							isMultiple: false,
-							options: [],
-						},
-						variableId: '619f75683f381fd66dac4b65',
-						answer: 'sankar',
-					},
-					{
-						_id: '66a9d245ecf7402617574ddd',
-						question: '<p><strong>Your contact number?</strong>&nbsp;</p>',
-						order: 3,
-						type: 'phoneNumber',
-						variableId: '6311ee8f8e7c108259cf96e6',
-						answer: '+919948933698',
-					},
-					{
-						_id: '66accb967410edda114c1a05',
-						question: '<p><strong>Your email?</strong></p>',
-						order: 2,
-						type: 'email',
-						variableId: '6311efc4911e0f82be7e2b2d',
-						answer: email,
-					},
-					{
-						_id: '66accd9b7410edda114c1a06',
-						question: '<p><strong>How did you hear about us?</strong></p>',
-						order: 5,
-						type: 'multipleChoice',
-						answerOptions: {
-							options: ['Instagram', 'Internet', 'Family or Friends'],
-						},
-						answer: '"Instagram"',
-					},
-					{
-						_id: '66b3204d37ad62286a5cdc02',
-						question: '<p><strong>Your events?</strong></p>',
-						order: 4,
-						type: 'events',
-						answer: '[{"name":"Pellikoduku","date":""}]',
-					},
-				],
-			},
-		};
-
 		try {
-			const response = await service?.fetchPost(path, body, null, 'workflow');
-			if (response?.[0] === true) {
+			const url = NEWSLETTER_SUBSCRIPTION_URL;
+			const locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
+
+			const response = await fetch(url, {
+				method: 'POST',
+				body: JSON.stringify({ email, source: 've.ai', location: locationDetails }),
+			});
+			if (response?.ok === true && response?.status === 200) {
 				return [true];
 			} else {
-				return [false, { message: response?.[1] }];
+				return [false, { message: 'An unexpected error occurred. Please try again!' }];
 			}
 		} catch (error) {
 			console.error('Error subscribing to email newsletter', error);
