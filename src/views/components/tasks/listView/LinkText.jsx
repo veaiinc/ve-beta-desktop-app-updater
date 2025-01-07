@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 
 const typeMapper = {
 	link: '',
@@ -8,6 +8,9 @@ const typeMapper = {
 };
 
 const LinkText = ({ value, linkType = 'link' }) => {
+	const [info, setInfo] = useState({
+		isEditing: false,
+	});
 	return <Tooltip title={value}>{value}</Tooltip>;
 };
 
