@@ -6,12 +6,10 @@
 	flex-direction: column;
 	gap: 36px;
 	// background-color: red;
-
 	.docsParentHeaderContainer {
 		display: flex;
 		align-items: flex-start;
 		gap: 24px;
-
 		.docsHeaderButtons {
 			display: flex;
 			flex: 1;
@@ -22,11 +20,9 @@
 			align-items: flex-start;
 			gap: 6px;
 			border-radius: 14px;
-
 			border: 1px solid #1d1d1d;
 			border: 1px solid color(display-p3 0.1133 0.1133 0.1133);
 			background: #151515;
-
 			.docsHeaderButtonsTitle {
 				color: #e4e5e6;
 				color: color(display-p3 0.8941 0.898 0.902);
@@ -36,7 +32,6 @@
 				font-weight: 600;
 				line-height: normal;
 			}
-
 			.docsHeaderSubButtonsSubTitleColored {
 				color: #e4e5e6;
 				color: color(display-p3 0.8941 0.898 0.902);
@@ -47,7 +42,6 @@
 				font-weight: 500;
 				line-height: normal;
 			}
-
 			.docsHeaderSubButtonsSubTitle {
 				color: rgba(228, 229, 230, 0.48);
 				color: color(display-p3 0.8941 0.898 0.902 / 0.48);
@@ -58,7 +52,6 @@
 				line-height: normal;
 			}
 		}
-
 		.docsHeaderButtons.colorful {
 			background: var(
 				--Ai-Gradient,
@@ -67,14 +60,12 @@
 			);
 		}
 	}
-
 	.docsTemplatesContainer {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 24px;
 		align-self: stretch;
-
 		.docsTemplatesContainerHeader {
 			display: flex;
 			justify-content: space-between;
@@ -87,7 +78,6 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
-
 			.docsTemplatesAllFilesContainer {
 				display: flex;
 				height: 28px;
@@ -104,21 +94,19 @@
 				line-height: normal;
 			}
 		}
-
 		.docsTemplateContainer {
 			display: flex;
 			align-items: flex-start;
 			gap: 16px;
 			align-self: stretch;
 			overflow-x: auto;
-
 			.docsTemplateCard {
 				display: flex;
 				width: 232px;
-
+				padding-bottom: 16px;
 				flex-direction: column;
 				align-items: flex-start;
-
+				gap: 12px;
 				border-radius: 14px;
 				border: 0.5px solid rgba(100, 100, 100, 0.16);
 				border: 0.5px solid color(display-p3 0.3932 0.3932 0.3932 / 0.16);
@@ -127,7 +115,6 @@
 				overflow: hidden;
 				flex-shrink: 0;
 				background-color: #25292f;
-
 				.docsTemplateImageContainer {
 					width: 100%;
 					height: 177px;
@@ -135,7 +122,6 @@
 					display: flex;
 					flex-direction: column;
 					position: relative;
-
 					.docsTemplateHoverContentContainer {
 						position: absolute;
 						top: 0;
@@ -144,7 +130,6 @@
 						height: 100%;
 						opacity: 0;
 						transition: opacity 0.3s ease-in-out;
-
 						.docsHoverArrowContainer {
 							display: flex;
 							align-self: stretch;
@@ -152,7 +137,6 @@
 							margin-top: 8px;
 							transform: rotate(180deg);
 						}
-
 						.docsHoverOptionsContainer {
 							display: flex;
 							flex-direction: column;
@@ -172,7 +156,6 @@
 							}
 						}
 					}
-
 					img {
 						width: 100%;
 						height: 100%;
@@ -185,20 +168,17 @@
 						position: absolute;
 						bottom: 0;
 					}
-
 					&:hover {
 						.docsTemplateHoverContentContainer {
 							opacity: 1;
 							display: flex;
 							flex-direction: column;
 						}
-
 						img {
 							height: 20%;
 						}
 					}
 				}
-
 				.docsFooterContent {
 					display: flex;
 					flex-direction: column;
@@ -218,7 +198,6 @@
 						font-weight: 500;
 						line-height: normal;
 					}
-
 					.docsFooterContentSubTitle {
 						color: #e4e5e6;
 						color: color(display-p3 0.8941 0.898 0.902);

@@ -33,13 +33,10 @@ const CalendarAiChat = ({ toggleAskAi, selectedDate }) => {
 		const sessionId = ObjectId().toString();
 		setInfo((prevInfo) => ({ ...prevInfo, sessionId }));
 		return () => {
-			setInfo({
-				sessionId: null,
-				chatHistory: [],
-				userInput: '',
-				isProcessing: false,
-				errorMessage: null,
-			});
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				...initialState,
+			}));
 			resetCalendarAiChat();
 		};
 	}, []);
@@ -86,8 +83,8 @@ const CalendarAiChat = ({ toggleAskAi, selectedDate }) => {
 		await getCalendarChat(sessionId, {
 			query: inputData,
 			timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-			// module: 'calendar',
-			// workflow_slug: null,
+			module: 'calendar',
+			workflow_slug: null,
 		});
 	}, []);
 
