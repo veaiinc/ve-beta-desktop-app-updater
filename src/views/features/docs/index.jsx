@@ -1,66 +1,181 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/docs/index.scss';
 import { ReactComponent as Files } from '../../../assets/svg/docs/files.svg';
-import { fetchOriginSelection } from '../../../helpers';
+import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
 import FilesListView from './FilesListView';
 import Context from '../../../context/context';
-// import moment from 'moment';
+import moment from 'moment';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { calc } from 'antd/es/theme/internal';
+import Sidebar from '../../components/docs/Sidebar';
 let origin = fetchOriginSelection();
+
+const staticCreateActions = [
+	{
+		title: 'Create Smart File',
+		subtext: 'Create a tailored smart file and present it to your clients.',
+	},
+	{
+		title: 'Create Proposal',
+		subtext: 'Create a tailored business proposal and present it to your clients.',
+	},
+	{
+		title: 'Create Presentation',
+		subtext: 'Create a tailored business proposal and present it to your clients.',
+	},
+	{
+		title: 'Create Invoice',
+		subtext: 'Track invoice status, Payment schedule, amounts, and more.',
+	},
+	{ title: 'Create Contract', subtext: 'Stay on top of contracts and signatures.' },
+	{ title: 'Create Landing Page', subtext: 'Create and share a landing page with clients.' },
+];
+
+const statusTextmapper = {
+	filesViewed: {
+		text: 'Files Viewed',
+		dotStyle: {
+			backgroundColor: '#2A71CD',
+		},
+		style: {
+			backgroundColor: '#29456C',
+		},
+	},
+	enquiry: {
+		text: 'Enquiry',
+		dotStyle: {
+			backgroundColor: '#2A71CD',
+		},
+		style: {
+			backgroundColor: '#29456C',
+		},
+	},
+	filesSent: {
+		text: 'Sent',
+		dotStyle: {
+			backgroundColor: '#2A71CD',
+		},
+		style: {
+			backgroundColor: '#29456C',
+		},
+	},
+	confirmed: {
+		text: 'Confirmed',
+		dotStyle: {
+			backgroundColor: '#00A051',
+		},
+		style: {
+			backgroundColor: '#2C593F',
+		},
+	},
+	expired: {
+		text: 'Expired',
+		dotStyle: {
+			backgroundColor: '#E27B1C',
+		},
+		style: {
+			backgroundColor: 'rgba(125, 79, 39, 1)',
+		},
+	},
+	accepted: {
+		text: 'Accepted',
+		dotStyle: {
+			backgroundColor: '#00A051',
+		},
+		style: {
+			backgroundColor: '#2C593F',
+		},
+	},
+	proposalAccepted: {
+		text: 'Accepted',
+		dotStyle: {
+			backgroundColor: '#00A051',
+		},
+		style: {
+			backgroundColor: '#2C593F',
+		},
+	},
+};
+const DocsStatusButton = ({ content = '', style = {}, textStyle = {}, dotStyle = {} }) => {
+	return (
+		<div className="DocsStatusButtonOuterContainer" style={{ ...style }}>
+			<div className="DocsStatusCircle" style={{ ...dotStyle }}></div>
+			<span className="DocsButtontext" style={{ ...textStyle }}>
+				{content}
+			</span>
+		</div>
+	);
+};
 const Docs = () => {
 	let {
-		templates: {
-			getMyWorkflows,
-			myWorkflows,
-			myMoreWorkflows,
-			salePageRefresh,
-			updateStateValues,
-			generatePublicLinkData,
-		},
+		templates: { getDocsFilesList, updateStateValues, docsFilesList, moreDocsFilesList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		loading: true,
-		myWorkflowData: null,
-		hasNextPage: false,
 		currentPage: 1,
-		myWorkflowModal: false,
-		activeTemplateData: null,
-		activeCardsData: null,
-		copyModal: false,
-		showGeneratedLinkModalData: null,
-		testingDrawerModal: false,
-		shownInitialLoader: localStorage.getItem('showInitialLoader'),
-		currentWorkspaceId: null,
-		pendingCopyAction: null,
-		copyLink: null,
+		hasNextPage: false,
+		loading: true,
+		docsData: [],
+		showRightDrawer: false,
+		activeFileData: null,
 	});
 
 	useEffect(() => {
-		getMyWorkflowTemplatesData(1);
+		getDocsFilesListFunc(1);
 	}, []);
 
 	useEffect(() => {
-		setInfo((prev) => ({ ...prev, myWorkflowData: myWorkflows?.data }));
-	}, [myWorkflows]);
+		if (docsFilesList) {
+			parseDocsFilesListDeatils(docsFilesList, false);
+		}
+	}, [docsFilesList]);
 
-	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
-		const payload = {
-			filters: {
-				limit: 10,
-				page: page,
-				type: 'workspace',
-				status: 'published',
-				sortBy: 'createdAt',
-				sortType: -1,
-			},
-		};
-		getMyWorkflows(payload, fetchMore);
-	}, []);
+	useEffect(() => {
+		if (moreDocsFilesList) {
+			parseDocsFilesListDeatils(moreDocsFilesList, true);
+		}
+	}, [moreDocsFilesList]);
 
 	const onGenerateAIFunc = () => {
 		window.location.href = `${origin}/generate`;
 	};
+
+	const getDocsFilesListFunc = useCallback(async (page, fetchMore = false) => {
+		const payload = {
+			filters: {
+				limit: 30,
+				page: page,
+			},
+		};
+
+		getDocsFilesList(payload, fetchMore);
+	}, []);
+
+	const fetcMoreDocsFilesList = useCallback(async () => {
+		getDocsFilesListFunc(info?.currentPage + 1, true);
+	}, [info?.currentPage]);
+
+	const parseDocsFilesListDeatils = useCallback(async (variableType, fetchMore = false) => {
+		let { hasNextPage, currentPage, data } = variableType || {};
+
+		setInfo((prev) => ({
+			...prev,
+			loading: false,
+			docsData: fetchMore ? prev?.docsData?.concat(data) : data,
+			currentPage,
+			hasNextPage,
+		}));
+	}, []);
+
+	const handleOpenSidebar = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, showRightDrawer: true, activeFileData: data }));
+	}, []);
+
+	const handleCloseSidebar = useCallback(() => {
+		setInfo((prev) => ({ ...prev, showRightDrawer: false, activeFileData: null }));
+	}, []);
+
 	return (
 		<div className="docsParentContainer">
 			<div className="docsParentHeaderContainer">
@@ -83,8 +198,89 @@ const Docs = () => {
 					</div>
 				</div>
 			</div>
-
 			<div className="docsTemplatesContainer">
+				<div className="docsTemplateContainer">
+					{staticCreateActions?.map((ele, index) => (
+						<div key={index} className="createStaticActionsCards">
+							<span className="createStaticActionsCardsTitle">{ele?.title}</span>
+							<span className="createStaticActionsCardsSubTitle">{ele?.subtext}</span>
+						</div>
+					))}
+				</div>
+			</div>
+
+			<div className="docsFileContainer">
+				<div className="docsFileHeaderContainer">
+					<span className="docsFileHeaderContainerTitle">Files</span>
+				</div>
+				<div
+					style={
+						{
+							// flex: 1,
+							// // overflowY: 'auto',
+							// display: 'flex',
+							// flexDirection: 'column',
+							// width: '100%',
+							// height: '100%',
+						}
+					}
+					className="docsFilesInfiiniteContainer"
+				>
+					<InfiniteScroll
+						dataLength={info?.docsData?.length || 0}
+						next={fetcMoreDocsFilesList}
+						hasMore={info?.hasNextPage}
+						loader={<FetchMoreLoaderComp />}
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							gap: '8px',
+							width: '100%',
+							padding: '0px 20px 0px 20px',
+						}}
+						className="tetsing"
+						height="calc(100vh - 500px)"
+					>
+						{info?.docsData?.map((ele, index) => (
+							<div
+								className="docsRow"
+								key={index}
+								onClick={() => handleOpenSidebar(ele)}
+							>
+								<div className="docsFilesRowTitle">{ele?.title}</div>
+								<div className="docsKeyWordsContainer">
+									{ele?.clientDetails?.name ? (
+										<span className="docsclientdetailsName">
+											{ele?.clientDetails?.name}
+										</span>
+									) : (
+										''
+									)}
+
+									<DocsStatusButton
+										content={statusTextmapper?.[ele?.status]?.text}
+										style={statusTextmapper?.[ele?.status]?.style}
+										dotStyle={statusTextmapper?.[ele?.status]?.dotStyle}
+									/>
+								</div>
+							</div>
+						))}
+					</InfiniteScroll>
+				</div>
+
+				<Sidebar
+					open={info?.showRightDrawer}
+					onClose={handleCloseSidebar}
+					activeFileData={info?.activeFileData}
+				/>
+			</div>
+		</div>
+	);
+};
+
+export default memo(Docs);
+{
+	/* <div className="docsTemplatesContainer">
 				<div className="docsTemplatesContainerHeader">
 					Create new file from your existing templates
 					<div className="docsTemplatesAllFilesContainer">
@@ -122,13 +318,5 @@ const Docs = () => {
 						</div>
 					))}
 				</div>
-			</div>
-
-			<div className="docsFooterContainer">
-				<FilesListView />
-			</div>
-		</div>
-	);
-};
-
-export default memo(Docs);
+			</div> */
+}

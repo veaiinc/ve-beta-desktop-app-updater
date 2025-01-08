@@ -108,6 +108,10 @@ const actionHandlers = {
 			globalChatMessages: updatedGlobalChatMessages,
 		};
 	},
+	GET_DOCS_FILES_LIST_SUCCESS: (state, action) => ({
+		...state,
+		[action?.selectedvariable]: action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

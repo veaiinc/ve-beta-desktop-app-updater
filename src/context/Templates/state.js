@@ -72,6 +72,8 @@ export const intialState = {
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
 	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
+	docsFilesList: null,
+	moreDocsFilesList: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1239,6 +1241,34 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	//docs
+
+	const getDocsFilesList = async (payload, fetchMore = false) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getWorkflowListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const selectedvariable = fetchMore ? 'moreDocsFilesList' : 'docsFilesList';
+				dispatch({
+					type: Actions?.GET_DOCS_FILES_LIST_SUCCESS,
+					payload: response?.[1]?.data?.workflows,
+					selectedvariable,
+				});
+			} else {
+				console.log('Api failed==>getDocsFilesList', response);
+			}
+		} catch (error) {
+			console.log('error==>getDocsFilesList', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -1291,5 +1321,6 @@ export const TemplatesState = (props) => {
 		smartFileAiChat,
 		uploadImageInSmartFileAi,
 		handleGlobalChatMessages,
+		getDocsFilesList,
 	};
 };
