@@ -1,8 +1,16 @@
 import React, { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 import DropDown from '../../dropDown/tasks/DropDown';
+import { Tooltip } from 'antd';
 
-const Priority = ({ value, onOptionClick, customListItemStyle = {}, setDefault = true }) => {
+const Priority = ({
+	value,
+	onOptionClick,
+	customListItemStyle = {},
+	setDefault = true,
+	title = 'Priority',
+	showTitle = false,
+}) => {
 	const [info, setInfo] = useState({
 		options: [
 			{
@@ -42,16 +50,23 @@ const Priority = ({ value, onOptionClick, customListItemStyle = {}, setDefault =
 				onOptionClick={onOptionClick}
 				valueSelector="value"
 			>
-				<div
-					className={`currentItem`}
-					style={{ ...customListItemStyle, backgroundColor: info?.selected?.color }}
+				<Tooltip
+					title={showTitle ? <div className="tooltip-inner">{title}</div> : ''}
+					placement="bottom"
+					overlayClassName="tooltip-overlay-container"
+					color="transparent"
 				>
-					{value ? (
-						<p className="listItem-label">{info?.selected?.label}</p>
-					) : (
-						<p className="listItem-label">Select priority</p>
-					)}
-				</div>
+					<div
+						className={`currentItem`}
+						style={{ ...customListItemStyle, backgroundColor: info?.selected?.color }}
+					>
+						{value ? (
+							<p className="listItem-label">{info?.selected?.label}</p>
+						) : (
+							<p className="listItem-label">Select priority</p>
+						)}
+					</div>
+				</Tooltip>
 			</DropDown>
 		</div>
 	);

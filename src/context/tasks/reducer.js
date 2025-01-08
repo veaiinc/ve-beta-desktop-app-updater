@@ -40,6 +40,35 @@ const actionHandlers = {
 			},
 		};
 	},
+	SET_TASK_METADATA: (state, action) => ({
+		...state,
+		taskMetadata: { ...state?.taskMetadata, ...action?.payload },
+	}),
+	ADD_NEW_STATUS_LABEL: (state, action) => ({
+		...state,
+		taskMetadata: {
+			...state.taskMetadata,
+			status: [...state?.taskMetadata?.status, action?.payload],
+		},
+	}),
+	UPDATE_STATUS_LABEL: (state, action) => ({
+		...state,
+		taskMetadata: {
+			...state.taskMetadata,
+			status: state?.taskMetadata?.status?.map((item) =>
+				item?._id === action?.payload?._id ? action?.payload : item,
+			),
+		},
+	}),
+	DELETE_STATUS_LABEL: (state, action) => ({
+		...state,
+		taskMetadata: {
+			...state.taskMetadata,
+			status: state?.taskMetadata?.status?.filter(
+				(item) => item?._id !== action?.payload?._id,
+			),
+		},
+	}),
 	RESET_STATE: () => intialState,
 };
 

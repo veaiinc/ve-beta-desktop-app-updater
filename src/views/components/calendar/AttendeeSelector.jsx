@@ -107,6 +107,7 @@ const AttendeeSelector = ({ options, value = [], onChange, className }) => {
 					(option?.label?.toLowerCase() || '').includes(input.toLowerCase()) ||
 					(option?.email?.toLowerCase() || '').includes(input.toLowerCase())
 				}
+				getPopupContainer={(trigger) => trigger?.parentNode}
 			/>
 		</div>
 	);

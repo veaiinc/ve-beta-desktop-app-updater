@@ -1,5 +1,6 @@
 import service from '../../services/graphQlServices';
 import { message } from 'antd';
+import { ReactComponent as AiSparkel } from '../../assets/svg/calendar/aiSparkel.svg';
 import {
 	getTemmplatesQuery,
 	duplicateTemplateQuery,
@@ -40,6 +41,7 @@ import Reducer from './reducer';
 import { Actions } from './Actions';
 import Service from '../../services/index';
 import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
+import { getBase64 } from '../../helpers';
 
 export const intialState = {
 	workflowslist: null,
@@ -69,6 +71,7 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
+	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
 };
 
 export const TemplatesState = (props) => {
@@ -1068,7 +1071,7 @@ export const TemplatesState = (props) => {
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions?.SET_CONNECT_URL,
-					payload: [true, response?.[1]?.connectUrl],
+					payload: [true, response?.[1]?.connectUrl || response?.[1]?.url],
 				});
 			} else {
 				dispatch({
@@ -1164,6 +1167,78 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const uploadImageInSmartFileAi = async (file, slug) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `https://ai.ap-south-1.ve.ai/${workspaceId}/${slug}/data_extraction`;
+
+			const base64 = await getBase64(file);
+			// Convert base64 to blob
+			const response = await fetch(base64);
+			const blob = await response.blob();
+
+			const formData = new FormData();
+			formData.append('file', blob, file.name);
+
+			const result = await fetch(url, {
+				method: 'POST',
+				body: formData,
+				headers: {
+					Authorization: `Bearer ${usertoken}`,
+				},
+			});
+
+			if (!result.ok) {
+				return [false, `Failed to upload: ${result.statusText}`];
+			}
+
+			return [true, 'We made the changes accordingly'];
+		} catch (error) {}
+	};
+
+	const handleGlobalChatMessages = async (payload, sessionId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
+			const updatedGlobalChatMessages = [
+				{ type: 'user', message: payload?.query || '' },
+				{
+					type: 'AI',
+					message: 'loading....',
+					content: (
+						<div className="aiMessageWrapper">
+							<AiSparkel />
+							<div className="aiMessage">
+								<span>Thinking...</span>
+							</div>
+						</div>
+					),
+					contentType: 'loading',
+				},
+			];
+			dispatch({
+				type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
+				payload: updatedGlobalChatMessages,
+			});
+			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
+			if (response?.[0]) {
+				const updatedGlobalChatMessages = {
+					type: 'AI',
+					message: response?.[1]?.answer,
+				};
+				dispatch({
+					type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,
+					payload: updatedGlobalChatMessages,
+				});
+				return [true, response?.[1]];
+			}
+		} catch (error) {
+			console.log('errror ==>handleGlobalChatMessages', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -1214,5 +1289,7 @@ export const TemplatesState = (props) => {
 		getDrafStateWorkflowtemplates,
 		toggleCreateLeadModal,
 		smartFileAiChat,
+		uploadImageInSmartFileAi,
+		handleGlobalChatMessages,
 	};
 };

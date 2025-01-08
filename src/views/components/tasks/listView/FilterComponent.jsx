@@ -21,6 +21,7 @@ const FilterComponent = ({
 	onConfirm,
 	setPendingFilters,
 	props,
+	colors,
 }) => {
 	const [isVisible, setIsVisible] = useState(false);
 
@@ -79,6 +80,8 @@ const FilterComponent = ({
 				value={value}
 				onOptionClick={(value) => handleFilterChange(fieldName, value)}
 				setDefault={false}
+				{...props}
+				colors={colors}
 			/>
 		),
 		priority: (value) => (
@@ -145,6 +148,8 @@ const FilterComponent = ({
 					:{' '}
 					{type === 'date' && value
 						? moment.unix(value).format('MMM DD')
+						: type === 'status' && value
+						? props?.options?.find((option) => option._id === value)?.label
 						: typeof value === 'object'
 						? value?.title || value?.name || value?.label
 						: value}

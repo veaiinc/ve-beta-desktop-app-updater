@@ -13,6 +13,7 @@ const Person = ({
 	options = [],
 	multiSelect = false,
 	disabled = false,
+	showTitle = false,
 }) => {
 	const [info, setInfo] = useState({
 		value: null,
@@ -85,13 +86,32 @@ const Person = ({
 	};
 
 	return (
-		<Tooltip title={title} placement="bottom">
+		<Tooltip
+			title={
+				showTitle
+					? info?.value && (
+							<div className="person-tooltip-container">{`${title} ${
+								Array.isArray(info?.value)
+									? `${info?.value?.[0]?.label} ${
+											info?.value?.length > 1
+												? `+${info?.value?.length - 1} more`
+												: ''
+									  }`
+									: info?.value?.label
+							}`}</div>
+					  )
+					: ''
+			}
+			placement="bottom"
+			overlayClassName="person-tooltip-wrapper"
+			color="transparent"
+		>
 			<Select
 				placeholder={
 					!value || (Array.isArray(value) && value.length === 0)
 						? disabled
 							? 'No data'
-							: `Select ${title || 'person'}`
+							: `${title || 'person'}`
 						: undefined
 				}
 				options={options}
@@ -105,7 +125,7 @@ const Person = ({
 				style={{
 					width:
 						(!info?.value && !value) || (Array.isArray(value) && value.length === 0)
-							? '130px'
+							? '100px'
 							: 'fit-content',
 					color: disabled ? '#8c8c8c' : '#e5e5e5',
 				}}

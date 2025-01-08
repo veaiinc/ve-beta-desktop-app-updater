@@ -219,3 +219,29 @@
 		line-height: normal;
 	}
 }
+
+.ant-select-item-option {
+	background-color: transparent !important;
+}
+
+.person-tooltip-wrapper {
+	width: fit-content;
+	.person-tooltip-container {
+		border-radius: 10px;
+		background: color(display-p3 0.9098 0.9098 0.9098);
+		display: inline-flex;
+		padding: 6px 10px;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 2px;
+		color: #131314;
+		color: color(display-p3 0.0745 0.0745 0.0784);
+		font-family: Inter;
+		font-size: 13px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 13px; /* 100% */
+		letter-spacing: -0.26px;
+	}
+}
