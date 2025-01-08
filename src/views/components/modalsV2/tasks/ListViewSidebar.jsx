@@ -218,6 +218,7 @@ const ListViewSidebar = ({
 										updatePropertyValue(row._id, key, value, isShowingSubTask)
 									}
 									colors={colors}
+									takeFullspace={true}
 								/>
 							) : (
 								<div key={key}>{value}</div>

@@ -20,6 +20,7 @@ import TaskId from './TaskId';
 import Skeleton from 'react-loading-skeleton';
 import ParentTaskComponent from './ParentTaskComponent';
 import ChildTaskProgress from './ChildTaskProgress';
+import LinkText from './LinkText';
 
 const rowTypes = {
 	text: Text,
@@ -37,6 +38,7 @@ const rowTypes = {
 	workflow: WorkFlow,
 	parentTask: ParentTaskComponent,
 	childTasks: ChildTaskProgress,
+	linkText: LinkText,
 };
 
 const ListView = ({
@@ -51,6 +53,7 @@ const ListView = ({
 	addButtonOnClick,
 	haveSubTask = false,
 	colors,
+	createButtonText = 'Create Task',
 }) => {
 	const [listViewState, setListViewState] = useState({
 		editingProperty: null,
@@ -122,6 +125,7 @@ const ListView = ({
 				editingProperty={listViewState?.editingProperty}
 				handleEditPropertyChange={handleEditPropertyChange}
 				colors={colors}
+				createButtonText={createButtonText}
 			/>
 			<div className="listContainer">
 				<div className="listInnerContainer">

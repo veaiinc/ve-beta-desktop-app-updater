@@ -110,7 +110,7 @@
 				width: 100%;
 				.property-list {
 					display: grid;
-					grid-template-columns: 1fr 1fr;
+					grid-template-columns: 1fr 2fr;
 					align-items: center;
 
 					.property-title {
@@ -132,6 +132,7 @@
 						display: flex;
 						justify-content: flex-start;
 						align-items: center;
+						width: 100%;
 					}
 				}
 			}

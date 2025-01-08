@@ -67,7 +67,8 @@ const OptionsDropDown = ({
 	}, [editingProperty]);
 
 	const updatePropertyPreference = useCallback(
-		(propName, value) => {
+		(e, propName, value) => {
+			e?.stopPropagation();
 			let newOrder = 1;
 
 			if (value?.show) {
@@ -228,7 +229,7 @@ const OptionsDropDown = ({
 		let currentOrder = 1;
 
 		const newProperties = properties?.map((property) => {
-			if (property.value === 'title') {
+			if (property.isTitle) {
 				return {
 					...property,
 					show: true,
@@ -249,7 +250,7 @@ const OptionsDropDown = ({
 		newProperties.forEach((property) => {
 			newTaskPreferences[property.value] = {
 				...newTaskPreferences[property.value],
-				show: property.value === 'title',
+				show: property.isTitle,
 				order: property.order,
 			};
 		});
@@ -280,7 +281,7 @@ const OptionsDropDown = ({
 					{...provided.droppableProps}
 					className="options-dropdown-property-container"
 				>
-					{items?.map(({ Icon = null, label, value }, index) => (
+					{items?.map(({ Icon = null, label, value, isTitle }, index) => (
 						<Draggable key={value} draggableId={value} index={index}>
 							{(provided, snapshot) => (
 								<div
@@ -303,20 +304,22 @@ const OptionsDropDown = ({
 									{Icon && <Icon />}
 									<span className="property-listItem-title">{label}</span>
 									{droppableId === 'shown' ? (
-										value === 'title' ? (
+										isTitle ? (
 											<OpenEye className="crossed-eye-icon" />
 										) : (
 											<OpenEye
-												onClick={() =>
-													updatePropertyPreference(value, { show: false })
+												onClick={(e) =>
+													updatePropertyPreference(e, value, {
+														show: false,
+													})
 												}
 											/>
 										)
 									) : (
 										<CrossedOpenEye
 											className="crossed-eye-icon"
-											onClick={() =>
-												updatePropertyPreference(value, { show: true })
+											onClick={(e) =>
+												updatePropertyPreference(e, value, { show: true })
 											}
 										/>
 									)}
@@ -329,7 +332,7 @@ const OptionsDropDown = ({
 							)}
 						</Draggable>
 					))}
-					{provided.placeholder}
+					{provided.placement}
 				</div>
 			)}
 		</Droppable>

@@ -243,3 +243,18 @@
 		letter-spacing: -0.26px;
 	}
 }
+
+.listItemRow,
+.listView-sidebar-container {
+	.ant-select-selection-item {
+		padding: 0 !important;
+		display: flex;
+		align-items: center;
+	}
+	.ant-select-selection-overflow-item.ant-select-selection-overflow-item-suffix {
+		display: none !important;
+	}
+	.ant-select-selector {
+		padding: 0px !important;
+	}
+}
