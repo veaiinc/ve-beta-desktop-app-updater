@@ -362,6 +362,12 @@
 								border: none;
 							}
 						}
+
+						.ant-otp {
+							.ant-input {
+								background-color: red !important;
+							}
+						}
 					}
 				}
 

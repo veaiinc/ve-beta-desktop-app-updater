@@ -204,7 +204,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 						shouldAutoFocus={true}
 					/> */}
 					<Input.OTP
-						className="otp-input-div"
+						// classNames="otp-input-div"
 						defaultValue={info?.otp}
 						formatter={(value) => `${value}`.replace(/[^0-9]/g, '')}
 						mask={'0'}
