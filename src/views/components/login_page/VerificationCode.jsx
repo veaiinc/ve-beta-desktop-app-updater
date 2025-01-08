@@ -1,5 +1,5 @@
 import React, { memo, useState, useEffect, useRef, useContext, useCallback } from 'react';
-import OtpInput from 'react-otp-input';
+// import OtpInput from 'react-otp-input';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/login_page/left-arrow-back-btn.svg';
@@ -10,6 +10,7 @@ import { getLocationsDetails } from '../../../helpers';
 import Context from '../../../context/context';
 import Spinner from '../loaders/Spinner';
 import { useLocation } from 'react-router-dom';
+import { Input } from 'antd';
 
 const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveStage }) => {
 	const navigate = useNavigate();
@@ -175,7 +176,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			</div>
 			<div className="verification-code-input-container">
 				<div className="otp-input-container" ref={otpContainerRef}>
-					<OtpInput
+					{/* <OtpInput
 						value={info?.otp}
 						onChange={(otp) => setInfo((prev) => ({ ...prev, otp }))}
 						numInputs={6}
@@ -201,7 +202,14 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 						inputType="number"
 						placeholder="000000"
 						shouldAutoFocus={true}
+					/> */}
+					<Input.OTP
+						className="otp-input-div"
+						defaultValue={info?.otp}
+						formatter={(value) => `${value}`.replace(/[^0-9]/g, '')}
+						mask={'0'}
 					/>
+
 					{info?.isLoading && <Spinner />}
 				</div>
 				<p className="otp-error-message">{info?.otpError}</p>
