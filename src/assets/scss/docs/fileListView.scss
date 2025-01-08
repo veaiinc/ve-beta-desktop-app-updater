@@ -82,6 +82,65 @@
 	}
 
 	.listViewContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 20px;
+		align-self: stretch;
+
+		.listDataMapper {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+
+			.listDataMapperRow {
+				display: flex;
+				height: 31px;
+				align-items: center;
+				align-self: stretch;
+
+				.listDataMapperRowLabel {
+					display: flex;
+					width: 130px;
+					align-items: center;
+					gap: 8px;
+					align-self: stretch;
+
+					color: var(--ve-ai-dark-theme-secondary-color, #939393);
+					color: var(
+						--ve-ai-dark-theme-secondary-color,
+						color(display-p3 0.5755 0.5755 0.5755)
+					);
+					font-family: Inter;
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+
+					> svg {
+						width: 16px;
+						height: 16px;
+					}
+				}
+
+				.listDataMapperRowValue {
+					color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+					color: var(
+						--ve-ai-dark-theme-primary-font-color,
+						color(display-p3 0.9098 0.9098 0.9098)
+					);
+
+					/* Body/Body - 12 px */
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
 	}
 
 	.tabsViewWrapper {
@@ -193,7 +252,7 @@
 	flex-direction: column;
 	width: 100%;
 	border-radius: 24px;
-    // height: 700px;
+	// height: 700px;
 	height: 100%;
 	overflow-y: auto;
 	background-color: #fff;

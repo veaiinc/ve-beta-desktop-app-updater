@@ -47,8 +47,6 @@ const FilesListView = () => {
 		activeTab: 'reqActions',
 	});
 
-	// const [activeTab, setActiveTab] = useState('reqActions');
-
 	const responseMetadata = useMemo(
 		() => ({
 			title: { type: 'text', name: 'Title', Icon: textSvg, doSplit: true, props: {} },

@@ -4,6 +4,8 @@ import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRigh
 import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
 import { ReactComponent as ShareSvg } from '../../../assets/svg/docs/share.svg';
 import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
+import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
+import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
 import CustomTextArea from '../globalComponents/CusomTextArea';
 import RequiredActions from './RequiredActions';
 import Preview from './Preview';
@@ -36,6 +38,8 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 		],
 		[activeFileData],
 	);
+	// console.log('activeFileData', JSON.stringify(activeFileData, null, 2));
+	console.log('activeFileData', activeFileData);
 
 	const renderActiveComponent = useCallback(() => {
 		const activeTabConfig = tabs?.find((tab) => tab?.id === info?.activeTab);
@@ -70,17 +74,52 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 
 				<div className="listViewContainer">
 					<CustomTextArea
-						value={`${info?.selectedRow?.title || 'Abhilash Wedding'}`}
+						value={activeFileData?.title}
 						onChange={(e) => {}}
 						autoResize={true}
+						style={{ padding: '0px' }}
 						// className="titleInput"
 					/>
-					ListView
+
+					<div className="listDataMapper">
+						<div className="listDataMapperRow">
+							<div className="listDataMapperRowLabel">
+								<PersonSvg />
+								<span>Client Name</span>
+							</div>
+							<div className="listDataMapperRowValue">
+								{activeFileData?.clientDetails?.name}
+							</div>
+						</div>
+						{/* <div className="listDataMapperRow">
+							<div className="listDataMapperRowLabel">
+								svg
+								<span>Cost</span>
+							</div>
+							<div className="listDataMapperRowValue">$123,456.00</div>
+						</div> */}
+						{/* <div className="listDataMapperRow">
+							<div className="listDataMapperRowLabel">
+								svg
+								<span>Project Date</span>
+							</div>
+							<div className="listDataMapperRowValue">Jan 8 2025</div>
+						</div> */}
+						<div className="listDataMapperRow">
+							<div className="listDataMapperRowLabel">
+								<PieSvg />
+								<span>Stage</span>
+							</div>
+							<div className="listDataMapperRowValue">{activeFileData?.status}</div>
+						</div>
+					</div>
+
 					<CustomTextArea
 						value={`${info?.selectedRow?.title || ''}`}
 						onChange={(e) => {}}
 						autoResize={true}
-						placeholder="| Add Description.... "
+						placeholder="Add Description.... "
+						style={{ padding: '0px' }}
 						// className="titleInput"
 					/>
 				</div>
