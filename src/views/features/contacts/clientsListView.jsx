@@ -9,13 +9,32 @@ import ListView from '../../components/tasks/listView/ListView';
 // import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Context from '../../../context/context';
+import CreateLeadModal from '../../components/modalsV2/proposalModals/CreateLeadModal';
 // import { message } from 'antd';
 // import jwtDecode from 'jwt-decode';
 // import moment from 'moment';
 
 const ClientListView = () => {
+	// let {
+	// 	templates: {
+	// 		getClientList,
+	// 		clientList,
+	// 		getTemplatesListForCreateLead,
+	// 		templatesListForCreateLead,
+	// 		createLeadfromTemplates,
+	// 		updateStateValues,
+	// 		toggleCreateLeadModal,
+	// 		createLeadModalContextState,
+	// 	},
+	// } = useContext(Context);
 	const {
-		templates: { getClientList, clientList },
+		templates: {
+			getClientList,
+			clientList,
+			toggleCreateLeadModal,
+			salePageRefresh,
+			createLeadModalContextState,
+		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
@@ -38,14 +57,27 @@ const ClientListView = () => {
 
 	const responseMetadata = useMemo(
 		() => ({
-			name: { type: 'text', name: 'Name', Icon: textSvg, doSplit: true, props: {} },
-			email: { type: 'text', name: 'Email', Icon: textSvg, doSplit: false, props: {} },
-			phoneNumber: {
+			name: {
 				type: 'text',
+				name: 'Name',
+				Icon: textSvg,
+				doSplit: true,
+				isTitle: true,
+				props: {},
+			},
+			email: {
+				type: 'linkText',
+				name: 'Email',
+				Icon: textSvg,
+				doSplit: false,
+				props: { linkType: 'email' },
+			},
+			phoneNumber: {
+				type: 'linkText',
 				name: 'Phone Number',
 				Icon: textSvg,
 				doSplit: false,
-				props: {},
+				props: { linkType: 'phone' },
 			},
 			// description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
 			// status: {
@@ -154,6 +186,14 @@ const ClientListView = () => {
 	}, [clientList]);
 
 	useEffect(() => {
+		console.log('salePageRefresh', salePageRefresh);
+		if (salePageRefresh) {
+			fetchListItems();
+			toggleCreateLeadModal({ salePageRefresh: false });
+		}
+	}, [salePageRefresh]);
+
+	useEffect(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			properties: mapPropertyType(),
@@ -207,7 +247,12 @@ const ClientListView = () => {
 				continue;
 			}
 
-			const { type = null, name = null, Icon = null } = responseMetadata[key];
+			const {
+				type = null,
+				name = null,
+				Icon = null,
+				isTitle = false,
+			} = responseMetadata[key];
 
 			properties.push({
 				value: key,
@@ -215,6 +260,7 @@ const ClientListView = () => {
 				label: name,
 				Icon,
 				show: true,
+				isTitle,
 			});
 		}
 		return properties;
@@ -269,8 +315,11 @@ const ClientListView = () => {
 				addNewTask={addNewClient}
 				responseMetadata={responseMetadata}
 				fetchListItems={fetchListItems}
-				addButtonOnClick={() => {}}
+				addButtonOnClick={() => {
+					toggleCreateLeadModal({ createLeadModalContextState: true });
+				}}
 				headerTitle={'Contacts'}
+				createButtonText={'Create Client'}
 			/>
 		</div>
 	);
