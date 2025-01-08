@@ -1,5 +1,4 @@
 import React, { useRef, useState, useEffect, useContext, memo } from 'react';
-import OtpInput from 'react-otp-input';
 import '../../../assets/scss/onboarding/index.scss';
 import Spinner from '../loaders/Spinner';
 import Context from '../../../context/context';
