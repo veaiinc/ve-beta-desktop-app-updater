@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import '../../../assets/scss/docs/fileListView.scss';
 import ListView from '../../components/tasks/listView/ListView';
 // import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
@@ -8,7 +9,14 @@ import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.sv
 import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
+import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
+import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
+import { ReactComponent as ShareSvg } from '../../../assets/svg/docs/share.svg';
+import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
 import Context from '../../../context/context';
+import RequiredActions from '../../components/docs/RequiredActions';
+import Preview from '../../components/docs/Preview';
+import { Drawer } from 'antd';
 // import { message } from 'antd';
 // import jwtDecode from 'jwt-decode';
 // import moment from 'moment';
@@ -34,7 +42,11 @@ const FilesListView = () => {
 		filters: [],
 		searchValue: '',
 		updated: false,
+		showRightDrawer: false,
+		activeTab: 'reqActions',
 	});
+
+	// const [activeTab, setActiveTab] = useState('reqActions');
 
 	const responseMetadata = useMemo(
 		() => ({
@@ -247,8 +259,46 @@ const FilesListView = () => {
 		}
 	}, []);
 
+	const rowClickHandler = useCallback((data) => {
+		console.log('rowClickHandler==>', data);
+		setInfo((prev) => ({ ...prev, showRightDrawer: !prev.showRightDrawer }));
+	}, []);
+
+	const tabs = useMemo(
+		() => [
+			{
+				id: 'reqActions',
+				label: 'Req Actions',
+				Component: () => <RequiredActions />,
+			},
+			{
+				id: 'preview',
+				label: 'Preview',
+				Component: () => <Preview />,
+			},
+			{
+				id: 'activity',
+				label: 'Activity',
+				Component: () => <div>Activity</div>,
+			},
+		],
+		[],
+	);
+
+	const handleTabChange = useCallback((tabId) => {
+		setInfo((prev) => ({ ...prev, activeTab: tabId }));
+	}, []);
+
+	const renderActiveComponent = useCallback(() => {
+		const activeTabConfig = tabs?.find((tab) => tab?.id === info?.activeTab);
+		if (!activeTabConfig) return null;
+
+		const { Component } = activeTabConfig;
+		return <Component />;
+	}, [info?.activeTab, tabs]);
+
 	return (
-		<div>
+		<>
 			<ListView
 				info={info}
 				updateListViewInfo={updateListViewInfo}
@@ -260,8 +310,58 @@ const FilesListView = () => {
 				fetchListItems={fetchListItems}
 				addButtonOnClick={() => {}}
 				headerTitle={'Files'}
+				rowClickHandler={rowClickHandler}
 			/>
-		</div>
+
+			<Drawer
+				// open={info?.showRightDrawer}
+				open={true}
+				onClose={() => setInfo((prev) => ({ ...prev, showRightDrawer: false }))}
+				style={{ padding: '10px', backgroundColor: 'transparent' }}
+				headerStyle={{ display: 'none' }}
+				bodyStyle={{ padding: '0px' }}
+				width={480}
+			>
+				<div className="fileListViewDrawer">
+					<div className="headerContainer">
+						<div className="headerLeftLabel">
+							<CloseSvg
+								onClick={() =>
+									setInfo((prev) => ({ ...prev, showRightDrawer: false }))
+								}
+							/>
+							<ExpandSvg />
+						</div>
+						<div className="headerRightLabel">
+							<div>Draft</div>
+							<div className="editLabel">Edit</div>
+							<ShareSvg />
+							<DotsSvg />
+						</div>
+					</div>
+
+					<div className="listViewContainer">ListViewSidebar</div>
+
+					<div className="tabsViewWrapper">
+						<div className="tabsView">
+							{tabs?.map((tab) => (
+								<div
+									key={tab?.id}
+									className={`tabViewLabel ${
+										info?.activeTab === tab?.id ? 'active' : ''
+									}`}
+									onClick={() => handleTabChange(tab?.id)}
+								>
+									{tab?.label}
+								</div>
+							))}
+						</div>
+
+						<div className="respectiveView">{renderActiveComponent() || ''}</div>
+					</div>
+				</div>
+			</Drawer>
+		</>
 	);
 };
 

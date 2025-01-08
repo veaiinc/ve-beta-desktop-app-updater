@@ -5,7 +5,7 @@ import { fetchOriginSelection } from '../../../helpers';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
 import FilesListView from './FilesListView';
 import Context from '../../../context/context';
-import moment from 'moment';
+// import moment from 'moment';
 let origin = fetchOriginSelection();
 const Docs = () => {
 	let {
@@ -83,6 +83,7 @@ const Docs = () => {
 					</div>
 				</div>
 			</div>
+
 			<div className="docsTemplatesContainer">
 				<div className="docsTemplatesContainerHeader">
 					Create new file from your existing templates
@@ -122,6 +123,7 @@ const Docs = () => {
 					))}
 				</div>
 			</div>
+
 			<div className="docsFooterContainer">
 				<FilesListView />
 			</div>

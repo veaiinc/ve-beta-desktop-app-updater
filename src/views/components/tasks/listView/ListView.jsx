@@ -51,6 +51,7 @@ const ListView = ({
 	addButtonOnClick,
 	haveSubTask = false,
 	colors,
+	rowClickHandler,
 }) => {
 	const [listViewState, setListViewState] = useState({
 		editingProperty: null,
@@ -141,6 +142,7 @@ const ListView = ({
 								responseMetadata={responseMetadata}
 								handleEditPropertyChange={handleEditPropertyChange}
 								colors={colors}
+								rowClickHandler={rowClickHandler}
 							/>
 						))
 					) : (

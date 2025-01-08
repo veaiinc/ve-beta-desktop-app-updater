@@ -1,0 +1,200 @@
+.fileListViewDrawer {
+	color: #fff;
+
+	display: flex;
+	width: 100%;
+	height: 100%;
+	padding: 24px 36px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 20px;
+	border-radius: 16px;
+	background: var(--Card-Default-Color, #171819);
+	background: var(--Card-Default-Color, color(display-p3 0.0902 0.0941 0.098));
+
+	.headerContainer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+
+		.headerLeftLabel {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			cursor: pointer;
+
+			> svg {
+				width: 16px;
+				height: 16px;
+				flex-shrink: 0;
+				opacity: 0.7;
+				transition: opacity 0.3s ease;
+				&:hover {
+					opacity: 1;
+					filter: drop-shadow(0 0 8px #c8c4c4);
+				}
+			}
+		}
+
+		.headerRightLabel {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			cursor: pointer;
+
+			.editLabel {
+				display: flex;
+				height: 23px;
+				padding: 6px 12px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				border-radius: 59px;
+				color: #0b1215;
+				background: #e8e8e8;
+				border: 1px solid #e8e8e8;
+				background: color(display-p3 0.9098 0.9098 0.9098);
+				transition: all 0.3s ease;
+
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+
+				&:hover {
+					background: #0b1215;
+					color: #e8e8e8;
+					border: 1px solid #e8e8e8;
+				}
+			}
+
+			> svg {
+				width: 20px;
+				height: 20px;
+
+				&:hover {
+					filter: drop-shadow(0 0 8px #c8c4c4);
+				}
+			}
+		}
+	}
+
+	.listViewContainer {
+	}
+
+	.tabsViewWrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		flex: 1 0 0;
+		align-self: stretch;
+
+		.tabsView {
+			display: flex;
+			align-items: flex-start;
+			gap: 24px;
+			align-self: stretch;
+			cursor: pointer;
+			user-select: none;
+
+			.tabViewLabel {
+				display: flex;
+				// padding: 12px 0px;
+				padding: 8px 0px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				opacity: 0.7;
+				transition: opacity 0.3s ease;
+
+				&:hover {
+					opacity: 1;
+				}
+
+				color: var(--ve-ai-dark-theme-secondary-color, #939393);
+				color: var(
+					--ve-ai-dark-theme-secondary-color,
+					color(display-p3 0.5755 0.5755 0.5755)
+				);
+				font-family: Inter;
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.active {
+				color: #e8e8e8;
+				border-radius: 3px;
+				border-bottom: 2px solid var(--Primary-Font, #f2f2f3);
+				border-bottom: 2px solid var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
+				opacity: 1;
+			}
+		}
+
+		.respectiveView {
+			width: 100%;
+			height: 100%;
+		}
+	}
+}
+
+.requiredActionsWrapper {
+	display: flex;
+	width: 100%;
+	height: 52px;
+	padding: 12px 16px;
+	justify-content: space-between;
+	align-items: center;
+	align-self: stretch;
+	border-radius: 14px;
+	background: var(--card-over-card, #202123);
+	background: var(--card-over-card, color(display-p3 0.1255 0.1294 0.1373));
+	user-select: none;
+
+	color: var(--Primary-Font, #f2f2f3);
+	color: var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
+	font-family: Inter;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+
+	// .requiredAction {
+	// 	color: var(--ve-ai-dark-theme-secondary-color, #939393);
+	// 	color: var(--ve-ai-dark-theme-secondary-color, color(display-p3 0.5755 0.5755 0.5755));
+	// }
+
+	.requiredActionBtn {
+		border-radius: 29px;
+		border: 1px solid #333334;
+		border: 1px solid color(display-p3 0.2 0.2 0.2039);
+		display: flex;
+		height: 33px;
+		padding: 6px 12px;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		cursor: pointer;
+		opacity: 0.7;
+		transition: opacity 0.3s ease;
+
+		&:hover {
+			opacity: 1;
+		}
+	}
+}
+
+.previewContainer {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	border-radius: 24px;
+    // height: 700px;
+	height: 100%;
+	overflow-y: auto;
+	background-color: #fff;
+}
