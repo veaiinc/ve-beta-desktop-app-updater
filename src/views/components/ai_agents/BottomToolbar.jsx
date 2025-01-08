@@ -12,6 +12,12 @@ import { UploadOutlined } from '@ant-design/icons';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
+import { useLocation } from 'react-router-dom';
+
+const moduleHelper = {
+	'/tasks': 'tasks',
+};
+
 const BottomToolbar = ({
 	outerContainerStyle = {},
 	chatList = [],
@@ -23,6 +29,8 @@ const BottomToolbar = ({
 	const {
 		templates: { handleGlobalChatMessages, globalChatMessages, updateStateValues },
 	} = useContext(Context);
+
+	const location = useLocation();
 
 	const [info, setInfo] = useState({
 		expanded: false,
@@ -137,6 +145,10 @@ const BottomToolbar = ({
 							query: info?.chatQuery,
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 						};
+
+						if (moduleHelper?.[location?.pathname]) {
+							payload.module = moduleHelper?.[location?.pathname];
+						}
 						handleGlobalChatMessages(payload, info?.chatSessionId);
 					}
 
@@ -191,7 +203,10 @@ const BottomToolbar = ({
 				<div className="chatContent" ref={chatContentRef}>
 					{(!customChatActions ? globalChatMessages : chatList).map((chat, index) =>
 						chat?.content ? (
-							<div className={`chat-message ${chat.type.toLowerCase()}-message`}>
+							<div
+								className={`chat-message ${chat.type.toLowerCase()}-message`}
+								key={index}
+							>
 								{chat?.content}
 							</div>
 						) : (
