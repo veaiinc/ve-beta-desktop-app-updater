@@ -71,6 +71,7 @@ const OpenedSideBarHoverStateIcons = ({
 	navigateTo,
 	isSelected,
 	subModules,
+	customStyles,
 }) => {
 	const [isHover, setisHover] = useState(false);
 	const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -110,20 +111,22 @@ const OpenedSideBarHoverStateIcons = ({
 			}}
 		>
 			<div
-				className={`singleModuleItem ${isActive ? 'activeListModule' : ''} ${
-					isDropdownVisible ? 'calendar-active' : ''
-				}`}
-				onMouseEnter={onMoutseEnter}
-				onMouseLeave={onMoutseLeave}
-				onClick={redirectToFunction}
+				className={`singleModuleItem ${isActive ? 'activeListModule' : ''}`}
 				style={{
 					marginBottom:
 						isDropdownVisible && subModules?.length
 							? `${subModules.length * 40}px`
 							: '0',
 					justifyContent: 'space-between',
-					backgroundColor: isActive ? '#2E2F33' : isHover ? '#2E2F33' : 'transparent',
+					backgroundColor: isActive
+						? '#2E2F33'
+						: isHover
+						? customStyles?.onHoverColor || '#2E2F33'
+						: 'transparent',
 				}}
+				onMouseEnter={onMoutseEnter}
+				onMouseLeave={onMoutseLeave}
+				onClick={redirectToFunction}
 			>
 				<div
 					style={{
@@ -138,7 +141,12 @@ const OpenedSideBarHoverStateIcons = ({
 				</div>
 				{isDropdownVisible && subModules?.length > 0 && (
 					<div>
-						<div className={`dropdownMenu ${isDropdownVisible ? 'visible' : ''}`}>
+						<div
+							className={`dropdownMenu ${isDropdownVisible ? 'visible' : ''}`}
+							style={{
+								'--hover-color': customStyles?.onHoverColor || '#2E2F33',
+							}}
+						>
 							<div
 								style={{
 									position: 'absolute',
@@ -166,7 +174,13 @@ const OpenedSideBarHoverStateIcons = ({
 									key={subItem?.name}
 									className="subItem"
 									onClick={(e) => handleSubModuleClick(e, subItem)}
-									style={{ cursor: 'pointer' }}
+									style={{
+										cursor: 'pointer',
+										backgroundColor:
+											activeSubModule === index
+												? customStyles?.onHoverColor
+												: 'transparent',
+									}}
 								>
 									<div className="subitem-content">
 										<p>{subItem.name}</p>
@@ -228,6 +242,7 @@ const OpenedSideBarHoverStateIcons2 = ({
 				onClick={redirectToFunction}
 				style={{
 					backgroundColor: isActive ? '#2E2F33' : '',
+					borderRadius: '100px',
 				}}
 			>
 				<p>{name}</p>
@@ -275,6 +290,7 @@ const OpenedSideBarItemsComponent = ({
 	setsidebarStates,
 	info,
 	userWorkSpaceList,
+	customStyles,
 }) => {
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
@@ -336,6 +352,8 @@ const OpenedSideBarItemsComponent = ({
 		setActiveChat(null);
 	};
 
+	const isTemplatesWrapper = customStyles?.backgroundColor === 'transparent';
+
 	return (
 		// <div className="sidebarWorkspace">
 		// 	<WorkspaceListComponent
@@ -357,6 +375,7 @@ const OpenedSideBarItemsComponent = ({
 					<div
 						className="openSideBarComponent"
 						style={{
+							...customStyles,
 							height: '100vh',
 							display: 'flex',
 							flexDirection: 'column',
@@ -372,6 +391,7 @@ const OpenedSideBarItemsComponent = ({
 									top: '0',
 									backgroundColor: '#202123',
 									zIndex: '1000',
+									...customStyles,
 								}}
 							>
 								<div
@@ -436,6 +456,7 @@ const OpenedSideBarItemsComponent = ({
 											borderRadius: '16px',
 											animation: 'slideDown 0.3s ease-out',
 											transformOrigin: 'top',
+											...customStyles,
 										}}
 									>
 										<WorkspaceListComponent
@@ -443,6 +464,7 @@ const OpenedSideBarItemsComponent = ({
 											sidebarStates={sidebarStates}
 											info={info}
 											userWorkSpaceList={userWorkSpaceList}
+											customStyles={customStyles}
 										/>
 									</div>
 								)}
@@ -464,7 +486,11 @@ const OpenedSideBarItemsComponent = ({
 								{!isThisEarlyAccessPage && (
 									<hr
 										style={{
-											border: '0.7px solid #333334',
+											border: `0.7px solid ${
+												isTemplatesWrapper
+													? 'rgba(255, 255, 255, 0.20)'
+													: '#333334'
+											}`,
 											margin: '16px 0px',
 										}}
 									/>
@@ -485,6 +511,7 @@ const OpenedSideBarItemsComponent = ({
 													info?.activeRoute === singleItems?.moduleRoute
 												}
 												subModules={singleItems?.subModules}
+												customStyles={customStyles}
 												style={{
 													fontSize: '14px',
 													fontStyle: 'normal',
@@ -498,7 +525,11 @@ const OpenedSideBarItemsComponent = ({
 								{!isThisEarlyAccessPage && (
 									<hr
 										style={{
-											border: '0.7px solid #333334',
+											border: `0.7px solid ${
+												isTemplatesWrapper
+													? 'rgba(255, 255, 255, 0.20)'
+													: '#333334'
+											}`,
 											margin: '16px 0px',
 										}}
 									/>
@@ -519,6 +550,7 @@ const OpenedSideBarItemsComponent = ({
 													info?.activeRoute === singleItems?.moduleRoute
 												}
 												subModules={singleItems?.subModules}
+												customStyles={customStyles}
 												style={{
 													fontSize: '14px',
 													fontStyle: 'normal',

@@ -1,4 +1,5 @@
 import AuthWrapper from './views/layouts/authWrapper';
+import TemplatesWrapper from './views/layouts/templatesWrapper';
 import LoginPage from './views/features/login_page/LoginPage';
 import Onboarding from './views/features/onboarding/Onboarding';
 import Calendar from './views/features/calendar/index';
@@ -6,6 +7,7 @@ import Calendar from './views/features/calendar/index';
 import OauthVerify from './views/features/signin/oauth';
 import Sales from './views/features/sales/Sales';
 import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
+import MyTemplates from './views/features/sales/MyTemplates';
 import SmartFile from './views/features/sales/smartFiles/SmartFile';
 import WorkflowBuilderLayout from './views/layouts/workflowBuilderLayout';
 import SmartFileLayout from './views/layouts/smartFileLayout';
@@ -113,9 +115,18 @@ const routes = [
 	{
 		path: '/playbook',
 		component: (
-			<AuthWrapper title={'Sales'}>
+			<TemplatesWrapper title={'Sales'}>
 				<GlobalWorkflows />
-			</AuthWrapper>
+			</TemplatesWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/my-templates',
+		component: (
+			<TemplatesWrapper title={'My Templates'}>
+				<MyTemplates />
+			</TemplatesWrapper>
 		),
 		exact: true,
 	},
