@@ -5,6 +5,7 @@
 	background: linear-gradient(180deg, #0e0f0f 0%, #19191b 100%);
 	will-change: transform, opacity;
 	opacity: 0;
+	overflow: hidden;
 
 	.step8-container {
 		width: 100%;
