@@ -102,6 +102,9 @@ const ClosedSideBarItemsComponent = ({
 	const [isMobile, setIsMobile] = useState(window.innerWidth <= 500);
 	const [isThisEarlyAccessPage, setIsThisEarlyAccessPage] = useState(false);
 
+	// Add check for templates wrapper context
+	const isTemplatesWrapper = customStyles?.backgroundColor === 'transparent';
+
 	useEffect(() => {
 		const currentPath = window.location.pathname;
 		const { title } = getPathInfo(currentPath);
@@ -250,7 +253,7 @@ const ClosedSideBarItemsComponent = ({
 				<div
 					className="hamburgerIconContainer"
 					onClick={openModuleFunction}
-					style={{ position: 'absolute', top: '0%' }}
+					style={{ position: 'absolute', top: '0%', padding: '0px', width: '10px' }}
 				>
 					<SidebarClosingSvg />
 				</div>
@@ -368,7 +371,11 @@ const ClosedSideBarItemsComponent = ({
 							{visibleIcons?.length > 0 && (
 								<hr
 									style={{
-										border: '0.7px solid #333334',
+										border: `0.7px solid ${
+											isTemplatesWrapper
+												? 'rgba(255, 255, 255, 0.20)'
+												: '#333334'
+										}`,
 										width: '70%',
 										alignSelf: 'center',
 									}}
@@ -459,7 +466,11 @@ const ClosedSideBarItemsComponent = ({
 							{visibleIcons?.length > 0 && (
 								<hr
 									style={{
-										border: '0.7px solid #333334',
+										border: `0.7px solid ${
+											isTemplatesWrapper
+												? 'rgba(255, 255, 255, 0.20)'
+												: '#333334'
+										}`,
 										width: '70%',
 										alignSelf: 'center',
 									}}
@@ -567,7 +578,11 @@ const ClosedSideBarItemsComponent = ({
 									<>
 										<hr
 											style={{
-												border: '0.7px solid #333334',
+												border: `0.7px solid ${
+													isTemplatesWrapper
+														? 'rgba(255, 255, 255, 0.20)'
+														: '#333334'
+												}`,
 												width: '70%',
 												alignSelf: 'center',
 											}}

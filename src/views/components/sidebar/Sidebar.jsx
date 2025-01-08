@@ -30,6 +30,8 @@ const Sidebar = ({ activeWorkspaceId, customStyles }) => {
 		selectedModule: null,
 	});
 
+	const [isMobile, setIsMobile] = useState(window.innerWidth <= 500);
+
 	useEffect(() => {
 		if (!userWorkSpaceList) {
 			getUserWorkSpaceList();
@@ -102,11 +104,12 @@ const Sidebar = ({ activeWorkspaceId, customStyles }) => {
 						: 'no-submodules'
 				}`}
 				style={{
-					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
+					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : '',
 					maxHeight:
 						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '') : '',
 					minHeight:
 						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '250px') : '',
+					background: isMobile ? 'transparent' : undefined,
 				}}
 			>
 				<nav
@@ -114,6 +117,10 @@ const Sidebar = ({ activeWorkspaceId, customStyles }) => {
 					style={{
 						...styles[sidebarStates?.navStyle],
 						...customStyles,
+						background:
+							isMobile && sidebarStates?.isOpen
+								? '#1E1E1E'
+								: customStyles?.backgroundColor || undefined,
 					}}
 				>
 					{sidebarStates?.isOpen ? (

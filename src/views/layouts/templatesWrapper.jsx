@@ -13,13 +13,14 @@ const TemplatesWrapper = ({ title, children, maxWidth = '' }) => {
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 
 	const customStyles = {
-		// backgroundColor: 'transparent',
-		// backdropFilter: 'blur(10px)',
-		// border: '1px solid rgba(255, 255, 255, 0.20)',
-		// boxShadow: 'none',
-		// '&.sidebarComponent': {
-		// 	backgroundColor: 'transparent !important',
-		// },
+		backgroundColor: 'transparent',
+		backdropFilter: 'blur(10px)',
+		border: '1px solid rgba(255, 255, 255, 0.20)',
+		boxShadow: 'none',
+		onHoverColor: 'rgba(255, 255, 255, 0.20)',
+		'&.sidebarComponent': {
+			backgroundColor: 'transparent !important',
+		},
 	};
 
 	const checkAuth = useAuth();
