@@ -40,6 +40,7 @@
 		min-height: 50px;
 		max-height: 220px;
 		overflow-y: auto;
+		overflow-x: hidden;
 		// background-color: red;
 
 		.property-edit-section-title-wrapper {
@@ -72,7 +73,7 @@
 			padding: 6px;
 			align-items: center;
 			gap: 10px;
-			align-self: stretch;
+			width: 100%;
 			border-radius: 8px;
 			border: 1px solid var(--Primary-Font-Color, #f2f2f3);
 			background: transparent;
@@ -82,6 +83,7 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+			box-sizing: border-box;
 
 			&::placeholder {
 				color: var(--Secondary-Font, color(display-p3 0.4784 0.4941 0.5216));
