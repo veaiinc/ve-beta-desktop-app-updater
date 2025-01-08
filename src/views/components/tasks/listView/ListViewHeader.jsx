@@ -38,6 +38,7 @@ const ListViewHeader = ({
 	editingProperty,
 	handleEditPropertyChange,
 	colors,
+	createButtonText,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -79,7 +80,7 @@ const ListViewHeader = ({
 				<div className="listViewHeaderTitle">{headerTitle}</div>
 				<div className="listViewHeaderActions">
 					<button className="listViewHeaderAddTaskButton" onClick={addButtonOnClick}>
-						Create Task
+						{createButtonText}
 					</button>
 					<div
 						className="searchContainer"

@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useState, useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { ReactComponent as ArrowLeftSvg } from '../../../../assets/svg/tasks/arrowLeft.svg';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
@@ -119,17 +119,32 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 		}
 	};
 
-	const handleAddClick = (group) => {
-		setInfo((prev) => ({
-			...prev,
-			addNewProperty: {
-				...prev.addNewProperty,
-				show: !prev.addNewProperty.show,
-				group,
-				label: '',
-			},
-		}));
-	};
+	const handleAddClick = useCallback((group) => {
+		setInfo((prev) => {
+			// If clicking same group, toggle visibility
+			if (prev.addNewProperty.group === group) {
+				return {
+					...prev,
+					addNewProperty: {
+						...prev.addNewProperty,
+						show: !prev.addNewProperty.show,
+						group,
+						label: '',
+					},
+				};
+			}
+
+			// If clicking different group, show input for that group
+			return {
+				...prev,
+				addNewProperty: {
+					show: true,
+					group,
+					label: '',
+				},
+			};
+		});
+	}, []);
 
 	const handleInputChange = (e) => {
 		setInfo((prev) => ({

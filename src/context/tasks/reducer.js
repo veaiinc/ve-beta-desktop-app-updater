@@ -69,6 +69,10 @@ const actionHandlers = {
 			),
 		},
 	}),
+	UPDATE_TASK_STATE: (state, action) => ({
+		...state,
+		...action?.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

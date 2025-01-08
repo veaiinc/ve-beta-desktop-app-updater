@@ -57,6 +57,8 @@ const Tasks = () => {
 			getTaskStatusLabels,
 			taskMetadata,
 			getTaskStatusDefaultLabel,
+			refetchTasks,
+			updateTaskState,
 		},
 		templates: { getWorkflowsList, workflowslist },
 		companyInfo: {
@@ -94,7 +96,14 @@ const Tasks = () => {
 
 	const responseMetadata = useMemo(
 		() => ({
-			title: { type: 'text', name: 'Title', Icon: textSvg, props: {}, doSplit: true },
+			title: {
+				type: 'text',
+				name: 'Title',
+				Icon: textSvg,
+				props: {},
+				doSplit: true,
+				isTitle: true,
+			},
 			description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
 			status: {
 				type: 'status',
@@ -306,6 +315,14 @@ const Tasks = () => {
 		}
 	}, [taskMetadata]);
 
+	useEffect(() => {
+		if (refetchTasks) {
+			//call refetchTasks function here
+			fetchListItems();
+			updateTaskState({ refetchTasks: false });
+		}
+	}, [refetchTasks]);
+
 	const fetchListItems = useCallback(() => {
 		getListItems({
 			taskFilterInput: {
@@ -344,7 +361,12 @@ const Tasks = () => {
 				continue;
 			}
 
-			const { type = null, name = null, Icon = null } = responseMetadata[key] || {};
+			const {
+				type = null,
+				name = null,
+				Icon = null,
+				isTitle = false,
+			} = responseMetadata[key] || {};
 			const { show, order } = info?.taskPreferences[key] || { show: false, order: 0 };
 
 			properties.push({
@@ -354,6 +376,7 @@ const Tasks = () => {
 				Icon,
 				show,
 				order,
+				isTitle,
 			});
 		}
 		return properties;

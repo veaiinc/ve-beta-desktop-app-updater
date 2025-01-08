@@ -95,11 +95,16 @@
 	background: color(display-p3 0.2161 0.2161 0.2161);
 	cursor: pointer;
 	user-select: none;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 192px;
 	.select-listItem-color {
 		width: 6px;
 		height: 6px;
 		border-radius: 10px;
 		background-color: #787e87;
+		flex-shrink: 0;
 	}
 
 	.select-listItem-label {
@@ -111,5 +116,8 @@
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
 	}
 }
