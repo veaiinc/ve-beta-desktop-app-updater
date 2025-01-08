@@ -204,10 +204,20 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 						shouldAutoFocus={true}
 					/> */}
 					<Input.OTP
-						// classNames="otp-input-div"
+						id="otpContainer"
+						inputRender={({ inputElement, index }) => {
+							return React.cloneElement(inputElement, {
+								placeholder: '0',
+							});
+						}}
 						defaultValue={info?.otp}
+						onChange={(otp) => {
+							setInfo((prev) => ({ ...prev, otp: otp }));
+						}}
 						formatter={(value) => `${value}`.replace(/[^0-9]/g, '')}
-						mask={'0'}
+						autoFocus
+						length={6}
+						placeholder="000000"
 					/>
 
 					{info?.isLoading && <Spinner />}
