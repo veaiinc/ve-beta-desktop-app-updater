@@ -5,13 +5,13 @@ const ThemePreferenceComponent = ({ updateThemeSubmitHandler, activeTheme }) => 
 		<div className={'themeMain'}>
 			<h4>Theme Preference</h4>
 			<div>
-				{/* <button
+				<button
 					className={activeTheme === 'system' ? 'activeButton' : ''}
 					onClick={() => updateThemeSubmitHandler('system')}
 					disabled={activeTheme === 'system' ? true : false}
 				>
-					Follow system preferences
-				</button> */}
+					System
+				</button>
 				<button
 					className={activeTheme === 'dark' ? 'activeButton' : ''}
 					onClick={() => updateThemeSubmitHandler('dark')}

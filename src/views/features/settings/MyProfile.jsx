@@ -249,6 +249,12 @@ const MyProfile = () => {
 	};
 
 	const updateThemeSubmitHandler = async (mode) => {
+		if (mode === 'system') {
+			const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+				? 'dark'
+				: 'light';
+			mode = systemTheme;
+		}
 		const json = {
 			theme: mode,
 		};
