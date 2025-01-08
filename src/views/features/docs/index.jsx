@@ -8,6 +8,7 @@ import Context from '../../../context/context';
 import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { calc } from 'antd/es/theme/internal';
+import Sidebar from '../../components/docs/Sidebar';
 let origin = fetchOriginSelection();
 
 const staticCreateActions = [
@@ -31,7 +32,7 @@ const staticCreateActions = [
 	{ title: 'Create Landing Page', subtext: 'Create and share a landing page with clients.' },
 ];
 
-const statusTextmapper = {
+export const statusTextmapper = {
 	filesViewed: {
 		text: 'Files Viewed',
 		dotStyle: {
@@ -96,7 +97,7 @@ const statusTextmapper = {
 		},
 	},
 };
-const DocsStatusButton = ({ content = '', style = {}, textStyle = {}, dotStyle = {} }) => {
+export const DocsStatusButton = ({ content = '', style = {}, textStyle = {}, dotStyle = {} }) => {
 	return (
 		<div className="DocsStatusButtonOuterContainer" style={{ ...style }}>
 			<div className="DocsStatusCircle" style={{ ...dotStyle }}></div>
@@ -116,6 +117,8 @@ const Docs = () => {
 		hasNextPage: false,
 		loading: true,
 		docsData: [],
+		showRightDrawer: false,
+		activeFileData: null,
 	});
 
 	useEffect(() => {
@@ -165,6 +168,14 @@ const Docs = () => {
 		}));
 	}, []);
 
+	const handleOpenSidebar = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, showRightDrawer: true, activeFileData: data }));
+	}, []);
+
+	const handleCloseSidebar = useCallback(() => {
+		setInfo((prev) => ({ ...prev, showRightDrawer: false, activeFileData: null }));
+	}, []);
+
 	return (
 		<div className="docsParentContainer">
 			<div className="docsParentHeaderContainer">
@@ -202,19 +213,7 @@ const Docs = () => {
 				<div className="docsFileHeaderContainer">
 					<span className="docsFileHeaderContainerTitle">Files</span>
 				</div>
-				<div
-					style={
-						{
-							// flex: 1,
-							// // overflowY: 'auto',
-							// display: 'flex',
-							// flexDirection: 'column',
-							// width: '100%',
-							// height: '100%',
-						}
-					}
-					className="docsFilesInfiiniteContainer"
-				>
+				<div className="docsFilesInfiiniteContainer">
 					<InfiniteScroll
 						dataLength={info?.docsData?.length || 0}
 						next={fetcMoreDocsFilesList}
@@ -225,13 +224,16 @@ const Docs = () => {
 							flexDirection: 'column',
 							gap: '8px',
 							width: '100%',
-							padding: '0px 20px 0px 20px',
 						}}
 						className="tetsing"
 						height="calc(100vh - 500px)"
 					>
 						{info?.docsData?.map((ele, index) => (
-							<div className="docsRow" key={index}>
+							<div
+								className="docsRow"
+								key={index}
+								onClick={() => handleOpenSidebar(ele)}
+							>
 								<div className="docsFilesRowTitle">{ele?.title}</div>
 								<div className="docsKeyWordsContainer">
 									{ele?.clientDetails?.name ? (
@@ -252,6 +254,12 @@ const Docs = () => {
 						))}
 					</InfiniteScroll>
 				</div>
+
+				<Sidebar
+					open={info?.showRightDrawer}
+					onClose={handleCloseSidebar}
+					activeFileData={info?.activeFileData}
+				/>
 			</div>
 		</div>
 	);
