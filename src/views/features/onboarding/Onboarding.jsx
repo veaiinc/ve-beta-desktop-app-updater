@@ -185,7 +185,6 @@ const Onboarding = () => {
 	}, []);
 
 	useEffect(() => {
-		console.log('step', info?.step);
 		if (info?.step === 2) {
 			if (invitedWorkspaceId && invitedUserEmail) {
 				animateStep2Enter();
@@ -220,8 +219,6 @@ const Onboarding = () => {
 	}, [info?.step]);
 
 	useEffect(() => {
-		console.log('stage', info?.stage);
-
 		if (info?.stage === 2) {
 			animateStage2Enter();
 		}
@@ -232,15 +229,6 @@ const Onboarding = () => {
 			animateStage4Enter();
 		}
 	}, [info?.stage]);
-
-	// const handleInvitedUserUsername = async () => {
-	// 	const userDetailsResponse = await updateUserDetails(info?.username);
-	// 	if (userDetailsResponse[0] === true) {
-	// 		navigate('/home');
-	// 	} else {
-	// 		message.error(userDetailsResponse?.message);
-	// 	}
-	// };
 
 	const handleOnboarding = async () => {
 		try {
