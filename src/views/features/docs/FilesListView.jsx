@@ -314,8 +314,8 @@ const FilesListView = () => {
 			/>
 
 			<Drawer
-				// open={info?.showRightDrawer}
-				open={true}
+				open={info?.showRightDrawer}
+				// open={true}
 				onClose={() => setInfo((prev) => ({ ...prev, showRightDrawer: false }))}
 				style={{ padding: '10px', backgroundColor: 'transparent' }}
 				headerStyle={{ display: 'none' }}
