@@ -15,7 +15,7 @@ const initialState = {
 	errorMessage: null,
 };
 
-const CalendarAiChat = ({ toggleAskAi }) => {
+const CalendarAiChat = ({ toggleAskAi, selectedDate }) => {
 	const {
 		calendarInfo: { calendarChat, getCalendarChat, resetCalendarAiChat, getCalendarEventsList },
 	} = useContext(Context);
@@ -33,13 +33,10 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 		const sessionId = ObjectId().toString();
 		setInfo((prevInfo) => ({ ...prevInfo, sessionId }));
 		return () => {
-			setInfo({
-				sessionId: null,
-				chatHistory: [],
-				userInput: '',
-				isProcessing: false,
-				errorMessage: null,
-			});
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				...initialState,
+			}));
 			resetCalendarAiChat();
 		};
 	}, []);
@@ -75,7 +72,7 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 			}));
 
 			if (calendarChat?.db_update) {
-				getCalendarEventsList();
+				getCalendarEventsList(selectedDate);
 			}
 		}
 	}, [calendarChat]);
@@ -86,8 +83,8 @@ const CalendarAiChat = ({ toggleAskAi }) => {
 		await getCalendarChat(sessionId, {
 			query: inputData,
 			timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-			// module: 'calendar',
-			// workflow_slug: null,
+			module: 'calendar',
+			workflow_slug: null,
 		});
 	}, []);
 

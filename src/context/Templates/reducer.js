@@ -93,6 +93,29 @@ const actionHandlers = {
 		...state,
 		...action.payload,
 	}),
+
+	GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS: (state, action) => ({
+		...state,
+		globalChatMessages: [...state?.globalChatMessages, ...action?.payload],
+	}),
+	GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS: (state, action) => {
+		let updatedGlobalChatMessages = [...state?.globalChatMessages];
+		if (
+			updatedGlobalChatMessages?.[updatedGlobalChatMessages?.length - 1]?.contentType ===
+			'loading'
+		) {
+			updatedGlobalChatMessages.pop();
+		}
+		updatedGlobalChatMessages = [...updatedGlobalChatMessages, action.payload];
+		return {
+			...state,
+			globalChatMessages: updatedGlobalChatMessages,
+		};
+	},
+	GET_DOCS_FILES_LIST_SUCCESS: (state, action) => ({
+		...state,
+		[action?.selectedvariable]: action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

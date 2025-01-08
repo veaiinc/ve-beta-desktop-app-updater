@@ -11,7 +11,6 @@ import MonthEventWrapper from '../../components/calendar/MonthEventWrapper';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import Context from '../../../context/context';
 import moment from 'moment';
-// import EventDetailsDrawer from '../../components/calendar/EventDetailsDrawer';
 import EventDetailsModal from '../../components/modalsV2/calendar/EventDetailsModal';
 
 const initialState = {
@@ -27,6 +26,7 @@ const CalendarView = ({
 	currentCalendarDate,
 	selectedWeek,
 	selectedDate,
+	selectedMonth,
 	isEventSelected,
 	categoryList,
 	selectedCategory,
@@ -57,11 +57,15 @@ const CalendarView = ({
 	}, [tenantsUserList]);
 
 	useEffect(() => {
-		fetchEventsList();
 		if (calendarEvent?._id) {
 			handleSendEventToAi();
+			getCalendarEventsList(selectedDate);
 		}
 	}, [calendarEvent]);
+
+	useEffect(() => {
+		getCalendarEventsList(selectedDate);
+	}, [selectedMonth]);
 
 	useEffect(() => {
 		return () => {
@@ -83,7 +87,7 @@ const CalendarView = ({
 			// Map the calendarEventsList to the desired eventsList format
 			const mappedEventsList = calendarEventsList?.map((event) => ({
 				id: event?._id,
-				start: moment(event?.startDateTime).local().toDate(), // Convert to local time
+				start: moment(event?.startDateTime).local().toDate(),
 				end: moment(event?.endDateTime).local().toDate(),
 				title: event?.title,
 				description: event?.description,
@@ -97,11 +101,6 @@ const CalendarView = ({
 			}));
 		}
 	}, [calendarEventsList]);
-
-	const fetchEventsList = useCallback(async () => {
-		setInfo((prevInfo) => ({ ...prevInfo, isLoading: true, eventListError: null }));
-		await getCalendarEventsList();
-	}, []);
 
 	const handleSendEventToAi = useCallback(async () => {
 		if (calendarEvent?._id) {
@@ -131,6 +130,7 @@ const CalendarView = ({
 					currentCalendarDate={currentCalendarDate}
 					selectedDate={selectedDate}
 					selectedWeek={selectedWeek}
+					selectedMonth={selectedMonth}
 					tenantsUserList={tenantsUserList}
 					updateCalendarInfo={updateCalendarInfo}
 					selectedWorkflowId={selectedWorkflowId}
@@ -151,11 +151,11 @@ const CalendarView = ({
 	);
 
 	const updateCalenderEventsList = useCallback(
-		(eventId, data = {}) => {
+		(eventId, updateBody = {}) => {
 			const updatedEventsList = [...(info?.eventsList || [])];
 			for (let i = 0; i < updatedEventsList?.length; i++) {
 				if (updatedEventsList?.[i]?.id === eventId) {
-					updatedEventsList[i] = { ...updatedEventsList[i], ...data };
+					updatedEventsList[i] = { ...updatedEventsList[i], ...updateBody };
 				}
 			}
 			setInfo((prev) => ({ ...prev, eventsList: updatedEventsList }));
@@ -170,6 +170,12 @@ const CalendarView = ({
 		},
 		[info?.eventsList],
 	);
+
+	const onSelectSlot = useCallback((event) => {
+		updateCalendarInfo('isCreateEventOpen', true);
+		updateCalendarInfo('selectedDate', event?.start);
+		updateCalendarInfo('selectedSlot', event?.start);
+	}, []);
 
 	const onClose = useCallback(() => {
 		updateCalendarInfo('isEventSelected', false);
@@ -190,18 +196,15 @@ const CalendarView = ({
 							toolbar={true}
 							className="custom"
 							selectable
-							onSelectSlot={() => updateCalendarInfo('isCreateEventOpen', true)}
+							onSelectSlot={(event) => onSelectSlot(event)}
 							onSelectEvent={(event) => handleSelectEvent(event)}
 							date={selectedDate}
 							popup
 							components={components}
+							allDayMaxRows={1}
+							// showAllEvents={true}
 						/>
 					</div>
-					{/* <EventDetailsDrawer
-						selectedEvent={info?.selectedEvent}
-						isEventSelected={isEventSelected}
-						updateCalendarInfo={updateCalendarInfo}
-					/> */}
 					<EventDetailsModal
 						selectedEvent={info?.selectedEvent}
 						isEventSelected={isEventSelected}

@@ -9,6 +9,8 @@ export const intialState = {
 	tenantPreferenceData: null,
 	tenantSubscriptionDetails: null,
 	clientPortalPreferences: null,
+	AICreditsData: null,
+	taskPreferences: null,
 };
 export const CompanySettingsState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -306,6 +308,82 @@ export const CompanySettingsState = () => {
 		}
 	};
 
+	const getAICreditsUsedData = async (page = 1, limit = 10) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${workspaceId}/ai-credits`;
+			const params = {
+				page,
+				limit,
+				sort: '-createdAt',
+			};
+			const response = await service.fetchGet(path, usertoken, 'tenant', params);
+			const AICreditsData = {
+				data: [...(state?.AICreditsData?.data ?? []), ...response?.[1]?.data],
+				hasNextPage: response?.[1]?.hasNextPage,
+				nextPage: response?.[1]?.nextPage,
+			};
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_AI_CREDITS_USED,
+					payload: AICreditsData,
+				});
+			} else {
+				return [false, response[1]];
+			}
+		} catch (error) {
+			console.log('error ==> getAICreditsUsedData', error);
+		}
+	};
+
+	const getTaskPreferences = async () => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.fetchGet(
+				API.TENANTS.taskPreferences,
+				usertoken,
+				'tenant-users',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_TASK_PREFERENCES,
+					payload: { data: response?.[1] },
+				});
+			} else {
+				dispatch({
+					type: Actions.GET_TASK_PREFERENCES,
+					payload: { error: response?.[1] },
+				});
+			}
+		} catch (error) {
+			console.log('error ==> getTaskPreferences', error);
+			dispatch({
+				type: Actions.GET_TASK_PREFERENCES,
+				payload: { error: error },
+			});
+		}
+	};
+
+	const updateTaskPreferences = async (json) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.fetchPut(
+				API.TENANTS.taskPreferences,
+				json,
+				usertoken,
+				'tenant-users',
+			);
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
+		} catch (error) {
+			console.log('error ==> updateTaskPreferences', error);
+		}
+	};
+
 	const resetCompanySettings = async () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
@@ -333,5 +411,8 @@ export const CompanySettingsState = () => {
 		checkWorkspaceId,
 		getClientPortalPreference,
 		updateClientPortalPreference,
+		getAICreditsUsedData,
+		getTaskPreferences,
+		updateTaskPreferences,
 	};
 };

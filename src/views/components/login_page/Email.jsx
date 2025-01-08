@@ -101,7 +101,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 		return locationDetails;
 	}, []);
 
-	const handleCreateAccountWithEmail = async (email) => {
+	const handleCreateAccountWithEmail = async (email, referralCode = false) => {
 		if (info?.isLoading) return;
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 
@@ -110,7 +110,9 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 			locationDetails = await handleLocationDetailsData();
 		}
 
-		const response = await createAccountUsingEmail(email, info?.locationDetails);
+		const response = referralCode
+			? await createAccountUsingEmail(email, info?.locationDetails, referralCode)
+			: await createAccountUsingEmail(email, info?.locationDetails);
 		if (response[0] === true) {
 			setActiveStage('verificationCode');
 			setEmailVerified(false);
@@ -174,7 +176,12 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 							setActiveStage('verificationCode');
 						}
 					} else {
-						await handleCreateAccountWithEmail(email || invitedUserEmail);
+						referralCode
+							? await handleCreateAccountWithEmail(
+									email || invitedUserEmail,
+									referralCode,
+							  )
+							: await handleCreateAccountWithEmail(email || invitedUserEmail);
 					}
 				} else {
 					message?.error(response?.[1]?.message);

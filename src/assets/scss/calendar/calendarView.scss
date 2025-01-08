@@ -35,6 +35,11 @@
 		overflow-y: auto;
 	}
 
+	.rbc-allday-cell .rbc-row-content .rbc-button-link {
+		background: none;
+		color: #e4e5e6;
+	}
+
 	.rbc-time-header.rbc-overflowing {
 		border: none;
 	}
@@ -111,8 +116,8 @@
 				}
 				.rbc-today {
 					background: rgba(176, 176, 176, 0.15);
-						box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
-							4px 4px 6px 0px rgba(17, 17, 17, 0.51) inset;
+					box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
+						4px 4px 6px 0px rgba(17, 17, 17, 0.51) inset;
 				}
 			}
 			.rbc-row-content {

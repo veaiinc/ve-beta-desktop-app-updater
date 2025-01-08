@@ -1,6 +1,6 @@
 .landing-page-container {
 	scroll-behavior: smooth;
-	width: 100vw;
+	width: 99vw;
 	padding: 48px 120px;
 	background: #090909;
 	display: flex;
@@ -68,7 +68,7 @@
 
 	.landing-page-content {
 		width: 100%;
-		height: calc(100dvh);
+		height: 100dvh;
 		display: flex;
 		padding-bottom: 50px;
 		background-color: #090909;
@@ -200,7 +200,7 @@
 	}
 
 	.integration-section-container {
-		width: 100vw;
+		width: 100%;
 		background: inherit;
 		display: flex;
 		justify-content: center;
@@ -302,7 +302,7 @@
 	}
 
 	.caroursel-container {
-		width: 100vw;
+		width: 100%;
 		padding: 48px 120px;
 		display: flex;
 		flex-direction: column;
@@ -457,6 +457,15 @@
 					display: flex;
 					gap: 4px;
 					position: relative;
+
+					.subscribed-text {
+						color: #797e86;
+						font-family: Manrope;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
 
 					.email {
 						width: 90%;
@@ -1081,7 +1090,7 @@
 @media (max-width: 410px) {
 	.cardsContainer {
 		margin-left: 4px !important;
-		width: 100vw !important;
+		width: 100% !important;
 		padding: 0 28px !important;
 		gap: 8px !important;
 		justify-content: center !important;

@@ -2,12 +2,11 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/tasks/modals/createTaskPopup.scss';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/CrossWhite.svg';
-import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
+// import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 // import { ReactComponent as PageIcon } from '../../../../assets/svg/tasks/pagePlus.svg';
 // import { ReactComponent as CalendarIcon } from '../../../../assets/svg/calendar-icon.svg';
 // import { ReactComponent as LinkIcon } from '../../../../assets/svg/activity/link.svg';
 // import { ReactComponent as CalendarIcon } from '../../../../assets/svg/tasks/calendar.svg';
-import { ReactComponent as TaskIcon } from '../../../../assets/svg/tasks/taskIcon.svg';
 import { ReactComponent as DustbinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import Priority from '../../tasks/listView/Priority';
@@ -17,14 +16,13 @@ import Spinner from '../../loaders/Spinner';
 import WorkFlow from '../../tasks/listView/WorkFlow';
 import Person from '../../tasks/listView/Person';
 import DateView from '../../tasks/listView/DateView';
-import DropDown from '../../dropDown/tasks/DropDown';
 
 const initialState = {
 	assignedTo: [],
 	description: '',
 	dueDate: null,
 	priority: 'low',
-	status: 'todo',
+	status: '',
 	title: '',
 	workflowId: '',
 	isLoading: false,
@@ -34,7 +32,7 @@ const initialState = {
 	subTaskAssignedTo: [],
 	subTaskDueDate: null,
 	subTaskPriority: 'low',
-	subTaskStatus: 'todo',
+	subTaskStatus: '',
 	subTaskWorkflowId: '',
 	childTasks: [],
 	isSubTaskEditing: false,
@@ -46,14 +44,19 @@ const CreateTaskPopup = ({
 	addNewTask,
 	isSubTask = false,
 	responseMetadata,
+	colors,
 }) => {
 	const [info, setInfo] = useState({
 		...initialState,
 	});
 
 	useEffect(() => {
-		setInfo({ ...initialState });
-	}, [isOpen]);
+		setInfo({
+			...initialState,
+			status: responseMetadata?.status?.props?.options?.[0]?._id,
+			subTaskStatus: responseMetadata?.status?.props?.options?.[0]?._id,
+		});
+	}, [isOpen, responseMetadata]);
 
 	const updateModalInfo = useCallback((key, value) => {
 		if (key === 'title') {
@@ -119,15 +122,6 @@ const CreateTaskPopup = ({
 		}
 	}, [addNewTask, closeModal, info, preparePayload]);
 
-	const handleMoreOptionClick = useCallback(
-		(value) => {
-			if (value === 'addSubTask') {
-				updateModalInfo('showSubTaskCreate', true);
-			}
-		},
-		[updateModalInfo],
-	);
-
 	const handleAddSubTask = useCallback(() => {
 		const payload = preparePayload({
 			title: info?.subTaskTitle,
@@ -162,7 +156,7 @@ const CreateTaskPopup = ({
 				subTaskAssignedTo: [],
 				subTaskDueDate: null,
 				subTaskPriority: 'low',
-				subTaskStatus: 'todo',
+				subTaskStatus: responseMetadata?.status?.props?.options?.[0]?._id,
 				subTaskWorkflowId: '',
 			};
 		});
@@ -176,6 +170,7 @@ const CreateTaskPopup = ({
 		info?.subTaskStatus,
 		info?.subTaskWorkflowId,
 		info?.isSubTaskEditing,
+		responseMetadata,
 	]);
 
 	const handleDeleteSubTask = useCallback((index) => {
@@ -247,6 +242,8 @@ const CreateTaskPopup = ({
 						showLabel={true}
 						onOptionClick={(value) => updateModalInfo('status', value)}
 						title={'Status'}
+						options={responseMetadata?.status?.props?.options}
+						colors={colors}
 					/>
 					<Priority
 						value={info?.priority}
@@ -254,17 +251,12 @@ const CreateTaskPopup = ({
 						onOptionClick={(value) => updateModalInfo('priority', value)}
 						title={'Priority'}
 					/>
-					{!isSubTask ? (
-						<WorkFlow
-							val={info?.workflowId}
-							onOptionClick={(value) => updateModalInfo('workflowId', value)}
-							title={'Workflow'}
-							{...responseMetadata?.['workflow']?.props}
-						/>
-					) : (
-						''
-					)}
-
+					<WorkFlow
+						val={info?.workflowId}
+						onOptionClick={(value) => updateModalInfo('workflowId', value)}
+						title={'Workflow'}
+						{...responseMetadata?.['workflow']?.props}
+					/>
 					<div className="dateView-wrapper">
 						<DateView
 							value={info?.dueDate}
@@ -284,26 +276,13 @@ const CreateTaskPopup = ({
 						removeBtn={true}
 					/>
 					{!isSubTask ? (
-						<DropDown
-							value={null}
-							valueSelector={'value'}
-							options={[
-								// {
-								// 	Icon: () => <CalendarIcon className="dropdown-icon" />,
-								// 	label: 'Set Due date',
-								// },
-								{
-									Icon: () => <TaskIcon />,
-									label: 'Add Sub Task',
-									value: 'addSubTask',
-								},
-							]}
-							onOptionClick={handleMoreOptionClick}
+						<div
+							className="task-icon-wrapper"
+							onClick={() => updateModalInfo('showSubTaskCreate', true)}
 						>
-							<div className="dropdown-item">
-								<HorizontalMoreIcon />
-							</div>
-						</DropDown>
+							<PlusSvg />
+							<span className="task-icon-title">Add Sub Task</span>
+						</div>
 					) : (
 						''
 					)}
@@ -337,8 +316,10 @@ const CreateTaskPopup = ({
 							<Status
 								value={info?.subTaskStatus}
 								showLabel={true}
+								options={responseMetadata?.status?.props?.options}
 								onOptionClick={(value) => updateModalInfo('subTaskStatus', value)}
 								title={'Status'}
+								colors={colors}
 							/>
 							<Priority
 								value={info?.subTaskPriority}
@@ -462,6 +443,8 @@ const CreateTaskPopup = ({
 							>
 								{info?.isLoading ? (
 									<Spinner width={'20px'} height={'20px'} />
+								) : isSubTask ? (
+									'Create Sub Task'
 								) : (
 									'Create Task'
 								)}

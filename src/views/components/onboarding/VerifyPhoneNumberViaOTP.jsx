@@ -1,11 +1,10 @@
 import React, { useRef, useState, useEffect, useContext, memo } from 'react';
-import OtpInput from 'react-otp-input';
 import '../../../assets/scss/onboarding/index.scss';
 import Spinner from '../loaders/Spinner';
 import Context from '../../../context/context';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-
+import { Input } from 'antd';
 const VerifyPhoneNumberViaOTP = ({
 	phoneNumber,
 	incrementStep,
@@ -73,32 +72,20 @@ const VerifyPhoneNumberViaOTP = ({
 		<div className="verify-otp-container stage6">
 			<div className="verification-code-input-container">
 				<div className="otp-input-container" ref={otpContainerRef}>
-					<OtpInput
+					<Input.OTP
+						id="otpContainer"
 						value={info?.otp}
-						onChange={(otp) => setInfo((prev) => ({ ...prev, otp }))}
-						numInputs={6}
-						renderInput={(props) => {
-							return <input {...props} />;
+						onChange={(otp) => {
+							const lastChar = otp.slice(-1);
+							if (otp === '' || /^[0-9]$/.test(lastChar)) {
+								setInfo((prev) => ({ ...prev, otp: otp }));
+							}
 						}}
-						inputStyle={{
-							display: 'flex',
-							width: '49px',
-							height: '49px',
-							padding: '20px',
-							justifyContent: 'center',
-							alignItems: 'center',
-							gap: '10px',
-							borderRadius: '100px',
-							background: 'rgba(255, 255, 255, 0.05)',
-							outline: 'none',
-							border: 'none',
-							color: '#fff',
-							userSelect: 'none',
-						}}
-						containerStyle={{ display: 'flex', gap: '6px' }}
+						autoFocus
+						length={6}
 						inputType="number"
-						placeholder="000000"
-						shouldAutoFocus={true}
+						inputMode="numeric"
+						pattern="[0-9]*"
 					/>
 					{info?.isLoading && <Spinner />}
 				</div>

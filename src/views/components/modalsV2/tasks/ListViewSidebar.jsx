@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import { Drawer, Progress } from 'antd';
 import React, { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
@@ -25,6 +26,9 @@ const ListViewSidebar = ({
 	parentTaskNo,
 	handleChildTaskClose,
 	responseMetadata,
+	haveSubTask,
+	properties,
+	colors,
 }) => {
 	const {
 		tasks: { subTasks, getSubTasks },
@@ -182,7 +186,16 @@ const ListViewSidebar = ({
 				) {
 					continue;
 				}
-				const { type = null, name = null, Icon = null, props } = responseMetadata[key];
+				const {
+					type = null,
+					name = null,
+					Icon = null,
+					props,
+				} = responseMetadata[key] || {};
+
+				if (type === null) {
+					continue;
+				}
 
 				const RowComponent = rowTypes?.[type] || null;
 				listItems.push(
@@ -204,6 +217,8 @@ const ListViewSidebar = ({
 									onOptionClick={(value) =>
 										updatePropertyValue(row._id, key, value, isShowingSubTask)
 									}
+									colors={colors}
+									takeFullspace={true}
 								/>
 							) : (
 								<div key={key}>{value}</div>
@@ -289,9 +304,7 @@ const ListViewSidebar = ({
 						<div className="sidebar-properties-container">
 							{generateRow(selectedRow)}
 						</div>
-						{isShowingSubTask ? (
-							''
-						) : (
+						{haveSubTask && !isShowingSubTask ? (
 							<div className="sidebar-subtask-container">
 								<div className="sidebar-subtask-header">
 									<span className="sidebar-subtask-header-title">Sub Tasks</span>
@@ -337,6 +350,8 @@ const ListViewSidebar = ({
 												updatePropertyValue={updatePropertyValue}
 												isSubTask={true}
 												handleRowClick={onSubTaskClick}
+												properties={properties}
+												colors={colors}
 											/>
 										))
 									) : (
@@ -344,6 +359,8 @@ const ListViewSidebar = ({
 									)}
 								</div>
 							</div>
+						) : (
+							''
 						)}
 
 						<div className="sidebar-description">

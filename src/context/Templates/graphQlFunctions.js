@@ -224,17 +224,17 @@ export const getWorkflowListQuery = gql`
 			hasNextPage
 			data {
 				_id
+				title
+				status
 				clientDetails {
 					_id
 					email
 					name
 				}
-				status
 				slug
 				modules
 				formResponse
 				requiredAction
-				title
 				templateId
 			}
 		}

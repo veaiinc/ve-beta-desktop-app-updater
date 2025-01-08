@@ -42,6 +42,24 @@ const EventDetailsModal = ({
 	// Add debounce ref
 	const updateEventDebounceRef = useRef(null);
 
+	useEffect(() => {
+		if (selectedEvent) {
+			setInfo((prev) => ({
+				...prev,
+				eventDetails: selectedEvent,
+				eventKeys: [...initialState?.eventKeys, ...Object?.keys(selectedEvent)],
+			}));
+		}
+	}, [selectedEvent]);
+
+	useEffect(() => {
+		return () => {
+			setInfo({
+				...initialState,
+			});
+		};
+	}, []);
+
 	const debouncedUpdateEvent = useCallback(
 		(eventData) => {
 			if (updateEventDebounceRef.current) {
@@ -68,24 +86,6 @@ const EventDetailsModal = ({
 		},
 		[updateCalendarEvent, validateExpiryData?.isExpired, updateSubscriptionState],
 	);
-
-	useEffect(() => {
-		if (selectedEvent) {
-			setInfo((prev) => ({
-				...prev,
-				eventDetails: selectedEvent,
-				eventKeys: [...initialState?.eventKeys, ...Object?.keys(selectedEvent)],
-			}));
-		}
-	}, [selectedEvent]);
-
-	useEffect(() => {
-		return () => {
-			setInfo({
-				...initialState,
-			});
-		};
-	}, []);
 
 	const deleteEvent = useCallback(async () => {
 		if (validateExpiryData?.isExpired) {
@@ -157,20 +157,34 @@ const EventDetailsModal = ({
 			),
 			meetingLink: (value) =>
 				value ? (
-					<a
-						href={value}
-						target="_blank"
-						rel="noopener noreferrer"
-						className="meetingLink"
-					>
-						{value}
-					</a>
+					<span className="meetingLink">
+						<CustomInput
+							type="url"
+							value={value}
+							placeholder="Edit meeting link"
+							className="inputFields"
+							onChange={(e) => {
+								updateEventDetails('meetingLink', e.target?.value);
+							}}
+						/>
+						<a
+							href={value}
+							target="_blank"
+							rel="noopener noreferrer"
+							style={{ cursor: 'pointer', fontSize: 7 }}
+						>
+							🔗
+						</a>
+					</span>
 				) : (
 					<CustomInput
 						type="url"
 						value={value}
 						placeholder="Add meeting link"
-						className="inputFeilds"
+						className="inputFields"
+						onChange={(e) => {
+							updateEventDetails('meetingLink', e.target?.value);
+						}}
 					/>
 				),
 			calendarCategory: (value) => (
@@ -345,7 +359,9 @@ const EventDetailsModal = ({
 										transition: 'transform 0.4s ease',
 									}}
 								/>
-								<span>{info?.detailsExpanded ? 'Show Less' : 'Show More'}</span>
+								<span className="show">
+									{info?.detailsExpanded ? 'Show Less' : 'Show More'}
+								</span>
 							</span>
 						</div>
 

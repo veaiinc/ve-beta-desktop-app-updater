@@ -2,12 +2,9 @@ import React, { memo, useCallback, useState } from 'react';
 import '../../../../assets/scss/tasks/listViewHeader.scss';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/tasks/searchWhite.svg';
-// import { ReactComponent as ThunderSvg } from '../../../../assets/svg/tasks/thunder.svg';
 import { ReactComponent as FilterLinesSvg } from '../../../../assets/svg/tasks/filterLines.svg';
-import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import { ReactComponent as ArrowUpAndDown } from '../../../../assets/svg/tasks/arrowUpAndDown.svg';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
-import { Tooltip } from 'antd';
 import OptionsDropDown from '../../dropDown/tasks/OptionsDropDown';
 import DropDown from '../../dropDown/tasks/DropDown';
 import SortComponent from './SortComponent';
@@ -31,11 +28,17 @@ const defaultFilterValue = {
 const ListViewHeader = ({
 	updateListViewInfo,
 	properties,
-	togglePropertyVisibility,
 	sort,
 	filters,
 	searchValue,
 	responseMetadata,
+	headerTitle,
+	addButtonOnClick,
+	taskPreferences,
+	editingProperty,
+	handleEditPropertyChange,
+	colors,
+	createButtonText,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -74,16 +77,10 @@ const ListViewHeader = ({
 	return (
 		<div className="listViewHeaderContainer">
 			<div className="listViewHeader">
-				<div className="listViewHeaderTitle">Tasks</div>
+				<div className="listViewHeaderTitle">{headerTitle}</div>
 				<div className="listViewHeaderActions">
-					<button
-						className="listViewHeaderActionButton"
-						onClick={() => {
-							updateListViewInfo('isCreatingSubtask', false);
-							updateListViewInfo('isCreateModalOpen', true);
-						}}
-					>
-						<PlusSvg style={{ width: '20px', height: '20px' }} />
+					<button className="listViewHeaderAddTaskButton" onClick={addButtonOnClick}>
+						{createButtonText}
 					</button>
 					<div
 						className="searchContainer"
@@ -167,23 +164,15 @@ const ListViewHeader = ({
 							<FilterLinesSvg />
 						</button>
 					</DropDown>
-					<Tooltip
-						placement="bottom"
-						title={
-							<OptionsDropDown
-								properties={properties}
-								togglePropertyVisibility={togglePropertyVisibility}
-							/>
-						}
-						arrow={false}
-						trigger={'click'}
-						color={'transparent'}
-						overlayStyle={{ minWidth: 'fit-content' }}
-					>
-						<button className="btn-options">
-							<HorizontalMoreIcon style={{ width: '20px', height: '20px' }} />
-						</button>
-					</Tooltip>
+					<OptionsDropDown
+						properties={properties}
+						updateListViewInfo={updateListViewInfo}
+						taskPreferences={taskPreferences}
+						editingProperty={editingProperty}
+						handleEditPropertyChange={handleEditPropertyChange}
+						responseMetadata={responseMetadata}
+						colors={colors}
+					/>
 				</div>
 			</div>
 			<div className="listViewOptionsContainer">
@@ -220,6 +209,7 @@ const ListViewHeader = ({
 									filters={filters}
 									props={props}
 									type={type}
+									colors={colors}
 									isPending={!filters.includes(filter)}
 									onConfirm={(key, value) => {
 										setPendingFilters((prev) =>
