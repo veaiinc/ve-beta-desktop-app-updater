@@ -10,6 +10,7 @@ import CustomTextArea from '../globalComponents/CusomTextArea';
 import RequiredActions from './RequiredActions';
 import Preview from './Preview';
 import '../../../assets/scss/docs/fileListView.scss';
+import { DocsStatusButton, statusTextmapper } from '../../features/docs';
 const Sidebar = ({ open, onClose, activeFileData }) => {
 	const [info, setInfo] = useState({
 		activeTab: 'reqActions',
@@ -65,7 +66,12 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 						<ExpandSvg />
 					</div>
 					<div className="headerRightLabel">
-						<div>Draft</div>
+						{/* <div>Draft</div> */}
+						<DocsStatusButton
+							content={statusTextmapper?.[activeFileData?.status]?.text}
+							style={statusTextmapper?.[activeFileData?.status]?.style}
+							dotStyle={statusTextmapper?.[activeFileData?.status]?.dotStyle}
+						/>
 						<div className="editLabel">Edit</div>
 						<ShareSvg />
 						<DotsSvg />
@@ -110,7 +116,13 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 								<PieSvg />
 								<span>Stage</span>
 							</div>
-							<div className="listDataMapperRowValue">{activeFileData?.status}</div>
+							<div className="listDataMapperRowValue">
+								<DocsStatusButton
+									content={statusTextmapper?.[activeFileData?.status]?.text}
+									style={statusTextmapper?.[activeFileData?.status]?.style}
+									dotStyle={statusTextmapper?.[activeFileData?.status]?.dotStyle}
+								/>
+							</div>
 						</div>
 					</div>
 

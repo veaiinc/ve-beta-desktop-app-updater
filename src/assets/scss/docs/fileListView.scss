@@ -199,6 +199,33 @@
 			height: 100%;
 		}
 	}
+	.DocsStatusButtonOuterContainer {
+		display: flex;
+		padding: 4px 6px;
+		justify-content: center;
+		align-items: center;
+		gap: 4px;
+		border-radius: 35px;
+		background: #373737;
+		background: color(display-p3 0.2161 0.2161 0.2161);
+
+		.DocsStatusCircle {
+			width: 6px;
+			height: 6px;
+			border-radius: 100%;
+			background: #939393;
+		}
+		.DocsButtontext {
+			color: #e8e8e8;
+			color: color(display-p3 0.9098 0.9098 0.9098);
+			text-align: center;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
 }
 
 .requiredActionsWrapper {

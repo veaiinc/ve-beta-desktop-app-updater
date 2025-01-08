@@ -32,7 +32,7 @@ const staticCreateActions = [
 	{ title: 'Create Landing Page', subtext: 'Create and share a landing page with clients.' },
 ];
 
-const statusTextmapper = {
+export const statusTextmapper = {
 	filesViewed: {
 		text: 'Files Viewed',
 		dotStyle: {
@@ -97,7 +97,7 @@ const statusTextmapper = {
 		},
 	},
 };
-const DocsStatusButton = ({ content = '', style = {}, textStyle = {}, dotStyle = {} }) => {
+export const DocsStatusButton = ({ content = '', style = {}, textStyle = {}, dotStyle = {} }) => {
 	return (
 		<div className="DocsStatusButtonOuterContainer" style={{ ...style }}>
 			<div className="DocsStatusCircle" style={{ ...dotStyle }}></div>
