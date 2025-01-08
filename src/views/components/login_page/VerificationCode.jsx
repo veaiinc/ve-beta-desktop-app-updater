@@ -1,5 +1,4 @@
 import React, { memo, useState, useEffect, useRef, useContext, useCallback } from 'react';
-// import OtpInput from 'react-otp-input';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/login_page/left-arrow-back-btn.svg';
@@ -176,48 +175,20 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			</div>
 			<div className="verification-code-input-container">
 				<div className="otp-input-container" ref={otpContainerRef}>
-					{/* <OtpInput
-						value={info?.otp}
-						onChange={(otp) => setInfo((prev) => ({ ...prev, otp }))}
-						numInputs={6}
-						renderInput={(props) => {
-							return <input {...props} />;
-						}}
-						inputStyle={{
-							display: 'flex',
-							width: '49px',
-							height: '49px',
-							padding: '20px',
-							justifyContent: 'center',
-							alignItems: 'center',
-							gap: '10px',
-							borderRadius: '100px',
-							background: 'rgba(255, 255, 255, 0.05)',
-							outline: 'none',
-							border: 'none',
-							color: '#fff',
-							userSelect: 'none',
-						}}
-						containerStyle={{ display: 'flex', gap: '6px' }}
-						inputType="number"
-						placeholder="000000"
-						shouldAutoFocus={true}
-					/> */}
 					<Input.OTP
 						id="otpContainer"
-						inputRender={({ inputElement, index }) => {
-							return React.cloneElement(inputElement, {
-								placeholder: '0',
-							});
-						}}
-						defaultValue={info?.otp}
+						value={info?.otp}
 						onChange={(otp) => {
-							setInfo((prev) => ({ ...prev, otp: otp }));
+							const lastChar = otp.slice(-1);
+							if (otp === '' || /^[0-9]$/.test(lastChar)) {
+								setInfo((prev) => ({ ...prev, otp: otp }));
+							}
 						}}
-						formatter={(value) => `${value}`.replace(/[^0-9]/g, '')}
 						autoFocus
 						length={6}
-						placeholder="000000"
+						inputType="number"
+						inputMode="numeric"
+						pattern="[0-9]*"
 					/>
 
 					{info?.isLoading && <Spinner />}
