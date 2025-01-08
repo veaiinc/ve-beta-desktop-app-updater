@@ -135,8 +135,8 @@ const MyProfile = () => {
 	};
 
 	const validateField = (name, value) => {
-		let error;
-		const stringValue = value || '';
+		let error = '';
+		const stringValue = value ?? '';
 		switch (name) {
 			case 'fullName':
 				if (validator.isEmpty(stringValue)) {
@@ -209,13 +209,16 @@ const MyProfile = () => {
 			formatUsername(fullNameRef?.current?.value);
 		}
 
-		if (type === 'phoneNumber') {
-			if (!validator.isMobilePhone(value, 'any', { strictMode: true })) {
-				return setErrors((prev) => ({ ...prev, phoneNumber: 'Phone Number is invalid' }));
-			}
+		if (
+			type === 'phoneNumber' &&
+			!validateField('phoneNumber', value) &&
+			value !== initialState?.phoneNumber
+		) {
 			const response = await updateUserDetails('', value);
 			if (response[0] === true) {
 				message.success('Phone Number updated successfully');
+			} else {
+				setErrors((prev) => ({ ...prev, phoneNumber: response[1]?.message }));
 			}
 		}
 	};
