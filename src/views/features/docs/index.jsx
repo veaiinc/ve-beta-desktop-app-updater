@@ -213,19 +213,7 @@ const Docs = () => {
 				<div className="docsFileHeaderContainer">
 					<span className="docsFileHeaderContainerTitle">Files</span>
 				</div>
-				<div
-					style={
-						{
-							// flex: 1,
-							// // overflowY: 'auto',
-							// display: 'flex',
-							// flexDirection: 'column',
-							// width: '100%',
-							// height: '100%',
-						}
-					}
-					className="docsFilesInfiiniteContainer"
-				>
+				<div className="docsFilesInfiiniteContainer">
 					<InfiniteScroll
 						dataLength={info?.docsData?.length || 0}
 						next={fetcMoreDocsFilesList}
@@ -236,7 +224,6 @@ const Docs = () => {
 							flexDirection: 'column',
 							gap: '8px',
 							width: '100%',
-							padding: '0px 20px 0px 20px',
 						}}
 						className="tetsing"
 						height="calc(100vh - 500px)"

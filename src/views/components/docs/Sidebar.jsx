@@ -26,7 +26,7 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 			{
 				id: 'preview',
 				label: 'Preview',
-				Component: () => <Preview />,
+				Component: () => <Preview data={activeFileData} />,
 			},
 			{
 				id: 'activity',
@@ -34,7 +34,7 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 				Component: () => <div>Activity</div>,
 			},
 		],
-		[],
+		[activeFileData],
 	);
 
 	const renderActiveComponent = useCallback(() => {
