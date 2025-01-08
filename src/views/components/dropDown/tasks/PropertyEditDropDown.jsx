@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import React, { memo, useState, useCallback, useRef, useEffect } from 'react';
+import React, { memo, useState, useCallback, useEffect } from 'react';
 import { ReactComponent as DustbinOutlined } from '../../../../assets/svg/tasks/dustBin.svg';
 import '../../../../assets/scss/dropdown/tasks/propertyEditDropDown.scss';
 
@@ -9,7 +9,6 @@ const PropertyEditDropDown = ({ children, colors, value, onDelete, onUpdate }) =
 		label: value?.label || '',
 		isOpen: false,
 	});
-	const debounceTimeout = useRef(null);
 
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -19,34 +18,41 @@ const PropertyEditDropDown = ({ children, colors, value, onDelete, onUpdate }) =
 		}));
 	}, [value?.color, value?.label]);
 
-	const handleVisibleChange = useCallback((visible) => {
+	const handleVisibleChange = useCallback(
+		(visible) => {
+			setInfo((prev) => ({
+				...prev,
+				isOpen: visible,
+			}));
+
+			// Update label when closing if it has changed
+			if (!visible && info.label.trim() !== value.label) {
+				onUpdate({ label: info.label.trim() });
+			}
+		},
+		[info.label, value.label, onUpdate],
+	);
+
+	const handleLabelChange = useCallback((e) => {
+		e.stopPropagation();
+		const newLabel = e.target.value;
 		setInfo((prev) => ({
 			...prev,
-			isOpen: visible,
+			label: newLabel,
 		}));
 	}, []);
 
-	// Debounced label update
-	const handleLabelChange = useCallback(
+	const handleLabelKeyDown = useCallback(
 		(e) => {
 			e.stopPropagation();
-			const newLabel = e.target.value;
-			setInfo((prev) => ({
-				...prev,
-				label: newLabel,
-			}));
-
-			if (debounceTimeout.current) {
-				clearTimeout(debounceTimeout.current);
-			}
-
-			debounceTimeout.current = setTimeout(() => {
-				if (newLabel.trim() && newLabel !== value.label) {
-					onUpdate({ label: newLabel.trim() });
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				if (info.label.trim() !== value.label) {
+					onUpdate({ label: info.label.trim() });
 				}
-			}, 500);
+			}
 		},
-		[value.label, onUpdate],
+		[info.label, value.label, onUpdate],
 	);
 
 	// Handle color selection
@@ -85,6 +91,7 @@ const PropertyEditDropDown = ({ children, colors, value, onDelete, onUpdate }) =
 						placeholder="Enter new property name"
 						value={info.label}
 						onChange={handleLabelChange}
+						onKeyDown={handleLabelKeyDown}
 						onClick={(e) => e.stopPropagation()}
 					/>
 					<button className="delete-button option-item" onClick={handleDelete}>
@@ -102,22 +109,23 @@ const PropertyEditDropDown = ({ children, colors, value, onDelete, onUpdate }) =
 									style={{
 										backgroundColor: color?.backgroundColor,
 										borderColor:
-											info.selectedColor === Number(key)
+											info.selectedColor === key
 												? '#F2F2F3'
 												: color?.backgroundColor,
 									}}
-									onClick={(e) => handleColorSelect(e, Number(key))}
+									onClick={(e) => handleColorSelect(e, key)}
 								/>
 							))}
 						</div>
 					</div>
 				</div>
 			}
-			trigger={[]}
+			trigger={['click']}
 			placement="bottomRight"
 			overlayClassName="property-edit-dropdown-container"
 			color="transparent"
 			destroyTooltipOnHide={false}
+			forceRender={true}
 			open={info.isOpen}
 			onOpenChange={handleVisibleChange}
 		>

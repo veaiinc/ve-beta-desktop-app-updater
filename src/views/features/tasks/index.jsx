@@ -42,26 +42,6 @@ const colors = {
 	7: { backgroundColor: '#453061', color: '#6F4C99' },
 };
 
-const defaultTaskMetadata = {
-	status: [
-		{
-			group: 'todo',
-			color: 1,
-			label: 'To-do',
-		},
-		{
-			group: 'inProgress',
-			color: 2,
-			label: 'In Progress',
-		},
-		{
-			group: 'completed',
-			color: 3,
-			label: 'Completed',
-		},
-	],
-};
-
 const Tasks = () => {
 	const {
 		tasks: {
@@ -114,14 +94,14 @@ const Tasks = () => {
 
 	const responseMetadata = useMemo(
 		() => ({
-			title: { type: 'text', name: 'Title', Icon: textSvg, props: {} },
+			title: { type: 'text', name: 'Title', Icon: textSvg, props: {}, doSplit: true },
 			description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
 			status: {
 				type: 'status',
 				name: 'Status',
 				Icon: PieSvg,
 				props: {
-					options: info?.taskMetadata?.status || [],
+					options: info?.taskMetadata?.status?.sort((a, b) => a.order - b.order) || [],
 				},
 			},
 			priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg, props: {} },
@@ -141,7 +121,6 @@ const Tasks = () => {
 				type: 'childTasks',
 				name: 'Sub Tasks',
 				Icon: WorkflowSvg,
-				doSplit: true,
 				props: {},
 			},
 			assignedTo: {
@@ -592,6 +571,10 @@ const Tasks = () => {
 						newTask.createdBy = { _id: user_id, name: userName };
 						newTask.updatedBy = { _id: user_id, name: userName };
 						if (info?.isCreatingSubtask) {
+							newTask.parentTask = {
+								title: info?.selectedRow?.title,
+								_id: info?.selectedRow?._id,
+							};
 							addSubTask(newTask);
 						}
 						message.success('Task added successfully');

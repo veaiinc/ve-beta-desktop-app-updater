@@ -168,7 +168,6 @@ const AgentsSetup = () => {
 					))}
 				</div>
 			</div>
-			<BottomToolbar />
 		</div>
 	);
 };

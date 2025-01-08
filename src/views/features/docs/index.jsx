@@ -1,11 +1,63 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/docs/index.scss';
 import { ReactComponent as Files } from '../../../assets/svg/docs/files.svg';
 import { fetchOriginSelection } from '../../../helpers';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
 import FilesListView from './FilesListView';
+import Context from '../../../context/context';
+import moment from 'moment';
 let origin = fetchOriginSelection();
 const Docs = () => {
+	let {
+		templates: {
+			getMyWorkflows,
+			myWorkflows,
+			myMoreWorkflows,
+			salePageRefresh,
+			updateStateValues,
+			generatePublicLinkData,
+		},
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		loading: true,
+		myWorkflowData: null,
+		hasNextPage: false,
+		currentPage: 1,
+		myWorkflowModal: false,
+		activeTemplateData: null,
+		activeCardsData: null,
+		copyModal: false,
+		showGeneratedLinkModalData: null,
+		testingDrawerModal: false,
+		shownInitialLoader: localStorage.getItem('showInitialLoader'),
+		currentWorkspaceId: null,
+		pendingCopyAction: null,
+		copyLink: null,
+	});
+
+	useEffect(() => {
+		getMyWorkflowTemplatesData(1);
+	}, []);
+
+	useEffect(() => {
+		setInfo((prev) => ({ ...prev, myWorkflowData: myWorkflows?.data }));
+	}, [myWorkflows]);
+
+	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
+		const payload = {
+			filters: {
+				limit: 10,
+				page: page,
+				type: 'workspace',
+				status: 'published',
+				sortBy: 'createdAt',
+				sortType: -1,
+			},
+		};
+		getMyWorkflows(payload, fetchMore);
+	}, []);
+
 	const onGenerateAIFunc = () => {
 		window.location.href = `${origin}/generate`;
 	};
@@ -56,7 +108,7 @@ const Docs = () => {
 									</div>
 								</div>
 								<img
-									src="https://s3-alpha-sig.figma.com/img/d123/7039/e9657c701b29d41ded85c753bf7bb901?Expires=1736121600&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=Nh1szCywYF9uaxvrAlbwwEW7iKRl51m66dYFTwTnpwooc0ui7rZ6PgxjDHCpLGjP38fK1WErgeG9LxVxcRibSZpcm6No9vI-XpkdEmFvvctLsA6M9O1TJJi917wgV91FO8Io30dAQg1GCjUmzOmY5F1Ci8BzkMuTlO9M72c0BP3Z4CSum6QPEJm4GVhFYF-D-nEfl6jYu3X9xzYEf7f4SeRYBRRO~PS5zOKYrhVENZmiKcmnCfRPgNsmHQPPjBSO1Bhq3ba-lS0GQLNF9T~R-zppNvYKJYnPn6BEFVtHB7KAg4YirBdtqrTJMGx356~Hy3t4qg-oY5J7b0WqZ7D1sQ__"
+									src="https://s3-alpha-sig.figma.com/img/15b6/6719/e9a63a81d478a52552ed98ac31e7a2b6?Expires=1737331200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=AHd93og5SQiiQLECz4ZuNCrzERGP~NAz3qk7eS5Sfl2rnN0oWzjo~8CgS5fNWE5Knb5s0yTjbQ7uXSeHW6H8J3E1eSneLfc0U9057RjAp0VEqJ-evjzPJjlrXdlli85n2yZM7obW8hfc~8-9MlR57xLGtWobCP7v50apSuXv~1NXhnucgryS87p1CZyKsZZ1Ro-JHIDtSqRygCQDk7N~x2ZS0u5JL6cEZF~nC0oZdxR73cBZ1yBbIG~CYAqEdojkRWVcoOYkPROyviNf-vIl8O3kRvgvVLXAgH7WeebcdHwODd4LeNcCXL7uhHAfZPRwvTeKbq4NW9MarD7lglA2cw__"
 									alt="Template preview"
 								/>
 							</div>
