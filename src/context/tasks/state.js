@@ -21,6 +21,7 @@ export const intialState = {
 	newTask: null,
 	subTasks: null,
 	preferences: null,
+	refetchTasks: false,
 };
 
 export const TasksState = () => {
@@ -299,6 +300,13 @@ export const TasksState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
 
+	const updateTaskState = (payload) => {
+		dispatch({
+			type: Actions.UPDATE_TASK_STATE,
+			payload,
+		});
+	};
+
 	return {
 		...state,
 		getListItems,
@@ -317,5 +325,6 @@ export const TasksState = () => {
 		updateStatusLabel,
 		deleteStatusLabel,
 		resetTasksState,
+		updateTaskState,
 	};
 };
