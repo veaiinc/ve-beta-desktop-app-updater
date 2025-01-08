@@ -1,14 +1,23 @@
 import React, { memo } from 'react';
 // theme preference component
 const ThemePreferenceComponent = ({ updateThemeSubmitHandler, activeTheme }) => {
+	console.log(activeTheme, activeTheme === 'system-dark' || 'system-light');
 	return (
 		<div className={'themeMain'}>
 			<h4>Theme Preference</h4>
 			<div>
 				<button
-					className={activeTheme === 'system' ? 'activeButton' : ''}
+					className={
+						activeTheme === 'system-dark' || activeTheme === 'system-light'
+							? 'activeButton'
+							: ''
+					}
 					onClick={() => updateThemeSubmitHandler('system')}
-					disabled={activeTheme === 'system' ? true : false}
+					disabled={
+						activeTheme === 'system-dark' || activeTheme === 'system-light'
+							? true
+							: false
+					}
 				>
 					System
 				</button>

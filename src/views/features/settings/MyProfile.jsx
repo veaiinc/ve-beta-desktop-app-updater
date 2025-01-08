@@ -8,6 +8,7 @@ import UpdatePasswordComponent from '../../components/settings/profile/UpdatePas
 import TwoFactorAuthenticationComponent from '../../components/settings/profile/TwoFactorAuthentication';
 import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWorkspace';
 import Cookies from 'js-cookie';
+import { message } from 'antd';
 
 const MyProfile = () => {
 	// # Context
@@ -250,18 +251,25 @@ const MyProfile = () => {
 
 	const updateThemeSubmitHandler = async (mode) => {
 		if (mode === 'system') {
-			const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+			const systemTheme = window?.matchMedia('(prefers-color-scheme: dark)')?.matches
 				? 'dark'
 				: 'light';
 			mode = systemTheme;
+			Cookies?.set('theme', `system-${systemTheme}`);
+			localStorage?.setItem('theme', `system-${systemTheme}`);
+			document?.documentElement?.setAttribute('theme', mode);
 		}
+
 		const json = {
 			theme: mode,
 		};
+
 		const response = await updatePrefernces(json);
-		if (response[0]) {
+		if (response?.[0]) {
 			setActiveTheme(mode);
-			document.documentElement.setAttribute('theme', mode);
+			document?.documentElement?.setAttribute('theme', mode);
+		} else {
+			message.error(response?.[1]?.message);
 		}
 	};
 
