@@ -13,6 +13,7 @@ import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/gree
 import jwtDecode from 'jwt-decode';
 import PhoneNumber from '../../components/onboarding/PhoneNumber';
 import VerifyPhoneNumberViaOTP from '../../components/onboarding/VerifyPhoneNumberViaOTP';
+import Spinner from '../../components/loaders/Spinner';
 
 const tl1 = gsap.timeline();
 const tl2 = gsap.timeline();
@@ -159,7 +160,7 @@ const Onboarding = () => {
 		username: createWorkspaceUsername || '',
 		workspaceHandle: '',
 		isWorkspaceHandleAvailable: false,
-		isCheckingWorkspaceHandle: true,
+		isCheckingWorkspaceHandle: false,
 		workspaceType: '',
 		profession: '',
 		phoneNumber: '',
@@ -865,18 +866,22 @@ const Onboarding = () => {
 								{info?.workspaceHandle || 'workspace-name'}
 							</b>
 							<b className="workspace-handle">.ve.ai</b>
-							<span
-								style={{
-									opacity:
-										info?.isWorkspaceHandleAvailable &&
-										!info?.isCheckingWorkspaceHandle
-											? 1
-											: 0,
-									transition: 'opacity 0.3s ease',
-								}}
-							>
-								<GreenTick />
-							</span>
+							{info?.isCheckingWorkspaceHandle ? (
+								<Spinner width="24px" height="24px" />
+							) : (
+								<span
+									style={{
+										opacity:
+											info?.isWorkspaceHandleAvailable &&
+											!info?.isCheckingWorkspaceHandle
+												? 1
+												: 0,
+										transition: 'opacity 0.3s ease',
+									}}
+								>
+									<GreenTick />
+								</span>
+							)}
 						</p>
 					</div>
 				),
