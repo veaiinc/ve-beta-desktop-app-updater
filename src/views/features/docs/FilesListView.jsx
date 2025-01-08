@@ -16,6 +16,7 @@ import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg
 import Context from '../../../context/context';
 import RequiredActions from '../../components/docs/RequiredActions';
 import Preview from '../../components/docs/Preview';
+import CustomTextArea from '../../components/globalComponents/CustomTextArea';
 import { Drawer } from 'antd';
 // import { message } from 'antd';
 // import jwtDecode from 'jwt-decode';
@@ -340,7 +341,22 @@ const FilesListView = () => {
 						</div>
 					</div>
 
-					<div className="listViewContainer">ListViewSidebar</div>
+					<div className="listViewContainer">
+						<CustomTextArea
+							value={`${info?.selectedRow?.title || 'Abhilash Wedding'}`}
+							onChange={(e) => {}}
+							autoResize={true}
+							// className="titleInput"
+						/>
+						ListView
+						<CustomTextArea
+							value={`${info?.selectedRow?.title || ''}`}
+							onChange={(e) => {}}
+							autoResize={true}
+							placeholder="| Add Description.... "
+							// className="titleInput"
+						/>
+					</div>
 
 					<div className="tabsViewWrapper">
 						<div className="tabsView">
