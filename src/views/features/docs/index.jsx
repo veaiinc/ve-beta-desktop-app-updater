@@ -1,6 +1,15 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/docs/index.scss';
 import { ReactComponent as Files } from '../../../assets/svg/docs/files.svg';
+import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
+import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';
+import { ReactComponent as ThreeDots } from '../../../assets/svg/docs/three-dots.svg';
+import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
+import { ReactComponent as UppercaseLowercaseA } from '../../../assets/svg/docs/uppercase-lowercase-a.svg';
+import { ReactComponent as MailLetter } from '../../../assets/svg/docs/mail-letter.svg';
+import { ReactComponent as StatusCircle } from '../../../assets/svg/docs/status-circle.svg';
+import { ReactComponent as DownArrowPurple } from '../../../assets/svg/docs/down-arrow-purple.svg';
+
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
 import FilesListView from './FilesListView';
@@ -9,6 +18,7 @@ import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { calc } from 'antd/es/theme/internal';
 import Sidebar from '../../components/docs/Sidebar';
+import DropDown from '../../components/dropDown/tasks/DropDown';
 import Skeleton from 'react-loading-skeleton';
 let origin = fetchOriginSelection();
 
@@ -98,6 +108,13 @@ export const statusTextmapper = {
 		},
 	},
 };
+
+const FilterIcons = {
+	templateName: <UppercaseLowercaseA />,
+	clientName: <MailLetter />,
+	status: <StatusCircle />,
+};
+
 export const DocsStatusButton = ({ content = '', style = {}, textStyle = {}, dotStyle = {} }) => {
 	return (
 		<div className="DocsStatusButtonOuterContainer" style={{ ...style }}>
@@ -120,7 +137,40 @@ const Docs = () => {
 		docsData: [],
 		showRightDrawer: false,
 		activeFileData: null,
+		searchExpand: false,
+		searchValue: '',
+		appliedFilters: [],
 	});
+
+	const Filters = [
+		{
+			label: (
+				<div onClick={() => handleSetFilter('templateName')} className="filterContainer">
+					<UppercaseLowercaseA />
+					<span>Template Name</span>
+				</div>
+			),
+			value: 'templateName',
+		},
+		{
+			label: (
+				<div onClick={() => handleSetFilter('clientName')} className="filterContainer">
+					<MailLetter />
+					<span>Client Name</span>
+				</div>
+			),
+			value: 'clientName',
+		},
+		{
+			label: (
+				<div onClick={() => handleSetFilter('status')} className="filterContainer">
+					<StatusCircle />
+					<span>Status</span>
+				</div>
+			),
+			value: 'status',
+		},
+	];
 
 	useEffect(() => {
 		getDocsFilesListFunc(1);
@@ -137,6 +187,10 @@ const Docs = () => {
 			parseDocsFilesListDeatils(moreDocsFilesList, true);
 		}
 	}, [moreDocsFilesList]);
+
+	const handleSetFilter = (filter) => {
+		setInfo((prev) => ({ ...prev, appliedFilters: [...prev.appliedFilters, filter] }));
+	};
 
 	const onGenerateAIFunc = () => {
 		window.location.href = `${origin}/generate`;
@@ -212,7 +266,87 @@ const Docs = () => {
 
 			<div className="docsFileContainer">
 				<div className="docsFileHeaderContainer">
-					<span className="docsFileHeaderContainerTitle">Files</span>
+					<div className="docsFileHeaderContainerTitle">
+						<span>Files</span>
+						<div className="appliedFiltersContainer">
+							{info?.appliedFilters?.map((filter) => (
+								<div className="appliedFilter">
+									{FilterIcons?.[filter]}
+									<span className="filter">{filter} :</span>
+									<DownArrowPurple />
+								</div>
+							))}
+						</div>
+					</div>
+					<div className="docsFileHeaderContainerActionsContainer">
+						<div
+							className="searchContainer"
+							style={{
+								width: info?.searchExpand ? '140px' : '16px',
+							}}
+						>
+							<div
+								className={`searchBtn ${info?.searchExpand ? 'searchExpand' : ''}`}
+							>
+								<span
+									style={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+										cursor: 'pointer',
+									}}
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											searchExpand: true,
+										}))
+									}
+								>
+									<Search />
+								</span>
+
+								<div className="inputAndCloseContainer">
+									<input
+										className="searchInputTag"
+										placeholder="Search"
+										value={info?.searchValue}
+										onChange={(e) =>
+											setInfo((prev) => ({
+												...prev,
+												searchValue: e?.target?.value,
+											}))
+										}
+									/>
+									<span
+										style={{
+											display: 'flex',
+											justifyContent: 'center',
+											alignItems: 'center',
+											cursor: 'pointer',
+										}}
+										onClick={() => {
+											setInfo((prev) => ({
+												...prev,
+												searchExpand: false,
+												searchValue: '',
+											}));
+										}}
+									>
+										<Cross style={{ width: '20px', height: '20px' }} />
+									</span>
+								</div>
+							</div>
+						</div>
+						<DropDown
+							title="Add Filters"
+							options={Filters}
+							onOptionClick={() => console.log('option clicked')}
+							valueSelector="value"
+						>
+							<Filter style={{ width: '20px', height: '20px', marginTop: '6px' }} />
+						</DropDown>
+						<ThreeDots />
+					</div>
 				</div>
 				<div className="docsFilesInfiiniteContainer">
 					{info?.loading ? (
