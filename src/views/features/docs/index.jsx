@@ -9,6 +9,7 @@ import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { calc } from 'antd/es/theme/internal';
 import Sidebar from '../../components/docs/Sidebar';
+import Skeleton from 'react-loading-skeleton';
 let origin = fetchOriginSelection();
 
 const staticCreateActions = [
@@ -214,45 +215,51 @@ const Docs = () => {
 					<span className="docsFileHeaderContainerTitle">Files</span>
 				</div>
 				<div className="docsFilesInfiiniteContainer">
-					<InfiniteScroll
-						dataLength={info?.docsData?.length || 0}
-						next={fetcMoreDocsFilesList}
-						hasMore={info?.hasNextPage}
-						loader={<FetchMoreLoaderComp />}
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							gap: '8px',
-							width: '100%',
-						}}
-						className="tetsing"
-						height="calc(100vh - 500px)"
-					>
-						{info?.docsData?.map((ele, index) => (
-							<div
-								className="docsRow"
-								key={index}
-								onClick={() => handleOpenSidebar(ele)}
-							>
-								<div className="docsFilesRowTitle">{ele?.title}</div>
-								<div className="docsKeyWordsContainer">
-									{ele?.clientDetails?.name ? (
-										<span className="docsclientdetailsName">
-											{ele?.clientDetails?.name}
-										</span>
-									) : (
-										''
-									)}
+					{info?.loading ? (
+						[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]?.map(
+							(ele, index) => <Skeleton key={index} height={36} />,
+						)
+					) : (
+						<InfiniteScroll
+							dataLength={info?.docsData?.length || 0}
+							next={fetcMoreDocsFilesList}
+							hasMore={info?.hasNextPage}
+							loader={<FetchMoreLoaderComp />}
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '8px',
+								width: '100%',
+							}}
+							className="tetsing"
+							height="calc(100vh - 500px)"
+						>
+							{info?.docsData?.map((ele, index) => (
+								<div
+									className="docsRow"
+									key={index}
+									onClick={() => handleOpenSidebar(ele)}
+								>
+									<div className="docsFilesRowTitle">{ele?.title}</div>
+									<div className="docsKeyWordsContainer">
+										{ele?.clientDetails?.name ? (
+											<span className="docsclientdetailsName">
+												{ele?.clientDetails?.name}
+											</span>
+										) : (
+											''
+										)}
 
-									<DocsStatusButton
-										content={statusTextmapper?.[ele?.status]?.text}
-										style={statusTextmapper?.[ele?.status]?.style}
-										dotStyle={statusTextmapper?.[ele?.status]?.dotStyle}
-									/>
+										<DocsStatusButton
+											content={statusTextmapper?.[ele?.status]?.text}
+											style={statusTextmapper?.[ele?.status]?.style}
+											dotStyle={statusTextmapper?.[ele?.status]?.dotStyle}
+										/>
+									</div>
 								</div>
-							</div>
-						))}
-					</InfiniteScroll>
+							))}
+						</InfiniteScroll>
+					)}
 				</div>
 
 				<Sidebar
