@@ -118,118 +118,33 @@
 			}
 		}
 		.mainContentContainer {
-			// flex: 1;
 			position: relative;
 			display: flex;
 			flex-direction: column;
 			justify-content: flex-start;
 			gap: 24px;
-			height: 100vh;
-			overflow-y: auto;
+			height: calc(100vh - 100px);
+			overflow: hidden;
 			width: 70%;
 			transition: transform 0.8s ease, opacity 0.8s ease;
-			scrollbar-width: none !important; /* Firefox */
-			-ms-overflow-style: none !important; /* IE and Edge */
-			&::-webkit-scrollbar {
-				display: none;
-			}
-			&.modal-open {
-				transform: translateX(-35%);
-				transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-			}
-			.dior-studio-text {
-				color: #fff;
-				font-family: Inter;
-				font-size: 16px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: normal;
-			}
-			.workflow-title-container {
-				display: flex;
-				flex-direction: column;
-				align-items: flex-start;
-				gap: 18px;
-				align-self: stretch;
-				.workflow-title {
-					color: #fff;
-					font-family: Inter;
-					font-size: 24px;
-					font-style: normal;
-					font-weight: 600;
-					line-height: 30px; /* 125% */
-					text-transform: capitalize;
-				}
-				.workflow-description {
-					color: #fff;
-					font-family: Inter;
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 400;
-					line-height: 121.047%; /* 16.947px */
-					text-transform: lowercase;
-					align-self: stretch;
-				}
-				.active-users-text {
-					color: #fff;
-					font-family: Inter;
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-					text-transform: capitalize;
-					flex: 1 0 0;
-				}
-				.buy-button {
-					display: flex;
-					padding: 12px 32px;
-					justify-content: center;
-					align-items: center;
-					gap: 8px;
-					border-radius: 100px;
-					background: #fff;
-					border: none;
+
+			.infinite-scroll-component {
+				overflow-y: auto !important;
+				overflow-x: hidden;
+				scrollbar-width: none !important;
+				-ms-overflow-style: none !important;
+
+				&::-webkit-scrollbar {
+					display: none;
 				}
 			}
-			.gloablWorkflowHeader {
-				display: flex;
-				padding-left: 24px;
-				align-items: center;
-				gap: 10px;
-				align-self: stretch;
-				color: #e4e5e6;
-				font-family: Inter;
-				font-size: 22px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 24px;
-				.backArrowBtn {
-					display: flex;
-					padding: 3px 6px;
-					align-items: center;
-					gap: 10px;
-					cursor: pointer;
-				}
-			}
-			.scrollableTarget {
-				width: 75%;
-				overflow: auto;
-				height: 100%;
-				padding-bottom: 100px;
-			}
+
 			.globalWorkflowParentCardContainer {
 				display: flex;
 				flex: 1;
-				// align-self: stretch;
 				flex-direction: column;
 				gap: 24px;
 				padding-bottom: 30px;
-
-				.globalWorkflowCardContainer:hover,
-				.globalProposalsCardContainer:hover {
-					border: 1px solid #fff;
-					border-radius: 24px;
-				}
 			}
 		}
 

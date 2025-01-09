@@ -96,19 +96,24 @@ const GlobalWorkflows = () => {
 		isExpanded: false,
 	});
 
-	useEffect(() => {
-		if (selectedOption === 'Workflow') {
-			setInfo((prev) => ({ ...prev, isLoading: true }));
-			getGlobalWorkflowTemplatesData(1);
-		}
-	}, [selectedOption]);
+	const [moduleInfo, setModuleInfo] = useState({
+		currentPage: 1,
+		hasNextPage: false,
+	});
 
 	useEffect(() => {
 		if (selectedOption === 'Workflow') {
-			setInfo((prev) => ({ ...prev, searchLoading: true }));
+			setInfo((prev) => ({ ...prev, isLoading: true, searchLoading: true }));
 			getGlobalWorkflowTemplatesData(1);
 		}
-	}, [debouncedSearchQuery]);
+	}, [selectedOption, debouncedSearchQuery]);
+
+	// useEffect(() => {
+	// 	if (selectedOption === 'Workflow') {
+	// 		setInfo((prev) => ({ ...prev, searchLoading: true }));
+	// 		getGlobalWorkflowTemplatesData(1);
+	// 	}
+	// }, [debouncedSearchQuery]);
 
 	useEffect(() => {
 		if (globalWorkflows) {
@@ -139,6 +144,10 @@ const GlobalWorkflows = () => {
 				const [success, response] = await getModuleTemplate(payload);
 				if (success) {
 					setModuleTemplateData(response.templates);
+					setModuleInfo({
+						currentPage: 1,
+						hasNextPage: response.hasNextPage,
+					});
 				}
 				setInfo((prev) => ({ ...prev, isLoading: false }));
 			};
@@ -153,6 +162,7 @@ const GlobalWorkflows = () => {
 			setSelectedOption(option);
 			setSearchQuery('');
 			setModuleTemplateData(null);
+			setModuleInfo({ currentPage: 1, hasNextPage: false });
 		},
 		[selectedOption],
 	);
@@ -161,7 +171,7 @@ const GlobalWorkflows = () => {
 		(page, fetchMore = false) => {
 			const payload = {
 				filters: {
-					limit: 10,
+					limit: 5,
 					page: page,
 					type: 'global',
 					sortBy: 'createdAt',
@@ -174,40 +184,35 @@ const GlobalWorkflows = () => {
 		[debouncedSearchQuery],
 	);
 
-	const globalWorkflowsDataParser = useCallback(
-		(dataToBeUsed, fetchMore = false) => {
-			let { data, currentPage, hasNextPage } = dataToBeUsed;
-			let globalWorkflowData = [];
+	const globalWorkflowsDataParser = useCallback((dataToBeUsed, fetchMore = false) => {
+		let { data, currentPage, hasNextPage } = dataToBeUsed;
+		let globalWorkflowData = [];
 
-			for (let i = 0; i < data?.length; i++) {
-				if (!data?.[i]?.tenantId || data?.[i]?.tenantId === null) {
-					globalWorkflowData?.push(data?.[i]);
-				}
+		for (let i = 0; i < data?.length; i++) {
+			if (!data?.[i]?.tenantId || data?.[i]?.tenantId === null) {
+				globalWorkflowData?.push(data?.[i]);
 			}
+		}
 
-			if (fetchMore) {
-				globalWorkflowData = [...(info?.globalWorkflowData || [])]?.concat(
-					globalWorkflowData,
-				);
-			}
-			if (!fetchMore && globalWorkflowData?.length < 3 && hasNextPage) {
-				getGlobalWorkflowTemplatesData(currentPage + 1, true);
-			}
-			setInfo((prev) => ({
-				...prev,
-				loading: false,
-				searchLoading: false,
-				globalWorkflowData,
-				currentPage,
-				hasNextPage,
-			}));
-		},
-		[info?.globalWorkflowData],
-	);
+		setInfo((prev) => ({
+			...prev,
+			loading: false,
+			searchLoading: false,
+			isLoading: false,
+			globalWorkflowData: fetchMore
+				? [...(prev.globalWorkflowData || []), ...globalWorkflowData]
+				: globalWorkflowData,
+			currentPage,
+			hasNextPage,
+		}));
+	}, []);
 
 	const fetchMoreGlobalWorkflows = useCallback(() => {
-		getGlobalWorkflowTemplatesData(info?.currentPage + 1, true);
-	}, [info?.hasNextPage, info?.currentPage]);
+		if (info?.hasNextPage && !info.isLoading) {
+			// setInfo((prev) => ({ ...prev, isLoading: true }));
+			getGlobalWorkflowTemplatesData(info?.currentPage + 1, true);
+		}
+	}, [info?.hasNextPage, info?.currentPage, info.isLoading, getGlobalWorkflowTemplatesData]);
 
 	const openModal = useCallback((data, module) => {
 		if (!data) {
@@ -261,6 +266,41 @@ const GlobalWorkflows = () => {
 		}
 	}, [info?.activeTemplateData, info?.duplicateApiLoading, selectedOption]);
 
+	const fetchMoreModuleTemplates = useCallback(async () => {
+		if (!moduleInfo?.hasNextPage || info.isLoading) return;
+
+		// setInfo((prev) => ({ ...prev, isLoading: true }));
+
+		const payload = {
+			page: (moduleInfo?.currentPage || 0) + 1,
+			limit: 10,
+			type: 'global',
+			module: selectedOption.toLowerCase(),
+			...(debouncedSearchQuery && { title: debouncedSearchQuery }),
+		};
+
+		try {
+			const [success, response] = await getModuleTemplate(payload);
+			if (success && response?.templates) {
+				setModuleTemplateData((prev) => [...(prev || []), ...response.templates]);
+				setModuleInfo({
+					currentPage: moduleInfo.currentPage + 1,
+					hasNextPage: response.hasNextPage,
+				});
+			}
+		} catch (error) {
+			console.error('Error fetching more templates:', error);
+		} finally {
+			setInfo((prev) => ({ ...prev, isLoading: false }));
+		}
+	}, [
+		moduleInfo?.hasNextPage,
+		moduleInfo?.currentPage,
+		selectedOption,
+		debouncedSearchQuery,
+		info.isLoading,
+	]);
+
 	return (
 		<>
 			{info?.loading ? (
@@ -313,7 +353,7 @@ const GlobalWorkflows = () => {
 							</div>
 						</div>
 						<div
-							className={`mainContentContainer  ${
+							className={`mainContentContainer ${
 								info.modalIsOpen ? 'modal-open' : ''
 							}`}
 							id="templatesScrollableTarget"
@@ -379,12 +419,29 @@ const GlobalWorkflows = () => {
 									}}
 								>
 									<InfiniteScroll
-										dataLength={info?.globalWorkflowData?.length || 0}
-										next={fetchMoreGlobalWorkflows}
-										hasMore={info?.hasNextPage}
+										dataLength={
+											selectedOption === 'Workflow'
+												? info?.globalWorkflowData?.length || 0
+												: moduleTemplateData?.length || 0
+										}
+										next={
+											selectedOption === 'Workflow'
+												? fetchMoreGlobalWorkflows
+												: fetchMoreModuleTemplates
+										}
+										hasMore={
+											selectedOption === 'Workflow'
+												? Boolean(info?.hasNextPage)
+												: Boolean(moduleInfo?.hasNextPage)
+										}
 										loader={<FetchMoreLoaderComp />}
-										scrollableTarget={'templatesScrollableTarget'}
-										className="scrollableTarget"
+										scrollableTarget="templatesScrollableTarget"
+										height="calc(100vh - 100px)"
+										endMessage={
+											<p style={{ textAlign: 'center', color: '#fff' }}>
+												<b>No more templates to load</b>
+											</p>
+										}
 									>
 										<div className="globalWorkflowParentCardContainer">
 											{selectedOption !== 'Workflow' ? (

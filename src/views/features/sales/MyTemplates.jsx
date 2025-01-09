@@ -116,7 +116,7 @@ const GlobalMyTemplates = () => {
 			if (selectedOption === 'Workflow') {
 				const payload = {
 					filters: {
-						limit: 10,
+						limit: 5,
 						page: 1,
 						type: 'workspace',
 						sortBy: 'createdAt',
@@ -201,7 +201,7 @@ const GlobalMyTemplates = () => {
 			}
 			const payload = {
 				filters: {
-					limit: 10,
+					limit: 5,
 					page: page,
 					type: 'workspace',
 					sortBy: 'createdAt',
@@ -231,8 +231,18 @@ const GlobalMyTemplates = () => {
 	}, []);
 
 	const fetchMoreGlobalWorkflows = useCallback(() => {
-		getGlobalWorkflowTemplatesData(info?.currentPage + 1, true);
-	}, [info?.currentPage, getGlobalWorkflowTemplatesData]);
+		if (info?.hasNextPage && !info.isLoading) {
+			// console.log('Fetching more workflows:', {
+			// 	hasNextPage: info?.hasNextPage,
+			// 	currentPage: info?.currentPage,
+			// 	dataLength: info?.globalWorkflowData?.length,
+			// });
+
+			const nextPage = (info?.currentPage || 0) + 1;
+			// setInfo((prev) => ({ ...prev, isLoading: true }));
+			getGlobalWorkflowTemplatesData(nextPage, true);
+		}
+	}, [info?.hasNextPage, info?.currentPage, info.isLoading, getGlobalWorkflowTemplatesData]);
 
 	const openModal = useCallback(
 		(data) => {
@@ -325,7 +335,7 @@ const GlobalMyTemplates = () => {
 							</div>
 						</div>
 						<div
-							className={`mainContentContainer  ${
+							className={`mainContentContainer ${
 								info.modalIsOpen ? 'modal-open' : ''
 							}`}
 							id="templatesScrollableTarget"
@@ -408,7 +418,12 @@ const GlobalMyTemplates = () => {
 									}
 									loader={<FetchMoreLoaderComp />}
 									scrollableTarget="templatesScrollableTarget"
-									height="99%"
+									height="calc(100vh - 100px)"
+									endMessage={
+										<p style={{ textAlign: 'center', color: '#fff' }}>
+											<b>No more templates to load</b>
+										</p>
+									}
 								>
 									<div className="globalWorkflowParentCardContainer">
 										{selectedOption !== 'Workflow' ? (

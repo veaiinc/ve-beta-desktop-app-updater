@@ -52,7 +52,7 @@
 @media screen and (min-width: 1501px) and (max-width: 2000px) {
 	.mainProposalsCard {
 		gap: 24px;
-		justify-content: center;
+		justify-content: flex-start;
 		.globalProposalsCardContainer {
 			width: 340px !important;
 			flex-wrap: wrap;
@@ -70,7 +70,7 @@
 	.mainProposalsCard {
 		width: 100%;
 		gap: 12px;
-		justify-content: center;
+		justify-content: flex-start;
 		.globalProposalsCardContainer {
 			width: 340px !important;
 
