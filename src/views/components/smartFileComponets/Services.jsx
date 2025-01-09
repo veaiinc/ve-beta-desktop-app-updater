@@ -192,7 +192,6 @@ const Services = ({
 		},
 		[info?.data, editable, serviceOnChangeFunc, gotUnacceptedAiGeneratedValue],
 	);
-	console.log('info?.data==>', info?.data);
 	return info?.data?.length ? (
 		<div className="servicesParentContainer">
 			{info?.data?.map((ele, index) => (

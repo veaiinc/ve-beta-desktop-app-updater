@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState, useContext, useEffect } from 'react';
 import '../../../assets/scss/docs/fileListView.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
@@ -11,15 +11,34 @@ import { ReactComponent as DuplicateSvg } from '../../../assets/svg/shareAndEarn
 import { ReactComponent as DeleteSvg } from '../../../assets/svg/tasks/dustBin.svg';
 import CustomTextArea from '../globalComponents/CusomTextArea';
 import RequiredActions from './RequiredActions';
+import DocsActivity from './DocsActivity';
 import Preview from './Preview';
 import { Drawer } from 'antd';
 import { Tooltip } from 'antd';
 import { DocsStatusButton, statusTextmapper } from '../../features/docs';
+import Context from '../../../context/context.js';
 const Sidebar = ({ open, onClose, activeFileData }) => {
+	const {
+		activityInfo: {
+			// activityData,
+			// getSmartFileActivity,
+			// getSmartFileViewers,
+			// viewersList,
+			resetActivityState,
+		},
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		activeTab: 'reqActions',
 		openMoreOptions: false,
 	});
+
+	// useEffect(() => {
+	// 	return () => {
+	// 		resetActivityState();
+	// 	};
+	// }, []);
+
 	const handleTabChange = useCallback((tabId) => {
 		setInfo((prev) => ({ ...prev, activeTab: tabId }));
 	}, []);
@@ -39,12 +58,11 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 			{
 				id: 'activity',
 				label: 'Activity',
-				Component: () => <div>Activity</div>,
+				Component: () => <DocsActivity data={activeFileData} />,
 			},
 		],
 		[activeFileData],
 	);
-	// console.log('activeFileData', JSON.stringify(activeFileData, null, 2));
 	// console.log('activeFileData', activeFileData);
 
 	const renderActiveComponent = useCallback(() => {
@@ -56,14 +74,20 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 	}, [info?.activeTab, tabs]);
 
 	const handleMoreVisibility = useCallback((visible) => {
-		console.log('visible', visible);
 		setInfo((prev) => ({ ...prev, openMoreOptions: visible }));
 	}, []);
+
+	const modifyClose = useCallback(() => {
+		setInfo((prev) => ({ ...prev, activeTab: 'reqActions' }));
+		resetActivityState();
+		onClose();
+	}, [onClose]);
+
 	return (
 		<Drawer
 			open={open}
 			// open={true}
-			onClose={onClose}
+			onClose={modifyClose}
 			style={{ padding: '10px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
@@ -72,7 +96,7 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 			<div className="fileListViewDrawer">
 				<div className="headerContainer">
 					<div className="headerLeftLabel">
-						<CloseSvg onClick={onClose} />
+						<CloseSvg onClick={modifyClose} />
 						<ExpandSvg />
 					</div>
 					<div className="headerRightLabel">
