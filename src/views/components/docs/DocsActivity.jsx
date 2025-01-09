@@ -5,6 +5,7 @@ import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.s
 import { ReactComponent as HandTapSvg } from '../../../assets/svg/activity/handTap.svg';
 import { ReactComponent as EyeSvg } from '../../../assets/svg/activity/eye.svg';
 import FileViewersList from './FileViewersList.jsx';
+import SessionMetric from '../activity/SessionMetric.jsx';
 import Context from '../../../context/context.js';
 import Spinner from '../loaders/Spinner.jsx';
 import moment from 'moment';
@@ -36,7 +37,7 @@ const DocsActivity = ({ data }) => {
 
 	const [info, setInfo] = useState({
 		...InitialState,
-		activeTab: 'timeSpent',
+		activeTab: 'viewers',
 	});
 
 	useEffect(() => {
@@ -98,17 +99,35 @@ const DocsActivity = ({ data }) => {
 			{
 				id: 'timeSpent',
 				label: 'Time Spent',
-				Component: () => <div>Time Spent</div>,
-				// Component: () => <Preview data={activeFileData} />,
+				Component: () => (
+					<SessionMetric
+						key={'Time Spent'}
+						title={'Time Spent'}
+						loading={info?.loading}
+						labelsData={info?.fileActivityData?.moduleViewDuration}
+						labelItemsData={info?.fileActivityData?.sectionViewDuration}
+						formatTime={formatTime}
+					/>
+				),
 			},
 			{
 				id: 'interactions',
 				label: 'Interactions',
-				Component: () => <div>Interactions</div>,
-				// Component: () => <DocsActivity data={activeFileData} />,
+				Component: () => (
+					<SessionMetric
+						key={'Interactions'}
+						title={'Interactions'}
+						loading={info?.loading}
+						labelsData={info?.fileActivityData?.interaction}
+						labelItemsData={info?.fileActivityData?.interaction?.reduce((acc, item) => {
+							return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending each "interaction" array data
+						}, [])}
+						formatTime={formatTime}
+					/>
+				),
 			},
 		],
-		[info?.fileViewerList, info?.loading],
+		[info?.fileViewerList, info?.loading, info?.fileActivityData],
 	);
 
 	const handleTabChange = useCallback((tabId) => {
