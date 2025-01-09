@@ -1,19 +1,24 @@
-import { Drawer } from 'antd';
 import React, { memo, useCallback, useMemo, useState } from 'react';
+import '../../../assets/scss/docs/fileListView.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
 import { ReactComponent as ShareSvg } from '../../../assets/svg/docs/share.svg';
 import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
 import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
+import { ReactComponent as ActivitySvg } from '../../../assets/svg/docs/activity.svg';
+import { ReactComponent as DuplicateSvg } from '../../../assets/svg/shareAndEarn/copy.svg';
+import { ReactComponent as DeleteSvg } from '../../../assets/svg/tasks/dustBin.svg';
 import CustomTextArea from '../globalComponents/CusomTextArea';
 import RequiredActions from './RequiredActions';
 import Preview from './Preview';
-import '../../../assets/scss/docs/fileListView.scss';
+import { Drawer } from 'antd';
+import { Tooltip } from 'antd';
 import { DocsStatusButton, statusTextmapper } from '../../features/docs';
 const Sidebar = ({ open, onClose, activeFileData }) => {
 	const [info, setInfo] = useState({
 		activeTab: 'reqActions',
+		openMoreOptions: false,
 	});
 	const handleTabChange = useCallback((tabId) => {
 		setInfo((prev) => ({ ...prev, activeTab: tabId }));
@@ -40,7 +45,7 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 		[activeFileData],
 	);
 	// console.log('activeFileData', JSON.stringify(activeFileData, null, 2));
-	console.log('activeFileData', activeFileData);
+	// console.log('activeFileData', activeFileData);
 
 	const renderActiveComponent = useCallback(() => {
 		const activeTabConfig = tabs?.find((tab) => tab?.id === info?.activeTab);
@@ -49,6 +54,11 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 		const { Component } = activeTabConfig;
 		return <Component />;
 	}, [info?.activeTab, tabs]);
+
+	const handleMoreVisibility = useCallback((visible) => {
+		console.log('visible', visible);
+		setInfo((prev) => ({ ...prev, openMoreOptions: visible }));
+	}, []);
 	return (
 		<Drawer
 			open={open}
@@ -74,7 +84,34 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 						/>
 						<div className="editLabel">Edit</div>
 						<ShareSvg />
-						<DotsSvg />
+						<Tooltip
+							placement="bottomRight"
+							open={info?.openMoreOptions}
+							onOpenChange={handleMoreVisibility}
+							arrow={false}
+							trigger={'click'}
+							color={'transparent'}
+							overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+							overlayClassName="dot-svg-tooltip"
+							title={
+								<div className="dot-svg-tooltip-content">
+									<div className="items">
+										<ActivitySvg />
+										<span>Activity</span>
+									</div>
+									<div className="items">
+										<DuplicateSvg />
+										<span>Duplicate</span>
+									</div>
+									<div className="items">
+										<DeleteSvg />
+										<span>Delete</span>
+									</div>
+								</div>
+							}
+						>
+							<DotsSvg />
+						</Tooltip>
 					</div>
 				</div>
 
