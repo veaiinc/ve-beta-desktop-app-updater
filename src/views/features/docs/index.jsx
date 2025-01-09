@@ -8,6 +8,7 @@ import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as UppercaseLowercaseA } from '../../../assets/svg/docs/uppercase-lowercase-a.svg';
 import { ReactComponent as MailLetter } from '../../../assets/svg/docs/mail-letter.svg';
 import { ReactComponent as StatusCircle } from '../../../assets/svg/docs/status-circle.svg';
+import { ReactComponent as DownArrowPurple } from '../../../assets/svg/docs/down-arrow-purple.svg';
 
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
@@ -107,11 +108,11 @@ export const statusTextmapper = {
 	},
 };
 
-const Filters = [
-	{ label: 'Template Name', value: 'templateName', icon: <UppercaseLowercaseA /> },
-	{ label: 'Client Name', value: 'clientName', icon: <MailLetter /> },
-	{ label: 'Status', value: 'status', icon: <StatusCircle /> },
-];
+const FilterIcons = {
+	templateName: <UppercaseLowercaseA />,
+	clientName: <MailLetter />,
+	status: <StatusCircle />,
+};
 
 export const DocsStatusButton = ({ content = '', style = {}, textStyle = {}, dotStyle = {} }) => {
 	return (
@@ -137,7 +138,38 @@ const Docs = () => {
 		activeFileData: null,
 		searchExpand: false,
 		searchValue: '',
+		appliedFilters: [],
 	});
+
+	const Filters = [
+		{
+			label: (
+				<div onClick={() => handleSetFilter('templateName')} className="filterContainer">
+					<UppercaseLowercaseA />
+					<span>Template Name</span>
+				</div>
+			),
+			value: 'templateName',
+		},
+		{
+			label: (
+				<div onClick={() => handleSetFilter('clientName')} className="filterContainer">
+					<MailLetter />
+					<span>Client Name</span>
+				</div>
+			),
+			value: 'clientName',
+		},
+		{
+			label: (
+				<div onClick={() => handleSetFilter('status')} className="filterContainer">
+					<StatusCircle />
+					<span>Status</span>
+				</div>
+			),
+			value: 'status',
+		},
+	];
 
 	useEffect(() => {
 		getDocsFilesListFunc(1);
@@ -154,6 +186,10 @@ const Docs = () => {
 			parseDocsFilesListDeatils(moreDocsFilesList, true);
 		}
 	}, [moreDocsFilesList]);
+
+	const handleSetFilter = (filter) => {
+		setInfo((prev) => ({ ...prev, appliedFilters: [...prev.appliedFilters, filter] }));
+	};
 
 	const onGenerateAIFunc = () => {
 		window.location.href = `${origin}/generate`;
@@ -229,7 +265,18 @@ const Docs = () => {
 
 			<div className="docsFileContainer">
 				<div className="docsFileHeaderContainer">
-					<span className="docsFileHeaderContainerTitle">Files</span>
+					<div className="docsFileHeaderContainerTitle">
+						<span>Files</span>
+						<div className="appliedFiltersContainer">
+							{info?.appliedFilters?.map((filter) => (
+								<div className="appliedFilter">
+									{FilterIcons?.[filter]}
+									<span className="filter">{filter} :</span>
+									<DownArrowPurple />
+								</div>
+							))}
+						</div>
+					</div>
 					<div className="docsFileHeaderContainerActionsContainer">
 						<div
 							className="searchContainer"

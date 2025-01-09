@@ -264,6 +264,11 @@
 			border-bottom: 1px solid #171819;
 
 			.docsFileHeaderContainerTitle {
+				display: flex;
+				justify-content: flex-start;
+				align-items: center;
+				gap: 8px;
+
 				color: #e8e8e8;
 				color: color(display-p3 0.9098 0.9098 0.9098);
 				font-family: Inter;
@@ -271,6 +276,38 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+
+				.appliedFiltersContainer {
+					display: flex;
+					justify-content: flex-start;
+					align-items: center;
+					gap: 8px;
+
+					.appliedFilter {
+						display: flex;
+						padding: 8px 16px;
+						justify-content: center;
+						flex-shrink: 0;
+						align-items: center;
+						gap: 8px;
+						border-radius: 42px;
+						border: 1px solid rgba(98, 84, 245, 0.09);
+						background: rgba(82, 128, 255, 0.05);
+						color: #6254f5;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 20px;
+						cursor: pointer;
+
+						svg {
+							path {
+								fill: #6254f5 !important;
+							}
+						}
+					}
+				}
 			}
 
 			.docsFileHeaderContainerActionsContainer {
