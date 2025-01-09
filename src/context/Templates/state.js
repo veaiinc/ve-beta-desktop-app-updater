@@ -47,6 +47,7 @@ export const intialState = {
 	workflowslist: null,
 	moreWorkList: null,
 	clientList: null,
+	clientListForDocs: null,
 	allEmailTemplates: null,
 	myWorkflows: null,
 	myMoreWorkflows: null,
@@ -141,7 +142,30 @@ export const TemplatesState = (props) => {
 
 			if (response?.[0]) {
 				dispatch({
-					type: Actions.GET_ALL_CLIENT_LIST_SUCCESS,
+					type: Actions?.GET_ALL_CLIENT_LIST_SUCCESS,
+					payload: response?.[1]?.data?.clientsList,
+				});
+			}
+		} catch (error) {
+			console.error('Error==>getClientList', error);
+		}
+	};
+
+	const getClientListForDocs = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getClientListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_ALL_CLIENT_LIST_FOR_DOCS_SUCCESS,
 					payload: response?.[1]?.data?.clientsList,
 				});
 			}
@@ -1274,6 +1298,7 @@ export const TemplatesState = (props) => {
 		getMyWorkflows,
 		resetTemplateState,
 		getClientList,
+		getClientListForDocs,
 		updateStateValues,
 		getAllEmailTemplates,
 		addEmailTriggersInWorkflow,

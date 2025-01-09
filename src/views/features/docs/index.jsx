@@ -19,7 +19,16 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { calc } from 'antd/es/theme/internal';
 import Sidebar from '../../components/docs/Sidebar';
 import DropDown from '../../components/dropDown/tasks/DropDown';
+import FilterPopUp from '../../components/globalComponents/FilterPopUp';
+
 let origin = fetchOriginSelection();
+
+const payload = {
+	filters: {
+		page: 1,
+		limit: 10,
+	},
+};
 
 const staticCreateActions = [
 	{
@@ -126,7 +135,14 @@ export const DocsStatusButton = ({ content = '', style = {}, textStyle = {}, dot
 };
 const Docs = () => {
 	let {
-		templates: { getDocsFilesList, updateStateValues, docsFilesList, moreDocsFilesList },
+		templates: {
+			getDocsFilesList,
+			updateStateValues,
+			clientListForDocs,
+			getClientListForDocs,
+			docsFilesList,
+			moreDocsFilesList,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -139,41 +155,61 @@ const Docs = () => {
 		searchExpand: false,
 		searchValue: '',
 		appliedFilters: [],
+		activeAppliedFilter: '',
+		openFilterPopUp: false,
+		clientList: [],
+		hasMoreClientList: false,
+		currentClientListPage: 1,
 	});
 
 	const Filters = [
+		// {
+		// 	label: (
+		// 		<div onClick={() => handleSetActiveFilter('templateName')} className="filterContainer">
+		// 			<UppercaseLowercaseA />
+		// 			<span>Template Name</span>
+		// 		</div>
+		// 	),
+		// 	value: 'templateName',
+		// },
 		{
 			label: (
-				<div onClick={() => handleSetFilter('templateName')} className="filterContainer">
-					<UppercaseLowercaseA />
-					<span>Template Name</span>
-				</div>
-			),
-			value: 'templateName',
-		},
-		{
-			label: (
-				<div onClick={() => handleSetFilter('clientName')} className="filterContainer">
+				<div
+					onClick={() => handleSetActiveFilter('clientName')}
+					className="filterContainer"
+				>
 					<MailLetter />
 					<span>Client Name</span>
 				</div>
 			),
 			value: 'clientName',
 		},
-		{
-			label: (
-				<div onClick={() => handleSetFilter('status')} className="filterContainer">
-					<StatusCircle />
-					<span>Status</span>
-				</div>
-			),
-			value: 'status',
-		},
+		// {
+		// 	label: (
+		// 		<div onClick={() => handleSetActiveFilter('status')} className="filterContainer">
+		// 			<StatusCircle />
+		// 			<span>Status</span>
+		// 		</div>
+		// 	),
+		// 	value: 'status',
+		// },
 	];
 
 	useEffect(() => {
 		getDocsFilesListFunc(1);
+		getClientListForDocs(payload);
 	}, []);
+
+	useEffect(() => {
+		if (clientListForDocs) {
+			setInfo((prev) => ({
+				...prev,
+				clientList: [...prev?.clientList, ...clientListForDocs?.data],
+				hasMoreClientList: clientListForDocs?.hasNextPage,
+				currentClientListPage: clientListForDocs?.currentPage,
+			}));
+		}
+	}, [clientListForDocs]);
 
 	useEffect(() => {
 		if (docsFilesList) {
@@ -187,8 +223,14 @@ const Docs = () => {
 		}
 	}, [moreDocsFilesList]);
 
-	const handleSetFilter = (filter) => {
+	const handleSetActiveFilter = (filter) => {
+		if (info?.appliedFilters?.includes(filter)) return;
 		setInfo((prev) => ({ ...prev, appliedFilters: [...prev.appliedFilters, filter] }));
+	};
+
+	const handleFilterPopUpSearch = (searchValue) => {
+		console.log(searchValue);
+		setInfo((prev) => ({ ...prev, searchValue }));
 	};
 
 	const onGenerateAIFunc = () => {
@@ -209,6 +251,18 @@ const Docs = () => {
 	const fetcMoreDocsFilesList = useCallback(async () => {
 		getDocsFilesListFunc(info?.currentPage + 1, true);
 	}, [info?.currentPage]);
+
+	const fetchMoreDocs = (filter) => {
+		if (filter === 'clientName') {
+			const payload = {
+				filters: {
+					limit: 10,
+					page: info?.currentClientListPage + 1,
+				},
+			};
+			getClientListForDocs(payload);
+		}
+	};
 
 	const parseDocsFilesListDeatils = useCallback(async (variableType, fetchMore = false) => {
 		let { hasNextPage, currentPage, data } = variableType || {};
@@ -268,11 +322,38 @@ const Docs = () => {
 					<div className="docsFileHeaderContainerTitle">
 						<span>Files</span>
 						<div className="appliedFiltersContainer">
-							{info?.appliedFilters?.map((filter) => (
-								<div className="appliedFilter">
+							{info?.appliedFilters?.map((filter, idx) => (
+								<div
+									key={idx}
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											openFilterPopUp: !prev?.openFilterPopUp,
+											activeAppliedFilter: filter,
+										}))
+									}
+									className="appliedFilter"
+								>
 									{FilterIcons?.[filter]}
 									<span className="filter">{filter} :</span>
 									<DownArrowPurple />
+									{info?.openFilterPopUp && (
+										<FilterPopUp
+											className={`${filter}`}
+											top="50px"
+											height="268px"
+											open={
+												info?.openFilterPopUp &&
+												info?.activeAppliedFilter === filter
+											}
+											options={info?.clientList}
+											fetchMoreOptions={() => fetchMoreDocs(filter)}
+											hasMoreOptions={info?.hasMoreClientList}
+											searchInput={true}
+											searchInputPlaceholder="Filter By"
+											setSearchValue={handleFilterPopUpSearch}
+										/>
+									)}
 								</div>
 							))}
 						</div>
@@ -339,6 +420,12 @@ const Docs = () => {
 						<DropDown
 							title="Add Filters"
 							options={Filters}
+							containerStyles={{
+								borderRadius: '14px',
+								background: '#202123',
+								boxShadow: '0px 2px 44px 0px rgba(0, 0, 0, 0.25)',
+							}}
+							listItemStyles={{}}
 							onOptionClick={() => console.log('option clicked')}
 							valueSelector="value"
 						>
