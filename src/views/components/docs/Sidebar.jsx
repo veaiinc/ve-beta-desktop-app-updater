@@ -114,7 +114,7 @@ const Sidebar = ({ open, onClose, activeFileData, openSendSmartFileModal }) => {
 					</div>
 				</div>
 
-				<div className="listViewContainer">
+				<div className="listviewContainer">
 					<CustomTextArea
 						value={activeFileData?.title}
 						onChange={(e) => {}}
