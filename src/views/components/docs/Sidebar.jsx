@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState, useContext, useEffect } from 'react';
+import React, { memo, useCallback, useMemo, useState, useContext } from 'react';
 import '../../../assets/scss/docs/fileListView.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
@@ -17,15 +17,10 @@ import { Drawer } from 'antd';
 import { Tooltip } from 'antd';
 import { DocsStatusButton, statusTextmapper } from '../../features/docs';
 import Context from '../../../context/context.js';
+
 const Sidebar = ({ open, onClose, activeFileData }) => {
 	const {
-		activityInfo: {
-			// activityData,
-			// getSmartFileActivity,
-			// getSmartFileViewers,
-			// viewersList,
-			resetActivityState,
-		},
+		activityInfo: { resetActivityState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({

@@ -26,13 +26,7 @@ const initialState = {
 
 const DocsActivity = ({ data }) => {
 	const {
-		activityInfo: {
-			activityData,
-			getSmartFileActivity,
-			getSmartFileViewers,
-			viewersList,
-			resetActivityState,
-		},
+		activityInfo: { activityData, getSmartFileActivity, getSmartFileViewers, viewersList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -80,7 +74,11 @@ const DocsActivity = ({ data }) => {
 			viewers: {
 				label: 'Viewers',
 				comp: (
-					<FileViewersList loading={info?.loading} viewersList={info?.fileViewerList} />
+					<FileViewersList
+						loading={info?.loading}
+						viewersList={info?.fileViewerList}
+						fileData={data}
+					/>
 				),
 			},
 			timeSpent: {
