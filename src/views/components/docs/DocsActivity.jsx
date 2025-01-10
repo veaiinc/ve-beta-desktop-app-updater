@@ -37,12 +37,14 @@ const DocsActivity = ({ data }) => {
 
 	const [info, setInfo] = useState({
 		...InitialState,
-		activeTab: 'viewers',
+		activeTab: 'viewers', //timeLine, viewers, timeSpent, interactions
 	});
 
 	useEffect(() => {
-		fetchFileActivity();
-		fetchFileViewerList();
+		if (data) {
+			fetchFileActivity();
+			fetchFileViewerList();
+		}
 	}, [data]);
 
 	useEffect(() => {
@@ -66,40 +68,24 @@ const DocsActivity = ({ data }) => {
 	}, [viewersList]);
 
 	const fetchFileActivity = useCallback(async () => {
-		setInfo((prev) => ({
-			...prev,
-			loading: true,
-		}));
-		await getSmartFileActivity({ workflowId: data?._id });
+		getSmartFileActivity({ workflowId: data?._id });
 	}, [data]);
 
 	const fetchFileViewerList = useCallback(async () => {
-		setInfo((prev) => ({
-			...prev,
-			loading: true,
-		}));
-		await getSmartFileViewers({ workflowId: data?._id });
+		getSmartFileViewers({ workflowId: data?._id });
 	}, [data]);
 
-	const tabs = useMemo(
-		() => [
-			// {
-			// 	id: 'timeLine',
-			// 	label: 'Time Line',
-			// 	Component: () => <div>Time Line</div>,
-			// 	// Component: () => <RequiredActions />,
-			// },
-			{
-				id: 'viewers',
+	const tabs = useMemo(() => {
+		return {
+			viewers: {
 				label: 'Viewers',
-				Component: () => (
+				comp: (
 					<FileViewersList loading={info?.loading} viewersList={info?.fileViewerList} />
 				),
 			},
-			{
-				id: 'timeSpent',
+			timeSpent: {
 				label: 'Time Spent',
-				Component: () => (
+				comp: (
 					<SessionMetric
 						key={'Time Spent'}
 						title={'Time Spent'}
@@ -110,10 +96,9 @@ const DocsActivity = ({ data }) => {
 					/>
 				),
 			},
-			{
-				id: 'interactions',
+			interactions: {
 				label: 'Interactions',
-				Component: () => (
+				comp: (
 					<SessionMetric
 						key={'Interactions'}
 						title={'Interactions'}
@@ -126,21 +111,18 @@ const DocsActivity = ({ data }) => {
 					/>
 				),
 			},
-		],
-		[info?.fileViewerList, info?.loading, info?.fileActivityData],
+
+			// timeLine: '',
+		};
+	}, [info?.fileViewerList, info?.loading, info?.fileActivityData]);
+
+	const handleTabChange = useCallback(
+		(tabId) => {
+			if (tabId === info?.activeTab) return;
+			setInfo((prev) => ({ ...prev, activeTab: tabId }));
+		},
+		[info?.activeTab],
 	);
-
-	const handleTabChange = useCallback((tabId) => {
-		setInfo((prev) => ({ ...prev, activeTab: tabId }));
-	}, []);
-
-	const renderActiveComponent = useCallback(() => {
-		const activeTabConfig = tabs?.find((tab) => tab?.id === info?.activeTab);
-		if (!activeTabConfig) return null;
-
-		const { Component } = activeTabConfig;
-		return <Component />;
-	}, [info?.activeTab, tabs]);
 
 	return (
 		<>
@@ -191,17 +173,18 @@ const DocsActivity = ({ data }) => {
 
 				<div className="tabsPreviewContainer">
 					<div className="activityTabsContainer">
-						{tabs?.map((tab) => (
+						{Object.keys(tabs)?.map((tab) => (
 							<div
 								key={tab?.id}
-								className={`tab ${info?.activeTab === tab?.id ? 'active' : ''}`}
-								onClick={() => handleTabChange(tab?.id)}
+								className={`tab ${info?.activeTab === tab ? 'active' : ''}`}
+								onClick={() => handleTabChange(tab)}
+								style={{ textTransform: 'capitalize' }}
 							>
-								{tab?.label}
+								{tabs?.[tab]?.label}
 							</div>
 						))}
 					</div>
-					<div className="activityTabView">{renderActiveComponent() || ''}</div>
+					<div className="activityTabView">{tabs[info?.activeTab]?.comp || ''}</div>
 				</div>
 			</div>
 		</>

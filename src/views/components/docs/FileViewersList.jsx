@@ -30,7 +30,7 @@ const FileViewersList = ({ loading, viewersList }) => {
 
 	return (
 		<div className="listViewContainer">
-			{true ? (
+			{loading ? (
 				// Fallback UI when viewersListData is empty or null
 				[{}, {}, {}, {}, {}]?.map((ele, index) => (
 					<div
