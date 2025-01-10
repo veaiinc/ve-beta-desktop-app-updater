@@ -33,45 +33,26 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 		openMoreOptions: false,
 	});
 
-	// useEffect(() => {
-	// 	return () => {
-	// 		resetActivityState();
-	// 	};
-	// }, []);
-
-	const handleTabChange = useCallback((tabId) => {
-		setInfo((prev) => ({ ...prev, activeTab: tabId }));
+	const handleTabChange = useCallback((tab) => {
+		setInfo((prev) => ({ ...prev, activeTab: tab }));
 	}, []);
 
-	const tabs = useMemo(
-		() => [
-			{
-				id: 'reqActions',
+	const tabs = useMemo(() => {
+		return {
+			reqActions: {
 				label: 'Req Actions',
-				Component: () => <RequiredActions />,
+				Component: <RequiredActions />,
 			},
-			{
-				id: 'preview',
+			preview: {
 				label: 'Preview',
-				Component: () => <Preview data={activeFileData} />,
+				Component: <Preview data={activeFileData} />,
 			},
-			{
-				id: 'activity',
+			activity: {
 				label: 'Activity',
-				Component: () => <DocsActivity data={activeFileData} />,
+				Component: <DocsActivity data={activeFileData} />,
 			},
-		],
-		[activeFileData],
-	);
-	// console.log('activeFileData', activeFileData);
-
-	const renderActiveComponent = useCallback(() => {
-		const activeTabConfig = tabs?.find((tab) => tab?.id === info?.activeTab);
-		if (!activeTabConfig) return null;
-
-		const { Component } = activeTabConfig;
-		return <Component />;
-	}, [info?.activeTab, tabs]);
+		};
+	}, [activeFileData]);
 
 	const handleMoreVisibility = useCallback((visible) => {
 		setInfo((prev) => ({ ...prev, openMoreOptions: visible }));
@@ -86,7 +67,6 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 	return (
 		<Drawer
 			open={open}
-			// open={true}
 			onClose={modifyClose}
 			style={{ padding: '10px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
@@ -199,20 +179,20 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 
 				<div className="tabsViewWrapper">
 					<div className="tabsView">
-						{tabs?.map((tab) => (
+						{Object?.keys(tabs)?.map((tab) => (
 							<div
-								key={tab?.id}
+								key={tab}
 								className={`tabViewLabel ${
-									info?.activeTab === tab?.id ? 'active' : ''
+									info?.activeTab === tab ? 'active' : ''
 								}`}
-								onClick={() => handleTabChange(tab?.id)}
+								onClick={() => handleTabChange(tab)}
 							>
-								{tab?.label}
+								{tabs?.[tab]?.label}
 							</div>
 						))}
 					</div>
 
-					<div className="respectiveView">{renderActiveComponent() || ''}</div>
+					<div className="respectiveView">{tabs?.[info?.activeTab]?.Component || ''}</div>
 				</div>
 			</div>
 		</Drawer>

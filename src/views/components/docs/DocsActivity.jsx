@@ -106,7 +106,7 @@ const DocsActivity = ({ data }) => {
 						loading={info?.loading}
 						labelsData={info?.fileActivityData?.interaction}
 						labelItemsData={info?.fileActivityData?.interaction?.reduce((acc, item) => {
-							return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending each "interaction" array data
+							return acc.concat(item?.interactions); //reducing the "interactionsssss" array for sending each "interaction" array data
 						}, [])}
 						formatTime={formatTime}
 						showChartToolTip={false}
@@ -175,12 +175,11 @@ const DocsActivity = ({ data }) => {
 
 				<div className="tabsPreviewContainer">
 					<div className="activityTabsContainer">
-						{Object.keys(tabs)?.map((tab) => (
+						{Object?.keys(tabs)?.map((tab) => (
 							<div
 								key={tab}
 								className={`tab ${info?.activeTab === tab ? 'active' : ''}`}
 								onClick={() => handleTabChange(tab)}
-								style={{ textTransform: 'capitalize' }}
 							>
 								{tabs?.[tab]?.label}
 							</div>
