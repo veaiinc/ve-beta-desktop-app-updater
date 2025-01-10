@@ -19,8 +19,8 @@ const FilterPopUp = ({
 	setSearchValue,
 }) => {
 	const filteredOptions = options?.filter((option) => {
-		const searchField = option?.name || option?.title; // Use `name` if it exists, otherwise use `title`
-		return searchField?.includes(searchValue);
+		const searchField = option?.name ?? option?.title;
+		return searchField?.toLowerCase().includes(searchValue?.toLowerCase());
 	});
 
 	return (
@@ -44,7 +44,7 @@ const FilterPopUp = ({
 					dataLength={filteredOptions?.length ?? 0}
 					next={fetchMoreOptions}
 					hasMore={hasMoreOptions ?? true}
-					loader={<FetchMoreLoaderComp />}
+					// loader={<FetchMoreLoaderComp />}
 					style={{
 						display: 'flex',
 						flexDirection: 'column',

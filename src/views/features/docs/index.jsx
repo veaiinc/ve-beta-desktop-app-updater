@@ -682,6 +682,14 @@ const Docs = () => {
 									trigger="click"
 									arrow={false}
 									color="transparent"
+									onOpenChange={(isOpen) => {
+										if (!isOpen) {
+											setInfo((prev) => ({
+												...prev,
+												searchValue: '',
+											}));
+										}
+									}}
 									overlayClassName="filterTooltipPopUpContainer"
 									placement="bottomLeft"
 									title={
