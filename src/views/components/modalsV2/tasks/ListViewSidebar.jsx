@@ -7,6 +7,8 @@ import { ReactComponent as CloseArrow } from '../../../../assets/svg/tasks/doubl
 import { ReactComponent as RightSvg } from '../../../../assets/svg/activity/right.svg';
 import { ReactComponent as DustBinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
+import { ReactComponent as ExpandSvg } from '../../../../assets/svg/docs/expand.svg';
+// import { ReactComponent as CollapseSvg } from '../../../../assets/svg/docs/collapse.svg';
 import Spinner from '../../loaders/Spinner';
 import Context from '../../../../context/context';
 import ListViewRow from '../../tasks/listView/ListViewRow';
@@ -29,6 +31,9 @@ const ListViewSidebar = ({
 	haveSubTask,
 	properties,
 	colors,
+	sidebarChildren,
+	isSidebarExpanded = false,
+	toggleSidebarExpand,
 }) => {
 	const {
 		tasks: { subTasks, getSubTasks },
@@ -269,22 +274,37 @@ const ListViewSidebar = ({
 	return (
 		<Drawer
 			onClose={closeSidebar}
-			width={480}
+			width={'fit-content'}
 			open={sidebarIsOpen}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
 		>
-			<div className="listView-sidebar-container">
+			<div
+				className={`listView-sidebar-container ${
+					isSidebarExpanded ? 'listView-sidebar-container-expanded' : ''
+				}`}
+			>
 				<div className="listView-sidebar-innerContainer">
 					<div className="listView-sidebar-wrapper">
 						<div className="sidebar-header">
+							<div className="sidebar-header-expand-button"></div>
 							<CloseArrow
 								width={16}
 								height={16}
 								onClick={closeSidebar}
 								className="cursor-pointer"
 							/>
+							<div
+								className="sidebar-header-expand-button"
+								onClick={toggleSidebarExpand}
+							>
+								{isSidebarExpanded ? (
+									<ExpandSvg width={16} height={16} />
+								) : (
+									<ExpandSvg width={16} height={16} />
+								)}
+							</div>
 							<div className="breadcrumbs">
 								{isShowingSubTask ? (
 									<span
@@ -329,7 +349,7 @@ const ListViewSidebar = ({
 						<div className="sidebar-properties-container">
 							{generateRow(selectedRow)}
 						</div>
-						{haveSubTask && !isShowingSubTask ? (
+						{!sidebarChildren && haveSubTask && !isShowingSubTask ? (
 							<div className="sidebar-subtask-container">
 								<div className="sidebar-subtask-header">
 									<span className="sidebar-subtask-header-title">Sub Tasks</span>
@@ -387,6 +407,8 @@ const ListViewSidebar = ({
 						) : (
 							''
 						)}
+
+						{sidebarChildren}
 
 						<div className="sidebar-description">
 							<CustomTextArea

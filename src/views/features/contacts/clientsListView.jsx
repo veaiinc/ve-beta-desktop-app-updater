@@ -12,13 +12,60 @@ import Context from '../../../context/context';
 import CreateLeadModal from '../../components/modalsV2/proposalModals/CreateLeadModal';
 import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
 import { message } from 'antd';
+import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
+import Select from '../../components/tasks/listView/Select';
+import Person from '../../components/tasks/listView/Person';
+import MultiSelect from '../../components/tasks/listView/MultiSelect';
+import DateView from '../../components/tasks/listView/DateView';
+import TaskId from '../../components/tasks/listView/TaskId';
+import Status from '../../components/tasks/listView/Status';
+import Priority from '../../components/tasks/listView/Priority';
+import Email from '../../components/tasks/listView/Email';
+import Phone from '../../components/tasks/listView/Phone';
+import Url from '../../components/tasks/listView/Url';
+import CheckBox from '../../components/tasks/listView/CheckBox';
+import WorkFlow from '../../components/tasks/listView/WorkFlow';
+import ParentTaskComponent from '../../components/tasks/listView/ParentTaskComponent';
+import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
+import LinkText from '../../components/tasks/listView/LinkText';
+import Text from '../../components/tasks/listView/Text';
+
 // import { message } from 'antd';
 // import jwtDecode from 'jwt-decode';
 // import moment from 'moment';
 
+const rowTypes = {
+	text: Text,
+	select: Select,
+	person: Person,
+	'multi-select': MultiSelect,
+	date: DateView,
+	id: TaskId,
+	status: Status,
+	priority: Priority,
+	email: Email,
+	phone: Phone,
+	url: Url,
+	checkbox: CheckBox,
+	workflow: WorkFlow,
+	parentTask: ParentTaskComponent,
+	childTasks: ChildTaskProgress,
+	linkText: LinkText,
+};
+
+const colors = {
+	1: { backgroundColor: '#62344B', color: '#A35A7E' },
+	2: { backgroundColor: '#373737', color: '#707070' },
+	3: { backgroundColor: '#5B3D2F', color: '#8F614B' },
+	4: { backgroundColor: '#7D4F27', color: '#B37339' },
+	5: { backgroundColor: '#375841', color: '#588F69' },
+	6: { backgroundColor: '#2F4469', color: '#4F71B3' },
+	7: { backgroundColor: '#453061', color: '#6F4C99' },
+};
+
 const ClientListView = () => {
 	const {
-		templates: { getClientList, clientList },
+		templates: { getClientList, clientList, workflows, getWorkflowsList },
 		contacts: { refetchClientList, updateStateValues, deleteClient, updateClient },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
@@ -38,6 +85,7 @@ const ClientListView = () => {
 		filters: [],
 		searchValue: '',
 		updated: false,
+		isSidebarExpanded: false,
 	});
 
 	const responseMetadata = useMemo(
@@ -319,6 +367,16 @@ const ClientListView = () => {
 				}}
 				headerTitle={'Contacts'}
 				createButtonText={'Create Client'}
+				sidebarChildren={
+					<ChildTaskComponent
+						subTasks={info?.listItems}
+						colors={colors}
+						rowTypes={rowTypes}
+						responseMetadata={responseMetadata}
+						onUpdate={updatePropertyValue}
+						properties={info?.properties}
+					/>
+				}
 			/>
 			<CreateClientModal
 				modalIsOpen={info?.isCreateModalOpen}

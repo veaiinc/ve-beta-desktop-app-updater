@@ -55,6 +55,7 @@ const ListView = ({
 	colors,
 	createButtonText = 'Create Task',
 	rowClickHandler,
+	sidebarChildren,
 }) => {
 	const [listViewState, setListViewState] = useState({
 		editingProperty: null,
@@ -179,6 +180,11 @@ const ListView = ({
 				haveSubTask={haveSubTask}
 				properties={info?.properties}
 				colors={colors}
+				sidebarChildren={sidebarChildren}
+				toggleSidebarExpand={() =>
+					updateListViewInfo('isSidebarExpanded', !info?.isSidebarExpanded)
+				}
+				isSidebarExpanded={info?.isSidebarExpanded}
 			/>
 		</div>
 	);
