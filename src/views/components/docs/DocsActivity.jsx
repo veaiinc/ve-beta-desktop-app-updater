@@ -6,6 +6,7 @@ import { ReactComponent as HandTapSvg } from '../../../assets/svg/activity/handT
 import { ReactComponent as EyeSvg } from '../../../assets/svg/activity/eye.svg';
 import FileViewersList from './FileViewersList.jsx';
 import SessionMetric from '../activity/SessionMetric.jsx';
+import FileTimeLine from './FileTimeLine.jsx';
 import Context from '../../../context/context.js';
 import Spinner from '../loaders/Spinner.jsx';
 import moment from 'moment';
@@ -71,6 +72,11 @@ const DocsActivity = ({ data }) => {
 
 	const tabs = useMemo(() => {
 		return {
+			timeLine: {
+				label: 'Time Line',
+				comp: <FileTimeLine />,
+			},
+
 			viewers: {
 				label: 'Viewers',
 				comp: (
@@ -111,8 +117,6 @@ const DocsActivity = ({ data }) => {
 					/>
 				),
 			},
-
-			// timeLine: '',
 		};
 	}, [info?.fileViewerList, info?.loading, info?.fileActivityData]);
 
