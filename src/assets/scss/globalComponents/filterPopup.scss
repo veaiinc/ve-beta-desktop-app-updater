@@ -51,6 +51,10 @@
 				overflow: hidden;
 				white-space: nowrap;
 			}
+
+			&:hover {
+				background: #202123;
+			}
 		}
 	}
 }

@@ -118,6 +118,15 @@ export const statusTextmapper = {
 	},
 };
 
+const statusList = [
+	...Object.values(statusTextmapper).map((item) => {
+		return {
+			name: item.text,
+			_id: item.text,
+		};
+	}),
+];
+
 const FilterIcons = {
 	templateName: <UppercaseLowercaseA />,
 	clientName: <MailLetter />,
@@ -143,6 +152,8 @@ const Docs = () => {
 			getClientListForDocs,
 			docsFilesList,
 			moreDocsFilesList,
+			getTemplatesListForCreateLead,
+			templatesListForCreateLead,
 		},
 	} = useContext(Context);
 
@@ -157,26 +168,47 @@ const Docs = () => {
 		searchValue: '',
 		appliedFilters: [],
 		activeAppliedFilter: '',
+		selectedFilterOptions: {
+			templateName: null,
+			clientName: null,
+			status: null,
+		},
 		openFilterPopUp: false,
 		clientList: [],
-		hasMoreClientList: false,
-		currentClientListPage: 1,
+		templatesList: [],
+		statusList: [...statusList],
+		hasMoreForFilter: {
+			templateName: false,
+			clientName: false,
+			status: false,
+		},
+		currentPageForFilter: {
+			templateName: 1,
+			clientName: 1,
+			status: 1,
+		},
 	});
 
 	const Filters = [
-		// {
-		// 	label: (
-		// 		<div onClick={() => handleSetActiveFilter('templateName')} className="filterContainer">
-		// 			<UppercaseLowercaseA />
-		// 			<span>Template Name</span>
-		// 		</div>
-		// 	),
-		// 	value: 'templateName',
-		// },
 		{
 			label: (
 				<div
-					onClick={() => handleSetActiveFilter('clientName')}
+					onClick={() =>
+						handleSetActiveFilter('templateName', 'templatesList', 'Template Name')
+					}
+					className="filterContainer"
+				>
+					<UppercaseLowercaseA />
+					<span>Template Name</span>
+				</div>
+			),
+			value: 'templateName',
+			filterOptionsListName: 'templatesList',
+		},
+		{
+			label: (
+				<div
+					onClick={() => handleSetActiveFilter('clientName', 'clientList', 'Client Name')}
 					className="filterContainer"
 				>
 					<MailLetter />
@@ -184,30 +216,59 @@ const Docs = () => {
 				</div>
 			),
 			value: 'clientName',
+			filterOptionsListName: 'clientList',
 		},
-		// {
-		// 	label: (
-		// 		<div onClick={() => handleSetActiveFilter('status')} className="filterContainer">
-		// 			<StatusCircle />
-		// 			<span>Status</span>
-		// 		</div>
-		// 	),
-		// 	value: 'status',
-		// },
+		{
+			label: (
+				<div
+					onClick={() => handleSetActiveFilter('status', 'statusList', 'Status')}
+					className="filterContainer"
+				>
+					<StatusCircle />
+					<span>Status</span>
+				</div>
+			),
+			value: 'status',
+			filterOptionsListName: 'statusList',
+		},
 	];
 
 	useEffect(() => {
 		getDocsFilesListFunc(1);
 		getClientListForDocs(payload);
+		getTemplatesListForCreateLead(payload);
 	}, []);
+
+	useEffect(() => {
+		if (templatesListForCreateLead) {
+			setInfo((prev) => ({
+				...prev,
+				templatesList: templatesListForCreateLead?.data,
+				hasMoreForFilter: {
+					...prev?.hasMoreForFilter,
+					templateName: templatesListForCreateLead?.hasNextPage,
+				},
+				currentPageForFilter: {
+					...prev?.currentPageForFilter,
+					templateName: templatesListForCreateLead?.currentPage,
+				},
+			}));
+		}
+	}, [templatesListForCreateLead]);
 
 	useEffect(() => {
 		if (clientListForDocs) {
 			setInfo((prev) => ({
 				...prev,
 				clientList: [...prev?.clientList, ...clientListForDocs?.data],
-				hasMoreClientList: clientListForDocs?.hasNextPage,
-				currentClientListPage: clientListForDocs?.currentPage,
+				hasMoreForFilter: {
+					...prev?.hasMoreForFilter,
+					clientName: clientListForDocs?.hasNextPage,
+				},
+				currentPageForFilter: {
+					...prev?.currentPageForFilter,
+					clientName: clientListForDocs?.currentPage,
+				},
 			}));
 		}
 	}, [clientListForDocs]);
@@ -224,13 +285,33 @@ const Docs = () => {
 		}
 	}, [moreDocsFilesList]);
 
-	const handleSetActiveFilter = (filter) => {
-		if (info?.appliedFilters?.includes(filter)) return;
-		setInfo((prev) => ({ ...prev, appliedFilters: [...prev.appliedFilters, filter] }));
+	const handleSetActiveFilter = (filter, filterOptionsListName, label) => {
+		if (info?.appliedFilters?.some((appliedFilter) => appliedFilter.filter === filter)) return;
+		setInfo((prev) => ({
+			...prev,
+			appliedFilters: [
+				...prev.appliedFilters,
+				{
+					filter,
+					label,
+					filterOptionsListName,
+				},
+			],
+		}));
+	};
+
+	const handleSetFilterOptions = (option, filter) => {
+		if (info?.selectedFilterOptions?.[filter]?._id === option?._id) return;
+		setInfo((prev) => ({
+			...prev,
+			selectedFilterOptions: {
+				...prev?.selectedFilterOptions,
+				[filter]: option,
+			},
+		}));
 	};
 
 	const handleFilterPopUpSearch = (searchValue) => {
-		console.log(searchValue);
 		setInfo((prev) => ({ ...prev, searchValue }));
 	};
 
@@ -258,10 +339,18 @@ const Docs = () => {
 			const payload = {
 				filters: {
 					limit: 10,
-					page: info?.currentClientListPage + 1,
+					page: info?.currentPageForFilter?.clientName + 1,
 				},
 			};
 			getClientListForDocs(payload);
+		} else if (filter === 'templateName') {
+			const payload = {
+				filters: {
+					limit: 10,
+					page: info?.currentPageForFilter?.templateName + 1,
+				},
+			};
+			getTemplatesListForCreateLead(payload);
 		}
 	};
 
@@ -323,33 +412,43 @@ const Docs = () => {
 					<div className="docsFileHeaderContainerTitle">
 						<span>Files</span>
 						<div className="appliedFiltersContainer">
-							{info?.appliedFilters?.map((filter, idx) => (
+							{info?.appliedFilters?.map((appliedFilter, idx) => (
 								<div
 									key={idx}
 									onClick={() =>
 										setInfo((prev) => ({
 											...prev,
 											openFilterPopUp: !prev?.openFilterPopUp,
-											activeAppliedFilter: filter,
+											activeAppliedFilter: appliedFilter?.filter,
 										}))
 									}
 									className="appliedFilter"
 								>
-									{FilterIcons?.[filter]}
-									<span className="filter">{filter} :</span>
+									{FilterIcons?.[appliedFilter?.filter]}
+									<span className="filter">{appliedFilter?.label} :</span>
 									<DownArrowPurple />
 									{info?.openFilterPopUp && (
 										<FilterPopUp
-											className={`${filter}`}
+											className={`${appliedFilter?.filter}`}
 											top="50px"
 											height="268px"
 											open={
 												info?.openFilterPopUp &&
-												info?.activeAppliedFilter === filter
+												info?.activeAppliedFilter === appliedFilter?.filter
 											}
-											options={info?.clientList}
-											fetchMoreOptions={() => fetchMoreDocs(filter)}
-											hasMoreOptions={info?.hasMoreClientList}
+											options={info?.[appliedFilter?.filterOptionsListName]}
+											onOptionClick={(option) =>
+												handleSetFilterOptions(
+													option,
+													appliedFilter?.filter,
+												)
+											}
+											fetchMoreOptions={() =>
+												fetchMoreDocs(appliedFilter?.filter)
+											}
+											hasMoreOptions={
+												info?.hasMoreForFilter?.[appliedFilter?.filter]
+											}
 											searchInput={true}
 											searchInputPlaceholder="Filter By"
 											setSearchValue={handleFilterPopUpSearch}
@@ -426,8 +525,7 @@ const Docs = () => {
 								background: '#202123',
 								boxShadow: '0px 2px 44px 0px rgba(0, 0, 0, 0.25)',
 							}}
-							listItemStyles={{}}
-							onOptionClick={() => console.log('option clicked')}
+							onOptionClick={() => {}}
 							valueSelector="value"
 						>
 							<Filter style={{ width: '20px', height: '20px', marginTop: '6px' }} />

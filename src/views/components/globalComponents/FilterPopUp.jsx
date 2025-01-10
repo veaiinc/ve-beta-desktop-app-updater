@@ -15,12 +15,12 @@ const FilterPopUp = ({
 	open,
 	options,
 	hasMoreOptions,
+	onOptionClick,
 	fetchMoreOptions,
 	searchInput = false,
 	searchInputPlaceholder = 'Filter By',
 	setSearchValue,
 }) => {
-	console.log(options);
 	return (
 		<>
 			{open && (
@@ -55,8 +55,12 @@ const FilterPopUp = ({
 							scrollableTarget="filterFocDocs"
 						>
 							{options?.map((option, idx) => (
-								<div key={option?.id ?? idx} className="filterPopUpOption">
-									<span>{option?.name}</span>
+								<div
+									key={option?.id ?? idx}
+									className="filterPopUpOption"
+									onClick={() => onOptionClick(option)}
+								>
+									<span>{option?.name ?? option?.title}</span>
 								</div>
 							))}
 						</InfiniteScroll>
