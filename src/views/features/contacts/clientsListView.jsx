@@ -6,35 +6,20 @@ import ListView from '../../components/tasks/listView/ListView';
 // import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
 // import { ReactComponent as WorkflowSvg } from '../../../assets/svg/tasks/workflow.svg';
 // import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
-// import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
+import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Context from '../../../context/context';
 import CreateLeadModal from '../../components/modalsV2/proposalModals/CreateLeadModal';
+import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
+import { message } from 'antd';
 // import { message } from 'antd';
 // import jwtDecode from 'jwt-decode';
 // import moment from 'moment';
 
 const ClientListView = () => {
-	// let {
-	// 	templates: {
-	// 		getClientList,
-	// 		clientList,
-	// 		getTemplatesListForCreateLead,
-	// 		templatesListForCreateLead,
-	// 		createLeadfromTemplates,
-	// 		updateStateValues,
-	// 		toggleCreateLeadModal,
-	// 		createLeadModalContextState,
-	// 	},
-	// } = useContext(Context);
 	const {
-		templates: {
-			getClientList,
-			clientList,
-			toggleCreateLeadModal,
-			salePageRefresh,
-			createLeadModalContextState,
-		},
+		templates: { getClientList, clientList },
+		contacts: { refetchClientList, updateStateValues, deleteClient, updateClient },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
@@ -132,18 +117,18 @@ const ClientListView = () => {
 			// 		disabled: true,
 			// 	},
 			// },
-			// createdAt: {
-			// 	type: 'date',
-			// 	name: 'Created At',
-			// 	Icon: CalendarSvg,
-			// 	props: { timestamp: true },
-			// },
-			// updatedAt: {
-			// 	type: 'date',
-			// 	name: 'Updated At',
-			// 	Icon: CalendarSvg,
-			// 	props: { timestamp: true },
-			// },
+			createdAt: {
+				type: 'date',
+				name: 'Created At',
+				Icon: CalendarSvg,
+				props: { timestamp: true },
+			},
+			updatedAt: {
+				type: 'date',
+				name: 'Updated At',
+				Icon: CalendarSvg,
+				props: { timestamp: true },
+			},
 		}),
 		[],
 	);
@@ -173,6 +158,13 @@ const ClientListView = () => {
 	}, [info?.page, info?.sort, info?.filters, info?.searchValue]);
 
 	useEffect(() => {
+		if (refetchClientList) {
+			fetchListItems();
+			updateStateValues({ refetchClientList: false });
+		}
+	}, [refetchClientList]);
+
+	useEffect(() => {
 		if (clientList) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -184,14 +176,6 @@ const ClientListView = () => {
 			fetchListItems();
 		}
 	}, [clientList]);
-
-	useEffect(() => {
-		console.log('salePageRefresh', salePageRefresh);
-		if (salePageRefresh) {
-			fetchListItems();
-			toggleCreateLeadModal({ salePageRefresh: false });
-		}
-	}, [salePageRefresh]);
 
 	useEffect(() => {
 		setInfo((prevInfo) => ({
@@ -278,29 +262,45 @@ const ClientListView = () => {
 	}, []);
 
 	const updatePropertyValue = useCallback(
-		(rowId, propName, value, isUpdatingSubTask, onSuccess) => {
+		async (rowId, propName, value, isUpdatingSubTask, onSuccess) => {
 			if (validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			} else {
-				//update Logic
+				const response = await updateClient({
+					updateClientId: rowId,
+					updateClientInput: {
+						[propName]: value,
+					},
+				});
+				if (response?.[0]) {
+					fetchListItems();
+				} else {
+					message?.error(response?.[1]);
+				}
+				if (onSuccess) {
+					onSuccess(response?.[0]);
+				}
 			}
 		},
 		[],
 	);
 
-	const addNewClient = useCallback(async (payload) => {
+	const handleDeleteClient = useCallback(async (payload) => {
 		if (validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		} else {
-			//add Logic
-		}
-	}, []);
-
-	const deleteClient = useCallback(async (payload) => {
-		if (validateExpiryData?.isExpired) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
-		} else {
-			//delete Logic
+			const response = await deleteClient({ deleteClientId: payload?.taskId });
+			if (response?.[0]) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					selectedRow: null,
+					sidebarIsOpen: false,
+				}));
+				message?.success('Client deleted successfully');
+				fetchListItems();
+			} else {
+				message?.error(response?.[1]);
+			}
 		}
 	}, []);
 
@@ -311,15 +311,20 @@ const ClientListView = () => {
 				updateListViewInfo={updateListViewInfo}
 				togglePropertyVisibility={togglePropertyVisibility}
 				updatePropertyValue={updatePropertyValue}
-				deleteTask={deleteClient}
-				addNewTask={addNewClient}
+				deleteTask={handleDeleteClient}
 				responseMetadata={responseMetadata}
 				fetchListItems={fetchListItems}
 				addButtonOnClick={() => {
-					toggleCreateLeadModal({ createLeadModalContextState: true });
+					updateListViewInfo('isCreateModalOpen', true);
 				}}
 				headerTitle={'Contacts'}
 				createButtonText={'Create Client'}
+			/>
+			<CreateClientModal
+				modalIsOpen={info?.isCreateModalOpen}
+				closeModal={() => {
+					updateListViewInfo('isCreateModalOpen', false);
+				}}
 			/>
 		</div>
 	);

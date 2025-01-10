@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import React, { memo, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/linkText.scss';
 import CustomTextArea from '../../globalComponents/CustomTextArea';
 
@@ -15,26 +15,52 @@ const LinkText = ({
 	showTitle = false,
 	title = '',
 	takeFullspace = false,
+	onUpdate,
 }) => {
 	const [info, setInfo] = useState({
 		isEditing: false,
 		value: value,
 	});
 
+	// Keep local state in sync with prop value
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			value: value,
+		}));
+	}, [value]);
+
 	const handleEdit = () => {
 		setInfo({ ...info, isEditing: true });
 	};
 
 	const handleSave = () => {
+		if (info.value !== value && onUpdate) {
+			onUpdate(info.value, onSuccess);
+		}
 		setInfo({ ...info, isEditing: false });
 	};
 
 	const handleCancel = () => {
-		setInfo({ ...info, isEditing: false });
+		setInfo({ ...info, isEditing: false, value: value });
 	};
 
 	const handleChange = (e) => {
 		setInfo({ ...info, value: e.target.value });
+	};
+
+	const handleKeyDown = (e) => {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			handleSave();
+		} else if (e.key === 'Escape') {
+			handleCancel();
+		}
+	};
+	const onSuccess = (success) => {
+		if (!success) {
+			setInfo({ ...info, value: value });
+		}
 	};
 
 	return (
@@ -57,16 +83,12 @@ const LinkText = ({
 						value={info?.value}
 						onChange={handleChange}
 						onBlur={handleSave}
+						onKeyDown={handleKeyDown}
 						resize={true}
-						style={{
-							minHeight: '32px',
-							height: '100%',
-							borderRadius: '8px',
-						}}
 					/>
 				) : (
 					<a className="linkText-value" href={`${typeMapper[linkType]}${value}`}>
-						{value}
+						{info.value}
 					</a>
 				)}
 			</Tooltip>

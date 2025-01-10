@@ -40,6 +40,7 @@ const ListViewSidebar = ({
 		subTaskError: null,
 		deleteLoading: false,
 		completedSubtaskCount: 0,
+		titlePropName: null,
 	});
 
 	const [localTitle, setLocalTitle] = useState('');
@@ -49,7 +50,14 @@ const ListViewSidebar = ({
 
 	useEffect(() => {
 		if (selectedRow?.title !== localTitle) {
-			setLocalTitle(selectedRow?.title || '');
+			const titlePropName = Object.keys(responseMetadata).find(
+				(key) => responseMetadata[key]?.isTitle,
+			);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				titlePropName: titlePropName,
+			}));
+			setLocalTitle(selectedRow?.[titlePropName] || '');
 		}
 		if (selectedRow?.description !== localDescription) {
 			setLocalDescription(selectedRow?.description || '');
@@ -103,9 +111,16 @@ const ListViewSidebar = ({
 				clearTimeout(titleDebounceRef.current);
 			}
 			titleDebounceRef.current = setTimeout(() => {
-				updatePropertyValue(selectedRow?._id, 'title', value, null, null, () => {
-					setLocalTitle(value);
-				});
+				updatePropertyValue(
+					selectedRow?._id,
+					info?.titlePropName,
+					value,
+					null,
+					null,
+					() => {
+						setLocalTitle(value);
+					},
+				);
 			}, 800);
 		},
 		[selectedRow?._id, updatePropertyValue],
@@ -169,11 +184,17 @@ const ListViewSidebar = ({
 			for (let key in row) {
 				const value = row[key];
 
+				const {
+					type = null,
+					name = null,
+					Icon = null,
+					isTitle = false,
+					props,
+				} = responseMetadata[key] || {};
 				if (
 					[
 						'__typename',
 						'_id',
-						'title',
 						'description',
 						'workflowTemplateId',
 						'completedAt',
@@ -182,16 +203,11 @@ const ListViewSidebar = ({
 						'parentTask',
 						'childTasks',
 						isShowingSubTask && 'workflow',
-					].includes(key)
+					].includes(key) ||
+					isTitle
 				) {
 					continue;
 				}
-				const {
-					type = null,
-					name = null,
-					Icon = null,
-					props,
-				} = responseMetadata[key] || {};
 
 				if (type === null) {
 					continue;
@@ -219,6 +235,15 @@ const ListViewSidebar = ({
 									}
 									colors={colors}
 									takeFullspace={true}
+									onUpdate={(value, onSuccess) =>
+										updatePropertyValue(
+											row._id,
+											key,
+											value,
+											isShowingSubTask,
+											onSuccess,
+										)
+									}
 								/>
 							) : (
 								<div key={key}>{value}</div>
