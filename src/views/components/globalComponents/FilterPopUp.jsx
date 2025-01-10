@@ -53,19 +53,22 @@ const FilterPopUp = ({
 					}}
 					height={height}
 				>
-					{filteredOptions?.map((option, idx) => (
-						<div
-							key={option?.id ?? idx}
-							className="filterPopUpOption"
-							onClick={() => {
-								setSelectedOption(idx);
-								onOptionClick(option);
-							}}
-						>
-							<span>{option?.name ?? option?.title}</span>
-							{selectedOption === idx && <Tick />}
-						</div>
-					))}
+					{filteredOptions?.map(
+						(option, idx) =>
+							option?.name !== 'Expired' && (
+								<div
+									key={option?.id ?? idx}
+									className="filterPopUpOption"
+									onClick={() => {
+										setSelectedOption(idx);
+										onOptionClick(option);
+									}}
+								>
+									<span>{option?.name ?? option?.title}</span>
+									{selectedOption === idx && <Tick />}
+								</div>
+							),
+					)}
 				</InfiniteScroll>
 			</div>
 		</div>
