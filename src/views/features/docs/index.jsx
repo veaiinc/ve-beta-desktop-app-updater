@@ -8,7 +8,7 @@ import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as UppercaseLowercaseA } from '../../../assets/svg/docs/uppercase-lowercase-a.svg';
 import { ReactComponent as MailLetter } from '../../../assets/svg/docs/mail-letter.svg';
 import { ReactComponent as StatusCircle } from '../../../assets/svg/docs/status-circle.svg';
-import { ReactComponent as DownArrowPurple } from '../../../assets/svg/docs/down-arrow-purple.svg';
+import { ReactComponent as CrossPurple } from '../../../assets/svg/docs/cross-purple.svg';
 
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
@@ -54,6 +54,7 @@ const staticCreateActions = [
 
 export const statusTextmapper = {
 	filesViewed: {
+		id: 'filesViewed',
 		text: 'Files Viewed',
 		dotStyle: {
 			backgroundColor: '#2A71CD',
@@ -61,8 +62,10 @@ export const statusTextmapper = {
 		style: {
 			backgroundColor: '#29456C',
 		},
+		label: 'Files Viewed',
 	},
 	enquiry: {
+		id: 'enquiry',
 		text: 'Enquiry',
 		dotStyle: {
 			backgroundColor: '#2A71CD',
@@ -70,8 +73,10 @@ export const statusTextmapper = {
 		style: {
 			backgroundColor: '#29456C',
 		},
+		label: 'Enquiry',
 	},
 	filesSent: {
+		id: 'filesSent',
 		text: 'Sent',
 		dotStyle: {
 			backgroundColor: '#2A71CD',
@@ -79,8 +84,10 @@ export const statusTextmapper = {
 		style: {
 			backgroundColor: '#29456C',
 		},
+		label: 'Sent',
 	},
 	confirmed: {
+		id: 'confirmed',
 		text: 'Confirmed',
 		dotStyle: {
 			backgroundColor: '#00A051',
@@ -88,8 +95,10 @@ export const statusTextmapper = {
 		style: {
 			backgroundColor: '#2C593F',
 		},
+		label: 'Confirmed',
 	},
 	expired: {
+		id: 'expired',
 		text: 'Expired',
 		dotStyle: {
 			backgroundColor: '#E27B1C',
@@ -97,8 +106,10 @@ export const statusTextmapper = {
 		style: {
 			backgroundColor: 'rgba(125, 79, 39, 1)',
 		},
+		label: 'Expired',
 	},
 	accepted: {
+		id: 'accepted',
 		text: 'Accepted',
 		dotStyle: {
 			backgroundColor: '#00A051',
@@ -106,8 +117,10 @@ export const statusTextmapper = {
 		style: {
 			backgroundColor: '#2C593F',
 		},
+		label: 'Accepted',
 	},
 	proposalAccepted: {
+		id: 'proposalAccepted',
 		text: 'Accepted',
 		dotStyle: {
 			backgroundColor: '#00A051',
@@ -115,14 +128,15 @@ export const statusTextmapper = {
 		style: {
 			backgroundColor: '#2C593F',
 		},
+		label: 'Proposal Accepted',
 	},
 };
 
 const statusList = [
 	...Object.values(statusTextmapper).map((item) => {
 		return {
-			name: item.text,
-			_id: item.text,
+			name: item.label,
+			_id: item.id,
 		};
 	}),
 ];
@@ -311,6 +325,19 @@ const Docs = () => {
 		}));
 	};
 
+	const handleRemoveSelectedFilter = (filter) => {
+		setInfo((prev) => ({
+			...prev,
+			selectedFilterOptions: {
+				...prev?.selectedFilterOptions,
+				[filter]: null,
+			},
+			appliedFilters: prev?.appliedFilters?.filter(
+				(appliedFilter) => appliedFilter?.filter !== filter,
+			),
+		}));
+	};
+
 	const handleFilterPopUpSearch = (searchValue) => {
 		setInfo((prev) => ({ ...prev, searchValue }));
 	};
@@ -425,8 +452,22 @@ const Docs = () => {
 									className="appliedFilter"
 								>
 									{FilterIcons?.[appliedFilter?.filter]}
-									<span className="filter">{appliedFilter?.label} :</span>
-									<DownArrowPurple />
+									<span className="filter">
+										{appliedFilter?.label} :{' '}
+										{info?.selectedFilterOptions?.[appliedFilter?.filter]
+											?.name ??
+											info?.selectedFilterOptions?.[appliedFilter?.filter]
+												?.title ??
+											''}
+									</span>
+									<span
+										onClick={() =>
+											handleRemoveSelectedFilter(appliedFilter?.filter)
+										}
+									>
+										<CrossPurple />
+									</span>
+
 									{info?.openFilterPopUp && (
 										<FilterPopUp
 											className={`${appliedFilter?.filter}`}

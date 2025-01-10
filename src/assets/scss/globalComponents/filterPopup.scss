@@ -38,6 +38,7 @@
 			align-self: stretch;
 			border-radius: 8px;
 			width: 100%;
+			cursor: pointer;
 
 			span {
 				color: #e4e5e6;
@@ -53,7 +54,7 @@
 			}
 
 			&:hover {
-				background: #202123;
+				background: #292b2d;
 			}
 		}
 	}
