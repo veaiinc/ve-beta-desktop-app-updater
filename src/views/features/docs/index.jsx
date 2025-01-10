@@ -14,6 +14,9 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Sidebar from '../../components/docs/Sidebar';
 import DropDown from '../../components/dropDown/tasks/DropDown';
 import Skeleton from 'react-loading-skeleton';
+import SendProposalModal from '../../components/modalsV2/proposalModals/SendProposalModal';
+import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
+import { Spin } from 'antd';
 let origin = fetchOriginSelection();
 
 const staticCreateActions = [
@@ -121,7 +124,17 @@ export const DocsStatusButton = ({ content = '', style = {}, textStyle = {}, dot
 };
 const Docs = () => {
 	let {
-		templates: { getDocsFilesList, updateStateValues, docsFilesList, moreDocsFilesList },
+		templates: {
+			getDocsFilesList,
+			updateStateValues,
+			docsFilesList,
+			moreDocsFilesList,
+			getSmartFileData,
+			smartFileInfo,
+			getLatestSendSmartFileSettings,
+			sendSmartFileSettings,
+		},
+		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -134,6 +147,19 @@ const Docs = () => {
 		searchExpand: false,
 		searchValue: '',
 		appliedFilters: [],
+		sendSmartFileModal: false,
+		assisstanceData: null,
+		workflowExpiryAt: '',
+		isEmailAuth: true,
+		businessName: '',
+		currentWorkspaceId: localStorage.getItem('workspaceId'),
+		isAlChatEnabled: false,
+		nameIdentification: false,
+		emailIdentification: false,
+		businessName: '',
+		needRefetch: false,
+		copyModal: false,
+		copyLink: '',
 	});
 
 	const Filters = [
@@ -168,6 +194,7 @@ const Docs = () => {
 
 	useEffect(() => {
 		getDocsFilesListFunc(1);
+		getLatestSendSmartFileSettings();
 	}, []);
 
 	useEffect(() => {
@@ -181,6 +208,54 @@ const Docs = () => {
 			parseDocsFilesListDeatils(moreDocsFilesList, true);
 		}
 	}, [moreDocsFilesList]);
+
+	useEffect(() => {
+		if (smartFileInfo) {
+			let assisstanceData = smartFileInfo?.aiAssistant || {};
+
+			setInfo((prev) => ({
+				...prev,
+				workflowExpiryAt: smartFileInfo?.expiresAt,
+				assisstanceData,
+			}));
+		}
+	}, [smartFileInfo]);
+
+	useEffect(() => {
+		if (sendSmartFileSettings) {
+			const { isAlChatEnabled, access, userIdentification } = sendSmartFileSettings;
+			setInfo((prev) => ({
+				...prev,
+				isAlChatEnabled: isAlChatEnabled || false,
+				isEmailAuth: access?.isEnabled,
+				nameIdentification: userIdentification?.name,
+				emailIdentification: userIdentification?.email,
+			}));
+		}
+	}, [sendSmartFileSettings]);
+
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+	}, [tennantSettingsData]);
+
+	useEffect(() => {
+		if (tennantSettingsData && info?.currentWorkspaceId && info?.sendSmartFileModal) {
+			let link;
+			if (tennantSettingsData?.customDomain?.length) {
+				link = `https://${tennantSettingsData?.customDomain}/portal/${info?.activeFileData?.slug}`;
+			} else {
+				link = `https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.activeFileData?.slug}`;
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				copyLink: link,
+				businessName: tennantSettingsData?.businessName,
+			}));
+		}
+	}, [tennantSettingsData, info?.activeFileData, info?.sendSmartFileModal]);
 
 	const handleSetFilter = (filter) => {
 		setInfo((prev) => ({ ...prev, appliedFilters: [...prev.appliedFilters, filter] }));
@@ -219,11 +294,90 @@ const Docs = () => {
 
 	const handleOpenSidebar = useCallback((data) => {
 		setInfo((prev) => ({ ...prev, showRightDrawer: true, activeFileData: data }));
+		getSmartFileInfo(data);
 	}, []);
 
 	const handleCloseSidebar = useCallback(() => {
-		setInfo((prev) => ({ ...prev, showRightDrawer: false, activeFileData: null }));
+		if (info?.needRefetch) {
+			refetchDocsFilesList();
+		}
+		setInfo((prev) => ({
+			...prev,
+			showRightDrawer: false,
+			activeFileData: null,
+			workflowExpiryAt: '',
+			needRefetch: false,
+		}));
+		updateStateValues({ smartFileInfo: null });
+	}, [info]);
+
+	const openSendSmartFileModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, sendSmartFileModal: true }));
 	}, []);
+
+	const getSmartFileInfo = useCallback(
+		async (data) => {
+			if (data) {
+				const payload = {
+					getWorkflowWithModulesId: data?._id,
+				};
+				getSmartFileData(payload);
+			}
+		},
+		[info?.activeFileData],
+	);
+
+	const changelocalWorflowStatus = useCallback(
+		async (data) => {
+			setInfo((prev) => ({
+				...prev,
+				activeFileData: { ...prev?.activeFileData, status: data },
+				needRefetch: true,
+			}));
+		},
+		[info],
+	);
+
+	const updateWorkflowSlug = useCallback(
+		(updatedSlug) => {
+			setInfo((prev) => ({
+				...prev,
+				activeFileData: { ...prev?.activeFileData, slug: updatedSlug },
+				needRefetch: true,
+			}));
+		},
+		[info?.workflowData],
+	);
+
+	const updateSendSmartFileExpiryData = useCallback(async (updatedValue) => {
+		setInfo((prev) => ({ ...prev, workflowExpiryAt: updatedValue }));
+	}, []);
+
+	const updateIdentification = useCallback((data, type) => {
+		setInfo((prev) => ({ ...prev, [type]: data }));
+	}, []);
+
+	const updateSmartFileEmailAuth = useCallback(
+		(data) => {
+			setInfo((prev) => ({ ...prev, isEmailAuth: data }));
+		},
+		[info?.isEmailAuth],
+	);
+
+	const updateSmartFileIsAiChatEnabled = useCallback(
+		(data) => {
+			setInfo((prev) => ({ ...prev, isAlChatEnabled: data }));
+		},
+		[info?.isAlChatEnabled],
+	);
+
+	const refetchDocsFilesList = useCallback(() => {
+		getDocsFilesListFunc(1);
+	}, []);
+
+	const openCopyModal = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, copyModal: true }));
+	}, [info]);
 
 	return (
 		<div className="docsParentContainer">
@@ -394,6 +548,50 @@ const Docs = () => {
 					open={info?.showRightDrawer}
 					onClose={handleCloseSidebar}
 					activeFileData={info?.activeFileData}
+					openSendSmartFileModal={openSendSmartFileModal}
+				/>
+
+				<SendProposalModal
+					open={info?.sendSmartFileModal}
+					closeModal={() => setInfo((prev) => ({ ...prev, sendSmartFileModal: false }))}
+					clientDetails={info?.activeFileData?.clientDetails}
+					workflowSlug={info?.activeFileData?.slug}
+					workflowId={info?.activeFileData?._id}
+					openCopyModal={openCopyModal}
+					changelocalWorflowStatus={changelocalWorflowStatus}
+					workflowStatus={info?.activeFileData?.status}
+					changeEditStatus={() => {}}
+					slug={info?.activeFileData?.slug}
+					updateWorkflowSlug={updateWorkflowSlug}
+					expiresAt={info?.workflowExpiryAt || ''}
+					updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
+					isEnabled={info?.isEmailAuth}
+					updateSmartFileEmailAuth={updateSmartFileEmailAuth}
+					pin={smartFileInfo?.access?.pin}
+					businessName={info?.businessName}
+					isAlChatEnabled={info?.isAlChatEnabled}
+					updateSmartFileIsAiChatEnabled={updateSmartFileIsAiChatEnabled}
+					nameIdentification={info?.nameIdentification}
+					emailIdentification={info?.emailIdentification}
+					updateIdentification={updateIdentification}
+					assisstanceData={info?.assisstanceData}
+					// updateVariablesInAllModules={updateVariablesInAllModules}
+					copyLink={info?.copyLink}
+				/>
+
+				<CopiedModal
+					open={info?.copyModal}
+					closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
+					modules={info?.activeFileData?.modules?.filter((e) => e?.type !== 'form')}
+					copyLink={
+						info?.copyLink || (
+							<span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+								Generating Link ...
+								<Spin />
+							</span>
+						)
+					}
+					pin={smartFileInfo?.access?.pin}
 				/>
 			</div>
 		</div>

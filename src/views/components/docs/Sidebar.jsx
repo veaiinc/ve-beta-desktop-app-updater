@@ -11,7 +11,7 @@ import RequiredActions from './RequiredActions';
 import Preview from './Preview';
 import '../../../assets/scss/docs/fileListView.scss';
 import { DocsStatusButton, statusTextmapper } from '../../features/docs';
-const Sidebar = ({ open, onClose, activeFileData }) => {
+const Sidebar = ({ open, onClose, activeFileData, openSendSmartFileModal }) => {
 	const [info, setInfo] = useState({
 		activeTab: 'reqActions',
 	});
@@ -39,8 +39,6 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 		],
 		[activeFileData],
 	);
-	// console.log('activeFileData', JSON.stringify(activeFileData, null, 2));
-	console.log('activeFileData', activeFileData);
 
 	const renderActiveComponent = useCallback(() => {
 		const activeTabConfig = tabs?.find((tab) => tab?.id === info?.activeTab);
@@ -73,7 +71,7 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 							dotStyle={statusTextmapper?.[activeFileData?.status]?.dotStyle}
 						/>
 						<div className="editLabel">Edit</div>
-						<ShareSvg />
+						<ShareSvg onClick={openSendSmartFileModal} />
 						<DotsSvg />
 					</div>
 				</div>
