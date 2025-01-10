@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/docs/index.scss';
-import { ReactComponent as Files } from '../../../assets/svg/docs/files.svg';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
 import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/docs/three-dots.svg';
@@ -9,14 +8,9 @@ import { ReactComponent as UppercaseLowercaseA } from '../../../assets/svg/docs/
 import { ReactComponent as MailLetter } from '../../../assets/svg/docs/mail-letter.svg';
 import { ReactComponent as StatusCircle } from '../../../assets/svg/docs/status-circle.svg';
 import { ReactComponent as DownArrowPurple } from '../../../assets/svg/docs/down-arrow-purple.svg';
-
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
-import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
-import FilesListView from './FilesListView';
 import Context from '../../../context/context';
-import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { calc } from 'antd/es/theme/internal';
 import Sidebar from '../../components/docs/Sidebar';
 import DropDown from '../../components/dropDown/tasks/DropDown';
 import Skeleton from 'react-loading-skeleton';
