@@ -278,8 +278,6 @@ const Docs = () => {
 
 	useEffect(() => {
 		getDocsFilesListFunc(1);
-		getClientListForDocs(payload);
-		getTemplatesListForDocs();
 		getLatestSendSmartFileSettings();
 	}, []);
 
@@ -297,6 +295,8 @@ const Docs = () => {
 					templateName: templatesListForDocs?.currentPage,
 				},
 			}));
+		} else {
+			getTemplatesListForDocs();
 		}
 	}, [templatesListForDocs]);
 
@@ -314,6 +314,8 @@ const Docs = () => {
 					clientName: clientListForDocs?.currentPage,
 				},
 			}));
+		} else {
+			getClientListForDocs(payload);
 		}
 	}, [clientListForDocs]);
 
