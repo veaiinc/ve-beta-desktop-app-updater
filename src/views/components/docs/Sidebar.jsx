@@ -36,7 +36,7 @@ const Sidebar = ({ open, onClose, activeFileData, openSendSmartFileModal }) => {
 		return {
 			reqActions: {
 				label: 'Req Actions',
-				Component: <RequiredActions />,
+				Component: <RequiredActions data={activeFileData} />,
 			},
 			preview: {
 				label: 'Preview',

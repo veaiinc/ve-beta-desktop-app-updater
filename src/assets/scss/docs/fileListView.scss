@@ -255,10 +255,11 @@
 			background: var(--card-over-card-hover, color(display-p3 0.1529 0.1569 0.1686));
 		}
 
-		// .requiredAction {
-		// 	color: var(--ve-ai-dark-theme-secondary-color, #939393);
-		// 	color: var(--ve-ai-dark-theme-secondary-color, color(display-p3 0.5755 0.5755 0.5755));
-		// }
+		.requiredAction {
+			color: var(--ve-ai-dark-theme-secondary-color, #939393);
+			color: var(--ve-ai-dark-theme-secondary-color, color(display-p3 0.5755 0.5755 0.5755));
+			text-transform: capitalize;
+		}
 
 		.requiredActionBtn {
 			border-radius: 29px;
