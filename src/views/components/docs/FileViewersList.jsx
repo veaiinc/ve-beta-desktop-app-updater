@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useState, useEffect, useContext } from 'react';
 import Skeleton from 'react-loading-skeleton';
+import Spinner from '../loaders/Spinner.jsx';
 // import Context from '../../../context/context.js';
 import { formatTime } from './DocsActivity.jsx';
 
@@ -29,10 +30,24 @@ const FileViewersList = ({ loading, viewersList }) => {
 
 	return (
 		<div className="listViewContainer">
-			{loading ? (
+			{true ? (
 				// Fallback UI when viewersListData is empty or null
 				[{}, {}, {}, {}, {}]?.map((ele, index) => (
-					<Skeleton height={'59px'} style={{ borderRadius: '16px' }} key={index} />
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+							alignSelf: 'stretch',
+							backgroundColor: '#333232',
+							height: '55px',
+							borderRadius: '8px',
+							fontWeight: 'bold',
+						}}
+						key={index}
+					>
+						<Skeleton height={'100%'} width={'100%'} style={{ borderRadius: '16px' }} />
+					</div>
 				))
 			) : info?.fileViewerList?.length === 0 || !info?.fileViewerList ? (
 				<div
@@ -40,6 +55,7 @@ const FileViewersList = ({ loading, viewersList }) => {
 						display: 'flex',
 						justifyContent: 'center',
 						alignItems: 'center',
+						alignSelf: 'stretch',
 						backgroundColor: '#262626',
 						height: '55px',
 						borderRadius: '8px',

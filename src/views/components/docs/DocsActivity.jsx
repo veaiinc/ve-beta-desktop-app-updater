@@ -201,7 +201,7 @@ const DocsActivity = ({ data }) => {
 							</div>
 						))}
 					</div>
-					<div className="respectiveView">{renderActiveComponent() || ''}</div>
+					<div className="activityTabView">{renderActiveComponent() || ''}</div>
 				</div>
 			</div>
 		</>
