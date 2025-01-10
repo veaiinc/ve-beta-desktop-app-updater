@@ -215,7 +215,7 @@ const Docs = () => {
 		workflowExpiryAt: '',
 		isEmailAuth: true,
 		businessName: '',
-		currentWorkspaceId: localStorage.getItem('workspaceId'),
+		currentWorkspaceId: localStorage?.getItem('workspaceId'),
 		isAlChatEnabled: false,
 		nameIdentification: false,
 		emailIdentification: false,
@@ -228,44 +228,51 @@ const Docs = () => {
 	const Filters = [
 		{
 			label: (
-				<div
-					onClick={() =>
-						handleSetActiveFilter('templateName', 'templatesList', 'Template Name')
-					}
-					className="filterContainer"
-				>
+				<div className="filterContainer">
 					<UppercaseLowercaseA />
 					<span>Template Name</span>
 				</div>
 			),
 			value: 'templateName',
 			filterOptionsListName: 'templatesList',
+			displayValue: 'Template Name',
+			valueSelector: {
+				filter: 'templateName',
+				filterOptionsListName: 'templatesList',
+				label: 'Template Name',
+			},
 		},
 		{
 			label: (
-				<div
-					onClick={() => handleSetActiveFilter('clientName', 'clientList', 'Client Name')}
-					className="filterContainer"
-				>
+				<div className="filterContainer">
 					<MailLetter />
 					<span>Client Name</span>
 				</div>
 			),
 			value: 'clientName',
 			filterOptionsListName: 'clientList',
+			displayValue: 'Client Name',
+			valueSelector: {
+				filter: 'clientName',
+				filterOptionsListName: 'clientList',
+				label: 'Client Name',
+			},
 		},
 		{
 			label: (
-				<div
-					onClick={() => handleSetActiveFilter('status', 'statusList', 'Status')}
-					className="filterContainer"
-				>
+				<div className="filterContainer">
 					<StatusCircle />
 					<span>Status</span>
 				</div>
 			),
 			value: 'status',
 			filterOptionsListName: 'statusList',
+			displayValue: 'Status',
+			valueSelector: {
+				filter: 'status',
+				filterOptionsListName: 'statusList',
+				label: 'Status',
+			},
 		},
 	];
 
@@ -370,7 +377,8 @@ const Docs = () => {
 		}
 	}, [tennantSettingsData, info?.activeFileData, info?.sendSmartFileModal]);
 
-	const handleSetActiveFilter = (filter, filterOptionsListName, label) => {
+	const handleSetActiveFilter = (payload) => {
+		const { filter, filterOptionsListName, label } = payload || {};
 		if (info?.appliedFilters?.some((appliedFilter) => appliedFilter.filter === filter)) return;
 		setInfo((prev) => ({
 			...prev,
@@ -727,6 +735,7 @@ const Docs = () => {
 												''}
 										</span>
 										<span
+											className="removeFilterBtn"
 											onClick={() =>
 												handleRemoveSelectedFilter(appliedFilter?.filter)
 											}
@@ -800,13 +809,13 @@ const Docs = () => {
 						<DropDown
 							title="Add Filters"
 							options={Filters}
+							valueSelector="valueSelector"
 							containerStyles={{
 								borderRadius: '14px',
 								background: '#202123',
 								boxShadow: '0px 2px 44px 0px rgba(0, 0, 0, 0.25)',
 							}}
-							onOptionClick={() => {}}
-							valueSelector="value"
+							onOptionClick={handleSetActiveFilter}
 						>
 							<Filter style={{ width: '20px', height: '20px', marginTop: '6px' }} />
 						</DropDown>
