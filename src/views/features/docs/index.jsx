@@ -401,8 +401,14 @@ const Docs = () => {
 		setInfo((prev) => ({ ...prev, showRightDrawer: false, activeFileData: null }));
 	}, []);
 
+	const handleCloseFilterPopUp = () => {
+		if (info?.openFilterPopUp) {
+			setInfo((prev) => ({ ...prev, openFilterPopUp: false }));
+		}
+	};
+
 	return (
-		<div className="docsParentContainer">
+		<div onClick={handleCloseFilterPopUp} className="docsParentContainer">
 			<div className="docsParentHeaderContainer">
 				<div className="docsHeaderButtons colorful" onClick={onGenerateAIFunc}>
 					<div className="docsHeaderButtonsTitle">Create proposal from your template</div>
