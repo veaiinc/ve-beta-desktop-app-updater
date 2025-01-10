@@ -1,66 +1,384 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/docs/index.scss';
-import { ReactComponent as Files } from '../../../assets/svg/docs/files.svg';
-import { fetchOriginSelection } from '../../../helpers';
-import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
-import FilesListView from './FilesListView';
+import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
+import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';
+import { ReactComponent as ThreeDots } from '../../../assets/svg/docs/three-dots.svg';
+import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
+import { ReactComponent as UppercaseLowercaseA } from '../../../assets/svg/docs/uppercase-lowercase-a.svg';
+import { ReactComponent as MailLetter } from '../../../assets/svg/docs/mail-letter.svg';
+import { ReactComponent as StatusCircle } from '../../../assets/svg/docs/status-circle.svg';
+import { ReactComponent as DownArrowPurple } from '../../../assets/svg/docs/down-arrow-purple.svg';
+import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
-import moment from 'moment';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import Sidebar from '../../components/docs/Sidebar';
+import DropDown from '../../components/dropDown/tasks/DropDown';
+import Skeleton from 'react-loading-skeleton';
+import SendProposalModal from '../../components/modalsV2/proposalModals/SendProposalModal';
+import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
+import { Spin } from 'antd';
 let origin = fetchOriginSelection();
+
+const staticCreateActions = [
+	{
+		title: 'Create Smart File',
+		subtext: 'Create a tailored smart file and present it to your clients.',
+	},
+	{
+		title: 'Create Proposal',
+		subtext: 'Create a tailored business proposal and present it to your clients.',
+	},
+	{
+		title: 'Create Presentation',
+		subtext: 'Create a tailored business proposal and present it to your clients.',
+	},
+	{
+		title: 'Create Invoice',
+		subtext: 'Track invoice status, Payment schedule, amounts, and more.',
+	},
+	{ title: 'Create Contract', subtext: 'Stay on top of contracts and signatures.' },
+	{ title: 'Create Landing Page', subtext: 'Create and share a landing page with clients.' },
+];
+
+export const statusTextmapper = {
+	filesViewed: {
+		text: 'Files Viewed',
+		dotStyle: {
+			backgroundColor: '#2A71CD',
+		},
+		style: {
+			backgroundColor: '#29456C',
+		},
+	},
+	enquiry: {
+		text: 'Enquiry',
+		dotStyle: {
+			backgroundColor: '#2A71CD',
+		},
+		style: {
+			backgroundColor: '#29456C',
+		},
+	},
+	filesSent: {
+		text: 'Sent',
+		dotStyle: {
+			backgroundColor: '#2A71CD',
+		},
+		style: {
+			backgroundColor: '#29456C',
+		},
+	},
+	confirmed: {
+		text: 'Confirmed',
+		dotStyle: {
+			backgroundColor: '#00A051',
+		},
+		style: {
+			backgroundColor: '#2C593F',
+		},
+	},
+	expired: {
+		text: 'Expired',
+		dotStyle: {
+			backgroundColor: '#E27B1C',
+		},
+		style: {
+			backgroundColor: 'rgba(125, 79, 39, 1)',
+		},
+	},
+	accepted: {
+		text: 'Accepted',
+		dotStyle: {
+			backgroundColor: '#00A051',
+		},
+		style: {
+			backgroundColor: '#2C593F',
+		},
+	},
+	proposalAccepted: {
+		text: 'Accepted',
+		dotStyle: {
+			backgroundColor: '#00A051',
+		},
+		style: {
+			backgroundColor: '#2C593F',
+		},
+	},
+};
+
+const FilterIcons = {
+	templateName: <UppercaseLowercaseA />,
+	clientName: <MailLetter />,
+	status: <StatusCircle />,
+};
+
+export const DocsStatusButton = ({ content = '', style = {}, textStyle = {}, dotStyle = {} }) => {
+	return (
+		<div className="DocsStatusButtonOuterContainer" style={{ ...style }}>
+			<div className="DocsStatusCircle" style={{ ...dotStyle }}></div>
+			<span className="DocsButtontext" style={{ ...textStyle }}>
+				{content}
+			</span>
+		</div>
+	);
+};
 const Docs = () => {
 	let {
 		templates: {
-			getMyWorkflows,
-			myWorkflows,
-			myMoreWorkflows,
-			salePageRefresh,
+			getDocsFilesList,
 			updateStateValues,
-			generatePublicLinkData,
+			docsFilesList,
+			moreDocsFilesList,
+			getSmartFileData,
+			smartFileInfo,
+			getLatestSendSmartFileSettings,
+			sendSmartFileSettings,
 		},
+		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		loading: true,
-		myWorkflowData: null,
-		hasNextPage: false,
 		currentPage: 1,
-		myWorkflowModal: false,
-		activeTemplateData: null,
-		activeCardsData: null,
+		hasNextPage: false,
+		loading: true,
+		docsData: [],
+		showRightDrawer: false,
+		activeFileData: null,
+		searchExpand: false,
+		searchValue: '',
+		appliedFilters: [],
+		sendSmartFileModal: false,
+		assisstanceData: null,
+		workflowExpiryAt: '',
+		isEmailAuth: true,
+		businessName: '',
+		currentWorkspaceId: localStorage.getItem('workspaceId'),
+		isAlChatEnabled: false,
+		nameIdentification: false,
+		emailIdentification: false,
+		businessName: '',
+		needRefetch: false,
 		copyModal: false,
-		showGeneratedLinkModalData: null,
-		testingDrawerModal: false,
-		shownInitialLoader: localStorage.getItem('showInitialLoader'),
-		currentWorkspaceId: null,
-		pendingCopyAction: null,
-		copyLink: null,
+		copyLink: '',
 	});
 
+	const Filters = [
+		{
+			label: (
+				<div onClick={() => handleSetFilter('templateName')} className="filterContainer">
+					<UppercaseLowercaseA />
+					<span>Template Name</span>
+				</div>
+			),
+			value: 'templateName',
+		},
+		{
+			label: (
+				<div onClick={() => handleSetFilter('clientName')} className="filterContainer">
+					<MailLetter />
+					<span>Client Name</span>
+				</div>
+			),
+			value: 'clientName',
+		},
+		{
+			label: (
+				<div onClick={() => handleSetFilter('status')} className="filterContainer">
+					<StatusCircle />
+					<span>Status</span>
+				</div>
+			),
+			value: 'status',
+		},
+	];
+
 	useEffect(() => {
-		getMyWorkflowTemplatesData(1);
+		getDocsFilesListFunc(1);
+		getLatestSendSmartFileSettings();
 	}, []);
 
 	useEffect(() => {
-		setInfo((prev) => ({ ...prev, myWorkflowData: myWorkflows?.data }));
-	}, [myWorkflows]);
+		if (docsFilesList) {
+			parseDocsFilesListDeatils(docsFilesList, false);
+		}
+	}, [docsFilesList]);
 
-	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
-		const payload = {
-			filters: {
-				limit: 10,
-				page: page,
-				type: 'workspace',
-				status: 'published',
-				sortBy: 'createdAt',
-				sortType: -1,
-			},
-		};
-		getMyWorkflows(payload, fetchMore);
-	}, []);
+	useEffect(() => {
+		if (moreDocsFilesList) {
+			parseDocsFilesListDeatils(moreDocsFilesList, true);
+		}
+	}, [moreDocsFilesList]);
+
+	useEffect(() => {
+		if (smartFileInfo) {
+			let assisstanceData = smartFileInfo?.aiAssistant || {};
+
+			setInfo((prev) => ({
+				...prev,
+				workflowExpiryAt: smartFileInfo?.expiresAt,
+				assisstanceData,
+			}));
+		}
+	}, [smartFileInfo]);
+
+	useEffect(() => {
+		if (sendSmartFileSettings) {
+			const { isAlChatEnabled, access, userIdentification } = sendSmartFileSettings;
+			setInfo((prev) => ({
+				...prev,
+				isAlChatEnabled: isAlChatEnabled || false,
+				isEmailAuth: access?.isEnabled,
+				nameIdentification: userIdentification?.name,
+				emailIdentification: userIdentification?.email,
+			}));
+		}
+	}, [sendSmartFileSettings]);
+
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+	}, [tennantSettingsData]);
+
+	useEffect(() => {
+		if (tennantSettingsData && info?.currentWorkspaceId && info?.sendSmartFileModal) {
+			let link;
+			if (tennantSettingsData?.customDomain?.length) {
+				link = `https://${tennantSettingsData?.customDomain}/portal/${info?.activeFileData?.slug}`;
+			} else {
+				link = `https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.activeFileData?.slug}`;
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				copyLink: link,
+				businessName: tennantSettingsData?.businessName,
+			}));
+		}
+	}, [tennantSettingsData, info?.activeFileData, info?.sendSmartFileModal]);
+
+	const handleSetFilter = (filter) => {
+		setInfo((prev) => ({ ...prev, appliedFilters: [...prev.appliedFilters, filter] }));
+	};
 
 	const onGenerateAIFunc = () => {
 		window.location.href = `${origin}/generate`;
 	};
+
+	const getDocsFilesListFunc = useCallback(async (page, fetchMore = false) => {
+		const payload = {
+			filters: {
+				limit: 30,
+				page: page,
+			},
+		};
+
+		getDocsFilesList(payload, fetchMore);
+	}, []);
+
+	const fetcMoreDocsFilesList = useCallback(async () => {
+		getDocsFilesListFunc(info?.currentPage + 1, true);
+	}, [info?.currentPage]);
+
+	const parseDocsFilesListDeatils = useCallback(async (variableType, fetchMore = false) => {
+		let { hasNextPage, currentPage, data } = variableType || {};
+
+		setInfo((prev) => ({
+			...prev,
+			loading: false,
+			docsData: fetchMore ? prev?.docsData?.concat(data) : data,
+			currentPage,
+			hasNextPage,
+		}));
+	}, []);
+
+	const handleOpenSidebar = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, showRightDrawer: true, activeFileData: data }));
+		getSmartFileInfo(data);
+	}, []);
+
+	const handleCloseSidebar = useCallback(() => {
+		if (info?.needRefetch) {
+			refetchDocsFilesList();
+		}
+		setInfo((prev) => ({
+			...prev,
+			showRightDrawer: false,
+			activeFileData: null,
+			workflowExpiryAt: '',
+			needRefetch: false,
+		}));
+		updateStateValues({ smartFileInfo: null });
+	}, [info]);
+
+	const openSendSmartFileModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, sendSmartFileModal: true }));
+	}, []);
+
+	const getSmartFileInfo = useCallback(
+		async (data) => {
+			if (data) {
+				const payload = {
+					getWorkflowWithModulesId: data?._id,
+				};
+				getSmartFileData(payload);
+			}
+		},
+		[info?.activeFileData],
+	);
+
+	const changelocalWorflowStatus = useCallback(
+		async (data) => {
+			setInfo((prev) => ({
+				...prev,
+				activeFileData: { ...prev?.activeFileData, status: data },
+				needRefetch: true,
+			}));
+		},
+		[info],
+	);
+
+	const updateWorkflowSlug = useCallback(
+		(updatedSlug) => {
+			setInfo((prev) => ({
+				...prev,
+				activeFileData: { ...prev?.activeFileData, slug: updatedSlug },
+				needRefetch: true,
+			}));
+		},
+		[info?.workflowData],
+	);
+
+	const updateSendSmartFileExpiryData = useCallback(async (updatedValue) => {
+		setInfo((prev) => ({ ...prev, workflowExpiryAt: updatedValue }));
+	}, []);
+
+	const updateIdentification = useCallback((data, type) => {
+		setInfo((prev) => ({ ...prev, [type]: data }));
+	}, []);
+
+	const updateSmartFileEmailAuth = useCallback(
+		(data) => {
+			setInfo((prev) => ({ ...prev, isEmailAuth: data }));
+		},
+		[info?.isEmailAuth],
+	);
+
+	const updateSmartFileIsAiChatEnabled = useCallback(
+		(data) => {
+			setInfo((prev) => ({ ...prev, isAlChatEnabled: data }));
+		},
+		[info?.isAlChatEnabled],
+	);
+
+	const refetchDocsFilesList = useCallback(() => {
+		getDocsFilesListFunc(1);
+	}, []);
+
+	const openCopyModal = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, copyModal: true }));
+	}, [info]);
+
 	return (
 		<div className="docsParentContainer">
 			<div className="docsParentHeaderContainer">
@@ -84,6 +402,205 @@ const Docs = () => {
 				</div>
 			</div>
 			<div className="docsTemplatesContainer">
+				<div className="docsTemplateContainer">
+					{staticCreateActions?.map((ele, index) => (
+						<div key={index} className="createStaticActionsCards">
+							<span className="createStaticActionsCardsTitle">{ele?.title}</span>
+							<span className="createStaticActionsCardsSubTitle">{ele?.subtext}</span>
+						</div>
+					))}
+				</div>
+			</div>
+
+			<div className="docsFileContainer">
+				<div className="docsFileHeaderContainer">
+					<div className="docsFileHeaderContainerTitle">
+						<span>Files</span>
+						<div className="appliedFiltersContainer">
+							{info?.appliedFilters?.map((filter) => (
+								<div className="appliedFilter">
+									{FilterIcons?.[filter]}
+									<span className="filter">{filter} :</span>
+									<DownArrowPurple />
+								</div>
+							))}
+						</div>
+					</div>
+					<div className="docsFileHeaderContainerActionsContainer">
+						<div
+							className="searchContainer"
+							style={{
+								width: info?.searchExpand ? '140px' : '16px',
+							}}
+						>
+							<div
+								className={`searchBtn ${info?.searchExpand ? 'searchExpand' : ''}`}
+							>
+								<span
+									style={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+										cursor: 'pointer',
+									}}
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											searchExpand: true,
+										}))
+									}
+								>
+									<Search />
+								</span>
+
+								<div className="inputAndCloseContainer">
+									<input
+										className="searchInputTag"
+										placeholder="Search"
+										value={info?.searchValue}
+										onChange={(e) =>
+											setInfo((prev) => ({
+												...prev,
+												searchValue: e?.target?.value,
+											}))
+										}
+									/>
+									<span
+										style={{
+											display: 'flex',
+											justifyContent: 'center',
+											alignItems: 'center',
+											cursor: 'pointer',
+										}}
+										onClick={() => {
+											setInfo((prev) => ({
+												...prev,
+												searchExpand: false,
+												searchValue: '',
+											}));
+										}}
+									>
+										<Cross style={{ width: '20px', height: '20px' }} />
+									</span>
+								</div>
+							</div>
+						</div>
+						<DropDown
+							title="Add Filters"
+							options={Filters}
+							onOptionClick={() => console.log('option clicked')}
+							valueSelector="value"
+						>
+							<Filter style={{ width: '20px', height: '20px', marginTop: '6px' }} />
+						</DropDown>
+						<ThreeDots />
+					</div>
+				</div>
+				<div className="docsFilesInfiiniteContainer">
+					{info?.loading ? (
+						[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]?.map(
+							(ele, index) => <Skeleton key={index} height={36} />,
+						)
+					) : (
+						<InfiniteScroll
+							dataLength={info?.docsData?.length || 0}
+							next={fetcMoreDocsFilesList}
+							hasMore={info?.hasNextPage}
+							loader={<FetchMoreLoaderComp />}
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '8px',
+								width: '100%',
+							}}
+							className="tetsing"
+							height="calc(100vh - 500px)"
+						>
+							{info?.docsData?.map((ele, index) => (
+								<div
+									className="docsRow"
+									key={index}
+									onClick={() => handleOpenSidebar(ele)}
+								>
+									<div className="docsFilesRowTitle">{ele?.title}</div>
+									<div className="docsKeyWordsContainer">
+										{ele?.clientDetails?.name ? (
+											<span className="docsclientdetailsName">
+												{ele?.clientDetails?.name}
+											</span>
+										) : (
+											''
+										)}
+
+										<DocsStatusButton
+											content={statusTextmapper?.[ele?.status]?.text}
+											style={statusTextmapper?.[ele?.status]?.style}
+											dotStyle={statusTextmapper?.[ele?.status]?.dotStyle}
+										/>
+									</div>
+								</div>
+							))}
+						</InfiniteScroll>
+					)}
+				</div>
+
+				<Sidebar
+					open={info?.showRightDrawer}
+					onClose={handleCloseSidebar}
+					activeFileData={info?.activeFileData}
+					openSendSmartFileModal={openSendSmartFileModal}
+				/>
+
+				<SendProposalModal
+					open={info?.sendSmartFileModal}
+					closeModal={() => setInfo((prev) => ({ ...prev, sendSmartFileModal: false }))}
+					clientDetails={info?.activeFileData?.clientDetails}
+					workflowSlug={info?.activeFileData?.slug}
+					workflowId={info?.activeFileData?._id}
+					openCopyModal={openCopyModal}
+					changelocalWorflowStatus={changelocalWorflowStatus}
+					workflowStatus={info?.activeFileData?.status}
+					changeEditStatus={() => {}}
+					slug={info?.activeFileData?.slug}
+					updateWorkflowSlug={updateWorkflowSlug}
+					expiresAt={info?.workflowExpiryAt || ''}
+					updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
+					isEnabled={info?.isEmailAuth}
+					updateSmartFileEmailAuth={updateSmartFileEmailAuth}
+					pin={smartFileInfo?.access?.pin}
+					businessName={info?.businessName}
+					isAlChatEnabled={info?.isAlChatEnabled}
+					updateSmartFileIsAiChatEnabled={updateSmartFileIsAiChatEnabled}
+					nameIdentification={info?.nameIdentification}
+					emailIdentification={info?.emailIdentification}
+					updateIdentification={updateIdentification}
+					assisstanceData={info?.assisstanceData}
+					// updateVariablesInAllModules={updateVariablesInAllModules}
+					copyLink={info?.copyLink}
+				/>
+
+				<CopiedModal
+					open={info?.copyModal}
+					closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
+					modules={info?.activeFileData?.modules?.filter((e) => e?.type !== 'form')}
+					copyLink={
+						info?.copyLink || (
+							<span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+								Generating Link ...
+								<Spin />
+							</span>
+						)
+					}
+					pin={smartFileInfo?.access?.pin}
+				/>
+			</div>
+		</div>
+	);
+};
+
+export default memo(Docs);
+{
+	/* <div className="docsTemplatesContainer">
 				<div className="docsTemplatesContainerHeader">
 					Create new file from your existing templates
 					<div className="docsTemplatesAllFilesContainer">
@@ -121,12 +638,5 @@ const Docs = () => {
 						</div>
 					))}
 				</div>
-			</div>
-			<div className="docsFooterContainer">
-				<FilesListView />
-			</div>
-		</div>
-	);
-};
-
-export default memo(Docs);
+			</div> */
+}
