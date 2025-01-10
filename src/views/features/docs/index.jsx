@@ -223,6 +223,8 @@ const Docs = () => {
 		needRefetch: false,
 		copyModal: false,
 		copyLink: '',
+		timeout: null,
+		filtersGotChanged: false,
 	});
 
 	const Filters = [
@@ -379,6 +381,18 @@ const Docs = () => {
 		}
 	}, [tennantSettingsData, info?.activeFileData, info?.sendSmartFileModal]);
 
+	useEffect(() => {
+		if (info?.filtersGotChanged) {
+			handleDebounceFetch();
+		}
+	}, [info?.selectedFilterOptions, info?.searchValue, info?.filtersGotChanged]);
+
+	useEffect(() => {
+		if (info?.filtersGotChanged) {
+			handleDebounceFetch();
+		}
+	}, [info?.selectedFilterOptions, info?.searchValue, info?.filtersGotChanged]);
+
 	const handleSetActiveFilter = (payload) => {
 		const { filter, filterOptionsListName, label } = payload || {};
 		if (info?.appliedFilters?.some((appliedFilter) => appliedFilter.filter === filter)) return;
@@ -403,6 +417,7 @@ const Docs = () => {
 				...prev?.selectedFilterOptions,
 				[filter]: option,
 			},
+			filtersGotChanged: true,
 		}));
 	};
 
@@ -420,23 +435,38 @@ const Docs = () => {
 	};
 
 	const handleFilterPopUpSearch = (searchValue) => {
-		setInfo((prev) => ({ ...prev, searchValue }));
+		setInfo((prev) => ({ ...prev, searchValue, filtersGotChanged: true }));
 	};
 
 	const onGenerateAIFunc = () => {
 		window.location.href = `${origin}/generate`;
 	};
 
-	const getDocsFilesListFunc = useCallback(async (page, fetchMore = false) => {
-		const payload = {
-			filters: {
-				limit: 30,
-				page: page,
-			},
-		};
+	const getDocsFilesListFunc = useCallback(
+		async (page, fetchMore = false) => {
+			const payload = {
+				filters: {
+					limit: 30,
+					page: page,
+					title: info?.searchValue,
+				},
+			};
 
-		getDocsFilesList(payload, fetchMore);
-	}, []);
+			console.log('info?.selectedFilterOptions', info?.selectedFilterOptions);
+
+			if (info?.selectedFilterOptions?.templateName) {
+				payload.filters.templateId = info?.selectedFilterOptions?.templateName?._id;
+			}
+			if (info?.selectedFilterOptions?.clientName) {
+				payload.filters.clientId = info?.selectedFilterOptions?.clientName?._id;
+			}
+			if (info?.selectedFilterOptions?.status) {
+				payload.filters.status = info?.selectedFilterOptions?.status?._id;
+			}
+			getDocsFilesList(payload, fetchMore);
+		},
+		[info?.searchValue, info?.selectedFilterOptions],
+	);
 
 	const fetcMoreDocsFilesList = useCallback(async () => {
 		getDocsFilesListFunc(info?.currentPage + 1, true);
@@ -647,6 +677,19 @@ const Docs = () => {
 			}
 		}
 	}, [smartFileInfo, updateWorkspaceVariablesFunc, info?.activeFileData]);
+
+	const handleDebounceFetch = useCallback(() => {
+		clearInterval(info?.timeout);
+		const timeout = setTimeout(() => {
+			getDocsFilesListFunc(1);
+			setInfo((prev) => ({
+				...prev,
+				loading: true,
+				timeout: null,
+			}));
+		}, 800);
+		setInfo((prev) => ({ ...prev, timeout }));
+	}, [info?.timeout, info?.searchValue, info?.searchValueChanged, info?.selectedFilterOptions]);
 
 	return (
 		<div className="docsParentContainer">
