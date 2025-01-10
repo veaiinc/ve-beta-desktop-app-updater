@@ -21,6 +21,8 @@ const FilterPopUp = ({
 	searchInputPlaceholder = 'Filter By',
 	setSearchValue,
 }) => {
+	console.log('options', options);
+	console.log('hasMoreOptions', hasMoreOptions);
 	return (
 		<>
 			{open && (

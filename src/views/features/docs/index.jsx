@@ -162,6 +162,8 @@ const Docs = () => {
 		templates: {
 			getDocsFilesList,
 			updateStateValues,
+			templatesListForDocs,
+			getTemplatesListForDocs,
 			clientListForDocs,
 			getClientListForDocs,
 			docsFilesList,
@@ -250,25 +252,25 @@ const Docs = () => {
 	useEffect(() => {
 		getDocsFilesListFunc(1);
 		getClientListForDocs(payload);
-		getTemplatesListForCreateLead(payload);
+		getTemplatesListForDocs();
 	}, []);
 
 	useEffect(() => {
-		if (templatesListForCreateLead) {
+		if (templatesListForDocs) {
 			setInfo((prev) => ({
 				...prev,
-				templatesList: templatesListForCreateLead?.data,
+				templatesList: [...prev?.templatesList, ...templatesListForDocs?.data],
 				hasMoreForFilter: {
 					...prev?.hasMoreForFilter,
-					templateName: templatesListForCreateLead?.hasNextPage,
+					templateName: templatesListForDocs?.hasNextPage,
 				},
 				currentPageForFilter: {
 					...prev?.currentPageForFilter,
-					templateName: templatesListForCreateLead?.currentPage,
+					templateName: templatesListForDocs?.currentPage,
 				},
 			}));
 		}
-	}, [templatesListForCreateLead]);
+	}, [templatesListForDocs]);
 
 	useEffect(() => {
 		if (clientListForDocs) {
@@ -371,13 +373,9 @@ const Docs = () => {
 			};
 			getClientListForDocs(payload);
 		} else if (filter === 'templateName') {
-			const payload = {
-				filters: {
-					limit: 10,
-					page: info?.currentPageForFilter?.templateName + 1,
-				},
-			};
-			getTemplatesListForCreateLead(payload);
+			const page = info?.currentPageForFilter?.templateName + 1;
+			const limit = 10;
+			getTemplatesListForDocs(page, limit);
 		}
 	};
 

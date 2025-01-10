@@ -32,6 +32,10 @@ const actionHandlers = {
 		...state,
 		templatesListForCreateLead: action?.payload,
 	}),
+	GET_TEMPLATES_LIST_FOR_DOCS_SUCCESS: (state, action) => ({
+		...state,
+		templatesListForDocs: action?.payload,
+	}),
 	GET_FORM_RESPONSES_SUCCESS: (state, action) => ({
 		...state,
 		formResponseData: action?.payload,

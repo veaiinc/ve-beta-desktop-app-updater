@@ -48,6 +48,7 @@ export const intialState = {
 	moreWorkList: null,
 	clientList: null,
 	clientListForDocs: null,
+	templatesListForDocs: null,
 	allEmailTemplates: null,
 	myWorkflows: null,
 	myMoreWorkflows: null,
@@ -510,6 +511,36 @@ export const TemplatesState = (props) => {
 			});
 		} else {
 			console.log('api failed ==>getTemplatesListForCreateLead', response);
+		}
+	};
+
+	const getTemplatesListForDocs = async (page = 1, limit = 10) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const payload = {
+			filters: {
+				limit,
+				page,
+				type: 'workspace',
+				status: 'published',
+			},
+		};
+		const response = await service.query(
+			getTemplatesListForCreateLeadQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			dispatch({
+				type: Actions.GET_TEMPLATES_LIST_FOR_DOCS_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+			});
+		} else {
+			console.log('api failed ==>getTemplatesListForDocs', response);
 		}
 	};
 
@@ -1299,6 +1330,7 @@ export const TemplatesState = (props) => {
 		resetTemplateState,
 		getClientList,
 		getClientListForDocs,
+		getTemplatesListForDocs,
 		updateStateValues,
 		getAllEmailTemplates,
 		addEmailTriggersInWorkflow,
