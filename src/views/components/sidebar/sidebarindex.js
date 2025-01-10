@@ -40,9 +40,15 @@ export const veAiModulesItemsList = [
 		icon: '',
 	},
 	{
-		name: 'Gallery',
+		name: 'Classic Gallery',
 		moduleRoute: '/galleries',
 		route: '/galleries',
+		icon: '',
+	},
+	{
+		name: 'Light Gallery',
+		moduleRoute: '/light-gallery',
+		route: '/light-gallery',
 		icon: '',
 	},
 	{

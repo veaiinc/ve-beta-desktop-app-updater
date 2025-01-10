@@ -82,6 +82,11 @@ const getPathInfo = (path) => {
 			description: 'Access and manage your AI assistant',
 			initial: 'AI',
 		},
+		'/light-gallery': {
+			title: 'Light Gallery',
+			description: 'Browse and organize your media collections',
+			initial: 'LG',
+		},
 	};
 
 	return pathInfo[cleanPath] || { title: 'Home', description: 'Your workspace dashboard' };

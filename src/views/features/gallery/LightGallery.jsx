@@ -58,7 +58,7 @@ const filterOptions = [
 	{ name: 'Updated Date (reverse)', value: '-updatedAt' },
 	{ name: 'Custom', value: 'sortIndex' },
 ];
-const AddGallery = () => {
+const LightGallery = () => {
 	const {
 		galleryInfo: {
 			getGalleries,
@@ -90,27 +90,42 @@ const AddGallery = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		const childrenContainer = document.querySelector('.childrenContainer');
-		if (!tenantGalleries) {
-			fetchGalleries(info.page);
-		}
-		clearClientSelectionsData();
-		clearAiFace();
-		clearGalleryShareDetails();
-		clearPreRegisteredUsers();
-		clearGalleryState();
-		if (childrenContainer) {
-			const originalWidth = childrenContainer.style.maxWidth;
-			childrenContainer.style.maxWidth = '80vw';
-			return () => {
-				childrenContainer.style.maxWidth = originalWidth;
-			};
-		}
-	}, []);
+		const initializeGallery = async () => {
+			try {
+				// Clear previous states
+				clearClientSelectionsData();
+				clearAiFace();
+				clearGalleryShareDetails();
+				clearPreRegisteredUsers();
+				clearGalleryState();
+
+				// Fetch initial data
+				await fetchGalleries(1, null, true); // Added true to force reset
+
+				// Handle container width
+				const childrenContainer = document.querySelector('.childrenContainer');
+				if (childrenContainer) {
+					const originalWidth = childrenContainer.style.maxWidth;
+					childrenContainer.style.maxWidth = '80vw';
+					return () => {
+						childrenContainer.style.maxWidth = originalWidth;
+					};
+				}
+			} catch (error) {
+				console.error('Error initializing gallery:', error);
+			}
+		};
+
+		initializeGallery();
+	}, []); // Empty dependency array for initial load only
 
 	useEffect(() => {
 		if (tenantGalleries) {
-			setInfo((prev) => ({ ...prev, activeSort: tenantGalleries?.sort }));
+			setInfo((prev) => ({
+				...prev,
+				activeSort: tenantGalleries?.sort,
+				loading: false,
+			}));
 		}
 	}, [tenantGalleries]);
 	useEffect(() => {
@@ -127,27 +142,32 @@ const AddGallery = () => {
 	}, [tennantSettingsData]);
 	const fetchGalleries = async (page, title = null, reset = false) => {
 		try {
+			setInfo((prev) => ({ ...prev, loading: true }));
 			const options = {
 				page,
 				limit: info.limit,
 				storeOriginals: true,
+				...(title && { title, limit: info.limit + 1 }),
 			};
-			if (title) {
-				options.title = title;
-				options.limit = info.limit + 1;
-			}
-			getGalleries(options, reset);
+
+			await getGalleries(options, reset);
+
+			setInfo((prev) => ({ ...prev, loading: false }));
 		} catch (err) {
+			console.error('Error fetching galleries:', err);
 			setInfo((prevState) => ({
 				...prevState,
 				error: err.message || 'Failed to fetch galleries',
+				loading: false,
 			}));
 		}
 	};
 
 	const handleNavigateGallery = (gallery) => {
 		getGalleryCredentials(gallery?._id);
-		navigate(`/galleries/${gallery?._id}`, { state: { galleryData: gallery } });
+		navigate(`/galleries/${gallery?._id}`, {
+			state: { galleryData: gallery, isLightGallery: true },
+		});
 	};
 
 	const handleNavigateSettings = (galleryId) => {
@@ -235,6 +255,7 @@ const AddGallery = () => {
 
 	return (
 		<div className="gallery-main-container">
+			{/* <h1>Light Gallery</h1> */}
 			<div className="seachbar-container">
 				<div className="gallery-filter">
 					<img src={Search} alt="searchh" />
@@ -396,11 +417,11 @@ const AddGallery = () => {
 					closeModal={handleCloseModal}
 					fetchGalleries={fetchGalleries}
 					message={message}
-					isLightGallery={false}
+					isLightGallery={true}
 				/>
 			</div>
 		</div>
 	);
 };
 
-export default AddGallery;
+export default LightGallery;
