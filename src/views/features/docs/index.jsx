@@ -19,7 +19,7 @@ import FilterPopUp from '../../components/globalComponents/FilterPopUp';
 import Skeleton from 'react-loading-skeleton';
 import SendProposalModal from '../../components/modalsV2/proposalModals/SendProposalModal';
 import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
-import { Spin } from 'antd';
+import { Spin, Tooltip } from 'antd';
 let origin = fetchOriginSelection();
 
 const payload = {
@@ -192,7 +192,6 @@ const Docs = () => {
 			clientName: null,
 			status: null,
 		},
-		openFilterPopUp: false,
 		clientList: [],
 		templatesList: [],
 		statusList: [...statusList],
@@ -539,18 +538,12 @@ const Docs = () => {
 		getDocsFilesListFunc(1);
 	}, []);
 
-	const handleCloseFilterPopUp = () => {
-		if (info?.openFilterPopUp) {
-			setInfo((prev) => ({ ...prev, openFilterPopUp: false }));
-		}
-	};
-
 	const openCopyModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, copyModal: true }));
 	}, [info]);
 
 	return (
-		<div onClick={handleCloseFilterPopUp} className="docsParentContainer">
+		<div className="docsParentContainer">
 			<div className="docsParentHeaderContainer">
 				<div className="docsHeaderButtons colorful" onClick={onGenerateAIFunc}>
 					<div className="docsHeaderButtonsTitle">Create proposal from your template</div>
@@ -588,43 +581,17 @@ const Docs = () => {
 						<span>Files</span>
 						<div className="appliedFiltersContainer">
 							{info?.appliedFilters?.map((appliedFilter, idx) => (
-								<div
+								<Tooltip
 									key={idx}
-									onClick={() =>
-										setInfo((prev) => ({
-											...prev,
-											openFilterPopUp: !prev?.openFilterPopUp,
-											activeAppliedFilter: appliedFilter?.filter,
-										}))
-									}
-									className="appliedFilter"
-								>
-									{FilterIcons?.[appliedFilter?.filter]}
-									<span className="filter">
-										{appliedFilter?.label} :{' '}
-										{info?.selectedFilterOptions?.[appliedFilter?.filter]
-											?.name ??
-											info?.selectedFilterOptions?.[appliedFilter?.filter]
-												?.title ??
-											''}
-									</span>
-									<span
-										onClick={() =>
-											handleRemoveSelectedFilter(appliedFilter?.filter)
-										}
-									>
-										<CrossPurple />
-									</span>
-
-									{info?.openFilterPopUp && (
+									trigger="click"
+									arrow={false}
+									color="transparent"
+									overlayClassName="filterTooltipPopUpContainer"
+									placement="bottomLeft"
+									title={
 										<FilterPopUp
 											className={`${appliedFilter?.filter}`}
-											top="50px"
 											height="268px"
-											open={
-												info?.openFilterPopUp &&
-												info?.activeAppliedFilter === appliedFilter?.filter
-											}
 											options={info?.[appliedFilter?.filterOptionsListName]}
 											onOptionClick={(option) =>
 												handleSetFilterOptions(
@@ -640,10 +607,30 @@ const Docs = () => {
 											}
 											searchInput={true}
 											searchInputPlaceholder="Filter By"
+											searchValue={info?.searchValue}
 											setSearchValue={handleFilterPopUpSearch}
 										/>
-									)}
-								</div>
+									}
+								>
+									<div className="appliedFilter">
+										{FilterIcons?.[appliedFilter?.filter]}
+										<span className="filter">
+											{appliedFilter?.label} :{' '}
+											{info?.selectedFilterOptions?.[appliedFilter?.filter]
+												?.name ??
+												info?.selectedFilterOptions?.[appliedFilter?.filter]
+													?.title ??
+												''}
+										</span>
+										<span
+											onClick={() =>
+												handleRemoveSelectedFilter(appliedFilter?.filter)
+											}
+										>
+											<CrossPurple />
+										</span>
+									</div>
+								</Tooltip>
 							))}
 						</div>
 					</div>
