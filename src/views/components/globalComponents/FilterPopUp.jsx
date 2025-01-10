@@ -1,5 +1,4 @@
-// Note: Make the parent container relative to adjust this component's position
-import React, { useState } from 'react';
+import React, { memo } from 'react';
 import '../../../assets/scss/globalComponents/filterPopup.scss';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
@@ -71,4 +70,4 @@ const FilterPopUp = ({
 	);
 };
 
-export default FilterPopUp;
+export default memo(FilterPopUp);
