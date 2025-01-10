@@ -18,7 +18,7 @@ import { Tooltip } from 'antd';
 import { DocsStatusButton, statusTextmapper } from '../../features/docs';
 import Context from '../../../context/context.js';
 
-const Sidebar = ({ open, onClose, activeFileData }) => {
+const Sidebar = ({ open, onClose, activeFileData, openSendSmartFileModal }) => {
 	const {
 		activityInfo: { resetActivityState },
 	} = useContext(Context);
@@ -82,7 +82,7 @@ const Sidebar = ({ open, onClose, activeFileData }) => {
 							dotStyle={statusTextmapper?.[activeFileData?.status]?.dotStyle}
 						/>
 						<div className="editLabel">Edit</div>
-						<ShareSvg />
+						<ShareSvg onClick={openSendSmartFileModal} />
 						<Tooltip
 							placement="bottomRight"
 							open={info?.openMoreOptions}
