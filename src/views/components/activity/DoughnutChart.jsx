@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { PieChart, Pie, Cell, Tooltip } from 'recharts';
 
-const DoughnutChart = ({ scrollClass = '', statsData, title, COLORS }) => {
+const DoughnutChart = ({ scrollClass = '', statsData, title, COLORS, showToolTip = true }) => {
 	const renderCustomizedLabel = ({ payload }) => {
 		return `${JSON.stringify(payload.percentage)} %`;
 	};
@@ -17,27 +17,40 @@ const DoughnutChart = ({ scrollClass = '', statsData, title, COLORS }) => {
 		color: 'white',
 	};
 
+	// Default data for empty state - shows a full ring
+	const defaultData = [
+		{
+			percentage: 100,
+			name: 'No Data',
+		},
+	];
+
+	const isValidStatsData = Array.isArray(statsData) && statsData?.length > 0;
+	const chartData = isValidStatsData ? statsData : defaultData;
+	const chartColors = isValidStatsData ? COLORS : ['#2A2A2A'];
+
 	return (
 		<PieChart width={390} height={300} className={`ringChart ${scrollClass}`}>
 			<Pie
-				data={statsData}
+				data={chartData}
 				cx={192}
 				cy={150}
 				innerRadius={85}
 				outerRadius={125}
 				fill="#8884d8"
-				paddingAngle={1}
-				// dataKey={dataKey}
+				paddingAngle={isValidStatsData ? 1 : 0}
 				dataKey="percentage"
-				label={renderCustomizedLabel}
+				label={isValidStatsData ? renderCustomizedLabel : null}
 				animationDuration={400}
 				animationEasing="ease-in-out"
 			>
-				{statsData?.map((entry, index) => (
-					<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+				{chartData.map((entry, index) => (
+					<Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
 				))}
 			</Pie>
-			<Tooltip contentStyle={contentStyle} itemStyle={labelStyle} />
+			{showToolTip && isValidStatsData && (
+				<Tooltip contentStyle={contentStyle} itemStyle={labelStyle} />
+			)}
 		</PieChart>
 	);
 };

@@ -18,7 +18,7 @@ export const formatTime = (milliseconds) => {
 	return `${hours}:${minutes}:${secs}`;
 };
 
-const InitialState = {
+const initialState = {
 	loading: true,
 	fileActivityData: null,
 	fileViewerList: null,
@@ -36,7 +36,7 @@ const DocsActivity = ({ data }) => {
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		...InitialState,
+		...initialState,
 		activeTab: 'viewers', //timeLine, viewers, timeSpent, interactions
 	});
 
@@ -93,6 +93,7 @@ const DocsActivity = ({ data }) => {
 						labelsData={info?.fileActivityData?.moduleViewDuration}
 						labelItemsData={info?.fileActivityData?.sectionViewDuration}
 						formatTime={formatTime}
+						showChartToolTip={false}
 					/>
 				),
 			},
@@ -108,6 +109,7 @@ const DocsActivity = ({ data }) => {
 							return acc.concat(item.interactions); //reducing the "interactionsssss" array for sending each "interaction" array data
 						}, [])}
 						formatTime={formatTime}
+						showChartToolTip={false}
 					/>
 				),
 			},
@@ -117,9 +119,9 @@ const DocsActivity = ({ data }) => {
 	}, [info?.fileViewerList, info?.loading, info?.fileActivityData]);
 
 	const handleTabChange = useCallback(
-		(tabId) => {
-			if (tabId === info?.activeTab) return;
-			setInfo((prev) => ({ ...prev, activeTab: tabId }));
+		(tab) => {
+			if (tab === info?.activeTab) return;
+			setInfo((prev) => ({ ...prev, activeTab: tab }));
 		},
 		[info?.activeTab],
 	);
@@ -175,7 +177,7 @@ const DocsActivity = ({ data }) => {
 					<div className="activityTabsContainer">
 						{Object.keys(tabs)?.map((tab) => (
 							<div
-								key={tab?.id}
+								key={tab}
 								className={`tab ${info?.activeTab === tab ? 'active' : ''}`}
 								onClick={() => handleTabChange(tab)}
 								style={{ textTransform: 'capitalize' }}
