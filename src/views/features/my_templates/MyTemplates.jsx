@@ -224,6 +224,9 @@ const MyTemplates = () => {
 								display: 'flex',
 								flexDirection: 'row',
 								flexWrap: 'wrap',
+								flexFlow: 'wrap',
+								alignItems: 'flex-end',
+								alignContent: 'flex-start',
 								gap: '8px',
 								width: '100%',
 							}}
