@@ -18,19 +18,20 @@ export const getTemmplatesQuery = gql`
 				title
 				workflows
 				templates
-				steps {
-					_id
-					criteria
-					module
-					nextStepId
-					nextStepType
-					emailTemplateTitle
-					emailTemplateSubject
-					emailTemplateId
-					sendAt
-					order
-					type
-				}
+				steps
+				# steps {
+				# 	_id
+				# 	criteria
+				# 	module
+				# 	nextStepId
+				# 	nextStepType
+				# 	emailTemplateTitle
+				# 	emailTemplateSubject
+				# 	emailTemplateId
+				# 	sendAt
+				# 	order
+				# 	type
+				# }
 				workflowStats
 				formResponses
 				filesSent
@@ -86,19 +87,20 @@ export const addEmailTriggersInWorkflowQuery = gql`
 	mutation UpdateWorkflowTemplate($templateId: ID!, $updateObj: TemplateUpdateObj!) {
 		updateWorkflowTemplate(templateId: $templateId, updateObj: $updateObj) {
 			_id
-			steps {
-				_id
-				criteria
-				module
-				nextStepId
-				nextStepType
-				emailTemplateTitle
-				emailTemplateSubject
-				emailTemplateId
-				sendAt
-				order
-				type
-			}
+			steps
+			# steps {
+			# 	_id
+			# 	criteria
+			# 	module
+			# 	nextStepId
+			# 	nextStepType
+			# 	emailTemplateTitle
+			# 	emailTemplateSubject
+			# 	emailTemplateId
+			# 	sendAt
+			# 	order
+			# 	type
+			# }
 			slug
 			status
 			moduleTemplates {
@@ -334,19 +336,20 @@ export const getSpecifiTemplatesInfoQuery = gql`
 			tenantId
 			title
 			templates
-			steps {
-				_id
-				criteria
-				module
-				nextStepId
-				nextStepType
-				emailTemplateTitle
-				emailTemplateSubject
-				emailTemplateId
-				sendAt
-				order
-				type
-			}
+			# steps {
+			# 	_id
+			# 	criteria
+			# 	module
+			# 	nextStepId
+			# 	nextStepType
+			# 	emailTemplateTitle
+			# 	emailTemplateSubject
+			# 	emailTemplateId
+			# 	sendAt
+			# 	order
+			# 	type
+			# }
+			steps
 			slug
 		}
 	}

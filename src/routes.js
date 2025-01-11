@@ -33,6 +33,7 @@ import Ai_agent from './views/features/ai_agent';
 import AgentsJobs from './views/features/ai_agent/AgentsJobs';
 import AgentsSetup from './views/features/ai_agent/AgentsSetup';
 import Docs from './views/features/docs';
+import Workflow_builder_updated from './views/features/workflow_builder_updated';
 const routes = [
 	{
 		path: '/',
@@ -134,6 +135,15 @@ const routes = [
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
 				<WorkflowBuilder />
+			</WorkflowBuilderLayout>
+		),
+		exact: true,
+	},
+	{
+		path: '/workflow_builder_updated/:templateId',
+		component: (
+			<WorkflowBuilderLayout title={'Workflow Builder'}>
+				<Workflow_builder_updated />
 			</WorkflowBuilderLayout>
 		),
 		exact: true,
