@@ -208,6 +208,7 @@ const Filters = [
 		},
 	},
 ];
+
 const Docs = () => {
 	let {
 		templates: {
@@ -243,6 +244,9 @@ const Docs = () => {
 		activeFileData: null,
 		searchExpand: false,
 		searchValue: '',
+		templateNameSearchValue: '',
+		clientNameSearchValue: '',
+		statusSearchValue: '',
 		appliedFilters: [],
 		activeAppliedFilter: '',
 		selectedFilterOptions: {
@@ -436,9 +440,38 @@ const Docs = () => {
 		}));
 	};
 
-	const handleFilterPopUpSearch = (searchValue) => {
-		setInfo((prev) => ({ ...prev, searchValue, filtersGotChanged: true }));
+	const handleFilterPopUpSearch = (filter, searchValue) => {
+		setInfo((prev) => ({
+			...prev,
+			[`${filter}SearchValue`]: searchValue,
+			filtersGotChanged: true,
+		}));
 	};
+
+	useEffect(() => {
+		if (info?.templateNameSearchValue) {
+			handleDebounceFetchFilter('templateName');
+		}
+		if (info?.clientNameSearchValue) {
+			handleDebounceFetchFilter('clientName');
+		}
+	}, [info?.templateNameSearchValue, info?.clientNameSearchValue]);
+
+	const handleDebounceFetchFilter = useCallback(
+		(filter) => {
+			clearInterval(info?.timeout);
+			const timeout = setTimeout(() => {
+				if (filter === 'templateName') {
+					getTemplatesListForDocs(1, 10, info?.templateNameSearchValue);
+				}
+				if (filter === 'clientName') {
+					getClientListForDocs(1, 10, info?.clientNameSearchValue);
+				}
+			}, 800);
+			setInfo((prev) => ({ ...prev, timeout }));
+		},
+		[info?.templateNameSearchValue, info?.clientNameSearchValue],
+	);
 
 	const onGenerateAIFunc = () => {
 		window.location.href = `${origin}/generate`;
@@ -477,13 +510,15 @@ const Docs = () => {
 				filters: {
 					limit: 10,
 					page: info?.currentPageForFilter?.clientName + 1,
+					title: info?.clientNameSearchValue,
 				},
 			};
 			getClientListForDocs(payload);
 		} else if (filter === 'templateName') {
 			const page = info?.currentPageForFilter?.templateName + 1;
 			const limit = 10;
-			getTemplatesListForDocs(page, limit);
+			const searchFilter = info?.templateNameSearchValue;
+			getTemplatesListForDocs(page, limit, searchFilter);
 		}
 	};
 
@@ -746,6 +781,7 @@ const Docs = () => {
 									placement="bottomLeft"
 									title={
 										<FilterPopUp
+											filter={appliedFilter?.filter}
 											className={`${appliedFilter?.filter}`}
 											height="268px"
 											options={info?.[appliedFilter?.filterOptionsListName]}
@@ -763,8 +799,12 @@ const Docs = () => {
 											}
 											searchInput={true}
 											searchInputPlaceholder="Filter By"
-											searchValue={info?.searchValue}
-											setSearchValue={handleFilterPopUpSearch}
+											searchValue={
+												info?.[`${appliedFilter?.filter}SearchValue`]
+											}
+											setSearchValue={(filter, searchValue) =>
+												handleFilterPopUpSearch(filter, searchValue)
+											}
 										/>
 									}
 								>

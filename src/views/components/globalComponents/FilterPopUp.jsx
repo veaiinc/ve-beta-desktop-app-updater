@@ -4,6 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { ReactComponent as Tick } from '../../../assets/svg/tasks/checkmark.svg';
 
 const FilterPopUp = ({
+	filter,
 	width = '220px',
 	height = '200px',
 	background = '#202123',
@@ -35,7 +36,7 @@ const FilterPopUp = ({
 						className="filterPopUpSearchInput"
 						type="text"
 						placeholder={searchInputPlaceholder}
-						onChange={(e) => setSearchValue(e?.target?.value)}
+						onChange={(e) => setSearchValue(filter, e?.target?.value)}
 						autoFocus
 					/>
 				</div>
