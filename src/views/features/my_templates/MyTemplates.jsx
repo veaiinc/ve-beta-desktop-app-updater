@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import '../../../assets/scss/my_templates/myTemplates.scss';
 import { ReactComponent as Stars } from '../../../assets/svg/my_templates/stars.svg';
 import { ReactComponent as Plus } from '../../../assets/svg/my_templates/plus.svg';
@@ -84,6 +84,10 @@ const ctaItems = [
 ];
 
 const MyTemplates = () => {
+	const [info, setInfo] = useState({
+		activeNav: 1,
+	});
+
 	return (
 		<div className="myTemplatesContainer">
 			<div className="headerContainer">
@@ -102,7 +106,13 @@ const MyTemplates = () => {
 				<nav className="navContainer">
 					<div className="navItemsContainer">
 						{navItems?.map((navItem) => (
-							<div className="navItem" key={navItem?.id}>
+							<div
+								className={`navItem ${
+									navItem?.id === info?.activeNav ? 'active' : ''
+								}`}
+								key={navItem?.id}
+								onClick={() => setInfo({ activeNav: navItem?.id })}
+							>
 								{navItem?.title}
 							</div>
 						))}
