@@ -30,6 +30,7 @@ import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress
 import LinkText from '../../components/tasks/listView/LinkText';
 import Text from '../../components/tasks/listView/Text';
 import ListTabs from '../../components/tasks/listView/ListTabs';
+import TabListFile from '../../components/tasks/listView/TabListFile';
 
 // import { message } from 'antd';
 // import jwtDecode from 'jwt-decode';
@@ -133,11 +134,14 @@ const ClientListView = () => {
 		return {
 			reqActions: { label: 'Req Actions', Component: <div>Request Actions</div> },
 			workflows: { label: 'Workflows', Component: <div>Workflows</div> },
-			files: { label: 'Files', Component: <div>Files</div> },
+			files: {
+				label: 'Files',
+				Component: <TabListFile rowTypes={rowTypes} colors={colors} />,
+			},
 			payments: { label: 'Payments', Component: <div>Payments</div> },
 			activity: { label: 'Activity', Component: <div>Activity</div> },
 		};
-	}, []);
+	}, [rowTypes, colors]);
 
 	const filterDebounceTimeout = useRef(null);
 
