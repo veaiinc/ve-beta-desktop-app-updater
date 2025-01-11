@@ -1,7 +1,7 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import '../../../assets/scss/globalComponents/filterPopup.scss';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { FetchMoreLoaderComp } from '../../../helpers';
+import { ReactComponent as Tick } from '../../../assets/svg/tasks/checkmark.svg';
 
 const FilterPopUp = ({
 	width = '220px',
@@ -22,6 +22,7 @@ const FilterPopUp = ({
 		const searchField = option?.name ?? option?.title;
 		return searchField?.toLowerCase().includes(searchValue?.toLowerCase());
 	});
+	const [selectedOption, setSelectedOption] = useState(null);
 
 	return (
 		<div
@@ -44,7 +45,6 @@ const FilterPopUp = ({
 					dataLength={filteredOptions?.length ?? 0}
 					next={fetchMoreOptions}
 					hasMore={hasMoreOptions ?? true}
-					// loader={<FetchMoreLoaderComp />}
 					style={{
 						display: 'flex',
 						flexDirection: 'column',
@@ -52,15 +52,18 @@ const FilterPopUp = ({
 						width: '100%',
 					}}
 					height={height}
-					// scrollableTarget="filterFocDocs"
 				>
 					{filteredOptions?.map((option, idx) => (
 						<div
 							key={option?.id ?? idx}
 							className="filterPopUpOption"
-							onClick={() => onOptionClick(option)}
+							onClick={() => {
+								setSelectedOption(idx);
+								onOptionClick(option);
+							}}
 						>
 							<span>{option?.name ?? option?.title}</span>
+							{selectedOption === idx && <Tick />}
 						</div>
 					))}
 				</InfiniteScroll>
