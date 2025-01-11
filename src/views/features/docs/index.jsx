@@ -132,10 +132,12 @@ export const statusTextmapper = {
 
 const statusList = [
 	...Object.values(statusTextmapper).map((item) => {
-		return {
-			name: item.label,
-			_id: item.id,
-		};
+		if (item?.label !== 'Expired') {
+			return {
+				name: item.label,
+				_id: item.id,
+			};
+		}
 	}),
 ];
 
