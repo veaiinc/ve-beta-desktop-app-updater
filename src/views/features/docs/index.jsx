@@ -157,6 +157,57 @@ export const DocsStatusButton = ({ content = '', style = {}, textStyle = {}, dot
 		</div>
 	);
 };
+
+const Filters = [
+	{
+		label: (
+			<div className="filterContainer">
+				<UppercaseLowercaseA />
+				<span>Template Name</span>
+			</div>
+		),
+		value: 'templateName',
+		filterOptionsListName: 'templatesList',
+		displayValue: 'Template Name',
+		valueSelector: {
+			filter: 'templateName',
+			filterOptionsListName: 'templatesList',
+			label: 'Template Name',
+		},
+	},
+	{
+		label: (
+			<div className="filterContainer">
+				<MailLetter />
+				<span>Client Name</span>
+			</div>
+		),
+		value: 'clientName',
+		filterOptionsListName: 'clientList',
+		displayValue: 'Client Name',
+		valueSelector: {
+			filter: 'clientName',
+			filterOptionsListName: 'clientList',
+			label: 'Client Name',
+		},
+	},
+	{
+		label: (
+			<div className="filterContainer">
+				<StatusCircle />
+				<span>Status</span>
+			</div>
+		),
+		value: 'status',
+		filterOptionsListName: 'statusList',
+		displayValue: 'Status',
+		valueSelector: {
+			filter: 'status',
+			filterOptionsListName: 'statusList',
+			label: 'Status',
+		},
+	},
+];
 const Docs = () => {
 	let {
 		templates: {
@@ -228,57 +279,6 @@ const Docs = () => {
 		timeout: null,
 		filtersGotChanged: false,
 	});
-
-	const Filters = [
-		{
-			label: (
-				<div className="filterContainer">
-					<UppercaseLowercaseA />
-					<span>Template Name</span>
-				</div>
-			),
-			value: 'templateName',
-			filterOptionsListName: 'templatesList',
-			displayValue: 'Template Name',
-			valueSelector: {
-				filter: 'templateName',
-				filterOptionsListName: 'templatesList',
-				label: 'Template Name',
-			},
-		},
-		{
-			label: (
-				<div className="filterContainer">
-					<MailLetter />
-					<span>Client Name</span>
-				</div>
-			),
-			value: 'clientName',
-			filterOptionsListName: 'clientList',
-			displayValue: 'Client Name',
-			valueSelector: {
-				filter: 'clientName',
-				filterOptionsListName: 'clientList',
-				label: 'Client Name',
-			},
-		},
-		{
-			label: (
-				<div className="filterContainer">
-					<StatusCircle />
-					<span>Status</span>
-				</div>
-			),
-			value: 'status',
-			filterOptionsListName: 'statusList',
-			displayValue: 'Status',
-			valueSelector: {
-				filter: 'status',
-				filterOptionsListName: 'statusList',
-				label: 'Status',
-			},
-		},
-	];
 
 	useEffect(() => {
 		getDocsFilesListFunc(1);
