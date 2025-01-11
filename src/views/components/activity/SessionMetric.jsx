@@ -17,7 +17,14 @@ import { ReactComponent as ButtonInteractionSvg } from '../../../assets/svg/acti
 import Skeleton from 'react-loading-skeleton';
 import Spinner from '../loaders/Spinner.jsx';
 
-const SessionMetric = ({ title, labelsData, labelItemsData, loading, formatTime }) => {
+const SessionMetric = ({
+	title,
+	labelsData,
+	labelItemsData,
+	loading,
+	formatTime,
+	showChartToolTip = true,
+}) => {
 	const [info, setInfo] = useState({
 		isLabelSelected: false,
 		activeLabelItem: null,
@@ -140,6 +147,7 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading, formatTime 
 						}
 						title={title}
 						COLORS={info?.COLORS}
+						showToolTip={showChartToolTip}
 					/>
 				)}
 			</div>
@@ -163,7 +171,7 @@ const SessionMetric = ({ title, labelsData, labelItemsData, loading, formatTime 
 									key={index}
 								/>
 							))
-						) : info?.labelsData?.length === 0 ? (
+						) : info?.labelsData?.length === 0 || !info?.labelsData ? (
 							<div
 								style={{
 									display: 'flex',

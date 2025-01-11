@@ -7,17 +7,27 @@ import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as UppercaseLowercaseA } from '../../../assets/svg/docs/uppercase-lowercase-a.svg';
 import { ReactComponent as MailLetter } from '../../../assets/svg/docs/mail-letter.svg';
 import { ReactComponent as StatusCircle } from '../../../assets/svg/docs/status-circle.svg';
-import { ReactComponent as DownArrowPurple } from '../../../assets/svg/docs/down-arrow-purple.svg';
+import { ReactComponent as CrossPurple } from '../../../assets/svg/docs/cross-purple.svg';
+
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Sidebar from '../../components/docs/Sidebar';
 import DropDown from '../../components/dropDown/tasks/DropDown';
+import FilterPopUp from '../../components/globalComponents/FilterPopUp';
+
 import Skeleton from 'react-loading-skeleton';
 import SendProposalModal from '../../components/modalsV2/proposalModals/SendProposalModal';
 import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
-import { Spin } from 'antd';
+import { Spin, Tooltip } from 'antd';
 let origin = fetchOriginSelection();
+
+const payload = {
+	filters: {
+		page: 1,
+		limit: 10,
+	},
+};
 
 const staticCreateActions = [
 	{
@@ -42,6 +52,7 @@ const staticCreateActions = [
 
 export const statusTextmapper = {
 	filesViewed: {
+		id: 'filesViewed',
 		text: 'Files Viewed',
 		dotStyle: {
 			backgroundColor: '#2A71CD',
@@ -49,8 +60,10 @@ export const statusTextmapper = {
 		style: {
 			backgroundColor: '#29456C',
 		},
+		label: 'Files Viewed',
 	},
 	enquiry: {
+		id: 'enquiry',
 		text: 'Enquiry',
 		dotStyle: {
 			backgroundColor: '#2A71CD',
@@ -58,8 +71,10 @@ export const statusTextmapper = {
 		style: {
 			backgroundColor: '#29456C',
 		},
+		label: 'Enquiry',
 	},
 	filesSent: {
+		id: 'filesSent',
 		text: 'Sent',
 		dotStyle: {
 			backgroundColor: '#2A71CD',
@@ -67,8 +82,10 @@ export const statusTextmapper = {
 		style: {
 			backgroundColor: '#29456C',
 		},
+		label: 'Sent',
 	},
 	confirmed: {
+		id: 'confirmed',
 		text: 'Confirmed',
 		dotStyle: {
 			backgroundColor: '#00A051',
@@ -76,8 +93,10 @@ export const statusTextmapper = {
 		style: {
 			backgroundColor: '#2C593F',
 		},
+		label: 'Confirmed',
 	},
 	expired: {
+		id: 'expired',
 		text: 'Expired',
 		dotStyle: {
 			backgroundColor: '#E27B1C',
@@ -85,8 +104,10 @@ export const statusTextmapper = {
 		style: {
 			backgroundColor: 'rgba(125, 79, 39, 1)',
 		},
+		label: 'Expired',
 	},
 	accepted: {
+		id: 'accepted',
 		text: 'Accepted',
 		dotStyle: {
 			backgroundColor: '#00A051',
@@ -94,8 +115,10 @@ export const statusTextmapper = {
 		style: {
 			backgroundColor: '#2C593F',
 		},
+		label: 'Accepted',
 	},
 	proposalAccepted: {
+		id: 'proposalAccepted',
 		text: 'Accepted',
 		dotStyle: {
 			backgroundColor: '#00A051',
@@ -103,8 +126,18 @@ export const statusTextmapper = {
 		style: {
 			backgroundColor: '#2C593F',
 		},
+		label: 'Proposal Accepted',
 	},
 };
+
+const statusList = [
+	...Object.values(statusTextmapper).map((item) => {
+		return {
+			name: item.label,
+			_id: item.id,
+		};
+	}),
+];
 
 const FilterIcons = {
 	templateName: <UppercaseLowercaseA />,
@@ -133,6 +166,12 @@ const Docs = () => {
 			smartFileInfo,
 			getLatestSendSmartFileSettings,
 			sendSmartFileSettings,
+			templatesListForDocs,
+			getTemplatesListForDocs,
+			clientListForDocs,
+			getClientListForDocs,
+			getTemplatesListForCreateLead,
+			templatesListForCreateLead,
 			updateProposal,
 			updateContracts,
 			updateInvoice,
@@ -152,6 +191,25 @@ const Docs = () => {
 		searchExpand: false,
 		searchValue: '',
 		appliedFilters: [],
+		activeAppliedFilter: '',
+		selectedFilterOptions: {
+			templateName: null,
+			clientName: null,
+			status: null,
+		},
+		clientList: [],
+		templatesList: [],
+		statusList: [...statusList],
+		hasMoreForFilter: {
+			templateName: false,
+			clientName: false,
+			status: false,
+		},
+		currentPageForFilter: {
+			templateName: 1,
+			clientName: 1,
+			status: 1,
+		},
 		sendSmartFileModal: false,
 		assisstanceData: null,
 		workflowExpiryAt: '',
@@ -165,42 +223,94 @@ const Docs = () => {
 		needRefetch: false,
 		copyModal: false,
 		copyLink: '',
+		timeout: null,
+		filtersGotChanged: false,
 	});
 
 	const Filters = [
 		{
 			label: (
-				<div onClick={() => handleSetFilter('templateName')} className="filterContainer">
+				<div
+					onClick={() =>
+						handleSetActiveFilter('templateName', 'templatesList', 'Template Name')
+					}
+					className="filterContainer"
+				>
 					<UppercaseLowercaseA />
 					<span>Template Name</span>
 				</div>
 			),
 			value: 'templateName',
+			filterOptionsListName: 'templatesList',
 		},
 		{
 			label: (
-				<div onClick={() => handleSetFilter('clientName')} className="filterContainer">
+				<div
+					onClick={() => handleSetActiveFilter('clientName', 'clientList', 'Client Name')}
+					className="filterContainer"
+				>
 					<MailLetter />
 					<span>Client Name</span>
 				</div>
 			),
 			value: 'clientName',
+			filterOptionsListName: 'clientList',
 		},
 		{
 			label: (
-				<div onClick={() => handleSetFilter('status')} className="filterContainer">
+				<div
+					onClick={() => handleSetActiveFilter('status', 'statusList', 'Status')}
+					className="filterContainer"
+				>
 					<StatusCircle />
 					<span>Status</span>
 				</div>
 			),
 			value: 'status',
+			filterOptionsListName: 'statusList',
 		},
 	];
 
 	useEffect(() => {
 		getDocsFilesListFunc(1);
+		getClientListForDocs(payload);
+		getTemplatesListForDocs();
 		getLatestSendSmartFileSettings();
 	}, []);
+
+	useEffect(() => {
+		if (templatesListForDocs) {
+			setInfo((prev) => ({
+				...prev,
+				templatesList: [...prev?.templatesList, ...templatesListForDocs?.data],
+				hasMoreForFilter: {
+					...prev?.hasMoreForFilter,
+					templateName: templatesListForDocs?.hasNextPage,
+				},
+				currentPageForFilter: {
+					...prev?.currentPageForFilter,
+					templateName: templatesListForDocs?.currentPage,
+				},
+			}));
+		}
+	}, [templatesListForDocs]);
+
+	useEffect(() => {
+		if (clientListForDocs) {
+			setInfo((prev) => ({
+				...prev,
+				clientList: [...prev?.clientList, ...clientListForDocs?.data],
+				hasMoreForFilter: {
+					...prev?.hasMoreForFilter,
+					clientName: clientListForDocs?.hasNextPage,
+				},
+				currentPageForFilter: {
+					...prev?.currentPageForFilter,
+					clientName: clientListForDocs?.currentPage,
+				},
+			}));
+		}
+	}, [clientListForDocs]);
 
 	useEffect(() => {
 		if (docsFilesList) {
@@ -262,28 +372,105 @@ const Docs = () => {
 		}
 	}, [tennantSettingsData, info?.activeFileData, info?.sendSmartFileModal]);
 
-	const handleSetFilter = (filter) => {
-		setInfo((prev) => ({ ...prev, appliedFilters: [...prev.appliedFilters, filter] }));
+	useEffect(() => {
+		if (info?.filtersGotChanged) {
+			handleDebounceFetch();
+		}
+	}, [info?.selectedFilterOptions, info?.searchValue, info?.filtersGotChanged]);
+
+	const handleSetActiveFilter = (filter, filterOptionsListName, label) => {
+		if (info?.appliedFilters?.some((appliedFilter) => appliedFilter.filter === filter)) return;
+		setInfo((prev) => ({
+			...prev,
+			appliedFilters: [
+				...prev.appliedFilters,
+				{
+					filter,
+					label,
+					filterOptionsListName,
+				},
+			],
+		}));
+	};
+
+	const handleSetFilterOptions = (option, filter) => {
+		if (info?.selectedFilterOptions?.[filter]?._id === option?._id) return;
+		setInfo((prev) => ({
+			...prev,
+			selectedFilterOptions: {
+				...prev?.selectedFilterOptions,
+				[filter]: option,
+			},
+			filtersGotChanged: true,
+		}));
+	};
+
+	const handleRemoveSelectedFilter = (filter) => {
+		setInfo((prev) => ({
+			...prev,
+			selectedFilterOptions: {
+				...prev?.selectedFilterOptions,
+				[filter]: null,
+			},
+			appliedFilters: prev?.appliedFilters?.filter(
+				(appliedFilter) => appliedFilter?.filter !== filter,
+			),
+		}));
+	};
+
+	const handleFilterPopUpSearch = (searchValue) => {
+		setInfo((prev) => ({ ...prev, searchValue, filtersGotChanged: true }));
 	};
 
 	const onGenerateAIFunc = () => {
 		window.location.href = `${origin}/generate`;
 	};
 
-	const getDocsFilesListFunc = useCallback(async (page, fetchMore = false) => {
-		const payload = {
-			filters: {
-				limit: 30,
-				page: page,
-			},
-		};
+	const getDocsFilesListFunc = useCallback(
+		async (page, fetchMore = false) => {
+			const payload = {
+				filters: {
+					limit: 30,
+					page: page,
+					title: info?.searchValue,
+				},
+			};
 
-		getDocsFilesList(payload, fetchMore);
-	}, []);
+			console.log('info?.selectedFilterOptions', info?.selectedFilterOptions);
+
+			if (info?.selectedFilterOptions?.templateName) {
+				payload.filters.templateId = info?.selectedFilterOptions?.templateName?._id;
+			}
+			if (info?.selectedFilterOptions?.clientName) {
+				payload.filters.clientId = info?.selectedFilterOptions?.clientName?._id;
+			}
+			if (info?.selectedFilterOptions?.status) {
+				payload.filters.status = info?.selectedFilterOptions?.status?._id;
+			}
+			getDocsFilesList(payload, fetchMore);
+		},
+		[info?.searchValue, info?.selectedFilterOptions],
+	);
 
 	const fetcMoreDocsFilesList = useCallback(async () => {
 		getDocsFilesListFunc(info?.currentPage + 1, true);
 	}, [info?.currentPage]);
+
+	const fetchMoreDocs = (filter) => {
+		if (filter === 'clientName') {
+			const payload = {
+				filters: {
+					limit: 10,
+					page: info?.currentPageForFilter?.clientName + 1,
+				},
+			};
+			getClientListForDocs(payload);
+		} else if (filter === 'templateName') {
+			const page = info?.currentPageForFilter?.templateName + 1;
+			const limit = 10;
+			getTemplatesListForDocs(page, limit);
+		}
+	};
 
 	const parseDocsFilesListDeatils = useCallback(async (variableType, fetchMore = false) => {
 		let { hasNextPage, currentPage, data } = variableType || {};
@@ -475,6 +662,19 @@ const Docs = () => {
 		}
 	}, [smartFileInfo, updateWorkspaceVariablesFunc, info?.activeFileData]);
 
+	const handleDebounceFetch = useCallback(() => {
+		clearInterval(info?.timeout);
+		const timeout = setTimeout(() => {
+			getDocsFilesListFunc(1);
+			setInfo((prev) => ({
+				...prev,
+				loading: true,
+				timeout: null,
+			}));
+		}, 800);
+		setInfo((prev) => ({ ...prev, timeout }));
+	}, [info?.timeout, info?.searchValue, info?.searchValueChanged, info?.selectedFilterOptions]);
+
 	return (
 		<div className="docsParentContainer">
 			<div className="docsParentHeaderContainer">
@@ -513,12 +713,65 @@ const Docs = () => {
 					<div className="docsFileHeaderContainerTitle">
 						<span>Files</span>
 						<div className="appliedFiltersContainer">
-							{info?.appliedFilters?.map((filter) => (
-								<div className="appliedFilter">
-									{FilterIcons?.[filter]}
-									<span className="filter">{filter} :</span>
-									<DownArrowPurple />
-								</div>
+							{info?.appliedFilters?.map((appliedFilter, idx) => (
+								<Tooltip
+									key={idx}
+									trigger="click"
+									arrow={false}
+									color="transparent"
+									onOpenChange={(isOpen) => {
+										if (!isOpen) {
+											setInfo((prev) => ({
+												...prev,
+												searchValue: '',
+											}));
+										}
+									}}
+									overlayClassName="filterTooltipPopUpContainer"
+									placement="bottomLeft"
+									title={
+										<FilterPopUp
+											className={`${appliedFilter?.filter}`}
+											height="268px"
+											options={info?.[appliedFilter?.filterOptionsListName]}
+											onOptionClick={(option) =>
+												handleSetFilterOptions(
+													option,
+													appliedFilter?.filter,
+												)
+											}
+											fetchMoreOptions={() =>
+												fetchMoreDocs(appliedFilter?.filter)
+											}
+											hasMoreOptions={
+												info?.hasMoreForFilter?.[appliedFilter?.filter]
+											}
+											searchInput={true}
+											searchInputPlaceholder="Filter By"
+											searchValue={info?.searchValue}
+											setSearchValue={handleFilterPopUpSearch}
+										/>
+									}
+								>
+									<div className="appliedFilter">
+										{FilterIcons?.[appliedFilter?.filter]}
+										<span className="filter">
+											{appliedFilter?.label} :{' '}
+											{info?.selectedFilterOptions?.[appliedFilter?.filter]
+												?.name ??
+												info?.selectedFilterOptions?.[appliedFilter?.filter]
+													?.title ??
+												''}
+										</span>
+										<span
+											onClick={() =>
+												handleRemoveSelectedFilter(appliedFilter?.filter)
+											}
+										>
+											<CrossPurple />
+										</span>
+									</div>
+								</Tooltip>
 							))}
 						</div>
 					</div>
@@ -584,7 +837,12 @@ const Docs = () => {
 						<DropDown
 							title="Add Filters"
 							options={Filters}
-							onOptionClick={() => console.log('option clicked')}
+							containerStyles={{
+								borderRadius: '14px',
+								background: '#202123',
+								boxShadow: '0px 2px 44px 0px rgba(0, 0, 0, 0.25)',
+							}}
+							onOptionClick={() => {}}
 							valueSelector="value"
 						>
 							<Filter style={{ width: '20px', height: '20px', marginTop: '6px' }} />

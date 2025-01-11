@@ -1,9 +1,12 @@
 import React, { memo } from 'react';
 
-const RequiredActions = () => {
+const RequiredActions = ({ data }) => {
+	console.log('RequiredActions', data);
 	return (
 		<div className="requiredActionsWrapper">
-			<div className="requiredAction">Counter Sign the Contract</div>
+			<div className="requiredAction">
+				{data?.requiredAction?.action || 'No Action Required'}
+			</div>
 			<div className="requiredActionBtn">Sign Contract</div>
 		</div>
 	);
