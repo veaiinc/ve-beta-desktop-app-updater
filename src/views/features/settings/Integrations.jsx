@@ -4,32 +4,96 @@ import meta from '../../../assets/svg/Settings/meta.svg';
 import stripe from '../../../assets/svg/Settings/stripe.svg';
 import paypal from '../../../assets/svg/Settings/paypal.svg';
 import square from '../../../assets/svg/Settings/square.svg';
+import zoho from '../../../assets/svg/Settings/zoho-logo.svg';
+import slack from '../../../assets/svg/Settings/slack.svg';
+import hubspot from '../../../assets/svg/Settings/hubspot.svg';
 import '../../../assets/scss/settings/integrations.scss';
 import Context from '../../../context/context';
 import ReusableButtonSettings from '../../components/settings/ReusableButtonSettings';
 import { ve_conversations_api } from '../../../services/config.live';
 import axios from 'axios';
+import { message, Spin } from 'antd';
 
-const Configs = [
-	{ isActive: false, title: 'Google', icon: google },
-	{ isActive: false, title: 'Stripe', icon: stripe },
-	{ isActive: false, title: 'Paypal', icon: paypal },
-	{ isActive: false, title: 'Square', icon: square },
+const availableIntegrations = [
+	{
+		title: 'Google',
+		icon: google,
+		connect_type: 'google',
+		hasConfigure: true,
+	},
+	{ title: 'Zoho', icon: zoho, connect_type: 'zoho', hasConfigure: false },
+	// {
+	// 	title: 'Hubspot',
+	// 	icon: hubspot,
+	// 	connect_type: 'hubspot',
+	// 	hasConfigure: false,
+	// },
+	{ title: 'Slack', icon: slack, connect_type: 'slack', hasConfigure: false },
+];
+
+const upcommingIntegrations = [
+	{
+		title: 'Meta',
+		icon: meta,
+		connect_type: 'meta',
+		hasConfigure: true,
+	},
+	{
+		title: 'Stripe',
+		icon: stripe,
+		connect_type: 'not_available',
+	},
+	{
+		title: 'Paypal',
+		icon: paypal,
+		connect_type: 'not_available',
+	},
+	{
+		title: 'Square',
+		icon: square,
+		connect_type: 'not_available',
+	},
 ];
 
 const Integrations = () => {
 	const {
 		chatInfo: { getPageInfo, pageInfoData },
+		templates: { connectUrl, connectThirdParty },
+		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		metaInteg: false,
 		openMoreFacebook: false,
 		loader: false,
+		connectedThirdParties: { google: false, zoho: false, hubspot: false, slack: false },
+		clickLoader: '',
 	});
-	// useEffect(() => {
-	// 	fetchMetaInfo();
-	// }, []);
+
+	useEffect(() => {
+		if (connectUrl?.[0] === true) {
+			window.location.href = connectUrl?.[1];
+		} else {
+			if (connectUrl !== null) {
+				message?.error(
+					connectUrl?.[1]?.message || `error connecting with ${info?.clickLoader}`,
+				);
+				setInfo((prev) => ({ ...prev, clickLoader: false }));
+			}
+		}
+	}, [connectUrl]);
+
+	useEffect(() => {
+		if (tennantSettingsData !== null && tennantSettingsData?.zoho) {
+			setInfo((prev) => ({
+				...prev,
+				connectedThirdParties: {
+					...prev.connectedThirdParties,
+					zoho: tennantSettingsData?.zoho?.isEnabled,
+				},
+			}));
+		}
+	}, [tennantSettingsData]);
 
 	useEffect(() => {
 		if (pageInfoData) {
@@ -53,6 +117,18 @@ const Integrations = () => {
 		};
 		getPageInfo(payload);
 	}, []);
+
+	const handleConnectThirdParty = async (connectType) => {
+		setInfo((prev) => ({
+			...prev,
+			loader: true,
+		}));
+		await connectThirdParty(connectType);
+		setInfo((prev) => ({
+			...prev,
+			loader: false,
+		}));
+	};
 
 	const functionsObject = {
 		handleFaceBookConnection: async () => {
@@ -100,7 +176,7 @@ const Integrations = () => {
 
 			<div className="integrationsTypes">
 				{/* meta */}
-				<div className="integrationSingleList">
+				{/* <div className="integrationSingleList">
 					<div className="imageContainer">
 						<img src={meta} alt="meta" />
 						<div className="textContainer">
@@ -139,43 +215,63 @@ const Integrations = () => {
 					</div>
 
 					{info.openMoreFacebook && <div className="activeCirlce"></div>}
-				</div>
+				</div> */}
 
-				{/* other only static  */}
-				{Configs.map((singleIntegration) => {
+				{availableIntegrations?.map((singleIntegration) => {
 					return (
 						<div className="integrationSingleList" key={singleIntegration?.title}>
 							<div className="imageContainer">
-								<img src={singleIntegration.icon} alt="meta" />
+								<img src={singleIntegration?.icon} alt="meta" />
 								<div className="textContainer">
-									<h1>{singleIntegration.title}</h1>
+									<h1>{singleIntegration?.title}</h1>
 								</div>
 							</div>
 
 							<div className="buttonsContainer">
-								{singleIntegration.isActive ? (
+								{info?.connectedThirdParties?.[singleIntegration?.connect_type] ===
+								true ? (
 									<>
 										<div className="disconnectButton">
 											<ReusableButtonSettings
 												text={'Disconnect'}
-												loader={info.loader}
-												active={info.metaInteg}
-												disableHover={!info.metaInteg}
+												loader={info?.loader}
+												active={info?.metaInteg}
+												disableHover={!info?.metaInteg}
 											/>
 										</div>
 
-										<div className="configButton">
-											<ReusableButtonSettings text={'Configure'} />
-										</div>
+										{singleIntegration?.hasConfigure && (
+											<div className="configButton">
+												<ReusableButtonSettings text={'Configure'} />
+											</div>
+										)}
 									</>
 								) : (
 									<div className="connectButton">
-										<ReusableButtonSettings text={'Connect'} />
+										<ReusableButtonSettings
+											text={
+												info?.clickLoader === singleIntegration?.title ? (
+													<Spin />
+												) : (
+													'Connect'
+												)
+											}
+											func={() => {
+												setInfo((prev) => ({
+													...prev,
+													clickLoader: singleIntegration?.title,
+												}));
+												handleConnectThirdParty(
+													singleIntegration?.connect_type,
+												);
+											}}
+											// loader={info?.loader}
+										/>
 									</div>
 								)}
 							</div>
 
-							{singleIntegration.isActive && <div className="activeCirlce"></div>}
+							{singleIntegration.isConnected && <div className="activeCirlce"></div>}
 						</div>
 					);
 				})}

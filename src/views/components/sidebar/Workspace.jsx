@@ -1,15 +1,18 @@
-import React, { memo, useCallback, useContext } from 'react';
+import React, { memo, useCallback, useContext, useState } from 'react';
 import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
+import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
+import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import Cookies from 'js-cookie';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Context from '../../../context/context';
-import { fetchDomainName } from '../../../helpers';
-
+import useLogout from '../../hooks/useLogout';
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
 	const navigate = useNavigate();
 	const { galleryId } = useParams();
+	const logoutFunc = useLogout();
+	const [searchWorkspace, setSearchWorkspace] = useState('');
 
 	const {
 		profileInfo: { userDetailsData },
@@ -19,99 +22,154 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 		setsidebarStates({ ...sidebarStates, workSpaceOpen: false, navStyle: 'open' });
 	};
 
-	const handleSwitchWorkSpaceLogic = useCallback((data) => {
-		const { activeWorkspaceId, isOnboard } = data;
-		const workspaceId = localStorage.getItem('workspaceId');
-		if (workspaceId === activeWorkspaceId) {
-			return;
-		}
-		const host = fetchDomainName();
-		localStorage.setItem('workspaceId', activeWorkspaceId);
-		localStorage.setItem('isOnboard', isOnboard);
-		Cookies.set('workspaceID', activeWorkspaceId, {
-			sameSite: 'lax',
-			domain: host,
-		});
-
-		const currentRegion = localStorage.getItem('region');
-		let newWorkspaceRegion;
-		for (let i = 0; i < userWorkSpaceList?.length; i++) {
-			if (userWorkSpaceList?.[i]?.activeWorkspaceId === activeWorkspaceId) {
-				newWorkspaceRegion = userWorkSpaceList?.[i]?.region;
-				break;
+	const filteredWorkspaces = userWorkSpaceList?.filter((workspace) =>
+		workspace?.businessName?.toLowerCase().includes(searchWorkspace.toLowerCase()),
+	);
+	const handleSwitchWorkSpaceLogic = useCallback(
+		(data) => {
+			const { activeWorkspaceId, isOnboard } = data;
+			const workspaceId = localStorage.getItem('workspaceId');
+			if (workspaceId === activeWorkspaceId) {
+				return;
 			}
-		}
-		if (newWorkspaceRegion !== currentRegion) {
-			localStorage.setItem('region', newWorkspaceRegion);
-			Cookies.set('region', newWorkspaceRegion, {
+			localStorage.setItem('workspaceId', activeWorkspaceId);
+			localStorage.setItem('isOnboard', isOnboard);
+			Cookies.set('workspaceID', activeWorkspaceId, {
 				sameSite: 'lax',
-				domain: host,
+				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
 			});
-		}
-		if (galleryId) {
-			navigate(`/home`);
-		}
 
-		window.location.reload();
-	}, []);
+			const currentRegion = localStorage.getItem('region');
+			let newWorkspaceRegion;
+			for (let i = 0; i < userWorkSpaceList?.length; i++) {
+				if (userWorkSpaceList?.[i]?.activeWorkspaceId === activeWorkspaceId) {
+					newWorkspaceRegion = userWorkSpaceList?.[i]?.region;
+					break;
+				}
+			}
+			if (newWorkspaceRegion !== currentRegion) {
+				localStorage.setItem('region', newWorkspaceRegion);
+				Cookies.set('region', newWorkspaceRegion, {
+					sameSite: 'lax',
+					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				});
+			}
+			window.location.reload();
+		},
+		[userWorkSpaceList],
+	);
 
 	const handleCreateWorkspace = () => {
-		const username = userDetailsData?.firstName ?? '';
-		navigate(`/onboarding?username=${username}`);
+		navigate(`/create-workspace`);
 	};
 
+	const handleLogout = useCallback(() => {
+		logoutFunc();
+	}, [logoutFunc]);
+
 	return (
-		<div className="workspaceListComponent">
-			<div className="backContinaer" onClick={closeWorkspaceList}>
-				<ArrowLeftSvg />
-				<h6>Switch Workspace</h6>
-			</div>
-
-			<div className="workspaceList">
-				{userWorkSpaceList.map((singleWorkspace, index) => (
-					<div
-						key={singleWorkspace?.activeWorkspaceId}
-						className={`singleWorkspace ${
-							singleWorkspace?.activeWorkspaceId ===
-							info?.activeBusniessName?.activeWorkspaceId
-								? 'activeWorkspace'
-								: ''
-						}`}
-						onClick={() => {
-							handleSwitchWorkSpaceLogic(singleWorkspace);
-						}}
-					>
-						<div className="workSpaceCircle">
-							{singleWorkspace?.logo_s3_500w_key ? (
-								<img
-									src={singleWorkspace?.logo_s3_500w_key}
-									alt={singleWorkspace?.businessName}
-								/>
-							) : (
-								<div className="no-logo">
-									{singleWorkspace?.businessName?.slice(0, 2)}
-								</div>
-							)}
+		<>
+			{sidebarStates?.workSpaceOpen && (
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						backgroundColor: '#0a0a0b',
+						opacity: 0.5,
+						height: '100vh',
+						zIndex: 997,
+						cursor: 'pointer',
+					}}
+					onClick={closeWorkspaceList}
+				/>
+			)}
+			<div className="workspaceListComponent">
+				<div className="workspaceListHeader">
+					<div className="backContinaer" onClick={closeWorkspaceList}>
+						<ArrowLeftSvg />
+						<h6>Switch Workspace</h6>
+					</div>
+					{userWorkSpaceList?.length > 10 && (
+						<div className="searchContainer">
+							{!searchWorkspace && <SearchSvg className="searchIcon" />}
+							<input
+								type="text"
+								placeholder="Search"
+								className="searchWorkspace"
+								onChange={(e) => setSearchWorkspace(e.target.value)}
+							/>
 						</div>
-						<h6>{singleWorkspace?.businessName}</h6>
-
-						{singleWorkspace?.activeWorkspaceId ===
-							info?.activeBusniessName?.activeWorkspaceId && (
-							<div className="activeWorkspaceCheck">
-								<CircletickwhiteSvg />
-							</div>
-						)}
-					</div>
-				))}
-
-				<div className="singleWorkspace">
-					<div className="workSpaceCircle" onClick={handleCreateWorkspace}>
-						<PlusSvg fill={'#5d43fb'} />
-					</div>
-					<h6>Create Workspace</h6>
+					)}
 				</div>
+				{userWorkSpaceList ? (
+					<div className="workspaceList">
+						{filteredWorkspaces?.map((singleWorkspace, index) => (
+							<div
+								key={singleWorkspace?.activeWorkspaceId}
+								className={`singleWorkspace ${
+									singleWorkspace?.activeWorkspaceId ===
+									info?.activeBusniessName?.activeWorkspaceId
+										? 'activeWorkspace'
+										: ''
+								}`}
+								onClick={() => {
+									handleSwitchWorkSpaceLogic(singleWorkspace);
+								}}
+							>
+								<h6>{singleWorkspace?.businessName}</h6>
+								<div className="workSpaceCircle">
+									{singleWorkspace?.logo_s3_500w_key ? (
+										<img
+											src={singleWorkspace?.logo_s3_500w_key}
+											alt={singleWorkspace?.businessName}
+										/>
+									) : (
+										''
+										// <div className="no-logo">
+										// 	{/* {singleWorkspace?.businessName?.slice(0, 2)} */}
+										// </div>
+									)}
+								</div>
+
+								{/* {singleWorkspace?.activeWorkspaceId ===
+								info?.activeBusniessName?.activeWorkspaceId && (
+								<div className="activeWorkspaceCheck">
+									<CircletickwhiteSvg />
+								</div>
+							)} */}
+							</div>
+						))}
+
+						<div className="workspaceListFooter">
+							<hr
+								style={{
+									border: '0.7px solid #333334',
+									width: '212px',
+									alignSelf: 'center',
+								}}
+							/>
+							<div className="singleWorkspace" onClick={handleCreateWorkspace}>
+								<h6>Add Workspace</h6>
+								<div className="workSpaceCircle">
+									<PlusSvg />
+								</div>
+							</div>
+							<div className="singleWorkspace logoutOption" onClick={handleLogout}>
+								<h6 style={{ color: '#D73A49' }}>Logout</h6>
+								<div className="workSpaceCircle">
+									<LogoutRedSvg />
+								</div>
+							</div>
+						</div>
+					</div>
+				) : (
+					''
+				)}
 			</div>
-		</div>
+		</>
 	);
 };
 

@@ -29,8 +29,8 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 				tennatUserFromWorkspace: tennatUserFromWorkspace,
 			});
 
-			let isHavingAccess = menuItems?.[tennatUserFromWorkspace?.role || 'default']?.includes(
-				location.pathname.split('/')[2],
+			let isHavingAccess = menuItems?.[tennatUserFromWorkspace?.role || 'default']?.find(
+				(item) => location.pathname.split('/')[2] === item?.id,
 			);
 
 			!isHavingAccess &&
@@ -45,8 +45,7 @@ const SettingsPageSideBar = ({ type, setType1 }) => {
 	};
 
 	const handleCreateWorkspace = () => {
-		const username = userDetailsData?.firstName ?? '';
-		navigate(`/onboarding?username=${username}`);
+		navigate(`/create-workspace`);
 	};
 
 	return (

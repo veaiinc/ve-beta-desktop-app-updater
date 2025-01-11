@@ -11,7 +11,7 @@ import { message } from 'antd';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 
-const Email = ({ email, setEmail, setActiveStage, setEmailVerified, cookiesAccepted }) => {
+const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	const arrowRef = useRef(null);
 
 	let {
@@ -45,6 +45,11 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified, cookiesAccep
 			handleGetAndSetReferrerUserName();
 		}
 		handleLocationDetailsData();
+		const isValid = validator?.isEmail(email);
+		setInfo((prev) => ({
+			...prev,
+			isEmailValid: isValid,
+		}));
 	}, []);
 
 	useEffect(() => {
@@ -96,7 +101,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified, cookiesAccep
 		return locationDetails;
 	}, []);
 
-	const handleCreateAccountWithEmail = async (email) => {
+	const handleCreateAccountWithEmail = async (email, referralCode = false) => {
 		if (info?.isLoading) return;
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 
@@ -105,7 +110,9 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified, cookiesAccep
 			locationDetails = await handleLocationDetailsData();
 		}
 
-		const response = await createAccountUsingEmail(email, info?.locationDetails);
+		const response = referralCode
+			? await createAccountUsingEmail(email, info?.locationDetails, referralCode)
+			: await createAccountUsingEmail(email, info?.locationDetails);
 		if (response[0] === true) {
 			setActiveStage('verificationCode');
 			setEmailVerified(false);
@@ -117,10 +124,6 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified, cookiesAccep
 	};
 
 	const handleContinueWithGoogle = async () => {
-		if (!cookiesAccepted) {
-			message?.info('Please accept cookies to continue');
-			return;
-		}
 		if (info?.googleLoading) {
 			return;
 		}
@@ -155,10 +158,6 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified, cookiesAccep
 			((e?.key === 'Enter' || type === 'click') && info?.isEmailValid && !info?.isLoading) ||
 			invitedUserEmail
 		) {
-			if (!cookiesAccepted) {
-				message?.info('Please accept cookies to continue');
-				return;
-			}
 			setInfo((prev) => ({ ...prev, isLoading: true }));
 			try {
 				const response = await checkAccountExistsUsingEmail(email || invitedUserEmail);
@@ -177,7 +176,12 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified, cookiesAccep
 							setActiveStage('verificationCode');
 						}
 					} else {
-						await handleCreateAccountWithEmail(email || invitedUserEmail);
+						referralCode
+							? await handleCreateAccountWithEmail(
+									email || invitedUserEmail,
+									referralCode,
+							  )
+							: await handleCreateAccountWithEmail(email || invitedUserEmail);
 					}
 				} else {
 					message?.error(response?.[1]?.message);

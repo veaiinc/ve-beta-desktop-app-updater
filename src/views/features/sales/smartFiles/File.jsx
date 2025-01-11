@@ -45,6 +45,7 @@ const File = ({
 			getAiPredictionForSmartFile,
 			aiPredictedData,
 		},
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -135,7 +136,7 @@ const File = ({
 				for (let k = 0; k < activeVersionData?.tables?.length; k++) {
 					const currentTableData = activeVersionData?.tables?.[k];
 
-					if (currentTableData?.type === 'events') {
+					if (currentTableData?.type === 'events' && updatedModules?.[i] === 'proposal') {
 						eventsTable?.push({
 							...currentTableData,
 							moduleType: updatedModules?.[i],
@@ -602,8 +603,11 @@ const File = ({
 	);
 
 	const duplicateTemplateFromSmartFile = useCallback(async () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		window.location.href = `${origin}/${workflowId}?workflow=true&templateId=${templateId}`;
-	}, [workflowId, templateId]);
+	}, [workflowId, templateId, validateExpiryData]);
 
 	const handleUpdateVaraiblesArray = useCallback(
 		async (updatedDuplicateVariableArray) => {
@@ -834,6 +838,10 @@ const File = ({
 					subBlocks[0].quantity = quantity;
 					subBlocks[0].show = show;
 					serviceDataMapped[i].data.ai_generated = true;
+					if (servicePrediction?.[i]?.subtotal) {
+						serviceDataMapped[i].data.ai_generated_subtotal =
+							servicePrediction?.[i]?.subtotal;
+					}
 				}
 				blocks[j].subBlocks = [...subBlocks];
 			}
@@ -857,13 +865,16 @@ const File = ({
 
 	const onChangeAiPrediction = useCallback(
 		(value) => {
+			if (validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
 			setInfo((prev) => ({ ...prev, useAiPredictions: value }));
 			if (value && aiPredictedData) {
 				generatePridictions();
 				setInfo((prev) => ({ ...prev, generatePredictionsLoading: true }));
 			}
 		},
-		[slug, aiPredictedData],
+		[slug, aiPredictedData, validateExpiryData],
 	);
 
 	const onAiGenerationRejection = useCallback(() => {

@@ -1,0 +1,287 @@
+// .calendarSelectorParentContainer {
+// 	display: flex;
+// 	padding: 16px;
+// 	height: auto;
+// 	min-height: 328px;
+// 	flex-direction: column;
+// 	align-items: center;
+// 	gap: 10px;
+// 	align-self: stretch;
+
+// 	border-radius: 24px;
+// 	border: 1px solid #272727;
+// 	background: #1d1d1d;
+
+// 	.rdp-root {
+// 		// Custom CSS variables
+// 		--rdp-accent-color: #808085;
+
+// 		.rdp-month_caption {
+// 			margin-bottom: 31px;
+// 		}
+
+// 		.rdp-caption_label {
+// 			color: #e4e5e6;
+// 			font-size: 14px;
+// 			font-style: normal;
+// 			font-weight: 500;
+// 			line-height: normal;
+// 		}
+
+// 		.rdp-nav {
+// 			display: flex;
+// 			gap: 8px;
+
+// 			> button {
+// 				display: flex;
+// 				width: 40px;
+// 				height: 40px;
+// 				flex-direction: column;
+// 				align-items: center;
+// 				border-radius: 8px;
+// 				border: 1px solid #272727;
+// 				background: rgba(36, 36, 36, 0.64);
+
+// 				.rdp-chevron {
+// 					fill: #e4e5e6;
+// 					stroke-width: 3px;
+// 				}
+// 			}
+// 		}
+
+// 		.rdp-weekday {
+// 			color: #e4e5e6;
+// 			opacity: 1;
+// 			font-size: 12px;
+// 			font-style: normal;
+// 			font-weight: 500;
+// 			line-height: normal;
+// 			padding: 4px;
+// 		}
+
+// 		.rdp-day_button {
+// 			color: #e4e5e6;
+// 			font-size: 12px;
+// 			font-style: normal;
+// 			font-weight: 500;
+// 			line-height: normal;
+// 			align-self: center;
+// 			height: 31px;
+// 			width: 31px;
+// 			margin: 5px;
+// 		}
+
+// 		.rdp-today {
+// 			button {
+// 				background-color: #736aee;
+// 				border-radius: 100px;
+// 				border: none;
+// 				box-shadow: 0px 0px 20px 0px rgba(96, 85, 236, 0.5);
+// 			}
+// 		}
+
+// 		.rdp-week {
+// 			padding: 10px;
+
+// 			&:has(.rdp-today) {
+// 				background-color: rgba(228, 229, 230, 0.05);
+// 			}
+// 		}
+
+// 		.rdp-selected {
+// 			button {
+// 				background-color: #6055ec;
+// 				border-radius: 100px;
+// 				opacity: 0.8;
+// 				box-shadow: 0px 0px 20px 0px rgba(96, 85, 236, 0.5);
+// 			}
+// 		}
+
+// 		.rdp-outside {
+// 			button {
+// 				color: rgba(228, 229, 230, 0.48);
+// 				opacity: 1;
+// 				font-size: 12px;
+// 				font-style: normal;
+// 				font-weight: 500;
+// 				line-height: normal;
+// 			}
+// 		}
+// 	}
+// }
+
+//Upper scss has been deprecated since using custom calendar; uncomment the upper scss if react-day-picker calendar component is used!!
+
+.calendarContainer {
+	font-family: Inter;
+	color: #e4e5e6;
+	width: 100%;
+	text-align: center;
+	background-color: #1d1d1d;
+	padding: 16px;
+	border-radius: 24px;
+	border: 1px solid #272727;
+	min-height: 364px;
+	display: flex;
+	flex-direction: column;
+
+	header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 31px;
+		width: 100%;
+
+		.calendarCaption {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 5px;
+			padding: 0 10px;
+
+			.captionMonth,
+			.captionYear {
+				color: #e4e5e6;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				position: relative;
+				cursor: pointer;
+				user-select: none;
+
+				.captionDropDown {
+					background-color: transparent;
+					display: inline-flex;
+					align-items: center;
+					justify-content: center;
+					border: none;
+					margin-left: 4px;
+				}
+
+				.monthSelectorContainer,
+				.yearSelectorContainer {
+					position: absolute;
+					display: flex;
+					flex-direction: column;
+					text-align: start;
+					left: 0;
+					background-color: #1d1d1d;
+					border: 2px solid #272727;
+					border-radius: 15px;
+					padding: 5px 3px;
+					max-height: 260px;
+					overflow-y: auto;
+
+					.monthName,
+					.yearList {
+						font-size: small;
+						font-weight: 400;
+						color: rgba(228, 229, 230, 0.48);
+						cursor: pointer;
+						padding: 2px 10px;
+
+						&:hover {
+							color: #e4e5e6;
+						}
+					}
+
+					.selectedMonth,
+					.selectedYear {
+						color: #e4e5e6;
+					}
+				}
+			}
+		}
+
+		.calendarNav {
+			display: flex;
+			gap: 10px;
+
+			> button {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 40px;
+				height: 40px;
+				padding: 10px;
+				border-radius: 8px;
+				border: 1px solid #272727;
+				background: rgba(36, 36, 36, 0.64);
+			}
+		}
+	}
+
+	.calendarDayNameGrid {
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		gap: 10px;
+		padding: 0 4px;
+		margin-bottom: 10px;
+
+		.calendarDayName {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.dateContainer {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		flex-grow: 1;
+
+		.dateRow {
+			display: grid;
+			grid-template-columns: repeat(7, 1fr);
+			gap: 10px;
+			padding: 4px;
+
+			&.highlightedRow {
+				border-radius: 100px;
+				background: rgba(228, 229, 230, 0.05);
+			}
+
+			.calendarDay {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				height: 31px;
+				width: 31px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 100px;
+				cursor: pointer;
+
+				&:hover {
+					background-color: #6259e7;
+				}
+
+				&.otherMonth {
+					color: rgba(228, 229, 230, 0.48);
+				}
+
+				&.selectedDay {
+					background-color: #6055ec;
+					color: white;
+					font-weight: bold;
+				}
+
+				&.currentDay {
+					border-radius: 24px;
+					background: rgba(96, 85, 236, 0.6);
+					border: 1px solid rgba(96, 85, 236, 1);
+					box-shadow: 0px 0px 20px 2px rgba(96, 85, 236, 0.7);
+				}
+			}
+		}
+	}
+}

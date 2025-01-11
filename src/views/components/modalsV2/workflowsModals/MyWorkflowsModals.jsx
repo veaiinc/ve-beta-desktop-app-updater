@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import '../../../../assets/scss/sales/myWorkflowModals.scss';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';

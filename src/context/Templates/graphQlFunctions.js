@@ -36,6 +36,7 @@ export const getTemmplatesQuery = gql`
 				filesSent
 				slug
 				actionRequired
+				createdAt
 			}
 		}
 	}
@@ -223,16 +224,18 @@ export const getWorkflowListQuery = gql`
 			hasNextPage
 			data {
 				_id
+				title
+				status
 				clientDetails {
 					_id
 					email
 					name
 				}
-				status
 				slug
 				modules
 				formResponse
 				requiredAction
+				templateId
 			}
 		}
 	}
@@ -423,5 +426,21 @@ export const updateSendSmartFileSettingsMutation = gql`
 export const getLatestSendSmartFileSettingsQuery = gql`
 	query Query {
 		getLatestWorkflowSettings
+	}
+`;
+
+export const getActivityLogsQuery = gql`
+	query ActivityLogs($filters: ActivityLogsFilterInput) {
+		activityLogs(filters: $filters) {
+			currentPage
+			data {
+				_id
+
+				timestamp
+
+				summary
+			}
+			hasNextPage
+		}
 	}
 `;

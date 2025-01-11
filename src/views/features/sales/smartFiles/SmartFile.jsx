@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/img-redundant-alt */
+/* eslint-disable no-undef */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../.././../../assets/scss/sales/smartFile.scss';
 import SmartFileHeader from '../../../components/smartFileComponets/SmartFileHeader';
@@ -12,10 +14,15 @@ import UploadSignature from '../../../components/modalsV2/workflowsModals/Upload
 import MoveStageModal from '../../../components/modalsV2/workflowsModals/moveStageModal';
 import UpdatedPageLoader from '../../../components/loaders/UpdatedPageLoader';
 import DeleteLeadModal from '../../../components/modalsV2/workflowsModals/DeleteLeadModal';
-import Notification from '../../../components/notification/Notification';
+// import Notification from '../../../components/notification/Notification';
 import UploadLogoNotification from '../../../components/notification/UploadLogoNotification';
-import { getCurrentWorkspaceId } from '../../../../helpers';
-
+import { getBase64, getCurrentWorkspaceId } from '../../../../helpers';
+import SendEmailModal from '../../../components/modalsV2/proposalModals/SendEmailModal';
+import { message, Spin } from 'antd';
+import BottomToolbar from '../../../components/ai_agents/BottomToolbar';
+import ObjectID from 'bson-objectid';
+import { ReactComponent as AiSparkel } from '../.././../../assets/svg/calendar/aiSparkel.svg';
+import { Image } from 'antd';
 const SmartFile = () => {
 	const { templateId, workflowId } = useParams();
 	const navigate = useNavigate();
@@ -35,8 +42,20 @@ const SmartFile = () => {
 			deleteLead,
 			getLatestSendSmartFileSettings,
 			sendSmartFileSettings,
+			updateInvoice,
+			updateForm,
+			updateThankyou,
+			smartFileAiChat,
+			uploadImageInSmartFileAi,
 		},
-		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
+
+		profileInfo: {
+			userWorkSpaceList,
+			getUserWorkSpaceList,
+			tennantSettingsData,
+			getTenantSettings,
+		},
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -63,8 +82,14 @@ const SmartFile = () => {
 		nameIdentification: false,
 		emailIdentification: false,
 		assisstanceData: null,
+		sendCustomEmailModal: false,
+		copyLink: null,
+		chatList: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
+		chatSessionId: null,
+		aiChatLoading: false,
 	});
-
+	const [previewOpen, setPreviewOpen] = useState(false);
+	const [previewImage, setPreviewImage] = useState('');
 	//useEffect
 	useEffect(() => {
 		getSmartFileInfo();
@@ -74,6 +99,8 @@ const SmartFile = () => {
 				templateInfoId: templateId,
 			});
 		}
+		const sessionId = ObjectID().toString();
+		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
 		return () => {
 			updateStateValues({
 				smartFileInfo: null,
@@ -92,7 +119,7 @@ const SmartFile = () => {
 
 	useEffect(() => {
 		if (smartFileInfo && specificTemplatesInfo) {
-			setInfo((prev) => ({ ...prev, loading: false }));
+			setInfo((prev) => ({ ...prev, loading: false, aiChatLoading: false }));
 		}
 	}, [smartFileInfo, specificTemplatesInfo]);
 
@@ -157,6 +184,25 @@ const SmartFile = () => {
 		}
 	}, [sendSmartFileSettings]);
 
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+	}, [tennantSettingsData]);
+
+	useEffect(() => {
+		if (tennantSettingsData && info?.currentWorkspaceId) {
+			let link;
+			if (tennantSettingsData?.customDomain?.length) {
+				link = `https://${tennantSettingsData?.customDomain}/portal/${info?.workflowData?.slug}`;
+			} else {
+				link = `https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}`;
+			}
+
+			setInfo((prev) => ({ ...prev, copyLink: link }));
+		}
+	}, [tennantSettingsData, info?.currentWorkspaceId, info?.workflowData]);
+
 	//function defination
 
 	const getSmartFileInfo = useCallback(async () => {
@@ -199,6 +245,9 @@ const SmartFile = () => {
 	);
 
 	const openSendSmartFileModal = useCallback(async () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		if (info?.activeTab === 'form') {
 			return setInfo((prev) => ({ ...prev, activeTab: 'file' }));
 		}
@@ -207,15 +256,18 @@ const SmartFile = () => {
 		}
 
 		setInfo((prev) => ({ ...prev, sendSmartFileModal: true }));
-	}, [info?.sendSmartFileModal, info?.activeTab, info?.workspaceLogo]);
+	}, [info?.sendSmartFileModal, info?.activeTab, info?.workspaceLogo, validateExpiryData]);
 
 	const openCopyModal = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, copyModal: true }));
 	}, [info?.sendSmartFileModal]);
 
 	const openSignatureModal = useCallback(async () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		setInfo((prev) => ({ ...prev, signatureModal: true }));
-	}, [info?.sendSmartFileModal]);
+	}, [info?.sendSmartFileModal, validateExpiryData]);
 
 	const acceptProposalFunc = useCallback(async () => {
 		//accept the proposal and also update workflow status
@@ -412,6 +464,229 @@ const SmartFile = () => {
 		info?.workflowStatus,
 	]);
 
+	//send Email functions
+	const toggleSendCustomEmailFunc = useCallback(() => {
+		setInfo((prev) => ({ ...prev, sendCustomEmailModal: !prev.sendCustomEmailModal }));
+	}, [info?.sendCustomEmailModal]);
+
+	//update workspace variable in all modules
+
+	const updateWorkspaceVariablesFunc = useCallback(
+		async (data, type) => {
+			//returning false means no changes needee
+
+			if (!tennantSettingsData) {
+				return [false];
+			}
+			const updatedVariablesdata = [...(data || [])];
+			let changed = false;
+
+			for (let i = 0; i < updatedVariablesdata?.length; i++) {
+				if (
+					updatedVariablesdata?.[i]?.type === 'workspace' &&
+					tennantSettingsData?.[updatedVariablesdata?.[i]?.code]
+				) {
+					const currentVariableValue =
+						updatedVariablesdata?.[i]?.value || updatedVariablesdata?.[i]?.defaultValue;
+					const incomingValue = tennantSettingsData?.[updatedVariablesdata?.[i]?.code];
+
+					if (currentVariableValue !== incomingValue) {
+						updatedVariablesdata[i].value = incomingValue;
+						updatedVariablesdata[i].defaultValue = incomingValue;
+						changed = true;
+					}
+				}
+			}
+
+			return [changed, updatedVariablesdata, type];
+		},
+		[tennantSettingsData],
+	);
+
+	const updateVariablesInAllModules = useCallback(async () => {
+		if (smartFileInfo) {
+			const { contract, form, proposal, thankyou, thankyou2, invoice } = smartFileInfo || {};
+
+			//contract
+			const { variables: contractVariable } = contract?.versions?.[0] || {};
+
+			//invoice
+			const { variables: invoiceVariable } = invoice?.versions?.[0] || {};
+
+			//proposal
+			const { variables: proposalVariables } = proposal?.versions?.[0] || {};
+
+			//form
+			const { variables: formVariables } = form?.versions?.[0] || {};
+			//thankyou
+			const { variables: thankyouVariables } = thankyou?.versions?.[0] || {};
+			const { variables: thankyou2Variables } = thankyou2?.versions?.[0] || {};
+
+			const mapper = {
+				contract: { data: contract, func: updateContracts },
+				invoice: { data: invoice, func: updateInvoice },
+				proposal: { data: proposal, func: updateProposal },
+				form: { data: form, func: updateForm },
+				thankyou: { data: thankyou, func: updateThankyou },
+				thankyou2: { data: thankyou2, func: updateThankyou },
+			};
+
+			const response = await Promise.all([
+				updateWorkspaceVariablesFunc(contractVariable || [], 'contract'),
+				updateWorkspaceVariablesFunc(invoiceVariable || [], 'invoice'),
+				updateWorkspaceVariablesFunc(proposalVariables || [], 'proposal'),
+				updateWorkspaceVariablesFunc(formVariables || [], 'form'),
+				updateWorkspaceVariablesFunc(thankyouVariables || [], 'thankyou'),
+				updateWorkspaceVariablesFunc(thankyou2Variables || [], 'thankyou2'),
+			]);
+
+			for (let i = 0; i < response?.length; i++) {
+				if (response?.[i]?.[0]) {
+					const moduleType = response?.[i]?.[2];
+
+					const payload = {
+						[moduleType + 'Id']: mapper?.[moduleType]?.data?._id,
+						workflowId: info?.workflowData?._id,
+						[moduleType + 'Input']: {
+							versions: {
+								variables: response?.[i]?.[1],
+							},
+						},
+						versionId: mapper?.[moduleType]?.data?.activeVersion,
+					};
+					mapper?.[moduleType]?.func(payload);
+				}
+			}
+		}
+	}, [smartFileInfo, updateWorkspaceVariablesFunc, info?.workflowData]);
+
+	const handleSendMessage = useCallback(
+		async (data) => {
+			let obj = {
+				type: 'user',
+				message: data,
+			};
+			let loadingObj = {
+				type: 'AI',
+				message: 'loading....',
+				content: (
+					<div className="aiMessageWrapper">
+						<AiSparkel />
+						<div className="aiMessage">
+							<span>Thinking...</span>
+						</div>
+					</div>
+				),
+				contentType: 'loading',
+			};
+			let chatlist = [...(info?.chatList || [])];
+			chatlist = [...chatlist, obj, loadingObj];
+			setInfo((prev) => ({ ...prev, chatList: chatlist, aiChatLoading: true }));
+			const payload = {
+				query: data,
+				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+				module: 'proposal_form_filling',
+				workflow_slug: info?.workflowData?.slug,
+			};
+			const response = await smartFileAiChat(payload, info?.chatSessionId);
+			chatlist.pop();
+			if (response?.[0]) {
+				let obj = {
+					type: 'AI',
+					message: response?.[1]?.answer || '',
+				};
+				chatlist = [...chatlist, obj];
+				if (response?.[1]?.db_updates?.proposal_db_update) {
+					refetchSmartFiledata();
+				}
+			}
+			setInfo((prev) => ({
+				...prev,
+				chatList: chatlist,
+				aiChatLoading: false,
+			}));
+		},
+		[info?.chatList, info?.chatSessionId, info?.workflowData, info?.aiChatLoading, info],
+	);
+
+	const handleAiUploadImage = useCallback(
+		async (file) => {
+			if (!file.url && !file.preview) {
+				file.preview = await getBase64(file);
+			}
+			let obj = {
+				type: 'user',
+				content: (
+					<img
+						src={file.preview}
+						alt="ai-image"
+						width={'50px'}
+						onClick={() => handlePreview(file)}
+					/>
+				),
+			};
+			let loadingObj = {
+				type: 'AI',
+				message: 'loading....',
+				content: (
+					<div className="aiMessageWrapper">
+						<AiSparkel />
+						<div className="aiMessage">
+							<span>Thinking...</span>
+						</div>
+					</div>
+				),
+			};
+			let chatlist = [...(info?.chatList || [])];
+			chatlist = [...chatlist, obj, loadingObj];
+			setInfo((prev) => ({ ...prev, chatList: chatlist, aiChatLoading: true }));
+			const response = await uploadImageInSmartFileAi(file, info?.workflowData?.slug);
+			chatlist.pop();
+			let newobj = {
+				type: 'AI',
+				message: response?.[1],
+			};
+			chatlist = [...chatlist, newobj];
+			if (response?.[0]) {
+				refetchSmartFiledata();
+			}
+			setInfo((prev) => ({
+				...prev,
+				chatList: chatlist,
+				aiChatLoading: false,
+			}));
+		},
+		[info?.workflowData, info?.chatList, info],
+	);
+
+	const refetchSmartFiledata = useCallback(() => {
+		getSmartFileInfo();
+		let loadingObj = {
+			type: 'AI',
+			message: 'loading....',
+			content: (
+				<div className="aiMessageWrapper">
+					<AiSparkel />
+					<div className="aiMessage">
+						<span>We are adjusting changes...</span>
+					</div>
+				</div>
+			),
+		};
+		setInfo((prev) => ({
+			...prev,
+			chatList: [...prev?.chatList, loadingObj],
+			aiChatLoading: true,
+		}));
+	}, [info]);
+	const handlePreview = async (file) => {
+		if (!file.url && !file.preview) {
+			file.preview = await getBase64(file.originFileObj);
+		}
+		setPreviewImage(file.url || file.preview);
+		setPreviewOpen(true);
+	};
+
 	return info?.loading ? (
 		<UpdatedPageLoader />
 	) : (
@@ -432,6 +707,7 @@ const SmartFile = () => {
 				counterAccpetOnClick={counterAccpetOnClick}
 				slug={info?.workflowData?.slug}
 				currentWorkspaceId={info?.currentWorkspaceId}
+				toggleSendCustomEmailFunc={toggleSendCustomEmailFunc}
 			/>
 			<div className="mainContentContainer">{componentMapper?.[info?.activeTab]}</div>
 
@@ -459,13 +735,23 @@ const SmartFile = () => {
 				emailIdentification={info?.emailIdentification}
 				updateIdentification={updateIdentification}
 				assisstanceData={info?.assisstanceData}
+				updateVariablesInAllModules={updateVariablesInAllModules}
+				copyLink={info?.copyLink}
 			/>
 
 			<CopiedModal
 				open={info?.copyModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
 				modules={info?.workflowData?.modules?.filter((e) => e?.type !== 'form')}
-				copyLink={`https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}`}
+				copyLink={
+					info?.copyLink || (
+						<span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+							Generating Link ...
+							<Spin />
+						</span>
+					)
+				}
+				// {`https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.workflowData?.slug}`}
 				pin={smartFileInfo?.access?.pin}
 			/>
 			<UploadSignature
@@ -491,6 +777,32 @@ const SmartFile = () => {
 				open={info?.showUploadLogoNotification}
 				onClose={() => setInfo((prev) => ({ ...prev, showUploadLogoNotification: false }))}
 			/>
+			<SendEmailModal
+				open={info?.sendCustomEmailModal}
+				closeModal={toggleSendCustomEmailFunc}
+				clientDetails={info?.workflowData?.clientDetails}
+			/>
+			<BottomToolbar
+				outerContainerStyle={{ bottom: '10px' }}
+				chatList={info?.chatList}
+				onSend={handleSendMessage}
+				aiChatLoading={info?.aiChatLoading}
+				handleAiUploadImage={handleAiUploadImage}
+				customChatActions={true}
+			/>
+			{previewImage && (
+				<Image
+					wrapperStyle={{
+						display: 'none',
+					}}
+					preview={{
+						visible: previewOpen,
+						onVisibleChange: (visible) => setPreviewOpen(visible),
+						afterOpenChange: (visible) => !visible && setPreviewImage(''),
+					}}
+					src={previewImage}
+				/>
+			)}
 		</div>
 	);
 };

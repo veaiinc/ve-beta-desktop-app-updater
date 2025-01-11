@@ -41,11 +41,37 @@ body,
 	box-sizing: border-box;
 }
 body {
+	// font-family: 'Inter', sans-serif !important;
+	// font-style: normal;
+	// -webkit-font-smoothing: antialiased;
+	// margin: 0;
+	// scroll-behavior: smooth;
+	// overscroll-behavior: none;
+
 	font-family: 'Inter', sans-serif !important;
 	font-style: normal;
 	-webkit-font-smoothing: antialiased;
 	margin: 0;
 	scroll-behavior: smooth;
+	overscroll-behavior: none;
+
+	/* Enhanced smooth scrolling */
+	scroll-snap-type: y proximity;
+	-webkit-overflow-scrolling: touch;
+
+	/* Customize scrolling physics */
+	scroll-timeline: none;
+	scroll-timeline-axis: block;
+	scroll-timeline-name: none;
+
+	/* Optional: Add momentum-based scrolling for iOS */
+	-webkit-overflow-scrolling: touch;
+
+	/* Optional: Add custom scroll timing */
+	scroll-timeline-attachment: scroll;
+	scroll-timeline-axis: block;
+	scroll-timeline-name: none;
+	scroll-behavior-timeline: smooth;
 }
 html {
 	background-color: #121212;
@@ -315,9 +341,9 @@ html {
 	transition: top 0.2s ease-in-out;
 }
 
-.infinite-scroll-component {
-	overflow: visible !important;
-}
+// .infinite-scroll-component {
+// 	overflow: visible !important;
+// }
 
 @media print {
 	body * {
@@ -6114,4 +6140,19 @@ input[type='number'] {
 
 .toolTipContainer .ant-tooltip-inner {
 	padding: 0 !important;
+}
+
+.toolTipContainerForBuilder {
+	.ant-tooltip-inner {
+		background-color: transparent !important;
+		position: relative;
+		top: 130px;
+		left: -85px;
+	}
+}
+.workflowBuilderCardContainer {
+	.ant-popover-inner {
+		background-color: transparent !important;
+		padding: 0 !important;
+	}
 }

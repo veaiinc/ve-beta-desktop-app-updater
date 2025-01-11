@@ -1,11 +1,17 @@
-import React, { useContext, useEffect, useState, memo } from 'react';
+import React, { useContext, useEffect, useState, memo, useCallback } from 'react';
 import '../../../assets/scss/settings/planBilling.scss';
+import '../../../assets/scss/settings/notifications.scss';
+
 import ProgressBar from '../../components/settings/ProgressBar';
 import moment from 'moment';
 import Context from '../../../context/context';
 import SubscriptionDetailsComponent from '../../components/settings/planbilling/SubscriptionDetails';
 import { ReactComponent as BackgroundSvg } from '../../../assets/svg/Settings/subscriptionbackground.svg';
 import BillingHistoryComponent from '../../components/settings/planbilling/BillingHistory';
+import { ReactComponent as Tick } from '../../../assets/svg/tick.svg';
+import { useNavigate } from 'react-router-dom';
+import Skeleton from 'react-loading-skeleton';
+import { Spin } from 'antd';
 //constants
 const noOfDay = 7;
 const period = 'On Trial Plan';
@@ -14,119 +20,332 @@ let progressBar = 30;
 const GB = 1;
 const usedGB = 3;
 
-// const Temp = () => {
-// 	const {
-// 		companyInfo: { getTenantSubscriptionDetails, tenantSubscriptionDetails },
-// 	} = useContext(Context);
-// 	const [info, setInfo] = useState({
-// 		expiresDate: '',
-// 	});
+const features = [
+	'Form Management Assistant',
+	'Proposal Builder',
+	'Sales Performance Tracker',
+	'Workflow Automation',
+	'Business Insights Dashboard',
+	'10 Team Members',
+];
 
-// 	useEffect(() => {
-// 		if (!tenantSubscriptionDetails) {
-// 			getTenantSubscriptionDetails();
-// 		}
-// 	}, []);
+const updatePlans = [
+	{
+		title: 'Credits',
+		price: '$16',
+		totalAvailable: '100',
+		used: '40',
+	},
+	{
+		title: 'Credits',
+		price: '$16',
+		totalAvailable: '100',
+		used: '40',
+	},
+	{
+		title: 'Credits',
+		price: '$16',
+		totalAvailable: '100',
+		used: '40',
+	},
+	{
+		title: 'Credits',
+		price: '$16',
+		totalAvailable: '100',
+		used: '40',
+	},
+];
 
-// 	useEffect(() => {
-// 		if (tenantSubscriptionDetails) {
-// 			setInfo((prev) => ({
-// 				...prev,
-// 				expiresDate: tenantSubscriptionDetails?.expiresAt || '',
-// 			}));
-// 		}
-// 	}, [tenantSubscriptionDetails]);
+const menuItems = [
+	{
+		id: 1,
+		label: 'Proposal creation',
+		approximateCredits: 120,
+	},
+	{
+		id: 2,
+		label: 'Calendar event creation',
+		approximateCredits: 7,
+	},
+	{
+		id: 3,
+		label: 'Smart file AI prediction',
+		approximateCredits: 5,
+	},
+	{
+		id: 4,
+		label: 'When workflow is created',
+		approximateCredits: 250,
+	},
+];
 
-// 	return (
-// 		<div className="companyPlanBillingContianer">
-// 			<div className="companyPlanBilling">
-// 				<div className="companyPlan">
-// 					<h1>Your Plan</h1>
-// 					<div className="expireDetailsContainer ">
-// 						<div className="expireDetails">
-// 							<p>
-// 								Trial Plan expires in {noOfDay} days on :
-// 								{moment.unix(info.expiresDate).format('Do MMMM YYYY')}
-// 							</p>
-// 							<button>Subscribe Now</button>
-// 						</div>
-// 						<div className="subscriptionDetailsContainer">
-// 							<h2>your subscription details:</h2>
-// 							<div className="subscriptionDetails">
-// 								<div className="CRMcontainer">
-// 									<p>CRM</p>
-// 									<div className="CRMstatusContainer">
-// 										<h3>
-// 											Unlimited number of Lead Forms, Proposals & Templates
-// 											and Projects. Manage Payments and Expenses and invite
-// 											Unlimited team members with access controls for each
-// 											team member.
-// 										</h3>
-// 										<p>
-// 											Status : <span>{period}</span>
-// 										</p>
-// 									</div>
-// 								</div>
-// 								<div className="GALLERIEScontainer">
-// 									<p>GALLERIES</p>
-// 									<div className="storageContainer">
-// 										<h3>
-// 											Unlimited number of Galleries, Face scans & Guest
-// 											registrations (with AI). No limit on number of Photos
-// 											uploaded or Albums created. Clients & photographer, both
-// 											can download original size photos, with no limit on
-// 											number of downloads.
-// 										</h3>
-// 										<p>
-// 											Storage : <span>{GB}</span> GB of <span>{usedGB}</span>{' '}
-// 											GB
-// 										</p>
-// 										<ProgressBar progress={progressBar} />
-// 									</div>
-// 								</div>
-// 								<div className="AIcontainer">
-// 									<p>AI CREDITS</p>
-// 									<div className="AiCredits">
-// 										<h3>
-// 											AI Credits enable you to use feature of face scans &
-// 											Guest registrations for quick photo delivery to your
-// 											event guests. AI Credits do not have a expiry date.
-// 										</h3>
-// 										<p>
-// 											AI Credits remaining : <span>{AiCredits}</span>
-// 										</p>
-// 									</div>
-// 								</div>
-// 							</div>
-// 						</div>
-// 					</div>
-// 				</div>
-// 				<div className="billingHistoryContainer">
-// 					<h1>Billing History</h1>
-// 					<div></div>
-// 				</div>
-// 			</div>
-// 		</div>
-// 	);
-// };
+const ApproximateCreditsRowData = [
+	{
+		id: 1,
+		label: 'Type',
+	},
+	{
+		id: 2,
+		label: 'Approximate Credits',
+	},
+];
 
 const PlanBilling = () => {
+	let {
+		subscriptionInfo: { getCurrentSubscriptionPlan, currentPlan },
+	} = useContext(Context);
+	const [info, setInfo] = useState({
+		loading: true,
+		plan: null,
+		expiresAt: null,
+		freeTier: false,
+		currency: '',
+	});
+
+	useEffect(() => {
+		getCurrentSubscriptionPlan();
+	}, []);
+
+	useEffect(() => {
+		if (currentPlan) {
+			setInfo((prev) => ({
+				...prev,
+				loading: false,
+				plan: currentPlan?.currentSubscriptionPlan,
+				expiresAt: currentPlan?.expiresAt,
+				freeTier: currentPlan?.products ? false : true,
+				currency: currentPlan?.currency,
+			}));
+		}
+	}, [currentPlan]);
+
 	return (
 		<div className="planBillingContianer">
-			<div className="subscriptionDetailsComponent">
-				<div className="backgroundDesingDiv">
-					<div>
-						<BackgroundSvg />
+			{info?.loading ? (
+				<Skeleton height={'700px'} style={{ borderRadius: '32px' }} />
+			) : !info?.freeTier ? (
+				<SubscribedUserPlanCard
+					data={info?.plan}
+					expiresAt={info?.expiresAt}
+					currency={info?.currency}
+				/>
+			) : (
+				<FreeTierPlanCard expiresAt={info?.expiresAt} />
+			)}
+
+			<div className="notifications-main-container">
+				<div className="notifications-container">
+					<h1 className="notifications-header-title">Approximate Credit Charges Menu</h1>
+					<div className="row">
+						{ApproximateCreditsRowData?.map((item) => (
+							<div key={item?.id} className="column">
+								{item?.label}
+							</div>
+						))}
 					</div>
+					<div className="divider"></div>
+					<ul className="menu-items">
+						{menuItems?.map((item) => (
+							<li key={item?.id}>
+								<div className="row">
+									<div className="column">{item?.label}</div>
+									<div className="column">{item?.approximateCredits}</div>
+								</div>
+							</li>
+						))}
+					</ul>
 				</div>
-				<SubscriptionDetailsComponent />
 			</div>
 
-			<div className="settingsBoxContainer billingHinstoryComponent">
+			{/* <div className="settingsBoxContainer billingHinstoryComponent">
 				<BillingHistoryComponent />
-			</div>
+			</div> */}
 		</div>
 	);
 };
 
 export default memo(PlanBilling);
+
+const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
+	const navigate = useNavigate();
+	let {
+		subscriptionInfo: { createManageSubscriptionLinkforExistingUsers },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		manageSubscriptionLoader: false,
+		features: features,
+		featureChanged: false,
+	});
+
+	useEffect(() => {
+		if (data && info?.features?.length && data?.numberOfUsers && !info?.featureChanged) {
+			let features = [...(info?.features || [])];
+			const users = data?.numberOfUsers;
+			features.pop();
+			features.push(`${users} Team Members`);
+			setInfo((prev) => ({ ...prev, features, featureChanged: true }));
+		}
+	}, [data, info?.features, info?.featureChanged]);
+
+	const handleManageSubscriptionClick = useCallback(async () => {
+		if (!expiresAt) {
+		}
+		if (expiresAt) {
+			const expired = moment().unix() > +expiresAt;
+
+			if (expired) {
+				return navigate('/subscription');
+			}
+			setInfo((prev) => ({ ...prev, manageSubscriptionLoader: true }));
+			const response = await createManageSubscriptionLinkforExistingUsers();
+			if (response?.[0]) {
+				return (window.location.href = response?.[1]);
+			}
+			setInfo((prev) => ({ ...prev, manageSubscriptionLoader: false }));
+		}
+	}, [expiresAt]);
+
+	return (
+		<div className="subscriptionWrapperContainer">
+			<div className="subscriptionUpdatedPlanCard">
+				<span className="subscriptionPlanHeader">Current Plan</span>
+				<div className="subscriptionPlanContent">
+					<div className="subscriptionPlanPricingDetails">
+						<span className="subscriptionPlanPricing">
+							{currency === 'inr' ? '₹ ' : '$ '}
+							{data?.totalPrice?.toLocaleString('en-IN', {
+								currency: currency,
+							})}
+						</span>
+						<span className="subscritptionPlanPeriod">/ {data?.interval}</span>
+					</div>
+					{/* <div className="subscriptionUsageContainer">
+						<div className="subscriptionUsageDeatails">
+							<span className="subscriptionUsageData">
+								<span style={{ color: '#fff' }}>150 of</span> 500 used
+							</span>
+						</div>
+						<div className="subscriptionPlanProgressBar">
+							<div className="subscriptionPlanProgressIndicator"></div>
+						</div>
+					</div> */}
+					<div className="subscritptionFeaturesContainer">
+						{info?.features?.map((ele, index) => (
+							<div className="subscriptionFeature" key={index}>
+								<Tick />
+								<span className="subscriptionFeatureContent">{ele}</span>
+							</div>
+						))}
+					</div>
+					{data?.addOns && Object.values(data?.addOns)?.length ? (
+						<div className="addOnContianer">
+							<span className="addOnStates">Current Add-on’s</span>
+
+							<div className="addOnStuffsHolder">
+								{data?.addOns?.aiCredits ? (
+									<div className="addOnCards">
+										<div className="addOnCardsHeaderChanges">
+											<span className="addOnCardsTitle">AI Credits</span>
+											<span className="addOnCardPriceContainer">
+												<span style={{ color: '#fff' }}>
+													{data?.addOns?.aiCredits}
+												</span>
+											</span>
+										</div>
+										{/* <div className="addOnUsageDetails">
+											<div className="subscriptionUsageDeatails">
+												<span className="subscriptionUsageData">
+													150 of 500 used
+												</span>
+											</div>
+											<div className="subscriptionPlanProgressBar">
+												<div className="subscriptionPlanProgressIndicator"></div>
+											</div>
+										</div> */}
+									</div>
+								) : (
+									''
+								)}
+							</div>
+						</div>
+					) : (
+						''
+					)}
+				</div>
+				{data?.addOnPlan && Object.values(data?.addOnPlan)?.length ? (
+					<div className="subscriptionSeperator"></div>
+				) : (
+					''
+				)}
+				<div className="subscriptionActionContainer">
+					<div
+						className="manageSubscriptionButton"
+						onClick={handleManageSubscriptionClick}
+					>
+						{info?.manageSubscriptionLoader ? <Spin /> : `	Manage Subscription`}
+					</div>
+					<div className="expiringText">
+						{moment().unix() < +expiresAt ? 'Expiring' : 'Expired'} on{' '}
+						{moment.unix(`${expiresAt}`)?.format('DD MMM YYYY')}
+					</div>
+				</div>
+			</div>
+			{/* <div className="updateSubscriptionPlanContainer">
+				<span className="updatePlansTextStyling">Update Plans</span>
+				<div className="updatePlansCardHolder">
+					{updatePlans?.map((ele, index) => (
+						<div className="updatePlansCardContainer">
+							<div className="updatePlansCardContent">
+								<div className="updatePlansHeader">
+									<span className="updatePlansHeaderTextStyling">
+										{ele?.title}
+									</span>
+								</div>
+								<span className="randomUpdatePlans">
+									Launch Intelligent, enterprise-ready, and seamlessly embedded in
+									your operations
+								</span>
+							</div>
+							<div className="addNowButtonForUpdatePlans">Add Now</div>
+						</div>
+					))}
+				</div>
+			</div> */}
+		</div>
+	);
+};
+
+const FreeTierPlanCard = ({ expiresAt }) => {
+	const navigate = useNavigate();
+	return (
+		<div className="freePlanCardContainer">
+			<span className="subscriptionPlanHeader">Free trial</span>
+			<div className="subscriptionPlanContent">
+				<div className="subscriptionPlanPricingDetails">
+					<span className="subscriptionPlanPricing">$0</span>
+				</div>
+
+				<div className="subscritptionFeaturesContainer">
+					{features?.map((ele, index) => (
+						<div className="subscriptionFeature" key={index}>
+							<Tick />
+							<span className="subscriptionFeatureContent">{ele}</span>
+						</div>
+					))}
+				</div>
+			</div>
+			<div className="subscriptionSeperator"></div>
+			<div className="freePlanSubscriptionCardContainer">
+				<span className="freeTrialText">
+					Your free trial expires at {moment.unix(`${expiresAt}`)?.format('DD MMM YYYY')}{' '}
+					! Don’t miss out - upgrade now to keep enjoying premium features.
+				</span>
+
+				<div className="manageSubscriptionButton" onClick={() => navigate('/subscription')}>
+					Upgrade Subscription
+				</div>
+			</div>
+		</div>
+	);
+};

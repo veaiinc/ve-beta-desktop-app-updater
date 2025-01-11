@@ -10,6 +10,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/chat/filter.svg';
 import { Result, message, Tooltip } from 'antd';
+import { getCurrentWorkspaceId } from '../../../helpers';
 
 const noImage =
 	'https://png.pngtree.com/png-clipart/20230917/original/pngtree-no-image-available-icon-flatvector-illustration-thumbnail-graphic-illustration-vector-png-image_12323920.png';
@@ -68,7 +69,10 @@ const AddGallery = () => {
 			clearClientSelectionsData,
 			clearAiFace,
 			clearGalleryShareDetails,
+			clearPreRegisteredUsers,
+			clearGalleryState,
 		},
+		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		createNewGalleryModal: false,
@@ -81,22 +85,46 @@ const AddGallery = () => {
 		workspaceId: localStorage.getItem('workspaceId'),
 		showFilter: false,
 		activeSort: tenantGalleries?.sort || '-createdAt',
+		currentWorkspaceId: null,
 	});
 	const navigate = useNavigate();
+
 	useEffect(() => {
+		const childrenContainer = document.querySelector('.childrenContainer');
 		if (!tenantGalleries) {
 			fetchGalleries(info.page);
 		}
 		clearClientSelectionsData();
 		clearAiFace();
 		clearGalleryShareDetails();
+		clearPreRegisteredUsers();
+		clearGalleryState();
+		if (childrenContainer) {
+			const originalWidth = childrenContainer.style.maxWidth;
+			childrenContainer.style.maxWidth = '80vw';
+			return () => {
+				childrenContainer.style.maxWidth = originalWidth;
+			};
+		}
 	}, []);
+
 	useEffect(() => {
 		if (tenantGalleries) {
 			setInfo((prev) => ({ ...prev, activeSort: tenantGalleries?.sort }));
 		}
 	}, [tenantGalleries]);
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
+			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
+		}
+	}, [userWorkSpaceList, info?.pendingCopyAction]);
 
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+	}, [tennantSettingsData]);
 	const fetchGalleries = async (page, title = null, reset = false) => {
 		try {
 			const options = {
@@ -179,7 +207,11 @@ const AddGallery = () => {
 	};
 
 	const copyGallerySlugFunction = (slug) => {
-		const galleryLink = `https://${info?.workspaceId}.ve.ai/galleries/${slug}`;
+		let galleryLink = `https://${info?.currentWorkspaceId}.ve.ai/gallery/${slug}`;
+		if (tennantSettingsData?.customDomain) {
+			galleryLink = `https://${tennantSettingsData?.customDomain}/gallery/${slug}`;
+		}
+
 		navigator?.clipboard
 			?.writeText(galleryLink)
 			.then(() => {
@@ -282,7 +314,7 @@ const AddGallery = () => {
 
 							{tenantGalleries ? (
 								tenantGalleries?.galleries?.length > 0 ? (
-									tenantGalleries?.galleries.map((items, index) => (
+									tenantGalleries?.galleries?.map((items, index) => (
 										<div
 											className="add-gallery-image"
 											onClick={() => handleNavigateGallery(items)}
@@ -314,13 +346,13 @@ const AddGallery = () => {
 												>
 													Share
 												</li>
-												<li
+												{/* <li
 													onClick={() =>
 														handleNavigateSettings(items._id)
 													}
 												>
 													settings
-												</li>
+												</li> */}
 											</div>
 											<div className="album-full-details">
 												<div className="album-details">

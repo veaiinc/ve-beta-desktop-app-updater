@@ -1,10 +1,9 @@
 import AuthWrapper from './views/layouts/authWrapper';
 import LoginPage from './views/features/login_page/LoginPage';
 import Onboarding from './views/features/onboarding/Onboarding';
-// import LoginScreen from './views/features/signin';
-import ChatScreen from './views/features/meta_Integ/index';
+import Calendar from './views/features/calendar/index';
+// import ChatScreen from './views/features/meta_Integ/index';
 import OauthVerify from './views/features/signin/oauth';
-import Workflow_builder from './views/features/workflow_builder';
 import Sales from './views/features/sales/Sales';
 import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
 import SmartFile from './views/features/sales/smartFiles/SmartFile';
@@ -25,8 +24,15 @@ import { Navigate } from 'react-router-dom';
 import Subscription from './views/features/subscription';
 import TermsOfService from './views/features/signin/TermsOfService';
 import CookiePolicy from './views/features/signin/CookiePolicy';
-
+import WorkflowBuilder from './views/features/workflow_builder';
+import Tasks from './views/features/tasks';
 import ShareAndEarn from './views/features/ShareAndEarn';
+import Notes from './views/features/Notes';
+import Contacts from './views/features/contacts';
+import Ai_agent from './views/features/ai_agent';
+import AgentsJobs from './views/features/ai_agent/AgentsJobs';
+import AgentsSetup from './views/features/ai_agent/AgentsSetup';
+import Docs from './views/features/docs';
 const routes = [
 	{
 		path: '/',
@@ -34,6 +40,10 @@ const routes = [
 	},
 	{
 		path: '/onboarding',
+		component: <Onboarding />,
+	},
+	{
+		path: '/create-workspace',
 		component: <Onboarding />,
 	},
 	{
@@ -123,11 +133,12 @@ const routes = [
 		path: '/workflow_builder/:templateId',
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
-				<Workflow_builder />
+				<WorkflowBuilder />
 			</WorkflowBuilderLayout>
 		),
 		exact: true,
 	},
+
 	{
 		path: '/smart-file/:templateId/:workflowId',
 		component: (
@@ -139,7 +150,11 @@ const routes = [
 	},
 	{
 		path: '/early-access',
-		component: <EarlyAccess />,
+		component: (
+			<AuthWrapper title={'Early Access'}>
+				<EarlyAccess />
+			</AuthWrapper>
+		),
 		exact: true,
 	},
 	{
@@ -206,12 +221,86 @@ const routes = [
 		exact: true,
 	},
 	{
+		path: '/tasks',
+		component: (
+			<AuthWrapper title={'Tasks'}>
+				<Tasks />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
 		path: '*',
 		component: <Navigate to="/" />,
 	},
 	{
 		path: '/subscription',
 		component: <Subscription />,
+		exact: true,
+	},
+	{
+		path: '/calendar',
+		component: (
+			<AuthWrapper title={'Calendar'} maxWidth={'1700px'} showBottomToolbar={false}>
+				<Calendar />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/notes',
+		component: (
+			<AuthWrapper title={'Notes'}>
+				<Notes />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/contacts',
+		component: (
+			<AuthWrapper title={'Contacts'}>
+				<Contacts />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+
+	//ai agents
+	{
+		path: '/ai-agents/home/:agent-name',
+		component: (
+			<AuthWrapper title={'AI Agents'}>
+				<Ai_agent />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/ai-agents/jobs/:agent-name',
+		component: (
+			<AuthWrapper title={'AI Agents'}>
+				<AgentsJobs />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/ai-agents/setup/:agent-name',
+		component: (
+			<AuthWrapper title={'AI Agents'}>
+				<AgentsSetup />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/docs',
+		component: (
+			<AuthWrapper title={'Docs'}>
+				<Docs />
+			</AuthWrapper>
+		),
 		exact: true,
 	},
 ];

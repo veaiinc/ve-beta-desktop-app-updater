@@ -1,9 +1,10 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
 import { useNavigate } from 'react-router-dom';
 import HeadersDropDownComp from '../dropDown/HeadersDropDownComp';
 import Spinner from '../loaders/Spinner';
+import Context from '../../../context/context';
 
 const options = [
 	{ label: 'Edit' },
@@ -31,8 +32,14 @@ const SmartFileHeader = ({
 	counterAccpetOnClick,
 	slug,
 	currentWorkspaceId,
+	toggleSendCustomEmailFunc,
 }) => {
 	const navigate = useNavigate();
+
+	let {
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		loading: false,
 		threeDotOptions: options,
@@ -41,6 +48,10 @@ const SmartFileHeader = ({
 	});
 
 	const modifiedAccetFunc = useCallback(async () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+
 		if (info?.loading) {
 			return;
 		}
@@ -49,10 +60,13 @@ const SmartFileHeader = ({
 		if (response?.[0]) {
 			setInfo((prev) => ({ ...prev, loading: false }));
 		}
-	}, []);
+	}, [validateExpiryData]);
 
 	const onOptionChangeFunc = useCallback(
 		async (data) => {
+			if (validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
 			if (data?.label === 'Edit') {
 				if (editable) {
 					return;
@@ -64,7 +78,7 @@ const SmartFileHeader = ({
 				openMoveToStageModal();
 			}
 			if (data?.label === 'Send Email') {
-				openSendSmartFileModal();
+				toggleSendCustomEmailFunc();
 			}
 			if (data?.label === 'Resend File') {
 				openSendSmartFileModal();
@@ -73,7 +87,7 @@ const SmartFileHeader = ({
 				openDeleteModal();
 			}
 		},
-		[editable],
+		[editable, validateExpiryData],
 	);
 
 	useEffect(() => {
@@ -102,6 +116,9 @@ const SmartFileHeader = ({
 	}, [workflowStatus]);
 
 	const modifiedPreviewClick = useCallback(() => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
 		setInfo((prev) => ({ ...prev, previewLoader: true }));
 		const usertoken = localStorage.getItem('usertoken');
 		const region = localStorage.getItem('region');
@@ -109,7 +126,7 @@ const SmartFileHeader = ({
 		setTimeout(() => {
 			setInfo((prev) => ({ ...prev, previewLoader: false }));
 		}, 2000);
-	}, [slug, currentWorkspaceId]);
+	}, [slug, currentWorkspaceId, validateExpiryData]);
 
 	const onCounterAcceptClickFunc = useCallback(async () => {
 		if (info?.counterAccpetLoading) {
@@ -125,7 +142,7 @@ const SmartFileHeader = ({
 	return (
 		<div className="smarFileHeader">
 			<div className="HeaderContentContainer">
-				<div className="BackBtnContainer" onClick={() => navigate(-1)}>
+				<div className="BackBtnContainer" onClick={() => navigate('/home')}>
 					{' '}
 					<span className="svgWrapper">
 						<BackArrowSvg />

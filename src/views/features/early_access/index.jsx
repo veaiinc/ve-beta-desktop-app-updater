@@ -99,7 +99,7 @@ const EarlyAccess = () => {
 		}
 		if (isOnboard) {
 			localStorage.setItem('isOnboard', true);
-			// navigate('/home');
+			navigate('/home');
 		}
 	}, [userWorkSpaceList]);
 
@@ -379,41 +379,6 @@ const EarlyAccess = () => {
 					{/* </div> */}
 				</section>
 			</main>
-
-			<footer className="footer-container2">
-				<nav>
-					<ul>
-						{navItems.map((item, i) => (
-							<li
-								key={i}
-								onClick={(e) => {
-									e.stopPropagation();
-									if (item.isExternal) {
-										window.open(item.route, '_blank');
-									} else {
-										navigate(item.route);
-									}
-								}}
-							>
-								{item.name}
-							</li>
-						))}
-					</ul>
-				</nav>
-				<div className="icons-container2">
-					<Instagram
-						style={{ width: '24px', height: '24px', cursor: 'pointer' }}
-						onClick={() => window.open(INSTAGRAM_URL, '_blank')}
-					/>
-					<LinkedIn
-						style={{ width: '24px', height: '24px', cursor: 'pointer' }}
-						onClick={() => window.open(LINKEDIN_URL, '_blank')}
-					/>
-				</div>
-				<div>
-					<p className="copyright2"> 2024 Ve.ai</p>
-				</div>
-			</footer>
 		</div>
 	);
 };

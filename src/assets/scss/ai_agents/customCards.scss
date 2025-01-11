@@ -1,0 +1,233 @@
+.aiAgentsCreatecards {
+	display: flex;
+	// width: 393px;
+	flex: 1;
+	height: 418px;
+	padding: 20px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	flex-shrink: 0;
+	border-radius: 32px;
+	background: linear-gradient(135deg, #191a1b 0.86%, #171718 70.68%);
+	background: linear-gradient(
+		135deg,
+		color(display-p3 0.0971 0.101 0.1049) 0.86%,
+		color(display-p3 0.0893 0.0893 0.0949) 70.68%
+	);
+
+	.createCardsHeader {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+
+		.createCardsHeaderTexct {
+			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+			color: var(
+				--ve-ai-dark-theme-primary-font-color,
+				color(display-p3 0.9098 0.9098 0.9098)
+			);
+
+			/* Body/Body Text - 16 */
+			font-family: Inter;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.createCardsHolderContainer {
+		display: flex;
+		align-items: flex-start;
+		align-content: flex-start;
+		gap: 8px;
+		align-self: stretch;
+		flex-wrap: wrap;
+		max-height: 343px;
+		overflow-y: auto;
+
+		.createSubCardOptionsdcards {
+			display: flex;
+			height: 109px;
+			padding: 10px 20px;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			gap: 12px;
+			// flex: 1 0 0;
+			border-radius: 16px;
+			background: #202123;
+			background: color(display-p3 0.1249 0.1304 0.1358);
+			// max-width: 170px;
+			// width: 170px;
+			width: calc(50% - 8px);
+
+			.createSubCardOptionsdcardsHeader {
+				display: flex;
+				height: 20px;
+				align-items: center;
+				gap: 5px;
+				flex-shrink: 0;
+				align-self: stretch;
+
+				.createOptionsCardDotContainer {
+					width: 6px;
+					height: 6px;
+					border-radius: 100%;
+					background-color: #fff;
+				}
+
+				.createcardOprtionsTitle {
+					color: #fff;
+					color: color(display-p3 1 1 1);
+
+					/* Body/Body Text - 14 Px */
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 20px; /* 142.857% */
+					flex: 1;
+				}
+			}
+			.createOptionsSubTextStyling {
+				color: var(--Dark-Theme-Secondary-Color, #939393);
+				color: var(--Dark-Theme-Secondary-Color, color(display-p3 0.5755 0.5755 0.5755));
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+	}
+}
+
+.aiAgentsAcitivityContainer {
+	display: flex;
+	flex: 1;
+	height: 418px;
+	// padding: 20px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	flex-shrink: 0;
+	border-radius: 32px;
+	background: linear-gradient(135deg, #191a1b 0.86%, #171718 70.68%);
+	background: linear-gradient(
+		135deg,
+		color(display-p3 0.0971 0.101 0.1049) 0.86%,
+		color(display-p3 0.0893 0.0893 0.0949) 70.68%
+	);
+	.createCardsHeader {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		align-self: stretch;
+		padding-top: 20px;
+		padding-left: 20px;
+		padding-right: 20px;
+
+		.createCardsHeaderTexct {
+			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+			color: var(
+				--ve-ai-dark-theme-primary-font-color,
+				color(display-p3 0.9098 0.9098 0.9098)
+			);
+
+			/* Body/Body Text - 16 */
+			font-family: Inter;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.aiAgentsactivityCardsholder {
+		display: flex;
+		height: 340px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 6px;
+		flex-shrink: 0;
+		align-self: stretch;
+		max-height: 340px;
+		overflow-y: auto;
+	}
+
+	.aiAgentsActivityCards {
+		display: flex;
+		width: 100%;
+		flex-direction: column;
+		align-self: self-start;
+		padding: 12px 16px;
+		height: auto;
+		// min-height: 63px;
+		border-radius: 10px;
+		background: var(--ve-ai-dark-theme-pop-up-color, #202123);
+		background: var(--ve-ai-dark-theme-pop-up-color, color(display-p3 0.1249 0.1304 0.1358));
+		gap: 4px;
+		.aiAgentsActivityCardsHeaderText {
+			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+			color: var(
+				--ve-ai-dark-theme-primary-font-color,
+				color(display-p3 0.9098 0.9098 0.9098)
+			);
+
+			/* Body/Body Text - 14 Px */
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px; /* 142.857% */
+		}
+
+		.aiAgentsActivityCardsSubTextHolder {
+			display: flex;
+			align-self: stretch;
+			align-items: flex-end;
+			gap: 6px;
+
+			.aiAgentsActivityCardssubTextStyling {
+				overflow: hidden;
+				color: var(--ve-ai-dark-theme-secondary-color, #939393);
+				color: var(
+					--ve-ai-dark-theme-secondary-color,
+					color(display-p3 0.5755 0.5755 0.5755)
+				);
+				text-overflow: ellipsis;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				flex: 1;
+			}
+
+			.aiAgentsActivityCardTime {
+				color: var(--ve-ai-dark-theme-secondary-color, #939393);
+				color: var(
+					--ve-ai-dark-theme-secondary-color,
+					color(display-p3 0.5755 0.5755 0.5755)
+				);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+	}
+	.drafLoaderContainer {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		// background-color: red;
+		align-self: stretch;
+		height: 340px;
+		padding: 0px 20px 0px 20px;
+		gap: 10px;
+	}
+}

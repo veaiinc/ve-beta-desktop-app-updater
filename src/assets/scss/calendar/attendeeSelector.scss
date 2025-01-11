@@ -1,0 +1,106 @@
+.multi-category-selector {
+	display: flex;
+	align-items: center;
+	position: relative;
+	width: 100%;
+	cursor: pointer;
+
+	.ant-select {
+		width: 100%;
+		border-radius: 4px;
+		box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+		border: none;
+		&:hover {
+			cursor: pointer;
+			// background: #1e1e1e;
+			background: #1c1c1c;
+		}
+		.ant-select-selector {
+			padding: 2px;
+		}
+
+		.ant-select-selection-overflow {
+			cursor: pointer;
+		}
+
+		.ant-select-selection-search-input,
+		.ant-select-selection-placeholder,
+		.ant-select-selection-item {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			padding: 0px 5px;
+		}
+
+		.ant-select-selection-placeholder {
+			color: #646567;
+		}
+	}
+
+	.ant-select-arrow {
+		color: #e4e5e6;
+		display: none;
+	}
+
+	.ant-select-dropdown {
+		border-radius: 5px;
+		background: #202123;
+		background: color(display-p3 0.1255 0.1294 0.1373);
+		box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
+		box-shadow: 0px 2px 44px 0px color(display-p3 0 0 0 / 0.25);
+		.ant-select-item-option {
+			background: #1c1d1d;
+			padding: 2px 5px;
+		}
+		.rc-virtual-list-holder-inner {
+			.ant-select-item-option-selected {
+				background: #202123;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 5px;
+				font-size: 12px;
+
+				.ant-select-item-option-state {
+					color: #91969d; //option tick color
+				}
+			}
+			.ant-select-item-option-content {
+				display: flex;
+				align-items: center;
+			}
+		}
+
+		//custom option render list of attendees
+		.option-container {
+			color: #e4e5e6;
+
+			display: flex;
+			align-items: center;
+			gap: 3px;
+
+			.option-icon {
+				display: flex;
+				width: 16px;
+				height: 16px;
+				justify-content: center;
+				align-items: center;
+				font-size: 9px;
+				background-color: #2e2f36;
+				border-radius: 50%;
+			}
+			.option-name {
+				font-weight: 500;
+				line-height: 16px;
+				color: #e4e5e6;
+				width: 200px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+		}
+	}
+}

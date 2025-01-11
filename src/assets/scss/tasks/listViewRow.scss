@@ -1,0 +1,60 @@
+.listItemRowContainer {
+	display: flex;
+	min-width: 100%;
+	width: fit-content;
+	padding: 8px 0;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #171819;
+	cursor: pointer;
+
+	.listItemRow {
+		border-radius: 12px;
+		padding: 0 6px;
+		transition: all 0.3s ease;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 10px;
+		align-self: stretch;
+		width: 100%;
+		overflow-x: auto;
+
+		.leftPart {
+			display: flex;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 10px;
+			align-self: stretch;
+			min-width: fit-content;
+			* {
+				flex-shrink: 0;
+			}
+		}
+		.rightPart {
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-end;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 10px;
+			align-self: stretch;
+			min-width: fit-content;
+			* {
+				flex-shrink: 0;
+			}
+		}
+	}
+
+	&:hover {
+		.listItemRow {
+			background-color: #f5f5f508;
+		}
+	}
+}
+.subTaskRowContainer {
+	border: none;
+	padding: 0;
+}

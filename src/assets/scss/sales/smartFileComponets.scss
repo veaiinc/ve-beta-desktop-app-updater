@@ -270,6 +270,9 @@
 					font-weight: 400;
 					line-height: 26px; /* 185.714% */
 				}
+				.serviceSubtotalValueInput.ai_generated {
+					border: 1px solid var(--Color-Code-AI, #c39df8);
+				}
 				.ServiceSubTotalValue {
 					color: #e4e5e6;
 					font-family: Inter;
@@ -490,6 +493,9 @@
 		.anticon-calendar svg {
 			fill: #fff;
 		}
+		input::placeholder {
+			color: #fff;
+		}
 	}
 	.custominputContainer.ant-picker-disabled .ant-picker-input input {
 		color: #e4e5e6 !important;
@@ -677,6 +683,7 @@
 						border-radius: 10px;
 						border: 1px solid rgba(36, 36, 36, 0.64);
 						color: #fff;
+						background-color: #fff;
 					}
 					.dateData {
 						color: #b0b0b0;

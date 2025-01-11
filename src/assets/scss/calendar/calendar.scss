@@ -1,0 +1,36 @@
+.calendarParentContainer {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	// height: 865px;
+	height: calc(95vh - 60px);
+	color: white; // remove this line
+
+	//To override the default AuthWrapper Children Component
+	margin: auto;
+	width: 100%;
+}
+
+.calendarSidebarContainer {
+	display: flex;
+	width: 320px;
+	height: 100%;
+	padding: 15px 0;
+	padding-right: 10px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+	flex-shrink: 0;
+	overflow-y: auto;
+}
+
+.calendarViewParentContainer {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	height: 100%;
+
+	border-radius: 24px;
+	border: 1px solid #272727;
+	background: #1d1d1d;
+}

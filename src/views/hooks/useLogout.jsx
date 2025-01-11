@@ -11,12 +11,21 @@ const useLogout = () => {
 		templates: { resetTemplateState },
 		galleryInfo: { resetGallleryState },
 		subscriptionInfo: { resetSubscriptionState },
+		calendarInfo: { resetCalendarState },
+		activityInfo: { resetActivityState },
+		aiSetup: { resetAiSetupState },
+		tasks: { resetTasksState },
 	} = useContext(Context);
 
 	const resetApplications = useCallback(async () => {
 		navigate('/');
+		//clear localstorage
 		localStorage.clear();
-		// Cookies.
+
+		// Clear all cookies
+		Object.keys(Cookies.get()).forEach((cookieName) => {
+			Cookies.remove(cookieName);
+		});
 
 		//add here all reset context state func
 		resetChatState();
@@ -25,6 +34,10 @@ const useLogout = () => {
 		resetTemplateState();
 		resetGallleryState();
 		resetSubscriptionState();
+		resetCalendarState();
+		resetActivityState();
+		resetAiSetupState();
+		resetTasksState();
 	}, []);
 
 	return resetApplications;

@@ -1,0 +1,61 @@
+.filterPopUpContainer {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	flex-direction: column;
+	padding: 12px 10px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1000;
+	cursor: default;
+
+	.filterPopUpHeader {
+		width: 100%;
+
+		.filterPopUpSearchInput {
+			width: 100%;
+			padding: 6px;
+			outline: none;
+			background: inherit;
+			color: #fff;
+			border-radius: 8px;
+			border: 1px solid var(--Primary-Font-Color, #f2f2f3);
+		}
+	}
+
+	.filterPopUpOptionsContainer {
+		margin-top: 8px;
+		overflow-y: auto;
+		width: 100%;
+
+		.filterPopUpOption {
+			display: flex;
+			height: 31px;
+			padding: 12px;
+			align-items: center;
+			gap: 8px;
+			align-self: stretch;
+			border-radius: 8px;
+			width: 100%;
+			cursor: pointer;
+
+			span {
+				color: #e4e5e6;
+				text-align: left;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				white-space: nowrap;
+			}
+
+			&:hover {
+				background: #292b2d;
+			}
+		}
+	}
+}

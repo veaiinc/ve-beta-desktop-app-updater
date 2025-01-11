@@ -5,15 +5,16 @@
 	background: linear-gradient(180deg, #0e0f0f 0%, #19191b 100%);
 	will-change: transform, opacity;
 	opacity: 0;
+	overflow: hidden;
 
-	.step6-container {
+	.step8-container {
 		width: 100%;
 		height: 100%;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 
-		.step6 {
+		.step8 {
 			color: #fff;
 			font-family: Brasley;
 			font-size: 24px;
@@ -43,6 +44,39 @@
 			.progress-bar {
 				height: 3px;
 				border-radius: 2px;
+			}
+		}
+
+		.invited-onborading {
+			.otp-message {
+				color: rgba(255, 255, 255, 0.6);
+				font-family: Brasley;
+				font-size: 14px !important;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				text-align: left;
+				margin: 14px 0 !important;
+				padding: 0 !important;
+			}
+			h1 {
+				color: #fff;
+				font-family: Brasley;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				font-size: 32px;
+			}
+
+			h2 {
+				color: rgba(255, 255, 255, 0.6);
+				font-family: Brasley;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				text-align: left;
+				margin: 14px 0;
 			}
 		}
 
@@ -79,6 +113,100 @@
 				text-align: center;
 			}
 
+			.step6,
+			.step7 {
+				h1 {
+					color: #fff;
+					font-family: Brasley;
+					font-size: 32px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+
+				h2 {
+					margin-top: 32px;
+					color: rgba(255, 255, 255, 0.5);
+					font-family: Brasley;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+
+			.verify-otp-container {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				flex-direction: column;
+				gap: 32px;
+
+				.verification-code-input-container {
+					margin-top: 72px;
+					width: 100%;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					position: relative;
+
+					input {
+						&::selection {
+							background-color: transparent;
+						}
+					}
+
+					.otp-error-message {
+						position: absolute;
+						top: -24px;
+						color: #ff7070;
+						font-family: Brasley;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						text-align: right;
+					}
+
+					.otp-input-container {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						flex-direction: column;
+						gap: 8px;
+						.ant-otp {
+							.ant-input {
+								background-color: rgba(255, 255, 255, 0.05);
+								border: none;
+								outline: none;
+								border-radius: 50%;
+								padding: 20px;
+								width: 50px;
+								height: 50px;
+								color: #fff;
+
+								&::placeholder {
+									color: #fff;
+								}
+							}
+							.ant-input-otp-input::placeholder {
+								content: '0';
+							}
+						}
+					}
+				}
+
+				.resendCode {
+					color: rgba(255, 255, 255, 0.5);
+					font-family: Brasley;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					cursor: pointer;
+				}
+			}
+
 			.workspace-handle-text {
 				color: rgba(255, 255, 255, 0.5);
 				font-family: Brasley;
@@ -101,6 +229,48 @@
 					max-width: 200px;
 					text-overflow: ellipsis;
 					overflow-x: clip;
+				}
+			}
+
+			.phone-number-container {
+				margin-top: 44px;
+				border-radius: 60px;
+				background: rgba(255, 255, 255, 0.05);
+				padding: 16px 32px;
+				display: flex;
+				justify-content: flex-start;
+				position: relative;
+				width: 280px;
+				position: relative;
+
+				input[type='tel'] {
+					outline: none;
+					border: none;
+					background: inherit;
+					color: #fff;
+					font-family: 'Inter';
+					font-size: 14px;
+					font-weight: 400;
+					text-transform: capitalize;
+				}
+
+				.next-button {
+					border: none;
+					outline: none;
+					position: absolute;
+					right: 0;
+					top: 0px;
+					padding: 14px 24px;
+					border-radius: 60px;
+				}
+
+				.phone-number-error-message {
+					position: absolute;
+					right: 0;
+					top: 70px;
+					font-size: 12px;
+					color: #d1243f;
+					text-transform: capitalize;
 				}
 			}
 

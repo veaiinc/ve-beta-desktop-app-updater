@@ -5,8 +5,17 @@ import { ReactComponent as Circled } from '../../../../assets/svg/workflow/circl
 import { ReactComponent as RightArrow } from '../../../../assets/svg/workflow/rightArrow.svg';
 
 const CopiedModal = ({ open, closeModal, modules, copyLink, pin }) => {
+	const customStyles = {
+		content: { zIndex: 99999 },
+		overlay: { zIndex: 99998 },
+	};
 	return (
-		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
+		<ReactModal
+			isOpen={open}
+			closeModal={closeModal}
+			modalType={'center'}
+			customStyles={customStyles}
+		>
 			<div className="copyParentModal">
 				<iframe
 					src="https://lottie.host/embed/18c5b491-9423-49b6-ba54-42842ec7116c/nGISWGIGC1.json"

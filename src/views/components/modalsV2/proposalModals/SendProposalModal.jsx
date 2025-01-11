@@ -74,6 +74,8 @@ const SendProposalModal = ({
 	emailIdentification,
 	updateIdentification,
 	assisstanceData,
+	updateVariablesInAllModules,
+	copyLink,
 }) => {
 	const {
 		templates: {
@@ -226,6 +228,9 @@ const SendProposalModal = ({
 			});
 			changelocalWorflowStatus('filesSent');
 			changeEditStatus(false);
+
+			//need to update workspace variables , they might have old data
+			updateVariablesInAllModules();
 		}
 	}, [
 		clientDetails,
@@ -261,9 +266,10 @@ const SendProposalModal = ({
 
 	const handleCopy = useCallback(async () => {
 		try {
-			await navigator.clipboard.writeText(
-				`https://${info?.currentWorkspaceId}.ve.ai/portal/${workflowSlug}`,
-			);
+			if (copyLink) {
+				await navigator.clipboard.writeText(copyLink);
+			}
+
 			modifiedCloseModal();
 			openCopyModal();
 
@@ -273,11 +279,14 @@ const SendProposalModal = ({
 				});
 				changelocalWorflowStatus('filesSent');
 				changeEditStatus(false);
+
+				//need to update workspace variables , they might have old data
+				updateVariablesInAllModules();
 			}
 		} catch (err) {
 			console.log('Failed to copy text');
 		}
-	}, [workflowSlug, workflowStatus, modifiedCloseModal, info?.currentWorkspaceId]);
+	}, [workflowSlug, workflowStatus, modifiedCloseModal, info?.currentWorkspaceId, copyLink]);
 
 	const incrementDecrementExpiry = useCallback(
 		(type) => {
@@ -485,7 +494,10 @@ const SendProposalModal = ({
 			isOpen={open}
 			closeModal={modifiedCloseModal}
 			modalType={'center'}
-			customStyles={{ content: { borderRadius: '15px' } }}
+			customStyles={{
+				content: { borderRadius: '15px', zIndex: 99999 },
+				overlay: { zIndex: 99998 },
+			}}
 		>
 			<div
 				className={`sendSmartFileupdatedContainer ${info?.showEmail ? 'showEmail' : ''} ${

@@ -1,5 +1,4 @@
 import React, { memo, useState, useEffect, useRef, useContext, useCallback } from 'react';
-import OtpInput from 'react-otp-input';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/login_page/left-arrow-back-btn.svg';
@@ -9,8 +8,8 @@ import { message } from 'antd';
 import { getLocationsDetails } from '../../../helpers';
 import Context from '../../../context/context';
 import Spinner from '../loaders/Spinner';
-import debounce from 'lodash/debounce';
 import { useLocation } from 'react-router-dom';
+import { Input } from 'antd';
 
 const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveStage }) => {
 	const navigate = useNavigate();
@@ -176,33 +175,22 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			</div>
 			<div className="verification-code-input-container">
 				<div className="otp-input-container" ref={otpContainerRef}>
-					<OtpInput
+					<Input.OTP
+						id="otpContainer"
 						value={info?.otp}
-						onChange={(otp) => setInfo((prev) => ({ ...prev, otp }))}
-						numInputs={6}
-						renderInput={(props) => {
-							return <input {...props} />;
+						onChange={(otp) => {
+							const lastChar = otp.slice(-1);
+							if (otp === '' || /^[0-9]$/.test(lastChar)) {
+								setInfo((prev) => ({ ...prev, otp: otp }));
+							}
 						}}
-						inputStyle={{
-							display: 'flex',
-							width: '49px',
-							height: '49px',
-							padding: '20px',
-							justifyContent: 'center',
-							alignItems: 'center',
-							gap: '10px',
-							borderRadius: '100px',
-							background: 'rgba(255, 255, 255, 0.05)',
-							outline: 'none',
-							border: 'none',
-							color: '#fff',
-							userSelect: 'none',
-						}}
-						containerStyle={{ display: 'flex', gap: '6px' }}
+						autoFocus
+						length={6}
 						inputType="number"
-						placeholder="000000"
-						shouldAutoFocus={true}
+						inputMode="numeric"
+						pattern="[0-9]*"
 					/>
+
 					{info?.isLoading && <Spinner />}
 				</div>
 				<p className="otp-error-message">{info?.otpError}</p>

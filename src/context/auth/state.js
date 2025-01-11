@@ -3,6 +3,8 @@ import Reducer from './reducer';
 import service from '../../services/';
 import Cookies from 'js-cookie';
 import { fetchDomainName, getLocationsDetails } from '../../helpers';
+import { message } from 'antd';
+import { NEWSLETTER_SUBSCRIPTION_URL } from '../../helpers/ConstantUrls';
 const { auth_Api: authBaseUrl } = require('../../services/config.live');
 
 export const AuthState = () => {
@@ -181,11 +183,14 @@ export const AuthState = () => {
 		const firstName = username?.split(' ')?.[0] || '';
 		const lastName = username?.split(' ')?.[1] || '';
 		const path = '/tenant-user';
-		const body = phoneNumber
-			? { firstName, lastName, phoneNumber }
-			: lastName?.length > 0
-			? { firstName, lastName }
-			: { firstName };
+
+		const body = {};
+		if (firstName) {
+			body.firstName = firstName;
+			body.lastName = lastName || '';
+		}
+		if (phoneNumber) body.phoneNumber = phoneNumber;
+
 		const token = localStorage?.getItem('usertoken') || '';
 
 		try {
@@ -202,6 +207,53 @@ export const AuthState = () => {
 			}
 		} catch (error) {
 			console.error('Error updating user name:', error);
+			throw error;
+		}
+	};
+
+	const verifyMobileOtpCode = async (phoneNumber, verificationCode) => {
+		const path = '/tenant-user/verify-phone-number';
+		const body = {
+			phoneNumber,
+			verificationCode,
+		};
+		const token = localStorage?.getItem('usertoken') || '';
+
+		try {
+			const response = await service?.fetchPut(path, body, token, 'auth');
+			if (response?.[0] === true) {
+				return [true];
+			} else {
+				return [
+					false,
+					{
+						message: response?.[1]?.message?.trim() + '. Please try again!',
+					},
+				];
+			}
+		} catch (error) {
+			console.error('Error verifying code via phone number', error);
+			throw error;
+		}
+	};
+
+	const requestResendOTPToMobile = async () => {
+		const path = '/tenant-user/request-phone-number-verification';
+		const token = localStorage?.getItem('usertoken') || '';
+		try {
+			const response = await service?.fetchGet(path, token, 'auth');
+			if (response?.[0] === true) {
+				return [true];
+			} else {
+				return [
+					false,
+					{
+						message: response?.[1]?.message?.trim() + '. Please try again!',
+					},
+				];
+			}
+		} catch (error) {
+			console.error('Error verifying code via phone number', error);
 			throw error;
 		}
 	};
@@ -270,6 +322,26 @@ export const AuthState = () => {
 		}
 	};
 
+	const subscribeToNewsletter = async (email) => {
+		try {
+			const url = NEWSLETTER_SUBSCRIPTION_URL;
+			const locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
+
+			const response = await fetch(url, {
+				method: 'POST',
+				body: JSON.stringify({ email, source: 've.ai', location: locationDetails }),
+			});
+			if (response?.ok === true && response?.status === 200) {
+				return [true];
+			} else {
+				return [false, { message: 'An unexpected error occurred. Please try again!' }];
+			}
+		} catch (error) {
+			console.error('Error subscribing to email newsletter', error);
+			throw error;
+		}
+	};
+
 	const continueWithGoogle = async (locationDetails, referralCode = false) => {
 		const encodedLocationDetails = encodeURIComponent(JSON.stringify(locationDetails));
 		const encodedReferralCode = referralCode ? encodeURIComponent(referralCode) : false;
@@ -307,5 +379,8 @@ export const AuthState = () => {
 		checkWorkspaceHandleAvailability,
 		updateUserDetails,
 		getUsernameDetailsViaReferralCode,
+		verifyMobileOtpCode,
+		requestResendOTPToMobile,
+		subscribeToNewsletter,
 	};
 };

@@ -11,7 +11,7 @@ import { ReactComponent as GlassMorphGrey2 } from '../../../assets/svg/login_pag
 import { ReactComponent as ShapeLemonYellow } from '../../../assets/svg/login_page/shape-lemon-yellow.svg';
 import { ReactComponent as PlusBlack } from '../../../assets/svg/login_page/plus-black.svg';
 import { ReactComponent as VeAiLogoLemonYellow } from '../../../assets/svg/login_page/ve-ai-logo-lemon-yellow.svg';
-import { ReactComponent as CookieIcon } from '../../../assets/svg/landingScreen/cookie.svg';
+import CookiesImg from '../../../assets/images/login_page/cookies.png';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 
@@ -27,9 +27,8 @@ const LoginPage = () => {
 
 	useEffect(() => {
 		const cookiesAccepted = Cookies?.get('cookiesAccepted');
-		if (cookiesAccepted === 'true') {
-			setInfo({ ...info, cookiesAccepted: true });
-		}
+		if (cookiesAccepted === 'true') setInfo({ ...info, cookiesAccepted: true });
+		else setInfo({ ...info, cookiesAccepted: false });
 	}, [info?.cookiesAccepted]);
 
 	const handleAcceptCookies = () => {
@@ -56,7 +55,6 @@ const LoginPage = () => {
 				setEmail={setEmail}
 				setActiveStage={setActiveStage}
 				setEmailVerified={setEmailVerified}
-				cookiesAccepted={info?.cookiesAccepted}
 			/>
 		),
 		verificationCode: (
@@ -75,7 +73,7 @@ const LoginPage = () => {
 				<div className="cookies-notice">
 					<div className="cookie-container">
 						<span className="cookie-icon">
-							<CookieIcon aria-label="Cookie icon" />
+							<img src={CookiesImg} />
 						</span>
 						<p>
 							This site uses cookies to provide you with a personalized experience.

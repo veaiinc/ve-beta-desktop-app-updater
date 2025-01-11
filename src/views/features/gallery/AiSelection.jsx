@@ -1,16 +1,13 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, memo } from 'react';
 import '../../../assets/scss/gallery/aiOption.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
-// import { ReactComponent as CopyIcon } from '../../../assets/svg/workflow/copy.svg';
 import AiPeopleContainer from '../../components/gallery/aiSelections/AiPeopleContainer';
 import AiFaceRegistration from '../../components/gallery/aiSelections/AiFaceRegistration';
 import Insights from '../../components/gallery/aiSelections/Insights';
 import AiFacesContainer from '../../components/gallery/aiSelections/AiFacesContainer';
-
 const aiOptions = [
 	{ name: 'AI People', value: 'AI People' },
 	{ name: 'AI Face Registration', value: 'AI Face Registration' },
-	{ name: 'Insights', value: 'Insights' },
 ];
 const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 	const [info, setInfo] = useState({
@@ -36,7 +33,6 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 			search: 'Ai Faces',
 		}));
 	};
-
 	return (
 		<div className="aiSelection-container">
 			<div className="aiOptions-navbar">
@@ -64,7 +60,6 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 					}}
 				>
 					<SearchIcon />
-
 					<input
 						type="text"
 						placeholder="Search"
@@ -74,7 +69,6 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 					/>
 				</div>
 			</div>
-
 			{info?.search === 'AI People' && (
 				<AiPeopleContainer
 					galleryId={galleryId}
@@ -94,5 +88,4 @@ const AiSelection = ({ galleryId, galleryCredentials, link }) => {
 		</div>
 	);
 };
-
-export default AiSelection;
+export default memo(AiSelection);

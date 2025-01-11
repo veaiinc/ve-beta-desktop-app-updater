@@ -38,7 +38,13 @@ const professions = {
 	},
 };
 
-const Profession = ({ workspaceType, setProfession, animateStep5AndStage4Exit }) => {
+const Profession = ({
+	workspaceType,
+	setProfession,
+	animateStep5AndStage4Exit,
+	createWorkspaceUsername,
+	jumpToStep8AndHandleOnboarding,
+}) => {
 	const professionRef = useRef(null);
 	const [info, setInfo] = useState({
 		optionSelected: false,
@@ -48,7 +54,8 @@ const Profession = ({ workspaceType, setProfession, animateStep5AndStage4Exit })
 		if (info?.optionSelected) return;
 		setInfo((prev) => ({ ...prev, optionSelected: true }));
 		setProfession(profession);
-		animateStep5AndStage4Exit();
+		if (!createWorkspaceUsername) animateStep5AndStage4Exit();
+		else jumpToStep8AndHandleOnboarding();
 	};
 
 	return (

@@ -206,19 +206,26 @@
 			list-style: none;
 
 			button {
+				transition: all 0.3s ease;
 				color: rgba(228, 229, 230, 0.48);
+				color: color(display-p3 0.8941 0.898 0.902 / 0.48);
+				cursor: pointer;
 				font-family: Inter;
-				font-size: 11px;
+				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: 15px;
-				cursor: pointer;
+				line-height: normal;
+				display: flex;
+				height: 32px;
+				padding: 8px 12px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
 				border-radius: 100px;
-				border: 1px solid #242424;
-				background: #191919;
-				padding: 8px 16px;
-				transition: all 0.3s ease;
-				min-width: max-content;
+				border: 1px solid #202020;
+				border: 1px solid color(display-p3 0.1255 0.1255 0.1255);
+				background: #202123;
+				background: color(display-p3 0.1255 0.1294 0.1373);
 
 				&.active {
 					color: #fff;
@@ -241,182 +248,103 @@
 			overflow-x: auto;
 			padding: 12px;
 
-			.card-div-end-black-shadow {
-				background: linear-gradient(270deg, #111 6.77%, rgba(17, 17, 17, 0) 112.5%);
-				position: absolute;
-				top: 0;
-				right: 0;
-				width: 96px;
-				height: 100%;
-				z-index: 2;
-				background-color: transparent;
-			}
-
-			.card {
-				border-radius: 16px;
-				// border: 0.5px solid rgba(255, 255, 255, 0.2);
-				background: #171717;
-				padding: 16px;
-				min-width: 200px;
-				max-width: 200px;
-				min-height: 284px;
-				text-align: left;
+			.requiredSalesPendingCard {
 				display: flex;
+				width: 285px;
+				height: 304px;
+				padding: 32px;
 				flex-direction: column;
-				justify-content: space-between;
+				// justify-content: space-between;
+				align-items: flex-start;
+				border-radius: 24px;
+				background: #171819;
+				background: color(display-p3 0.0902 0.0941 0.098);
 				cursor: pointer;
-				transition: all 0.2s ease-in;
-				position: relative;
+				flex-shrink: 0;
+				.agentsWorkflowJobCards {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 12px;
+					align-self: stretch;
+					flex: 1;
 
-				&:hover {
-					background: linear-gradient(139deg, #151515 31.57%, #1a1a1a 100%);
-					box-shadow: 0px 0px 14px 0px rgba(120, 120, 120, 0.25);
-					transform: scale(1.01);
-				}
-
-				.card-svg {
-					position: absolute;
-					top: 0;
-					left: 0;
-					// z-index: -1;
-				}
-
-				.card-content {
-					.card-title {
-						color: #fff;
-						font-family: Inter;
-						font-size: 10px;
-						font-style: normal;
-						font-weight: 400;
-						line-height: normal;
-						border-radius: 99px;
-						border: 0.5px solid rgba(0, 0, 0, 0.1);
-						background: #212121;
-						box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.3) inset;
-						padding: 4px 12px;
-						width: fit-content;
-					}
-
-					h1 {
-						margin: 8px 0;
-						color: #e4e5e6;
-						font-family: Inter;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 400;
-						line-height: normal;
-					}
-
-					p {
-						color: rgba(228, 229, 230, 0.36);
-						font-family: Inter;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 400;
-						line-height: normal;
-					}
-
-					ul {
+					.agentsWorkflowJobCardsContent {
 						display: flex;
 						flex-direction: column;
 						align-items: flex-start;
-						justify-content: flex-start;
-						gap: 10px;
-						list-style: none;
-
-						li {
-							span {
-								padding-left: 8px;
-								color: rgba(228, 229, 230, 0.36);
-								font-family: Inter;
-								font-size: 14px;
-								font-style: normal;
-								font-weight: 400;
-								line-height: normal;
-							}
-						}
-					}
-
-					.counter-sign-icon {
-						margin-top: 8px;
-						display: flex;
-						align-items: center;
-						span {
-							color: rgba(228, 229, 230, 0.36);
+						gap: 12px;
+						align-self: stretch;
+						flex: 1;
+						.agentsWorkflowJobCardsTitle {
+							color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+							color: var(
+								--ve-ai-dark-theme-primary-font-color,
+								color(display-p3 0.9098 0.9098 0.9098)
+							);
 							font-family: Inter;
-							font-size: 10px;
+							font-size: 18px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+
+						.agentsWorkflowJobCardsSubTitle {
+							color: var(--ve-ai-dark-theme-secondary-color, #939393);
+							color: var(
+								--ve-ai-dark-theme-secondary-color,
+								color(display-p3 0.5755 0.5755 0.5755)
+							);
+							font-family: Inter;
+							font-size: 14px;
 							font-style: normal;
 							font-weight: 400;
-							line-height: 14px; /* 140% */
+							line-height: 20px; /* 142.857% */
 						}
 					}
-				}
-
-				.card-footer {
-					width: 100%;
-					display: flex;
-					justify-content: flex-start;
-					align-items: flex-start;
-					flex-direction: column;
-					gap: 10px;
-
-					.stoke-line {
-						width: 100%;
-						height: 1px;
-						background: linear-gradient(
-							270deg,
-							rgba(255, 255, 255, 0) 0%,
-							rgba(255, 255, 255, 0.2) 49%,
-							rgba(255, 255, 255, 0) 100%
-						);
-					}
-
-					.card-footer-left {
-						display: flex;
-						gap: 10px;
-					}
-
-					.line {
-						background: linear-gradient(
-							270deg,
-							rgba(255, 255, 255, 0) 0%,
-							rgba(255, 255, 255, 0.2) 49%,
-							rgba(255, 255, 255, 0) 100%
-						);
-						width: 168px;
-						height: 0.5px;
-					}
-
-					img {
-						width: 20px;
-						height: 20px;
-						border-radius: 4px;
-					}
-
-					p {
-						color: rgba(228, 229, 230, 0.48);
+					.agentsTabType {
+						color: #e8e8e8;
+						color: color(display-p3 0.9098 0.9098 0.9098);
 						font-family: Inter;
-						font-size: 10px;
+						font-size: 14px;
 						font-style: normal;
-						font-weight: 400;
-						line-height: 14px; /* 140% */
-					}
-
-					.card-footer-time {
-						width: 100%;
-						color: rgba(228, 229, 230, 0.36);
-						font-family: Inter;
-						font-size: 10px;
-						font-style: normal;
-						font-weight: 400;
+						font-weight: 500;
 						line-height: normal;
-						letter-spacing: -0.2px;
-						display: flex;
-						justify-content: flex-end;
-						align-items: flex-end;
+						text-transform: capitalize;
+						.agentsWorkflowJobCardsSubTitle {
+							color: var(--ve-ai-dark-theme-secondary-color, #939393);
+							color: var(
+								--ve-ai-dark-theme-secondary-color,
+								color(display-p3 0.5755 0.5755 0.5755)
+							);
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 20px; /* 142.857% */
+						}
 					}
 				}
 			}
 		}
+		.card-div-end-black-shadow {
+			background: linear-gradient(270deg, #111 6.77%, rgba(17, 17, 17, 0) 112.5%);
+			position: absolute;
+			top: 0;
+			right: 0;
+			width: 96px;
+			height: 100%;
+			z-index: 2;
+			background-color: transparent;
+		}
+	}
+	.salesExtraContentCards {
+		display: flex;
+		align-self: stretch;
+		height: 418px;
+		align-items: flex-start;
+		gap: 18px;
+		// overflow-x: auto;
+		margin-top: 48px;
 	}
 }

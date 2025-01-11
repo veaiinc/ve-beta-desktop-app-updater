@@ -1,0 +1,165 @@
+.customEventCardParentContainer {
+	display: flex;
+	height: 100%;
+	padding: 3px;
+	gap: 10px;
+	border-radius: 8px;
+	background: #2a2a2a;
+	overflow-y: auto;
+	overflow-x: hidden;
+
+	color: #e4e5e6;
+	font-family: Inter;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	letter-spacing: -0.24px;
+
+	.cardContainer {
+		display: flex;
+		height: auto;
+		gap: 5px;
+		flex-direction: column;
+		justify-content: space-between;
+		align-items: flex-start;
+		width: 100%;
+		.eventHeader {
+			width: 100%;
+			display: flex;
+			position: relative;
+
+			.eventDetails {
+				width: calc(100% - 13px);
+				padding-bottom: 25px;
+
+				.title {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					letter-spacing: -0.24px;
+					text-overflow: ellipsis;
+					text-wrap: wrap;
+					hyphens: auto;
+					// max-height: ;
+				}
+				.subText {
+					color: rgba(228, 229, 230, 0.5);
+					font-family: Inter;
+					font-size: 9px;
+					font-style: bold;
+					font-weight: 400;
+					line-height: normal;
+					letter-spacing: -0.22px;
+					position: absolute;
+					left: 0;
+					right: 0;
+					padding: 3px 0;
+					word-wrap: break-word; /* Allow breaking the word */
+					white-space: normal;
+				}
+			}
+			.eventStatusDiv {
+				width: 15px;
+				height: 15px;
+				flex-shrink: 0;
+
+				.statusIndicator {
+					width: 15px;
+					height: 15px;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					border-radius: 100px;
+
+					background-color: aqua;
+					cursor: pointer;
+
+					&:hover {
+						background: rgb(255, 180, 67);
+						background: linear-gradient(
+							90deg,
+							rgba(255, 180, 67, 1) 0%,
+							rgba(139, 234, 255, 1) 26%,
+							rgba(255, 123, 242, 1) 67%,
+							rgba(255, 255, 255, 1) 99%
+						);
+						filter: blur(0.5px);
+						// border: 2px solid green
+					}
+
+					span {
+						// display: flex;
+						width: 11px;
+						height: 11px;
+						background-color: rgb(54, 54, 54);
+						border-radius: 100%;
+					}
+				}
+			}
+		}
+
+		.eventFooter {
+			.userSvg {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				background-color: rgb(147, 144, 144);
+				border-radius: 50%;
+				width: 15px;
+				height: 15px;
+				flex-shrink: 0;
+			}
+		}
+	}
+}
+
+.rbc-events-container {
+	overflow-x: hidden;
+}
+
+.customEventWrapper {
+	// border: 2px solid red;
+	height: fit-content;
+	color: #e4e5e6;
+	font-family: Inter;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	// letter-spacing: -0.24px;
+
+	// Target .rbc-event inside .customEventWrapper
+	.rbc-event {
+		border-radius: 8px;
+		border: none;
+		background: #2a2a2a;
+		padding: 5px;
+		border: 1px solid #202020;
+		min-width: 100%;
+
+		// Target .rbc-event-label inside .rbc-event
+		.rbc-event-label {
+			display: none;
+			margin-left: 5px;
+			color: rgba(228, 229, 230, 0.5);
+			font-family: Inter;
+			font-size: 11px;
+			font-weight: 400;
+			line-height: normal;
+		}
+
+		&:hover {
+			z-index: 100;
+			width: 100% !important;
+			left: 0 !important;
+		}
+	}
+
+	.rbc-selected {
+		border: none;
+	}
+}
