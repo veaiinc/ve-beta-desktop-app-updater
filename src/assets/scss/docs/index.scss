@@ -300,11 +300,25 @@
 						font-weight: 500;
 						line-height: 20px;
 						cursor: pointer;
+						position: relative;
+						user-select: none;
 
 						svg {
 							path {
 								fill: #6254f5 !important;
 							}
+						}
+
+						.templateName {
+							color: #e4e5e6;
+							color: color(display-p3 0.8941 0.898 0.902);
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							padding: 12px 10px;
+							bottom: -32px;
 						}
 					}
 				}
