@@ -1,0 +1,45 @@
+.myTemplatesContainer {
+	width: 100%;
+	background-color: inherit;
+
+	.headerContainer {
+		width: 100%;
+
+		.title {
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 24px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.cardsContainer {
+			display: flex;
+			gap: 16px;
+
+			.card {
+				display: flex;
+				width: 385px;
+				height: 91px;
+				padding: 16px 24px;
+				flex-direction: column;
+				justify-content: center;
+				align-items: flex-start;
+				gap: 6px;
+				border-radius: 14px;
+				background: var(--card, #171819);
+
+				.cardTitle {
+					color: var(--Primary-Font, #f2f2f3);
+					color: var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
+					font-family: Inter;
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+	}
+}
