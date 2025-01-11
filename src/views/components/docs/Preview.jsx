@@ -3,7 +3,6 @@ import { fetchOriginSelection } from '../../../helpers';
 let origin = fetchOriginSelection();
 
 const Preview = ({ data }) => {
-	console.log('data', data);
 	return (
 		<div className="previewContainer">
 			<div style={{ width: '100%', height: '100%' }}>

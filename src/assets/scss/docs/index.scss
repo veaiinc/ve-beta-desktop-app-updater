@@ -286,6 +286,7 @@
 					.appliedFilter {
 						display: flex;
 						padding: 8px 16px;
+						padding-right: 38px;
 						justify-content: center;
 						flex-shrink: 0;
 						align-items: center;
@@ -300,11 +301,46 @@
 						font-weight: 500;
 						line-height: 20px;
 						cursor: pointer;
+						position: relative;
+						user-select: none;
 
 						svg {
 							path {
 								fill: #6254f5 !important;
 							}
+						}
+
+						.removeFilterBtn {
+							position: absolute;
+							right: 0;
+							top: 0;
+							width: 38px;
+							height: 100%;
+							cursor: pointer;
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							border-radius: 0 21px 21px 0;
+
+							&:hover {
+								svg {
+									path {
+										stroke: #fff !important;
+									}
+								}
+							}
+						}
+
+						.templateName {
+							color: #e4e5e6;
+							color: color(display-p3 0.8941 0.898 0.902);
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							padding: 12px 10px;
+							bottom: -32px;
 						}
 					}
 				}

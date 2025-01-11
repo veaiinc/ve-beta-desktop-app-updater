@@ -1,57 +1,68 @@
-import { Drawer } from 'antd';
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState, useContext } from 'react';
+import '../../../assets/scss/docs/fileListView.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
 import { ReactComponent as ShareSvg } from '../../../assets/svg/docs/share.svg';
 import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
 import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
+import { ReactComponent as ActivitySvg } from '../../../assets/svg/docs/activity.svg';
+import { ReactComponent as DuplicateSvg } from '../../../assets/svg/shareAndEarn/copy.svg';
+import { ReactComponent as DeleteSvg } from '../../../assets/svg/tasks/dustBin.svg';
 import CustomTextArea from '../globalComponents/CusomTextArea';
 import RequiredActions from './RequiredActions';
+import DocsActivity from './DocsActivity';
 import Preview from './Preview';
-import '../../../assets/scss/docs/fileListView.scss';
+import { Drawer } from 'antd';
+import { Tooltip } from 'antd';
 import { DocsStatusButton, statusTextmapper } from '../../features/docs';
+import Context from '../../../context/context.js';
+
 const Sidebar = ({ open, onClose, activeFileData, openSendSmartFileModal }) => {
+	const {
+		activityInfo: { resetActivityState },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		activeTab: 'reqActions',
+		openMoreOptions: false,
 	});
-	const handleTabChange = useCallback((tabId) => {
-		setInfo((prev) => ({ ...prev, activeTab: tabId }));
+
+	const handleTabChange = useCallback((tab) => {
+		setInfo((prev) => ({ ...prev, activeTab: tab }));
 	}, []);
 
-	const tabs = useMemo(
-		() => [
-			{
-				id: 'reqActions',
+	const tabs = useMemo(() => {
+		return {
+			reqActions: {
 				label: 'Req Actions',
-				Component: () => <RequiredActions />,
+				Component: <RequiredActions data={activeFileData} />,
 			},
-			{
-				id: 'preview',
+			preview: {
 				label: 'Preview',
-				Component: () => <Preview data={activeFileData} />,
+				Component: <Preview data={activeFileData} />,
 			},
-			{
-				id: 'activity',
+			activity: {
 				label: 'Activity',
-				Component: () => <div>Activity</div>,
+				Component: <DocsActivity data={activeFileData} />,
 			},
-		],
-		[activeFileData],
-	);
+		};
+	}, [activeFileData]);
 
-	const renderActiveComponent = useCallback(() => {
-		const activeTabConfig = tabs?.find((tab) => tab?.id === info?.activeTab);
-		if (!activeTabConfig) return null;
+	const handleMoreVisibility = useCallback((visible) => {
+		setInfo((prev) => ({ ...prev, openMoreOptions: visible }));
+	}, []);
 
-		const { Component } = activeTabConfig;
-		return <Component />;
-	}, [info?.activeTab, tabs]);
+	const modifyClose = useCallback(() => {
+		setInfo((prev) => ({ ...prev, activeTab: 'reqActions' }));
+		resetActivityState();
+		onClose();
+	}, [onClose]);
+
 	return (
 		<Drawer
 			open={open}
-			// open={true}
-			onClose={onClose}
+			onClose={modifyClose}
 			style={{ padding: '10px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
@@ -60,7 +71,7 @@ const Sidebar = ({ open, onClose, activeFileData, openSendSmartFileModal }) => {
 			<div className="fileListViewDrawer">
 				<div className="headerContainer">
 					<div className="headerLeftLabel">
-						<CloseSvg onClick={onClose} />
+						<CloseSvg onClick={modifyClose} />
 						<ExpandSvg />
 					</div>
 					<div className="headerRightLabel">
@@ -72,11 +83,38 @@ const Sidebar = ({ open, onClose, activeFileData, openSendSmartFileModal }) => {
 						/>
 						<div className="editLabel">Edit</div>
 						<ShareSvg onClick={openSendSmartFileModal} />
-						<DotsSvg />
+						<Tooltip
+							placement="bottomRight"
+							open={info?.openMoreOptions}
+							onOpenChange={handleMoreVisibility}
+							arrow={false}
+							trigger={'click'}
+							color={'transparent'}
+							overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+							overlayClassName="dot-svg-tooltip"
+							title={
+								<div className="dot-svg-tooltip-content">
+									<div className="items">
+										<ActivitySvg />
+										<span>Activity</span>
+									</div>
+									<div className="items">
+										<DuplicateSvg />
+										<span>Duplicate</span>
+									</div>
+									<div className="items">
+										<DeleteSvg />
+										<span>Delete</span>
+									</div>
+								</div>
+							}
+						>
+							<DotsSvg />
+						</Tooltip>
 					</div>
 				</div>
 
-				<div className="listViewContainer">
+				<div className="listviewContainer">
 					<CustomTextArea
 						value={activeFileData?.title}
 						onChange={(e) => {}}
@@ -136,20 +174,20 @@ const Sidebar = ({ open, onClose, activeFileData, openSendSmartFileModal }) => {
 
 				<div className="tabsViewWrapper">
 					<div className="tabsView">
-						{tabs?.map((tab) => (
+						{Object?.keys(tabs)?.map((tab) => (
 							<div
-								key={tab?.id}
+								key={tab}
 								className={`tabViewLabel ${
-									info?.activeTab === tab?.id ? 'active' : ''
+									info?.activeTab === tab ? 'active' : ''
 								}`}
-								onClick={() => handleTabChange(tab?.id)}
+								onClick={() => handleTabChange(tab)}
 							>
-								{tab?.label}
+								{tabs?.[tab]?.label}
 							</div>
 						))}
 					</div>
 
-					<div className="respectiveView">{renderActiveComponent() || ''}</div>
+					<div className="respectiveView">{tabs?.[info?.activeTab]?.Component || ''}</div>
 				</div>
 			</div>
 		</Drawer>

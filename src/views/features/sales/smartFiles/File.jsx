@@ -136,7 +136,7 @@ const File = ({
 				for (let k = 0; k < activeVersionData?.tables?.length; k++) {
 					const currentTableData = activeVersionData?.tables?.[k];
 
-					if (currentTableData?.type === 'events') {
+					if (currentTableData?.type === 'events' && updatedModules?.[i] === 'proposal') {
 						eventsTable?.push({
 							...currentTableData,
 							moduleType: updatedModules?.[i],
