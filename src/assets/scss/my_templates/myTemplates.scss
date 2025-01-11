@@ -1,9 +1,19 @@
 .myTemplatesContainer {
-	width: 100%;
 	background-color: inherit;
+	color: #f2f2f3;
+	display: flex;
+	width: 100%;
+	height: 100%;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+	flex-shrink: 0;
 
 	.headerContainer {
 		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
 
 		.title {
 			color: #f2f2f3;
@@ -20,7 +30,7 @@
 
 			.card {
 				display: flex;
-				width: 385px;
+				min-width: 385px;
 				height: 91px;
 				padding: 16px 24px;
 				flex-direction: column;
@@ -28,18 +38,70 @@
 				align-items: flex-start;
 				gap: 6px;
 				border-radius: 14px;
-				background: var(--card, #171819);
+				background: #171819;
 
 				.cardTitle {
-					color: var(--Primary-Font, #f2f2f3);
-					color: var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
+					color: #f2f2f3;
 					font-family: Inter;
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
 				}
+
+				.cardSubTitle {
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+
+					.subTitleContainer {
+						display: flex;
+						gap: 4px;
+					}
+				}
 			}
+		}
+	}
+
+	.templateWrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		align-self: stretch;
+
+		.navContainer {
+			width: 100%;
+			min-width: 1200px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+
+			.navItemsContainer {
+				display: flex;
+				gap: 16px;
+			}
+
+			.ctaContainer {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 16px;
+
+				.ctaItem {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				}
+			}
+		}
+
+		.templateNavWrapper {
+		}
+		.templateContainer {
 		}
 	}
 }
