@@ -5,7 +5,7 @@ import ReactModal from '../../modalsV2/index';
 import InputForModules from '../../input/inputForModules';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 const validator = require('validator');
-const CreateClientModal = ({ modalIsOpen, closeModal }) => {
+const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 	let {
 		contacts: { createClient, updateStateValues },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -78,6 +78,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal }) => {
 			const payload = {
 				clientInput: {
 					name: leadDetails['name'],
+					source: source || leadDetails['source'] || 'manual',
 				},
 			};
 
@@ -126,6 +127,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal }) => {
 		updateStateValues,
 		updateSubscriptionState,
 		validateExpiryData?.isExpired,
+		source,
 	]);
 
 	return (

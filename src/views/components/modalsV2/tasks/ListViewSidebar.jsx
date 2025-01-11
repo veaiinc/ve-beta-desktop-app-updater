@@ -288,21 +288,34 @@ const ListViewSidebar = ({
 				<div className="listView-sidebar-innerContainer">
 					<div className="listView-sidebar-wrapper">
 						<div className="sidebar-header">
-							<div className="sidebar-header-expand-button"></div>
-							<CloseArrow
-								width={16}
-								height={16}
-								onClick={closeSidebar}
-								className="cursor-pointer"
-							/>
+							<div className="sidebar-header-expand-button">
+								{!isSidebarExpanded ? (
+									<CloseArrow
+										width={16}
+										height={16}
+										onClick={closeSidebar}
+										style={{ cursor: 'pointer' }}
+									/>
+								) : (
+									''
+								)}
+							</div>
 							<div
 								className="sidebar-header-expand-button"
 								onClick={toggleSidebarExpand}
 							>
 								{isSidebarExpanded ? (
-									<ExpandSvg width={16} height={16} />
+									<ExpandSvg
+										width={16}
+										height={16}
+										style={{ cursor: 'pointer' }}
+									/>
 								) : (
-									<ExpandSvg width={16} height={16} />
+									<ExpandSvg
+										width={16}
+										height={16}
+										style={{ cursor: 'pointer' }}
+									/>
 								)}
 							</div>
 							<div className="breadcrumbs">
@@ -410,15 +423,17 @@ const ListViewSidebar = ({
 
 						{sidebarChildren}
 
-						<div className="sidebar-description">
-							<CustomTextArea
-								value={localDescription}
-								onChange={handleDescriptionChange}
-								placeholder="Enter description"
-								className="sidebar-description-textarea"
-								autoResize={true}
-							/>
-						</div>
+						{selectedRow?.description !== undefined && (
+							<div className="sidebar-description">
+								<CustomTextArea
+									value={localDescription}
+									onChange={handleDescriptionChange}
+									placeholder="Enter description"
+									className="sidebar-description-textarea"
+									autoResize={true}
+								/>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>

@@ -166,7 +166,9 @@ const ListView = ({
 			)}
 			<ListViewSidebar
 				selectedRow={info?.selectedSubTask || info?.selectedRow}
-				isShowingSubTask={info?.selectedSubTask !== null}
+				isShowingSubTask={
+					info?.selectedSubTask !== undefined && info?.selectedSubTask !== null
+				}
 				parentTaskNo={info?.selectedRow?.taskSlNo}
 				handleChildTaskClose={handleChildTaskClose}
 				handleSubTaskClick={handleSubTaskClick}
