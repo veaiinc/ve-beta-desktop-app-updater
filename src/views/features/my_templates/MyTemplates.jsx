@@ -9,7 +9,6 @@ import { ReactComponent as ThreeDots } from '../../../assets/svg/my_templates/th
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Context from '../../../context/context';
-// import { FetchMoreLoaderComp } from '../../../helpers';
 
 const SubTitle = () => {
 	return (
@@ -124,7 +123,7 @@ const MyTemplates = () => {
 	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
 		const payload = {
 			filters: {
-				limit: 10,
+				limit: 16,
 				page: page,
 				type: 'workspace',
 				status: 'published',
@@ -216,7 +215,6 @@ const MyTemplates = () => {
 							dataLength={info?.workflowTemplates?.length || 0}
 							hasMore={info?.hasNextPage}
 							next={fetchMoreMyWorkflows}
-							// loader={<FetchMoreLoaderComp />}
 							loader={[{}, {}, {}]?.map((ele, index) => (
 								<Skeleton key={index} height={258} width={232} />
 							))}
@@ -229,6 +227,7 @@ const MyTemplates = () => {
 								alignContent: 'flex-start',
 								gap: '8px',
 								width: '100%',
+								overflowX: 'hidden',
 							}}
 							className="tetsing"
 							height="calc(100vh - 340px)"
@@ -236,7 +235,7 @@ const MyTemplates = () => {
 							{info?.workflowTemplates?.map((template, index) => (
 								<div key={index} className="docsTemplateCard">
 									<div className="docsTemplateImageContainer">
-										<div className="docsTemplateHoverContentContainer">
+										{/* <div className="docsTemplateHoverContentContainer">
 											<div className="docsHoverArrowContainer">
 												<svg
 													xmlns="http://www.w3.org/2000/svg"
@@ -268,7 +267,7 @@ const MyTemplates = () => {
 													Delete
 												</span>
 											</div>
-										</div>
+										</div> */}
 										<img
 											src="https://s3-alpha-sig.figma.com/img/15b6/6719/e9a63a81d478a52552ed98ac31e7a2b6?Expires=1737331200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=AHd93og5SQiiQLECz4ZuNCrzERGP~NAz3qk7eS5Sfl2rnN0oWzjo~8CgS5fNWE5Knb5s0yTjbQ7uXSeHW6H8J3E1eSneLfc0U9057RjAp0VEqJ-evjzPJjlrXdlli85n2yZM7obW8hfc~8-9MlR57xLGtWobCP7v50apSuXv~1NXhnucgryS87p1CZyKsZZ1Ro-JHIDtSqRygCQDk7N~x2ZS0u5JL6cEZF~nC0oZdxR73cBZ1yBbIG~CYAqEdojkRWVcoOYkPROyviNf-vIl8O3kRvgvVLXAgH7WeebcdHwODd4LeNcCXL7uhHAfZPRwvTeKbq4NW9MarD7lglA2cw__"
 											alt="Template preview"
