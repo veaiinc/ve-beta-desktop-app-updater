@@ -7,8 +7,6 @@ import { ReactComponent as UpDownArrow } from '../../../assets/svg/my_templates/
 import { ReactComponent as Filter } from '../../../assets/svg/my_templates/filter.svg';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/my_templates/three-dots.svg';
 import TemplateCards from '../../components/myTemplate/TemplateCards';
-import Skeleton from 'react-loading-skeleton';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import Context from '../../../context/context';
 
 const SubTitle = () => {
@@ -103,11 +101,13 @@ const MyTemplates = () => {
 	});
 
 	useEffect(() => {
-		console.log('workflowTemplates', info?.workflowTemplates);
-	}, [info?.workflowTemplates]);
-
-	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
+		return () => {
+			setInfo((prev) => ({
+				...prev,
+				...initialState,
+			}));
+		};
 	}, []);
 
 	useEffect(() => {
