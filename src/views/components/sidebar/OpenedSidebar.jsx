@@ -72,7 +72,6 @@ const OpenedSideBarHoverStateIcons = ({
 	isSelected,
 	subModules,
 }) => {
-	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
 	const [isDropdownVisible, setDropdownVisible] = useState(false);
 	const [activeSubModule, setActiveSubModule] = useState(null);
@@ -102,12 +101,6 @@ const OpenedSideBarHoverStateIcons = ({
 		setDropdownVisible(!isDropdownVisible);
 	};
 
-	const isExactPathMatch = useCallback(() => {
-		const currentPath = location.pathname.replace(/\/$/, '');
-		const routePath = route?.replace(/\/$/, '');
-		return currentPath === routePath;
-	}, [location.pathname, route]);
-
 	return (
 		<div
 			style={{
@@ -117,7 +110,7 @@ const OpenedSideBarHoverStateIcons = ({
 			}}
 		>
 			<div
-				className={`singleModuleItem ${isExactPathMatch() ? 'activeListModule' : ''} ${
+				className={`singleModuleItem ${isActive ? 'activeListModule' : ''} ${
 					isDropdownVisible ? 'calendar-active' : ''
 				}`}
 				onMouseEnter={onMoutseEnter}
@@ -129,6 +122,7 @@ const OpenedSideBarHoverStateIcons = ({
 							? `${subModules.length * 40}px`
 							: '0',
 					justifyContent: 'space-between',
+					backgroundColor: isActive ? '#2E2F33' : isHover ? '#2E2F33' : 'transparent',
 				}}
 			>
 				<div
@@ -140,9 +134,7 @@ const OpenedSideBarHoverStateIcons = ({
 					}}
 				>
 					<p>{name}</p>
-					{Icon && (
-						<Icon fill={isExactPathMatch() ? '#FFF' : isHover ? '#FFF' : '#FFF'} />
-					)}
+					{Icon && <Icon fill={isActive ? '#FFF' : isHover ? '#FFF' : '#FFF'} />}
 				</div>
 				{isDropdownVisible && subModules?.length > 0 && (
 					<div>
@@ -282,7 +274,6 @@ const OpenedSideBarItemsComponent = ({
 	sidebarStates,
 	setsidebarStates,
 	info,
-	setInfo,
 	userWorkSpaceList,
 }) => {
 	const navigate = useNavigate();
@@ -321,20 +312,14 @@ const OpenedSideBarItemsComponent = ({
 		}));
 	};
 
-	const handleNavigateFunction = useCallback(
-		(route, singleItems) => {
-			if (!route) return;
-
-			setSelectedOption(singleItems?.name);
-
-			setsidebarStates((prev) => ({
-				...prev,
-				selectedModule: singleItems?.name,
-			}));
-			navigate(route);
-		},
-		[navigate],
-	);
+	const handleNavigateFunction = (route, singleItems) => {
+		setSelectedOption(singleItems?.name);
+		navigate(route);
+		setsidebarStates({
+			...sidebarStates,
+			selectedModule: singleItems?.name,
+		});
+	};
 
 	const handleSidebarCollapse = (e) => {
 		e.stopPropagation();
@@ -496,8 +481,16 @@ const OpenedSideBarItemsComponent = ({
 													handleNavigateFunction(route, singleItems);
 												}}
 												isSelected={selectedOption === singleItems?.name}
-												isActive={location.pathname === singleItems?.route}
+												isActive={
+													info?.activeRoute === singleItems?.moduleRoute
+												}
 												subModules={singleItems?.subModules}
+												style={{
+													fontSize: '14px',
+													fontStyle: 'normal',
+													fontWeight: '500',
+													fontFamily: 'Inter',
+												}}
 											/>
 										</div>
 									))}
@@ -522,8 +515,16 @@ const OpenedSideBarItemsComponent = ({
 													handleNavigateFunction(route, singleItems);
 												}}
 												isSelected={selectedOption === singleItems?.name}
-												isActive={location.pathname === singleItems?.route}
+												isActive={
+													info?.activeRoute === singleItems?.moduleRoute
+												}
 												subModules={singleItems?.subModules}
+												style={{
+													fontSize: '14px',
+													fontStyle: 'normal',
+													fontWeight: '500',
+													fontFamily: 'Inter',
+												}}
 											/>
 										</div>
 									))}

@@ -67,6 +67,10 @@ const actionHandlers = {
 		...state,
 		sendSmartFileSettings: action?.payload,
 	}),
+	GET_MODULE_TEMPLATE_SUCCESS: (state, action) => ({
+		...state,
+		moduleTemplateData: action.payload,
+	}),
 	GET_AI_PREDICTED_DATA_SUCCESS: (state, action) => ({
 		...state,
 		aiPredictedData: action?.payload,

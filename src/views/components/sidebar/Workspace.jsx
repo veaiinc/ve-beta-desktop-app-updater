@@ -8,7 +8,13 @@ import Cookies from 'js-cookie';
 import { useNavigate, useParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import useLogout from '../../hooks/useLogout';
-const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
+const WorkspaceListComponent = ({
+	sidebarStates,
+	setsidebarStates,
+	userWorkSpaceList,
+	info,
+	customStyles,
+}) => {
 	const navigate = useNavigate();
 	const { galleryId } = useParams();
 	const logoutFunc = useLogout();
@@ -78,6 +84,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 						right: 0,
 						bottom: 0,
 						backgroundColor: '#0a0a0b',
+						borderRadius: '16px',
 						opacity: 0.5,
 						height: '100vh',
 						zIndex: 997,
