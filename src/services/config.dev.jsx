@@ -9,7 +9,7 @@ module.exports = {
 	workflows_Api: 'https://ap.api.ve.ai/workflows/1.0',
 	auth_Api: 'https://auth.ve.ai',
 	activity_api: 'https://ap.api.ve.ai/workflow-user-analytics/1.0',
-	galleries: 'https://ap.api.ve.ai/galleries/1.0',
+	galleries: 'https://api.ve.ai/galleries/dev',
 	ai_assistant_api: 'https://api.ap-south-1.ve.ai',
 	ai_predictions: 'https://ai.ap-south-1.ve.ai',
 	calendar_api: 'https://ap.api.ve.ai/google/1.0',
