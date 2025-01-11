@@ -133,10 +133,12 @@ export const statusTextmapper = {
 
 const statusList = [
 	...Object.values(statusTextmapper).map((item) => {
-		return {
-			name: item.label,
-			_id: item.id,
-		};
+		if (item?.label !== 'Expired') {
+			return {
+				name: item.label,
+				_id: item.id,
+			};
+		}
 	}),
 ];
 
@@ -156,6 +158,57 @@ export const DocsStatusButton = ({ content = '', style = {}, textStyle = {}, dot
 		</div>
 	);
 };
+
+const Filters = [
+	{
+		label: (
+			<div className="filterContainer">
+				<UppercaseLowercaseA />
+				<span>Template Name</span>
+			</div>
+		),
+		value: 'templateName',
+		filterOptionsListName: 'templatesList',
+		displayValue: 'Template Name',
+		valueSelector: {
+			filter: 'templateName',
+			filterOptionsListName: 'templatesList',
+			label: 'Template Name',
+		},
+	},
+	{
+		label: (
+			<div className="filterContainer">
+				<MailLetter />
+				<span>Client Name</span>
+			</div>
+		),
+		value: 'clientName',
+		filterOptionsListName: 'clientList',
+		displayValue: 'Client Name',
+		valueSelector: {
+			filter: 'clientName',
+			filterOptionsListName: 'clientList',
+			label: 'Client Name',
+		},
+	},
+	{
+		label: (
+			<div className="filterContainer">
+				<StatusCircle />
+				<span>Status</span>
+			</div>
+		),
+		value: 'status',
+		filterOptionsListName: 'statusList',
+		displayValue: 'Status',
+		valueSelector: {
+			filter: 'status',
+			filterOptionsListName: 'statusList',
+			label: 'Status',
+		},
+	},
+];
 const Docs = () => {
 	const navigate = useNavigate();
 	let {
@@ -217,7 +270,7 @@ const Docs = () => {
 		workflowExpiryAt: '',
 		isEmailAuth: true,
 		businessName: '',
-		currentWorkspaceId: localStorage.getItem('workspaceId'),
+		currentWorkspaceId: localStorage?.getItem('workspaceId'),
 		isAlChatEnabled: false,
 		nameIdentification: false,
 		emailIdentification: false,
@@ -229,54 +282,8 @@ const Docs = () => {
 		filtersGotChanged: false,
 	});
 
-	const Filters = [
-		{
-			label: (
-				<div
-					onClick={() =>
-						handleSetActiveFilter('templateName', 'templatesList', 'Template Name')
-					}
-					className="filterContainer"
-				>
-					<UppercaseLowercaseA />
-					<span>Template Name</span>
-				</div>
-			),
-			value: 'templateName',
-			filterOptionsListName: 'templatesList',
-		},
-		{
-			label: (
-				<div
-					onClick={() => handleSetActiveFilter('clientName', 'clientList', 'Client Name')}
-					className="filterContainer"
-				>
-					<MailLetter />
-					<span>Client Name</span>
-				</div>
-			),
-			value: 'clientName',
-			filterOptionsListName: 'clientList',
-		},
-		{
-			label: (
-				<div
-					onClick={() => handleSetActiveFilter('status', 'statusList', 'Status')}
-					className="filterContainer"
-				>
-					<StatusCircle />
-					<span>Status</span>
-				</div>
-			),
-			value: 'status',
-			filterOptionsListName: 'statusList',
-		},
-	];
-
 	useEffect(() => {
 		getDocsFilesListFunc(1);
-		getClientListForDocs(payload);
-		getTemplatesListForDocs();
 		getLatestSendSmartFileSettings();
 	}, []);
 
@@ -294,6 +301,8 @@ const Docs = () => {
 					templateName: templatesListForDocs?.currentPage,
 				},
 			}));
+		} else {
+			getTemplatesListForDocs();
 		}
 	}, [templatesListForDocs]);
 
@@ -311,6 +320,8 @@ const Docs = () => {
 					clientName: clientListForDocs?.currentPage,
 				},
 			}));
+		} else {
+			getClientListForDocs(payload);
 		}
 	}, [clientListForDocs]);
 
@@ -380,7 +391,14 @@ const Docs = () => {
 		}
 	}, [info?.selectedFilterOptions, info?.searchValue, info?.filtersGotChanged]);
 
-	const handleSetActiveFilter = (filter, filterOptionsListName, label) => {
+	useEffect(() => {
+		if (info?.filtersGotChanged) {
+			handleDebounceFetch();
+		}
+	}, [info?.selectedFilterOptions, info?.searchValue, info?.filtersGotChanged]);
+
+	const handleSetActiveFilter = (payload) => {
+		const { filter, filterOptionsListName, label } = payload || {};
 		if (info?.appliedFilters?.some((appliedFilter) => appliedFilter.filter === filter)) return;
 		setInfo((prev) => ({
 			...prev,
@@ -766,6 +784,7 @@ const Docs = () => {
 												''}
 										</span>
 										<span
+											className="removeFilterBtn"
 											onClick={() =>
 												handleRemoveSelectedFilter(appliedFilter?.filter)
 											}
@@ -839,13 +858,13 @@ const Docs = () => {
 						<DropDown
 							title="Add Filters"
 							options={Filters}
+							valueSelector="valueSelector"
 							containerStyles={{
 								borderRadius: '14px',
 								background: '#202123',
 								boxShadow: '0px 2px 44px 0px rgba(0, 0, 0, 0.25)',
 							}}
-							onOptionClick={() => {}}
-							valueSelector="value"
+							onOptionClick={handleSetActiveFilter}
 						>
 							<Filter style={{ width: '20px', height: '20px', marginTop: '6px' }} />
 						</DropDown>
