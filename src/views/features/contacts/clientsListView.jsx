@@ -29,6 +29,7 @@ import ParentTaskComponent from '../../components/tasks/listView/ParentTaskCompo
 import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
 import LinkText from '../../components/tasks/listView/LinkText';
 import Text from '../../components/tasks/listView/Text';
+import ListTabs from '../../components/tasks/listView/ListTabs';
 
 // import { message } from 'antd';
 // import jwtDecode from 'jwt-decode';
@@ -112,59 +113,6 @@ const ClientListView = () => {
 				doSplit: false,
 				props: { linkType: 'phone' },
 			},
-			// description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
-			// status: {
-			// 	type: 'status',
-			// 	name: 'Status',
-			// 	Icon: PieSvg,
-			// 	props: {
-			// 		options: [
-			// 			{
-			// 				label: 'Enquiry',
-			// 				value: 'enquiry',
-			// 				color: '#939393',
-			// 				backgroundColor: '#373737',
-			// 			},
-			// 			{
-			// 				label: 'Files Sent',
-			// 				value: 'filesSent',
-			// 				color: '#939393',
-			// 				backgroundColor: '#5A5A5A',
-			// 			},
-			// 			{
-			// 				label: 'Files Viewed',
-			// 				value: 'filesViewed',
-			// 				color: '#3E70C7',
-			// 				backgroundColor: '#2F4469',
-			// 			},
-			// 			{
-			// 				label: 'Contract Signed',
-			// 				value: 'contractSigned',
-			// 				color: '#3B9D59',
-			// 				backgroundColor: '#375841',
-			// 			},
-			// 			{
-			// 				label: 'Confirmed',
-			// 				value: 'confirmed',
-			// 				color: '#939393',
-			// 				backgroundColor: '#5A5A5A',
-			// 			},
-			// 		],
-			// 	},
-			// },
-			// clientDetails: {
-			// 	type: 'person',
-			// 	name: 'Client',
-			// 	Icon: PersonSvg,
-			// 	props: {
-			// 		options: [
-			// 			// { _id: '1', name: 'John Doe' },
-			// 			// { _id: '2', name: 'Jane Doe' },
-			// 		],
-			// 		parseValue: true,
-			// 		disabled: true,
-			// 	},
-			// },
 			createdAt: {
 				type: 'date',
 				name: 'Created At',
@@ -180,6 +128,16 @@ const ClientListView = () => {
 		}),
 		[],
 	);
+
+	const tabs = useMemo(() => {
+		return {
+			reqActions: { label: 'Req Actions', Component: <div>Request Actions</div> },
+			workflows: { label: 'Workflows', Component: <div>Workflows</div> },
+			files: { label: 'Files', Component: <div>Files</div> },
+			payments: { label: 'Payments', Component: <div>Payments</div> },
+			activity: { label: 'Activity', Component: <div>Activity</div> },
+		};
+	}, []);
 
 	const filterDebounceTimeout = useRef(null);
 
@@ -367,16 +325,7 @@ const ClientListView = () => {
 				}}
 				headerTitle={'Contacts'}
 				createButtonText={'Create Client'}
-				sidebarChildren={
-					<ChildTaskComponent
-						subTasks={info?.listItems}
-						colors={colors}
-						rowTypes={rowTypes}
-						responseMetadata={responseMetadata}
-						onUpdate={updatePropertyValue}
-						properties={info?.properties}
-					/>
-				}
+				sidebarChildren={<ListTabs tabs={tabs} defaultActiveTab={'reqActions'} />}
 			/>
 			<CreateClientModal
 				modalIsOpen={info?.isCreateModalOpen}
