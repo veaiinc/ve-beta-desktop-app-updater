@@ -99,10 +99,7 @@ const LightGallery = () => {
 				clearPreRegisteredUsers();
 				clearGalleryState();
 
-				// Fetch initial data
 				await fetchGalleries(1, null, true); // Added true to force reset
-
-				// Handle container width
 				const childrenContainer = document.querySelector('.childrenContainer');
 				if (childrenContainer) {
 					const originalWidth = childrenContainer.style.maxWidth;
@@ -142,23 +139,22 @@ const LightGallery = () => {
 	}, [tennantSettingsData]);
 	const fetchGalleries = async (page, title = null, reset = false) => {
 		try {
-			setInfo((prev) => ({ ...prev, loading: true }));
 			const options = {
 				page,
 				limit: info.limit,
 				storeOriginals: true,
-				...(title && { title, limit: info.limit + 1 }),
 			};
+			if (title) {
+				options.title = title;
+				options.limit = info.limit + 1;
+			}
 
 			await getGalleries(options, reset);
-
-			setInfo((prev) => ({ ...prev, loading: false }));
 		} catch (err) {
 			console.error('Error fetching galleries:', err);
 			setInfo((prevState) => ({
 				...prevState,
 				error: err.message || 'Failed to fetch galleries',
-				loading: false,
 			}));
 		}
 	};

@@ -90,22 +90,30 @@ const AddGallery = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		const childrenContainer = document.querySelector('.childrenContainer');
-		if (!tenantGalleries) {
-			fetchGalleries(info.page);
-		}
-		clearClientSelectionsData();
-		clearAiFace();
-		clearGalleryShareDetails();
-		clearPreRegisteredUsers();
-		clearGalleryState();
-		if (childrenContainer) {
-			const originalWidth = childrenContainer.style.maxWidth;
-			childrenContainer.style.maxWidth = '80vw';
-			return () => {
-				childrenContainer.style.maxWidth = originalWidth;
-			};
-		}
+		const initializeGallery = async () => {
+			try {
+				// Clear previous states
+				clearClientSelectionsData();
+				clearAiFace();
+				clearGalleryShareDetails();
+				clearPreRegisteredUsers();
+				clearGalleryState();
+
+				await fetchGalleries(1, null, true); // Added true to force reset
+				const childrenContainer = document.querySelector('.childrenContainer');
+				if (childrenContainer) {
+					const originalWidth = childrenContainer.style.maxWidth;
+					childrenContainer.style.maxWidth = '80vw';
+					return () => {
+						childrenContainer.style.maxWidth = originalWidth;
+					};
+				}
+			} catch (error) {
+				console.error('Error initializing gallery:', error);
+			}
+		};
+
+		initializeGallery();
 	}, []);
 
 	useEffect(() => {

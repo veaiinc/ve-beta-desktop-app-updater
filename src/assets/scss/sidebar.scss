@@ -272,7 +272,7 @@
 							}
 							&:active {
 								background: #2e2f33;
-								border-radius: 24px;
+								border-radius: var(--Radius-lg, 24px);
 							}
 							.subitem-content {
 								display: flex;
