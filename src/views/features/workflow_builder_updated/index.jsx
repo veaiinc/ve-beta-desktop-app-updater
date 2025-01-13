@@ -14,12 +14,6 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-const initialNodes = [
-	{ id: '1', position: { x: 400, y: 200 }, data: { label: '1' } },
-	{ id: '2', position: { x: 400, y: 300 }, data: { label: '2' } },
-];
-const initialEdges = [{ id: 'e1-2', source: '1', target: '2', animated: true }];
-let y = 200;
 const mockSteps = [
 	{
 		criteria: {
@@ -161,81 +155,114 @@ const WorkflowBuilderUpdated = () => {
 	}, []);
 
 	const getNodesAndEdges = useCallback(() => {
-		const stepsMapper = {};
-		const nodes = [],
-			edges = [];
+		// Initialize collections
+		const stepsMapper = new Map(
+			mockSteps.map((step) => [step._id, { data: step, nodesMapped: false }]),
+		);
+		const nodes = [];
+		const edges = [];
 
-		// First map all steps to the mapper object
-		for (let i = 0; i < mockSteps?.length; i++) {
-			stepsMapper[mockSteps[i]._id] = { data: mockSteps[i], nodesMapped: false };
-		}
+		// Track parent positions to align children
+		const parentPositions = new Map();
+		let currentY = 100; // Starting Y position
 
 		// Recursive function to generate nodes and edges
-		const generateNodesAndEdges = (stepId) => {
-			if (!stepId || stepsMapper[stepId]?.nodesMapped) return;
+		const generateNodesAndEdges = (
+			stepId,
+			parentX = 400,
+			parentY = currentY,
+			branchType = null,
+			isFirstBranch = true, // Add flag to track if it's first node after branching
+		) => {
+			// Early return if invalid step or already mapped
+			if (!stepId || !stepsMapper.has(stepId) || stepsMapper.get(stepId).nodesMapped) {
+				return;
+			}
 
-			const currentStep = stepsMapper[stepId].data;
+			const currentStep = stepsMapper.get(stepId).data;
 
-			// Create node based on step type
+			// Calculate x position based on branch type
+			let xOffset = 0;
+			if (isFirstBranch) {
+				// Only offset for first nodes in yes/no branches
+				if (branchType === 'yes') {
+					xOffset = -250;
+				} else if (branchType === 'no') {
+					xOffset = 250;
+				}
+			}
+
+			// Store this node's position
+			const nodeX = parentX + xOffset;
+			const nodeY = parentY;
+			parentPositions.set(stepId, { x: nodeX, y: nodeY });
+
+			// Create and add node
 			nodes.push({
-				id: currentStep._id,
-				position: { x: 400, y },
+				id: stepId,
+				position: { x: nodeX, y: nodeY },
 				data: {
 					label: currentStep.type,
 					...currentStep,
 				},
 				type: currentStep.type,
+				className: 'workflow-node',
 			});
 
-			y += 100;
-			stepsMapper[stepId].nodesMapped = true;
+			stepsMapper.get(stepId).nodesMapped = true;
 
-			// Handle different types of steps
+			// Calculate next Y position for children
+			const nextY = nodeY + 100;
+			currentY = Math.max(currentY, nextY);
+
+			// Handle edges based on step type
 			if (currentStep.type === 'condition') {
-				// Handle condition paths
-				if (currentStep.ifYes?.nextStepId) {
+				const { ifYes, ifNo } = currentStep;
+				const branchY = nextY; // Both branches start at same Y level
+
+				if (ifYes?.nextStepId) {
 					edges.push({
-						id: `${currentStep._id}-${currentStep.ifYes.nextStepId}-yes`,
-						source: currentStep._id,
-						target: currentStep.ifYes.nextStepId,
+						id: `${stepId}-${ifYes.nextStepId}-yes`,
+						source: stepId,
+						target: ifYes.nextStepId,
 						label: 'Yes',
 						animated: true,
+						type: 'smoothstep',
 					});
-					generateNodesAndEdges(currentStep.ifYes.nextStepId);
+					generateNodesAndEdges(ifYes.nextStepId, nodeX, branchY, 'yes', true);
 				}
 
-				if (currentStep.ifNo?.nextStepId) {
+				if (ifNo?.nextStepId) {
 					edges.push({
-						id: `${currentStep._id}-${currentStep.ifNo.nextStepId}-no`,
-						source: currentStep._id,
-						target: currentStep.ifNo.nextStepId,
+						id: `${stepId}-${ifNo.nextStepId}-no`,
+						source: stepId,
+						target: ifNo.nextStepId,
 						label: 'No',
 						animated: true,
+						type: 'smoothstep',
 					});
-					generateNodesAndEdges(currentStep.ifNo.nextStepId);
+					generateNodesAndEdges(ifNo.nextStepId, nodeX, branchY, 'no', true);
 				}
-			} else {
+			} else if (currentStep.nextStepId) {
 				// Handle regular step
-				if (currentStep.nextStepId) {
-					edges.push({
-						id: `${currentStep._id}-${currentStep.nextStepId}`,
-						source: currentStep._id,
-						target: currentStep.nextStepId,
-						animated: true,
-					});
-					generateNodesAndEdges(currentStep.nextStepId);
-				}
+				edges.push({
+					id: `${stepId}-${currentStep.nextStepId}`,
+					source: stepId,
+					target: currentStep.nextStepId,
+					animated: true,
+				});
+				// Pass isFirstBranch as false for subsequent nodes in the branch
+				generateNodesAndEdges(currentStep.nextStepId, nodeX, nextY, branchType, false);
 			}
 		};
 
-		// Find the start step and begin generation
+		// Start generation from the start step or process all steps
 		const startStep = mockSteps.find((step) => step.type === 'start-step');
 		if (startStep) {
 			generateNodesAndEdges(startStep._id);
 		} else {
-			// If no start step, process steps in order
 			mockSteps.forEach((step) => {
-				if (!stepsMapper[step._id].nodesMapped) {
+				if (!stepsMapper.get(step._id).nodesMapped) {
 					generateNodesAndEdges(step._id);
 				}
 			});
