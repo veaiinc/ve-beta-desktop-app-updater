@@ -129,7 +129,7 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 				Component: <DocsActivity data={info?.activeFileData} />,
 			},
 		};
-	}, [activeFileData]);
+	}, [info?.activeFileData]);
 
 	const handleMoreVisibility = useCallback((visible) => {
 		setInfo((prev) => ({ ...prev, openMoreOptions: visible }));
@@ -139,7 +139,7 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 		if (info?.needRefetch) {
 			refetchDocsFilesList();
 		}
-		setInfo((prev) => ({ ...initialState }));
+		setInfo((prev) => ({ ...prev, ...initialState }));
 		resetActivityState();
 		onClose();
 	}, [onClose]);
