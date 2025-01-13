@@ -6,8 +6,6 @@ import {
 	addEdge,
 	Background,
 	Controls,
-	MiniMap,
-	NodeToolbar,
 	ReactFlow,
 	useEdgesState,
 	useNodesState,
