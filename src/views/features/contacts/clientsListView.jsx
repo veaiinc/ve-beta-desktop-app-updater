@@ -158,7 +158,7 @@ const ClientListView = () => {
 
 	useEffect(() => {
 		if (refetchClientList) {
-			fetchClientList(1, false);
+			fetchClientList(info?.page, false);
 			updateStateValues({ refetchClientList: false });
 		}
 	}, [refetchClientList]);
