@@ -26,6 +26,7 @@ const Sidebar = ({ open, onClose, activeFileData, openSendSmartFileModal }) => {
 	const [info, setInfo] = useState({
 		activeTab: 'reqActions',
 		openMoreOptions: false,
+		sideBarExpanded: false,
 	});
 
 	const handleTabChange = useCallback((tab) => {
@@ -54,7 +55,7 @@ const Sidebar = ({ open, onClose, activeFileData, openSendSmartFileModal }) => {
 	}, []);
 
 	const modifyClose = useCallback(() => {
-		setInfo((prev) => ({ ...prev, activeTab: 'reqActions' }));
+		setInfo((prev) => ({ ...prev, activeTab: 'reqActions', sideBarExpanded: false }));
 		resetActivityState();
 		onClose();
 	}, [onClose]);
@@ -63,131 +64,155 @@ const Sidebar = ({ open, onClose, activeFileData, openSendSmartFileModal }) => {
 		<Drawer
 			open={open}
 			onClose={modifyClose}
-			style={{ padding: '10px', backgroundColor: 'transparent' }}
+			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
-			width={480}
+			// width={480}
+			width={'fit-content'}
 		>
-			<div className="fileListViewDrawer">
-				<div className="headerContainer">
-					<div className="headerLeftLabel">
-						<CloseSvg onClick={modifyClose} />
-						<ExpandSvg />
+			<div
+				className={`fileListViewDrawerWrapper ${
+					info?.sideBarExpanded ? 'fileListViewDrawer-expanded' : ''
+				}`}
+			>
+				<div className="fileListViewDrawer">
+					<div className="headerContainer">
+						<div className="headerLeftLabel">
+							<CloseSvg onClick={modifyClose} />
+							<ExpandSvg
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										sideBarExpanded: !prev?.sideBarExpanded,
+									}))
+								}
+							/>
+						</div>
+						<div className="headerRightLabel">
+							{/* <div>Draft</div> */}
+							<DocsStatusButton
+								content={statusTextmapper?.[activeFileData?.status]?.text}
+								style={statusTextmapper?.[activeFileData?.status]?.style}
+								dotStyle={statusTextmapper?.[activeFileData?.status]?.dotStyle}
+							/>
+							<div className="editLabel">Edit</div>
+							<ShareSvg onClick={openSendSmartFileModal} />
+							<Tooltip
+								placement="bottomRight"
+								open={info?.openMoreOptions}
+								onOpenChange={handleMoreVisibility}
+								arrow={false}
+								trigger={'click'}
+								color={'transparent'}
+								overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+								overlayClassName="dot-svg-tooltip"
+								title={
+									<div className="dot-svg-tooltip-content">
+										<div className="items">
+											<ActivitySvg />
+											<span>Activity</span>
+										</div>
+										<div className="items">
+											<DuplicateSvg />
+											<span>Duplicate</span>
+										</div>
+										<div className="items">
+											<DeleteSvg />
+											<span>Delete</span>
+										</div>
+									</div>
+								}
+							>
+								<DotsSvg />
+							</Tooltip>
+						</div>
 					</div>
-					<div className="headerRightLabel">
-						{/* <div>Draft</div> */}
-						<DocsStatusButton
-							content={statusTextmapper?.[activeFileData?.status]?.text}
-							style={statusTextmapper?.[activeFileData?.status]?.style}
-							dotStyle={statusTextmapper?.[activeFileData?.status]?.dotStyle}
-						/>
-						<div className="editLabel">Edit</div>
-						<ShareSvg onClick={openSendSmartFileModal} />
-						<Tooltip
-							placement="bottomRight"
-							open={info?.openMoreOptions}
-							onOpenChange={handleMoreVisibility}
-							arrow={false}
-							trigger={'click'}
-							color={'transparent'}
-							overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
-							overlayClassName="dot-svg-tooltip"
-							title={
-								<div className="dot-svg-tooltip-content">
-									<div className="items">
-										<ActivitySvg />
-										<span>Activity</span>
+
+					<div className="maxedOutView">
+						<div className="listviewContainer">
+							<CustomTextArea
+								value={activeFileData?.title}
+								onChange={(e) => {}}
+								autoResize={true}
+								style={{ padding: '0px' }}
+								// className="titleInput"
+							/>
+
+							<div className="listDataMapper">
+								<div className="listDataMapperRow">
+									<div className="listDataMapperRowLabel">
+										<PersonSvg />
+										<span>Client Name</span>
 									</div>
-									<div className="items">
-										<DuplicateSvg />
-										<span>Duplicate</span>
-									</div>
-									<div className="items">
-										<DeleteSvg />
-										<span>Delete</span>
+									<div className="listDataMapperRowValue">
+										{activeFileData?.clientDetails?.name}
 									</div>
 								</div>
-							}
-						>
-							<DotsSvg />
-						</Tooltip>
-					</div>
-				</div>
-
-				<div className="listviewContainer">
-					<CustomTextArea
-						value={activeFileData?.title}
-						onChange={(e) => {}}
-						autoResize={true}
-						style={{ padding: '0px' }}
-						// className="titleInput"
-					/>
-
-					<div className="listDataMapper">
-						<div className="listDataMapperRow">
-							<div className="listDataMapperRowLabel">
-								<PersonSvg />
-								<span>Client Name</span>
-							</div>
-							<div className="listDataMapperRowValue">
-								{activeFileData?.clientDetails?.name}
-							</div>
-						</div>
-						{/* <div className="listDataMapperRow">
+								{/* <div className="listDataMapperRow">
 							<div className="listDataMapperRowLabel">
 								svg
 								<span>Cost</span>
 							</div>
 							<div className="listDataMapperRowValue">$123,456.00</div>
 						</div> */}
-						{/* <div className="listDataMapperRow">
+								{/* <div className="listDataMapperRow">
 							<div className="listDataMapperRowLabel">
 								svg
 								<span>Project Date</span>
 							</div>
 							<div className="listDataMapperRowValue">Jan 8 2025</div>
 						</div> */}
-						<div className="listDataMapperRow">
-							<div className="listDataMapperRowLabel">
-								<PieSvg />
-								<span>Stage</span>
+								<div className="listDataMapperRow">
+									<div className="listDataMapperRowLabel">
+										<PieSvg />
+										<span>Stage</span>
+									</div>
+									<div className="listDataMapperRowValue">
+										<DocsStatusButton
+											content={
+												statusTextmapper?.[activeFileData?.status]?.text
+											}
+											style={
+												statusTextmapper?.[activeFileData?.status]?.style
+											}
+											dotStyle={
+												statusTextmapper?.[activeFileData?.status]?.dotStyle
+											}
+										/>
+									</div>
+								</div>
 							</div>
-							<div className="listDataMapperRowValue">
-								<DocsStatusButton
-									content={statusTextmapper?.[activeFileData?.status]?.text}
-									style={statusTextmapper?.[activeFileData?.status]?.style}
-									dotStyle={statusTextmapper?.[activeFileData?.status]?.dotStyle}
-								/>
+
+							<CustomTextArea
+								value={`${info?.selectedRow?.title || ''}`}
+								onChange={(e) => {}}
+								autoResize={true}
+								placeholder="Add Description.... "
+								style={{ padding: '0px' }}
+								// className="titleInput"
+							/>
+						</div>
+
+						<div className="tabsViewWrapper">
+							<div className="tabsView">
+								{Object?.keys(tabs)?.map((tab) => (
+									<div
+										key={tab}
+										className={`tabViewLabel ${
+											info?.activeTab === tab ? 'active' : ''
+										}`}
+										onClick={() => handleTabChange(tab)}
+									>
+										{tabs?.[tab]?.label}
+									</div>
+								))}
+							</div>
+
+							<div className="respectiveView">
+								{tabs?.[info?.activeTab]?.Component || ''}
 							</div>
 						</div>
 					</div>
-
-					<CustomTextArea
-						value={`${info?.selectedRow?.title || ''}`}
-						onChange={(e) => {}}
-						autoResize={true}
-						placeholder="Add Description.... "
-						style={{ padding: '0px' }}
-						// className="titleInput"
-					/>
-				</div>
-
-				<div className="tabsViewWrapper">
-					<div className="tabsView">
-						{Object?.keys(tabs)?.map((tab) => (
-							<div
-								key={tab}
-								className={`tabViewLabel ${
-									info?.activeTab === tab ? 'active' : ''
-								}`}
-								onClick={() => handleTabChange(tab)}
-							>
-								{tabs?.[tab]?.label}
-							</div>
-						))}
-					</div>
-
-					<div className="respectiveView">{tabs?.[info?.activeTab]?.Component || ''}</div>
 				</div>
 			</div>
 		</Drawer>
