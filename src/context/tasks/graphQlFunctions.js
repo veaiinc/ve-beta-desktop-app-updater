@@ -2,6 +2,7 @@ import { gql } from '@apollo/client';
 export const getListItemsQuery = gql`
 	query Query($taskFilterInput: TaskFilterInput) {
 		listTasks(taskFilterInput: $taskFilterInput) {
+			hasNextPage
 			data {
 				_id
 				taskSlNo

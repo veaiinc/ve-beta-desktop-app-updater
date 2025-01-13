@@ -92,6 +92,7 @@ const Tasks = () => {
 		filters: [],
 		searchValue: '',
 		updated: false,
+		loading: false,
 	});
 
 	const responseMetadata = useMemo(
@@ -189,14 +190,26 @@ const Tasks = () => {
 			clearTimeout(filterDebounceTimeout.current);
 		}
 
+		// Always fetch when filters or search change
 		if (info?.filters || info?.searchValue) {
 			filterDebounceTimeout.current = setTimeout(() => {
-				updateListViewInfo('loadingSkeleton', true);
-				fetchListItems();
+				setInfo((prev) => ({
+					...prev,
+					page: 1,
+					loadingSkeleton: true,
+					listItems: [], // Clear existing items
+				}));
+				fetchListItems(1);
 			}, 800);
 		} else {
-			updateListViewInfo('loadingSkeleton', true);
-			fetchListItems();
+			// Initial load or when filters are cleared
+			setInfo((prev) => ({
+				...prev,
+				page: 1,
+				loadingSkeleton: true,
+				listItems: [], // Clear existing items
+			}));
+			fetchListItems(1);
 		}
 
 		return () => {
@@ -204,7 +217,18 @@ const Tasks = () => {
 				clearTimeout(filterDebounceTimeout.current);
 			}
 		};
-	}, [info?.page, info?.sort, info?.filters, info?.searchValue]);
+	}, [info?.filters, info?.searchValue]); // Remove page dependency
+
+	useEffect(() => {
+		if (info?.sort?.length > 0) {
+			setInfo((prev) => ({
+				...prev,
+				page: 1,
+				loadingSkeleton: true,
+			}));
+			fetchListItems(1);
+		}
+	}, [info?.sort]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -261,6 +285,7 @@ const Tasks = () => {
 			}));
 		}
 	}, [workflowslist]);
+
 	useEffect(() => {
 		if (listTasks) {
 			if (listTasks?.data) {
@@ -270,8 +295,9 @@ const Tasks = () => {
 						info?.page === 1
 							? listTasks?.data
 							: [...prevInfo?.listItems, ...listTasks?.data],
-					hasMore: listTasks?.hasNextPage,
+					hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
 					loadingSkeleton: false,
+					loading: false,
 				}));
 			}
 		}
@@ -279,7 +305,9 @@ const Tasks = () => {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				loadingSkeleton: false,
+				loading: false,
 				error: listTasks?.error,
+				hasMore: false,
 			}));
 		}
 	}, [listTasks]);
@@ -323,17 +351,33 @@ const Tasks = () => {
 		}
 	}, [refetchTasks]);
 
-	const fetchListItems = useCallback(() => {
-		getListItems({
-			taskFilterInput: {
-				limit: 30,
-				page: info?.page,
-				sort: info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
-				filters: mapFiltersPayload(info?.filters),
-				search: info?.searchValue,
-			},
-		});
-	}, [info?.page, info?.sort, info?.filters, info?.searchValue]);
+	const fetchListItems = useCallback(
+		(page = 1) => {
+			getListItems({
+				taskFilterInput: {
+					limit: 20,
+					page: page,
+					sort:
+						info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
+					filters: mapFiltersPayload(info?.filters),
+					search: info?.searchValue,
+				},
+			});
+		},
+		[info?.sort, info?.filters, info?.searchValue],
+	);
+
+	const fetchMoreData = useCallback(() => {
+		if (!info.loading && info.hasMore) {
+			const nextPage = info.page + 1;
+			fetchListItems(nextPage);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				page: nextPage,
+				loading: true,
+			}));
+		}
+	}, [info.loading, info.hasMore, info.page, fetchListItems]);
 
 	const mapFiltersPayload = useCallback((filters) => {
 		return filters.map((filter) => ({
@@ -663,6 +707,7 @@ const Tasks = () => {
 				addButtonOnClick={handleAddButtonOnClick}
 				haveSubTask={true}
 				colors={colors}
+				fetchMoreData={fetchMoreData}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
