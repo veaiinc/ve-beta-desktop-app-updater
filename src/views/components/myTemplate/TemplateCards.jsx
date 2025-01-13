@@ -2,6 +2,7 @@ import React, { memo, useEffect, useState } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { fetchOriginSelection } from '../../../helpers';
+import SideBarPreview from './SideBarPreview';
 let origin = fetchOriginSelection();
 
 const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => {
@@ -10,6 +11,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 		loading: loading,
 		hasNextPage: hasNextPage,
 		showPreview: false,
+		templateData: null,
 	});
 
 	useEffect(() => {
@@ -23,6 +25,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 
 	const handleTemplateClick = (template) => {
 		console.log('template', template);
+		setInfo((prev) => ({ ...prev, showPreview: true, templateData: template }));
 	};
 
 	return (
@@ -82,7 +85,11 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 					</InfiniteScroll>
 				)}
 			</div>
-			{/* <Sidebar open={info?.showRightDrawer} openSendSmartFileModal={openSendSmartFileModal} /> */}
+			<SideBarPreview
+				open={info?.showPreview}
+				onClose={() => setInfo((prev) => ({ ...prev, showPreview: false }))}
+				data={info?.templateData}
+			/>
 		</>
 	);
 };

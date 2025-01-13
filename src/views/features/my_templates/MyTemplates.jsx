@@ -93,7 +93,13 @@ const initialState = {
 
 const MyTemplates = () => {
 	const {
-		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows },
+		templates: {
+			getMyWorkflows,
+			myWorkflows,
+			myMoreWorkflows,
+			getSpecificTemplatesInfo,
+			specificTemplatesInfo,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -182,22 +188,22 @@ const MyTemplates = () => {
 					/>
 				),
 			},
-			proposals: {
-				label: 'Proposals',
-				comp: <div>Proposals</div>,
-			},
-			invoices: {
-				label: 'Invoices',
-				comp: <div>Invoices</div>,
-			},
-			contracts: {
-				label: 'Contracts',
-				comp: <div>Contracts</div>,
-			},
-			presentations: {
-				label: 'Presentations',
-				comp: <div>Presentations</div>,
-			},
+			// proposals: {
+			// 	label: 'Proposals',
+			// 	comp: <div>Proposals</div>,
+			// },
+			// invoices: {
+			// 	label: 'Invoices',
+			// 	comp: <div>Invoices</div>,
+			// },
+			// contracts: {
+			// 	label: 'Contracts',
+			// 	comp: <div>Contracts</div>,
+			// },
+			// presentations: {
+			// 	label: 'Presentations',
+			// 	comp: <div>Presentations</div>,
+			// },
 		};
 	}, [info?.activeTab, info?.workflowTemplates]);
 

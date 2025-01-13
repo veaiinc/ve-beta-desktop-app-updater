@@ -1,0 +1,107 @@
+.previewDrawer {
+	color: #fff;
+
+	display: flex;
+	width: 100%;
+	height: 100%;
+	padding: 24px 0px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 20px;
+	border-radius: 16px;
+	background: var(--Card-Default-Color, #171819);
+	background: var(--Card-Default-Color, color(display-p3 0.0902 0.0941 0.098));
+
+	overflow-y: hidden;
+
+	.headerContainer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+		padding: 0px 32px;
+
+		.headerLeftLabel {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			cursor: pointer;
+
+			> svg {
+				width: 16px;
+				height: 16px;
+				flex-shrink: 0;
+				opacity: 0.7;
+				transition: opacity 0.3s ease;
+				&:hover {
+					opacity: 1;
+					filter: drop-shadow(0 0 8px #c8c4c4);
+				}
+			}
+		}
+
+		.headerRightLabel {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			cursor: pointer;
+
+			.editLabel {
+				display: flex;
+				height: 23px;
+				padding: 6px 12px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				border-radius: 59px;
+				color: #0b1215;
+				background: #e8e8e8;
+				border: 1px solid #e8e8e8;
+				background: color(display-p3 0.9098 0.9098 0.9098);
+				transition: all 0.3s ease;
+
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+
+				&:hover {
+					background: #0b1215;
+					color: #e8e8e8;
+					border: 1px solid #e8e8e8;
+				}
+			}
+
+			> svg {
+				width: 20px;
+				height: 20px;
+
+				&:hover {
+					filter: drop-shadow(0 0 8px #c8c4c4);
+				}
+			}
+		}
+	}
+
+	.title {
+		color: var(--Primary-Font, #f2f2f3);
+		color: var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
+		font-family: Inter;
+		font-size: 20px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		align-self: stretch;
+		padding: 0px 32px;
+	}
+
+	.previewWrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		align-self: stretch;
+		padding: 0px 32px;
+		width: 100%;
+	}
+}
