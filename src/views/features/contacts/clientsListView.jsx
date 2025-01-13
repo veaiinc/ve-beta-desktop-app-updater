@@ -216,7 +216,7 @@ const ClientListView = () => {
 					setInfo((prev) => ({
 						...prev,
 						loading: true,
-						loadingSkeleton: true,
+						// loadingSkeleton: true,
 					}));
 
 					const payload = {
@@ -261,6 +261,14 @@ const ClientListView = () => {
 		},
 		[getClientList, info?.sort, info?.searchValue, info?.filters],
 	);
+
+	const fetchMoreData = useCallback(() => {
+		fetchClientList(info?.page + 1, false);
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			page: info?.page + 1,
+		}));
+	}, [info?.page]);
 
 	const updateListViewInfo = useCallback((key, value) => {
 		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
@@ -360,13 +368,14 @@ const ClientListView = () => {
 				updatePropertyValue={updatePropertyValue}
 				deleteTask={handleDeleteClient}
 				responseMetadata={responseMetadata}
-				fetchListItems={fetchClientList}
+				fetchListItems={fetchMoreData}
 				addButtonOnClick={() => {
 					updateListViewInfo('isCreateModalOpen', true);
 				}}
 				headerTitle={'Contacts'}
 				createButtonText={'Create Client'}
 				sidebarChildren={<ListTabs tabs={tabs} defaultActiveTab={'reqActions'} />}
+				fetchMoreData={fetchClientList}
 			/>
 			<CreateClientModal
 				modalIsOpen={info?.isCreateModalOpen}

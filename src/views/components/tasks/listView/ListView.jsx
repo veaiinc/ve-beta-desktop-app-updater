@@ -1,6 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useState } from 'react';
 import '../../../../assets/scss/tasks/listView.scss';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { FetchMoreLoaderComp } from '../../../../helpers';
 import Text from './Text';
 import Select from './Select';
 import Person from './Person';
@@ -56,6 +58,7 @@ const ListView = ({
 	createButtonText = 'Create Task',
 	rowClickHandler,
 	sidebarChildren,
+	fetchMoreData,
 }) => {
 	const [listViewState, setListViewState] = useState({
 		editingProperty: null,
@@ -135,20 +138,34 @@ const ListView = ({
 					) : info?.error ? (
 						<span style={{ color: '#ff9b9b', margin: '10px auto' }}>{info?.error}</span>
 					) : info?.listItems?.length !== 0 ? (
-						info?.listItems?.map((task, index) => (
-							<ListViewRow
-								task={task}
-								key={index}
-								properties={info?.properties}
-								rowTypes={rowTypes}
-								updatePropertyValue={updatePropertyValue}
-								handleRowClick={handleRowClick}
-								responseMetadata={responseMetadata}
-								handleEditPropertyChange={handleEditPropertyChange}
-								colors={colors}
-								rowClickHandler={rowClickHandler}
-							/>
-						))
+						<InfiniteScroll
+							dataLength={info?.listItems?.length || 0}
+							next={fetchMoreData}
+							hasMore={info?.hasMore}
+							loader={<FetchMoreLoaderComp />}
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '8px',
+								width: '100%',
+							}}
+							height="calc(100vh - 200px)"
+						>
+							{info?.listItems?.map((task, index) => (
+								<ListViewRow
+									task={task}
+									key={index}
+									properties={info?.properties}
+									rowTypes={rowTypes}
+									updatePropertyValue={updatePropertyValue}
+									handleRowClick={handleRowClick}
+									responseMetadata={responseMetadata}
+									handleEditPropertyChange={handleEditPropertyChange}
+									colors={colors}
+									rowClickHandler={rowClickHandler}
+								/>
+							))}
+						</InfiniteScroll>
 					) : (
 						<span style={{ color: '#808080', margin: '10px auto' }}>
 							No tasks found
@@ -156,13 +173,13 @@ const ListView = ({
 					)}
 				</div>
 			</div>
-			{info?.hasMore && (
+			{/* {info?.hasMore && (
 				<div className="loadMoreContainer">
 					<button onClick={() => updateListViewInfo('page', info?.page + 1)}>
 						Load More
 					</button>
 				</div>
-			)}
+			)} */}
 			<ListViewSidebar
 				selectedRow={info?.selectedSubTask || info?.selectedRow}
 				isShowingSubTask={
