@@ -111,7 +111,6 @@ const ListView = ({
 			</div>
 		));
 	}, []);
-
 	return (
 		<div className="listViewParentContainer">
 			<ListViewHeader

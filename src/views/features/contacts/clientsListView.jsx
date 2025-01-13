@@ -132,7 +132,7 @@ const ClientListView = () => {
 
 	const tabs = useMemo(() => {
 		return {
-			reqActions: { label: 'Req Actions', Component: <div>Request Actions</div> },
+			reqActions: { label: 'Req Actions', Component: <div>Required Actions</div> },
 			workflows: { label: 'Workflows', Component: <div>Workflows</div> },
 			files: {
 				label: 'Files',
@@ -143,36 +143,38 @@ const ClientListView = () => {
 		};
 	}, [rowTypes, colors]);
 
-	const filterDebounceTimeout = useRef(null);
+	useEffect(() => {
+		if (info?.filters?.length > 0 || info?.searchValue) {
+			setInfo((prev) => ({ ...prev, page: 1 }));
+			fetchClientList(1, true);
+		}
+	}, [info?.filters, info?.searchValue]);
 
 	useEffect(() => {
-		if (filterDebounceTimeout.current) {
-			clearTimeout(filterDebounceTimeout.current);
+		if (info?.sort?.length > 0 || info?.page > 1) {
+			fetchClientList(info?.page, false);
 		}
-
-		if (info?.filters || info?.searchValue) {
-			filterDebounceTimeout.current = setTimeout(() => {
-				updateListViewInfo('loadingSkeleton', true);
-				fetchListItems();
-			}, 800);
-		} else {
-			updateListViewInfo('loadingSkeleton', true);
-			fetchListItems();
-		}
-
-		return () => {
-			if (filterDebounceTimeout.current) {
-				clearTimeout(filterDebounceTimeout.current);
-			}
-		};
-	}, [info?.page, info?.sort, info?.filters, info?.searchValue]);
+	}, [info?.page, info?.sort]);
 
 	useEffect(() => {
 		if (refetchClientList) {
-			fetchListItems();
+			fetchClientList(1, false);
 			updateStateValues({ refetchClientList: false });
 		}
 	}, [refetchClientList]);
+
+	useEffect(() => {
+		if (!clientList) {
+			fetchClientList(1, false);
+		} else {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				listItems: clientList?.data,
+				hasMore: clientList?.hasNextPage,
+				loadingSkeleton: false,
+			}));
+		}
+	}, []);
 
 	useEffect(() => {
 		if (clientList) {
@@ -182,8 +184,6 @@ const ClientListView = () => {
 				hasMore: clientList?.hasNextPage,
 				loadingSkeleton: false,
 			}));
-		} else {
-			fetchListItems();
 		}
 	}, [clientList]);
 
@@ -203,27 +203,63 @@ const ClientListView = () => {
 		}
 	}, [info?.listItems, info?.selectedRow]);
 
-	const fetchListItems = useCallback(() => {
-		getClientList({
-			filters: {
-				limit: 20,
-				page: info?.page,
-				// sort: info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
-				// filters: mapFiltersPayload(info?.filters),
-				// search: info?.searchValue,
-			},
-		});
-	}, [info?.page, info?.sort, info?.filters, info?.searchValue]);
+	const filterDebounceTimeout = useRef(null);
 
-	// const mapFiltersPayload = useCallback((filters) => {
-	// 	return filters.map((filter) => ({
-	// 		key: filter.key,
-	// 		value:
-	// 			typeof filter.value === 'object'
-	// 				? filter?.value?._id || filter?.value?.value
-	// 				: filter?.value,
-	// 	}));
-	// }, []);
+	const fetchClientList = useCallback(
+		async (page = 1, shouldDebounce = false) => {
+			try {
+				if (filterDebounceTimeout.current) {
+					clearTimeout(filterDebounceTimeout.current);
+				}
+
+				const fetchData = async () => {
+					setInfo((prev) => ({
+						...prev,
+						loading: true,
+						loadingSkeleton: true,
+					}));
+
+					const payload = {
+						filters: {
+							limit: 20,
+							page: page,
+							// Include sort if exists
+							...(info?.sort?.length > 0 && {
+								sort: info.sort,
+							}),
+							// Include search if exists
+							...(info?.searchValue && {
+								search: info.searchValue,
+							}),
+							// Include filters if exists
+							...(info?.filters?.length > 0 && {
+								filters: info.filters.map((filter) => ({
+									key: filter.key,
+									value: filter.value?._id || filter.value,
+								})),
+							}),
+						},
+					};
+
+					await getClientList(payload);
+				};
+
+				if (shouldDebounce) {
+					filterDebounceTimeout.current = setTimeout(fetchData, 800);
+				} else {
+					await fetchData();
+				}
+			} catch (error) {
+				setInfo((prev) => ({
+					...prev,
+					error: error.message || 'Failed to fetch clients',
+					loading: false,
+					loadingSkeleton: false,
+				}));
+			}
+		},
+		[getClientList, info?.sort, info?.searchValue, info?.filters],
+	);
 
 	const updateListViewInfo = useCallback((key, value) => {
 		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
@@ -283,7 +319,7 @@ const ClientListView = () => {
 					},
 				});
 				if (response?.[0]) {
-					fetchListItems();
+					fetchClientList();
 				} else {
 					message?.error(response?.[1]);
 				}
@@ -307,7 +343,7 @@ const ClientListView = () => {
 					sidebarIsOpen: false,
 				}));
 				message?.success('Client deleted successfully');
-				fetchListItems();
+				fetchClientList();
 			} else {
 				message?.error(response?.[1]);
 			}
@@ -323,7 +359,7 @@ const ClientListView = () => {
 				updatePropertyValue={updatePropertyValue}
 				deleteTask={handleDeleteClient}
 				responseMetadata={responseMetadata}
-				fetchListItems={fetchListItems}
+				fetchListItems={fetchClientList}
 				addButtonOnClick={() => {
 					updateListViewInfo('isCreateModalOpen', true);
 				}}
