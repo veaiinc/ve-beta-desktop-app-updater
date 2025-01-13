@@ -4,46 +4,54 @@ import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRigh
 import { ReactComponent as ShareSvg } from '../../../assets/svg/docs/share.svg';
 import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
 import { DocsStatusButton, statusTextmapper } from '../../features/docs';
+import GlobalWorkflowDesignModalLoader from '../modalsV2/workflowsModals/GlobalWorkflowDesignModalLoader';
 import Context from '../../../context/context';
 import { Drawer } from 'antd';
+import { fetchOriginSelection } from '../../../helpers';
 
-const SideBarPreview = ({ open, onClose, data }) => {
+let origin = fetchOriginSelection();
+
+const SideBarPreview = ({ open, onClose, activeTemplateId }) => {
 	const {
 		templates: { getSpecificTemplatesInfo, specificTemplatesInfo },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		previewData: null,
+		activeTemplateData: null,
 		loading: true,
 	});
 
 	useEffect(() => {
-		setInfo((prev) => ({ ...prev, templateData: data }));
-	}, [data]);
+		setInfo((prev) => ({ ...prev, activeTemplateData: activeTemplateId }));
+	}, [activeTemplateId]);
 
 	useEffect(() => {
 		fetchSpecificTemplateInfo();
-	}, [data]);
+	}, [activeTemplateId]);
 
 	useEffect(() => {
 		if (specificTemplatesInfo) {
 			setInfo((prev) => ({
 				...prev,
-				previewData: specificTemplatesInfo,
+				activeTemplateData: specificTemplatesInfo,
 				loading: false,
 			}));
 		}
 	}, [specificTemplatesInfo]);
 
 	const fetchSpecificTemplateInfo = useCallback(() => {
-		if (data?.id) {
-			getSpecificTemplatesInfo(data?.id);
+		if (activeTemplateId) {
+			getSpecificTemplatesInfo({
+				templateInfoId: activeTemplateId,
+			});
 		}
-	}, [data]);
+	}, [activeTemplateId]);
 
 	const modifyClose = useCallback(() => {
+		setInfo((prev) => ({ ...prev, activeTemplateData: null, loading: true }));
 		onClose();
 	}, [onClose]);
+
 	return (
 		<Drawer
 			open={open}
@@ -59,11 +67,12 @@ const SideBarPreview = ({ open, onClose, data }) => {
 						<CloseSvg onClick={modifyClose} />
 					</div>
 					<div className="headerRightLabel">
-						{/* <div>Draft</div> */}
 						<DocsStatusButton
-							content={statusTextmapper?.[data?.status]?.text}
-							style={statusTextmapper?.[data?.status]?.style}
-							dotStyle={statusTextmapper?.[data?.status]?.dotStyle}
+							content={statusTextmapper?.[info?.activeTemplateData?.status]?.text}
+							style={statusTextmapper?.[info?.activeTemplateData?.status]?.style}
+							dotStyle={
+								statusTextmapper?.[info?.activeTemplateData?.status]?.dotStyle
+							}
 						/>
 						<div className="editLabel">Edit</div>
 						<ShareSvg
@@ -73,14 +82,32 @@ const SideBarPreview = ({ open, onClose, data }) => {
 					</div>
 				</div>
 
-				<div className="title">{data?.title}</div>
-
-				<div className="previewWrapper">
-					<div className="previewHeader">Forms</div>
-					<div className="previewHeaderLeft">
-						<img src={data?.image} alt="preview" />
-					</div>
+				<div className="previewLoader">
+					{info?.loading ? (
+						<GlobalWorkflowDesignModalLoader />
+					) : (
+						info?.activeTemplateData?.moduleTemplates?.map((e, index) => (
+							<div className="modulesViewer" key={index}>
+								<span>{e?.module}</span>
+								<div className="imageContainer">
+									<div style={{ width: '100%', height: '100%' }}>
+										<iframe
+											src={`${origin}/preview/${activeTemplateId}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`}
+											title="Builder Preview"
+											width="100%"
+											height="100%"
+										/>
+									</div>
+								</div>
+							</div>
+						))
+					)}
 				</div>
+				{!info?.loading && (
+					<div className="buttonContainer">
+						<div className="button">Create File</div>
+					</div>
+				)}
 			</div>
 		</Drawer>
 	);

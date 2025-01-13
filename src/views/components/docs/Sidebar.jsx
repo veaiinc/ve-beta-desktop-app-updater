@@ -75,7 +75,6 @@ const Sidebar = ({ open, onClose, activeFileData, openSendSmartFileModal }) => {
 						<ExpandSvg />
 					</div>
 					<div className="headerRightLabel">
-						{/* <div>Draft</div> */}
 						<DocsStatusButton
 							content={statusTextmapper?.[activeFileData?.status]?.text}
 							style={statusTextmapper?.[activeFileData?.status]?.style}

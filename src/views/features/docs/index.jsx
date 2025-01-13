@@ -129,6 +129,17 @@ export const statusTextmapper = {
 		},
 		label: 'Proposal Accepted',
 	},
+	published: {
+		id: 'published',
+		text: 'Published',
+		dotStyle: {
+			backgroundColor: '#2A71CD',
+		},
+		style: {
+			backgroundColor: '#29456C',
+		},
+		label: 'Published',
+	},
 };
 
 const statusList = [
@@ -455,8 +466,6 @@ const Docs = () => {
 					title: info?.searchValue,
 				},
 			};
-
-			console.log('info?.selectedFilterOptions', info?.selectedFilterOptions);
 
 			if (info?.selectedFilterOptions?.templateName) {
 				payload.filters.templateId = info?.selectedFilterOptions?.templateName?._id;
