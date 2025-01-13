@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 
 const RequiredActions = ({ data }) => {
-	console.log('RequiredActions', data);
 	return (
 		<div className="requiredActionsWrapper">
 			<div className="requiredAction">

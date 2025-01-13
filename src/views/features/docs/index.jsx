@@ -389,8 +389,6 @@ const Docs = () => {
 				},
 			};
 
-			console.log('info?.selectedFilterOptions', info?.selectedFilterOptions);
-
 			if (info?.selectedFilterOptions?.templateName) {
 				payload.filters.templateId = info?.selectedFilterOptions?.templateName?._id;
 			}
