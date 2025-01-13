@@ -13,6 +13,11 @@ import {
 	useNodesState,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import {
+	TriggerNode,
+	ActionNode,
+	ConditionNode,
+} from '../../components/workflowBuilderComponents/CustomNodes';
 
 const mockSteps = [
 	{
@@ -150,6 +155,13 @@ const WorkflowBuilderUpdated = () => {
 
 	const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
 
+	// Define node types
+	const nodeTypes = {
+		'start-step': TriggerNode,
+		action: ActionNode,
+		condition: ConditionNode,
+	};
+
 	useEffect(() => {
 		getNodesAndEdges();
 	}, []);
@@ -202,11 +214,9 @@ const WorkflowBuilderUpdated = () => {
 				id: stepId,
 				position: { x: nodeX, y: nodeY },
 				data: {
-					label: currentStep.type,
 					...currentStep,
 				},
-				type: currentStep.type,
-				className: 'workflow-node',
+				type: currentStep.type, // This will map to our custom nodes
 			});
 
 			stepsMapper.get(stepId).nodesMapped = true;
@@ -281,6 +291,7 @@ const WorkflowBuilderUpdated = () => {
 				onNodesChange={onNodesChange}
 				onEdgesChange={onEdgesChange}
 				onConnect={onConnect}
+				nodeTypes={nodeTypes}
 				fitView
 				defaultViewport={{ x: 0, y: 0, zoom: 0 }}
 			>

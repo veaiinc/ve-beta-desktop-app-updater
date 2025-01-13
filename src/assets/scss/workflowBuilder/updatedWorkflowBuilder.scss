@@ -1,21 +1,7 @@
 .updatedWorkflowBuilderContainer {
 	width: 100vw;
 	height: 100vh;
-
-	.react-flow__node {
-		padding: 10px;
-		border-radius: 5px;
-		background: white;
-		border: 1px solid #ccc;
-		min-width: 150px;
-		text-align: center;
-
-		&.workflow-node {
-			background: #ffffff;
-			border: 1px solid #d1d5db;
-			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-		}
-	}
+	background-color: #141414;
 
 	.react-flow__edge {
 		&[data-type='smoothstep'] {
