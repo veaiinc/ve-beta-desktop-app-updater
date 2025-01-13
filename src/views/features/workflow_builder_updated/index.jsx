@@ -206,7 +206,7 @@ const WorkflowBuilderUpdated = () => {
 
 			// Store this node's position
 			const nodeX = parentX + xOffset;
-			const nodeY = parentY;
+			const nodeY = parentY + 150; //added a static height for now, will change if required
 			parentPositions.set(stepId, { x: nodeX, y: nodeY });
 
 			// Create and add node
