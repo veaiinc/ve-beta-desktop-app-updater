@@ -7,7 +7,13 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import Context from '../../../../context/context';
 
-const TabListFile = ({ rowTypes, colors }) => {
+const TabListFile = ({
+	rowTypes,
+	colors,
+	handleRowClick,
+	refetchDocsFilesList,
+	updateListViewInfo,
+}) => {
 	let {
 		templates: { getDocsFilesList, docsFilesList, moreDocsFilesList },
 	} = useContext(Context);
@@ -119,6 +125,13 @@ const TabListFile = ({ rowTypes, colors }) => {
 		}
 	}, [moreDocsFilesList]);
 
+	useEffect(() => {
+		if (refetchDocsFilesList) {
+			getDocsFilesListFunc(1, false);
+			updateListViewInfo('refetchDocsFilesList', false);
+		}
+	}, [refetchDocsFilesList]);
+
 	const getDocsFilesListFunc = useCallback(
 		async (page, fetchMore = false) => {
 			if (!fetchMore) {
@@ -224,11 +237,10 @@ const TabListFile = ({ rowTypes, colors }) => {
 							properties={info.properties}
 							rowTypes={rowTypes}
 							updatePropertyValue={() => {}}
-							handleRowClick={() => {}}
 							responseMetadata={responseMetadata}
 							handleEditPropertyChange={() => {}}
 							colors={colors}
-							rowClickHandler={() => {}}
+							rowClickHandler={handleRowClick}
 							fromTabList={true}
 							isSubTask={true}
 						/>

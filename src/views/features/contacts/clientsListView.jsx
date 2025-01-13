@@ -31,6 +31,7 @@ import LinkText from '../../components/tasks/listView/LinkText';
 import Text from '../../components/tasks/listView/Text';
 import ListTabs from '../../components/tasks/listView/ListTabs';
 import TabListFile from '../../components/tasks/listView/TabListFile';
+import Sidebar from '../../components/docs/Sidebar';
 
 // import { message } from 'antd';
 // import jwtDecode from 'jwt-decode';
@@ -88,6 +89,9 @@ const ClientListView = () => {
 		searchValue: '',
 		updated: false,
 		isSidebarExpanded: false,
+		showRightDrawer: false,
+		activeFileData: null,
+		refetchDocsFilesList: false,
 	});
 
 	const responseMetadata = useMemo(
@@ -129,19 +133,6 @@ const ClientListView = () => {
 		}),
 		[],
 	);
-
-	const tabs = useMemo(() => {
-		return {
-			reqActions: { label: 'Req Actions', Component: <div>Required Actions</div> },
-			workflows: { label: 'Workflows', Component: <div>Workflows</div> },
-			files: {
-				label: 'Files',
-				Component: <TabListFile rowTypes={rowTypes} colors={colors} />,
-			},
-			payments: { label: 'Payments', Component: <div>Payments</div> },
-			activity: { label: 'Activity', Component: <div>Activity</div> },
-		};
-	}, [rowTypes, colors]);
 
 	// useEffect(() => {
 	// 	if (info?.filters?.length > 0 || info?.searchValue) {
@@ -204,6 +195,39 @@ const ClientListView = () => {
 	}, [info?.listItems, info?.selectedRow]);
 
 	const filterDebounceTimeout = useRef(null);
+
+	const updateListViewInfo = useCallback((key, value) => {
+		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
+	}, []);
+
+	const tabs = useMemo(() => {
+		return {
+			reqActions: { label: 'Req Actions', Component: <div>Required Actions</div> },
+			workflows: { label: 'Workflows', Component: <div>Workflows</div> },
+			files: {
+				label: 'Files',
+				Component: (
+					<TabListFile
+						rowTypes={rowTypes}
+						colors={colors}
+						handleRowClick={(data) => {
+							console.log('data', data);
+							setInfo((prev) => ({
+								...prev,
+								activeFileData: data,
+								showRightDrawer: true,
+								sidebarIsOpen: false,
+							}));
+						}}
+						refetchDocsFilesList={info?.refetchDocsFilesList}
+						updateListViewInfo={updateListViewInfo}
+					/>
+				),
+			},
+			payments: { label: 'Payments', Component: <div>Payments</div> },
+			activity: { label: 'Activity', Component: <div>Activity</div> },
+		};
+	}, [rowTypes, colors, info?.refetchDocsFilesList]);
 
 	const fetchClientList = useCallback(
 		async (page = 1, shouldDebounce = false) => {
@@ -269,10 +293,6 @@ const ClientListView = () => {
 			page: info?.page + 1,
 		}));
 	}, [info?.page]);
-
-	const updateListViewInfo = useCallback((key, value) => {
-		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
-	}, []);
 
 	const mapPropertyType = useCallback(() => {
 		let properties = [];
@@ -381,6 +401,24 @@ const ClientListView = () => {
 				modalIsOpen={info?.isCreateModalOpen}
 				closeModal={() => {
 					updateListViewInfo('isCreateModalOpen', false);
+				}}
+			/>
+			<Sidebar
+				open={info?.showRightDrawer}
+				onClose={() => {
+					setInfo((prev) => ({
+						...prev,
+						showRightDrawer: false,
+						sidebarIsOpen: true,
+						activeFileData: null,
+					}));
+				}}
+				activeFileData={info?.activeFileData}
+				refetchDocsFilesList={() => {
+					setInfo((prev) => ({
+						...prev,
+						refetchDocsFilesList: true,
+					}));
 				}}
 			/>
 		</div>
