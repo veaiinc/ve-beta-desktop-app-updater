@@ -87,7 +87,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 			<SideBarPreview
 				open={info?.showPreview}
 				onClose={() => setInfo((prev) => ({ ...prev, showPreview: false }))}
-				activeTemplateId={info?.templateData?._id}
+				activeTemplate={info?.templateData}
 			/>
 		</>
 	);
