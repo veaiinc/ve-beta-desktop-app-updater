@@ -1,17 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ListView from '../../components/tasks/listView/ListView';
-// import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
-// import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
-// import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
-// import { ReactComponent as WorkflowSvg } from '../../../assets/svg/tasks/workflow.svg';
-// import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Context from '../../../context/context';
-import CreateLeadModal from '../../components/modalsV2/proposalModals/CreateLeadModal';
 import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
 import { message } from 'antd';
+import Sidebar from '../../components/docs/Sidebar';
+import ListTabs from '../../components/tasks/listView/ListTabs';
+import TabListFile from '../../components/tasks/listView/TabListFile';
 import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
 import Select from '../../components/tasks/listView/Select';
 import Person from '../../components/tasks/listView/Person';
@@ -29,13 +26,6 @@ import ParentTaskComponent from '../../components/tasks/listView/ParentTaskCompo
 import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
 import LinkText from '../../components/tasks/listView/LinkText';
 import Text from '../../components/tasks/listView/Text';
-import ListTabs from '../../components/tasks/listView/ListTabs';
-import TabListFile from '../../components/tasks/listView/TabListFile';
-import Sidebar from '../../components/docs/Sidebar';
-
-// import { message } from 'antd';
-// import jwtDecode from 'jwt-decode';
-// import moment from 'moment';
 
 const rowTypes = {
 	text: Text,
@@ -134,49 +124,114 @@ const ClientListView = () => {
 		[],
 	);
 
-	// useEffect(() => {
-	// 	if (info?.filters?.length > 0 || info?.searchValue) {
-	// 		setInfo((prev) => ({ ...prev, page: 1 }));
-	// 		fetchClientList(1, true);
-	// 	}
-	// }, [info?.filters, info?.searchValue]);
+	const filterDebounceTimeout = useRef(null);
+	const isInitialMount = useRef(true);
 
-	useEffect(() => {
-		if (info?.sort?.length > 0 || info?.page > 1) {
-			fetchClientList(info?.page, false);
-		}
-	}, [info?.page, info?.sort]);
+	const fetchClientList = useCallback(
+		(page = 1, filters = null, search = null, sort = null) => {
+			const payload = {
+				filters: {
+					limit: 30,
+					page: page,
+					...(sort?.length > 0 && {
+						sortBy: sort[0].sortBy,
+						sortType: sort[0].sortType,
+					}),
+					...(search && {
+						search: search,
+					}),
+					// ...(filters?.length > 0 && {
+					// 	filters: filters.map((filter) => ({
+					// 		key: filter.key,
+					// 		value: filter.value?._id || filter.value,
+					// 	})),
+					// }),
+				},
+			};
+			getClientList(payload);
+		},
+		[getClientList],
+	);
 
-	useEffect(() => {
-		if (refetchClientList) {
-			fetchClientList(info?.page, false);
-			updateStateValues({ refetchClientList: false });
-		}
-	}, [refetchClientList]);
-
+	// Initial load effect
 	useEffect(() => {
 		if (!clientList) {
-			fetchClientList(1, false);
-		} else {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				listItems: clientList?.data,
-				hasMore: clientList?.hasNextPage,
-				loadingSkeleton: false,
-			}));
+			updateListViewInfo('loadingSkeleton', true);
+			fetchClientList(1, info.filters, info.searchValue, info.sort);
 		}
 	}, []);
 
 	useEffect(() => {
+		if (refetchClientList) {
+			setInfo((prev) => ({ ...prev, page: 1 }));
+			fetchClientList(1, info.filters, info.searchValue, info.sort);
+		}
+	}, [refetchClientList]);
+
+	// Filter and search effect
+	useEffect(() => {
+		if (isInitialMount.current) {
+			isInitialMount.current = false;
+			return;
+		}
+
+		if (filterDebounceTimeout.current) {
+			clearTimeout(filterDebounceTimeout.current);
+		}
+
+		if (info?.filters || info?.searchValue) {
+			filterDebounceTimeout.current = setTimeout(() => {
+				setInfo((prev) => ({ ...prev, page: 1 }));
+				updateListViewInfo('loadingSkeleton', true);
+				fetchClientList(1, info.filters, info.searchValue, info.sort);
+			}, 800);
+		}
+
+		return () => {
+			if (filterDebounceTimeout.current) {
+				clearTimeout(filterDebounceTimeout.current);
+			}
+		};
+	}, [info.filters, info.searchValue]);
+
+	// Sort effect
+	useEffect(() => {
+		if (info?.sort?.length > 0) {
+			setInfo((prev) => ({ ...prev, page: 1 }));
+			fetchClientList(1, info.filters, info.searchValue, info.sort);
+		}
+	}, [info.sort]);
+
+	// Pagination effect
+	useEffect(() => {
+		if (info.page > 1) {
+			fetchClientList(info.page, info.filters, info.searchValue, info.sort);
+		}
+	}, [info.page]);
+
+	// Update list items when clientList changes
+	useEffect(() => {
 		if (clientList) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				listItems: clientList?.data,
+				listItems:
+					info?.page === 1
+						? clientList?.data
+						: [...prevInfo?.listItems, ...clientList?.data],
 				hasMore: clientList?.hasNextPage,
 				loadingSkeleton: false,
 			}));
 		}
 	}, [clientList]);
+
+	const handleLoadMore = useCallback(() => {
+		if (!info.loadingSkeleton && info.hasMore) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				page: prevInfo.page + 1,
+			}));
+		}
+	}, [info.loadingSkeleton, info.hasMore]);
 
 	useEffect(() => {
 		setInfo((prevInfo) => ({
@@ -194,8 +249,6 @@ const ClientListView = () => {
 		}
 	}, [info?.listItems, info?.selectedRow]);
 
-	const filterDebounceTimeout = useRef(null);
-
 	const updateListViewInfo = useCallback((key, value) => {
 		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
 	}, []);
@@ -211,7 +264,6 @@ const ClientListView = () => {
 						rowTypes={rowTypes}
 						colors={colors}
 						handleRowClick={(data) => {
-							console.log('data', data);
 							setInfo((prev) => ({
 								...prev,
 								activeFileData: data,
@@ -229,80 +281,10 @@ const ClientListView = () => {
 		};
 	}, [rowTypes, colors, info?.refetchDocsFilesList]);
 
-	const fetchClientList = useCallback(
-		async (page = 1, shouldDebounce = false) => {
-			try {
-				if (filterDebounceTimeout.current) {
-					clearTimeout(filterDebounceTimeout.current);
-				}
-
-				const fetchData = async () => {
-					setInfo((prev) => ({
-						...prev,
-						loading: true,
-						// loadingSkeleton: true,
-					}));
-
-					const payload = {
-						filters: {
-							limit: 20,
-							page: page,
-							// Include sort if exists
-							...(info?.sort?.length > 0 && {
-								sortBy: info.sort[0].sortBy,
-								sortType: info.sort[0].sortType,
-							}),
-							// Include search if exists
-							...(info?.searchValue && {
-								search: info.searchValue,
-							}),
-							// Include filters if exists
-							...(info?.filters?.length > 0 && {
-								filters: info.filters.map((filter) => ({
-									key: filter.key,
-									value: filter.value?._id || filter.value,
-								})),
-							}),
-						},
-					};
-
-					await getClientList(payload);
-				};
-
-				if (shouldDebounce) {
-					filterDebounceTimeout.current = setTimeout(fetchData, 800);
-				} else {
-					await fetchData();
-				}
-			} catch (error) {
-				setInfo((prev) => ({
-					...prev,
-					error: error.message || 'Failed to fetch clients',
-					loading: false,
-					loadingSkeleton: false,
-				}));
-			}
-		},
-		[getClientList, info?.sort, info?.searchValue, info?.filters],
-	);
-
-	const fetchMoreData = useCallback(() => {
-		fetchClientList(info?.page + 1, false);
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			page: info?.page + 1,
-		}));
-	}, [info?.page]);
-
 	const mapPropertyType = useCallback(() => {
 		let properties = [];
 		for (let key in responseMetadata) {
-			if (
-				key === '__typename' ||
-				key === '_id'
-				// key === 'workflowTemplateId' ||
-				// key === 'completedAt'
-			) {
+			if (key === '__typename' || key === '_id') {
 				continue;
 			}
 
@@ -323,7 +305,7 @@ const ClientListView = () => {
 			});
 		}
 		return properties;
-	}, []);
+	}, [responseMetadata]);
 
 	const togglePropertyVisibility = useCallback((index, value) => {
 		setInfo((prevInfo) => {
@@ -340,30 +322,34 @@ const ClientListView = () => {
 		async (rowId, propName, value, isUpdatingSubTask, onSuccess) => {
 			if (validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
+
+			const response = await updateClient({
+				updateClientId: rowId,
+				updateClientInput: {
+					[propName]: value,
+				},
+			});
+
+			if (response?.[0]) {
+				updateStateValues({ refetchClientList: true });
 			} else {
-				const response = await updateClient({
-					updateClientId: rowId,
-					updateClientInput: {
-						[propName]: value,
-					},
-				});
-				if (response?.[0]) {
-					fetchClientList();
-				} else {
-					message?.error(response?.[1]);
-				}
-				if (onSuccess) {
-					onSuccess(response?.[0]);
-				}
+				message?.error(response?.[1]);
+			}
+
+			if (onSuccess) {
+				onSuccess(response?.[0]);
 			}
 		},
-		[],
+		[validateExpiryData?.isExpired, updateClient, updateStateValues],
 	);
 
-	const handleDeleteClient = useCallback(async (payload) => {
-		if (validateExpiryData?.isExpired) {
-			return updateSubscriptionState({ expiredSubscriptionModal: true });
-		} else {
+	const handleDeleteClient = useCallback(
+		async (payload) => {
+			if (validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
+
 			const response = await deleteClient({ deleteClientId: payload?.taskId });
 			if (response?.[0]) {
 				setInfo((prevInfo) => ({
@@ -372,12 +358,13 @@ const ClientListView = () => {
 					sidebarIsOpen: false,
 				}));
 				message?.success('Client deleted successfully');
-				fetchClientList();
+				updateStateValues({ refetchClientList: true });
 			} else {
 				message?.error(response?.[1]);
 			}
-		}
-	}, []);
+		},
+		[validateExpiryData?.isExpired, deleteClient, updateStateValues],
+	);
 
 	return (
 		<div>
@@ -388,14 +375,14 @@ const ClientListView = () => {
 				updatePropertyValue={updatePropertyValue}
 				deleteTask={handleDeleteClient}
 				responseMetadata={responseMetadata}
-				fetchListItems={fetchMoreData}
+				fetchListItems={fetchClientList}
 				addButtonOnClick={() => {
 					updateListViewInfo('isCreateModalOpen', true);
 				}}
 				headerTitle={'Contacts'}
 				createButtonText={'Create Client'}
 				sidebarChildren={<ListTabs tabs={tabs} defaultActiveTab={'reqActions'} />}
-				fetchMoreData={fetchClientList}
+				fetchMoreData={handleLoadMore}
 			/>
 			<CreateClientModal
 				modalIsOpen={info?.isCreateModalOpen}
