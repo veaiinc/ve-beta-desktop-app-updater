@@ -17,9 +17,7 @@ import DropDown from '../../components/dropDown/tasks/DropDown';
 import FilterPopUp from '../../components/globalComponents/FilterPopUp';
 
 import Skeleton from 'react-loading-skeleton';
-import SendProposalModal from '../../components/modalsV2/proposalModals/SendProposalModal';
-import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
-import { Spin, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 let origin = fetchOriginSelection();
 
 const payload = {
@@ -216,20 +214,11 @@ const Docs = () => {
 			docsFilesList,
 			moreDocsFilesList,
 			getSmartFileData,
-			smartFileInfo,
 			getLatestSendSmartFileSettings,
-			sendSmartFileSettings,
 			templatesListForDocs,
 			getTemplatesListForDocs,
 			clientListForDocs,
 			getClientListForDocs,
-			getTemplatesListForCreateLead,
-			templatesListForCreateLead,
-			updateProposal,
-			updateContracts,
-			updateInvoice,
-			updateForm,
-			updateThankyou,
 		},
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
@@ -264,18 +253,6 @@ const Docs = () => {
 			status: 1,
 		},
 		sendSmartFileModal: false,
-		assisstanceData: null,
-		workflowExpiryAt: '',
-		isEmailAuth: true,
-		businessName: '',
-		currentWorkspaceId: localStorage?.getItem('workspaceId'),
-		isAlChatEnabled: false,
-		nameIdentification: false,
-		emailIdentification: false,
-		businessName: '',
-		needRefetch: false,
-		copyModal: false,
-		copyLink: '',
 		timeout: null,
 		filtersGotChanged: false,
 	});
@@ -336,52 +313,10 @@ const Docs = () => {
 	}, [moreDocsFilesList]);
 
 	useEffect(() => {
-		if (smartFileInfo) {
-			let assisstanceData = smartFileInfo?.aiAssistant || {};
-
-			setInfo((prev) => ({
-				...prev,
-				workflowExpiryAt: smartFileInfo?.expiresAt,
-				assisstanceData,
-			}));
-		}
-	}, [smartFileInfo]);
-
-	useEffect(() => {
-		if (sendSmartFileSettings) {
-			const { isAlChatEnabled, access, userIdentification } = sendSmartFileSettings;
-			setInfo((prev) => ({
-				...prev,
-				isAlChatEnabled: isAlChatEnabled || false,
-				isEmailAuth: access?.isEnabled,
-				nameIdentification: userIdentification?.name,
-				emailIdentification: userIdentification?.email,
-			}));
-		}
-	}, [sendSmartFileSettings]);
-
-	useEffect(() => {
 		if (!tennantSettingsData) {
 			getTenantSettings();
 		}
 	}, [tennantSettingsData]);
-
-	useEffect(() => {
-		if (tennantSettingsData && info?.currentWorkspaceId && info?.sendSmartFileModal) {
-			let link;
-			if (tennantSettingsData?.customDomain?.length) {
-				link = `https://${tennantSettingsData?.customDomain}/portal/${info?.activeFileData?.slug}`;
-			} else {
-				link = `https://${info?.currentWorkspaceId}.ve.ai/portal/${info?.activeFileData?.slug}`;
-			}
-
-			setInfo((prev) => ({
-				...prev,
-				copyLink: link,
-				businessName: tennantSettingsData?.businessName,
-			}));
-		}
-	}, [tennantSettingsData, info?.activeFileData, info?.sendSmartFileModal]);
 
 	useEffect(() => {
 		if (info?.filtersGotChanged) {
@@ -508,22 +443,13 @@ const Docs = () => {
 	}, []);
 
 	const handleCloseSidebar = useCallback(() => {
-		if (info?.needRefetch) {
-			refetchDocsFilesList();
-		}
 		setInfo((prev) => ({
 			...prev,
 			showRightDrawer: false,
 			activeFileData: null,
-			workflowExpiryAt: '',
-			needRefetch: false,
 		}));
 		updateStateValues({ smartFileInfo: null });
 	}, [info]);
-
-	const openSendSmartFileModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, sendSmartFileModal: true }));
-	}, []);
 
 	const getSmartFileInfo = useCallback(
 		async (data) => {
@@ -537,148 +463,9 @@ const Docs = () => {
 		[info?.activeFileData],
 	);
 
-	const changelocalWorflowStatus = useCallback(
-		async (data) => {
-			setInfo((prev) => ({
-				...prev,
-				activeFileData: { ...prev?.activeFileData, status: data },
-				needRefetch: true,
-			}));
-		},
-		[info],
-	);
-
-	const updateWorkflowSlug = useCallback(
-		(updatedSlug) => {
-			setInfo((prev) => ({
-				...prev,
-				activeFileData: { ...prev?.activeFileData, slug: updatedSlug },
-				needRefetch: true,
-			}));
-		},
-		[info?.workflowData],
-	);
-
-	const updateSendSmartFileExpiryData = useCallback(async (updatedValue) => {
-		setInfo((prev) => ({ ...prev, workflowExpiryAt: updatedValue }));
-	}, []);
-
-	const updateIdentification = useCallback((data, type) => {
-		setInfo((prev) => ({ ...prev, [type]: data }));
-	}, []);
-
-	const updateSmartFileEmailAuth = useCallback(
-		(data) => {
-			setInfo((prev) => ({ ...prev, isEmailAuth: data }));
-		},
-		[info?.isEmailAuth],
-	);
-
-	const updateSmartFileIsAiChatEnabled = useCallback(
-		(data) => {
-			setInfo((prev) => ({ ...prev, isAlChatEnabled: data }));
-		},
-		[info?.isAlChatEnabled],
-	);
-
 	const refetchDocsFilesList = useCallback(() => {
 		getDocsFilesListFunc(1);
 	}, []);
-
-	const openCopyModal = useCallback(async () => {
-		setInfo((prev) => ({ ...prev, copyModal: true }));
-	}, [info]);
-
-	//variable update functions
-
-	const updateWorkspaceVariablesFunc = useCallback(
-		async (data, type) => {
-			//returning false means no changes needeed
-
-			if (!tennantSettingsData) {
-				return [false];
-			}
-			const updatedVariablesdata = [...(data || [])];
-			let changed = false;
-
-			for (let i = 0; i < updatedVariablesdata?.length; i++) {
-				if (
-					updatedVariablesdata?.[i]?.type === 'workspace' &&
-					tennantSettingsData?.[updatedVariablesdata?.[i]?.code]
-				) {
-					const currentVariableValue =
-						updatedVariablesdata?.[i]?.value || updatedVariablesdata?.[i]?.defaultValue;
-					const incomingValue = tennantSettingsData?.[updatedVariablesdata?.[i]?.code];
-
-					if (currentVariableValue !== incomingValue) {
-						updatedVariablesdata[i].value = incomingValue;
-						updatedVariablesdata[i].defaultValue = incomingValue;
-						changed = true;
-					}
-				}
-			}
-
-			return [changed, updatedVariablesdata, type];
-		},
-		[tennantSettingsData],
-	);
-
-	const updateVariablesInAllModules = useCallback(async () => {
-		if (smartFileInfo) {
-			const { contract, form, proposal, thankyou, thankyou2, invoice } = smartFileInfo || {};
-
-			//contract
-			const { variables: contractVariable } = contract?.versions?.[0] || {};
-
-			//invoice
-			const { variables: invoiceVariable } = invoice?.versions?.[0] || {};
-
-			//proposal
-			const { variables: proposalVariables } = proposal?.versions?.[0] || {};
-
-			//form
-			const { variables: formVariables } = form?.versions?.[0] || {};
-			//thankyou
-			const { variables: thankyouVariables } = thankyou?.versions?.[0] || {};
-			const { variables: thankyou2Variables } = thankyou2?.versions?.[0] || {};
-
-			const mapper = {
-				contract: { data: contract, func: updateContracts },
-				invoice: { data: invoice, func: updateInvoice },
-				proposal: { data: proposal, func: updateProposal },
-				form: { data: form, func: updateForm },
-				thankyou: { data: thankyou, func: updateThankyou },
-				thankyou2: { data: thankyou2, func: updateThankyou },
-			};
-
-			const response = await Promise.all([
-				updateWorkspaceVariablesFunc(contractVariable || [], 'contract'),
-				updateWorkspaceVariablesFunc(invoiceVariable || [], 'invoice'),
-				updateWorkspaceVariablesFunc(proposalVariables || [], 'proposal'),
-				updateWorkspaceVariablesFunc(formVariables || [], 'form'),
-				updateWorkspaceVariablesFunc(thankyouVariables || [], 'thankyou'),
-				updateWorkspaceVariablesFunc(thankyou2Variables || [], 'thankyou2'),
-			]);
-
-			for (let i = 0; i < response?.length; i++) {
-				if (response?.[i]?.[0]) {
-					const moduleType = response?.[i]?.[2];
-
-					const payload = {
-						[moduleType + 'Id']: mapper?.[moduleType]?.data?._id,
-						workflowId: info?.activeFileData?._id,
-						[moduleType + 'Input']: {
-							versions: {
-								variables: response?.[i]?.[1],
-							},
-						},
-						versionId: mapper?.[moduleType]?.data?.activeVersion,
-					};
-					mapper?.[moduleType]?.func(payload);
-				}
-			}
-		}
-	}, [smartFileInfo, updateWorkspaceVariablesFunc, info?.activeFileData]);
 
 	const handleDebounceFetch = useCallback(() => {
 		clearInterval(info?.timeout);
@@ -921,50 +708,7 @@ const Docs = () => {
 					open={info?.showRightDrawer}
 					onClose={handleCloseSidebar}
 					activeFileData={info?.activeFileData}
-					openSendSmartFileModal={openSendSmartFileModal}
-				/>
-
-				<SendProposalModal
-					open={info?.sendSmartFileModal}
-					closeModal={() => setInfo((prev) => ({ ...prev, sendSmartFileModal: false }))}
-					clientDetails={info?.activeFileData?.clientDetails}
-					workflowSlug={info?.activeFileData?.slug}
-					workflowId={info?.activeFileData?._id}
-					openCopyModal={openCopyModal}
-					changelocalWorflowStatus={changelocalWorflowStatus}
-					workflowStatus={info?.activeFileData?.status}
-					changeEditStatus={() => {}}
-					slug={info?.activeFileData?.slug}
-					updateWorkflowSlug={updateWorkflowSlug}
-					expiresAt={info?.workflowExpiryAt || ''}
-					updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
-					isEnabled={info?.isEmailAuth}
-					updateSmartFileEmailAuth={updateSmartFileEmailAuth}
-					pin={smartFileInfo?.access?.pin}
-					businessName={info?.businessName}
-					isAlChatEnabled={info?.isAlChatEnabled}
-					updateSmartFileIsAiChatEnabled={updateSmartFileIsAiChatEnabled}
-					nameIdentification={info?.nameIdentification}
-					emailIdentification={info?.emailIdentification}
-					updateIdentification={updateIdentification}
-					assisstanceData={info?.assisstanceData}
-					updateVariablesInAllModules={updateVariablesInAllModules}
-					copyLink={info?.copyLink}
-				/>
-
-				<CopiedModal
-					open={info?.copyModal}
-					closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
-					modules={info?.activeFileData?.modules?.filter((e) => e?.type !== 'form')}
-					copyLink={
-						info?.copyLink || (
-							<span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-								Generating Link ...
-								<Spin />
-							</span>
-						)
-					}
-					pin={smartFileInfo?.access?.pin}
+					refetchDocsFilesList={refetchDocsFilesList}
 				/>
 			</div>
 		</div>
