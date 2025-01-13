@@ -233,7 +233,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 								}`}
 								onClick={createClientFunc}
 							>
-								{isLoading ? <p>Loading...</p> : <p>Add Lead</p>}
+								{isLoading ? <p>Loading...</p> : <p>Add Client</p>}
 							</div>
 							<p className="cancelText" onClick={closeModalFunc}>
 								Cancel

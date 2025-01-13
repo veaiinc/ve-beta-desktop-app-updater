@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/tasks/listViewHeader.scss';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/tasks/searchWhite.svg';
@@ -44,6 +44,13 @@ const ListViewHeader = ({
 		searchExpand: false,
 	});
 	const [pendingFilters, setPendingFilters] = useState([]);
+	const searchInputRef = useRef(null);
+
+	useEffect(() => {
+		if (info.searchExpand && searchInputRef.current) {
+			searchInputRef.current?.focus();
+		}
+	}, [info.searchExpand]);
 
 	const handelSortClick = useCallback(
 		(value) => {
@@ -96,18 +103,19 @@ const ListViewHeader = ({
 									alignItems: 'center',
 									cursor: 'pointer',
 								}}
-								onClick={() =>
+								onClick={() => {
 									setInfo((prev) => ({
 										...prev,
 										searchExpand: true,
-									}))
-								}
+									}));
+								}}
 							>
 								<SearchSvg />
 							</span>
 
 							<div className="inputAndCloseContainer">
 								<input
+									ref={searchInputRef}
 									className="searchInputTag"
 									placeholder="Search"
 									value={searchValue}

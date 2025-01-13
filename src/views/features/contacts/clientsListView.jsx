@@ -143,12 +143,12 @@ const ClientListView = () => {
 		};
 	}, [rowTypes, colors]);
 
-	useEffect(() => {
-		if (info?.filters?.length > 0 || info?.searchValue) {
-			setInfo((prev) => ({ ...prev, page: 1 }));
-			fetchClientList(1, true);
-		}
-	}, [info?.filters, info?.searchValue]);
+	// useEffect(() => {
+	// 	if (info?.filters?.length > 0 || info?.searchValue) {
+	// 		setInfo((prev) => ({ ...prev, page: 1 }));
+	// 		fetchClientList(1, true);
+	// 	}
+	// }, [info?.filters, info?.searchValue]);
 
 	useEffect(() => {
 		if (info?.sort?.length > 0 || info?.page > 1) {
@@ -225,7 +225,8 @@ const ClientListView = () => {
 							page: page,
 							// Include sort if exists
 							...(info?.sort?.length > 0 && {
-								sort: info.sort,
+								sortBy: info.sort[0].sortBy,
+								sortType: info.sort[0].sortType,
 							}),
 							// Include search if exists
 							...(info?.searchValue && {
