@@ -84,7 +84,7 @@ const ctaItems = [
 
 const initialState = {
 	activeNav: 1,
-	loading: false,
+	loading: true,
 	workflowTemplates: [],
 	hasNextPage: false,
 	currentPage: 1,

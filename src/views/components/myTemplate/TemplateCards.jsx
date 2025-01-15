@@ -27,6 +27,8 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 		setInfo((prev) => ({ ...prev, showPreview: true, templateData: template }));
 	};
 
+	console.log('loading', info?.loading);
+
 	return (
 		<>
 			<div className="myTemplatesInfiniteContainer">
