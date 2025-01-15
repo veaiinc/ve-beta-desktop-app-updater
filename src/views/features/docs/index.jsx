@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/docs/index.scss';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
 import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';
@@ -126,6 +127,17 @@ export const statusTextmapper = {
 		},
 		label: 'Proposal Accepted',
 	},
+	published: {
+		id: 'published',
+		text: 'Published',
+		dotStyle: {
+			backgroundColor: '#2A71CD',
+		},
+		style: {
+			backgroundColor: '#29456C',
+		},
+		label: 'Published',
+	},
 };
 
 const statusList = [
@@ -207,6 +219,7 @@ const Filters = [
 	},
 ];
 const Docs = () => {
+	const navigate = useNavigate();
 	let {
 		templates: {
 			getDocsFilesList,
@@ -492,7 +505,7 @@ const Docs = () => {
 						Pick your template from your playbook
 					</div>
 				</div>
-				<div className="docsHeaderButtons">
+				<div onClick={() => navigate('/my-templates')} className="docsHeaderButtons">
 					{' '}
 					<div className="docsHeaderButtonsTitle">Create proposal from your template</div>
 					<div className="docsHeaderSubButtonsSubTitle">
