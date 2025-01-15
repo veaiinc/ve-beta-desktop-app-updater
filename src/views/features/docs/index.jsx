@@ -283,7 +283,9 @@ const Docs = () => {
 		if (templatesListForDocs) {
 			setInfo((prev) => ({
 				...prev,
-				templatesList: [...prev?.templatesList, ...templatesListForDocs?.data],
+				templatesList: info?.templateNameSearchValue
+					? templatesListForDocs?.data
+					: [...prev?.templatesList, ...templatesListForDocs?.data],
 				hasMoreForFilter: {
 					...prev?.hasMoreForFilter,
 					templateName: templatesListForDocs?.hasNextPage,
@@ -302,7 +304,9 @@ const Docs = () => {
 		if (clientListForDocs) {
 			setInfo((prev) => ({
 				...prev,
-				clientList: [...prev?.clientList, ...clientListForDocs?.data],
+				clientList: info?.clientNameSearchValue
+					? clientListForDocs?.data
+					: [...prev?.clientList, ...clientListForDocs?.data],
 				hasMoreForFilter: {
 					...prev?.hasMoreForFilter,
 					clientName: clientListForDocs?.hasNextPage,
@@ -389,6 +393,16 @@ const Docs = () => {
 	};
 
 	const handleFilterPopUpSearch = (filter, searchValue) => {
+		if (searchValue === '') {
+			if (filter === 'templateName') {
+				getTemplatesListForDocs(1, 10, '');
+				return;
+			}
+			if (filter === 'clientName') {
+				getClientListForDocs(1, 10, '');
+				return;
+			}
+		}
 		setInfo((prev) => ({
 			...prev,
 			[`${filter}SearchValue`]: searchValue,

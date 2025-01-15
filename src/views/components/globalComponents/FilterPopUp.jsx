@@ -19,10 +19,6 @@ const FilterPopUp = ({
 	searchValue,
 	setSearchValue,
 }) => {
-	const filteredOptions = options?.filter((option) => {
-		const searchField = option?.name ?? option?.title;
-		return searchField?.toLowerCase().includes(searchValue?.toLowerCase());
-	});
 	const [selectedOption, setSelectedOption] = useState(null);
 
 	return (
@@ -43,7 +39,7 @@ const FilterPopUp = ({
 			)}
 			<div className="filterPopUpOptionsContainer">
 				<InfiniteScroll
-					dataLength={filteredOptions?.length ?? 0}
+					dataLength={options?.length ?? 0}
 					next={fetchMoreOptions}
 					hasMore={hasMoreOptions ?? true}
 					style={{
@@ -54,7 +50,7 @@ const FilterPopUp = ({
 					}}
 					height={height}
 				>
-					{filteredOptions?.map((option) => (
+					{options?.map((option) => (
 						<div
 							key={option?.id}
 							className="filterPopUpOption"
