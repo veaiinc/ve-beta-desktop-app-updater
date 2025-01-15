@@ -14,9 +14,10 @@ export const getSmartFileActivityQuery = gql`
 			sectionViewDuration {
 				duration
 				sectionId
+				moduleType
 				sectionType
 				content
-				moduleType
+				inTime
 			}
 			interaction {
 				moduleType
@@ -26,7 +27,15 @@ export const getSmartFileActivityQuery = gql`
 					interactionType
 					totalCount
 					content
+					createdAt
 				}
+			}
+			timeline {
+				interactionType
+				name
+				email
+				isAnonymus
+				createdAt
 			}
 		}
 	}
