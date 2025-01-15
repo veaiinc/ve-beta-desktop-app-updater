@@ -417,7 +417,10 @@ const Docs = () => {
 		if (info?.clientNameSearchValue) {
 			handleDebounceFetchFilter('clientName');
 		}
-	}, [info?.templateNameSearchValue, info?.clientNameSearchValue]);
+		if (info?.searchValue) {
+			handleDebounceFetch();
+		}
+	}, [info?.templateNameSearchValue, info?.clientNameSearchValue, info?.searchValue]);
 
 	const handleDebounceFetchFilter = useCallback(
 		(filter) => {
@@ -538,7 +541,7 @@ const Docs = () => {
 			}));
 		}, 800);
 		setInfo((prev) => ({ ...prev, timeout }));
-	}, [info?.timeout, info?.searchValue, info?.searchValueChanged, info?.selectedFilterOptions]);
+	}, [info?.timeout, info?.searchValue, info?.selectedFilterOptions]);
 
 	return (
 		<div className="docsParentContainer">
