@@ -74,7 +74,7 @@ const DocsActivity = ({ data }) => {
 		return {
 			timeLine: {
 				label: 'Time Line',
-				comp: <FileTimeLine />,
+				comp: <FileTimeLine data={info?.fileActivityData} />,
 			},
 
 			viewers: {
@@ -118,7 +118,7 @@ const DocsActivity = ({ data }) => {
 				),
 			},
 		};
-	}, [info?.fileViewerList, info?.loading, info?.fileActivityData]);
+	}, [info?.fileViewerList, info?.loading, info?.fileActivityData, data]);
 
 	const handleTabChange = useCallback(
 		(tab) => {
