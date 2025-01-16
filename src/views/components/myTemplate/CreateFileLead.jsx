@@ -23,32 +23,44 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 		currentPage: 1,
 		hasNextPage: false,
 		clientData: null,
+		isLoading: false,
+		error: {
+			isError: false,
+			errorMessage: '',
+			isnameError: false,
+			nameErrorMessage: '',
+			isemailError: false,
+			emailErrorMessage: '',
+			isphoneNumberError: false,
+			phoneNumberErrorMessage: '',
+		},
+		leadDetails: {
+			name: '',
+			emailId: '',
+			phoneNumber: '',
+			source: 'instagram',
+		},
+		createButtonActive: false,
+		selectedLead: {},
 	});
-	const [isLoading, setLoading] = useState(false);
-	const [errorState, setErrorState] = useState({ isError: false, errorMessage: '' });
-	const [leadDetails, setLeadDetails] = useState({
-		name: '',
-		emailId: '',
-		phoneNumber: '',
-		source: 'instagram',
-	});
-	const [createButtonActiveState, setCreateButtonActiveState] = useState(false);
-	const [selectedLead, setSelectedLead] = useState({});
 
 	useEffect(() => {
 		getClientListData();
 	}, []);
 
 	useEffect(() => {
-		const isValidEmail = leadDetails['emailId'] && validator?.isEmail(leadDetails['emailId']);
-		const isValidName = leadDetails['name'].trim()?.length > 0;
-		const isValidSource = leadDetails['source'].trim()?.length > 0;
-		const isValidPhoneNumber = leadDetails['phoneNumber']?.trim()?.length > 0;
+		const isValidEmail =
+			info?.leadDetails?.emailId && validator?.isEmail(info?.leadDetails?.emailId);
+		const isValidName = info?.leadDetails?.name?.trim()?.length > 0;
+		const isValidSource = info?.leadDetails?.source?.trim()?.length > 0;
+		const isValidPhoneNumber = info?.leadDetails?.phoneNumber?.trim()?.length > 0;
 
-		setCreateButtonActiveState(
-			(isValidEmail || isValidPhoneNumber) && isValidName && isValidSource,
-		);
-	}, [leadDetails]);
+		setInfo((prev) => ({
+			...prev,
+			createButtonActive:
+				(isValidEmail || isValidPhoneNumber) && isValidName && isValidSource,
+		}));
+	}, [info?.leadDetails]);
 
 	useEffect(() => {
 		if (clientList) {
@@ -79,7 +91,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 		if (info?.clientData?.length && info?.existingLeadSource && open) {
 			let { value } = info?.clientData?.[0] || {};
 			value = JSON.parse(value);
-			setSelectedLead(value);
+			setInfo((prev) => ({ ...prev, selectedLead: value }));
 			handleSelectedLead(value);
 		}
 	}, [info?.clientData, info?.existingLeadSource, open]);
@@ -95,113 +107,140 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 	}, []);
 
 	const closeModalFunc = () => {
-		setLoading(false);
-		setErrorState(() => ({
-			isError: false,
-			errorMessage: '',
+		setInfo((prev) => ({
+			...prev,
+			isLoading: false,
+			error: {
+				isError: false,
+				errorMessage: '',
+			},
+			leadDetails: {
+				name: '',
+				emailId: '',
+				source: 'instagram',
+				phoneNumber: '',
+			},
+			createButtonActive: false,
 		}));
-		setLeadDetails({ name: '', emailId: '', source: 'instagram' });
-		setCreateButtonActiveState(false);
 		onClose();
 	};
 
 	const handleInputChange = (e) => {
-		let { name, value } = e.target;
+		const { name, value } = e.target;
 
-		let error = `is${name}Error`;
-		let message = `${name}ErrorMessage`;
-
-		setLeadDetails((prevState) => ({
-			...prevState,
-			[name]: value,
-		}));
-		setErrorState((prevState) => ({
-			...prevState,
-			[error]: false,
-			[message]: '',
+		setInfo((prev) => ({
+			...prev,
+			leadDetails: {
+				...prev.leadDetails,
+				[name]: value,
+			},
+			error: {
+				...prev.error,
+				[`is${name}Error`]: false,
+				[`${name}ErrorMessage`]: '',
+			},
 		}));
 	};
 
 	const handleSelectedLead = useCallback(async (val) => {
-		setLeadDetails((prev) => ({
+		setInfo((prev) => ({
 			...prev,
-			emailId: val?.email,
-			name: val?.name,
-			phoneNumber: val?.phoneNumber,
+			leadDetails: {
+				...prev.leadDetails,
+				emailId: val?.email,
+				name: val?.name,
+				phoneNumber: val?.phoneNumber,
+			},
+			createButtonActive: true,
 		}));
-		setCreateButtonActiveState(true);
 	}, []);
 
 	const onChangeClientLists = useCallback(
 		async (data) => {
 			let { value } = data;
 			value = JSON.parse(value);
-			setSelectedLead(value);
+			setInfo((prev) => ({ ...prev, selectedLead: value }));
 			handleSelectedLead(value);
 		},
 		[handleSelectedLead],
 	);
 
 	const onChangeSelectedSource = useCallback(async (data) => {
-		setLeadDetails((prevState) => ({
-			...prevState,
-			source: data?.value,
+		setInfo((prev) => ({
+			...prev,
+			leadDetails: {
+				...prev.leadDetails,
+				source: data?.value,
+			},
 		}));
 	}, []);
 
 	const createLeadFunc = useCallback(async () => {
-		if (createButtonActiveState) {
-			if (isLoading) {
+		if (info?.createButtonActive) {
+			if (info?.isLoading) {
 				return;
 			}
-			setLoading(true);
+			setInfo((prev) => ({ ...prev, isLoading: true }));
+
 			const payload = {
 				workflowInput: {
 					clientDetails: {
-						name: leadDetails['name'],
+						name: info?.leadDetails?.name,
 					},
 					templateId: workflow?._id,
-					title: leadDetails['name'],
+					title: info?.leadDetails?.name,
 				},
 			};
 
-			if (leadDetails?.['phoneNumber']?.length) {
-				if (!validator?.isMobilePhone(leadDetails?.['phoneNumber'])) {
-					setLoading(false);
-					return setErrorState((prevState) => ({
-						...prevState,
-						isphoneNumberError: true,
-						phoneNumberErrorMessage: 'Invalid phone number',
+			if (info?.leadDetails?.phoneNumber?.length) {
+				if (!validator?.isMobilePhone(info?.leadDetails?.phoneNumber)) {
+					setInfo((prev) => ({
+						...prev,
+						isLoading: false,
+						error: {
+							...prev.error,
+							isphoneNumberError: true,
+							phoneNumberErrorMessage: 'Invalid phone number',
+						},
 					}));
+					return;
 				}
-				payload.workflowInput.clientDetails.phoneNumber = leadDetails['phoneNumber'];
+				payload.workflowInput.clientDetails.phoneNumber = info?.leadDetails?.phoneNumber;
 			}
-			if (leadDetails?.emailId?.length) {
-				if (!validator?.isEmail(leadDetails?.emailId)) {
-					return setErrorState((prevState) => ({
-						...prevState,
-						isemailError: true,
-						emailErrorMessage: 'Enter Valid Email Id',
+
+			if (info?.leadDetails?.emailId?.length) {
+				if (!validator?.isEmail(info?.leadDetails?.emailId)) {
+					setInfo((prev) => ({
+						...prev,
+						error: {
+							...prev.error,
+							isemailError: true,
+							emailErrorMessage: 'Enter Valid Email Id',
+						},
 					}));
+					return;
 				}
-				payload.workflowInput.clientDetails.email = leadDetails?.['emailId'];
+				payload.workflowInput.clientDetails.email = info?.leadDetails?.emailId;
 			}
 
 			const response = await createLeadfromTemplates(payload);
 			if (response?.[0]) {
-				setLoading(false);
+				setInfo((prev) => ({ ...prev, isLoading: false }));
 				updateStateValues({ salePageRefresh: true });
 				closeModalFunc();
 			} else {
-				setLoading(false);
-				setErrorState((prev) => ({
+				setInfo((prev) => ({
 					...prev,
-					isError: true,
-					errorMessage: response[1],
+					isLoading: false,
+					error: {
+						...prev.error,
+						isError: true,
+						errorMessage: response[1],
+					},
 				}));
 			}
 		}
-	}, [workflow, leadDetails, createButtonActiveState, isLoading]);
+	}, [workflow, info?.leadDetails, info?.createButtonActive, info?.isLoading]);
 
 	return (
 		<ReactModal
@@ -243,7 +282,14 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 								...prev,
 								existingLeadSource: !prev.existingLeadSource,
 							}));
-							setLeadDetails((prev) => ({ ...prev, name: '', emailId: '' }));
+							setInfo((prev) => ({
+								...prev,
+								leadDetails: {
+									...prev.leadDetails,
+									name: '',
+									emailId: '',
+								},
+							}));
 						}}
 					>
 						{!info?.existingLeadSource ? <Checked /> : <Unchecked />}
@@ -257,30 +303,30 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 							type={'text'}
 							placeholder={'Enter lead name'}
 							name={'name'}
-							value={leadDetails['name']}
+							value={info?.leadDetails?.name}
 							onChange={handleInputChange}
-							isError={errorState['isnameError']}
-							errorMessage={errorState['nameErrorMessage']}
+							isError={info?.error?.isnameError}
+							errorMessage={info?.error?.nameErrorMessage}
 						/>
 						<InputForModules
 							label={'Email Id'}
 							type={'email'}
 							placeholder={'Enter email id'}
 							name={'emailId'}
-							value={leadDetails['emailId']}
+							value={info?.leadDetails?.emailId}
 							onChange={handleInputChange}
-							isError={errorState['isemailError']}
-							errorMessage={errorState['emailErrorMessage']}
+							isError={info?.error?.isemailError}
+							errorMessage={info?.error?.emailErrorMessage}
 						/>
 						<InputForModules
 							label={'Phone Number'}
 							type={'phoneNumber'}
 							placeholder={'Enter Phone Number'}
 							name={'phoneNumber'}
-							value={leadDetails['phoneNumber']}
+							value={info?.leadDetails?.phoneNumber}
 							onChange={handleInputChange}
-							isError={errorState['isphoneNumberError']}
-							errorMessage={errorState['phoneNumberErrorMessage']}
+							isError={info?.error?.isphoneNumberError}
+							errorMessage={info?.error?.phoneNumberErrorMessage}
 							defaultCountry={'IN'}
 						/>
 						<div className="leadSourceContainer">
@@ -294,7 +340,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 									{ label: 'Reference', value: 'reference' },
 									{ label: 'None', value: 'null' },
 								]}
-								selectedValue={leadDetails['source'] || 'Select Source'}
+								selectedValue={info?.leadDetails?.source || 'Select Source'}
 								containerStyle={{
 									padding: '12px 24px',
 									height: '48px',
@@ -323,7 +369,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 								}}
 								showSelectedValueTick={true}
 								uniqueIdentifierForTickIcon={'value'}
-								selectedValueObj={{ value: leadDetails?.['source'] }}
+								selectedValueObj={{ value: info?.leadDetails?.source }}
 							/>
 						</div>
 						<div className="leadSourceContainer">
@@ -357,7 +403,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 							<HeadersDropDownComp
 								showIcon={false}
 								options={info?.clientData || []}
-								selectedValue={leadDetails?.name || 'Select Lead'}
+								selectedValue={info?.leadDetails?.name || 'Select Lead'}
 								containerStyle={{
 									height: '48px',
 									padding: '12px 14px',
@@ -386,7 +432,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 								}}
 								showSelectedValueTick={true}
 								uniqueIdentifierForTickIcon={'_id'}
-								selectedValueObj={selectedLead}
+								selectedValueObj={info?.selectedLead}
 							/>
 						</div>
 						<div className="leadSourceContainer">
@@ -418,17 +464,17 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 				<div className="createLeadFooter">
 					<div className="continueContainer">
 						<div
-							className={`createButton ${createButtonActiveState ? 'active' : ''}`}
+							className={`createButton ${info?.createButtonActive ? 'active' : ''}`}
 							onClick={createLeadFunc}
 						>
-							{isLoading ? <p>Loading...</p> : <p>Add Lead</p>}
+							{info?.isLoading ? <p>Loading...</p> : <p>Add Lead</p>}
 						</div>
 						<p className="cancelText" onClick={closeModalFunc}>
 							Cancel
 						</p>
 					</div>
 
-					<p className="errorMessage">{errorState['errorMessage']}</p>
+					<p className="errorMessage">{info?.error?.errorMessage}</p>
 				</div>
 			</div>
 		</ReactModal>
