@@ -18,114 +18,124 @@ import {
 } from '../../components/workflowBuilderComponents/CustomNodes';
 import CustomEdges from '../../components/workflowBuilderComponents/CustomEdges';
 
-const mockSteps = [
-	{
-		criteria: {
-			status: 'enquiry',
-		},
-		module: 'form',
-		order: 1,
-		_id: '6687fcc3608c200da04032b0',
-		nextStepId: '66c464100d2024cacd650d98',
-		nextStepType: 'action',
-		type: 'start-step',
-	},
-	{
-		criteria: {
-			status: 'enquiry',
-		},
-		_id: '66c464100d2024cacd650d98',
-		module: 'form',
-		sendAt: null,
-		type: 'action',
-		actionType: 'notification',
-		channels: ['email'],
-		isEnabled: true,
-		emailTemplateId: '67810cc53bd285ce4553490e',
-		emailTemplateTitle: 'Form Response Mail',
-		emailTemplateSubject: 'Thank You for Your Enquiry',
-		nextStepId: '66c464100d2024cacd650dcc',
-		nextStepType: 'condition',
-		order: 2,
-	},
-	{
-		criteria: {
-			status: 'proposalAccepted',
-		},
-		_id: '66c464100d2024cacd650dcc',
-		module: 'proposal',
-		sendAt: null,
-		type: 'condition',
-		isEnabled: true,
-		ifYes: {
-			nextStepId: '66c46cb60d2024cacd650d9e',
-			nextStepType: 'action',
-		},
-		ifNo: {
-			nextStepId: '66c46ccd0d2024cacd650da0',
-			nextStepType: 'action',
-		},
-		order: 3,
-	},
-	{
-		criteria: {
-			status: 'confirmed',
-		},
-		_id: '66c46cc50d2024cacd650d9f',
-		module: 'contract',
-		sendAt: null,
-		type: 'action',
-		actionType: 'notification',
-		channels: ['email'],
-		isEnabled: true,
-		emailTemplateId: '67810cc53bd285ce4553490f',
-		emailTemplateTitle: 'All Signed',
-		emailTemplateSubject: "Project Confirmation: We're Ready to Capture Your Big Day!",
-		nextStepId: null,
-		nextStepType: null,
-		order: 4,
-	},
-	{
-		criteria: {
-			status: 'contractSigned',
-		},
-		_id: '66c46cb60d2024cacd650d9e',
-		module: 'contract',
-		sendAt: null,
-		actionType: 'notification',
-		channels: ['email'],
-		type: 'action',
-		isEnabled: true,
-		emailTemplateId: '67810cc53bd285ce45534910',
-		emailTemplateTitle: 'Signed Contract',
-		emailTemplateSubject: 'Confirmation of Signed Contract',
-		nextStepId: '66c46cc50d2024cacd650d9f',
-		nextStepType: 'action',
-		order: 5,
-	},
-	{
-		criteria: {
-			status: 'filesSent',
-		},
-		_id: '66c46ccd0d2024cacd650da0',
-		module: 'proposal',
-		actionType: 'notification',
-		channels: ['email'],
-		isEnabled: true,
-		sendAt: 259200,
-		type: 'action',
-		emailTemplateId: '67810cc53bd285ce45534911',
-		emailTemplateTitle: 'Unaccepted Proposals',
-		emailTemplateSubject: "Don't Miss Out: Your Proposal Awaits!",
-		nextStepId: null,
-		nextStepType: null,
-		order: 6,
-	},
-];
+// const mockSteps = [
+// 	{
+// 		criteria: {
+// 			status: 'enquiry',
+// 		},
+// 		module: 'form',
+// 		order: 1,
+// 		_id: '6687fcc3608c200da04032b0',
+// 		nextStepId: '66c464100d2024cacd650d98',
+// 		nextStepType: 'action',
+// 		type: 'start-step',
+// 	},
+// 	{
+// 		criteria: {
+// 			status: 'enquiry',
+// 		},
+// 		_id: '66c464100d2024cacd650d98',
+// 		module: 'form',
+// 		sendAt: null,
+// 		type: 'action',
+// 		actionType: 'notification',
+// 		channels: ['email'],
+// 		isEnabled: true,
+// 		emailTemplateId: '67810cc53bd285ce4553490e',
+// 		emailTemplateTitle: 'Form Response Mail',
+// 		emailTemplateSubject: 'Thank You for Your Enquiry',
+// 		nextStepId: '66c464100d2024cacd650dcc',
+// 		nextStepType: 'condition',
+// 		order: 2,
+// 	},
+// 	{
+// 		criteria: {
+// 			status: 'proposalAccepted',
+// 		},
+// 		_id: '66c464100d2024cacd650dcc',
+// 		module: 'proposal',
+// 		sendAt: null,
+// 		type: 'condition',
+// 		isEnabled: true,
+// 		ifYes: {
+// 			nextStepId: '66c46cb60d2024cacd650d9e',
+// 			nextStepType: 'action',
+// 		},
+// 		ifNo: {
+// 			nextStepId: '66c46ccd0d2024cacd650da0',
+// 			nextStepType: 'action',
+// 		},
+// 		order: 3,
+// 	},
+// 	{
+// 		criteria: {
+// 			status: 'confirmed',
+// 		},
+// 		_id: '66c46cc50d2024cacd650d9f',
+// 		module: 'contract',
+// 		sendAt: null,
+// 		type: 'action',
+// 		actionType: 'notification',
+// 		channels: ['email'],
+// 		isEnabled: true,
+// 		emailTemplateId: '67810cc53bd285ce4553490f',
+// 		emailTemplateTitle: 'All Signed',
+// 		emailTemplateSubject: "Project Confirmation: We're Ready to Capture Your Big Day!",
+// 		nextStepId: null,
+// 		nextStepType: null,
+// 		order: 4,
+// 	},
+// 	{
+// 		criteria: {
+// 			status: 'contractSigned',
+// 		},
+// 		_id: '66c46cb60d2024cacd650d9e',
+// 		module: 'contract',
+// 		sendAt: null,
+// 		actionType: 'notification',
+// 		channels: ['email'],
+// 		type: 'action',
+// 		isEnabled: true,
+// 		emailTemplateId: '67810cc53bd285ce45534910',
+// 		emailTemplateTitle: 'Signed Contract',
+// 		emailTemplateSubject: 'Confirmation of Signed Contract',
+// 		nextStepId: '66c46cc50d2024cacd650d9f',
+// 		nextStepType: 'action',
+// 		order: 5,
+// 	},
+// 	{
+// 		criteria: {
+// 			status: 'filesSent',
+// 		},
+// 		_id: '66c46ccd0d2024cacd650da0',
+// 		module: 'proposal',
+// 		actionType: 'notification',
+// 		channels: ['email'],
+// 		isEnabled: true,
+// 		sendAt: 259200,
+// 		type: 'action',
+// 		emailTemplateId: '67810cc53bd285ce45534911',
+// 		emailTemplateTitle: 'Unaccepted Proposals',
+// 		emailTemplateSubject: "Don't Miss Out: Your Proposal Awaits!",
+// 		nextStepId: null,
+// 		nextStepType: null,
+// 		order: 6,
+// 	},
+// ];
 
+// Define node types
+const nodeTypes = {
+	'start-step': TriggerNode,
+	action: ActionNode,
+	condition: ConditionNode,
+};
+
+const edgeTypes = {
+	custom: CustomEdges,
+};
 const WorkflowBuilderUpdated = () => {
 	const {
-		templates: {},
+		templates: { getSpecificTemplatesInfo, updateStateValues, specificTemplatesInfo },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
@@ -155,26 +165,34 @@ const WorkflowBuilderUpdated = () => {
 
 	const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
 
-	// Define node types
-	const nodeTypes = {
-		'start-step': TriggerNode,
-		action: ActionNode,
-		condition: ConditionNode,
-	};
-
-	const edgeTypes = {
-		custom: CustomEdges,
-	};
-
 	useEffect(() => {
-		getNodesAndEdges();
+		if (templateId) {
+			getSpecificTemplatesInfo({
+				templateInfoId: templateId,
+			});
+		}
+		return () => {
+			updateStateValues({ specificTemplatesInfo: null });
+		};
 	}, []);
 
-	const getNodesAndEdges = useCallback(() => {
+	useEffect(() => {
+		if (specificTemplatesInfo?.steps?.length) {
+			const incomingData = specificTemplatesInfo;
+			const steps = [...(incomingData?.steps || [])];
+			getNodesAndEdges(steps);
+		}
+	}, [specificTemplatesInfo]);
+
+	const getNodesAndEdges = useCallback((steps) => {
 		// Initialize collections
-		const stepsMapper = new Map(
-			mockSteps.map((step) => [step._id, { data: step, nodesMapped: false }]),
-		);
+		const stepsMapper = {};
+
+		for (let i = 0; i < steps?.length; i++) {
+			stepsMapper[steps[i]._id] = { data: steps[i], nodesMapped: false };
+		}
+
+		// console.log('stepsMapper', stepsMapper);
 		const nodes = [];
 		const edges = [];
 
@@ -191,11 +209,11 @@ const WorkflowBuilderUpdated = () => {
 			isFirstBranch = true, // Add flag to track if it's first node after branching
 		) => {
 			// Early return if invalid step or already mapped
-			if (!stepId || !stepsMapper.has(stepId) || stepsMapper.get(stepId).nodesMapped) {
+			if (!stepId || !stepsMapper?.[stepId] || stepsMapper?.[stepId]?.nodesMapped) {
 				return;
 			}
 
-			const currentStep = stepsMapper.get(stepId).data;
+			const currentStep = stepsMapper?.[stepId]?.data;
 
 			// Calculate x position based on branch type
 			let xOffset = 0;
@@ -220,10 +238,10 @@ const WorkflowBuilderUpdated = () => {
 				data: {
 					...currentStep,
 				},
-				type: currentStep.type, // This will map to our custom nodes
+				type: currentStep?.type, // This will map to our custom nodes
 			});
 
-			stepsMapper.get(stepId).nodesMapped = true;
+			stepsMapper[stepId].nodesMapped = true;
 
 			// Calculate next Y position for children
 			const nextY = nodeY + 100;
@@ -248,36 +266,36 @@ const WorkflowBuilderUpdated = () => {
 
 				if (ifNo?.nextStepId) {
 					edges.push({
-						id: `${stepId}-${ifNo.nextStepId}-no`,
+						id: `${stepId}-${ifNo?.nextStepId}-no`,
 						source: stepId,
 						target: ifNo.nextStepId,
 						label: 'No',
 						animated: true,
 						type: 'smoothstep',
 					});
-					generateNodesAndEdges(ifNo.nextStepId, nodeX, branchY, 'no', true);
+					generateNodesAndEdges(ifNo?.nextStepId, nodeX, branchY, 'no', true);
 				}
 			} else if (currentStep.nextStepId) {
 				// Handle regular step
 				edges.push({
-					id: `${stepId}-${currentStep.nextStepId}`,
+					id: `${stepId}-${currentStep?.nextStepId}`,
 					source: stepId,
 					target: currentStep.nextStepId,
 					animated: true,
 					type: 'custom',
 				});
 				// Pass isFirstBranch as false for subsequent nodes in the branch
-				generateNodesAndEdges(currentStep.nextStepId, nodeX, nextY, branchType, false);
+				generateNodesAndEdges(currentStep?.nextStepId, nodeX, nextY, branchType, false);
 			}
 		};
 
 		// Start generation from the start step or process all steps
-		const startStep = mockSteps.find((step) => step.type === 'start-step');
+		const startStep = steps.find((step) => step.type === 'start-step');
 		if (startStep) {
 			generateNodesAndEdges(startStep._id);
 		} else {
-			mockSteps.forEach((step) => {
-				if (!stepsMapper.get(step._id).nodesMapped) {
+			steps.forEach((step) => {
+				if (!stepsMapper?.[step?._id]?.nodesMapped) {
 					generateNodesAndEdges(step._id);
 				}
 			});
