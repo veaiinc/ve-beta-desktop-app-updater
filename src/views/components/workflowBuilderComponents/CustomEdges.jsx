@@ -30,6 +30,7 @@ const CustomEdges = ({
 						transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
 						fontSize: 12,
 						zIndex: 1000,
+						pointerEvents: 'all',
 					}}
 					className="nodrag nopan"
 				>
@@ -38,6 +39,7 @@ const CustomEdges = ({
 						onClick={(e) => {
 							console.log('Edge button clicked:', id);
 						}}
+						style={{ pointerEvents: 'all' }}
 					>
 						+
 					</button>
