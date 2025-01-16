@@ -62,17 +62,17 @@ const actionHandlers = {
 					...state.taskMetadata,
 					todoGroupLabels: state?.taskMetadata?.todoGroupLabels?.map((item) =>
 						item?._id === action?.payload?._id
-							? { ...item, isDefault: true }
+							? { ...action?.payload }
 							: { ...item, isDefault: false },
 					),
 					inProgressGroupLabels: state?.taskMetadata?.inProgressGroupLabels?.map((item) =>
 						item?._id === action?.payload?._id
-							? { ...item, isDefault: true }
+							? { ...action?.payload }
 							: { ...item, isDefault: false },
 					),
 					completedGroupLabels: state?.taskMetadata?.completedGroupLabels?.map((item) =>
 						item?._id === action?.payload?._id
-							? { ...item, isDefault: true }
+							? { ...action?.payload }
 							: { ...item, isDefault: false },
 					),
 				},
