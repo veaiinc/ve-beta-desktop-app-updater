@@ -4,6 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { fetchOriginSelection } from '../../../helpers';
 import SideBarPreview from './SideBarPreview';
 import CreateFileLead from './CreateFileLead';
+import moment from 'moment';
 let origin = fetchOriginSelection();
 
 const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => {
@@ -30,6 +31,9 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 		setInfo((prev) => ({ ...prev, showPreview: true, templateData: template }));
 	};
 
+	useEffect(() => {
+		console.log('info: ', info?.templateData);
+	}, [info?.templateData]);
 	const openFileLeadModal = () => {
 		setInfo((prev) => ({ ...prev, showFileLeadModal: true }));
 	};
@@ -89,7 +93,10 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 										{template?.title || 'Template Card'}
 									</span>
 									<span className="docsFooterContentSubTitle">
-										created 14 files
+										Created On:{' '}
+										{template?.createdAt
+											? moment.unix(template?.createdAt).format('DD MMM YYYY')
+											: ''}
 									</span>
 								</div>
 							</div>
@@ -107,7 +114,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 
 			<CreateFileLead
 				open={info?.showFileLeadModal}
-				modifyClose={() => setInfo((prev) => ({ ...prev, showFileLeadModal: false }))}
+				onClose={() => setInfo((prev) => ({ ...prev, showFileLeadModal: false }))}
 				workflow={info?.templateData}
 			/>
 		</>

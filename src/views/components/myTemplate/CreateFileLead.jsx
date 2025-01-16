@@ -9,7 +9,7 @@ import HeadersDropDownComp from '../dropDown/HeadersDropDownComp';
 import '../../../assets/scss/sales/createLeadModal.scss';
 const validator = require('validator');
 
-const CreateFileLead = ({ open, modifyClose, workflow }) => {
+const CreateFileLead = ({ open, onClose, workflow }) => {
 	const customStyles = {
 		content: { zIndex: 99999 },
 		overlay: { zIndex: 99998 },
@@ -102,7 +102,7 @@ const CreateFileLead = ({ open, modifyClose, workflow }) => {
 		}));
 		setLeadDetails({ name: '', emailId: '', source: 'instagram' });
 		setCreateButtonActiveState(false);
-		modifyClose();
+		onClose();
 	};
 
 	const handleInputChange = (e) => {
@@ -343,6 +343,7 @@ const CreateFileLead = ({ open, modifyClose, workflow }) => {
 									alignItems: 'center',
 									fontSize: '12px',
 									fontFamily: 'Inter',
+									fontWeight: '500',
 								}}
 							>
 								{workflow?.title || 'Untitled Workflow'}
@@ -405,6 +406,7 @@ const CreateFileLead = ({ open, modifyClose, workflow }) => {
 									alignItems: 'center',
 									fontSize: '12px',
 									fontFamily: 'Inter',
+									fontWeight: '500',
 								}}
 							>
 								{workflow?.title || 'Untitled Workflow'}
