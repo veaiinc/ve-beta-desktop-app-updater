@@ -7,9 +7,11 @@ import ReactModal from '../modalsV2/index';
 import InputForModules from '../input/inputForModules';
 import HeadersDropDownComp from '../dropDown/HeadersDropDownComp';
 import '../../../assets/scss/sales/createLeadModal.scss';
+import { useNavigate } from 'react-router-dom';
 const validator = require('validator');
 
 const CreateFileLead = ({ open, onClose, workflow }) => {
+	const navigate = useNavigate();
 	const customStyles = {
 		content: { zIndex: 99999 },
 		overlay: { zIndex: 99998 },
@@ -228,6 +230,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 				setInfo((prev) => ({ ...prev, isLoading: false }));
 				updateStateValues({ salePageRefresh: true });
 				closeModalFunc();
+				navigate('/docs');
 			} else {
 				setInfo((prev) => ({
 					...prev,
@@ -240,7 +243,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 				}));
 			}
 		}
-	}, [workflow, info?.leadDetails, info?.createButtonActive, info?.isLoading]);
+	}, [workflow, info?.leadDetails, info?.createButtonActive, info?.isLoading, navigate]);
 
 	return (
 		<ReactModal
