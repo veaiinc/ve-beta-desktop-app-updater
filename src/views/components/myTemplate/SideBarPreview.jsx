@@ -13,7 +13,7 @@ import { Spin } from 'antd';
 
 let origin = fetchOriginSelection();
 
-const SideBarPreview = ({ open, onClose, activeTemplate }) => {
+const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) => {
 	const {
 		templates: { getSpecificTemplatesInfo, specificTemplatesInfo },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -57,16 +57,12 @@ const SideBarPreview = ({ open, onClose, activeTemplate }) => {
 
 	const fetchSpecificTemplateInfo = useCallback(() => {
 		if (activeTemplate) {
+			setInfo((prev) => ({ ...prev, loading: true }));
 			getSpecificTemplatesInfo({
 				templateInfoId: activeTemplate?._id,
 			});
 		}
 	}, [activeTemplate]);
-
-	const modifyClose = useCallback(() => {
-		setInfo((prev) => ({ ...prev, activeTemplateData: null, loading: true }));
-		onClose();
-	}, [onClose]);
 
 	const performExtraCheck = useCallback(
 		async (currentWorkspaceId) => {
@@ -122,7 +118,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate }) => {
 	return (
 		<Drawer
 			open={open}
-			onClose={modifyClose}
+			onClose={onClose}
 			style={{ padding: '10px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
@@ -131,7 +127,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate }) => {
 			<div className="previewDrawer">
 				<div className="headerContainer">
 					<div className="headerLeftLabel">
-						<CloseSvg onClick={modifyClose} />
+						<CloseSvg onClick={onClose} />
 					</div>
 					<div className="headerRightLabel">
 						<DocsStatusButton
@@ -177,7 +173,9 @@ const SideBarPreview = ({ open, onClose, activeTemplate }) => {
 				</div>
 				{!info?.loading && (
 					<div className="buttonContainer">
-						<div className="button">Create File</div>
+						<div className="button" onClick={openFileLeadModal}>
+							Create File
+						</div>
 					</div>
 				)}
 			</div>

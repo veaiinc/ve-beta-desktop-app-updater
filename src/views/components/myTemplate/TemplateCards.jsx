@@ -3,6 +3,7 @@ import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { fetchOriginSelection } from '../../../helpers';
 import SideBarPreview from './SideBarPreview';
+import CreateFileLead from './CreateFileLead';
 let origin = fetchOriginSelection();
 
 const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => {
@@ -12,6 +13,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 		hasNextPage: hasNextPage,
 		showPreview: false,
 		templateData: null,
+		showFileLeadModal: false,
 	});
 
 	useEffect(() => {
@@ -20,11 +22,16 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 			loading: loading,
 			hasNextPage: hasNextPage,
 			showPreview: false,
+			showFileLeadModal: false,
 		});
 	}, [data, loading, hasNextPage]);
 
 	const handleTemplateClick = (template) => {
 		setInfo((prev) => ({ ...prev, showPreview: true, templateData: template }));
+	};
+
+	const openFileLeadModal = () => {
+		setInfo((prev) => ({ ...prev, showFileLeadModal: true }));
 	};
 
 	return (
@@ -90,10 +97,18 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 					</InfiniteScroll>
 				)}
 			</div>
+
 			<SideBarPreview
 				open={info?.showPreview}
 				onClose={() => setInfo((prev) => ({ ...prev, showPreview: false }))}
 				activeTemplate={info?.templateData}
+				openFileLeadModal={openFileLeadModal}
+			/>
+
+			<CreateFileLead
+				open={info?.showFileLeadModal}
+				modifyClose={() => setInfo((prev) => ({ ...prev, showFileLeadModal: false }))}
+				workflow={info?.templateData}
 			/>
 		</>
 	);
