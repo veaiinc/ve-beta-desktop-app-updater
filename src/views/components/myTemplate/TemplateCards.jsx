@@ -68,7 +68,13 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 										title="Builder Preview"
 										width="100%"
 										height="100%"
-										style={{ zoom: 0.3 }}
+										onClick={(e) => e.stopPropagation()}
+										onMouseDown={(e) => e.stopPropagation()}
+										onMouseUp={(e) => e.stopPropagation()}
+										style={{
+											zoom: 0.3,
+											pointerEvents: 'none',
+										}}
 									/>
 								</div>
 								<div className="docsFooterContent">

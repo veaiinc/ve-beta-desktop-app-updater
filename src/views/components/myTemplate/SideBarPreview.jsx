@@ -141,7 +141,14 @@ const SideBarPreview = ({ open, onClose, activeTemplate }) => {
 								statusTextmapper?.[info?.activeTemplateData?.status]?.dotStyle
 							}
 						/>
-						<div className="editLabel">Edit</div>
+						<div
+							className="editLabel"
+							onClick={() =>
+								(window.location.href = `${origin}/${activeTemplate?._id} `)
+							}
+						>
+							Edit
+						</div>
 						<ShareSvg onClick={() => openCopyLinkModal(activeTemplate)} />
 						<DotsSvg />
 					</div>
