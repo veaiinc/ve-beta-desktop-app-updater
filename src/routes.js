@@ -33,6 +33,7 @@ import Ai_agent from './views/features/ai_agent';
 import AgentsJobs from './views/features/ai_agent/AgentsJobs';
 import AgentsSetup from './views/features/ai_agent/AgentsSetup';
 import Docs from './views/features/docs';
+import MyTemplates from './views/features/my_templates/MyTemplates';
 import Workflow_builder_updated from './views/features/workflow_builder_updated';
 const routes = [
 	{
@@ -309,6 +310,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Docs'}>
 				<Docs />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/my-templates',
+		component: (
+			<AuthWrapper title={'My Templates'}>
+				<MyTemplates />
 			</AuthWrapper>
 		),
 		exact: true,
