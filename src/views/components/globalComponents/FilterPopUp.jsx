@@ -55,8 +55,13 @@ const FilterPopUp = ({
 							key={option?.id}
 							className="filterPopUpOption"
 							onClick={() => {
-								setSelectedOption(option?._id);
-								onOptionClick(option);
+								if (selectedOption === option?._id) {
+									setSelectedOption(null);
+									onOptionClick(null);
+								} else {
+									setSelectedOption(option?._id);
+									onOptionClick(option);
+								}
 							}}
 						>
 							<span>{option?.name ?? option?.title}</span>

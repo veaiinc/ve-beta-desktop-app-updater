@@ -346,10 +346,16 @@ const Docs = () => {
 	}, [info?.selectedFilterOptions, info?.searchValue, info?.filtersGotChanged]);
 
 	useEffect(() => {
-		if (info?.filtersGotChanged) {
+		if (info?.templateNameSearchValue) {
+			handleDebounceFetchFilter('templateName');
+		}
+		if (info?.clientNameSearchValue) {
+			handleDebounceFetchFilter('clientName');
+		}
+		if (info?.searchValue) {
 			handleDebounceFetch();
 		}
-	}, [info?.selectedFilterOptions, info?.searchValue, info?.filtersGotChanged]);
+	}, [info?.templateNameSearchValue, info?.clientNameSearchValue, info?.searchValue]);
 
 	const handleSetActiveFilter = (payload) => {
 		const { filter, filterOptionsListName, label } = payload || {};
@@ -399,7 +405,7 @@ const Docs = () => {
 				return;
 			}
 			if (filter === 'clientName') {
-				getClientListForDocs(1, 10, '');
+				getClientListForDocs(payload);
 				return;
 			}
 		}
@@ -410,18 +416,6 @@ const Docs = () => {
 		}));
 	};
 
-	useEffect(() => {
-		if (info?.templateNameSearchValue) {
-			handleDebounceFetchFilter('templateName');
-		}
-		if (info?.clientNameSearchValue) {
-			handleDebounceFetchFilter('clientName');
-		}
-		if (info?.searchValue) {
-			handleDebounceFetch();
-		}
-	}, [info?.templateNameSearchValue, info?.clientNameSearchValue, info?.searchValue]);
-
 	const handleDebounceFetchFilter = useCallback(
 		(filter) => {
 			clearInterval(info?.timeout);
@@ -430,9 +424,16 @@ const Docs = () => {
 					getTemplatesListForDocs(1, 10, info?.templateNameSearchValue);
 				}
 				if (filter === 'clientName') {
-					getClientListForDocs(1, 10, info?.clientNameSearchValue);
+					const payload = {
+						filters: {
+							limit: 10,
+							page: 1,
+							name: info?.clientNameSearchValue,
+						},
+					};
+					getClientListForDocs(payload);
 				}
-			}, 800);
+			}, 500);
 			setInfo((prev) => ({ ...prev, timeout }));
 		},
 		[info?.templateNameSearchValue, info?.clientNameSearchValue],
@@ -476,7 +477,7 @@ const Docs = () => {
 				filters: {
 					limit: 10,
 					page: info?.currentPageForFilter?.clientName + 1,
-					title: info?.clientNameSearchValue,
+					name: info?.clientNameSearchValue,
 				},
 			};
 			getClientListForDocs(payload);
