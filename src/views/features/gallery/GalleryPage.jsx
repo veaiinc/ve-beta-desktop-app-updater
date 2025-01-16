@@ -759,7 +759,6 @@ const GalleryPage = () => {
 	};
 
 	const fetchMoreClientSelectionImages = () => {
-		console.log('clientSelectionImages', clientSelectionImages);
 		const nextPage = info.page + 1;
 		getClientSelectionImages(info?.clientSelectionID, nextPage).then(() => {
 			setInfo((prev) => ({
