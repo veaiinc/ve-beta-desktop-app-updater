@@ -4,7 +4,6 @@ import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRigh
 import { ReactComponent as ShareSvg } from '../../../assets/svg/docs/share.svg';
 import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
 import { DocsStatusButton, statusTextmapper } from '../../features/docs';
-import GlobalWorkflowDesignModalLoader from '../modalsV2/workflowsModals/GlobalWorkflowDesignModalLoader';
 import Context from '../../../context/context';
 import { Drawer } from 'antd';
 import { fetchOriginSelection, getCurrentWorkspaceId } from '../../../helpers';
@@ -21,7 +20,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 
 	const [info, setInfo] = useState({
 		activeTemplateData: null,
-		loading: true,
+		loading: false,
 		copyModal: false,
 		currentWorkspaceId: null,
 		pendingCopyAction: null,
@@ -29,18 +28,11 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 	});
 
 	useEffect(() => {
-		fetchSpecificTemplateInfo();
+		setInfo((prev) => ({
+			...prev,
+			activeTemplateData: activeTemplate,
+		}));
 	}, [activeTemplate]);
-
-	useEffect(() => {
-		if (specificTemplatesInfo) {
-			setInfo((prev) => ({
-				...prev,
-				activeTemplateData: specificTemplatesInfo,
-				loading: false,
-			}));
-		}
-	}, [specificTemplatesInfo]);
 
 	useEffect(() => {
 		if (userWorkSpaceList) {
@@ -54,15 +46,6 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 			getTenantSettings();
 		}
 	}, [tennantSettingsData]);
-
-	const fetchSpecificTemplateInfo = useCallback(() => {
-		if (activeTemplate) {
-			setInfo((prev) => ({ ...prev, loading: true }));
-			getSpecificTemplatesInfo({
-				templateInfoId: activeTemplate?._id,
-			});
-		}
-	}, [activeTemplate]);
 
 	const performExtraCheck = useCallback(
 		async (currentWorkspaceId) => {
@@ -151,34 +134,29 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 				</div>
 
 				<div className="previewLoader">
-					{info?.loading ? (
-						<GlobalWorkflowDesignModalLoader />
-					) : (
-						info?.activeTemplateData?.moduleTemplates?.map((e, index) => (
-							<div className="modulesViewer" key={index}>
-								<span>{e?.module}</span>
-								<div className="imageContainer">
-									<div style={{ width: '100%', height: '100%' }}>
-										<iframe
-											src={`${origin}/preview/${activeTemplate?._id}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`}
-											title="Builder Preview"
-											width="100%"
-											height="100%"
-										/>
-									</div>
+					{info?.activeTemplateData?.moduleTemplates?.map((e, index) => (
+						<div className="modulesViewer" key={index}>
+							<span>{e?.module}</span>
+							<div className="imageContainer">
+								<div style={{ width: '100%', height: '100%' }}>
+									<iframe
+										src={`${origin}/preview/${activeTemplate?._id}?module=${e?._id}&isPubic=${e?.isPublic}&restrictClick=true`}
+										title="Builder Preview"
+										width="100%"
+										height="100%"
+									/>
 								</div>
 							</div>
-						))
-					)}
-				</div>
-				{!info?.loading && (
-					<div className="buttonContainer">
-						<div className="button" onClick={openFileLeadModal}>
-							Create File
 						</div>
+					))}
+				</div>
+				<div className="buttonContainer">
+					<div className="button" onClick={openFileLeadModal}>
+						Create File
 					</div>
-				)}
+				</div>
 			</div>
+
 			<CopiedModal
 				open={info?.copyModal}
 				closeModal={closeCopyLinkModal}

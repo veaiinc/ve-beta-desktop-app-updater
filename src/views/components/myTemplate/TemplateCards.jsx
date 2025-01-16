@@ -57,7 +57,9 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 							flexFlow: 'wrap',
 							alignItems: 'flex-end',
 							alignContent: 'flex-start',
-							gap: '8px',
+							// gap: '8px',
+							rowGap: '50px',
+							columnGap: '10px',
 							width: '100%',
 							overflowX: 'hidden',
 						}}
@@ -86,7 +88,10 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 									/>
 								</div>
 								<div className="docsFooterContent">
-									<span className="docsFooterContentTitle">
+									<span
+										className="docsFooterContentTitle"
+										title={template?.title || 'Template Card'}
+									>
 										{template?.title || 'Template Card'}
 									</span>
 									<span className="docsFooterContentSubTitle">
