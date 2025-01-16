@@ -289,7 +289,13 @@ const WorkflowBuilderUpdated = () => {
 
 	return (
 		<div className="updatedWorkflowBuilderContainer">
-			<div className="updatedBuilderHeaderContainer"></div>
+			<div className="updatedBuilderHeaderContainer">
+				<span className="previousStepText">Previous Step</span>
+				<span className="workflowBuilderHeadingTag">Workflow Builder</span>
+				<div className="headerActionsContainer">
+					<div className="publishBtn">Publish</div>
+				</div>
+			</div>
 			<ReactFlow
 				nodes={nodes}
 				edges={edges}
