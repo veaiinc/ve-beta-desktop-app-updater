@@ -27,12 +27,14 @@ const FileTimeLine = ({ data }) => {
 											<div className="userDetails">
 												<div className="userLabel">
 													<span className="labelKey">Name : </span>
-													<span className="labelValue">John Michael</span>
+													<span className="labelValue">
+														{item?.name || ''}
+													</span>
 												</div>
 												<div className="userLabel">
 													<span className="labelKey">Email : </span>
 													<span className="labelValue">
-														Johnmichael@mail.com
+														{item?.email || ''}
 													</span>
 												</div>
 											</div>
