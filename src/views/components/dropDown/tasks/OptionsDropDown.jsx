@@ -392,7 +392,6 @@ const OptionsDropDown = ({
 					<StatusEditDropDown
 						handleEditPropertyChange={handleEditPropertyChange}
 						handleClose={handleClose}
-						options={responseMetadata?.[editingProperty?.propName]?.props?.options}
 						colors={colors}
 					/>
 				)

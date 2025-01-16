@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/tasks/modals/createTaskPopup.scss';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/CrossWhite.svg';
@@ -226,6 +226,7 @@ const CreateTaskPopup = ({
 					<input
 						type="text"
 						placeholder="Task title"
+						autoFocus
 						onChange={(e) => updateModalInfo('title', e?.target?.value)}
 					/>
 					<textarea
@@ -301,6 +302,7 @@ const CreateTaskPopup = ({
 								placeholder="Task title"
 								value={info?.subTaskTitle}
 								onChange={(e) => updateModalInfo('subTaskTitle', e?.target?.value)}
+								autoFocus
 							/>
 							<textarea
 								name=""

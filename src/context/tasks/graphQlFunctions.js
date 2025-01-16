@@ -220,40 +220,78 @@ export const getTaskStatusDefaultLabelQuery = gql`
 	}
 `;
 
-export const createTaskStatusLabelMutation = gql`
-	mutation Mutation($input: TaskLabelInput!) {
-		createTaskLabel(input: $input) {
+export const deleteTaskStatusLabelMutation = gql`
+	mutation DeleteTaskLabel($taskMetadataId: ID!, $labelId: ID!, $group: groupEnum!) {
+		deleteTaskLabel(taskMetadataId: $taskMetadataId, labelId: $labelId, group: $group) {
+			message
+		}
+	}
+`;
+
+export const taskMetadataQuery = gql`
+	query GetTaskMetadata {
+		getTaskMetadata {
 			_id
 			tenantId
-			userId
+			createdBy
+			updatedBy
+			todoGroupLabels {
+				_id
+				label
+				group
+				color
+				isDefault
+			}
+			inProgressGroupLabels {
+				_id
+				label
+				group
+				color
+				isDefault
+			}
+			completedGroupLabels {
+				_id
+				label
+				group
+				color
+				isDefault
+			}
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const createTaskStatusLabelMutation = gql`
+	mutation Mutation($input: TaskLabelInput!, $taskMetadataId: ID!) {
+		createTaskLabel(input: $input, taskMetadataId: $taskMetadataId) {
+			_id
 			label
-			groupId
 			group
 			color
-			order
+			isDefault
 		}
 	}
 `;
 
 export const updateTaskStatusLabelMutation = gql`
-	mutation UpdateTaskLabel($labelId: ID!, $input: UpdateTaskLabelInput!) {
-		updateTaskLabel(labelId: $labelId, input: $input) {
+	mutation UpdateTaskLabel(
+		$taskMetadataId: ID!
+		$labelId: ID!
+		$group: groupEnum!
+		$input: UpdateTaskLabelInput!
+	) {
+		updateTaskLabel(
+			taskMetadataId: $taskMetadataId
+			labelId: $labelId
+			group: $group
+			input: $input
+		) {
 			_id
-			tenantId
-			userId
 			label
-			groupId
 			group
 			color
-			order
-		}
-	}
-`;
-
-export const deleteTaskStatusLabelMutation = gql`
-	mutation DeleteTaskLabel($labelId: ID!) {
-		deleteTaskLabel(labelId: $labelId) {
-			message
+			isDefault
 		}
 	}
 `;

@@ -54,11 +54,10 @@ const Tasks = () => {
 			removeSubTask,
 			updateSubTask,
 			resetSubTasks,
-			getTaskStatusLabels,
 			taskMetadata,
-			getTaskStatusDefaultLabel,
 			refetchTasks,
 			updateTaskState,
+			getTaskMetadata,
 		},
 		templates: { getWorkflowsList, workflowslist },
 		companyInfo: {
@@ -111,7 +110,11 @@ const Tasks = () => {
 				name: 'Status',
 				Icon: PieSvg,
 				props: {
-					options: info?.taskMetadata?.status?.sort((a, b) => a.order - b.order) || [],
+					options: {
+						todo: info?.taskMetadata?.todoGroupLabels,
+						inProgress: info?.taskMetadata?.inProgressGroupLabels,
+						completed: info?.taskMetadata?.completedGroupLabels,
+					},
 				},
 			},
 			priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg, props: {} },
@@ -332,9 +335,7 @@ const Tasks = () => {
 
 	useEffect(() => {
 		if (!taskMetadata) {
-			getTaskStatusLabels();
-		} else if (taskMetadata?.status?.length === 0) {
-			getTaskStatusDefaultLabel();
+			getTaskMetadata();
 		} else {
 			setInfo((prevInfo) => ({
 				...prevInfo,

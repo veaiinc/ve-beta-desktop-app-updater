@@ -72,6 +72,7 @@ const ListViewRow = ({
 						handleEditPropertyChange={handleEditPropertyChange}
 						colors={colors}
 						showTitle={true}
+						showEditProperty={true}
 					/>
 				) : null;
 

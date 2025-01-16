@@ -146,7 +146,6 @@ const ListView = ({
 							style={{
 								display: 'flex',
 								flexDirection: 'column',
-								gap: '8px',
 								width: '100%',
 							}}
 							height="calc(100vh - 200px)"
