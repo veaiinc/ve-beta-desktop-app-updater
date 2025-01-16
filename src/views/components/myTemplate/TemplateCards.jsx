@@ -31,9 +31,6 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 		setInfo((prev) => ({ ...prev, showPreview: true, templateData: template }));
 	};
 
-	useEffect(() => {
-		console.log('info: ', info?.templateData);
-	}, [info?.templateData]);
 	const openFileLeadModal = () => {
 		setInfo((prev) => ({ ...prev, showFileLeadModal: true }));
 	};
