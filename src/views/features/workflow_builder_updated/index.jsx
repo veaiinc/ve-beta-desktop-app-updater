@@ -17,6 +17,7 @@ import {
 	ConditionNode,
 } from '../../components/workflowBuilderComponents/CustomNodes';
 import CustomEdges from '../../components/workflowBuilderComponents/CustomEdges';
+import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 
 // const mockSteps = [
 // 	{
@@ -158,6 +159,7 @@ const WorkflowBuilderUpdated = () => {
 		loading: true,
 		deleteWorkflowModal: false,
 		deleteWorkflowLoader: false,
+		stepsMapper: {},
 	});
 
 	const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -303,6 +305,7 @@ const WorkflowBuilderUpdated = () => {
 
 		setNodes(nodes);
 		setEdges(edges);
+		setInfo((prev) => ({ ...prev, loading: false, stepsMapper }));
 	}, []);
 
 	return (
@@ -314,20 +317,24 @@ const WorkflowBuilderUpdated = () => {
 					<div className="publishBtn">Publish</div>
 				</div>
 			</div>
-			<ReactFlow
-				nodes={nodes}
-				edges={edges}
-				onNodesChange={onNodesChange}
-				onEdgesChange={onEdgesChange}
-				onConnect={onConnect}
-				nodeTypes={nodeTypes}
-				edgeTypes={edgeTypes}
-				fitView
-				defaultViewport={{ x: 0, y: 0, zoom: 0 }}
-			>
-				<Controls />
-				<Background variant="dots" gap={12} size={0.5} />
-			</ReactFlow>
+			{info?.loading ? (
+				<UpdatedPageLoader />
+			) : (
+				<ReactFlow
+					nodes={nodes}
+					edges={edges}
+					onNodesChange={onNodesChange}
+					onEdgesChange={onEdgesChange}
+					onConnect={onConnect}
+					nodeTypes={nodeTypes}
+					edgeTypes={edgeTypes}
+					fitView
+					defaultViewport={{ x: 0, y: 0, zoom: 0 }}
+				>
+					<Controls />
+					<Background variant="dots" gap={12} size={0.5} />
+				</ReactFlow>
+			)}
 		</div>
 	);
 };
