@@ -213,7 +213,7 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 				<div className="subscriptionPlanContent">
 					<div className="subscriptionPlanPricingDetails">
 						<span className="subscriptionPlanPricing">
-							{currency === 'inr' ? '₹ ' : '$ '}
+							{currency === 'INR' ? '₹ ' : '$ '}
 							{data?.totalPrice?.toLocaleString('en-IN', {
 								currency: currency,
 							})}
