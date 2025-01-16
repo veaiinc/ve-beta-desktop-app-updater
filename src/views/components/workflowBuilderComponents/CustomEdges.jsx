@@ -1,6 +1,7 @@
 import { BaseEdge, EdgeLabelRenderer, getBezierPath } from '@xyflow/react';
 import React from 'react';
 import '../../../assets/scss/workflowBuilder/customEdges.scss';
+
 const CustomEdges = ({
 	id,
 	sourceX,
@@ -20,6 +21,13 @@ const CustomEdges = ({
 		targetY,
 		targetPosition,
 	});
+
+	const onEdgeClick = (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		console.log('Edge button clicked:', id);
+	};
+
 	return (
 		<>
 			<BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
@@ -32,14 +40,15 @@ const CustomEdges = ({
 						zIndex: 1000,
 						pointerEvents: 'all',
 					}}
-					className="nodrag nopan"
 				>
 					<button
-						className="edgeButton"
-						onClick={(e) => {
-							console.log('Edge button clicked:', id);
+						type="button"
+						className="edgeButton nodrag nopan"
+						onClick={onEdgeClick}
+						style={{
+							pointerEvents: 'all',
+							cursor: 'pointer',
 						}}
-						style={{ pointerEvents: 'all' }}
 					>
 						+
 					</button>
