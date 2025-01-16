@@ -36,29 +36,6 @@ const cards = [
 	},
 ];
 
-const navItems = [
-	{
-		id: 1,
-		title: 'All',
-	},
-	{
-		id: 2,
-		title: 'Templates',
-	},
-	{
-		id: 3,
-		title: 'Invoice',
-	},
-	{
-		id: 4,
-		title: 'Contract',
-	},
-	{
-		id: 5,
-		title: 'Presentation',
-	},
-];
-
 const ctaItems = [
 	{
 		id: 1,
@@ -84,7 +61,7 @@ const ctaItems = [
 
 const initialState = {
 	activeNav: 1,
-	loading: false,
+	loading: true,
 	workflowTemplates: [],
 	hasNextPage: false,
 	currentPage: 1,
