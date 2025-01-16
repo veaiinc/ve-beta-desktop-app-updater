@@ -3,6 +3,8 @@ import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { fetchOriginSelection } from '../../../helpers';
 import SideBarPreview from './SideBarPreview';
+import CreateFileLead from './CreateFileLead';
+import moment from 'moment';
 let origin = fetchOriginSelection();
 
 const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => {
@@ -12,6 +14,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 		hasNextPage: hasNextPage,
 		showPreview: false,
 		templateData: null,
+		showFileLeadModal: false,
 	});
 
 	useEffect(() => {
@@ -20,11 +23,16 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 			loading: loading,
 			hasNextPage: hasNextPage,
 			showPreview: false,
+			showFileLeadModal: false,
 		});
 	}, [data, loading, hasNextPage]);
 
 	const handleTemplateClick = (template) => {
 		setInfo((prev) => ({ ...prev, showPreview: true, templateData: template }));
+	};
+
+	const openFileLeadModal = () => {
+		setInfo((prev) => ({ ...prev, showFileLeadModal: true }));
 	};
 
 	return (
@@ -49,7 +57,9 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 							flexFlow: 'wrap',
 							alignItems: 'flex-end',
 							alignContent: 'flex-start',
-							gap: '8px',
+							// gap: '8px',
+							rowGap: '50px',
+							columnGap: '10px',
 							width: '100%',
 							overflowX: 'hidden',
 						}}
@@ -78,11 +88,17 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 									/>
 								</div>
 								<div className="docsFooterContent">
-									<span className="docsFooterContentTitle">
+									<span
+										className="docsFooterContentTitle"
+										title={template?.title || 'Template Card'}
+									>
 										{template?.title || 'Template Card'}
 									</span>
 									<span className="docsFooterContentSubTitle">
-										created 14 files
+										Created On:{' '}
+										{template?.createdAt
+											? moment.unix(template?.createdAt).format('DD MMM YYYY')
+											: ''}
 									</span>
 								</div>
 							</div>
@@ -90,10 +106,18 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 					</InfiniteScroll>
 				)}
 			</div>
+
 			<SideBarPreview
 				open={info?.showPreview}
 				onClose={() => setInfo((prev) => ({ ...prev, showPreview: false }))}
 				activeTemplate={info?.templateData}
+				openFileLeadModal={openFileLeadModal}
+			/>
+
+			<CreateFileLead
+				open={info?.showFileLeadModal}
+				onClose={() => setInfo((prev) => ({ ...prev, showFileLeadModal: false }))}
+				workflow={info?.templateData}
 			/>
 		</>
 	);
