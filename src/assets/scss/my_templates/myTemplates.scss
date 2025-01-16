@@ -230,6 +230,12 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+
+						max-width: 190px;
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						display: block;
 					}
 					.docsFooterContentSubTitle {
 						color: #e4e5e6;
