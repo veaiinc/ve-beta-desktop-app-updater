@@ -16,6 +16,7 @@ import {
 	ActionNode,
 	ConditionNode,
 } from '../../components/workflowBuilderComponents/CustomNodes';
+import CustomEdges from '../../components/workflowBuilderComponents/CustomEdges';
 
 const mockSteps = [
 	{
@@ -121,6 +122,7 @@ const mockSteps = [
 		order: 6,
 	},
 ];
+
 const WorkflowBuilderUpdated = () => {
 	const {
 		templates: {},
@@ -158,6 +160,10 @@ const WorkflowBuilderUpdated = () => {
 		'start-step': TriggerNode,
 		action: ActionNode,
 		condition: ConditionNode,
+	};
+
+	const edgeTypes = {
+		custom: CustomEdges,
 	};
 
 	useEffect(() => {
@@ -258,6 +264,7 @@ const WorkflowBuilderUpdated = () => {
 					source: stepId,
 					target: currentStep.nextStepId,
 					animated: true,
+					type: 'custom',
 				});
 				// Pass isFirstBranch as false for subsequent nodes in the branch
 				generateNodesAndEdges(currentStep.nextStepId, nodeX, nextY, branchType, false);
@@ -290,6 +297,7 @@ const WorkflowBuilderUpdated = () => {
 				onEdgesChange={onEdgesChange}
 				onConnect={onConnect}
 				nodeTypes={nodeTypes}
+				edgeTypes={edgeTypes}
 				fitView
 				defaultViewport={{ x: 0, y: 0, zoom: 0 }}
 			>

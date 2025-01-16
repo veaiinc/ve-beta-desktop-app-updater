@@ -1,0 +1,19 @@
+.edgeButton {
+	width: 20px;
+	height: 20px;
+	background: #fff;
+	border: 1px solid #b1b1b7;
+	cursor: pointer;
+	border-radius: 50%;
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: #f8f8f8;
+		transform: scale(1.1);
+	}
+}
