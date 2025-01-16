@@ -112,9 +112,9 @@ const PlanBilling = () => {
 				...prev,
 				loading: false,
 				plan: currentPlan?.currentSubscriptionPlan,
-				expiresAt: currentPlan?.expiresAt,
-				freeTier: currentPlan?.products ? false : true,
-				currency: currentPlan?.currency,
+				expiresAt: currentPlan?.currentSubscriptionPlan?.expiresAt,
+				freeTier: currentPlan?.currentSubscriptionPlan?.totalPrice ? false : true,
+				currency: currentPlan?.currentSubscriptionPlan?.currency,
 			}));
 		}
 	}, [currentPlan]);
@@ -218,7 +218,7 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 								currency: currency,
 							})}
 						</span>
-						<span className="subscritptionPlanPeriod">/ {data?.interval}</span>
+						<span className="subscritptionPlanPeriod">/ {data?.subscriptionType}</span>
 					</div>
 					{/* <div className="subscriptionUsageContainer">
 						<div className="subscriptionUsageDeatails">
