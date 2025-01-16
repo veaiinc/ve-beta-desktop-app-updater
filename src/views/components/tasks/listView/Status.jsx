@@ -33,23 +33,55 @@ const Status = ({
 				...(options.completed || []),
 			];
 
+			// First try to find the selected option by value
 			const selectedOption = allOptions.find((item) => item?._id === value);
 
-			// If setDefault is true and no value is selected, use first option from todo
-			const finalSelectedOption =
-				!selectedOption && setDefault && options.todo?.length > 0
-					? options.todo[0]
-					: selectedOption;
-
-			// If we're using a default value, notify parent
-			if (finalSelectedOption && !value && setDefault) {
-				onOptionClick?.(finalSelectedOption._id);
+			if (selectedOption) {
+				return {
+					...prevInfo,
+					selected: selectedOption,
+				};
 			}
 
-			return {
-				...prevInfo,
-				selected: finalSelectedOption || prevInfo.selected,
-			};
+			// If value exists but no matching status found, use default status
+			if (value) {
+				const defaultStatus = allOptions.find((item) => item?.isDefault);
+				if (defaultStatus) {
+					// Notify parent about falling back to default
+					onOptionClick?.(defaultStatus._id);
+					return {
+						...prevInfo,
+						selected: defaultStatus,
+					};
+				}
+			}
+
+			// If setDefault is true and no value is selected
+			if (setDefault && !value) {
+				// First try to find the default status
+				const defaultStatus = allOptions.find((item) => item?.isDefault);
+
+				// If found default status, use it
+				if (defaultStatus) {
+					onOptionClick?.(defaultStatus._id);
+					return {
+						...prevInfo,
+						selected: defaultStatus,
+					};
+				}
+
+				// Fallback to first todo item if no default status found
+				if (options.todo?.length > 0) {
+					onOptionClick?.(options.todo[0]._id);
+					return {
+						...prevInfo,
+						selected: options.todo[0],
+					};
+				}
+			}
+
+			// Keep previous selection if nothing else matches
+			return prevInfo;
 		});
 	}, [value, options, setDefault, onOptionClick]);
 
