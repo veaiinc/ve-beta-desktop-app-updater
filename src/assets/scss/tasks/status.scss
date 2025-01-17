@@ -52,6 +52,8 @@
 					align-items: flex-start;
 					gap: 8px;
 					flex-wrap: wrap;
+					max-height: 125px;
+					overflow-y: auto;
 				}
 			}
 		}

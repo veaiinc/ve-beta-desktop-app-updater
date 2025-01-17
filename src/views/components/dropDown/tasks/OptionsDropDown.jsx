@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import '../../../../assets/scss/dropdown/tasks/optionsDropDown.scss';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
@@ -9,8 +9,13 @@ import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as SixDotsSvg } from '../../../../assets/svg/tasks/sixDots.svg';
 import { ReactComponent as ArrowLeftSvg } from '../../../../assets/svg/tasks/arrowLeft.svg';
+import { ReactComponent as ListSvg } from '../../../../assets/svg/tasks/listDotsAndLines.svg';
+import { ReactComponent as FolderSvg } from '../../../../assets/svg/tasks/folder.svg';
+import { ReactComponent as GridSvg } from '../../../../assets/svg/tasks/grid.svg';
+
 import Context from '../../../../context/context';
 import StatusEditDropDown from './StatusEditDropDown';
+import PropertiesDropDown from './PropertiesDropDown';
 
 const OptionsDropDown = ({
 	properties,
@@ -18,245 +23,12 @@ const OptionsDropDown = ({
 	taskPreferences,
 	editingProperty,
 	handleEditPropertyChange,
-	responseMetadata,
 	colors,
 }) => {
-	const {
-		companyInfo: { updateTaskPreferences },
-	} = useContext(Context);
 	const [info, setInfo] = useState({
 		selected: null,
-		hiddenProperties: [],
-		shownProperties: [],
 		isOpen: false,
-
-		addNewProperty: {
-			show: false,
-			group: null,
-			label: '',
-		},
 	});
-
-	useEffect(() => {
-		const shownArray = [];
-		const hiddenArray = [];
-		const sortedProperties = [...properties].sort((a, b) => a.order - b.order);
-
-		sortedProperties.forEach((property) => {
-			if (property?.show) {
-				shownArray?.push(property);
-			} else {
-				hiddenArray?.push(property);
-			}
-		});
-
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			shownProperties: shownArray,
-			hiddenProperties: hiddenArray,
-		}));
-	}, [properties]);
-
-	useEffect(() => {
-		if (editingProperty) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				isOpen: true,
-			}));
-		}
-	}, [editingProperty]);
-
-	const updatePropertyPreference = useCallback(
-		(e, propName, value) => {
-			e?.stopPropagation();
-			let newOrder = 1;
-
-			if (value?.show) {
-				const maxOrder = Math?.max(
-					...properties?.filter((p) => p?.show)?.map((p) => p?.order || 0),
-					0,
-				);
-				newOrder = maxOrder + 1;
-			}
-
-			const newProperties = properties?.map((property) => {
-				if (property?.value === propName) {
-					return {
-						...property,
-						...value,
-						order: newOrder,
-					};
-				}
-				return property;
-			});
-
-			const sortedProperties = newProperties?.sort((a, b) => a?.order - b?.order);
-
-			updateListViewInfo('properties', sortedProperties);
-
-			const newTaskPreferences = {
-				...taskPreferences,
-				[propName]: {
-					...taskPreferences?.[propName],
-					...value,
-					order: newOrder,
-				},
-			};
-			updateListViewInfo('taskPreferences', newTaskPreferences);
-			updateTaskPreferences(newTaskPreferences);
-		},
-		[properties, updateListViewInfo, taskPreferences, updateTaskPreferences],
-	);
-
-	const handleDragEnd = useCallback(
-		(result) => {
-			if (!result?.destination) return;
-
-			const sourceIndex = result?.source?.index;
-			const destinationIndex = result?.destination?.index;
-			const sourceListType = result?.source?.droppableId;
-			const destinationListType = result?.destination?.droppableId;
-
-			// Get updated lists first
-			let updatedShownList = [...info?.shownProperties] || [];
-			let updatedHiddenList = [...info?.hiddenProperties] || [];
-
-			// Handle same list reordering or cross-list movement
-			if (sourceListType === destinationListType) {
-				const list = sourceListType === 'shown' ? updatedShownList : updatedHiddenList;
-				const [removed] = list?.splice(sourceIndex, 1) || [];
-				list?.splice(destinationIndex, 0, removed);
-
-				if (sourceListType === 'shown') {
-					updatedShownList = list;
-				} else {
-					updatedHiddenList = list;
-				}
-			} else {
-				const sourceList =
-					sourceListType === 'shown' ? updatedShownList : updatedHiddenList;
-				const destList =
-					destinationListType === 'shown' ? updatedShownList : updatedHiddenList;
-				const [removed] = sourceList?.splice(sourceIndex, 1) || [];
-
-				if (removed?.value === 'title' && destinationListType === 'hidden') {
-					updatedShownList?.push(removed);
-				} else {
-					removed.show = destinationListType === 'shown';
-					destList?.splice(destinationIndex, 0, removed);
-				}
-			}
-
-			// Update local state
-			setInfo((prev) => ({
-				...prev,
-				shownProperties: updatedShownList,
-				hiddenProperties: updatedHiddenList,
-			}));
-
-			// Update properties and preferences
-			const updatedProperties = [...properties];
-			let currentOrder = 1;
-
-			updatedShownList?.forEach((prop) => {
-				const propertyIndex = updatedProperties?.findIndex((p) => p?.value === prop?.value);
-				if (propertyIndex !== -1) {
-					updatedProperties[propertyIndex] = {
-						...updatedProperties[propertyIndex],
-						show: true,
-						order: currentOrder++,
-					};
-				}
-			});
-
-			updatedHiddenList?.forEach((prop) => {
-				const propertyIndex = updatedProperties?.findIndex((p) => p?.value === prop?.value);
-				if (propertyIndex !== -1) {
-					updatedProperties[propertyIndex] = {
-						...updatedProperties[propertyIndex],
-						show: false,
-						order: currentOrder++,
-					};
-				}
-			});
-
-			const newTaskPreferences = { ...taskPreferences };
-			updatedProperties?.forEach((property) => {
-				newTaskPreferences[property?.value] = {
-					...newTaskPreferences[property?.value],
-					show: property?.show,
-					order: property?.order,
-				};
-			});
-
-			updateListViewInfo('properties', updatedProperties);
-			updateListViewInfo('taskPreferences', newTaskPreferences);
-			updateTaskPreferences(newTaskPreferences);
-		},
-		[properties, updateListViewInfo, taskPreferences, updateTaskPreferences, info],
-	);
-
-	const handleShowAll = useCallback(() => {
-		let maxOrder = Math.max(...properties.filter((p) => p.show).map((p) => p.order || 0), 0);
-
-		const newProperties = properties?.map((property) => {
-			if (!property.show) {
-				maxOrder++;
-				return {
-					...property,
-					show: true,
-					order: maxOrder,
-				};
-			}
-			return property;
-		});
-
-		updateListViewInfo('properties', newProperties);
-
-		const newTaskPreferences = { ...taskPreferences };
-		newProperties.forEach((property) => {
-			newTaskPreferences[property.value] = {
-				...newTaskPreferences[property.value],
-				show: true,
-				order: property.order,
-			};
-		});
-		updateListViewInfo('taskPreferences', newTaskPreferences);
-		updateTaskPreferences(newTaskPreferences);
-	}, [properties, updateListViewInfo, taskPreferences, updateTaskPreferences]);
-
-	const handleHideAll = useCallback(() => {
-		let currentOrder = 1;
-
-		const newProperties = properties?.map((property) => {
-			if (property.isTitle) {
-				return {
-					...property,
-					show: true,
-					order: 1,
-				};
-			}
-			currentOrder++;
-			return {
-				...property,
-				show: false,
-				order: currentOrder,
-			};
-		});
-
-		updateListViewInfo('properties', newProperties);
-
-		const newTaskPreferences = { ...taskPreferences };
-		newProperties.forEach((property) => {
-			newTaskPreferences[property.value] = {
-				...newTaskPreferences[property.value],
-				show: property.isTitle,
-				order: property.order,
-			};
-		});
-		updateListViewInfo('taskPreferences', newTaskPreferences);
-		updateTaskPreferences(newTaskPreferences);
-	}, [properties, updateListViewInfo, taskPreferences, updateTaskPreferences]);
 
 	const handleDropdownVisibility = useCallback(
 		(visible) => {
@@ -269,73 +41,45 @@ const OptionsDropDown = ({
 	);
 
 	const handleClose = useCallback(() => {
-		setInfo((prev) => ({ ...prev, isOpen: false }));
+		setInfo((prev) => ({ ...prev, isOpen: false, selected: null }));
 		handleEditPropertyChange(null);
 	}, [handleEditPropertyChange]);
 
-	const PropertyList = ({ items, droppableId }) => (
-		<Droppable droppableId={droppableId}>
-			{(provided) => (
-				<div
-					ref={provided.innerRef}
-					{...provided.droppableProps}
-					className="options-dropdown-property-container"
-				>
-					{items?.map(({ Icon = null, label, value, isTitle }, index) => (
-						<Draggable key={value} draggableId={value} index={index}>
-							{(provided, snapshot) => (
-								<div
-									ref={provided.innerRef}
-									{...provided.draggableProps}
-									className={`property-listItem ${
-										snapshot.isDragging ? 'dragging' : ''
-									}`}
-									onClick={() => {
-										if (value === 'status') {
-											handleEditPropertyChange({
-												propName: 'status',
-											});
-										}
-									}}
-								>
-									<div {...provided.dragHandleProps} className="drag-handle-icon">
-										<SixDotsSvg />
-									</div>
-									{Icon && <Icon />}
-									<span className="property-listItem-title">{label}</span>
-									{droppableId === 'shown' ? (
-										isTitle ? (
-											<OpenEye className="crossed-eye-icon" />
-										) : (
-											<OpenEye
-												onClick={(e) =>
-													updatePropertyPreference(e, value, {
-														show: false,
-													})
-												}
-											/>
-										)
-									) : (
-										<CrossedOpenEye
-											className="crossed-eye-icon"
-											onClick={(e) =>
-												updatePropertyPreference(e, value, { show: true })
-											}
-										/>
-									)}
-									{value === 'status' ? (
-										<ChevronRightThinSvg />
-									) : (
-										<div style={{ width: '16px' }}></div>
-									)}
-								</div>
-							)}
-						</Draggable>
-					))}
-					{provided.placement}
-				</div>
-			)}
-		</Droppable>
+	const handleOptionChange = (option) => {
+		setInfo((prev) => ({ ...prev, selected: option }));
+	};
+
+	const handleBack = useCallback(() => {
+		console.log('handleBack');
+		setInfo((prev) => ({ ...prev, selected: null }));
+	}, []);
+
+	const optionsMapper = useMemo(
+		() => ({
+			properties: (
+				<PropertiesDropDown
+					properties={properties}
+					updateListViewInfo={updateListViewInfo}
+					taskPreferences={taskPreferences}
+					editingProperty={editingProperty}
+					handleEditPropertyChange={handleEditPropertyChange}
+					colors={colors}
+					handleClose={handleClose}
+					handleBack={handleBack}
+				/>
+			),
+			group: <div>Group</div>,
+		}),
+		[
+			properties,
+			updateListViewInfo,
+			taskPreferences,
+			editingProperty,
+			handleEditPropertyChange,
+			colors,
+			handleClose,
+			handleBack,
+		],
 	);
 
 	return (
@@ -344,56 +88,70 @@ const OptionsDropDown = ({
 			open={info.isOpen}
 			onOpenChange={handleDropdownVisibility}
 			title={
-				!editingProperty ? (
-					<div className="options-dropdown-container">
-						<div className="options-dropdown-header">
-							<span className="options-dropdown-header-title-wrapper">
-								<ArrowLeftSvg className="cursor-pointer" onClick={handleClose} />
-								<span className="options-dropdown-header-title">Properties</span>
-							</span>
-							<CrossSvg className="cursor-pointer" onClick={handleClose} />
-						</div>
-						<DragDropContext onDragEnd={handleDragEnd}>
-							{info?.shownProperties?.length > 0 && (
-								<div className="options-dropdown-body-show-container-header">
-									<span className="section-title">Shown in List</span>
-									<button
-										className="btn-show-all"
-										onClick={handleHideAll}
-										disabled={info?.shownProperties?.length <= 1}
-									>
-										Hide all
-									</button>
-								</div>
-							)}
-							<PropertyList items={info.shownProperties} droppableId="shown" />
-
-							{info?.hiddenProperties?.length > 0 && (
-								<div className="options-dropdown-body-hide-container-header">
-									<span className="section-title">Hidden in List</span>
-									<button
-										className="btn-show-all"
-										onClick={handleShowAll}
-										disabled={info?.hiddenProperties?.length === 0}
-									>
-										Show all
-									</button>
-								</div>
-							)}
-							<PropertyList items={info.hiddenProperties} droppableId="hidden" />
-						</DragDropContext>
-						{/* <div className="options-dropdown-footer">
-						<PlusSvg className="add-new-property-icon" />
-						<span className="add-new-property-title">Add new property</span>
-						<ChevronRightThinSvg />
-					</div> */}
-					</div>
+				info?.selected ? (
+					optionsMapper?.[info.selected]
 				) : (
-					<StatusEditDropDown
-						handleEditPropertyChange={handleEditPropertyChange}
-						handleClose={handleClose}
-						colors={colors}
-					/>
+					<div className="view-options">
+						<div className="view-options-header">
+							<span className="view-options-header-title">View Options</span>
+							<CrossSvg />
+						</div>
+						<div className="view-options-body">
+							<div className="view-details">
+								<input
+									type="text"
+									className="view-details-nameInput"
+									placeholder="View Name"
+								/>
+								<div className="view-details-listItem">
+									<FolderSvg />
+									<span className="view-details-listItem-label">Source</span>
+									<span className="view-details-listItem-value">Tasks</span>
+								</div>
+								<div className="view-details-listItem">
+									<GridSvg />
+									<span className="view-details-listItem-label">Layout</span>
+									<span className="view-details-listItem-value">
+										List
+										<ChevronRightThinSvg />
+									</span>
+								</div>
+							</div>
+							<div className="view-options-list">
+								<div
+									className="view-options-list-item"
+									onClick={() => handleOptionChange('properties')}
+								>
+									<ListSvg width={16} height={16} />
+									<span className="view-options-list-item-label">Properties</span>
+									<span className="view-options-list-item-value">
+										{properties?.filter((property) => property.show)?.length}{' '}
+										Shown
+										<ChevronRightThinSvg />
+									</span>
+								</div>
+								<div
+									className="view-options-list-item"
+									onClick={() => handleOptionChange(null)}
+								>
+									<ListSvg width={16} height={16} />
+									<span className="view-options-list-item-label">Group</span>
+									<span className="view-options-list-item-value">
+										None
+										<ChevronRightThinSvg />
+									</span>
+								</div>
+								<div className="view-options-list-item">
+									<span className="view-options-list-item-label">ID Prefix</span>
+									<input
+										className="id-prefix-input"
+										readOnly
+										defaultValue={'PREFIXID'}
+									/>
+								</div>
+							</div>
+						</div>
+					</div>
 				)
 			}
 			arrow={false}
