@@ -19,6 +19,7 @@ import { DocsStatusButton, statusTextmapper } from '../../features/docs';
 import Context from '../../../context/context.js';
 import SendProposalModal from '../modalsV2/proposalModals/SendProposalModal.jsx';
 import CopiedModal from '../modalsV2/workflowsModals/CopiedModal.jsx';
+import { fetchOriginSelection } from '../../../helpers/index.js';
 
 const initialState = {
 	activeTab: 'reqActions',
@@ -37,7 +38,7 @@ const initialState = {
 	isEmailAuth: true,
 	activeFileData: null,
 };
-
+let origin = fetchOriginSelection();
 const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 	const {
 		activityInfo: { resetActivityState },
@@ -286,6 +287,12 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 		setInfo((prev) => ({ ...prev, sendSmartFileModal: true }));
 	}, []);
 
+	const workflowRedirectionsToBuilder = useCallback(() => {
+		if (info?.activeFileData) {
+			window.location.href = `${origin}/${info?.activeFileData?._id}?workflow=true&templateId=${info?.activeFileData?.templateId}`;
+		}
+	}, [info?.activeFileData]);
+
 	return (
 		<>
 			<Drawer
@@ -324,7 +331,9 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 										statusTextmapper?.[info?.activeFileData?.status]?.dotStyle
 									}
 								/>
-								<div className="editLabel">Edit</div>
+								<div className="editLabel" onClick={workflowRedirectionsToBuilder}>
+									Edit
+								</div>
 								<ShareSvg onClick={openSendSmartFileModal} />
 								<Tooltip
 									placement="bottomRight"
