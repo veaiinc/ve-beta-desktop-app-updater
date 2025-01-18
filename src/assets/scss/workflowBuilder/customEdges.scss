@@ -23,3 +23,52 @@
 		transform: scale(0.95);
 	}
 }
+
+.addNewNodesPopUpContainer {
+	display: flex;
+	width: 780px;
+
+	padding: 20px 72px;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 12px;
+	flex-shrink: 0;
+
+	.addNodesTypeCategories {
+		cursor: pointer;
+		display: flex;
+		width: 150px;
+		padding: 12px;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 4px;
+		flex-shrink: 0;
+		border-radius: 12px;
+		border: 1px solid #2c2d2e;
+		border: 1px solid color(display-p3 0.1719 0.1753 0.1787);
+		background: #202123;
+		background: color(display-p3 0.1249 0.1304 0.1358);
+		overflow: hidden;
+		color: #f2f2f3;
+		color: color(display-p3 0.949 0.949 0.9529);
+		text-overflow: ellipsis;
+
+		/* Body/Body - 12 px */
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+}
+
+.reactFlowNodestoolTipContainer {
+	max-width: unset !important;
+
+	.ant-tooltip-inner {
+		padding: 0 !important;
+		background-color: transparent !important;
+		transform: translate(50%, -52%);
+	}
+}

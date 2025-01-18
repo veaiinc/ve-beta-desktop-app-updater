@@ -1,7 +1,12 @@
 import { BaseEdge, EdgeLabelRenderer, getBezierPath } from '@xyflow/react';
-import React from 'react';
+import React, { useState } from 'react';
 import '../../../assets/scss/workflowBuilder/customEdges.scss';
+import { Tooltip } from 'antd';
+import { ReactComponent as Action } from '../../../assets/svg/worflow_builder/customNodes/actionSvg.svg';
+import { ReactComponent as IfElse } from '../../../assets/svg/worflow_builder/customNodes/ifelse.svg';
 
+import { ReactComponent as Pipeline } from '../../../assets/svg/worflow_builder/customNodes/movePipeline.svg';
+import { ReactComponent as Notification } from '../../../assets/svg/worflow_builder/customNodes/notification.svg';
 const CustomEdges = ({
 	id,
 	sourceX,
@@ -20,6 +25,10 @@ const CustomEdges = ({
 		targetX,
 		targetY,
 		targetPosition,
+	});
+
+	const [info, setInfo] = useState({
+		addNodesPopUp: false,
 	});
 
 	const onEdgeClick = (e) => {
@@ -41,17 +50,34 @@ const CustomEdges = ({
 						pointerEvents: 'all',
 					}}
 				>
-					<button
-						type="button"
-						className="edgeButton nodrag nopan"
-						onClick={onEdgeClick}
-						style={{
-							pointerEvents: 'all',
-							cursor: 'pointer',
+					<Tooltip
+						placement="bottomRight"
+						title={<AddNodesPopUp />}
+						color={'#202020'}
+						arrow={false}
+						trigger="click"
+						overlayClassName="reactFlowNodestoolTipContainer"
+						open={info?.addNodesPopUp}
+						onOpenChange={(open) => {
+							setInfo((prev) => ({ ...prev, addNodesPopUp: open }));
 						}}
 					>
-						+
-					</button>
+						{!info?.addNodesPopUp ? (
+							<button
+								type="button"
+								className="edgeButton nodrag nopan"
+								onClick={onEdgeClick}
+								style={{
+									pointerEvents: 'all',
+									cursor: 'pointer',
+								}}
+							>
+								+
+							</button>
+						) : (
+							''
+						)}
+					</Tooltip>
 				</div>
 			</EdgeLabelRenderer>
 		</>
@@ -59,3 +85,26 @@ const CustomEdges = ({
 };
 
 export default CustomEdges;
+
+const AddNodesPopUp = () => {
+	return (
+		<div className="addNewNodesPopUpContainer">
+			<div className="addNodesTypeCategories">
+				<Notification />
+				<span>Send Notification</span>
+			</div>
+			<div className="addNodesTypeCategories">
+				<Action />
+				<span>Action</span>
+			</div>
+			<div className="addNodesTypeCategories">
+				<IfElse />
+				<span>Condition</span>
+			</div>
+			<div className="addNodesTypeCategories">
+				<Pipeline />
+				<span>Move Pipeline</span>
+			</div>
+		</div>
+	);
+};
