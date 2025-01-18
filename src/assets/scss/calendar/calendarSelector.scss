@@ -262,7 +262,7 @@
 				cursor: pointer;
 
 				&:hover {
-					background-color: var(--primary-button);
+					background-color: var(--accent-color);
 				}
 
 				&.otherMonth {
@@ -270,8 +270,8 @@
 				}
 
 				&.selectedDay {
-					background-color: var(--primary-button);
-					color: var(--primary-button-font);
+					background-color: var(--accent-color);
+					color: var(--primary-font);
 					font-weight: bold;
 				}
 

@@ -139,7 +139,7 @@
 				cursor: pointer;
 			}
 			.active {
-				background: #6055ec;
+				background: var(--accent-color);
 
 				p {
 					color: #e4e5e6;

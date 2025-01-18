@@ -109,7 +109,7 @@
 					// }
 
 					&:hover {
-						background: var(--card);
+						background: var(--stroke-hover);
 						border: none;
 					}
 				}
@@ -929,7 +929,7 @@
 		cursor: pointer;
 		transition: all 0.3s;
 		&:hover {
-			background: var(--primary-button-active);
+			background: var(--accent-color);
 		}
 	}
 }

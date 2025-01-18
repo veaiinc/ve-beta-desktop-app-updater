@@ -89,8 +89,8 @@
 				align-items: center;
 				gap: 16px;
 				border-radius: 100px;
-				background: var(--primary-button);
-				color: var(--primary-button-font);
+				background: var(--accent-color);
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
@@ -325,7 +325,7 @@
 						cursor: pointer;
 
 						.editText {
-							color: var(--primary-button);
+							color: var(--accent-color);
 							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;

@@ -188,7 +188,7 @@
 			justify-content: center;
 
 			.buttonApplyTheme {
-				color: var(--primary-button-font);
+				color: var(--accent-color);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
@@ -196,8 +196,8 @@
 				line-height: 22px; /* 157.143% */
 				letter-spacing: -0.28px;
 				border-radius: 20px;
-				border: 1px solid var(--stroke);
-				background: var(--primary-button);
+				border: 1px solid var(--accent-color);
+				background: var(--background-color);
 				padding: 9px 16px;
 				cursor: pointer;
 			}

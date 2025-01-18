@@ -9,6 +9,7 @@ import TwoFactorAuthenticationComponent from '../../components/settings/profile/
 import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWorkspace';
 import Cookies from 'js-cookie';
 import { message } from 'antd';
+import { clearConfigCache } from 'prettier';
 
 const MyProfile = () => {
 	// # Context
@@ -26,17 +27,18 @@ const MyProfile = () => {
 			updateUserDetailsState,
 		},
 		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
+		themeInfo: { theme, updateTheme },
 	} = useContext(Context);
 
 	// # States
 	const [showForm, setShowForm] = useState(false);
 	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [errors, setErrors] = useState({});
-	const [activeTheme, setActiveTheme] = useState(() => {
-		const theme = localStorage.getItem('theme') || Cookies.get('theme') || 'dark';
-		document.documentElement.setAttribute('theme', theme);
-		return theme;
-	});
+	// const [activeTheme, setActiveTheme] = useState(() => {
+	// 	// const theme = localStorage.getItem('theme') || Cookies.get('theme') || 'dark';
+	// 	// document.documentElement.setAttribute('theme', theme);
+	// 	return theme;
+	// });
 	const [userDetails, setUserDetails] = useState({
 		fullName: '',
 		email: '',
@@ -85,7 +87,7 @@ const MyProfile = () => {
 
 	useEffect(() => {
 		if (tenantPreferenceData) {
-			setActiveTheme(tenantPreferenceData?.theme);
+			updateTheme(tenantPreferenceData?.theme);
 		}
 	}, [tenantPreferenceData?.theme]);
 
@@ -266,8 +268,9 @@ const MyProfile = () => {
 
 		const response = await updatePrefernces(json);
 		if (response?.[0]) {
-			setActiveTheme(mode);
-			document?.documentElement?.setAttribute('theme', mode);
+			// setActiveTheme(mode);
+			// document?.documentElement?.setAttribute('theme', mode);
+			updateTheme(mode);
 		} else {
 			message.error(response?.[1]?.message);
 		}
@@ -299,7 +302,7 @@ const MyProfile = () => {
 				<div className="settingsTheme activeBackgroundColor" id="theme">
 					<ThemePreferenceComponent
 						updateThemeSubmitHandler={updateThemeSubmitHandler}
-						activeTheme={activeTheme}
+						activeTheme={theme}
 					/>
 				</div>
 

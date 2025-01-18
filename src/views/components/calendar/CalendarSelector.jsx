@@ -1,9 +1,10 @@
-import React, { memo, useMemo, useState, useEffect, useCallback } from 'react';
+import React, { memo, useMemo, useState, useEffect, useCallback, useContext } from 'react';
 import moment from 'moment';
 import '../../../assets/scss/calendar/calendarSelector.scss';
 import { ReactComponent as LeftSvg } from '../../../assets/svg/activity/left.svg';
 import { ReactComponent as RightSvg } from '../../../assets/svg/activity/right.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
+import Context from '../../../context/context';
 
 const MIN_YEAR = 1990;
 const MAX_YEAR = 2050;
@@ -20,7 +21,9 @@ const CalendarSelector = ({
 	const [info, setInfo] = useState({
 		activeDropdown: null, // 'months', 'years', or null
 	});
-
+	const {
+		themeInfo: { theme },
+	} = useContext(Context);
 	// Sync calendar date on month or year change
 	useEffect(() => {
 		updateCalendarInfo(
@@ -164,7 +167,7 @@ const CalendarSelector = ({
 				{/* Navigation Buttons */}
 				<div className="calendarNav">
 					<button onClick={goToPreviousMonth}>
-						<LeftSvg />
+						<LeftSvg fill={theme === 'dark' ? '#FFF' : 'black'} />
 					</button>
 					<button onClick={goToNextMonth}>
 						<RightSvg />

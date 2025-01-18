@@ -163,7 +163,7 @@
 	}
 
 	input:checked + .slider {
-		background-color: var(--primary-button);
+		background-color: var(--accent-color);
 	}
 
 	input:checked + .slider:before {
