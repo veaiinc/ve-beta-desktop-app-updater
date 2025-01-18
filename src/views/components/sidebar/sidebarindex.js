@@ -63,36 +63,37 @@ export const veAiModulesItemsList = [
 	},
 
 	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
-	{
-		name: 'Da-Vinci',
-		moduleRoute: '/ai-agents/home/da-vinici',
-		route: '/ai-agents/home/da-vinici',
-		icon: '',
-		subModules: [
-			{ icon: AddCalenderSvg, route: '/ai-agents/home/da-vinici', name: 'Home' },
-			{ icon: TranscriptSvg, route: '/ai-agents/jobs/:agent-name', name: 'Jobs' },
-			{
-				icon: SettingsSvg,
-				route: '/ai-agents/setup/da-vinici',
-				fill: 'white',
-				name: 'Setup',
-			},
-		],
-	},
-	{
-		name: 'AI Agents',
-		moduleRoute: '/ai-agents',
-		route: '/ai-agents',
-		icon: AIAssistantSvg,
-	},
-	{
-		name: 'Playbook',
-		moduleRoute: '/playbook',
-		route: '/playbook',
-		icon: PlaybookSvg,
-	},
-	{ name: 'Contacts', moduleRoute: '/contact', route: '/contact' },
-	{ name: 'Teams', moduleRoute: '/teams', route: '/teams' },
+	{ name: 'Docs', moduleRoute: '/docs', route: '/docs', icon: '' },
+	// {
+	// 	name: 'Da-Vinci',
+	// 	moduleRoute: '/ai-agents/home/da-vinici',
+	// 	route: '/ai-agents/home/da-vinici',
+	// 	icon: '',
+	// 	subModules: [
+	// 		{ icon: AddCalenderSvg, route: '/ai-agents/home/da-vinici', name: 'Home' },
+	// 		{ icon: TranscriptSvg, route: '/ai-agents/jobs/:agent-name', name: 'Jobs' },
+	// 		{
+	// 			icon: SettingsSvg,
+	// 			route: '/ai-agents/setup/da-vinici',
+	// 			fill: 'white',
+	// 			name: 'Setup',
+	// 		},
+	// 	],
+	// },
+	// {
+	// 	name: 'AI Agents',
+	// 	moduleRoute: '/ai-agents',
+	// 	route: '/ai-agents',
+	// 	icon: AIAssistantSvg,
+	// },
+	// {
+	// 	name: 'Playbook',
+	// 	moduleRoute: '/playbook',
+	// 	route: '/playbook',
+	// 	icon: PlaybookSvg,
+	// },
+	// { name: 'Contacts', moduleRoute: '/contact', route: '/contact' },
+	// { name: 'Teams', moduleRoute: '/teams', route: '/teams' },
 ];
 
 //

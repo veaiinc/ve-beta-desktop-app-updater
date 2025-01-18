@@ -758,6 +758,17 @@ const GalleryPage = () => {
 		});
 	};
 
+	const fetchMoreClientSelectionImages = () => {
+		const nextPage = info.page + 1;
+		getClientSelectionImages(info?.clientSelectionID, nextPage).then(() => {
+			setInfo((prev) => ({
+				...prev,
+				page: nextPage,
+				hasMore: clientSelectionImages?.hasNextPage || false,
+			}));
+		});
+	};
+
 	// const handleHideAlbum = async () => {
 	// 	console.log('Current isPublished:', info?.isPublished);
 	// 	const payload = {
@@ -4720,7 +4731,7 @@ const GalleryPage = () => {
 								>
 									<InfiniteScroll
 										dataLength={clientSelectionImages?.docs?.length || 0}
-										next={fetchMoreImages}
+										next={fetchMoreClientSelectionImages}
 										hasMore={clientSelectionImages?.hasNextPage || false}
 										loader={
 											<p style={{ textAlign: 'center', color: '#fff' }}>

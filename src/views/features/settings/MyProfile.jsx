@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback, memo } from 'react';
+import React, { useState, useEffect, useContext, useCallback, memo, useRef } from 'react';
 import '../../../assets/scss/settings/myProfile.scss';
 import Context from '../../../context/context';
 import validator from 'validator';
@@ -7,18 +7,17 @@ import ThemePreferenceComponent from '../../components/settings/profile/ThemePre
 import UpdatePasswordComponent from '../../components/settings/profile/UpdatePassword';
 import TwoFactorAuthenticationComponent from '../../components/settings/profile/TwoFactorAuthentication';
 import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWorkspace';
-import Cookies from 'js-cookie';
 import { message } from 'antd';
-import { clearConfigCache } from 'prettier';
+import Cookies from 'js-cookie';
 
 const MyProfile = () => {
+	const fullNameRef = useRef(null);
 	// # Context
 	const {
 		profileInfo: {
 			get2FAQrCode,
 			set2FASettings,
 			userDetailsData,
-			updateUserDetails,
 			updateUserPhoneNumber,
 			qrcode,
 			updateUserLogo,
@@ -28,6 +27,7 @@ const MyProfile = () => {
 		},
 		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
 		themeInfo: { theme, updateTheme },
+		authInfo: { updateUserDetails },
 	} = useContext(Context);
 
 	// # States
@@ -47,7 +47,7 @@ const MyProfile = () => {
 		logoURL: '',
 		cropSettings: { crop: { x: 0, y: 0 }, zoom: 1 },
 	});
-
+	const [usernameUpdateLoader, setUsernameUpdateLoader] = useState(false);
 	const [initialState, setInitialState] = useState({ ...userDetails });
 
 	const [logoFile, setlogoFile] = useState(null);
@@ -64,9 +64,11 @@ const MyProfile = () => {
 
 	useEffect(() => {
 		if (userDetailsData) {
+			const firstName = userDetailsData?.firstName || '';
+			const lastName = userDetailsData?.lastName || '';
 			setUserDetails((prev) => ({
 				...prev,
-				fullName: userDetailsData?.firstName || '',
+				fullName: firstName + ' ' + lastName,
 				email: userDetailsData?.email || '',
 				phoneNumber: userDetailsData?.phoneNumber || '',
 				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
@@ -75,7 +77,7 @@ const MyProfile = () => {
 			}));
 			setInitialState((prev) => ({
 				...prev,
-				fullName: userDetailsData?.firstName || '',
+				fullName: firstName + ' ' + lastName,
 				email: userDetailsData?.email || '',
 				phoneNumber: userDetailsData?.phoneNumber || '',
 				is2FAEnabled: userDetailsData?.is2FAEnabled || false,
@@ -114,7 +116,7 @@ const MyProfile = () => {
 		(typeCall = '') => {
 			clearInterval(isEditMode?.timeout);
 			const timeout = setTimeout(() => {
-				if (isEditMode?.isValueChanged) {
+				if (isEditMode?.isValueChanged || typeCall === 'name') {
 					handleSubmit(typeCall);
 				}
 				setIsEditMode((prev) => ({ ...prev, timeout: null }));
@@ -139,8 +141,8 @@ const MyProfile = () => {
 	};
 
 	const validateField = (name, value) => {
-		let error;
-		const stringValue = value || '';
+		let error = '';
+		const stringValue = value ?? '';
 		switch (name) {
 			case 'fullName':
 				if (validator.isEmpty(stringValue)) {
@@ -170,20 +172,61 @@ const MyProfile = () => {
 		return error;
 	};
 
-	const handleChange = (e) => {
-		if (!isEditMode?.isValueChanged)
-			setIsEditMode((prev) => ({ ...prev, isValueChanged: true }));
-		const { name, value } = e.target;
-		setUserDetails((prevDetails) => ({
-			...prevDetails,
-			[name]: value,
-		}));
+	const formatUsername = (username) => {
+		username = username?.replace(/[^a-zA-Z\s]/g, '');
+		let firstNameWithSpace = false;
+		if (username?.includes(' ') && username?.split(' ')[1]?.length === 0) {
+			firstNameWithSpace = true;
+			username = username?.trim() + ' ';
+		}
 
-		const error = validateField(name, value);
-		setErrors({
-			...errors,
-			[name]: error,
-		});
+		const firstName = username?.split(' ')[0];
+		const lastName = username?.split(' ')[1];
+		const capitalizedFirstName = firstName
+			? firstName?.charAt(0)?.toUpperCase() + firstName?.slice(1)?.toLowerCase()
+			: '';
+		if (lastName) {
+			const capitalizedLastName = lastName
+				? lastName?.charAt(0)?.toUpperCase() + lastName?.slice(1)?.toLowerCase()
+				: '';
+
+			const formattedName = `${capitalizedFirstName} ${capitalizedLastName}`;
+
+			setUserDetails((prevDetails) => ({
+				...prevDetails,
+				fullName: formattedName,
+			}));
+		} else {
+			const formattedName = capitalizedFirstName;
+			setUserDetails((prevDetails) => ({
+				...prevDetails,
+				fullName: firstNameWithSpace ? username : formattedName,
+			}));
+		}
+	};
+
+	const handleUsernameAndPhoneNumberUpdate = async ({ type, value }) => {
+		if (type === 'fullName') {
+			if (value === '') {
+				message.error('Name cannot be empty');
+				setUserDetails((prev) => ({ ...prev, fullName: '' }));
+				return;
+			}
+			formatUsername(fullNameRef?.current?.value);
+		}
+
+		if (
+			type === 'phoneNumber' &&
+			!validateField('phoneNumber', value) &&
+			value !== initialState?.phoneNumber
+		) {
+			const response = await updateUserDetails('', value);
+			if (response[0] === true) {
+				message.success('Phone Number updated successfully');
+			} else {
+				setErrors((prev) => ({ ...prev, phoneNumber: response[1]?.message }));
+			}
+		}
 	};
 
 	const updateProfileImage = async (settings) => {
@@ -227,27 +270,14 @@ const MyProfile = () => {
 	};
 
 	const handleSubmit = async (nameApi = 'name') => {
-		if (nameApi === 'name' && !validateField('fullName', userDetails?.fullName)) {
-			let json = {
-				firstName: userDetails.fullName,
-				lastName: userDetails.fullName,
-			};
-			const response = await updateUserDetails(json);
-
+		if (nameApi === 'name') {
+			const response = await updateUserDetails(userDetails?.fullName);
 			if (response[0] !== true)
 				return setErrors((prev) => ({ ...prev, fullName: response[1]?.message }));
-
-			updateUserDetailsState(json);
 		} else if (nameApi === 'phone' && !validateField('phoneNumber', userDetails?.phoneNumber)) {
-			let json = {
-				phoneNumber: userDetails?.phoneNumber,
-			};
-			const response = await updateUserPhoneNumber(json);
-
+			const response = await updateUserDetails('', userDetails?.phoneNumber);
 			if (response[0] !== true)
 				return setErrors((prev) => ({ ...prev, phoneNumber: response[1]?.message }));
-
-			updateUserDetailsState(json);
 		}
 	};
 
@@ -283,10 +313,10 @@ const MyProfile = () => {
 
 				<div className="ProfileDetailsComponent activeBackgroundColor" id="profile">
 					<ProfileDetailsComponent
-						handleSubmit={handleSubmit}
+						fullNameRef={fullNameRef}
 						userDetails={userDetails}
 						errors={errors}
-						handleChange={handleChange}
+						handleUsernameAndPhoneNumberUpdate={handleUsernameAndPhoneNumberUpdate}
 						userDetailsData={userDetailsData}
 						showForm={showForm}
 						updateProfileImage={updateProfileImage}

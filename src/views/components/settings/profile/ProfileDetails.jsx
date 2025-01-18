@@ -13,9 +13,10 @@ import Context from '../../../../context/context';
 
 // profile details component
 const ProfileDetailsComponent = ({
+	fullNameRef,
 	userDetails,
 	errors,
-	handleChange,
+	handleUsernameAndPhoneNumberUpdate,
 	userDetailsData,
 	showForm,
 	updateProfileImage,
@@ -105,11 +106,17 @@ const ProfileDetailsComponent = ({
 								<UserAccountSvg />
 
 								<input
+									ref={fullNameRef}
 									type="text"
-									placeholder={'Enter the Name'}
+									placeholder={'Enter Your Full Name'}
 									value={userDetails?.fullName}
 									name="fullName"
-									onChange={handleChange}
+									onChange={(e) =>
+										handleUsernameAndPhoneNumberUpdate({
+											type: 'fullName',
+											value: e?.target?.value,
+										})
+									}
 									required
 								/>
 							</div>
@@ -123,8 +130,11 @@ const ProfileDetailsComponent = ({
 									placeholder={'Enter Phone Number'}
 									value={userDetails?.phoneNumber || ''}
 									name="phoneNumber"
-									onChange={(e) =>
-										handleChange({ target: { name: 'phoneNumber', value: e } })
+									onChange={(phoneNumber) =>
+										handleUsernameAndPhoneNumberUpdate({
+											type: 'phoneNumber',
+											value: phoneNumber,
+										})
 									}
 								/>
 							</div>
