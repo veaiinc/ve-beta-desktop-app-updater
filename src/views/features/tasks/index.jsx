@@ -64,7 +64,7 @@ const Tasks = () => {
 			getTeamMembers,
 			tenantsUserList,
 			getTaskPreferences,
-			taskPreferences,
+			taskPreference,
 			updateTaskPreferences,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -76,7 +76,10 @@ const Tasks = () => {
 		isCreateModalOpen: false,
 		isCreatingSubtask: true,
 		properties: [],
-		taskPreferences: defaultPreference,
+		taskPreferences: {
+			preferenceType: 'taskPreference',
+			preferences: defaultPreference,
+		},
 		sidebarIsOpen: false,
 		selectedRow: null,
 		selectedSubTask: null,
@@ -248,26 +251,35 @@ const Tasks = () => {
 	}, [tenantsUserList]);
 
 	useEffect(() => {
-		if (taskPreferences === null) {
-			getTaskPreferences();
-		} else if (taskPreferences?.data === false) {
-			updateTaskPreferences(defaultPreference);
+		if (taskPreference === null) {
+			getTaskPreferences({ preferences: 'taskPreference' });
+		} else if (taskPreference?.data === false) {
+			updateTaskPreferences({ preferenceType: 'taskPreference', data: defaultPreference });
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				taskPreferences: defaultPreference,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: defaultPreference,
+				},
 			}));
-		} else if (taskPreferences?.error) {
+		} else if (taskPreference?.error) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				taskPreferences: defaultPreference,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: defaultPreference,
+				},
 			}));
 		} else {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				taskPreferences: taskPreferences?.data,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: taskPreference?.data,
+				},
 			}));
 		}
-	}, [taskPreferences]);
+	}, [taskPreference]);
 
 	useEffect(() => {
 		if (!workflowslist) {
@@ -316,13 +328,13 @@ const Tasks = () => {
 	}, [listTasks]);
 
 	useEffect(() => {
-		if (info?.taskPreferences) {
+		if (info?.taskPreferences?.preferences) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				properties: mapPropertyType(),
 			}));
 		}
-	}, [info?.taskPreferences]);
+	}, [info?.taskPreferences?.preferences]);
 
 	useEffect(() => {
 		if (info?.selectedRow) {
@@ -412,7 +424,10 @@ const Tasks = () => {
 				Icon = null,
 				isTitle = false,
 			} = responseMetadata[key] || {};
-			const { show, order } = info?.taskPreferences[key] || { show: false, order: 0 };
+			const { show, order } = info?.taskPreferences?.preferences?.[key] || {
+				show: false,
+				order: 0,
+			};
 
 			properties.push({
 				value: key,
@@ -425,7 +440,7 @@ const Tasks = () => {
 			});
 		}
 		return properties;
-	}, [info?.taskPreferences]);
+	}, [info?.taskPreferences?.preferences]);
 
 	const debouncedUpdateTask = useCallback(
 		async (rowId, propName, value, originalValue, isUpdatingSubTask, onSuccess) => {

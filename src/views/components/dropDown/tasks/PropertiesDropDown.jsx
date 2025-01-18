@@ -95,14 +95,20 @@ const PropertiesDropDown = ({
 
 			const newTaskPreferences = {
 				...taskPreferences,
-				[propName]: {
-					...taskPreferences?.[propName],
-					...value,
-					order: newOrder,
+				preferences: {
+					...taskPreferences?.preferences,
+					[propName]: {
+						...taskPreferences?.preferences?.[propName],
+						...value,
+						order: newOrder,
+					},
 				},
 			};
 			updateListViewInfo('taskPreferences', newTaskPreferences);
-			updateTaskPreferences(newTaskPreferences);
+			updateTaskPreferences({
+				preferenceType: newTaskPreferences?.preferenceType,
+				data: newTaskPreferences?.preferences,
+			});
 		},
 		[properties, updateListViewInfo, taskPreferences, updateTaskPreferences],
 	);
@@ -179,18 +185,29 @@ const PropertiesDropDown = ({
 				}
 			});
 
-			const newTaskPreferences = { ...taskPreferences };
+			const newTaskPreferences = {
+				preferenceType: taskPreferences?.preferenceType,
+				preferences: {
+					...taskPreferences?.preferences,
+				},
+			};
+
 			updatedProperties?.forEach((property) => {
-				newTaskPreferences[property?.value] = {
-					...newTaskPreferences[property?.value],
-					show: property?.show,
-					order: property?.order,
-				};
+				if (property?.value && newTaskPreferences?.preferences) {
+					newTaskPreferences.preferences[property.value] = {
+						...(newTaskPreferences.preferences[property.value] || {}),
+						show: property?.show,
+						order: property?.order,
+					};
+				}
 			});
 
 			updateListViewInfo('properties', updatedProperties);
 			updateListViewInfo('taskPreferences', newTaskPreferences);
-			updateTaskPreferences(newTaskPreferences);
+			updateTaskPreferences({
+				preferenceType: newTaskPreferences?.preferenceType,
+				data: newTaskPreferences.preferences,
+			});
 		},
 		[properties, updateListViewInfo, taskPreferences, updateTaskPreferences, info],
 	);
@@ -212,16 +229,25 @@ const PropertiesDropDown = ({
 
 		updateListViewInfo('properties', newProperties);
 
-		const newTaskPreferences = { ...taskPreferences };
+		const newTaskPreferences = {
+			preferenceType: taskPreferences?.preferenceType,
+			preferences: { ...taskPreferences?.preferences },
+		};
 		newProperties.forEach((property) => {
-			newTaskPreferences[property.value] = {
-				...newTaskPreferences[property.value],
-				show: true,
-				order: property.order,
-			};
+			if (property?.value) {
+				newTaskPreferences.preferences[property.value] = {
+					...(newTaskPreferences.preferences[property.value] || {}),
+					show: true,
+					order: property.order,
+				};
+			}
 		});
+
 		updateListViewInfo('taskPreferences', newTaskPreferences);
-		updateTaskPreferences(newTaskPreferences);
+		updateTaskPreferences({
+			preferenceType: newTaskPreferences?.preferenceType,
+			data: newTaskPreferences.preferences,
+		});
 	}, [properties, updateListViewInfo, taskPreferences, updateTaskPreferences]);
 
 	const handleHideAll = useCallback(() => {

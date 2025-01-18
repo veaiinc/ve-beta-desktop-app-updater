@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/dropdown/tasks/optionsDropDown.scss';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
@@ -22,6 +22,12 @@ const OptionsDropDown = ({
 		selected: null,
 		isOpen: false,
 	});
+
+	useEffect(() => {
+		if (editingProperty) {
+			setInfo((prev) => ({ ...prev, isOpen: true, selected: 'properties' }));
+		}
+	}, [editingProperty]);
 
 	const handleDropdownVisibility = useCallback(
 		(visible) => {
@@ -85,7 +91,7 @@ const OptionsDropDown = ({
 	return (
 		<Tooltip
 			placement="bottomRight"
-			open={info.isOpen}
+			open={info?.isOpen}
 			onOpenChange={handleDropdownVisibility}
 			title={
 				<div className="option-dropDown-wrapper">

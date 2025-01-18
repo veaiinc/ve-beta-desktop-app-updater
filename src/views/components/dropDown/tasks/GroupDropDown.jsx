@@ -197,7 +197,7 @@ const GroupDropDown = ({ handleClose, handleBack, properties }) => {
 								Hide empty groups
 							</span>
 							<ToggleSwitch
-								on={info.hideEmptyGroups}
+								value={info?.hideEmptyGroups}
 								onChange={(value) => setInfo({ ...info, hideEmptyGroups: value })}
 							/>
 						</div>
