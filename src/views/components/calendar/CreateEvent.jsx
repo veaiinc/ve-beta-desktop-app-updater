@@ -134,6 +134,31 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 			return null;
 		}
 
+		// Convert dates to moment objects for comparison
+		const startDateTime = moment(convertToISOString(startDate, startTime));
+		const endDateTime = moment(convertToISOString(endDate, endTime || startTime));
+		const now = moment();
+
+		// Check if dates are in the past
+		if (startDateTime.isBefore(now)) {
+			setInfo((prev) => ({
+				...prev,
+				submissionError: 'Start date/time cannot be in the past',
+				isSubmitting: false,
+			}));
+			return null;
+		}
+
+		// Check if end date is before start date
+		if (endDateTime.isBefore(startDateTime)) {
+			setInfo((prev) => ({
+				...prev,
+				submissionError: 'End date/time cannot be before start date/time',
+				isSubmitting: false,
+			}));
+			return null;
+		}
+
 		// Validate attendees
 		if (!attendees || attendees?.length === 0) {
 			setInfo((prev) => ({
@@ -328,7 +353,10 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 								placeholder="Wed, September 22 2024"
 								className="dateInput"
 								value={info?.startDate}
-								onChange={(e) => updateEventInfo('startDate', e.target.value)}
+								onChange={(e) => {
+									updateEventInfo('startDate', e.target.value);
+									updateEventInfo('submissionError', null);
+								}}
 							/>
 							{info?.allDay ? (
 								''
@@ -338,7 +366,10 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 									placeholder="12:00PM"
 									className="timeInput"
 									value={info?.startTime}
-									onChange={(e) => updateEventInfo('startTime', e.target.value)}
+									onChange={(e) => {
+										updateEventInfo('startTime', e.target.value);
+										updateEventInfo('submissionError', null);
+									}}
 								/>
 							)}
 						</div>
@@ -348,7 +379,10 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 								placeholder="Wed, September 22 2024"
 								className="dateInput"
 								value={info?.endDate}
-								onChange={(e) => updateEventInfo('endDate', e.target.value)}
+								onChange={(e) => {
+									updateEventInfo('endDate', e.target.value);
+									updateEventInfo('submissionError', null);
+								}}
 							/>
 							{info?.allDay ? (
 								''
@@ -358,7 +392,10 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 									placeholder="12:30AM"
 									className="timeInput"
 									value={info?.endTime}
-									onChange={(e) => updateEventInfo('endTime', e.target.value)}
+									onChange={(e) => {
+										updateEventInfo('endTime', e.target.value);
+										updateEventInfo('submissionError', null);
+									}}
 								/>
 							)}
 						</div>

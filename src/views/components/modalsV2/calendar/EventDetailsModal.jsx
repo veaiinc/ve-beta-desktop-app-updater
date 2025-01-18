@@ -142,6 +142,7 @@ const EventDetailsModal = ({
 					}}
 					className="dateInput"
 					format="MMMM DD, YYYY hh:mm A"
+					title="Start Date"
 				/>
 			),
 			endDateTime: (value) => (
@@ -153,6 +154,7 @@ const EventDetailsModal = ({
 					}}
 					className="dateInput"
 					format="MMMM DD, YYYY hh:mm A"
+					title="End Date"
 				/>
 			),
 			meetingLink: (value) =>
