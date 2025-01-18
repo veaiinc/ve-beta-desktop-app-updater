@@ -47,6 +47,23 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 		companyInfo: { tenantsUserList },
 	} = useContext(Context);
 
+	// Add styles for date and time input icons
+	const inputStyles = `
+		<style>
+			/* Change calendar icon color */
+			input[type="date"]::-webkit-calendar-picker-indicator {
+				filter: invert(1);
+				cursor: pointer;
+			}
+
+			/* Change time icon color */
+			input[type="time"]::-webkit-calendar-picker-indicator {
+				filter: invert(1);
+				cursor: pointer;
+			}
+		</style>
+	`;
+
 	const [info, setInfo] = useState({
 		...initialState,
 
@@ -297,6 +314,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 				onClick={() => updateCalendarInfo('isCreateEventOpen', false)}
 			></div>
 			<div style={{ zIndex: 1001 }} className="createEventContainer">
+				<div dangerouslySetInnerHTML={{ __html: inputStyles }} />
 				<div className="headerWrapper">
 					<span className="headerLabel">Create an event</span>
 					<CloseSvg
