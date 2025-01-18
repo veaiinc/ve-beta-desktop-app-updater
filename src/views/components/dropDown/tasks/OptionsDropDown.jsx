@@ -62,7 +62,13 @@ const OptionsDropDown = ({
 					handleBack={handleBack}
 				/>
 			),
-			group: <GroupDropDown handleClose={handleClose} handleBack={handleBack} />,
+			group: (
+				<GroupDropDown
+					handleClose={handleClose}
+					handleBack={handleBack}
+					properties={properties}
+				/>
+			),
 		}),
 		[
 			properties,

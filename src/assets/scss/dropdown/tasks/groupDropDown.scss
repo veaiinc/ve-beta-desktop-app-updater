@@ -42,12 +42,12 @@
 			height: 31px;
 			transform: rotate(-0.037deg);
 			padding: 4px;
+			width: 100%;
 			justify-content: space-between;
 			align-items: center;
 			align-self: stretch;
 			cursor: pointer;
 			border-radius: 8px;
-			transition: all 0.2s ease-in-out;
 			gap: 8px;
 			user-select: none;
 
@@ -185,6 +185,77 @@
 				font-style: normal;
 				font-weight: 400;
 				line-height: normal;
+			}
+		}
+
+		&-options {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 4px;
+			align-self: stretch;
+			max-height: 276px;
+			overflow-y: auto;
+
+			&-item {
+				display: flex;
+				flex-shrink: 0;
+				height: 31px;
+				padding: 4px;
+				gap: 6px;
+				justify-content: space-between;
+				align-items: center;
+				align-self: stretch;
+				border-radius: 8px;
+				cursor: pointer;
+				transition: all 0.2s ease-in-out;
+				svg {
+					height: 16px;
+					width: 16px;
+					flex-shrink: 0;
+				}
+
+				.icon-text,
+				.icon-id,
+				.icon-priority,
+				.icon-person {
+					path {
+						fill: #f2f2f3 !important;
+					}
+				}
+
+				.icon-date,
+				.icon-parentTask,
+				.icon-workflow,
+				.icon-status,
+				.icon-childTasks {
+					path {
+						stroke: #f2f2f3 !important;
+					}
+				}
+
+				&-label {
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					flex-grow: 1;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+
+				.icon-check {
+					height: 14px;
+					width: 14px;
+					flex-shrink: 0;
+				}
+
+				&:hover {
+					background-color: #333334;
+				}
 			}
 		}
 	}

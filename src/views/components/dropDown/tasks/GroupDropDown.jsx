@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { ReactComponent as OpenEye } from '../../../../assets/svg/gallery/open-eye.svg';
 import { ReactComponent as CrossedOpenEye } from '../../../../assets/svg/gallery/crossedOpenEye.svg';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
@@ -6,18 +6,139 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/ta
 import { ReactComponent as SixDotsSvg } from '../../../../assets/svg/tasks/sixDots.svg';
 import { ReactComponent as ArrowLeftSvg } from '../../../../assets/svg/tasks/arrowLeft.svg';
 import { ReactComponent as DustbinOutlined } from '../../../../assets/svg/tasks/dustBin.svg';
+import { ReactComponent as CheckSvg } from '../../../../assets/svg/tasks/checkmark.svg';
 import ToggleSwitch from '../../../../views/components/input/slider';
 
 import '../../../../assets/scss/dropdown/tasks/groupDropDown.scss';
+import DropDown from './DropDown';
 
-const GroupDropDown = ({ handleClose, handleBack }) => {
+const groupByOptions = {
+	status: {
+		label: 'Status by',
+		options: [
+			{ value: 'option', label: 'Option' },
+			{ value: 'group', label: 'Group' },
+		],
+	},
+	text: {
+		label: 'Text by',
+		options: [
+			{ value: 'exact', label: 'Exact' },
+			{ value: 'alphabetical', label: 'Alphabetical' },
+		],
+	},
+	date: {
+		label: 'Date by',
+		options: [
+			{ value: 'relative', label: 'Relative' },
+			{ value: 'day', label: 'Day' },
+			{ value: 'week', label: 'Week' },
+			{ value: 'month', label: 'Month' },
+			{ value: 'year', label: 'Year' },
+		],
+	},
+};
+
+const GroupDropDown = ({ handleClose, handleBack, properties }) => {
 	const [info, setInfo] = useState({
 		hideEmptyGroups: false,
-		groupBy: 'status',
+		groupBy: null,
+		showSelectionDropDown: false,
+		sort: [],
+		search: '',
+		groupByType: null,
 	});
+
+	useEffect(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			groupByType: groupByOptions?.[info?.groupBy?.type]?.options[0] ?? null,
+		}));
+	}, [info?.groupBy]);
+
+	const handleGroupByChange = (value) => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			groupBy: value,
+			showSelectionDropDown: value ? false : true,
+			search: value ? '' : prevInfo?.search,
+		}));
+	};
+
+	const handleGroupByTypeChange = (value) => {
+		const groupByType = groupByOptions?.[info?.groupBy?.type]?.options.find(
+			(option) => option.value === value,
+		);
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			groupByType: groupByType,
+		}));
+	};
+
 	return (
 		<div className="group-dropDown">
-			{info.groupBy ? (
+			{info.showSelectionDropDown || !info.groupBy ? (
+				<>
+					<div className="group-dropDown-header">
+						<ArrowLeftSvg className="cursor-pointer" onClick={handleBack} />
+						<span className="group-dropDown-header-title">Group</span>
+						<CrossSvg className="cursor-pointer" onClick={handleClose} />
+					</div>
+					<div className="group-dropDown-select">
+						<input
+							className="group-dropDown-select-search"
+							placeholder="Search for a property..."
+							value={info?.search}
+							onChange={(e) => setInfo({ ...info, search: e.target.value })}
+						/>
+						<div className="group-dropDown-select-options">
+							{'none'?.includes(info?.search?.toLowerCase()) && (
+								<div
+									className="group-dropDown-select-options-item"
+									key="none"
+									onClick={() => handleGroupByChange(null)}
+								>
+									<span className="group-dropDown-select-options-item-label">
+										None
+									</span>
+									{info?.groupBy === null ? (
+										<CheckSvg className="icon-check" />
+									) : null}
+								</div>
+							)}
+							{properties
+								.filter((property) =>
+									property?.label
+										?.toLowerCase()
+										?.includes(info?.search?.toLowerCase()),
+								)
+								.map((property) => (
+									<div
+										className="group-dropDown-select-options-item"
+										key={property?.value}
+										onClick={() =>
+											handleGroupByChange({
+												value: property?.value,
+												label: property?.label,
+												type: property?.type,
+											})
+										}
+									>
+										{property?.Icon && (
+											<property.Icon className={'icon-' + property?.type} />
+										)}
+										<span className="group-dropDown-select-options-item-label">
+											{property.label}
+										</span>
+										{info?.groupBy?.value === property?.value ? (
+											<CheckSvg className="icon-check" />
+										) : null}
+									</div>
+								))}
+						</div>
+					</div>
+				</>
+			) : (
 				<>
 					<div className="group-dropDown-header">
 						<ArrowLeftSvg className="cursor-pointer" onClick={handleBack} />
@@ -25,20 +146,45 @@ const GroupDropDown = ({ handleClose, handleBack }) => {
 						<CrossSvg className="cursor-pointer" onClick={handleClose} />
 					</div>
 					<div className="group-dropDown-options">
-						<div className="group-dropDown-options-item">
+						<div
+							className="group-dropDown-options-item"
+							onClick={() =>
+								setInfo((prevInfo) => ({
+									...prevInfo,
+									showSelectionDropDown: true,
+								}))
+							}
+						>
 							<span className="group-dropDown-options-item-label">Group by</span>
 							<span className="group-dropDown-options-item-value">
-								Status
+								{info?.groupBy?.label}
 								<ChevronRightThinSvg />
 							</span>
 						</div>
-						<div className="group-dropDown-options-item">
-							<span className="group-dropDown-options-item-label">Status by</span>
-							<span className="group-dropDown-options-item-value">
-								Option
-								<ChevronRightThinSvg />
-							</span>
-						</div>
+						{groupByOptions?.[info?.groupBy?.type] ? (
+							<DropDown
+								options={groupByOptions?.[info?.groupBy?.type]?.options}
+								onOptionClick={handleGroupByTypeChange}
+								valueSelector="value"
+								selected={info?.groupByType?.value}
+								selectedOptionStyles={{
+									width: '100%',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									alignSelf: 'stretch',
+								}}
+							>
+								<div className="group-dropDown-options-item">
+									<span className="group-dropDown-options-item-label">
+										{groupByOptions?.[info?.groupBy?.type]?.label}
+									</span>
+									<span className="group-dropDown-options-item-value">
+										{info?.groupByType?.label}
+										<ChevronRightThinSvg />
+									</span>
+								</div>
+							</DropDown>
+						) : null}
 						<div className="group-dropDown-options-item">
 							<span className="group-dropDown-options-item-label">Sort</span>
 							<span className="group-dropDown-options-item-value">
@@ -81,26 +227,6 @@ const GroupDropDown = ({ handleClose, handleBack }) => {
 							<DustbinOutlined />
 							Remove grouping
 						</button>
-					</div>
-				</>
-			) : (
-				<>
-					<div className="group-dropDown-header">
-						<ArrowLeftSvg className="cursor-pointer" onClick={handleBack} />
-						<span className="group-dropDown-header-title">Group</span>
-						<CrossSvg className="cursor-pointer" onClick={handleClose} />
-					</div>
-					<div className="group-dropDown-select">
-						<input
-							className="group-dropDown-select-search"
-							placeholder="Search for property type"
-						/>
-						<div className="group-dropDown-select-options">
-							<div className="group-dropDown-select-option">
-								<span className="group-dropDown-select-option-label">Status</span>
-								<span className="group-dropDown-select-option-value">Option</span>
-							</div>
-						</div>
 					</div>
 				</>
 			)}
