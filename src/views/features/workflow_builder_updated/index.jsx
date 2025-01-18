@@ -18,6 +18,7 @@ import {
 } from '../../components/workflowBuilderComponents/CustomNodes';
 import CustomEdges from '../../components/workflowBuilderComponents/CustomEdges';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
+import BuilderToolbar from '../../components/workflowBuilderComponents/BuilderToolbar';
 
 // const mockSteps = [
 // 	{
@@ -335,6 +336,7 @@ const WorkflowBuilderUpdated = () => {
 					<Background variant="dots" gap={12} size={0.5} />
 				</ReactFlow>
 			)}
+			<BuilderToolbar open={true} onCLose={() => {}} />
 		</div>
 	);
 };
