@@ -37,11 +37,20 @@ const initialState = {
 	workflowExpiryAt: '',
 	isEmailAuth: true,
 	activeFileData: null,
+	fileActivityData: null,
+	fileViewerList: null,
+	activityDataLoading: true,
 };
 let origin = fetchOriginSelection();
 const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 	const {
-		activityInfo: { resetActivityState },
+		activityInfo: {
+			resetActivityState,
+			activityData,
+			getSmartFileActivity,
+			getSmartFileViewers,
+			viewersList,
+		},
 		templates: {
 			smartFileInfo,
 			updateProposal,
@@ -110,13 +119,40 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 		}
 	}, [smartFileInfo]);
 
+	useEffect(() => {
+		if (activeFileData) {
+			getSmartFileActivity({ workflowId: activeFileData?._id });
+			getSmartFileViewers({ workflowId: activeFileData?._id });
+		}
+	}, [activeFileData]);
+
+	useEffect(() => {
+		if (activityData) {
+			setInfo((prev) => ({
+				...prev,
+				fileActivityData: activityData,
+				activityDataLoading: false,
+			}));
+		}
+	}, [activityData]);
+
+	useEffect(() => {
+		if (viewersList) {
+			setInfo((prev) => ({
+				...prev,
+				fileViewerList: viewersList,
+				activityDataLoading: false,
+			}));
+		}
+	}, [viewersList]);
+
 	//function defination
 	const handleTabChange = useCallback((tab) => {
 		setInfo((prev) => ({ ...prev, activeTab: tab }));
 	}, []);
 
 	const tabs = useMemo(() => {
-		return {
+		const baseTabs = {
 			reqActions: {
 				label: 'Req Actions',
 				Component: <RequiredActions data={info?.activeFileData} />,
@@ -125,12 +161,30 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 				label: 'Preview',
 				Component: <Preview data={info?.activeFileData} />,
 			},
-			activity: {
-				label: 'Activity',
-				Component: <DocsActivity data={info?.activeFileData} />,
-			},
 		};
-	}, [info?.activeFileData]);
+
+		// Only add activity tab if we have activity data
+		if (info?.fileActivityData && info?.fileViewerList) {
+			baseTabs.activity = {
+				label: 'Activity',
+				Component: (
+					<DocsActivity
+						data={info?.activeFileData}
+						fileActivityData={info?.fileActivityData}
+						fileViewerList={info?.fileViewerList}
+						loading={info?.activityDataLoading}
+					/>
+				),
+			};
+		}
+
+		return baseTabs;
+	}, [
+		info?.activeFileData,
+		info?.fileActivityData,
+		info?.fileViewerList,
+		info?.activityDataLoading,
+	]);
 
 	const handleMoreVisibility = useCallback((visible) => {
 		setInfo((prev) => ({ ...prev, openMoreOptions: visible }));
