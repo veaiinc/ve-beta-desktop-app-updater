@@ -42,6 +42,7 @@ const CustomEdges = ({
 		if (data?.onToolBarOpen) {
 			data.onToolBarOpen({ toolBarOpen: true, sidebarType: type });
 		}
+		setInfo((prev) => ({ ...prev, addNodesPopUp: false }));
 	}, []);
 
 	return (

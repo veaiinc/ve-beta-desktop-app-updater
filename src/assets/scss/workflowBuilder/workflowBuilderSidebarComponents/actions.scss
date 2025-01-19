@@ -62,4 +62,34 @@
 			}
 		}
 	}
+
+	.actionsListContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		padding: 12px 24px;
+		margin-top: 16px;
+
+		.actionListItem {
+			display: flex;
+			// width: 312px;
+			height: 44px;
+			padding: 12px;
+			align-items: center;
+			gap: 12px;
+			border-radius: 12px;
+			border: 1px solid #2c2d2e;
+			border: 1px solid color(display-p3 0.1719 0.1753 0.1787);
+			color: #f2f2f3;
+			color: color(display-p3 0.949 0.949 0.9529);
+
+			/* Body/Body - 12 px */
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+		}
+	}
 }
