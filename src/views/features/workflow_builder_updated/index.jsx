@@ -161,6 +161,8 @@ const WorkflowBuilderUpdated = () => {
 		deleteWorkflowModal: false,
 		deleteWorkflowLoader: false,
 		stepsMapper: {},
+		sidebarType: null,
+		toolBarOpen: false,
 	});
 
 	const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -286,6 +288,7 @@ const WorkflowBuilderUpdated = () => {
 					target: currentStep.nextStepId,
 					animated: true,
 					type: 'custom',
+					data: { onToolBarOpen: handleToolBarOpen },
 				});
 				// Pass isFirstBranch as false for subsequent nodes in the branch
 				generateNodesAndEdges(currentStep?.nextStepId, nodeX, nextY, branchType, false);
@@ -308,6 +311,16 @@ const WorkflowBuilderUpdated = () => {
 		setEdges(edges);
 		setInfo((prev) => ({ ...prev, loading: false, stepsMapper }));
 	}, []);
+
+	const handleToolBarClose = useCallback(() => {
+		console.log('handleToolBarClose');
+		setInfo((prev) => ({ ...prev, toolBarOpen: false, sidebarType: null }));
+	}, []);
+
+	const handleToolBarOpen = useCallback(
+		(obj = {}) => setInfo((prev) => ({ ...prev, ...obj })),
+		[],
+	);
 
 	return (
 		<div className="updatedWorkflowBuilderContainer">
@@ -336,7 +349,11 @@ const WorkflowBuilderUpdated = () => {
 					<Background variant="dots" gap={12} size={0.5} />
 				</ReactFlow>
 			)}
-			<BuilderToolbar open={true} onCLose={() => {}} />
+			<BuilderToolbar
+				open={info?.toolBarOpen}
+				onCLose={handleToolBarClose}
+				sidebarType={info?.sidebarType}
+			/>
 		</div>
 	);
 };

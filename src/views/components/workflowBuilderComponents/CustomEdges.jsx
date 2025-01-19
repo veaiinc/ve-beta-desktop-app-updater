@@ -1,5 +1,5 @@
 import { BaseEdge, EdgeLabelRenderer, getBezierPath } from '@xyflow/react';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import '../../../assets/scss/workflowBuilder/customEdges.scss';
 import { Tooltip } from 'antd';
 import { ReactComponent as Action } from '../../../assets/svg/worflow_builder/customNodes/actionSvg.svg';
@@ -17,6 +17,7 @@ const CustomEdges = ({
 	targetPosition,
 	style = {},
 	markerEnd,
+	data,
 }) => {
 	const [edgePath, labelX, labelY] = getBezierPath({
 		sourceX,
@@ -32,10 +33,16 @@ const CustomEdges = ({
 	});
 
 	const onEdgeClick = (e) => {
-		e.preventDefault();
-		e.stopPropagation();
-		console.log('Edge button clicked:', id);
+		// e.preventDefault();
+		// e.stopPropagation();
+		// console.log('Edge button clicked:', id);
 	};
+
+	const onAddOptionsClick = useCallback((type) => {
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({ toolBarOpen: true, sidebarType: type });
+		}
+	}, []);
 
 	return (
 		<>
@@ -52,7 +59,7 @@ const CustomEdges = ({
 				>
 					<Tooltip
 						placement="bottomRight"
-						title={<AddNodesPopUp />}
+						title={<AddNodesPopUp onAddOptionsClick={onAddOptionsClick} />}
 						color={'#202020'}
 						arrow={false}
 						trigger="click"
@@ -86,22 +93,25 @@ const CustomEdges = ({
 
 export default CustomEdges;
 
-const AddNodesPopUp = () => {
+const AddNodesPopUp = ({ onAddOptionsClick }) => {
 	return (
 		<div className="addNewNodesPopUpContainer">
-			<div className="addNodesTypeCategories">
+			<div
+				className="addNodesTypeCategories"
+				onClick={() => onAddOptionsClick('notifications')}
+			>
 				<Notification />
 				<span>Send Notification</span>
 			</div>
-			<div className="addNodesTypeCategories">
+			<div className="addNodesTypeCategories" onClick={() => onAddOptionsClick('actions')}>
 				<Action />
 				<span>Action</span>
 			</div>
-			<div className="addNodesTypeCategories">
+			<div className="addNodesTypeCategories" onClick={() => onAddOptionsClick('conditions')}>
 				<IfElse />
 				<span>Condition</span>
 			</div>
-			<div className="addNodesTypeCategories">
+			<div className="addNodesTypeCategories" onClick={() => onAddOptionsClick('pipeline')}>
 				<Pipeline />
 				<span>Move Pipeline</span>
 			</div>

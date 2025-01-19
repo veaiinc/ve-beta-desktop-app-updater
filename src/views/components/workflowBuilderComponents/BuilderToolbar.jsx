@@ -1,7 +1,18 @@
 import { Drawer } from 'antd';
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import '../../../assets/scss/workflowBuilder/builderToolbar.scss';
-const BuilderToolbar = ({ open, onCLose }) => {
+import Actions from './WorkflowBuilderSidebarComponents/Actions';
+import Conditions from './WorkflowBuilderSidebarComponents/Conditions';
+import Notification from './WorkflowBuilderSidebarComponents/Notification';
+const BuilderToolbar = ({ open, onCLose, sidebarType }) => {
+	const componentMapper = useMemo(() => {
+		return {
+			actions: <Actions onCLose={onCLose} />,
+			conditions: <Conditions onCLose={onCLose} />,
+			notifications: <Notification onCLose={onCLose} />,
+		};
+	}, [sidebarType, onCLose]);
+
 	return (
 		<Drawer
 			onClose={onCLose}
@@ -13,7 +24,7 @@ const BuilderToolbar = ({ open, onCLose }) => {
 			mask={false}
 			rootClassName="testing"
 		>
-			<div style={{ flex: 1, backgroundColor: 'red', height: '100%' }}></div>
+			{componentMapper?.[sidebarType]}
 		</Drawer>
 	);
 };
