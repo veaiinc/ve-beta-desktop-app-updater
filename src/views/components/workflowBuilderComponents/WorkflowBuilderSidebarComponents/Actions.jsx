@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/workflowBuilder/workflowBuilderSidebarComponents/actions.scss';
 import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/buildercard/doubleArrow.svg';
 import { ReactComponent as Search } from '../../../../assets/svg/worflow_builder/buildercard/search.svg';
@@ -13,6 +13,7 @@ const Actions = ({ onCLose }) => {
 		search: '',
 		list: Object.values(actionsList),
 		searchChanged: false,
+		activeStage: 'stage2', //stage1, stage2, stage3
 	});
 
 	useEffect(() => {
@@ -36,6 +37,13 @@ const Actions = ({ onCLose }) => {
 		setInfo((prev) => ({ ...prev, timeout }));
 	}, [info?.timeout, info?.search]);
 
+	const stageMapper = useMemo(() => {
+		return {
+			stage1: <Stage1 info={info} handleSearch={handleSearch} />,
+			stage2: <Stage2 />,
+		};
+	}, [info, handleSearch]);
+
 	return (
 		<div className="actionSidebarComponents">
 			<div className="actionSidebarComponentsHeader">
@@ -43,7 +51,16 @@ const Actions = ({ onCLose }) => {
 					<DoubleArrow />
 				</span>
 			</div>
+			{stageMapper?.[info?.activeStage]}
+		</div>
+	);
+};
 
+export default memo(Actions);
+
+const Stage1 = ({ info, handleSearch }) => {
+	return (
+		<>
 			<div className="actionSideBarSearchbarContainer">
 				<div className="actionSidebarSearch">
 					<span style={{ paddingTop: '12px', paddingBottom: '12px' }}>
@@ -65,8 +82,28 @@ const Actions = ({ onCLose }) => {
 					</div>
 				))}
 			</div>
-		</div>
+		</>
 	);
 };
 
-export default memo(Actions);
+const Stage2 = () => {
+	return (
+		<div className="createTasksUi">
+			<div className="createTasksHeadingContainer">
+				<div className="createHeadingLabelContainer">
+					<div className="createTaskHeadingLabel">
+						<span className="actionsCreateHeader">Actions</span>
+						<span className="createTaskHeading">Create Tasks</span>
+					</div>
+					<div className="changeActionStageButton">Change</div>
+				</div>
+			</div>
+
+			{/* //task title */}
+			<div className="addTaskTitleContainer">
+				<span className="addTaskTitleTextStyle">Add Task Title</span>
+				<textarea className="addTaskTitleTextArea" placeholder="Add Task Title ...." />
+			</div>
+		</div>
+	);
+};
