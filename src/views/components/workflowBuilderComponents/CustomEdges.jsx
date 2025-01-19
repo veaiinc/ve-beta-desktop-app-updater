@@ -59,7 +59,7 @@ const CustomEdges = ({
 					}}
 				>
 					<Tooltip
-						placement="bottomRight"
+						placement="bottom"
 						title={<AddNodesPopUp onAddOptionsClick={onAddOptionsClick} />}
 						color={'#202020'}
 						arrow={false}
