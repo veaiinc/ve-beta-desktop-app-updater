@@ -41,7 +41,7 @@
 	}
 
 	.ant-select-arrow {
-		color: #e4e5e6;
+		color: var(--primary-font);
 		display: none;
 	}
 
@@ -76,7 +76,7 @@
 
 		//custom option render list of attendees
 		.option-container {
-			color: #e4e5e6;
+			color: var(--primary-font);
 
 			display: flex;
 			align-items: center;
@@ -95,7 +95,7 @@
 			.option-name {
 				font-weight: 500;
 				line-height: 16px;
-				color: #e4e5e6;
+				color: var(--primary-font);
 				width: 200px;
 				white-space: nowrap;
 				overflow: hidden;

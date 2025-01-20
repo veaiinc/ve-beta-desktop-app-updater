@@ -37,7 +37,7 @@
 
 	.rbc-allday-cell .rbc-row-content .rbc-button-link {
 		background: none;
-		color: #e4e5e6;
+		color: var(--primary-font);
 	}
 
 	.rbc-time-header.rbc-overflowing {
@@ -70,7 +70,7 @@
 
 	.rbc-timeslot-group {
 		// border-top: 0.5px solid rgb(81, 78, 78);
-		border-top: 0.5px solid rgba(var(--primary-font), 0.3);
+		border-top: 0.5px solid rgba(var(--stroke), 0.3);
 	}
 
 	.rbc-label .rbc-time-header-gutter {

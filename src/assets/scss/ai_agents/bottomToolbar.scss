@@ -138,6 +138,7 @@
 						padding: 12px;
 						border-radius: 8px;
 						width: 100%;
+
 						color: var(--primary-font);
 						font-family: Inter;
 						font-size: 12px;
@@ -205,7 +206,11 @@
 			}
 
 			&::placeholder {
-				color: var(--primary-font);
+				color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+				color: var(
+					--ve-ai-dark-theme-primary-font-color,
+					color(display-p3 0.9098 0.9098 0.9098)
+				);
 
 				/* Body/Body - 12 px */
 				font-family: Inter;
@@ -224,7 +229,11 @@
 		.quickActionsButtons {
 			flex-shrink: 0;
 			border-radius: 100px;
-			background: var(--background-color);
+			background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
+			background: var(
+				--ve-ai-dark-theme-text-field-stroke-pop-up,
+				color(display-p3 0.1719 0.1753 0.1787)
+			);
 			display: flex;
 			justify-content: center;
 			align-items: center;
@@ -266,7 +275,7 @@
 		justify-content: center;
 		gap: 10px;
 		transition: all 0.2s ease;
-		color: var(--primary-font);
+		color: #ffffff;
 		font-size: 14px;
 		font-weight: 500;
 
