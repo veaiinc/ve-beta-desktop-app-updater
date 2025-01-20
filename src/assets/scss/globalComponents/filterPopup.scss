@@ -18,9 +18,9 @@
 			padding: 6px;
 			outline: none;
 			background: inherit;
-			color: #fff;
+			color: var(--primary-font);
 			border-radius: 8px;
-			border: 1px solid var(--Primary-Font-Color, #f2f2f3);
+			border: 1px solid var(--primary-font);
 		}
 	}
 
@@ -42,7 +42,7 @@
 			cursor: pointer;
 
 			span {
-				color: #e4e5e6;
+				color: var(--primary-font);
 				text-align: left;
 				font-family: var(--primary-font-family);
 				font-size: 12px;

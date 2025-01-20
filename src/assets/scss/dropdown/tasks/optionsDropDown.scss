@@ -28,7 +28,7 @@
 			}
 
 			.view-name {
-				color: rgba(228, 229, 230, 0.48);
+				color: var(--secondary-font);
 				text-align: center;
 				font-family: var(--primary-font-family);
 				font-size: 12px;
@@ -47,7 +47,7 @@
 					}
 				}
 				.view-name {
-					color: #e4e5e6;
+					color: var(--primary-font);
 				}
 			}
 		}
@@ -61,7 +61,7 @@
 				}
 			}
 			.view-name {
-				color: #e4e5e6;
+				color: var(--primary-font);
 			}
 		}
 	}
@@ -135,7 +135,7 @@
 				}
 
 				.property-listItem-title {
-					color: #f2f2f3;
+					color: var(--primary-font);
 					text-align: start;
 					font-family: var(--primary-font-family);
 					font-size: 12px;
@@ -155,7 +155,7 @@
 				}
 
 				&:hover {
-					background-color: #292b2d;
+					background-color: var(--background-color);
 				}
 			}
 		}
@@ -176,7 +176,7 @@
 			}
 
 			.add-new-property-title {
-				color: #fff;
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;

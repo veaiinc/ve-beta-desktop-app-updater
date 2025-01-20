@@ -51,7 +51,7 @@
 				height: 100%;
 
 				.eventType {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					align-self: stretch;
 					font-family: var(--primary-font-family);
 					font-size: 14px;
@@ -87,7 +87,7 @@
 							gap: 2px;
 
 							.labelKey {
-								color: #929292;
+								color: var(--secondary-font);
 								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
@@ -96,7 +96,7 @@
 							}
 
 							.labelValue {
-								color: #e4e5e6;
+								color: var(--primary-font);
 								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
@@ -127,7 +127,7 @@
 
 					cursor: pointer;
 
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
@@ -135,7 +135,7 @@
 					line-height: normal;
 
 					span {
-						color: #e4e5e6;
+						color: var(--primary-font);
 						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;

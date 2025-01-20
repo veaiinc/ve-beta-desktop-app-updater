@@ -9,7 +9,7 @@
 	.errormessage {
 		flex: 1;
 		text-align: right;
-		color: #cc5756;
+		color: var(--error);
 		font-family: var(--primary-font-family);
 		font-size: 11px;
 		font-style: normal;
@@ -19,7 +19,7 @@
 
 	.serviceTitle {
 		padding: 0px 14px;
-		color: #b0b0b0;
+		color: var(--secondary-font);
 		font-family: var(--primary-font-family);
 		font-size: 0.6875rem;
 		font-style: normal;
@@ -31,7 +31,7 @@
 		border-radius: 10px;
 		border: 1px solid #2f2f2f;
 		width: 100%;
-		color: #e4e5e6;
+		color: var(--primary-font);
 		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
@@ -56,7 +56,7 @@
 		padding-left: 14px;
 
 		.currencyHolder {
-			color: rgba(228, 229, 230, 0.8);
+			color: var(--secondary-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
@@ -103,9 +103,9 @@
 	align-self: stretch;
 	border-radius: 16px;
 	border: 1px solid #242424;
-	background: #1e1e1f;
+	background: var(--background-color);
 	.proposalExpiryBlockHeader {
-		color: #b0b0b0;
+		color: var(--secondary-font);
 		font-family: var(--primary-font-family);
 		font-size: 11px;
 		font-style: normal;
@@ -127,7 +127,7 @@
 			border-radius: 10px;
 			border: 1px solid rgba(36, 36, 36, 0.64);
 			width: 100%;
-			color: #e4e5e6;
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
@@ -152,7 +152,7 @@
 			padding-left: 14px;
 
 			.dayText {
-				color: rgba(228, 229, 230, 0.24);
+				color: var(--secondary-font);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;

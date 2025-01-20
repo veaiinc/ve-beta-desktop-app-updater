@@ -6,7 +6,7 @@
 	align-items: flex-start;
 	gap: 12px;
 	border-radius: 8px;
-	background: #202123;
+	background: var(--card);
 	box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
 
 	.options-property-edit-header {
@@ -19,7 +19,7 @@
 		padding-bottom: 12px;
 		gap: 8px;
 		.options-property-edit-header-title {
-			color: #f2f2f3;
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
@@ -48,8 +48,7 @@
 			justify-content: space-between;
 			align-items: center;
 			.property-edit-section-title {
-				color: var(--Secondary-Font, #787e87);
-				color: var(--Secondary-Font, color(display-p3 0.4784 0.4941 0.5216));
+				color: var(--secondary-font);
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
@@ -75,9 +74,9 @@
 			gap: 10px;
 			width: 100%;
 			border-radius: 8px;
-			border: 1px solid var(--Primary-Font-Color, #f2f2f3);
+			border: 1px solid var(--primary-font);
 			background: transparent;
-			color: #f2f2f3;
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
@@ -86,7 +85,7 @@
 			box-sizing: border-box;
 
 			&::placeholder {
-				color: var(--Secondary-Font, color(display-p3 0.4784 0.4941 0.5216));
+				color: var(--secondary-font);
 				font-family: var(--primary-font-family);
 				font-size: 11px;
 				font-style: normal;
@@ -108,7 +107,7 @@
 				align-self: stretch;
 
 				.property-edit-section-body-item-title {
-					color: #787e87;
+					color: var(--secondary-font);
 					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
@@ -117,7 +116,7 @@
 				}
 
 				.property-edit-section-body-item-value {
-					color: #f2f2f3;
+					color: var(--primary-font);
 					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
@@ -156,7 +155,7 @@
 						align-items: center;
 						gap: 4px;
 						border-radius: 35px;
-						background-color: #29456c;
+						background-color: var(--card);
 
 						.status-option-dot {
 							width: 6px;
@@ -167,7 +166,7 @@
 						}
 
 						.status-option-label {
-							color: #f2f2f3;
+							color: var(--primary-font);
 							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
@@ -182,7 +181,7 @@
 				}
 
 				&:hover {
-					background-color: #292b2d;
+					background-color: var(--card);
 				}
 			}
 		}
@@ -214,7 +213,7 @@
 		gap: 8px;
 
 		.property-edit-footer-title {
-			color: #e8e8e8;
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;

@@ -201,14 +201,14 @@
 			.AccessControl {
 				.owner {
 					border-radius: 4px;
-					background-color: var(--primary-button);
+					background-color: var(--accent-color);
 					padding: 14px 12px 14px 12px;
 					width: 103px;
 					height: 30px;
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					color: var(--primary-font);
+					color: #fff;
 					font-size: 10px;
 					&:hover {
 						cursor: pointer;

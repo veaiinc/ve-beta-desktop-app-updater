@@ -69,7 +69,7 @@
 		.color-picker-label {
 			display: block;
 			font-size: 0.75rem;
-			color: #6b7280;
+			color: var(--secondary-font);
 			margin-bottom: 0.5rem;
 		}
 
@@ -149,7 +149,7 @@
 		outline: none;
 
 		p.is-empty::before {
-			color: #adb5bd;
+			color: var(--secondary-font);
 			content: attr(data-placeholder);
 			float: left;
 			height: 0;
@@ -160,7 +160,7 @@
 		h1.is-empty::before,
 		h2.is-empty::before,
 		h3.is-empty::before {
-			color: #adb5bd;
+			color: var(--secondary-font);
 			content: attr(data-placeholder);
 			float: left;
 			height: 0;

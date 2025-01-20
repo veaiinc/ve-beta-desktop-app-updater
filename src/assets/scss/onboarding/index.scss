@@ -15,7 +15,7 @@
 		align-items: center;
 
 		.step8 {
-			color: #fff;
+			color: var(--primary-font);
 			font-family: var(--secondary-font-family);
 			font-size: 24px;
 			font-style: normal;
@@ -49,7 +49,7 @@
 
 		.invited-onborading {
 			.otp-message {
-				color: rgba(255, 255, 255, 0.6);
+				color: var(--secondary-font);
 				font-family: var(--secondary-font-family);
 				font-size: 14px !important;
 				font-style: normal;
@@ -60,7 +60,7 @@
 				padding: 0 !important;
 			}
 			h1 {
-				color: #fff;
+				color: var(--primary-font);
 				font-family: var(--secondary-font-family);
 				font-style: normal;
 				font-weight: 500;
@@ -69,7 +69,7 @@
 			}
 
 			h2 {
-				color: rgba(255, 255, 255, 0.6);
+				color: var(--secondary-font);
 				font-family: var(--secondary-font-family);
 				font-size: 14px;
 				font-style: normal;
@@ -95,7 +95,7 @@
 			.step3 h1,
 			.step4,
 			.step5 {
-				color: #fff;
+				color: var(--primary-font);
 				font-family: var(--secondary-font-family);
 				font-style: normal;
 				font-weight: 500;
@@ -104,7 +104,7 @@
 
 			.step3 h2 {
 				padding: 24px 36px;
-				color: rgba(255, 255, 255, 0.6);
+				color: var(--secondary-font);
 				font-family: var(--secondary-font-family);
 				font-size: 32px;
 				font-style: normal;
@@ -116,7 +116,7 @@
 			.step6,
 			.step7 {
 				h1 {
-					color: #fff;
+					color: var(--primary-font);
 					font-family: var(--secondary-font-family);
 					font-size: 32px;
 					font-style: normal;
@@ -126,7 +126,7 @@
 
 				h2 {
 					margin-top: 32px;
-					color: rgba(255, 255, 255, 0.5);
+					color: var(--secondary-font);
 					font-family: var(--secondary-font-family);
 					font-size: 14px;
 					font-style: normal;
@@ -159,7 +159,7 @@
 					.otp-error-message {
 						position: absolute;
 						top: -24px;
-						color: #ff7070;
+						color: var(--error);
 						font-family: var(--secondary-font-family);
 						font-size: 12px;
 						font-style: normal;
@@ -176,17 +176,17 @@
 						gap: 8px;
 						.ant-otp {
 							.ant-input {
-								background-color: rgba(255, 255, 255, 0.05);
+								background-color: var(--background-color);
 								border: none;
 								outline: none;
 								border-radius: 50%;
 								padding: 20px;
 								width: 50px;
 								height: 50px;
-								color: #fff;
+								color: var(--primary-font);
 
 								&::placeholder {
-									color: #fff;
+									color: var(--primary-font);
 								}
 							}
 							.ant-input-otp-input::placeholder {
@@ -197,7 +197,7 @@
 				}
 
 				.resendCode {
-					color: rgba(255, 255, 255, 0.5);
+					color: var(--secondary-font);
 					font-family: var(--secondary-font-family);
 					font-size: 14px;
 					font-style: normal;
@@ -208,7 +208,7 @@
 			}
 
 			.workspace-handle-text {
-				color: rgba(255, 255, 255, 0.5);
+				color: var(--secondary-font);
 				font-family: var(--secondary-font-family);
 				font-size: 14px;
 				font-style: normal;
@@ -221,7 +221,7 @@
 				gap: 4px;
 
 				.workspace-handle {
-					color: #fff;
+					color: var(--primary-font);
 					display: flex;
 					justify-content: center;
 					align-items: center;
@@ -247,7 +247,7 @@
 					outline: none;
 					border: none;
 					background: inherit;
-					color: #fff;
+					color: var(--primary-font);
 					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-weight: 400;
@@ -269,7 +269,7 @@
 					right: 0;
 					top: 70px;
 					font-size: 12px;
-					color: #d1243f;
+					color: var(--error);
 					text-transform: capitalize;
 				}
 			}
@@ -283,7 +283,7 @@
 				height: 45px;
 				gap: 12px;
 				border-radius: 60px;
-				background: rgba(255, 255, 255, 0.05);
+				background: var(--popup);
 				position: absolute;
 
 				input {
@@ -291,7 +291,7 @@
 					width: 75%;
 					border: none;
 					background-color: transparent;
-					color: #fff;
+					color: var(--primary-font);
 					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-weight: 400;
@@ -320,7 +320,7 @@
 
 				input.workspace-handle-name-input {
 					text-transform: lowercase;
-					color: #fff;
+					color: var(--primary-font);
 					font-family: var(--secondary-font-family);
 					font-size: 16px;
 					font-weight: 400;
@@ -337,7 +337,7 @@
 					right: 72px;
 					top: 50%;
 					transform: translateY(-50%);
-					color: rgba(255, 255, 255, 0.5);
+					color: var(--secondary-font);
 					font-size: 12px;
 					font-family: var(--secondary-font-family);
 					font-weight: 400;
@@ -358,7 +358,7 @@
 					padding: 24px;
 					border-radius: 24px;
 					border: 1px solid rgba(255, 255, 255, 0.1);
-					background: rgba(255, 255, 255, 0);
+					background: var(--popup);
 					cursor: pointer;
 					display: flex;
 					justify-content: center;
@@ -368,7 +368,7 @@
 					transition: all 0.3s ease;
 
 					h1 {
-						color: #fff;
+						color: var(--primary-font);
 						font-family: var(--secondary-font-family);
 						font-size: 12px;
 						font-style: normal;
@@ -377,7 +377,7 @@
 					}
 
 					&:hover {
-						border: 1px solid #fff;
+						border: 1px solid var(--primary-font);
 						background: rgba(255, 255, 255, 0.1);
 						box-shadow: 0px 0px 10px 0px rgba(255, 255, 255, 0.2),
 							0px -47px 13px 0px rgba(0, 0, 0, 0),
@@ -403,7 +403,7 @@
 						padding: 24px;
 						border-radius: 22px;
 						border: 1px solid rgba(255, 255, 255, 0.1);
-						background: rgba(255, 255, 255, 0);
+						background: var(--popup);
 						cursor: pointer;
 						display: flex;
 						justify-content: center;
@@ -415,7 +415,7 @@
 							font-size: 16px;
 							font-weight: 400;
 							text-transform: capitalize;
-							color: #fff;
+							color: var(--primary-font);
 							font-family: var(--secondary-font-family);
 							font-size: 12px;
 							font-style: normal;
@@ -423,7 +423,7 @@
 						}
 
 						&:hover {
-							border: 1px solid #fff;
+							border: 1px solid var(--primary-font);
 							background: rgba(255, 255, 255, 0.1);
 							box-shadow: 0px 0px 10px 0px rgba(255, 255, 255, 0.2),
 								0px -47px 13px 0px rgba(0, 0, 0, 0),
