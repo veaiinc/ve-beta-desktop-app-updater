@@ -13,8 +13,7 @@
 		gap: 8px;
 
 		.agentsSetupHeaderText {
-			color: #e8e8e8;
-			color: color(display-p3 0.9098 0.9098 0.9098);
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 24px;
 			font-style: normal;
@@ -31,8 +30,7 @@
 		gap: 24px;
 		align-self: stretch;
 		border-radius: 24px;
-		background: #171819;
-		background: color(display-p3 0.0902 0.0941 0.098);
+		background-color: var(--background-color);
 
 		.aiSetupInstructionsHeader {
 			display: flex;
@@ -44,11 +42,7 @@
 				display: flex;
 				align-items: center;
 				gap: 8px;
-				color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-				color: var(
-					--ve-ai-dark-theme-primary-font-color,
-					color(display-p3 0.9098 0.9098 0.9098)
-				);
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 20px;
 				font-style: normal;
@@ -66,11 +60,7 @@
 				border-radius: 100px;
 				border: 1px solid #333334;
 				border: 1px solid color(display-p3 0.2 0.2 0.2039);
-				color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-				color: var(
-					--ve-ai-dark-theme-primary-font-color,
-					color(display-p3 0.9098 0.9098 0.9098)
-				);
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 14px;
 				font-style: normal;
@@ -94,11 +84,9 @@
 				gap: 10px;
 				align-self: stretch;
 				border-radius: 12px;
-				background: #202123;
-				background: color(display-p3 0.1255 0.1294 0.1373);
+				background-color: var(--background-color);
 				overflow: hidden;
-				color: #e8e8e8;
-				color: color(display-p3 0.9098 0.9098 0.9098);
+				color: var(--primary-font);
 				text-overflow: ellipsis;
 				font-family: Inter;
 				font-size: 14px;
@@ -117,8 +105,7 @@
 
 				.instrunctionsRowTitle {
 					overflow: hidden;
-					color: #e8e8e8;
-					color: color(display-p3 0.9098 0.9098 0.9098);
+					color: var(--primary-font);
 					text-overflow: ellipsis;
 					font-family: Inter;
 					font-size: 14px;

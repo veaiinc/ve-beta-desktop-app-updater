@@ -20,7 +20,7 @@ function App() {
 		// document.getElementsByTagName('html')[0].classList.add('theme-dark');
 		// const theme = localStorage.getItem('theme') || Cookies.get('theme') || 'dark';
 		// console.log(theme);
-		// document.documentElement.setAttribute('theme', theme);
+		document.documentElement.setAttribute('theme', theme);
 	}, []);
 
 	return (

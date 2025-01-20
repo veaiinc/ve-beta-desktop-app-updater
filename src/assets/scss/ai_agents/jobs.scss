@@ -13,8 +13,7 @@
 		align-self: stretch;
 
 		.aiAgentsJobsTitle {
-			color: #e8e8e8;
-			color: color(display-p3 0.9098 0.9098 0.9098);
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 24px;
 			font-style: normal;
@@ -42,7 +41,7 @@
 				.searchInputTag {
 					flex: 1;
 					background-color: transparent;
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 13px;
 					font-style: normal;

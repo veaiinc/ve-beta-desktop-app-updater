@@ -68,7 +68,7 @@
 
 				.message-content {
 					background: #2b6eff;
-					color: white;
+					color: var(--primary-font);
 					border-bottom-right-radius: 4px;
 				}
 			}
@@ -117,7 +117,7 @@
 					border-radius: 8px;
 					width: 100%;
 
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
@@ -150,7 +150,7 @@
 			border: none;
 			outline: none;
 			background: transparent;
-			color: white;
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 12px;
 			font-style: normal;

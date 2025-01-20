@@ -20,13 +20,11 @@
 			align-items: flex-start;
 			gap: 6px;
 			border-radius: 14px;
-			border: 1px solid #1d1d1d;
 			border: 1px solid color(display-p3 0.1133 0.1133 0.1133);
-			background: #151515;
+			background: var(--background-color);
 			cursor: pointer;
 			.docsHeaderButtonsTitle {
-				color: #e4e5e6;
-				color: color(display-p3 0.8941 0.898 0.902);
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 16px;
 				font-style: normal;
@@ -34,8 +32,7 @@
 				line-height: normal;
 			}
 			.docsHeaderSubButtonsSubTitleColored {
-				color: #e4e5e6;
-				color: color(display-p3 0.8941 0.898 0.902);
+				color: var(--secondary-font);
 				text-align: center;
 				font-family: Inter;
 				font-size: 13px;
@@ -44,8 +41,7 @@
 				line-height: normal;
 			}
 			.docsHeaderSubButtonsSubTitle {
-				color: rgba(228, 229, 230, 0.48);
-				color: color(display-p3 0.8941 0.898 0.902 / 0.48);
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;
@@ -116,8 +112,7 @@
 				cursor: pointer;
 				flex-shrink: 0;
 				.createStaticActionsCardsTitle {
-					color: var(--Primary-Font, #f2f2f3);
-					color: var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 16px;
 					font-style: normal;
@@ -126,8 +121,7 @@
 				}
 
 				.createStaticActionsCardsSubTitle {
-					color: var(--Secondary-Font, #787e87);
-					color: var(--Secondary-Font, color(display-p3 0.4784 0.4941 0.5216));
+					color: var(--secondary-font);
 					font-family: Inter;
 					font-size: 13px;
 					font-style: normal;
@@ -269,9 +263,7 @@
 				justify-content: flex-start;
 				align-items: center;
 				gap: 8px;
-
-				color: #e8e8e8;
-				color: color(display-p3 0.9098 0.9098 0.9098);
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 24px;
 				font-style: normal;
@@ -457,6 +449,7 @@
 					--ve-ai-dark-theme-primary-font-color,
 					color(display-p3 0.9098 0.9098 0.9098)
 				);
+				color: var(--primary-font);
 				text-overflow: ellipsis;
 				font-family: Inter;
 				font-size: 14px;
@@ -472,8 +465,7 @@
 				justify-content: flex-end;
 
 				.docsclientdetailsName {
-					color: #e8e8e8;
-					color: color(display-p3 0.9098 0.9098 0.9098);
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 13px;
 					font-style: normal;

@@ -6,7 +6,7 @@
 	.shareAndEarnTextContainer {
 		gap: 8px;
 		h1 {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			text-align: center;
 			font-size: 28px;
 			font-style: normal;
@@ -14,7 +14,7 @@
 			line-height: 40px; /* 142.857% */
 		}
 		h2 {
-			color: #979797;
+			color: var(--secondary-font);
 			text-align: center;
 			font-size: 13px;
 			font-style: normal;
@@ -28,7 +28,7 @@
 		align-items: center;
 		padding: 36px 0;
 		h3 {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			text-align: center;
 			font-size: 12px;
 			font-style: normal;
@@ -36,7 +36,7 @@
 			line-height: 20px; /* 166.667% */
 		}
 		.linkInputContainer {
-			padding-top: 10px;
+			padding-top: 10px;          
 			display: flex;
 			align-items: center;
 			gap: 10px;
@@ -49,8 +49,8 @@
 				gap: 10px;
 				border-radius: 20px;
 				border: 1px solid rgba(151, 151, 151, 0.08);
-				background: #1b1b1b;
-				color: #b0b0b0;
+				background: var(--card);
+				color: var(--secondary-font);
 			}
 			.linkCopyButton {
 				display: flex;
@@ -94,7 +94,7 @@
 			}
 		}
 		.imageTitle {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			text-align: center;
 			font-family: var(--primary-font-family);
 			font-size: 18px;
@@ -103,7 +103,7 @@
 			line-height: 28px; /* 155.556% */
 		}
 		.imageSubText {
-			color: #979797;
+			color: var(--secondary-font);
 			text-align: center;
 			font-family: var(--primary-font-family);
 			font-size: 13px;

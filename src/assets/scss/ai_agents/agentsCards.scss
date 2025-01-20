@@ -4,11 +4,9 @@
 	height: 304px;
 	padding: 32px;
 	flex-direction: column;
-	// justify-content: space-between;
 	align-items: flex-start;
 	border-radius: 24px;
-	background: #171819;
-	background: color(display-p3 0.0902 0.0941 0.098);
+	background: var(--card);
 	cursor: pointer;
 
 	.agentsWorkflowJobCards {
@@ -27,11 +25,7 @@
 			align-self: stretch;
 			flex: 1;
 			.agentsWorkflowJobCardsTitle {
-				color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-				color: var(
-					--ve-ai-dark-theme-primary-font-color,
-					color(display-p3 0.9098 0.9098 0.9098)
-				);
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 18px;
 				font-style: normal;
@@ -40,8 +34,7 @@
 			}
 		}
 		.agentsTabType {
-			color: #e8e8e8;
-			color: color(display-p3 0.9098 0.9098 0.9098);
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
@@ -66,11 +59,7 @@
 			align-self: stretch;
 			flex: 1;
 			.agentsWorkflowJobCardsTitle {
-				color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-				color: var(
-					--ve-ai-dark-theme-primary-font-color,
-					color(display-p3 0.9098 0.9098 0.9098)
-				);
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 18px;
 				font-style: normal;
@@ -79,8 +68,7 @@
 			}
 		}
 		.agentsTabType {
-			color: #e8e8e8;
-			color: color(display-p3 0.9098 0.9098 0.9098);
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
@@ -105,11 +93,7 @@
 			align-self: stretch;
 			flex: 1;
 			.agentsWorkflowJobCardsTitle {
-				color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-				color: var(
-					--ve-ai-dark-theme-primary-font-color,
-					color(display-p3 0.9098 0.9098 0.9098)
-				);
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 18px;
 				font-style: normal;
@@ -118,8 +102,7 @@
 			}
 		}
 		.agentsTabType {
-			color: #e8e8e8;
-			color: color(display-p3 0.9098 0.9098 0.9098);
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
