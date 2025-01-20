@@ -69,17 +69,31 @@ const CalendarCategories = ({
 
 	// Handler for checkbox changes
 	const handleCheckboxChange = (categoryId) => {
-		let updatedFilter;
+		const defaultCategory = categoryList?.find(
+			(cat) =>
+				cat?.name?.toLowerCase() === 'default' || cat?.type?.toLowerCase() === 'default',
+		)?._id;
 
-		if (categoryFilter.includes(categoryId)) {
-			// Remove the category ID from the filter
-			updatedFilter = categoryFilter.filter((id) => id !== categoryId);
-		} else {
-			// Add the category ID to the filter
-			updatedFilter = [...categoryFilter, categoryId];
+		// If selecting Default category
+		if (categoryId === defaultCategory) {
+			// If Default is already selected, unselect it, otherwise select only Default
+			const updatedFilter = categoryFilter?.includes(defaultCategory)
+				? []
+				: [defaultCategory];
+			updateCalendarInfo('categoryFilter', updatedFilter);
+			return;
 		}
 
-		// Update the categoryFilter using the provided function
+		// If selecting a non-Default category
+		let updatedFilter;
+		if (categoryFilter?.includes(categoryId)) {
+			// Unselect the category if it's already selected
+			updatedFilter = categoryFilter?.filter((id) => id !== categoryId);
+		} else {
+			// Add the category and remove Default if it was selected
+			updatedFilter = [...categoryFilter?.filter((id) => id !== defaultCategory), categoryId];
+		}
+
 		updateCalendarInfo('categoryFilter', updatedFilter);
 	};
 
@@ -107,7 +121,7 @@ const CalendarCategories = ({
 			{info?.expanded && (
 				<div className="categoriesContainer">
 					{categoryList?.map((category) => {
-						const isChecked = categoryFilter.includes(category._id);
+						const isChecked = categoryFilter?.includes(category?._id);
 						return (
 							<div className="categoryTypeContainer" key={category?._id}>
 								<div className="typeWrapper">
@@ -116,12 +130,12 @@ const CalendarCategories = ({
 										className="checkBox"
 										id={`${category?.name}-checkbox`}
 										checked={isChecked}
-										onChange={() => handleCheckboxChange(category._id)}
+										onChange={() => handleCheckboxChange(category?._id)}
 										aria-checked={isChecked}
-										aria-label={`${category.name} category`}
+										aria-label={`${category?.name} category`}
 									/>
 									<label
-										htmlFor={`${category.name}-checkbox`}
+										htmlFor={`${category?.name}-checkbox`}
 										className="typeLabel"
 									>
 										{category?.name}
