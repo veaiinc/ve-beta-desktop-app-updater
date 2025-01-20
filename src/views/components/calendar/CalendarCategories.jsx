@@ -76,9 +76,9 @@ const CalendarCategories = ({
 
 		// If selecting Default category
 		if (categoryId === defaultCategory) {
-			// If Default is already selected, unselect it, otherwise select only Default
+			// If Default is already selected, keep it selected, otherwise select only Default
 			const updatedFilter = categoryFilter?.includes(defaultCategory)
-				? []
+				? [defaultCategory]
 				: [defaultCategory];
 			updateCalendarInfo('categoryFilter', updatedFilter);
 			return;
@@ -89,6 +89,10 @@ const CalendarCategories = ({
 		if (categoryFilter?.includes(categoryId)) {
 			// Unselect the category if it's already selected
 			updatedFilter = categoryFilter?.filter((id) => id !== categoryId);
+			// If this would result in an empty filter, select the default category
+			if (updatedFilter.length === 0) {
+				updatedFilter = [defaultCategory];
+			}
 		} else {
 			// Add the category and remove Default if it was selected
 			updatedFilter = [...categoryFilter?.filter((id) => id !== defaultCategory), categoryId];
