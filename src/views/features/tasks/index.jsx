@@ -13,6 +13,7 @@ import { message } from 'antd';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
+import BoardView from '../../components/tasks/views/BoardView';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -725,6 +726,21 @@ const Tasks = () => {
 				colors={colors}
 				fetchMoreData={fetchMoreData}
 			/>
+
+			{/* <BoardView
+				info={info}
+				updateListViewInfo={updateListViewInfo}
+				resetSubTasks={resetSubTasks}
+				updatePropertyValue={updatePropertyValue}
+				deleteTask={deleteTask}
+				addNewTask={addNewTask}
+				responseMetadata={responseMetadata}
+				fetchListItems={fetchListItems}
+				addButtonOnClick={handleAddButtonOnClick}
+				haveSubTask={true}
+				colors={colors}
+				fetchMoreData={fetchMoreData}
+			/> */}
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
 				closeModal={handleCloseCreateModal}
