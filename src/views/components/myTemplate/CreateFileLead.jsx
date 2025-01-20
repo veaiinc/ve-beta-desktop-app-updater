@@ -364,7 +364,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 								onChangeFunc={(e) => onChangeSelectedSource(e)}
 								dropDownTextStyling={{
 									color: 'var(--nav-bar-button-text, #FFF)',
-									fontFamily: 'Inter',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '12px',
 									fontStyle: 'normal',
 									fontWeight: '400',
@@ -391,7 +391,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 									display: 'flex',
 									alignItems: 'center',
 									fontSize: '12px',
-									fontFamily: 'Inter',
+									fontFamily: 'var(--primary-font-family)',
 									fontWeight: '500',
 								}}
 							>
@@ -427,7 +427,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 								onChangeFunc={(e) => onChangeClientLists(e)}
 								dropDownTextStyling={{
 									color: 'var(--nav-bar-button-text, #FFF)',
-									fontFamily: 'Inter',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '12px',
 									fontStyle: 'normal',
 									fontWeight: '400',
@@ -454,7 +454,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 									display: 'flex',
 									alignItems: 'center',
 									fontSize: '12px',
-									fontFamily: 'Inter',
+									fontFamily: 'var(--primary-font-family)',
 									fontWeight: '500',
 								}}
 							>

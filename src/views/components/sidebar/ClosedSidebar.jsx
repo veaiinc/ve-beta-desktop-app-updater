@@ -298,7 +298,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 												gap: '12px',
 												fontSize: '14px',
 												fontWeight: '500',
-												fontFamily: 'Inter',
+												fontFamily: 'var(--primary-font-family)',
 												fontStyle: 'normal',
 												// lineHeight: '20px',
 											}}
@@ -368,7 +368,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 												style={{
 													textTransform: 'capitalize',
 													fontSize: '20px',
-													fontFamily: 'Inter',
+													fontFamily: 'var(--primary-font-family)',
 													fontWeight: '500',
 													color: 'white',
 												}}
@@ -400,7 +400,8 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 															<div
 																style={{
 																	color: '#939393',
-																	fontFamily: 'Inter',
+																	fontFamily:
+																		'var(--primary-font-family)',
 																	fontSize: '13px',
 																	fontStyle: 'normal',
 																	fontWeight: '500',
@@ -420,7 +421,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 														borderRadius: '10px',
 														fontSize: '13px',
 														fontWeight: '500',
-														fontFamily: 'Inter',
+														fontFamily: 'var(--primary-font-family)',
 														fontStyle: 'normal',
 														lineHeight: 'normal',
 														background: '#E8E8E8',
@@ -549,7 +550,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 											// width: '80px',
 											fontSize: '14px',
 											fontWeight: '500',
-											fontFamily: 'Inter',
+											fontFamily: 'var(--primary-font-family)',
 											fontStyle: 'normal',
 											background: '#E8E8E8',
 											color: '#202123',
@@ -673,7 +674,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 											borderRadius: '10px',
 											fontSize: '14px',
 											fontWeight: '500',
-											fontFamily: 'Inter',
+											fontFamily: 'var(--primary-font-family)',
 											fontStyle: 'normal',
 											background: '#E8E8E8',
 											color: '#202123',

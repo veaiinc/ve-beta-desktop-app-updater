@@ -32,7 +32,7 @@
 			.login-button {
 				padding: 16px 0 16px;
 				color: #f2f2f3;
-				font-family: Manrope;
+				font-family: var(--secondary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 600;
@@ -95,7 +95,7 @@
 
 				.heading {
 					color: #fff;
-					font-family: Manrope;
+					font-family: var(--secondary-font-family);
 					font-size: 45px;
 					font-style: normal;
 					font-weight: 600;
@@ -104,7 +104,7 @@
 
 				.description {
 					color: #7a7e85;
-					font-family: Manrope;
+					font-family: var(--secondary-font-family);
 					font-size: 20px;
 					font-style: normal;
 					font-weight: 400;
@@ -132,7 +132,7 @@
 						justify-content: center;
 						gap: 8px;
 						color: #000;
-						font-family: Manrope;
+						font-family: var(--secondary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -149,7 +149,7 @@
 						background: transparent;
 						border: 1px solid #2c2d2e;
 						color: #e8e8e8;
-						font-family: Manrope;
+						font-family: var(--secondary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -226,7 +226,7 @@
 
 				.integration-title {
 					color: #797e86;
-					font-family: Manrope;
+					font-family: var(--secondary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -235,7 +235,7 @@
 
 				.integration-heading {
 					color: #f2f2f3;
-					font-family: Manrope;
+					font-family: var(--secondary-font-family);
 					font-size: 45px;
 					font-style: normal;
 					font-weight: 600;
@@ -244,7 +244,7 @@
 
 				.integration-description {
 					color: #797e86;
-					font-family: Manrope;
+					font-family: var(--secondary-font-family);
 					font-size: 18px;
 					font-style: normal;
 					font-weight: 400;
@@ -258,7 +258,7 @@
 				background: #f2f2f3;
 				border: none;
 				color: #202123;
-				font-family: Manrope;
+				font-family: var(--secondary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -318,7 +318,7 @@
 			.title {
 				color: #f2f2f3;
 				text-align: center;
-				font-family: Manrope;
+				font-family: var(--secondary-font-family);
 				font-size: 40px;
 				font-style: normal;
 				font-weight: 600;
@@ -330,7 +330,7 @@
 			.subtitle {
 				color: #797e86;
 				text-align: center;
-				font-family: Manrope;
+				font-family: var(--secondary-font-family);
 				font-size: 20px;
 				font-style: normal;
 				font-weight: 400;
@@ -343,7 +343,7 @@
 				background: #f2f2f3;
 				border: none;
 				color: #202123;
-				font-family: Manrope;
+				font-family: var(--secondary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -405,7 +405,7 @@
 
 			.title {
 				color: #f2f2f3;
-				font-family: Manrope;
+				font-family: var(--secondary-font-family);
 				font-size: 50px;
 				font-style: normal;
 				font-weight: 600;
@@ -414,7 +414,7 @@
 
 			.get-demo-btn {
 				color: #3d3f43;
-				font-family: Manrope;
+				font-family: var(--secondary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -444,7 +444,7 @@
 
 				.description {
 					color: #797e86;
-					font-family: Manrope;
+					font-family: var(--secondary-font-family);
 					font-size: 20px;
 					font-style: normal;
 					font-weight: 400;
@@ -460,7 +460,7 @@
 
 					.subscribed-text {
 						color: #797e86;
-						font-family: Manrope;
+						font-family: var(--secondary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -474,7 +474,7 @@
 						border-bottom: 1px solid #797e86;
 						padding: 14px 0;
 						color: #f2f2f3;
-						font-family: Manrope;
+						font-family: var(--secondary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 500;
@@ -486,7 +486,7 @@
 
 						&::placeholder {
 							color: #797e86;
-							font-family: Manrope;
+							font-family: var(--secondary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -525,7 +525,7 @@
 
 				.title {
 					color: #f2f2f3;
-					font-family: Manrope;
+					font-family: var(--secondary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 600;
@@ -535,7 +535,7 @@
 
 				.list-item {
 					color: #797e86;
-					font-family: Manrope;
+					font-family: var(--secondary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -576,7 +576,7 @@
 				align-items: center;
 				gap: 4px;
 				color: #797e86;
-				font-family: Manrope;
+				font-family: var(--secondary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -602,7 +602,7 @@
 				top: -36px;
 				right: 0;
 				color: #797e86;
-				font-family: Manrope;
+				font-family: var(--secondary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -747,7 +747,7 @@
 				.title {
 					color: #f2f2f3;
 					text-align: center;
-					font-family: Manrope;
+					font-family: var(--secondary-font-family);
 					font-size: 32px !important;
 					font-style: normal;
 					font-weight: 500 !important;
@@ -758,7 +758,7 @@
 				.subtitle {
 					color: #797e86;
 					text-align: center;
-					font-family: Manrope;
+					font-family: var(--secondary-font-family);
 					font-size: 20px !important;
 					font-style: normal;
 					font-weight: 400 !important;

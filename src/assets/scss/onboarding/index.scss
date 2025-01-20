@@ -16,7 +16,7 @@
 
 		.step8 {
 			color: #fff;
-			font-family: Brasley;
+			font-family: var(--secondary-font-family);
 			font-size: 24px;
 			font-style: normal;
 			font-weight: 500;
@@ -50,7 +50,7 @@
 		.invited-onborading {
 			.otp-message {
 				color: rgba(255, 255, 255, 0.6);
-				font-family: Brasley;
+				font-family: var(--secondary-font-family);
 				font-size: 14px !important;
 				font-style: normal;
 				font-weight: 400;
@@ -61,7 +61,7 @@
 			}
 			h1 {
 				color: #fff;
-				font-family: Brasley;
+				font-family: var(--secondary-font-family);
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
@@ -70,7 +70,7 @@
 
 			h2 {
 				color: rgba(255, 255, 255, 0.6);
-				font-family: Brasley;
+				font-family: var(--secondary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
@@ -96,7 +96,7 @@
 			.step4,
 			.step5 {
 				color: #fff;
-				font-family: Brasley;
+				font-family: var(--secondary-font-family);
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
@@ -105,7 +105,7 @@
 			.step3 h2 {
 				padding: 24px 36px;
 				color: rgba(255, 255, 255, 0.6);
-				font-family: Brasley;
+				font-family: var(--secondary-font-family);
 				font-size: 32px;
 				font-style: normal;
 				font-weight: 400;
@@ -117,7 +117,7 @@
 			.step7 {
 				h1 {
 					color: #fff;
-					font-family: Brasley;
+					font-family: var(--secondary-font-family);
 					font-size: 32px;
 					font-style: normal;
 					font-weight: 500;
@@ -127,7 +127,7 @@
 				h2 {
 					margin-top: 32px;
 					color: rgba(255, 255, 255, 0.5);
-					font-family: Brasley;
+					font-family: var(--secondary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -160,7 +160,7 @@
 						position: absolute;
 						top: -24px;
 						color: #ff7070;
-						font-family: Brasley;
+						font-family: var(--secondary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -198,7 +198,7 @@
 
 				.resendCode {
 					color: rgba(255, 255, 255, 0.5);
-					font-family: Brasley;
+					font-family: var(--secondary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -209,7 +209,7 @@
 
 			.workspace-handle-text {
 				color: rgba(255, 255, 255, 0.5);
-				font-family: Brasley;
+				font-family: var(--secondary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
@@ -321,7 +321,7 @@
 				input.workspace-handle-name-input {
 					text-transform: lowercase;
 					color: #fff;
-					font-family: Brasley;
+					font-family: var(--secondary-font-family);
 					font-size: 16px;
 					font-weight: 400;
 					text-transform: lowercase;
@@ -339,7 +339,7 @@
 					transform: translateY(-50%);
 					color: rgba(255, 255, 255, 0.5);
 					font-size: 12px;
-					font-family: Brasley;
+					font-family: var(--secondary-font-family);
 					font-weight: 400;
 					pointer-events: none;
 				}
@@ -369,7 +369,7 @@
 
 					h1 {
 						color: #fff;
-						font-family: Brasley;
+						font-family: var(--secondary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -416,7 +416,7 @@
 							font-weight: 400;
 							text-transform: capitalize;
 							color: #fff;
-							font-family: Brasley;
+							font-family: var(--secondary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							line-height: normal;

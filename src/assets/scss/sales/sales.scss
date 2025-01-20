@@ -196,7 +196,7 @@
 						text-transform: capitalize;
 						.agentsWorkflowJobCardsSubTitle {
 							color: var(--secondary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 400;

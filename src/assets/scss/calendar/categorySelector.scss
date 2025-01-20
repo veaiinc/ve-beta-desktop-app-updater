@@ -29,7 +29,7 @@
 		.ant-select-selection-placeholder,
 		.ant-select-selection-item {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -55,7 +55,7 @@
 
 		.ant-select-item {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;

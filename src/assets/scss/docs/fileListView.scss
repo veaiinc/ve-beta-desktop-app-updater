@@ -66,7 +66,7 @@
 					background: color(display-p3 0.9098 0.9098 0.9098);
 					transition: all 0.3s ease;
 
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -139,7 +139,7 @@
 								--ve-ai-dark-theme-secondary-color,
 								color(display-p3 0.5755 0.5755 0.5755)
 							);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 500;
@@ -159,7 +159,7 @@
 							);
 
 							/* Body/Body - 12 px */
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -206,7 +206,7 @@
 							--ve-ai-dark-theme-secondary-color,
 							color(display-p3 0.5755 0.5755 0.5755)
 						);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 500;
@@ -252,7 +252,7 @@
 				color: #e8e8e8;
 				color: color(display-p3 0.9098 0.9098 0.9098);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -275,7 +275,7 @@
 
 			color: var(--Primary-Font, #f2f2f3);
 			color: var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -375,7 +375,7 @@
 		color: var(--Primary-Font, #f2f2f3);
 		color: var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
 		text-align: center;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;

@@ -55,7 +55,7 @@
 
 			.eventTitle {
 				color: var(--primary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
@@ -101,7 +101,7 @@
 
 				.eventKey {
 					color: rgba(var(--primary-font), 0.48);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -112,7 +112,7 @@
 				.eventValue {
 					color: var(--primary-font);
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -174,7 +174,7 @@
 			gap: 5px;
 			cursor: pointer;
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 10px;
 			font-weight: 500;
 			opacity: 0.7;

@@ -30,14 +30,14 @@
 	src: url('Manrope-Medium.ttf') format('truetype');
 }
 @font-face {
-	font-family: 'manrope';
+	font-family: 'Manrope';
 	font-style: normal;
 	font-weight: 700;
 	font-display: swap;
 	src: url('Manrope-Regular.ttf') format('truetype');
 }
 @font-face {
-	font-family: 'Brasley';
+	font-family: 'Manrope';
 	font-style: normal;
 	font-weight: 900;
 	font-display: swap;
