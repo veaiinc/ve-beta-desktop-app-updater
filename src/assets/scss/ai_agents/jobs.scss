@@ -14,7 +14,7 @@
 
 		.aiAgentsJobsTitle {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 24px;
 			font-style: normal;
 			font-weight: 500;
@@ -42,7 +42,7 @@
 					flex: 1;
 					background-color: transparent;
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;

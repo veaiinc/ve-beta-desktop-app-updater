@@ -14,7 +14,7 @@
 
 		.agentsSetupHeaderText {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 24px;
 			font-style: normal;
 			font-weight: 500;
@@ -43,7 +43,7 @@
 				align-items: center;
 				gap: 8px;
 				color: var(--primary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 20px;
 				font-style: normal;
 				font-weight: 500;
@@ -61,7 +61,7 @@
 				border: 1px solid #333334;
 				border: 1px solid color(display-p3 0.2 0.2 0.2039);
 				color: var(--primary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
