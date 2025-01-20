@@ -93,46 +93,67 @@
 		}
 	}
 
-	.createTasksUi {
+	.createTaskUiContainer {
 		display: flex;
-		padding: 12px 24px;
 		flex-direction: column;
-		justify-content: flex-start;
-		align-items: flex-start;
-		gap: 16px;
-		align-self: stretch;
 		flex: 1;
-
-		.createTasksHeadingContainer {
+		.createTasksUi {
 			display: flex;
+			padding: 12px 24px;
+			flex-direction: column;
+			justify-content: flex-start;
+			align-items: flex-start;
+			gap: 16px;
 			align-self: stretch;
-			.createHeadingLabelContainer {
+			flex: 1;
+
+			.createTasksHeadingContainer {
 				display: flex;
-				align-items: center;
-				gap: 12px;
 				align-self: stretch;
-				flex: 1;
-
-				.createTaskHeadingLabel {
+				.createHeadingLabelContainer {
 					display: flex;
-					flex-direction: column;
-					align-items: flex-start;
-					gap: 2px;
-					flex: 1 0 0;
+					align-items: center;
+					gap: 12px;
+					align-self: stretch;
+					flex: 1;
 
-					.actionsCreateHeader {
-						color: #797e86;
-						color: color(display-p3 0.4784 0.4941 0.5216);
+					.createTaskHeadingLabel {
+						display: flex;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: 2px;
+						flex: 1 0 0;
 
-						/* Body/Body - 12 px */
-						font-family: Inter;
-						font-size: 12px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
+						.actionsCreateHeader {
+							color: #797e86;
+							color: color(display-p3 0.4784 0.4941 0.5216);
+
+							/* Body/Body - 12 px */
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+
+						.createTaskHeading {
+							color: #f2f2f3;
+							color: color(display-p3 0.949 0.949 0.9529);
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
 					}
-
-					.createTaskHeading {
+					.changeActionStageButton {
+						display: flex;
+						padding: 6px 8px;
+						align-items: center;
+						gap: 12px;
+						border-radius: 6px;
+						background: #202123;
+						background: color(display-p3 0.1249 0.1304 0.1358);
 						color: #f2f2f3;
 						color: color(display-p3 0.949 0.949 0.9529);
 						font-family: Inter;
@@ -140,61 +161,60 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+						cursor: pointer;
 					}
 				}
-				.changeActionStageButton {
-					display: flex;
-					padding: 6px 8px;
-					align-items: center;
-					gap: 12px;
-					border-radius: 6px;
-					background: #202123;
-					background: color(display-p3 0.1249 0.1304 0.1358);
+			}
+
+			.addTaskTitleContainer {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+
+				.addTaskTitleTextStyle {
 					color: #f2f2f3;
 					color: color(display-p3 0.949 0.949 0.9529);
 					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
-					font-weight: 500;
+					font-weight: 600;
 					line-height: normal;
-					cursor: pointer;
+				}
+				.addTaskTitleTextArea {
+					height: 50px;
+					width: 100%;
+					background-color: transparent;
+					outline: none;
+					resize: none;
+					border: none;
+					border-bottom: 2px solid #2c2d2e;
+
+					color: #797e86;
+					color: color(display-p3 0.4784 0.4941 0.5216);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
 				}
 			}
 		}
-
-		.addTaskTitleContainer {
+		.actionsSaveButton {
 			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 8px;
-			align-self: stretch;
-
-			.addTaskTitleTextStyle {
-				color: #f2f2f3;
-				color: color(display-p3 0.949 0.949 0.9529);
-				font-family: Inter;
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 600;
-				line-height: normal;
-			}
-			.addTaskTitleTextArea {
-				height: 50px;
-				width: 100%;
-				background-color: transparent;
-				outline: none;
-				resize: none;
-				border: none;
-				border-bottom: 2px solid #2c2d2e;
-
-				color: #797e86;
-				color: color(display-p3 0.4784 0.4941 0.5216);
-				font-family: Inter;
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: normal;
-			}
+			padding: 12px;
+			background-color: #202123;
+			justify-content: center;
+			align-items: center;
+			cursor: pointer;
+			color: #f2f2f3;
+			color: color(display-p3 0.949 0.949 0.9529);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
 		}
 	}
 }

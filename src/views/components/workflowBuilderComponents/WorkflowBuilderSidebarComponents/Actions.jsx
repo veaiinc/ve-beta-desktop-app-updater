@@ -13,7 +13,7 @@ const Actions = ({ onCLose }) => {
 		search: '',
 		list: Object.values(actionsList),
 		searchChanged: false,
-		activeStage: 'stage2', //stage1, stage2, stage3
+		activeStage: 'stage1', //stage1, stage2, stage3
 	});
 
 	useEffect(() => {
@@ -37,10 +37,15 @@ const Actions = ({ onCLose }) => {
 		setInfo((prev) => ({ ...prev, timeout }));
 	}, [info?.timeout, info?.search]);
 
+	const changeStage = useCallback((data = {}) => {
+		setInfo((prev) => ({ ...prev, ...data }));
+	}, []);
+
 	const stageMapper = useMemo(() => {
 		return {
-			stage1: <Stage1 info={info} handleSearch={handleSearch} />,
-			stage2: <Stage2 />,
+			stage1: <Stage1 info={info} handleSearch={handleSearch} changeStage={changeStage} />,
+			stage2: <Stage2 changeStage={changeStage} info={info} />,
+			stage3: <Stage3 changeStage={changeStage} info={info} />,
 		};
 	}, [info, handleSearch]);
 
@@ -58,7 +63,15 @@ const Actions = ({ onCLose }) => {
 
 export default memo(Actions);
 
-const Stage1 = ({ info, handleSearch }) => {
+const Stage1 = ({ info, handleSearch, changeStage }) => {
+	const actionListOnClick = useCallback((data) => {
+		if (data?.title === 'Create Tasks') {
+			changeStage({ activeStage: 'stage2' });
+		}
+		if (data?.title === 'Create Meeting') {
+			changeStage({ activeStage: 'stage3' });
+		}
+	}, []);
 	return (
 		<>
 			<div className="actionSideBarSearchbarContainer">
@@ -77,7 +90,11 @@ const Stage1 = ({ info, handleSearch }) => {
 
 			<div className="actionsListContainer">
 				{info?.list?.map((ele, index) => (
-					<div className="actionListItem" key={index}>
+					<div
+						className="actionListItem"
+						key={index}
+						onClick={() => actionListOnClick(ele)}
+					>
 						{ele?.title}
 					</div>
 				))}
@@ -86,24 +103,65 @@ const Stage1 = ({ info, handleSearch }) => {
 	);
 };
 
-const Stage2 = () => {
+const Stage2 = ({ info, changeStage }) => {
 	return (
-		<div className="createTasksUi">
-			<div className="createTasksHeadingContainer">
-				<div className="createHeadingLabelContainer">
-					<div className="createTaskHeadingLabel">
-						<span className="actionsCreateHeader">Actions</span>
-						<span className="createTaskHeading">Create Tasks</span>
+		<div className="createTaskUiContainer">
+			<div className="createTasksUi">
+				<div className="createTasksHeadingContainer">
+					<div className="createHeadingLabelContainer">
+						<div className="createTaskHeadingLabel">
+							<span className="actionsCreateHeader">Actions</span>
+							<span className="createTaskHeading">Create Tasks</span>
+						</div>
+						<div
+							className="changeActionStageButton"
+							onClick={() => changeStage({ activeStage: 'stage1' })}
+						>
+							Change
+						</div>
 					</div>
-					<div className="changeActionStageButton">Change</div>
+				</div>
+
+				{/* //task title */}
+				<div className="addTaskTitleContainer">
+					<span className="addTaskTitleTextStyle">Add Task Title</span>
+					<textarea className="addTaskTitleTextArea" placeholder="Add Task Title ...." />
 				</div>
 			</div>
+			<div className="actionsSaveButton">Save</div>
+		</div>
+	);
+};
 
-			{/* //task title */}
-			<div className="addTaskTitleContainer">
-				<span className="addTaskTitleTextStyle">Add Task Title</span>
-				<textarea className="addTaskTitleTextArea" placeholder="Add Task Title ...." />
+const Stage3 = ({ info, changeStage }) => {
+	return (
+		<div className="createTaskUiContainer">
+			<div className="createTasksUi">
+				<div className="createTasksHeadingContainer">
+					<div className="createHeadingLabelContainer">
+						<div className="createTaskHeadingLabel">
+							<span className="actionsCreateHeader">Actions</span>
+							<span className="createTaskHeading">Create Meeting</span>
+						</div>
+						<div
+							className="changeActionStageButton"
+							onClick={() => changeStage({ activeStage: 'stage1' })}
+						>
+							Change
+						</div>
+					</div>
+				</div>
+
+				{/* //task title */}
+				<div className="addTaskTitleContainer">
+					<span className="addTaskTitleTextStyle">Add Meeting Title</span>
+					<textarea
+						className="addTaskTitleTextArea"
+						placeholder="Add Meeting Title ...."
+					/>
+				</div>
 			</div>
+			<div className="actionsSaveButton">Save</div>
 		</div>
 	);
 };
