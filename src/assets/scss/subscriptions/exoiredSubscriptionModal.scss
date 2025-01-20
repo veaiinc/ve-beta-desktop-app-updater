@@ -13,7 +13,7 @@
 		align-self: stretch;
 		.expiredModalHeaderText {
 			color: var(--Dark-Theme-Primary-Font-Color, #e8e8e8);
-			font-family: Brasley;
+			font-family: var(--secondary-font-family);
 			font-size: 32px;
 			font-style: normal;
 			font-weight: 500;

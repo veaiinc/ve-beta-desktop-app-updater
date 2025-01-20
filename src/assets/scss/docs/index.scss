@@ -27,7 +27,7 @@
 			.docsHeaderButtonsTitle {
 				color: #e4e5e6;
 				color: color(display-p3 0.8941 0.898 0.902);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 600;
@@ -37,7 +37,7 @@
 				color: #e4e5e6;
 				color: color(display-p3 0.8941 0.898 0.902);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -46,7 +46,7 @@
 			.docsHeaderSubButtonsSubTitle {
 				color: rgba(228, 229, 230, 0.48);
 				color: color(display-p3 0.8941 0.898 0.902 / 0.48);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -74,7 +74,7 @@
 			align-self: stretch;
 			color: #fff;
 			color: color(display-p3 1 1 1);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -88,7 +88,7 @@
 				border-radius: 8px;
 				color: #eee;
 				color: color(display-p3 0.9319 0.9319 0.9319);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -118,7 +118,7 @@
 				.createStaticActionsCardsTitle {
 					color: var(--Primary-Font, #f2f2f3);
 					color: var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -128,7 +128,7 @@
 				.createStaticActionsCardsSubTitle {
 					color: var(--Secondary-Font, #787e87);
 					color: var(--Secondary-Font, color(display-p3 0.4784 0.4941 0.5216));
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -180,7 +180,7 @@
 							.docsHoverOptionsStyling {
 								color: #fff;
 								color: color(display-p3 1 1 1);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 500;
@@ -227,7 +227,7 @@
 					.docsFooterContentTitle {
 						color: #e4e5e6;
 						color: color(display-p3 0.8941 0.898 0.902);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -236,7 +236,7 @@
 					.docsFooterContentSubTitle {
 						color: #e4e5e6;
 						color: color(display-p3 0.8941 0.898 0.902);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -272,7 +272,7 @@
 
 				color: #e8e8e8;
 				color: color(display-p3 0.9098 0.9098 0.9098);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 24px;
 				font-style: normal;
 				font-weight: 500;
@@ -296,7 +296,7 @@
 						border: 1px solid rgba(98, 84, 245, 0.09);
 						background: rgba(82, 128, 255, 0.05);
 						color: #6254f5;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -335,7 +335,7 @@
 						.templateName {
 							color: #e4e5e6;
 							color: color(display-p3 0.8941 0.898 0.902);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -392,7 +392,7 @@
 								color: #e4e5e6;
 								transition: all 0.3s ease;
 								border: none;
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 400;
@@ -400,7 +400,7 @@
 
 								&::placeholder {
 									color: #939393;
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 13px;
 									font-style: normal;
 									font-weight: 400;
@@ -458,7 +458,7 @@
 					color(display-p3 0.9098 0.9098 0.9098)
 				);
 				text-overflow: ellipsis;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -474,7 +474,7 @@
 				.docsclientdetailsName {
 					color: #e8e8e8;
 					color: color(display-p3 0.9098 0.9098 0.9098);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;
@@ -501,7 +501,7 @@
 						color: #e8e8e8;
 						color: color(display-p3 0.9098 0.9098 0.9098);
 						text-align: center;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;

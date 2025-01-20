@@ -41,7 +41,7 @@
 				.option-heading {
 					color: #939393;
 					color: color(display-p3 0.5755 0.5755 0.5755);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -73,7 +73,7 @@
 				color: #f2f2f3;
 				color: color(display-p3 0.949 0.949 0.9529);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -111,7 +111,7 @@
 		color: #e8e8e8;
 		color: color(display-p3 0.9098 0.9098 0.9098);
 		text-align: center;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
