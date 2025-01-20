@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import '../../../assets/scss/workflowBuilder/customNodes.scss';
 import { ReactComponent as Form } from '../../../assets/svg/worflow_builder/customNodes/form.svg';
 import { ReactComponent as Action } from '../../../assets/svg/worflow_builder/customNodes/actionSvg.svg';
 import { ReactComponent as IfElse } from '../../../assets/svg/worflow_builder/customNodes/ifelse.svg';
 export const TriggerNode = ({ data }) => {
+	const onAddOptionsClick = useCallback(() => {
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({ toolBarOpen: true, sidebarType: 'trigger' });
+		}
+	}, []);
 	return (
-		<div className="custom-node trigger-node">
+		<div className="custom-node trigger-node" onClick={onAddOptionsClick}>
 			<div className="trigger-extra-div">
 				<span>Trigger</span>
 			</div>

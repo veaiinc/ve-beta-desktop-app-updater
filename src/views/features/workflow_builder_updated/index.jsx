@@ -20,111 +20,6 @@ import CustomEdges from '../../components/workflowBuilderComponents/CustomEdges'
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import BuilderToolbar from '../../components/workflowBuilderComponents/BuilderToolbar';
 
-// const mockSteps = [
-// 	{
-// 		criteria: {
-// 			status: 'enquiry',
-// 		},
-// 		module: 'form',
-// 		order: 1,
-// 		_id: '6687fcc3608c200da04032b0',
-// 		nextStepId: '66c464100d2024cacd650d98',
-// 		nextStepType: 'action',
-// 		type: 'start-step',
-// 	},
-// 	{
-// 		criteria: {
-// 			status: 'enquiry',
-// 		},
-// 		_id: '66c464100d2024cacd650d98',
-// 		module: 'form',
-// 		sendAt: null,
-// 		type: 'action',
-// 		actionType: 'notification',
-// 		channels: ['email'],
-// 		isEnabled: true,
-// 		emailTemplateId: '67810cc53bd285ce4553490e',
-// 		emailTemplateTitle: 'Form Response Mail',
-// 		emailTemplateSubject: 'Thank You for Your Enquiry',
-// 		nextStepId: '66c464100d2024cacd650dcc',
-// 		nextStepType: 'condition',
-// 		order: 2,
-// 	},
-// 	{
-// 		criteria: {
-// 			status: 'proposalAccepted',
-// 		},
-// 		_id: '66c464100d2024cacd650dcc',
-// 		module: 'proposal',
-// 		sendAt: null,
-// 		type: 'condition',
-// 		isEnabled: true,
-// 		ifYes: {
-// 			nextStepId: '66c46cb60d2024cacd650d9e',
-// 			nextStepType: 'action',
-// 		},
-// 		ifNo: {
-// 			nextStepId: '66c46ccd0d2024cacd650da0',
-// 			nextStepType: 'action',
-// 		},
-// 		order: 3,
-// 	},
-// 	{
-// 		criteria: {
-// 			status: 'confirmed',
-// 		},
-// 		_id: '66c46cc50d2024cacd650d9f',
-// 		module: 'contract',
-// 		sendAt: null,
-// 		type: 'action',
-// 		actionType: 'notification',
-// 		channels: ['email'],
-// 		isEnabled: true,
-// 		emailTemplateId: '67810cc53bd285ce4553490f',
-// 		emailTemplateTitle: 'All Signed',
-// 		emailTemplateSubject: "Project Confirmation: We're Ready to Capture Your Big Day!",
-// 		nextStepId: null,
-// 		nextStepType: null,
-// 		order: 4,
-// 	},
-// 	{
-// 		criteria: {
-// 			status: 'contractSigned',
-// 		},
-// 		_id: '66c46cb60d2024cacd650d9e',
-// 		module: 'contract',
-// 		sendAt: null,
-// 		actionType: 'notification',
-// 		channels: ['email'],
-// 		type: 'action',
-// 		isEnabled: true,
-// 		emailTemplateId: '67810cc53bd285ce45534910',
-// 		emailTemplateTitle: 'Signed Contract',
-// 		emailTemplateSubject: 'Confirmation of Signed Contract',
-// 		nextStepId: '66c46cc50d2024cacd650d9f',
-// 		nextStepType: 'action',
-// 		order: 5,
-// 	},
-// 	{
-// 		criteria: {
-// 			status: 'filesSent',
-// 		},
-// 		_id: '66c46ccd0d2024cacd650da0',
-// 		module: 'proposal',
-// 		actionType: 'notification',
-// 		channels: ['email'],
-// 		isEnabled: true,
-// 		sendAt: 259200,
-// 		type: 'action',
-// 		emailTemplateId: '67810cc53bd285ce45534911',
-// 		emailTemplateTitle: 'Unaccepted Proposals',
-// 		emailTemplateSubject: "Don't Miss Out: Your Proposal Awaits!",
-// 		nextStepId: null,
-// 		nextStepType: null,
-// 		order: 6,
-// 	},
-// ];
-
 // Define node types
 const nodeTypes = {
 	'start-step': TriggerNode,
@@ -244,6 +139,7 @@ const WorkflowBuilderUpdated = () => {
 					...currentStep,
 				},
 				type: currentStep?.type, // This will map to our custom nodes
+				data: { onToolBarOpen: handleToolBarOpen },
 			});
 
 			stepsMapper[stepId].nodesMapped = true;

@@ -11,6 +11,7 @@ const BuilderToolbar = ({ open, onCLose, sidebarType }) => {
 			conditions: <Conditions onCLose={onCLose} />,
 			notifications: <Notification onCLose={onCLose} />,
 			pipeline: <Actions onCLose={onCLose} />,
+			trigger: <Actions onCLose={onCLose} />,
 		};
 	}, [sidebarType, onCLose]);
 
