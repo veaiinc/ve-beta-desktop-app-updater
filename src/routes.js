@@ -34,6 +34,7 @@ import AgentsJobs from './views/features/ai_agent/AgentsJobs';
 import AgentsSetup from './views/features/ai_agent/AgentsSetup';
 import Docs from './views/features/docs';
 import MyTemplates from './views/features/my_templates/MyTemplates';
+import HomePage from './views/features/home_page/HomePage';
 const routes = [
 	{
 		path: '/',
@@ -105,7 +106,7 @@ const routes = [
 		path: '/home',
 		component: (
 			<AuthWrapper title={'Home'}>
-				<Sales />
+				<HomePage />
 			</AuthWrapper>
 		),
 		exact: true,
