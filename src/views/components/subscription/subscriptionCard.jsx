@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import '../../../assets/scss/subscriptions/subscriptionsCard.scss';
 import { ReactComponent as Tasks } from '../../../assets/svg/subscription/tasks.svg';
 import { ReactComponent as Forms } from '../../../assets/svg/subscription/forms.svg';
@@ -10,32 +10,7 @@ import { ReactComponent as Proposals } from '../../../assets/svg/subscription/pr
 import { ReactComponent as Tick } from '../../../assets/svg/subscription/tick.svg';
 import Context from '../../../context/context';
 import { Spin } from 'antd';
-const data = [
-	{
-		icon: <Automation />,
-		title: 'Workflow Automation',
-	},
-	{
-		icon: <Forms />,
-		title: 'Forms',
-	},
-	{
-		icon: <Proposals />,
-		title: 'Proposal',
-	},
-	{
-		icon: <Invoices />,
-		title: 'Invoice',
-	},
-	{
-		icon: <Contracts />,
-		title: 'Contract',
-	},
-	{
-		icon: <Tasks />,
-		title: 'Tasks',
-	},
-];
+
 const SubscriptionCard = ({ planData, subscribedPlans }) => {
 	let {
 		subscriptionInfo: { createStripeCheckoutSession, coupons },
@@ -43,6 +18,19 @@ const SubscriptionCard = ({ planData, subscribedPlans }) => {
 	const [info, setInfo] = useState({
 		btnLoading: false,
 	});
+
+	const planBenefits = useMemo(() => {
+		const aiCredits = planData?.aiCreditsDetails?.aiCredits ?? null;
+		const numberOfUsers = planData?.numberOfUsers ?? null;
+		const veSoftware = planData?.crmDetails?.isWorkflowsEnabled ?? null;
+		return [
+			{ title: 'AI Credits: ', value: aiCredits },
+			{ title: 'Team Members: ', value: numberOfUsers },
+			{ title: 'VE Software ', value: veSoftware },
+		];
+	}, [planData]);
+
+	console.log(subscribedPlans?._id === planData?._id);
 
 	const onSelectPlan = useCallback(async () => {
 		if (info?.btnLoading) {
@@ -67,10 +55,10 @@ const SubscriptionCard = ({ planData, subscribedPlans }) => {
 		<div className="subscriptionCardContainer">
 			<div className="subscriptionCardHeaderContainer">
 				<div className="subscriptionHeaderContent">
-					<span className="subscriptionHeaderTitle">Purple pack</span>
-					<span className="subscriptionHeaderSubTitle">
-						Build and enhance your business with AI , Personalised guidance{' '}
-					</span>
+					<span className="subscriptionHeaderTitle">{planData?.plan}</span>
+					{planData?.description && (
+						<span className="subscriptionHeaderSubTitle">{planData?.description}</span>
+					)}
 				</div>
 				<div className="pricingContainer">
 					<span className="pricingText">
@@ -90,12 +78,16 @@ const SubscriptionCard = ({ planData, subscribedPlans }) => {
 				</div>
 			)}
 			<div className="subscriptionFooterContainer">
-				{data?.map((ele, index) => (
-					<div className="subscriptionfeaturesDiv" key={index}>
-						{ele?.icon}
-						<span className="featureTitle">{ele?.title}</span>
-					</div>
-				))}
+				<h1 className="planBenefitsTitle">Plan Benefits</h1>
+				{planBenefits?.map(
+					(benefit, index) =>
+						benefit?.value && (
+							<div className="subscriptionfeaturesDiv" key={index}>
+								<span className="featureTitle">{benefit?.title}</span>
+								<span className="featureValue">{benefit?.value}</span>
+							</div>
+						),
+				)}
 			</div>
 		</div>
 	);
