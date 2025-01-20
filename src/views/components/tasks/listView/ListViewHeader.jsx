@@ -39,6 +39,7 @@ const ListViewHeader = ({
 	handleEditPropertyChange,
 	colors,
 	createButtonText,
+	view,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -180,6 +181,7 @@ const ListViewHeader = ({
 						handleEditPropertyChange={handleEditPropertyChange}
 						responseMetadata={responseMetadata}
 						colors={colors}
+						view={view}
 					/>
 				</div>
 			</div>

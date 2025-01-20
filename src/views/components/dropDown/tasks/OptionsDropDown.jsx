@@ -7,8 +7,35 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/ta
 import { ReactComponent as ListSvg } from '../../../../assets/svg/tasks/listDotsAndLines.svg';
 import { ReactComponent as FolderSvg } from '../../../../assets/svg/tasks/folder.svg';
 import { ReactComponent as GridSvg } from '../../../../assets/svg/tasks/grid.svg';
+import { ReactComponent as BoardSvg } from '../../../../assets/svg/tasks/board.svg';
+import { ReactComponent as TableSvg } from '../../../../assets/svg/tasks/grid.svg';
+import { ReactComponent as BlocksSvg } from '../../../../assets/svg/tasks/blocks.svg';
 import PropertiesDropDown from './PropertiesDropDown';
 import GroupDropDown from './GroupDropDown';
+import LayoutDropDown from './LayoutDropDown';
+
+const layoutOptions = [
+	{
+		value: 'list',
+		label: 'List',
+		icon: <ListSvg />,
+	},
+	{
+		value: 'board',
+		label: 'Board',
+		icon: <BoardSvg />,
+	},
+	{
+		value: 'table',
+		label: 'Table',
+		icon: <TableSvg />,
+	},
+	{
+		value: 'gallery',
+		label: 'Gallery',
+		icon: <BlocksSvg />,
+	},
+];
 
 const OptionsDropDown = ({
 	properties,
@@ -17,10 +44,11 @@ const OptionsDropDown = ({
 	editingProperty,
 	handleEditPropertyChange,
 	colors,
+	view,
 }) => {
 	const [info, setInfo] = useState({
-		selected: null,
-		isOpen: false,
+		selected: 'layout',
+		isOpen: true,
 	});
 
 	useEffect(() => {
@@ -54,6 +82,13 @@ const OptionsDropDown = ({
 		setInfo((prev) => ({ ...prev, selected: null }));
 	}, []);
 
+	const handleLayoutChange = useCallback(
+		(option) => {
+			updateListViewInfo('view', option);
+		},
+		[updateListViewInfo],
+	);
+
 	const optionsMapper = useMemo(
 		() => ({
 			properties: (
@@ -75,6 +110,15 @@ const OptionsDropDown = ({
 					properties={properties}
 				/>
 			),
+			layout: (
+				<LayoutDropDown
+					handleBack={handleBack}
+					handleClose={handleClose}
+					handleLayoutChange={handleLayoutChange}
+					view={view}
+					layoutOptions={layoutOptions}
+				/>
+			),
 		}),
 		[
 			properties,
@@ -85,6 +129,8 @@ const OptionsDropDown = ({
 			colors,
 			handleClose,
 			handleBack,
+			handleLayoutChange,
+			view,
 		],
 	);
 
@@ -115,11 +161,18 @@ const OptionsDropDown = ({
 										<span className="view-details-listItem-label">Source</span>
 										<span className="view-details-listItem-value">Tasks</span>
 									</div>
-									<div className="view-details-listItem">
+									<div
+										className="view-details-listItem"
+										onClick={() => handleOptionChange('layout')}
+									>
 										<GridSvg />
 										<span className="view-details-listItem-label">Layout</span>
 										<span className="view-details-listItem-value">
-											List
+											{
+												layoutOptions.find(
+													(option) => option?.value === view,
+												)?.label
+											}
 											<ChevronRightThinSvg />
 										</span>
 									</div>

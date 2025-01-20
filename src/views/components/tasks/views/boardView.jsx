@@ -1,19 +1,8 @@
 import React, { memo, useState, useCallback } from 'react';
-import ListViewHeader from '../listView/ListViewHeader';
 import '../../../../assets/scss/tasks/boardView.scss';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-
-const BoardView = ({
-	updateListViewInfo,
-	info,
-	responseMetadata,
-	headerTitle = 'Tasks',
-	addButtonOnClick,
-	listViewState,
-	handleEditPropertyChange = () => {},
-	colors,
-	createButtonText = 'Create Task',
-}) => {
+import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';
+const BoardView = () => {
 	const [columns, setColumns] = useState([
 		{
 			id: 'column-1',
@@ -111,21 +100,6 @@ const BoardView = ({
 
 	return (
 		<div className="board-view">
-			<ListViewHeader
-				updateListViewInfo={updateListViewInfo}
-				properties={info?.properties}
-				taskPreferences={info?.taskPreferences}
-				sort={info?.sort}
-				filters={info?.filters}
-				searchValue={info?.searchValue}
-				responseMetadata={responseMetadata}
-				headerTitle={headerTitle}
-				addButtonOnClick={addButtonOnClick}
-				editingProperty={listViewState?.editingProperty}
-				handleEditPropertyChange={handleEditPropertyChange}
-				colors={colors}
-				createButtonText={createButtonText}
-			/>
 			<DragDropContext onDragEnd={handleDragEnd}>
 				<div className="board-view-container">
 					{columns.map((column) => (
@@ -168,6 +142,7 @@ const BoardView = ({
 										))}
 										{provided.placeholder}
 										<div className="board-view-item-add-card">
+											<PlusIcon />
 											<span className="board-view-item-add-card-text">
 												New Task
 											</span>

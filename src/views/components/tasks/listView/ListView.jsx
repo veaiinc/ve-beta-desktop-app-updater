@@ -23,6 +23,7 @@ import Skeleton from 'react-loading-skeleton';
 import ParentTaskComponent from './ParentTaskComponent';
 import ChildTaskProgress from './ChildTaskProgress';
 import LinkText from './LinkText';
+import BoardView from '../views/BoardView';
 
 const rowTypes = {
 	text: Text,
@@ -130,55 +131,56 @@ const ListView = ({
 				handleEditPropertyChange={handleEditPropertyChange}
 				colors={colors}
 				createButtonText={createButtonText}
+				view={info?.view}
 			/>
-			<div className="listContainer">
-				<div className="listInnerContainer">
-					{info?.loadingSkeleton ? (
-						generateSkeleton()
-					) : info?.error ? (
-						<span style={{ color: '#ff9b9b', margin: '10px auto' }}>{info?.error}</span>
-					) : info?.listItems?.length !== 0 ? (
-						<InfiniteScroll
-							dataLength={info?.listItems?.length || 0}
-							next={fetchMoreData}
-							hasMore={info?.hasMore}
-							loader={<FetchMoreLoaderComp />}
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								width: '100%',
-							}}
-							height="calc(100vh - 200px)"
-						>
-							{info?.listItems?.map((task, index) => (
-								<ListViewRow
-									task={task}
-									key={index}
-									properties={info?.properties}
-									rowTypes={rowTypes}
-									updatePropertyValue={updatePropertyValue}
-									handleRowClick={handleRowClick}
-									responseMetadata={responseMetadata}
-									handleEditPropertyChange={handleEditPropertyChange}
-									colors={colors}
-									rowClickHandler={rowClickHandler}
-								/>
-							))}
-						</InfiniteScroll>
-					) : (
-						<span style={{ color: '#808080', margin: '10px auto' }}>
-							No tasks found
-						</span>
-					)}
+
+			{info?.view === 'list' ? (
+				<div className="listContainer">
+					<div className="listInnerContainer">
+						{info?.loadingSkeleton ? (
+							generateSkeleton()
+						) : info?.error ? (
+							<span style={{ color: '#ff9b9b', margin: '10px auto' }}>
+								{info?.error}
+							</span>
+						) : info?.listItems?.length !== 0 ? (
+							<InfiniteScroll
+								dataLength={info?.listItems?.length || 0}
+								next={fetchMoreData}
+								hasMore={info?.hasMore}
+								loader={<FetchMoreLoaderComp />}
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									width: '100%',
+								}}
+								height="calc(100vh - 200px)"
+							>
+								{info?.listItems?.map((task, index) => (
+									<ListViewRow
+										task={task}
+										key={index}
+										properties={info?.properties}
+										rowTypes={rowTypes}
+										updatePropertyValue={updatePropertyValue}
+										handleRowClick={handleRowClick}
+										responseMetadata={responseMetadata}
+										handleEditPropertyChange={handleEditPropertyChange}
+										colors={colors}
+										rowClickHandler={rowClickHandler}
+									/>
+								))}
+							</InfiniteScroll>
+						) : (
+							<span style={{ color: '#808080', margin: '10px auto' }}>
+								No tasks found
+							</span>
+						)}
+					</div>
 				</div>
-			</div>
-			{/* {info?.hasMore && (
-				<div className="loadMoreContainer">
-					<button onClick={() => updateListViewInfo('page', info?.page + 1)}>
-						Load More
-					</button>
-				</div>
-			)} */}
+			) : (
+				<BoardView />
+			)}
 			<ListViewSidebar
 				selectedRow={info?.selectedSubTask || info?.selectedRow}
 				isShowingSubTask={

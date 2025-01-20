@@ -6,7 +6,7 @@
 	height: 93vh;
 	flex-grow: 1;
 
-	.board-view-container {
+	&-container {
 		display: flex;
 		gap: 16px;
 		width: 100%;
@@ -23,7 +23,7 @@
 			align-items: flex-end;
 			gap: 12px;
 			height: 100%;
-			.board-view-item-header {
+			&-header {
 				display: flex;
 				width: 230px;
 				align-items: center;
@@ -56,7 +56,7 @@
 					}
 				}
 
-				.board-view-item-header-count {
+				&-count {
 					color: var(--secondary-font-color-grey, #797e86);
 					color: var(--secondary-font-color-grey, color(display-p3 0.4784 0.4941 0.5216));
 					text-align: center;
@@ -68,7 +68,7 @@
 				}
 			}
 
-			.board-view-item-cards {
+			&-cards {
 				display: flex;
 				flex-direction: column;
 				gap: 12px;
@@ -111,6 +111,14 @@
 					border-radius: 12px;
 					border-radius: 50px;
 					border: 1px solid #333334;
+					cursor: pointer;
+					transition: all 0.3s ease;
+
+					svg {
+						width: 14px;
+						height: 14px;
+						opacity: 0.5;
+					}
 
 					.board-view-item-add-card-text {
 						color: #787e87;
@@ -119,6 +127,19 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+					}
+
+					&:hover {
+						background-color: #202123;
+						border: 1px solid #202123;
+
+						svg {
+							opacity: 1;
+						}
+
+						.board-view-item-add-card-text {
+							color: #f2f2f3;
+						}
 					}
 				}
 			}
