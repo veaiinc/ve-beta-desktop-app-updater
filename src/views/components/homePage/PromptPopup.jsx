@@ -67,7 +67,7 @@ const PromptPopup = ({ open, closeModal }) => {
 								<div
 									key={index}
 									className="promptPopupOptionsContainerFiles"
-									onClick={handleSelectedFile(file)}
+									onClick={() => handleSelectedFile(file)}
 								>
 									<div className="promptPopupContainerFilesListFileIcon"></div>
 									<div className="promptPopupContainerFilesListFile">{file}</div>
