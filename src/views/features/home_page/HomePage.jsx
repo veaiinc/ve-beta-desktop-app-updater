@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/NavBar';
 import HeaderInfo from '../../components/homePage/HeaderInfo';
+import PromptPopup from '../../components/homePage/PromptPopup';
 
 const cards = [
 	{ id: 0, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
@@ -49,6 +50,7 @@ const initialTopOffset = 300;
 const HomePage = () => {
 	const [info, setInfo] = useState({
 		activeTab: 'start',
+		showPromptPopup: false,
 		isNavbarFixed: false,
 		selectedOptionInStart: 'All',
 		selectedOptionInDashboard: 'All',
@@ -85,55 +87,70 @@ const HomePage = () => {
 		setInfo({ ...info, searchValue: value });
 	};
 
+	useEffect(() => {
+		console.log(info?.showPromptPopup, 'PromptPopup testing');
+	}, [info?.showPromptPopup]);
+
 	return (
-		<div className="home-page-container">
-			<div className="home-page-container-header">
-				<div className="home-page-container-content">
-					{topNavOptions?.map((option) => (
-						<div
-							key={option?.id}
-							className="home-page-container-content-item-container"
-						>
+		<>
+			<div className="home-page-container">
+				<div className="home-page-container-header">
+					<div className="home-page-container-content">
+						{topNavOptions?.map((option) => (
 							<div
-								className={`home-page-container-content-item ${
-									info?.activeTab === option?.value ? 'active' : ''
-								}`}
-								onClick={() => setInfo({ ...info, activeTab: option?.value })}
+								key={option?.id}
+								className="home-page-container-content-item-container"
 							>
-								{option?.title}
+								<div
+									className={`home-page-container-content-item ${
+										info?.activeTab === option?.value ? 'active' : ''
+									}`}
+									onClick={() => setInfo({ ...info, activeTab: option?.value })}
+								>
+									{option?.title}
+								</div>
+								{option?.id !== topNavOptions?.length - 1 && (
+									<div className="home-page-container-content-item-divider"></div>
+								)}
 							</div>
-							{option?.id !== topNavOptions?.length - 1 && (
-								<div className="home-page-container-content-item-divider"></div>
-							)}
+						))}
+					</div>
+
+					<div className="home-page-welcome-container">
+						<div className="home-page-welcome-container-left">
+							<HeaderInfo title={title} subTitle={subTitle} />
+							<NavBar
+								options={navbarOptions[info?.activeTab]}
+								isNavbarFixed={info?.isNavbarFixed}
+								selectedOption={info?.[selectedOption]}
+								handleSelectedOption={handleSelectedOption}
+								handleSearchValue={handleSearchValue}
+							/>
+						</div>
+					</div>
+				</div>
+
+				<div className="home-page-cards-container">
+					{cards?.map((card) => (
+						<div
+							className="home-page-cards-container-card"
+							onClick={() => setInfo({ ...info, showPromptPopup: true })}
+						>
+							<div className="home-page-cards-container-card-sub-title">
+								{card?.subTitle}
+							</div>
+							<div className="home-page-cards-container-card-title">
+								{card?.title}
+							</div>
 						</div>
 					))}
 				</div>
-
-				<div className="home-page-welcome-container">
-					<div className="home-page-welcome-container-left">
-						<HeaderInfo title={title} subTitle={subTitle} />
-						<NavBar
-							options={navbarOptions[info?.activeTab]}
-							isNavbarFixed={info?.isNavbarFixed}
-							selectedOption={info?.[selectedOption]}
-							handleSelectedOption={handleSelectedOption}
-							handleSearchValue={handleSearchValue}
-						/>
-					</div>
-				</div>
 			</div>
-
-			<div className="home-page-cards-container">
-				{cards.map((card) => (
-					<div className="home-page-cards-container-card">
-						<div className="home-page-cards-container-card-sub-title">
-							{card?.subTitle}
-						</div>
-						<div className="home-page-cards-container-card-title">{card?.title}</div>
-					</div>
-				))}
-			</div>
-		</div>
+			<PromptPopup
+				open={info?.showPromptPopup}
+				closeModal={() => setInfo({ ...info, showPromptPopup: false })}
+			/>
+		</>
 	);
 };
 
