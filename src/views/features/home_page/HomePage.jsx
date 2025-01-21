@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/NavBar';
 import { Activity, Drafts } from '../../components/ai_agents/CreateCards';
@@ -163,4 +163,4 @@ const HomePage = () => {
 	);
 };
 
-export default HomePage;
+export default memo(HomePage);
