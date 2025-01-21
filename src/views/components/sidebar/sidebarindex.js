@@ -63,7 +63,16 @@ export const veAiModulesItemsList = [
 	},
 
 	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
-	{ name: 'Docs', moduleRoute: '/docs', route: '/docs', icon: '' },
+	{
+		name: 'Design Builder',
+		moduleRoute: '/docs',
+		route: '/docs',
+		icon: '',
+		subModules: [
+			{ icon: '', name: 'Docs', route: '/docs' },
+			{ icon: '', name: 'Forms', route: '/forms' },
+		],
+	},
 	// {
 	// 	name: 'Da-Vinci',
 	// 	moduleRoute: '/ai-agents/home/da-vinici',
