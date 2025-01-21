@@ -81,10 +81,10 @@ const AssignAssistantModal = ({ modalIsOpen, closeModal, selectedAssistant }) =>
 		<ReactModal
 			isOpen={modalIsOpen}
 			closeModal={closeModal}
-			// customStyles={{
-			// 	overlay: { zIndex: 1003 },
-			// 	content: { borderRadius: '15px', zIndex: 1004 },
-			// }}
+			customStyles={{
+				overlay: { zIndex: 1003 },
+				content: { borderRadius: '15px', zIndex: 1004 },
+			}}
 		>
 			<div className="assisstantModalContainer">
 				<div className="assisstantHeaderContainer">
