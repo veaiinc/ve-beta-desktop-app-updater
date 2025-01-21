@@ -133,7 +133,7 @@ const HomePage = () => {
 
 				<div
 					className={`home-page-cards-container ${
-						info?.activeTab === 'start' && 'show-home-page-cards-container'
+						info?.activeTab === 'start' ? 'show-home-page-cards-container' : ''
 					}`}
 				>
 					{cards?.map((card) => (
@@ -153,9 +153,9 @@ const HomePage = () => {
 				</div>
 
 				<div
-					className={`home-page-dashboard-container ${
-						info?.activeTab === 'dashboard' && 'show-home-page-dashboard-container'
-					}`}
+					className={`home-page-dashboard-container 
+					${info?.activeTab === 'dashboard' ? 'show-home-page-dashboard-container' : ''}
+				   `}
 				>
 					<Activity />
 					<Drafts />

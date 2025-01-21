@@ -60,7 +60,7 @@
 				.home-page-welcome-container-left-text {
 					display: flex;
 					flex-direction: column;
-					.home-page-header-title-text {
+					.home-page-hey-there-text {
 						color: var(--primary-font-color, #f2f2f3);
 						font-family: Inter;
 						font-size: 40px;
@@ -68,7 +68,7 @@
 						font-weight: 500;
 						line-height: 43px; /* 107.5% */
 					}
-					.home-page-header-sub-title-text {
+					.home-page-help-text {
 						color: var(--secondary-font-color, #797e86);
 						font-family: Inter;
 						font-size: 40px;
@@ -142,7 +142,7 @@
 		flex-wrap: wrap;
 		gap: 18px;
 		opacity: 0;
-		transition: 300ms;
+		// transition: 300ms;
 		.home-page-cards-container-card {
 			display: flex;
 			width: 268px;
@@ -185,9 +185,9 @@
 		flex-direction: row;
 		gap: 18px;
 		position: relative;
-		transform: translateY(100vh);
+		transform: translateY(0);
 		transition: 300s;
-		opacity: 0;
+		// opacity: 0;
 	}
 	.show-home-page-dashboard-container {
 		transform: translateY(0);
