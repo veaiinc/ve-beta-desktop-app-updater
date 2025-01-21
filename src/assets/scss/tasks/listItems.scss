@@ -128,10 +128,12 @@
 .listItem-priority,
 .listItem-status,
 .listItem-multiSelect {
+	width: fit-content;
 	.currentIcon {
 		cursor: pointer;
 		display: flex;
 		align-items: center;
+		width: fit-content;
 	}
 }
 .listItem-phone,
@@ -217,6 +219,7 @@
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
+		width: fit-content;
 	}
 }
 

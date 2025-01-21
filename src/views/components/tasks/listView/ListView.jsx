@@ -24,6 +24,7 @@ import ParentTaskComponent from './ParentTaskComponent';
 import ChildTaskProgress from './ChildTaskProgress';
 import LinkText from './LinkText';
 import BoardView from '../views/BoardView';
+import TableView from '../views/TableView';
 
 const rowTypes = {
 	text: Text,
@@ -178,9 +179,19 @@ const ListView = ({
 						)}
 					</div>
 				</div>
-			) : (
+			) : info?.view === 'board' ? (
 				<BoardView />
-			)}
+			) : info?.view === 'table' ? (
+				<TableView
+					properties={info?.properties?.filter((prop) => prop.show)}
+					rowTypes={rowTypes}
+					data={info?.listItems || []}
+					responseMetadata={responseMetadata}
+					updatePropertyValue={updatePropertyValue}
+					handleEditPropertyChange={handleEditPropertyChange}
+					colors={colors}
+				/>
+			) : null}
 			<ListViewSidebar
 				selectedRow={info?.selectedSubTask || info?.selectedRow}
 				isShowingSubTask={

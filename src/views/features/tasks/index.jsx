@@ -95,7 +95,7 @@ const Tasks = () => {
 		searchValue: '',
 		updated: false,
 		loading: false,
-		view: 'list',
+		view: 'table',
 	});
 
 	const responseMetadata = useMemo(

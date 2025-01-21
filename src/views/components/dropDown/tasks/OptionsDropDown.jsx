@@ -47,8 +47,8 @@ const OptionsDropDown = ({
 	view,
 }) => {
 	const [info, setInfo] = useState({
-		selected: 'layout',
-		isOpen: true,
+		selected: null,
+		isOpen: false,
 	});
 
 	useEffect(() => {
