@@ -52,7 +52,7 @@
 				.home-page-welcome-container-left-text {
 					display: flex;
 					flex-direction: column;
-					.home-page-hey-there-text {
+					.home-page-header-title-text {
 						color: var(--primary-font-color, #f2f2f3);
 						font-family: Inter;
 						font-size: 40px;
@@ -60,7 +60,7 @@
 						font-weight: 500;
 						line-height: 43px; /* 107.5% */
 					}
-					.home-page-help-text {
+					.home-page-header-sub-title-text {
 						color: var(--secondary-font-color, #797e86);
 						font-family: Inter;
 						font-size: 40px;
@@ -117,7 +117,7 @@
 						.search-bar-input {
 							background: #202123;
 							border: none;
-							color: var(--secondary-font-color, #797e86)	;
+							color: var(--secondary-font-color, #797e86);
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
@@ -135,6 +135,8 @@
 		width: 100%;
 		flex-wrap: wrap;
 		gap: 18px;
+		opacity: 0;
+		transition: 300ms;
 		.home-page-cards-container-card {
 			display: flex;
 			width: 268px;
@@ -167,5 +169,22 @@
 				line-height: 24px; /* 133.333% */
 			}
 		}
+	}
+	.show-home-page-cards-container {
+		opacity: 1;
+	}
+
+	.home-page-dashboard-container {
+		display: flex;
+		flex-direction: row;
+		gap: 18px;
+		position: relative;
+		transform: translateY(100vh);
+		transition: 300s;
+		opacity: 0;
+	}
+	.show {
+		transform: translateY(0);
+		opacity: 1;
 	}
 }

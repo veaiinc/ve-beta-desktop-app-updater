@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/NavBar';
+import { Activity, Drafts } from '../../components/ai_agents/CreateCards';
+import HeaderInfo from '../../components/homePage/HeaderInfo';
 
 const cards = [
 	{ id: 0, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
@@ -53,15 +55,25 @@ const HomePage = () => {
 					<div className="home-page-welcome-container">
 						<div className="home-page-welcome-container-left">
 							<div className="home-page-welcome-container-left-text">
-								<div className="home-page-hey-there-text">Hey there,</div>
-								<div className="home-page-help-text">I’m here to help</div>
+								{info?.activeTab === 'start' ? (
+									<HeaderInfo
+										title={'Hey there,'}
+										subTitle={'I-m here to help'}
+									/>
+								) : (
+									<HeaderInfo title={'All Your'} subTitle={'Task Collections'} />
+								)}
 							</div>
 							<NavBar />
 						</div>
 					</div>
 				</div>
 
-				<div className="home-page-cards-container">
+				<div
+					className={`home-page-cards-container ${
+						info?.activeTab === 'start' && 'show-home-page-cards-container'
+					}`}
+				>
 					{cards.map((card) => (
 						<div className="home-page-cards-container-card">
 							<div className="home-page-cards-container-card-sub-title">
@@ -73,6 +85,28 @@ const HomePage = () => {
 						</div>
 					))}
 				</div>
+
+				<div
+					className={`home-page-dashboard-container ${
+						info?.activeTab === 'dashboard' && 'show-home-page-dashboard-container'
+					}`}
+				>
+					<Activity />
+					<Drafts />
+				</div>
+
+				{/* <div className="home-page-cards-container">
+					{cards.map((card) => (
+						<div className="home-page-cards-container-card">
+							<div className="home-page-cards-container-card-sub-title">
+								{card?.subTitle}
+							</div>
+							<div className="home-page-cards-container-card-title">
+								{card?.title}
+							</div>
+						</div>
+					))}
+				</div> */}
 			</div>
 		</>
 	);
