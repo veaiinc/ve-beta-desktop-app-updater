@@ -154,7 +154,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 		// Convert dates to moment objects for comparison
 		const startDateTime = moment(convertToISOString(startDate, startTime));
 		const endDateTime = moment(convertToISOString(endDate, endTime || startTime));
-		const now = moment();
+		const now = moment().startOf('day');
 
 		// Check if dates are in the past
 		if (startDateTime.isBefore(now)) {
