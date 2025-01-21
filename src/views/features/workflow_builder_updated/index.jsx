@@ -19,6 +19,7 @@ import {
 import CustomEdges from '../../components/workflowBuilderComponents/CustomEdges';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import BuilderToolbar from '../../components/workflowBuilderComponents/BuilderToolbar';
+import { Spin } from 'antd';
 
 // Define node types
 const nodeTypes = {
@@ -32,7 +33,14 @@ const edgeTypes = {
 };
 const WorkflowBuilderUpdated = () => {
 	const {
-		templates: { getSpecificTemplatesInfo, updateStateValues, specificTemplatesInfo },
+		templates: {
+			getSpecificTemplatesInfo,
+			updateStateValues,
+			specificTemplatesInfo,
+			addEmailTriggersInWorkflow,
+			getMyWorkflows,
+			getTemplatesListForCreateLead,
+		},
 	} = useContext(Context);
 
 	const navigate = useNavigate();
@@ -218,13 +226,63 @@ const WorkflowBuilderUpdated = () => {
 		[],
 	);
 
+	const publishWorkflow = useCallback(async () => {
+		if (info?.publishLoading) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, publishLoading: true }));
+		const payload = {
+			templateId: specificTemplatesInfo?._id,
+			updateObj: {
+				status: 'published',
+			},
+		};
+		const response = await addEmailTriggersInWorkflow(payload);
+		setInfo((prev) => ({ ...prev, publishLoading: false }));
+
+		if (response?.[0]) {
+			const { moduleTemplates } = response?.[1];
+			let isPublic = false;
+			for (let i = 0; i < moduleTemplates?.length; i++) {
+				if (moduleTemplates?.[i]?.isPublic) {
+					isPublic = true;
+					break;
+				}
+			}
+
+			if (isPublic) {
+				updateStateValues({ generatePublicLinkData: response?.[1] });
+			}
+			refreshSalesModuleData();
+			return navigate('/home');
+		}
+	}, [info?.publishLoading, specificTemplatesInfo]);
+
+	const refreshSalesModuleData = useCallback(async () => {
+		const payload = {
+			filters: {
+				limit: 10,
+				page: 1,
+				type: 'workspace',
+				status: 'published',
+				sortBy: 'createdAt',
+				sortType: -1,
+			},
+		};
+		getMyWorkflows(payload, false);
+		getTemplatesListForCreateLead();
+	}, []);
+
 	return (
 		<div className="updatedWorkflowBuilderContainer">
 			<div className="updatedBuilderHeaderContainer">
 				<span className="previousStepText">Previous Step</span>
 				<span className="workflowBuilderHeadingTag">Workflow Builder</span>
 				<div className="headerActionsContainer">
-					<div className="publishBtn">Publish</div>
+					<div className="publishBtn" onClick={publishWorkflow}>
+						{info?.publishLoading ? <Spin /> : ''}
+						{info?.publishLoading ? 'Publishing...' : 'Publish'}
+					</div>
 				</div>
 			</div>
 			{info?.loading ? (
