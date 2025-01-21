@@ -34,6 +34,7 @@ import AgentsJobs from './views/features/ai_agent/AgentsJobs';
 import AgentsSetup from './views/features/ai_agent/AgentsSetup';
 import Docs from './views/features/docs';
 import MyTemplates from './views/features/my_templates/MyTemplates';
+import Forms from './views/features/forms';
 const routes = [
 	{
 		path: '/',
@@ -309,6 +310,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'My Templates'}>
 				<MyTemplates />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/forms',
+		component: (
+			<AuthWrapper title={'Forms'}>
+				<Forms />
 			</AuthWrapper>
 		),
 		exact: true,

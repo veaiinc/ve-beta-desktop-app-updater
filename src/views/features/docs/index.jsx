@@ -513,6 +513,7 @@ const Docs = () => {
 					</div>
 				</div>
 			</div>
+
 			<div className="docsTemplatesContainer">
 				<div className="docsTemplateContainer">
 					{staticCreateActions?.map((ele, index) => (
@@ -592,6 +593,7 @@ const Docs = () => {
 							))}
 						</div>
 					</div>
+
 					<div className="docsFileHeaderContainerActionsContainer">
 						<div
 							className="searchContainer"
@@ -667,6 +669,7 @@ const Docs = () => {
 						<ThreeDots />
 					</div>
 				</div>
+
 				<div className="docsFilesInfiiniteContainer">
 					{info?.loading ? (
 						[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]?.map(
