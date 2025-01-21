@@ -27,7 +27,7 @@ const NavBar = () => {
 	return (
 		<div className={`home-page-welcome-container-left-text-options`}>
 			<div className="home-page-welcome-container-left-text-options-container">
-				{options.map((option) => (
+				{options?.map((option) => (
 					<div
 						className={`home-page-welcome-container-left-text-option ${
 							selectedOption === option ? 'active' : ''
