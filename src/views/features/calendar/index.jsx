@@ -126,7 +126,6 @@ const Calendar = () => {
 
 	useEffect(() => {
 		if (info?.workflowSlug) {
-			console.log('calling handleSendMessage when workflowSlug changes');
 			handleSendMessage(info?.chatQuery, true);
 		}
 	}, [info?.workflowSlug]);
