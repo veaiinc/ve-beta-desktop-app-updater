@@ -52,12 +52,16 @@ const HomePage = () => {
 		activeTab: 'start',
 		showPromptPopup: false,
 		isNavbarFixed: false,
-		selectedOption: 'All',
+		selectedOptionInStart: 'All',
+		selectedOptionInDashboard: 'All',
 		searchValue: '',
 	});
 
+	// Derived States for conditional rendering
 	const title = info?.activeTab === 'start' ? 'Hey there,' : 'All Your';
 	const subTitle = info?.activeTab === 'start' ? "I'm here to help" : 'Task Collections';
+	const selectedOption =
+		info?.activeTab === 'start' ? 'selectedOptionInStart' : 'selectedOptionInDashboard';
 
 	useEffect(() => {
 		window?.addEventListener('scroll', handleScroll);
@@ -76,7 +80,7 @@ const HomePage = () => {
 	};
 
 	const handleSelectedOption = (value) => {
-		setInfo({ ...info, selectedOption: value });
+		setInfo({ ...info, [selectedOption]: value });
 	};
 
 	const handleSearchValue = (value) => {
@@ -118,7 +122,7 @@ const HomePage = () => {
 							<NavBar
 								options={navbarOptions[info?.activeTab]}
 								isNavbarFixed={info?.isNavbarFixed}
-								selectedOption={info?.selectedOption}
+								selectedOption={info?.[selectedOption]}
 								handleSelectedOption={handleSelectedOption}
 								handleSearchValue={handleSearchValue}
 							/>
@@ -129,6 +133,7 @@ const HomePage = () => {
 				<div className="home-page-cards-container">
 					{cards?.map((card) => (
 						<div
+							key={card?.id}
 							className="home-page-cards-container-card"
 							onClick={() => setInfo({ ...info, showPromptPopup: true })}
 						>
