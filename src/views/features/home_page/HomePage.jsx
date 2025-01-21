@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/NavBar';
+import PromptPopup from '../../components/homePage/PromptPopup';
 
 const cards = [
 	{ id: 0, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
@@ -24,7 +25,12 @@ const cards = [
 const HomePage = () => {
 	const [info, setInfo] = useState({
 		activeTab: 'start',
+		showPromptPopup: false,
 	});
+
+	useEffect(() => {
+		console.log(info?.showPromptPopup, 'PromptPopup testing');
+	}, [info?.showPromptPopup]);
 
 	return (
 		<>
@@ -62,8 +68,11 @@ const HomePage = () => {
 				</div>
 
 				<div className="home-page-cards-container">
-					{cards.map((card) => (
-						<div className="home-page-cards-container-card">
+					{cards?.map((card) => (
+						<div
+							className="home-page-cards-container-card"
+							onClick={() => setInfo({ ...info, showPromptPopup: true })}
+						>
 							<div className="home-page-cards-container-card-sub-title">
 								{card?.subTitle}
 							</div>
@@ -74,6 +83,10 @@ const HomePage = () => {
 					))}
 				</div>
 			</div>
+			<PromptPopup
+				open={info?.showPromptPopup}
+				closeModal={() => setInfo({ ...info, showPromptPopup: false })}
+			/>
 		</>
 	);
 };
