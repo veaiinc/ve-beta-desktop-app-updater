@@ -14,6 +14,13 @@ const files = [
 
 const PromptPopup = ({ open, closeModal }) => {
 	const [searchText, setSearchText] = useState('');
+	const [selectedFile, setSelectedFile] = useState([]);
+
+	const handleSelectedFile = (file) => {
+		setSelectedFile([...selectedFile, file]);
+		console.log(selectedFile, 'selectedFile');
+	};
+
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
 			<div className="promptPopupContainer">
@@ -55,9 +62,13 @@ const PromptPopup = ({ open, closeModal }) => {
 						</div>
 					</div>
 					<div className="promptPopupOptionsContainer">
-						{files.map((file, index) => {
+						{files?.map((file, index) => {
 							return (
-								<div className="promptPopupOptionsContainerFiles">
+								<div
+									key={index}
+									className="promptPopupOptionsContainerFiles"
+									onClick={handleSelectedFile(file)}
+								>
 									<div className="promptPopupContainerFilesListFileIcon"></div>
 									<div className="promptPopupContainerFilesListFile">{file}</div>
 								</div>
