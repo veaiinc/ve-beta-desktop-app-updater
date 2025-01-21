@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
-import NavBar from '../../components/homePage/navBar';
+import NavBar from '../../components/homePage/NavBar';
 
 const cards = [
 	{ id: 0, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
@@ -22,7 +22,9 @@ const cards = [
 ];
 
 const HomePage = () => {
-	const [activeTab, setActiveTab] = useState('start');
+	const [info, setInfo] = useState({
+		activeTab: 'start',
+	});
 
 	return (
 		<>
@@ -31,18 +33,18 @@ const HomePage = () => {
 					<div className="home-page-container-content">
 						<div
 							className={`home-page-container-content-item ${
-								activeTab === 'start' ? 'active' : ''
+								info?.activeTab === 'start' ? 'active' : ''
 							}`}
-							onClick={() => setActiveTab('start')}
+							onClick={() => setInfo({ ...info, activeTab: 'start' })}
 						>
 							Start
 						</div>
 						<div className="home-page-container-content-item-divider"></div>
 						<div
 							className={`home-page-container-content-item ${
-								activeTab === 'dashboard' ? 'active' : ''
+								info?.activeTab === 'dashboard' ? 'active' : ''
 							}`}
-							onClick={() => setActiveTab('dashboard')}
+							onClick={() => setInfo({ ...info, activeTab: 'dashboard' })}
 						>
 							Dashboard
 						</div>

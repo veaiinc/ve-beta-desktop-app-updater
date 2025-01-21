@@ -21,7 +21,7 @@
 			align-items: center;
 			gap: 24px;
 			.home-page-container-content-item {
-				color: #797e86;
+				color: var(--secondary-font-color, #797e86);
 				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
@@ -29,7 +29,7 @@
 				line-height: normal;
 				text-transform: capitalize;
 				&.active {
-					color: #f2f2f3;
+					color: var(--primary-font-color, #f2f2f3);
 				}
 			}
 			.home-page-container-content-item-divider {
@@ -53,7 +53,7 @@
 					display: flex;
 					flex-direction: column;
 					.home-page-hey-there-text {
-						color: #f2f2f3;
+						color: var(--primary-font-color, #f2f2f3);
 						font-family: Inter;
 						font-size: 40px;
 						font-style: normal;
@@ -61,7 +61,7 @@
 						line-height: 43px; /* 107.5% */
 					}
 					.home-page-help-text {
-						color: color(display-p3 0.4784 0.4941 0.5216);
+						color: var(--secondary-font-color, #797e86);
 						font-family: Inter;
 						font-size: 40px;
 						font-style: normal;
@@ -82,7 +82,7 @@
 						flex-direction: row;
 						gap: 16px;
 						.home-page-welcome-container-left-text-option {
-							color: #797e86;
+							color: var(--secondary-font-color, #797e86);
 							font-family: Inter;
 							font-size: 16px;
 							font-style: normal;
@@ -95,12 +95,12 @@
 							gap: 12px;
 							cursor: pointer;
 							&.active {
-								color: #f2f2f3;
+								color: var(--primary-font-color, #f2f2f3);
 							}
 							.home-page-welcome-container-left-text-option-active-indicator {
 								width: 100%;
 								height: 2px;
-								background: #f2f2f3;
+								background: var(--primary-font-color, #f2f2f3);
 							}
 						}
 					}
@@ -117,7 +117,7 @@
 						.search-bar-input {
 							background: #202123;
 							border: none;
-							color: #797e86;
+							color: var(--secondary-font-color, #797e86)	;
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
@@ -146,6 +146,10 @@
 			flex-shrink: 0;
 			border-radius: 24px;
 			background: #171819;
+			cursor: pointer;
+			&:hover {
+				background: #202123;
+			}
 			.home-page-cards-container-card-sub-title {
 				color: #797e86;
 				font-family: Inter;
