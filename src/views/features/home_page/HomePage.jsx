@@ -1,6 +1,7 @@
 import React, { useState, useEffect, memo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/NavBar';
+import { Activity, Drafts } from '../../components/ai_agents/CreateCards';
 import HeaderInfo from '../../components/homePage/HeaderInfo';
 import PromptPopup from '../../components/homePage/PromptPopup';
 
@@ -135,22 +136,29 @@ const HomePage = () => {
 					</div>
 				</div>
 
-				<div className="home-page-cards-container">
-					{cards?.map((card) => (
-						<div
-							key={card?.id}
-							className="home-page-cards-container-card"
-							onClick={() => setInfo({ ...info, showPromptPopup: true })}
-						>
-							<div className="home-page-cards-container-card-sub-title">
-								{card?.subTitle}
+				{info?.activeTab === 'start' ? (
+					<div className={`home-page-cards-container `}>
+						{cards?.map((card) => (
+							<div
+								key={card?.id}
+								className="home-page-cards-container-card"
+								onClick={() => setInfo({ ...info, showPromptPopup: true })}
+							>
+								<div className="home-page-cards-container-card-sub-title">
+									{card?.subTitle}
+								</div>
+								<div className="home-page-cards-container-card-title">
+									{card?.title}
+								</div>
 							</div>
-							<div className="home-page-cards-container-card-title">
-								{card?.title}
-							</div>
-						</div>
-					))}
-				</div>
+						))}
+					</div>
+				) : (
+					<div className={'home-page-dashboard-container'}>
+						<Activity />
+						<Drafts />
+					</div>
+				)}
 			</div>
 			<PromptPopup
 				open={info?.showPromptPopup}

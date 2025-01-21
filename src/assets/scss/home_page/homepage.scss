@@ -175,4 +175,13 @@
 			}
 		}
 	}
+
+	.home-page-dashboard-container {
+		display: flex;
+		flex-direction: row;
+		gap: 18px;
+		position: relative;
+		transition: 300s;
+		// opacity: 0;
+	}
 }
