@@ -151,7 +151,7 @@ const statusList = [
 	}),
 ];
 
-const FilterIcons = {
+export const FilterIcons = {
 	templateName: <UppercaseLowercaseA />,
 	clientName: <MailLetter />,
 	status: <StatusCircle />,
@@ -168,7 +168,7 @@ export const DocsStatusButton = ({ content = '', style = {}, textStyle = {}, dot
 	);
 };
 
-const Filters = [
+export const Filters = [
 	{
 		label: (
 			<div className="filterContainer">

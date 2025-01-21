@@ -8,12 +8,12 @@
 	flex-direction: column;
 	gap: 36px;
 
-	.docsParentHeaderContainer {
+	.formsParentHeaderContainer {
 		display: flex;
 		align-items: flex-start;
 		gap: 24px;
 		user-select: none;
-		.docsHeaderButtons {
+		.formsHeaderButtons {
 			display: flex;
 			flex: 1;
 			height: 91px;
@@ -27,7 +27,7 @@
 			border: 1px solid color(display-p3 0.1133 0.1133 0.1133);
 			background: #151515;
 			cursor: pointer;
-			.docsHeaderButtonsTitle {
+			.formsHeaderButtonsTitle {
 				color: #e4e5e6;
 				color: color(display-p3 0.8941 0.898 0.902);
 				font-family: Inter;
@@ -36,7 +36,7 @@
 				font-weight: 600;
 				line-height: normal;
 			}
-			.docsHeaderSubButtonsSubTitleColored {
+			.formsHeaderSubButtonsSubTitleColored {
 				color: #e4e5e6;
 				color: color(display-p3 0.8941 0.898 0.902);
 				text-align: center;
@@ -58,7 +58,7 @@
 					-webkit-text-fill-color: transparent;
 				}
 			}
-			.docsHeaderSubButtonsSubTitle {
+			.formsHeaderSubButtonsSubTitle {
 				color: rgba(228, 229, 230, 0.48);
 				color: color(display-p3 0.8941 0.898 0.902 / 0.48);
 				font-family: Inter;
@@ -78,7 +78,7 @@
 		gap: 24px;
 		align-self: stretch;
 
-		.docsFileHeaderContainer {
+		.formsFileHeaderContainer {
 			display: flex;
 			align-items: flex-start;
 			justify-content: space-between;
@@ -87,7 +87,7 @@
 			padding-bottom: 16px;
 			border-bottom: 1px solid #171819;
 
-			.docsFileHeaderContainerTitle {
+			.formsFileHeaderContainerTitle {
 				display: flex;
 				justify-content: flex-start;
 				align-items: center;
@@ -170,7 +170,7 @@
 				}
 			}
 
-			.docsFileHeaderContainerActionsContainer {
+			.formsFileHeaderContainerActionsContainer {
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
