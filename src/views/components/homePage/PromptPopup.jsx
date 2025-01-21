@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useEffect } from 'react';
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
@@ -17,8 +17,13 @@ const PromptPopup = ({ open, closeModal }) => {
 	const [selectedFile, setSelectedFile] = useState([]);
 
 	const handleSelectedFile = (file) => {
-		setSelectedFile([...selectedFile, file]);
-		console.log(selectedFile, 'selectedFile');
+		if (!selectedFile.some((f) => f === file)) {
+			setSelectedFile([...selectedFile, file]);
+		}
+	};
+
+	const handleRemoveSelectedFile = (file) => {
+		setSelectedFile(selectedFile.filter((f) => f !== file));
 	};
 
 	return (
@@ -45,7 +50,23 @@ const PromptPopup = ({ open, closeModal }) => {
 					<div className="promptPopupContainerEmailPrompt">Email Prompt</div>
 				</div>
 
-				<div>Hello</div>
+				{selectedFile.length > 0 && (
+					<div className="promptPopupContainerSelectedFilesDiv">
+						{selectedFile.map((file, index) => {
+							return (
+								<div className="promptPopupContainerEachSelectedFile">
+									<div className="promptPopupContainerEachSelectedFileText">
+										{file}
+									</div>
+									<CrossSvg
+										onClick={() => handleRemoveSelectedFile(file)}
+										style={{ cursor: 'pointer' }}
+									/>
+								</div>
+							);
+						})}
+					</div>
+				)}
 
 				<div className="promptPopupContainerFilesDiv">
 					<div className="promptPopupContainerSelectionFiles">

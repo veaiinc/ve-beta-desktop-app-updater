@@ -26,7 +26,9 @@
 				line-height: normal;
 			}
 			.promptPopupContainerHeaderLeftSubtitle {
-				color: linear-gradient(94deg, #ca9bfe -2.07%, #ca9bfe -2.06%, #fd749d 95.85%);
+				background: linear-gradient(94deg, #ca9bfe, #fd749d);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
 				font-family: var(--primary-font-family, 'Inter');
 				font-size: 12px;
 				font-style: normal;
@@ -62,6 +64,33 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+		}
+	}
+	.promptPopupContainerSelectedFilesDiv {
+		display: flex;
+		flex-direction: row;
+		gap: 12px;
+		align-items: flex-start;
+		width: 100%;
+		flex-wrap: wrap;
+		.promptPopupContainerEachSelectedFile {
+			display: flex;
+			padding: 8px 12px;
+			min-width: 158px;
+			justify-content: space-between;
+			align-items: center;
+			gap: 10px;
+			border-radius: 100px;
+			background: #26282a;
+			.promptPopupContainerEachSelectedFileText {
+				color: #f2f2f3;
+				color: color(display-p3 0.949 0.949 0.9529);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 22px;
+			}
 		}
 	}
 	.promptPopupContainerFilesDiv {
