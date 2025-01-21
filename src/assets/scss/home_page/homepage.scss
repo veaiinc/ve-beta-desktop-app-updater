@@ -141,8 +141,6 @@
 		width: 100%;
 		flex-wrap: wrap;
 		gap: 18px;
-		opacity: 0;
-		// transition: 300ms;
 		.home-page-cards-container-card {
 			display: flex;
 			width: 268px;
@@ -176,21 +174,13 @@
 			}
 		}
 	}
-	.show-home-page-cards-container {
-		opacity: 1;
-	}
 
 	.home-page-dashboard-container {
 		display: flex;
 		flex-direction: row;
 		gap: 18px;
 		position: relative;
-		transform: translateY(0);
 		transition: 300s;
 		// opacity: 0;
-	}
-	.show-home-page-dashboard-container {
-		transform: translateY(0);
-		opacity: 1;
 	}
 }

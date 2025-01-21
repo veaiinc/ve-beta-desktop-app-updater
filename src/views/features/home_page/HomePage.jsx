@@ -131,48 +131,29 @@ const HomePage = () => {
 					</div>
 				</div>
 
-				<div
-					className={`home-page-cards-container ${
-						info?.activeTab === 'start' ? 'show-home-page-cards-container' : ''
-					}`}
-				>
-					{cards?.map((card) => (
-						<div
-							key={card?.id}
-							className="home-page-cards-container-card"
-							onClick={() => setInfo({ ...info, showPromptPopup: true })}
-						>
-							<div className="home-page-cards-container-card-sub-title">
-								{card?.subTitle}
+				{info?.activeTab === 'start' ? (
+					<div className={`home-page-cards-container `}>
+						{cards?.map((card) => (
+							<div
+								key={card?.id}
+								className="home-page-cards-container-card"
+								onClick={() => setInfo({ ...info, showPromptPopup: true })}
+							>
+								<div className="home-page-cards-container-card-sub-title">
+									{card?.subTitle}
+								</div>
+								<div className="home-page-cards-container-card-title">
+									{card?.title}
+								</div>
 							</div>
-							<div className="home-page-cards-container-card-title">
-								{card?.title}
-							</div>
-						</div>
-					))}
-				</div>
-
-				<div
-					className={`home-page-dashboard-container 
-					${info?.activeTab === 'dashboard' ? 'show-home-page-dashboard-container' : ''}
-				   `}
-				>
-					<Activity />
-					<Drafts />
-				</div>
-
-				{/* <div className="home-page-cards-container">
-					{cards.map((card) => (
-						<div className="home-page-cards-container-card">
-							<div className="home-page-cards-container-card-sub-title">
-								{card?.subTitle}
-							</div>
-							<div className="home-page-cards-container-card-title">
-								{card?.title}
-							</div>
-						</div>
-					))}
-				</div> */}
+						))}
+					</div>
+				) : (
+					<div className={'home-page-dashboard-container'}>
+						<Activity />
+						<Drafts />
+					</div>
+				)}
 			</div>
 			<PromptPopup
 				open={info?.showPromptPopup}
