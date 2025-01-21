@@ -89,57 +89,59 @@ const HomePage = () => {
 
 	return (
 		<>
-		<div className="home-page-container">
-			<div className="home-page-container-header">
-				<div className="home-page-container-content">
-					{topNavOptions?.map((option) => (
-						<div
-							key={option?.id}
-							className="home-page-container-content-item-container"
-						>
+			<div className="home-page-container">
+				<div className="home-page-container-header">
+					<div className="home-page-container-content">
+						{topNavOptions?.map((option) => (
 							<div
-								className={`home-page-container-content-item ${
-									info?.activeTab === option?.value ? 'active' : ''
-								}`}
-								onClick={() => setInfo({ ...info, activeTab: option?.value })}
+								key={option?.id}
+								className="home-page-container-content-item-container"
 							>
-								{option?.title}
+								<div
+									className={`home-page-container-content-item ${
+										info?.activeTab === option?.value ? 'active' : ''
+									}`}
+									onClick={() => setInfo({ ...info, activeTab: option?.value })}
+								>
+									{option?.title}
+								</div>
+								{option?.id !== topNavOptions?.length - 1 && (
+									<div className="home-page-container-content-item-divider"></div>
+								)}
 							</div>
-							{option?.id !== topNavOptions?.length - 1 && (
-								<div className="home-page-container-content-item-divider"></div>
-							)}
-						</div>
-					))}
-				</div>
+						))}
+					</div>
 
-				<div className="home-page-welcome-container">
-					<div className="home-page-welcome-container-left">
-						<HeaderInfo title={title} subTitle={subTitle} />
-						<NavBar
-							options={navbarOptions[info?.activeTab]}
-							isNavbarFixed={info?.isNavbarFixed}
-							selectedOption={info?.selectedOption}
-							handleSelectedOption={handleSelectedOption}
-							handleSearchValue={handleSearchValue}
-						/>
+					<div className="home-page-welcome-container">
+						<div className="home-page-welcome-container-left">
+							<HeaderInfo title={title} subTitle={subTitle} />
+							<NavBar
+								options={navbarOptions[info?.activeTab]}
+								isNavbarFixed={info?.isNavbarFixed}
+								selectedOption={info?.selectedOption}
+								handleSelectedOption={handleSelectedOption}
+								handleSearchValue={handleSearchValue}
+							/>
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<div className="home-page-cards-container">
-				{cards?.map((card) => (
-					<div
+				<div className="home-page-cards-container">
+					{cards?.map((card) => (
+						<div
 							className="home-page-cards-container-card"
 							onClick={() => setInfo({ ...info, showPromptPopup: true })}
 						>
-						<div className="home-page-cards-container-card-sub-title">
-							{card?.subTitle}
+							<div className="home-page-cards-container-card-sub-title">
+								{card?.subTitle}
+							</div>
+							<div className="home-page-cards-container-card-title">
+								{card?.title}
+							</div>
 						</div>
-						<div className="home-page-cards-container-card-title">{card?.title}</div>
-					</div>
-				))}
+					))}
+				</div>
 			</div>
-		</div>
 			<PromptPopup
 				open={info?.showPromptPopup}
 				closeModal={() => setInfo({ ...info, showPromptPopup: false })}
