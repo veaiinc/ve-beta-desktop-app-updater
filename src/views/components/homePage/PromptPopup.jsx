@@ -97,6 +97,7 @@ const PromptPopup = ({ open, closeModal }) => {
 						})}
 					</div>
 				</div>
+				<button className="promptPopupContainerRunButton">Run</button>
 			</div>
 		</ReactModal>
 	);
