@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
-import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
-
-const options = ['All', 'Sales', 'Marketing', 'Operations'];
+import NavBar from '../../components/homePage/navBar';
 
 const cards = [
 	{ id: 0, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
@@ -28,22 +26,6 @@ const HomePage = () => {
 	const [selectedOption, setSelectedOption] = useState('All');
 	const [searchText, setSearchText] = useState('');
 	const [isSticky, setIsSticky] = useState(false);
-
-	useEffect(() => {
-		const scrollableElement = document.querySelector('.home-page-container');
-		const handleScroll = () => {
-			if (scrollableElement.scrollTop > 10) {
-				setIsSticky(true);
-				console.log('Function Triggered');
-			} else {
-				setIsSticky(false);
-			}
-		};
-		scrollableElement.addEventListener('scroll', handleScroll);
-		return () => {
-			scrollableElement.removeEventListener('scroll', handleScroll);
-		};
-	}, [setIsSticky]);
 
 	return (
 		<>
@@ -75,37 +57,7 @@ const HomePage = () => {
 								<div className="home-page-hey-there-text">Hey there,</div>
 								<div className="home-page-help-text">I’m here to help</div>
 							</div>
-							<div
-								className={`home-page-welcome-container-left-text-options ${
-									isSticky ? 'sticky' : ''
-								}`}
-							>
-								<div className="home-page-welcome-container-left-text-options-container">
-									{options.map((option) => (
-										<div
-											className={`home-page-welcome-container-left-text-option ${
-												selectedOption === option ? 'active' : ''
-											}`}
-											onClick={() => setSelectedOption(option)}
-										>
-											{option}
-											{selectedOption === option && (
-												<div className="home-page-welcome-container-left-text-option-active-indicator"></div>
-											)}
-										</div>
-									))}
-								</div>
-								<div className="home-page-welcome-container-right">
-									<SearchIcon />
-									<input
-										type="text"
-										placeholder="Search Tasks"
-										className="search-bar-input"
-										value={searchText}
-										onChange={(e) => setSearchText(e.target.value)}
-									/>
-								</div>
-							</div>
+							<NavBar />
 						</div>
 					</div>
 				</div>
@@ -114,9 +66,11 @@ const HomePage = () => {
 					{cards.map((card) => (
 						<div className="home-page-cards-container-card">
 							<div className="home-page-cards-container-card-sub-title">
-								{card.subTitle}
+								{card?.subTitle}
 							</div>
-							<div className="home-page-cards-container-card-title">{card.title}</div>
+							<div className="home-page-cards-container-card-title">
+								{card?.title}
+							</div>
 						</div>
 					))}
 				</div>
