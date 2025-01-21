@@ -25,54 +25,50 @@ const HomePage = () => {
 	const [activeTab, setActiveTab] = useState('start');
 
 	return (
-		<>
-			<div className="home-page-container">
-				<div className="home-page-container-header">
-					<div className="home-page-container-content">
-						<div
-							className={`home-page-container-content-item ${
-								activeTab === 'start' ? 'active' : ''
-							}`}
-							onClick={() => setActiveTab('start')}
-						>
-							Start
-						</div>
-						<div className="home-page-container-content-item-divider"></div>
-						<div
-							className={`home-page-container-content-item ${
-								activeTab === 'dashboard' ? 'active' : ''
-							}`}
-							onClick={() => setActiveTab('dashboard')}
-						>
-							Dashboard
-						</div>
+		<div className="home-page-container">
+			<div className="home-page-container-header">
+				<div className="home-page-container-content">
+					<div
+						className={`home-page-container-content-item ${
+							activeTab === 'start' ? 'active' : ''
+						}`}
+						onClick={() => setActiveTab('start')}
+					>
+						Start
 					</div>
-
-					<div className="home-page-welcome-container">
-						<div className="home-page-welcome-container-left">
-							<div className="home-page-welcome-container-left-text">
-								<div className="home-page-hey-there-text">Hey there,</div>
-								<div className="home-page-help-text">I’m here to help</div>
-							</div>
-							<NavBar />
-						</div>
+					<div className="home-page-container-content-item-divider"></div>
+					<div
+						className={`home-page-container-content-item ${
+							activeTab === 'dashboard' ? 'active' : ''
+						}`}
+						onClick={() => setActiveTab('dashboard')}
+					>
+						Dashboard
 					</div>
 				</div>
 
-				<div className="home-page-cards-container">
-					{cards.map((card) => (
-						<div className="home-page-cards-container-card">
-							<div className="home-page-cards-container-card-sub-title">
-								{card?.subTitle}
-							</div>
-							<div className="home-page-cards-container-card-title">
-								{card?.title}
-							</div>
+				<div className="home-page-welcome-container">
+					<div className="home-page-welcome-container-left">
+						<div className="home-page-welcome-container-left-text">
+							<div className="home-page-hey-there-text">Hey there,</div>
+							<div className="home-page-help-text">I’m here to help</div>
 						</div>
-					))}
+						<NavBar />
+					</div>
 				</div>
 			</div>
-		</>
+
+			<div className="home-page-cards-container">
+				{cards.map((card) => (
+					<div className="home-page-cards-container-card">
+						<div className="home-page-cards-container-card-sub-title">
+							{card?.subTitle}
+						</div>
+						<div className="home-page-cards-container-card-title">{card?.title}</div>
+					</div>
+				))}
+			</div>
+		</div>
 	);
 };
 
