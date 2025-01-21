@@ -498,13 +498,13 @@ const Docs = () => {
 					<div className="docsHeaderButtonsTitle">Create proposal from your template</div>
 					<div className="docsHeaderSubButtonsSubTitleColored">Start with AI</div>
 				</div>
-				<div className="docsHeaderButtons">
+				{/* <div className="docsHeaderButtons">
 					{' '}
-					<div className="docsHeaderButtonsTitle">Create proposal from your template</div>
+					<div className="docsHeaderButtonsTitle">Import file or URL</div>
 					<div className="docsHeaderSubButtonsSubTitle">
-						Pick your template from your playbook
+						Pick your template from playbook
 					</div>
-				</div>
+				</div> */}
 				<div onClick={() => navigate('/my-templates')} className="docsHeaderButtons">
 					{' '}
 					<div className="docsHeaderButtonsTitle">Create proposal from your template</div>
@@ -513,7 +513,8 @@ const Docs = () => {
 					</div>
 				</div>
 			</div>
-			<div className="docsTemplatesContainer">
+			{/* Ai Action is not ready yet */}
+			{/* <div className="docsTemplatesContainer">
 				<div className="docsTemplateContainer">
 					{staticCreateActions?.map((ele, index) => (
 						<div key={index} className="createStaticActionsCards">
@@ -522,7 +523,7 @@ const Docs = () => {
 						</div>
 					))}
 				</div>
-			</div>
+			</div> */}
 
 			<div className="docsFileContainer">
 				<div className="docsFileHeaderContainer">
@@ -685,7 +686,8 @@ const Docs = () => {
 								width: '100%',
 							}}
 							className="tetsing"
-							height="calc(100vh - 500px)"
+							// height="calc(100vh - 500px)"
+							height="calc(100vh - 310px)"
 						>
 							{info?.docsData?.map((ele, index) => (
 								<div
