@@ -35,6 +35,7 @@ import AgentsSetup from './views/features/ai_agent/AgentsSetup';
 import Docs from './views/features/docs';
 import MyTemplates from './views/features/my_templates/MyTemplates';
 import Forms from './views/features/forms';
+import FormLeads from './views/features/forms/FormLeads';
 const routes = [
 	{
 		path: '/',
@@ -319,6 +320,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Forms'}>
 				<Forms />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/form-leads',
+		component: (
+			<AuthWrapper title={'Form Leads'}>
+				<FormLeads />
 			</AuthWrapper>
 		),
 		exact: true,

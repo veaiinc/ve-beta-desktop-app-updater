@@ -4,12 +4,14 @@ import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import { useNavigate } from 'react-router-dom';
 import { Tooltip } from 'antd';
 import FilterPopUp from '../../components/globalComponents/FilterPopUp';
-import { FilterIcons, Filters } from '../../features/docs';
+import { FilterIcons, Filters, DocsStatusButton, statusTextmapper } from '../../features/docs';
 import { ReactComponent as CrossPurple } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
 import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/docs/three-dots.svg';
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
+import Skeleton from 'react-loading-skeleton';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import DropDown from '../../components/dropDown/tasks/DropDown';
 
 let origin = fetchOriginSelection();
@@ -18,7 +20,7 @@ const Forms = () => {
 	const [info, setInfo] = useState({
 		appliedFilters: [],
 	});
-	// const navigate = useNavigate();
+	const navigate = useNavigate();
 	// const onGenerateAIFunc = () => {
 	// 	window.location.href = `${origin}/generate`;
 	// };
@@ -49,8 +51,8 @@ const Forms = () => {
 			</div>
 
 			<div className="formsContainer">
-				<div className="formsFileHeaderContainer">
-					<div className="formsFileHeaderContainerTitle">
+				<div className="formsHeaderContainer">
+					<div className="formsHeaderContainerTitle">
 						<span>Forms</span>
 						<div className="appliedFiltersContainer">
 							{info?.appliedFilters?.map((appliedFilter, idx) => (
@@ -121,7 +123,7 @@ const Forms = () => {
 						</div>
 					</div>
 
-					<div className="formsFileHeaderContainerActionsContainer">
+					<div className="formsHeaderContainerActionsContainer">
 						<div
 							className="searchContainer"
 							style={{
@@ -196,6 +198,59 @@ const Forms = () => {
 						</DropDown>
 						<ThreeDots />
 					</div>
+				</div>
+
+				{/* infinity scroll */}
+				<div className="docsFilesInfiiniteContainer">
+					{info?.loading ? (
+						[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]?.map(
+							(ele, index) => <Skeleton key={index} height={36} />,
+						)
+					) : (
+						<InfiniteScroll
+							dataLength={info?.docsData?.length || 0}
+							// next={fetcMoreDocsFilesList}
+							next={() => {}}
+							hasMore={info?.hasNextPage}
+							loader={<FetchMoreLoaderComp />}
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '8px',
+								width: '100%',
+							}}
+							className="tetsing"
+							height="calc(100vh - 310px)"
+						>
+							{info?.docsData?.map((ele, index) => (
+								<div
+									className="docsRow"
+									key={index}
+									// onClick={() => handleOpenSidebar(ele)}
+									onClick={() => {
+										navigate(`/form-leads`);
+									}}
+								>
+									<div className="docsFilesRowTitle">{ele?.title}</div>
+									<div className="docsKeyWordsContainer">
+										{ele?.clientDetails?.name ? (
+											<span className="docsclientdetailsName">
+												{ele?.clientDetails?.name}
+											</span>
+										) : (
+											''
+										)}
+
+										<DocsStatusButton
+											content={statusTextmapper?.[ele?.status]?.text}
+											style={statusTextmapper?.[ele?.status]?.style}
+											dotStyle={statusTextmapper?.[ele?.status]?.dotStyle}
+										/>
+									</div>
+								</div>
+							))}
+						</InfiniteScroll>
+					)}
 				</div>
 			</div>
 		</div>

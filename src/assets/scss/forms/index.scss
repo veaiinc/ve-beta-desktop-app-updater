@@ -1,8 +1,7 @@
 .formsParentContainer {
-	color: white;
+	color: white; // TODO: remove this
 
 	width: 100%;
-	height: calc(100vh - 150px);
 	height: calc(100vh - 110px);
 	display: flex;
 	flex-direction: column;
@@ -78,7 +77,7 @@
 		gap: 24px;
 		align-self: stretch;
 
-		.formsFileHeaderContainer {
+		.formsHeaderContainer {
 			display: flex;
 			align-items: flex-start;
 			justify-content: space-between;
@@ -87,7 +86,7 @@
 			padding-bottom: 16px;
 			border-bottom: 1px solid #171819;
 
-			.formsFileHeaderContainerTitle {
+			.formsHeaderContainerTitle {
 				display: flex;
 				justify-content: flex-start;
 				align-items: center;
@@ -170,7 +169,7 @@
 				}
 			}
 
-			.formsFileHeaderContainerActionsContainer {
+			.formsHeaderContainerActionsContainer {
 				display: flex;
 				align-items: center;
 				justify-content: space-between;

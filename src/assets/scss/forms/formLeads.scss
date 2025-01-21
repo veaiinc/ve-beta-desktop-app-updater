@@ -1,0 +1,21 @@
+.formLeadsParentContainer {
+	color: white; // TODO: remove this
+
+	width: 100%;
+	height: calc(100vh - 110px);
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+
+	.headerContainer {
+		display: flex;
+		align-items: center;
+
+		.actionBtn {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			cursor: pointer;
+		}
+	}
+}
