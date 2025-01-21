@@ -26,7 +26,7 @@
 		.ant-select-selection-search-input,
 		.ant-select-selection-placeholder,
 		.ant-select-selection-item {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
@@ -36,7 +36,7 @@
 		}
 
 		.ant-select-selection-placeholder {
-			color: #646567;
+			color: var(--secondary-font);
 		}
 	}
 

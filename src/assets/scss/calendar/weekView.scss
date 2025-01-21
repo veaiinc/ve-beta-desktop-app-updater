@@ -61,7 +61,7 @@
 
 	.rbc-timeslot-group {
 		// border-top: 0.5px solid rgb(81, 78, 78);
-		border-top: 0.5px solid rgba(81, 78, 78, 0.3);
+		border-top: 0.5px solid var(--stroke);
 	}
 
 	.rbc-label .rbc-time-header-gutter {
@@ -69,7 +69,7 @@
 	}
 
 	.rbc-today {
-		background-color: #222222;
+		background-color: var(--background-color);
 	}
 
 	.rbc-time-view .rbc-time-gutter {

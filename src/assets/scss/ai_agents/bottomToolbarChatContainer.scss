@@ -57,8 +57,8 @@
 				justify-content: flex-start;
 
 				.message-content {
-					background: #2c2d2e;
-					color: #e8e8e8;
+					background: var(--card);
+					color: var(--primary-font);
 					border-bottom-left-radius: 4px;
 				}
 			}
