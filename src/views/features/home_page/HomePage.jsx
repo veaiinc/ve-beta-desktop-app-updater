@@ -1,6 +1,7 @@
 import React, { useState, useEffect, memo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/NavBar';
+import { Activity, Drafts } from '../../components/ai_agents/CreateCards';
 import HeaderInfo from '../../components/homePage/HeaderInfo';
 import PromptPopup from '../../components/homePage/PromptPopup';
 
@@ -45,6 +46,19 @@ const navbarOptions = {
 	],
 };
 
+const propsForHeaderInfoAndNavBar = {
+	start: {
+		title: 'Hey there,',
+		subTitle: "I'm here to help",
+		selectedOption: 'selectedOptionInStart',
+	},
+	dashboard: {
+		title: 'All Your',
+		subTitle: 'Task Collections',
+		selectedOption: 'selectedOptionInDashboard',
+	},
+};
+
 const initialTopOffset = 300;
 
 const HomePage = () => {
@@ -57,11 +71,7 @@ const HomePage = () => {
 		searchValue: '',
 	});
 
-	// Derived States for conditional rendering
-	const title = info?.activeTab === 'start' ? 'Hey there,' : 'All Your';
-	const subTitle = info?.activeTab === 'start' ? "I'm here to help" : 'Task Collections';
-	const selectedOption =
-		info?.activeTab === 'start' ? 'selectedOptionInStart' : 'selectedOptionInDashboard';
+	const { title, subTitle, selectedOption } = propsForHeaderInfoAndNavBar[info?.activeTab];
 
 	useEffect(() => {
 		window?.addEventListener('scroll', handleScroll);
@@ -86,10 +96,6 @@ const HomePage = () => {
 	const handleSearchValue = (value) => {
 		setInfo({ ...info, searchValue: value });
 	};
-
-	useEffect(() => {
-		console.log(info?.showPromptPopup, 'PromptPopup testing');
-	}, [info?.showPromptPopup]);
 
 	return (
 		<>
@@ -130,22 +136,29 @@ const HomePage = () => {
 					</div>
 				</div>
 
-				<div className="home-page-cards-container">
-					{cards?.map((card) => (
-						<div
-							key={card?.id}
-							className="home-page-cards-container-card"
-							onClick={() => setInfo({ ...info, showPromptPopup: true })}
-						>
-							<div className="home-page-cards-container-card-sub-title">
-								{card?.subTitle}
+				{info?.activeTab === 'start' ? (
+					<div className={`home-page-cards-container `}>
+						{cards?.map((card) => (
+							<div
+								key={card?.id}
+								className="home-page-cards-container-card"
+								onClick={() => setInfo({ ...info, showPromptPopup: true })}
+							>
+								<div className="home-page-cards-container-card-sub-title">
+									{card?.subTitle}
+								</div>
+								<div className="home-page-cards-container-card-title">
+									{card?.title}
+								</div>
 							</div>
-							<div className="home-page-cards-container-card-title">
-								{card?.title}
-							</div>
-						</div>
-					))}
-				</div>
+						))}
+					</div>
+				) : (
+					<div className={'home-page-dashboard-container'}>
+						<Activity />
+						<Drafts />
+					</div>
+				)}
 			</div>
 			<PromptPopup
 				open={info?.showPromptPopup}
