@@ -2,15 +2,13 @@ import React, { useEffect, useState, memo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
 
-const options = [
-	{ id: 1, title: 'All', value: 'All' },
-	{ id: 2, title: 'Sales', value: 'Sales' },
-	{ id: 3, title: 'Marketing', value: 'Marketing' },
-	{ id: 4, title: 'Operations', value: 'Operations' },
-];
-
-const NavBar = ({ isNavbarFixed, selectedOption, handleSelectedOption, handleSearchValue }) => {
-	console.log(selectedOption, options);
+const NavBar = ({
+	options,
+	isNavbarFixed,
+	selectedOption,
+	handleSelectedOption,
+	handleSearchValue,
+}) => {
 	return (
 		<div
 			className={`home-page-welcome-container-left-text-options ${

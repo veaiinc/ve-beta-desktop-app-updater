@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/NavBar';
+import HeaderInfo from '../../components/homePage/HeaderInfo';
 
 const cards = [
 	{ id: 0, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
@@ -26,6 +27,23 @@ const topNavOptions = [
 	{ id: 1, title: 'Dashboard', value: 'dashboard' },
 ];
 
+const navbarOptions = {
+	start: [
+		{ id: 1, title: 'All', value: 'All' },
+		{ id: 2, title: 'Sales', value: 'Sales' },
+		{ id: 3, title: 'Marketing', value: 'Marketing' },
+		{ id: 4, title: 'Operations', value: 'Operations' },
+	],
+	dashboard: [
+		{ id: 1, title: 'All', value: 'All' },
+		{ id: 2, title: 'Priority', value: 'Priority' },
+		{ id: 3, title: 'Tasks', value: 'Tasks' },
+		{ id: 4, title: 'Workflows', value: 'Workflows' },
+		{ id: 5, title: 'Recent Chats', value: 'Recent Chats' },
+		{ id: 6, title: 'Drafts & Activity', value: 'Drafts & Activity' },
+	],
+};
+
 const initialTopOffset = 300;
 
 const HomePage = () => {
@@ -35,6 +53,9 @@ const HomePage = () => {
 		selectedOption: 'All',
 		searchValue: '',
 	});
+
+	const title = info?.activeTab === 'start' ? 'Hey there,' : 'All Your';
+	const subTitle = info?.activeTab === 'start' ? "I'm here to help" : 'Task Collections';
 
 	useEffect(() => {
 		window?.addEventListener('scroll', handleScroll);
@@ -86,11 +107,9 @@ const HomePage = () => {
 
 				<div className="home-page-welcome-container">
 					<div className="home-page-welcome-container-left">
-						<div className="home-page-welcome-container-left-text">
-							<div className="home-page-hey-there-text">Hey there,</div>
-							<div className="home-page-help-text">I'm here to help</div>
-						</div>
+						<HeaderInfo title={title} subTitle={subTitle} />
 						<NavBar
+							options={navbarOptions[info?.activeTab]}
 							isNavbarFixed={info?.isNavbarFixed}
 							selectedOption={info?.selectedOption}
 							handleSelectedOption={handleSelectedOption}
