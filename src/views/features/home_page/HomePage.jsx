@@ -45,6 +45,19 @@ const navbarOptions = {
 	],
 };
 
+const propsForHeaderInfoAndNavBar = {
+	start: {
+		title: 'Hey there,',
+		subTitle: "I'm here to help",
+		selectedOption: 'selectedOptionInStart',
+	},
+	dashboard: {
+		title: 'All Your',
+		subTitle: 'Task Collections',
+		selectedOption: 'selectedOptionInDashboard',
+	},
+};
+
 const initialTopOffset = 300;
 
 const HomePage = () => {
@@ -57,11 +70,7 @@ const HomePage = () => {
 		searchValue: '',
 	});
 
-	// Derived States for conditional rendering
-	const title = info?.activeTab === 'start' ? 'Hey there,' : 'All Your';
-	const subTitle = info?.activeTab === 'start' ? "I'm here to help" : 'Task Collections';
-	const selectedOption =
-		info?.activeTab === 'start' ? 'selectedOptionInStart' : 'selectedOptionInDashboard';
+	const { title, subTitle, selectedOption } = propsForHeaderInfoAndNavBar[info?.activeTab];
 
 	useEffect(() => {
 		window?.addEventListener('scroll', handleScroll);
@@ -86,10 +95,6 @@ const HomePage = () => {
 	const handleSearchValue = (value) => {
 		setInfo({ ...info, searchValue: value });
 	};
-
-	useEffect(() => {
-		console.log(info?.showPromptPopup, 'PromptPopup testing');
-	}, [info?.showPromptPopup]);
 
 	return (
 		<>
