@@ -1,0 +1,146 @@
+.promptPopupContainer {
+	display: flex;
+	width: 600px;
+	padding: 36px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	border-radius: 32px;
+	background: #202123;
+	.promptPopupContainerHeader {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		align-self: stretch;
+		.promptPopupContainerHeaderLeft {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 4px;
+			.promptPopupContainerHeaderLeftTitle {
+				color: var(--primary-font-color, #f2f2f3);
+				font-family: var(--primary-font-family, 'Inter');
+				font-size: 20px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.promptPopupContainerHeaderLeftSubtitle {
+				color: linear-gradient(94deg, #ca9bfe -2.07%, #ca9bfe -2.06%, #fd749d 95.85%);
+				font-family: var(--primary-font-family, 'Inter');
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+	}
+	.promptPopupContainerBody {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: flex-end;
+		gap: 12px;
+		align-self: stretch;
+		.promptPopupContainerBodyText {
+			align-self: stretch;
+			border-radius: 12px;
+			border: 1px solid #2c2d2e;
+			background: #26282a;
+			padding: 18px;
+			color: var(--primary-font-color, #f2f2f3);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 24px; /* 171.429% */
+		}
+		.promptPopupContainerEmailPrompt {
+			color: var(--secondary-font-color, #797e86);
+			font-family: var(--primary-font-family, 'Inter');
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+	.promptPopupContainerFilesDiv {
+		display: flex;
+		padding: 18px;
+		flex-direction: column;
+		align-items: center;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 16px;
+		background: #26282a;
+		.promptPopupContainerSelectionFiles {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+			.promptPopupContainerSelectionFilesTitle {
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.promptPopupContainerSelectionFilesSearch {
+				display: flex;
+				padding: 12px;
+				align-items: center;
+				gap: 8px;
+				align-self: stretch;
+				border-radius: 12px;
+				border: 1px solid #2c2d2e;
+				border: 1px solid color(display-p3 0.1719 0.1753 0.1787);
+				.inputSearchText {
+					color: #797e86;
+					background-color: transparent;
+					border: none;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					flex: 1 0 0;
+				}
+			}
+		}
+		.promptPopupOptionsContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 2px;
+			align-self: stretch;
+			.promptPopupOptionsContainerFiles {
+				display: flex;
+				padding: 8px 12px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				align-self: stretch;
+				border-radius: 10px;
+				.promptPopupContainerFilesListFileIcon {
+					width: 24px;
+					height: 24px;
+					border-radius: 6px;
+					background: #202123;
+				}
+				.promptPopupContainerFilesListFile {
+					color: #f2f2f3;
+					color: color(display-p3 0.949 0.949 0.9529);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 22px;
+					flex: 1 0 0;
+				}
+			}
+		}
+	}
+}
