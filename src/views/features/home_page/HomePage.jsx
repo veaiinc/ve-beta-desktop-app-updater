@@ -23,9 +23,6 @@ const cards = [
 
 const HomePage = () => {
 	const [activeTab, setActiveTab] = useState('start');
-	const [selectedOption, setSelectedOption] = useState('All');
-	const [searchText, setSearchText] = useState('');
-	const [isSticky, setIsSticky] = useState(false);
 
 	return (
 		<>

@@ -22,6 +22,7 @@ const NavBar = () => {
 	// 	return () => {
 	// 		scrollableElement.removeEventListener('scroll', handleScroll);
 	// 	};
+
 	// }, [setIsSticky]);
 	return (
 		<div className={`home-page-welcome-container-left-text-options`}>
