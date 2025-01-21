@@ -51,8 +51,11 @@
 			flex-direction: row;
 			justify-content: space-between;
 			width: 100%;
+
 			.home-page-welcome-container-left {
+				background-color: var(--background-color, #0c0c0c);
 				display: inline-flex;
+				max-width: 1127px;
 				flex-direction: column;
 				align-items: flex-start;
 				gap: 16px;
@@ -133,6 +136,12 @@
 						}
 					}
 				}
+			}
+
+			.fixed {
+				position: fixed;
+				top: -32px;
+				z-index: 10;
 			}
 		}
 	}

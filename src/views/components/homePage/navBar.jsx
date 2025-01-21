@@ -2,19 +2,9 @@ import React, { useEffect, useState, memo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
 
-const NavBar = ({
-	options,
-	isNavbarFixed,
-	selectedOption,
-	handleSelectedOption,
-	handleSearchValue,
-}) => {
+const NavBar = ({ options, selectedOption, handleSelectedOption, handleSearchValue }) => {
 	return (
-		<div
-			className={`home-page-welcome-container-left-text-options ${
-				isNavbarFixed ? 'fixed' : ''
-			}`}
-		>
+		<div className="home-page-welcome-container-left-text-options">
 			<div className="home-page-welcome-container-left-text-options-container">
 				{options?.map((option) => (
 					<div

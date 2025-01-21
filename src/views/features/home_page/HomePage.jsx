@@ -59,7 +59,7 @@ const propsForHeaderInfoAndNavBar = {
 	},
 };
 
-const initialTopOffset = 300;
+const thresholdTopOffset = 150;
 
 const HomePage = () => {
 	const [info, setInfo] = useState({
@@ -74,15 +74,16 @@ const HomePage = () => {
 	const { title, subTitle, selectedOption } = propsForHeaderInfoAndNavBar[info?.activeTab];
 
 	useEffect(() => {
-		window?.addEventListener('scroll', handleScroll);
+		const homePageContainer = document.querySelector('.home-page-container');
+		homePageContainer?.addEventListener('scroll', setNavbarFixed);
 		return () => {
-			window?.removeEventListener('scroll', handleScroll);
+			homePageContainer?.removeEventListener('scroll', setNavbarFixed);
 		};
-	}, [info?.isNavbarFixed]);
+	}, []);
 
-	const handleScroll = () => {
-		console.log(window?.scrollY >= initialTopOffset);
-		if (window?.scrollY >= initialTopOffset) {
+	const setNavbarFixed = (e) => {
+		const topOffset = e?.target?.scrollTop;
+		if (topOffset >= thresholdTopOffset) {
 			setInfo({ ...info, isNavbarFixed: true });
 		} else {
 			setInfo({ ...info, isNavbarFixed: false });
@@ -123,11 +124,18 @@ const HomePage = () => {
 					</div>
 
 					<div className="home-page-welcome-container">
-						<div className="home-page-welcome-container-left">
-							<HeaderInfo title={title} subTitle={subTitle} />
+						<div
+							className={`home-page-welcome-container-left ${
+								info?.isNavbarFixed ? 'fixed' : ''
+							}`}
+						>
+							<HeaderInfo
+								isNavbarFixed={info?.isNavbarFixed}
+								title={title}
+								subTitle={subTitle}
+							/>
 							<NavBar
 								options={navbarOptions[info?.activeTab]}
-								isNavbarFixed={info?.isNavbarFixed}
 								selectedOption={info?.[selectedOption]}
 								handleSelectedOption={handleSelectedOption}
 								handleSearchValue={handleSearchValue}
