@@ -2,40 +2,32 @@ import React, { useEffect, useState, memo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
 
-const options = ['All', 'Sales', 'Marketing', 'Operations'];
-const NavBar = () => {
-	const [isSticky, setIsSticky] = useState(false);
-	const [selectedOption, setSelectedOption] = useState('All');
-	const [searchText, setSearchText] = useState('');
+const options = [
+	{ id: 1, title: 'All', value: 'All' },
+	{ id: 2, title: 'Sales', value: 'Sales' },
+	{ id: 3, title: 'Marketing', value: 'Marketing' },
+	{ id: 4, title: 'Operations', value: 'Operations' },
+];
 
-	// useEffect(() => {
-	// 	const scrollableElement = document.querySelector('.home-page-container');
-	// 	const handleScroll = () => {
-	// 		if (scrollableElement.scrollTop > 10) {
-	// 			setIsSticky(true);
-	// 			console.log('Function Triggered');
-	// 		} else {
-	// 			setIsSticky(false);
-	// 		}
-	// 	};
-	// 	scrollableElement.addEventListener('scroll', handleScroll);
-	// 	return () => {
-	// 		scrollableElement.removeEventListener('scroll', handleScroll);
-	// 	};
-
-	// }, [setIsSticky]);
+const NavBar = ({ isNavbarFixed, selectedOption, handleSelectedOption, handleSearchValue }) => {
+	console.log(selectedOption, options);
 	return (
-		<div className={`home-page-welcome-container-left-text-options`}>
+		<div
+			className={`home-page-welcome-container-left-text-options ${
+				isNavbarFixed ? 'fixed' : ''
+			}`}
+		>
 			<div className="home-page-welcome-container-left-text-options-container">
 				{options?.map((option) => (
 					<div
+						key={option?.id}
 						className={`home-page-welcome-container-left-text-option ${
-							selectedOption === option ? 'active' : ''
+							selectedOption === option?.value ? 'active' : ''
 						}`}
-						onClick={() => setSelectedOption(option)}
+						onClick={() => handleSelectedOption(option?.value)}
 					>
-						{option}
-						{selectedOption === option && (
+						{option?.title}
+						{selectedOption === option?.value && (
 							<div className="home-page-welcome-container-left-text-option-active-indicator"></div>
 						)}
 					</div>
@@ -47,8 +39,7 @@ const NavBar = () => {
 					type="text"
 					placeholder="Search Tasks"
 					className="search-bar-input"
-					value={searchText}
-					onChange={(e) => setSearchText(e?.target?.value)}
+					onChange={(e) => handleSearchValue(e?.target?.value)}
 				/>
 			</div>
 		</div>

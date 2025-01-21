@@ -26,17 +26,49 @@ const topNavOptions = [
 	{ id: 1, title: 'Dashboard', value: 'dashboard' },
 ];
 
+const initialTopOffset = 300;
+
 const HomePage = () => {
 	const [info, setInfo] = useState({
 		activeTab: 'start',
+		isNavbarFixed: false,
+		selectedOption: 'All',
+		searchValue: '',
 	});
+
+	useEffect(() => {
+		window?.addEventListener('scroll', handleScroll);
+		return () => {
+			window?.removeEventListener('scroll', handleScroll);
+		};
+	}, [info?.isNavbarFixed]);
+
+	const handleScroll = () => {
+		console.log(window?.scrollY >= initialTopOffset);
+		if (window?.scrollY >= initialTopOffset) {
+			setInfo({ ...info, isNavbarFixed: true });
+		} else {
+			setInfo({ ...info, isNavbarFixed: false });
+		}
+	};
+
+	const handleSelectedOption = (value) => {
+		setInfo({ ...info, selectedOption: value });
+	};
+
+	const handleSearchValue = (value) => {
+		setInfo({ ...info, searchValue: value });
+	};
 
 	return (
 		<div className="home-page-container">
 			<div className="home-page-container-header">
 				<div className="home-page-container-content">
 					{topNavOptions?.map((option) => (
-						<>
+						<div
+							key={option?.id}
+							className="home-page-container-content-item-container"
+						>
 							<div
 								className={`home-page-container-content-item ${
 									info?.activeTab === option?.value ? 'active' : ''
@@ -48,7 +80,7 @@ const HomePage = () => {
 							{option?.id !== topNavOptions?.length - 1 && (
 								<div className="home-page-container-content-item-divider"></div>
 							)}
-						</>
+						</div>
 					))}
 				</div>
 
@@ -58,7 +90,12 @@ const HomePage = () => {
 							<div className="home-page-hey-there-text">Hey there,</div>
 							<div className="home-page-help-text">I'm here to help</div>
 						</div>
-						<NavBar />
+						<NavBar
+							isNavbarFixed={info?.isNavbarFixed}
+							selectedOption={info?.selectedOption}
+							handleSelectedOption={handleSelectedOption}
+							handleSearchValue={handleSearchValue}
+						/>
 					</div>
 				</div>
 			</div>
