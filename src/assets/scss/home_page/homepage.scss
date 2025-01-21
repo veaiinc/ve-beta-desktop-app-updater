@@ -28,6 +28,7 @@
 				font-weight: 500;
 				line-height: normal;
 				text-transform: capitalize;
+				cursor: pointer;
 				&.active {
 					color: var(--primary-font-color, #f2f2f3);
 				}
@@ -117,7 +118,7 @@
 						.search-bar-input {
 							background: #202123;
 							border: none;
-							color: var(--secondary-font-color, #797e86)	;
+							color: var(--secondary-font-color, #797e86);
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;

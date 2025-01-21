@@ -21,6 +21,11 @@ const cards = [
 	{ id: 15, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
 ];
 
+const topNavOptions = [
+	{ id: 0, title: 'Start', value: 'start' },
+	{ id: 1, title: 'Dashboard', value: 'dashboard' },
+];
+
 const HomePage = () => {
 	const [info, setInfo] = useState({
 		activeTab: 'start',
@@ -30,30 +35,28 @@ const HomePage = () => {
 		<div className="home-page-container">
 			<div className="home-page-container-header">
 				<div className="home-page-container-content">
-					<div
-						className={`home-page-container-content-item ${
-							info?.activeTab === 'start' ? 'active' : ''
-						}`}
-						onClick={() => setInfo({ ...info, activeTab: 'start' })}
-					>
-						Start
-					</div>
-					<div className="home-page-container-content-item-divider"></div>
-					<div
-						className={`home-page-container-content-item ${
-							info?.activeTab === 'dashboard' ? 'active' : ''
-						}`}
-						onClick={() => setInfo({ ...info, activeTab: 'dashboard' })}
-					>
-						Dashboard
-					</div>
+					{topNavOptions?.map((option) => (
+						<>
+							<div
+								className={`home-page-container-content-item ${
+									info?.activeTab === option?.value ? 'active' : ''
+								}`}
+								onClick={() => setInfo({ ...info, activeTab: option?.value })}
+							>
+								{option?.title}
+							</div>
+							{option?.id !== topNavOptions?.length - 1 && (
+								<div className="home-page-container-content-item-divider"></div>
+							)}
+						</>
+					))}
 				</div>
 
 				<div className="home-page-welcome-container">
 					<div className="home-page-welcome-container-left">
 						<div className="home-page-welcome-container-left-text">
 							<div className="home-page-hey-there-text">Hey there,</div>
-							<div className="home-page-help-text">I’m here to help</div>
+							<div className="home-page-help-text">I'm here to help</div>
 						</div>
 						<NavBar />
 					</div>
