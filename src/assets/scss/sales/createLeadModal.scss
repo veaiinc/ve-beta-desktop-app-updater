@@ -113,7 +113,7 @@
 				gap: 1rem;
 
 				border-radius: 6.25rem;
-				border: 1px solid rgba(36, 36, 36, 0.64);
+				border: 1px solid var(--stroke);
 				background: var(--background-color);
 
 				cursor: pointer;
@@ -142,7 +142,7 @@
 				background: var(--accent-color);
 
 				p {
-					color: #e4e5e6;
+					color: var(--primary-font);
 				}
 			}
 		}

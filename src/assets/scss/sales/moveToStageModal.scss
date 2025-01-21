@@ -6,7 +6,7 @@
 	align-items: flex-start;
 	gap: 32px;
 	border-radius: 32px;
-	background: #151515;
+	background: var(--background-color);
 	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
 	height: 350px;
 	.movetoStageHeaderContainer {
@@ -15,7 +15,7 @@
 		gap: var(--Spacing-space-3, 4px);
 		align-self: stretch;
 		.headerTitle {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
@@ -41,7 +41,7 @@
 		align-self: stretch;
 
 		.dropDownLabel {
-			color: #b0b0b0;
+			color: var(--secondary-font);
 			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
@@ -62,9 +62,9 @@
 			align-items: center;
 			gap: 16px;
 			border-radius: 100px;
-			border: 1px solid rgba(36, 36, 36, 0.64);
-			background: rgba(42, 42, 42, 0.16);
-			color: #e4e5e6;
+			border: 1px solid var(--stroke);
+			background: var(--background-color);
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
@@ -79,7 +79,7 @@
 			height: 16px;
 			padding-right: 4px;
 			align-items: center;
-			color: rgba(228, 229, 230, 0.64);
+			color: var(--secondary-font);
 			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
@@ -89,7 +89,7 @@
 			cursor: pointer;
 		}
 		.cancelBtn:hover {
-			color: #e4e5e6;
+			color: var(--primary-font);
 		}
 	}
 }

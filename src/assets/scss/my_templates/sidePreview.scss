@@ -64,15 +64,14 @@
 		.button {
 			border-radius: 23px;
 			width: 100%;
-			background: #fafafa;
+			background: var(--background-color);
 			display: flex;
 			padding: 16px 32px;
 			justify-content: center;
 			align-items: center;
 			gap: 16px;
 			align-self: stretch;
-			color: #3f3f3f;
-			color: color(display-p3 0.2471 0.2471 0.2471);
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
@@ -161,7 +160,7 @@
 					width: 6px;
 					height: 6px;
 					border-radius: 100%;
-					background: #939393;
+					background: var(--secondary-font);
 				}
 				.DocsButtontext {
 					color: var(--primary-font);

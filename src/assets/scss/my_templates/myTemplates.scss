@@ -39,7 +39,7 @@
 				align-items: flex-start;
 				gap: 6px;
 				border-radius: 14px;
-				background: #171819;
+				background: var(--card);
 
 				.cardTitle {
 					color: var(--primary-font);
@@ -102,7 +102,7 @@
 
 				.active {
 					color: var(--primary-font);
-					border-bottom: 1px solid #e4e5e6;
+					border-bottom: 1px solid var(--stroke);
 				}
 			}
 
@@ -138,8 +138,7 @@
 				align-items: flex-start;
 				gap: 12px;
 				border-radius: 14px;
-				border: 0.5px solid rgba(100, 100, 100, 0.16);
-				border: 0.5px solid color(display-p3 0.3932 0.3932 0.3932 / 0.16);
+				border: 0.5px solid var(--stroke);
 				background: var(--popup);
 				overflow: hidden;
 				flex-shrink: 0;
