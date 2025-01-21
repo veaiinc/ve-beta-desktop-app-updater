@@ -57,13 +57,18 @@
 			font-weight: 500;
 			line-height: 24px; /* 171.429% */
 		}
-		.promptPopupContainerEmailPrompt {
-			color: var(--secondary-font-color, #797e86);
-			font-family: var(--primary-font-family, 'Inter');
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
+		.promptPopupContainerEmailPromptContainer {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			.promptPopupContainerEmailPrompt {
+				color: var(--secondary-font-color, #797e86);
+				font-family: var(--primary-font-family, 'Inter');
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
 		}
 	}
 	.promptPopupContainerSelectedFilesDiv {

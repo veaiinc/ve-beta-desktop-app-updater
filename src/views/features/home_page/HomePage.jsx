@@ -69,6 +69,8 @@ const HomePage = () => {
 		selectedOptionInStart: 'All',
 		selectedOptionInDashboard: 'All',
 		searchValue: '',
+		selectedCard: null,
+		selectedOptions: {},
 	});
 
 	const { title, subTitle, selectedOption } = propsForHeaderInfoAndNavBar[info?.activeTab];
@@ -142,7 +144,13 @@ const HomePage = () => {
 							<div
 								key={card?.id}
 								className="home-page-cards-container-card"
-								onClick={() => setInfo({ ...info, showPromptPopup: true })}
+								onClick={() => {
+									setInfo({
+										...info,
+										showPromptPopup: true,
+										selectedCard: card,
+									});
+								}}
 							>
 								<div className="home-page-cards-container-card-sub-title">
 									{card?.subTitle}
@@ -163,6 +171,7 @@ const HomePage = () => {
 			<PromptPopup
 				open={info?.showPromptPopup}
 				closeModal={() => setInfo({ ...info, showPromptPopup: false })}
+				selectedCard={info?.selectedCard}
 			/>
 		</>
 	);
