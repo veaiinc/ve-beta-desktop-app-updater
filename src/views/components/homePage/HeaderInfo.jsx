@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 
 const HeaderInfo = ({ title, subTitle }) => {
@@ -10,4 +10,4 @@ const HeaderInfo = ({ title, subTitle }) => {
 	);
 };
 
-export default HeaderInfo;
+export default memo(HeaderInfo);
