@@ -13,7 +13,7 @@ const HomePageDashboard = ({ selectedOption }) => {
 			Workflows: <WorkflowsTab />,
 		};
 	}, []);
-
+	console.log(selectedOption, componentMapper?.[selectedOption]);
 	return (
 		<div className={'home-page-dashboard-container'}>{componentMapper?.[selectedOption]}</div>
 	);

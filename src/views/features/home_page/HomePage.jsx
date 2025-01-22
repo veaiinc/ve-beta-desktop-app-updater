@@ -101,7 +101,7 @@ const HomePage = () => {
 		return (activeTab) => {
 			return componentMapper[activeTab] || null;
 		};
-	}, []);
+	}, [componentMapper]);
 
 	const setNavbarFixed = (e) => {
 		const topOffset = e?.target?.scrollTop;
