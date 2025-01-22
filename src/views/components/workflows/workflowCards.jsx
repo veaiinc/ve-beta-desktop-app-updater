@@ -29,7 +29,7 @@ const options = [
 	},
 ];
 
-const WeddingDayTimeLine = memo(() => {
+const WeddingDayTimeLine = () => {
 	const [activeTab, setActiveTab] = useState('Steps');
 
 	const componentMapper = useMemo(() => {
@@ -41,11 +41,6 @@ const WeddingDayTimeLine = memo(() => {
 		};
 	}, []);
 
-	const renderActiveTab = useMemo(() => {
-		return (activeTab) => {
-			return componentMapper[activeTab] || null;
-		};
-	}, [componentMapper]);
 	return (
 		<div className="workflow-cards-container">
 			<div className="workflow-cards-header">
@@ -65,9 +60,9 @@ const WeddingDayTimeLine = memo(() => {
 					);
 				})}
 			</div>
-			{renderActiveTab(activeTab)}
+			{componentMapper?.[activeTab]}
 		</div>
 	);
-});
+};
 
-export { WeddingDayTimeLine };
+export default memo(WeddingDayTimeLine);

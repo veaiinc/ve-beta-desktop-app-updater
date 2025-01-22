@@ -14,13 +14,9 @@ const HomePageDashboard = ({ selectedOption }) => {
 		};
 	}, []);
 
-	// Render selected tab component
-	const renderActiveTab = useMemo(() => {
-		return (activeTab) => {
-			return componentMapper[activeTab] || null;
-		};
-	}, [componentMapper]);
-	return <div className={'home-page-dashboard-container'}>{renderActiveTab(selectedOption)}</div>;
+	return (
+		<div className={'home-page-dashboard-container'}>{componentMapper?.[selectedOption]}</div>
+	);
 };
 
 export default memo(HomePageDashboard);

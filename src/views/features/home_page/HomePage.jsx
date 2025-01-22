@@ -101,7 +101,7 @@ const HomePage = () => {
 		return (activeTab) => {
 			return componentMapper[activeTab] || null;
 		};
-	}, [componentMapper]);
+	}, []);
 
 	const setNavbarFixed = (e) => {
 		const topOffset = e?.target?.scrollTop;
@@ -134,7 +134,12 @@ const HomePage = () => {
 									className={`home-page-container-content-item ${
 										info?.activeTab === option?.value ? 'active' : ''
 									}`}
-									onClick={() => setInfo({ ...info, activeTab: option?.value })}
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											activeTab: option?.value,
+										}))
+									}
 								>
 									{option?.title}
 								</div>

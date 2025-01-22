@@ -7,6 +7,7 @@ const AllTab = () => {
 	return (
 		<div className={`all-tab-container`}>
 			<Activity />
+			<Activity />
 		</div>
 	);
 };
