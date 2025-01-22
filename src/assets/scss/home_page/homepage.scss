@@ -176,11 +176,20 @@
 	}
 
 	.home-page-dashboard-container {
-		display: flex;
-		flex-direction: row;
-		gap: 18px;
 		position: relative;
 		transition: 300s;
 		// opacity: 0;
+
+		.drafts-and-activity-tab {
+			display: flex;
+			flex-direction: row;
+			gap: 18px;
+		}
+
+		.workflows-tab {
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
+		}
 	}
 }

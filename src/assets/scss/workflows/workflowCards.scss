@@ -1,0 +1,30 @@
+.workflow-cards-container {
+	border-radius: 32px;
+	background: linear-gradient(
+		135deg,
+		color(display-p3 0.0971 0.101 0.1049) 0.86%,
+		color(display-p3 0.0893 0.0893 0.0949) 70.68%
+	);
+    width: 350px;
+    height: 400px;
+	padding: 1.5rem;
+
+	.workflow-cards-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		align-self: stretch;
+
+		.workflow-cards-header-text {
+			color: #e8e8e8;
+
+			/* Body/Body Text - 16 */
+			font-family: Inter;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+}
