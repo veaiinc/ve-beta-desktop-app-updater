@@ -76,6 +76,8 @@ export const intialState = {
 	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
 	docsFilesList: null,
 	moreDocsFilesList: null,
+	formsTemplatesList: null,
+	moreFormsTemplatesList: null,
 };
 
 export const TemplatesState = (props) => {
@@ -541,6 +543,41 @@ export const TemplatesState = (props) => {
 			});
 		} else {
 			console.log('api failed ==>getTemplatesListForDocs', response);
+		}
+	};
+
+	const getTemplatesListForForms = async (page = 1, limit = 10, fetchMore = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const payload = {
+			filters: {
+				limit,
+				page,
+				type: 'workspace',
+				status: 'published',
+				sortBy: 'createdAt',
+				sortType: -1,
+				action: 'form-submission',
+			},
+		};
+		const response = await service.query(
+			getTemplatesListForCreateLeadQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			const selectedvariable = fetchMore ? 'moreFormsTemplatesList' : 'formsTemplatesList';
+			dispatch({
+				type: Actions.GET_TEMPLATES_LIST_FOR_FORMS_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+				selectedvariable,
+			});
+		} else {
+			console.log('api failed ==>getTemplatesListForForms', response);
 		}
 	};
 
@@ -1379,5 +1416,6 @@ export const TemplatesState = (props) => {
 		uploadImageInSmartFileAi,
 		handleGlobalChatMessages,
 		getDocsFilesList,
+		getTemplatesListForForms,
 	};
 };

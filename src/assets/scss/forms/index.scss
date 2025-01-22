@@ -250,5 +250,99 @@
 				}
 			}
 		}
+
+		.formsInfiniteContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			width: 100%;
+			flex: 1;
+
+			.docsRow {
+				display: flex;
+				display: flex;
+				padding: 8px 12px;
+				justify-content: space-between;
+				align-items: center;
+				border-radius: 14px;
+				cursor: pointer;
+				transition: background 0.2s ease-in-out;
+
+				.docsFilesRowTitle {
+					overflow: hidden;
+					color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+					color: var(
+						--ve-ai-dark-theme-primary-font-color,
+						color(display-p3 0.9098 0.9098 0.9098)
+					);
+					text-overflow: ellipsis;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+				.docsKeyWordsContainer {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					flex: 1;
+					justify-content: flex-end;
+
+					.docsclientdetailsName {
+						color: #e8e8e8;
+						color: color(display-p3 0.9098 0.9098 0.9098);
+						font-family: Inter;
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+
+					.DocsStatusButtonOuterContainer {
+						display: flex;
+						padding: 4px 6px;
+						justify-content: center;
+						align-items: center;
+						gap: 4px;
+						border-radius: 35px;
+						background: #373737;
+						background: color(display-p3 0.2161 0.2161 0.2161);
+
+						.DocsStatusCircle {
+							width: 6px;
+							height: 6px;
+							border-radius: 100%;
+							background: #939393;
+						}
+						.DocsButtontext {
+							color: #e8e8e8;
+							color: color(display-p3 0.9098 0.9098 0.9098);
+							text-align: center;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+
+					.docsStatusButton {
+						display: flex;
+						padding: 4px 6px;
+						justify-content: center;
+						align-items: center;
+						gap: 4px;
+						border-radius: 35px;
+						background: #373737;
+						background: color(display-p3 0.2161 0.2161 0.2161);
+					}
+				}
+
+				&:hover {
+					background: var(--card, #171819);
+				}
+			}
+		}
 	}
 }

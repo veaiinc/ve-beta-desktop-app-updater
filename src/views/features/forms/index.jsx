@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useContext, useEffect, useCallback } from 'react';
 import '../../../assets/scss/forms/index.scss';
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import { useNavigate } from 'react-router-dom';
@@ -12,18 +12,75 @@ import { ReactComponent as ThreeDots } from '../../../assets/svg/docs/three-dots
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import Context from '../../../context/context';
 import DropDown from '../../components/dropDown/tasks/DropDown';
 
-let origin = fetchOriginSelection();
+// let origin = fetchOriginSelection();
 
 const Forms = () => {
+	const navigate = useNavigate();
+
+	const {
+		templates: { getTemplatesListForForms, formsTemplatesList, moreFormsTemplatesList },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		appliedFilters: [],
+		currentPage: 1,
+		hasNextPage: true,
+		loading: true,
+		formsData: [],
+		searchValue: '',
+		searchExpand: false,
 	});
-	const navigate = useNavigate();
-	// const onGenerateAIFunc = () => {
-	// 	window.location.href = `${origin}/generate`;
-	// };
+
+	useEffect(() => {
+		const fetchInitialData = async () => {
+			try {
+				await getTemplatesListForForms(1, 30, false);
+			} catch (error) {
+				console.error('Error fetching initial forms data:', error);
+			}
+		};
+		fetchInitialData();
+	}, []); // No dependencies to prevent infinite calls
+
+	useEffect(() => {
+		if (formsTemplatesList?.data) {
+			setInfo((prev) => ({
+				...prev,
+				formsData: formsTemplatesList?.data || [],
+				hasNextPage: formsTemplatesList?.hasNextPage || false,
+				loading: false,
+			}));
+		}
+	}, [formsTemplatesList]);
+
+	useEffect(() => {
+		if (moreFormsTemplatesList?.data) {
+			setInfo((prev) => ({
+				...prev,
+				formsData: [...prev.formsData, ...(moreFormsTemplatesList?.data || [])],
+				hasNextPage: moreFormsTemplatesList?.hasNextPage || false,
+				loading: false,
+			}));
+		}
+	}, [moreFormsTemplatesList]);
+
+	const fetchMoreForms = async () => {
+		if (info?.hasNextPage) {
+			const nextPage = info?.currentPage + 1;
+			try {
+				await getTemplatesListForForms(nextPage, 30, true);
+				setInfo((prev) => ({
+					...prev,
+					currentPage: nextPage,
+				}));
+			} catch (error) {
+				console.error('Error fetching more forms:', error);
+			}
+		}
+	};
 
 	return (
 		<div className="formsParentContainer">
@@ -76,16 +133,7 @@ const Forms = () => {
 											className={`${appliedFilter?.filter}`}
 											height="268px"
 											options={info?.[appliedFilter?.filterOptionsListName]}
-											// onOptionClick={(option) =>
-											// 	handleSetFilterOptions(
-											// 		option,
-											// 		appliedFilter?.filter,
-											// 	)
-											// }
 											onOptionClick={() => {}}
-											// fetchMoreOptions={() =>
-											// 	fetchMoreDocs(appliedFilter?.filter)
-											// }
 											fetchMoreOptions={() => {}}
 											hasMoreOptions={
 												info?.hasMoreForFilter?.[appliedFilter?.filter]
@@ -93,7 +141,6 @@ const Forms = () => {
 											searchInput={true}
 											searchInputPlaceholder="Filter By"
 											searchValue={info?.searchValue}
-											// setSearchValue={handleFilterPopUpSearch}
 											setSearchValue={() => {}}
 										/>
 									}
@@ -108,13 +155,7 @@ const Forms = () => {
 													?.title ??
 												''}
 										</span>
-										<span
-											className="removeFilterBtn"
-											// onClick={() =>
-											// 	handleRemoveSelectedFilter(appliedFilter?.filter)
-											// }
-											onClick={() => {}}
-										>
+										<span className="removeFilterBtn" onClick={() => {}}>
 											<CrossPurple />
 										</span>
 									</div>
@@ -191,7 +232,6 @@ const Forms = () => {
 								background: '#202123',
 								boxShadow: '0px 2px 44px 0px rgba(0, 0, 0, 0.25)',
 							}}
-							// onOptionClick={handleSetActiveFilter}
 							onOptionClick={() => {}}
 						>
 							<Filter style={{ width: '20px', height: '20px', marginTop: '6px' }} />
@@ -200,17 +240,15 @@ const Forms = () => {
 					</div>
 				</div>
 
-				{/* infinity scroll */}
-				<div className="docsFilesInfiiniteContainer">
+				<div className="formsInfiniteContainer">
 					{info?.loading ? (
 						[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]?.map(
 							(ele, index) => <Skeleton key={index} height={36} />,
 						)
 					) : (
 						<InfiniteScroll
-							dataLength={info?.docsData?.length || 0}
-							// next={fetcMoreDocsFilesList}
-							next={() => {}}
+							dataLength={info?.formsData?.length || 0}
+							next={fetchMoreForms}
 							hasMore={info?.hasNextPage}
 							loader={<FetchMoreLoaderComp />}
 							style={{
@@ -222,11 +260,10 @@ const Forms = () => {
 							className="tetsing"
 							height="calc(100vh - 310px)"
 						>
-							{info?.docsData?.map((ele, index) => (
+							{info?.formsData?.map((ele, index) => (
 								<div
 									className="docsRow"
 									key={index}
-									// onClick={() => handleOpenSidebar(ele)}
 									onClick={() => {
 										navigate(`/form-leads`);
 									}}
