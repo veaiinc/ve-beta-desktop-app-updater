@@ -84,24 +84,15 @@ const HomePage = () => {
 		};
 	}, [info?.isNavbarFixed]);
 
-	const componentMapper = useMemo(() => {
-		return {
-			start: <HomePageStart cards={cards} info={info} setInfo={setInfo} />,
-			dashboard: (
-				<HomePageDashboard
-					selectedOption={info?.[selectedOption]}
-					options={navbarOptions?.dashboard}
-				/>
-			),
-		};
-	}, [info, cards, navbarOptions]);
-
-	// Render selected tab component
-	const renderActiveTab = useMemo(() => {
-		return (activeTab) => {
-			return componentMapper[activeTab] || null;
-		};
-	}, [componentMapper]);
+	const componentMapper = {
+		start: <HomePageStart cards={cards} info={info} setInfo={setInfo} />,
+		dashboard: (
+			<HomePageDashboard
+				selectedOption={info?.[selectedOption]}
+				options={navbarOptions?.dashboard}
+			/>
+		),
+	};
 
 	const setNavbarFixed = (e) => {
 		const topOffset = e?.target?.scrollTop;
@@ -121,64 +112,62 @@ const HomePage = () => {
 	};
 
 	return (
-		<>
-			<div className="home-page-container">
-				<div className="home-page-container-header">
-					<div className="home-page-container-content">
-						{topNavOptions?.map((option) => (
-							<div
-								key={option?.id}
-								className="home-page-container-content-item-container"
-							>
-								<div
-									className={`home-page-container-content-item ${
-										info?.activeTab === option?.value ? 'active' : ''
-									}`}
-									onClick={() =>
-										setInfo((prev) => ({
-											...prev,
-											activeTab: option?.value,
-										}))
-									}
-								>
-									{option?.title}
-								</div>
-								{option?.id !== topNavOptions?.length - 1 && (
-									<div className="home-page-container-content-item-divider"></div>
-								)}
-							</div>
-						))}
-					</div>
-
-					<div className="home-page-welcome-container">
+		<div className="home-page-container">
+			<div className="home-page-container-header">
+				<div className="home-page-container-content">
+					{topNavOptions?.map((option) => (
 						<div
-							className={`home-page-welcome-container-left ${
-								info?.isNavbarFixed ? 'fixed' : ''
-							}`}
+							key={option?.id}
+							className="home-page-container-content-item-container"
 						>
-							<HeaderInfo
-								isNavbarFixed={info?.isNavbarFixed}
-								title={title}
-								subTitle={subTitle}
-							/>
-							<NavBar
-								options={navbarOptions[info?.activeTab]}
-								selectedOption={info?.[selectedOption]}
-								handleSelectedOption={handleSelectedOption}
-								handleSearchValue={handleSearchValue}
-							/>
+							<div
+								className={`home-page-container-content-item ${
+									info?.activeTab === option?.value ? 'active' : ''
+								}`}
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										activeTab: option?.value,
+									}))
+								}
+							>
+								{option?.title}
+							</div>
+							{option?.id !== topNavOptions?.length - 1 && (
+								<div className="home-page-container-content-item-divider"></div>
+							)}
 						</div>
-					</div>
+					))}
 				</div>
 
-				{renderActiveTab(info?.activeTab)}
+				<div className="home-page-welcome-container">
+					<div
+						className={`home-page-welcome-container-left ${
+							info?.isNavbarFixed ? 'fixed' : ''
+						}`}
+					>
+						<HeaderInfo
+							isNavbarFixed={info?.isNavbarFixed}
+							title={title}
+							subTitle={subTitle}
+						/>
+						<NavBar
+							options={navbarOptions[info?.activeTab]}
+							selectedOption={info?.[selectedOption]}
+							handleSelectedOption={handleSelectedOption}
+							handleSearchValue={handleSearchValue}
+						/>
+					</div>
+				</div>
 			</div>
+
+			{componentMapper?.[info?.activeTab]}
 			<PromptPopup
 				open={info?.showPromptPopup}
 				closeModal={() => setInfo({ ...info, showPromptPopup: false })}
 				selectedCard={info?.selectedCard}
 			/>
-		</>
+		</div>
 	);
 };
 

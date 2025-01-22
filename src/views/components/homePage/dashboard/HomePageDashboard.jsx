@@ -6,14 +6,12 @@ import DraftsAndActivityTab from './DraftsAndActivityTab';
 import WorkflowsTab from './WorkflowsTab';
 
 const HomePageDashboard = ({ selectedOption }) => {
-	const componentMapper = useMemo(() => {
-		return {
-			All: <AllTab />,
-			'Drafts & Activity': <DraftsAndActivityTab />,
-			Workflows: <WorkflowsTab />,
-		};
-	}, []);
-	console.log(selectedOption, componentMapper?.[selectedOption]);
+	const componentMapper = {
+		All: <AllTab />,
+		'Drafts & Activity': <DraftsAndActivityTab />,
+		Workflows: <WorkflowsTab />,
+	};
+
 	return (
 		<div className={'home-page-dashboard-container'}>{componentMapper?.[selectedOption]}</div>
 	);

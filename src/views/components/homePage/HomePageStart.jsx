@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 const HomePageStart = ({ cards, info, setInfo }) => {
 	return (
@@ -23,4 +23,4 @@ const HomePageStart = ({ cards, info, setInfo }) => {
 	);
 };
 
-export default HomePageStart;
+export default memo(HomePageStart);
