@@ -58,17 +58,9 @@ const TableBody = ({
 	);
 
 	return (
-		<tbody className="table-body" style={{ width: '100%', minWidth: '100%' }}>
+		<tbody className="table-body">
 			{data.map((row, rowIndex) => (
-				<tr
-					key={rowIndex}
-					className="table-row"
-					style={{
-						display: 'flex',
-						width: '100%',
-						minWidth: '100%',
-					}}
-				>
+				<tr key={rowIndex} className="table-row">
 					{columns.map((column, colIndex) => (
 						<td
 							key={`${rowIndex}-${column.id}`}
@@ -77,6 +69,7 @@ const TableBody = ({
 							}`}
 							style={{
 								'--width': `${column?.width}px`,
+								width: column?.width,
 								flex: '1 0 auto',
 							}}
 						>

@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
+import Skeleton from 'react-loading-skeleton';
 
-const TableHeader = ({ columns, handleResizeStart }) => {
+const TableHeader = ({ columns, handleResizeStart, loading }) => {
 	return (
 		<Droppable droppableId="table-header" direction="horizontal">
 			{(provided) => (
@@ -9,20 +10,15 @@ const TableHeader = ({ columns, handleResizeStart }) => {
 					className="table-header"
 					ref={provided.innerRef}
 					{...provided.droppableProps}
-					style={{
-						borderBottom: '1px solid #e0e0e0',
-					}}
 				>
-					<tr
-						style={{
-							display: 'flex',
-							width: '100%',
-							minWidth: '100%',
-							borderBottom: '1px solid #e0e0e0',
-						}}
-					>
+					<tr>
 						{columns.map((column, index) => (
-							<Draggable key={column.id} draggableId={column.id} index={index}>
+							<Draggable
+								key={column.id}
+								draggableId={column.id}
+								index={index}
+								isDragDisabled={loading}
+							>
 								{(provided, snapshot) => (
 									<th
 										ref={provided.innerRef}
@@ -33,6 +29,7 @@ const TableHeader = ({ columns, handleResizeStart }) => {
 										style={{
 											...provided.draggableProps.style,
 											'--width': `${column?.width}px`,
+											width: column?.width,
 											flex: '1 0 auto',
 										}}
 									>
@@ -43,9 +40,20 @@ const TableHeader = ({ columns, handleResizeStart }) => {
 											{column?.Icon && (
 												<column.Icon className="table-header-icon" />
 											)}
-											<div className="header-label">{column?.label}</div>
+											<div className="header-label">
+												{loading ? (
+													<Skeleton
+														height={16}
+														width="80%"
+														baseColor="#202020"
+														highlightColor="#444"
+													/>
+												) : (
+													column?.label
+												)}
+											</div>
 										</div>
-										{index < columns?.length - 1 && (
+										{!loading && index < columns?.length - 1 && (
 											<div
 												className="resize-handle"
 												onMouseDown={(e) => handleResizeStart(e, index)}

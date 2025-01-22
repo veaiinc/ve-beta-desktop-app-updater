@@ -2,6 +2,8 @@ import React, { memo, useState, useCallback, useRef, useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 import TableHeader from './TableHeader';
 import TableBody from './TableBody';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import '../../../../assets/scss/tasks/tableView.scss';
 
 const TableView = ({
@@ -13,6 +15,7 @@ const TableView = ({
 	handleEditPropertyChange,
 	colors,
 	isSubTask = false,
+	loading = false,
 }) => {
 	const initialColumnWidth = 180;
 	const minColumnWidth = 80;
@@ -166,23 +169,67 @@ const TableView = ({
 		return () => window.removeEventListener('resize', handleResize);
 	}, [columns.length, minColumnWidth]);
 
+	// Create loading columns with fixed widths
+	const loadingColumns = [
+		{ id: 'title', label: 'Title', width: 300 },
+		{ id: 'status', label: 'Status', width: 150 },
+		{ id: 'priority', label: 'Priority', width: 150 },
+		{ id: 'assignedTo', label: 'Assigned To', width: 200 },
+		{ id: 'dueDate', label: 'Due Date', width: 150 },
+	];
+
+	const renderSkeleton = () => (
+		<tbody className="table-body">
+			{[...Array(10)].map((_, rowIndex) => (
+				<tr key={rowIndex} className="table-row">
+					{loadingColumns.map((column) => (
+						<td
+							key={`${rowIndex}-${column.id}`}
+							className="table-cell"
+							style={{
+								'--width': `${column.width}px`,
+								width: column.width,
+								flex: '1 0 auto',
+							}}
+						>
+							<Skeleton
+								height={20}
+								width="100%"
+								baseColor="#202020"
+								highlightColor="#444"
+							/>
+						</td>
+					))}
+				</tr>
+			))}
+		</tbody>
+	);
+
 	return (
 		<div className={`table-view ${resizing.isResizing ? 'resizing' : ''}`} ref={tableRef}>
 			<div className="table-scroll-container">
 				<table className="table-content">
 					<DragDropContext onDragEnd={handleDragEnd}>
-						<TableHeader columns={columns} handleResizeStart={handleResizeStart} />
+						<TableHeader
+							columns={loading ? loadingColumns : columns}
+							handleResizeStart={handleResizeStart}
+							loading={loading}
+						/>
 					</DragDropContext>
-					<TableBody
-						data={data}
-						columns={columns}
-						rowTypes={rowTypes}
-						responseMetadata={responseMetadata}
-						updatePropertyValue={updatePropertyValue}
-						handleEditPropertyChange={handleEditPropertyChange}
-						colors={colors}
-						isSubTask={isSubTask}
-					/>
+					{loading ? (
+						renderSkeleton()
+					) : (
+						<TableBody
+							data={data}
+							columns={columns}
+							rowTypes={rowTypes}
+							responseMetadata={responseMetadata}
+							updatePropertyValue={updatePropertyValue}
+							handleEditPropertyChange={handleEditPropertyChange}
+							colors={colors}
+							isSubTask={isSubTask}
+						/>
+					)}
 				</table>
 			</div>
 		</div>

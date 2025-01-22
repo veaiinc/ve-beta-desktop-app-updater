@@ -190,6 +190,7 @@ const ListView = ({
 					updatePropertyValue={updatePropertyValue}
 					handleEditPropertyChange={handleEditPropertyChange}
 					colors={colors}
+					loading={info?.loadingSkeleton}
 				/>
 			) : null}
 			<ListViewSidebar
