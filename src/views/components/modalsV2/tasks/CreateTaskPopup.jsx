@@ -9,7 +9,7 @@ import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/Cr
 // import { ReactComponent as CalendarIcon } from '../../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as DustbinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
-import Priority from '../../tasks/listView/Priority';
+import Select from '../../tasks/listView/Select';
 import Status from '../../tasks/listView/Status';
 import { message } from 'antd';
 import Spinner from '../../loaders/Spinner';
@@ -246,11 +246,13 @@ const CreateTaskPopup = ({
 						options={responseMetadata?.status?.props?.options}
 						colors={colors}
 					/>
-					<Priority
+					<Select
 						value={info?.priority}
 						showLabel={true}
 						onOptionClick={(value) => updateModalInfo('priority', value)}
 						title={'Priority'}
+						{...responseMetadata?.['priority']?.props}
+						colors={colors}
 					/>
 					<WorkFlow
 						val={info?.workflowId}
@@ -323,11 +325,13 @@ const CreateTaskPopup = ({
 								title={'Status'}
 								colors={colors}
 							/>
-							<Priority
+							<Select
 								value={info?.subTaskPriority}
 								showLabel={true}
 								onOptionClick={(value) => updateModalInfo('subTaskPriority', value)}
 								title={'Priority'}
+								{...responseMetadata?.['priority']?.props}
+								colors={colors}
 							/>
 							{!isSubTask ? (
 								<WorkFlow

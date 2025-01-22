@@ -180,7 +180,7 @@ const ListView = ({
 					</div>
 				</div>
 			) : info?.view === 'board' ? (
-				<BoardView />
+				<BoardView colors={colors} />
 			) : info?.view === 'table' ? (
 				<TableView
 					properties={info?.properties?.filter((prop) => prop.show)}

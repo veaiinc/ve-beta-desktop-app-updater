@@ -95,7 +95,7 @@ const Tasks = () => {
 		searchValue: '',
 		updated: false,
 		loading: false,
-		view: 'table',
+		view: 'board',
 	});
 
 	const responseMetadata = useMemo(
@@ -121,7 +121,18 @@ const Tasks = () => {
 					},
 				},
 			},
-			priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg, props: {} },
+			priority: {
+				type: 'select',
+				name: 'Priority',
+				Icon: PrioritySvg,
+				props: {
+					options: [
+						{ label: 'Low', _id: 'low', color: '1' },
+						{ label: 'Medium', _id: 'medium', color: '2' },
+						{ label: 'High', _id: 'high', color: '3' },
+					],
+				},
+			},
 			workflow: {
 				type: 'workflow',
 				name: 'Project',

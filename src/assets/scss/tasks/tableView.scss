@@ -43,9 +43,11 @@
 
 		.table-content {
 			width: 100%;
+			min-width: 100%;
 			border-collapse: separate;
 			border-spacing: 0;
-			min-width: 100%;
+			table-layout: fixed;
+			display: table;
 		}
 	}
 
@@ -106,16 +108,18 @@
 	}
 
 	.table-header {
-		display: flex;
+		width: 100%;
+		min-width: 100%;
 		position: sticky;
 		top: 0;
 		z-index: 10;
 		border-bottom: 1px solid #333334;
-		width: 100%;
+		display: table-header-group;
+
 		tr {
 			display: flex;
 			width: 100%;
-			min-width: fit-content;
+			min-width: 100%;
 
 			.table-header-cell {
 				position: relative;
@@ -129,7 +133,7 @@
 				transition: background-color 0.2s;
 				box-sizing: border-box;
 				min-width: 80px;
-				flex: 0 0 auto;
+				flex: 1 0 auto;
 				width: var(--width);
 
 				&:hover {
@@ -201,11 +205,13 @@
 
 	.table-body {
 		width: 100%;
+		min-width: 100%;
+		display: table-row-group;
 
 		.table-row {
 			display: flex;
 			width: 100%;
-			min-width: fit-content;
+			min-width: 100%;
 			transition: background-color 0.2s;
 
 			&:hover {
@@ -224,7 +230,7 @@
 				display: flex;
 				align-items: center;
 				min-width: 80px;
-				flex: 0 0 auto;
+				flex: 1 0 auto;
 				width: var(--width);
 
 				&:not(:last-child)::after {

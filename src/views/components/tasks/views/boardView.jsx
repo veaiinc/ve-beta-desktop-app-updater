@@ -2,7 +2,8 @@ import React, { memo, useState, useCallback } from 'react';
 import '../../../../assets/scss/tasks/boardView.scss';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';
-const BoardView = () => {
+import Select from '../listView/Select';
+const BoardView = ({ colors }) => {
 	const [columns, setColumns] = useState([
 		{
 			id: 'column-1',
@@ -136,6 +137,11 @@ const BoardView = () => {
 														}`}
 													>
 														<p>{item.name}</p>
+														{item._id === '1' ? (
+															<Select colors={colors} />
+														) : (
+															<div>hi</div>
+														)}
 													</div>
 												)}
 											</Draggable>

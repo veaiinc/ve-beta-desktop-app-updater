@@ -6,7 +6,7 @@ import { Tooltip } from 'antd';
 import Person from './Person';
 import WorkFlow from './WorkFlow';
 import Status from './Status';
-import Priority from './Priority';
+import Select from './Select';
 import DateView from './DateView';
 import moment from 'moment';
 const FilterComponent = ({
@@ -84,11 +84,13 @@ const FilterComponent = ({
 				colors={colors}
 			/>
 		),
-		priority: (value) => (
-			<Priority
+		select: (value) => (
+			<Select
 				value={value}
 				onOptionClick={(value) => handleFilterChange(fieldName, value)}
+				{...props}
 				setDefault={false}
+				colors={colors}
 			/>
 		),
 		date: (value) => (
@@ -154,6 +156,8 @@ const FilterComponent = ({
 								...(props?.options?.inProgress || []),
 								...(props?.options?.completed || []),
 						  ].find((option) => option._id === value)?.label
+						: type === 'select' && value
+						? props?.options?.find((option) => option._id === value)?.label
 						: typeof value === 'object'
 						? value?.title || value?.name || value?.label
 						: value}

@@ -40,60 +40,6 @@ const TableView = ({
 		columnX: null,
 	});
 
-	// Column width calculation
-	// const calculateColumnWidth = useCallback((element) => {
-	// 	const tempDiv = document.createElement('div');
-	// 	tempDiv.style.cssText = `
-	// 		position: absolute;
-	// 		visibility: hidden;
-	// 		white-space: nowrap;
-	// 		box-sizing: border-box;
-	// 		padding: 12px 16px;
-	// 		min-width: 80px;
-	// 		font-size: 13px;
-	// 		display: flex;
-	// 		align-items: center;
-	// 	`;
-
-	// 	// Clone the content properly
-	// 	if (element.classList.contains('header-content')) {
-	// 		const content = element.querySelector('.header-label');
-	// 		const icon = element.querySelector('.table-header-icon');
-
-	// 		if (icon) {
-	// 			const iconWrapper = document.createElement('div');
-	// 			iconWrapper.style.cssText = `
-	// 				width: 16px;
-	// 				height: 16px;
-	// 				flex-shrink: 0;
-	// 				margin-right: 4px;
-	// 			`;
-	// 			iconWrapper.innerHTML = icon.outerHTML;
-	// 			tempDiv.appendChild(iconWrapper);
-	// 		}
-
-	// 		if (content) {
-	// 			const textDiv = document.createElement('div');
-	// 			textDiv.style.cssText = `
-	// 				flex: 1;
-	// 				overflow: hidden;
-	// 				text-overflow: ellipsis;
-	// 				white-space: nowrap;
-	// 			`;
-	// 			textDiv.textContent = content.textContent;
-	// 			tempDiv.appendChild(textDiv);
-	// 		}
-	// 	} else {
-	// 		// For data cells, directly copy the content
-	// 		tempDiv.innerHTML = element.innerHTML;
-	// 	}
-
-	// 	document.body.appendChild(tempDiv);
-	// 	const width = tempDiv.getBoundingClientRect().width;
-	// 	document.body.removeChild(tempDiv);
-	// 	return Math.ceil(width); // Round up to prevent fractional differences
-	// }, []);
-
 	const handleResizeStart = useCallback(
 		(e, columnIndex) => {
 			e.preventDefault();
