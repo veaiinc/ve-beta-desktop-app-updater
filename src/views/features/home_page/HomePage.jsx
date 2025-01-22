@@ -47,7 +47,20 @@ const navbarOptions = {
 	],
 };
 
-const initialTopOffset = 300;
+const propsForHeaderInfoAndNavBar = {
+	start: {
+		title: 'Hey there,',
+		subTitle: "I'm here to help",
+		selectedOption: 'selectedOptionInStart',
+	},
+	dashboard: {
+		title: 'All Your',
+		subTitle: 'Task Collections',
+		selectedOption: 'selectedOptionInDashboard',
+	},
+};
+
+const thresholdTopOffset = 150;
 
 const HomePage = () => {
 	const [info, setInfo] = useState({
@@ -57,18 +70,17 @@ const HomePage = () => {
 		selectedOptionInStart: 'All',
 		selectedOptionInDashboard: 'All',
 		searchValue: '',
+		selectedCard: null,
+		selectedOptions: {},
 	});
 
-	// Derived States for conditional rendering
-	const title = info?.activeTab === 'start' ? 'Hey there,' : 'All Your';
-	const subTitle = info?.activeTab === 'start' ? "I'm here to help" : 'Task Collections';
-	const selectedOption =
-		info?.activeTab === 'start' ? 'selectedOptionInStart' : 'selectedOptionInDashboard';
+	const { title, subTitle, selectedOption } = propsForHeaderInfoAndNavBar[info?.activeTab];
 
 	useEffect(() => {
-		window?.addEventListener('scroll', handleScroll);
+		const homePageContainer = document.querySelector('.home-page-container');
+		homePageContainer?.addEventListener('scroll', setNavbarFixed);
 		return () => {
-			window?.removeEventListener('scroll', handleScroll);
+			homePageContainer?.removeEventListener('scroll', setNavbarFixed);
 		};
 	}, [info?.isNavbarFixed]);
 
@@ -91,9 +103,9 @@ const HomePage = () => {
 		};
 	}, [componentMapper]);
 
-	const handleScroll = () => {
-		console.log(window?.scrollY >= initialTopOffset);
-		if (window?.scrollY >= initialTopOffset) {
+	const setNavbarFixed = (e) => {
+		const topOffset = e?.target?.scrollTop;
+		if (topOffset >= thresholdTopOffset) {
 			setInfo({ ...info, isNavbarFixed: true });
 		} else {
 			setInfo({ ...info, isNavbarFixed: false });
@@ -107,10 +119,6 @@ const HomePage = () => {
 	const handleSearchValue = (value) => {
 		setInfo({ ...info, searchValue: value });
 	};
-
-	useEffect(() => {
-		console.log(info?.showPromptPopup, 'PromptPopup testing');
-	}, [info?.showPromptPopup]);
 
 	return (
 		<>
@@ -138,11 +146,18 @@ const HomePage = () => {
 					</div>
 
 					<div className="home-page-welcome-container">
-						<div className="home-page-welcome-container-left">
-							<HeaderInfo title={title} subTitle={subTitle} />
+						<div
+							className={`home-page-welcome-container-left ${
+								info?.isNavbarFixed ? 'fixed' : ''
+							}`}
+						>
+							<HeaderInfo
+								isNavbarFixed={info?.isNavbarFixed}
+								title={title}
+								subTitle={subTitle}
+							/>
 							<NavBar
 								options={navbarOptions[info?.activeTab]}
-								isNavbarFixed={info?.isNavbarFixed}
 								selectedOption={info?.[selectedOption]}
 								handleSelectedOption={handleSelectedOption}
 								handleSearchValue={handleSearchValue}
@@ -156,6 +171,7 @@ const HomePage = () => {
 			<PromptPopup
 				open={info?.showPromptPopup}
 				closeModal={() => setInfo({ ...info, showPromptPopup: false })}
+				selectedCard={info?.selectedCard}
 			/>
 		</>
 	);
