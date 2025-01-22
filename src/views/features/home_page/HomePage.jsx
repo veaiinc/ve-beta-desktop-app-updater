@@ -86,18 +86,18 @@ const HomePage = () => {
 	const setNavbarFixed = (e) => {
 		const topOffset = e?.target?.scrollTop;
 		if (topOffset >= thresholdTopOffset) {
-			setInfo({ ...info, isNavbarFixed: true });
+			setInfo((prev) => ({ ...prev, isNavbarFixed: true }));
 		} else {
-			setInfo({ ...info, isNavbarFixed: false });
+			setInfo((prev) => ({ ...prev, isNavbarFixed: false }));
 		}
 	};
 
 	const handleSelectedOption = (value) => {
-		setInfo({ ...info, [selectedOption]: value });
+		setInfo((prev) => ({ ...prev, [selectedOption]: value }));
 	};
 
 	const handleSearchValue = (value) => {
-		setInfo({ ...info, searchValue: value });
+		setInfo((prev) => ({ ...prev, searchValue: value }));
 	};
 
 	return (
@@ -114,7 +114,9 @@ const HomePage = () => {
 									className={`home-page-container-content-item ${
 										info?.activeTab === option?.value ? 'active' : ''
 									}`}
-									onClick={() => setInfo({ ...info, activeTab: option?.value })}
+									onClick={() =>
+										setInfo((prev) => ({ ...prev, activeTab: option?.value }))
+									}
 								>
 									{option?.title}
 								</div>

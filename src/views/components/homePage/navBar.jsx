@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { memo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
 
