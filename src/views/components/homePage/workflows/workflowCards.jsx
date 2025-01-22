@@ -1,6 +1,6 @@
 import { memo, useMemo, useState } from 'react';
-import '../../../assets/scss/workflows/workflowCards.scss';
-import '../../../assets/scss/workflows/weddingDayTimelineGenerator/weddingDayTimelineGenerator.scss';
+import '../../../../assets/scss/workflows/workflowCards.scss';
+import '../../../../assets/scss/workflows/weddingDayTimelineGenerator/weddingDayTimelineGenerator.scss';
 import StepsTab from './weddingDayTimelineGenerator/StepsTab';
 import InsightTab from './weddingDayTimelineGenerator/InsightTab';
 import PendingActionsTab from './weddingDayTimelineGenerator/PendingActionsTab';
