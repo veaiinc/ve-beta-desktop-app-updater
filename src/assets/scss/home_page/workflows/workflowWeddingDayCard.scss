@@ -1,0 +1,26 @@
+.workflow-wedding-day-container {
+	width: 250px;
+	height: 200px;
+	border-radius: 32px;
+	background: linear-gradient(
+		135deg,
+		color(display-p3 0.0971 0.101 0.1049) 0.86%,
+		color(display-p3 0.0893 0.0893 0.0949) 70.68%
+	);
+	border-radius: 32px;
+	padding: 1.5rem;
+	cursor: pointer;
+
+	&:hover {
+		background: var(--popup-background-color, #202123);
+	}
+
+	.workflow-wedding-day-sub-title {
+		color: var(--secondary-font, #797e86);
+		line-height: 1.5rem;
+		font-size: 0.8rem;
+	}
+	.workflow-wedding-day-title {
+		color: var(--primary-font, #e8e8e8);
+	}
+}

@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import '../../../../../assets/scss/workflows/weddingDayTimelineGenerator/weddingDayTimelineGenerator.scss';
+import '../../../../../assets/scss/home_page/workflows/weddingDayTimelineGenerator.scss';
 
 const InsightTab = () => {
 	return (

@@ -85,7 +85,7 @@ const HomePage = () => {
 	}, [info?.isNavbarFixed]);
 
 	const componentMapper = {
-		start: <HomePageStart cards={cards} info={info} setInfo={setInfo} />,
+		start: <HomePageStart cards={cards} setInfo={setInfo} />,
 		dashboard: (
 			<HomePageDashboard
 				selectedOption={info?.[selectedOption]}

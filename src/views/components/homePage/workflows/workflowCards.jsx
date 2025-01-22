@@ -1,10 +1,12 @@
 import { memo, useMemo, useState } from 'react';
-import '../../../../assets/scss/workflows/workflowCards.scss';
-import '../../../../assets/scss/workflows/weddingDayTimelineGenerator/weddingDayTimelineGenerator.scss';
+import '../../../../assets/scss/home_page/workflows/weddingDayTimelineGenerator.scss';
+import '../../../../assets/scss/home_page/workflows/workflowWeddingDayCard.scss';
 import StepsTab from './weddingDayTimelineGenerator/StepsTab';
 import InsightTab from './weddingDayTimelineGenerator/InsightTab';
 import PendingActionsTab from './weddingDayTimelineGenerator/PendingActionsTab';
 import FilesTab from './weddingDayTimelineGenerator/FilesTab';
+import PromptPopup from '../PromptPopup';
+import { clearConfigCache } from 'prettier';
 
 const options = [
 	{
@@ -29,7 +31,7 @@ const options = [
 	},
 ];
 
-const WeddingDayTimeLine = () => {
+const WeddingDayTimelineGeneratorCard = memo(() => {
 	const [activeTab, setActiveTab] = useState('Steps');
 
 	const componentMapper = useMemo(() => {
@@ -42,9 +44,11 @@ const WeddingDayTimeLine = () => {
 	}, []);
 
 	return (
-		<div className="workflow-cards-container">
-			<div className="workflow-cards-header">
-				<div className="workflow-cards-header-text">Wedding Day Timeline Generator</div>
+		<div className="wedding-day-timeline-generator-container">
+			<div className="wedding-day-timeline-generator-header">
+				<div className="wedding-day-timeline-generator-header-text">
+					Wedding Day Timeline Generator
+				</div>
 			</div>
 			<div className="wedding-day-timeline-generator-options-container">
 				{options?.map((option) => {
@@ -63,6 +67,29 @@ const WeddingDayTimeLine = () => {
 			{componentMapper?.[activeTab]}
 		</div>
 	);
-};
+});
 
-export default memo(WeddingDayTimeLine);
+const WorkflowWeddingDayCard = memo(() => {
+	const [info, setInfo] = useState({
+		showPromptPopup: false,
+		selectedCard: null,
+	});
+
+	return (
+		<div
+			className="workflow-wedding-day-container"
+			onClick={() => setInfo((prev) => ({ ...prev, showPromptPopup: true }))}
+		>
+			<div className="workflow-wedding-day-sub-title">Workflow</div>
+			<div className="workflow-wedding-day-title">Wedding Day Timeline Generator</div>
+
+			<PromptPopup
+				open={info?.showPromptPopup}
+				closeModal={() => setInfo((prev) => ({ ...prev, showPromptPopup: false }))}
+				selectedCard={info?.selectedCard}
+			/>
+		</div>
+	);
+});
+
+export { WeddingDayTimelineGeneratorCard, WorkflowWeddingDayCard };
