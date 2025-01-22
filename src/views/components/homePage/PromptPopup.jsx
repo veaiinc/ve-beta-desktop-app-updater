@@ -79,9 +79,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 						<Tooltip
 							placement="bottom"
 							title={
-								<div className="promptPopupContainerBodyTextTooltip">
-									Client
-								</div>
+								<div className="promptPopupContainerBodyTextTooltip">Client</div>
 							}
 							open={isOpen}
 							trigger="click"

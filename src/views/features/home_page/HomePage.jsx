@@ -1,9 +1,10 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useMemo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/NavBar';
-import { Activity, Drafts } from '../../components/ai_agents/CreateCards';
 import HeaderInfo from '../../components/homePage/HeaderInfo';
 import PromptPopup from '../../components/homePage/PromptPopup';
+import HomePageDashboard from '../../components/homePage/dashboard/HomePageDashboard';
+import HomePageStart from '../../components/homePage/HomePageStart';
 
 const cards = [
 	{ id: 0, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
@@ -13,7 +14,7 @@ const cards = [
 	{ id: 4, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
 	{ id: 5, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
 	{ id: 6, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 7, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
+	{ id: 7, subTitle: 'sales', title: 'Wedding Day Timeline  Generator' },
 	{ id: 8, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
 	{ id: 9, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
 	{ id: 10, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
@@ -81,6 +82,25 @@ const HomePage = () => {
 		return () => {
 			homePageContainer?.removeEventListener('scroll', setNavbarFixed);
 		};
+	}, [info?.isNavbarFixed]);
+
+	const componentMapper = useMemo(() => {
+		return {
+			start: <HomePageStart cards={cards} info={info} setInfo={setInfo} />,
+			dashboard: (
+				<HomePageDashboard
+					selectedOption={info?.[selectedOption]}
+					options={navbarOptions?.dashboard}
+				/>
+			),
+		};
+	}, [info, cards, navbarOptions]);
+
+	// Render selected tab component
+	const renderActiveTab = useMemo(() => {
+		return (activeTab) => {
+			return componentMapper[activeTab] || null;
+		};
 	}, []);
 
 	const setNavbarFixed = (e) => {
@@ -115,7 +135,10 @@ const HomePage = () => {
 										info?.activeTab === option?.value ? 'active' : ''
 									}`}
 									onClick={() =>
-										setInfo((prev) => ({ ...prev, activeTab: option?.value }))
+										setInfo((prev) => ({
+											...prev,
+											activeTab: option?.value,
+										}))
 									}
 								>
 									{option?.title}
@@ -148,35 +171,7 @@ const HomePage = () => {
 					</div>
 				</div>
 
-				{info?.activeTab === 'start' ? (
-					<div className={`home-page-cards-container `}>
-						{cards?.map((card) => (
-							<div
-								key={card?.id}
-								className="home-page-cards-container-card"
-								onClick={() => {
-									setInfo({
-										...info,
-										showPromptPopup: true,
-										selectedCard: card,
-									});
-								}}
-							>
-								<div className="home-page-cards-container-card-sub-title">
-									{card?.subTitle}
-								</div>
-								<div className="home-page-cards-container-card-title">
-									{card?.title}
-								</div>
-							</div>
-						))}
-					</div>
-				) : (
-					<div className={'home-page-dashboard-container'}>
-						<Activity />
-						<Drafts />
-					</div>
-				)}
+				{renderActiveTab(info?.activeTab)}
 			</div>
 			<PromptPopup
 				open={info?.showPromptPopup}

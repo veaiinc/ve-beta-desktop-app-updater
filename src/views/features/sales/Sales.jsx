@@ -245,7 +245,7 @@ const Sales = () => {
 
 	return (
 		<>
-			<SalesInfo />
+			{/* <SalesInfo /> */}
 			<InfiniteScroll
 				dataLength={info?.myWorkflowData?.length || 0}
 				next={fetchMoreMyWorkflows}
