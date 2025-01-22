@@ -42,7 +42,8 @@ const initialState = {
 	activityDataLoading: true,
 };
 let origin = fetchOriginSelection();
-const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
+
+const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDeleteModal }) => {
 	const {
 		activityInfo: {
 			resetActivityState,
@@ -351,6 +352,7 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 			window.location.href = `${origin}/${info?.activeFileData?._id}?workflow=true&templateId=${info?.activeFileData?.templateId}`;
 		}
 	}, [info?.activeFileData]);
+
 	return (
 		<>
 			<Drawer
@@ -412,7 +414,7 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 												<DuplicateSvg />
 												<span>Duplicate</span>
 											</div>
-											<div className="items">
+											<div className="items" onClick={openDeleteModal}>
 												<DeleteSvg />
 												<span>Delete</span>
 											</div>

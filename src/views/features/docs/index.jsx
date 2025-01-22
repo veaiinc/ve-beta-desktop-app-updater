@@ -16,6 +16,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Sidebar from '../../components/docs/Sidebar';
 import DropDown from '../../components/dropDown/tasks/DropDown';
 import FilterPopUp from '../../components/globalComponents/FilterPopUp';
+import DeleteLeadModal from '../../components/modalsV2/workflowsModals/DeleteLeadModal.jsx';
 
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from 'antd';
@@ -232,6 +233,7 @@ const Docs = () => {
 			getTemplatesListForDocs,
 			clientListForDocs,
 			getClientListForDocs,
+			deleteLead,
 		},
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
@@ -268,6 +270,7 @@ const Docs = () => {
 		sendSmartFileModal: false,
 		timeout: null,
 		filtersGotChanged: false,
+		deleteLeadModal: false,
 	});
 
 	useEffect(() => {
@@ -490,6 +493,26 @@ const Docs = () => {
 		}, 800);
 		setInfo((prev) => ({ ...prev, timeout }));
 	}, [info?.timeout, info?.searchValue, info?.searchValueChanged, info?.selectedFilterOptions]);
+
+	const openDeleteModal = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			deleteLeadModal: true,
+		}));
+	}, [info?.activeFileData]);
+
+	const deleteLeadFunc = useCallback(async () => {
+		const payload = {
+			deleteWorkflowId: info?.activeFileData?._id,
+		};
+		await deleteLead(payload);
+		setInfo((prev) => ({
+			...prev,
+			deleteLeadModal: false,
+			docsData: prev.docsData?.filter((item) => item?._id !== info?.activeFileData?._id),
+		}));
+		handleCloseSidebar();
+	}, [info?.activeFileData?._id]);
 
 	return (
 		<div className="docsParentContainer">
@@ -722,7 +745,16 @@ const Docs = () => {
 					onClose={handleCloseSidebar}
 					activeFileData={info?.activeFileData}
 					refetchDocsFilesList={refetchDocsFilesList}
+					openDeleteModal={openDeleteModal}
 				/>
+
+				{info?.deleteLeadModal && (
+					<DeleteLeadModal
+						open={info?.deleteLeadModal}
+						closeModal={() => setInfo((prev) => ({ ...prev, deleteLeadModal: false }))}
+						deleteLeadFunc={deleteLeadFunc}
+					/>
+				)}
 			</div>
 		</div>
 	);

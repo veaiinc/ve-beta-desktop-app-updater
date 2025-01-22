@@ -8,14 +8,21 @@ const DeleteLeadModal = ({ open, closeModal, deleteLeadFunc }) => {
 	const [info, setInfo] = useState({
 		loader: false,
 	});
-
 	const deleteOnClick = useCallback(() => {
 		setInfo((prev) => ({ ...prev, loader: true }));
 		deleteLeadFunc();
 	}, []);
 
 	return (
-		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
+		<ReactModal
+			isOpen={open}
+			closeModal={closeModal}
+			modalType={'center'}
+			customStyles={{
+				overlay: { zIndex: 1001 },
+				content: { borderRadius: '15px', zIndex: 1002 },
+			}}
+		>
 			<div className="deleteLeadModalParentContainer">
 				<Warning />
 				<div className="deleteLeadTextContainer">
