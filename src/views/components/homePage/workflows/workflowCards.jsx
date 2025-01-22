@@ -51,9 +51,10 @@ const WeddingDayTimelineGeneratorCard = memo(() => {
 				</div>
 			</div>
 			<div className="wedding-day-timeline-generator-options-container">
-				{options?.map((option) => {
+				{options?.map((option, idx) => {
 					return (
 						<div
+							key={idx}
 							className={`wedding-day-timeline-generator-option ${
 								activeTab === option?.value ? 'active' : ''
 							}`}
@@ -76,19 +77,24 @@ const WorkflowWeddingDayCard = memo(() => {
 	});
 
 	return (
-		<div
-			className="workflow-wedding-day-container"
-			onClick={() => setInfo((prev) => ({ ...prev, showPromptPopup: true }))}
-		>
-			<div className="workflow-wedding-day-sub-title">Workflow</div>
-			<div className="workflow-wedding-day-title">Wedding Day Timeline Generator</div>
-
+		<>
+			<div
+				className="workflow-wedding-day-container"
+				onClick={() => setInfo((prev) => ({ ...prev, showPromptPopup: true }))}
+			>
+				<div className="workflow-wedding-day-sub-title">Workflow</div>
+				<div className="workflow-wedding-day-title">Wedding Day Timeline Generator</div>
+			</div>
 			<PromptPopup
 				open={info?.showPromptPopup}
-				closeModal={() => setInfo((prev) => ({ ...prev, showPromptPopup: false }))}
+				// closeModal={() => setInfo((prev) => ({ ...prev, showPromptPopup: false }))}
+				closeModal={() => {
+					console.log('closeModal');
+					setInfo((prev) => ({ ...prev, showPromptPopup: false }));
+				}}
 				selectedCard={info?.selectedCard}
 			/>
-		</div>
+		</>
 	);
 });
 

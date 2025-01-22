@@ -33,10 +33,6 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 		}
 	};
 
-	useEffect(() => {
-		console.log(isOpen, 'CurrentIsOpenState');
-	}, [isOpen]);
-
 	const handleRemoveSelectedFile = (file) => {
 		setSelectedOptions((prev) => {
 			const cardId = selectedCard?.id;
@@ -44,11 +40,11 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 			if (!cardId) return prev;
 			const updatedOptions = {
 				...prev,
-				[cardId]: (prev[cardId] || []).filter((f) => f !== file),
+				[cardId]: (prev[cardId] || [])?.filter((f) => f !== file),
 			};
 
-			if (updatedOptions[cardId].length === 0) {
-				delete updatedOptions[cardId];
+			if (updatedOptions?.[cardId]?.length === 0) {
+				delete updatedOptions?.[cardId];
 			}
 
 			return updatedOptions;
