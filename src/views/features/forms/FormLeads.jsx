@@ -1,13 +1,24 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import '../../../assets/scss/forms/formLeads.scss';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ReactComponent as CurlyBracesSvg } from '../../../assets/svg/docs/curly-bracess.svg';
 import { ReactComponent as LinkSvg } from '../../../assets/svg/activity/link.svg';
 import { ReactComponent as LinkShareSvg } from '../../../assets/svg/docs/link-share.svg';
+import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';
+import { ReactComponent as ThreeDots } from '../../../assets/svg/docs/three-dots.svg';
+import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
+import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
+import { ReactComponent as UpDownArrow } from '../../../assets/svg/my_templates/up-down-arrow.svg';
 import { useNavigate } from 'react-router-dom';
 
 const FormLeads = () => {
 	const navigate = useNavigate();
+
+	const [info, setInfo] = useState({
+		searchExpand: false,
+		searchValue: '',
+		activeTab: 'individualEntries', //summary
+	});
 
 	const metricsData = [
 		{
@@ -24,10 +35,23 @@ const FormLeads = () => {
 		},
 	];
 
+	const tabs = useMemo(() => {
+		return {
+			individualEntries: {
+				label: 'Individual Entries',
+				Component: <div>Individual Entries</div>,
+			},
+			summary: {
+				label: 'Summary',
+				Component: <div>Summary</div>,
+			},
+		};
+	}, [info?.activeTab]);
+
 	return (
 		<div className="formLeadsParentContainer">
 			<div className="headerContainer">
-				<span className="actionBtn" onClick={() => navigate('/forms')}>
+				<span className="backBtn" onClick={() => navigate(-1)}>
 					<BackArrowSvg />
 					<span>Back</span>
 				</span>
@@ -67,6 +91,94 @@ const FormLeads = () => {
 						</div>
 					</div>
 				</div>
+			</div>
+
+			<div className="formDetailsContainer">
+				<div className="headerContainer">
+					<div className="formViewTabsContainer">
+						{Object?.keys(tabs)?.map((tab, index) => (
+							<div key={index} className="tabContainer">
+								<div
+									className={`formViewTab ${
+										info?.activeTab === tab ? 'active' : ''
+									}`}
+									onClick={() => setInfo((prev) => ({ ...prev, activeTab: tab }))}
+								>
+									{tabs?.[tab]?.label}
+								</div>
+								<div
+									className={`divider ${info?.activeTab === tab ? 'active' : ''}`}
+								></div>
+							</div>
+						))}
+					</div>
+
+					<div className="filterActionsContainer">
+						<div
+							className="searchContainer"
+							style={{
+								width: info?.searchExpand ? '140px' : '16px',
+							}}
+						>
+							<div
+								className={`searchBtn ${info?.searchExpand ? 'searchExpand' : ''}`}
+							>
+								<span
+									style={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+										cursor: 'pointer',
+									}}
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											searchExpand: true,
+										}))
+									}
+								>
+									<Search />
+								</span>
+
+								<div className="inputAndCloseContainer">
+									<input
+										className="searchInputTag"
+										placeholder="Search"
+										value={info?.searchValue}
+										onChange={(e) =>
+											setInfo((prev) => ({
+												...prev,
+												searchValue: e?.target?.value,
+											}))
+										}
+									/>
+									<span
+										style={{
+											display: 'flex',
+											justifyContent: 'center',
+											alignItems: 'center',
+											cursor: 'pointer',
+										}}
+										onClick={() =>
+											setInfo((prev) => ({
+												...prev,
+												searchExpand: false,
+												searchValue: '',
+											}))
+										}
+									>
+										<Cross style={{ width: '20px', height: '20px' }} />
+									</span>
+								</div>
+							</div>
+						</div>
+						<Filter style={{ width: '20px', height: '20px' }} />
+						<UpDownArrow style={{ width: '20px', height: '20px' }} />
+						<ThreeDots />
+					</div>
+				</div>
+
+				<div className="formViewContainer">{tabs?.[info?.activeTab]?.Component}</div>
 			</div>
 		</div>
 	);
