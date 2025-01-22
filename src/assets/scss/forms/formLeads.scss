@@ -18,4 +18,137 @@
 			cursor: pointer;
 		}
 	}
+
+	.formEnquiryContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		align-self: stretch;
+
+		.headerContainer {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			align-self: stretch;
+
+			.headerTitle {
+				display: flex;
+				align-items: center;
+				gap: 14px;
+				border-radius: 100px;
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 18px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		.formSummaryContainer {
+			border-radius: 26px;
+			box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+			box-shadow: 0px 4px 30px 0px color(display-p3 0 0 0 / 0.03);
+			display: flex;
+			align-items: flex-start;
+			gap: 16px;
+			align-self: stretch;
+
+			.imgContainer {
+				width: 150px;
+				height: 185px;
+				border-radius: 12px;
+			}
+
+			.detailsContainer {
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				align-items: flex-start;
+				flex: 1 0 0;
+				align-self: stretch;
+
+				.formMetricsContainer {
+					display: flex;
+					align-items: flex-start;
+					gap: 12px;
+					align-self: stretch;
+
+					.metricsCard {
+						border-radius: 16px;
+						background: #171819;
+						background: color(display-p3 0.0902 0.0941 0.098);
+						display: flex;
+						width: 166px;
+						padding: 16px;
+						flex-direction: column;
+						justify-content: center;
+						align-items: flex-start;
+						gap: 4px;
+
+						.value {
+							color: #f2f2f3;
+							color: color(display-p3 0.949 0.949 0.9529);
+							font-family: Inter;
+							font-size: 20px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+
+						.title {
+							color: #7c7c84;
+							color: color(display-p3 0.4865 0.4865 0.5135);
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+				}
+
+				.formCTAContainer {
+					display: flex;
+					align-items: center;
+					gap: 12px;
+					align-self: stretch;
+
+					.divider {
+						width: 1px;
+						height: 15px;
+						background: #313336;
+						background: color(display-p3 0.1922 0.2 0.2118);
+					}
+
+					.ctaBtn {
+						border-radius: 100px;
+						box-shadow: 1px 1px 4px 0px rgba(0, 0, 0, 0.25) inset;
+						box-shadow: 1px 1px 4px 0px color(display-p3 0 0 0 / 0.25) inset;
+						display: flex;
+						height: 34px;
+						padding: 8px 16px;
+						justify-content: center;
+						align-items: center;
+						gap: 10px;
+						color: #797e86;
+						color: color(display-p3 0.4784 0.4941 0.5216);
+						font-family: Inter;
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						cursor: pointer;
+
+						svg {
+							width: 16px;
+							height: 16px;
+							opacity: 0.5;
+						}
+					}
+				}
+			}
+		}
+	}
 }
