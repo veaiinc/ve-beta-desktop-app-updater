@@ -7,7 +7,13 @@ const HomePageStart = ({ cards, info, setInfo }) => {
 				<div
 					key={card?.id}
 					className="home-page-cards-container-card"
-					onClick={() => setInfo({ ...info, showPromptPopup: true })}
+					onClick={() => {
+						setInfo({
+							...info,
+							showPromptPopup: true,
+							selectedCard: card,
+						});
+					}}
 				>
 					<div className="home-page-cards-container-card-sub-title">{card?.subTitle}</div>
 					<div className="home-page-cards-container-card-title">{card?.title}</div>
