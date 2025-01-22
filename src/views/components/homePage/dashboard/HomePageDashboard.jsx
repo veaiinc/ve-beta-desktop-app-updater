@@ -5,15 +5,19 @@ import AllTab from './AllTab';
 import DraftsAndActivityTab from './DraftsAndActivityTab';
 import WorkflowsTab from './WorkflowsTab';
 
-const HomePageDashboard = ({ selectedOption }) => {
+const HomePageDashboard = ({ selectedOption, isNavbarFixed }) => {
 	const componentMapper = {
 		All: <AllTab />,
 		'Drafts & Activity': <DraftsAndActivityTab />,
 		Workflows: <WorkflowsTab />,
 	};
 
+	console.log(isNavbarFixed);
+
 	return (
-		<div className={'home-page-dashboard-container'}>{componentMapper?.[selectedOption]}</div>
+		<div className={`home-page-dashboard-container ${isNavbarFixed ? 'add-margin-top' : ''}`}>
+			{componentMapper?.[selectedOption]}
+		</div>
 	);
 };
 

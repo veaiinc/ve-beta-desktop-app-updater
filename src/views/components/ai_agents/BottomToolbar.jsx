@@ -101,13 +101,6 @@ const BottomToolbar = ({
 	}, []);
 
 	//function definitions
-	const handleInputFocus = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			expanded: true,
-			inputExpanded: true,
-		}));
-	}, [info]);
 
 	const handleClose = useCallback(() => {
 		setInfo((prev) => ({
@@ -135,6 +128,14 @@ const BottomToolbar = ({
 				// If Shift+Enter, allow new line
 				if (e.shiftKey) {
 					return;
+				}
+
+				if (info?.expanded === false) {
+					setInfo((prev) => ({
+						...prev,
+						expanded: true,
+						inputExpanded: true,
+					}));
 				}
 
 				// Prevent default to avoid unwanted new line
@@ -232,11 +233,10 @@ const BottomToolbar = ({
 
 			{/* bottom toolBarContent */}
 			{!info?.chatModalIsOpen ? (
-				<div className="bottomToolbar">
+				<div className={`bottomToolbar ${info?.expanded ? 'update-border-radius' : ''}`}>
 					<textarea
 						className={`bottomToolbarInputs ${info.inputExpanded ? 'expanded' : ''}`}
 						placeholder="Hey! Need help? Ask me anything."
-						onFocus={handleInputFocus}
 						value={info?.chatQuery}
 						onChange={(e) =>
 							setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))

@@ -85,11 +85,14 @@ const HomePage = () => {
 	}, [info?.isNavbarFixed]);
 
 	const componentMapper = {
-		start: <HomePageStart cards={cards} setInfo={setInfo} />,
+		start: (
+			<HomePageStart cards={cards} setInfo={setInfo} isNavbarFixed={info?.isNavbarFixed} />
+		),
 		dashboard: (
 			<HomePageDashboard
 				selectedOption={info?.[selectedOption]}
 				options={navbarOptions?.dashboard}
+				isNavbarFixed={info?.isNavbarFixed}
 			/>
 		),
 	};
@@ -160,7 +163,6 @@ const HomePage = () => {
 					</div>
 				</div>
 			</div>
-
 			{componentMapper?.[info?.activeTab]}
 			<PromptPopup
 				open={info?.showPromptPopup}

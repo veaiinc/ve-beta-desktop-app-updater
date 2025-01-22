@@ -185,10 +185,6 @@
 	}
 
 	.home-page-dashboard-container {
-		position: relative;
-		transition: 300s;
-		// opacity: 0;
-
 		.drafts-and-activity-tab {
 			display: flex;
 			flex-direction: row;
@@ -206,5 +202,9 @@
 			flex-direction: row;
 			gap: 1rem;
 		}
+	}
+
+	.add-margin-top {
+		margin-top: 140px;
 	}
 }
