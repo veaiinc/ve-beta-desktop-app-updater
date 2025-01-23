@@ -15,7 +15,6 @@ const DownloadAlbum = (props) => {
 		originalDownload,
 		webviewDownload,
 		albumDetails,
-		isLightGallery,
 	} = props;
 	const customStyles = {
 		content: { zIndex: 99999 },
@@ -66,22 +65,17 @@ const DownloadAlbum = (props) => {
 							Select images type to download
 						</div>
 						<div className="image-type-container">
-							{!isLightGallery && (
-								<div className="image-type-container-item">
-									<ToggleSlider
-										value={originalDownload}
-										onChange={() =>
-											onDownloadTypeChange(
-												'originalDownload',
-												'webviewDownload',
-											)
-										}
-									/>
-									<p style={{ fontSize: '12px', color: '#939393' }}>
-										Original Images
-									</p>
-								</div>
-							)}
+							<div className="image-type-container-item">
+								<ToggleSlider
+									value={originalDownload}
+									onChange={() =>
+										onDownloadTypeChange('originalDownload', 'webviewDownload')
+									}
+								/>
+								<p style={{ fontSize: '12px', color: '#939393' }}>
+									Original Images
+								</p>
+							</div>
 							<div className="image-type-container-item">
 								<ToggleSlider
 									value={webviewDownload}

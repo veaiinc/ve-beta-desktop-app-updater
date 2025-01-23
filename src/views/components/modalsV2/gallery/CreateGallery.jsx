@@ -7,14 +7,7 @@ import jwt_decode from 'jwt-decode';
 import { DatePicker } from 'antd';
 import slugify from 'slugify';
 
-const CreateGallery = ({
-	open,
-	closeModal,
-	workspaceID,
-	fetchGalleries,
-	message,
-	isLightGallery,
-}) => {
+const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries, message }) => {
 	const {
 		galleryInfo: { createNewGallery, checkGallerySlugAvailable },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -156,7 +149,6 @@ const CreateGallery = ({
 						role: ['admin'],
 					},
 				],
-				storeOriginals: isLightGallery ? false : true,
 			};
 
 			setGalleryData((prev) => ({ ...prev, isSubmitting: true }));

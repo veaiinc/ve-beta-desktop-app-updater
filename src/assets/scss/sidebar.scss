@@ -4,7 +4,7 @@
 	height: 93vh;
 	position: relative;
 	z-index: 1000;
-	// transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+	transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 	&.opened {
 		height: 100dvh !important;
 		position: relative;
@@ -17,40 +17,32 @@
 	}
 
 	&.no-submodules:not(.opened) {
-		
+		height: 93dvh !important;
 	}
-
 	&.has-submodules {
 		height: 93dvh !important;
 	}
 	.sidebarComponent {
 		min-height: 100%;
-		background-color: var(--sidebar-bg-color, #202123);
+		background: #202123;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
 		overflow-y: auto;
-
 		transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 		z-index: 1;
-		margin-left: -32px;
 		scrollbar-width: none; // Hide Firefox scrollbar
 		-ms-overflow-style: none; // Hide IE scrollbarf
 		&::-webkit-scrollbar {
 			display: none; // Hide Chrome/Safari/Opera scrollbar
 		}
 		&.open {
-			margin-left: 0px !important;
 			border-radius: 0px !important;
 			height: 100dvh !important;
 			width: 250px !important;
 			transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 		}
-		&:not(.opened) {
-			padding: 0px !important;
-			backdrop-filter: none !important;
-		  }
 		.closedSideBarComponent {
 			display: flex;
 			flex-direction: column;
@@ -182,7 +174,6 @@
 			width: 218px;
 			margin-bottom: 27px;
 			.singleModuleItem {
-				border-radius: 100px;
 				.logoutItem {
 					margin-top: 4px;
 					&:hover {
@@ -231,7 +222,6 @@
 					padding: 12px 16px;
 					position: relative;
 					transition: margin 0.2s ease;
-					border-radius: 100px;
 					p {
 						color: #e8e8e8;
 						text-align: right;
@@ -282,7 +272,7 @@
 							}
 							&:active {
 								background: #2e2f33;
-								border-radius: var(--Radius-lg, 24px);
+								border-radius: 24px;
 							}
 							.subitem-content {
 								display: flex;
@@ -394,7 +384,6 @@
 					}
 				}
 				.singleModuleItem {
-					border-radius: 100px;
 					width: 218px;
 					display: flex;
 					justify-content: space-between;
@@ -842,7 +831,7 @@
 				border-bottom-left-radius: 0 !important;
 				height: 100dvh !important;
 				border: 1px solid rgba(255, 255, 255, 0.1) !important;
-				background: #1d1d1d ;
+				background: #1d1d1d !important;
 				width: 100vw !important;
 			}
 			.openSideBarComponent {
@@ -975,44 +964,5 @@
 	.ant-tooltip-content {
 		left: 20px;
 		background-color: transparent;
-	}
-}
-
-.dropdownMenu {
-	.subItem {
-		transition: background-color 0.2s ease;
-		padding: 12px 16px;
-		border-radius: 100px;
-
-		&:hover {
-			background-color: var(--hover-color) !important;
-		}
-	}
-}
-
-// Add border-radius to all menu items
-.singleModuleItem {
-	border-radius: 100px;
-}
-
-// Add specific styles for the dropdown menu
-.singleModuleItem {
-	.dropdownMenu {
-		position: relative;
-		margin-top: 8px;
-
-		.subItem {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			margin: 4px 0;
-
-			.subitem-content {
-				p {
-					color: #e8e8e8;
-					font-size: 14px;
-				}
-			}
-		}
 	}
 }

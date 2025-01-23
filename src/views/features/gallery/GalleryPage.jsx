@@ -154,7 +154,6 @@ const GalleryPage = () => {
 		isMouseInGallery: false,
 		showCollaborators: false,
 		activeGallery: location?.state?.galleryData,
-		isLightGallery: location?.state?.isLightGallery || false,
 		activeAlbumId: tenantAlbums?.albums?.[0]?._id,
 		callToAction: tenantPreferences?.ctaPreferences,
 		timeout: null,
@@ -228,8 +227,8 @@ const GalleryPage = () => {
 		showShareAlbum: false,
 		showDownloadAlbum: false,
 		activeTagId: null,
-		originalDownload: false,
-		webviewDownload: true,
+		originalDownload: true,
+		webviewDownload: false,
 		showLightRoomCopy: false,
 		lightroomCopyList: [],
 		isAlbumCover: false,
@@ -276,22 +275,18 @@ const GalleryPage = () => {
 		// { name: 'Videos', number: 2 },
 		// { name: 'Slide Show', number: 1 },
 		{ name: 'Client Selections', number: clientSelectionsData?.totalDocs },
-		...(info.isLightGallery
-			? []
-			: [
-					{
-						name: 'AI',
-						number:
-							imageProcessingStatus?.numberOfImagesPeoples > 0
-								? parseInt(
-										(imageProcessingStatus?.numberOfImagesGroupedFaces /
-											imageProcessingStatus?.numberOfImagesPeoples) *
-											100,
-										0,
-								  ) + '%'
-								: '',
-					},
-			  ]),
+		{
+			name: 'AI',
+			number:
+				imageProcessingStatus?.numberOfImagesPeoples > 0
+					? parseInt(
+							(imageProcessingStatus?.numberOfImagesGroupedFaces /
+								imageProcessingStatus?.numberOfImagesPeoples) *
+								100,
+							0,
+					  ) + '%'
+					: '',
+		},
 		{
 			name: 'Insights',
 			number: '',
@@ -2962,8 +2957,7 @@ const GalleryPage = () => {
 				const selectedImageId = info.selectedImages[0];
 
 				// Get single image download link
-				const isLightGallery = info?.isLightGallery;
-				const response = await getDownloadLinkForImage(selectedImageId, isLightGallery);
+				const response = await getDownloadLinkForImage(selectedImageId);
 
 				if (response?.[0] === true) {
 					// Create link and trigger download
@@ -4001,8 +3995,8 @@ const GalleryPage = () => {
 																showOptions: false,
 																activeTagId:
 																	albumDetails?.tags?.[0]?._id,
-																originalDownload: false,
-																webviewDownload: true,
+																originalDownload: true,
+																webviewDownload: false,
 															}))
 														}
 														style={{
@@ -5123,7 +5117,6 @@ const GalleryPage = () => {
 				handleManageCollaboratorPopup={handleManageCollaboratorPopup}
 				handleLinkChange={handleLinkChange}
 				data={info}
-				isLightGallery={info.isLightGallery}
 			/>
 			<CreateAlbum
 				open={info.showCreateAlbum}
@@ -5313,7 +5306,6 @@ const GalleryPage = () => {
 				originalDownload={info.originalDownload}
 				webviewDownload={info.webviewDownload}
 				activeTagId={info.activeTagId}
-				isLightGallery={info.isLightGallery}
 			/>
 			<ShowLightRoomCopy
 				open={info.showLightRoomCopy}

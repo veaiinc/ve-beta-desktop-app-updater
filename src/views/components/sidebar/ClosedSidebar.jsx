@@ -82,23 +82,12 @@ const getPathInfo = (path) => {
 			description: 'Access and manage your AI assistant',
 			initial: 'AI',
 		},
-		'/light-gallery': {
-			title: 'Light Gallery',
-			description: 'Browse and organize your media collections',
-			initial: 'LG',
-		},
 	};
 
 	return pathInfo[cleanPath] || { title: 'Home', description: 'Your workspace dashboard' };
 };
 
-const ClosedSideBarItemsComponent = ({
-	sidebarStates,
-	setsidebarStates,
-	info,
-	setInfo,
-	customStyles,
-}) => {
+const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, setInfo }) => {
 	const navigate = useNavigate();
 	const [showRaindrop, setShowRaindrop] = useState(false);
 	const [selectedIcon, setSelectedIcon] = useState(null);
@@ -106,9 +95,6 @@ const ClosedSideBarItemsComponent = ({
 	const [visibleIcons, setVisibleIcons] = useState([]);
 	const [isMobile, setIsMobile] = useState(window.innerWidth <= 500);
 	const [isThisEarlyAccessPage, setIsThisEarlyAccessPage] = useState(false);
-
-	// Add check for templates wrapper context
-	const isTemplatesWrapper = customStyles?.backgroundColor === 'transparent';
 
 	useEffect(() => {
 		const currentPath = window.location.pathname;
@@ -258,7 +244,7 @@ const ClosedSideBarItemsComponent = ({
 				<div
 					className="hamburgerIconContainer"
 					onClick={openModuleFunction}
-					style={{ position: 'absolute', top: '0%', padding: '0px', width: '10px' }}
+					style={{ position: 'absolute', top: '0%' }}
 				>
 					<SidebarClosingSvg />
 				</div>
@@ -268,7 +254,6 @@ const ClosedSideBarItemsComponent = ({
 						className={`closedSideBarComponent ${
 							visibleIcons.length === 0 ? 'no-submodules' : ''
 						}`}
-						style={{ ...customStyles }}
 					>
 						<div
 							className="closedSideBarComponentContainer"
@@ -334,7 +319,7 @@ const ClosedSideBarItemsComponent = ({
 									onMouseEnter={() => setShowRaindrop(true)}
 									onMouseLeave={() => setShowRaindrop(false)}
 								>
-									<div className="gradientCirlce" style={{ ...customStyles }}>
+									<div className="gradientCirlce">
 										{AiOptions.find((option) =>
 											window.location.pathname.includes(option.route),
 										)?.image ||
@@ -350,7 +335,6 @@ const ClosedSideBarItemsComponent = ({
 												}
 												alt="AI Option"
 												style={{
-													...customStyles,
 													height: '40px',
 													width: '40px',
 													borderRadius: '24px',
@@ -376,11 +360,7 @@ const ClosedSideBarItemsComponent = ({
 							{visibleIcons?.length > 0 && (
 								<hr
 									style={{
-										border: `0.7px solid ${
-											isTemplatesWrapper
-												? 'rgba(255, 255, 255, 0.20)'
-												: '#333334'
-										}`,
+										border: '0.7px solid #333334',
 										width: '70%',
 										alignSelf: 'center',
 									}}
@@ -471,11 +451,7 @@ const ClosedSideBarItemsComponent = ({
 							{visibleIcons?.length > 0 && (
 								<hr
 									style={{
-										border: `0.7px solid ${
-											isTemplatesWrapper
-												? 'rgba(255, 255, 255, 0.20)'
-												: '#333334'
-										}`,
+										border: '0.7px solid #333334',
 										width: '70%',
 										alignSelf: 'center',
 									}}
@@ -583,11 +559,7 @@ const ClosedSideBarItemsComponent = ({
 									<>
 										<hr
 											style={{
-												border: `0.7px solid ${
-													isTemplatesWrapper
-														? 'rgba(255, 255, 255, 0.20)'
-														: '#333334'
-												}`,
+												border: '0.7px solid #333334',
 												width: '70%',
 												alignSelf: 'center',
 											}}

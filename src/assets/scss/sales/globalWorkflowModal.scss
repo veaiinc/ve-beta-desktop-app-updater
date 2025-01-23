@@ -3,16 +3,15 @@
 	width: 420px;
 	display: flex;
 	padding: 10px;
-	border: none;
 	.innerContainer {
 		display: flex;
 		flex-direction: column;
 		flex: 1;
 		align-self: stretch;
 		border-radius: 32px;
-		border: 1px solid rgba(255, 255, 255, 0.2);
+		border: 1px solid #1f1f1f;
 		background: #151515;
-		backdrop-filter: blur(10px);
+
 		.innerContainerHeader {
 			display: flex;
 			flex-direction: column;
@@ -21,6 +20,7 @@
 			align-self: stretch;
 			padding: 24px 24px 8px 24px;
 			border-bottom: 1px solid rgba(40, 39, 40, 0.48);
+
 			.headerBtnContainer {
 				display: flex;
 				padding: 8px 0px;
@@ -41,8 +41,8 @@
 						justify-content: space-between;
 						align-items: center;
 						border-radius: 100px;
-						border: 1px solid rgba(255, 255, 255, 0.2);
-						background: rgba(255, 255, 255, 0.05);
+						border: 1px solid rgba(36, 36, 36, 0.64);
+						background: rgba(42, 42, 42, 0.16);
 						span {
 							color: rgba(224, 224, 224, 0.48);
 							font-family: Inter;
@@ -340,8 +340,4 @@
 			}
 		}
 	}
-}
-
-.globalContainerMaskclassName {
-	background-color: transparent !important;
 }

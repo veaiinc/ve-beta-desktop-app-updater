@@ -8,7 +8,7 @@ import Context from '../../../context/context';
 import { styles } from './sidebarindex';
 import CreateLeadModal from '../modalsV2/proposalModals/CreateLeadModal';
 import { veAiModulesItemsList } from './sidebarindex';
-const Sidebar = ({ activeWorkspaceId, customStyles }) => {
+const Sidebar = ({ activeWorkspaceId }) => {
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
 	} = useContext(Context);
@@ -29,8 +29,6 @@ const Sidebar = ({ activeWorkspaceId, customStyles }) => {
 		activeRoute: '/' + location.pathname.split('/')[1],
 		selectedModule: null,
 	});
-
-	const [isMobile, setIsMobile] = useState(window.innerWidth <= 500);
 
 	useEffect(() => {
 		if (!userWorkSpaceList) {
@@ -104,24 +102,16 @@ const Sidebar = ({ activeWorkspaceId, customStyles }) => {
 						: 'no-submodules'
 				}`}
 				style={{
-					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : '',
+					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight:
 						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '') : '',
 					minHeight:
 						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '250px') : '',
-					background: isMobile ? 'transparent' : undefined,
 				}}
 			>
 				<nav
 					className={`sidebarComponent ${sidebarStates?.isOpen ? 'open' : ''}`}
-					style={{
-						...styles[sidebarStates?.navStyle],
-						...customStyles,
-						background:
-							isMobile && sidebarStates?.isOpen
-								? '#1E1E1E'
-								: customStyles?.backgroundColor || undefined,
-					}}
+					style={styles[sidebarStates?.navStyle]}
 				>
 					{sidebarStates?.isOpen ? (
 						<OpenedSideBarItemsComponent
@@ -130,7 +120,6 @@ const Sidebar = ({ activeWorkspaceId, customStyles }) => {
 							info={info}
 							setInfo={setInfo}
 							userWorkSpaceList={userWorkSpaceList}
-							customStyles={customStyles}
 						/>
 					) : (
 						<ClosedSideBarItemsComponent
@@ -138,7 +127,6 @@ const Sidebar = ({ activeWorkspaceId, customStyles }) => {
 							sidebarStates={sidebarStates}
 							info={info}
 							setInfo={setInfo}
-							customStyles={customStyles}
 						/>
 					)}
 				</nav>
