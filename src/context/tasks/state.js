@@ -17,7 +17,7 @@ import Reducer from './reducer';
 import { Actions } from './actions';
 
 export const intialState = {
-	listTask: null,
+	listTasks: null,
 	newTask: null,
 	subTasks: null,
 	preferences: null,

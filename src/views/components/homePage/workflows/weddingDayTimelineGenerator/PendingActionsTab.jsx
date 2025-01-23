@@ -1,6 +1,6 @@
 import React from 'react';
 import '../../../../../assets/scss/home_page/workflows/weddingDayTimelineGenerator.scss';
-import { ReactComponent as CheckIcon } from '../../../../../assets/svg/home_page/workflows/Check.svg';
+import { ReactComponent as CheckIcon } from '../../../../../assets/svg/home_page/Check.svg';
 const PendingActionsTab = () => {
 	return (
 		<div className="workflow-container">

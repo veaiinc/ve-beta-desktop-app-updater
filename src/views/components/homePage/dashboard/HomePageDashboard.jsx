@@ -14,8 +14,6 @@ const HomePageDashboard = ({ selectedOption, isNavbarFixed }) => {
 		Tasks: <TasksTab />,
 	};
 
-	console.log(isNavbarFixed);
-
 	return (
 		<div className={`home-page-dashboard-container ${isNavbarFixed ? 'add-margin-top' : ''}`}>
 			{componentMapper?.[selectedOption]}
