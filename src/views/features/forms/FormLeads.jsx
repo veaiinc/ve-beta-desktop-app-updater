@@ -9,15 +9,19 @@ import { ReactComponent as ThreeDots } from '../../../assets/svg/docs/three-dots
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
 import { ReactComponent as UpDownArrow } from '../../../assets/svg/my_templates/up-down-arrow.svg';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import FormResponses from '../../components/forms/FormRes';
+import FormSummary from '../../components/forms/FormSummary';
 
 const FormLeads = () => {
 	const navigate = useNavigate();
+	const location = useLocation();
+	const formData = location?.state?.formData;
 
 	const [info, setInfo] = useState({
 		searchExpand: false,
 		searchValue: '',
-		activeTab: 'individualEntries', //summary
+		activeTab: 'summary', //individualEntries
 	});
 
 	const metricsData = [
@@ -39,11 +43,11 @@ const FormLeads = () => {
 		return {
 			individualEntries: {
 				label: 'Individual Entries',
-				Component: <div>Individual Entries</div>,
+				Component: <FormResponses />,
 			},
 			summary: {
 				label: 'Summary',
-				Component: <div>Summary</div>,
+				Component: <FormSummary />,
 			},
 		};
 	}, [info?.activeTab]);
@@ -177,8 +181,7 @@ const FormLeads = () => {
 						<ThreeDots />
 					</div>
 				</div>
-
-				<div className="formViewContainer">{tabs?.[info?.activeTab]?.Component}</div>
+				{tabs?.[info?.activeTab]?.Component}
 			</div>
 		</div>
 	);
