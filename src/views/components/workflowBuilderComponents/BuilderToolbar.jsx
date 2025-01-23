@@ -4,14 +4,18 @@ import '../../../assets/scss/workflowBuilder/builderToolbar.scss';
 import Actions from './WorkflowBuilderSidebarComponents/Actions';
 import Conditions from './WorkflowBuilderSidebarComponents/Conditions';
 import Notification from './WorkflowBuilderSidebarComponents/Notification';
-const BuilderToolbar = ({ open, onCLose, sidebarType }) => {
+const BuilderToolbar = ({ open, onCLose, sidebarType, activeEdge, templateId }) => {
 	const componentMapper = useMemo(() => {
 		return {
-			actions: <Actions onCLose={onCLose} />,
-			conditions: <Conditions onCLose={onCLose} />,
-			notifications: <Notification onCLose={onCLose} />,
-			pipeline: <Actions onCLose={onCLose} />,
-			trigger: <Actions onCLose={onCLose} />,
+			actions: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
+			conditions: (
+				<Conditions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />
+			),
+			notifications: (
+				<Notification onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />
+			),
+			pipeline: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
+			trigger: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
 		};
 	}, [sidebarType, onCLose]);
 

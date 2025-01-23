@@ -447,3 +447,9 @@ export const getActivityLogsQuery = gql`
 		}
 	}
 `;
+
+export const addNewStepsQuery = gql`
+	mutation AddStep($templateId: ID!, $stepInput: StepInput!) {
+		addStep(templateId: $templateId, stepInput: $stepInput)
+	}
+`;

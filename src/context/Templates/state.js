@@ -35,6 +35,7 @@ import {
 	updateSendSmartFileSettingsMutation,
 	getLatestSendSmartFileSettingsQuery,
 	getActivityLogsQuery,
+	addNewStepsQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -1324,6 +1325,31 @@ export const TemplatesState = (props) => {
 			console.log('error==>getDocsFilesList', error);
 		}
 	};
+
+	//updated steps functions
+	const addNewSteps = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				addNewStepsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const dataResponse = response?.[1];
+				return [true, dataResponse?.data?.addStep];
+			} else {
+				console.log('Api failed ==>addNewSteps', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>addNewSteps', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -1379,5 +1405,6 @@ export const TemplatesState = (props) => {
 		uploadImageInSmartFileAi,
 		handleGlobalChatMessages,
 		getDocsFilesList,
+		addNewSteps,
 	};
 };

@@ -40,7 +40,7 @@ const CustomEdges = ({
 
 	const onAddOptionsClick = useCallback((type) => {
 		if (data?.onToolBarOpen) {
-			data.onToolBarOpen({ toolBarOpen: true, sidebarType: type });
+			data.onToolBarOpen({ toolBarOpen: true, sidebarType: type, activeEdge: id });
 		}
 		setInfo((prev) => ({ ...prev, addNodesPopUp: false }));
 	}, []);

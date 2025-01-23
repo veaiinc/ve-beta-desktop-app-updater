@@ -66,6 +66,7 @@ const WorkflowBuilderUpdated = () => {
 		stepsMapper: {},
 		sidebarType: null,
 		toolBarOpen: false,
+		activeEdge: null,
 	});
 
 	const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -217,8 +218,7 @@ const WorkflowBuilderUpdated = () => {
 	}, []);
 
 	const handleToolBarClose = useCallback(() => {
-		console.log('handleToolBarClose');
-		setInfo((prev) => ({ ...prev, toolBarOpen: false, sidebarType: null }));
+		setInfo((prev) => ({ ...prev, toolBarOpen: false, sidebarType: null, activeEdge: null }));
 	}, []);
 
 	const handleToolBarOpen = useCallback(
@@ -307,6 +307,8 @@ const WorkflowBuilderUpdated = () => {
 				open={info?.toolBarOpen}
 				onCLose={handleToolBarClose}
 				sidebarType={info?.sidebarType}
+				activeEdge={info?.activeEdge}
+				templateId={templateId}
 			/>
 		</div>
 	);

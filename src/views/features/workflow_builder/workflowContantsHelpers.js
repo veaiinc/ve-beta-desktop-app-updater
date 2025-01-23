@@ -134,3 +134,77 @@ export const returnDurationOption = (type) => {
 	}
 	return selectedDuration;
 };
+
+export const PriorityOptions = [
+	{
+		label: 'Low',
+		value: 'low',
+	},
+
+	{
+		label: 'Medium',
+		value: 'medium',
+	},
+	{
+		label: 'High',
+		value: 'high',
+	},
+];
+
+export const statusOptions = [
+	{
+		label: 'To Do',
+		value: 'todo',
+	},
+
+	{
+		label: 'Done',
+		value: 'done',
+	},
+	{
+		label: 'Pending',
+		value: 'pending',
+	},
+	{
+		label: 'In Progress',
+		value: 'inProgress',
+	},
+];
+
+export const containerStyle = {
+	padding: '12px 24px',
+	height: '44px',
+	padding: '12px',
+	color: '#e4e5e6',
+	width: '100%',
+	flex: 1,
+	alignSelf: 'stretch',
+	backgroundColor: '#151515',
+	borderRadius: '14px',
+	border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
+};
+
+export const dropDownStyle = {
+	top: '55px',
+	backgroundColor: 'red',
+	borderRadius: '14px',
+	border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
+	backgroundColor: '#202123',
+};
+
+export const dropDownTextStyling = {
+	color: 'var(--ve-ai-dark-theme-primary-font-color, #E8E8E8)',
+	fontFamily: 'Inter',
+	fontSize: '13px',
+	fontStyle: 'normal',
+	fontWeight: '400',
+	lineHeight: 'normal',
+};
+export const selectedValueStyling = {
+	color: 'var(--ve-ai-dark-theme-secondary-color, #939393)',
+	fontFamily: 'Inter',
+	fontSize: '12px',
+	fontStyle: 'normal',
+	fontWeight: '500',
+	lineHeight: 'normal',
+};
