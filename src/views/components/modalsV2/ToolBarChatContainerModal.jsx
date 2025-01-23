@@ -37,6 +37,13 @@ const ToolBarChatContainerModal = ({
 		}
 	}, [chatList]); // Scroll whenever chatList changes
 
+	useEffect(() => {
+		if (isExpanded && chatQuery?.trim()?.length) {
+			// write logic to send the message
+			console.log('chatQuery', chatQuery);
+		}
+	}, [isExpanded]);
+
 	return (
 		<Drawer
 			onClose={() => {

@@ -7,6 +7,7 @@ import { ReactComponent as DropdownArrow } from '../../../assets/svg/chat/downAr
 import '../../../assets/scss/home_page/promptPopup.scss';
 import { Tooltip } from 'antd';
 import FilterPopUp from '../globalComponents/FilterPopUp';
+import BottomToolbar from '../ai_agents/BottomToolbar';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
 const files = [
 	'My Templates',
@@ -185,12 +186,6 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 					Run
 				</button>
 			</div>
-			<ToolBarChatContainerModal
-				modalIsOpen={expandedChat}
-				onClose={() => setExpandedChat(false)}
-				chatQuery={Prompt}
-				isChatExpanded={true}
-			/>
 		</ReactModal>
 	);
 };

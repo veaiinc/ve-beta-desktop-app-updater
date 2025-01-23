@@ -1,4 +1,4 @@
-import React, { useEffect, memo } from 'react';
+import React, { useEffect, memo, useContext, useState } from 'react';
 import '../../assets/scss/authWrapper.scss';
 import { Helmet } from 'react-helmet';
 import useActiveWorkspace from '../hooks/useActiveWorkspace';
@@ -9,17 +9,45 @@ import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import BottomToolbar from '../components/ai_agents/BottomToolbar';
+import { message } from 'antd';
+import Context from '../../context/context';
 
 const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true }) => {
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
+	const [uploadedFiles, setUploadedFiles] = useState([]);
 
 	const checkAuth = useAuth();
 	// const data = useSubscription();
 	const tokenData = useTokenExpiry();
+	const {
+		aiSetup: { uploadImageToKnowledgeBase },
+	} = useContext(Context);
 
 	useEffect(() => {
 		checkAuth();
 	}, []);
+
+	useEffect(() => {
+		console.log(uploadedFiles, 'uploadedFiles');
+	}, [uploadedFiles]);
+
+	const handleAiUploadImage = async (uploadedImage) => {
+		try {
+			const response = await uploadImageToKnowledgeBase(uploadedImage);
+			if (response?.[0]) {
+				const { _id, uploadBatchId, sessionId } = response?.[1];
+				setUploadedFiles([
+					...uploadedFiles,
+					{ _id, uploadBatchId, sessionId, filename: uploadedImage?.name },
+				]);
+				message.success('Image uploaded successfully.');
+			} else {
+				message.error('An error occurred while uploading the image.');
+			}
+		} catch (error) {
+			console.log('Something went wrong! ', error);
+		}
+	};
 
 	return (
 		<div className="authParentContainer">
@@ -57,7 +85,7 @@ const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true 
 					// chatList={info?.chatList}
 					// onSend={handleSendMessage}
 					// aiChatLoading={info?.aiChatLoading}
-					// handleAiUploadImage={handleAiUploadImage}
+					handleAiUploadImage={handleAiUploadImage}
 				/>
 			) : (
 				''
