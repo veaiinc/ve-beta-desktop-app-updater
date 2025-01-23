@@ -6,6 +6,7 @@ import { ReactComponent as EmailPromptSvg } from '../../../assets/svg/home_page/
 import { ReactComponent as DropdownArrow } from '../../../assets/svg/chat/downArrow.svg';
 import '../../../assets/scss/home_page/promptPopup.scss';
 import { Tooltip } from 'antd';
+import FilterPopUp from '../globalComponents/FilterPopUp';
 
 const files = [
 	'My Templates',
@@ -19,7 +20,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	const [searchText, setSearchText] = useState('');
 	const [selectedOptions, setSelectedOptions] = useState({});
 	const [isOpen, setIsOpen] = useState(false);
-
+	const [clientSearch, setClientSearch] = useState('');
 	const handleSelectedFile = (file) => {
 		if (!selectedOptions?.[selectedCard?.id]?.some((f) => f === file)) {
 			setSelectedOptions((prev) => {
@@ -36,6 +37,11 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	useEffect(() => {
 		console.log(isOpen, 'CurrentIsOpenState');
 	}, [isOpen]);
+
+	const handleClientSearch = (value) => {
+		setClientSearch(value);
+		console.log(value, 'value');
+	};
 
 	const handleRemoveSelectedFile = (file) => {
 		setSelectedOptions((prev) => {
@@ -79,21 +85,26 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 						<Tooltip
 							placement="bottom"
 							title={
-								<div className="promptPopupContainerBodyTextTooltip">
-									Client
-								</div>
+								<FilterPopUp
+									options={['Ankit', 'Ismail', 'Avinash']}
+									searchInput={true}
+									searchInputPlaceholder="Search Client"
+									searchValue={clientSearch}
+								/>
 							}
 							open={isOpen}
 							trigger="click"
-							color="transparent"
 							arrow={false}
 						>
-							<span onClick={() => setIsOpen(!isOpen)}>
+							<span
+								onClick={() => setIsOpen(!isOpen)}
+								className="promptPopupContainerBodyTextTooltip"
+							>
 								client <DropdownArrow />
 							</span>
 						</Tooltip>
-						questionnaire and generate a detailed photography timeline. Include location
-						travel times, setup durations, and buffer for unexpected delays.
+						{''}questionnaire and generate a detailed photography timeline. Include
+						location travel times, setup durations, and buffer for unexpected delays.
 					</div>
 					<div className="promptPopupContainerEmailPromptContainer">
 						<div className="promptPopupContainerEmailPrompt">Edit Prompt</div>

@@ -55,7 +55,16 @@
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
-			line-height: 24px; /* 171.429% */
+			line-height: 24px;
+			.promptPopupContainerBodyTextTooltip {
+				display: inline-flex;
+				flex-direction: row;
+				align-items: center;
+				gap: 4px;
+				padding: 4px 12px;
+				border-radius: 24px;
+				border: 1px solid #2c2d2e;
+			}
 		}
 		.promptPopupContainerEmailPromptContainer {
 			display: flex;
@@ -182,11 +191,11 @@
 		padding: 16px 24px;
 		justify-content: center;
 		align-items: center;
-        width: 100%;
+		width: 100%;
 		gap: 16px;
 		flex: 1 0 0;
 		border-radius: 50px;
 		background: #f2f2f3;
-        border: none;
+		border: none;
 	}
 }

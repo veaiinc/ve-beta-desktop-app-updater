@@ -1,6 +1,6 @@
 import React, { useState, useEffect, memo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
-import NavBar from '../../components/homePage/NavBar';
+import NavBar from '../../components/homePage/navBar';
 import { Activity, Drafts } from '../../components/ai_agents/CreateCards';
 import HeaderInfo from '../../components/homePage/HeaderInfo';
 import PromptPopup from '../../components/homePage/PromptPopup';
