@@ -78,3 +78,23 @@ export const ConditionNode = ({ data }) => {
 		</div>
 	);
 };
+
+export const EndNode = ({ data }) => {
+	return (
+		<div className="action-node">
+			<div className="upper-action-node-container">
+				<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+					{/* <IfElse /> */}
+					End Node
+				</span>
+				<span> End</span>
+			</div>
+			{/* <div className="lower-action-node-container">
+				<span className="lower-action-node-title">Post editing</span>
+				<span className="lower-action-node-subtitle">Post editing for client abhiloss</span>
+			</div> */}
+			{/* <Handle type="source" position={Position.Bottom} /> */}
+			<Handle type="target" position={Position.Top} />
+		</div>
+	);
+};

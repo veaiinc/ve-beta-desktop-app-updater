@@ -15,6 +15,7 @@ import {
 	TriggerNode,
 	ActionNode,
 	ConditionNode,
+	EndNode,
 } from '../../components/workflowBuilderComponents/CustomNodes';
 import CustomEdges from '../../components/workflowBuilderComponents/CustomEdges';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
@@ -26,6 +27,7 @@ const nodeTypes = {
 	'start-step': TriggerNode,
 	action: ActionNode,
 	condition: ConditionNode,
+	end: EndNode,
 };
 
 const edgeTypes = {
@@ -115,7 +117,7 @@ const WorkflowBuilderUpdated = () => {
 			parentX = 400,
 			parentY = currentY,
 			branchType = null,
-			isFirstBranch = true, // Add flag to track if it's first node after branching
+			isFirstBranch = true,
 		) => {
 			// Early return if invalid step or already mapped
 			if (!stepId || !stepsMapper?.[stepId] || stepsMapper?.[stepId]?.nodesMapped) {
@@ -144,11 +146,11 @@ const WorkflowBuilderUpdated = () => {
 			nodes.push({
 				id: stepId,
 				position: { x: nodeX, y: nodeY },
+				type: currentStep?.type,
 				data: {
 					...currentStep,
+					onToolBarOpen: handleToolBarOpen,
 				},
-				type: currentStep?.type, // This will map to our custom nodes
-				data: { onToolBarOpen: handleToolBarOpen },
 			});
 
 			stepsMapper[stepId].nodesMapped = true;
@@ -160,8 +162,9 @@ const WorkflowBuilderUpdated = () => {
 			// Handle edges based on step type
 			if (currentStep.type === 'condition') {
 				const { ifYes, ifNo } = currentStep;
-				const branchY = nextY; // Both branches start at same Y level
+				const branchY = nextY;
 
+				// Handle Yes branch
 				if (ifYes?.nextStepId) {
 					edges.push({
 						id: `${stepId}-${ifYes.nextStepId}-yes`,
@@ -172,31 +175,94 @@ const WorkflowBuilderUpdated = () => {
 						type: 'smoothstep',
 					});
 					generateNodesAndEdges(ifYes.nextStepId, nodeX, branchY, 'yes', true);
+				} else {
+					// Add end node for Yes branch
+					const endNodeId = `${stepId}-yes-end`;
+					nodes.push({
+						id: endNodeId,
+						position: { x: nodeX - 250, y: parentY + 400 },
+						type: 'end',
+						data: {
+							type: 'end',
+							label: 'End',
+							onToolBarOpen: handleToolBarOpen,
+						},
+					});
+					edges.push({
+						id: `${stepId}-${endNodeId}-yes`,
+						source: stepId,
+						target: endNodeId,
+						label: 'Yes',
+						animated: true,
+						type: 'smoothstep',
+					});
 				}
 
+				// Handle No branch
 				if (ifNo?.nextStepId) {
 					edges.push({
-						id: `${stepId}-${ifNo?.nextStepId}-no`,
+						id: `${stepId}-${ifNo.nextStepId}-no`,
 						source: stepId,
 						target: ifNo.nextStepId,
 						label: 'No',
 						animated: true,
 						type: 'smoothstep',
 					});
-					generateNodesAndEdges(ifNo?.nextStepId, nodeX, branchY, 'no', true);
+					generateNodesAndEdges(ifNo.nextStepId, nodeX, branchY, 'no', true);
+				} else {
+					// Add end node for No branch
+					const endNodeId = `${stepId}-no-end`;
+					nodes.push({
+						id: endNodeId,
+						position: { x: nodeX + 250, y: parentY + 400 },
+						type: 'end',
+						data: {
+							type: 'end',
+							label: 'End',
+							onToolBarOpen: handleToolBarOpen,
+						},
+					});
+					edges.push({
+						id: `${stepId}-${endNodeId}-no`,
+						source: stepId,
+						target: endNodeId,
+						label: 'No',
+						animated: true,
+						type: 'smoothstep',
+					});
 				}
 			} else if (currentStep.nextStepId) {
-				// Handle regular step
+				// Handle regular step with next step
 				edges.push({
-					id: `${stepId}-${currentStep?.nextStepId}`,
+					id: `${stepId}-${currentStep.nextStepId}`,
 					source: stepId,
 					target: currentStep.nextStepId,
 					animated: true,
 					type: 'custom',
 					data: { onToolBarOpen: handleToolBarOpen },
 				});
-				// Pass isFirstBranch as false for subsequent nodes in the branch
-				generateNodesAndEdges(currentStep?.nextStepId, nodeX, nextY, branchType, false);
+				generateNodesAndEdges(currentStep.nextStepId, nodeX, nextY, branchType, false);
+			} else {
+				// Add end node for regular step with no next step
+				const endNodeId = `${stepId}-end`;
+				nodes.push({
+					id: endNodeId,
+					position: { x: nodeX, y: parentY + 400 },
+					type: 'end',
+					data: {
+						type: 'end',
+						label: 'End',
+						onToolBarOpen: handleToolBarOpen,
+					},
+				});
+				edges.push({
+					id: `${stepId}-${endNodeId}`,
+					source: stepId,
+					target: endNodeId,
+					animated: true,
+					type: 'custom',
+					data: { onToolBarOpen: handleToolBarOpen },
+				});
 			}
 		};
 
