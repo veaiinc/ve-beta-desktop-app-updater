@@ -7,6 +7,8 @@ import { ReactComponent as CloseArrow } from '../../../../assets/svg/tasks/doubl
 import { ReactComponent as RightSvg } from '../../../../assets/svg/activity/right.svg';
 import { ReactComponent as DustBinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
+import { ReactComponent as ExpandSvg } from '../../../../assets/svg/docs/expand.svg';
+// import { ReactComponent as CollapseSvg } from '../../../../assets/svg/docs/collapse.svg';
 import Spinner from '../../loaders/Spinner';
 import Context from '../../../../context/context';
 import ListViewRow from '../../tasks/listView/ListViewRow';
@@ -17,7 +19,7 @@ const ListViewSidebar = ({
 	selectedRow,
 	sidebarIsOpen,
 	closeSidebar,
-	updatePropertyValue,
+	handleUpdate,
 	deleteTask,
 	rowTypes,
 	handleCreateSubTaskClick,
@@ -29,6 +31,9 @@ const ListViewSidebar = ({
 	haveSubTask,
 	properties,
 	colors,
+	sidebarChildren,
+	isSidebarExpanded = false,
+	toggleSidebarExpand,
 }) => {
 	const {
 		tasks: { subTasks, getSubTasks },
@@ -40,6 +45,7 @@ const ListViewSidebar = ({
 		subTaskError: null,
 		deleteLoading: false,
 		completedSubtaskCount: 0,
+		titlePropName: null,
 	});
 
 	const [localTitle, setLocalTitle] = useState('');
@@ -49,7 +55,14 @@ const ListViewSidebar = ({
 
 	useEffect(() => {
 		if (selectedRow?.title !== localTitle) {
-			setLocalTitle(selectedRow?.title || '');
+			const titlePropName = Object.keys(responseMetadata).find(
+				(key) => responseMetadata[key]?.isTitle,
+			);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				titlePropName: titlePropName,
+			}));
+			setLocalTitle(selectedRow?.[titlePropName] || '');
 		}
 		if (selectedRow?.description !== localDescription) {
 			setLocalDescription(selectedRow?.description || '');
@@ -97,18 +110,23 @@ const ListViewSidebar = ({
 		}
 	}, [subTasks, selectedRow?._id, isShowingSubTask, getSubTasks]);
 
+	useEffect(() => {
+		console.log('responseMetadata changed:', responseMetadata);
+		console.log('assignTo props:', responseMetadata?.assignedTo?.props);
+	}, [responseMetadata]);
+
 	const debouncedTitleUpdate = useCallback(
 		(value) => {
 			if (titleDebounceRef.current) {
 				clearTimeout(titleDebounceRef.current);
 			}
 			titleDebounceRef.current = setTimeout(() => {
-				updatePropertyValue(selectedRow?._id, 'title', value, null, null, () => {
+				handleUpdate(selectedRow?._id, info?.titlePropName, value, null, null, () => {
 					setLocalTitle(value);
 				});
 			}, 800);
 		},
-		[selectedRow?._id, updatePropertyValue],
+		[selectedRow?._id, handleUpdate],
 	);
 
 	const debouncedDescriptionUpdate = useCallback(
@@ -117,12 +135,12 @@ const ListViewSidebar = ({
 				clearTimeout(descriptionDebounceRef.current);
 			}
 			descriptionDebounceRef.current = setTimeout(() => {
-				updatePropertyValue(selectedRow?._id, 'description', value, null, null, () => {
+				handleUpdate(selectedRow?._id, 'description', value, null, null, () => {
 					setLocalDescription(value);
 				});
 			}, 800);
 		},
-		[selectedRow?._id, updatePropertyValue],
+		[selectedRow?._id, handleUpdate],
 	);
 
 	const handleTitleChange = useCallback(
@@ -169,11 +187,18 @@ const ListViewSidebar = ({
 			for (let key in row) {
 				const value = row[key];
 
+				const {
+					type = null,
+					name = null,
+					Icon = null,
+					isTitle = false,
+					props = {},
+				} = responseMetadata[key] || {};
+				console.log('responseMetadata', props);
 				if (
 					[
 						'__typename',
 						'_id',
-						'title',
 						'description',
 						'workflowTemplateId',
 						'completedAt',
@@ -182,16 +207,11 @@ const ListViewSidebar = ({
 						'parentTask',
 						'childTasks',
 						isShowingSubTask && 'workflow',
-					].includes(key)
+					].includes(key) ||
+					isTitle
 				) {
 					continue;
 				}
-				const {
-					type = null,
-					name = null,
-					Icon = null,
-					props,
-				} = responseMetadata[key] || {};
 
 				if (type === null) {
 					continue;
@@ -215,10 +235,19 @@ const ListViewSidebar = ({
 									{...(type === 'date' ? { format: 'MMM DD, YYYY h:mm A' } : {})}
 									{...props}
 									onOptionClick={(value) =>
-										updatePropertyValue(row._id, key, value, isShowingSubTask)
+										handleUpdate(row._id, key, value, isShowingSubTask)
 									}
 									colors={colors}
 									takeFullspace={true}
+									onUpdate={(value, onSuccess) =>
+										handleUpdate(
+											row._id,
+											key,
+											value,
+											isShowingSubTask,
+											onSuccess,
+										)
+									}
 								/>
 							) : (
 								<div key={key}>{value}</div>
@@ -230,7 +259,7 @@ const ListViewSidebar = ({
 
 			return listItems;
 		},
-		[isShowingSubTask, responseMetadata, rowTypes, updatePropertyValue],
+		[isShowingSubTask, responseMetadata, rowTypes, handleUpdate],
 	);
 
 	const generateSkeleton = useCallback(() => {
@@ -244,22 +273,50 @@ const ListViewSidebar = ({
 	return (
 		<Drawer
 			onClose={closeSidebar}
-			width={480}
+			width={'fit-content'}
 			open={sidebarIsOpen}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
 		>
-			<div className="listView-sidebar-container">
+			<div
+				className={`listView-sidebar-container ${
+					isSidebarExpanded ? 'listView-sidebar-container-expanded' : ''
+				}`}
+			>
 				<div className="listView-sidebar-innerContainer">
 					<div className="listView-sidebar-wrapper">
 						<div className="sidebar-header">
-							<CloseArrow
-								width={16}
-								height={16}
-								onClick={closeSidebar}
-								className="cursor-pointer"
-							/>
+							<div className="sidebar-header-expand-button">
+								{!isSidebarExpanded ? (
+									<CloseArrow
+										width={16}
+										height={16}
+										onClick={closeSidebar}
+										style={{ cursor: 'pointer' }}
+									/>
+								) : (
+									''
+								)}
+							</div>
+							<div
+								className="sidebar-header-expand-button"
+								onClick={toggleSidebarExpand}
+							>
+								{isSidebarExpanded ? (
+									<ExpandSvg
+										width={16}
+										height={16}
+										style={{ cursor: 'pointer' }}
+									/>
+								) : (
+									<ExpandSvg
+										width={16}
+										height={16}
+										style={{ cursor: 'pointer' }}
+									/>
+								)}
+							</div>
 							<div className="breadcrumbs">
 								{isShowingSubTask ? (
 									<span
@@ -304,7 +361,7 @@ const ListViewSidebar = ({
 						<div className="sidebar-properties-container">
 							{generateRow(selectedRow)}
 						</div>
-						{haveSubTask && !isShowingSubTask ? (
+						{!sidebarChildren && haveSubTask && !isShowingSubTask ? (
 							<div className="sidebar-subtask-container">
 								<div className="sidebar-subtask-header">
 									<span className="sidebar-subtask-header-title">Sub Tasks</span>
@@ -347,7 +404,7 @@ const ListViewSidebar = ({
 												key={subTask?._id}
 												rowTypes={rowTypes}
 												responseMetadata={responseMetadata}
-												updatePropertyValue={updatePropertyValue}
+												handleUpdate={handleUpdate}
 												isSubTask={true}
 												handleRowClick={onSubTaskClick}
 												properties={properties}
@@ -363,15 +420,19 @@ const ListViewSidebar = ({
 							''
 						)}
 
-						<div className="sidebar-description">
-							<CustomTextArea
-								value={localDescription}
-								onChange={handleDescriptionChange}
-								placeholder="Enter description"
-								className="sidebar-description-textarea"
-								autoResize={true}
-							/>
-						</div>
+						{sidebarChildren}
+
+						{selectedRow?.description !== undefined && (
+							<div className="sidebar-description">
+								<CustomTextArea
+									value={localDescription}
+									onChange={handleDescriptionChange}
+									placeholder="Enter description"
+									className="sidebar-description-textarea"
+									autoResize={true}
+								/>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>

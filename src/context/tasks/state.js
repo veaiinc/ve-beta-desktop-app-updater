@@ -11,6 +11,7 @@ import {
 	createTaskStatusLabelMutation,
 	updateTaskStatusLabelMutation,
 	deleteTaskStatusLabelMutation,
+	taskMetadataQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -21,6 +22,7 @@ export const intialState = {
 	newTask: null,
 	subTasks: null,
 	preferences: null,
+	taskMetadata: null,
 	refetchTasks: false,
 };
 
@@ -250,7 +252,7 @@ export const TasksState = () => {
 		}
 	};
 
-	const updateStatusLabel = async (payload) => {
+	const updateStatusLabel = async (payload, oldGroup) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -262,10 +264,21 @@ export const TasksState = () => {
 				'workflows_Api',
 			);
 			if (response?.[0]) {
-				dispatch({
-					type: Actions.UPDATE_STATUS_LABEL,
-					payload: response?.[1]?.data?.updateTaskLabel,
-				});
+				if (payload?.input?.order !== undefined) {
+					dispatch({
+						type: Actions.UPDATE_STATUS_LABEL_ORDER,
+						payload: {
+							data: response?.[1]?.data?.updateTaskLabel,
+							oldGroup: oldGroup,
+							order: payload?.input?.order,
+						},
+					});
+				} else {
+					dispatch({
+						type: Actions.UPDATE_STATUS_LABEL,
+						payload: response?.[1]?.data?.updateTaskLabel,
+					});
+				}
 			}
 			return response;
 		} catch (error) {
@@ -287,12 +300,34 @@ export const TasksState = () => {
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.DELETE_STATUS_LABEL,
-					payload: { _id: payload.labelId },
+					payload: { _id: payload.labelId, group: payload.group },
 				});
 			}
 			return response;
 		} catch (error) {
 			console.log('API failed ==> deleteStatusLabel', error);
+		}
+	};
+
+	const getTaskMetadata = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				taskMetadataQuery,
+				{},
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_TASK_METADATA,
+					payload: response?.[1]?.data?.getTaskMetadata,
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> getTaskMetadata', error);
 		}
 	};
 
@@ -326,5 +361,6 @@ export const TasksState = () => {
 		deleteStatusLabel,
 		resetTasksState,
 		updateTaskState,
+		getTaskMetadata,
 	};
 };

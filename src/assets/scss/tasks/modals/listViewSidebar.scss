@@ -3,12 +3,13 @@
 	width: 480px;
 	display: flex;
 	padding: 10px;
+	transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
 	.listView-sidebar-innerContainer {
 		width: 100%;
 		height: 100%;
 		padding: 24px 0;
 		padding-left: 36px;
-		border-radius: 16px;
 		border-radius: 16px;
 		border: 1px solid rgba(36, 36, 36, 0.64);
 		background: #171819;
@@ -26,7 +27,7 @@
 
 			.sidebar-header {
 				display: flex;
-				align-self: stretch;
+				width: 100%;
 				align-items: center;
 				gap: 8px;
 
@@ -238,5 +239,35 @@
 	}
 	.cursor-ponter {
 		cursor: pointer;
+	}
+}
+
+.listView-sidebar-container-expanded {
+	padding: 0;
+	width: 100vw;
+
+	.listView-sidebar-innerContainer {
+		padding-top: 20px;
+
+		// background-color: #065cb3;
+		border-radius: 0;
+		.listView-sidebar-wrapper {
+			align-items: center;
+			.sidebar-header {
+				max-width: 1200px;
+			}
+			.sidebar-title {
+				max-width: 720px;
+			}
+			.sidebar-properties-container {
+				max-width: 720px;
+			}
+			.sidebar-subtask-container {
+				max-width: 720px;
+			}
+			.sidebar-description {
+				max-width: 720px;
+			}
+		}
 	}
 }

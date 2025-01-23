@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/tasks/listViewHeader.scss';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/tasks/searchWhite.svg';
@@ -9,6 +9,7 @@ import OptionsDropDown from '../../dropDown/tasks/OptionsDropDown';
 import DropDown from '../../dropDown/tasks/DropDown';
 import SortComponent from './SortComponent';
 import FilterComponent from './FilterComponent';
+import TabHeader from './TabHeader';
 
 const defaultFilterValue = {
 	workflow: null,
@@ -26,10 +27,7 @@ const defaultFilterValue = {
 };
 
 const ListViewHeader = ({
-	updateListViewInfo,
 	properties,
-	sort,
-	filters,
 	searchValue,
 	responseMetadata,
 	headerTitle,
@@ -39,27 +37,40 @@ const ListViewHeader = ({
 	handleEditPropertyChange,
 	colors,
 	createButtonText,
+	handleTabChange,
+	tabs,
+	handleAddTab,
+	updateViewInfo,
+	updateTaskInfo,
+	viewData,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
 	});
 	const [pendingFilters, setPendingFilters] = useState([]);
+	const searchInputRef = useRef(null);
+
+	useEffect(() => {
+		if (info.searchExpand && searchInputRef.current) {
+			searchInputRef.current?.focus();
+		}
+	}, [info.searchExpand]);
 
 	const handelSortClick = useCallback(
 		(value) => {
-			const newSort = sort.some((item) => item.sortBy === value)
-				? sort
-				: [...sort, { sortBy: value, sortType: 1 }];
-			updateListViewInfo('sort', newSort);
-			updateListViewInfo('page', 1);
+			const newSort = viewData?.sort?.some((item) => item.sortBy === value)
+				? viewData?.sort
+				: [...viewData?.sort, { sortBy: value, sortType: 1 }];
+
+			updateViewInfo(viewData?._id, { sort: newSort, page: 1 });
 		},
-		[sort, updateListViewInfo],
+		[viewData, updateViewInfo],
 	);
 
 	const handelFilterClick = useCallback(
 		(value) => {
 			if (
-				!filters.some((item) => item.key === value) &&
+				!viewData?.filters?.some((item) => item.key === value) &&
 				!pendingFilters.some((item) => item.key === value)
 			) {
 				setPendingFilters((prev) => [
@@ -71,7 +82,7 @@ const ListViewHeader = ({
 				]);
 			}
 		},
-		[filters, pendingFilters],
+		[viewData, pendingFilters],
 	);
 
 	return (
@@ -96,23 +107,24 @@ const ListViewHeader = ({
 									alignItems: 'center',
 									cursor: 'pointer',
 								}}
-								onClick={() =>
+								onClick={() => {
 									setInfo((prev) => ({
 										...prev,
 										searchExpand: true,
-									}))
-								}
+									}));
+								}}
 							>
 								<SearchSvg />
 							</span>
 
 							<div className="inputAndCloseContainer">
 								<input
+									ref={searchInputRef}
 									className="searchInputTag"
 									placeholder="Search"
 									value={searchValue}
 									onChange={(e) =>
-										updateListViewInfo('searchValue', e.target?.value)
+										updateTaskInfo({ searchValue: e.target?.value })
 									}
 								/>
 								<span
@@ -127,7 +139,7 @@ const ListViewHeader = ({
 											...prev,
 											searchExpand: false,
 										}));
-										updateListViewInfo('searchValue', '');
+										updateTaskInfo({ searchValue: '' });
 									}}
 								>
 									<CrossIcon style={{ width: '20px', height: '20px' }} />
@@ -166,32 +178,47 @@ const ListViewHeader = ({
 					</DropDown>
 					<OptionsDropDown
 						properties={properties}
-						updateListViewInfo={updateListViewInfo}
+						updateTaskInfo={updateTaskInfo}
 						taskPreferences={taskPreferences}
 						editingProperty={editingProperty}
 						handleEditPropertyChange={handleEditPropertyChange}
 						responseMetadata={responseMetadata}
 						colors={colors}
+						viewData={viewData}
+						updateViewInfo={(viewInfo) => updateViewInfo(viewData?._id, viewInfo)}
 					/>
 				</div>
 			</div>
+			<div className="listViewHeaderTabsContainer">
+				<TabHeader
+					activeTab={viewData?._id}
+					onTabChange={handleTabChange}
+					tabs={Object.values(tabs)}
+				/>
+				<button className="listViewHeaderTabsAddButton" onClick={handleAddTab}>
+					<PlusSvg />
+				</button>
+			</div>
 			<div className="listViewOptionsContainer">
-				{sort.length > 0 ? (
+				{viewData?.sort?.length > 0 ? (
 					<SortComponent
-						sort={sort}
+						sort={viewData?.sort}
 						options={properties.filter(
 							(item) => !['childTasks', 'parentTask']?.includes(item.value),
 						)}
 						responseMetadata={responseMetadata}
-						updateListViewInfo={updateListViewInfo}
+						updateViewInfo={(viewInfo) => updateViewInfo(viewData?._id, viewInfo)}
 						handelSortClick={handelSortClick}
+						properties={properties.filter(
+							(item) => !['childTasks', 'parentTask']?.includes(item.value),
+						)}
 					/>
 				) : (
 					''
 				)}
-				{filters.length > 0 || pendingFilters.length > 0 ? (
+				{viewData?.filters?.length > 0 || pendingFilters.length > 0 ? (
 					<div className="listView-filterContainer">
-						{[...filters, ...pendingFilters].map((filter) => {
+						{[...viewData?.filters, ...pendingFilters].map((filter) => {
 							const {
 								Icon = null,
 								name = null,
@@ -205,17 +232,23 @@ const ListViewHeader = ({
 									title={name}
 									fieldName={filter?.key}
 									value={filter?.value}
-									updateListViewInfo={updateListViewInfo}
-									filters={filters}
+									updateViewInfo={(viewInfo) =>
+										updateViewInfo(viewData?._id, viewInfo)
+									}
+									filters={viewData?.filters}
 									props={props}
 									type={type}
 									colors={colors}
-									isPending={!filters.includes(filter)}
+									isPending={
+										!viewData?.filters?.some((f) => f.key === filter?.key)
+									}
 									onConfirm={(key, value) => {
 										setPendingFilters((prev) =>
 											prev.filter((f) => f.key !== key),
 										);
-										updateListViewInfo('filters', [...filters, { key, value }]);
+										updateViewInfo(viewData?._id, {
+											filters: [...viewData?.filters, { key, value }],
+										});
 									}}
 									setPendingFilters={setPendingFilters}
 									responseMetadata
@@ -226,8 +259,9 @@ const ListViewHeader = ({
 							title="Add Filter"
 							options={properties?.filter(
 								(item) =>
-									!filters.some((filter) => filter.key === item.value) &&
-									!['childTasks', 'parentTask']?.includes(item.value),
+									!viewData?.filters?.some(
+										(filter) => filter.key === item.value,
+									) && !['childTasks', 'parentTask']?.includes(item.value),
 							)}
 							onOptionClick={handelFilterClick}
 							valueSelector="value"

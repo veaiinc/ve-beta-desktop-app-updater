@@ -86,6 +86,15 @@
 			color: #e8e8e8 !important;
 		}
 	}
+	.ant-select-selection-item {
+		padding: 0 !important;
+	}
+	.ant-select-selection-overflow-item.ant-select-selection-overflow-item-suffix {
+		display: none !important;
+	}
+	.ant-select-selector {
+		padding: 0px !important;
+	}
 }
 
 .listItem-person {
@@ -129,13 +138,6 @@
 	}
 }
 
-.ant-select-selection-overflow-item.ant-select-selection-overflow-item-suffix {
-	display: none !important;
-}
-.ant-select-selector {
-	padding: 0px !important;
-}
-
 .person-select {
 	padding: 0px !important;
 	.ant-select-selection-placeholder {
@@ -168,10 +170,6 @@
 			padding: 0px !important;
 		}
 	}
-}
-
-.ant-select-selection-item {
-	padding: 0 !important;
 }
 
 .person-tag {
@@ -222,10 +220,6 @@
 		font-weight: 500;
 		line-height: normal;
 	}
-}
-
-.ant-select-item-option {
-	background-color: transparent !important;
 }
 
 .person-tooltip-wrapper {
