@@ -6,6 +6,7 @@ import service from '../../services';
 import gqlService from '../../services/graphQlServices';
 import { generatePDFsBatchId } from '../../helpers';
 import { getTemmplatesQuery } from '../Templates/graphQlFunctions';
+import ObjectID from 'bson-objectid';
 
 export const initialState = {
 	knowledgeBaseFiles: {
@@ -366,6 +367,45 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const uploadImageToKnowledgeBase = async (file) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const path = '/' + workspaceId + KNOWLEDGE_BASE?.uploadImageToKnowledgeBase;
+		const uploadBatchId = Date?.now()?.toString();
+		const sessionId = ObjectID()?.toString();
+		const body = {
+			originalFileName: file?.name,
+			uploadBatchId,
+			sessionId,
+		};
+
+		try {
+			const response = await service?.fetchPost(path, body, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				const { signedUrl, _id } = response?.[1];
+				if (signedUrl) {
+					const uploadResponse = await fetch(signedUrl, {
+						method: 'PUT',
+						headers: {
+							'Content-Type': file.type || 'application/pdf',
+						},
+						body: file,
+					});
+
+					if (uploadResponse?.ok && uploadResponse?.status === 200) {
+						return [true, { _id, uploadBatchId, sessionId }];
+					} else {
+						return [false, uploadResponse];
+					}
+				}
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>uploadImageToKnowledgeBase', error);
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -385,5 +425,6 @@ export const AiSetupState = () => {
 		getWorkflows,
 		resetAiSetupState,
 		deleteKnowledge,
+		uploadImageToKnowledgeBase,
 	};
 };

@@ -5,6 +5,7 @@ export const KNOWLEDGE_BASE = {
 	uploadPDFsToKnowledgeBase: '/knowledge-bases/upload-file',
 	uploadURLsToKnowledgeBase: '/knowledge-bases',
 	deleteKnowledge: '/knowledge-bases',
+	uploadImageToKnowledgeBase: '/knowledge-bases/upload-file',
 };
 
 export const AI_PERSONALITY = {
