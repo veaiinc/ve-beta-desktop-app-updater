@@ -30,8 +30,6 @@ const SubscriptionCard = ({ planData, subscribedPlans }) => {
 		];
 	}, [planData]);
 
-	console.log(subscribedPlans?._id === planData?._id);
-
 	const onSelectPlan = useCallback(async () => {
 		if (info?.btnLoading) {
 			return;
