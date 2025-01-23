@@ -5,6 +5,7 @@ import AllTab from './AllTab';
 import DraftsAndActivityTab from './DraftsAndActivityTab';
 import TasksTab from './TasksTab';
 import WorkflowsTab from './WorkflowsTab';
+import RecentChats from './RecentChats';
 
 const HomePageDashboard = ({ selectedOption, isNavbarFixed }) => {
 	const componentMapper = {
@@ -12,6 +13,7 @@ const HomePageDashboard = ({ selectedOption, isNavbarFixed }) => {
 		'Drafts & Activity': <DraftsAndActivityTab />,
 		Workflows: <WorkflowsTab />,
 		Tasks: <TasksTab />,
+		'Recent Chats': <RecentChats />,
 	};
 
 	console.log(isNavbarFixed);
