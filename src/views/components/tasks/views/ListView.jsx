@@ -14,6 +14,7 @@ const ListView = ({
 	handleUpdate,
 	data,
 	loading,
+	infinityLoading,
 	hasMore,
 	error,
 	rowTypes,
@@ -42,13 +43,15 @@ const ListView = ({
 						display: 'flex',
 						flexDirection: 'column',
 						width: '100%',
+						overflow: 'auto',
 					}}
-					height="100%"
+					height="calc(100vh - 100px)"
+					scrollThreshold="90%"
 				>
 					{data?.map((task, index) => (
 						<ListViewRow
 							task={task}
-							key={index}
+							key={task.id || index}
 							properties={properties}
 							rowTypes={rowTypes}
 							handleUpdate={handleUpdate}

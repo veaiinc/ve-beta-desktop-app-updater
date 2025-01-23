@@ -209,6 +209,9 @@ const ListViewHeader = ({
 						responseMetadata={responseMetadata}
 						updateViewInfo={(viewInfo) => updateViewInfo(viewData?._id, viewInfo)}
 						handelSortClick={handelSortClick}
+						properties={properties.filter(
+							(item) => !['childTasks', 'parentTask']?.includes(item.value),
+						)}
 					/>
 				) : (
 					''

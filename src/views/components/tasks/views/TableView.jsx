@@ -2,6 +2,8 @@ import React, { memo, useState, useCallback, useRef, useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 import TableHeader from '../listView/TableHeader';
 import TableBody from '../listView/TableBody';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { FetchMoreLoaderComp } from '../../../../helpers';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../../../assets/scss/tasks/tableView.scss';
@@ -16,6 +18,9 @@ const TableView = ({
 	colors,
 	isSubTask = false,
 	loading = false,
+	fetchMoreData,
+	hasMore,
+	error,
 }) => {
 	const initialColumnWidth = 180;
 	const minColumnWidth = 80;
@@ -178,32 +183,13 @@ const TableView = ({
 		{ id: 'dueDate', label: 'Due Date', width: 150 },
 	];
 
-	const renderSkeleton = () => (
-		<tbody className="table-body">
-			{[...Array(10)].map((_, rowIndex) => (
-				<tr key={rowIndex} className="table-row">
-					{loadingColumns.map((column) => (
-						<td
-							key={`${rowIndex}-${column.id}`}
-							className="table-cell"
-							style={{
-								'--width': `${column.width}px`,
-								width: column.width,
-								flex: '1 0 auto',
-							}}
-						>
-							<Skeleton
-								height={20}
-								width="100%"
-								baseColor="#202020"
-								highlightColor="#444"
-							/>
-						</td>
-					))}
-				</tr>
-			))}
-		</tbody>
-	);
+	const generateSkeleton = useCallback(() => {
+		return [...Array(6)].map((_, index) => (
+			<div className="tableRowSkeleton" key={index}>
+				<Skeleton width="100%" height="38px" />
+			</div>
+		));
+	}, []);
 
 	return (
 		<div className={`table-view ${resizing.isResizing ? 'resizing' : ''}`} ref={tableRef}>
@@ -217,18 +203,39 @@ const TableView = ({
 						/>
 					</DragDropContext>
 					{loading ? (
-						renderSkeleton()
+						<div className="tableBodyWrapper">{generateSkeleton()}</div>
+					) : error ? (
+						<div className="errorContainer">
+							<span className="errorMessage">{error}</span>
+						</div>
+					) : data?.length !== 0 ? (
+						<InfiniteScroll
+							dataLength={data?.length || 0}
+							next={fetchMoreData}
+							hasMore={hasMore}
+							loader={<FetchMoreLoaderComp />}
+							style={{
+								overflow: 'auto',
+								width: '100%',
+							}}
+							height="calc(100vh - 160px)"
+							scrollThreshold="90%"
+						>
+							<TableBody
+								data={data}
+								columns={columns}
+								rowTypes={rowTypes}
+								responseMetadata={responseMetadata}
+								handleUpdate={handleUpdate}
+								handleRowClick={handleRowClick}
+								colors={colors}
+								isSubTask={isSubTask}
+							/>
+						</InfiniteScroll>
 					) : (
-						<TableBody
-							data={data}
-							columns={columns}
-							rowTypes={rowTypes}
-							responseMetadata={responseMetadata}
-							handleUpdate={handleUpdate}
-							handleRowClick={handleRowClick}
-							colors={colors}
-							isSubTask={isSubTask}
-						/>
+						<div className="noDataContainer">
+							<span className="noDataMessage">No tasks found</span>
+						</div>
 					)}
 				</table>
 			</div>

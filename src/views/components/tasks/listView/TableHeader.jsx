@@ -12,7 +12,7 @@ const TableHeader = ({ columns, handleResizeStart, loading }) => {
 					{...provided.droppableProps}
 				>
 					<tr>
-						{columns.map((column, index) => (
+						{columns?.map((column, index) => (
 							<Draggable
 								key={column.id}
 								draggableId={column.id}

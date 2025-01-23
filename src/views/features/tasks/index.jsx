@@ -132,7 +132,7 @@ const Tasks = () => {
 		filters: [],
 		searchValue: '',
 		updated: false,
-		loading: false,
+		infinityLoading: false,
 		view: 'table',
 	});
 
@@ -290,6 +290,7 @@ const Tasks = () => {
 		if (!tenantsUserList) {
 			getTeamMembers();
 		} else {
+			console.log('tenantsUserList', tenantsUserList);
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				tenantUsers: tenantsUserList?.map(({ firstName, lastName, _id }) => ({
@@ -362,7 +363,7 @@ const Tasks = () => {
 							: [...prevInfo?.listItems, ...listTasks?.data],
 					hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
 					loadingSkeleton: false,
-					loading: false,
+					infinityLoading: false,
 				}));
 			}
 		}
@@ -370,7 +371,7 @@ const Tasks = () => {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				loadingSkeleton: false,
-				loading: false,
+				infinityLoading: false,
 				error: listTasks?.error,
 				hasMore: false,
 			}));
@@ -430,16 +431,16 @@ const Tasks = () => {
 	);
 
 	const fetchMoreData = useCallback(() => {
-		if (!info.loading && info.hasMore) {
+		if (info.hasMore) {
 			const nextPage = info.page + 1;
 			fetchListItems(nextPage);
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				page: nextPage,
-				loading: true,
+				infinityLoading: true,
 			}));
 		}
-	}, [info.loading, info.hasMore, info.page, fetchListItems]);
+	}, [info.infinityLoading, info.hasMore, info.page, fetchListItems]);
 
 	const mapFiltersPayload = useCallback((filters) => {
 		return filters.map((filter) => ({
@@ -807,6 +808,10 @@ const Tasks = () => {
 				properties={info?.properties}
 				taskPreferences={info?.taskPreferences}
 				searchValue={info?.searchValue}
+				infinityLoading={info?.infinityLoading}
+				hasMore={info?.hasMore}
+				error={info?.error}
+				fetchMoreData={fetchMoreData}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
@@ -818,6 +823,9 @@ const Tasks = () => {
 				isSubTask={info?.isCreatingSubtask}
 				responseMetadata={responseMetadata}
 				colors={colors}
+				fetchMoreData={fetchMoreData}
+				hasMore={info?.hasMore}
+				error={info?.error}
 			/>
 			<ListViewSidebar
 				selectedRow={info?.selectedSubTask || info?.selectedRow}
@@ -829,7 +837,7 @@ const Tasks = () => {
 				handleSubTaskClick={handleSubTaskClick}
 				sidebarIsOpen={info?.sidebarIsOpen}
 				closeSidebar={handleCloseSidebar}
-				updatePropertyValue={updatePropertyValue}
+				handleUpdate={updatePropertyValue}
 				deleteTask={deleteTask}
 				rowTypes={rowTypes}
 				handleCreateSubTaskClick={handleCreateSubTaskClick}

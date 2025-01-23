@@ -35,6 +35,9 @@ const Person = ({
 			value: newVal,
 		});
 	}, [parseValue, value]);
+	useEffect(() => {
+		// console.log('options', options);
+	}, [options]);
 
 	const parsedValueAndLabel = useCallback(
 		(value, type) => {

@@ -110,6 +110,11 @@ const ListViewSidebar = ({
 		}
 	}, [subTasks, selectedRow?._id, isShowingSubTask, getSubTasks]);
 
+	useEffect(() => {
+		console.log('responseMetadata changed:', responseMetadata);
+		console.log('assignTo props:', responseMetadata?.assignedTo?.props);
+	}, [responseMetadata]);
+
 	const debouncedTitleUpdate = useCallback(
 		(value) => {
 			if (titleDebounceRef.current) {
@@ -187,8 +192,9 @@ const ListViewSidebar = ({
 					name = null,
 					Icon = null,
 					isTitle = false,
-					props,
+					props = {},
 				} = responseMetadata[key] || {};
+				console.log('responseMetadata', props);
 				if (
 					[
 						'__typename',

@@ -15,8 +15,6 @@ const PropertiesDropDown = ({
 	properties,
 	updateTaskInfo,
 	taskPreferences,
-	editingProperty,
-	handleEditPropertyChange,
 	colors,
 	handleClose,
 	handleBack,
@@ -28,7 +26,7 @@ const PropertiesDropDown = ({
 		hiddenProperties: [],
 		shownProperties: [],
 		isOpen: false,
-
+		editingProperty: null,
 		addNewProperty: {
 			show: false,
 			group: null,
@@ -56,14 +54,12 @@ const PropertiesDropDown = ({
 		}));
 	}, [properties]);
 
-	useEffect(() => {
-		if (editingProperty) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				isOpen: true,
-			}));
-		}
-	}, [editingProperty]);
+	const updateEditingProperty = useCallback((property) => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			editingProperty: property,
+		}));
+	}, []);
 
 	const updatePropertyPreference = useCallback(
 		(e, propName, value) => {
@@ -297,7 +293,7 @@ const PropertiesDropDown = ({
 									}`}
 									onClick={() => {
 										if (value === 'status') {
-											handleEditPropertyChange({
+											updateEditingProperty({
 												propName: 'status',
 											});
 										}
@@ -343,7 +339,7 @@ const PropertiesDropDown = ({
 		</Droppable>
 	);
 
-	return !editingProperty ? (
+	return !info?.editingProperty ? (
 		<div className="options-dropdown-container">
 			<div className="options-dropdown-header">
 				<span className="options-dropdown-header-title-wrapper">
@@ -389,7 +385,7 @@ const PropertiesDropDown = ({
 		</div>
 	) : (
 		<StatusEditDropDown
-			handleEditPropertyChange={handleEditPropertyChange}
+			handleEditPropertyChange={updateEditingProperty}
 			handleClose={handleClose}
 			colors={colors}
 		/>

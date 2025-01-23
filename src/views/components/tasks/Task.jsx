@@ -28,6 +28,10 @@ const Task = ({
 	properties,
 	taskPreferences,
 	searchValue,
+	infinityLoading,
+	fetchMoreData,
+	hasMore,
+	error,
 }) => {
 	const [taskInfo, setTaskInfo] = useState({
 		tabs: {
@@ -38,7 +42,6 @@ const Task = ({
 				Icon: icons.list,
 				filters: [],
 				sort: [],
-				page: 1,
 			},
 		},
 		activeTab: '1',
@@ -46,14 +49,20 @@ const Task = ({
 
 	const handleTabChange = useCallback(
 		(tabData) => {
-			setTaskInfo((prev) => ({ ...prev, activeTab: tabData?._id }));
+			if (taskInfo?.activeTab === tabData?._id) {
+				return;
+			}
+			setTaskInfo((prevTaskInfo) => ({
+				...prevTaskInfo,
+				activeTab: tabData?._id,
+			}));
 			updateTaskInfo({
 				loadingSkeleton: true,
 				sort: taskInfo?.tabs?.[tabData?._id]?.sort,
 				filters: taskInfo?.tabs?.[tabData?._id]?.filters,
 			});
 		},
-		[taskInfo.tabs, updateTaskInfo],
+		[taskInfo.tabs, updateTaskInfo, taskInfo?.activeTab],
 	);
 
 	const handleAddTab = useCallback(() => {
@@ -68,7 +77,6 @@ const Task = ({
 					Icon: icons.list,
 					filters: [],
 					sort: [],
-					page: 1,
 				},
 			},
 		}));
@@ -103,24 +111,21 @@ const Task = ({
 			const Component = views?.[view] || ListView;
 			return (
 				<Component
-					resetSubTasks={() => {}}
 					handleUpdate={handleUpdate}
-					deleteTask={() => {}}
-					addNewTask={() => {}}
 					responseMetadata={responseMetadata}
-					fetchListItems={() => {}}
 					addButtonOnClick={handleAddButtonOnClick}
-					haveSubTask={true}
 					colors={colors}
-					fetchMoreData={() => {}}
+					fetchMoreData={fetchMoreData}
 					view={taskInfo?.tabs[taskInfo?.activeTab]?.view}
 					data={data}
 					loading={loading}
 					properties={properties}
 					rowTypes={rowTypes}
-					isSubTask={false}
 					handleRowClick={handleRowClick}
 					updateTaskInfo={updateTaskInfo}
+					infinityLoading={infinityLoading}
+					hasMore={hasMore}
+					error={error}
 				/>
 			);
 		},
@@ -129,6 +134,7 @@ const Task = ({
 			responseMetadata,
 			handleAddButtonOnClick,
 			colors,
+			fetchMoreData,
 			taskInfo?.tabs,
 			taskInfo?.activeTab,
 			data,
@@ -137,6 +143,9 @@ const Task = ({
 			rowTypes,
 			handleRowClick,
 			updateTaskInfo,
+			infinityLoading,
+			hasMore,
+			error,
 		],
 	);
 

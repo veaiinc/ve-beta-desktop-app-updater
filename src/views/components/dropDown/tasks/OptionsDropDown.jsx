@@ -42,6 +42,7 @@ const OptionsDropDown = ({
 	taskPreferences,
 	editingProperty,
 	handleEditPropertyChange,
+	responseMetadata,
 	colors,
 	viewData,
 	updateViewInfo,
@@ -119,6 +120,31 @@ const OptionsDropDown = ({
 		updateViewInfo({ label: info.pendingLabel });
 	}, [info.pendingLabel, updateViewInfo]);
 
+	const handlePropertyToggle = useCallback(
+		(property) => {
+			// Get current visible properties
+			const currentVisibleProperties = properties.filter((prop) => prop.show);
+
+			// If trying to hide the last visible property, prevent it
+			if (property.show && currentVisibleProperties.length === 1) {
+				return;
+			}
+
+			// Update the view with the new property visibility
+			const updatedProperties = properties.map((prop) => {
+				if (prop.value === property.value) {
+					return { ...prop, show: !prop.show };
+				}
+				return prop;
+			});
+
+			updateViewInfo({
+				properties: updatedProperties,
+			});
+		},
+		[properties, updateViewInfo],
+	);
+
 	const optionsMapper = useMemo(
 		() => ({
 			properties: (
@@ -131,6 +157,7 @@ const OptionsDropDown = ({
 					colors={colors}
 					handleClose={handleClose}
 					handleBack={handleBack}
+					handlePropertyToggle={handlePropertyToggle}
 				/>
 			),
 			group: (
@@ -161,6 +188,7 @@ const OptionsDropDown = ({
 			handleBack,
 			handleLayoutChange,
 			viewData,
+			handlePropertyToggle,
 		],
 	);
 
