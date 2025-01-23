@@ -13,6 +13,8 @@ import { message } from 'antd';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
+import ListViewHeader from '../../components/tasks/listView/ListViewHeader';
+import Task from '../../components/tasks/Task';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -418,6 +420,10 @@ const Tasks = () => {
 		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
 	}, []);
 
+	const updateTaskInfo = useCallback((updateData) => {
+		setInfo((previnfo) => ({ ...previnfo, ...updateData }));
+	}, []);
+
 	const mapPropertyType = useCallback(() => {
 		let properties = [];
 		for (let key in responseMetadata) {
@@ -722,34 +728,58 @@ const Tasks = () => {
 	}, [info?.isCreatingSubtask]);
 
 	return (
-		<div>
-			<ListView
-				info={info}
-				updateListViewInfo={updateListViewInfo}
-				resetSubTasks={resetSubTasks}
-				updatePropertyValue={updatePropertyValue}
-				deleteTask={deleteTask}
-				addNewTask={addNewTask}
-				responseMetadata={responseMetadata}
-				fetchListItems={fetchListItems}
-				addButtonOnClick={handleAddButtonOnClick}
-				haveSubTask={true}
-				colors={colors}
-				fetchMoreData={fetchMoreData}
-			/>
+		// <div>
+		// 	<ListViewHeader
+		// 		updateListViewInfo={updateListViewInfo}
+		// 		properties={info?.properties}
+		// 		taskPreferences={info?.taskPreferences}
+		// 		sort={info?.sort}
+		// 		filters={info?.filters}
+		// 		searchValue={info?.searchValue}
+		// 		responseMetadata={responseMetadata}
+		// 		headerTitle={'Tasks'}
+		// 		addButtonOnClick={handleAddButtonOnClick}
+		// 		editingProperty={null}
+		// 		handleEditPropertyChange={null}
+		// 		colors={colors}
+		// 		createButtonText={'Add Task'}
+		// 		view={info?.view}
+		// 	/>
+		// 	<ListView
+		// 		info={info}
+		// 		updateListViewInfo={updateListViewInfo}
+		// 		resetSubTasks={resetSubTasks}
+		// 		updatePropertyValue={updatePropertyValue}
+		// 		deleteTask={deleteTask}
+		// 		addNewTask={addNewTask}
+		// 		responseMetadata={responseMetadata}
+		// 		fetchListItems={fetchListItems}
+		// 		addButtonOnClick={handleAddButtonOnClick}
+		// 		haveSubTask={true}
+		// 		colors={colors}
+		// 		fetchMoreData={fetchMoreData}
+		// 	/>
 
-			<CreateTaskPopup
-				isOpen={info?.isCreateModalOpen}
-				closeModal={handleCloseCreateModal}
-				addNewTask={addNewTask}
-				workflows={info?.workflows}
-				tenantUsers={info?.tenantUsers}
-				clients={info?.clients}
-				isSubTask={info?.isCreatingSubtask}
-				responseMetadata={responseMetadata}
-				colors={colors}
-			/>
-		</div>
+		// 	<CreateTaskPopup
+		// 		isOpen={info?.isCreateModalOpen}
+		// 		closeModal={handleCloseCreateModal}
+		// 		addNewTask={addNewTask}
+		// 		workflows={info?.workflows}
+		// 		tenantUsers={info?.tenantUsers}
+		// 		clients={info?.clients}
+		// 		isSubTask={info?.isCreatingSubtask}
+		// 		responseMetadata={responseMetadata}
+		// 		colors={colors}
+		// 	/>
+		// </div>
+		<Task
+			updateListViewInfo={updateListViewInfo}
+			responseMetadata={responseMetadata}
+			handleAddButtonOnClick={handleAddButtonOnClick}
+			colors={colors}
+			info={info}
+			updateTaskInfo={updateTaskInfo}
+		/>
 	);
 };
 

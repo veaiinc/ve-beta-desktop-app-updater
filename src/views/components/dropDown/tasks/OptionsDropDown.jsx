@@ -44,11 +44,13 @@ const OptionsDropDown = ({
 	editingProperty,
 	handleEditPropertyChange,
 	colors,
-	view,
+	viewData,
+	updateViewInfo,
 }) => {
 	const [info, setInfo] = useState({
 		selected: null,
 		isOpen: false,
+		pendingLabel: viewData?.label,
 	});
 
 	useEffect(() => {
@@ -56,6 +58,13 @@ const OptionsDropDown = ({
 			setInfo((prev) => ({ ...prev, isOpen: true, selected: 'properties' }));
 		}
 	}, [editingProperty]);
+
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			pendingLabel: viewData?.label,
+		}));
+	}, [viewData?.label]);
 
 	const handleDropdownVisibility = useCallback(
 		(visible) => {
@@ -84,10 +93,31 @@ const OptionsDropDown = ({
 
 	const handleLayoutChange = useCallback(
 		(option) => {
-			updateListViewInfo('view', option);
+			updateViewInfo({ view: option });
 		},
-		[updateListViewInfo],
+		[updateViewInfo],
 	);
+
+	const handleViewNameChange = useCallback((e) => {
+		setInfo((prev) => ({
+			...prev,
+			pendingLabel: e.target.value,
+		}));
+	}, []);
+
+	const handleViewNameKeyDown = useCallback(
+		(e) => {
+			if (e.key === 'Enter') {
+				e.target.blur();
+				updateViewInfo({ label: info.pendingLabel });
+			}
+		},
+		[info.pendingLabel, updateViewInfo],
+	);
+
+	const handleViewNameBlur = useCallback(() => {
+		updateViewInfo({ label: info.pendingLabel });
+	}, [info.pendingLabel, updateViewInfo]);
 
 	const optionsMapper = useMemo(
 		() => ({
@@ -115,7 +145,7 @@ const OptionsDropDown = ({
 					handleBack={handleBack}
 					handleClose={handleClose}
 					handleLayoutChange={handleLayoutChange}
-					view={view}
+					view={viewData?.view}
 					layoutOptions={layoutOptions}
 				/>
 			),
@@ -130,7 +160,7 @@ const OptionsDropDown = ({
 			handleClose,
 			handleBack,
 			handleLayoutChange,
-			view,
+			viewData,
 		],
 	);
 
@@ -155,6 +185,10 @@ const OptionsDropDown = ({
 										type="text"
 										className="view-details-nameInput"
 										placeholder="View Name"
+										value={info.pendingLabel}
+										onChange={handleViewNameChange}
+										onKeyDown={handleViewNameKeyDown}
+										onBlur={handleViewNameBlur}
 									/>
 									<div className="view-details-listItem">
 										<FolderSvg />
@@ -170,7 +204,7 @@ const OptionsDropDown = ({
 										<span className="view-details-listItem-value">
 											{
 												layoutOptions.find(
-													(option) => option?.value === view,
+													(option) => option?.value === viewData?.view,
 												)?.label
 											}
 											<ChevronRightThinSvg />

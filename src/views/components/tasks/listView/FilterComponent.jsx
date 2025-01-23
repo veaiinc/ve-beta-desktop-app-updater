@@ -16,7 +16,7 @@ const FilterComponent = ({
 	value,
 	fieldName,
 	filters,
-	updateListViewInfo,
+	updateViewInfo,
 	isPending,
 	onConfirm,
 	setPendingFilters,
@@ -33,10 +33,10 @@ const FilterComponent = ({
 				const newFilters = filters.map((item) =>
 					item.key === key ? { ...item, value } : item,
 				);
-				updateListViewInfo('filters', newFilters);
+				updateViewInfo({ filters: newFilters });
 			}
 		},
-		[filters, updateListViewInfo, isPending, onConfirm],
+		[filters, updateViewInfo, isPending, onConfirm],
 	);
 
 	const handleInputKeyDown = (e) => {
@@ -50,9 +50,9 @@ const FilterComponent = ({
 			setPendingFilters((prev) => prev.filter((f) => f.key !== fieldName));
 		} else {
 			const newFilters = filters.filter((item) => item.key !== fieldName);
-			updateListViewInfo('filters', newFilters);
+			updateViewInfo({ filters: newFilters });
 		}
-	}, [fieldName, filters, updateListViewInfo, isPending, setPendingFilters]);
+	}, [fieldName, filters, updateViewInfo, isPending, setPendingFilters]);
 	const componentOptionsMapper = {
 		workflow: (value) => (
 			<WorkFlow

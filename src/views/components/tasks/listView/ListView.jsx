@@ -61,6 +61,9 @@ const ListView = ({
 	rowClickHandler,
 	sidebarChildren,
 	fetchMoreData,
+	view,
+	filters,
+	sort,
 }) => {
 	const [listViewState, setListViewState] = useState({
 		editingProperty: null,
@@ -118,7 +121,7 @@ const ListView = ({
 	}, []);
 	return (
 		<div className="listViewParentContainer">
-			<ListViewHeader
+			{/* <ListViewHeader
 				updateListViewInfo={updateListViewInfo}
 				properties={info?.properties}
 				taskPreferences={info?.taskPreferences}
@@ -133,9 +136,9 @@ const ListView = ({
 				colors={colors}
 				createButtonText={createButtonText}
 				view={info?.view}
-			/>
+			/> */}
 
-			{info?.view === 'list' ? (
+			{view === 'list' ? (
 				<div className="listContainer">
 					<div className="listInnerContainer">
 						{info?.loadingSkeleton ? (
@@ -179,9 +182,9 @@ const ListView = ({
 						)}
 					</div>
 				</div>
-			) : info?.view === 'board' ? (
+			) : view === 'board' ? (
 				<BoardView colors={colors} />
-			) : info?.view === 'table' ? (
+			) : view === 'table' ? (
 				<TableView
 					properties={info?.properties?.filter((prop) => prop.show)}
 					rowTypes={rowTypes}

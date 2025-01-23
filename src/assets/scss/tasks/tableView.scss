@@ -1,13 +1,13 @@
 .table-view {
 	width: 100%;
-	height: calc(100vh - 115px);
+	// height: 500px;
 	flex-grow: 1;
 	position: relative;
 	background-color: rgb(17, 17, 17);
 
 	.table-scroll-container {
 		width: 100%;
-		height: calc(100vh - 115px);
+		height: 100%;
 		overflow: auto;
 		background-color: rgb(17, 17, 17);
 
@@ -38,7 +38,7 @@
 				color: #787e87;
 				font-size: 13px;
 				background: transparent;
-				border: 1px solid #272727;
+				border: 1px solid #171819;
 				border-right: none;
 				min-width: 80px;
 				display: flex;
@@ -137,7 +137,7 @@
 				color: #e4e5e6;
 				font-size: 13px;
 				background: transparent;
-				border: 1px solid #272727;
+				border: 1px solid #171819;
 				border-top: none;
 				border-right: none;
 				min-width: 80px;
