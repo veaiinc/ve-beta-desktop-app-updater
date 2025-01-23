@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../../../assets/scss/forms/formSummary.scss';
 
-const CollapsibleList = ({ expanded, handleExpand, items, visibleItems }) => {
+const FormResponseList = ({ expanded, handleExpand, items, visibleItems }) => {
 	return (
 		<div className="collapsible-list">
 			<div
@@ -75,7 +75,7 @@ const FormSummary = () => {
 		setInfo({ ...info, isExpanded: !info?.isExpanded });
 	};
 
-	const visibleItems = info?.isExpanded ? info?.items : info?.items?.slice(0, 5);
+	const visibleItems = info?.isExpanded ? info?.items : info?.items?.slice(0, 6);
 
 	return (
 		<div className="formSummaryParentContainer">
@@ -90,13 +90,43 @@ const FormSummary = () => {
 					</div>
 				</div>
 
-				{/* <div className="summarySectionContainer"></div> */}
-				<CollapsibleList
+				<FormResponseList
 					expanded={info?.isExpanded}
 					handleExpand={handleExpand}
 					items={info?.items}
 					visibleItems={visibleItems}
 				/>
+			</div>
+
+			<div className="formSummaryContainer">
+				<div className="header">
+					<div className="headerWrapper">
+						<span className="title">Title</span>
+						<span className="summary">
+							<span>Response : 7</span>
+							<span>Skipped : 2</span>
+						</span>
+					</div>
+				</div>
+
+				<FormResponseList
+					expanded={info?.isExpanded}
+					handleExpand={handleExpand}
+					items={info?.items}
+					visibleItems={visibleItems}
+				/>
+			</div>
+
+			<div className="formSummaryContainer">
+				<div className="header">
+					<div className="headerWrapper">
+						<span className="title">Title</span>
+						<span className="summary">
+							<span>Response : 7</span>
+							<span>Skipped : 2</span>
+						</span>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
