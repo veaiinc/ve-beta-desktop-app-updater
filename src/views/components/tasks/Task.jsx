@@ -15,8 +15,7 @@ const icons = {
 };
 
 const Task = ({
-	info,
-	// updateListViewInfo,
+	// info,
 	responseMetadata,
 	handleAddButtonOnClick,
 	colors,
@@ -25,6 +24,10 @@ const Task = ({
 	loading,
 	rowTypes,
 	handleRowClick,
+	handleUpdate,
+	properties,
+	taskPreferences,
+	searchValue,
 }) => {
 	const [taskInfo, setTaskInfo] = useState({
 		tabs: {
@@ -101,7 +104,7 @@ const Task = ({
 			return (
 				<Component
 					resetSubTasks={() => {}}
-					updatePropertyValue={() => {}}
+					handleUpdate={handleUpdate}
 					deleteTask={() => {}}
 					addNewTask={() => {}}
 					responseMetadata={responseMetadata}
@@ -113,7 +116,7 @@ const Task = ({
 					view={taskInfo?.tabs[taskInfo?.activeTab]?.view}
 					data={data}
 					loading={loading}
-					properties={info?.properties}
+					properties={properties}
 					rowTypes={rowTypes}
 					isSubTask={false}
 					handleRowClick={handleRowClick}
@@ -122,14 +125,15 @@ const Task = ({
 			);
 		},
 		[
-			colors,
-			handleAddButtonOnClick,
+			handleUpdate,
 			responseMetadata,
-			taskInfo?.activeTab,
+			handleAddButtonOnClick,
+			colors,
 			taskInfo?.tabs,
-			info,
+			taskInfo?.activeTab,
 			data,
 			loading,
+			properties,
 			rowTypes,
 			handleRowClick,
 			updateTaskInfo,
@@ -140,9 +144,9 @@ const Task = ({
 		<div className="task-container">
 			<ListViewHeader
 				updateTaskInfo={updateTaskInfo}
-				properties={info?.properties}
-				taskPreferences={info?.taskPreferences}
-				searchValue={info?.searchValue}
+				properties={properties}
+				taskPreferences={taskPreferences}
+				searchValue={searchValue}
 				responseMetadata={responseMetadata}
 				headerTitle={'Tasks'}
 				addButtonOnClick={handleAddButtonOnClick}

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback } from 'react';
 import '../../../../assets/scss/tasks/listView.scss';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
@@ -7,11 +7,11 @@ import ListViewRow from '../listView/ListViewRow';
 import Skeleton from 'react-loading-skeleton';
 
 const ListView = ({
-	updatePropertyValue,
 	responseMetadata,
 	colors,
 	fetchMoreData,
 	handleRowClick,
+	handleUpdate,
 	data,
 	loading,
 	hasMore,
@@ -51,7 +51,7 @@ const ListView = ({
 							key={index}
 							properties={properties}
 							rowTypes={rowTypes}
-							updatePropertyValue={updatePropertyValue}
+							handleUpdate={handleUpdate}
 							handleRowClick={handleRowClick}
 							responseMetadata={responseMetadata}
 							colors={colors}

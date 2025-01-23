@@ -5,10 +5,9 @@ const TableBody = ({
 	columns,
 	rowTypes,
 	responseMetadata,
-	updatePropertyValue,
-	handleEditPropertyChange,
+	handleUpdate,
+	handleRowClick,
 	colors,
-	isSubTask,
 }) => {
 	const generateCell = useCallback(
 		(row, property) => {
@@ -23,8 +22,7 @@ const TableBody = ({
 				key === '_id' ||
 				key === 'parentTaskId' ||
 				key === 'workflowTemplateId' ||
-				key === 'completedAt' ||
-				(isSubTask && key === 'workflow')
+				key === 'completedAt'
 			) {
 				return null;
 			}
@@ -36,9 +34,8 @@ const TableBody = ({
 				<Component
 					value={value}
 					title={property.label}
-					onOptionClick={(value) => updatePropertyValue(row?._id, key, value, isSubTask)}
+					onOptionClick={(value) => handleUpdate(row?._id, key, value)}
 					{...props}
-					handleEditPropertyChange={handleEditPropertyChange}
 					colors={colors}
 					readOnly
 					showTitle={true}
@@ -47,14 +44,7 @@ const TableBody = ({
 				/>
 			);
 		},
-		[
-			rowTypes,
-			responseMetadata,
-			updatePropertyValue,
-			isSubTask,
-			handleEditPropertyChange,
-			colors,
-		],
+		[rowTypes, responseMetadata, handleUpdate, colors],
 	);
 
 	return (
@@ -72,6 +62,7 @@ const TableBody = ({
 								width: column?.width,
 								flex: '1 0 auto',
 							}}
+							onClick={() => handleRowClick(row?._id)}
 						>
 							{generateCell(row, column)}
 						</td>

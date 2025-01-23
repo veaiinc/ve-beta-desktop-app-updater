@@ -799,12 +799,14 @@ const Tasks = () => {
 				handleAddButtonOnClick={handleAddButtonOnClick}
 				handleRowClick={handleRowClick}
 				colors={colors}
-				info={info}
 				updateTaskInfo={updateTaskInfo}
 				rowTypes={rowTypes}
 				data={info?.listItems}
 				loading={info?.loadingSkeleton}
-				fetc
+				handleUpdate={updatePropertyValue}
+				properties={info?.properties}
+				taskPreferences={info?.taskPreferences}
+				searchValue={info?.searchValue}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}

@@ -4,7 +4,7 @@ const ListViewRow = ({
 	task,
 	properties,
 	rowTypes,
-	updatePropertyValue,
+	handleUpdate,
 	handleRowClick,
 	isSubTask = false,
 	responseMetadata,
@@ -63,9 +63,7 @@ const ListViewRow = ({
 						key={key}
 						value={value}
 						title={name}
-						onOptionClick={(value) =>
-							updatePropertyValue(task?._id, key, value, isSubTask)
-						}
+						onOptionClick={(value) => handleUpdate(task?._id, key, value, isSubTask)}
 						{...props}
 						colors={colors}
 						showTitle={true}
@@ -89,7 +87,7 @@ const ListViewRow = ({
 				</div>,
 			];
 		},
-		[properties, responseMetadata, rowTypes, isSubTask, colors, updatePropertyValue, task?._id],
+		[properties, responseMetadata, rowTypes, isSubTask, colors, handleUpdate, task?._id],
 	);
 
 	return (
