@@ -1,7 +1,7 @@
 import React, { memo, useState, useCallback, useRef, useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
-import TableHeader from './TableHeader';
-import TableBody from './TableBody';
+import TableHeader from '../listView/TableHeader';
+import TableBody from '../listView/TableBody';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../../../assets/scss/tasks/tableView.scss';

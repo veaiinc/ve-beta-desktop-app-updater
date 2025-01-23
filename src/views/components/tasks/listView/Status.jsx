@@ -13,11 +13,9 @@ const Status = ({
 	options = { todo: [], inProgress: [], completed: [] },
 	labelField = 'label',
 	valueField = 'value',
-	handleEditPropertyChange,
 	colors,
 	title = 'Status',
 	showTitle = false,
-	showEditProperty = false,
 }) => {
 	const [info, setInfo] = useState({
 		selected: null,
@@ -143,7 +141,7 @@ const Status = ({
 						]?.map((item, index) => (
 							<div
 								className={`status-option-container ${
-									!(index === 2) || showEditProperty ? 'border-bottom' : ''
+									!(index === 2) ? 'border-bottom' : ''
 								}`}
 								key={item?.group}
 							>
@@ -176,18 +174,6 @@ const Status = ({
 							</div>
 						))}
 					</div>
-					{showEditProperty && (
-						<div
-							className="status-dropdown-footer-wrapper"
-							onClick={() => {
-								handleDropdown(false);
-								handleEditPropertyChange({ propName: 'status' });
-							}}
-						>
-							<PencilWithLine />
-							<span className="status-dropdown-footer-text">Edit property</span>
-						</div>
-					)}
 				</div>
 			}
 			placement="bottom"

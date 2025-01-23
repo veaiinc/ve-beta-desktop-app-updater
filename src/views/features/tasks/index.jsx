@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import ListView from '../../components/tasks/listView/ListView';
+import ListView from '../../components/tasks/views/ListView';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
 import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
@@ -13,8 +13,25 @@ import { message } from 'antd';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
-import ListViewHeader from '../../components/tasks/listView/ListViewHeader';
 import Task from '../../components/tasks/Task';
+import ListViewSidebar from '../../components/modalsV2/tasks/ListViewSidebar';
+
+import Text from '../../components/tasks/listView/Text';
+import Select from '../../components/tasks/listView/Select';
+import Person from '../../components/tasks/listView/Person';
+import MultiSelect from '../../components/tasks/listView/MultiSelect';
+import DateView from '../../components/tasks/listView/DateView';
+import Status from '../../components/tasks/listView/Status';
+import Priority from '../../components/tasks/listView/Priority';
+import Email from '../../components/tasks/listView/Email';
+import Url from '../../components/tasks/listView/Url';
+import Phone from '../../components/tasks/listView/Phone';
+import CheckBox from '../../components/tasks/listView/CheckBox';
+import WorkFlow from '../../components/tasks/listView/WorkFlow';
+import TaskId from '../../components/tasks/listView/TaskId';
+import ParentTaskComponent from '../../components/tasks/listView/ParentTaskComponent';
+import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
+import LinkText from '../../components/tasks/listView/LinkText';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -42,6 +59,25 @@ const colors = {
 	5: { backgroundColor: '#375841', color: '#588F69' },
 	6: { backgroundColor: '#2F4469', color: '#4F71B3' },
 	7: { backgroundColor: '#453061', color: '#6F4C99' },
+};
+
+const rowTypes = {
+	text: Text,
+	select: Select,
+	person: Person,
+	'multi-select': MultiSelect,
+	date: DateView,
+	id: TaskId,
+	status: Status,
+	priority: Priority,
+	email: Email,
+	phone: Phone,
+	url: Url,
+	checkbox: CheckBox,
+	workflow: WorkFlow,
+	parentTask: ParentTaskComponent,
+	childTasks: ChildTaskProgress,
+	linkText: LinkText,
 };
 
 const Tasks = () => {
@@ -352,10 +388,9 @@ const Tasks = () => {
 
 	useEffect(() => {
 		if (info?.selectedRow) {
-			updateListViewInfo(
-				'selectedRow',
-				info?.listItems.find((item) => item._id === info?.selectedRow._id),
-			);
+			updateTaskInfo({
+				selectedRow: info?.listItems.find((item) => item._id === info?.selectedRow._id),
+			});
 		}
 	}, [info?.listItems, info?.selectedRow]);
 
@@ -414,10 +449,6 @@ const Tasks = () => {
 					? filter?.value?._id || filter?.value?.value
 					: filter?.value,
 		}));
-	}, []);
-
-	const updateListViewInfo = useCallback((key, value) => {
-		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
 	}, []);
 
 	const updateTaskInfo = useCallback((updateData) => {
@@ -697,7 +728,7 @@ const Tasks = () => {
 				const response = await deleteListItem(payload);
 				if (response) {
 					if (info?.selectedSubTask?._id === payload?.taskId) {
-						updateListViewInfo('selectedSubTask', null);
+						updateTaskInfo({ selectedSubTask: null });
 						removeSubTask(payload?.taskId);
 					} else {
 						setInfo((prevInfo) => ({
@@ -716,70 +747,100 @@ const Tasks = () => {
 	);
 
 	const handleAddButtonOnClick = () => {
-		updateListViewInfo('isCreatingSubtask', false);
-		updateListViewInfo('isCreateModalOpen', true);
+		updateTaskInfo({ isCreatingSubtask: false, isCreateModalOpen: true });
 	};
 
 	const handleCloseCreateModal = useCallback(() => {
 		if (info?.isCreatingSubtask) {
-			updateListViewInfo('sidebarIsOpen', true);
+			updateTaskInfo({ sidebarIsOpen: true });
 		}
-		updateListViewInfo('isCreateModalOpen', false);
+		updateTaskInfo({ isCreateModalOpen: false });
 	}, [info?.isCreatingSubtask]);
 
-	return (
-		// <div>
-		// 	<ListViewHeader
-		// 		updateListViewInfo={updateListViewInfo}
-		// 		properties={info?.properties}
-		// 		taskPreferences={info?.taskPreferences}
-		// 		sort={info?.sort}
-		// 		filters={info?.filters}
-		// 		searchValue={info?.searchValue}
-		// 		responseMetadata={responseMetadata}
-		// 		headerTitle={'Tasks'}
-		// 		addButtonOnClick={handleAddButtonOnClick}
-		// 		editingProperty={null}
-		// 		handleEditPropertyChange={null}
-		// 		colors={colors}
-		// 		createButtonText={'Add Task'}
-		// 		view={info?.view}
-		// 	/>
-		// 	<ListView
-		// 		info={info}
-		// 		updateListViewInfo={updateListViewInfo}
-		// 		resetSubTasks={resetSubTasks}
-		// 		updatePropertyValue={updatePropertyValue}
-		// 		deleteTask={deleteTask}
-		// 		addNewTask={addNewTask}
-		// 		responseMetadata={responseMetadata}
-		// 		fetchListItems={fetchListItems}
-		// 		addButtonOnClick={handleAddButtonOnClick}
-		// 		haveSubTask={true}
-		// 		colors={colors}
-		// 		fetchMoreData={fetchMoreData}
-		// 	/>
+	const handleRowClick = useCallback(
+		(rowId) => {
+			if (info?.selectedRow?._id !== rowId) {
+				resetSubTasks();
+			}
 
-		// 	<CreateTaskPopup
-		// 		isOpen={info?.isCreateModalOpen}
-		// 		closeModal={handleCloseCreateModal}
-		// 		addNewTask={addNewTask}
-		// 		workflows={info?.workflows}
-		// 		tenantUsers={info?.tenantUsers}
-		// 		clients={info?.clients}
-		// 		isSubTask={info?.isCreatingSubtask}
-		// 		responseMetadata={responseMetadata}
-		// 		colors={colors}
-		// 	/>
-		// </div>
-		<Task
-			updateListViewInfo={updateListViewInfo}
-			responseMetadata={responseMetadata}
-			handleAddButtonOnClick={handleAddButtonOnClick}
-			colors={colors}
-			info={info}
-			updateTaskInfo={updateTaskInfo}
-		/>
+			const row = info?.listItems?.find((row) => row._id === rowId);
+			if (row) {
+				updateTaskInfo({ selectedRow: row, sidebarIsOpen: true });
+			}
+		},
+		[info?.listItems, resetSubTasks, info?.selectedRow?._id],
+	);
+
+	const handleCreateSubTaskClick = useCallback(() => {
+		updateTaskInfo({ sidebarIsOpen: false, isCreatingSubtask: true, isCreateModalOpen: true });
+	}, []);
+
+	const handleSubTaskClick = useCallback((task) => {
+		updateTaskInfo({ selectedSubTask: task });
+	}, []);
+
+	const handleCloseSidebar = useCallback(() => {
+		if (info?.updated) {
+			updateTaskInfo({ loadingSkeleton: true });
+			fetchListItems();
+			updateTaskInfo({ updated: false });
+		}
+		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
+	}, [info?.updated]);
+
+	const handleChildTaskClose = useCallback(() => {
+		updateTaskInfo({ selectedSubTask: null });
+	}, []);
+
+	return (
+		<>
+			<Task
+				responseMetadata={responseMetadata}
+				handleAddButtonOnClick={handleAddButtonOnClick}
+				handleRowClick={handleRowClick}
+				colors={colors}
+				info={info}
+				updateTaskInfo={updateTaskInfo}
+				rowTypes={rowTypes}
+				data={info?.listItems}
+				loading={info?.loadingSkeleton}
+				fetc
+			/>
+			<CreateTaskPopup
+				isOpen={info?.isCreateModalOpen}
+				closeModal={handleCloseCreateModal}
+				addNewTask={addNewTask}
+				workflows={info?.workflows}
+				tenantUsers={info?.tenantUsers}
+				clients={info?.clients}
+				isSubTask={info?.isCreatingSubtask}
+				responseMetadata={responseMetadata}
+				colors={colors}
+			/>
+			<ListViewSidebar
+				selectedRow={info?.selectedSubTask || info?.selectedRow}
+				isShowingSubTask={
+					info?.selectedSubTask !== undefined && info?.selectedSubTask !== null
+				}
+				parentTaskNo={info?.selectedRow?.taskSlNo}
+				handleChildTaskClose={handleChildTaskClose}
+				handleSubTaskClick={handleSubTaskClick}
+				sidebarIsOpen={info?.sidebarIsOpen}
+				closeSidebar={handleCloseSidebar}
+				updatePropertyValue={updatePropertyValue}
+				deleteTask={deleteTask}
+				rowTypes={rowTypes}
+				handleCreateSubTaskClick={handleCreateSubTaskClick}
+				responseMetadata={responseMetadata}
+				haveSubTask={true}
+				properties={info?.properties}
+				colors={colors}
+				toggleSidebarExpand={() =>
+					updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
+				}
+				isSidebarExpanded={info?.isSidebarExpanded}
+			/>
+		</>
 	);
 };
 

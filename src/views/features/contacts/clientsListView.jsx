@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import ListView from '../../components/tasks/listView/ListView';
+import ListView from '../../components/tasks/views/ListView';
 // import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 // import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
 // import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';

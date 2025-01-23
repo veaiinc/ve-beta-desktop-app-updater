@@ -39,13 +39,13 @@ const layoutOptions = [
 
 const OptionsDropDown = ({
 	properties,
-	updateListViewInfo,
 	taskPreferences,
 	editingProperty,
 	handleEditPropertyChange,
 	colors,
 	viewData,
 	updateViewInfo,
+	updateTaskInfo,
 }) => {
 	const [info, setInfo] = useState({
 		selected: null,
@@ -124,7 +124,7 @@ const OptionsDropDown = ({
 			properties: (
 				<PropertiesDropDown
 					properties={properties}
-					updateListViewInfo={updateListViewInfo}
+					updateTaskInfo={updateTaskInfo}
 					taskPreferences={taskPreferences}
 					editingProperty={editingProperty}
 					handleEditPropertyChange={handleEditPropertyChange}
@@ -152,7 +152,7 @@ const OptionsDropDown = ({
 		}),
 		[
 			properties,
-			updateListViewInfo,
+			updateTaskInfo,
 			taskPreferences,
 			editingProperty,
 			handleEditPropertyChange,

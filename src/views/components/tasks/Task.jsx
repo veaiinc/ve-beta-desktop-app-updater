@@ -4,8 +4,9 @@ import ListViewHeader from './listView/ListViewHeader';
 import { ReactComponent as ListViewIcon } from '../../../assets/svg/tasks/list.svg';
 import { ReactComponent as BoardViewIcon } from '../../../assets/svg/tasks/board.svg';
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
-import TabHeader from './listView/TabHeader';
-import ListView from './listView/ListView';
+import ListView from './views/ListView';
+import boardView from './views/BoardView';
+import TableView from './views/TableView';
 
 const icons = {
 	list: ListViewIcon,
@@ -15,11 +16,15 @@ const icons = {
 
 const Task = ({
 	info,
-	updateListViewInfo,
+	// updateListViewInfo,
 	responseMetadata,
 	handleAddButtonOnClick,
 	colors,
 	updateTaskInfo,
+	data,
+	loading,
+	rowTypes,
+	handleRowClick,
 }) => {
 	const [taskInfo, setTaskInfo] = useState({
 		tabs: {
@@ -30,22 +35,7 @@ const Task = ({
 				Icon: icons.list,
 				filters: [],
 				sort: [],
-			},
-			2: {
-				_id: '2',
-				view: 'board',
-				label: 'Board',
-				Icon: icons.board,
-				filters: [],
-				sort: [],
-			},
-			3: {
-				_id: '3',
-				view: 'table',
-				label: 'Table',
-				Icon: icons.table,
-				filters: [],
-				sort: [],
+				page: 1,
 			},
 		},
 		activeTab: '1',
@@ -75,6 +65,7 @@ const Task = ({
 					Icon: icons.list,
 					filters: [],
 					sort: [],
+					page: 1,
 				},
 			},
 		}));
@@ -99,10 +90,56 @@ const Task = ({
 		[taskInfo.tabs, updateTaskInfo],
 	);
 
+	const viewMapper = useCallback(
+		(view) => {
+			const views = {
+				list: ListView,
+				board: boardView,
+				table: TableView,
+			};
+			const Component = views?.[view] || ListView;
+			return (
+				<Component
+					resetSubTasks={() => {}}
+					updatePropertyValue={() => {}}
+					deleteTask={() => {}}
+					addNewTask={() => {}}
+					responseMetadata={responseMetadata}
+					fetchListItems={() => {}}
+					addButtonOnClick={handleAddButtonOnClick}
+					haveSubTask={true}
+					colors={colors}
+					fetchMoreData={() => {}}
+					view={taskInfo?.tabs[taskInfo?.activeTab]?.view}
+					data={data}
+					loading={loading}
+					properties={info?.properties}
+					rowTypes={rowTypes}
+					isSubTask={false}
+					handleRowClick={handleRowClick}
+					updateTaskInfo={updateTaskInfo}
+				/>
+			);
+		},
+		[
+			colors,
+			handleAddButtonOnClick,
+			responseMetadata,
+			taskInfo?.activeTab,
+			taskInfo?.tabs,
+			info,
+			data,
+			loading,
+			rowTypes,
+			handleRowClick,
+			updateTaskInfo,
+		],
+	);
+
 	return (
 		<div className="task-container">
 			<ListViewHeader
-				updateListViewInfo={updateListViewInfo}
+				updateTaskInfo={updateTaskInfo}
 				properties={info?.properties}
 				taskPreferences={info?.taskPreferences}
 				searchValue={info?.searchValue}
@@ -116,26 +153,12 @@ const Task = ({
 				view={taskInfo?.tabs?.[taskInfo?.activeTab]?.view}
 				handleTabChange={handleTabChange}
 				tabs={taskInfo?.tabs}
-				activeTab={taskInfo?.activeTab}
 				handleAddTab={handleAddTab}
 				updateViewInfo={updateViewInfo}
+				viewData={taskInfo?.tabs?.[taskInfo?.activeTab]}
 			/>
 			<div className="task-content-area">
-				<ListView
-					info={info}
-					updateListViewInfo={updateListViewInfo}
-					resetSubTasks={() => {}}
-					updatePropertyValue={() => {}}
-					deleteTask={() => {}}
-					addNewTask={() => {}}
-					responseMetadata={responseMetadata}
-					fetchListItems={() => {}}
-					addButtonOnClick={handleAddButtonOnClick}
-					haveSubTask={true}
-					colors={colors}
-					fetchMoreData={() => {}}
-					view={taskInfo?.tabs[taskInfo?.activeTab]?.view}
-				/>
+				{viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.view)}
 			</div>
 		</div>
 	);

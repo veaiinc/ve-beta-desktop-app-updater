@@ -13,7 +13,7 @@ import StatusEditDropDown from './StatusEditDropDown';
 
 const PropertiesDropDown = ({
 	properties,
-	updateListViewInfo,
+	updateTaskInfo,
 	taskPreferences,
 	editingProperty,
 	handleEditPropertyChange,
@@ -91,8 +91,6 @@ const PropertiesDropDown = ({
 
 			const sortedProperties = newProperties?.sort((a, b) => a?.order - b?.order);
 
-			updateListViewInfo('properties', sortedProperties);
-
 			const newTaskPreferences = {
 				...taskPreferences,
 				preferences: {
@@ -104,13 +102,13 @@ const PropertiesDropDown = ({
 					},
 				},
 			};
-			updateListViewInfo('taskPreferences', newTaskPreferences);
+			updateTaskInfo({ properties: sortedProperties, taskPreferences: newTaskPreferences });
 			updateTaskPreferences({
 				preferenceType: newTaskPreferences?.preferenceType,
 				data: newTaskPreferences?.preferences,
 			});
 		},
-		[properties, updateListViewInfo, taskPreferences, updateTaskPreferences],
+		[properties, updateTaskInfo, taskPreferences, updateTaskPreferences],
 	);
 
 	const handleDragEnd = useCallback(
@@ -202,14 +200,13 @@ const PropertiesDropDown = ({
 				}
 			});
 
-			updateListViewInfo('properties', updatedProperties);
-			updateListViewInfo('taskPreferences', newTaskPreferences);
+			updateTaskInfo({ properties: updatedProperties, taskPreferences: newTaskPreferences });
 			updateTaskPreferences({
 				preferenceType: newTaskPreferences?.preferenceType,
 				data: newTaskPreferences.preferences,
 			});
 		},
-		[properties, updateListViewInfo, taskPreferences, updateTaskPreferences, info],
+		[properties, updateTaskInfo, taskPreferences, updateTaskPreferences, info],
 	);
 
 	const handleShowAll = useCallback(() => {
@@ -227,7 +224,7 @@ const PropertiesDropDown = ({
 			return property;
 		});
 
-		updateListViewInfo('properties', newProperties);
+		updateTaskInfo({ properties: newProperties });
 
 		const newTaskPreferences = {
 			preferenceType: taskPreferences?.preferenceType,
@@ -243,12 +240,12 @@ const PropertiesDropDown = ({
 			}
 		});
 
-		updateListViewInfo('taskPreferences', newTaskPreferences);
+		updateTaskInfo({ taskPreferences: newTaskPreferences });
 		updateTaskPreferences({
 			preferenceType: newTaskPreferences?.preferenceType,
 			data: newTaskPreferences.preferences,
 		});
-	}, [properties, updateListViewInfo, taskPreferences, updateTaskPreferences]);
+	}, [properties, updateTaskInfo, taskPreferences, updateTaskPreferences]);
 
 	const handleHideAll = useCallback(() => {
 		let currentOrder = 1;
@@ -269,8 +266,6 @@ const PropertiesDropDown = ({
 			};
 		});
 
-		updateListViewInfo('properties', newProperties);
-
 		const newTaskPreferences = { ...taskPreferences };
 		newProperties.forEach((property) => {
 			newTaskPreferences[property.value] = {
@@ -279,24 +274,9 @@ const PropertiesDropDown = ({
 				order: property.order,
 			};
 		});
-		updateListViewInfo('taskPreferences', newTaskPreferences);
+		updateTaskInfo({ properties: newProperties, taskPreferences: newTaskPreferences });
 		updateTaskPreferences(newTaskPreferences);
-	}, [properties, updateListViewInfo, taskPreferences, updateTaskPreferences]);
-
-	// const handleDropdownVisibility = useCallback(
-	// 	(visible) => {
-	// 		setInfo((prev) => ({ ...prev, isOpen: visible }));
-	// 		if (!visible) {
-	// 			handleEditPropertyChange(null);
-	// 		}
-	// 	},
-	// 	[handleEditPropertyChange],
-	// );
-
-	// const handleClose = useCallback(() => {
-	// 	setInfo((prev) => ({ ...prev, isOpen: false }));
-	// 	handleEditPropertyChange(null);
-	// }, [handleEditPropertyChange]);
+	}, [properties, updateTaskInfo, taskPreferences, updateTaskPreferences]);
 
 	const PropertyList = ({ items, droppableId }) => (
 		<Droppable droppableId={droppableId}>

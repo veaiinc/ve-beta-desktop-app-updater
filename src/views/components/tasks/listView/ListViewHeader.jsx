@@ -27,7 +27,6 @@ const defaultFilterValue = {
 };
 
 const ListViewHeader = ({
-	updateListViewInfo,
 	properties,
 	searchValue,
 	responseMetadata,
@@ -40,9 +39,10 @@ const ListViewHeader = ({
 	createButtonText,
 	handleTabChange,
 	tabs,
-	activeTab,
 	handleAddTab,
 	updateViewInfo,
+	updateTaskInfo,
+	viewData,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -58,19 +58,19 @@ const ListViewHeader = ({
 
 	const handelSortClick = useCallback(
 		(value) => {
-			const newSort = tabs[activeTab]?.sort?.some((item) => item.sortBy === value)
-				? tabs[activeTab]?.sort
-				: [...tabs[activeTab]?.sort, { sortBy: value, sortType: 1 }];
-			updateListViewInfo('sort', newSort);
-			updateListViewInfo('page', 1);
+			const newSort = viewData?.sort?.some((item) => item.sortBy === value)
+				? viewData?.sort
+				: [...viewData?.sort, { sortBy: value, sortType: 1 }];
+
+			updateViewInfo(viewData?._id, { sort: newSort, page: 1 });
 		},
-		[tabs, activeTab, updateListViewInfo],
+		[viewData, updateViewInfo],
 	);
 
 	const handelFilterClick = useCallback(
 		(value) => {
 			if (
-				!tabs[activeTab]?.filters?.some((item) => item.key === value) &&
+				!viewData?.filters?.some((item) => item.key === value) &&
 				!pendingFilters.some((item) => item.key === value)
 			) {
 				setPendingFilters((prev) => [
@@ -82,7 +82,7 @@ const ListViewHeader = ({
 				]);
 			}
 		},
-		[tabs, activeTab, pendingFilters],
+		[viewData, pendingFilters],
 	);
 
 	return (
@@ -124,7 +124,7 @@ const ListViewHeader = ({
 									placeholder="Search"
 									value={searchValue}
 									onChange={(e) =>
-										updateListViewInfo('searchValue', e.target?.value)
+										updateTaskInfo({ searchValue: e.target?.value })
 									}
 								/>
 								<span
@@ -139,7 +139,7 @@ const ListViewHeader = ({
 											...prev,
 											searchExpand: false,
 										}));
-										updateListViewInfo('searchValue', '');
+										updateTaskInfo({ searchValue: '' });
 									}}
 								>
 									<CrossIcon style={{ width: '20px', height: '20px' }} />
@@ -178,20 +178,20 @@ const ListViewHeader = ({
 					</DropDown>
 					<OptionsDropDown
 						properties={properties}
-						updateListViewInfo={updateListViewInfo}
+						updateTaskInfo={updateTaskInfo}
 						taskPreferences={taskPreferences}
 						editingProperty={editingProperty}
 						handleEditPropertyChange={handleEditPropertyChange}
 						responseMetadata={responseMetadata}
 						colors={colors}
-						viewData={tabs?.[activeTab]}
-						updateViewInfo={(viewInfo) => updateViewInfo(activeTab, viewInfo)}
+						viewData={viewData}
+						updateViewInfo={(viewInfo) => updateViewInfo(viewData?._id, viewInfo)}
 					/>
 				</div>
 			</div>
 			<div className="listViewHeaderTabsContainer">
 				<TabHeader
-					activeTab={activeTab}
+					activeTab={viewData?._id}
 					onTabChange={handleTabChange}
 					tabs={Object.values(tabs)}
 				/>
@@ -200,22 +200,22 @@ const ListViewHeader = ({
 				</button>
 			</div>
 			<div className="listViewOptionsContainer">
-				{tabs[activeTab]?.sort?.length > 0 ? (
+				{viewData?.sort?.length > 0 ? (
 					<SortComponent
-						sort={tabs?.[activeTab]?.sort}
+						sort={viewData?.sort}
 						options={properties.filter(
 							(item) => !['childTasks', 'parentTask']?.includes(item.value),
 						)}
 						responseMetadata={responseMetadata}
-						updateViewInfo={(viewInfo) => updateViewInfo(activeTab, viewInfo)}
+						updateViewInfo={(viewInfo) => updateViewInfo(viewData?._id, viewInfo)}
 						handelSortClick={handelSortClick}
 					/>
 				) : (
 					''
 				)}
-				{tabs?.[activeTab]?.filters?.length > 0 || pendingFilters.length > 0 ? (
+				{viewData?.filters?.length > 0 || pendingFilters.length > 0 ? (
 					<div className="listView-filterContainer">
-						{[...tabs[activeTab]?.filters, ...pendingFilters].map((filter) => {
+						{[...viewData?.filters, ...pendingFilters].map((filter) => {
 							const {
 								Icon = null,
 								name = null,
@@ -230,22 +230,21 @@ const ListViewHeader = ({
 									fieldName={filter?.key}
 									value={filter?.value}
 									updateViewInfo={(viewInfo) =>
-										updateViewInfo(activeTab, viewInfo)
+										updateViewInfo(viewData?._id, viewInfo)
 									}
-									filters={tabs?.[activeTab]?.filters}
+									filters={viewData?.filters}
 									props={props}
 									type={type}
 									colors={colors}
-									isPending={!tabs?.[activeTab]?.filters?.includes(filter)}
+									isPending={
+										!viewData?.filters?.some((f) => f.key === filter?.key)
+									}
 									onConfirm={(key, value) => {
 										setPendingFilters((prev) =>
 											prev.filter((f) => f.key !== key),
 										);
-										updateViewInfo(activeTab, {
-											filters: [
-												...tabs?.[activeTab]?.filters,
-												{ key, value },
-											],
+										updateViewInfo(viewData?._id, {
+											filters: [...viewData?.filters, { key, value }],
 										});
 									}}
 									setPendingFilters={setPendingFilters}
@@ -257,7 +256,7 @@ const ListViewHeader = ({
 							title="Add Filter"
 							options={properties?.filter(
 								(item) =>
-									!tabs?.[activeTab]?.filters?.some(
+									!viewData?.filters?.some(
 										(filter) => filter.key === item.value,
 									) && !['childTasks', 'parentTask']?.includes(item.value),
 							)}
