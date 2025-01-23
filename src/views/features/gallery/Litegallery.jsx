@@ -342,7 +342,7 @@ const LiteGallery = () => {
 												<img
 													src={items?.coverImage?.thumbnailUrl}
 													// onError={(e) => {
-													//  e.target.src = testImage;
+													// 	e.target.src = testImage;
 													// }}
 													alt={items?.title}
 												/>
@@ -365,12 +365,12 @@ const LiteGallery = () => {
 													Share
 												</li>
 												{/* <li
-                                                    onClick={() =>
-                                                        handleNavigateSettings(items._id)
-                                                    }
-                                                >
-                                                    settings
-                                                </li> */}
+													onClick={() =>
+														handleNavigateSettings(items._id)
+													}
+												>
+													settings
+												</li> */}
 											</div>
 											<div className="album-full-details">
 												<div className="album-details">
