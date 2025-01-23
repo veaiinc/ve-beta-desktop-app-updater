@@ -38,7 +38,8 @@ const BottomToolbar = ({
 	} = useContext(Context);
 
 	const location = useLocation();
-
+	// console.log(globalChatMessages);
+	// console.log(chatList);
 	const [info, setInfo] = useState({
 		expanded: false,
 		inputExpanded: false,
@@ -46,7 +47,7 @@ const BottomToolbar = ({
 		chatQuery: '',
 		position: { x: 0, y: 0 },
 		addQuickAction: false,
-		chatSessionId: ObjectID().toString(),
+		chatSessionId: ObjectID()?.toString(),
 	});
 
 	const toolbarRef = useRef(null);
@@ -73,22 +74,22 @@ const BottomToolbar = ({
 
 	const handleMouseDown = useCallback(
 		(e) => {
-			if (e.target.closest('.quickActionsButtons, input, button')) return;
+			if (e.target?.closest('.quickActionsButtons, input, button')) return;
 
 			isDraggingRef.current = true;
 			startPosRef.current = {
-				x: e.clientX - info.position.x,
-				y: e.clientY - info.position.y,
+				x: e.clientX - info?.position?.x,
+				y: e.clientY - info?.position?.y,
 			};
 		},
-		[info.position],
+		[info?.position],
 	);
 
 	const handleMouseMove = useCallback((e) => {
-		if (!isDraggingRef.current) return;
+		if (!isDraggingRef?.current) return;
 
-		const newX = e.clientX - startPosRef.current.x;
-		const newY = e.clientY - startPosRef.current.y;
+		const newX = e.clientX - startPosRef?.current?.x;
+		const newY = e.clientY - startPosRef?.current?.y;
 
 		setInfo((prev) => ({
 			...prev,
@@ -122,6 +123,15 @@ const BottomToolbar = ({
 		setInfo((prev) => ({ ...prev, chatModalIsOpen: false }));
 	}, [info]);
 
+	const handleInputFocus = useCallback(() => {
+		if (globalChatMessages?.length > 1 || chatList?.length > 0) {
+			setInfo((prev) => ({
+				...prev,
+				expanded: true,
+				inputExpanded: true,
+			}));
+		}
+	}, [globalChatMessages, chatList]);
 	const handleSendMessageFunc = useCallback(
 		(e) => {
 			if (e.key === 'Enter') {
@@ -145,7 +155,7 @@ const BottomToolbar = ({
 					return message.error('Please wait for the AI response');
 				}
 
-				if (info?.chatQuery?.trim().length) {
+				if (info?.chatQuery?.trim()?.length) {
 					if (customChatActions) {
 						onSend(info?.chatQuery);
 					} else {
@@ -187,8 +197,8 @@ const BottomToolbar = ({
 			style={{
 				...outerContainerStyle,
 				position: 'fixed',
-				transform: `translate(${info.position.x}px, ${info.position.y}px)`,
-				cursor: isDraggingRef.current ? 'grabbing' : 'grab',
+				transform: `translate(${info?.position?.x}px, ${info?.position?.y}px)`,
+				cursor: isDraggingRef?.current ? 'grabbing' : 'grab',
 			}}
 			onMouseDown={handleMouseDown}
 		>
@@ -212,7 +222,7 @@ const BottomToolbar = ({
 					{(!customChatActions ? globalChatMessages : chatList).map((chat, index) =>
 						chat?.content ? (
 							<div
-								className={`chat-message ${chat.type.toLowerCase()}-message`}
+								className={`chat-message ${chat?.type?.toLowerCase()}-message`}
 								key={index}
 							>
 								{chat?.content}
@@ -220,10 +230,10 @@ const BottomToolbar = ({
 						) : (
 							<div
 								key={index}
-								className={`chat-message ${chat.type.toLowerCase()}-message`}
+								className={`chat-message ${chat?.type?.toLowerCase()}-message`}
 							>
 								<div className="message-content">
-									<ReactMarkdown>{chat.message}</ReactMarkdown>
+									<ReactMarkdown>{chat?.message}</ReactMarkdown>
 								</div>
 							</div>
 						),
@@ -235,12 +245,13 @@ const BottomToolbar = ({
 			{!info?.chatModalIsOpen ? (
 				<div className={`bottomToolbar ${info?.expanded ? 'update-border-radius' : ''}`}>
 					<textarea
-						className={`bottomToolbarInputs ${info.inputExpanded ? 'expanded' : ''}`}
+						className={`bottomToolbarInputs ${info?.inputExpanded ? 'expanded' : ''}`}
 						placeholder="Hey! Need help? Ask me anything."
 						value={info?.chatQuery}
 						onChange={(e) =>
-							setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
+							setInfo((prev) => ({ ...prev, chatQuery: e?.target?.value }))
 						}
+						onFocus={handleInputFocus}
 						onKeyDown={handleSendMessageFunc}
 					/>
 					<div className="chatIcons">
