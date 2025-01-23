@@ -842,7 +842,7 @@ const Tasks = () => {
 				rowTypes={rowTypes}
 				handleCreateSubTaskClick={handleCreateSubTaskClick}
 				responseMetadata={responseMetadata}
-				haveSubTask={true}
+				haveSubTask={false}
 				properties={info?.properties}
 				colors={colors}
 				toggleSidebarExpand={() =>

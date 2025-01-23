@@ -5,7 +5,7 @@ import { ReactComponent as ListViewIcon } from '../../../assets/svg/tasks/list.s
 import { ReactComponent as BoardViewIcon } from '../../../assets/svg/tasks/board.svg';
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
 import ListView from './views/ListView';
-import boardView from './views/BoardView';
+import BoardView from './views/BoardView';
 import TableView from './views/TableView';
 
 const icons = {
@@ -105,7 +105,7 @@ const Task = ({
 		(view) => {
 			const views = {
 				list: ListView,
-				board: boardView,
+				board: BoardView,
 				table: TableView,
 			};
 			const Component = views?.[view] || ListView;
