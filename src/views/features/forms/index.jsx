@@ -35,18 +35,11 @@ const Forms = () => {
 	});
 
 	useEffect(() => {
-		const fetchInitialData = async () => {
-			try {
-				await getTemplatesListForForms(1, 30, false);
-			} catch (error) {
-				console.error('Error fetching initial forms data:', error);
-			}
-		};
-		fetchInitialData();
-	}, []); // No dependencies to prevent infinite calls
+		fetchInitialForms();
+	}, []);
 
 	useEffect(() => {
-		if (formsTemplatesList?.data) {
+		if (formsTemplatesList) {
 			setInfo((prev) => ({
 				...prev,
 				formsData: formsTemplatesList?.data || [],
@@ -57,30 +50,31 @@ const Forms = () => {
 	}, [formsTemplatesList]);
 
 	useEffect(() => {
-		if (moreFormsTemplatesList?.data) {
+		if (moreFormsTemplatesList) {
 			setInfo((prev) => ({
 				...prev,
-				formsData: [...prev.formsData, ...(moreFormsTemplatesList?.data || [])],
+				formsData: [...prev?.formsData, ...(moreFormsTemplatesList?.data || [])],
 				hasNextPage: moreFormsTemplatesList?.hasNextPage || false,
 				loading: false,
 			}));
 		}
 	}, [moreFormsTemplatesList]);
 
-	const fetchMoreForms = async () => {
+	const fetchInitialForms = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, loading: true }));
+		await getTemplatesListForForms(1, 10);
+	}, []);
+
+	const fetchMoreForms = useCallback(async () => {
 		if (info?.hasNextPage) {
 			const nextPage = info?.currentPage + 1;
-			try {
-				await getTemplatesListForForms(nextPage, 30, true);
-				setInfo((prev) => ({
-					...prev,
-					currentPage: nextPage,
-				}));
-			} catch (error) {
-				console.error('Error fetching more forms:', error);
-			}
+			await getTemplatesListForForms(nextPage, 10, true);
+			setInfo((prev) => ({
+				...prev,
+				currentPage: nextPage,
+			}));
 		}
-	};
+	}, [info?.hasNextPage, info?.currentPage]);
 
 	return (
 		<div className="formsParentContainer">
