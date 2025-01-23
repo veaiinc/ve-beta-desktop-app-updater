@@ -16,6 +16,12 @@ const files = [
 	'Resume.pdf',
 ];
 
+const clientOptions = [
+	{ id: 0, title: 'Ankit', value: 'Ankit' },
+	{ id: 1, title: 'Ismail', value: 'Ismail' },
+	{ id: 2, title: 'Avinash', value: 'Avinash' },
+];
+
 const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	const [searchText, setSearchText] = useState('');
 	const [selectedOptions, setSelectedOptions] = useState({});
@@ -40,7 +46,6 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 
 	const handleClientSearch = (value) => {
 		setClientSearch(value);
-		console.log(value, 'value');
 	};
 
 	const handleRemoveSelectedFile = (file) => {
@@ -86,13 +91,15 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 							placement="bottom"
 							title={
 								<FilterPopUp
-									options={['Ankit', 'Ismail', 'Avinash']}
+									options={clientOptions}
 									searchInput={true}
 									searchInputPlaceholder="Search Client"
 									searchValue={clientSearch}
+									onOptionClick={(option) => handleClientSearch(option)}
 								/>
 							}
 							open={isOpen}
+							color="transparent"
 							trigger="click"
 							arrow={false}
 						>
