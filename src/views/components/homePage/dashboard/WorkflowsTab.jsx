@@ -7,7 +7,6 @@ const WorkflowsTab = () => {
 	return (
 		<div className="workflows-tab">
 			<WeddingDayTimelineGeneratorCard />
-			<WeddingDayTimelineGeneratorCard />
 			<Sales />
 		</div>
 	);
