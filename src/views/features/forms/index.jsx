@@ -62,7 +62,7 @@ const Forms = () => {
 
 	const fetchInitialForms = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, loading: true }));
-		await getTemplatesListForForms(1, 10);
+		await getTemplatesListForForms(1, 30);
 	}, []);
 
 	const fetchMoreForms = useCallback(async () => {
