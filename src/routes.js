@@ -132,7 +132,8 @@ const routes = [
 	},
 
 	{
-		path: '/workflow_builder/:templateId',
+		// path: '/workflow_builder/:templateId',
+		path: '/workflow_builder_updated/:templateId',
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
 				<WorkflowBuilder />
@@ -141,7 +142,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/workflow_builder_updated/:templateId',
+		path: '/workflow_builder/:templateId',
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
 				<Workflow_builder_updated />
