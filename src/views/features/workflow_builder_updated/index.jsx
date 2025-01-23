@@ -42,6 +42,8 @@ const WorkflowBuilderUpdated = () => {
 			addEmailTriggersInWorkflow,
 			getMyWorkflows,
 			getTemplatesListForCreateLead,
+			getAllEmailTemplates,
+			allEmailTemplates,
 		},
 	} = useContext(Context);
 
@@ -94,6 +96,23 @@ const WorkflowBuilderUpdated = () => {
 			getNodesAndEdges(steps);
 		}
 	}, [specificTemplatesInfo]);
+
+	useEffect(() => {
+		if (!allEmailTemplates) {
+			getEmailTemplates();
+		}
+	}, [allEmailTemplates]);
+
+	const getEmailTemplates = useCallback(() => {
+		const payload = {
+			filters: {
+				limit: 1000,
+				page: 1,
+				modules: ['forms', 'proposals', 'contracts', 'invoices'],
+			},
+		};
+		getAllEmailTemplates(payload);
+	}, [getAllEmailTemplates]);
 
 	const getNodesAndEdges = useCallback((steps) => {
 		// Initialize collections
