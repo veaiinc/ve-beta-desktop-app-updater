@@ -31,12 +31,13 @@
 		.bottomToolBarChatHeader {
 			padding: 12px 16px;
 			display: flex;
-			justify-content: space-between;
+			align-self: flex-end;
+			justify-content: flex-end;
 			align-items: center;
 			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 			cursor: grab;
 			user-select: none;
-
+			width: 100%;
 			span {
 				color: #e8e8e8;
 				font-family: Inter;

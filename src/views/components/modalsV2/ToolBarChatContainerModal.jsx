@@ -22,8 +22,13 @@ const ToolBarChatContainerModal = ({
 	onKeyDown,
 	chatQuery,
 	aiChatLoading,
+	isChatExpanded,
 }) => {
+	const [isExpanded, setIsExpanded] = useState(isChatExpanded || false);
+
 	const chatContentRef = useRef(null);
+
+	const width = isExpanded ? '81vw' : '400px';
 
 	// Add this useEffect for auto-scrolling
 	useEffect(() => {
@@ -34,25 +39,34 @@ const ToolBarChatContainerModal = ({
 
 	return (
 		<Drawer
-			onClose={onClose}
-			width={400}
+			onClose={() => {
+				setIsExpanded(false);
+				onClose();
+			}}
+			width={width}
 			open={modalIsOpen}
 			style={{ backgroundColor: '#171819' }}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
 		>
-			<div className="toolExpandedChatBarContainer">
+			<div className="toolExpandedChatBarContainer" style={{ width: width }}>
 				{/* header */}
-				<div className="toolExpandedChatBarContainerHeader">
+				<div className="toolExpandedChatBarContainerHeader" style={{ width: width }}>
 					<h1 className="toolExpandedChatBarContainerHeaderTitle">AI Assistant</h1>
 					<div className="toolExpandedChatBarContainerHeaderIconContainer">
-						<ExpandChatIcon />
-						<CloseSvg onClick={onClose} style={{ cursor: 'pointer' }} />
+						<ExpandChatIcon onClick={() => setIsExpanded(!isExpanded)} />
+						<CloseSvg
+							onClick={() => {
+								setIsExpanded(false);
+								onClose();
+							}}
+							style={{ cursor: 'pointer' }}
+						/>
 					</div>
 				</div>
 
 				{/* chat body */}
-				<div className="toolBarchatBodyParentContainer">
+				<div className={`toolBarchatBodyParentContainer ${isExpanded ? 'expanded' : ''}`}>
 					<div className="chatContent" ref={chatContentRef}>
 						{chatList?.map((chat, index) => (
 							<div
@@ -69,7 +83,11 @@ const ToolBarChatContainerModal = ({
 				</div>
 
 				{/* //message Container */}
-				<div className="toolBarExpandedChatInputParentContainer">
+				<div
+					className={`toolBarExpandedChatInputParentContainer ${
+						isExpanded ? 'expanded' : ''
+					}`}
+				>
 					<textarea
 						type="text"
 						placeholder="Hey! Need help? Ask me anything."
