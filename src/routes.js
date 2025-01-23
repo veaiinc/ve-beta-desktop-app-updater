@@ -35,7 +35,8 @@ import Ai_agent from './views/features/ai_agent';
 import AgentsJobs from './views/features/ai_agent/AgentsJobs';
 import AgentsSetup from './views/features/ai_agent/AgentsSetup';
 import Docs from './views/features/docs';
-import LightGallery from './views/features/gallery/LightGallery';
+import LiteGallery from './views/features/gallery/LiteGallery';
+import MyTemplates from './views/features/my_templates/MyTemplates';
 const routes = [
 	{
 		path: '/',
@@ -188,10 +189,10 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/light-gallery',
+		path: '/lite-gallery',
 		component: (
-			<AuthWrapper title={'Light Gallery'}>
-				<LightGallery />
+			<AuthWrapper title={'Lite Gallery'}>
+				<LiteGallery />
 			</AuthWrapper>
 		),
 		exact: true,
@@ -320,6 +321,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Docs'}>
 				<Docs />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/my-templates',
+		component: (
+			<AuthWrapper title={'My Templates'}>
+				<MyTemplates />
 			</AuthWrapper>
 		),
 		exact: true,

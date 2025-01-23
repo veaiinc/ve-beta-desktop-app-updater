@@ -33,7 +33,7 @@ const EntryPointCard = ({ publicData }) => {
 						src={
 							window.location.hostname === 'localhost'
 								? `http://localhost:3000/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-								: `https://builder.ve.ai/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+								: `${origin}/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
 						}
 						title="Builder Preview"
 						width="100%"
@@ -76,11 +76,7 @@ const PreviewCard = ({ privateData }) => {
 			<div className="htmlContentViewer">
 				<div className="coverImage">
 					<iframe
-						src={
-							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-								: `https://builder.ve.ai/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-						}
+						src={`${origin}/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`}
 						title="Builder Preview"
 						width="100%"
 						height="100%"
