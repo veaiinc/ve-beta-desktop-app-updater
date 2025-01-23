@@ -190,7 +190,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 								: 'not-allowed',
 					}}
 				>
-					Create & more
+					Create
 				</button>
 			</div>
 		</ReactModal>
