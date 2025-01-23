@@ -1,9 +1,10 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useMemo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
-import NavBar from '../../components/homePage/navBar';
-import { Activity, Drafts } from '../../components/ai_agents/CreateCards';
+import NavBar from '../../components/homePage/NavBar';
 import HeaderInfo from '../../components/homePage/HeaderInfo';
 import PromptPopup from '../../components/homePage/PromptPopup';
+import HomePageDashboard from '../../components/homePage/dashboard/HomePageDashboard';
+import HomePageStart from '../../components/homePage/HomePageStart';
 
 const cards = [
 	{ id: 0, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
@@ -13,7 +14,7 @@ const cards = [
 	{ id: 4, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
 	{ id: 5, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
 	{ id: 6, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 7, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
+	{ id: 7, subTitle: 'sales', title: 'Wedding Day Timeline  Generator' },
 	{ id: 8, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
 	{ id: 9, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
 	{ id: 10, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
@@ -81,107 +82,94 @@ const HomePage = () => {
 		return () => {
 			homePageContainer?.removeEventListener('scroll', setNavbarFixed);
 		};
-	}, []);
+	}, [info?.isNavbarFixed]);
+
+	const componentMapper = {
+		start: (
+			<HomePageStart cards={cards} setInfo={setInfo} isNavbarFixed={info?.isNavbarFixed} />
+		),
+		dashboard: (
+			<HomePageDashboard
+				selectedOption={info?.[selectedOption]}
+				options={navbarOptions?.dashboard}
+				isNavbarFixed={info?.isNavbarFixed}
+			/>
+		),
+	};
 
 	const setNavbarFixed = (e) => {
 		const topOffset = e?.target?.scrollTop;
 		if (topOffset >= thresholdTopOffset) {
-			setInfo({ ...info, isNavbarFixed: true });
+			setInfo((prev) => ({ ...prev, isNavbarFixed: true }));
 		} else {
-			setInfo({ ...info, isNavbarFixed: false });
+			setInfo((prev) => ({ ...prev, isNavbarFixed: false }));
 		}
 	};
 
 	const handleSelectedOption = (value) => {
-		setInfo({ ...info, [selectedOption]: value });
+		setInfo((prev) => ({ ...prev, [selectedOption]: value }));
 	};
 
 	const handleSearchValue = (value) => {
-		setInfo({ ...info, searchValue: value });
+		setInfo((prev) => ({ ...prev, searchValue: value }));
 	};
 
 	return (
-		<>
-			<div className="home-page-container">
-				<div className="home-page-container-header">
-					<div className="home-page-container-content">
-						{topNavOptions?.map((option) => (
-							<div
-								key={option?.id}
-								className="home-page-container-content-item-container"
-							>
-								<div
-									className={`home-page-container-content-item ${
-										info?.activeTab === option?.value ? 'active' : ''
-									}`}
-									onClick={() => setInfo({ ...info, activeTab: option?.value })}
-								>
-									{option?.title}
-								</div>
-								{option?.id !== topNavOptions?.length - 1 && (
-									<div className="home-page-container-content-item-divider"></div>
-								)}
-							</div>
-						))}
-					</div>
-
-					<div className="home-page-welcome-container">
+		<div className="home-page-container">
+			<div className="home-page-container-header">
+				<div className="home-page-container-content">
+					{topNavOptions?.map((option) => (
 						<div
-							className={`home-page-welcome-container-left ${
-								info?.isNavbarFixed ? 'fixed' : ''
-							}`}
+							key={option?.id}
+							className="home-page-container-content-item-container"
 						>
-							<HeaderInfo
-								isNavbarFixed={info?.isNavbarFixed}
-								title={title}
-								subTitle={subTitle}
-							/>
-							<NavBar
-								options={navbarOptions[info?.activeTab]}
-								selectedOption={info?.[selectedOption]}
-								handleSelectedOption={handleSelectedOption}
-								handleSearchValue={handleSearchValue}
-							/>
+							<div
+								className={`home-page-container-content-item ${
+									info?.activeTab === option?.value ? 'active' : ''
+								}`}
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										activeTab: option?.value,
+									}))
+								}
+							>
+								{option?.title}
+							</div>
+							{option?.id !== topNavOptions?.length - 1 && (
+								<div className="home-page-container-content-item-divider"></div>
+							)}
 						</div>
-					</div>
+					))}
 				</div>
 
-				{info?.activeTab === 'start' ? (
-					<div className={`home-page-cards-container `}>
-						{cards?.map((card) => (
-							<div
-								key={card?.id}
-								className="home-page-cards-container-card"
-								onClick={() => {
-									setInfo({
-										...info,
-										showPromptPopup: true,
-										selectedCard: card,
-									});
-								}}
-							>
-								<div className="home-page-cards-container-card-sub-title">
-									{card?.subTitle}
-								</div>
-								<div className="home-page-cards-container-card-title">
-									{card?.title}
-								</div>
-							</div>
-						))}
+				<div className="home-page-welcome-container">
+					<div
+						className={`home-page-welcome-container-left ${
+							info?.isNavbarFixed ? 'fixed' : ''
+						}`}
+					>
+						<HeaderInfo
+							isNavbarFixed={info?.isNavbarFixed}
+							title={title}
+							subTitle={subTitle}
+						/>
+						<NavBar
+							options={navbarOptions[info?.activeTab]}
+							selectedOption={info?.[selectedOption]}
+							handleSelectedOption={handleSelectedOption}
+							handleSearchValue={handleSearchValue}
+						/>
 					</div>
-				) : (
-					<div className={'home-page-dashboard-container'}>
-						<Activity />
-						<Drafts />
-					</div>
-				)}
+				</div>
 			</div>
+			{componentMapper?.[info?.activeTab]}
 			<PromptPopup
 				open={info?.showPromptPopup}
 				closeModal={() => setInfo({ ...info, showPromptPopup: false })}
 				selectedCard={info?.selectedCard}
 			/>
-		</>
+		</div>
 	);
 };
 

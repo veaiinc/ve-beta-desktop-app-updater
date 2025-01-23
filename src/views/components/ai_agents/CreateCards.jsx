@@ -348,4 +348,26 @@ const Drafts = memo(() => {
 	);
 });
 
-export { Activity, Drafts };
+const Notes = memo(() => {
+	return (
+		<div className="aiAgentsAcitivityContainer">
+			<div className="createCardsHeader">
+				<span className="createCardsHeaderTexct">Notes</span>
+			</div>
+
+			<div className="aiAgentsActivityCards">
+				<span
+					className="aiAgentsActivityCardsHeaderText"
+					style={{ textTransform: 'capitalize' }}
+				>
+					updated
+				</span>
+				<div className="aiAgentsActivityCardsSubTextHolder">
+					<span className="aiAgentsActivityCardTime">a day ago</span>
+				</div>
+			</div>
+		</div>
+	);
+});
+
+export { Activity, Drafts, Notes };

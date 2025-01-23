@@ -5,14 +5,14 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
-	gap: 4px;
+	// gap: 4px;
 	z-index: 1000;
 	user-select: none;
 	width: 231px;
 	transition: width 0.3s ease;
 
 	&.expanded {
-		width: 312px;
+		width: 650px;
 	}
 
 	.bottomToolbarChatContainer {
@@ -21,7 +21,8 @@
 		overflow: hidden;
 		transition: all 0.3s ease;
 		background: #202123;
-		border-radius: 16px;
+		border-top-left-radius: 16px;
+		border-top-right-radius: 16px;
 		width: 100%;
 		display: flex;
 		flex-direction: column;
@@ -80,12 +81,9 @@
 				user-select: text;
 
 				.message-content {
-					max-width: 80%;
-					padding: 12px 16px;
 					border-radius: 12px;
 					font-size: 14px;
 					line-height: 1.4;
-					padding-left: 24px;
 					user-select: text;
 				}
 
@@ -93,9 +91,7 @@
 					justify-content: flex-start;
 
 					.message-content {
-						background: #2c2d2e;
 						color: #e8e8e8;
-						border-bottom-left-radius: 4px;
 					}
 				}
 
@@ -103,8 +99,10 @@
 					justify-content: flex-end;
 
 					.message-content {
-						background: #2b6eff;
+						background: #2e2f33;
+						max-width: 80%;
 						color: white;
+						padding: 12px 14px;
 						border-bottom-right-radius: 4px;
 					}
 				}
@@ -184,39 +182,29 @@
 		padding: 16px;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 24px;
-		align-self: stretch;
-		border-radius: 14px;
+		gap: 10px;
+		border-radius: 16px;
 		background: var(--popup-background, #202123);
 		box-shadow: 4px 4px 73px 0px rgba(0, 0, 0, 0.2);
 
 		.bottomToolbarInputs {
-			width: 79px;
+			resize: none;
 			height: 40px;
-			flex: 1;
-			border-radius: 100px;
-			background: #161718;
-			outline: none;
+			width: 100%;
 			border: none;
-			padding: 12px;
-			transition: all 0.3s ease;
+			outline: none;
 			color: #fff;
-
-			&:focus,
-			&.expanded {
-				flex: 2;
-			}
+			transition: all 0.3s ease;
+			font-size: 14px;
+			font-weight: 500;
+			line-height: normal;
+			font-family: Inter;
+			background-color: inherit;
 
 			&::placeholder {
-				color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-				color: var(
-					--ve-ai-dark-theme-primary-font-color,
-					color(display-p3 0.9098 0.9098 0.9098)
-				);
-
-				/* Body/Body - 12 px */
+				color: var(--secondary-font-color, #797e86);
 				font-family: Inter;
-				font-size: 12px;
+				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
@@ -225,6 +213,20 @@
 			&:disabled {
 				opacity: 0.7;
 				cursor: not-allowed;
+			}
+		}
+
+		.chatIcons {
+			display: flex;
+			gap: 10px;
+			align-items: center;
+			justify-content: center;
+			span {
+				cursor: pointer;
+				svg {
+					width: 19px;
+					height: 19px;
+				}
 			}
 		}
 
@@ -247,6 +249,12 @@
 		button {
 			cursor: pointer;
 		}
+	}
+
+	.update-border-radius {
+		border-radius: 0;
+		border-bottom-left-radius: 16px;
+		border-bottom-right-radius: 16px;
 	}
 }
 

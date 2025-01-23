@@ -1,8 +1,13 @@
 import React, { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
 import '../../../assets/scss/ai_agents/bottomToolbar.scss';
-import { ReactComponent as Plus } from '../../../assets/svg/ai_agents/Plus.svg';
-import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
-import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settings.svg';
+// import { ReactComponent as Plus } from '../../../assets/svg/ai_agents/Plus.svg';
+// import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
+// import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settings.svg';
+import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.svg';
+import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
+import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
+import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
+
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
@@ -17,6 +22,8 @@ import { useLocation } from 'react-router-dom';
 const moduleHelper = {
 	'/tasks': 'tasks',
 };
+
+const chatIcons = [<Filter />, <Arroba />, <PaperClip />, <Mic />];
 
 const BottomToolbar = ({
 	outerContainerStyle = {},
@@ -94,13 +101,6 @@ const BottomToolbar = ({
 	}, []);
 
 	//function definitions
-	const handleInputFocus = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			expanded: true,
-			inputExpanded: true,
-		}));
-	}, [info]);
 
 	const handleClose = useCallback(() => {
 		setInfo((prev) => ({
@@ -128,6 +128,14 @@ const BottomToolbar = ({
 				// If Shift+Enter, allow new line
 				if (e.shiftKey) {
 					return;
+				}
+
+				if (info?.expanded === false) {
+					setInfo((prev) => ({
+						...prev,
+						expanded: true,
+						inputExpanded: true,
+					}));
 				}
 
 				// Prevent default to avoid unwanted new line
@@ -225,19 +233,22 @@ const BottomToolbar = ({
 
 			{/* bottom toolBarContent */}
 			{!info?.chatModalIsOpen ? (
-				<div className="bottomToolbar">
+				<div className={`bottomToolbar ${info?.expanded ? 'update-border-radius' : ''}`}>
 					<textarea
 						className={`bottomToolbarInputs ${info.inputExpanded ? 'expanded' : ''}`}
-						placeholder="Ask AI"
-						onFocus={handleInputFocus}
+						placeholder="Hey! Need help? Ask me anything."
 						value={info?.chatQuery}
 						onChange={(e) =>
 							setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
 						}
 						onKeyDown={handleSendMessageFunc}
-						style={{ resize: 'none' }}
 					/>
-					<div className="quickActionsButtons">
+					<div className="chatIcons">
+						{chatIcons?.map((icon, idx) => (
+							<span key={idx}>{icon}</span>
+						))}
+					</div>
+					{/* <div className="quickActionsButtons">
 						<Home />
 					</div>
 					<div className="quickActionsButtons">
@@ -260,7 +271,7 @@ const BottomToolbar = ({
 					</div>
 					<div className="quickActionsButtons">
 						<Settings />
-					</div>
+					</div> */}
 				</div>
 			) : (
 				''
