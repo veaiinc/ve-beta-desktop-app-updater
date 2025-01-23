@@ -1,0 +1,20 @@
+.templatesParentContainer {
+	width: 100vw;
+	height: 100vh;
+	background-image: url('../../assets/svg/sales/start.jpg');
+	background-size: cover;
+	background-position: center;
+	display: flex;
+	flex-direction: column;
+
+	.childrenContainer {
+		flex: 1;
+		// padding: 1.5rem 6rem 3rem 6rem;
+		background: #111;
+		margin-top: 5rem;
+		width: 100%;
+		max-width: 1200px;
+		margin: auto;
+		// margin-top: 12vh;
+	}
+}

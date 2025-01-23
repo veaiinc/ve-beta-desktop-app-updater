@@ -1,5 +1,5 @@
 import React, { useEffect, memo } from 'react';
-import '../../assets/scss/authWrapper.scss';
+import '../../assets/scss/templatesWrapper.scss';
 import { Helmet } from 'react-helmet';
 import useActiveWorkspace from '../hooks/useActiveWorkspace';
 import { SkeletonTheme } from 'react-loading-skeleton';
@@ -8,10 +8,20 @@ import Sidebar from '../components/sidebar/Sidebar';
 import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
-import BottomToolbar from '../components/ai_agents/BottomToolbar';
 
-const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true }) => {
+const TemplatesWrapper = ({ title, children, maxWidth = '' }) => {
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
+
+	const customStyles = {
+		backgroundColor: 'transparent',
+		backdropFilter: 'blur(10px)',
+		border: '1px solid rgba(255, 255, 255, 0.20)',
+		boxShadow: 'none',
+		onHoverColor: 'rgba(255, 255, 255, 0.20)',
+		'&.sidebarComponent': {
+			backgroundColor: 'transparent !important',
+		},
+	};
 
 	const checkAuth = useAuth();
 	// const data = useSubscription();
@@ -22,7 +32,7 @@ const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true 
 	}, []);
 
 	return (
-		<div className="authParentContainer">
+		<div className="templatesParentContainer">
 			<Helmet>
 				<meta charSet="utf-8" />
 				<title>{title} | VE</title>
@@ -35,10 +45,14 @@ const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true 
 					padding: '60px 0px 0px 32px',
 				}}
 			>
-				<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>
+				<SkeletonTheme
+					baseColor={'rgba(255, 255, 255, 0.05)'}
+					highlightColor={'rgba(255, 255, 255, 0.05)'}
+				>
 					<Sidebar
 						setActiveWorkspaceId={setActiveWorkspaceId}
 						activeWorkspaceId={workspaceId}
+						customStyles={customStyles}
 					/>
 
 					<div
@@ -51,19 +65,8 @@ const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true 
 					</div>
 				</SkeletonTheme>
 			</div>
-			{showBottomToolbar ? (
-				<BottomToolbar
-					outerContainerStyle={{ bottom: '10px' }}
-					// chatList={info?.chatList}
-					// onSend={handleSendMessage}
-					// aiChatLoading={info?.aiChatLoading}
-					// handleAiUploadImage={handleAiUploadImage}
-				/>
-			) : (
-				''
-			)}
 		</div>
 	);
 };
 
-export default memo(AuthWrapper);
+export default memo(TemplatesWrapper);

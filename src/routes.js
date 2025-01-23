@@ -1,4 +1,5 @@
 import AuthWrapper from './views/layouts/authWrapper';
+import TemplatesWrapper from './views/layouts/templatesWrapper';
 import LoginPage from './views/features/login_page/LoginPage';
 import Onboarding from './views/features/onboarding/Onboarding';
 import Calendar from './views/features/calendar/index';
@@ -6,6 +7,7 @@ import Calendar from './views/features/calendar/index';
 import OauthVerify from './views/features/signin/oauth';
 import Sales from './views/features/sales/Sales';
 import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
+import MyTemplates from './views/features/sales/MyTemplates';
 import SmartFile from './views/features/sales/smartFiles/SmartFile';
 import WorkflowBuilderLayout from './views/layouts/workflowBuilderLayout';
 import SmartFileLayout from './views/layouts/smartFileLayout';
@@ -33,6 +35,7 @@ import Ai_agent from './views/features/ai_agent';
 import AgentsJobs from './views/features/ai_agent/AgentsJobs';
 import AgentsSetup from './views/features/ai_agent/AgentsSetup';
 import Docs from './views/features/docs';
+import LiteGallery from './views/features/gallery/LiteGallery';
 import MyTemplates from './views/features/my_templates/MyTemplates';
 const routes = [
 	{
@@ -114,9 +117,18 @@ const routes = [
 	{
 		path: '/playbook',
 		component: (
-			<AuthWrapper title={'Sales'}>
+			<TemplatesWrapper title={'Sales'}>
 				<GlobalWorkflows />
-			</AuthWrapper>
+			</TemplatesWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/my-templates',
+		component: (
+			<TemplatesWrapper title={'My Templates'}>
+				<MyTemplates />
+			</TemplatesWrapper>
 		),
 		exact: true,
 	},
@@ -172,6 +184,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Galleries'}>
 				<AddGallery />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/lite-gallery',
+		component: (
+			<AuthWrapper title={'Lite Gallery'}>
+				<LiteGallery />
 			</AuthWrapper>
 		),
 		exact: true,

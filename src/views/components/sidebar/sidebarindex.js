@@ -40,9 +40,15 @@ export const veAiModulesItemsList = [
 		icon: '',
 	},
 	{
-		name: 'Gallery',
+		name: 'Classic Gallery',
 		moduleRoute: '/galleries',
 		route: '/galleries',
+		icon: '',
+	},
+	{
+		name: 'Lite Gallery',
+		moduleRoute: '/lite-gallery',
+		route: '/lite-gallery',
 		icon: '',
 	},
 	{
@@ -101,7 +107,12 @@ export const veAiModulesItemsList = [
 export const veAiModules = [
 	// { icon: OrchestratorSvg, name: 'Orchestrator', route: '/orchestrator' },
 	{ icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
-	{ icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
+	{
+		icon: TemplatesSvg,
+		name: 'Templates',
+		route: '/playbook',
+		subModules: [{ icon: '', name: 'MyTemplates', route: '/my-templates' }],
+	},
 	{
 		icon: SettingsSvg,
 		name: 'Settings',
