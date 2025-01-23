@@ -108,25 +108,6 @@ const FormSummary = () => {
 						</span>
 					</div>
 				</div>
-
-				<FormResponseList
-					expanded={info?.isExpanded}
-					handleExpand={handleExpand}
-					items={info?.items}
-					visibleItems={visibleItems}
-				/>
-			</div>
-
-			<div className="formSummaryContainer">
-				<div className="header">
-					<div className="headerWrapper">
-						<span className="title">Title</span>
-						<span className="summary">
-							<span>Response : 7</span>
-							<span>Skipped : 2</span>
-						</span>
-					</div>
-				</div>
 			</div>
 		</div>
 	);

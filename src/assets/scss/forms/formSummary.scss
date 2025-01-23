@@ -69,14 +69,15 @@
 	overflow: hidden;
 
 	&__content {
-		transition: all 0.3s ease-in-out;
+		transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+		overflow: hidden;
 
 		&--collapsed {
-			max-height: 20rem;
+			max-height: 240px;
 		}
 
 		&--expanded {
-			max-height: 100%;
+			max-height: 2000px;
 		}
 	}
 

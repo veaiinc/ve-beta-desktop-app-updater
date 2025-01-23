@@ -10,7 +10,7 @@ import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
 import { ReactComponent as UpDownArrow } from '../../../assets/svg/my_templates/up-down-arrow.svg';
 import { useNavigate, useLocation } from 'react-router-dom';
-import FormResponses from '../../components/forms/FormRes';
+import FormRes from '../../components/forms/FormRes';
 import FormSummary from '../../components/forms/FormSummary';
 
 const FormLeads = () => {
@@ -21,7 +21,7 @@ const FormLeads = () => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
 		searchValue: '',
-		activeTab: 'summary', //individualEntries
+		activeTab: 'individualEntries', //summary
 	});
 
 	const metricsData = [
@@ -43,7 +43,7 @@ const FormLeads = () => {
 		return {
 			individualEntries: {
 				label: 'Individual Entries',
-				Component: <FormResponses />,
+				Component: <FormRes />,
 			},
 			summary: {
 				label: 'Summary',
