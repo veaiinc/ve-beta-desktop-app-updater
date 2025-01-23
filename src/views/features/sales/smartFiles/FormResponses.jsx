@@ -152,6 +152,20 @@ const LinkAnswer = ({ answer }) => {
 	);
 };
 
+const FileUploadAnswer = ({ answer }) => {
+	return (
+		<>
+			<img
+				className="answer fileUpload"
+				onClick={() => window.open(answer, '_blank')}
+				src={answer}
+				alt="fileUpload"
+			/>
+			<div className="divider"></div>
+		</>
+	);
+};
+
 const FormResponses = ({ workflowData }) => {
 	let {
 		templates: { formResponseData },
@@ -163,6 +177,7 @@ const FormResponses = ({ workflowData }) => {
 
 	const [info, setInfo] = useState({
 		formResponse: null,
+		// uploadedFileType: null,
 	});
 
 	const formAnswer = (type, answer) => {
@@ -173,6 +188,7 @@ const FormResponses = ({ workflowData }) => {
 			time: <TimeAnswer answer={answer} />,
 			singleChoice: <SingleChoiceAnswer answer={answer} />,
 			link: <LinkAnswer answer={answer} />,
+			fileUpload: <FileUploadAnswer answer={answer} />,
 		};
 		return (
 			answerComponentMapper[type] ?? (
@@ -187,7 +203,18 @@ const FormResponses = ({ workflowData }) => {
 	useEffect(() => {
 		if (formResponseData) {
 			const sortedResponse = formResponseData?.response?.sort((a, b) => a?.order - b?.order);
-			setInfo((prev) => ({ ...prev, formResponse: sortedResponse }));
+
+			// File types can be png, jpg, pdf, csv etc, need to handle this later on...
+
+			// const fileUploadResponse = sortedResponse?.filter(
+			// 	(formData) => formData?.type === 'fileUpload',
+			// );
+			// const uploadedFileType = fileUploadResponse?.map((file) => {
+			// 	const url = file?.answer;
+			// 	const extension = url?.split('.').pop().split('?')[0];
+			// 	return { _id: file?._id, extension };
+			// });
+			setInfo((prev) => ({ ...prev, formResponse: sortedResponse })); // TODO: setInfo((prev) => ({ ...prev, formResponse: sortedResponse, uploadedFileType }));
 		}
 	}, [formResponseData]);
 
@@ -225,8 +252,7 @@ const FormResponses = ({ workflowData }) => {
 			)}
 			{info?.formResponse?.map(
 				(formData) =>
-					formData?.type !== 'signature' &&
-					formData?.type !== 'fileUpload' && (
+					formData?.type !== 'signature' && (
 						<div className="formResponseContainer" key={formData?.id}>
 							<div className="questionContainer">
 								{iconsForQuestions[formData?.type]}
