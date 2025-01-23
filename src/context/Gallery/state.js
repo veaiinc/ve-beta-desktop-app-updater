@@ -1185,19 +1185,26 @@ export const Galleries = () => {
 		});
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-collections/{{ _.collection_id }}/images
-	const getClientSelectionImages = async (collectionId) => {
+	const getClientSelectionImages = async (collectionId, page = 1, limit = 15) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(
-				`/${workspaceId}/gallery-collections/${collectionId}/images`,
+				`/${workspaceId}/gallery-collections/${collectionId}/images?page=${page}&limit=${limit}`,
 				usertoken,
 				'galleries',
 			);
+			const payload = state.clientSelectionImages
+				? {
+						...state.clientSelectionImages,
+						...response?.[1],
+						docs: [...state.clientSelectionImages.docs, ...(response?.[1]?.docs || [])],
+				  }
+				: response?.[1];
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_CLIENT_SELECTION_IMAGES,
-					payload: response?.[1],
+					payload: payload,
 				});
 			}
 		} catch (error) {

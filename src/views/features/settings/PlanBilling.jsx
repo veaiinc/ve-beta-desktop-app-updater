@@ -93,6 +93,7 @@ const ApproximateCreditsRowData = [
 const PlanBilling = () => {
 	let {
 		subscriptionInfo: { getCurrentSubscriptionPlan, currentPlan },
+		authInfo: { getAddOnsForCurrentPlan },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		loading: true,
@@ -108,14 +109,18 @@ const PlanBilling = () => {
 
 	useEffect(() => {
 		if (currentPlan) {
+			const tierStatus = currentPlan?.currentSubscriptionPlan?.totalPrice ? false : true;
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
 				plan: currentPlan?.currentSubscriptionPlan,
-				expiresAt: currentPlan?.expiresAt,
-				freeTier: currentPlan?.products ? false : true,
-				currency: currentPlan?.currency,
+				expiresAt: currentPlan?.currentSubscriptionPlan?.expiresAt,
+				freeTier: tierStatus,
+				currency: currentPlan?.currentSubscriptionPlan?.currency,
 			}));
+			if (!tierStatus) {
+				getAddOnsForCurrentPlan();
+			}
 		}
 	}, [currentPlan]);
 
@@ -170,6 +175,7 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 	const navigate = useNavigate();
 	let {
 		subscriptionInfo: { createManageSubscriptionLinkforExistingUsers },
+		authInfo: { currentPlanAddOns },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -213,12 +219,12 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 				<div className="subscriptionPlanContent">
 					<div className="subscriptionPlanPricingDetails">
 						<span className="subscriptionPlanPricing">
-							{currency === 'inr' ? '₹ ' : '$ '}
+							{currency === 'INR' ? '₹ ' : '$ '}
 							{data?.totalPrice?.toLocaleString('en-IN', {
 								currency: currency,
 							})}
 						</span>
-						<span className="subscritptionPlanPeriod">/ {data?.interval}</span>
+						<span className="subscritptionPlanPeriod">/ {data?.subscriptionType}</span>
 					</div>
 					{/* <div className="subscriptionUsageContainer">
 						<div className="subscriptionUsageDeatails">
@@ -238,6 +244,12 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 							</div>
 						))}
 					</div>
+					{/* <div className="currentAddOnsContainer">
+						<h1 className="currentAddOns">Current Add-ons</h1>
+						{currentPlanAddOns?.map((addOn) => (
+							<div key={addOn?._id}>{addOn?.plan}</div>
+						))}
+					</div> */}
 					{data?.addOns && Object.values(data?.addOns)?.length ? (
 						<div className="addOnContianer">
 							<span className="addOnStates">Current Add-on’s</span>

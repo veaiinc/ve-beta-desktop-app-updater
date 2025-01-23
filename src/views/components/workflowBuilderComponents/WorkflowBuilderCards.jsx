@@ -1,7 +1,8 @@
 import React, { memo, useCallback } from 'react';
 import '../../../assets/scss/workflowBuilder/workflowBuilderCard.scss';
 import { ReactComponent as EmailSvg } from '../../../assets/svg/worflow_builder/email.svg';
-
+import { fetchOriginSelection } from '../../../helpers';
+let origin = fetchOriginSelection();
 const FirstWorkflowCard = ({ openPreviewModal, editOnClickHandler, templateData }) => {
 	const data = templateData?.moduleTemplates?.filter((e) => e?.isPublic);
 	return (
@@ -9,11 +10,7 @@ const FirstWorkflowCard = ({ openPreviewModal, editOnClickHandler, templateData 
 			<div className="htmlContentViewer">
 				<div className="coverImage" style={{ pointerEvents: 'none' }}>
 					<iframe
-						src={
-							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-								: `https://builder.ve.ai/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-						}
+						src={`${origin}/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`}
 						title="Builder Preview"
 						width="100%"
 						height="100%"
@@ -76,11 +73,7 @@ const PreviewCard = ({ templateData, openPreviewModal }) => {
 			<div className="htmlContentViewer">
 				<div className="coverImage" style={{ pointerEvents: 'none' }}>
 					<iframe
-						src={
-							window.location.hostname === 'localhost'
-								? `http://localhost:3000/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-								: `https://builder.ve.ai/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
-						}
+						src={`${origin}/preview/${templateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`}
 						title="Builder Preview"
 						width="100%"
 						height="100%"
@@ -113,7 +106,7 @@ const WorkflowBuilderCards = ({
 	};
 
 	const editOnClickHandler = useCallback(() => {
-		window.location.href = `https://builder.ve.ai/${templateData?._id}`;
+		window.location.href = `${origin}/${templateData?._id}`;
 	}, [templateData]);
 
 	return (

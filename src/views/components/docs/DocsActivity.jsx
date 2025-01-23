@@ -20,69 +20,27 @@ export const formatTime = (milliseconds) => {
 };
 
 const initialState = {
-	loading: true,
-	fileActivityData: null,
-	fileViewerList: null,
+	activeTab: 'viewers', //timeLine, viewers, timeSpent, interactions
 };
 
-const DocsActivity = ({ data }) => {
-	const {
-		activityInfo: { activityData, getSmartFileActivity, getSmartFileViewers, viewersList },
-	} = useContext(Context);
-
+const DocsActivity = ({ data, fileActivityData, fileViewerList, loading }) => {
 	const [info, setInfo] = useState({
 		...initialState,
-		activeTab: 'viewers', //timeLine, viewers, timeSpent, interactions
 	});
-
-	useEffect(() => {
-		if (data) {
-			fetchFileActivity();
-			fetchFileViewerList();
-		}
-	}, [data]);
-
-	useEffect(() => {
-		if (activityData) {
-			setInfo((prev) => ({
-				...prev,
-				fileActivityData: activityData,
-				loading: false,
-			}));
-		}
-	}, [activityData]);
-
-	useEffect(() => {
-		if (viewersList) {
-			setInfo((prev) => ({
-				...prev,
-				fileViewerList: viewersList,
-				loading: false,
-			}));
-		}
-	}, [viewersList]);
-
-	const fetchFileActivity = useCallback(async () => {
-		getSmartFileActivity({ workflowId: data?._id });
-	}, [data]);
-
-	const fetchFileViewerList = useCallback(async () => {
-		getSmartFileViewers({ workflowId: data?._id });
-	}, [data]);
 
 	const tabs = useMemo(() => {
 		return {
 			timeLine: {
 				label: 'Time Line',
-				comp: <FileTimeLine />,
+				comp: <FileTimeLine data={fileActivityData} />,
 			},
 
 			viewers: {
 				label: 'Viewers',
 				comp: (
 					<FileViewersList
-						loading={info?.loading}
-						viewersList={info?.fileViewerList}
+						loading={loading}
+						viewersList={fileViewerList}
 						fileData={data}
 					/>
 				),
@@ -93,9 +51,9 @@ const DocsActivity = ({ data }) => {
 					<SessionMetric
 						key={'Time Spent'}
 						title={'Time Spent'}
-						loading={info?.loading}
-						labelsData={info?.fileActivityData?.moduleViewDuration}
-						labelItemsData={info?.fileActivityData?.sectionViewDuration}
+						loading={loading}
+						labelsData={fileActivityData?.moduleViewDuration}
+						labelItemsData={fileActivityData?.sectionViewDuration}
 						formatTime={formatTime}
 						showChartToolTip={false}
 					/>
@@ -107,10 +65,10 @@ const DocsActivity = ({ data }) => {
 					<SessionMetric
 						key={'Interactions'}
 						title={'Interactions'}
-						loading={info?.loading}
-						labelsData={info?.fileActivityData?.interaction}
-						labelItemsData={info?.fileActivityData?.interaction?.reduce((acc, item) => {
-							return acc.concat(item?.interactions); //reducing the "interactionsssss" array for sending each "interaction" array data
+						loading={loading}
+						labelsData={fileActivityData?.interaction}
+						labelItemsData={fileActivityData?.interaction?.reduce((acc, item) => {
+							return acc.concat(item?.interactions);
 						}, [])}
 						formatTime={formatTime}
 						showChartToolTip={false}
@@ -118,7 +76,7 @@ const DocsActivity = ({ data }) => {
 				),
 			},
 		};
-	}, [info?.fileViewerList, info?.loading, info?.fileActivityData]);
+	}, [fileViewerList, loading, fileActivityData, data]);
 
 	const handleTabChange = useCallback(
 		(tab) => {
@@ -137,10 +95,10 @@ const DocsActivity = ({ data }) => {
 						<div className="details">
 							<EyeSvg />
 							<span className="value">
-								{info?.loading ? (
+								{loading ? (
 									<Spinner width="20px" height="20px" />
 								) : (
-									info?.fileActivityData?.totalViews || 0
+									fileActivityData?.totalViews || 0
 								)}
 							</span>
 						</div>
@@ -151,10 +109,10 @@ const DocsActivity = ({ data }) => {
 						<div className="details">
 							<ClockSvg />
 							<span className="value">
-								{info?.loading ? (
+								{loading ? (
 									<Spinner width="20px" height="20px" />
 								) : (
-									formatTime(info?.fileActivityData?.averageTimeSpent || 0) || 0
+									formatTime(fileActivityData?.averageTimeSpent || 0) || 0
 								)}
 							</span>
 						</div>
@@ -165,10 +123,10 @@ const DocsActivity = ({ data }) => {
 						<div className="details">
 							<HandTapSvg />
 							<span className="value">
-								{info?.loading ? (
+								{loading ? (
 									<Spinner width="20px" height="20px" />
 								) : (
-									info?.fileActivityData?.totalInteractions || 0
+									fileActivityData?.totalInteractions || 0
 								)}
 							</span>
 						</div>

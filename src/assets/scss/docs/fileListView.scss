@@ -1,302 +1,345 @@
-.fileListViewDrawer {
-	color: #fff;
-
-	display: flex;
-	width: 100%;
+.fileListViewDrawerWrapper {
+	width: 480px;
 	height: 100%;
-	padding: 24px 0px;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 20px;
-	border-radius: 16px;
-	background: var(--Card-Default-Color, #171819);
-	background: var(--Card-Default-Color, color(display-p3 0.0902 0.0941 0.098));
+	padding: 10px;
+	transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 
-	overflow-y: hidden;
+	.fileListViewDrawer {
+		color: #fff;
 
-	.headerContainer {
 		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		align-self: stretch;
-		padding: 0px 32px;
-
-		.headerLeftLabel {
-			display: flex;
-			align-items: center;
-			gap: 8px;
-			cursor: pointer;
-
-			> svg {
-				width: 16px;
-				height: 16px;
-				flex-shrink: 0;
-				opacity: 0.7;
-				transition: opacity 0.3s ease;
-				&:hover {
-					opacity: 1;
-					filter: drop-shadow(0 0 8px #c8c4c4);
-				}
-			}
-		}
-
-		.headerRightLabel {
-			display: flex;
-			align-items: center;
-			gap: 8px;
-			cursor: pointer;
-
-			.editLabel {
-				display: flex;
-				height: 23px;
-				padding: 6px 12px;
-				justify-content: center;
-				align-items: center;
-				gap: 6px;
-				border-radius: 59px;
-				color: #0b1215;
-				background: #e8e8e8;
-				border: 1px solid #e8e8e8;
-				background: color(display-p3 0.9098 0.9098 0.9098);
-				transition: all 0.3s ease;
-
-				font-family: Inter;
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-
-				&:hover {
-					background: #0b1215;
-					color: #e8e8e8;
-					border: 1px solid #e8e8e8;
-				}
-			}
-
-			> svg {
-				width: 20px;
-				height: 20px;
-
-				&:hover {
-					filter: drop-shadow(0 0 8px #c8c4c4);
-				}
-			}
-		}
-	}
-
-	.listviewContainer {
-		display: flex;
+		width: 100%;
+		height: 100%;
+		padding: 24px 0px;
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 20px;
-		align-self: stretch;
-		padding: 0px 32px;
+		border-radius: 16px;
+		background: var(--Card-Default-Color, #171819);
+		background: var(--Card-Default-Color, color(display-p3 0.0902 0.0941 0.098));
 
-		.listDataMapper {
+		overflow-y: hidden;
+
+		.headerContainer {
 			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 8px;
+			justify-content: space-between;
+			align-items: center;
 			align-self: stretch;
+			padding: 0px 32px;
 
-			.listDataMapperRow {
+			.headerLeftLabel {
 				display: flex;
-				height: 31px;
 				align-items: center;
-				align-self: stretch;
+				gap: 8px;
+				cursor: pointer;
 
-				.listDataMapperRowLabel {
+				> svg {
+					width: 16px;
+					height: 16px;
+					flex-shrink: 0;
+					opacity: 0.7;
+					transition: opacity 0.3s ease;
+					&:hover {
+						opacity: 1;
+						filter: drop-shadow(0 0 8px #c8c4c4);
+					}
+				}
+			}
+
+			.headerRightLabel {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				cursor: pointer;
+
+				.editLabel {
 					display: flex;
-					width: 130px;
+					height: 23px;
+					padding: 6px 12px;
+					justify-content: center;
 					align-items: center;
-					gap: 8px;
-					align-self: stretch;
+					gap: 6px;
+					border-radius: 59px;
+					color: #0b1215;
+					background: #e8e8e8;
+					border: 1px solid #e8e8e8;
+					background: color(display-p3 0.9098 0.9098 0.9098);
+					transition: all 0.3s ease;
 
-					color: var(--ve-ai-dark-theme-secondary-color, #939393);
-					color: var(
-						--ve-ai-dark-theme-secondary-color,
-						color(display-p3 0.5755 0.5755 0.5755)
-					);
 					font-family: Inter;
-					font-size: 13px;
+					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
 
-					> svg {
-						width: 16px;
-						height: 16px;
+					&:hover {
+						background: #0b1215;
+						color: #e8e8e8;
+						border: 1px solid #e8e8e8;
 					}
 				}
 
-				.listDataMapperRowValue {
-					color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-					color: var(
-						--ve-ai-dark-theme-primary-font-color,
-						color(display-p3 0.9098 0.9098 0.9098)
-					);
+				> svg {
+					width: 20px;
+					height: 20px;
 
-					/* Body/Body - 12 px */
-					font-family: Inter;
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
+					&:hover {
+						filter: drop-shadow(0 0 8px #c8c4c4);
+					}
 				}
 			}
 		}
-	}
 
-	.tabsViewWrapper {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 24px;
-		flex: 1 0 0;
-		align-self: stretch;
-		overflow-y: auto;
+		.maxedOutView {
+			color: #fff;
 
-		.tabsView {
 			display: flex;
+			width: 100%;
+			height: 100%;
+			padding: 24px 0px;
+			flex-direction: column;
 			align-items: flex-start;
-			gap: 24px;
-			padding: 0px 32px;
-			align-self: stretch;
-			cursor: pointer;
-			user-select: none;
+			gap: 20px;
+			border-radius: 16px;
+			background: var(--Card-Default-Color, #171819);
+			background: var(--Card-Default-Color, color(display-p3 0.0902 0.0941 0.098));
 
-			.tabViewLabel {
+			overflow-y: hidden;
+
+			.listviewContainer {
 				display: flex;
-				// padding: 12px 0px;
-				padding: 8px 0px;
-				justify-content: center;
-				align-items: center;
-				gap: 10px;
-				opacity: 0.7;
-				transition: opacity 0.3s ease;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 20px;
+				align-self: stretch;
+				padding: 0px 32px;
 
-				&:hover {
-					opacity: 1;
+				.listDataMapper {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 8px;
+					align-self: stretch;
+
+					.listDataMapperRow {
+						display: flex;
+						height: 31px;
+						align-items: center;
+						align-self: stretch;
+
+						.listDataMapperRowLabel {
+							display: flex;
+							width: 130px;
+							align-items: center;
+							gap: 8px;
+							align-self: stretch;
+
+							color: var(--ve-ai-dark-theme-secondary-color, #939393);
+							color: var(
+								--ve-ai-dark-theme-secondary-color,
+								color(display-p3 0.5755 0.5755 0.5755)
+							);
+							font-family: Inter;
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+
+							> svg {
+								width: 16px;
+								height: 16px;
+							}
+						}
+
+						.listDataMapperRowValue {
+							color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+							color: var(
+								--ve-ai-dark-theme-primary-font-color,
+								color(display-p3 0.9098 0.9098 0.9098)
+							);
+
+							/* Body/Body - 12 px */
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+				}
+			}
+
+			.tabsViewWrapper {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 24px;
+				flex: 1 0 0;
+				align-self: stretch;
+				overflow-y: auto;
+
+				.tabsView {
+					display: flex;
+					align-items: flex-start;
+					gap: 24px;
+					padding: 0px 32px;
+					align-self: stretch;
+					cursor: pointer;
+					user-select: none;
+
+					.tabViewLabel {
+						display: flex;
+						// padding: 12px 0px;
+						padding: 8px 0px;
+						justify-content: center;
+						align-items: center;
+						gap: 10px;
+						opacity: 0.7;
+						transition: opacity 0.3s ease;
+
+						&:hover {
+							opacity: 1;
+						}
+
+						color: var(--ve-ai-dark-theme-secondary-color, #939393);
+						color: var(
+							--ve-ai-dark-theme-secondary-color,
+							color(display-p3 0.5755 0.5755 0.5755)
+						);
+						font-family: Inter;
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+
+					.active {
+						color: #e8e8e8;
+						border-radius: 3px;
+						border-bottom: 2px solid var(--Primary-Font, #f2f2f3);
+						border-bottom: 2px solid
+							var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
+						opacity: 1;
+					}
 				}
 
+				.respectiveView {
+					width: 100%;
+					height: 775px;
+					padding: 0px 32px;
+					overflow-y: auto;
+				}
+			}
+		}
+
+		.DocsStatusButtonOuterContainer {
+			display: flex;
+			padding: 4px 6px;
+			justify-content: center;
+			align-items: center;
+			gap: 4px;
+			border-radius: 35px;
+			background: #373737;
+			background: color(display-p3 0.2161 0.2161 0.2161);
+
+			.DocsStatusCircle {
+				width: 6px;
+				height: 6px;
+				border-radius: 100%;
+				background: #939393;
+			}
+			.DocsButtontext {
+				color: #e8e8e8;
+				color: color(display-p3 0.9098 0.9098 0.9098);
+				text-align: center;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		.requiredActionsWrapper {
+			display: flex;
+			width: 100%;
+			height: 52px;
+			padding: 12px 16px;
+			justify-content: space-between;
+			align-items: center;
+			align-self: stretch;
+			border-radius: 14px;
+			background: var(--card-over-card, #202123);
+			background: var(--card-over-card, color(display-p3 0.1255 0.1294 0.1373));
+			user-select: none;
+
+			color: var(--Primary-Font, #f2f2f3);
+			color: var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+
+			&:hover {
+				border-radius: 14px;
+				background: var(--card-over-card-hover, #27282b);
+				background: var(--card-over-card-hover, color(display-p3 0.1529 0.1569 0.1686));
+			}
+
+			.requiredAction {
 				color: var(--ve-ai-dark-theme-secondary-color, #939393);
 				color: var(
 					--ve-ai-dark-theme-secondary-color,
 					color(display-p3 0.5755 0.5755 0.5755)
 				);
-				font-family: Inter;
-				font-size: 16px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
+				text-transform: capitalize;
 			}
 
-			.active {
-				color: #e8e8e8;
-				border-radius: 3px;
-				border-bottom: 2px solid var(--Primary-Font, #f2f2f3);
-				border-bottom: 2px solid var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
-				opacity: 1;
+			.requiredActionBtn {
+				border-radius: 29px;
+				border: 1px solid #333334;
+				border: 1px solid color(display-p3 0.2 0.2 0.2039);
+				display: flex;
+				height: 33px;
+				padding: 6px 12px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				cursor: pointer;
+				opacity: 0.7;
+				transition: opacity 0.3s ease;
+
+				&:hover {
+					opacity: 1;
+				}
 			}
 		}
 
-		.respectiveView {
-			width: 100%;
-			height: 775px;
-			padding: 0px 32px;
-			overflow-y: auto;
-		}
-	}
-	.DocsStatusButtonOuterContainer {
-		display: flex;
-		padding: 4px 6px;
-		justify-content: center;
-		align-items: center;
-		gap: 4px;
-		border-radius: 35px;
-		background: #373737;
-		background: color(display-p3 0.2161 0.2161 0.2161);
-
-		.DocsStatusCircle {
-			width: 6px;
-			height: 6px;
-			border-radius: 100%;
-			background: #939393;
-		}
-		.DocsButtontext {
-			color: #e8e8e8;
-			color: color(display-p3 0.9098 0.9098 0.9098);
-			text-align: center;
-			font-family: Inter;
-			font-size: 12px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-		}
-	}
-
-	.requiredActionsWrapper {
-		display: flex;
-		width: 100%;
-		height: 52px;
-		padding: 12px 16px;
-		justify-content: space-between;
-		align-items: center;
-		align-self: stretch;
-		border-radius: 14px;
-		background: var(--card-over-card, #202123);
-		background: var(--card-over-card, color(display-p3 0.1255 0.1294 0.1373));
-		user-select: none;
-
-		color: var(--Primary-Font, #f2f2f3);
-		color: var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
-		font-family: Inter;
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
-
-		&:hover {
-			border-radius: 14px;
-			background: var(--card-over-card-hover, #27282b);
-			background: var(--card-over-card-hover, color(display-p3 0.1529 0.1569 0.1686));
-		}
-
-		.requiredAction {
-			color: var(--ve-ai-dark-theme-secondary-color, #939393);
-			color: var(--ve-ai-dark-theme-secondary-color, color(display-p3 0.5755 0.5755 0.5755));
-			text-transform: capitalize;
-		}
-
-		.requiredActionBtn {
-			border-radius: 29px;
-			border: 1px solid #333334;
-			border: 1px solid color(display-p3 0.2 0.2 0.2039);
+		.previewContainer {
 			display: flex;
-			height: 33px;
-			padding: 6px 12px;
-			justify-content: center;
-			align-items: center;
-			gap: 10px;
-			cursor: pointer;
-			opacity: 0.7;
-			transition: opacity 0.3s ease;
-
-			&:hover {
-				opacity: 1;
-			}
+			flex-direction: column;
+			width: 100%;
+			border-radius: 24px;
+			// height: 700px;
+			height: 100%;
+			overflow-y: auto;
+			background-color: #fff;
 		}
 	}
+}
+.fileListViewDrawer-expanded {
+	padding: 0px;
+	width: 100vw;
+	height: 100vh;
 
-	.previewContainer {
-		display: flex;
-		flex-direction: column;
-		width: 100%;
-		border-radius: 24px;
-		// height: 700px;
-		height: 100%;
-		overflow-y: auto;
-		background-color: #fff;
+	.fileListViewDrawer {
+		border-radius: 0px;
+
+		.maxedOutView {
+			margin: 0px auto;
+			max-width: 650px;
+		}
 	}
 }
 
