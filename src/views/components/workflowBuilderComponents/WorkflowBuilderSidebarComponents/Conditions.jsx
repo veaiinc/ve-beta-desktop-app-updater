@@ -1,12 +1,26 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/workflowBuilder/workflowBuilderSidebarComponents/conditions.scss';
 import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/buildercard/doubleArrow.svg';
 import { ReactComponent as Search } from '../../../../assets/svg/worflow_builder/buildercard/search.svg';
+import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
+import {
+	conditionOptions,
+	containerStyle,
+	dropDownStyle,
+	dropDownTextStyling,
+	MoveStepsOptions,
+	selectedValueStyling,
+} from '../../../features/workflow_builder/workflowContantsHelpers';
+import { message, Spin } from 'antd';
+import Context from '../../../../context/context';
 
 const conditionsList = {
 	ifElse: { title: 'If / Else', id: 'ifElse' },
 };
-const Conditions = ({ onCLose }) => {
+const Conditions = ({ onCLose, activeEdge, templateId }) => {
+	const {
+		templates: { addNewSteps, updateStateValues, specificTemplatesInfo },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
 		search: '',
 		list: Object.values(conditionsList),
@@ -39,10 +53,51 @@ const Conditions = ({ onCLose }) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
 
+	const createNewConditionNode = useCallback(async (data) => {
+		if (info?.saveLoader) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, saveLoader: true }));
+		const previousStepId = activeEdge?.split('-')?.[0];
+
+		const payload = {
+			stepInput: {
+				previousStepId: previousStepId,
+				type: 'condition',
+				title: data?.title,
+				criteria: { status: data?.status },
+				moveTo: data?.moveTo,
+			},
+			templateId: templateId,
+		};
+
+		const response = await addNewSteps(payload);
+		if (response?.[0]) {
+			const updatedSmartFileInfo = { ...(specificTemplatesInfo || {}) };
+			updatedSmartFileInfo.steps = [...(response?.[1]?.steps || [])];
+			updateStateValues({ specificTemplatesInfo: updatedSmartFileInfo });
+			onCLose();
+		}
+		setInfo((prev) => ({ ...prev, saveLoader: false }));
+	}, []);
+
 	const stageMapper = useMemo(() => {
 		return {
-			stage1: <Stage1 info={info} handleSearch={handleSearch} changeStage={changeStage} />,
-			stage2: <Stage2 changeStage={changeStage} info={info} />,
+			stage1: (
+				<Stage1
+					info={info}
+					handleSearch={handleSearch}
+					changeStage={changeStage}
+					createNewConditionNode={createNewConditionNode}
+				/>
+			),
+			stage2: (
+				<Stage2
+					changeStage={changeStage}
+					info={info}
+					createNewConditionNode={createNewConditionNode}
+				/>
+			),
 			// stage3: <Stage3 changeStage={changeStage} info={info} />,
 		};
 	}, [info, handleSearch]);
@@ -96,7 +151,46 @@ const Stage1 = ({ info, handleSearch, changeStage }) => {
 	);
 };
 
-const Stage2 = ({ info, changeStage }) => {
+const Stage2 = ({ info, changeStage, createNewConditionNode }) => {
+	const [stageInfo, setStageInfo] = useState({
+		criteria: conditionOptions?.[0],
+		title: '',
+		moveSteps: MoveStepsOptions?.[0],
+	});
+	const onConditionSelection = useCallback(
+		(data) => {
+			if (data?.value === stageInfo?.priority?.value) {
+				return;
+			}
+			setStageInfo((prev) => ({ ...prev, criteria: data }));
+		},
+		[stageInfo],
+	);
+
+	const onMoveStepsSelection = useCallback(
+		(data) => {
+			if (data?.value === stageInfo?.moveSteps?.value) {
+				return;
+			}
+			setStageInfo((prev) => ({ ...prev, moveSteps: data }));
+		},
+		[stageInfo],
+	);
+
+	const handleChange = useCallback((e) => {
+		setStageInfo((prev) => ({ ...prev, title: e.target.value }));
+	}, []);
+
+	const modifiedHandleClick = useCallback(() => {
+		if (!stageInfo?.title?.length) {
+			return message.error('title is mandatory');
+		}
+		createNewConditionNode({
+			title: stageInfo?.title,
+			status: stageInfo?.criteria?.value,
+			moveTo: stageInfo?.moveSteps?.value,
+		});
+	}, [stageInfo]);
 	return (
 		<div className="createTaskUiContainer">
 			<div className="createTasksUi">
@@ -115,13 +209,64 @@ const Stage2 = ({ info, changeStage }) => {
 					</div>
 				</div>
 
-				{/* //task title */}
+				{/* condition title */}
 				<div className="addTaskTitleContainer">
 					<span className="addTaskTitleTextStyle">Add Title</span>
-					<textarea className="addTaskTitleTextArea" placeholder="Add  Title ...." />
+					<textarea
+						className="addTaskTitleTextArea"
+						placeholder="Add  Title ...."
+						value={stageInfo?.title}
+						onChange={handleChange}
+					/>
+				</div>
+
+				<div className="addTaskTitleContainer">
+					<span className="addTaskTitleTextStyle">Move Steps</span>
+					<HeadersDropDownComp
+						options={MoveStepsOptions}
+						showIcon={false}
+						containerStyle={{
+							...containerStyle,
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{ ...dropDownStyle }}
+						dropDownTextStyling={{ ...dropDownTextStyling }}
+						showSelectedValueTick={true}
+						uniqueIdentifierForTickIcon={'value'}
+						selectedValueObj={stageInfo?.moveSteps}
+						selectedValueStyle={{
+							...selectedValueStyling,
+						}}
+						selectedValue={stageInfo?.moveSteps?.label || ''}
+						onChangeFunc={onMoveStepsSelection}
+					/>
+				</div>
+
+				<div className="addTaskTitleContainer">
+					<span className="addTaskTitleTextStyle">Criteria</span>
+					<HeadersDropDownComp
+						options={conditionOptions}
+						showIcon={false}
+						containerStyle={{
+							...containerStyle,
+						}}
+						outerContainerStyle={{ width: '100%' }}
+						dropDownStyle={{ ...dropDownStyle }}
+						dropDownTextStyling={{ ...dropDownTextStyling }}
+						showSelectedValueTick={true}
+						uniqueIdentifierForTickIcon={'value'}
+						selectedValueObj={stageInfo?.criteria}
+						selectedValueStyle={{
+							...selectedValueStyling,
+						}}
+						selectedValue={stageInfo?.criteria?.label || ''}
+						onChangeFunc={onConditionSelection}
+					/>
 				</div>
 			</div>
-			<div className="actionsSaveButton">Save</div>
+			<div className="actionsSaveButton" onClick={modifiedHandleClick}>
+				{info?.saveLoader ? <Spin /> : 'Save'}
+			</div>
 		</div>
 	);
 };

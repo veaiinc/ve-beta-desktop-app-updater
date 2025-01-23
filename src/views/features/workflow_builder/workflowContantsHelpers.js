@@ -171,6 +171,34 @@ export const statusOptions = [
 	},
 ];
 
+export const conditionOptions = [
+	{
+		label: 'Contract Signed',
+		value: 'contractSigned',
+	},
+
+	{
+		label: 'Proposal Accepted',
+		value: 'proposalAccepted',
+	},
+	// {
+	// 	label: 'Payment is completed',
+	// 	value: 'Payment is completed',
+	// },
+];
+
+export const MoveStepsOptions = [
+	{
+		label: 'Yes',
+		value: 'yes',
+	},
+
+	{
+		label: 'No',
+		value: 'no',
+	},
+];
+
 export const containerStyle = {
 	padding: '12px 24px',
 	height: '44px',
