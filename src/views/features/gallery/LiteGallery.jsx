@@ -58,7 +58,7 @@ const filterOptions = [
 	{ name: 'Updated Date (reverse)', value: '-updatedAt' },
 	{ name: 'Custom', value: 'sortIndex' },
 ];
-const LightGallery = () => {
+const LiteGallery = () => {
 	const {
 		galleryInfo: {
 			getGalleries,
@@ -142,7 +142,7 @@ const LightGallery = () => {
 			const options = {
 				page,
 				limit: info.limit,
-				storeOriginals: true,
+				storeOriginals: false,
 			};
 			if (title) {
 				options.title = title;
@@ -420,4 +420,4 @@ const LightGallery = () => {
 	);
 };
 
-export default LightGallery;
+export default LiteGallery;
