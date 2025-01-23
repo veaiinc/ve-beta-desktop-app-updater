@@ -23,7 +23,12 @@ const moduleHelper = {
 	'/tasks': 'tasks',
 };
 
-const chatIcons = [<Filter />, <Arroba />, <PaperClip />, <Mic />];
+const chatIcons = [
+	{ icon: <Filter />, type: 'filter' },
+	{ icon: <Arroba />, type: 'arroba' },
+	{ icon: <PaperClip />, type: 'fileUpload' },
+	{ icon: <Mic />, type: 'mic' },
+];
 
 const BottomToolbar = ({
 	outerContainerStyle = {},
@@ -44,7 +49,7 @@ const BottomToolbar = ({
 		inputExpanded: false,
 		chatModalIsOpen: false,
 		chatQuery: '',
-		position: { x: 0, y: 0 },
+		position: { x: -325, y: 0 },
 		addQuickAction: false,
 		chatSessionId: ObjectID().toString(),
 	});
@@ -180,6 +185,15 @@ const BottomToolbar = ({
 		[handleAiUploadImage],
 	);
 
+	const handleChatIconClick = (e, type) => {
+		if (type === 'fileUpload') {
+			const file = e?.target?.files[0] ?? false;
+			if (file) {
+				handleChange({ file });
+			}
+		}
+	};
+
 	return (
 		<div
 			ref={toolbarRef}
@@ -243,9 +257,25 @@ const BottomToolbar = ({
 						}
 						onKeyDown={handleSendMessageFunc}
 					/>
-					<div className="chatIcons">
-						{chatIcons?.map((icon, idx) => (
-							<span key={idx}>{icon}</span>
+					<div className="chat-icons-container">
+						{chatIcons?.map((chatIcon, idx) => (
+							<span
+								className="icon-container"
+								onClick={(e) => handleChatIconClick(e, chatIcon?.type)}
+								key={idx}
+							>
+								{chatIcon?.type === 'fileUpload' && (
+									<span className="file-upload-container">
+										<input
+											type="file"
+											accept="image/*"
+											className="file-upload"
+											onChange={(e) => handleChatIconClick(e, chatIcon?.type)}
+										/>
+									</span>
+								)}
+								{chatIcon?.icon}
+							</span>
 						))}
 					</div>
 					{/* <div className="quickActionsButtons">
