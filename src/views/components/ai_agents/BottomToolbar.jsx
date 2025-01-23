@@ -7,7 +7,7 @@ import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.s
 import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
-
+import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
@@ -198,10 +198,12 @@ const BottomToolbar = ({
 				} bottomToolbarChatContainer`}
 			>
 				<div className="bottomToolBarChatHeader">
-					<span>AI Assistant</span>
 					<div style={{ display: 'flex', alignItems: 'center' }}>
 						<button className="closeButton" onClick={handleChatExpand}>
 							<Expand />
+						</button>
+						<button className="closeButton">
+							<ExpandChatIcon />
 						</button>
 						<button className="closeButton" onClick={handleClose}>
 							<Close />
