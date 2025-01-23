@@ -5,6 +5,7 @@ import HeaderInfo from '../../components/homePage/HeaderInfo';
 import PromptPopup from '../../components/homePage/PromptPopup';
 import HomePageDashboard from '../../components/homePage/dashboard/HomePageDashboard';
 import HomePageStart from '../../components/homePage/HomePageStart';
+import { set } from 'lodash';
 
 const cards = [
 	{ id: 0, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },

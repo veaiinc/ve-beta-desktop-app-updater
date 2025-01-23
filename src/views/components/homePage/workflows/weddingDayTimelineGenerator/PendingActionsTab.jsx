@@ -1,17 +1,21 @@
 import React from 'react';
 import '../../../../../assets/scss/home_page/workflows/weddingDayTimelineGenerator.scss';
-
+import { ReactComponent as CheckIcon } from '../../../../../assets/svg/home_page/workflows/Check.svg';
 const PendingActionsTab = () => {
 	return (
-		<div className="pending-actions-tab-container">
-			<div className="pending-actions-tab-item-content">
-				<div className="pending-actions-tab-item-left-text">All Enquires</div>
-				<div className="pending-actions-tab-item-right-text">36</div>
+		<div className="workflow-container">
+			<div className="workflow-inner-card">
+				<span className="left-text">All Enquires</span>
+				<span className="right-text">
+					<CheckIcon />
+				</span>
 			</div>
 
-			<div className="pending-actions-tab-item-content">
-				<div className="pending-actions-tab-item-left-text">Smart File Sent</div>
-				<div className="pending-actions-tab-item-right-text">63</div>
+			<div className="workflow-inner-card">
+				<span className="left-text">All Enquires</span>
+				<span className="right-text">
+					<CheckIcon />
+				</span>
 			</div>
 		</div>
 	);

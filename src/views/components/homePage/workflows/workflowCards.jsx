@@ -1,12 +1,13 @@
 import { memo, useMemo, useState } from 'react';
 import '../../../../assets/scss/home_page/workflows/weddingDayTimelineGenerator.scss';
-import '../../../../assets/scss/home_page/workflows/workflowWeddingDayCard.scss';
+import '../../../../assets/scss/home_page/workflows/promptCard.scss';
 import StepsTab from './weddingDayTimelineGenerator/StepsTab';
 import InsightTab from './weddingDayTimelineGenerator/InsightTab';
 import PendingActionsTab from './weddingDayTimelineGenerator/PendingActionsTab';
 import FilesTab from './weddingDayTimelineGenerator/FilesTab';
 import PromptPopup from '../PromptPopup';
 import { clearConfigCache } from 'prettier';
+import { ReactComponent as ThreeDotsVerticalIcon } from '../../../../assets/svg/home_page/workflows/DotsThreeVertical.svg';
 
 const options = [
 	{
@@ -16,8 +17,8 @@ const options = [
 	},
 	{
 		id: 2,
-		title: 'Insight',
-		value: 'Insight',
+		title: 'Insights',
+		value: 'Insights',
 	},
 	{
 		id: 3,
@@ -37,7 +38,7 @@ const WeddingDayTimelineGeneratorCard = memo(() => {
 	const componentMapper = useMemo(() => {
 		return {
 			Steps: <StepsTab />,
-			Insight: <InsightTab />,
+			Insights: <InsightTab />,
 			'Pending actions': <PendingActionsTab />,
 			files: <FilesTab />,
 		};
@@ -49,6 +50,7 @@ const WeddingDayTimelineGeneratorCard = memo(() => {
 				<div className="wedding-day-timeline-generator-header-text">
 					Wedding Day Timeline Generator
 				</div>
+				<ThreeDotsVerticalIcon />
 			</div>
 			<div className="wedding-day-timeline-generator-options-container">
 				{options?.map((option, idx) => {
@@ -70,7 +72,7 @@ const WeddingDayTimelineGeneratorCard = memo(() => {
 	);
 });
 
-const WorkflowWeddingDayCard = memo(() => {
+const PromptCard = memo(() => {
 	const [info, setInfo] = useState({
 		showPromptPopup: false,
 		selectedCard: null,
@@ -79,11 +81,11 @@ const WorkflowWeddingDayCard = memo(() => {
 	return (
 		<>
 			<div
-				className="workflow-wedding-day-container"
+				className="prompt-card-container"
 				onClick={() => setInfo((prev) => ({ ...prev, showPromptPopup: true }))}
 			>
-				<div className="workflow-wedding-day-sub-title">Workflow</div>
-				<div className="workflow-wedding-day-title">Wedding Day Timeline Generator</div>
+				<div className="sub-title">Workflow</div>
+				<div className="title">Wedding Day Timeline Generator</div>
 			</div>
 			<PromptPopup
 				open={info?.showPromptPopup}
@@ -98,4 +100,4 @@ const WorkflowWeddingDayCard = memo(() => {
 	);
 });
 
-export { WeddingDayTimelineGeneratorCard, WorkflowWeddingDayCard };
+export { WeddingDayTimelineGeneratorCard, PromptCard };

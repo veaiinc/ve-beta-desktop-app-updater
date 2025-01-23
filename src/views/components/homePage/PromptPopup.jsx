@@ -6,7 +6,8 @@ import { ReactComponent as EmailPromptSvg } from '../../../assets/svg/home_page/
 import { ReactComponent as DropdownArrow } from '../../../assets/svg/chat/downArrow.svg';
 import '../../../assets/scss/home_page/promptPopup.scss';
 import { Tooltip } from 'antd';
-
+import FilterPopUp from '../globalComponents/FilterPopUp';
+import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
 const files = [
 	'My Templates',
 	'Wedding Proposals',
@@ -15,10 +16,27 @@ const files = [
 	'Resume.pdf',
 ];
 
+const clientOptions = [
+	{ id: 0, title: 'Ankit', value: 'Ankit' },
+	{ id: 1, title: 'Ismail', value: 'Ismail' },
+	{ id: 2, title: 'Avinash', value: 'Avinash' },
+];
+
+const Prompt =
+	'Gather the wedding schedule details from the option questionnaire and generate a detailed photography timeline. Include location travel times, setup durations, and buffer for unexpected delays';
+
 const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	const [searchText, setSearchText] = useState('');
 	const [selectedOptions, setSelectedOptions] = useState({});
 	const [isOpen, setIsOpen] = useState(false);
+	const [clientSearch, setClientSearch] = useState('');
+	const [dynamicPrompt, setDynamicPrompt] = useState('');
+	const [expandedChat, setExpandedChat] = useState(false);
+
+	const handlePromptData = (clientSearch) => {
+		const prompt = Prompt.replace('{option}', clientSearch);
+		setDynamicPrompt(prompt);
+	};
 
 	const handleSelectedFile = (file) => {
 		if (!selectedOptions?.[selectedCard?.id]?.some((f) => f === file)) {
@@ -31,6 +49,11 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 				};
 			});
 		}
+	};
+
+	const handleClientSearch = (value) => {
+		setClientSearch(value?.title);
+		console.log(clientSearch, 'clientSearch');
 	};
 
 	const handleRemoveSelectedFile = (file) => {
@@ -49,6 +72,11 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 
 			return updatedOptions;
 		});
+	};
+
+	const handleRunPrompt = () => {
+		setIsOpen(false);
+		setExpandedChat(true);
 	};
 
 	return (
@@ -75,19 +103,29 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 						<Tooltip
 							placement="bottom"
 							title={
-								<div className="promptPopupContainerBodyTextTooltip">Client</div>
+								<FilterPopUp
+									options={clientOptions}
+									searchInput={true}
+									searchInputPlaceholder="Search Client"
+									searchValue={clientSearch}
+									onOptionClick={(option) => handleClientSearch(option)}
+									setSearchValue={handleClientSearch}
+								/>
 							}
 							open={isOpen}
-							trigger="click"
 							color="transparent"
+							trigger="click"
 							arrow={false}
 						>
-							<span onClick={() => setIsOpen(!isOpen)}>
+							<span
+								onClick={() => setIsOpen(!isOpen)}
+								className="promptPopupContainerBodyTextTooltip"
+							>
 								client <DropdownArrow />
 							</span>
 						</Tooltip>
-						questionnaire and generate a detailed photography timeline. Include location
-						travel times, setup durations, and buffer for unexpected delays.
+						{''}questionnaire and generate a detailed photography timeline. Include
+						location travel times, setup durations, and buffer for unexpected delays.
 					</div>
 					<div className="promptPopupContainerEmailPromptContainer">
 						<div className="promptPopupContainerEmailPrompt">Edit Prompt</div>
@@ -143,8 +181,16 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 						})}
 					</div>
 				</div>
-				<button className="promptPopupContainerRunButton">Run</button>
+				<button className="promptPopupContainerRunButton" onClick={() => handleRunPrompt()}>
+					Run
+				</button>
 			</div>
+			<ToolBarChatContainerModal
+				modalIsOpen={expandedChat}
+				onClose={() => setExpandedChat(false)}
+				chatQuery={Prompt}
+				isChatExpanded={true}
+			/>
 		</ReactModal>
 	);
 };

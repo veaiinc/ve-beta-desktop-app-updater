@@ -203,7 +203,11 @@
 		flex-direction: column;
 		justify-content: flex-end;
 		padding: 24px;
-
+		&.expanded {
+			padding: 24px 200px;
+			justify-content: center;
+			background: #0E0F0F;
+		}
 		.chatContent {
 			display: flex;
 			flex-direction: column;
@@ -254,6 +258,13 @@
 		align-items: flex-start;
 		gap: 12px;
 		background: #202123;
+
+		&.expanded {
+			width: 650px;
+			align-self: center;
+			margin-bottom: 20px;
+			border-radius: 16px;
+		}
 
 		.toolBarExpandedTextArea {
 			width: 100%;

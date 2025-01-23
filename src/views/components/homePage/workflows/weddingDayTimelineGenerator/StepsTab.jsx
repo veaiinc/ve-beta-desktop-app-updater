@@ -4,15 +4,15 @@ import '../../../../../assets/scss/home_page/workflows/weddingDayTimelineGenerat
 
 const StepsTab = () => {
 	return (
-		<div className="steps-tab-container">
-			<div className="steps-tab-item-content">
-				<div className="steps-tab-item-left-text">Enquiry</div>
-				<div className="steps-tab-item-right-text">11</div>
+		<div className="workflow-container">
+			<div className="workflow-inner-card">
+				<div className="left-text">Enquiry</div>
+				<div className="right-text">11</div>
 			</div>
 
-			<div className="steps-tab-item-content">
-				<div className="steps-tab-item-left-text">Smart File Sent</div>
-				<div className="steps-tab-item-right-text">34</div>
+			<div className="workflow-inner-card">
+				<div className="left-text">Enquiry</div>
+				<div className="right-text">11</div>
 			</div>
 		</div>
 	);

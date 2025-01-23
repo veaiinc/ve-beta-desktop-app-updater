@@ -8,6 +8,7 @@ import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import moment from 'moment';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
+import { ReactComponent as ThreeDotsVerticalIcon } from '../../../assets/svg/home_page/workflows/DotsThreeVertical.svg';
 let origin = fetchOriginSelection();
 
 const CreateCards = () => {
@@ -157,7 +158,7 @@ const Activity = memo(() => {
 		<div className="aiAgentsAcitivityContainer">
 			<div className="createCardsHeader">
 				<span className="createCardsHeaderTexct">Activity</span>
-				<Loader />
+				<ThreeDotsVerticalIcon />
 			</div>
 
 			<div style={{ width: '100%' }}>
@@ -167,11 +168,17 @@ const Activity = memo(() => {
 					hasMore={info?.hasNextPage}
 					loader={<FetchMoreLoaderComp />}
 					style={{
+						// display: 'flex',
+						// flexDirection: 'column',
+						// gap: '8px',
+						// width: '100%',
+						// padding: '0px 20px 0px 20px',
 						display: 'flex',
 						flexDirection: 'column',
+						alignItems: 'flex-start',
 						gap: '8px',
-						width: '100%',
-						padding: '0px 20px 0px 20px',
+						flex: '1 0 0',
+						alignSelf: 'stretch',
 					}}
 					height={'340px'}
 				>
@@ -183,11 +190,11 @@ const Activity = memo(() => {
 							>
 								{ele?.summary || ''}
 							</span>
-							<div className="aiAgentsActivityCardsSubTextHolder">
-								<span className="aiAgentsActivityCardTime">
-									{ele?.timestamp ? formatTimestamp(ele?.timestamp) : ''}
-								</span>
-							</div>
+
+							<div className="aiAgentsActivityCardsSubText">text</div>
+							<span className="aiAgentsActivityCardTime">
+								{ele?.timestamp ? formatTimestamp(ele?.timestamp) : ''}
+							</span>
 						</div>
 					))}
 				</InfiniteScroll>
@@ -280,9 +287,10 @@ const Drafts = memo(() => {
 	}, []);
 
 	return (
-		<div className="aiAgentsAcitivityContainer">
+		<div className="aiAgentsDraftsContainer">
 			<div className="createCardsHeader">
 				<span className="createCardsHeaderTexct">Drafts</span>
+				<ThreeDotsVerticalIcon />
 			</div>
 
 			<div style={{ width: '100%' }}>
@@ -305,40 +313,38 @@ const Drafts = memo(() => {
 							display: 'flex',
 							flexDirection: 'column',
 							gap: '8px',
-							width: '100%',
-							padding: '0px 20px 0px 20px',
+							flex: '1 0 0',
 						}}
 						height={'340px'}
 					>
 						{info?.draftData?.map((ele, index) => (
 							<div
-								className="aiAgentsActivityCards"
+								className="aiAgentsDraftsCard"
 								key={index}
 								style={{
-									justifyContent: 'center',
+									// justifyContent: 'center',
 									minHeight: '63px',
 									cursor: 'pointer',
 								}}
 								onClick={() => onDraftClick(ele?._id)}
 							>
-								<div className="aiAgentsActivityCardsSubTextHolder">
-									<span
-										className="aiAgentsActivityCardssubTextStyling"
-										style={{
-											fontFamily: 'Inter',
-											fontSize: '12px',
-											fontStyle: 'normal',
-											fontWeight: '500',
-											lineHeight: 'normal',
-											color: '#E8E8E8',
-										}}
-									>
-										{ele?.title}
-									</span>
-									<span className="aiAgentsActivityCardTime">
-										{ele?.createdAt ? formatTimestamp(ele?.createdAt) : ''}
-									</span>
-								</div>
+								<span className="aiAgentsDraftsCardIcon"></span>
+								<span
+									className="aiAgentsDraftsCardText"
+									style={{
+										fontFamily: 'Inter',
+										fontSize: '12px',
+										fontStyle: 'normal',
+										fontWeight: '500',
+										lineHeight: 'normal',
+										color: '#E8E8E8',
+									}}
+								>
+									{ele?.title}
+								</span>
+								<span className="aiAgentsDraftsCardTime">
+									{ele?.createdAt ? formatTimestamp(ele?.createdAt) : ''}
+								</span>
 							</div>
 						))}
 					</InfiniteScroll>
@@ -350,21 +356,22 @@ const Drafts = memo(() => {
 
 const Notes = memo(() => {
 	return (
-		<div className="aiAgentsAcitivityContainer">
+		<div className="aiAgentsNotesContainer">
 			<div className="createCardsHeader">
 				<span className="createCardsHeaderTexct">Notes</span>
+				<ThreeDotsVerticalIcon />
 			</div>
 
-			<div className="aiAgentsActivityCards">
+			<div className="aiAgentsNotesCard">
 				<span
-					className="aiAgentsActivityCardsHeaderText"
+					className="aiAgentsNotesCardHeaderText"
 					style={{ textTransform: 'capitalize' }}
 				>
-					updated
+					jgkrke
 				</span>
-				<div className="aiAgentsActivityCardsSubTextHolder">
-					<span className="aiAgentsActivityCardTime">a day ago</span>
-				</div>
+
+				<div className="aiAgentsNotesCardSubText">text</div>
+				<span className="aiAgentsNotesCardTime">a day ago</span>
 			</div>
 		</div>
 	);
