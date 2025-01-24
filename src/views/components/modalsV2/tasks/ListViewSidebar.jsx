@@ -110,11 +110,6 @@ const ListViewSidebar = ({
 		}
 	}, [subTasks, selectedRow?._id, isShowingSubTask, getSubTasks]);
 
-	useEffect(() => {
-		console.log('responseMetadata changed:', responseMetadata);
-		console.log('assignTo props:', responseMetadata?.assignedTo?.props);
-	}, [responseMetadata]);
-
 	const debouncedTitleUpdate = useCallback(
 		(value) => {
 			if (titleDebounceRef.current) {
@@ -194,7 +189,7 @@ const ListViewSidebar = ({
 					isTitle = false,
 					props = {},
 				} = responseMetadata[key] || {};
-				console.log('responseMetadata', props);
+
 				if (
 					[
 						'__typename',
@@ -232,22 +227,16 @@ const ListViewSidebar = ({
 									title={name}
 									showLabel
 									defaultLabel={'Not selected'}
-									{...(type === 'date' ? { format: 'MMM DD, YYYY h:mm A' } : {})}
+									options={props.options}
+									multiSelect={props.multiSelect}
+									parseValue={props.parseValue}
+									disabled={props.disabled}
 									{...props}
 									onOptionClick={(value) =>
 										handleUpdate(row._id, key, value, isShowingSubTask)
 									}
 									colors={colors}
 									takeFullspace={true}
-									onUpdate={(value, onSuccess) =>
-										handleUpdate(
-											row._id,
-											key,
-											value,
-											isShowingSubTask,
-											onSuccess,
-										)
-									}
 								/>
 							) : (
 								<div key={key}>{value}</div>
@@ -259,7 +248,7 @@ const ListViewSidebar = ({
 
 			return listItems;
 		},
-		[isShowingSubTask, responseMetadata, rowTypes, handleUpdate],
+		[responseMetadata, rowTypes, handleUpdate, isShowingSubTask, colors],
 	);
 
 	const generateSkeleton = useCallback(() => {
