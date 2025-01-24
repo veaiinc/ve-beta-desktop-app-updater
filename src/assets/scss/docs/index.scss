@@ -6,24 +6,46 @@
 	flex-direction: column;
 	gap: 36px;
 	// background-color: red;
+
+	.docsHeaderTitleContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		width: fit-content;
+
+		font-family: Inter;
+		font-size: 40px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 43px;
+
+		.lineOne {
+			color: #f2f2f3;
+			color: color(display-p3 0.949 0.949 0.9529);
+		}
+		.lineTwo {
+			color: color(display-p3 0.4865 0.4865 0.5135);
+		}
+	}
+
 	.docsParentHeaderContainer {
 		display: flex;
 		align-items: flex-start;
 		gap: 24px;
+
 		.docsHeaderButtons {
 			display: flex;
-			flex: 1;
-			height: 91px;
-			padding: 16px 24px;
+			padding: 32px;
 			flex-direction: column;
 			justify-content: center;
 			align-items: flex-start;
 			gap: 6px;
+			flex: 1 0 0;
 			border-radius: 14px;
-			border: 1px solid #1d1d1d;
-			border: 1px solid color(display-p3 0.1133 0.1133 0.1133);
-			background: #151515;
+			background: #171819;
+			background: color(display-p3 0.0902 0.0941 0.098);
 			cursor: pointer;
+
 			.docsHeaderButtonsTitle {
 				color: #e4e5e6;
 				color: color(display-p3 0.8941 0.898 0.902);
@@ -34,39 +56,58 @@
 				line-height: normal;
 			}
 			.docsHeaderSubButtonsSubTitleColored {
-				color: #e4e5e6;
-				color: color(display-p3 0.8941 0.898 0.902);
-				text-align: center;
+				color: #7c7c84;
+				color: color(display-p3 0.4865 0.4865 0.5135);
 				font-family: Inter;
-				font-size: 13px;
+				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+
+				&.colorful {
+					background: linear-gradient(94deg, #ca9bfe -2.06%, #fd749d 95.85%);
+					background: linear-gradient(
+						94deg,
+						color(display-p3 0.7647 0.6157 0.9725) -2.06%,
+						color(display-p3 0.9255 0.4863 0.6157) 95.85%
+					);
+					background-clip: text;
+					-webkit-background-clip: text;
+					-webkit-text-fill-color: transparent;
+				}
 			}
-			.docsHeaderSubButtonsSubTitle {
-				color: rgba(228, 229, 230, 0.48);
-				color: color(display-p3 0.8941 0.898 0.902 / 0.48);
-				font-family: Inter;
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: normal;
-			}
-		}
-		.docsHeaderButtons.colorful {
-			background: var(
-				--Ai-Gradient,
-				linear-gradient(93deg, #6254f5 -33.59%, #6ff7c3 111.1%),
-				linear-gradient(94deg, #00d4f9 -4.83%, #00ebc3 102.81%)
-			);
 		}
 	}
+
 	.docsTemplatesContainer {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 24px;
 		align-self: stretch;
+
+		.promptHeader {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			align-self: stretch;
+			user-select: none;
+
+			color: #f2f2f3;
+			color: color(display-p3 0.949 0.949 0.9529);
+			font-family: Inter;
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+
+			svg {
+				cursor: pointer;
+				width: 16px;
+				height: 16px;
+			}
+		}
+
 		.docsTemplatesContainerHeader {
 			display: flex;
 			justify-content: space-between;
@@ -95,6 +136,7 @@
 				line-height: normal;
 			}
 		}
+
 		.docsTemplateContainer {
 			display: flex;
 			align-items: flex-start;
@@ -104,18 +146,19 @@
 			padding-bottom: 16px;
 			.createStaticActionsCards {
 				display: flex;
-				width: 213px;
-				height: 128px;
-				padding: 20px;
+				height: 220px;
+				width: 269px;
+				padding: 24px;
 				flex-direction: column;
 				align-items: flex-start;
-				gap: 12px;
-				border-radius: 24px;
-				background: var(--card, #171819);
-				background: var(--card, color(display-p3 0.0902 0.0941 0.098));
-				cursor: pointer;
 				flex-shrink: 0;
-				.createStaticActionsCardsTitle {
+				gap: 8px;
+				border-radius: 24px;
+				background: #171819;
+				background: color(display-p3 0.0902 0.0941 0.098);
+				cursor: pointer;
+
+				.createStaticActionsCardsSubTitle {
 					color: var(--Primary-Font, #f2f2f3);
 					color: var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
 					font-family: Inter;
@@ -125,7 +168,7 @@
 					line-height: normal;
 				}
 
-				.createStaticActionsCardsSubTitle {
+				.createStaticActionsCardsTitle {
 					color: var(--Secondary-Font, #787e87);
 					color: var(--Secondary-Font, color(display-p3 0.4784 0.4941 0.5216));
 					font-family: Inter;
