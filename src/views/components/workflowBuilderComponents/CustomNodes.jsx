@@ -7,6 +7,10 @@ import { ReactComponent as IfElse } from '../../../assets/svg/worflow_builder/cu
 
 import { ReactComponent as Slack } from '../../../assets/svg/worflow_builder/buildercard/slack.svg';
 import { ReactComponent as Google } from '../../../assets/svg/worflow_builder/buildercard/google.svg';
+
+import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/buildercard/labelledDustbin.svg';
+import { ReactComponent as Copy } from '../../../assets/svg/worflow_builder/buildercard/labelledCopy.svg';
+import { ReactComponent as Eye } from '../../../assets/svg/worflow_builder/buildercard/labelledEye.svg';
 export const TriggerNode = ({ data }) => {
 	const onAddOptionsClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
@@ -77,6 +81,19 @@ export const ActionNode = ({ data }) => {
 			</div>
 			<Handle type="source" position={Position.Bottom} />
 			<Handle type="target" position={Position.Top} />
+			<NodeToolbar isVisible={true} position={'right'}>
+				<div className="rightNodeToolBar">
+					<span>
+						<Eye />
+					</span>
+					<span>
+						<Copy />
+					</span>
+					<span>
+						<Dustbin />
+					</span>
+				</div>
+			</NodeToolbar>
 		</div>
 	);
 };
@@ -105,17 +122,10 @@ export const EndNode = ({ data }) => {
 	return (
 		<div className="action-node">
 			<div className="upper-action-node-container">
-				<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-					{/* <IfElse /> */}
-					End Node
-				</span>
+				<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>End Node</span>
 				<span> End</span>
 			</div>
-			{/* <div className="lower-action-node-container">
-				<span className="lower-action-node-title">Post editing</span>
-				<span className="lower-action-node-subtitle">Post editing for client abhiloss</span>
-			</div> */}
-			{/* <Handle type="source" position={Position.Bottom} /> */}
+
 			<Handle type="target" position={Position.Top} />
 		</div>
 	);
