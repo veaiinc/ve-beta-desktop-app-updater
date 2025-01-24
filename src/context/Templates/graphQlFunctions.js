@@ -124,8 +124,8 @@ export const getSpecificWorkflowTemplateDetailsQuery = gql`
 `;
 
 export const deleteWorkflowStepQuery = gql`
-	mutation DeleteStep($templateId: ID!, $stepId: ID!) {
-		deleteStep(templateId: $templateId, stepId: $stepId) {
+	mutation RemoveStep($removeStepInput: RemoveStepInput) {
+		removeStep(removeStepInput: $removeStepInput) {
 			message
 		}
 	}

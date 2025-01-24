@@ -169,6 +169,9 @@ const WorkflowBuilderUpdated = () => {
 				data: {
 					...currentStep,
 					onToolBarOpen: handleToolBarOpen,
+					stepsMapper: stepsMapper,
+					templateId: templateId,
+					refetchWorkflowBuilderData: refetchWorkflowBuilderData,
 				},
 			});
 
@@ -342,6 +345,13 @@ const WorkflowBuilderUpdated = () => {
 			return navigate('/home');
 		}
 	}, [info?.publishLoading, specificTemplatesInfo]);
+
+	const refetchWorkflowBuilderData = useCallback(async () => {
+		await getSpecificTemplatesInfo({
+			templateInfoId: templateId,
+		});
+		return [true];
+	}, []);
 
 	const refreshSalesModuleData = useCallback(async () => {
 		const payload = {

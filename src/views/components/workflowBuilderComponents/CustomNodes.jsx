@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Handle, NodeToolbar, Position } from '@xyflow/react';
 import '../../../assets/scss/workflowBuilder/customNodes.scss';
 import { ReactComponent as Form } from '../../../assets/svg/worflow_builder/customNodes/form.svg';
@@ -11,6 +11,7 @@ import { ReactComponent as Google } from '../../../assets/svg/worflow_builder/bu
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/buildercard/labelledDustbin.svg';
 import { ReactComponent as Copy } from '../../../assets/svg/worflow_builder/buildercard/labelledCopy.svg';
 import { ReactComponent as Eye } from '../../../assets/svg/worflow_builder/buildercard/labelledEye.svg';
+import UpdatedDeleteWorkflowStep from '../modalsV2/workflowBuilderModals/UpdatedDeleteStepsModal';
 export const TriggerNode = ({ data }) => {
 	const onAddOptionsClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
@@ -64,8 +65,25 @@ const actionTypeIconMapper = {
 };
 
 export const ActionNode = ({ data }) => {
+	const [info, setInfo] = useState({
+		deleteModal: false,
+		showRightToolbar: false,
+	});
+
+	const handleCloseDeleteModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, deleteModal: false }));
+	}, [info]);
+
+	const handleShowRightToolbar = useCallback(() => {
+		setInfo((prev) => ({ ...prev, showRightToolbar: !prev?.showRightToolbar }));
+	}, [info]);
+
 	return (
-		<div className="action-node">
+		<div
+			className="action-node"
+			onMouseEnter={handleShowRightToolbar}
+			onMouseLeave={handleShowRightToolbar}
+		>
 			<div className="upper-action-node-container">
 				<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 					{actionTypeIconMapper[data?.channels?.[0] || data?.actionType]}
@@ -81,7 +99,7 @@ export const ActionNode = ({ data }) => {
 			</div>
 			<Handle type="source" position={Position.Bottom} />
 			<Handle type="target" position={Position.Top} />
-			<NodeToolbar isVisible={true} position={'right'}>
+			<NodeToolbar isVisible={info?.showRightToolbar} position={'right'}>
 				<div className="rightNodeToolBar">
 					<span>
 						<Eye />
@@ -89,11 +107,20 @@ export const ActionNode = ({ data }) => {
 					<span>
 						<Copy />
 					</span>
-					<span>
+					<span onClick={() => setInfo((prev) => ({ ...prev, deleteModal: true }))}>
 						<Dustbin />
 					</span>
 				</div>
 			</NodeToolbar>
+			<UpdatedDeleteWorkflowStep
+				modalIsOpen={info?.deleteModal}
+				closeModal={handleCloseDeleteModal}
+				templateId={data?.templateId}
+				stepId={data?._id}
+				workflowdata={data}
+				refetchWorkflowBuilderData={data?.refetchWorkflowBuilderData}
+				stepsMapper={data?.stepsMapper}
+			/>
 		</div>
 	);
 };
