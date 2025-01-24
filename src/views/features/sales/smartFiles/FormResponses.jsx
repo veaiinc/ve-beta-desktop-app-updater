@@ -177,7 +177,6 @@ const FormResponses = ({ workflowData }) => {
 
 	const [info, setInfo] = useState({
 		formResponse: null,
-		// uploadedFileType: null,
 	});
 
 	const formAnswer = (type, answer) => {
@@ -204,16 +203,6 @@ const FormResponses = ({ workflowData }) => {
 		if (formResponseData) {
 			const sortedResponse = formResponseData?.response?.sort((a, b) => a?.order - b?.order);
 
-			// File types can be png, jpg, pdf, csv etc, need to handle this later on...
-
-			// const fileUploadResponse = sortedResponse?.filter(
-			// 	(formData) => formData?.type === 'fileUpload',
-			// );
-			// const uploadedFileType = fileUploadResponse?.map((file) => {
-			// 	const url = file?.answer;
-			// 	const extension = url?.split('.').pop().split('?')[0];
-			// 	return { _id: file?._id, extension };
-			// });
 			setInfo((prev) => ({ ...prev, formResponse: sortedResponse })); // TODO: setInfo((prev) => ({ ...prev, formResponse: sortedResponse, uploadedFileType }));
 		}
 	}, [formResponseData]);
