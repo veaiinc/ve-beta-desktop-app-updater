@@ -13,6 +13,14 @@ import EditAndViewEmailTemplateModal from '../../modalsV2/workflowBuilderModals/
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import { message, Spin } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
+import {
+	containerStyle,
+	dropDownStyle,
+	dropDownTextStyling,
+	selectedValueStyling,
+} from '../../../features/workflow_builder/workflowContantsHelpers';
 
 const notificationList = {
 	Google: { title: 'Google', notification: ['Send Email'], icon: <Google />, id: 'email' },
@@ -20,7 +28,7 @@ const notificationList = {
 		title: 'Slack',
 		notification: ['Send Slack Message', 'Send Slack Actions'],
 		icon: <Slack />,
-		id: 'Slack',
+		id: 'slack',
 	},
 };
 
@@ -39,8 +47,9 @@ const initialState = {
 	includeSmartFile: false,
 	selectedChannel: null,
 	emailTitle: '',
+	slackMessage: '',
 };
-const Notification = ({ onCLose, templateId, activeEdge }) => {
+const Notification = ({ onCLose, templateId, activeEdge, slackConnected, googleConnected }) => {
 	const {
 		templates: {
 			allEmailTemplates,
@@ -50,6 +59,7 @@ const Notification = ({ onCLose, templateId, activeEdge }) => {
 			getMyWorkflows,
 			myWorkflows,
 			myMoreWorkflows,
+			slackChannels,
 		},
 	} = useContext(Context);
 
@@ -85,6 +95,25 @@ const Notification = ({ onCLose, templateId, activeEdge }) => {
 		}
 	}, [myMoreWorkflows]);
 
+	useEffect(() => {
+		if (slackChannels) {
+			let options = [];
+
+			for (let i = 0; i < slackChannels?.length; i++) {
+				options?.push({
+					label: slackChannels?.[i]?.name,
+					value: slackChannels?.[i].id,
+				});
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				selectedSlackChannel: options?.[0],
+				slackChannelsOptions: options,
+			}));
+		}
+	}, [slackChannels]);
+
 	const handleSelectEmailTemplate = useCallback(
 		(data) => {
 			if (data?._id === info?.selectedTemplate?._id) {
@@ -96,6 +125,10 @@ const Notification = ({ onCLose, templateId, activeEdge }) => {
 	);
 	const handleSearch = (e) => {
 		setInfo((prev) => ({ ...prev, search: e.target.value, searchChanged: true }));
+	};
+
+	const handleSlackMessageChange = (e) => {
+		setInfo((prev) => ({ ...prev, slackMessage: e.target.value }));
 	};
 
 	const handleDebouce = useCallback(() => {
@@ -234,12 +267,64 @@ const Notification = ({ onCLose, templateId, activeEdge }) => {
 		setInfo((prev) => ({ ...prev, saveLoader: false }));
 	}, [info]);
 
+	const createNewNotificationSlackNode = useCallback(async () => {
+		if (info?.saveLoader) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, saveLoader: true }));
+		const previousStepId = activeEdge?.split('-')?.[0];
+
+		const payload = {
+			stepInput: {
+				actionType: 'notification',
+				previousStepId: previousStepId,
+				type: 'action',
+				title: info?.title,
+				channels: info?.selectedChannel,
+				slackChannelId: info?.selectedSlackChannel?.value,
+				slackMessage: info?.slackMessage,
+			},
+			templateId: templateId,
+		};
+
+		const response = await addNewSteps(payload);
+		if (response?.[0]) {
+			const updatedSmartFileInfo = { ...(specificTemplatesInfo || {}) };
+			updatedSmartFileInfo.steps = [...(response?.[1]?.steps || [])];
+			updateStateValues({ specificTemplatesInfo: updatedSmartFileInfo });
+			onCLose();
+		}
+		setInfo((prev) => ({ ...prev, saveLoader: false }));
+	}, [info]);
+
 	const handleEmailTitleChange = useCallback((e) => {
 		setInfo((prev) => ({ ...prev, title: e.target.value }));
 	}, []);
+
+	const onChangeSlackChannels = useCallback(
+		(data) => {
+			let obj = {};
+			// if (mode === 'edit') {
+			// 	obj = { madeEditChanges: true };
+			// }
+			if (data?.value === info?.selectedSlackChannel?.value) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, selectedSlackChannel: data, ...obj }));
+		},
+		[info?.selectedChannel],
+	);
 	const stageMapper = useMemo(() => {
 		return {
-			stage1: <Stage1 info={info} handleSearch={handleSearch} changeStage={changeStage} />,
+			stage1: (
+				<Stage1
+					info={info}
+					handleSearch={handleSearch}
+					changeStage={changeStage}
+					slackConnected={slackConnected}
+					googleConnected={googleConnected}
+				/>
+			),
 			stage2: (
 				<Stage2
 					changeStage={changeStage}
@@ -269,6 +354,16 @@ const Notification = ({ onCLose, templateId, activeEdge }) => {
 					selectedSmartFileTemplate={info?.selectedSmartFileTemplate}
 				/>
 			),
+			stage5: (
+				<Stage5
+					info={info}
+					changeStage={changeStage}
+					handleEmailTitleChange={handleEmailTitleChange}
+					handleSlackMessageChange={handleSlackMessageChange}
+					onChangeSlackChannels={onChangeSlackChannels}
+					createNewNotificationSlackNode={createNewNotificationSlackNode}
+				/>
+			),
 		};
 	}, [info, handleSearch]);
 
@@ -286,10 +381,22 @@ const Notification = ({ onCLose, templateId, activeEdge }) => {
 
 export default memo(Notification);
 
-const Stage1 = ({ info, handleSearch, changeStage }) => {
+const Stage1 = ({ info, handleSearch, changeStage, googleConnected, slackConnected }) => {
+	const navigate = useNavigate();
 	const notificationsListOnClick = useCallback((data) => {
 		if (data?.id === 'email') {
-			changeStage({ activeStage: 'stage2', selectedChannel: data?.id });
+			if (googleConnected) {
+				changeStage({ activeStage: 'stage2', selectedChannel: data?.id });
+			} else {
+				navigate('/settings/integrations');
+			}
+		}
+		if (data?.id === 'slack') {
+			if (slackConnected) {
+				changeStage({ activeStage: 'stage5', selectedChannel: data?.id });
+			} else {
+				navigate('/settings/integrations');
+			}
 		}
 	}, []);
 	return (
@@ -532,6 +639,91 @@ const Stage4 = ({
 					</div>
 				))}
 			</InfiniteScroll>
+		</div>
+	);
+};
+
+const Stage5 = ({
+	info,
+	changeStage,
+	handleEmailTitleChange,
+	onChangeSlackChannels,
+	handleSlackMessageChange,
+	createNewNotificationSlackNode,
+}) => {
+	const modifiedSaveClick = useCallback(() => {
+		if (!info?.title?.length) {
+			return message.error('title is mandatory');
+		}
+		createNewNotificationSlackNode();
+	}, [createNewNotificationSlackNode, info]);
+
+	return (
+		<div className="createTaskUiContainer">
+			<div className="createTasksUi">
+				<div className="createTasksHeadingContainer">
+					<div className="createHeadingLabelContainer">
+						<div className="createTaskHeadingLabel">
+							<span className="actionsCreateHeader">Send Notification</span>
+							<span className="createTaskHeading">Send Slack Message</span>
+						</div>
+						<div
+							className="changeActionStageButton"
+							onClick={() => changeStage({ activeStage: 'stage1' })}
+						>
+							Change
+						</div>
+					</div>
+				</div>
+
+				{/* //task title */}
+				<div className="addTaskTitleContainer">
+					<span className="addTaskTitleTextStyle">Add Slack Title</span>
+					<textarea
+						className="addTaskTitleTextArea"
+						placeholder="Add Slack description..."
+						value={info?.title}
+						onChange={handleEmailTitleChange}
+					/>
+				</div>
+				<div className="addTaskTitleContainer">
+					<span className="addTaskTitleTextStyle">Inputs</span>
+					<div className="actionDropDownContainer" style={{ marginTop: '18px' }}>
+						<span className="actionTitle">Slack Channel</span>
+						<HeadersDropDownComp
+							options={info?.slackChannelsOptions}
+							selectedValue={info?.selectedSlackChannel?.label}
+							onChangeFunc={onChangeSlackChannels}
+							showIcon={false}
+							containerStyle={{
+								...containerStyle,
+							}}
+							outerContainerStyle={{ width: '100%' }}
+							dropDownStyle={{ ...dropDownStyle }}
+							dropDownTextStyling={{ ...dropDownTextStyling }}
+							showSelectedValueTick={true}
+							uniqueIdentifierForTickIcon={'value'}
+							selectedValueObj={info?.selectedSlackChannel}
+							selectedValueStyle={{
+								...selectedValueStyling,
+							}}
+						/>
+					</div>
+
+					<div className="actionDropDownContainer" style={{ marginTop: '18px' }}>
+						<span className="actionTitle">Message</span>
+						<textarea
+							className="slackMessageTextArea"
+							placeholder="Type your message here..."
+							value={info?.slackMessage}
+							onChange={handleSlackMessageChange}
+						/>
+					</div>
+				</div>
+			</div>
+			<div className="actionsSaveButton" onClick={modifiedSaveClick}>
+				{info?.saveLoader ? <Spin /> : 'Save'}
+			</div>
 		</div>
 	);
 };

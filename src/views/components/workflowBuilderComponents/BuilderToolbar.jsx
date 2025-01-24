@@ -1,10 +1,41 @@
 import { Drawer } from 'antd';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/workflowBuilder/builderToolbar.scss';
 import Actions from './WorkflowBuilderSidebarComponents/Actions';
 import Conditions from './WorkflowBuilderSidebarComponents/Conditions';
 import Notification from './WorkflowBuilderSidebarComponents/Notification';
+import Context from '../../../context/context';
 const BuilderToolbar = ({ open, onCLose, sidebarType, activeEdge, templateId }) => {
+	const {
+		templates: { getAllSlackChannels },
+		profileInfo: { getTenantSettings, tennantSettingsData },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		googleConnected: false,
+		slackConnected: false,
+	});
+
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		} else {
+			const { slack, google } = tennantSettingsData || {};
+			const obj = {
+				googleConnected: false,
+				slackConnected: false,
+			};
+			if (google?.accessToken) {
+				obj.googleConnected = true;
+			}
+			if (slack?.accessToken) {
+				getAllSlackChannels(slack?.accessToken);
+				obj.slackConnected = true;
+			}
+			setInfo((prev) => ({ ...prev, ...obj }));
+		}
+	}, [tennantSettingsData]);
+
 	const componentMapper = useMemo(() => {
 		return {
 			actions: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
@@ -12,7 +43,13 @@ const BuilderToolbar = ({ open, onCLose, sidebarType, activeEdge, templateId }) 
 				<Conditions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />
 			),
 			notifications: (
-				<Notification onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />
+				<Notification
+					onCLose={onCLose}
+					activeEdge={activeEdge}
+					templateId={templateId}
+					slackConnected={info?.slackConnected}
+					googleConnected={info?.googleConnected}
+				/>
 			),
 			pipeline: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
 			trigger: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,

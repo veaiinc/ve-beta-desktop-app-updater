@@ -120,6 +120,7 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action.payload,
 	}),
+
 	RESET_STATE: () => intialState,
 };
 

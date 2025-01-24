@@ -77,6 +77,7 @@ export const intialState = {
 	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
 	docsFilesList: null,
 	moreDocsFilesList: null,
+	slackChannels: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1350,6 +1351,34 @@ export const TemplatesState = (props) => {
 			console.log('error==>addNewSteps', error);
 		}
 	};
+
+	//slack Apis
+	const getAllSlackChannels = async (slackAccessToken) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/slack/${workspaceId}/channels`,
+				usertoken,
+				'third_party_integrations_api',
+				{
+					exclude_archived: true,
+					limit: 1000,
+				},
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SLACK_CHANNEL_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				message.error('Unable to fetch Slack Channels');
+			}
+		} catch (error) {
+			console.log('error==>getAllSlackChannels', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -1406,5 +1435,6 @@ export const TemplatesState = (props) => {
 		handleGlobalChatMessages,
 		getDocsFilesList,
 		addNewSteps,
+		getAllSlackChannels,
 	};
 };
