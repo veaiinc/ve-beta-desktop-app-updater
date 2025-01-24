@@ -7,6 +7,7 @@ import { ReactComponent as Tick } from '../../../assets/svg/tick.svg';
 import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import { message, Spin } from 'antd';
+import Spinner from '../../components/loaders/Spinner';
 
 const features = [
 	'Form Management Assistant',
@@ -152,6 +153,8 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency, addOnsLoading }) =>
 		manageSubscriptionLoader: false,
 		features: features,
 		featureChanged: false,
+		addOnPurchaseLoader: false,
+		planPurchaseId: null,
 	});
 
 	useEffect(() => {
@@ -182,14 +185,19 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency, addOnsLoading }) =>
 		}
 	}, [expiresAt]);
 
-	const handlePurchaseAddOn = useCallback(async (planId) => {
-		const response = await purchaseAddOn(planId);
-		if (response?.[0]) {
-			window.location.href = response?.[1]?.url;
-		} else {
-			message?.error(response?.[1]?.message);
-		}
-	}, []);
+	const handlePurchaseAddOn = useCallback(
+		async (planId) => {
+			setInfo((prev) => ({ ...prev, addOnPurchaseLoader: true, planPurchaseId: planId }));
+			const response = await purchaseAddOn(planId);
+			if (response?.[0]) {
+				window.location.href = response?.[1]?.url;
+			} else {
+				message?.error(response?.[1]?.message);
+			}
+			setInfo((prev) => ({ ...prev, addOnPurchaseLoader: false, planPurchaseId: null }));
+		},
+		[info?.planPurchaseId],
+	);
 
 	return (
 		<div className="subscriptionWrapperContainer">
@@ -298,7 +306,12 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency, addOnsLoading }) =>
 											onClick={() => handlePurchaseAddOn(planId)}
 											className="addOnsButton"
 										>
-											Add Now
+											{info?.addOnPurchaseLoader &&
+											info?.planPurchaseId === planId ? (
+												<Spinner width="16px" height="16px" />
+											) : (
+												'Add Now'
+											)}
 										</button>
 									</div>
 								);
