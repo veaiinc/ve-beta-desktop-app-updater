@@ -74,6 +74,17 @@ export const ActionNode = ({ data }) => {
 		setInfo((prev) => ({ ...prev, deleteModal: true }));
 	}, [info]);
 
+	const onActionNodeClick = useCallback(() => {
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({
+				toolBarOpen: true,
+				sidebarType: 'actions',
+				activeStepsData: data?.currentStep,
+				editMode: true,
+			});
+		}
+	}, [data]);
+
 	return (
 		<Tooltip
 			placement="right"
@@ -81,7 +92,7 @@ export const ActionNode = ({ data }) => {
 			arrow={false}
 			rootClassName="customNodesToolTip"
 		>
-			<div className="action-node">
+			<div className="action-node" onClick={onActionNodeClick}>
 				<div className="upper-action-node-container">
 					<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 						{

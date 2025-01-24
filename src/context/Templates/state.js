@@ -1366,7 +1366,6 @@ export const TemplatesState = (props) => {
 			);
 
 			if (response?.[0]) {
-				console.log('response==>updateSteps', response);
 				return [true];
 			} else {
 				return [false];

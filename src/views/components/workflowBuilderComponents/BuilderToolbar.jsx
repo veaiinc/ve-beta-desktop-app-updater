@@ -47,7 +47,16 @@ const BuilderToolbar = ({
 
 	const componentMapper = useMemo(() => {
 		return {
-			actions: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
+			actions: (
+				<Actions
+					onCLose={onCLose}
+					activeEdge={activeEdge}
+					templateId={templateId}
+					activeStepsData={activeStepsData}
+					editMode={editMode}
+					refetchWorkflowBuilderData={refetchWorkflowBuilderData}
+				/>
+			),
 			conditions: (
 				<Conditions
 					onCLose={onCLose}

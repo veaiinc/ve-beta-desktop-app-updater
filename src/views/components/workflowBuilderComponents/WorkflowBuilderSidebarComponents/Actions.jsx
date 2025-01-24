@@ -19,9 +19,16 @@ const actionsList = {
 	tasks: { title: 'Create Tasks' },
 	meeting: { title: 'Create Meeting' },
 };
-const Actions = ({ onCLose, templateId, activeEdge }) => {
+const Actions = ({
+	onCLose,
+	templateId,
+	activeEdge,
+	editMode,
+	activeStepsData,
+	refetchWorkflowBuilderData,
+}) => {
 	const {
-		templates: { addNewSteps, updateStateValues, specificTemplatesInfo },
+		templates: { addNewSteps, updateStateValues, specificTemplatesInfo, updateSteps },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		search: '',
@@ -36,6 +43,17 @@ const Actions = ({ onCLose, templateId, activeEdge }) => {
 			handleDebouce();
 		}
 	}, [info?.searchChanged, info?.search]);
+
+	useEffect(() => {
+		if (editMode && activeStepsData) {
+			if (activeStepsData?.actionType === 'createTask') {
+				setInfo((prev) => ({ ...prev, activeStage: 'stage2' }));
+			}
+			if (activeStepsData?.actionType === 'createMeeting') {
+				setInfo((prev) => ({ ...prev, activeStage: 'stage3' }));
+			}
+		}
+	}, [editMode, activeStepsData]);
 
 	const handleSearch = (e) => {
 		setInfo((prev) => ({ ...prev, search: e.target.value, searchChanged: true }));
@@ -89,6 +107,34 @@ const Actions = ({ onCLose, templateId, activeEdge }) => {
 		[info?.saveLoader, templateId, activeEdge, specificTemplatesInfo],
 	);
 
+	const editActionNode = useCallback(
+		async (data) => {
+			if (info?.saveLoader) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, saveLoader: true }));
+			const payload = {
+				updateStepInput: {
+					actionType: 'createTask',
+					type: 'action',
+					title: data?.title,
+					stepId: activeStepsData?._id,
+					taskInput: {
+						...data,
+					},
+				},
+				templateId: templateId,
+			};
+			const response = await updateSteps(payload);
+			if (response?.[0]) {
+				await refetchWorkflowBuilderData();
+				onCLose();
+			}
+			setInfo((prev) => ({ ...prev, saveLoader: false }));
+		},
+		[editMode, activeStepsData],
+	);
+
 	const stageMapper = useMemo(() => {
 		return {
 			stage1: <Stage1 info={info} handleSearch={handleSearch} changeStage={changeStage} />,
@@ -97,6 +143,9 @@ const Actions = ({ onCLose, templateId, activeEdge }) => {
 					changeStage={changeStage}
 					info={info}
 					createNewActionNode={createNewActionNode}
+					editMode={editMode}
+					activeStepsData={activeStepsData}
+					editActionNode={editActionNode}
 				/>
 			),
 			stage3: (
@@ -163,12 +212,45 @@ const Stage1 = ({ info, handleSearch, changeStage }) => {
 	);
 };
 
-const Stage2 = ({ info, changeStage, createNewActionNode }) => {
+const Stage2 = ({
+	info,
+	changeStage,
+	createNewActionNode,
+	editMode,
+	activeStepsData,
+	editActionNode,
+}) => {
 	const [stageInfo, setStageInfo] = useState({
 		title: '',
 		status: statusOptions?.[0],
 		priority: PriorityOptions?.[0],
 	});
+
+	useEffect(() => {
+		if ((editMode, activeStepsData)) {
+			const { title, task } = activeStepsData || {};
+
+			let status = null,
+				priority = null;
+			for (let i = 0; i < statusOptions?.length; i++) {
+				if (statusOptions[i]?.value === task?.status) {
+					status = statusOptions[i];
+				}
+			}
+			for (let i = 0; i < PriorityOptions?.length; i++) {
+				if (PriorityOptions[i]?.value === task?.priority) {
+					priority = PriorityOptions[i];
+				}
+			}
+
+			setStageInfo((prev) => ({
+				...prev,
+				title,
+				status,
+				priority,
+			}));
+		}
+	}, [editMode, activeStepsData]);
 
 	const handleChange = useCallback((e) => {
 		setStageInfo((prev) => ({ ...prev, title: e.target.value }));
@@ -177,6 +259,13 @@ const Stage2 = ({ info, changeStage, createNewActionNode }) => {
 	const modifiedHandleClick = useCallback(() => {
 		if (!stageInfo?.title?.length) {
 			return message.error('title is mandatory');
+		}
+		if (editMode) {
+			return editActionNode({
+				title: stageInfo?.title,
+				status: stageInfo?.status?.value,
+				priority: stageInfo?.priority?.value,
+			});
 		}
 		createNewActionNode({
 			title: stageInfo?.title,
@@ -276,9 +365,16 @@ const Stage2 = ({ info, changeStage, createNewActionNode }) => {
 					/>
 				</div>
 			</div>
-			<div className="actionsSaveButton" onClick={modifiedHandleClick}>
-				{info?.saveLoader ? <Spin /> : 'Save'}
-			</div>
+
+			{editMode ? (
+				<div className="actionsSaveButton" onClick={modifiedHandleClick}>
+					{info?.saveLoader ? <Spin /> : 'Update'}
+				</div>
+			) : (
+				<div className="actionsSaveButton" onClick={modifiedHandleClick}>
+					{info?.saveLoader ? <Spin /> : 'Save'}
+				</div>
+			)}
 		</div>
 	);
 };
