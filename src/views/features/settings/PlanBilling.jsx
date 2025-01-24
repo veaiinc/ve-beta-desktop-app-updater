@@ -62,6 +62,7 @@ const PlanBilling = () => {
 		expiresAt: null,
 		freeTier: false,
 		currency: '',
+		addOnsLoading: false,
 	});
 
 	useEffect(() => {
@@ -80,10 +81,21 @@ const PlanBilling = () => {
 				currency: currentPlan?.currentSubscriptionPlan?.currency,
 			}));
 			if (!tierStatus) {
-				getAddOnsForCurrentPlan();
+				handleAddOnsForCurrentPlan();
 			}
 		}
 	}, [currentPlan]);
+
+	const handleAddOnsForCurrentPlan = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, addOnsLoading: true }));
+		const response = await getAddOnsForCurrentPlan();
+		if (response?.[0]) {
+			setInfo((prev) => ({ ...prev, addOnsLoading: false }));
+		} else {
+			message?.error(response?.[1]?.message);
+			setInfo((prev) => ({ ...prev, addOnsLoading: false }));
+		}
+	}, []);
 
 	return (
 		<div className="planBillingContianer">
@@ -94,6 +106,7 @@ const PlanBilling = () => {
 					data={info?.plan}
 					expiresAt={info?.expiresAt}
 					currency={info?.currency}
+					addOnsLoading={info?.addOnsLoading}
 				/>
 			) : (
 				<FreeTierPlanCard expiresAt={info?.expiresAt} />
@@ -128,7 +141,7 @@ const PlanBilling = () => {
 
 export default memo(PlanBilling);
 
-const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
+const SubscribedUserPlanCard = ({ data, expiresAt, currency, addOnsLoading }) => {
 	const navigate = useNavigate();
 	let {
 		subscriptionInfo: { createManageSubscriptionLinkforExistingUsers },
@@ -202,7 +215,7 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 					</div>
 					{data?.addOns && Object.values(data?.addOns)?.length ? (
 						<div className="addOnContianer">
-							<span className="addOnStates">Current Add-on’s</span>
+							<span className="addOnStates">Current Add-on's</span>
 
 							<div className="addOnStuffsHolder">
 								{data?.addOns?.aiCredits ? (
@@ -246,36 +259,50 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 			<div className="addOnsContainer">
 				<h1 className="title">Add-ons</h1>
 				<div className="addOnsCardsContainer">
-					{currentPlanAddOns?.map((addOn) => {
-						const {
-							_id: planId,
-							plan,
-							isRecurring,
-							recurringType,
-							totalPrice,
-							currency,
-						} = addOn;
-						return (
-							<div className="addOnsCards">
-								<h1 className="addOnPlanName">{plan}</h1>
-								<div className="priceContainer">
-									<span className="currencySymbol">
-										{currency === 'INR' ? '₹ ' : '$ '}
-									</span>
-									<span className="priceValue">{totalPrice}</span>
-									<span className={`priceDuration ${!isRecurring && 'oneTime'}`}>
-										{isRecurring ? `/ ${recurringType}` : 'One time'}
-									</span>
-								</div>
-								<button
-									onClick={() => handlePurchaseAddOn(planId)}
-									className="addOnsButton"
-								>
-									Add Now
-								</button>
-							</div>
-						);
-					})}
+					{addOnsLoading
+						? [1, 2, 3, 4].map((loader) => (
+								<Skeleton
+									key={loader}
+									height="200px"
+									style={{ borderRadius: '24px' }}
+									width="100%"
+								/>
+						  ))
+						: currentPlanAddOns?.map((addOn) => {
+								const {
+									_id: planId,
+									plan,
+									isRecurring,
+									recurringType,
+									totalPrice,
+									currency,
+								} = addOn;
+
+								return (
+									<div className="addOnsCards" key={planId}>
+										<h1 className="addOnPlanName">{plan}</h1>
+										<div className="priceContainer">
+											<span className="currencySymbol">
+												{currency === 'INR' ? '₹ ' : '$ '}
+											</span>
+											<span className="priceValue">{totalPrice}</span>
+											<span
+												className={`priceDuration ${
+													!isRecurring ? 'oneTime' : ''
+												}`}
+											>
+												{isRecurring ? `/ ${recurringType}` : 'One time'}
+											</span>
+										</div>
+										<button
+											onClick={() => handlePurchaseAddOn(planId)}
+											className="addOnsButton"
+										>
+											Add Now
+										</button>
+									</div>
+								);
+						  })}
 				</div>
 			</div>
 		</div>
