@@ -4,6 +4,9 @@ import '../../../assets/scss/workflowBuilder/customNodes.scss';
 import { ReactComponent as Form } from '../../../assets/svg/worflow_builder/customNodes/form.svg';
 import { ReactComponent as Action } from '../../../assets/svg/worflow_builder/customNodes/actionSvg.svg';
 import { ReactComponent as IfElse } from '../../../assets/svg/worflow_builder/customNodes/ifelse.svg';
+
+import { ReactComponent as Slack } from '../../../assets/svg/worflow_builder/buildercard/slack.svg';
+import { ReactComponent as Google } from '../../../assets/svg/worflow_builder/buildercard/google.svg';
 export const TriggerNode = ({ data }) => {
 	const onAddOptionsClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
@@ -39,19 +42,38 @@ export const TriggerNode = ({ data }) => {
 	);
 };
 
+const actionTypeMapper = {
+	email: 'Send Email',
+	whatsapp: 'Whatsapp',
+	phone: 'Phone',
+	slack: 'Slack',
+	createTask: 'Create Task',
+	createMeeting: 'Create Meeting',
+};
+const actionTypeIconMapper = {
+	email: <Google />,
+	whatsapp: 'Whatsapp',
+	phone: 'Phone',
+	slack: <Slack />,
+	createTask: <Action />,
+	createMeeting: <Action />,
+};
+
 export const ActionNode = ({ data }) => {
 	return (
 		<div className="action-node">
 			<div className="upper-action-node-container">
 				<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-					<Action />
+					{actionTypeIconMapper[data?.channels?.[0] || data?.actionType]}
 					Actions
 				</span>
-				<span>Create task</span>
+				<span>{actionTypeMapper[data?.channels?.[0] || data?.actionType] || 'Email'}</span>
 			</div>
 			<div className="lower-action-node-container">
-				<span className="lower-action-node-title">Post editing</span>
-				<span className="lower-action-node-subtitle">Post editing for client abhiloss</span>
+				<span className="lower-action-node-title">{data?.title || 'Steps Title'}</span>
+				<span className="lower-action-node-subtitle">
+					{data?.description || 'Steps Description'}
+				</span>
 			</div>
 			<Handle type="source" position={Position.Bottom} />
 			<Handle type="target" position={Position.Top} />

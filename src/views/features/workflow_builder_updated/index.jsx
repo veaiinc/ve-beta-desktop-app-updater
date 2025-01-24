@@ -361,7 +361,9 @@ const WorkflowBuilderUpdated = () => {
 	return (
 		<div className="updatedWorkflowBuilderContainer">
 			<div className="updatedBuilderHeaderContainer">
-				<span className="previousStepText">Previous Step</span>
+				<span className="previousStepText" onClick={() => navigate(-1)}>
+					Previous Step
+				</span>
 				<span className="workflowBuilderHeadingTag">Workflow Builder</span>
 				<div className="headerActionsContainer">
 					<div className="publishBtn" onClick={publishWorkflow}>
