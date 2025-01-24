@@ -32,23 +32,25 @@ const payload = {
 
 const staticCreateActions = [
 	{
-		title: 'Create Smart File',
-		subtext: 'Create a tailored smart file and present it to your clients.',
+		type: 'Minimal',
+		prompt: 'Wedding Day Timeline Generator',
 	},
 	{
-		title: 'Create Proposal',
-		subtext: 'Create a tailored business proposal and present it to your clients.',
+		type: 'Professional',
+		prompt: 'Wedding Day Timeline Generator',
 	},
 	{
-		title: 'Create Presentation',
-		subtext: 'Create a tailored business proposal and present it to your clients.',
+		type: 'Traditional',
+		prompt: 'Wedding Day Timeline Generator',
 	},
 	{
-		title: 'Create Invoice',
-		subtext: 'Track invoice status, Payment schedule, amounts, and more.',
+		type: 'Sales',
+		prompt: 'Track invoice status, Payment schedule, amounts, and more.',
 	},
-	{ title: 'Create Contract', subtext: 'Stay on top of contracts and signatures.' },
-	{ title: 'Create Landing Page', subtext: 'Create and share a landing page with clients.' },
+	{
+		type: 'Consise',
+		prompt: 'Wedding Day Timeline Generator',
+	},
 ];
 
 export const statusTextmapper = {
@@ -547,7 +549,7 @@ const Docs = () => {
 				</div>
 			</div>
 			{/* Ai Action is not ready yet */}
-			{/* <div className="docsTemplatesContainer">
+			<div className="docsTemplatesContainer">
 				<div className="promptHeader">
 					<span>Suggested Prompt</span>
 					<Sync />
@@ -556,12 +558,12 @@ const Docs = () => {
 				<div className="docsTemplateContainer">
 					{staticCreateActions?.map((ele, index) => (
 						<div key={index} className="createStaticActionsCards">
-							<span className="createStaticActionsCardsTitle">{ele?.title}</span>
-							<span className="createStaticActionsCardsSubTitle">{ele?.subtext}</span>
+							<span className="createStaticActionsCardsTitle">{ele?.type}</span>
+							<span className="createStaticActionsCardsSubTitle">{ele?.prompt}</span>
 						</div>
 					))}
 				</div>
-			</div> */}
+			</div>
 
 			<div className="docsFileContainer">
 				<div className="docsFileHeaderContainer">
