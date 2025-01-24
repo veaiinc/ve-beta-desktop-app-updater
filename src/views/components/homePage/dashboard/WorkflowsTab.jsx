@@ -49,7 +49,7 @@ const WorkflowsTab = () => {
 					const labels = workflow?.moduleTemplates?.map((template) => {
 						return template?.label;
 					});
-					console.log(labels);
+
 					return (
 						<WeddingDayTimelineGeneratorCard
 							workflowStats={workflow?.workflowStats}
