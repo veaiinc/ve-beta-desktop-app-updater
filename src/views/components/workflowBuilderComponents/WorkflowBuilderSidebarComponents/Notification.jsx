@@ -399,6 +399,15 @@ const Stage1 = ({ info, handleSearch, changeStage, googleConnected, slackConnect
 			}
 		}
 	}, []);
+
+	const checkConnection = useCallback((data) => {
+		if (data?.id === 'email') {
+			return googleConnected;
+		}
+		if (data?.id === 'slack') {
+			return slackConnected;
+		}
+	}, []);
 	return (
 		<>
 			<div className="actionSideBarSearchbarContainer">
@@ -431,11 +440,18 @@ const Stage1 = ({ info, handleSearch, changeStage, googleConnected, slackConnect
 							<div className="actionListItem" key={index}>
 								<span className="notificationIconContainer">{ele?.icon}</span>
 								{item}
-								<div className="notificationConnectionContainer">
-									{' '}
-									Connect
-									<RightArrrow />
-								</div>
+
+								{checkConnection(ele) ? (
+									<div className="notificationConnectionContainer">
+										Connected
+										<div className="connectedDivIndicator"></div>
+									</div>
+								) : (
+									<div className="notificationConnectionContainer">
+										Connect
+										<RightArrrow />
+									</div>
+								)}
 							</div>
 						))}
 					</div>
