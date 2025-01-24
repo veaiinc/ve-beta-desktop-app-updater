@@ -20,7 +20,7 @@ const HomePageStart = ({ cards, setInfo, isNavbarFixed }) => {
 						}));
 					}}
 				>
-					{/* <div className="home-page-cards-container-card-sub-title">{card?.subTitle}</div> */}
+					<div className="home-page-cards-container-card-sub-title">{card?.type[0]}</div>
 					<div className="home-page-cards-container-card-title">{card?.title}</div>
 				</div>
 			))}

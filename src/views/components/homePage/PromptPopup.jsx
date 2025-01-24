@@ -23,22 +23,30 @@ const clientOptions = [
 	{ id: 2, title: 'Avinash', value: 'Avinash' },
 ];
 
-const Prompt =
-	'Gather the wedding schedule details from the option questionnaire and generate a detailed photography timeline. Include location travel times, setup durations, and buffer for unexpected delays';
-
 const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	const [searchText, setSearchText] = useState('');
 	const [selectedOptions, setSelectedOptions] = useState({});
 	const [isOpen, setIsOpen] = useState(false);
 	const [clientSearch, setClientSearch] = useState('');
-	const [dynamicPrompt, setDynamicPrompt] = useState('');
+	const [dynamicPrompt, setDynamicPrompt] = useState(selectedCard?.prompt || '');
 	const [expandedChat, setExpandedChat] = useState(false);
 
-	console.log(selectedCard, 'selectedCard');
-	const handlePromptData = (clientSearch) => {
-		const prompt = Prompt.replace('{option}', clientSearch);
-		setDynamicPrompt(prompt);
-	};
+	const selectedCardVariables = selectedCard?.variables;
+
+	// useEffect(() => {
+	// 	selectedCardVariables?.forEach((variable) => {
+	// 		setReplaceVariables((prev) => {
+	// 			return {
+	// 				...prev,
+	// 				[variable]: '',
+	// 			};
+	// 		});
+	// 	});
+	// }, [selectedCardVariables]);
+
+	useEffect(() => {
+		setDynamicPrompt(selectedCard?.prompt || '');
+	}, [selectedCard]);
 
 	const handleSelectedFile = (file) => {
 		if (!selectedOptions?.[selectedCard?.id]?.some((f) => f === file)) {
@@ -97,43 +105,13 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 				</div>
 
 				<div className="promptPopupContainerBody">
-					<div className="promptPopupContainerBodyText">
-						{selectedCard?.prompt}
-						{/* Gather the wedding schedule details from the{' '} */}
-						{/* <span onClick={() => setIsOpen(!isOpen)}>
-							client <DropdownArrow />
-						</span>{' '} */}
-						{/* <Tooltip
-							placement="bottom"
-							title={
-								<FilterPopUp
-									options={clientOptions}
-									searchInput={true}
-									searchInputPlaceholder="Search Client"
-									searchValue={clientSearch}
-									onOptionClick={(option) => handleClientSearch(option)}
-									setSearchValue={handleClientSearch}
-								/>
-							}
-							open={isOpen}
-							color="transparent"
-							trigger="click"
-							arrow={false}
-						>
-							<span
-								onClick={() => setIsOpen(!isOpen)}
-								className="promptPopupContainerBodyTextTooltip"
-							>
-								client <DropdownArrow />
-							</span>
-						</Tooltip>
-						{''}questionnaire and generate a detailed photography timeline. Include
-						location travel times, setup durations, and buffer for unexpected delays. */}
-					</div>
-					<div className="promptPopupContainerEmailPromptContainer">
-						<div className="promptPopupContainerEmailPrompt">Edit Prompt</div>
-						<EmailPromptSvg />
-					</div>
+					<textarea
+						value={dynamicPrompt}
+						onChange={(e) => setDynamicPrompt(e?.target?.value)}
+						className="promptPopupContainerBodyText"
+						rows={2}
+						style={{ resize: 'none' }}
+					/>
 				</div>
 
 				{selectedOptions?.[selectedCard?.id]?.length && (

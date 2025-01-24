@@ -6,6 +6,9 @@
 	overflow-y: scroll;
 	position: relative;
 	padding: 0px 32px 32px 32px;
+	::-webkit-scrollbar {
+		display: none;
+	}
 	.home-page-container-header {
 		display: flex;
 		flex-direction: column;
@@ -150,6 +153,9 @@
 		width: 100%;
 		flex-wrap: wrap;
 		gap: 16px;
+		::-webkit-scrollbar {
+			display: none !important;
+		}
 		.home-page-cards-container-card {
 			display: flex;
 			width: 268px;
