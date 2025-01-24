@@ -124,6 +124,10 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action.payload,
 	}),
+	GET_FORM_RESPONSES_LIST_SUCCESS: (state, action) => ({
+		...state,
+		[action?.selectedvariable]: action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

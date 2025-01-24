@@ -43,7 +43,7 @@ const FormLeads = () => {
 		return {
 			individualEntries: {
 				label: 'Individual Entries',
-				Component: <FormRes />,
+				Component: <FormRes formId={formData?._id} />,
 			},
 			summary: {
 				label: 'Summary',

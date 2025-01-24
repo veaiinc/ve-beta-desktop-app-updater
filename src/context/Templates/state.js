@@ -35,6 +35,7 @@ import {
 	updateSendSmartFileSettingsMutation,
 	getLatestSendSmartFileSettingsQuery,
 	getActivityLogsQuery,
+	getFormResponsesListQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -78,6 +79,8 @@ export const intialState = {
 	moreDocsFilesList: null,
 	formsTemplatesList: null,
 	moreFormsTemplatesList: null,
+	formResponsesList: null,
+	moreFormResponsesList: null,
 };
 
 export const TemplatesState = (props) => {
@@ -578,6 +581,40 @@ export const TemplatesState = (props) => {
 			});
 		} else {
 			console.log('api failed ==>getTemplatesListForForms', response);
+		}
+	};
+
+	const getFormResponsesList = async (formId, page = 1, limit = 10, fetchMore = false) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const payload = {
+				filters: {
+					workflowTemplateId: formId,
+					page,
+					limit,
+				},
+			};
+			const response = await service.query(
+				getFormResponsesListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				const selectedvariable = fetchMore ? 'moreFormResponsesList' : 'formResponsesList';
+				dispatch({
+					type: Actions.GET_FORM_RESPONSES_LIST_SUCCESS,
+					payload: response?.[1]?.data?.formResponsesList,
+					selectedvariable,
+				});
+			} else {
+				console.log('api failed ==>getFormResponsesList', response);
+			}
+		} catch (error) {
+			console.log('api failed ==>getFormResponsesList', error);
 		}
 	};
 
@@ -1417,5 +1454,6 @@ export const TemplatesState = (props) => {
 		handleGlobalChatMessages,
 		getDocsFilesList,
 		getTemplatesListForForms,
+		getFormResponsesList,
 	};
 };

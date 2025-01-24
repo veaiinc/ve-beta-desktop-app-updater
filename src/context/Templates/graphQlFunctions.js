@@ -445,3 +445,19 @@ export const getActivityLogsQuery = gql`
 		}
 	}
 `;
+
+export const getFormResponsesListQuery = gql`
+	query FormResponsesList($filters: FileFiltersInput) {
+		formResponsesList(filters: $filters) {
+			data
+			totalPages
+			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
+			prevPage
+			nextPage
+		}
+	}
+`;

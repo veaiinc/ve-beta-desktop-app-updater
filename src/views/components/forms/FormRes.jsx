@@ -1,156 +1,111 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useCallback, useContext } from 'react';
 import '../../../assets/scss/forms/formRes.scss';
+import Context from '../../../context/context';
+import { FetchMoreLoaderComp } from '../../../helpers';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import moment from 'moment';
 
-const data = [
-	{
-		status: 'Complete',
-		submission: 'Sept 28, 09:28 AM',
-		uniqueId: 'Roshan@gmail.com',
-		rating: '4',
-		overall: 'Excellent',
-		consistency: 'Very poor',
-		question4: 'Other: Personal reasons',
-		question5: 'Owenership',
-		question6: 'Very Satisfied',
-	},
-	{
-		status: 'Complete',
-		submission: 'Sept 28, 09:28 AM',
-		uniqueId: 'Ankit1234567890fsugcajs...',
-		rating: '4',
-		overall: 'Excellent',
-		consistency: 'Very poor',
-		question4: 'Other: Personal reasons',
-		question5: 'Owenership',
-		question6: 'Very Satisfied',
-	},
-	{
-		status: 'Complete',
-		submission: 'Sept 28, 09:28 AM',
-		uniqueId: 'Harsha@gmail.com',
-		rating: '8',
-		overall: 'Very Good',
-		consistency: 'Nice',
-		question4: 'Due to Time',
-		question5: 'Partnership',
-		question6: 'Very Satisfied',
-	},
-	{
-		status: 'Incomplete',
-		submission: 'Sept 28, 09:28 AM',
-		uniqueId: 'Avinash@gmail.com',
-		rating: '8',
-		overall: 'Very Bad',
-		consistency: 'Good',
-		question4: 'Due to Location',
-		question5: 'Partnership',
-		question6: 'Good',
-	},
-	{
-		status: 'Complete',
-		submission: 'Sept 28, 09:28 AM',
-		uniqueId: 'Ismail@gmail.com',
-		rating: '10',
-		overall: 'Very Bad',
-		consistency: 'Very Good',
-		question4: 'Other: Personal reasons',
-		question5: 'Owenership',
-		question6: 'Very Satisfied',
-	},
-	{
-		status: 'Incomplete',
-		submission: 'Sept 28, 09:28 AM',
-		uniqueId: 'Ismail@gmail.com',
-		rating: '10',
-		overall: 'Very Bad',
-		consistency: 'Very Good',
-		question4: 'Due to Location',
-		question5: 'Partnership',
-		question6: 'Very Good',
-	},
-	{
-		status: 'Complete',
-		submission: 'Sept 28, 09:28 AM',
-		uniqueId: 'Roshan@gmail.com',
-		rating: '4',
-		overall: 'Excellent',
-		consistency: 'Very poor',
-		question4: 'Other: Personal reasons',
-		question5: 'Owenership',
-		question6: 'Very Satisfied',
-	},
-	{
-		status: 'Complete',
-		submission: 'Sept 28, 09:28 AM',
-		uniqueId: 'Ankit1234567890fsugcajs...',
-		rating: '4',
-		overall: 'Excellent',
-		consistency: 'Very poor',
-		question4: 'Other: Personal reasons',
-		question5: 'Owenership',
-		question6: 'Very Satisfied',
-	},
-	{
-		status: 'Complete',
-		submission: 'Sept 28, 09:28 AM',
-		uniqueId: 'Harsha@gmail.com',
-		rating: '8',
-		overall: 'Very Good',
-		consistency: 'Nice',
-		question4: 'Due to Time',
-		question5: 'Partnership',
-		question6: 'Very Satisfied',
-	},
-	{
-		status: 'Incomplete',
-		submission: 'Sept 28, 09:28 AM',
-		uniqueId: 'Avinash@gmail.com',
-		rating: '8',
-		overall: 'Very Bad',
-		consistency: 'Good',
-		question4: 'Due to Location',
-		question5: 'Partnership',
-		question6: 'Good',
-	},
-	{
-		status: 'Complete',
-		submission: 'Sept 28, 09:28 AM',
-		uniqueId: 'Ismail@gmail.com',
-		rating: '10',
-		overall: 'Very Bad',
-		consistency: 'Very Good',
-		question4: 'Other: Personal reasons',
-		question5: 'Owenership',
-		question6: 'Very Satisfied',
-	},
-	{
-		status: 'Incomplete',
-		submission: 'Sept 28, 09:28 AM',
-		uniqueId: 'Ismail@gmail.com',
-		rating: '10',
-		overall: 'Very Bad',
-		consistency: 'Very Good',
-		question4: 'Due to Location',
-		question5: 'Partnership',
-		question6: 'Very Good',
-	},
-];
+const FormRes = ({ formId }) => {
+	const {
+		templates: { getFormResponsesList, formResponsesList, moreFormResponsesList },
+	} = useContext(Context);
 
-const FormRes = () => {
 	const [info, setInfo] = useState({
 		resizing: null,
-		columns: [
+		currentPage: 1,
+		hasNextPage: true,
+		loading: true,
+		formResponses: [],
+		columns: [],
+	});
+
+	useEffect(() => {
+		fetchInitialResponses();
+	}, [formId]);
+
+	useEffect(() => {
+		if (formResponsesList) {
+			const formattedColumns = extractColumnsFromResponse(
+				formResponsesList?.data?.[0]?.response,
+			);
+			setInfo((prev) => ({
+				...prev,
+				formResponses: formResponsesList?.data || [],
+				hasNextPage: formResponsesList?.hasNextPage || false,
+				loading: false,
+				columns: formattedColumns,
+			}));
+		}
+	}, [formResponsesList]);
+
+	useEffect(() => {
+		if (moreFormResponsesList) {
+			setInfo((prev) => ({
+				...prev,
+				formResponses: [...prev?.formResponses, ...(moreFormResponsesList?.data || [])],
+				hasNextPage: moreFormResponsesList?.hasNextPage || false,
+				loading: false,
+			}));
+		}
+	}, [moreFormResponsesList]);
+
+	const extractColumnsFromResponse = (responseArray) => {
+		if (!responseArray?.length) return [];
+
+		// Start with status and submission columns
+		const columns = [
 			{ id: 'status', width: 120, label: 'Status' },
 			{ id: 'submission', width: 150, label: 'Submission' },
-			{ id: 'uniqueId', width: 200, label: 'Unique ID' },
-			{ id: 'rating', width: 220, label: 'Rate your overall personali...' },
-			{ id: 'overall', width: 200, label: 'How much do you rate yo...' },
-			{ id: 'consistency', width: 180, label: 'How consistent you are?' },
-			{ id: 'question4', width: 180, label: 'Question 4' },
-			{ id: 'question5', width: 150, label: 'Question 5' },
-			{ id: 'question6', width: 150, label: 'Question 6' },
-		],
-	});
+		];
+
+		// Add columns from response questions
+		responseArray.forEach((item) => {
+			// Extract text from HTML string
+			const questionText = item?.question?.replace(/<[^>]+>/g, '');
+			columns.push({
+				id: item?._id,
+				width: 180,
+				label: questionText,
+				type: item?.type,
+			});
+		});
+
+		return columns;
+	};
+
+	const getAnswerForQuestion = (response, questionId) => {
+		const questionData = response?.find((item) => item?._id === questionId);
+		if (!questionData) return '';
+
+		if (questionData?.type === 'events') {
+			try {
+				const events = JSON.parse(questionData?.answer || '[]');
+				return events?.map((event) => `${event?.name} - ${event?.date}`).join(', ');
+			} catch (e) {
+				return questionData?.answer || '';
+			}
+		}
+
+		return questionData?.answer || '';
+	};
+
+	const fetchInitialResponses = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, loading: true }));
+		await getFormResponsesList(formId, 1, 30);
+	}, [formId]);
+
+	const fetchMoreResponses = useCallback(async () => {
+		if (info?.hasNextPage) {
+			const nextPage = info?.currentPage + 1;
+			await getFormResponsesList(formId, nextPage, 10, true);
+			setInfo((prev) => ({
+				...prev,
+				currentPage: nextPage,
+			}));
+		}
+	}, [info?.hasNextPage, info?.currentPage, formId]);
+
+	console.log('info?.formResponses:', info?.formResponses);
 
 	useEffect(() => {
 		if (info?.resizing) {
@@ -163,42 +118,47 @@ const FormRes = () => {
 		}
 	}, [info?.resizing]);
 
-	const handleMouseDown = (index, e) => {
-		setInfo({
-			...info,
-			resizing: {
-				index,
-				startX: e.pageX,
-				startWidth: info?.columns[index]?.width,
-			},
-		});
-	};
+	const handleMouseDown = useCallback(
+		(index, e) => {
+			setInfo({
+				...info,
+				resizing: {
+					index,
+					startX: e.pageX,
+					startWidth: info?.columns[index]?.width,
+				},
+			});
+		},
+		[info?.columns],
+	);
 
-	const handleMouseMove = (e) => {
-		if (!info?.resizing) return;
-		const diff = e.pageX - info?.resizing.startX;
-		const newColumns = [...info?.columns];
-		newColumns[info?.resizing.index] = {
-			...newColumns[info?.resizing.index],
-			width: Math.max(100, info?.resizing.startWidth + diff),
-		};
-		setInfo((prev) => ({
-			...prev,
-			columns: newColumns,
-		}));
-	};
+	const handleMouseMove = useCallback(
+		(e) => {
+			if (!info?.resizing) return;
+			const diff = e.pageX - info?.resizing.startX;
+			const newColumns = [...info?.columns];
+			newColumns[info?.resizing.index] = {
+				...newColumns[info?.resizing.index],
+				width: Math.max(100, info?.resizing.startWidth + diff),
+			};
+			setInfo((prev) => ({
+				...prev,
+				columns: newColumns,
+			}));
+		},
+		[info?.resizing, info?.columns],
+	);
 
-	const handleMouseUp = () => {
+	const handleMouseUp = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
 			resizing: null,
 		}));
-	};
+	}, []);
 
 	return (
 		<div className="formResParentContainer">
 			<div className="tableWrapper">
-				{/* <div className="gradientHeader" /> */}
 				<div className="tableContent">
 					<div className="headerRow">
 						{info?.columns?.map((column, index) => (
@@ -215,32 +175,49 @@ const FormRes = () => {
 							</div>
 						))}
 					</div>
+
 					<div className="tableBody">
-						{data.map((row, rowIndex) => (
-							<div key={rowIndex} className="tableRow">
-								{info?.columns?.map((column) => (
-									<div
-										key={column.id}
-										className="tableCell"
-										style={{ width: column.width }}
-									>
-										{column.id === 'status' ? (
-											<span
-												className={`statusBadge ${
-													row[column.id] === 'Complete'
-														? 'complete'
-														: 'incomplete'
-												}`}
-											>
-												{row[column.id]}
-											</span>
-										) : (
-											row[column.id]
-										)}
-									</div>
-								))}
-							</div>
-						))}
+						<InfiniteScroll
+							dataLength={info?.formResponses?.length || 0}
+							next={fetchMoreResponses}
+							hasMore={info?.hasNextPage}
+							loader={<FetchMoreLoaderComp />}
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '8px',
+								width: '100%',
+							}}
+							height="calc(100vh - 450px)"
+						>
+							{info?.formResponses?.map((row, rowIndex) => (
+								<div key={rowIndex} className="tableRow">
+									{info?.columns?.map((column) => (
+										<div
+											key={column?.id}
+											className="tableCell"
+											style={{ width: column?.width }}
+										>
+											{column?.id === 'status' ? (
+												<span
+													className={`statusBadge ${
+														row?.isRead ? 'incomplete' : 'complete'
+													}`}
+												>
+													{row?.isRead ? 'Incomplete' : 'Complete'}
+												</span>
+											) : column?.id === 'submission' ? (
+												moment
+													.unix(row?.createdAt)
+													.format('MMM DD, hh:mm A')
+											) : (
+												getAnswerForQuestion(row?.response, column?.id)
+											)}
+										</div>
+									))}
+								</div>
+							))}
+						</InfiniteScroll>
 					</div>
 				</div>
 			</div>
