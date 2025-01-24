@@ -372,7 +372,6 @@
 					gap: 8px;
 					align-self: stretch;
 					padding-bottom: 16px;
-					border-bottom: 1px solid #333334;
 					margin-bottom: 8px;
 
 					.subscriptionFeature {
@@ -389,6 +388,20 @@
 							font-weight: 400;
 							line-height: 20px; /* 142.857% */
 						}
+					}
+				}
+
+				.currentAddOnsContainer {
+					width: 100%;
+					border-bottom: 1px solid #333334;
+
+					.currentAddOns {
+						color: #f2f2f3;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 20px;
 					}
 				}
 
