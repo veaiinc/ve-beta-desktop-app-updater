@@ -7,7 +7,7 @@ const DraftsAndActivityTab = () => {
 		<div className="drafts-and-activity-tab">
 			<Activity />
 			<Drafts />
-			<Notes />
+			{/* <Notes /> */}
 		</div>
 	);
 };

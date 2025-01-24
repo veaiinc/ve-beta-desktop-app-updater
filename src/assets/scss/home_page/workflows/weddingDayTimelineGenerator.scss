@@ -1,4 +1,4 @@
-.wedding-day-timeline-generator-container {
+.wedding-day-timeline-generator-card-container {
 	display: flex;
 	width: 340px;
 	height: 424px;
@@ -52,8 +52,9 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 15px;
+		gap: 8px;
 		align-self: stretch;
+		overflow-y: scroll;
 
 		.workflow-inner-card {
 			display: flex;
@@ -104,7 +105,7 @@
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
-				gap: 2px;
+				gap: 18px;
 				flex: 1 0 0;
 				align-self: stretch;
 				.title {
@@ -117,15 +118,18 @@
 					font-weight: 500;
 					line-height: normal;
 				}
-				.file-text {
-					align-self: stretch;
-					color: #797e86;
-					color: color(display-p3 0.4784 0.4941 0.5216);
-					font-family: Inter;
-					font-size: 12px;
+				.labels {
+					display: flex;
+					align-items: center;
+					color: #787e87;
+					display: flex;
+					flex-direction: row;
+					gap: 5px;
+					flex-wrap: wrap;
+					font-size: 14px;
 					font-style: normal;
-					font-weight: 400;
-					line-height: normal;
+					font-weight: 500;
+					// line-height: normal;
 				}
 			}
 		}

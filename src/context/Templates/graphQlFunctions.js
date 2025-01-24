@@ -11,6 +11,7 @@ export const getTemmplatesQuery = gql`
 					order
 					_id
 					isPublic
+					label
 				}
 				status
 

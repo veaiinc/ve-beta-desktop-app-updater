@@ -1,10 +1,18 @@
 import { memo } from 'react';
 import '../../../../../assets/scss/home_page/workflows/weddingDayTimelineGenerator.scss';
 
-const InsightTab = () => {
+const InsightTab = ({ insights }) => {
 	return (
 		<div className="workflow-container">
-			<div className="workflow-inner-card">
+			{Object?.keys(insights)?.map((key) => {
+				return (
+					<div className="workflow-inner-card">
+						<span className="left-text">{key}</span>
+						<span className="right-text">{insights[key]}</span>
+					</div>
+				);
+			})}
+			{/* <div className="workflow-inner-card">
 				<span className="left-text">All Enquires</span>
 				<span className="right-text">36</span>
 			</div>
@@ -12,7 +20,7 @@ const InsightTab = () => {
 			<div className="workflow-inner-card">
 				<span className="left-text">All Enquires</span>
 				<span className="right-text">36</span>
-			</div>
+			</div> */}
 		</div>
 	);
 };

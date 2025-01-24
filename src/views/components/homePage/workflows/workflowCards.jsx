@@ -32,24 +32,21 @@ const options = [
 	},
 ];
 
-const WeddingDayTimelineGeneratorCard = memo(() => {
+const WeddingDayTimelineGeneratorCard = memo(({ workflowStats, title, insights, labels }) => {
 	const [activeTab, setActiveTab] = useState('Steps');
-
 	const componentMapper = useMemo(() => {
 		return {
-			Steps: <StepsTab />,
-			Insights: <InsightTab />,
+			Steps: <StepsTab workflowStats={workflowStats} />,
+			Insights: <InsightTab insights={insights} />,
 			'Pending actions': <PendingActionsTab />,
-			files: <FilesTab />,
+			files: <FilesTab labels={labels} title={title} />,
 		};
-	}, []);
+	}, [workflowStats]);
 
 	return (
-		<div className="wedding-day-timeline-generator-container">
+		<div className="wedding-day-timeline-generator-card-container">
 			<div className="wedding-day-timeline-generator-header">
-				<div className="wedding-day-timeline-generator-header-text">
-					Wedding Day Timeline Generator
-				</div>
+				<div className="wedding-day-timeline-generator-header-text">{title}</div>
 				<ThreeDotsVerticalIcon />
 			</div>
 			<div className="wedding-day-timeline-generator-options-container">
