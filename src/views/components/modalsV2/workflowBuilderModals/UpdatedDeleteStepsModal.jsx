@@ -47,7 +47,7 @@ const UpdatedDeleteWorkflowStep = ({
 
 			const response = await deleteWorkflowStep(payload);
 			if (response?.[0]) {
-				const refetchData = await refetchWorkflowBuilderData();
+				const refetchData = await refetchWorkflowBuilderData({ closeSideBar: true });
 				if (refetchData?.[0]) {
 					closeModal();
 				}

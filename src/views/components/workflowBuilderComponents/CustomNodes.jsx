@@ -1,18 +1,32 @@
 import React, { useCallback, useState } from 'react';
-import { Handle, NodeToolbar, Position } from '@xyflow/react';
+import { Handle, Position } from '@xyflow/react';
 import '../../../assets/scss/workflowBuilder/customNodes.scss';
 import { ReactComponent as Form } from '../../../assets/svg/worflow_builder/customNodes/form.svg';
 import { ReactComponent as Action } from '../../../assets/svg/worflow_builder/customNodes/actionSvg.svg';
 import { ReactComponent as IfElse } from '../../../assets/svg/worflow_builder/customNodes/ifelse.svg';
-
 import { ReactComponent as Slack } from '../../../assets/svg/worflow_builder/buildercard/slack.svg';
 import { ReactComponent as Google } from '../../../assets/svg/worflow_builder/buildercard/google.svg';
-
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/buildercard/labelledDustbin.svg';
 import { ReactComponent as Copy } from '../../../assets/svg/worflow_builder/buildercard/labelledCopy.svg';
 import { ReactComponent as Eye } from '../../../assets/svg/worflow_builder/buildercard/labelledEye.svg';
 import UpdatedDeleteWorkflowStep from '../modalsV2/workflowBuilderModals/UpdatedDeleteStepsModal';
 import { Tooltip } from 'antd';
+const actionTypeMapper = {
+	email: 'Send Email',
+	whatsapp: 'Whatsapp',
+	phone: 'Phone',
+	slack: 'Slack',
+	createTask: 'Create Task',
+	createMeeting: 'Create Meeting',
+};
+const actionTypeIconMapper = {
+	email: <Google />,
+	whatsapp: 'Whatsapp',
+	phone: 'Phone',
+	slack: <Slack />,
+	createTask: <Action />,
+	createMeeting: <Action />,
+};
 export const TriggerNode = ({ data }) => {
 	const onAddOptionsClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
@@ -48,23 +62,6 @@ export const TriggerNode = ({ data }) => {
 	);
 };
 
-const actionTypeMapper = {
-	email: 'Send Email',
-	whatsapp: 'Whatsapp',
-	phone: 'Phone',
-	slack: 'Slack',
-	createTask: 'Create Task',
-	createMeeting: 'Create Meeting',
-};
-const actionTypeIconMapper = {
-	email: <Google />,
-	whatsapp: 'Whatsapp',
-	phone: 'Phone',
-	slack: <Slack />,
-	createTask: <Action />,
-	createMeeting: <Action />,
-};
-
 export const ActionNode = ({ data }) => {
 	const [info, setInfo] = useState({
 		deleteModal: false,
@@ -87,17 +84,25 @@ export const ActionNode = ({ data }) => {
 			<div className="action-node">
 				<div className="upper-action-node-container">
 					<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-						{actionTypeIconMapper[data?.channels?.[0] || data?.actionType]}
+						{
+							actionTypeIconMapper[
+								data?.currentStep?.channels?.[0] || data?.currentStep?.actionType
+							]
+						}
 						Actions
 					</span>
 					<span>
-						{actionTypeMapper[data?.channels?.[0] || data?.actionType] || 'Email'}
+						{actionTypeMapper[
+							data?.currentStep?.channels?.[0] || data?.currentStep?.actionType
+						] || 'Email'}
 					</span>
 				</div>
 				<div className="lower-action-node-container">
-					<span className="lower-action-node-title">{data?.title || 'Steps Title'}</span>
+					<span className="lower-action-node-title">
+						{data?.currentStep?.title || 'Steps Title'}
+					</span>
 					<span className="lower-action-node-subtitle">
-						{data?.description || 'Steps Description'}
+						{data?.currentStep?.description || 'Steps Description'}
 					</span>
 				</div>
 				<Handle type="source" position={Position.Bottom} />
@@ -107,8 +112,8 @@ export const ActionNode = ({ data }) => {
 					modalIsOpen={info?.deleteModal}
 					closeModal={handleCloseDeleteModal}
 					templateId={data?.templateId}
-					stepId={data?._id}
-					workflowdata={data}
+					stepId={data?.currentStep?._id}
+					workflowdata={data?.currentStep}
 					refetchWorkflowBuilderData={data?.refetchWorkflowBuilderData}
 					stepsMapper={data?.stepsMapper}
 				/>
@@ -128,6 +133,18 @@ export const ConditionNode = ({ data }) => {
 	const openDeleteModal = useCallback(() => {
 		setInfo((prev) => ({ ...prev, deleteModal: true }));
 	}, [info]);
+
+	const onConditionNodeClick = useCallback(() => {
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({
+				toolBarOpen: true,
+				sidebarType: 'conditions',
+				activeStepsData: data?.currentStep,
+				editMode: true,
+			});
+		}
+	}, [data]);
+
 	return (
 		<Tooltip
 			placement="right"
@@ -135,7 +152,7 @@ export const ConditionNode = ({ data }) => {
 			arrow={false}
 			rootClassName="customNodesToolTip"
 		>
-			<div className="action-node">
+			<div className="action-node" onClick={onConditionNodeClick}>
 				<div className="upper-action-node-container">
 					<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 						<IfElse />
@@ -144,9 +161,12 @@ export const ConditionNode = ({ data }) => {
 					<span> Condition</span>
 				</div>
 				<div className="lower-action-node-container">
-					<span className="lower-action-node-title">Post editing</span>
+					<span className="lower-action-node-title">
+						{data?.currentStep?.title || 'Steps Title'}
+					</span>
+
 					<span className="lower-action-node-subtitle">
-						Post editing for client abhiloss
+						{data?.currentStep?.description || 'Steps Description'}
 					</span>
 				</div>
 				<Handle type="source" position={Position.Bottom} />
@@ -155,8 +175,8 @@ export const ConditionNode = ({ data }) => {
 					modalIsOpen={info?.deleteModal}
 					closeModal={handleCloseDeleteModal}
 					templateId={data?.templateId}
-					stepId={data?._id}
-					workflowdata={data}
+					stepId={data?.currentStep?._id}
+					workflowdata={data?.currentStep}
 					refetchWorkflowBuilderData={data?.refetchWorkflowBuilderData}
 					stepsMapper={data?.stepsMapper}
 				/>

@@ -71,6 +71,8 @@ const WorkflowBuilderUpdated = () => {
 		sidebarType: null,
 		toolBarOpen: false,
 		activeEdge: null,
+		activeStepsData: null,
+		editMode: false,
 	});
 
 	const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -167,7 +169,7 @@ const WorkflowBuilderUpdated = () => {
 				position: { x: nodeX, y: nodeY },
 				type: currentStep?.type,
 				data: {
-					...currentStep,
+					currentStep,
 					onToolBarOpen: handleToolBarOpen,
 					stepsMapper: stepsMapper,
 					templateId: templateId,
@@ -306,7 +308,14 @@ const WorkflowBuilderUpdated = () => {
 	}, []);
 
 	const handleToolBarClose = useCallback(() => {
-		setInfo((prev) => ({ ...prev, toolBarOpen: false, sidebarType: null, activeEdge: null }));
+		setInfo((prev) => ({
+			...prev,
+			toolBarOpen: false,
+			sidebarType: null,
+			activeEdge: null,
+			editMode: false,
+			activeStepsData: null,
+		}));
 	}, []);
 
 	const handleToolBarOpen = useCallback(
@@ -346,10 +355,15 @@ const WorkflowBuilderUpdated = () => {
 		}
 	}, [info?.publishLoading, specificTemplatesInfo]);
 
-	const refetchWorkflowBuilderData = useCallback(async () => {
+	const refetchWorkflowBuilderData = useCallback(async (data) => {
 		await getSpecificTemplatesInfo({
 			templateInfoId: templateId,
 		});
+
+		if (data?.closeSideBar) {
+			handleToolBarClose();
+		}
+
 		return [true];
 	}, []);
 
@@ -406,6 +420,9 @@ const WorkflowBuilderUpdated = () => {
 				sidebarType={info?.sidebarType}
 				activeEdge={info?.activeEdge}
 				templateId={templateId}
+				activeStepsData={info?.activeStepsData}
+				editMode={info?.editMode}
+				refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 			/>
 		</div>
 	);

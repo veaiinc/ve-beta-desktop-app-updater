@@ -32,12 +32,6 @@ const CustomEdges = ({
 		addNodesPopUp: false,
 	});
 
-	const onEdgeClick = (e) => {
-		// e.preventDefault();
-		// e.stopPropagation();
-		// console.log('Edge button clicked:', id);
-	};
-
 	const onAddOptionsClick = useCallback((type) => {
 		if (data?.onToolBarOpen) {
 			data.onToolBarOpen({ toolBarOpen: true, sidebarType: type, activeEdge: id });
@@ -74,7 +68,6 @@ const CustomEdges = ({
 							<button
 								type="button"
 								className="edgeButton nodrag nopan"
-								onClick={onEdgeClick}
 								style={{
 									pointerEvents: 'all',
 									cursor: 'pointer',

@@ -17,9 +17,16 @@ import Context from '../../../../context/context';
 const conditionsList = {
 	ifElse: { title: 'If / Else', id: 'ifElse' },
 };
-const Conditions = ({ onCLose, activeEdge, templateId }) => {
+const Conditions = ({
+	onCLose,
+	activeEdge,
+	templateId,
+	editMode,
+	activeStepsData,
+	refetchWorkflowBuilderData,
+}) => {
 	const {
-		templates: { addNewSteps, updateStateValues, specificTemplatesInfo },
+		templates: { addNewSteps, updateStateValues, specificTemplatesInfo, updateSteps },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		search: '',
@@ -33,6 +40,12 @@ const Conditions = ({ onCLose, activeEdge, templateId }) => {
 			handleDebouce();
 		}
 	}, [info?.searchChanged, info?.search]);
+
+	useEffect(() => {
+		if (editMode) {
+			setInfo((prev) => ({ ...prev, activeStage: 'stage2' }));
+		}
+	}, [editMode]);
 
 	const handleSearch = (e) => {
 		setInfo((prev) => ({ ...prev, search: e.target.value, searchChanged: true }));
@@ -53,33 +66,62 @@ const Conditions = ({ onCLose, activeEdge, templateId }) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
 
-	const createNewConditionNode = useCallback(async (data) => {
-		if (info?.saveLoader) {
-			return;
-		}
-		setInfo((prev) => ({ ...prev, saveLoader: true }));
-		const previousStepId = activeEdge?.split('-')?.[0];
+	const createNewConditionNode = useCallback(
+		async (data) => {
+			if (info?.saveLoader) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, saveLoader: true }));
+			const previousStepId = activeEdge?.split('-')?.[0];
 
-		const payload = {
-			stepInput: {
-				previousStepId: previousStepId,
-				type: 'condition',
-				title: data?.title,
-				criteria: { status: data?.status },
-				moveTo: data?.moveTo,
-			},
-			templateId: templateId,
-		};
+			const payload = {
+				stepInput: {
+					previousStepId: previousStepId,
+					type: 'condition',
+					title: data?.title,
+					criteria: { status: data?.status },
+					moveTo: data?.moveTo,
+				},
+				templateId: templateId,
+			};
 
-		const response = await addNewSteps(payload);
-		if (response?.[0]) {
-			const updatedSmartFileInfo = { ...(specificTemplatesInfo || {}) };
-			updatedSmartFileInfo.steps = [...(response?.[1]?.steps || [])];
-			updateStateValues({ specificTemplatesInfo: updatedSmartFileInfo });
-			onCLose();
-		}
-		setInfo((prev) => ({ ...prev, saveLoader: false }));
-	}, []);
+			const response = await addNewSteps(payload);
+			if (response?.[0]) {
+				const updatedSmartFileInfo = { ...(specificTemplatesInfo || {}) };
+				updatedSmartFileInfo.steps = [...(response?.[1]?.steps || [])];
+				updateStateValues({ specificTemplatesInfo: updatedSmartFileInfo });
+				onCLose();
+			}
+			setInfo((prev) => ({ ...prev, saveLoader: false }));
+		},
+		[info],
+	);
+
+	const editConditionNode = useCallback(
+		async (data) => {
+			if (info?.saveLoader) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, saveLoader: true }));
+
+			const payload = {
+				updateStepInput: {
+					type: 'condition',
+					title: data?.title,
+					criteria: { status: data?.status },
+					stepId: activeStepsData?._id,
+				},
+				templateId: templateId,
+			};
+			const response = await updateSteps(payload);
+			if (response?.[0]) {
+				await refetchWorkflowBuilderData();
+				onCLose();
+			}
+			setInfo((prev) => ({ ...prev, saveLoader: false }));
+		},
+		[info, activeStepsData],
+	);
 
 	const stageMapper = useMemo(() => {
 		return {
@@ -96,6 +138,9 @@ const Conditions = ({ onCLose, activeEdge, templateId }) => {
 					changeStage={changeStage}
 					info={info}
 					createNewConditionNode={createNewConditionNode}
+					editMode={editMode}
+					activeStepsData={activeStepsData}
+					editConditionNode={editConditionNode}
 				/>
 			),
 			// stage3: <Stage3 changeStage={changeStage} info={info} />,
@@ -151,12 +196,36 @@ const Stage1 = ({ info, handleSearch, changeStage }) => {
 	);
 };
 
-const Stage2 = ({ info, changeStage, createNewConditionNode }) => {
+const Stage2 = ({
+	info,
+	changeStage,
+	createNewConditionNode,
+	editMode,
+	activeStepsData,
+	editConditionNode,
+}) => {
 	const [stageInfo, setStageInfo] = useState({
 		criteria: conditionOptions?.[0],
 		title: '',
 		moveSteps: MoveStepsOptions?.[0],
 	});
+
+	useEffect(() => {
+		if (editMode && activeStepsData) {
+			const { title, criteria } = activeStepsData;
+			let selectedCriteria = null;
+
+			for (let i = 0; i < conditionOptions?.length; i++) {
+				if (conditionOptions[i]?.value === criteria?.status) {
+					selectedCriteria = conditionOptions[i];
+					break;
+				}
+			}
+
+			setStageInfo((prev) => ({ ...prev, title, criteria: selectedCriteria }));
+		}
+	}, [editMode, activeStepsData]);
+
 	const onConditionSelection = useCallback(
 		(data) => {
 			if (data?.value === stageInfo?.priority?.value) {
@@ -185,12 +254,18 @@ const Stage2 = ({ info, changeStage, createNewConditionNode }) => {
 		if (!stageInfo?.title?.length) {
 			return message.error('title is mandatory');
 		}
+		if (editMode) {
+			return editConditionNode({
+				title: stageInfo?.title,
+				status: stageInfo?.criteria?.value,
+			});
+		}
 		createNewConditionNode({
 			title: stageInfo?.title,
 			status: stageInfo?.criteria?.value,
 			moveTo: stageInfo?.moveSteps?.value,
 		});
-	}, [stageInfo]);
+	}, [stageInfo, editMode]);
 	return (
 		<div className="createTaskUiContainer">
 			<div className="createTasksUi">
@@ -220,27 +295,31 @@ const Stage2 = ({ info, changeStage, createNewConditionNode }) => {
 					/>
 				</div>
 
-				<div className="addTaskTitleContainer">
-					<span className="addTaskTitleTextStyle">Move Steps</span>
-					<HeadersDropDownComp
-						options={MoveStepsOptions}
-						showIcon={false}
-						containerStyle={{
-							...containerStyle,
-						}}
-						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{ ...dropDownStyle }}
-						dropDownTextStyling={{ ...dropDownTextStyling }}
-						showSelectedValueTick={true}
-						uniqueIdentifierForTickIcon={'value'}
-						selectedValueObj={stageInfo?.moveSteps}
-						selectedValueStyle={{
-							...selectedValueStyling,
-						}}
-						selectedValue={stageInfo?.moveSteps?.label || ''}
-						onChangeFunc={onMoveStepsSelection}
-					/>
-				</div>
+				{!editMode ? (
+					<div className="addTaskTitleContainer">
+						<span className="addTaskTitleTextStyle">Move Steps</span>
+						<HeadersDropDownComp
+							options={MoveStepsOptions}
+							showIcon={false}
+							containerStyle={{
+								...containerStyle,
+							}}
+							outerContainerStyle={{ width: '100%' }}
+							dropDownStyle={{ ...dropDownStyle }}
+							dropDownTextStyling={{ ...dropDownTextStyling }}
+							showSelectedValueTick={true}
+							uniqueIdentifierForTickIcon={'value'}
+							selectedValueObj={stageInfo?.moveSteps}
+							selectedValueStyle={{
+								...selectedValueStyling,
+							}}
+							selectedValue={stageInfo?.moveSteps?.label || ''}
+							onChangeFunc={onMoveStepsSelection}
+						/>
+					</div>
+				) : (
+					''
+				)}
 
 				<div className="addTaskTitleContainer">
 					<span className="addTaskTitleTextStyle">Criteria</span>
@@ -264,9 +343,15 @@ const Stage2 = ({ info, changeStage, createNewConditionNode }) => {
 					/>
 				</div>
 			</div>
-			<div className="actionsSaveButton" onClick={modifiedHandleClick}>
-				{info?.saveLoader ? <Spin /> : 'Save'}
-			</div>
+			{editMode ? (
+				<div className="actionsSaveButton" onClick={modifiedHandleClick}>
+					{info?.saveLoader ? <Spin /> : 'Update'}
+				</div>
+			) : (
+				<div className="actionsSaveButton" onClick={modifiedHandleClick}>
+					{info?.saveLoader ? <Spin /> : 'Save'}
+				</div>
+			)}
 		</div>
 	);
 };

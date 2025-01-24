@@ -36,6 +36,7 @@ import {
 	getLatestSendSmartFileSettingsQuery,
 	getActivityLogsQuery,
 	addNewStepsQuery,
+	updateStepsQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -1352,6 +1353,28 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const updateSteps = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateStepsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				console.log('response==>updateSteps', response);
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateSteps', error);
+		}
+	};
 	//slack Apis
 	const getAllSlackChannels = async (slackAccessToken) => {
 		try {
@@ -1436,5 +1459,6 @@ export const TemplatesState = (props) => {
 		getDocsFilesList,
 		addNewSteps,
 		getAllSlackChannels,
+		updateSteps,
 	};
 };

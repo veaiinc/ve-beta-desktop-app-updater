@@ -5,7 +5,16 @@ import Actions from './WorkflowBuilderSidebarComponents/Actions';
 import Conditions from './WorkflowBuilderSidebarComponents/Conditions';
 import Notification from './WorkflowBuilderSidebarComponents/Notification';
 import Context from '../../../context/context';
-const BuilderToolbar = ({ open, onCLose, sidebarType, activeEdge, templateId }) => {
+const BuilderToolbar = ({
+	open,
+	onCLose,
+	sidebarType,
+	activeEdge,
+	templateId,
+	activeStepsData,
+	editMode,
+	refetchWorkflowBuilderData,
+}) => {
 	const {
 		templates: { getAllSlackChannels },
 		profileInfo: { getTenantSettings, tennantSettingsData },
@@ -40,7 +49,14 @@ const BuilderToolbar = ({ open, onCLose, sidebarType, activeEdge, templateId }) 
 		return {
 			actions: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
 			conditions: (
-				<Conditions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />
+				<Conditions
+					onCLose={onCLose}
+					activeEdge={activeEdge}
+					templateId={templateId}
+					activeStepsData={activeStepsData}
+					editMode={editMode}
+					refetchWorkflowBuilderData={refetchWorkflowBuilderData}
+				/>
 			),
 			notifications: (
 				<Notification

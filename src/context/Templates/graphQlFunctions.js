@@ -453,3 +453,11 @@ export const addNewStepsQuery = gql`
 		addStep(templateId: $templateId, stepInput: $stepInput)
 	}
 `;
+
+export const updateStepsQuery = gql`
+	mutation UpdateStep($templateId: ID!, $updateStepInput: UpdateStepInput!) {
+		updateStep(templateId: $templateId, updateStepInput: $updateStepInput) {
+			message
+		}
+	}
+`;
