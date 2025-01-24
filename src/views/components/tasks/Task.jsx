@@ -5,8 +5,9 @@ import { ReactComponent as ListViewIcon } from '../../../assets/svg/tasks/list.s
 import { ReactComponent as BoardViewIcon } from '../../../assets/svg/tasks/board.svg';
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
 import ListView from './views/ListView';
-import BoardView from './views/BoardView';
+// import BoardView from './views/BoardView';
 import TableView from './views/TableView';
+import TabDropDown from '../dropDown/tasks/TabDropDown';
 
 const icons = {
 	list: ListViewIcon,
@@ -48,6 +49,15 @@ const Task = ({
 		},
 		activeTab: '1',
 	});
+	const [showEditViewDropDown, setShowEditViewDropDown] = useState(false);
+
+	const handleEditViewDropDown = useCallback(() => {
+		setShowEditViewDropDown(true);
+	}, []);
+
+	const closeEditViewDropDown = useCallback(() => {
+		setShowEditViewDropDown(false);
+	}, []);
 
 	const handleTabChange = useCallback(
 		(tabData) => {
@@ -71,8 +81,8 @@ const Task = ({
 		(newTabs) => {
 			const reorderedTabs = {};
 			newTabs.forEach((tab, index) => {
-				reorderedTabs[tab._id] = {
-					...taskInfo.tabs[tab._id],
+				reorderedTabs[tab?._id] = {
+					...taskInfo.tabs[tab?._id],
 					order: index,
 				};
 			});
@@ -85,10 +95,14 @@ const Task = ({
 		[taskInfo.tabs],
 	);
 
+	const generateNewId = useCallback(() => {
+		return Date.now().toString();
+	}, []);
+
 	const handleAddTab = useCallback(() => {
 		setTaskInfo((prev) => {
-			const newTabId = Object.keys(prev.tabs).length + 1 + '';
-			const maxOrder = Math.max(...Object.values(prev.tabs).map((tab) => tab.order), -1);
+			const newTabId = generateNewId();
+			const maxOrder = Math.max(...Object.values(prev.tabs)?.map((tab) => tab.order), -1);
 
 			return {
 				...prev,
@@ -106,7 +120,7 @@ const Task = ({
 				},
 			};
 		});
-	}, []);
+	}, [generateNewId]);
 
 	const getDefaultLabel = (view) => {
 		const labels = {
@@ -147,7 +161,7 @@ const Task = ({
 		(view) => {
 			const views = {
 				list: ListView,
-				board: BoardView,
+				// board: BoardView,
 				table: TableView,
 			};
 			const Component = views?.[view] || ListView;
@@ -191,6 +205,82 @@ const Task = ({
 		],
 	);
 
+	const handleDeleteTab = useCallback((tabId) => {
+		setTaskInfo((prev) => {
+			// Prevent deletion if there's only one tab
+			if (Object.keys(prev.tabs).length <= 1) {
+				return prev;
+			}
+
+			const newTabs = { ...prev.tabs };
+			delete newTabs[tabId];
+
+			// If deleting active tab, switch to first available tab
+			let newActiveTab = prev.activeTab;
+			if (tabId === prev.activeTab) {
+				const remainingTabs = Object.keys(newTabs);
+				newActiveTab = remainingTabs[0] || null;
+			}
+
+			return {
+				...prev,
+				tabs: newTabs,
+				activeTab: newActiveTab,
+			};
+		});
+	}, []);
+
+	const handleDuplicateTab = useCallback(
+		(tabId) => {
+			setTaskInfo((prev) => {
+				const tabToDuplicate = prev.tabs[tabId];
+				const newTabId = generateNewId();
+				const maxOrder = Math.max(...Object.values(prev.tabs).map((tab) => tab.order), -1);
+
+				return {
+					...prev,
+					tabs: {
+						...prev.tabs,
+						[newTabId]: {
+							...tabToDuplicate,
+							_id: newTabId,
+							label: `${tabToDuplicate.label} (Copy)`,
+							order: maxOrder + 1,
+						},
+					},
+				};
+			});
+		},
+		[generateNewId],
+	);
+
+	const handleTabDropdownClick = useCallback(
+		(option) => {
+			if (option?.value === 'deleteView') {
+				// Check if deletion is allowed
+				if (Object.keys(taskInfo?.tabs)?.length <= 1) {
+					// You could show a toast/notification here
+					console.log('Cannot delete the last remaining tab');
+					return;
+				}
+				handleDeleteTab(taskInfo?.activeTab);
+			}
+			if (option?.value === 'duplicateView') {
+				handleDuplicateTab(taskInfo?.activeTab);
+			}
+			if (option?.value === 'editView' || option?.value === 'renameView') {
+				handleEditViewDropDown();
+			}
+		},
+		[
+			handleDeleteTab,
+			handleDuplicateTab,
+			handleEditViewDropDown,
+			taskInfo?.activeTab,
+			taskInfo?.tabs,
+		],
+	);
+
 	return (
 		<div className="task-container">
 			<ListViewHeader
@@ -207,11 +297,24 @@ const Task = ({
 				colors={colors}
 				view={taskInfo?.tabs?.[taskInfo?.activeTab]?.view}
 				handleTabChange={handleTabChange}
-				tabs={taskInfo.tabs}
+				tabs={taskInfo?.tabs}
 				handleAddTab={handleAddTab}
 				updateViewInfo={updateViewInfo}
 				viewData={taskInfo?.tabs?.[taskInfo?.activeTab]}
 				handleTabsReorder={handleTabsReorder}
+				showEditViewDropDown={showEditViewDropDown}
+				closeEditViewDropDown={closeEditViewDropDown}
+				tabDropDown={
+					<TabDropDown
+						options={[
+							{ label: 'Rename View', value: 'renameView' },
+							{ label: 'Edit View', value: 'editView' },
+							{ label: 'Duplicate View', value: 'duplicateView' },
+							{ label: 'Delete View', value: 'deleteView' },
+						]}
+						onOptionClick={handleTabDropdownClick}
+					/>
+				}
 			/>
 			<div className="task-content-area">
 				{viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.view)}

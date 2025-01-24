@@ -4,7 +4,14 @@ import { Tooltip } from 'antd';
 import { ReactComponent as SixDotsSvg } from '../../../../assets/svg/tasks/sixDots.svg';
 import '../../../../assets/scss/tasks/tabHeader.scss';
 
-const TabHeader = ({ activeTab, onTabChange, tabs, onTabsReorder }) => {
+const TabHeader = ({
+	activeTab,
+	onTabChange,
+	tabs,
+	onTabsReorder,
+	showDropDown = false,
+	dropdownContent = null,
+}) => {
 	const containerRef = useRef(null);
 	const tabRefs = useRef({});
 	const [tabList, setTabList] = useState([]);
@@ -95,22 +102,32 @@ const TabHeader = ({ activeTab, onTabChange, tabs, onTabsReorder }) => {
 							{tabList.slice(0, visibleCount).map((tab, index) => (
 								<Draggable key={tab._id} draggableId={tab._id} index={index}>
 									{(provided, snapshot) => (
-										<div
-											ref={(el) => {
-												provided.innerRef(el);
-												tabRefs.current[tab._id] = el;
-											}}
-											{...provided.draggableProps}
-											{...provided.dragHandleProps}
-											className={`tabHeaderButton ${
-												activeTab === tab._id ? 'active' : ''
-											} ${snapshot.isDragging ? 'dragging' : ''}`}
-											onClick={() => onTabChange(tab)}
+										<Tooltip
+											placement="bottom"
+											arrow={false}
+											color="transparent"
+											trigger="click"
+											open={showDropDown && activeTab === tab._id}
+											overlayClassName="tab-dropdown"
+											title={activeTab === tab._id ? dropdownContent : null}
 										>
-											{tab?.Icon && <tab.Icon />}
-											<span className="tab-label">{tab?.label}</span>
-											<span className="tab-underline" />
-										</div>
+											<div
+												ref={(el) => {
+													provided.innerRef(el);
+													tabRefs.current[tab._id] = el;
+												}}
+												{...provided.draggableProps}
+												{...provided.dragHandleProps}
+												className={`tabHeaderButton ${
+													activeTab === tab._id ? 'active' : ''
+												} ${snapshot.isDragging ? 'dragging' : ''}`}
+												onClick={() => onTabChange(tab)}
+											>
+												{tab?.Icon && <tab.Icon />}
+												<span className="tab-label">{tab?.label}</span>
+												<span className="tab-underline" />
+											</div>
+										</Tooltip>
 									)}
 								</Draggable>
 							))}
