@@ -43,6 +43,8 @@ const ListViewHeader = ({
 	updateViewInfo,
 	updateTaskInfo,
 	viewData,
+	blockTitle,
+	handleTabsReorder,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -55,6 +57,14 @@ const ListViewHeader = ({
 			searchInputRef.current?.focus();
 		}
 	}, [info.searchExpand]);
+
+	useEffect(() => {
+		console.log('ListViewHeader props:', {
+			activeTab: viewData?._id,
+			tabs,
+			viewData,
+		});
+	}, [viewData, tabs]);
 
 	const handelSortClick = useCallback(
 		(value) => {
@@ -87,11 +97,23 @@ const ListViewHeader = ({
 
 	return (
 		<div className="listViewHeaderContainer">
+			<div className="listViewHeaderTitle">{blockTitle || 'Untitled'}</div>
 			<div className="listViewHeader">
-				<div className="listViewHeaderTitle">{headerTitle}</div>
+				<div className="listViewHeaderTabsContainer">
+					<TabHeader
+						activeTab={viewData?._id}
+						onTabChange={handleTabChange}
+						tabs={Object.values(tabs || {})}
+						onTabsReorder={handleTabsReorder}
+					/>
+					<button className="listViewHeaderTabsAddButton" onClick={handleAddTab}>
+						<PlusSvg />
+					</button>
+				</div>
+
 				<div className="listViewHeaderActions">
 					<button className="listViewHeaderAddTaskButton" onClick={addButtonOnClick}>
-						{createButtonText}
+						{createButtonText || 'Add'}
 					</button>
 					<div
 						className="searchContainer"
@@ -146,12 +168,12 @@ const ListViewHeader = ({
 								</span>
 							</div>
 						</div>
+						{
+							// <button className="listViewHeaderActionButton">
+							// 	<ThunderSvg />
+							// </button>
+						}
 					</div>
-					{
-						// <button className="listViewHeaderActionButton">
-						// 	<ThunderSvg />
-						// </button>
-					}
 					<DropDown
 						title="Sort"
 						options={properties.filter(
@@ -189,16 +211,7 @@ const ListViewHeader = ({
 					/>
 				</div>
 			</div>
-			<div className="listViewHeaderTabsContainer">
-				<TabHeader
-					activeTab={viewData?._id}
-					onTabChange={handleTabChange}
-					tabs={Object.values(tabs)}
-				/>
-				<button className="listViewHeaderTabsAddButton" onClick={handleAddTab}>
-					<PlusSvg />
-				</button>
-			</div>
+
 			<div className="listViewOptionsContainer">
 				{viewData?.sort?.length > 0 ? (
 					<SortComponent

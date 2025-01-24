@@ -3,25 +3,44 @@
 	// position: sticky;
 	// top: 0;
 	// z-index: 1;
-	padding-bottom: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+
+	.listViewHeaderTitle {
+		color: #e8e8e8;
+		font-family: Inter;
+		font-size: 24px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
 	.listViewHeader {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		height: fit-content;
+		border-bottom: 1px solid #171819;
+		gap: 16px;
 
-		.listViewHeaderTitle {
-			color: #e8e8e8;
-			font-family: Inter;
-			font-size: 24px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
+		.listViewHeaderTabsContainer {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			height: 43px;
+			flex: 1;
+			max-width: calc(100% - 300px);
+			overflow: visible;
+			min-width: 0;
 		}
 
 		.listViewHeaderActions {
 			display: flex;
 			align-items: center;
-			gap: 8px;
+			gap: 12px;
+			flex-shrink: 0;
+			width: fit-content;
+			padding: 4px 0;
 			button {
 				border: none;
 				background: none;
@@ -80,12 +99,10 @@
 
 			.searchContainer {
 				position: relative;
-				// background-color: red;
 				min-width: 16px;
 				display: inline-block;
 				height: 16px;
 				transition: all 0.3s ease;
-
 				.searchBtn {
 					display: flex;
 					width: 16px;
@@ -152,7 +169,10 @@
 	.listViewHeaderTabsContainer {
 		display: flex;
 		align-items: center;
-		gap: 16px;
+		gap: 8px;
+		height: 43px;
+		width: 100%;
+		overflow: visible;
 
 		.listViewHeaderTabsAddButton {
 			display: flex;

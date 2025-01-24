@@ -15,7 +15,8 @@ const icons = {
 };
 
 const Task = ({
-	// info,
+	blockTitle,
+	createButtonText,
 	responseMetadata,
 	handleAddButtonOnClick,
 	colors,
@@ -42,6 +43,7 @@ const Task = ({
 				Icon: icons.list,
 				filters: [],
 				sort: [],
+				order: 0,
 			},
 		},
 		activeTab: '1',
@@ -65,31 +67,71 @@ const Task = ({
 		[taskInfo.tabs, updateTaskInfo, taskInfo?.activeTab],
 	);
 
+	const handleTabsReorder = useCallback(
+		(newTabs) => {
+			const reorderedTabs = {};
+			newTabs.forEach((tab, index) => {
+				reorderedTabs[tab._id] = {
+					...taskInfo.tabs[tab._id],
+					order: index,
+				};
+			});
+
+			setTaskInfo((prev) => ({
+				...prev,
+				tabs: reorderedTabs,
+			}));
+		},
+		[taskInfo.tabs],
+	);
+
 	const handleAddTab = useCallback(() => {
-		setTaskInfo((prev) => ({
-			...prev,
-			tabs: {
-				...prev.tabs,
-				[Object.keys(prev.tabs).length + 1 + '']: {
-					_id: Object.keys(prev.tabs).length + 1 + '',
-					view: 'list',
-					label: 'List',
-					Icon: icons.list,
-					filters: [],
-					sort: [],
+		setTaskInfo((prev) => {
+			const newTabId = Object.keys(prev.tabs).length + 1 + '';
+			const maxOrder = Math.max(...Object.values(prev.tabs).map((tab) => tab.order), -1);
+
+			return {
+				...prev,
+				tabs: {
+					...prev.tabs,
+					[newTabId]: {
+						_id: newTabId,
+						view: 'list',
+						label: 'List',
+						Icon: icons.list,
+						filters: [],
+						sort: [],
+						order: maxOrder + 1,
+					},
 				},
-			},
-		}));
+			};
+		});
 	}, []);
+
+	const getDefaultLabel = (view) => {
+		const labels = {
+			list: 'List',
+			board: 'Board',
+			table: 'Table',
+		};
+		return labels[view] || 'List';
+	};
 
 	const updateViewInfo = useCallback(
 		(viewId, updateData) => {
 			const newTabs = { ...taskInfo.tabs };
+
+			// If label is empty, use default label based on view
+			if (updateData.label === '') {
+				updateData.label = getDefaultLabel(updateData.view || newTabs[viewId].view);
+			}
+
 			newTabs[viewId] = {
 				...newTabs[viewId],
 				...updateData,
 				Icon: icons?.[updateData?.view] || newTabs[viewId]?.Icon,
 			};
+
 			setTaskInfo((prev) => ({ ...prev, tabs: newTabs }));
 			if (updateData?.sort) {
 				updateTaskInfo({ sort: updateData?.sort });
@@ -157,18 +199,19 @@ const Task = ({
 				taskPreferences={taskPreferences}
 				searchValue={searchValue}
 				responseMetadata={responseMetadata}
-				headerTitle={'Tasks'}
+				blockTitle={blockTitle}
+				createButtonText={createButtonText}
 				addButtonOnClick={handleAddButtonOnClick}
 				editingProperty={null}
 				handleEditPropertyChange={() => {}}
 				colors={colors}
-				createButtonText={'Add Task'}
 				view={taskInfo?.tabs?.[taskInfo?.activeTab]?.view}
 				handleTabChange={handleTabChange}
-				tabs={taskInfo?.tabs}
+				tabs={taskInfo.tabs}
 				handleAddTab={handleAddTab}
 				updateViewInfo={updateViewInfo}
 				viewData={taskInfo?.tabs?.[taskInfo?.activeTab]}
+				handleTabsReorder={handleTabsReorder}
 			/>
 			<div className="task-content-area">
 				{viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.view)}

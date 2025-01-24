@@ -821,6 +821,8 @@ const Tasks = () => {
 				hasMore={info?.hasMore}
 				error={info?.error}
 				fetchMoreData={fetchMoreData}
+				blockTitle={'Tasks'}
+				createButtonText={'Create Task'}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
