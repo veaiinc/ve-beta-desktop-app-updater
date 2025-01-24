@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import '../../../assets/scss/forms/formLeads.scss';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ReactComponent as CurlyBracesSvg } from '../../../assets/svg/docs/curly-bracess.svg';
@@ -21,29 +21,44 @@ const FormLeads = () => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
 		searchValue: '',
+		totalSubmissions: 0,
+		completedEntries: 0,
+		partialEntries: 0,
 		activeTab: 'individualEntries', //summary
 	});
 
 	const metricsData = [
 		{
-			value: '100',
+			value: info?.totalSubmissions,
 			title: 'Total Submissions',
 		},
 		{
-			value: '100',
+			value: info?.completedEntries,
 			title: 'Completed Entries',
 		},
 		{
-			value: '100',
+			value: info?.partialEntries,
 			title: 'Partial Entries',
 		},
 	];
+
+	const updateTotalSubmissions = useCallback((length) => {
+		const totalSubmissions = length || 0;
+		// const completedEntries = length || 0;
+		// const partialEntries = length || 0;
+		setInfo((prev) => ({ ...prev, totalSubmissions }));
+	}, []);
 
 	const tabs = useMemo(() => {
 		return {
 			individualEntries: {
 				label: 'Individual Entries',
-				Component: <FormRes formId={formData?._id} />,
+				Component: (
+					<FormRes
+						formId={formData?._id}
+						updateTotalSubmissions={updateTotalSubmissions}
+					/>
+				),
 			},
 			summary: {
 				label: 'Summary',

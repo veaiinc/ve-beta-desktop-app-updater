@@ -5,7 +5,7 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
 
-const FormRes = ({ formId }) => {
+const FormRes = ({ formId, updateTotalSubmissions }) => {
 	const {
 		templates: { getFormResponsesList, formResponsesList, moreFormResponsesList },
 	} = useContext(Context);
@@ -18,6 +18,17 @@ const FormRes = ({ formId }) => {
 		formResponses: [],
 		columns: [],
 	});
+
+	useEffect(() => {
+		if (info?.resizing) {
+			document.addEventListener('mousemove', handleMouseMove);
+			document.addEventListener('mouseup', handleMouseUp);
+			return () => {
+				document.removeEventListener('mousemove', handleMouseMove);
+				document.removeEventListener('mouseup', handleMouseUp);
+			};
+		}
+	}, [info?.resizing]);
 
 	useEffect(() => {
 		fetchInitialResponses();
@@ -49,6 +60,12 @@ const FormRes = ({ formId }) => {
 		}
 	}, [moreFormResponsesList]);
 
+	useEffect(() => {
+		if (info?.formResponses?.length) {
+			updateTotalSubmissions(info?.formResponses?.length);
+		}
+	}, [info?.formResponses]);
+
 	const extractColumnsFromResponse = (responseArray) => {
 		if (!responseArray?.length) return [];
 
@@ -59,10 +76,10 @@ const FormRes = ({ formId }) => {
 		];
 
 		// Add columns from response questions
-		responseArray.forEach((item) => {
+		responseArray?.forEach((item) => {
 			// Extract text from HTML string
 			const questionText = item?.question?.replace(/<[^>]+>/g, '');
-			columns.push({
+			columns?.push({
 				id: item?._id,
 				width: 180,
 				label: questionText,
@@ -104,19 +121,6 @@ const FormRes = ({ formId }) => {
 			}));
 		}
 	}, [info?.hasNextPage, info?.currentPage, formId]);
-
-	console.log('info?.formResponses:', info?.formResponses);
-
-	useEffect(() => {
-		if (info?.resizing) {
-			document.addEventListener('mousemove', handleMouseMove);
-			document.addEventListener('mouseup', handleMouseUp);
-			return () => {
-				document.removeEventListener('mousemove', handleMouseMove);
-				document.removeEventListener('mouseup', handleMouseUp);
-			};
-		}
-	}, [info?.resizing]);
 
 	const handleMouseDown = useCallback(
 		(index, e) => {
