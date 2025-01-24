@@ -23,10 +23,12 @@ const SubscriptionCard = ({ planData, subscribedPlans }) => {
 		const aiCredits = planData?.aiCreditsDetails?.aiCredits ?? null;
 		const numberOfUsers = planData?.numberOfUsers ?? null;
 		const veSoftware = planData?.crmDetails?.isWorkflowsEnabled ?? null;
+		const storageInGB = planData?.storageDetails?.storageInGB + ' GB' ?? null;
 		return [
 			{ title: 'AI Credits: ', value: aiCredits },
 			{ title: 'Team Members: ', value: numberOfUsers },
 			{ title: 'VE Software ', value: veSoftware },
+			{ title: 'Storage: ', value: storageInGB },
 		];
 	}, [planData]);
 
