@@ -9,6 +9,7 @@ import { ReactComponent as UppercaseLowercaseA } from '../../../assets/svg/docs/
 import { ReactComponent as MailLetter } from '../../../assets/svg/docs/mail-letter.svg';
 import { ReactComponent as StatusCircle } from '../../../assets/svg/docs/status-circle.svg';
 import { ReactComponent as CrossPurple } from '../../../assets/svg/docs/cross-purple.svg';
+import { ReactComponent as Sync } from '../../../assets/svg/docs/sync.svg';
 
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
@@ -516,28 +517,42 @@ const Docs = () => {
 
 	return (
 		<div className="docsParentContainer">
+			<div className="docsHeaderTitleContainer">
+				<span className="lineOne">Create a</span>
+				<span className="lineTwo">Document</span>
+			</div>
+
 			<div className="docsParentHeaderContainer">
-				<div className="docsHeaderButtons colorful" onClick={onGenerateAIFunc}>
+				<div className="docsHeaderButtons" onClick={onGenerateAIFunc}>
 					<div className="docsHeaderButtonsTitle">Create proposal from your template</div>
-					<div className="docsHeaderSubButtonsSubTitleColored">Start with AI</div>
+					<div className="docsHeaderSubButtonsSubTitleColored colorful">
+						Start with AI
+					</div>
 				</div>
+
 				<div className="docsHeaderButtons">
 					{' '}
 					<div className="docsHeaderButtonsTitle">Import file or URL</div>
-					<div className="docsHeaderSubButtonsSubTitle">
+					<div className="docsHeaderSubButtonsSubTitleColored">
 						Pick your template from playbook
 					</div>
 				</div>
+
 				<div onClick={() => navigate('/my-templates')} className="docsHeaderButtons">
 					{' '}
 					<div className="docsHeaderButtonsTitle">Create proposal from your template</div>
-					<div className="docsHeaderSubButtonsSubTitle">
-						Upload your files, our AI will generate tailored proposal for you
+					<div className="docsHeaderSubButtonsSubTitleColored">
+						Pick your template from playbook
 					</div>
 				</div>
 			</div>
 			{/* Ai Action is not ready yet */}
-			<div className="docsTemplatesContainer">
+			{/* <div className="docsTemplatesContainer">
+				<div className="promptHeader">
+					<span>Suggested Prompt</span>
+					<Sync />
+				</div>
+
 				<div className="docsTemplateContainer">
 					{staticCreateActions?.map((ele, index) => (
 						<div key={index} className="createStaticActionsCards">
@@ -546,7 +561,7 @@ const Docs = () => {
 						</div>
 					))}
 				</div>
-			</div>
+			</div> */}
 
 			<div className="docsFileContainer">
 				<div className="docsFileHeaderContainer">
