@@ -148,3 +148,8 @@
 		cursor: pointer;
 	}
 }
+.customNodesToolTip {
+	.ant-tooltip-inner {
+		background-color: transparent !important;
+	}
+}

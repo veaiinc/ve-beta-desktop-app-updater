@@ -12,6 +12,7 @@ import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/b
 import { ReactComponent as Copy } from '../../../assets/svg/worflow_builder/buildercard/labelledCopy.svg';
 import { ReactComponent as Eye } from '../../../assets/svg/worflow_builder/buildercard/labelledEye.svg';
 import UpdatedDeleteWorkflowStep from '../modalsV2/workflowBuilderModals/UpdatedDeleteStepsModal';
+import { Tooltip } from 'antd';
 export const TriggerNode = ({ data }) => {
 	const onAddOptionsClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
@@ -78,28 +79,40 @@ export const ActionNode = ({ data }) => {
 		setInfo((prev) => ({ ...prev, showRightToolbar: !prev?.showRightToolbar }));
 	}, [info]);
 
+	const openDeleteModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, deleteModal: true }));
+	}, [info]);
+
 	return (
-		<div
-			className="action-node"
-			onMouseEnter={handleShowRightToolbar}
-			onMouseLeave={handleShowRightToolbar}
+		<Tooltip
+			placement="right"
+			title={<HoverComponentForNodes openDeleteModal={openDeleteModal} />}
+			arrow={false}
+			rootClassName="customNodesToolTip"
 		>
-			<div className="upper-action-node-container">
-				<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-					{actionTypeIconMapper[data?.channels?.[0] || data?.actionType]}
-					Actions
-				</span>
-				<span>{actionTypeMapper[data?.channels?.[0] || data?.actionType] || 'Email'}</span>
-			</div>
-			<div className="lower-action-node-container">
-				<span className="lower-action-node-title">{data?.title || 'Steps Title'}</span>
-				<span className="lower-action-node-subtitle">
-					{data?.description || 'Steps Description'}
-				</span>
-			</div>
-			<Handle type="source" position={Position.Bottom} />
-			<Handle type="target" position={Position.Top} />
-			<NodeToolbar isVisible={info?.showRightToolbar} position={'right'}>
+			<div
+				className="action-node"
+				onMouseEnter={handleShowRightToolbar}
+				onMouseLeave={handleShowRightToolbar}
+			>
+				<div className="upper-action-node-container">
+					<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+						{actionTypeIconMapper[data?.channels?.[0] || data?.actionType]}
+						Actions
+					</span>
+					<span>
+						{actionTypeMapper[data?.channels?.[0] || data?.actionType] || 'Email'}
+					</span>
+				</div>
+				<div className="lower-action-node-container">
+					<span className="lower-action-node-title">{data?.title || 'Steps Title'}</span>
+					<span className="lower-action-node-subtitle">
+						{data?.description || 'Steps Description'}
+					</span>
+				</div>
+				<Handle type="source" position={Position.Bottom} />
+				<Handle type="target" position={Position.Top} />
+				{/* <NodeToolbar isVisible={info?.showRightToolbar} position={'right'}>
 				<div className="rightNodeToolBar">
 					<span>
 						<Eye />
@@ -111,17 +124,18 @@ export const ActionNode = ({ data }) => {
 						<Dustbin />
 					</span>
 				</div>
-			</NodeToolbar>
-			<UpdatedDeleteWorkflowStep
-				modalIsOpen={info?.deleteModal}
-				closeModal={handleCloseDeleteModal}
-				templateId={data?.templateId}
-				stepId={data?._id}
-				workflowdata={data}
-				refetchWorkflowBuilderData={data?.refetchWorkflowBuilderData}
-				stepsMapper={data?.stepsMapper}
-			/>
-		</div>
+			</NodeToolbar> */}
+				<UpdatedDeleteWorkflowStep
+					modalIsOpen={info?.deleteModal}
+					closeModal={handleCloseDeleteModal}
+					templateId={data?.templateId}
+					stepId={data?._id}
+					workflowdata={data}
+					refetchWorkflowBuilderData={data?.refetchWorkflowBuilderData}
+					stepsMapper={data?.stepsMapper}
+				/>
+			</div>
+		</Tooltip>
 	);
 };
 
@@ -154,6 +168,22 @@ export const EndNode = ({ data }) => {
 			</div>
 
 			<Handle type="target" position={Position.Top} />
+		</div>
+	);
+};
+
+const HoverComponentForNodes = ({ openDeleteModal }) => {
+	return (
+		<div className="rightNodeToolBar">
+			<span>
+				<Eye />
+			</span>
+			<span>
+				<Copy />
+			</span>
+			<span onClick={openDeleteModal}>
+				<Dustbin />
+			</span>
 		</div>
 	);
 };
