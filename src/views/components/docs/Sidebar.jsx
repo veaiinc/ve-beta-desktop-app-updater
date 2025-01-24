@@ -6,7 +6,7 @@ import { ReactComponent as ShareSvg } from '../../../assets/svg/docs/share.svg';
 import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
 import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
-import { ReactComponent as ActivitySvg } from '../../../assets/svg/docs/activity.svg';
+// import { ReactComponent as ActivitySvg } from '../../../assets/svg/docs/activity.svg';
 import { ReactComponent as DuplicateSvg } from '../../../assets/svg/shareAndEarn/copy.svg';
 import { ReactComponent as DeleteSvg } from '../../../assets/svg/tasks/dustBin.svg';
 import CustomTextArea from '../globalComponents/CusomTextArea';
@@ -22,7 +22,7 @@ import CopiedModal from '../modalsV2/workflowsModals/CopiedModal.jsx';
 import { fetchOriginSelection } from '../../../helpers/index.js';
 
 const initialState = {
-	activeTab: 'reqActions',
+	activeTab: 'preview', // reqActions, preview, activity
 	openMoreOptions: false,
 	sideBarExpanded: false,
 	isAlChatEnabled: false,
@@ -42,7 +42,8 @@ const initialState = {
 	activityDataLoading: true,
 };
 let origin = fetchOriginSelection();
-const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
+
+const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDeleteModal }) => {
 	const {
 		activityInfo: {
 			resetActivityState,
@@ -152,15 +153,20 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 	}, []);
 
 	const tabs = useMemo(() => {
-		const baseTabs = {
-			reqActions: {
+		const baseTabs = {};
+
+		// Add reqActions tab if we have required actions
+		if (info?.activeFileData?.requiredAction?.action) {
+			baseTabs.reqActions = {
 				label: 'Req Actions',
 				Component: <RequiredActions data={info?.activeFileData} />,
-			},
-			preview: {
-				label: 'Preview',
-				Component: <Preview data={info?.activeFileData} />,
-			},
+			};
+		}
+
+		// Add preview tab (always present)
+		baseTabs.preview = {
+			label: 'Preview',
+			Component: <Preview data={info?.activeFileData} />,
 		};
 
 		// Only add activity tab if we have activity data
@@ -400,15 +406,15 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 									overlayClassName="dot-svg-tooltip"
 									title={
 										<div className="dot-svg-tooltip-content">
-											<div className="items">
+											{/* <div className="items">
 												<ActivitySvg />
 												<span>Activity</span>
-											</div>
+											</div> */}
 											<div className="items">
 												<DuplicateSvg />
 												<span>Duplicate</span>
 											</div>
-											<div className="items">
+											<div className="items" onClick={openDeleteModal}>
 												<DeleteSvg />
 												<span>Delete</span>
 											</div>
