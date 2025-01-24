@@ -58,7 +58,7 @@ const filterOptions = [
 	{ name: 'Updated Date (reverse)', value: '-updatedAt' },
 	{ name: 'Custom', value: 'sortIndex' },
 ];
-const AddGallery = () => {
+const LiteGallery = () => {
 	const {
 		galleryInfo: {
 			getGalleries,
@@ -114,11 +114,15 @@ const AddGallery = () => {
 		};
 
 		initializeGallery();
-	}, []);
+	}, []); // Empty dependency array for initial load only
 
 	useEffect(() => {
 		if (tenantGalleries) {
-			setInfo((prev) => ({ ...prev, activeSort: tenantGalleries?.sort }));
+			setInfo((prev) => ({
+				...prev,
+				activeSort: tenantGalleries?.sort,
+				loading: false,
+			}));
 		}
 	}, [tenantGalleries]);
 	useEffect(() => {
@@ -138,14 +142,16 @@ const AddGallery = () => {
 			const options = {
 				page,
 				limit: info.limit,
-				storeOriginals: true,
+				storeOriginals: false,
 			};
 			if (title) {
 				options.title = title;
 				options.limit = info.limit + 1;
 			}
-			getGalleries(options, reset);
+
+			await getGalleries(options, reset);
 		} catch (err) {
+			console.error('Error fetching galleries:', err);
 			setInfo((prevState) => ({
 				...prevState,
 				error: err.message || 'Failed to fetch galleries',
@@ -155,7 +161,9 @@ const AddGallery = () => {
 
 	const handleNavigateGallery = (gallery) => {
 		getGalleryCredentials(gallery?._id);
-		navigate(`/galleries/${gallery?._id}`, { state: { galleryData: gallery } });
+		navigate(`/galleries/${gallery?._id}`, {
+			state: { galleryData: gallery, isLightGallery: true },
+		});
 	};
 
 	const handleNavigateSettings = (galleryId) => {
@@ -243,6 +251,7 @@ const AddGallery = () => {
 
 	return (
 		<div className="gallery-main-container">
+			{/* <h1>Light Gallery</h1> */}
 			<div className="seachbar-container">
 				<div className="gallery-filter">
 					<img src={Search} alt="searchh" />
@@ -404,11 +413,11 @@ const AddGallery = () => {
 					closeModal={handleCloseModal}
 					fetchGalleries={fetchGalleries}
 					message={message}
-					isLightGallery={false}
+					isLightGallery={true}
 				/>
 			</div>
 		</div>
 	);
 };
 
-export default AddGallery;
+export default LiteGallery;
