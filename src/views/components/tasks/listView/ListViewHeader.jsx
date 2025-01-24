@@ -48,6 +48,8 @@ const ListViewHeader = ({
 	tabDropDown,
 	showEditViewDropDown,
 	closeEditViewDropDown,
+	handleDuplicateView,
+	handleDeleteView,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -303,6 +305,8 @@ const ListViewHeader = ({
 						updateViewInfo={(viewInfo) => updateViewInfo(viewData?._id, viewInfo)}
 						openDropDown={showEditViewDropDown}
 						closeDropDown={closeEditViewDropDown}
+						handleDuplicateView={handleDuplicateView}
+						handleDeleteView={handleDeleteView}
 					/>
 				</div>
 			</div>

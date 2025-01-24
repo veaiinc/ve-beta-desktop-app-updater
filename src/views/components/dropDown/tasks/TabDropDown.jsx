@@ -14,6 +14,7 @@ const TabDropDown = ({ options = [], onOptionClick }) => {
 					className="dropdown-item"
 					onClick={() => handleOptionClick(option)}
 				>
+					{option?.icon}
 					{option.label}
 				</div>
 			))}

@@ -4,6 +4,9 @@ import ListViewHeader from './listView/ListViewHeader';
 import { ReactComponent as ListViewIcon } from '../../../assets/svg/tasks/list.svg';
 import { ReactComponent as BoardViewIcon } from '../../../assets/svg/tasks/board.svg';
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
+import { ReactComponent as EditIcon } from '../../../assets/svg/tasks/pencilWithLine.svg';
+import { ReactComponent as DuplicateIcon } from '../../../assets/svg/tasks/duplicate.svg';
+import { ReactComponent as DeleteIcon } from '../../../assets/svg/tasks/dustBin.svg';
 import ListView from './views/ListView';
 // import BoardView from './views/BoardView';
 import TableView from './views/TableView';
@@ -14,6 +17,17 @@ const icons = {
 	board: BoardViewIcon,
 	table: TableViewIcon,
 };
+
+const tabDropdownOptions = [
+	{ icon: <EditIcon />, label: 'Rename View', value: 'renameView' },
+	{ icon: <EditIcon />, label: 'Edit View', value: 'editView' },
+	{ icon: <DuplicateIcon />, label: 'Duplicate View', value: 'duplicateView' },
+	{
+		icon: <DeleteIcon className="task-delete-icon" />,
+		label: 'Delete View',
+		value: 'deleteView',
+	},
+];
 
 const Task = ({
 	blockTitle,
@@ -233,18 +247,21 @@ const Task = ({
 	const handleDuplicateTab = useCallback(
 		(tabId) => {
 			setTaskInfo((prev) => {
-				const tabToDuplicate = prev.tabs[tabId];
+				const tabToDuplicate = prev?.tabs?.[tabId];
 				const newTabId = generateNewId();
-				const maxOrder = Math.max(...Object.values(prev.tabs).map((tab) => tab.order), -1);
+				const maxOrder = Math.max(
+					...Object.values(prev?.tabs)?.map((tab) => tab?.order),
+					-1,
+				);
 
 				return {
 					...prev,
 					tabs: {
-						...prev.tabs,
+						...prev?.tabs,
 						[newTabId]: {
 							...tabToDuplicate,
 							_id: newTabId,
-							label: `${tabToDuplicate.label} (Copy)`,
+							label: `${tabToDuplicate?.label} (Copy)`,
 							order: maxOrder + 1,
 						},
 					},
@@ -306,15 +323,12 @@ const Task = ({
 				closeEditViewDropDown={closeEditViewDropDown}
 				tabDropDown={
 					<TabDropDown
-						options={[
-							{ label: 'Rename View', value: 'renameView' },
-							{ label: 'Edit View', value: 'editView' },
-							{ label: 'Duplicate View', value: 'duplicateView' },
-							{ label: 'Delete View', value: 'deleteView' },
-						]}
+						options={tabDropdownOptions}
 						onOptionClick={handleTabDropdownClick}
 					/>
 				}
+				handleDuplicateView={handleDuplicateTab}
+				handleDeleteView={handleDeleteTab}
 			/>
 			<div className="task-content-area">
 				{viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.view)}
