@@ -73,8 +73,8 @@ export const veAiModulesItemsList = [
 		route: '/docs',
 		icon: '',
 		subModules: [
-			{ icon: '', name: 'All Docs', route: '/docs' },
-			{ icon: '', name: 'My Templates', route: '/my-templates' },
+			{ id: '0', icon: '', name: 'All Docs', route: '/docs' },
+			{ id: '1', icon: '', name: 'My Templates', route: '/my-templates' },
 			// { icon: '', name: 'Forms', route: '/forms' },
 			// { icon: '', name: 'Client Portal', route: '' },
 			// { icon: '', name: 'Link in bio', route: '' },
@@ -127,17 +127,17 @@ export const veAiModules = [
 		name: 'Settings',
 		route: '/settings/my-profile',
 		// subModules: [
-		// 	{ icon: '', name: 'MyProfile', route: '/settings/my-profile' },
-		// 	{ icon: '', name: 'Workspace', route: '/settings/workspace' },
-		// 	{ icon: '', name: 'Public Information', route: '/settings/public-information' },
-		// 	{
+		// 	{ id: '0', icon: '', name: 'MyProfile', route: '/settings/my-profile' },
+		// 	{ id: '1', icon: '', name: 'Workspace', route: '/settings/workspace' },
+		// 	{ id: '2', icon: '', name: 'Public Information', route: '/settings/public-information' },
+		// 	{id: '3',
 		// 		icon: '',
 		// 		name: 'Brand Setup',
 		// 		route: '/settings/brand-setup',
 		// 	},
-		// 	{ icon: '', name: 'Team Settings', route: '/settings/team-settings' },
-		// 	{ icon: '', name: 'Integration', route: '/settings/integrations' },
-		// 	{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
+		// 	{ id: '4', icon: '', name: 'Team Settings', route: '/settings/team-settings' },
+		// 	{ id: '5', icon: '', name: 'Integration', route: '/settings/integrations' },
+		// 	{ id: '6', icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
 		// ],
 	},
 ];
@@ -199,18 +199,21 @@ export const AiOptions = [
 		image: DaVinci,
 		subModules: [
 			{
+				id: '0',
 				icon: TaskSvg,
 				route: '/ai-agents/home/da-vinici',
 				name: 'Home',
 				description: 'Da Vinci',
 			},
 			{
+				id: '1',
 				icon: DaVinciJobsSvg,
 				route: '/ai-agents/jobs/:agent-name',
 				name: 'Jobs',
 				description: 'Da Vinci',
 			},
 			{
+				id: '2',
 				icon: DaVinciSetupSvg,
 				route: '/ai-agents/setup/da-vinici',
 				name: 'Setup',

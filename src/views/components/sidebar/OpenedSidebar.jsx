@@ -91,6 +91,8 @@ const OpenedSideBarHoverStateIcons = ({
 	};
 
 	const handleSubModuleClick = (e, subModule) => {
+		setActiveSubModule(subModule);
+		console.log(subModule, 'This is for testing the SubModule');
 		e.stopPropagation();
 		if (subModule.route) {
 			navigateTo(subModule.route);
@@ -162,7 +164,7 @@ const OpenedSideBarHoverStateIcons = ({
 									style={{
 										position: 'absolute',
 										left: '8px',
-										top: `${activeSubModule * 40}px`, // 40px is the height of each subModule
+										top: `${activeSubModule?.id * 40}px`, // 40px is the height of each subModule
 										height: '40px',
 										width: '1px',
 										backgroundColor: '#FFFFFF',
@@ -385,8 +387,7 @@ const OpenedSideBarItemsComponent = ({
 									cursor: 'pointer',
 									position: 'sticky',
 									top: '0',
-									backgroundColor: '#202123',
-									zIndex: '1000',
+									zIndex: '100',
 								}}
 							>
 								<div
