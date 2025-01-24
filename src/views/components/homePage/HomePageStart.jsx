@@ -1,5 +1,6 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
+import { handleError } from '@apollo/client/link/http/parseAndCheckHttpResponse';
 const HomePageStart = ({ cards, setInfo, isNavbarFixed }) => {
 	return (
 		<div
@@ -19,7 +20,7 @@ const HomePageStart = ({ cards, setInfo, isNavbarFixed }) => {
 						}));
 					}}
 				>
-					<div className="home-page-cards-container-card-sub-title">{card?.subTitle}</div>
+					{/* <div className="home-page-cards-container-card-sub-title">{card?.subTitle}</div> */}
 					<div className="home-page-cards-container-card-title">{card?.title}</div>
 				</div>
 			))}

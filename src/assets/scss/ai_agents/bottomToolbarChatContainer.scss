@@ -171,11 +171,11 @@
 	height: 100vh;
 	display: flex;
 	flex-direction: column;
-
+	background-color: #0e0f0f;
 	.toolExpandedChatBarContainerHeader {
 		width: 400px;
 		height: 68px;
-		background-color: #202123;
+		background-color: #0e0f0f;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -204,7 +204,7 @@
 		justify-content: flex-end;
 		padding: 24px;
 		&.expanded {
-			padding: 24px 200px;
+			padding: 24px 250px;
 			justify-content: center;
 			background: #0e0f0f;
 		}
@@ -260,7 +260,7 @@
 		background: #202123;
 
 		&.expanded {
-			width: 650px;
+			width: 700px;
 			align-self: center;
 			margin-bottom: 20px;
 			border-radius: 16px;

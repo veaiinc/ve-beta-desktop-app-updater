@@ -34,6 +34,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	const [dynamicPrompt, setDynamicPrompt] = useState('');
 	const [expandedChat, setExpandedChat] = useState(false);
 
+	console.log(selectedCard, 'selectedCard');
 	const handlePromptData = (clientSearch) => {
 		const prompt = Prompt.replace('{option}', clientSearch);
 		setDynamicPrompt(prompt);
@@ -86,7 +87,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 				<div className="promptPopupContainerHeader">
 					<div className="promptPopupContainerHeaderLeft">
 						<div className="promptPopupContainerHeaderLeftTitle">
-							Wedding Day Timeline Generator
+							{selectedCard?.title}
 						</div>
 						<div className="promptPopupContainerHeaderLeftSubtitle">20 Credits</div>
 					</div>
@@ -97,11 +98,12 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 
 				<div className="promptPopupContainerBody">
 					<div className="promptPopupContainerBodyText">
-						Gather the wedding schedule details from the{' '}
+						{selectedCard?.prompt}
+						{/* Gather the wedding schedule details from the{' '} */}
 						{/* <span onClick={() => setIsOpen(!isOpen)}>
 							client <DropdownArrow />
 						</span>{' '} */}
-						<Tooltip
+						{/* <Tooltip
 							placement="bottom"
 							title={
 								<FilterPopUp
@@ -126,7 +128,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 							</span>
 						</Tooltip>
 						{''}questionnaire and generate a detailed photography timeline. Include
-						location travel times, setup durations, and buffer for unexpected delays.
+						location travel times, setup durations, and buffer for unexpected delays. */}
 					</div>
 					<div className="promptPopupContainerEmailPromptContainer">
 						<div className="promptPopupContainerEmailPrompt">Edit Prompt</div>

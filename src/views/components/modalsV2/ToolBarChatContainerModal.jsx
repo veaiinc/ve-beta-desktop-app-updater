@@ -91,7 +91,7 @@ const ToolBarChatContainerModal = ({
 
 				{/* //message Container */}
 				<div
-					className={`toolBarExpandedChatInputParentContainer ${
+					className={`toolBarExpandedChatInputParentContainer   ${
 						isExpanded ? 'expanded' : ''
 					}`}
 				>
