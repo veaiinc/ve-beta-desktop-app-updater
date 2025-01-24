@@ -61,15 +61,15 @@ const BottomToolbar = ({
 	const chatContentRef = useRef(null);
 
 	// Add and remove event listeners
-	useEffect(() => {
-		document.addEventListener('mousemove', handleMouseMove);
-		document.addEventListener('mouseup', handleMouseUp);
+	// useEffect(() => {
+	// 	document.addEventListener('mousemove', handleMouseMove);
+	// 	document.addEventListener('mouseup', handleMouseUp);
 
-		return () => {
-			document.removeEventListener('mousemove', handleMouseMove);
-			document.removeEventListener('mouseup', handleMouseUp);
-		};
-	}, []);
+	// 	return () => {
+	// 		document.removeEventListener('mousemove', handleMouseMove);
+	// 		document.removeEventListener('mouseup', handleMouseUp);
+	// 	};
+	// }, []);
 	// Add this useEffect for auto-scrolling
 	useEffect(() => {
 		if (chatContentRef.current) {
@@ -90,17 +90,17 @@ const BottomToolbar = ({
 		[info?.position],
 	);
 
-	const handleMouseMove = useCallback((e) => {
-		if (!isDraggingRef?.current) return;
+	// const handleMouseMove = useCallback((e) => {
+	// 	if (!isDraggingRef?.current) return;
 
-		const newX = e.clientX - startPosRef?.current?.x;
-		const newY = e.clientY - startPosRef?.current?.y;
+	// 	const newX = e.clientX - startPosRef?.current?.x;
+	// 	const newY = e.clientY - startPosRef?.current?.y;
 
-		setInfo((prev) => ({
-			...prev,
-			position: { x: newX, y: newY },
-		}));
-	}, []);
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		position: { x: newX, y: newY },
+	// 	}));
+	// }, []);
 
 	const handleMouseUp = useCallback(() => {
 		isDraggingRef.current = false;
