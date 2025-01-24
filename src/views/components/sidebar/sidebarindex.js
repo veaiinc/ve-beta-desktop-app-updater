@@ -40,9 +40,15 @@ export const veAiModulesItemsList = [
 		icon: '',
 	},
 	{
-		name: 'Gallery',
+		name: 'Classic Gallery',
 		moduleRoute: '/galleries',
 		route: '/galleries',
+		icon: '',
+	},
+	{
+		name: 'Lite Gallery',
+		moduleRoute: '/lite-gallery',
+		route: '/lite-gallery',
 		icon: '',
 	},
 	{
@@ -62,8 +68,8 @@ export const veAiModulesItemsList = [
 		// ],
 	},
 
-	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
-	{ name: 'Docs', moduleRoute: '/docs', route: '/docs', icon: '' },
+	// { name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
+	// { name: 'Docs', moduleRoute: '/docs', route: '/docs', icon: '' },
 	// {
 	// 	name: 'Da-Vinci',
 	// 	moduleRoute: '/ai-agents/home/da-vinici',
