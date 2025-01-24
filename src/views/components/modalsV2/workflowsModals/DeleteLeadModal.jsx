@@ -8,15 +8,25 @@ const DeleteLeadModal = ({ open, closeModal, deleteLeadFunc }) => {
 	const [info, setInfo] = useState({
 		loader: false,
 	});
-	const deleteOnClick = useCallback(() => {
-		setInfo((prev) => ({ ...prev, loader: true }));
-		deleteLeadFunc();
+
+	const deleteOnClick = useCallback(async () => {
+		try {
+			setInfo((prev) => ({ ...prev, loader: true }));
+			await deleteLeadFunc();
+		} finally {
+			modyfyClose();
+		}
 	}, []);
+
+	const modyfyClose = useCallback(() => {
+		setInfo((prev) => ({ ...prev, loader: false }));
+		closeModal();
+	}, [closeModal]);
 
 	return (
 		<ReactModal
 			isOpen={open}
-			closeModal={closeModal}
+			closeModal={modyfyClose}
 			modalType={'center'}
 			customStyles={{
 				overlay: { zIndex: 1001 },
@@ -34,7 +44,7 @@ const DeleteLeadModal = ({ open, closeModal, deleteLeadFunc }) => {
 				</div>
 
 				<div className="deleteLeadFooterContainer">
-					<div className="cancelBtn" onClick={closeModal}>
+					<div className="cancelBtn" onClick={modyfyClose}>
 						Cancel
 					</div>
 					<div className="deleteBtn" onClick={deleteOnClick}>

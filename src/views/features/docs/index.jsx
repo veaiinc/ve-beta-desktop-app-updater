@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/docs/index.scss';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
@@ -276,6 +276,8 @@ const Docs = () => {
 		deleteLeadModal: false,
 	});
 
+	const activeFileRef = useRef(null);
+
 	useEffect(() => {
 		getDocsFilesListFunc(1);
 		getLatestSendSmartFileSettings();
@@ -455,18 +457,20 @@ const Docs = () => {
 	}, []);
 
 	const handleOpenSidebar = useCallback((data) => {
+		activeFileRef.current = data;
 		setInfo((prev) => ({ ...prev, showRightDrawer: true, activeFileData: data }));
 		getSmartFileInfo(data);
 	}, []);
 
 	const handleCloseSidebar = useCallback(() => {
+		activeFileRef.current = null;
 		setInfo((prev) => ({
 			...prev,
 			showRightDrawer: false,
 			activeFileData: null,
 		}));
 		updateStateValues({ smartFileInfo: null });
-	}, [info]);
+	}, []);
 
 	const getSmartFileInfo = useCallback(
 		async (data) => {
@@ -502,20 +506,21 @@ const Docs = () => {
 			...prev,
 			deleteLeadModal: true,
 		}));
-	}, [info?.activeFileData]);
+	}, []);
 
 	const deleteLeadFunc = useCallback(async () => {
+		const activeFile = activeFileRef.current;
 		const payload = {
-			deleteWorkflowId: info?.activeFileData?._id,
+			deleteWorkflowId: activeFile._id,
 		};
 		await deleteLead(payload);
 		setInfo((prev) => ({
 			...prev,
+			docsData: prev.docsData?.filter((item) => item?._id !== activeFile._id),
 			deleteLeadModal: false,
-			docsData: prev.docsData?.filter((item) => item?._id !== info?.activeFileData?._id),
 		}));
 		handleCloseSidebar();
-	}, [info?.activeFileData?._id]);
+	}, []);
 
 	return (
 		<div className="docsParentContainer">
@@ -548,8 +553,8 @@ const Docs = () => {
 					</div>
 				</div>
 			</div>
-			{/* Ai Action is not ready yet */}
-			<div className="docsTemplatesContainer">
+			{/* Ai Action is not ready yet: new Ui structure is ready */}
+			{/* <div className="docsTemplatesContainer">
 				<div className="promptHeader">
 					<span>Suggested Prompt</span>
 					<Sync />
@@ -563,7 +568,7 @@ const Docs = () => {
 						</div>
 					))}
 				</div>
-			</div>
+			</div> */}
 
 			<div className="docsFileContainer">
 				<div className="docsFileHeaderContainer">
@@ -765,13 +770,11 @@ const Docs = () => {
 					openDeleteModal={openDeleteModal}
 				/>
 
-				{info?.deleteLeadModal && (
-					<DeleteLeadModal
-						open={info?.deleteLeadModal}
-						closeModal={() => setInfo((prev) => ({ ...prev, deleteLeadModal: false }))}
-						deleteLeadFunc={deleteLeadFunc}
-					/>
-				)}
+				<DeleteLeadModal
+					open={info?.deleteLeadModal}
+					closeModal={() => setInfo((prev) => ({ ...prev, deleteLeadModal: false }))}
+					deleteLeadFunc={deleteLeadFunc}
+				/>
 			</div>
 		</div>
 	);
