@@ -187,6 +187,40 @@
 		border-radius: 16px;
 		background: var(--popup-background, #202123);
 		box-shadow: 4px 4px 73px 0px rgba(0, 0, 0, 0.2);
+		position: relative;
+
+		.uploaded-files-container {
+			position: absolute;
+			right: 0;
+			top: -92px;
+			display: flex;
+			gap: 12px;
+
+			.uploaded-file-item {
+				position: relative;
+
+				.uploaded-file-preview {
+					width: 80px;
+					height: 80px;
+					flex-shrink: 0;
+					border-radius: 12px;
+					border: 2px solid var(--stroke, #333334);
+				}
+
+				.uploaded-file-name {
+					position: absolute;
+					top: -24px;
+					left: 0;
+					width: 100%;
+					text-align: center;
+					color: #fff;
+					font-size: 12px;
+					font-weight: 500;
+					line-height: normal;
+					font-family: Inter;
+				}
+			}
+		}
 
 		.bottomToolbarInputs {
 			resize: none;
