@@ -1,24 +1,12 @@
 import React, { useContext, useEffect, useState, memo, useCallback } from 'react';
 import '../../../assets/scss/settings/planBilling.scss';
 import '../../../assets/scss/settings/notifications.scss';
-
-import ProgressBar from '../../components/settings/ProgressBar';
 import moment from 'moment';
 import Context from '../../../context/context';
-import SubscriptionDetailsComponent from '../../components/settings/planbilling/SubscriptionDetails';
-import { ReactComponent as BackgroundSvg } from '../../../assets/svg/Settings/subscriptionbackground.svg';
-import BillingHistoryComponent from '../../components/settings/planbilling/BillingHistory';
 import { ReactComponent as Tick } from '../../../assets/svg/tick.svg';
 import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
-import { Spin } from 'antd';
-//constants
-const noOfDay = 7;
-const period = 'On Trial Plan';
-const AiCredits = '300';
-let progressBar = 30;
-const GB = 1;
-const usedGB = 3;
+import { message, Spin } from 'antd';
 
 const features = [
 	'Form Management Assistant',
@@ -27,33 +15,6 @@ const features = [
 	'Workflow Automation',
 	'Business Insights Dashboard',
 	'10 Team Members',
-];
-
-const updatePlans = [
-	{
-		title: 'Credits',
-		price: '$16',
-		totalAvailable: '100',
-		used: '40',
-	},
-	{
-		title: 'Credits',
-		price: '$16',
-		totalAvailable: '100',
-		used: '40',
-	},
-	{
-		title: 'Credits',
-		price: '$16',
-		totalAvailable: '100',
-		used: '40',
-	},
-	{
-		title: 'Credits',
-		price: '$16',
-		totalAvailable: '100',
-		used: '40',
-	},
 ];
 
 const menuItems = [
@@ -161,10 +122,6 @@ const PlanBilling = () => {
 					</ul>
 				</div>
 			</div>
-
-			{/* <div className="settingsBoxContainer billingHinstoryComponent">
-				<BillingHistoryComponent />
-			</div> */}
 		</div>
 	);
 };
@@ -175,7 +132,7 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 	const navigate = useNavigate();
 	let {
 		subscriptionInfo: { createManageSubscriptionLinkforExistingUsers },
-		authInfo: { currentPlanAddOns },
+		authInfo: { currentPlanAddOns, purchaseAddOn },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -188,8 +145,8 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 		if (data && info?.features?.length && data?.numberOfUsers && !info?.featureChanged) {
 			let features = [...(info?.features || [])];
 			const users = data?.numberOfUsers;
-			features.pop();
-			features.push(`${users} Team Members`);
+			features?.pop();
+			features?.push(`${users} Team Members`);
 			setInfo((prev) => ({ ...prev, features, featureChanged: true }));
 		}
 	}, [data, info?.features, info?.featureChanged]);
@@ -212,6 +169,15 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 		}
 	}, [expiresAt]);
 
+	const handlePurchaseAddOn = useCallback(async (planId) => {
+		const response = await purchaseAddOn(planId);
+		if (response?.[0]) {
+			window.location.href = response?.[1]?.url;
+		} else {
+			message?.error(response?.[1]?.message);
+		}
+	}, []);
+
 	return (
 		<div className="subscriptionWrapperContainer">
 			<div className="subscriptionUpdatedPlanCard">
@@ -226,16 +192,6 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 						</span>
 						<span className="subscritptionPlanPeriod">/ {data?.subscriptionType}</span>
 					</div>
-					{/* <div className="subscriptionUsageContainer">
-						<div className="subscriptionUsageDeatails">
-							<span className="subscriptionUsageData">
-								<span style={{ color: '#fff' }}>150 of</span> 500 used
-							</span>
-						</div>
-						<div className="subscriptionPlanProgressBar">
-							<div className="subscriptionPlanProgressIndicator"></div>
-						</div>
-					</div> */}
 					<div className="subscritptionFeaturesContainer">
 						{info?.features?.map((ele, index) => (
 							<div className="subscriptionFeature" key={index}>
@@ -244,12 +200,6 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 							</div>
 						))}
 					</div>
-					{/* <div className="currentAddOnsContainer">
-						<h1 className="currentAddOns">Current Add-ons</h1>
-						{currentPlanAddOns?.map((addOn) => (
-							<div key={addOn?._id}>{addOn?.plan}</div>
-						))}
-					</div> */}
 					{data?.addOns && Object.values(data?.addOns)?.length ? (
 						<div className="addOnContianer">
 							<span className="addOnStates">Current Add-on’s</span>
@@ -265,16 +215,6 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 												</span>
 											</span>
 										</div>
-										{/* <div className="addOnUsageDetails">
-											<div className="subscriptionUsageDeatails">
-												<span className="subscriptionUsageData">
-													150 of 500 used
-												</span>
-											</div>
-											<div className="subscriptionPlanProgressBar">
-												<div className="subscriptionPlanProgressIndicator"></div>
-											</div>
-										</div> */}
 									</div>
 								) : (
 									''
@@ -303,27 +243,41 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 					</div>
 				</div>
 			</div>
-			{/* <div className="updateSubscriptionPlanContainer">
-				<span className="updatePlansTextStyling">Update Plans</span>
-				<div className="updatePlansCardHolder">
-					{updatePlans?.map((ele, index) => (
-						<div className="updatePlansCardContainer">
-							<div className="updatePlansCardContent">
-								<div className="updatePlansHeader">
-									<span className="updatePlansHeaderTextStyling">
-										{ele?.title}
+			<div className="addOnsContainer">
+				<h1 className="title">Add-ons</h1>
+				<div className="addOnsCardsContainer">
+					{currentPlanAddOns?.map((addOn) => {
+						const {
+							_id: planId,
+							plan,
+							isRecurring,
+							recurringType,
+							totalPrice,
+							currency,
+						} = addOn;
+						return (
+							<div className="addOnsCards">
+								<h1 className="addOnPlanName">{plan}</h1>
+								<div className="priceContainer">
+									<span className="currencySymbol">
+										{currency === 'INR' ? '₹ ' : '$ '}
+									</span>
+									<span className="priceValue">{totalPrice}</span>
+									<span className={`priceDuration ${!isRecurring && 'oneTime'}`}>
+										{isRecurring ? `/ ${recurringType}` : 'One time'}
 									</span>
 								</div>
-								<span className="randomUpdatePlans">
-									Launch Intelligent, enterprise-ready, and seamlessly embedded in
-									your operations
-								</span>
+								<button
+									onClick={() => handlePurchaseAddOn(planId)}
+									className="addOnsButton"
+								>
+									Add Now
+								</button>
 							</div>
-							<div className="addNowButtonForUpdatePlans">Add Now</div>
-						</div>
-					))}
+						);
+					})}
 				</div>
-			</div> */}
+			</div>
 		</div>
 	);
 };
@@ -350,8 +304,8 @@ const FreeTierPlanCard = ({ expiresAt }) => {
 			<div className="subscriptionSeperator"></div>
 			<div className="freePlanSubscriptionCardContainer">
 				<span className="freeTrialText">
-					Your free trial expires at {moment.unix(`${expiresAt}`)?.format('DD MMM YYYY')}{' '}
-					! Don’t miss out - upgrade now to keep enjoying premium features.
+					Your free trial expires at {moment?.unix(`${expiresAt}`)?.format('DD MMM YYYY')}{' '}
+					! Don't miss out - upgrade now to keep enjoying premium features.
 				</span>
 
 				<div className="manageSubscriptionButton" onClick={() => navigate('/subscription')}>
