@@ -160,6 +160,9 @@
 		width: 100%;
 		flex-wrap: wrap;
 		gap: 16px;
+		::-webkit-scrollbar {
+			display: none !important;
+		}
 		.home-page-cards-container-card {
 			display: flex;
 			width: 268px;
