@@ -29,20 +29,8 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [clientSearch, setClientSearch] = useState('');
 	const [dynamicPrompt, setDynamicPrompt] = useState(selectedCard?.prompt || '');
-	const [expandedChat, setExpandedChat] = useState(false);
 
 	const selectedCardVariables = selectedCard?.variables;
-
-	// useEffect(() => {
-	// 	selectedCardVariables?.forEach((variable) => {
-	// 		setReplaceVariables((prev) => {
-	// 			return {
-	// 				...prev,
-	// 				[variable]: '',
-	// 			};
-	// 		});
-	// 	});
-	// }, [selectedCardVariables]);
 
 	useEffect(() => {
 		setDynamicPrompt(selectedCard?.prompt || '');
@@ -82,11 +70,6 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 
 			return updatedOptions;
 		});
-	};
-
-	const handleRunPrompt = () => {
-		setIsOpen(false);
-		setExpandedChat(true);
 	};
 
 	return (
@@ -162,9 +145,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 						})}
 					</div>
 				</div>
-				<button className="promptPopupContainerRunButton" onClick={() => handleRunPrompt()}>
-					Run
-				</button>
+				<button className="promptPopupContainerRunButton">Run</button>
 			</div>
 		</ReactModal>
 	);
