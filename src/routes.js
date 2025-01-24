@@ -33,6 +33,7 @@ import Ai_agent from './views/features/ai_agent';
 import AgentsJobs from './views/features/ai_agent/AgentsJobs';
 import AgentsSetup from './views/features/ai_agent/AgentsSetup';
 import Docs from './views/features/docs';
+import LiteGallery from './views/features/gallery/Litegallery';
 import MyTemplates from './views/features/my_templates/MyTemplates';
 const routes = [
 	{
@@ -172,6 +173,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Galleries'}>
 				<AddGallery />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/lite-gallery',
+		component: (
+			<AuthWrapper title={'Lite Gallery'}>
+				<LiteGallery />
 			</AuthWrapper>
 		),
 		exact: true,
