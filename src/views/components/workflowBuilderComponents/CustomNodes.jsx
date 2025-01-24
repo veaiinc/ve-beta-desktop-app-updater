@@ -68,15 +68,9 @@ const actionTypeIconMapper = {
 export const ActionNode = ({ data }) => {
 	const [info, setInfo] = useState({
 		deleteModal: false,
-		showRightToolbar: false,
 	});
-
 	const handleCloseDeleteModal = useCallback(() => {
 		setInfo((prev) => ({ ...prev, deleteModal: false }));
-	}, [info]);
-
-	const handleShowRightToolbar = useCallback(() => {
-		setInfo((prev) => ({ ...prev, showRightToolbar: !prev?.showRightToolbar }));
 	}, [info]);
 
 	const openDeleteModal = useCallback(() => {
@@ -90,11 +84,7 @@ export const ActionNode = ({ data }) => {
 			arrow={false}
 			rootClassName="customNodesToolTip"
 		>
-			<div
-				className="action-node"
-				onMouseEnter={handleShowRightToolbar}
-				onMouseLeave={handleShowRightToolbar}
-			>
+			<div className="action-node">
 				<div className="upper-action-node-container">
 					<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 						{actionTypeIconMapper[data?.channels?.[0] || data?.actionType]}
@@ -112,19 +102,7 @@ export const ActionNode = ({ data }) => {
 				</div>
 				<Handle type="source" position={Position.Bottom} />
 				<Handle type="target" position={Position.Top} />
-				{/* <NodeToolbar isVisible={info?.showRightToolbar} position={'right'}>
-				<div className="rightNodeToolBar">
-					<span>
-						<Eye />
-					</span>
-					<span>
-						<Copy />
-					</span>
-					<span onClick={() => setInfo((prev) => ({ ...prev, deleteModal: true }))}>
-						<Dustbin />
-					</span>
-				</div>
-			</NodeToolbar> */}
+
 				<UpdatedDeleteWorkflowStep
 					modalIsOpen={info?.deleteModal}
 					closeModal={handleCloseDeleteModal}
@@ -140,22 +118,50 @@ export const ActionNode = ({ data }) => {
 };
 
 export const ConditionNode = ({ data }) => {
+	const [info, setInfo] = useState({
+		deleteModal: false,
+	});
+	const handleCloseDeleteModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, deleteModal: false }));
+	}, [info]);
+
+	const openDeleteModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, deleteModal: true }));
+	}, [info]);
 	return (
-		<div className="action-node">
-			<div className="upper-action-node-container">
-				<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-					<IfElse />
-					If / else
-				</span>
-				<span> Condition</span>
+		<Tooltip
+			placement="right"
+			title={<HoverComponentForNodes openDeleteModal={openDeleteModal} />}
+			arrow={false}
+			rootClassName="customNodesToolTip"
+		>
+			<div className="action-node">
+				<div className="upper-action-node-container">
+					<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+						<IfElse />
+						If / else
+					</span>
+					<span> Condition</span>
+				</div>
+				<div className="lower-action-node-container">
+					<span className="lower-action-node-title">Post editing</span>
+					<span className="lower-action-node-subtitle">
+						Post editing for client abhiloss
+					</span>
+				</div>
+				<Handle type="source" position={Position.Bottom} />
+				<Handle type="target" position={Position.Top} />
+				<UpdatedDeleteWorkflowStep
+					modalIsOpen={info?.deleteModal}
+					closeModal={handleCloseDeleteModal}
+					templateId={data?.templateId}
+					stepId={data?._id}
+					workflowdata={data}
+					refetchWorkflowBuilderData={data?.refetchWorkflowBuilderData}
+					stepsMapper={data?.stepsMapper}
+				/>
 			</div>
-			<div className="lower-action-node-container">
-				<span className="lower-action-node-title">Post editing</span>
-				<span className="lower-action-node-subtitle">Post editing for client abhiloss</span>
-			</div>
-			<Handle type="source" position={Position.Bottom} />
-			<Handle type="target" position={Position.Top} />
-		</div>
+		</Tooltip>
 	);
 };
 
