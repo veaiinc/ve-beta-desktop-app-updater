@@ -5,7 +5,17 @@
 	height: 100vh;
 	overflow-y: scroll;
 	position: relative;
-	padding: 0px 32px 32px 32px;
+
+	.black-linear-gradient {
+		position: fixed;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		background: linear-gradient(180deg, transparent 0%, #0c0c0d 100%);
+		width: 1190px;
+		height: 210px;
+	}
+
 	.home-page-container-header {
 		display: flex;
 		flex-direction: column;
@@ -149,7 +159,10 @@
 		flex-direction: row;
 		width: 100%;
 		flex-wrap: wrap;
-		gap: 18px;
+		gap: 16px;
+		::-webkit-scrollbar {
+			display: none !important;
+		}
 		.home-page-cards-container-card {
 			display: flex;
 			width: 268px;

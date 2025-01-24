@@ -1,30 +1,11 @@
-import React, { useState, useEffect, memo, useMemo } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/NavBar';
 import HeaderInfo from '../../components/homePage/HeaderInfo';
 import PromptPopup from '../../components/homePage/PromptPopup';
 import HomePageDashboard from '../../components/homePage/dashboard/HomePageDashboard';
 import HomePageStart from '../../components/homePage/HomePageStart';
-import { set } from 'lodash';
-
-const cards = [
-	{ id: 0, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 1, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 2, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 3, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 4, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 5, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 6, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 7, subTitle: 'sales', title: 'Wedding Day Timeline  Generator' },
-	{ id: 8, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 9, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 10, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 11, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 12, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 13, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 14, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-	{ id: 15, subTitle: 'sales', title: 'Wedding Day Timeline Generator' },
-];
+import { PromptData } from '../../components/homePage/PromptData';
 
 const topNavOptions = [
 	{ id: 0, title: 'Start', value: 'start' },
@@ -87,7 +68,11 @@ const HomePage = () => {
 
 	const componentMapper = {
 		start: (
-			<HomePageStart cards={cards} setInfo={setInfo} isNavbarFixed={info?.isNavbarFixed} />
+			<HomePageStart
+				cards={PromptData}
+				setInfo={setInfo}
+				isNavbarFixed={info?.isNavbarFixed}
+			/>
 		),
 		dashboard: (
 			<HomePageDashboard
@@ -117,6 +102,7 @@ const HomePage = () => {
 
 	return (
 		<div className="home-page-container">
+			<div className="black-linear-gradient"></div>
 			<div className="home-page-container-header">
 				<div className="home-page-container-content">
 					{topNavOptions?.map((option) => (

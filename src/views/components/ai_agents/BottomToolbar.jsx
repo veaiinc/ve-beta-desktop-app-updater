@@ -53,6 +53,7 @@ const BottomToolbar = ({
 		position: { x: -325, y: 0 },
 		addQuickAction: false,
 		chatSessionId: ObjectID()?.toString(),
+		uploadedFiles: [],
 	});
 
 	const toolbarRef = useRef(null);
@@ -61,15 +62,15 @@ const BottomToolbar = ({
 	const chatContentRef = useRef(null);
 
 	// Add and remove event listeners
-	useEffect(() => {
-		document.addEventListener('mousemove', handleMouseMove);
-		document.addEventListener('mouseup', handleMouseUp);
+	// useEffect(() => {
+	// 	document.addEventListener('mousemove', handleMouseMove);
+	// 	document.addEventListener('mouseup', handleMouseUp);
 
-		return () => {
-			document.removeEventListener('mousemove', handleMouseMove);
-			document.removeEventListener('mouseup', handleMouseUp);
-		};
-	}, []);
+	// 	return () => {
+	// 		document.removeEventListener('mousemove', handleMouseMove);
+	// 		document.removeEventListener('mouseup', handleMouseUp);
+	// 	};
+	// }, []);
 	// Add this useEffect for auto-scrolling
 	useEffect(() => {
 		if (chatContentRef.current) {
@@ -90,17 +91,17 @@ const BottomToolbar = ({
 		[info?.position],
 	);
 
-	const handleMouseMove = useCallback((e) => {
-		if (!isDraggingRef?.current) return;
+	// const handleMouseMove = useCallback((e) => {
+	// 	if (!isDraggingRef?.current) return;
 
-		const newX = e.clientX - startPosRef?.current?.x;
-		const newY = e.clientY - startPosRef?.current?.y;
+	// 	const newX = e.clientX - startPosRef?.current?.x;
+	// 	const newY = e.clientY - startPosRef?.current?.y;
 
-		setInfo((prev) => ({
-			...prev,
-			position: { x: newX, y: newY },
-		}));
-	}, []);
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		position: { x: newX, y: newY },
+	// 	}));
+	// }, []);
 
 	const handleMouseUp = useCallback(() => {
 		isDraggingRef.current = false;
@@ -190,13 +191,17 @@ const BottomToolbar = ({
 				addQuickAction: false,
 				expanded: true,
 				inputExpanded: true,
+				uploadedFiles: [...prev?.uploadedFiles, file],
 			}));
 		},
 		[handleAiUploadImage],
 	);
 
 	const handleChatIconClick = (e, type) => {
+		console.log('reached here 1');
+
 		if (type === 'fileUpload') {
+			console.log('reached here');
 			const file = e?.target?.files[0] ?? false;
 			if (file) {
 				handleChange({ file });
@@ -260,6 +265,21 @@ const BottomToolbar = ({
 			{/* bottom toolBarContent */}
 			{!info?.chatModalIsOpen ? (
 				<div className={`bottomToolbar ${info?.expanded ? 'update-border-radius' : ''}`}>
+					{info?.uploadedFiles?.length > 0 && (
+						<div className="uploaded-files-container">
+							{info?.uploadedFiles?.map((file) => (
+								<div key={file?.id} className="uploaded-file-item">
+									<img
+										src={URL.createObjectURL(file)}
+										alt={file?.name}
+										className="uploaded-file-preview"
+										onLoad={(e) => URL.revokeObjectURL(e.target.src)} // Clean up object URL after loading
+									/>
+									<div className="uploaded-file-name">{file?.name}</div>
+								</div>
+							))}
+						</div>
+					)}
 					<textarea
 						className={`bottomToolbarInputs ${info?.inputExpanded ? 'expanded' : ''}`}
 						placeholder="Hey! Need help? Ask me anything."
@@ -274,14 +294,16 @@ const BottomToolbar = ({
 						{chatIcons?.map((chatIcon, idx) => (
 							<span
 								className="icon-container"
-								onClick={(e) => handleChatIconClick(e, chatIcon?.type)}
+								{...(chatIcon?.type !== 'fileUpload' && {
+									onClick: (e) => handleChatIconClick(e, chatIcon?.type),
+								})}
 								key={idx}
 							>
 								{chatIcon?.type === 'fileUpload' && (
 									<span className="file-upload-container">
 										<input
 											type="file"
-											accept="image/*"
+											accept=".pdf,.docx,.md,.txt,.jpg,.jpeg,.png,.json"
 											className="file-upload"
 											onChange={(e) => handleChatIconClick(e, chatIcon?.type)}
 										/>
