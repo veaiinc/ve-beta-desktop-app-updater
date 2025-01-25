@@ -6,10 +6,11 @@ const CreateAgentHeader = ({
 	name,
 	onBack,
 	onActionClick,
-	status = 'Saved',
+	status = null,
 	backText = 'Back',
 	actionText = 'Publish',
 	actionIcon = null,
+	agentIcon = null,
 	actionBtnClassName = '',
 }) => {
 	return (
@@ -21,13 +22,18 @@ const CreateAgentHeader = ({
 					</div>
 					<div className="create-agent-header-left-back-text">{backText}</div>
 				</div>
-				<div className="create-agent-header-left-agent-name">{name}</div>
+				<div className="create-agent-header-left-agent-name">
+					{agentIcon}
+					{name}
+				</div>
 			</div>
 			<div className="create-agent-header-right">
-				<span className="create-agent-header-right-status">
-					<div className="create-agent-header-right-status-icon" />
-					{status}
-				</span>
+				{status && (
+					<span className="create-agent-header-right-status">
+						<div className="create-agent-header-right-status-icon" />
+						{status}
+					</span>
+				)}
 				<button
 					className={`create-agent-header-right-button ${actionBtnClassName}`}
 					onClick={onActionClick}

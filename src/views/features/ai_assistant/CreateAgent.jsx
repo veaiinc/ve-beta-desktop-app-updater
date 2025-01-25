@@ -2,6 +2,8 @@ import React, { memo, useState } from 'react';
 import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
 import TabHeader from '../../components/ai_assistant/TabHeader';
 import { useNavigate } from 'react-router-dom';
+import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
+
 const tabs = {
 	personality: { value: 'personality', label: 'Personality' },
 	instructions: { value: 'instructions', label: 'Instructions' },
@@ -35,8 +37,13 @@ const CreateAgent = () => {
 				status="Saved"
 				backText="Back to AI Chatbot"
 				actionText="Publish"
+				agentIcon={<AgentIcon width={18} height={18} />}
 			/>
-			<TabHeader activeTab={activeTab} onTabChange={onTabChange} tabs={Object.values(tabs)} />
+			<TabHeader
+				activeTab={activeTab}
+				onTabChange={onTabChange}
+				tabs={Object?.values(tabs)}
+			/>
 			<div className="create-agent-body">
 				<div className="create-agent-body-title">Create Agent</div>
 			</div>
