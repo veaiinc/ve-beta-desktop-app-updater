@@ -1,0 +1,11 @@
+.create-agent {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: calc(100vh - 100px);
+	gap: 20px;
+
+	.tabSection {
+		flex-grow: 1;
+	}
+}

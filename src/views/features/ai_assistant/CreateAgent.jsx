@@ -1,4 +1,5 @@
 import React, { memo, useState } from 'react';
+import '../../../assets/scss/ai_assistant/CreateAgent.scss';
 import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
 import TabHeader from '../../components/ai_assistant/TabHeader';
 import { useNavigate } from 'react-router-dom';
@@ -30,21 +31,23 @@ const CreateAgent = () => {
 
 	return (
 		<div className="create-agent">
-			<CreateAgentHeader
-				name="Assistant#2"
-				onBack={onBack}
-				onActionClick={onActionClick}
-				status="Saved"
-				backText="Back to AI Assistants"
-				actionText="Publish"
-				agentIcon={<AgentIcon width={18} height={18} />}
-			/>
-			<TabHeader
-				activeTab={activeTab}
-				onTabChange={onTabChange}
-				tabs={Object?.values(tabs)}
-			/>
-			<div className="create-agent-body">
+			<div style={{ flexShrink: 0 }}>
+				<CreateAgentHeader
+					name="Assistant#2"
+					onBack={onBack}
+					onActionClick={onActionClick}
+					status="Saved"
+					backText="Back to AI Assistants"
+					actionText="Publish"
+					agentIcon={<AgentIcon width={18} height={18} />}
+				/>
+				<TabHeader
+					activeTab={activeTab}
+					onTabChange={onTabChange}
+					tabs={Object?.values(tabs)}
+				/>
+			</div>
+			<div className="tabSection">
 				<div className="create-agent-body-title">Create Agent</div>
 			</div>
 		</div>
