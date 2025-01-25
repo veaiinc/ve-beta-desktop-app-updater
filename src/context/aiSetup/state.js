@@ -406,6 +406,26 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const checkFileUploadStatus = async (batchId, fileId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = '/' + workspaceId + KNOWLEDGE_BASE?.checkFileUploadStatus;
+			const body = {
+				uploadBatchId: batchId,
+				_id: fileId,
+			};
+			const response = await service?.fetchPost(url, body, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>checkFileUploadStatus', error);
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -426,5 +446,6 @@ export const AiSetupState = () => {
 		resetAiSetupState,
 		deleteKnowledge,
 		uploadImageToKnowledgeBase,
+		checkFileUploadStatus,
 	};
 };

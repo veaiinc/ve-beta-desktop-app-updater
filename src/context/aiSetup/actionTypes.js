@@ -6,6 +6,7 @@ export const KNOWLEDGE_BASE = {
 	uploadURLsToKnowledgeBase: '/knowledge-bases',
 	deleteKnowledge: '/knowledge-bases',
 	uploadImageToKnowledgeBase: '/knowledge-bases/upload-file',
+	checkFileUploadStatus: '/knowledge-bases/file-upload-status',
 };
 
 export const AI_PERSONALITY = {

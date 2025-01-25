@@ -18,6 +18,7 @@ import { Upload } from 'antd';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation } from 'react-router-dom';
+import Spinner from '../loaders/Spinner';
 
 const moduleHelper = {
 	'/tasks': 'tasks',
@@ -40,11 +41,10 @@ const BottomToolbar = ({
 }) => {
 	const {
 		templates: { handleGlobalChatMessages, globalChatMessages, updateStateValues },
+		aiSetup: { checkFileUploadStatus },
 	} = useContext(Context);
 
 	const location = useLocation();
-	// console.log(globalChatMessages);
-	// console.log(chatList);
 	const [info, setInfo] = useState({
 		expanded: false,
 		inputExpanded: false,
@@ -54,6 +54,8 @@ const BottomToolbar = ({
 		addQuickAction: false,
 		chatSessionId: ObjectID()?.toString(),
 		uploadedFiles: [],
+		uploadedFilesStatus: [],
+		uploadTimeoutIds: [],
 	});
 
 	const toolbarRef = useRef(null);
@@ -77,6 +79,63 @@ const BottomToolbar = ({
 			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
 		}
 	}, [chatList]); // Scroll whenever chatList changes
+
+	useEffect(() => {
+		info?.uploadedFiles?.forEach((uploadedFile) => {
+			getFileUploadStatus(uploadedFile);
+		});
+	}, [info?.uploadedFiles]);
+
+	const getFileUploadStatus = async (uploadedFile) => {
+		const response = await checkFileUploadStatus(
+			uploadedFile?.uploadBatchId,
+			uploadedFile?._id,
+		);
+		if (response?.[0] === true) {
+			const fileUploadStatus = {
+				fileId: uploadedFile?._id,
+				status:
+					response?.[1]?.successCount === 1
+						? 'success'
+						: response?.[1]?.errorCount === 1
+						? 'failed'
+						: 'pending',
+			};
+
+			setInfo((prev) => {
+				const existingIndex = prev?.uploadedFilesStatus.findIndex(
+					(file) => file.fileId === fileUploadStatus.fileId,
+				);
+
+				let updatedFilesStatus = [...prev.uploadedFilesStatus];
+
+				if (existingIndex !== -1) {
+					// Update the existing object
+					updatedFilesStatus[existingIndex] = fileUploadStatus;
+				} else {
+					// Append the new object
+					updatedFilesStatus = [...updatedFilesStatus, fileUploadStatus];
+				}
+
+				return {
+					...prev,
+					uploadedFilesStatus: updatedFilesStatus,
+				};
+			});
+
+			if (fileUploadStatus?.status === 'pending') {
+				const timeoutId = setTimeout(() => {
+					getFileUploadStatus(uploadedFile);
+				}, 1000);
+				setInfo((prev) => ({
+					...prev,
+					uploadTimeoutIds: [...prev?.uploadTimeoutIds, timeoutId],
+				}));
+			} else {
+				info?.uploadTimeoutIds?.forEach((timeoutId) => clearTimeout(timeoutId));
+			}
+		}
+	};
 
 	const handleMouseDown = useCallback(
 		(e) => {
@@ -184,27 +243,26 @@ const BottomToolbar = ({
 	);
 
 	const handleChange = useCallback(
-		({ file }) => {
-			handleAiUploadImage(file);
+		async ({ file }) => {
+			const { _id, uploadBatchId, sessionId } = await handleAiUploadImage(file);
 			setInfo((prev) => ({
 				...prev,
 				addQuickAction: false,
 				expanded: true,
 				inputExpanded: true,
-				uploadedFiles: [...prev?.uploadedFiles, file],
+				uploadedFiles: [...prev?.uploadedFiles, { _id, uploadBatchId, sessionId, file }],
 			}));
 		},
 		[handleAiUploadImage],
 	);
 
 	const handleChatIconClick = (e, type) => {
-		console.log('reached here 1');
-
 		if (type === 'fileUpload') {
-			console.log('reached here');
-			const file = e?.target?.files[0] ?? false;
-			if (file) {
-				handleChange({ file });
+			const files = e?.target?.files ?? null;
+			if (files) {
+				Array?.from(files)?.forEach((file) => {
+					handleChange({ file });
+				});
 			}
 		}
 	};
@@ -267,17 +325,30 @@ const BottomToolbar = ({
 				<div className={`bottomToolbar ${info?.expanded ? 'update-border-radius' : ''}`}>
 					{info?.uploadedFiles?.length > 0 && (
 						<div className="uploaded-files-container">
-							{info?.uploadedFiles?.map((file) => (
-								<div key={file?.id} className="uploaded-file-item">
-									<img
-										src={URL.createObjectURL(file)}
-										alt={file?.name}
-										className="uploaded-file-preview"
-										onLoad={(e) => URL.revokeObjectURL(e.target.src)} // Clean up object URL after loading
-									/>
-									<div className="uploaded-file-name">{file?.name}</div>
-								</div>
-							))}
+							{info?.uploadedFiles?.map((uploadedFile) => {
+								const fileStatus = info?.uploadedFilesStatus?.find(
+									(status) => status?.fileId === uploadedFile?._id,
+								)?.status;
+
+								return (
+									<div key={uploadedFile?._id} className="uploaded-file-item">
+										<img
+											src={URL?.createObjectURL(uploadedFile?.file)}
+											alt={uploadedFile?.file?.name}
+											className="uploaded-file-preview"
+											onLoad={(e) => URL?.revokeObjectURL(e?.target?.src)} // Clean up object URL after loading
+										/>
+										<p className="uploaded-file-name">
+											{uploadedFile?.file?.name}
+										</p>
+										{fileStatus === 'pending' && (
+											<span className="uploaded-file-status-loader">
+												<Spinner width={'16px'} height={'16px'} />
+											</span>
+										)}
+									</div>
+								);
+							})}
 						</div>
 					)}
 					<textarea
@@ -306,6 +377,7 @@ const BottomToolbar = ({
 											accept=".pdf,.docx,.md,.txt,.jpg,.jpeg,.png,.json"
 											className="file-upload"
 											onChange={(e) => handleChatIconClick(e, chatIcon?.type)}
+											multiple
 										/>
 									</span>
 								)}

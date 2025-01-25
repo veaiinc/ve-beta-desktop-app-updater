@@ -187,11 +187,13 @@
 		position: relative;
 
 		.uploaded-files-container {
+			width: 650px;
 			position: absolute;
 			right: 4px;
 			top: -84px;
 			display: flex;
 			gap: 12px;
+			overflow-x: scroll;
 
 			.uploaded-file-item {
 				position: relative;
@@ -221,7 +223,7 @@
 					white-space: nowrap;
 				}
 
-				.upload-pending-spinner {
+				.uploaded-file-status-loader {
 					position: absolute;
 					bottom: 12px;
 					left: 7px;
