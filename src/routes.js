@@ -35,6 +35,9 @@ import AgentsSetup from './views/features/ai_agent/AgentsSetup';
 import Docs from './views/features/docs';
 import LiteGallery from './views/features/gallery/Litegallery';
 import MyTemplates from './views/features/my_templates/MyTemplates';
+import AiAssistants from './views/features/ai_assistant/index';
+import CreateAgent from './views/features/ai_assistant/CreateAgent';
+import AgentDetails from './views/features/ai_assistant/AgentDetails';
 const routes = [
 	{
 		path: '/',
@@ -301,6 +304,33 @@ const routes = [
 		component: (
 			<AuthWrapper title={'AI Agents'}>
 				<AgentsSetup />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/ai-assistant',
+		component: (
+			<AuthWrapper title={'AI Assistant'}>
+				<AiAssistants />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/ai-assistant/:agentId',
+		component: (
+			<AuthWrapper title={'AI Assistant'}>
+				<AgentDetails />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/ai-assistant/create-assistant',
+		component: (
+			<AuthWrapper title={'AI Assistant'}>
+				<CreateAgent />
 			</AuthWrapper>
 		),
 		exact: true,
