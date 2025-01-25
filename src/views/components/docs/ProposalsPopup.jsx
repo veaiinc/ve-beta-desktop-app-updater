@@ -2,7 +2,6 @@ import React, { memo, useCallback, useContext, useEffect, useState } from 'react
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
-import '../../../assets/scss/my_templates/myTemplates.scss';
 import '../../../assets/scss/docs/proposalsPopup.scss';
 import Context from '../../../context/context';
 import TemplateCards from '../myTemplate/TemplateCards';
@@ -49,19 +48,25 @@ const ProposalPopup = ({ open, closeModal }) => {
 		}
 	}, [myMoreWorkflows]);
 
-	const getMyWorkflowsTemplatesData = useCallback((page, fetchMore = false) => {
-		const payload = {
-			filters: {
-				limit: 9,
-				page: page,
-				type: 'workspace',
-				status: 'published',
-				sortBy: 'createdAt',
-				sortType: -1,
-			},
-		};
-		getMyWorkflows(payload, fetchMore);
-	}, []);
+	const getMyWorkflowsTemplatesData = useCallback(
+		(page, fetchMore = false) => {
+			const payload = {
+				filters: {
+					limit: 9,
+					page: page,
+					type: 'workspace',
+					status: 'published',
+					sortBy: 'createdAt',
+					sortType: -1,
+				},
+			};
+			if (info?.search) {
+				payload.filters.name = info?.search;
+			}
+			getMyWorkflows(payload, fetchMore);
+		},
+		[info?.search],
+	);
 
 	const fetchMoreMyWorkflows = useCallback(() => {
 		getMyWorkflowsTemplatesData(info?.currentPage + 1, true);

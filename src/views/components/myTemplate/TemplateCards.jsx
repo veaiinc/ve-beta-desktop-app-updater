@@ -1,13 +1,18 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useState, useContext } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { fetchOriginSelection } from '../../../helpers';
 import SideBarPreview from './SideBarPreview';
 import CreateFileLead from './CreateFileLead';
+import Context from '../../../context/context';
 import moment from 'moment';
 let origin = fetchOriginSelection();
 
 const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows, loaders = false }) => {
+	const {
+		activityInfo: { createSmartfile },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		workflowTemplates: data,
 		loading: loading,
@@ -27,8 +32,14 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows, loade
 		});
 	}, [data, loading, hasNextPage]);
 
-	const handleTemplateClick = (template) => {
-		setInfo((prev) => ({ ...prev, showPreview: true, templateData: template }));
+	const handleTemplateClick = async (template) => {
+		const payload = {
+			smartFileInput: {
+				templateId: template?._id,
+				title: template?.title,
+			},
+		};
+		await createSmartfile(payload);
 	};
 
 	const openFileLeadModal = () => {
