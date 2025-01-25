@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import '../../../assets/scss/ai_assistants/index.scss';
+import '../../../assets/scss/ai_assistant/index.scss';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
 import { ReactComponent as Sync } from '../../../assets/svg/docs/sync.svg';
 import { useNavigate } from 'react-router-dom';
@@ -33,74 +33,85 @@ const AiAssistants = () => {
 	const agents = [
 		{
 			icon: <AgentIcon />,
+			agentId: '1',
 			agentName: 'Agent 1',
 			createdBy: 'John Doe',
 		},
 		{
 			icon: <AgentIcon />,
+			agentId: '2',
 			agentName: 'Agent 2',
 			createdBy: 'John Doe',
 		},
 		{
 			icon: <AgentIcon />,
+			agentId: '3',
 			agentName: 'Agent 3',
 			createdBy: 'John Doe',
 		},
 		{
 			icon: <AgentIcon />,
+			agentId: '4',
 			agentName: 'Agent 4',
 			createdBy: 'John Doe',
 		},
 	];
 
 	return (
-		<div className="aiAssistantsParentContainer">
-			<div className="pageHeadContainer">
-				<div className="headTitleContainer">
-					<span className="lineOne">Explore</span>
-					<span className="lineTwo">AI Assistants</span>
+		<>
+			<div className="aiAssistantsParentContainer">
+				<div className="pageHeadContainer">
+					<div className="headTitleContainer">
+						<span className="lineOne">Explore</span>
+						<span className="lineTwo">AI Assistants</span>
+					</div>
+
+					<div
+						className="headActionContainer"
+						onClick={() => navigate('/ai-assistant/create-assistant')}
+					>
+						<span>Create a AI Assistant</span>
+					</div>
 				</div>
 
-				<div
-					className="headActionContainer"
-					onClick={() => navigate('/ai-assistant/create-assistant')}
-				>
-					<span>Create a AI Assistant</span>
+				<div className="displayAgenstsContainer">
+					<div className="titleContainer">
+						<span>Created by you</span>
+					</div>
+
+					<div className="agentsCardContainer">
+						{agents?.map((agent) => (
+							<div
+								className="agentCard"
+								onClick={() => navigate(`/ai-assistant/${agent?.agentId}`)}
+							>
+								<div>{agent?.icon}</div>
+								<div className="agentName">{agent?.agentName}</div>
+								<div className="createdBy">Created by {agent?.createdBy}</div>
+							</div>
+						))}
+					</div>
+				</div>
+
+				<div className="promtsContainer">
+					<div className="promptHeader">
+						<span>Suggested Prompt</span>
+						<Sync />
+					</div>
+
+					<div className="promptCardsContainer">
+						{staticCreateActions?.map((ele, index) => (
+							<div key={index} className="createStaticActionsCards">
+								<span className="createStaticActionsCardsTitle">{ele?.type}</span>
+								<span className="createStaticActionsCardsSubTitle">
+									{ele?.prompt}
+								</span>
+							</div>
+						))}
+					</div>
 				</div>
 			</div>
-
-			<div className="displayAgenstsContainer">
-				<div className="titleContainer">
-					<span>Created by you</span>
-				</div>
-
-				<div className="agentsCardContainer">
-					{agents?.map((agent) => (
-						<div className="agentCard">
-							<div>{agent?.icon}</div>
-							<div className="agentName">{agent?.agentName}</div>
-							<div className="createdBy">Created by {agent?.createdBy}</div>
-						</div>
-					))}
-				</div>
-			</div>
-
-			<div className="promtsContainer">
-				<div className="promptHeader">
-					<span>Suggested Prompt</span>
-					<Sync />
-				</div>
-
-				<div className="docsTemplateContainer">
-					{staticCreateActions?.map((ele, index) => (
-						<div key={index} className="createStaticActionsCards">
-							<span className="createStaticActionsCardsTitle">{ele?.type}</span>
-							<span className="createStaticActionsCardsSubTitle">{ele?.prompt}</span>
-						</div>
-					))}
-				</div>
-			</div>
-		</div>
+		</>
 	);
 };
 

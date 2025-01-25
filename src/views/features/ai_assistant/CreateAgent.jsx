@@ -35,7 +35,7 @@ const CreateAgent = () => {
 				onBack={onBack}
 				onActionClick={onActionClick}
 				status="Saved"
-				backText="Back to AI Chatbot"
+				backText="Back to AI Assistants"
 				actionText="Publish"
 				agentIcon={<AgentIcon width={18} height={18} />}
 			/>

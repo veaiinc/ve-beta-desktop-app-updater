@@ -168,36 +168,7 @@
 			}
 		}
 
-		.docsTemplatesContainerHeader {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			align-self: stretch;
-			color: #fff;
-			color: color(display-p3 1 1 1);
-			font-family: Inter;
-			font-size: 16px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			.docsTemplatesAllFilesContainer {
-				display: flex;
-				height: 28px;
-				padding: 6px;
-				align-items: center;
-				gap: 8px;
-				border-radius: 8px;
-				color: #eee;
-				color: color(display-p3 0.9319 0.9319 0.9319);
-				font-family: Inter;
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-			}
-		}
-
-		.docsTemplateContainer {
+		.promptCardsContainer {
 			display: flex;
 			align-items: flex-start;
 			gap: 16px;

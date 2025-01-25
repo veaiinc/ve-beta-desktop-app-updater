@@ -1,0 +1,19 @@
+.editAgentBtn {
+	display: flex;
+	padding: 8px 14px;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	border-radius: 100px;
+	background: #2c2e30;
+	background: color(display-p3 0.1725 0.1804 0.1882);
+
+	color: #f2f2f3;
+	color: color(display-p3 0.949 0.949 0.9529);
+	font-family: Inter;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	user-select: none;
+}
