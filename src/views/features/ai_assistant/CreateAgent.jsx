@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
 import AiPersonality from '../../components/ai_assistant/AiPersonality';
 import AiInstructions from '../../components/ai_assistant/AiInstructions';
+import AiActions from '../../components/ai_assistant/AiActions';
 const CreateAgent = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -19,7 +20,7 @@ const CreateAgent = () => {
 			label: 'Instructions',
 			component: <AiInstructions />,
 		},
-		actions: { value: 'actions', label: 'Actions' },
+		actions: { value: 'actions', label: 'Actions', component: <AiActions /> },
 		knowledgeBase: { value: 'knowledgeBase', label: 'Knowledge Base' },
 		prompt: { value: 'prompt', label: 'Prompt' },
 		share: { value: 'share', label: 'Share' },
