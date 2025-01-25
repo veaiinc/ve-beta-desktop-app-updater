@@ -5,15 +5,20 @@ import TabHeader from '../../components/ai_assistant/TabHeader';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
 import AiPersonality from '../../components/ai_assistant/AiPersonality';
+import AiInstructions from '../../components/ai_assistant/AiInstructions';
 const CreateAgent = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
-		activeTab: 'personality',
+		activeTab: 'instructions', // personality, instructions, actions, knowledgeBase, prompt, share
 	});
 
 	const tabs = {
 		personality: { value: 'personality', label: 'Personality', component: <AiPersonality /> },
-		instructions: { value: 'instructions', label: 'Instructions' },
+		instructions: {
+			value: 'instructions',
+			label: 'Instructions',
+			component: <AiInstructions />,
+		},
 		actions: { value: 'actions', label: 'Actions' },
 		knowledgeBase: { value: 'knowledgeBase', label: 'Knowledge Base' },
 		prompt: { value: 'prompt', label: 'Prompt' },
