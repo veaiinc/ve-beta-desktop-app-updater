@@ -7,6 +7,7 @@ import { ReactComponent as Tick } from '../../../assets/svg/tick.svg';
 import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import { message, Spin } from 'antd';
+import Spinner from '../../components/loaders/Spinner';
 
 const features = [
 	'Form Management Assistant',
@@ -62,6 +63,7 @@ const PlanBilling = () => {
 		expiresAt: null,
 		freeTier: false,
 		currency: '',
+		addOnsLoading: false,
 	});
 
 	useEffect(() => {
@@ -80,10 +82,21 @@ const PlanBilling = () => {
 				currency: currentPlan?.currentSubscriptionPlan?.currency,
 			}));
 			if (!tierStatus) {
-				getAddOnsForCurrentPlan();
+				handleAddOnsForCurrentPlan();
 			}
 		}
 	}, [currentPlan]);
+
+	const handleAddOnsForCurrentPlan = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, addOnsLoading: true }));
+		const response = await getAddOnsForCurrentPlan();
+		if (response?.[0]) {
+			setInfo((prev) => ({ ...prev, addOnsLoading: false }));
+		} else {
+			message?.error(response?.[1]?.message);
+			setInfo((prev) => ({ ...prev, addOnsLoading: false }));
+		}
+	}, []);
 
 	return (
 		<div className="planBillingContianer">
@@ -94,6 +107,7 @@ const PlanBilling = () => {
 					data={info?.plan}
 					expiresAt={info?.expiresAt}
 					currency={info?.currency}
+					addOnsLoading={info?.addOnsLoading}
 				/>
 			) : (
 				<FreeTierPlanCard expiresAt={info?.expiresAt} />
@@ -128,7 +142,7 @@ const PlanBilling = () => {
 
 export default memo(PlanBilling);
 
-const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
+const SubscribedUserPlanCard = ({ data, expiresAt, currency, addOnsLoading }) => {
 	const navigate = useNavigate();
 	let {
 		subscriptionInfo: { createManageSubscriptionLinkforExistingUsers },
@@ -139,6 +153,8 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 		manageSubscriptionLoader: false,
 		features: features,
 		featureChanged: false,
+		addOnPurchaseLoader: false,
+		planPurchaseId: null,
 	});
 
 	useEffect(() => {
@@ -169,14 +185,19 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 		}
 	}, [expiresAt]);
 
-	const handlePurchaseAddOn = useCallback(async (planId) => {
-		const response = await purchaseAddOn(planId);
-		if (response?.[0]) {
-			window.location.href = response?.[1]?.url;
-		} else {
-			message?.error(response?.[1]?.message);
-		}
-	}, []);
+	const handlePurchaseAddOn = useCallback(
+		async (planId) => {
+			setInfo((prev) => ({ ...prev, addOnPurchaseLoader: true, planPurchaseId: planId }));
+			const response = await purchaseAddOn(planId);
+			if (response?.[0]) {
+				window.location.href = response?.[1]?.url;
+			} else {
+				message?.error(response?.[1]?.message);
+			}
+			setInfo((prev) => ({ ...prev, addOnPurchaseLoader: false, planPurchaseId: null }));
+		},
+		[info?.planPurchaseId],
+	);
 
 	return (
 		<div className="subscriptionWrapperContainer">
@@ -202,7 +223,7 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 					</div>
 					{data?.addOns && Object.values(data?.addOns)?.length ? (
 						<div className="addOnContianer">
-							<span className="addOnStates">Current Add-on’s</span>
+							<span className="addOnStates">Current Add-on's</span>
 
 							<div className="addOnStuffsHolder">
 								{data?.addOns?.aiCredits ? (
@@ -246,36 +267,55 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 			<div className="addOnsContainer">
 				<h1 className="title">Add-ons</h1>
 				<div className="addOnsCardsContainer">
-					{currentPlanAddOns?.map((addOn) => {
-						const {
-							_id: planId,
-							plan,
-							isRecurring,
-							recurringType,
-							totalPrice,
-							currency,
-						} = addOn;
-						return (
-							<div className="addOnsCards">
-								<h1 className="addOnPlanName">{plan}</h1>
-								<div className="priceContainer">
-									<span className="currencySymbol">
-										{currency === 'INR' ? '₹ ' : '$ '}
-									</span>
-									<span className="priceValue">{totalPrice}</span>
-									<span className={`priceDuration ${!isRecurring && 'oneTime'}`}>
-										{isRecurring ? `/ ${recurringType}` : 'One time'}
-									</span>
-								</div>
-								<button
-									onClick={() => handlePurchaseAddOn(planId)}
-									className="addOnsButton"
-								>
-									Add Now
-								</button>
-							</div>
-						);
-					})}
+					{addOnsLoading
+						? [1, 2, 3, 4].map((loader) => (
+								<Skeleton
+									key={loader}
+									height="200px"
+									style={{ borderRadius: '24px' }}
+									width="100%"
+								/>
+						  ))
+						: currentPlanAddOns?.map((addOn) => {
+								const {
+									_id: planId,
+									plan,
+									isRecurring,
+									recurringType,
+									totalPrice,
+									currency,
+								} = addOn;
+
+								return (
+									<div className="addOnsCards" key={planId}>
+										<h1 className="addOnPlanName">{plan}</h1>
+										<div className="priceContainer">
+											<span className="currencySymbol">
+												{currency === 'INR' ? '₹ ' : '$ '}
+											</span>
+											<span className="priceValue">{totalPrice}</span>
+											<span
+												className={`priceDuration ${
+													!isRecurring ? 'oneTime' : ''
+												}`}
+											>
+												{isRecurring ? `/ ${recurringType}` : 'One time'}
+											</span>
+										</div>
+										<button
+											onClick={() => handlePurchaseAddOn(planId)}
+											className="addOnsButton"
+										>
+											{info?.addOnPurchaseLoader &&
+											info?.planPurchaseId === planId ? (
+												<Spinner width="16px" height="16px" />
+											) : (
+												'Add Now'
+											)}
+										</button>
+									</div>
+								);
+						  })}
 				</div>
 			</div>
 		</div>
