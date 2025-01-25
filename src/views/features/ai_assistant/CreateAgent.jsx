@@ -1,7 +1,47 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
+import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
+import TabHeader from '../../components/ai_assistant/TabHeader';
+import { useNavigate } from 'react-router-dom';
+const tabs = {
+	personality: { value: 'personality', label: 'Personality' },
+	instructions: { value: 'instructions', label: 'Instructions' },
+	actions: { value: 'actions', label: 'Actions' },
+	knowledgeBase: { value: 'knowledgeBase', label: 'Knowledge Base' },
+	prompt: { value: 'prompt', label: 'Prompt' },
+	share: { value: 'share', label: 'Share' },
+};
 
 const CreateAgent = () => {
-	return <div style={{ color: 'red' }}>CreateAgent</div>;
+	const navigate = useNavigate();
+	const [activeTab, setActiveTab] = useState('personality');
+	const onTabChange = (tab) => {
+		setActiveTab(tab);
+	};
+
+	const onBack = () => {
+		navigate(-1);
+	};
+
+	const onActionClick = () => {
+		console.log('Action Clicked');
+	};
+
+	return (
+		<div className="create-agent">
+			<CreateAgentHeader
+				name="Assistant#2"
+				onBack={onBack}
+				onActionClick={onActionClick}
+				status="Saved"
+				backText="Back to AI Chatbot"
+				actionText="Publish"
+			/>
+			<TabHeader activeTab={activeTab} onTabChange={onTabChange} tabs={Object.values(tabs)} />
+			<div className="create-agent-body">
+				<div className="create-agent-body-title">Create Agent</div>
+			</div>
+		</div>
+	);
 };
 
 export default memo(CreateAgent);
