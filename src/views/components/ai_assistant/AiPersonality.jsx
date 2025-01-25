@@ -1,7 +1,87 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useState } from 'react';
+import '../../../assets/scss/ai_assistant/AiPersonality.scss';
+import { ReactComponent as PlayIcon } from '../../../assets/svg/ai_assistant/play.svg';
+import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
+import CustomInput from '../globalComponents/CustomInput';
+import { Tooltip } from 'antd';
 
 const AiPersonality = () => {
-	return <div>AiPersonality</div>;
+	const [info, setInfo] = useState({
+		voiceOptions: [],
+		selectedVoice: 'Kierra',
+		voiceListLoading: false,
+		isSelectVoiceOpen: false,
+	});
+
+	const options = ['Kierra', 'Alex', 'Sam', 'Jordan'];
+
+	const updateInfo = useCallback((key, value) => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			[key]: value,
+		}));
+	}, []);
+
+	const handleMoreVisibility = useCallback((visible) => {
+		setInfo((prev) => ({ ...prev, isSelectVoiceOpen: visible }));
+	}, []);
+
+	return (
+		<div className="personalityParentContainer">
+			<div className="nameContainer">
+				<div className="headerWrapper">
+					<span className="lineone">Assistant Name</span>
+					<span className="linetwo">User will see this as the AI name</span>
+				</div>
+
+				<CustomInput
+					placeholder="Assistant Name"
+					className="aiNameInput"
+					label="Assistant Name"
+				/>
+			</div>
+
+			<div className="voiceContainer">
+				<div className="headerWrapper">
+					<span className="lineone">Assistant Voice</span>
+					<span className="linetwo">User will hear this voice modulation</span>
+				</div>
+
+				<div className="chooseVoiceContainer">
+					<Tooltip
+						placement="bottom"
+						title={
+							<div className="voiceDropdown">
+								{options?.map((option) => (
+									<div
+										className="voiceListItem"
+										onClick={() => updateInfo('selectedVoice', option)}
+									>
+										{option}
+									</div>
+								))}
+							</div>
+						}
+						arrow={false}
+						trigger={'click'}
+						onOpenChange={handleMoreVisibility}
+						color={'transparent'}
+						overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+					>
+						<div className="voiceList">
+							{info?.selectedVoice}{' '}
+							<DownSvg className={`${info?.isSelectVoiceOpen ? 'open' : ''}`} />
+						</div>
+					</Tooltip>
+
+					<div className="voiceBtn">
+						<PlayIcon />
+						Play
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 };
 
 export default memo(AiPersonality);
