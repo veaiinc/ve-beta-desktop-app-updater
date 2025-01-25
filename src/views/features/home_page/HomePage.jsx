@@ -6,6 +6,7 @@ import PromptPopup from '../../components/homePage/PromptPopup';
 import HomePageDashboard from '../../components/homePage/dashboard/HomePageDashboard';
 import HomePageStart from '../../components/homePage/HomePageStart';
 import { PromptData } from '../../components/homePage/PromptData';
+import { Tooltip } from 'antd';
 
 const topNavOptions = [
 	{ id: 0, title: 'Start', value: 'start' },
@@ -42,6 +43,17 @@ const propsForHeaderInfoAndNavBar = {
 	},
 };
 
+const dropdownOptions = [
+	{ id: 0, title: 'Client ', value: 'Client' },
+	{ id: 1, title: 'Workflow', value: 'Workflow' },
+	{ id: 2, title: 'Meeting', value: 'Meeting' },
+	{ id: 3, title: 'Task', value: 'Task' },
+	{ id: 4, title: 'Document', value: 'Document' },
+	{ id: 5, title: 'Form', value: 'Form' },
+	{ id: 6, title: 'Proposal', value: 'Proposal' },
+	{ id: 7, title: 'Invoice', value: 'Invoice' },
+	{ id: 8, title: 'Contract', value: 'Contract' },
+];
 const thresholdTopOffset = 150;
 
 const HomePage = () => {
@@ -54,6 +66,8 @@ const HomePage = () => {
 		searchValue: '',
 		selectedCard: null,
 		selectedOptions: {},
+		dropdown: false,
+		dropdownOptions: '',
 	});
 
 	const { title, subTitle, selectedOption } = propsForHeaderInfoAndNavBar[info?.activeTab];
@@ -66,12 +80,17 @@ const HomePage = () => {
 		};
 	}, [info?.isNavbarFixed]);
 
+	if (info?.dropdownOptions === 'Client') {
+		console.log('ClickedOnTheClient');
+	}
+
 	const componentMapper = {
 		start: (
 			<HomePageStart
 				cards={PromptData}
 				setInfo={setInfo}
 				isNavbarFixed={info?.isNavbarFixed}
+				searchValue={info?.searchValue}
 			/>
 		),
 		dashboard: (
@@ -105,29 +124,63 @@ const HomePage = () => {
 			<div className="black-linear-gradient"></div>
 			<div className="home-page-container-header">
 				<div className="home-page-container-content">
-					{topNavOptions?.map((option) => (
-						<div
-							key={option?.id}
-							className="home-page-container-content-item-container"
-						>
-							<div
-								className={`home-page-container-content-item ${
-									info?.activeTab === option?.value ? 'active' : ''
-								}`}
-								onClick={() =>
-									setInfo((prev) => ({
-										...prev,
-										activeTab: option?.value,
-									}))
-								}
-							>
-								{option?.title}
-							</div>
-							{option?.id !== topNavOptions?.length - 1 && (
-								<div className="home-page-container-content-item-divider"></div>
-							)}
+					<div className="home-page-container-content-item-container">
+						<div className="home-page-container-content-item-container-left">
+							{topNavOptions?.map((option) => (
+								<div
+									key={option?.id}
+									className="home-page-container-content-item-container-left"
+								>
+									<div
+										className={`home-page-container-content-item ${
+											info?.activeTab === option?.value ? 'active' : ''
+										}`}
+										onClick={() =>
+											setInfo((prev) => ({
+												...prev,
+												activeTab: option?.value,
+											}))
+										}
+									>
+										{option?.title}
+									</div>
+									{option?.id !== topNavOptions?.length - 1 && (
+										<div className="home-page-container-content-item-divider"></div>
+									)}
+								</div>
+							))}
 						</div>
-					))}
+					</div>
+					<div className="home-page-container-tooltip-container">
+						<Tooltip
+							placement="bottom"
+							open={info?.dropdown}
+							trigger={'click'}
+							onOpenChange={(open) => setInfo({ ...info, dropdown: open })}
+							title={
+								<div className="home-page-dropdown-options-container">
+									{dropdownOptions?.map((option) => (
+										<div
+											key={option?.id}
+											className="dropdown-option"
+											onClick={() =>
+												setInfo({ ...info, dropdownOptions: option?.value })
+											}
+										>
+											{option?.title}
+										</div>
+									))}
+								</div>
+							}
+						>
+							<button
+								className="home-page-container-content-item-container-right"
+								onClick={() => setInfo({ ...info, dropdown: !info?.dropdown })}
+							>
+								+ New
+							</button>
+						</Tooltip>
+					</div>
 				</div>
 
 				<div className="home-page-welcome-container">
