@@ -67,6 +67,20 @@ export const veAiModulesItemsList = [
 		// 	},
 		// ],
 	},
+	{
+		name: 'Design Builder',
+		moduleRoute: '/docs',
+		route: '/docs',
+		icon: '',
+		subModules: [
+			{ icon: '', name: 'All Docs', route: '/docs' },
+			{ icon: '', name: 'My Templates', route: '/my-templates' },
+			// { icon: '', name: 'Forms', route: '/forms' },
+			// { icon: '', name: 'Client Portal', route: '' },
+			// { icon: '', name: 'Link in bio', route: '' },
+			// { icon: '', name: 'Website', route: '' },
+		],
+	},
 
 	// { name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
 	// { name: 'Docs', moduleRoute: '/docs', route: '/docs', icon: '' },
