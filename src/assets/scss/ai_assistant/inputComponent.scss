@@ -1,0 +1,48 @@
+.input-component {
+	width: 100%;
+	position: relative;
+	input {
+		display: flex;
+		height: 46px;
+		flex-direction: column;
+		width: 100%;
+		text-indent: 14px;
+		gap: 5px;
+		align-self: stretch;
+		border-radius: 14px;
+		border: 1px solid #2c2d2e;
+		background-color: #202123;
+		color: #f2f2f3;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 20px;
+	}
+
+	label {
+		color: #797e86;
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		position: absolute;
+		left: 16px;
+		display: flex;
+		padding: 2px;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		border-radius: 4px;
+		top: -8px;
+		background-color: #202123;
+		transition: all 0.2s ease-in-out;
+	}
+
+	input:placeholder-shown + label {
+		top: 50%;
+		transform: translateY(-50%);
+		background-color: transparent;
+	}
+}

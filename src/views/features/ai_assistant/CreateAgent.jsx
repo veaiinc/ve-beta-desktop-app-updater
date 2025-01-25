@@ -4,6 +4,7 @@ import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
 import TabHeader from '../../components/ai_assistant/TabHeader';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
+import InstructionModal from '../../components/modalsV2/ai_assistant/InstructionModal';
 
 const tabs = {
 	personality: { value: 'personality', label: 'Personality' },
@@ -29,6 +30,8 @@ const CreateAgent = () => {
 		console.log('Action Clicked');
 	};
 
+	const [isInstructionModalOpen, setIsInstructionModalOpen] = useState(false);
+
 	return (
 		<div className="create-agent">
 			<div style={{ flexShrink: 0 }}>
@@ -49,6 +52,11 @@ const CreateAgent = () => {
 			</div>
 			<div className="tabSection">
 				<div className="create-agent-body-title">Create Agent</div>
+				<button onClick={() => setIsInstructionModalOpen(true)}>Open Modal</button>
+				<InstructionModal
+					isOpen={isInstructionModalOpen}
+					onClose={() => setIsInstructionModalOpen(false)}
+				/>
 			</div>
 		</div>
 	);

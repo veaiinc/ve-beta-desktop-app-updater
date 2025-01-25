@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { ReactComponent as BackSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import '../../../assets/scss/ai_assistant/createAgentHeader.scss';
 
@@ -46,4 +46,4 @@ const CreateAgentHeader = ({
 	);
 };
 
-export default CreateAgentHeader;
+export default memo(CreateAgentHeader);
