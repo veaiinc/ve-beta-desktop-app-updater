@@ -151,6 +151,30 @@ const AiPersonality = () => {
 					<ProgressCircles />
 				</div>
 			</div>
+
+			<div className="initialMessageContainer">
+				<div className="initialMessageHeader">
+					<span className="lineone">Initial Message</span>
+					<span className="linetwo">User will get this message from Assistant first</span>
+				</div>
+				<CustomInput
+					placeholder="Hi, I'm your AI assistant. How can I help you today?"
+					className="aiNameInput"
+					label="Initial Message"
+				/>
+			</div>
+
+			<div className="userMessageContainer">
+				<div className="userMessageHeader">
+					<span className="lineone">User Message</span>
+					<span className="linetwo">User will see this message from Assistant</span>
+				</div>
+				<CustomInput
+					placeholder="Shoot anything"
+					className="aiNameInput"
+					label="User Message"
+				/>
+			</div>
 		</div>
 	);
 };
