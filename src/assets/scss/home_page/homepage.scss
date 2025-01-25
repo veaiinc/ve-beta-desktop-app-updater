@@ -211,9 +211,12 @@
 			gap: 18px;
 
 			.workflows-tab {
-				display: grid;
-				grid-template-columns: repeat(3, 1fr);
-				gap: 18px;
+				display: flex;
+				flex-direction: row;
+				gap: 15px;
+				height: 450px;
+				overflow: auto;
+				flex-wrap: wrap;
 			}
 		}
 

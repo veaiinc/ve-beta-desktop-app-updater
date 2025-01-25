@@ -1,0 +1,27 @@
+.workflow-prompt-popup {
+	width: 150px;
+	padding: 12px;
+
+	background-color: #26282a;
+	border-radius: 12px;
+
+	.workflow-prompt-option {
+		padding: 6px 8px;
+		display: inline-block;
+		width: 100%;
+		color: #f2f2f3;
+		color: color(display-p3 0.949 0.949 0.9529);
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 22px; /* 157.143% */
+		width: 100%;
+		border-radius: 8px;
+		cursor: pointer;
+
+		&:hover {
+			background-color: #303336;
+		}
+	}
+}

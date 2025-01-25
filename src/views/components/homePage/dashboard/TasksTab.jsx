@@ -137,7 +137,7 @@ const TasksTab = () => {
 		infinityLoading: false,
 		view: 'table',
 	});
-	console.log(tenantsUserList);
+	console.log(info?.listItems);
 
 	const options = [{ value: 'All' }, { value: 'Today' }, { value: 'Over due' }];
 
@@ -165,6 +165,8 @@ const TasksTab = () => {
 			return false;
 		}
 	});
+
+	console.log(todayTasks, overDueTasks);
 
 	const responseMetadata = useMemo(
 		() => ({
@@ -320,7 +322,7 @@ const TasksTab = () => {
 		if (!tenantsUserList) {
 			getTeamMembers();
 		} else {
-			console.log('tenantsUserList', tenantsUserList);
+			// console.log('tenantsUserList', tenantsUserList);
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				tenantUsers: tenantsUserList?.map(({ firstName, lastName, _id }) => ({
@@ -463,17 +465,17 @@ const TasksTab = () => {
 		});
 	}, []);
 
-	// const fetchMoreData = useCallback(() => {
-	// 	if (info.hasMore) {
-	// 		const nextPage = info.page + 1;
-	// 		fetchListItems(nextPage);
-	// 		setInfo((prevInfo) => ({
-	// 			...prevInfo,
-	// 			page: nextPage,
-	// 			infinityLoading: true,
-	// 		}));
-	// 	}
-	// }, [info.infinityLoading, info.hasMore, info.page, fetchListItems]);
+	const fetchMoreData = useCallback(() => {
+		if (info.hasMore) {
+			const nextPage = info.page + 1;
+			fetchListItems(nextPage);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				page: nextPage,
+				infinityLoading: true,
+			}));
+		}
+	}, [info?.infinityLoading, info?.hasMore, info?.page, fetchListItems]);
 
 	// const mapFiltersPayload = useCallback((filters) => {
 	// 	return filters.map((filter) => ({
@@ -834,72 +836,51 @@ const TasksTab = () => {
 		e.stopPropagation();
 	}, []);
 
-	const handleDropDown = (value) => {
-		setInfo((prevInfo) => ({ ...prevInfo, isDropdownOpen: value }));
-	};
-
 	return (
 		<>
 			<div className="tasks">
-				{/* <select value={info?.selectedOption} onChange={handleSelectChange}>
-						<option value="" disabled>
-							All
-						</option>
-						{console.log(options)}
-						{options.map((option, index) => (
-							<option key={index} value={option}>
-								{option}
-							</option>
-						))}
-					</select> */}
-				{/* <Tooltip
-					placement="bottom"
-					open={info?.isDropdownOpen}
-					title={
-						<div
-							className={options?.length === 0 ? '' : 'listView-dropdown-container'}
-							style={containerStyles ? { ...containerStyles } : {}}
-							onClick={handlePropagation}
-						>
-							<div className="dropdown-options">
-								{options?.length > 0 ? (
-									<>
-										{options?.map((option, index) => (
-											<div
-												key={index}
-												className="listItem"
-												style={listItemStyles ? { ...listItemStyles } : {}}
-												onClick={() => {
-													handleDropDown(false);
-												}}
-											>
-												<div className="list-details">
-													{option?.[valueSelector] !== undefined ? (
-														<span className="listItem-label">
-															{option?.label
-																? option?.label
-																: option?.[valueSelector]}
-														</span>
-													) : (
-														''
-													)}
-												</div>
-												{selected === option?.[valueSelector] ? (
-													<Tick />
-												) : (
-													''
-												)}
-											</div>
-										))}
-									</>
-								) : (
-									''
-									// <div className="listItem">No options found</div>
-								)}
+				<div className="dropdown-container">
+					<Tooltip
+						placement="bottom"
+						open={info?.isDropdownOpen}
+						trigger={'click'}
+						onOpenChange={(open) => {
+							setInfo((prev) => ({
+								...prev,
+								isDropdownOpen: open,
+							}));
+						}}
+						color="transparent"
+						title={
+							<div className="dropdown-options" onClick={handlePropagation}>
+								{options?.map((option, index) => (
+									<div
+										key={index}
+										className="dropdown-option"
+										onClick={() => {
+											setInfo((prev) => ({
+												...prev,
+												isDropdownOpen: false,
+												selectedOption: option?.value,
+											}));
+										}}
+									>
+										{option?.value}
+									</div>
+								))}
 							</div>
-						</div>
-					}
-				/> */}
+						}
+					>
+						<button className="dropdown-header">
+							<div className="dropdown-content">
+								<div className="dropdown-text">{info?.selectedOption}</div>
+								<div className="dropdown-icon">
+									<ChevronRightThinIcon />
+								</div>
+							</div>
+						</button>
+					</Tooltip>
+				</div>
 
 				{todayTasks?.length > 0 &&
 					(info?.selectedOption === 'All' || info?.selectedOption === 'Today') && (
@@ -908,7 +889,16 @@ const TasksTab = () => {
 							<div className="tasks-container">
 								{todayTasks?.map((task) => {
 									return (
-										<div className="task-container">
+										<div
+											className="task-container"
+											onClick={() => {
+												setInfo((prev) => ({
+													...prev,
+													sidebarIsOpen: true,
+													selectedRow: task,
+												}));
+											}}
+										>
 											<div className="task-content">
 												<span className="title">{task?.title}</span>
 												<div className="description">
@@ -918,16 +908,7 @@ const TasksTab = () => {
 
 											<div className="show-more">
 												<div className="assigned-to"></div>
-												<div
-													className="chevron-icon-container"
-													onClick={() => {
-														setInfo((prev) => ({
-															...prev,
-															sidebarIsOpen: true,
-															selectedRow: task,
-														}));
-													}}
-												>
+												<div className="chevron-icon-container">
 													<ChevronRightThinIcon />
 												</div>
 											</div>
@@ -944,7 +925,16 @@ const TasksTab = () => {
 							<div className="tasks-container">
 								{overDueTasks?.map((task) => {
 									return (
-										<div className="task-container">
+										<div
+											className="task-container"
+											onClick={() => {
+												setInfo((prev) => ({
+													...prev,
+													sidebarIsOpen: true,
+													selectedRow: task,
+												}));
+											}}
+										>
 											<div className="task-content">
 												<span className="title">{task?.title}</span>
 												<div className="description">
@@ -954,16 +944,7 @@ const TasksTab = () => {
 
 											<div className="show-more">
 												<div className="assigned-to"></div>
-												<div
-													className="chevron-icon-container"
-													onClick={() => {
-														setInfo((prev) => ({
-															...prev,
-															sidebarIsOpen: true,
-															selectedRow: task,
-														}));
-													}}
-												>
+												<div className="chevron-icon-container">
 													<ChevronRightThinIcon />
 												</div>
 											</div>
