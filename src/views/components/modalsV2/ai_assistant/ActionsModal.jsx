@@ -6,6 +6,11 @@ import '../../../../assets/scss/ai_assistant/modal/actionsModal.scss';
 import ActionButton from '../../ai_assistant/ActionButton';
 import InputComponent from '../../ai_assistant/InputComponent';
 import TextareaComponent from '../../ai_assistant/TextareaComponent';
+import { ReactComponent as DownSvg } from '../../../../assets/svg/activity/down.svg';
+import { Tooltip } from 'antd';
+
+const methodsOptions = ['GET', 'POST', 'PUT', 'DELETE'];
+const apiUsesOptions = ['JSON'];
 
 const ActionsModal = ({
 	isOpen,
@@ -20,11 +25,16 @@ const ActionsModal = ({
 	isActionbtnLoading,
 	isDeletebtnLoading,
 }) => {
-	const [info, setInfo] = useState({ activeTab: 'endpoint' });
+	const [info, setInfo] = useState({
+		activeTab: 'endpoint',
+		method: 'GET',
+		apiUses: 'JSON',
+	});
 
-	const onTabChange = (tab) => {
-		setInfo((prevInfo) => ({ ...prevInfo, activeTab: tab }));
+	const updateInfo = (updateValue) => {
+		setInfo((prevInfo) => ({ ...prevInfo, ...updateValue }));
 	};
+
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -57,7 +67,7 @@ const ActionsModal = ({
 							className={`actions-modal-tabs-header-item ${
 								info?.activeTab === 'endpoint' ? 'active' : ''
 							}`}
-							onClick={() => onTabChange('endpoint')}
+							onClick={() => updateInfo({ activeTab: 'endpoint' })}
 						>
 							Endpoint
 						</span>
@@ -65,7 +75,7 @@ const ActionsModal = ({
 							className={`actions-modal-tabs-header-item ${
 								info?.activeTab === 'headers' ? 'active' : ''
 							}`}
-							onClick={() => onTabChange('headers')}
+							onClick={() => updateInfo({ activeTab: 'headers' })}
 						>
 							Headers
 						</span>
@@ -77,7 +87,64 @@ const ActionsModal = ({
 							onChange={() => {}}
 						/>
 						<div className="actions-modal-tabs-body-dropdown-wrapper">
-							<div className="actions-modal-dropdown"></div>
+							<div className="actions-modal-dropdown">
+								<span className="actions-modal-dropdown-label">Method</span>
+								<Tooltip
+									placement="bottom"
+									title={
+										<div className="actions-dropdown">
+											{methodsOptions?.map((option) => (
+												<div
+													className="actions-dropdown-item"
+													onClick={() => updateInfo({ method: option })}
+												>
+													{option}
+												</div>
+											))}
+										</div>
+									}
+									arrow={false}
+									trigger={'click'}
+									color={'transparent'}
+									overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+								>
+									<div className="actions-dropdown-selected">
+										{info?.method}{' '}
+										<DownSvg
+											className={`${info?.isSelectVoiceOpen ? 'open' : ''}`}
+										/>
+									</div>
+								</Tooltip>
+							</div>
+							<div className="actions-modal-dropdown">
+								<span className="actions-modal-dropdown-label">This API uses</span>
+								<Tooltip
+									placement="bottom"
+									title={
+										<div className="actions-dropdown">
+											{apiUsesOptions?.map((option) => (
+												<div
+													className="actions-dropdown-item"
+													onClick={() => updateInfo({ apiUses: option })}
+												>
+													{option}
+												</div>
+											))}
+										</div>
+									}
+									arrow={false}
+									trigger={'click'}
+									color={'transparent'}
+									overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+								>
+									<div className="actions-dropdown-selected">
+										{info?.apiUses}{' '}
+										<DownSvg
+											className={`${info?.isSelectVoiceOpen ? 'open' : ''}`}
+										/>
+									</div>
+								</Tooltip>
+							</div>
 						</div>
 					</div>
 				</div>
