@@ -4,8 +4,42 @@ import { ReactComponent as PlayIcon } from '../../../assets/svg/ai_assistant/pla
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
 import { ReactComponent as UploadIcon } from '../../../assets/svg/ai_assistant/upload.svg';
+import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.svg';
 import CustomInput from '../globalComponents/CustomInput';
 import { Tooltip } from 'antd';
+
+const ProgressCircle = ({ color, isActive }) => (
+	<div className="circle">
+		<div className="circle__content">
+			<div
+				className="circle__content-fill"
+				style={{
+					background: `linear-gradient(90deg, ${color} 50%, white 50%)`,
+				}}
+			/>
+		</div>
+		{isActive && (
+			<div className="circle__badge">
+				<div className="circle__badge-inner">
+					<svg viewBox="0 0 24 24">
+						<polyline points="20 6 9 17 4 12" strokeWidth="2" />
+					</svg>
+				</div>
+			</div>
+		)}
+	</div>
+);
+
+const ProgressCircles = () => (
+	<div className="progress-circles">
+		<ProgressCircle color="#8B5CF6" isActive={true} />
+		<ProgressCircle color="#EF4444" isActive={false} />
+		<ProgressCircle color="#3B82F6" isActive={false} />
+		<div className="add-button">
+			<Plus />
+		</div>
+	</div>
+);
 
 const AiPersonality = () => {
 	const [info, setInfo] = useState({
@@ -103,6 +137,18 @@ const AiPersonality = () => {
 							Supports JPG, PNG, and SVG files up to 1MB
 						</span>
 					</div>
+				</div>
+			</div>
+
+			<div className="colorThemeContainer">
+				<div className="colorThemeHeader">
+					<span className="lineone">Color Theme</span>
+					<span className="linetwo">
+						Assistant chat box color theme will be based on this{' '}
+					</span>
+				</div>
+				<div className="colorThemeWrapper">
+					<ProgressCircles />
 				</div>
 			</div>
 		</div>
