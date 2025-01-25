@@ -7,7 +7,7 @@ import CreateFileLead from './CreateFileLead';
 import moment from 'moment';
 let origin = fetchOriginSelection();
 
-const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => {
+const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows, loaders = false }) => {
 	const [info, setInfo] = useState({
 		workflowTemplates: data,
 		loading: loading,
@@ -39,8 +39,14 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 		<>
 			<div className="myTemplatesInfiniteContainer">
 				{info?.loading ? (
-					[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]?.map(
-						(ele, index) => <Skeleton key={index} height={258} width={232} />,
+					loaders?.length ? (
+						loaders?.map((ele, index) => (
+							<Skeleton key={index} height={258} width={232} />
+						))
+					) : (
+						[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]?.map(
+							(ele, index) => <Skeleton key={index} height={258} width={232} />,
+						)
 					)
 				) : (
 					<InfiniteScroll
