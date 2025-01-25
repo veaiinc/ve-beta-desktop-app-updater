@@ -2,7 +2,22 @@ import React, { memo, useRef, useLayoutEffect, useState, useCallback } from 'rea
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Tooltip } from 'antd';
 import { ReactComponent as SixDotsSvg } from '../../../../assets/svg/tasks/sixDots.svg';
+import { ReactComponent as EditIcon } from '../../../../assets/svg/tasks/pencilWithLine.svg';
+import { ReactComponent as DuplicateIcon } from '../../../../assets/svg/tasks/duplicate.svg';
+import { ReactComponent as DeleteIcon } from '../../../../assets/svg/tasks/dustBin.svg';
 import '../../../../assets/scss/tasks/tabHeader.scss';
+import TabDropDown from '../../dropDown/tasks/TabDropDown';
+
+const tabDropdownOptions = [
+	{ icon: <EditIcon />, label: 'Rename View', value: 'renameView' },
+	{ icon: <EditIcon />, label: 'Edit View', value: 'editView' },
+	{ icon: <DuplicateIcon />, label: 'Duplicate View', value: 'duplicateView' },
+	{
+		icon: <DeleteIcon className="task-delete-icon" />,
+		label: 'Delete View',
+		value: 'deleteView',
+	},
+];
 
 const TabHeader = ({
 	activeTab,
@@ -10,7 +25,7 @@ const TabHeader = ({
 	tabs,
 	onTabsReorder,
 	showDropDown = false,
-	dropdownContent = null,
+	handleTabDropdownClick,
 }) => {
 	const containerRef = useRef(null);
 	const tabRefs = useRef({});
@@ -107,9 +122,19 @@ const TabHeader = ({
 											arrow={false}
 											color="transparent"
 											trigger="click"
+											destroyTooltipOnHide
 											open={showDropDown && activeTab === tab._id}
 											overlayClassName="tab-dropdown"
-											title={activeTab === tab._id ? dropdownContent : null}
+											title={
+												activeTab === tab._id ? (
+													<TabDropDown
+														options={tabDropdownOptions}
+														onOptionClick={(option) => {
+															handleTabDropdownClick(option);
+														}}
+													/>
+												) : null
+											}
 										>
 											<div
 												ref={(el) => {

@@ -4,9 +4,6 @@ import ListViewHeader from './listView/ListViewHeader';
 import { ReactComponent as ListViewIcon } from '../../../assets/svg/tasks/list.svg';
 import { ReactComponent as BoardViewIcon } from '../../../assets/svg/tasks/board.svg';
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
-import { ReactComponent as EditIcon } from '../../../assets/svg/tasks/pencilWithLine.svg';
-import { ReactComponent as DuplicateIcon } from '../../../assets/svg/tasks/duplicate.svg';
-import { ReactComponent as DeleteIcon } from '../../../assets/svg/tasks/dustBin.svg';
 import ListView from './views/ListView';
 // import BoardView from './views/BoardView';
 import TableView from './views/TableView';
@@ -17,17 +14,6 @@ const icons = {
 	board: BoardViewIcon,
 	table: TableViewIcon,
 };
-
-const tabDropdownOptions = [
-	{ icon: <EditIcon />, label: 'Rename View', value: 'renameView' },
-	{ icon: <EditIcon />, label: 'Edit View', value: 'editView' },
-	{ icon: <DuplicateIcon />, label: 'Duplicate View', value: 'duplicateView' },
-	{
-		icon: <DeleteIcon className="task-delete-icon" />,
-		label: 'Delete View',
-		value: 'deleteView',
-	},
-];
 
 const Task = ({
 	blockTitle,
@@ -84,8 +70,8 @@ const Task = ({
 			}));
 			updateTaskInfo({
 				loadingSkeleton: true,
-				sort: taskInfo?.tabs?.[tabData?._id]?.sort,
-				filters: taskInfo?.tabs?.[tabData?._id]?.filters,
+				sort: [...taskInfo?.tabs?.[tabData?._id]?.sort],
+				filters: [...taskInfo?.tabs?.[tabData?._id]?.filters],
 			});
 		},
 		[taskInfo.tabs, updateTaskInfo, taskInfo?.activeTab],
@@ -110,7 +96,7 @@ const Task = ({
 	);
 
 	const generateNewId = useCallback(() => {
-		return Date.now().toString();
+		return new Date().getTime().toString();
 	}, []);
 
 	const handleAddTab = useCallback(() => {
@@ -248,23 +234,30 @@ const Task = ({
 		(tabId) => {
 			setTaskInfo((prev) => {
 				const tabToDuplicate = prev?.tabs?.[tabId];
-				const newTabId = generateNewId();
+				const newTabId = new Date().getTime().toString();
 				const maxOrder = Math.max(
 					...Object.values(prev?.tabs)?.map((tab) => tab?.order),
 					-1,
 				);
 
+				// Check if the tab exists and can be duplicated
+				if (!tabToDuplicate) {
+					return prev;
+				}
+
+				const newTabs = {
+					...prev?.tabs,
+					[newTabId]: {
+						...tabToDuplicate,
+						_id: newTabId,
+						label: `${tabToDuplicate?.label} (Copy)`,
+						order: maxOrder + 1,
+					},
+				};
+
 				return {
 					...prev,
-					tabs: {
-						...prev?.tabs,
-						[newTabId]: {
-							...tabToDuplicate,
-							_id: newTabId,
-							label: `${tabToDuplicate?.label} (Copy)`,
-							order: maxOrder + 1,
-						},
-					},
+					tabs: newTabs,
 				};
 			});
 		},
@@ -276,8 +269,6 @@ const Task = ({
 			if (option?.value === 'deleteView') {
 				// Check if deletion is allowed
 				if (Object.keys(taskInfo?.tabs)?.length <= 1) {
-					// You could show a toast/notification here
-					console.log('Cannot delete the last remaining tab');
 					return;
 				}
 				handleDeleteTab(taskInfo?.activeTab);
@@ -321,14 +312,9 @@ const Task = ({
 				handleTabsReorder={handleTabsReorder}
 				showEditViewDropDown={showEditViewDropDown}
 				closeEditViewDropDown={closeEditViewDropDown}
-				tabDropDown={
-					<TabDropDown
-						options={tabDropdownOptions}
-						onOptionClick={handleTabDropdownClick}
-					/>
-				}
 				handleDuplicateView={handleDuplicateTab}
 				handleDeleteView={handleDeleteTab}
+				handleTabDropdownClick={handleTabDropdownClick}
 			/>
 			<div className="task-content-area">
 				{viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.view)}

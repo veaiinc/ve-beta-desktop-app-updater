@@ -10,7 +10,6 @@ import DropDown from '../../dropDown/tasks/DropDown';
 import SortComponent from './SortComponent';
 import FilterComponent from './FilterComponent';
 import TabHeader from './TabHeader';
-import TabDropDown from '../../dropDown/tasks/TabDropDown';
 
 const defaultFilterValue = {
 	workflow: null,
@@ -45,11 +44,11 @@ const ListViewHeader = ({
 	viewData,
 	blockTitle,
 	handleTabsReorder,
-	tabDropDown,
 	showEditViewDropDown,
 	closeEditViewDropDown,
 	handleDuplicateView,
 	handleDeleteView,
+	handleTabDropdownClick,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -132,27 +131,22 @@ const ListViewHeader = ({
 		},
 		[viewData?._id, handleTabChange],
 	);
-
-	const handleDropdownOptionClick = useCallback(
-		(option) => {
-			// Handle the option click
-			handelFilterClick(option.value);
-			// Close the dropdown
-			setShowDropdown(false);
-		},
-		[handelFilterClick],
-	);
-
 	// Add click outside handler
 	useEffect(() => {
 		const handleClickOutside = (event) => {
-			const dropdownElement = document.querySelector('.tab-dropdown');
+			const dropdownElement = document.querySelector('.tab-dropdown-content');
 			const tabElement = document.querySelector('.tabHeaderButton.active');
 
 			if (dropdownElement && tabElement) {
-				if (!dropdownElement.contains(event.target) && !tabElement.contains(event.target)) {
-					setShowDropdown(false);
+				// Don't close if clicking inside dropdown
+				if (dropdownElement.contains(event.target)) {
+					return;
 				}
+				// Don't close if clicking the active tab
+				if (tabElement.contains(event.target)) {
+					return;
+				}
+				setShowDropdown(false);
 			}
 		};
 
@@ -174,7 +168,7 @@ const ListViewHeader = ({
 						tabs={Object.values(tabs || {})}
 						onTabsReorder={handleTabsReorder}
 						showDropDown={showDropdown}
-						dropdownContent={tabDropDown}
+						handleTabDropdownClick={handleTabDropdownClick}
 					/>
 					{/* <button className="listViewHeaderTabsAddButton" onClick={handleAddTab}>
 						<PlusSvg />
