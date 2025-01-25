@@ -27,10 +27,6 @@ const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true 
 		checkAuth();
 	}, []);
 
-	useEffect(() => {
-		console.log(uploadedFiles, 'uploadedFiles');
-	}, [uploadedFiles]);
-
 	const handleAiUploadImage = async (uploadedImage) => {
 		try {
 			const response = await uploadImageToKnowledgeBase(uploadedImage);
@@ -40,7 +36,7 @@ const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true 
 					...uploadedFiles,
 					{ _id, uploadBatchId, sessionId, filename: uploadedImage?.name },
 				]);
-				message.success('Image uploaded successfully.');
+				return { _id, uploadBatchId, sessionId };
 			} else {
 				message.error('An error occurred while uploading the image.');
 			}
