@@ -26,7 +26,6 @@
 		width: 100%;
 		display: flex;
 		flex-direction: column;
-		// cursor: default;
 
 		.bottomToolBarChatHeader {
 			padding: 12px 16px;
@@ -34,8 +33,6 @@
 			align-self: flex-end;
 			justify-content: flex-end;
 			align-items: center;
-			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-			// cursor: grab;
 			user-select: none;
 			width: 100%;
 			span {
@@ -191,8 +188,8 @@
 
 		.uploaded-files-container {
 			position: absolute;
-			right: 0;
-			top: -92px;
+			right: 4px;
+			top: -84px;
 			display: flex;
 			gap: 12px;
 
@@ -218,6 +215,16 @@
 					font-weight: 500;
 					line-height: normal;
 					font-family: Inter;
+					width: 78px;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				}
+
+				.upload-pending-spinner {
+					position: absolute;
+					bottom: 12px;
+					left: 7px;
 				}
 			}
 		}
