@@ -1,33 +1,34 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import '../../../assets/scss/ai_assistant/CreateAgent.scss';
 import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
 import TabHeader from '../../components/ai_assistant/TabHeader';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
-
-const tabs = {
-	personality: { value: 'personality', label: 'Personality' },
-	instructions: { value: 'instructions', label: 'Instructions' },
-	actions: { value: 'actions', label: 'Actions' },
-	knowledgeBase: { value: 'knowledgeBase', label: 'Knowledge Base' },
-	prompt: { value: 'prompt', label: 'Prompt' },
-	share: { value: 'share', label: 'Share' },
-};
-
+import AiPersonality from '../../components/ai_assistant/AiPersonality';
 const CreateAgent = () => {
 	const navigate = useNavigate();
-	const [activeTab, setActiveTab] = useState('personality');
-	const onTabChange = (tab) => {
-		setActiveTab(tab);
+	const [info, setInfo] = useState({
+		activeTab: 'personality',
+	});
+
+	const tabs = {
+		personality: { value: 'personality', label: 'Personality', component: <AiPersonality /> },
+		instructions: { value: 'instructions', label: 'Instructions' },
+		actions: { value: 'actions', label: 'Actions' },
+		knowledgeBase: { value: 'knowledgeBase', label: 'Knowledge Base' },
+		prompt: { value: 'prompt', label: 'Prompt' },
+		share: { value: 'share', label: 'Share' },
 	};
 
-	const onBack = () => {
+	const onTabChange = useCallback((tab) => {
+		setInfo((prev) => ({ ...prev, activeTab: tab }));
+	}, []);
+	const onBack = useCallback(() => {
 		navigate(-1);
-	};
-
-	const onActionClick = () => {
+	}, []);
+	const onActionClick = useCallback(() => {
 		console.log('Action Clicked');
-	};
+	}, []);
 
 	return (
 		<div className="create-agent">
@@ -42,14 +43,12 @@ const CreateAgent = () => {
 					agentIcon={<AgentIcon width={18} height={18} />}
 				/>
 				<TabHeader
-					activeTab={activeTab}
+					activeTab={info?.activeTab}
 					onTabChange={onTabChange}
 					tabs={Object?.values(tabs)}
 				/>
 			</div>
-			<div className="tabSection">
-				<div className="create-agent-body-title">Create Agent</div>
-			</div>
+			<div className="tabSection">{tabs[info?.activeTab]?.component}</div>
 		</div>
 	);
 };
