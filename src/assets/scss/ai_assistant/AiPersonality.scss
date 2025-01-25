@@ -114,6 +114,110 @@
 			}
 		}
 	}
+
+	.aiProfileContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 14px;
+		align-self: stretch;
+
+		.aiProfileHeader {
+			display: flex;
+			width: 100%;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			gap: 4px;
+
+			.lineone {
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.linetwo {
+				color: #797e86;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+
+		.aiProfileWrapper {
+			display: flex;
+			align-items: flex-start;
+			gap: 24px;
+
+			.uploadContainer {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: flex-start;
+				gap: 12px;
+
+				.uploadLabel {
+					color: #797e86;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+
+				.uploadIcons {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+
+					.uploadBtn {
+						border-radius: 20px;
+						border: 1px solid #2c2d2e;
+						border: 1px solid color(display-p3 0.1719 0.1753 0.1787);
+						background: #2c2e30;
+						background: color(display-p3 0.1725 0.1804 0.1882);
+						display: flex;
+						height: 36px;
+						padding: 6px 14px;
+						align-items: center;
+						gap: 6px;
+
+						color: #f2f2f3;
+						color: color(display-p3 0.949 0.949 0.9529);
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+
+					.removeBtn {
+						border-radius: 20px;
+						border: 1px solid #2c2d2e;
+						border: 1px solid color(display-p3 0.1719 0.1753 0.1787);
+						display: flex;
+						height: 36px;
+						padding: 6px 14px;
+						align-items: center;
+						gap: 6px;
+
+						color: #f2f2f3;
+						color: color(display-p3 0.949 0.949 0.9529);
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+			}
+		}
+	}
 }
 
 .voiceDropdown {

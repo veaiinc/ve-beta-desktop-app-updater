@@ -2,6 +2,8 @@ import React, { memo, useCallback, useState } from 'react';
 import '../../../assets/scss/ai_assistant/AiPersonality.scss';
 import { ReactComponent as PlayIcon } from '../../../assets/svg/ai_assistant/play.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
+import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
+import { ReactComponent as UploadIcon } from '../../../assets/svg/ai_assistant/upload.svg';
 import CustomInput from '../globalComponents/CustomInput';
 import { Tooltip } from 'antd';
 
@@ -77,6 +79,29 @@ const AiPersonality = () => {
 					<div className="voiceBtn">
 						<PlayIcon />
 						Play
+					</div>
+				</div>
+			</div>
+
+			<div className="aiProfileContainer">
+				<div className="aiProfileHeader">
+					<span className="lineone">Profile Picture</span>
+					<span className="linetwo">User will see this as Assistant face</span>
+				</div>
+
+				<div className="aiProfileWrapper">
+					<AgentIcon width={70} height={70} />
+					<div className="uploadContainer">
+						<div className="uploadIcons">
+							<span className="uploadBtn">
+								<UploadIcon />
+								Upload
+							</span>
+							<span className="removeBtn">remove</span>
+						</div>
+						<span className="uploadLabel">
+							Supports JPG, PNG, and SVG files up to 1MB
+						</span>
 					</div>
 				</div>
 			</div>
