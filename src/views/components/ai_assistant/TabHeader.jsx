@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, memo } from 'react';
 import '../../../assets/scss/ai_assistant/tabHeader.scss';
 
 const TabHeader = ({ activeTab, onTabChange, tabs }) => {
@@ -48,4 +48,4 @@ const TabHeader = ({ activeTab, onTabChange, tabs }) => {
 	);
 };
 
-export default TabHeader;
+export default memo(TabHeader);

@@ -1,0 +1,70 @@
+.instruction-modal {
+	display: flex;
+	width: 520px;
+	padding: 32px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	border-radius: 32px;
+	background: #202123;
+	background: color(display-p3 0.1255 0.1294 0.1373);
+
+	&-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+		flex: 1 0 0;
+		width: 100%;
+
+		h2 {
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 20px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		svg {
+			cursor: pointer;
+		}
+	}
+
+	&-body {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		align-self: stretch;
+	}
+
+	&-footer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 16px;
+		align-self: stretch;
+
+		&-delete-button {
+			all: unset;
+			cursor: pointer;
+			svg {
+				width: 24px;
+				height: 24px;
+				path {
+					stroke: #f2f2f3 !important;
+				}
+			}
+
+			&:hover {
+				svg {
+					path {
+						stroke: #b12712 !important;
+					}
+					filter: drop-shadow(0px 0px 1px #b12712cf);
+				}
+			}
+		}
+	}
+}
