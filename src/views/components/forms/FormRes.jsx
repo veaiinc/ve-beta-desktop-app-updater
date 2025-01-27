@@ -171,7 +171,11 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 								className="headerCell"
 								style={{ width: column?.width }}
 							>
-								<div className="cellContent">{column?.label}</div>
+								<div className="cellContent">
+									{(column?.label || '')
+										?.replace(/<\/?[^>]+(>|$)/g, '')
+										?.replace(/&nbsp;/g, ' ')}
+								</div>
 								<div
 									className="resizeHandle"
 									onMouseDown={(e) => handleMouseDown(index, e)}
