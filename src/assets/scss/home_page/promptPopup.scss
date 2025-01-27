@@ -36,6 +36,10 @@
 				line-height: normal;
 			}
 		}
+
+		.promptPopupContainerHeaderRight {
+			cursor: pointer;
+		}
 	}
 	.promptPopupContainerBody {
 		display: flex;
@@ -198,5 +202,6 @@
 		border-radius: 50px;
 		background: #f2f2f3;
 		border: none;
+		cursor: pointer;
 	}
 }
