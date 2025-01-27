@@ -748,6 +748,7 @@ const TasksTab = () => {
 				<div className="dropdown-container">
 					<Tooltip
 						placement="bottom"
+						color="transparent"
 						open={info?.isDropdownOpen}
 						trigger={'click'}
 						onOpenChange={(open) => {
@@ -756,7 +757,6 @@ const TasksTab = () => {
 								isDropdownOpen: open,
 							}));
 						}}
-						color="transparent"
 						title={
 							<div className="dropdown-options" onClick={handlePropagation}>
 								{options?.map((option, index) => (
