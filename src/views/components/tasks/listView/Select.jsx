@@ -5,7 +5,15 @@ import { Tooltip } from 'antd';
 import { ReactComponent as SixDotsIcon } from '../../../../assets/svg/tasks/sixDots.svg';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 
-const Select = ({ value, options = [], title, showTitle = false, onOptionClick, colors = [] }) => {
+const Select = ({
+	value,
+	options = [],
+	title,
+	showTitle = false,
+	onOptionClick,
+	colors = [],
+	disabled = false,
+}) => {
 	const [info, setInfo] = useState({
 		selectedOption: null,
 		value: 'option1',
@@ -94,7 +102,7 @@ const Select = ({ value, options = [], title, showTitle = false, onOptionClick, 
 				color={'transparent'}
 				overlayStyle={{ minWidth: 'fit-content' }}
 				overlayClassName="select-dropdown-wrapper"
-				open={info?.open}
+				open={!disabled && info?.open}
 				onClick={(e) => {
 					e?.stopPropagation();
 				}}

@@ -7,13 +7,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import Context from '../../../../context/context';
 
-const TabListFile = ({
-	rowTypes,
-	colors,
-	handleRowClick,
-	refetchDocsFilesList,
-	updateListViewInfo,
-}) => {
+const TabListFile = ({ rowTypes, colors, handleRowClick, refetchDocsFilesList, onUpdate }) => {
 	let {
 		templates: { getDocsFilesList, docsFilesList, moreDocsFilesList },
 	} = useContext(Context);
@@ -45,10 +39,11 @@ const TabListFile = ({
 				doSplit: true,
 			},
 			status: {
-				type: 'status',
+				type: 'select',
 				name: 'Status',
 				Icon: TextSvg,
 				props: {
+					disabled: true,
 					options: [
 						{
 							_id: 'filesViewed',
@@ -128,7 +123,7 @@ const TabListFile = ({
 	useEffect(() => {
 		if (refetchDocsFilesList) {
 			getDocsFilesListFunc(1, false);
-			updateListViewInfo('refetchDocsFilesList', false);
+			onUpdate({ refetchDocsFilesList: false });
 		}
 	}, [refetchDocsFilesList]);
 

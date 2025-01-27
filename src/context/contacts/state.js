@@ -1,6 +1,7 @@
 import { useReducer } from 'react';
 import service from '../../services/graphQlServices';
 import {
+	getClientsQuery,
 	createClientMutation,
 	deleteClientMutation,
 	updateClientMutation,
@@ -10,10 +11,39 @@ import { Reducer } from './reducer';
 
 export const intialState = {
 	refetchClientList: false,
+	clientList: null,
 };
 
 export const ContactsState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
+
+	const getClients = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getClientsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_CLIENT_LIST,
+					payload: { data: response?.[1]?.data?.clients },
+				});
+			} else {
+				dispatch({
+					type: Actions.SET_CLIENT_LIST,
+					payload: { error: 'Failed to get clients, try again' },
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> getClients', error);
+		}
+	};
 
 	const createClient = async (payload) => {
 		try {
@@ -104,6 +134,7 @@ export const ContactsState = () => {
 
 	return {
 		...state,
+		getClients,
 		createClient,
 		deleteClient,
 		updateClient,

@@ -94,7 +94,7 @@ const ListViewRow = ({
 		<div
 			className={`listItemRowContainer ${isSubTask ? 'subTaskRowContainer' : ''}`}
 			onClick={() => {
-				handleRowClick(task?._id);
+				handleRowClick(task);
 			}}
 		>
 			<div className="listItemRow">{generateRow(task)}</div>

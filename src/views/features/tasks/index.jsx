@@ -769,12 +769,10 @@ const Tasks = () => {
 	}, [info?.isCreatingSubtask]);
 
 	const handleRowClick = useCallback(
-		(rowId) => {
-			if (info?.selectedRow?._id !== rowId) {
+		(row) => {
+			if (info?.selectedRow?._id !== row?._id) {
 				resetSubTasks();
 			}
-
-			const row = info?.listItems?.find((row) => row._id === rowId);
 			if (row) {
 				updateTaskInfo({ selectedRow: row, sidebarIsOpen: true });
 			}

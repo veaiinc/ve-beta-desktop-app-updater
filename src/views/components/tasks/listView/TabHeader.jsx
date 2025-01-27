@@ -32,6 +32,14 @@ const TabHeader = ({
 	const [tabList, setTabList] = useState([]);
 	const [visibleCount, setVisibleCount] = useState(0);
 
+	const [info, setInfo] = useState({
+		dropdownIsOpen: false,
+	});
+
+	const handleDropDown = (value) => {
+		setInfo((prevInfo) => ({ ...prevInfo, dropdownIsOpen: value }));
+	};
+
 	// Update tabList when tabs prop changes, sorting by order
 	useLayoutEffect(() => {
 		const tabArray = Object.values(tabs || {}).sort((a, b) => a.order - b.order);
@@ -86,19 +94,14 @@ const TabHeader = ({
 		const sourceIndex = result.source.index;
 		const destinationIndex = result.destination.index;
 
-		// Create a new array with the updated order
 		const newTabList = Array.from(tabList);
 		const [movedItem] = newTabList.splice(sourceIndex, 1);
 		newTabList.splice(destinationIndex, 0, movedItem);
 
-		// Update local state
 		setTabList(newTabList);
-
-		// Notify parent component
 		onTabsReorder(newTabList);
 	};
 
-	// Handle drag end in overflow menu
 	const handleOverflowDragEnd = (result) => {
 		if (!result.destination) return;
 		handleDragEnd(result);
@@ -123,7 +126,16 @@ const TabHeader = ({
 											color="transparent"
 											trigger="click"
 											destroyTooltipOnHide
-											open={showDropDown && activeTab === tab._id}
+											open={
+												showDropDown &&
+												activeTab === tab._id &&
+												info?.dropdownIsOpen
+											}
+											onOpenChange={(open) => {
+												if (!open) {
+													handleDropDown(false);
+												}
+											}}
 											overlayClassName="tab-dropdown"
 											title={
 												activeTab === tab._id ? (
@@ -131,6 +143,7 @@ const TabHeader = ({
 														options={tabDropdownOptions}
 														onOptionClick={(option) => {
 															handleTabDropdownClick(option);
+															handleDropDown(false);
 														}}
 													/>
 												) : null
@@ -146,7 +159,10 @@ const TabHeader = ({
 												className={`tabHeaderButton ${
 													activeTab === tab._id ? 'active' : ''
 												} ${snapshot.isDragging ? 'dragging' : ''}`}
-												onClick={() => onTabChange(tab)}
+												onClick={() => {
+													onTabChange(tab);
+													handleDropDown(true);
+												}}
 											>
 												{tab?.Icon && <tab.Icon />}
 												<span className="tab-label">{tab?.label}</span>

@@ -1,5 +1,22 @@
 import { gql } from '@apollo/client';
 
+export const getClientsQuery = gql`
+	query Clients($clientFilterInput: ClientFilterInput) {
+		clients(clientFilterInput: $clientFilterInput) {
+			data {
+				_id
+				name
+				email
+				phoneNumber
+				updatedAt
+				createdAt
+			}
+			hasNextPage
+			currentPage
+		}
+	}
+`;
+
 export const createClientMutation = gql`
 	mutation CreateClient($clientInput: ClientInput!) {
 		createClient(clientInput: $clientInput) {

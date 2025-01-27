@@ -102,7 +102,7 @@ const ListViewHeader = ({
 					...prev,
 					{
 						key: value,
-						value: defaultFilterValue?.[value] || null,
+						value: null,
 					},
 				]);
 			}
