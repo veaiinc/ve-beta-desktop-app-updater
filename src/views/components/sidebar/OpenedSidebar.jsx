@@ -529,6 +529,8 @@ const OpenedSideBarItemsComponent = ({
 												isSelected={selectedOption === singleItems?.name}
 												isActive={location.pathname === singleItems?.route}
 												subModules={singleItems?.subModules}
+												isDropdownVisible={isDropdownVisible}
+												setDropdownVisible={setDropdownVisible}
 											/>
 										</div>
 									))}
