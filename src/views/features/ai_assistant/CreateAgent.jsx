@@ -9,10 +9,12 @@ import AiInstructions from '../../components/ai_assistant/AiInstructions';
 import AiActions from '../../components/ai_assistant/AiActions';
 import AiKnowledgeBase from '../../components/ai_assistant/AiKnowledgeBase';
 import AiPrompt from '../../components/ai_assistant/AiPrompt';
+import AiShare from '../../components/ai_assistant/AiShare';
+
 const CreateAgent = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
-		activeTab: 'prompt', // personality, instructions, actions, knowledgeBase, prompt, share
+		activeTab: 'share', // personality, instructions, actions, knowledgeBase, prompt, share, linkeafile
 	});
 
 	const tabs = {
@@ -29,7 +31,8 @@ const CreateAgent = () => {
 			component: <AiKnowledgeBase />,
 		},
 		prompt: { value: 'prompt', label: 'Prompt', component: <AiPrompt /> },
-		share: { value: 'share', label: 'Share' },
+		share: { value: 'share', label: 'Share', component: <AiShare /> },
+		linkFile: { value: 'linkFile', label: 'Link File' },
 	};
 
 	const onTabChange = useCallback((tab) => {
