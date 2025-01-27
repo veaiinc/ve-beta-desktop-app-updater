@@ -250,7 +250,10 @@ const BottomToolbar = ({
 				addQuickAction: false,
 				expanded: true,
 				inputExpanded: true,
-				uploadedFiles: [...prev?.uploadedFiles, { _id, uploadBatchId, sessionId, file }],
+				uploadedFiles: [
+					...prev?.uploadedFiles,
+					{ _id, uploadBatchId, sessionId, file, fileType: file?.type },
+				],
 			}));
 		},
 		[handleAiUploadImage],
@@ -332,15 +335,25 @@ const BottomToolbar = ({
 
 								return (
 									<div key={uploadedFile?._id} className="uploaded-file-item">
-										<img
-											src={URL?.createObjectURL(uploadedFile?.file)}
-											alt={uploadedFile?.file?.name}
-											className="uploaded-file-preview"
-											onLoad={(e) => URL?.revokeObjectURL(e?.target?.src)} // Clean up object URL after loading
-										/>
 										<p className="uploaded-file-name">
 											{uploadedFile?.file?.name}
 										</p>
+										{uploadedFile?.fileType?.includes('image') && (
+											<img
+												src={URL?.createObjectURL(uploadedFile?.file)}
+												alt={uploadedFile?.file?.name}
+												className="uploaded-file-preview"
+												onLoad={(e) => URL?.revokeObjectURL(e?.target?.src)} // Clean up object URL after loading
+											/>
+										)}
+										{console.log(uploadedFile?.fileType)}
+										{uploadedFile?.fileType?.includes('pdf') && (
+											<iframe
+												src={URL?.createObjectURL(uploadedFile?.file)}
+												className="uploaded-file-preview"
+												onLoad={(e) => URL?.revokeObjectURL(e?.target?.src)} // Clean up object URL after loading
+											/>
+										)}
 										{fileStatus === 'pending' && (
 											<span className="uploaded-file-status-loader">
 												<Spinner width={'16px'} height={'16px'} />

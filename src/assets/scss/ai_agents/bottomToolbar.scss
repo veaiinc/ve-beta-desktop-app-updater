@@ -190,7 +190,7 @@
 			width: 642px;
 			position: absolute;
 			right: 4px;
-			top: -84px;
+			top: -114px;
 			display: flex;
 			gap: 12px;
 			overflow-x: scroll;
@@ -207,10 +207,8 @@
 				}
 
 				.uploaded-file-name {
-					position: absolute;
-					top: -24px;
-					left: 0;
 					width: 100%;
+					padding: 8px 0;
 					text-align: center;
 					color: #fff;
 					font-size: 12px;
