@@ -62,6 +62,11 @@ const AiPersonality = () => {
 		setInfo((prev) => ({ ...prev, isSelectVoiceOpen: visible }));
 	}, []);
 
+	const handleVoiceChange = useCallback((value) => {
+		updateInfo('selectedVoice', value);
+		handleMoreVisibility(false);
+	}, []);
+
 	return (
 		<div className="personalityParentContainer">
 			<div className="nameContainer">
@@ -85,13 +90,16 @@ const AiPersonality = () => {
 
 				<div className="chooseVoiceContainer">
 					<Tooltip
+						open={info?.isSelectVoiceOpen}
+						onOpenChange={handleMoreVisibility}
 						placement="bottom"
 						title={
 							<div className="voiceDropdown">
 								{options?.map((option) => (
 									<div
+										key={option}
 										className="voiceListItem"
-										onClick={() => updateInfo('selectedVoice', option)}
+										onClick={() => handleVoiceChange(option)}
 									>
 										{option}
 									</div>
@@ -100,7 +108,6 @@ const AiPersonality = () => {
 						}
 						arrow={false}
 						trigger={'click'}
-						onOpenChange={handleMoreVisibility}
 						color={'transparent'}
 						overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
 					>

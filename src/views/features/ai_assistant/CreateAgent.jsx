@@ -8,10 +8,11 @@ import AiPersonality from '../../components/ai_assistant/AiPersonality';
 import AiInstructions from '../../components/ai_assistant/AiInstructions';
 import AiActions from '../../components/ai_assistant/AiActions';
 import AiKnowledgeBase from '../../components/ai_assistant/AiKnowledgeBase';
+import AiPrompt from '../../components/ai_assistant/AiPrompt';
 const CreateAgent = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
-		activeTab: 'knowledgeBase', // personality, instructions, actions, knowledgeBase, prompt, share
+		activeTab: 'prompt', // personality, instructions, actions, knowledgeBase, prompt, share
 	});
 
 	const tabs = {
@@ -27,7 +28,7 @@ const CreateAgent = () => {
 			label: 'Knowledge Base',
 			component: <AiKnowledgeBase />,
 		},
-		prompt: { value: 'prompt', label: 'Prompt' },
+		prompt: { value: 'prompt', label: 'Prompt', component: <AiPrompt /> },
 		share: { value: 'share', label: 'Share' },
 	};
 
