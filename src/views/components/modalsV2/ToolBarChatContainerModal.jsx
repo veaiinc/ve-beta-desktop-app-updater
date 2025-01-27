@@ -28,7 +28,7 @@ const ToolBarChatContainerModal = ({
 
 	const chatContentRef = useRef(null);
 
-	const width = isExpanded ? '81vw' : '400px';
+	const width = isExpanded ? 'calc(100% - 245px)' : '400px';
 
 	// Add this useEffect for auto-scrolling
 	useEffect(() => {
@@ -56,9 +56,9 @@ const ToolBarChatContainerModal = ({
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
 		>
-			<div className="toolExpandedChatBarContainer" style={{ width: width }}>
+			<div className="toolExpandedChatBarContainer" style={{ width: '100%' }}>
 				{/* header */}
-				<div className="toolExpandedChatBarContainerHeader" style={{ width: width }}>
+				<div className="toolExpandedChatBarContainerHeader" style={{ width: '100%' }}>
 					<h1 className="toolExpandedChatBarContainerHeaderTitle">AI Assistant</h1>
 					<div className="toolExpandedChatBarContainerHeaderIconContainer">
 						<ExpandChatIcon onClick={() => setIsExpanded(!isExpanded)} />
