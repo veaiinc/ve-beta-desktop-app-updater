@@ -1,7 +1,5 @@
 import { memo, useMemo } from 'react';
-
 import '../../../../assets/scss/home_page/homepage.scss';
-import AllTab from './AllTab';
 import DraftsAndActivityTab from './DraftsAndActivityTab';
 import TasksTab from './TasksTab';
 import WorkflowsTab from './WorkflowsTab';
@@ -9,7 +7,6 @@ import RecentChats from './RecentChats';
 import PriorityTab from './PriorityTab';
 const HomePageDashboard = ({ selectedOption, isNavbarFixed }) => {
 	const componentMapper = {
-		All: <AllTab />,
 		'Drafts & Activity': <DraftsAndActivityTab />,
 		Workflows: <WorkflowsTab />,
 		Tasks: <TasksTab />,

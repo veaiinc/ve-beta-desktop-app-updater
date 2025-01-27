@@ -145,13 +145,6 @@ const TasksTab = () => {
 	});
 	console.log(info?.listItems);
 
-	const handleSelectChange = (event) => {
-		setInfo((prev) => ({
-			...prev,
-			selectedOption: event.target.value,
-		}));
-	};
-
 	const todayTasks = info?.listItems?.filter((task) => {
 		if (task?.dueDate) {
 			if (new Date(task?.dueDate * 1000) <= new Date()) {
@@ -273,7 +266,6 @@ const TasksTab = () => {
 	);
 
 	const debounceTimeout = useRef(null);
-	const filterDebounceTimeout = useRef(null);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -756,6 +748,7 @@ const TasksTab = () => {
 				<div className="dropdown-container">
 					<Tooltip
 						placement="bottom"
+						color="transparent"
 						open={info?.isDropdownOpen}
 						trigger={'click'}
 						onOpenChange={(open) => {
@@ -764,7 +757,6 @@ const TasksTab = () => {
 								isDropdownOpen: open,
 							}));
 						}}
-						color="transparent"
 						title={
 							<div className="dropdown-options" onClick={handlePropagation}>
 								{options?.map((option, index) => (

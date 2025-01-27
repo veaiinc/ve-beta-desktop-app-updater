@@ -22,7 +22,6 @@ const WorkflowsTab = () => {
 			getMyWorkflows,
 			myWorkflows,
 			myMoreWorkflows,
-			salePageRefresh,
 			updateStateValues,
 			generatePublicLinkData,
 		},
@@ -49,19 +48,8 @@ const WorkflowsTab = () => {
 	});
 
 	useEffect(() => {
-		// console.log(info?.activeTemplateData, 'activeTemplateData');
-	}, [info?.activeTemplateData]);
-
-	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
 	}, []);
-
-	// useEffect(() => {
-	// 	if (salePageRefresh) {
-	// 		getMyWorkflowTemplatesData(1);
-	// 		updateStateValues({ salePageRefresh: null });
-	// 	}
-	// }, [salePageRefresh]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -112,6 +100,7 @@ const WorkflowsTab = () => {
 	);
 
 	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
+		console.log('page number', page, info);
 		const payload = {
 			filters: {
 				limit: 10,
@@ -160,8 +149,9 @@ const WorkflowsTab = () => {
 	);
 
 	const fetchMoreMyWorkflows = useCallback(() => {
+		console.log('fetching mmore', info?.currentPage + 1);
 		getMyWorkflowTemplatesData(info?.currentPage + 1, true);
-	}, [info?.hasNextPage, info?.currentPage]);
+	}, [info?.currentPage]);
 
 	const openMyWorkflowModal = useCallback(async (data, cardsData) => {
 		if (cardsData?.status === 'successRate') {
@@ -242,9 +232,11 @@ const WorkflowsTab = () => {
 		[info?.activeTemplateData],
 	);
 
+	console.log(info?.myWorkflowData);
+
 	return (
 		<div className="workflows-tab-container">
-			<div id="scrollableDiv">
+			<div id="scrollableDiv" className="infinite-scroller">
 				<InfiniteScroll
 					dataLength={info?.myWorkflowData?.length || 0}
 					next={fetchMoreMyWorkflows}
@@ -278,7 +270,7 @@ const WorkflowsTab = () => {
 					)}
 				</InfiniteScroll>
 			</div>
-			<Sales showSalesInfo={false} />
+			{/* <Sales showSalesInfo={false} /> */}
 
 			<MyWorkflowsModals
 				modalIsOpen={info?.myWorkflowModal}
