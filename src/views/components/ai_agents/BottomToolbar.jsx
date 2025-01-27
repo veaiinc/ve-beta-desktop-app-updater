@@ -225,7 +225,7 @@ const BottomToolbar = ({
 
 			{/* bottom toolBarContent */}
 			{!info?.chatModalIsOpen ? (
-				<div className="bottomToolbar">
+				<div className={`bottomToolbar ${info.inputExpanded ? 'expandedBtnToolbar' : ''}`}>
 					<textarea
 						className={`bottomToolbarInputs ${info.inputExpanded ? 'expanded' : ''}`}
 						placeholder="Ask AI"
@@ -237,29 +237,33 @@ const BottomToolbar = ({
 						onKeyDown={handleSendMessageFunc}
 						style={{ resize: 'none' }}
 					/>
-					<div className="quickActionsButtons">
-						<Home />
-					</div>
-					<div className="quickActionsButtons">
-						<Tooltip
-							placement="top"
-							title={<QuickActionsPlusParentContainer handleChange={handleChange} />}
-							color={'#202020'}
-							arrow={true}
-							trigger="click"
-							overlayClassName="quickActionsTooltipContainer"
-							open={info?.addQuickAction}
-							onOpenChange={(open) => {
-								// if (!open) {
-								setInfo((prev) => ({ ...prev, addQuickAction: open }));
-								// }
-							}}
-						>
-							<Plus />
-						</Tooltip>
-					</div>
-					<div className="quickActionsButtons">
-						<Settings />
+					<div className="bottomToolbarButtons">
+						<div className="quickActionsButtons">
+							<Home />
+						</div>
+						<div className="quickActionsButtons">
+							<Tooltip
+								placement="top"
+								title={
+									<QuickActionsPlusParentContainer handleChange={handleChange} />
+								}
+								color={'#202020'}
+								arrow={true}
+								trigger="click"
+								overlayClassName="quickActionsTooltipContainer"
+								open={info?.addQuickAction}
+								onOpenChange={(open) => {
+									// if (!open) {
+									setInfo((prev) => ({ ...prev, addQuickAction: open }));
+									// }
+								}}
+							>
+								<Plus />
+							</Tooltip>
+						</div>
+						<div className="quickActionsButtons">
+							<Settings />
+						</div>
 					</div>
 				</div>
 			) : (
