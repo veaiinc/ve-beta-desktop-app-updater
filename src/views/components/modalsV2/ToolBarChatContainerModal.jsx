@@ -10,7 +10,7 @@ import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.s
 import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
-import ReactMarkdown from 'react-markdown';
+import { Markdown, TypingEffect } from '../../../helpers/markdownHelper';
 
 const chatIcons = [<Filter />, <Arroba />, <PaperClip />, <Mic />];
 
@@ -75,17 +75,25 @@ const ToolBarChatContainerModal = ({
 				{/* chat body */}
 				<div className={`toolBarchatBodyParentContainer ${isExpanded ? 'expanded' : ''}`}>
 					<div className="chatContent" ref={chatContentRef}>
-						{chatList?.map((chat, index) => (
-							<div
-								key={index}
-								className={`chat-message ${chat?.type?.toLowerCase()}-message`}
-							>
-								<div className="message-content">
+						{chatList?.map((chat, index) =>
+							chat?.content ? (
+								chat?.content
+							) : (
+								<div
+									key={index}
+									className={`chat-message ${chat?.type?.toLowerCase()}-message`}
+								>
 									{chat?.type?.toLowerCase() === 'ai' && <AiStarInChat />}
-									<ReactMarkdown>{chat?.message}</ReactMarkdown>
+									<div className="message-content">
+										{chat?.type?.toLowerCase() === 'ai' ? (
+											<TypingEffect text={chat?.message} />
+										) : (
+											<Markdown>{chat?.message}</Markdown>
+										)}
+									</div>
 								</div>
-							</div>
-						))}
+							),
+						)}
 					</div>
 				</div>
 

@@ -71,11 +71,13 @@ const OpenedSideBarHoverStateIcons = ({
 	navigateTo,
 	isSelected,
 	subModules,
+	isDropdownVisible,
+	setDropdownVisible,
+	activeSubModule,
+	setActiveSubModule,
 }) => {
 	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
-	const [isDropdownVisible, setDropdownVisible] = useState(false);
-	const [activeSubModule, setActiveSubModule] = useState(null);
 	const onMoutseEnter = () => {
 		if (isActive) return;
 		setisHover(true);
@@ -86,11 +88,14 @@ const OpenedSideBarHoverStateIcons = ({
 	};
 
 	const redirectToFunction = () => {
+		setDropdownVisible(false);
+		setActiveSubModule(null);
 		if (!route) return;
 		navigateTo(route);
 	};
 
 	const handleSubModuleClick = (e, subModule) => {
+		setActiveSubModule(subModule);
 		e.stopPropagation();
 		if (subModule.route) {
 			navigateTo(subModule.route);
@@ -150,8 +155,8 @@ const OpenedSideBarHoverStateIcons = ({
 							<div
 								style={{
 									position: 'absolute',
-									left: '8px',
-									top: '10px',
+									left: '16px',
+									top: '8px',
 									bottom: '0',
 									width: '1px',
 									backgroundColor: '#333334',
@@ -160,29 +165,29 @@ const OpenedSideBarHoverStateIcons = ({
 							{activeSubModule !== null && (
 								<div
 									style={{
+										marginTop: '6px',
 										position: 'absolute',
-										left: '8px',
-										top: `${activeSubModule * 40}px`, // 40px is the height of each subModule
-										height: '40px',
-										width: '1px',
+										left: '16px',
+										top: `${activeSubModule?.id * 50}px`,
+										height: '35px',
+										width: '3px',
+										borderRadius: '100px',
 										backgroundColor: '#FFFFFF',
 									}}
 								/>
 							)}
 							{subModules?.map((subItem, index) => (
 								<div
-									key={subItem?.name}
-									className="subItem"
+									key={index}
+									className={`subItem`}
 									onClick={(e) => handleSubModuleClick(e, subItem)}
-									style={{ cursor: 'pointer' }}
+									style={{
+										cursor: 'pointer',
+									}}
 								>
 									<div className="subitem-content">
 										<p>{subItem.name}</p>
 									</div>
-									{subItem.icon &&
-										React.createElement(subItem.icon, {
-											fill: activeSubModule === index ? '#FFFFFF' : '#939393',
-										})}
 								</div>
 							))}
 						</div>
@@ -292,6 +297,8 @@ const OpenedSideBarItemsComponent = ({
 	const [selectedChat, setSelectedChat] = useState(null);
 	const [activeChat, setActiveChat] = useState(false);
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 500);
+	const [isDropdownVisible, setDropdownVisible] = useState(false);
+	const [activeSubModule, setActiveSubModule] = useState(null);
 
 	const location = useLocation();
 
@@ -385,8 +392,7 @@ const OpenedSideBarItemsComponent = ({
 									cursor: 'pointer',
 									position: 'sticky',
 									top: '0',
-									backgroundColor: '#202123',
-									zIndex: '1000',
+									zIndex: '100',
 								}}
 							>
 								<div
@@ -476,14 +482,14 @@ const OpenedSideBarItemsComponent = ({
 										</div>
 									);
 								})} */}
-								{!isThisEarlyAccessPage && (
+								{/* {!isThisEarlyAccessPage && (
 									<hr
 										style={{
 											border: '0.7px solid #333334',
 											margin: '16px 0px',
 										}}
 									/>
-								)}
+								)} */}
 								{!isThisEarlyAccessPage &&
 									veAiModulesItemsList?.map((singleItems, index) => (
 										<div key={index}>
@@ -498,6 +504,10 @@ const OpenedSideBarItemsComponent = ({
 												isSelected={selectedOption === singleItems?.name}
 												isActive={location.pathname === singleItems?.route}
 												subModules={singleItems?.subModules}
+												isDropdownVisible={isDropdownVisible}
+												setDropdownVisible={setDropdownVisible}
+												activeSubModule={activeSubModule}
+												setActiveSubModule={setActiveSubModule}
 											/>
 										</div>
 									))}
@@ -524,6 +534,10 @@ const OpenedSideBarItemsComponent = ({
 												isSelected={selectedOption === singleItems?.name}
 												isActive={location.pathname === singleItems?.route}
 												subModules={singleItems?.subModules}
+												isDropdownVisible={isDropdownVisible}
+												setDropdownVisible={setDropdownVisible}
+												activeSubModule={activeSubModule}
+												setActiveSubModule={setActiveSubModule}
 											/>
 										</div>
 									))}
