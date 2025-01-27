@@ -7,6 +7,7 @@ import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/ag
 import AiPersonality from '../../components/ai_assistant/AiPersonality';
 import AiInstructions from '../../components/ai_assistant/AiInstructions';
 import AiActions from '../../components/ai_assistant/AiActions';
+import AiKnowledgeBase from '../../components/ai_assistant/AiKnowledgeBase';
 const CreateAgent = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -21,7 +22,11 @@ const CreateAgent = () => {
 			component: <AiInstructions />,
 		},
 		actions: { value: 'actions', label: 'Actions', component: <AiActions /> },
-		knowledgeBase: { value: 'knowledgeBase', label: 'Knowledge Base' },
+		knowledgeBase: {
+			value: 'knowledgeBase',
+			label: 'Knowledge Base',
+			component: <AiKnowledgeBase />,
+		},
 		prompt: { value: 'prompt', label: 'Prompt' },
 		share: { value: 'share', label: 'Share' },
 	};
