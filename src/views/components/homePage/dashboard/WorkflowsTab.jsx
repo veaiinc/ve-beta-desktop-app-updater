@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { useContext } from 'react';
 import Sales from '../../../features/sales/Sales';
-import { WorkflowCard } from './workflows/workflowCards';
+import WorkflowCard from './workflows/workflowCard/WorkflowCard';
 import '../../../../assets/scss/home_page/homepage.scss';
 import Context from '../../../../context/context';
 import { memo } from 'react';
@@ -13,7 +13,6 @@ import MyWorkflowsModals from '../../modalsV2/workflowsModals/MyWorkflowsModals'
 import CopiedModal from '../../modalsV2/workflowsModals/CopiedModal';
 import { Spin } from 'antd';
 import PublicLinkGeneratedModal from '../../modalsV2/workflowsModals/PublicLinkGeneratedModal';
-import PromptPopUp from './workflows/WorkflowPopUp';
 import UpdatedPageLoader from '../../loaders/UpdatedPageLoader';
 import InitialPageLoader from '../../loaders/PageLoader';
 
@@ -50,19 +49,19 @@ const WorkflowsTab = () => {
 	});
 
 	useEffect(() => {
-		console.log(info?.activeTemplateData, 'activeTemplateData');
+		// console.log(info?.activeTemplateData, 'activeTemplateData');
 	}, [info?.activeTemplateData]);
 
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
 	}, []);
 
-	useEffect(() => {
-		if (salePageRefresh) {
-			getMyWorkflowTemplatesData(1);
-			updateStateValues({ salePageRefresh: null });
-		}
-	}, [salePageRefresh]);
+	// useEffect(() => {
+	// 	if (salePageRefresh) {
+	// 		getMyWorkflowTemplatesData(1);
+	// 		updateStateValues({ salePageRefresh: null });
+	// 	}
+	// }, [salePageRefresh]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -243,8 +242,6 @@ const WorkflowsTab = () => {
 		[info?.activeTemplateData],
 	);
 
-	console.log(info);
-
 	return (
 		<div className="workflows-tab-container">
 			<div id="scrollableDiv">
@@ -264,27 +261,14 @@ const WorkflowsTab = () => {
 					) : (
 						<div className="workflows-tab">
 							{info?.myWorkflowData?.map((workflow, index) => {
-								const labels = workflow?.moduleTemplates?.map((template) => {
-									return template?.label;
-								});
-
 								return (
 									<WorkflowCard
 										key={index}
-										workflowStats={workflow?.workflowStats}
-										title={workflow?.title}
-										insights={{
-											'all enquiries': workflow?.formResponses,
-											'smart files sent': workflow?.filesSent,
-											// ['workflows']: workflow?.workflows,
-										}}
 										workflow={workflow}
-										labels={labels}
 										openModal={openMyWorkflowModal}
 										openCopyLinkModal={openCopyLinkModal}
 										navigateToWorkflowBuilder={navigateToWorkflowBuilder}
 										modalIsOpen={info?.myWorkflowModal}
-										closeModal={closeWorkflowModal}
 										activeTemplateData={info?.activeTemplateData}
 										activeCardsData={info?.activeCardsData}
 									/>

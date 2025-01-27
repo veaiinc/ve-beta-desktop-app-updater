@@ -243,8 +243,6 @@ const Sales = ({ showSalesInfo = true }) => {
 		[info?.activeTemplateData],
 	);
 
-	console.log(info?.myWorkflowData);
-
 	return (
 		<>
 			{showSalesInfo && <SalesInfo />}

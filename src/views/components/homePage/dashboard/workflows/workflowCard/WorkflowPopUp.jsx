@@ -1,6 +1,6 @@
 import React from 'react';
-import { fetchOriginSelection } from '../../../../../helpers';
-import '../../../../../assets/scss/home_page/workflows/workflowPromptPopup.scss';
+import { fetchOriginSelection } from '../../../../../../helpers';
+import '../../../../../../assets/scss/home_page/workflows/workflowPromptPopup.scss';
 import { memo } from 'react';
 import { Tooltip } from 'antd';
 
@@ -59,34 +59,6 @@ const WorkflowPopUp = ({
 			}
 		>
 			{children}
-			{/* <div className={`workflow-prompt-popup`}>
-				<span
-					onClick={() => {
-						openCopyLinkModal(data);
-						// closeModal();
-					}}
-				>
-					Copy link
-				</span>
-
-				<span
-					onClick={() => {
-						navigateToWorkflowBuilder(data);
-						// closeModal();
-					}}
-				>
-					Edit Workflow
-				</span>
-
-				<span
-					onClick={() => {
-						window.location.href = `${origin}/${data?._id} `;
-						// closeModal();
-					}}
-				>
-					Edit Design
-				</span>
-			</div> */}
 		</Tooltip>
 	);
 };

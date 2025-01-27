@@ -1,14 +1,13 @@
 import { memo, useMemo, useState } from 'react';
-import '../../../../../assets/scss/home_page/workflows/weddingDayTimelineGenerator.scss';
-import '../../../../../assets/scss/home_page/workflows/promptCard.scss';
-import StepsTab from './workflowCard/StepsTab';
-import InsightTab from './workflowCard/InsightTab';
-import PendingActionsTab from './workflowCard/PendingActionsTab';
-import FilesTab from './workflowCard/FilesTab';
+import '../../../../../../assets/scss/home_page/workflows/workflowCard.scss';
+import StepsTab from './StepsTab';
+import InsightsTab from './InsightsTab';
+import PendingActionsTab from './PendingActionsTab';
+import FilesTab from './FilesTab';
 // import PromptPopup from '../PromptPopup';
 import { clearConfigCache } from 'prettier';
-import { ReactComponent as ThreeDotsVerticalIcon } from '../../../../../assets/svg/home_page/workflows/DotsThreeVertical.svg';
-import WorkflowPopUp from './WorkflowPopUp';
+import { ReactComponent as ThreeDotsVerticalIcon } from '../../../../../../assets/svg/home_page/workflows/DotsThreeVertical.svg';
+import WorkflowPopUp from '../workflowCard/WorkflowPopUp';
 
 const options = [
 	{
@@ -36,15 +35,10 @@ const options = [
 const WorkflowCard = memo(
 	({
 		workflow,
-		workflowStats,
-		title,
-		insights,
-		labels,
 		openCopyLinkModal,
 		openModal,
 		navigateToWorkflowBuilder,
 		modalIsOpen,
-		closeModal,
 		activeTemplateData,
 		activeCardsData,
 	}) => {
@@ -54,11 +48,11 @@ const WorkflowCard = memo(
 			selectedCard: null,
 			tabOptions: options,
 		});
-		console.log(activeTemplateData);
+		// console.log(activeTemplateData);
 		const componentMapper = useMemo(() => {
 			return {
 				Steps: <StepsTab data={workflow} openModal={openModal} />,
-				Insights: <InsightTab data={workflow} openModal={openModal} />,
+				Insights: <InsightsTab data={workflow} openModal={openModal} />,
 				'Pending actions': (
 					<PendingActionsTab
 						data={workflow}
@@ -66,15 +60,15 @@ const WorkflowCard = memo(
 						activeCardsData={activeCardsData}
 					/>
 				),
-				files: <FilesTab labels={labels} title={title} data={workflow} />,
+				files: <FilesTab data={workflow} />,
 			};
 		}, [workflow, openModal, modalIsOpen, activeTemplateData, activeCardsData]);
 		// console.log(workflow);
 		return (
 			<>
-				<div className="wedding-day-timeline-generator-card-container">
-					<div className="wedding-day-timeline-generator-header">
-						<div className="wedding-day-timeline-generator-header-text">{title}</div>
+				<div className="workflow-card-container">
+					<div className="card-header">
+						<div className="header-text">{workflow?.title}</div>
 						<WorkflowPopUp
 							open={info?.openPrompt}
 							closeModal={(open) => {
@@ -101,12 +95,12 @@ const WorkflowCard = memo(
 							</div>
 						</WorkflowPopUp>
 					</div>
-					<div className="wedding-day-timeline-generator-options-container">
+					<div className="workflow-card-options-container">
 						{info?.tabOptions?.map((option, idx) => {
 							return (
 								<div
 									key={idx}
-									className={`wedding-day-timeline-generator-option ${
+									className={`workflow-card-option ${
 										activeTab === option?.value ? 'active' : ''
 									}`}
 									onClick={() => setActiveTab(option?.value)}
@@ -123,31 +117,4 @@ const WorkflowCard = memo(
 	},
 );
 
-const PromptCard = memo(() => {
-	const [info, setInfo] = useState({
-		showPromptPopup: false,
-		selectedCard: null,
-	});
-
-	return (
-		<>
-			<div
-				className="prompt-card-container"
-				onClick={() => setInfo((prev) => ({ ...prev, showPromptPopup: true }))}
-			>
-				<div className="sub-title">Workflow</div>
-				<div className="title">Wedding Day Timeline Generator</div>
-			</div>
-			{/* <PromptPopup
-				open={info?.showPromptPopup}
-				// closeModal={() => setInfo((prev) => ({ ...prev, showPromptPopup: false }))}
-				closeModal={() => {
-					console.log('closeModal');
-					setInfo((prev) => ({ ...prev, showPromptPopup: false }));
-				}}
-			/> */}
-		</>
-	);
-});
-
-export { WorkflowCard, PromptCard };
+export default WorkflowCard;

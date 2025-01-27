@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { ReactComponent as ChevronRightThinIcon } from '../../../../../../assets/svg/tasks/chevronRightThin.svg';
 import { fetchOriginSelection } from '../../../../../../helpers';
+import '../../../../../../assets/scss/home_page/workflows/workflowCard.scss';
 
 const origin = fetchOriginSelection();
 const FilesTab = ({ data }) => {
-	console.log(data);
 	return (
 		<div className="files-container">
 			<div className="file">
@@ -23,13 +23,13 @@ const FilesTab = ({ data }) => {
 					<div className="labels">
 						{data?.moduleTemplates?.map((template, index) => {
 							if (index === 0) {
-								return <div>{template?.label} </div>;
+								return <div key={index}>{template?.label} </div>;
 							}
 							return (
-								<>
+								<Fragment key={index}>
 									<ChevronRightThinIcon />
 									<div>{template?.label}</div>
-								</>
+								</Fragment>
 							);
 						})}
 					</div>
