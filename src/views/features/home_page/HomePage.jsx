@@ -1,6 +1,6 @@
 import React, { useState, useEffect, memo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
-import NavBar from '../../components/homePage/navBar';
+import NavBar from '../../components/homePage/NavBar';
 import HeaderInfo from '../../components/homePage/HeaderInfo';
 import PromptPopup from '../../components/homePage/PromptPopup';
 import HomePageDashboard from '../../components/homePage/dashboard/HomePageDashboard';
@@ -163,6 +163,7 @@ const HomePage = () => {
 							open={info?.dropdown}
 							trigger={'click'}
 							onOpenChange={(open) => setInfo({ ...info, dropdown: open })}
+							color="transparent"
 							title={
 								<div className="home-page-dropdown-options-container">
 									{dropdownOptions?.map((option) => (

@@ -296,9 +296,9 @@ const Drafts = memo(() => {
 			<div style={{ width: '100%' }}>
 				{info?.loading ? (
 					<div className="drafLoaderContainer">
-						{[{}, {}, {}, {}]?.map((ele, index) => (
+						{[{}, {}, {}, {}, {}, {}]?.map((ele, index) => (
 							<Skeleton
-								style={{ height: '63px', borderRadius: '10px' }}
+								style={{ height: '63px', borderRadius: '10px', width: '300px' }}
 								key={index}
 							/>
 						))}
