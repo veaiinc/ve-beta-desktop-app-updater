@@ -1185,19 +1185,26 @@ export const Galleries = () => {
 		});
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-collections/{{ _.collection_id }}/images
-	const getClientSelectionImages = async (collectionId) => {
+	const getClientSelectionImages = async (collectionId, page = 1, limit = 15) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(
-				`/${workspaceId}/gallery-collections/${collectionId}/images`,
+				`/${workspaceId}/gallery-collections/${collectionId}/images?page=${page}&limit=${limit}`,
 				usertoken,
 				'galleries',
 			);
+			const payload = state.clientSelectionImages
+				? {
+						...state.clientSelectionImages,
+						...response?.[1],
+						docs: [...state.clientSelectionImages.docs, ...(response?.[1]?.docs || [])],
+				  }
+				: response?.[1];
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_CLIENT_SELECTION_IMAGES,
-					payload: response?.[1],
+					payload: payload,
 				});
 			}
 		} catch (error) {
@@ -1482,16 +1489,17 @@ export const Galleries = () => {
 		}
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-images/{{ _.image_id }}/download
-	const getDownloadLinkForImage = async (imageId) => {
+	const getDownloadLinkForImage = async (imageId, isLightGallery) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
+			const path = isLightGallery ? '?imageType=optimized' : '';
 			const response = await service.fetchGet(
-				`/${workspaceId}/gallery-images/${imageId}/download`,
+				`/${workspaceId}/gallery-images/${imageId}/download${path}`,
 				usertoken,
 				'galleries',
 			);
-			console.log('response==>getDownloadLinkForImage', response);
+
 			if (response[0] === true) {
 				const imageResponse = await fetch(response[1].signedUrl);
 				const blob = await imageResponse.blob();

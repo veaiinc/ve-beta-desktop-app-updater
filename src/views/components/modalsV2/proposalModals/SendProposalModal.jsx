@@ -495,8 +495,8 @@ const SendProposalModal = ({
 			closeModal={modifiedCloseModal}
 			modalType={'center'}
 			customStyles={{
-				content: { borderRadius: '15px', zIndex: 99999 },
-				overlay: { zIndex: 99998 },
+				overlay: { zIndex: 1001 },
+				content: { borderRadius: '15px', zIndex: 1002 },
 			}}
 		>
 			<div

@@ -1,24 +1,13 @@
 import React, { useContext, useEffect, useState, memo, useCallback } from 'react';
 import '../../../assets/scss/settings/planBilling.scss';
 import '../../../assets/scss/settings/notifications.scss';
-
-import ProgressBar from '../../components/settings/ProgressBar';
 import moment from 'moment';
 import Context from '../../../context/context';
-import SubscriptionDetailsComponent from '../../components/settings/planbilling/SubscriptionDetails';
-import { ReactComponent as BackgroundSvg } from '../../../assets/svg/Settings/subscriptionbackground.svg';
-import BillingHistoryComponent from '../../components/settings/planbilling/BillingHistory';
 import { ReactComponent as Tick } from '../../../assets/svg/tick.svg';
 import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
-import { Spin } from 'antd';
-//constants
-const noOfDay = 7;
-const period = 'On Trial Plan';
-const AiCredits = '300';
-let progressBar = 30;
-const GB = 1;
-const usedGB = 3;
+import { message, Spin } from 'antd';
+import Spinner from '../../components/loaders/Spinner';
 
 const features = [
 	'Form Management Assistant',
@@ -27,33 +16,6 @@ const features = [
 	'Workflow Automation',
 	'Business Insights Dashboard',
 	'10 Team Members',
-];
-
-const updatePlans = [
-	{
-		title: 'Credits',
-		price: '$16',
-		totalAvailable: '100',
-		used: '40',
-	},
-	{
-		title: 'Credits',
-		price: '$16',
-		totalAvailable: '100',
-		used: '40',
-	},
-	{
-		title: 'Credits',
-		price: '$16',
-		totalAvailable: '100',
-		used: '40',
-	},
-	{
-		title: 'Credits',
-		price: '$16',
-		totalAvailable: '100',
-		used: '40',
-	},
 ];
 
 const menuItems = [
@@ -93,6 +55,7 @@ const ApproximateCreditsRowData = [
 const PlanBilling = () => {
 	let {
 		subscriptionInfo: { getCurrentSubscriptionPlan, currentPlan },
+		authInfo: { getAddOnsForCurrentPlan },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		loading: true,
@@ -100,6 +63,7 @@ const PlanBilling = () => {
 		expiresAt: null,
 		freeTier: false,
 		currency: '',
+		addOnsLoading: false,
 	});
 
 	useEffect(() => {
@@ -108,16 +72,31 @@ const PlanBilling = () => {
 
 	useEffect(() => {
 		if (currentPlan) {
+			const tierStatus = currentPlan?.currentSubscriptionPlan?.totalPrice ? false : true;
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
 				plan: currentPlan?.currentSubscriptionPlan,
-				expiresAt: currentPlan?.expiresAt,
-				freeTier: currentPlan?.products ? false : true,
-				currency: currentPlan?.currency,
+				expiresAt: currentPlan?.currentSubscriptionPlan?.expiresAt,
+				freeTier: tierStatus,
+				currency: currentPlan?.currentSubscriptionPlan?.currency,
 			}));
+			if (!tierStatus) {
+				handleAddOnsForCurrentPlan();
+			}
 		}
 	}, [currentPlan]);
+
+	const handleAddOnsForCurrentPlan = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, addOnsLoading: true }));
+		const response = await getAddOnsForCurrentPlan();
+		if (response?.[0]) {
+			setInfo((prev) => ({ ...prev, addOnsLoading: false }));
+		} else {
+			message?.error(response?.[1]?.message);
+			setInfo((prev) => ({ ...prev, addOnsLoading: false }));
+		}
+	}, []);
 
 	return (
 		<div className="planBillingContianer">
@@ -128,6 +107,7 @@ const PlanBilling = () => {
 					data={info?.plan}
 					expiresAt={info?.expiresAt}
 					currency={info?.currency}
+					addOnsLoading={info?.addOnsLoading}
 				/>
 			) : (
 				<FreeTierPlanCard expiresAt={info?.expiresAt} />
@@ -156,34 +136,33 @@ const PlanBilling = () => {
 					</ul>
 				</div>
 			</div>
-
-			{/* <div className="settingsBoxContainer billingHinstoryComponent">
-				<BillingHistoryComponent />
-			</div> */}
 		</div>
 	);
 };
 
 export default memo(PlanBilling);
 
-const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
+const SubscribedUserPlanCard = ({ data, expiresAt, currency, addOnsLoading }) => {
 	const navigate = useNavigate();
 	let {
 		subscriptionInfo: { createManageSubscriptionLinkforExistingUsers },
+		authInfo: { currentPlanAddOns, purchaseAddOn },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		manageSubscriptionLoader: false,
 		features: features,
 		featureChanged: false,
+		addOnPurchaseLoader: false,
+		planPurchaseId: null,
 	});
 
 	useEffect(() => {
 		if (data && info?.features?.length && data?.numberOfUsers && !info?.featureChanged) {
 			let features = [...(info?.features || [])];
 			const users = data?.numberOfUsers;
-			features.pop();
-			features.push(`${users} Team Members`);
+			features?.pop();
+			features?.push(`${users} Team Members`);
 			setInfo((prev) => ({ ...prev, features, featureChanged: true }));
 		}
 	}, [data, info?.features, info?.featureChanged]);
@@ -206,6 +185,20 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 		}
 	}, [expiresAt]);
 
+	const handlePurchaseAddOn = useCallback(
+		async (planId) => {
+			setInfo((prev) => ({ ...prev, addOnPurchaseLoader: true, planPurchaseId: planId }));
+			const response = await purchaseAddOn(planId);
+			if (response?.[0]) {
+				window.location.href = response?.[1]?.url;
+			} else {
+				message?.error(response?.[1]?.message);
+			}
+			setInfo((prev) => ({ ...prev, addOnPurchaseLoader: false, planPurchaseId: null }));
+		},
+		[info?.planPurchaseId],
+	);
+
 	return (
 		<div className="subscriptionWrapperContainer">
 			<div className="subscriptionUpdatedPlanCard">
@@ -213,23 +206,13 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 				<div className="subscriptionPlanContent">
 					<div className="subscriptionPlanPricingDetails">
 						<span className="subscriptionPlanPricing">
-							{currency === 'inr' ? '₹ ' : '$ '}
+							{currency === 'INR' ? '₹ ' : '$ '}
 							{data?.totalPrice?.toLocaleString('en-IN', {
 								currency: currency,
 							})}
 						</span>
-						<span className="subscritptionPlanPeriod">/ {data?.interval}</span>
+						<span className="subscritptionPlanPeriod">/ {data?.subscriptionType}</span>
 					</div>
-					{/* <div className="subscriptionUsageContainer">
-						<div className="subscriptionUsageDeatails">
-							<span className="subscriptionUsageData">
-								<span style={{ color: '#fff' }}>150 of</span> 500 used
-							</span>
-						</div>
-						<div className="subscriptionPlanProgressBar">
-							<div className="subscriptionPlanProgressIndicator"></div>
-						</div>
-					</div> */}
 					<div className="subscritptionFeaturesContainer">
 						{info?.features?.map((ele, index) => (
 							<div className="subscriptionFeature" key={index}>
@@ -240,7 +223,7 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 					</div>
 					{data?.addOns && Object.values(data?.addOns)?.length ? (
 						<div className="addOnContianer">
-							<span className="addOnStates">Current Add-on’s</span>
+							<span className="addOnStates">Current Add-on's</span>
 
 							<div className="addOnStuffsHolder">
 								{data?.addOns?.aiCredits ? (
@@ -253,16 +236,6 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 												</span>
 											</span>
 										</div>
-										{/* <div className="addOnUsageDetails">
-											<div className="subscriptionUsageDeatails">
-												<span className="subscriptionUsageData">
-													150 of 500 used
-												</span>
-											</div>
-											<div className="subscriptionPlanProgressBar">
-												<div className="subscriptionPlanProgressIndicator"></div>
-											</div>
-										</div> */}
 									</div>
 								) : (
 									''
@@ -291,27 +264,60 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency }) => {
 					</div>
 				</div>
 			</div>
-			{/* <div className="updateSubscriptionPlanContainer">
-				<span className="updatePlansTextStyling">Update Plans</span>
-				<div className="updatePlansCardHolder">
-					{updatePlans?.map((ele, index) => (
-						<div className="updatePlansCardContainer">
-							<div className="updatePlansCardContent">
-								<div className="updatePlansHeader">
-									<span className="updatePlansHeaderTextStyling">
-										{ele?.title}
-									</span>
-								</div>
-								<span className="randomUpdatePlans">
-									Launch Intelligent, enterprise-ready, and seamlessly embedded in
-									your operations
-								</span>
-							</div>
-							<div className="addNowButtonForUpdatePlans">Add Now</div>
-						</div>
-					))}
+			<div className="addOnsContainer">
+				<h1 className="title">Add-ons</h1>
+				<div className="addOnsCardsContainer">
+					{addOnsLoading
+						? [1, 2, 3, 4].map((loader) => (
+								<Skeleton
+									key={loader}
+									height="200px"
+									style={{ borderRadius: '24px' }}
+									width="100%"
+								/>
+						  ))
+						: currentPlanAddOns?.map((addOn) => {
+								const {
+									_id: planId,
+									plan,
+									isRecurring,
+									recurringType,
+									totalPrice,
+									currency,
+								} = addOn;
+
+								return (
+									<div className="addOnsCards" key={planId}>
+										<h1 className="addOnPlanName">{plan}</h1>
+										<div className="priceContainer">
+											<span className="currencySymbol">
+												{currency === 'INR' ? '₹ ' : '$ '}
+											</span>
+											<span className="priceValue">{totalPrice}</span>
+											<span
+												className={`priceDuration ${
+													!isRecurring ? 'oneTime' : ''
+												}`}
+											>
+												{isRecurring ? `/ ${recurringType}` : 'One time'}
+											</span>
+										</div>
+										<button
+											onClick={() => handlePurchaseAddOn(planId)}
+											className="addOnsButton"
+										>
+											{info?.addOnPurchaseLoader &&
+											info?.planPurchaseId === planId ? (
+												<Spinner width="16px" height="16px" />
+											) : (
+												'Add Now'
+											)}
+										</button>
+									</div>
+								);
+						  })}
 				</div>
-			</div> */}
+			</div>
 		</div>
 	);
 };
@@ -338,8 +344,8 @@ const FreeTierPlanCard = ({ expiresAt }) => {
 			<div className="subscriptionSeperator"></div>
 			<div className="freePlanSubscriptionCardContainer">
 				<span className="freeTrialText">
-					Your free trial expires at {moment.unix(`${expiresAt}`)?.format('DD MMM YYYY')}{' '}
-					! Don’t miss out - upgrade now to keep enjoying premium features.
+					Your free trial expires at {moment?.unix(`${expiresAt}`)?.format('DD MMM YYYY')}{' '}
+					! Don't miss out - upgrade now to keep enjoying premium features.
 				</span>
 
 				<div className="manageSubscriptionButton" onClick={() => navigate('/subscription')}>
