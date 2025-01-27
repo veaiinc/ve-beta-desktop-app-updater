@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
@@ -19,6 +19,10 @@ const initialState = {
 };
 
 const ProposalPopup = ({ open, closeModal }) => {
+	const customStyles = {
+		content: { zIndex: 99999 },
+		overlay: { zIndex: 99998 },
+	};
 	const [info, setInfo] = useState({
 		...initialState,
 	});
@@ -49,41 +53,25 @@ const ProposalPopup = ({ open, closeModal }) => {
 		}
 	}, [myMoreWorkflows]);
 
-	const debouncedSearch = useCallback(
-		debounce((value) => {
-			setInfo((prev) => ({ ...prev, search: value }));
-		}, 500),
-		[],
-	);
-
-	useEffect(() => {
-		return () => {
-			debouncedSearch.cancel();
+	const getMyWorkflowsTemplatesData = useCallback((page, search = null, fetchMore = false) => {
+		const payload = {
+			filters: {
+				limit: 9,
+				page: page,
+				type: 'workspace',
+				status: 'published',
+				sortBy: 'createdAt',
+				sortType: -1,
+			},
 		};
-	}, [debouncedSearch]);
-
-	const getMyWorkflowsTemplatesData = useCallback(
-		(page, fetchMore = false) => {
-			const payload = {
-				filters: {
-					limit: 9,
-					page: page,
-					type: 'workspace',
-					status: 'published',
-					sortBy: 'createdAt',
-					sortType: -1,
-				},
-			};
-			if (info?.search) {
-				payload.filters.name = info?.search;
-			}
-			getMyWorkflows(payload, fetchMore);
-		},
-		[info?.search],
-	);
+		if (search) {
+			payload.filters.title = search;
+		}
+		getMyWorkflows(payload, fetchMore);
+	}, []);
 
 	const fetchMoreMyWorkflows = useCallback(() => {
-		getMyWorkflowsTemplatesData(info?.currentPage + 1, true);
+		getMyWorkflowsTemplatesData(info?.currentPage + 1, null, true);
 	}, [info?.hasNextPage, info?.currentPage]);
 
 	const myWorkflowsDataParser = useCallback(
@@ -114,8 +102,26 @@ const ProposalPopup = ({ open, closeModal }) => {
 		[info?.workflowTemplates],
 	);
 
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			getMyWorkflowsTemplatesData(1, info.search);
+		}, 500);
+
+		return () => clearTimeout(timeout);
+	}, [info.search, getMyWorkflowsTemplatesData]);
+
+	const handleSearchChange = (e) => {
+		const value = e.target.value;
+		setInfo((prev) => ({ ...prev, search: value }));
+	};
+
 	return (
-		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
+		<ReactModal
+			isOpen={open}
+			closeModal={closeModal}
+			modalType={'center'}
+			customStyles={customStyles}
+		>
 			<div className="proposal-popup-container">
 				<div className="proposal-popup-header">
 					<div className="proposal-popup-header-text">Choose Template</div>
@@ -129,7 +135,7 @@ const ProposalPopup = ({ open, closeModal }) => {
 								placeholder="Search"
 								type="text"
 								value={info.search}
-								onChange={(e) => debouncedSearch(e.target.value)}
+								onChange={(e) => handleSearchChange(e)}
 							/>
 						</div>
 
