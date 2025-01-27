@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
 import '../../../assets/scss/docs/index.scss';
-import { ReactComponent as Files } from '../../../assets/svg/docs/files.svg';
-import { fetchOriginSelection } from '../../../helpers';
-import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
+// import { ReactComponent as Files } from '../../../assets/svg/docs/files.svg';
+// import { fetchOriginSelection } from '../../../helpers';
+// import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
 import ClientListView from './clientsListView';
 // let origin = fetchOriginSelection();
 const Contacts = () => {

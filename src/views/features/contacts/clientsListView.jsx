@@ -31,6 +31,7 @@ import ParentTaskComponent from '../../components/tasks/listView/ParentTaskCompo
 import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
 import LinkText from '../../components/tasks/listView/LinkText';
 import Text from '../../components/tasks/listView/Text';
+import Task from '../../components/tasks/Task';
 
 const rowTypes = {
 	text: Text,
@@ -373,7 +374,7 @@ const ClientListView = () => {
 
 	return (
 		<div>
-			<ListView
+			{/* <ListView
 				info={info}
 				updateListViewInfo={updateListViewInfo}
 				togglePropertyVisibility={togglePropertyVisibility}
@@ -381,14 +382,35 @@ const ClientListView = () => {
 				deleteTask={handleDeleteClient}
 				responseMetadata={responseMetadata}
 				fetchListItems={fetchClientList}
-				addButtonOnClick={() => {
-					updateListViewInfo('isCreateModalOpen', true);
-				}}
+				// addButtonOnClick={}
 				headerTitle={'Contacts'}
 				createButtonText={'Create Client'}
 				sidebarChildren={<ListTabs tabs={tabs} defaultActiveTab={'reqActions'} />}
 				fetchMoreData={handleLoadMore}
+			/> */}
+			<Task
+				responseMetadata={responseMetadata}
+				handleAddButtonOnClick={() => {
+					updateListViewInfo('isCreateModalOpen', true);
+				}}
+				handleRowClick={() => {}}
+				colors={colors}
+				updateTaskInfo={() => {}}
+				rowTypes={rowTypes}
+				data={info?.listItems}
+				loading={info?.loadingSkeleton}
+				handleUpdate={updatePropertyValue}
+				properties={info?.properties}
+				taskPreferences={info?.taskPreferences}
+				searchValue={info?.searchValue}
+				infinityLoading={info?.infinityLoading}
+				hasMore={info?.hasMore}
+				error={info?.error}
+				fetchMoreData={() => {}}
+				blockTitle={'Tasks'}
+				createButtonText={'Create Task'}
 			/>
+
 			<CreateClientModal
 				modalIsOpen={info?.isCreateModalOpen}
 				closeModal={() => {

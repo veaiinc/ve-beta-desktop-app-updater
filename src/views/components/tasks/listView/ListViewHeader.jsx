@@ -80,7 +80,7 @@ const ListViewHeader = ({
 				showSort: true,
 			}));
 
-			const newSort = viewData?.sort?.some((item) => item.sortBy === value)
+			const newSort = viewData?.sort?.some((item) => item?.sortBy === value)
 				? viewData?.sort
 				: [...viewData?.sort, { sortBy: value, sortType: 1 }];
 
@@ -154,12 +154,12 @@ const ListViewHeader = ({
 		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, []);
 
-	const hasFilters = viewData?.filters?.length > 0 || pendingFilters.length > 0;
+	const hasFilters = viewData?.filters?.length > 0 || pendingFilters?.length > 0;
 	const hasSort = viewData?.sort?.length > 0;
 
 	return (
 		<div className="listViewHeaderContainer">
-			<div className="listViewHeaderTitle">{blockTitle || 'Untitled'}</div>
+			<div className="listViewHeader-title">{blockTitle || 'Untitled'}</div>
 			<div className="listViewHeader">
 				<div className="listViewHeaderTabsContainer">
 					<TabHeader
@@ -248,7 +248,7 @@ const ListViewHeader = ({
 					) : (
 						<DropDown
 							title="Sort"
-							options={properties.filter(
+							options={properties?.filter(
 								(item) => !['childTasks', 'parentTask']?.includes(item.value),
 							)}
 							onOptionClick={handelSortClick}
@@ -306,10 +306,10 @@ const ListViewHeader = ({
 			</div>
 
 			<div className="listViewOptionsContainer">
-				{viewData?.sort?.length > 0 && info.showSort ? (
+				{viewData?.sort?.length > 0 && info?.showSort ? (
 					<SortComponent
 						sort={viewData?.sort}
-						options={properties.filter(
+						options={properties?.filter(
 							(item) => !['childTasks', 'parentTask']?.includes(item.value),
 						)}
 						responseMetadata={responseMetadata}

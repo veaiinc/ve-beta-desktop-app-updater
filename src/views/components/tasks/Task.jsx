@@ -208,7 +208,7 @@ const Task = ({
 	const handleDeleteTab = useCallback((tabId) => {
 		setTaskInfo((prev) => {
 			// Prevent deletion if there's only one tab
-			if (Object.keys(prev.tabs).length <= 1) {
+			if (Object.keys(prev.tabs)?.length <= 1) {
 				return prev;
 			}
 
