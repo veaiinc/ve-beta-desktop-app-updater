@@ -5,6 +5,7 @@ import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/searc
 import '../../../assets/scss/docs/proposalsPopup.scss';
 import Context from '../../../context/context';
 import TemplateCards from '../myTemplate/TemplateCards';
+import debounce from 'lodash.debounce';
 
 const options = ['All', 'Proposal', 'Invoice', 'Contract', 'Thank you', 'Proposal'];
 
@@ -47,6 +48,19 @@ const ProposalPopup = ({ open, closeModal }) => {
 			myWorkflowsDataParser(myMoreWorkflows, true);
 		}
 	}, [myMoreWorkflows]);
+
+	const debouncedSearch = useCallback(
+		debounce((value) => {
+			setInfo((prev) => ({ ...prev, search: value }));
+		}, 500),
+		[],
+	);
+
+	useEffect(() => {
+		return () => {
+			debouncedSearch.cancel();
+		};
+	}, [debouncedSearch]);
 
 	const getMyWorkflowsTemplatesData = useCallback(
 		(page, fetchMore = false) => {
@@ -105,7 +119,7 @@ const ProposalPopup = ({ open, closeModal }) => {
 			<div className="proposal-popup-container">
 				<div className="proposal-popup-header">
 					<div className="proposal-popup-header-text">Choose Template</div>
-					<CrossSvg onClick={closeModal} />
+					<CrossSvg onClick={closeModal} style={{ cursor: 'pointer' }} />
 				</div>
 				<div className="proposal-popup-body">
 					<div className="proposal-popup-search-div">
@@ -115,9 +129,7 @@ const ProposalPopup = ({ open, closeModal }) => {
 								placeholder="Search"
 								type="text"
 								value={info.search}
-								onChange={(e) =>
-									setInfo((prev) => ({ ...prev, search: e.target.value }))
-								}
+								onChange={(e) => debouncedSearch(e.target.value)}
 							/>
 						</div>
 

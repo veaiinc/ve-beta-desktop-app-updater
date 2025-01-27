@@ -101,7 +101,6 @@ export const ActivityState = (props) => {
 	};
 
 	const createSmartfile = async (payload) => {
-		console.log(payload);
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -110,7 +109,7 @@ export const ActivityState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'smartfile_api',
+				'workflows_Api',
 			);
 			if (response?.[0]) {
 				dispatch({

@@ -7,7 +7,6 @@ module.exports = {
 	ve_conversations_api: 'https://api.ve.co/ve-conversations/1.0',
 	proposals_api: 'https://ap.api.ve.ai/proposals/1.0',
 	workflows_Api: 'https://ap.api.ve.ai/workflows/1.0',
-	smartfile_api: 'https://ap.api.ve.co/workflows/dev',
 	auth_Api: 'https://auth.ve.ai',
 	activity_api: 'https://ap.api.ve.ai/workflow-user-analytics/1.0',
 	galleries: 'https://ap.api.ve.ai/galleries/1.0',
