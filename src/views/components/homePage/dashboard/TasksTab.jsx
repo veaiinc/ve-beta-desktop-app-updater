@@ -145,13 +145,6 @@ const TasksTab = () => {
 	});
 	console.log(info?.listItems);
 
-	const handleSelectChange = (event) => {
-		setInfo((prev) => ({
-			...prev,
-			selectedOption: event.target.value,
-		}));
-	};
-
 	const todayTasks = info?.listItems?.filter((task) => {
 		if (task?.dueDate) {
 			if (new Date(task?.dueDate * 1000) <= new Date()) {
@@ -273,7 +266,6 @@ const TasksTab = () => {
 	);
 
 	const debounceTimeout = useRef(null);
-	const filterDebounceTimeout = useRef(null);
 
 	useEffect(() => {
 		if (!tenantsUserList) {

@@ -21,12 +21,12 @@ const navbarOptions = {
 		{ id: 4, title: 'Operations', value: 'Operations' },
 	],
 	dashboard: [
-		{ id: 1, title: 'All', value: 'All' },
-		{ id: 2, title: 'Priority', value: 'Priority' },
-		{ id: 3, title: 'Tasks', value: 'Tasks' },
-		{ id: 4, title: 'Workflows', value: 'Workflows' },
-		{ id: 5, title: 'Recent Chats', value: 'Recent Chats' },
-		{ id: 6, title: 'Drafts & Activity', value: 'Drafts & Activity' },
+		// { id: 1, title: 'All', value: 'All' },
+		{ id: 1, title: 'Priority', value: 'Priority' },
+		{ id: 2, title: 'Tasks', value: 'Tasks' },
+		{ id: 3, title: 'Workflows', value: 'Workflows' },
+		{ id: 4, title: 'Recent Chats', value: 'Recent Chats' },
+		{ id: 5, title: 'Drafts & Activity', value: 'Drafts & Activity' },
 	],
 };
 
@@ -62,7 +62,7 @@ const HomePage = () => {
 		showPromptPopup: false,
 		isNavbarFixed: false,
 		selectedOptionInStart: 'All',
-		selectedOptionInDashboard: 'All',
+		selectedOptionInDashboard: 'Priority',
 		searchValue: '',
 		selectedCard: null,
 		selectedOptions: {},
