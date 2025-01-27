@@ -102,3 +102,23 @@
 		}
 	}
 }
+
+.create-agent-header-delete-button {
+	display: flex;
+	padding: 8px 14px;
+	align-items: center;
+	cursor: pointer;
+	gap: 6px;
+
+	border-radius: 20px;
+	border: 1px solid var(--error, #e40039);
+	border: 1px solid var(--error, color(display-p3 0.7529 0.2157 0.2667));
+
+	color: var(--error, #e40039);
+	color: var(--error, color(display-p3 0.7529 0.2157 0.2667));
+	font-family: Inter;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: normal;
+}
