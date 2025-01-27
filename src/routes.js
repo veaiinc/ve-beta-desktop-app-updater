@@ -114,6 +114,16 @@ const routes = [
 	},
 
 	{
+		path: '/sales',
+		component: (
+			<AuthWrapper title={'Sales'}>
+				<Sales />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+
+	{
 		path: '/playbook',
 		component: (
 			<AuthWrapper title={'Sales'}>
