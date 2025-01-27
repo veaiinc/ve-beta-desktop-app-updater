@@ -251,6 +251,7 @@ export const getTemplatesListForCreateLeadQuery = gql`
 			data {
 				_id
 				title
+				status
 			}
 		}
 	}
