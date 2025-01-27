@@ -37,7 +37,7 @@ const BottomToolbar = ({
 		inputExpanded: false,
 		chatModalIsOpen: false,
 		chatQuery: '',
-		position: { x: 0, y: 0 },
+		position: { x: -325, y: 0 },
 		addQuickAction: false,
 		chatSessionId: ObjectID().toString(),
 	});
