@@ -1,4 +1,4 @@
-.wedding-day-timeline-generator-card-container {
+.workflow-card-container {
 	display: flex;
 	flex-shrink: 0;
 	width: 340px;
@@ -13,13 +13,13 @@
 	background: #171819;
 	background: color(display-p3 0.0902 0.0941 0.098);
 
-	.wedding-day-timeline-generator-header {
+	.card-header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		align-self: stretch;
 
-		.wedding-day-timeline-generator-header-text {
+		.header-text {
 			color: #f2f2f3;
 			color: color(display-p3 0.949 0.949 0.9529);
 			font-family: Inter;
@@ -30,12 +30,12 @@
 		}
 	}
 
-	.wedding-day-timeline-generator-options-container {
+	.workflow-card-options-container {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		align-self: stretch;
-		.wedding-day-timeline-generator-option {
+		.workflow-card-option {
 			color: var(--secondary-font, #787e87);
 			font-family: Inter;
 			font-size: 14px;
@@ -97,8 +97,8 @@
 			flex-direction: row;
 			gap: 1rem;
 			.left {
-				width: 24px;
-				height: 25.882px;
+				width: 50px;
+				height: 60px;
 				border-radius: 6px;
 				background: #414548;
 				background: color(display-p3 0.258 0.2696 0.2813);
@@ -107,7 +107,7 @@
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
-				gap: 18px;
+				gap: 7px;
 				flex: 1 0 0;
 				align-self: stretch;
 				.title {
@@ -137,95 +137,3 @@
 		}
 	}
 }
-
-// .steps-tab-container {
-// 	display: flex;
-// 	flex-direction: column;
-// 	gap: 0.5rem;
-// 	.steps-tab-item-content {
-// 		background: var(--ve-ai-dark-theme-pop-up-color, color(display-p3 0.1249 0.1304 0.1358));
-// 		border-radius: 18px;
-// 		padding: 0.8rem;
-// 		display: flex;
-// 		flex-direction: row;
-// 		justify-content: space-between;
-// 		font-size: 0.8rem;
-// 		align-items: center;
-
-// 		.steps-tab-item-left-text {
-// 			color: #797e86;
-// 		}
-// 		.steps-tab-item-right-text {
-// 			color: #f2f2f3;
-// 			font-weight: 500;
-// 			font-size: 1.1rem;
-// 		}
-// 	}
-// }
-
-// .insight-tab-container {
-// 	display: flex;
-// 	flex-direction: column;
-// 	gap: 0.5rem;
-// 	.insight-tab-item-content {
-// 		background: var(--ve-ai-dark-theme-pop-up-color, color(display-p3 0.1249 0.1304 0.1358));
-// 		border-radius: 18px;
-// 		padding: 0.8rem;
-// 		display: flex;
-// 		flex-direction: row;
-// 		justify-content: space-between;
-// 		font-size: 0.8rem;
-// 		align-items: center;
-
-// 		.insight-tab-item-left-text {
-// 			color: #797e86;
-// 		}
-// 		.insight-tab-item-right-text {
-// 			color: #f2f2f3;
-// 			font-weight: 500;
-// 			font-size: 1.1rem;
-// 		}
-// 	}
-// }
-
-// .pending-actions-tab-container {
-// 	display: flex;
-// 	flex-direction: column;
-// 	gap: 0.5rem;
-// 	.pending-actions-tab-item-content {
-// 		background: var(--ve-ai-dark-theme-pop-up-color, color(display-p3 0.1249 0.1304 0.1358));
-// 		border-radius: 18px;
-// 		padding: 0.8rem;
-// 		display: flex;
-// 		flex-direction: row;
-// 		justify-content: space-between;
-// 		font-size: 0.8rem;
-// 		align-items: center;
-
-// 		.pending-actions-tab-item-left-text {
-// 			color: #797e86;
-// 		}
-// 		.pending-actions-tab-item-right-text {
-// 			color: #f2f2f3;
-// 		}
-// 	}
-// }
-
-// .files-tab-files-container {
-// 	.files-tab-file {
-// 		display: flex;
-// 		flex-direction: row;
-// 		gap: 1rem;
-
-// 		.files-tab-file-info {
-// 			font-size: 0.8rem;
-// 			.file-info-title {
-// 				color: #f2f2f3;
-// 				line-height: 1.2rem;
-// 			}
-// 			.file-info-sub-text {
-// 				color: #797e86;
-// 			}
-// 		}
-// 	}
-// }

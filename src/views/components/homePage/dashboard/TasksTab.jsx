@@ -43,6 +43,12 @@ const colors = {
 	7: { backgroundColor: '#453061', color: '#6F4C99' },
 };
 
+const options = [
+	{ title: 'All', value: 'All' },
+	{ title: 'Today', value: 'Today' },
+	{ title: 'Over due', value: 'Over due' },
+];
+
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
 	title: { show: true, order: 2 },
@@ -139,8 +145,6 @@ const TasksTab = () => {
 	});
 	console.log(info?.listItems);
 
-	const options = [{ value: 'All' }, { value: 'Today' }, { value: 'Over due' }];
-
 	const handleSelectChange = (event) => {
 		setInfo((prev) => ({
 			...prev,
@@ -165,8 +169,6 @@ const TasksTab = () => {
 			return false;
 		}
 	});
-
-	console.log(todayTasks, overDueTasks);
 
 	const responseMetadata = useMemo(
 		() => ({
@@ -272,51 +274,6 @@ const TasksTab = () => {
 
 	const debounceTimeout = useRef(null);
 	const filterDebounceTimeout = useRef(null);
-
-	// useEffect(() => {
-	// 	if (filterDebounceTimeout.current) {
-	// 		clearTimeout(filterDebounceTimeout.current);
-	// 	}
-
-	// 	// Always fetch when filters or search change
-	// 	if (info?.filters || info?.searchValue) {
-	// 		filterDebounceTimeout.current = setTimeout(() => {
-	// 			setInfo((prev) => ({
-	// 				...prev,
-	// 				page: 1,
-	// 				loadingSkeleton: true,
-	// 				listItems: [], // Clear existing items
-	// 			}));
-	// 			fetchListItems(1);
-	// 		}, 800);
-	// 	} else {
-	// 		// Initial load or when filters are cleared
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			page: 1,
-	// 			loadingSkeleton: true,
-	// 			listItems: [], // Clear existing items
-	// 		}));
-	// 		fetchListItems(1);
-	// 	}
-
-	// 	return () => {
-	// 		if (filterDebounceTimeout.current) {
-	// 			clearTimeout(filterDebounceTimeout.current);
-	// 		}
-	// 	};
-	// }, [info?.filters, info?.searchValue]); // Remove page dependency
-
-	// useEffect(() => {
-	// 	if (info?.sort?.length > 0) {
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			page: 1,
-	// 			loadingSkeleton: true,
-	// 		}));
-	// 		fetchListItems(1);
-	// 	}
-	// }, [info?.sort]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -711,51 +668,6 @@ const TasksTab = () => {
 		],
 	);
 
-	// const addNewTask = useCallback(
-	// 	async (payload) => {
-	// 		if (validateExpiryData?.isExpired) {
-	// 			return updateSubscriptionState({ expiredSubscriptionModal: true });
-	// 		} else {
-	// 			if (info?.isCreatingSubtask) {
-	// 				payload.parentTaskId = info?.selectedRow?._id;
-	// 			}
-	// 			const response = await addListItem({ input: payload });
-
-	// 			if (response) {
-	// 				const task = response?.createTask;
-
-	// 				if (task) {
-	// 					const token = localStorage.getItem('usertoken');
-	// 					const { user_id, userName } = jwtDecode(token);
-
-	// 					const newTask = { ...task };
-	// 					const newWorkflow = info?.workflows?.find(
-	// 						(workflow) => workflow._id === payload?.workflowId,
-	// 					);
-	// 					newTask.workflow = newWorkflow
-	// 						? { _id: newWorkflow._id, title: newWorkflow.label }
-	// 						: null;
-	// 					newTask.workflowId = null;
-	// 					newTask.createdBy = { _id: user_id, name: userName };
-	// 					newTask.updatedBy = { _id: user_id, name: userName };
-	// 					if (info?.isCreatingSubtask) {
-	// 						newTask.parentTask = {
-	// 							title: info?.selectedRow?.title,
-	// 							_id: info?.selectedRow?._id,
-	// 						};
-	// 						addSubTask(newTask);
-	// 					}
-	// 					message.success('Task added successfully');
-	// 					fetchListItems();
-	// 				}
-	// 			} else {
-	// 				throw new Error('Failed to add new task');
-	// 			}
-	// 		}
-	// 	},
-	// 	[info?.workflows, info?.isCreatingSubtask, info?.selectedRow?._id],
-	// );
-
 	const deleteTask = useCallback(
 		async (payload) => {
 			if (validateExpiryData?.isExpired) {
@@ -782,38 +694,38 @@ const TasksTab = () => {
 		[info?.selectedSubTask?._id, removeSubTask],
 	);
 
-	// const handleAddButtonOnClick = () => {
-	// 	updateTaskInfo({ isCreatingSubtask: false, isCreateModalOpen: true });
-	// };
+	const handleAddButtonOnClick = () => {
+		updateTaskInfo({ isCreatingSubtask: false, isCreateModalOpen: true });
+	};
 
-	// const handleCloseCreateModal = useCallback(() => {
-	// 	if (info?.isCreatingSubtask) {
-	// 		updateTaskInfo({ sidebarIsOpen: true });
-	// 	}
-	// 	updateTaskInfo({ isCreateModalOpen: false });
-	// }, [info?.isCreatingSubtask]);
+	const handleCloseCreateModal = useCallback(() => {
+		if (info?.isCreatingSubtask) {
+			updateTaskInfo({ sidebarIsOpen: true });
+		}
+		updateTaskInfo({ isCreateModalOpen: false });
+	}, [info?.isCreatingSubtask]);
 
-	// const handleRowClick = useCallback(
-	// 	(rowId) => {
-	// 		if (info?.selectedRow?._id !== rowId) {
-	// 			resetSubTasks();
-	// 		}
+	const handleRowClick = useCallback(
+		(rowId) => {
+			if (info?.selectedRow?._id !== rowId) {
+				resetSubTasks();
+			}
 
-	// 		const row = info?.listItems?.find((row) => row._id === rowId);
-	// 		if (row) {
-	// 			updateTaskInfo({ selectedRow: row, sidebarIsOpen: true });
-	// 		}
-	// 	},
-	// 	[info?.listItems, resetSubTasks, info?.selectedRow?._id],
-	// );
+			const row = info?.listItems?.find((row) => row._id === rowId);
+			if (row) {
+				updateTaskInfo({ selectedRow: row, sidebarIsOpen: true });
+			}
+		},
+		[info?.listItems, resetSubTasks, info?.selectedRow?._id],
+	);
 
-	// const handleCreateSubTaskClick = useCallback(() => {
-	// 	updateTaskInfo({ sidebarIsOpen: false, isCreatingSubtask: true, isCreateModalOpen: true });
-	// }, []);
+	const handleCreateSubTaskClick = useCallback(() => {
+		updateTaskInfo({ sidebarIsOpen: false, isCreatingSubtask: true, isCreateModalOpen: true });
+	}, []);
 
-	// const handleSubTaskClick = useCallback((task) => {
-	// 	updateTaskInfo({ selectedSubTask: task });
-	// }, []);
+	const handleSubTaskClick = useCallback((task) => {
+		updateTaskInfo({ selectedSubTask: task });
+	}, []);
 
 	const handleCloseSidebar = useCallback(() => {
 		if (info?.updated) {
@@ -824,9 +736,9 @@ const TasksTab = () => {
 		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
 	}, [info?.updated]);
 
-	// const handleChildTaskClose = useCallback(() => {
-	// 	updateTaskInfo({ selectedSubTask: null });
-	// }, []);
+	const handleChildTaskClose = useCallback(() => {
+		updateTaskInfo({ selectedSubTask: null });
+	}, []);
 
 	useEffect(() => {
 		fetchListItems();
@@ -835,6 +747,8 @@ const TasksTab = () => {
 	const handlePropagation = useCallback((e) => {
 		e.stopPropagation();
 	}, []);
+
+	// console.log(todayTasks);
 
 	return (
 		<>
@@ -907,7 +821,15 @@ const TasksTab = () => {
 											</div>
 
 											<div className="show-more">
-												<div className="assigned-to"></div>
+												<div className="assigned-to">
+													{task?.assignedTo?.map((person, index) => {
+														return (
+															<div className="person" key={index}>
+																{person?.name[0]}
+															</div>
+														);
+													})}
+												</div>
 												<div className="chevron-icon-container">
 													<ChevronRightThinIcon />
 												</div>
@@ -961,16 +883,16 @@ const TasksTab = () => {
 					info?.selectedSubTask !== undefined && info?.selectedSubTask !== null
 				}
 				parentTaskNo={info?.selectedRow?.taskSlNo}
-				// handleChildTaskClose={handleChildTaskClose}
-				// handleSubTaskClick={handleSubTaskClick}
+				handleChildTaskClose={handleChildTaskClose}
+				handleSubTaskClick={handleSubTaskClick}
 				sidebarIsOpen={info?.sidebarIsOpen}
 				closeSidebar={handleCloseSidebar}
 				handleUpdate={updatePropertyValue}
 				deleteTask={deleteTask}
 				rowTypes={rowTypes}
-				// handleCreateSubTaskClick={handleCreateSubTaskClick}
+				handleCreateSubTaskClick={handleCreateSubTaskClick}
 				responseMetadata={responseMetadata}
-				// haveSubTask={false}
+				haveSubTask={false}
 				properties={info?.properties}
 				colors={colors}
 				toggleSidebarExpand={() =>

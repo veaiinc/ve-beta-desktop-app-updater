@@ -1,5 +1,5 @@
 import { memo, useState, useEffect, useCallback } from 'react';
-import '../../../../../../assets/scss/home_page/workflows/weddingDayTimelineGenerator.scss';
+import '../../../../../../assets/scss/home_page/workflows/workflowCard.scss';
 
 const generateCardsInfoData = (data) => {
 	return [
@@ -38,7 +38,7 @@ const generateCardsInfoData = (data) => {
 		},
 	];
 };
-const InsightTab = ({ data, openModal }) => {
+const InsightsTab = ({ data, openModal }) => {
 	const [info, setInfo] = useState({
 		actionCards: [...generateCardsInfoData(data)],
 		showCopyModalButton: false,
@@ -87,6 +87,7 @@ const InsightTab = ({ data, openModal }) => {
 			contractExist,
 		}));
 	}, [data]);
+
 	return (
 		<div className="workflow-container">
 			{info?.actionCards?.map((ele, index) => {
@@ -105,4 +106,4 @@ const InsightTab = ({ data, openModal }) => {
 	);
 };
 
-export default memo(InsightTab);
+export default memo(InsightsTab);

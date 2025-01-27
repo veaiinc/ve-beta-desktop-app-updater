@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import '../../../../../../assets/scss/home_page/workflows/weddingDayTimelineGenerator.scss';
+import '../../../../../../assets/scss/home_page/workflows/workflowCard.scss';
 import { ReactComponent as CheckIcon } from '../../../../../../assets/svg/home_page/Check.svg';
 import Context from '../../../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../../../helpers';
@@ -48,24 +48,6 @@ const sortOptions = [
 		value: 'za',
 	},
 ];
-// const stageOptions = [
-// 	{
-// 		label: 'Enquiry',
-// 		value: 'enquiry',
-// 	},
-// 	{
-// 		label: 'Smart File Sent',
-// 		value: 'smartFileSent',
-// 	},
-// 	{
-// 		label: 'Contract Signed',
-// 		value: 'contractSigned',
-// 	},
-// 	{
-// 		label: 'Boooking Confirmed',
-// 		value: 'bookingConfirmed',
-// 	},
-// ];
 
 const initialState = {
 	loading: true,
@@ -82,48 +64,6 @@ const initialState = {
 	timeout: null,
 };
 
-// const decideSelectedSortOptionValue = (data) => {
-// 	let result;
-// 	if (data === 'newestFirst') {
-// 		result = [-1, 'createdAt'];
-// 	}
-// 	if (data === 'oldestFirst') {
-// 		result = [1, 'createdAt'];
-// 	}
-// 	if (data === 'az') {
-// 		result = [1, 'clientName'];
-// 	}
-// 	if (data === 'za') {
-// 		result = [-1, 'clientName'];
-// 	}
-// 	return result;
-// };
-
-// const decideDurationValue = (value) => {
-// 	let startDate, endDate;
-// 	if (value === 'all') {
-// 		startDate = null;
-// 		endDate = null;
-// 	}
-// 	if (value === 'lastWeek') {
-// 		startDate = moment().subtract(1, 'weeks').startOf('week').unix();
-// 		endDate = moment().subtract(1, 'weeks').endOf('week').unix();
-// 	}
-// 	if (value === 'last30Days') {
-// 		startDate = moment().subtract(30, 'days').startOf('day').unix();
-// 		endDate = moment().endOf('day').unix();
-// 	}
-// 	if (value === 'last90Days') {
-// 		startDate = moment().subtract(90, 'days').startOf('day').unix();
-// 		endDate = moment().endOf('day').unix();
-// 	}
-// 	if (value === 'last12Months') {
-// 		startDate = moment().subtract(12, 'months').startOf('month').unix();
-// 		endDate = moment().endOf('month').unix();
-// 	}
-// 	return [startDate, endDate];
-// };
-
 const PendingActionsTab = ({ activeTemplateData, activeCardsData, data }) => {
 	let {
 		templates: { getWorkflowsList, workflowslist, moreWorkList, updateStateValues },
@@ -131,19 +71,12 @@ const PendingActionsTab = ({ activeTemplateData, activeCardsData, data }) => {
 
 	const [info, setInfo] = useState(initialState);
 	const navigate = useNavigate();
-	console.log(activeTemplateData);
 
 	useEffect(() => {
 		return () => {
 			updateStateValues({ workflowslist: null });
 		};
 	}, []);
-
-	// useEffect(() => {
-	// 	if (activeTemplateData && activeCardsData) {
-	// 		getWorkflowsListFunc(1);
-	// 	}
-	// }, [activeTemplateData, activeCardsData]);
 
 	useEffect(() => {
 		getWorkflowsListFunc(1);
@@ -160,28 +93,6 @@ const PendingActionsTab = ({ activeTemplateData, activeCardsData, data }) => {
 			parseWorkflowsListDeatils(moreWorkList, true);
 		}
 	}, [moreWorkList]);
-
-	console.log(info?.workflowsDetailslist);
-
-	// useEffect(() => {
-	// 	if (info?.selectedSortOptions && info?.sortOptionsChanged) {
-	// 		getWorkflowsListFunc(1, false);
-	// 		setInfo((prev) => ({ ...prev, loading: true }));
-	// 	}
-	// }, [info?.selectedSortOptions, info?.sortOptionsChanged]);
-
-	// useEffect(() => {
-	// 	if (info?.selectedDuration && info?.durationOptionChanged) {
-	// 		getWorkflowsListFunc(1, false);
-	// 		setInfo((prev) => ({ ...prev, loading: true }));
-	// 	}
-	// }, [info?.selectedDuration, info?.durationOptionChanged]);
-
-	// useEffect(() => {
-	// 	if (info?.searchValueChanged) {
-	// 		handleDebounceSearch();
-	// 	}
-	// }, [info?.searchValue, info?.searchValueChanged]);
 
 	const getWorkflowsListFunc = useCallback(
 		async (page, fetchMore = false) => {
@@ -237,8 +148,6 @@ const PendingActionsTab = ({ activeTemplateData, activeCardsData, data }) => {
 	const filteredPendingActionsLength = () => {
 		return info?.workflowsDetailslist?.filter((item) => item?.requiredAction?.action).length;
 	};
-
-	console.log(info?.workflowsDetailslist);
 
 	return (
 		<>
