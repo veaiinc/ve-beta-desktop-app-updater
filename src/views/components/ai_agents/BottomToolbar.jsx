@@ -106,6 +106,7 @@ const BottomToolbar = ({
 		setInfo((prev) => ({
 			...prev,
 			expanded: false,
+			inputExpanded: false,
 		}));
 	}, [info]);
 
