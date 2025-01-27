@@ -5,7 +5,6 @@ import { ReactComponent as CheckIcon } from '../../../../../../assets/svg/home_p
 import Context from '../../../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../../../helpers';
 import MyWorkflowModalsLoader from '../../../../modalsV2/workflowsModals/MyWorkflowModalsLoader';
-import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
 const timeOptions = [
 	{
@@ -96,29 +95,16 @@ const PendingActionsTab = ({ activeTemplateData, activeCardsData, data }) => {
 
 	const getWorkflowsListFunc = useCallback(
 		async (page, fetchMore = false) => {
-			// if (activeTemplateData && activeCardsData) {
-			// let [startDate, endDate] = decideDurationValue(info?.selectedDuration?.value);
-			// let [decideSortType, sortBy] = decideSelectedSortOptionValue(
-			// 	info?.selectedSortOptions?.value,
-			// );
 			const payload = {
 				filters: {
 					limit: 30,
 					page: page,
 					status: activeCardsData?.status,
 					templateId: activeTemplateData?._id,
-					// sortType: decideSortType,
-					// sortBy: sortBy,
-					// clientName: info?.searchValue?.length ? info?.searchValue : '',
 				},
 			};
 
-			// if (startDate && endDate) {
-			// 	payload.filters['startDate'] = startDate;
-			// 	payload.filters['endDate'] = endDate;
-			// }
 			getWorkflowsList(payload, fetchMore);
-			// }
 		},
 		[
 			activeTemplateData,
@@ -128,6 +114,8 @@ const PendingActionsTab = ({ activeTemplateData, activeCardsData, data }) => {
 			info?.searchValue,
 		],
 	);
+
+	console.log(info?.workflowsDetailslist);
 
 	const fetcMoreWorkflowList = useCallback(async () => {
 		getWorkflowsListFunc(info?.currentPage + 1, true);
@@ -180,6 +168,8 @@ const PendingActionsTab = ({ activeTemplateData, activeCardsData, data }) => {
 							{info?.workflowsDetailslist
 								?.filter((item) => item?.requiredAction?.action)
 								.map((item, index) => {
+									const name = item?.clientDetails?.name;
+									const email = item?.clientDetails?.email;
 									return (
 										<div
 											className="workflow-inner-card"
@@ -189,9 +179,13 @@ const PendingActionsTab = ({ activeTemplateData, activeCardsData, data }) => {
 											}}
 										>
 											<span className="left-text">
-												{item?.requiredAction?.action}
+												{name}
+												<br />
+												{email}
 											</span>
-											<span className="right-text">
+											<span className="right-text pending-actions-title">
+												{item?.requiredAction?.action}
+
 												<CheckIcon />
 											</span>
 										</div>
