@@ -2,10 +2,10 @@ import React, { memo, useState, useEffect, useCallback, useContext, useRef } fro
 import '../../../assets/scss/calendar/calendarAiChat.scss';
 import ObjectId from 'bson-objectid';
 import Context from '../../../context/context';
-import ReactMarkdown from 'react-markdown';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as SendSvg } from '../../../assets/svg/calendar/send.svg';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
+import { Markdown } from '../../../helpers/markdownHelper';
 
 const initialState = {
 	sessionId: null,
@@ -133,7 +133,7 @@ const CalendarAiChat = ({ toggleAskAi, selectedDate }) => {
 						{chat?.type === 'ai' && <AiSparkel />}
 						<div className={chat?.type === 'user' ? '' : 'aiMessage'}>
 							<span>
-								<ReactMarkdown
+								<Markdown
 									components={{
 										a: ({ node, ...props }) => (
 											<a
@@ -145,7 +145,7 @@ const CalendarAiChat = ({ toggleAskAi, selectedDate }) => {
 									}}
 								>
 									{chat?.message}
-								</ReactMarkdown>
+								</Markdown>
 							</span>
 						</div>
 					</div>
