@@ -77,10 +77,10 @@ const AiAssistants = () => {
 
 	const agents = info?.aiAssistantsList?.length
 		? info.aiAssistantsList.map((ele) => ({
-				icon: <AgentIcon />,
 				agentId: ele?._id,
 				agentName: ele?.name,
 				createdBy: ele?.createdBy || 'AI',
+				...ele,
 		  }))
 		: [];
 
@@ -111,15 +111,30 @@ const AiAssistants = () => {
 							agents?.map((agent) => (
 								<div
 									className="agentCard"
-									onClick={() => navigate(`/ai-assistant/${agent?.agentId}`)}
+									onClick={() =>
+										navigate(`/ai-assistant/${agent?.agentId}`, {
+											state: { agent },
+										})
+									}
 								>
-									<div>{agent?.icon}</div>
+									<div>
+										<AgentIcon />
+									</div>
 									<div className="agentName">{agent?.agentName}</div>
 									<div className="createdBy">Created by {agent?.createdBy}</div>
 								</div>
 							))
 						) : (
-							<div style={{ color: 'white' }}>No agents found</div>
+							<div
+								className="agentCard"
+								onClick={() => navigate(`/ai-assistant/create-assistant`)}
+							>
+								<div>
+									<AgentIcon />
+								</div>
+								<div className="agentName">Create your first AI Assistant</div>
+								<div className="createdBy">Powered by Ve.ai</div>
+							</div>
 						)}
 					</div>
 				</div>

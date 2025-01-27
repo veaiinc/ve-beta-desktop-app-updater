@@ -1,6 +1,6 @@
 import React, { memo, useState } from 'react';
 import '../../../assets/scss/ai_assistant/agentDetails.scss';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
 import { ReactComponent as EditIcon } from '../../../assets/svg/ai_assistant/edit.svg';
@@ -8,7 +8,11 @@ import TabHeader from '../../components/ai_assistant/TabHeader';
 
 const AgentDetails = () => {
 	const { agentId } = useParams();
+	const location = useLocation();
+	const { agent } = location?.state;
 	const navigate = useNavigate();
+
+	console.log('agentData Data', agent);
 
 	const [info, setInfo] = useState({
 		activeTab: 'playground',
@@ -29,7 +33,7 @@ const AgentDetails = () => {
 			<CreateAgentHeader
 				backText="Back to AI Assistants"
 				agentIcon={<AgentIcon width={16} height={16} />}
-				name={agentId}
+				name={agent?.agentName}
 				onBack={() => navigate('/ai-assistant')}
 				actionBtnClassName="editAgentBtn"
 				actionText="Edit"
