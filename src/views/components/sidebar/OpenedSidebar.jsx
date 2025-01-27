@@ -71,10 +71,11 @@ const OpenedSideBarHoverStateIcons = ({
 	navigateTo,
 	isSelected,
 	subModules,
+	isDropdownVisible,
+	setDropdownVisible,
 }) => {
 	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
-	const [isDropdownVisible, setDropdownVisible] = useState(false);
 	const [activeSubModule, setActiveSubModule] = useState(null);
 	const onMoutseEnter = () => {
 		if (isActive) return;
@@ -86,6 +87,7 @@ const OpenedSideBarHoverStateIcons = ({
 	};
 
 	const redirectToFunction = () => {
+		setDropdownVisible(false);
 		if (!route) return;
 		navigateTo(route);
 	};
@@ -293,6 +295,7 @@ const OpenedSideBarItemsComponent = ({
 	const [selectedChat, setSelectedChat] = useState(null);
 	const [activeChat, setActiveChat] = useState(false);
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 500);
+	const [isDropdownVisible, setDropdownVisible] = useState(false);
 
 	const location = useLocation();
 
@@ -498,6 +501,8 @@ const OpenedSideBarItemsComponent = ({
 												isSelected={selectedOption === singleItems?.name}
 												isActive={location.pathname === singleItems?.route}
 												subModules={singleItems?.subModules}
+												isDropdownVisible={isDropdownVisible}
+												setDropdownVisible={setDropdownVisible}
 											/>
 										</div>
 									))}
