@@ -13,6 +13,8 @@ import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation } from 'react-router-dom';
 import Markdown from 'react-markdown';
+import { TypingEffect } from '../../../helpers/markdownHelper';
+import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
 
 const moduleHelper = {
 	'/tasks': 'tasks',
@@ -215,8 +217,13 @@ const BottomToolbar = ({
 								key={index}
 								className={`chat-message ${chat.type.toLowerCase()}-message`}
 							>
+								{chat?.type?.toLowerCase() === 'ai' && <AiStarInChat />}
 								<div className="message-content">
-									<Markdown>{chat.message}</Markdown>
+									{chat?.type?.toLowerCase() === 'ai' ? (
+										<TypingEffect text={chat?.message} />
+									) : (
+										<Markdown>{chat?.message}</Markdown>
+									)}
 								</div>
 							</div>
 						),

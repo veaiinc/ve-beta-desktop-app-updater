@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { default as ReactMarkdown } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom'; // Adjust if you're using another router
@@ -104,3 +104,28 @@ export const Markdown = memo(
 	NonMemoizedMarkdown,
 	(prevProps, nextProps) => prevProps.children === nextProps.children,
 );
+
+export const TypingEffect = ({ text, onComplete }) => {
+	const [displayedText, setDisplayedText] = useState('');
+	const [currentIndex, setCurrentIndex] = useState(0);
+
+	useEffect(() => {
+		if (currentIndex < text?.length) {
+			const timeout = setTimeout(() => {
+				setDisplayedText((prev) => prev + text[currentIndex]);
+				setCurrentIndex((prev) => prev + 1);
+			}, 10); // Adjust speed as needed
+
+			return () => clearTimeout(timeout);
+		} else if (onComplete) {
+			onComplete();
+		}
+	}, [currentIndex, text, onComplete]);
+
+	return (
+		<div className="typing-effect">
+			<Markdown>{displayedText}</Markdown>
+			{currentIndex < text?.length && <span className="typing-cursor" />}
+		</div>
+	);
+};

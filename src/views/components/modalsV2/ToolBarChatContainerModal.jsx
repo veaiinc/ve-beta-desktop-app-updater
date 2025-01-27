@@ -10,34 +10,9 @@ import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.s
 import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
-import { Markdown } from '../../../helpers/markdownHelper';
+import { Markdown, TypingEffect } from '../../../helpers/markdownHelper';
 
 const chatIcons = [<Filter />, <Arroba />, <PaperClip />, <Mic />];
-
-const TypingEffect = ({ text, onComplete }) => {
-	const [displayedText, setDisplayedText] = useState('');
-	const [currentIndex, setCurrentIndex] = useState(0);
-
-	useEffect(() => {
-		if (currentIndex < text.length) {
-			const timeout = setTimeout(() => {
-				setDisplayedText((prev) => prev + text[currentIndex]);
-				setCurrentIndex((prev) => prev + 1);
-			}, 30); // Adjust speed as needed
-
-			return () => clearTimeout(timeout);
-		} else if (onComplete) {
-			onComplete();
-		}
-	}, [currentIndex, text, onComplete]);
-
-	return (
-		<div className="typing-effect">
-			<Markdown>{displayedText}</Markdown>
-			{currentIndex < text.length && <span className="typing-cursor" />}
-		</div>
-	);
-};
 
 const ToolBarChatContainerModal = ({
 	onClose,
@@ -103,7 +78,11 @@ const ToolBarChatContainerModal = ({
 								>
 									{chat?.type?.toLowerCase() === 'ai' && <AiStarInChat />}
 									<div className="message-content">
-										<Markdown>{chat?.message}</Markdown>
+										{chat?.type?.toLowerCase() === 'ai' ? (
+											<TypingEffect text={chat?.message} />
+										) : (
+											<Markdown>{chat?.message}</Markdown>
+										)}
 									</div>
 								</div>
 							),
