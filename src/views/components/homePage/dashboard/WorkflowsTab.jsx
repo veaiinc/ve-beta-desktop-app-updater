@@ -237,12 +237,33 @@ const WorkflowsTab = () => {
 	return (
 		<div className="workflows-tab-container">
 			<div id="scrollableDiv" className="infinite-scroller">
-				<InfiniteScroll
+				{/* <InfiniteScroll
 					dataLength={info?.myWorkflowData?.length || 0}
 					next={fetchMoreMyWorkflows}
 					hasMore={info?.hasNextPage}
 					loader={<FetchMoreLoaderComp />}
 					scrollableTarget={'scrollableTarget'}
+				> */}
+				<InfiniteScroll
+					dataLength={info?.myWorkflowData?.length || 0}
+					hasMore={info?.hasNextPage}
+					next={fetchMoreMyWorkflows}
+					loader={<FetchMoreLoaderComp />}
+					style={{
+						display: 'flex',
+						flexDirection: 'row',
+						flexWrap: 'wrap',
+						flexFlow: 'wrap',
+						alignItems: 'flex-end',
+						alignContent: 'flex-start',
+						// gap: '8px',
+						rowGap: '50px',
+						columnGap: '10px',
+						width: '100%',
+						overflowX: 'hidden',
+					}}
+					className="tetsing"
+					height="calc(100vh - 340px)"
 				>
 					{info?.loading ? (
 						info?.shownInitialLoader ? (
