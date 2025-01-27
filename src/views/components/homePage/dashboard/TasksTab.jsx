@@ -143,7 +143,6 @@ const TasksTab = () => {
 		infinityLoading: false,
 		view: 'table',
 	});
-	console.log(info?.listItems);
 
 	const todayTasks = info?.listItems?.filter((task) => {
 		if (task?.dueDate) {
@@ -271,7 +270,6 @@ const TasksTab = () => {
 		if (!tenantsUserList) {
 			getTeamMembers();
 		} else {
-			// console.log('tenantsUserList', tenantsUserList);
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				tenantUsers: tenantsUserList?.map(({ firstName, lastName, _id }) => ({
@@ -739,8 +737,6 @@ const TasksTab = () => {
 	const handlePropagation = useCallback((e) => {
 		e.stopPropagation();
 	}, []);
-
-	// console.log(todayTasks);
 
 	return (
 		<>

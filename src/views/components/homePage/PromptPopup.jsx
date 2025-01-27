@@ -51,7 +51,6 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 
 	const handleClientSearch = (value) => {
 		setClientSearch(value?.title);
-		console.log(clientSearch, 'clientSearch');
 	};
 
 	const handleRemoveSelectedFile = (file) => {

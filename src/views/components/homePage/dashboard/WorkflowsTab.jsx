@@ -100,7 +100,6 @@ const WorkflowsTab = () => {
 	);
 
 	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
-		console.log('page number', page, info);
 		const payload = {
 			filters: {
 				limit: 10,
@@ -149,7 +148,6 @@ const WorkflowsTab = () => {
 	);
 
 	const fetchMoreMyWorkflows = useCallback(() => {
-		console.log('fetching mmore', info?.currentPage + 1);
 		getMyWorkflowTemplatesData(info?.currentPage + 1, true);
 	}, [info?.currentPage]);
 
@@ -231,8 +229,6 @@ const WorkflowsTab = () => {
 		},
 		[info?.activeTemplateData],
 	);
-
-	console.log(info?.myWorkflowData);
 
 	return (
 		<div className="workflows-tab-container">

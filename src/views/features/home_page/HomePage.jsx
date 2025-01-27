@@ -123,8 +123,6 @@ const HomePage = () => {
 		),
 	};
 
-	console.log('rerender');
-
 	return (
 		<div className="home-page-container">
 			<div className="black-linear-gradient"></div>

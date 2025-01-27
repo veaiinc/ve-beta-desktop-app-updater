@@ -115,8 +115,6 @@ const PendingActionsTab = ({ activeTemplateData, activeCardsData, data }) => {
 		],
 	);
 
-	console.log(info?.workflowsDetailslist);
-
 	const fetcMoreWorkflowList = useCallback(async () => {
 		getWorkflowsListFunc(info?.currentPage + 1, true);
 	}, [info?.currentPage]);
