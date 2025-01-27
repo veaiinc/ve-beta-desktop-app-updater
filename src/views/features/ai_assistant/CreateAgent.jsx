@@ -12,6 +12,7 @@ import AiPrompt from '../../components/ai_assistant/AiPrompt';
 import AiShare from '../../components/ai_assistant/AiShare';
 import AiLinkFile from '../../components/ai_assistant/AiLinkFile';
 
+import AddKnowledgeModal from '../../components/modalsV2/settings/ai_setup/AddKnowledgeModal';
 const CreateAgent = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -65,6 +66,7 @@ const CreateAgent = () => {
 				/>
 			</div>
 			<div className="tabSection">{tabs[info?.activeTab]?.component}</div>
+			<AddKnowledgeModal isOpen={true} onClose={() => {}} onActionClick={() => {}} />
 		</div>
 	);
 };

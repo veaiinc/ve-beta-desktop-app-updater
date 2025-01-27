@@ -1,12 +1,10 @@
 import { memo, useState, useContext, useEffect } from 'react';
 import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/cross-grey.svg';
-import { ReactComponent as LinkPurple } from '../../../../../assets/svg/Settings/link-purple-color.svg';
 import { ReactComponent as LinkGrey } from '../../../../../assets/svg/Settings/link-grey-color.svg';
-import { ReactComponent as FileGrey } from '../../../../../assets/svg/Settings/file-grey.svg';
-import { ReactComponent as FilePurple } from '../../../../../assets/svg/Settings/file-purple.svg';
-import { ReactComponent as CustomTextGrey } from '../../../../../assets/svg/Settings/custom-text-grey.svg';
-import { ReactComponent as CustomTextPurple } from '../../../../../assets/svg/Settings/custom-text-purple.svg';
 import { ReactComponent as UploadIcon } from '../../../../../assets/svg/Settings/CloudUpload.svg';
+import { ReactComponent as TIcon } from '../../../../../assets/svg/ai_assistant/tIcon.svg';
+import { ReactComponent as URLIcon } from '../../../../../assets/svg/ai_assistant/url.svg';
+import { ReactComponent as FolderIcon } from '../../../../../assets/svg/ai_assistant/folder.svg';
 import '../../../../../assets/scss/settings/aiSetup.scss';
 import Modal from '../../';
 import { message } from 'antd';
@@ -19,20 +17,17 @@ const knowledgeFileTypes = [
 	{
 		name: 'URL',
 		value: 'url',
-		defaultIcon: <LinkGrey />,
-		activeIcon: <LinkPurple />,
+		icon: <URLIcon />,
 	},
 	{
 		name: 'PDF',
 		value: 'pdf',
-		defaultIcon: <FileGrey />,
-		activeIcon: <FilePurple />,
+		icon: <FolderIcon />,
 	},
 	{
 		name: 'Custom Text',
 		value: 'customText',
-		defaultIcon: <CustomTextGrey />,
-		activeIcon: <CustomTextPurple />,
+		icon: <TIcon />,
 	},
 ];
 
@@ -231,10 +226,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 					<h1 className="title">
 						Add Knowledge <CrossGrey className="closeBtn" onClick={toggleModal} />
 					</h1>
-					<h2>
-						Your AI Assistant is configured with your standard sales workflows. Enhance
-						it with knowledge-based resources to obtain more crucial information.
-					</h2>
+					<h2>Choose one of the following:</h2>
 				</div>
 				<div className="knowledgeFileTypesContainer">
 					{knowledgeFileTypes.map((knowledgeFileType, index) => (
@@ -250,114 +242,122 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 								}))
 							}
 						>
-							{info?.activeFileType === knowledgeFileType?.value
-								? knowledgeFileType?.activeIcon
-								: knowledgeFileType?.defaultIcon}
+							{knowledgeFileType?.icon}
 							<span>{knowledgeFileType?.name}</span>
 						</div>
 					))}
 				</div>
-				<div className="knowledgeFileListContainer">
-					{info?.activeFileType === 'url' ? (
-						<div className="urlListContainer">
-							{info?.urlsInfo.map((url, index) => (
-								<div className="urlItem" key={index}>
-									<div className="linkIconContainer">
-										<LinkGrey />
-									</div>
-									<span className="url">{url.url}</span>
-									<div
-										className="removeIconContainer"
-										onClick={() => handleRemoveURL(index)}
-									>
-										<CrossGrey />
-									</div>
+				<div className="contentWrapper">
+					<div className="knowledgeFileInputContainer">
+						{info?.activeFileType === 'url' && (
+							<div className="knowledgeFileInputContainer">
+								<div className="URLInputContainer">
+									<input
+										value={info?.inputURL}
+										onChange={handleSetInputURL}
+										type="text"
+										placeholder="Enter URL"
+										autoFocus={true}
+									/>
+									<button onClick={handleAddURL}>Add</button>
 								</div>
-							))}
-						</div>
-					) : info?.activeFileType === 'pdf' ? (
-						<div className="pdfListContainer">
-							{info?.pdfFilesInfo?.map((pdf, index) => (
-								<div className="urlItem" key={index}>
-									<div className="linkIconContainer">
-										<LinkGrey />
-									</div>
-									<span className="url">{pdf?.name}</span>
-									<div
-										className="removeIconContainer"
-										onClick={() => handleRemovePDF(index)}
-									>
-										<CrossGrey />
-									</div>
-								</div>
-							))}
-						</div>
-					) : null}
-				</div>
-				<div className="knowledgeFileInputContainer">
-					{info?.activeFileType === 'url' && (
-						<div className="URLInputContainer">
-							<input
-								value={info?.inputURL}
-								onChange={handleSetInputURL}
-								type="text"
-								placeholder="Enter URL"
-								autoFocus={true}
-							/>
-							<button onClick={handleAddURL}>Add</button>
-						</div>
-					)}
-					{info?.activeFileType === 'pdf' && (
-						<div className="PDFInputContainer">
-							<label htmlFor="pdfInput">
+							</div>
+						)}
+						{info?.activeFileType === 'pdf' && (
+							<div className="PDFInputContainer">
+								<label htmlFor="pdfInput">
+									<input
+										onChange={handleSetAllUploadedPDFFiles}
+										type="file"
+										id="pdfInput"
+										accept=".pdf"
+										multiple
+									/>
+									<UploadIcon />
+									Click to upload .pdf files only <br />
+									Files must be less than or equal to 10 MB
+								</label>
+							</div>
+						)}
+						{info?.activeFileType === 'customText' && (
+							<div className="customTextInputContainer">
+								<div className="line"></div>
 								<input
-									onChange={handleSetAllUploadedPDFFiles}
-									type="file"
-									id="pdfInput"
-									accept=".pdf"
-									multiple
+									onInput={handleSetTxtFilename}
+									type="text"
+									placeholder="File Name"
 								/>
-								<UploadIcon />
-								Click to upload .pdf files only <br />
-								Files must be less than or equal to 10 MB
-							</label>
-						</div>
-					)}
-					{info?.activeFileType === 'customText' && (
-						<div className="customTextInputContainer">
-							<div className="line"></div>
-							<input
-								onInput={handleSetTxtFilename}
-								type="text"
-								placeholder="File Name"
-							/>
-							<textarea
-								onInput={handleSetTxtFileContent}
-								placeholder="Type here..."
-							/>
-						</div>
-					)}
+								<textarea
+									onInput={handleSetTxtFileContent}
+									placeholder="Type here..."
+								/>
+							</div>
+						)}
+					</div>
+					<div className="knowledgeFileListContainer">
+						{info?.activeFileType === 'url' ? (
+							<div className="urlListContainer">
+								{info?.urlsInfo.map((url, index) => (
+									<div className="urlItem" key={index}>
+										<div className="linkIconContainer">
+											<LinkGrey />
+										</div>
+										<span className="url">{url.url}</span>
+										<div
+											className="removeIconContainer"
+											onClick={() => handleRemoveURL(index)}
+										>
+											<CrossGrey />
+										</div>
+									</div>
+								))}
+							</div>
+						) : info?.activeFileType === 'pdf' ? (
+							<div className="pdfListContainer">
+								{info?.pdfFilesInfo?.map((pdf, index) => (
+									<div className="urlItem" key={index}>
+										<div className="linkIconContainer">
+											<LinkGrey />
+										</div>
+										<span className="url">{pdf?.name}</span>
+										<div
+											className="removeIconContainer"
+											onClick={() => handleRemovePDF(index)}
+										>
+											<CrossGrey />
+										</div>
+									</div>
+								))}
+							</div>
+						) : null}
+					</div>
+					<div className="updateBtnContainer">
+						<button className="cancelBtn">Cancel</button>
+						<button
+							disabled={info?.isUploading}
+							style={{ cursor: info?.isUploading ? 'not-allowed' : 'pointer' }}
+							onClick={handleFileUpload}
+							className="updateBtn"
+						>
+							{info?.isUploading ? (
+								<p className="loader">
+									Uploading Knowledge Files...
+									<Spinner width={'14px'} height={'14px'} />
+								</p>
+							) : (
+								<p>
+									Upload{' '}
+									{knowledgeFileTypes
+										?.filter(
+											(knowledge) =>
+												knowledge?.value === info?.activeFileType,
+										)
+										.map((knowledge) => knowledge?.name)}
+								</p>
+							)}
+						</button>
+					</div>
 				</div>
-				<button
-					disabled={info?.isUploading}
-					style={{ cursor: info?.isUploading ? 'not-allowed' : 'pointer' }}
-					onClick={handleFileUpload}
-					className="updateBtn"
-				>
-					{info?.isUploading ? (
-						<p className="loader">
-							Uploading Knowledge Files...
-							<Spinner width={'14px'} height={'14px'} />
-						</p>
-					) : (
-						<p>
-							Upload{' '}
-							{knowledgeFileTypes
-								?.filter((knowledge) => knowledge?.value === info?.activeFileType)
-								.map((knowledge) => knowledge?.name)}
-						</p>
-					)}
-				</button>
 			</div>
 		</Modal>
 	);
