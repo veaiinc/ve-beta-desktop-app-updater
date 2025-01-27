@@ -96,46 +96,6 @@ const TableView = ({
 	}, [properties, initialColumnWidth]);
 
 	useEffect(() => {
-		const handleMouseMove = (e) => {
-			if (!resizing.isResizing) return;
-
-			const deltaX = e.clientX - resizing.startX;
-			const newWidth = Math.max(resizing.startWidth + deltaX, minColumnWidth);
-
-			setColumns((prev) => {
-				const nextColumnIndex = resizing.columnIndex + 1;
-				if (nextColumnIndex >= prev.length) return prev;
-
-				const nextColWidth = prev[nextColumnIndex].width;
-				const widthDiff = newWidth - prev[resizing.columnIndex].width;
-
-				// Prevent resizing if next column would become too small
-				if (nextColWidth - widthDiff < minColumnWidth) {
-					return prev;
-				}
-
-				return prev.map((col, index) => {
-					if (index === resizing.columnIndex) {
-						return { ...col, width: newWidth, userResized: true };
-					}
-					if (index === nextColumnIndex) {
-						return { ...col, width: nextColWidth - widthDiff, userResized: true };
-					}
-					return col;
-				});
-			});
-		};
-
-		const handleMouseUp = () => {
-			setResizing({
-				isResizing: false,
-				columnIndex: null,
-				startX: null,
-				startWidth: null,
-				columnX: null,
-			});
-		};
-
 		if (resizing.isResizing) {
 			document.addEventListener('mousemove', handleMouseMove);
 			document.addEventListener('mouseup', handleMouseUp);
@@ -191,6 +151,45 @@ const TableView = ({
 		));
 	}, []);
 
+	const handleMouseMove = (e) => {
+		if (!resizing.isResizing) return;
+
+		const deltaX = e.clientX - resizing.startX;
+		const newWidth = Math.max(resizing.startWidth + deltaX, minColumnWidth);
+
+		setColumns((prev) => {
+			const nextColumnIndex = resizing.columnIndex + 1;
+			if (nextColumnIndex >= prev.length) return prev;
+
+			const nextColWidth = prev[nextColumnIndex].width;
+			const widthDiff = newWidth - prev[resizing.columnIndex].width;
+
+			// Prevent resizing if next column would become too small
+			if (nextColWidth - widthDiff < minColumnWidth) {
+				return prev;
+			}
+
+			return prev.map((col, index) => {
+				if (index === resizing.columnIndex) {
+					return { ...col, width: newWidth, userResized: true };
+				}
+				if (index === nextColumnIndex) {
+					return { ...col, width: nextColWidth - widthDiff, userResized: true };
+				}
+				return col;
+			});
+		});
+	};
+
+	const handleMouseUp = () => {
+		setResizing({
+			isResizing: false,
+			columnIndex: null,
+			startX: null,
+			startWidth: null,
+			columnX: null,
+		});
+	};
 	return (
 		<div className={`table-view ${resizing.isResizing ? 'resizing' : ''}`} ref={tableRef}>
 			<div className="table-scroll-container">
