@@ -192,6 +192,7 @@ const BottomToolbar = ({
 				<div className="bottomToolBarChatHeader">
 					<span>AI Assistant</span>
 					<div style={{ display: 'flex', alignItems: 'center' }}>
+						<span>Advanced</span>
 						<button className="closeButton" onClick={handleChatExpand}>
 							<Expand />
 						</button>
