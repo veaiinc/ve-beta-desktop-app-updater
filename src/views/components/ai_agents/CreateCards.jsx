@@ -89,7 +89,7 @@ const Activity = memo(() => {
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		loading: false,
+		loading: true,
 		activityLogsData: [],
 		page: 1,
 		hasNextPage: false,
@@ -161,44 +161,52 @@ const Activity = memo(() => {
 				<ThreeDotsVerticalIcon />
 			</div>
 
-			<div style={{ width: '100%' }}>
-				<InfiniteScroll
-					dataLength={info?.activityLogsData?.length || 0}
-					next={fetchMoreActivityLogs}
-					hasMore={info?.hasNextPage}
-					loader={<FetchMoreLoaderComp />}
-					style={{
-						// display: 'flex',
-						// flexDirection: 'column',
-						// gap: '8px',
-						// width: '100%',
-						// padding: '0px 20px 0px 20px',
-						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'flex-start',
-						gap: '8px',
-						flex: '1 0 0',
-						alignSelf: 'stretch',
-					}}
-					height={'340px'}
-				>
-					{info?.activityLogsData?.map((ele, index) => (
-						<div className="aiAgentsActivityCards" key={index}>
-							<span
-								className="aiAgentsActivityCardsHeaderText"
-								style={{ textTransform: 'capitalize' }}
-							>
-								{ele?.summary || ''}
-							</span>
-
-							<div className="aiAgentsActivityCardsSubText">text</div>
-							<span className="aiAgentsActivityCardTime">
-								{ele?.timestamp ? formatTimestamp(ele?.timestamp) : ''}
-							</span>
-						</div>
+			{info?.loading ? (
+				<div className="drafLoaderContainer">
+					{[{}, {}, {}, {}]?.map((ele, index) => (
+						<Skeleton
+							key={index}
+							height={83}
+							width={300}
+							style={{ borderRadius: '16px' }}
+						/>
 					))}
-				</InfiniteScroll>
-			</div>
+				</div>
+			) : (
+				<div style={{ width: '100%' }}>
+					<InfiniteScroll
+						dataLength={info?.activityLogsData?.length || 0}
+						next={fetchMoreActivityLogs}
+						hasMore={info?.hasNextPage}
+						loader={<FetchMoreLoaderComp />}
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'flex-start',
+							gap: '8px',
+							flex: '1 0 0',
+							alignSelf: 'stretch',
+						}}
+						height={'340px'}
+					>
+						{info?.activityLogsData?.map((ele, index) => (
+							<div className="aiAgentsActivityCards" key={index}>
+								<span
+									className="aiAgentsActivityCardsHeaderText"
+									style={{ textTransform: 'capitalize' }}
+								>
+									{ele?.summary || ''}
+								</span>
+
+								<div className="aiAgentsActivityCardsSubText">text</div>
+								<span className="aiAgentsActivityCardTime">
+									{ele?.timestamp ? formatTimestamp(ele?.timestamp) : ''}
+								</span>
+							</div>
+						))}
+					</InfiniteScroll>
+				</div>
+			)}
 		</div>
 	);
 });
@@ -296,7 +304,7 @@ const Drafts = memo(() => {
 			<div style={{ width: '100%' }}>
 				{info?.loading ? (
 					<div className="drafLoaderContainer">
-						{[{}, {}, {}, {}, {}, {}]?.map((ele, index) => (
+						{[{}, {}, {}, {}, {}]?.map((ele, index) => (
 							<Skeleton
 								style={{ height: '63px', borderRadius: '10px', width: '300px' }}
 								key={index}
