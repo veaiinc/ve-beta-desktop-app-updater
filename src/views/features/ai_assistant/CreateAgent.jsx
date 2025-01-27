@@ -5,6 +5,7 @@ import TabHeader from '../../components/ai_assistant/TabHeader';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
 import AiPersonality from '../../components/ai_assistant/AiPersonality';
+import AddKnowledgeModal from '../../components/modalsV2/settings/ai_setup/AddKnowledgeModal';
 const CreateAgent = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -49,6 +50,7 @@ const CreateAgent = () => {
 				/>
 			</div>
 			<div className="tabSection">{tabs[info?.activeTab]?.component}</div>
+			<AddKnowledgeModal isOpen={true} onClose={() => {}} onActionClick={() => {}} />
 		</div>
 	);
 };
