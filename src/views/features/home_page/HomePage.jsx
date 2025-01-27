@@ -163,6 +163,7 @@ const HomePage = () => {
 							open={info?.dropdown}
 							trigger={'click'}
 							onOpenChange={(open) => setInfo({ ...info, dropdown: open })}
+							color="transparent"
 							title={
 								<div className="home-page-dropdown-options-container">
 									{dropdownOptions?.map((option) => (
