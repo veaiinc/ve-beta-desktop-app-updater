@@ -70,24 +70,44 @@ const HomePage = () => {
 		dropdownOptions: '',
 	});
 
-	const { title, subTitle, selectedOption } = propsForHeaderInfoAndNavBar[info?.activeTab];
+	const { title, subTitle, selectedOption } = propsForHeaderInfoAndNavBar?.[info?.activeTab];
 
 	useEffect(() => {
 		const homePageContainer = document.querySelector('.home-page-container');
 		homePageContainer?.addEventListener('scroll', setNavbarFixed);
-		return () => {
-			homePageContainer?.removeEventListener('scroll', setNavbarFixed);
-		};
+
+		return () => homePageContainer?.removeEventListener('scroll', setNavbarFixed);
 	}, [info?.isNavbarFixed]);
 
-	if (info?.dropdownOptions === 'Client') {
-		console.log('ClickedOnTheClient');
-	}
+	const setNavbarFixed = (e) => {
+		const topOffset = e?.target?.scrollTop;
+		if (topOffset >= thresholdTopOffset) {
+			setInfo((prev) => ({ ...prev, isNavbarFixed: true }));
+		} else {
+			setInfo((prev) => ({ ...prev, isNavbarFixed: false }));
+		}
+	};
+
+	const filteredPromptData = PromptData?.filter((prompt) => {
+		const filter = info?.selectedOptionInStart?.toLowerCase();
+		if (filter === 'all') {
+			return true;
+		}
+		return prompt?.dept?.includes(filter);
+	});
+
+	const handleSelectedOption = (value) => {
+		setInfo((prev) => ({ ...prev, [selectedOption]: value }));
+	};
+
+	const handleSearchValue = (value) => {
+		setInfo((prev) => ({ ...prev, searchValue: value }));
+	};
 
 	const componentMapper = {
 		start: (
 			<HomePageStart
-				cards={PromptData}
+				cards={filteredPromptData}
 				setInfo={setInfo}
 				isNavbarFixed={info?.isNavbarFixed}
 				searchValue={info?.searchValue}
@@ -100,23 +120,6 @@ const HomePage = () => {
 				isNavbarFixed={info?.isNavbarFixed}
 			/>
 		),
-	};
-
-	const setNavbarFixed = (e) => {
-		const topOffset = e?.target?.scrollTop;
-		if (topOffset >= thresholdTopOffset) {
-			setInfo((prev) => ({ ...prev, isNavbarFixed: true }));
-		} else {
-			setInfo((prev) => ({ ...prev, isNavbarFixed: false }));
-		}
-	};
-
-	const handleSelectedOption = (value) => {
-		setInfo((prev) => ({ ...prev, [selectedOption]: value }));
-	};
-
-	const handleSearchValue = (value) => {
-		setInfo((prev) => ({ ...prev, searchValue: value }));
 	};
 
 	return (
