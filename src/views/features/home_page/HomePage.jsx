@@ -81,8 +81,10 @@ const HomePage = () => {
 	const setNavbarFixed = (e) => {
 		const topOffset = e?.target?.scrollTop;
 		if (topOffset >= thresholdTopOffset) {
+			if (info?.isNavbarFixed) return;
 			setInfo((prev) => ({ ...prev, isNavbarFixed: true }));
 		} else {
+			if (!info?.isNavbarFixed) return;
 			setInfo((prev) => ({ ...prev, isNavbarFixed: false }));
 		}
 	};
@@ -120,6 +122,8 @@ const HomePage = () => {
 			/>
 		),
 	};
+
+	console.log('rerender');
 
 	return (
 		<div className="home-page-container">

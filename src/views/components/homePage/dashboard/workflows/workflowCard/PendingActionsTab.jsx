@@ -174,7 +174,7 @@ const PendingActionsTab = ({ activeTemplateData, activeCardsData, data }) => {
 					scrollableTarget="pendingActions"
 				>
 					{info?.loading ? (
-						<MyWorkflowModalsLoader />
+						<MyWorkflowModalsLoader width={'287px'} height={'48px'} />
 					) : (
 						<div className="workflow-container">
 							{info?.workflowsDetailslist

@@ -91,7 +91,7 @@ const WorkflowCard = memo(
 									}));
 								}}
 							>
-								<ThreeDotsVerticalIcon />
+								<ThreeDotsVerticalIcon style={{ cursor: 'pointer' }} />
 							</div>
 						</WorkflowPopUp>
 					</div>
