@@ -71,8 +71,8 @@ const ProposalPopup = ({ open, closeModal }) => {
 	}, []);
 
 	const fetchMoreMyWorkflows = useCallback(() => {
-		getMyWorkflowsTemplatesData(info?.currentPage + 1, null, true);
-	}, [info?.hasNextPage, info?.currentPage]);
+		getMyWorkflowsTemplatesData(info?.currentPage + 1, info?.search, true);
+	}, [info?.hasNextPage, info?.currentPage, info?.search]);
 
 	const myWorkflowsDataParser = useCallback(
 		(dataToBeUsed, fetchMore = false) => {
