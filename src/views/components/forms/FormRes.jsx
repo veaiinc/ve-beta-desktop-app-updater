@@ -108,13 +108,13 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 
 	const fetchInitialResponses = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, loading: true }));
-		await getFormResponsesList(formId, 1, 30);
+		await getFormResponsesList(formId, 1, 20);
 	}, [formId]);
 
 	const fetchMoreResponses = useCallback(async () => {
 		if (info?.hasNextPage) {
 			const nextPage = info?.currentPage + 1;
-			await getFormResponsesList(formId, nextPage, 10, true);
+			await getFormResponsesList(formId, nextPage, 20, true);
 			setInfo((prev) => ({
 				...prev,
 				currentPage: nextPage,

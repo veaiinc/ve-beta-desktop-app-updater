@@ -62,13 +62,13 @@ const Forms = () => {
 
 	const fetchInitialForms = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, loading: true }));
-		await getTemplatesListForForms(1, 30);
+		await getTemplatesListForForms(1, 20);
 	}, []);
 
 	const fetchMoreForms = useCallback(async () => {
 		if (info?.hasNextPage) {
 			const nextPage = info?.currentPage + 1;
-			await getTemplatesListForForms(nextPage, 10, true);
+			await getTemplatesListForForms(nextPage, 20, true);
 			setInfo((prev) => ({
 				...prev,
 				currentPage: nextPage,
