@@ -11,7 +11,7 @@ import AiKnowledgeBase from '../../components/ai_assistant/AiKnowledgeBase';
 const CreateAgent = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
-		activeTab: 'instructions', // personality, instructions, actions, knowledgeBase, prompt, share
+		activeTab: 'knowledgeBase', // personality, instructions, actions, knowledgeBase, prompt, share
 	});
 
 	const tabs = {
