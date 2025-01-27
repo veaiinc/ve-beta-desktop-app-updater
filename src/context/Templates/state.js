@@ -37,6 +37,7 @@ import {
 	getActivityLogsQuery,
 	addNewStepsQuery,
 	updateStepsQuery,
+	getFormResponsesListQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -79,6 +80,10 @@ export const intialState = {
 	docsFilesList: null,
 	moreDocsFilesList: null,
 	slackChannels: null,
+	formsTemplatesList: null,
+	moreFormsTemplatesList: null,
+	formResponsesList: null,
+	moreFormResponsesList: null,
 };
 
 export const TemplatesState = (props) => {
@@ -544,6 +549,74 @@ export const TemplatesState = (props) => {
 			});
 		} else {
 			console.log('api failed ==>getTemplatesListForDocs', response);
+		}
+	};
+	const getTemplatesListForForms = async (page = 1, limit = 10, fetchMore = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const payload = {
+			filters: {
+				limit,
+				page,
+				type: 'workspace',
+				status: 'published',
+				sortBy: 'createdAt',
+				sortType: -1,
+				action: 'form-submission',
+			},
+		};
+		const response = await service.query(
+			getTemplatesListForCreateLeadQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			const selectedvariable = fetchMore ? 'moreFormsTemplatesList' : 'formsTemplatesList';
+			dispatch({
+				type: Actions.GET_TEMPLATES_LIST_FOR_FORMS_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+				selectedvariable,
+			});
+		} else {
+			console.log('api failed ==>getTemplatesListForForms', response);
+		}
+	};
+
+	const getFormResponsesList = async (formId, page = 1, limit = 10, fetchMore = false) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const payload = {
+				filters: {
+					workflowTemplateId: formId,
+					page,
+					limit,
+				},
+			};
+			const response = await service.query(
+				getFormResponsesListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				const selectedvariable = fetchMore ? 'moreFormResponsesList' : 'formResponsesList';
+				dispatch({
+					type: Actions.GET_FORM_RESPONSES_LIST_SUCCESS,
+					payload: response?.[1]?.data?.formResponsesList,
+					selectedvariable,
+				});
+			} else {
+				console.log('api failed ==>getFormResponsesList', response);
+			}
+		} catch (error) {
+			console.log('api failed ==>getFormResponsesList', error);
 		}
 	};
 
@@ -1459,5 +1532,7 @@ export const TemplatesState = (props) => {
 		addNewSteps,
 		getAllSlackChannels,
 		updateSteps,
+		getTemplatesListForForms,
+		getFormResponsesList,
 	};
 };

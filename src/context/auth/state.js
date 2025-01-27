@@ -377,7 +377,7 @@ export const AuthState = () => {
 		try {
 			const token = localStorage?.getItem('usertoken') || '';
 			const workspaceId = localStorage?.getItem('workspaceId') || '';
-			const path = `/addOnPlan/${workspaceId}/list-add-on-plans`;
+			const path = `/addon-plan/${workspaceId}/list-add-on-plans`;
 
 			const response = await service?.fetchGet(path, token, 'auth');
 			if (response?.[0] === true) {
@@ -391,6 +391,27 @@ export const AuthState = () => {
 			}
 		} catch (error) {
 			console.error('Error getting add-ons for current plan:', error);
+			throw error;
+		}
+	};
+
+	const purchaseAddOn = async (planId) => {
+		try {
+			const workspaceId = localStorage?.getItem('workspaceId') || '';
+			const path = `/addon-plan/${workspaceId}/purchase-add-on-plan`;
+			const token = localStorage?.getItem('usertoken') || '';
+			const body = {
+				addOnPlanId: planId,
+			};
+
+			const response = await service?.fetchPost(path, body, token, 'auth');
+			if (response?.[0] === true) {
+				return [true, { url: response?.[1]?.url }];
+			} else {
+				return [false, { message: response?.[1]?.message?.trim() + '. Please try again!' }];
+			}
+		} catch (error) {
+			console.error('Error purchasing add-on:', error);
 			throw error;
 		}
 	};
@@ -409,5 +430,6 @@ export const AuthState = () => {
 		requestResendOTPToMobile,
 		subscribeToNewsletter,
 		getAddOnsForCurrentPlan,
+		purchaseAddOn,
 	};
 };

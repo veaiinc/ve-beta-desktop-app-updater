@@ -36,6 +36,8 @@ import Docs from './views/features/docs';
 import LiteGallery from './views/features/gallery/Litegallery';
 import MyTemplates from './views/features/my_templates/MyTemplates';
 import Workflow_builder_updated from './views/features/workflow_builder_updated';
+import Forms from './views/features/forms';
+import FormLeads from './views/features/forms/FormLeads';
 const routes = [
 	{
 		path: '/',
@@ -330,6 +332,24 @@ const routes = [
 		component: (
 			<AuthWrapper title={'My Templates'}>
 				<MyTemplates />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/forms',
+		component: (
+			<AuthWrapper title={'Forms'}>
+				<Forms />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/form-leads',
+		component: (
+			<AuthWrapper title={'Form Leads'}>
+				<FormLeads />
 			</AuthWrapper>
 		),
 		exact: true,

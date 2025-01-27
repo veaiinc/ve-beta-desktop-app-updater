@@ -251,6 +251,7 @@ export const getTemplatesListForCreateLeadQuery = gql`
 			data {
 				_id
 				title
+				status
 			}
 		}
 	}
@@ -458,6 +459,22 @@ export const updateStepsQuery = gql`
 	mutation UpdateStep($templateId: ID!, $updateStepInput: UpdateStepInput!) {
 		updateStep(templateId: $templateId, updateStepInput: $updateStepInput) {
 			message
+		}
+	}
+`;
+
+export const getFormResponsesListQuery = gql`
+	query FormResponsesList($filters: FileFiltersInput) {
+		formResponsesList(filters: $filters) {
+			data
+			totalPages
+			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
+			prevPage
+			nextPage
 		}
 	}
 `;
