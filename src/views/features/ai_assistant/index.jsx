@@ -1,8 +1,9 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/index.scss';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
 import { ReactComponent as Sync } from '../../../assets/svg/docs/sync.svg';
 import { useNavigate } from 'react-router-dom';
+import Context from '../../../context/context';
 
 const staticCreateActions = [
 	{
@@ -30,32 +31,58 @@ const staticCreateActions = [
 const AiAssistants = () => {
 	const navigate = useNavigate();
 
-	const agents = [
-		{
-			icon: <AgentIcon />,
-			agentId: '1',
-			agentName: 'Agent 1',
-			createdBy: 'John Doe',
-		},
-		{
-			icon: <AgentIcon />,
-			agentId: '2',
-			agentName: 'Agent 2',
-			createdBy: 'John Doe',
-		},
-		{
-			icon: <AgentIcon />,
-			agentId: '3',
-			agentName: 'Agent 3',
-			createdBy: 'John Doe',
-		},
-		{
-			icon: <AgentIcon />,
-			agentId: '4',
-			agentName: 'Agent 4',
-			createdBy: 'John Doe',
-		},
-	];
+	const {
+		aiSetup: { getAiAssistants, aiAssistants, moreAiAssistants },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		aiAssistantsList: [],
+		hasNextPage: false,
+		currentPage: 1,
+	});
+
+	useEffect(() => {
+		if (!aiAssistants) {
+			getAiAssistants();
+		}
+	}, []);
+
+	useEffect(() => {
+		if (aiAssistants?.data?.length !== 0) {
+			setInfo((prev) => ({
+				...prev,
+				aiAssistantsList: aiAssistants?.data,
+				hasNextPage: aiAssistants?.hasNextPage,
+				currentPage: aiAssistants?.currentPage,
+			}));
+		}
+	}, [aiAssistants]);
+
+	useEffect(() => {
+		if (moreAiAssistants !== null) {
+			setInfo((prev) => ({
+				...prev,
+				aiAssistantsList: [...prev?.aiAssistantsList, ...moreAiAssistants?.data],
+				hasNextPage: moreAiAssistants?.hasNextPage,
+				currentPage: moreAiAssistants?.currentPage,
+			}));
+		}
+	}, [moreAiAssistants]);
+
+	const getMoreAiAssistants = useCallback(() => {
+		if (info?.hasNextPage) {
+			getAiAssistants(info?.currentPage + 1, 10, true);
+		}
+	}, [info?.currentPage, info?.hasNextPage]);
+
+	const agents = info?.aiAssistantsList?.length
+		? info.aiAssistantsList.map((ele) => ({
+				icon: <AgentIcon />,
+				agentId: ele?._id,
+				agentName: ele?.name,
+				createdBy: ele?.createdBy || 'AI',
+		  }))
+		: [];
 
 	return (
 		<>
@@ -80,16 +107,20 @@ const AiAssistants = () => {
 					</div>
 
 					<div className="agentsCardContainer">
-						{agents?.map((agent) => (
-							<div
-								className="agentCard"
-								onClick={() => navigate(`/ai-assistant/${agent?.agentId}`)}
-							>
-								<div>{agent?.icon}</div>
-								<div className="agentName">{agent?.agentName}</div>
-								<div className="createdBy">Created by {agent?.createdBy}</div>
-							</div>
-						))}
+						{agents ? (
+							agents?.map((agent) => (
+								<div
+									className="agentCard"
+									onClick={() => navigate(`/ai-assistant/${agent?.agentId}`)}
+								>
+									<div>{agent?.icon}</div>
+									<div className="agentName">{agent?.agentName}</div>
+									<div className="createdBy">Created by {agent?.createdBy}</div>
+								</div>
+							))
+						) : (
+							<div style={{ color: 'white' }}>No agents found</div>
+						)}
 					</div>
 				</div>
 

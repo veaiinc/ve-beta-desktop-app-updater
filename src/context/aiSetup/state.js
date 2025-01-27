@@ -13,6 +13,8 @@ export const initialState = {
 		areKnowledgeBaseFilesLoading: true,
 	},
 	existingAiAssistants: null,
+	aiAssistants: null,
+	moreAiAssistants: null,
 	activeAiAssistantDetails: null,
 	workflows: {
 		data: [],
@@ -174,6 +176,26 @@ export const AiSetupState = () => {
 			}
 		} catch (error) {
 			console.log('error==>getExistingAiAssistants', error);
+		}
+	};
+
+	const getAiAssistants = async (page = 1, limit = 10, fetchMore = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}${AI_PERSONALITY?.listAiAssistants}?page=${page}&limit=${limit}`;
+		try {
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				const selectedVariable = fetchMore ? 'moreAiAssistants' : 'aiAssistants';
+				dispatch({
+					type: Actions?.SET_AI_ASSISTANTS,
+					payload: response?.[1],
+					selectedVariable: selectedVariable,
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>getAiAssistants', error);
 		}
 	};
 
@@ -385,5 +407,6 @@ export const AiSetupState = () => {
 		getWorkflows,
 		resetAiSetupState,
 		deleteKnowledge,
+		getAiAssistants,
 	};
 };

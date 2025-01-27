@@ -18,6 +18,7 @@ import DeleteAgentModal from '../../components/modalsV2/ai_assistant/DeleteAgent
 
 const CreateAgent = () => {
 	const navigate = useNavigate();
+
 	const [info, setInfo] = useState({
 		activeTab: 'personality', // personality, instructions, actions, knowledgeBase, prompt, share, linkeafile
 		selectedAgent: null,
@@ -115,6 +116,7 @@ const CreateAgent = () => {
 
 				<div className="tabSection">{tabs[info?.activeTab]?.component}</div>
 			</div>
+
 			<DeleteAgentModal
 				open={info?.deleteAgentModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, deleteAgentModal: false }))}

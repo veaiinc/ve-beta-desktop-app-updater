@@ -21,6 +21,10 @@ const actionHandlers = {
 		...state,
 		workflows: action?.payload,
 	}),
+	SET_AI_ASSISTANTS: (state, action) => ({
+		...state,
+		[action?.selectedVariable]: action?.payload,
+	}),
 
 	RESET_STATE: () => initialState,
 };
