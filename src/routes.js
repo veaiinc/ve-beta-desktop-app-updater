@@ -35,6 +35,7 @@ import AgentsSetup from './views/features/ai_agent/AgentsSetup';
 import Docs from './views/features/docs';
 import LiteGallery from './views/features/gallery/Litegallery';
 import MyTemplates from './views/features/my_templates/MyTemplates';
+import Workflow_builder_updated from './views/features/workflow_builder_updated';
 import Forms from './views/features/forms';
 import FormLeads from './views/features/forms/FormLeads';
 const routes = [
@@ -134,10 +135,20 @@ const routes = [
 	},
 
 	{
-		path: '/workflow_builder/:templateId',
+		// path: '/workflow_builder/:templateId',
+		path: '/workflow_builder_updated/:templateId',
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
 				<WorkflowBuilder />
+			</WorkflowBuilderLayout>
+		),
+		exact: true,
+	},
+	{
+		path: '/workflow_builder/:templateId',
+		component: (
+			<WorkflowBuilderLayout title={'Workflow Builder'}>
+				<Workflow_builder_updated />
 			</WorkflowBuilderLayout>
 		),
 		exact: true,

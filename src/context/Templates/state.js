@@ -35,6 +35,8 @@ import {
 	updateSendSmartFileSettingsMutation,
 	getLatestSendSmartFileSettingsQuery,
 	getActivityLogsQuery,
+	addNewStepsQuery,
+	updateStepsQuery,
 	getFormResponsesListQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
@@ -77,6 +79,7 @@ export const intialState = {
 	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
 	docsFilesList: null,
 	moreDocsFilesList: null,
+	slackChannels: null,
 	formsTemplatesList: null,
 	moreFormsTemplatesList: null,
 	formResponsesList: null,
@@ -548,7 +551,6 @@ export const TemplatesState = (props) => {
 			console.log('api failed ==>getTemplatesListForDocs', response);
 		}
 	};
-
 	const getTemplatesListForForms = async (page = 1, limit = 10, fetchMore = false) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -1398,6 +1400,80 @@ export const TemplatesState = (props) => {
 			console.log('error==>getDocsFilesList', error);
 		}
 	};
+
+	//updated steps functions
+	const addNewSteps = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				addNewStepsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const dataResponse = response?.[1];
+				return [true, dataResponse?.data?.addStep];
+			} else {
+				console.log('Api failed ==>addNewSteps', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>addNewSteps', error);
+		}
+	};
+
+	const updateSteps = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateStepsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateSteps', error);
+		}
+	};
+	//slack Apis
+	const getAllSlackChannels = async (slackAccessToken) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/slack/${workspaceId}/channels`,
+				usertoken,
+				'third_party_integrations_api',
+				{
+					exclude_archived: true,
+					limit: 1000,
+				},
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SLACK_CHANNEL_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				message.error('Unable to fetch Slack Channels');
+			}
+		} catch (error) {
+			console.log('error==>getAllSlackChannels', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -1453,6 +1529,9 @@ export const TemplatesState = (props) => {
 		uploadImageInSmartFileAi,
 		handleGlobalChatMessages,
 		getDocsFilesList,
+		addNewSteps,
+		getAllSlackChannels,
+		updateSteps,
 		getTemplatesListForForms,
 		getFormResponsesList,
 	};
