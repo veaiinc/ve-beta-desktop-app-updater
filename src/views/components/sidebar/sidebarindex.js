@@ -69,8 +69,8 @@ export const veAiModulesItemsList = [
 	},
 	{
 		name: 'Design Builder',
-		moduleRoute: '/docs',
-		route: '/docs',
+		moduleRoute: '',
+		route: '',
 		icon: '',
 		subModules: [
 			{ id: '0', icon: '', name: 'All Docs', route: '/docs' },
@@ -129,12 +129,13 @@ export const veAiModules = [
 		// subModules: [
 		// 	{ id: '0', icon: '', name: 'MyProfile', route: '/settings/my-profile' },
 		// 	{ id: '1', icon: '', name: 'Workspace', route: '/settings/workspace' },
-		// 	{ id: '2', icon: '', name: 'Public Information', route: '/settings/public-information' },
-		// 	{id: '3',
+		// 	{
+		// 		id: '2',
 		// 		icon: '',
-		// 		name: 'Brand Setup',
-		// 		route: '/settings/brand-setup',
+		// 		name: 'Public Information',
+		// 		route: '/settings/public-information',
 		// 	},
+		// 	{ id: '3', icon: '', name: 'Brand Setup', route: '/settings/brand-setup' },
 		// 	{ id: '4', icon: '', name: 'Team Settings', route: '/settings/team-settings' },
 		// 	{ id: '5', icon: '', name: 'Integration', route: '/settings/integrations' },
 		// 	{ id: '6', icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
