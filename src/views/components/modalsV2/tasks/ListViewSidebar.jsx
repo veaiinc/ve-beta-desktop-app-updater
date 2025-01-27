@@ -28,7 +28,7 @@ const ListViewSidebar = ({
 	parentTaskNo,
 	handleChildTaskClose,
 	responseMetadata,
-	haveSubTask,
+	haveSubTask = false,
 	properties,
 	colors,
 	sidebarChildren,

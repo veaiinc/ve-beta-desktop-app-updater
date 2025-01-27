@@ -1,11 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import ListView from '../../components/tasks/views/ListView';
-// import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
-// import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
-// import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
-// import { ReactComponent as WorkflowSvg } from '../../../assets/svg/tasks/workflow.svg';
-// import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Context from '../../../context/context';
@@ -14,7 +8,6 @@ import { message } from 'antd';
 import Sidebar from '../../components/docs/Sidebar';
 import ListTabs from '../../components/tasks/listView/ListTabs';
 import TabListFile from '../../components/tasks/listView/TabListFile';
-import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
 import Select from '../../components/tasks/listView/Select';
 import Person from '../../components/tasks/listView/Person';
 import MultiSelect from '../../components/tasks/listView/MultiSelect';
@@ -32,6 +25,7 @@ import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress
 import LinkText from '../../components/tasks/listView/LinkText';
 import Text from '../../components/tasks/listView/Text';
 import Task from '../../components/tasks/Task';
+import ListViewSidebar from '../../components/modalsV2/tasks/ListViewSidebar';
 
 const rowTypes = {
 	text: Text,
@@ -52,6 +46,14 @@ const rowTypes = {
 	linkText: LinkText,
 };
 
+const defaultPreference = {
+	name: { show: true, order: 1 },
+	email: { show: true, order: 2 },
+	phoneNumber: { show: false, order: 3 },
+	createdAt: { show: false, order: 4 },
+	updatedAt: { show: false, order: 5 },
+};
+
 const colors = {
 	1: { backgroundColor: '#62344B', color: '#A35A7E' },
 	2: { backgroundColor: '#373737', color: '#707070' },
@@ -64,9 +66,10 @@ const colors = {
 
 const ClientListView = () => {
 	const {
-		templates: { getClientList, clientList, workflows, getWorkflowsList },
+		templates: { getClientList, clientList },
 		contacts: { refetchClientList, updateStateValues, deleteClient, updateClient },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		companyInfo: { getTaskPreferences, taskPreference, updateTaskPreferences },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -88,6 +91,11 @@ const ClientListView = () => {
 		showRightDrawer: false,
 		activeFileData: null,
 		refetchDocsFilesList: false,
+
+		taskPreferences: {
+			preferenceType: 'contactPreference',
+			preferences: defaultPreference,
+		},
 	});
 
 	const responseMetadata = useMemo(
@@ -137,7 +145,7 @@ const ClientListView = () => {
 		(page = 1, filters = null, search = null, sort = null) => {
 			const payload = {
 				filters: {
-					limit: 30,
+					limit: 20,
 					page: page,
 					...(sort?.length > 0 && {
 						sortBy: sort[0].sortBy,
@@ -159,6 +167,37 @@ const ClientListView = () => {
 		[getClientList],
 	);
 
+	useEffect(() => {
+		if (taskPreference === null) {
+			getTaskPreferences({ preferences: 'contactPreference' });
+		} else if (taskPreference?.data === false) {
+			updateTaskPreferences({ preferenceType: 'contactPreference', data: defaultPreference });
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: {
+					preferenceType: 'contactPreference',
+					preferences: defaultPreference,
+				},
+			}));
+		} else if (taskPreference?.error) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: {
+					preferenceType: 'contactPreference',
+					preferences: defaultPreference,
+				},
+			}));
+		} else {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: {
+					preferenceType: 'contactPreference',
+					preferences: taskPreference?.data,
+				},
+			}));
+		}
+	}, [taskPreference]);
+
 	// Initial load effect
 	useEffect(() => {
 		if (!clientList) {
@@ -166,6 +205,15 @@ const ClientListView = () => {
 			fetchClientList(1, info.filters, info.searchValue, info.sort);
 		}
 	}, []);
+
+	useEffect(() => {
+		if (info?.taskPreferences?.preferences) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				properties: mapPropertyType(),
+			}));
+		}
+	}, [info?.taskPreferences?.preferences]);
 
 	useEffect(() => {
 		if (refetchClientList) {
@@ -230,15 +278,6 @@ const ClientListView = () => {
 		}
 	}, [clientList]);
 
-	const handleLoadMore = useCallback(() => {
-		if (!info.loadingSkeleton && info.hasMore) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				page: prevInfo.page + 1,
-			}));
-		}
-	}, [info.loadingSkeleton, info.hasMore]);
-
 	useEffect(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
@@ -255,8 +294,8 @@ const ClientListView = () => {
 		}
 	}, [info?.listItems, info?.selectedRow]);
 
-	const updateListViewInfo = useCallback((key, value) => {
-		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
+	const updateListViewInfo = useCallback((updateInfo) => {
+		setInfo((prevInfo) => ({ ...prevInfo, ...updateInfo }));
 	}, []);
 
 	const tabs = useMemo(() => {
@@ -299,30 +338,24 @@ const ClientListView = () => {
 				name = null,
 				Icon = null,
 				isTitle = false,
-			} = responseMetadata[key];
+			} = responseMetadata[key] || {};
+			const { show, order } = info?.taskPreferences?.preferences?.[key] || {
+				show: false,
+				order: 0,
+			};
 
 			properties.push({
 				value: key,
 				type,
 				label: name,
 				Icon,
-				show: true,
+				show,
+				order,
 				isTitle,
 			});
 		}
 		return properties;
-	}, [responseMetadata]);
-
-	const togglePropertyVisibility = useCallback((index, value) => {
-		setInfo((prevInfo) => {
-			const newProperties = [...prevInfo?.properties];
-			newProperties[index] = { ...newProperties[index], show: value };
-			return {
-				...prevInfo,
-				properties: newProperties,
-			};
-		});
-	}, []);
+	}, [info?.taskPreferences?.preferences]);
 
 	const updatePropertyValue = useCallback(
 		async (rowId, propName, value, isUpdatingSubTask, onSuccess) => {
@@ -372,30 +405,47 @@ const ClientListView = () => {
 		[validateExpiryData?.isExpired, deleteClient, updateStateValues],
 	);
 
+	const handleRowClick = useCallback(
+		(rowId) => {
+			const row = info?.listItems?.find((row) => row._id === rowId);
+			if (row) {
+				updateListViewInfo({ selectedRow: row, sidebarIsOpen: true });
+			}
+		},
+		[info?.listItems, info?.selectedRow?._id],
+	);
+
+	const handleCloseSidebar = useCallback(() => {
+		if (info?.updated) {
+			updateListViewInfo({ loadingSkeleton: true });
+			fetchClientList();
+			updateListViewInfo({ updated: false });
+		}
+		updateListViewInfo({ sidebarIsOpen: false, selectedSubTask: null });
+	}, [info?.updated]);
+
+	const fetchMoreData = useCallback(() => {
+		if (info.hasMore) {
+			const nextPage = info.page + 1;
+			fetchClientList(nextPage);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				page: nextPage,
+				infinityLoading: true,
+			}));
+		}
+	}, [info.infinityLoading, info.hasMore, info.page, fetchClientList]);
+
 	return (
 		<div>
-			{/* <ListView
-				info={info}
-				updateListViewInfo={updateListViewInfo}
-				togglePropertyVisibility={togglePropertyVisibility}
-				updatePropertyValue={updatePropertyValue}
-				deleteTask={handleDeleteClient}
-				responseMetadata={responseMetadata}
-				fetchListItems={fetchClientList}
-				// addButtonOnClick={}
-				headerTitle={'Contacts'}
-				createButtonText={'Create Client'}
-				sidebarChildren={<ListTabs tabs={tabs} defaultActiveTab={'reqActions'} />}
-				fetchMoreData={handleLoadMore}
-			/> */}
 			<Task
 				responseMetadata={responseMetadata}
 				handleAddButtonOnClick={() => {
-					updateListViewInfo('isCreateModalOpen', true);
+					updateListViewInfo({ isCreateModalOpen: true });
 				}}
-				handleRowClick={() => {}}
+				handleRowClick={handleRowClick}
 				colors={colors}
-				updateTaskInfo={() => {}}
+				updateTaskInfo={updateListViewInfo}
 				rowTypes={rowTypes}
 				data={info?.listItems}
 				loading={info?.loadingSkeleton}
@@ -406,17 +456,36 @@ const ClientListView = () => {
 				infinityLoading={info?.infinityLoading}
 				hasMore={info?.hasMore}
 				error={info?.error}
-				fetchMoreData={() => {}}
-				blockTitle={'Tasks'}
-				createButtonText={'Create Task'}
+				fetchMoreData={fetchMoreData}
+				blockTitle={'Contacts'}
+				createButtonText={'Create Client'}
 			/>
 
 			<CreateClientModal
 				modalIsOpen={info?.isCreateModalOpen}
 				closeModal={() => {
-					updateListViewInfo('isCreateModalOpen', false);
+					updateListViewInfo({ isCreateModalOpen: false });
 				}}
 			/>
+
+			<ListViewSidebar
+				selectedRow={info?.selectedRow}
+				parentTaskNo={info?.selectedRow?.taskSlNo}
+				sidebarIsOpen={info?.sidebarIsOpen}
+				closeSidebar={handleCloseSidebar}
+				handleUpdate={updatePropertyValue}
+				deleteTask={handleDeleteClient}
+				rowTypes={rowTypes}
+				responseMetadata={responseMetadata}
+				properties={info?.properties}
+				colors={colors}
+				sidebarChildren={<ListTabs tabs={tabs} defaultActiveTab={'reqActions'} />}
+				toggleSidebarExpand={() =>
+					updateListViewInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
+				}
+				isSidebarExpanded={info?.isSidebarExpanded}
+			/>
+
 			<Sidebar
 				open={info?.showRightDrawer}
 				onClose={() => {

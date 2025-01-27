@@ -12,18 +12,8 @@ import FilterComponent from './FilterComponent';
 import TabHeader from './TabHeader';
 
 const defaultFilterValue = {
-	workflow: null,
-	status: null,
-	priority: null,
-	title: '',
-	description: '',
-	dueDate: null,
-	createdAt: null,
-	updatedAt: null,
-	assignedTo: null,
-	assignedBy: null,
-	createdBy: null,
-	updatedBy: null,
+	text: '',
+	linkText: '',
 };
 
 const ListViewHeader = ({
@@ -112,7 +102,7 @@ const ListViewHeader = ({
 					...prev,
 					{
 						key: value,
-						value: defaultFilterValue[value],
+						value: defaultFilterValue?.[value] || null,
 					},
 				]);
 			}

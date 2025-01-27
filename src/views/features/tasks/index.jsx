@@ -311,6 +311,7 @@ const Tasks = () => {
 	}, [tenantsUserList]);
 
 	useEffect(() => {
+		console.log('taskPreference', taskPreference);
 		if (taskPreference === null) {
 			getTaskPreferences({ preferences: 'taskPreference' });
 		} else if (taskPreference?.data === false) {

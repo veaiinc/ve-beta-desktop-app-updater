@@ -240,7 +240,7 @@ const TabListFile = ({
 							responseMetadata={responseMetadata}
 							handleEditPropertyChange={() => {}}
 							colors={colors}
-							rowClickHandler={handleRowClick}
+							handleRowClick={handleRowClick}
 							fromTabList={true}
 							isSubTask={true}
 						/>
