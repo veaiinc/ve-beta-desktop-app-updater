@@ -7,12 +7,12 @@ import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
 import { message, Tooltip } from 'antd';
-import ReactMarkdown from 'react-markdown';
 import { UploadOutlined } from '@ant-design/icons';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation } from 'react-router-dom';
+import Markdown from 'react-markdown';
 
 const moduleHelper = {
 	'/tasks': 'tasks',
@@ -37,7 +37,7 @@ const BottomToolbar = ({
 		inputExpanded: false,
 		chatModalIsOpen: false,
 		chatQuery: '',
-		position: { x: 0, y: 0 },
+		position: { x: -325, y: 0 },
 		addQuickAction: false,
 		chatSessionId: ObjectID().toString(),
 	});
@@ -106,6 +106,7 @@ const BottomToolbar = ({
 		setInfo((prev) => ({
 			...prev,
 			expanded: false,
+			inputExpanded: false,
 		}));
 	}, [info]);
 
@@ -192,7 +193,6 @@ const BottomToolbar = ({
 				<div className="bottomToolBarChatHeader">
 					<span>AI Assistant</span>
 					<div style={{ display: 'flex', alignItems: 'center' }}>
-						<span>Advanced</span>
 						<button className="closeButton" onClick={handleChatExpand}>
 							<Expand />
 						</button>
@@ -216,7 +216,7 @@ const BottomToolbar = ({
 								className={`chat-message ${chat.type.toLowerCase()}-message`}
 							>
 								<div className="message-content">
-									<ReactMarkdown>{chat.message}</ReactMarkdown>
+									<Markdown>{chat.message}</Markdown>
 								</div>
 							</div>
 						),
@@ -226,7 +226,7 @@ const BottomToolbar = ({
 
 			{/* bottom toolBarContent */}
 			{!info?.chatModalIsOpen ? (
-				<div className="bottomToolbar">
+				<div className={`bottomToolbar ${info.inputExpanded ? 'expandedBtnToolbar' : ''}`}>
 					<textarea
 						className={`bottomToolbarInputs ${info.inputExpanded ? 'expanded' : ''}`}
 						placeholder="Ask AI"
@@ -238,29 +238,33 @@ const BottomToolbar = ({
 						onKeyDown={handleSendMessageFunc}
 						style={{ resize: 'none' }}
 					/>
-					<div className="quickActionsButtons">
-						<Home />
-					</div>
-					<div className="quickActionsButtons">
-						<Tooltip
-							placement="top"
-							title={<QuickActionsPlusParentContainer handleChange={handleChange} />}
-							color={'#202020'}
-							arrow={true}
-							trigger="click"
-							overlayClassName="quickActionsTooltipContainer"
-							open={info?.addQuickAction}
-							onOpenChange={(open) => {
-								// if (!open) {
-								setInfo((prev) => ({ ...prev, addQuickAction: open }));
-								// }
-							}}
-						>
-							<Plus />
-						</Tooltip>
-					</div>
-					<div className="quickActionsButtons">
-						<Settings />
+					<div className="bottomToolbarButtons">
+						<div className="quickActionsButtons">
+							<Home />
+						</div>
+						<div className="quickActionsButtons">
+							<Tooltip
+								placement="top"
+								title={
+									<QuickActionsPlusParentContainer handleChange={handleChange} />
+								}
+								color={'#202020'}
+								arrow={true}
+								trigger="click"
+								overlayClassName="quickActionsTooltipContainer"
+								open={info?.addQuickAction}
+								onOpenChange={(open) => {
+									// if (!open) {
+									setInfo((prev) => ({ ...prev, addQuickAction: open }));
+									// }
+								}}
+							>
+								<Plus />
+							</Tooltip>
+						</div>
+						<div className="quickActionsButtons">
+							<Settings />
+						</div>
 					</div>
 				</div>
 			) : (
