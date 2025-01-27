@@ -10,59 +10,76 @@ const Status = ({
 	onOptionClick,
 	setDefault = true,
 	defaultValue = 'todo',
-	options = [],
+	options = { todo: [], inProgress: [], completed: [] },
 	labelField = 'label',
 	valueField = 'value',
-	handleEditPropertyChange,
 	colors,
 	title = 'Status',
 	showTitle = false,
 }) => {
 	const [info, setInfo] = useState({
-		options,
-		todoOptions: [],
-		inProgressOptions: [],
-		completedOptions: [],
-		open: false,
 		selected: null,
+		open: false,
 	});
+
 	useEffect(() => {
 		setInfo((prevInfo) => {
-			// Find the selected option from updated options
-			const selectedOption = options?.find((item) => item?._id === value);
+			// Find the selected option from all groups
+			const allOptions = [
+				...(options.todo || []),
+				...(options.inProgress || []),
+				...(options.completed || []),
+			];
 
-			// If setDefault is true and no value is selected, use first option
-			const finalSelectedOption =
-				!selectedOption && setDefault && options?.length > 0 ? options[0] : selectedOption;
+			// First try to find the selected option by value
+			const selectedOption = allOptions.find((item) => item?._id === value);
 
-			// If we're using a default value, notify parent
-			if (finalSelectedOption && !value && setDefault) {
-				onOptionClick?.(finalSelectedOption._id);
+			if (selectedOption) {
+				return {
+					...prevInfo,
+					selected: selectedOption,
+				};
 			}
 
-			// Group options
-			const todoOptions = [];
-			const inProgressOptions = [];
-			const completedOptions = [];
-
-			options?.forEach((item) => {
-				if (item?.group === 'todo') {
-					todoOptions?.push(item);
-				} else if (item?.group === 'inProgress') {
-					inProgressOptions?.push(item);
-				} else {
-					completedOptions?.push(item);
+			// If value exists but no matching status found, use default status
+			if (value) {
+				const defaultStatus = allOptions.find((item) => item?.isDefault);
+				if (defaultStatus) {
+					// Notify parent about falling back to default
+					onOptionClick?.(defaultStatus._id);
+					return {
+						...prevInfo,
+						selected: defaultStatus,
+					};
 				}
-			});
+			}
 
-			return {
-				...prevInfo,
-				options,
-				todoOptions,
-				inProgressOptions,
-				completedOptions,
-				selected: finalSelectedOption || prevInfo.selected,
-			};
+			// If setDefault is true and no value is selected
+			if (setDefault && !value) {
+				// First try to find the default status
+				const defaultStatus = allOptions.find((item) => item?.isDefault);
+
+				// If found default status, use it
+				if (defaultStatus) {
+					onOptionClick?.(defaultStatus._id);
+					return {
+						...prevInfo,
+						selected: defaultStatus,
+					};
+				}
+
+				// Fallback to first todo item if no default status found
+				if (options.todo?.length > 0) {
+					onOptionClick?.(options.todo[0]._id);
+					return {
+						...prevInfo,
+						selected: options.todo[0],
+					};
+				}
+			}
+
+			// Keep previous selection if nothing else matches
+			return prevInfo;
 		});
 	}, [value, options, setDefault, onOptionClick]);
 
@@ -111,18 +128,23 @@ const Status = ({
 						{[
 							{
 								group: 'To-do',
-								options: info?.todoOptions,
+								options: options.todo || [],
 							},
 							{
 								group: 'InProgress',
-								options: info?.inProgressOptions,
+								options: options.inProgress || [],
 							},
 							{
 								group: 'Completed',
-								options: info?.completedOptions,
+								options: options.completed || [],
 							},
-						]?.map((item) => (
-							<div className="status-option-container" key={item?.group}>
+						]?.map((item, index) => (
+							<div
+								className={`status-option-container ${
+									!(index === 2) ? 'border-bottom' : ''
+								}`}
+								key={item?.group}
+							>
 								<div className="option-heading">{item?.group}</div>
 								<div className="option-list">
 									{item?.options?.map((option) => (
@@ -151,16 +173,6 @@ const Status = ({
 								</div>
 							</div>
 						))}
-					</div>
-					<div
-						className="status-dropdown-footer-wrapper"
-						onClick={() => {
-							handleDropdown(false);
-							handleEditPropertyChange({ propName: 'status' });
-						}}
-					>
-						<PencilWithLine />
-						<span className="status-dropdown-footer-text">Edit property</span>
 					</div>
 				</div>
 			}

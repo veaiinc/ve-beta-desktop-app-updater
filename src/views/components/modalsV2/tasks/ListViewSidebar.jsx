@@ -19,7 +19,7 @@ const ListViewSidebar = ({
 	selectedRow,
 	sidebarIsOpen,
 	closeSidebar,
-	updatePropertyValue,
+	handleUpdate,
 	deleteTask,
 	rowTypes,
 	handleCreateSubTaskClick,
@@ -116,19 +116,12 @@ const ListViewSidebar = ({
 				clearTimeout(titleDebounceRef.current);
 			}
 			titleDebounceRef.current = setTimeout(() => {
-				updatePropertyValue(
-					selectedRow?._id,
-					info?.titlePropName,
-					value,
-					null,
-					null,
-					() => {
-						setLocalTitle(value);
-					},
-				);
+				handleUpdate(selectedRow?._id, info?.titlePropName, value, null, null, () => {
+					setLocalTitle(value);
+				});
 			}, 800);
 		},
-		[selectedRow?._id, updatePropertyValue],
+		[selectedRow?._id, handleUpdate],
 	);
 
 	const debouncedDescriptionUpdate = useCallback(
@@ -137,12 +130,12 @@ const ListViewSidebar = ({
 				clearTimeout(descriptionDebounceRef.current);
 			}
 			descriptionDebounceRef.current = setTimeout(() => {
-				updatePropertyValue(selectedRow?._id, 'description', value, null, null, () => {
+				handleUpdate(selectedRow?._id, 'description', value, null, null, () => {
 					setLocalDescription(value);
 				});
 			}, 800);
 		},
-		[selectedRow?._id, updatePropertyValue],
+		[selectedRow?._id, handleUpdate],
 	);
 
 	const handleTitleChange = useCallback(
@@ -194,8 +187,9 @@ const ListViewSidebar = ({
 					name = null,
 					Icon = null,
 					isTitle = false,
-					props,
+					props = {},
 				} = responseMetadata[key] || {};
+
 				if (
 					[
 						'__typename',
@@ -233,22 +227,16 @@ const ListViewSidebar = ({
 									title={name}
 									showLabel
 									defaultLabel={'Not selected'}
-									{...(type === 'date' ? { format: 'MMM DD, YYYY h:mm A' } : {})}
+									options={props.options}
+									multiSelect={props.multiSelect}
+									parseValue={props.parseValue}
+									disabled={props.disabled}
 									{...props}
 									onOptionClick={(value) =>
-										updatePropertyValue(row._id, key, value, isShowingSubTask)
+										handleUpdate(row._id, key, value, isShowingSubTask)
 									}
 									colors={colors}
 									takeFullspace={true}
-									onUpdate={(value, onSuccess) =>
-										updatePropertyValue(
-											row._id,
-											key,
-											value,
-											isShowingSubTask,
-											onSuccess,
-										)
-									}
 								/>
 							) : (
 								<div key={key}>{value}</div>
@@ -260,7 +248,7 @@ const ListViewSidebar = ({
 
 			return listItems;
 		},
-		[isShowingSubTask, responseMetadata, rowTypes, updatePropertyValue],
+		[responseMetadata, rowTypes, handleUpdate, isShowingSubTask, colors],
 	);
 
 	const generateSkeleton = useCallback(() => {
@@ -405,7 +393,7 @@ const ListViewSidebar = ({
 												key={subTask?._id}
 												rowTypes={rowTypes}
 												responseMetadata={responseMetadata}
-												updatePropertyValue={updatePropertyValue}
+												handleUpdate={handleUpdate}
 												isSubTask={true}
 												handleRowClick={onSubTaskClick}
 												properties={properties}

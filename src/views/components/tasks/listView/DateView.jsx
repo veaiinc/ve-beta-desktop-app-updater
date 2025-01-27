@@ -57,7 +57,7 @@ const DateView = ({
 				</div>
 			) : (
 				<DropDown
-					title={'Change due date'}
+					title={`Change ${title ? title : 'date'}`}
 					options={info?.dateOptions}
 					onOptionClick={updatedOnOptionClick}
 					selected={info?.dueDate}
