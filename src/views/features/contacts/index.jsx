@@ -293,8 +293,8 @@ const Contacts = () => {
 
 	const tabs = useMemo(() => {
 		return {
-			reqActions: { label: 'Req Actions', Component: <div>Required Actions</div> },
-			workflows: { label: 'Workflows', Component: <div>Workflows</div> },
+			// reqActions: { label: 'Req Actions', Component: <div>Required Actions</div> },
+			// workflows: { label: 'Workflows', Component: <div>Workflows</div> },
 			files: {
 				label: 'Files',
 				Component: (
@@ -314,8 +314,8 @@ const Contacts = () => {
 					/>
 				),
 			},
-			payments: { label: 'Payments', Component: <div>Payments</div> },
-			activity: { label: 'Activity', Component: <div>Activity</div> },
+			// payments: { label: 'Payments', Component: <div>Payments</div> },
+			// activity: { label: 'Activity', Component: <div>Activity</div> },
 		};
 	}, [rowTypes, colors, info?.refetchDocsFilesList]);
 
@@ -468,7 +468,7 @@ const Contacts = () => {
 				responseMetadata={responseMetadata}
 				properties={info?.properties}
 				colors={colors}
-				sidebarChildren={<ListTabs tabs={tabs} defaultActiveTab={'reqActions'} />}
+				sidebarChildren={<ListTabs tabs={tabs} defaultActiveTab={'files'} />}
 				toggleSidebarExpand={() =>
 					updateListViewInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
 				}
