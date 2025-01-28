@@ -44,7 +44,7 @@ const initialState = {
 	currentPage: 1,
 };
 
-const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
+const AddKnowledgeModal = ({ isOpen, toggleModal, agentId }) => {
 	let {
 		aiSetup: {
 			activeAiAssistantDetails,
@@ -54,7 +54,6 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 			uploadPDFsToKnowledgeBase,
 		},
 	} = useContext(Context);
-	const { aiAssistantId } = useParams();
 	const [info, setInfo] = useState(initialState);
 
 	useEffect(() => {
@@ -100,7 +99,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 				return;
 			}
 			setInfo((prev) => ({ ...prev, isUploading: true }));
-			const statusSummary = await uploadURLsToKnowledgeBase(aiAssistantId, info?.urlsInfo);
+			const statusSummary = await uploadURLsToKnowledgeBase(agentId, info?.urlsInfo);
 			setInfo((prev) => ({
 				...prev,
 				urlsInfo: [],
@@ -108,7 +107,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 			if (statusSummary?.[0]) {
 				message.success('URLs uploaded successfully!', 1);
 				toggleModal();
-				getKnowledgeBaseFiles(activeAiAssistantDetails?._id, 1, 10, true);
+				getKnowledgeBaseFiles(activeAiAssistantDetails?._id, 1, 20, true);
 			}
 		} else if (info?.activeFileType === 'pdf') {
 			if (info?.pdfFilesInfo?.length === 0) {
@@ -117,7 +116,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 			}
 			setInfo((prev) => ({ ...prev, isUploading: true }));
 			const files = info?.pdfFilesInfo;
-			const statusSummary = await uploadPDFsToKnowledgeBase(aiAssistantId, files);
+			const statusSummary = await uploadPDFsToKnowledgeBase(agentId, files);
 			setInfo((prev) => ({
 				...prev,
 				pdfFilesInfo: [],
@@ -125,7 +124,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 			if (statusSummary?.[0]) {
 				message.success('PDF Files uploaded successfully!', 1);
 				toggleModal();
-				getKnowledgeBaseFiles(activeAiAssistantDetails?._id, 1, 10, true);
+				getKnowledgeBaseFiles(activeAiAssistantDetails?._id, 1, 20, true);
 			}
 		} else if (info?.activeFileType === 'customText') {
 			if (info?.customTextInfo?.filename === '') {
@@ -140,7 +139,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 			const file = new File([textBlob], info?.customTextInfo?.filename, {
 				type: 'text/plain',
 			});
-			const statusSummary = await uploadPDFsToKnowledgeBase(aiAssistantId, [file]);
+			const statusSummary = await uploadPDFsToKnowledgeBase(agentId, [file]);
 			setInfo((prev) => ({
 				...prev,
 				customTextInfo: {
@@ -151,7 +150,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 			if (statusSummary?.[0]) {
 				message.success('Text File uploaded successfully!', 1);
 				toggleModal();
-				getKnowledgeBaseFiles(activeAiAssistantDetails?._id, 1, 10, true);
+				getKnowledgeBaseFiles(activeAiAssistantDetails?._id, 1, 20, true);
 			}
 		}
 		setInfo((prev) => ({ ...prev, isUploading: false }));
@@ -220,7 +219,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 	};
 
 	return (
-		<Modal isOpen={isOpen} closeModal={toggleModal}>
+		<Modal isOpen={isOpen} closeModal={toggleModal} customStyles={{ overlay: { zIndex: 1 } }}>
 			<div className="addKnowledgeModalContainer">
 				<div className="titleAndDescriptionContainer">
 					<h1 className="title">
@@ -332,7 +331,9 @@ const AddKnowledgeModal = ({ isOpen, toggleModal }) => {
 						) : null}
 					</div>
 					<div className="updateBtnContainer">
-						<button className="cancelBtn">Cancel</button>
+						<button className="cancelBtn" onClick={toggleModal}>
+							Cancel
+						</button>
 						<button
 							disabled={info?.isUploading}
 							style={{ cursor: info?.isUploading ? 'not-allowed' : 'pointer' }}

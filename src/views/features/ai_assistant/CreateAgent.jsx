@@ -39,7 +39,7 @@ const CreateAgent = () => {
 		knowledgeBase: {
 			value: 'knowledgeBase',
 			label: 'Knowledge Base',
-			component: <AiKnowledgeBase />,
+			component: <AiKnowledgeBase agent={info?.agentData} />,
 		},
 		prompt: { value: 'prompt', label: 'Prompt', component: <AiPrompt /> },
 		share: { value: 'share', label: 'Share', component: <AiShare /> },
