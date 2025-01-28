@@ -182,8 +182,31 @@
 			align-items: center;
 			justify-content: flex-start;
 			flex-wrap: wrap;
-			background-color: red;
 			height: 80px;
+			overflow-y: auto;
+			padding: 0px 12px;
+
+			.previewOfUploadedImage {
+				height: 70px;
+				width: 70px;
+				background-color: #fff;
+				border-radius: 12px;
+				position: relative;
+
+				.spinContainerLoaderForPreview {
+					display: flex;
+					width: 100%;
+					height: 100%;
+					justify-content: center;
+					align-items: center;
+					position: absolute;
+					top: 0;
+					left: 0;
+					background-color: #f7fcfe;
+					border-radius: 12px;
+					opacity: 0.5;
+				}
+			}
 		}
 	}
 

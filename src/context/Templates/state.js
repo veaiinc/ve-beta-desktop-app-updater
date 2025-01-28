@@ -1296,6 +1296,29 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const handleGlobalUploadImage = async (file) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const payload = {
+				sessionId: '66e912502081b2e47d5a567f',
+				originalFileName: 'testGokulLast.png',
+				uploadBatchId: '234632875328563270',
+			};
+			const response = await Service.fetchPost(
+				`/${workspaceId}/knowledge-bases/upload-file`,
+				payload,
+				usertoken,
+				'ai_assistant_api',
+			);
+
+			console.log('response==>handleGlobalUploadImage', response);
+
+			return [true, 'We made the changes accordingly'];
+		} catch (error) {}
+	};
+
 	//docs
 
 	const getDocsFilesList = async (payload, fetchMore = false) => {
@@ -1379,5 +1402,6 @@ export const TemplatesState = (props) => {
 		uploadImageInSmartFileAi,
 		handleGlobalChatMessages,
 		getDocsFilesList,
+		handleGlobalUploadImage,
 	};
 };

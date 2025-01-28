@@ -6,7 +6,7 @@ import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settin
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
-import { message, Tooltip } from 'antd';
+import { Alert, message, Spin, Tooltip } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
@@ -19,6 +19,7 @@ import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.s
 import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
+import { getBase64 } from '../../../helpers';
 
 const moduleHelper = {
 	'/tasks': 'tasks',
@@ -33,7 +34,12 @@ const BottomToolbar = ({
 	customChatActions = false,
 }) => {
 	const {
-		templates: { handleGlobalChatMessages, globalChatMessages, updateStateValues },
+		templates: {
+			handleGlobalChatMessages,
+			globalChatMessages,
+			updateStateValues,
+			handleGlobalUploadImage,
+		},
 	} = useContext(Context);
 
 	const location = useLocation();
@@ -166,13 +172,19 @@ const BottomToolbar = ({
 		[info?.chatQuery, aiChatLoading, onSend, customChatActions, info?.chatSessionId],
 	);
 
+	const handleGlobalImageProcessing = useCallback((file) => {
+		handleGlobalUploadImage(file);
+	}, []);
 	const handleChange = useCallback(
-		({ file }) => {
+		async ({ file }) => {
 			let uploadedImages = [...info?.uploadedImages];
+			file.preview = await getBase64(file);
+			file.loading = true;
 			uploadedImages.push(file);
 			if (customChatActions) {
 				handleAiUploadImage(file);
 			} else {
+				handleGlobalImageProcessing(file);
 			}
 
 			setInfo((prev) => ({
@@ -260,7 +272,22 @@ const BottomToolbar = ({
 				</div>
 				<div className="imagePreviewBar">
 					{info?.uploadedImages?.map((ele, index) => (
-						<div className="previewOfUploadedImage"></div>
+						<div className="previewOfUploadedImage" key={index}>
+							<img
+								src={ele?.preview}
+								alt="uploaded"
+								width={'100%'}
+								height={'100%'}
+								style={{ objectFit: 'cover', borderRadius: '12px' }}
+							/>
+							{ele?.loading ? (
+								<div className="spinContainerLoaderForPreview">
+									<Spin />
+								</div>
+							) : (
+								''
+							)}
+						</div>
 					))}
 				</div>
 			</div>
