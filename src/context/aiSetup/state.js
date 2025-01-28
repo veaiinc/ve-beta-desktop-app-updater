@@ -25,6 +25,11 @@ export const initialState = {
 		hasMore: false,
 		currentPage: 1,
 	},
+	aiChatSessions: {
+		data: [],
+		hasMore: false,
+		currentPage: 1,
+	},
 };
 
 export const AiSetupState = () => {
@@ -154,6 +159,31 @@ export const AiSetupState = () => {
 			}
 		} catch (error) {
 			console.log('error==>getKnowledgeBaseFiles', error);
+		}
+	};
+
+	const getAiChatSessions = async (page = 1, limit = 10, reset = false) => {
+		try {
+			const url =
+				'/' +
+				'businessconsultant/list-multiagent-sessions' +
+				`?page=${page}&limit=${limit}`;
+			const response = await service?.fetchGet(url, 'tenant_api');
+			const aiChatSessions = {
+				data: reset
+					? [...response?.[1]?.data]
+					: [...state?.aiChatSessions?.data, ...response?.[1]?.data],
+				hasMore: response?.[1]?.hasNextPage,
+				currentPage: response?.[1]?.currentPage,
+			};
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.SET_AI_CHAT_SESSIONS,
+					payload: aiChatSessions,
+				});
+			}
+		} catch (error) {
+			console.log('error==>getAiChatSessions', error);
 		}
 	};
 
@@ -447,5 +477,6 @@ export const AiSetupState = () => {
 		deleteKnowledge,
 		uploadImageToKnowledgeBase,
 		checkFileUploadStatus,
+		getAiChatSessions,
 	};
 };

@@ -1,5 +1,6 @@
-import React, { memo } from 'react';
+import React, { memo, useContext, useEffect } from 'react';
 import '../../../../assets/scss/home_page/recentChats.scss';
+import Context from '../../../../context/context';
 
 const baseData = {
 	id: 0,
@@ -19,6 +20,15 @@ const multipleOptions = (count) => {
 const data = multipleOptions(20);
 
 const RecentChats = () => {
+	let {
+		aiSetup: { getAiChatSessions, aiChatSessions },
+	} = useContext(Context);
+
+	useEffect(() => {
+		getAiChatSessions(1, 10, true);
+		console.log(aiChatSessions);
+	}, []);
+
 	return (
 		<div className="RecentAiChatsContainer">
 			{data?.map((item) => (
