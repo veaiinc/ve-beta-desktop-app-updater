@@ -251,6 +251,9 @@ const UploadPhotos = () => {
 
 		const interval = setInterval(async () => {
 			const response = await getImageUploadStatus(galleryId, albumId, info?.uploadBatchID);
+			if (response[0] === false) {
+				return;
+			}
 			const { processedCount, uploadedCount } = response[1];
 
 			let result = 0,
@@ -331,6 +334,17 @@ const UploadPhotos = () => {
 						break;
 					}
 				}
+
+				if (attempts !== 0) {
+					// Wait for 1 minute before retrying
+					let waitTime = 2000 * attempts;
+					await new Promise((resolve) => {
+						console.log('waiting  for ', waitTime, 'seconds');
+						setTimeout(() => {
+							resolve();
+						}, waitTime);
+					});
+				}
 				attempts++;
 			}
 			if (isSuccessUpload) {
@@ -344,6 +358,8 @@ const UploadPhotos = () => {
 
 		await Promise.allSettled(activeUploads);
 	};
+
+	console.log('info', info.uploadImages);
 
 	return (
 		<div className="upload-gallery-container">

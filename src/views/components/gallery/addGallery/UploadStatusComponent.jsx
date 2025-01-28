@@ -4,6 +4,7 @@ import { ReactComponent as CancelUploadSvg } from '../../../../assets/svg/galler
 import { Progress } from 'antd';
 import DuplicateComponent from './DuplicateComponent';
 import Context from '../../../../context/context';
+import { getImageSizeFormat } from '../../../../helpers';
 
 const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, galleryId }) => {
 	const {
@@ -56,9 +57,7 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, gallery
 					<div className="text_div">
 						<h1>
 							{Object.keys(info?.uploadImages || {}).length} Images added -{' '}
-							{info?.uploadSize > 1024
-								? (info?.uploadSize / 1024).toFixed(2) + ' MB'
-								: (info?.uploadSize).toFixed(2) + ' KB'}{' '}
+							{getImageSizeFormat(info?.uploadSize)}
 						</h1>
 						<p>Max amount 10,000 photos</p>
 					</div>
@@ -103,7 +102,7 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, gallery
 										)}
 
 										<div className="text_value">
-											<p>
+											{/* <p>
 												{singlePhoto?.file?.size > 1024 * 1024
 													? (
 															singlePhoto?.file?.size /
@@ -111,6 +110,9 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, gallery
 													  ).toFixed(2) + ' MB'
 													: (singlePhoto?.file?.size / 1024).toFixed(2) +
 													  ' KB'}
+											</p> */}
+											<p>
+												{getImageSizeFormat(singlePhoto?.file?.size / 1024)}
 											</p>
 										</div>
 
