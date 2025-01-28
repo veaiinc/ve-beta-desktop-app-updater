@@ -164,11 +164,15 @@ export const AiSetupState = () => {
 
 	const getAiChatSessions = async (page = 1, limit = 10, reset = false) => {
 		try {
-			const url =
-				'/' +
-				'businessconsultant/list-multiagent-sessions' +
-				`?page=${page}&limit=${limit}`;
-			const response = await service?.fetchGet(url, 'tenant_api');
+			const token = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const type = 'tenant';
+			const params = {
+				page,
+				limit,
+			};
+			const url = '/' + workspaceId + '/list-multiagent-sessions';
+			const response = await service?.fetchGet(url, token, type, params);
 			const aiChatSessions = {
 				data: reset
 					? [...response?.[1]?.data]

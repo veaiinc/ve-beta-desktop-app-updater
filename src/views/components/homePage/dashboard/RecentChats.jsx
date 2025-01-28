@@ -1,6 +1,7 @@
 import React, { memo, useContext, useEffect } from 'react';
 import '../../../../assets/scss/home_page/recentChats.scss';
 import Context from '../../../../context/context';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 const baseData = {
 	id: 0,
@@ -26,30 +27,36 @@ const RecentChats = () => {
 
 	useEffect(() => {
 		getAiChatSessions(1, 10, true);
-		console.log(aiChatSessions);
+		console.log(aiChatSessions, 'aiChatSessions');
 	}, []);
 
 	return (
-		<div className="RecentAiChatsContainer">
-			{data?.map((item) => (
-				<div key={item?.id} className="RecentAiChatsContainerEach">
-					<div className="recentAiChatsContainerEachTop">
+		<InfiniteScroll
+			dataLength={aiChatSessions?.data?.length}
+			next={() => getAiChatSessions(aiChatSessions?.currentPage + 1, 10, false)}
+			hasMore={aiChatSessions?.hasMore}
+			scrollableTarget="RecentAiChatsContainer"
+			style={{ width: '100%' }}
+		>
+			<div className="RecentAiChatsContainer" id="RecentAiChatsContainer">
+				{aiChatSessions?.data?.map((item) => (
+					<div key={item?.id} className="RecentAiChatsContainerEach">
+						{/* <div className="recentAiChatsContainerEachTop">
 						<div className="recentAiChatsContainerEachTopSubTitle">
 							{item?.subTitle}
 						</div>
-						<div className="recentAiChatsContainerEachTopCreatedAt">
-							{item?.createdAt}
+						<div className="recentAiChatsContainerEachTopCreatedAt"></div>
+					</div> */}
+						<div className="recentAiChatsContainerEachTop">
+							<div className="recentAiChatsContainerEachTopTitle">{item?.query}</div>
+							<div className="recentAiChatsContainerEachTopSubTitle">
+								{item?.createdAt}
+							</div>
 						</div>
 					</div>
-					<div className="recentAiChatsContainerEachTop">
-						<div className="recentAiChatsContainerEachTopTitle">{item?.title}</div>
-						<div className="recentAiChatsContainerEachTopIcon">
-							<img src={item?.src} />
-						</div>
-					</div>
-				</div>
-			))}
-		</div>
+				))}
+			</div>
+		</InfiniteScroll>
 	);
 };
 
