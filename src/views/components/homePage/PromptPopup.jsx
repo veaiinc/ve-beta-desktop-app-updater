@@ -2,6 +2,7 @@ import React, { useState, memo, useEffect } from 'react';
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
+import { ReactComponent as TickSvg } from '../../../assets/svg/home_page/Tick.svg';
 import { ReactComponent as EmailPromptSvg } from '../../../assets/svg/home_page/emailPrompt.svg';
 import { ReactComponent as DropdownArrow } from '../../../assets/svg/chat/downArrow.svg';
 import '../../../assets/scss/home_page/promptPopup.scss';
@@ -37,16 +38,20 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	}, [selectedCard]);
 
 	const handleSelectedFile = (file) => {
-		if (!selectedOptions?.[selectedCard?.id]?.some((f) => f === file)) {
-			setSelectedOptions((prev) => {
-				const cardId = selectedCard?.id;
-				if (!cardId) return prev;
-				return {
-					...prev,
-					[cardId]: [...(prev[cardId] || []), file],
-				};
-			});
-		}
+		setSelectedOptions((prev) => {
+			const cardId = selectedCard?.id;
+			if (!cardId) return prev;
+
+			const isSelected = prev?.[cardId]?.includes(file);
+			const updatedFiles = isSelected
+				? prev[cardId]?.filter((f) => f !== file)
+				: [...(prev[cardId] || []), file];
+
+			return {
+				...prev,
+				[cardId]: updatedFiles.length > 0 ? updatedFiles : undefined,
+			};
+		});
 	};
 
 	const handleClientSearch = (value) => {
@@ -133,12 +138,25 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 							return (
 								<div
 									key={index}
-									className="promptPopupOptionsContainerFiles"
+									className={`promptPopupOptionsContainerFiles ${
+										selectedOptions?.[selectedCard?.id]?.includes(file)
+											? 'selected'
+											: ''
+									}`}
 									onClick={() => handleSelectedFile(file)}
 									style={{ cursor: 'pointer' }}
 								>
-									<div className="promptPopupContainerFilesListFileIcon"></div>
-									<div className="promptPopupContainerFilesListFile">{file}</div>
+									<div className="promptPopupContainerFilesList">
+										<div className="promptPopupContainerFilesListFileIcon"></div>
+										<div className="promptPopupContainerFilesListFile">
+											{file}
+										</div>
+									</div>
+									{selectedOptions?.[selectedCard?.id]?.includes(file) && (
+										<div className="promptPopupContainerFilesListSelected">
+											<TickSvg />
+										</div>
+									)}
 								</div>
 							);
 						})}

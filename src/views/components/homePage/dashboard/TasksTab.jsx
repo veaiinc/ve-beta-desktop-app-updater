@@ -591,8 +591,6 @@ const TasksTab = () => {
 		fetchListItems(1);
 	}, []);
 
-	console.log(info?.selectedRow);
-
 	return (
 		<>
 			<div className="tasks">

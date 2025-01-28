@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/navBar';
 import HeaderInfo from '../../components/homePage/HeaderInfo';
@@ -7,6 +7,8 @@ import HomePageDashboard from '../../components/homePage/dashboard/HomePageDashb
 import HomePageStart from '../../components/homePage/HomePageStart';
 import { PromptData } from '../../components/homePage/PromptData';
 import { Tooltip } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import CreateLeadModal from '../../components/modalsV2/proposalModals/CreateLeadModal';
 
 const topNavOptions = [
 	{ id: 0, title: 'Start', value: 'start' },
@@ -43,15 +45,14 @@ const propsForHeaderInfoAndNavBar = {
 };
 
 const dropdownOptions = [
-	{ id: 0, title: 'Client ', value: 'Client' },
-	{ id: 1, title: 'Workflow', value: 'Workflow' },
-	{ id: 2, title: 'Meeting', value: 'Meeting' },
-	{ id: 3, title: 'Task', value: 'Task' },
-	{ id: 4, title: 'Document', value: 'Document' },
-	{ id: 5, title: 'Form', value: 'Form' },
-	{ id: 6, title: 'Proposal', value: 'Proposal' },
-	{ id: 7, title: 'Invoice', value: 'Invoice' },
-	{ id: 8, title: 'Contract', value: 'Contract' },
+	{ id: 0, title: 'Client ', value: 'client' },
+	{ id: 2, title: 'Meeting', value: 'meeting' },
+	{ id: 3, title: 'Task', value: 'task' },
+	{ id: 4, title: 'Document', value: 'document' },
+	{ id: 5, title: 'Form', value: 'form' },
+	{ id: 6, title: 'Proposal', value: 'proposal' },
+	{ id: 7, title: 'Invoice', value: 'invoice' },
+	{ id: 8, title: 'Contract', value: 'contract' },
 ];
 const thresholdTopOffset = 150;
 
@@ -67,7 +68,10 @@ const HomePage = () => {
 		selectedOptions: {},
 		dropdown: false,
 		dropdownOptions: '',
+		openCreateLeadModal: false,
 	});
+
+	const navigate = useNavigate();
 
 	const { title, subTitle, selectedOption } = propsForHeaderInfoAndNavBar?.[info?.activeTab];
 	const showSearchBar = info?.activeTab === 'start';
@@ -78,6 +82,31 @@ const HomePage = () => {
 
 		return () => homePageContainer?.removeEventListener('scroll', setNavbarFixed);
 	}, [info?.isNavbarFixed]);
+
+	const handleDropdownOptionClick = useCallback((type) => {
+		if (type === 'meeting') {
+			navigate('/calendar');
+		} else if (type === 'document') {
+			navigate('/docs');
+		} else if (type === 'client') {
+			openCreateLeadModal();
+		} else if (type === 'task') {
+			navigate('/tasks');
+		}
+	}, []);
+
+	const closeCreateLeadModal = () => {
+		setInfo((prev) => ({
+			...prev,
+			openCreateLeadModal: false,
+		}));
+	};
+	const openCreateLeadModal = () => {
+		setInfo((prev) => ({
+			...prev,
+			openCreateLeadModal: true,
+		}));
+	};
 
 	const setNavbarFixed = (e) => {
 		const topOffset = e?.target?.scrollTop;
@@ -106,23 +135,26 @@ const HomePage = () => {
 		setInfo((prev) => ({ ...prev, searchValue: value }));
 	};
 
-	const componentMapper = {
-		start: (
-			<HomePageStart
-				cards={filteredPromptData}
-				setInfo={setInfo}
-				isNavbarFixed={info?.isNavbarFixed}
-				searchValue={info?.searchValue}
-			/>
-		),
-		dashboard: (
-			<HomePageDashboard
-				selectedOption={info?.[selectedOption]}
-				options={navbarOptions?.dashboard}
-				isNavbarFixed={info?.isNavbarFixed}
-			/>
-		),
-	};
+	const componentMapper = useMemo(
+		() => ({
+			start: (
+				<HomePageStart
+					cards={filteredPromptData}
+					setInfo={setInfo}
+					isNavbarFixed={info?.isNavbarFixed}
+					searchValue={info?.searchValue}
+				/>
+			),
+			dashboard: (
+				<HomePageDashboard
+					selectedOption={info?.[selectedOption]}
+					options={navbarOptions?.dashboard}
+					isNavbarFixed={info?.isNavbarFixed}
+				/>
+			),
+		}),
+		[filteredPromptData, info?.isNavbarFixed, info?.searchValue, info?.[selectedOption]],
+	);
 
 	return (
 		<div className="home-page-container">
@@ -169,8 +201,9 @@ const HomePage = () => {
 										<div
 											key={option?.id}
 											className="dropdown-option"
-											onClick={() =>
-												setInfo({ ...info, dropdownOptions: option?.value })
+											onClick={
+												() => handleDropdownOptionClick(option?.value)
+												// setInfo({ ...info, dropdownOptions: option?.value })
 											}
 										>
 											{option?.title}
@@ -215,6 +248,10 @@ const HomePage = () => {
 				open={info?.showPromptPopup}
 				closeModal={() => setInfo({ ...info, showPromptPopup: false })}
 				selectedCard={info?.selectedCard}
+			/>
+			<CreateLeadModal
+				modalIsOpen={info?.openCreateLeadModal}
+				closeModal={closeCreateLeadModal}
 			/>
 		</div>
 	);

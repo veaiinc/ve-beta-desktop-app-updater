@@ -167,26 +167,35 @@
 			.promptPopupOptionsContainerFiles {
 				display: flex;
 				padding: 8px 12px;
-				justify-content: center;
+				justify-content: space-between;
 				align-items: center;
 				gap: 10px;
 				align-self: stretch;
 				border-radius: 10px;
-				.promptPopupContainerFilesListFileIcon {
-					width: 24px;
-					height: 24px;
-					border-radius: 6px;
-					background: #202123;
+				&.selected {
+					background: #303336;
 				}
-				.promptPopupContainerFilesListFile {
-					color: #f2f2f3;
-					color: color(display-p3 0.949 0.949 0.9529);
-					font-family: Inter;
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 22px;
-					flex: 1 0 0;
+				.promptPopupContainerFilesList {
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					gap: 10px;
+					.promptPopupContainerFilesListFileIcon {
+						width: 24px;
+						height: 24px;
+						border-radius: 6px;
+						background: #202123;
+					}
+					.promptPopupContainerFilesListFile {
+						color: #f2f2f3;
+						color: color(display-p3 0.949 0.949 0.9529);
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 22px;
+						flex: 1 0 0;
+					}
 				}
 			}
 		}

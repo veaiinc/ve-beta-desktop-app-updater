@@ -15,6 +15,7 @@ import { Spin } from 'antd';
 import PublicLinkGeneratedModal from '../../modalsV2/workflowsModals/PublicLinkGeneratedModal';
 import UpdatedPageLoader from '../../loaders/UpdatedPageLoader';
 import InitialPageLoader from '../../loaders/PageLoader';
+import Skeleton from 'react-loading-skeleton';
 
 const WorkflowsTab = () => {
 	const {
@@ -232,44 +233,59 @@ const WorkflowsTab = () => {
 
 	return (
 		<div className="workflows-tab-container">
-			<div id="scrollableDiv" className="infinite-scroller">
-				<InfiniteScroll
-					dataLength={info?.myWorkflowData?.length || 0}
-					hasMore={info?.hasNextPage}
-					next={fetchMoreMyWorkflows}
-					loader={<FetchMoreLoaderComp />}
-					style={{
-						display: 'flex',
-						flexDirection: 'row',
-						flexWrap: 'wrap',
-						flexFlow: 'wrap',
-						alignItems: 'flex-end',
-						alignContent: 'flex-start',
-						rowGap: '50px',
-						columnGap: '10px',
-						width: '100%',
-						overflowX: 'hidden',
-					}}
-					className="tetsing"
-					height="calc(100vh - 340px)"
-				>
-					<div className="workflows-tab">
-						{info?.myWorkflowData?.map((workflow, index) => {
-							return (
-								<WorkflowCard
-									key={index}
-									workflow={workflow}
-									openModal={openMyWorkflowModal}
-									openCopyLinkModal={openCopyLinkModal}
-									navigateToWorkflowBuilder={navigateToWorkflowBuilder}
-									modalIsOpen={info?.myWorkflowModal}
-									activeTemplateData={info?.activeTemplateData}
-									activeCardsData={info?.activeCardsData}
-								/>
-							);
-						})}
+			<div id="scrollableDiv">
+				{info?.loading ? (
+					<div style={{ display: 'flex', flexDirection: 'row', gap: '15px' }}>
+						{[{}, {}, {}].map((ele, index) => (
+							<Skeleton
+								height={'424px'}
+								width={'340px'}
+								style={{
+									borderRadius: '16px',
+								}}
+								key={index}
+							/>
+						))}
 					</div>
-				</InfiniteScroll>
+				) : (
+					<InfiniteScroll
+						dataLength={info?.myWorkflowData?.length || 0}
+						hasMore={info?.hasNextPage}
+						next={fetchMoreMyWorkflows}
+						loader={<FetchMoreLoaderComp />}
+						style={{
+							display: 'flex',
+							flexDirection: 'row',
+							flexWrap: 'wrap',
+							flexFlow: 'wrap',
+							alignItems: 'flex-end',
+							alignContent: 'flex-start',
+							rowGap: '50px',
+							columnGap: '10px',
+							width: '100%',
+							overflowX: 'hidden',
+						}}
+						className="tetsing"
+						height="calc(100vh - 340px)"
+					>
+						<div className="workflows-tab">
+							{info?.myWorkflowData?.map((workflow, index) => {
+								return (
+									<WorkflowCard
+										key={index}
+										workflow={workflow}
+										openModal={openMyWorkflowModal}
+										openCopyLinkModal={openCopyLinkModal}
+										navigateToWorkflowBuilder={navigateToWorkflowBuilder}
+										modalIsOpen={info?.myWorkflowModal}
+										activeTemplateData={info?.activeTemplateData}
+										activeCardsData={info?.activeCardsData}
+									/>
+								);
+							})}
+						</div>
+					</InfiniteScroll>
+				)}
 			</div>
 
 			<MyWorkflowsModals

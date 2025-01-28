@@ -82,11 +82,10 @@ const PendingActionsTab = ({ data }) => {
 		}));
 	}, []);
 
-	const filteredPendingActionsLength = () => {
-		return info?.workflowsDetailslist?.filter((item) => item?.requiredAction?.action).length;
-	};
+	const filteredPendingActionsLength = info?.workflowsDetailslist?.filter(
+		(item) => item?.requiredAction?.action,
+	).length;
 
-	console.log(info?.workflowsDetailslist?.filter((item) => item?.requiredAction?.action));
 	return (
 		<>
 			<div
@@ -100,7 +99,7 @@ const PendingActionsTab = ({ data }) => {
 				id="pendingActions"
 			>
 				<InfiniteScroll
-					dataLength={filteredPendingActionsLength() || 0}
+					dataLength={filteredPendingActionsLength || 0}
 					next={fetcMoreWorkflowList}
 					hasMore={info?.hasNextPage}
 					loader={<FetchMoreLoaderComp />}
@@ -114,7 +113,7 @@ const PendingActionsTab = ({ data }) => {
 					{info?.loading ? (
 						<MyWorkflowModalsLoader width={'287px'} height={'48px'} />
 					) : (
-						<div className="workflow-container">
+						<div className="pending-actions-container">
 							{info?.workflowsDetailslist
 								?.filter((item) => item?.requiredAction?.action)
 								.map((item, index) => {
