@@ -44,9 +44,9 @@ const colors = {
 };
 
 const options = [
-	{ title: 'All', value: 'All' },
-	{ title: 'Today', value: 'Today' },
-	{ title: 'Over due', value: 'Over due' },
+	{ id: 1, title: 'All', value: 'All' },
+	{ id: 2, title: 'Today', value: 'Today' },
+	{ id: 3, title: 'Overdue', value: 'Overdue' },
 ];
 
 const defaultPreference = {
@@ -94,7 +94,6 @@ const TasksTab = () => {
 			addListItem,
 			updateListItem,
 			deleteListItem,
-			addSubTask,
 			removeSubTask,
 			updateSubTask,
 			resetSubTasks,
@@ -104,13 +103,6 @@ const TasksTab = () => {
 			getTaskMetadata,
 		},
 		templates: { getWorkflowsList, workflowslist },
-		companyInfo: {
-			getTeamMembers,
-			tenantsUserList,
-			getTaskPreferences,
-			taskPreference,
-			updateTaskPreferences,
-		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
@@ -267,51 +259,6 @@ const TasksTab = () => {
 	const debounceTimeout = useRef(null);
 
 	useEffect(() => {
-		if (!tenantsUserList) {
-			getTeamMembers();
-		} else {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				tenantUsers: tenantsUserList?.map(({ firstName, lastName, _id }) => ({
-					label: `${firstName} ${lastName}`,
-					value: _id,
-				})),
-			}));
-		}
-	}, [tenantsUserList]);
-
-	useEffect(() => {
-		if (taskPreference === null) {
-			getTaskPreferences({ preferences: 'taskPreference' });
-		} else if (taskPreference?.data === false) {
-			updateTaskPreferences({ preferenceType: 'taskPreference', data: defaultPreference });
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				taskPreferences: {
-					preferenceType: 'taskPreference',
-					preferences: defaultPreference,
-				},
-			}));
-		} else if (taskPreference?.error) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				taskPreferences: {
-					preferenceType: 'taskPreference',
-					preferences: defaultPreference,
-				},
-			}));
-		} else {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				taskPreferences: {
-					preferenceType: 'taskPreference',
-					preferences: taskPreference?.data,
-				},
-			}));
-		}
-	}, [taskPreference]);
-
-	useEffect(() => {
 		if (!workflowslist) {
 			getWorkflowsList({
 				filters: {
@@ -336,35 +283,12 @@ const TasksTab = () => {
 			if (listTasks?.data) {
 				setInfo((prevInfo) => ({
 					...prevInfo,
-					listItems:
-						info?.page === 1
-							? listTasks?.data
-							: [...prevInfo?.listItems, ...listTasks?.data],
+					listItems: [...prevInfo?.listItems, ...listTasks?.data],
 					hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
-					loadingSkeleton: false,
-					infinityLoading: false,
 				}));
 			}
 		}
-		if (listTasks?.error) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				loadingSkeleton: false,
-				infinityLoading: false,
-				error: listTasks?.error,
-				hasMore: false,
-			}));
-		}
 	}, [listTasks]);
-
-	useEffect(() => {
-		if (info?.taskPreferences?.preferences) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				properties: mapPropertyType(),
-			}));
-		}
-	}, [info?.taskPreferences?.preferences]);
 
 	useEffect(() => {
 		if (info?.selectedRow) {
@@ -398,16 +322,6 @@ const TasksTab = () => {
 			taskFilterInput: {
 				limit: 30,
 				page: page,
-				// filters: [
-				// 	{
-				// 		key: 'dueDate',
-				// 		value: Math.floor(new Date().setHours(23, 59, 59, 999) / 1000),
-				// 	},
-				// ],
-				// sort:
-				// 	info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
-				// filters: mapFiltersPayload(info?.filters),
-				// search: info?.searchValue,
 			},
 		});
 	}, []);
@@ -424,55 +338,9 @@ const TasksTab = () => {
 		}
 	}, [info?.infinityLoading, info?.hasMore, info?.page, fetchListItems]);
 
-	// const mapFiltersPayload = useCallback((filters) => {
-	// 	return filters.map((filter) => ({
-	// 		key: filter.key,
-	// 		value:
-	// 			typeof filter.value === 'object'
-	// 				? filter?.value?._id || filter?.value?.value
-	// 				: filter?.value,
-	// 	}));
-	// }, []);
-
 	const updateTaskInfo = useCallback((updateData) => {
 		setInfo((previnfo) => ({ ...previnfo, ...updateData }));
 	}, []);
-
-	const mapPropertyType = useCallback(() => {
-		let properties = [];
-		for (let key in responseMetadata) {
-			if (
-				key === '__typename' ||
-				key === '_id' ||
-				key === 'workflowTemplateId' ||
-				key === 'completedAt'
-			) {
-				continue;
-			}
-
-			const {
-				type = null,
-				name = null,
-				Icon = null,
-				isTitle = false,
-			} = responseMetadata[key] || {};
-			const { show, order } = info?.taskPreferences?.preferences?.[key] || {
-				show: false,
-				order: 0,
-			};
-
-			properties.push({
-				value: key,
-				type,
-				label: name,
-				Icon,
-				show,
-				order,
-				isTitle,
-			});
-		}
-		return properties;
-	}, [info?.taskPreferences?.preferences]);
 
 	const debouncedUpdateTask = useCallback(
 		async (rowId, propName, value, originalValue, isUpdatingSubTask, onSuccess) => {
@@ -684,17 +552,6 @@ const TasksTab = () => {
 		[info?.selectedSubTask?._id, removeSubTask],
 	);
 
-	const handleAddButtonOnClick = () => {
-		updateTaskInfo({ isCreatingSubtask: false, isCreateModalOpen: true });
-	};
-
-	const handleCloseCreateModal = useCallback(() => {
-		if (info?.isCreatingSubtask) {
-			updateTaskInfo({ sidebarIsOpen: true });
-		}
-		updateTaskInfo({ isCreateModalOpen: false });
-	}, [info?.isCreatingSubtask]);
-
 	const handleRowClick = useCallback(
 		(rowId) => {
 			if (info?.selectedRow?._id !== rowId) {
@@ -731,12 +588,10 @@ const TasksTab = () => {
 	}, []);
 
 	useEffect(() => {
-		fetchListItems();
+		fetchListItems(1);
 	}, []);
 
-	const handlePropagation = useCallback((e) => {
-		e.stopPropagation();
-	}, []);
+	console.log(listTasks);
 
 	return (
 		<>
@@ -754,10 +609,10 @@ const TasksTab = () => {
 							}));
 						}}
 						title={
-							<div className="dropdown-options" onClick={handlePropagation}>
-								{options?.map((option, index) => (
+							<div className="dropdown-options">
+								{options?.map((option) => (
 									<div
-										key={index}
+										key={option?.id}
 										className="dropdown-option"
 										onClick={() => {
 											setInfo((prev) => ({
@@ -767,7 +622,7 @@ const TasksTab = () => {
 											}));
 										}}
 									>
-										{option?.value}
+										{option?.title}
 									</div>
 								))}
 							</div>
@@ -794,6 +649,7 @@ const TasksTab = () => {
 										<div
 											className="task-container"
 											onClick={() => {
+												handleRowClick(task?._id);
 												setInfo((prev) => ({
 													...prev,
 													sidebarIsOpen: true,
@@ -810,13 +666,22 @@ const TasksTab = () => {
 
 											<div className="show-more">
 												<div className="assigned-to">
-													{task?.assignedTo?.map((person, index) => {
-														return (
-															<div className="person" key={index}>
-																{person?.name[0]}
-															</div>
-														);
-													})}
+													<div className="persons-container">
+														{task?.assignedTo?.map((person, index) => {
+															return (
+																<div
+																	className="persons"
+																	key={index}
+																>
+																	{person?.name[0]?.toUpperCase()}
+																</div>
+															);
+														})}
+													</div>
+													<div className="remaining-persons-count">
+														{task?.assignedTo?.length > 3 &&
+															`+${task?.assignedTo?.length - 3}`}
+													</div>
 												</div>
 												<div className="chevron-icon-container">
 													<ChevronRightThinIcon />
@@ -829,15 +694,16 @@ const TasksTab = () => {
 						</div>
 					)}
 				{overDueTasks?.length > 0 &&
-					(info?.selectedOption === 'All' || info?.selectedOption === 'Over due') && (
+					(info?.selectedOption === 'All' || info?.selectedOption === 'Overdue') && (
 						<div className="over-due-tasks">
-							<div className="over-due-text">Over due</div>
+							<div className="over-due-text">Overdue</div>
 							<div className="tasks-container">
 								{overDueTasks?.map((task) => {
 									return (
 										<div
 											className="task-container"
 											onClick={() => {
+												handleRowClick(task?._id);
 												setInfo((prev) => ({
 													...prev,
 													sidebarIsOpen: true,
@@ -853,7 +719,24 @@ const TasksTab = () => {
 											</div>
 
 											<div className="show-more">
-												<div className="assigned-to"></div>
+												<div className="assigned-to">
+													<div className="persons-container">
+														{task?.assignedTo?.map((person, index) => {
+															return (
+																<div
+																	className="persons"
+																	key={index}
+																>
+																	{person?.name[0]?.toUpperCase()}
+																</div>
+															);
+														})}
+													</div>
+													<div className="remaining-persons-count">
+														{task?.assignedTo?.length > 3 &&
+															`+${task?.assignedTo?.length - 3}`}
+													</div>
+												</div>
 												<div className="chevron-icon-container">
 													<ChevronRightThinIcon />
 												</div>
@@ -866,7 +749,7 @@ const TasksTab = () => {
 					)}
 			</div>
 			<ListViewSidebar
-				selectedRow={info?.selectedRow}
+				selectedRow={info?.selectedSubTask || info?.selectedRow}
 				isShowingSubTask={
 					info?.selectedSubTask !== undefined && info?.selectedSubTask !== null
 				}

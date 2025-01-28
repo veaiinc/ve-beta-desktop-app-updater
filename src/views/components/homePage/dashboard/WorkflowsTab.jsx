@@ -252,7 +252,6 @@ const WorkflowsTab = () => {
 						flexFlow: 'wrap',
 						alignItems: 'flex-end',
 						alignContent: 'flex-start',
-						// gap: '8px',
 						rowGap: '50px',
 						columnGap: '10px',
 						width: '100%',
