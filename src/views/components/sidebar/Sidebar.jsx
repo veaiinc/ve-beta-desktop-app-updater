@@ -8,7 +8,6 @@ import Context from '../../../context/context';
 import { styles } from './sidebarindex';
 import CreateLeadModal from '../modalsV2/proposalModals/CreateLeadModal';
 import { veAiModulesItemsList } from './sidebarindex';
-import { ReactComponent as SidebarClosing } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
@@ -16,7 +15,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const location = useLocation();
 
 	const [sidebarStates, setsidebarStates] = useState({
-		isOpen: true,
+		isOpen: false,
 		workSpaceOpen: false,
 		navStyle: 'close',
 		selectedModule: null,
@@ -123,11 +122,11 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							userWorkSpaceList={userWorkSpaceList}
 						/>
 					) : (
-						//
-						<SidebarClosing
-							onClick={() =>
-								setsidebarStates({ ...setsidebarStates, isOpen: ' true' })
-							}
+						<ClosedSideBarItemsComponent
+							setsidebarStates={setsidebarStates}
+							sidebarStates={sidebarStates}
+							info={info}
+							setInfo={setInfo}
 						/>
 					)}
 				</nav>
