@@ -111,7 +111,7 @@ const ListViewSidebar = ({
 	}, [subTasks, selectedRow?._id, isShowingSubTask, getSubTasks]);
 
 	useEffect(() => {
-		console.log('responseMetadata changed:', responseMetadata);
+		// console.log('responseMetadata changed:', responseMetadata);
 		console.log('assignTo props:', responseMetadata?.assignedTo?.props);
 	}, [responseMetadata]);
 
@@ -194,7 +194,7 @@ const ListViewSidebar = ({
 					isTitle = false,
 					props = {},
 				} = responseMetadata[key] || {};
-				console.log('responseMetadata', props);
+				// console.log('responseMetadata', props);
 				if (
 					[
 						'__typename',

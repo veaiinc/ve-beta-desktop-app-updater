@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useMemo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/navBar';
 import HeaderInfo from '../../components/homePage/HeaderInfo';
@@ -105,23 +105,26 @@ const HomePage = () => {
 		setInfo((prev) => ({ ...prev, searchValue: value }));
 	};
 
-	const componentMapper = {
-		start: (
-			<HomePageStart
-				cards={filteredPromptData}
-				setInfo={setInfo}
-				isNavbarFixed={info?.isNavbarFixed}
-				searchValue={info?.searchValue}
-			/>
-		),
-		dashboard: (
-			<HomePageDashboard
-				selectedOption={info?.[selectedOption]}
-				options={navbarOptions?.dashboard}
-				isNavbarFixed={info?.isNavbarFixed}
-			/>
-		),
-	};
+	const componentMapper = useMemo(
+		() => ({
+			start: (
+				<HomePageStart
+					cards={filteredPromptData}
+					setInfo={setInfo}
+					isNavbarFixed={info?.isNavbarFixed}
+					searchValue={info?.searchValue}
+				/>
+			),
+			dashboard: (
+				<HomePageDashboard
+					selectedOption={info?.[selectedOption]}
+					options={navbarOptions?.dashboard}
+					isNavbarFixed={info?.isNavbarFixed}
+				/>
+			),
+		}),
+		[filteredPromptData, info?.isNavbarFixed, info?.searchValue, info?.[selectedOption]],
+	);
 
 	return (
 		<div className="home-page-container">
