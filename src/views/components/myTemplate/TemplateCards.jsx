@@ -6,11 +6,12 @@ import SideBarPreview from './SideBarPreview';
 import CreateFileLead from './CreateFileLead';
 import Context from '../../../context/context';
 import moment from 'moment';
-let origin = fetchOriginSelection();
+import { use } from 'react';
+const origin = fetchOriginSelection();
 
 const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows, loaders = false }) => {
 	const {
-		activityInfo: { createSmartfile },
+		activityInfo: { createSmartfile, smartfile },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -20,6 +21,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows, loade
 		showPreview: false,
 		templateData: null,
 		showFileLeadModal: false,
+		activeTemaplateData: null,
 	});
 
 	useEffect(() => {
@@ -32,7 +34,14 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows, loade
 		});
 	}, [data, loading, hasNextPage]);
 
+	useEffect(() => {
+		if (smartfile?._id) {
+			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemaplateData?._id}`;
+		}
+	}, [smartfile]);
+
 	const handleTemplateClick = async (template) => {
+		setInfo((prev) => ({ ...prev, activeTemaplateData: template }));
 		const payload = {
 			smartFileInput: {
 				templateId: template?._id,
@@ -41,7 +50,6 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows, loade
 		};
 		await createSmartfile(payload);
 	};
-
 	const openFileLeadModal = () => {
 		setInfo((prev) => ({ ...prev, showFileLeadModal: true }));
 	};
