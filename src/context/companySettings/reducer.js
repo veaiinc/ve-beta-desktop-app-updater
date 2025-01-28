@@ -24,7 +24,10 @@ const actionHandlers = {
 	}),
 	GET_TASK_PREFERENCES: (state, action) => ({
 		...state,
-		taskPreferences: action.payload,
+		taskPreference: {
+			...state?.taskPreference,
+			...action?.payload?.data,
+		},
 	}),
 
 	RESET_STATE: () => ({ ...intialState }),
