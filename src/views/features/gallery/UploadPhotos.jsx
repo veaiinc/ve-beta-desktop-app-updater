@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useContext, useEffect, useRef, memo } from 'react';
 import '../../../assets/scss/gallery/uploadGallery.scss';
 import AddLables from '../../components/gallery/addGallery/AddLablesComponent';
 import UploadInputComponent from '../../components/gallery/addGallery/UploadInputComponent';
@@ -11,7 +11,7 @@ import Context from '../../../context/context';
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
-import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
+// import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
 
 const UploadPhotos = () => {
 	const { galleryId, albumId } = useParams();
@@ -367,8 +367,6 @@ const UploadPhotos = () => {
 		await Promise.allSettled(activeUploads);
 	};
 
-	console.log('info', info.uploadImages);
-
 	return (
 		<div className="upload-gallery-container">
 			<div onClick={() => navigate(-1)} className="backHeader">
@@ -400,4 +398,4 @@ const UploadPhotos = () => {
 	);
 };
 
-export default UploadPhotos;
+export default memo(UploadPhotos);
