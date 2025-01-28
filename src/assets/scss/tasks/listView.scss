@@ -1,53 +1,16 @@
-.listViewParentContainer {
-	width: 100%;
+.listViewContainer {
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
+	min-width: 100%;
+	width: fit-content;
+	overflow-x: auto;
 
-	button {
-		border: none;
-	}
-
-	.listContainer {
-		display: flex;
-		flex-direction: column;
-		width: 100%;
-		overflow-x: auto;
-		.listInnerContainer {
-			display: flex;
-			flex-direction: column;
-			min-width: 100%;
-			width: fit-content;
-			overflow-x: auto;
-
-			.listItemSkeleton {
-				// display: flex;
-				min-width: 100%;
-				width: fit-content;
-				padding: 8px 0;
-				border-bottom: 1px solid #171819;
-			}
-		}
-	}
-	.loadMoreContainer {
-		display: flex;
-		justify-content: flex-start;
-		align-items: center;
-		width: 100%;
-		padding: 10px 0;
-		button {
-			background-color: #2c2c2c;
-			border: 1px solid #2c2c2c;
-			border-radius: 16px;
-			padding: 10px 16px;
-			color: #e4e5e6;
-			cursor: pointer;
-			transition: background-color 0.2s;
-
-			&:hover {
-				background-color: #3d3d3d;
-			}
-		}
+	.listItemSkeleton {
+		// display: flex;
+		min-width: 100%;
+		width: fit-content;
+		padding: 8px 0;
+		border-bottom: 1px solid #171819;
 	}
 }
 
@@ -78,5 +41,68 @@
 		font-weight: 500;
 		line-height: 13px; /* 100% */
 		letter-spacing: -0.26px;
+	}
+}
+
+.tableViewContainer {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	position: relative;
+
+	.tableBodyWrapper {
+		padding: 8px;
+
+		.tableRowSkeleton {
+			margin: 8px 0;
+			border-radius: 8px;
+			overflow: hidden;
+		}
+	}
+
+	.errorContainer {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 20px;
+
+		.errorMessage {
+			color: #ff9b9b;
+			font-size: 14px;
+		}
+	}
+
+	.noDataContainer {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 20px;
+
+		.noDataMessage {
+			color: #808080;
+			font-size: 14px;
+		}
+	}
+
+	// Infinite scroll styles
+	.infinite-scroll-component {
+		overflow: auto !important;
+		-webkit-overflow-scrolling: touch;
+
+		&::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background-color: rgba(0, 0, 0, 0.2);
+			border-radius: 3px;
+		}
+	}
+
+	// Loader styles
+	.fetch-more-loader {
+		padding: 10px;
+		text-align: center;
 	}
 }

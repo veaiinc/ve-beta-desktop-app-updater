@@ -1,0 +1,19 @@
+.task-container {
+	width: 100%;
+	height: calc(100vh - 60px);
+	display: flex;
+	flex-direction: column;
+
+	.task-content-area {
+		flex-grow: 1;
+		overflow: auto;
+	}
+}
+
+.task-delete-icon {
+	width: 16px;
+	height: 17px;
+	path {
+		stroke: #f2f2f3 !important;
+	}
+}

@@ -1,6 +1,7 @@
 import { Tooltip } from 'antd';
 import React, { memo, useState, useCallback, useEffect } from 'react';
 import { ReactComponent as DustbinOutlined } from '../../../../assets/svg/tasks/dustBin.svg';
+import { ReactComponent as FlagOutlined } from '../../../../assets/svg/tasks/flag.svg';
 import '../../../../assets/scss/dropdown/tasks/propertyEditDropDown.scss';
 
 const PropertyEditDropDown = ({ children, colors, value, onDelete, onUpdate }) => {
@@ -70,6 +71,14 @@ const PropertyEditDropDown = ({ children, colors, value, onDelete, onUpdate }) =
 		[info.selectedColor, onUpdate],
 	);
 
+	const handleSetDefault = useCallback(
+		(e) => {
+			e.stopPropagation();
+			onUpdate({ isDefault: true });
+		},
+		[onUpdate],
+	);
+
 	const handleDelete = useCallback(
 		(e) => {
 			e.stopPropagation();
@@ -98,7 +107,10 @@ const PropertyEditDropDown = ({ children, colors, value, onDelete, onUpdate }) =
 						<DustbinOutlined height={16} width={16} className="delete-icon" />
 						<span className="option-text">Delete</span>
 					</button>
-					{/* <span className="change-group option-item">Change Group</span> */}
+					<button className="delete-button option-item" onClick={handleSetDefault}>
+						<FlagOutlined height={16} width={16} className="delete-icon" />
+						<span className="option-text">Set as default</span>
+					</button>
 					<div className="colors-wrapper">
 						<span className="colors-title">Colors</span>
 						<div className="colors-list">

@@ -3,7 +3,7 @@ import '../../../assets/scss/ai_assistant/CreateAgent.scss';
 import '../../../assets/scss/ai_assistant/createAgentHeader.scss';
 // import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
 import TabHeader from '../../components/ai_assistant/TabHeader';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
 import { ReactComponent as BackSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as Delete } from '../../../assets/svg/ai_assistant/delete.svg';
@@ -18,12 +18,14 @@ import DeleteAgentModal from '../../components/modalsV2/ai_assistant/DeleteAgent
 
 const CreateAgent = () => {
 	const navigate = useNavigate();
+	const { agent } = useLocation()?.state || {};
 
 	const [info, setInfo] = useState({
 		activeTab: 'personality', // personality, instructions, actions, knowledgeBase, prompt, share, linkeafile
 		selectedAgent: null,
 		publishAgent: false,
 		deleteAgentModal: false,
+		agentData: agent,
 	});
 
 	const onTabChange = useCallback((tab) => {
@@ -54,7 +56,7 @@ const CreateAgent = () => {
 		knowledgeBase: {
 			value: 'knowledgeBase',
 			label: 'Knowledge Base',
-			component: <AiKnowledgeBase />,
+			component: <AiKnowledgeBase agent={info?.agentData} />,
 		},
 		prompt: { value: 'prompt', label: 'Prompt', component: <AiPrompt /> },
 		share: { value: 'share', label: 'Share', component: <AiShare /> },
@@ -77,7 +79,7 @@ const CreateAgent = () => {
 							</div>
 							<div className="create-agent-header-left-agent-name">
 								<AgentIcon width={18} height={18} />
-								{info?.agentName || 'Assistant'}
+								{info?.agentData?.name || 'Assistant'}
 							</div>
 						</div>
 

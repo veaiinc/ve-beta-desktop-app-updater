@@ -10,6 +10,7 @@ import { AuthState } from './auth/state';
 import { Calendar } from './Calendar/state';
 import { TasksState } from './tasks/state';
 import { useMemo } from 'react';
+import { ContactsState } from './contacts/state';
 
 const useCombineState = () => {
 	// Call all hooks at the top level
@@ -24,6 +25,7 @@ const useCombineState = () => {
 	const authInfo = AuthState();
 	const calendarInfo = Calendar();
 	const tasks = TasksState();
+	const contacts = ContactsState();
 
 	// Only memoize the final combined object
 	return useMemo(
@@ -39,6 +41,7 @@ const useCombineState = () => {
 			authInfo,
 			calendarInfo,
 			tasks,
+			contacts,
 		}),
 		[
 			chatInfo,
@@ -52,6 +55,7 @@ const useCombineState = () => {
 			authInfo,
 			calendarInfo,
 			tasks,
+			contacts,
 		],
 	);
 };

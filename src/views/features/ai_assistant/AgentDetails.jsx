@@ -1,12 +1,16 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/agentDetails.scss';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
 import { ReactComponent as EditIcon } from '../../../assets/svg/ai_assistant/edit.svg';
 import TabHeader from '../../components/ai_assistant/TabHeader';
+import Context from '../../../context/context';
 
 const AgentDetails = () => {
+	let {
+		aiSetup: { getKnowledgeBaseFiles, getActiveAiAssistantDetails },
+	} = useContext(Context);
 	const { agentId } = useParams();
 	const location = useLocation();
 	const { agent } = location?.state;
@@ -17,6 +21,11 @@ const AgentDetails = () => {
 	const [info, setInfo] = useState({
 		activeTab: 'playground',
 	});
+
+	useEffect(() => {
+		getKnowledgeBaseFiles(agentId);
+		getActiveAiAssistantDetails(agentId);
+	}, []);
 
 	const tabs = {
 		playground: { value: 'playground', label: 'Playground' },
@@ -38,7 +47,9 @@ const AgentDetails = () => {
 				actionBtnClassName="editAgentBtn"
 				actionText="Edit"
 				actionIcon={<EditIcon width={18} height={18} />}
-				onActionClick={() => navigate('/ai-assistant/create-assistant')}
+				onActionClick={() =>
+					navigate('/ai-assistant/create-assistant', { state: { agent } })
+				}
 			/>
 			<TabHeader
 				activeTab={info?.activeTab}

@@ -48,25 +48,76 @@ const actionHandlers = {
 		...state,
 		taskMetadata: {
 			...state.taskMetadata,
-			status: [...state?.taskMetadata?.status, action?.payload],
+			[`${action?.payload?.group}GroupLabels`]: [
+				...state?.taskMetadata?.[`${action?.payload?.group}GroupLabels`],
+				action?.payload,
+			],
 		},
 	}),
-	UPDATE_STATUS_LABEL: (state, action) => ({
-		...state,
-		taskMetadata: {
-			...state.taskMetadata,
-			status: state?.taskMetadata?.status?.map((item) =>
-				item?._id === action?.payload?._id ? action?.payload : item,
-			),
-		},
-	}),
+	UPDATE_STATUS_LABEL: (state, action) => {
+		if (action?.payload?.isDefault) {
+			return {
+				...state,
+				taskMetadata: {
+					...state.taskMetadata,
+					todoGroupLabels: state?.taskMetadata?.todoGroupLabels?.map((item) =>
+						item?._id === action?.payload?._id
+							? { ...action?.payload }
+							: { ...item, isDefault: false },
+					),
+					inProgressGroupLabels: state?.taskMetadata?.inProgressGroupLabels?.map((item) =>
+						item?._id === action?.payload?._id
+							? { ...action?.payload }
+							: { ...item, isDefault: false },
+					),
+					completedGroupLabels: state?.taskMetadata?.completedGroupLabels?.map((item) =>
+						item?._id === action?.payload?._id
+							? { ...action?.payload }
+							: { ...item, isDefault: false },
+					),
+				},
+			};
+		}
+		return {
+			...state,
+			taskMetadata: {
+				...state.taskMetadata,
+				[`${action?.payload?.group}GroupLabels`]: state?.taskMetadata?.[
+					`${action?.payload?.group}GroupLabels`
+				]?.map((item) => (item?._id === action?.payload?._id ? action?.payload : item)),
+			},
+		};
+	},
+	UPDATE_STATUS_LABEL_ORDER: (state, action) => {
+		const oldGroupName = `${action?.payload?.oldGroup}GroupLabels`;
+		const newGroupName = `${action?.payload?.data?.group}GroupLabels`;
+
+		const oldGroupArray = state?.taskMetadata?.[oldGroupName]?.filter(
+			(item) => item?._id !== action?.payload?.data?._id,
+		);
+
+		const newGroupArray = state?.taskMetadata?.[newGroupName]?.filter(
+			(item) => item?._id !== action?.payload?.data?._id,
+		);
+
+		newGroupArray.splice(action?.payload?.order, 0, action?.payload?.data);
+
+		return {
+			...state,
+			taskMetadata: {
+				...state.taskMetadata,
+				[oldGroupName]: oldGroupArray,
+				[newGroupName]: newGroupArray,
+			},
+		};
+	},
 	DELETE_STATUS_LABEL: (state, action) => ({
 		...state,
 		taskMetadata: {
 			...state.taskMetadata,
-			status: state?.taskMetadata?.status?.filter(
-				(item) => item?._id !== action?.payload?._id,
-			),
+			[`${action?.payload?.group}GroupLabels`]: state?.taskMetadata?.[
+				`${action?.payload?.group}GroupLabels`
+			]?.filter((item) => item?._id !== action?.payload?._id),
 		},
 	}),
 	UPDATE_TASK_STATE: (state, action) => ({
