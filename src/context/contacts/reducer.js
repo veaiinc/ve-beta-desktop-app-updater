@@ -1,9 +1,14 @@
 import { intialState } from './state';
 
 const actionHandlers = {
+	SET_CLIENT_LIST: (state, action) => ({
+		...state,
+		clientList: action?.payload,
+	}),
+
 	UPDATE_CONTACT_CONTEXT: (state, action) => ({
 		...state,
-		...action.payload,
+		...action?.payload,
 	}),
 	RESET_STATE: () => intialState,
 };

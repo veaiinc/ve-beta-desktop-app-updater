@@ -193,14 +193,22 @@ const Tasks = () => {
 				type: 'person',
 				name: 'Assigned To',
 				Icon: PersonSvg,
-				props: { options: info?.tenantUsers, multiSelect: true, parseValue: true },
+				props: {
+					options: info?.tenantUsers || [],
+					multiSelect: true,
+					parseValue: true,
+				},
 			},
 			dueDate: { type: 'date', name: 'Due Date', Icon: ClockSvg, props: {} },
 			assignedBy: {
 				type: 'person',
 				name: 'Assigned By',
 				Icon: PersonSvg,
-				props: { disabled: true, parseValue: true },
+				props: {
+					options: info?.tenantUsers || [],
+					disabled: true,
+					parseValue: true,
+				},
 			},
 			assignedAt: {
 				type: 'date',
@@ -290,13 +298,14 @@ const Tasks = () => {
 		if (!tenantsUserList) {
 			getTeamMembers();
 		} else {
-			console.log('tenantsUserList', tenantsUserList);
+			const formattedUsers = tenantsUserList?.map(({ firstName, lastName, _id }) => ({
+				label: `${firstName} ${lastName}`,
+				value: _id,
+			}));
+
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				tenantUsers: tenantsUserList?.map(({ firstName, lastName, _id }) => ({
-					label: `${firstName} ${lastName}`,
-					value: _id,
-				})),
+				tenantUsers: formattedUsers,
 			}));
 		}
 	}, [tenantsUserList]);
@@ -759,12 +768,10 @@ const Tasks = () => {
 	}, [info?.isCreatingSubtask]);
 
 	const handleRowClick = useCallback(
-		(rowId) => {
-			if (info?.selectedRow?._id !== rowId) {
+		(row) => {
+			if (info?.selectedRow?._id !== row?._id) {
 				resetSubTasks();
 			}
-
-			const row = info?.listItems?.find((row) => row._id === rowId);
 			if (row) {
 				updateTaskInfo({ selectedRow: row, sidebarIsOpen: true });
 			}
@@ -812,6 +819,8 @@ const Tasks = () => {
 				hasMore={info?.hasMore}
 				error={info?.error}
 				fetchMoreData={fetchMoreData}
+				blockTitle={'Tasks'}
+				createButtonText={'Create Task'}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}

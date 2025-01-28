@@ -64,7 +64,7 @@ const DateView = ({
 					valueSelector="value"
 				>
 					<Tooltip
-						title={showTitle ? <div className="tooltip-inner">{title}</div> : ''}
+						title={showTitle && <div className="tooltip-inner">{title}</div>}
 						placement="bottom"
 						overlayClassName="tooltip-overlay-container"
 						color="transparent"

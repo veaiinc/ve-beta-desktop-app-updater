@@ -24,8 +24,8 @@ const actionHandlers = {
 	}),
 	GET_TASK_PREFERENCES: (state, action) => ({
 		...state,
-		[action?.payload?.type]: {
-			...state?.[action?.payload?.type],
+		taskPreference: {
+			...state?.taskPreference,
 			...action?.payload?.data,
 		},
 	}),
