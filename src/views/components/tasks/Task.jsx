@@ -30,7 +30,6 @@ const Task = ({
 	properties,
 	taskPreferences,
 	searchValue,
-	infinityLoading,
 	fetchMoreData,
 	hasMore,
 	error,
@@ -179,7 +178,6 @@ const Task = ({
 					rowTypes={rowTypes}
 					handleRowClick={handleRowClick}
 					updateTaskInfo={updateTaskInfo}
-					infinityLoading={infinityLoading}
 					hasMore={hasMore}
 					error={error}
 				/>
@@ -199,7 +197,6 @@ const Task = ({
 			rowTypes,
 			handleRowClick,
 			updateTaskInfo,
-			infinityLoading,
 			hasMore,
 			error,
 		],

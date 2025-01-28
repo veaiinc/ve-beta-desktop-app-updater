@@ -268,7 +268,7 @@ const Contacts = () => {
 			const payload = {
 				clientFilterInput: {
 					limit: 20,
-					page: 1,
+					page: page,
 					sort:
 						info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
 					...(search && {
@@ -423,10 +423,9 @@ const Contacts = () => {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				page: nextPage,
-				infinityLoading: true,
 			}));
 		}
-	}, [info.infinityLoading, info.hasMore, info.page, fetchClientList]);
+	}, [info.hasMore, info.page, fetchClientList]);
 	return (
 		<div>
 			<Task
@@ -444,7 +443,6 @@ const Contacts = () => {
 				properties={info?.properties}
 				taskPreferences={info?.taskPreferences}
 				searchValue={info?.searchValue}
-				infinityLoading={info?.infinityLoading}
 				hasMore={info?.hasMore}
 				error={info?.error}
 				fetchMoreData={fetchMoreData}
