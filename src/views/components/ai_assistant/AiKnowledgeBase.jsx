@@ -3,7 +3,7 @@ import '../../../assets/scss/ai_assistant/knowledgeBase.scss';
 import { ReactComponent as Link } from '../../../assets/svg/smartFiles/formResponse/link.svg';
 import AddKnowledgeModal from '../../components/modalsV2/settings/ai_setup/AddKnowledgeModal';
 
-const AiKnowledgeBase = () => {
+const AiKnowledgeBase = ({}) => {
 	const [info, setInfo] = useState({
 		toggleStates: {},
 		knowledgeModalOpen: false,
