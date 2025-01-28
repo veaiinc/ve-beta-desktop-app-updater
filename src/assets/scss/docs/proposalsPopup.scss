@@ -222,4 +222,123 @@
 			}
 		}
 	}
+	.docsTemplateCard {
+		display: flex;
+		width: 232px;
+		height: 258px;
+		padding-bottom: 16px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		border-radius: 14px;
+		border: 0.5px solid rgba(100, 100, 100, 0.16);
+		border: 0.5px solid color(display-p3 0.3932 0.3932 0.3932 / 0.16);
+		background: #121315;
+		background: color(display-p3 0.0706 0.0745 0.0824);
+		overflow: hidden;
+		flex-shrink: 0;
+		background-color: #121315;
+		cursor: pointer;
+
+		.docsTemplateImageContainer {
+			width: 100%;
+			height: 177px;
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+			position: relative;
+			pointer-events: none;
+			.docsTemplateHoverContentContainer {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				opacity: 0;
+				transition: opacity 0.3s ease-in-out;
+				.docsHoverArrowContainer {
+					display: flex;
+					align-self: stretch;
+					justify-content: center;
+					margin-top: 8px;
+					transform: rotate(180deg);
+				}
+				.docsHoverOptionsContainer {
+					display: flex;
+					flex-direction: column;
+					gap: 10px;
+					padding: 7px 24px;
+					.docsHoverOptionsStyling {
+						color: #fff;
+						color: color(display-p3 1 1 1);
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						letter-spacing: 0.24px;
+						text-transform: capitalize;
+						cursor: pointer;
+					}
+				}
+			}
+			img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				object-position: center;
+				display: block;
+				border-top-left-radius: 14px;
+				border-top-right-radius: 14px;
+				transition: height 0.3s ease-in-out;
+				position: absolute;
+				bottom: 0;
+			}
+			&:hover {
+				.docsTemplateHoverContentContainer {
+					opacity: 1;
+					display: flex;
+					flex-direction: column;
+				}
+				// img {
+				// 	height: 20%;
+				// }
+			}
+		}
+		.docsFooterContent {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 4px;
+			align-self: stretch;
+			padding: 0px 16px;
+			background: #121315;
+			padding-bottom: 16px;
+			padding-top: 12px;
+			.docsFooterContentTitle {
+				color: #e4e5e6;
+				color: color(display-p3 0.8941 0.898 0.902);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+
+				max-width: 190px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				display: block;
+			}
+			.docsFooterContentSubTitle {
+				color: #e4e5e6;
+				color: color(display-p3 0.8941 0.898 0.902);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+	}
 }

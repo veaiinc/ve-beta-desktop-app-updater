@@ -1,11 +1,16 @@
 import React, { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
+import Skeleton from 'react-loading-skeleton';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
 import '../../../assets/scss/docs/proposalsPopup.scss';
+import { fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
+import moment from 'moment';
 import TemplateCards from '../myTemplate/TemplateCards';
 import debounce from 'lodash.debounce';
+const origin = fetchOriginSelection();
 
 const options = ['All', 'Proposal', 'Invoice', 'Contract', 'Thank you', 'Proposal'];
 
@@ -16,6 +21,7 @@ const initialState = {
 	workflowTemplates: [],
 	hasNextPage: false,
 	currentPage: 1,
+	loading: false,
 };
 
 const ProposalPopup = ({ open, closeModal }) => {
@@ -29,17 +35,18 @@ const ProposalPopup = ({ open, closeModal }) => {
 
 	const {
 		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows },
+		activityInfo: { createSmartfile, smartfile },
 	} = useContext(Context);
 
-	useEffect(() => {
-		getMyWorkflowsTemplatesData(1);
-		return () => {
-			setInfo((prev) => ({
-				...prev,
-				...initialState,
-			}));
-		};
-	}, []);
+	// useEffect(() => {
+	// 	// getMyWorkflowsTemplatesData(1);
+	// 	return () => {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			...initialState,
+	// 		}));
+	// 	};
+	// }, []);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -52,6 +59,33 @@ const ProposalPopup = ({ open, closeModal }) => {
 			myWorkflowsDataParser(myMoreWorkflows, true);
 		}
 	}, [myMoreWorkflows]);
+
+	useEffect(() => {
+		if (smartfile?._id) {
+			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemaplateData?._id}`;
+		}
+	}, [smartfile]);
+
+	const handleTemplateClick = async (template) => {
+		if (info?.loading) return;
+
+		setInfo((prev) => ({ ...prev, loading: true }));
+
+		const payload = {
+			smartFileInput: {
+				templateId: template?._id,
+				title: template?.title,
+			},
+		};
+
+		try {
+			await createSmartfile(payload);
+		} catch (error) {
+			console.error('Failed to create smartfile:', error);
+		} finally {
+			setInfo((prev) => ({ ...prev, loading: false }));
+		}
+	};
 
 	const getMyWorkflowsTemplatesData = useCallback((page, search = null, fetchMore = false) => {
 		const payload = {
@@ -103,11 +137,13 @@ const ProposalPopup = ({ open, closeModal }) => {
 	);
 
 	useEffect(() => {
+		// if (info?.search) {
 		const timeout = setTimeout(() => {
 			getMyWorkflowsTemplatesData(1, info.search);
 		}, 500);
 
 		return () => clearTimeout(timeout);
+		// }
 	}, [info.search, getMyWorkflowsTemplatesData]);
 
 	const handleSearchChange = (e) => {
@@ -158,13 +194,67 @@ const ProposalPopup = ({ open, closeModal }) => {
 						))}
 					</div>
 				</div>
-				<TemplateCards
-					data={info?.workflowTemplates}
-					loading={info?.loading}
-					hasNextPage={info?.hasNextPage}
-					fetchMoreMyWorkflows={fetchMoreMyWorkflows}
-					loaders={[{}, {}, {}, {}, {}, {}]}
-				/>
+				<InfiniteScroll
+					dataLength={info?.workflowTemplates?.length || 0}
+					hasMore={info?.hasNextPage}
+					next={fetchMoreMyWorkflows}
+					loader={[{}, {}, {}]?.map((ele, index) => (
+						<Skeleton key={index} height={258} width={232} />
+					))}
+					style={{
+						display: 'flex',
+						flexDirection: 'row',
+						flexWrap: 'wrap',
+						flexFlow: 'wrap',
+						alignItems: 'flex-end',
+						alignContent: 'flex-start',
+						// gap: '8px',
+						rowGap: '50px',
+						columnGap: '10px',
+						width: '100%',
+						overflowX: 'hidden',
+					}}
+					className="tetsing"
+					height="calc(100vh - 340px)"
+				>
+					{info?.workflowTemplates?.map((template, index) => (
+						<div
+							key={index}
+							className="docsTemplateCard"
+							onClick={() => handleTemplateClick(template)}
+						>
+							<div className="docsTemplateImageContainer">
+								<iframe
+									src={`${origin}/preview/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
+									title="Builder Preview"
+									width="100%"
+									height="100%"
+									onClick={(e) => e.stopPropagation()}
+									onMouseDown={(e) => e.stopPropagation()}
+									onMouseUp={(e) => e.stopPropagation()}
+									style={{
+										zoom: 0.3,
+										pointerEvents: 'none',
+									}}
+								/>
+							</div>
+							<div className="docsFooterContent">
+								<span
+									className="docsFooterContentTitle"
+									title={template?.title || 'Template Card'}
+								>
+									{template?.title || 'Template Card'}
+								</span>
+								<span className="docsFooterContentSubTitle">
+									Created On:{' '}
+									{template?.createdAt
+										? moment.unix(template?.createdAt).format('DD MMM YYYY')
+										: ''}
+								</span>
+							</div>
+						</div>
+					))}
+				</InfiniteScroll>
 			</div>
 		</ReactModal>
 	);

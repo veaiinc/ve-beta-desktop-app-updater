@@ -1,19 +1,13 @@
-import React, { memo, useEffect, useState, useContext } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { fetchOriginSelection } from '../../../helpers';
 import SideBarPreview from './SideBarPreview';
 import CreateFileLead from './CreateFileLead';
-import Context from '../../../context/context';
 import moment from 'moment';
-import { use } from 'react';
-const origin = fetchOriginSelection();
+let origin = fetchOriginSelection();
 
-const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows, loaders = false }) => {
-	const {
-		activityInfo: { createSmartfile, smartfile },
-	} = useContext(Context);
-
+const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => {
 	const [info, setInfo] = useState({
 		workflowTemplates: data,
 		loading: loading,
@@ -21,7 +15,6 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows, loade
 		showPreview: false,
 		templateData: null,
 		showFileLeadModal: false,
-		activeTemaplateData: null,
 	});
 
 	useEffect(() => {
@@ -34,22 +27,10 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows, loade
 		});
 	}, [data, loading, hasNextPage]);
 
-	useEffect(() => {
-		if (smartfile?._id) {
-			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemaplateData?._id}`;
-		}
-	}, [smartfile]);
-
-	const handleTemplateClick = async (template) => {
-		setInfo((prev) => ({ ...prev, activeTemaplateData: template }));
-		const payload = {
-			smartFileInput: {
-				templateId: template?._id,
-				title: template?.title,
-			},
-		};
-		await createSmartfile(payload);
+	const handleTemplateClick = (template) => {
+		setInfo((prev) => ({ ...prev, showPreview: true, templateData: template }));
 	};
+
 	const openFileLeadModal = () => {
 		setInfo((prev) => ({ ...prev, showFileLeadModal: true }));
 	};
@@ -58,14 +39,8 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows, loade
 		<>
 			<div className="myTemplatesInfiniteContainer">
 				{info?.loading ? (
-					loaders?.length ? (
-						loaders?.map((ele, index) => (
-							<Skeleton key={index} height={258} width={232} />
-						))
-					) : (
-						[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]?.map(
-							(ele, index) => <Skeleton key={index} height={258} width={232} />,
-						)
+					[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]?.map(
+						(ele, index) => <Skeleton key={index} height={258} width={232} />,
 					)
 				) : (
 					<InfiniteScroll
