@@ -49,6 +49,8 @@ const initialState = {
 	emailTitle: '',
 	slackMessage: '',
 	title: '',
+	selectedSlackChannelId: null,
+	slackChannelsOptions: null,
 };
 const Notification = ({
 	onCLose,
@@ -71,6 +73,7 @@ const Notification = ({
 			myMoreWorkflows,
 			slackChannels,
 			getSpecificWorkflowTemplateDetails,
+			updateSteps,
 		},
 	} = useContext(Context);
 
@@ -85,6 +88,8 @@ const Notification = ({
 	useEffect(() => {
 		if (editMode && activeStepsData) {
 			const { channels, title = '', emailTemplateId } = activeStepsData || {};
+			let slackMessage = '',
+				slackChannelId = '';
 			let stage = 'stage1';
 			if (channels?.[0] === 'email') {
 				stage = 'stage2';
@@ -92,18 +97,32 @@ const Notification = ({
 			}
 			if (channels?.[0] === 'slack') {
 				stage = 'stage5';
+				slackMessage = activeStepsData?.slackMessage;
+				slackChannelId = activeStepsData?.slackChannelId;
 			}
-			setInfo((prev) => ({ ...prev, activeStage: stage, title }));
-			console.log('activeStepsData', activeStepsData);
+			setInfo((prev) => ({
+				...prev,
+				activeStage: stage,
+				title,
+				slackMessage,
+				slackChannelId,
+				selectedChannel: channels?.[0],
+				selectedSlackChannelId: slackChannelId,
+			}));
 		}
 	}, [editMode, activeStepsData]);
+
+	useEffect(() => {
+		if (info?.selectedSlackChannelId && editMode && info?.slackChannelsOptions) {
+			getSelectedSlackChannel(info?.selectedSlackChannelId);
+		}
+	}, [info?.selectedSlackChannelId, editMode, info?.slackChannelsOptions]);
 
 	useEffect(() => {
 		if (allEmailTemplates) {
 			setInfo((prev) => ({
 				...prev,
 				emailTemplates: allEmailTemplates?.data,
-				// selectedTemplate: allEmailTemplates?.data?.[0],
 			}));
 		}
 	}, [allEmailTemplates]);
@@ -148,6 +167,22 @@ const Notification = ({
 			};
 			const response = await getSpecificWorkflowTemplateDetails(payload);
 			setInfo((prev) => ({ ...prev, selectedTemplate: response?.[1] }));
+		},
+		[info],
+	);
+
+	const getSelectedSlackChannel = useCallback(
+		async (slackChannelId) => {
+			const slackChannelsOptions = [...(info?.slackChannelsOptions || [])];
+
+			let selectedSlackChannel = null;
+			for (let i = 0; i < slackChannelsOptions?.length; i++) {
+				if (slackChannelsOptions?.[i]?.value === slackChannelId) {
+					selectedSlackChannel = slackChannelsOptions?.[i];
+					break;
+				}
+			}
+			setInfo((prev) => ({ ...prev, selectedSlackChannel }));
 		},
 		[info],
 	);
@@ -271,6 +306,7 @@ const Notification = ({
 			...prev,
 			...initialState,
 			workflowTemplates: prev.workflowTemplates,
+			slackChannelsOptions: prev.slackChannelsOptions,
 		}));
 	}, [info, onclose]);
 
@@ -305,6 +341,35 @@ const Notification = ({
 		setInfo((prev) => ({ ...prev, saveLoader: false }));
 	}, [info]);
 
+	const editNotificationNode = useCallback(async () => {
+		if (info?.saveLoader) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, saveLoader: true }));
+		const previousStepId = activeEdge?.split('-')?.[0];
+
+		const payload = {
+			updateStepInput: {
+				previousStepId: previousStepId,
+				title: info?.title,
+				channels: info?.selectedChannel,
+				emailTemplateId: info?.selectedTemplate?._id,
+				htmlBody: info?.selectedTemplate?.htmlBody,
+				subject: info?.selectedTemplate?.subject,
+				stepId: activeStepsData?._id,
+				type: 'action',
+				actionType: 'notification',
+			},
+			templateId: templateId,
+		};
+		const response = await updateSteps(payload);
+		if (response?.[0]) {
+			await refetchWorkflowBuilderData();
+			onCLose();
+		}
+		setInfo((prev) => ({ ...prev, saveLoader: false }));
+	}, []);
+
 	const createNewNotificationSlackNode = useCallback(async () => {
 		if (info?.saveLoader) {
 			return;
@@ -330,6 +395,33 @@ const Notification = ({
 			const updatedSmartFileInfo = { ...(specificTemplatesInfo || {}) };
 			updatedSmartFileInfo.steps = [...(response?.[1]?.steps || [])];
 			updateStateValues({ specificTemplatesInfo: updatedSmartFileInfo });
+			onCLose();
+		}
+		setInfo((prev) => ({ ...prev, saveLoader: false }));
+	}, [info]);
+
+	const editNotificationSlackNode = useCallback(async () => {
+		if (info?.saveLoader) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, saveLoader: true }));
+		const previousStepId = activeEdge?.split('-')?.[0];
+		const payload = {
+			updateStepInput: {
+				previousStepId: previousStepId,
+				stepId: activeStepsData?._id,
+				title: info?.title,
+				channels: info?.selectedChannel,
+				slackChannelId: info?.selectedSlackChannel?.value,
+				slackMessage: info?.slackMessage,
+				type: 'action',
+				actionType: 'notification',
+			},
+			templateId: templateId,
+		};
+		const response = await updateSteps(payload);
+		if (response?.[0]) {
+			await refetchWorkflowBuilderData();
 			onCLose();
 		}
 		setInfo((prev) => ({ ...prev, saveLoader: false }));
@@ -374,6 +466,7 @@ const Notification = ({
 					handleEmailTitleChange={handleEmailTitleChange}
 					editMode={editMode}
 					activeStepsData={activeStepsData}
+					editNotificationNode={editNotificationNode}
 				/>
 			),
 			stage3: (
@@ -402,6 +495,9 @@ const Notification = ({
 					handleSlackMessageChange={handleSlackMessageChange}
 					onChangeSlackChannels={onChangeSlackChannels}
 					createNewNotificationSlackNode={createNewNotificationSlackNode}
+					editNotificationSlackNode={editNotificationSlackNode}
+					editMode={editMode}
+					activeStepsData={activeStepsData}
 				/>
 			),
 		};
@@ -511,6 +607,7 @@ const Stage2 = ({
 	handleEmailTitleChange,
 	editMode,
 	activeStepsData,
+	editNotificationNode,
 }) => {
 	const modifiedHandleClick = useCallback(() => {
 		if (!info?.title?.length) {
@@ -518,6 +615,10 @@ const Stage2 = ({
 		}
 		if (!info?.selectedTemplate) {
 			return message.error('email Template Selections is mandatory');
+		}
+
+		if (editMode) {
+			return editNotificationNode();
 		}
 		createNewNotificationNode();
 	}, [info]);
@@ -716,10 +817,16 @@ const Stage5 = ({
 	onChangeSlackChannels,
 	handleSlackMessageChange,
 	createNewNotificationSlackNode,
+	activeStepsData,
+	editMode,
+	editNotificationSlackNode,
 }) => {
 	const modifiedSaveClick = useCallback(() => {
 		if (!info?.title?.length) {
 			return message.error('title is mandatory');
+		}
+		if (editMode) {
+			return editNotificationSlackNode();
 		}
 		createNewNotificationSlackNode();
 	}, [createNewNotificationSlackNode, info]);
@@ -787,9 +894,15 @@ const Stage5 = ({
 					</div>
 				</div>
 			</div>
-			<div className="actionsSaveButton" onClick={modifiedSaveClick}>
-				{info?.saveLoader ? <Spin /> : 'Save'}
-			</div>
+			{editMode ? (
+				<div className="actionsSaveButton" onClick={modifiedSaveClick}>
+					{info?.saveLoader ? <Spin /> : 'Update'}
+				</div>
+			) : (
+				<div className="actionsSaveButton" onClick={modifiedSaveClick}>
+					{info?.saveLoader ? <Spin /> : 'Save'}
+				</div>
+			)}
 		</div>
 	);
 };
