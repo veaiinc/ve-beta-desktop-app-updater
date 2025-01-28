@@ -6,64 +6,26 @@ import Context from '../../../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../../../helpers';
 import MyWorkflowModalsLoader from '../../../../modalsV2/workflowsModals/MyWorkflowModalsLoader';
 import { useNavigate } from 'react-router-dom';
-const timeOptions = [
-	{
-		label: 'All',
-		value: 'all',
-	},
-	{
-		label: 'Last Week',
-		value: 'lastWeek',
-	},
-	{
-		label: 'Last 30 days',
-		value: 'last30Days',
-	},
-	{
-		label: 'Last 90 Days',
-		value: 'last90Days',
-	},
-	{
-		label: 'Last 12 Months',
-		value: 'last12Months',
-	},
-];
 
-const sortOptions = [
-	{
-		label: 'Newest First',
-		value: 'newestFirst',
+const pendingActionsEnums = {
+	counterSign: {
+		title: 'Counter Sign',
 	},
-	{
-		label: 'Oldest First',
-		value: 'oldestFirst',
+	sendProposal: {
+		title: 'Send Proposal',
 	},
-	{
-		label: 'A-Z',
-		value: 'az',
-	},
-	{
-		label: 'Z-A',
-		value: 'za',
-	},
-];
+};
 
 const initialState = {
 	loading: true,
 	workflowsDetailslist: null,
 	currentPage: 1,
 	hasNextPage: false,
-	selectedDuration: timeOptions?.[0],
-	selectedSortOptions: sortOptions?.[0],
-	sortOptionsChanged: false,
 	durationOptionChanged: false,
-	searchExpand: false,
-	searchValue: '',
-	searchValueChanged: false,
 	timeout: null,
 };
 
-const PendingActionsTab = ({ activeTemplateData, activeCardsData, data }) => {
+const PendingActionsTab = ({ data }) => {
 	let {
 		templates: { getWorkflowsList, workflowslist, moreWorkList, updateStateValues },
 	} = useContext(Context);
@@ -93,27 +55,16 @@ const PendingActionsTab = ({ activeTemplateData, activeCardsData, data }) => {
 		}
 	}, [moreWorkList]);
 
-	const getWorkflowsListFunc = useCallback(
-		async (page, fetchMore = false) => {
-			const payload = {
-				filters: {
-					limit: 30,
-					page: page,
-					status: activeCardsData?.status,
-					templateId: activeTemplateData?._id,
-				},
-			};
+	const getWorkflowsListFunc = useCallback(async (page, fetchMore = false) => {
+		const payload = {
+			filters: {
+				limit: 30,
+				page: page,
+			},
+		};
 
-			getWorkflowsList(payload, fetchMore);
-		},
-		[
-			activeTemplateData,
-			activeCardsData,
-			info?.selectedDuration,
-			info?.selectedSortOptions,
-			info?.searchValue,
-		],
-	);
+		getWorkflowsList(payload, fetchMore);
+	}, []);
 
 	const fetcMoreWorkflowList = useCallback(async () => {
 		getWorkflowsListFunc(info?.currentPage + 1, true);
@@ -135,6 +86,7 @@ const PendingActionsTab = ({ activeTemplateData, activeCardsData, data }) => {
 		return info?.workflowsDetailslist?.filter((item) => item?.requiredAction?.action).length;
 	};
 
+	console.log(info?.workflowsDetailslist?.filter((item) => item?.requiredAction?.action));
 	return (
 		<>
 			<div
@@ -182,7 +134,11 @@ const PendingActionsTab = ({ activeTemplateData, activeCardsData, data }) => {
 												{email}
 											</span>
 											<span className="right-text pending-actions-title">
-												{item?.requiredAction?.action}
+												{
+													pendingActionsEnums[
+														item?.requiredAction?.action
+													]?.title
+												}
 
 												<CheckIcon />
 											</span>

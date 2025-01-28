@@ -95,21 +95,34 @@
 				.assigned-to {
 					display: flex;
 					flex-direction: row;
+					align-items: center;
+					justify-content: center;
 					gap: 4px;
-					max-width: 92px;
-					overflow: hidden;
 
-					.person {
-						width: 28px;
-						height: 28px;
-						flex-shrink: 0;
-						color: #797e86;
-						border-radius: 72px;
-						border: 1px solid #797e86;
-						font-size: 14px;
+					.persons-container {
 						display: flex;
-						align-items: center;
-						justify-content: center;
+						flex-direction: row;
+						gap: 3px;
+						max-width: 66px;
+						overflow: hidden;
+
+						.persons {
+							width: 20px;
+							height: 20px;
+							flex-shrink: 0;
+							color: #797e86;
+							border-radius: 72px;
+							border: 1px solid #797e86;
+							font-size: 14px;
+							display: flex;
+							align-items: center;
+							justify-content: center;
+						}
+					}
+
+					.remaining-persons-count {
+						color: #f2f2f3;
+						font-size: 14px;
 					}
 				}
 
