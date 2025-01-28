@@ -27,7 +27,12 @@ const initialState = {
 
 const FilesTab = ({ data }) => {
 	let {
-		templates: { getWorkflowsList, workflowslistForFiles, moreWorkList, updateStateValues },
+		templates: {
+			getWorkflowsListForFiles,
+			workflowslistForFiles,
+			moreWorkList,
+			updateStateValues,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState(initialState);
@@ -56,7 +61,7 @@ const FilesTab = ({ data }) => {
 			},
 		};
 
-		getWorkflowsList(payload, fetchMore);
+		getWorkflowsListForFiles(payload, fetchMore);
 	}, []);
 
 	const fetcMoreWorkflowList = useCallback(async () => {
@@ -68,6 +73,8 @@ const FilesTab = ({ data }) => {
 	).length;
 
 	const workflowsDetailsList = workflowslistForFiles?.[data?._id]?.data;
+
+	console.log('workflowsDetailsList', workflowsDetailsList);
 
 	return (
 		<>
@@ -97,36 +104,28 @@ const FilesTab = ({ data }) => {
 						<MyWorkflowModalsLoader width={'287px'} height={'48px'} />
 					) : (
 						<div className="pending-actions-container">
-							{workflowsDetailsList
-								?.filter((item) => item?.requiredAction?.action)
-								.map((item, index) => {
-									const name = item?.clientDetails?.name;
-									const email = item?.clientDetails?.email;
-									return (
-										<div
-											className="workflow-inner-card"
-											key={index}
-											onClick={() => {
-												navigate(`/smart-file/${data?._id}/${item?._id}`);
-											}}
-										>
-											<span className="left-text">
-												{name}
-												<br />
-												{email}
-											</span>
-											<span className="right-text pending-actions-title">
-												{
-													pendingActionsEnums[
-														item?.requiredAction?.action
-													]?.title
-												}
-
-												<CheckIcon />
-											</span>
-										</div>
-									);
-								})}
+							{workflowsDetailsList?.map((item, index) => {
+								const title = item?.title;
+								const status = item?.status;
+								return (
+									<div
+										className="workflow-inner-card"
+										key={index}
+										onClick={() => {
+											navigate(`/smart-file/${data?._id}/${item?._id}`);
+										}}
+									>
+										<span className="left-text">
+											{title}
+											<br />
+											{status}
+										</span>
+										<span className="right-text pending-actions-title">
+											<CheckIcon />
+										</span>
+									</div>
+								);
+							})}
 						</div>
 					)}
 				</InfiniteScroll>

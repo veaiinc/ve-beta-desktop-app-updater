@@ -91,7 +91,7 @@ const Activity = memo(() => {
 	const [info, setInfo] = useState({
 		loading: true,
 		activityLogsData: [],
-		page: 1,
+		currentPage: 1,
 		hasNextPage: false,
 	});
 
@@ -146,9 +146,9 @@ const Activity = memo(() => {
 
 	const fetchMoreActivityLogs = useCallback(() => {
 		if (info?.hasNextPage) {
-			getActivityLogsData(info?.page + 1, true);
+			getActivityLogsData(info?.currentPage + 1, true);
 		}
-	}, [info?.page, info?.hasNextPage]);
+	}, [info?.currentPage, info?.hasNextPage]);
 
 	const formatTimestamp = (timestamp) => {
 		return moment.unix(timestamp).fromNow();

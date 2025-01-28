@@ -458,9 +458,34 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getWorkflowsListForFiles = async (payload, fetchMore = false) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getWorkflowListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_WORKFLOW_DETAILS_FOR_FILES_SUCCESS,
+					payload: { [payload?.filters?.templateId]: response?.[1]?.data?.workflows },
+					selectedvariable: 'workflowslistForFiles',
+				});
+			} else {
+				console.log('Api failed==>getWorkflowsList', response);
+			}
+		} catch (error) {
+			console.log('error==>getWorkflowsList', error);
+		}
+	};
+
 	const getWorkflowsList = async (payload, fetchMore = false) => {
 		try {
-			const includesTemplateId = payload?.filters?.hasOwnProperty('templateId');
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
@@ -474,13 +499,9 @@ export const TemplatesState = (props) => {
 			if (response?.[0]) {
 				const selectedvariable = fetchMore ? 'moreWorkList' : 'workflowslist';
 				dispatch({
-					type: includesTemplateId
-						? Actions?.GET_WORKFLOW_DETAILS_FOR_FILES_SUCCESS
-						: Actions?.GET_WORKFLOW_DETAILS_SUCCESS,
-					payload: { [payload?.filters?.templateId]: response?.[1]?.data?.workflows },
-					selectedvariable: includesTemplateId
-						? 'workflowslistForFiles'
-						: selectedvariable,
+					type: Actions?.GET_WORKFLOW_DETAILS_SUCCESS,
+					payload: response?.[1]?.data?.workflows,
+					selectedvariable,
 				});
 			} else {
 				console.log('Api failed==>getWorkflowsList', response);
@@ -1352,6 +1373,7 @@ export const TemplatesState = (props) => {
 		updateForm,
 		updateThankyou,
 		getWorkflowsList,
+		getWorkflowsListForFiles,
 		getTemplatesListForCreateLead,
 		createLeadfromTemplates,
 		sendSmartFile,
