@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/docs/index.scss';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
@@ -9,6 +9,7 @@ import { ReactComponent as UppercaseLowercaseA } from '../../../assets/svg/docs/
 import { ReactComponent as MailLetter } from '../../../assets/svg/docs/mail-letter.svg';
 import { ReactComponent as StatusCircle } from '../../../assets/svg/docs/status-circle.svg';
 import { ReactComponent as CrossPurple } from '../../../assets/svg/docs/cross-purple.svg';
+import { ReactComponent as Sync } from '../../../assets/svg/docs/sync.svg';
 
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
@@ -16,6 +17,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Sidebar from '../../components/docs/Sidebar';
 import DropDown from '../../components/dropDown/tasks/DropDown';
 import FilterPopUp from '../../components/globalComponents/FilterPopUp';
+import DeleteLeadModal from '../../components/modalsV2/workflowsModals/DeleteLeadModal.jsx';
 
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from 'antd';
@@ -30,23 +32,25 @@ const payload = {
 
 const staticCreateActions = [
 	{
-		title: 'Create Smart File',
-		subtext: 'Create a tailored smart file and present it to your clients.',
+		type: 'Minimal',
+		prompt: 'Wedding Day Timeline Generator',
 	},
 	{
-		title: 'Create Proposal',
-		subtext: 'Create a tailored business proposal and present it to your clients.',
+		type: 'Professional',
+		prompt: 'Wedding Day Timeline Generator',
 	},
 	{
-		title: 'Create Presentation',
-		subtext: 'Create a tailored business proposal and present it to your clients.',
+		type: 'Traditional',
+		prompt: 'Wedding Day Timeline Generator',
 	},
 	{
-		title: 'Create Invoice',
-		subtext: 'Track invoice status, Payment schedule, amounts, and more.',
+		type: 'Sales',
+		prompt: 'Track invoice status, Payment schedule, amounts, and more.',
 	},
-	{ title: 'Create Contract', subtext: 'Stay on top of contracts and signatures.' },
-	{ title: 'Create Landing Page', subtext: 'Create and share a landing page with clients.' },
+	{
+		type: 'Consise',
+		prompt: 'Wedding Day Timeline Generator',
+	},
 ];
 
 export const statusTextmapper = {
@@ -233,6 +237,7 @@ const Docs = () => {
 			getTemplatesListForDocs,
 			clientListForDocs,
 			getClientListForDocs,
+			deleteLead,
 		},
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
@@ -272,7 +277,10 @@ const Docs = () => {
 		sendSmartFileModal: false,
 		timeout: null,
 		filtersGotChanged: false,
+		deleteLeadModal: false,
 	});
+
+	const activeFileRef = useRef(null);
 
 	useEffect(() => {
 		getDocsFilesListFunc(1);
@@ -502,18 +510,20 @@ const Docs = () => {
 	}, []);
 
 	const handleOpenSidebar = useCallback((data) => {
+		activeFileRef.current = data;
 		setInfo((prev) => ({ ...prev, showRightDrawer: true, activeFileData: data }));
 		getSmartFileInfo(data);
 	}, []);
 
 	const handleCloseSidebar = useCallback(() => {
+		activeFileRef.current = null;
 		setInfo((prev) => ({
 			...prev,
 			showRightDrawer: false,
 			activeFileData: null,
 		}));
 		updateStateValues({ smartFileInfo: null });
-	}, [info]);
+	}, []);
 
 	const getSmartFileInfo = useCallback(
 		async (data) => {
@@ -544,38 +554,74 @@ const Docs = () => {
 		setInfo((prev) => ({ ...prev, timeout }));
 	}, [info?.timeout, info?.searchValue, info?.selectedFilterOptions]);
 
+	const openDeleteModal = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			deleteLeadModal: true,
+		}));
+	}, []);
+
+	const deleteLeadFunc = useCallback(async () => {
+		const activeFile = activeFileRef.current;
+		const payload = {
+			deleteWorkflowId: activeFile._id,
+		};
+		await deleteLead(payload);
+		setInfo((prev) => ({
+			...prev,
+			docsData: prev.docsData?.filter((item) => item?._id !== activeFile._id),
+			deleteLeadModal: false,
+		}));
+		handleCloseSidebar();
+	}, []);
+
 	return (
 		<div className="docsParentContainer">
+			<div className="docsHeaderTitleContainer">
+				<span className="lineOne">Create a</span>
+				<span className="lineTwo">Document</span>
+			</div>
+
 			<div className="docsParentHeaderContainer">
-				<div className="docsHeaderButtons colorful" onClick={onGenerateAIFunc}>
+				<div className="docsHeaderButtons" onClick={onGenerateAIFunc}>
 					<div className="docsHeaderButtonsTitle">Create proposal from your template</div>
-					<div className="docsHeaderSubButtonsSubTitleColored">Start with AI</div>
-				</div>
-				<div className="docsHeaderButtons">
-					{' '}
-					<div className="docsHeaderButtonsTitle">Create proposal from your template</div>
-					<div className="docsHeaderSubButtonsSubTitle">
-						Pick your template from your playbook
+					<div className="docsHeaderSubButtonsSubTitleColored colorful">
+						Start with AI
 					</div>
 				</div>
+
+				<div className="docsHeaderButtons">
+					{' '}
+					<div className="docsHeaderButtonsTitle">Import file or URL</div>
+					<div className="docsHeaderSubButtonsSubTitleColored">
+						Pick your template from playbook
+					</div>
+				</div>
+
 				<div onClick={() => navigate('/my-templates')} className="docsHeaderButtons">
 					{' '}
 					<div className="docsHeaderButtonsTitle">Create proposal from your template</div>
-					<div className="docsHeaderSubButtonsSubTitle">
-						Upload your files, our AI will generate tailored proposal for you
+					<div className="docsHeaderSubButtonsSubTitleColored">
+						Pick your template from playbook
 					</div>
 				</div>
 			</div>
-			<div className="docsTemplatesContainer">
+			{/* Ai Action is not ready yet: new Ui structure is ready */}
+			{/* <div className="docsTemplatesContainer">
+				<div className="promptHeader">
+					<span>Suggested Prompt</span>
+					<Sync />
+				</div>
+
 				<div className="docsTemplateContainer">
 					{staticCreateActions?.map((ele, index) => (
 						<div key={index} className="createStaticActionsCards">
-							<span className="createStaticActionsCardsTitle">{ele?.title}</span>
-							<span className="createStaticActionsCardsSubTitle">{ele?.subtext}</span>
+							<span className="createStaticActionsCardsTitle">{ele?.type}</span>
+							<span className="createStaticActionsCardsSubTitle">{ele?.prompt}</span>
 						</div>
 					))}
 				</div>
-			</div>
+			</div> */}
 
 			<div className="docsFileContainer">
 				<div className="docsFileHeaderContainer">
@@ -743,7 +789,8 @@ const Docs = () => {
 								width: '100%',
 							}}
 							className="tetsing"
-							height="calc(100vh - 500px)"
+							// height="calc(100vh - 500px)"
+							height="calc(100vh - 310px)"
 						>
 							{info?.docsData?.map((ele, index) => (
 								<div
@@ -778,6 +825,13 @@ const Docs = () => {
 					onClose={handleCloseSidebar}
 					activeFileData={info?.activeFileData}
 					refetchDocsFilesList={refetchDocsFilesList}
+					openDeleteModal={openDeleteModal}
+				/>
+
+				<DeleteLeadModal
+					open={info?.deleteLeadModal}
+					closeModal={() => setInfo((prev) => ({ ...prev, deleteLeadModal: false }))}
+					deleteLeadFunc={deleteLeadFunc}
 				/>
 			</div>
 		</div>

@@ -40,9 +40,15 @@ export const veAiModulesItemsList = [
 		icon: '',
 	},
 	{
-		name: 'Gallery',
+		name: 'Classic Gallery',
 		moduleRoute: '/galleries',
 		route: '/galleries',
+		icon: '',
+	},
+	{
+		name: 'Lite Gallery',
+		moduleRoute: '/lite-gallery',
+		route: '/lite-gallery',
 		icon: '',
 	},
 	{
@@ -61,9 +67,23 @@ export const veAiModulesItemsList = [
 		// 	},
 		// ],
 	},
+	{
+		name: 'Design Builder',
+		moduleRoute: '',
+		route: '',
+		icon: '',
+		subModules: [
+			{ id: '0', icon: '', name: 'All Docs', route: '/docs' },
+			{ id: '1', icon: '', name: 'My Templates', route: '/my-templates' },
+			// { icon: '', name: 'Forms', route: '/forms' },
+			// { icon: '', name: 'Client Portal', route: '' },
+			// { icon: '', name: 'Link in bio', route: '' },
+			// { icon: '', name: 'Website', route: '' },
+		],
+	},
 
-	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
-	{ name: 'Docs', moduleRoute: '/docs', route: '/docs', icon: '' },
+	// { name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
+	// { name: 'Docs', moduleRoute: '/docs', route: '/docs', icon: '' },
 	// {
 	// 	name: 'Da-Vinci',
 	// 	moduleRoute: '/ai-agents/home/da-vinici',
@@ -107,17 +127,18 @@ export const veAiModules = [
 		name: 'Settings',
 		route: '/settings/my-profile',
 		// subModules: [
-		// 	{ icon: '', name: 'MyProfile', route: '/settings/my-profile' },
-		// 	{ icon: '', name: 'Workspace', route: '/settings/workspace' },
-		// 	{ icon: '', name: 'Public Information', route: '/settings/public-information' },
+		// 	{ id: '0', icon: '', name: 'MyProfile', route: '/settings/my-profile' },
+		// 	{ id: '1', icon: '', name: 'Workspace', route: '/settings/workspace' },
 		// 	{
+		// 		id: '2',
 		// 		icon: '',
-		// 		name: 'Brand Setup',
-		// 		route: '/settings/brand-setup',
+		// 		name: 'Public Information',
+		// 		route: '/settings/public-information',
 		// 	},
-		// 	{ icon: '', name: 'Team Settings', route: '/settings/team-settings' },
-		// 	{ icon: '', name: 'Integration', route: '/settings/integrations' },
-		// 	{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
+		// 	{ id: '3', icon: '', name: 'Brand Setup', route: '/settings/brand-setup' },
+		// 	{ id: '4', icon: '', name: 'Team Settings', route: '/settings/team-settings' },
+		// 	{ id: '5', icon: '', name: 'Integration', route: '/settings/integrations' },
+		// 	{ id: '6', icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
 		// ],
 	},
 ];
@@ -179,18 +200,21 @@ export const AiOptions = [
 		image: DaVinci,
 		subModules: [
 			{
+				id: '0',
 				icon: TaskSvg,
 				route: '/ai-agents/home/da-vinici',
 				name: 'Home',
 				description: 'Da Vinci',
 			},
 			{
+				id: '1',
 				icon: DaVinciJobsSvg,
 				route: '/ai-agents/jobs/:agent-name',
 				name: 'Jobs',
 				description: 'Da Vinci',
 			},
 			{
+				id: '2',
 				icon: DaVinciSetupSvg,
 				route: '/ai-agents/setup/da-vinici',
 				name: 'Setup',

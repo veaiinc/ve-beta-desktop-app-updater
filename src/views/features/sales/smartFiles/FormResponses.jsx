@@ -152,6 +152,20 @@ const LinkAnswer = ({ answer }) => {
 	);
 };
 
+const FileUploadAnswer = ({ answer }) => {
+	return (
+		<>
+			<img
+				className="answer fileUpload"
+				onClick={() => window.open(answer, '_blank')}
+				src={answer}
+				alt="fileUpload"
+			/>
+			<div className="divider"></div>
+		</>
+	);
+};
+
 const FormResponses = ({ workflowData }) => {
 	let {
 		templates: { formResponseData },
@@ -173,6 +187,7 @@ const FormResponses = ({ workflowData }) => {
 			time: <TimeAnswer answer={answer} />,
 			singleChoice: <SingleChoiceAnswer answer={answer} />,
 			link: <LinkAnswer answer={answer} />,
+			fileUpload: <FileUploadAnswer answer={answer} />,
 		};
 		return (
 			answerComponentMapper[type] ?? (
@@ -187,7 +202,8 @@ const FormResponses = ({ workflowData }) => {
 	useEffect(() => {
 		if (formResponseData) {
 			const sortedResponse = formResponseData?.response?.sort((a, b) => a?.order - b?.order);
-			setInfo((prev) => ({ ...prev, formResponse: sortedResponse }));
+
+			setInfo((prev) => ({ ...prev, formResponse: sortedResponse })); // TODO: setInfo((prev) => ({ ...prev, formResponse: sortedResponse, uploadedFileType }));
 		}
 	}, [formResponseData]);
 
@@ -225,8 +241,7 @@ const FormResponses = ({ workflowData }) => {
 			)}
 			{info?.formResponse?.map(
 				(formData) =>
-					formData?.type !== 'signature' &&
-					formData?.type !== 'fileUpload' && (
+					formData?.type !== 'signature' && (
 						<div className="formResponseContainer" key={formData?.id}>
 							<div className="questionContainer">
 								{iconsForQuestions[formData?.type]}

@@ -6,7 +6,7 @@ import { ReactComponent as ShareSvg } from '../../../assets/svg/docs/share.svg';
 import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
 import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
-import { ReactComponent as ActivitySvg } from '../../../assets/svg/docs/activity.svg';
+// import { ReactComponent as ActivitySvg } from '../../../assets/svg/docs/activity.svg';
 import { ReactComponent as DuplicateSvg } from '../../../assets/svg/shareAndEarn/copy.svg';
 import { ReactComponent as DeleteSvg } from '../../../assets/svg/tasks/dustBin.svg';
 import CustomTextArea from '../globalComponents/CusomTextArea';
@@ -19,9 +19,10 @@ import { DocsStatusButton, statusTextmapper } from '../../features/docs';
 import Context from '../../../context/context.js';
 import SendProposalModal from '../modalsV2/proposalModals/SendProposalModal.jsx';
 import CopiedModal from '../modalsV2/workflowsModals/CopiedModal.jsx';
+import { fetchOriginSelection } from '../../../helpers/index.js';
 
 const initialState = {
-	activeTab: 'reqActions',
+	activeTab: 'preview', // reqActions, preview, activity
 	openMoreOptions: false,
 	sideBarExpanded: false,
 	isAlChatEnabled: false,
@@ -36,11 +37,21 @@ const initialState = {
 	workflowExpiryAt: '',
 	isEmailAuth: true,
 	activeFileData: null,
+	fileActivityData: null,
+	fileViewerList: null,
+	activityDataLoading: true,
 };
+let origin = fetchOriginSelection();
 
-const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
+const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDeleteModal }) => {
 	const {
-		activityInfo: { resetActivityState },
+		activityInfo: {
+			resetActivityState,
+			activityData,
+			getSmartFileActivity,
+			getSmartFileViewers,
+			viewersList,
+		},
 		templates: {
 			smartFileInfo,
 			updateProposal,
@@ -109,27 +120,77 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 		}
 	}, [smartFileInfo]);
 
+	useEffect(() => {
+		if (activeFileData) {
+			getSmartFileActivity({ workflowId: activeFileData?._id });
+			getSmartFileViewers({ workflowId: activeFileData?._id });
+		}
+	}, [activeFileData]);
+
+	useEffect(() => {
+		if (activityData) {
+			setInfo((prev) => ({
+				...prev,
+				fileActivityData: activityData,
+				activityDataLoading: false,
+			}));
+		}
+	}, [activityData]);
+
+	useEffect(() => {
+		if (viewersList) {
+			setInfo((prev) => ({
+				...prev,
+				fileViewerList: viewersList,
+				activityDataLoading: false,
+			}));
+		}
+	}, [viewersList]);
+
 	//function defination
 	const handleTabChange = useCallback((tab) => {
 		setInfo((prev) => ({ ...prev, activeTab: tab }));
 	}, []);
 
 	const tabs = useMemo(() => {
-		return {
-			reqActions: {
+		const baseTabs = {};
+
+		// Add reqActions tab if we have required actions
+		if (info?.activeFileData?.requiredAction?.action) {
+			baseTabs.reqActions = {
 				label: 'Req Actions',
 				Component: <RequiredActions data={info?.activeFileData} />,
-			},
-			preview: {
-				label: 'Preview',
-				Component: <Preview data={info?.activeFileData} />,
-			},
-			activity: {
-				label: 'Activity',
-				Component: <DocsActivity data={info?.activeFileData} />,
-			},
+			};
+		}
+
+		// Add preview tab (always present)
+		baseTabs.preview = {
+			label: 'Preview',
+			Component: <Preview data={info?.activeFileData} />,
 		};
-	}, [info?.activeFileData]);
+
+		// Only add activity tab if we have activity data
+		if (info?.fileActivityData && info?.fileViewerList) {
+			baseTabs.activity = {
+				label: 'Activity',
+				Component: (
+					<DocsActivity
+						data={info?.activeFileData}
+						fileActivityData={info?.fileActivityData}
+						fileViewerList={info?.fileViewerList}
+						loading={info?.activityDataLoading}
+					/>
+				),
+			};
+		}
+
+		return baseTabs;
+	}, [
+		info?.activeFileData,
+		info?.fileActivityData,
+		info?.fileViewerList,
+		info?.activityDataLoading,
+	]);
 
 	const handleMoreVisibility = useCallback((visible) => {
 		setInfo((prev) => ({ ...prev, openMoreOptions: visible }));
@@ -286,6 +347,12 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 		setInfo((prev) => ({ ...prev, sendSmartFileModal: true }));
 	}, []);
 
+	const workflowRedirectionsToBuilder = useCallback(() => {
+		if (info?.activeFileData) {
+			window.location.href = `${origin}/${info?.activeFileData?._id}?workflow=true&templateId=${info?.activeFileData?.templateId}`;
+		}
+	}, [info?.activeFileData]);
+
 	return (
 		<>
 			<Drawer
@@ -324,7 +391,9 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 										statusTextmapper?.[info?.activeFileData?.status]?.dotStyle
 									}
 								/>
-								<div className="editLabel">Edit</div>
+								<div className="editLabel" onClick={workflowRedirectionsToBuilder}>
+									Edit
+								</div>
 								<ShareSvg onClick={openSendSmartFileModal} />
 								<Tooltip
 									placement="bottomRight"
@@ -337,15 +406,15 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList }) => {
 									overlayClassName="dot-svg-tooltip"
 									title={
 										<div className="dot-svg-tooltip-content">
-											<div className="items">
+											{/* <div className="items">
 												<ActivitySvg />
 												<span>Activity</span>
-											</div>
+											</div> */}
 											<div className="items">
 												<DuplicateSvg />
 												<span>Duplicate</span>
 											</div>
-											<div className="items">
+											<div className="items" onClick={openDeleteModal}>
 												<DeleteSvg />
 												<span>Delete</span>
 											</div>
