@@ -4,6 +4,10 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action?.payload,
 	}),
+	GET_WORKFLOW_DETAILS_FOR_FILES_SUCCESS: (state, action) => ({
+		...state,
+		[action?.selectedvariable]: { ...state?.workflowslistForFiles, ...action?.payload },
+	}),
 	GET_ALL_CLIENT_LIST_SUCCESS: (state, action) => ({ ...state, clientList: action?.payload }),
 	GET_ALL_CLIENT_LIST_FOR_DOCS_SUCCESS: (state, action) => ({
 		...state,

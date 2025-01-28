@@ -20,15 +20,15 @@ const options = [
 		title: 'Insights',
 		value: 'Insights',
 	},
-	{
-		id: 3,
-		title: 'Pending actions',
-		value: 'Pending actions',
-	},
+	// {
+	// 	id: 3,
+	// 	title: 'Pending actions',
+	// 	value: 'Pending actions',
+	// },
 	{
 		id: 4,
-		title: 'files',
-		value: 'files',
+		title: 'Files',
+		value: 'Files',
 	},
 ];
 
@@ -48,22 +48,14 @@ const WorkflowCard = memo(
 			selectedCard: null,
 			tabOptions: options,
 		});
-		// console.log(activeTemplateData);
 		const componentMapper = useMemo(() => {
 			return {
 				Steps: <StepsTab data={workflow} openModal={openModal} />,
 				Insights: <InsightsTab data={workflow} openModal={openModal} />,
-				'Pending actions': (
-					<PendingActionsTab
-						data={workflow}
-						activeTemplateData={activeTemplateData}
-						activeCardsData={activeCardsData}
-					/>
-				),
-				files: <FilesTab data={workflow} />,
+				// 'Pending actions': <PendingActionsTab data={workflow} />,
+				Files: <FilesTab data={workflow} />,
 			};
-		}, [workflow, openModal, modalIsOpen, activeTemplateData, activeCardsData]);
-		// console.log(workflow);
+		}, [workflow, openModal]);
 		return (
 			<>
 				<div className="workflow-card-container">

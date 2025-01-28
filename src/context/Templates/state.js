@@ -46,6 +46,7 @@ import { getBase64 } from '../../helpers';
 export const intialState = {
 	workflowslist: null,
 	moreWorkList: null,
+	workflowslistForFiles: null,
 	clientList: null,
 	clientListForDocs: null,
 	templatesListForDocs: null,
@@ -459,6 +460,7 @@ export const TemplatesState = (props) => {
 
 	const getWorkflowsList = async (payload, fetchMore = false) => {
 		try {
+			const includesTemplateId = payload?.filters?.hasOwnProperty('templateId');
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
@@ -472,9 +474,13 @@ export const TemplatesState = (props) => {
 			if (response?.[0]) {
 				const selectedvariable = fetchMore ? 'moreWorkList' : 'workflowslist';
 				dispatch({
-					type: Actions?.GET_WORKFLOW_DETAILS_SUCCESS,
-					payload: response?.[1]?.data?.workflows,
-					selectedvariable,
+					type: includesTemplateId
+						? Actions?.GET_WORKFLOW_DETAILS_FOR_FILES_SUCCESS
+						: Actions?.GET_WORKFLOW_DETAILS_SUCCESS,
+					payload: { [payload?.filters?.templateId]: response?.[1]?.data?.workflows },
+					selectedvariable: includesTemplateId
+						? 'workflowslistForFiles'
+						: selectedvariable,
 				});
 			} else {
 				console.log('Api failed==>getWorkflowsList', response);
