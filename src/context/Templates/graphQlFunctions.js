@@ -61,6 +61,10 @@ export const getClientListQuery = gql`
 				name
 				phoneNumber
 				_id
+				updatedBy
+				updatedAt
+				createdAt
+				createdBy
 			}
 		}
 	}
