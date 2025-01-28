@@ -30,6 +30,12 @@ const RecentChats = () => {
 		console.log(aiChatSessions, 'aiChatSessions');
 	}, []);
 
+	const formatDate = (epochTime) => {
+		if (!epochTime) return '';
+		const date = new Date(epochTime * 1000); // Multiply by 1000 to convert seconds to milliseconds
+		return date.toLocaleString('en-US', { month: 'short', day: '2-digit' });
+	};
+
 	return (
 		<InfiniteScroll
 			dataLength={aiChatSessions?.data?.length}
@@ -50,7 +56,7 @@ const RecentChats = () => {
 						<div className="recentAiChatsContainerEachTop">
 							<div className="recentAiChatsContainerEachTopTitle">{item?.query}</div>
 							<div className="recentAiChatsContainerEachTopSubTitle">
-								{item?.createdAt}
+								{formatDate(item?.createdAt)}
 							</div>
 						</div>
 					</div>
