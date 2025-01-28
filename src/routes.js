@@ -171,7 +171,7 @@ const routes = [
 	{
 		path: '/galleries',
 		component: (
-			<AuthWrapper title={'Galleries'}>
+			<AuthWrapper title={'Galleries'} showBottomToolbar={false}>
 				<AddGallery />
 			</AuthWrapper>
 		),
@@ -180,7 +180,7 @@ const routes = [
 	{
 		path: '/lite-gallery',
 		component: (
-			<AuthWrapper title={'Lite Gallery'}>
+			<AuthWrapper title={'Lite Gallery'} showBottomToolbar={false}>
 				<LiteGallery />
 			</AuthWrapper>
 		),
@@ -189,7 +189,7 @@ const routes = [
 	{
 		path: '/galleries/:galleryId',
 		component: (
-			<AuthWrapper title={'Gallery'} maxWidth={'1200px'}>
+			<AuthWrapper title={'Gallery'} maxWidth={'1200px'} showBottomToolbar={false}>
 				<GalleryPage />
 			</AuthWrapper>
 		),
@@ -198,7 +198,7 @@ const routes = [
 	{
 		path: '/galleries/:galleryId/:albumId/upload-photos',
 		component: (
-			<AuthWrapper title={'Upload Photos'}>
+			<AuthWrapper title={'Upload Photos'} showBottomToolbar={false}>
 				<UploadPhotos />
 			</AuthWrapper>
 		),
@@ -207,7 +207,7 @@ const routes = [
 	{
 		path: '/galleries/:galleryId/:albumId/album-settings',
 		component: (
-			<AuthWrapper title={'Album Settings'}>
+			<AuthWrapper title={'Album Settings'} showBottomToolbar={false}>
 				<AlbumSettings />
 			</AuthWrapper>
 		),
