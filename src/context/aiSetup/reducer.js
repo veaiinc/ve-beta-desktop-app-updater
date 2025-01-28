@@ -21,7 +21,10 @@ const actionHandlers = {
 		...state,
 		workflows: action?.payload,
 	}),
-
+	SET_AI_CHAT_SESSIONS: (state, action) => ({
+		...state,
+		aiChatSessions: action?.payload,
+	}),
 	RESET_STATE: () => initialState,
 };
 
