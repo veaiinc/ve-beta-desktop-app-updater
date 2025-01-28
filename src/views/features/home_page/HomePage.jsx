@@ -70,6 +70,7 @@ const HomePage = () => {
 	});
 
 	const { title, subTitle, selectedOption } = propsForHeaderInfoAndNavBar?.[info?.activeTab];
+	const showSearchBar = info?.activeTab === 'start';
 
 	useEffect(() => {
 		const homePageContainer = document.querySelector('.home-page-container');
@@ -204,6 +205,7 @@ const HomePage = () => {
 							selectedOption={info?.[selectedOption]}
 							handleSelectedOption={handleSelectedOption}
 							handleSearchValue={handleSearchValue}
+							showSearchBar={showSearchBar}
 						/>
 					</div>
 				</div>

@@ -2,7 +2,14 @@ import React, { memo } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
 
-const NavBar = ({ options, selectedOption, handleSelectedOption, handleSearchValue }) => {
+const NavBar = ({
+	options,
+	selectedOption,
+	handleSelectedOption,
+	handleSearchValue,
+	showSearchBar = true,
+}) => {
+	const overrideShowSearchBar = selectedOption === 'Workflows';
 	return (
 		<div className="home-page-welcome-container-left-text-options">
 			<div className="home-page-welcome-container-left-text-options-container">
@@ -21,15 +28,17 @@ const NavBar = ({ options, selectedOption, handleSelectedOption, handleSearchVal
 					</div>
 				))}
 			</div>
-			<div className="home-page-welcome-container-right">
-				<SearchIcon />
-				<input
-					type="text"
-					placeholder="Search Tasks"
-					className="search-bar-input"
-					onChange={(e) => handleSearchValue(e?.target?.value)}
-				/>
-			</div>
+			{(showSearchBar || overrideShowSearchBar) && (
+				<div className="home-page-welcome-container-right">
+					<SearchIcon />
+					<input
+						type="text"
+						placeholder="Search here"
+						className="search-bar-input"
+						onChange={(e) => handleSearchValue(e?.target?.value)}
+					/>
+				</div>
+			)}
 		</div>
 	);
 };
