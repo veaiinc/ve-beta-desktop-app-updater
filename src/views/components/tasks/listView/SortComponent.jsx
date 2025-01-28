@@ -6,21 +6,15 @@ import { ReactComponent as ArrowUpAndDown } from '../../../../assets/svg/tasks/a
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import DropDown from '../../dropDown/tasks/DropDown';
 
-const SortComponent = ({
-	sort,
-	properties,
-	responseMetadata,
-	updateListViewInfo,
-	handelSortClick,
-}) => {
+const SortComponent = ({ sort, properties, responseMetadata, updateViewInfo, handelSortClick }) => {
 	const handleFieldUpdate = useCallback(
 		(sortBy, newValue) => {
 			const newSort = sort.map((item) =>
 				item?.sortBy === sortBy ? { ...item, sortBy: newValue } : item,
 			);
-			updateListViewInfo('sort', newSort);
+			updateViewInfo({ sort: newSort });
 		},
-		[sort, updateListViewInfo],
+		[sort, updateViewInfo],
 	);
 
 	const handleTypeUpdate = useCallback(
@@ -28,17 +22,17 @@ const SortComponent = ({
 			const newSort = sort.map((item) =>
 				item?.sortBy === sortItem?.sortBy ? { ...item, sortType: Number(newValue) } : item,
 			);
-			updateListViewInfo('sort', newSort);
+			updateViewInfo({ sort: newSort });
 		},
-		[sort, updateListViewInfo],
+		[sort, updateViewInfo],
 	);
 
 	const handleRemoveSort = useCallback(
 		(sortItem) => {
 			const newSort = sort.filter((item) => item !== sortItem);
-			updateListViewInfo('sort', newSort);
+			updateViewInfo({ sort: newSort });
 		},
-		[sort, updateListViewInfo],
+		[sort, updateViewInfo],
 	);
 
 	return (
