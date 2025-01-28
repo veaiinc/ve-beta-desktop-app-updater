@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/CreateAgent.scss';
 import '../../../assets/scss/ai_assistant/createAgentHeader.scss';
 // import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
@@ -26,6 +26,23 @@ const CreateAgent = () => {
 		deleteAgentModal: false,
 	});
 
+	const onTabChange = useCallback((tab) => {
+		setInfo((prev) => ({ ...prev, activeTab: tab }));
+	}, []);
+	const onBack = useCallback(() => {
+		navigate(-1);
+	}, []);
+	const onActionClick = useCallback(() => {
+		console.log('Action Clicked');
+	}, []);
+
+	const onDeleteClick = useCallback(() => {
+		setInfo((prev) => ({ ...prev, deleteAgentModal: true }));
+	}, []);
+	const handleDeleteAgent = useCallback(() => {
+		console.log('Delete Agent Clicked');
+	}, []);
+
 	const tabs = {
 		personality: { value: 'personality', label: 'Personality', component: <AiPersonality /> },
 		instructions: {
@@ -43,23 +60,6 @@ const CreateAgent = () => {
 		share: { value: 'share', label: 'Share', component: <AiShare /> },
 		linkFile: { value: 'linkFile', label: 'Link File', component: <AiLinkFile /> },
 	};
-
-	const onTabChange = useCallback((tab) => {
-		setInfo((prev) => ({ ...prev, activeTab: tab }));
-	}, []);
-	const onBack = useCallback(() => {
-		navigate(-1);
-	}, []);
-	const onActionClick = useCallback(() => {
-		console.log('Action Clicked');
-	}, []);
-
-	const onDeleteClick = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteAgentModal: true }));
-	}, []);
-	const handleDeleteAgent = useCallback(() => {
-		console.log('Delete Agent Clicked');
-	}, []);
 
 	return (
 		<>

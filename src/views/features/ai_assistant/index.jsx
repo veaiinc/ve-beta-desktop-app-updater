@@ -4,6 +4,7 @@ import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/ag
 import { ReactComponent as Sync } from '../../../assets/svg/docs/sync.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
+import Spinner from '../../components/loaders/Spinner';
 
 const staticCreateActions = [
 	{
@@ -32,14 +33,47 @@ const AiAssistants = () => {
 	const navigate = useNavigate();
 
 	const {
-		aiSetup: { getAiAssistants, aiAssistants, moreAiAssistants },
+		aiSetup: {
+			getAiAssistants,
+			aiAssistants,
+			moreAiAssistants,
+			createNewAiAssistant,
+			aiAssistant,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		aiAssistantsList: [],
 		hasNextPage: false,
 		currentPage: 1,
+		aiAssistantName: 'Untitled Assistant',
+		aiAssistantId: null,
+		newAiAssistant: null,
+		creatingNewAiAssistantLoading: false,
 	});
+
+	useEffect(() => {
+		return () => {
+			setInfo((prev) => ({ ...prev, creatingNewAiAssistantLoading: false }));
+		};
+	}, []);
+
+	useEffect(() => {
+		if (aiAssistant) {
+			setInfo((prev) => ({ ...prev, newAiAssistant: aiAssistant }));
+		}
+	}, [aiAssistant]);
+
+	const CreateNewAiAssistant = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, creatingNewAiAssistantLoading: true }));
+		const aiAssistantId = await createNewAiAssistant({
+			name: info?.aiAssistantName,
+		});
+		if (aiAssistantId) {
+			setInfo((prev) => ({ ...prev, aiAssistantId }));
+			navigate(`/ai-assistant/${aiAssistantId}/edit`);
+		}
+	}, []);
 
 	useEffect(() => {
 		if (!aiAssistants) {
@@ -95,9 +129,34 @@ const AiAssistants = () => {
 
 					<div
 						className="headActionContainer"
-						onClick={() => navigate('/ai-assistant/create-assistant')}
+						// onClick={() => navigate('/ai-assistant/create-assistant')}
+						onClick={CreateNewAiAssistant}
 					>
-						<span>Create a AI Assistant</span>
+						{info?.creatingNewAiAssistantLoading ? (
+							<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+								Building AI Assistant <Spinner width="18px" height="18px" />
+							</span>
+						) : (
+							<span>Create a AI Assistant</span>
+						)}
+					</div>
+				</div>
+
+				<div className="promtsContainer">
+					<div className="promptHeader">
+						<span>Suggested Prompt</span>
+						<Sync />
+					</div>
+
+					<div className="promptCardsContainer">
+						{staticCreateActions?.map((ele, index) => (
+							<div key={index} className="createStaticActionsCards">
+								<span className="createStaticActionsCardsTitle">{ele?.type}</span>
+								<span className="createStaticActionsCardsSubTitle">
+									{ele?.prompt}
+								</span>
+							</div>
+						))}
 					</div>
 				</div>
 
@@ -136,24 +195,6 @@ const AiAssistants = () => {
 								<div className="createdBy">Powered by Ve.ai</div>
 							</div>
 						)}
-					</div>
-				</div>
-
-				<div className="promtsContainer">
-					<div className="promptHeader">
-						<span>Suggested Prompt</span>
-						<Sync />
-					</div>
-
-					<div className="promptCardsContainer">
-						{staticCreateActions?.map((ele, index) => (
-							<div key={index} className="createStaticActionsCards">
-								<span className="createStaticActionsCardsTitle">{ele?.type}</span>
-								<span className="createStaticActionsCardsSubTitle">
-									{ele?.prompt}
-								</span>
-							</div>
-						))}
 					</div>
 				</div>
 			</div>

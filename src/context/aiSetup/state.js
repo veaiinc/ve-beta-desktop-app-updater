@@ -26,6 +26,7 @@ export const initialState = {
 		hasMore: false,
 		currentPage: 1,
 	},
+	aiAssistant: null,
 };
 
 export const AiSetupState = () => {
@@ -206,6 +207,11 @@ export const AiSetupState = () => {
 		try {
 			const response = await service?.fetchPost(url, data, usertoken, 'ai_assistant_api'); // change the type to ai_setup later
 			if (response?.[0]) {
+				console.log(' createNewAiAssistant response', response?.[1]);
+				dispatch({
+					type: Actions?.SET_AI_ASSISTANT,
+					payload: response?.[1],
+				});
 				return response?.[1]?._id;
 			}
 		} catch (error) {

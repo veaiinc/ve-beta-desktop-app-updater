@@ -327,7 +327,8 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/ai-assistant/create-assistant',
+		// path: '/ai-assistant/create-assistant',
+		path: '/ai-assistant/:aiAssistantId/edit',
 		component: (
 			<AuthWrapper title={'AI Assistant'}>
 				<CreateAgent />

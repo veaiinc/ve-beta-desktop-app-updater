@@ -25,6 +25,10 @@ const actionHandlers = {
 		...state,
 		[action?.selectedVariable]: action?.payload,
 	}),
+	SET_AI_ASSISTANT: (state, action) => ({
+		...state,
+		aiAssistant: action?.payload,
+	}),
 
 	RESET_STATE: () => initialState,
 };
