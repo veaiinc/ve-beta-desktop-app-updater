@@ -144,16 +144,14 @@ export const statusTextmapper = {
 	},
 };
 
-const statusList = [
-	...Object.values(statusTextmapper).map((item) => {
-		if (item?.label !== 'Expired') {
-			return {
-				name: item.label,
-				_id: item.id,
-			};
-		}
-	}),
-];
+const statusList = Object.values(statusTextmapper)
+	.filter((status) => status?.label !== 'Expired') // Exclude the status with label 'Expired'
+	.map((status) => ({
+		name: status?.label,
+		_id: status?.id,
+	}));
+
+console.log(statusList);
 
 const FilterIcons = {
 	templateName: <UppercaseLowercaseA />,
