@@ -4,6 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { ReactComponent as Tick } from '../../../assets/svg/tasks/checkmark.svg';
 
 const FilterPopUp = ({
+	filter,
 	width = '220px',
 	height = '200px',
 	background = '#202123',
@@ -18,10 +19,6 @@ const FilterPopUp = ({
 	searchValue,
 	setSearchValue,
 }) => {
-	const filteredOptions = options?.filter((option) => {
-		const searchField = option?.name ?? option?.title;
-		return searchField?.toLowerCase().includes(searchValue?.toLowerCase());
-	});
 	const [selectedOption, setSelectedOption] = useState(null);
 
 	return (
@@ -35,14 +32,14 @@ const FilterPopUp = ({
 						className="filterPopUpSearchInput"
 						type="text"
 						placeholder={searchInputPlaceholder}
-						onChange={(e) => setSearchValue(e?.target?.value)}
+						onChange={(e) => setSearchValue(filter, e?.target?.value)}
 						autoFocus
 					/>
 				</div>
 			)}
 			<div className="filterPopUpOptionsContainer">
 				<InfiniteScroll
-					dataLength={filteredOptions?.length ?? 0}
+					dataLength={options?.length ?? 0}
 					next={fetchMoreOptions}
 					hasMore={hasMoreOptions ?? true}
 					style={{
@@ -53,17 +50,22 @@ const FilterPopUp = ({
 					}}
 					height={height}
 				>
-					{filteredOptions?.map((option, idx) => (
+					{options?.map((option) => (
 						<div
-							key={option?.id ?? idx}
+							key={option?.id}
 							className="filterPopUpOption"
 							onClick={() => {
-								setSelectedOption(idx);
-								onOptionClick(option);
+								if (selectedOption === option?._id) {
+									setSelectedOption(null);
+									onOptionClick(null);
+								} else {
+									setSelectedOption(option?._id);
+									onOptionClick(option);
+								}
 							}}
 						>
 							<span>{option?.name ?? option?.title}</span>
-							{selectedOption === idx && <Tick />}
+							{selectedOption === option?._id && <Tick />}
 						</div>
 					))}
 				</InfiniteScroll>

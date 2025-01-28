@@ -38,6 +38,7 @@ import MyTemplates from './views/features/my_templates/MyTemplates';
 import Workflow_builder_updated from './views/features/workflow_builder_updated';
 import Forms from './views/features/forms';
 import FormLeads from './views/features/forms/FormLeads';
+import HomePage from './views/features/home_page/HomePage';
 const routes = [
 	{
 		path: '/',
@@ -109,6 +110,16 @@ const routes = [
 		path: '/home',
 		component: (
 			<AuthWrapper title={'Home'}>
+				<HomePage />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+
+	{
+		path: '/sales',
+		component: (
+			<AuthWrapper title={'Sales'}>
 				<Sales />
 			</AuthWrapper>
 		),

@@ -1,32 +1,34 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
-import '../../../assets/scss/sales/sales.scss';
-import MyWorkflowsCard from '../../components/sales/MyWorkflowsCard';
-import Context from '../../../context/context';
+import React, { useEffect, useCallback, useState } from 'react';
+import { useContext } from 'react';
+import Sales from '../../../features/sales/Sales';
+import WorkflowCard from './workflows/workflowCard/WorkflowCard';
+import '../../../../assets/scss/home_page/homepage.scss';
+import Context from '../../../../context/context';
+import { memo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import MyWorkflowsModals from '../../components/modalsV2/workflowsModals/MyWorkflowsModals';
-import { FetchMoreLoaderComp } from '../../../helpers';
+import { FetchMoreLoaderComp } from '../../../../helpers';
+import { getCurrentWorkspaceId } from '../../../../helpers';
 import { useNavigate } from 'react-router-dom';
-import CopiedModal from '../../components/modalsV2/workflowsModals/CopiedModal';
-import PublicLinkGeneratedModal from '../../components/modalsV2/workflowsModals/PublicLinkGeneratedModal';
-import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
-import InitialPageLoader from '../../components/loaders/PageLoader';
-import SalesInfo from './SalesInfo';
-import { getCurrentWorkspaceId } from '../../../helpers';
+import MyWorkflowsModals from '../../modalsV2/workflowsModals/MyWorkflowsModals';
+import CopiedModal from '../../modalsV2/workflowsModals/CopiedModal';
 import { Spin } from 'antd';
+import PublicLinkGeneratedModal from '../../modalsV2/workflowsModals/PublicLinkGeneratedModal';
+import UpdatedPageLoader from '../../loaders/UpdatedPageLoader';
+import InitialPageLoader from '../../loaders/PageLoader';
+import Skeleton from 'react-loading-skeleton';
 
-const Sales = ({ showSalesInfo = true }) => {
-	let {
+const WorkflowsTab = () => {
+	const {
 		templates: {
 			getMyWorkflows,
 			myWorkflows,
 			myMoreWorkflows,
-			salePageRefresh,
 			updateStateValues,
 			generatePublicLinkData,
 		},
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
+
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
@@ -49,20 +51,6 @@ const Sales = ({ showSalesInfo = true }) => {
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
 	}, []);
-
-	// useEffect(() => {
-	// 	const interval = setInterval(() => {
-	// 		getMyWorkflowTemplatesData(1);
-	// 	}, 15000);
-	// 	return () => clearInterval(interval);
-	// }, []);
-
-	useEffect(() => {
-		if (salePageRefresh) {
-			getMyWorkflowTemplatesData(1);
-			updateStateValues({ salePageRefresh: null });
-		}
-	}, [salePageRefresh]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -162,7 +150,7 @@ const Sales = ({ showSalesInfo = true }) => {
 
 	const fetchMoreMyWorkflows = useCallback(() => {
 		getMyWorkflowTemplatesData(info?.currentPage + 1, true);
-	}, [info?.hasNextPage, info?.currentPage]);
+	}, [info?.currentPage]);
 
 	const openMyWorkflowModal = useCallback(async (data, cardsData) => {
 		if (cardsData?.status === 'successRate') {
@@ -244,35 +232,61 @@ const Sales = ({ showSalesInfo = true }) => {
 	);
 
 	return (
-		<>
-			{showSalesInfo && <SalesInfo />}
-			<InfiniteScroll
-				dataLength={info?.myWorkflowData?.length || 0}
-				next={fetchMoreMyWorkflows}
-				hasMore={info?.hasNextPage}
-				loader={<FetchMoreLoaderComp />}
-				scrollableTarget={'scrollableTarget'}
-			>
+		<div className="workflows-tab-container">
+			<div id="scrollableDiv">
 				{info?.loading ? (
-					info?.shownInitialLoader ? (
-						<UpdatedPageLoader />
-					) : (
-						<InitialPageLoader />
-					)
-				) : (
-					<div className="salesParentContainer">
-						{info?.myWorkflowData?.map((e, index) => (
-							<MyWorkflowsCard
+					<div style={{ display: 'flex', flexDirection: 'row', gap: '15px' }}>
+						{[{}, {}, {}].map((ele, index) => (
+							<Skeleton
+								height={'424px'}
+								width={'340px'}
+								style={{
+									borderRadius: '16px',
+								}}
 								key={index}
-								data={e}
-								openModal={openMyWorkflowModal}
-								openCopyLinkModal={openCopyLinkModal}
-								navigateToWorkflowBuilder={navigateToWorkflowBuilder}
 							/>
 						))}
 					</div>
+				) : (
+					<InfiniteScroll
+						dataLength={info?.myWorkflowData?.length || 0}
+						hasMore={info?.hasNextPage}
+						next={fetchMoreMyWorkflows}
+						loader={<FetchMoreLoaderComp />}
+						style={{
+							display: 'flex',
+							flexDirection: 'row',
+							flexWrap: 'wrap',
+							flexFlow: 'wrap',
+							alignItems: 'flex-end',
+							alignContent: 'flex-start',
+							rowGap: '50px',
+							columnGap: '10px',
+							width: '100%',
+							overflowX: 'hidden',
+						}}
+						className="tetsing"
+						height="calc(100vh - 340px)"
+					>
+						<div className="workflows-tab">
+							{info?.myWorkflowData?.map((workflow, index) => {
+								return (
+									<WorkflowCard
+										key={index}
+										workflow={workflow}
+										openModal={openMyWorkflowModal}
+										openCopyLinkModal={openCopyLinkModal}
+										navigateToWorkflowBuilder={navigateToWorkflowBuilder}
+										modalIsOpen={info?.myWorkflowModal}
+										activeTemplateData={info?.activeTemplateData}
+										activeCardsData={info?.activeCardsData}
+									/>
+								);
+							})}
+						</div>
+					</InfiniteScroll>
 				)}
-			</InfiniteScroll>
+			</div>
 
 			<MyWorkflowsModals
 				modalIsOpen={info?.myWorkflowModal}
@@ -309,8 +323,8 @@ const Sales = ({ showSalesInfo = true }) => {
 				}
 				modules={info?.showGeneratedLinkModalData?.moduleTemplates}
 			/>
-		</>
+		</div>
 	);
 };
 
-export default memo(Sales);
+export default memo(WorkflowsTab);

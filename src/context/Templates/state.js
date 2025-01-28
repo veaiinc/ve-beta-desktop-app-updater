@@ -49,6 +49,7 @@ import { getBase64 } from '../../helpers';
 export const intialState = {
 	workflowslist: null,
 	moreWorkList: null,
+	workflowslistForFiles: null,
 	clientList: null,
 	clientListForDocs: null,
 	templatesListForDocs: null,
@@ -462,6 +463,32 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.log('error==>updateThankyou', error);
+		}
+	};
+
+	const getWorkflowsListForFiles = async (payload, fetchMore = false) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getWorkflowListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_WORKFLOW_DETAILS_FOR_FILES_SUCCESS,
+					payload: { [payload?.filters?.templateId]: response?.[1]?.data?.workflows },
+					selectedvariable: 'workflowslistForFiles',
+				});
+			} else {
+				console.log('Api failed==>getWorkflowsList', response);
+			}
+		} catch (error) {
+			console.log('error==>getWorkflowsList', error);
 		}
 	};
 
@@ -1496,6 +1523,7 @@ export const TemplatesState = (props) => {
 		updateForm,
 		updateThankyou,
 		getWorkflowsList,
+		getWorkflowsListForFiles,
 		getTemplatesListForCreateLead,
 		createLeadfromTemplates,
 		sendSmartFile,
