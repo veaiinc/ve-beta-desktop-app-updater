@@ -74,6 +74,9 @@ const BuilderToolbar = ({
 					templateId={templateId}
 					slackConnected={info?.slackConnected}
 					googleConnected={info?.googleConnected}
+					activeStepsData={activeStepsData}
+					editMode={editMode}
+					refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 				/>
 			),
 			pipeline: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,

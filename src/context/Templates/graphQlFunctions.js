@@ -119,6 +119,7 @@ export const getSpecificWorkflowTemplateDetailsQuery = gql`
 			title
 			sendAt
 			approvalRequired
+			_id
 		}
 	}
 `;

@@ -48,6 +48,7 @@ const initialState = {
 	selectedChannel: null,
 	emailTitle: '',
 	slackMessage: '',
+	title: '',
 };
 const Notification = ({
 	onCLose,
@@ -69,6 +70,7 @@ const Notification = ({
 			myWorkflows,
 			myMoreWorkflows,
 			slackChannels,
+			getSpecificWorkflowTemplateDetails,
 		},
 	} = useContext(Context);
 
@@ -82,6 +84,16 @@ const Notification = ({
 
 	useEffect(() => {
 		if (editMode && activeStepsData) {
+			const { channels, title = '', emailTemplateId } = activeStepsData || {};
+			let stage = 'stage1';
+			if (channels?.[0] === 'email') {
+				stage = 'stage2';
+				getSelectedEmailTemplateData(emailTemplateId);
+			}
+			if (channels?.[0] === 'slack') {
+				stage = 'stage5';
+			}
+			setInfo((prev) => ({ ...prev, activeStage: stage, title }));
 			console.log('activeStepsData', activeStepsData);
 		}
 	}, [editMode, activeStepsData]);
@@ -128,6 +140,17 @@ const Notification = ({
 			}));
 		}
 	}, [slackChannels]);
+
+	const getSelectedEmailTemplateData = useCallback(
+		async (emailTemplateId) => {
+			const payload = {
+				getEmailTemplateId: emailTemplateId,
+			};
+			const response = await getSpecificWorkflowTemplateDetails(payload);
+			setInfo((prev) => ({ ...prev, selectedTemplate: response?.[1] }));
+		},
+		[info],
+	);
 
 	const handleSelectEmailTemplate = useCallback(
 		(data) => {
@@ -349,6 +372,8 @@ const Notification = ({
 					changeSubjectOrEmailBody={changeSubjectOrEmailBody}
 					createNewNotificationNode={createNewNotificationNode}
 					handleEmailTitleChange={handleEmailTitleChange}
+					editMode={editMode}
+					activeStepsData={activeStepsData}
 				/>
 			),
 			stage3: (
@@ -448,11 +473,12 @@ const Stage1 = ({ info, handleSearch, changeStage, googleConnected, slackConnect
 							alignItems: 'flex-start',
 							gap: '12px',
 						}}
+						key={index}
 						onClick={() => notificationsListOnClick(ele)}
 					>
 						<span className="notificationTitle">{ele?.title}</span>
 						{ele?.notification?.map((item, ind) => (
-							<div className="actionListItem" key={index}>
+							<div className="actionListItem" key={ind}>
 								<span className="notificationIconContainer">{ele?.icon}</span>
 								{item}
 
@@ -483,6 +509,8 @@ const Stage2 = ({
 	changeSubjectOrEmailBody,
 	createNewNotificationNode,
 	handleEmailTitleChange,
+	editMode,
+	activeStepsData,
 }) => {
 	const modifiedHandleClick = useCallback(() => {
 		if (!info?.title?.length) {
@@ -592,9 +620,16 @@ const Stage2 = ({
 					)}
 				</div>
 			</div>
-			<div className="actionsSaveButton" onClick={modifiedHandleClick}>
-				{info?.saveLoader ? <Spin /> : 'Save'}
-			</div>
+
+			{editMode ? (
+				<div className="actionsSaveButton" onClick={modifiedHandleClick}>
+					{info?.saveLoader ? <Spin /> : 'Update'}
+				</div>
+			) : (
+				<div className="actionsSaveButton" onClick={modifiedHandleClick}>
+					{info?.saveLoader ? <Spin /> : 'Save'}
+				</div>
+			)}
 			<EditAndViewEmailTemplateModal
 				open={info?.previewAndEdit}
 				closeModal={togglePreviewAndEditModal}
