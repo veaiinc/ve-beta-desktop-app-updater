@@ -270,19 +270,13 @@ const UploadPhotos = () => {
 			} else if (info?.isSkipDuplicates && totalImages !== info?.duplciatesFound) {
 				let totalImagesWithoutDuplicates = totalImages - info?.duplciatesFound;
 				processed25Percent =
-					processedCount > 0
-						? parseInt((processedCount / totalImagesWithoutDuplicates) * 25)
-						: 0;
+					processedCount > 0 ? (processedCount / totalImagesWithoutDuplicates) * 25 : 0;
 				uploaded75Percent =
-					uploadedCount > 0
-						? parseInt((uploadedCount / totalImagesWithoutDuplicates) * 75)
-						: 0;
+					uploadedCount > 0 ? (uploadedCount / totalImagesWithoutDuplicates) * 75 : 0;
 				result = uploaded75Percent + processed25Percent;
 			} else {
-				processed25Percent =
-					processedCount > 0 ? parseInt((processedCount / totalImages) * 25) : 0;
-				uploaded75Percent =
-					uploadedCount > 0 ? parseInt((uploadedCount / totalImages) * 75) : 0;
+				processed25Percent = processedCount > 0 ? (processedCount / totalImages) * 25 : 0;
+				uploaded75Percent = uploadedCount > 0 ? (uploadedCount / totalImages) * 75 : 0;
 				result = uploaded75Percent + processed25Percent;
 			}
 
@@ -290,7 +284,11 @@ const UploadPhotos = () => {
 				shouldClearInterval = true;
 			}
 
-			setinfo((prev) => ({ ...prev, uploadStatus: response[1], overAllProgress: result }));
+			setinfo((prev) => ({
+				...prev,
+				uploadStatus: response[1],
+				overAllProgress: Number(result.toFixed(2)),
+			}));
 
 			if (response[1].processedCount === response[1].uploadedCount && shouldClearInterval) {
 				clearInterval(interval);
