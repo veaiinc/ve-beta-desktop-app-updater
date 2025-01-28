@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useContext, useEffect, useRef, memo } from 'react';
 import '../../../assets/scss/gallery/uploadGallery.scss';
 import AddLables from '../../components/gallery/addGallery/AddLablesComponent';
 import UploadInputComponent from '../../components/gallery/addGallery/UploadInputComponent';
@@ -11,7 +11,7 @@ import Context from '../../../context/context';
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
-import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
+// import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
 
 const UploadPhotos = () => {
 	const { galleryId, albumId } = useParams();
@@ -119,6 +119,7 @@ const UploadPhotos = () => {
 					isDuplicate: findDuplicateImage ? true : false,
 					originalImage: findDuplicateImage,
 					originalDate: 0,
+					isFailed: false,
 				};
 
 				updateInfo.uploadImages = uploadedImages;
@@ -134,6 +135,7 @@ const UploadPhotos = () => {
 					uploadedPerct: 0,
 					isDuplicate: !!findDuplicateImage,
 					originalImage: findDuplicateImage,
+					isFailed: false,
 				};
 			}
 		});
@@ -224,6 +226,7 @@ const UploadPhotos = () => {
 					let uploadImages = { ...prev.uploadImages };
 					uploadImages[key]['isUploaded'] = true;
 					uploadImages[key]['uploadedPerct'] = 100;
+					uploadImages[key]['isFailed'] = false;
 					const size = uploadImages[key]['file'].size;
 					delete uploadImages[key]['file'];
 					uploadImages[key]['file'] = { size, name: key };
@@ -251,6 +254,9 @@ const UploadPhotos = () => {
 
 		const interval = setInterval(async () => {
 			const response = await getImageUploadStatus(galleryId, albumId, info?.uploadBatchID);
+			if (response[0] === false) {
+				return;
+			}
 			const { processedCount, uploadedCount } = response[1];
 
 			let result = 0,
@@ -264,19 +270,13 @@ const UploadPhotos = () => {
 			} else if (info?.isSkipDuplicates && totalImages !== info?.duplciatesFound) {
 				let totalImagesWithoutDuplicates = totalImages - info?.duplciatesFound;
 				processed25Percent =
-					processedCount > 0
-						? parseInt((processedCount / totalImagesWithoutDuplicates) * 25)
-						: 0;
+					processedCount > 0 ? (processedCount / totalImagesWithoutDuplicates) * 25 : 0;
 				uploaded75Percent =
-					uploadedCount > 0
-						? parseInt((uploadedCount / totalImagesWithoutDuplicates) * 75)
-						: 0;
+					uploadedCount > 0 ? (uploadedCount / totalImagesWithoutDuplicates) * 75 : 0;
 				result = uploaded75Percent + processed25Percent;
 			} else {
-				processed25Percent =
-					processedCount > 0 ? parseInt((processedCount / totalImages) * 25) : 0;
-				uploaded75Percent =
-					uploadedCount > 0 ? parseInt((uploadedCount / totalImages) * 75) : 0;
+				processed25Percent = processedCount > 0 ? (processedCount / totalImages) * 25 : 0;
+				uploaded75Percent = uploadedCount > 0 ? (uploadedCount / totalImages) * 75 : 0;
 				result = uploaded75Percent + processed25Percent;
 			}
 
@@ -284,7 +284,11 @@ const UploadPhotos = () => {
 				shouldClearInterval = true;
 			}
 
-			setinfo((prev) => ({ ...prev, uploadStatus: response[1], overAllProgress: result }));
+			setinfo((prev) => ({
+				...prev,
+				uploadStatus: response[1],
+				overAllProgress: Number(result.toFixed(2)),
+			}));
 
 			if (response[1].processedCount === response[1].uploadedCount && shouldClearInterval) {
 				clearInterval(interval);
@@ -331,6 +335,24 @@ const UploadPhotos = () => {
 						break;
 					}
 				}
+
+				if (attempts !== 0) {
+					// Wait for 1 minute before retrying
+					setinfo((prev) => ({
+						...prev,
+						uploadImages: {
+							...prev.uploadImages,
+							[currentFile]: { ...prev.uploadImages[currentFile], isFailed: true },
+						},
+					}));
+					let waitTime = 2000 * attempts;
+					await new Promise((resolve) => {
+						console.log('waiting  for ', waitTime, 'seconds');
+						setTimeout(() => {
+							resolve();
+						}, waitTime);
+					});
+				}
 				attempts++;
 			}
 			if (isSuccessUpload) {
@@ -376,4 +398,4 @@ const UploadPhotos = () => {
 	);
 };
 
-export default UploadPhotos;
+export default memo(UploadPhotos);

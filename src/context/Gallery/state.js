@@ -570,6 +570,7 @@ export const Galleries = () => {
 			return response;
 		} catch (error) {
 			console.log('error==>updateUserLogo', error);
+			return [false, { message: 'Failed to get upload image sign url' }];
 		}
 	};
 
@@ -585,7 +586,8 @@ export const Galleries = () => {
 
 			return response;
 		} catch (error) {
-			console.log('error==>getTags', error);
+			console.log('error==>getImageUploadStatus', error);
+			return [false, { message: 'Failed to get upload image status' }];
 		}
 	};
 

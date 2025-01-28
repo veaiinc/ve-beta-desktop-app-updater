@@ -10,7 +10,7 @@ export const intialState = {
 	tenantSubscriptionDetails: null,
 	clientPortalPreferences: null,
 	AICreditsData: null,
-	taskPreferences: null,
+	taskPreference: null,
 };
 export const CompanySettingsState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -337,30 +337,31 @@ export const CompanySettingsState = () => {
 		}
 	};
 
-	const getTaskPreferences = async () => {
+	const getTaskPreferences = async (data) => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
 			const response = await service.fetchGet(
-				API.TENANTS.taskPreferences,
+				API?.TENANTS?.tenantUserPreference,
 				usertoken,
 				'tenant-users',
+				data,
 			);
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.GET_TASK_PREFERENCES,
-					payload: { data: response?.[1] },
+					payload: { type: data?.preferences, data: { data: response?.[1] } },
 				});
 			} else {
 				dispatch({
 					type: Actions.GET_TASK_PREFERENCES,
-					payload: { error: response?.[1] },
+					payload: { type: data?.preferences, data: { error: response?.[1] } },
 				});
 			}
 		} catch (error) {
 			console.log('error ==> getTaskPreferences', error);
 			dispatch({
 				type: Actions.GET_TASK_PREFERENCES,
-				payload: { error: error },
+				payload: { type: data?.preferences, data: { error: error } },
 			});
 		}
 	};
@@ -369,7 +370,7 @@ export const CompanySettingsState = () => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
 			const response = await service.fetchPut(
-				API.TENANTS.taskPreferences,
+				API?.TENANTS?.tenantUserPreference,
 				json,
 				usertoken,
 				'tenant-users',

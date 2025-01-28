@@ -1,0 +1,99 @@
+.tabHeader {
+	display: flex;
+	position: relative;
+	align-items: center;
+	height: 43px;
+	width: 100%;
+	min-width: 0;
+
+	.tabs-container {
+		display: flex;
+		height: 100%;
+		gap: 8px;
+		flex: 1;
+		min-width: 0;
+		transition: all 0.2s ease;
+	}
+
+	.tabHeaderButton {
+		font-size: 12px;
+		height: 100%;
+		display: flex;
+		padding: 6px 8px;
+		justify-content: center;
+		align-items: center;
+		gap: 8px;
+		color: #7a7e85;
+		font-family: Inter;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		transition: color 0.3s ease;
+		white-space: nowrap;
+		position: relative;
+		flex-shrink: 0;
+
+		&.dragging {
+			background: #2f2f2f;
+			border-radius: 4px;
+			z-index: 1;
+		}
+
+		svg {
+			width: 16px;
+			height: 16px;
+			opacity: 0.5;
+			transition: opacity 0.3s ease;
+		}
+
+		.tab-underline {
+			position: absolute;
+			bottom: -1px;
+			left: 0;
+			right: 0;
+			height: 1px;
+			background-color: transparent;
+			transition: background-color 0.3s ease;
+		}
+
+		&:hover {
+			color: #e4e5e6;
+			svg {
+				opacity: 1;
+			}
+		}
+
+		&.active {
+			color: #f2f2f3;
+			svg {
+				opacity: 1;
+			}
+			.tab-underline {
+				background-color: #ffffff;
+			}
+		}
+	}
+
+	.more-tabs-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		padding: 6px 8px;
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		color: #7a7e85;
+		font-size: 12px;
+		font-family: Inter;
+		white-space: nowrap;
+		flex-shrink: 0;
+
+		&:hover {
+			color: #e4e5e6;
+		}
+	}
+}

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import ListView from '../../components/tasks/listView/ListView';
+import ListView from '../../components/tasks/views/ListView';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
 import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
@@ -13,6 +13,25 @@ import { message } from 'antd';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
+import Task from '../../components/tasks/Task';
+import ListViewSidebar from '../../components/modalsV2/tasks/ListViewSidebar';
+
+import Text from '../../components/tasks/listView/Text';
+import Select from '../../components/tasks/listView/Select';
+import Person from '../../components/tasks/listView/Person';
+import MultiSelect from '../../components/tasks/listView/MultiSelect';
+import DateView from '../../components/tasks/listView/DateView';
+import Status from '../../components/tasks/listView/Status';
+import Priority from '../../components/tasks/listView/Priority';
+import Email from '../../components/tasks/listView/Email';
+import Url from '../../components/tasks/listView/Url';
+import Phone from '../../components/tasks/listView/Phone';
+import CheckBox from '../../components/tasks/listView/CheckBox';
+import WorkFlow from '../../components/tasks/listView/WorkFlow';
+import TaskId from '../../components/tasks/listView/TaskId';
+import ParentTaskComponent from '../../components/tasks/listView/ParentTaskComponent';
+import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
+import LinkText from '../../components/tasks/listView/LinkText';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -42,6 +61,25 @@ const colors = {
 	7: { backgroundColor: '#453061', color: '#6F4C99' },
 };
 
+const rowTypes = {
+	text: Text,
+	select: Select,
+	person: Person,
+	'multi-select': MultiSelect,
+	date: DateView,
+	id: TaskId,
+	status: Status,
+	priority: Priority,
+	email: Email,
+	phone: Phone,
+	url: Url,
+	checkbox: CheckBox,
+	workflow: WorkFlow,
+	parentTask: ParentTaskComponent,
+	childTasks: ChildTaskProgress,
+	linkText: LinkText,
+};
+
 const Tasks = () => {
 	const {
 		tasks: {
@@ -54,18 +92,17 @@ const Tasks = () => {
 			removeSubTask,
 			updateSubTask,
 			resetSubTasks,
-			getTaskStatusLabels,
 			taskMetadata,
-			getTaskStatusDefaultLabel,
 			refetchTasks,
 			updateTaskState,
+			getTaskMetadata,
 		},
 		templates: { getWorkflowsList, workflowslist },
 		companyInfo: {
 			getTeamMembers,
 			tenantsUserList,
 			getTaskPreferences,
-			taskPreferences,
+			taskPreference,
 			updateTaskPreferences,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -77,7 +114,10 @@ const Tasks = () => {
 		isCreateModalOpen: false,
 		isCreatingSubtask: true,
 		properties: [],
-		taskPreferences: defaultPreference,
+		taskPreferences: {
+			preferenceType: 'taskPreference',
+			preferences: defaultPreference,
+		},
 		sidebarIsOpen: false,
 		selectedRow: null,
 		selectedSubTask: null,
@@ -92,6 +132,8 @@ const Tasks = () => {
 		filters: [],
 		searchValue: '',
 		updated: false,
+		infinityLoading: false,
+		view: 'table',
 	});
 
 	const responseMetadata = useMemo(
@@ -110,10 +152,25 @@ const Tasks = () => {
 				name: 'Status',
 				Icon: PieSvg,
 				props: {
-					options: info?.taskMetadata?.status?.sort((a, b) => a.order - b.order) || [],
+					options: {
+						todo: info?.taskMetadata?.todoGroupLabels,
+						inProgress: info?.taskMetadata?.inProgressGroupLabels,
+						completed: info?.taskMetadata?.completedGroupLabels,
+					},
 				},
 			},
-			priority: { type: 'priority', name: 'Priority', Icon: PrioritySvg, props: {} },
+			priority: {
+				type: 'select',
+				name: 'Priority',
+				Icon: PrioritySvg,
+				props: {
+					options: [
+						{ label: 'Low', _id: 'low', color: '1' },
+						{ label: 'Medium', _id: 'medium', color: '2' },
+						{ label: 'High', _id: 'high', color: '3' },
+					],
+				},
+			},
 			workflow: {
 				type: 'workflow',
 				name: 'Project',
@@ -136,14 +193,22 @@ const Tasks = () => {
 				type: 'person',
 				name: 'Assigned To',
 				Icon: PersonSvg,
-				props: { options: info?.tenantUsers, multiSelect: true, parseValue: true },
+				props: {
+					options: info?.tenantUsers || [],
+					multiSelect: true,
+					parseValue: true,
+				},
 			},
 			dueDate: { type: 'date', name: 'Due Date', Icon: ClockSvg, props: {} },
 			assignedBy: {
 				type: 'person',
 				name: 'Assigned By',
 				Icon: PersonSvg,
-				props: { disabled: true, parseValue: true },
+				props: {
+					options: info?.tenantUsers || [],
+					disabled: true,
+					parseValue: true,
+				},
 			},
 			assignedAt: {
 				type: 'date',
@@ -189,14 +254,26 @@ const Tasks = () => {
 			clearTimeout(filterDebounceTimeout.current);
 		}
 
+		// Always fetch when filters or search change
 		if (info?.filters || info?.searchValue) {
 			filterDebounceTimeout.current = setTimeout(() => {
-				updateListViewInfo('loadingSkeleton', true);
-				fetchListItems();
+				setInfo((prev) => ({
+					...prev,
+					page: 1,
+					loadingSkeleton: true,
+					listItems: [], // Clear existing items
+				}));
+				fetchListItems(1);
 			}, 800);
 		} else {
-			updateListViewInfo('loadingSkeleton', true);
-			fetchListItems();
+			// Initial load or when filters are cleared
+			setInfo((prev) => ({
+				...prev,
+				page: 1,
+				loadingSkeleton: true,
+				listItems: [], // Clear existing items
+			}));
+			fetchListItems(1);
 		}
 
 		return () => {
@@ -204,43 +281,65 @@ const Tasks = () => {
 				clearTimeout(filterDebounceTimeout.current);
 			}
 		};
-	}, [info?.page, info?.sort, info?.filters, info?.searchValue]);
+	}, [info?.filters, info?.searchValue]); // Remove page dependency
+
+	useEffect(() => {
+		if (info?.sort?.length > 0) {
+			setInfo((prev) => ({
+				...prev,
+				page: 1,
+				loadingSkeleton: true,
+			}));
+			fetchListItems(1);
+		}
+	}, [info?.sort]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
 			getTeamMembers();
 		} else {
+			const formattedUsers = tenantsUserList?.map(({ firstName, lastName, _id }) => ({
+				label: `${firstName} ${lastName}`,
+				value: _id,
+			}));
+
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				tenantUsers: tenantsUserList?.map(({ firstName, lastName, _id }) => ({
-					label: `${firstName} ${lastName}`,
-					value: _id,
-				})),
+				tenantUsers: formattedUsers,
 			}));
 		}
 	}, [tenantsUserList]);
 
 	useEffect(() => {
-		if (taskPreferences === null) {
-			getTaskPreferences();
-		} else if (taskPreferences?.data === false) {
-			updateTaskPreferences(defaultPreference);
+		if (taskPreference === null) {
+			getTaskPreferences({ preferences: 'taskPreference' });
+		} else if (taskPreference?.data === false) {
+			updateTaskPreferences({ preferenceType: 'taskPreference', data: defaultPreference });
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				taskPreferences: defaultPreference,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: defaultPreference,
+				},
 			}));
-		} else if (taskPreferences?.error) {
+		} else if (taskPreference?.error) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				taskPreferences: defaultPreference,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: defaultPreference,
+				},
 			}));
 		} else {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				taskPreferences: taskPreferences?.data,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: taskPreference?.data,
+				},
 			}));
 		}
-	}, [taskPreferences]);
+	}, [taskPreference]);
 
 	useEffect(() => {
 		if (!workflowslist) {
@@ -261,6 +360,7 @@ const Tasks = () => {
 			}));
 		}
 	}, [workflowslist]);
+
 	useEffect(() => {
 		if (listTasks) {
 			if (listTasks?.data) {
@@ -270,8 +370,9 @@ const Tasks = () => {
 						info?.page === 1
 							? listTasks?.data
 							: [...prevInfo?.listItems, ...listTasks?.data],
-					hasMore: listTasks?.hasNextPage,
+					hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
 					loadingSkeleton: false,
+					infinityLoading: false,
 				}));
 			}
 		}
@@ -279,34 +380,33 @@ const Tasks = () => {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				loadingSkeleton: false,
+				infinityLoading: false,
 				error: listTasks?.error,
+				hasMore: false,
 			}));
 		}
 	}, [listTasks]);
 
 	useEffect(() => {
-		if (info?.taskPreferences) {
+		if (info?.taskPreferences?.preferences) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				properties: mapPropertyType(),
 			}));
 		}
-	}, [info?.taskPreferences]);
+	}, [info?.taskPreferences?.preferences]);
 
 	useEffect(() => {
 		if (info?.selectedRow) {
-			updateListViewInfo(
-				'selectedRow',
-				info?.listItems.find((item) => item._id === info?.selectedRow._id),
-			);
+			updateTaskInfo({
+				selectedRow: info?.listItems.find((item) => item._id === info?.selectedRow._id),
+			});
 		}
 	}, [info?.listItems, info?.selectedRow]);
 
 	useEffect(() => {
 		if (!taskMetadata) {
-			getTaskStatusLabels();
-		} else if (taskMetadata?.status?.length === 0) {
-			getTaskStatusDefaultLabel();
+			getTaskMetadata();
 		} else {
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -323,17 +423,33 @@ const Tasks = () => {
 		}
 	}, [refetchTasks]);
 
-	const fetchListItems = useCallback(() => {
-		getListItems({
-			taskFilterInput: {
-				limit: 30,
-				page: info?.page,
-				sort: info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
-				filters: mapFiltersPayload(info?.filters),
-				search: info?.searchValue,
-			},
-		});
-	}, [info?.page, info?.sort, info?.filters, info?.searchValue]);
+	const fetchListItems = useCallback(
+		(page = 1) => {
+			getListItems({
+				taskFilterInput: {
+					limit: 20,
+					page: page,
+					sort:
+						info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
+					filters: mapFiltersPayload(info?.filters),
+					search: info?.searchValue,
+				},
+			});
+		},
+		[info?.sort, info?.filters, info?.searchValue],
+	);
+
+	const fetchMoreData = useCallback(() => {
+		if (info.hasMore) {
+			const nextPage = info.page + 1;
+			fetchListItems(nextPage);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				page: nextPage,
+				infinityLoading: true,
+			}));
+		}
+	}, [info.infinityLoading, info.hasMore, info.page, fetchListItems]);
 
 	const mapFiltersPayload = useCallback((filters) => {
 		return filters.map((filter) => ({
@@ -345,8 +461,8 @@ const Tasks = () => {
 		}));
 	}, []);
 
-	const updateListViewInfo = useCallback((key, value) => {
-		setInfo((previnfo) => ({ ...previnfo, [key]: value }));
+	const updateTaskInfo = useCallback((updateData) => {
+		setInfo((previnfo) => ({ ...previnfo, ...updateData }));
 	}, []);
 
 	const mapPropertyType = useCallback(() => {
@@ -367,7 +483,10 @@ const Tasks = () => {
 				Icon = null,
 				isTitle = false,
 			} = responseMetadata[key] || {};
-			const { show, order } = info?.taskPreferences[key] || { show: false, order: 0 };
+			const { show, order } = info?.taskPreferences?.preferences?.[key] || {
+				show: false,
+				order: 0,
+			};
 
 			properties.push({
 				value: key,
@@ -380,7 +499,7 @@ const Tasks = () => {
 			});
 		}
 		return properties;
-	}, [info?.taskPreferences]);
+	}, [info?.taskPreferences?.preferences]);
 
 	const debouncedUpdateTask = useCallback(
 		async (rowId, propName, value, originalValue, isUpdatingSubTask, onSuccess) => {
@@ -619,7 +738,7 @@ const Tasks = () => {
 				const response = await deleteListItem(payload);
 				if (response) {
 					if (info?.selectedSubTask?._id === payload?.taskId) {
-						updateListViewInfo('selectedSubTask', null);
+						updateTaskInfo({ selectedSubTask: null });
 						removeSubTask(payload?.taskId);
 					} else {
 						setInfo((prevInfo) => ({
@@ -638,31 +757,70 @@ const Tasks = () => {
 	);
 
 	const handleAddButtonOnClick = () => {
-		updateListViewInfo('isCreatingSubtask', false);
-		updateListViewInfo('isCreateModalOpen', true);
+		updateTaskInfo({ isCreatingSubtask: false, isCreateModalOpen: true });
 	};
 
 	const handleCloseCreateModal = useCallback(() => {
 		if (info?.isCreatingSubtask) {
-			updateListViewInfo('sidebarIsOpen', true);
+			updateTaskInfo({ sidebarIsOpen: true });
 		}
-		updateListViewInfo('isCreateModalOpen', false);
+		updateTaskInfo({ isCreateModalOpen: false });
 	}, [info?.isCreatingSubtask]);
 
+	const handleRowClick = useCallback(
+		(row) => {
+			if (info?.selectedRow?._id !== row?._id) {
+				resetSubTasks();
+			}
+			if (row) {
+				updateTaskInfo({ selectedRow: row, sidebarIsOpen: true });
+			}
+		},
+		[info?.listItems, resetSubTasks, info?.selectedRow?._id],
+	);
+
+	const handleCreateSubTaskClick = useCallback(() => {
+		updateTaskInfo({ sidebarIsOpen: false, isCreatingSubtask: true, isCreateModalOpen: true });
+	}, []);
+
+	const handleSubTaskClick = useCallback((task) => {
+		updateTaskInfo({ selectedSubTask: task });
+	}, []);
+
+	const handleCloseSidebar = useCallback(() => {
+		if (info?.updated) {
+			updateTaskInfo({ loadingSkeleton: true });
+			fetchListItems();
+			updateTaskInfo({ updated: false });
+		}
+		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
+	}, [info?.updated]);
+
+	const handleChildTaskClose = useCallback(() => {
+		updateTaskInfo({ selectedSubTask: null });
+	}, []);
+
 	return (
-		<div>
-			<ListView
-				info={info}
-				updateListViewInfo={updateListViewInfo}
-				resetSubTasks={resetSubTasks}
-				updatePropertyValue={updatePropertyValue}
-				deleteTask={deleteTask}
-				addNewTask={addNewTask}
+		<>
+			<Task
 				responseMetadata={responseMetadata}
-				fetchListItems={fetchListItems}
-				addButtonOnClick={handleAddButtonOnClick}
-				haveSubTask={true}
+				handleAddButtonOnClick={handleAddButtonOnClick}
+				handleRowClick={handleRowClick}
 				colors={colors}
+				updateTaskInfo={updateTaskInfo}
+				rowTypes={rowTypes}
+				data={info?.listItems}
+				loading={info?.loadingSkeleton}
+				handleUpdate={updatePropertyValue}
+				properties={info?.properties}
+				taskPreferences={info?.taskPreferences}
+				searchValue={info?.searchValue}
+				infinityLoading={info?.infinityLoading}
+				hasMore={info?.hasMore}
+				error={info?.error}
+				fetchMoreData={fetchMoreData}
+				blockTitle={'Tasks'}
+				createButtonText={'Create Task'}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
@@ -674,8 +832,34 @@ const Tasks = () => {
 				isSubTask={info?.isCreatingSubtask}
 				responseMetadata={responseMetadata}
 				colors={colors}
+				fetchMoreData={fetchMoreData}
+				hasMore={info?.hasMore}
+				error={info?.error}
 			/>
-		</div>
+			<ListViewSidebar
+				selectedRow={info?.selectedSubTask || info?.selectedRow}
+				isShowingSubTask={
+					info?.selectedSubTask !== undefined && info?.selectedSubTask !== null
+				}
+				parentTaskNo={info?.selectedRow?.taskSlNo}
+				handleChildTaskClose={handleChildTaskClose}
+				handleSubTaskClick={handleSubTaskClick}
+				sidebarIsOpen={info?.sidebarIsOpen}
+				closeSidebar={handleCloseSidebar}
+				handleUpdate={updatePropertyValue}
+				deleteTask={deleteTask}
+				rowTypes={rowTypes}
+				handleCreateSubTaskClick={handleCreateSubTaskClick}
+				responseMetadata={responseMetadata}
+				haveSubTask={false}
+				properties={info?.properties}
+				colors={colors}
+				toggleSidebarExpand={() =>
+					updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
+				}
+				isSidebarExpanded={info?.isSidebarExpanded}
+			/>
+		</>
 	);
 };
 
