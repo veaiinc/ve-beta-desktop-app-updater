@@ -233,13 +233,6 @@ const WorkflowsTab = () => {
 	return (
 		<div className="workflows-tab-container">
 			<div id="scrollableDiv" className="infinite-scroller">
-				{/* <InfiniteScroll
-					dataLength={info?.myWorkflowData?.length || 0}
-					next={fetchMoreMyWorkflows}
-					hasMore={info?.hasNextPage}
-					loader={<FetchMoreLoaderComp />}
-					scrollableTarget={'scrollableTarget'}
-				> */}
 				<InfiniteScroll
 					dataLength={info?.myWorkflowData?.length || 0}
 					hasMore={info?.hasNextPage}
@@ -260,33 +253,24 @@ const WorkflowsTab = () => {
 					className="tetsing"
 					height="calc(100vh - 340px)"
 				>
-					{info?.loading ? (
-						info?.shownInitialLoader ? (
-							<UpdatedPageLoader />
-						) : (
-							<InitialPageLoader />
-						)
-					) : (
-						<div className="workflows-tab">
-							{info?.myWorkflowData?.map((workflow, index) => {
-								return (
-									<WorkflowCard
-										key={index}
-										workflow={workflow}
-										openModal={openMyWorkflowModal}
-										openCopyLinkModal={openCopyLinkModal}
-										navigateToWorkflowBuilder={navigateToWorkflowBuilder}
-										modalIsOpen={info?.myWorkflowModal}
-										activeTemplateData={info?.activeTemplateData}
-										activeCardsData={info?.activeCardsData}
-									/>
-								);
-							})}
-						</div>
-					)}
+					<div className="workflows-tab">
+						{info?.myWorkflowData?.map((workflow, index) => {
+							return (
+								<WorkflowCard
+									key={index}
+									workflow={workflow}
+									openModal={openMyWorkflowModal}
+									openCopyLinkModal={openCopyLinkModal}
+									navigateToWorkflowBuilder={navigateToWorkflowBuilder}
+									modalIsOpen={info?.myWorkflowModal}
+									activeTemplateData={info?.activeTemplateData}
+									activeCardsData={info?.activeCardsData}
+								/>
+							);
+						})}
+					</div>
 				</InfiniteScroll>
 			</div>
-			{/* <Sales showSalesInfo={false} /> */}
 
 			<MyWorkflowsModals
 				modalIsOpen={info?.myWorkflowModal}

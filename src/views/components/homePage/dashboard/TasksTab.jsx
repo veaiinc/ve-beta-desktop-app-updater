@@ -591,7 +591,7 @@ const TasksTab = () => {
 		fetchListItems(1);
 	}, []);
 
-	console.log(listTasks);
+	console.log(info?.selectedRow);
 
 	return (
 		<>
@@ -649,7 +649,7 @@ const TasksTab = () => {
 										<div
 											className="task-container"
 											onClick={() => {
-												handleRowClick(task?._id);
+												// handleRowClick(task?._id);
 												setInfo((prev) => ({
 													...prev,
 													sidebarIsOpen: true,
@@ -703,7 +703,7 @@ const TasksTab = () => {
 										<div
 											className="task-container"
 											onClick={() => {
-												handleRowClick(task?._id);
+												// handleRowClick(task?._id);
 												setInfo((prev) => ({
 													...prev,
 													sidebarIsOpen: true,
@@ -749,7 +749,7 @@ const TasksTab = () => {
 					)}
 			</div>
 			<ListViewSidebar
-				selectedRow={info?.selectedSubTask || info?.selectedRow}
+				selectedRow={info?.selectedRow}
 				isShowingSubTask={
 					info?.selectedSubTask !== undefined && info?.selectedSubTask !== null
 				}
