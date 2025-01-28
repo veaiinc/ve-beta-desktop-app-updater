@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
+import React, { memo, useCallback, useState, useRef, useEffect, useContext, useMemo } from 'react';
 import '../../../assets/scss/ai_agents/bottomToolbar.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/ai_agents/Plus.svg';
 import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
@@ -15,6 +15,10 @@ import { useLocation } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import { TypingEffect } from '../../../helpers/markdownHelper';
 import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
+import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.svg';
+import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
+import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
+import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 
 const moduleHelper = {
 	'/tasks': 'tasks',
@@ -42,6 +46,7 @@ const BottomToolbar = ({
 		position: { x: -325, y: 0 },
 		addQuickAction: false,
 		chatSessionId: ObjectID().toString(),
+		uploadedImages: [],
 	});
 
 	const toolbarRef = useRef(null);
@@ -132,7 +137,6 @@ const BottomToolbar = ({
 				if (e.shiftKey) {
 					return;
 				}
-
 				// Prevent default to avoid unwanted new line
 				e.preventDefault();
 
@@ -164,15 +168,40 @@ const BottomToolbar = ({
 
 	const handleChange = useCallback(
 		({ file }) => {
-			handleAiUploadImage(file);
+			let uploadedImages = [...info?.uploadedImages];
+			uploadedImages.push(file);
+			if (customChatActions) {
+				handleAiUploadImage(file);
+			} else {
+			}
+
 			setInfo((prev) => ({
 				...prev,
-				addQuickAction: false,
+				// addQuickAction: false,
 				expanded: true,
 				inputExpanded: true,
+				uploadedImages,
 			}));
 		},
-		[handleAiUploadImage],
+		[handleAiUploadImage, info],
+	);
+
+	const chatIcons = useMemo(
+		() => [
+			<Filter />,
+			<Arroba />,
+			<Upload
+				onChange={handleChange}
+				showUploadList={false}
+				beforeUpload={() => false} // Prevent default upload behavior
+				maxCount={1} // Allow only one file at a time
+				accept="image/*" // Accept only images
+			>
+				<PaperClip />
+			</Upload>,
+			<Mic />,
+		],
+		[info, handleChange],
 	);
 
 	return (
@@ -229,6 +258,11 @@ const BottomToolbar = ({
 						),
 					)}
 				</div>
+				<div className="imagePreviewBar">
+					{info?.uploadedImages?.map((ele, index) => (
+						<div className="previewOfUploadedImage"></div>
+					))}
+				</div>
 			</div>
 
 			{/* bottom toolBarContent */}
@@ -245,7 +279,7 @@ const BottomToolbar = ({
 						onKeyDown={handleSendMessageFunc}
 						style={{ resize: 'none' }}
 					/>
-					<div className="bottomToolbarButtons">
+					{/* <div className="bottomToolbarButtons">
 						<div className="quickActionsButtons">
 							<Home />
 						</div>
@@ -272,6 +306,14 @@ const BottomToolbar = ({
 						<div className="quickActionsButtons">
 							<Settings />
 						</div>
+					</div> */}
+
+					<div className="chat-icons-container">
+						{chatIcons?.map((icon, idx) => (
+							<span key={idx} className="chat-icon">
+								{icon}
+							</span>
+						))}
 					</div>
 				</div>
 			) : (
@@ -293,20 +335,20 @@ const BottomToolbar = ({
 
 export default memo(BottomToolbar);
 
-const QuickActionsPlusParentContainer = ({ handleChange }) => {
-	return (
-		<div className="QuickActionsPlusParentContainer">
-			<Upload
-				onChange={handleChange}
-				showUploadList={false}
-				beforeUpload={() => false} // Prevent default upload behavior
-				maxCount={1} // Allow only one file at a time
-				accept="image/*" // Accept only images
-			>
-				<button className="quick-action-upload-button">
-					<UploadOutlined /> Upload Images
-				</button>
-			</Upload>
-		</div>
-	);
-};
+// const QuickActionsPlusParentContainer = ({ handleChange }) => {
+// 	return (
+// 		<div className="QuickActionsPlusParentContainer">
+// 			<Upload
+// 				onChange={handleChange}
+// 				showUploadList={false}
+// 				beforeUpload={() => false} // Prevent default upload behavior
+// 				maxCount={1} // Allow only one file at a time
+// 				accept="image/*" // Accept only images
+// 			>
+// 				<button className="quick-action-upload-button">
+// 					<UploadOutlined /> Upload Images
+// 				</button>
+// 			</Upload>
+// 		</div>
+// 	);
+// };
