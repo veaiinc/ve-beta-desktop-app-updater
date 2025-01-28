@@ -49,7 +49,16 @@ const initialState = {
 	emailTitle: '',
 	slackMessage: '',
 };
-const Notification = ({ onCLose, templateId, activeEdge, slackConnected, googleConnected }) => {
+const Notification = ({
+	onCLose,
+	templateId,
+	activeEdge,
+	slackConnected,
+	googleConnected,
+	editMode,
+	activeStepsData,
+	refetchWorkflowBuilderData,
+}) => {
 	const {
 		templates: {
 			allEmailTemplates,
@@ -70,6 +79,12 @@ const Notification = ({ onCLose, templateId, activeEdge, slackConnected, googleC
 			handleDebouce();
 		}
 	}, [info?.searchChanged, info?.search]);
+
+	useEffect(() => {
+		if (editMode && activeStepsData) {
+			console.log('activeStepsData', activeStepsData);
+		}
+	}, [editMode, activeStepsData]);
 
 	useEffect(() => {
 		if (allEmailTemplates) {

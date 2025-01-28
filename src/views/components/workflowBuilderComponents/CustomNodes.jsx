@@ -78,7 +78,8 @@ export const ActionNode = ({ data }) => {
 		if (data?.onToolBarOpen) {
 			data.onToolBarOpen({
 				toolBarOpen: true,
-				sidebarType: 'actions',
+				sidebarType:
+					data?.currentStep?.actionType === 'notification' ? 'notifications' : 'actions',
 				activeStepsData: data?.currentStep,
 				editMode: true,
 			});
