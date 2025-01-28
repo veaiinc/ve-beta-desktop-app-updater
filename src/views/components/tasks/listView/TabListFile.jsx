@@ -7,7 +7,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import Context from '../../../../context/context';
 
-const TabListFile = ({ rowTypes, colors }) => {
+const TabListFile = ({ rowTypes, colors, handleRowClick, refetchDocsFilesList, onUpdate }) => {
 	let {
 		templates: { getDocsFilesList, docsFilesList, moreDocsFilesList },
 	} = useContext(Context);
@@ -39,10 +39,11 @@ const TabListFile = ({ rowTypes, colors }) => {
 				doSplit: true,
 			},
 			status: {
-				type: 'status',
+				type: 'select',
 				name: 'Status',
 				Icon: TextSvg,
 				props: {
+					disabled: true,
 					options: [
 						{
 							_id: 'filesViewed',
@@ -118,6 +119,13 @@ const TabListFile = ({ rowTypes, colors }) => {
 			parseDocsFilesListDeatils(moreDocsFilesList, true);
 		}
 	}, [moreDocsFilesList]);
+
+	useEffect(() => {
+		if (refetchDocsFilesList) {
+			getDocsFilesListFunc(1, false);
+			onUpdate({ refetchDocsFilesList: false });
+		}
+	}, [refetchDocsFilesList]);
 
 	const getDocsFilesListFunc = useCallback(
 		async (page, fetchMore = false) => {
@@ -224,11 +232,10 @@ const TabListFile = ({ rowTypes, colors }) => {
 							properties={info.properties}
 							rowTypes={rowTypes}
 							updatePropertyValue={() => {}}
-							handleRowClick={() => {}}
 							responseMetadata={responseMetadata}
 							handleEditPropertyChange={() => {}}
 							colors={colors}
-							rowClickHandler={() => {}}
+							handleRowClick={handleRowClick}
 							fromTabList={true}
 							isSubTask={true}
 						/>

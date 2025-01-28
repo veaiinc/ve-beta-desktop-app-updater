@@ -14,7 +14,6 @@ const ListView = ({
 	handleUpdate,
 	data,
 	loading,
-	infinityLoading,
 	hasMore,
 	error,
 	rowTypes,

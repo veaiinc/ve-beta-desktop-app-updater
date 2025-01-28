@@ -143,7 +143,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 			{
 				<div className="modifiedCreateLeadModal" style={{ minHeight: '400px' }}>
 					<div className="modalHeading">
-						<p className="title">What lead is this proposal for?</p>
+						<p className="title">What Client is this file for?</p>
 						<div className="closeContainer" onClick={closeModalFunc}>
 							<Close />
 						</div>
@@ -239,8 +239,11 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 								Cancel
 							</p>
 						</div>
-						<p className="errorMessage" style={{ color: '#ff4d4f' }}>
-							{errorState['errorMessage']}
+						<p
+							className="errorMessage"
+							style={{ color: '#ff4d4f', opacity: 0.5, fontSize: '14px' }}
+						>
+							{errorState['errorMessage']} something went wrog
 						</p>
 					</div>
 				</div>

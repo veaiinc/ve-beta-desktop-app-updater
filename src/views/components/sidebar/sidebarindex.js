@@ -112,7 +112,7 @@ export const veAiModulesItemsList = [
 	// 	route: '/playbook',
 	// 	icon: PlaybookSvg,
 	// },
-	{ name: 'Contacts', moduleRoute: '/contacts', route: '/contacts' },
+	// { name: 'Contacts', moduleRoute: '/contacts', route: '/contacts' },
 	// { name: 'Teams', moduleRoute: '/teams', route: '/teams' },
 ];
 

@@ -12,25 +12,14 @@ import FilterComponent from './FilterComponent';
 import TabHeader from './TabHeader';
 
 const defaultFilterValue = {
-	workflow: null,
-	status: null,
-	priority: null,
-	title: '',
-	description: '',
-	dueDate: null,
-	createdAt: null,
-	updatedAt: null,
-	assignedTo: null,
-	assignedBy: null,
-	createdBy: null,
-	updatedBy: null,
+	text: '',
+	linkText: '',
 };
 
 const ListViewHeader = ({
 	properties,
 	searchValue,
 	responseMetadata,
-	headerTitle,
 	addButtonOnClick,
 	taskPreferences,
 	editingProperty,
@@ -43,12 +32,22 @@ const ListViewHeader = ({
 	updateViewInfo,
 	updateTaskInfo,
 	viewData,
+	blockTitle,
+	handleTabsReorder,
+	showEditViewDropDown,
+	closeEditViewDropDown,
+	handleDuplicateView,
+	handleDeleteView,
+	handleTabDropdownClick,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
+		showFilters: true,
+		showSort: true,
 	});
 	const [pendingFilters, setPendingFilters] = useState([]);
 	const searchInputRef = useRef(null);
+	const [showDropdown, setShowDropdown] = useState(false);
 
 	useEffect(() => {
 		if (info.searchExpand && searchInputRef.current) {
@@ -58,7 +57,20 @@ const ListViewHeader = ({
 
 	const handelSortClick = useCallback(
 		(value) => {
-			const newSort = viewData?.sort?.some((item) => item.sortBy === value)
+			if (!value) {
+				setInfo((prev) => ({
+					...prev,
+					showSort: !prev.showSort,
+				}));
+				return;
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				showSort: true,
+			}));
+
+			const newSort = viewData?.sort?.some((item) => item?.sortBy === value)
 				? viewData?.sort
 				: [...viewData?.sort, { sortBy: value, sortType: 1 }];
 
@@ -69,6 +81,19 @@ const ListViewHeader = ({
 
 	const handelFilterClick = useCallback(
 		(value) => {
+			if (!value) {
+				setInfo((prev) => ({
+					...prev,
+					showFilters: !prev.showFilters,
+				}));
+				return;
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				showFilters: true,
+			}));
+
 			if (
 				!viewData?.filters?.some((item) => item.key === value) &&
 				!pendingFilters.some((item) => item.key === value)
@@ -77,7 +102,7 @@ const ListViewHeader = ({
 					...prev,
 					{
 						key: value,
-						value: defaultFilterValue[value],
+						value: null,
 					},
 				]);
 			}
@@ -85,13 +110,64 @@ const ListViewHeader = ({
 		[viewData, pendingFilters],
 	);
 
+	const handleTabClick = useCallback(
+		(tab) => {
+			if (tab._id === viewData?._id) {
+				setShowDropdown((prev) => !prev);
+			} else {
+				setShowDropdown(false);
+				handleTabChange(tab);
+			}
+		},
+		[viewData?._id, handleTabChange],
+	);
+	// Add click outside handler
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			const dropdownElement = document.querySelector('.tab-dropdown-content');
+			const tabElement = document.querySelector('.tabHeaderButton.active');
+
+			if (dropdownElement && tabElement) {
+				// Don't close if clicking inside dropdown
+				if (dropdownElement.contains(event.target)) {
+					return;
+				}
+				// Don't close if clicking the active tab
+				if (tabElement.contains(event.target)) {
+					return;
+				}
+				setShowDropdown(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => document.removeEventListener('mousedown', handleClickOutside);
+	}, []);
+
+	const hasFilters = viewData?.filters?.length > 0 || pendingFilters?.length > 0;
+	const hasSort = viewData?.sort?.length > 0;
+
 	return (
 		<div className="listViewHeaderContainer">
+			<div className="listViewHeader-title">{blockTitle || 'Untitled'}</div>
 			<div className="listViewHeader">
-				<div className="listViewHeaderTitle">{headerTitle}</div>
+				<div className="listViewHeaderTabsContainer">
+					<TabHeader
+						activeTab={viewData?._id}
+						onTabChange={handleTabClick}
+						tabs={Object.values(tabs || {})}
+						onTabsReorder={handleTabsReorder}
+						showDropDown={showDropdown}
+						handleTabDropdownClick={handleTabDropdownClick}
+					/>
+					{/* <button className="listViewHeaderTabsAddButton" onClick={handleAddTab}>
+						<PlusSvg />
+					</button> */}
+				</div>
+
 				<div className="listViewHeaderActions">
 					<button className="listViewHeaderAddTaskButton" onClick={addButtonOnClick}>
-						{createButtonText}
+						{createButtonText || 'Add'}
 					</button>
 					<div
 						className="searchContainer"
@@ -146,36 +222,61 @@ const ListViewHeader = ({
 								</span>
 							</div>
 						</div>
+						{
+							// <button className="listViewHeaderActionButton">
+							// 	<ThunderSvg />
+							// </button>
+						}
 					</div>
-					{
-						// <button className="listViewHeaderActionButton">
-						// 	<ThunderSvg />
-						// </button>
-					}
-					<DropDown
-						title="Sort"
-						options={properties.filter(
-							(item) => !['childTasks', 'parentTask']?.includes(item.value),
-						)}
-						onOptionClick={handelSortClick}
-						valueSelector="value"
-					>
-						<button className="listViewHeaderActionButton">
+					{hasSort ? (
+						<button
+							className="listViewHeaderActionButton"
+							onClick={() => handelSortClick()}
+						>
 							<ArrowUpAndDown style={{ width: '20px', height: '20px' }} />
 						</button>
-					</DropDown>
-					<DropDown
-						title="Filter"
-						options={properties.filter(
-							(item) => !['childTasks', 'parentTask']?.includes(item.value),
-						)}
-						onOptionClick={handelFilterClick}
-						valueSelector="value"
-					>
-						<button className="listViewHeaderActionButton">
+					) : (
+						<DropDown
+							title="Sort"
+							options={properties?.filter(
+								(item) => !['childTasks', 'parentTask']?.includes(item.value),
+							)}
+							onOptionClick={handelSortClick}
+							valueSelector="value"
+						>
+							<button
+								className="listViewHeaderActionButton"
+								onClick={() => handelSortClick()}
+							>
+								<ArrowUpAndDown style={{ width: '20px', height: '20px' }} />
+							</button>
+						</DropDown>
+					)}
+
+					{hasFilters ? (
+						<button
+							className="listViewHeaderActionButton"
+							onClick={() => handelFilterClick()}
+						>
 							<FilterLinesSvg />
 						</button>
-					</DropDown>
+					) : (
+						<DropDown
+							title="Filter"
+							options={properties.filter(
+								(item) => !['childTasks', 'parentTask']?.includes(item.value),
+							)}
+							onOptionClick={handelFilterClick}
+							valueSelector="value"
+						>
+							<button
+								className="listViewHeaderActionButton"
+								onClick={() => handelFilterClick()}
+							>
+								<FilterLinesSvg />
+							</button>
+						</DropDown>
+					)}
 					<OptionsDropDown
 						properties={properties}
 						updateTaskInfo={updateTaskInfo}
@@ -186,24 +287,19 @@ const ListViewHeader = ({
 						colors={colors}
 						viewData={viewData}
 						updateViewInfo={(viewInfo) => updateViewInfo(viewData?._id, viewInfo)}
+						openDropDown={showEditViewDropDown}
+						closeDropDown={closeEditViewDropDown}
+						handleDuplicateView={handleDuplicateView}
+						handleDeleteView={handleDeleteView}
 					/>
 				</div>
 			</div>
-			<div className="listViewHeaderTabsContainer">
-				<TabHeader
-					activeTab={viewData?._id}
-					onTabChange={handleTabChange}
-					tabs={Object.values(tabs)}
-				/>
-				<button className="listViewHeaderTabsAddButton" onClick={handleAddTab}>
-					<PlusSvg />
-				</button>
-			</div>
+
 			<div className="listViewOptionsContainer">
-				{viewData?.sort?.length > 0 ? (
+				{viewData?.sort?.length > 0 && info?.showSort ? (
 					<SortComponent
 						sort={viewData?.sort}
-						options={properties.filter(
+						options={properties?.filter(
 							(item) => !['childTasks', 'parentTask']?.includes(item.value),
 						)}
 						responseMetadata={responseMetadata}
@@ -213,10 +309,9 @@ const ListViewHeader = ({
 							(item) => !['childTasks', 'parentTask']?.includes(item.value),
 						)}
 					/>
-				) : (
-					''
-				)}
-				{viewData?.filters?.length > 0 || pendingFilters.length > 0 ? (
+				) : null}
+				{(viewData?.filters?.length > 0 || pendingFilters.length > 0) &&
+				info.showFilters ? (
 					<div className="listView-filterContainer">
 						{[...viewData?.filters, ...pendingFilters].map((filter) => {
 							const {

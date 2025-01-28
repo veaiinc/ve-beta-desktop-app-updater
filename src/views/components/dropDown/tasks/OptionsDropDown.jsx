@@ -7,9 +7,11 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/ta
 import { ReactComponent as ListSvg } from '../../../../assets/svg/tasks/listDotsAndLines.svg';
 import { ReactComponent as FolderSvg } from '../../../../assets/svg/tasks/folder.svg';
 import { ReactComponent as GridSvg } from '../../../../assets/svg/tasks/grid.svg';
-import { ReactComponent as BoardSvg } from '../../../../assets/svg/tasks/board.svg';
+// import { ReactComponent as BoardSvg } from '../../../../assets/svg/tasks/board.svg';
 import { ReactComponent as TableSvg } from '../../../../assets/svg/tasks/grid.svg';
-import { ReactComponent as BlocksSvg } from '../../../../assets/svg/tasks/blocks.svg';
+// import { ReactComponent as BlocksSvg } from '../../../../assets/svg/tasks/blocks.svg';
+import { ReactComponent as DuplicateIcon } from '../../../../assets/svg/tasks/duplicate.svg';
+import { ReactComponent as DeleteIcon } from '../../../../assets/svg/tasks/dustBin.svg';
 import PropertiesDropDown from './PropertiesDropDown';
 import GroupDropDown from './GroupDropDown';
 import LayoutDropDown from './LayoutDropDown';
@@ -20,45 +22,41 @@ const layoutOptions = [
 		label: 'List',
 		icon: <ListSvg />,
 	},
-	{
-		value: 'board',
-		label: 'Board',
-		icon: <BoardSvg />,
-	},
+	// {
+	// 	value: 'board',
+	// 	label: 'Board',
+	// 	icon: <BoardSvg />,
+	// },
 	{
 		value: 'table',
 		label: 'Table',
 		icon: <TableSvg />,
 	},
-	{
-		value: 'gallery',
-		label: 'Gallery',
-		icon: <BlocksSvg />,
-	},
+	// {
+	// 	value: 'gallery',
+	// 	label: 'Gallery',
+	// 	icon: <BlocksSvg />,
+	// },
 ];
 
 const OptionsDropDown = ({
 	properties,
 	taskPreferences,
-	editingProperty,
-	handleEditPropertyChange,
 	responseMetadata,
 	colors,
 	viewData,
 	updateViewInfo,
 	updateTaskInfo,
+	openDropDown,
+	closeDropDown,
+	handleDeleteView,
+	handleDuplicateView,
 }) => {
 	const [info, setInfo] = useState({
 		selected: null,
 		isOpen: false,
 		pendingLabel: viewData?.label,
 	});
-
-	useEffect(() => {
-		if (editingProperty) {
-			setInfo((prev) => ({ ...prev, isOpen: true, selected: 'properties' }));
-		}
-	}, [editingProperty]);
 
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -72,16 +70,16 @@ const OptionsDropDown = ({
 			setInfo((prev) => ({ ...prev, isOpen: visible }));
 			if (!visible) {
 				setInfo((prev) => ({ ...prev, selected: null }));
-				handleEditPropertyChange(null);
+				closeDropDown();
 			}
 		},
-		[handleEditPropertyChange],
+		[closeDropDown],
 	);
 
 	const handleClose = useCallback(() => {
 		setInfo((prev) => ({ ...prev, isOpen: false, selected: null }));
-		handleEditPropertyChange(null);
-	}, [handleEditPropertyChange]);
+		closeDropDown();
+	}, [closeDropDown]);
 
 	const handleOptionChange = (option) => {
 		setInfo((prev) => ({ ...prev, selected: option }));
@@ -152,8 +150,6 @@ const OptionsDropDown = ({
 					properties={properties}
 					updateTaskInfo={updateTaskInfo}
 					taskPreferences={taskPreferences}
-					editingProperty={editingProperty}
-					handleEditPropertyChange={handleEditPropertyChange}
 					colors={colors}
 					handleClose={handleClose}
 					handleBack={handleBack}
@@ -181,8 +177,6 @@ const OptionsDropDown = ({
 			properties,
 			updateTaskInfo,
 			taskPreferences,
-			editingProperty,
-			handleEditPropertyChange,
 			colors,
 			handleClose,
 			handleBack,
@@ -195,7 +189,7 @@ const OptionsDropDown = ({
 	return (
 		<Tooltip
 			placement="bottomRight"
-			open={info?.isOpen}
+			open={info?.isOpen || openDropDown}
 			onOpenChange={handleDropdownVisibility}
 			title={
 				<div className="option-dropDown-wrapper">
@@ -257,7 +251,7 @@ const OptionsDropDown = ({
 											<ChevronRightThinSvg />
 										</span>
 									</div>
-									<div
+									{/* <div
 										className="view-options-list-item"
 										onClick={() => handleOptionChange('group')}
 									>
@@ -267,7 +261,7 @@ const OptionsDropDown = ({
 											None
 											<ChevronRightThinSvg />
 										</span>
-									</div>
+									</div> */}
 									<div className="view-options-list-item">
 										<span className="view-options-list-item-label">
 											ID Prefix
@@ -277,6 +271,26 @@ const OptionsDropDown = ({
 											readOnly
 											defaultValue={'PREFIXID'}
 										/>
+									</div>
+								</div>
+								<div className="view-options-footer">
+									<div
+										className="view-options-list-item"
+										onClick={() => handleDuplicateView(viewData?._id)}
+									>
+										<DuplicateIcon />
+										<span className="view-options-list-item-label">
+											Duplicate View
+										</span>
+									</div>
+									<div
+										className="view-options-list-item"
+										onClick={() => handleDeleteView(viewData?._id)}
+									>
+										<DeleteIcon className="task-delete-icon" />
+										<span className="view-options-list-item-label">
+											Delete View
+										</span>
 									</div>
 								</div>
 							</div>
