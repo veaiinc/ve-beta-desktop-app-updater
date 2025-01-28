@@ -119,6 +119,7 @@ const UploadPhotos = () => {
 					isDuplicate: findDuplicateImage ? true : false,
 					originalImage: findDuplicateImage,
 					originalDate: 0,
+					isFailed: false,
 				};
 
 				updateInfo.uploadImages = uploadedImages;
@@ -134,6 +135,7 @@ const UploadPhotos = () => {
 					uploadedPerct: 0,
 					isDuplicate: !!findDuplicateImage,
 					originalImage: findDuplicateImage,
+					isFailed: false,
 				};
 			}
 		});
@@ -224,6 +226,7 @@ const UploadPhotos = () => {
 					let uploadImages = { ...prev.uploadImages };
 					uploadImages[key]['isUploaded'] = true;
 					uploadImages[key]['uploadedPerct'] = 100;
+					uploadImages[key]['isFailed'] = false;
 					const size = uploadImages[key]['file'].size;
 					delete uploadImages[key]['file'];
 					uploadImages[key]['file'] = { size, name: key };
@@ -337,6 +340,13 @@ const UploadPhotos = () => {
 
 				if (attempts !== 0) {
 					// Wait for 1 minute before retrying
+					setinfo((prev) => ({
+						...prev,
+						uploadImages: {
+							...prev.uploadImages,
+							[currentFile]: { ...prev.uploadImages[currentFile], isFailed: true },
+						},
+					}));
 					let waitTime = 2000 * attempts;
 					await new Promise((resolve) => {
 						console.log('waiting  for ', waitTime, 'seconds');

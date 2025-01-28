@@ -92,7 +92,12 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, gallery
 						<div className="body_upload_div">
 							{Object.entries(info?.uploadImages || {}).map(([key, singlePhoto]) => (
 								<div className="single_file_detail" key={key}>
-									<div className="fileName">{singlePhoto?.file?.name}</div>
+									<div
+										className="fileName"
+										style={{ color: singlePhoto?.isFailed ? '#c84545' : '' }}
+									>
+										{singlePhoto?.file?.name}
+									</div>
 
 									<div className="progress_div">
 										{singlePhoto?.isDuplicate && (
@@ -111,7 +116,11 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, gallery
 													: (singlePhoto?.file?.size / 1024).toFixed(2) +
 													  ' KB'}
 											</p> */}
-											<p>
+											<p
+												style={{
+													color: singlePhoto?.isFailed ? '#c84545' : '',
+												}}
+											>
 												{getImageSizeFormat(singlePhoto?.file?.size / 1024)}
 											</p>
 										</div>
