@@ -3,10 +3,10 @@ import { useContext } from 'react';
 import Context from '../../../../../../context/context';
 import '../../../../../../assets/scss/home_page/workflows/workflowCard.scss';
 import { ReactComponent as ChevronRightThinIcon } from '../../../../../../assets/svg/tasks/chevronRightThin.svg';
-import MyWorkflowModalsLoader from '../../../../modalsV2/workflowsModals/MyWorkflowModalsLoader';
 import { FetchMoreLoaderComp } from '../../../../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
+import Skeleton from 'react-loading-skeleton';
 
 const PendingActionsTab = ({ data }) => {
 	let {
@@ -16,6 +16,7 @@ const PendingActionsTab = ({ data }) => {
 	const [info, setInfo] = useState({
 		hasNextPage: false,
 		currentPage: 1,
+		loading: true,
 	});
 
 	useEffect(() => {
@@ -26,10 +27,11 @@ const PendingActionsTab = ({ data }) => {
 				...prev,
 				currentPage,
 				hasNextPage,
+				loading: false,
 			}));
 			return;
 		}
-		getRequiredActionsForTemplateFunc(1, true);
+		getRequiredActionsForTemplateFunc(1);
 	}, []);
 
 	useEffect(() => {
@@ -47,49 +49,56 @@ const PendingActionsTab = ({ data }) => {
 
 	const requiredActionsList = requiredActionsForTemplate?.[data?._id]?.data;
 
-	const getRequiredActionsForTemplateFunc = (page, resetRequiredActionsForTemplate = false) => {
+	const getRequiredActionsForTemplateFunc = async (page) => {
 		const payload = {
 			filters: {
 				page: page,
-				limit: 6,
+				limit: 10,
 				workflowTemplateId: data?._id,
 			},
-			resetRequiredActionsForTemplate,
 		};
-		getRequiredActionsForTemplate(payload);
+		await getRequiredActionsForTemplate(payload);
+		setInfo((prev) => ({
+			...prev,
+			loading: false,
+		}));
 	};
 
 	const fetchMoreRequiredAcitonsList = () => {
-		console.log('fetching');
-		getRequiredActionsForTemplateFunc(info?.currentPage + 1, false);
+		getRequiredActionsForTemplateFunc(info?.currentPage + 1);
 	};
-	// console.log(requiredActionsForTemplate);
 	return (
 		<>
 			<div
 				style={{
 					flex: 1,
+					overflowY: 'auto',
 					maxHeight: '100%',
 					height: '100%',
 					width: '100%',
 				}}
+				id="requiredActionsScroller"
 			>
 				<InfiniteScroll
 					dataLength={requiredActionsList?.length || 0}
 					next={fetchMoreRequiredAcitonsList}
 					hasMore={info?.hasNextPage}
 					loader={<FetchMoreLoaderComp />}
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						gap: '8px',
-						width: '100%',
-						overflowY: 'auto',
-					}}
-					height={350}
+					scrollableTarget="requiredActionsScroller"
 				>
 					{info?.loading ? (
-						<MyWorkflowModalsLoader width={'287px'} height={'48px'} />
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+							{[{}, {}, {}, {}].map((ele, index) => (
+								<Skeleton
+									height={'59px'}
+									width={'287px'}
+									style={{
+										borderRadius: '16px',
+									}}
+									key={index}
+								/>
+							))}
+						</div>
 					) : (
 						<div className="pending-actions-container">
 							{requiredActionsList?.map((action) => {

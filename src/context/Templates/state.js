@@ -986,23 +986,25 @@ export const TemplatesState = (props) => {
 			const workflowTemplateId = queryPayload?.filters?.workflowTemplateId;
 
 			if (response?.[0]) {
-				const data = response?.[1]?.data?.listRequiredActions;
+				const data = response?.[1]?.data?.listRequiredActions?.data;
 				dispatch({
 					type: Actions.GET_REQUIRED_ACTIONS_FOR_TEMPLATE_SUCCESS,
 					payload: {
 						...state?.requiredActionsForTemplate,
 						[workflowTemplateId]: {
+							...response?.[1]?.data?.listRequiredActions,
 							data: state?.requiredActionsForTemplate?.[workflowTemplateId]
 								? [
-										...(Array.isArray(
-											state?.requiredActionsForTemplate?.[workflowTemplateId],
+										...(Array?.isArray(
+											state?.requiredActionsForTemplate?.[workflowTemplateId]
+												?.data,
 										)
 											? state.requiredActionsForTemplate[workflowTemplateId]
+													?.data
 											: []),
 										...data,
 								  ]
 								: data,
-							...response?.[1]?.data?.listRequiredActions,
 						},
 					},
 				});

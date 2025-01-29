@@ -6,9 +6,10 @@ import Context from '../../../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../../../helpers';
 import MyWorkflowModalsLoader from '../../../../modalsV2/workflowsModals/MyWorkflowModalsLoader';
 import { useNavigate } from 'react-router-dom';
+import Skeleton from 'react-loading-skeleton';
 
 const initialState = {
-	loading: false,
+	loading: true,
 	workflowsDetailslist: null,
 	currentPage: 1,
 	hasNextPage: false,
@@ -25,10 +26,6 @@ const FilesTab = ({ data }) => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		console.log('Files->', workflowslistForFiles);
-	}, [workflowslistForFiles]);
-
-	useEffect(() => {
 		if (workflowslistForFiles?.[data?._id]) {
 			const currentPage = workflowslistForFiles?.[data?._id]?.currentPage;
 			const hasNextPage = workflowslistForFiles?.[data?._id]?.hasNextPage;
@@ -36,6 +33,7 @@ const FilesTab = ({ data }) => {
 				...prev,
 				currentPage,
 				hasNextPage,
+				loading: false,
 			}));
 			return;
 		}
@@ -59,13 +57,17 @@ const FilesTab = ({ data }) => {
 		async (page) => {
 			const payload = {
 				filters: {
-					limit: 10,
+					limit: 7,
 					page,
 					templateId: data?._id,
 				},
 			};
 
-			getWorkflowsListForFiles(payload);
+			await getWorkflowsListForFiles(payload);
+			setInfo((prev) => ({
+				...prev,
+				loading: false,
+			}));
 		},
 		[info?.currentPage],
 	);
@@ -97,7 +99,18 @@ const FilesTab = ({ data }) => {
 					scrollableTarget="filesScrollable"
 				>
 					{info?.loading ? (
-						<MyWorkflowModalsLoader width={'287px'} height={'48px'} />
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+							{[{}, {}, {}, {}].map((ele, index) => (
+								<Skeleton
+									height={'59px'}
+									width={'287px'}
+									style={{
+										borderRadius: '16px',
+									}}
+									key={index}
+								/>
+							))}
+						</div>
 					) : (
 						<div className="pending-actions-container">
 							{workflowsDetailsList?.map((file) => {
