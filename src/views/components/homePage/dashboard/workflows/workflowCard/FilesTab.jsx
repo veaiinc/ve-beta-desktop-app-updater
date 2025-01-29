@@ -4,17 +4,13 @@ import '../../../../../../assets/scss/home_page/workflows/workflowCard.scss';
 import { ReactComponent as ChevronRightThinIcon } from '../../../../../../assets/svg/tasks/chevronRightThin.svg';
 import Context from '../../../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../../../helpers';
-import MyWorkflowModalsLoader from '../../../../modalsV2/workflowsModals/MyWorkflowModalsLoader';
 import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 
 const initialState = {
 	loading: true,
-	workflowsDetailslist: null,
 	currentPage: 1,
 	hasNextPage: false,
-	durationOptionChanged: false,
-	timeout: null,
 };
 
 const FilesTab = ({ data }) => {
@@ -57,7 +53,7 @@ const FilesTab = ({ data }) => {
 		async (page) => {
 			const payload = {
 				filters: {
-					limit: 7,
+					limit: 10,
 					page,
 					templateId: data?._id,
 				},
