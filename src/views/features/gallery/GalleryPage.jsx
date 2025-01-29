@@ -1609,8 +1609,8 @@ const GalleryPage = () => {
 
 				// Create a list of filenames from client selection images
 				const clientSelectionFileNames = info.clientSelectionImages.docs
-					.filter((img) => img.activeVersion?.givenFileName) // Filter out any images without filenames
-					.map((img) => img.activeVersion.givenFileName);
+					.filter((img) => img.activeVersion?.originalFileName) // Filter out any images without filenames
+					.map((img) => img.activeVersion.originalFileName);
 
 				// If no valid filenames found
 				if (!clientSelectionFileNames.length) {
