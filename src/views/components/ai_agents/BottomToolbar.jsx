@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
+import React, { memo, useCallback, useState, useRef, useEffect, useContext, useMemo } from 'react';
 import '../../../assets/scss/ai_agents/bottomToolbar.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/ai_agents/Plus.svg';
 import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
@@ -6,7 +6,7 @@ import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settin
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
-import { message, Tooltip } from 'antd';
+import { Alert, Image, message, Spin, Tooltip } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
@@ -15,6 +15,11 @@ import { useLocation } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import { TypingEffect } from '../../../helpers/markdownHelper';
 import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
+import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.svg';
+import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
+import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
+import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
+import { getBase64 } from '../../../helpers';
 
 const moduleHelper = {
 	'/tasks': 'tasks',
@@ -29,7 +34,14 @@ const BottomToolbar = ({
 	customChatActions = false,
 }) => {
 	const {
-		templates: { handleGlobalChatMessages, globalChatMessages, updateStateValues },
+		templates: {
+			handleGlobalChatMessages,
+			globalChatMessages,
+			updateStateValues,
+			handleGlobalUploadImage,
+			checkIndividualImageUploadedStatus,
+			deleteUploadedImageThroughChat,
+		},
 	} = useContext(Context);
 
 	const location = useLocation();
@@ -42,8 +54,10 @@ const BottomToolbar = ({
 		position: { x: -325, y: 0 },
 		addQuickAction: false,
 		chatSessionId: ObjectID().toString(),
+		uploadedImages: [],
 	});
-
+	const [previewOpen, setPreviewOpen] = useState(false);
+	const [previewImage, setPreviewImage] = useState('');
 	const toolbarRef = useRef(null);
 	const isDraggingRef = useRef(false);
 	const startPosRef = useRef({ x: 0, y: 0 });
@@ -125,14 +139,21 @@ const BottomToolbar = ({
 		setInfo((prev) => ({ ...prev, chatModalIsOpen: false }));
 	}, [info]);
 
+	const handlePreview = async (file) => {
+		if (!file.url && !file.preview) {
+			file.preview = await getBase64(file.originFileObj);
+		}
+		setPreviewImage(file.url || file.preview);
+		setPreviewOpen(true);
+	};
+
 	const handleSendMessageFunc = useCallback(
-		(e) => {
+		async (e) => {
 			if (e.key === 'Enter') {
 				// If Shift+Enter, allow new line
 				if (e.shiftKey) {
 					return;
 				}
-
 				// Prevent default to avoid unwanted new line
 				e.preventDefault();
 
@@ -140,7 +161,11 @@ const BottomToolbar = ({
 					return message.error('Please wait for the AI response');
 				}
 
-				if (info?.chatQuery?.trim().length) {
+				if (!checkAllUploadLoadingStatus()) {
+					return message.error('Please wait for the images to upload');
+				}
+
+				if (info?.chatQuery?.trim().length || info?.uploadedImages?.length) {
 					if (customChatActions) {
 						onSend(info?.chatQuery);
 					} else {
@@ -148,31 +173,139 @@ const BottomToolbar = ({
 							query: info?.chatQuery,
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 						};
+						let localPayload = {};
+						if (info?.uploadedImages?.length) {
+							payload.files = info?.uploadedImages?.map(
+								(ele) => ele?.name || 'Untitled Image',
+							);
+
+							localPayload = {
+								files: info?.uploadedImages || [],
+								handlePreview,
+							};
+						}
 
 						if (moduleHelper?.[location?.pathname]) {
 							payload.module = moduleHelper?.[location?.pathname];
 						}
-						handleGlobalChatMessages(payload, info?.chatSessionId);
+						setInfo((prev) => ({ ...prev, uploadedImages: [], chatQuery: '' }));
+
+						await handleGlobalChatMessages(payload, info?.chatSessionId, localPayload);
 					}
 
-					setInfo((prev) => ({ ...prev, chatQuery: '' }));
+					// setInfo((prev) => ({ ...prev, chatQuery: '', uploadedImages: [] }));
 				}
 			}
 		},
-		[info?.chatQuery, aiChatLoading, onSend, customChatActions, info?.chatSessionId],
+		[aiChatLoading, onSend, customChatActions, info],
+	);
+
+	const handleGlobalImageProcessing = useCallback(
+		async (file) => {
+			const uploadBatchId = ObjectID().toString();
+			const payload = {
+				sessionId: info?.chatSessionId,
+				originalFileName: file?.name || 'Untitled file',
+				uploadBatchId,
+			};
+			const response = await handleGlobalUploadImage(file, payload);
+			let uploadedImages = [...info?.uploadedImages];
+			if (!response?.[0]) {
+				uploadedImages.splice(file?.uniqueId, 1);
+				setInfo((prev) => ({ ...prev, uploadedImages }));
+				return message.error(response?.[1]);
+			}
+			checkIndividualImageUploadedStatusFunc(file, uploadBatchId);
+		},
+		[info],
+	);
+
+	const checkIndividualImageUploadedStatusFunc = useCallback(
+		async (fileData, uploadBatchId) => {
+			let uploadedCount = 0,
+				maxAttempts = 15;
+			while (!uploadedCount && maxAttempts) {
+				const response = await checkIndividualImageUploadedStatus(uploadBatchId);
+				if (response?.[0]) {
+					uploadedCount = response?.[1]?.uploadedCount;
+					if (uploadedCount) {
+						break;
+					}
+				}
+				//dealying the check
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+				maxAttempts--;
+			}
+			if (uploadedCount && uploadedCount > 0) {
+				let uploadedImages = [...info?.uploadedImages];
+				fileData.loading = false;
+				uploadedImages.splice(fileData?.uniqueId, 1, fileData);
+				setInfo((prev) => ({ ...prev, uploadedImages }));
+			}
+		},
+		[info],
 	);
 
 	const handleChange = useCallback(
-		({ file }) => {
-			handleAiUploadImage(file);
+		async ({ file }) => {
+			let uploadedImages = [...(info?.uploadedImages || [])];
+			file.preview = await getBase64(file);
+			file.loading = true;
+			file.uniqueId = uploadedImages?.length;
+			uploadedImages.push(file);
+			if (customChatActions) {
+				handleAiUploadImage(file);
+			} else {
+				handleGlobalImageProcessing(file);
+			}
+
 			setInfo((prev) => ({
 				...prev,
-				addQuickAction: false,
+				// addQuickAction: false,
 				expanded: true,
 				inputExpanded: true,
+				uploadedImages,
 			}));
 		},
-		[handleAiUploadImage],
+		[handleAiUploadImage, info],
+	);
+
+	const checkAllUploadLoadingStatus = useCallback(() => {
+		const uploadedImages = [...(info?.uploadedImages || [])];
+		for (let i = 0; i < uploadedImages?.length; i++) {
+			if (uploadedImages[i]?.loading) {
+				return false;
+			}
+		}
+		return true;
+	}, [info]);
+
+	const handleRemoveImage = useCallback(
+		(ele) => {
+			const uploadedImages = [...(info?.uploadedImages || [])];
+			uploadedImages.splice(ele?.uniqueId, 1);
+			setInfo((prev) => ({ ...prev, uploadedImages }));
+		},
+		[info],
+	);
+
+	const chatIcons = useMemo(
+		() => [
+			<Filter />,
+			<Arroba />,
+			<Upload
+				onChange={handleChange}
+				showUploadList={false}
+				beforeUpload={() => false} // Prevent default upload behavior
+				maxCount={1} // Allow only one file at a time
+				// accept="image/*" // Accept only images
+				accept=".pdf,.docx,.txt,.md,.json,.png,.jpg,.jpeg"
+			>
+				<PaperClip />
+			</Upload>,
+			<Mic />,
+		],
+		[info, handleChange],
 	);
 
 	return (
@@ -229,6 +362,37 @@ const BottomToolbar = ({
 						),
 					)}
 				</div>
+				{info?.uploadedImages?.length ? (
+					<div className="imagePreviewBar">
+						{info?.uploadedImages?.map((ele, index) => (
+							<div className="previewOfUploadedImage" key={index}>
+								<img
+									src={ele?.preview}
+									alt="uploaded"
+									width={'100%'}
+									height={'100%'}
+									style={{ objectFit: 'cover', borderRadius: '12px' }}
+									onClick={() => handlePreview(ele)}
+								/>
+
+								{ele?.loading ? (
+									<div className="spinContainerLoaderForPreview">
+										<Spin />
+									</div>
+								) : (
+									<span
+										className="removeImageIcon"
+										onClick={() => handleRemoveImage(ele)}
+									>
+										<Close />
+									</span>
+								)}
+							</div>
+						))}
+					</div>
+				) : (
+					''
+				)}
 			</div>
 
 			{/* bottom toolBarContent */}
@@ -245,7 +409,7 @@ const BottomToolbar = ({
 						onKeyDown={handleSendMessageFunc}
 						style={{ resize: 'none' }}
 					/>
-					<div className="bottomToolbarButtons">
+					{/* <div className="bottomToolbarButtons">
 						<div className="quickActionsButtons">
 							<Home />
 						</div>
@@ -272,6 +436,14 @@ const BottomToolbar = ({
 						<div className="quickActionsButtons">
 							<Settings />
 						</div>
+					</div> */}
+
+					<div className="chat-icons-container">
+						{chatIcons?.map((icon, idx) => (
+							<span key={idx} className="chat-icon">
+								{icon}
+							</span>
+						))}
 					</div>
 				</div>
 			) : (
@@ -287,26 +459,39 @@ const BottomToolbar = ({
 				onKeyDown={handleSendMessageFunc}
 				aiChatLoading={aiChatLoading}
 			/>
+			{previewImage && (
+				<Image
+					wrapperStyle={{
+						display: 'none',
+					}}
+					preview={{
+						visible: previewOpen,
+						onVisibleChange: (visible) => setPreviewOpen(visible),
+						afterOpenChange: (visible) => !visible && setPreviewImage(''),
+					}}
+					src={previewImage}
+				/>
+			)}
 		</div>
 	);
 };
 
 export default memo(BottomToolbar);
 
-const QuickActionsPlusParentContainer = ({ handleChange }) => {
-	return (
-		<div className="QuickActionsPlusParentContainer">
-			<Upload
-				onChange={handleChange}
-				showUploadList={false}
-				beforeUpload={() => false} // Prevent default upload behavior
-				maxCount={1} // Allow only one file at a time
-				accept="image/*" // Accept only images
-			>
-				<button className="quick-action-upload-button">
-					<UploadOutlined /> Upload Images
-				</button>
-			</Upload>
-		</div>
-	);
-};
+// const QuickActionsPlusParentContainer = ({ handleChange }) => {
+// 	return (
+// 		<div className="QuickActionsPlusParentContainer">
+// 			<Upload
+// 				onChange={handleChange}
+// 				showUploadList={false}
+// 				beforeUpload={() => false} // Prevent default upload behavior
+// 				maxCount={1} // Allow only one file at a time
+// 				accept="image/*" // Accept only images
+// 			>
+// 				<button className="quick-action-upload-button">
+// 					<UploadOutlined /> Upload Images
+// 				</button>
+// 			</Upload>
+// 		</div>
+// 	);
+// };
