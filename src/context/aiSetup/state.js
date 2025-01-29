@@ -1,6 +1,11 @@
 import { useReducer } from 'react';
 import Reducer from './reducer';
-import { AI_PERSONALITY, KNOWLEDGE_BASE, AI_ASSISTANT_INSTRUCTIONS } from './actionTypes';
+import {
+	AI_PERSONALITY,
+	KNOWLEDGE_BASE,
+	AI_ASSISTANT_INSTRUCTIONS,
+	AI_PROMPT,
+} from './actionTypes';
 import { Actions } from './actions';
 import service from '../../services';
 import gqlService from '../../services/graphQlServices';
@@ -28,6 +33,7 @@ export const initialState = {
 	},
 	aiAssistant: null,
 	aiInstructions: null,
+	aiPrompt: null,
 };
 
 export const AiSetupState = () => {
@@ -482,6 +488,50 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const getAiPrompt = async (assistantId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-assistants/' + assistantId + AI_PROMPT?.getAiPrompt;
+		try {
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_AI_PROMPT,
+					payload: response?.[1],
+				});
+				console.log('response==>getAiPrompt', response?.[1]);
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>getAiPrompt', error);
+		}
+	};
+
+	const editAiPrompt = async (assistantId, promptId, data) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' +
+			workspaceId +
+			'/ai-assistants/' +
+			assistantId +
+			AI_PROMPT?.editAiPrompt +
+			'/' +
+			promptId;
+		try {
+			const response = await service?.fetchPut(url, data, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.SET_AI_PROMPT,
+					payload: response?.[1],
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>editAiPrompt', error);
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -506,5 +556,7 @@ export const AiSetupState = () => {
 		getInstructions,
 		createInstruction,
 		updateInstruction,
+		getAiPrompt,
+		editAiPrompt,
 	};
 };

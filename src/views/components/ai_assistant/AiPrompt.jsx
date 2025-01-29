@@ -1,28 +1,70 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/aiPrompt.scss';
 import { ReactComponent as Question } from '../../../assets/svg/ai_assistant/question.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
 import { Tooltip } from 'antd';
+import Context from '../../../context/context';
 
-const AiPrompt = () => {
+const AiPrompt = ({ assistant }) => {
+	const {
+		aiSetup: { editAiPrompt, getAiPrompt, aiPrompt },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
-		modelOptions: ['GPT-4o', 'GPT-4o-mini', 'GPT-4o-turbo'],
+		aiModelOptions: ['GPT-4o', 'GPT-4o-mini', 'GPT-4o-turbo'],
 		selectedModel: 'GPT-4o',
 		modelListLoading: false,
 		isSelectModelOpen: false,
-		systemPromptOptions: [
-			'Custom prompt',
-			'Customer Support',
-			'Sales',
-			'Language tutor',
-			'Coding Expert',
-			'Life Coach',
-		],
-		selectedSystemPrompt: 'System Prompt 1',
+		systemPromptOptions: [],
+		selectedSystemPrompt: '',
 		isSelectSystemPromptOpen: false,
 		systemPrompt: '',
+		editedPrompt: '',
+		timeout: null,
 	});
+
+	useEffect(() => {
+		getAiPrompt(assistant?._id);
+	}, [assistant]);
+
+	useEffect(() => {
+		if (aiPrompt) {
+			const promptToShow = aiPrompt?.customEditedPrompt || aiPrompt?.prompt || '';
+			setInfo((prev) => ({
+				...prev,
+				systemPrompt: promptToShow,
+				systemPromptOptions: aiPrompt?.label ? [aiPrompt?.label] : [],
+				selectedSystemPrompt: aiPrompt?.label || '',
+			}));
+		}
+	}, [aiPrompt]);
+
+	// console.log('assistant data in prompt page==>', aiPrompt)
+
+	useEffect(() => {
+		if (info?.systemPrompt !== undefined) {
+			handleDebounceUpdate();
+		}
+	}, [info?.editedPrompt]);
+
+	const handleDebounceUpdate = useCallback(() => {
+		clearTimeout(info?.timeout);
+		const timeout = setTimeout(() => {
+			if (info?.editedPrompt && assistant?._id && aiPrompt?.promptId) {
+				editAiPrompt(assistant?._id, aiPrompt?.promptId, {
+					prompt: info?.editedPrompt,
+				});
+			}
+			setInfo((prev) => ({
+				...prev,
+				timeout: null,
+			}));
+		}, 800);
+		setInfo((prev) => ({ ...prev, timeout }));
+	}, [info?.editedPrompt, assistant?._id, aiPrompt?.promptId, editAiPrompt]);
+
+	console.log('aiPrompt data in prompt page==>', aiPrompt);
 
 	const handleModelDropdownVisibility = useCallback((visible) => {
 		setInfo((prev) => ({ ...prev, isSelectModelOpen: visible }));
@@ -45,7 +87,11 @@ const AiPrompt = () => {
 	}, []);
 
 	const handlePromptChange = useCallback((value) => {
-		setInfo((prev) => ({ ...prev, systemPrompt: value }));
+		setInfo((prev) => ({
+			...prev,
+			systemPrompt: value,
+			editedPrompt: value,
+		}));
 	}, []);
 
 	return (
@@ -63,7 +109,7 @@ const AiPrompt = () => {
 						placement="bottom"
 						title={
 							<div className="modelDropdown">
-								{info?.modelOptions?.map((option) => (
+								{info?.aiModelOptions?.map((option) => (
 									<div
 										key={option}
 										className="modelListItem"
@@ -134,7 +180,7 @@ const AiPrompt = () => {
 				/>
 
 				<div className="resetPromptContainer">
-					<span>Reset Prompt</span>
+					<span>Reset</span>
 				</div>
 			</div>
 		</div>

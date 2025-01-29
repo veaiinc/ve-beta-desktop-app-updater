@@ -21,3 +21,8 @@ export const AI_ASSISTANT_INSTRUCTIONS = {
 	updateInstruction: '/instructions',
 	deleteInstruction: '/instructions',
 };
+
+export const AI_PROMPT = {
+	getAiPrompt: '/prompt',
+	editAiPrompt: '/edit-prompt',
+};

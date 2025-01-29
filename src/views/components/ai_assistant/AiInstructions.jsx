@@ -113,8 +113,6 @@ const AiInstructions = ({ assistant }) => {
 		}));
 	}, []);
 
-	console.log('info?.instructionData', info?.instructionData);
-
 	return (
 		<>
 			<div className="aiInstructionsParentContainer">

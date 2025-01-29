@@ -40,6 +40,7 @@ const AiAssistants = () => {
 			createNewAiAssistant,
 			aiAssistant,
 			activeAiAssistantDetails,
+			resetAiSetupState,
 		},
 	} = useContext(Context);
 
