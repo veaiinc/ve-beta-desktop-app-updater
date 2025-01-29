@@ -41,12 +41,14 @@ const ProgressCircles = () => (
 	</div>
 );
 
-const AiPersonality = () => {
+const AiPersonality = ({ assistant }) => {
 	const [info, setInfo] = useState({
 		voiceOptions: [],
 		selectedVoice: 'Kierra',
 		voiceListLoading: false,
 		isSelectVoiceOpen: false,
+		assistantData: assistant,
+		assistantName: assistant?.assistantName,
 	});
 
 	const options = ['Kierra', 'Alex', 'Sam', 'Jordan'];
@@ -79,6 +81,8 @@ const AiPersonality = () => {
 					placeholder="Assistant Name"
 					className="aiNameInput"
 					label="Assistant Name"
+					value={info?.assistantName}
+					onChange={(e) => updateInfo('assistantName', e.target.value)}
 				/>
 			</div>
 

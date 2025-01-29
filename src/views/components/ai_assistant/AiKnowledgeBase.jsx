@@ -19,7 +19,7 @@ const iconMapper = {
 	url: <Link style={{ fill: '#F2F2F3 !important' }} width={12} height={12} />,
 };
 
-const AiKnowledgeBase = ({ agent }) => {
+const AiKnowledgeBase = ({ assistant }) => {
 	let {
 		aiSetup: {
 			activeAiAssistantDetails,

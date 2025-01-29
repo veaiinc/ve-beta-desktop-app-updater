@@ -41,7 +41,9 @@ const AgentDetails = () => {
 				actionBtnClassName="editAgentBtn"
 				actionText="Edit"
 				actionIcon={<EditIcon width={18} height={18} />}
-				onActionClick={() => navigate(`/ai-assistant/${aiAssistantId}/edit`)}
+				onActionClick={() =>
+					navigate(`/ai-assistant/${aiAssistantId}/edit`, { state: { assistant } })
+				}
 			/>
 			<TabHeader
 				activeTab={info?.activeTab}

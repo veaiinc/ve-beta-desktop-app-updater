@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
-import '../../../assets/scss/ai_assistant/CreateAgent.scss';
+import '../../../assets/scss/ai_assistant/EditAgent.scss';
 import '../../../assets/scss/ai_assistant/createAgentHeader.scss';
 // import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
 import TabHeader from '../../components/ai_assistant/TabHeader';
@@ -16,16 +16,16 @@ import AiShare from '../../components/ai_assistant/AiShare';
 import AiLinkFile from '../../components/ai_assistant/AiLinkFile';
 import DeleteAgentModal from '../../components/modalsV2/ai_assistant/DeleteAgentModal';
 
-const CreateAgent = () => {
+const EditAgent = () => {
 	const navigate = useNavigate();
-	const { agent } = useLocation()?.state || {};
+	const { assistant } = useLocation()?.state || {};
 
 	const [info, setInfo] = useState({
 		activeTab: 'personality', // personality, instructions, actions, knowledgeBase, prompt, share, linkeafile
 		selectedAgent: null,
 		publishAgent: false,
 		deleteAgentModal: false,
-		agentData: agent,
+		assistantData: assistant,
 	});
 
 	const onTabChange = useCallback((tab) => {
@@ -46,7 +46,11 @@ const CreateAgent = () => {
 	}, []);
 
 	const tabs = {
-		personality: { value: 'personality', label: 'Personality', component: <AiPersonality /> },
+		personality: {
+			value: 'personality',
+			label: 'Personality',
+			component: <AiPersonality assistant={info?.assistantData} />,
+		},
 		instructions: {
 			value: 'instructions',
 			label: 'Instructions',
@@ -56,7 +60,7 @@ const CreateAgent = () => {
 		knowledgeBase: {
 			value: 'knowledgeBase',
 			label: 'Knowledge Base',
-			component: <AiKnowledgeBase agent={info?.agentData} />,
+			component: <AiKnowledgeBase assistant={info?.assistantData} />,
 		},
 		prompt: { value: 'prompt', label: 'Prompt', component: <AiPrompt /> },
 		share: { value: 'share', label: 'Share', component: <AiShare /> },
@@ -79,7 +83,7 @@ const CreateAgent = () => {
 							</div>
 							<div className="create-agent-header-left-agent-name">
 								<AgentIcon width={18} height={18} />
-								{info?.agentData?.name || 'Assistant'}
+								{info?.assistantData?.assistantName || 'Assistant'}
 							</div>
 						</div>
 
@@ -135,4 +139,4 @@ const CreateAgent = () => {
 	);
 };
 
-export default memo(CreateAgent);
+export default memo(EditAgent);

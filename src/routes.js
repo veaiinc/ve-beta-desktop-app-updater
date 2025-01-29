@@ -36,7 +36,7 @@ import Docs from './views/features/docs';
 import LiteGallery from './views/features/gallery/Litegallery';
 import MyTemplates from './views/features/my_templates/MyTemplates';
 import AiAssistants from './views/features/ai_assistant/index';
-import CreateAgent from './views/features/ai_assistant/CreateAgent';
+import EditAgent from './views/features/ai_assistant/EditAgent';
 import AgentDetails from './views/features/ai_assistant/AgentDetails';
 const routes = [
 	{
@@ -331,7 +331,7 @@ const routes = [
 		path: '/ai-assistant/:aiAssistantId/edit',
 		component: (
 			<AuthWrapper title={'AI Assistant'}>
-				<CreateAgent />
+				<EditAgent />
 			</AuthWrapper>
 		),
 		exact: true,
