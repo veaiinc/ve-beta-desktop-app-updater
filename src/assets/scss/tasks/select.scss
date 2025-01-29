@@ -1,0 +1,135 @@
+.select-dropdown-wrapper {
+	.select-options-dropdown {
+		display: flex;
+		width: 220px;
+		padding-bottom: 12px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		border-radius: 8px;
+		background: #202123;
+		box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
+
+		&-header {
+			display: flex;
+			padding: 12px;
+			align-items: center;
+			gap: 2px;
+			align-self: stretch;
+			border-radius: 8px 8px 0px 0px;
+			background: #27282b;
+
+			input {
+				background-color: transparent;
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 11px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				border: none;
+				outline: none;
+
+				&::placeholder {
+					color: #47494d;
+				}
+			}
+		}
+
+		&-body {
+			display: flex;
+			padding: 0px 6px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+
+			&-title {
+				color: #787e87;
+				font-family: Inter;
+				font-size: 11px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			&-options {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 4px;
+				align-self: stretch;
+
+				.select-list-item {
+					display: flex;
+					padding: 4px;
+					justify-content: space-between;
+					align-items: center;
+					align-self: stretch;
+					gap: 6px;
+					border-radius: 8px;
+					transition: all 0.2s ease-in-out;
+					cursor: pointer;
+
+					&-tag-wrapper {
+						flex-grow: 1;
+					}
+
+					&:hover {
+						background: #333334;
+					}
+				}
+			}
+		}
+
+		.select-list-item-tag {
+			display: flex;
+			padding: 4px 6px;
+			align-items: center;
+			gap: 4px;
+			border-radius: 4px;
+			background-color: #6e3630;
+			width: fit-content;
+			color: #e8e8e8;
+			color: color(display-p3 0.9098 0.9098 0.9098);
+			text-align: center;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+}
+
+.select-options-wrapper {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	gap: 10px;
+	width: fit-content;
+	.select-selected-wrapper {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 4px;
+		width: fit-content;
+	}
+	.select-option-item {
+		display: flex;
+		padding: 4px 6px;
+		align-items: center;
+		gap: 4px;
+		border-radius: 4px;
+		background-color: #6e3630;
+		color: #e8e8e8;
+		color: color(display-p3 0.9098 0.9098 0.9098);
+		text-align: center;
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		cursor: pointer;
+	}
+}
