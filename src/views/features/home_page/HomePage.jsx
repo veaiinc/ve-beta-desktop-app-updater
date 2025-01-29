@@ -1,4 +1,5 @@
 import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/navBar';
 import HeaderInfo from '../../components/homePage/HeaderInfo';
@@ -57,12 +58,13 @@ const dropdownOptions = [
 const thresholdTopOffset = 150;
 
 const HomePage = () => {
+	const [searchParams, setSearchParams] = useSearchParams();
 	const [info, setInfo] = useState({
-		activeTab: 'start',
+		activeTab: searchParams?.get('tab') ?? 'start',
 		showPromptPopup: false,
 		isNavbarFixed: false,
-		selectedOptionInStart: 'All',
-		selectedOptionInDashboard: 'Priority',
+		selectedOptionInStart: searchParams?.get('startTab') || 'All',
+		selectedOptionInDashboard: searchParams?.get('dashboardTab') || 'Priority',
 		searchValue: '',
 		selectedCard: null,
 		selectedOptions: {},
@@ -129,10 +131,19 @@ const HomePage = () => {
 
 	const handleSelectedOption = (value) => {
 		setInfo((prev) => ({ ...prev, [selectedOption]: value }));
+		setSearchParams({ tab: info?.activeTab, [info?.activeTab + 'Tab']: value });
 	};
 
 	const handleSearchValue = (value) => {
 		setInfo((prev) => ({ ...prev, searchValue: value }));
+	};
+
+	const handleSetActiveTab = (tab) => {
+		setInfo((prev) => ({
+			...prev,
+			activeTab: tab,
+		}));
+		setSearchParams({ tab });
 	};
 
 	const componentMapper = useMemo(
@@ -172,12 +183,7 @@ const HomePage = () => {
 										className={`home-page-container-content-item ${
 											info?.activeTab === option?.value ? 'active' : ''
 										}`}
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												activeTab: option?.value,
-											}))
-										}
+										onClick={() => handleSetActiveTab(option?.value)}
 									>
 										{option?.title}
 									</div>
