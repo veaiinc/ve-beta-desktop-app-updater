@@ -237,6 +237,7 @@ export const getWorkflowListQuery = gql`
 					email
 					name
 				}
+				status
 				slug
 				modules
 				formResponse
