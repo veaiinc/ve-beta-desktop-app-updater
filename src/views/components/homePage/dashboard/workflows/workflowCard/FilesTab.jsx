@@ -7,15 +7,6 @@ import { FetchMoreLoaderComp } from '../../../../../../helpers';
 import MyWorkflowModalsLoader from '../../../../modalsV2/workflowsModals/MyWorkflowModalsLoader';
 import { useNavigate } from 'react-router-dom';
 
-const pendingActionsEnums = {
-	counterSign: {
-		title: 'Counter Sign',
-	},
-	sendProposal: {
-		title: 'Send Proposal',
-	},
-};
-
 const initialState = {
 	loading: false,
 	workflowsDetailslist: null,
@@ -27,12 +18,7 @@ const initialState = {
 
 const FilesTab = ({ data }) => {
 	let {
-		templates: {
-			getWorkflowsListForFiles,
-			workflowslistForFiles,
-			moreWorkList,
-			updateStateValues,
-		},
+		templates: { getWorkflowsListForFiles, workflowslistForFiles },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState(initialState);
@@ -55,7 +41,7 @@ const FilesTab = ({ data }) => {
 	const getWorkflowsListFunc = useCallback(async (page, fetchMore = false) => {
 		const payload = {
 			filters: {
-				limit: 30,
+				limit: 10,
 				page: page,
 				templateId: data?._id,
 			},
@@ -68,11 +54,8 @@ const FilesTab = ({ data }) => {
 		getWorkflowsListFunc(info?.currentPage + 1, true);
 	}, [info?.currentPage]);
 
-	const filteredPendingActionsLength = info?.workflowsDetailslist?.filter(
-		(item) => item?.requiredAction?.action,
-	).length;
-
 	const workflowsDetailsList = workflowslistForFiles?.[data?._id]?.data;
+	console.log('workflowsDetailsList', workflowsDetailsList);
 
 	return (
 		<>
@@ -84,10 +67,9 @@ const FilesTab = ({ data }) => {
 					height: '100%',
 					width: '100%',
 				}}
-				id="pendingActions"
 			>
 				<InfiniteScroll
-					dataLength={filteredPendingActionsLength || 0}
+					dataLength={workflowsDetailsList?.length || 0}
 					next={fetcMoreWorkflowList}
 					hasMore={info?.hasNextPage}
 					loader={<FetchMoreLoaderComp />}
@@ -95,22 +77,23 @@ const FilesTab = ({ data }) => {
 						display: 'flex',
 						flexDirection: 'column',
 						gap: '8px',
+						width: '100%',
 					}}
-					scrollableTarget="pendingActions"
+					height={350}
 				>
 					{info?.loading ? (
 						<MyWorkflowModalsLoader width={'287px'} height={'48px'} />
 					) : (
 						<div className="pending-actions-container">
-							{workflowsDetailsList?.map((item, index) => {
-								const title = item?.title;
-								const status = item?.status;
+							{workflowsDetailsList?.map((file) => {
+								const title = file?.title;
+								const status = file?.status;
 								return (
 									<div
 										className="workflow-inner-card"
-										key={index}
+										key={file?._id}
 										onClick={() => {
-											navigate(`/smart-file/${data?._id}/${item?._id}`);
+											navigate(`/smart-file/${data?._id}/${file?._id}`);
 										}}
 									>
 										<span className="left-text">

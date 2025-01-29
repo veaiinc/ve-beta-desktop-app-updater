@@ -420,7 +420,7 @@ export const TemplatesState = (props) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const response = await service.query(
+			const response = await service?.query(
 				updateFormQuery,
 				payload,
 				workspaceId,
@@ -462,7 +462,7 @@ export const TemplatesState = (props) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const response = await service.query(
+			const response = await service?.query(
 				getWorkflowListQuery,
 				payload,
 				workspaceId,

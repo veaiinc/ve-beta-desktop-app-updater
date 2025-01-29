@@ -4,10 +4,23 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action?.payload,
 	}),
-	GET_WORKFLOW_DETAILS_FOR_FILES_SUCCESS: (state, action) => ({
-		...state,
-		[action?.selectedvariable]: { ...state?.workflowslistForFiles, ...action?.payload },
-	}),
+	GET_WORKFLOW_DETAILS_FOR_FILES_SUCCESS: (state, action) => {
+		const templateId = Object?.keys(action?.payload)?.[0];
+		const data = action?.payload?.[templateId]?.data;
+		const workflowslistForFiles = {
+			...state?.workflowslistForFiles,
+			[templateId]: {
+				data: [...(state?.workflowslistForFiles?.[templateId]?.data || []), ...data],
+				currentPage: action?.payload?.[templateId]?.currentPage,
+				hasNextPage: action?.payload?.[templateId]?.hasNextPage,
+			},
+		};
+
+		return {
+			...state,
+			[action?.selectedvariable]: workflowslistForFiles,
+		};
+	},
 	GET_ALL_CLIENT_LIST_SUCCESS: (state, action) => ({ ...state, clientList: action?.payload }),
 	GET_ALL_CLIENT_LIST_FOR_DOCS_SUCCESS: (state, action) => ({
 		...state,
