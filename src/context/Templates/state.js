@@ -1445,6 +1445,10 @@ export const TemplatesState = (props) => {
 			console.log('error==>getDocsFilesList', error);
 		}
 	};
+
+	const updateApplicationChat = (payload) => {
+		dispatch({ type: Actions.UPDATE_APPLICATION_CHAT, payload });
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -1503,5 +1507,6 @@ export const TemplatesState = (props) => {
 		handleGlobalUploadImage,
 		checkIndividualImageUploadedStatus,
 		deleteUploadedImageThroughChat,
+		updateApplicationChat,
 	};
 };

@@ -46,6 +46,7 @@ const BottomToolbar = ({
 			checkIndividualImageUploadedStatus,
 			deleteUploadedImageThroughChat,
 			activeWorkflowSlugForSmartFile,
+			updateApplicationChat,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -301,7 +302,8 @@ const BottomToolbar = ({
 						),
 					},
 				];
-				updateStateValues({ globalChatMessages: [...globalChatMessages, ...workflowSlug] });
+
+				updateApplicationChat(workflowSlug);
 			}
 		},
 		[info, handleWorkflowSlugSelection, globalChatMessages],
