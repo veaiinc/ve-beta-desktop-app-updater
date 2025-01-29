@@ -77,6 +77,8 @@ export const intialState = {
 	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
 	docsFilesList: null,
 	moreDocsFilesList: null,
+	smartFileRefetch: false,
+	activeWorkflowSlugForSmartFile: null,
 };
 
 export const TemplatesState = (props) => {
@@ -458,7 +460,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getWorkflowsListForFiles = async (payload, fetchMore = false) => {
+	const getWorkflowsListForFiles = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -471,9 +473,34 @@ export const TemplatesState = (props) => {
 			);
 
 			if (response?.[0]) {
+				const templateId = payload?.filters?.templateId;
+				const { data, currentPage, hasNextPage } = response?.[1]?.data?.workflows;
+				let dispatchPayload;
+				if (!state?.workflowslistForFiles?.[templateId]) {
+					dispatchPayload = {
+						...state?.workflowslistForFiles,
+						[templateId]: {
+							data,
+							currentPage,
+							hasNextPage,
+						},
+					};
+				} else {
+					dispatchPayload = {
+						...state?.workflowslistForFiles,
+						[templateId]: {
+							data: [
+								...(state?.workflowslistForFiles?.[templateId]?.data || []),
+								...data,
+							],
+							currentPage,
+							hasNextPage,
+						},
+					};
+				}
 				dispatch({
 					type: Actions?.GET_WORKFLOW_DETAILS_FOR_FILES_SUCCESS,
-					payload: { [payload?.filters?.templateId]: response?.[1]?.data?.workflows },
+					payload: dispatchPayload,
 					selectedvariable: 'workflowslistForFiles',
 				});
 			} else {
@@ -1333,7 +1360,10 @@ export const TemplatesState = (props) => {
 			const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
 
 			let updatedGlobalChatMessages = [];
-			if (payload.files) {
+
+			if (localPayload.showCustomChatOptions) {
+				updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
+			} else if (payload.files) {
 				let str = '  ';
 				for (let i = 0; i < localPayload?.files?.length; i++) {
 					str += localPayload?.files?.[i]?.name || '' + ' ,';
@@ -1512,6 +1542,10 @@ export const TemplatesState = (props) => {
 			console.log('error==>getDocsFilesList', error);
 		}
 	};
+
+	const updateApplicationChat = (payload) => {
+		dispatch({ type: Actions.UPDATE_APPLICATION_CHAT, payload });
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -1572,5 +1606,6 @@ export const TemplatesState = (props) => {
 		handleGlobalUploadImage,
 		checkIndividualImageUploadedStatus,
 		deleteUploadedImageThroughChat,
+		updateApplicationChat,
 	};
 };

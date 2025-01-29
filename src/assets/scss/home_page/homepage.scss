@@ -5,6 +5,7 @@
 	height: 100vh;
 	overflow-y: scroll;
 	position: relative;
+	padding: 32px;
 
 	.black-linear-gradient {
 		position: fixed;
@@ -292,6 +293,17 @@
 		cursor: pointer;
 		&:hover {
 			background: #202123;
+		}
+	}
+}
+
+@media (max-width: 942px) {
+	.home-page-welcome-container-left-text-options {
+		flex-wrap: wrap;
+
+		.home-page-welcome-container-right {
+			width: 100% !important;
+			margin-top: 24px;
 		}
 	}
 }

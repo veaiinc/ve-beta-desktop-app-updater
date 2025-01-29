@@ -25,6 +25,10 @@ const FilesTab = ({ data }) => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
+		console.log('Files->', workflowslistForFiles);
+	}, [workflowslistForFiles]);
+
+	useEffect(() => {
 		if (workflowslistForFiles?.[data?._id]) {
 			const currentPage = workflowslistForFiles?.[data?._id]?.currentPage;
 			const hasNextPage = workflowslistForFiles?.[data?._id]?.hasNextPage;
@@ -51,19 +55,23 @@ const FilesTab = ({ data }) => {
 		workflowslistForFiles?.[data?._id]?.hasNextPage,
 	]);
 
-	const getWorkflowsListFunc = useCallback(async (page, fetchMore = false) => {
-		const payload = {
-			filters: {
-				limit: 10,
-				page: page,
-				templateId: data?._id,
-			},
-		};
+	const getWorkflowsListFunc = useCallback(
+		async (page) => {
+			const payload = {
+				filters: {
+					limit: 10,
+					page,
+					templateId: data?._id,
+				},
+			};
 
-		getWorkflowsListForFiles(payload, fetchMore);
-	}, []);
+			getWorkflowsListForFiles(payload);
+		},
+		[info?.currentPage],
+	);
 
 	const fetcMoreWorkflowList = useCallback(async () => {
+		console.log('fetchMore', info?.currentPage);
 		getWorkflowsListFunc(info?.currentPage + 1, true);
 	}, [info?.currentPage]);
 
@@ -72,8 +80,10 @@ const FilesTab = ({ data }) => {
 	return (
 		<>
 			<div
+				id="filesScrollable"
 				style={{
 					flex: 1,
+					overflowY: 'auto',
 					maxHeight: '100%',
 					height: '100%',
 					width: '100%',
@@ -84,14 +94,7 @@ const FilesTab = ({ data }) => {
 					next={fetcMoreWorkflowList}
 					hasMore={info?.hasNextPage}
 					loader={<FetchMoreLoaderComp />}
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						gap: '8px',
-						width: '100%',
-						overflowY: 'auto',
-					}}
-					height={350}
+					scrollableTarget="filesScrollable"
 				>
 					{info?.loading ? (
 						<MyWorkflowModalsLoader width={'287px'} height={'48px'} />
