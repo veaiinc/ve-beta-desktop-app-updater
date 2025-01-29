@@ -39,6 +39,7 @@ const BottomToolbar = ({
 			globalChatMessages,
 			updateStateValues,
 			handleGlobalUploadImage,
+			checkIndividualImageUploadedStatus,
 		},
 	} = useContext(Context);
 
@@ -172,14 +173,58 @@ const BottomToolbar = ({
 		[info?.chatQuery, aiChatLoading, onSend, customChatActions, info?.chatSessionId],
 	);
 
-	const handleGlobalImageProcessing = useCallback((file) => {
-		handleGlobalUploadImage(file);
-	}, []);
+	const handleGlobalImageProcessing = useCallback(
+		async (file) => {
+			const uploadBatchId = ObjectID().toString();
+			const payload = {
+				sessionId: info?.chatSessionId,
+				originalFileName: file?.name || 'Untitled file',
+				uploadBatchId,
+			};
+			const response = await handleGlobalUploadImage(file, payload);
+			let uploadedImages = [...info?.uploadedImages];
+			if (!response?.[0]) {
+				uploadedImages.splice(file?.uniqueId, 1);
+				setInfo((prev) => ({ ...prev, uploadedImages }));
+				return message.error(response?.[1]);
+			}
+			checkIndividualImageUploadedStatusFunc(file, uploadBatchId);
+		},
+		[info],
+	);
+
+	const checkIndividualImageUploadedStatusFunc = useCallback(
+		async (fileData, uploadBatchId) => {
+			let uploadedCount = 0,
+				maxAttempts = 15;
+			while (!uploadedCount && maxAttempts) {
+				const response = await checkIndividualImageUploadedStatus(uploadBatchId);
+				if (response?.[0]) {
+					uploadedCount = response?.[1]?.uploadedCount;
+					if (uploadedCount) {
+						break;
+					}
+				}
+				//dealying the check
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+				maxAttempts--;
+			}
+			if (uploadedCount && uploadedCount > 0) {
+				let uploadedImages = [...info?.uploadedImages];
+				fileData.loading = false;
+				uploadedImages.splice(fileData?.uniqueId, 1, fileData);
+				setInfo((prev) => ({ ...prev, uploadedImages }));
+			}
+		},
+		[info],
+	);
+
 	const handleChange = useCallback(
 		async ({ file }) => {
-			let uploadedImages = [...info?.uploadedImages];
+			let uploadedImages = [...(info?.uploadedImages || [])];
 			file.preview = await getBase64(file);
 			file.loading = true;
+			file.uniqueId = uploadedImages?.length;
 			uploadedImages.push(file);
 			if (customChatActions) {
 				handleAiUploadImage(file);
@@ -271,24 +316,26 @@ const BottomToolbar = ({
 					)}
 				</div>
 				<div className="imagePreviewBar">
-					{info?.uploadedImages?.map((ele, index) => (
-						<div className="previewOfUploadedImage" key={index}>
-							<img
-								src={ele?.preview}
-								alt="uploaded"
-								width={'100%'}
-								height={'100%'}
-								style={{ objectFit: 'cover', borderRadius: '12px' }}
-							/>
-							{ele?.loading ? (
-								<div className="spinContainerLoaderForPreview">
-									<Spin />
+					{info?.uploadedImages?.length
+						? info?.uploadedImages?.map((ele, index) => (
+								<div className="previewOfUploadedImage" key={index}>
+									<img
+										src={ele?.preview}
+										alt="uploaded"
+										width={'100%'}
+										height={'100%'}
+										style={{ objectFit: 'cover', borderRadius: '12px' }}
+									/>
+									{ele?.loading ? (
+										<div className="spinContainerLoaderForPreview">
+											<Spin />
+										</div>
+									) : (
+										''
+									)}
 								</div>
-							) : (
-								''
-							)}
-						</div>
-					))}
+						  ))
+						: ''}
 				</div>
 			</div>
 

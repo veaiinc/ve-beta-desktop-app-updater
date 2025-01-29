@@ -1296,16 +1296,11 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const handleGlobalUploadImage = async (file) => {
+	const handleGlobalUploadImage = async (file, payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 
-			const payload = {
-				sessionId: '66e912502081b2e47d5a567f',
-				originalFileName: 'testGokulLast.png',
-				uploadBatchId: '234632875328563270',
-			};
 			const response = await Service.fetchPost(
 				`/${workspaceId}/knowledge-bases/upload-file`,
 				payload,
@@ -1314,39 +1309,46 @@ export const TemplatesState = (props) => {
 			);
 
 			if (response?.[0]) {
-				if (file.preview) {
-					delete file.preview;
-				}
-				if (file.loading !== undefined) {
-					delete file.loading;
-				}
-
 				const base64 = await getBase64(file);
+
 				const newResponse = await fetch(base64);
 				const blob = await newResponse.blob();
-				console.log('I reached herer==>', response?.[1]);
 
 				const { signedUrl } = response?.[1];
-				console.log('I reached herer==>', signedUrl, blob);
+
 				const uploadResponse = await fetch(signedUrl, {
-					method: 'POST',
+					method: 'PUT',
 					body: blob,
 					headers: {
 						'Content-Type': file.type, // Set the content type based on the file type
 					},
 				});
-				console.log('uploadResponse==>handleGlobalUploadImage', uploadResponse);
+
 				if (!uploadResponse.ok) {
-					throw new Error('Failed to upload image to signed URL');
+					return [false, 'Failed to upload image'];
 				}
 
-				return [true, 'We made the changes accordingly'];
+				return [true];
 			}
 
-			// console.log('response==>handleGlobalUploadImage', response);
+			return [true];
+		} catch (error) {
+			console.log('error==>handleGlobalUploadImage', error);
+			return [false, 'Failed to upload image'];
+		}
+	};
 
-			return [true, 'We made the changes accordingly'];
-		} catch (error) {}
+	const checkIndividualImageUploadedStatus = async (uploadBatchId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-bases/file-upload-status/${uploadBatchId}`;
+			const response = await Service.fetchGet(url, usertoken, 'ai_assistant_api');
+			return response;
+		} catch (error) {
+			message.error('Error checking image upload status');
+			return [false, 'Error checking image upload status'];
+		}
 	};
 
 	//docs
@@ -1433,5 +1435,6 @@ export const TemplatesState = (props) => {
 		handleGlobalChatMessages,
 		getDocsFilesList,
 		handleGlobalUploadImage,
+		checkIndividualImageUploadedStatus,
 	};
 };
