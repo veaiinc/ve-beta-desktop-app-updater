@@ -5,21 +5,28 @@ import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
 import { ReactComponent as EditIcon } from '../../../assets/svg/ai_assistant/edit.svg';
 import TabHeader from '../../components/ai_assistant/TabHeader';
-// import Context from '../../../context/context';
+import Context from '../../../context/context';
 
 const AgentDetails = () => {
-	// const {
-	// 	aiSetup: { getKnowledgeBaseFiles, getActiveAiAssistantDetails },
-	// } = useContext(Context);
+	const {
+		aiSetup: { activeAiAssistantDetails },
+	} = useContext(Context);
 
 	const { aiAssistantId } = useParams();
 	const location = useLocation();
-	const { assistant } = location?.state;
+	const { assistant, activeAiAssistant } = location?.state;
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		activeTab: 'playground', // playground, chatlogs, connections
+		activeAiAssistant: null,
 	});
+
+	useEffect(() => {
+		if (activeAiAssistantDetails) {
+			setInfo((prev) => ({ ...prev, activeAiAssistant: activeAiAssistantDetails }));
+		}
+	}, [activeAiAssistantDetails]);
 
 	const tabs = {
 		playground: { value: 'playground', label: 'Playground' },
@@ -36,13 +43,16 @@ const AgentDetails = () => {
 			<CreateAgentHeader
 				backText="Back to AI Assistants"
 				agentIcon={<AgentIcon width={16} height={16} />}
+				// name={info?.activeAiAssistant?.name || assistant?.name}
 				name={assistant?.name}
 				onBack={() => navigate('/ai-assistant')}
 				actionBtnClassName="editAgentBtn"
 				actionText="Edit"
 				actionIcon={<EditIcon width={18} height={18} />}
 				onActionClick={() =>
-					navigate(`/ai-assistant/${aiAssistantId}/edit`, { state: { assistant } })
+					navigate(`/ai-assistant/${aiAssistantId}/edit`, {
+						state: { assistant },
+					})
 				}
 			/>
 			<TabHeader

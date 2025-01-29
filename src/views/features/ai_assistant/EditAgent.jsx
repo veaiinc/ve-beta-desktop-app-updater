@@ -32,9 +32,9 @@ const EditAgent = () => {
 		publishAgent: false,
 		deleteAgentModal: false,
 		assistantData: assistant,
+		assistantName: assistant?.name,
+		timeout: null,
 	});
-
-	// console.log('activeAiAssistantDetails on EditAgent page', activeAiAssistantDetails);
 
 	useEffect(() => {
 		if (aiAssistantId) {
@@ -44,13 +44,36 @@ const EditAgent = () => {
 
 	useEffect(() => {
 		if (activeAiAssistantDetails) {
-			console.log(
-				'Detailed data is saved in assistantData : component EditAgent',
-				activeAiAssistantDetails,
-			);
 			setInfo((prev) => ({ ...prev, assistantData: activeAiAssistantDetails }));
 		}
 	}, [activeAiAssistantDetails]);
+
+	useEffect(() => {
+		if (info?.assistantName !== info?.assistantData?.name) {
+			handleDebounceUpdate();
+		}
+	}, [info?.assistantName]);
+
+	const handleDebounceUpdate = useCallback(() => {
+		clearTimeout(info?.timeout);
+		const timeout = setTimeout(() => {
+			if (info?.assistantName && aiAssistantId) {
+				updateAiAssistant(aiAssistantId, { name: info?.assistantName });
+			}
+			setInfo((prev) => ({
+				...prev,
+				timeout: null,
+			}));
+		}, 800);
+		setInfo((prev) => ({ ...prev, timeout }));
+	}, [info?.timeout, info?.assistantName, aiAssistantId, updateAiAssistant]);
+
+	const updateAssistantInfo = useCallback((key, value) => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			[key]: value,
+		}));
+	}, []);
 
 	const onTabChange = useCallback((tab) => {
 		setInfo((prev) => ({ ...prev, activeTab: tab }));
@@ -70,7 +93,12 @@ const EditAgent = () => {
 		personality: {
 			value: 'personality',
 			label: 'Personality',
-			component: <AiPersonality assistant={info?.assistantData} />,
+			component: (
+				<AiPersonality
+					assistant={info?.assistantData}
+					updateAssistantInfo={updateAssistantInfo}
+				/>
+			),
 		},
 		instructions: {
 			value: 'instructions',

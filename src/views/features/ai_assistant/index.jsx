@@ -39,6 +39,7 @@ const AiAssistants = () => {
 			moreAiAssistants,
 			createNewAiAssistant,
 			aiAssistant,
+			activeAiAssistantDetails,
 		},
 	} = useContext(Context);
 
@@ -50,7 +51,14 @@ const AiAssistants = () => {
 		aiAssistantId: null,
 		newAiAssistant: null,
 		creatingNewAiAssistantLoading: false,
+		activeAiAssistant: null,
 	});
+
+	// useEffect(() => {
+	// 	if (activeAiAssistantDetails) {
+	// 		setInfo((prev) => ({ ...prev, activeAiAssistant: activeAiAssistantDetails }));
+	// 	}
+	// }, [activeAiAssistantDetails]);
 
 	useEffect(() => {
 		return () => {
@@ -76,9 +84,10 @@ const AiAssistants = () => {
 	}, []);
 
 	useEffect(() => {
-		if (!aiAssistants) {
-			getAiAssistants();
-		}
+		// if (!aiAssistants) {
+		// 	getAiAssistants();
+		// }
+		getAiAssistants();
 	}, []);
 
 	useEffect(() => {

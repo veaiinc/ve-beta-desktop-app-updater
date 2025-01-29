@@ -41,7 +41,7 @@ const ProgressCircles = () => (
 	</div>
 );
 
-const AiPersonality = ({ assistant }) => {
+const AiPersonality = ({ assistant, updateAssistantInfo }) => {
 	const [info, setInfo] = useState({
 		voiceOptions: [],
 		selectedVoice: 'Kierra',
@@ -53,11 +53,16 @@ const AiPersonality = ({ assistant }) => {
 
 	const options = ['Kierra', 'Alex', 'Sam', 'Jordan'];
 
-	const updateInfo = useCallback((key, value) => {
+	const updateAiPersonalityInfo = useCallback((key, value) => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			[key]: value,
 		}));
+	}, []);
+
+	const handleAssistantNameChange = useCallback((name) => {
+		updateAiPersonalityInfo('assistantName', name);
+		updateAssistantInfo('assistantName', name);
 	}, []);
 
 	const handleMoreVisibility = useCallback((visible) => {
@@ -65,7 +70,7 @@ const AiPersonality = ({ assistant }) => {
 	}, []);
 
 	const handleVoiceChange = useCallback((value) => {
-		updateInfo('selectedVoice', value);
+		updateAiPersonalityInfo('selectedVoice', value);
 		handleMoreVisibility(false);
 	}, []);
 
@@ -82,7 +87,7 @@ const AiPersonality = ({ assistant }) => {
 					className="aiNameInput"
 					label="Assistant Name"
 					value={info?.assistantName}
-					onChange={(e) => updateInfo('assistantName', e.target.value)}
+					onChange={(e) => handleAssistantNameChange(e.target.value)}
 				/>
 			</div>
 
