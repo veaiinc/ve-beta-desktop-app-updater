@@ -37,6 +37,7 @@ export const intialState = {
 		numberOfImagesPeoples: 0,
 		imagesCount: 0,
 	},
+	clientSelectionLightRoomCopy: null,
 };
 
 export const Galleries = () => {
@@ -1211,6 +1212,29 @@ export const Galleries = () => {
 			console.log('error==>getClientSelectionImages', error);
 		}
 	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-collections/{{ _.collection_id }}/image-file-names.
+
+	const getClientSelectionLightRoomCopy = async (collectionId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/gallery-collections/${collectionId}/image-file-names`,
+				usertoken,
+				'galleries',
+			);
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_CLIENT_SELECTION_LIGHTROOM_COPY,
+					payload: response?.[1],
+				});
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>getClientSelectionLightRoomCopy', error);
+		}
+	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/move-images
 	const moveImagesToAlbum = async (payload, galleryId, albumId) => {
 		try {
@@ -1817,5 +1841,6 @@ export const Galleries = () => {
 		editAlbum,
 		getImageProcessingStatus,
 		setUpImageUpload,
+		getClientSelectionLightRoomCopy,
 	};
 };
