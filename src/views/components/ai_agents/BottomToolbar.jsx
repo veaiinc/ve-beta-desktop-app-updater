@@ -298,7 +298,8 @@ const BottomToolbar = ({
 				showUploadList={false}
 				beforeUpload={() => false} // Prevent default upload behavior
 				maxCount={1} // Allow only one file at a time
-				accept="image/*" // Accept only images
+				// accept="image/*" // Accept only images
+				accept=".pdf,.docx,.txt,.md,.json,.png,.jpg,.jpeg"
 			>
 				<PaperClip />
 			</Upload>,
