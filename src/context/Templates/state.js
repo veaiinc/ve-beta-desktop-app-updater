@@ -1313,7 +1313,37 @@ export const TemplatesState = (props) => {
 				'ai_assistant_api',
 			);
 
-			console.log('response==>handleGlobalUploadImage', response);
+			if (response?.[0]) {
+				if (file.preview) {
+					delete file.preview;
+				}
+				if (file.loading !== undefined) {
+					delete file.loading;
+				}
+
+				const base64 = await getBase64(file);
+				const newResponse = await fetch(base64);
+				const blob = await newResponse.blob();
+				console.log('I reached herer==>', response?.[1]);
+
+				const { signedUrl } = response?.[1];
+				console.log('I reached herer==>', signedUrl, blob);
+				const uploadResponse = await fetch(signedUrl, {
+					method: 'POST',
+					body: blob,
+					headers: {
+						'Content-Type': file.type, // Set the content type based on the file type
+					},
+				});
+				console.log('uploadResponse==>handleGlobalUploadImage', uploadResponse);
+				if (!uploadResponse.ok) {
+					throw new Error('Failed to upload image to signed URL');
+				}
+
+				return [true, 'We made the changes accordingly'];
+			}
+
+			// console.log('response==>handleGlobalUploadImage', response);
 
 			return [true, 'We made the changes accordingly'];
 		} catch (error) {}
