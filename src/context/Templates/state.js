@@ -88,6 +88,7 @@ export const intialState = {
 	moreFormsTemplatesList: null,
 	formResponsesList: null,
 	moreFormResponsesList: null,
+	activePromptForChat: null,
 };
 
 export const TemplatesState = (props) => {
