@@ -6,12 +6,12 @@ import Context from '../../../context/context';
 import { Select } from 'antd';
 
 const WorkflowSlugList = ({
-	updateCalendarInfo,
 	workflowSlug,
 	fetching,
 	workflowOptions,
 	fetchMoreWorkflows,
 	hasNextPage,
+	handleWorkflowSlugSelection,
 }) => {
 	const [info, setInfo] = useState({
 		value: workflowSlug || null,
@@ -63,11 +63,7 @@ const WorkflowSlugList = ({
 				}}
 				onChange={(workflowSlug) => {
 					setInfo((prev) => ({ ...prev, value: workflowSlug || '' }));
-					if (workflowSlug) {
-						updateCalendarInfo('workflowSlug', workflowSlug);
-					} else {
-						updateCalendarInfo('workflowSlug', null);
-					}
+					handleWorkflowSlugSelection(workflowSlug);
 				}}
 				getPopupContainer={(trigger) => trigger?.parentNode}
 			/>
@@ -75,7 +71,7 @@ const WorkflowSlugList = ({
 	);
 };
 
-const WorkflowSlugSelector = ({ updateCalendarInfo, workflowSlug }) => {
+const WorkflowSlugSelector = ({ workflowSlug, handleWorkflowSlugSelection }) => {
 	const {
 		templates: { getWorkflowsList, workflowslist, moreWorkList },
 	} = useContext(Context);
@@ -88,10 +84,6 @@ const WorkflowSlugSelector = ({ updateCalendarInfo, workflowSlug }) => {
 		currentPage: 1,
 		workflowOptions: [],
 	});
-
-	useEffect(() => {
-		console.log('info?.fetching==>', info?.fetching);
-	}, [info?.fetching]);
 
 	useEffect(() => {
 		if (workflowslist) {
@@ -130,7 +122,6 @@ const WorkflowSlugSelector = ({ updateCalendarInfo, workflowSlug }) => {
 				value: data?.[i]?.slug,
 			});
 		}
-		console.log('Mapped options:', workflowOptions);
 		return workflowOptions;
 	}, []);
 
@@ -179,12 +170,12 @@ const WorkflowSlugSelector = ({ updateCalendarInfo, workflowSlug }) => {
 
 			<div className={`workflowDropDown ${info?.isExpanded ? 'expanded' : ''}`}>
 				<WorkflowSlugList
-					updateCalendarInfo={updateCalendarInfo}
 					workflowSlug={workflowSlug}
 					fetching={info?.fetching}
 					workflowOptions={info?.workflowOptions}
 					fetchMoreWorkflows={fetchMoreWorkflows}
 					hasNextPage={info?.hasNextPage}
+					handleWorkflowSlugSelection={handleWorkflowSlugSelection}
 				/>
 			</div>
 		</div>
