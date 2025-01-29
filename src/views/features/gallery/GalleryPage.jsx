@@ -2966,16 +2966,8 @@ const GalleryPage = () => {
 				const response = await getDownloadLinkForImage(selectedImageId, isLightGallery);
 
 				if (response?.[0] === true) {
-					// Create link and trigger download
-					const link = document.createElement('a');
-					link.href = response[1]?.url;
-					link.download = response[1]?.fileName || `image-${Date.now()}`;
-					document.body.appendChild(link);
-					link.click();
-					document.body.removeChild(link);
-
 					message.success({
-						content: 'Download started',
+						content: 'Download completed',
 						key: 'downloadMessage',
 					});
 				} else {
