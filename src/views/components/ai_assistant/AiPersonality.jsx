@@ -48,7 +48,7 @@ const AiPersonality = ({ assistant }) => {
 		voiceListLoading: false,
 		isSelectVoiceOpen: false,
 		assistantData: assistant,
-		assistantName: assistant?.assistantName,
+		assistantName: assistant?.name,
 	});
 
 	const options = ['Kierra', 'Alex', 'Sam', 'Jordan'];

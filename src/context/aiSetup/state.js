@@ -230,6 +230,7 @@ export const AiSetupState = () => {
 					type: Actions?.SET_ACTIVE_AI_ASSISTANT_DETAILS,
 					payload: response?.[1],
 				});
+				return response?.[1];
 			}
 		} catch (error) {
 			console.log('error==>updateAiAssistant', error);

@@ -36,7 +36,7 @@ const AgentDetails = () => {
 			<CreateAgentHeader
 				backText="Back to AI Assistants"
 				agentIcon={<AgentIcon width={16} height={16} />}
-				name={assistant?.assistantName}
+				name={assistant?.name}
 				onBack={() => navigate('/ai-assistant')}
 				actionBtnClassName="editAgentBtn"
 				actionText="Edit"

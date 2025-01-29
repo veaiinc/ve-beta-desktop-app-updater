@@ -3,7 +3,7 @@ import '../../../assets/scss/ai_assistant/EditAgent.scss';
 import '../../../assets/scss/ai_assistant/createAgentHeader.scss';
 // import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
 import TabHeader from '../../components/ai_assistant/TabHeader';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
 import { ReactComponent as BackSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as Delete } from '../../../assets/svg/ai_assistant/delete.svg';
@@ -15,10 +15,16 @@ import AiPrompt from '../../components/ai_assistant/AiPrompt';
 import AiShare from '../../components/ai_assistant/AiShare';
 import AiLinkFile from '../../components/ai_assistant/AiLinkFile';
 import DeleteAgentModal from '../../components/modalsV2/ai_assistant/DeleteAgentModal';
+import Context from '../../../context/context';
 
 const EditAgent = () => {
+	const {
+		aiSetup: { updateAiAssistant, getActiveAiAssistantDetails, activeAiAssistantDetails },
+	} = useContext(Context);
+
 	const navigate = useNavigate();
 	const { assistant } = useLocation()?.state || {};
+	const { aiAssistantId } = useParams();
 
 	const [info, setInfo] = useState({
 		activeTab: 'personality', // personality, instructions, actions, knowledgeBase, prompt, share, linkeafile
@@ -28,11 +34,26 @@ const EditAgent = () => {
 		assistantData: assistant,
 	});
 
+	// console.log('activeAiAssistantDetails on EditAgent page', activeAiAssistantDetails);
+
+	useEffect(() => {
+		if (aiAssistantId) {
+			getActiveAiAssistantDetails(aiAssistantId);
+		}
+	}, []);
+
+	useEffect(() => {
+		if (activeAiAssistantDetails) {
+			console.log(
+				'Detailed data is saved in assistantData : component EditAgent',
+				activeAiAssistantDetails,
+			);
+			setInfo((prev) => ({ ...prev, assistantData: activeAiAssistantDetails }));
+		}
+	}, [activeAiAssistantDetails]);
+
 	const onTabChange = useCallback((tab) => {
 		setInfo((prev) => ({ ...prev, activeTab: tab }));
-	}, []);
-	const onBack = useCallback(() => {
-		navigate(-1);
 	}, []);
 	const onActionClick = useCallback(() => {
 		console.log('Action Clicked');
@@ -54,17 +75,33 @@ const EditAgent = () => {
 		instructions: {
 			value: 'instructions',
 			label: 'Instructions',
-			component: <AiInstructions />,
+			component: <AiInstructions assistant={info?.assistantData} />,
 		},
-		actions: { value: 'actions', label: 'Actions', component: <AiActions /> },
+		actions: {
+			value: 'actions',
+			label: 'Actions',
+			component: <AiActions assistant={info?.assistantData} />,
+		},
 		knowledgeBase: {
 			value: 'knowledgeBase',
 			label: 'Knowledge Base',
 			component: <AiKnowledgeBase assistant={info?.assistantData} />,
 		},
-		prompt: { value: 'prompt', label: 'Prompt', component: <AiPrompt /> },
-		share: { value: 'share', label: 'Share', component: <AiShare /> },
-		linkFile: { value: 'linkFile', label: 'Link File', component: <AiLinkFile /> },
+		prompt: {
+			value: 'prompt',
+			label: 'Prompt',
+			component: <AiPrompt assistant={info?.assistantData} />,
+		},
+		share: {
+			value: 'share',
+			label: 'Share',
+			component: <AiShare assistant={info?.assistantData} />,
+		},
+		linkFile: {
+			value: 'linkFile',
+			label: 'Link File',
+			component: <AiLinkFile assistant={info?.assistantData} />,
+		},
 	};
 
 	return (
@@ -73,7 +110,10 @@ const EditAgent = () => {
 				<div style={{ flexShrink: 0 }}>
 					<div className="create-agent-header">
 						<div className="create-agent-header-left">
-							<div className="create-agent-header-left-back" onClick={onBack}>
+							<div
+								className="create-agent-header-left-back"
+								onClick={() => navigate(-1)}
+							>
 								<div className="create-agent-header-left-back-icon">
 									<BackSvg />
 								</div>
@@ -83,7 +123,7 @@ const EditAgent = () => {
 							</div>
 							<div className="create-agent-header-left-agent-name">
 								<AgentIcon width={18} height={18} />
-								{info?.assistantData?.assistantName || 'Assistant'}
+								{info?.assistantData?.name || 'Assistant'}
 							</div>
 						</div>
 

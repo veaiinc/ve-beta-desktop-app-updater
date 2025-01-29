@@ -181,7 +181,7 @@ const AiAssistants = () => {
 									<div>
 										<AgentIcon />
 									</div>
-									<div className="agentName">{assistant?.assistantName}</div>
+									<div className="agentName">{assistant?.name}</div>
 									<div className="createdBy">
 										Created by {assistant?.createdBy}
 									</div>
