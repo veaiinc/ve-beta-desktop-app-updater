@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import '../../../../../../assets/scss/home_page/workflows/workflowCard.scss';
-import { ReactComponent as CheckIcon } from '../../../../../../assets/svg/home_page/Check.svg';
+import { ReactComponent as ChevronRightThinIcon } from '../../../../../../assets/svg/tasks/chevronRightThin.svg';
 import Context from '../../../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../../../helpers';
 import MyWorkflowModalsLoader from '../../../../modalsV2/workflowsModals/MyWorkflowModalsLoader';
@@ -46,7 +46,10 @@ const FilesTab = ({ data }) => {
 			currentPage,
 			hasNextPage,
 		}));
-	}, [workflowslistForFiles?.[[data?._id]]]);
+	}, [
+		workflowslistForFiles?.[data?._id]?.currentPage,
+		workflowslistForFiles?.[data?._id]?.hasNextPage,
+	]);
 
 	const getWorkflowsListFunc = useCallback(async (page, fetchMore = false) => {
 		const payload = {
@@ -71,7 +74,6 @@ const FilesTab = ({ data }) => {
 			<div
 				style={{
 					flex: 1,
-					// overflowY: 'auto',
 					maxHeight: '100%',
 					height: '100%',
 					width: '100%',
@@ -112,7 +114,7 @@ const FilesTab = ({ data }) => {
 											{status}
 										</span>
 										<span className="right-text pending-actions-title">
-											<CheckIcon />
+											<ChevronRightThinIcon />
 										</span>
 									</div>
 								);

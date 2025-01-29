@@ -70,6 +70,10 @@ const actionHandlers = {
 		...state,
 		requiredActions: action?.payload,
 	}),
+	GET_REQUIRED_ACTIONS_FOR_TEMPLATE_SUCCESS: (state, action) => ({
+		...state,
+		requiredActionsForTemplate: action?.payload,
+	}),
 
 	GET_TAB_ITEM_COUNT_SUCCESS: (state, action) => ({
 		...state,

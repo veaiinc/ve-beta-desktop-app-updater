@@ -942,6 +942,51 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getRequiredActionsForTemplate = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const { resetRequiredActions, ...queryPayload } = payload;
+
+			const response = await service.query(
+				getRequiredActionDetailsQuery,
+				queryPayload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			const workflowTemplateId = queryPayload?.filters?.workflowTemplateId;
+
+			if (response?.[0]) {
+				const data = response?.[1]?.data?.listRequiredActions;
+				dispatch({
+					type: Actions.GET_REQUIRED_ACTIONS_FOR_TEMPLATE_SUCCESS,
+					payload: {
+						...state?.requiredActionsForTemplate,
+						[workflowTemplateId]: {
+							data: state?.requiredActionsForTemplate?.[workflowTemplateId]
+								? [
+										...(Array.isArray(
+											state?.requiredActionsForTemplate?.[workflowTemplateId],
+										)
+											? state.requiredActionsForTemplate[workflowTemplateId]
+											: []),
+										...data,
+								  ]
+								: data,
+							...response?.[1]?.data?.listRequiredActions,
+						},
+					},
+				});
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>getRequiredActionDetails', error);
+		}
+	};
+
 	const updateSendSmartFileSettings = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -1506,6 +1551,7 @@ export const TemplatesState = (props) => {
 		deleteWorkflowTemplates,
 		getTabItemCount,
 		getRequiredActions,
+		getRequiredActionsForTemplate,
 		updateSendSmartFileSettings,
 		getEventsPresets,
 		addEventsPresets,

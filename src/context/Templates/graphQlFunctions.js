@@ -389,7 +389,6 @@ export const deleteWorkflowTemplatesMutation = gql`
 	}
 `;
 
-// Sheshant
 export const getTabItemCountQuery = gql`
 	query Query {
 		getNumberOfRequiredActions {
@@ -402,7 +401,6 @@ export const getTabItemCountQuery = gql`
 	}
 `;
 
-// Sheshant
 export const getRequiredActionDetailsQuery = gql`
 	query Query($filters: RequiredActionsFiltersInput) {
 		listRequiredActions(filters: $filters) {
@@ -418,6 +416,8 @@ export const getRequiredActionDetailsQuery = gql`
 				templateId
 			}
 			hasNextPage
+			limit
+			currentPage
 		}
 	}
 `;
