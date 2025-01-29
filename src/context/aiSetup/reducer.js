@@ -37,6 +37,11 @@ const actionHandlers = {
 		...state,
 		aiInstructions: action?.payload,
 	}),
+	UPDATE_AI_INSTRUCTION: (state, action) => ({
+		...state,
+		aiInstructions: action?.payload,
+	}),
+
 	RESET_STATE: () => initialState,
 };
 

@@ -457,6 +457,31 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const updateInstruction = async (assistantId, instructionId, data) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' +
+			workspaceId +
+			'/ai-assistants/' +
+			assistantId +
+			AI_ASSISTANT_INSTRUCTIONS?.updateInstruction +
+			'/' +
+			instructionId;
+		try {
+			const response = await service?.fetchPut(url, data, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.SET_AI_INSTRUCTION,
+					payload: response?.[1]?.instructions,
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>updateInstruction', error);
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -480,5 +505,6 @@ export const AiSetupState = () => {
 		updateKnowledgeBaseFile,
 		getInstructions,
 		createInstruction,
+		updateInstruction,
 	};
 };

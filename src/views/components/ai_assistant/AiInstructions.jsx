@@ -10,7 +10,7 @@ import { message } from 'antd';
 
 const AiInstructions = ({ assistant }) => {
 	const {
-		aiSetup: { aiInstructions, getInstructions, createInstruction },
+		aiSetup: { aiInstructions, getInstructions, createInstruction, updateInstruction },
 	} = useContext(Context);
 
 	const { aiAssistantId } = useParams();
@@ -68,19 +68,37 @@ const AiInstructions = ({ assistant }) => {
 					instructionData: updatedInstructions,
 				}));
 
-				message.success('Instruction status updated successfully');
+				const response = await updateInstruction(aiAssistantId, instructionId, {
+					status: !currentStatus,
+				});
+
+				if (response) {
+					message.success('Instruction status updated successfully');
+				} else {
+					// Revert the state if API call fails
+					setInfo((prev) => ({
+						...prev,
+						instructionData: info?.instructionData,
+					}));
+					message.error('Failed to update instruction status');
+				}
 			} catch (error) {
+				// Revert the state if API call fails
+				setInfo((prev) => ({
+					...prev,
+					instructionData: info?.instructionData,
+				}));
 				message.error('Failed to update instruction status');
 			}
 		},
-		[info?.instructionData],
+		[info?.instructionData, aiAssistantId],
 	);
 
 	const toggleInstructionModal = () => {
 		setInfo((prev) => ({ ...prev, isInstructionModalOpen: !prev.isInstructionModalOpen }));
 	};
 
-	const updateInstruction = useCallback(() => {
+	const createNewInstruction = useCallback(() => {
 		setInfo((prev) => ({ ...prev, updatingInstruction: true }));
 		createInstruction(aiAssistantId, info?.instructionBody);
 	}, [info?.instructionBody, aiAssistantId]);
@@ -153,7 +171,7 @@ const AiInstructions = ({ assistant }) => {
 				instruction={info?.instructionBody?.instruction}
 				onTitleChange={(value) => updateInstructionBody('title', value)}
 				onInstructionChange={(value) => updateInstructionBody('instruction', value)}
-				onActionClick={updateInstruction}
+				onActionClick={createNewInstruction}
 				isActionbtnLoading={info?.updatingInstruction}
 			/>
 		</>
