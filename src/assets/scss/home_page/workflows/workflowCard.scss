@@ -1,7 +1,7 @@
 .workflow-card-container {
 	display: flex;
 	flex-shrink: 0;
-	width: 340px;
+	width: calc(32% + 2px);
 	height: 424px;
 	padding: 24px;
 	flex-direction: column;
