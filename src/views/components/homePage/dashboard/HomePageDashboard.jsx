@@ -5,16 +5,16 @@ import TasksTab from './TasksTab';
 import WorkflowsTab from './WorkflowsTab';
 import RecentChats from './RecentChats';
 import PriorityTab from './PriorityTab';
-const HomePageDashboard = ({ selectedOption, isNavbarFixed }) => {
+const HomePageDashboard = ({ selectedOption, isNavbarFixed, searchValue }) => {
 	const componentMapper = useMemo(
 		() => ({
 			'Drafts & Activity': <DraftsAndActivityTab />,
-			Workflows: <WorkflowsTab />,
+			Workflows: <WorkflowsTab searchValue={searchValue} />,
 			Tasks: <TasksTab />,
 			'Recent Chats': <RecentChats />,
 			Priority: <PriorityTab />,
 		}),
-		[],
+		[searchValue],
 	);
 
 	return (

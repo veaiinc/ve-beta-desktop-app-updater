@@ -60,7 +60,7 @@
 		align-items: flex-start;
 		gap: 8px;
 		align-self: stretch;
-		overflow-y: scroll;
+		overflow-y: auto;
 
 		.workflow-inner-card {
 			display: flex;

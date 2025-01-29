@@ -65,14 +65,13 @@ const FilesTab = ({ data }) => {
 	}, [info?.currentPage]);
 
 	const workflowsDetailsList = workflowslistForFiles?.[data?._id]?.data;
-	console.log('workflowsDetailsList', workflowsDetailsList);
 
 	return (
 		<>
 			<div
 				style={{
 					flex: 1,
-					overflowY: 'auto',
+					// overflowY: 'auto',
 					maxHeight: '100%',
 					height: '100%',
 					width: '100%',
