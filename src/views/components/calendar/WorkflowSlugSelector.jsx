@@ -6,7 +6,6 @@ import Context from '../../../context/context';
 import { Select } from 'antd';
 
 const WorkflowSlugList = ({
-	updateCalendarInfo,
 	workflowSlug,
 	fetching,
 	workflowOptions,
@@ -64,11 +63,6 @@ const WorkflowSlugList = ({
 				}}
 				onChange={(workflowSlug) => {
 					setInfo((prev) => ({ ...prev, value: workflowSlug || '' }));
-					// if (workflowSlug) {
-					// 	updateCalendarInfo('workflowSlug', workflowSlug);
-					// } else {
-					// 	updateCalendarInfo('workflowSlug', null);
-					// }
 					handleWorkflowSlugSelection(workflowSlug);
 				}}
 				getPopupContainer={(trigger) => trigger?.parentNode}
@@ -77,11 +71,7 @@ const WorkflowSlugList = ({
 	);
 };
 
-const WorkflowSlugSelector = ({
-	updateCalendarInfo,
-	workflowSlug,
-	handleWorkflowSlugSelection,
-}) => {
+const WorkflowSlugSelector = ({ workflowSlug, handleWorkflowSlugSelection }) => {
 	const {
 		templates: { getWorkflowsList, workflowslist, moreWorkList },
 	} = useContext(Context);
@@ -94,10 +84,6 @@ const WorkflowSlugSelector = ({
 		currentPage: 1,
 		workflowOptions: [],
 	});
-
-	useEffect(() => {
-		console.log('info?.fetching==>', info?.fetching);
-	}, [info?.fetching]);
 
 	useEffect(() => {
 		if (workflowslist) {
@@ -136,7 +122,6 @@ const WorkflowSlugSelector = ({
 				value: data?.[i]?.slug,
 			});
 		}
-		console.log('Mapped options:', workflowOptions);
 		return workflowOptions;
 	}, []);
 
@@ -185,7 +170,6 @@ const WorkflowSlugSelector = ({
 
 			<div className={`workflowDropDown ${info?.isExpanded ? 'expanded' : ''}`}>
 				<WorkflowSlugList
-					updateCalendarInfo={updateCalendarInfo}
 					workflowSlug={workflowSlug}
 					fetching={info?.fetching}
 					workflowOptions={info?.workflowOptions}
