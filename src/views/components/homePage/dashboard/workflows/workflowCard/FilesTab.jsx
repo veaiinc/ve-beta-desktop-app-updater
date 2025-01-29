@@ -87,6 +87,7 @@ const FilesTab = ({ data }) => {
 						flexDirection: 'column',
 						gap: '8px',
 						width: '100%',
+						overflowY: 'auto',
 					}}
 					height={350}
 				>

@@ -95,6 +95,8 @@
 		align-items: flex-start;
 		gap: 8px;
 		align-self: stretch;
+		height: 292px;
+		overflow-y: auto;
 
 		.workflow-inner-card {
 			display: flex;
