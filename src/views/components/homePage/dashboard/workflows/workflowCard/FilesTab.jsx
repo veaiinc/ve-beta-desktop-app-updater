@@ -74,8 +74,6 @@ const FilesTab = ({ data }) => {
 
 	const workflowsDetailsList = workflowslistForFiles?.[data?._id]?.data;
 
-	console.log('workflowsDetailsList', workflowsDetailsList);
-
 	return (
 		<>
 			<div
