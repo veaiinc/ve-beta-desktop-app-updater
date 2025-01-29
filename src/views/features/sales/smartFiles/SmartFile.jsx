@@ -47,6 +47,7 @@ const SmartFile = () => {
 			updateThankyou,
 			smartFileAiChat,
 			uploadImageInSmartFileAi,
+			smartFileRefetch,
 		},
 
 		profileInfo: {
@@ -110,6 +111,15 @@ const SmartFile = () => {
 			});
 		};
 	}, []);
+
+	useEffect(() => {
+		if (smartFileRefetch) {
+			getSmartFileInfo();
+			updateStateValues({
+				smartFileRefetch: false,
+			});
+		}
+	}, [smartFileRefetch]);
 
 	useEffect(() => {
 		if (specificTemplatesInfo) {
@@ -782,15 +792,15 @@ const SmartFile = () => {
 				closeModal={toggleSendCustomEmailFunc}
 				clientDetails={info?.workflowData?.clientDetails}
 			/>
-			<BottomToolbar
+			{/* <BottomToolbar
 				outerContainerStyle={{ bottom: '10px' }}
 				chatList={info?.chatList}
 				onSend={handleSendMessage}
 				aiChatLoading={info?.aiChatLoading}
 				handleAiUploadImage={handleAiUploadImage}
 				customChatActions={true}
-			/>
-			{previewImage && (
+			/> */}
+			{/* {previewImage && (
 				<Image
 					wrapperStyle={{
 						display: 'none',
@@ -802,7 +812,7 @@ const SmartFile = () => {
 					}}
 					src={previewImage}
 				/>
-			)}
+			)} */}
 		</div>
 	);
 };

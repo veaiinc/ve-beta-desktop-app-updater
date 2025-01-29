@@ -20,9 +20,13 @@ import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.s
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { getBase64 } from '../../../helpers';
+import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
+import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
 
 const moduleHelper = {
-	'/tasks': 'tasks',
+	tasks: 'tasks',
+	'smart-file': 'proposal_form_filling',
+	calendar: 'calendar',
 };
 
 const BottomToolbar = ({
@@ -57,6 +61,7 @@ const BottomToolbar = ({
 		addQuickAction: false,
 		chatSessionId: ObjectID().toString(),
 		uploadedImages: [],
+		chatLoading: false,
 	});
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
@@ -159,7 +164,10 @@ const BottomToolbar = ({
 				// Prevent default to avoid unwanted new line
 				e.preventDefault();
 
-				if (aiChatLoading && info?.chatQuery?.length) {
+				if (
+					(aiChatLoading || info?.chatLoading) &&
+					(info?.chatQuery?.length || info?.uploadedImages?.length)
+				) {
 					return message.error('Please wait for the AI response');
 				}
 
@@ -171,6 +179,7 @@ const BottomToolbar = ({
 					if (customChatActions) {
 						onSend(info?.chatQuery);
 					} else {
+						setInfo((prev) => ({ ...prev, chatLoading: true }));
 						const payload = {
 							query: info?.chatQuery,
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -187,8 +196,8 @@ const BottomToolbar = ({
 							};
 						}
 
-						if (moduleHelper?.[location?.pathname]) {
-							payload.module = moduleHelper?.[location?.pathname];
+						if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
+							payload.module = moduleHelper?.[location?.pathname?.split('/')?.[1]];
 						}
 						setInfo((prev) => ({ ...prev, uploadedImages: [], chatQuery: '' }));
 
@@ -197,13 +206,17 @@ const BottomToolbar = ({
 							info?.chatSessionId,
 							localPayload,
 						);
+						setInfo((prev) => ({ ...prev, chatLoading: false }));
 						if (response?.[0]) {
-							const { db_updates } = response?.[1];
+							const { db_updates, variables_required } = response?.[1];
 							if (db_updates?.calendar_db_update) {
 								updateCalendarState({ refetchCalendarState: true });
 							}
 							if (db_updates?.task_db_update) {
 								updateTaskState({ refetchTasks: true });
+							}
+							if (variables_required) {
+								handleVariablesRequired(variables_required);
 							}
 						}
 					}
@@ -213,6 +226,78 @@ const BottomToolbar = ({
 			}
 		},
 		[aiChatLoading, onSend, customChatActions, info],
+	);
+
+	const handleWorkflowSlugSelection = useCallback(
+		async (data) => {
+			setInfo((prev) => ({ ...prev, chatLoading: true }));
+			const showCustomChatOptions = [
+				{
+					type: 'AI',
+					message: 'loading....',
+					content: (
+						<div className="aiMessageWrapper">
+							<AiSparkel />
+							<div className="aiMessage">
+								<span>Thinking...</span>
+							</div>
+						</div>
+					),
+					contentType: 'loading',
+				},
+			];
+
+			const payload = {
+				query: `the workflow slug is ${data}`,
+				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+				workflow_slug: data,
+			};
+			const localPayload = {
+				showCustomChatOptions,
+			};
+			if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
+				payload.module = moduleHelper?.[location?.pathname?.split('/')?.[1]];
+			}
+			const response = await handleGlobalChatMessages(
+				payload,
+				info?.chatSessionId,
+				localPayload,
+			);
+			setInfo((prev) => ({ ...prev, chatLoading: false }));
+			if (response?.[0]) {
+				const { db_updates, variables_required } = response?.[1];
+				if (db_updates?.calendar_db_update) {
+					updateCalendarState({ refetchCalendarState: true });
+				}
+				if (db_updates?.task_db_update) {
+					updateTaskState({ refetchTasks: true });
+				}
+				if (variables_required) {
+					handleVariablesRequired(variables_required);
+				}
+			}
+		},
+		[info],
+	);
+
+	const handleVariablesRequired = useCallback(
+		(requiredVariables) => {
+			if (requiredVariables?.[0] === 'workflow_slug') {
+				let workflowSlug = [
+					{
+						type: 'AI',
+						message: 'Please select a workflow to continue',
+						content: (
+							<WorkflowSlugSelector
+								handleWorkflowSlugSelection={handleWorkflowSlugSelection}
+							/>
+						),
+					},
+				];
+				updateStateValues({ globalChatMessages: [...globalChatMessages, ...workflowSlug] });
+			}
+		},
+		[info, handleWorkflowSlugSelection, globalChatMessages],
 	);
 
 	const handleGlobalImageProcessing = useCallback(

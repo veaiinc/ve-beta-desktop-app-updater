@@ -76,6 +76,7 @@ export const intialState = {
 	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
 	docsFilesList: null,
 	moreDocsFilesList: null,
+	smartFileRefetch: false,
 };
 
 export const TemplatesState = (props) => {
@@ -1261,7 +1262,10 @@ export const TemplatesState = (props) => {
 			const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
 
 			let updatedGlobalChatMessages = [];
-			if (payload.files) {
+
+			if (localPayload.showCustomChatOptions) {
+				updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
+			} else if (payload.files) {
 				let str = '  ';
 				for (let i = 0; i < localPayload?.files?.length; i++) {
 					str += localPayload?.files?.[i]?.name || '' + ' ,';

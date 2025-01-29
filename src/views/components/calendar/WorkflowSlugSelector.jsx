@@ -12,6 +12,7 @@ const WorkflowSlugList = ({
 	workflowOptions,
 	fetchMoreWorkflows,
 	hasNextPage,
+	handleWorkflowSlugSelection,
 }) => {
 	const [info, setInfo] = useState({
 		value: workflowSlug || null,
@@ -63,11 +64,12 @@ const WorkflowSlugList = ({
 				}}
 				onChange={(workflowSlug) => {
 					setInfo((prev) => ({ ...prev, value: workflowSlug || '' }));
-					if (workflowSlug) {
-						updateCalendarInfo('workflowSlug', workflowSlug);
-					} else {
-						updateCalendarInfo('workflowSlug', null);
-					}
+					// if (workflowSlug) {
+					// 	updateCalendarInfo('workflowSlug', workflowSlug);
+					// } else {
+					// 	updateCalendarInfo('workflowSlug', null);
+					// }
+					handleWorkflowSlugSelection(workflowSlug);
 				}}
 				getPopupContainer={(trigger) => trigger?.parentNode}
 			/>
@@ -75,7 +77,11 @@ const WorkflowSlugList = ({
 	);
 };
 
-const WorkflowSlugSelector = ({ updateCalendarInfo, workflowSlug }) => {
+const WorkflowSlugSelector = ({
+	updateCalendarInfo,
+	workflowSlug,
+	handleWorkflowSlugSelection,
+}) => {
 	const {
 		templates: { getWorkflowsList, workflowslist, moreWorkList },
 	} = useContext(Context);
@@ -185,6 +191,7 @@ const WorkflowSlugSelector = ({ updateCalendarInfo, workflowSlug }) => {
 					workflowOptions={info?.workflowOptions}
 					fetchMoreWorkflows={fetchMoreWorkflows}
 					hasNextPage={info?.hasNextPage}
+					handleWorkflowSlugSelection={handleWorkflowSlugSelection}
 				/>
 			</div>
 		</div>

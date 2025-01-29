@@ -7,7 +7,8 @@ import { ReactComponent as VE } from '../../assets/svg/smallVe.svg';
 import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
-const SmartFileLayout = ({ title, children, hideQuickNav = false }) => {
+import BottomToolbar from '../components/ai_agents/BottomToolbar';
+const SmartFileLayout = ({ title, children, hideQuickNav = false, showBottomToolbar = true }) => {
 	const checkAuth = useAuth();
 	// const data = useSubscription();
 	const tokenData = useTokenExpiry();
@@ -26,6 +27,8 @@ const SmartFileLayout = ({ title, children, hideQuickNav = false }) => {
 			<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>
 				<div className="childrenContainer">{children}</div>
 			</SkeletonTheme>
+
+			{showBottomToolbar ? <BottomToolbar outerContainerStyle={{ bottom: '10px' }} /> : ''}
 		</div>
 	);
 };
