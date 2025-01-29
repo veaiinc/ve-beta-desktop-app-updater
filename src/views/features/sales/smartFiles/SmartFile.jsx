@@ -108,6 +108,7 @@ const SmartFile = () => {
 				specificTemplatesInfo: null,
 				formResponseData: null,
 				aiPredictedData: null,
+				activeWorkflowSlugForSmartFile: null,
 			});
 		};
 	}, []);
@@ -168,6 +169,9 @@ const SmartFile = () => {
 				noContractTemplate,
 				assisstanceData,
 			}));
+			updateStateValues({
+				activeWorkflowSlugForSmartFile: smartFileInfo?.slug,
+			});
 		}
 	}, [smartFileInfo, workflowId]);
 
@@ -382,6 +386,9 @@ const SmartFile = () => {
 				...prev,
 				workflowData: { ...prev?.workflowData, slug: updatedSlug },
 			}));
+			updateStateValues({
+				activeWorkflowSlugForSmartFile: updatedSlug,
+			});
 		},
 		[info?.workflowData],
 	);

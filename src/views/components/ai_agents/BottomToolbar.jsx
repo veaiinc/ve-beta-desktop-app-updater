@@ -45,6 +45,7 @@ const BottomToolbar = ({
 			handleGlobalUploadImage,
 			checkIndividualImageUploadedStatus,
 			deleteUploadedImageThroughChat,
+			activeWorkflowSlugForSmartFile,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -195,6 +196,9 @@ const BottomToolbar = ({
 								handlePreview,
 							};
 						}
+						if (activeWorkflowSlugForSmartFile) {
+							payload.workflow_slug = activeWorkflowSlugForSmartFile;
+						}
 
 						if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
 							payload.module = moduleHelper?.[location?.pathname?.split('/')?.[1]];
@@ -215,6 +219,9 @@ const BottomToolbar = ({
 							if (db_updates?.task_db_update) {
 								updateTaskState({ refetchTasks: true });
 							}
+							if (db_updates?.proposal_db_update) {
+								updateStateValues({ smartFileRefetch: true });
+							}
 							if (variables_required) {
 								handleVariablesRequired(variables_required);
 							}
@@ -225,7 +232,7 @@ const BottomToolbar = ({
 				}
 			}
 		},
-		[aiChatLoading, onSend, customChatActions, info],
+		[aiChatLoading, onSend, customChatActions, info, activeWorkflowSlugForSmartFile],
 	);
 
 	const handleWorkflowSlugSelection = useCallback(

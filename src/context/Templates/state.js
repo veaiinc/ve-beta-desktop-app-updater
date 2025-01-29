@@ -77,6 +77,7 @@ export const intialState = {
 	docsFilesList: null,
 	moreDocsFilesList: null,
 	smartFileRefetch: false,
+	activeWorkflowSlugForSmartFile: null,
 };
 
 export const TemplatesState = (props) => {
