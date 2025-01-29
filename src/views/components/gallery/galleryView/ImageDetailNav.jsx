@@ -93,6 +93,7 @@ const ImageDetailNav = ({
 				message.destroy();
 				message.success('Download completed');
 			} else {
+				message.destroy();
 				message.error('Failed to get download link');
 			}
 		},

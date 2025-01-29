@@ -77,6 +77,8 @@ export const intialState = {
 	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
 	docsFilesList: null,
 	moreDocsFilesList: null,
+	smartFileRefetch: false,
+	activeWorkflowSlugForSmartFile: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1313,7 +1315,10 @@ export const TemplatesState = (props) => {
 			const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
 
 			let updatedGlobalChatMessages = [];
-			if (payload.files) {
+
+			if (localPayload.showCustomChatOptions) {
+				updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
+			} else if (payload.files) {
 				let str = '  ';
 				for (let i = 0; i < localPayload?.files?.length; i++) {
 					str += localPayload?.files?.[i]?.name || '' + ' ,';
@@ -1492,6 +1497,10 @@ export const TemplatesState = (props) => {
 			console.log('error==>getDocsFilesList', error);
 		}
 	};
+
+	const updateApplicationChat = (payload) => {
+		dispatch({ type: Actions.UPDATE_APPLICATION_CHAT, payload });
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -1551,5 +1560,6 @@ export const TemplatesState = (props) => {
 		handleGlobalUploadImage,
 		checkIndividualImageUploadedStatus,
 		deleteUploadedImageThroughChat,
+		updateApplicationChat,
 	};
 };
