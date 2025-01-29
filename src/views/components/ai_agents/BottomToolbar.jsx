@@ -42,6 +42,8 @@ const BottomToolbar = ({
 			checkIndividualImageUploadedStatus,
 			deleteUploadedImageThroughChat,
 		},
+		calendarInfo: { updateCalendarState },
+		tasks: { updateTaskState },
 	} = useContext(Context);
 
 	const location = useLocation();
@@ -190,7 +192,20 @@ const BottomToolbar = ({
 						}
 						setInfo((prev) => ({ ...prev, uploadedImages: [], chatQuery: '' }));
 
-						await handleGlobalChatMessages(payload, info?.chatSessionId, localPayload);
+						const response = await handleGlobalChatMessages(
+							payload,
+							info?.chatSessionId,
+							localPayload,
+						);
+						if (response?.[0]) {
+							const { db_updates } = response?.[1];
+							if (db_updates?.calendar_db_update) {
+								updateCalendarState({ refetchCalendarState: true });
+							}
+							if (db_updates?.task_db_update) {
+								updateTaskState({ refetchTasks: true });
+							}
+						}
 					}
 
 					// setInfo((prev) => ({ ...prev, chatQuery: '', uploadedImages: [] }));
