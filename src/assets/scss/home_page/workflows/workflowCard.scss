@@ -2,6 +2,7 @@
 	display: flex;
 	flex-shrink: 0;
 	width: calc(32% + 2px);
+	min-width: 340px;
 	height: 424px;
 	padding: 24px;
 	flex-direction: column;
@@ -182,5 +183,17 @@
 				}
 			}
 		}
+	}
+}
+
+@media (max-width: 1242px) {
+	.workflow-card-container {
+		width: 49% !important;
+	}
+}
+
+@media (max-width: 942px) {
+	.workflow-card-container {
+		width: 100% !important;
 	}
 }
