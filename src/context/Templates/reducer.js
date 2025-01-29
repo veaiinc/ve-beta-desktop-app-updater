@@ -120,6 +120,10 @@ const actionHandlers = {
 			globalChatMessages: updatedGlobalChatMessages,
 		};
 	},
+	UPDATE_APPLICATION_CHAT: (state, action) => ({
+		...state,
+		globalChatMessages: [...state?.globalChatMessages, ...action?.payload],
+	}),
 	GET_DOCS_FILES_LIST_SUCCESS: (state, action) => ({
 		...state,
 		[action?.selectedvariable]: action.payload,

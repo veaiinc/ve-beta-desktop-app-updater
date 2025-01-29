@@ -53,6 +53,7 @@ export const intialState = {
 	clientList: null,
 	clientListForDocs: null,
 	templatesListForDocs: null,
+
 	allEmailTemplates: null,
 	myWorkflows: null,
 	myMoreWorkflows: null,
@@ -467,7 +468,6 @@ export const TemplatesState = (props) => {
 			console.log('error==>updateThankyou', error);
 		}
 	};
-
 	const getWorkflowsListForFiles = async (payload, fetchMore = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -580,7 +580,6 @@ export const TemplatesState = (props) => {
 			console.log('api failed ==>getTemplatesListForDocs', response);
 		}
 	};
-
 	const getTemplatesListForForms = async (page = 1, limit = 10, fetchMore = false) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -1549,7 +1548,6 @@ export const TemplatesState = (props) => {
 			console.log('error==>getDocsFilesList', error);
 		}
 	};
-
 	//updated steps functions
 	const addNewSteps = async (payload) => {
 		try {
@@ -1623,6 +1621,10 @@ export const TemplatesState = (props) => {
 			console.log('error==>getAllSlackChannels', error);
 		}
 	};
+
+	const updateApplicationChat = (payload) => {
+		dispatch({ type: Actions.UPDATE_APPLICATION_CHAT, payload });
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -1687,5 +1689,6 @@ export const TemplatesState = (props) => {
 		updateSteps,
 		getTemplatesListForForms,
 		getFormResponsesList,
+		updateApplicationChat,
 	};
 };
