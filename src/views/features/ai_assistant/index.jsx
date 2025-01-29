@@ -109,14 +109,16 @@ const AiAssistants = () => {
 		}
 	}, [info?.currentPage, info?.hasNextPage]);
 
-	const agents = info?.aiAssistantsList?.length
+	const assistants = info?.aiAssistantsList?.length
 		? info.aiAssistantsList.map((ele) => ({
-				agentId: ele?._id,
-				agentName: ele?.name,
+				aiAssistantId: ele?._id,
+				assistantName: ele?.name,
 				createdBy: ele?.createdBy || 'AI',
 				...ele,
 		  }))
 		: [];
+
+	// console.log('assistants list on Index page', assistants);
 
 	return (
 		<>
@@ -166,21 +168,23 @@ const AiAssistants = () => {
 					</div>
 
 					<div className="agentsCardContainer">
-						{agents ? (
-							agents?.map((agent) => (
+						{assistants ? (
+							assistants?.map((assistant) => (
 								<div
 									className="agentCard"
 									onClick={() =>
-										navigate(`/ai-assistant/${agent?.agentId}`, {
-											state: { agent },
+										navigate(`/ai-assistant/${assistant?.aiAssistantId}`, {
+											state: { assistant },
 										})
 									}
 								>
 									<div>
 										<AgentIcon />
 									</div>
-									<div className="agentName">{agent?.agentName}</div>
-									<div className="createdBy">Created by {agent?.createdBy}</div>
+									<div className="agentName">{assistant?.assistantName}</div>
+									<div className="createdBy">
+										Created by {assistant?.createdBy}
+									</div>
 								</div>
 							))
 						) : (

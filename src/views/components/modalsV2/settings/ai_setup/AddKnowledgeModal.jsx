@@ -44,7 +44,7 @@ const initialState = {
 	currentPage: 1,
 };
 
-const AddKnowledgeModal = ({ isOpen, toggleModal, agentId }) => {
+const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 	let {
 		aiSetup: {
 			activeAiAssistantDetails,
@@ -99,7 +99,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, agentId }) => {
 				return;
 			}
 			setInfo((prev) => ({ ...prev, isUploading: true }));
-			const statusSummary = await uploadURLsToKnowledgeBase(agentId, info?.urlsInfo);
+			const statusSummary = await uploadURLsToKnowledgeBase(assistantId, info?.urlsInfo);
 			setInfo((prev) => ({
 				...prev,
 				urlsInfo: [],
@@ -116,7 +116,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, agentId }) => {
 			}
 			setInfo((prev) => ({ ...prev, isUploading: true }));
 			const files = info?.pdfFilesInfo;
-			const statusSummary = await uploadPDFsToKnowledgeBase(agentId, files);
+			const statusSummary = await uploadPDFsToKnowledgeBase(assistantId, files);
 			setInfo((prev) => ({
 				...prev,
 				pdfFilesInfo: [],
@@ -139,7 +139,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, agentId }) => {
 			const file = new File([textBlob], info?.customTextInfo?.filename, {
 				type: 'text/plain',
 			});
-			const statusSummary = await uploadPDFsToKnowledgeBase(agentId, [file]);
+			const statusSummary = await uploadPDFsToKnowledgeBase(assistantId, [file]);
 			setInfo((prev) => ({
 				...prev,
 				customTextInfo: {

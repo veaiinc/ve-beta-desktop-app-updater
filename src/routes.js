@@ -318,7 +318,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/ai-assistant/:agentId',
+		path: '/ai-assistant/:aiAssistantId',
 		component: (
 			<AuthWrapper title={'AI Assistant'}>
 				<AgentDetails />

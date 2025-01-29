@@ -11,6 +11,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import Skeleton from 'react-loading-skeleton';
 import { message } from 'antd';
+import { useParams } from 'react-router-dom';
 
 const iconMapper = {
 	pdf: <Pdf style={{ stroke: '#F2F2F3' }} width={12} height={12} />,
@@ -33,20 +34,22 @@ const AiKnowledgeBase = ({ agent }) => {
 			deleteKnowledge,
 		},
 	} = useContext(Context);
+
+	const { aiAssistantId } = useParams();
 	const [info, setInfo] = useState({
 		toggleStates: {},
 		knowledgeModalOpen: false,
 		knowledgeBaseFiles: [],
-		agentId: agent?._id,
+		assistantId: aiAssistantId,
 		loading: true,
 	});
 
 	useEffect(() => {
-		if (info?.agentId) {
+		if (info?.assistantId) {
 			fetchKnowledgeBaseFiles({ page: 1, reset: true });
-			getActiveAiAssistantDetails(info?.agentId);
+			getActiveAiAssistantDetails(info?.assistantId);
 		}
-	}, [info?.agentId]);
+	}, [info?.assistantId]);
 
 	useEffect(() => {
 		if (knowledgeBaseFiles) {
@@ -86,9 +89,9 @@ const AiKnowledgeBase = ({ agent }) => {
 
 	const fetchKnowledgeBaseFiles = useCallback(
 		({ page = 1, reset = false }) => {
-			getKnowledgeBaseFiles(info?.agentId, page, 20, reset);
+			getKnowledgeBaseFiles(info?.assistantId, page, 20, reset);
 		},
-		[info?.agentId],
+		[info?.assistantId],
 	);
 
 	const fetchMoreData = () => {
@@ -168,7 +171,7 @@ const AiKnowledgeBase = ({ agent }) => {
 			</div>
 			<AddKnowledgeModal
 				isOpen={info?.knowledgeModalOpen}
-				agentId={info?.agentId}
+				assistantId={info?.assistantId}
 				toggleModal={() => {
 					setInfo((prev) => ({ ...prev, knowledgeModalOpen: false }));
 				}}
