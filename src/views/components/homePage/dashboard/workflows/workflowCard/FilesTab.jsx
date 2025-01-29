@@ -25,6 +25,16 @@ const FilesTab = ({ data }) => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
+		if (workflowslistForFiles?.[data?._id]) {
+			const currentPage = workflowslistForFiles?.[data?._id]?.currentPage;
+			const hasNextPage = workflowslistForFiles?.[data?._id]?.hasNextPage;
+			setInfo((prev) => ({
+				...prev,
+				currentPage,
+				hasNextPage,
+			}));
+			return;
+		}
 		getWorkflowsListFunc(1);
 	}, []);
 
