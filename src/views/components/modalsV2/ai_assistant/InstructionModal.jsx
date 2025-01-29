@@ -6,19 +6,33 @@ import '../../../../assets/scss/ai_assistant/modal/instructionModal.scss';
 import ActionButton from '../../ai_assistant/ActionButton';
 import InputComponent from '../../ai_assistant/InputComponent';
 import TextareaComponent from '../../ai_assistant/TextareaComponent';
+import Spinner from '../../loaders/Spinner';
+
 const InstructionModal = ({
 	isOpen,
 	onClose,
 	onActionClick,
 	showDelete,
 	onDeleteClick,
-	title,
-	instruction,
+	title = '',
+	instruction = '',
 	onTitleChange,
 	onInstructionChange,
 	isActionbtnLoading,
 	isDeletebtnLoading,
 }) => {
+	const handleTitleChange = (e) => {
+		if (onTitleChange) {
+			onTitleChange(e.target.value);
+		}
+	};
+
+	const handleInstructionChange = (e) => {
+		if (onInstructionChange) {
+			onInstructionChange(e.target.value);
+		}
+	};
+
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -32,12 +46,16 @@ const InstructionModal = ({
 					<CloseSvg onClick={onClose} />
 				</div>
 				<div className="instruction-modal-body">
-					<InputComponent placeholder="Title" value={title} onChange={onTitleChange} />
+					<InputComponent
+						placeholder="Title"
+						value={title}
+						onChange={handleTitleChange}
+					/>
 
 					<TextareaComponent
 						placeholder="Add Instructions"
 						value={instruction}
-						onChange={onInstructionChange}
+						onChange={handleInstructionChange}
 					/>
 				</div>
 				<div className="instruction-modal-footer">
@@ -60,7 +78,13 @@ const InstructionModal = ({
 							isActionbtnLoading
 						}
 					>
-						Add and make active
+						{isActionbtnLoading ? (
+							<span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+								Updating <Spinner width="15px" height="15px" />
+							</span>
+						) : (
+							'Add and make active'
+						)}
 					</ActionButton>
 				</div>
 			</div>

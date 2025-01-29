@@ -29,7 +29,14 @@ const actionHandlers = {
 		...state,
 		aiAssistant: action?.payload,
 	}),
-
+	GET_AI_INSTRUCTIONS: (state, action) => ({
+		...state,
+		aiInstructions: action?.payload,
+	}),
+	SET_AI_INSTRUCTION: (state, action) => ({
+		...state,
+		aiInstructions: action?.payload,
+	}),
 	RESET_STATE: () => initialState,
 };
 

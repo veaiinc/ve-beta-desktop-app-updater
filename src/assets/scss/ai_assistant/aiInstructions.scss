@@ -3,6 +3,7 @@
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 30px;
+	height: 100%;
 
 	.instructionsHeaderContainer {
 		display: flex;
@@ -65,6 +66,9 @@
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
+		flex-grow: 1;
+		overflow: scroll;
+		position: relative;
 
 		.header {
 			border-radius: 6px;
@@ -76,6 +80,7 @@
 			align-items: center;
 			gap: 10px;
 			align-self: stretch;
+			flex-shrink: 0;
 
 			span:nth-child(2) {
 				justify-self: center;
@@ -94,6 +99,9 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+			position: sticky;
+			top: 0;
+			z-index: 1;
 		}
 
 		.instructionItem {
@@ -105,13 +113,22 @@
 			align-self: stretch;
 			border-radius: 6px;
 
+			span {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
 			span:nth-child(2) {
 				justify-self: center;
+				justify-content: center;
 			}
 
 			span:last-child,
-			.toggleSwitch {
+			.aiToggleSwitch {
 				justify-self: end;
+				justify-content: flex-end;
+				width: 100%;
 			}
 
 			overflow: hidden;
@@ -123,60 +140,30 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
-
-			.title {
-				color: #f2f2f3;
-				font-family: Inter;
-				font-size: 14px;
-				font-weight: 500;
-			}
-
-			.lastEdit {
-				color: #797e86;
-				font-family: Inter;
-				font-size: 14px;
-				font-weight: 400;
-			}
-
-			.toggleSwitch {
-				position: relative;
-
-				input[type='checkbox'] {
-					display: none;
-				}
-
-				label {
-					display: block;
-					width: 44px;
-					height: 24px;
-					background: #333334;
-					border-radius: 100px;
-					position: relative;
-					cursor: pointer;
-					transition: 0.3s;
-
-					&:after {
-						content: '';
-						position: absolute;
-						width: 18px;
-						height: 18px;
-						border-radius: 50%;
-						background: #797e86;
-						top: 3px;
-						left: 3px;
-						transition: 0.3s;
-					}
-				}
-
-				input:checked + label {
-					background: #ecedf0;
-
-					&:after {
-						left: calc(100% - 21px);
-						background: rgb(0, 0, 0);
-					}
-				}
-			}
 		}
 	}
+}
+
+.instructionItemSkeleton {
+	margin-bottom: 8px;
+
+	.react-loading-skeleton {
+		background-color: rgba(255, 255, 255, 0.1);
+
+		&::after {
+			background-image: linear-gradient(
+				90deg,
+				rgba(255, 255, 255, 0.1),
+				rgba(255, 255, 255, 0.2),
+				rgba(255, 255, 255, 0.1)
+			);
+		}
+	}
+}
+
+.aiToggleSwitch {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	width: 100px;
 }

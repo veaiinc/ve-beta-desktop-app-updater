@@ -1,6 +1,6 @@
 import { useReducer } from 'react';
 import Reducer from './reducer';
-import { AI_PERSONALITY, KNOWLEDGE_BASE } from './actionTypes';
+import { AI_PERSONALITY, KNOWLEDGE_BASE, AI_ASSISTANT_INSTRUCTIONS } from './actionTypes';
 import { Actions } from './actions';
 import service from '../../services';
 import gqlService from '../../services/graphQlServices';
@@ -27,6 +27,7 @@ export const initialState = {
 		currentPage: 1,
 	},
 	aiAssistant: null,
+	aiInstructions: null,
 };
 
 export const AiSetupState = () => {
@@ -407,6 +408,55 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const getInstructions = async (assistantId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' +
+			workspaceId +
+			'/ai-assistants/' +
+			assistantId +
+			AI_ASSISTANT_INSTRUCTIONS?.getInstructions;
+
+		try {
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_AI_INSTRUCTIONS,
+					payload: response?.[1]?.instructions,
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>getInstructions', error);
+		}
+	};
+
+	const createInstruction = async (assistantId, data) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' +
+			workspaceId +
+			'/ai-assistants/' +
+			assistantId +
+			AI_ASSISTANT_INSTRUCTIONS?.createInstruction;
+
+		try {
+			const response = await service?.fetchPost(url, data, usertoken, 'ai_assistant_api');
+			console.log('response==>createInstruction', response?.[1]);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.SET_AI_INSTRUCTION,
+					payload: response?.[1]?.instructions,
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>createInstruction', error);
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -428,5 +478,7 @@ export const AiSetupState = () => {
 		deleteKnowledge,
 		getAiAssistants,
 		updateKnowledgeBaseFile,
+		getInstructions,
+		createInstruction,
 	};
 };
