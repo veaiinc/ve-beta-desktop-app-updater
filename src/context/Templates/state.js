@@ -1262,6 +1262,11 @@ export const TemplatesState = (props) => {
 
 			let updatedGlobalChatMessages = [];
 			if (payload.files) {
+				let str = '  ';
+				for (let i = 0; i < localPayload?.files?.length; i++) {
+					str += localPayload?.files?.[i]?.name || '' + ' ,';
+				}
+
 				updatedGlobalChatMessages = [
 					{
 						type: 'user',
@@ -1305,6 +1310,8 @@ export const TemplatesState = (props) => {
 						contentType: 'loading',
 					},
 				];
+
+				payload.query += str;
 			} else {
 				updatedGlobalChatMessages = [
 					{ type: 'user', message: payload?.query || '' },
