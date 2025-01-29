@@ -77,7 +77,7 @@ const FilesTab = ({ data }) => {
 	return (
 		<>
 			<div
-				id="lala"
+				id="filesScrollable"
 				style={{
 					flex: 1,
 					overflowY: 'auto',
@@ -91,14 +91,7 @@ const FilesTab = ({ data }) => {
 					next={fetcMoreWorkflowList}
 					hasMore={info?.hasNextPage}
 					loader={<FetchMoreLoaderComp />}
-					// style={{
-					// 	display: 'flex',
-					// 	flexDirection: 'column',
-					// 	gap: '8px',
-					// 	width: '100%',
-					// }}
-					scrollableTarget="lala"
-					// height={350}
+					scrollableTarget="filesScrollable"
 				>
 					{info?.loading ? (
 						<MyWorkflowModalsLoader width={'287px'} height={'48px'} />
