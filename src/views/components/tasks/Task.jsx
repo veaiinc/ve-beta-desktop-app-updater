@@ -33,6 +33,7 @@ const Task = ({
 	fetchMoreData,
 	hasMore,
 	error,
+	prefix = null,
 }) => {
 	const [taskInfo, setTaskInfo] = useState({
 		tabs: {
@@ -292,6 +293,7 @@ const Task = ({
 				updateTaskInfo={updateTaskInfo}
 				properties={properties}
 				taskPreferences={taskPreferences}
+				prefix={prefix}
 				searchValue={searchValue}
 				responseMetadata={responseMetadata}
 				blockTitle={blockTitle}

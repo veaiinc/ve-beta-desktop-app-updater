@@ -143,7 +143,6 @@ const TabHeader = ({
 														options={tabDropdownOptions}
 														onOptionClick={(option) => {
 															handleTabDropdownClick(option);
-															handleDropDown(false);
 														}}
 													/>
 												) : null
@@ -224,7 +223,9 @@ const TabHeader = ({
 																<SixDotsSvg />
 															</div>
 															{tab?.Icon && <tab.Icon />}
-															{tab?.label}
+															<span className="tab-label">
+																{tab?.label}
+															</span>
 														</div>
 													)}
 												</Draggable>

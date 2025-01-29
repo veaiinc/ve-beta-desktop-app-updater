@@ -42,7 +42,6 @@ const layoutOptions = [
 const OptionsDropDown = ({
 	properties,
 	taskPreferences,
-	responseMetadata,
 	colors,
 	viewData,
 	updateViewInfo,
@@ -51,6 +50,7 @@ const OptionsDropDown = ({
 	closeDropDown,
 	handleDeleteView,
 	handleDuplicateView,
+	prefix,
 }) => {
 	const [info, setInfo] = useState({
 		selected: null,
@@ -269,7 +269,7 @@ const OptionsDropDown = ({
 										<input
 											className="id-prefix-input"
 											readOnly
-											defaultValue={'PREFIXID'}
+											defaultValue={prefix || 'NONE'}
 										/>
 									</div>
 								</div>

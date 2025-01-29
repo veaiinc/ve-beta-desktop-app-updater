@@ -134,6 +134,7 @@ const Tasks = () => {
 		updated: false,
 		infinityLoading: false,
 		view: 'table',
+		timeout: null,
 	});
 
 	const responseMetadata = useMemo(
@@ -241,58 +242,19 @@ const Tasks = () => {
 				Icon: PersonSvg,
 				props: { options: info?.tenantUsers, disabled: true, parseValue: true },
 			},
-			taskSlNo: { type: 'id', name: 'Id', Icon: textSvg, props: {} },
+			taskSlNo: {
+				type: 'id',
+				name: 'Id',
+				Icon: textSvg,
+				props: { prefix: info?.taskMetadata?.prefix },
+			},
 		}),
 		[info?.workflows, info?.tenantUsers, info?.taskMetadata],
 	);
 
-	const debounceTimeout = useRef(null);
-	const filterDebounceTimeout = useRef(null);
-
 	useEffect(() => {
-		if (filterDebounceTimeout.current) {
-			clearTimeout(filterDebounceTimeout.current);
-		}
-
-		// Always fetch when filters or search change
-		if (info?.filters || info?.searchValue) {
-			filterDebounceTimeout.current = setTimeout(() => {
-				setInfo((prev) => ({
-					...prev,
-					page: 1,
-					loadingSkeleton: true,
-					listItems: [], // Clear existing items
-				}));
-				fetchListItems(1);
-			}, 800);
-		} else {
-			// Initial load or when filters are cleared
-			setInfo((prev) => ({
-				...prev,
-				page: 1,
-				loadingSkeleton: true,
-				listItems: [], // Clear existing items
-			}));
-			fetchListItems(1);
-		}
-
-		return () => {
-			if (filterDebounceTimeout.current) {
-				clearTimeout(filterDebounceTimeout.current);
-			}
-		};
-	}, [info?.filters, info?.searchValue]); // Remove page dependency
-
-	useEffect(() => {
-		if (info?.sort?.length > 0) {
-			setInfo((prev) => ({
-				...prev,
-				page: 1,
-				loadingSkeleton: true,
-			}));
-			fetchListItems(1);
-		}
-	}, [info?.sort]);
+		handleDebounceFetch();
+	}, [info?.filters, info?.searchValue, info?.sort]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -417,7 +379,6 @@ const Tasks = () => {
 
 	useEffect(() => {
 		if (refetchTasks) {
-			//call refetchTasks function here
 			fetchListItems();
 			updateTaskState({ refetchTasks: false });
 		}
@@ -438,6 +399,18 @@ const Tasks = () => {
 		},
 		[info?.sort, info?.filters, info?.searchValue],
 	);
+	const handleDebounceFetch = useCallback(() => {
+		clearInterval(info?.timeout);
+		const timeout = setTimeout(() => {
+			fetchListItems(1);
+			setInfo((prev) => ({
+				...prev,
+				loading: true,
+				timeout: null,
+			}));
+		}, 800);
+		setInfo((prev) => ({ ...prev, timeout }));
+	}, [info?.timeout, fetchListItems]);
 
 	const fetchMoreData = useCallback(() => {
 		if (info.hasMore) {
@@ -614,15 +587,18 @@ const Tasks = () => {
 
 	const handleDebounceUpdate = useCallback(
 		(rowId, propName, value, originalValue, isSubTask, onSuccess) => {
-			if (debounceTimeout.current) {
-				clearTimeout(debounceTimeout.current);
-			}
-
-			debounceTimeout.current = setTimeout(() => {
+			clearInterval(info?.timeout);
+			const timeout = setTimeout(() => {
 				debouncedUpdateTask(rowId, propName, value, originalValue, isSubTask, onSuccess);
+				setInfo((prev) => ({
+					...prev,
+					loading: true,
+					timeout: null,
+				}));
 			}, 800);
+			setInfo((prev) => ({ ...prev, timeout }));
 		},
-		[debouncedUpdateTask],
+		[debouncedUpdateTask, info?.timeout],
 	);
 
 	const updatePropertyValue = useCallback(
@@ -821,6 +797,7 @@ const Tasks = () => {
 				fetchMoreData={fetchMoreData}
 				blockTitle={'Tasks'}
 				createButtonText={'Create Task'}
+				prefix={info?.taskMetadata?.prefix}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
@@ -851,7 +828,7 @@ const Tasks = () => {
 				rowTypes={rowTypes}
 				handleCreateSubTaskClick={handleCreateSubTaskClick}
 				responseMetadata={responseMetadata}
-				haveSubTask={false}
+				haveSubTask={true}
 				properties={info?.properties}
 				colors={colors}
 				toggleSidebarExpand={() =>
