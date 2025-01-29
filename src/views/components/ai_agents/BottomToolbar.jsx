@@ -6,7 +6,7 @@ import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settin
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
-import { Alert, message, Spin, Tooltip } from 'antd';
+import { Alert, Image, message, Spin, Tooltip } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
@@ -55,7 +55,8 @@ const BottomToolbar = ({
 		chatSessionId: ObjectID().toString(),
 		uploadedImages: [],
 	});
-
+	const [previewOpen, setPreviewOpen] = useState(false);
+	const [previewImage, setPreviewImage] = useState('');
 	const toolbarRef = useRef(null);
 	const isDraggingRef = useRef(false);
 	const startPosRef = useRef({ x: 0, y: 0 });
@@ -137,8 +138,16 @@ const BottomToolbar = ({
 		setInfo((prev) => ({ ...prev, chatModalIsOpen: false }));
 	}, [info]);
 
+	const handlePreview = async (file) => {
+		if (!file.url && !file.preview) {
+			file.preview = await getBase64(file.originFileObj);
+		}
+		setPreviewImage(file.url || file.preview);
+		setPreviewOpen(true);
+	};
+
 	const handleSendMessageFunc = useCallback(
-		(e) => {
+		async (e) => {
 			if (e.key === 'Enter') {
 				// If Shift+Enter, allow new line
 				if (e.shiftKey) {
@@ -151,7 +160,11 @@ const BottomToolbar = ({
 					return message.error('Please wait for the AI response');
 				}
 
-				if (info?.chatQuery?.trim().length) {
+				if (!checkAllUploadLoadingStatus()) {
+					return message.error('Please wait for the images to upload');
+				}
+
+				if (info?.chatQuery?.trim().length || info?.uploadedImages?.length) {
 					if (customChatActions) {
 						onSend(info?.chatQuery);
 					} else {
@@ -159,18 +172,31 @@ const BottomToolbar = ({
 							query: info?.chatQuery,
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 						};
+						let localPayload = {};
+						if (info?.uploadedImages?.length) {
+							payload.files = info?.uploadedImages?.map(
+								(ele) => ele?.name || 'Untitled Image',
+							);
+
+							localPayload = {
+								files: info?.uploadedImages || [],
+								handlePreview,
+							};
+						}
 
 						if (moduleHelper?.[location?.pathname]) {
 							payload.module = moduleHelper?.[location?.pathname];
 						}
-						handleGlobalChatMessages(payload, info?.chatSessionId);
+						setInfo((prev) => ({ ...prev, uploadedImages: [], chatQuery: '' }));
+
+						await handleGlobalChatMessages(payload, info?.chatSessionId, localPayload);
 					}
 
-					setInfo((prev) => ({ ...prev, chatQuery: '' }));
+					// setInfo((prev) => ({ ...prev, chatQuery: '', uploadedImages: [] }));
 				}
 			}
 		},
-		[info?.chatQuery, aiChatLoading, onSend, customChatActions, info?.chatSessionId],
+		[aiChatLoading, onSend, customChatActions, info],
 	);
 
 	const handleGlobalImageProcessing = useCallback(
@@ -242,6 +268,16 @@ const BottomToolbar = ({
 		},
 		[handleAiUploadImage, info],
 	);
+
+	const checkAllUploadLoadingStatus = useCallback(() => {
+		const uploadedImages = [...(info?.uploadedImages || [])];
+		for (let i = 0; i < uploadedImages?.length; i++) {
+			if (uploadedImages[i]?.loading) {
+				return false;
+			}
+		}
+		return true;
+	}, [info]);
 
 	const chatIcons = useMemo(
 		() => [
@@ -315,28 +351,30 @@ const BottomToolbar = ({
 						),
 					)}
 				</div>
-				<div className="imagePreviewBar">
-					{info?.uploadedImages?.length
-						? info?.uploadedImages?.map((ele, index) => (
-								<div className="previewOfUploadedImage" key={index}>
-									<img
-										src={ele?.preview}
-										alt="uploaded"
-										width={'100%'}
-										height={'100%'}
-										style={{ objectFit: 'cover', borderRadius: '12px' }}
-									/>
-									{ele?.loading ? (
-										<div className="spinContainerLoaderForPreview">
-											<Spin />
-										</div>
-									) : (
-										''
-									)}
-								</div>
-						  ))
-						: ''}
-				</div>
+				{info?.uploadedImages?.length ? (
+					<div className="imagePreviewBar">
+						{info?.uploadedImages?.map((ele, index) => (
+							<div className="previewOfUploadedImage" key={index}>
+								<img
+									src={ele?.preview}
+									alt="uploaded"
+									width={'100%'}
+									height={'100%'}
+									style={{ objectFit: 'cover', borderRadius: '12px' }}
+								/>
+								{ele?.loading ? (
+									<div className="spinContainerLoaderForPreview">
+										<Spin />
+									</div>
+								) : (
+									''
+								)}
+							</div>
+						))}
+					</div>
+				) : (
+					''
+				)}
 			</div>
 
 			{/* bottom toolBarContent */}
@@ -403,6 +441,19 @@ const BottomToolbar = ({
 				onKeyDown={handleSendMessageFunc}
 				aiChatLoading={aiChatLoading}
 			/>
+			{previewImage && (
+				<Image
+					wrapperStyle={{
+						display: 'none',
+					}}
+					preview={{
+						visible: previewOpen,
+						onVisibleChange: (visible) => setPreviewOpen(visible),
+						afterOpenChange: (visible) => !visible && setPreviewImage(''),
+					}}
+					src={previewImage}
+				/>
+			)}
 		</div>
 	);
 };

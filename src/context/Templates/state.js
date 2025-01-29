@@ -1254,27 +1254,76 @@ export const TemplatesState = (props) => {
 		} catch (error) {}
 	};
 
-	const handleGlobalChatMessages = async (payload, sessionId) => {
+	const handleGlobalChatMessages = async (payload, sessionId, localPayload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
-			const updatedGlobalChatMessages = [
-				{ type: 'user', message: payload?.query || '' },
-				{
-					type: 'AI',
-					message: 'loading....',
-					content: (
-						<div className="aiMessageWrapper">
-							<AiSparkel />
-							<div className="aiMessage">
-								<span>Thinking...</span>
+
+			let updatedGlobalChatMessages = [];
+			if (payload.files) {
+				updatedGlobalChatMessages = [
+					{
+						type: 'user',
+						content: (
+							<div
+								className="uploadedImagesContainer"
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '2px',
+									alignItems: 'flex-end',
+								}}
+							>
+								{localPayload?.files?.map((ele, index) => (
+									<img
+										src={ele.preview}
+										alt="filetochat"
+										width={'50px'}
+										onClick={() => localPayload?.handlePreview(ele)}
+										style={{ cursor: 'pointer' }}
+									/>
+								))}
+
+								<div className="message-content-user" style={{ marginTop: '8px' }}>
+									<span>{payload?.query}</span>
+								</div>
 							</div>
-						</div>
-					),
-					contentType: 'loading',
-				},
-			];
+						),
+					},
+					{
+						type: 'AI',
+						message: 'loading....',
+						content: (
+							<div className="aiMessageWrapper">
+								<AiSparkel />
+								<div className="aiMessage">
+									<span>Thinking...</span>
+								</div>
+							</div>
+						),
+						contentType: 'loading',
+					},
+				];
+			} else {
+				updatedGlobalChatMessages = [
+					{ type: 'user', message: payload?.query || '' },
+					{
+						type: 'AI',
+						message: 'loading....',
+						content: (
+							<div className="aiMessageWrapper">
+								<AiSparkel />
+								<div className="aiMessage">
+									<span>Thinking...</span>
+								</div>
+							</div>
+						),
+						contentType: 'loading',
+					},
+				];
+			}
+
 			dispatch({
 				type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
 				payload: updatedGlobalChatMessages,
