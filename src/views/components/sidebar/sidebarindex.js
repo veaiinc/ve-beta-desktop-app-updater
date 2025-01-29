@@ -69,8 +69,8 @@ export const veAiModulesItemsList = [
 	},
 	{
 		name: 'Design Builder',
-		moduleRoute: '/docs',
-		route: '/docs',
+		moduleRoute: '/',
+		route: '/',
 		icon: '',
 		subModules: [
 			{ icon: '', name: 'All Docs', route: '/docs' },

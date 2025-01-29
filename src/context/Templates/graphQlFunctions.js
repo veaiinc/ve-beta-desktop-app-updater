@@ -11,7 +11,6 @@ export const getTemmplatesQuery = gql`
 					order
 					_id
 					isPublic
-					label
 				}
 				status
 
@@ -124,14 +123,13 @@ export const getSpecificWorkflowTemplateDetailsQuery = gql`
 			title
 			sendAt
 			approvalRequired
-			_id
 		}
 	}
 `;
 
 export const deleteWorkflowStepQuery = gql`
-	mutation RemoveStep($removeStepInput: RemoveStepInput) {
-		removeStep(removeStepInput: $removeStepInput) {
+	mutation DeleteStep($templateId: ID!, $stepId: ID!) {
+		deleteStep(templateId: $templateId, stepId: $stepId) {
 			message
 		}
 	}
@@ -239,6 +237,7 @@ export const getWorkflowListQuery = gql`
 					email
 					name
 				}
+				status
 				slug
 				modules
 				formResponse
@@ -257,7 +256,6 @@ export const getTemplatesListForCreateLeadQuery = gql`
 			data {
 				_id
 				title
-				status
 			}
 		}
 	}
@@ -343,6 +341,7 @@ export const getSpecifiTemplatesInfoQuery = gql`
 			tenantId
 			title
 			templates
+			steps
 			# steps {
 			# 	_id
 			# 	criteria
@@ -356,7 +355,6 @@ export const getSpecifiTemplatesInfoQuery = gql`
 			# 	order
 			# 	type
 			# }
-			steps
 			slug
 		}
 	}
@@ -451,36 +449,6 @@ export const getActivityLogsQuery = gql`
 				summary
 			}
 			hasNextPage
-		}
-	}
-`;
-
-export const addNewStepsQuery = gql`
-	mutation AddStep($templateId: ID!, $stepInput: StepInput!) {
-		addStep(templateId: $templateId, stepInput: $stepInput)
-	}
-`;
-
-export const updateStepsQuery = gql`
-	mutation UpdateStep($templateId: ID!, $updateStepInput: UpdateStepInput!) {
-		updateStep(templateId: $templateId, updateStepInput: $updateStepInput) {
-			message
-		}
-	}
-`;
-
-export const getFormResponsesListQuery = gql`
-	query FormResponsesList($filters: FileFiltersInput) {
-		formResponsesList(filters: $filters) {
-			data
-			totalPages
-			totalDocs
-			limit
-			currentPage
-			hasNextPage
-			hasPrevPage
-			prevPage
-			nextPage
 		}
 	}
 `;
