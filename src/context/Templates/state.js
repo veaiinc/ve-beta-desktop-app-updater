@@ -458,7 +458,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getWorkflowsListForFiles = async (payload, fetchMore = false) => {
+	const getWorkflowsListForFiles = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -471,9 +471,34 @@ export const TemplatesState = (props) => {
 			);
 
 			if (response?.[0]) {
+				const templateId = payload?.filters?.templateId;
+				const { data, currentPage, hasNextPage } = response?.[1]?.data?.workflows;
+				let dispatchPayload;
+				if (!state?.workflowslistForFiles?.[templateId]) {
+					dispatchPayload = {
+						...state?.workflowslistForFiles,
+						[templateId]: {
+							data,
+							currentPage,
+							hasNextPage,
+						},
+					};
+				} else {
+					dispatchPayload = {
+						...state?.workflowslistForFiles,
+						[templateId]: {
+							data: [
+								...(state?.workflowslistForFiles?.[templateId]?.data || []),
+								...data,
+							],
+							currentPage,
+							hasNextPage,
+						},
+					};
+				}
 				dispatch({
 					type: Actions?.GET_WORKFLOW_DETAILS_FOR_FILES_SUCCESS,
-					payload: { [payload?.filters?.templateId]: response?.[1]?.data?.workflows },
+					payload: dispatchPayload,
 					selectedvariable: 'workflowslistForFiles',
 				});
 			} else {
