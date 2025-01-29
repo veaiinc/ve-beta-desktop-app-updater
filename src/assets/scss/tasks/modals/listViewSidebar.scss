@@ -13,6 +13,7 @@
 		border-radius: 16px;
 		border: 1px solid rgba(36, 36, 36, 0.64);
 		background: #171819;
+
 		.listView-sidebar-wrapper {
 			display: flex;
 			align-self: stretch;
@@ -25,45 +26,48 @@
 
 			overflow-x: auto;
 
+			// .sidebar-header {
+			// }
+			// .sidebar-title {
+			// 	max-width: 720px;
+			// 	margin:0 auto;
+			// }
+			// .sidebar-properties-container {
+			// 	max-width: 720px;
+			// 	margin:0 auto;
+			// }
+			// .sidebar-subtask-container {
+			// 	max-width: 720px;
+			// 	margin:0 auto;
+			// }
+			// .sidebar-description {
+			// 	max-width: 720px;
+			// 	margin:0 auto;
+			// }
+
 			.sidebar-header {
 				display: flex;
 				width: 100%;
 				align-items: center;
+				justify-content: space-between;
 				gap: 8px;
+				max-width: 1200px;
+				margin: 0 auto;
 
 				svg {
 					flex-shrink: 0;
 				}
 
-				.breadcrumbs {
+				.sidebar-header-left-container {
 					display: flex;
 					align-items: center;
-					gap: 4px;
-					flex-grow: 1;
-					justify-content: flex-start;
-					overflow: auto;
-					.breadcrumbs-item {
-						color: #7d7d7d;
-						font-family: Inter;
-						font-size: 12px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						display: flex;
-						align-items: center;
-						gap: 2px;
-						cursor: pointer;
-						flex-shrink: 0;
-						svg {
-							margin-top: 0;
-							path {
-								fill: #7d7d7d;
-							}
-						}
-						&:hover {
-							color: #e8e8e8;
-						}
-					}
+					gap: 8px;
+				}
+
+				.sidebar-header-right-container {
+					display: flex;
+					align-items: center;
+					gap: 8px;
 				}
 
 				.sidebar-delete-button {
@@ -81,8 +85,64 @@
 				}
 			}
 
+			.breadCrumbs-container {
+				width: 100%;
+				display: flex;
+				height: fit-content;
+				height: 20px;
+				gap: 4px;
+				align-items: center;
+				min-height: 20px;
+				overflow-x: auto;
+				max-width: 720px;
+				margin: 0 auto;
+				.right-svg {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					height: 16px;
+					width: 16px;
+					svg {
+						path {
+							fill: #787e87;
+						}
+					}
+				}
+
+				.breadCrumbs-item {
+					color: #787e87;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					cursor: pointer;
+					display: flex;
+					align-items: center;
+					gap: 4px;
+					white-space: nowrap;
+
+					&:hover {
+						color: #f2f2f3;
+						.right-svg {
+							svg {
+								path {
+									fill: #f2f2f3;
+								}
+							}
+						}
+					}
+
+					&.active {
+						color: #f2f2f3;
+					}
+				}
+			}
+
 			.sidebar-title {
 				width: 100%;
+				max-width: 720px;
+				margin: 0 auto;
 				.sidebar-title-input {
 					border: none;
 					background: transparent;
@@ -109,6 +169,8 @@
 				border-right: none;
 				padding: 18px 0;
 				width: 100%;
+				max-width: 720px;
+				margin: 0 auto;
 				.property-list {
 					display: grid;
 					grid-template-columns: 1fr 2fr;
@@ -146,6 +208,8 @@
 				border-right: none;
 				flex-direction: column;
 				border-bottom: 1px solid #424548;
+				max-width: 720px;
+				margin: 0 auto;
 
 				.sidebar-subtask-header {
 					display: flex;
@@ -217,6 +281,8 @@
 
 			.sidebar-description {
 				width: 100%;
+				max-width: 720px;
+				margin: 0 auto;
 				.sidebar-description-textarea {
 					border: none;
 					background: transparent;
@@ -248,26 +314,6 @@
 
 	.listView-sidebar-innerContainer {
 		padding-top: 20px;
-
-		// background-color: #065cb3;
 		border-radius: 0;
-		.listView-sidebar-wrapper {
-			align-items: center;
-			.sidebar-header {
-				max-width: 1200px;
-			}
-			.sidebar-title {
-				max-width: 720px;
-			}
-			.sidebar-properties-container {
-				max-width: 720px;
-			}
-			.sidebar-subtask-container {
-				max-width: 720px;
-			}
-			.sidebar-description {
-				max-width: 720px;
-			}
-		}
 	}
 }

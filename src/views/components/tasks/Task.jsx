@@ -172,13 +172,11 @@ const Task = ({
 					addButtonOnClick={handleAddButtonOnClick}
 					colors={colors}
 					fetchMoreData={fetchMoreData}
-					view={taskInfo?.tabs[taskInfo?.activeTab]?.view}
 					data={data}
 					loading={loading}
 					properties={properties}
 					rowTypes={rowTypes}
 					handleRowClick={handleRowClick}
-					updateTaskInfo={updateTaskInfo}
 					hasMore={hasMore}
 					error={error}
 				/>
@@ -190,14 +188,11 @@ const Task = ({
 			handleAddButtonOnClick,
 			colors,
 			fetchMoreData,
-			taskInfo?.tabs,
-			taskInfo?.activeTab,
 			data,
 			loading,
 			properties,
 			rowTypes,
 			handleRowClick,
-			updateTaskInfo,
 			hasMore,
 			error,
 		],

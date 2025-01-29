@@ -32,6 +32,7 @@ import TaskId from '../../components/tasks/listView/TaskId';
 import ParentTaskComponent from '../../components/tasks/listView/ParentTaskComponent';
 import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
 import LinkText from '../../components/tasks/listView/LinkText';
+import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -134,6 +135,7 @@ const Tasks = () => {
 		updated: false,
 		infinityLoading: false,
 		view: 'table',
+		breadCrumbs: [],
 		timeout: null,
 	});
 
@@ -749,7 +751,7 @@ const Tasks = () => {
 				resetSubTasks();
 			}
 			if (row) {
-				updateTaskInfo({ selectedRow: row, sidebarIsOpen: true });
+				updateTaskInfo({ selectedRow: row, sidebarIsOpen: true, breadCrumbs: [] });
 			}
 		},
 		[info?.listItems, resetSubTasks, info?.selectedRow?._id],
@@ -759,9 +761,30 @@ const Tasks = () => {
 		updateTaskInfo({ sidebarIsOpen: false, isCreatingSubtask: true, isCreateModalOpen: true });
 	}, []);
 
-	const handleSubTaskClick = useCallback((task) => {
-		updateTaskInfo({ selectedSubTask: task });
-	}, []);
+	const handleSubTaskClick = useCallback(
+		(task) => {
+			const breadCrumbs = [
+				...info?.breadCrumbs,
+				{
+					label:
+						`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
+						info?.selectedRow?.taskSlNo,
+					data: info?.selectedRow,
+				},
+			];
+			updateTaskInfo({ selectedRow: task, breadCrumbs });
+		},
+		[info?.selectedRow, info?.breadCrumbs],
+	);
+
+	const handleBreadCrumbsClick = useCallback(
+		(breadCrumb, index) => {
+			const breadCrumbs = [...info?.breadCrumbs];
+			const newBreadCrumbs = [...breadCrumbs].slice(0, index);
+			updateTaskInfo({ breadCrumbs: newBreadCrumbs, selectedRow: breadCrumb?.data });
+		},
+		[info?.breadCrumbs],
+	);
 
 	const handleCloseSidebar = useCallback(() => {
 		if (info?.updated) {
@@ -814,27 +837,41 @@ const Tasks = () => {
 				error={info?.error}
 			/>
 			<ListViewSidebar
-				selectedRow={info?.selectedSubTask || info?.selectedRow}
-				isShowingSubTask={
-					info?.selectedSubTask !== undefined && info?.selectedSubTask !== null
-				}
-				parentTaskNo={info?.selectedRow?.taskSlNo}
-				handleChildTaskClose={handleChildTaskClose}
-				handleSubTaskClick={handleSubTaskClick}
+				selectedRow={info?.selectedRow}
 				sidebarIsOpen={info?.sidebarIsOpen}
 				closeSidebar={handleCloseSidebar}
 				handleUpdate={updatePropertyValue}
 				deleteTask={deleteTask}
 				rowTypes={rowTypes}
-				handleCreateSubTaskClick={handleCreateSubTaskClick}
 				responseMetadata={responseMetadata}
-				haveSubTask={true}
 				properties={info?.properties}
 				colors={colors}
 				toggleSidebarExpand={() =>
 					updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
 				}
 				isSidebarExpanded={info?.isSidebarExpanded}
+				headerText={
+					`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
+					info?.selectedRow?.taskSlNo
+				}
+				breadCrumbs={info?.breadCrumbs}
+				handleBreadCrumbsClick={handleBreadCrumbsClick}
+				sidebarChildren={
+					info?.selectedRow ? (
+						<ChildTaskComponent
+							parentTaskId={info?.selectedRow?._id}
+							childTasks={info?.selectedRow?.childTasks}
+							completedStatus={info?.taskMetadata?.completedGroupLabels}
+							rowTypes={rowTypes}
+							responseMetadata={responseMetadata}
+							colors={colors}
+							properties={info?.properties}
+							onAddButtonClick={handleCreateSubTaskClick}
+							handleUpdate={(...args) => updatePropertyValue(...args, true)}
+							handleRowClick={handleSubTaskClick}
+						/>
+					) : null
+				}
 			/>
 		</>
 	);
