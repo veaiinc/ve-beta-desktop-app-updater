@@ -9,6 +9,7 @@ import { PromptData } from '../../components/homePage/PromptData';
 import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import CreateLeadModal from '../../components/modalsV2/proposalModals/CreateLeadModal';
+import { useRef } from 'react';
 
 const topNavOptions = [
 	{ id: 0, title: 'Start', value: 'start' },
@@ -55,6 +56,7 @@ const dropdownOptions = [
 	{ id: 8, title: 'Contract', value: 'contract' },
 ];
 const thresholdTopOffset = 150;
+let timeoutId = null;
 
 const HomePage = () => {
 	const [info, setInfo] = useState({
@@ -132,7 +134,10 @@ const HomePage = () => {
 	};
 
 	const handleSearchValue = (value) => {
-		setInfo((prev) => ({ ...prev, searchValue: value }));
+		if (timeoutId) clearTimeout(timeoutId);
+		timeoutId = setTimeout(() => {
+			setInfo((prev) => ({ ...prev, searchValue: value }));
+		}, 1000);
 	};
 
 	const componentMapper = useMemo(
@@ -150,6 +155,7 @@ const HomePage = () => {
 					selectedOption={info?.[selectedOption]}
 					options={navbarOptions?.dashboard}
 					isNavbarFixed={info?.isNavbarFixed}
+					searchValue={info?.searchValue}
 				/>
 			),
 		}),
