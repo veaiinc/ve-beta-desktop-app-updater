@@ -1504,9 +1504,6 @@ export const Galleries = () => {
 
 			if (response[0] === true) {
 				const imageResponse = await fetch(response[1].signedUrl);
-				if (imageResponse) {
-					console.log('imageResponse==>getDownloadLinkForImage', imageResponse);
-				}
 				const blob = await imageResponse.blob();
 				const url = window.URL.createObjectURL(blob);
 				const link = document.createElement('a');
