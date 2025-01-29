@@ -1387,6 +1387,11 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const deleteUploadedImageThroughChat = async () => {
+		try {
+		} catch (error) {}
+	};
+
 	const checkIndividualImageUploadedStatus = async (uploadBatchId) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -1485,5 +1490,6 @@ export const TemplatesState = (props) => {
 		getDocsFilesList,
 		handleGlobalUploadImage,
 		checkIndividualImageUploadedStatus,
+		deleteUploadedImageThroughChat,
 	};
 };

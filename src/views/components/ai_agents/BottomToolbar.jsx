@@ -40,6 +40,7 @@ const BottomToolbar = ({
 			updateStateValues,
 			handleGlobalUploadImage,
 			checkIndividualImageUploadedStatus,
+			deleteUploadedImageThroughChat,
 		},
 	} = useContext(Context);
 
@@ -279,6 +280,15 @@ const BottomToolbar = ({
 		return true;
 	}, [info]);
 
+	const handleRemoveImage = useCallback(
+		(ele) => {
+			const uploadedImages = [...(info?.uploadedImages || [])];
+			uploadedImages.splice(ele?.uniqueId, 1);
+			setInfo((prev) => ({ ...prev, uploadedImages }));
+		},
+		[info],
+	);
+
 	const chatIcons = useMemo(
 		() => [
 			<Filter />,
@@ -361,13 +371,20 @@ const BottomToolbar = ({
 									width={'100%'}
 									height={'100%'}
 									style={{ objectFit: 'cover', borderRadius: '12px' }}
+									onClick={() => handlePreview(ele)}
 								/>
+
 								{ele?.loading ? (
 									<div className="spinContainerLoaderForPreview">
 										<Spin />
 									</div>
 								) : (
-									''
+									<span
+										className="removeImageIcon"
+										onClick={() => handleRemoveImage(ele)}
+									>
+										<Close />
+									</span>
 								)}
 							</div>
 						))}
