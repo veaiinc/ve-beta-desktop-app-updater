@@ -67,7 +67,7 @@ const ProposalPopup = ({ open, closeModal }) => {
 	const handleTemplateClick = async (template) => {
 		if (info?.loading) return;
 
-		setInfo((prev) => ({ ...prev, loading: true }));
+		setInfo((prev) => ({ ...prev, loading: true, activeTemaplateData: template }));
 
 		const payload = {
 			smartFileInput: {
