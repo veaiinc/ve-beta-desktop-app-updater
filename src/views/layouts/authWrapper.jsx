@@ -51,17 +51,7 @@ const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true 
 					</div>
 				</SkeletonTheme>
 			</div>
-			{showBottomToolbar ? (
-				<BottomToolbar
-					outerContainerStyle={{ bottom: '10px' }}
-					// chatList={info?.chatList}
-					// onSend={handleSendMessage}
-					// aiChatLoading={info?.aiChatLoading}
-					// handleAiUploadImage={handleAiUploadImage}
-				/>
-			) : (
-				''
-			)}
+			{showBottomToolbar ? <BottomToolbar outerContainerStyle={{ bottom: '10px' }} /> : ''}
 		</div>
 	);
 };
