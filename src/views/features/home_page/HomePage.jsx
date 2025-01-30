@@ -132,6 +132,9 @@ const HomePage = () => {
 	});
 
 	const handleSelectedOption = (value) => {
+		if (info?.selectedOptionInDashboard === value) {
+			return;
+		}
 		setInfo((prev) => ({ ...prev, [selectedOption]: value }));
 		setSearchParams({ tab: info?.activeTab, [info?.activeTab + 'Tab']: value });
 	};
@@ -144,6 +147,9 @@ const HomePage = () => {
 	};
 
 	const handleSetActiveTab = (tab) => {
+		if (info?.activeTab === tab) {
+			return;
+		}
 		setInfo((prev) => ({
 			...prev,
 			activeTab: tab,

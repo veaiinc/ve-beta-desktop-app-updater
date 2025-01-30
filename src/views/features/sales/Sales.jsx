@@ -61,6 +61,8 @@ const Sales = ({ showSalesInfo = true }) => {
 		if (salePageRefresh) {
 			getMyWorkflowTemplatesData(1);
 			updateStateValues({ salePageRefresh: null });
+
+			//refresh function
 		}
 	}, [salePageRefresh]);
 
