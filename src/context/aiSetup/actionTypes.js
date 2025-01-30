@@ -25,4 +25,6 @@ export const AI_ASSISTANT_INSTRUCTIONS = {
 export const AI_PROMPT = {
 	getAiPrompt: '/prompt',
 	editAiPrompt: '/edit-prompt',
+	resetAiPrompt: '/reset-prompt',
+	defaultAiPrompt: '/default-prompt',
 };

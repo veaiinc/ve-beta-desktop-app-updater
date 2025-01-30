@@ -34,6 +34,7 @@ export const initialState = {
 	aiAssistant: null,
 	aiInstructions: null,
 	aiPrompt: null,
+	aiDefaultPrompt: null,
 };
 
 export const AiSetupState = () => {
@@ -499,7 +500,7 @@ export const AiSetupState = () => {
 					type: Actions?.GET_AI_PROMPT,
 					payload: response?.[1],
 				});
-				console.log('response==>getAiPrompt', response?.[1]);
+
 				return response?.[1];
 			}
 		} catch (error) {
@@ -532,6 +533,43 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const getDefaultAiPrompt = async (assistantId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' + workspaceId + '/ai-assistants/' + assistantId + AI_PROMPT?.defaultAiPrompt;
+		try {
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_DEFAULT_AI_PROMPT,
+					payload: response?.[1]?.data,
+				});
+				return response?.[1]?.data;
+			}
+		} catch (error) {
+			console.log('error==>getDefaultAiPrompt', error);
+		}
+	};
+
+	const resetAiPrompt = async (assistantId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-assistants/' + assistantId + AI_PROMPT?.resetAiPrompt;
+		try {
+			const response = await service?.fetchPut(url, {}, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.RESET_AI_PROMPT,
+					payload: response?.[1],
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>resetAiPrompt', error);
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -558,5 +596,7 @@ export const AiSetupState = () => {
 		updateInstruction,
 		getAiPrompt,
 		editAiPrompt,
+		getDefaultAiPrompt,
+		resetAiPrompt,
 	};
 };

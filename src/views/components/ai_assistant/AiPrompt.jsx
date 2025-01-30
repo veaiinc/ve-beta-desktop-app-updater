@@ -8,7 +8,7 @@ import Context from '../../../context/context';
 
 const AiPrompt = ({ assistant }) => {
 	const {
-		aiSetup: { editAiPrompt, getAiPrompt, aiPrompt },
+		aiSetup: { resetAiPrompt, editAiPrompt, getAiPrompt, aiPrompt },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -64,7 +64,7 @@ const AiPrompt = ({ assistant }) => {
 		setInfo((prev) => ({ ...prev, timeout }));
 	}, [info?.editedPrompt, assistant?._id, aiPrompt?.promptId, editAiPrompt]);
 
-	console.log('aiPrompt data in prompt page==>', aiPrompt);
+	// console.log('aiPrompt data in prompt page==>', aiPrompt);
 
 	const handleModelDropdownVisibility = useCallback((visible) => {
 		setInfo((prev) => ({ ...prev, isSelectModelOpen: visible }));
@@ -91,8 +91,13 @@ const AiPrompt = ({ assistant }) => {
 			...prev,
 			systemPrompt: value,
 			editedPrompt: value,
+			selectedSystemPrompt: 'custom',
 		}));
 	}, []);
+
+	const handleResetPrompt = useCallback(() => {
+		resetAiPrompt(assistant?._id);
+	}, [assistant]);
 
 	return (
 		<div className="aiPromptParentContainer">
@@ -179,7 +184,7 @@ const AiPrompt = ({ assistant }) => {
 					autoResize={true}
 				/>
 
-				<div className="resetPromptContainer">
+				<div className="resetPromptContainer" onClick={handleResetPrompt}>
 					<span>Reset</span>
 				</div>
 			</div>

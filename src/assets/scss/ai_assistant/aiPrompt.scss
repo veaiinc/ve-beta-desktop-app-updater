@@ -130,6 +130,8 @@
 }
 
 .modelDropdown {
+	overflow-y: scroll;
+	max-height: 250px;
 	width: 300px;
 	display: flex;
 	flex-direction: column;
