@@ -31,23 +31,10 @@ const FilesTab = ({ data }) => {
 				hasNextPage,
 				loading: false,
 			}));
-			return;
+		} else {
+			getWorkflowsListFunc(1);
 		}
-		getWorkflowsListFunc(1);
-	}, []);
-
-	useEffect(() => {
-		const currentPage = workflowslistForFiles?.[data?._id]?.currentPage;
-		const hasNextPage = workflowslistForFiles?.[data?._id]?.hasNextPage;
-		setInfo((prev) => ({
-			...prev,
-			currentPage,
-			hasNextPage,
-		}));
-	}, [
-		workflowslistForFiles?.[data?._id]?.currentPage,
-		workflowslistForFiles?.[data?._id]?.hasNextPage,
-	]);
+	}, [workflowslistForFiles]);
 
 	const getWorkflowsListFunc = useCallback(
 		async (page) => {
