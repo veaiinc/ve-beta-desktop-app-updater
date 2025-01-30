@@ -5,8 +5,10 @@ import { ReactComponent as SixDotsSvg } from '../../../../assets/svg/tasks/sixDo
 import { ReactComponent as EditIcon } from '../../../../assets/svg/tasks/pencilWithLine.svg';
 import { ReactComponent as DuplicateIcon } from '../../../../assets/svg/tasks/duplicate.svg';
 import { ReactComponent as DeleteIcon } from '../../../../assets/svg/tasks/dustBin.svg';
+import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import '../../../../assets/scss/tasks/tabHeader.scss';
 import TabDropDown from '../../dropDown/tasks/TabDropDown';
+import DropDown from '../../dropDown/tasks/DropDown';
 
 const tabDropdownOptions = [
 	{ icon: <EditIcon />, label: 'Rename View', value: 'renameView' },
@@ -26,6 +28,8 @@ const TabHeader = ({
 	onTabsReorder,
 	showDropDown = false,
 	handleTabDropdownClick,
+	layoutOptions,
+	handleLayoutOptionClick,
 }) => {
 	const containerRef = useRef(null);
 	const tabRefs = useRef({});
@@ -143,7 +147,6 @@ const TabHeader = ({
 														options={tabDropdownOptions}
 														onOptionClick={(option) => {
 															handleTabDropdownClick(option);
-															handleDropDown(false);
 														}}
 													/>
 												) : null
@@ -173,11 +176,22 @@ const TabHeader = ({
 								</Draggable>
 							))}
 							{provided.placeholder}
+							<DropDown
+								options={layoutOptions}
+								title="New view"
+								valueSelector="value"
+								onOptionClick={(option) => {
+									handleLayoutOptionClick(option);
+								}}
+							>
+								<div className="add-tab-button">
+									<PlusSvg />
+								</div>
+							</DropDown>
 						</div>
 					)}
 				</Droppable>
 			</DragDropContext>
-
 			{tabList.length > visibleCount && (
 				<Tooltip
 					placement="bottom"
@@ -224,7 +238,9 @@ const TabHeader = ({
 																<SixDotsSvg />
 															</div>
 															{tab?.Icon && <tab.Icon />}
-															{tab?.label}
+															<span className="tab-label">
+																{tab?.label}
+															</span>
 														</div>
 													)}
 												</Draggable>
