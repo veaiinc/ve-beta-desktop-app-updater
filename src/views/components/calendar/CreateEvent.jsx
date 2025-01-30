@@ -215,7 +215,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 	// Handle event creation submission
 	const handleEventSubmission = useCallback(async () => {
 		try {
-			if (validateExpiryData?.isExpired) {
+			if (validateExpiryData && validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
 			setInfo((prev) => ({

@@ -28,7 +28,7 @@ const ListViewHeader = ({
 	createButtonText,
 	handleTabChange,
 	tabs,
-	handleAddTab,
+	prefix,
 	updateViewInfo,
 	updateTaskInfo,
 	viewData,
@@ -39,6 +39,8 @@ const ListViewHeader = ({
 	handleDuplicateView,
 	handleDeleteView,
 	handleTabDropdownClick,
+	layoutOptions,
+	handleLayoutOptionClick,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -149,60 +151,38 @@ const ListViewHeader = ({
 
 	return (
 		<div className="listViewHeaderContainer">
-			<div className="listViewHeader-title">{blockTitle || 'Untitled'}</div>
-			<div className="listViewHeader">
-				<div className="listViewHeaderTabsContainer">
-					<TabHeader
-						activeTab={viewData?._id}
-						onTabChange={handleTabClick}
-						tabs={Object.values(tabs || {})}
-						onTabsReorder={handleTabsReorder}
-						showDropDown={showDropdown}
-						handleTabDropdownClick={handleTabDropdownClick}
-					/>
-					{/* <button className="listViewHeaderTabsAddButton" onClick={handleAddTab}>
+			<div className="listViewHeaderTitleWrapper">
+				<div className="listViewHeader-title">{blockTitle || 'Untitled'}</div>
+				<div className="listViewHeader">
+					<div className="listViewHeaderTabsContainer">
+						<TabHeader
+							activeTab={viewData?._id}
+							onTabChange={handleTabClick}
+							tabs={Object.values(tabs || {})}
+							onTabsReorder={handleTabsReorder}
+							showDropDown={showDropdown}
+							handleTabDropdownClick={handleTabDropdownClick}
+							layoutOptions={layoutOptions}
+							handleLayoutOptionClick={handleLayoutOptionClick}
+						/>
+						{/* <button className="listViewHeaderTabsAddButton" onClick={handleAddTab}>
 						<PlusSvg />
 					</button> */}
-				</div>
+					</div>
 
-				<div className="listViewHeaderActions">
-					<button className="listViewHeaderAddTaskButton" onClick={addButtonOnClick}>
-						{createButtonText || 'Add'}
-					</button>
-					<div
-						className="searchContainer"
-						style={{
-							width: info?.searchExpand ? '140px' : '16px',
-						}}
-					>
-						<div className={`searchBtn ${info?.searchExpand ? 'searchExpand' : ''}`}>
-							<span
-								style={{
-									display: 'flex',
-									justifyContent: 'center',
-									alignItems: 'center',
-									cursor: 'pointer',
-								}}
-								onClick={() => {
-									setInfo((prev) => ({
-										...prev,
-										searchExpand: true,
-									}));
-								}}
+					<div className="listViewHeaderActions">
+						<button className="listViewHeaderAddTaskButton" onClick={addButtonOnClick}>
+							{createButtonText || 'Add'}
+						</button>
+						<div
+							className="searchContainer"
+							style={{
+								width: info?.searchExpand ? '140px' : '16px',
+							}}
+						>
+							<div
+								className={`searchBtn ${info?.searchExpand ? 'searchExpand' : ''}`}
 							>
-								<SearchSvg />
-							</span>
-
-							<div className="inputAndCloseContainer">
-								<input
-									ref={searchInputRef}
-									className="searchInputTag"
-									placeholder="Search"
-									value={searchValue}
-									onChange={(e) =>
-										updateTaskInfo({ searchValue: e.target?.value })
-									}
-								/>
 								<span
 									style={{
 										display: 'flex',
@@ -213,162 +193,197 @@ const ListViewHeader = ({
 									onClick={() => {
 										setInfo((prev) => ({
 											...prev,
-											searchExpand: false,
+											searchExpand: true,
 										}));
-										updateTaskInfo({ searchValue: '' });
 									}}
 								>
-									<CrossIcon style={{ width: '20px', height: '20px' }} />
+									<SearchSvg />
 								</span>
+
+								<div className="inputAndCloseContainer">
+									<input
+										ref={searchInputRef}
+										className="searchInputTag"
+										placeholder="Search"
+										value={searchValue}
+										onChange={(e) =>
+											updateTaskInfo({ searchValue: e.target?.value })
+										}
+									/>
+									<span
+										style={{
+											display: 'flex',
+											justifyContent: 'center',
+											alignItems: 'center',
+											cursor: 'pointer',
+										}}
+										onClick={() => {
+											setInfo((prev) => ({
+												...prev,
+												searchExpand: false,
+											}));
+											updateTaskInfo({ searchValue: '' });
+										}}
+									>
+										<CrossIcon style={{ width: '20px', height: '20px' }} />
+									</span>
+								</div>
 							</div>
+							{
+								// <button className="listViewHeaderActionButton">
+								// 	<ThunderSvg />
+								// </button>
+							}
 						</div>
-						{
-							// <button className="listViewHeaderActionButton">
-							// 	<ThunderSvg />
-							// </button>
-						}
-					</div>
-					{hasSort ? (
-						<button
-							className="listViewHeaderActionButton"
-							onClick={() => handelSortClick()}
-						>
-							<ArrowUpAndDown style={{ width: '20px', height: '20px' }} />
-						</button>
-					) : (
-						<DropDown
-							title="Sort"
-							options={properties?.filter(
-								(item) => !['childTasks', 'parentTask']?.includes(item.value),
-							)}
-							onOptionClick={handelSortClick}
-							valueSelector="value"
-						>
+						{hasSort ? (
 							<button
 								className="listViewHeaderActionButton"
 								onClick={() => handelSortClick()}
 							>
 								<ArrowUpAndDown style={{ width: '20px', height: '20px' }} />
 							</button>
-						</DropDown>
-					)}
+						) : (
+							<DropDown
+								title="Sort"
+								options={properties?.filter(
+									(item) => !['childTasks', 'parentTask']?.includes(item.value),
+								)}
+								onOptionClick={handelSortClick}
+								valueSelector="value"
+							>
+								<button
+									className="listViewHeaderActionButton"
+									onClick={() => handelSortClick()}
+								>
+									<ArrowUpAndDown style={{ width: '20px', height: '20px' }} />
+								</button>
+							</DropDown>
+						)}
 
-					{hasFilters ? (
-						<button
-							className="listViewHeaderActionButton"
-							onClick={() => handelFilterClick()}
-						>
-							<FilterLinesSvg />
-						</button>
-					) : (
-						<DropDown
-							title="Filter"
-							options={properties.filter(
-								(item) => !['childTasks', 'parentTask']?.includes(item.value),
-							)}
-							onOptionClick={handelFilterClick}
-							valueSelector="value"
-						>
+						{hasFilters ? (
 							<button
 								className="listViewHeaderActionButton"
 								onClick={() => handelFilterClick()}
 							>
 								<FilterLinesSvg />
 							</button>
-						</DropDown>
-					)}
-					<OptionsDropDown
-						properties={properties}
-						updateTaskInfo={updateTaskInfo}
-						taskPreferences={taskPreferences}
-						editingProperty={editingProperty}
-						handleEditPropertyChange={handleEditPropertyChange}
-						responseMetadata={responseMetadata}
-						colors={colors}
-						viewData={viewData}
-						updateViewInfo={(viewInfo) => updateViewInfo(viewData?._id, viewInfo)}
-						openDropDown={showEditViewDropDown}
-						closeDropDown={closeEditViewDropDown}
-						handleDuplicateView={handleDuplicateView}
-						handleDeleteView={handleDeleteView}
-					/>
+						) : (
+							<DropDown
+								title="Filter"
+								options={properties.filter(
+									(item) => !['childTasks', 'parentTask']?.includes(item.value),
+								)}
+								onOptionClick={handelFilterClick}
+								valueSelector="value"
+							>
+								<button
+									className="listViewHeaderActionButton"
+									onClick={() => handelFilterClick()}
+								>
+									<FilterLinesSvg />
+								</button>
+							</DropDown>
+						)}
+						<OptionsDropDown
+							properties={properties}
+							prefix={prefix}
+							updateTaskInfo={updateTaskInfo}
+							taskPreferences={taskPreferences}
+							editingProperty={editingProperty}
+							handleEditPropertyChange={handleEditPropertyChange}
+							responseMetadata={responseMetadata}
+							colors={colors}
+							viewData={viewData}
+							updateViewInfo={(viewInfo) => updateViewInfo(viewData?._id, viewInfo)}
+							openDropDown={showEditViewDropDown}
+							closeDropDown={closeEditViewDropDown}
+							handleDuplicateView={handleDuplicateView}
+							handleDeleteView={handleDeleteView}
+							layoutOptions={layoutOptions}
+						/>
+					</div>
 				</div>
 			</div>
 
-			<div className="listViewOptionsContainer">
-				{viewData?.sort?.length > 0 && info?.showSort ? (
-					<SortComponent
-						sort={viewData?.sort}
-						options={properties?.filter(
-							(item) => !['childTasks', 'parentTask']?.includes(item.value),
-						)}
-						responseMetadata={responseMetadata}
-						updateViewInfo={(viewInfo) => updateViewInfo(viewData?._id, viewInfo)}
-						handelSortClick={handelSortClick}
-						properties={properties.filter(
-							(item) => !['childTasks', 'parentTask']?.includes(item.value),
-						)}
-					/>
-				) : null}
-				{(viewData?.filters?.length > 0 || pendingFilters.length > 0) &&
-				info.showFilters ? (
-					<div className="listView-filterContainer">
-						{[...viewData?.filters, ...pendingFilters].map((filter) => {
-							const {
-								Icon = null,
-								name = null,
-								props = {},
-								type = null,
-							} = responseMetadata?.[filter?.key];
-							return (
-								<FilterComponent
-									key={filter?.key}
-									Icon={Icon}
-									title={name}
-									fieldName={filter?.key}
-									value={filter?.value}
-									updateViewInfo={(viewInfo) =>
-										updateViewInfo(viewData?._id, viewInfo)
-									}
-									filters={viewData?.filters}
-									props={props}
-									type={type}
-									colors={colors}
-									isPending={
-										!viewData?.filters?.some((f) => f.key === filter?.key)
-									}
-									onConfirm={(key, value) => {
-										setPendingFilters((prev) =>
-											prev.filter((f) => f.key !== key),
-										);
-										updateViewInfo(viewData?._id, {
-											filters: [...viewData?.filters, { key, value }],
-										});
-									}}
-									setPendingFilters={setPendingFilters}
-									responseMetadata
-								/>
-							);
-						})}
-						<DropDown
-							title="Add Filter"
+			{(viewData?.sort?.length > 0 && info?.showSort) ||
+			((viewData?.filters?.length > 0 || pendingFilters.length > 0) && info.showFilters) ? (
+				<div className="listViewOptionsContainer">
+					{viewData?.sort?.length > 0 && info?.showSort ? (
+						<SortComponent
+							sort={viewData?.sort}
 							options={properties?.filter(
-								(item) =>
-									!viewData?.filters?.some(
-										(filter) => filter.key === item.value,
-									) && !['childTasks', 'parentTask']?.includes(item.value),
+								(item) => !['childTasks', 'parentTask']?.includes(item.value),
 							)}
-							onOptionClick={handelFilterClick}
-							valueSelector="value"
-						>
-							<button className="listView-addFilterButton">
-								<PlusSvg />
-								<span className="listView-addFilterButtonText">Add Filter</span>
-							</button>
-						</DropDown>
-					</div>
-				) : null}
-			</div>
+							responseMetadata={responseMetadata}
+							updateViewInfo={(viewInfo) => updateViewInfo(viewData?._id, viewInfo)}
+							handelSortClick={handelSortClick}
+							properties={properties.filter(
+								(item) => !['childTasks', 'parentTask']?.includes(item.value),
+							)}
+						/>
+					) : null}
+					{(viewData?.filters?.length > 0 || pendingFilters.length > 0) &&
+					info.showFilters ? (
+						<div className="listView-filterContainer">
+							{[...viewData?.filters, ...pendingFilters].map((filter) => {
+								const {
+									Icon = null,
+									name = null,
+									props = {},
+									type = null,
+								} = responseMetadata?.[filter?.key];
+								return (
+									<FilterComponent
+										key={filter?.key}
+										Icon={Icon}
+										title={name}
+										fieldName={filter?.key}
+										value={filter?.value}
+										updateViewInfo={(viewInfo) =>
+											updateViewInfo(viewData?._id, viewInfo)
+										}
+										filters={viewData?.filters}
+										props={props}
+										type={type}
+										colors={colors}
+										isPending={
+											!viewData?.filters?.some((f) => f.key === filter?.key)
+										}
+										onConfirm={(key, value) => {
+											setPendingFilters((prev) =>
+												prev.filter((f) => f.key !== key),
+											);
+											updateViewInfo(viewData?._id, {
+												filters: [...viewData?.filters, { key, value }],
+											});
+										}}
+										setPendingFilters={setPendingFilters}
+										responseMetadata
+									/>
+								);
+							})}
+							<DropDown
+								title="Add Filter"
+								options={properties?.filter(
+									(item) =>
+										!viewData?.filters?.some(
+											(filter) => filter.key === item.value,
+										) && !['childTasks', 'parentTask']?.includes(item.value),
+								)}
+								onOptionClick={handelFilterClick}
+								valueSelector="value"
+							>
+								<button className="listView-addFilterButton">
+									<PlusSvg />
+									<span className="listView-addFilterButtonText">Add Filter</span>
+								</button>
+							</DropDown>
+						</div>
+					) : null}
+				</div>
+			) : (
+				''
+			)}
 		</div>
 	);
 };

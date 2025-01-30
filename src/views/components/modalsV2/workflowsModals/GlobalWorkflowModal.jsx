@@ -108,7 +108,6 @@ const AutomationComponent = ({ activeTemplateData, loading }) => {
 			stepsData?.push({
 				module: 'preview',
 				_id: steps?.[0]?._id,
-				parsedHtmlContent: activeTemplateData?.templates?.[0]?.parsedHtmlContent,
 			});
 			steps.shift();
 			stepsData = stepsData?.concat(steps);
@@ -182,17 +181,6 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 		}
 	}, [specificTemplatesInfo]);
 
-	useEffect(() => {
-		if (info?.activeTemplateData) {
-			const { templates } = info?.activeTemplateData || {};
-			let obj = {};
-			for (let i = 0; i < templates?.length; i++) {
-				obj[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
-			}
-			setInfo((prev) => ({ ...prev, templatesMapper: obj }));
-		}
-	}, [info?.activeTemplateData]);
-
 	//function defination
 	const changeActiveTab = useCallback(
 		(item) => {
@@ -211,7 +199,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 	}, [closeModal]);
 
 	const onCustomiseFunc = useCallback(async () => {
-		if (validateExpiryData?.isExpired) {
+		if (validateExpiryData && validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		if (info?.duplicateApiLoading) {
@@ -234,7 +222,7 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 		}
 	}, [info?.activeTemplateData, info?.activeTab, info?.duplicateApiLoading]);
 	const onGenerateAIFunc = () => {
-		if (validateExpiryData?.isExpired) {
+		if (validateExpiryData && validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		window.location.href = `${origin}/generate/${info?.activeTemplateData?._id}`;

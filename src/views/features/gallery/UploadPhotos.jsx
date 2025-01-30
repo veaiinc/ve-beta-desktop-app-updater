@@ -29,6 +29,7 @@ const UploadPhotos = () => {
 			getAlbums,
 			getImageDuplicatesList,
 		},
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	const [info, setinfo] = useState({
@@ -94,6 +95,13 @@ const UploadPhotos = () => {
 
 	// drop function
 	const onDropFunction = async (files) => {
+		if (
+			validateExpiryData &&
+			(validateExpiryData?.isExpired || !validateExpiryData?.uploadAllowed)
+		) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+
 		let updateInfo = { ...info };
 
 		if (updateInfo?.initialUpload) {

@@ -66,7 +66,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 	}, []);
 
 	const createClientFunc = useCallback(async () => {
-		if (validateExpiryData?.isExpired) {
+		if (validateExpiryData && validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 
@@ -126,7 +126,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 		leadDetails,
 		updateStateValues,
 		updateSubscriptionState,
-		validateExpiryData?.isExpired,
+		validateExpiryData,
 		source,
 	]);
 

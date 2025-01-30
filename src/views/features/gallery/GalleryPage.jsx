@@ -132,6 +132,8 @@ const GalleryPage = () => {
 			editAlbum,
 			getImageProcessingStatus,
 			imageProcessingStatus,
+			getClientSelectionLightRoomCopy,
+			clientSelectionLightRoomCopy,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -1607,22 +1609,18 @@ const GalleryPage = () => {
 					return;
 				}
 
-				// Create a list of filenames from client selection images
-				const clientSelectionFileNames = info.clientSelectionImages.docs
-					.filter((img) => img?.activeVersion?.originalFileName) // Filter out any images without filenames
-					.map((img) => img?.activeVersion?.originalFileName);
+				const response = await getClientSelectionLightRoomCopy(info.clientSelectionID);
+				console.log('response==>handleLightRoomCopy', response);
 
-				// If no valid filenames found
-				if (!clientSelectionFileNames.length) {
+				if (!response?.[1]?.length) {
 					message.destroy('lightroomCopy');
 					message.info('No valid images found in this client selection');
 					return;
 				}
 
-				// Set the lightroom copy list directly from client selection images
 				setInfo((prev) => ({
 					...prev,
-					lightroomCopyList: clientSelectionFileNames,
+					lightroomCopyList: response?.[1],
 					showLightRoomCopy: true,
 					showOptionsContainer: false,
 				}));
@@ -1640,12 +1638,12 @@ const GalleryPage = () => {
 			}
 
 			// Get lightroom copy list for regular albums
-			response = await getLightroomCopyList(galleryId, info.activeAlbumId);
+			await getLightroomCopyList(galleryId, info.activeAlbumId);
 
-			if (response?.[0] === true) {
+			if (clientSelectionLightRoomCopy) {
 				setInfo((prev) => ({
 					...prev,
-					lightroomCopyList: response[1],
+					lightroomCopyList: clientSelectionLightRoomCopy,
 					showLightRoomCopy: true,
 					showOptionsContainer: false,
 				}));
@@ -2945,7 +2943,7 @@ const GalleryPage = () => {
 	// ... existing code ...
 
 	const handleDownload = async () => {
-		if (validateExpiryData?.isExpired) {
+		if (validateExpiryData && validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 
@@ -2966,16 +2964,8 @@ const GalleryPage = () => {
 				const response = await getDownloadLinkForImage(selectedImageId, isLightGallery);
 
 				if (response?.[0] === true) {
-					// Create link and trigger download
-					const link = document.createElement('a');
-					link.href = response[1]?.url;
-					link.download = response[1]?.fileName || `image-${Date.now()}`;
-					document.body.appendChild(link);
-					link.click();
-					document.body.removeChild(link);
-
 					message.success({
-						content: 'Download started',
+						content: 'Download completed',
 						key: 'downloadMessage',
 					});
 				} else {
