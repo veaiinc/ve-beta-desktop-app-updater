@@ -39,6 +39,9 @@ import Workflow_builder_updated from './views/features/workflow_builder_updated'
 import Forms from './views/features/forms';
 import FormLeads from './views/features/forms/FormLeads';
 import HomePage from './views/features/home_page/HomePage';
+import AiAssistants from './views/features/ai_assistant/index';
+import EditAgent from './views/features/ai_assistant/EditAgent';
+import AgentDetails from './views/features/ai_assistant/AgentDetails';
 const routes = [
 	{
 		path: '/',
@@ -325,6 +328,34 @@ const routes = [
 		component: (
 			<AuthWrapper title={'AI Agents'}>
 				<AgentsSetup />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/ai-assistant',
+		component: (
+			<AuthWrapper title={'AI Assistant'}>
+				<AiAssistants />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/ai-assistant/:aiAssistantId',
+		component: (
+			<AuthWrapper title={'AI Assistant'}>
+				<AgentDetails />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		// path: '/ai-assistant/create-assistant',
+		path: '/ai-assistant/:aiAssistantId/edit',
+		component: (
+			<AuthWrapper title={'AI Assistant'}>
+				<EditAgent />
 			</AuthWrapper>
 		),
 		exact: true,

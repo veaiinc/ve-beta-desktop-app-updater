@@ -1,0 +1,169 @@
+.add-knowledge-modal {
+	display: flex;
+	width: 520px;
+	height: 583px;
+	padding: 32px;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: flex-start;
+	border-radius: 32px;
+	background: #202123;
+	background: color(display-p3 0.1255 0.1294 0.1373);
+	gap: 24px;
+
+	&-header {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+		width: 100%;
+		justify-content: space-between;
+
+		h2 {
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 20px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	&-body {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		align-self: stretch;
+		flex-grow: 1;
+
+		.knowledge-tab-header {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 16px;
+			align-self: stretch;
+
+			&-title {
+				color: #797e86;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+
+			.knowledge-tabs-wrapper {
+				display: flex;
+				align-items: flex-start;
+				gap: 16px;
+				align-self: stretch;
+
+				.knowledge-tab {
+					display: flex;
+					height: 72px;
+					padding: 12px;
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
+					gap: 8px;
+					flex: 1 0 0;
+					border-radius: 16px;
+					border: 1px solid #2c2d2e;
+					cursor: pointer;
+
+					&-label {
+						color: #797e86;
+						text-align: center;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+					}
+				}
+
+				.active-tab {
+					border-radius: 16px;
+					border: 1px solid rgba(232, 232, 232, 0.5);
+					background: rgba(232, 232, 232, 0.1);
+
+					svg {
+						path {
+							stroke: #f2f2f3 !important;
+						}
+					}
+
+					.knowledge-tab-label {
+						color: #f2f2f3;
+						color: color(display-p3 0.949 0.949 0.9529);
+						text-align: center;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+					}
+				}
+			}
+		}
+
+		.knowledge-tab-content {
+			width: 100%;
+			&-url {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 24px;
+				align-self: stretch;
+				width: 100%;
+
+				.add-url-wrapper {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					align-self: stretch;
+					gap: 16px;
+
+					.input-wrapper {
+						flex: 1;
+					}
+				}
+			}
+		}
+	}
+
+	&-footer {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+		justify-content: space-between;
+	}
+
+	.btn-ghost {
+		display: flex;
+		width: 102px;
+		height: 46px;
+		padding: 12px 24px;
+		justify-content: center;
+		align-items: center;
+		gap: 16px;
+		border-radius: 50px;
+		border: 1px solid #2c2d2e;
+		background: transparent;
+		color: #f2f2f3;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 20px;
+		transition: all 0.3s ease-in-out;
+		white-space: nowrap;
+
+		&:hover {
+			border-radius: 50px;
+			border: 1px solid #424548;
+		}
+	}
+}
