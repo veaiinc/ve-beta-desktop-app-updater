@@ -5,6 +5,7 @@ import { ReactComponent as Sync } from '../../../assets/svg/docs/sync.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 const staticCreateActions = [
 	{
@@ -115,7 +116,7 @@ const AiAssistants = () => {
 
 	const getMoreAiAssistants = useCallback(() => {
 		if (info?.hasNextPage) {
-			getAiAssistants(info?.currentPage + 1, 10, true);
+			getAiAssistants(info?.currentPage + 1, 20, true);
 		}
 	}, [info?.currentPage, info?.hasNextPage]);
 
@@ -178,37 +179,58 @@ const AiAssistants = () => {
 					</div>
 
 					<div className="agentsCardContainer">
-						{assistants ? (
-							assistants?.map((assistant) => (
+						<InfiniteScroll
+							dataLength={assistants?.length}
+							next={getMoreAiAssistants}
+							hasMore={info?.hasNextPage}
+							loader={
+								<div
+									style={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+										width: '100%',
+										flexShrink: 0,
+									}}
+								>
+									<Spinner width="20px" height="20px" />
+								</div>
+							}
+							className="agentsCardContainer"
+							height={`calc( 100vh - 520px)`}
+						>
+							{assistants ? (
+								assistants?.map((assistant) => (
+									<div
+										className="agentCard"
+										onClick={() =>
+											navigate(`/ai-assistant/${assistant?.aiAssistantId}`, {
+												state: { assistant },
+											})
+										}
+									>
+										<div>
+											<AgentIcon />
+										</div>
+										<div className="agentName">{assistant?.name}</div>
+										<div className="createdBy">
+											Created by {assistant?.createdBy}
+										</div>
+									</div>
+								))
+							) : (
 								<div
 									className="agentCard"
-									onClick={() =>
-										navigate(`/ai-assistant/${assistant?.aiAssistantId}`, {
-											state: { assistant },
-										})
-									}
+									onClick={() => navigate(`/ai-assistant/create-assistant`)}
 								>
 									<div>
 										<AgentIcon />
 									</div>
-									<div className="agentName">{assistant?.name}</div>
-									<div className="createdBy">
-										Created by {assistant?.createdBy}
-									</div>
+									<div className="agentName">Create your first AI Assistant</div>
+									<div className="createdBy">Powered by Ve.ai</div>
 								</div>
-							))
-						) : (
-							<div
-								className="agentCard"
-								onClick={() => navigate(`/ai-assistant/create-assistant`)}
-							>
-								<div>
-									<AgentIcon />
-								</div>
-								<div className="agentName">Create your first AI Assistant</div>
-								<div className="createdBy">Powered by Ve.ai</div>
-							</div>
-						)}
+							)}
+						</InfiniteScroll>
 					</div>
 				</div>
 			</div>
