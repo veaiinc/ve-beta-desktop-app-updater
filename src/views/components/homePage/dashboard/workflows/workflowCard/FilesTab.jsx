@@ -36,29 +36,25 @@ const FilesTab = ({ data }) => {
 		}
 	}, [workflowslistForFiles]);
 
-	const getWorkflowsListFunc = useCallback(
-		async (page) => {
-			const payload = {
-				filters: {
-					limit: 10,
-					page,
-					templateId: data?._id,
-				},
-			};
+	const getWorkflowsListFunc = async (page) => {
+		const payload = {
+			filters: {
+				limit: 10,
+				page,
+				templateId: data?._id,
+			},
+		};
 
-			await getWorkflowsListForFiles(payload);
-			setInfo((prev) => ({
-				...prev,
-				loading: false,
-			}));
-		},
-		[info?.currentPage],
-	);
+		await getWorkflowsListForFiles(payload);
+		setInfo((prev) => ({
+			...prev,
+			loading: false,
+		}));
+	};
 
-	const fetcMoreWorkflowList = useCallback(async () => {
-		console.log('fetchMore', info?.currentPage);
+	const fetcMoreWorkflowList = async () => {
 		getWorkflowsListFunc(info?.currentPage + 1, true);
-	}, [info?.currentPage]);
+	};
 
 	const workflowsDetailsList = workflowslistForFiles?.[data?._id]?.data;
 

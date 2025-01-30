@@ -32,20 +32,7 @@ const PendingActionsTab = ({ data }) => {
 			return;
 		}
 		getRequiredActionsForTemplateFunc(1);
-	}, []);
-
-	useEffect(() => {
-		const currentPage = requiredActionsForTemplate?.[data?._id]?.currentPage;
-		const hasNextPage = requiredActionsForTemplate?.[data?._id]?.hasNextPage;
-		setInfo((prev) => ({
-			...prev,
-			currentPage,
-			hasNextPage,
-		}));
-	}, [
-		requiredActionsForTemplate?.[data?._id]?.currentPage,
-		requiredActionsForTemplate?.[data?._id]?.hasNextPage,
-	]);
+	}, [requiredActionsForTemplate]);
 
 	const requiredActionsList = requiredActionsForTemplate?.[data?._id]?.data;
 
