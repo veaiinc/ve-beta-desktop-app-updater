@@ -23,14 +23,36 @@ const ToolBarChatContainerModal = ({
 	chatQuery,
 	aiChatLoading,
 	isChatExpanded,
+	showFullPage,
+	toggleFullPage,
 }) => {
 	const [isExpanded, setIsExpanded] = useState(isChatExpanded || false);
+	const [info, setInfo] = useState({
+		width: isExpanded ? 'calc(100% - 245px)' : '400px',
+	});
 
 	const chatContentRef = useRef(null);
 
-	const width = isExpanded ? 'calc(100% - 245px)' : '400px';
+	// const width = isExpanded ? (showFullPage ? '100%' : 'calc(100% - 245px)') : '400px';
 
 	// Add this useEffect for auto-scrolling
+
+	useEffect(() => {
+		if (showFullPage) {
+			setInfo((prev) => ({
+				...prev,
+				width: '100%',
+				// isExpanded: true,
+			}));
+			setIsExpanded(true);
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				width: isExpanded ? 'calc(100% - 245px)' : '400px',
+			}));
+		}
+	}, [showFullPage, isExpanded]);
+
 	useEffect(() => {
 		if (chatContentRef.current) {
 			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
@@ -43,7 +65,7 @@ const ToolBarChatContainerModal = ({
 				setIsExpanded(false);
 				onClose();
 			}}
-			width={width}
+			width={info?.width}
 			open={modalIsOpen}
 			style={{ backgroundColor: '#171819' }}
 			headerStyle={{ display: 'none' }}
@@ -54,7 +76,15 @@ const ToolBarChatContainerModal = ({
 				<div className="toolExpandedChatBarContainerHeader" style={{ width: '100%' }}>
 					<h1 className="toolExpandedChatBarContainerHeaderTitle">AI Assistant</h1>
 					<div className="toolExpandedChatBarContainerHeaderIconContainer">
-						<ExpandChatIcon onClick={() => setIsExpanded(!isExpanded)} />
+						<ExpandChatIcon
+							onClick={() => {
+								if (showFullPage) {
+									toggleFullPage();
+								}
+
+								setIsExpanded(!isExpanded);
+							}}
+						/>
 						<CloseSvg
 							onClick={() => {
 								setIsExpanded(false);

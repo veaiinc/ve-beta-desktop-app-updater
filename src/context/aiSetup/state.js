@@ -11,6 +11,7 @@ import service from '../../services';
 import gqlService from '../../services/graphQlServices';
 import { generatePDFsBatchId } from '../../helpers';
 import { getTemmplatesQuery } from '../Templates/graphQlFunctions';
+import ObjectID from 'bson-objectid';
 
 export const initialState = {
 	knowledgeBaseFiles: {
@@ -27,6 +28,11 @@ export const initialState = {
 		currentPage: 1,
 	},
 	assignedWorkflowsToAiAssistant: {
+		data: [],
+		hasMore: false,
+		currentPage: 1,
+	},
+	aiChatSessions: {
 		data: [],
 		hasMore: false,
 		currentPage: 1,
@@ -167,6 +173,35 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const getAiChatSessions = async (page = 1, limit = 10, reset = false) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const type = 'tenant';
+			const params = {
+				page,
+				limit,
+			};
+			const url = '/' + workspaceId + '/list-multiagent-sessions';
+			const response = await service?.fetchGet(url, token, type, params);
+			const aiChatSessions = {
+				data: reset
+					? [...response?.[1]?.data]
+					: [...state?.aiChatSessions?.data, ...response?.[1]?.data],
+				hasMore: response?.[1]?.hasNextPage,
+				currentPage: response?.[1]?.currentPage,
+			};
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.SET_AI_CHAT_SESSIONS,
+					payload: aiChatSessions,
+				});
+			}
+		} catch (error) {
+			console.log('error==>getAiChatSessions', error);
+		}
+	};
+
 	const getExistingAiAssistants = async () => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -187,7 +222,6 @@ export const AiSetupState = () => {
 			console.log('error==>getExistingAiAssistants', error);
 		}
 	};
-
 	const getAiAssistants = async (page = 1, limit = 20, fetchMore = false) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -215,7 +249,6 @@ export const AiSetupState = () => {
 		try {
 			const response = await service?.fetchPost(url, data, usertoken, 'ai_assistant_api'); // change the type to ai_setup later
 			if (response?.[0]) {
-				console.log(' createNewAiAssistant response', response?.[1]);
 				dispatch({
 					type: Actions?.SET_AI_ASSISTANT,
 					payload: response?.[1],
@@ -403,6 +436,66 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const uploadImageToKnowledgeBase = async (file) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const path = '/' + workspaceId + KNOWLEDGE_BASE?.uploadImageToKnowledgeBase;
+		const uploadBatchId = Date?.now()?.toString();
+		const sessionId = ObjectID()?.toString();
+		const body = {
+			originalFileName: file?.name,
+			uploadBatchId,
+			sessionId,
+		};
+
+		try {
+			const response = await service?.fetchPost(path, body, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				const { signedUrl, _id } = response?.[1];
+				if (signedUrl) {
+					const uploadResponse = await fetch(signedUrl, {
+						method: 'PUT',
+						headers: {
+							'Content-Type': file.type || 'application/pdf',
+						},
+						body: file,
+					});
+
+					if (uploadResponse?.ok && uploadResponse?.status === 200) {
+						return [true, { _id, uploadBatchId, sessionId }];
+					} else {
+						return [false, uploadResponse];
+					}
+				}
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>uploadImageToKnowledgeBase', error);
+		}
+	};
+
+	const checkFileUploadStatus = async (batchId, fileId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = '/' + workspaceId + KNOWLEDGE_BASE?.checkFileUploadStatus;
+			const body = {
+				uploadBatchId: batchId,
+				_id: fileId,
+			};
+			const response = await service?.fetchPost(url, body, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>checkFileUploadStatus', error);
+		}
+	};
+
+	//from herer
 	const updateKnowledgeBaseFile = async (knowledgeId, data) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -613,6 +706,9 @@ export const AiSetupState = () => {
 		getWorkflows,
 		resetAiSetupState,
 		deleteKnowledge,
+		uploadImageToKnowledgeBase,
+		checkFileUploadStatus,
+		getAiChatSessions,
 		getAiAssistants,
 		updateKnowledgeBaseFile,
 		getInstructions,

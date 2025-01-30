@@ -18,6 +18,7 @@ import Sidebar from '../../components/docs/Sidebar';
 import DropDown from '../../components/dropDown/tasks/DropDown';
 import FilterPopUp from '../../components/globalComponents/FilterPopUp';
 import DeleteLeadModal from '../../components/modalsV2/workflowsModals/DeleteLeadModal.jsx';
+import ProposalPopup from '../../components/docs/ProposalsPopup.jsx';
 
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from 'antd';
@@ -155,7 +156,7 @@ const statusList = [
 	}),
 ];
 
-const FilterIcons = {
+export const FilterIcons = {
 	templateName: <UppercaseLowercaseA />,
 	clientName: <MailLetter />,
 	status: <StatusCircle />,
@@ -172,7 +173,7 @@ export const DocsStatusButton = ({ content = '', style = {}, textStyle = {}, dot
 	);
 };
 
-const Filters = [
+export const Filters = [
 	{
 		label: (
 			<div className="filterContainer">
@@ -274,6 +275,7 @@ const Docs = () => {
 		timeout: null,
 		filtersGotChanged: false,
 		deleteLeadModal: false,
+		proposalPopup: false,
 	});
 
 	const activeFileRef = useRef(null);
@@ -545,7 +547,10 @@ const Docs = () => {
 					</div>
 				</div>
 
-				<div onClick={() => navigate('/my-templates')} className="docsHeaderButtons">
+				<div
+					onClick={() => setInfo((prev) => ({ ...prev, proposalPopup: true }))}
+					className="docsHeaderButtons"
+				>
 					{' '}
 					<div className="docsHeaderButtonsTitle">Create proposal from your template</div>
 					<div className="docsHeaderSubButtonsSubTitleColored">
@@ -638,6 +643,7 @@ const Docs = () => {
 							))}
 						</div>
 					</div>
+
 					<div className="docsFileHeaderContainerActionsContainer">
 						<div
 							className="searchContainer"
@@ -713,6 +719,7 @@ const Docs = () => {
 						<ThreeDots />
 					</div>
 				</div>
+
 				<div className="docsFilesInfiiniteContainer">
 					{info?.loading ? (
 						[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]?.map(
@@ -774,6 +781,11 @@ const Docs = () => {
 					open={info?.deleteLeadModal}
 					closeModal={() => setInfo((prev) => ({ ...prev, deleteLeadModal: false }))}
 					deleteLeadFunc={deleteLeadFunc}
+				/>
+
+				<ProposalPopup
+					open={info?.proposalPopup}
+					closeModal={() => setInfo((prev) => ({ ...prev, proposalPopup: false }))}
 				/>
 			</div>
 		</div>
