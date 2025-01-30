@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, memo, useMemo, useCallback, useContext } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/navBar';
@@ -11,6 +11,7 @@ import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import CreateLeadModal from '../../components/modalsV2/proposalModals/CreateLeadModal';
 import { useRef } from 'react';
+import Context from '../../../context/context';
 
 const topNavOptions = [
 	{ id: 0, title: 'Start', value: 'start' },
@@ -33,19 +34,6 @@ const navbarOptions = {
 	],
 };
 
-const propsForHeaderInfoAndNavBar = {
-	start: {
-		title: 'Hey there,',
-		subTitle: "I'm here to help",
-		selectedOption: 'selectedOptionInStart',
-	},
-	dashboard: {
-		title: 'All Your',
-		subTitle: 'Task Collections',
-		selectedOption: 'selectedOptionInDashboard',
-	},
-};
-
 const dropdownOptions = [
 	{ id: 0, title: 'Client ', value: 'client' },
 	{ id: 2, title: 'Meeting', value: 'meeting' },
@@ -61,6 +49,9 @@ let timeoutId = null;
 
 const HomePage = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
+	let {
+		profileInfo: { userDetailsData },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
 		activeTab: searchParams?.get('tab') ?? 'start',
 		showPromptPopup: false,
@@ -76,9 +67,6 @@ const HomePage = () => {
 	});
 
 	const navigate = useNavigate();
-
-	const { title, subTitle, selectedOption } = propsForHeaderInfoAndNavBar?.[info?.activeTab];
-	const showSearchBar = info?.activeTab === 'start';
 
 	useEffect(() => {
 		const homePageContainer = document.querySelector('.home-page-container');
@@ -156,6 +144,24 @@ const HomePage = () => {
 		}));
 		setSearchParams({ tab });
 	};
+
+	const propsForHeaderInfoAndNavBar = useMemo(() => {
+		return {
+			start: {
+				title: `Hey ${userDetailsData?.firstName},`,
+				subTitle: "I'm here to help",
+				selectedOption: 'selectedOptionInStart',
+			},
+			dashboard: {
+				title: 'All Your',
+				subTitle: 'Task Collections',
+				selectedOption: 'selectedOptionInDashboard',
+			},
+		};
+	}, [userDetailsData?.firstName]);
+
+	const { title, subTitle, selectedOption } = propsForHeaderInfoAndNavBar?.[info?.activeTab];
+	const showSearchBar = info?.activeTab === 'start';
 
 	const componentMapper = useMemo(
 		() => ({
