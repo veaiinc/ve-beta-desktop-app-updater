@@ -32,6 +32,7 @@ import ParentTaskComponent from '../../../components/tasks/listView/ParentTaskCo
 import ChildTaskProgress from '../../../components/tasks/listView/ChildTaskProgress';
 import LinkText from '../../../components/tasks/listView/LinkText';
 import { over } from 'lodash';
+import { getGreeting } from '../../../../helpers';
 
 const colors = {
 	1: { backgroundColor: '#62344B', color: '#A35A7E' },
@@ -94,6 +95,7 @@ const TasksTab = () => {
 			addListItem,
 			updateListItem,
 			deleteListItem,
+			addSubTask,
 			removeSubTask,
 			updateSubTask,
 			resetSubTasks,
@@ -103,13 +105,18 @@ const TasksTab = () => {
 			getTaskMetadata,
 		},
 		templates: { getWorkflowsList, workflowslist },
+		companyInfo: {
+			getTeamMembers,
+			tenantsUserList,
+			getTaskPreferences,
+			taskPreference,
+			updateTaskPreferences,
+		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		listItems: [],
-		selectedOption: 'All',
-		isDropdownOpen: false,
 		isOptionsDropDownOpen: false,
 		isCreateModalOpen: false,
 		isCreatingSubtask: true,
@@ -118,6 +125,9 @@ const TasksTab = () => {
 			preferenceType: 'taskPreference',
 			preferences: defaultPreference,
 		},
+		todayTasksList: [],
+		overDueTasksLIst: [],
+		selectedOption: 'All',
 		sidebarIsOpen: false,
 		selectedRow: null,
 		selectedSubTask: null,
@@ -126,6 +136,8 @@ const TasksTab = () => {
 		tenantUsers: [],
 		page: 1,
 		hasMore: false,
+		hasNextPageForTodayTasks: false,
+		hasNextPageForOverDueTasks: false,
 		loadingSkeleton: true,
 		error: null,
 		sort: [],
@@ -134,7 +146,18 @@ const TasksTab = () => {
 		updated: false,
 		infinityLoading: false,
 		view: 'table',
+		gettingTodayTasks: false,
+		gettingOverDueTasks: false,
 	});
+	const getYesterdayEndEpoch = () => {
+		const yesterday = new Date();
+		yesterday.setDate(yesterday.getDate() - 1); // Move to yesterday
+		yesterday.setHours(23, 59, 59, 999); // Set time to 23:59:59
+
+		return Math.floor(yesterday.getTime() / 1000); // Convert to seconds (epoch time)
+	};
+
+	console.log(listTasks); // Example output: 1706409599
 
 	const todayTasks = info?.listItems?.filter((task) => {
 		if (task?.dueDate) {
@@ -211,14 +234,22 @@ const TasksTab = () => {
 				type: 'person',
 				name: 'Assigned To',
 				Icon: PersonSvg,
-				props: { options: info?.tenantUsers, multiSelect: true, parseValue: true },
+				props: {
+					options: info?.tenantUsers || [],
+					multiSelect: true,
+					parseValue: true,
+				},
 			},
 			dueDate: { type: 'date', name: 'Due Date', Icon: ClockSvg, props: {} },
 			assignedBy: {
 				type: 'person',
 				name: 'Assigned By',
 				Icon: PersonSvg,
-				props: { disabled: true, parseValue: true },
+				props: {
+					options: info?.tenantUsers || [],
+					disabled: true,
+					parseValue: true,
+				},
 			},
 			assignedAt: {
 				type: 'date',
@@ -257,6 +288,55 @@ const TasksTab = () => {
 	);
 
 	const debounceTimeout = useRef(null);
+	const filterDebounceTimeout = useRef(null);
+	// Remove page dependency
+
+	useEffect(() => {
+		if (!tenantsUserList) {
+			getTeamMembers();
+		} else {
+			const formattedUsers = tenantsUserList?.map(({ firstName, lastName, _id }) => ({
+				label: `${firstName} ${lastName}`,
+				value: _id,
+			}));
+
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				tenantUsers: formattedUsers,
+			}));
+		}
+	}, [tenantsUserList]);
+
+	useEffect(() => {
+		if (taskPreference === null) {
+			getTaskPreferences({ preferences: 'taskPreference' });
+		} else if (taskPreference?.data === false) {
+			updateTaskPreferences({ preferenceType: 'taskPreference', data: defaultPreference });
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: defaultPreference,
+				},
+			}));
+		} else if (taskPreference?.error) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: defaultPreference,
+				},
+			}));
+		} else {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: taskPreference?.data,
+				},
+			}));
+		}
+	}, [taskPreference]);
 
 	useEffect(() => {
 		if (!workflowslist) {
@@ -283,12 +363,35 @@ const TasksTab = () => {
 			if (listTasks?.data) {
 				setInfo((prevInfo) => ({
 					...prevInfo,
-					listItems: [...prevInfo?.listItems, ...listTasks?.data],
+					listItems:
+						info?.page === 1
+							? listTasks?.data
+							: [...prevInfo?.listItems, ...listTasks?.data],
 					hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
+					loadingSkeleton: false,
+					infinityLoading: false,
 				}));
 			}
 		}
+		if (listTasks?.error) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				loadingSkeleton: false,
+				infinityLoading: false,
+				error: listTasks?.error,
+				hasMore: false,
+			}));
+		}
 	}, [listTasks]);
+
+	useEffect(() => {
+		if (info?.taskPreferences?.preferences) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				properties: mapPropertyType(),
+			}));
+		}
+	}, [info?.taskPreferences?.preferences]);
 
 	useEffect(() => {
 		if (info?.selectedRow) {
@@ -317,14 +420,35 @@ const TasksTab = () => {
 		}
 	}, [refetchTasks]);
 
-	const fetchListItems = useCallback((page = 1) => {
+	const fetchListItems = (page = 1) => {
 		getListItems({
 			taskFilterInput: {
-				limit: 30,
+				limit: 10,
 				page: page,
 			},
 		});
-	}, []);
+	};
+
+	const fetchDueDateTasks = (page = 1) => {
+		getListItems({
+			taskFilterInput: {
+				limit: 20,
+				page: page,
+				// filters: {
+				// 	dueDate: 1738175399,
+				// },
+			},
+		});
+	};
+
+	const fetchTodayTasks = async (page = 1) => {
+		await getListItems({
+			taskFilterInput: {
+				limit: 20,
+				page: page,
+			},
+		});
+	};
 
 	const fetchMoreData = useCallback(() => {
 		if (info.hasMore) {
@@ -336,11 +460,49 @@ const TasksTab = () => {
 				infinityLoading: true,
 			}));
 		}
-	}, [info?.infinityLoading, info?.hasMore, info?.page, fetchListItems]);
+	}, [info.infinityLoading, info.hasMore, info.page, fetchListItems]);
+
+	const fetchMoreDueDateTasks = (page = 1) => {};
 
 	const updateTaskInfo = useCallback((updateData) => {
 		setInfo((previnfo) => ({ ...previnfo, ...updateData }));
 	}, []);
+
+	const mapPropertyType = useCallback(() => {
+		let properties = [];
+		for (let key in responseMetadata) {
+			if (
+				key === '__typename' ||
+				key === '_id' ||
+				key === 'workflowTemplateId' ||
+				key === 'completedAt'
+			) {
+				continue;
+			}
+
+			const {
+				type = null,
+				name = null,
+				Icon = null,
+				isTitle = false,
+			} = responseMetadata[key] || {};
+			const { show, order } = info?.taskPreferences?.preferences?.[key] || {
+				show: false,
+				order: 0,
+			};
+
+			properties.push({
+				value: key,
+				type,
+				label: name,
+				Icon,
+				show,
+				order,
+				isTitle,
+			});
+		}
+		return properties;
+	}, [info?.taskPreferences?.preferences]);
 
 	const debouncedUpdateTask = useCallback(
 		async (rowId, propName, value, originalValue, isUpdatingSubTask, onSuccess) => {
@@ -526,6 +688,51 @@ const TasksTab = () => {
 		],
 	);
 
+	const addNewTask = useCallback(
+		async (payload) => {
+			if (validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			} else {
+				if (info?.isCreatingSubtask) {
+					payload.parentTaskId = info?.selectedRow?._id;
+				}
+				const response = await addListItem({ input: payload });
+
+				if (response) {
+					const task = response?.createTask;
+
+					if (task) {
+						const token = localStorage.getItem('usertoken');
+						const { user_id, userName } = jwtDecode(token);
+
+						const newTask = { ...task };
+						const newWorkflow = info?.workflows?.find(
+							(workflow) => workflow._id === payload?.workflowId,
+						);
+						newTask.workflow = newWorkflow
+							? { _id: newWorkflow._id, title: newWorkflow.label }
+							: null;
+						newTask.workflowId = null;
+						newTask.createdBy = { _id: user_id, name: userName };
+						newTask.updatedBy = { _id: user_id, name: userName };
+						if (info?.isCreatingSubtask) {
+							newTask.parentTask = {
+								title: info?.selectedRow?.title,
+								_id: info?.selectedRow?._id,
+							};
+							addSubTask(newTask);
+						}
+						message.success('Task added successfully');
+						fetchListItems();
+					}
+				} else {
+					throw new Error('Failed to add new task');
+				}
+			}
+		},
+		[info?.workflows, info?.isCreatingSubtask, info?.selectedRow?._id],
+	);
+
 	const deleteTask = useCallback(
 		async (payload) => {
 			if (validateExpiryData?.isExpired) {
@@ -552,13 +759,22 @@ const TasksTab = () => {
 		[info?.selectedSubTask?._id, removeSubTask],
 	);
 
+	const handleAddButtonOnClick = () => {
+		updateTaskInfo({ isCreatingSubtask: false, isCreateModalOpen: true });
+	};
+
+	const handleCloseCreateModal = useCallback(() => {
+		if (info?.isCreatingSubtask) {
+			updateTaskInfo({ sidebarIsOpen: true });
+		}
+		updateTaskInfo({ isCreateModalOpen: false });
+	}, [info?.isCreatingSubtask]);
+
 	const handleRowClick = useCallback(
-		(rowId) => {
-			if (info?.selectedRow?._id !== rowId) {
+		(row) => {
+			if (info?.selectedRow?._id !== row?._id) {
 				resetSubTasks();
 			}
-
-			const row = info?.listItems?.find((row) => row._id === rowId);
 			if (row) {
 				updateTaskInfo({ selectedRow: row, sidebarIsOpen: true });
 			}
@@ -747,7 +963,7 @@ const TasksTab = () => {
 					)}
 			</div>
 			<ListViewSidebar
-				selectedRow={info?.selectedRow}
+				selectedRow={info?.selectedSubTask || info?.selectedRow}
 				isShowingSubTask={
 					info?.selectedSubTask !== undefined && info?.selectedSubTask !== null
 				}
