@@ -10,7 +10,7 @@ import useTokenExpiry from '../hooks/useTokenExpiry';
 import BottomToolbar from '../components/ai_agents/BottomToolbar';
 const SmartFileLayout = ({ title, children, hideQuickNav = false, showBottomToolbar = true }) => {
 	const checkAuth = useAuth();
-	const data = useSubscription();
+	// const data = useSubscription();
 	const tokenData = useTokenExpiry();
 	useEffect(() => {
 		checkAuth();

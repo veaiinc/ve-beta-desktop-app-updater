@@ -95,7 +95,10 @@ const UploadPhotos = () => {
 
 	// drop function
 	const onDropFunction = async (files) => {
-		if (validateExpiryData?.isExpired || !validateExpiryData?.uploadAllowed) {
+		if (
+			validateExpiryData &&
+			(validateExpiryData?.isExpired || !validateExpiryData?.uploadAllowed)
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 

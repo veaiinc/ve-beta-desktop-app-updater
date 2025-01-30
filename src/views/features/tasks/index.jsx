@@ -605,7 +605,7 @@ const Tasks = () => {
 
 	const updatePropertyValue = useCallback(
 		(rowId, propName, value, isUpdatingSubTask, onSuccess) => {
-			if (validateExpiryData?.isExpired) {
+			if (validateExpiryData && validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
 			let originalValue;
