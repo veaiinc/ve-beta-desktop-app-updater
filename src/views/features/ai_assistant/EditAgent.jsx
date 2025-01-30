@@ -54,6 +54,15 @@ const EditAgent = () => {
 		(updateData) => {
 			clearTimeout(info?.timeout);
 			const timeout = setTimeout(() => {
+				// Don't make API call if the final debounced name value is empty
+				if (updateData.name !== undefined && !updateData.name?.trim()) {
+					setInfo((prev) => ({
+						...prev,
+						timeout: null,
+					}));
+					return;
+				}
+
 				if (aiAssistantId) {
 					updateAiAssistant(aiAssistantId, updateData);
 				}
@@ -85,10 +94,11 @@ const EditAgent = () => {
 				},
 			}));
 
-			// Call the debounced update
+			// Always queue the debounced update - the check for empty name
+			// happens in handleDebounceUpdate when the timeout fires
 			handleDebounceUpdate({ [key]: value });
 		},
-		[debouncedUpdateAssistantData],
+		[handleDebounceUpdate],
 	);
 
 	const updateAssistantInfo = useCallback((key, value) => {
