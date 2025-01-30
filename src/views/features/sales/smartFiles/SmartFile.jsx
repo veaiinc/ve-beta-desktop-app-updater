@@ -254,7 +254,7 @@ const SmartFile = () => {
 	);
 
 	const openSendSmartFileModal = useCallback(async () => {
-		if (validateExpiryData?.isExpired) {
+		if (validateExpiryData && validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		if (info?.activeTab === 'form') {
@@ -272,7 +272,7 @@ const SmartFile = () => {
 	}, [info?.sendSmartFileModal]);
 
 	const openSignatureModal = useCallback(async () => {
-		if (validateExpiryData?.isExpired) {
+		if (validateExpiryData && validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		setInfo((prev) => ({ ...prev, signatureModal: true }));

@@ -2943,7 +2943,7 @@ const GalleryPage = () => {
 	// ... existing code ...
 
 	const handleDownload = async () => {
-		if (validateExpiryData?.isExpired) {
+		if (validateExpiryData && validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 

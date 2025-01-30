@@ -591,7 +591,7 @@ const File = ({
 	);
 
 	const duplicateTemplateFromSmartFile = useCallback(async () => {
-		if (validateExpiryData?.isExpired) {
+		if (validateExpiryData && validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		window.location.href = `${origin}/${workflowId}?workflow=true&templateId=${templateId}`;
