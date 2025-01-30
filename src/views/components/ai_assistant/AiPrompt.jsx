@@ -8,7 +8,15 @@ import Context from '../../../context/context';
 
 const AiPrompt = ({ assistant }) => {
 	const {
-		aiSetup: { editAiPrompt, getAiPrompt, aiPrompt },
+		aiSetup: {
+			selectAiPrompt,
+			getDefaultAiPrompt,
+			resetAiPrompt,
+			editAiPrompt,
+			getAiPrompt,
+			aiPrompt,
+			aiDefaultPrompt,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -26,6 +34,7 @@ const AiPrompt = ({ assistant }) => {
 
 	useEffect(() => {
 		getAiPrompt(assistant?._id);
+		getDefaultAiPrompt(assistant?._id);
 	}, [assistant]);
 
 	useEffect(() => {
@@ -34,13 +43,25 @@ const AiPrompt = ({ assistant }) => {
 			setInfo((prev) => ({
 				...prev,
 				systemPrompt: promptToShow,
-				systemPromptOptions: aiPrompt?.label ? [aiPrompt?.label] : [],
 				selectedSystemPrompt: aiPrompt?.label || '',
 			}));
 		}
 	}, [aiPrompt]);
 
-	// console.log('assistant data in prompt page==>', aiPrompt)
+	useEffect(() => {
+		if (aiDefaultPrompt && Array?.isArray(aiDefaultPrompt)) {
+			setInfo((prev) => ({
+				...prev,
+				systemPromptOptions: [
+					...prev.systemPromptOptions,
+					...aiDefaultPrompt?.map((prompt) => ({
+						label: prompt?.label,
+						id: prompt?._id,
+					})),
+				],
+			}));
+		}
+	}, [aiDefaultPrompt]);
 
 	useEffect(() => {
 		if (info?.systemPrompt !== undefined) {
@@ -64,7 +85,7 @@ const AiPrompt = ({ assistant }) => {
 		setInfo((prev) => ({ ...prev, timeout }));
 	}, [info?.editedPrompt, assistant?._id, aiPrompt?.promptId, editAiPrompt]);
 
-	console.log('aiPrompt data in prompt page==>', aiPrompt);
+	// console.log('aiPrompt data in prompt page==>', aiPrompt);
 
 	const handleModelDropdownVisibility = useCallback((visible) => {
 		setInfo((prev) => ({ ...prev, isSelectModelOpen: visible }));
@@ -78,21 +99,33 @@ const AiPrompt = ({ assistant }) => {
 		setInfo((prev) => ({ ...prev, selectedModel: value, isSelectModelOpen: false }));
 	}, []);
 
-	const handleSystemPromptChange = useCallback((value) => {
-		setInfo((prev) => ({
-			...prev,
-			selectedSystemPrompt: value,
-			isSelectSystemPromptOpen: false,
-		}));
-	}, []);
+	const handleSystemPromptChange = useCallback(
+		(option) => {
+			setInfo((prev) => ({
+				...prev,
+				selectedSystemPrompt: option.label,
+				systemPrompt: option.prompt || '',
+				isSelectSystemPromptOpen: false,
+			}));
+			if (assistant?._id && option.id) {
+				selectAiPrompt(assistant?._id, option.id);
+			}
+		},
+		[assistant, selectAiPrompt],
+	);
 
 	const handlePromptChange = useCallback((value) => {
 		setInfo((prev) => ({
 			...prev,
 			systemPrompt: value,
 			editedPrompt: value,
+			selectedSystemPrompt: 'custom',
 		}));
 	}, []);
+
+	const handleResetPrompt = useCallback(() => {
+		resetAiPrompt(assistant?._id);
+	}, [assistant]);
 
 	return (
 		<div className="aiPromptParentContainer">
@@ -148,11 +181,11 @@ const AiPrompt = ({ assistant }) => {
 							<div className="modelDropdown">
 								{info?.systemPromptOptions?.map((option) => (
 									<div
-										key={option}
+										key={option?.id}
 										className="modelListItem"
 										onClick={() => handleSystemPromptChange(option)}
 									>
-										{option}
+										{option?.label}
 									</div>
 								))}
 							</div>
@@ -179,8 +212,8 @@ const AiPrompt = ({ assistant }) => {
 					autoResize={true}
 				/>
 
-				<div className="resetPromptContainer">
-					<span>Reset</span>
+				<div className="resetPromptContainer" onClick={handleResetPrompt}>
+					<span onClick={handleResetPrompt}>Reset</span>
 				</div>
 			</div>
 		</div>

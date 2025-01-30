@@ -49,6 +49,18 @@ const actionHandlers = {
 		...state,
 		aiPrompt: action?.payload,
 	}),
+	SELECT_AI_PROMPT: (state, action) => ({
+		...state,
+		aiPrompt: action?.payload,
+	}),
+	GET_DEFAULT_AI_PROMPT: (state, action) => ({
+		...state,
+		aiDefaultPrompt: action?.payload,
+	}),
+	RESET_AI_PROMPT: (state, action) => ({
+		...state,
+		aiPrompt: action?.payload,
+	}),
 
 	RESET_STATE: () => initialState,
 };
