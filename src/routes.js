@@ -311,7 +311,7 @@ const routes = [
 	{
 		path: '/ai-assistant',
 		component: (
-			<AuthWrapper title={'AI Assistant'}>
+			<AuthWrapper title={'AI Assistant'} showBottomToolbar={false}>
 				<AiAssistants />
 			</AuthWrapper>
 		),
@@ -320,7 +320,7 @@ const routes = [
 	{
 		path: '/ai-assistant/:aiAssistantId',
 		component: (
-			<AuthWrapper title={'AI Assistant'}>
+			<AuthWrapper title={'AI Assistant'} showBottomToolbar={false}>
 				<AgentDetails />
 			</AuthWrapper>
 		),
@@ -330,7 +330,7 @@ const routes = [
 		// path: '/ai-assistant/create-assistant',
 		path: '/ai-assistant/:aiAssistantId/edit',
 		component: (
-			<AuthWrapper title={'AI Assistant'}>
+			<AuthWrapper title={'AI Assistant'} showBottomToolbar={false}>
 				<EditAgent />
 			</AuthWrapper>
 		),
