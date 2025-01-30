@@ -36,14 +36,6 @@ const AiInstructions = ({ assistant }) => {
 				...prev,
 				instructionData: aiInstructions || [],
 				instructionDataLoading: false,
-			}));
-		}
-	}, [aiInstructions]);
-
-	useEffect(() => {
-		if (aiInstructions) {
-			setInfo((prev) => ({
-				...prev,
 				instructionBody: {
 					title: '',
 					instruction: '',
@@ -95,7 +87,14 @@ const AiInstructions = ({ assistant }) => {
 	);
 
 	const toggleInstructionModal = () => {
-		setInfo((prev) => ({ ...prev, isInstructionModalOpen: !prev.isInstructionModalOpen }));
+		setInfo((prev) => ({
+			...prev,
+			isInstructionModalOpen: !prev.isInstructionModalOpen,
+			instructionBody: {
+				title: '',
+				instruction: '',
+			},
+		}));
 	};
 
 	const createNewInstruction = useCallback(() => {
@@ -114,7 +113,7 @@ const AiInstructions = ({ assistant }) => {
 	}, []);
 
 	return (
-		<>
+		<div style={{ width: '100%' }}>
 			<div className="aiInstructionsParentContainer">
 				<div className="instructionsHeaderContainer">
 					<div className="instructionsHeader">
@@ -172,7 +171,7 @@ const AiInstructions = ({ assistant }) => {
 				onActionClick={createNewInstruction}
 				isActionbtnLoading={info?.updatingInstruction}
 			/>
-		</>
+		</div>
 	);
 };
 

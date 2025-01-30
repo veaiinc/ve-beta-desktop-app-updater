@@ -1,9 +1,8 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/EditAgent.scss';
 import '../../../assets/scss/ai_assistant/createAgentHeader.scss';
-// import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
 import TabHeader from '../../components/ai_assistant/TabHeader';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
 import { ReactComponent as BackSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as Delete } from '../../../assets/svg/ai_assistant/delete.svg';
@@ -23,7 +22,6 @@ const EditAgent = () => {
 	} = useContext(Context);
 
 	const navigate = useNavigate();
-	const { assistant } = useLocation()?.state || {};
 	const { aiAssistantId } = useParams();
 
 	const [info, setInfo] = useState({
@@ -94,8 +92,7 @@ const EditAgent = () => {
 				},
 			}));
 
-			// Always queue the debounced update - the check for empty name
-			// happens in handleDebounceUpdate when the timeout fires
+			// Always queue the debounced update - check for empty name
 			handleDebounceUpdate({ [key]: value });
 		},
 		[handleDebounceUpdate],
@@ -108,18 +105,17 @@ const EditAgent = () => {
 		}));
 	}, []);
 
-	const onTabChange = useCallback((tab) => {
-		setInfo((prev) => ({ ...prev, activeTab: tab }));
-	}, []);
-	const onActionClick = useCallback(() => {
-		console.log('Action Clicked');
-	}, []);
+	const onTabChange = useCallback(
+		(tab) => {
+			if (tab !== info?.activeTab) {
+				setInfo((prev) => ({ ...prev, activeTab: tab }));
+			}
+		},
+		[info?.activeTab],
+	);
 
 	const onDeleteClick = useCallback(() => {
 		setInfo((prev) => ({ ...prev, deleteAgentModal: true }));
-	}, []);
-	const handleDeleteAgent = useCallback(() => {
-		console.log('Delete Agent Clicked');
 	}, []);
 
 	const tabs = {
@@ -168,7 +164,7 @@ const EditAgent = () => {
 	};
 
 	return (
-		<>
+		<div style={{ width: '100%', paddingRight: 10 }}>
 			<div className="create-agent">
 				<div style={{ flexShrink: 0 }}>
 					<div className="create-agent-header">
@@ -197,10 +193,7 @@ const EditAgent = () => {
 										<div className="create-agent-header-right-status-icon" />
 										{info?.selectedAgent?.status}
 									</span>
-									<button
-										className={`create-agent-header-right-button`}
-										onClick={onActionClick}
-									>
+									<button className={`create-agent-header-right-button`}>
 										Publish
 									</button>
 								</>
@@ -230,15 +223,13 @@ const EditAgent = () => {
 				open={info?.deleteAgentModal}
 				closeModal={() => setInfo((prev) => ({ ...prev, deleteAgentModal: false }))}
 				deleteChatBot={() => {
-					console.log('Delete Chat Bot Clicked');
 					navigate(-1);
 				}}
 				deleteConversations={() => {
-					console.log('Delete Conversations Clicked');
 					navigate(-1);
 				}}
 			/>
-		</>
+		</div>
 	);
 };
 

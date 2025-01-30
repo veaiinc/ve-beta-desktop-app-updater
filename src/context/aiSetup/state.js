@@ -451,7 +451,6 @@ export const AiSetupState = () => {
 
 		try {
 			const response = await service?.fetchPost(url, data, usertoken, 'ai_assistant_api');
-			console.log('response==>createInstruction', response?.[1]);
 			if (response?.[0]) {
 				dispatch({
 					type: Actions?.SET_AI_INSTRUCTION,

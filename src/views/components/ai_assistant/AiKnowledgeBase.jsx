@@ -100,7 +100,7 @@ const AiKnowledgeBase = ({ assistant }) => {
 	};
 
 	return (
-		<>
+		<div style={{ width: '100%' }}>
 			<div className="aiKnowledgeBaseParentContainer">
 				<div className="knowledgeBaseHeaderContainer">
 					<div className="knowledgeBaseHeader">
@@ -176,7 +176,7 @@ const AiKnowledgeBase = ({ assistant }) => {
 					setInfo((prev) => ({ ...prev, knowledgeModalOpen: false }));
 				}}
 			/>
-		</>
+		</div>
 	);
 };
 
