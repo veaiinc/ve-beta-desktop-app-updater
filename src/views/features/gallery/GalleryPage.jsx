@@ -5055,6 +5055,7 @@ const GalleryPage = () => {
 								uploadGalleryCoverChangeHandler={uploadGalleryCoverChangeHandler}
 								handleSetCoverPosition={handleSetCoverPosition}
 								message={message}
+								showUploadPhoto={info?.selectedImages.length > 0}
 							/>
 
 							<DeleteGalleryComponent
@@ -5139,6 +5140,7 @@ const GalleryPage = () => {
 				imageURL={info.imageURL}
 				isLoading={info.isLoadingCover}
 				open={info.showUploadCover}
+				showUploadPhoto={info?.selectedImages.length > 0}
 				onClose={() => setInfo((prev) => ({ ...prev, showUploadCover: false }))}
 				style={{ position: 'absolute', top: '60%', left: '0', right: '0', bottom: '0' }}
 			/>
