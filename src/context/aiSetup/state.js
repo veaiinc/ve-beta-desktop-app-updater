@@ -187,7 +187,7 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const getAiAssistants = async (page = 1, limit = 10, fetchMore = false) => {
+	const getAiAssistants = async (page = 1, limit = 20, fetchMore = false) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		const url = `/${workspaceId}${AI_PERSONALITY?.listAiAssistants}?page=${page}&limit=${limit}`;
