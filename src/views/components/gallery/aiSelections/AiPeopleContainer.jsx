@@ -19,7 +19,6 @@ const AiPeopleContainer = ({ galleryId, galleryCredentials, handleFaceClick }) =
 			...prev,
 			hasNextPage: aiFace?.hasNextPage,
 		}));
-		console.log('aiFace', aiFace);
 	}, [aiFace]);
 
 	// const fetchMoreFaces = () => {
