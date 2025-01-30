@@ -6,7 +6,6 @@ const ListViewRow = ({
 	rowTypes,
 	handleUpdate,
 	handleRowClick,
-	isSubTask = false,
 	responseMetadata,
 	colors,
 }) => {
@@ -52,8 +51,7 @@ const ListViewRow = ({
 					key === '_id' ||
 					key === 'parentTaskId' ||
 					key === 'workflowTemplateId' ||
-					key === 'completedAt' ||
-					(isSubTask && key === 'workflow')
+					key === 'completedAt'
 				) {
 					return;
 				}
@@ -63,7 +61,7 @@ const ListViewRow = ({
 						key={key}
 						value={value}
 						title={name}
-						onOptionClick={(value) => handleUpdate(task?._id, key, value, isSubTask)}
+						onOptionClick={(value) => handleUpdate(task?._id, key, value)}
 						{...props}
 						colors={colors}
 						showTitle={true}
@@ -87,12 +85,12 @@ const ListViewRow = ({
 				</div>,
 			];
 		},
-		[properties, responseMetadata, rowTypes, isSubTask, colors, handleUpdate, task?._id],
+		[properties, responseMetadata, rowTypes, colors, handleUpdate, task?._id],
 	);
 
 	return (
 		<div
-			className={`listItemRowContainer ${isSubTask ? 'subTaskRowContainer' : ''}`}
+			className={`listItemRowContainer`}
 			onClick={() => {
 				handleRowClick(task);
 			}}
