@@ -32,7 +32,7 @@ const EditAgent = () => {
 		publishAgent: false,
 		deleteAgentModal: false,
 		assistantData: assistant,
-		assistantName: assistant?.name,
+		assistantName: activeAiAssistantDetails?.name || assistant?.name,
 		timeout: null,
 	});
 
