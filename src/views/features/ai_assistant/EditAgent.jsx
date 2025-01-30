@@ -31,8 +31,7 @@ const EditAgent = () => {
 		selectedAgent: null,
 		publishAgent: false,
 		deleteAgentModal: false,
-		assistantData: assistant,
-		assistantName: assistant?.name,
+		assistantData: null,
 		timeout: null,
 	});
 
@@ -44,29 +43,53 @@ const EditAgent = () => {
 
 	useEffect(() => {
 		if (activeAiAssistantDetails) {
-			setInfo((prev) => ({ ...prev, assistantData: activeAiAssistantDetails }));
+			setInfo((prev) => ({
+				...prev,
+				assistantData: activeAiAssistantDetails,
+			}));
 		}
 	}, [activeAiAssistantDetails]);
 
-	useEffect(() => {
-		if (info?.assistantName !== info?.assistantData?.name) {
-			handleDebounceUpdate();
-		}
-	}, [info?.assistantName]);
+	const handleDebounceUpdate = useCallback(
+		(updateData) => {
+			clearTimeout(info?.timeout);
+			const timeout = setTimeout(() => {
+				if (aiAssistantId) {
+					updateAiAssistant(aiAssistantId, updateData);
+				}
+				setInfo((prev) => ({
+					...prev,
+					timeout: null,
+				}));
+			}, 800);
+			setInfo((prev) => ({ ...prev, timeout }));
+		},
+		[info?.timeout, aiAssistantId, updateAiAssistant],
+	);
 
-	const handleDebounceUpdate = useCallback(() => {
-		clearTimeout(info?.timeout);
-		const timeout = setTimeout(() => {
-			if (info?.assistantName && aiAssistantId) {
-				updateAiAssistant(aiAssistantId, { name: info?.assistantName });
-			}
-			setInfo((prev) => ({
-				...prev,
-				timeout: null,
+	const debouncedUpdateAssistantData = useCallback(
+		(key, value) => {
+			handleDebounceUpdate({ [key]: value });
+		},
+		[handleDebounceUpdate],
+	);
+
+	const updateAssistantData = useCallback(
+		(key, value) => {
+			// Update local state immediately
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				assistantData: {
+					...prevInfo?.assistantData,
+					[key]: value,
+				},
 			}));
-		}, 800);
-		setInfo((prev) => ({ ...prev, timeout }));
-	}, [info?.timeout, info?.assistantName, aiAssistantId, updateAiAssistant]);
+
+			// Call the debounced update
+			handleDebounceUpdate({ [key]: value });
+		},
+		[debouncedUpdateAssistantData],
+	);
 
 	const updateAssistantInfo = useCallback((key, value) => {
 		setInfo((prevInfo) => ({
@@ -97,6 +120,8 @@ const EditAgent = () => {
 				<AiPersonality
 					assistant={info?.assistantData}
 					updateAssistantInfo={updateAssistantInfo}
+					updateAssistantData={updateAssistantData}
+					debouncedUpdateAssistantData={debouncedUpdateAssistantData}
 				/>
 			),
 		},

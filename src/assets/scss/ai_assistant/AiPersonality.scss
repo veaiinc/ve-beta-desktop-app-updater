@@ -73,6 +73,100 @@
 		}
 	}
 
+	.aiPersonalityContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 14px;
+		align-self: stretch;
+
+		.aiPersonalityHeader {
+			display: flex;
+			width: 100%;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			gap: 4px;
+		}
+
+		.aiPersonalityInput {
+			margin-top: 10px;
+			display: flex;
+			height: 100px;
+			padding: 12px 18px;
+			align-items: flex-start;
+			gap: 10px;
+			align-self: stretch;
+			border-radius: 12px;
+			border: 1px solid #2c2d2e;
+			background-color: transparent;
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			resize: none;
+		}
+	}
+
+	.aiResponseToneContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 14px;
+		align-self: stretch;
+
+		.aiResponseToneHeader {
+			display: flex;
+			width: 100%;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			gap: 4px;
+		}
+
+		.aiResponseToneWrapper {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 14px;
+			align-self: stretch;
+
+			.aiResponseToneItem {
+				display: flex;
+				align-items: flex-start;
+				gap: 14px;
+
+				.aiResponseToneItemOption {
+					display: flex;
+					width: 150px;
+					padding: 12px 18px;
+					justify-content: center;
+					align-items: center;
+					border-radius: 12px;
+					border: 1px solid #2c2d2e;
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					cursor: pointer;
+					transition: background-color 0.2s ease;
+
+					input {
+						display: none;
+					}
+
+					&:has(input:checked) {
+						background-color: #2c2e30;
+					}
+				}
+			}
+		}
+	}
+
 	.aiProfileContainer {
 		display: flex;
 		flex-direction: column;
@@ -288,6 +382,24 @@
 			}
 		}
 	}
+
+	.lineone {
+		color: #f2f2f3;
+		font-family: Inter;
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	.linetwo {
+		color: #797e86;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+	}
 }
 
 .headerWrapper {
@@ -340,7 +452,7 @@
 	padding: 4px;
 	gap: 4px;
 	border-radius: 8px;
-	background-color: #26282A;
+	background-color: #26282a;
 	.voiceListItem {
 		width: 100%;
 		padding: 4px 15px;

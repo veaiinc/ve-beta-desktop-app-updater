@@ -7,6 +7,42 @@ import { ReactComponent as UploadIcon } from '../../../assets/svg/ai_assistant/u
 import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.svg';
 import CustomInput from '../globalComponents/CustomInput';
 import { Tooltip } from 'antd';
+import CustomTextArea from '../globalComponents/CustomTextArea';
+
+const personas = [
+	{
+		option1: 'Formal',
+		option2: 'Friendly',
+	},
+	{
+		option1: 'Concise',
+		option2: 'Detailed',
+	},
+	{
+		option1: 'Professional',
+		option2: 'Casual',
+	},
+	{
+		option1: 'Optimistic',
+		option2: 'Natural',
+	},
+	{
+		option1: 'Straightforward',
+		option2: 'Humorous',
+	},
+	{
+		option1: 'Empathetic',
+		option2: 'Objective',
+	},
+	{
+		option1: 'Enthusiastic',
+		option2: 'Reserved',
+	},
+	{
+		option1: 'Simplistic',
+		option2: 'Sophisticated',
+	},
+];
 
 const ProgressCircle = ({ color, isActive }) => (
 	<div className="circle">
@@ -41,14 +77,15 @@ const ProgressCircles = () => (
 	</div>
 );
 
-const AiPersonality = ({ assistant, updateAssistantInfo }) => {
+const AiPersonality = ({ assistant, updateAssistantData }) => {
 	const [info, setInfo] = useState({
 		voiceOptions: [],
 		selectedVoice: 'Kierra',
 		voiceListLoading: false,
 		isSelectVoiceOpen: false,
-		assistantData: assistant,
 		assistantName: assistant?.name,
+		assistantResponseTone: assistant?.responseTone,
+		assistantPersonality: assistant?.personality,
 	});
 
 	const options = ['Kierra', 'Alex', 'Sam', 'Jordan'];
@@ -60,10 +97,12 @@ const AiPersonality = ({ assistant, updateAssistantInfo }) => {
 		}));
 	}, []);
 
-	const handleAssistantNameChange = useCallback((name) => {
-		updateAiPersonalityInfo('assistantName', name);
-		updateAssistantInfo('assistantName', name);
-	}, []);
+	const handleAssistantNameChange = useCallback(
+		(name) => {
+			updateAssistantData('name', name);
+		},
+		[updateAssistantData],
+	);
 
 	const handleMoreVisibility = useCallback((visible) => {
 		setInfo((prev) => ({ ...prev, isSelectVoiceOpen: visible }));
@@ -73,6 +112,22 @@ const AiPersonality = ({ assistant, updateAssistantInfo }) => {
 		updateAiPersonalityInfo('selectedVoice', value);
 		handleMoreVisibility(false);
 	}, []);
+
+	const handleResponseToneChange = useCallback(
+		(index, value) => {
+			const newResponseTone = [...(assistant?.responseTone || [])];
+			newResponseTone[index] = value;
+			updateAssistantData('responseTone', newResponseTone);
+		},
+		[assistant?.responseTone, updateAssistantData],
+	);
+
+	const handlePersonalityChange = useCallback(
+		(e) => {
+			updateAssistantData('personality', e.target.value);
+		},
+		[updateAssistantData],
+	);
 
 	return (
 		<div className="personalityParentContainer">
@@ -86,11 +141,10 @@ const AiPersonality = ({ assistant, updateAssistantInfo }) => {
 					placeholder="Assistant Name"
 					className="aiNameInput"
 					label="Assistant Name"
-					value={info?.assistantName}
+					value={assistant?.name}
 					onChange={(e) => handleAssistantNameChange(e.target.value)}
 				/>
 			</div>
-
 			<div className="voiceContainer">
 				<div className="headerWrapper">
 					<span className="lineone">Assistant Voice</span>
@@ -133,6 +187,73 @@ const AiPersonality = ({ assistant, updateAssistantInfo }) => {
 				</div>
 			</div>
 
+			<div className="aiPersonalityContainer">
+				<div className="aiPersonalityHeader">
+					<span className="lineone">Personality</span>
+					<span className="linetwo">User will see this as Assistant personality</span>
+				</div>
+				<textarea
+					className="aiPersonalityInput"
+					value={assistant?.personality}
+					onChange={handlePersonalityChange}
+				/>
+			</div>
+
+			<div className="aiResponseToneContainer">
+				<div className="aiResponseToneHeader">
+					<span className="lineone">Response Tone</span>
+					<span className="linetwo">User will see this as Assistant response tone</span>
+				</div>
+				<div className="aiResponseToneWrapper">
+					{personas?.map((persona, index) => (
+						<div className="aiResponseToneItem" key={index}>
+							<label
+								className="aiResponseToneItemOption"
+								htmlFor={`aiResponseTone-${persona?.option1}`}
+							>
+								<input
+									type="radio"
+									name={index}
+									id={`aiResponseTone-${persona?.option1}`}
+									checked={
+										assistant?.responseTone?.[index] ===
+										persona?.option1.toLowerCase()
+									}
+									onChange={() =>
+										handleResponseToneChange(
+											index,
+											persona?.option1.toLowerCase(),
+										)
+									}
+								/>
+								{persona?.option1}
+							</label>
+							<label
+								className="aiResponseToneItemOption"
+								htmlFor={`aiResponseTone-${persona?.option2}`}
+							>
+								<input
+									type="radio"
+									name={index}
+									id={`aiResponseTone-${persona?.option2}`}
+									checked={
+										assistant?.responseTone?.[index] ===
+										persona?.option2.toLowerCase()
+									}
+									onChange={() =>
+										handleResponseToneChange(
+											index,
+											persona?.option2.toLowerCase(),
+										)
+									}
+								/>
+								{persona?.option2}
+							</label>
+						</div>
+					))}
+				</div>
+			</div>
+
 			<div className="aiProfileContainer">
 				<div className="aiProfileHeader">
 					<span className="lineone">Profile Picture</span>
@@ -155,7 +276,6 @@ const AiPersonality = ({ assistant, updateAssistantInfo }) => {
 					</div>
 				</div>
 			</div>
-
 			<div className="colorThemeContainer">
 				<div className="colorThemeHeader">
 					<span className="lineone">Color Theme</span>
@@ -167,7 +287,6 @@ const AiPersonality = ({ assistant, updateAssistantInfo }) => {
 					<ProgressCircles />
 				</div>
 			</div>
-
 			<div className="initialMessageContainer">
 				<div className="initialMessageHeader">
 					<span className="lineone">Initial Message</span>
@@ -179,7 +298,6 @@ const AiPersonality = ({ assistant, updateAssistantInfo }) => {
 					label="Initial Message"
 				/>
 			</div>
-
 			<div className="userMessageContainer">
 				<div className="userMessageHeader">
 					<span className="lineone">User Message</span>
