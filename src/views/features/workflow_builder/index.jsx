@@ -82,7 +82,6 @@ const WorkflowBuilder = () => {
 			stepsData?.push({
 				module: 'preview',
 				_id: steps?.[0]?._id,
-				parsedHtmlContent: incomingData?.templates?.[0]?.parsedHtmlContent,
 			});
 			steps.shift();
 			stepsData = [...stepsData, ...steps];
@@ -145,7 +144,6 @@ const WorkflowBuilder = () => {
 			updatedData?.splice(1, 0, {
 				module: 'preview',
 				_id: updatedData?.[0]?._id,
-				parsedHtmlContent: info?.incomingTemplateData?.templates?.[0]?.parsedHtmlContent,
 			});
 			updatedData?.push({ module: 'theEnd' });
 			setInfo((prev) => ({ ...prev, data: updatedData }));

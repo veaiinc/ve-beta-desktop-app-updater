@@ -316,6 +316,7 @@ export const taskMetadataQuery = gql`
 				color
 				isDefault
 			}
+			prefix
 			createdAt
 			updatedAt
 		}

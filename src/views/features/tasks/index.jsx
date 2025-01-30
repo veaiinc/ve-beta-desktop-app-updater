@@ -32,6 +32,7 @@ import TaskId from '../../components/tasks/listView/TaskId';
 import ParentTaskComponent from '../../components/tasks/listView/ParentTaskComponent';
 import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
 import LinkText from '../../components/tasks/listView/LinkText';
+import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -134,6 +135,8 @@ const Tasks = () => {
 		updated: false,
 		infinityLoading: false,
 		view: 'table',
+		breadCrumbs: [],
+		timeout: null,
 	});
 
 	const responseMetadata = useMemo(
@@ -241,58 +244,19 @@ const Tasks = () => {
 				Icon: PersonSvg,
 				props: { options: info?.tenantUsers, disabled: true, parseValue: true },
 			},
-			taskSlNo: { type: 'id', name: 'Id', Icon: textSvg, props: {} },
+			taskSlNo: {
+				type: 'id',
+				name: 'Id',
+				Icon: textSvg,
+				props: { prefix: info?.taskMetadata?.prefix },
+			},
 		}),
 		[info?.workflows, info?.tenantUsers, info?.taskMetadata],
 	);
 
-	const debounceTimeout = useRef(null);
-	const filterDebounceTimeout = useRef(null);
-
 	useEffect(() => {
-		if (filterDebounceTimeout.current) {
-			clearTimeout(filterDebounceTimeout.current);
-		}
-
-		// Always fetch when filters or search change
-		if (info?.filters || info?.searchValue) {
-			filterDebounceTimeout.current = setTimeout(() => {
-				setInfo((prev) => ({
-					...prev,
-					page: 1,
-					loadingSkeleton: true,
-					listItems: [], // Clear existing items
-				}));
-				fetchListItems(1);
-			}, 800);
-		} else {
-			// Initial load or when filters are cleared
-			setInfo((prev) => ({
-				...prev,
-				page: 1,
-				loadingSkeleton: true,
-				listItems: [], // Clear existing items
-			}));
-			fetchListItems(1);
-		}
-
-		return () => {
-			if (filterDebounceTimeout.current) {
-				clearTimeout(filterDebounceTimeout.current);
-			}
-		};
-	}, [info?.filters, info?.searchValue]); // Remove page dependency
-
-	useEffect(() => {
-		if (info?.sort?.length > 0) {
-			setInfo((prev) => ({
-				...prev,
-				page: 1,
-				loadingSkeleton: true,
-			}));
-			fetchListItems(1);
-		}
-	}, [info?.sort]);
+		handleDebounceFetch();
+	}, [info?.filters, info?.searchValue, info?.sort]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -417,7 +381,6 @@ const Tasks = () => {
 
 	useEffect(() => {
 		if (refetchTasks) {
-			//call refetchTasks function here
 			fetchListItems();
 			updateTaskState({ refetchTasks: false });
 		}
@@ -438,6 +401,18 @@ const Tasks = () => {
 		},
 		[info?.sort, info?.filters, info?.searchValue],
 	);
+	const handleDebounceFetch = useCallback(() => {
+		clearInterval(info?.timeout);
+		const timeout = setTimeout(() => {
+			fetchListItems(1);
+			setInfo((prev) => ({
+				...prev,
+				loading: true,
+				timeout: null,
+			}));
+		}, 800);
+		setInfo((prev) => ({ ...prev, timeout }));
+	}, [info?.timeout, fetchListItems]);
 
 	const fetchMoreData = useCallback(() => {
 		if (info.hasMore) {
@@ -614,15 +589,18 @@ const Tasks = () => {
 
 	const handleDebounceUpdate = useCallback(
 		(rowId, propName, value, originalValue, isSubTask, onSuccess) => {
-			if (debounceTimeout.current) {
-				clearTimeout(debounceTimeout.current);
-			}
-
-			debounceTimeout.current = setTimeout(() => {
+			clearInterval(info?.timeout);
+			const timeout = setTimeout(() => {
 				debouncedUpdateTask(rowId, propName, value, originalValue, isSubTask, onSuccess);
+				setInfo((prev) => ({
+					...prev,
+					loading: true,
+					timeout: null,
+				}));
 			}, 800);
+			setInfo((prev) => ({ ...prev, timeout }));
 		},
-		[debouncedUpdateTask],
+		[debouncedUpdateTask, info?.timeout],
 	);
 
 	const updatePropertyValue = useCallback(
@@ -773,7 +751,7 @@ const Tasks = () => {
 				resetSubTasks();
 			}
 			if (row) {
-				updateTaskInfo({ selectedRow: row, sidebarIsOpen: true });
+				updateTaskInfo({ selectedRow: row, sidebarIsOpen: true, breadCrumbs: [] });
 			}
 		},
 		[info?.listItems, resetSubTasks, info?.selectedRow?._id],
@@ -783,9 +761,30 @@ const Tasks = () => {
 		updateTaskInfo({ sidebarIsOpen: false, isCreatingSubtask: true, isCreateModalOpen: true });
 	}, []);
 
-	const handleSubTaskClick = useCallback((task) => {
-		updateTaskInfo({ selectedSubTask: task });
-	}, []);
+	const handleSubTaskClick = useCallback(
+		(task) => {
+			const breadCrumbs = [
+				...info?.breadCrumbs,
+				{
+					label:
+						`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
+						info?.selectedRow?.taskSlNo,
+					data: info?.selectedRow,
+				},
+			];
+			updateTaskInfo({ selectedRow: task, breadCrumbs });
+		},
+		[info?.selectedRow, info?.breadCrumbs],
+	);
+
+	const handleBreadCrumbsClick = useCallback(
+		(breadCrumb, index) => {
+			const breadCrumbs = [...info?.breadCrumbs];
+			const newBreadCrumbs = [...breadCrumbs].slice(0, index);
+			updateTaskInfo({ breadCrumbs: newBreadCrumbs, selectedRow: breadCrumb?.data });
+		},
+		[info?.breadCrumbs],
+	);
 
 	const handleCloseSidebar = useCallback(() => {
 		if (info?.updated) {
@@ -795,10 +794,6 @@ const Tasks = () => {
 		}
 		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
 	}, [info?.updated]);
-
-	const handleChildTaskClose = useCallback(() => {
-		updateTaskInfo({ selectedSubTask: null });
-	}, []);
 
 	return (
 		<>
@@ -821,6 +816,7 @@ const Tasks = () => {
 				fetchMoreData={fetchMoreData}
 				blockTitle={'Tasks'}
 				createButtonText={'Create Task'}
+				prefix={info?.taskMetadata?.prefix}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
@@ -837,27 +833,41 @@ const Tasks = () => {
 				error={info?.error}
 			/>
 			<ListViewSidebar
-				selectedRow={info?.selectedSubTask || info?.selectedRow}
-				isShowingSubTask={
-					info?.selectedSubTask !== undefined && info?.selectedSubTask !== null
-				}
-				parentTaskNo={info?.selectedRow?.taskSlNo}
-				handleChildTaskClose={handleChildTaskClose}
-				handleSubTaskClick={handleSubTaskClick}
+				selectedRow={info?.selectedRow}
 				sidebarIsOpen={info?.sidebarIsOpen}
 				closeSidebar={handleCloseSidebar}
 				handleUpdate={updatePropertyValue}
 				deleteTask={deleteTask}
 				rowTypes={rowTypes}
-				handleCreateSubTaskClick={handleCreateSubTaskClick}
 				responseMetadata={responseMetadata}
-				haveSubTask={false}
 				properties={info?.properties}
 				colors={colors}
 				toggleSidebarExpand={() =>
 					updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
 				}
 				isSidebarExpanded={info?.isSidebarExpanded}
+				headerText={
+					`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
+					info?.selectedRow?.taskSlNo
+				}
+				breadCrumbs={info?.breadCrumbs}
+				handleBreadCrumbsClick={handleBreadCrumbsClick}
+				sidebarChildren={
+					info?.selectedRow ? (
+						<ChildTaskComponent
+							parentTaskId={info?.selectedRow?._id}
+							childTasks={info?.selectedRow?.childTasks}
+							completedStatus={info?.taskMetadata?.completedGroupLabels}
+							rowTypes={rowTypes}
+							responseMetadata={responseMetadata}
+							colors={colors}
+							properties={info?.properties}
+							onAddButtonClick={handleCreateSubTaskClick}
+							handleUpdate={(...args) => updatePropertyValue(...args, true)}
+							handleRowClick={handleSubTaskClick}
+						/>
+					) : null
+				}
 			/>
 		</>
 	);

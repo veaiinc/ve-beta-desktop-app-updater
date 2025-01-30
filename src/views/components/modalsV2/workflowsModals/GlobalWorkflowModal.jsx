@@ -112,7 +112,6 @@ const AutomationComponent = ({ activeTemplateData, loading }) => {
 			stepsData?.push({
 				module: 'preview',
 				_id: steps?.[0]?._id,
-				parsedHtmlContent: activeTemplateData?.templates?.[0]?.parsedHtmlContent,
 			});
 			steps.shift();
 			stepsData = stepsData?.concat(steps);
@@ -185,17 +184,6 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 			}));
 		}
 	}, [specificTemplatesInfo]);
-
-	useEffect(() => {
-		if (info?.activeTemplateData) {
-			const { templates } = info?.activeTemplateData || {};
-			let obj = {};
-			for (let i = 0; i < templates?.length; i++) {
-				obj[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
-			}
-			setInfo((prev) => ({ ...prev, templatesMapper: obj }));
-		}
-	}, [info?.activeTemplateData]);
 
 	//function defination
 	const changeActiveTab = useCallback(

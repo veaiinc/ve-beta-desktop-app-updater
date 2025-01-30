@@ -1488,19 +1488,35 @@ export const TemplatesState = (props) => {
 					return [false, 'Failed to upload image'];
 				}
 
-				return [true];
+				return [true, response?.[1]];
 			}
 
-			return [true];
+			return [false, 'Failed to upload image'];
 		} catch (error) {
 			console.log('error==>handleGlobalUploadImage', error);
 			return [false, 'Failed to upload image'];
 		}
 	};
 
-	const deleteUploadedImageThroughChat = async () => {
+	const deleteUploadedImageThroughChat = async (fileId) => {
 		try {
-		} catch (error) {}
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchDelete(
+				`/${workspaceId}/ai-chat/delete-file/${fileId}`,
+				usertoken,
+				null,
+				'ai_assistant_api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>deleteUploadedImageThroughChat', error);
+			return [false];
+		}
 	};
 
 	const checkIndividualImageUploadedStatus = async (uploadBatchId) => {

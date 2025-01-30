@@ -62,7 +62,7 @@ const TableBody = ({
 								width: column?.width,
 								flex: '1 0 auto',
 							}}
-							onClick={() => handleRowClick(row?._id)}
+							onClick={() => handleRowClick(row)}
 						>
 							{generateCell(row, column)}
 						</td>

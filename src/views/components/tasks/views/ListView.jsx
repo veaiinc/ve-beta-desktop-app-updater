@@ -18,6 +18,7 @@ const ListView = ({
 	error,
 	rowTypes,
 	properties,
+	infiniteScrollHeight,
 }) => {
 	const generateSkeleton = useCallback(() => {
 		return [...Array(6)].map((_, index) => (
@@ -44,7 +45,7 @@ const ListView = ({
 						width: '100%',
 						overflow: 'auto',
 					}}
-					height="calc(100vh - 100px)"
+					height={infiniteScrollHeight || 'calc(100vh - 100px)'}
 					scrollThreshold="90%"
 				>
 					{data?.map((task, index) => (
