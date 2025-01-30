@@ -6,7 +6,7 @@ import { ReactComponent as Link } from '../../../assets/svg/smartFiles/formRespo
 const AiShare = ({ assistant }) => {
 	const [copyStatus, setCopyStatus] = useState({ shareLink: false, embedScript: false });
 
-	const shareUrl = 'https://ismailphotographystudio.ve.ai/ub6jdicx';
+	const shareUrl = `https://widget.ve.ai/${assistant?._id}?aiAssistantName=${assistant?.name}`;
 	const embedScript = `<script src="https://widget.ve.ai/public.js" data-ai-assistant-id=${assistant?._id}  data-ai-assistant-name=${assistant?.name} data-nscript="afterInteractive"></script>`;
 
 	const handleCopy = async (text, type) => {
