@@ -322,8 +322,12 @@ const BottomToolbar = ({
 			if (!response?.[0]) {
 				uploadedImages.splice(file?.uniqueId, 1);
 				setInfo((prev) => ({ ...prev, uploadedImages }));
-				return message.error(response?.[1]);
+				return message.error(response?.[1] || 'failed to upload image');
 			}
+			const { _id } = response?.[1] || {};
+			file.fileId = _id;
+			uploadedImages.splice(file?.uniqueId, 1, file);
+			setInfo((prev) => ({ ...prev, uploadedImages }));
 			checkIndividualImageUploadedStatusFunc(file, uploadBatchId);
 		},
 		[info],
@@ -331,13 +335,21 @@ const BottomToolbar = ({
 
 	const checkIndividualImageUploadedStatusFunc = useCallback(
 		async (fileData, uploadBatchId) => {
+			let uploadedImages = [...info?.uploadedImages];
 			let uploadedCount = 0,
-				maxAttempts = 15;
-			while (!uploadedCount && maxAttempts) {
+				maxAttempts = 15,
+				errorCount = 0,
+				successCount = 0;
+			while (!(uploadedCount && successCount) && maxAttempts) {
 				const response = await checkIndividualImageUploadedStatus(uploadBatchId);
 				if (response?.[0]) {
 					uploadedCount = response?.[1]?.uploadedCount;
-					if (uploadedCount) {
+					errorCount = response?.[1]?.errorCount;
+					successCount = response?.[1]?.successCount;
+					if (uploadedCount && successCount) {
+						break;
+					}
+					if (errorCount) {
 						break;
 					}
 				}
@@ -345,8 +357,12 @@ const BottomToolbar = ({
 				await new Promise((resolve) => setTimeout(resolve, 1000));
 				maxAttempts--;
 			}
+			if (errorCount) {
+				uploadedImages.splice(fileData?.uniqueId, 1);
+				setInfo((prev) => ({ ...prev, uploadedImages }));
+				return message.error('Something went wrong while processing the image');
+			}
 			if (uploadedCount && uploadedCount > 0) {
-				let uploadedImages = [...info?.uploadedImages];
 				fileData.loading = false;
 				uploadedImages.splice(fileData?.uniqueId, 1, fileData);
 				setInfo((prev) => ({ ...prev, uploadedImages }));
@@ -394,6 +410,7 @@ const BottomToolbar = ({
 			const uploadedImages = [...(info?.uploadedImages || [])];
 			uploadedImages.splice(ele?.uniqueId, 1);
 			setInfo((prev) => ({ ...prev, uploadedImages }));
+			deleteUploadedImageThroughChat(ele?.fileId);
 		},
 		[info],
 	);
@@ -518,34 +535,6 @@ const BottomToolbar = ({
 						onKeyDown={handleSendMessageFunc}
 						style={{ resize: 'none' }}
 					/>
-					{/* <div className="bottomToolbarButtons">
-						<div className="quickActionsButtons">
-							<Home />
-						</div>
-						<div className="quickActionsButtons">
-							<Tooltip
-								placement="top"
-								title={
-									<QuickActionsPlusParentContainer handleChange={handleChange} />
-								}
-								color={'#202020'}
-								arrow={true}
-								trigger="click"
-								overlayClassName="quickActionsTooltipContainer"
-								open={info?.addQuickAction}
-								onOpenChange={(open) => {
-									// if (!open) {
-									setInfo((prev) => ({ ...prev, addQuickAction: open }));
-									// }
-								}}
-							>
-								<Plus />
-							</Tooltip>
-						</div>
-						<div className="quickActionsButtons">
-							<Settings />
-						</div>
-					</div> */}
 
 					<div className="chat-icons-container">
 						{chatIcons?.map((icon, idx) => (
@@ -586,21 +575,3 @@ const BottomToolbar = ({
 };
 
 export default memo(BottomToolbar);
-
-// const QuickActionsPlusParentContainer = ({ handleChange }) => {
-// 	return (
-// 		<div className="QuickActionsPlusParentContainer">
-// 			<Upload
-// 				onChange={handleChange}
-// 				showUploadList={false}
-// 				beforeUpload={() => false} // Prevent default upload behavior
-// 				maxCount={1} // Allow only one file at a time
-// 				accept="image/*" // Accept only images
-// 			>
-// 				<button className="quick-action-upload-button">
-// 					<UploadOutlined /> Upload Images
-// 				</button>
-// 			</Upload>
-// 		</div>
-// 	);
-// };

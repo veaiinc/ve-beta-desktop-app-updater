@@ -60,7 +60,6 @@ const File = ({
 		servicesTableData: null,
 		loading: true,
 		smartFileStatus: '',
-		templatesMapper: null,
 		duplicateLoader: false,
 		expiryInDays: null,
 		varibalesModified: false,
@@ -164,17 +163,6 @@ const File = ({
 			}));
 		}
 	}, [smartFileInfo]);
-
-	useEffect(() => {
-		if (templateData) {
-			let templatesMapper = {};
-			const { templates } = templateData || {};
-			for (let i = 0; i < templates?.length; i++) {
-				templatesMapper[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
-			}
-			setInfo((prev) => ({ ...prev, templatesMapper }));
-		}
-	}, [templateData]);
 
 	useEffect(() => {
 		if (info?.proposal) {
