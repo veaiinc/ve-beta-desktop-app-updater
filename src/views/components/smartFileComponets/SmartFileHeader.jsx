@@ -48,7 +48,7 @@ const SmartFileHeader = ({
 	});
 
 	const modifiedAccetFunc = useCallback(async () => {
-		if (validateExpiryData?.isExpired) {
+		if (validateExpiryData && validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 
@@ -64,7 +64,7 @@ const SmartFileHeader = ({
 
 	const onOptionChangeFunc = useCallback(
 		async (data) => {
-			if (validateExpiryData?.isExpired) {
+			if (validateExpiryData && validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
 			if (data?.label === 'Edit') {
@@ -142,7 +142,7 @@ const SmartFileHeader = ({
 	return (
 		<div className="smarFileHeader">
 			<div className="HeaderContentContainer">
-				<div className="BackBtnContainer" onClick={() => navigate('/home')}>
+				<div className="BackBtnContainer" onClick={() => navigate(-1)}>
 					{' '}
 					<span className="svgWrapper">
 						<BackArrowSvg />
