@@ -6,14 +6,44 @@ import { ReactComponent as BoardViewIcon } from '../../../assets/svg/tasks/board
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
 import ListView from './views/ListView';
 // import BoardView from './views/BoardView';
+
 import TableView from './views/TableView';
 import TabDropDown from '../dropDown/tasks/TabDropDown';
 
-const icons = {
-	list: ListViewIcon,
-	board: BoardViewIcon,
-	table: TableViewIcon,
+const layouts = {
+	list: {
+		Icon: ListViewIcon,
+		label: 'List',
+	},
+	board: {
+		Icon: BoardViewIcon,
+		label: 'Board',
+	},
+	table: {
+		Icon: TableViewIcon,
+		label: 'Table',
+	},
 };
+const layoutOptions = [
+	{
+		value: 'list',
+		label: 'List',
+		Icon: ListViewIcon,
+	},
+	// {
+	// 	value: 'board',
+	// 	label: 'Board',
+	// },
+	{
+		value: 'table',
+		label: 'Table',
+		Icon: TableViewIcon,
+	},
+	// {
+	// 	value: 'gallery',
+	// 	label: 'Gallery',
+	// },
+];
 
 const Task = ({
 	blockTitle,
@@ -41,7 +71,7 @@ const Task = ({
 				_id: '1',
 				view: 'list',
 				label: 'List',
-				Icon: icons.list,
+				Icon: layouts?.['list']?.Icon,
 				filters: [],
 				sort: [],
 				order: 0,
@@ -99,28 +129,32 @@ const Task = ({
 		return new Date().getTime().toString();
 	}, []);
 
-	const handleAddTab = useCallback(() => {
-		setTaskInfo((prev) => {
-			const newTabId = generateNewId();
-			const maxOrder = Math.max(...Object.values(prev.tabs)?.map((tab) => tab.order), -1);
+	const handleAddTab = useCallback(
+		(option) => {
+			setTaskInfo((prev) => {
+				const newTabId = generateNewId();
+				const maxOrder = Math.max(...Object.values(prev.tabs)?.map((tab) => tab.order), -1);
 
-			return {
-				...prev,
-				tabs: {
-					...prev.tabs,
-					[newTabId]: {
-						_id: newTabId,
-						view: 'list',
-						label: 'List',
-						Icon: icons.list,
-						filters: [],
-						sort: [],
-						order: maxOrder + 1,
+				return {
+					...prev,
+					tabs: {
+						...prev.tabs,
+						[newTabId]: {
+							_id: newTabId,
+							view: option,
+							label: layouts?.[option]?.label,
+							Icon: layouts?.[option]?.Icon,
+							filters: [],
+							sort: [],
+							order: maxOrder + 1,
+						},
 					},
-				},
-			};
-		});
-	}, [generateNewId]);
+					activeTab: newTabId,
+				};
+			});
+		},
+		[generateNewId],
+	);
 
 	const getDefaultLabel = (view) => {
 		const labels = {
@@ -143,7 +177,7 @@ const Task = ({
 			newTabs[viewId] = {
 				...newTabs[viewId],
 				...updateData,
-				Icon: icons?.[updateData?.view] || newTabs[viewId]?.Icon,
+				Icon: layouts?.[updateData?.view]?.Icon || newTabs[viewId]?.Icon,
 			};
 
 			setTaskInfo((prev) => ({ ...prev, tabs: newTabs }));
@@ -309,6 +343,8 @@ const Task = ({
 				handleDuplicateView={handleDuplicateTab}
 				handleDeleteView={handleDeleteTab}
 				handleTabDropdownClick={handleTabDropdownClick}
+				layoutOptions={layoutOptions}
+				handleLayoutOptionClick={handleAddTab}
 			/>
 			<div className="task-content-area">
 				{viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.view)}

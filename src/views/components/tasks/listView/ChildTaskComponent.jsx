@@ -1,5 +1,5 @@
 import { Progress } from 'antd';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState, memo } from 'react';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import '../../../../assets/scss/tasks/childTaskComponent.scss';
 import ListView from '../views/ListView';
@@ -119,4 +119,4 @@ const ChildTaskComponent = ({
 	);
 };
 
-export default ChildTaskComponent;
+export default memo(ChildTaskComponent);

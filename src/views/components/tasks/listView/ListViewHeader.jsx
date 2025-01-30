@@ -39,6 +39,8 @@ const ListViewHeader = ({
 	handleDuplicateView,
 	handleDeleteView,
 	handleTabDropdownClick,
+	layoutOptions,
+	handleLayoutOptionClick,
 }) => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -160,6 +162,8 @@ const ListViewHeader = ({
 							onTabsReorder={handleTabsReorder}
 							showDropDown={showDropdown}
 							handleTabDropdownClick={handleTabDropdownClick}
+							layoutOptions={layoutOptions}
+							handleLayoutOptionClick={handleLayoutOptionClick}
 						/>
 						{/* <button className="listViewHeaderTabsAddButton" onClick={handleAddTab}>
 						<PlusSvg />
@@ -295,6 +299,7 @@ const ListViewHeader = ({
 							closeDropDown={closeEditViewDropDown}
 							handleDuplicateView={handleDuplicateView}
 							handleDeleteView={handleDeleteView}
+							layoutOptions={layoutOptions}
 						/>
 					</div>
 				</div>

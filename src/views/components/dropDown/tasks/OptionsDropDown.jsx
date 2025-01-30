@@ -7,37 +7,11 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/ta
 import { ReactComponent as ListSvg } from '../../../../assets/svg/tasks/listDotsAndLines.svg';
 import { ReactComponent as FolderSvg } from '../../../../assets/svg/tasks/folder.svg';
 import { ReactComponent as GridSvg } from '../../../../assets/svg/tasks/grid.svg';
-// import { ReactComponent as BoardSvg } from '../../../../assets/svg/tasks/board.svg';
-import { ReactComponent as TableSvg } from '../../../../assets/svg/tasks/grid.svg';
-// import { ReactComponent as BlocksSvg } from '../../../../assets/svg/tasks/blocks.svg';
 import { ReactComponent as DuplicateIcon } from '../../../../assets/svg/tasks/duplicate.svg';
 import { ReactComponent as DeleteIcon } from '../../../../assets/svg/tasks/dustBin.svg';
 import PropertiesDropDown from './PropertiesDropDown';
 import GroupDropDown from './GroupDropDown';
 import LayoutDropDown from './LayoutDropDown';
-
-const layoutOptions = [
-	{
-		value: 'list',
-		label: 'List',
-		icon: <ListSvg />,
-	},
-	// {
-	// 	value: 'board',
-	// 	label: 'Board',
-	// 	icon: <BoardSvg />,
-	// },
-	{
-		value: 'table',
-		label: 'Table',
-		icon: <TableSvg />,
-	},
-	// {
-	// 	value: 'gallery',
-	// 	label: 'Gallery',
-	// 	icon: <BlocksSvg />,
-	// },
-];
 
 const OptionsDropDown = ({
 	properties,
@@ -51,6 +25,7 @@ const OptionsDropDown = ({
 	handleDeleteView,
 	handleDuplicateView,
 	prefix,
+	layoutOptions,
 }) => {
 	const [info, setInfo] = useState({
 		selected: null,

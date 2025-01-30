@@ -795,10 +795,6 @@ const Tasks = () => {
 		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
 	}, [info?.updated]);
 
-	const handleChildTaskClose = useCallback(() => {
-		updateTaskInfo({ selectedSubTask: null });
-	}, []);
-
 	return (
 		<>
 			<Task
