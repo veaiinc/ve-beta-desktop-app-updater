@@ -518,34 +518,6 @@ const BottomToolbar = ({
 						onKeyDown={handleSendMessageFunc}
 						style={{ resize: 'none' }}
 					/>
-					{/* <div className="bottomToolbarButtons">
-						<div className="quickActionsButtons">
-							<Home />
-						</div>
-						<div className="quickActionsButtons">
-							<Tooltip
-								placement="top"
-								title={
-									<QuickActionsPlusParentContainer handleChange={handleChange} />
-								}
-								color={'#202020'}
-								arrow={true}
-								trigger="click"
-								overlayClassName="quickActionsTooltipContainer"
-								open={info?.addQuickAction}
-								onOpenChange={(open) => {
-									// if (!open) {
-									setInfo((prev) => ({ ...prev, addQuickAction: open }));
-									// }
-								}}
-							>
-								<Plus />
-							</Tooltip>
-						</div>
-						<div className="quickActionsButtons">
-							<Settings />
-						</div>
-					</div> */}
 
 					<div className="chat-icons-container">
 						{chatIcons?.map((icon, idx) => (
@@ -586,21 +558,3 @@ const BottomToolbar = ({
 };
 
 export default memo(BottomToolbar);
-
-// const QuickActionsPlusParentContainer = ({ handleChange }) => {
-// 	return (
-// 		<div className="QuickActionsPlusParentContainer">
-// 			<Upload
-// 				onChange={handleChange}
-// 				showUploadList={false}
-// 				beforeUpload={() => false} // Prevent default upload behavior
-// 				maxCount={1} // Allow only one file at a time
-// 				accept="image/*" // Accept only images
-// 			>
-// 				<button className="quick-action-upload-button">
-// 					<UploadOutlined /> Upload Images
-// 				</button>
-// 			</Upload>
-// 		</div>
-// 	);
-// };
