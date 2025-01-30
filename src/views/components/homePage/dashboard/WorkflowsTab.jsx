@@ -270,7 +270,7 @@ const WorkflowsTab = ({ searchValue }) => {
 							overflowX: 'hidden',
 						}}
 						className="tetsing"
-						height="calc(100vh - 340px)"
+						height="calc(100vh - 378px)"
 					>
 						<div className="workflows-tab">
 							{info?.myWorkflowData?.map((workflow, index) => {

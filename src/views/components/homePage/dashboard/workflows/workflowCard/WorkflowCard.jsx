@@ -46,7 +46,6 @@ const WorkflowCard = memo(
 		const [info, setInfo] = useState({
 			openPrompt: false,
 			selectedCard: null,
-			tabOptions: options,
 		});
 		const componentMapper = useMemo(() => {
 			return {
@@ -88,7 +87,7 @@ const WorkflowCard = memo(
 						</WorkflowPopUp>
 					</div>
 					<div className="workflow-card-options-container">
-						{info?.tabOptions?.map((option, idx) => {
+						{options?.map((option, idx) => {
 							return (
 								<div
 									key={idx}
