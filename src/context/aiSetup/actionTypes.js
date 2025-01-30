@@ -27,4 +27,5 @@ export const AI_PROMPT = {
 	editAiPrompt: '/edit-prompt',
 	resetAiPrompt: '/reset-prompt',
 	defaultAiPrompt: '/default-prompt',
+	selectAiPrompt: '/select-prompt',
 };
