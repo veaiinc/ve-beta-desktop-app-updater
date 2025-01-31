@@ -1,84 +1,67 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import '../../../../../../assets/scss/home_page/workflows/workflowCard.scss';
-import { ReactComponent as CheckIcon } from '../../../../../../assets/svg/home_page/Check.svg';
+import { ReactComponent as ChevronRightThinIcon } from '../../../../../../assets/svg/tasks/chevronRightThin.svg';
 import Context from '../../../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../../../helpers';
-import MyWorkflowModalsLoader from '../../../../modalsV2/workflowsModals/MyWorkflowModalsLoader';
 import { useNavigate } from 'react-router-dom';
-
-const pendingActionsEnums = {
-	counterSign: {
-		title: 'Counter Sign',
-	},
-	sendProposal: {
-		title: 'Send Proposal',
-	},
-};
+import Skeleton from 'react-loading-skeleton';
 
 const initialState = {
-	loading: false,
-	workflowsDetailslist: null,
+	loading: true,
 	currentPage: 1,
 	hasNextPage: false,
-	durationOptionChanged: false,
-	timeout: null,
 };
 
 const FilesTab = ({ data }) => {
 	let {
-		templates: {
-			getWorkflowsListForFiles,
-			workflowslistForFiles,
-			moreWorkList,
-			updateStateValues,
-		},
+		templates: { getWorkflowsListForFiles, workflowslistForFiles },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState(initialState);
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		getWorkflowsListFunc(1);
-	}, []);
+		if (workflowslistForFiles?.[data?._id]) {
+			const currentPage = workflowslistForFiles?.[data?._id]?.currentPage;
+			const hasNextPage = workflowslistForFiles?.[data?._id]?.hasNextPage;
+			setInfo((prev) => ({
+				...prev,
+				currentPage,
+				hasNextPage,
+				loading: false,
+			}));
+		} else {
+			getWorkflowsListFunc(1);
+		}
+	}, [workflowslistForFiles]);
 
-	useEffect(() => {
-		const currentPage = workflowslistForFiles?.[data?._id]?.currentPage;
-		const hasNextPage = workflowslistForFiles?.[data?._id]?.hasNextPage;
-		setInfo((prev) => ({
-			...prev,
-			currentPage,
-			hasNextPage,
-		}));
-	}, [workflowslistForFiles?.[[data?._id]]]);
-
-	const getWorkflowsListFunc = useCallback(async (page, fetchMore = false) => {
+	const getWorkflowsListFunc = async (page) => {
 		const payload = {
 			filters: {
-				limit: 30,
-				page: page,
+				limit: 10,
+				page,
 				templateId: data?._id,
 			},
 		};
 
-		getWorkflowsListForFiles(payload, fetchMore);
-	}, []);
+		await getWorkflowsListForFiles(payload);
+		setInfo((prev) => ({
+			...prev,
+			loading: false,
+		}));
+	};
 
-	const fetcMoreWorkflowList = useCallback(async () => {
+	const fetcMoreWorkflowList = async () => {
 		getWorkflowsListFunc(info?.currentPage + 1, true);
-	}, [info?.currentPage]);
-
-	const filteredPendingActionsLength = info?.workflowsDetailslist?.filter(
-		(item) => item?.requiredAction?.action,
-	).length;
+	};
 
 	const workflowsDetailsList = workflowslistForFiles?.[data?._id]?.data;
-
-	console.log('workflowsDetailsList', workflowsDetailsList);
 
 	return (
 		<>
 			<div
+				id="filesScrollable"
 				style={{
 					flex: 1,
 					overflowY: 'auto',
@@ -86,33 +69,38 @@ const FilesTab = ({ data }) => {
 					height: '100%',
 					width: '100%',
 				}}
-				id="pendingActions"
 			>
 				<InfiniteScroll
-					dataLength={filteredPendingActionsLength || 0}
+					dataLength={workflowsDetailsList?.length || 0}
 					next={fetcMoreWorkflowList}
 					hasMore={info?.hasNextPage}
 					loader={<FetchMoreLoaderComp />}
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						gap: '8px',
-					}}
-					scrollableTarget="pendingActions"
+					scrollableTarget="filesScrollable"
 				>
 					{info?.loading ? (
-						<MyWorkflowModalsLoader width={'287px'} height={'48px'} />
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+							{[{}, {}, {}, {}].map((ele, index) => (
+								<Skeleton
+									height={'59px'}
+									width={'287px'}
+									style={{
+										borderRadius: '16px',
+									}}
+									key={index}
+								/>
+							))}
+						</div>
 					) : (
 						<div className="pending-actions-container">
-							{workflowsDetailsList?.map((item, index) => {
-								const title = item?.title;
-								const status = item?.status;
+							{workflowsDetailsList?.map((file) => {
+								const title = file?.title;
+								const status = file?.status;
 								return (
 									<div
 										className="workflow-inner-card"
-										key={index}
+										key={file?._id}
 										onClick={() => {
-											navigate(`/smart-file/${data?._id}/${item?._id}`);
+											navigate(`/smart-file/${data?._id}/${file?._id}`);
 										}}
 									>
 										<span className="left-text">
@@ -121,7 +109,7 @@ const FilesTab = ({ data }) => {
 											{status}
 										</span>
 										<span className="right-text pending-actions-title">
-											<CheckIcon />
+											<ChevronRightThinIcon />
 										</span>
 									</div>
 								);

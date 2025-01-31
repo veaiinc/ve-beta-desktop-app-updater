@@ -5,9 +5,25 @@ const actionHandlers = {
 		...state,
 		listTasks: action?.payload,
 	}),
+	SET_LIST_TASKS_FOR_TODAY: (state, action) => ({
+		...state,
+		listTasksForToday: action?.payload,
+	}),
+	SET_LIST_TASKS_FOR_OVERDUE: (state, action) => ({
+		...state,
+		listTasksForOverdue: action?.payload,
+	}),
 	SET_SUB_TASKS: (state, action) => ({
 		...state,
 		subTasks: action?.payload,
+	}),
+	SET_TASKS_COUNT_FOR_TODAY: (state, action) => ({
+		...state,
+		tasksCountForToday: action?.payload,
+	}),
+	SET_TASKS_COUNT_FOR_OVERDUE: (state, action) => ({
+		...state,
+		tasksCountForOverdue: action?.payload,
 	}),
 	RESET_SUB_TASKS: (state) => ({
 		...state,

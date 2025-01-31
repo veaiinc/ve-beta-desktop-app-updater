@@ -17,7 +17,7 @@ import UpdatedPageLoader from '../../loaders/UpdatedPageLoader';
 import InitialPageLoader from '../../loaders/PageLoader';
 import Skeleton from 'react-loading-skeleton';
 
-const WorkflowsTab = () => {
+const WorkflowsTab = ({ searchValue }) => {
 	const {
 		templates: {
 			getMyWorkflows,
@@ -50,7 +50,7 @@ const WorkflowsTab = () => {
 
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
-	}, []);
+	}, [searchValue]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -100,19 +100,23 @@ const WorkflowsTab = () => {
 		[info?.pendingCopyAction, info],
 	);
 
-	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
-		const payload = {
-			filters: {
-				limit: 10,
-				page: page,
-				type: 'workspace',
-				status: 'published',
-				sortBy: 'createdAt',
-				sortType: -1,
-			},
-		};
-		getMyWorkflows(payload, fetchMore);
-	}, []);
+	const getMyWorkflowTemplatesData = useCallback(
+		(page, fetchMore = false) => {
+			const payload = {
+				filters: {
+					limit: 10,
+					page: page,
+					title: searchValue,
+					type: 'workspace',
+					status: 'published',
+					sortBy: 'createdAt',
+					sortType: -1,
+				},
+			};
+			getMyWorkflows(payload, fetchMore);
+		},
+		[searchValue],
+	);
 
 	const myWorkflowsDataParser = useCallback(
 		(dataToBeUsed, fetchMore = false) => {
@@ -266,7 +270,7 @@ const WorkflowsTab = () => {
 							overflowX: 'hidden',
 						}}
 						className="tetsing"
-						height="calc(100vh - 340px)"
+						height="calc(100vh - 378px)"
 					>
 						<div className="workflows-tab">
 							{info?.myWorkflowData?.map((workflow, index) => {
