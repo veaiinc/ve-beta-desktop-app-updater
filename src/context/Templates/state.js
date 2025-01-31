@@ -49,11 +49,9 @@ import { getBase64 } from '../../helpers';
 export const intialState = {
 	workflowslist: null,
 	moreWorkList: null,
-	workflowslistForFiles: null,
 	clientList: null,
 	clientListForDocs: null,
 	templatesListForDocs: null,
-
 	allEmailTemplates: null,
 	myWorkflows: null,
 	myMoreWorkflows: null,
@@ -1571,9 +1569,6 @@ export const TemplatesState = (props) => {
 	const updateApplicationChat = (payload) => {
 		dispatch({ type: Actions.UPDATE_APPLICATION_CHAT, payload });
 	};
-
-	//docs
-
 	//updated steps functions
 	const addNewSteps = async (payload) => {
 		try {
@@ -1647,7 +1642,6 @@ export const TemplatesState = (props) => {
 			console.log('error==>getAllSlackChannels', error);
 		}
 	};
-
 	return {
 		...state,
 		getMyWorkflows,
@@ -1670,7 +1664,6 @@ export const TemplatesState = (props) => {
 		updateForm,
 		updateThankyou,
 		getWorkflowsList,
-		getWorkflowsListForFiles,
 		getTemplatesListForCreateLead,
 		createLeadfromTemplates,
 		sendSmartFile,

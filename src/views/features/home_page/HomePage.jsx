@@ -1,4 +1,5 @@
 import React, { useState, useEffect, memo, useMemo, useCallback, useContext } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/navBar';
 import HeaderInfo from '../../components/homePage/HeaderInfo';
@@ -9,6 +10,7 @@ import { PromptData } from '../../components/homePage/PromptData';
 import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import CreateLeadModal from '../../components/modalsV2/proposalModals/CreateLeadModal';
+import { useRef } from 'react';
 import Context from '../../../context/context';
 
 const topNavOptions = [
@@ -32,19 +34,6 @@ const navbarOptions = {
 	],
 };
 
-const propsForHeaderInfoAndNavBar = {
-	start: {
-		title: 'Hey there,',
-		subTitle: "I'm here to help",
-		selectedOption: 'selectedOptionInStart',
-	},
-	dashboard: {
-		title: 'All Your',
-		subTitle: 'Task Collections',
-		selectedOption: 'selectedOptionInDashboard',
-	},
-};
-
 const dropdownOptions = [
 	{ id: 0, title: 'Client ', value: 'client' },
 	{ id: 2, title: 'Meeting', value: 'meeting' },
@@ -56,18 +45,20 @@ const dropdownOptions = [
 	{ id: 8, title: 'Contract', value: 'contract' },
 ];
 const thresholdTopOffset = 150;
+let timeoutId = null;
 
 const HomePage = () => {
+	const [searchParams, setSearchParams] = useSearchParams();
 	let {
+		profileInfo: { userDetailsData },
 		templates: { toggleCreateLeadModal, createLeadModalContextState },
 	} = useContext(Context);
-
 	const [info, setInfo] = useState({
-		activeTab: 'start',
+		activeTab: searchParams?.get('tab') ?? 'start',
 		showPromptPopup: false,
 		isNavbarFixed: false,
-		selectedOptionInStart: 'All',
-		selectedOptionInDashboard: 'Priority',
+		selectedOptionInStart: searchParams?.get('startTab') || 'All',
+		selectedOptionInDashboard: searchParams?.get('dashboardTab') || 'Priority',
 		searchValue: '',
 		selectedCard: null,
 		selectedOptions: {},
@@ -77,9 +68,6 @@ const HomePage = () => {
 	});
 
 	const navigate = useNavigate();
-
-	const { title, subTitle, selectedOption } = propsForHeaderInfoAndNavBar?.[info?.activeTab];
-	const showSearchBar = info?.activeTab === 'start';
 
 	useEffect(() => {
 		const homePageContainer = document.querySelector('.home-page-container');
@@ -133,12 +121,48 @@ const HomePage = () => {
 	});
 
 	const handleSelectedOption = (value) => {
+		if (info?.selectedOptionInDashboard === value) {
+			return;
+		}
 		setInfo((prev) => ({ ...prev, [selectedOption]: value }));
+		setSearchParams({ tab: info?.activeTab, [info?.activeTab + 'Tab']: value });
 	};
 
 	const handleSearchValue = (value) => {
-		setInfo((prev) => ({ ...prev, searchValue: value }));
+		if (timeoutId) clearTimeout(timeoutId);
+		timeoutId = setTimeout(() => {
+			setInfo((prev) => ({ ...prev, searchValue: value }));
+		}, 1000);
 	};
+
+	const handleSetActiveTab = (tab) => {
+		if (info?.activeTab === tab) {
+			return;
+		}
+		setInfo((prev) => ({
+			...prev,
+			activeTab: tab,
+		}));
+		setSearchParams({ tab });
+	};
+
+	const propsForHeaderInfoAndNavBar = useMemo(() => {
+		return {
+			start: {
+				title: `Hey ${userDetailsData?.firstName},`,
+				subTitle: "I'm here to help",
+				selectedOption: 'selectedOptionInStart',
+			},
+			dashboard: {
+				title: 'All Your',
+				subTitle: 'Task Collections',
+				selectedOption: 'selectedOptionInDashboard',
+			},
+		};
+	}, [userDetailsData?.firstName]);
+
+	const { title, subTitle, selectedOption } = propsForHeaderInfoAndNavBar?.[info?.activeTab];
+	const showSearchBar = info?.activeTab === 'start';
 
 	const componentMapper = useMemo(
 		() => ({
@@ -155,6 +179,7 @@ const HomePage = () => {
 					selectedOption={info?.[selectedOption]}
 					options={navbarOptions?.dashboard}
 					isNavbarFixed={info?.isNavbarFixed}
+					searchValue={info?.searchValue}
 				/>
 			),
 		}),
@@ -177,12 +202,7 @@ const HomePage = () => {
 										className={`home-page-container-content-item ${
 											info?.activeTab === option?.value ? 'active' : ''
 										}`}
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												activeTab: option?.value,
-											}))
-										}
+										onClick={() => handleSetActiveTab(option?.value)}
 									>
 										{option?.title}
 									</div>
