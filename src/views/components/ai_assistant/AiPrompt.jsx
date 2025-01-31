@@ -85,8 +85,6 @@ const AiPrompt = ({ assistant }) => {
 		setInfo((prev) => ({ ...prev, timeout }));
 	}, [info?.editedPrompt, assistant?._id, aiPrompt?.promptId, editAiPrompt]);
 
-	// console.log('aiPrompt data in prompt page==>', aiPrompt);
-
 	const handleModelDropdownVisibility = useCallback((visible) => {
 		setInfo((prev) => ({ ...prev, isSelectModelOpen: visible }));
 	}, []);

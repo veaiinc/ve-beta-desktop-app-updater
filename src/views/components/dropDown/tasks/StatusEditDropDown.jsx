@@ -150,7 +150,7 @@ const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) =
 
 	const handleInputKeyDown = async (e) => {
 		if (e.key === 'Enter' && info.addNewProperty.label.trim()) {
-			if (validateExpiryData?.isExpired) {
+			if (validateExpiryData && validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
 
@@ -227,7 +227,7 @@ const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) =
 	};
 
 	const handleDeleteStatus = async (status) => {
-		if (validateExpiryData?.isExpired) {
+		if (validateExpiryData && validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 

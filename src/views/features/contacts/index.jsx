@@ -352,7 +352,7 @@ const Contacts = () => {
 
 	const updatePropertyValue = useCallback(
 		async (rowId, propName, value, _, onSuccess) => {
-			if (validateExpiryData?.isExpired) {
+			if (validateExpiryData && validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
 
@@ -378,7 +378,7 @@ const Contacts = () => {
 
 	const handleDeleteClient = useCallback(
 		async (payload) => {
-			if (validateExpiryData?.isExpired) {
+			if (validateExpiryData && validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
 
@@ -395,7 +395,7 @@ const Contacts = () => {
 				message?.error(response?.[1]);
 			}
 		},
-		[validateExpiryData?.isExpired, deleteClient, updateStateValues],
+		[validateExpiryData, deleteClient, updateStateValues],
 	);
 
 	const handleRowClick = useCallback(

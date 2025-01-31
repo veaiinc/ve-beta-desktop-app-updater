@@ -66,7 +66,7 @@ const AiLinkFile = () => {
 				workflows: availableWorkflows || [],
 			}));
 		}
-	}, [workflows, info.assignedWorkflows]);
+	}, [workflows, info?.assignedWorkflows]);
 
 	const handleRemoveWorkflow = useCallback(
 		async (workflowId) => {
@@ -104,7 +104,7 @@ const AiLinkFile = () => {
 	};
 
 	return (
-		<>
+		<div>
 			<div className="aiLinkFileParentContainer">
 				<div className="aiLinkFileHeaderContainer">
 					<div className="aiLinkFileHeader">
@@ -159,7 +159,7 @@ const AiLinkFile = () => {
 					getAssignedWorkflowsToAiAssistant(aiAssistantId, 1, 10, true)
 				}
 			/>
-		</>
+		</div>
 	);
 };
 

@@ -11,7 +11,6 @@ const AiShare = ({ assistant }) => {
 
 	const handleCopy = async (text, type) => {
 		try {
-			console.log('text', text);
 			await navigator.clipboard.writeText(text);
 			setCopyStatus((prev) => ({ ...prev, [type]: true }));
 			setTimeout(() => {

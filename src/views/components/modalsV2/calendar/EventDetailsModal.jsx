@@ -67,7 +67,7 @@ const EventDetailsModal = ({
 			}
 
 			updateEventDebounceRef.current = setTimeout(async () => {
-				if (validateExpiryData?.isExpired) {
+				if (validateExpiryData && validateExpiryData?.isExpired) {
 					return updateSubscriptionState({ expiredSubscriptionModal: true });
 				}
 				try {
@@ -88,7 +88,7 @@ const EventDetailsModal = ({
 	);
 
 	const deleteEvent = useCallback(async () => {
-		if (validateExpiryData?.isExpired) {
+		if (validateExpiryData && validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		if (selectedEvent?.id) {

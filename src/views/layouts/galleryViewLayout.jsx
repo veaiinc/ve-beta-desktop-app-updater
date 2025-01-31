@@ -6,9 +6,11 @@ import { Helmet } from 'react-helmet';
 import { ReactComponent as VE } from '../../assets/svg/smallVe.svg';
 import useAuth from '../hooks/useAuth';
 import useTokenExpiry from '../hooks/useTokenExpiry';
+import { useSubscription } from '@apollo/client';
 
 const GalleryViewLayout = ({ title, children }) => {
 	const checkAuth = useAuth();
+	// const data = useSubscription();
 	const tokenData = useTokenExpiry();
 	useEffect(() => {
 		checkAuth();

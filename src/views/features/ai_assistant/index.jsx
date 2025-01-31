@@ -40,8 +40,6 @@ const AiAssistants = () => {
 			moreAiAssistants,
 			createNewAiAssistant,
 			aiAssistant,
-			activeAiAssistantDetails,
-			resetAiSetupState,
 		},
 	} = useContext(Context);
 
@@ -51,16 +49,9 @@ const AiAssistants = () => {
 		currentPage: 1,
 		aiAssistantName: 'Untitled Assistant',
 		aiAssistantId: null,
-		newAiAssistant: null,
 		creatingNewAiAssistantLoading: false,
 		activeAiAssistant: null,
 	});
-
-	// useEffect(() => {
-	// 	if (activeAiAssistantDetails) {
-	// 		setInfo((prev) => ({ ...prev, activeAiAssistant: activeAiAssistantDetails }));
-	// 	}
-	// }, [activeAiAssistantDetails]);
 
 	useEffect(() => {
 		return () => {
@@ -69,26 +60,6 @@ const AiAssistants = () => {
 	}, []);
 
 	useEffect(() => {
-		if (aiAssistant) {
-			setInfo((prev) => ({ ...prev, newAiAssistant: aiAssistant }));
-		}
-	}, [aiAssistant]);
-
-	const CreateNewAiAssistant = useCallback(async () => {
-		setInfo((prev) => ({ ...prev, creatingNewAiAssistantLoading: true }));
-		const aiAssistantId = await createNewAiAssistant({
-			name: info?.aiAssistantName,
-		});
-		if (aiAssistantId) {
-			setInfo((prev) => ({ ...prev, aiAssistantId }));
-			navigate(`/ai-assistant/${aiAssistantId}/edit`);
-		}
-	}, []);
-
-	useEffect(() => {
-		// if (!aiAssistants) {
-		// 	getAiAssistants();
-		// }
 		getAiAssistants();
 	}, []);
 
@@ -114,6 +85,17 @@ const AiAssistants = () => {
 		}
 	}, [moreAiAssistants]);
 
+	const CreateNewAiAssistant = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, creatingNewAiAssistantLoading: true }));
+		const aiAssistantId = await createNewAiAssistant({
+			name: info?.aiAssistantName,
+		});
+		if (aiAssistantId) {
+			setInfo((prev) => ({ ...prev, aiAssistantId }));
+			navigate(`/ai-assistant/${aiAssistantId}/edit`);
+		}
+	}, []);
+
 	const getMoreAiAssistants = useCallback(() => {
 		if (info?.hasNextPage) {
 			getAiAssistants(info?.currentPage + 1, 20, true);
@@ -129,112 +111,102 @@ const AiAssistants = () => {
 		  }))
 		: [];
 
-	// console.log('assistants list on Index page', assistants);
-
 	return (
-		<>
-			<div className="aiAssistantsParentContainer">
-				<div className="pageHeadContainer">
-					<div className="headTitleContainer">
-						<span className="lineOne">Explore</span>
-						<span className="lineTwo">AI Assistants</span>
-					</div>
-
-					<div
-						className="headActionContainer"
-						// onClick={() => navigate('/ai-assistant/create-assistant')}
-						onClick={CreateNewAiAssistant}
-					>
-						{info?.creatingNewAiAssistantLoading ? (
-							<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-								Building AI Assistant <Spinner width="18px" height="18px" />
-							</span>
-						) : (
-							<span>Create a AI Assistant</span>
-						)}
-					</div>
+		<div className="aiAssistantsParentContainer" style={{ paddingRight: 10 }}>
+			<div className="pageHeadContainer">
+				<div className="headTitleContainer">
+					<span className="lineOne">Explore</span>
+					<span className="lineTwo">AI Assistants</span>
 				</div>
 
-				<div className="promtsContainer">
-					<div className="promptHeader">
-						<span>Suggested Prompt</span>
-						<Sync />
-					</div>
+				<div className="headActionContainer" onClick={CreateNewAiAssistant}>
+					{info?.creatingNewAiAssistantLoading ? (
+						<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+							Building AI Assistant <Spinner width="18px" height="18px" />
+						</span>
+					) : (
+						<span>Create a AI Assistant</span>
+					)}
+				</div>
+			</div>
 
-					<div className="promptCardsContainer">
-						{staticCreateActions?.map((ele, index) => (
-							<div key={index} className="createStaticActionsCards">
-								<span className="createStaticActionsCardsTitle">{ele?.type}</span>
-								<span className="createStaticActionsCardsSubTitle">
-									{ele?.prompt}
-								</span>
+			<div className="promtsContainer">
+				<div className="promptHeader">
+					<span>Suggested Prompt</span>
+					<Sync />
+				</div>
+
+				<div className="promptCardsContainer">
+					{staticCreateActions?.map((ele, index) => (
+						<div key={index} className="createStaticActionsCards">
+							<span className="createStaticActionsCardsTitle">{ele?.type}</span>
+							<span className="createStaticActionsCardsSubTitle">{ele?.prompt}</span>
+						</div>
+					))}
+				</div>
+			</div>
+
+			<div className="displayAgenstsContainer">
+				<div className="titleContainer">
+					<span>Created by you</span>
+				</div>
+
+				<div className="agentsCardContainer">
+					<InfiniteScroll
+						dataLength={assistants?.length}
+						next={getMoreAiAssistants}
+						hasMore={info?.hasNextPage}
+						loader={
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									width: '100%',
+									flexShrink: 0,
+								}}
+							>
+								<Spinner width="20px" height="20px" />
 							</div>
-						))}
-					</div>
-				</div>
-
-				<div className="displayAgenstsContainer">
-					<div className="titleContainer">
-						<span>Created by you</span>
-					</div>
-
-					<div className="agentsCardContainer">
-						<InfiniteScroll
-							dataLength={assistants?.length}
-							next={getMoreAiAssistants}
-							hasMore={info?.hasNextPage}
-							loader={
-								<div
-									style={{
-										display: 'flex',
-										justifyContent: 'center',
-										alignItems: 'center',
-										width: '100%',
-										flexShrink: 0,
-									}}
-								>
-									<Spinner width="20px" height="20px" />
-								</div>
-							}
-							className="agentsCardContainer"
-							height={`calc( 100vh - 520px)`}
-						>
-							{assistants ? (
-								assistants?.map((assistant) => (
-									<div
-										className="agentCard"
-										onClick={() =>
-											navigate(`/ai-assistant/${assistant?.aiAssistantId}`, {
-												state: { assistant },
-											})
-										}
-									>
-										<div>
-											<AgentIcon />
-										</div>
-										<div className="agentName">{assistant?.name}</div>
-										<div className="createdBy">
-											Created by {assistant?.createdBy}
-										</div>
-									</div>
-								))
-							) : (
+						}
+						className="agentsCardContainer"
+						height={`calc( 100vh - 520px)`}
+					>
+						{assistants ? (
+							assistants?.map((assistant) => (
 								<div
 									className="agentCard"
-									onClick={() => navigate(`/ai-assistant/create-assistant`)}
+									onClick={() =>
+										navigate(`/ai-assistant/${assistant?.aiAssistantId}`, {
+											state: { assistant },
+										})
+									}
 								>
 									<div>
 										<AgentIcon />
 									</div>
-									<div className="agentName">Create your first AI Assistant</div>
-									<div className="createdBy">Powered by Ve.ai</div>
+									<div className="agentName">{assistant?.name}</div>
+									<div className="createdBy">
+										Created by {assistant?.createdBy}
+									</div>
 								</div>
-							)}
-						</InfiniteScroll>
-					</div>
+							))
+						) : (
+							<div
+								className="agentCard"
+								onClick={() => navigate(`/ai-assistant/create-assistant`)}
+							>
+								<div>
+									<AgentIcon />
+								</div>
+								<div className="agentName">Create your first AI Assistant</div>
+								<div className="createdBy">Powered by Ve.ai</div>
+							</div>
+						)}
+					</InfiniteScroll>
 				</div>
 			</div>
-		</>
+		</div>
 	);
 };
 

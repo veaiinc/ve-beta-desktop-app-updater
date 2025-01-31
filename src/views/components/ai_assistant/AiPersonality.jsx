@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/AiPersonality.scss';
 import { ReactComponent as PlayIcon } from '../../../assets/svg/ai_assistant/play.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
@@ -100,6 +100,17 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 			[key]: value,
 		}));
 	}, []);
+
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			assistantName: assistant?.name,
+			assistantResponseTone: assistant?.responseTone,
+			assistantPersonality: assistant?.personality,
+			initialMessage: assistant?.initialMessage,
+			messagePlaceholder: assistant?.messagePlaceholder,
+		}));
+	}, [assistant]);
 
 	const handleAssistantNameChange = useCallback(
 		(name) => {
@@ -352,11 +363,13 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 					className="aiNameInput"
 					label="Initial Message"
 					value={info?.initialMessage}
-					onChange={(e) =>
-						handleLimittedCharecterUpdate(e.target.value, 'initialMessage')
-					}
+					onChange={(e) => {
+						console.log('blablab');
+						handleLimittedCharecterUpdate(e.target.value, 'initialMessage');
+					}}
 					onBlur={() =>
 						!info?.initialMessageError &&
+						info?.initialMessage !== assistant?.initialMessage &&
 						updateAssistantData('initialMessage', info?.initialMessage)
 					}
 				/>
@@ -379,6 +392,7 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 					}
 					onBlur={() =>
 						!info?.messagePlaceholderError &&
+						info?.messagePlaceholder !== assistant?.messagePlaceholder &&
 						updateAssistantData('messagePlaceholder', info?.messagePlaceholder)
 					}
 				/>

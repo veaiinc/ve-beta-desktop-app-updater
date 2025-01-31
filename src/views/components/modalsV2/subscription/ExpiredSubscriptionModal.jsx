@@ -5,6 +5,11 @@ import Context from '../../../../context/context';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import { ReactComponent as Arrow } from '../../../../assets/svg/subscription/diagonalArrow.svg';
 import { useNavigate } from 'react-router-dom';
+
+const customStyles = {
+	content: { zIndex: 99999 },
+	overlay: { zIndex: 99998 },
+};
 const ExpiredSubscriptionModal = () => {
 	let {
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState, expiredSubscriptionModal },
@@ -21,7 +26,7 @@ const ExpiredSubscriptionModal = () => {
 		<ReactModal
 			isOpen={expiredSubscriptionModal}
 			closeModal={closeModal}
-			// customStyles={customStyles}
+			customStyles={customStyles}
 		>
 			<div className="expiredSubscriptionParentContainerModal">
 				<div className="expiredSubscriptionModalHeader">

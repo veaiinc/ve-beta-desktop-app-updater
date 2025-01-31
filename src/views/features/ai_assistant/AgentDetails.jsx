@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/agentDetails.scss';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
@@ -7,6 +7,12 @@ import { ReactComponent as EditIcon } from '../../../assets/svg/ai_assistant/edi
 import TabHeader from '../../components/ai_assistant/TabHeader';
 import Context from '../../../context/context';
 
+const tabs = {
+	playground: { value: 'playground', label: 'Playground' },
+	chatlogs: { value: 'chatlogs', label: 'Chat Logs' },
+	connections: { value: 'connections', label: 'Connections' },
+};
+
 const AgentDetails = () => {
 	const {
 		aiSetup: { activeAiAssistantDetails },
@@ -14,7 +20,7 @@ const AgentDetails = () => {
 
 	const { aiAssistantId } = useParams();
 	const location = useLocation();
-	const { assistant, activeAiAssistant } = location?.state;
+	const { assistant } = location?.state;
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
@@ -28,22 +34,20 @@ const AgentDetails = () => {
 		}
 	}, [activeAiAssistantDetails]);
 
-	const tabs = {
-		playground: { value: 'playground', label: 'Playground' },
-		chatlogs: { value: 'chatlogs', label: 'Chat Logs' },
-		connections: { value: 'connections', label: 'Connections' },
-	};
-
-	const onTabChange = (tab) => {
-		setInfo({ ...info, activeTab: tab });
-	};
+	const onTabChange = useCallback(
+		(tab) => {
+			if (tab !== info?.activeTab) {
+				setInfo((prev) => ({ ...prev, activeTab: tab }));
+			}
+		},
+		[info?.activeTab],
+	);
 
 	return (
-		<>
+		<div style={{ width: '100%', paddingRight: 10 }}>
 			<CreateAgentHeader
 				backText="Back to AI Assistants"
 				agentIcon={<AgentIcon width={16} height={16} />}
-				// name={info?.activeAiAssistant?.name || assistant?.name}
 				name={assistant?.name}
 				onBack={() => navigate('/ai-assistant')}
 				actionBtnClassName="editAgentBtn"
@@ -60,7 +64,7 @@ const AgentDetails = () => {
 				onTabChange={onTabChange}
 				tabs={Object.values(tabs)?.map(({ value, label }) => ({ value, label }))}
 			/>
-		</>
+		</div>
 	);
 };
 
