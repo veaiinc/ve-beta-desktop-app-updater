@@ -54,19 +54,19 @@
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
-			}
+				}
 
-			.btn-show-all {
-				all: unset;
-				cursor: pointer;
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 11px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
+				.btn-show-all {
+					all: unset;
+					cursor: pointer;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 11px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
 			}
-		}
 
 			.options-dropdown-property-container {
 				display: flex;
@@ -102,40 +102,40 @@
 						justify-content: center;
 					}
 
-				.property-listItem-title {
-					color: var(--primary-font);
-					text-align: start;
-					font-family: var(--primary-font-family);
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-					flex-grow: 1;
-					max-width: 100px;
-					overflow: hidden;
-					text-overflow: ellipsis;
-					white-space: nowrap;
-					user-select: none;
-				}
+					.property-listItem-title {
+						color: var(--primary-font);
+						text-align: start;
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						flex-grow: 1;
+						max-width: 100px;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+						user-select: none;
+					}
 
 					.crossed-eye-icon {
 						opacity: 0.48;
 					}
 
-				&:hover {
-					background-color: var(--card);
+					&:hover {
+						background-color: var(--card);
+					}
 				}
 			}
-		}
 
-		.options-dropdown-footer {
-			display: flex;
-			width: 100%;
-			justify-content: space-between;
-			align-items: center;
-			border-top: 1px solid var(--stroke);
-			padding: 12px;
-			padding-bottom: 0;
+			.options-dropdown-footer {
+				display: flex;
+				width: 100%;
+				justify-content: space-between;
+				align-items: center;
+				border-top: 1px solid var(--stroke);
+				padding: 12px;
+				padding-bottom: 0;
 
 				.add-new-property-icon {
 					width: 15px;
@@ -143,22 +143,22 @@
 					opacity: 0.48;
 				}
 
-			.add-new-property-title {
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
+				.add-new-property-title {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+			.cursor-pointer {
+				cursor: pointer;
 			}
 		}
+
 		.cursor-pointer {
 			cursor: pointer;
 		}
-	}
-
-	
-	.cursor-pointer {
-		cursor: pointer;
 	}
 }
