@@ -915,7 +915,7 @@ const TasksTab = () => {
 								hasMore={info?.hasNextPageForDueTillToday}
 								next={fetchMoreTasksDueTillToday}
 								loader={<FetchMoreLoaderComp />}
-								height={470}
+								height={546}
 							>
 								<div className="tasks-container">
 									{info?.dueTillTodayTasksList?.map((task) => {
