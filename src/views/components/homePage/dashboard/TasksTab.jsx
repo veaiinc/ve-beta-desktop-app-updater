@@ -417,7 +417,7 @@ const TasksTab = () => {
 		getTasksCountForOverdue(payload);
 	};
 
-	const fetchTodayTasks = (page = 1) => {
+	const fetchTodayTasks = (page, type = null, task = null) => {
 		const payload = {
 			filters: {
 				limit: 10,
@@ -426,29 +426,29 @@ const TasksTab = () => {
 				endDate: Math.floor(new Date().setHours(23, 59, 59, 999) / 1000),
 			},
 		};
-		getListTasksForToday(payload);
+		getListTasksForToday(payload, type, task);
 	};
 
-	const fetchOverdueTasks = async (page) => {
+	const fetchOverdueTasks = async (page, type = null, task = null) => {
 		const payload = {
 			filters: {
-				limit: 6,
+				limit: 10,
 				page,
 				endDate: Math.floor(new Date().setHours(-1, 59, 59, 999) / 1000),
 			},
 		};
-		getListTasksForOverdue(payload);
+		getListTasksForOverdue(payload, type, task);
 	};
 
-	const fetchDueTillTodayTasks = (page) => {
+	const fetchDueTillTodayTasks = (page, type = null, task = null) => {
 		const payload = {
 			filters: {
-				limit: 6,
+				limit: 10,
 				page,
 				endDate: Math.floor(new Date().setHours(23, 59, 59, 999) / 1000),
 			},
 		};
-		getListTasksDueTillToday(payload);
+		getListTasksDueTillToday(payload, type, task);
 	};
 
 	const fetchMoreTodayTasks = () => {
@@ -483,7 +483,15 @@ const TasksTab = () => {
 	}, []);
 
 	const debouncedUpdateTask = useCallback(
-		async (rowId, propName, value, originalValue, isUpdatingSubTask, onSuccess) => {
+		async (
+			rowId,
+			propName,
+			value,
+			originalValue,
+			isUpdatingSubTask,
+			onSuccess,
+			updatedValue,
+		) => {
 			try {
 				const response = await updateListItem({
 					taskId: rowId,
@@ -507,6 +515,8 @@ const TasksTab = () => {
 					// Update state only after successful API call
 					if (onSuccess) onSuccess();
 
+					let task;
+
 					// Handle assignedTo special case
 					if (propName === 'assignedTo') {
 						const token = localStorage.getItem('usertoken');
@@ -528,50 +538,65 @@ const TasksTab = () => {
 								assignedAt: moment().unix(),
 							});
 						} else {
-							setInfo((prevInfo) => {
-								const newTodayTasksList = prevInfo?.todayTasksList?.map((row) => {
-									if (row._id === rowId) {
-										return {
-											...row,
-											assignedBy: { _id: user_id, name: userName },
-											assignedAt: moment().unix(),
-										};
-									}
-									return row;
-								});
-
-								const newOverdueTasksList = prevInfo?.overDueTasksList?.map(
-									(row) => {
-										if (row._id === rowId) {
-											return {
-												...row,
-												assignedBy: { _id: user_id, name: userName },
-												assignedAt: moment().unix(),
-											};
-										}
-										return row;
-									},
-								);
-
-								const newDueTillTodayTasksList =
-									prevInfo?.dueTillTodayTasksList?.map((row) => {
-										if (row._id === rowId) {
-											return {
-												...row,
-												assignedBy: { _id: user_id, name: userName },
-												assignedAt: moment().unix(),
-											};
-										}
-										return row;
-									});
-
-								return {
-									...prevInfo,
-									todayTasksList: newTodayTasksList,
-									overDueTasksList: newOverdueTasksList,
-									dueTillTodayTasksList: newDueTillTodayTasksList,
-								};
+							task = info?.todayTasksList?.filter((row) => {
+								return row?._id === rowId;
 							});
+							task = info?.overDueTasksList?.filter((row) => {
+								return row?._id === rowId;
+							});
+							task = info?.dueTillTodayTasksList?.filter((row) => {
+								return row?._id === rowId;
+							});
+							task = {
+								...task,
+								assignedBy: { _id: user_id, name: userName },
+								assignedAt: moment().unix(),
+							};
+
+							// setInfo((prevInfo) => {
+							// 	const newTodayTasksList = prevInfo?.todayTasksList?.map((row) => {
+							// 		if (row._id === rowId) {
+							// 			return {
+							// 				...row,
+							// 				assignedBy: { _id: user_id, name: userName },
+							// 				assignedAt: moment().unix(),
+							// 			};
+							// 		}
+							// 		return row;
+							// 	});
+
+							// 	const newOverdueTasksList = prevInfo?.overDueTasksList?.map(
+							// 		(row) => {
+							// 			if (row._id === rowId) {
+							// 				return {
+							// 					...row,
+							// 					assignedBy: { _id: user_id, name: userName },
+							// 					assignedAt: moment().unix(),
+							// 				};
+							// 			}
+							// 			return row;
+							// 		},
+							// 	);
+
+							// 	const newDueTillTodayTasksList =
+							// 		prevInfo?.dueTillTodayTasksList?.map((row) => {
+							// 			if (row._id === rowId) {
+							// 				return {
+							// 					...row,
+							// 					assignedBy: { _id: user_id, name: userName },
+							// 					assignedAt: moment().unix(),
+							// 				};
+							// 			}
+							// 			return row;
+							// 		});
+
+							// 	return {
+							// 		...prevInfo,
+							// 		todayTasksList: newTodayTasksList,
+							// 		overDueTasksList: newOverdueTasksList,
+							// 		dueTillTodayTasksList: newDueTillTodayTasksList,
+							// 	};
+							// });
 						}
 					}
 
@@ -579,46 +604,52 @@ const TasksTab = () => {
 					const token = localStorage.getItem('usertoken');
 					const { user_id, userName } = jwtDecode(token);
 
-					setInfo((prevInfo) => {
-						const newTodayTasksList = prevInfo?.todayTasksList?.map((row) => {
-							if (row._id === rowId) {
-								return {
-									...row,
-									updatedBy: { _id: user_id, name: userName },
-								};
-							}
-							return row;
-						});
+					task = { ...task, updatedBy: { _id: user_id, name: userName } };
+					task = { ...task, [propName]: updatedValue };
 
-						const newOverdueTasksList = prevInfo?.overDueTasksList?.map((row) => {
-							if (row._id === rowId) {
-								return {
-									...row,
-									updatedBy: { _id: user_id, name: userName },
-								};
-							}
-							return row;
-						});
+					fetchDueTillTodayTasks(1, 'update', task);
+					fetchOverdueTasks(1, 'update', task);
+					fetchTodayTasks(1, 'update', task);
+					// setInfo((prevInfo) => {
+					// 	const newTodayTasksList = prevInfo?.todayTasksList?.map((row) => {
+					// 		if (row._id === rowId) {
+					// 			return {
+					// 				...row,
+					// 				updatedBy: { _id: user_id, name: userName },
+					// 			};
+					// 		}
+					// 		return row;
+					// 	});
 
-						const newDueTillTodayTasksList = prevInfo?.dueTillTodayTasksList?.map(
-							(row) => {
-								if (row._id === rowId) {
-									return {
-										...row,
-										updatedBy: { _id: user_id, name: userName },
-									};
-								}
-								return row;
-							},
-						);
+					// 	const newOverdueTasksList = prevInfo?.overDueTasksList?.map((row) => {
+					// 		if (row._id === rowId) {
+					// 			return {
+					// 				...row,
+					// 				updatedBy: { _id: user_id, name: userName },
+					// 			};
+					// 		}
+					// 		return row;
+					// 	});
 
-						return {
-							...prevInfo,
-							todayTasksList: newTodayTasksList,
-							overDueTasksList: newOverdueTasksList,
-							dueTillTodayTasksList: newDueTillTodayTasksList,
-						};
-					});
+					// 	const newDueTillTodayTasksList = prevInfo?.dueTillTodayTasksList?.map(
+					// 		(row) => {
+					// 			if (row._id === rowId) {
+					// 				return {
+					// 					...row,
+					// 					updatedBy: { _id: user_id, name: userName },
+					// 				};
+					// 			}
+					// 			return row;
+					// 		},
+					// 	);
+
+					// 	return {
+					// 		...prevInfo,
+					// 		todayTasksList: newTodayTasksList,
+					// 		overDueTasksList: newOverdueTasksList,
+					// 		dueTillTodayTasksList: newDueTillTodayTasksList,
+					// 	};
+					// });
 				}
 				if (!info?.sidebarIsOpen) {
 					fetchOverdueTasks(1);
@@ -700,40 +731,37 @@ const TasksTab = () => {
 				}));
 				updateSubTask({ _id: rowId, [propName]: updatedValue });
 			} else {
-				setInfo((prevInfo) => {
-					const updatedTodayTasksList = prevInfo?.todayTasksList?.map((row) => {
-						if (row._id === rowId) {
-							originalValue = row[propName];
-							return { ...row, [propName]: updatedValue };
-						}
-						return row;
-					});
-
-					const updatedOverdueTasksList = prevInfo?.overDueTasksList?.map((row) => {
-						if (row._id === rowId) {
-							originalValue = row[propName];
-							return { ...row, [propName]: updatedValue };
-						}
-						return row;
-					});
-
-					const updatedDueTillTodayTasksList = prevInfo?.dueTillTodayTasksList?.map(
-						(row) => {
-							if (row._id === rowId) {
-								originalValue = row[propName];
-								return { ...row, [propName]: updatedValue };
-							}
-							return row;
-						},
-					);
-
-					return {
-						...prevInfo,
-						todayTasksList: updatedTodayTasksList,
-						overDueTasksList: updatedOverdueTasksList,
-						dueTillTodayTasksList: updatedDueTillTodayTasksList,
-					};
-				});
+				// setInfo((prevInfo) => {
+				// 	const updatedTodayTasksList = prevInfo?.todayTasksList?.map((row) => {
+				// 		if (row._id === rowId) {
+				// 			originalValue = row[propName];
+				// 			return { ...row, [propName]: updatedValue };
+				// 		}
+				// 		return row;
+				// 	});
+				// 	const updatedOverdueTasksList = prevInfo?.overDueTasksList?.map((row) => {
+				// 		if (row._id === rowId) {
+				// 			originalValue = row[propName];
+				// 			return { ...row, [propName]: updatedValue };
+				// 		}
+				// 		return row;
+				// 	});
+				// 	const updatedDueTillTodayTasksList = prevInfo?.dueTillTodayTasksList?.map(
+				// 		(row) => {
+				// 			if (row._id === rowId) {
+				// 				originalValue = row[propName];
+				// 				return { ...row, [propName]: updatedValue };
+				// 			}
+				// 			return row;
+				// 		},
+				// 	);
+				// 	return {
+				// 		...prevInfo,
+				// 		todayTasksList: updatedTodayTasksList,
+				// 		overDueTasksList: updatedOverdueTasksList,
+				// 		dueTillTodayTasksList: updatedDueTillTodayTasksList,
+				// 	};
+				// });
 			}
 
 			handleDebounceUpdate(
@@ -743,6 +771,7 @@ const TasksTab = () => {
 				originalValue,
 				isUpdatingSubTask || info?.selectedSubTask !== null,
 				onSuccess,
+				updatedValue,
 			);
 		},
 		[
@@ -766,20 +795,34 @@ const TasksTab = () => {
 					} else {
 						getOverdueTasksCount();
 						getTodayTasksCount();
-						setInfo((prevInfo) => ({
-							...prevInfo,
-							todayTasksList: prevInfo?.todayTasksList?.filter(
-								(row) => row?._id !== payload?.taskId,
-							),
-							overDueTasksList: prevInfo?.overDueTasksList?.filter(
-								(row) => row?._id !== payload?.taskId,
-							),
-							dueTillTodayTasksList: prevInfo?.dueTillTodayTasksList?.filter(
-								(row) => row?._id !== payload?.taskId,
-							),
-							sidebarIsOpen: false,
-							selectedRow: null,
-						}));
+						let task;
+						task = info?.todayTasksList?.filter((row) => {
+							return row?._id === payload?.taskId;
+						});
+						task = info?.overDueTasksList?.filter((row) => {
+							return row?._id === payload?.taskId;
+						});
+						task = info?.dueTillTodayTasksList?.filter((row) => {
+							return row?._id === payload?.taskId;
+						});
+
+						fetchDueTillTodayTasks(1, 'delete', task);
+						fetchOverdueTasks(1, 'delete', task);
+						fetchTodayTasks(1, 'delete', task);
+						// setInfo((prevInfo) => ({
+						// 	...prevInfo,
+						// 	todayTasksList: prevInfo?.todayTasksList?.filter(
+						// 		(row) => row?._id !== payload?.taskId,
+						// 	),
+						// 	overDueTasksList: prevInfo?.overDueTasksList?.filter(
+						// 		(row) => row?._id !== payload?.taskId,
+						// 	),
+						// 	dueTillTodayTasksList: prevInfo?.dueTillTodayTasksList?.filter(
+						// 		(row) => row?._id !== payload?.taskId,
+						// 	),
+						// 	sidebarIsOpen: false,
+						// 	selectedRow: null,
+						// }));
 					}
 				}
 			}
