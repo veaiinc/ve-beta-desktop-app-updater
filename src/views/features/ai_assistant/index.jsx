@@ -115,7 +115,7 @@ const AiAssistants = () => {
 		<div className="aiAssistantsParentContainer" style={{ paddingRight: 10 }}>
 			<div className="pageHeadContainer">
 				<div className="headTitleContainer">
-					<span className="lineOne">Explore</span>
+					<span className="lineOne">Create</span>
 					<span className="lineTwo">AI Assistants</span>
 				</div>
 
@@ -130,7 +130,7 @@ const AiAssistants = () => {
 				</div>
 			</div>
 
-			<div className="promtsContainer">
+			{/* <div className="promtsContainer">
 				<div className="promptHeader">
 					<span>Suggested Prompt</span>
 					<Sync />
@@ -144,7 +144,7 @@ const AiAssistants = () => {
 						</div>
 					))}
 				</div>
-			</div>
+			</div> */}
 
 			<div className="displayAgenstsContainer">
 				<div className="titleContainer">

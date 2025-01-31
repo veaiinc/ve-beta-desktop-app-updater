@@ -210,7 +210,7 @@ const PriorityTab = () => {
 						</InfiniteScroll>
 					)}
 				</div>
-				<div className="card-div-end-black-shadow"></div>
+				{/* <div className="card-div-end-black-shadow"></div> */}
 			</div>
 		</div>
 	);
