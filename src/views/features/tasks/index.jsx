@@ -605,7 +605,11 @@ const Tasks = () => {
 
 	const updatePropertyValue = useCallback(
 		(rowId, propName, value, isUpdatingSubTask, onSuccess) => {
-			if (validateExpiryData && validateExpiryData?.isExpired) {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictTasks &&
+				validateExpiryData?.isExpired
+			) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
 			let originalValue;
@@ -665,7 +669,11 @@ const Tasks = () => {
 
 	const addNewTask = useCallback(
 		async (payload) => {
-			if (validateExpiryData?.isExpired) {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictTasks &&
+				validateExpiryData?.isExpired
+			) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			} else {
 				if (info?.isCreatingSubtask) {
@@ -710,7 +718,11 @@ const Tasks = () => {
 
 	const deleteTask = useCallback(
 		async (payload) => {
-			if (validateExpiryData?.isExpired) {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictTasks &&
+				validateExpiryData?.isExpired
+			) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			} else {
 				const response = await deleteListItem(payload);
