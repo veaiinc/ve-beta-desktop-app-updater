@@ -364,7 +364,6 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 					label="Initial Message"
 					value={info?.initialMessage}
 					onChange={(e) => {
-						console.log('blablab');
 						handleLimittedCharecterUpdate(e.target.value, 'initialMessage');
 					}}
 					onBlur={() =>
