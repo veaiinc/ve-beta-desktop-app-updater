@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/AiPersonality.scss';
 import { ReactComponent as PlayIcon } from '../../../assets/svg/ai_assistant/play.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
@@ -86,6 +86,10 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 		assistantName: assistant?.name,
 		assistantResponseTone: assistant?.responseTone,
 		assistantPersonality: assistant?.personality,
+		initialMessage: assistant?.initialMessage,
+		messagePlaceholder: assistant?.messagePlaceholder,
+		initialMessageError: '',
+		messagePlaceholderError: '',
 	});
 
 	const options = ['Kierra', 'Alex', 'Sam', 'Jordan'];
@@ -96,6 +100,17 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 			[key]: value,
 		}));
 	}, []);
+
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			assistantName: assistant?.name,
+			assistantResponseTone: assistant?.responseTone,
+			assistantPersonality: assistant?.personality,
+			initialMessage: assistant?.initialMessage,
+			messagePlaceholder: assistant?.messagePlaceholder,
+		}));
+	}, [assistant]);
 
 	const handleAssistantNameChange = useCallback(
 		(name) => {
@@ -128,6 +143,26 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 		},
 		[updateAssistantData],
 	);
+
+	const handleLimittedCharecterUpdate = useCallback((value, type) => {
+		if (value.length > (type === 'initialMessage' ? 100 : 100)) {
+			setInfo((prev) => ({
+				...prev,
+				[`${type}Error`]: `${
+					type === 'initialMessage' ? 'Initial message' : 'User message'
+				} should be less than ${type === 'initialMessage' ? 100 : 100} characters`,
+			}));
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				[`${type}Error`]: '',
+			}));
+		}
+		setInfo((prev) => ({
+			...prev,
+			[type]: value,
+		}));
+	}, []);
 
 	return (
 		<div className="personalityParentContainer">
@@ -276,6 +311,34 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 					</div>
 				</div>
 			</div>
+
+			<div className="aiChatIconContainer">
+				<div className="aiChatIconHeader">
+					<span className="lineone">Chat Icon</span>
+					<span className="linetwo">User will see this as Assistant chat icon</span>
+				</div>
+
+				<div className="aiChatIconWrapper">
+					<div className="chatIconWrapper">
+						{assistant?.chatIcon ? (
+							<img src={assistant?.chatIcon} alt="chatIcon" />
+						) : null}
+					</div>
+					<div className="uploadContainer">
+						<div className="uploadIcons">
+							<span className="uploadBtn">
+								<UploadIcon />
+								Upload
+							</span>
+							<span className="removeBtn">remove</span>
+						</div>
+						<span className="uploadLabel">
+							Supports JPG, PNG, and SVG files up to 1MB
+						</span>
+					</div>
+				</div>
+			</div>
+
 			<div className="colorThemeContainer">
 				<div className="colorThemeHeader">
 					<span className="lineone">Color Theme</span>
@@ -292,10 +355,23 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 					<span className="lineone">Initial Message</span>
 					<span className="linetwo">User will get this message from Assistant first</span>
 				</div>
+				{info?.initialMessageError && (
+					<div className="errorMessage">{info?.initialMessageError}</div>
+				)}
 				<CustomInput
 					placeholder="Hi, I'm your AI assistant. How can I help you today?"
 					className="aiNameInput"
 					label="Initial Message"
+					value={info?.initialMessage}
+					onChange={(e) => {
+						console.log('blablab');
+						handleLimittedCharecterUpdate(e.target.value, 'initialMessage');
+					}}
+					onBlur={() =>
+						!info?.initialMessageError &&
+						info?.initialMessage !== assistant?.initialMessage &&
+						updateAssistantData('initialMessage', info?.initialMessage)
+					}
 				/>
 			</div>
 			<div className="userMessageContainer">
@@ -303,10 +379,22 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 					<span className="lineone">User Message</span>
 					<span className="linetwo">User will see this message from Assistant</span>
 				</div>
+				{info?.messagePlaceholderError && (
+					<div className="errorMessage">{info?.messagePlaceholderError}</div>
+				)}
 				<CustomInput
 					placeholder="Shoot anything"
 					className="aiNameInput"
 					label="User Message"
+					value={info?.messagePlaceholder}
+					onChange={(e) =>
+						handleLimittedCharecterUpdate(e.target.value, 'messagePlaceholder')
+					}
+					onBlur={() =>
+						!info?.messagePlaceholderError &&
+						info?.messagePlaceholder !== assistant?.messagePlaceholder &&
+						updateAssistantData('messagePlaceholder', info?.messagePlaceholder)
+					}
 				/>
 			</div>
 		</div>

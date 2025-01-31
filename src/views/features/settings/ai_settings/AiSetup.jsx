@@ -36,7 +36,7 @@ const AiSetup = () => {
 	}, [existingAiAssistants]);
 
 	const toggleModal = () => {
-		if (validateExpiryData?.isExpired) {
+		if (validateExpiryData && validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		setInfo((prev) => ({

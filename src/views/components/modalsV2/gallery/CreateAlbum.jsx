@@ -51,7 +51,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 	};
 
 	const handleCreateAlbum = () => {
-		if (validateExpiryData?.isExpired) {
+		if (validateExpiryData && validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		if (info?.isSubmitting) return;
