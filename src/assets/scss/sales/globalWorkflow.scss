@@ -27,7 +27,7 @@
 			}
 
 			.gloablHeaderTitle {
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 22px;
 				font-style: normal;
@@ -52,10 +52,10 @@
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 16px;
-		color: #fff;
+		color: var(--primary-font);
 		.sidebarLabel {
 			overflow: hidden;
-			color: rgba(228, 229, 230, 0.32);
+			color: var(--primary-font);
 			text-overflow: ellipsis;
 			font-family: var(--primary-font-family);
 			font-size: 14px;
@@ -67,7 +67,7 @@
 			transition: all 0.5s;
 		}
 		.sidebarLabel:hover {
-			color: #e4e5e6;
+			color: var(--primary-font);
 		}
 	}
 }

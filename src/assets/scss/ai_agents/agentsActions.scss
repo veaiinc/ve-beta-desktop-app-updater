@@ -14,8 +14,7 @@
 		gap: 12px;
 		align-items: flex-start;
 		border-radius: 24px;
-		background: #171819;
-		background: color(display-p3 0.0902 0.0941 0.098);
+		background-color: var(--background-color);
 		cursor: pointer;
 		position: relative;
 
@@ -26,12 +25,8 @@
 			flex-direction: column;
 
 			.agentsTaskCardTitle {
-				color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-				color: var(
-					--ve-ai-dark-theme-primary-font-color,
-					color(display-p3 0.9098 0.9098 0.9098)
-				);
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 18px;
 				font-style: normal;
 				font-weight: 500;
@@ -40,9 +35,8 @@
 		}
 
 		.agentsTaskCardFooterStyling {
-			color: #e8e8e8;
-			color: color(display-p3 0.9098 0.9098 0.9098);
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -58,7 +52,7 @@
 			top: 14px;
 			color: #00959b;
 			color: color(display-p3 0.1098 0.5725 0.6);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;

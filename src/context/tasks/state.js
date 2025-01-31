@@ -21,6 +21,7 @@ export const intialState = {
 	newTask: null,
 	subTasks: null,
 	preferences: null,
+	refetchTasks: false,
 };
 
 export const TasksState = () => {
@@ -242,9 +243,8 @@ export const TasksState = () => {
 					type: Actions.ADD_NEW_STATUS_LABEL,
 					payload: response?.[1]?.data?.createTaskLabel,
 				});
-			} else {
-				console.log('API failed ==> addNewStatus', response);
 			}
+			return response;
 		} catch (error) {
 			console.log('API failed ==> addNewStatus', error);
 		}
@@ -266,9 +266,8 @@ export const TasksState = () => {
 					type: Actions.UPDATE_STATUS_LABEL,
 					payload: response?.[1]?.data?.updateTaskLabel,
 				});
-			} else {
-				console.log('API failed ==> updateStatusLabel', response);
 			}
+			return response;
 		} catch (error) {
 			console.log('API failed ==> updateStatusLabel', error);
 		}
@@ -290,17 +289,22 @@ export const TasksState = () => {
 					type: Actions.DELETE_STATUS_LABEL,
 					payload: { _id: payload.labelId },
 				});
-			} else {
-				console.log('API failed ==> deleteStatusLabel', response);
 			}
+			return response;
 		} catch (error) {
 			console.log('API failed ==> deleteStatusLabel', error);
-			throw error;
 		}
 	};
 
 	const resetTasksState = () => {
 		dispatch({ type: Actions.RESET_STATE });
+	};
+
+	const updateTaskState = (payload) => {
+		dispatch({
+			type: Actions.UPDATE_TASK_STATE,
+			payload,
+		});
 	};
 
 	return {
@@ -321,5 +325,6 @@ export const TasksState = () => {
 		updateStatusLabel,
 		deleteStatusLabel,
 		resetTasksState,
+		updateTaskState,
 	};
 };

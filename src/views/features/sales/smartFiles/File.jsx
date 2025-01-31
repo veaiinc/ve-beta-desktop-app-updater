@@ -136,7 +136,7 @@ const File = ({
 				for (let k = 0; k < activeVersionData?.tables?.length; k++) {
 					const currentTableData = activeVersionData?.tables?.[k];
 
-					if (currentTableData?.type === 'events') {
+					if (currentTableData?.type === 'events' && updatedModules?.[i] === 'proposal') {
 						eventsTable?.push({
 							...currentTableData,
 							moduleType: updatedModules?.[i],
@@ -838,6 +838,10 @@ const File = ({
 					subBlocks[0].quantity = quantity;
 					subBlocks[0].show = show;
 					serviceDataMapped[i].data.ai_generated = true;
+					if (servicePrediction?.[i]?.subtotal) {
+						serviceDataMapped[i].data.ai_generated_subtotal =
+							servicePrediction?.[i]?.subtotal;
+					}
 				}
 				blocks[j].subBlocks = [...subBlocks];
 			}

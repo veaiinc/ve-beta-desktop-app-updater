@@ -10,6 +10,7 @@ const ListViewRow = ({
 	responseMetadata,
 	handleEditPropertyChange,
 	colors,
+	rowClickHandler,
 }) => {
 	const generateRow = useCallback(
 		(row) => {
@@ -70,6 +71,7 @@ const ListViewRow = ({
 						{...props}
 						handleEditPropertyChange={handleEditPropertyChange}
 						colors={colors}
+						showTitle={true}
 					/>
 				) : null;
 
@@ -95,7 +97,12 @@ const ListViewRow = ({
 	return (
 		<div
 			className={`listItemRowContainer ${isSubTask ? 'subTaskRowContainer' : ''}`}
-			onClick={() => handleRowClick(task?._id)}
+			onClick={() => {
+				if (rowClickHandler) {
+					return rowClickHandler(task);
+				}
+				handleRowClick(task?._id);
+			}}
 		>
 			<div className="listItemRow">{generateRow(task)}</div>
 		</div>

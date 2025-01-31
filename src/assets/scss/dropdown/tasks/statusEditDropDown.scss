@@ -6,7 +6,7 @@
 	align-items: flex-start;
 	gap: 12px;
 	border-radius: 8px;
-	background: var(--popup);
+	background: var(--card);
 	box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
 
 	.options-property-edit-header {
@@ -20,7 +20,7 @@
 		gap: 8px;
 		.options-property-edit-header-title {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -40,6 +40,7 @@
 		min-height: 50px;
 		max-height: 220px;
 		overflow-y: auto;
+		overflow-x: hidden;
 		// background-color: red;
 
 		.property-edit-section-title-wrapper {
@@ -47,8 +48,8 @@
 			justify-content: space-between;
 			align-items: center;
 			.property-edit-section-title {
-				color: var(--primary-font);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -71,20 +72,21 @@
 			padding: 6px;
 			align-items: center;
 			gap: 10px;
-			align-self: stretch;
+			width: 100%;
 			border-radius: 8px;
 			border: 1px solid var(--primary-font);
 			background: transparent;
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+			box-sizing: border-box;
 
 			&::placeholder {
-				color: var(--primary-font);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 11px;
 				font-style: normal;
 				font-weight: 400;
@@ -105,8 +107,8 @@
 				align-self: stretch;
 
 				.property-edit-section-body-item-title {
-					color: var(--primary-font);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
@@ -115,7 +117,7 @@
 
 				.property-edit-section-body-item-value {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
@@ -165,7 +167,7 @@
 
 						.status-option-label {
 							color: var(--primary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -179,7 +181,7 @@
 				}
 
 				&:hover {
-					background-color: var(--card-over-card);
+					background-color: var(--card);
 				}
 			}
 		}
@@ -212,7 +214,7 @@
 
 		.property-edit-footer-title {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;

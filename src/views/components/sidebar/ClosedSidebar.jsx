@@ -1,7 +1,7 @@
-import React, { useState, memo, useEffect } from 'react';
+import React, { useState, memo, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 // import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
-import LeadPlusSvg from '../../../assets/svg/sidebar/  LeadPlusSvg.jsx';
+import LeadPlusSvg from '../../../assets/svg/sidebar/LeadPlusSvg.jsx';
 import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg';
 import { veAiModulesItemsList } from './sidebarindex';
 import DropDrownMenu from './DropDrownMenu';
@@ -10,6 +10,8 @@ import { ReactComponent as HamburgerSvg } from '../../../assets/svg/sidebar/Hamb
 import { Tooltip } from 'antd';
 import { closedSidebarIcons } from './sidebarindex';
 import { AiOptions } from './sidebarindex';
+import Cookies from 'js-cookie';
+import Context from '../../../context/context.js';
 const ClosedSideBarHoverStateIcons = ({
 	Icon,
 	initialColor = null,
@@ -17,6 +19,10 @@ const ClosedSideBarHoverStateIcons = ({
 	isActive = false,
 }) => {
 	const [isHover, setisHover] = useState(false);
+	const {
+		themeInfo: { theme },
+	} = useContext(Context);
+	// const theme = localStorage.getItem('theme') || Cookies.get('theme') || 'dark';
 
 	return (
 		<div
@@ -24,7 +30,20 @@ const ClosedSideBarHoverStateIcons = ({
 			onMouseLeave={() => setisHover(false)}
 			className={`hoverStateIconsClosed ${isHover ? hoverClassName : ''}`}
 		>
-			{Icon && <Icon fill={isActive ? '#FFF' : '#7A7E85'} />}
+			{/* isActive ? '#FFF' : '#7A7E85' */}
+			{Icon && (
+				<Icon
+					fill={
+						theme === 'dark'
+							? isActive
+								? '#FFF'
+								: '#7A7E85'
+							: isActive
+							? 'black'
+							: 'rgba(123, 125, 132, 1)'
+					}
+				/>
+			)}
 		</div>
 	);
 };
@@ -95,6 +114,9 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 	const [visibleIcons, setVisibleIcons] = useState([]);
 	const [isMobile, setIsMobile] = useState(window.innerWidth <= 500);
 	const [isThisEarlyAccessPage, setIsThisEarlyAccessPage] = useState(false);
+	const {
+		themeInfo: { theme },
+	} = useContext(Context);
 
 	useEffect(() => {
 		const currentPath = window.location.pathname;
@@ -276,7 +298,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 												gap: '12px',
 												fontSize: '14px',
 												fontWeight: '500',
-												fontFamily: 'Inter',
+												fontFamily: 'var(--primary-font-family)',
 												fontStyle: 'normal',
 												// lineHeight: '20px',
 											}}
@@ -346,7 +368,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 												style={{
 													textTransform: 'capitalize',
 													fontSize: '20px',
-													fontFamily: 'Inter',
+													fontFamily: 'var(--primary-font-family)',
 													fontWeight: '500',
 													color: 'white',
 												}}
@@ -378,7 +400,8 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 															<div
 																style={{
 																	color: '#939393',
-																	fontFamily: 'Inter',
+																	fontFamily:
+																		'var(--primary-font-family)',
 																	fontSize: '13px',
 																	fontStyle: 'normal',
 																	fontWeight: '500',
@@ -398,7 +421,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 														borderRadius: '10px',
 														fontSize: '13px',
 														fontWeight: '500',
-														fontFamily: 'Inter',
+														fontFamily: 'var(--primary-font-family)',
 														fontStyle: 'normal',
 														lineHeight: 'normal',
 														background: '#E8E8E8',
@@ -431,7 +454,11 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 																	transform: 'translateY(-50%)',
 																	width: '3px',
 																	height: '24px',
-																	background: 'white',
+																	background: `${
+																		theme === 'dark'
+																			? 'white'
+																			: 'black'
+																	}`,
 																	borderRadius: '0 2px 2px 0',
 																}}
 															/>
@@ -523,7 +550,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 											// width: '80px',
 											fontSize: '14px',
 											fontWeight: '500',
-											fontFamily: 'Inter',
+											fontFamily: 'var(--primary-font-family)',
 											fontStyle: 'normal',
 											background: '#E8E8E8',
 											color: '#202123',
@@ -647,7 +674,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 											borderRadius: '10px',
 											fontSize: '14px',
 											fontWeight: '500',
-											fontFamily: 'Inter',
+											fontFamily: 'var(--primary-font-family)',
 											fontStyle: 'normal',
 											background: '#E8E8E8',
 											color: '#202123',

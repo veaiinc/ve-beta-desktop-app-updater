@@ -236,7 +236,7 @@ const AddGallery = () => {
 		<div className="gallery-main-container">
 			<div className="seachbar-container">
 				<div className="gallery-filter">
-					<img src={Search} alt="searchh" />
+					<img src={Search} alt="search" />
 					<input
 						type="text"
 						placeholder="Search by title"

@@ -22,7 +22,7 @@
 		.toolExpandedChatBarContainerHeaderTitle {
 			text-align: center;
 			text-shadow: 0px 0px 20px rgba(233, 126, 114, 0.4);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
@@ -55,7 +55,7 @@
 				justify-content: flex-start;
 
 				.message-content {
-					background: var(--card-over-card-hover);
+					background: var(--card);
 					color: var(--primary-font);
 					border-bottom-left-radius: 4px;
 				}
@@ -116,7 +116,7 @@
 					width: 100%;
 
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -149,7 +149,7 @@
 			outline: none;
 			background: transparent;
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;

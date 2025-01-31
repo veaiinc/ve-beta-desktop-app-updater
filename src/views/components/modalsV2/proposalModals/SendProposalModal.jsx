@@ -494,7 +494,10 @@ const SendProposalModal = ({
 			isOpen={open}
 			closeModal={modifiedCloseModal}
 			modalType={'center'}
-			customStyles={{ content: { borderRadius: '15px' } }}
+			customStyles={{
+				content: { borderRadius: '15px', zIndex: 99999 },
+				overlay: { zIndex: 99998 },
+			}}
 		>
 			<div
 				className={`sendSmartFileupdatedContainer ${info?.showEmail ? 'showEmail' : ''} ${

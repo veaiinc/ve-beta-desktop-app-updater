@@ -144,6 +144,33 @@
 				align-items: center;
 				gap: var(--Spacing-space-7, 12px);
 
+				.statusCount {
+					color: rgba(var(--primary-font), 0.48);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+
+					.activeCount {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+
+					.totalCount {
+						color: rgba(var(--primary-font), 0.48);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+
 				.statusIndicator {
 					width: 15px;
 					height: 15px;

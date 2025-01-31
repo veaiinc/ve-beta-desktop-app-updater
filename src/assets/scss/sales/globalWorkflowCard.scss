@@ -5,9 +5,9 @@
 	flex-direction: column;
 	gap: 24px;
 	border-radius: 24px;
-	border: 1px solid rgba(215, 215, 216, 0);
-	background: #111;
-	color: #fff;
+	border: 1px solid var(--stroke);
+	background: var(--card);
+	color: var(--primary-font);
 	transition: all 0.3s ease-out;
 	cursor: pointer;
 
@@ -19,7 +19,7 @@
 		align-self: stretch;
 
 		.globalWorkflowTitle {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
@@ -27,7 +27,7 @@
 			line-height: 18px; /* 100% */
 		}
 		.globalWorkflowSubTitle {
-			color: rgba(228, 229, 230, 0.48);
+			color: var(--secodary-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
@@ -42,7 +42,7 @@
 			gap: 12px;
 			align-self: stretch;
 			.actionsTitle {
-				color: #e4e5e6;
+				color: var(--primary-font);
 				text-align: justify;
 				font-family: var(--primary-font-family);
 				font-size: 12px;
@@ -71,7 +71,7 @@
 						gap: 4px;
 
 						.actionBtnTitlestyling {
-							color: rgba(228, 229, 230, 0.7);
+							color: var(--secondary-font);
 							text-align: justify;
 							font-family: var(--primary-font-family);
 							font-size: 11px;
@@ -93,8 +93,9 @@
 		border-radius: 20px;
 		width: 240px;
 		height: 291px;
-		background-color: #fff;
+		background-color: var(--background-color);
 		overflow-y: auto;
+
 		iframe {
 			border-radius: 20px;
 		}
@@ -102,6 +103,6 @@
 }
 
 .globalWorkflowCardContainer:hover {
-	border: 1px rgba(224, 224, 224, 0.1);
+	border: 1px var(--stroke);
 	box-shadow: 0px 4px 30px 0px rgba(224, 224, 224, 0.06);
 }

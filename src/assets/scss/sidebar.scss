@@ -109,7 +109,7 @@
 					// }
 
 					&:hover {
-						background: var(--card);
+						background: var(--stroke-hover);
 						border: none;
 					}
 				}
@@ -913,6 +913,7 @@
 	width: inherit;
 	border-radius: 16px;
 	background: var(--card-hover);
+	// background: red;
 	align-items: flex-start;
 	// padding: 8px;
 	overflow: hidden;
@@ -929,7 +930,8 @@
 		cursor: pointer;
 		transition: all 0.3s;
 		&:hover {
-			background: var(--primary-button-active);
+			background: var(--accent-color);
+			color: #fff;
 		}
 	}
 }

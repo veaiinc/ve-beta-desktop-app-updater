@@ -39,7 +39,7 @@
 
 				.option-heading {
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -70,7 +70,7 @@
 			.status-dropdown-footer-text {
 				color: var(--primary-font);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -92,20 +92,27 @@
 	background: var(--stroke);
 	cursor: pointer;
 	user-select: none;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 192px;
 	.select-listItem-color {
 		width: 6px;
 		height: 6px;
 		border-radius: 10px;
-		background-color: var(--card);
+		background-color: var(--stroke);
 	}
 
 	.select-listItem-label {
 		color: var(--primary-font);
 		text-align: center;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
 	}
 }

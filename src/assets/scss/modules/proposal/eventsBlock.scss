@@ -7,7 +7,7 @@
 	align-self: stretch;
 	border-radius: 16px;
 	border: 1px solid #242424;
-	background: #1e1e1f;
+	background: var(--background-color);
 
 	.serviceBlockHeader {
 		display: flex;
@@ -17,7 +17,7 @@
 		align-self: stretch;
 
 		.serviceHeaderTitle {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 15px;
 			font-style: normal;
@@ -25,7 +25,7 @@
 			line-height: 23px; /* 153.333% */
 		}
 		.serviceSubheadertitle {
-			color: rgba(228, 229, 230, 0.48);
+			color: var(--secondary-font);
 			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
@@ -43,8 +43,8 @@
 		align-self: stretch;
 		border-radius: 8px;
 		border: 1px dashed rgba(36, 36, 36, 0.64);
-		background: rgba(42, 42, 42, 0.2);
-		color: rgba(228, 229, 230, 0.48);
+		background: var(--background-color);
+		color: var(--secondary-font);
 		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
@@ -76,7 +76,7 @@
 
 			.serviceTitle {
 				padding: 0px 14px;
-				color: #b0b0b0;
+				color: var(--secondary-font);
 				font-family: var(--primary-font-family);
 				font-size: 0.6875rem;
 				font-style: normal;
@@ -88,7 +88,7 @@
 				border-radius: 10px;
 				border: 1px solid #2f2f2f;
 				width: 100%;
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
@@ -113,7 +113,7 @@
 				padding-left: 14px;
 
 				.currencyHolder {
-					color: rgba(228, 229, 230, 0.8);
+					color: var(--secondary-font);
 					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
@@ -165,7 +165,7 @@
 				flex: 1;
 
 				.roleHeader {
-					color: rgba(228, 229, 230, 0.48);
+					color: var(--secondary-font);
 					font-family: var(--primary-font-family);
 					font-size: 10px;
 					font-style: normal;
@@ -199,7 +199,7 @@
 							// gap: 10px;
 							border-radius: 10px;
 							border: 1px solid #2f2f2f;
-							color: #e4e5e6;
+							color: var(--primary-font);
 							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
@@ -211,7 +211,7 @@
 								background: transparent;
 								width: 30px;
 								padding: 0px 5px;
-								color: #e4e5e6;
+								color: var(--primary-font);
 								font-family: var(--primary-font-family);
 								font-size: 14px;
 								font-style: normal;
@@ -251,7 +251,7 @@
 							background: transparent;
 							border-radius: 10px;
 							border: 1px solid #2f2f2f;
-							color: #b0b0b0;
+							color: var(--secondary-font);
 							font-family: var(--primary-font-family);
 							font-size: 11px;
 							font-style: normal;

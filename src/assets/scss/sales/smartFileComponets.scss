@@ -270,6 +270,9 @@
 					font-weight: 400;
 					line-height: 26px; /* 185.714% */
 				}
+				.serviceSubtotalValueInput.ai_generated {
+					border: 1px solid var(--Color-Code-AI, #c39df8);
+				}
 				.ServiceSubTotalValue {
 					color: var(--primary-font);
 					font-family: var(--primary-font-family);
@@ -344,7 +347,7 @@
 						display: flex;
 						justify-content: center;
 						align-items: center;
-						color: var(--primary-button);
+						color: var(--accent-color);
 						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;

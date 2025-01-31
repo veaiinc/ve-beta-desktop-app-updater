@@ -6,12 +6,10 @@
 	flex-direction: column;
 	gap: 36px;
 	// background-color: red;
-
 	.docsParentHeaderContainer {
 		display: flex;
 		align-items: flex-start;
 		gap: 24px;
-
 		.docsHeaderButtons {
 			display: flex;
 			flex: 1;
@@ -22,43 +20,35 @@
 			align-items: flex-start;
 			gap: 6px;
 			border-radius: 14px;
-
-			border: 1px solid #1d1d1d;
 			border: 1px solid color(display-p3 0.1133 0.1133 0.1133);
-			background: #151515;
-
+			background: var(--background-color);
+			cursor: pointer;
 			.docsHeaderButtonsTitle {
-				color: #e4e5e6;
-				color: color(display-p3 0.8941 0.898 0.902);
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 600;
 				line-height: normal;
 			}
-
 			.docsHeaderSubButtonsSubTitleColored {
-				color: #e4e5e6;
-				color: color(display-p3 0.8941 0.898 0.902);
+				color: var(--secondary-font);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
 			}
-
 			.docsHeaderSubButtonsSubTitle {
-				color: rgba(228, 229, 230, 0.48);
-				color: color(display-p3 0.8941 0.898 0.902 / 0.48);
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
 				line-height: normal;
 			}
 		}
-
 		.docsHeaderButtons.colorful {
 			background: var(
 				--Ai-Gradient,
@@ -67,27 +57,24 @@
 			);
 		}
 	}
-
 	.docsTemplatesContainer {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 24px;
 		align-self: stretch;
-
 		.docsTemplatesContainerHeader {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
 			align-self: stretch;
-			color: #fff;
+			color: var(--primary-font);
 			color: color(display-p3 1 1 1);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
-
 			.docsTemplatesAllFilesContainer {
 				display: flex;
 				height: 28px;
@@ -95,39 +82,66 @@
 				align-items: center;
 				gap: 8px;
 				border-radius: 8px;
-				color: #eee;
+				color: var(--primary-font);
 				color: color(display-p3 0.9319 0.9319 0.9319);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
 			}
 		}
-
 		.docsTemplateContainer {
 			display: flex;
 			align-items: flex-start;
 			gap: 16px;
 			align-self: stretch;
 			overflow-x: auto;
+			padding-bottom: 16px;
+			.createStaticActionsCards {
+				display: flex;
+				width: 213px;
+				height: 128px;
+				padding: 20px;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 12px;
+				border-radius: 24px;
+				background: var(--card, #171819);
+				background: var(--card, color(display-p3 0.0902 0.0941 0.098));
+				cursor: pointer;
+				flex-shrink: 0;
+				.createStaticActionsCardsTitle {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
 
+				.createStaticActionsCardsSubTitle {
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+			}
 			.docsTemplateCard {
 				display: flex;
 				width: 232px;
-
+				padding-bottom: 16px;
 				flex-direction: column;
 				align-items: flex-start;
-
+				gap: 12px;
 				border-radius: 14px;
 				border: 0.5px solid rgba(100, 100, 100, 0.16);
 				border: 0.5px solid color(display-p3 0.3932 0.3932 0.3932 / 0.16);
-				background: #121315;
-				background: color(display-p3 0.0706 0.0745 0.0824);
+				background: var(--card);
 				overflow: hidden;
 				flex-shrink: 0;
-				background-color: #25292f;
-
 				.docsTemplateImageContainer {
 					width: 100%;
 					height: 177px;
@@ -135,7 +149,6 @@
 					display: flex;
 					flex-direction: column;
 					position: relative;
-
 					.docsTemplateHoverContentContainer {
 						position: absolute;
 						top: 0;
@@ -144,7 +157,6 @@
 						height: 100%;
 						opacity: 0;
 						transition: opacity 0.3s ease-in-out;
-
 						.docsHoverArrowContainer {
 							display: flex;
 							align-self: stretch;
@@ -152,16 +164,15 @@
 							margin-top: 8px;
 							transform: rotate(180deg);
 						}
-
 						.docsHoverOptionsContainer {
 							display: flex;
 							flex-direction: column;
 							gap: 10px;
 							padding: 7px 24px;
 							.docsHoverOptionsStyling {
-								color: #fff;
+								color: var(--primary-font);
 								color: color(display-p3 1 1 1);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 500;
@@ -172,7 +183,6 @@
 							}
 						}
 					}
-
 					img {
 						width: 100%;
 						height: 100%;
@@ -185,20 +195,17 @@
 						position: absolute;
 						bottom: 0;
 					}
-
 					&:hover {
 						.docsTemplateHoverContentContainer {
 							opacity: 1;
 							display: flex;
 							flex-direction: column;
 						}
-
 						img {
 							height: 20%;
 						}
 					}
 				}
-
 				.docsFooterContent {
 					display: flex;
 					flex-direction: column;
@@ -210,25 +217,294 @@
 					padding-bottom: 16px;
 					padding-top: 12px;
 					.docsFooterContentTitle {
-						color: #e4e5e6;
+						color: var(--primary-font);
 						color: color(display-p3 0.8941 0.898 0.902);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
 					}
-
 					.docsFooterContentSubTitle {
-						color: #e4e5e6;
+						color: var(--secondary-fontf);
 						color: color(display-p3 0.8941 0.898 0.902);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
 						line-height: normal;
 					}
 				}
+			}
+		}
+	}
+
+	.docsFileContainer {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		align-self: stretch;
+
+		.docsFileHeaderContainer {
+			display: flex;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: 16px;
+			align-self: stretch;
+			padding-bottom: 16px;
+			border-bottom: 1px solid #171819;
+
+			.docsFileHeaderContainerTitle {
+				display: flex;
+				justify-content: flex-start;
+				align-items: center;
+				gap: 8px;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 24px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+
+				.appliedFiltersContainer {
+					display: flex;
+					justify-content: flex-start;
+					align-items: center;
+					gap: 8px;
+
+					.appliedFilter {
+						display: flex;
+						padding: 8px 16px;
+						padding-right: 38px;
+						justify-content: center;
+						flex-shrink: 0;
+						align-items: center;
+						gap: 8px;
+						border-radius: 42px;
+						border: 1px solid rgba(98, 84, 245, 0.09);
+						background: rgba(82, 128, 255, 0.05);
+						color: #6254f5;
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 20px;
+						cursor: pointer;
+						position: relative;
+						user-select: none;
+
+						svg {
+							path {
+								fill: #6254f5 !important;
+							}
+						}
+
+						.removeFilterBtn {
+							position: absolute;
+							right: 0;
+							top: 0;
+							width: 38px;
+							height: 100%;
+							cursor: pointer;
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							border-radius: 0 21px 21px 0;
+
+							&:hover {
+								svg {
+									path {
+										stroke: #fff !important;
+									}
+								}
+							}
+						}
+
+						.templateName {
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							padding: 12px 10px;
+							bottom: -32px;
+						}
+					}
+				}
+			}
+
+			.docsFileHeaderContainerActionsContainer {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 16px;
+
+				svg {
+					cursor: pointer;
+				}
+
+				.searchContainer {
+					position: relative;
+					// background-color: red;
+					min-width: 16px;
+					display: inline-block;
+					height: 16px;
+					transition: all 0.3s ease;
+
+					.searchBtn {
+						display: flex;
+						width: 16px;
+						transform: rotate(-0.037deg);
+						padding: 0px;
+						align-items: center;
+						gap: 10px;
+						flex-shrink: 0;
+						border-radius: 100px;
+						background: transparent;
+						cursor: pointer;
+						transition: all 0.3s ease;
+						position: absolute;
+						right: 0;
+						top: 50%;
+						transform: translateY(-50%);
+
+						.inputAndCloseContainer {
+							display: none;
+							transition: all 0.3s ease;
+							overflow: hidden;
+							.searchInputTag {
+								flex: 1;
+								background-color: transparent;
+								color: var(--primary-font);
+								transition: all 0.3s ease;
+								border: none;
+								font-family: var(--primary-font-family);
+								font-size: 13px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: normal;
+
+								&::placeholder {
+									color: var(--secondary-font);
+									font-family: var(--primary-font-family);
+									font-size: 13px;
+									font-style: normal;
+									font-weight: 400;
+									line-height: normal;
+								}
+							}
+						}
+					}
+
+					.searchExpand {
+						display: flex;
+						width: 140px;
+						opacity: 1;
+						z-index: 99;
+
+						.inputAndCloseContainer {
+							width: 120px;
+							display: flex;
+							align-items: center;
+							input {
+								width: 100px;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.docsFilesInfiiniteContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			width: 100%;
+			flex: 1;
+
+			// .infinite-scroll-component__outerdiv {
+			// 	height: 400px !important;
+			// }
+		}
+		.docsRow {
+			display: flex;
+			display: flex;
+			padding: 8px 12px;
+			justify-content: space-between;
+			align-items: center;
+			border-radius: 14px;
+			cursor: pointer;
+			transition: background 0.2s ease-in-out;
+
+			.docsFilesRowTitle {
+				overflow: hidden;
+				color: var(--primary-font);
+				text-overflow: ellipsis;
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.docsKeyWordsContainer {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				flex: 1;
+				justify-content: flex-end;
+
+				.docsclientdetailsName {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+
+				.DocsStatusButtonOuterContainer {
+					display: flex;
+					padding: 4px 6px;
+					justify-content: center;
+					align-items: center;
+					gap: 4px;
+					border-radius: 35px;
+
+					background: var(--background-color);
+
+					.DocsStatusCircle {
+						width: 6px;
+						height: 6px;
+						border-radius: 100%;
+						background: #939393;
+					}
+					.DocsButtontext {
+						color: var(--primary-font);
+						text-align: center;
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+
+				.docsStatusButton {
+					display: flex;
+					padding: 4px 6px;
+					justify-content: center;
+					align-items: center;
+					gap: 4px;
+					border-radius: 35px;
+					background: var(--background-color);
+				}
+			}
+
+			&:hover {
+				background: var(--card, #171819);
 			}
 		}
 	}

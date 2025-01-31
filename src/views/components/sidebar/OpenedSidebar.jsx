@@ -271,7 +271,7 @@ const AiModulesList = ({ image, name, route, navigateTo }) => {
 				onClick={redirectToFunction}
 				style={{
 					color: 'var(--primary-font)',
-					fontFamily: 'Inter',
+					fontFamily: 'var(--primary-font-family)',
 					fontSize: '14px',
 					fontStyle: 'normal',
 					fontWeight: '500',
@@ -503,7 +503,7 @@ const OpenedSideBarItemsComponent = ({
 													fontSize: '14px',
 													fontStyle: 'normal',
 													fontWeight: '500',
-													fontFamily: 'Inter',
+													fontFamily: 'var(--primary-font-family)',
 												}}
 											/>
 										</div>
@@ -536,7 +536,7 @@ const OpenedSideBarItemsComponent = ({
 													fontSize: '14px',
 													fontStyle: 'normal',
 													fontWeight: '500',
-													fontFamily: 'Inter',
+													fontFamily: 'var(--primary-font-family)',
 												}}
 											/>
 										</div>

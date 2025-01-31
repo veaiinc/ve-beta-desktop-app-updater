@@ -395,8 +395,8 @@
 							align-items: center;
 							gap: 8.837px;
 							border-radius: 87.488px;
-							background: #dae0ff;
-							color: black; //has to change if required
+							background: var(--card);
+							color: var(--primary-font); //has to change if required
 
 							span {
 								// color: #6c83ff;

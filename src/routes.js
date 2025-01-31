@@ -33,6 +33,7 @@ import Ai_agent from './views/features/ai_agent';
 import AgentsJobs from './views/features/ai_agent/AgentsJobs';
 import AgentsSetup from './views/features/ai_agent/AgentsSetup';
 import Docs from './views/features/docs';
+import MyTemplates from './views/features/my_templates/MyTemplates';
 const routes = [
 	{
 		path: '/',
@@ -241,7 +242,7 @@ const routes = [
 	{
 		path: '/calendar',
 		component: (
-			<AuthWrapper title={'Calendar'} maxWidth={'1700px'}>
+			<AuthWrapper title={'Calendar'} maxWidth={'1700px'} showBottomToolbar={false}>
 				<Calendar />
 			</AuthWrapper>
 		),
@@ -299,6 +300,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Docs'}>
 				<Docs />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/my-templates',
+		component: (
+			<AuthWrapper title={'My Templates'}>
+				<MyTemplates />
 			</AuthWrapper>
 		),
 		exact: true,

@@ -94,7 +94,7 @@
 					justify-content: flex-start;
 
 					.message-content {
-						background: var(--stroke);
+						background: var(--card);
 						color: var(--primary-font);
 						border-bottom-left-radius: 4px;
 					}
@@ -210,7 +210,7 @@
 				color: var(--primary-font);
 
 				/* Body/Body - 12 px */
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -226,7 +226,7 @@
 		.quickActionsButtons {
 			flex-shrink: 0;
 			border-radius: 100px;
-			background: var(--card-over-card);
+			background-color: var(--popup);
 			display: flex;
 			justify-content: center;
 			align-items: center;
@@ -259,7 +259,7 @@
 	.quick-action-upload-button {
 		width: 100%;
 		padding: 12px 16px;
-		background: var(--card-over-card);
+		background: var(--background-color);
 		border: 1px solid var(--stroke);
 		border-radius: 8px;
 		cursor: pointer;
@@ -278,7 +278,7 @@
 		}
 
 		&:hover {
-			background: var(--card-over-card-hover);
+			background: var(--card);
 			border-color: var(--stroke);
 			transform: translateY(-1px);
 		}

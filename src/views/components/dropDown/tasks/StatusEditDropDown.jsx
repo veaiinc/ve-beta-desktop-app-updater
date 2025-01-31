@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useState, useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { ReactComponent as ArrowLeftSvg } from '../../../../assets/svg/tasks/arrowLeft.svg';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
@@ -119,17 +119,32 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 		}
 	};
 
-	const handleAddClick = (group) => {
-		setInfo((prev) => ({
-			...prev,
-			addNewProperty: {
-				...prev.addNewProperty,
-				show: !prev.addNewProperty.show,
-				group,
-				label: '',
-			},
-		}));
-	};
+	const handleAddClick = useCallback((group) => {
+		setInfo((prev) => {
+			// If clicking same group, toggle visibility
+			if (prev.addNewProperty.group === group) {
+				return {
+					...prev,
+					addNewProperty: {
+						...prev.addNewProperty,
+						show: !prev.addNewProperty.show,
+						group,
+						label: '',
+					},
+				};
+			}
+
+			// If clicking different group, show input for that group
+			return {
+				...prev,
+				addNewProperty: {
+					show: true,
+					group,
+					label: '',
+				},
+			};
+		});
+	}, []);
 
 	const handleInputChange = (e) => {
 		setInfo((prev) => ({
@@ -189,7 +204,7 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 				}));
 
 				// Call API to add new status label
-				await addNewStatusLabel({
+				const response = await addNewStatusLabel({
 					input: {
 						color: '6',
 						group: info.addNewProperty.group,
@@ -197,17 +212,19 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 						order: order,
 					},
 				});
-
-				// Don't need to update state here as context will trigger a re-render
+				if (response?.[0]) {
+					message.success('Status added successfully');
+				} else {
+					throw new Error(response?.[1]?.[0]?.message);
+				}
 			} catch (error) {
-				// Revert the local state if API call fails
 				setInfo((prev) => ({
 					...prev,
 					[`${info.addNewProperty.group}Options`]: prev[
 						`${info.addNewProperty.group}Options`
 					].filter((status) => status._id !== newLabel),
 				}));
-				message.error('Failed to add new status label');
+				message.error(error?.message || 'Failed to add new status label');
 				console.error('Failed to add new status label:', error);
 			}
 		} else if (e.key === 'Escape') {
@@ -244,18 +261,21 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 			}));
 
 			// Call API to delete status
-			await deleteStatusLabel({
+			const response = await deleteStatusLabel({
 				labelId: status._id,
 			});
-
-			message.success('Status deleted successfully');
+			if (response?.[0]) {
+				message.success('Status deleted successfully');
+			} else {
+				throw new Error(response?.[1]?.[0]?.message);
+			}
 		} catch (error) {
 			// Revert the local state if API call fails
 			setInfo((prev) => ({
 				...prev,
 				[`${status.group}Options`]: [...prev[`${status.group}Options`], status],
 			}));
-			message.error('Failed to delete status');
+			message.error(error?.message || 'Failed to delete status');
 			console.error('Failed to delete status:', error);
 		}
 	};
@@ -271,12 +291,15 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 			}));
 
 			// Call API to update the status
-			await updateStatusLabel({
+			const response = await updateStatusLabel({
 				labelId: status._id,
 				input: updates,
 			});
-
-			message.success('Status updated successfully');
+			if (response?.[0]) {
+				message.success('Status updated successfully');
+			} else {
+				throw new Error(response?.[1]?.[0]?.message);
+			}
 		} catch (error) {
 			// Revert local state on error
 			setInfo((prev) => ({
@@ -285,7 +308,7 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 					item._id === status._id ? status : item,
 				),
 			}));
-			message.error('Failed to update status');
+			message.error(error?.message || 'Failed to update status');
 			console.error('Failed to update status:', error);
 		}
 	};

@@ -6,11 +6,11 @@
 	.notifications-container {
 		padding: 36px;
 		border-radius: 32px;
-		background: #171819;
+		background: var(--card);
 
 		.notifications-header-title {
-			color: #fff;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 24px;
 			font-style: normal;
 			font-weight: 500;
@@ -29,8 +29,8 @@
 				justify-content: center;
 				align-items: center;
 				gap: 4px;
-				color: var(--secondary-font-color-grey, #7c7c83);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -46,12 +46,12 @@
 			.table {
 				display: flex;
 				align-items: center;
-				color: white;
+				color: var(--primary-font);
 
 				.table-header {
 					margin-top: 32px;
-					color: var(--secondary-font-color-grey, #7c7c83);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -90,8 +90,8 @@
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					color: var(--Primary-Font-Color, #e8e8e8);
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;

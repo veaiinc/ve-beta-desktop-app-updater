@@ -15,7 +15,7 @@
 			}
 
 			.heading {
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 32px;
 				font-style: normal;
@@ -33,7 +33,7 @@
 				}
 			}
 			.description {
-				color: rgba(228, 229, 230, 0.32);
+				color: var(--secondary-font);
 				font-family: var(--primary-font-family);
 				font-size: 32px;
 				font-style: normal;
@@ -61,7 +61,7 @@
 				}
 				p {
 					width: 100%;
-					color: #e4e5e6;
+					color: var(--primary-font);
 					text-align: center;
 					font-family: var(--primary-font-family);
 					font-size: 14px;
@@ -100,7 +100,7 @@
 					border: 1px solid #222;
 					background: #111;
 
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
@@ -138,8 +138,8 @@
 				input {
 					display: flex;
 					width: 100%;
-					background: #111;
-					color: #e4e5e6;
+					background: var(--card);
+					color: var(--primary-font);
 					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
@@ -168,10 +168,10 @@
 				align-items: center;
 				gap: 10px;
 				border-radius: 20px;
-				background: #1c1c1c;
+				background: var(--card);
 				cursor: pointer;
 				p {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
@@ -193,7 +193,7 @@
 				margin: 0px 0px 16px;
 				cursor: pointer;
 				p {
-					color: #555;
+					color: var(--secondary-font);
 					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
@@ -212,7 +212,7 @@
 
 			.privacyPolicyContainer {
 				p {
-					color: #555;
+					color: var(--secondary-font);
 					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
@@ -242,7 +242,7 @@
 					font-weight: 400;
 					line-height: 19px;
 					text-align: right;
-					color: #cc5756;
+					color: var(--error);
 				}
 			}
 		}
@@ -255,7 +255,7 @@
 				line-height: 48px;
 				text-align: right;
 				margin: 0px;
-				color: #afafaf61;
+				color: var(--secondary-font);
 				span {
 					color: #6055ec;
 				}
@@ -270,7 +270,7 @@
 	margin-bottom: 12px;
 
 	label {
-		color: #e4e5e6;
+		color: var(--primary-font);
 		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
@@ -314,7 +314,7 @@
 		font-weight: 700;
 		line-height: 32px;
 		width: 100%;
-		color: #ffffff;
+		color: var(--primary-font);
 		text-align: left;
 		padding: 0 10%;
 	}
@@ -333,10 +333,10 @@
 			font-weight: 500;
 			line-height: 40px;
 			text-align: left;
-			color: #ffffff;
+			color: var(--primary-font);
 
 			padding: 10px 30px;
-			background: #d4d4d424;
+			background: var(--background-color);
 			border-radius: 41px;
 		}
 	}
@@ -421,5 +421,5 @@
 	font-weight: 400;
 	line-height: 19px;
 	text-align: right;
-	color: #cc5756;
+	color: var(--error);
 }

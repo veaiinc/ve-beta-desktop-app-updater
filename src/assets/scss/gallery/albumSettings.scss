@@ -386,7 +386,7 @@
 								align-items: center;
 								border-radius: 100px;
 								border: 1px solid #2f2f2f;
-								color: var(--white);
+								color: var(--primary-font);
 							}
 
 							svg {
@@ -433,7 +433,7 @@
 				cursor: pointer;
 			}
 			.activeLink {
-				color: var(accent-color);
+				color: var(--accent-color);
 			}
 		}
 	}

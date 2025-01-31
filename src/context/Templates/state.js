@@ -1,5 +1,6 @@
 import service from '../../services/graphQlServices';
 import { message } from 'antd';
+import { ReactComponent as AiSparkel } from '../../assets/svg/calendar/aiSparkel.svg';
 import {
 	getTemmplatesQuery,
 	duplicateTemplateQuery,
@@ -46,6 +47,8 @@ export const intialState = {
 	workflowslist: null,
 	moreWorkList: null,
 	clientList: null,
+	clientListForDocs: null,
+	templatesListForDocs: null,
 	allEmailTemplates: null,
 	myWorkflows: null,
 	myMoreWorkflows: null,
@@ -70,6 +73,9 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
+	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
+	docsFilesList: null,
+	moreDocsFilesList: null,
 };
 
 export const TemplatesState = (props) => {
@@ -137,7 +143,30 @@ export const TemplatesState = (props) => {
 
 			if (response?.[0]) {
 				dispatch({
-					type: Actions.GET_ALL_CLIENT_LIST_SUCCESS,
+					type: Actions?.GET_ALL_CLIENT_LIST_SUCCESS,
+					payload: response?.[1]?.data?.clientsList,
+				});
+			}
+		} catch (error) {
+			console.error('Error==>getClientList', error);
+		}
+	};
+
+	const getClientListForDocs = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getClientListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_ALL_CLIENT_LIST_FOR_DOCS_SUCCESS,
 					payload: response?.[1]?.data?.clientsList,
 				});
 			}
@@ -482,6 +511,36 @@ export const TemplatesState = (props) => {
 			});
 		} else {
 			console.log('api failed ==>getTemplatesListForCreateLead', response);
+		}
+	};
+
+	const getTemplatesListForDocs = async (page = 1, limit = 10) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const payload = {
+			filters: {
+				limit,
+				page,
+				type: 'workspace',
+				status: 'published',
+			},
+		};
+		const response = await service.query(
+			getTemplatesListForCreateLeadQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			dispatch({
+				type: Actions.GET_TEMPLATES_LIST_FOR_DOCS_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+			});
+		} else {
+			console.log('api failed ==>getTemplatesListForDocs', response);
 		}
 	};
 
@@ -1195,11 +1254,83 @@ export const TemplatesState = (props) => {
 		} catch (error) {}
 	};
 
+	const handleGlobalChatMessages = async (payload, sessionId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
+			const updatedGlobalChatMessages = [
+				{ type: 'user', message: payload?.query || '' },
+				{
+					type: 'AI',
+					message: 'loading....',
+					content: (
+						<div className="aiMessageWrapper">
+							<AiSparkel />
+							<div className="aiMessage">
+								<span>Thinking...</span>
+							</div>
+						</div>
+					),
+					contentType: 'loading',
+				},
+			];
+			dispatch({
+				type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
+				payload: updatedGlobalChatMessages,
+			});
+			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
+			if (response?.[0]) {
+				const updatedGlobalChatMessages = {
+					type: 'AI',
+					message: response?.[1]?.answer,
+				};
+				dispatch({
+					type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,
+					payload: updatedGlobalChatMessages,
+				});
+				return [true, response?.[1]];
+			}
+		} catch (error) {
+			console.log('errror ==>handleGlobalChatMessages', error);
+		}
+	};
+
+	//docs
+
+	const getDocsFilesList = async (payload, fetchMore = false) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getWorkflowListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const selectedvariable = fetchMore ? 'moreDocsFilesList' : 'docsFilesList';
+				dispatch({
+					type: Actions?.GET_DOCS_FILES_LIST_SUCCESS,
+					payload: response?.[1]?.data?.workflows,
+					selectedvariable,
+				});
+			} else {
+				console.log('Api failed==>getDocsFilesList', response);
+			}
+		} catch (error) {
+			console.log('error==>getDocsFilesList', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
 		resetTemplateState,
 		getClientList,
+		getClientListForDocs,
+		getTemplatesListForDocs,
 		updateStateValues,
 		getAllEmailTemplates,
 		addEmailTriggersInWorkflow,
@@ -1246,5 +1377,7 @@ export const TemplatesState = (props) => {
 		toggleCreateLeadModal,
 		smartFileAiChat,
 		uploadImageInSmartFileAi,
+		handleGlobalChatMessages,
+		getDocsFilesList,
 	};
 };

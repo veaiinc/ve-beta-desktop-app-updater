@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useContext, useState } from 'react';
 import { getInitials } from '../../../../helpers/index';
 import MySettingsChangePasword from '../../../features/settings/MySettingsChangePasword';
 import PhoneInput from 'react-phone-number-input';
@@ -9,12 +9,14 @@ import { ReactComponent as PencilkSvg } from '../../../../assets/svg/Settings/pe
 import UploadAvatarPopupComponent from './UploadAvatarPopup';
 import UploadFileProiflePopup from './UploadFileProiflePopup';
 import Cropper from 'react-easy-crop';
+import Context from '../../../../context/context';
 
 // profile details component
 const ProfileDetailsComponent = ({
+	fullNameRef,
 	userDetails,
 	errors,
-	handleChange,
+	handleUsernameAndPhoneNumberUpdate,
 	userDetailsData,
 	showForm,
 	updateProfileImage,
@@ -25,6 +27,9 @@ const ProfileDetailsComponent = ({
 	updateDpThemeHandler,
 }) => {
 	const [uploadAvatarPopup, setuploadAvatarPopup] = useState({ theme: false, file: false });
+	const {
+		themeInfo: { theme },
+	} = useContext(Context);
 
 	const handleImageChange = (acceptedFiles) => {
 		const file = acceptedFiles[0];
@@ -67,11 +72,7 @@ const ProfileDetailsComponent = ({
 									background: userDetails?.cropSettings?.profileDpColor || '',
 								}}
 							>
-								{getInitials(
-									userDetailsData?.firstName,
-
-									userDetailsData?.lastName,
-								)}
+								{getInitials(userDetailsData?.firstName, userDetailsData?.lastName)}
 							</div>
 						)}
 
@@ -105,11 +106,17 @@ const ProfileDetailsComponent = ({
 								<UserAccountSvg />
 
 								<input
+									ref={fullNameRef}
 									type="text"
-									placeholder={'Enter the Name'}
+									placeholder={'Enter Your Full Name'}
 									value={userDetails?.fullName}
 									name="fullName"
-									onChange={handleChange}
+									onChange={(e) =>
+										handleUsernameAndPhoneNumberUpdate({
+											type: 'fullName',
+											value: e?.target?.value,
+										})
+									}
 									required
 								/>
 							</div>
@@ -123,8 +130,11 @@ const ProfileDetailsComponent = ({
 									placeholder={'Enter Phone Number'}
 									value={userDetails?.phoneNumber || ''}
 									name="phoneNumber"
-									onChange={(e) =>
-										handleChange({ target: { name: 'phoneNumber', value: e } })
+									onChange={(phoneNumber) =>
+										handleUsernameAndPhoneNumberUpdate({
+											type: 'phoneNumber',
+											value: phoneNumber,
+										})
 									}
 								/>
 							</div>

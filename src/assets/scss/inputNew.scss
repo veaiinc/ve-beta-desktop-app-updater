@@ -12,7 +12,7 @@
 		font-weight: 600;
 		font-size: 13px;
 		line-height: 20px;
-		color: #e4e5e6;
+		color: var(--primary-font);
 	}
 	.sl-input {
 		box-sizing: border-box;
@@ -22,8 +22,8 @@
 		padding: 8px;
 		gap: 10px;
 		width: 100%;
-		background-color: rgba(68, 68, 68, 1);
-		border: 1px solid rgba(68, 68, 68, 1);
+		background-color: var(--card);
+		border: 1px solid var(--stroke);
 		border-radius: 2px;
 		transition: all 0.3s ease;
 		input {
@@ -32,7 +32,7 @@
 			font-weight: 400;
 			font-size: 16px;
 			line-height: 24px;
-			color: #e4e5e6;
+			color: var--primary-font;
 			width: 100%;
 			border: none;
 			background: transparent;
@@ -44,19 +44,19 @@
 			font-weight: 300;
 			font-size: 13px;
 			line-height: 24px;
-			color: #707070;
+			color: var(--secondary-font);
 		}
 		input:-webkit-autofill,
 		input:-webkit-autofill:hover,
 		input:-webkit-autofill:focus,
 		input:-webkit-autofill:active,
 		input:-internal-autofill-selected {
-			caret-color: #fff !important;
+			caret-color: var(--primary-font) !important;
 			-webkit-box-shadow: none !important;
 			background-color: transparent !important;
 
-			color: #e4e5e6 !important;
-			-webkit-text-fill-color: #e4e5e6 !important;
+			color: var(--primary-font) !important;
+			-webkit-text-fill-color: var(--primary-font) !important;
 			-webkit-background-clip: text !important;
 			background-clip: text !important;
 		}
@@ -66,7 +66,7 @@
 			font-weight: 300;
 			font-size: 14px;
 			line-height: 24px;
-			color: #ffffff;
+			color: var(--primary-font);
 		}
 		.sl-input-icn {
 			width: 24px;
@@ -103,7 +103,7 @@
 		font-weight: 300;
 		font-size: 14px;
 		line-height: 24px;
-		color: #ec4740;
+		color: var(--error);
 		display: none;
 		text-align: center;
 	}
@@ -111,7 +111,7 @@
 
 .sl-input-container.sl-error-input {
 	.sl-input {
-		border-color: #ec4740;
+		border-color: var(--error);
 	}
 	.sl-error-input-text {
 		display: block;

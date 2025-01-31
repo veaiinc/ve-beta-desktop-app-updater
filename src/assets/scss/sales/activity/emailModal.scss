@@ -2,7 +2,7 @@
 	height: 100%;
 	display: flex;
 	padding: 10px;
-	color: #e4e5e6;
+	color: var(--primary-font);
 
 	.innerContainer {
 		display: flex;
@@ -13,8 +13,8 @@
 		align-self: stretch;
 		padding: 24px 32px;
 		border-radius: 32px;
-		border: 1px solid #1f1f1f;
-		background: #151515;
+		border: 1px solid var(--stroke);
+		background: var(--card);
 
 		.headerContainer {
 			display: flex;
@@ -22,7 +22,7 @@
 			justify-content: space-between;
 			align-items: center;
 			align-self: stretch;
-			border-bottom: 1px solid #272727;
+			border-bottom: 1px solid var(--stroke);
 
 			.headerInfo {
 				display: flex;
@@ -39,7 +39,7 @@
 					align-self: stretch;
 
 					.logoText {
-						color: #7d7d7d;
+						color: var(--secondary-font);
 						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
@@ -110,7 +110,7 @@
 						align-items: center;
 						gap: 10px;
 
-						color: #929292;
+						color: var(--secondary-font);
 						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
@@ -124,7 +124,7 @@
 						gap: 8px;
 						flex: 1 0 0;
 
-						color: #e4e5e6;
+						color: var(--primary-font);
 						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
@@ -133,7 +133,7 @@
 						letter-spacing: -0.24px;
 
 						.emailAddress {
-							color: #929292;
+							color: var(--secondary-font);
 							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
@@ -159,7 +159,7 @@
 				gap: 10px;
 				align-self: stretch;
 
-				color: #b0b0b0;
+				color: var(--secondary-font);
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
@@ -169,7 +169,7 @@
 
 			.subjectDesc {
 				align-self: stretch;
-				color: #e4e5e6;
+				color: var(--secondary-font);
 				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
@@ -191,7 +191,7 @@
 				gap: 10px;
 				align-self: stretch;
 
-				color: #b0b0b0;
+				color: var(--secondary-font);
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
@@ -207,9 +207,9 @@
 				gap: 10px;
 				align-self: stretch;
 				border-radius: 8px;
-				background: #fff;
+				background: var(--card);
 
-				color: #1d1d1d;
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;

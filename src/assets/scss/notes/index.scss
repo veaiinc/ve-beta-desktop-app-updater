@@ -2,7 +2,7 @@
 	display: flex;
 	align-items: center;
 	gap: 0.25rem;
-	background: white;
+	background: var(--background-color);
 	padding: 0.5rem;
 	border-radius: 0.5rem;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -12,9 +12,9 @@
 		align-items: center;
 		justify-content: center;
 		padding: 0.25rem 0.5rem;
-		border: 1px solid #ddd;
+		border: 1px solid var(--stroke);
 		border-radius: 0.25rem;
-		background: white;
+		background: var(--background-color);
 		cursor: pointer;
 		font-size: 0.875rem;
 		color: #4b5563;
@@ -22,19 +22,19 @@
 		height: 28px;
 
 		&.is-active {
-			background: #e9ecef;
-			color: #111827;
+			background: var(--background-color);
+			color: var(--primary-font);
 		}
 
 		&:hover {
-			background: #f8f9fa;
+			background: var(--card);
 		}
 	}
 
 	.divider {
 		width: 1px;
 		height: 24px;
-		background: #e2e8f0;
+		background: var(--card);
 		margin: 0 0.25rem;
 	}
 }
@@ -69,7 +69,7 @@
 		.color-picker-label {
 			display: block;
 			font-size: 0.75rem;
-			color: #6b7280;
+			color: var(--secondary-font);
 			margin-bottom: 0.5rem;
 		}
 
@@ -149,7 +149,7 @@
 		outline: none;
 
 		p.is-empty::before {
-			color: #adb5bd;
+			color: var(--secondary-font);
 			content: attr(data-placeholder);
 			float: left;
 			height: 0;
@@ -160,7 +160,7 @@
 		h1.is-empty::before,
 		h2.is-empty::before,
 		h3.is-empty::before {
-			color: #adb5bd;
+			color: var(--secondary-font);
 			content: attr(data-placeholder);
 			float: left;
 			height: 0;

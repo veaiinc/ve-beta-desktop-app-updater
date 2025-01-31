@@ -44,6 +44,23 @@ const SessionActivityModal = ({
 		currentSessionId: selectedViewer?.sessionIds[0] || null,
 	});
 
+	useEffect(() => {
+		if (selectedViewer) {
+			setInfo((prev) => ({
+				...prev,
+				sessionIds: selectedViewer?.sessionIds || [],
+				totalSessions: (selectedViewer?.sessionIds || []).length,
+				currentSessionId: selectedViewer?.sessionIds[0] || null,
+			}));
+		}
+	}, [selectedViewer]);
+
+	useEffect(() => {
+		if (info?.currentSessionId) {
+			fetchViewersSessionDetails();
+		}
+	}, [info?.currentSessionId, selectedViewer]);
+
 	//API call getSessionSummary ===>
 	const fetchViewersSessionDetails = useCallback(async () => {
 		if (
@@ -52,18 +69,12 @@ const SessionActivityModal = ({
 		) {
 			setInfo((prevInfo) => ({ ...prevInfo, isLoading: true }));
 			await getViewersSessionDetails({
-				workflowId,
+				workflowId: workflowId || workflowData?._id,
 				getSessionSummaryId: info?.currentSessionId,
 			});
 			setInfo((prevInfo) => ({ ...prevInfo, isLoading: false }));
 		}
-	}, [info?.currentSessionId, workflowId]);
-
-	useEffect(() => {
-		if (info?.currentSessionId) {
-			fetchViewersSessionDetails();
-		}
-	}, [info?.currentSessionId, selectedViewer]);
+	}, [info?.currentSessionId, workflowId, workflowData]);
 
 	//Handle Session Next Session ===>
 	const handleNextSession = () => {
@@ -116,10 +127,6 @@ const SessionActivityModal = ({
 		const millisecs = String(milliseconds % 1000).padStart(1, '0');
 		return `${hours}:${minutes}:${secs}.${millisecs}`;
 	}, []);
-
-	const capitalizeWords = (string) => {
-		return string.replace(/\b\w/g, (char) => char.toUpperCase());
-	};
 
 	const componentMapper = useMemo(() => {
 		return {
@@ -192,8 +199,12 @@ const SessionActivityModal = ({
 											<ActivitySvg />
 											<span className="logoText">Session Activity</span>
 										</div>
-										<span className="headerTitle">
-											{capitalizeWords(workflowData?.name || '')} - Smart File
+										<span
+											className="headerTitle"
+											style={{ textTransform: 'capitalize' }}
+										>
+											{workflowData?.name || workflowData?.title || ''} -
+											Smart File
 										</span>
 									</div>
 									<div className="closeBtn" onClick={showDrawer}>

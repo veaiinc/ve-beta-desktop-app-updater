@@ -37,6 +37,7 @@ export const ActivityState = (props) => {
 			} else {
 				console.log('API failed ==> getSmartFileActivity', response);
 			}
+			return response;
 		} catch (error) {
 			console.log('API Error ==> getSmartFileActivity', error);
 		}
@@ -62,6 +63,7 @@ export const ActivityState = (props) => {
 			} else {
 				console.log('API failed ==> getSmartFileViewers', response);
 			}
+			return response;
 		} catch (error) {
 			console.log('API Error ==> getSmartFileViewers', error);
 		}

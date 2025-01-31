@@ -20,6 +20,7 @@ const initialState = {
 	isEventCreated: false,
 	updateEventsList: false,
 	selectedEvent: null,
+	categoryBasedEventsList: [],
 };
 
 const CalendarView = ({
@@ -101,6 +102,27 @@ const CalendarView = ({
 			}));
 		}
 	}, [calendarEventsList]);
+
+	useEffect(() => {
+		// Filter events based on categoryFilter
+		const defaultCategory = categoryList?.find(
+			(cat) =>
+				cat?.name?.toLowerCase() === 'default' || cat?.type?.toLowerCase() === 'default',
+		)?._id;
+
+		// If default category is selected, show all events
+		if (categoryFilter?.includes(defaultCategory)) {
+			setInfo((prev) => ({ ...prev, categoryBasedEventsList: info?.eventsList }));
+			return;
+		}
+
+		// Otherwise filter events based on selected categories
+		const filteredEvents = info?.eventsList?.filter((event) => {
+			const eventCategory = event?.calendarCategory;
+			return categoryFilter?.includes(eventCategory?._id);
+		});
+		setInfo((prev) => ({ ...prev, categoryBasedEventsList: filteredEvents }));
+	}, [categoryFilter, info?.eventsList, categoryList]);
 
 	const handleSendEventToAi = useCallback(async () => {
 		if (calendarEvent?._id) {
@@ -190,7 +212,8 @@ const CalendarView = ({
 				<div className="calendarViewParentContainer">
 					<div className="scheduler">
 						<CalendarWrapper
-							events={info?.eventsList || []}
+							// events={info?.eventsList || []}
+							events={info?.categoryBasedEventsList || []}
 							defaultView={'month'}
 							views={['month', 'week', 'day']}
 							toolbar={true}
@@ -201,6 +224,7 @@ const CalendarView = ({
 							date={selectedDate}
 							popup
 							components={components}
+							allDayMaxRows={1}
 							// showAllEvents={true}
 						/>
 					</div>
