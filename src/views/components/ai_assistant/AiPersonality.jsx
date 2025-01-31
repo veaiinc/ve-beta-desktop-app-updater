@@ -81,7 +81,7 @@ const ProgressCircles = () => (
 
 const AiPersonality = ({ assistant, updateAssistantData }) => {
 	const {
-		aiSetup: { uploadFile, removeFile },
+		aiSetup: { uploadFile, removeFile, getActiveAiAssistantDetails },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		voiceOptions: [],
@@ -219,16 +219,17 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 			const response = await removeFile(assistant?._id, type);
 			if (response?.[0]) {
 				updateAiPersonalityInfo(`${type}Loading`, false);
-				updateAssistantData(
+				updateAiPersonalityInfo(
 					`assitant_${type === 'profile' ? 'profile_picture' : 'chat_icon'}_s3Key`,
 					null,
 				);
+				getActiveAiAssistantDetails(assistant?._id);
 			} else {
 				message.error('Failed to remove image. Please try again.');
 			}
 			updateAiPersonalityInfo(`${type}Loading`, false);
 		},
-		[removeFile],
+		[updateAiPersonalityInfo, removeFile, assistant?._id, getActiveAiAssistantDetails],
 	);
 
 	const handleUploadImage = useCallback(
@@ -252,10 +253,11 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 						assitant_chat_icon_s3Key: URL.createObjectURL(file),
 					}));
 				}
+				// getActiveAiAssistantDetails(assistant?._id);
 			}
 			updateAiPersonalityInfo(`${type}Loading`, false);
 		},
-		[assistant?._id, updateAiPersonalityInfo, uploadFile],
+		[assistant?._id, getActiveAiAssistantDetails, updateAiPersonalityInfo, uploadFile],
 	);
 
 	return (
@@ -407,7 +409,9 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 								}
 								alt="profile"
 							/>
-						) : null}
+						) : (
+							<span className="noImage">Ai</span>
+						)}
 						<input
 							type="file"
 							ref={profilePictureRef}
@@ -490,7 +494,9 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 								}
 								alt="profile"
 							/>
-						) : null}
+						) : (
+							<span className="noImage">Ai</span>
+						)}
 						<input
 							type="file"
 							ref={chatIconRef}
