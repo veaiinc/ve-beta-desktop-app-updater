@@ -4,9 +4,10 @@ import ListViewHeader from './listView/ListViewHeader';
 import { ReactComponent as ListViewIcon } from '../../../assets/svg/tasks/list.svg';
 import { ReactComponent as BoardViewIcon } from '../../../assets/svg/tasks/board.svg';
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
+import { ReactComponent as GalleryViewIcon } from '../../../assets/svg/tasks/blocks.svg';
 import ListView from './views/ListView';
 // import BoardView from './views/BoardView';
-
+import GalleryView from './views/GalleryView';
 import TableView from './views/TableView';
 import TabDropDown from '../dropDown/tasks/TabDropDown';
 
@@ -22,6 +23,10 @@ const layouts = {
 	table: {
 		Icon: TableViewIcon,
 		label: 'Table',
+	},
+	gallery: {
+		Icon: GalleryViewIcon,
+		label: 'Gallery',
 	},
 };
 const layoutOptions = [
@@ -39,10 +44,11 @@ const layoutOptions = [
 		label: 'Table',
 		Icon: TableViewIcon,
 	},
-	// {
-	// 	value: 'gallery',
-	// 	label: 'Gallery',
-	// },
+	{
+		value: 'gallery',
+		label: 'Gallery',
+		Icon: GalleryViewIcon,
+	},
 ];
 
 const Task = ({
@@ -69,9 +75,9 @@ const Task = ({
 		tabs: {
 			1: {
 				_id: '1',
-				view: 'list',
-				label: 'List',
-				Icon: layouts?.['list']?.Icon,
+				view: 'gallery',
+				label: 'Gallery',
+				Icon: layouts?.['gallery']?.Icon,
 				filters: [],
 				sort: [],
 				order: 0,
@@ -197,6 +203,7 @@ const Task = ({
 				list: ListView,
 				// board: BoardView,
 				table: TableView,
+				gallery: GalleryView,
 			};
 			const Component = views?.[view] || ListView;
 			return (
@@ -213,6 +220,7 @@ const Task = ({
 					handleRowClick={handleRowClick}
 					hasMore={hasMore}
 					error={error}
+					handleAddButtonOnClick={handleAddButtonOnClick}
 				/>
 			);
 		},

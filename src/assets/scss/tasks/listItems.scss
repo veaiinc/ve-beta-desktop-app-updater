@@ -51,11 +51,11 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
-	align-self: center;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	padding: 10px 0;
+	width: fit-content;
 }
 .listItem-select {
 	position: relative;
