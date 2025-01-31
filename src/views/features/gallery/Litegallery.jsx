@@ -381,14 +381,9 @@ const LiteGallery = () => {
 													}`}</p>
 													<p className="dot"></p>
 													<p className="album-count">{`${
-														items?.storageDetails
-															?.imagesCountWithVersions
-															? items?.storageDetails
-																	?.imagesCountWithVersions
-															: 0
+														items?.storageDetails?.imagesCount
 													} ${
-														items?.storageDetails
-															?.imagesCountWithVersions > 1
+														items?.storageDetails?.imagesCount > 1
 															? 'Photos'
 															: 'Photo'
 													}`}</p>
